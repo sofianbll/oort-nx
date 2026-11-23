@@ -1225,7 +1225,7 @@ def main():
                 f'public static let profile = AppDataProfile(home: URL(fileURLWithPath: "{temp}"), isDevelopment: true)')
         replace(package / "Sources/NXLibraryCore/App/AppDataProfile.swift",
                 r'public static var preferences: UserDefaults \{ \.standard \}',
-                f'public static let preferences = UserDefaults(suiteName: "local.arcane.{package.name}")!')
+                'public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
         replace(app / "Views/Shell/MenuOverlayView.swift", r"var presented = false", "var presented = true")
         activity = app / "Views/Shell/ActivityCenterView.swift"
         replace(activity, r"                ScrollViewReader \{ scroll in\n                    ScrollView \{\n", "")

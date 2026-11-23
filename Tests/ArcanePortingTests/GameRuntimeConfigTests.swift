@@ -11,15 +11,15 @@ final class GameRuntimeConfigTests: XCTestCase {
         try "DM_FPS_TARGET=30\nDM_LANG=it\nDM_RENDER_SCALE=0.75\n".write(to: env, atomically: true, encoding: .utf8)
         let game = PortedGame(name: "Game", url: root.appendingPathComponent("Game.app"), platform: .macApp,
                               sizeBytes: 1, modificationDate: Date())
-        defer { UserDefaults.standard.removeObject(forKey: GameRuntimeConfig.storageKey(for: game)) }
+        let prefs = try XCTUnwrap(UserDefaults(suiteName: root.appendingPathComponent("test-preferences").path))
         let defaults = GameRuntimeConfig(language: "ja")
-        var review = GameRuntimeConfig.forReview(existing: game, defaults: defaults)
+        var review = GameRuntimeConfig.forReview(existing: game, defaults: defaults, preferences: prefs)
         XCTAssertEqual(review.language, "it")
         XCTAssertEqual(review.fpsTarget, 30)
         XCTAssertEqual(review.renderScale, 0.75)
         review.language = "fr"
-        try review.save(for: game)
-        XCTAssertEqual(GameRuntimeConfig.forReview(existing: game, defaults: defaults).language, "fr")
+        try review.save(for: game, baseDirectory: root, preferences: prefs)
+        XCTAssertEqual(GameRuntimeConfig.forReview(existing: game, defaults: defaults, preferences: prefs).language, "fr")
         XCTAssertEqual(defaults.language, "ja", "Review does not edit the new-game defaults")
     }
 
@@ -73,12 +73,11 @@ final class GameRuntimeConfigTests: XCTestCase {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("NXRuntimeFailure-\(UUID())")
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: root) }
-        let prefs = try XCTUnwrap(UserDefaults(suiteName: "NXRuntimeFailure-\(UUID())"))
+        let prefs = try XCTUnwrap(UserDefaults(suiteName: root.appendingPathComponent("test-preferences").path))
         let game = PortedGame(name: "Fixture", url: root.appendingPathComponent("Game.app"),
                               platform: .macApp, sizeBytes: 0, modificationDate: Date(), titleId: "0100000000000001")
         let previous = try JSONEncoder().encode(GameRuntimeConfig(language: "it"))
         prefs.set(previous, forKey: GameRuntimeConfig.storageKey(for: game))
-        defer { prefs.removeObject(forKey: GameRuntimeConfig.storageKey(for: game)) }
         let blocked = root.appendingPathComponent("not-a-directory")
         try Data([1]).write(to: blocked)
         XCTAssertThrowsError(try GameRuntimeConfig(language: "ja").save(for: game, baseDirectory: blocked, preferences: prefs))

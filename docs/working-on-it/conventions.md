@@ -150,6 +150,7 @@ Esempi: `BoundedDownload`, `GameBananaClient`, `IGDBClient`, `SteamMetadataServi
 
 - Prima il test che fallisce, poi il codice (TDD). Per un bug: prima la causa, poi un test che la riproduce.
 - I dati sono sintetici, in cartelle temporanee, con dipendenze sostituibili: `CommandRunning`, trasporti di rete iniettati, `SaveTestHome`, `SteamTestSupport`, `CatalogTestSupport`. Niente file reali dell'utente, niente chiavi o ROM.
+- Per `UserDefaults`, passa il percorso assoluto del file senza `.plist` come `suiteName`, dentro la cartella temporanea già rimossa dalla fixture (esempio: `LocalAchievementTests`). Un nome di dominio univoco non isola la scrittura.
 - Si prova il comportamento, non il mock.
 - La build di release compila senza warning: un warning nuovo si risolve nello stesso commit che lo introduce.
 - Comandi in [development.md](development.md#verification). I test non sostituiscono la validazione del maintainer.

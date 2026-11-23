@@ -64,9 +64,7 @@ final class NXNativeGameSettingsTests: XCTestCase {
                                                     withIntermediateDirectories: true)
             try Data(env.utf8).write(to: support.appendingPathComponent("\(titleID)/env.txt"))
         }
-        let suite = "NXSettingsTests-\(UUID().uuidString)"
-        let preferences = UserDefaults(suiteName: suite)!
-        addTeardownBlock { preferences.removePersistentDomain(forName: suite) }
+        let preferences = try XCTUnwrap(UserDefaults(suiteName: root.appendingPathComponent("test-preferences").path))
         let game = PortedGame(name: "Donkey Kong Bananza", url: app, platform: .macApp, sizeBytes: 1,
                               modificationDate: Date(), titleId: titleID)
         return Fixture(game: game, support: support, store: MemorySavedChoices(), preferences: preferences)

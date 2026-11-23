@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Exercise the real setup persistence and notification request sites without windows.
 
-Only the surrounding app and notification transport are substituted. Preferences
-use a unique synthetic domain; no player profile or game data is read.
+Only the surrounding app and notification transport are substituted. The plist
+lives in the probe's temporary directory; no player profile or game data is read.
 """
 from pathlib import Path
 import os
@@ -54,7 +54,7 @@ import NXLibraryCore
 import ArcanePorting
 
 enum AppData {
-    static let domain = "local.nxlibrary.validation." + UUID().uuidString
+    static let domain = CommandLine.arguments[1]
     static let preferences = UserDefaults(suiteName: domain)!
 }
 enum NotificationRegistration { static var registered = false }
@@ -141,7 +141,6 @@ var failures = 0
 func require(_ ok: @autoclosure () -> Bool, _ message: String) {
     if !ok() { failures += 1; print("FAIL: " + message) }
 }
-defer { AppData.preferences.removePersistentDomain(forName: AppData.domain) }
 let initialBoot = Host()
 require(NotificationRegistration.registered, "Startup registers notification click handling without requesting authorization")
 for value in [true, false] {
@@ -149,6 +148,8 @@ for value in [true, false] {
     let before = Host()
     before.choose(value)
     before.openPorting()
+    require(AppData.preferences.synchronize(), "Preferences sync to the probe plist")
+    require(FileManager.default.fileExists(atPath: AppData.domain + ".plist"), "The plist stays in the probe directory")
     let resumed = Host()
     require(resumed.firstRunSetup.steamChoice == value, "Steam choice survives quit: \\(value)")
     require(resumed.firstRunSetup.page == .requirements, "Porting page survives quit")
@@ -227,4 +228,5 @@ with tempfile.TemporaryDirectory(prefix='arcane-onboarding-check-') as scratch:
     library = ROOT / '.build/debug'
     subprocess.run(['xcrun', 'swiftc', '-I', str(library), str(main),
                     str(library / 'NXLibraryCore.o'), str(library / 'ArcanePorting.o'), '-o', str(binary)], check=True)
-    subprocess.run([str(binary)], env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(library)), check=True)
+    subprocess.run([str(binary), str(scratch / 'test-preferences')],
+                   env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(library)), check=True)

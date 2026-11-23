@@ -981,6 +981,7 @@ Nel repository, `.build/` contiene gli output SwiftPM, `work/Runtime` il runtime
 
 **Test.**
 - La suite Core usa fixture sintetiche, cartelle temporanee, runner e confini I/O sostituibili. Copre modelli, persistenza, sorgenti, chiavi, contratti CLI, processi, installazione, lancio, stato della UI, artwork, cheat e transazioni dei salvataggi. Il [catalogo dei test](../working-on-it/file-map.md#test-e-fixture) indica la responsabilità di ogni file.
+- I test XCTest e i probe che scrivono in `UserDefaults` usano come suite il percorso assoluto di un plist nella propria fixture temporanea. La rimozione della fixture basta anche se il probe termina prima del cleanup Swift; non si rimuovono domini da `~/Library/Preferences`.
 - `run_nup_programs.py` verifica i convertitori reali UI/persistenza e gli argomenti NUP; con uno snapshot
   immutabile dell’engine verifica anche il probe Python su un contenitore sintetico. `run_save_restart.py`
   arresta e riavvia processi distinti nei checkpoint di sostituzione e recovery, conservando backup e

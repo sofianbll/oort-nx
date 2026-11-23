@@ -478,9 +478,7 @@ final class AppUpdateTests: XCTestCase {
     }
 
     func testRepositoryOverride() throws {
-        let suite = "AppUpdateTests-\(UUID().uuidString)"
-        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
-        defer { defaults.removePersistentDomain(forName: suite) }
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: dir.appendingPathComponent("test-preferences").path))
         XCTAssertEqual(AppUpdate.repository(defaults: defaults), AppUpdate.defaultRepository)
         defaults.set("someone/NXLibrary", forKey: AppUpdate.repositoryOverrideKey)
         XCTAssertEqual(AppUpdate.repository(defaults: defaults), "someone/NXLibrary")

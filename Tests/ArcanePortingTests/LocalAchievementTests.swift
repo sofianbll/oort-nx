@@ -11,9 +11,10 @@ final class LocalAchievementTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: root) }
         let first = root.appendingPathComponent("savedata0.bin")
         let second = root.appendingPathComponent("savedata1.bin")
-        let suite = "arcane-local-achievement-tests-\(UUID())"
+        // An absolute suite path keeps Foundation's plist inside the fixture.
+        let preferencesFile = root.appendingPathComponent("test-preferences")
+        let suite = preferencesFile.path
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
-        defer { defaults.removePersistentDomain(forName: suite) }
         let store = LocalAchievementStore(defaults: defaults)
         let player = UUID(), other = UUID()
         let cases: [(Int, Int, [String])] = [
@@ -36,6 +37,8 @@ final class LocalAchievementTests: XCTestCase {
             XCTAssertEqual(try Data(contentsOf: first), original)
             XCTAssertEqual(try first.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate, before)
         }
+        XCTAssertTrue(defaults.synchronize())
+        XCTAssertTrue(FileManager.default.fileExists(atPath: preferencesFile.appendingPathExtension("plist").path))
         let reopened = LocalAchievementStore(defaults: try XCTUnwrap(UserDefaults(suiteName: suite)))
         let progress = try XCTUnwrap(reopened.progress(for: pack, profile: player))
         XCTAssertEqual(progress.counts[.seashells], 30)

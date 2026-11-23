@@ -363,9 +363,14 @@ extension CloudScreenProbe {
             try fm.createDirectory(at: directory, withIntermediateDirectories: true)
         }
         try Data("[fixture]\ntype = alias\nremote = :local:\(shared.path)\n".utf8).write(to: config)
-        let backend = RcloneStorageBackend(remote: ":local:", root: remote.path, config: config)
-        let referenceWrite = RcloneStorageBackend(remote: ":local:", root: shared.path, config: config)
-        let referenceRead = RcloneStorageBackend(remote: "fixture", root: "", config: config).reference(folderID: "1-fixture")!
+        let rclone = RcloneStorageBackend.findExecutable()!
+        // Exercise real local transfers without starting an RC daemon the probe could leave behind.
+        let run: RcloneConfiguration.Run = { _, args, _ in
+            try await SystemCommandRunner().runCancellable(rclone, args + ["--config", config.path], environment: [:])
+        }
+        let backend = RcloneStorageBackend(remote: ":local:", root: remote.path, run: run)
+        let referenceWrite = RcloneStorageBackend(remote: ":local:", root: shared.path, run: run)
+        let referenceRead = RcloneStorageBackend(remote: "fixture", root: "", run: run).reference(folderID: "1-fixture")!
         let plist = app.appendingPathComponent("Contents/Info.plist")
         func sign(_ version: String) throws {
             let info: [String: String] = ["CFBundleIdentifier": bundleID, "CFBundleExecutable": "Fixture",
@@ -442,10 +447,9 @@ extension CloudScreenProbe {
 
         // Personal download: the running process can be a Finder copy elsewhere, while this path is absent.
         try fm.removeItem(at: app)
-        let rclone = RcloneStorageBackend.findExecutable()!
         let offline = RcloneStorageBackend(remote: ":local:", root: remote.path) { _, args, _ in
             if args.first == "copy" { return .init(status: 1, stdout: "", stderr: "connection reset") }
-            return try await SystemCommandRunner().runCancellable(rclone, args + ["--config", config.path], environment: nil)
+            return try await run(rclone, args, [:])
         }
         vm.cloudLibrary.installScreenArchives(offline)
         vm.cloudLibrary.update(game.id) { $0.copies[.app] = .screenFixture(.cloudOnly) }
@@ -767,7 +771,7 @@ def main():
                f'public static let profile = AppDataProfile(home: URL(fileURLWithPath: "{temp}"), isDevelopment: true)')
         change(package / "Sources/NXLibraryCore/App/AppDataProfile.swift",
                r'public static var preferences: UserDefaults \{ \.standard \}',
-               'public static let preferences = UserDefaults(suiteName: "local.arcane.screen-probe-' + package.name + '")!')
+               'public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
         change(app / "ViewModels/AppViewModel+CloudLibrary.swift",
                r'        let defaults = AppData\.preferences.*?(?=        rebuildArchive\(\))',
                '        preference = .init(storage: "fixture:Games", enabled: true, sourcesRoot: nil)\n'

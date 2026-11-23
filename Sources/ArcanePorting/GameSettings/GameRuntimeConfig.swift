@@ -103,16 +103,17 @@ public struct GameRuntimeConfig: Codable, Equatable {
         language == "auto" || language.isEmpty ? nil : language
     }
 
-    public static func forReview(existing game: PortedGame?, defaults: GameRuntimeConfig) -> GameRuntimeConfig {
-        game.map { load(for: $0) } ?? defaults
+    public static func forReview(existing game: PortedGame?, defaults: GameRuntimeConfig,
+                                 preferences: UserDefaults = AppData.preferences) -> GameRuntimeConfig {
+        game.map { load(for: $0, preferences: preferences) } ?? defaults
     }
 
     public static func storageKey(for game: PortedGame) -> String {
         "NXNative_GameConfig_" + game.uniqueKey
     }
 
-    public static func load(for game: PortedGame) -> GameRuntimeConfig {
-        if let data = AppData.preferences.data(forKey: storageKey(for: game)),
+    public static func load(for game: PortedGame, preferences: UserDefaults = AppData.preferences) -> GameRuntimeConfig {
+        if let data = preferences.data(forKey: storageKey(for: game)),
            let config = try? JSONDecoder().decode(GameRuntimeConfig.self, from: data) {
             return config
         }
