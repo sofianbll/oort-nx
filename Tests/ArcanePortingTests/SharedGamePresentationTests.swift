@@ -49,6 +49,17 @@ final class SharedGamePresentationTests: XCTestCase {
         }
     }
 
+    func testPlayRequiresAnEnabledSourceAndOneUsableInstallation() {
+        var steam = SteamCatalogGame(appID: 42, name: "Fixture")
+        steam.hasBeenRecognized = true
+        XCTAssertNil(CatalogGamePresentation(game: .init(steam: steam), sourceEnabled: true).launchTarget)
+        steam.installations = [installation("First", availability: .available, size: 1)]
+        XCTAssertEqual(CatalogGamePresentation(game: .init(steam: steam), sourceEnabled: true).launchTarget, .steam(appID: 42))
+        XCTAssertNil(CatalogGamePresentation(game: .init(steam: steam), sourceEnabled: false).launchTarget)
+        steam.installations.append(installation("Second", availability: .available, size: 1))
+        XCTAssertNil(CatalogGamePresentation(game: .init(steam: steam), sourceEnabled: true).launchTarget)
+    }
+
     func testSteamPresentationKeepsIdentityPersonalOverridesAndHistory() throws {
         let body = Data("""
         {"10":{"success":true,"data":{"steam_appid":10,"short_description":"Store text","genres":[{"description":"Strategy"}],"publishers":["Studio"],"release_date":{"date":"23 mag 2023"}}}}

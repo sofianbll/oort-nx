@@ -556,6 +556,39 @@ import ArcanePorting
             GameOptionsView(viewModel: vm, game: game, origin: .details,
                             onClose: {}, onShowBuild: {}, onMove: {})
         }, in: out, refs, "screenshots/game-options.png")
+        let steamLibrary = data.appendingPathComponent("Steam")
+        let steamContent = steamLibrary.appendingPathComponent("steamapps/common/Fixture")
+        let steamApp = steamContent.appendingPathComponent("Fixture.app")
+        let application = try JSONDecoder().decode(CatalogNativeApplication.self, from: JSONSerialization.data(withJSONObject: [
+            "url": steamApp.absoluteString, "executableURL": steamApp.appendingPathComponent("Contents/MacOS/Fixture").absoluteString,
+            "bundleIdentifier": "test.arcane.fixture", "name": "Fixture", "architectures": ["arm64"], "isDeclaredGame": true
+        ]))
+        var steam = SteamCatalogGame(appID: 42, name: "Solar Observatory")
+        steam.hasBeenRecognized = true
+        steam.installations = [.init(libraryURL: steamLibrary, contentURL: steamContent,
+                                     applications: [application], availability: .available)]
+        let steamGame = CatalogGame(steam: steam)
+        let steamCatalog = CatalogDocument(sources: [.init(integration: .steam, isEnabled: true)], games: [steamGame])
+        SteamPlayCoordinator.shared.setGames(steamCatalog.games, sources: steamCatalog.sources)
+        vm.applyCatalog(steamCatalog)
+        vm.librarySelection.query.filter = .all
+        vm.librarySelection.selectedGameID = steamGame.id
+        vm.spotlight.selectedKey = SpotlightItem.game(steamGame.id).key
+        try render("play-steam-spotlight", ZStack {
+            SeleneBackdrop().still(true)
+            SpotlightView(viewModel: vm, router: AppRouter(), settings: settings, playSessions: historyStore,
+                          runningGames: RunningGameMonitor(), artwork: art, storeHost: ModStoreHost())
+        }, in: out, refs, "none")
+        try render("play-steam-collection", ZStack {
+            SeleneBackdrop().still(true)
+            CollectionView(viewModel: vm, router: AppRouter(), settings: settings, playSessions: historyStore,
+                           artwork: art)
+        }, in: out, refs, "none")
+        try render("play-steam-options", ZStack {
+            SeleneBackdrop().still(true)
+            SteamOptionsView(viewModel: vm, game: steamGame, origin: .spotlight, onClose: {}, onMove: {})
+        }, in: out, refs, "none")
+        vm.applyCatalog(.init(sources: [.init(integration: .nxnative, isEnabled: true)], games: [fixture] + avatarGames))
         let pack = LocalAchievementPack.linksAwakening!
         var progress = LocalAchievementProgress()
         _ = progress.record([.seashells: 12, .heartPieces: 4], in: pack, at: Date(timeIntervalSince1970: 1_790_000_000))
