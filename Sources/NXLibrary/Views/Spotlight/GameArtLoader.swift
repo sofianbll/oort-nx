@@ -111,6 +111,7 @@ final class GameArtLoader {
                     image = await Self.decodeLogo(at: url)
                 }
             }
+            if Task.isCancelled { searchedOnline.remove(game.id) }
         }
         if let image { logos.setObject(image, forKey: game.id as NSUUID) }
         return image

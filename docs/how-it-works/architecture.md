@@ -835,6 +835,7 @@ Prove e misure di queste scelte: [docs/history/reviews/2026-11-16-ratings-metada
 ## Interfaccia Selene e input
 
 - Nella Collection di un profilo, i comandi nativi Gioca e Opzioni usano il record del gioco selezionato senza applicare il filtro della Collection generale.
+- `GameArtLoader` ricorda le ricerche di loghi concluse durante la sessione, anche senza risultati. Una ricerca annullata non impedisce un nuovo tentativo.
 - Solo le tessere e la pillola accanto a Play mostrano `CloudLibraryBadge`, anche durante porting o errore. Nel pannello Cloud e nel centro attività lo stato è testo con `SeleneStatusDot` (7 unità); i pulsanti di invio e download mantengono le icone. `CloudLibraryStatus` condivide i colori di punti e barre: verde sincronizzato, blu solo cloud/in attesa/in corso, arancione da inviare, rosso errore e grigio sconosciuto. L'alone del punto pulsa in Core Animation solo durante il trasferimento, con finestra attiva e senza Riduci movimento.
 - Download nel pannello Cloud, in Spotlight e in Details usa `SelenePillButton`: un solo bordo mobile maschera il fondo bianco e il testo nero. `CloudArchiveProgress` distingue il trasferimento completato dalla verifica iniziale, così il pulsante resta pieno durante verifica e ripristino senza anticipare Play. Senza un totale noto resta il contorno e si usa l'indicatore esistente. Riduci movimento disattiva l'interpolazione.
 - In Details il pulsante Cloud può aggiungere solo l'alone animato, senza un punto fisso; con Riduci movimento la scheda conserva il disegno di riferimento.
