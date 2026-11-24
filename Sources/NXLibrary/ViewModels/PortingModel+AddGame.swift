@@ -1,6 +1,5 @@
 import AppKit
 import Foundation
-import UniformTypeIdentifiers
 import NXLibraryCore
 import ArcanePorting
 

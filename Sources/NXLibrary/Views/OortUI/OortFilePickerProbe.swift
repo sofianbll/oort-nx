@@ -1,12 +1,14 @@
 #if DEBUG
 import AppKit
+import CoreText
 import SwiftUI
 import NXLibraryCore
 
 enum OortFilePickerProbe {
     @MainActor static func capture(to output: URL) throws {
         NSApplication.shared.setActivationPolicy(.prohibited)
-        SeleneFonts.register()
+        let font = URL(fileURLWithPath: "Resources/Selene/Fonts/MaterialIcons-Regular.ttf")
+        precondition(CTFontManagerRegisterFontsForURL(font as CFURL, .process, nil))
         let locale = AppLocale(language: .french, region: "FR")
         L10n.setContext(locale)
         let fm = FileManager.default
@@ -42,7 +44,7 @@ enum OortFilePickerProbe {
             let sheet = CGSize(width: min(1020, size.width * 0.94), height: min(670, size.height * 0.88))
             let host = NSHostingView(rootView: ZStack(alignment: .top) {
                 // Synthetic bright wallpaper: never load the player's wallpaper or profile.
-                LinearGradient(colors: [.white, .cyan, .yellow], startPoint: .topLeading, endPoint: .bottomTrailing)
+                OortGalleryWallpaper()
                 SeleneTheme.scrim45
                 OortFilePicker(model: model, title: L10n.text("Game files"),
                                message: L10n.text("Choose NSP, XCI, NSZ or XCZ files, or one Switch 2 NUP file."),

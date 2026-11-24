@@ -158,7 +158,7 @@ import UniformTypeIdentifiers
         self.home = home
         self.choice = choice
         self.recent = recent
-        let protected = ["Desktop", "Documents", "Downloads"].map { home.appendingPathComponent($0).path } + ["/Volumes"]
+        let protected = FileBrowser.protectedHomeFolders.map { home.appendingPathComponent($0).path } + ["/Volumes"]
         if let start = start?.standardizedFileURL, !protected.contains(where: { start.path == $0 || start.path.hasPrefix($0 + "/") }) {
             folder = URL(fileURLWithPath: start.path, isDirectory: true)
         } else { folder = home }
@@ -191,7 +191,7 @@ import UniformTypeIdentifiers
         }
         defer { discover.cancel() }
         let result: Result<[FileBrowser.Entry], Error>
-        do { result = .success(try await FileBrowser.list(url, choice: choice)) }
+        do { result = .success(try await FileBrowser.list(url, choice: choice, home: home)) }
         catch { result = .failure(error) }
         let available = await discover.value
         guard !Task.isCancelled, folder == url else { return }
@@ -287,7 +287,7 @@ struct OortFilePicker: View {
                 list(.places, heading: L10n.text("Places"), items: model.places) { place, index in
                     row(placeTitle(place), icon: .folder, focused: focused(.places, index)) { model.enter(place.url) }
                 }
-                .frame(maxWidth: canvas.u(SeleneTokens.Space.sliderMeasure * 1.5))
+                .frame(maxWidth: canvas.u(SeleneTokens.Space.sliderMeasure * 1.8))
                 Divider()
                 files
             }

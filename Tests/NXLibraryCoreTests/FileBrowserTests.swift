@@ -41,6 +41,12 @@ final class FileBrowserTests: XCTestCase {
         try fm.createDirectory(at: denied, withIntermediateDirectories: false, attributes: [.posixPermissions: 0])
         defer { try? fm.setAttributes([.posixPermissions: 0o700], ofItemAtPath: denied.path) }
         await assertFailure(.denied, at: denied)
+
+        let protected = root.appendingPathComponent("Documents")
+        try fm.createSymbolicLink(at: protected, withDestinationURL: loop)
+        let homeEntries = try await FileBrowser.list(root, choice: .folder, home: root)
+        XCTAssertTrue(homeEntries.contains { $0.name == "Documents" && $0.isFolder })
+        await assertFailure(.link, at: protected)
     }
 
     func testLargeListing() async throws {

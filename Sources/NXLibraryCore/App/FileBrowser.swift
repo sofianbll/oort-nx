@@ -3,6 +3,7 @@ import Foundation
 /// Browses directory metadata only. Selection does not open a file or follow a symlink.
 public enum FileBrowser {
     public static let gameExtensions = ["nsp", "xci", "nsz", "xcz", "nup"]
+    public static let protectedHomeFolders: Set<String> = ["Desktop", "Documents", "Downloads"]
 
     public enum Choice: Equatable, Sendable {
         case folder, gameFiles(allowFolder: Bool), keys
@@ -58,12 +59,13 @@ public enum FileBrowser {
         return entries.filter { (showHidden || !$0.isHidden) && (query.isEmpty || $0.name.localizedStandardContains(query)) }
     }
 
-    public static func list(_ folder: URL, choice: Choice) async throws -> [Entry] {
-        let worker = Task.detached(priority: .userInitiated) { try read(folder, choice: choice) }
+    public static func list(_ folder: URL, choice: Choice, home: URL? = nil) async throws -> [Entry] {
+        let worker = Task.detached(priority: .userInitiated) { try read(folder, choice: choice, home: home) }
         return try await withTaskCancellationHandler { try await worker.value } onCancel: { worker.cancel() }
     }
 
-    private static func read(_ folder: URL, choice: Choice) throws -> [Entry] {
+    private static func read(_ folder: URL, choice: Choice, home: URL?) throws -> [Entry] {
+        assert(!Thread.isMainThread)
         let manager = FileManager.default
         do {
             // Check each component in order, not the link's target. /tmp and /var are macOS aliases
@@ -80,10 +82,16 @@ public enum FileBrowser {
                 }
             }
             let keys: Set<URLResourceKey> = [.isDirectoryKey, .isRegularFileKey, .isSymbolicLinkKey, .isPackageKey, .isHiddenKey, .fileSizeKey]
-            let urls = try manager.contentsOfDirectory(at: folder, includingPropertiesForKeys: Array(keys))
+            let protectedChildren = folder.path == home?.path ? protectedHomeFolders : []
+            let urls = try manager.contentsOfDirectory(at: folder, includingPropertiesForKeys: protectedChildren.isEmpty ? Array(keys) : [])
             return try urls.compactMap { url -> Entry? in
                 try Task.checkCancellation()
                 let name = url.lastPathComponent
+                // Home reveals the protected names; defer their metadata and contents until explicit entry.
+                if protectedChildren.contains(name) {
+                    return Entry(url: folder.appendingPathComponent(name, isDirectory: true),
+                                 isFolder: true, isHidden: false, size: nil)
+                }
                 guard !name.hasPrefix("._"), let values = try? url.resourceValues(forKeys: keys),
                       values.isSymbolicLink != true else { return nil }
                 let directory = values.isDirectory == true && values.isPackage != true

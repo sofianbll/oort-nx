@@ -8,6 +8,7 @@ struct OnboardingScreen: View {
         let id: String
         let title: String
         let detail: String
+        let note: String?
         let icon: MaterialIcon
         let badges: [String]
         let trailing: SetupCardRow.Trailing
@@ -15,11 +16,13 @@ struct OnboardingScreen: View {
         let action: (() -> Void)?
 
         init(_ id: String, _ title: String, _ detail: String, _ icon: MaterialIcon,
-             _ trailing: SetupCardRow.Trailing = .chevron, badges: [String] = [], cycle: ((Int) -> Void)? = nil,
+             _ trailing: SetupCardRow.Trailing = .chevron, note: String? = nil,
+             badges: [String] = [], cycle: ((Int) -> Void)? = nil,
              action: (() -> Void)? = nil) {
             self.id = id
             self.title = title
             self.detail = detail
+            self.note = note
             self.icon = icon
             self.badges = badges
             self.trailing = trailing
@@ -98,7 +101,7 @@ struct OnboardingScreen: View {
     private var rowList: some View {
         VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
             ForEach(rows) { row in
-                SetupCardRow(title: row.title, detail: row.detail, icon: row.icon, badges: row.badges,
+                SetupCardRow(title: row.title, detail: row.detail, note: row.note, icon: row.icon, badges: row.badges,
                              trailing: row.trailing, focused: focus == row.id,
                              onHover: { if row.action != nil, hover.moved(true) { focus = row.id } }) {
                     guard let action = row.action else { return }

@@ -152,9 +152,12 @@ struct OnboardingView: View {
     private var gameRows: [OnboardingScreen.Row] {
         [
             .init("files", L10n.text(GameFoldersCopy.sourcesTitle),
-                  GameFoldersCopy.sourcesContents, .folder, badges: GameFoldersCopy.sourceBadges,
+                  GameFoldersCopy.sourcesContents, .folder,
+                  note: viewModel.porting.gameFilesFolder?.lastPathComponent ?? L10n.text("No folder selected"),
+                  badges: GameFoldersCopy.sourceBadges,
                   action: { pickFolder(apps: false) }),
             .init("apps", L10n.text(GameFoldersCopy.appsTitle), GameFoldersCopy.appsContents, .folder,
+                  note: viewModel.gameAppsFolder.lastPathComponent,
                   badges: GameFoldersCopy.appBadges, action: { pickFolder(apps: true) }),
             .init("keys", L10n.text(GameFoldersCopy.keysTitle), GameFoldersCopy.keysContents, .key,
                   badges: GameFoldersCopy.keyBadges, action: { viewModel.setup.selectProdKeysFile() })
