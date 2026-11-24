@@ -493,19 +493,9 @@ public struct CloudDriveFolders: Sendable {
 
     private func accountID() async throws -> String {
         guard CloudLibraryPreference.validRemote(remote) else { throw MoveFailure.missingIdentity }
-        // shortcut: rclone 1.75.2 reports the canonical My Drive root in debug output; use a structured ID when available.
         // Clear remote overrides so a shared folder ID cannot stand in for the account ID.
         let result = try await checkedResult(["about", "\(remote),root_folder_id=,team_drive=:", "--json", "--log-level", "DEBUG"])
-        let marker = "'root_folder_id = "
-        let suffix = "' - save this in the config to speed up startup"
-        let candidates = result.stderr.split(whereSeparator: \.isNewline).compactMap { line -> String? in
-            guard line.hasSuffix(suffix), let start = line.range(of: marker, options: .backwards)
-            else { return nil }
-            return String(line[start.upperBound..<line.index(line.endIndex, offsetBy: -suffix.count)])
-        }
-        guard let id = candidates.first, Set(candidates).count == 1, Self.validID(id) else {
-            throw MoveFailure.missingIdentity
-        }
+        guard let id = CloudDriveScope.accountID(in: result.stderr) else { throw MoveFailure.missingIdentity }
         return id
     }
 
