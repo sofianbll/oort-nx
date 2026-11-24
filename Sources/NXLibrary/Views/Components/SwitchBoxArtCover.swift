@@ -19,6 +19,7 @@ struct SwitchBoxArtCover: View {
     let artwork: ArtworkStore
     /// Bumps when GameTDB's index arrives, so covers that missed look again.
     var indexVersion = 0
+    var cloudTile: DownloadCloudTileStyle? = nil
 
     @ObservedObject private var picks = ArtworkPicks.shared
     @State private var cover: NSImage?
@@ -26,26 +27,42 @@ struct SwitchBoxArtCover: View {
     @State private var icon: NSImage?
 
     var body: some View {
+        let portrait = cover ?? CoverArtMemo.shared.object(forKey: memoKey)
+        let thumbnail = portrait == nil ? icon ?? GameIconProvider.icon(for: game) : nil
+        let face = art(portrait, thumbnail: thumbnail)
+        return Group {
+            if let cloudTile {
+                DownloadCloudArt(art: face, style: cloudTile, id: game.id,
+                                 revision: .init(images: [portrait, thumbnail, portrait == nil ? banner : nil],
+                                                 title: portrait == nil ? officialName ?? game.name : nil))
+            } else {
+                face
+            }
+        }
+        .frame(width: width, height: height)
+        .task(id: coverKey) { await loadCover() }
+        .task(id: game.id) { await loadComposedArt() }
+    }
+
+    private func art(_ portrait: NSImage?, thumbnail: NSImage?) -> some View {
         ZStack {
-            if let cover = cover ?? CoverArtMemo.shared.object(forKey: memoKey) {
+            if let cover = portrait {
                 Image(nsImage: cover)
                     .resizable()
                     .interpolation(.high)
                     .aspectRatio(contentMode: .fill)
                     .transition(.opacity)
-            } else {
-                composed
+            } else if let thumbnail {
+                composed(thumbnail)
             }
         }
         .frame(width: width, height: height)
         .clipped()
-        .task(id: coverKey) { await loadCover() }
-        .task(id: game.id) { await loadComposedArt() }
     }
 
     // MARK: - Composed cover
 
-    private var composed: some View {
+    private func composed(_ thumbnail: NSImage) -> some View {
         ZStack {
             SeleneTheme.glassSolid
             if let banner {
@@ -58,7 +75,7 @@ struct SwitchBoxArtCover: View {
             }
             LinearGradient(colors: [.black.opacity(0.05), .black.opacity(0.6)], startPoint: .top, endPoint: .bottom)
             VStack(spacing: height * 0.05) {
-                Image(nsImage: icon ?? GameIconProvider.icon(for: game))
+                Image(nsImage: thumbnail)
                     .resizable()
                     .interpolation(.high)
                     .aspectRatio(contentMode: .fill)

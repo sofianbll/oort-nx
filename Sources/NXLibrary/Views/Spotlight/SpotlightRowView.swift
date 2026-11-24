@@ -188,44 +188,35 @@ struct SpotlightRowView: View {
         let side = canvas.u(160)
         let face = RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content), style: .continuous)
         ZStack {
-            ZStack {
-                RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous).fill(SeleneTheme.ink15)
-                switch item {
-                case .game(let id):
-                    if let game = gamesByID[id] {
-                        SpotlightTileArtwork(game: game, side: side,
-                                             artwork: artwork, ownIconFirst: true)
-                            .portingLook(cloudState?.coverLook(tileLook(game)) ?? tileLook(game),
-                                         cornerRadius: canvas.u(SeleneTokens.Radius.content))
-                            .frame(width: side, height: side)
+            if case .game(let id) = item, let game = gamesByID[id] {
+                SpotlightTileArtwork(game: game, side: side, artwork: artwork, ownIconFirst: true,
+                                     cloudTile: .init(state: cloudState, buildLook: tileLook(game),
+                                                      cornerRadius: canvas.u(SeleneTokens.Radius.content),
+                                                      backplateRadius: canvas.u(SeleneTokens.Radius.badge)))
+            } else {
+                ZStack {
+                    RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous).fill(SeleneTheme.ink15)
+                    switch item {
+                    case .game(let id):
+                        if let game = catalogGamesByID[id] {
+                            CatalogNativeArtwork(game: game, role: .square, look: PortingTileLook.make(catalog: game))
+                                .frame(width: side, height: side)
+                                .clipShape(face)
+                        }
+                    case .card(.mods):
+                        ModsCardCover(urls: modsCover, side: side)
                             .clipShape(face)
-                    } else if let game = catalogGamesByID[id] {
-                        CatalogNativeArtwork(game: game, role: .square, look: PortingTileLook.make(catalog: game))
-                            .frame(width: side, height: side)
-                            .clipShape(face)
+                            .overlay(face.strokeBorder(SeleneTheme.ink15, lineWidth: max(1, canvas.u(1))))
+                    case .card(let card):
+                        face.fill(SeleneTheme.glass)
+                            .overlay(face.strokeBorder(SeleneTheme.ink15, lineWidth: max(1, canvas.u(1))))
+                            .overlay(MaterialIconView(card.icon, size: 60).foregroundColor(SeleneTheme.ink))
                     }
-                case .card(.mods):
-                    ModsCardCover(urls: modsCover, side: side)
-                        .clipShape(face)
-                        .overlay(face.strokeBorder(SeleneTheme.ink15, lineWidth: max(1, canvas.u(1))))
-                case .card(let card):
-                    face.fill(SeleneTheme.glass)
-                        .overlay(face.strokeBorder(SeleneTheme.ink15, lineWidth: max(1, canvas.u(1))))
-                        .overlay(MaterialIconView(card.icon, size: 60).foregroundColor(SeleneTheme.ink))
                 }
-            }
-            .frame(width: side, height: side)
-            // Drawn as one picture that grows and slides whole. Words and glyphs on a face (a card's icon, a
-            // game's lock or build progress) were otherwise redrawn at every step of the grow and the glide and
-            // snapped to the pixel grid on their own, so they shook against their tile in a quick run of presses.
-            // The shine is a Core Animation layer and stays outside.
-            .drawingGroup()
-            .shadow(color: .black.opacity(0.55), radius: canvas.u(9))
-            .overlay {
-                if case .game(let id) = item, let game = gamesByID[id] {
-                    DownloadCloudOverlay(state: .init(cloudState, buildLook: tileLook(game)), id: id,
-                                         cornerRadius: canvas.u(SeleneTokens.Radius.content))
-                }
+                .frame(width: side, height: side)
+                // Draw words and glyphs as one picture so they don't snap individually when a tile grows or slides.
+                .drawingGroup()
+                .shadow(color: .black.opacity(0.55), radius: canvas.u(9))
             }
             // So is a download's pulsing mark.
             if case .game(let id) = item, gamesByID[id] == nil, let game = catalogGamesByID[id] {

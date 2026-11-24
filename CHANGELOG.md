@@ -7,7 +7,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 ### Added
 
 - Import Switch games from game files alone in your own cloud library or a followed reference. Personalize them before downloading, and find them with the **Cloud** filter in Spotlight and Collection.
-- Cloud downloads trace the rising fill on Spotlight and Collection covers with a band of light and briefly form the Oort mark on success.
+- Cloud downloads trace the rising fill on Spotlight and Collection covers with a band of light that glides between progress updates and briefly forms the Oort mark on success.
 - Pause an app or game-files download from Cloud library or Activity. The paused download stays first after a restart and waits for Resume.
 - The Cloud filter in Collection explains how to connect, when it is looking for games, and whether the check failed or there is nothing to download. Setup points to the filter after activation.
 - Following a Drive reference explains what readers can download, does not share your library in return, and makes lost access explicit.
