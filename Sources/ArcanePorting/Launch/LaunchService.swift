@@ -16,15 +16,8 @@ public final class NSWorkspaceLauncher: AppLaunching {
             completion(false, "The app bundle is missing: \(url.path)")
             return
         }
-        var merged = ProcessInfo.processInfo.environment
-        // Arcane's host handoff is per launch, never inherited from the launcher environment.
-        for key in GameOverlayLaunch.keys + [HomeMenu.launcherKey, HomeMenu.bundleIDKey, NextendoLaunch.loginDirectoryKey,
-                                            LaunchService.overlayHomeSwapKey, GameDisplay.key] {
-            merged[key] = nil
-        }
-        for (key, value) in environment { merged[key] = value }
         let configuration = NSWorkspace.OpenConfiguration()
-        configuration.environment = merged
+        configuration.environment = Self.gameEnvironment(inheriting: ProcessInfo.processInfo.environment, explicit: environment)
         NSWorkspace.shared.openApplication(at: url, configuration: configuration) { app, error in
             if let error {
                 completion(false, error.localizedDescription)
@@ -39,6 +32,15 @@ public final class NSWorkspaceLauncher: AppLaunching {
                 completion(false, nil)
             }
         }
+    }
+
+    static func gameEnvironment(inheriting ambient: [String: String], explicit: [String: String]) -> [String: String] {
+        // nxnative reads HOME and uses osascript via posix_spawnp; use only macOS system tools.
+        var system = ["HOME": ambient["HOME"].flatMap { $0.isEmpty ? nil : $0 }
+                        ?? FileManager.default.homeDirectoryForCurrentUser.path,
+                      "PATH": "/usr/bin:/bin:/usr/sbin:/sbin"]
+        system["TMPDIR"] = ambient["TMPDIR"].flatMap { $0.isEmpty ? nil : $0 } ?? NSTemporaryDirectory()
+        return system.merging(explicit) { _, value in value }
     }
 
     private static func watchExit(of app: NSRunningApplication, onExit: @escaping () -> Void) {

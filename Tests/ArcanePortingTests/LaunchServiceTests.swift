@@ -17,6 +17,20 @@ final class LaunchServiceTests: XCTestCase {
         }
     }
 
+    func testWorkspaceGameEnvironmentKeepsOnlySystemAndExplicitValues() {
+        let ambient = ["HOME": "/Users/fixture", "TMPDIR": "/private/fixture-temp", "PATH": "/untrusted/bin",
+                       "FIXTURE_API_TOKEN": "secret", "DYLD_INSERT_LIBRARIES": "/untrusted/library",
+                       "DM_ROOT": "/untrusted/game", "DM_SCREEN": "stale", "SSH_AUTH_SOCK": "/fixture/socket"]
+        let explicit = ["DM_LAUNCHER": "0", "DM_SCREEN": "2", "DM_OVERLAY_DATA": "/fixture/overlay.json"]
+        XCTAssertEqual(NSWorkspaceLauncher.gameEnvironment(inheriting: ambient, explicit: explicit),
+                       ["HOME": "/Users/fixture", "TMPDIR": "/private/fixture-temp", "PATH": "/usr/bin:/bin:/usr/sbin:/sbin"]
+                       .merging(explicit) { _, value in value })
+        let withoutAmbient = NSWorkspaceLauncher.gameEnvironment(inheriting: [:], explicit: [:])
+        XCTAssertEqual(Set(withoutAmbient.keys), ["HOME", "PATH", "TMPDIR"])
+        XCTAssertTrue(withoutAmbient["HOME"]?.hasPrefix("/") == true)
+        XCTAssertTrue(withoutAmbient["TMPDIR"]?.hasPrefix("/") == true)
+    }
+
     func testInGameHomeButtonReachesTheGameEnvironmentOnlyWhenExplicit() throws {
         let launcher = FakeLauncher()
         let service = LaunchService(launcher: launcher)
