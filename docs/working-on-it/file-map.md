@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **1068 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **1072 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -471,6 +471,7 @@ Cartella `Sources/ArcanePorting/Library/`.
 | [Sources/ArcanePorting/Library/CloudArchiveFingerprintCache.swift](../../Sources/ArcanePorting/Library/CloudArchiveFingerprintCache.swift) | Cache persistente e limitata delle impronte di app e cache, indicizzata da digest. |
 | [Sources/ArcanePorting/Library/CloudGameSources.swift](../../Sources/ArcanePorting/Library/CloudGameSources.swift) | Scopre le sorgenti sotto una radice autorizzata, rifiuta ambiguità e collisioni Unicode e riverifica la selezione, lo spazio, le impronte e l'identità NSP al download. |
 | [Sources/ArcanePorting/Library/CloudTransferQueue.swift](../../Sources/ArcanePorting/Library/CloudTransferQueue.swift) | Salva azioni, ambito Drive, fornitore, identità dell'eseguibile e selezione di Rebuild; ammette la pausa volontaria solo su un download valido in testa. |
+| [PersonalAppReceipt.swift](../../Sources/ArcanePorting/Library/PersonalAppReceipt.swift) | Ricevuta di trasferimento personale, confronto delle copie e controllo delle impronte prima dello scambio. |
 | [Sources/ArcanePorting/Library/CloudTransferPresentation.swift](../../Sources/ArcanePorting/Library/CloudTransferPresentation.swift) | Stati, misura esclusiva, annullamento e posizione del comando Cloud library con link di riserva. |
 | [Sources/ArcanePorting/Library/CloudDriveFolders.swift](../../Sources/ArcanePorting/Library/CloudDriveFolders.swift) | Cerca le sorgenti sotto la libreria scelta, rifiuta sovrapposizioni con il riferimento, lega l'anteprima di spostamento alla libreria approvata e verifica dipendenze e residui. |
 | [Sources/ArcanePorting/GameSettings/RemotePlayAdapters.swift](../../Sources/ArcanePorting/GameSettings/RemotePlayAdapters.swift) | Rileva ZeroTier, Tailscale e NetBird da interfacce IPv4 e identità VPN riportata dal sistema; segnala i tunnel ambigui. |
@@ -722,6 +723,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/Detail/DetailsBands.swift](../../Sources/NXLibrary/Views/Detail/DetailsBands.swift) | Disegna screenshot, mod e fascia correlati condivisa, con copertine Switch o Steam secondo la fonte. |
 | [Sources/NXLibrary/Views/Detail/DetailsPanel.swift](../../Sources/NXLibrary/Views/Detail/DetailsPanel.swift) | Pannello Details uguale per ogni fonte: righe con icona, voto della critica in ultima riga e link in `SeleneActionGrid`; carica solo il voto del gioco mostrato. |
 | [Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift](../../Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift) | Cloud library: copie, azioni per artefatto, Resume e app precedente; somma la selezione locale da liberare e distingue verifica e avanzamento. |
+| [CloudPersonalAppUpdateRow.swift](../../Sources/NXLibrary/Views/Detail/CloudPersonalAppUpdateRow.swift) | Mostra aggiornamento personale e quantità da scaricare, oppure copie diverse senza invito alla sostituzione. |
 | [Sources/NXLibrary/Views/Detail/CriticRatingValue.swift](../../Sources/NXLibrary/Views/Detail/CriticRatingValue.swift) | Valore della riga Critic score: cinque stelle, numero /100 e fonte, senza finestre aggiuntive; caricamento e assenza espliciti. |
 | [Sources/NXLibrary/ViewModels/IGDBSettings.swift](../../Sources/NXLibrary/ViewModels/IGDBSettings.swift) | Configurazione IGDB facoltativa: verifica prima del salvataggio, rimozione e invalidazione delle richieste/voti precedenti. |
 | [Sources/NXLibrary/Views/Components/IGDBCredentialsDialog.swift](../../Sources/NXLibrary/Views/Components/IGDBCredentialsDialog.swift) | Guida sintetica in cinque passi, Client ID, Client Secret nascosto, verifica/salvataggio e annullamento; input Settings sospeso. |
@@ -1033,6 +1035,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/ArcanePortingTests/PortingPresentationTests.swift](../../Tests/ArcanePortingTests/PortingPresentationTests.swift) | ETA, prewarm, tile, fallimenti del porting e posizione e focus della pill Cloud. |
 | [Tests/ArcanePortingTests/CloudGameSourcesTests.swift](../../Tests/ArcanePortingTests/CloudGameSourcesTests.swift) | Scoperta con solo metadati, radici isolate, errori e rifiuti; voci solo remote, esclusioni, Unfollow, spazio, conflitti, lease e Cestino sintetico. |
 | [Tests/ArcanePortingTests/CloudTransferQueueTests.swift](../../Tests/ArcanePortingTests/CloudTransferQueueTests.swift) | Persistenza, ordine, vecchie richieste con `offer`, errori di scrittura e marcatore di pausa volontaria valido solo in testa. |
+| [PersonalAppReceiptTests.swift](../../Tests/ArcanePortingTests/PersonalAppReceiptTests.swift) | Ricevuta personale, origine, revisione, cambiamenti nell’app e stima dei byte. |
 | [Tests/ArcanePortingTests/CloudTransferPresentationTests.swift](../../Tests/ArcanePortingTests/CloudTransferPresentationTests.swift) | Stati e azioni, misura esclusiva per superficie, movimento ridotto e punto d'ingresso unico. |
 | [Tests/ArcanePortingTests/BuildQueueTests.swift](../../Tests/ArcanePortingTests/BuildQueueTests.swift) | FIFO, ripristino, voci non valide, sorgenti mancanti, persistenza degli esiti e retry. |
 | [Tests/ArcanePortingTests/CloudDriveFoldersTests.swift](../../Tests/ArcanePortingTests/CloudDriveFoldersTests.swift) | Manifest e archivi su file temporanei: residui prima e dopo lo spostamento, identità cambiate, concorrenza e ripresa dopo risposte perse. |
@@ -1154,6 +1157,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_cloud_free_space.py](../../Tests/CatalogAppChecks/run_cloud_free_space.py) | Rende la conferma di liberazione con selezioni e lo stato di verifica, senza toccare il Cestino. |
 | [run_store_next_step.py](../../Tests/CatalogAppChecks/run_store_next_step.py) | Rende le prossime azioni e gli stati passivi di Details in francese su dati sintetici. |
 | [StoreNextStepOCR.swift](../../Tests/CatalogAppChecks/StoreNextStepOCR.swift) | Legge i PNG della sonda Details e verifica testi, origine e assenza di misure ripetute. |
+| [run_cloud_personal_update.py](../../Tests/CatalogAppChecks/run_cloud_personal_update.py) | Esercita l’offerta personale, la conferma e le copie sostituite o conservate tramite un cloud e bundle sintetici. |
 | [run_settings_confirmations.py](../../Tests/CatalogAppChecks/run_settings_confirmations.py) | Lancia la sonda delle conferme in un processo con dati e preferenze propri, in francese e senza servizi reali. |
 | [SettingsConfirmationProbe.swift](../../Tests/CatalogAppChecks/SettingsConfirmationProbe.swift) | Verifica conferme di Cloud, rclone, motore e rete, consenso, stato del download e ambito Drive della copia gestita; rende le carte senza finestre native. |
 | [run_integration_contract.py](../../Tests/CatalogAppChecks/run_integration_contract.py) | Controlla il collegamento di Integrations alle viste reali senza aprirle. |

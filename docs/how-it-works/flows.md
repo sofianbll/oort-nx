@@ -253,6 +253,8 @@ Lo spostamento riguarda solo i manifest e le copie di app e cache, non le sorgen
 
 **Collection → Cloud.** L’avviso di attivazione indica come raggiungere il filtro. Se non ci sono tessere, la vista indica se connettere Drive, attendere la ricerca o verificare la connessione. Mostra «nessun gioco da scaricare» solo dopo le verifiche richieste.
 
+**Details → Cloud → Update from my cloud.** Se l’app installata corrisponde alla ricevuta del trasferimento e il cloud personale offre una copia successiva verificabile, la riga mostra la dimensione. La conferma indica quale app sarà sostituita; Arcane ricontrolla entrambe le copie, aspetta la chiusura del gioco e conserva l’app precedente. Una divergenza senza prova non propone lo scambio.
+
 Conclusa l'importazione automatica e ripristinata la coda, Arcane verifica la presenza remota per ogni titolo valido del catalogo in sequenza; il badge solo cloud non richiede di aprire Details. Un errore interrompe il controllo e mostra l'azione di recupero. Le tessere mantengono l'ultima presenza nota anche dopo il riavvio, non uno stato di sincronizzazione. Se arriva un trasferimento, gli lascia la precedenza; spegnere la libreria ferma il controllo.
 
 ## 6. Importare o ripristinare un salvataggio

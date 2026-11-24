@@ -138,12 +138,17 @@ struct CloudLibraryPanel: View {
                 VStack(alignment: .leading, spacing: canvas.u(5)) {
                     Text(title).seleneFont(17, .semibold).foregroundColor(SeleneTheme.ink90)
                         .accessibilityAddTraits(.isHeader)
-                    SeleneStatusDot(text: downloadBytes.map { statusText + " · " + $0 } ?? reference ?? statusText,
+                    CloudPersonalAppUpdateRow(
+                        comparison: item == .app && state.action == nil ? state.personalAppComparison : nil,
+                        keepsStatus: reference != nil || state.issue?.item == item,
+                        canUpdate: item == .app && model.hasRestoredQueue && canChange(.restore(.app)),
+                        status: SeleneStatusDot(text: downloadBytes.map { statusText + " · " + $0 } ?? reference ?? statusText,
                                     color: indicator.status.color,
                                     labelColor: ready ? SeleneTheme.ink60
                                         : indicator.status == .failed ? PortingPillCopy.softRed : SeleneTheme.ink90,
-                                    accessibilityTitle: title,
-                                    pulses: false)
+                                    accessibilityTitle: title, pulses: false)) {
+                        viewModel.reviewPersonalAppUpdate(for: game)
+                    }
                 }
                 .multilineTextAlignment(.leading)
                 .layoutPriority(1)

@@ -13,6 +13,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 - Following a Drive reference explains what readers can download, does not share your library in return, and makes lost access explicit.
 - Free up space shows the total selected for the local Trash and explains that the verified cloud copy and saves are unchanged.
 - Switch Details explains the next action and where the app or game files are. A transfer that cannot be started is shown as a status, with no duplicate byte count.
+- Update an unchanged app from a verified newer copy in your personal cloud. Oort NX asks first and keeps the previous app.
 - Switch game Details shows the installed app’s engine date and update status. An update icon appears on the cover only when the app is older and its game files are available.
 - The home bar and **Integrations** page show each service’s status and open its settings without activating it.
 - Add local Mac apps as library shortcuts without changing the apps or recording play sessions.
