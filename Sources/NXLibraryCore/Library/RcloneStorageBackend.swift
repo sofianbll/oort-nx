@@ -411,7 +411,7 @@ public struct RcloneStorageBackend: StorageBackend {
         if commandOverride != nil || isReference || driveScope != nil { return nil }
         guard let binary = Self.findExecutable(preferred: executable) else { return nil }
         try await requireDrive()
-        let environment = RcloneConfiguration.environment()
+        let environment = RcloneConfiguration.driveEnvironment(remote)
         do {
             return try await control.call(operation, parameters, executable: binary, environment: environment,
                 flags: Self.flags + RcloneConfiguration.flags(config: config, environment: environment))
@@ -499,7 +499,7 @@ public struct RcloneStorageBackend: StorageBackend {
                      probingParent: String? = nil, diagnostic: Bool = false) async throws -> String {
         try Task.checkCancellation()
         let flags = ["--use-json-log", "--stats", "1s", "--stats-log-level", "NOTICE"] + Self.flags
-        let environment = RcloneConfiguration.environment()
+        let environment = RcloneConfiguration.driveEnvironment(remote)
         var referenceFlags: [String] = []
         if let referenceID, !checkingConfiguration, !scopeProbe {
             let prefix = (remote.hasSuffix(":") ? remote : remote + ":")
@@ -534,7 +534,8 @@ public struct RcloneStorageBackend: StorageBackend {
         let result: CommandResult
         do {
             if let commandOverride {
-                result = try await commandOverride(URL(fileURLWithPath: "/fixture/rclone"), command, [:])
+                result = try await commandOverride(URL(fileURLWithPath: "/fixture/rclone"), command,
+                                                   RcloneConfiguration.driveEnvironment(remote, base: [:]))
             } else {
                 result = try await SystemCommandRunner().runCancellable(binary(), command, environment: environment) { line in
                     if let progress, let update = Self.transferProgress(from: line) { progress(update) }

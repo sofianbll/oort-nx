@@ -144,8 +144,21 @@ public struct RcloneRemote: Equatable, Sendable, Decodable {
 }
 
 public struct RcloneConfiguration: Sendable {
-    // Drive replaces the parent-ID predicate at the root in either of these modes.
-    package static let driveFlags = ["--drive-shared-with-me=false", "--drive-starred-only=false", "--drive-skip-shortcuts"]
+    // Keep the parent-ID predicate and include active files owned by other accounts.
+    private static let driveFilters = ["shared_with_me", "starred_only", "auth_owner_only", "trashed_only"]
+    package static let driveFlags = driveFilters.map {
+        "--drive-\($0.replacingOccurrences(of: "_", with: "-"))=false"
+    } + ["--drive-skip-shortcuts"]
+
+    package static func driveEnvironment(_ remote: String, base: [String: String] = environment()) -> [String: String] {
+        let name = remote.hasSuffix(":") ? String(remote.dropLast()) : remote
+        guard CloudLibraryPreference.validRemote(name) else { return base }
+        // Older rclone versions ignore a flag set to its default value when a remote overrides it.
+        var result = base
+        let prefix = "RCLONE_CONFIG_\(name.uppercased())_"
+        for filter in driveFilters { result[prefix + filter.uppercased()] = "false" }
+        return result
+    }
 
     static let passwordCommand = "/usr/bin/security find-generic-password -a rclone -s rclone-config -w"
     private static let service = "rclone-config"
@@ -308,7 +321,7 @@ public struct RcloneConfiguration: Sendable {
         let flags = Self.driveFlags + ["--retries", "1", "--low-level-retries", "1",
                      "--contimeout", "5s", "--timeout", "10s"]
         func checkFolder(_ arguments: [String]) async throws -> String {
-            let result = try await command(arguments + flags, or: .test)
+            let result = try await command(arguments + flags, or: .test, driveRemote: remote)
             guard result.status == 0 else {
                 if let failure = CloudLibraryFailure.rclone(result.stderr, status: result.status, listingFolder: true) {
                     throw failure
@@ -348,8 +361,9 @@ public struct RcloneConfiguration: Sendable {
         return result.stdout
     }
 
-    private func command(_ arguments: [String], or failure: Failure) async throws -> CommandResult {
+    private func command(_ arguments: [String], or failure: Failure, driveRemote: String? = nil) async throws -> CommandResult {
         try Task.checkCancellation()
+        let environment = driveRemote.map { Self.driveEnvironment($0, base: self.environment) } ?? self.environment
         do { return try await run(executable, arguments + Self.flags(config: config, environment: environment), environment) }
         catch is CancellationError { throw CancellationError() }
         // Never surface subprocess output or launch errors: they can contain OAuth credentials.

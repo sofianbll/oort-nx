@@ -614,7 +614,7 @@ public struct CloudDriveFolders: Sendable {
     }
 
     private func checkedResult(_ arguments: [String]) async throws -> CommandResult {
-        let environment = RcloneConfiguration.environment()
+        let environment = RcloneConfiguration.driveEnvironment(remote)
         let flags = RcloneConfiguration.driveFlags + ["--local-links=false", "--copy-links=false",
                      "--retries", "1", "--low-level-retries", "1", "--contimeout", "5s", "--timeout", "10s"]
         let configFlags = RcloneConfiguration.flags(config: config, environment: environment)
