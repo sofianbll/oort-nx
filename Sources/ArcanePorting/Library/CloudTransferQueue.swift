@@ -26,6 +26,10 @@ public enum CloudLibraryAction: Codable, Equatable, Sendable {
         self == .upload(.app) || self == .restore(.app)
     }
 
+    package var supportsUserPause: Bool {
+        self == .restore(.app) || self == .downloadSources
+    }
+
     public func resumableFree(synchronized: Set<CloudLibraryItem>) -> Self? {
         guard case .free(let items) = self else { return nil }
         let remaining = items.intersection(synchronized)
@@ -76,6 +80,12 @@ public final class CloudTransferQueue: Sendable {
         package let driveScope: CloudDriveScope?
         package let rebuildSources: RebuildSources?
         package let toolIdentity: String?
+        private var userPaused: Bool?
+
+        package var isUserPaused: Bool {
+            get { userPaused == true }
+            set { userPaused = newValue ? true : nil }
+        }
 
         public init(id: UUID, action: CloudLibraryAction) {
             self.init(id: id, action: action, token: nil, storage: nil)
@@ -105,7 +115,16 @@ public final class CloudTransferQueue: Sendable {
         store = ActivityQueueFile(file: file)
     }
 
-    public func load() async -> [Entry] { await store.load() }
+    public func load() async -> [Entry] {
+        let entries = await store.load()
+        // Reject inconsistent markers rather than replaying their entries as unpaused.
+        return entries.enumerated().compactMap { index, entry in
+            guard !entry.isUserPaused ||
+                (index == 0 && entry.action.supportsUserPause && entry.token != nil && entry.storage != nil)
+            else { return nil }
+            return entry
+        }
+    }
 
     package static func waitsForConnection(after error: Error) -> Bool {
         if let failure = error as? CloudLibraryFailure { return failure == .offline || failure == .unavailable }
