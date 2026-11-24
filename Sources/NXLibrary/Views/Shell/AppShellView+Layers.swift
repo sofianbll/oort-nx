@@ -50,7 +50,8 @@ extension AppShellView {
             if viewModel.showSetupCheck {
                 Group {
                     if viewModel.firstRunSetup.page == .found {
-                        FoundGamesSetupView(viewModel: viewModel, steamRoot: sources.discoveryRoot) { importPorted in
+                        FoundGamesSetupView(viewModel: viewModel, steamRoot: sources.discoveryRoot,
+                                            steamEnabled: sources.configuration.isEnabled) { importPorted in
                             finishFromFound(importPorted: importPorted)
                         }
                     } else if viewModel.firstRunSetup.page == .games {

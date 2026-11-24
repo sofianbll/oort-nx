@@ -37,6 +37,7 @@ documento da leggere prima di toccare qualunque parte Steam. `architecture.md` n
 - **Nessun gioco nxnative finto.** `CatalogGame` porta il record reale (`SteamCatalogGame`); i comandi Switch
   (build, salvataggi, mod) ricevono solo `PortedGame` e non possono partire da un gioco Steam.
 - **Fonte opzionale.** Con la fonte Steam spenta non partono scansioni o watcher del catalogo. La scoperta del primo avvio e l’offerta del benvenuto leggono soltanto per proporre la scelta, senza attivare la fonte; usano la cartella Steam salvata oppure quella standard. Una lettura incompleta nel primo avvio offre Retry, senza indicare che i giochi sono assenti.
+- **Setup ripreso.** Un vecchio valore acceso non prova una scelta e non attiva una fonte spenta. Una fonte già configurata e attiva resta tale, salvo esplicita scelta di spegnerla.
 
 ## File di Steam letti
 
@@ -73,6 +74,8 @@ Una prima stringa localizzata vuota negli achievement mantiene il ripiego ingles
 successivo. Sette prove sui lettori reali fissano questi esiti.
 
 ## Rilevamento e catalogo
+
+Nel primo avvio, trovare Steam (anche con zero giochi) non accende l'interruttore. Senza una scelta salvata, l'interruttore mostra l'attivazione già configurata; aprire la libreria senza toccarlo non cambia la fonte.
 
 1. `CatalogSourcesModel` avvia una scansione: all’avvio se Steam è abilitato, su Refresh, quando si attiva la fonte o
    si cambia cartella, e quando cambiano i file di Steam (vedi sotto). Una scansione alla volta, su un worker

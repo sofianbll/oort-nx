@@ -119,18 +119,21 @@ final class FindingsReader {
 final class FoundHost {
     let viewModel: Host
     var findings: FirstRunFindings?
-    var focus = FirstRunSetup.Focus.steamToggle
+    var focus = FirstRunSetup.Focus.initialOnFound
     let reader = FindingsReader()
     let steamRoot = URL(fileURLWithPath: "/synthetic/Steam")
     var opened: [(ported: Bool, cancelled: Bool)] = []
     var steamCount: Int? { findings?.steamGameCount }
-    var steamOn: Bool { viewModel.firstRunSetup.steamChoice ?? true }
+    let steamEnabled: Bool
+    // STEAM_ON
     var portedCount: Int { findings?.portedAppCount ?? 0 }
     var isReading: Bool { findings == nil }
     func onOpenLibrary(_ ported: Bool) { opened.append((ported, reader.cancellations > 0)) }
     // ACTIVATE_FOUND
     var hasSteam: Bool { findings?.steamGameCount != nil || findings?.steamReadFailed == true }
-    init(_ viewModel: Host) { self.viewModel = viewModel }
+    init(_ viewModel: Host, steamEnabled: Bool = false) {
+        self.viewModel = viewModel; self.steamEnabled = steamEnabled
+    }
     func move(to next: FirstRunSetup.Focus) { focus = next }
     func receive(_ found: FirstRunFindings?) {
         findings = found
@@ -143,6 +146,24 @@ func require(_ ok: @autoclosure () -> Bool, _ message: String) {
 }
 let initialBoot = Host()
 require(NotificationRegistration.registered, "Startup registers notification click handling without requesting authorization")
+for savedPage in ["found", "requirements", "games"] {
+    for enabled in [false, true] {
+        for oldChoice in [true, false] {
+            AppData.preferences.removePersistentDomain(forName: AppData.domain)
+            AppData.preferences.set(savedPage, forKey: "NXLibrary_SetupPage")
+            AppData.preferences.set(oldChoice, forKey: "NXLibrary_SetupSteamChoice")
+            let model = Host()
+            let sources = Sources(enabled: enabled, root: URL(fileURLWithPath: "/synthetic/Steam"))
+            let page = FoundHost(model, steamEnabled: enabled)
+            require(page.steamOn == (oldChoice && enabled), "Legacy true reflects the configured source, legacy false stays off")
+            model.finish()
+            Shell(model: model, sources: sources).complete(true)
+            require(sources.configuration.isEnabled == (oldChoice && enabled),
+                    "Legacy automatic true never enables Steam or removes an already visible library")
+            require(AppData.preferences.object(forKey: "NXLibrary_SetupSteamChoice") == nil, "Finish retires the legacy key")
+        }
+    }
+}
 for value in [true, false] {
     AppData.preferences.removePersistentDomain(forName: AppData.domain)
     let before = Host()
@@ -156,6 +177,7 @@ for value in [true, false] {
     resumed.finish()
     require(resumed.firstRunSetup.steamChoice == value, "Shell can still apply the finishing choice")
     require(AppData.preferences.object(forKey: "NXLibrary_SetupSteamChoice") == nil, "Finishing removes saved choice")
+    require(AppData.preferences.object(forKey: "NXLibrary_SetupSteamExplicitChoice") == nil, "Finishing removes the new choice")
     require(Host().firstRunSetup.steamChoice == nil, "Completed setup does not inherit a stale choice")
 }
 for enabled in [true, false] {
@@ -165,6 +187,8 @@ for enabled in [true, false] {
         if let choice { model.choose(choice) }
         let custom = URL(fileURLWithPath: "/synthetic/Custom Steam")
         let sources = Sources(enabled: enabled, root: custom)
+        let page = FoundHost(model, steamEnabled: enabled)
+        require(page.steamOn == (choice ?? enabled), "The switch reflects the saved choice or existing source")
         let shell = Shell(model: model, sources: sources)
         shell.complete(false)
         require(sources.applied.isEmpty, "Incomplete setup does not apply the switch")
@@ -172,12 +196,36 @@ for enabled in [true, false] {
         shell.complete(true)
         require(sources.configuration.isEnabled == (choice ?? enabled), "Finishing applies on and off, nil preserves the source")
         require(sources.applied.allSatisfy { $0.1 == custom }, "Opt-in uses the same custom root as discovery")
+        require(sources.applied.count == ((choice ?? enabled) == enabled ? 0 : 1),
+                "Only a changed choice writes the source")
+    }
+}
+for count in [0, 2] {
+    for optIn in [false, true] {
+        AppData.preferences.removePersistentDomain(forName: AppData.domain)
+        let model = Host()
+        model.showSetupCheck = true
+        let page = FoundHost(model)
+        let sources = Sources(enabled: false, root: page.steamRoot)
+        let shell = Shell(model: model, sources: sources)
+        let completedRead = FirstRunFindings(steamGameCount: count, portedAppCount: 0)
+        page.receive(completedRead)
+        require(!page.steamOn && model.firstRunSetup.steamChoice == nil, "Detection with \\(count) games never chooses Steam")
+        require(page.focus == .openLibrary, "Detection does not steal the initial Open library focus")
+        if optIn { page.activate(.steamToggle) }
+        page.activate(.openLibrary)
+        model.finish()
+        shell.complete(true)
+        require(sources.applied.count == (optIn ? 1 : 0) && sources.configuration.isEnabled == optIn,
+                "Only a user's gesture activates Steam")
+        require(sources.applied.allSatisfy { $0.1 == page.steamRoot }, "Apply the root the player saw")
     }
 }
 AppData.preferences.removePersistentDomain(forName: AppData.domain)
 let retryModel = Host()
 retryModel.choose(false)
 let retry = FoundHost(retryModel)
+retry.focus = .steamToggle
 retry.receive(FirstRunFindings(steamGameCount: nil, portedAppCount: 0, steamReadFailed: true))
 require(retry.focus == .steamToggle, "Retry row keeps focus while the read is incomplete")
 retry.receive(nil)
@@ -194,7 +242,10 @@ require(waiting.opened.count == 1 && waiting.opened.first?.ported == false,
         "A pending read does not block Open library or invent ported results")
 require(waiting.opened.first?.cancelled == true, "Cancel the pending request before leaving the found page")
 require(waitingModel.firstRunSetup.steamChoice == nil, "No unread source is opted in")
+waiting.receive(FirstRunFindings(steamGameCount: nil, portedAppCount: 0, steamReadFailed: true))
+require(waitingModel.firstRunSetup.steamChoice == nil, "A partial read does not choose Steam")
 waiting.receive(FirstRunFindings(steamGameCount: 2, portedAppCount: 3))
+require(waitingModel.firstRunSetup.steamChoice == nil, "A late read does not choose Steam")
 waiting.activate(.openLibrary)
 require(waiting.opened.last?.ported == true, "A completed read still imports found apps")
 NSApp.modalWindow = 1
@@ -217,6 +268,7 @@ host = host.replace('// ACTIVATE_FOUND', declaration('    func activate(', (ROOT
 host = host.replace('// KEYS', declaration('    enum StorageKeys'))
 host = host.replace('// SETUP', declaration('    @Published private(set) var firstRunSetup ='))
 host = host.replace('// FINDINGS_CHANGED', findings_changed)
+host = host.replace('// STEAM_ON', declaration('    var steamOn:', found))
 host = host.replace('// FINISH', finish)
 host = host.replace('// RESTORE', restore).replace('// STARTUP_REQUESTS', startup_requests)
 host = host.replace('// ACCEPTED_BUILD', accepted)

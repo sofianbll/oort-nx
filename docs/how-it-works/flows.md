@@ -39,7 +39,8 @@ Punti fissi:
 - Gli store si costruiscono una volta sola, prima della shell.
 - Un archivio illeggibile non diventa mai una libreria vuota.
 - La Dev legge e scrive solo nel suo profilo.
-- La scelta Steam del primo Setup resta salvata anche alla chiusura; lettura e attivazione usano la cartella scelta nella fonte. Una lettura incompleta offre Retry, senza dichiarare la libreria vuota.
+- La scelta Steam del primo Setup resta salvata anche alla chiusura; lettura e attivazione usano la cartella scelta nella fonte. La scansione non sceglie Steam e Open library conserva la fonte in assenza di scelta. Una lettura incompleta offre Retry, senza dichiarare la libreria vuota.
+- Riprendendo un Setup precedente, il vecchio Steam acceso non basta per attivare una fonte spenta: occorre sceglierlo sulla prima pagina o in Settings. Una fonte già attiva rimane visibile in assenza di una scelta contraria.
 - Se il file delle chiavi viene rifiutato in Get ready, il motivo compare sulla scheda Chiavi, dalla quale si può riprovare senza chiudere un dialogo.
 - La cartella Game files ricordata resta una preferenza del selettore: l'avvio non ne enumera i sorgenti.
 - La shell riceve gli stessi comandi dal profilo esteso GameController o, in sua assenza, da un pad HID Nintendo. Un pad dichiarato compatibile da macOS attende fino a due secondi prima del ripiego a HID.
