@@ -11,14 +11,18 @@ public struct ProfileKeypad {
         [.erase, .digit(0), .validate]
     ]
 
+    private let pinLength: Int
     private var row = 0
     private var column = 0
     private var digits = ""
     public var selected: Key { Self.rows[row][column] }
     public var count: Int { digits.count }
-    public var canValidate: Bool { count == LocalProfile.pinLength }
+    public var canValidate: Bool { count == pinLength }
 
-    public init() {}
+    package init(pinLength: Int) {
+        precondition(pinLength > 0)
+        self.pinLength = pinLength
+    }
 
     public mutating func focus(_ key: Key) {
         guard let row = Self.rows.firstIndex(where: { $0.contains(key) }),

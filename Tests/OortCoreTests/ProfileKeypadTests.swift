@@ -1,9 +1,9 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortCore
 
 final class ProfileKeypadTests: XCTestCase {
     func testNavigationStopsAtEdgesAndReachesAllBottomKeys() {
-        var keypad = ProfileKeypad()
+        var keypad = ProfileKeypad(pinLength: 4)
         keypad.move(.left)
         keypad.move(.up)
         XCTAssertEqual(keypad.selected, .digit(1))
@@ -27,7 +27,7 @@ final class ProfileKeypadTests: XCTestCase {
     }
 
     func testEraseAndValidateExactlyFourDigitsIncludingLeadingZero() {
-        var keypad = ProfileKeypad()
+        var keypad = ProfileKeypad(pinLength: 4)
         XCTAssertNil(keypad.press(.erase))
         XCTAssertFalse(keypad.canValidate)
         XCTAssertNil(keypad.press(.validate))
@@ -47,5 +47,14 @@ final class ProfileKeypadTests: XCTestCase {
         XCTAssertFalse(keypad.canValidate)
         XCTAssertNil(keypad.press(.digit(9)))
         XCTAssertEqual(keypad.count, 1)
+    }
+
+    func testValidationUsesTheInjectedLength() {
+        var keypad = ProfileKeypad(pinLength: 2)
+        XCTAssertNil(keypad.press(.digit(0)))
+        XCTAssertFalse(keypad.canValidate)
+        XCTAssertNil(keypad.press(.digit(1)))
+        XCTAssertTrue(keypad.canValidate)
+        XCTAssertEqual(keypad.press(.validate), "01")
     }
 }

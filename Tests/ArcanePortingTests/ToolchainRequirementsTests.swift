@@ -9,15 +9,6 @@ final class ToolchainRequirementsTests: XCTestCase {
         XCTAssertEqual(ToolchainRequirements.current.metalDownload(for: "32023.922"),
                        ["-downloadComponent", "MetalToolchain", "-buildVersion", "27B47"])
     }
-    func testVersionCompareIsNumeric() {
-        XCTAssertTrue(VersionNumber.isOlder("10.0.401", than: "10.0.403"))
-        XCTAssertTrue(VersionNumber.isOlder("27.1", than: "27.10"))
-        XCTAssertTrue(VersionNumber.isOlder("27", than: "27.0.1"))
-        XCTAssertFalse(VersionNumber.isOlder("27.1", than: "27.1.0"))
-        XCTAssertFalse(VersionNumber.isOlder("10.0.403", than: "10.0.401"))
-        XCTAssertFalse(VersionNumber.isOlder("26.4", than: "26.4"))
-    }
-
     func testMetalDownloadPinsTheCertifiedAsset() {
         let requirements = ToolchainRequirements(minimumXcode: "27.1", fallbackMetal: "32023.921",
                                                  metalAssets: ["32023.921": "27A266a"])

@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortCore
 
 final class MoonlightFieldTests: XCTestCase {
     private let field = MoonlightField.particles()
