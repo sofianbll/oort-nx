@@ -34,6 +34,7 @@ struct AppShellView: View {
     /// Rescans the Steam source when Steam rewrites a manifest (a download finishing, a game installed or removed).
     @State var steamWatcher = SteamManifestWatcher()
     @State var setupSourceEntryID: UUID?
+    @State var resumeOnboardingAfterSettings = false
     /// "Welcome to Arcane" is on screen (once, after the update from NX Library).
     @State var showsWelcome = false
     /// Closed in this session: never presented again, even while its fade has not yet saved it as shown.
@@ -59,20 +60,36 @@ struct AppShellView: View {
         _showsWelcome = State(initialValue: state.opensWithWelcome)
     }
 
-    func updateLocale() {
-        let previousLanguage = AppLocalization.shared.context.language
-        AppLocalization.shared.configure(settings.settings)
-        if previousLanguage != AppLocalization.shared.context.language {
-            store.refreshLocalizedMetadata()
+    func finishOnboarding() {
+        resumeOnboardingAfterSettings = false
+        router.showLibrary()
+        let games = viewModel.visibleCatalogGames.filter { !$0.isHidden }
+        if let first = games.first(where: { $0.nxnativeGame?.isPlayableLocally == true }) ?? games.first {
+            router.requestSpotlightSelect(first.id)
         }
+        viewModel.finishOnboarding()
+    }
+
+    func openOnboardingSettings(_ section: SettingsSection) {
+        if case .settings = router.route { router.showLibrary() }
+        resumeOnboardingAfterSettings = true
+        viewModel.showSetupCheck = false
+        let rowID: String?
+        switch section {
+        case .profileIdentity: rowID = "Name"
+        case .sources: rowID = "Steam"
+        default: rowID = nil
+        }
+        router.openSettings(section, rowID: rowID)
     }
 
     var backdropStyle: SeleneBackdropStyle {
-        SeleneBackdropStyle(palette: theme.palette,
-                            wallpaperURL: theme.wallpaper(for: settings.settings.wallpaperID)?.url,
-                            sizing: settings.settings.backgroundSizing,
-                            animated: settings.settings.animatedBackground,
-                            brightness: settings.settings.wallpaperBrightness)
+        let values = settings.presentation
+        return SeleneBackdropStyle(palette: theme.palette,
+                            wallpaperURL: theme.wallpaper(for: values.wallpaperID)?.url,
+                            sizing: values.backgroundSizing,
+                            animated: values.animatedBackground,
+                            brightness: values.wallpaperBrightness)
     }
 
     func updateSharedBackdrop(_ request: SeleneBackdropRequest?) {
@@ -94,6 +111,7 @@ struct AppShellView: View {
     var isCloseGameOpen: Bool {
         viewModel.gameToClose != nil || viewModel.gameToRemove != nil || showsUpdateOffer || showsInstallFailure
             || showsSettingsNotice || viewModel.cloudLibraryGameID != nil || viewModel.cloudQuitRequested
+            || router.settingsDecision != nil
     }
     var showsInstallFailure: Bool {
         viewModel.gameWithInstallFailure != nil && !viewModel.showSetupCheck
@@ -114,7 +132,7 @@ struct AppShellView: View {
     }
 
     var reduceMotion: Bool {
-        settings.settings.reduceMotion || accessibilityReduceMotion
+        settings.presentation.reduceMotion || accessibilityReduceMotion
     }
 
     /// Native alerts and file pickers own input, including while their parent has no key window.
@@ -330,6 +348,11 @@ struct AppShellView: View {
     /// The current screen; under Add game or the console, the screen they were opened from.
     @ViewBuilder
     var content: some View {
+        if !viewModel.isGuidedSetupOpen { routeContent }
+    }
+
+    @ViewBuilder
+    private var routeContent: some View {
         switch router.route.isOverlay ? router.underlyingRoute : router.route {
         case .library:
             SpotlightView(

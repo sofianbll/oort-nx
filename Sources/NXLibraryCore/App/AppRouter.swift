@@ -21,6 +21,10 @@ public enum AppRoute: Equatable {
         if case .profileCollection = self { return true }
         return self == .collection
     }
+    public var isSettings: Bool {
+        if case .settings = self { return true }
+        return false
+    }
 }
 
 public enum IntegrationID: CaseIterable, Hashable, Sendable {
@@ -65,7 +69,15 @@ public enum MenuOutcome: Equatable {
 public final class AppRouter: ObservableObject {
     @Published public private(set) var route: AppRoute = .library
     @Published public private(set) var isReturningFromBack = false
-    @Published public var isMenuPresented = false
+    @Published private var menuPresented = false
+    public var isMenuPresented: Bool {
+        get { menuPresented }
+        set {
+            if newValue, !menuPresented,
+               requestSettingsDeparture({ [weak self] in self?.isMenuPresented = true }) { return }
+            menuPresented = newValue
+        }
+    }
     @Published public var isSearchPresented = false
     @Published package var sortMenu: LibrarySort?
     /// True while the full-screen screenshot viewer is open; the shell ignores its global shortcuts.
@@ -83,6 +95,38 @@ public final class AppRouter: ObservableObject {
     @Published public var integrationFocus: IntegrationID?
     @Published public private(set) var integrationDetail: IntegrationID?
     @Published public private(set) var settingsRowID: String?
+    public enum SettingsDecision: Equatable { case save, leave }
+    @Published public private(set) var settingsDecision: SettingsDecision?
+    public var hasPendingSettings: () -> Bool = { false }
+    private var afterSettingsDecision: (() -> Void)?
+
+    /// Pause before changing route, history, menu, profile or quit. A second request can't replace the first.
+    @discardableResult
+    public func requestSettingsDeparture(_ proceed: @escaping () -> Void) -> Bool {
+        guard case .settings = route, hasPendingSettings() else { return false }
+        if settingsDecision == nil {
+            afterSettingsDecision = proceed
+            settingsDecision = .leave
+        }
+        return true
+    }
+
+    public func requestSettingsSave() {
+        guard case .settings = route, hasPendingSettings(), settingsDecision == nil else { return }
+        settingsDecision = .save
+    }
+
+    public func finishSettingsDecision(proceed: Bool) {
+        let next = afterSettingsDecision
+        afterSettingsDecision = nil
+        settingsDecision = nil
+        if proceed { next?() }
+    }
+
+    private func defersRoute(_ destination: AppRoute, _ proceed: @escaping () -> Void) -> Bool {
+        if case .settings = destination { return false }
+        return requestSettingsDeparture(proceed)
+    }
 
     private var history: [AppRoute] = []
     private var profileSpotlightKey: String?
@@ -113,6 +157,7 @@ public final class AppRouter: ObservableObject {
     /// Opens on `route` with nothing to go back to.
     public func setInitialRoute(_ route: AppRoute) {
         guard route != .gameInbox || menuSelection.gameInboxEnabled else { return }
+        guard !defersRoute(route, { [weak self] in self?.setInitialRoute(route) }) else { return }
         isReturningFromBack = false
         history.removeAll()
         integrationBarFocused = false
@@ -200,10 +245,12 @@ public final class AppRouter: ObservableObject {
 
     public func navigate(to route: AppRoute) {
         guard route != self.route, route != .gameInbox || menuSelection.gameInboxEnabled else { return }
+        guard !defersRoute(route, { [weak self] in self?.navigate(to: route) }) else { return }
         isReturningFromBack = false
         integrationBarFocused = false
         settingsRowID = nil
-        history.append(self.route)
+        // Moving between sections is not a new visit to Settings.
+        if !self.route.isSettings || !route.isSettings { history.append(self.route) }
         self.route = route
     }
 
@@ -280,6 +327,7 @@ public final class AppRouter: ObservableObject {
     }
 
     public func showLibrary() {
+        guard !defersRoute(.library, { [weak self] in self?.showLibrary() }) else { return }
         isReturningFromBack = false
         history.removeAll()
         integrationBarFocused = false
@@ -288,10 +336,12 @@ public final class AppRouter: ObservableObject {
     }
 
     public func back() {
-        guard let previous = history.popLast() else {
+        guard let previous = history.last else {
             isReturningFromBack = false
             return
         }
+        guard !defersRoute(previous, { [weak self] in self?.back() }) else { return }
+        history.removeLast()
         isReturningFromBack = true
         integrationBarFocused = route == .integrations && (previous == .library || previous == .collection)
         settingsRowID = nil

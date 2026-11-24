@@ -20,7 +20,7 @@ final class SystemDetector {
 
     /// Resolves the personal workspace root. The app is not tied to a bundle sibling or an external SSD.
     func resolveRootDirectory() -> URL {
-        URL(fileURLWithPath: NSHomeDirectory())
+        AppData.profile.home
     }
 
     /// Locates the nxnative checkout: `customDir` as it is, else the remembered folder while it exists, else

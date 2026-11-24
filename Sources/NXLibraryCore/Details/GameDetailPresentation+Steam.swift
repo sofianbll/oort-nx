@@ -21,6 +21,9 @@ extension GameDetailPresentation {
         let shownLanguage = facts.flatMap { $0.language == SteamMetadata.language(L10n.context.language) ? nil : SteamMetadata.code($0.language) }
         // Text cached for another language waits for Steam's answer before Wikipedia stands in.
         descriptionSettled = shownLanguage == nil
+        descriptionExcerpt = nil
+        descriptionIsExcerpt = false
+        descriptionSource = nil
         if overrides[.description] != nil {
             descriptionLanguage = "custom"
             descriptionLanguageNote = nil

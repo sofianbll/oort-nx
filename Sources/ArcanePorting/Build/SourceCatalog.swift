@@ -94,11 +94,13 @@ public final class SourceCatalog {
 
     public func scan(files: [URL], skippingUnreadable: Bool = false,
                      onUnreadable: ((URL, Error) -> Void)? = nil,
+                     cancelled: () -> Bool = { false },
                      contentsReader: ((URL) throws -> [PackageContent])? = nil) throws -> [DetectedGame] {
         var groups: [UInt64: (base: DetectedSource?, updates: [DetectedSource], dlcs: [DetectedSource])] = [:]
         var firstError: Error?
 
         for url in files {
+            if cancelled() { throw CancellationError() }
             guard !url.hasDirectoryPath else { continue }
             let sources: [DetectedSource]
             do {

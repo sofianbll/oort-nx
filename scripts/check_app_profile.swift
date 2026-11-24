@@ -8,6 +8,8 @@ try AppData.validateBuildIdentity(Bundle.main.infoDictionary ?? [:])
 let defaults = AppData.preferences
 precondition(defaults === UserDefaults.standard, "The distinct bundle ID must select the app's own preferences")
 precondition(Bundle.main.bundleIdentifier == AppData.profile.preferencesDomain, "Preferences must belong to this profile")
-precondition(AppData.profile.isDevelopment == (AppData.supportRoot.lastPathComponent == "NXLibrary-Development"))
-precondition(AppData.profile.isDevelopment == (AppData.cacheRoot.lastPathComponent == "NXLibrary-Development"))
+let folder = AppData.profile.isTrial2 ? "NXLibrary-Development-Trial2" :
+    AppData.profile.isDevelopment ? "NXLibrary-Development" : "NXLibrary"
+precondition(AppData.supportRoot.lastPathComponent == folder)
+precondition(AppData.cacheRoot.lastPathComponent == folder)
 print("Packaged profile identity, preferences and roots verified without UI or data writes.")

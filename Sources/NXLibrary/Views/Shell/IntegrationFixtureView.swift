@@ -21,7 +21,7 @@ struct IntegrationFixtureView: View {
         var data = IntegrationOverview()
         if index == 0 {
             data.engine = .detected
-        data.steam = .ready
+            data.steam = .ready
             data.drive = .transferring
             data.nextendo = .unavailable
             data.steamGridDB = true
@@ -124,13 +124,15 @@ struct IntegrationFixtureView: View {
         IntegrationFixtureHome(data: data, router: router)
     }
 
-    @MainActor static func capture(to output: URL, soundOnly: Bool = false) throws {
+    @MainActor static func capture(to output: URL, soundOnly: Bool = false, onboardingOnly: Bool = false) throws {
         NSApplication.shared.setActivationPolicy(.prohibited)
         SeleneFonts.register()
         try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
         let router = AppRouter()
         let data = example(0)
-        for (language, region) in [(AppLanguage.english, "US"), (.french, "FR")] {
+        let languages: [(AppLanguage, String)] = onboardingOnly ? [(.french, "FR")] : [(.english, "US"), (.french, "FR")]
+        let onboarding = try onboardingOnly ? fixtureOnboardingState() : nil
+        for (language, region) in languages {
             let locale = AppLocale(language: language, region: region)
             L10n.setContext(locale)
             for (name, size) in [("wide", CGSize(width: 1440, height: 900)), ("narrow", CGSize(width: 780, height: 740))] {
@@ -142,10 +144,12 @@ struct IntegrationFixtureView: View {
                         .frame(width: size.width, height: height)
                         .environment(\.seleneSharesBackdrop, true)
                         .background {
-                            if CommandLine.arguments.contains("--fixture-bright") {
-                                OortGalleryWallpaper()
-                            } else {
-                                ZStack {
+                            ZStack {
+                                if CommandLine.arguments.contains("--fixture-bright") {
+                                    OortGalleryWallpaper()
+                                } else if onboardingOnly {
+                                    LinearGradient(colors: [.yellow, .white, .cyan], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                } else {
                                     Color(hex: palette.scrim)
                                     Rectangle().fill(SeleneTheme.baseGradient(for: palette)).opacity(0.6)
                                     MoonlightBackdrop(accent: SeleneTheme.glyph, ink: SeleneTheme.ink,
@@ -162,6 +166,19 @@ struct IntegrationFixtureView: View {
                     try captureWindow(host, size: CGSize(width: size.width, height: height),
                                       to: output.appendingPathComponent("\(prefix)-\(suffix).png"))
                 }
+                if let (model, settings, profiles, sources) = onboarding {
+                    model.reopenOnboarding()
+                    GameControllerService.shared.activeControllerName = "DualSense"
+                    GameControllerService.shared.isGamepadConnected = true
+                    for page in FirstRunSetup.Page.tour {
+                        try render(OnboardingView(viewModel: model, settings: settings, profiles: profiles, sources: sources,
+                                                  finish: {}, openSettings: { _ in }), as: page.rawValue)
+                        model.moveOnboarding(1)
+                    }
+                    try render(OnboardingNewsView(onExit: { _ in }), as: "news")
+                    try render(OnboardingCopyOffer(choose: { _ in }), as: "copy")
+                    continue
+                }
                 if soundOnly {
                     let store = AppSettingsStore()
                     let library = SoundPackLibrary()
@@ -174,7 +191,7 @@ struct IntegrationFixtureView: View {
                     for (key, suffix) in [("selene", "default"), ("oort", "oort")] {
                         store.settings.soundPackID = key
                         try render(ScrollView {
-                            SettingsSoundSection(settings: store, onActions: { _ in }, soundPackLibrary: library)
+                            SettingsSoundSection(settings: SettingsEditor(store), onActions: { _ in }, soundPackLibrary: library)
                                 .padding(canvas.u(SeleneTokens.Space.large))
                                 .frame(maxWidth: 950)
                                 .frame(maxWidth: .infinity)
@@ -202,6 +219,40 @@ struct IntegrationFixtureView: View {
                 }
             }
         }
+    }
+
+    @MainActor private static func fixtureOnboardingState() throws
+        -> (AppViewModel, AppSettingsStore, LocalProfileStore, CatalogSourcesModel) {
+        precondition(AppData.integrationFixtureHome != nil)
+        let home = AppData.profile.home
+        let apps = home.appendingPathComponent("Applications", isDirectory: true)
+        let files = home.appendingPathComponent("Game files", isDirectory: true)
+        let fm = FileManager.default
+        for (name, id) in [("Aube lunaire", "0100000000011000"), ("Rivage de verre", "0100000000012000")] {
+            let app = apps.appendingPathComponent("\(name).app")
+            let contents = app.appendingPathComponent("Contents")
+            try fm.createDirectory(at: contents, withIntermediateDirectories: true)
+            let data = try PropertyListSerialization.data(fromPropertyList: [
+                "CFBundleIdentifier": "org.nxnative.\(id)", "DMTitleID": id, "CFBundleName": name
+            ], format: .xml, options: 0)
+            try data.write(to: contents.appendingPathComponent("Info.plist"))
+        }
+        try fm.createDirectory(at: files, withIntermediateDirectories: true)
+        try Data("synthetic".utf8).write(to: files.appendingPathComponent("Traverse [0100000000013000].xci"))
+        try Data("synthetic".utf8).write(to: files.appendingPathComponent("Brume.xci"))
+        AppData.preferences.set(files.path, forKey: AppViewModel.StorageKeys.savedGameFolder)
+        let repository = CatalogRepository(store: CatalogStore(directory: AppData.supportRoot))
+        let installed = OnboardingInventory.read(apps: [apps], files: nil, existing: [])
+        var catalog = try repository.load()
+        if let game = installed.entries.first?.game { catalog = try repository.mergeNXNative(scanned: [game], enableSource: true) }
+        let settings = AppSettingsStore()
+        settings.settings.appLanguage = .french
+        let profiles = LocalProfileStore(settings: settings.settings, name: "Camille")
+        let model = AppViewModel(settingsStore: settings, catalog: catalog, repository: repository,
+                                 localProfiles: profiles, registerNotifications: false)
+        model.libraryFolder = apps
+        let sources = CatalogSourcesModel(repository: repository, initialConfiguration: .init(integration: .steam)) { _ in }
+        return (model, settings, profiles, sources)
     }
 
     @MainActor static func captureWindow(_ host: NSView, size: CGSize, to file: URL) throws {

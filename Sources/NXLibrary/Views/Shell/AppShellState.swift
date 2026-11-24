@@ -23,6 +23,16 @@ final class AppShellState {
         let profiles = LocalProfileStore(settings: settings.settings,
                                          name: name.isEmpty ? L10n.text("Player") : String(name.prefix(32)))
         self.profiles = profiles
+        let freshTour = !AppData.preferences.bool(forKey: AppViewModel.StorageKeys.setupCompleted)
+            && (AppData.preferences.string(forKey: AppViewModel.StorageKeys.setupPage)
+                .flatMap(FirstRunSetup.Page.init(rawValue:))?.isGuided ?? true)
+        if freshTour, profiles.profiles.count == 1, profiles.active?.isLocked == false {
+            settings.settings.profileStartup = .last
+        }
+        if freshTour, AppData.preferences.string(forKey: AppViewModel.StorageKeys.setupPage) == nil {
+            settings.settings.checkAppUpdatesAtLaunch = false
+            settings.settings.checkEngineAtLaunch = false
+        }
         let startup = settings.settings.profileStartup
         let needsPicker = profiles.needsStartupPicker(startup)
         if profiles.active != nil, startup != startup.available(in: profiles.profiles) {
@@ -47,14 +57,20 @@ final class AppShellState {
             guard let model else { return false }
             return model.isBuilding || model.isUpdatingApp || model.hasActiveSaveOperations
         }
-        sources = CatalogSourcesModel(repository: repository, initialConfiguration: catalog.source(.steam) ?? .init(integration: .steam)) { [weak model] document in
+        let sources = CatalogSourcesModel(repository: repository, initialConfiguration: catalog.source(.steam) ?? .init(integration: .steam)) { [weak model] document in
             model?.applyCatalog(document)
         }
+        self.sources = sources
+        if let choice = settings.settings.launcherChoices.steamSource { sources.applySettingsChoice(choice) }
         let router = AppRouter(settings: settings)
+        router.hasPendingSettings = { [weak settings] in settings?.draft?.hasChanges == true }
+        AppDelegate.requestSettingsQuit = { [weak router] proceed in
+            router?.requestSettingsDeparture(proceed) == true
+        }
         router.setInitialRoute(AppRouter.initialRoute(for: settings.settings.startOn, last: settings.settings.lastHome))
         self.router = router
         opensWithWelcome = ArcaneWelcome.shouldShow(setupCompleted: model.setupCompleted,
-                                                    shown: settings.settings.welcomeArcaneShown,
+                                                    shown: AppData.preferences.bool(forKey: AppViewModel.StorageKeys.onboardingNewsSeen),
                                                     hasPendingRecovery: false)
         model.isWelcomeOpen = opensWithWelcome
         model.profileOwnsInput = needsPicker

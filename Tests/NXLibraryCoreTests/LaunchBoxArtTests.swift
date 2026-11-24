@@ -86,6 +86,15 @@ final class LaunchBoxArtTests: XCTestCase {
         XCTAssertNil(LaunchBoxArt.pick(snes, names: ["Donkey Kong Bananza"], switch2: false, loose: true), "even typed")
     }
 
+    func testSwitchGalleryFindsANameWithNumericHTMLEntities() async throws {
+        let client = Client()
+        let search = try XCTUnwrap(LaunchBoxArt.searchURL(for: "Pokémon Pokopia"))
+        client.routes[search.absoluteString] = Self.card("17-fixture", "Pok&#xE9;mon Pokopia", "Nintendo Switch 2")
+        client.routes["https://gamesdb.launchbox-app.com/games/details/17-fixture"] = Self.gamePage
+        let shots = await LaunchBoxArt.screenshots(names: ["Pokémon Pokopia"], switch2: true, client: client)
+        XCTAssertEqual(shots?.count, LaunchBoxArt.screenshotLimit)
+    }
+
     func testAMacGameTakesItsComputerEntryNeverAConsoleOne() {
         let results = LaunchBoxArt.results(in: Self.card("3-ps", "The Witcher 3: Wild Hunt", "Sony Playstation 4")
                                            + Self.card("2-sw", "The Witcher 3: Wild Hunt", "Nintendo Switch")

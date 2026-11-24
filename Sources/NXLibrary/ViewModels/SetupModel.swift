@@ -63,17 +63,15 @@ final class SetupModel: ObservableObject {
     @Published var compatibilityReport: CompatibilityReport? = nil
     @Published var isCheckingEnvironment = false
     var environmentCheckGeneration = UUID()
-    @Published var allowUntestedToolchain: Bool = false {
-        didSet {
-            AppData.preferences.set(allowUntestedToolchain, forKey: AppViewModel.StorageKeys.allowUntestedToolchain)
-        }
+    var legacyToolchainOverride: Bool {
+        AppData.preferences.bool(forKey: AppViewModel.StorageKeys.allowUntestedToolchain)
+    }
+    var allowUntestedToolchain: Bool {
+        usesNewestEngine || (app.settingsStore?.settings.toolchainOverride ?? legacyToolchainOverride)
     }
 
     init(app: AppViewModel) {
         self.app = app
-        if AppData.preferences.object(forKey: AppViewModel.StorageKeys.allowUntestedToolchain) != nil {
-            allowUntestedToolchain = AppData.preferences.bool(forKey: AppViewModel.StorageKeys.allowUntestedToolchain)
-        }
         if let data = AppData.preferences.data(forKey: AppViewModel.StorageKeys.newestEngineChoice) {
             // Restoring through the setter would refresh versions via app.setup while it is still being initialized.
             _newestEngineChoice = Published(initialValue: try? JSONDecoder().decode(NewestEngineChoice.self, from: data))
@@ -122,12 +120,15 @@ final class SetupModel: ObservableObject {
         return error.localizedDescription
     }
 
-    func selectNxnativeFolder() {
+    var legacyEnginePath: String? { AppData.preferences.string(forKey: AppViewModel.StorageKeys.savedEngineFolder) }
+
+    func selectNxnativeFolder(startingAt start: URL? = nil, stage: ((URL) -> Void)? = nil) {
         guard !app.isBuilding, !app.isUpdatingApp else { return }
         let panel = NSOpenPanel()
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
+        panel.directoryURL = start
         panel.prompt = "Select nxnative Folder"
         panel.message = "Choose the directory containing the nxnative scripts and tools."
 
@@ -137,16 +138,21 @@ final class SetupModel: ObservableObject {
                 SoundEffectService.shared.play(.error)
                 return
             }
+            if let stage { stage(url.standardizedFileURL); return }
             // Remembered, so launch and every check use it; ~/nxnative itself needs nothing stored.
             if let saved = EngineLocation.savedValue(for: url, home: SystemDetector.shared.resolveRootDirectory()) {
                 AppData.preferences.set(saved, forKey: AppViewModel.StorageKeys.savedEngineFolder)
             } else {
                 AppData.preferences.removeObject(forKey: AppViewModel.StorageKeys.savedEngineFolder)
             }
-            self.nxnativePath = url.path
-            self.isNxnativeValid = true
-            self.refreshCompatibility()
+            useSavedEnginePath(url.path)
         }
+    }
+
+    func useSavedEnginePath(_ path: String) {
+        nxnativePath = path
+        isNxnativeValid = EngineLocation.isEngine(URL(fileURLWithPath: path))
+        refreshCompatibility()
     }
 
     // MARK: - Keys import
@@ -250,12 +256,12 @@ final class SetupModel: ObservableObject {
         refreshCompatibility()
     }
 
-    func restoreBuildInputs(customRyujinxDir: String? = nil, automatic: Bool = false) {
+    func restoreBuildInputs(customRyujinxDir: String? = nil, automatic: Bool = false, readKeys: Bool = true) {
         let nxResult = SystemDetector.shared.detectNxnativeDirectory(
-            saved: AppData.preferences.string(forKey: AppViewModel.StorageKeys.savedEngineFolder))
+            saved: app.settingsStore?.settings.launcherChoices.enginePath ?? legacyEnginePath)
         self.nxnativePath = nxResult.path
         self.isNxnativeValid = nxResult.isValid
-        if !automatic || !AppData.profile.isDevelopment { self.ensureKeysImported(customRyujinxDir: customRyujinxDir) }
+        if readKeys && (!automatic || !AppData.profile.isDevelopment) { self.ensureKeysImported(customRyujinxDir: customRyujinxDir) }
     }
 
     /// With launch checks off, inspecting a build screen performs the check on demand.

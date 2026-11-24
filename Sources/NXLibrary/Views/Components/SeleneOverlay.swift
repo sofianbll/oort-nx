@@ -23,7 +23,8 @@ struct SeleneOverlay<Content: View>: View {
     }
 
     @ViewBuilder private var veil: some View {
-        let tint = SeleneTheme.scrim.opacity(style.veilOpacity)
+        let scrim = SeleneTheme.scrim
+        let tint = style.veilOpacity.map { scrim.opacity($0) } ?? scrim
         if style == .search {
             tint.background(.ultraThinMaterial)
         } else {

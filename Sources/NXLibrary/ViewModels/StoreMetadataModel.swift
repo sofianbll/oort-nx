@@ -20,7 +20,9 @@ final class StoreMetadataModel: ObservableObject {
     @Published var storeMetadata: [UUID: NintendoStoreMetadata] = [:]
     @Published var storeMetadataLoading: Set<UUID> = []
     @Published var storeMetadataErrors: [UUID: String] = [:]
-    private lazy var storeMetadataService = NintendoStoreMetadataService()
+    private let legacyMetadata = NintendoStoreMetadataService()
+    private lazy var storeMetadataService = SwitchGameMetadataService(
+        legacy: legacyMetadata, launchBox: DatabaseMetadataService.shared(.launchBox), gameTDB: app.boxArt)
     private var metadataLocaleGeneration = UUID()
     private var localizedMetadataRefresh: Task<Void, Never>?
     private var cachedMetadataPreload: Task<Void, Never>?
@@ -61,7 +63,7 @@ final class StoreMetadataModel: ObservableObject {
     }
 
     /// A language change only resets presentation metadata, never the library, personal picks or game settings.
-    func refreshLocalizedMetadata() {
+    func refreshLocalizedMetadata(locale: AppLocale) {
         metadataLocaleGeneration = UUID()
         let generation = metadataLocaleGeneration
         localizedMetadataRefresh?.cancel()
@@ -69,7 +71,6 @@ final class StoreMetadataModel: ObservableObject {
         storeMetadataErrors.removeAll()
         storeMetadataLoading.removeAll()
         let games = app.libraryGames
-        let locale = L10n.context
         let service = storeMetadataService
         // Keep a visible description while another language loads. Disk reads do not block the UI.
         localizedMetadataRefresh = Task { @MainActor [weak self] in
@@ -238,7 +239,7 @@ final class StoreMetadataModel: ObservableObject {
     }
 
     func metadataCacheSize() -> Int64 {
-        storeMetadataService.cacheSize() + WikipediaDescriptionService.shared.cacheSize()
+        legacyMetadata.cacheSize() + WikipediaDescriptionService.shared.cacheSize()
     }
 
     func clearMetadataCache() {
@@ -250,7 +251,7 @@ final class StoreMetadataModel: ObservableObject {
         languageFetchWaiting.removeAll()
         storeMetadataLoading.removeAll()
         storeMetadataErrors.removeAll()
-        storeMetadataService.clearCache()
+        legacyMetadata.clearCache()
         WikipediaDescriptionService.shared.clearCache()
         storeMetadata.removeAll()
         storeMetadataOriginals.removeAll()

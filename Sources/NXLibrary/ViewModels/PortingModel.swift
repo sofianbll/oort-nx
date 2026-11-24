@@ -74,7 +74,7 @@ final class PortingModel: ObservableObject {
         didSet {
             if let folder = selectedGameFolder {
                 if !keepsRememberedGameFolder {
-                    AppData.preferences.set(folder.path, forKey: Self.savedGameFolderKey)
+                    rememberGameFilesFolder(folder.path)
                 }
                 if !restoringGameFolder {
                     selectedPackageURLs = nil
@@ -82,7 +82,7 @@ final class PortingModel: ObservableObject {
                 }
             } else {
                 if !keepsRememberedGameFolder {
-                    AppData.preferences.removeObject(forKey: Self.savedGameFolderKey)
+                    rememberGameFilesFolder(nil)
                 }
                 scanGeneration = UUID()
                 selectedPackageURLs = nil
@@ -98,9 +98,17 @@ final class PortingModel: ObservableObject {
     var restoringGameFolder = false
     /// Explicit file picks must not silently include other packages in their parent folder.
     var selectedPackageURLs: [URL]?
+    var legacyGameSourcesPath: String? { AppData.preferences.string(forKey: Self.savedGameFolderKey) }
+    func rememberGameFilesFolder(_ path: String?) {
+        if let store = app.settingsStore, store.settings.launcherChoices.gameSourcesPath != nil {
+            store.settings.launcherChoices.gameSourcesPath = path ?? ""
+        } else {
+            AppData.preferences.set(path, forKey: Self.savedGameFolderKey)
+        }
+    }
     /// The global source-folder preference is independent of the current Add Game draft.
     var gameFilesFolder: URL? {
-        guard let path = AppData.preferences.string(forKey: Self.savedGameFolderKey),
+        guard let path = app.settingsStore?.settings.launcherChoices.gameSourcesPath ?? legacyGameSourcesPath,
               !path.isEmpty, path != "/" else { return nil }
         return URL(fileURLWithPath: path)
     }

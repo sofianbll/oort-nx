@@ -24,7 +24,7 @@ struct DetailsTopBlock: View {
     let primaryEnabled: Bool
     /// Description expanded by "Read more" (the page passes wheel scrolling through meanwhile).
     @Binding var expanded: Bool
-    /// Wikipedia's introduction, shown instead of a store text in another language (`WikipediaAbout`).
+    /// Wikipedia's introduction for a short or foreign-language store text (`WikipediaAbout`).
     var wikipedia: WikipediaDescription? = nil
     let onPrimary: () -> Void
     let onSecondary: () -> Void
@@ -60,7 +60,7 @@ struct DetailsTopBlock: View {
                     .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
                     .padding(.top, canvas.u(SeleneTokens.Space.titleGap))
             }
-            if let reason = pillSet.unavailableReason, downloadItem == nil {
+            if let reason = pillSet.unavailableReason, downloadItem == nil, storeNote == nil {
                 Text(reason.title)
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink75)
@@ -73,14 +73,24 @@ struct DetailsTopBlock: View {
                 NextendoOnlineBadge(titleID: game.titleId)
             }
                 .padding(.top, canvas.u(pillSet.isFailed ? 10 : 26))
-            if let state = cloud.states[game.id], let active = state.activeItem, active != .sources, !state.queued {
-                CloudLibraryProgressView(progress: state.progress,
-                    showsBar: !showsDownloadPill || downloadItem.flatMap { CloudLibraryProgressView.downloadFill(state, item: $0) } == nil)
+            if downloadFill != nil,
+               let bytes = CloudLibraryProgressView.bytesSummary(transferState.progress, context: localization) {
+                Text(bytes).seleneFont(.text).monospacedDigit().foregroundColor(SeleneTheme.ink75)
+                    .padding(.top, canvas.u(SeleneTokens.Space.small))
+            } else if let active = transferState.activeItem, !transferState.queued, active != .sources,
+                      downloadStatus == nil || active != downloadItem {
+                CloudLibraryProgressView(progress: transferState.progress, showsBar: true)
                     .frame(maxWidth: canvas.u(SeleneTokens.Space.transferMeasure), alignment: .leading)
                     .padding(.top, canvas.u(SeleneTokens.Space.small))
             } else if let issue = cloud.states[game.id]?.issue, issue.item != .sources {
                 Text(issue.message).seleneFont(.text)
                     .foregroundColor((issue.failed ? CloudLibraryStatus.failed : .unknown).color)
+                    .padding(.top, canvas.u(SeleneTokens.Space.small))
+            }
+            if let storeNote {
+                Text(storeNote).seleneFont(.text).foregroundColor(SeleneTheme.ink90)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
                     .padding(.top, canvas.u(SeleneTokens.Space.small))
             }
             portingNote
@@ -145,10 +155,10 @@ struct DetailsTopBlock: View {
             if failure == .failed, let reason = game.portingFailureReason {
                 Text(reason.title).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
             }
-        case .unavailable(let reason) where downloadItem == nil:
+        case .unavailable(let reason) where downloadItem == nil && storeNote == nil:
             Text(reason.detail).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
         case .normal, .unavailable:
-            if downloadItem != nil {
+            if downloadItem != nil || storeNote != nil {
                 EmptyView()
             } else if !canCheckCloudSources && !game.sources.isEmpty && !GameResourceState.sourcesAvailable(for: game) {
                 Text(L10n.text("Game files not found · Rebuild unavailable")).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
@@ -179,24 +189,32 @@ struct DetailsTopBlock: View {
     }
 
     private var normalPills: some View {
-        let state = cloud.states[game.id] ?? CloudLibraryState()
-        return HStack(spacing: canvas.u(14)) {
+        HStack(spacing: canvas.u(14)) {
             Group {
                 if pillSet == .queued {
                     SelenePillButton.buildQueue(minWidth: 200, focused: focusedPill == 0, action: onPrimary)
+                } else if let downloadStatus {
+                    if let downloadFill {
+                        // Still a gauge during byte transfer; never a clickable or focused button.
+                        SelenePillButton(title: downloadStatus, minWidth: 200, height: 52,
+                                         horizontalPadding: 24, focused: false, downloadFill: downloadFill,
+                                         passive: true, action: {})
+                    } else {
+                        HStack(spacing: canvas.u(8)) {
+                            SeleneStatusMark(color: CloudLibraryStatus.pending.color, pulses: false)
+                            Text(text(downloadStatus)).seleneFont(.text).foregroundColor(SeleneTheme.ink90)
+                        }
+                        .frame(minWidth: canvas.u(200), minHeight: canvas.u(52), alignment: .leading)
+                    }
                 } else {
                     SelenePillButton(title: primaryTitle, minWidth: 200, height: 52,
                                      horizontalPadding: 36, focused: focusedPill == 0,
-                                     enabled: isRunning || (downloadItem != nil ? downloadEnabled && cloud.states[game.id]?.action == nil
-                                         && cloud.states[game.id]?.refreshing != true
-                                         : primaryEnabled && pillSet.unavailableReason == nil),
-                                     downloadFill: showsDownloadPill
-                                         ? downloadItem.flatMap { CloudLibraryProgressView.downloadFill(state, item: $0) } ?? 0 : nil,
+                                     enabled: isRunning || downloadItem != nil || (primaryEnabled && pillSet.unavailableReason == nil),
                                      action: onPrimary)
                 }
             }
-            .onHover { if $0 { onHoverPill(0) } }
-            SelenePillButton(title: isRunning ? L10n.text("Close Game") : L10n.text("Options"), minWidth: 200, height: 52,
+            .onHover { if $0 && downloadStatus == nil { onHoverPill(0) } }
+            SelenePillButton(title: isRunning ? "Close Game" : "Options", minWidth: 200, height: 52,
                              horizontalPadding: 36, focused: focusedPill == 1,
                              action: onSecondary)
                 .onHover { if $0 { onHoverPill(1) } }
@@ -218,10 +236,11 @@ struct DetailsTopBlock: View {
     }
 
     private var primaryTitle: String {
-        if isRunning { return L10n.text("Resume") }
-        if let downloadItem { return L10n.text(downloadItem.primaryDownloadTitle) }
-        if pillSet.unavailableReason != nil { return L10n.text("Unavailable") }
-        return presentation.canPlay ? L10n.text("Play") : "Build"
+        if isRunning { return "Resume" }
+        if let downloadItem { return downloadItem == .app ? "Download app" : downloadItem.primaryDownloadTitle }
+        if pillSet.unavailableReason != nil ||
+            (!primaryEnabled && !presentation.canRebuild && !canCheckCloudSources) { return "Unavailable" }
+        return presentation.canPlay ? "Play" : "Build"
     }
 
     private var downloadItem: CloudLibraryItem? {
@@ -232,21 +251,87 @@ struct DetailsTopBlock: View {
         downloadItem != nil && pillSet != .queued && pillSet != .porting && !pillSet.isFailed
     }
 
+    private var transferState: CloudLibraryState { cloud.states[game.id] ?? CloudLibraryState() }
+
+    static func canDownload(_ allowed: Bool, state: CloudLibraryState?) -> Bool {
+        allowed && state?.action == nil && state?.refreshing != true
+    }
+
+    private var downloadStatus: String? {
+        guard showsDownloadPill, let item = downloadItem else { return nil }
+        guard !Self.canDownload(downloadEnabled, state: transferState) else { return nil }
+        if transferState.activeItem == item {
+            if transferState.queued { return "Queued" }
+            if let progress = transferState.progress {
+                if progress.phase == .readyToInstall { return "Waiting for the game to close…" }
+                return CloudLibraryProgressView.phaseKey(progress)
+            }
+            return "Preparing cloud operation…"
+        }
+        if transferState.refreshing { return "Checking…" }
+        return "Download unavailable"
+    }
+
+    private var downloadFill: Double? {
+        guard showsDownloadPill, let item = downloadItem, case .running = transferState.transfer(for: item),
+              let fill = CloudLibraryProgressView.downloadFill(transferState, item: item), fill < 1 else { return nil }
+        return fill
+    }
+
+    private func text(_ key: String) -> String { L10n.text(key, context: localization) }
+
+    private var storeNote: String? {
+        guard game.platform == .macApp, game.titleId != nil,
+              pillSet != .queued, pillSet != .porting, !pillSet.isFailed else { return nil }
+        if isRunning || presentation.canPlay { return text("App on this Mac") }
+        let state = transferState
+        let last = cloud.lastKnown
+        let unverified = cloud.hasCloudReadFailure || state.failure != nil || state.referenceUnverified
+        if let downloadItem {
+            let key: String
+            if downloadItem == .app {
+                let personal = (state.copies[.app] ?? state.availability[.app])?.state == .cloudOnly
+                    || last.personalApps.contains(game.id)
+                let reference = state.referenceAvailability[.app]?.state == .cloudOnly || last.referenceApps.contains(game.id)
+                key = reference ? (personal ? "App in both cloud libraries" : "App in the reference library") : "App in your cloud"
+            } else {
+                let reference = game.cloudSourcesReferenceFolder != nil || state.referenceSourceBytes != nil
+                    || (last.referenceFiles.contains(game.id) && !last.personalFiles.contains(game.id))
+                key = reference ? "Game files in the reference library" : "Game files in your cloud"
+            }
+            let stale = unverified || (downloadItem == .sources && (state.sourceFailure != nil || state.referenceSourcesUnverified))
+            let origin = stale ? L10n.format("Last known location: %@", [text(key)], context: localization) : text(key)
+            return downloadItem == .sources ? origin + " · " + text("Build after downloading") : origin
+        }
+        if presentation.canRebuild {
+            let origin = text("Game files on this Mac")
+            if !primaryEnabled { return origin + " · " + text("Check the engine before building") }
+            if pillSet.unavailableReason != nil { return origin + " · " + text("Build from Options") }
+            return origin
+        }
+        if unverified || state.sourceFailure != nil || state.referenceSourcesUnverified || cloud.startupFailure != nil {
+            return text("Cloud unavailable")
+        }
+        if cloud.archive != nil && !cloud.catalogChecked { return text("Cloud not verified") }
+        if canCheckCloudSources { return nil }
+        return L10n.format("Find your game files in %@ → %@", [text("Options"), text("Edit details")], context: localization)
+    }
+
     // MARK: - Stats
 
     /// PLAYTIME · LAST PLAYED · RELEASED · CHEATS · PLATFORM, 28 either side of each rule.
     private var stats: some View {
         var items = [
-            SeleneStat.text(L10n.text("PLAYTIME"), presentation.playtime),
-            SeleneStat.text(L10n.text("LAST PLAYED"), presentation.lastPlayed)
+            SeleneStat.text(text("PLAYTIME"), presentation.playtime),
+            SeleneStat.text(text("LAST PLAYED"), presentation.lastPlayed)
         ]
         if let released = presentation.released {
-            items.append(SeleneStat.text(L10n.text("RELEASED"), released))
+            items.append(SeleneStat.text(text("RELEASED"), released))
         }
         if cheatsOn {
-            items.append(SeleneStat.text(L10n.text("CHEATS"), L10n.text("On")))
+            items.append(SeleneStat.text(text("CHEATS"), text("On")))
         }
-        items.append(SeleneStat.platform(presentation.console))
+        items.append(SeleneStat(label: text("PLATFORM"), value: .platform(presentation.console)))
         return SeleneStatsRow(items: items, gap: 28)
             .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
     }
@@ -274,17 +359,30 @@ struct DetailsTopBlock: View {
 
     @ViewBuilder
     private var description: some View {
-        let text = wikipedia?.text ?? presentation.description
+        let about = presentation.aboutDescription(wikipedia: wikipedia, language: localization.language)
+        let showingPreview = !expanded && about.preview != nil
+        let note = about.note(showingPreview: showingPreview)
+        let text = showingPreview ? about.preview ?? about.text : about.text
         VStack(alignment: .leading, spacing: canvas.u(6)) {
             if text.isEmpty {
-                Text(L10n.text("No description for this game yet."))
+                Text(self.text("No description for this game yet."))
                     .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
             } else {
-                if let wikipedia {
-                    WikipediaCredit(pageURL: wikipedia.pageURL)
-                } else if let note = presentation.descriptionLanguageNote {
-                    Text(note).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
+                // Keep the action clear of the fixed screenshot band, even with a source and language note.
+                HStack(spacing: canvas.u(12)) {
+                    if let note {
+                        Text(note).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
+                    }
+                    if !showingPreview, let page = about.wikipediaPage {
+                        WikipediaCredit(pageURL: page)
+                    }
+                    if about.text.count > Self.readMoreThreshold || about.preview != nil {
+                        Button(expanded ? L10n.text("Show less") : L10n.text("Read more")) { expanded.toggle() }
+                            .buttonStyle(.plain)
+                            .seleneFont(.text, .semibold)
+                            .foregroundColor(SeleneTheme.glyph)
+                    }
                 }
                 if expanded {
                     ScrollView(.vertical, showsIndicators: false) {
@@ -297,12 +395,6 @@ struct DetailsTopBlock: View {
                         .lineLimit(5)
                         .frame(maxHeight: canvas.u(130), alignment: .top)
                         .clipped()
-                }
-                if text.count > Self.readMoreThreshold {
-                    Button(expanded ? L10n.text("Show less") : L10n.text("Read more")) { expanded.toggle() }
-                        .buttonStyle(.plain)
-                        .seleneFont(.text, .semibold)
-                        .foregroundColor(SeleneTheme.glyph)
                 }
             }
         }

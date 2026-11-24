@@ -265,29 +265,14 @@ import ArcanePorting
                            .environment(\.nxAppLocale, french),
                        in: out, refs, reference, size: .init(width: 1600, height: 900))
         }
-        // Cloud saves change every game: opening the row explains the choices and moves nothing.
+        // Cloud saves are staged; the dedicated Settings probe renders the single review over this page.
         vm.settingsStore = settings
         settings.settings.cloudSaves = .iCloudDrive
         settings.settings.cloudSavesPickedFolder = "/fixture/Switch/Saves"
         L10n.setContext(french)
-        vm.askCloudSaves()
-        let cloudNotice = vm.settingsNotice!
-        precondition(settings.settings.cloudSaves == .iCloudDrive)
-        precondition(cloudNotice.choices.dropLast() == ["Désactivé", "Dossier"])
-        precondition(cloudNotice.initialFocus == cloudNotice.cancelIndex)
-        vm.settingsNotice = nil
-        cloudNotice.runChoice(cloudNotice.cancelIndex)
-        precondition(settings.settings.cloudSaves == .iCloudDrive)
         let cloudPage = SettingsView(initialSection: .cloudSaves, viewModel: vm, settings: settings, router: settingsRouter,
                                      artwork: art, profileAccount: linked).environment(\.nxAppLocale, french)
         try render("settings-cloudSaves", cloudPage, in: out, refs, "none", size: .init(width: 1600, height: 900))
-        try render("settings-cloudSaves-ask", cloudPage.overlay {
-            SeleneOverlay(style: .dialog, onOutside: {}) {
-                SeleneChoiceDialog(title: cloudNotice.title, message: cloudNotice.message, choices: cloudNotice.choices,
-                                   focus: .constant(cloudNotice.initialFocus), cancelIndex: cloudNotice.cancelIndex,
-                                   details: cloudNotice.choiceDetails, onCancel: {}, onChoose: { _ in })
-            }
-        }.environment(\.nxAppLocale, french), in: out, refs, "none", size: .init(width: 1600, height: 900))
         L10n.setContext(.init(language: .english, region: "US"))
         settings.settings.cloudSaves = .off
         settings.settings.cloudSavesPickedFolder = ""
@@ -448,19 +433,21 @@ import ArcanePorting
         try render("10-online-tile", after, in: out, refs, "screenshots/library.png")
         precondition(profiles.update(sam))
         L10n.setContext(french)
-        let profileSection = SettingsStartUpSection(settings: settings, onActions: { _ in }, onChooseLanguage: {},
+        let editor = SettingsEditor(settings)
+        settings.beginDraft(fields: SettingsDraftFields.fields(profiles: profiles, languages: vm.availableLanguages))
+        let profileSection = SettingsStartUpSection(settings: editor, onActions: { _ in }, onChooseLanguage: {},
                                                    onChooseRegion: {}, profiles: profiles)
         for choice: ProfileStartup in [.last, .profile(alex.id), .profile(sam.id), .ask] {
             profileSection.cycleProfile(1)
-            precondition(settings.settings.profileStartup == choice)
+            precondition(editor.settings.profileStartup == choice)
         }
         profileSection.cycleProfile(-1)
-        precondition(settings.settings.profileStartup == .profile(sam.id))
+        precondition(editor.settings.profileStartup == .profile(sam.id))
         try render("19-profiles-at-startup", ZStack {
             SeleneBackdrop().still(true)
             SettingsView(initialSection: .startUp, viewModel: vm, settings: settings, router: AppRouter(), artwork: art)
         }.environment(\.nxAppLocale, french), in: out, refs, "screenshots/game-options.png")
-        settings.settings.profileStartup = .ask
+        settings.endDraft()
         let appsFolder = data.appendingPathComponent("Fixture game apps", isDirectory: true)
         let sourcesFolder = data.appendingPathComponent("Fixture game files", isDirectory: true)
         let originalAppsFolder = vm.libraryFolder

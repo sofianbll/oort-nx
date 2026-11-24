@@ -49,7 +49,11 @@ extension AppShellView {
             }
             if viewModel.showSetupCheck {
                 Group {
-                    if viewModel.firstRunSetup.page == .found {
+                    if viewModel.isGuidedSetupOpen {
+                        OnboardingView(viewModel: viewModel, settings: settings, profiles: profiles, sources: sources,
+                                       finish: finishOnboarding, openSettings: openOnboardingSettings)
+                            .id(viewModel.firstRunSetup.page)
+                    } else if viewModel.firstRunSetup.page == .found {
                         FoundGamesSetupView(viewModel: viewModel, steamRoot: sources.discoveryRoot,
                                             steamEnabled: sources.configuration.isEnabled) { importPorted in
                             finishFromFound(importPorted: importPorted)
@@ -72,13 +76,7 @@ extension AppShellView {
                     .transformPreference(SeleneBackdropRequestKey.self) { $0?.priority = ShellBackdropCover.setup.priority }
             }
             if showsWelcome {
-                ArcaneWelcomeView(steamEnabled: sources.configuration.isEnabled,
-                                  steamRoot: sources.discoveryRoot,
-                                  appsFolder: viewModel.gameAppsFolder,
-                                  onAddSteam: {
-                                      sources.configure(enabled: true, root: sources.discoveryRoot)
-                                  },
-                                  onExit: closeWelcome)
+                OnboardingNewsView(onExit: closeWelcome)
                     .opacity(opacityBelowCover(ShellBackdropCover.welcome.priority))
                     .allowsHitTesting(!currentBackdropCover.covers(ShellBackdropCover.welcome.priority))
                     .transition(.opacity)
@@ -256,8 +254,8 @@ extension AppShellView {
         .environment(\.seleneReduceMotion, reduceMotion)
         .environment(\.seleneBackdropStyle, backdropStyle)
         .environment(\.seleneSharesBackdrop, true)
-        .environment(\.seleneShowButtonHints, settings.settings.showButtonHints)
-        .environment(\.seleneButtonNames, settings.settings.buttonNames)
+        .environment(\.seleneShowButtonHints, settings.presentation.showButtonHints)
+        .environment(\.seleneButtonNames, settings.presentation.buttonNames)
         .environmentObject(updater)
         .environmentObject(sources)
         .onAppear { [sources] in
@@ -370,6 +368,12 @@ extension AppShellView {
         // Closing clears it once the fade has ended (`closeWelcome`), so nothing under it moves or takes input before.
         .onChange(of: showsWelcome) { if $1 { viewModel.isWelcomeOpen = true } }
         .onChange(of: router.route) { _, route in
+            if resumeOnboardingAfterSettings, case .settings = route {
+                // Settings owns input until its return to the assistant.
+            } else if resumeOnboardingAfterSettings {
+                resumeOnboardingAfterSettings = false
+                viewModel.showSetupCheck = true
+            }
             viewModel.cloudLibraryGameID = nil
             if route == .profile && !router.isReturningFromBack { profilePageFocus = nil }
             recordLastHome(route)
@@ -389,17 +393,50 @@ extension AppShellView {
         }
     }
 
+    private var settingsPresentation: some View {
+        let preview = settings.presentation
+        let committed = AppLocale(language: settings.settings.appLanguage, region: settings.settings.appRegion)
+        return styled
+            .onChange(of: preview.colorThemeID) { _, id in ThemeStore.shared.apply(id: id) }
+            .onChange(of: preview.launcherChoices.dockIconAppearance) { _, value in viewModel.useDockIcon(value) }
+            .onChange(of: settings.settings.launcherChoices.controllerDeadzone) { _, value in
+                GameControllerService.shared.useDeadzone(value)
+            }
+            .onChange(of: settings.settings.launcherChoices.steamSource) { _, choice in
+                if let choice { sources.applySettingsChoice(choice) }
+            }
+            .onChange(of: settings.settings.launcherChoices.gameAppsPath) { _, path in
+                if let path { viewModel.useGameAppsPath(path) }
+            }
+            .onChange(of: settings.settings.launcherChoices.enginePath) { _, path in
+                if let path { setup.useSavedEnginePath(path) }
+            }
+            .onChange(of: settings.settings.launcherChoices.cloudActivation) { _, choice in
+                viewModel.cloudLibrary.useSettingsActivation(choice)
+            }
+            .onChange(of: AppLocale(language: preview.appLanguage, region: preview.appRegion)) {
+                AppLocalization.shared.configure(preview)
+            }
+            .onChange(of: committed.language) {
+                if !viewModel.isGuidedSetupOpen { store.refreshLocalizedMetadata(locale: committed) }
+            }
+            .onChange(of: settings.settings.toolchainOverride) { setup.objectWillChange.send() }
+            .onChange(of: router.route) { _, route in
+                if !route.isSettings { settings.endDraft() }
+            }
+    }
+
     var nativeGameCommands: some View {
-        styled
+        settingsPresentation
         .environment(\.locale, localization.context.formatLocale)
         .environment(\.nxAppLocale, localization.context)
         .environment(\.catalogPersonalizations, viewModel.personalizations)
         .environment(\.profilePortrait, router.isMenuPresented ? nil : profiles.active)
         .environment(\.onlinePlayersByTitle, onlinePlayers)
-        .task(id: profiles.active?.id) {
+        .task(id: viewModel.setupCompleted ? profiles.active?.id : nil) {
             guard !Task.isCancelled else { return }
             onlinePlayers = [:]
-            guard let store = viewModel.profileNextendo?.store else { return }
+            guard viewModel.setupCompleted, let store = viewModel.profileNextendo?.store else { return }
             while !Task.isCancelled {
                 let counts = (try? await Self.onlineCounts.read(tokenStore: store)) ?? [:]
                 guard !Task.isCancelled else { return }
@@ -407,14 +444,12 @@ extension AppShellView {
                 try? await Task.sleep(for: .seconds(180))
             }
         }
-        .onChange(of: settings.settings.appLanguage) { updateLocale() }
         .onReceive(NotificationCenter.default.publisher(for: .nxOpenLocalProfile)) { _ in openProfilePage() }
         .onReceive(NotificationCenter.default.publisher(for: .nxProfileCardsSaveFailed)) { _ in
             viewModel.showSettingsNotice(title: L10n.text("Settings not saved"),
                                          message: L10n.text("Your changes could not be saved. Try again."))
         }
         .onReceive(NotificationCenter.default.publisher(for: .nxToggleProfilePicker)) { _ in toggleProfilePicker() }
-        .onChange(of: settings.settings.appRegion) { updateLocale() }
         .onReceive(NotificationCenter.default.publisher(for: .nxLibraryPlayFocused)) { _ in
             guard !router.isMenuPresented,
                   nativeMenuAvailability.play,

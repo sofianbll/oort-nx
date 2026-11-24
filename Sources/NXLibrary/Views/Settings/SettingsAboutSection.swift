@@ -136,11 +136,14 @@ struct SettingsAboutSection: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            SelenePanel(L10n.text("Nintendo Store data")) {
-                Text(L10n.text("Descriptions, genres and artwork are fetched from the public Nintendo Store catalog for personal use, cached locally for seven days, and never committed or redistributed."))
+            SelenePanel(L10n.text("Nintendo Europe catalogue")) {
+                Text(L10n.text("The app keeps Arcane’s Nintendo Store source. Nintendo Europe supplements missing or untranslated information and artwork. Text and images belong to their respective owners and are never shipped with the app."))
                     .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink90)
                     .fixedSize(horizontal: false, vertical: true)
+                Text(verbatim: "searching.nintendo-europe.com")
+                    .seleneFont(.badge)
+                    .foregroundColor(SeleneTheme.ink60)
                 Text(L10n.text("The app ships no keys, ROMs, game art or Nintendo UI assets."))
                     .seleneFont(.badge)
                     .foregroundColor(SeleneTheme.ink60)
@@ -164,11 +167,11 @@ struct SettingsAboutSection: View {
                     .foregroundColor(SeleneTheme.ink60)
                     .fixedSize(horizontal: false, vertical: true)
                 Text(L10n.text("Platform names and logos identify their respective platforms. They belong to their owners and do not imply affiliation or endorsement."))
-                    .seleneFont(.badge)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
                     .fixedSize(horizontal: false, vertical: true)
                 Text(verbatim: "Nintendo · Valve Corporation · Epic Games · GOG · CodeWeavers · Buy Me a Coffee · Google")
-                    .seleneFont(.badge)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
                     .fixedSize(horizontal: false, vertical: true)
             }

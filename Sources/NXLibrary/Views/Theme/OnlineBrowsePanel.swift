@@ -131,7 +131,7 @@ struct OnlineBrowsePanel: View {
                     .padding(.bottom, canvas.u(10))
             }
             Text(status)
-                .seleneFont(.badge, .semibold)
+                .seleneFont(.text, .semibold)
                 .foregroundColor(SeleneTheme.ink.opacity(0.55))
                 .padding(.leading, canvas.u(10))
                 .padding(.bottom, canvas.u(10))

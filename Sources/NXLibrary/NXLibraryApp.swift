@@ -6,6 +6,7 @@ extension Notification.Name {
     static let nxLibraryCheckAppUpdates = Notification.Name("NXLibraryCheckAppUpdates")
     static let nxLibraryOpenMenu = Notification.Name("NXLibraryOpenMenu")
     static let nxSettingsGamepadAction = Notification.Name("NXSettingsGamepadAction")
+    static let nxSettingsDecisionInput = Notification.Name("NXSettingsDecisionInput")
     static let nxLocalePickerGamepadAction = Notification.Name("NXLocalePickerGamepadAction")
     static let nxAddGameGamepadAction = Notification.Name("NXAddGameGamepadAction")
     static let nxConsoleGamepadAction = Notification.Name("NXConsoleGamepadAction")
@@ -40,10 +41,11 @@ struct NXLibraryApp: App {
             try! OortUIGallery.capture(to: URL(fileURLWithPath: args[index + 1], isDirectory: true))
             exit(EXIT_SUCCESS)
         }
-        if let index = args.firstIndex(where: { ["--render-integration-fixture", "--render-sound-fixture"].contains($0) }) {
+        if let index = args.firstIndex(where: { ["--render-integration-fixture", "--render-sound-fixture", "--render-onboarding-fixture"].contains($0) }) {
             precondition(index + 1 < CommandLine.arguments.count, "Pass a directory for the fixture PNGs")
             try! IntegrationFixtureView.capture(to: URL(fileURLWithPath: args[index + 1], isDirectory: true),
-                                                soundOnly: args[index] == "--render-sound-fixture")
+                                                soundOnly: args[index] == "--render-sound-fixture",
+                                                onboardingOnly: args[index] == "--render-onboarding-fixture")
             exit(EXIT_SUCCESS)
         }
     }

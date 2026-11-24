@@ -42,8 +42,17 @@ public enum CloudSaves: Codable, Equatable {
         switch self {
         case .off: return L10n.text("Saves stay on this Mac.")
         case .iCloudDrive: return "iCloud Drive › nxnative Saves"
-        case .folder(let path): return (path as NSString).pathComponents.suffix(2).joined(separator: " › ")
+        case .folder(let path): return Self.displayPath(path)
         }
+    }
+
+    public static func displayPath(_ path: String) -> String {
+        let components = (path as NSString).pathComponents
+        if let container = components.firstIndex(of: "com~apple~CloudDocs"), container > 0,
+           components[container - 1] == "Mobile Documents" {
+            return ([L10n.text("iCloud Drive")] + components.dropFirst(container + 1)).joined(separator: " › ")
+        }
+        return components.suffix(2).joined(separator: " › ")
     }
 
     /// What this choice can become: Off, iCloud Drive, and the picked folder when there is one.

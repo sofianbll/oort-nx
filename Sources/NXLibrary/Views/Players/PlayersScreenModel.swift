@@ -36,6 +36,7 @@ import NXLibraryCore
     /// A nil result means the host has no exclusive capture connector.
     let leaseCapture: ((@escaping (GameControllerService.AssignmentEvent) -> Void) -> (() -> Void)?)?
     private var releaseCapture: (() -> Void)?
+    private var joining: [String] = []
 
     @Published var page: Page = .overview
     @Published var focus: Row = .modes
@@ -51,6 +52,7 @@ import NXLibraryCore
     @Published private(set) var message: String?
     @Published var supportsExtendedMerge = false
     @Published var showsGameLimits = false
+    @Published private var joinedController: String?
 
     init(session: PlayersScreenSession, read: @escaping () async throws -> PlayerPlan?,
          write: @escaping (PlayerPlan) async throws -> Void,
@@ -73,6 +75,11 @@ import NXLibraryCore
     var nextNumber: Int? { (1...PlayerPlan.maximumPlayers).first { plan.slot($0) == nil } }
     var profiles: [LocalProfile] { availableProfiles() }
     var mergeTarget: Int { showsGameLimits && !supportsExtendedMerge ? 1 : plan.mergeTarget }
+    var places: ClosedRange<Int> { 1...PlayerPlan.maximumPlayers }
+    var joinedPlayer: Int? {
+        guard let joinedController else { return nil }
+        return resolution.slots.first(where: { $0.value == .connected(joinedController) })?.key
+    }
 
     var rows: [Row] {
         if !readable { return loading ? [] : [.retry] }
@@ -145,7 +152,7 @@ import NXLibraryCore
         return pads.first { $0.id == id }
     }
 
-    private func identifiablePad(_ number: Int) -> ConnectedController? {
+    func identifiablePad(_ number: Int) -> ConnectedController? {
         guard let pad = connectedPad(number),
               pad.status.canIdentifyWithLights || pad.status.canIdentifyWithRumble else { return nil }
         return pad
@@ -176,10 +183,7 @@ import NXLibraryCore
         case (.overview, .modes): open(.modes, focus: .mode(plan.mode))
         case (.overview, .mergeTarget): open(.mergeTargets, focus: .target(mergeTarget))
         case (.mergeTargets, .target(let number)):
-            edit({
-                try $0.setMergePlayer(number)
-                if $0.slot(number) == nil { try $0.set(.init(), at: number) }
-            }, then: { self.open(.overview, focus: .mergeTarget) })
+            setMergeTarget(number, focus: .mergeTarget)
         case (.overview, .player(let number)): open(.player(number), focus: .profiles)
         case (.overview, .add):
             guard let number = nextNumber else { return }
@@ -187,31 +191,17 @@ import NXLibraryCore
         case (.overview, .reset): resetFocus = .cancel; confirmsReset = true
         case (.overview, .retry): Task { await load() }
         case (.modes, .mode(let mode)):
-            edit({
-                $0.mode = mode
-                if mode == .merge, $0.slot(self.mergeTarget) == nil { try $0.set(PlayerSlot(), at: self.mergeTarget) }
-            }, then: { self.open(.overview, focus: .modes) })
+            setMode(mode, focus: .modes)
         case (.player(let number), .profiles):
             open(.profiles(number), focus: .profile(plan.slot(number)?.profileID))
         case (.player(let number), .identify):
-            if let pad = identifiablePad(number), !identify(pad.id) {
-                message = "This controller did not respond."
-            }
+            identifyPlayer(number)
         case (.player(let number), .assign): startCapture(number)
         case (.player(let number), .swap):
             if let other = numbers.first(where: { $0 != number }) { open(.swap(number), focus: .swapWith(other)) }
         case (.player(let number), .remove):
             let target = numbers.first { $0 > number } ?? numbers.last { $0 < number }
-            var confirmed = session.confirmed
-            confirmed[number] = nil
-            edit({
-                $0.remove(at: number)
-                if $0.mode == .merge, $0.mergeTarget == number {
-                    try $0.setMergePlayer(nil)
-                }
-            }, confirmed: confirmed, then: {
-                self.open(.overview, focus: target.map(Row.player) ?? .add)
-            })
+            clearPlayer(number, focus: target.map(Row.player) ?? .add)
         case (.profiles(let number), .profile(let id)):
             if let profile = profiles.first(where: { $0.id == id }),
                profile.isLocked, !session.unlocked.contains(profile.id) || plan.slot(number)?.profileID != id {
@@ -220,16 +210,93 @@ import NXLibraryCore
                 chooseProfile(id, at: number)
             }
         case (.swap(let number), .swapWith(let other)):
-            let first = plan.slot(number) ?? PlayerSlot()
-            let second = plan.slot(other) ?? PlayerSlot()
-            var confirmed = session.confirmed
-            confirmed[number] = session.confirmed[other]
-            confirmed[other] = session.confirmed[number]
-            edit({ try $0.set(second, at: number); try $0.set(first, at: other) }, confirmed: confirmed, then: {
-                self.open(.overview, focus: .player(other))
-            })
+            movePlayer(number, to: other)
         default: break
         }
+    }
+
+    func selectMode(_ mode: PlayerControllerMode) {
+        guard mode != plan.mode else { return }
+        setMode(mode, focus: .mode(mode))
+    }
+
+    private func setMode(_ mode: PlayerControllerMode, focus: Row) {
+        edit({
+            $0.mode = mode
+            if mode == .merge, $0.slot(self.mergeTarget) == nil { try $0.set(PlayerSlot(), at: self.mergeTarget) }
+        }, then: { self.open(.overview, focus: focus) })
+    }
+
+    func chooseProfile(at number: Int) {
+        guard !saving, readable, places.contains(number) else { return }
+        open(.profiles(number), focus: .profile(plan.slot(number)?.profileID))
+    }
+
+    func movePlayer(_ number: Int, to other: Int) {
+        guard places.contains(other), number != other, let first = plan.slot(number) else { return }
+        let second = plan.slot(other)
+        var confirmed = session.confirmed
+        confirmed[number] = session.confirmed[other]
+        confirmed[other] = session.confirmed[number]
+        edit({
+            if let second { try $0.set(second, at: number) } else { $0.remove(at: number) }
+            try $0.set(first, at: other)
+        }, confirmed: confirmed, then: { self.open(.overview, focus: .player(other)) })
+    }
+
+    func chooseMergeTarget(_ number: Int) {
+        guard !saving, readable, number == 1 || supportsExtendedMerge, places.contains(number),
+              plan.mode != .merge || number != mergeTarget else { return }
+        setMergeTarget(number, focus: .player(number))
+    }
+
+    private func setMergeTarget(_ number: Int, focus: Row) {
+        edit({
+            $0.mode = .merge
+            try $0.setMergePlayer(number)
+            if $0.slot(number) == nil { try $0.set(.init(), at: number) }
+        }, then: { self.open(.overview, focus: focus) })
+    }
+
+    func removePlayer(_ number: Int) {
+        guard !saving, readable, plan.slot(number) != nil else { return }
+        clearPlayer(number, focus: .player(number))
+    }
+
+    private func clearPlayer(_ number: Int, focus: Row) {
+        var confirmed = session.confirmed
+        confirmed[number] = nil
+        edit({
+            $0.remove(at: number)
+            if $0.mode == .merge, $0.mergeTarget == number { try $0.setMergePlayer(nil) }
+        }, confirmed: confirmed, then: { self.open(.overview, focus: focus) })
+    }
+
+    func identifyPlayer(_ number: Int) {
+        guard let pad = identifiablePad(number) else { return }
+        if !identify(pad.id) { message = "This controller did not respond." }
+    }
+
+    /// Positional input starts before this hook; only a new pad's press skips navigation.
+    func joinController(_ id: String) -> Bool {
+        guard readable, !loading, pin == nil, !confirmsReset, capturePlayer == nil,
+              plan.mode != .merge, resolution.unassignedControllerIDs.contains(id) else { return false }
+        if saving {
+            if joining.count < PlayerPlan.maximumPlayers, !joining.contains(id) { joining.append(id) }
+            return true
+        }
+        // An ambiguous reconnect never steals a remembered place. It can be confirmed explicitly on that card.
+        guard let pad = pads.first(where: { $0.id == id }),
+              pad.stableID.map({ id in !plan.slots.values.contains { $0.controller?.stableID == id } }) != false,
+              let number = places.first(where: { plan.slot($0)?.controller == nil }) else { return true }
+        assign(id, to: number, joining: true)
+        return true
+    }
+
+    func stopJoining() { joining.removeAll() }
+
+    private func joinWaitingController() {
+        while !saving, !joining.isEmpty { _ = joinController(joining.removeFirst()) }
     }
 
     func startCapture(_ number: Int) {
@@ -259,11 +326,12 @@ import NXLibraryCore
         capturePlayer = nil
     }
 
-    private func assign(_ id: String, to number: Int) {
-        guard capturePlayer == number, !saving,
-              let pad = pads.first(where: { $0.id == id }), var slot = plan.slot(number) else { return }
+    private func assign(_ id: String, to number: Int, joining: Bool = false) {
+        guard (joining || capturePlayer == number), !saving,
+              let pad = pads.first(where: { $0.id == id }) else { return }
+        var slot = plan.slot(number) ?? .init()
         let current = resolution.slots
-        let previous = numbers.filter { candidate in
+        let previous = joining ? [] : numbers.filter { candidate in
             current[candidate] == .connected(id) ||
                 (pad.stableID != nil && plan.slot(candidate)?.controller?.stableID == pad.stableID)
         }
@@ -280,7 +348,8 @@ import NXLibraryCore
             }
             try draft.set(slot, at: number)
         }, confirmed: confirmed, then: {
-            self.open(.overview, focus: .player(number))
+            if joining { self.joinedController = id }
+            else { self.open(.overview, focus: .player(number)) }
         })
     }
 
@@ -329,9 +398,13 @@ import NXLibraryCore
         guard readable, !saving else { return }
         var draft = plan
         do { try change(&draft) } catch { assertionFailure("Invalid player slot"); return }
+        message = nil
         saving = true
         Task {
-            defer { saving = false }
+            defer {
+                saving = false
+                joinWaitingController()
+            }
             do {
                 if session.plan != draft {
                     try await write(draft)

@@ -55,7 +55,8 @@ final class SoundEffectService {
     /// Follows the settings store from now on.
     @MainActor
     func bind(to store: AppSettingsStore) {
-        cancellable = store.$settings
+        cancellable = store.$settings.combineLatest(store.$draft)
+            .map { committed, draft in draft?.displayed(over: committed, previewsOnly: true) ?? committed }
             .map { ($0.interfaceSounds, $0.soundVolume, $0.soundPackID) }
             .removeDuplicates { $0 == $1 }
             .sink { enabled, volume, id in

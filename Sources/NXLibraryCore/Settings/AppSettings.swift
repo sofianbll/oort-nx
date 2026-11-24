@@ -191,7 +191,37 @@ public enum InGameHomeButton: String, Codable, CaseIterable, Sendable {
     }
 }
 
+/// Launcher choices moved here from separate stores. Missing fields fall back to the older store.
+public struct LauncherSettingsChoices: Codable, Equatable {
+    public init() {}
+    public var controllerDeadzone: Double?
+    public var dockIconAppearance: String?
+    public var steamSource: SteamSourceChoice?
+    public var gameAppsPath: String?
+    /// An empty path clears the legacy choice without forgetting that the player cleared it.
+    public var gameSourcesPath: String?
+    public var enginePath: String?
+    public var cloudActivation: CloudLibraryActivation?
+    public var players: PlayerPlan?
+}
+
+/// Desired source configuration and the exact catalog generation it may replace.
+public struct SteamSourceChoice: Codable, Equatable {
+    public var enabled: Bool
+    public var root: URL
+    public let replaces: UUID?
+    public let generation: UUID
+
+    public init(enabled: Bool, root: URL, replaces: UUID?, generation: UUID = UUID()) {
+        self.enabled = enabled
+        self.root = root
+        self.replaces = replaces
+        self.generation = generation
+    }
+}
+
 public struct AppSettings: Codable, Equatable {
+    public var launcherChoices = LauncherSettingsChoices()
     public var appLanguage: AppLanguage = .automatic
     public var appRegion: String? = nil
     public var inGameHomeButton: InGameHomeButton = .auto
@@ -224,6 +254,14 @@ public struct AppSettings: Codable, Equatable {
         set {
             spotlightCards = SpotlightCard.allCases.filter { $0 != .mods && newValue.contains($0) }
             showsModsCard = newValue.contains(.mods)
+        }
+    }
+    public subscript(spotlightCard card: SpotlightCard) -> Bool {
+        get { visibleSpotlightCards.contains(card) }
+        set {
+            var cards = visibleSpotlightCards.filter { $0 != card }
+            if newValue { cards.append(card) }
+            visibleSpotlightCards = cards
         }
     }
     public var spotlightOrder: [String]
@@ -272,7 +310,7 @@ public struct AppSettings: Codable, Equatable {
     /// The top-level keys the base keeps for the modules. Any other key it does not read is dropped, as a retired key
     /// may hold a secret (the old SteamGridDB key).
     public static let moduleKeys: Set<String> = ["gameDefaults", "cloudSaves", "cloudSavesPickedFolder", "nextendoClientID",
-                                                 "gameDisplay", "gameDisplayOverrides"]
+                                                 "gameDisplay", "gameDisplayOverrides", "toolchainOverride"]
 
     public init(backgroundShade: BackgroundShade = .balanced,
                 readableText: Bool = true,
@@ -349,6 +387,7 @@ public struct AppSettings: Codable, Equatable {
     }
 
     enum CodingKeys: String, CodingKey, CaseIterable {
+        case launcherChoices
         case appLanguage, appRegion, remotePlayMode
         case inGameHomeButton
         case multiplayerVPN, multiplayerDefault, multiplayerLocalMode, multiplayerAdapter
@@ -372,6 +411,7 @@ public struct AppSettings: Codable, Equatable {
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        launcherChoices = try container.decodeIfPresent(LauncherSettingsChoices.self, forKey: .launcherChoices) ?? .init()
         appLanguage = (try container.decodeIfPresent(String.self, forKey: .appLanguage)).flatMap(AppLanguage.init(rawValue:)) ?? .automatic
         appRegion = AppLocale.validRegion(try container.decodeIfPresent(String.self, forKey: .appRegion))
         inGameHomeButton = (try? container.decode(InGameHomeButton.self, forKey: .inGameHomeButton)) ?? .auto
@@ -442,6 +482,7 @@ public struct AppSettings: Codable, Equatable {
 
     public func encode(to encoder: Encoder) throws {
         var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(launcherChoices, forKey: .launcherChoices)
         try c.encode(appLanguage, forKey: .appLanguage)
         try c.encodeIfPresent(appRegion, forKey: .appRegion)
         try c.encode(inGameHomeButton, forKey: .inGameHomeButton)

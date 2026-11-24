@@ -7,7 +7,7 @@ enum LocalePickerMode { case language, region }
 /// Direct language selection and searchable regional formats share the same input behavior.
 struct LocalePicker: View {
     let mode: LocalePickerMode
-    @ObservedObject var settings: AppSettingsStore
+    @ObservedObject var settings: SettingsEditor
     let canHandleInput: () -> Bool
     let onClose: () -> Void
     @ObservedObject private var localization = AppLocalization.shared
@@ -104,7 +104,7 @@ struct LocalePicker: View {
             }
             .padding(canvas.u(SeleneTokens.Space.section))
             .frame(width: canvas.u(800))
-            .background(SeleneTheme.glassSolid)
+            .background(SeleneTheme.glassCard)
             .clipShape(RoundedRectangle(cornerRadius: canvas.u(24)))
             .overlay(RoundedRectangle(cornerRadius: canvas.u(24)).strokeBorder(SeleneTheme.ink15, lineWidth: 1))
         }

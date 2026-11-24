@@ -25,7 +25,7 @@ struct SettingsKeysSection: View {
                     Spacer()
                     Text(setup.isProdKeysValid && !setup.prodKeysPath.isEmpty
                          ? setup.prodKeysPath : L10n.text("Choose your file once"))
-                        .seleneFont(.badge, .regular, design: .monospaced)
+                        .seleneFont(.text, .regular, design: .monospaced)
                         .foregroundColor(SeleneTheme.ink60)
                         .lineLimit(1)
                         .truncationMode(.middle)
@@ -33,7 +33,7 @@ struct SettingsKeysSection: View {
 
                 if let summary = setup.keySummary {
                     Text(L10n.format("header_key present · %@ application key generations", [String(describing: summary.applicationKeyGenerations.count)]))
-                        .seleneFont(.badge, .regular, design: .monospaced)
+                        .seleneFont(.text, .regular, design: .monospaced)
                         .foregroundColor(SeleneTheme.success)
                 }
 

@@ -15,6 +15,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @MainActor static weak var activityOwner: AppViewModel?
     @MainActor static var showCloudQuit: (() -> Void)?
     @MainActor static var requestGuestQuit: (() -> Void)?
+    @MainActor static var requestSettingsQuit: ((@escaping () -> Void) -> Bool)?
     @MainActor private static var guestQuitConfirmed = false
     @MainActor static weak var shellWindow: NSWindow?
     @MainActor private static var cloudQuitCleanupComplete = false
@@ -47,6 +48,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        if Self.requestSettingsQuit?({ sender.terminate(nil) }) == true {
+            if let window = Self.shellWindow, !window.isKeyWindow { window.makeKeyAndOrderFront(nil) }
+            return .terminateCancel
+        }
         guard let cloud = Self.cloudLibrary else { return .terminateNow }
         // .terminateLater runs a modal loop that stalls shell input and main-actor cleanup.
         let activity = Self.activityOwner

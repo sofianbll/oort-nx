@@ -196,8 +196,7 @@ public enum GOGArt {
     }
 }
 
-/// Nintendo of Europe's store search: the wide banner (asked at 1600 px wide) and
-/// the square image.
+/// Nintendo of Europe's separate, on-demand artwork picker search.
 public enum NintendoEuropeArt {
     public static func searchURL(for name: String) -> URL? {
         let term = SteamStoreArt.plain(name)
@@ -226,9 +225,7 @@ public enum NintendoEuropeArt {
             .first(where: { ArtworkNames.matches($0.title, names) }) else { return [] }
         var list: [ArtworkCandidate] = []
         if let link = doc.image_url_h16x9_s ?? doc.image_url_h2x1_s, let small = URL(string: link) {
-            let large = URL(string: link.replacingOccurrences(of: "image500w", with: "image1600w"))
-            list.append(ArtworkCandidate(slot: .background, source: "Nintendo Europe", url: large ?? small,
-                                         fallback: large == small ? nil : small))
+            list.append(ArtworkCandidate(slot: .background, source: "Nintendo Europe", url: small))
         }
         if let link = doc.image_url_sq_s, let url = URL(string: link) {
             list.append(ArtworkCandidate(slot: .icon, source: "Nintendo Europe", url: url))
@@ -240,6 +237,46 @@ public enum NintendoEuropeArt {
         guard let name = names.first, let url = searchURL(for: name),
               let data = await OnlineArtworkRequest.data(url, client: client) else { return [] }
         return candidates(in: data, matching: names)
+    }
+}
+
+/// Nintendo only serves some size variants. Check a trusted first-use URL before trying its larger sibling.
+actor NintendoEuropeImageSize {
+    static let shared = NintendoEuropeImageSize()
+    private var checked: [URL: (exists: Bool, expires: Date)] = [:]
+    private var pending: [URL: Task<Bool?, Never>] = [:]
+
+    static func isNintendoImage(_ url: URL) -> Bool {
+        url.scheme == "https" && url.host == "www.nintendo.com" && url.user == nil && url.port == nil
+            && url.path.hasPrefix("/eu/media/images/")
+    }
+
+    func larger(_ original: URL, width: Int, client: ArtworkHTTPClient) async -> URL? {
+        guard Self.isNintendoImage(original),
+              var parts = URLComponents(url: original, resolvingAgainstBaseURL: false),
+              let range = parts.path.range(of: #"500w(?=\.[a-zA-Z]+$)"#, options: .regularExpression) else { return nil }
+        parts.path.replaceSubrange(range, with: "\(width)w")
+        guard let url = parts.url else { return nil }
+        if let hit = checked[url], hit.expires > Date() { return hit.exists ? url : nil }
+        if let task = pending[url] { return await task.value == true ? url : nil }
+        let task = Task<Bool?, Never> {
+            var request = URLRequest(url: url, timeoutInterval: 4)
+            request.httpMethod = "HEAD"
+            request.httpShouldHandleCookies = false
+            request.setValue("Game Library", forHTTPHeaderField: "User-Agent")
+            guard let (_, response) = try? await client.data(for: request), response.url == url else { return nil }
+            if (200..<300).contains(response.statusCode) { return response.mimeType?.hasPrefix("image/") == true }
+            if response.statusCode == 404 || response.statusCode == 410 { return false }
+            return nil
+        }
+        pending[url] = task
+        let exists = await task.value
+        pending[url] = nil
+        if let exists {
+            if checked.count >= 512 { checked = checked.filter { $0.value.expires > Date() }; if checked.count >= 512 { checked.removeAll() } }
+            checked[url] = (exists, Date().addingTimeInterval(exists ? 7 * 86400 : 86400))
+        }
+        return exists == true ? url : nil
     }
 }
 

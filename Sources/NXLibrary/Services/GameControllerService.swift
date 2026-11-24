@@ -14,6 +14,8 @@ final class GameControllerService: ObservableObject {
     }
     private var assignment: Assignment?
     private var assignmentTimer: Timer?
+    private var playerJoining: (owner: UUID, consume: (String) -> Bool)?
+    private var joiningHID: ObjectIdentifier?
 
     @Published var isGamepadConnected: Bool = false
     @Published var activeControllerName: String = "No Gamepad Connected"
@@ -28,11 +30,14 @@ final class GameControllerService: ObservableObject {
     var onAction: ((GamepadAction) -> Void)?
 
     private let deadzoneKey = "NXNative_ControllerDeadzone"
-    @Published var deadzone: Float = 0.35 {
-        didSet {
-            let clamped = min(max(deadzone, 0.10), 0.80)
-            preferences?.set(Double(clamped), forKey: deadzoneKey)
-        }
+    @Published private(set) var deadzone: Float = 0.35
+    var legacyDeadzone: Double {
+        guard let preferences, preferences.object(forKey: deadzoneKey) != nil else { return 0.35 }
+        return min(max(preferences.double(forKey: deadzoneKey), 0.10), 0.80)
+    }
+    func useDeadzone(_ value: Double?) {
+        let next = Float(min(max(value ?? legacyDeadzone, 0.10), 0.80))
+        if next != deadzone { deadzone = next }
     }
 
     var navigationInterval: TimeInterval = 0.12
@@ -69,10 +74,8 @@ final class GameControllerService: ObservableObject {
         self.gcSource = gcSource
         self.hidSource = hidSource
         self.preferences = preferences
-        if let preferences {
-            if preferences.object(forKey: deadzoneKey) != nil {
-                deadzone = min(max(Float(preferences.double(forKey: deadzoneKey)), 0.10), 0.80)
-            }
+        if preferences != nil {
+            useDeadzone(nil)
             isAppActive = NSApplication.shared.isActive
             observe(NotificationCenter.default, NSApplication.didBecomeActiveNotification) { service in
                 service.isAppActive = true
@@ -120,6 +123,15 @@ final class GameControllerService: ObservableObject {
         RunLoop.main.add(timer, forMode: .common)
         assignmentTimer = timer
         return { [weak self] in self?.finishAssignment(token) }
+    }
+
+    /// Only the visible Players page may claim the first press of an unassigned pad.
+    func watchPlayerJoining(_ consume: @escaping (String) -> Bool) -> () -> Void {
+        let owner = UUID()
+        playerJoining = (owner, consume)
+        return { [weak self] in
+            if self?.playerJoining?.owner == owner { self?.playerJoining = nil }
+        }
     }
 
     private func finishAssignment(_ token: UUID? = nil, event: AssignmentEvent? = nil) {
@@ -200,12 +212,23 @@ final class GameControllerService: ObservableObject {
                 }
                 return
             }
-            if !fromHID, case .button(_, true) = input { emitButtonPress(id) }
+            if !fromHID, case .button(_, true) = input {
+                emitButtonPress(id)
+                if consumePlayerJoining(id, fromHID: false) { return }
+            }
+            if fromHID, joiningHID == id { return }
             if activePad?.id == id { handleInput(input) }
             return
         case let .buttonPressed(id):
             if assignment != nil { queueAssignment(id, fromHID: fromHID) }
-            else { emitButtonPress(id) }
+            else {
+                emitButtonPress(id)
+                if consumePlayerJoining(id, fromHID: fromHID), fromHID {
+                    // HID sends mapped changes synchronously after the raw press in the same report.
+                    joiningHID = id
+                    DispatchQueue.main.async { [weak self] in self?.joiningHID = nil }
+                }
+            }
             return
         }
         selectController()
@@ -229,6 +252,16 @@ final class GameControllerService: ObservableObject {
         guard isAppActive,
               let entry = visibleControllers.first(where: { $0.controller.id == id }) else { return }
         buttonPresses.send(entry.connectionID)
+    }
+
+    private func consumePlayerJoining(_ id: ObjectIdentifier, fromHID: Bool) -> Bool {
+        guard isAppActive, let playerJoining,
+              let entry = visibleControllers.first(where: {
+                  $0.controller.id == id || (!fromHID && $0.secondaryGCID == id)
+              }),
+              // A proven pair uses the GC event so the same press cannot navigate after joining.
+              !fromHID || entry.secondaryGCID == nil else { return false }
+        return playerJoining.consume(entry.connectionID)
     }
 
     private func source(for entry: ControllerRoster.Entry) -> ControllerSource { entry.isHID ? hidSource : gcSource }

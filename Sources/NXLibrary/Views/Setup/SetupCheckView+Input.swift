@@ -9,6 +9,16 @@ extension SetupCheckView {
     func handle(_ action: GamepadAction) {
         guard viewModel.showSetupCheck, NSApp.modalWindow == nil,
               viewModel.firstRunSetup.page == .requirements else { return }
+        if pendingTool != nil {
+            switch action {
+            case .navigateLeft: toolFocus = .confirm
+            case .navigateRight: toolFocus = .cancel
+            case .confirm: if toolFocus == .confirm { confirmTool() } else { pendingTool = nil }
+            case .cancel: pendingTool = nil
+            default: break
+            }
+            return
+        }
         switch action {
         case .navigateLeft: navigate(.left)
         case .navigateRight: navigate(.right)
@@ -41,18 +51,15 @@ extension SetupCheckView {
                 move(to: .card(next))
             } else if direction == .down {
                 // Onto the nearer button.
-                move(to: SetupGrid.offset(of: index, rowCounts: rows) < 0 ? .installAll : .carryOn)
+                move(to: .carryOn)
             }
-        case .installAll, .carryOn:
+        case .carryOn:
             switch direction {
-            case .left where focus == .carryOn: move(to: .installAll)
-            case .right where focus == .installAll: move(to: .carryOn)
             case .up:
                 guard let last = rows.indices.last else { return }
                 let start = rows.prefix(last).reduce(0, +)
-                let x: Double = focus == .installAll ? -0.5 : 0.5
                 let nearest = (start..<(start + rows[last])).min {
-                    abs(SetupGrid.offset(of: $0, rowCounts: rows) - x) < abs(SetupGrid.offset(of: $1, rowCounts: rows) - x)
+                    abs(SetupGrid.offset(of: $0, rowCounts: rows)) < abs(SetupGrid.offset(of: $1, rowCounts: rows))
                 }
                 if let nearest { move(to: .card(nearest)) }
             default: break
@@ -72,14 +79,10 @@ extension SetupCheckView {
                 return
             }
             SoundEffectService.shared.play(.click)
-            setup.activate(item.id)
-        case .installAll:
-            guard !setup.missingAutomatic.isEmpty, !setup.installAllRunning else {
-                shake()
-                return
-            }
-            SoundEffectService.shared.play(.click)
-            setup.installAll()
+            if item.id == .metal || item.id == .engine {
+                toolFocus = .cancel
+                pendingTool = item.id
+            } else { setup.activate(item.id) }
         case .carryOn:
             SoundEffectService.shared.play(.click)
             viewModel.advanceSetupToGames()

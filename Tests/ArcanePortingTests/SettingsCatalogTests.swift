@@ -27,7 +27,7 @@ final class SettingsCatalogTests: XCTestCase {
 
     /// Every row identity: moving rows never renames them.
     private static let rowIDs = Set([
-        "appLanguage", "appRegion", "startOn", "restoreLastGame", "startInFullscreen", "checkEngineAtLaunch",
+        "appLanguage", "appRegion", "startOn", "restoreLastGame", "startInFullscreen", "checkEngineAtLaunch", "onboarding",
         "refreshLibraryAtLaunch", "checkAppUpdatesAtLaunch", "introAnimation", "showProfilePicker", "showButtonHints", "buttonNames",
         "viewButtonSwitches", "spotlightCards", "startingTab", "spotlightOrder", "interfaceSounds", "soundVolume",
         "quietLaunch", "soundPack", "importSoundPack", "importSeleneSounds", "colorThemeID", "wallpaperID", "settingsWallpaperID", "backgroundSizing",
@@ -175,7 +175,7 @@ final class SettingsCatalogTests: XCTestCase {
         "backgroundSizing", "profileLock", "appearsOnline", "showsCurrentGame", "nextendo", "nextendoFriends", "nextendoAddFriend",
         ] + ProfilePageCard.allCases.map { "profile-card-\($0.rawValue)" } + [
         "appLanguage", "appRegion", "startOn", "restoreLastGame", "startInFullscreen", "checkAppUpdatesAtLaunch",
-        "introAnimation", "showProfilePicker", "showButtonHints", "buttonNames", "viewButtonSwitches", "spotlightCards", "startingTab",
+        "introAnimation", "showProfilePicker", "onboarding", "showButtonHints", "buttonNames", "viewButtonSwitches", "spotlightCards", "startingTab",
         "spotlightOrder", "interfaceSounds", "soundVolume", "quietLaunch", "soundPack", "importSoundPack", "importSeleneSounds",
         "wallpaperBrightness", "animatedBackground",
         "keepWallpaperOnGames", "backgroundShade", "readableText", "showClock", "reduceMotion", "iconAppearance",
@@ -217,6 +217,11 @@ final class SettingsCatalogTests: XCTestCase {
 
     func testEnvironmentIsFoundOnTheEnginePage() {
         XCTAssertEqual(SettingsCatalog.search("environment").first { $0.id == "engineStatus" }?.group, .engine)
+    }
+
+    func testWelcomeSetupIsSearchableInStartUp() {
+        XCTAssertEqual(SettingsCatalog.search("Welcome setup")
+            .first { $0.id == "onboarding" }?.group, .startUp)
     }
 
     func testProfileStartupSearchAndResetBelongToStartUp() {
@@ -282,7 +287,7 @@ final class SettingsCatalogTests: XCTestCase {
 
     private static let generalStartUp: Set<String> = [
         "appLanguage", "appRegion", "startOn", "restoreLastGame", "startInFullscreen",
-        "checkAppUpdatesAtLaunch", "introAnimation", "showProfilePicker"
+        "checkAppUpdatesAtLaunch", "introAnimation", "showProfilePicker", "onboarding"
     ]
 
     func testSearchMatchesAboutText() {

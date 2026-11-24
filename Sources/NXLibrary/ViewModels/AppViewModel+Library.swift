@@ -191,11 +191,14 @@ extension AppViewModel {
         let fm = FileManager.default
         let directories = [gameAppsFolder]
         let importer = importService
+        let excluded = Set(AppData.preferences.stringArray(forKey: StorageKeys.onboardingExclusions) ?? [])
         let folderSnapshot = libraryFolder?.standardizedFileURL
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             let scanned = importer.scan(directories: directories)
             let scanWarnings = importer.scanWarnings
-            let selected = importer.appsForLibrary(scanned: scanned, existing: existing)
+            let selected = importer.appsForLibrary(scanned: scanned, existing: existing).filter { app in
+                !excluded.contains(app.id.uppercased()) || existing.contains { $0.titleId == app.titleId }
+            }
             let importedGames = selected.map { importer.makeGame(from: $0) }
             DispatchQueue.main.async {
                 guard let self else { return }
@@ -249,6 +252,7 @@ extension AppViewModel {
     }
 
     func importExistingBuilds() {
+        AppData.preferences.removeObject(forKey: StorageKeys.onboardingExclusions)
         do { applyCatalog(try catalogRepository.configureSource(.nxnative, enabled: true, root: nil)); loadLibrary() }
         catch { reportCatalogFailure(error) }
     }
@@ -325,13 +329,13 @@ extension AppViewModel {
         }
     }
 
-    func selectLibraryFolder() {
+    func selectLibraryFolder(startingAt start: URL? = nil, stage: ((URL) -> Void)? = nil) {
         let panel = NSOpenPanel()
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
-        panel.canCreateDirectories = true
-        panel.directoryURL = libraryFolder
+        panel.canCreateDirectories = stage == nil
+        panel.directoryURL = start ?? libraryFolder
         panel.prompt = "Choose folder"
         panel.message = GameFoldersCopy.appsPickerMessage
 
@@ -340,8 +344,19 @@ extension AppViewModel {
                 alertMessage = "Choose the folder containing your game apps, rather than a whole disk."
                 return
             }
-            self.libraryFolder = url
-            loadLibrary()
+            if let stage { stage(url.standardizedFileURL); return }
+            if let settingsStore, settingsStore.settings.launcherChoices.gameAppsPath != nil {
+                settingsStore.settings.launcherChoices.gameAppsPath = url.path
+            } else {
+                AppData.preferences.set(url.path, forKey: StorageKeys.savedLibraryFolder)
+            }
+            useGameAppsPath(url.path)
         }
+    }
+
+    func useGameAppsPath(_ path: String) {
+        guard libraryFolder?.path != path else { return }
+        libraryFolder = URL(fileURLWithPath: path)
+        loadLibrary()
     }
 }

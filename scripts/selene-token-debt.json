@@ -32,9 +32,7 @@
       "color:Color.clear": 2
     },
     "Sources/NXLibrary/Views/Collection/CollectionCoverRow.swift": {
-      "color:.shadow(color:.black": 1,
-      "component:structCollectionCoverRow:View": 1,
-      "opacity:.opacity(0.55": 1
+      "component:structCollectionCoverRow:View": 1
     },
     "Sources/NXLibrary/Views/Collection/CollectionView.swift": {
       "color:.shadow(color:.black": 3,
@@ -46,12 +44,17 @@
       "component:structAppUpdateDialog:View": 1
     },
     "Sources/NXLibrary/Views/Components/DownloadCloudOverlay.swift": {
+      "color:.shadow(color:.black": 1,
       "color:0xF4CE8E": 2,
       "color:0xF9FCFF": 1,
       "color:0xFFF3DC": 1,
       "color:0xFFF7E3": 1,
-      "color:0xFFFFFF": 4,
-      "color:Color.clear": 1
+      "color:0xFFFFFF": 1,
+      "color:Color.clear": 1,
+      "color:NSColor(white:": 1,
+      "color:NSColor.black": 2,
+      "color:NSColor.white": 2,
+      "opacity:.opacity(0.55": 1
     },
     "Sources/NXLibrary/Views/Components/GameLogoArea.swift": {
       "color:.shadow(color:.black": 4,
@@ -157,6 +160,9 @@
     },
     "Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift": {
       ".padding(canvas.u(10": 1
+    },
+    "Sources/NXLibrary/Views/Detail/CloudPersonalAppUpdateRow.swift": {
+      "component:structCloudPersonalAppUpdateRow:View": 1
     },
     "Sources/NXLibrary/Views/Detail/CriticRatingValue.swift": {
       ".font(.system(size:canvas.u(13": 1,

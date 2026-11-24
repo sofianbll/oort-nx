@@ -37,12 +37,18 @@ public enum WikipediaDescriptions {
     }
 
     /// A BCP 47 tag ("en", "zh-Hans"), or nil when the text is short or no language clearly leads.
-    static func detectLanguage(of text: String) -> String? {
+    package static func detectLanguage(of text: String) -> String? {
         guard text.count >= minimumLength else { return nil }
         let recognizer = NLLanguageRecognizer()
         recognizer.processString(text)
         guard let (language, confidence) = recognizer.languageHypotheses(withMaximum: 1).first,
               language != .undetermined, confidence >= minimumConfidence else { return nil }
+        return resolvedTag(language, text: text)
+    }
+
+    static func resolvedTag(_ language: NLLanguage, text: String) -> String {
+        // NaturalLanguage can mistake Spanish store text for Catalan, especially when game names dominate it.
+        if language == .catalan, text.contains("¡") || text.contains("¿") { return NLLanguage.spanish.rawValue }
         return language.rawValue
     }
 
@@ -56,7 +62,8 @@ public enum WikipediaDescriptions {
     /// The article title on `code`.wikipedia for the game the query names, or nil when it has none.
     public static func sitelink(in data: Data, ids: [String], query: CriticRatingQuery, requireSteamID: Bool,
                                 edition code: String) throws -> String? {
-        guard let (_, entity) = try WikidataRatings.entity(in: data, ids: ids, query: query, requireSteamID: requireSteamID),
+        guard let (_, entity) = try WikidataRatings.entity(in: data, ids: ids, query: query,
+                                                           requireSteamID: requireSteamID, disambiguateSwitchPlatform: true),
               let links = entity["sitelinks"] as? [String: [String: Any]],
               let title = links[code + "wiki"]?["title"] as? String, !title.isEmpty, title.count <= 300 else { return nil }
         return title
@@ -104,7 +111,7 @@ public actor WikipediaDescriptionService {
         let language: String
         let description: WikipediaDescription?
         let fetchedAt: Date
-        var version = 1
+        var version = 2
     }
 
     private let directory: URL
@@ -162,7 +169,8 @@ public actor WikipediaDescriptionService {
             let age = now.timeIntervalSince(cached.fetchedAt)
             // A page found is kept for a month; "no article" is asked again the next day.
             let ttl: TimeInterval = cached.description == nil ? 86_400 : 30 * 86_400
-            if age >= 0, age < ttl { return cached.description }
+            let resolved = cached.description != nil || cached.version >= 2 || query.platform == .mac
+            if resolved, age >= 0, age < ttl { return cached.description }
         }
         guard Date() >= backoffUntil else { return cached?.description }
         do {

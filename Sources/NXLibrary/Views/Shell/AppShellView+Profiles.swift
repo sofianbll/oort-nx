@@ -46,7 +46,7 @@ extension Notification.Name {
 
 extension AppShellView {
     @ViewBuilder var profilePresenceTask: some View {
-        if let profile = profiles.active, let nextendo = viewModel.profileNextendo {
+        if viewModel.setupCompleted, let profile = profiles.active, let nextendo = viewModel.profileNextendo {
             let clientID = settings.settings.nextendoClientID ?? NextendoLaunch.buildClientID
             let eligible = {
                 profiles.active?.id == profile.id && profiles.active?.sharesPresence == true && !profiles.failed
@@ -115,6 +115,7 @@ extension AppShellView {
     func openProfile(_ page: ProfileFlow.Page, fromMenu: Bool = false) {
         guard let active = profiles.active, profileFlow == nil, viewModel.launchOverlay == nil,
               !viewModel.showSetupCheck, !showsWelcome, !isCloseGameOpen else { return }
+        guard !router.requestSettingsDeparture({ openProfile(page, fromMenu: fromMenu) }) else { return }
         viewModel.profileOwnsInput = true
         profileFlow = ProfileFlow(page: page, selected: active.id, returnsToMenu: fromMenu)
     }

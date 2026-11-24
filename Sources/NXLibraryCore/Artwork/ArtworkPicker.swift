@@ -179,6 +179,9 @@ public enum ArtworkCandidates {
     /// Downloads a candidate (or its fallback) and reads its size; nil when both are missing or not images.
     public static func load(_ candidate: ArtworkCandidate,
                             client: ArtworkHTTPClient = URLSessionArtworkClient()) async -> LoadedArtwork? {
+        if let large = await NintendoEuropeImageSize.shared.larger(candidate.url,
+            width: candidate.slot == .background ? 1600 : 1000, client: client),
+           let loaded = await load(candidate, from: large, client: client) { return loaded }
         if let loaded = await load(candidate, from: candidate.url, client: client) { return loaded }
         guard let fallback = candidate.fallback else { return nil }
         return await load(candidate, from: fallback, client: client)
@@ -195,7 +198,9 @@ public enum ArtworkCandidates {
                              client: ArtworkHTTPClient, timeout: TimeInterval = 20) async -> LoadedArtwork? {
         var request = URLRequest(url: url)
         request.timeoutInterval = timeout
-        request.setValue(AppIdentity.userAgent(), forHTTPHeaderField: "User-Agent")
+        let isNintendo = NintendoEuropeImageSize.isNintendoImage(url)
+        if isNintendo { request.httpShouldHandleCookies = false }
+        request.setValue(isNintendo ? "Game Library" : AppIdentity.userAgent(), forHTTPHeaderField: "User-Agent")
         guard let (data, http) = try? await client.data(for: request), (200..<300).contains(http.statusCode),
               let size = pixelSize(of: data) else { return nil }
         return LoadedArtwork(candidate: candidate, data: data, pixelWidth: size.width, pixelHeight: size.height)

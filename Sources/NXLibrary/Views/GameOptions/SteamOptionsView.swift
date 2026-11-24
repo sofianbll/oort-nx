@@ -2,13 +2,13 @@ import SwiftUI
 import AppKit
 import NXLibraryCore
 
-/// A Steam game's Options, in Game options' look and input: the same dimmed screen,
+/// A Steam game's Options, in Game options' look and input: the same opaque page,
 /// centred column, glass rows and hints. Rows and copy come from `SteamOptionsPresentation`;
 /// Edit details opens the shared Change artwork and Change metadata panels on the Steam
 /// game's own picks. Every row acts on the record it was opened for, re-read from the catalog.
 ///
 /// Input: Up/Down move (clamped), A activates, B (or Esc) leaves Edit details, then closes;
-/// A click activates; a click on the dimmed area steps back.
+/// A click activates; a click outside the column steps back.
 struct SteamOptionsView: View {
     @ObservedObject var viewModel: AppViewModel
     let game: CatalogGame
@@ -51,7 +51,7 @@ struct SteamOptionsView: View {
 
     var body: some View {
         let p = presentation
-        return SeleneOverlay(style: .options, onOutside: back) {
+        return SeleneOverlay(style: .page, onOutside: back) {
             VStack(spacing: 0) {
                 column(p)
                 SeleneHintsBar(left: [HintItem(.b, L10n.text("Back"))], right: [HintItem(.a, L10n.text("Select"))],

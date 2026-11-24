@@ -6,7 +6,7 @@ import ArcanePorting
 /// General, optional connections; moving them here leaves stored credentials and provider behaviour intact.
 struct SettingsAPISection: View {
     @ObservedObject var viewModel: AppViewModel
-    @ObservedObject var settings: AppSettingsStore
+    @ObservedObject var settings: SettingsEditor
     let showsMultiplayer: Bool
     let supportsNextendo: Bool
     var accountOnly = false
@@ -34,7 +34,7 @@ struct SettingsAPISection: View {
     @State private var nextendoRequested = false
 
     private var canContactNextendo: Bool { !passiveArrival || nextendoRequested }
-    private var clientID: String? { settings.settings.nextendoClientID ?? NextendoLaunch.buildClientID }
+    private var clientID: String? { settings.store.settings.nextendoClientID ?? NextendoLaunch.buildClientID }
     private let accountRowID = "Nextendo"
     private let friendsRowID = "nextendoFriends"
     private let refreshFriendsRowID = "nextendoRefreshFriends"
@@ -253,47 +253,25 @@ struct SettingsAPISection: View {
     }
 
     private func stepVPN(_ step: Int) {
-        let before = vpn
-        let next = before.stepped(step)
-        guard next != before else { return }
-        viewModel.confirmSetting(text("Private network (VPN)"),
-            message: L10n.format("Local play will use the VPN setting “%@” and reset the adapter to Automatic without changing macOS network settings.",
-                                 [text(next.label)], context: localization), action: "Save") {
-            guard vpn == before else { return }
-            var value = settings.settings
-            value.multiplayerVPN = next
-            value.multiplayerAdapter = nil
-            settings.settings = value
-        }
+        let next = vpn.stepped(step)
+        guard next != vpn else { return }
+        var value = settings.settings
+        value.multiplayerVPN = next
+        value.multiplayerAdapter = nil
+        settings.settings = value
     }
 
     private func stepDefault(_ step: Int) {
-        let next = settings.settings.multiplayerDefault.stepped(step)
-        confirmNetworkValue("Default for games", \.multiplayerDefault, next, label: text(next.label),
-            message: "The default will change to “%@” for future launches, but each game’s own choice will stay in place.")
+        settings.settings.multiplayerDefault = settings.settings.multiplayerDefault.stepped(step)
     }
 
     private func stepLocalMode(_ step: Int) {
-        let next = settings.settings.multiplayerLocalMode.stepped(step)
-        confirmNetworkValue("Local network mode", \.multiplayerLocalMode, next, label: text(next.label),
-            message: "Future local games will prefer “%@” without changing macOS network settings.")
+        settings.settings.multiplayerLocalMode = settings.settings.multiplayerLocalMode.stepped(step)
     }
 
     private func stepAdapter(_ step: Int) {
         let values: [String?] = [nil] + remotePlayAdapters.interfaceNames.map(Optional.some)
-        let next = values.stepped(from: settings.settings.multiplayerAdapter, step) ?? nil
-        confirmNetworkValue("Network adapter", \.multiplayerAdapter, next, label: next ?? text("Automatic"),
-            message: "Future local games will use the adapter setting “%@” without changing macOS network settings.")
-    }
-
-    private func confirmNetworkValue<Value: Equatable>(_ title: String, _ key: WritableKeyPath<AppSettings, Value>,
-                                                       _ next: Value, label: String, message: String) {
-        let before = settings.settings[keyPath: key]
-        guard next != before else { return }
-        viewModel.confirmSetting(text(title), message: L10n.format(message, [label], context: localization), action: "Save") {
-            guard settings.settings[keyPath: key] == before else { return }
-            settings.settings[keyPath: key] = next
-        }
+        settings.settings.multiplayerAdapter = values.stepped(from: settings.settings.multiplayerAdapter, step) ?? nil
     }
 
     @ViewBuilder private var nextendoRows: some View {

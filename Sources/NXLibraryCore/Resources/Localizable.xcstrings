@@ -1,6 +1,537 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Choose the folder every game syncs its save through, for example one in iCloud Drive.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Choose the folder every game syncs its save through, for example one in iCloud Drive."}}, "fr": {"stringUnit":{"state":"translated","value":"Choisissez un dossier de synchronisation commun à tous les jeux, par exemple dans iCloud Drive."}}, "it": {"stringUnit":{"state":"translated","value":"Scegli la cartella di sincronizzazione comune a tutti i giochi, ad esempio in iCloud Drive."}}, "de": {"stringUnit":{"state":"translated","value":"Wähle den gemeinsamen Ordner für Spielstände aus, zum Beispiel in iCloud Drive."}}, "es": {"stringUnit":{"state":"translated","value":"Elija la carpeta donde todos los juegos sincronizarán sus partidas, por ejemplo en iCloud Drive."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Escolha a pasta em que todos os jogos sincronizarão o progresso, por exemplo no iCloud Drive."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"请选择供所有游戏同步存档的文件夹，例如 iCloud 云盘中的文件夹。"}}
+    }},
+    "The saved settings could not be verified.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"The saved settings could not be verified."}}, "fr": {"stringUnit":{"state":"translated","value":"Impossible de vérifier les réglages enregistrés."}}, "it": {"stringUnit":{"state":"translated","value":"Impossibile verificare le impostazioni salvate."}}, "de": {"stringUnit":{"state":"translated","value":"Die gespeicherten Einstellungen konnten nicht überprüft werden."}}, "es": {"stringUnit":{"state":"translated","value":"No se pudieron verificar los ajustes guardados."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Não foi possível verificar as configurações salvas."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"无法验证已保存的设置。"}}
+    }},
+    "These settings changed elsewhere.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"These settings changed elsewhere."}}, "fr": {"stringUnit":{"state":"translated","value":"Ces réglages ont été modifiés ailleurs."}}, "it": {"stringUnit":{"state":"translated","value":"Queste impostazioni sono cambiate altrove."}}, "de": {"stringUnit":{"state":"translated","value":"Diese Einstellungen wurden an anderer Stelle geändert."}}, "es": {"stringUnit":{"state":"translated","value":"Estos ajustes se modificaron en otro lugar."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Essas configurações foram alteradas em outro lugar."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"这些设置已在其他地方更改。"}}
+    }},
+    "Settings could not be saved. Your changes are still here.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Settings could not be saved. Your changes are still here."}}, "fr": {"stringUnit":{"state":"translated","value":"Impossible d’enregistrer les réglages. Vos changements sont toujours là."}}, "it": {"stringUnit":{"state":"translated","value":"Impossibile salvare le impostazioni. Le modifiche sono ancora qui."}}, "de": {"stringUnit":{"state":"translated","value":"Die Einstellungen konnten nicht gespeichert werden. Deine Änderungen bleiben erhalten."}}, "es": {"stringUnit":{"state":"translated","value":"No se pudieron guardar los ajustes. Sus cambios se conservan."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Não foi possível salvar as configurações. Suas alterações continuam aqui."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"无法保存设置。您的更改仍然保留。"}}
+    }},
+    "The toolchain setting is unavailable now. Your changes are still here.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"The toolchain setting is unavailable now. Your changes are still here."}}, "fr": {"stringUnit":{"state":"translated","value":"Ce réglage du moteur est indisponible pour le moment. Vos changements sont toujours là."}}, "it": {"stringUnit":{"state":"translated","value":"L’impostazione non è disponibile ora. Le modifiche sono ancora qui."}}, "de": {"stringUnit":{"state":"translated","value":"Die Toolchain-Einstellung ist gerade nicht verfügbar. Deine Änderungen bleiben erhalten."}}, "es": {"stringUnit":{"state":"translated","value":"El ajuste de herramientas no está disponible ahora. Sus cambios se conservan."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"O ajuste das ferramentas está indisponível agora. Suas alterações continuam aqui."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"工具链设置目前不可用。您的更改仍然保留。"}}
+    }},
+    "This changes the build compatibility gate. Existing apps are not changed.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"This changes the build compatibility gate. Existing apps are not changed."}}, "fr": {"stringUnit":{"state":"translated","value":"Change les conditions des prochaines compilations, sans modifier les apps installées."}}, "it": {"stringUnit":{"state":"translated","value":"Cambia i requisiti delle prossime compilazioni, senza modificare le app installate."}}, "de": {"stringUnit":{"state":"translated","value":"Ändert die Voraussetzungen für künftige Builds. Installierte Apps bleiben unverändert."}}, "es": {"stringUnit":{"state":"translated","value":"Cambia los requisitos de las próximas compilaciones. No modifica las apps instaladas."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Muda os requisitos das próximas compilações. Os apps instalados não mudam."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"更改后续构建的兼容性要求，不会修改已安装的应用。"}}
+    }},
+    "This applies to all ported games at their next launch. No saves are deleted.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"This applies to all ported games at their next launch. No saves are deleted."}}, "fr": {"stringUnit":{"state":"translated","value":"Tous les jeux portés, au prochain lancement. Aucune sauvegarde n’est supprimée."}}, "it": {"stringUnit":{"state":"translated","value":"Vale per tutti i giochi portati al prossimo avvio. Nessun salvataggio viene eliminato."}}, "de": {"stringUnit":{"state":"translated","value":"Gilt für alle portierten Spiele beim nächsten Start. Keine Spielstände werden gelöscht."}}, "es": {"stringUnit":{"state":"translated","value":"Se aplica a todos los juegos portados en su próximo inicio. No se borran partidas guardadas."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Vale para todos os jogos portados na próxima vez que abrirem. Nenhum progresso salvo é apagado."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"所有移植游戏将在下次启动时应用此设置。不会删除存档。"}}
+    }},
+    "Local play uses this VPN. macOS network settings stay unchanged.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Local play uses this VPN. macOS network settings stay unchanged."}}, "fr": {"stringUnit":{"state":"translated","value":"Le jeu local utilise ce VPN. Le réseau macOS reste inchangé."}}, "it": {"stringUnit":{"state":"translated","value":"Il gioco locale usa questa VPN. Le impostazioni di rete di macOS non cambiano."}}, "de": {"stringUnit":{"state":"translated","value":"Lokales Spielen nutzt dieses VPN. Die macOS-Netzwerkeinstellungen bleiben unverändert."}}, "es": {"stringUnit":{"state":"translated","value":"El juego local usa esta VPN. Los ajustes de red de macOS no cambian."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"O jogo local usa esta VPN. A rede do macOS não muda."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"本地联机使用此 VPN。macOS 网络设置保持不变。"}}
+    }},
+    "%@: %@ → %@": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"%@: %@ → %@"}}, "fr": {"stringUnit":{"state":"translated","value":"%@ : %@ → %@"}}, "it": {"stringUnit":{"state":"translated","value":"%@: %@ → %@"}}, "de": {"stringUnit":{"state":"translated","value":"%@: %@ → %@"}}, "es": {"stringUnit":{"state":"translated","value":"%@: %@ → %@"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"%@: %@ → %@"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"%@：%@ → %@"}}
+    }},
+    "Was: %@": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Was: %@"}}, "fr": {"stringUnit":{"state":"translated","value":"Avant : %@"}}, "it": {"stringUnit":{"state":"translated","value":"Prima: %@"}}, "de": {"stringUnit":{"state":"translated","value":"Vorher: %@"}}, "es": {"stringUnit":{"state":"translated","value":"Antes: %@"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Antes: %@"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"原值：%@"}}
+    }},
+    "Continue editing settings": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Keep editing"}}, "fr": {"stringUnit":{"state":"translated","value":"Continuer à modifier"}}, "it": {"stringUnit":{"state":"translated","value":"Continua a modificare"}}, "de": {"stringUnit":{"state":"translated","value":"Weiter bearbeiten"}}, "es": {"stringUnit":{"state":"translated","value":"Seguir editando"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Continuar editando"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"继续编辑"}}
+    }},
+    "Discard changes": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Discard changes"}}, "fr": {"stringUnit":{"state":"translated","value":"Abandonner les changements"}}, "it": {"stringUnit":{"state":"translated","value":"Scarta le modifiche"}}, "de": {"stringUnit":{"state":"translated","value":"Änderungen verwerfen"}}, "es": {"stringUnit":{"state":"translated","value":"Descartar cambios"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Descartar alterações"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"放弃更改"}}
+    }},
+    "Leave without saving": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Leave without saving"}}, "fr": {"stringUnit":{"state":"translated","value":"Quitter sans enregistrer"}}, "it": {"stringUnit":{"state":"translated","value":"Esci senza salvare"}}, "de": {"stringUnit":{"state":"translated","value":"Ohne Speichern verlassen"}}, "es": {"stringUnit":{"state":"translated","value":"Salir sin guardar"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Sair sem salvar"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"退出而不保存"}}
+    }},
+    "Review what will change before you save.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Review what will change before you save."}}, "fr": {"stringUnit":{"state":"translated","value":"Vérifiez les changements avant d’enregistrer."}}, "it": {"stringUnit":{"state":"translated","value":"Controlla le modifiche prima di salvare."}}, "de": {"stringUnit":{"state":"translated","value":"Prüfe die Änderungen vor dem Speichern."}}, "es": {"stringUnit":{"state":"translated","value":"Revise los cambios antes de guardar."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Confira as alterações antes de salvar."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"保存前请查看以下更改。"}}
+    }},
+    "Unsaved settings": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Unsaved settings"}}, "fr": {"stringUnit":{"state":"translated","value":"Réglages non enregistrés"}}, "it": {"stringUnit":{"state":"translated","value":"Impostazioni non salvate"}}, "de": {"stringUnit":{"state":"translated","value":"Nicht gespeicherte Einstellungen"}}, "es": {"stringUnit":{"state":"translated","value":"Ajustes sin guardar"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Configurações não salvas"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"设置尚未保存"}}
+    }},
+    "Age rating": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Age rating"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Classification d’âge"}},
+      "it": {"stringUnit":{"state":"translated","value":"Classificazione per età"}},
+      "de": {"stringUnit":{"state":"translated","value":"Altersfreigabe"}},
+      "es": {"stringUnit":{"state":"translated","value":"Clasificación por edad"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Classificação indicativa"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"年龄分级"}}
+    }},
+    "Game artwork fetched by the player’s app and cached on this Mac, including images from Nintendo Europe.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Game artwork fetched by the player’s app and cached on this Mac, including images from Nintendo Europe."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Illustrations récupérées par l’app du joueur et mises en cache sur ce Mac, y compris les images de Nintendo Europe."}},
+      "it": {"stringUnit":{"state":"translated","value":"Immagini dei giochi recuperate dall’app del giocatore e conservate nella cache di questo Mac, incluse quelle di Nintendo Europe."}},
+      "de": {"stringUnit":{"state":"translated","value":"Von der App abgerufene und auf diesem Mac zwischengespeicherte Spielbilder, darunter Bilder von Nintendo Europe."}},
+      "es": {"stringUnit":{"state":"translated","value":"Imágenes de juegos obtenidas por la aplicación del jugador y guardadas en la caché de este Mac, incluidas las de Nintendo Europe."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Imagens de jogos buscadas pelo app do jogador e guardadas no cache deste Mac, incluindo as da Nintendo Europe."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"由玩家的应用获取并缓存在这台 Mac 上的游戏图片，包括来自 Nintendo Europe 的图片。"}}
+    }},
+    "The app keeps Arcane’s Nintendo Store source. Nintendo Europe supplements missing or untranslated information and artwork. Text and images belong to their respective owners and are never shipped with the app.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"The app keeps Arcane’s Nintendo Store source. Nintendo Europe supplements missing or untranslated information and artwork. Text and images belong to their respective owners and are never shipped with the app."}},
+      "fr": {"stringUnit":{"state":"translated","value":"L’app conserve la source Nintendo Store d’Arcane. Nintendo Europe complète les informations et illustrations manquantes ou non traduites. Les textes et images appartiennent à leurs propriétaires respectifs et ne sont pas fournis avec l’app."}},
+      "it": {"stringUnit":{"state":"translated","value":"L’app conserva la fonte Nintendo Store di Arcane. Nintendo Europe integra le informazioni e le immagini mancanti o non tradotte. Testi e immagini appartengono ai rispettivi titolari e non sono inclusi nell’app."}},
+      "de": {"stringUnit":{"state":"translated","value":"Die App behält Arcanes Nintendo Store als Quelle. Nintendo Europe ergänzt fehlende oder nicht übersetzte Informationen und Bilder. Texte und Bilder gehören den jeweiligen Rechteinhabern und werden nicht mit der App ausgeliefert."}},
+      "es": {"stringUnit":{"state":"translated","value":"La aplicación conserva el Nintendo Store como fuente de Arcane. Nintendo Europe completa la información y las imágenes que faltan o no se han traducido. Los textos y las imágenes pertenecen a sus titulares y no se incluyen en la aplicación."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"O app mantém a fonte Nintendo Store do Arcane. A Nintendo Europe complementa as informações e imagens ausentes ou não traduzidas. Os textos e as imagens pertencem aos respectivos titulares e não vêm com o app."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"应用保留 Arcane 的 Nintendo Store 数据来源，由 Nintendo Europe 补充缺失或未本地化的资料与图片。文字和图片归各自权利人所有，不随应用分发。"}}
+    }},
+    "Nintendo Europe catalogue": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Nintendo Europe catalogue"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Catalogue Nintendo Europe"}},
+      "it": {"stringUnit":{"state":"translated","value":"Catalogo Nintendo Europe"}},
+      "de": {"stringUnit":{"state":"translated","value":"Katalog von Nintendo Europe"}},
+      "es": {"stringUnit":{"state":"translated","value":"Catálogo de Nintendo Europe"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Catálogo da Nintendo Europe"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"Nintendo Europe 游戏目录"}}
+    }},
+    "Reopen the guided setup without resetting your library.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Reopen the guided setup without resetting your library."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Rouvrez l’assistant sans réinitialiser votre bibliothèque."}},
+      "it": {"stringUnit":{"state":"translated","value":"Riapri la configurazione guidata senza azzerare la libreria."}},
+      "de": {"stringUnit":{"state":"translated","value":"Öffne den Assistenten erneut, ohne deine Bibliothek zurückzusetzen."}},
+      "es": {"stringUnit":{"state":"translated","value":"Vuelve al asistente sin restablecer tu biblioteca."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Reabra o assistente sem redefinir sua biblioteca."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"重新打开设置向导，不会重置游戏库。"}}
+    }},
+    "Welcome setup": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Welcome setup"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Assistant de bienvenue"}},
+      "it": {"stringUnit":{"state":"translated","value":"Configurazione iniziale"}},
+      "de": {"stringUnit":{"state":"translated","value":"Willkommensassistent"}},
+      "es": {"stringUnit":{"state":"translated","value":"Asistente de bienvenida"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Assistente de boas-vindas"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"欢迎设置"}}
+    }},
+    "Oort will ask Apple to download the Metal compiler for Xcode at %@. It does not replace Xcode.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Oort will ask Apple to download the Metal compiler for Xcode at %@. It does not replace Xcode."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Oort demandera à Apple de télécharger le compilateur Metal pour Xcode dans %@, sans remplacer Xcode."}},
+      "it": {"stringUnit":{"state":"translated","value":"Oort chiederà ad Apple di scaricare il compilatore Metal per Xcode in %@, senza sostituire Xcode."}},
+      "de": {"stringUnit":{"state":"translated","value":"Oort lädt bei Apple den Metal-Compiler für Xcode unter %@ an. Xcode wird nicht ersetzt."}},
+      "es": {"stringUnit":{"state":"translated","value":"Oort pedirá a Apple que descargue el compilador de Metal para Xcode en %@. No se reemplazará Xcode."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Oort vai pedir à Apple que baixe o compilador Metal para o Xcode em %@. O Xcode não será substituído."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"Oort 将从 Apple 下载用于 %@ 处 Xcode 的 Metal 编译器，不会替换 Xcode。"}}
+    }},
+    "Oort will contact the engine’s Git server and prepare the tested nxnative revision in %@. This can update that checkout.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Oort will contact the engine’s Git server and prepare the tested nxnative revision in %@. This can update that checkout."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Oort contactera le serveur Git du moteur et préparera la version testée de nxnative dans %@. Cela peut mettre à jour ce dépôt local."}},
+      "it": {"stringUnit":{"state":"translated","value":"Oort contatterà il server Git del motore e preparerà la revisione verificata di nxnative in %@. Questo può aggiornare la copia locale."}},
+      "de": {"stringUnit":{"state":"translated","value":"Oort kontaktiert den Git-Server der Engine und richtet die getestete nxnative-Version in %@ ein. Das kann das lokale Repository aktualisieren."}},
+      "es": {"stringUnit":{"state":"translated","value":"Oort contactará con el servidor Git del motor y preparará la revisión probada de nxnative en %@. Esto puede actualizar el repositorio local."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Oort vai contatar o servidor Git do motor e preparar a versão testada do nxnative em %@. Isso pode atualizar o repositório local."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"Oort 将联系引擎的 Git 服务器，在 %@ 中准备测试过的 nxnative 版本。这可能会更新该本地仓库。"}}
+    }},
+    "Install the Metal compiler?": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Install the Metal compiler?"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Installer le compilateur Metal ?"}},
+      "it": {"stringUnit":{"state":"translated","value":"Installare il compilatore Metal?"}},
+      "de": {"stringUnit":{"state":"translated","value":"Metal-Compiler installieren?"}},
+      "es": {"stringUnit":{"state":"translated","value":"¿Instalar el compilador de Metal?"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Instalar o compilador Metal?"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"安装 Metal 编译器？"}}
+    }},
+    "Prepare nxnative?": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Prepare nxnative?"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Préparer nxnative ?"}},
+      "it": {"stringUnit":{"state":"translated","value":"Preparare nxnative?"}},
+      "de": {"stringUnit":{"state":"translated","value":"nxnative vorbereiten?"}},
+      "es": {"stringUnit":{"state":"translated","value":"¿Preparar nxnative?"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Preparar o nxnative?"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"准备 nxnative？"}}
+    }},
+    "You don’t need these tools to play a game that’s already built.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"You don’t need these tools to play a game that’s already built."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Ces outils ne sont pas nécessaires pour jouer à un jeu déjà compilé."}},
+      "it": {"stringUnit":{"state":"translated","value":"Questi strumenti non servono per giocare a un titolo già compilato."}},
+      "de": {"stringUnit":{"state":"translated","value":"Für ein bereits gebautes Spiel sind diese Werkzeuge nicht nötig."}},
+      "es": {"stringUnit":{"state":"translated","value":"Estas herramientas no hacen falta para jugar a un juego ya compilado."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Essas ferramentas não são necessárias para jogar um jogo já compilado."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"游玩已构建的游戏不需要这些工具。"}}
+    }},
+    "Tools for building Switch games": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Tools for building Switch games"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Outils pour compiler des jeux Switch"}},
+      "it": {"stringUnit":{"state":"translated","value":"Strumenti per compilare giochi Switch"}},
+      "de": {"stringUnit":{"state":"translated","value":"Werkzeuge zum Bauen von Switch-Spielen"}},
+      "es": {"stringUnit":{"state":"translated","value":"Herramientas para compilar juegos de Switch"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Ferramentas para compilar jogos de Switch"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"Switch 游戏构建工具"}}
+    }},
+    "Start without a copy": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Start without a copy"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Démarrer sans copie"}},
+      "it": {"stringUnit":{"state":"translated","value":"Inizia senza una copia"}},
+      "de": {"stringUnit":{"state":"translated","value":"Ohne Kopie starten"}},
+      "es": {"stringUnit":{"state":"translated","value":"Empezar sin una copia"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Começar sem uma cópia"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"不复制，直接开始"}}
+    }},
+    "Copy": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Copy"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Copier"}},
+      "it": {"stringUnit":{"state":"translated","value":"Copia"}},
+      "de": {"stringUnit":{"state":"translated","value":"Kopieren"}},
+      "es": {"stringUnit":{"state":"translated","value":"Copiar"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Copiar"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"复制"}}
+    }},
+    "Copy your catalog, profiles, artwork and play time. Keys, accounts, queues and saves aren’t copied. The original stays unchanged.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Copy your catalog, profiles, artwork and play time. Keys, accounts, queues and saves aren’t copied. The original stays unchanged."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Copiez votre catalogue, vos profils, vos visuels et vos temps de jeu. Les clés, comptes, tâches en attente et sauvegardes ne sont pas copiés. L’original reste intact."}},
+      "it": {"stringUnit":{"state":"translated","value":"Copia catalogo, profili, immagini e tempo di gioco. Chiavi, account, code e salvataggi non vengono copiati. L’originale resta invariato."}},
+      "de": {"stringUnit":{"state":"translated","value":"Kopiere Katalog, Profile, Bilder und Spielzeit. Schlüssel, Konten, Warteschlangen und Spielstände werden nicht kopiert. Das Original bleibt unverändert."}},
+      "es": {"stringUnit":{"state":"translated","value":"Copia el catálogo, los perfiles, las imágenes y el tiempo de juego. No se copian las claves, las cuentas, las colas ni las partidas. El original no cambia."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Copie o catálogo, os perfis, as imagens e o tempo de jogo. Chaves, contas, filas e jogos salvos não são copiados. O original fica intacto."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"复制目录、个人资料、游戏图片和游玩时长。不复制密钥、账户、任务队列或存档。原始游戏库保持不变。"}}
+    }},
+    "Copy your Oort library?": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Copy your Oort library?"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Copier votre bibliothèque Oort ?"}},
+      "it": {"stringUnit":{"state":"translated","value":"Copiare la libreria Oort?"}},
+      "de": {"stringUnit":{"state":"translated","value":"Deine Oort-Bibliothek kopieren?"}},
+      "es": {"stringUnit":{"state":"translated","value":"¿Copiar tu biblioteca de Oort?"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Copiar sua biblioteca do Oort?"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"复制 Oort 游戏库？"}}
+    }},
+    "A darker base with warmer accents.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"A darker base with warmer accents."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Un fond plus sombre et des accents plus chauds."}},
+      "it": {"stringUnit":{"state":"translated","value":"Uno sfondo più scuro con accenti più caldi."}},
+      "de": {"stringUnit":{"state":"translated","value":"Dunklerer Hintergrund mit wärmeren Akzenten."}},
+      "es": {"stringUnit":{"state":"translated","value":"Un fondo más oscuro con acentos más cálidos."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Um fundo mais escuro com tons de destaque mais quentes."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"更深的底色，更温暖的点缀。"}}
+    }},
+    "Oort palette": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Oort palette"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Palette Oort"}},
+      "it": {"stringUnit":{"state":"translated","value":"Palette Oort"}},
+      "de": {"stringUnit":{"state":"translated","value":"Oort-Farbpalette"}},
+      "es": {"stringUnit":{"state":"translated","value":"Paleta Oort"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Paleta Oort"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"Oort 配色"}}
+    }},
+    "Assign controllers to players before you start a game.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Assign controllers to players before you start a game."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Attribuez les manettes aux joueurs avant de lancer un jeu."}},
+      "it": {"stringUnit":{"state":"translated","value":"Assegna i controller ai giocatori prima di avviare un gioco."}},
+      "de": {"stringUnit":{"state":"translated","value":"Ordne Controller zu, bevor du ein Spiel startest."}},
+      "es": {"stringUnit":{"state":"translated","value":"Asigna los mandos a los jugadores antes de iniciar el juego."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Atribua os controles aos jogadores antes de iniciar um jogo."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"启动游戏前给玩家分配手柄。"}}
+    }},
+    "Players and controllers": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Players and controllers"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Joueurs et manettes"}},
+      "it": {"stringUnit":{"state":"translated","value":"Giocatori e controller"}},
+      "de": {"stringUnit":{"state":"translated","value":"Spieler und Controller"}},
+      "es": {"stringUnit":{"state":"translated","value":"Jugadores y mandos"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Jogadores e controles"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"玩家与手柄"}}
+    }},
+    "Find your optional services in one place.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Find your optional services in one place."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Retrouvez vos services facultatifs au même endroit."}},
+      "it": {"stringUnit":{"state":"translated","value":"Ritrova i servizi facoltativi in un unico posto."}},
+      "de": {"stringUnit":{"state":"translated","value":"Finde alle optionalen Dienste an einem Ort."}},
+      "es": {"stringUnit":{"state":"translated","value":"Encuentra tus servicios opcionales en un solo lugar."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Encontre os serviços opcionais em um só lugar."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"在一处查看可选服务。"}}
+    }},
+    "What’s new in Oort NX 0.4.0": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"What’s new in Oort NX 0.4.0"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Nouveautés d’Oort NX 0.4.0"}},
+      "it": {"stringUnit":{"state":"translated","value":"Novità di Oort NX 0.4.0"}},
+      "de": {"stringUnit":{"state":"translated","value":"Neu in Oort NX 0.4.0"}},
+      "es": {"stringUnit":{"state":"translated","value":"Novedades de Oort NX 0.4.0"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Novidades do Oort NX 0.4.0"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"Oort NX 0.4.0 新功能"}}
+    }},
+    "Enabled": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Enabled"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Activé"}},
+      "it": {"stringUnit":{"state":"translated","value":"Attivo"}},
+      "de": {"stringUnit":{"state":"translated","value":"Aktiviert"}},
+      "es": {"stringUnit":{"state":"translated","value":"Activado"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Ativado"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"已启用"}}
+    }},
+    "Choose if and where to sync ported-game saves.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Choose if and where to sync ported-game saves."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Choisissez si et où synchroniser vos sauvegardes de jeux compilés."}},
+      "it": {"stringUnit":{"state":"translated","value":"Scegli se e dove sincronizzare i salvataggi dei giochi portati."}},
+      "de": {"stringUnit":{"state":"translated","value":"Wähle, ob und wo Spielstände portierter Spiele synchronisiert werden."}},
+      "es": {"stringUnit":{"state":"translated","value":"Elige si quieres sincronizar las partidas de juegos compilados y dónde."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Escolha se e onde sincronizar os dados salvos de jogos compilados."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"选择是否同步移植游戏的存档，以及同步位置。"}}
+    }},
+    "Save copies": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Save copies"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Copies de sauvegardes"}},
+      "it": {"stringUnit":{"state":"translated","value":"Copie dei salvataggi"}},
+      "de": {"stringUnit":{"state":"translated","value":"Spielstandkopien"}},
+      "es": {"stringUnit":{"state":"translated","value":"Copias de partidas guardadas"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Cópias de jogos salvos"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"存档副本"}}
+    }},
+    "Read your installed Mac games from Steam.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Read your installed Mac games from Steam."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Importez la liste de vos jeux Mac installés via Steam."}},
+      "it": {"stringUnit":{"state":"translated","value":"Leggi l’elenco dei giochi Mac installati da Steam."}},
+      "de": {"stringUnit":{"state":"translated","value":"Lies deine installierten Mac-Spiele aus Steam ein."}},
+      "es": {"stringUnit":{"state":"translated","value":"Lee la lista de juegos de Mac instalados en Steam."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Leia a lista de jogos de Mac instalados pelo Steam."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"从 Steam 读取已安装的 Mac 游戏。"}}
+    }},
+    "Connect an account for online play.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Connect an account for online play."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Connectez un compte pour jouer en ligne."}},
+      "it": {"stringUnit":{"state":"translated","value":"Collega un account per giocare online."}},
+      "de": {"stringUnit":{"state":"translated","value":"Verbinde ein Konto für Online-Spiele."}},
+      "es": {"stringUnit":{"state":"translated","value":"Conecta una cuenta para jugar en línea."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Conecte uma conta para jogar on-line."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"连接账户以在线游玩。"}}
+    }},
+    "Connect your cloud library.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Connect your cloud library."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Connectez votre bibliothèque cloud."}},
+      "it": {"stringUnit":{"state":"translated","value":"Collega la tua libreria cloud."}},
+      "de": {"stringUnit":{"state":"translated","value":"Verbinde deine Cloud-Bibliothek."}},
+      "es": {"stringUnit":{"state":"translated","value":"Conecta tu biblioteca en la nube."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Conecte sua biblioteca na nuvem."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"连接你的云端游戏库。"}}
+    }},
+    "Game files · build later": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Game files · build later"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Fichiers de jeu · compilation ultérieure"}},
+      "it": {"stringUnit":{"state":"translated","value":"File di gioco · compila più tardi"}},
+      "de": {"stringUnit":{"state":"translated","value":"Spieldateien · später bauen"}},
+      "es": {"stringUnit":{"state":"translated","value":"Archivos de juego · compilar más tarde"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Arquivos do jogo · compile depois"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"游戏文件 · 稍后构建"}}
+    }},
+    "Identify later in Add Game": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Identify later in Add Game"}},
+      "fr": {"stringUnit":{"state":"translated","value":"À identifier dans Ajouter un jeu"}},
+      "it": {"stringUnit":{"state":"translated","value":"Da identificare in Aggiungi gioco"}},
+      "de": {"stringUnit":{"state":"translated","value":"Später unter Spiel hinzufügen identifizieren"}},
+      "es": {"stringUnit":{"state":"translated","value":"Identifícalo en Añadir juego"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Identifique depois em Adicionar jogo"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"稍后在“添加游戏”中识别"}}
+    }},
+    "Already in your library": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Already in your library"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Déjà dans votre bibliothèque"}},
+      "it": {"stringUnit":{"state":"translated","value":"Già nella tua libreria"}},
+      "de": {"stringUnit":{"state":"translated","value":"Bereits in deiner Bibliothek"}},
+      "es": {"stringUnit":{"state":"translated","value":"Ya está en tu biblioteca"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Já está na sua biblioteca"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"已在游戏库中"}}
+    }},
+    "Game apps folder": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Game apps folder"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Dossier des jeux compilés"}},
+      "it": {"stringUnit":{"state":"translated","value":"Cartella delle app dei giochi"}},
+      "de": {"stringUnit":{"state":"translated","value":"Ordner der Spiele-Apps"}},
+      "es": {"stringUnit":{"state":"translated","value":"Carpeta de juegos compilados"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Pasta de jogos compilados"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"已构建游戏的文件夹"}}
+    }},
+    "No folder selected": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"No folder selected"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Aucun dossier sélectionné"}},
+      "it": {"stringUnit":{"state":"translated","value":"Nessuna cartella selezionata"}},
+      "de": {"stringUnit":{"state":"translated","value":"Kein Ordner ausgewählt"}},
+      "es": {"stringUnit":{"state":"translated","value":"No se ha seleccionado ninguna carpeta"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Nenhuma pasta selecionada"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"未选择文件夹"}}
+    }},
+    "Choose a folder of game files": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Choose a folder of game files"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Choisir un dossier de fichiers de jeux"}},
+      "it": {"stringUnit":{"state":"translated","value":"Scegli una cartella di file di gioco"}},
+      "de": {"stringUnit":{"state":"translated","value":"Ordner mit Spieldateien wählen"}},
+      "es": {"stringUnit":{"state":"translated","value":"Elegir una carpeta de archivos de juegos"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Escolher uma pasta de arquivos de jogos"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"选择游戏文件所在的文件夹"}}
+    }},
+    "Local profile": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Local profile"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Profil local"}},
+      "it": {"stringUnit":{"state":"translated","value":"Profilo locale"}},
+      "de": {"stringUnit":{"state":"translated","value":"Lokales Profil"}},
+      "es": {"stringUnit":{"state":"translated","value":"Perfil local"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Perfil local"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"本地个人资料"}}
+    }},
+    "Keyboard and mouse are ready": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Keyboard and mouse are ready"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Clavier et souris prêts"}},
+      "it": {"stringUnit":{"state":"translated","value":"Tastiera e mouse pronti"}},
+      "de": {"stringUnit":{"state":"translated","value":"Tastatur und Maus sind bereit"}},
+      "es": {"stringUnit":{"state":"translated","value":"Teclado y ratón listos"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Teclado e mouse prontos"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"键盘和鼠标已就绪"}}
+    }},
+    "Controller recognised": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Controller recognised"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Manette reconnue"}},
+      "it": {"stringUnit":{"state":"translated","value":"Controller riconosciuto"}},
+      "de": {"stringUnit":{"state":"translated","value":"Controller erkannt"}},
+      "es": {"stringUnit":{"state":"translated","value":"Mando reconocido"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Controle reconhecido"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"已识别手柄"}}
+    }},
+    "No Gamepad Connected": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"No Gamepad Connected"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Aucune manette connectée"}},
+      "it": {"stringUnit":{"state":"translated","value":"Nessun controller collegato"}},
+      "de": {"stringUnit":{"state":"translated","value":"Kein Controller verbunden"}},
+      "es": {"stringUnit":{"state":"translated","value":"No hay mandos conectados"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Nenhum controle conectado"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"未连接手柄"}}
+    }},
+    "Some folders could not be read. Check the folders or continue.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Some folders could not be read. Check the folders or continue."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Certains dossiers n’ont pas pu être lus. Vérifiez-les ou continuez."}},
+      "it": {"stringUnit":{"state":"translated","value":"Impossibile leggere alcune cartelle. Controllale o continua."}},
+      "de": {"stringUnit":{"state":"translated","value":"Einige Ordner konnten nicht gelesen werden. Prüfe sie oder fahre fort."}},
+      "es": {"stringUnit":{"state":"translated","value":"No se pudieron leer algunas carpetas. Revísalas o continúa."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Algumas pastas não puderam ser lidas. Confira-as ou continue."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"无法读取部分文件夹。请检查文件夹，或继续。"}}
+    }},
+    "Skip setup": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Skip setup"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Passer l’accueil"}},
+      "it": {"stringUnit":{"state":"translated","value":"Salta la configurazione"}},
+      "de": {"stringUnit":{"state":"translated","value":"Einrichtung überspringen"}},
+      "es": {"stringUnit":{"state":"translated","value":"Omitir la configuración"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Pular a configuração"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"跳过设置"}}
+    }},
+    "Later": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Later"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Plus tard"}},
+      "it": {"stringUnit":{"state":"translated","value":"Più tardi"}},
+      "de": {"stringUnit":{"state":"translated","value":"Später"}},
+      "es": {"stringUnit":{"state":"translated","value":"Más tarde"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Mais tarde"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"稍后"}}
+    }},
+    "Continue without waiting": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Continue without waiting"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Continuer sans attendre"}},
+      "it": {"stringUnit":{"state":"translated","value":"Continua senza aspettare"}},
+      "de": {"stringUnit":{"state":"translated","value":"Ohne Warten fortfahren"}},
+      "es": {"stringUnit":{"state":"translated","value":"Continuar sin esperar"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Continuar sem esperar"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"不等待，继续"}}
+    }},
+    "Choose how the library looks and sounds. You can change it anytime.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Choose how the library looks and sounds. You can change it anytime."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Choisissez les couleurs et les sons de votre bibliothèque. Vous pourrez les changer à tout moment."}},
+      "it": {"stringUnit":{"state":"translated","value":"Scegli i colori e i suoni della libreria. Puoi cambiarli ogni volta che vuoi."}},
+      "de": {"stringUnit":{"state":"translated","value":"Wähle Farben und Klänge für die Bibliothek. Du kannst sie jederzeit ändern."}},
+      "es": {"stringUnit":{"state":"translated","value":"Elige los colores y sonidos de la biblioteca. Puedes cambiarlos cuando quieras."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Escolha as cores e os sons da biblioteca. Você pode mudá-los a qualquer hora."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"选择游戏库的配色和声音，随时可以修改。"}}
+    }},
+    "Set up only what you want. You can do this later in Settings.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Set up only what you want. You can do this later in Settings."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Choisissez uniquement les services qui vous intéressent. Vous pourrez les configurer plus tard dans Réglages."}},
+      "it": {"stringUnit":{"state":"translated","value":"Configura solo i servizi che vuoi. Puoi farlo anche più tardi nelle Impostazioni."}},
+      "de": {"stringUnit":{"state":"translated","value":"Richte nur die gewünschten Dienste ein. Das geht auch später in den Einstellungen."}},
+      "es": {"stringUnit":{"state":"translated","value":"Configura solo los servicios que quieras. Puedes hacerlo más tarde en Ajustes."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Configure só os serviços que quiser. Você pode fazer isso depois nos Ajustes."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"只设置你需要的服务。稍后也可以在设置中操作。"}}
+    }},
+    "Add the checked games without moving their files or starting a build.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Add the checked games without moving their files or starting a build."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Ajoutez les jeux cochés sans déplacer leurs fichiers ni lancer de compilation."}},
+      "it": {"stringUnit":{"state":"translated","value":"Aggiungi i giochi spuntati senza spostare i file né avviare una compilazione."}},
+      "de": {"stringUnit":{"state":"translated","value":"Füge ausgewählte Spiele hinzu, ohne Dateien zu verschieben oder einen Build zu starten."}},
+      "es": {"stringUnit":{"state":"translated","value":"Añade los juegos marcados sin mover archivos ni iniciar una compilación."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Adicione os jogos marcados sem mover arquivos nem iniciar uma compilação."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"添加勾选的游戏，不移动文件，也不开始构建。"}}
+    }},
+    "Your profile keeps your play history and preferences on this Mac.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Your profile keeps your play history and preferences on this Mac."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Votre historique de jeu et vos préférences restent sur ce Mac."}},
+      "it": {"stringUnit":{"state":"translated","value":"Cronologia e preferenze restano in questo Mac."}},
+      "de": {"stringUnit":{"state":"translated","value":"Spielverlauf und Einstellungen bleiben auf diesem Mac."}},
+      "es": {"stringUnit":{"state":"translated","value":"Tu historial y tus preferencias se guardan en este Mac."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Seu histórico e suas preferências ficam neste Mac."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"游戏记录和偏好设置保存在这台 Mac 上。"}}
+    }},
+    "Connect a controller in macOS, or continue with your keyboard and mouse.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Connect a controller in macOS, or continue with your keyboard and mouse."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Connectez votre manette dans macOS ou continuez au clavier et à la souris."}},
+      "it": {"stringUnit":{"state":"translated","value":"Collega un controller in macOS o continua con tastiera e mouse."}},
+      "de": {"stringUnit":{"state":"translated","value":"Verbinde einen Controller in macOS oder fahre mit Tastatur und Maus fort."}},
+      "es": {"stringUnit":{"state":"translated","value":"Conecta un mando en macOS o continúa con el teclado y el ratón."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Conecte um controle no macOS ou continue com teclado e mouse."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"在 macOS 中连接手柄，或继续使用键盘和鼠标。"}}
+    }},
+    "Play games already on your Mac. No account is required.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Play games already on your Mac. No account is required."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Jouez aux jeux déjà présents sur votre Mac, sans compte."}},
+      "it": {"stringUnit":{"state":"translated","value":"Gioca ai giochi già sul tuo Mac, senza un account."}},
+      "de": {"stringUnit":{"state":"translated","value":"Spiele, was schon auf deinem Mac ist. Kein Konto nötig."}},
+      "es": {"stringUnit":{"state":"translated","value":"Juega a lo que ya tienes en tu Mac, sin cuenta."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Jogue o que já está no seu Mac, sem precisar de conta."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"畅玩 Mac 上已有的游戏，无需账户。"}}
+    }},
+    "Look and sound": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Look and sound"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Apparence et son"}},
+      "it": {"stringUnit":{"state":"translated","value":"Aspetto e audio"}},
+      "de": {"stringUnit":{"state":"translated","value":"Aussehen und Ton"}},
+      "es": {"stringUnit":{"state":"translated","value":"Aspecto y sonido"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Aparência e som"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"外观与声音"}}
+    }},
+    "Optional services": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Optional services"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Services facultatifs"}},
+      "it": {"stringUnit":{"state":"translated","value":"Servizi facoltativi"}},
+      "de": {"stringUnit":{"state":"translated","value":"Optionale Dienste"}},
+      "es": {"stringUnit":{"state":"translated","value":"Servicios opcionales"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Serviços opcionais"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"可选服务"}}
+    }},
+    "Games on this Mac": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Games on this Mac"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Jeux sur ce Mac"}},
+      "it": {"stringUnit":{"state":"translated","value":"Giochi su questo Mac"}},
+      "de": {"stringUnit":{"state":"translated","value":"Spiele auf diesem Mac"}},
+      "es": {"stringUnit":{"state":"translated","value":"Juegos en este Mac"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Jogos neste Mac"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"此 Mac 上的游戏"}}
+    }},
+    "Your local profile": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Your local profile"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Votre profil local"}},
+      "it": {"stringUnit":{"state":"translated","value":"Il tuo profilo locale"}},
+      "de": {"stringUnit":{"state":"translated","value":"Dein lokales Profil"}},
+      "es": {"stringUnit":{"state":"translated","value":"Tu perfil local"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Seu perfil local"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"你的本地个人资料"}}
+    }},
+    "Your controller": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Your controller"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Votre manette"}},
+      "it": {"stringUnit":{"state":"translated","value":"Il tuo controller"}},
+      "de": {"stringUnit":{"state":"translated","value":"Dein Controller"}},
+      "es": {"stringUnit":{"state":"translated","value":"Tu mando"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Seu controle"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"你的手柄"}}
+    }},
+    "Welcome to Oort NX": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Welcome to Oort NX"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Bienvenue dans Oort NX"}},
+      "it": {"stringUnit":{"state":"translated","value":"Benvenuti in Oort NX"}},
+      "de": {"stringUnit":{"state":"translated","value":"Willkommen bei Oort NX"}},
+      "es": {"stringUnit":{"state":"translated","value":"Te damos la bienvenida a Oort NX"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Boas-vindas ao Oort NX"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"欢迎使用 Oort NX"}}
+    }},
     "NOT INCLUDED": {"localizations": {
       "en":{"stringUnit":{"state":"translated","value":"NOT INCLUDED"}},"fr":{"stringUnit":{"state":"translated","value":"NON INCLUS"}},"it":{"stringUnit":{"state":"translated","value":"NON INCLUSI"}},"de":{"stringUnit":{"state":"translated","value":"NICHT ENTHALTEN"}},"es":{"stringUnit":{"state":"translated","value":"NO INCLUIDOS"}},"pt-BR":{"stringUnit":{"state":"translated","value":"NÃO INCLUÍDOS"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"未包含"}}
     }},
@@ -15,6 +546,48 @@
     }},
     "Engine folder: %@": {"localizations": {
       "en":{"stringUnit":{"state":"translated","value":"Engine folder: %@"}},"fr":{"stringUnit":{"state":"translated","value":"Dossier du moteur : %@"}},"it":{"stringUnit":{"state":"translated","value":"Cartella del motore: %@"}},"de":{"stringUnit":{"state":"translated","value":"Engine-Ordner: %@"}},"es":{"stringUnit":{"state":"translated","value":"Carpeta del motor: %@"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Pasta do motor: %@"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"引擎文件夹：%@"}}
+    }},
+    "App on this Mac": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"App on this Mac"}}, "fr": {"stringUnit":{"state":"translated","value":"App sur ce Mac"}}, "it": {"stringUnit":{"state":"translated","value":"App su questo Mac"}}, "de": {"stringUnit":{"state":"translated","value":"App auf diesem Mac"}}, "es": {"stringUnit":{"state":"translated","value":"App en este Mac"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"App neste Mac"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"此 Mac 上的应用"}}
+    }},
+    "App in your cloud": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"App in your cloud"}}, "fr": {"stringUnit":{"state":"translated","value":"App dans votre cloud"}}, "it": {"stringUnit":{"state":"translated","value":"App nel tuo cloud"}}, "de": {"stringUnit":{"state":"translated","value":"App in deiner Cloud"}}, "es": {"stringUnit":{"state":"translated","value":"App en tu nube"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"App na sua nuvem"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"你的云端中的应用"}}
+    }},
+    "App in the reference library": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"App in the reference library"}}, "fr": {"stringUnit":{"state":"translated","value":"App dans la bibliothèque de référence"}}, "it": {"stringUnit":{"state":"translated","value":"App nella libreria di riferimento"}}, "de": {"stringUnit":{"state":"translated","value":"App in der Referenzbibliothek"}}, "es": {"stringUnit":{"state":"translated","value":"App en la biblioteca de referencia"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"App na biblioteca de referência"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"参考游戏库中的应用"}}
+    }},
+    "App in both cloud libraries": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"App in both cloud libraries"}}, "fr": {"stringUnit":{"state":"translated","value":"App dans les deux bibliothèques cloud"}}, "it": {"stringUnit":{"state":"translated","value":"App in entrambe le librerie cloud"}}, "de": {"stringUnit":{"state":"translated","value":"App in beiden Cloud-Bibliotheken"}}, "es": {"stringUnit":{"state":"translated","value":"App en ambas bibliotecas en la nube"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"App nas duas bibliotecas na nuvem"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"两个云游戏库中都有此应用"}}
+    }},
+    "Game files in your cloud": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Game files in your cloud"}}, "fr": {"stringUnit":{"state":"translated","value":"Fichiers du jeu dans votre cloud"}}, "it": {"stringUnit":{"state":"translated","value":"File di gioco nel tuo cloud"}}, "de": {"stringUnit":{"state":"translated","value":"Spieldateien in deiner Cloud"}}, "es": {"stringUnit":{"state":"translated","value":"Archivos del juego en tu nube"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Arquivos do jogo na sua nuvem"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"你的云端中的游戏文件"}}
+    }},
+    "Game files in the reference library": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Game files in the reference library"}}, "fr": {"stringUnit":{"state":"translated","value":"Fichiers du jeu dans la bibliothèque de référence"}}, "it": {"stringUnit":{"state":"translated","value":"File di gioco nella libreria di riferimento"}}, "de": {"stringUnit":{"state":"translated","value":"Spieldateien in der Referenzbibliothek"}}, "es": {"stringUnit":{"state":"translated","value":"Archivos del juego en la biblioteca de referencia"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Arquivos do jogo na biblioteca de referência"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"参考游戏库中的游戏文件"}}
+    }},
+    "Game files on this Mac": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Game files on this Mac"}}, "fr": {"stringUnit":{"state":"translated","value":"Fichiers du jeu sur ce Mac"}}, "it": {"stringUnit":{"state":"translated","value":"File di gioco su questo Mac"}}, "de": {"stringUnit":{"state":"translated","value":"Spieldateien auf diesem Mac"}}, "es": {"stringUnit":{"state":"translated","value":"Archivos del juego en este Mac"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Arquivos do jogo neste Mac"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"此 Mac 上的游戏文件"}}
+    }},
+    "Build after downloading": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Build after downloading"}}, "fr": {"stringUnit":{"state":"translated","value":"Compilez après le téléchargement"}}, "it": {"stringUnit":{"state":"translated","value":"Compila dopo il download"}}, "de": {"stringUnit":{"state":"translated","value":"Nach dem Herunterladen kompilieren"}}, "es": {"stringUnit":{"state":"translated","value":"Compila después de la descarga"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Compile após o download"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"下载后再编译"}}
+    }},
+    "Check the engine before building": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Check the engine before building"}}, "fr": {"stringUnit":{"state":"translated","value":"Vérifiez le moteur avant de compiler"}}, "it": {"stringUnit":{"state":"translated","value":"Verifica il motore prima di compilare"}}, "de": {"stringUnit":{"state":"translated","value":"Prüfe vor dem Kompilieren die Engine"}}, "es": {"stringUnit":{"state":"translated","value":"Comprueba el motor antes de compilar"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Verifique o motor antes de compilar"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"编译前请检查引擎"}}
+    }},
+    "Build from Options": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Build from Options"}}, "fr": {"stringUnit":{"state":"translated","value":"Compilez depuis Options"}}, "it": {"stringUnit":{"state":"translated","value":"Compila da Opzioni"}}, "de": {"stringUnit":{"state":"translated","value":"Über die Optionen kompilieren"}}, "es": {"stringUnit":{"state":"translated","value":"Compila desde Opciones"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Compile em Opções"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"请从“选项”编译"}}
+    }},
+    "Cloud not verified": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Cloud not verified"}}, "fr": {"stringUnit":{"state":"translated","value":"Cloud non vérifié"}}, "it": {"stringUnit":{"state":"translated","value":"Cloud non verificato"}}, "de": {"stringUnit":{"state":"translated","value":"Cloud nicht geprüft"}}, "es": {"stringUnit":{"state":"translated","value":"Nube sin verificar"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Nuvem não verificada"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"尚未验证云端"}}
+    }},
+    "Last known location: %@": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Last known location: %@"}}, "fr": {"stringUnit":{"state":"translated","value":"Dernier emplacement connu : %@"}}, "it": {"stringUnit":{"state":"translated","value":"Ultima posizione nota: %@"}}, "de": {"stringUnit":{"state":"translated","value":"Letzter bekannter Speicherort: %@"}}, "es": {"stringUnit":{"state":"translated","value":"Última ubicación conocida: %@"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Último local conhecido: %@"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"最近已知位置：%@"}}
+    }},
+    "Find your game files in %@ → %@": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Find your game files in %@ → %@"}}, "fr": {"stringUnit":{"state":"translated","value":"Localisez vos fichiers dans %@ → %@"}}, "it": {"stringUnit":{"state":"translated","value":"Trova i file di gioco in %@ → %@"}}, "de": {"stringUnit":{"state":"translated","value":"Suche deine Spieldateien unter %@ → %@"}}, "es": {"stringUnit":{"state":"translated","value":"Busca los archivos del juego en %@ → %@"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Localize os arquivos do jogo em %@ → %@"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"请在“%@ → %@”中查找游戏文件"}}
+    }},
+    "Download unavailable": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Download unavailable"}}, "fr": {"stringUnit":{"state":"translated","value":"Téléchargement indisponible"}}, "it": {"stringUnit":{"state":"translated","value":"Download non disponibile"}}, "de": {"stringUnit":{"state":"translated","value":"Download nicht verfügbar"}}, "es": {"stringUnit":{"state":"translated","value":"Descarga no disponible"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Download indisponível"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"无法下载"}}
     }},
     "This rclone uses a separate configuration. Choose a copy that uses your existing Drive settings.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"This rclone uses a separate configuration. Choose a copy that uses your existing Drive settings."}}, "fr": {"stringUnit":{"state":"translated","value":"Ce rclone utilise une configuration distincte. Choisissez une copie qui reprend vos réglages Drive actuels."}}, "it": {"stringUnit":{"state":"translated","value":"Questo rclone usa una configurazione separata. Scegli una copia che usi le impostazioni Drive esistenti."}}, "de": {"stringUnit":{"state":"translated","value":"Dieses rclone hat eine eigene Konfiguration. Wähle eine Kopie mit deinen bisherigen Drive-Einstellungen."}}, "es": {"stringUnit":{"state":"translated","value":"Este rclone usa una configuración distinta. Elige una copia que use tus ajustes de Drive actuales."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Este rclone usa uma configuração separada. Escolha uma cópia que use suas configurações atuais do Drive."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"此 rclone 使用独立配置。请选择使用你现有 Drive 设置的副本。"}}
@@ -117,11 +690,14 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法归类"}}
       }
     },
+    "+%lld more": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"+%lld more"}}, "fr": {"stringUnit":{"state":"translated","value":"+%lld de plus"}}, "it": {"stringUnit":{"state":"translated","value":"+%lld in più"}}, "de": {"stringUnit":{"state":"translated","value":"+%lld weitere"}}, "es": {"stringUnit":{"state":"translated","value":"+%lld más"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"+%lld a mais"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"另有 %lld 个"}}
+    }},
     "Add player": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Add player"}}, "fr": {"stringUnit":{"state":"translated","value":"Ajouter un joueur"}}, "it": {"stringUnit":{"state":"translated","value":"Aggiungi giocatore"}}, "de": {"stringUnit":{"state":"translated","value":"Spieler hinzufügen"}}, "es": {"stringUnit":{"state":"translated","value":"Añadir jugador"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Adicionar jogador"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"添加玩家"}}
     }},
     "All controllers on one player": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"All controllers on one player"}}, "fr": {"stringUnit":{"state":"translated","value":"Toutes les manettes pour un joueur"}}, "it": {"stringUnit":{"state":"translated","value":"Tutti i controller per un giocatore"}}, "de": {"stringUnit":{"state":"translated","value":"Alle Controller für einen Spieler"}}, "es": {"stringUnit":{"state":"translated","value":"Todos los mandos para un jugador"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Todos os controles para um jogador"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"所有手柄分配给一名玩家"}}
+      "en": {"stringUnit":{"state":"translated","value":"All controllers on one player"}}, "fr": {"stringUnit":{"state":"translated","value":"Toutes sur un joueur"}}, "it": {"stringUnit":{"state":"translated","value":"Tutti i controller per un giocatore"}}, "de": {"stringUnit":{"state":"translated","value":"Alle Controller für einen Spieler"}}, "es": {"stringUnit":{"state":"translated","value":"Todos los mandos para un jugador"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Todos os controles para um jogador"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"所有手柄分配给一名玩家"}}
     }},
     "Assign controller": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Assign controller"}}, "fr": {"stringUnit":{"state":"translated","value":"Attribuer une manette"}}, "it": {"stringUnit":{"state":"translated","value":"Assegna controller"}}, "de": {"stringUnit":{"state":"translated","value":"Controller zuweisen"}}, "es": {"stringUnit":{"state":"translated","value":"Asignar mando"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Atribuir controle"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"分配手柄"}}
@@ -134,6 +710,12 @@
     }},
     "Choose a profile": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Choose a profile"}}, "fr": {"stringUnit":{"state":"translated","value":"Choisir un profil"}}, "it": {"stringUnit":{"state":"translated","value":"Scegli un profilo"}}, "de": {"stringUnit":{"state":"translated","value":"Profil auswählen"}}, "es": {"stringUnit":{"state":"translated","value":"Elegir un perfil"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Escolher um perfil"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"选择个人资料"}}
+    }},
+    "Choose a profile for offline or local play.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Choose a profile for offline or local play."}}, "fr": {"stringUnit":{"state":"translated","value":"Choisissez un profil pour le jeu hors ligne ou local."}}, "it": {"stringUnit":{"state":"translated","value":"Scegli un profilo per giocare offline o in locale."}}, "de": {"stringUnit":{"state":"translated","value":"Wähle ein Profil für das Offline- oder lokale Spiel."}}, "es": {"stringUnit":{"state":"translated","value":"Elige un perfil para jugar sin conexión o en local."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Escolha um perfil para jogar offline ou localmente."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"请选择用于离线或本地游戏的个人资料。"}}
+    }},
+    "Choose the destination place.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Choose the destination place."}}, "fr": {"stringUnit":{"state":"translated","value":"Choisissez la place de destination."}}, "it": {"stringUnit":{"state":"translated","value":"Scegli il posto di destinazione."}}, "de": {"stringUnit":{"state":"translated","value":"Wähle den Zielplatz."}}, "es": {"stringUnit":{"state":"translated","value":"Elige la plaza de destino."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Escolha o lugar de destino."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"请选择要移到的位置。"}}
     }},
     "Choose offline or local play to use this name.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Choose offline or local play to use this name."}}, "fr": {"stringUnit":{"state":"translated","value":"Choisissez le jeu hors ligne ou local pour utiliser ce nom."}}, "it": {"stringUnit":{"state":"translated","value":"Scegli il gioco offline o locale per usare questo nome."}}, "de": {"stringUnit":{"state":"translated","value":"Wähle Offline- oder lokales Spiel, um diesen Namen zu verwenden."}}, "es": {"stringUnit":{"state":"translated","value":"Elige jugar sin conexión o en local para usar este nombre."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Escolha jogar offline ou localmente para usar esse nome."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"选择离线或本地游戏才能使用此名称。"}}
@@ -153,17 +735,26 @@
     "Each player presses a button in the game to join.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Each player presses a button in the game to join."}}, "fr": {"stringUnit":{"state":"translated","value":"Dans le jeu, chaque joueur appuie sur un bouton pour rejoindre."}}, "it": {"stringUnit":{"state":"translated","value":"Nel gioco ogni giocatore preme un tasto per unirsi."}}, "de": {"stringUnit":{"state":"translated","value":"Im Spiel drückt jeder Spieler eine Taste, um beizutreten."}}, "es": {"stringUnit":{"state":"translated","value":"Cada jugador pulsa un botón en el juego para unirse."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"No jogo, cada jogador aperta um botão para entrar."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"每位玩家在游戏中按下按钮即可加入。"}}
     }},
+    "Empty place": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Empty place"}}, "fr": {"stringUnit":{"state":"translated","value":"Place libre"}}, "it": {"stringUnit":{"state":"translated","value":"Posto libero"}}, "de": {"stringUnit":{"state":"translated","value":"Freier Platz"}}, "es": {"stringUnit":{"state":"translated","value":"Plaza libre"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Lugar livre"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"空位"}}
+    }},
     "Every controller plays for the selected profile.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Every controller plays for the selected profile."}}, "fr": {"stringUnit":{"state":"translated","value":"Toutes les manettes jouent pour le profil choisi."}}, "it": {"stringUnit":{"state":"translated","value":"Tutti i controller giocano per il profilo scelto."}}, "de": {"stringUnit":{"state":"translated","value":"Alle Controller spielen für das ausgewählte Profil."}}, "es": {"stringUnit":{"state":"translated","value":"Todos los mandos juegan con el perfil seleccionado."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Todos os controles jogam pelo perfil escolhido."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"所有手柄均由选定的个人资料使用。"}}
+    }},
+    "Free this place": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Free this place"}}, "fr": {"stringUnit":{"state":"translated","value":"Libérer la place"}}, "it": {"stringUnit":{"state":"translated","value":"Libera il posto"}}, "de": {"stringUnit":{"state":"translated","value":"Platz freigeben"}}, "es": {"stringUnit":{"state":"translated","value":"Liberar la plaza"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Liberar o lugar"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"腾出此位置"}}
+    }},
+    "Give all controllers": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Give all controllers"}}, "fr": {"stringUnit":{"state":"translated","value":"Toutes les manettes ici"}}, "it": {"stringUnit":{"state":"translated","value":"Tutti i controller qui"}}, "de": {"stringUnit":{"state":"translated","value":"Alle Controller hierher"}}, "es": {"stringUnit":{"state":"translated","value":"Todos los mandos aquí"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Todos os controles aqui"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"所有手柄分配到此处"}}
     }},
     "Identify": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Identify"}}, "fr": {"stringUnit":{"state":"translated","value":"Identifier"}}, "it": {"stringUnit":{"state":"translated","value":"Identifica"}}, "de": {"stringUnit":{"state":"translated","value":"Identifizieren"}}, "es": {"stringUnit":{"state":"translated","value":"Identificar"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Identificar"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"识别"}}
     }},
     "In order": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"In order"}}, "fr": {"stringUnit":{"state":"translated","value":"Dans l’ordre"}}, "it": {"stringUnit":{"state":"translated","value":"In ordine"}}, "de": {"stringUnit":{"state":"translated","value":"In dieser Reihenfolge"}}, "es": {"stringUnit":{"state":"translated","value":"En orden"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Em ordem"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"按顺序"}}
+      "en": {"stringUnit":{"state":"translated","value":"In order"}}, "fr": {"stringUnit":{"state":"translated","value":"Ordre des manettes"}}, "it": {"stringUnit":{"state":"translated","value":"In ordine"}}, "de": {"stringUnit":{"state":"translated","value":"In dieser Reihenfolge"}}, "es": {"stringUnit":{"state":"translated","value":"En orden"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Em ordem"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"按顺序"}}
     }},
     "Keep the player order you set here.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"Keep the player order you set here."}}, "fr": {"stringUnit":{"state":"translated","value":"Garde l’ordre des joueurs défini ici."}}, "it": {"stringUnit":{"state":"translated","value":"Mantieni l’ordine dei giocatori impostato qui."}}, "de": {"stringUnit":{"state":"translated","value":"Behält die hier festgelegte Spielerreihenfolge bei."}}, "es": {"stringUnit":{"state":"translated","value":"Mantiene el orden de los jugadores elegido aquí."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Mantém a ordem dos jogadores definida aqui."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"保留在此设置的玩家顺序。"}}
+      "en": {"stringUnit":{"state":"translated","value":"Keep the player order you set here."}}, "fr": {"stringUnit":{"state":"translated","value":"Conservez l’ordre des joueurs défini ici."}}, "it": {"stringUnit":{"state":"translated","value":"Mantieni l’ordine dei giocatori impostato qui."}}, "de": {"stringUnit":{"state":"translated","value":"Behält die hier festgelegte Spielerreihenfolge bei."}}, "es": {"stringUnit":{"state":"translated","value":"Mantiene el orden de los jugadores elegido aquí."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Mantém a ordem dos jogadores definida aqui."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"保留在此设置的玩家顺序。"}}
     }},
     "No controller assigned": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"No controller assigned"}}, "fr": {"stringUnit":{"state":"translated","value":"Aucune manette attribuée"}}, "it": {"stringUnit":{"state":"translated","value":"Nessun controller assegnato"}}, "de": {"stringUnit":{"state":"translated","value":"Kein Controller zugewiesen"}}, "es": {"stringUnit":{"state":"translated","value":"Ningún mando asignado"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Nenhum controle atribuído"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"未分配手柄"}}
@@ -188,6 +779,9 @@
     }},
     "Press a button on the controller for player %lld": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Press a button on the controller for player %lld"}}, "fr": {"stringUnit":{"state":"translated","value":"Appuyez sur un bouton de la manette du joueur %lld"}}, "it": {"stringUnit":{"state":"translated","value":"Premi un tasto sul controller del giocatore %lld"}}, "de": {"stringUnit":{"state":"translated","value":"Drücke eine Taste am Controller für Spieler %lld"}}, "es": {"stringUnit":{"state":"translated","value":"Pulsa un botón del mando del jugador %lld"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Aperte um botão no controle do jogador %lld"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"请按下玩家 %lld 的手柄上的按钮"}}
+    }},
+    "Press a button on a free controller to join.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Press a button on a free controller to join."}}, "fr": {"stringUnit":{"state":"translated","value":"Appuyez sur un bouton d’une manette libre pour rejoindre."}}, "it": {"stringUnit":{"state":"translated","value":"Premi un tasto su un controller libero per unirti."}}, "de": {"stringUnit":{"state":"translated","value":"Drücke zum Beitreten eine Taste auf einem freien Controller."}}, "es": {"stringUnit":{"state":"translated","value":"Pulsa un botón de un mando libre para unirte."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Aperte um botão em um controle livre para entrar."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"按下未分配手柄上的任意按钮即可加入。"}}
     }},
     "Press a button to confirm the controller": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Press a button to confirm the controller"}}, "fr": {"stringUnit":{"state":"translated","value":"Appuyez sur un bouton pour confirmer la manette"}}, "it": {"stringUnit":{"state":"translated","value":"Premi un tasto per confermare il controller"}}, "de": {"stringUnit":{"state":"translated","value":"Drücke eine Taste, um den Controller zu bestätigen"}}, "es": {"stringUnit":{"state":"translated","value":"Pulsa un botón para confirmar el mando"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Aperte um botão para confirmar o controle"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"按下按钮确认手柄"}}
@@ -2568,6 +3162,61 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "你的云端有副本"}}
       }
     },
+    "Copies are different": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Copies are different"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Le copie sono diverse"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Copies différentes"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Kopien unterscheiden sich"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Las copias son diferentes"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "As cópias são diferentes"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "副本不同"}}
+      }
+    },
+    "Update from my cloud": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Update from my cloud"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Aggiorna dal mio cloud"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Mettre à jour depuis mon cloud"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Aus meiner Cloud aktualisieren"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Actualizar desde mi nube"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Atualizar da minha nuvem"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "从我的云端更新"}}
+      }
+    },
+    "Update app": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Update app"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Aggiorna l’app"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Mettre à jour l’app"}},
+        "de": {"stringUnit": {"state": "translated", "value": "App aktualisieren"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Actualizar la app"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Atualizar o app"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "更新应用"}}
+      }
+    },
+    "Download %@ from your cloud and replace %@ on this Mac? The previous app will be kept.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Download %@ from your cloud and replace %@ on this Mac? The previous app will be kept."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Scaricare %1$@ dal cloud personale e sostituire %2$@ su questo Mac? L’app precedente verrà conservata."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Télécharger %1$@ depuis votre cloud et remplacer %2$@ sur ce Mac ? L’app précédente sera conservée."}},
+        "de": {"stringUnit": {"state": "translated", "value": "%1$@ aus Ihrer Cloud laden und %2$@ auf diesem Mac ersetzen? Die bisherige App bleibt erhalten."}},
+        "es": {"stringUnit": {"state": "translated", "value": "¿Descargar %1$@ de su nube y reemplazar %2$@ en este Mac? Se conservará la app anterior."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Baixar %1$@ da sua nuvem e substituir %2$@ neste Mac? O app anterior será mantido."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "要从您的云端下载 %1$@ 并替换这台 Mac 上的 %2$@ 吗？原有应用将保留。"}}
+      }
+    },
+    "The update could not be verified again. The installed app was kept.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "The update could not be verified again. The installed app was kept."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Non è stato possibile verificare di nuovo l’aggiornamento. L’app installata è stata conservata."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "La mise à jour n’a pas pu être vérifiée de nouveau. L’app installée a été conservée."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Das Update konnte nicht erneut geprüft werden. Die installierte App blieb erhalten."}},
+        "es": {"stringUnit": {"state": "translated", "value": "No se pudo verificar de nuevo la actualización. Se conservó la app instalada."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Não foi possível verificar a atualização novamente. O app instalado foi mantido."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法再次验证更新。已保留安装的应用。"}}
+      }
+    },
     "Update available": {
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Update available"}},
@@ -3763,6 +4412,50 @@
         "es": {"stringUnit": {"state": "translated", "value": "Va a la papelera. Vacíala para recuperar espacio. Todo sigue disponible para descargar."}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Vai para o Lixo. Esvazie-o para liberar espaço. Tudo continua disponível para baixar."}},
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "移到废纸篓。清倒废纸篓后可释放空间。所有内容仍可下载。"}}
+      }
+    },
+    "On this Mac: %@ to move to the Trash.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "On this Mac: %@ to move to the Trash."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Su questo Mac: %@ da spostare nel Cestino."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Sur ce Mac : %@ à mettre à la Corbeille."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Auf diesem Mac: %@ für den Papierkorb."}},
+        "es": {"stringUnit": {"state": "translated", "value": "En este Mac: %@ para mover a la papelera."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Neste Mac: %@ para mover para o Lixo."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "此 Mac 上将移到废纸篓的内容：%@。"}}
+      }
+    },
+    "Trash on this Mac: total size unknown.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Trash on this Mac: total size unknown."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Cestino di questo Mac: dimensione totale sconosciuta."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Taille totale inconnue · Corbeille de ce Mac."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Papierkorb auf diesem Mac: Gesamtgröße unbekannt."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Papelera de este Mac: tamaño total desconocido."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Lixo deste Mac: tamanho total desconhecido."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "此 Mac 上将移到废纸篓的内容：总大小未知。"}}
+      }
+    },
+    "No items selected.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "No items selected."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nessun elemento selezionato."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aucun élément sélectionné."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Keine Elemente ausgewählt."}},
+        "es": {"stringUnit": {"state": "translated", "value": "No hay elementos seleccionados."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhum item selecionado."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "未选择任何项目。"}}
+      }
+    },
+    "Your verified copy stays available in your personal cloud. Your saves are unchanged. Empty the Trash to reclaim space.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Your verified copy stays available in your personal cloud. Your saves are unchanged. Empty the Trash to reclaim space."}},
+        "it": {"stringUnit": {"state": "translated", "value": "La copia verificata resta disponibile nel cloud personale. I salvataggi non cambiano. Svuotare il Cestino per recuperare spazio."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Votre copie vérifiée reste disponible dans votre cloud personnel. Vos sauvegardes restent intactes. Videz la Corbeille pour récupérer l’espace."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Ihre geprüfte Kopie bleibt in Ihrer persönlichen Cloud verfügbar. Ihre Spielstände bleiben unverändert. Leeren Sie den Papierkorb, um Speicherplatz freizugeben."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Su copia verificada sigue disponible en su nube personal. Sus partidas guardadas no cambian. Vacíe la papelera para recuperar espacio."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Sua cópia verificada continua disponível na nuvem pessoal. Seus jogos salvos não são alterados. Esvazie o Lixo para recuperar espaço."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "您可以继续从个人云端下载已验证的副本。您的存档不会更改。清倒废纸篓后可释放空间。"}}
       }
     },
     "Download %@ to rebuild?": {
@@ -62722,6 +63415,72 @@
             "value": "恢复此备份？"
           }
         }
+      }
+    },
+    "Pause": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Pause"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Metti in pausa"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Mettre en pause"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Pausieren"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Pausar"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Pausar"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "暂停"}}
+      }
+    },
+    "Paused": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Paused"}},
+        "it": {"stringUnit": {"state": "translated", "value": "In pausa"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "En pause"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Pausiert"}},
+        "es": {"stringUnit": {"state": "translated", "value": "En pausa"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Em pausa"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "已暂停"}}
+      }
+    },
+    "The current file may restart from the beginning.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "The current file may restart from the beginning."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Il download del file corrente potrebbe ripartire dall’inizio."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Le téléchargement du fichier en cours peut reprendre depuis le début."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Der Download der aktuellen Datei kann von vorn beginnen."}},
+        "es": {"stringUnit": {"state": "translated", "value": "La descarga del archivo actual puede empezar de nuevo."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "O download do arquivo atual pode recomeçar do início."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "当前文件可能会从头下载。"}}
+      }
+    },
+    "This transfer cannot be paused.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "This transfer cannot be paused."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Questo trasferimento non può essere messo in pausa."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Vous ne pouvez pas mettre ce transfert en pause."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Diese Übertragung kann nicht pausiert werden."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Esta transferencia no se puede pausar."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Não é possível pausar esta transferência."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法暂停此传输。"}}
+      }
+    },
+    "Confirm the download destination: %@": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Confirm the download destination: %@"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Conferma la destinazione del download: %@"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Confirmez la destination du téléchargement : %@"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Bestätige den Download-Zielort: %@"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Confirma el destino de la descarga: %@"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Confirme o destino do download: %@"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "请确认下载位置：%@"}}
+      }
+    },
+    "The download destination has changed. Review it in Cloud library.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "The download destination has changed. Review it in Cloud library."}},
+        "it": {"stringUnit": {"state": "translated", "value": "La destinazione del download è cambiata. Controllala nella libreria cloud."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "La destination du téléchargement a changé. Vérifiez-la dans la bibliothèque cloud."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Der Download-Zielort hat sich geändert. Prüfe ihn in der Cloud-Bibliothek."}},
+        "es": {"stringUnit": {"state": "translated", "value": "El destino de la descarga ha cambiado. Revísalo en la biblioteca en la nube."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "O destino do download mudou. Verifique-o na biblioteca na nuvem."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "下载位置已更改，请在云端游戏库中检查。"}}
       }
     },
     "Resume": {

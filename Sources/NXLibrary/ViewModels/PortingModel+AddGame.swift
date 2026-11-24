@@ -181,16 +181,18 @@ extension PortingModel {
     }
 
     @discardableResult
-    func selectGameFolder(startingNewGameWith defaults: GameRuntimeConfig? = nil) -> Bool {
+    func selectGameFolder(startingNewGameWith defaults: GameRuntimeConfig? = nil, startingAt start: URL? = nil,
+                          stage: ((URL) -> Void)? = nil) -> Bool {
         let panel = NSOpenPanel()
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
-        panel.directoryURL = selectedGameFolder ?? gameFilesFolder
+        panel.directoryURL = start ?? selectedGameFolder ?? gameFilesFolder
         panel.prompt = "Choose folder"
         panel.message = GameFoldersCopy.sourcesPickerMessage(extractedFolders: app.setup.engineSourceCapabilities.extractedFolders)
 
         if panel.runModal() == .OK, let url = panel.url {
+            if let stage { stage(url.standardizedFileURL); return true }
             if let defaults { startNewAddGame(defaults: defaults) }
             self.selectedGameFolder = url
             return true

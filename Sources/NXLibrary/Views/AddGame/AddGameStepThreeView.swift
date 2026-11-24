@@ -485,7 +485,7 @@ struct PortingLogBox: View {
                     Spacer()
                     if let last = logs.last, !expanded {
                         Text(last.message)
-                            .seleneFont(.badge, .regular, design: .monospaced)
+                            .seleneFont(.text, .regular, design: .monospaced)
                             .foregroundColor(SeleneTheme.ink60)
                             .lineLimit(1)
                             .truncationMode(.middle)
@@ -521,7 +521,7 @@ struct PortingLogBox: View {
                 LazyVStack(alignment: .leading, spacing: canvas.u(3)) {
                     ForEach(recent) { entry in
                         Text(entry.message)
-                            .seleneFont(.badge, .regular, design: .monospaced)
+                            .seleneFont(.text, .regular, design: .monospaced)
                             .foregroundColor(color(entry.level))
                             .textSelection(.enabled)
                             .frame(maxWidth: .infinity, alignment: .leading)

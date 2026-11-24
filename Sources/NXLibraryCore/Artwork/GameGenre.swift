@@ -2,9 +2,9 @@ import Foundation
 
 /// Translate known catalog genres at presentation time. Raw metadata and personal choices stay untouched.
 public enum GameGenre {
-    public static func title(_ raw: String) -> String {
+    public static func title(_ raw: String, context: AppLocale = L10n.context) -> String {
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
-        if L10n.context.language == .english { return trimmed }
+        if context.language == .english { return trimmed }
         let normalized = trimmed.lowercased().replacingOccurrences(of: "-", with: " ")
         let known: String
         switch normalized {
@@ -32,7 +32,7 @@ public enum GameGenre {
         case "utility", "utilities": known = "Utility"
         default: return trimmed
         }
-        return L10n.text("Game genre: " + known)
+        return L10n.text("Game genre: " + known, context: context)
     }
 
     public static func list(_ raw: [String]) -> [String] {

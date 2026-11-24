@@ -146,7 +146,7 @@ extension CloudSetupAssistant {
 }
 """)
     setup = app / "ViewModels/SetupModel.swift"
-    replace(setup, r'(func selectNxnativeFolder\(\) \{\n        guard [^\n]*\n)        let panel = NSOpenPanel\(\).*?'
+    replace(setup, r'(func selectNxnativeFolder\([^\n]*\) \{\n        guard [^\n]*\n)        let panel = NSOpenPanel\(\).*?'
             r'        if panel.runModal\(\) == \.OK, let url = panel.url \{',
             lambda m: m[1] + '        if let url = SettingsConfirmationProbe.pickedEngine {')
     replace(setup, r'    func refreshCompatibility\(\) \{.*?(?=\n    func |\n\})',

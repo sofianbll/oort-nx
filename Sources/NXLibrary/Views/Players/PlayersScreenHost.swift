@@ -16,14 +16,18 @@ struct PlayersScreenHost: View {
     let canHandleInput: () -> Bool
     let onClose: () -> Void
     var readNotes: (() async -> Notes)?
+    var hasSettingsDraft = false
+    var saveSettingsDraft: (() -> Void)?
 
     @Environment(\.seleneHintsCovered) private var covered
     @State private var notes = Notes()
     @State private var monitor: Any?
+    @State private var stopJoining: (() -> Void)?
 
     var body: some View {
         let screen = PlayersScreen(model: model, onClose: onClose,
-                                   orderNotes: notes.order, modeNote: notes.mode, profileNotes: notes.profiles)
+                                   orderNotes: notes.order, modeNote: notes.mode, profileNotes: notes.profiles,
+                                   saveSettingsDraft: hasSettingsDraft ? saveSettingsDraft : nil)
         screen
             .task { await model.load() }
             .task(id: model.saving) {
@@ -36,8 +40,19 @@ struct PlayersScreenHost: View {
                 }
             }
             .onReceive(controller.$connectedControllers) { model.updatePads($0) }
-            .onChange(of: covered) { _, isCovered in
-                if isCovered && model.capturePlayer != nil { model.endCapture() }
+            .onChange(of: covered, initial: true) { _, isCovered in
+                stopJoining?()
+                stopJoining = nil
+                if isCovered {
+                    model.stopJoining()
+                    if model.capturePlayer != nil { model.endCapture() }
+                } else {
+                    stopJoining = controller.watchPlayerJoining { id in
+                        guard canHandleInput(), !NativeMenuCommands.shared.isTracking, NSApp.modalWindow == nil,
+                              let window = NSApp.keyWindow, !window.isSheet, window.attachedSheet == nil else { return false }
+                        return model.joinController(id)
+                    }
+                }
             }
             .onReceive(NotificationCenter.default.publisher(for: input)) { event in
                 guard !covered, canHandleInput(), let action = event.object as? GamepadAction else { return }
@@ -52,6 +67,9 @@ struct PlayersScreenHost: View {
                 }
             }
             .onDisappear {
+                stopJoining?()
+                stopJoining = nil
+                model.stopJoining()
                 if let monitor { NSEvent.removeMonitor(monitor) }
                 monitor = nil
             }

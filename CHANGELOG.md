@@ -6,11 +6,16 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Added
 
+- A skippable first-run tour for language, controllers, profile, local games, services and appearance. Previously configured libraries see only the 0.4.0 highlights.
+
 - Import Switch games from game files alone in your own cloud library or a followed reference. Personalize them before downloading, and find them with the **Cloud** filter in Spotlight and Collection.
-- Cloud downloads trace the rising fill on Spotlight and Collection covers with a band of light and briefly form the Oort mark on success.
-- The cloud queue format can record a paused app or game-files download without changing its order. This does not add a Pause button yet.
+- Cloud downloads trace the rising fill on Spotlight and Collection covers with a band of light that glides between progress updates and briefly forms the Oort mark on success.
+- Pause an app or game-files download from Cloud library or Activity. The paused download stays first after a restart and waits for Resume.
 - The Cloud filter in Collection explains how to connect, when it is looking for games, and whether the check failed or there is nothing to download. Setup points to the filter after activation.
 - Following a Drive reference explains what readers can download, does not share your library in return, and makes lost access explicit.
+- Free up space shows the total selected for the local Trash and explains that the verified cloud copy and saves are unchanged.
+- Switch Details explains the next action and where the app or game files are. A transfer that cannot be started is shown as a status, with no duplicate byte count.
+- Update an unchanged app from a verified newer copy in your personal cloud. Oort NX asks first and keeps the previous app.
 - Switch game Details shows the installed app’s engine date and update status. An update icon appears on the cover only when the app is older and its game files are available.
 - The home bar and **Integrations** page show each service’s status and open its settings without activating it.
 - Add local Mac apps as library shortcuts without changing the apps or recording play sessions.
@@ -24,7 +29,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 - Platform labels show the monochrome platform mark and name, with a distinct Switch 2 mark and generic fallbacks.
 - Cloud operations check the selected Drive account and folder IDs. Changing either no longer reuses an approved transfer or a separately chosen game-files folder without confirmation.
 - Game-file downloads keep their selected provider. An incomplete cloud check keeps previous results without marking them verified.
-- Confirm changes to the cloud library, engine and multiplayer settings before applying them; appearance, sound and navigation still change immediately.
+- Review and save a single Settings draft for launcher preferences, including multiplayer, cloud saves and the toolchain override. Appearance, sound and language preview without saving. Connections, library moves and engine updates keep their own confirmations.
 - Reopen the launcher safely after choosing the newest engine.
 - A Drive outage preserves the last known availability of cloud games across launcher restarts without treating it as verified synchronization.
 - A confirmed cloud library move can resume after interruption. It verifies both folders and refuses new archives outside the plan or conflicting copies.

@@ -88,11 +88,14 @@ struct SpotlightDescription: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             DetailsBandTitle(text: L10n.text("About this game"))
-            if let wikipediaPage {
-                WikipediaCredit(pageURL: wikipediaPage).padding(.bottom, canvas.u(SeleneTokens.Space.compact))
-            } else if let languageNote {
-                Text(languageNote).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
-                    .padding(.bottom, canvas.u(SeleneTokens.Space.compact))
+            if languageNote != nil || wikipediaPage != nil {
+                HStack(spacing: canvas.u(12)) {
+                    if let languageNote {
+                        Text(languageNote).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
+                    }
+                    if let wikipediaPage { WikipediaCredit(pageURL: wikipediaPage) }
+                }
+                .padding(.bottom, canvas.u(SeleneTokens.Space.compact))
             }
             Text(text.isEmpty ? L10n.text("No description for this game yet.") : (expanded ? text : excerpt.text))
                 .seleneFont(.text)

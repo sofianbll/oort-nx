@@ -174,8 +174,7 @@ struct GameDetailView: View {
             VStack(spacing: 0) {
                 Spacer(minLength: 0)
                 SeleneHintsBar(left: [HintItem(.b, L10n.text("Back"), action: { router.back() })],
-                               right: [HintItem(.y, "Options"), HintItem(.a, focus.zone == DetailsFocus.topZone
-                                    && pillSet.cancelsQueuedBuild(at: focus.pill) ? "Cancel" : "Select")],
+                               right: [HintItem(.y, "Options")] + confirmHint,
                                bottom: SeleneBottomScrim.hintsBottom, leftInset: 18)
             }
             .seleneOverlaidHints(router.overlayHasHints(viewModel))
@@ -234,6 +233,19 @@ struct GameDetailView: View {
     }
     var pillSet: PortingPills { viewModel.portingPills(game).detailsPresentation(cloudOnly: downloadItem != nil) }
     private var pillCount: Int { pillSet.count + (showsCloudPill ? 1 : 0) }
+
+    private var downloadAllowed: Bool {
+        downloadItem.map { viewModel.canChangeCloudLibrary($0.downloadAction, for: game) } == true
+    }
+
+    private var confirmHint: [HintItem] {
+        if focus.zone == DetailsFocus.topZone {
+            if pillSet.cancelsQueuedBuild(at: focus.pill) { return [HintItem(.a, "Cancel")] }
+            if focus.pill == 0, downloadItem != nil, pillSet != .porting, !pillSet.isFailed,
+               !DetailsTopBlock.canDownload(downloadAllowed, state: cloud.states[game.id]) { return [] }
+        }
+        return [HintItem(.a, "Select")]
+    }
 
     // MARK: - Stage
 
@@ -306,7 +318,7 @@ struct GameDetailView: View {
                             etaText: viewModel.portingETAText,
                             cloud: cloud,
                             showsCloudPill: showsCloudPill,
-                            downloadEnabled: downloadItem.map { viewModel.canChangeCloudLibrary($0.downloadAction, for: game) } == true,
+                            downloadEnabled: downloadAllowed,
                             canCheckCloudSources: viewModel.canCheckCloudSources(for: game),
                             onPill: { pressPill($0) },
                             onOpenLog: { viewModel.revealLog(for: game) })

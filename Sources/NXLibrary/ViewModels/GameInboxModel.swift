@@ -61,7 +61,7 @@ final class GameInboxModel: ObservableObject {
                                message: L10n.format("Use %@ as the Game files folder. No files will move.", [root.path]),
                                actionTitle: L10n.text("Change folder"), cancelTitle: L10n.text("Cancel"), primaryFirst: true) { [weak self] in
             guard let self, self.isEnabled, !self.busy else { return }
-            AppData.preferences.set(root.path, forKey: PortingModel.savedGameFolderKey)
+            self.app.porting.rememberGameFilesFolder(root.path)
             self.refresh()
         }
     }

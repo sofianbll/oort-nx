@@ -367,7 +367,7 @@ struct ModStoreChip: View {
     var body: some View {
         if let text = host.chip(for: entry) {
             Text(text)
-                .seleneFont(.badge, .semibold)
+                .seleneFont(.text, .semibold)
                 .foregroundColor(SeleneTheme.ink)
                 .padding(.horizontal, canvas.u(10))
                 .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))

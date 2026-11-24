@@ -109,9 +109,9 @@ public struct PlayersLaunch: Sendable {
     public static func prepare(library: PlayerPlanLibrary, app: URL, titleID: String, explicit: [String: String],
                                profiles: [LocalProfile], ancestry: EngineAncestry? = nil, mergePlayer: Int = 1,
                                liveControllers: LiveControllers? = nil, avatarSymbols: [String] = [],
-                               portraitDirectory: URL? = nil) async -> Self {
+                                portraitDirectory: URL? = nil, committedPlan: PlayerPlan? = nil) async -> Self {
         let snapshot: (plan: PlayerPlan?, unlocked: Set<UUID>)
-        do { snapshot = try await library.launchPlan(profiles: profiles) }
+        do { snapshot = try await library.launchPlan(profiles: profiles, committed: committedPlan) }
         catch { return .init(plan: .unreadable) }
         let features = EngineFeatures.cached(in: app, ancestry: ancestry)
         guard let plan = snapshot.plan else { return .init(plan: .absent, supportsExtendedMerge: features.extendedMerge) }

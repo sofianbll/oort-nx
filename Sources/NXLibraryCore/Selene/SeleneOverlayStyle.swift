@@ -2,7 +2,7 @@ import CoreGraphics
 
 /// Surface roles are independent of the active palette; SwiftUI supplies its tint.
 public enum SeleneOverlayStyle: Equatable {
-    case menu, deep, options, search, dialog, activity, profileRemoval
+    case menu, deep, options, search, dialog, activity, profileRemoval, page
 
     public var backdropBlur: CGFloat {
         switch self {
@@ -12,13 +12,14 @@ public enum SeleneOverlayStyle: Equatable {
         }
     }
 
-    public var veilOpacity: Double {
+    public var veilOpacity: Double? {
         switch self {
         case .menu: SeleneTokens.Effect.menuVeil
         case .deep, .activity: SeleneTokens.Effect.deepVeil
         case .options, .dialog: SeleneTokens.Effect.panelVeil
         case .search: SeleneTokens.Effect.searchVeil
         case .profileRemoval: SeleneTokens.Effect.profileRemovalVeil
+        case .page: nil
         }
     }
 }

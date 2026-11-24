@@ -71,7 +71,7 @@ struct SettingsStorageSection: View {
 
             SeleneValueRow("Artwork cache",
                            subtitle: "Hero and cover art downloaded for this library.",
-                           info: "High-resolution game box art and hero wallpapers cached locally from the Nintendo Store catalog.",
+                           info: "Game artwork fetched by the player’s app and cached on this Mac, including images from Nintendo Europe.",
                            value: seleneBytes(artworkBytes),
                            actionTitle: "Clear") {
                 artwork.clear()

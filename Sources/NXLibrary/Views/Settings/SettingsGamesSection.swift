@@ -5,7 +5,7 @@ import ArcanePorting
 /// Porting → New games: the defaults copied into each new ported game, rumble included.
 struct SettingsGamesSection: View {
     @ObservedObject var viewModel: AppViewModel
-    @ObservedObject var settings: AppSettingsStore
+    @ObservedObject var settings: SettingsEditor
     let onActions: ([SettingsRowAction]) -> Void
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.nxAppLocale) private var localization
@@ -72,7 +72,7 @@ struct SettingsGamesSection: View {
                            in: 0.5...1.0, step: 0.05)
                         .frame(width: 170)
                     Text("\(Int((settings.settings.gameDefaults.renderScale * 100).rounded()))%")
-                        .seleneFont(.badge, .semibold, design: .monospaced)
+                        .seleneFont(.text, .semibold, design: .monospaced)
                         .foregroundColor(SeleneTheme.glyph)
                         .frame(width: 36, alignment: .trailing)
                 }

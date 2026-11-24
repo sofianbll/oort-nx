@@ -127,15 +127,13 @@ Packaged fork releases check this repository for app updates; no GitHub account 
 
 ### First-run setup
 
-On first launch, Arcane looks for installed Steam games for Mac and previously ported apps. Choose whether to include Steam and select **Open library**. Use **Settings → Library → Sources** to change your Steam source or refresh it later. Choose **Porting** on the first screen to set up local game builds with nxnative.
+On first launch, Oort NX offers a short, skippable tour. Choose your language, check your controller, keep or edit your local profile, and review the games on this Mac. It lists detected nxnative apps and the files in a folder you choose. Add recognised games without moving their files or building anything. Unidentified files remain in the chosen folder for **Add Game**.
+
+Steam, Google Drive, Nextendo and cloud saves are optional. Choose a service to open its settings, or leave it for later. **Settings → Start-up → Welcome setup** reopens the tour without resetting anything. If you quit, the first-run tour resumes on its saved step. Existing players see **What’s new** once for 0.4.0 rather than repeating the tour.
 
 To link an app already on your Mac, choose **Add an app…** in Sources or the macOS Game menu, or drop one `.app` on Spotlight or Collection. **Play** hands it to macOS without tracking time or changing the app. Use **Tile options** to pick an image from a file or remove just the tile. If the app moves, use **Locate the app…** when prompted.
 
-**Get ready** shows the engine, build tools and keys. **Install all** prepares the engine checkout and certified Metal compiler. Install Xcode from the App Store and follow its licence and system prompts. Choose **Continue** to proceed. Build requirements can be completed later, and existing game apps remain playable.
-
-**Your games** shows **Game apps**: where to keep existing nxnative games (`.app`) and install new builds. It checks the selected folder before reporting an empty library. Use **Change** to choose another folder, **Choose game file** for NSP, XCI, NSZ or XCZ, or **Choose a folder instead** for a source folder, including supported extracted inputs. A single detected title opens the existing build review; multiple titles require a choice. Selecting sources never starts a build by itself. Cancelling the picker stays on this page.
-
-If games are found, **Open library** takes you to them. **Skip for now** enters the launcher without adding a game and is remembered: the welcome flow does not return automatically just because the library is empty. Add games later from Spotlight's Add Game card or Collection. An interrupted first setup resumes on its current step.
+**Tools for building Switch games** shows the engine, build tools and keys when you need to compile. The nxnative and Metal actions each ask for confirmation and show the destination first. You can continue without installing them. Games that are already built do not depend on this setup.
 
 The default Game apps folder is `~/Applications`; first use can prepare this default without an extra picker. Remembered or custom unavailable folders are never recreated automatically. Changing folders does not move installed apps, and a rebuild updates an existing app in its current location. A read-only folder still allows discovery and Play; installing new builds needs write access.
 
@@ -145,7 +143,7 @@ Discovery includes subfolders of **Game apps**, skips app contents and limits th
 
 Import your `prod.keys` when prompted. Arcane keeps a private copy with mode `0600` and leaves the original file unchanged. Key values are not displayed or logged.
 
-Reopen both setup steps from **Settings → Porting → Setup and engine → Open Setup** whenever needed; this keeps your library and completion state. Arcane never runs `sudo`, accepts the Xcode licence for you or changes `xcode-select`.
+Open this tools panel from **Settings → Porting → Setup and engine → Open Setup**. Oort NX never runs `sudo`, accepts the Xcode licence for you or changes `xcode-select`.
 
 To discover existing nxnative game apps, choose **Settings → Porting → Game folders → Scan game apps → Scan**. Play works with the installed app. To rebuild it, attach the original sources.
 

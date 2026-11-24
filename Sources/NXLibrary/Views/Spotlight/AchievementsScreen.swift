@@ -450,7 +450,7 @@ private struct AchievementsScreenRow: View {
                         .foregroundColor(SeleneTheme.ink.opacity(0.45))
                 }
             }
-            .seleneFont(.badge, .semibold)
+            .seleneFont(.text, .semibold)
             .lineLimit(1)
             .fixedSize()
         }

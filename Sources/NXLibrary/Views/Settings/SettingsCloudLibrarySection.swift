@@ -7,7 +7,7 @@ import SwiftUI
 struct SettingsCloudLibrarySection: View {
     @ObservedObject var viewModel: AppViewModel
     @ObservedObject var model: CloudLibraryModel
-    @ObservedObject var settings: AppSettingsStore
+    @ObservedObject var settings: SettingsEditor
     @Binding var advanced: Bool
     let onEdit: () -> Void
     let onEditLibrary: () -> Void
@@ -37,6 +37,10 @@ struct SettingsCloudLibrarySection: View {
     }
 
     private var selection: CloudLibraryPreference { model.preference }
+    private var stagedEnabled: Bool {
+        let proposal = settings.settings.launcherChoices.cloudActivation
+        return proposal == settings.store.settings.launcherChoices.cloudActivation ? selection.enabled : (proposal?.enabled ?? selection.enabled)
+    }
     private var connection: CloudLibraryPreference.Connection { selection.connection(in: remotes) }
     private var connected: RcloneRemote? {
         if case .connected(let remote) = connection { return remote }
@@ -132,7 +136,7 @@ struct SettingsCloudLibrarySection: View {
             }
             if selection.remote != nil {
                 SeleneToggleRow("Enable cloud library", subtitle: "Cloud storage for ported apps and build caches, separate from saves.",
-                                isOn: Binding(get: { selection.enabled }, set: setEnabled))
+                                isOn: Binding(get: { stagedEnabled }, set: setEnabled))
                     .disabled(!editable)
             } else {
                 SeleneButtonRow("Configure cloud library", buttonTitle: "Open", action: openSetup)
@@ -260,7 +264,7 @@ struct SettingsCloudLibrarySection: View {
         var actions: [SettingsRowAction]
         if selection.remote != nil {
             actions = [
-                .init(id: "cloudLibraryEnabled", title: "Enable cloud library", isEnabled: editable) { setEnabled(!selection.enabled) },
+                .init(id: "cloudLibraryEnabled", title: "Enable cloud library", isEnabled: editable) { setEnabled(!stagedEnabled) },
                 .init(id: "cloudReferenceFolder", title: "Reference library", rowID: "cloudReferenceFolder",
                       isEnabled: canFollow, activate: onEditReference),
                 .init(id: "cloudLibraryImport", title: "Import games from the cloud", isEnabled: canImport, activate: importGames),
@@ -319,29 +323,21 @@ struct SettingsCloudLibrarySection: View {
 
     private func setEnabled(_ enabled: Bool) {
         let before = selection
-        guard editable, before.remote != nil, enabled != before.enabled else { return }
-        let apply = {
-            guard editable, selection == before else { return }
-            if enabled { model.acceptDriveTool() }
-            model.configure(remote: before.remote, root: before.root, enabled: enabled, sourcesRoot: before.sourcesRootOverride)
-        }
-        if enabled && model.needsDriveTool {
-            viewModel.prepareDriveTool(then: apply)
+        guard editable, before.remote != nil, enabled != stagedEnabled else { return }
+        if enabled == before.enabled {
+            settings.settings.launcherChoices.cloudActivation = settings.store.settings.launcherChoices.cloudActivation
             return
         }
-        var choices: [(title: String, run: () -> Void)] = [(enabled ? "Turn on" : "Turn off", apply)]
-        if !enabled && model.canTrashDriveTool {
-            choices.append(("Turn off and trash", {
-                apply()
-                viewModel.trashDriveTool()
-                refresh()
-            }))
+        if enabled && model.needsDriveTool {
+            // Choosing/installing a connection tool is still an explicit action; it cannot open access through Save.
+            viewModel.prepareDriveTool {
+                guard editable, selection == before else { return }
+                model.acceptDriveTool()
+                if !model.needsDriveTool { settings.settings.launcherChoices.cloudActivation = model.activationChoice(enabled: true) }
+            }
+            return
         }
-        viewModel.confirmSetting(text("Cloud library"),
-            message: text(enabled
-                ? "Oort NX will use the configured cloud library again without moving your files."
-                : "Oort NX will stop using the cloud library without moving your files."),
-            choices: choices, details: ["Turn off and trash": text("Only Oort NX’s download is moved to the Trash; other copies stay in place.")])
+        settings.settings.launcherChoices.cloudActivation = model.activationChoice(enabled: enabled)
     }
 
     private func openSetup() { viewModel.prepareDriveTool(then: onEdit) }
