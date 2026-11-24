@@ -34,13 +34,40 @@ public final class NSWorkspaceLauncher: AppLaunching {
         }
     }
 
-    static func gameEnvironment(inheriting ambient: [String: String], explicit: [String: String]) -> [String: String] {
+    private static let inheritedKeys: Set<String> = [
+        "LANG", "LANGUAGE", "LC_ALL", "LC_COLLATE", "LC_CTYPE", "LC_MESSAGES", "LC_MONETARY", "LC_NUMERIC", "LC_TIME", "TZ",
+        "MTL_HUD_ENABLED", "MTL_HUD_ELEMENTS", "MTL_HUD_ALIGNMENT", "MTL_HUD_SCALE", "MTL_HUD_OPACITY",
+        "MTL_HUD_LOG_ENABLED", "MTL_HUD_ENCODER_TIMING_ENABLED", "MTL_HUD_LOG_SHADER_ENABLED",
+        "MTL_HUD_INSIGHTS_ENABLED", "MTL_HUD_SHOW_METRICS_RANGE", "MTL_HUD_SHOW_ZERO_METRICS", "MTL_HUD_HIDE_METALFX_METRICS",
+        "DM_HID_MAP", "DM_HID_PADS", "DM_PAD_IDENTICAL", "DM_PAD_MERGE", "DM_KBD_PLAYER", "DM_MOTION_HID",
+        "DM_JC1", "DM_JC1_SIDE", "DM_SW2_MAP", "DM_SW2_MOTION", "DM_SW2_MOTION_SIDE",
+        "SDL_GAMECONTROLLERCONFIG", "SDL_JOYSTICK_HIDAPI", "SDL_JOYSTICK_HIDAPI_SWITCH", "SDL_JOYSTICK_HIDAPI_JOY_CONS",
+        "DM_NET_DISCOVERY_PEER", "DM_NETWORK_INTERFACE", "DM_NET_VPN", "NO_PROXY", "no_proxy",
+        "DM_SAVE", "DM_SAVE_SYNC", "DM_TRPFD_MERGE",
+    ]
+    private static let proxyKeys: Set<String> = ["HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy"]
+
+    public static func inheritedGameEnvironment(
+        _ ambient: [String: String] = ProcessInfo.processInfo.environment
+    ) -> [String: String] {
+        // Keep host defaults separate from the game's saved choices and per-session data.
+        var system = ambient.filter { key, value in
+            if inheritedKeys.contains(key) { return true }
+            guard proxyKeys.contains(key) else { return false }
+            if value.isEmpty { return true }
+            let url = value.contains("://") ? value : "http://" + value
+            guard let proxy = URLComponents(string: url), proxy.host?.isEmpty == false else { return false }
+            return proxy.user == nil && proxy.password == nil
+        }
         // nxnative reads HOME and uses osascript via posix_spawnp; use only macOS system tools.
-        var system = ["HOME": ambient["HOME"].flatMap { $0.isEmpty ? nil : $0 }
-                        ?? FileManager.default.homeDirectoryForCurrentUser.path,
-                      "PATH": "/usr/bin:/bin:/usr/sbin:/sbin"]
+        system["HOME"] = ambient["HOME"].flatMap { $0.isEmpty ? nil : $0 } ?? FileManager.default.homeDirectoryForCurrentUser.path
+        system["PATH"] = "/usr/bin:/bin:/usr/sbin:/sbin"
         system["TMPDIR"] = ambient["TMPDIR"].flatMap { $0.isEmpty ? nil : $0 } ?? NSTemporaryDirectory()
-        return system.merging(explicit) { _, value in value }
+        return system
+    }
+
+    static func gameEnvironment(inheriting ambient: [String: String], explicit: [String: String]) -> [String: String] {
+        inheritedGameEnvironment(ambient).merging(explicit) { _, value in value }
     }
 
     private static func watchExit(of app: NSRunningApplication, onExit: @escaping () -> Void) {

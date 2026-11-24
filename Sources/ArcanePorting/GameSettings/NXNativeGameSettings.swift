@@ -112,13 +112,14 @@ public struct NXNativeGameSettings {
     // MARK: - Reading and writing
 
     /// The value Play's child process sees. Does not migrate or change a saved choice.
-    public func effectiveLaunchValue(_ env: String, environment: [String: String] = ProcessInfo.processInfo.environment) -> String? {
+    public func effectiveLaunchValue(_ env: String,
+                                     environment: [String: String] = NSWorkspaceLauncher.inheritedGameEnvironment()) -> String? {
         guard let setting = setting(env) else { return nil }
         return explicitLaunchValue(env, environment: environment) ?? setting.defaultValue
     }
 
     public func multiplayerLaunch(settings app: AppSettings, adapters: RemotePlayAdapters,
-                                  environment: [String: String] = ProcessInfo.processInfo.environment)
+                                  environment: [String: String] = NSWorkspaceLauncher.inheritedGameEnvironment())
         -> (environment: [String: String], warning: RemotePlayAdapters.Connection?) {
         let key = NextendoLaunch.networkKey
         guard let network = NextendoLaunch.networkSetting(in: settings) else { return ([:], nil) }

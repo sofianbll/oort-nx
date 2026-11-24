@@ -57,8 +57,9 @@ extension AppViewModel {
             return SaveContext(location: try SaveLocation.profileLocation(titleID: id, profileID: scoped, in: AppData.supportRoot),
                                cloudReason: nil)
         }
-        return try SaveLocation.inspect(titleID: id, appURL: game.url,
-            home: FileManager.default.homeDirectoryForCurrentUser, environment: ProcessInfo.processInfo.environment,
+        let environment = NSWorkspaceLauncher.inheritedGameEnvironment()
+        let home = environment["HOME"].map { URL(fileURLWithPath: $0) } ?? FileManager.default.homeDirectoryForCurrentUser
+        return try SaveLocation.inspect(titleID: id, appURL: game.url, home: home, environment: environment,
             gameCloudFolder: gameCloud, libraryCloudFolder: libraryFolder)
     }
     func saveIdentity(for game: PortedGame) -> SaveIdentity {

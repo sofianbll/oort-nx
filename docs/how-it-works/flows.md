@@ -110,7 +110,7 @@ Play applica la scelta per gioco o il default globale. In Local usa l'adattatore
 
 Per Switch e Steam, un errore di lettura dello storico o dei suoi totali non impedisce di giocare. Le sessioni nuove restano in memoria, senza sostituire i file su disco.
 
-Prima di aprire il bundle, Oort NX risolve lo schermo soltanto se il `dmhost` installato legge `DM_SCREEN`. Una scelta esplicita non collegata usa lo schermo della finestra di Oort NX. Se `env.txt` dichiara `DM_SCREEN`, il lanciatore non imposta la variabile.
+Prima di aprire il bundle, Oort NX risolve lo schermo soltanto se il `dmhost` installato legge `DM_SCREEN`. Una scelta esplicita non collegata usa lo schermo della finestra di Oort NX. Se `env.txt` dichiara `DM_SCREEN`, il lanciatore non imposta la variabile. Il lancio unisce le scelte esplicite ai soli valori di ambiente autorizzati; il pannello dei salvataggi usa lo stesso filtro.
 
 ## 4. Play di un gioco Steam
 
