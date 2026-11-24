@@ -220,6 +220,13 @@ struct SpotlightRowView: View {
             // snapped to the pixel grid on their own, so they shook against their tile in a quick run of presses.
             // The shine is a Core Animation layer and stays outside.
             .drawingGroup()
+            .shadow(color: .black.opacity(0.55), radius: canvas.u(9))
+            .overlay {
+                if case .game(let id) = item, let game = gamesByID[id] {
+                    DownloadCloudOverlay(state: .init(cloudState, buildLook: tileLook(game)), id: id,
+                                         cornerRadius: canvas.u(SeleneTokens.Radius.content))
+                }
+            }
             // So is a download's pulsing mark.
             if case .game(let id) = item, gamesByID[id] == nil, let game = catalogGamesByID[id] {
                 PortingDownloadMark(look: PortingTileLook.make(catalog: game), width: side, height: side)
@@ -227,7 +234,6 @@ struct SpotlightRowView: View {
             SeleneShine(cornerRadius: canvas.u(SeleneTokens.Radius.content), active: selected)
         }
         .frame(width: side, height: side)
-        .shadow(color: .black.opacity(0.55), radius: canvas.u(9))
     }
 
     private func title(of item: SpotlightItem) -> String {

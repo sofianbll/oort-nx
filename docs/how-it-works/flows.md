@@ -75,7 +75,7 @@ Punti fissi:
 - Una scansione aggiorna solo ciò che ha osservato; un'assenza non cancella nulla.
 - Un risultato superato da un cambio di cartella o di fonte non si applica.
 
-I titoli importati dal cloud compaiono in Spotlight e Collection. **Download** accoda il ripristino e lo spazio viene verificato durante il trasferimento. Il pulsante tondo in Details apre il pannello Cloud library, da cui si può annullare o riprovare.
+I titoli importati dal cloud compaiono in Spotlight e Collection. **Download** accoda il ripristino e lo spazio viene verificato durante il trasferimento. Una fascia luminosa segue il riempimento della tessera; senza totale si muove senza indicare un livello. Al successo compare brevemente il segno Oort e torna la copertina. Con Riduci movimento il segno appare senza movimento e si dissolve. Il pulsante tondo in Details apre il pannello Cloud library, da cui si può annullare o riprovare.
 
 **Collegare un’app Mac.** In Settings → Library → Sources o nel menu macOS Game, **Add an app…** sceglie un `.app`; Spotlight e Collection accettano anche un `.app` trascinato se il catalogo lo convalida. Play consegna l’app verificata a macOS, senza tempo di gioco. Se il percorso non corrisponde più, **Locate the app…** ricollega l’app originale senza cambiare la tessera. **Tile options** cambia l’immagine di Oort o rimuove la tessera, senza toccare l’app.
 

@@ -71,16 +71,19 @@ struct CollectionCoverRow: View {
         return ZStack {
             Group {
                 if let native = game.nxnativeGame {
+            let buildLook = tileLook(native)
             SwitchBoxArtCover(game: native, width: w, height: h, officialName: officialName(native),
                               boxArt: boxArt, artwork: artwork, indexVersion: boxArtIndexVersion)
-                .portingLook(cloudState?.coverLook(tileLook(native)) ?? tileLook(native),
-                             cornerRadius: canvas.u(SeleneTokens.Radius.content))
+                .portingLook(cloudState?.coverLook(buildLook) ?? buildLook,
+                              cornerRadius: canvas.u(SeleneTokens.Radius.content))
                 .frame(width: w, height: h)
                 .clipShape(face)
                 // One picture that grows and slides whole: a drawn cover's title, a lock or build progress would
                 // otherwise snap to the pixel grid on their own at every step and shake against the cover.
                 .drawingGroup()
                 .shadow(color: .black.opacity(0.55), radius: canvas.u(9))
+                .downloadCloudLook(cloudState, buildLook: buildLook, id: native.id,
+                                   cornerRadius: canvas.u(SeleneTokens.Radius.content))
                 } else {
                     CatalogNativeArtwork(game: game, look: PortingTileLook.make(catalog: game))
                         .frame(width: w, height: h)
