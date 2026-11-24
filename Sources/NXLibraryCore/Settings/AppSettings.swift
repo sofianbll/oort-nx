@@ -226,6 +226,14 @@ public struct AppSettings: Codable, Equatable {
             showsModsCard = newValue.contains(.mods)
         }
     }
+    public subscript(spotlightCard card: SpotlightCard) -> Bool {
+        get { visibleSpotlightCards.contains(card) }
+        set {
+            var cards = visibleSpotlightCards.filter { $0 != card }
+            if newValue { cards.append(card) }
+            visibleSpotlightCards = cards
+        }
+    }
     public var spotlightOrder: [String]
     public var startingTab: LibraryFilter.RawValue
     public var librarySort: LibrarySort
