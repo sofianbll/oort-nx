@@ -9,3 +9,7 @@ The two silent video files each contain 360 rendered frames at 60 fps; the still
 On the M5 Pro, the window display link returned 60.0 Hz on a 120 Hz display without changing the display mode. For 1, 6 and 12 active tiles in both intensities, process CPU rounded to 0.000% of one core over each eight-second steady-state sample, excluding setup and changes in byte count. The process measured 0.040 mW with no active layers, then 0.051 mW (fine) and 0.042 mW (present) after completion. The window probe confirmed that the cue left no layers running.
 
 The targeted tests and the full Swift suite pass (2,259 reported, three skipped: the engine checkout and disposable case-sensitive APFS are absent). No launcher startup, cloud account, real game or interactive input is exercised. See the [manual checks](../../working-on-it/validation.md).
+
+## Fine front
+
+`run_download_cloud.py OUTPUT --front --video` captures Fine at 0%, 20%, 60% and 95% in Selene and Vantablack at 1× and 3×, on black, white, yellow and busy synthetic covers. The feather measures about 19 points on the 160-point tile; lit cores sampled outside the badge and corners retain at least 3.25:1 against the local background. Reduced motion uses a fixed front; the probe compares it at two timestamps. This pass uses only the targeted porting/cloud tests and tile probes, not the full suite or an interactive session.

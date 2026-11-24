@@ -11,8 +11,8 @@ import ArcanePorting
 /// black and white, lightly blurred, with "Downloading" under a thin download mark that pulses (`PortingDownloadMark`).
 ///
 /// The art is drawn once: a grey layer in `.saturation` blend takes the colour out
-/// above the fill line. The sheen moves only while compiling, and stands still
-/// with Reduce motion.
+/// above the fill edge, feathered only for cloud transfers. The build sheen moves
+/// only while compiling, and stands still with Reduce motion.
 struct PortingArtLook: ViewModifier {
     let look: PortingTileLook
     let cornerRadius: CGFloat
@@ -27,16 +27,21 @@ struct PortingArtLook: ViewModifier {
                     content
                         .frame(width: geo.size.width, height: geo.size.height)
                         .blur(radius: side * blur, opaque: true)
-                    Rectangle()
-                        .fill(Color(white: 0.5))
-                        .frame(height: geo.size.height * (1 - fill))
-                        .blendMode(.saturation)
+                    if case .transfer = look {
+                        transferShade(height: geo.size.height, side: side)
+                            .blendMode(.saturation)
+                    } else {
+                        Rectangle()
+                            .fill(Color(white: 0.5))
+                            .frame(height: geo.size.height * (1 - fill))
+                            .blendMode(.saturation)
+                    }
                 }
                 .compositingGroup()
                 .saturation(isSoftened ? 0.35 : 1)
                 .overlay(Color.black.opacity(look == .missing ? 0.45 : isSoftened ? 0.28 : 0))
                 .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-                if fill > 0, fill < 1 {
+                if case .filling = look, fill > 0, fill < 1 {
                     edge(width: geo.size.width, side: side)
                         .offset(y: geo.size.height * (0.5 - fill))
                 }
@@ -90,6 +95,28 @@ struct PortingArtLook: ViewModifier {
     private var moving: Bool {
         guard !reduceMotion, case .filling = look else { return false }
         return true
+    }
+
+    private func transferShade(height: CGFloat, side: CGFloat) -> some View {
+        let grey = Color(white: 0.5)
+        let feather = side * 0.12
+        // Keep exact grey and colour at the endpoints without snapping the gradient off.
+        let half = feather / 2
+        let correction = half * (max(0, 1 - 20 * fill) - max(0, 1 - 20 * (1 - fill)))
+        return VStack(spacing: 0) {
+            grey.frame(height: height)
+            LinearGradient(stops: [
+                .init(color: grey, location: 0),
+                .init(color: grey.opacity(0.85), location: 0.25),
+                .init(color: grey.opacity(0.50), location: 0.50),
+                .init(color: grey.opacity(0.15), location: 0.75),
+                .init(color: grey.opacity(0), location: 1),
+            ], startPoint: .top, endPoint: .bottom)
+            .frame(height: feather)
+        }
+        .compositingGroup()
+        .offset(y: -fill * height - half + correction)
+        .frame(height: height, alignment: .top)
     }
 
     private func edge(width: CGFloat, side: CGFloat) -> some View {

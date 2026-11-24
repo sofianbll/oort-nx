@@ -93,38 +93,17 @@ struct DownloadCloudOverlay: View {
     var body: some View {
         Group {
             if let capture {
-                if !capture.before, let scene = state.scene(after: capture.previous, reduceMotion: reduceMotion) {
-                    let sprites = DownloadCloudSprites(.init(backdrop.palette))
-                    Canvas { context, size in
-                        let frame = DownloadCloudMotion.frame(scene, seed: capture.seed, at: capture.time,
-                            intensity: capture.intensity, size: size,
-                            sourceLevel: capture.previous.flatMap { $0.sourceLevel })
-                        context.withCGContext { cg in
-                            if let title {
-                                cg.addPath(DownloadCloudSprites.titleMask(size, title))
-                                cg.clip(using: .evenOdd)
-                            }
-                            for (image, rect, opacity) in sprites.scrims(frame, size) where opacity > 0 {
-                                // Canvas draws CGImage in its y-down context; Core Animation draws its contents upright.
-                                cg.saveGState()
-                                cg.setAlpha(opacity)
-                                cg.translateBy(x: 0, y: 2 * rect.midY)
-                                cg.scaleBy(x: 1, y: -1)
-                                cg.draw(image, in: rect)
-                                cg.restoreGState()
-                            }
-                            for mote in frame.dots where mote.opacity > 0 && !capture.scrimsOnly {
-                                cg.setAlpha(mote.opacity)
-                                cg.draw(sprites.image(mote), in: DownloadCloudSprites.rect(mote))
-                            }
-                        }
-                    }
+                if !capture.before, let scene = stillFront ?? state.scene(after: capture.previous, reduceMotion: reduceMotion) {
+                    snapshot(scene, at: stillFront == nil ? capture.time : 0, seed: capture.seed,
+                             intensity: capture.intensity, sourceLevel: capture.previous.flatMap { $0.sourceLevel },
+                             scrimsOnly: capture.scrimsOnly)
                 }
+            } else if let stillFront {
+                snapshot(stillFront, at: 0, seed: seed, intensity: Self.intensity, sourceLevel: nil)
             } else if let cue = liveCue {
                 DownloadCloudLive(
                     input: .init(scene: cue.scene, start: cue.start, colors: .init(backdrop.palette),
-                                 seed: withUnsafeBytes(of: id.uuid) { $0.prefix(8).reduce(0) { ($0 << 8) | UInt64($1) } },
-                                  intensity: Self.intensity, title: title, sourceLevel: cue.sourceLevel))
+                                 seed: seed, intensity: Self.intensity, title: title, sourceLevel: cue.sourceLevel))
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
@@ -140,6 +119,44 @@ struct DownloadCloudOverlay: View {
             if reduced, cue?.scene != .fade { cue = nil }
         }
         .onDisappear { cue = nil }
+    }
+
+    private var seed: UInt64 {
+        withUnsafeBytes(of: id.uuid) { $0.prefix(8).reduce(0) { ($0 << 8) | UInt64($1) } }
+    }
+
+    private var stillFront: DownloadCloudMotion.Scene? {
+        guard reduceMotion, case .running(_, let fraction?) = state else { return nil }
+        return .drift(fraction)
+    }
+
+    private func snapshot(_ scene: DownloadCloudMotion.Scene, at time: Double, seed: UInt64,
+                          intensity: DownloadCloudMotion.Intensity, sourceLevel: Double?,
+                          scrimsOnly: Bool = false) -> some View {
+        let sprites = DownloadCloudSprites(.init(backdrop.palette))
+        return Canvas { context, size in
+            let frame = DownloadCloudMotion.frame(scene, seed: seed, at: time, intensity: intensity, size: size,
+                                                  sourceLevel: sourceLevel)
+            context.withCGContext { cg in
+                if let title {
+                    cg.addPath(DownloadCloudSprites.titleMask(size, title))
+                    cg.clip(using: .evenOdd)
+                }
+                for (image, rect, opacity) in sprites.scrims(frame, size) where opacity > 0 {
+                    // Canvas draws CGImage in its y-down context; Core Animation draws its contents upright.
+                    cg.saveGState()
+                    cg.setAlpha(opacity)
+                    cg.translateBy(x: 0, y: 2 * rect.midY)
+                    cg.scaleBy(x: 1, y: -1)
+                    cg.draw(image, in: rect)
+                    cg.restoreGState()
+                }
+                for mote in frame.dots where mote.opacity > 0 && (!scrimsOnly || mote.kind == .crest) {
+                    cg.setAlpha(mote.opacity)
+                    cg.draw(sprites.image(mote), in: DownloadCloudSprites.rect(mote))
+                }
+            }
+        }
     }
 
     private var liveCue: (scene: DownloadCloudMotion.Scene, start: Double, sourceLevel: Double?)? {
@@ -190,6 +207,10 @@ struct DownloadCloudColors: Equatable {
 struct DownloadCloudSprites {
     let ink, accent, sun, star: CGImage
     private static let band = makeBand()
+    private static let crest = raster(64) { cg, size in
+        radial(cg, size, rgb: [0xFFFFFF, 0xFFFFFF, 0xFFFFFF], alpha: [1, 0.55, 0],
+               locations: [0, 0.42, 1])
+    }
     private static let centre = raster(128) { cg, size in
         radial(cg, size, rgb: [0, 0, 0, 0], alpha: [0.53, 0.52, 0.32, 0],
                locations: [0, 0.54, 0.75, 1])
@@ -208,10 +229,15 @@ struct DownloadCloudSprites {
         case .accent: accent
         case .sun: sun
         case .star: star
+        case .crest: Self.crest
         }
     }
 
     static func rect(_ mote: DownloadCloudMotion.Mote) -> CGRect {
+        if mote.kind == .crest {
+            return CGRect(x: mote.center.x - 9 * mote.radius, y: mote.center.y - 4 * mote.radius,
+                          width: 18 * mote.radius, height: 8 * mote.radius)
+        }
         let extent = mote.radius * 2.8
         return CGRect(x: mote.center.x - extent, y: mote.center.y - extent,
                       width: extent * 2, height: extent * 2)
@@ -220,9 +246,9 @@ struct DownloadCloudSprites {
     func scrims(_ frame: DownloadCloudMotion.Frame, _ size: CGSize) -> [(CGImage, CGRect, Double)] {
         let side = min(size.width, size.height)
         let extent = side * 0.49
-        let bandHeight = side / 170 * 34
+        let bandHeight = side / 170 * 44
         return [
-            (Self.band, CGRect(x: 0, y: frame.bandY - bandHeight, width: size.width, height: bandHeight - 1),
+            (Self.band, CGRect(x: 0, y: frame.bandY - side / 170 * 34, width: size.width, height: bandHeight),
              frame.bandOpacity),
             (Self.centre, CGRect(x: size.width * 0.5 - extent, y: size.height * 0.46 - extent,
                                  width: extent * 2, height: extent * 2), frame.centreOpacity),
@@ -264,11 +290,12 @@ struct DownloadCloudSprites {
             func gradient(_ alpha: [Double], _ loc: [CGFloat]) -> CGGradient {
                 CGGradient(colorsSpace: rgb, colors: alpha.map { color(0, $0) } as CFArray, locations: loc)!
             }
-            cg.drawLinearGradient(gradient([0, 0.02, 0.23, 0.52, 0.62, 0.62, 0.51, 0],
-                                           [0, 0.10, 0.24, 0.50, 0.68, 0.86, 0.92, 1]),
+            cg.drawLinearGradient(gradient([0, 0.05, 0.29, 0.62, 0.64, 0.56, 0.24, 0],
+                                           [0, 0.16, 0.33, 0.51, 0.66, 0.73, 0.84, 1]),
                                   start: CGPoint(x: 0, y: size), end: .zero, options: [])
             cg.setBlendMode(.destinationIn)
-            cg.drawLinearGradient(gradient([0, 1, 1, 0], [0, 0.04, 0.96, 1]),
+            cg.drawLinearGradient(gradient([0, 0.20, 0.76, 1, 1, 0.76, 0.20, 0],
+                                           [0, 0.03, 0.07, 0.14, 0.86, 0.93, 0.97, 1]),
                                   start: .zero, end: CGPoint(x: size, y: 0), options: [])
         }
     }
