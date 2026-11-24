@@ -196,7 +196,9 @@ public struct RcloneDownload: Sendable {
             }
             guard Self.isDirectory(supportRoot) else { throw Failure.installation }
             if !Self.isDirectory(parent) {
-                try files.createDirectory(at: parent, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+                do {
+                    try files.createDirectory(at: parent, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+                } catch where Self.isDirectory(parent) { /* Another installer created it. */ }
             }
             guard Self.isDirectory(parent) else { throw Failure.installation }
             if let free = try available(parent), free < release.bytes + release.executableBytes { throw Failure.space }
@@ -215,7 +217,9 @@ public struct RcloneDownload: Sendable {
             try files.setAttributes([.posixPermissions: 0o700], ofItemAtPath: candidate.path)
             try Task.checkCancellation()
             guard renamex_np(payload.path, directory.path, UInt32(RENAME_EXCL)) == 0 else {
-                if errno == ENOSPC { throw Failure.space }
+                let error = errno
+                if error == EEXIST, let installedExecutable { return installedExecutable }
+                if error == ENOSPC { throw Failure.space }
                 throw Failure.installation
             }
             return executable

@@ -220,4 +220,33 @@ final class RcloneDownloadTests: XCTestCase {
         XCTAssertEqual(try RcloneDownload.launchable(URL(fileURLWithPath: "/usr/bin/false")).url.path, "/usr/bin/false")
     }
 
+    func testConcurrentInstallersBothReturnTheVerifiedCopy() async throws {
+        actor Rendezvous {
+            var first: CheckedContinuation<Void, Never>?
+            func meet() async {
+                if let first { first.resume() }
+                else { await withCheckedContinuation { first = $0 } }
+            }
+        }
+        let fixture = Fixture()
+        defer { fixture.clean() }
+        let files = FileManager.default
+        try files.createDirectory(at: fixture.root, withIntermediateDirectories: false)
+        let member = fixture.root.appendingPathComponent("fixture")
+        try files.copyItem(at: URL(fileURLWithPath: "/usr/bin/true"), to: member)
+        let archive = fixture.root.appendingPathComponent("fixture.zip")
+        let zip = try SystemCommandRunner().run(URL(fileURLWithPath: "/usr/bin/zip"),
+            ["-qj", archive.path, member.path], environment: [:], currentDirectory: nil)
+        XCTAssertEqual(zip.status, 0)
+        let release = fixture.release(try Data(contentsOf: archive), executableBytes: try Data(contentsOf: member).count)
+        defer { fixture.dispose(release) }
+        let tool = fixture.installer
+        try files.createDirectory(at: tool.directory.deletingLastPathComponent(), withIntermediateDirectories: true)
+        let ready = Rendezvous()
+        async let first = tool.install(release, transport: fixture.transport) { _ in await ready.meet() }
+        async let second = tool.install(release, transport: fixture.transport) { _ in await ready.meet() }
+        let results = try await [first, second]
+        XCTAssertEqual(results, [tool.installedExecutable, tool.installedExecutable])
+    }
+
 }
