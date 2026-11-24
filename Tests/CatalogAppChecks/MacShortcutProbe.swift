@@ -74,6 +74,11 @@ extension ProfileScreenProbe {
         var complete: (@MainActor (Bool) -> Void)?
         vm.macShortcuts = MacShortcutAdapter(app: vm) { url, done in sent.append(url); complete = done }
         precondition(!vm.macShortcuts.acceptDrop([source]))
+        let broken = data.appendingPathComponent("Not really an app.app", isDirectory: true)
+        try fm.createDirectory(at: broken, withIntermediateDirectories: true)
+        expect(!vm.macShortcuts.acceptDrop([broken]) && vm.visibleCatalogGames.isEmpty,
+               "A drop rejected by application validation must not report success")
+        vm.settingsNotice = nil
         precondition(vm.macShortcuts.acceptDrop([original]))
         let game = vm.visibleCatalogGames.first!
         vm.macShortcuts.add(at: original)

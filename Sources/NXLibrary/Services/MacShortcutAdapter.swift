@@ -85,11 +85,10 @@ import NXLibraryCore
     func acceptDrop(_ urls: [URL]) -> Bool {
         guard canEdit, urls.count == 1, let url = urls.first, url.isFileURL,
               url.pathExtension.lowercased() == "app" else { return false }
-        add(at: url)
-        return true
+        return add(at: url)
     }
 
-    func add(at url: URL) {
+    @discardableResult func add(at url: URL) -> Bool {
         updateCatalog { try app.catalogRepository.addMacShortcut(at: url) }
     }
 
@@ -101,9 +100,12 @@ import NXLibraryCore
         updateCatalog { try app.catalogRepository.removeMacShortcut(id: id) }
     }
 
-    private func updateCatalog(_ change: () throws -> CatalogDocument) {
-        guard canEdit else { return }
-        do { app.applyCatalog(try change()) }
+    @discardableResult private func updateCatalog(_ change: () throws -> CatalogDocument) -> Bool {
+        guard canEdit else { return false }
+        do {
+            app.applyCatalog(try change())
+            return true
+        }
         catch let error as MacShortcutError {
             let message: String
             switch error {
@@ -113,6 +115,7 @@ import NXLibraryCore
             }
             app.showSettingsNotice(title: "Mac app shortcut", message: L10n.text(message))
         } catch { app.reportCatalogFailure(error) }
+        return false
     }
 
     func showTileOptions(_ game: CatalogGame) {
