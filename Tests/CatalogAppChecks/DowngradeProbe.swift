@@ -16,7 +16,7 @@ import SwiftUI
     private static let root = AppData.supportRoot
     private static var preferences: URL { root.appendingPathComponent("fixture-preferences.plist") }
     private static var catalog: CatalogRepository { CatalogRepository(store: .init(directory: root)) }
-    private static var queue: CloudTransferQueue { CloudTransferQueue() }
+    private static let queue = CloudTransferQueue()
     private static func url(_ name: String) -> URL { root.appendingPathComponent(name) }
 
     @MainActor static func main() async throws {
