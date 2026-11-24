@@ -301,8 +301,7 @@ struct SettingsCloudLibrarySection: View {
         let before = selection
         guard editable, model.sourcesNeedConfirmation, let folder = before.sourcesRootOverride else { return }
         viewModel.confirmSetting(text("Game files folder"),
-            message: L10n.format("Keep “%@” for game files in this library, or use its default folder?", [folder],
-                                 context: localization),
+            message: L10n.format("Keep “%@” for game files in this library, or use its default folder?", [folder]),
             choices: [("Keep this folder", {
                 guard model.preference == before else { return }
                 model.chooseSourcesRoot(folder)

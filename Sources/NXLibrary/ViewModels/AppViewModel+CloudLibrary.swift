@@ -958,7 +958,8 @@ extension AppViewModel {
             guard !Task.isCancelled else { return }
             let reference = await self.importCloudReference(archive: archive)
             guard manually, !Task.isCancelled, self.cloudLibrary.archive === archive,
-                  !self.cloudLibrary.checkFailedDuringImport || reference.added else { return }
+                  !self.cloudLibrary.checkFailedDuringImport || self.cloudLibrary.checkFailure == .incomplete
+                    || reference.added else { return }
             let summary = L10n.text(added || reference.added ? "New cloud games are in your library." : "No new cloud games.")
             let referenceWarnings = reference.warnings.isEmpty ? [] : [L10n.text("Reference library")] + reference.warnings
             self.showSettingsNotice(title: title, message: ([summary] + warnings + referenceWarnings).joined(separator: "\n"))
