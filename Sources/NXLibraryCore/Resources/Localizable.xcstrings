@@ -5157,6 +5157,17 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法读取以下云端游戏记录：%@。"}}
       }
     },
+    "These games were not added from these cloud copies because their information could not be read: %@.": {
+      "localizations": {
+        "de": {"stringUnit": {"state": "translated", "value": "Diese Spiele wurden aus diesen Cloud-Kopien nicht hinzugefügt, weil ihre Informationen nicht lesbar waren: %@."}},
+        "en": {"stringUnit": {"state": "translated", "value": "These games were not added from these cloud copies because their information could not be read: %@."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Estos juegos no se añadieron desde estas copias en la nube porque no se pudo leer su información: %@."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Les informations de ces jeux sont illisibles. Ils n’ont pas été ajoutés depuis ces copies cloud : %@."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Questi giochi non sono stati aggiunti da queste copie nel cloud perché non è stato possibile leggerne le informazioni: %@."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Estes jogos não foram adicionados a partir destas cópias na nuvem porque não foi possível ler suas informações: %@."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "由于无法读取游戏信息，未从这些云端副本添加以下游戏：%@。"}}
+      }
+    },
     "Previous destination: %@": {
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Previous destination: %@"}},
@@ -93362,6 +93373,17 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "以只读方式关注共享的 Google 云端硬盘文件夹。"}}
       }
     },
+    "You follow this folder in read-only mode. Your library is not shared in return. Readers can download apps, caches and game files that Google Drive lets them see.\n\nWhen sharing, use a dedicated folder without keys or saves.": {
+      "localizations": {
+        "de": {"stringUnit": {"state": "translated", "value": "Sie folgen diesem Ordner schreibgeschützt. Ihre Bibliothek wird dabei nicht freigegeben. Personen mit Lesezugriff können Apps, Caches und Spieldateien herunterladen, auf die sie in Google Drive Zugriff haben.\n\nVerwenden Sie zum Teilen einen eigenen Ordner ohne Schlüssel oder Spielstände."}},
+        "en": {"stringUnit": {"state": "translated", "value": "You follow this folder in read-only mode. Your library is not shared in return. Readers can download apps, caches and game files that Google Drive lets them see.\n\nWhen sharing, use a dedicated folder without keys or saves."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Este seguimiento es de solo lectura y no comparte su biblioteca a cambio. Los lectores pueden descargar las aplicaciones, cachés y archivos de juego que Google Drive les permite ver.\n\nPara compartir, utilice una carpeta específica sin claves ni partidas guardadas."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Vous suivez ce dossier en lecture seule, sans partager votre bibliothèque en retour. Les lecteurs peuvent télécharger les apps, caches et fichiers de jeu auxquels Google Drive leur donne accès.\n\nPour partager, utilisez un dossier dédié, sans clés ni sauvegardes."}},
+        "it": {"stringUnit": {"state": "translated", "value": "La cartella viene seguita in sola lettura e la propria libreria non viene condivisa. I lettori possono scaricare le app, le cache e i file di gioco che Google Drive consente loro di vedere.\n\nPer condividere, usare una cartella dedicata senza chiavi né salvataggi."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Você segue esta pasta em modo somente leitura. Sua biblioteca não é compartilhada em troca. Os leitores podem baixar os apps, caches e arquivos de jogos que o Google Drive permite que vejam.\n\nPara compartilhar, use uma pasta dedicada, sem chaves nem jogos salvos."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "你以只读方式关注此文件夹，你的游戏库不会因此共享给对方。查看者可以下载 Google 云端硬盘允许其查看的应用、缓存和游戏文件。\n\n共享时，请使用不含密钥或游戏存档的专用文件夹。"}}
+      }
+    },
     "Google Drive folder link or ID": {
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Google Drive folder link or ID"}},
@@ -93388,7 +93410,7 @@
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "No access. Share this folder as Viewer with the Google account connected here."}},
         "it": {"stringUnit": {"state": "translated", "value": "Nessun accesso. Condividi la cartella come Visualizzatore con l’account Google collegato qui."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Pas d’accès : partage ce dossier en Lecteur avec le compte Google connecté ici."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Demandez au propriétaire un accès en lecture pour le compte Google connecté ici."}},
         "de": {"stringUnit": {"state": "translated", "value": "Kein Zugriff. Gib diesen Ordner für das verbundene Google-Konto als Betrachter frei."}},
         "es": {"stringUnit": {"state": "translated", "value": "Sin acceso. Comparte la carpeta como Lector con la cuenta de Google conectada aquí."}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Sem acesso. Compartilhe a pasta como Leitor com a conta Google conectada aqui."}},
@@ -93437,6 +93459,17 @@
         "es": {"stringUnit": {"state": "translated", "value": "Solo lectura"}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Somente leitura"}},
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "只读"}}
+      }
+    },
+    "No access": {
+      "localizations": {
+        "de": {"stringUnit": {"state": "translated", "value": "Kein Zugriff"}},
+        "en": {"stringUnit": {"state": "translated", "value": "No access"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Sin acceso"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Pas d’accès"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nessun accesso"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Sem acesso"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法访问"}}
       }
     },
     "Files on this Mac and in Drive stay in place.": {
