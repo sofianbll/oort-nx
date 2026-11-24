@@ -516,7 +516,7 @@ Cartella `Sources/ArcanePorting/Build/`.
 | [Sources/ArcanePorting/Build/PortingPresentation.swift](../../Sources/ArcanePorting/Build/PortingPresentation.swift) | Definisce fallimento persistito, ETA, attività senza stima del prewarm, aspetto della tile e pill del porting. |
 | [Sources/ArcanePorting/Build/PortingFailureReason.swift](../../Sources/ArcanePorting/Build/PortingFailureReason.swift) | Classifica messaggi del motore e rifiuti preliminari, comprese le tabelle shader diverse dal profilo e gli errori Nextendo. |
 | [Sources/ArcanePorting/Build/PortingNotice.swift](../../Sources/ArcanePorting/Build/PortingNotice.swift) | Decide quando notificare l’esito di un porting e prepara il relativo messaggio. |
-| [Sources/ArcanePorting/Build/PendingInstall.swift](../../Sources/ArcanePorting/Build/PendingInstall.swift) | Conserva un bundle pronto in attesa e ne gestisce installazione, scarto e aggiornamento del record, anche dopo una pubblicazione interrotta. |
+| [Sources/ArcanePorting/Build/PendingInstall.swift](../../Sources/ArcanePorting/Build/PendingInstall.swift) | Conserva il bundle pronto e l’identità attesa della destinazione durante i nuovi tentativi d’installazione. |
 | [Sources/ArcanePorting/Build/SourceCatalog.swift](../../Sources/ArcanePorting/Build/SourceCatalog.swift) | Riconosce sorgenti NSP/XCI/NSZ/XCZ e raggruppa titoli, update e DLC; DetectedSource conserva la selezione NUP tipizzata. |
 | [Sources/ArcanePorting/Build/ExtractedSourceCatalog.swift](../../Sources/ArcanePorting/Build/ExtractedSourceCatalog.swift) | Verifica il layout di un gioco estratto, legge NPDM e profilo registrato e rileva update e DLC. |
 | [Sources/ArcanePorting/Build/WorkspaceManager.swift](../../Sources/ArcanePorting/Build/WorkspaceManager.swift) | Rifiuta collisioni fra sorgenti prima di preparare i collegamenti; lascia intatta la cache e verifica i link interrotti. |
@@ -526,7 +526,7 @@ Cartella `Sources/ArcanePorting/Build/`.
 | [Sources/ArcanePorting/Build/BuildEvent.swift](../../Sources/ArcanePorting/Build/BuildEvent.swift) | Definisce gli eventi di fase, step, avanzamento e log ricevuti dal motore. |
 | [Sources/ArcanePorting/Build/BuildEventParser.swift](../../Sources/ArcanePorting/Build/BuildEventParser.swift) | Decodifica eventi JSON e tratta le altre righe come log. |
 | [Sources/ArcanePorting/Build/BuildService.swift](../../Sources/ArcanePorting/Build/BuildService.swift) | Gestisce processi, cancellazione, log ed eventi; continua a leggere l’engine se non può scrivere il log. Conserva il bundle valido quando fallisce solo l’installazione. |
-| [Sources/ArcanePorting/Build/BuildOutputInstaller.swift](../../Sources/ArcanePorting/Build/BuildOutputInstaller.swift) | Firma ad hoc e verifica per packaging e adozione; pubblica il bundle con rinomina o scambio atomico e riprende i tentativi tramite ricevuta. |
+| [Sources/ArcanePorting/Build/BuildOutputInstaller.swift](../../Sources/ArcanePorting/Build/BuildOutputInstaller.swift) | Firma ad hoc e verifica; controlla la destinazione attesa, pubblica con rinomina o scambio atomico e riprende tramite ricevuta. |
 | [Sources/ArcanePorting/Build/GameAppDestination.swift](../../Sources/ArcanePorting/Build/GameAppDestination.swift) | Risolve la destinazione per build, rebuild e adozione; evita conflitti di nome e rimanda a Game folders se la destinazione non è disponibile. |
 
 ## Porting · avvio e icona del gioco

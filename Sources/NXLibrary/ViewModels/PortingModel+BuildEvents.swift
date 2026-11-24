@@ -202,7 +202,8 @@ extension PortingModel {
                 _ = app.authorizeDevelopmentOperation(.icon, game: game)
                 if let held = result.heldApp {
                     PendingInstaller.hold(PendingInstall(tempApp: held, finalApp: finalApp,
-                                                         record: record, toolchain: toolchain), for: &game)
+                                                         record: record, toolchain: toolchain,
+                                                         expectedDestination: result.expectedDestination), for: &game)
                     self.buildHeldGameID = game.id
                 } else {
                     PendingInstaller.discard(&game)

@@ -58,6 +58,40 @@ final class BuildServiceTests: XCTestCase {
         XCTAssertTrue(fm.fileExists(atPath: staged.appendingPathComponent("Contents/Info.plist").path))
     }
 
+    func testDoesNotInstallOverAnUnrelatedAppThatAppearsDuringTheBuild() throws {
+        let fm = NoBuildTestTrash()
+        let root = fm.temporaryDirectory.appendingPathComponent("NXOccupied-\(UUID())")
+        defer { try? fm.removeItem(at: root) }
+        try fm.createDirectory(at: root, withIntermediateDirectories: true)
+        let final = root.appendingPathComponent("Game.app")
+        let staged = root.appendingPathComponent("Staging/Game.app")
+        let script = root.appendingPathComponent("engine.sh")
+        try """
+        mkdir -p "$1/Contents" "$2/Contents"
+        printf new > "$1/Contents/Info.plist"
+        printf unrelated > "$2/Contents/Info.plist"
+        """.write(to: script, atomically: true, encoding: .utf8)
+        let finished = expectation(description: "build completes")
+        var result: BuildResult?
+        let service = BuildService(fileManager: fm)
+        service.start(command: BuildCommand(executable: URL(fileURLWithPath: "/bin/sh"),
+            arguments: [script.path, staged.path, final.path], environment: [:], workingDirectory: root),
+            logURL: root.appendingPathComponent("build.log"), tempApp: staged, finalApp: final,
+            eventHandler: { _ in }, completion: { result = $0; finished.fulfill() })
+        wait(for: [finished], timeout: 10)
+        let ready = try XCTUnwrap(result)
+        XCTAssertTrue(ready.installationFailed)
+        XCTAssertEqual(try String(contentsOf: final.appendingPathComponent("Contents/Info.plist"), encoding: .utf8), "unrelated")
+        XCTAssertEqual(try String(contentsOf: staged.appendingPathComponent("Contents/Info.plist"), encoding: .utf8), "new")
+        var game = PortedGame(name: "Game", url: final, platform: .macApp, sizeBytes: 1, modificationDate: Date())
+        let pending = PendingInstall(tempApp: staged, finalApp: final, record: BuildRecord(),
+                                     toolchain: ToolchainInfo(), expectedDestination: try XCTUnwrap(ready.expectedDestination))
+        game.pendingInstall = try JSONDecoder().decode(PendingInstall.self, from: JSONEncoder().encode(pending))
+        XCTAssertThrowsError(try PendingInstaller.install(&game, fileManager: fm))
+        XCTAssertEqual(game.pendingInstall, pending)
+        XCTAssertEqual(try String(contentsOf: final.appendingPathComponent("Contents/Info.plist"), encoding: .utf8), "unrelated")
+    }
+
     func testSplitUTF8EventIsDeliveredWithoutChangingTheRawLog() throws {
         let prefix = #"{"ev":"say","msg":"Caf"#
         let script = #"""
@@ -443,5 +477,11 @@ private final class DenyInstallDirectory: FileManager, @unchecked Sendable {
     override func isWritableFile(atPath path: String) -> Bool {
         if URL(fileURLWithPath: path).standardizedFileURL == parent { return false }
         return super.isWritableFile(atPath: path)
+    }
+}
+
+private final class NoBuildTestTrash: FileManager, @unchecked Sendable {
+    override func trashItem(at url: URL, resultingItemURL: AutoreleasingUnsafeMutablePointer<NSURL?>?) throws {
+        throw CocoaError(.fileWriteNoPermission)
     }
 }

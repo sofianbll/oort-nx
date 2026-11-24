@@ -13,11 +13,13 @@ public struct BuildResult: Equatable {
     /// running or after installation failed. The caller must keep its folder.
     public var heldApp: URL?
     public var error: String?
+    public var expectedDestination: BuildOutputInstaller.DestinationExpectation?
 
     public var installationFailed: Bool { !success && !cancelled && heldApp != nil }
 
     public init(success: Bool, exitCode: Int32, cancelled: Bool,
-                logURL: URL, outputURL: URL? = nil, heldApp: URL? = nil, error: String? = nil) {
+                logURL: URL, outputURL: URL? = nil, heldApp: URL? = nil, error: String? = nil,
+                expectedDestination: BuildOutputInstaller.DestinationExpectation? = nil) {
         self.success = success
         self.exitCode = exitCode
         self.cancelled = cancelled
@@ -25,6 +27,7 @@ public struct BuildResult: Equatable {
         self.outputURL = outputURL
         self.heldApp = heldApp
         self.error = error
+        self.expectedDestination = expectedDestination
     }
 }
 
@@ -89,6 +92,7 @@ public final class BuildService {
         logURL: URL,
         tempApp: URL,
         finalApp: URL,
+        expectedDestination: BuildOutputInstaller.DestinationExpectation? = nil,
         holdInstall: @escaping () -> Bool = { false },
         acquireInstall: @escaping () -> (() -> Void)? = { {} },
         eventHandler: @escaping (BuildEvent) -> Void,
@@ -103,6 +107,7 @@ public final class BuildService {
         }
         stateLock.unlock()
         guard !alreadyRunning else { return }
+        let destination = expectedDestination ?? BuildOutputInstaller.expectedDestination(at: finalApp, fileManager: fm)
         stdoutBuffer.removeAll(keepingCapacity: true)
         stderrBuffer.removeAll(keepingCapacity: true)
 
@@ -159,7 +164,7 @@ public final class BuildService {
         }
         process.terminationHandler = { [weak self] proc in
             self?.finish(proc: proc, logURL: logURL,
-                         tempApp: tempApp, finalApp: finalApp, holdInstall: holdInstall,
+                         tempApp: tempApp, finalApp: finalApp, expectedDestination: destination, holdInstall: holdInstall,
                          acquireInstall: acquireInstall, outputClosed: outputClosed)
         }
 
@@ -279,6 +284,7 @@ public final class BuildService {
     /// `holdInstall` is asked once the build succeeds: true keeps the new app at `tempApp` (its game is running and
     /// replacing the app under it can crash it).
     private func finish(proc: Process, logURL: URL, tempApp: URL, finalApp: URL,
+                        expectedDestination: BuildOutputInstaller.DestinationExpectation,
                         holdInstall: @escaping () -> Bool, acquireInstall: @escaping () -> (() -> Void)?,
                         outputClosed: DispatchGroup) {
         // The process may exit before the last pipe callback. Finish only after
@@ -314,7 +320,8 @@ public final class BuildService {
                     } else {
                         do {
                             try BuildOutputInstaller.install(tempApp: tempApp, finalApp: finalApp,
-                                                             fileManager: self.fm, requiresExistingParent: true)
+                                                             fileManager: self.fm, requiresExistingParent: true,
+                                                             expectedDestination: expectedDestination)
                         } catch {
                             held = tempApp
                             throw error
@@ -330,7 +337,8 @@ public final class BuildService {
             let result = BuildResult(
                 success: success, exitCode: proc.terminationStatus,
                 cancelled: wasCancelled, logURL: logURL,
-                outputURL: success && held == nil ? finalApp : nil, heldApp: held, error: error
+                outputURL: success && held == nil ? finalApp : nil, heldApp: held, error: error,
+                expectedDestination: held == nil ? nil : expectedDestination
             )
             done?(result)
         }

@@ -6,9 +6,16 @@ import NXLibraryCore
 public enum BuildOutputInstaller {
     private static let installLock = NSLock()
 
-    private struct Identity: Codable, Equatable {
+    fileprivate struct Identity: Codable, Equatable {
         let device: UInt64
         let inode: UInt64
+    }
+    public struct DestinationExpectation: Codable, Equatable {
+        fileprivate let identity: Identity?
+    }
+
+    public static func expectedDestination(at url: URL, fileManager: FileManager = .default) -> DestinationExpectation {
+        DestinationExpectation(identity: identity(url.standardizedFileURL, fileManager))
     }
     private struct Receipt: Codable {
         var version = 1
@@ -44,13 +51,15 @@ public enum BuildOutputInstaller {
     }
 
     public static func install(tempApp: URL, finalApp: URL,
-                               fileManager: FileManager = .default, requiresExistingParent: Bool = false) throws {
+                               fileManager: FileManager = .default, requiresExistingParent: Bool = false,
+                               expectedDestination: DestinationExpectation? = nil) throws {
         try install(tempApp: tempApp, finalApp: finalApp, fileManager: fileManager,
-                    requiresExistingParent: requiresExistingParent, io: BuildInstallIO())
+                    requiresExistingParent: requiresExistingParent, expectedDestination: expectedDestination, io: BuildInstallIO())
     }
 
     internal static func install(tempApp: URL, finalApp: URL, fileManager: FileManager = .default,
-                                 requiresExistingParent: Bool = false, io: BuildInstallIO) throws {
+                                 requiresExistingParent: Bool = false, expectedDestination: DestinationExpectation? = nil,
+                                 io: BuildInstallIO) throws {
         installLock.lock()
         defer { installLock.unlock() }
         let source = tempApp.standardizedFileURL
@@ -91,6 +100,9 @@ public enum BuildOutputInstaller {
         try validateApp(source, fileManager)
         guard let sourceID = identity(source, fileManager) else { throw BuildInstallError.invalidApp(tempApp.path) }
         let previous = identity(destination, fileManager)
+        if let expectedDestination, previous != expectedDestination.identity {
+            throw BuildInstallError.replaceFailed("The destination changed since this installation started.")
+        }
         if previous != nil, !fileManager.fileExists(atPath: destination.appendingPathComponent("Contents/Info.plist").path) {
             throw BuildInstallError.replaceFailed("refusing to replace a non-app item at \(destination.path)")
         }

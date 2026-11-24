@@ -489,6 +489,7 @@ extension PortingModel {
         }
         // Snapshot the destination before any build work. Changing folders later cannot redirect this build.
         let finalApp = finalAppURL(for: target)
+        let expectedDestination = BuildOutputInstaller.expectedDestination(at: finalApp)
         let reservedScope = buildScope(for: target)
         if let problem = GameAppDestination.folderProblem(at: finalApp.deletingLastPathComponent()) {
             throw NXLibraryError.environmentBlocked(problem)
@@ -725,6 +726,7 @@ extension PortingModel {
             logURL: logURL,
             tempApp: tempApp,
             finalApp: finalApp,
+            expectedDestination: expectedDestination,
             // Replacing the app under its running game can crash it: the new app waits for the game to quit.
             holdInstall: { RunningGameMonitor.runningApplication(for: target) != nil },
             acquireInstall: { [weak self] in self?.app.acquireSaveInstallLease(for: target) },

@@ -447,6 +447,7 @@ In Spotlight e Details `PortingPills.queued` sostituisce la sola azione primaria
 - Prima della pubblicazione l'installer scrive accanto all'app una piccola ricevuta, con il percorso di staging e l'identità filesystem dei bundle. Ne resta una per destinazione, aggiornata al porting successivo.
 - Se il processo termina prima del salvataggio del catalogo, il tentativo successivo riconosce l'app già pubblicata e completa il record, anche dopo la pulizia dello staging. *Perché:* evita un secondo scambio che rimetterebbe la vecchia app al suo posto.
 - Una destinazione modificata da fuori durante lo stesso tentativo causa un errore prudente. La vecchia app e l'eventuale sorgente copiata si eliminano solo dopo la pubblicazione.
+- Il porting fissa prima di avviare il motore se la destinazione è libera o quale identità filesystem ha il bundle autorizzato. Le nuove installazioni differite conservano la stessa attesa: non adottano un'app comparsa nel frattempo.
 
 **Tempo e stime.**
 - La fase attiva mostra il tempo trascorso; durate ed ETA passano alle ore oltre i 60 minuti. Un timer a 1 Hz sul main run loop aggiorna la fase, mentre il controllo di `logs/pso_offline_mac.log` gira fuori dal main thread.
