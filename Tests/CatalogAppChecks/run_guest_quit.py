@@ -1,0 +1,115 @@
+#!/usr/bin/env python3
+"""Execute the delegate's quit path with synthetic guest and activity state."""
+from pathlib import Path
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parents[2]
+delegate = (ROOT / 'Sources/NXLibrary/AppDelegate.swift').read_text()
+queue = (ROOT / 'Sources/ArcanePorting/Library/CloudTransferQueue.swift').read_text()
+decision = queue[queue.index('public enum CloudQuitDecision'):queue.index('/// Profile-local snapshot')]
+methods = delegate[delegate.index('    func applicationShouldTerminate('):
+                   delegate.index('    func applicationShouldHandleReopen(')]
+properties = '\n'.join(line for line in delegate.splitlines() if '@MainActor static var' in line
+                       or '@MainActor static weak var' in line or '@MainActor private static var' in line)
+overlays = (ROOT / 'Sources/NXLibrary/Views/Shell/AppShellView+Overlays.swift').read_text()
+cloud_quit = overlays[overlays.index('    func finishCloudQuit('):overlays.index('    // MARK: - Retry')]
+host = '''
+import Foundation
+@MainActor final class NSApplication {
+    enum TerminateReply { case terminateNow, terminateCancel }
+    static let shared = NSApplication()
+    var quits = 0
+    func terminate(_ sender: Any?) {
+        if AppDelegate().applicationShouldTerminate(self) == .terminateNow { quits += 1 }
+    }
+}
+final class NSWindow {
+    var isKeyWindow = true
+    func makeKeyAndOrderFront(_ sender: Any?) {}
+}
+final class AppSettingsStore {}
+@MainActor final class CloudLibraryModel {
+    var isWorking = false
+    var hasQueueWrites = false
+    var isQuitting = false
+    func stopForQuit() -> Task<Void, Never>? {
+        isQuitting = true
+        return Task {}
+    }
+}
+final class Store { func flush() async {} }
+final class AppViewModel {
+    var hasActivityWrites = false
+    let porting = Porting()
+    let buildQueue: [Int] = []
+    let activityResults = (entries: [1], unused: false)
+    let activityStore = Store()
+    let localProfiles: Profiles? = Profiles()
+    func restoreActivity() async {}
+    struct Profiles { var guest: Int? = 1 }
+    struct Porting {
+        let hasBuildQueueWrites = false
+        let buildQueueStore = Store()
+    }
+}
+@MainActor final class AppDelegate {
+    // PRODUCTION
+}
+@MainActor struct Shell {
+    enum Focus { case cancel }
+    var cloudQuitFocus = Focus.cancel
+    let viewModel: Model
+    var NSApp: NSApplication { .shared }
+    @MainActor final class Model {
+        let cloudLibrary: CloudLibraryModel
+        var cloudQuitRequested = true
+        init(_ cloud: CloudLibraryModel) { cloudLibrary = cloud }
+    }
+    // CLOUD_QUIT
+}
+@main struct Check {
+    @MainActor static func main() async {
+        let owner = AppViewModel()
+        let cloud = CloudLibraryModel()
+        let window = NSWindow()
+        defer { withExtendedLifetime(window) {} }
+        AppDelegate.activityOwner = owner
+        AppDelegate.cloudLibrary = cloud
+        AppDelegate.shellWindow = window
+        var guestPrompts = 0
+        AppDelegate.requestGuestQuit = { guestPrompts += 1 }
+        let app = NSApplication.shared
+        app.terminate(nil)
+        guard guestPrompts == 1, !cloud.isQuitting else {
+            print("FAIL: quit drained the activity history before asking the guest")
+            exit(1)
+        }
+        // The guest stays; another attempt must ask again, still without draining.
+        app.terminate(nil)
+        guard guestPrompts == 2, !cloud.isQuitting else { exit(2) }
+        cloud.isWorking = true
+        var cloudPrompts = 0
+        AppDelegate.showCloudQuit = { cloudPrompts += 1 }
+        AppDelegate.quitAfterGuestConfirmation()
+        guard cloudPrompts == 1, !cloud.isQuitting else { exit(3) }
+        var shell = Shell(viewModel: .init(cloud))
+        shell.finishCloudQuit(false)
+        cloud.isWorking = false
+        app.terminate(nil)
+        guard guestPrompts == 3, !cloud.isQuitting else { exit(4) }
+        AppDelegate.quitAfterGuestConfirmation()
+        for _ in 0..<100 where app.quits == 0 { try? await Task.sleep(for: .milliseconds(1)) }
+        guard cloud.isQuitting, app.quits == 1, guestPrompts == 3 else { exit(5) }
+        print("Guest quit: cancellation doesn't start shutdown; confirmation drains and quits once")
+    }
+}
+'''
+
+with tempfile.TemporaryDirectory(prefix='oort-guest-quit-') as directory:
+    source = Path(directory) / 'Check.swift'
+    executable = Path(directory) / 'check'
+    source.write_text(host.replace('// PRODUCTION', properties + '\n' + methods)
+                      .replace('// CLOUD_QUIT', cloud_quit.replace('func finishCloudQuit', 'mutating func finishCloudQuit')) + decision)
+    subprocess.run(['xcrun', 'swiftc', '-parse-as-library', source, '-o', executable], check=True)
+    subprocess.run([executable], check=True)

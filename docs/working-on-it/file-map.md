@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **933 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **942 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -74,7 +74,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | File | Responsabilità |
 |---|---|
 | [Sources/NXLibrary/NXLibraryApp.swift](../../Sources/NXLibrary/NXLibraryApp.swift) | Punto @main, finestra SwiftUI con il nome visibile, notifiche interne e comandi della barra menu. |
-| [Sources/NXLibrary/AppDelegate.swift](../../Sources/NXLibrary/AppDelegate.swift) | Gestisce finestra e chiusura: code, esiti, conferma dell’ospite e rinomina di una copia release storica. |
+| [Sources/NXLibrary/AppDelegate.swift](../../Sources/NXLibrary/AppDelegate.swift) | Gestisce finestra e chiusura: conferma dell’ospite prima delle code e degli esiti, rinomina di una copia release storica. |
 | [Sources/NXLibrary/Views/MainView.swift](../../Sources/NXLibrary/Views/MainView.swift) | Presenta AppShellView come contenuto della finestra principale. |
 | [Sources/NXLibrary/Views/Shell/AppShellView.swift](../../Sources/NXLibrary/Views/Shell/AppShellView.swift) | Possiede il backdrop persistente e lo stato condiviso, passa a Spotlight il modello Mods, compone schermate e overlay e instrada input e avvisi (compresi i guasti cloud e l'annullamento da tastiera). `nativeDialogOwnsInput` sospende controller e tastiera sotto dialoghi nativi. Il file tiene stato, init e `body`; il resto sta nelle estensioni qui sotto. |
 | [Sources/NXLibrary/Views/Components/SeleneOverlay.swift](../../Sources/NXLibrary/Views/Components/SeleneOverlay.swift) | Velo, stile del blur, clic all'esterno, isolamento di puntatore e VoiceOver, suggerimenti, filtro del focus al passaggio del puntatore e scossa per l'input rifiutato. |
@@ -112,7 +112,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [Sources/NXLibrary/ViewModels/AppViewModel+GameActions.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+GameActions.swift) | Azioni su un gioco: Game options, preferito, nascosto, salvataggi cloud, chiusura, rimozione e Mostra nel Finder. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+GameFiles.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+GameFiles.swift) | Verifica giochi e percorsi prima della rimozione; passa al catalogo tutte le sorgenti candidate, anche ripetute; selettore Ryujinx e log. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+Mods.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Mods.swift) | Crea lo `ModStore`, il valore della riga Mods e gli errori, inclusi nomi condivisi da File e Code mods. |
-| [Sources/NXLibrary/ViewModels/AppViewModel+Controller.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Controller.swift) | Sceglie il gioco su cui agiscono i comandi Play, Details e Options del menu. |
+| [Sources/NXLibrary/ViewModels/AppViewModel+Controller.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Controller.swift) | Sceglie il gioco su cui agiscono i comandi del menu, anche dalla Collection di un profilo. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+Diagnostics.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Diagnostics.swift) | Raccoglie ambiente, toolchain e ultimo build per il rapporto diagnostico ripulito. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+PendingInstall.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+PendingInstall.swift) | Riprende le installazioni differite rispettando i lease, espone il motivo dell'errore e aggiorna il confronto cloud dopo la pubblicazione del bundle. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+Porting.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Porting.swift) | Prepara tile, pill e stima del tempo del porting per la home. |
@@ -132,7 +132,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [Sources/NXLibrary/ViewModels/SetupCheckModel.swift](../../Sources/NXLibrary/ViewModels/SetupCheckModel.swift) | Esegue probe e installazioni del Setup in background, con il pin del bundle e il blocco di cambio motore condiviso con Settings; inoltra alla scheda l'errore di importazione delle chiavi. |
 | [Sources/NXLibrary/ViewModels/SetupModel.swift](../../Sources/NXLibrary/ViewModels/SetupModel.swift) | Tiene il Setup Switch: cartella, validità e commit dell'engine, sorgenti che l'engine sa leggere, controllo Upstream e scelta della cartella; chiavi importate (percorso, validità, riepilogo, importazione, errore e selettore); controllo dell'ambiente, compatibilità, override della toolchain non testata, gate e suo riepilogo, Python e Xcode dell'engine, versioni Metal. Ricarica override, scelta di Newest engine e ultimo controllo Upstream. Raggiunge il coordinatore solo da `app`. |
 | [Sources/NXLibrary/ViewModels/SetupModel+NewestEngine.swift](../../Sources/NXLibrary/ViewModels/SetupModel+NewestEngine.swift) | Usa l’engine upstream più nuovo o torna a quello testato dal suo repository, accende l’override e controlla se main è utilizzabile. |
-| [Sources/NXLibrary/ViewModels/StoreMetadataModel.swift](../../Sources/NXLibrary/ViewModels/StoreMetadataModel.swift) | Tiene i dati dello store Nintendo per gioco nella lingua dell'app: caricamento, coda delle lingue in background, screenshot di ripiego, scelte di Change metadata e cache; le schermate che li mostrano lo osservano. |
+| [Sources/NXLibrary/ViewModels/StoreMetadataModel.swift](../../Sources/NXLibrary/ViewModels/StoreMetadataModel.swift) | Tiene i dati dello store Nintendo, le code per lingua, gli screenshot di ripiego e le scelte di Change metadata; svuotando la cache invalida i risultati in corso. |
 
 ## Modelli dello stato applicativo
 
@@ -174,7 +174,7 @@ Cartella `Sources/NXLibraryCore/App/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibraryCore/App/AppRouter.swift](../../Sources/NXLibraryCore/App/AppRouter.swift) | Gestisce route e ritorno, esclude l’Inbox disattivata, menu (`menuStep`: tasti, cambio pannello e ritorno del control center), ricerca e richieste Spotlight; ShellBackdropCover definisce quali strati sono coperti da Setup, benvenuto e scelta tema. |
+| [Sources/NXLibraryCore/App/AppRouter.swift](../../Sources/NXLibraryCore/App/AppRouter.swift) | Gestisce route, ritorno, Inbox, menu, ricerca, focus di ordinamento e richieste Spotlight; ShellBackdropCover definisce quali strati sono coperti da Setup, benvenuto e scelta tema. |
 | [Sources/NXLibraryCore/App/ProfileLayers.swift](../../Sources/NXLibraryCore/App/ProfileLayers.swift) | Strati della schermata profilo (selettore, procedura guidata, domanda di rimozione): solo quella in cima riceve l’input e mostra i suggerimenti; la procedura guidata nasconde il selettore. |
 | [Sources/NXLibraryCore/App/FirstRunSetup.swift](../../Sources/NXLibraryCore/App/FirstRunSetup.swift) | Coordina pagina e completamento del Setup, scelta Steam persistente fino alla fine, ripresa, focus e consumo unico delle selezioni da Your games. |
 | [Sources/NXLibraryCore/App/FirstRunFindings.swift](../../Sources/NXLibraryCore/App/FirstRunFindings.swift) | Conta giochi Steam senza modifiche, e le app del modulo con il conteggio che riceve; distingue lettura incompleta da assenza e permette nuove letture annullabili. |
@@ -641,7 +641,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibrary/Views/AddGame/AddGameView.swift](../../Sources/NXLibrary/Views/AddGame/AddGameView.swift) | Compone il wizard Choose/Review/Porting e osserva i blocchi cloud; navigazione e rilascio di sorgenti o di una singola app nel primo passo. |
+| [Sources/NXLibrary/Views/AddGame/AddGameView.swift](../../Sources/NXLibrary/Views/AddGame/AddGameView.swift) | Compone il wizard Choose/Review/Porting, gestisce il rilascio di file e i blocchi cloud; alla chiusura non sovrascrive una selezione Spotlight in attesa. |
 | [Sources/NXLibrary/Views/AddGame/AddGameView+Rows.swift](../../Sources/NXLibrary/Views/AddGame/AddGameView+Rows.swift) | Righe e focus del wizard, spiegazione del blocco dell'adozione locale e stato della verifica della cache di compilazione cloud. |
 | [Sources/NXLibrary/Views/AddGame/AddGameRows.swift](../../Sources/NXLibrary/Views/AddGame/AddGameRows.swift) | Rende le righe riutilizzabili per sorgenti e azioni di Add Game. |
 | [Sources/NXLibrary/Views/AddGame/AddGameAction.swift](../../Sources/NXLibrary/Views/AddGame/AddGameAction.swift) | Identifica le azioni navigabili dei passaggi del wizard. |
@@ -653,7 +653,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibrary/Views/Spotlight/SpotlightView.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightView.swift) | Compone home, tessere e pagina; espone la card Inbox solo se attiva, osserva il cloud per i comandi, conserva il focus di ordinamento e collega il clic su Profili al selettore della shell. |
+| [Sources/NXLibrary/Views/Spotlight/SpotlightView.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightView.swift) | Compone home, tessere e pagina; espone la card Inbox solo se attiva, osserva il cloud, collega Profili alla shell e libera il focus di ordinamento all’uscita. |
 | [Sources/NXLibrary/Views/Spotlight/SpotlightView+Stage.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightView+Stage.swift) | Palco Spotlight: riga, azioni cloud, arte hero, overlay, focus di ordinamento e selezione delle ultime cinque compilazioni. |
 | [Sources/NXLibrary/Views/Spotlight/SpotlightView+Hints.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightView+Hints.swift) | Suggerimenti per focus e stato, inclusi Download per un'app solo cloud e X per mostrare o nascondere le compilazioni. |
 | [Sources/NXLibrary/Views/Spotlight/SpotlightView+Selection.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightView+Selection.swift) | Selezione: comparsa, cambi di filtro e di libreria, gioco selezionato tenuto nella riga. |
@@ -670,15 +670,15 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/Spotlight/SpotlightScreenshotStrip.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightScreenshotStrip.swift) | Disegna la striscia di screenshot con focus e stile adattabile alle schermate. |
 | [Sources/NXLibrary/Views/Spotlight/SeleneArtBackground.swift](../../Sources/NXLibrary/Views/Spotlight/SeleneArtBackground.swift) | Compone wallpaper, sfondo del gioco, transizioni e maschere leggendo la palette dallo snapshot condiviso; l'arte è un `CALayer` che dissolve nel render server (`SeleneArtLayer`) e che l'entrata di Spotlight tiene nascosto (`ArtReveal`). |
 | [Sources/NXLibrary/Views/Spotlight/SeleneHeroArt.swift](../../Sources/NXLibrary/Views/Spotlight/SeleneHeroArt.swift) | Coordina il caricamento differito di hero e logo del gioco selezionato. |
-| [Sources/NXLibrary/Views/Spotlight/GameArtLoader.swift](../../Sources/NXLibrary/Views/Spotlight/GameArtLoader.swift) | Carica e memorizza hero e loghi attraverso ArtworkStore e decoder immagini dedicati. |
+| [Sources/NXLibrary/Views/Spotlight/GameArtLoader.swift](../../Sources/NXLibrary/Views/Spotlight/GameArtLoader.swift) | Carica hero e loghi; aspetta la ricerca ancora in corso e la ripete se annullata. Limita le cache degli sfondi anche per byte decodificato. |
 | [Sources/NXLibrary/Views/Spotlight/GameArtLoader+Played.swift](../../Sources/NXLibrary/Views/Spotlight/GameArtLoader+Played.swift) | Hero e logo di un `PlayedGame` per schermata di lancio e card di fine sessione; per Steam le stesse scelte delle sue pagine. |
 
 ## UI · Collection e Details
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibrary/Views/Collection/CollectionView.swift](../../Sources/NXLibrary/Views/Collection/CollectionView.swift) | Compone copertine, filtri e suggerimenti; usa la query globale o l'ordine proprio della scheda del profilo. |
-| [Sources/NXLibrary/Views/Collection/CollectionView+Input.swift](../../Sources/NXLibrary/Views/Collection/CollectionView+Input.swift) | Muove il focus nell'elenco mostrato, segue le azioni Play e Download e apre l'ordinamento solo nella Collection principale. |
+| [Sources/NXLibrary/Views/Collection/CollectionView.swift](../../Sources/NXLibrary/Views/Collection/CollectionView.swift) | Compone copertine, filtri e suggerimenti riusando una sola lista ordinata, globale o della scheda del profilo. |
+| [Sources/NXLibrary/Views/Collection/CollectionView+Input.swift](../../Sources/NXLibrary/Views/Collection/CollectionView+Input.swift) | Muove il focus nell’elenco o tra le azioni della Collection vuota; segue Play e Download e apre l’ordinamento nella Collection principale. |
 | [Sources/NXLibrary/Views/Collection/CollectionCoverRow.swift](../../Sources/NXLibrary/Views/Collection/CollectionCoverRow.swift) | Disegna copertine e scorrimento della riga Collection. |
 | [Sources/NXLibrary/Views/Detail/GameDetailView.swift](../../Sources/NXLibrary/Views/Detail/GameDetailView.swift) | Compone la pagina Details e coordina bande, modello corrente e focus. |
 | [Sources/NXLibrary/Views/Detail/GameDetailView+Input.swift](../../Sources/NXLibrary/Views/Detail/GameDetailView+Input.swift) | Gestisce azioni, Download, screenshot, navigazione e passaggio ai giochi correlati da Details. |
@@ -1102,6 +1102,15 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_build_cache_thread.py](../../Tests/CatalogAppChecks/run_build_cache_thread.py) | Verifica che l’adozione della cache a fine porting non venga eseguita sul thread dell’interfaccia. |
 | [run_build_gates.py](../../Tests/CatalogAppChecks/run_build_gates.py) | Esegue il controllo per il cambio motore e l'azione di annullamento quando il worker la rifiuta. |
 | [run_build_queue_engine.py](../../Tests/CatalogAppChecks/run_build_queue_engine.py) | Verifica il collegamento tra la fine del cambio motore e il risveglio della coda, anche quando il clone non produce un motore valido. |
+| [run_guest_quit.py](../../Tests/CatalogAppChecks/run_guest_quit.py) | Esegue le regole reali dell’uscita ospite, dell’annullamento e del completamento con esiti di attività sintetici. |
+| [run_profile_collection_game.py](../../Tests/CatalogAppChecks/run_profile_collection_game.py) | Verifica la selezione dei giochi Switch e Steam nel menu nativo della Collection di un profilo. |
+| [run_logo_cancellation.py](../../Tests/CatalogAppChecks/run_logo_cancellation.py) | Verifica il recupero del logo tornando prima che la ricerca annullata finisca, senza rete. |
+| [run_metadata_preload.py](../../Tests/CatalogAppChecks/run_metadata_preload.py) | Verifica le letture fuori dal main thread, la pubblicazione sul main thread e lo scarto dei risultati dopo lo svuotamento (EN/FR). |
+| [run_spotlight_notification_select.py](../../Tests/CatalogAppChecks/run_spotlight_notification_select.py) | Verifica la selezione da una notifica, anche chiudendo Add Game mentre è in corso un altro porting. |
+| [run_sort_native_menu.py](../../Tests/CatalogAppChecks/run_sort_native_menu.py) | Verifica disponibilità e consegna di Gioca dal menu nativo con l’ordinamento aperto. |
+| [run_empty_collection_input.py](../../Tests/CatalogAppChecks/run_empty_collection_input.py) | Invia comandi di navigazione alla Collection vuota e verifica Aggiungi gioco e Importa build esistenti. |
+| [run_hero_cache_budget.py](../../Tests/CatalogAppChecks/run_hero_cache_budget.py) | Verifica che le cache degli sfondi ricevano i byte decodificati e abbiano un limite di costo. |
+| [run_collection_query_count.py](../../Tests/CatalogAppChecks/run_collection_query_count.py) | Conta le valutazioni della query di Collection con una selezione Switch su 300 giochi sintetici. |
 | [run_save_restart.py](../../Tests/CatalogAppChecks/run_save_restart.py) | Arresti reali e nuovi processi nei checkpoint di transazione, recovery e pulizia; verifica tutti gli utenti, registro e integrità dei backup su fixture temporanee. |
 | [run_save_profile_isolation.py](../../Tests/CatalogAppChecks/run_save_profile_isolation.py) | Un recupero fallito in un profilo non impedisce a un altro di giocare allo stesso titolo. |
 | [run_save_unreadable_profile.py](../../Tests/CatalogAppChecks/run_save_unreadable_profile.py) | Profili illeggibili: rifiuta contesto, backup, apertura cartella e recupero dei salvataggi originali. |

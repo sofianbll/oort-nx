@@ -6,10 +6,10 @@ import ArcanePorting
 /// Collection's controller, keyboard and pointer input.
 extension CollectionView {
     func handle(_ action: GamepadAction) {
-        if sortMenu != nil {
-            var next = sortMenu
+        if router.sortMenu != nil {
+            var next = router.sortMenu
             LibrarySortMenu.handle(action, focused: &next, choose: setSort)
-            sortMenu = next
+            router.sortMenu = next
             return
         }
         if profileFocused {
@@ -22,6 +22,12 @@ extension CollectionView {
         var moved = false
         switch action {
         case .navigateLeft, .navigateRight, .tabPrevious, .tabNext:
+            if showsEmptyActions, action == .navigateLeft || action == .navigateRight {
+                let next = action == .navigateRight
+                moved = importFocused != next
+                importFocused = next
+                break
+            }
             let step = action == .navigateLeft || action == .tabPrevious ? -1 : 1
             if profileCard == nil, action == .tabPrevious || action == .tabNext {
                 setFilter(filter.shifted(by: step))
@@ -45,9 +51,10 @@ extension CollectionView {
         case .confirm:
             if let record = selectedCatalogGame {
                 activateCatalog(record)
-            } else if profileCard == nil, !hasAnyGame, !viewModel.isScanningLibrary {
+            } else if showsEmptyActions {
                 SoundEffectService.shared.play(.click)
-                router.openAddGame()
+                if importFocused { viewModel.importExistingBuilds() }
+                else { router.openAddGame() }
             }
         case .secondaryAction:
             // A Steam game's details are its Spotlight page; Collection has no Details screen for it.
@@ -126,7 +133,7 @@ extension CollectionView {
             switch event.keyCode {
             case 123: action = .navigateLeft
             case 124: action = .navigateRight
-            case 125 where sortMenu != nil || profileFocused: action = .navigateDown
+            case 125 where router.sortMenu != nil || profileFocused: action = .navigateDown
             case 126: action = .navigateUp
             case 36, 49, 76: action = .confirm
             case 53: action = .cancel

@@ -24,6 +24,7 @@ extension AppShellView {
         if quit {
             AppDelegate.finishCloudQuit(NSApp)
         } else {
+            AppDelegate.cancelGuestQuitConfirmation()
             cloudQuitFocus = .cancel
             viewModel.cloudQuitRequested = false
         }

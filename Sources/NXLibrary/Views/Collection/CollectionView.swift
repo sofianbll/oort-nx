@@ -28,8 +28,8 @@ struct CollectionView: View {
     /// Steam Play phases drive the A hint.
     @ObservedObject var steamPlayer = SteamPlayCoordinator.shared
     @State var keyMonitor: Any?
-    @State var sortMenu: LibrarySort?
     @State var profileFocused = false
+    @State var importFocused = false
     @Environment(\.profilePortrait) var profile
 
     init(viewModel: AppViewModel, router: AppRouter, settings: AppSettingsStore,
@@ -67,27 +67,29 @@ struct CollectionView: View {
     }
 
     var hasAnyGame: Bool { !viewModel.visibleCatalogGames.isEmpty }
+    var showsEmptyActions: Bool { profileCard == nil && !hasAnyGame && !viewModel.isScanningLibrary }
 
-    func selectedGame(in games: [CatalogGame]) -> PortedGame? {
+    private func selectedCatalogGame(in games: [CatalogGame]) -> CatalogGame? {
         guard let id = viewModel.librarySelection.selectedGameID else { return nil }
-        return games.first { $0.id == id }?.nxnativeGame
+        return games.first { $0.id == id }
     }
 
-    var selectedGame: PortedGame? { selectedGame(in: games) }
-    var selectedCatalogGame: CatalogGame? { games.first { $0.id == viewModel.librarySelection.selectedGameID } }
+    var selectedGame: PortedGame? { selectedCatalogGame?.nxnativeGame }
+    var selectedCatalogGame: CatalogGame? { selectedCatalogGame(in: games) }
 
     // MARK: - Body
 
     var body: some View {
         let games = self.games
-        let game = selectedGame(in: games)
+        let record = selectedCatalogGame(in: games)
+        let game = record?.nxnativeGame
         SeleneHomeChrome(
             leftHints: profileCard != nil ? [HintItem(.b, "Back", action: router.back)] : HintItem.homeGlobals(other: "Spotlight",
                                              onOther: settings.settings.viewButtonSwitches ? { handle(.view) } : nil,
                                              onMenu: { router.isMenuPresented = true },
                                              onSearch: { handle(.search) },
                                              onProfiles: { ProfileFlow.requestPicker() }),
-            rightHints: contextHints(game) + (profileCard == nil
+            rightHints: contextHints(game, record: record) + (profileCard == nil
                 ? [LibrarySortMenu.hint(settings.settings.librarySort, action: openSort)]
                 : [HintItem(.lb, "Previous") { handle(.tabPrevious) }, HintItem(.rb, "Next") { handle(.tabNext) }]),
             hintsHidden: router.overlayHasHints(viewModel),
@@ -96,19 +98,22 @@ struct CollectionView: View {
                                     shade: settings.settings.backgroundShade,
                                     showsArt: !settings.settings.keepWallpaperOnGames)
             },
-            stage: { stage(games: games, game: game) })
-        .accessibilityHidden(sortMenu != nil)
+            stage: { stage(games: games, game: game, record: record) })
+        .accessibilityHidden(router.sortMenu != nil)
         .overlay {
-            if let sortMenu {
+            if let sortMenu = router.sortMenu {
                 LibrarySortMenu(current: settings.settings.librarySort, focused: sortMenu, choose: setSort) {
-                    self.sortMenu = nil
+                    router.sortMenu = nil
                 }
             }
         }
         .onAppear(perform: appear)
         // A launch on Collection: Spotlight's entrance belongs to the first home only (`SpotlightView+Entrance`).
         .onAppear { viewModel.homeSeen = true }
-        .onDisappear(perform: removeKeyMonitor)
+        .onDisappear {
+            router.sortMenu = nil
+            removeKeyMonitor()
+        }
         .onChange(of: viewModel.catalogGames) {
             store.preloadCachedStoreMetadata()
             reconcile()
@@ -116,6 +121,7 @@ struct CollectionView: View {
         .onChange(of: viewModel.catalogSourceConfigurations) { reconcile() }
         .onChange(of: filter) { reconcile() }
         .onChange(of: settings.settings.librarySort) { reconcile() }
+        .onChange(of: showsEmptyActions) { _, shown in if !shown { importFocused = false } }
         .onChange(of: viewModel.librarySelection.selectedGameID) { selectionChanged() }
         .onReceive(NotificationCenter.default.publisher(for: .nxCollectionGamepadAction)) { note in
             guard viewModel.alertMessage == nil, viewModel.settingsNotice == nil else { return }
@@ -131,12 +137,12 @@ struct CollectionView: View {
         .onChange(of: playSessions.profileID) { reconcile() }
         .onChange(of: viewModel.isScanningLibrary) { reconcile() }
         .task(id: art.heroTaskKey(game, metadata: game.flatMap { store.storeMetadata[$0.id] })) { await loadHero(game) }
-        .task(id: art.steamHeroTaskKey(selectedCatalogGame)) { await art.loadSteamHero(game: selectedCatalogGame, current: { selectedCatalogGame?.id }, artwork: artwork) }
+        .task(id: art.steamHeroTaskKey(record)) { await art.loadSteamHero(game: record, current: { selectedCatalogGame?.id }, artwork: artwork) }
         .task(id: art.logoTaskKey(game, metadata: game.flatMap { store.storeMetadata[$0.id] })) { await loadLogo(game) }
         .task(id: game) { await viewModel.prefetchCloudLibrary(game) }
     }
 
-    private func stage(games: [CatalogGame], game: PortedGame?) -> some View {
+    private func stage(games: [CatalogGame], game: PortedGame?, record: CatalogGame?) -> some View {
         ZStack(alignment: .topLeading) {
             if let profileCard {
                 Text(L10n.text(profileCard.title, context: localization))
@@ -160,7 +166,7 @@ struct CollectionView: View {
                     // Spotlight's left margin; the logo starts just under the top bar.
                     .frame(width: canvas.u(1100), alignment: .topLeading)
                     .offset(x: canvas.u(80), y: canvas.u(110))
-            } else if let record = selectedCatalogGame, record.integration == .steam {
+            } else if let record, record.integration == .steam {
                 CatalogSteamInfo(game: record, totalPlaytime: playSessions.totalDuration(for: record.id),
                                  lastPlayed: playSessions.lastPlayed(for: record.id), collection: true)
                     .id(record.id)
@@ -213,8 +219,8 @@ struct CollectionView: View {
                 Text(L10n.text("Choose game files or find your existing apps."))
                     .seleneFont(.panelBody).foregroundColor(SeleneTheme.ink60)
                 HStack(spacing: canvas.u(14)) {
-                    SelenePillButton(title: L10n.text("Add game"), focused: true) { router.openAddGame() }
-                    SelenePillButton(title: L10n.text("Import existing builds"), minWidth: 0, focused: false) {
+                    SelenePillButton(title: L10n.text("Add game"), focused: !profileFocused && !importFocused) { router.openAddGame() }
+                    SelenePillButton(title: L10n.text("Import existing builds"), minWidth: 0, focused: !profileFocused && importFocused) {
                         viewModel.importExistingBuilds()
                     }
                 }
@@ -226,14 +232,14 @@ struct CollectionView: View {
 
     // MARK: - Hints
 
-    private func contextHints(_ game: PortedGame?) -> [HintItem] {
-        if let steam = selectedCatalogGame, steam.integration == .steam {
+    private func contextHints(_ game: PortedGame?, record: CatalogGame?) -> [HintItem] {
+        if let steam = record, steam.integration == .steam {
             return SteamPlayCoordinator.shared.hint(for: steam)
                 + [HintItem(.y, L10n.text("Game options"))]
         }
         guard let game else {
-            if viewModel.isScanningLibrary { return [] }
-            return hasAnyGame || profileCard != nil ? [] : [HintItem(.a, L10n.text("Add game"))]
+            guard showsEmptyActions else { return [] }
+            return [HintItem(.a, importFocused ? L10n.text("Import existing builds") : L10n.text("Add game"))]
         }
         if cloud.downloadsCloudApp(game) {
             return [HintItem(.a, "Download"), HintItem(.x, "Details"), HintItem(.y, "Game options")]
@@ -275,10 +281,10 @@ struct CollectionView: View {
         SoundEffectService.shared.play(.tabSwitch)
     }
 
-    func openSort() { sortMenu = settings.settings.librarySort }
+    func openSort() { router.sortMenu = settings.settings.librarySort }
 
     func setSort(_ sort: LibrarySort) {
-        sortMenu = nil
+        router.sortMenu = nil
         settings.settings.librarySort = sort
         reconcile()
         SoundEffectService.shared.play(.tabSwitch)

@@ -50,17 +50,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // .terminateLater runs a modal loop that stalls shell input and main-actor cleanup.
         let activity = Self.activityOwner
         if activity?.porting.isAdoptingBuildCache == true { return .terminateCancel }
-        switch CloudQuitDecision.resolve(isWorking: cloud.isWorking, hasQueueWrites: cloud.hasQueueWrites
+        let decision = CloudQuitDecision.resolve(isWorking: cloud.isWorking, hasQueueWrites: cloud.hasQueueWrites
                                             || activity?.hasActivityWrites == true || activity?.porting.hasBuildQueueWrites == true
                                             || activity?.buildQueue.isEmpty == false || activity?.activityResults.entries.isEmpty == false,
                                          isQuitting: cloud.isQuitting, cleanupComplete: Self.cloudQuitCleanupComplete,
-                                         relaunchScheduled: Self.relaunchScheduled) {
+                                         relaunchScheduled: Self.relaunchScheduled)
+        if decision != .cancel, !Self.guestQuitConfirmed, activity?.localProfiles?.guest != nil {
+            if let window = Self.shellWindow, !window.isKeyWindow { window.makeKeyAndOrderFront(nil) }
+            Self.requestGuestQuit?()
+            return .terminateCancel
+        }
+        switch decision {
         case .quit:
-            if !Self.guestQuitConfirmed, activity?.localProfiles?.guest != nil {
-                if let window = Self.shellWindow, !window.isKeyWindow { window.makeKeyAndOrderFront(nil) }
-                Self.requestGuestQuit?()
-                return .terminateCancel
-            }
             return .terminateNow
         case .cancel:
             return .terminateCancel
@@ -78,8 +79,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @MainActor static func quitAfterGuestConfirmation() {
         guestQuitConfirmed = true
-        defer { guestQuitConfirmed = false }
         NSApplication.shared.terminate(nil)
+    }
+
+    @MainActor static func cancelGuestQuitConfirmation() {
+        guestQuitConfirmed = false
     }
 
     @MainActor static func finishCloudQuit(_ sender: NSApplication) {

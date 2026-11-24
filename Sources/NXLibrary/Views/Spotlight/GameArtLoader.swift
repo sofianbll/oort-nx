@@ -16,11 +16,15 @@ final class GameArtLoader {
     let steamArt = NSCache<NSString, NSImage>()
     /// Games already looked up online this launch, found or not.
     private var searchedOnline: Set<UUID> = []
+    /// Only present while this game's online logo search is in flight.
+    private var onlineLogoWaiters: [UUID: [CheckedContinuation<Void, Never>]] = [:]
 
     private init() {
         heroes.countLimit = 24
+        heroes.totalCostLimit = 128 * 1024 * 1024
         logos.countLimit = 64
         steamArt.countLimit = 16
+        steamArt.totalCostLimit = 64 * 1024 * 1024
     }
 
     func cachedHero(for game: PortedGame) -> NSImage? { heroes.object(forKey: game.id as NSUUID) }
@@ -68,7 +72,7 @@ final class GameArtLoader {
                 image = await Self.decodeHero(at: url)
             }
         }
-        if let image { heroes.setObject(image, forKey: game.id as NSUUID) }
+        if let image { heroes.setObject(image, forKey: game.id as NSUUID, cost: Self.decodedCost(image)) }
         return image
     }
 
@@ -102,7 +106,14 @@ final class GameArtLoader {
            let url = await artwork.fetch(titleID: titleKey, remoteURL: remote, kind: .logo) {
             image = await Self.decodeLogo(at: url)
         }
-        if image == nil, !Task.isCancelled, searchedOnline.insert(game.id).inserted {
+        while image == nil, !Task.isCancelled, !searchedOnline.contains(game.id) {
+            if onlineLogoWaiters[game.id] != nil {
+                await withCheckedContinuation { onlineLogoWaiters[game.id, default: []].append($0) }
+                image = cachedLogo(for: game)
+                continue
+            }
+            onlineLogoWaiters[game.id] = []
+            defer { onlineLogoWaiters.removeValue(forKey: game.id)?.forEach { $0.resume() } }
             let names = [game.name, metadata?.name].compactMap { $0 }
             let found = await OnlineArtwork.find(names: names, slot: .logo,
                                                  platform: game.isSwitch2 ? .switch2 : .switch)
@@ -111,9 +122,16 @@ final class GameArtLoader {
                     image = await Self.decodeLogo(at: url)
                 }
             }
+            if !Task.isCancelled { searchedOnline.insert(game.id) }
+            break
         }
         if let image { logos.setObject(image, forKey: game.id as NSUUID) }
         return image
+    }
+
+    static func decodedCost(_ image: NSImage) -> Int {
+        let pixels = image.representations.first.map { $0.pixelsWide * $0.pixelsHigh } ?? 0
+        return max(pixels, 1) * 4
     }
 
     /// Decodes off the main thread, capped at 2560 px.

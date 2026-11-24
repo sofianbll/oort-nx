@@ -60,6 +60,7 @@ public final class AppRouter: ObservableObject {
     @Published public private(set) var isReturningFromBack = false
     @Published public var isMenuPresented = false
     @Published public var isSearchPresented = false
+    @Published package var sortMenu: LibrarySort?
     /// True while the full-screen screenshot viewer is open; the shell ignores its global shortcuts.
     @Published public var isScreenshotViewerOpen = false
     @Published public var menuSelection = MenuSelectionModel()

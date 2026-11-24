@@ -127,8 +127,9 @@ struct AppShellView: View {
             && !isCloseGameOpen && !router.isScreenshotViewerOpen && !router.isSearchPresented
             && router.activityCenterFocus == nil
             && !viewModel.isGameOptionsOpen && viewModel.launchOverlay == nil && !nativeDialogOwnsInput
-        let game = general && !router.isMenuPresented ? viewModel.currentFocusedGame : nil
-        let focused = general && !router.isMenuPresented ? viewModel.currentFocusedCatalogGame : nil
+        let gameCommands = general && !router.isMenuPresented && router.sortMenu == nil
+        let game = gameCommands ? viewModel.currentFocusedGame : nil
+        let focused = gameCommands ? viewModel.currentFocusedCatalogGame : nil
         let steam = focused?.integration == .steam ? focused : nil
         // A Steam game's details are its Spotlight page; it has no separate Details screen.
         return NativeMenuAvailability(general: general,
@@ -223,7 +224,9 @@ struct AppShellView: View {
                     router.openAddGame()
                 }
             } else {
-                router.showLibrary()
+                if !router.route.isOverlay || router.underlyingRoute != .library {
+                    router.showLibrary()
+                }
                 router.requestSpotlightSelect(id)
             }
         }

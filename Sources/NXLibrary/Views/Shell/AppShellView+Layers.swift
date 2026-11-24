@@ -425,10 +425,7 @@ extension AppShellView {
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .nxLibraryOpenDetails)) { _ in
-            guard !router.isMenuPresented,
-                  !viewModel.isGameOptionsOpen,
-                  !isCloseGameOpen,
-                  isHomeRoute,
+            guard nativeMenuAvailability.details,
                   let game = viewModel.currentFocusedCatalogGame else { return }
             if router.route == .library { viewModel.spotlight.showGameDetails() }
             else if game.integration != .steam { router.showDetail(game.id) }

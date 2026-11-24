@@ -12,6 +12,7 @@ extension AppViewModel {
             guard let id = spotlight.selectedGameID else { return nil }
             return libraryGames.first { $0.id == id && !$0.isHidden }
         }
+        if case .profileCollection = router?.route { return currentFocusedCatalogGame?.nxnativeGame }
         guard router?.route == .collection else { return nil }
         let games = librarySelection.query.applyCatalog(to: visibleCatalogGames, history: playSessionStore ?? NoPlayHistory())
         guard !games.isEmpty else { return nil }

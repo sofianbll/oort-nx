@@ -325,10 +325,12 @@ struct AddGameView: View {
         goToReview()
     }
 
-    /// During a porting the home selects the porting tile as the column fades.
+    /// Show the ongoing port on return unless a game was explicitly requested.
     private func close(then finish: () -> Void) {
         editing = nil
-        if let id = viewModel.portingGameID { router.requestSpotlightSelect(id) }
+        if router.pendingSpotlightSelect == nil, let id = viewModel.portingGameID {
+            router.requestSpotlightSelect(id)
+        }
         finish()
     }
 

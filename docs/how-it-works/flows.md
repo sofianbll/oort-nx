@@ -48,6 +48,8 @@ Punti fissi:
 
 ## 2. Dal disco alla libreria
 
+Nella Collection vuota, Sinistra e Destra scelgono tra Add game e Import existing builds. A o Invio attiva la scelta; entrambi i pulsanti restano cliccabili.
+
 ```mermaid
 flowchart TD
     subgraph NX["Switch (nxnative)"]
@@ -176,6 +178,8 @@ flowchart TD
 Durante un porting, B o Esc nasconde il pannello senza annullare il lavoro. Dopo il completamento o l'annullamento, B o Esc torna a Review se c'è una selezione nel wizard; da un Build o Rebuild aperto direttamente senza bozza, torna alla schermata di partenza.
 
 Da Installazione il porting non è più annullabile, anche dal centro attività.
+
+Una notifica di compilazione riuscita seleziona subito il gioco in Spotlight. Se Aggiungi gioco o la console copre Spotlight, la selezione si applica al ritorno, anche se è in corso la compilazione di un altro gioco.
 
 **Menu → Centro attività.** La campanella si apre con un clic o con la selezione del menu (Menu sul controller, ⌘K da tastiera). Mostra l'azione e l'oggetto di ogni compilazione, trasferimento o spostamento cloud. Su/Giù sposta il focus; A, Invio o un clic su una riga di compilazione apre Porting. X, Canc o il pulsante tondo ferma il lavoro selezionato o rimuove la singola richiesta in coda. Nei Risultati, Retry (A/Invio) riaccoda lo stesso lavoro; Clear (X/Canc) rimuove la riga; Clear all (A/Invio) rimuove gli esiti senza annullare i lavori. B o Esc torna alla campanella; un clic fuori chiude tutto il menu. Nessuno dei due ferma i lavori.
 
@@ -308,6 +312,8 @@ Sulla carta Attività, X o un clic sul suggerimento mostra o nasconde «Compilat
 
 Passare a un altro profilo con un gioco aperto chiede conferma. Arcane chiude i giochi Switch e aspetta che finiscano; i giochi Steam si chiudono manualmente. L’ospite gioca a Switch offline senza conto né cloud dei salvataggi. Entrare e uscire richiede conferma; i dati salvati rimangono separati sul Mac, senza ripresa dal selettore per il prossimo ospite. I giochi Steam non partono come ospite perché Arcane non può separarne le partite.
 
+Se l’ospite chiede di chiudere l’app, la conferma dell’ospite precede la chiusura delle code e l’eventuale conferma cloud. Annullare lascia l’app operativa.
+
 Quando cambia il profilo, le notifiche di fine sessione e degli obiettivi del profilo precedente non restano visibili né in attesa.
 
 La migrazione salva i file precedenti una sola volta in `profiles-migration-backup`, senza credenziali. Per ripristinarli, con Arcane chiuso, conservare prima una copia dei dati attuali; poi rimettere i file del backup e spostare fuori dalla cartella attiva `profiles.json` e `profiles-active` se non erano presenti nel backup. La copia attuale conserva le sessioni successive alla migrazione.
@@ -327,6 +333,8 @@ Play together mostra lo stato della VPN scelta e offre Scarica o Apri. Advanced 
 In System → About, il riepilogo collega Arcane 0.2.1 di Bium23 al progetto originale; il pulsante sotto apre la pagina Buy Me a Coffee di Bium23. Entrambi funzionano con clic, Invio o conferma del controller.
 
 Tornando alla home, le viste delle tessere ricreate leggono subito le immagini decodificate in `TileArtMemo`; i task caricano quelle mancanti e rivalidano i file Steam. La cover della card Mods resta nel `ModStoreHost` posseduto dalla shell ed è rivalidata in background rispetto agli abbinamenti correnti.
+
+In Settings → Storage, svuotare la cache dei metadati scarta anche i risultati di precaricamento già letti ma non ancora mostrati. Una nuova apertura può caricare una descrizione aggiornata.
 
 ## 9. Aggiornare l'app
 
