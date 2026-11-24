@@ -41,7 +41,7 @@ final class AppSettingsStore {}
 final class Store { func flush() async {} }
 final class AppViewModel {
     var hasActivityWrites = false
-    let porting = Porting()
+    var porting = Porting()
     let buildQueue: [Int] = []
     let activityResults = (entries: [1], unused: false)
     let activityStore = Store()
@@ -51,6 +51,7 @@ final class AppViewModel {
     struct Porting {
         let hasBuildQueueWrites = false
         let buildQueueStore = Store()
+        var isAdoptingBuildCache = false
     }
 }
 @MainActor final class AppDelegate {
@@ -80,6 +81,10 @@ final class AppViewModel {
         var guestPrompts = 0
         AppDelegate.requestGuestQuit = { guestPrompts += 1 }
         let app = NSApplication.shared
+        owner.porting.isAdoptingBuildCache = true
+        app.terminate(nil)
+        guard guestPrompts == 0, !cloud.isQuitting, app.quits == 0 else { exit(6) }
+        owner.porting.isAdoptingBuildCache = false
         app.terminate(nil)
         guard guestPrompts == 1, !cloud.isQuitting else {
             print("FAIL: quit drained the activity history before asking the guest")

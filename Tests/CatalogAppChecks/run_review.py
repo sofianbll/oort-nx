@@ -198,6 +198,7 @@ final class Router {
     var isScreenshotViewerOpen = false
     var isSearchPresented = false
     var isMenuPresented = false
+    var sortMenu: Int?
     var activityCenterFocus: ActivityCenterFocus?
     func openSettings(_ section: SettingsSection) { route = .settings(section) }
 }

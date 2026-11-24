@@ -179,6 +179,7 @@ flowchart TD
 Durante un porting, B o Esc nasconde il pannello senza annullare il lavoro. Dopo il completamento o l'annullamento, B o Esc torna a Review se c'è una selezione nel wizard; da un Build o Rebuild aperto direttamente senza bozza, torna alla schermata di partenza.
 
 Da Installazione il porting non è più annullabile, anche dal centro attività.
+Per uno spostamento cloud l'annullamento resta disponibile fino alla fine della copia, non durante la chiusura.
 
 Una notifica di compilazione riuscita seleziona subito il gioco in Spotlight. Se Aggiungi gioco o la console copre Spotlight, la selezione si applica al ritorno, anche se è in corso la compilazione di un altro gioco.
 

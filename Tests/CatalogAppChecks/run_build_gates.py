@@ -6,9 +6,13 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
 source = (ROOT / "Sources/NXLibrary/ViewModels/PortingModel+Build.swift").read_text()
+move_source = (ROOT / "Sources/NXLibrary/ViewModels/AppViewModel+CloudLibraryMove.swift").read_text()
+activity = (ROOT / "Sources/NXLibrary/Views/Shell/ActivityCenterView.swift").read_text()
+assert "case .build: return viewModel.isBuilding && !porting.isInstallingBuild" in activity
+assert "case .move: return cloudLibrary.libraryMove?.canCancel == true" in activity
 
 
-def declaration(signature):
+def declaration(signature, source=source):
     start = source.index(signature)
     opening = source.index("{", start)
     depth, end = 1, opening + 1
@@ -34,6 +38,8 @@ struct BuildService {
     var acceptsCancellation = false
     @discardableResult func cancel() -> Bool { acceptsCancellation }
 }
+struct LibraryMoveRequest {}
+// MOVE_STATE
 struct BuildHost {
     struct App {
         struct Cloud { var isChangingConnection = false; var isWorking = false; func conflicts(with: Int) -> Bool { false } }
@@ -73,6 +79,13 @@ require(!fixture.isCancellingBuild && fixture.app.logs.isEmpty,
 fixture.buildService?.acceptsCancellation = true
 fixture.cancelBuild()
 require(fixture.isCancellingBuild, "a cancellation accepted by the worker is shown")
+var move = LibraryMoveActivity(id: UUID(), request: LibraryMoveRequest())
+require(move.canCancel, "a move can be cancelled before completion")
+move.isCancelling = true
+require(!move.canCancel, "a cancelling move cannot be cancelled again")
+move.isCancelling = false
+move.fraction = 1
+require(!move.canCancel, "a finishing move cannot be cancelled")
 if failures != 0 { exit(1) }
 print("Build gates: engine switch, cancellation: PASS")
 """
@@ -81,6 +94,7 @@ with tempfile.TemporaryDirectory(prefix="arcane-build-gate-") as directory:
     main = Path(directory) / "main.swift"
     executable = main.with_suffix("")
     rules = [declaration("private func checkBuildIdle("), declaration("func cancelBuild(").replace("func cancelBuild(", "mutating func cancelBuild(", 1)]
-    main.write_text(host.replace("// RULES", "\n".join(rules)))
+    main.write_text(host.replace("// RULES", "\n".join(rules))
+                    .replace("// MOVE_STATE", declaration("struct LibraryMoveActivity", move_source)))
     subprocess.run(["xcrun", "swiftc", str(main), "-o", str(executable)], check=True)
     subprocess.run([str(executable)], check=True)

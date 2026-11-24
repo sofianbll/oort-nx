@@ -130,7 +130,8 @@ func links(_ app: URL) throws -> [String: String] {
         try require(!link.hasPrefix("/"))
         try require(fm.fileExists(atPath: file.path))
         let resolved = file.resolvingSymlinksInPath().path
-        try require(resolved.hasPrefix(app.appendingPathComponent("Contents/PlugIns").path + "/"))
+        let plugins = app.appendingPathComponent("Contents/PlugIns").resolvingSymlinksInPath().path
+        try require(resolved.hasPrefix(plugins + "/"))
         return (top, link)
     })
 }

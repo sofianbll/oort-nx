@@ -100,6 +100,13 @@ import ArcanePorting
         }
         let french = AppLocale(language: .french, region: "FR")
         L10n.setContext(french)
+        for (name, enabled) in [("off", false), ("on", true)] {
+            try render("first-launch-steam-\(name)",
+                       FoundGamesSetupView(viewModel: vm, steamRoot: data, steamEnabled: enabled,
+                                           onOpenLibrary: { _ in },
+                                           fixtureFindings: .init(steamGameCount: 2, portedAppCount: 0))
+                           .environment(\.nxAppLocale, french), in: out, refs, "none")
+        }
         try render("03-wizard-edit-name", ZStack {
             SeleneBackdrop().still(true)
             ProfileEditorView(profile: sam, games: [], isNew: false, nameOnly: true, onCancel: {}, onSave: { _ in true })
@@ -1327,6 +1334,11 @@ def main():
                 r'public static var preferences: UserDefaults \{ \.standard \}',
                 'public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
         replace(app / "Views/Shell/MenuOverlayView.swift", r"var presented = false", "var presented = true")
+        replace(app / "Views/Setup/FoundGamesSetupView.swift", r"    var findings: FirstRunFindings\? \{ reader.findings \}",
+                "    var fixtureFindings: FirstRunFindings? = nil\n"
+                "    var findings: FirstRunFindings? { fixtureFindings ?? reader.findings }")
+        replace(app / "Views/Setup/FoundGamesSetupView.swift", r"            reader.start\(steamRoot:[^\n]+",
+                "            if fixtureFindings == nil { reader.start(steamRoot: steamRoot, appsFolder: viewModel.gameAppsFolder) }")
         activity = app / "Views/Shell/ActivityCenterView.swift"
         replace(activity, r"                ScrollViewReader \{ scroll in\n                    ScrollView \{\n", "")
         replace(activity, r"                    }\n                    \.padding\(EdgeInsets.*?\.onChange\(of: focused\)[^\n]*\n                }\n", "")

@@ -7,6 +7,7 @@ struct LibraryMoveActivity {
     let request: LibraryMoveRequest
     var fraction: Double?
     var isCancelling = false
+    var canCancel: Bool { !isCancelling && (fraction ?? 0) < 1 }
 }
 
 extension AppViewModel {
@@ -62,7 +63,7 @@ extension AppViewModel {
     }
 
     @MainActor func cancelLibraryMove(_ id: UUID) {
-        guard cloudLibrary.libraryMove?.id == id else { return }
+        guard let move = cloudLibrary.libraryMove, move.id == id, move.canCancel else { return }
         cloudLibrary.libraryMove?.isCancelling = true
     }
 }

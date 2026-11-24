@@ -215,7 +215,7 @@ struct ActivityCenterView: View {
         switch row {
         case .build: return viewModel.isBuilding && !porting.isInstallingBuild
             && row.canCancel(isCancellingBuild: porting.isCancellingBuild)
-        case .move: return cloudLibrary.libraryMove?.isCancelling == false
+        case .move: return cloudLibrary.libraryMove?.canCancel == true
         case .cloud, .queuedCloud: return transferIndicator(row)?.state.transfer()?.canCancel == true
         default: return row.canCancel(isCancellingBuild: porting.isCancellingBuild)
         }

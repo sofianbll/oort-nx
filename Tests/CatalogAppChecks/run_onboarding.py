@@ -70,6 +70,7 @@ final class Host {
     var showSetupCheck = false
     var isBuilding = false
     var isCancellingBuild = false
+    var isInstallingBuild = false
     var app: Host { self }
     let gameAppsFolder = URL(fileURLWithPath: "/synthetic/apps")
     init() {
