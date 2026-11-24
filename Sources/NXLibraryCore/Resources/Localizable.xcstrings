@@ -4233,6 +4233,17 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法读取以下云端游戏记录：%@。"}}
       }
     },
+    "Previous destination: %@": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Previous destination: %@"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Destinazione precedente: %@"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Destination précédente : %@"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Vorheriges Ziel: %@"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Destino anterior: %@"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Destino anterior: %@"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "原目标位置：%@"}}
+      }
+    },
     "Open Cloud library to review and confirm this transfer again.": {
       "localizations": {
         "de": {"stringUnit": {"state": "translated", "value": "Öffne die Cloud-Bibliothek, um diese Übertragung zu prüfen und erneut zu bestätigen."}},

@@ -690,7 +690,10 @@ extension AppViewModel {
                     self.recordCloudReconfirmation(entry, name: game.name)
                     continue
                 }
-                guard approvedStorage == storage else { continue }
+                guard approvedStorage == storage else {
+                    if entry.action.isUpload { self.recordCloudReconfirmation(entry, name: game.name) }
+                    continue
+                }
                 self.cloudLibrary.reads[game.id]?.task.cancel()
                 self.cloudLibrary.reads[game.id] = nil
                 self.cloudLibrary.update(game.id) {
@@ -1139,7 +1142,7 @@ extension AppViewModel {
 
     @MainActor func retryCloudOperation(_ entry: CloudTransferQueue.Entry, token: UUID) -> Bool {
         if entry.storage == nil || entry.action.isUpload {
-            showSettingsNotice(title: L10n.text("Cloud library"), message: cloudReconfirmationMessage)
+            showSettingsNotice(title: L10n.text("Cloud library"), message: cloudReconfirmationMessage(for: entry))
             return true
         }
         guard entry.storage == cloudLibrary.storageScope(for: entry.action),
@@ -1147,12 +1150,14 @@ extension AppViewModel {
         return enqueueCloudLibrary(entry.action, for: game, retryToken: token)
     }
 
-    private var cloudReconfirmationMessage: String {
-        L10n.text("Open Cloud library to review and confirm this transfer again.")
+    private func cloudReconfirmationMessage(for entry: CloudTransferQueue.Entry) -> String {
+        let message = L10n.text("Open Cloud library to review and confirm this transfer again.")
+        guard let previous = entry.storage, previous != cloudLibrary.storageScope(for: entry.action) else { return message }
+        return [message, L10n.format("Previous destination: %@", [previous])].joined(separator: "\n")
     }
 
     @MainActor private func recordCloudReconfirmation(_ entry: CloudTransferQueue.Entry, name: String) {
-        let reason = cloudReconfirmationMessage
+        let reason = cloudReconfirmationMessage(for: entry)
         cloudLibrary.update(entry.id) {
             $0.action = nil; $0.queued = false; $0.progress = nil
             $0.issue = (entry.action.item(during: nil), reason, true)

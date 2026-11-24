@@ -595,6 +595,22 @@ AUDIT_QUEUE = r'''
         }
         let expectedStorage = vm.cloudLibrary.storageScope(for: .uploadSources)
         precondition(expectedStorage != nil)
+        let movedUpload = CloudTransferQueue.Entry(id: game.id, action: .uploadSources, token: UUID(), storage: "old-drive:Old folder")
+        vm = try await reopen(movedUpload)
+        await vm.restoreActivity()
+        await vm.activityStore.flush()
+        let savedReconfirmation = await vm.activityStore.load()
+        if let moved = savedReconfirmation.first(where: { $0.id == movedUpload.token }) {
+            precondition(moved.job == .cloud(movedUpload))
+            vm.retryActivity(moved.id)
+            precondition(vm.settingsNotice?.message.contains("old-drive:Old folder") == true)
+            let restarted = try makeModel()
+            await restarted.restoreActivity()
+            precondition(restarted.activityResults.entries.filter { $0.id == moved.id }.count == 1)
+        } else {
+            failures.append("Changed upload destination silently removed the original queue token")
+        }
+        precondition(!fm.fileExists(atPath: remotePackage.path) && vm.cloudLibrary.active == nil)
         let interruptedUpload = CloudTransferQueue.Entry(id: game.id, action: .uploadSources, token: UUID(), storage: expectedStorage)
         let replacement = folder.appendingPathComponent("Replacement.nsp")
         try Data("other".utf8).write(to: replacement)
