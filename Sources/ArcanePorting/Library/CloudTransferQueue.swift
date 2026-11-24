@@ -48,6 +48,25 @@ public enum CloudQuitDecision: Equatable {
 
 /// Profile-local snapshot, with the interrupted operation at the head of the FIFO.
 public final class CloudTransferQueue: Sendable {
+    package struct RebuildSources: Codable, Equatable, Sendable {
+        package let titleID: String
+        package let registeredFiles: [GameFileItem]
+        package let directory: String
+        package let bytes: Int64
+        package let referenceSelection: CloudGameSources.ArchivedSelection?
+        package let referenceDate: Date?
+
+        package init(titleID: String, registeredFiles: [GameFileItem], directory: String, bytes: Int64,
+                     referenceSelection: CloudGameSources.ArchivedSelection? = nil, referenceDate: Date? = nil) {
+            self.titleID = titleID
+            self.registeredFiles = registeredFiles
+            self.directory = directory
+            self.bytes = bytes
+            self.referenceSelection = referenceSelection
+            self.referenceDate = referenceDate
+        }
+    }
+
     public struct Entry: Codable, Equatable, Sendable {
         public let id: UUID
         public let action: CloudLibraryAction
@@ -55,19 +74,21 @@ public final class CloudTransferQueue: Sendable {
         package let storage: String?
         package let sourceReference: String?
         package let driveScope: CloudDriveScope?
+        package let rebuildSources: RebuildSources?
 
         public init(id: UUID, action: CloudLibraryAction) {
             self.init(id: id, action: action, token: nil, storage: nil)
         }
 
         package init(id: UUID, action: CloudLibraryAction, token: UUID?, storage: String?, sourceReference: String? = nil,
-                     driveScope: CloudDriveScope? = nil) {
+                     driveScope: CloudDriveScope? = nil, rebuildSources: RebuildSources? = nil) {
             self.id = id
             self.action = action
             self.token = token
             self.storage = storage
             self.sourceReference = sourceReference
             self.driveScope = driveScope
+            self.rebuildSources = rebuildSources
         }
     }
 
