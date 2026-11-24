@@ -133,6 +133,21 @@ extension CloudSetupAssistant {
                ("settingsNoticeOverlay", "finishSettingsNotice", "presentLegacyNotice", "settingsNoticeInput")]
     probe = app / "SettingsConfirmationProbe.swift"
     shutil.copyfile(Path(__file__).with_name(probe.name), probe)
+    # Unfollow compares the displayed catalog revision with the on-disk revision.
+    replace(probe, r'        let vm = makeModel\(\)', """
+        let repository = CatalogRepository(store: .init(directory: root))
+        let catalog = try repository.load()
+        let vm = AppViewModel(settingsStore: settings, catalog: catalog, repository: repository)
+        vm.applyCatalog(catalog) // This harness disables catalog application in the initializer.
+""".strip("\n"))
+    replace(probe, r'        precondition\(model.preference.referenceFolder == nil && cloudWrites == 4\)', """
+        let unfollowDeadline = ContinuousClock.now + .seconds(10)
+        while model.isChangingConnection && ContinuousClock.now < unfollowDeadline {
+            try await Task.sleep(for: .milliseconds(15))
+        }
+        precondition(!model.isChangingConnection && model.preference.referenceFolder == nil && cloudWrites == 4,
+                     "Reference unfollow did not finish: \\(vm.settingsNotice?.message ?? "no error reported")")
+""".strip("\n"))
     append(probe, "\nextension SettingsConfirmationProbe.Input {\n" + "\n".join(methods) + "\n}\n")
 
 
@@ -154,9 +169,9 @@ def main():
         prepare(package)
         env = {key: value for key, value in os.environ.items() if not key.startswith(("GIT_", "RCLONE_"))}
         env.update(HOME=str(home), CFFIXED_USER_HOME=str(home), RCLONE_CONFIG=str(home / "rclone.conf"),
-                   GIT_CONFIG_NOSYSTEM="1", GIT_ALLOW_PROTOCOL="file")
+                   RCLONE_PASSWORD_COMMAND="/usr/bin/false", GIT_CONFIG_NOSYSTEM="1", GIT_ALLOW_PROTOCOL="file")
         font = ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"
-        subprocess.run(["swift", "run", "-j", "6", "--package-path", temp, "NXLibrary", str(output), str(font)],
+        subprocess.run(["swift", "run", "--jobs", "4", "--package-path", temp, "NXLibrary", str(output), str(font)],
                        env=env, check=True)
 
 
