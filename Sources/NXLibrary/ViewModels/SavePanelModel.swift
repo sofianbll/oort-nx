@@ -83,6 +83,8 @@ final class SavePanelModel: ObservableObject {
         issue = Issue(title: activity.failureTitle, message: error.localizedDescription)
     }
     private func acquire(activity: Activity = .refresh, recovering: Bool = false) -> Bool {
+        do { try viewModel.requireReadableSaveProfile() }
+        catch { report(error, during: activity); return false }
         guard profileID == viewModel.secondarySaveProfile, !busy, lease == nil, let tid = game.titleId,
               let location = try? viewModel.defaultSaveLocation(for: game),
               let token = viewModel.saveGate.begin(titleID: tid, recoveryLocation: location, recovering: recovering) else {
@@ -119,6 +121,7 @@ final class SavePanelModel: ObservableObject {
             var context: SaveContext?; var latestBackup: Date?; var bytes: Int64 = 0; var date: Date?; var error: Error?
             let running = RunningGameMonitor.runningApplication(for: self.game) != nil
             do {
+                try self.viewModel.requireReadableSaveProfile()
                 if SaveTransaction.needsRecovery(location: location) {
                     do { try self.transaction().recover(location: location) }
                     catch let caught { error = caught }
@@ -236,7 +239,7 @@ final class SavePanelModel: ObservableObject {
     }
     private func finishFailure(_ error: Error, clearPreview: Bool = false) {
         var recovery = false
-        if let location = leaseLocation {
+        if let location = leaseLocation, (try? viewModel.requireReadableSaveProfile()) != nil {
             if SaveTransaction.needsRecovery(location: location) {
                 do { try transaction().recover(location: location) } catch { recovery = true }
             }
@@ -249,11 +252,12 @@ final class SavePanelModel: ObservableObject {
         }
     }
     func showFolder() {
-        guard let context else { return }
+        guard canOpenFolder(), let context else { return }
         let url = context.location.directory(.account)
         NSWorkspace.shared.activateFileViewerSelecting([FileManager.default.fileExists(atPath: url.path) ? url : context.location.root])
     }
     func showBackups() {
+        guard canOpenFolder() else { return }
         viewModel.saveQueue.async {
             do {
                 let folder = try self.store.backupFolder(titleID: self.game.titleId ?? "")
@@ -265,6 +269,16 @@ final class SavePanelModel: ObservableObject {
             } catch {
                 DispatchQueue.main.async { self.report(error, during: .openFolder) }
             }
+        }
+    }
+    private func canOpenFolder() -> Bool {
+        do {
+            try viewModel.requireReadableSaveProfile()
+            guard profileID == viewModel.secondarySaveProfile else { throw SaveFailure.changed }
+            return true
+        } catch {
+            report(error, during: .openFolder)
+            return false
         }
     }
     func close() {

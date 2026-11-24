@@ -2,7 +2,7 @@ import Foundation
 import NXLibraryCore
 
 public enum SaveFailure: LocalizedError, Equatable {
-    case invalidTitleID, unsafePath, customSavePath, unreadableConfiguration
+    case invalidTitleID, unsafePath, customSavePath, unreadableConfiguration, profilesUnavailable
     case cloudEnabled(String), running, busy, changed, emptyImport, invalidSnapshot, recoveryRequired, cloudPullPending
     case io(String)
     public var errorDescription: String? {
@@ -11,6 +11,7 @@ public enum SaveFailure: LocalizedError, Equatable {
         case .unsafePath: return L10n.text("This save location contains a link or an unsafe path. Manage it in Finder.")
         case .customSavePath: return L10n.text("This game uses a custom save location. Manage it outside this panel.")
         case .unreadableConfiguration: return L10n.text("The game's save configuration could not be read.")
+        case .profilesUnavailable: return L10n.text("Profiles could not be loaded.")
         case .cloudEnabled(let origin): return L10n.format("Cloud saves are enabled in %@. Turn them off there before importing or restoring.", [L10n.text(origin)])
         case .running: return L10n.text("Close the game before managing its saves. Keep it closed until this operation finishes.")
         case .busy: return L10n.text("A save operation or app installation is in progress for this game.")

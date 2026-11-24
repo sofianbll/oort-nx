@@ -4,6 +4,10 @@ import ArcanePorting
 
 extension AppViewModel {
     func showAllSaveBackups() {
+        guard (try? requireReadableSaveProfile()) != nil else {
+            showSettingsNotice(title: L10n.text("Folder unavailable"), message: SaveFailure.profilesUnavailable.localizedDescription)
+            return
+        }
         do {
             try FileManager.default.createDirectory(at: saveBackupRoot, withIntermediateDirectories: true)
             NSWorkspace.shared.open(saveBackupRoot)
@@ -20,7 +24,12 @@ extension AppViewModel {
         guard let profiles = localProfiles, let active = profiles.active, active.id != profiles.originalID else { return nil }
         return active.id
     }
+    func requireReadableSaveProfile() throws {
+        let failed = Thread.isMainThread ? localProfiles?.failed : DispatchQueue.main.sync { self.localProfiles?.failed }
+        if failed == true { throw SaveFailure.profilesUnavailable }
+    }
     func profileSaveLocation(for game: PortedGame, profileID: UUID) throws -> SaveLocation {
+        try requireReadableSaveProfile()
         if profileID == localProfiles?.originalID { return try legacySaveLocation(for: game) }
         return try SaveLocation.profileLocation(titleID: game.titleId ?? "", profileID: profileID, in: AppData.supportRoot)
     }
@@ -28,6 +37,7 @@ extension AppViewModel {
         try SaveLocation.defaultLocation(titleID: game.titleId ?? "", home: FileManager.default.homeDirectoryForCurrentUser)
     }
     func saveContext(for game: PortedGame, launchProfileID: UUID? = nil) throws -> SaveContext {
+        try requireReadableSaveProfile()
         guard let id = game.titleId else { throw SaveFailure.invalidTitleID }
         func settings() -> (UUID?, String?) {
             let scoped: UUID? = if let launchProfileID {
@@ -66,13 +76,14 @@ extension AppViewModel {
                      version: game.versionString, buildID: CheatLocator.buildID(appURL: game.url))
     }
     func defaultSaveLocation(for game: PortedGame) throws -> SaveLocation {
+        try requireReadableSaveProfile()
         let scoped = Thread.isMainThread ? secondarySaveProfile : DispatchQueue.main.sync { self.secondarySaveProfile }
         if let scoped { return try SaveLocation.profileLocation(titleID: game.titleId ?? "", profileID: scoped, in: AppData.supportRoot) }
         return try legacySaveLocation(for: game)
     }
     /// Covers the complete replace operation, also when a successful build arrives from its background queue.
     func acquireSaveInstallLease(for game: PortedGame) -> (() -> Void)? {
-        guard let tid = game.titleId else { return nil }
+        guard (try? requireReadableSaveProfile()) != nil, let tid = game.titleId else { return nil }
         let location = try? defaultSaveLocation(for: game)
         if let location, SaveTransaction.needsRecovery(location: location) { return nil }
         guard let token = saveGate.begin(titleID: tid, recoveryLocation: location) else { return nil }
@@ -88,7 +99,7 @@ extension AppViewModel {
     func savesPermitPlay(_ game: PortedGame) -> Bool {
         guard let tid = game.titleId else { return true }
         if localProfiles?.failed == true {
-            alertMessage = SaveFailure.unreadableConfiguration.localizedDescription
+            alertMessage = SaveFailure.profilesUnavailable.localizedDescription
             return false
         }
         let location = try? defaultSaveLocation(for: game)
@@ -106,7 +117,7 @@ extension AppViewModel {
     /// Only app-owned journals for known games; no startup walk through save contents.
     func recoverSavesAtStartup() {
         // Imported launcher records do not authorize repair of a real game save.
-        guard !AppData.profile.isDevelopment else { return }
+        guard !AppData.profile.isDevelopment, (try? requireReadableSaveProfile()) != nil else { return }
         for game in libraryGames {
             guard let location = try? defaultSaveLocation(for: game), SaveTransaction.needsRecovery(location: location),
                   RunningGameMonitor.runningApplication(for: game) == nil,
