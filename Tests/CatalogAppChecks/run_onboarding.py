@@ -146,6 +146,24 @@ func require(_ ok: @autoclosure () -> Bool, _ message: String) {
 }
 let initialBoot = Host()
 require(NotificationRegistration.registered, "Startup registers notification click handling without requesting authorization")
+for savedPage in ["found", "requirements", "games"] {
+    for enabled in [false, true] {
+        for oldChoice in [true, false] {
+            AppData.preferences.removePersistentDomain(forName: AppData.domain)
+            AppData.preferences.set(savedPage, forKey: "NXLibrary_SetupPage")
+            AppData.preferences.set(oldChoice, forKey: "NXLibrary_SetupSteamChoice")
+            let model = Host()
+            let sources = Sources(enabled: enabled, root: URL(fileURLWithPath: "/synthetic/Steam"))
+            let page = FoundHost(model, steamEnabled: enabled)
+            require(page.steamOn == (oldChoice && enabled), "Legacy true reflects the configured source, legacy false stays off")
+            model.finish()
+            Shell(model: model, sources: sources).complete(true)
+            require(sources.configuration.isEnabled == (oldChoice && enabled),
+                    "Legacy automatic true never enables Steam or removes an already visible library")
+            require(AppData.preferences.object(forKey: "NXLibrary_SetupSteamChoice") == nil, "Finish retires the legacy key")
+        }
+    }
+}
 for value in [true, false] {
     AppData.preferences.removePersistentDomain(forName: AppData.domain)
     let before = Host()
@@ -159,6 +177,7 @@ for value in [true, false] {
     resumed.finish()
     require(resumed.firstRunSetup.steamChoice == value, "Shell can still apply the finishing choice")
     require(AppData.preferences.object(forKey: "NXLibrary_SetupSteamChoice") == nil, "Finishing removes saved choice")
+    require(AppData.preferences.object(forKey: "NXLibrary_SetupSteamExplicitChoice") == nil, "Finishing removes the new choice")
     require(Host().firstRunSetup.steamChoice == nil, "Completed setup does not inherit a stale choice")
 }
 for enabled in [true, false] {

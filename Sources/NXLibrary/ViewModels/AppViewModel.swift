@@ -90,7 +90,8 @@ final class AppViewModel: ObservableObject {
         static let allowUntestedToolchain = "NXLibrary_AllowUntestedToolchain"
         static let setupCompleted = "NXLibrary_SetupCompleted"
         static let setupPage = "NXLibrary_SetupPage"
-        static let setupSteamChoice = "NXLibrary_SetupSteamChoice"
+        static let legacySetupSteamChoice = "NXLibrary_SetupSteamChoice"
+        static let setupSteamChoice = "NXLibrary_SetupSteamExplicitChoice"
         /// A chosen engine folder other than ~/nxnative.
         static let savedEngineFolder = "NXLibrary_EngineFolder"
         static let newestEngineChoice = "NXLibrary_NewestEngineChoice"
@@ -180,6 +181,9 @@ final class AppViewModel: ObservableObject {
                 AppData.preferences.set(choice, forKey: StorageKeys.setupSteamChoice)
             } else {
                 AppData.preferences.removeObject(forKey: StorageKeys.setupSteamChoice)
+            }
+            if firstRunSetup.isCompleted {
+                AppData.preferences.removeObject(forKey: StorageKeys.legacySetupSteamChoice)
             }
         }
     }
@@ -321,9 +325,12 @@ final class AppViewModel: ObservableObject {
             if !changing { self?.porting.scheduleNextBuild() }
         }
         let didCompleteSetup = AppData.preferences.bool(forKey: StorageKeys.setupCompleted)
+        // 0.3.0 wrote true on detection, but only the player could write false.
+        let legacySteamChoice = AppData.preferences.object(forKey: StorageKeys.legacySetupSteamChoice) as? Bool
+        let explicitSteamChoice = AppData.preferences.object(forKey: StorageKeys.setupSteamChoice) as? Bool
         self.firstRunSetup = FirstRunSetup(completed: didCompleteSetup,
                                            savedPage: AppData.preferences.string(forKey: StorageKeys.setupPage),
-                                           savedSteamChoice: AppData.preferences.object(forKey: StorageKeys.setupSteamChoice) as? Bool)
+                                           savedSteamChoice: explicitSteamChoice ?? (legacySteamChoice == false ? false : nil))
         self.showSetupCheck = !didCompleteSetup
 
         // 1. Resolve safe root directory (anchored to SSD / Bundle, NEVER "/")

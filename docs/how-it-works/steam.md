@@ -37,6 +37,7 @@ documento da leggere prima di toccare qualunque parte Steam. `architecture.md` n
 - **Nessun gioco nxnative finto.** `CatalogGame` porta il record reale (`SteamCatalogGame`); i comandi Switch
   (build, salvataggi, mod) ricevono solo `PortedGame` e non possono partire da un gioco Steam.
 - **Fonte opzionale.** Con la fonte Steam spenta non partono scansioni o watcher del catalogo. La scoperta del primo avvio e l’offerta del benvenuto leggono soltanto per proporre la scelta, senza attivare la fonte; usano la cartella Steam salvata oppure quella standard. Una lettura incompleta nel primo avvio offre Retry, senza indicare che i giochi sono assenti.
+- **Setup ripreso.** Un vecchio valore acceso non prova una scelta e non attiva una fonte spenta. Una fonte già configurata e attiva resta tale, salvo esplicita scelta di spegnerla.
 
 ## File di Steam letti
 
