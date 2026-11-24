@@ -14,7 +14,7 @@ package struct CatalogPublication {
         self.publish = publish
     }
 
-    private static func synchronize(_ directory: URL) throws {
+    static func synchronize(_ directory: URL) throws {
         let fd = open(directory.path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
         guard fd >= 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
         defer { close(fd) }

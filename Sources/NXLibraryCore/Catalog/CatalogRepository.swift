@@ -1,4 +1,5 @@
 import Foundation
+import Darwin
 
 public enum CatalogRepositoryError: Error, Equatable { case gameNotFound }
 
@@ -21,6 +22,15 @@ public struct CatalogRepository {
         var draft = current
         guard try change(&draft) else { return current }
         return try store.save(draft, expectedRevision: current.revision)
+    }
+
+    package func transactionRemovingFiles(from original: CatalogDocument, gameID: UUID, files: [URL],
+                                          beforeTrash: () throws -> Void,
+                                          _ change: (inout CatalogDocument) throws -> Void) throws -> CatalogDocument {
+        var draft = original
+        try change(&draft)
+        guard !files.isEmpty else { return try store.save(draft, expectedRevision: original.revision) }
+        return try store.removeFiles(from: original, saving: draft, gameID: gameID, files: files, beforeTrash: beforeTrash)
     }
 }
 

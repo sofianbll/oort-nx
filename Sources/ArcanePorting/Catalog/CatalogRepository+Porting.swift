@@ -154,14 +154,27 @@ extension CatalogRepository {
     }
 
     public func removeNXNative(id: UUID) throws -> CatalogDocument {
-        try transaction { document in
-            guard let index = document.games.firstIndex(where: { $0.id == id }) else { throw CatalogRepositoryError.gameNotFound }
-            guard let game = document.games[index].nxnativeGame else { throw CatalogModelError.wrongIntegration }
-            if let title = game.titleId, SaveLocation.validID(title) {
-                document.cloudImportExclusions = (document.cloudImportExclusions ?? []).union([title.uppercased()])
+        try transaction { try Self.removeNXNative(id: id, from: &$0) }
+    }
+
+    package func removeNXNativeFiles(id: UUID, from catalog: CatalogDocument, files: [URL], keeping game: PortedGame?,
+                                      beforeTrash: () throws -> Void) throws -> CatalogDocument {
+        try transactionRemovingFiles(from: catalog, gameID: id, files: files, beforeTrash: beforeTrash) { document in
+            guard let game else { return try Self.removeNXNative(id: id, from: &document) }
+            guard let index = document.games.firstIndex(where: { $0.id == id }) else {
+                throw CatalogRepositoryError.gameNotFound
             }
-            document.games.remove(at: index)
+            try document.games[index].updateNXNative(game)
         }
+    }
+
+    private static func removeNXNative(id: UUID, from document: inout CatalogDocument) throws {
+        guard let index = document.games.firstIndex(where: { $0.id == id }) else { throw CatalogRepositoryError.gameNotFound }
+        guard let game = document.games[index].nxnativeGame else { throw CatalogModelError.wrongIntegration }
+        if let title = game.titleId, SaveLocation.validID(title) {
+            document.cloudImportExclusions = (document.cloudImportExclusions ?? []).union([title.uppercased()])
+        }
+        document.games.remove(at: index)
     }
 
     /// Records an app after the archive service has verified and published it.

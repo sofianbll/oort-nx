@@ -1,3 +1,4 @@
+import Darwin
 import XCTest
 @testable import NXLibraryCore
 @testable import ArcanePorting
@@ -13,6 +14,150 @@ final class NXNativeCatalogPersistenceTests: XCTestCase {
 
     override func tearDownWithError() throws {
         try? FileManager.default.removeItem(at: dir)
+    }
+
+    func testRemovalRefusesRepeatedPhysicalSourcesBeforePublication() throws {
+        let fm = FileManager.default
+        for keeping in [true, false] {
+            for names in [("fixture.nsp", "FIXTURE.nsp"), ("café.nsp", "cafe\u{301}.nsp"),
+                          ("first.nsp", "hardlink.nsp"), ("same.nsp", "same.nsp")] {
+                let root = dir.appendingPathComponent(UUID().uuidString)
+                let (repo, trash) = try removalFixture(at: root)
+                let first = root.appendingPathComponent(names.0), second = root.appendingPathComponent(names.1)
+                let bytes = names.0 == "first.nsp" ? Data() : Data([17])
+                try bytes.write(to: first)
+                if names.1 == "hardlink.nsp" { try fm.linkItem(at: first, to: second) }
+                guard fm.fileExists(atPath: second.path) else { continue } // Case-equivalence depends on the volume.
+                let game = removalGame(in: root, sources: [first, second])
+                let base = try repo.updateNXNativeGames { $0 = [game] }
+                var detached = game
+                detached.sources = []
+                XCTAssertThrowsError(try repo.removeNXNativeFiles(id: game.id, from: base, files: [first, second],
+                                                                 keeping: keeping ? detached : nil) {
+                    XCTFail("An ambiguous selection reached the Trash phase")
+                    throw CocoaError(.fileWriteNoPermission)
+                }) { error in
+                    guard case .duplicateFiles? = error as? CatalogRemovalFailure else {
+                        return XCTFail("Unexpected error \(error)")
+                    }
+                }
+                XCTAssertEqual(try repo.load(), base)
+                XCTAssertFalse(fm.fileExists(atPath: root.appendingPathComponent("catalog-removal-pending.json").path))
+                XCTAssertEqual(try fm.contentsOfDirectory(atPath: trash.path), [])
+                XCTAssertEqual(try Data(contentsOf: first), bytes)
+                XCTAssertEqual(try Data(contentsOf: second), bytes)
+            }
+        }
+    }
+
+    func testRemovalAllowsDistinctCaseVariantsAndZeroByteFilesOnCaseSensitiveAPFS() throws {
+        guard let path = ProcessInfo.processInfo.environment["NX_TEST_CASE_SENSITIVE_ROOT"] else {
+            throw XCTSkip("Set NX_TEST_CASE_SENSITIVE_ROOT to a disposable case-sensitive APFS mount")
+        }
+        let root = URL(fileURLWithPath: path).appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let (repo, trash) = try removalFixture(at: root)
+        let first = root.appendingPathComponent("fixture.nsp"), second = root.appendingPathComponent("FIXTURE.nsp")
+        try Data().write(to: first, options: .withoutOverwriting)
+        try Data([42]).write(to: second, options: .withoutOverwriting)
+        var game = removalGame(in: root, sources: [first, second])
+        let base = try repo.updateNXNativeGames { $0 = [game] }
+        let nfc = root.appendingPathComponent("café.nsp"), nfd = root.appendingPathComponent("cafe\u{301}.nsp")
+        try Data([3]).write(to: nfc)
+        XCTAssertThrowsError(try repo.removeNXNativeFiles(id: game.id, from: base, files: [nfc, nfd], keeping: game) {
+            XCTFail("APFS case sensitivity does not make the two Unicode spellings distinct")
+            throw CocoaError(.fileWriteNoPermission)
+        }) { error in
+            guard case .duplicateFiles? = error as? CatalogRemovalFailure else {
+                return XCTFail("Unexpected error \(error)")
+            }
+        }
+        game.sources = []
+        _ = try repo.removeNXNativeFiles(id: game.id, from: base, files: [first, second], keeping: game) {}
+        let fm = FileManager.default
+        XCTAssertEqual(try repo.load().nxnativeGames.first?.sources, [])
+        XCTAssertFalse(fm.fileExists(atPath: first.path))
+        XCTAssertFalse(fm.fileExists(atPath: second.path))
+        let buckets = try fm.contentsOfDirectory(at: trash, includingPropertiesForKeys: nil)
+        let moved = try buckets.flatMap { try fm.contentsOfDirectory(at: $0, includingPropertiesForKeys: nil) }
+        XCTAssertEqual(moved.count, 2)
+        XCTAssertEqual(try moved.map { try Data(contentsOf: $0).count }.sorted(), [0, 1])
+    }
+
+    func testReopeningLegacyRemovalRestoresAliasesWithoutOverwritingOrInventingMissingLinks() throws {
+        let fm = FileManager.default
+        for (firstName, secondName, obstruction) in [
+            ("fixture.nsp", "FIXTURE.nsp", "none"),
+            ("café.nsp", "cafe\u{301}.nsp", "none"),
+            ("café.nsp", "cafe\u{301}.nsp", "replacement"),
+            ("first.nsp", "hardlink.nsp", "missing link"),
+        ] {
+            let root = dir.appendingPathComponent(UUID().uuidString)
+            let (repo, trash) = try removalFixture(at: root)
+            let first = root.appendingPathComponent(firstName), second = root.appendingPathComponent(secondName)
+            let bytes = firstName == "café.nsp" ? Data() : Data([42])
+            try bytes.write(to: first)
+            if obstruction == "missing link" { try fm.linkItem(at: first, to: second) }
+            guard fm.fileExists(atPath: second.path) else { continue }
+            let game = removalGame(in: root, sources: [first, second])
+            let base = try repo.updateNXNativeGames { $0 = [game] }
+            let moved = try repo.removeNXNative(id: game.id)
+            let journal = root.appendingPathComponent("catalog-removal-pending.json")
+            let targets = [first, second].enumerated().map { index, source in
+                trash.appendingPathComponent("bucket-\(index)").appendingPathComponent(source.lastPathComponent)
+            }
+            let items = try zip([first, second], targets).map { source, target -> [String: Any] in
+                ["source": source.absoluteString, "target": target.absoluteString, "identity": try removalIdentity(source),
+                 "origin": try removalIdentity(root), "trash": try removalIdentity(trash)]
+            }
+            let record = try JSONSerialization.jsonObject(with: JSONEncoder().encode(base.games[0]))
+            try JSONSerialization.data(withJSONObject: [
+                "version": 1, "original": base.revision.uuidString, "moved": moved.revision.uuidString,
+                "restored": UUID().uuidString, "record": record, "index": 0, "items": items,
+            ]).write(to: journal)
+            try fm.createDirectory(at: targets[0].deletingLastPathComponent(), withIntermediateDirectories: false)
+            try fm.moveItem(at: first, to: targets[0])
+            if obstruction == "replacement" { try Data([99]).write(to: first) }
+            if obstruction == "missing link" { try fm.removeItem(at: second) }
+            if obstruction == "none" {
+                let reopened = try repo.load()
+                XCTAssertEqual(reopened.games, base.games)
+                XCTAssertEqual(reopened.cloudImportExclusions, base.cloudImportExclusions)
+                XCTAssertFalse(fm.fileExists(atPath: journal.path))
+                XCTAssertEqual(try Data(contentsOf: first), bytes)
+                XCTAssertEqual(try Data(contentsOf: second), bytes)
+                XCTAssertEqual(try fm.contentsOfDirectory(atPath: trash.path), [])
+            } else {
+                XCTAssertThrowsError(try repo.load()) { XCTAssertTrue($0 is CatalogRemovalRecovery) }
+                XCTAssertTrue(fm.fileExists(atPath: journal.path))
+                XCTAssertEqual(try Data(contentsOf: first), obstruction == "replacement" ? Data([99]) : bytes)
+                if obstruction == "replacement" { XCTAssertEqual(try Data(contentsOf: targets[0]), bytes) }
+                else { XCTAssertFalse(fm.fileExists(atPath: second.path)) }
+            }
+        }
+    }
+
+    private func removalFixture(at root: URL) throws -> (CatalogRepository, URL) {
+        let trash = root.appendingPathComponent("Fixture Trash")
+        try FileManager.default.createDirectory(at: trash, withIntermediateDirectories: true)
+        let store = CatalogStore(directory: root, publication: .atomic, kinds: .standard, legacy: nil,
+                                 removalTrashDirectory: { _ in trash })
+        return (CatalogRepository(store: store), trash)
+    }
+
+    private func removalGame(in root: URL, sources: [URL]) -> PortedGame {
+        var game = PortedGame(name: "Fixture", url: root.appendingPathComponent("Fixture.app"),
+                              platform: .macApp, sizeBytes: 1, modificationDate: .now, titleId: "0100000000000001")
+        game.sources = sources.map { .init(url: $0, kind: .base, sizeBytes: 1) }
+        return game
+    }
+
+    // On-disk version-1 journal fixture, independent of the current writer.
+    private func removalIdentity(_ url: URL) throws -> [String: Any] {
+        var node = stat()
+        guard lstat(url.path, &node) == 0 else { throw CocoaError(.fileReadNoSuchFile) }
+        return ["device": node.st_dev, "inode": node.st_ino, "type": node.st_mode & mode_t(S_IFMT),
+                "birthSeconds": node.st_birthtimespec.tv_sec, "birthNanoseconds": node.st_birthtimespec.tv_nsec]
     }
 
     func testExplicitSelectionReplacesExistingSourcesAndSurvivesLaterScans() throws {
