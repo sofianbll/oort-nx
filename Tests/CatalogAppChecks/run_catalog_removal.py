@@ -20,9 +20,9 @@ import NXLibraryCore
 import ArcanePorting
 
 @main struct RemovalProbe {
-    @MainActor static func main() throws {
+    @MainActor static func main() async throws {
         if CommandLine.arguments.count == 5 {
-            try cutProbe()
+            try await cutProbe()
             return
         }
         let root = AppData.supportRoot
@@ -117,13 +117,51 @@ import ArcanePorting
         try CatalogStore.decode(Data(contentsOf: folder.appendingPathComponent("catalog.json")), kinds: .standard)
     }
 
-    static func cutProbe() throws {
+    @MainActor static func cutProbe() async throws {
         let args = CommandLine.arguments
-        let mode = args[1], folder = URL(fileURLWithPath: args[2], isDirectory: true)
+        let mode = args[1]
+        let upgrading = mode.hasPrefix("upgrade-")
+        let folder = upgrading ? AppData.supportRoot : URL(fileURLWithPath: args[2], isDirectory: true)
         let fm = FileManager.default
         let repository = CatalogRepository(store: .init(directory: folder))
         let files = [folder.appendingPathComponent("Fixture.app"), folder.appendingPathComponent("fixture.nsp")]
         let marker = folder.appendingPathComponent("catalog-removal-pending.json")
+        let setup = AppSettingsStore(fileURL: folder.appendingPathComponent("settings.json"))
+        if upgrading {
+            AppData.preferences.set(true, forKey: AppViewModel.StorageKeys.setupCompleted)
+            setup.settings.checkEngineAtLaunch = false
+            setup.settings.refreshLibraryAtLaunch = false
+        }
+        if mode == "upgrade-open" {
+            precondition(fm.fileExists(atPath: marker.path) == (args[3] == "first"))
+            let initial = try repository.load()
+            precondition(!fm.fileExists(atPath: marker.path) && initial.nxnativeGames.count == 2)
+            for source in files {
+                let contents = try Data(contentsOf: source)
+                precondition(contents == Data(source.lastPathComponent.utf8), "Interrupted removal must recover the original bytes")
+            }
+            let profiles = LocalProfileStore(directory: folder, settings: setup.settings, name: "Unexpected")
+            precondition(profiles.active?.name == "Fixture 0.3.0")
+            let model = AppViewModel(settingsStore: setup, catalog: initial, repository: repository, localProfiles: profiles)
+            model.cloudLibrary.installUpgradeArchive()
+            model.installPendingBuilds()
+            model.restoreCloudQueue()
+            for _ in 0..<400 where model.cloudLibrary.isRestoringQueue { try await Task.sleep(for: .milliseconds(10)) }
+            precondition(model.cloudLibrary.hasRestoredQueue && model.cloudLibrary.active == nil)
+            let history = await model.activityStore.load()
+            let queue = await model.cloudLibrary.queueStore.load()
+            let pending = try repository.load().nxnativeGames.first { $0.name == "Pending" }?.pendingInstall
+            let token = UUID(uuidString: "7E9792C9-6A86-4F6E-A26D-0F1B67D28C6A")!
+            let reconfirmed = history.filter { $0.id == token }
+            precondition(queue.isEmpty && reconfirmed.count == 1, "Exactly one durable reconfirmation must replace the old queue row")
+            guard case .cloud(let saved) = reconfirmed[0].job else { preconditionFailure("Wrong history entry") }
+            precondition(saved.storage == "old-drive:Old folder" && saved.action == .upload(.app))
+            precondition(pending?.expectedDestination == nil && model.gameWithInstallFailure != nil)
+            precondition(BuildOutputInstaller.version(of: pending!.finalApp) == "9.0")
+            precondition(BuildOutputInstaller.version(of: pending!.tempApp) == "1.2")
+            print("0.3.0 startup \(args[3]): recovered Trash, retained old cloud destination once, kept staged build and foreign app")
+            return
+        }
         if mode == "restart" {
             let current = try repository.load()
             let committed = args[3] == "committed"
@@ -161,7 +199,32 @@ import ArcanePorting
         for file in files { try Data(file.lastPathComponent.utf8).write(to: file) }
         let game = PortedGame(name: "Synthetic", url: files[0], platform: .macApp, sizeBytes: 7,
                               modificationDate: .now, titleId: "0100123456789ABC")
-        let initial = try repository.updateNXNativeGames { $0 = [game] }
+        var games = [game]
+        if mode == "upgrade-seed" {
+            _ = LocalProfileStore(directory: folder, settings: setup.settings, name: "Fixture 0.3.0")
+            let final = folder.appendingPathComponent("Occupied.app")
+            let staged = folder.appendingPathComponent("staging/New.app")
+            for (app, version) in [(final, "9.0"), (staged, "1.2")] {
+                let plist = app.appendingPathComponent("Contents/Info.plist")
+                try fm.createDirectory(at: plist.deletingLastPathComponent(), withIntermediateDirectories: true)
+                let data = try PropertyListSerialization.data(fromPropertyList: ["CFBundleShortVersionString": version],
+                                                               format: .xml, options: 0)
+                try data.write(to: plist)
+            }
+            var other = PortedGame(name: "Pending", url: final, platform: .macApp, sizeBytes: 1,
+                                   modificationDate: .now, titleId: "0100123456789ABD")
+            let record = BuildRecord(startedAt: .now, endedAt: .now, exitCode: 0, outputPath: final.path,
+                                     toolchainVerified: true)
+            // Omitting the optional identity writes exactly the legacy PendingInstall JSON shape.
+            other.pendingInstall = PendingInstall(tempApp: staged, finalApp: final, record: record, toolchain: .init())
+            games.append(other)
+            let oldQueue = CloudTransferQueue()
+            oldQueue.save([.init(id: other.id, action: .upload(.app),
+                                 token: UUID(uuidString: "7E9792C9-6A86-4F6E-A26D-0F1B67D28C6A")!,
+                                 storage: "old-drive:Old folder")])
+            await oldQueue.flush()
+        }
+        let initial = try repository.updateNXNativeGames { $0 = games }
         RemovalFixture.cut = Int(args[4])!
         if args[3] == "rollback" { RemovalFixture.failTrash = 2 }
         do {
@@ -195,6 +258,19 @@ import ArcanePorting
             throw CocoaError(.fileWriteUnknown)
         }
         try png.write(to: destination)
+    }
+}
+'''
+
+UPGRADE_CLOUD = r'''
+extension CloudLibraryModel {
+    func installUpgradeArchive() {
+        let local = RcloneStorageBackend(remote: "fixture", root: "New folder") { _, args, _ in
+            precondition(args.first == "lsjson", "A legacy upload must never write to the remote")
+            return .init(status: 0, stdout: "[]", stderr: "")
+        }
+        backend = local
+        archive = CloudGameArchive(backend: local)
     }
 }
 '''
@@ -261,9 +337,18 @@ with tempfile.TemporaryDirectory(prefix="catalog-removal-") as temp:
     replace(app / "ViewModels/AppViewModel.swift", r"        applyCatalog\(catalog\).*?\n    }\n\n    // MARK: - Dynamic",
             "        applyCatalog(catalog)\n    }\n\n    // MARK: - Dynamic")
     replace(core / "App/AppDataProfile.swift", r"public static let profile = [^\n]*",
-            f'public static let profile = AppDataProfile(home: URL(fileURLWithPath: "{temp}"), isDevelopment: true)')
+            f'''public static let profile = {{
+        let args = CommandLine.arguments
+        if args.count == 5, args[1].hasPrefix("upgrade-") {{
+            return AppDataProfile(home: URL(fileURLWithPath: args[2]), isDevelopment: false)
+        }}
+        return AppDataProfile(home: URL(fileURLWithPath: "{temp}"), isDevelopment: true)
+    }}()''')
     replace(core / "App/AppDataProfile.swift", r"public static var preferences: UserDefaults \{ \.standard \}",
-            f'public static let preferences = UserDefaults(suiteName: "local.arcane.{package.name}")!')
+            'public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("fixture-prefs").path)!')
+    cloud = app / "ViewModels/AppViewModel+CloudLibrary.swift"
+    with cloud.open("a") as swift:
+        swift.write(UPGRADE_CLOUD)
     replace(core / "Catalog/CatalogStore.swift", r"try publication\.publish\(candidate,",
             "if RemovalFixture.failPublication { throw CocoaError(.fileWriteNoPermission) }\n        try publication.publish(candidate,")
     removal = core / "Catalog/CatalogStore+Removal.swift"
@@ -320,4 +405,11 @@ with tempfile.TemporaryDirectory(prefix="catalog-removal-") as temp:
     fixture = package / "collision"
     assert subprocess.run([app_probe, "cut", fixture, "rollback", first_rename], env=env, capture_output=True).returncode == 79
     subprocess.run([app_probe, "collision", fixture, "undone", "0"], check=True, env=env)
+    home = package / "upgrade"
+    profile = home / "Library/Application Support/NXLibrary"
+    profile.mkdir(parents=True)
+    cut = subprocess.run([app_probe, "upgrade-seed", home, "success", first_rename], capture_output=True, env=env)
+    assert cut.returncode == 79, (cut.stdout, cut.stderr)
+    for launch in ("first", "second"):
+        subprocess.run([app_probe, "upgrade-open", home, launch, "0"], check=True, env=env)
     print(f"{sum(coverage.values())} forced process exits at write boundaries: {dict(coverage)}; competing writer and substituted Trash path rejected.")
