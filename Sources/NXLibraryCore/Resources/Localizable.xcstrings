@@ -58885,6 +58885,53 @@
         }
       }
     },
+    "Python could not start": {
+      "comment": "PortingFailureReason.swift",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Python could not start"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile avviare Python"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Python n’a pas pu démarrer"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Python konnte nicht gestartet werden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo iniciar Python"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível iniciar o Python"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Python 无法启动"
+          }
+        }
+      }
+    },
     "Python venv": {
       "comment": "CompatibilityChecker.swift",
       "localizations": {
