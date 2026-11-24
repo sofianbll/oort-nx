@@ -835,6 +835,7 @@ Prove e misure di queste scelte: [docs/history/reviews/2026-11-16-ratings-metada
 ## Interfaccia Selene e input
 
 - Collection vuota mantiene il focus sulle due azioni disponibili, con un suggerimento A che nomina quella selezionata.
+- A ogni composizione, Collection riusa la stessa lista ordinata per copertine, selezione, suggerimenti e identità dell’immagine Steam. Dopo un’attesa, il caricamento verifica la selezione corrente.
 - Il focus del pannello di ordinamento vive nel router: finché il pannello è aperto, la shell disattiva e rifiuta Gioca, Dettagli e Opzioni del menu nativo.
 - Spotlight consuma le richieste di selezione sulla rotta attiva anche quando la vista è già montata; con Aggiungi gioco o la console sovrapposti la richiesta resta nel router.
 - `StoreMetadataModel` precarica le descrizioni Switch su un task di utilità, dando precedenza al gioco a fuoco. Il main actor integra soltanto voci mancanti e della generazione di lingua corrente.
