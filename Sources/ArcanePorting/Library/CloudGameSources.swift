@@ -546,7 +546,8 @@ public final class CloudGameSources: @unchecked Sendable {
         try Task.checkCancellation()
     }
 
-    public func free(folderName: String, files: [URL], confirmed: Bool) async throws -> Int64 {
+    public func free(folderName: String, files: [URL], confirmed: Bool,
+                     beforeMutation: @Sendable () throws -> Void = {}) async throws -> Int64 {
         guard !backend.isReference else { throw StorageBackendError.invalidConfiguration }
         guard confirmed else { throw CloudArchiveError.confirmationRequired }
         let selection = try Selection(folderName, files)
@@ -569,6 +570,7 @@ public final class CloudGameSources: @unchecked Sendable {
             guard item?.md5 == md5, item?.size == snapshot.bytes else { throw CloudArchiveError.sourcesConflict }
             guard try stamp(at: source) == snapshot else { throw CloudArchiveError.localChanged }
             try Task.checkCancellation()
+            try beforeMutation()
             try trash(source)
         }
         try Task.checkCancellation()

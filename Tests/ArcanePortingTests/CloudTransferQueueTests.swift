@@ -3,6 +3,47 @@ import XCTest
 @testable import ArcanePorting
 
 final class CloudTransferQueueTests: XCTestCase {
+    func testPersistedFreeKeepsTheToolItWasApprovedWith() async throws {
+        let file = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: file) }
+        let data = Data(#"""
+        {"version":1,"entries":[
+          {"id":"00000000-0000-0000-0000-000000000001","action":{"free":{"_0":["app"]}},
+           "token":"00000000-0000-0000-0000-000000000002","storage":"fixture:Games","toolIdentity":"approved-copy"}
+        ]}
+        """#.utf8)
+        try data.write(to: file)
+        let store = CloudTransferQueue(file: file)
+        let loaded = await store.load()
+        XCTAssertEqual(loaded.first?.action, .free([.app]))
+        XCTAssertTrue(loaded.first?.permitsTool("approved-copy") == true)
+        XCTAssertFalse(loaded.first?.permitsTool("different-copy") == true)
+        XCTAssertFalse(loaded.first?.permitsTool(nil) == true)
+        XCTAssertFalse(CloudTransferQueue.Entry(id: UUID(), action: .free([.app])).permitsTool("approved-copy"))
+        store.save(loaded)
+        await store.flush()
+        XCTAssertTrue(String(decoding: try Data(contentsOf: file), as: UTF8.self).contains("approved-copy"))
+    }
+
+    func testToolIdentityChangesForADifferentExecutableOrMissingCopy() throws {
+        let files = FileManager.default
+        let directory = files.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try files.createDirectory(at: directory, withIntermediateDirectories: false)
+        defer { try? files.removeItem(at: directory) }
+        let tool = directory.appendingPathComponent("rclone")
+        let other = directory.appendingPathComponent("other-rclone")
+        let original = URL(fileURLWithPath: "/usr/bin/true")
+        try files.copyItem(at: original, to: tool)
+        try files.copyItem(at: original, to: other)
+        let approved = try XCTUnwrap(RcloneDownload.identity(of: tool))
+        XCTAssertEqual(RcloneDownload.identity(of: tool), approved)
+        XCTAssertNotEqual(RcloneDownload.identity(of: other), approved)
+        try files.removeItem(at: tool)
+        XCTAssertNil(RcloneDownload.identity(of: tool))
+        try files.moveItem(at: other, to: tool)
+        XCTAssertNotEqual(RcloneDownload.identity(of: tool), approved)
+    }
+
     func testLoadsPersistedEntriesWithRemovedOffer() async throws {
         let file = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: file) }

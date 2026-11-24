@@ -493,6 +493,8 @@ public struct RcloneStorageBackend: StorageBackend {
         return binary
     }
 
+    package var transferTool: URL? { try? binary() }
+
     private func run(_ arguments: [String], progress: (@Sendable (StorageProgress) -> Void)? = nil,
                      listingFolder: Bool = false, localDestination: URL? = nil,
                      checkingConfiguration: Bool = false, scopeProbe: Bool = false,

@@ -115,6 +115,17 @@ public struct RcloneDownload: Sendable {
         if let managed = managedCopy(tool), managed.installedExecutable == nil { throw Failure.integrity }
     }
 
+    package static func identity(of tool: URL) -> String? {
+        let path = tool.resolvingSymlinksInPath().path
+        guard RcloneStorageBackend.isExecutable(tool), (try? requireApproved(tool)) != nil else { return nil }
+        let fd = open(path, O_RDONLY | O_NOFOLLOW | O_CLOEXEC | O_NONBLOCK)
+        guard fd >= 0 else { return nil }
+        defer { close(fd) }
+        guard let stamp = try? stamp(fd) else { return nil }
+        return SHA256.hash(data: Data("\(tool.standardizedFileURL.path)\n\(path)\n\(stamp)".utf8))
+            .map { String(format: "%02x", $0) }.joined()
+    }
+
     final class Launchable {
         let url: URL
         private let scratch: URL?
