@@ -144,9 +144,9 @@ struct SettingsView: View {
             Task { @MainActor in viewModel.cloudLibrary.recovery = nil }
         }
         .onDisappear {
+            if !openedFromIntegrations { nextendo.cancelBrowser() }
             nextendo.isEditingClient = false
             nextendo.friendToRemove = nil
-            nextendo.cancelBrowser()
         }
         .task(id: engine) {
             guard let selected = engine else { nextendoEngine = nil; return }

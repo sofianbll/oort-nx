@@ -19,6 +19,16 @@ class IntegrationContract(unittest.TestCase):
         self.assertRegex(engine, r"if passiveArrival \{ setup.refreshCompatibility\(\) \}\s*else \{ setup.detectEnvironment\(\) \}")
         self.assertEqual(engine.count("setup.detectEnvironment()"), 1, "Both click and controller use the same re-check")
 
+    def test_nextendo_arrival_does_not_send_or_rotate_tokens(self):
+        api = (VIEWS / "Settings/SettingsAPISection.swift").read_text()
+        self.assertIn("!passiveArrival || nextendoRequested", api)
+        self.assertRegex(api, r"if canContactNextendo && supportsNextendo && accountOnly \{ nextendo.check")
+        self.assertRegex(api, r"\.onChange\(of: supportsNextendo\).*?\n\s*if canContactNextendo, accountOnly")
+        self.assertRegex(api, r"\.task\(id: canContactNextendo \? friendsRefreshClient : nil\) \{\s*guard canContactNextendo")
+        self.assertRegex(api, r"\.task\(id: passiveArrival \? nil : key\) \{\s*guard !passiveArrival, image == nil")
+        self.assertIn('.init("Check status", action: checkNextendo)', api)
+        self.assertRegex(api, r"func checkNextendo\(\) \{\s*nextendoRequested = true\s*nextendo.check\(clientID: clientID\)")
+
 
 if __name__ == "__main__":
     unittest.main()

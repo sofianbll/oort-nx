@@ -1482,7 +1482,7 @@ extension ProfilePage {
         replace(app / "Services/GameControllerService.swift", r"        gcSource.start\(\)\n        hidSource.start\(\)",
                 "        // The probe never starts physical controller discovery.")
         api = app / "Views/Settings/SettingsAPISection.swift"
-        replace(api, r"            if supportsNextendo && accountOnly \{ nextendo.check\(clientID: clientID\) \}", "")
+        replace(api, r"            if canContactNextendo && supportsNextendo && accountOnly \{ nextendo.check\(clientID: clientID\) \}", "")
         replace(api, r"@State private var friendsExpanded = false",
                 "@State private var friendsExpanded = true")
         replace(api, r'            TextField\(text\("Friend code"\).*?\n                \.onSubmit\(sendFriendCode\)',
