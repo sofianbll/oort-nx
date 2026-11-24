@@ -280,6 +280,7 @@ with tempfile.TemporaryDirectory(prefix='arcane-onboarding-check-') as scratch:
     binary = scratch / 'onboarding'
     library = ROOT / '.build/debug'
     subprocess.run(['xcrun', 'swiftc', '-I', str(library), str(main),
-                    str(library / 'NXLibraryCore.o'), str(library / 'ArcanePorting.o'), '-o', str(binary)], check=True)
+                    str(library / 'NXLibraryCore.o'), str(library / 'ArcanePorting.o'), str(library / 'OortCore.o'),
+                    '-o', str(binary)], check=True)
     subprocess.run([str(binary), str(scratch / 'test-preferences')],
                    env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(library)), check=True)

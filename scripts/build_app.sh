@@ -157,7 +157,8 @@ ARCANE_GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" ARCANE_GOOGLE_CLIENT_SECRET="$GOOGLE
   python3 "$ROOT/scripts/inject_google_client.py" "$APP/Contents/Info.plist"
 unset GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET
 swiftc -I "$ROOT/.build/$CONFIG" "$ROOT/scripts/check_app_profile.swift" \
-  "$ROOT/.build/$CONFIG/NXLibraryCore.o" -o "$PROFILE_PROBE/Contents/MacOS/NXLibrary"
+  "$ROOT/.build/$CONFIG/NXLibraryCore.o" "$ROOT/.build/$CONFIG/OortCore.o" \
+  -o "$PROFILE_PROBE/Contents/MacOS/NXLibrary"
 "$PROFILE_PROBE/Contents/MacOS/NXLibrary"
 
 python3 "$ROOT/scripts/check_localizations.py" --app "$APP"
@@ -165,6 +166,7 @@ if [ "${NX_RELEASE:-0}" = "1" ]; then
   python3 "$ROOT/scripts/check_publication.py" --app "$APP"
 fi
 swiftc -I "$ROOT/.build/$CONFIG" "$ROOT/scripts/install_built_app.swift" \
-  "$ROOT/.build/$CONFIG/NXLibraryCore.o" "$ROOT/.build/$CONFIG/ArcanePorting.o" -o "$STAGE/install-app"
+  "$ROOT/.build/$CONFIG/NXLibraryCore.o" "$ROOT/.build/$CONFIG/ArcanePorting.o" \
+  "$ROOT/.build/$CONFIG/OortCore.o" -o "$STAGE/install-app"
 "$STAGE/install-app" "$APP" "$DESTINATION"
 echo "Built $DESTINATION"

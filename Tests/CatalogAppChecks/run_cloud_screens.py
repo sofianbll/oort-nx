@@ -1198,14 +1198,14 @@ def main():
         package = Path(temp)
         shutil.copyfile(ROOT / "Package.swift", package / "Package.swift")
         if before:
-            archived = subprocess.check_output(["git", "-C", str(ROOT), "archive", "528f4fb", "Sources"])
+            archived = subprocess.check_output(["git", "-C", str(ROOT), "archive", "528f4fb", "Sources", "Package.swift"])
             subprocess.run(["tar", "-xf", "-", "-C", str(package)], input=archived, check=True)
         elif baseline:
-            archived = subprocess.check_output(["git", "-C", str(ROOT), "archive", baseline, "Sources"])
+            archived = subprocess.check_output(["git", "-C", str(ROOT), "archive", baseline, "Sources", "Package.swift"])
             subprocess.run(["tar", "-xf", "-", "-C", str(package)], input=archived, check=True)
         else:
             shutil.copytree(ROOT / "Sources", package / "Sources")
-        for name in ("NXLibraryCoreTests", "ArcanePortingTests"):
+        for name in ("NXLibraryCoreTests", "ArcanePortingTests", "OortCoreTests"):
             folder = package / "Tests" / name
             folder.mkdir(parents=True)
             (folder / "Empty.swift").touch()

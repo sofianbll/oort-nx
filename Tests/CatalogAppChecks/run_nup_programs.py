@@ -88,5 +88,6 @@ print("NUP probe → real UI converters → persisted sources → rebuild progra
     executable = scratch / 'nup-check'
     subprocess.run(['xcrun', 'swiftc', '-I', str(library), str(main),
                     str(ROOT / 'Sources/NXLibrary/Models/SelectableGame.swift'),
-                    str(library / 'NXLibraryCore.o'), str(library / 'ArcanePorting.o'), '-o', str(executable)], check=True)
+                    str(library / 'NXLibraryCore.o'), str(library / 'ArcanePorting.o'), str(library / 'OortCore.o'),
+                    '-o', str(executable)], check=True)
     subprocess.run([str(executable), str(scratch)], env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(library)), check=True)

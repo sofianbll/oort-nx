@@ -325,7 +325,7 @@ with tempfile.TemporaryDirectory(prefix="catalog-removal-") as temp:
     package = Path(temp)
     shutil.copyfile(ROOT / "Package.swift", package / "Package.swift")
     shutil.copytree(ROOT / "Sources", package / "Sources")
-    for name in ("NXLibraryCoreTests", "ArcanePortingTests"):
+    for name in ("NXLibraryCoreTests", "ArcanePortingTests", "OortCoreTests"):
         folder = package / "Tests" / name
         folder.mkdir(parents=True)
         (folder / "Empty.swift").touch()

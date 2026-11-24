@@ -1586,7 +1586,7 @@ def main():
         shutil.copytree(ROOT / "Sources", package / "Sources")
         shutil.copyfile(ROOT / "Package.swift", package / "Package.swift")
         replace(package / "Package.swift", r'\.executable\(name: "NXLibrary",', '.executable(name: "ProfileScreenProbe",')
-        for target in ("NXLibraryCoreTests", "ArcanePortingTests"):
+        for target in ("NXLibraryCoreTests", "ArcanePortingTests", "OortCoreTests"):
             stub = package / "Tests" / target
             stub.mkdir(parents=True)
             (stub / "Empty.swift").touch()

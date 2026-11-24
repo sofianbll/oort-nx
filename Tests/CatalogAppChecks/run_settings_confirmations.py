@@ -147,7 +147,7 @@ def main():
         home.mkdir()
         shutil.copytree(ROOT / "Sources", package / "Sources")
         shutil.copyfile(ROOT / "Package.swift", package / "Package.swift")
-        for target in ("NXLibraryCoreTests", "ArcanePortingTests"):
+        for target in ("NXLibraryCoreTests", "ArcanePortingTests", "OortCoreTests"):
             folder = package / "Tests" / target
             folder.mkdir(parents=True)
             (folder / "Empty.swift").touch()
