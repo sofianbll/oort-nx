@@ -48,6 +48,8 @@ Punti fissi:
 
 ## 2. Dal disco alla libreria
 
+Nella Collection vuota, Sinistra e Destra scelgono tra Add game e Import existing builds. A o Invio attiva la scelta; entrambi i pulsanti restano cliccabili.
+
 ```mermaid
 flowchart TD
     subgraph NX["Switch (nxnative)"]

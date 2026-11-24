@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **927 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **928 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -677,7 +677,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | File | Responsabilità |
 |---|---|
 | [Sources/NXLibrary/Views/Collection/CollectionView.swift](../../Sources/NXLibrary/Views/Collection/CollectionView.swift) | Compone copertine, filtri e suggerimenti; usa la query globale o l'ordine proprio della scheda del profilo. |
-| [Sources/NXLibrary/Views/Collection/CollectionView+Input.swift](../../Sources/NXLibrary/Views/Collection/CollectionView+Input.swift) | Muove il focus nell'elenco mostrato, segue le azioni Play e Download e apre l'ordinamento solo nella Collection principale. |
+| [Sources/NXLibrary/Views/Collection/CollectionView+Input.swift](../../Sources/NXLibrary/Views/Collection/CollectionView+Input.swift) | Muove il focus nell’elenco o tra le azioni della Collection vuota; segue Play e Download e apre l’ordinamento nella Collection principale. |
 | [Sources/NXLibrary/Views/Collection/CollectionCoverRow.swift](../../Sources/NXLibrary/Views/Collection/CollectionCoverRow.swift) | Disegna copertine e scorrimento della riga Collection. |
 | [Sources/NXLibrary/Views/Detail/GameDetailView.swift](../../Sources/NXLibrary/Views/Detail/GameDetailView.swift) | Compone la pagina Details e coordina bande, modello corrente e focus. |
 | [Sources/NXLibrary/Views/Detail/GameDetailView+Input.swift](../../Sources/NXLibrary/Views/Detail/GameDetailView+Input.swift) | Gestisce azioni, Download, screenshot, navigazione e passaggio ai giochi correlati da Details. |
@@ -1099,6 +1099,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_metadata_preload.py](../../Tests/CatalogAppChecks/run_metadata_preload.py) | Verifica che il precaricamento del catalogo legga la cache fuori dal main thread e pubblichi i risultati sul main thread. |
 | [run_spotlight_notification_select.py](../../Tests/CatalogAppChecks/run_spotlight_notification_select.py) | Verifica la consegna della selezione da una notifica a Spotlight, anche al ritorno da una sovrapposizione. |
 | [run_sort_native_menu.py](../../Tests/CatalogAppChecks/run_sort_native_menu.py) | Verifica disponibilità e consegna di Gioca dal menu nativo con l’ordinamento aperto. |
+| [run_empty_collection_input.py](../../Tests/CatalogAppChecks/run_empty_collection_input.py) | Invia comandi di navigazione alla Collection vuota e verifica Aggiungi gioco e Importa build esistenti. |
 | [run_save_restart.py](../../Tests/CatalogAppChecks/run_save_restart.py) | Arresti reali e nuovi processi nei checkpoint di transazione, recovery e pulizia; verifica tutti gli utenti, registro e integrità dei backup su fixture temporanee. |
 | [run_entrance.py](../../Tests/CatalogAppChecks/run_entrance.py) | Esegue i metodi reali di input e readiness: nessun comando agisce o salta l’entrata prima dell’atterraggio, clic su Profili, precedenza delle coperture, drawable mancante e presentazione su entrambi i percorsi. Nessuna finestra o GPU reale. |
 | [run_icon_cache.py](../../Tests/CatalogAppChecks/run_icon_cache.py) | Esegue il vero `GameIconProvider`: un gioco senza icona non si rilegge dal disco a ogni disegno; dopo `forget` o la build si legge di nuovo. |

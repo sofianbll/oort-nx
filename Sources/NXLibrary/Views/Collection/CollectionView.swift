@@ -29,6 +29,7 @@ struct CollectionView: View {
     @ObservedObject var steamPlayer = SteamPlayCoordinator.shared
     @State var keyMonitor: Any?
     @State var profileFocused = false
+    @State var importFocused = false
     @Environment(\.profilePortrait) var profile
 
     init(viewModel: AppViewModel, router: AppRouter, settings: AppSettingsStore,
@@ -66,6 +67,7 @@ struct CollectionView: View {
     }
 
     var hasAnyGame: Bool { !viewModel.visibleCatalogGames.isEmpty }
+    var showsEmptyActions: Bool { profileCard == nil && !hasAnyGame && !viewModel.isScanningLibrary }
 
     func selectedGame(in games: [CatalogGame]) -> PortedGame? {
         guard let id = viewModel.librarySelection.selectedGameID else { return nil }
@@ -118,6 +120,7 @@ struct CollectionView: View {
         .onChange(of: viewModel.catalogSourceConfigurations) { reconcile() }
         .onChange(of: filter) { reconcile() }
         .onChange(of: settings.settings.librarySort) { reconcile() }
+        .onChange(of: showsEmptyActions) { _, shown in if !shown { importFocused = false } }
         .onChange(of: viewModel.librarySelection.selectedGameID) { selectionChanged() }
         .onReceive(NotificationCenter.default.publisher(for: .nxCollectionGamepadAction)) { note in
             guard viewModel.alertMessage == nil, viewModel.settingsNotice == nil else { return }
@@ -215,8 +218,8 @@ struct CollectionView: View {
                 Text(L10n.text("Choose game files or find your existing apps."))
                     .seleneFont(.panelBody).foregroundColor(SeleneTheme.ink60)
                 HStack(spacing: canvas.u(14)) {
-                    SelenePillButton(title: L10n.text("Add game"), focused: true) { router.openAddGame() }
-                    SelenePillButton(title: L10n.text("Import existing builds"), minWidth: 0, focused: false) {
+                    SelenePillButton(title: L10n.text("Add game"), focused: !profileFocused && !importFocused) { router.openAddGame() }
+                    SelenePillButton(title: L10n.text("Import existing builds"), minWidth: 0, focused: !profileFocused && importFocused) {
                         viewModel.importExistingBuilds()
                     }
                 }
@@ -234,8 +237,8 @@ struct CollectionView: View {
                 + [HintItem(.y, L10n.text("Game options"))]
         }
         guard let game else {
-            if viewModel.isScanningLibrary { return [] }
-            return hasAnyGame || profileCard != nil ? [] : [HintItem(.a, L10n.text("Add game"))]
+            guard showsEmptyActions else { return [] }
+            return [HintItem(.a, importFocused ? L10n.text("Import existing builds") : L10n.text("Add game"))]
         }
         if cloud.downloadsCloudApp(game) {
             return [HintItem(.a, "Download"), HintItem(.x, "Details"), HintItem(.y, "Game options")]

@@ -22,6 +22,12 @@ extension CollectionView {
         var moved = false
         switch action {
         case .navigateLeft, .navigateRight, .tabPrevious, .tabNext:
+            if showsEmptyActions, action == .navigateLeft || action == .navigateRight {
+                let next = action == .navigateRight
+                moved = importFocused != next
+                importFocused = next
+                break
+            }
             let step = action == .navigateLeft || action == .tabPrevious ? -1 : 1
             if profileCard == nil, action == .tabPrevious || action == .tabNext {
                 setFilter(filter.shifted(by: step))
@@ -45,9 +51,10 @@ extension CollectionView {
         case .confirm:
             if let record = selectedCatalogGame {
                 activateCatalog(record)
-            } else if profileCard == nil, !hasAnyGame, !viewModel.isScanningLibrary {
+            } else if showsEmptyActions {
                 SoundEffectService.shared.play(.click)
-                router.openAddGame()
+                if importFocused { viewModel.importExistingBuilds() }
+                else { router.openAddGame() }
             }
         case .secondaryAction:
             // A Steam game's details are its Spotlight page; Collection has no Details screen for it.
