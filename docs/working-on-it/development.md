@@ -139,7 +139,7 @@ Passing checks do not establish that an interactive update or a game works. See 
 
 For manual setup checks on an existing account, use **Settings → Start-up → Open Setup**: Continue opens Your games without resetting the library. Check file-picker cancellation, Back, Open library and source review. A fresh account additionally verifies Skip persistence and resuming an interrupted first setup. Interactive checks remain the user's responsibility; agents do not launch the UI.
 
-`release.sh` runs the same `CatalogAppChecks/run_*.py` set after the Swift suite and stops if any check fails. These checks use synthetic inputs without opening windows; the NUP engine-snapshot probe remains optional.
+`release.sh` runs the same `CatalogAppChecks/run_*.py` set after the Swift suite and stops if any check fails. These checks use synthetic inputs without opening windows. The Cloud screen checks with optional output paths use temporary directories by default. The downgrade comparison and download capture report a skip without their explicit inputs; the NUP engine-snapshot probe remains optional.
 
 ### Continuous integration
 

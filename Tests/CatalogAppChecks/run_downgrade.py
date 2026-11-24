@@ -55,6 +55,9 @@ def run_probe(binary, home, *args):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) == 1:
+        print("SKIP: supply the legacy checkout and a synthetic output path")
+        sys.exit(0)
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("legacy", type=Path)
     parser.add_argument("output", type=Path, help="new path outside the real home, for synthetic data only")

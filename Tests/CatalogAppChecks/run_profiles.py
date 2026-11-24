@@ -6,6 +6,7 @@ import re
 import shutil
 import subprocess
 import sys
+from run_cloud_screens import install_settings_reset_fixture, isolate_startup
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -436,7 +437,7 @@ import ArcanePorting
         let editor = SettingsEditor(settings)
         settings.beginDraft(fields: SettingsDraftFields.fields(profiles: profiles, languages: vm.availableLanguages))
         let profileSection = SettingsStartUpSection(settings: editor, onActions: { _ in }, onChooseLanguage: {},
-                                                   onChooseRegion: {}, profiles: profiles)
+                                                   onChooseRegion: {}, onOpenOnboarding: {}, profiles: profiles)
         for choice: ProfileStartup in [.last, .profile(alex.id), .profile(sam.id), .ask] {
             profileSection.cycleProfile(1)
             precondition(editor.settings.profileStartup == choice)
@@ -453,10 +454,13 @@ import ArcanePorting
         let originalAppsFolder = vm.libraryFolder
         let originalAppsPath = AppData.preferences.string(forKey: AppViewModel.StorageKeys.savedLibraryFolder)
         vm.libraryFolder = appsFolder
+        AppData.preferences.set(appsFolder.path, forKey: AppViewModel.StorageKeys.savedLibraryFolder)
         AppData.preferences.set(sourcesFolder.path, forKey: PortingModel.savedGameFolderKey)
         settings.settings.refreshLibraryAtLaunch.toggle()
         settings.settings.notifyPortingEnds.toggle()
-        SettingsView(initialSection: .library, viewModel: vm, settings: settings, router: AppRouter(), artwork: art)
+        let resetRouter = AppRouter()
+        resetRouter.openSettings(.library)
+        SettingsView(initialSection: .library, viewModel: vm, settings: settings, router: resetRouter, artwork: art)
             .pressScreenFixtureReset()
         precondition(vm.libraryFolder?.path == appsFolder.path, "X must preserve the chosen game apps folder")
         precondition(AppData.preferences.string(forKey: AppViewModel.StorageKeys.savedLibraryFolder) == appsFolder.path)
@@ -493,7 +497,8 @@ import ArcanePorting
             SettingsView(initialSection: .profileLook, viewModel: vm, settings: settings, router: AppRouter(), artwork: art)
         }.environment(\.nxAppLocale, french), in: out, refs, "none", size: settingsCaptureSize)
         for (name, icon, label) in [("halftone", AppIconAppearanceMode.auto, "Trame"), ("particles", .mono, "Particules")] {
-            if vm.iconAppearanceMode != icon { vm.iconAppearanceMode = icon }
+            settings.settings.launcherChoices.dockIconAppearance = icon.rawValue
+            vm.useDockIcon(icon.rawValue)
             precondition(vm.iconAppearanceMode.label == label)
             try render("oort-look-\(name)-fr", ZStack {
                 SeleneBackdrop().still(true)
@@ -1624,9 +1629,7 @@ extension AppIconModel {
 """)
         replace(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
         replace(app / "ViewModels/AppViewModel.swift", r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
-        replace(app / "ViewModels/AppViewModel.swift", r"            updateDockIcon\(\)", "")
-        replace(app / "ViewModels/AppViewModel.swift", r"        applyCatalog\(catalog\).*?\n    }\n\n    // MARK: - Dynamic",
-                "    }\n\n    // MARK: - Dynamic")
+        isolate_startup(app)
         replace(app / "Services/SteamPlayCoordinator.swift", r"static var steamClientURL: URL\? \{.*?\n    \}",
                 "static var steamClientURL: URL? { nil }")
         replace(app / "Views/Spotlight/SpotlightTopBar.swift", r"Text\(context\.date,", "Text(Date(timeIntervalSince1970: 1_790_000_000),")
@@ -1739,8 +1742,9 @@ extension ProfilePage {
                 r"            ScrollViewReader \{ proxy in\n                ScrollView \{(.*?)\n"
                 r"                }\n                \.scrollIndicators\(\.hidden\).*?\n            }",
                 lambda m: "            GeometryReader { _ in" + m[1] + "\n            }.clipped()")
+        install_settings_reset_fixture(app)
         with (app / "Views/Settings/SettingsView.swift").open("a") as swift:
-            swift.write("\nextension SettingsView {\n    func pressScreenFixtureReset() { handleGamepad(.secondaryAction) }\n}\n")
+            swift.write("\nextension SettingsView {\n    func pressScreenFixtureBack() { handleBack() }\n}\n")
             swift.write(SETTINGS_PIN_TEST)
         with (app / "Views/Settings/SettingsPortingStorageSection.swift").open("a") as swift:
             swift.write("\nextension SettingsPortingStorageSection {\n    func publishScreenFixtureActions() { publishActions() }\n}\n")

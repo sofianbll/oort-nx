@@ -7,7 +7,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from run_cloud_screens import ROOT, HOST, change
+from run_cloud_screens import ROOT, HOST, capture_destination, change, isolate_startup
 
 
 SCENARIOS = r'''
@@ -127,7 +127,7 @@ SCENARIOS = r'''
 
 
 def main():
-    output = Path(sys.argv[1]).resolve()
+    output = capture_destination("cloud-shelf-captures-")
     output.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="cloud-shelf-", dir=os.environ["HOME"]) as temp:
         package = Path(temp)
@@ -146,8 +146,7 @@ def main():
         app = package / "Sources/NXLibrary"
         change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
         change(app / "ViewModels/AppViewModel.swift", r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
-        change(app / "ViewModels/AppViewModel.swift", r"        applyCatalog\(catalog\).*?\n    }\n\n    // MARK: - Dynamic",
-               "    }\n\n    // MARK: - Dynamic")
+        isolate_startup(app)
         change(package / "Sources/NXLibraryCore/App/AppDataProfile.swift", r'public static let profile = [^\n]*',
                'public static let profile = AppDataProfile(home: URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!), isDevelopment: true)')
         change(package / "Sources/NXLibraryCore/App/AppDataProfile.swift", r'public static var preferences: UserDefaults \{ [^\n]+ \}',

@@ -31,14 +31,14 @@ enum AppData {
     static var supportRoot = URL(fileURLWithPath: "/unused")
     static var rejectPreparation = false
     static var preferences: UserDefaults { UserDefaults(suiteName: supportRoot.appendingPathComponent("fixture-prefs").path)! }
-    struct Profile {
-        var isDevelopment = false
-        var preferencesDomain: String { AppData.supportRoot.appendingPathComponent("fixture-prefs").path }
-    }
-    static let profile = Profile()
-    static func prepare() throws {
+    static var profile: AppDataProfile { .init(home: supportRoot, isDevelopment: false) }
+    static func prepare(contents: DevelopmentProfileImporter.Contents) throws {
         if rejectPreparation { throw CocoaError(.fileReadNoPermission) }
     }
+}
+struct NSRunningApplication {
+    let processIdentifier: pid_t
+    static func runningApplications(withBundleIdentifier _: String) -> [Self] { [] }
 }
 struct AppSettingsStore {}
 final class AppShellState {
@@ -118,7 +118,8 @@ enum DevelopmentStartupFailure: Error { case otherCopyRunning }
         do {
             let startup = DevelopmentStartup()
             await startup.prepare()
-            precondition(startup.shell == nil && startup.downgradeNotice == .copy([]) && startup.failure == nil)
+            precondition(startup.shell == nil && startup.downgradeNotice == .copy([]) && startup.failure == nil,
+                         "Expected downgrade warning, got \(String(describing: startup.downgradeNotice)); failure: \(startup.failure ?? "none")")
             precondition(startup.recovery == nil && startup.legacyConflict == nil)
             await startup.prepare(acceptingDowngradeWarning: true)
             precondition(startup.shell == nil && startup.failure != nil)
@@ -197,5 +198,7 @@ with tempfile.TemporaryDirectory(prefix='catalog-startup-recovery-') as folder:
     subprocess.run(['xcrun', 'swiftc', '-j', '4', '-parse-as-library', '-package-name', package_name, '-I', str(BIN), str(swift),
                     str(BIN / 'NXLibraryCore.o'), str(BIN / 'ArcanePorting.o'), str(BIN / 'OortCore.o'),
                     '-o', str(executable)], cwd=ROOT, check=True)
+    home = scratch / 'home'
+    home.mkdir()
     subprocess.run([str(executable), str(scratch / 'profile'), *sys.argv[1:]], check=True,
-                   env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)))
+                   env=dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home), PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)))

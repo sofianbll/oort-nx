@@ -798,12 +798,17 @@ import SwiftUI
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("destination", type=Path)
+    parser.add_argument("destination", type=Path, nargs="?")
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument("--video", action="store_true")
     modes.add_argument("--onscreen", action="store_true")
     parser.add_argument("--front", action="store_true", help="capture the transfer front at 0/20/60/95 percent")
     args = parser.parse_args()
+    if args.destination is None:
+        if args.video or args.onscreen or args.front:
+            parser.error("capture options require a destination")
+        print("SKIP: supply a destination for the download capture")
+        return
     destination = args.destination.resolve()
     destination.mkdir(parents=True, exist_ok=True)
     ffmpeg = shutil.which("ffmpeg") if args.video else None

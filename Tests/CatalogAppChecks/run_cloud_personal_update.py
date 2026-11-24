@@ -3,11 +3,10 @@
 import os
 import shutil
 import subprocess
-import sys
 import tempfile
 from pathlib import Path
 
-from run_cloud_screens import HOST, ROOT, change
+from run_cloud_screens import HOST, ROOT, capture_destination, change, isolate_cloud_init, isolate_startup
 
 SCENARIO = r'''
         let fm = FileManager.default
@@ -251,9 +250,9 @@ SCENARIO = r'''
 
 
 def main():
-    output = Path(sys.argv[1] if len(sys.argv) > 1 else tempfile.mkdtemp(prefix="personal-update-captures-")).resolve()
+    output = capture_destination("personal-update-captures-")
     output.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="personal-update-", dir=os.environ["HOME"]) as temporary:
+    with tempfile.TemporaryDirectory(prefix="personal-update-") as temporary:
         package = Path(temporary)
         shutil.copyfile(ROOT / "Package.swift", package / "Package.swift")
         shutil.copytree(ROOT / "Sources", package / "Sources")
@@ -266,7 +265,7 @@ def main():
         vm = app / "ViewModels/AppViewModel.swift"
         change(vm, r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
         change(vm, r"let root = SystemDetector.shared.resolveRootDirectory\(\)", "let root = AppData.profile.home")
-        change(vm, r"        setup\.restoreBuildInputs\(automatic: true\).*?    // MARK: - Dynamic", "    }\n\n    // MARK: - Dynamic")
+        isolate_startup(app, keep_catalog=True)
         profile = package / "Sources/NXLibraryCore/App/AppDataProfile.swift"
         change(profile, r"public static let profile = [^\n]*",
                'public static let profile = AppDataProfile(home: URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!), isDevelopment: true)')
@@ -274,7 +273,7 @@ def main():
                'public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
         model = app / "ViewModels/AppViewModel+CloudLibrary.swift"
         change(model, r"let personalAppReceipts = ", "var personalAppReceipts = ")
-        change(model, r"        let defaults = AppData\.preferences.*?(?=        rebuildArchive\(\))",
+        isolate_cloud_init(model,
                '        preference = .init(storage: "fixture:Games", enabled: true, sourcesRoot: nil)\n'
                '        chosenExecutable = nil\n        needsDriveToolChoice = true\n')
         with model.open("a") as swift:

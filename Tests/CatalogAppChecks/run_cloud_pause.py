@@ -3,11 +3,10 @@
 import os
 import shutil
 import subprocess
-import sys
 import tempfile
 from pathlib import Path
 
-from run_cloud_screens import HOST, ROOT, change
+from run_cloud_screens import HOST, ROOT, capture_destination, change, isolate_cloud_init, isolate_startup, isolated_home_env
 
 SCENARIO = r'''
         let fm = FileManager.default
@@ -34,7 +33,9 @@ SCENARIO = r'''
             tool, args, _ in
             func canonical(_ path: String) -> String {
                 let path = URL(fileURLWithPath: path).resolvingSymlinksInPath().standardizedFileURL.path
-                return path.hasPrefix("/private/tmp/") ? String(path.dropFirst("/private".count)) : path
+                // macOS APIs disagree on whether temporary paths include /private.
+                return path.hasPrefix("/private/tmp/") || path.hasPrefix("/private/var/")
+                    ? String(path.dropFirst("/private".count)) : path
             }
             let remotes = args.filter { $0.contains(":") && !$0.hasPrefix("--") }
             precondition(!remotes.isEmpty && remotes.allSatisfy {
@@ -222,12 +223,9 @@ SCENARIO = r'''
 
 
 def main():
-    output = Path(sys.argv[1]).resolve()
+    output = capture_destination("cloud-pause-captures-")
     output.mkdir(parents=True, exist_ok=True)
-    home = Path(os.environ["HOME"]).resolve()
-    assert home == Path(os.environ["CFFIXED_USER_HOME"]).resolve()
-    assert home != Path(os.environ["ORIGINAL_HOME"]).resolve()
-    with tempfile.TemporaryDirectory(prefix="pause-command-", dir=home) as temp:
+    with tempfile.TemporaryDirectory(prefix="pause-command-") as temp:
         package = Path(temp)
         shutil.copyfile(ROOT / "Package.swift", package / "Package.swift")
         shutil.copytree(ROOT / "Sources", package / "Sources")
@@ -238,10 +236,9 @@ def main():
         app = package / "Sources/NXLibrary"
         change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
         change(app / "ViewModels/AppViewModel.swift", r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
-        change(app / "ViewModels/AppViewModel.swift", r"        applyCatalog\(catalog\).*?\n    }\n\n    // MARK: - Dynamic",
-               "    }\n\n    // MARK: - Dynamic")
+        isolate_startup(app)
         model = app / "ViewModels/AppViewModel+CloudLibrary.swift"
-        change(model, r"        let defaults = AppData\.preferences.*?(?=        rebuildArchive\(\))",
+        isolate_cloud_init(model,
                '        preference = .init(storage: "fixture:Games", enabled: true, sourcesRoot: nil)\n'
                '        chosenExecutable = nil\n        needsDriveToolChoice = true\n')
         with model.open("a") as swift:
@@ -305,7 +302,7 @@ extension CloudLibraryPanel {
         subprocess.run(["swift", "run", "--jobs", "4", "--package-path", str(package), "NXLibrary", str(output),
                         str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"),
                         str(ROOT / "Resources/AppIcon-Light.png")], check=True,
-                       env=dict(os.environ, HOME=str(fixture_home), CFFIXED_USER_HOME=str(fixture_home)))
+                       env=isolated_home_env(fixture_home))
 
 
 if __name__ == "__main__":

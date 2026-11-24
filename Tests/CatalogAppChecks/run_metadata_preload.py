@@ -47,6 +47,7 @@ struct App {
 @MainActor final class Store {
     var app = App()
     var storeMetadataService = Service()
+    let legacyMetadata = Service()
     var metadataLocaleGeneration = UUID()
     var cachedMetadataPreload: Task<Void, Never>?
     var localizedMetadataRefresh: Task<Void, Never>?

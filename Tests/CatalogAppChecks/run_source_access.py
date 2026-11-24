@@ -23,7 +23,7 @@ def declaration(signature, source=source):
     return source[start:end]
 
 
-startup = source[source.index('        setup.restoreBuildInputs(automatic: true)'):
+startup = source[source.index('        setup.restoreBuildInputs(automatic: true,'):
                  source.index('        recoverSavesAtStartup()')]
 host = r'''
 import Foundation
@@ -33,7 +33,8 @@ import UniformTypeIdentifiers
 final class Preferences {
     var values: [String: String] = [:]
     func string(forKey key: String) -> String? { values[key] }
-    func set(_ value: String, forKey key: String) { values[key] = value }
+    func bool(forKey key: String) -> Bool { false }
+    func set(_ value: String?, forKey key: String) { values[key] = value }
     func removeObject(forKey key: String) { values[key] = nil }
 }
 enum AppData {
@@ -41,9 +42,19 @@ enum AppData {
     struct Profile { var isDevelopment = false }
     static var profile = Profile()
 }
-enum StorageKeys { static let savedGameFolder = "fixture-folder" }
+enum StorageKeys {
+    static let savedGameFolder = "fixture-folder"
+    static let onboardingFreshProfile = "fixture-fresh"
+}
 struct Startup { var checkEngineAtLaunch = true; var refreshLibraryAtLaunch = true }
 struct GameRuntimeConfig {}
+final class SettingsStore {
+    struct Choices { var gameSourcesPath: String? }
+    struct Settings { var launcherChoices = Choices() }
+    var settings = Settings()
+}
+struct SetupPage { let isGuided = false }
+struct FirstRunSetup { let page = SetupPage() }
 enum GameFoldersCopy {
     static func sourcesPickerMessage(extractedFolders: Bool) -> String { "Fixture picker" }
 }
@@ -88,13 +99,17 @@ final class SourceHost {
     static let savedGameFolderKey = StorageKeys.savedGameFolder
     var app: SourceHost { self }
     var setup: SourceHost { self }
+    var settingsStore: SettingsStore?
     // ACTUAL_FOLDER
+    // ACTUAL_LEGACY_PATH
+    // ACTUAL_REMEMBER_FOLDER
     // ACTUAL_REMEMBERED_FOLDER
     // ACTUAL_FOLDER_PICKER
     // ACTUAL_FILE_PICKER
     // ACTUAL_PREPARE_FILES
     // ACTUAL_FILE_CHOOSER
-    func restoreBuildInputs(automatic: Bool) {}
+    let firstRunSetup = FirstRunSetup()
+    func restoreBuildInputs(automatic: Bool, readKeys: Bool) {}
     func refreshCompatibility() {}
     func startNewAddGame(defaults: GameRuntimeConfig) {
         keepsRememberedGameFolder = true
@@ -103,7 +118,6 @@ final class SourceHost {
     }
     func scanGameFolder(_ folder: URL) { scans.append((folder, selectedPackageURLs)) }
     func boot(_ startup: Startup) {
-        let didCompleteSetup = true
         // ACTUAL_STARTUP
     }
 }
@@ -161,6 +175,8 @@ final class SourceHost {
 '''
 for marker, signature in (
     ('// ACTUAL_FOLDER', '    @Published var selectedGameFolder:'),
+    ('// ACTUAL_LEGACY_PATH', '    var legacyGameSourcesPath:'),
+    ('// ACTUAL_REMEMBER_FOLDER', '    func rememberGameFilesFolder('),
     ('// ACTUAL_REMEMBERED_FOLDER', '    var gameFilesFolder:'),
     ('// ACTUAL_FOLDER_PICKER', '    func selectGameFolder('),
     ('// ACTUAL_FILE_PICKER', '    func selectGameFiles('),

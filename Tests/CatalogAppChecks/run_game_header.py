@@ -12,7 +12,7 @@ import ArcanePorting
 struct HeaderCanvas { func u(_ value: CGFloat) -> CGFloat { value } }
 private struct CanvasKey: EnvironmentKey { static let defaultValue = HeaderCanvas() }
 extension EnvironmentValues { var seleneCanvas: HeaderCanvas { get { self[CanvasKey.self] } set { self[CanvasKey.self] = newValue } } }
-extension View { func seleneFont(_ size: CGFloat, _ weight: Font.Weight = .regular) -> some View { font(.system(size: size, weight: weight)) } }
+extension View { func seleneFont(_ token: SeleneTokens.Text, _ weight: Font.Weight = .regular) -> some View { font(.system(size: token.rawValue, weight: weight)) } }
 enum SeleneTheme { static let ink = Color.white }
 struct CloudLibraryIndicator {}
 struct CloudLibraryPill: View { let indicator: CloudLibraryIndicator; let focused: Bool; let action: () -> Void; var body: some View { Color.clear } }
