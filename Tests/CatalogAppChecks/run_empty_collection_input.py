@@ -23,6 +23,7 @@ struct Game {
     var isPlayableLocally = true
     enum Integration { case steam, native }
     var integration = Integration.native
+    let macShortcut: Int? = nil
 }
 enum Route { case library, startUp, collection }
 final class Router {
@@ -49,6 +50,8 @@ struct SoundEffectService {
 final class Model {
     var imports = 0
     var isScanningLibrary = false
+    let macShortcuts = Shortcuts()
+    struct Shortcuts { func showTileOptions(_ game: Game) {} }
     let librarySelection = Selection()
     final class Selection {
         var selectedGameID: UUID?

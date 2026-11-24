@@ -77,11 +77,14 @@ Punti fissi:
 
 I titoli importati dal cloud compaiono in Spotlight e Collection. **Download** accoda il ripristino e lo spazio viene verificato durante il trasferimento. Il pulsante tondo in Details apre il pannello Cloud library, da cui si può annullare o riprovare.
 
+**Collegare un’app Mac.** In Settings → Library → Sources o nel menu macOS Game, **Add an app…** sceglie un `.app`; Spotlight e Collection accettano anche un `.app` trascinato se il catalogo lo convalida. Play consegna l’app verificata a macOS, senza tempo di gioco. Se il percorso non corrisponde più, **Locate the app…** ricollega l’app originale senza cambiare la tessera. **Tile options** cambia l’immagine di Oort o rimuove la tessera, senza toccare l’app.
+
 ## 3. Play di un gioco Switch (nxnative)
 
 ```mermaid
 flowchart TD
-    A["Play (GamePrimaryActions)"] --> B["AppViewModel.launchGame"]
+    A["Play (libreria, scheda, Opzioni o menu)"] --> S["AppViewModel.play → GamePlay"]
+    S --> B["NXNativePlayConnector → AppViewModel.playNXNative"]
     B --> C{"Possibile ora?"}
     C -->|"operazione sui salvataggi o recupero"| X["Attesa / spiegazione"]
     C -->|"icona in firma"| Y["Dialogo Preparing (IconLaunchWait)"]
@@ -111,6 +114,9 @@ flowchart TD
 
 Play applica la scelta per gioco o il default globale. In Local usa l'adattatore VPN scelto o, se l'utente conferma l'avviso, la rete locale; il lancio non modifica le scelte salvate. I parametri espliciti di `env.txt` mantengono la precedenza.
 
+Dopo lo scambio dell’app, la firma dell’icona o la conferma VPN, Play continua solo se il profilo iniziale è ancora attivo e sbloccato. Controlla l’installazione attuale e restituisce l’esito all’osservatore iniziale.
+Se l’installazione cloud fallisce, viene annullata o torna in coda, Play è rifiutato senza aprire l’app precedente.
+
 Per Switch e Steam, un errore di lettura dello storico o dei suoi totali non impedisce di giocare. Le sessioni nuove restano in memoria, senza sostituire i file su disco. Il salvataggio pubblica insieme le sessioni recenti e i totali archiviati; i vecchi file separati restano intatti.
 
 Prima di aprire il bundle, Oort NX risolve lo schermo soltanto se il `dmhost` installato legge `DM_SCREEN`. Una scelta esplicita non collegata usa lo schermo della finestra di Oort NX. Se `env.txt` dichiara `DM_SCREEN`, il lanciatore non imposta la variabile. Il lancio unisce le scelte esplicite ai soli valori di ambiente autorizzati; il pannello dei salvataggi usa lo stesso filtro.
@@ -119,7 +125,8 @@ Prima di aprire il bundle, Oort NX risolve lo schermo soltanto se il `dmhost` in
 
 ```mermaid
 flowchart TD
-    A["Play (GamePrimaryActions)"] --> B["SteamPlayCoordinator"]
+    A["Play (libreria, Opzioni o menu)"] --> S["AppViewModel.play → GamePlay"]
+    S --> B["SteamPlayCoordinator"]
     B --> K["LaunchCoverWindow<br/>ripiego entro 1 s se il pannello manca"]
     K --> C["steam://run/AppID al client di Valve"]
     C --> D["SteamPlayState / SteamBackgroundLaunch<br/>attesa del processo del gioco"]

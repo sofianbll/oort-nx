@@ -99,6 +99,10 @@ extension SpotlightView {
                 mutate { if $0.focus == .row { moved = $0.showGameDetails() } }
             }
         case .contextAction:
+            if let record = selectedCatalogGame, record.macShortcut != nil {
+                viewModel.macShortcuts.showTileOptions(record)
+                return
+            }
             if let steam = selectedCatalogGame, steam.integration == .steam {
                 SoundEffectService.shared.play(.click)
                 viewModel.openSteamOptions(steam, from: .spotlight)
@@ -138,9 +142,14 @@ extension SpotlightView {
     }
 
     func pressCatalogPill(_ index: Int, game: CatalogGame) {
+        if game.macShortcut != nil {
+            if index == 0 { SoundEffectService.shared.play(.click); viewModel.pressPlay(game) }
+            else if index == 1 { viewModel.macShortcuts.showTileOptions(game) }
+            return
+        }
         switch index {
         // The positions of Play, Options and favorite, as for an nxnative game.
-        case 0: SoundEffectService.shared.play(.click); SteamPlayCoordinator.shared.press(game)
+        case 0: SoundEffectService.shared.play(.click); viewModel.pressPlay(game)
         case 1: SoundEffectService.shared.play(.click); viewModel.openSteamOptions(game, from: .spotlight)
         case 2: viewModel.setCatalogFavorite(game)
         default: break
@@ -336,8 +345,9 @@ extension SpotlightView {
         router.integrationBarFocused = false
         switch item {
         case .game(let id):
-            if let steam = viewModel.visibleCatalogGames.first(where: { $0.id == id }), steam.integration == .steam {
-                SoundEffectService.shared.play(.click); SteamPlayCoordinator.shared.press(steam); return
+            if let record = viewModel.visibleCatalogGames.first(where: { $0.id == id }), record.nxnativeGame == nil,
+               viewModel.playRouter.supports(record.integration) {
+                SoundEffectService.shared.play(.click); viewModel.pressPlay(record); return
             }
             guard let game = viewModel.libraryGames.first(where: { $0.id == id }) else { return }
             let pills = viewModel.portingPills(game)

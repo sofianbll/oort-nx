@@ -20,10 +20,11 @@ struct CatalogGame {
     let id = UUID()
     let integration = Integration.nxnative
     let nxnativeGame: PortedGame? = PortedGame()
+    let macShortcut: Int? = nil
 }
 struct HintItem {
-    enum Button { case y }
-    init(_ button: Button, _ title: String) {}
+    enum Button { case a, y }
+    init(_ button: Button, _ title: String, action: (() -> Void)? = nil) {}
 }
 enum L10n { static func text(_ title: String) -> String { title } }
 struct SteamPlayCoordinator {
@@ -37,7 +38,13 @@ final class Collection {
     struct Model {
         let librarySelection: Selection
         struct Selection { let selectedGameID: UUID? }
+        let macShortcuts = Shortcuts()
+        struct Shortcuts {
+            let canEdit = false
+            func showTileOptions(_ game: CatalogGame) {}
+        }
     }
+    func activateCatalog(_ game: CatalogGame) {}
     let art = Art()
     var queryCount = 0
     var games: [CatalogGame] { queryCount += 1; return catalog }

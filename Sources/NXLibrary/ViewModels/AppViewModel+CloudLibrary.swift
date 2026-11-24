@@ -272,7 +272,7 @@ final class CloudLibraryModel: ObservableObject {
     var active: (request: Request, task: Task<Void, Never>)?
     var appInstallWake: AsyncStream<Void>.Continuation?
     var appInstall: (title: String, release: () -> Void)?
-    var playAfterAppInstall: (() -> Void)?
+    var playAfterAppInstall: ((PlayRefusal?) -> Void)?
     @Published var libraryMove: LibraryMoveActivity?
     var libraryMoveTask: Task<Void, Never>?
     let moveJournal = LibraryMoveJournal(in: AppData.supportRoot)
@@ -1370,9 +1370,15 @@ extension AppViewModel {
                         if outcome == .succeeded { request.onSuccess?() }
                         self.startNextCloudOperation()
                     }
-                    play?()
+                    switch outcome {
+                    case .succeeded: play?(nil)
+                    case .failed: play?(.preparationFailed)
+                    case .cancelled: play?(.notStarted)
+                    }
                     self.appIcon.syncPendingAppIcons()
                     Task { await self.refreshCloudLibrary(game) }
+                } else {
+                    play?(.notStarted)
                 }
             }
             await catalogCheck?.value

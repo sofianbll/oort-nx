@@ -29,6 +29,8 @@ struct Game {
     var isPlayableLocally = true
     enum Integration { case steam, nxnative }
     var integration = Integration.nxnative
+    var nxnativeGame: Game? { self }
+    let macShortcut: Int? = nil
 }
 final class AppViewModel {
     var showSetupCheck = false
@@ -39,11 +41,16 @@ final class AppViewModel {
     var isBuilding = false
     var catalogBuildRecoveries: [Int] = []
     var launches = 0
+    let macShortcuts = Shortcuts()
+    struct Shortcuts { let canEdit = true }
+    let playRouter = PlayRouter()
+    struct PlayRouter { func supports(_ integration: Game.Integration) -> Bool { true } }
+    func pressPlay(_ game: Game) { launches += 1 }
     func launchGame(_ game: Game) { launches += 1 }
 }
 struct Settings { let settings = Values(); struct Values { let librarySort = 1 } }
 struct NativeMenuAvailability {
-    let general, play, details, options, catalogRecovery: Bool
+    let general, addMacApp, play, details, options, catalogRecovery: Bool
 }
 struct SteamPlayCoordinator {
     static let shared = Self()

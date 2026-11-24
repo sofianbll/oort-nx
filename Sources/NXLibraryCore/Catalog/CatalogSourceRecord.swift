@@ -61,7 +61,7 @@ public struct CatalogRecordKinds: @unchecked Sendable {
     public init(_ types: [any CatalogSourceRecord.Type]) { self.types = types }
 
     /// What the base knows by itself.
-    public static let base = Self([SteamCatalogGame.self])
+    public static let base = Self([SteamCatalogGame.self, MacShortcutRecord.self])
     /// Where a decoder carries the kinds (`JSONDecoder.userInfo`); without them a reader knows `base`.
     public static let userInfoKey = CodingUserInfoKey(rawValue: "arcane.catalogRecordKinds")!
 

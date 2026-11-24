@@ -60,6 +60,10 @@ extension SpotlightView {
                 if let steam = model.selectedCatalogGame, steam.integration == .steam {
                     return [HintItem(.y, L10n.text("Options"))] + SteamPlayCoordinator.shared.hint(for: steam)
                 }
+                if let record = model.selectedCatalogGame, record.macShortcut != nil {
+                    return (viewModel.macShortcuts.canEdit ? [HintItem(.y, "Tile options") { viewModel.macShortcuts.showTileOptions(record) }] : [])
+                        + [HintItem(.a, "Play") { activate(.game(record.id)) }]
+                }
                 guard let game = model.selectedGame else { return [] }
                 let pills = viewModel.portingPills(game)
                 if pills == .porting {

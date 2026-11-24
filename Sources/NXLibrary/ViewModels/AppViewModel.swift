@@ -52,9 +52,8 @@ final class AppViewModel: ObservableObject {
     let localAchievementUnlocks = PassthroughSubject<(profile: UUID, names: [String]), Never>()
     @Published var settingsNotice: SettingsNotice? {
         didSet {
-            if let waitingGame = appIcon.iconLaunchWait.gameID, settingsNotice?.id != appIcon.iconLaunchWait.noticeID {
-                appIcon.iconLaunchWait.cancel()
-                if launchingGameId == waitingGame { launchingGameId = nil }
+            if appIcon.iconLaunchWait.gameID != nil, settingsNotice?.id != appIcon.iconLaunchWait.noticeID {
+                appIcon.cancelIconLaunchWait()
             }
             if settingsNotice == nil { porting.scheduleNextBuild() }
         }
@@ -265,6 +264,8 @@ final class AppViewModel: ObservableObject {
     var launchProbeTask: Task<Void, Never>?
 
     var playSessionStore: PlaySessionStore?
+    @MainActor lazy var macShortcuts = MacShortcutAdapter(app: self)
+    @MainActor lazy var playRouter = GamePlay([NXNativePlayConnector(app: self), SteamPlayCoordinator.shared, macShortcuts])
     var localProfiles: LocalProfileStore?
     private var profileNextendoAccounts: [UUID: NextendoSettings] = [:]
     @MainActor var profileNextendo: NextendoSettings? {

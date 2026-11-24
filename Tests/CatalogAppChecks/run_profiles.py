@@ -20,6 +20,12 @@ import NXLibraryCore
 import ArcanePorting
 
 @main struct ProfileScreenProbe {
+    @MainActor static var regressions: [String] = []
+
+    @MainActor static func expect(_ condition: Bool, _ message: String) {
+        if !condition { regressions.append(message); print("FAIL: \(message)") }
+    }
+
     @MainActor static func main() async throws {
         let out = URL(fileURLWithPath: CommandLine.arguments[1], isDirectory: true)
         let font = URL(fileURLWithPath: CommandLine.arguments[2])
@@ -592,6 +598,63 @@ import ArcanePorting
             GameOptionsView(viewModel: vm, game: game, origin: .details,
                             onClose: {}, onShowBuild: {}, onMove: {})
         }, in: out, refs, "screenshots/game-options.png")
+        let steamLibrary = data.appendingPathComponent("Steam")
+        let steamContent = steamLibrary.appendingPathComponent("steamapps/common/Fixture")
+        let steamApp = steamContent.appendingPathComponent("Fixture.app")
+        let application = try JSONDecoder().decode(CatalogNativeApplication.self, from: JSONSerialization.data(withJSONObject: [
+            "url": steamApp.absoluteString, "executableURL": steamApp.appendingPathComponent("Contents/MacOS/Fixture").absoluteString,
+            "bundleIdentifier": "test.arcane.fixture", "name": "Fixture", "architectures": ["arm64"], "isDeclaredGame": true
+        ]))
+        var steam = SteamCatalogGame(appID: 42, name: "Solar Observatory")
+        steam.hasBeenRecognized = true
+        steam.installations = [.init(libraryURL: steamLibrary, contentURL: steamContent,
+                                     applications: [application], availability: .available)]
+        let steamGame = CatalogGame(steam: steam)
+        let steamCatalog = CatalogDocument(sources: [.init(integration: .steam, isEnabled: true)], games: [steamGame])
+        SteamPlayCoordinator.shared.setGames(steamCatalog.games, sources: steamCatalog.sources)
+        vm.applyCatalog(steamCatalog)
+        vm.librarySelection.query.filter = .all
+        vm.librarySelection.selectedGameID = steamGame.id
+        vm.spotlight.selectedKey = SpotlightItem.game(steamGame.id).key
+        try render("play-steam-spotlight", ZStack {
+            SeleneBackdrop().still(true)
+            SpotlightView(viewModel: vm, router: AppRouter(), settings: settings, playSessions: historyStore,
+                          runningGames: RunningGameMonitor(), artwork: art, storeHost: ModStoreHost())
+        }, in: out, refs, "none")
+        try render("play-steam-collection", ZStack {
+            SeleneBackdrop().still(true)
+            CollectionView(viewModel: vm, router: AppRouter(), settings: settings, playSessions: historyStore,
+                           artwork: art)
+        }, in: out, refs, "none")
+        try render("play-steam-options", ZStack {
+            SeleneBackdrop().still(true)
+            SteamOptionsView(viewModel: vm, game: steamGame, origin: .spotlight, onClose: {}, onMove: {})
+        }, in: out, refs, "none")
+        let nativeGame = CatalogGame(nxnative: game)
+        let player = SteamPlayCoordinator.shared
+        vm.profileOwnsInput = true
+        precondition(vm.play(nativeGame) == .refused(.profileLocked))
+        precondition(vm.play(steamGame) == .refused(.profileLocked) && player.phase(of: steamGame) == .idle)
+        vm.profileOwnsInput = false
+        vm.launchingGameId = UUID()
+        precondition(vm.play(nativeGame) == .refused(.launchInProgress))
+        vm.launchingGameId = nil
+        var guestNotices = 0
+        player.showGuestNotice = { guestNotices += 1 }
+        precondition(profiles.beginGuest(.init(name: "Guest fixture", look: sam.look)))
+        precondition(vm.play(nativeGame) == .refused(.installationMissing), "The temporary guest can request nxnative Play")
+        precondition(vm.play(steamGame) == .refused(.guestUnsupported) && guestNotices == 1)
+        precondition(player.phase(of: steamGame) == .idle)
+        precondition(profiles.choose(sam.id))
+        vm.alertMessage = nil
+        player.showGuestNotice = {}
+        precondition(vm.playRouter.availability(of: vm.playTarget(for: steamGame)) == .unavailable(.launcherMissing))
+        precondition(vm.play(steamGame) == .refused(.launcherMissing) && player.phase(of: steamGame) == .failed(.clientMissing))
+        print("Common Play checks passed: profile ownership, guest, duplicate nxnative and missing Steam")
+        try checkDeferredPlay(vm, profiles: profiles, other: alex, game: game)
+        try await checkCloudInstallPlay(game, profiles: profiles, other: alex)
+        try checkIconDeferredPlay(vm, profiles: profiles, other: alex, game: game, out: out, refs: refs)
+        vm.applyCatalog(.init(sources: [.init(integration: .nxnative, isEnabled: true)], games: [fixture] + avatarGames))
         let pack = LocalAchievementPack.linksAwakening!
         var progress = LocalAchievementProgress()
         _ = progress.record([.seashells: 12, .heartPieces: 4], in: pack, at: Date(timeIntervalSince1970: 1_790_000_000))
@@ -692,6 +755,163 @@ import ArcanePorting
             panel(NSImage(contentsOf: beforeImage)!, "Arcane · avant")
             panel(NSImage(contentsOf: afterImage)!, "Arcane · après")
         }), to: out.appendingPathComponent("15-sort-avant-apres.png"))
+        if !regressions.isEmpty { exit(1) }
+    }
+
+    @MainActor static var restoringFixture: ((PortedGame) throws -> Void)?
+
+    @MainActor static func checkCloudInstallPlay(_ game: PortedGame, profiles: LocalProfileStore,
+                                                other: LocalProfile) async throws {
+        var fixture = game
+        let original = profiles.active!
+        let data = AppData.supportRoot.appendingPathComponent("CloudInstallPlay", isDirectory: true)
+        fixture.url = data.appendingPathComponent("Old.app", isDirectory: true)
+        fixture.bundleId = "example.oort.cloud-deferred-play"
+        fixture.status = .built
+        try FileManager.default.createDirectory(at: fixture.url, withIntermediateDirectories: true)
+        let catalog = CatalogGame(nxnative: fixture)
+        for (result, refusal) in [("failed", PlayRefusal.preparationFailed), ("cancelled", .notStarted),
+                                  ("installed", .openFailed), ("profile changed", .profileLocked)] {
+            let settings = AppSettingsStore(fileURL: data.appendingPathComponent("settings.json"))
+            let vm = AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: data)))
+            vm.localProfiles = profiles
+            vm.applyCatalog(.init(games: [catalog]))
+            vm.cloudLibrary.usePlayFixtureArchive()
+            var events: [PlayEvent] = []
+            restoringFixture = { game in
+                precondition(vm.cloudLibrary.appInstall?.title == game.titleId)
+                precondition(vm.play(catalog) { events.append($0) } == .accepted(.pending))
+                if result == "cancelled" { throw CancellationError() }
+                if result == "failed" { throw CloudArchiveError.localChanged }
+                if result == "profile changed" { precondition(profiles.choose(other.id)) }
+            }
+            vm.performCloudLibrary(.restore(.app), for: fixture)
+            let transfer = vm.cloudLibrary.active!.task
+            await transfer.value
+            restoringFixture = nil
+            await vm.cloudLibrary.queueStore.flush()
+            expect(events == [.result(.refused(refusal))],
+                   "Cloud install (\(result)) must report to the original observer: \(events)")
+            precondition(vm.cloudLibrary.appInstall == nil && !vm.saveGate.isBusy(titleID: fixture.titleId!))
+            precondition(profiles.choose(original.id))
+        }
+        print("Cloud install Play: production defer reports success, failure and cancellation to the original observer")
+    }
+
+    @MainActor static func checkIconDeferredPlay(_ vm: AppViewModel, profiles: LocalProfileStore, other: LocalProfile,
+                                                game: PortedGame, out: URL, refs: URL) throws {
+        let original = profiles.active!
+        var fixture = game
+        fixture.url = game.url.deletingLastPathComponent().appendingPathComponent("MissingIconFixture.app")
+        fixture.status = .built
+        let catalog = CatalogGame(nxnative: fixture)
+        let language = L10n.context
+        defer {
+            _ = profiles.choose(original.id)
+            vm.applyCatalog(.init()); vm.alertMessage = nil; vm.settingsNotice = nil
+            L10n.setContext(language)
+        }
+        vm.applyCatalog(.init(games: [catalog]))
+        var events: [PlayEvent] = []
+        func request() {
+            events.removeAll()
+            vm.alertMessage = nil
+            vm.appIcon.appIconsInFlight.insert(fixture.id)
+            precondition(vm.play(catalog) { events.append($0) } == .accepted(.pending))
+        }
+        for (name, locale) in [("en", AppLocale(language: .english, region: "US")),
+                               ("fr", .init(language: .french, region: "FR"))] {
+            L10n.setContext(locale)
+            request()
+            let notice = vm.settingsNotice!
+            try render("play-icon-wait-\(name)", SeleneOverlay(style: .dialog) {
+                SeleneChoiceDialog(title: notice.title, message: notice.message, choices: notice.choices,
+                                   focus: .constant(notice.initialFocus), cancelIndex: notice.cancelIndex,
+                                   onCancel: {}, onChoose: { _ in })
+            }.environment(\.nxAppLocale, locale), in: out, refs, "none")
+            vm.appIcon.completePlayFixture(fixture, .success(false))
+            expect(events == [.result(.refused(.installationMissing))],
+                   "Icon signing must deliver the resumed result to the original observer (\(name)): \(events)")
+        }
+        request()
+        precondition(profiles.choose(other.id))
+        vm.appIcon.completePlayFixture(fixture, .success(false))
+        expect(events == [.result(.refused(.profileLocked))] && vm.alertMessage == nil,
+               "Icon signing must refuse a stale profile without trying to play: \(events)")
+        precondition(profiles.choose(original.id))
+        request()
+        vm.appIcon.completePlayFixture(fixture, .failure(CocoaError(.fileWriteUnknown)))
+        expect(events == [.result(.refused(.preparationFailed))], "Failed icon signing must refuse the original Play: \(events)")
+        request()
+        vm.settingsNotice = nil
+        vm.appIcon.completePlayFixture(fixture, .success(false))
+        expect(events == [.result(.refused(.notStarted))] && vm.alertMessage == nil && vm.launchingGameId == nil,
+               "Cancelling the icon notice must refuse Play exactly once: \(events)")
+    }
+
+    @MainActor static func checkDeferredPlay(_ vm: AppViewModel, profiles: LocalProfileStore,
+                                             other: LocalProfile, game: PortedGame) throws {
+        let original = profiles.active!
+        let fm = FileManager.default
+        var fixture = game
+        fixture.url = game.url.deletingLastPathComponent().appendingPathComponent("DeferredPlay.app")
+        fixture.bundleId = "example.oort.deferred-play-fixture"
+        fixture.status = .built
+        let catalog = CatalogGame(nxnative: fixture)
+        vm.applyCatalog(.init(games: [catalog]))
+        var events: [PlayEvent] = []
+        func afterInstall() -> () -> Void {
+            vm.cloudLibrary.appInstall = (fixture.titleId!, {})
+            precondition(vm.play(catalog) { events.append($0) } == .accepted(.pending))
+            precondition(vm.play(catalog) == .refused(.launchInProgress))
+            let resume = vm.cloudLibrary.playAfterAppInstall!
+            vm.cloudLibrary.appInstall = nil
+            vm.cloudLibrary.playAfterAppInstall = nil
+            return { resume(nil) }
+        }
+        let staleInstall = afterInstall()
+        precondition(profiles.choose(other.id))
+        staleInstall()
+        precondition(events == [.result(.refused(.profileLocked))] && vm.alertMessage == nil,
+                     "Cloud completion must not play under a different profile, and must notify the original observer")
+        precondition(profiles.choose(original.id))
+        events.removeAll()
+        afterInstall()()
+        precondition(events == [.result(.refused(.installationMissing))], "The original observer must receive the resumed result")
+        vm.alertMessage = nil
+        let settings = vm.settingsStore!
+        let old = settings.settings
+        defer { settings.settings = old; vm.applyCatalog(.init()); vm.alertMessage = nil }
+        settings.settings.multiplayerVPN = .zeroTier
+        settings.settings.multiplayerDefault = .local
+        func confirmVPN() throws -> () -> Void {
+            let contents = fixture.url.appendingPathComponent("Contents")
+            let dm = contents.appendingPathComponent("Resources/dm")
+            try fm.createDirectory(at: dm, withIntermediateDirectories: true)
+            try PropertyListSerialization.data(fromPropertyList: ["CFBundleIdentifier": fixture.bundleId!, "DMSettings": []],
+                                                format: .xml, options: 0).write(to: contents.appendingPathComponent("Info.plist"))
+            // No VPN setting: this host always requires a fallback, regardless of the machine's interfaces.
+            try Data("""
+                {"schema":1,"game":"0100000000001000","settings":[
+                 {"env":"DM_NETWORK","kind":"choice","section":"Game","label":"Network","default":"offline",
+                  "options":[["offline","Offline"],["ldn","Local communication"]]}]}
+                """.utf8).write(to: dm.appendingPathComponent("launcher.json"))
+            precondition(vm.play(catalog) { events.append($0) } == .refused(.confirmationRequired))
+            let retry = vm.settingsNotice!.retry!
+            vm.settingsNotice = nil
+            try fm.removeItem(at: fixture.url)
+            return retry
+        }
+        events.removeAll()
+        let staleVPN = try confirmVPN()
+        precondition(profiles.choose(other.id))
+        staleVPN()
+        precondition(events == [.result(.refused(.profileLocked))] && vm.alertMessage == nil)
+        precondition(profiles.choose(original.id))
+        events.removeAll()
+        try confirmVPN()()
+        precondition(events == [.result(.refused(.installationMissing))])
+        print("Deferred Play checks passed: installation, VPN, original observer and stale profile")
     }
 
     @MainActor static func checkPickerHalo(in out: URL) throws {
@@ -1374,11 +1594,48 @@ def main():
             stub.mkdir(parents=True)
             (stub / "Empty.swift").touch()
         app = package / "Sources/NXLibrary"
+        cloud = app / "ViewModels/AppViewModel+CloudLibrary.swift"
+        replace(cloud, r"(                    let own = try await archive.latest\(titleID: target.titleID\))",
+                lambda m: """                    if let fixture = ProfileScreenProbe.restoringFixture {
+                        try await beforeAppInstall()
+                        try fixture(game)
+                        // Publish a synthetic success, without opening or replacing a real app.
+                        outcome = .succeeded
+                        return
+                    }
+""" + m[1])
+        with cloud.open("a") as swift:
+            swift.write("""
+extension CloudLibraryModel {
+    func usePlayFixtureArchive() {
+        archive = CloudGameArchive(backend: RcloneStorageBackend(remote: "fixture", root: "Games") { _, _, _ in
+            .init(status: 0, stdout: "[]", stderr: "")
+        })
+        hasRestoredQueue = true
+    }
+}
+""")
+        launch = app / "ViewModels/AppViewModel+Launch.swift"
+        replace(launch, r"        guard let saveLaunchToken =",
+                '        if game.bundleId == "example.oort.cloud-deferred-play" { return .refused(.openFailed) }\n'
+                '        guard let saveLaunchToken =')
+        with (app / "ViewModels/AppIconModel.swift").open("a") as swift:
+            swift.write("""
+extension AppIconModel {
+    @MainActor func completePlayFixture(_ game: PortedGame, _ outcome: Result<Bool, Error>) {
+        appIconsInFlight.remove(game.id)
+        finishIconLaunchWait(for: game, rerun: false, outcome: outcome)
+    }
+}
+""")
         replace(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
         replace(app / "ViewModels/AppViewModel.swift", r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
         replace(app / "ViewModels/AppViewModel.swift", r"            updateDockIcon\(\)", "")
         replace(app / "ViewModels/AppViewModel.swift", r"        applyCatalog\(catalog\).*?\n    }\n\n    // MARK: - Dynamic",
                 "    }\n\n    // MARK: - Dynamic")
+        replace(app / "Services/SteamPlayCoordinator.swift", r"static var steamClientURL: URL\? \{.*?\n    \}",
+                "static var steamClientURL: URL? { nil }")
+        replace(app / "Views/Spotlight/SpotlightTopBar.swift", r"Text\(context\.date,", "Text(Date(timeIntervalSince1970: 1_790_000_000),")
         replace(package / "Sources/NXLibraryCore/App/AppDataProfile.swift",
                 r'public static let profile = [^\n]*',
                 f'public static let profile = AppDataProfile(home: URL(fileURLWithPath: "{temp}"), isDevelopment: true)')
@@ -1567,6 +1824,12 @@ extension NextendoSettings {
             host = re.sub(r'        let beforeImage = .*?(?=\n    })', "", host, flags=re.S)
             host = re.sub(r'    struct BeforeSortTopBar: View \{.*?\n    }\n', "", host, flags=re.S)
         (app / "ProfileScreenProbe.swift").write_text(host)
+        if os.environ.get("OORT_MAC_SHORTCUT_PROBE") == "1":
+            shutil.copyfile(ROOT / "Tests/CatalogAppChecks/MacShortcutProbe.swift", app / "MacShortcutProbe.swift")
+            replace(app / "ProfileScreenProbe.swift", r"        try checkDeferredPlay\(vm, profiles: profiles, other: alex, game: game\)",
+                    "        try checkDeferredPlay(vm, profiles: profiles, other: alex, game: game)\n"
+                    "        try await checkMacShortcuts(in: out, refs: refs)\n"
+                    "        L10n.setContext(fr)")
         subprocess.run(["swift", "run", "--jobs", "2", "--package-path", str(package), "ProfileScreenProbe", str(out),
                         str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"), str(refs)],
                        check=True, env=dict(os.environ, HOME=temp, CFFIXED_USER_HOME=temp))

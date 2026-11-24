@@ -82,6 +82,14 @@ final class CatalogModelTests: XCTestCase {
         XCTAssertTrue(CatalogGamePresentation(game: CatalogGame(nxnative: original), sourceEnabled: true).installations.isEmpty)
     }
 
+    func testInstalledAppRemainsPlayableWhenBuildingIsUnavailable() {
+        let game = CatalogTestSupport.completeLegacyGame()
+        XCTAssertEqual(CatalogGamePresentation(game: .init(nxnative: game), sourceEnabled: true).launchTarget,
+                       .nxnative(appURL: game.url))
+        XCTAssertEqual(GamePrimaryStep.decide(unavailable: false, playable: game.isPlayableLocally,
+                                              sourcesAvailable: false), .play)
+    }
+
     func testUnknownIntegrationTagCannotBeDecodedAsAnEmptyOrLegacyGame() throws {
         let game = CatalogGame(nxnative: CatalogTestSupport.completeLegacyGame())
         var json = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(game)) as? [String: Any])
