@@ -5,8 +5,6 @@ import NXLibraryCore
 /// The first launch's first page: what is already on the Mac (Steam, ported apps), the Porting card and
 /// Open library. It reads without changing anything; the switches apply only on Open library.
 struct FoundGamesSetupView: View {
-    @Environment(\.seleneCanvas) var canvas
-    @Environment(\.seleneReduceMotion) var reduceMotion
     @ObservedObject var viewModel: AppViewModel
     let steamRoot: URL
     let steamEnabled: Bool
@@ -22,6 +20,35 @@ struct FoundGamesSetupView: View {
     var portedCount: Int { findings?.portedAppCount ?? 0 }
     var isReading: Bool { findings == nil }
     var steamOn: Bool { viewModel.firstRunSetup.steamChoice ?? steamEnabled }
+
+    var body: some View {
+        FoundGamesSetupContent(findings: findings, steamOn: steamOn, focus: focus,
+                               move: move, activate: activate)
+        .onAppear {
+            reader.start(steamRoot: steamRoot, appsFolder: viewModel.gameAppsFolder)
+        }
+        .onDisappear { reader.cancel() }
+        .onChange(of: findings) { _, found in
+            if found != nil, !hasSteam, focus == .steamToggle { move(to: .openLibrary) }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .nxSetupCheckGamepadAction)) { note in
+            guard let action = note.object as? GamepadAction else { return }
+            handle(action)
+        }
+    }
+}
+
+/// The Selene screen shared by the live reader and the offline Debug preview.
+struct FoundGamesSetupContent: View {
+    @Environment(\.seleneCanvas) private var canvas
+    @Environment(\.seleneReduceMotion) private var reduceMotion
+    let findings: FirstRunFindings?
+    let steamOn: Bool
+    let focus: FirstRunSetup.Focus
+    let move: (FirstRunSetup.Focus) -> Void
+    let activate: (FirstRunSetup.Focus) -> Void
+
+    private var isReading: Bool { findings == nil }
 
     private var title: String {
         if isReading { return L10n.text("Looking at your Mac…") }
@@ -47,20 +74,20 @@ struct FoundGamesSetupView: View {
                     .padding(.top, canvas.u(10))
 
                 VStack(spacing: canvas.u(12)) {
-                    if let steamCount {
+                    if let steamCount = findings?.steamGameCount {
                         SetupCardRow(title: "Steam",
                                      detail: L10n.count("%lld installed Mac games", steamCount),
                                      icon: .store, trailing: .toggle(steamOn),
                                      focused: focus == .steamToggle,
-                                     onHover: { move(to: .steamToggle) }) { activate(.steamToggle) }
+                                     onHover: { move(.steamToggle) }) { activate(.steamToggle) }
                     } else if findings?.steamReadFailed == true {
                         SetupCardRow(title: "Steam",
                                      detail: L10n.text("Steam couldn't be read completely. Try again or continue and check Settings → Sources later."),
                                      icon: .store, trailing: .text(L10n.text("Retry")),
                                      focused: focus == .steamToggle,
-                                     onHover: { move(to: .steamToggle) }) { activate(.steamToggle) }
+                                     onHover: { move(.steamToggle) }) { activate(.steamToggle) }
                     }
-                    if portedCount > 0 {
+                    if let portedCount = findings?.portedAppCount, portedCount > 0 {
                         SetupCardRow(title: L10n.format("Already ported: %@", [String(portedCount)]),
                                      detail: L10n.text("They're in your library."),
                                      icon: .check, trailing: .none, height: 84, focused: false) {}
@@ -70,7 +97,7 @@ struct FoundGamesSetupView: View {
                                  detail: L10n.text("Bring the Nintendo Switch games you own to the Mac."),
                                  note: L10n.text("Arcane is not affiliated with Nintendo."),
                                  icon: .build, focused: focus == .portingCard,
-                                 onHover: { move(to: .portingCard) }) { activate(.portingCard) }
+                                 onHover: { move(.portingCard) }) { activate(.portingCard) }
                 }
                 .padding(.top, canvas.u(32))
 
@@ -78,7 +105,7 @@ struct FoundGamesSetupView: View {
                                  focused: focus == .openLibrary) {
                     activate(.openLibrary)
                 }
-                .onHover { if $0 { move(to: .openLibrary) } }
+                .onHover { if $0 { move(.openLibrary) } }
                 .padding(.top, canvas.u(30))
             }
             .frame(width: canvas.u(960))
@@ -92,16 +119,5 @@ struct FoundGamesSetupView: View {
             }
         }
         .frame(width: canvas.size.width, height: canvas.size.height)
-        .onAppear {
-            reader.start(steamRoot: steamRoot, appsFolder: viewModel.gameAppsFolder)
-        }
-        .onDisappear { reader.cancel() }
-        .onChange(of: findings) { _, found in
-            if found != nil, !hasSteam, focus == .steamToggle { move(to: .openLibrary) }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .nxSetupCheckGamepadAction)) { note in
-            guard let action = note.object as? GamepadAction else { return }
-            handle(action)
-        }
     }
 }

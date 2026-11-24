@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **925 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **926 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -73,7 +73,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibrary/NXLibraryApp.swift](../../Sources/NXLibrary/NXLibraryApp.swift) | Punto @main, finestra SwiftUI con il nome visibile, notifiche interne e comandi della barra menu. |
+| [Sources/NXLibrary/NXLibraryApp.swift](../../Sources/NXLibrary/NXLibraryApp.swift) | Punto @main, finestra SwiftUI, notifiche e comandi della barra menu; in Debug seleziona anche la fixture o la cattura senza finestra visibile. |
 | [Sources/NXLibrary/AppDelegate.swift](../../Sources/NXLibrary/AppDelegate.swift) | Gestisce finestra e chiusura: code, esiti, conferma dell’ospite e rinomina di una copia release storica. |
 | [Sources/NXLibrary/Views/MainView.swift](../../Sources/NXLibrary/Views/MainView.swift) | Presenta AppShellView come contenuto della finestra principale. |
 | [Sources/NXLibrary/Views/Shell/AppShellView.swift](../../Sources/NXLibrary/Views/Shell/AppShellView.swift) | Possiede il backdrop persistente e lo stato condiviso, passa a Spotlight il modello Mods, compone schermate e overlay e instrada input e avvisi (compresi i guasti cloud e l'annullamento da tastiera). `nativeDialogOwnsInput` sospende controller e tastiera sotto dialoghi nativi. Il file tiene stato, init e `body`; il resto sta nelle estensioni qui sotto. |
@@ -85,6 +85,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [Sources/NXLibrary/Views/Shell/AppShellView+Input.swift](../../Sources/NXLibrary/Views/Shell/AppShellView+Input.swift) | Equivalenti da tastiera dei gesti del controller, inclusi Inbox e Integrations, azioni del menu e del centro attività. |
 | [Sources/NXLibrary/Views/Shell/IntegrationsView.swift](../../Sources/NXLibrary/Views/Shell/IntegrationsView.swift) | Barra e pagina Selene per le integrazioni, con stato, prossima azione e accessi ai dati; osserva i proprietari esistenti. |
 | [Sources/NXLibrary/Views/Shell/IntegrationsView+Input.swift](../../Sources/NXLibrary/Views/Shell/IntegrationsView+Input.swift) | Traduce tastiera e controller in spostamenti e navigazione per la barra e la pagina. |
+| [Sources/NXLibrary/Views/Shell/IntegrationFixtureView.swift](../../Sources/NXLibrary/Views/Shell/IntegrationFixtureView.swift) | Anteprima Debug isolata e PNG delle viste condivise con stati sintetici, senza avviare i servizi o rendere visibile una finestra per le catture. |
 | [Sources/NXLibrary/Views/Shell/FullscreenCursorView.swift](../../Sources/NXLibrary/Views/Shell/FullscreenCursorView.swift) | Gestisce il cursore inattivo nella sola finestra fullscreen del launcher, sospendendolo per pannelli e menu e ripristinando gli eventi al distacco. |
 | [Sources/NXLibrary/Views/Shell/StartupWindowView.swift](../../Sources/NXLibrary/Views/Shell/StartupWindowView.swift) | Applica il fullscreen dopo la comparsa della finestra e segnala fine transizione o scadenza alla fase dell’entrata. |
 | [Sources/NXLibrary/Views/Shell/MenuOverlayView.swift](../../Sources/NXLibrary/Views/Shell/MenuOverlayView.swift) | Disegna il control center a cinque icone con LB/RB e `MenuCard`, la scheda di pillole di pari larghezza sopra Profilo, Libreria e Power. Mostra le sole voci disponibili. Il puntatore fermo non riprende il focus delle icone. |
@@ -192,7 +193,7 @@ Cartella `Sources/NXLibraryCore/App/`.
 | [Sources/NXLibraryCore/App/ConnectivityWatcher.swift](../../Sources/NXLibraryCore/App/ConnectivityWatcher.swift) | Avvisa sul main thread quando il Mac torna online, perché il giro delle descrizioni riprenda da solo; la prima lettura non conta. |
 | [Sources/NXLibraryCore/App/DisplayNameCache.swift](../../Sources/NXLibraryCore/App/DisplayNameCache.swift) | Nomi visualizzati di cartelle e volumi letti una volta per URL: la pagina si ricostruisce a ogni disegno e un disco esterno in stop bloccherebbe ogni volta. |
 | [Sources/NXLibraryCore/App/AppIdentity.swift](../../Sources/NXLibraryCore/App/AppIdentity.swift) | Distingue Oort NX (nome visibile) da Arcane (identità e User-Agent), con vecchio nome, modulo Porting e pagina del progetto. |
-| [Sources/NXLibraryCore/App/AppDataProfile.swift](../../Sources/NXLibraryCore/App/AppDataProfile.swift) | Policy di percorsi, cache e preferenze del profilo; prepara il profilo di sviluppo con i controlli che riceve. |
+| [Sources/NXLibraryCore/App/AppDataProfile.swift](../../Sources/NXLibraryCore/App/AppDataProfile.swift) | Policy di percorsi, cache e preferenze; prepara il profilo di sviluppo e assegna una radice temporanea alla fixture Debug. |
 | [Sources/NXLibraryCore/App/DevelopmentProfileImporter.swift](../../Sources/NXLibraryCore/App/DevelopmentProfileImporter.swift) | Copia iniziale selettiva (compresa la scelta Steam del Setup), hash, validazione e ripresa senza modificare la sorgente; i file che solo un modulo sa leggere si controllano con i `checks` ricevuti. |
 | [Sources/NXLibraryCore/App/DevelopmentOperationStore.swift](../../Sources/NXLibraryCore/App/DevelopmentOperationStore.swift) | Autorizzazioni persistenti per le operazioni richieste nella Dev, distinte da quelle importate. |
 | [Sources/NXLibraryCore/App/VersionNumber.swift](../../Sources/NXLibraryCore/App/VersionNumber.swift) | Confronta numeri di versione puntati parte per parte, per i requisiti della toolchain e l'updater. |
@@ -764,7 +765,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/Setup/SetupCheckView+Input.swift](../../Sources/NXLibrary/Views/Setup/SetupCheckView+Input.swift) | Gestisce focus iniziale, navigazione della griglia, attivazione delle schede Setup e B verso `found` durante il primo avvio. |
 | [Sources/NXLibrary/Views/Setup/ArcaneWelcomeView.swift](../../Sources/NXLibrary/Views/Setup/ArcaneWelcomeView.swift) | Disegna il benvenuto in Arcane: nome nuovo, novità, offerta Steam dalla cartella scelta, Add / Not now e Open library. |
 | [Sources/NXLibrary/Views/Setup/ArcaneWelcomeView+Input.swift](../../Sources/NXLibrary/Views/Setup/ArcaneWelcomeView+Input.swift) | Gestisce focus, mouse, tastiera e controller del benvenuto. |
-| [Sources/NXLibrary/Views/Setup/FoundGamesSetupView.swift](../../Sources/NXLibrary/Views/Setup/FoundGamesSetupView.swift) | Prima pagina del Setup: Steam con scelta salvata o attivazione esistente, Retry, app portate e card Porting; la lettura non attiva Steam o blocca Open library. |
+| [Sources/NXLibrary/Views/Setup/FoundGamesSetupView.swift](../../Sources/NXLibrary/Views/Setup/FoundGamesSetupView.swift) | Prima pagina del Setup: Steam con scelta salvata o attivazione esistente, Retry, app portate e card Porting; condivide il solo disegno con la fixture. |
 | [Sources/NXLibrary/Views/Setup/FoundGamesSetupView+Input.swift](../../Sources/NXLibrary/Views/Setup/FoundGamesSetupView+Input.swift) | Focus, mouse, tastiera e controller di found; Retry della lettura Steam e uscita che annulla la richiesta prima di aprire la libreria. |
 | [Sources/NXLibrary/Views/Setup/YourGamesSetupView.swift](../../Sources/NXLibrary/Views/Setup/YourGamesSetupView.swift) | Disegna scelta cartella, primo gioco, apertura libreria e Skip; gestisce mouse, tastiera e controller; contiene `SetupCardRow`, la riga condivisa con `found`. |
 | [Sources/NXLibrary/Views/Launch/LaunchScreenView.swift](../../Sources/NXLibrary/Views/Launch/LaunchScreenView.swift) | Mostra artwork e logo per nxnative e Steam. Sfuma anche quando la finestra del gioco è già pronta alla comparsa. |

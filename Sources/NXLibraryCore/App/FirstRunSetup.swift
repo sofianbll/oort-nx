@@ -8,7 +8,7 @@ public struct FirstRunSetup: Equatable {
 
     public private(set) var page: Page
     public private(set) var isCompleted: Bool
-    /// The Steam switch on `found`: nil until Steam is found, then kept on every page of the first launch
+    /// The Steam switch on `found`: nil until chosen, then kept on every page of the first launch
     /// and applied when it finishes, through Open library or through Porting.
     public private(set) var steamChoice: Bool?
 

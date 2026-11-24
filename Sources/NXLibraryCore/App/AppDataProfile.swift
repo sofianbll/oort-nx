@@ -21,12 +21,36 @@ public struct AppDataProfile: Sendable {
 /// All app-owned stores use this composition-root policy, including their default initializers.
 /// Game installations, their runtime preferences and saves are separate, explicitly operated-on resources.
 public enum AppData {
-    public static let profile = AppDataProfile(isDevelopment: Bundle.main.object(forInfoDictionaryKey: "NXLibraryDevelopmentProfile") as? Bool == true)
+    public static let profile = configuredProfile()
+    private static func configuredProfile() -> AppDataProfile {
+        #if DEBUG
+        if let home = integrationFixtureHome { return AppDataProfile(home: home, isDevelopment: true) }
+        #endif
+        return AppDataProfile(isDevelopment: Bundle.main.object(forInfoDictionaryKey: "NXLibraryDevelopmentProfile") as? Bool == true)
+    }
     public static var supportRoot: URL { profile.supportRoot }
     public static var cacheRoot: URL { profile.cacheRoot }
     // Each packaged profile has its own bundle ID. Foundation already binds
     // standard preferences to that ID and rejects reopening it as a suite.
-    public static var preferences: UserDefaults { .standard }
+    public static var preferences: UserDefaults { configuredPreferences() }
+    private static func configuredPreferences() -> UserDefaults {
+        #if DEBUG
+        if let fixturePreferences { return fixturePreferences }
+        #endif
+        return .standard
+    }
+    #if DEBUG
+    public static let integrationFixtureHome: URL? = {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard arguments.contains("--integration-fixture") || arguments.contains("--render-integration-fixture") else { return nil }
+        let home = FileManager.default.temporaryDirectory.appendingPathComponent("oort-integrations-\(UUID())", isDirectory: true)
+        try! FileManager.default.createDirectory(at: home, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+        return home
+    }()
+    private static let fixturePreferences = integrationFixtureHome.map {
+        UserDefaults(suiteName: $0.appendingPathComponent("preferences").path)!
+    }
+    #endif
     public static func validateBuildIdentity(_ info: [String: Any]) throws {
         let development = info["NXLibraryDevelopmentProfile"] as? Bool == true
         let release = info["NXLibraryRelease"] as? Bool == true
