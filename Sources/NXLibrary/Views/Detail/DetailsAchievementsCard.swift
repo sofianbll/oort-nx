@@ -42,7 +42,7 @@ struct DetailsAchievementsCard: View {
             VStack(alignment: .leading, spacing: canvas.u(16)) {
                 if appID == 0 {
                     Text(L10n.text("Arcane · local"))
-                        .seleneFont(.metadata)
+                        .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink60)
                 }
                 HStack(alignment: .center, spacing: canvas.u(16)) {
@@ -61,7 +61,7 @@ struct DetailsAchievementsCard: View {
                                 .opacity(active ? 1 : 0)
                                 .offset(y: active || !moves ? 0 : canvas.u(5))
                         }
-                        .seleneFont(14, .semibold)
+                        .seleneFont(.text, .semibold)
                     }
                     .lineLimit(1)
                     Spacer(minLength: 0)
@@ -72,8 +72,8 @@ struct DetailsAchievementsCard: View {
                                            height: 5, track: SeleneTheme.ink25)
                 }
             }
-            .padding(.horizontal, canvas.u(18))
-            .padding(.vertical, canvas.u(16))
+            .padding(.horizontal, canvas.u(SeleneTokens.Space.control))
+            .padding(.vertical, canvas.u(SeleneTokens.Space.medium))
             .frame(width: canvas.u(Self.width), alignment: .leading)
             // Match the option 3 mockup: a transparent tint, without a second layer of material blur.
             .background(shape.fill(SeleneTheme.ink.opacity(active ? 0.10 : 0.05)))
@@ -112,7 +112,7 @@ extension DetailsAchievementsCard {
                 Text("\(unlocked)\(total)")
             }
         }
-        .seleneFont(22, .bold)
+        .seleneFont(.row, .bold)
         .monospacedDigit()
     }
 

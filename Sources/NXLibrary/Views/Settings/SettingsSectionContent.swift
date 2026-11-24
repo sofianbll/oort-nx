@@ -79,7 +79,7 @@ struct SettingsSectionContent: View {
                 }, advanced: .constant(false), onActions: onActions, nextendo: profileNextendo)
                 .id(profile.id)
             } else {
-                Text(L10n.text("No account linked")).seleneFont(.caption).foregroundStyle(SeleneTheme.ink60)
+                Text(L10n.text("No account linked")).seleneFont(.text).foregroundStyle(SeleneTheme.ink60)
             }
         case .profileCards:
             if let profiles = viewModel.localProfiles {
@@ -143,10 +143,10 @@ struct SettingsSubheading: View {
 
     var body: some View {
         Text(L10n.text(title))
-            .seleneFont(17, .semibold)
+            .seleneFont(.text, .semibold)
             .foregroundColor(SeleneTheme.glyph)
-            .padding(.top, canvas.u(18))
-            .padding(.bottom, canvas.u(4))
+            .padding(.top, canvas.u(SeleneTokens.Space.control))
+            .padding(.bottom, canvas.u(SeleneTokens.Space.hairline))
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

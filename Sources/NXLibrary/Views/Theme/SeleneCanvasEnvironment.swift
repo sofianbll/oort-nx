@@ -23,12 +23,23 @@ extension EnvironmentValues {
 private struct SeleneFontModifier: ViewModifier {
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.seleneMinimumFont) private var minimum
+    @Environment(\.dynamicTypeSize) private var dynamicType
     let size: CGFloat
     let weight: Font.Weight
     var design: Font.Design = .default
 
     func body(content: Content) -> some View {
-        content.font(.system(size: max(minimum, canvas.u(size)), weight: weight, design: design))
+        // The default is the reference canvas. Accessibility text size is not
+        // shrunk with narrow windows; actual glyph height must be measured.
+        let scale: CGFloat = switch dynamicType {
+        case .accessibility1: 1.25
+        case .accessibility2: 1.5
+        case .accessibility3: 1.75
+        case .accessibility4, .accessibility5: 2
+        default: 1
+        }
+        let base = scale == 1 ? canvas.u(size) : size * scale
+        return content.font(.system(size: max(minimum, base), weight: weight, design: design))
     }
 }
 

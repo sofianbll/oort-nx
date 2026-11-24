@@ -16,7 +16,7 @@ struct SelenePillButton: View {
     /// Takes the width its container offers: pills stacked in a fixed-size column all take the widest one's.
     var fillsWidth = false
     var height: CGFloat = 60
-    var titleSize: SeleneTokens.Text = .rowTitle
+    var titleSize: SeleneTokens.Text = .row
     /// Selene's Padding="36,0"; the round Favorite pill uses 0.
     var horizontalPadding: CGFloat = 36
     let focused: Bool
@@ -88,7 +88,7 @@ struct SelenePillButton: View {
             }
             if waveDots {
                 WaveDots()
-                    .padding(.leading, canvas.u(-4))
+                    .padding(.leading, -canvas.u(SeleneTokens.Space.hairline))
             }
         }
         .padding(.horizontal, canvas.u(horizontalPadding))
@@ -130,7 +130,7 @@ struct SelenePillButton: View {
     }
 }
 
-private struct PillOutline: Shape {
+struct PillOutline: Shape {
     let width: CGFloat
 
     func path(in rect: CGRect) -> Path {
@@ -173,7 +173,7 @@ struct WaveDots: View {
                 }
             }
             .frame(height: canvas.u(14), alignment: .bottom)
-            .padding(.top, canvas.u(6))
+            .padding(.top, canvas.u(SeleneTokens.Space.tight))
         }
         .accessibilityHidden(true)
     }

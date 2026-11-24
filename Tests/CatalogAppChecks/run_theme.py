@@ -313,7 +313,7 @@ host = host.replace('// ACTUAL_SHELL_STYLE', declaration(
     'Sources/NXLibrary/Views/Shell/AppShellView.swift', '    private var backdropStyle:'))
 
 host = host.replace('// ACTUAL_STEPPING', declaration(
-    'Sources/NXLibrary/Views/Components/SeleneSettingsRow.swift', 'extension CaseIterable where Self: Equatable'))
+    'Sources/NXLibrary/Views/OortUI/SeleneSettingsRow.swift', 'extension CaseIterable where Self: Equatable'))
 
 with tempfile.TemporaryDirectory(prefix='arcane-theme-check-') as folder:
     scratch = Path(folder)

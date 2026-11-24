@@ -36,17 +36,17 @@ struct ArcaneWelcomeView: View {
         ZStack {
             SeleneBackdrop()
             VStack(spacing: 0) {
-                Text(L10n.text("Welcome to Arcane")).seleneFont(46, .semibold).foregroundColor(SeleneTheme.ink)
+                Text(L10n.text("Welcome to Arcane")).seleneFont(.screen, .semibold).foregroundColor(SeleneTheme.ink)
                     .multilineTextAlignment(.center)
                 Text(L10n.format("%@ has a new name: your games and settings are right where you left them.",
                                  [AppIdentity.formerName]))
-                    .seleneFont(19).foregroundColor(SeleneTheme.ink75)
+                    .seleneFont(.text).foregroundColor(SeleneTheme.ink75)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.top, canvas.u(10))
 
                 newsCard.padding(.top, canvas.u(30))
-                if let offer { offerRow(offer).padding(.top, canvas.u(12)).transition(.opacity) }
+                if let offer { offerRow(offer).padding(.top, canvas.u(SeleneTokens.Space.small)).transition(.opacity) }
 
                 SelenePillButton(title: L10n.text("Open library"), minWidth: 220,
                                  focused: focus == .openLibrary) { activate(.openLibrary) }
@@ -82,11 +82,11 @@ struct ArcaneWelcomeView: View {
 
     private var newsCard: some View {
         VStack(alignment: .leading, spacing: canvas.u(14)) {
-            Text(L10n.text("What's new")).seleneFont(17, .semibold).foregroundColor(SeleneTheme.ink60)
+            Text(L10n.text("What's new")).seleneFont(.text, .semibold).foregroundColor(SeleneTheme.ink60)
             ForEach(Self.news, id: \.1) { icon, line in
                 HStack(spacing: canvas.u(14)) {
                     MaterialIconView(icon, size: 22).foregroundColor(SeleneTheme.ink75)
-                    Text(L10n.text(line)).seleneFont(19).foregroundColor(SeleneTheme.ink)
+                    Text(L10n.text(line)).seleneFont(.text).foregroundColor(SeleneTheme.ink)
                         .fixedSize(horizontal: false, vertical: true)
                     Spacer(minLength: 0)
                 }
@@ -104,8 +104,8 @@ struct ArcaneWelcomeView: View {
         return HStack(spacing: canvas.u(16)) {
             MaterialIconView(.gamepad, size: 26).foregroundColor(SeleneTheme.ink75)
             VStack(alignment: .leading, spacing: canvas.u(4)) {
-                Text(L10n.count("Found %lld Steam games", count)).seleneFont(20, .semibold).foregroundColor(SeleneTheme.ink)
-                Text(L10n.text("Adding them doesn't change Steam's files.")).seleneFont(16).foregroundColor(SeleneTheme.ink60)
+                Text(L10n.count("Found %lld Steam games", count)).seleneFont(.row, .semibold).foregroundColor(SeleneTheme.ink)
+                Text(L10n.text("Adding them doesn't change Steam's files.")).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
                     .fixedSize(horizontal: false, vertical: true)
             }
             Spacer(minLength: 0)
@@ -117,7 +117,7 @@ struct ArcaneWelcomeView: View {
             .onHover { if $0 { move(to: .notNow) } }
         }
         .padding(.horizontal, canvas.u(26))
-        .padding(.vertical, canvas.u(18))
+        .padding(.vertical, canvas.u(SeleneTokens.Space.control))
         .background(SeleneTheme.glass.opacity(0.75))
         .clipShape(RoundedRectangle(cornerRadius: canvas.u(18), style: .continuous))
     }

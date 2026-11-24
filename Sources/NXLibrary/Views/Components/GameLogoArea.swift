@@ -25,7 +25,7 @@ struct GameLogoArea: View {
                     .shadow(color: .black.opacity(0.35), radius: canvas.u(8))
                     .transition(.opacity)
             } else {
-                Text(title).seleneFont(56).foregroundColor(SeleneTheme.ink).lineLimit(1).truncationMode(.tail)
+                Text(title).seleneFont(.hero).foregroundColor(SeleneTheme.ink).lineLimit(1).truncationMode(.tail)
                     .shadow(color: .black.opacity(0.45), radius: canvas.u(6))
             }
         }.frame(width: canvas.u(900), height: canvas.u(195), alignment: .bottomLeading)
@@ -37,7 +37,7 @@ struct GameLogoArea: View {
                     .frame(maxWidth: canvas.u(700), maxHeight: canvas.u(240), alignment: .bottomLeading)
                     .shadow(color: .black.opacity(0.35), radius: canvas.u(8))
             } else {
-                Text(title).seleneFont(56).foregroundColor(SeleneTheme.ink).multilineTextAlignment(.leading)
+                Text(title).seleneFont(.hero).foregroundColor(SeleneTheme.ink).multilineTextAlignment(.leading)
                     .lineLimit(3).frame(maxHeight: canvas.u(220))
                     .shadow(color: .black.opacity(0.45), radius: canvas.u(6))
             }

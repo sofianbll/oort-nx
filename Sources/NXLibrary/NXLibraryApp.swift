@@ -36,6 +36,11 @@ struct NXLibraryApp: App {
     #if DEBUG
     init() {
         let args = CommandLine.arguments
+        if let index = args.firstIndex(of: "--render-oort-ui-gallery") {
+            precondition(args.indices.contains(index + 1), "Pass a directory for the gallery PNGs")
+            try! OortUIGallery.capture(to: URL(fileURLWithPath: args[index + 1], isDirectory: true))
+            exit(EXIT_SUCCESS)
+        }
         if let index = args.firstIndex(where: { ["--render-integration-fixture", "--render-sound-fixture", "--render-onboarding-fixture"].contains($0) }) {
             precondition(index + 1 < CommandLine.arguments.count, "Pass a directory for the fixture PNGs")
             try! IntegrationFixtureView.capture(to: URL(fileURLWithPath: args[index + 1], isDirectory: true),
@@ -127,7 +132,8 @@ struct NXLibraryApp: App {
 
     @ViewBuilder private var startup: some View {
         #if DEBUG
-        if AppData.integrationFixtureHome != nil { IntegrationFixtureView() }
+        if CommandLine.arguments.contains("--oort-ui-gallery") { OortUIGallery() }
+        else if AppData.integrationFixtureHome != nil { IntegrationFixtureView() }
         else { DevelopmentStartupView() }
         #else
         DevelopmentStartupView()

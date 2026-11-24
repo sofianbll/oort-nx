@@ -50,7 +50,7 @@ struct SpotlightScreenshotStrip: View {
         if shown.isEmpty {
             if known {
                 Text(L10n.text("No screenshots for this game"))
-                    .seleneFont(18)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
                     .shadow(color: .black.opacity(0.45), radius: canvas.u(4))
             }
@@ -70,7 +70,7 @@ struct SpotlightScreenshotStrip: View {
                     }
                 }
             }
-            .padding(canvas.u(14))
+            .padding(canvas.u(SeleneTokens.Space.line))
             .offset(x: -canvas.u(scroll))
             .frame(width: canvas.u(Self.clipWidth), alignment: .leading)
             .clipped()

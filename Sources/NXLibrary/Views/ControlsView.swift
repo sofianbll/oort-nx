@@ -64,20 +64,20 @@ struct ControlsView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: canvas.u(12)) {
                         Text(L10n.text("Controls"))
-                            .seleneFont(40)
+                            .seleneFont(.screen)
                             .foregroundColor(SeleneTheme.ink)
                         Text(inGame ? L10n.text("Default game inputs. Older builds may differ.") : L10n.text("Navigate Arcane."))
-                            .seleneFont(19)
+                            .seleneFont(.text)
                             .foregroundColor(SeleneTheme.ink60)
-                            .padding(.bottom, canvas.u(18))
+                            .padding(.bottom, canvas.u(SeleneTokens.Space.control))
                         SeleneSegmented(selection: $inGame, options: [(false, "Library"), (true, "In game")])
-                            .padding(.bottom, canvas.u(18))
+                            .padding(.bottom, canvas.u(SeleneTokens.Space.control))
                         SeleneOptionRow(icon: .gamepad, title: L10n.text("Controller"),
                             about: controller.isGamepadConnected ? controller.activeControllerName : L10n.text("Not connected"),
                             focused: focus == 0) {
                             Button(L10n.text("Detect")) { controller.refreshControllers() }
                                 .buttonStyle(.plain)
-                                .seleneFont(15, .semibold)
+                                .seleneFont(.text, .semibold)
                                 .foregroundColor(SeleneTheme.glyph)
                         }
                         .id(0)
@@ -87,7 +87,7 @@ struct ControlsView: View {
                                 .id(index + 1)
                         }
                     }
-                    .padding(.horizontal, canvas.u(32))
+                    .padding(.horizontal, canvas.u(SeleneTokens.Space.section))
                     .padding(.top, canvas.u(70))
                     .padding(.bottom, canvas.u(40))
                     .frame(maxWidth: max(700, canvas.u(1120)), alignment: .leading)

@@ -35,17 +35,17 @@ struct SpotlightCardInfoView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(headline)
-                .seleneFont(28, .semibold)
+                .seleneFont(.heading, .semibold)
                 .foregroundColor(SeleneTheme.ink)
             Text(about)
-                .seleneFont(19)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink82)
-                .padding(.top, canvas.u(8))
+                .padding(.top, canvas.u(SeleneTokens.Space.compact))
             detail
-                .padding(.top, canvas.u(22))
+                .padding(.top, canvas.u(SeleneTokens.Space.titleGap))
             if let action {
                 actionChip(action)
-                    .padding(.top, canvas.u(22))
+                    .padding(.top, canvas.u(SeleneTokens.Space.titleGap))
             }
         }
         .frame(width: canvas.u(900), alignment: .leading)
@@ -128,7 +128,7 @@ struct SpotlightCardInfoView: View {
                                 .onTapGesture { onTopGame(index) }
                         }
                     }
-                    .padding(canvas.u(6))
+                    .padding(canvas.u(SeleneTokens.Space.tight))
                     .padding(canvas.u(-6))
                 }
             }
@@ -137,7 +137,7 @@ struct SpotlightCardInfoView: View {
                     activityHeading("Recently built")
                     if recentBuilds.isEmpty {
                         Text(L10n.text("No completed builds yet."))
-                            .seleneFont(.caption)
+                            .seleneFont(.text)
                             .foregroundStyle(SeleneTheme.ink75)
                     } else {
                         HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.line)) {
@@ -154,7 +154,7 @@ struct SpotlightCardInfoView: View {
     private func activityHeading(_ title: String) -> some View {
         Text(L10n.text(title))
             .textCase(.uppercase)
-            .seleneFont(.metadata, .semibold)
+            .seleneFont(.text, .semibold)
             .foregroundStyle(SeleneTheme.ink60)
             .accessibilityAddTraits(.isHeader)
     }
@@ -163,7 +163,7 @@ struct SpotlightCardInfoView: View {
         VStack(spacing: canvas.u(SeleneTokens.Space.tight)) {
             activityTile(game, focused: false)
             Text(date.formatted(.dateTime.day().month(.abbreviated).locale(locale.formatLocale)))
-                .seleneFont(.metadata)
+                .seleneFont(.text)
                 .foregroundStyle(SeleneTheme.ink75)
                 .lineLimit(1)
         }
@@ -184,7 +184,7 @@ struct SpotlightCardInfoView: View {
                     RoundedRectangle(cornerRadius: canvas.u(4), style: .continuous)
                         .fill(value > 0 ? SeleneTheme.focus : SeleneTheme.ink15)
                         .frame(width: canvas.u(22), height: canvas.u(value > 0 ? max(6, 56 * value / peak) : 4))
-                    Text(days[day]).seleneFont(12, .semibold).foregroundColor(SeleneTheme.ink60)
+                    Text(days[day]).seleneFont(.badge, .semibold).foregroundColor(SeleneTheme.ink60)
                 }
             }
         }
@@ -193,7 +193,7 @@ struct SpotlightCardInfoView: View {
 
     private func activityTile(_ game: PortedGame, focused: Bool) -> some View {
         let side = canvas.u(SeleneTokens.Space.chromeGutter)
-        let shape = RoundedRectangle(cornerRadius: canvas.u(10), style: .continuous)
+        let shape = RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.row), style: .continuous)
         return SpotlightTileArtwork(game: game, side: side,
                                     artwork: artwork)
             .clipShape(shape)
@@ -207,8 +207,8 @@ struct SpotlightCardInfoView: View {
 
     private func stat(_ label: String, _ value: String) -> some View {
         VStack(alignment: .leading, spacing: canvas.u(4)) {
-            Text(L10n.text(label)).seleneFont(12, .semibold).foregroundColor(SeleneTheme.ink60)
-            Text(value).seleneFont(21, .semibold).foregroundColor(SeleneTheme.ink)
+            Text(L10n.text(label)).seleneFont(.badge, .semibold).foregroundColor(SeleneTheme.ink60)
+            Text(value).seleneFont(.row, .semibold).foregroundColor(SeleneTheme.ink)
         }
     }
 
@@ -219,7 +219,7 @@ struct SpotlightCardInfoView: View {
     private func actionChip(_ label: String) -> some View {
         HStack(spacing: canvas.u(10)) {
             SelenePromptBadge(button: .a)
-            Text(L10n.text(label)).seleneFont(19).foregroundColor(SeleneTheme.ink90)
+            Text(L10n.text(label)).seleneFont(.text).foregroundColor(SeleneTheme.ink90)
         }
     }
 
@@ -248,23 +248,23 @@ struct SpotlightCardMenu: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: canvas.u(14)) {
-            Text(L10n.text(card.title)).seleneFont(28, .semibold).foregroundColor(SeleneTheme.ink)
+            Text(L10n.text(card.title)).seleneFont(.heading, .semibold).foregroundColor(SeleneTheme.ink)
             VStack(spacing: canvas.u(8)) {
                 ForEach(Array(Self.rows.enumerated()), id: \.offset) { index, row in
                     let focused = index == focusedIndex
                     HStack(spacing: canvas.u(16)) {
                         MaterialIconView(row.icon, size: 28)
                         VStack(alignment: .leading, spacing: canvas.u(2)) {
-                            Text(row.title).seleneFont(21, .semibold)
-                            Text(row.subtitle).seleneFont(15)
+                            Text(row.title).seleneFont(.row, .semibold)
+                            Text(row.subtitle).seleneFont(.text)
                                 .foregroundColor(focused ? SeleneTheme.onFocus.opacity(0.8) : SeleneTheme.ink60)
                         }
                         Spacer(minLength: 0)
                     }
                     .foregroundColor(focused ? SeleneTheme.onFocus : SeleneTheme.ink)
-                    .padding(.horizontal, canvas.u(20))
+                    .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
                     .frame(height: canvas.u(68))
-                    .background(RoundedRectangle(cornerRadius: canvas.u(14), style: .continuous)
+                    .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
                         .fill(focused ? SeleneTheme.focus.opacity(0.95) : Color.clear))
                     .contentShape(Rectangle())
                     .onHover { if $0 { onFocus(index) } }
@@ -272,10 +272,10 @@ struct SpotlightCardMenu: View {
                 }
             }
         }
-        .padding(canvas.u(24))
+        .padding(canvas.u(SeleneTokens.Space.large))
         .frame(width: canvas.u(560))
-        .background(RoundedRectangle(cornerRadius: canvas.u(20), style: .continuous).fill(SeleneTheme.glassSolid))
-        .overlay(RoundedRectangle(cornerRadius: canvas.u(20), style: .continuous)
+        .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.modal), style: .continuous).fill(SeleneTheme.glassSolid))
+        .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.modal), style: .continuous)
             .strokeBorder(SeleneTheme.ink25, lineWidth: max(1, canvas.u(1))))
         .accessibilityElement(children: .contain)
     }

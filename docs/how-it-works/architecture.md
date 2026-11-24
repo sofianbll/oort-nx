@@ -217,11 +217,15 @@ La variante asincrona attende su una coda utility e invia SIGTERM al sottoproces
 
 ## Navigazione e focus
 
-`check_selene_tokens.py` impedisce alla CI di accettare nuovi argomenti numerici
-per font, padding e raggi. In una pull request ogni voce della baseline può solo
-diminuire. Rimuovere le occorrenze sostituite con token.
+`check_selene_tokens.py` controlla dimensioni, colori, opacità, ombre, font,
+animazioni e nuove dichiarazioni di riga, scheda, dialogo o pulsante fuori da
+OortUI. Ogni voce della baseline può solo diminuire.
 
-`SeleneTokens` conserva le misure di riferimento del canvas e gli effetti condivisi;
+`SeleneTokens` deriva da `design/oort.tokens.json` e conserva le misure del
+canvas, gli effetti e le durate condivise. Il fallback e la prima voce del
+catalogo usano gli stessi ruoli colore Oort; le altre palette non sono generate.
+I sei ruoli di testo crescono fino al doppio con le taglie di accessibilità del
+sistema; la lettura a tre metri si verifica in pixel sul testo disegnato.
 `SeleneTheme` applica la palette corrente. `Motion` definisce le curve per ruolo.
 Il rail di Spotlight e Collection ripunta la molla critica alla nuova selezione;
 con Riduci movimento la posizione e gli interruttori cambiano direttamente.
@@ -268,9 +272,9 @@ contenere anche i titoli e i messaggi su più righe.
 
 ## Impostazioni
 
-**Integrations.** La barra in Spotlight e Collection e la pagina a schermo intero leggono `IntegrationOverview.rows`, una proiezione dei fatti pubblicati dai proprietari esistenti. Non avviano verifiche, non salvano preferenze e non condizionano Play. La pagina distingue una scansione vuota da una incompleta, una verifica passata da una connessione attuale e una destinazione per i salvataggi da una copia verificata. Le righe descrivono lettura, scrittura e invio; la sezione in arrivo contiene solo testo.
+**Integrations.** La barra in Spotlight e Collection e la pagina a schermo intero leggono `IntegrationOverview.rows`, una proiezione dei fatti pubblicati dai proprietari esistenti. Non avviano verifiche, non salvano preferenze e non condizionano Play. La pagina OortUI opaca separa Giochi e Servizi. Mostra marchio, nome, stato e accesso alla scheda; la scheda descrive lettura, scrittura e invio. Le integrazioni in arrivo sono testo non azionabile.
 
-`IntegrationOverview.open` risolve l’ID nell’inventario di Search e Changed (`SettingsCatalog.all`) e chiede ad `AppRouter` di aprire il gruppo, senza azionare il comando. `SettingsView` aspetta le azioni pubblicate per mettere a fuoco la riga e disabilita gli avvii automatici della destinazione. I testi «legge, scrive, invia» descrivono le operazioni dei servizi, non nuovi permessi: separano client Steam locale e servizi Valve, porting locale e download, e sincronizzazione delle partite e archivio dei giochi. Indietro ripristina la riga in Integrations e poi la barra; gli aggiornamenti di stato non cambiano il focus.
+`IntegrationOverview.open` risolve l’ID nell’inventario di Search e Changed (`SettingsCatalog.all`) e chiede ad `AppRouter` di aprire il gruppo, senza azionare il comando. Le impostazioni esistenti restano proprietarie di pausa, rimozione e disconnessione. `SettingsView` aspetta le azioni pubblicate per mettere a fuoco la riga e disabilita gli avvii automatici della destinazione. I testi «legge, scrive, invia» descrivono operazioni, non nuovi permessi. Indietro ripristina la scheda, la riga in Integrations e poi la barra; gli aggiornamenti di stato non cambiano il focus.
 
 **La barra laterale.** `SettingsSidebarGroup` raggruppa le sezioni: Search e Changed, poi cinque gruppi.
 - **Profile:** Identity, Theme and background, Security, Nextendo e Profile page agiscono sul profilo attivo.
@@ -946,7 +950,7 @@ Prove e misure di queste scelte: [docs/history/reviews/2026-11-16-ratings-metada
 **Canvas, temi e componenti.**
 - `build_app.sh` compila `AppIcon.icon` in `Assets.car` e registra `CFBundleIconName`; macOS disegna la trama nativa in aspetto chiaro, scuro e tinto. In Look, Particles applica al Dock l’immagine chiara o scura. I valori salvati `Auto (System)` e `Monochrome` non cambiano.
 - `SeleneCanvas` scala il canvas 1920×1080 nello spazio disponibile, e `seleneCanvas` (in `SeleneCanvasEnvironment.swift`) espone unità e font alle viste. `SeleneTheme` ricava colori e curve di animazione dalla palette. `MaterialIcon` elenca i glifi; `SeleneFonts` registra il font e li rende in SwiftUI.
-- I componenti condivisi in `Views/Components` disegnano righe, switch, pill, focus, suggerimenti dei tasti, dialoghi e conferme. Quando usarli è in [conventions.md](../working-on-it/conventions.md#3-una-schermata-o-un-pannello-selene).
+- `Views/OortUI` contiene le primitive Selene condivise, incluse le tessere dei giochi e i posti giocatore. I posti conservano l'altezza e il controllo segmentato distingue la modalità scelta dal focus. `Views/Components` conserva gli altri componenti specializzati. Quando usarli è nell'[inventario](../working-on-it/components.md).
 
 **Suggerimenti dei tasti.**
 - Le barre `SeleneHintsBar` stanno a 32 unità Selene dal fondo (`SeleneBottomScrim.hintsBottom`). I simboli sono da 30 unità; solo Q/E e i corrispondenti LB/RB accanto ai filtri Achievements sono da 22, con area cliccabile di 30×36. Il margine sinistro aggiuntivo è 18.

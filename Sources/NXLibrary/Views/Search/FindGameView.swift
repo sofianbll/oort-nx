@@ -70,7 +70,7 @@ struct FindGameView: View {
                 .foregroundColor(SeleneTheme.ink60)
             TextField(L10n.text("Find a game"), text: $query)
                 .textFieldStyle(.plain)
-                .seleneFont(.panelBody)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink)
                 .focused($fieldFocused)
                 .onSubmit { pick(results.first) }
@@ -89,7 +89,7 @@ struct FindGameView: View {
         let games = results
         if !query.isEmpty && games.isEmpty {
             Text(L10n.text("No games match."))
-                .seleneFont(.panelBody)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink60)
         } else {
             LazyVGrid(columns: Array(repeating: GridItem(.fixed(canvas.u(160)), spacing: canvas.u(28)),
@@ -121,7 +121,7 @@ struct FindGameView: View {
                 .scaleEffect(selected && !reduceMotion ? 1.06 : 1)
                 .animation(Motion.focus(reduceMotion), value: selected)
             Text(game.name)
-                .seleneFont(.compactCaption, selected ? .semibold : .regular)
+                .seleneFont(.text, selected ? .semibold : .regular)
                 .foregroundColor(selected ? SeleneTheme.ink : SeleneTheme.ink60)
                 .lineLimit(2)
                 .multilineTextAlignment(.center)

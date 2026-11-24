@@ -20,7 +20,8 @@ enum SeleneTheme {
     static var glassSolid: Color { Color(hex: palette.glass, opacity: 0.88) }
     static var glassLight: Color { Color(hex: palette.glass, opacity: 0.45) }
     /// The dialog card stays opaque even when the dimmed page has a bright wallpaper.
-    static var glassCard: Color { Color(hex: palette.glass) }
+    static var glassCard: Color { pageSurface }
+    static var pageSurface: Color { Color(hex: palette.glass) }
     static var glyph: Color { Color(hex: palette.glyph) }
     static var backgroundLight: Color { Color(hex: palette.backgroundLight) }
     static var moonlightSurface: MoonlightSurface { palette.surface }

@@ -27,7 +27,7 @@ struct SettingsSearchSection: View {
         VStack(alignment: .leading, spacing: canvas.u(8)) {
             TextField(L10n.text("Search settings"), text: $query)
                 .textFieldStyle(.plain)
-                .seleneFont(19)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink)
                 .focused($fieldFocused)
                 .onSubmit {
@@ -38,16 +38,16 @@ struct SettingsSearchSection: View {
                 .padding(.top, canvas.u(11))
                 .padding(.trailing, canvas.u(26))
                 .padding(.bottom, canvas.u(13))
-                .background(RoundedRectangle(cornerRadius: canvas.u(22), style: .continuous)
+                .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.field), style: .continuous)
                     .fill(SeleneTheme.glass))
-                .overlay(RoundedRectangle(cornerRadius: canvas.u(22), style: .continuous)
+                .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.field), style: .continuous)
                     .strokeBorder(fieldFocused ? SeleneTheme.focus : SeleneTheme.ink15,
                                   lineWidth: max(1, canvas.u(2))))
-                .padding(.bottom, canvas.u(8))
+                .padding(.bottom, canvas.u(SeleneTokens.Space.compact))
 
             if !query.isEmpty && results.isEmpty {
                 Text(L10n.text("No settings match."))
-                    .seleneFont(19)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
             }
             SettingsDescriptorList(rows: results, onOpenGroup: onOpenGroup)
@@ -105,7 +105,7 @@ struct SettingsChangedSection: View {
         VStack(alignment: .leading, spacing: canvas.u(8)) {
             if rows.isEmpty {
                 Text(L10n.text("Nothing changed yet."))
-                    .seleneFont(19)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
             }
             SettingsDescriptorList(rows: rows, onOpenGroup: onOpenGroup)

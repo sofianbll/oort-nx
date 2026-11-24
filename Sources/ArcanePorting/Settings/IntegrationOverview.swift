@@ -22,6 +22,7 @@ public struct IntegrationOverview {
     public var engine: Engine = .notDetected
     public var steam: CatalogSourceStatus = .disabled
     public var steamGameCount = 0
+    public var hasMacShortcuts = false
     public var drive: Drive = .notConfigured
     public var nextendo: Account = .noLocalProfile
     public var steamGridDB = false
@@ -42,7 +43,7 @@ public struct IntegrationOverview {
         return true
     }
 
-    private func row(_ id: IntegrationID) -> IntegrationRow {
+    public func row(_ id: IntegrationID) -> IntegrationRow {
         switch id {
         case .switchGames:
             let state: (String, IntegrationRow.Emphasis) = switch engine {
@@ -73,6 +74,14 @@ public struct IntegrationOverview {
                          writes: "Oort NX catalog, play activity and local caches for metadata and achievements; no Steam files.",
                          sends: "Play sends the App ID to local Steam. Browsing sends IDs and language to the Steam store and requests achievement data and icons from Valve’s API and CDN.",
                          settingID: "steamSource")
+        case .macApps:
+            return .init(id: id, name: "Mac apps", purpose: "Add local Mac apps as library shortcuts.",
+                         status: hasMacShortcuts ? "Mac shortcuts added" : "No Mac shortcuts added",
+                         emphasis: .neutral, action: "Open Mac app settings",
+                         reads: "The chosen Mac app’s name, location and icon.",
+                         writes: "The shortcut in this library, not the app.",
+                         sends: "No app information is sent online.",
+                         settingID: "macShortcutAdd")
         case .drive:
             let state: (String, IntegrationRow.Emphasis) = switch drive {
             case .notConfigured: ("Drive not connected", .neutral)

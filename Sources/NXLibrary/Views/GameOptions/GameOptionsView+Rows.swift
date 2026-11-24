@@ -10,18 +10,18 @@ extension GameOptionsView {
         let focused = focusedRow
         return VStack(alignment: .leading, spacing: 0) {
             Text(L10n.text("GAME OPTIONS"))
-                .seleneFont(15, .semibold)
+                .seleneFont(.text, .semibold)
                 .foregroundColor(SeleneTheme.ink60)
-                .padding(.leading, canvas.u(8))
+                .padding(.leading, canvas.u(SeleneTokens.Space.compact))
             Text(current.name)
-                .seleneFont(40)
+                .seleneFont(.screen)
                 .foregroundColor(SeleneTheme.ink)
                 .lineLimit(1)
-                .padding(.leading, canvas.u(6))
-            PlatformLabel(current.isSwitch2 ? .switch2 : .switch1, size: .metadata)
+                .padding(.leading, canvas.u(SeleneTokens.Space.tight))
+            PlatformLabel(current.isSwitch2 ? .switch2 : .switch1, preset: .caption)
                 .foregroundStyle(SeleneTheme.ink75)
                 .padding(.leading, canvas.u(SeleneTokens.Space.tight))
-                .padding(.bottom, canvas.u(14))
+                .padding(.bottom, canvas.u(SeleneTokens.Space.line))
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(spacing: canvas.u(8)) {
@@ -66,7 +66,7 @@ extension GameOptionsView {
             rowView(row, p, focused: focused)
         case .heading(let text):
             Text(text)
-                .seleneFont(.body, .semibold)
+                .seleneFont(.text, .semibold)
                 .foregroundColor(isSelene ? SeleneTheme.ink75 : SeleneTheme.glyph)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, canvas.u(26))
@@ -74,10 +74,10 @@ extension GameOptionsView {
         case .note(let title, let text):
             VStack(alignment: .leading, spacing: canvas.u(3)) {
                 Text(title)
-                    .seleneFont(.rowTitle, .medium)
+                    .seleneFont(.row, .medium)
                     .foregroundColor(SeleneTheme.ink60)
                 Text(text)
-                    .seleneFont(.compactCaption)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -116,7 +116,7 @@ extension GameOptionsView {
                             && (row != .gameDisplay || canChooseGameDisplay),
                         leading: row == .multiplayer ? AnyView(
                             Image(systemName: "person.2.fill")
-                                .seleneFont(20)
+                                .seleneFont(.row)
                                 .foregroundColor(p.isDimmed(row) ? SeleneTheme.ink60 : SeleneTheme.rowIcon)
                                 .frame(width: canvas.u(24))
                                 .accessibilityHidden(true)
@@ -124,7 +124,7 @@ extension GameOptionsView {
             HStack(spacing: canvas.u(12)) {
                 if checking {
                     SeleneProgressBar(progress: nil).frame(width: canvas.u(96))
-                    Text(L10n.text("Cancel")).seleneFont(.body).foregroundColor(SeleneTheme.ink75)
+                    Text(L10n.text("Cancel")).seleneFont(.text).foregroundColor(SeleneTheme.ink75)
                 } else if let info = p.info(row) {
                     SeleneInfoTip(info, isShowing: Binding(
                         get: { infoRow == row },

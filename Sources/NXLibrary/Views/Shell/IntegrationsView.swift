@@ -46,6 +46,7 @@ struct IntegrationSurface: View {
         }
         data.steam = sources.status
         data.steamGameCount = sources.observedGameCount
+        data.hasMacShortcuts = app.catalogGames.contains { $0.macShortcut != nil }
         if cloud.preference.remote == nil { data.drive = .notConfigured }
         else if !cloud.preference.enabled { data.drive = .off }
         else if cloud.active != nil || cloud.libraryMove != nil { data.drive = .transferring }
@@ -96,17 +97,17 @@ struct IntegrationBar: View {
         Button(action: open) {
             HStack(spacing: canvas.u(12)) {
                 Image(systemName: "link")
-                    .seleneFont(.rowTitle)
+                    .seleneFont(.row)
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: canvas.u(2)) {
-                    Text(L10n.text("Integrations", context: locale)).seleneFont(.rowTitle, .semibold)
+                    Text(L10n.text("Integrations", context: locale)).seleneFont(.row, .semibold)
                     if let summary {
                         Text(L10n.text(summary.status, context: locale))
-                            .seleneFont(.caption)
+                            .seleneFont(.text)
                             .foregroundStyle(focused ? SeleneTheme.onFocus : SeleneTheme.ink82)
                     }
                 }
-                Image(systemName: "chevron.right").seleneFont(.caption).accessibilityHidden(true)
+                Image(systemName: "chevron.right").seleneFont(.text).accessibilityHidden(true)
             }
             .lineLimit(1)
             .padding(.horizontal, canvas.u(SeleneTokens.Space.control))
@@ -130,8 +131,6 @@ struct IntegrationBar: View {
 }
 
 struct IntegrationsView: View {
-    @Environment(\.seleneCanvas) private var canvas
-    @Environment(\.seleneReduceMotion) private var reduceMotion
     @Environment(\.nxAppLocale) private var locale
     @AccessibilityFocusState(for: .voiceOver) private var accessibilityFocus: IntegrationID?
     let overview: IntegrationOverview
@@ -141,114 +140,84 @@ struct IntegrationsView: View {
     private func text(_ key: String) -> String { L10n.text(key, context: locale) }
 
     var body: some View {
-        let rows = overview.rows
-        VStack(alignment: .leading, spacing: canvas.u(20)) {
-            Text(text("Integrations"))
-                .seleneFont(.screenTitle, .semibold)
-                .accessibilityAddTraits(.isHeader)
-            ScrollViewReader { proxy in
-                ScrollView {
-                    VStack(alignment: .leading, spacing: canvas.u(12)) {
-                        ForEach(rows) { row($0).id($0.id) }
-                        comingLater
+        Group {
+            if let id = router.integrationDetail {
+                detail(overview.row(id))
+            } else {
+                let rows = overview.rows
+                OortPage(title: text("Integrations"), scrollFocus: router.integrationFocus,
+                         initialFocus: rows.first?.id, restoreScroll: router.isReturningFromBack,
+                         back: backHint, confirm: confirmHint("Open")) {
+                    OortSection(title: text("Games")) {
+                        ForEach(rows.filter { $0.id.isGameSource }) { summary($0) }
+                        OortReadout(text: text("Coming later") + ": " + PlatformKind.upcoming.map {
+                            text($0.rawValue)
+                        }.joined(separator: " · "), preset: .quiet)
                     }
-                    .padding(.bottom, canvas.u(SeleneTokens.Space.control))
-                }
-                .onChange(of: router.integrationFocus, initial: true) { old, id in
-                    guard let id, old != id || id != rows.first?.id || router.isReturningFromBack else { return }
-                    withAnimation(reduceMotion ? nil : SeleneTheme.quick) {
-                        proxy.scrollTo(id, anchor: .top)
+                    OortSection(title: text("Integration services")) {
+                        ForEach(rows.filter { !$0.id.isGameSource }) { summary($0) }
                     }
                 }
-            }
-        }
-        .frame(maxWidth: canvas.u(1300))
-        .padding(.horizontal, canvas.u(SeleneTokens.Space.stageGutter))
-        .padding(.top, canvas.u(SeleneTokens.Space.stageHeader))
-        .padding(.bottom, canvas.u(SeleneBottomScrim.contentClearance))
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .environment(\.seleneMinimumFont, 11)
-        .foregroundStyle(SeleneTheme.ink)
-        .background(SeleneBackdrop(still: reduceMotion))
-        .overlay(alignment: .bottom) {
-            if showsHints {
-                SeleneHintsBar(left: [HintItem(.b, text("Back"), action: router.back)],
-                               right: [HintItem(.a, text("Open")) { handle(.confirm) }],
-                               bottom: SeleneBottomScrim.hintsBottom, leftInset: 18)
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .nxIntegrationsAction)) { note in
             guard router.route == .integrations, let action = note.object as? GamepadAction else { return }
             handle(action)
         }
-        .onAppear { accessibilityFocus = router.integrationFocus }
+        .onChange(of: router.integrationDetail, initial: true) { _, detail in
+            accessibilityFocus = detail ?? router.integrationFocus
+        }
     }
 
-    private var comingLater: some View {
-        VStack(alignment: .leading, spacing: canvas.u(8)) {
-            Text(text("Coming later")).seleneFont(.rowTitle, .semibold)
-                .accessibilityAddTraits(.isHeader)
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: canvas.u(220)), alignment: .leading)],
-                      alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
-                ForEach(PlatformKind.upcoming, id: \.self) { platform in
-                    PlatformLabel(platform, size: .panelBody, weight: .regular)
-                }
-            }
-            .foregroundStyle(SeleneTheme.ink75)
-        }
-        .padding(canvas.u(SeleneTokens.Space.titleGap))
+    private var backHint: HintItem? {
+        showsHints ? HintItem(.b, text("Back"), action: router.backFromIntegration) : nil
     }
 
-    private func row(_ row: IntegrationRow) -> some View {
-        let focus = router.integrationFocus == row.id
-        let color: Color = switch row.emphasis {
-        case .attention: SeleneTheme.untested
-        case .working: SeleneTheme.statusCloud
-        case .neutral: SeleneTheme.ink75
-        }
-        return VStack(alignment: .leading, spacing: canvas.u(9)) {
-            HStack(alignment: .top, spacing: canvas.u(12)) {
-                Group {
-                    switch row.id {
-                    case .switchGames: PlatformLabel(.switch1, title: text(row.name))
-                    case .steam: PlatformLabel(.steam)
-                    case .drive: PlatformLabel(.drive)
-                    case .nextendo: PlatformLabel(.nextendo, title: text(row.name))
-                    case .images: PlatformLabel(.images, title: text(row.name))
-                    case .saves: PlatformLabel(.saves, title: text(row.name))
-                    }
+    private func confirmHint(_ title: String) -> HintItem? {
+        showsHints ? HintItem(.a, text(title)) { handle(.confirm) } : nil
+    }
+
+    private func summary(_ row: IntegrationRow) -> some View {
+        OortRow(title: text(row.name), platform: platform(row.id), status: text(row.status),
+                focused: router.integrationFocus == row.id, tone: tone(row),
+                preset: .navigation(label: text("Details")) { router.showIntegrationDetail(row.id) })
+            .id(row.id)
+            .accessibilityFocused($accessibilityFocus, equals: row.id)
+    }
+
+    private func detail(_ row: IntegrationRow) -> some View {
+        OortPage<IntegrationID, _>(title: text(row.name), back: backHint, confirm: confirmHint("Open")) {
+            OortCard {
+                OortStatus(text: text(row.status), tone: tone(row))
+                OortReadout(text: text(row.purpose))
+                ForEach([("Reads: %@", row.reads), ("Writes: %@", row.writes), ("Sends: %@", row.sends)], id: \.0) { key, value in
+                    OortReadout(text: L10n.format(key, [text(value)], context: locale))
                 }
-                .accessibilityAddTraits(.isHeader)
-                Spacer()
-                SeleneStatusDot(text: text(row.status), color: color, labelColor: SeleneTheme.ink90)
             }
-            Text(text(row.purpose)).seleneFont(.panelBody)
-            VStack(alignment: .leading, spacing: canvas.u(4)) {
-                access("Reads: %@", row.reads)
-                access("Writes: %@", row.writes)
-                access("Sends: %@", row.sends)
-            }
-            .foregroundStyle(SeleneTheme.ink82)
-            SelenePillButton(title: row.action, minWidth: 0, height: 42, titleSize: .caption,
-                             horizontalPadding: 16, focused: focus, scalesOnFocus: false) {
+            OortButton(title: row.action, focused: true, preset: .compact) {
                 overview.open(row.id, in: router)
             }
-            .accessibilityHint(text(row.name))
-            .accessibilityAddTraits(focus ? .isSelected : [])
             .accessibilityFocused($accessibilityFocus, equals: row.id)
-        }
-        .fixedSize(horizontal: false, vertical: true)
-        .padding(canvas.u(SeleneTokens.Space.panel))
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(SeleneTheme.glass, in: RoundedRectangle(cornerRadius: canvas.u(SeleneTheme.rowRadius)))
-        .overlay {
-            RoundedRectangle(cornerRadius: canvas.u(SeleneTheme.rowRadius))
-                .strokeBorder(focus ? SeleneTheme.focus : SeleneTheme.ink15, lineWidth: focus ? 2 : 1)
-                .allowsHitTesting(false)
         }
     }
 
-    private func access(_ key: String, _ value: String) -> some View {
-        Text(L10n.format(key, [text(value)], context: locale)).seleneFont(.caption)
+    private func platform(_ id: IntegrationID) -> PlatformKind {
+        switch id {
+        case .switchGames: .switch1
+        case .steam: .steam
+        case .macApps: .mac
+        case .drive: .drive
+        case .nextendo: .nextendo
+        case .images: .images
+        case .saves: .saves
+        }
+    }
+
+    private func tone(_ row: IntegrationRow) -> OortStatus.Tone {
+        switch row.emphasis {
+        case .attention: .attention
+        case .working: .working
+        case .neutral: .neutral
+        }
     }
 }

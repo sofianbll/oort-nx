@@ -38,17 +38,17 @@ struct SetupCheckView: View {
         ZStack {
             SeleneBackdrop()
             VStack(spacing: 0) {
-                SetupStepIndicator(page: .requirements).padding(.bottom, canvas.u(18))
+                SetupStepIndicator(page: .requirements).padding(.bottom, canvas.u(SeleneTokens.Space.control))
                 Text(L10n.text("Tools for building Switch games"))
-                    .seleneFont(46, .semibold)
+                    .seleneFont(.screen, .semibold)
                     .foregroundColor(SeleneTheme.ink)
                 Text(L10n.text("You don’t need these tools to play a game that’s already built."))
-                    .seleneFont(19)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink75)
                     .padding(.top, canvas.u(10))
                 grid.padding(.top, canvas.u(30))
-                panel.padding(.top, canvas.u(22))
-                buttons.padding(.top, canvas.u(20))
+                panel.padding(.top, canvas.u(SeleneTokens.Space.titleGap))
+                buttons.padding(.top, canvas.u(SeleneTokens.Space.panel))
             }
             .modifier(SeleneShake(amount: CGFloat(shakes), distance: 8))
             .seleneOverlayOwnership(pendingTool == nil)
@@ -120,15 +120,15 @@ struct SetupCheckView: View {
                 .foregroundColor(SeleneTheme.glyph)
                 .frame(height: canvas.u(30))
             Text(L10n.text(item.title))
-                .seleneFont(18, .semibold)
+                .seleneFont(.text, .semibold)
                 .foregroundColor(SeleneTheme.ink)
                 .lineLimit(1)
-                .padding(.top, canvas.u(8))
+                .padding(.top, canvas.u(SeleneTokens.Space.compact))
             StatusChip(item: item, popping: popping.contains(item.id))
                 .padding(.top, canvas.u(10))
             if let error = item.inlineError {
                 Text(verbatim: error)
-                    .seleneFont(.compactCaption)
+                    .seleneFont(.text)
                     .foregroundStyle(SeleneTheme.danger)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
@@ -139,13 +139,13 @@ struct SetupCheckView: View {
             if item.state == .working {
                 SetupProgressBar(progress: item.progress)
                     .frame(width: canvas.u(176), height: canvas.u(5))
-                    .padding(.top, canvas.u(12))
+                    .padding(.top, canvas.u(SeleneTokens.Space.small))
                     .transition(.opacity)
             }
             Spacer(minLength: 0)
         }
         .padding(.top, canvas.u(item.inlineError == nil ? 20 : SeleneTokens.Space.tight))
-        .padding(.horizontal, canvas.u(16))
+        .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
         .frame(width: canvas.u(Self.cardSize.width), height: canvas.u(Self.cardSize.height))
         .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTheme.cardRadius), style: .continuous)
             .fill(SeleneTheme.glassCard))
@@ -190,17 +190,17 @@ struct SetupCheckView: View {
                 .frame(width: canvas.u(40))
             VStack(alignment: .leading, spacing: canvas.u(6)) {
                 HStack(spacing: canvas.u(12)) {
-                    Text(L10n.text(story.title)).seleneFont(24, .semibold).foregroundColor(SeleneTheme.ink)
+                    Text(L10n.text(story.title)).seleneFont(.heading, .semibold).foregroundColor(SeleneTheme.ink)
                     Text(story.state.uppercased())
-                        .seleneFont(13, .bold)
+                        .seleneFont(.badge, .bold)
                         .foregroundColor(story.tone)
                 }
                 Text(story.about)
-                    .seleneFont(17)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink90)
                     .fixedSize(horizontal: false, vertical: true)
                 Text(story.detail)
-                    .seleneFont(15)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink75)
                     .lineLimit(2)
                     .truncationMode(.middle)
@@ -208,10 +208,10 @@ struct SetupCheckView: View {
             }
             Spacer(minLength: 0)
             if let action = story.action {
-                Text(action).seleneFont(.body, .semibold).foregroundColor(SeleneTheme.ink)
+                Text(action).seleneFont(.text, .semibold).foregroundColor(SeleneTheme.ink)
             }
         }
-        .padding(canvas.u(22))
+        .padding(canvas.u(SeleneTokens.Space.titleGap))
         .frame(width: canvas.u(960), height: canvas.u(156), alignment: .topLeading)
         .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTheme.cardRadius), style: .continuous)
             .fill(SeleneTheme.glass))
@@ -287,7 +287,7 @@ private struct StatusChip: View {
     var body: some View {
         let tone = Self.tone(item)
         Text(item.chip)
-            .seleneFont(12, .bold)
+            .seleneFont(.badge, .bold)
             .foregroundColor(tone)
             .lineLimit(1)
             .padding(.horizontal, canvas.u(10))

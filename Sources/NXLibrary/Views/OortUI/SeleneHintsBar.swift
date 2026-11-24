@@ -73,7 +73,7 @@ struct SeleneHintsBar: View {
                     }
                 }
             }
-            .padding(.horizontal, canvas.u(64))
+            .padding(.horizontal, canvas.u(SeleneTokens.Space.chromeGutter))
             .padding(.bottom, canvas.u(bottom))
             .frame(maxWidth: .infinity)
             // A soft shadow lifts the prompts off whatever art is behind them.
@@ -115,20 +115,20 @@ struct SeleneHintsBar: View {
             } else if let glyph = item.glyph {
                 MaterialIconView(glyph, size: 18)
                     .foregroundColor(SeleneTheme.scrim)
-                    .padding(.horizontal, canvas.u(8))
+                    .padding(.horizontal, canvas.u(SeleneTokens.Space.compact))
                     .frame(minWidth: canvas.u(30), minHeight: canvas.u(30))
-                    .background(RoundedRectangle(cornerRadius: canvas.u(15), style: .continuous).fill(SeleneTheme.ink))
+                    .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.hint), style: .continuous).fill(SeleneTheme.ink))
             }
             VStack(alignment: .leading, spacing: 0) {
                 ZStack(alignment: .leading) {
-                    ForEach(reserve, id: \.self) { Text(L10n.text($0, context: localization)).seleneFont(19).hidden() }
+                    ForEach(reserve, id: \.self) { Text(L10n.text($0, context: localization)).seleneFont(.text).hidden() }
                     Text(L10n.text(item.label, context: localization))
-                        .seleneFont(19)
+                        .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink90)
                 }
                 if let hold = item.hold, !ButtonPrompts.usesKeyboard(style: style, connected: pad) || item.button == .rs {
                     Text(item.button == .rs ? hold : L10n.text(hold, context: localization))
-                        .seleneFont(13).foregroundColor(SeleneTheme.ink60)
+                        .seleneFont(.badge).foregroundColor(SeleneTheme.ink60)
                 }
             }
         }

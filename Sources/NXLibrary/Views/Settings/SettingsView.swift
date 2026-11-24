@@ -475,7 +475,7 @@ struct SettingsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: canvas.u(8)) {
                     Text(section.place)
-                        .seleneFont(.compactCaption, .semibold)
+                        .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.ink.opacity(0.55))
                         .padding(.bottom, canvas.u(SeleneTokens.Space.tight))
                     SettingsSectionContent(

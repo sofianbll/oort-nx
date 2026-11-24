@@ -230,7 +230,7 @@ import SwiftUI
     @MainActor static func folders(_ app: AppViewModel, _ settings: AppSettingsStore) -> some View {
         VStack(alignment: .leading) {
             Text(SettingsSection.library.place)
-                .seleneFont(.inboxTitle, .semibold)
+                .seleneFont(.screen, .semibold)
                 .foregroundStyle(SeleneTheme.ink)
             SettingsLibrarySection(viewModel: app, porting: app.porting, settings: settings, onActions: { _ in })
         }

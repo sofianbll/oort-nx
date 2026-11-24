@@ -93,17 +93,29 @@ opening a window.
 rende la sezione reale Sound & music nelle due lingue e larghezze, con Selene
 e Oort selezionati, senza eseguire l’avvio normale o riprodurre audio.
 
+`--oort-ui-gallery` opens a Debug-only component gallery, with no game catalog
+or service. Pass `--render-oort-ui-gallery /absolute/output` to render it
+offscreen in French and German on Oort, Catppuccin Latte and Vantablack.
+Compare the matching PNGs against a recorded run at the same size; use a
+tolerant comparison across OS versions and inspect flagged differences.
+
 ## Verification
 
 ~~~sh
 python3 scripts/check_publication.py
 python3 scripts/check_localizations.py
+python3 scripts/generate_oort_tokens.py --check
 python3 -m unittest discover -s Tests/PublicationChecks
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test
 for check in Tests/CatalogAppChecks/run_*.py; do DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer python3 "$check" || break; done
 bash scripts/build_app.sh
 codesign --verify --deep --strict "$HOME/Applications/Oort NX Dev.app"
 ~~~
+
+Edit `design/oort.tokens.json`, then run `python3 scripts/generate_oort_tokens.py`
+and commit both generated outputs. The generator checks contrast on opaque
+default Oort surfaces, not artwork or other palettes. The 26 px distance
+reference is rendered glyph height at 1080p, not a 26-point SwiftUI font.
 
 When reviewing an engine upgrade in a separate checkout, set `NX_TEST_ENGINE_REPO` to that checkout's absolute path for `swift test`. The engine-fragment regression reads the application's pin and checks it in that repository; an invalid explicit path fails. Without the variable it uses `~/nxnative`, skipping only when that default checkout is absent. This allows verification without fetching into or changing the engine used by the installed app.
 

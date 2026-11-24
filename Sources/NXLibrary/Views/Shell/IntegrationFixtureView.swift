@@ -145,7 +145,9 @@ struct IntegrationFixtureView: View {
                         .environment(\.seleneSharesBackdrop, true)
                         .background {
                             ZStack {
-                                if onboardingOnly {
+                                if CommandLine.arguments.contains("--fixture-bright") {
+                                    OortGalleryWallpaper()
+                                } else if onboardingOnly {
                                     LinearGradient(colors: [.yellow, .white, .cyan], startPoint: .topLeading, endPoint: .bottomTrailing)
                                 } else {
                                     Color(hex: palette.scrim)
@@ -158,25 +160,11 @@ struct IntegrationFixtureView: View {
                         .environment(\.seleneCanvas, canvas)
                         .environment(\.nxAppLocale, locale)
                         .environment(\.locale, locale.formatLocale)
+                        .environment(\.seleneButtonNames, .xbox)
                         .environment(\.seleneReduceMotion, true)
                         .environment(\.colorScheme, .dark))
-                    host.frame = CGRect(x: 0, y: 0, width: size.width, height: height)
-                    // The AppKit-backed scroll view needs a window to lay out. Never order it onscreen.
-                    let window = NSWindow(contentRect: host.frame, styleMask: [.borderless], backing: .buffered, defer: false)
-                    window.contentView = host
-                    defer { window.contentView = nil }
-                    window.layoutIfNeeded()
-                    for _ in 0..<10 {
-                        RunLoop.main.run(until: Date().addingTimeInterval(0.02))
-                        host.layoutSubtreeIfNeeded()
-                    }
-                    precondition(!window.isVisible)
-                    guard let bitmap = host.bitmapImageRepForCachingDisplay(in: host.bounds) else {
-                        throw CocoaError(.fileWriteUnknown)
-                    }
-                    host.cacheDisplay(in: host.bounds, to: bitmap)
-                    guard let png = bitmap.representation(using: .png, properties: [:]) else { throw CocoaError(.fileWriteUnknown) }
-                    try png.write(to: output.appendingPathComponent("\(prefix)-\(suffix).png"))
+                    try captureWindow(host, size: CGSize(width: size.width, height: height),
+                                      to: output.appendingPathComponent("\(prefix)-\(suffix).png"))
                 }
                 if let (model, settings, profiles, sources) = onboarding {
                     model.reopenOnboarding()
@@ -219,6 +207,11 @@ struct IntegrationFixtureView: View {
                 try render(page, as: "all-rows", height: max(size.height, canvas.u(2500)))
                 router.integrationFocus = .saves
                 try render(page, as: "page-bottom")
+                for integration in IntegrationID.allCases {
+                    router.showIntegrationDetail(integration)
+                    try render(page, as: "detail-\(integration)")
+                    router.backFromIntegration()
+                }
                 for enabled in [false, true] {
                     try render(FoundGamesSetupContent(findings: .init(steamGameCount: 2, portedAppCount: 0),
                         steamOn: enabled, focus: .openLibrary, move: { _ in }, activate: { _ in }),
@@ -262,6 +255,24 @@ struct IntegrationFixtureView: View {
         return (model, settings, profiles, sources)
     }
 
+    @MainActor static func captureWindow(_ host: NSView, size: CGSize, to file: URL) throws {
+        host.frame = CGRect(origin: .zero, size: size)
+        // AppKit-backed scroll views need a window to lay out. Never order it onscreen.
+        let window = NSWindow(contentRect: host.frame, styleMask: [.borderless], backing: .buffered, defer: false)
+        window.contentView = host
+        defer { window.contentView = nil }
+        window.layoutIfNeeded()
+        for _ in 0..<10 {
+            RunLoop.main.run(until: Date().addingTimeInterval(0.02))
+            host.layoutSubtreeIfNeeded()
+        }
+        precondition(!window.isVisible)
+        guard let bitmap = host.bitmapImageRepForCachingDisplay(in: host.bounds) else { throw CocoaError(.fileWriteUnknown) }
+        host.cacheDisplay(in: host.bounds, to: bitmap)
+        guard let png = bitmap.representation(using: .png, properties: [:]) else { throw CocoaError(.fileWriteUnknown) }
+        try png.write(to: file)
+    }
+
     @MainActor private static func captureAlert(_ alert: NSAlert, to file: URL) throws {
         alert.layout()
         let window = alert.window
@@ -292,7 +303,7 @@ private struct IntegrationFixtureHome: View {
                 .environment(\.integrationBar, AnyView(IntegrationBar(rows: data.rows, focused: router.integrationBarFocused,
                                                                      open: router.openIntegrations)))
             VStack(alignment: .leading, spacing: canvas.u(20)) {
-                Text("Lunar Observatory").seleneFont(.screenTitle, .semibold)
+                Text("Lunar Observatory").seleneFont(.screen, .semibold)
                 SelenePillButton(title: "Play", focused: !router.integrationBarFocused) {}
             }
             .padding(.leading, canvas.u(SeleneTokens.Space.chromeGutter + SeleneTokens.Space.medium))

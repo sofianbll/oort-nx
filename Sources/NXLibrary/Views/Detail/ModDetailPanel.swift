@@ -115,25 +115,25 @@ struct ModDetailPanel: View {
         return VStack(alignment: .leading, spacing: canvas.u(12)) {
             Group {
                 Text(L10n.text("GAMEBANANA MOD"))
-                    .seleneFont(15, .semibold)
+                    .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink60)
                 Text(mod.name)
-                    .seleneFont(36)
+                    .seleneFont(.screen)
                     .foregroundColor(SeleneTheme.ink)
                     .lineLimit(2)
                 authorLine
                 Text(versionLine)
-                    .seleneFont(16)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink75)
                 if let requirementsLine {
                     Text(requirementsLine)
-                        .seleneFont(16)
+                        .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink75)
                         .lineLimit(3)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 Text(L10n.format("%@ likes · %@ downloads", [String(describing: mod.likes), String(describing: mod.downloads)]))
-                    .seleneFont(15)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
             }
             .allowsHitTesting(false)
@@ -143,23 +143,23 @@ struct ModDetailPanel: View {
                     description
                     if let index = rows.firstIndex(of: .readMore) { rowButton(.readMore, at: index) }
                 }
-                .padding(.top, canvas.u(6))
+                .padding(.top, canvas.u(SeleneTokens.Space.tight))
             }
             VStack(alignment: .leading, spacing: canvas.u(8)) {
                 Text(mod.files.count == 1 ? L10n.text("FILE") : L10n.text("FILES"))
-                    .seleneFont(15, .semibold)
+                    .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink60)
-                    .padding(.leading, canvas.u(14))
+                    .padding(.leading, canvas.u(SeleneTokens.Space.line))
                     .allowsHitTesting(false)
                 ForEach(Array(rows.enumerated()).filter { $0.element != .readMore }, id: \.offset) { index, row in
                     rowButton(row, at: index)
                 }
             }
-            .padding(.top, canvas.u(22))
+            .padding(.top, canvas.u(SeleneTokens.Space.titleGap))
             Text(L10n.text("Mod data provided by GameBanana"))
-                .seleneFont(14)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink60)
-                .padding(.top, canvas.u(6))
+                .padding(.top, canvas.u(SeleneTokens.Space.tight))
                 .allowsHitTesting(false)
         }
         .coordinateSpace(name: Self.space)
@@ -199,7 +199,7 @@ struct ModDetailPanel: View {
             .frame(width: canvas.u(Self.columnWidth), height: height)
             .overlay(alignment: .topLeading) {
                 Text(mod.description)
-                    .seleneFont(16)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink82)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(width: canvas.u(Self.columnWidth), alignment: .leading)
@@ -216,7 +216,7 @@ struct ModDetailPanel: View {
             )
             .background(alignment: .topLeading) {
                 // One line, to measure.
-                Text(L10n.text("Ag")).seleneFont(16).hidden()
+                Text(L10n.text("Ag")).seleneFont(.text).hidden()
                     .background(GeometryReader { proxy in
                         Color.clear.preference(key: LineHeightKey.self, value: proxy.size.height)
                     })
@@ -260,13 +260,13 @@ struct ModDetailPanel: View {
         return VStack(alignment: .leading, spacing: canvas.u(12)) {
             GameBananaImageView(url: images.first ?? mod.thumbnailURL, maxPixelSize: 1200)
                 .frame(width: canvas.u(560), height: canvas.u(315))
-                .clipShape(RoundedRectangle(cornerRadius: canvas.u(16), style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card), style: .continuous))
             if images.count > 1 {
                 HStack(spacing: canvas.u(12)) {
                     ForEach(images.dropFirst(), id: \.self) { url in
                         GameBananaImageView(url: url, maxPixelSize: 500)
                             .frame(width: canvas.u(178), height: canvas.u(100))
-                            .clipShape(RoundedRectangle(cornerRadius: canvas.u(10), style: .continuous))
+                            .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.row), style: .continuous))
                     }
                 }
             }
@@ -281,7 +281,7 @@ struct ModDetailPanel: View {
                     .clipShape(Circle())
             }
             Text(L10n.format("by %@", [String(describing: mod.author)]))
-                .seleneFont(18, .medium)
+                .seleneFont(.text, .medium)
                 .foregroundColor(SeleneTheme.ink)
         }
     }
@@ -371,16 +371,16 @@ struct ModDetailPanel: View {
                         .foregroundColor(text.compact ? SeleneTheme.ink82 : SeleneTheme.ink)
                         .lineLimit(1)
                     if let detail = text.detail {
-                        Text(detail).seleneFont(14).foregroundColor(SeleneTheme.ink60).lineLimit(1)
+                        Text(detail).seleneFont(.text).foregroundColor(SeleneTheme.ink60).lineLimit(1)
                     }
                 }
                 Spacer(minLength: 0)
                 if let action = text.action {
                     Text(action)
-                        .seleneFont(15, .semibold)
+                        .seleneFont(.text, .semibold)
                         .foregroundColor(text.enabled ? SeleneTheme.ink : SeleneTheme.ink60)
-                        .padding(.horizontal, canvas.u(14))
-                        .padding(.vertical, canvas.u(6))
+                        .padding(.horizontal, canvas.u(SeleneTokens.Space.line))
+                        .padding(.vertical, canvas.u(SeleneTokens.Space.tight))
                         .background(Capsule().fill(text.enabled ? SeleneTheme.glass : Color.clear))
                 }
             }
@@ -389,16 +389,16 @@ struct ModDetailPanel: View {
             }
             if let message = text.message {
                 Text(message)
-                    .seleneFont(14, .medium)
+                    .seleneFont(.text, .medium)
                     .foregroundColor(SeleneTheme.danger)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
-        .padding(.horizontal, canvas.u(14))
+        .padding(.horizontal, canvas.u(SeleneTokens.Space.line))
         .padding(.vertical, canvas.u(text.compact ? 6 : 10))
-        .background(RoundedRectangle(cornerRadius: canvas.u(12), style: .continuous)
+        .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content), style: .continuous)
             .fill(focused ? SeleneTheme.glass : Color.clear))
-        .overlay(RoundedRectangle(cornerRadius: canvas.u(14), style: .continuous)
+        .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
             .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(2.5))
             .padding(canvas.u(-3))
             .opacity(focused ? 1 : 0))
