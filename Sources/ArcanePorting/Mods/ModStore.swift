@@ -353,10 +353,10 @@ public struct ModStore {
         if let value, value.utf8.count > Self.overlayLimit { throw ModStoreError.overlayTooLong }
         let recorded = Set(stored.map(\.folderName))
         let kept = list.filter { recorded.contains($0.folderName) }.map(\.folderName)
+        if stored.contains(where: { $0.codeOnly != true }) { try writeOverlay(value) }
         if kept != stored.map(\.folderName) {
             try write(records: stored.filter { kept.contains($0.folderName) })
         }
-        if stored.contains(where: { $0.codeOnly != true }) { try writeOverlay(value) }
     }
 
     // MARK: - Internals
