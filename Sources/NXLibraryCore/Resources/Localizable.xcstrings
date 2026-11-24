@@ -1,6 +1,30 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%lld games": {
+      "comment": "Total number of visible games on a Spotlight platform card.",
+      "localizations": {
+        "en": {"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld game"}},"other":{"stringUnit":{"state":"translated","value":"%lld games"}}}}},
+        "it": {"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld gioco"}},"other":{"stringUnit":{"state":"translated","value":"%lld giochi"}}}}},
+        "fr": {"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld jeu"}},"other":{"stringUnit":{"state":"translated","value":"%lld jeux"}}}}},
+        "de": {"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld Spiel"}},"other":{"stringUnit":{"state":"translated","value":"%lld Spiele"}}}}},
+        "es": {"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld juego"}},"other":{"stringUnit":{"state":"translated","value":"%lld juegos"}}}}},
+        "pt-BR": {"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld jogo"}},"other":{"stringUnit":{"state":"translated","value":"%lld jogos"}}}}},
+        "zh-Hans": {"stringUnit":{"state":"translated","value":"%lld 个游戏"}}
+      }
+    },
+    "Change platform": {"localizations": {
+      "en":{"stringUnit":{"state":"translated","value":"Change platform"}},"fr":{"stringUnit":{"state":"translated","value":"Changer de plateforme"}},"it":{"stringUnit":{"state":"translated","value":"Cambia piattaforma"}},"de":{"stringUnit":{"state":"translated","value":"Plattform wechseln"}},"es":{"stringUnit":{"state":"translated","value":"Cambiar de plataforma"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Mudar de plataforma"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"切换平台"}}
+    }},
+    "Previous platform": {"localizations": {
+      "en":{"stringUnit":{"state":"translated","value":"Previous platform"}},"fr":{"stringUnit":{"state":"translated","value":"Plateforme précédente"}},"it":{"stringUnit":{"state":"translated","value":"Piattaforma precedente"}},"de":{"stringUnit":{"state":"translated","value":"Vorherige Plattform"}},"es":{"stringUnit":{"state":"translated","value":"Plataforma anterior"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Plataforma anterior"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"上一个平台"}}
+    }},
+    "Next platform": {"localizations": {
+      "en":{"stringUnit":{"state":"translated","value":"Next platform"}},"fr":{"stringUnit":{"state":"translated","value":"Plateforme suivante"}},"it":{"stringUnit":{"state":"translated","value":"Piattaforma successiva"}},"de":{"stringUnit":{"state":"translated","value":"Nächste Plattform"}},"es":{"stringUnit":{"state":"translated","value":"Plataforma siguiente"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Próxima plataforma"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"下一个平台"}}
+    }},
+    "No games match this filter.": {"localizations": {
+      "en":{"stringUnit":{"state":"translated","value":"No games match this filter."}},"fr":{"stringUnit":{"state":"translated","value":"Aucun jeu ne correspond à ce filtre."}},"it":{"stringUnit":{"state":"translated","value":"Nessun gioco corrisponde al filtro."}},"de":{"stringUnit":{"state":"translated","value":"Keine Spiele entsprechen diesem Filter."}},"es":{"stringUnit":{"state":"translated","value":"Ningún juego coincide con este filtro."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Nenhum jogo corresponde a este filtro."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"没有符合此筛选条件的游戏。"}}
+    }},
     "NOT INCLUDED": {"localizations": {
       "en":{"stringUnit":{"state":"translated","value":"NOT INCLUDED"}},"fr":{"stringUnit":{"state":"translated","value":"NON INCLUS"}},"it":{"stringUnit":{"state":"translated","value":"NON INCLUSI"}},"de":{"stringUnit":{"state":"translated","value":"NICHT ENTHALTEN"}},"es":{"stringUnit":{"state":"translated","value":"NO INCLUIDOS"}},"pt-BR":{"stringUnit":{"state":"translated","value":"NÃO INCLUÍDOS"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"未包含"}}
     }},
