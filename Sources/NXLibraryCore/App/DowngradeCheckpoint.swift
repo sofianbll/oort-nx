@@ -14,6 +14,33 @@ package enum DowngradeCheckpoint {
         case ready, warning([Omission])
     }
 
+    /// New copies hold this directory lease through the notice and the shell.
+    /// No lock file has to be created on a full volume with an existing library.
+    package final class ProfileLease: Sendable {
+        private let descriptor: Int32
+
+        package init(in root: URL) throws {
+            try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+            let fd = open(root.path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
+            guard fd >= 0 else { throw posixError() }
+            guard flock(fd, LOCK_EX | LOCK_NB) == 0 else {
+                let error = posixError()
+                close(fd)
+                throw error
+            }
+            descriptor = fd
+        }
+
+        deinit { close(descriptor) }
+    }
+
+    package static func savedPalette(in root: URL) -> String {
+        guard let bytes = try? read(root.appendingPathComponent("settings.json"), limit: 1_048_576),
+              let settings = try? JSONDecoder().decode(AppSettings.self, from: bytes.data)
+        else { return SelenePaletteCatalog.defaultID }
+        return settings.colorThemeID
+    }
+
     private static let essential: [(Omission, [String])] = [
         (.sessions, ["play-sessions.json", "play-sessions-totals.json", SessionHistoryState.filename,
                      "integrations/steam/playtime-baselines.json"]),
@@ -48,13 +75,14 @@ package enum DowngradeCheckpoint {
 
     /// A retry never replaces a verified checkpoint of this generation.
     package static func prepare(in root: URL, generation: Int = 1, acceptingWarning: Bool = false,
+                                replaceCheckpoint: (URL, URL) throws -> Void = replace,
                                 preferences: () throws -> [String: Any]) throws -> Result {
         let fm = FileManager.default
         try fm.createDirectory(at: root, withIntermediateDirectories: true)
         try requireDirectory(root)
         let folder = root.appendingPathComponent("DowngradeProtection", isDirectory: true)
         guard mkdir(folder.path, 0o700) == 0 || errno == EEXIST else { throw posixError() }
-        try requireDirectory(folder)
+        try makePrivate(folder)
         let fd = open(folder.appendingPathComponent(".lock").path, O_RDWR | O_CREAT | O_NOFOLLOW | O_CLOEXEC, 0o600)
         guard fd >= 0 else { throw posixError() }
         defer { close(fd) }
@@ -63,8 +91,17 @@ package enum DowngradeCheckpoint {
 
         let current = folder.appendingPathComponent("checkpoint.plist")
         let previous = folder.appendingPathComponent("previous.plist")
+        let retained = folder.appendingPathComponent(".previous-pending")
         let acknowledged = folder.appendingPathComponent("acknowledged")
         let old = try readSnapshot(current)
+        if let pending = try readSnapshot(retained) {
+            guard let old, pending.generation <= old.generation else { throw InstallationFileReadError.sourceChanged }
+            if pending.generation < old.generation {
+                try finishRotation(retained, previous: previous, in: folder)
+            } else if pending.id != old.id {
+                throw InstallationFileReadError.sourceChanged
+            }
+        }
         let snapshot: Snapshot
         if let old, old.generation == generation {
             snapshot = old
@@ -73,14 +110,18 @@ package enum DowngradeCheckpoint {
             snapshot = try capture(in: root, generation: generation, preferences: preferences)
             let encoder = PropertyListEncoder()
             encoder.outputFormat = .binary
-            try publish(try encoder.encode(snapshot), to: current) { stage in
+            try publish(try encoder.encode(snapshot), to: current, replacing: replaceCheckpoint) { stage in
                 guard try readSnapshot(stage) == snapshot else { throw InstallationFileReadError.sourceChanged }
                 if old != nil {
-                    _ = try readSnapshot(previous) // Never replace an unexpected entry.
-                    guard rename(current.path, previous.path) == 0 else { throw posixError() }
+                    _ = try readSnapshot(previous)
+                    // Pin the verified current copy without touching either public path before publication.
+                    if try kind(retained) == nil {
+                        guard link(current.path, retained.path) == 0 else { throw posixError() }
+                    }
                     try CatalogPublication.synchronize(folder)
                 }
             }
+            if old != nil { try finishRotation(retained, previous: previous, in: folder) }
         }
         // Also synchronize a checkpoint visible after an interrupted publication before allowing live writes.
         try CatalogPublication.synchronize(folder)
@@ -91,6 +132,12 @@ package enum DowngradeCheckpoint {
         guard acceptingWarning else { return .warning(snapshot.omitted ?? []) }
         try publish(token, to: acknowledged) { _ in }
         return .ready
+    }
+
+    private static func finishRotation(_ retained: URL, previous: URL, in folder: URL) throws {
+        _ = try readSnapshot(previous)
+        try replace(retained, previous)
+        try CatalogPublication.synchronize(folder)
     }
 
     private static func capture(in root: URL, generation: Int,
@@ -156,18 +203,27 @@ package enum DowngradeCheckpoint {
         for picks in ["artwork-picks", "integrations/steam/artwork-picks"] {
             for title in try children(picks) {
                 let folder = "\(picks)/\(title)"
-                art += try children(folder).filter(artNames.contains).map { "\(folder)/\($0)" }
+                guard try kind(root.appendingPathComponent(folder)) == S_IFDIR else { continue }
+                art += try children(folder).filter(artNames.contains).map { "\(folder)/\($0)" }.filter {
+                    try kind(root.appendingPathComponent($0)) == S_IFREG
+                }
             }
         }
         let steamAssets = "integrations/steam/personal/assets"
         art += try children(steamAssets).filter {
             $0.hasSuffix(".png") && UUID(uuidString: String($0.dropLast(4))) != nil
-        }.map { "\(steamAssets)/\($0)" }
+        }.map { "\(steamAssets)/\($0)" }.filter { try kind(root.appendingPathComponent($0)) == S_IFREG }
         names += art.sorted().map { (.artwork, $0) }
         var audio: [String] = []
-        for pack in try children("SoundPacks") where pack.hasSuffix(".oortsound") {
+        for pack in try children("SoundPacks") where pack.lowercased().hasSuffix(".oortsound") {
             let folder = "SoundPacks/\(pack)"
-            audio += try children(folder).filter { $0 == "manifest.json" || $0.hasSuffix(".wav") }.map { "\(folder)/\($0)" }
+            switch try kind(root.appendingPathComponent(folder)) {
+            case S_IFREG: audio.append(folder)
+            case S_IFDIR:
+                audio += try children(folder).filter { $0 == "manifest.json" || $0.hasSuffix(".wav") }
+                    .map { "\(folder)/\($0)" }.filter { try kind(root.appendingPathComponent($0)) == S_IFREG }
+            default: break
+            }
         }
         return names + audio.sorted().map { (.sound, $0) }
     }
@@ -185,7 +241,8 @@ package enum DowngradeCheckpoint {
         catch let error as POSIXError where error.code == .ENOENT { return nil }
     }
 
-    private static func publish(_ data: Data, to destination: URL, verify: (URL) throws -> Void) throws {
+    private static func publish(_ data: Data, to destination: URL, replacing: (URL, URL) throws -> Void = replace,
+                                verify: (URL) throws -> Void) throws {
         guard data.count <= maximumBytes else { throw InstallationFileReadError.tooLarge }
         let folder = destination.deletingLastPathComponent()
         let stage = folder.appendingPathComponent(".staging")
@@ -201,12 +258,26 @@ package enum DowngradeCheckpoint {
         try handle.synchronize()
         try handle.close()
         try verify(stage)
-        guard rename(stage.path, destination.path) == 0 else { throw posixError() }
+        try replacing(stage, destination)
         try CatalogPublication.synchronize(folder)
+    }
+
+    package static func replace(_ source: URL, _ destination: URL) throws {
+        guard rename(source.path, destination.path) == 0 else { throw posixError() }
     }
 
     private static func requireDirectory(_ url: URL) throws {
         guard try kind(url) == S_IFDIR else { throw InstallationFileReadError.unsafeFile }
+    }
+
+    private static func makePrivate(_ url: URL) throws {
+        let fd = open(url.path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
+        guard fd >= 0 else { throw posixError() }
+        defer { close(fd) }
+        var status = stat()
+        guard fstat(fd, &status) == 0 else { throw posixError() }
+        guard status.st_uid == geteuid() else { throw InstallationFileReadError.unsafeFile }
+        if status.st_mode & 0o7777 != 0o700, fchmod(fd, 0o700) != 0 { throw posixError() }
     }
 
     private static func kind(_ url: URL) throws -> mode_t? {

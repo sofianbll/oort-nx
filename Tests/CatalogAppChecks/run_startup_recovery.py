@@ -8,6 +8,7 @@ from pathlib import Path
 import os
 import re
 import subprocess
+import sys
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -21,6 +22,7 @@ host = r'''
 import Foundation
 import AppKit
 import Combine
+import Darwin
 import NXLibraryCore
 import ArcanePorting
 import os
@@ -52,6 +54,59 @@ enum DevelopmentStartupFailure: Error { case otherCopyRunning }
     @MainActor static func main() async throws {
         let root = URL(fileURLWithPath: CommandLine.arguments[1])
         AppData.supportRoot = root
+        switch CommandLine.arguments.dropFirst(2).first {
+        case "concurrency":
+            _ = try CatalogStore(directory: root).loadOrMigrate()
+            try Data("fixture".utf8).write(to: root.appendingPathComponent("settings.json"))
+            var first: DevelopmentStartup? = DevelopmentStartup()
+            await first?.prepare()
+            precondition(first?.downgradeNotice == .copy([]))
+            let second = DevelopmentStartup()
+            await second.prepare()
+            precondition(second.failure != nil && second.shell == nil && second.downgradeNotice == nil,
+                         "another copy cannot advance even while the first waits for approval")
+            first = nil
+            await second.prepare()
+            precondition(second.downgradeNotice == .copy([]))
+            await second.prepare(acceptingDowngradeWarning: true)
+            precondition(second.shell != nil)
+            let third = DevelopmentStartup()
+            await third.prepare()
+            precondition(third.failure != nil && third.shell == nil, "the lease outlives checkpoint publication")
+            print("Profile lease holds through the notice and after opening the shell.")
+            return
+        case "disk-full":
+            let startup = DevelopmentStartup { _, _ in
+                throw CocoaError(.fileWriteUnknown, userInfo: [NSUnderlyingErrorKey: POSIXError(.ENOSPC)])
+            }
+            await startup.prepare()
+            precondition(String(describing: startup.downgradeNotice).contains("diskFull"),
+                         "a wrapped ENOSPC should say the disk is full")
+            await startup.continueWithoutCopy()
+            precondition(startup.shell != nil)
+            print("Wrapped ENOSPC has a distinct notice and does not block startup.")
+            return
+        case "slow":
+            do {
+                let fast = DevelopmentStartup { _, _ in .ready }
+                await fast.prepare()
+                precondition(!fast.showCopyProgress)
+            }
+            let slow = DevelopmentStartup { _, _ in
+                Thread.sleep(forTimeInterval: 1.6)
+                return .ready
+            }
+            let task = Task { await slow.prepare() }
+            try await Task.sleep(for: .milliseconds(250))
+            precondition(!slow.showCopyProgress, "do not flash progress for a short copy")
+            try await Task.sleep(for: .milliseconds(950))
+            precondition(slow.showCopyProgress, "show progress after one second")
+            await task.value
+            precondition(!slow.showCopyProgress && slow.shell != nil)
+            print("Progress appears after a second, then clears.")
+            return
+        default: break
+        }
         let store = CatalogStore(directory: root)
         var mixed = try store.loadOrMigrate()
         mixed.games.append(.init(steam: SteamCatalogGame(appID: 42, name: "Fixture")))
@@ -60,56 +115,65 @@ enum DevelopmentStartupFailure: Error { case otherCopyRunning }
         // Older app creates a legacy library after an initially empty migration.
         try Data("older-app bytes".utf8).write(to: legacy)
 
-        let startup = DevelopmentStartup()
-        await startup.prepare()
-        precondition(startup.shell == nil && startup.downgradeNotice == .copy([]) && startup.failure == nil)
-        precondition(startup.recovery == nil && startup.legacyConflict == nil)
-        await startup.prepare(acceptingDowngradeWarning: true)
-        precondition(startup.shell == nil && startup.failure != nil)
-        precondition(startup.legacyConflict != nil && startup.recovery == nil && !startup.working)
-        await startup.keepCurrentLibrary()
-        precondition(startup.shell?.catalog.games == mixed.games)
-        precondition(startup.failure == nil && startup.legacyConflict == nil && !startup.working)
+        do {
+            let startup = DevelopmentStartup()
+            await startup.prepare()
+            precondition(startup.shell == nil && startup.downgradeNotice == .copy([]) && startup.failure == nil)
+            precondition(startup.recovery == nil && startup.legacyConflict == nil)
+            await startup.prepare(acceptingDowngradeWarning: true)
+            precondition(startup.shell == nil && startup.failure != nil)
+            precondition(startup.legacyConflict != nil && startup.recovery == nil && !startup.working)
+            await startup.keepCurrentLibrary()
+            precondition(startup.shell?.catalog.games == mixed.games)
+            precondition(startup.failure == nil && startup.legacyConflict == nil && !startup.working)
+        }
         let unchangedLegacy = try Data(contentsOf: legacy)
         precondition(unchangedLegacy == Data("older-app bytes".utf8))
 
         try Data("second edit".utf8).write(to: legacy)
-        let stale = DevelopmentStartup()
-        await stale.prepare()
-        precondition(stale.legacyConflict != nil && stale.shell == nil)
-        try Data("third edit".utf8).write(to: legacy)
-        await stale.keepCurrentLibrary()
-        precondition(stale.shell == nil && stale.legacyConflict == nil && !stale.working)
-        precondition(stale.failure != nil)
-        await stale.prepare()
-        precondition(stale.legacyConflict != nil)
-        await stale.keepCurrentLibrary()
-        precondition(stale.shell?.catalog.games == mixed.games)
-
-        let healthy = DevelopmentStartup()
-        await healthy.prepare()
-        precondition(healthy.shell != nil && healthy.legacyConflict == nil && healthy.recovery == nil)
+        do {
+            let stale = DevelopmentStartup()
+            await stale.prepare()
+            precondition(stale.legacyConflict != nil && stale.shell == nil)
+            try Data("third edit".utf8).write(to: legacy)
+            await stale.keepCurrentLibrary()
+            precondition(stale.shell == nil && stale.legacyConflict == nil && !stale.working)
+            precondition(stale.failure != nil)
+            await stale.prepare()
+            precondition(stale.legacyConflict != nil)
+            await stale.keepCurrentLibrary()
+            precondition(stale.shell?.catalog.games == mixed.games)
+        }
+        do {
+            let healthy = DevelopmentStartup()
+            await healthy.prepare()
+            precondition(healthy.shell != nil && healthy.legacyConflict == nil && healthy.recovery == nil)
+        }
 
         AppData.rejectPreparation = true
-        let blocked = DevelopmentStartup()
-        await blocked.prepare()
-        precondition(blocked.shell == nil && blocked.failure != nil && !blocked.working)
-        precondition(blocked.legacyConflict == nil && blocked.recovery == nil)
-        AppData.rejectPreparation = false
-        await blocked.prepare()
-        precondition(blocked.shell != nil && blocked.failure == nil)
+        do {
+            let blocked = DevelopmentStartup()
+            await blocked.prepare()
+            precondition(blocked.shell == nil && blocked.failure != nil && !blocked.working)
+            precondition(blocked.legacyConflict == nil && blocked.recovery == nil)
+            AppData.rejectPreparation = false
+            await blocked.prepare()
+            precondition(blocked.shell != nil && blocked.failure == nil)
+        }
 
         let checkpoint = root.appendingPathComponent("DowngradeProtection/checkpoint.plist")
         let verified = try Data(contentsOf: checkpoint)
         try Data("damaged checkpoint".utf8).write(to: checkpoint)
-        let withoutCopy = DevelopmentStartup()
-        await withoutCopy.prepare()
-        precondition(withoutCopy.shell == nil && withoutCopy.failure == nil && withoutCopy.downgradeNotice == .failed)
-        precondition(withoutCopy.recovery == nil && withoutCopy.legacyConflict == nil)
-        await withoutCopy.prepare()
-        precondition(withoutCopy.downgradeNotice == .failed)
-        await withoutCopy.continueWithoutCopy()
-        precondition(withoutCopy.shell != nil && withoutCopy.downgradeNotice == nil)
+        do {
+            let withoutCopy = DevelopmentStartup()
+            await withoutCopy.prepare()
+            precondition(withoutCopy.shell == nil && withoutCopy.failure == nil && withoutCopy.downgradeNotice == .failed)
+            precondition(withoutCopy.recovery == nil && withoutCopy.legacyConflict == nil)
+            await withoutCopy.prepare()
+            precondition(withoutCopy.downgradeNotice == .failed)
+            await withoutCopy.continueWithoutCopy()
+            precondition(withoutCopy.shell != nil && withoutCopy.downgradeNotice == nil)
+        }
         let unchanged = try Data(contentsOf: checkpoint)
         precondition(unchanged == Data("damaged checkpoint".utf8))
 
@@ -132,5 +196,5 @@ with tempfile.TemporaryDirectory(prefix='catalog-startup-recovery-') as folder:
     package_name = re.search(r'"SWIFT_PACKAGE_NAME"\s*:\s*"([^"]+)"', (ROOT / '.build/manifest.pif').read_text())[1]
     subprocess.run(['xcrun', 'swiftc', '-j', '4', '-parse-as-library', '-package-name', package_name, '-I', str(BIN), str(swift),
                     str(BIN / 'NXLibraryCore.o'), str(BIN / 'ArcanePorting.o'), '-o', str(executable)], cwd=ROOT, check=True)
-    subprocess.run([str(executable), str(scratch / 'profile')], check=True,
+    subprocess.run([str(executable), str(scratch / 'profile'), *sys.argv[1:]], check=True,
                    env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)))

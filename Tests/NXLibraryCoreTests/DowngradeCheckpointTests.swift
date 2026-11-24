@@ -1,4 +1,5 @@
 import Foundation
+import Darwin
 import XCTest
 @testable import NXLibraryCore
 
@@ -51,6 +52,58 @@ final class DowngradeCheckpointTests: XCTestCase {
             }
         }
         XCTAssertThrowsError(try DowngradeCheckpoint.prepare(in: root, generation: 2, preferences: { [:] }))
+    }
+
+    func testFailedRotationLeavesBothVerifiedCopiesAtTheirOriginalPaths() throws {
+        try write("one", to: "settings.json")
+        _ = try DowngradeCheckpoint.prepare(in: root, generation: 1, preferences: { [:] })
+        try write("two", to: "settings.json")
+        _ = try DowngradeCheckpoint.prepare(in: root, generation: 2, preferences: { [:] })
+        let previous = checkpoint.deletingLastPathComponent().appendingPathComponent("previous.plist")
+        let first = try Data(contentsOf: previous)
+        let second = try Data(contentsOf: checkpoint)
+        try write("three", to: "settings.json")
+        XCTAssertThrowsError(try DowngradeCheckpoint.prepare(in: root, generation: 3, replaceCheckpoint: { _, _ in
+            throw POSIXError(.ENOSPC)
+        }, preferences: { [:] }))
+        XCTAssertEqual(try Data(contentsOf: checkpoint), second)
+        XCTAssertEqual(try Data(contentsOf: previous), first)
+        XCTAssertThrowsError(try DowngradeCheckpoint.prepare(in: root, generation: 3, replaceCheckpoint: { source, destination in
+            try DowngradeCheckpoint.replace(source, destination)
+            throw POSIXError(.EIO)
+        }, preferences: { [:] }))
+        XCTAssertEqual(try Data(contentsOf: previous), first)
+        _ = try DowngradeCheckpoint.prepare(in: root, generation: 3, preferences: { [:] })
+        XCTAssertEqual(try Data(contentsOf: previous), second)
+        XCTAssertEqual(try plist(Data(contentsOf: checkpoint))["generation"] as? Int, 3)
+    }
+
+    func testOptionalFoldersIgnoreUnrelatedAndSpecialEntriesAndKeepSoundArchives() throws {
+        try write("unrelated", to: "artwork-picks/notes.txt")
+        try write("art", to: "artwork-picks/TEST/hero.jpg")
+        try write("source", to: "unlisted")
+        try fm.createSymbolicLink(at: root.appendingPathComponent("artwork-picks/linked-title"),
+                                  withDestinationURL: root.appendingPathComponent("artwork-picks/TEST"))
+        XCTAssertEqual(mkfifo(root.appendingPathComponent("artwork-picks/TEST/square.png").path, 0o600), 0)
+        try write("sound", to: "SoundPacks/normal.oortsound/manifest.json")
+        // Real ZIP container; these bytes stand for an imported archive, not unpacked members.
+        let zip = Data([0x50, 0x4b, 0x05, 0x06] + [UInt8](repeating: 0, count: 18))
+        try zip.write(to: root.appendingPathComponent("SoundPacks/archived.oortsound"))
+        XCTAssertEqual(mkfifo(root.appendingPathComponent("SoundPacks/pipe.oortsound").path, 0o600), 0)
+        try fm.createSymbolicLink(at: root.appendingPathComponent("SoundPacks/linked.oortsound"),
+                                  withDestinationURL: root.appendingPathComponent("unlisted"))
+        XCTAssertEqual(try DowngradeCheckpoint.prepare(in: root, preferences: { [:] }), .warning([]))
+        let files = try XCTUnwrap(plist(Data(contentsOf: checkpoint))["files"] as? [String: [String: Data]])
+        XCTAssertEqual(files.keys.sorted(), ["SoundPacks/archived.oortsound", "SoundPacks/normal.oortsound/manifest.json", "artwork-picks/TEST/hero.jpg"])
+        XCTAssertEqual(files["SoundPacks/archived.oortsound"]?["data"], zip)
+    }
+
+    func testExistingCheckpointDirectoryIsMadePrivate() throws {
+        let folder = checkpoint.deletingLastPathComponent()
+        try fm.createDirectory(at: folder, withIntermediateDirectories: false)
+        try fm.setAttributes([.posixPermissions: 0o755], ofItemAtPath: folder.path)
+        _ = try DowngradeCheckpoint.prepare(in: root, preferences: { [:] })
+        XCTAssertEqual(try fm.attributesOfItem(atPath: folder.path)[.posixPermissions] as? Int, 0o700)
     }
 
     func testRefusesLinkAndLeavesOversizedSettingsUntouched() throws {
