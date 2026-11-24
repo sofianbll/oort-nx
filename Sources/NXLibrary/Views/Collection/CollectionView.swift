@@ -68,7 +68,8 @@ struct CollectionView: View {
     }
 
     var hasAnyGame: Bool { !viewModel.visibleCatalogGames.isEmpty }
-    var showsEmptyActions: Bool { profileCard == nil && !hasAnyGame && !viewModel.isScanningLibrary }
+    private var usesCloudShelf: Bool { profileCard == nil && filter == .cloud }
+    var showsEmptyActions: Bool { profileCard == nil && !usesCloudShelf && !hasAnyGame && !viewModel.isScanningLibrary }
 
     private func selectedCatalogGame(in games: [CatalogGame]) -> CatalogGame? {
         guard let id = viewModel.librarySelection.selectedGameID else { return nil }
@@ -236,10 +237,34 @@ struct CollectionView: View {
 
     // MARK: - Empty state
 
-    /// No games at all: the Add game prompt. A filter with no games: its name.
+    private var cloudEmptyKey: String {
+        guard cloud.preference.enabled, cloud.preference.remote != nil else {
+            return "Connect your cloud library in Settings → Porting → Cloud library."
+        }
+        if cloud.importTask != nil { return "Looking for cloud games…" }
+        if cloud.hasCloudReadFailure || cloud.referenceCheck?.incomplete == true || cloud.hasPendingMove
+            || (cloud.archive == nil && cloud.needsDriveTool) {
+            return "Could not check the cloud library. Check your connection in Settings."
+        }
+        // Connection OK alone only verifies access, not the inventory.
+        if cloud.triedAutomaticImport, cloud.lastCompleteCheck != nil,
+           cloud.preference.referenceFolder == nil || cloud.referenceCheck?.count != nil {
+            return "No cloud games to download."
+        }
+        return "Looking for cloud games…"
+    }
+
     @ViewBuilder
     private var emptyState: some View {
-        if viewModel.isScanningLibrary {
+        if usesCloudShelf {
+            Text(L10n.text(cloudEmptyKey, context: localization))
+                .seleneFont(.dialogTitle)
+                .foregroundColor(SeleneTheme.ink)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: canvas.u(1080))
+                .shadow(color: .black.opacity(0.45), radius: canvas.u(6))
+        } else if viewModel.isScanningLibrary {
             EmptyView()
         } else if profileCard != nil {
             Text(L10n.text("No games in this view.", context: localization))

@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **1063 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **1064 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -712,7 +712,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibrary/Views/Collection/CollectionView.swift](../../Sources/NXLibrary/Views/Collection/CollectionView.swift) | Compone copertine, filtro Cloud e suggerimenti; separa ciclo di vita, cambi di libreria, input e caricamento della selezione. |
+| [Sources/NXLibrary/Views/Collection/CollectionView.swift](../../Sources/NXLibrary/Views/Collection/CollectionView.swift) | Compone copertine e filtro Cloud; distingue configurazione, ricerca, controllo incompleto e inventario verificato senza giochi. |
 | [Sources/NXLibrary/Views/Collection/CollectionView+Input.swift](../../Sources/NXLibrary/Views/Collection/CollectionView+Input.swift) | Muove il focus nella barra, nell’elenco o tra le azioni della Collection vuota; inoltra Play, Download e opzioni per fonte, e apre l’ordinamento nella Collection principale. |
 | [Sources/NXLibrary/Views/Collection/CollectionCoverRow.swift](../../Sources/NXLibrary/Views/Collection/CollectionCoverRow.swift) | Disegna copertine e scorrimento della riga Collection, con cue Cloud sopra l'arte. |
 | [Sources/NXLibrary/Views/Detail/GameDetailView.swift](../../Sources/NXLibrary/Views/Detail/GameDetailView.swift) | Compone la pagina Details e coordina bande, modello corrente e focus. |
@@ -727,7 +727,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/Components/IGDBCredentialsDialog.swift](../../Sources/NXLibrary/Views/Components/IGDBCredentialsDialog.swift) | Guida sintetica in cinque passi, Client ID, Client Secret nascosto, verifica/salvataggio e annullamento; input Settings sospeso. |
 | [Sources/NXLibrary/Views/Settings/SettingsAPISection.swift](../../Sources/NXLibrary/Views/Settings/SettingsAPISection.swift) | Online services, Play together e Nextendo; conferma le scelte della rete e conserva i titoli risolti per gli amici. Da Integrations attende Check status o Sign in. |
 | [Sources/NXLibrary/Views/Settings/SettingsCloudLibrarySection.swift](../../Sources/NXLibrary/Views/Settings/SettingsCloudLibrarySection.swift) | Porting → Cloud library: verifiche, recuperi, consenso, progresso e Cestino per rclone, riferimento, importazione e aspetto. Da Integrations ispeziona rclone solo aprendo Avanzate. |
-| [Sources/NXLibrary/Views/Settings/CloudSetupAssistant.swift](../../Sources/NXLibrary/Views/Settings/CloudSetupAssistant.swift) | Spiega il diritto Google completo; apre il percorso sorgenti salvato senza nuove proposte, mostra progressi e blocchi, azione principale a sinistra e aiuto nella scheda attiva. |
+| [Sources/NXLibrary/Views/Settings/CloudSetupAssistant.swift](../../Sources/NXLibrary/Views/Settings/CloudSetupAssistant.swift) | Spiega il diritto Google, sceglie le cartelle, mostra blocchi e indica Collection → Cloud dopo l’attivazione; uno spostamento pendente si riprende da Attività. |
 | [Sources/NXLibrary/Views/Settings/CloudSetupAssistant+Input.swift](../../Sources/NXLibrary/Views/Settings/CloudSetupAssistant+Input.swift) | Traduce tastiera e controller in azioni sul bersaglio corrente, lasciando precedenza al menu e alla conferma di uscita. |
 | [Sources/NXLibrary/Views/Settings/CloudReferenceDialog.swift](../../Sources/NXLibrary/Views/Settings/CloudReferenceDialog.swift) | Editor Selene del link o ID di una cartella Drive di riferimento, con validazione e azioni da tastiera e controller. |
 | [Sources/NXLibrary/Views/Settings/NextendoClientDialog.swift](../../Sources/NXLibrary/Views/Settings/NextendoClientDialog.swift) | Dialogo Selene per scegliere e validare l’ID client pubblico o riprendere il default della build. |
@@ -1149,6 +1149,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_cloud_screens.py](../../Tests/CatalogAppChecks/run_cloud_screens.py) | Verifica Cloud, coda, accesso Google, scoperta delle sorgenti, spostamento, glifi, Play together e schermo su fixture locali. Separa schermate, trasferimenti, giochi solo cloud e risultati incompleti in processi con directory e preferenze proprie. Verifica anche il fornitore e la selezione di Rebuild. `--compare-with-5047557` confronta la scheda con Riduci movimento. |
 | [run_download_cloud.py](../../Tests/CatalogAppChecks/run_download_cloud.py) | Verifica pixel, contrasto e compositing del cue Download; cattura il fronte a quattro livelli e misura un campione di tile in finestra isolata. |
 | [run_cloud_queue_pause.py](../../Tests/CatalogAppChecks/run_cloud_queue_pause.py) | Riapre una coda sintetica con pausa registrata e confronta le righe Attività in francese prima e dopo, senza backend. |
+| [run_cloud_shelf.py](../../Tests/CatalogAppChecks/run_cloud_shelf.py) | Rende lo scaffale Cloud in francese e verifica gli stati vuoti, i titoli importati e il recupero nell’assistente con fixture. |
 | [run_settings_confirmations.py](../../Tests/CatalogAppChecks/run_settings_confirmations.py) | Lancia la sonda delle conferme in un processo con dati e preferenze propri, in francese e senza servizi reali. |
 | [SettingsConfirmationProbe.swift](../../Tests/CatalogAppChecks/SettingsConfirmationProbe.swift) | Verifica conferme di Cloud, rclone, motore e rete, consenso, stato del download e ambito Drive della copia gestita; rende le carte senza finestre native. |
 | [run_integration_contract.py](../../Tests/CatalogAppChecks/run_integration_contract.py) | Controlla il collegamento di Integrations alle viste reali senza aprirle. |
