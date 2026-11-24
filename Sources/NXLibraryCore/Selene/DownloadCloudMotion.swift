@@ -22,7 +22,7 @@ public enum DownloadCloudMotion {
     }
 
     public struct Mote: Equatable {
-        public enum Kind { case ink, accent, sun, star }
+        public enum Kind { case ink, accent, sun, star, crest }
         public let center: CGPoint
         public let radius: Double
         public let opacity: Double
@@ -63,6 +63,7 @@ public enum DownloadCloudMotion {
             let reach = min(1, y / (24 * scale))
             let activity = 1 - settle
             var dots = [Mote]()
+            var crest = [Mote]()
             for row in 0..<3 {
                 for column in 0..<columns {
                     let phase = 2 * .pi * random.unit()
@@ -79,12 +80,18 @@ public enum DownloadCloudMotion {
                     let radius = ([1.44, 1.02, 0.64][row] + 0.27 * random.unit()) * scale * (present ? 1.09 : 1)
                     let shimmer = 0.93 + 0.07 * sin(sway)
                     let brightness = [1.0, 0.92, 0.71][row] * (level == nil ? 0.83 : 1)
+                    if row == 0, column.isMultiple(of: 2), let level, level > 0, level < 1 {
+                        let fade = smooth(min(x, w - x) / (w * 0.24))
+                        let ripple = 1.4 * (scale * (8.4 + cos(sway) * activity) - depth)
+                        crest.append(Mote(center: CGPoint(x: x, y: y + ripple), radius: scale,
+                                          opacity: 0.15 * fade * fill * activity * shimmer, kind: .crest))
+                    }
                     dots.append(Mote(center: CGPoint(x: x, y: py), radius: radius,
                                      opacity: fill * activity * shimmer * brightness,
                                      kind: column.isMultiple(of: 3) ? .accent : .ink))
                 }
             }
-            return Frame(dots: dots, bandY: y, bandOpacity: activity * (level == nil ? 0.96 : 1), centreOpacity: 0)
+            return Frame(dots: crest + dots, bandY: y, bandOpacity: activity * (level == nil ? 0.96 : 1), centreOpacity: 0)
 
         case .completion, .fade:
             let still = scene == .fade
