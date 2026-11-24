@@ -326,6 +326,11 @@ final class PlayersLaunchTests: XCTestCase {
         XCTAssertEqual(run(features, player: 3, options: [merge: "2"]).status.controllerMode, .gameOption)
         XCTAssertTrue(run(features, player: 3, options: explicit).additions.isEmpty)
         XCTAssertEqual(run(features, player: 9).status.controllerMode, .invalidMergePlayer)
+        try plan.setMergePlayer(8)
+        XCTAssertEqual(run(features).additions, [merge: "8"])
+        XCTAssertTrue(run(features).status.supportsExtendedMerge)
+        XCTAssertEqual(run(.init()).additions, [merge: "1"])
+        XCTAssertFalse(run(.init()).status.supportsExtendedMerge)
     }
 
     func testPortraitsAndNamesHonorEachKeyAndLiveUntilExitOrOpenFailure() throws {

@@ -17,16 +17,18 @@ public struct PlayersLaunchStatus: Equatable, Sendable {
     public let controllerOrder: [Int: Omission]
     public let profileNames: [Int: Omission]
     public let portraits: [Int: Omission]
+    public let supportsExtendedMerge: Bool
 
     init(plan: PlanState, controllerMode: Omission?, nickname: Omission?,
          controllerOrder: [Int: Omission] = [:], profileNames: [Int: Omission] = [:],
-         portraits: [Int: Omission] = [:]) {
+         portraits: [Int: Omission] = [:], supportsExtendedMerge: Bool = false) {
         self.plan = plan
         self.controllerMode = controllerMode
         self.nickname = nickname
         self.controllerOrder = controllerOrder
         self.profileNames = profileNames
         self.portraits = portraits
+        self.supportsExtendedMerge = supportsExtendedMerge
     }
 }
 
@@ -78,9 +80,10 @@ public struct PlayersLaunch: Sendable {
                  controllerOrder: [Int: PlayersLaunchStatus.Omission] = [:],
                  profileNames: [Int: PlayersLaunchStatus.Omission] = [:],
                  portraits: [Int: PlayersLaunchStatus.Omission] = [:],
-                 portraitFiles: PlayerLaunchPortraits? = nil) {
+                 portraitFiles: PlayerLaunchPortraits? = nil, supportsExtendedMerge: Bool = false) {
         status = .init(plan: plan, controllerMode: controllerMode, nickname: nickname,
-                       controllerOrder: controllerOrder, profileNames: profileNames, portraits: portraits)
+                       controllerOrder: controllerOrder, profileNames: profileNames, portraits: portraits,
+                       supportsExtendedMerge: supportsExtendedMerge)
         self.additions = additions
         self.portraitFiles = portraitFiles
     }
@@ -92,13 +95,13 @@ public struct PlayersLaunch: Sendable {
         let snapshot: (plan: PlayerPlan?, unlocked: Set<UUID>)
         do { snapshot = try await library.launchPlan(profiles: profiles) }
         catch { return .init(plan: .unreadable) }
-        guard let plan = snapshot.plan else { return .init(plan: .absent) }
+        let features = await EngineFeatures.installed(in: app, ancestry: ancestry)
+        guard let plan = snapshot.plan else { return .init(plan: .absent, supportsExtendedMerge: features.extendedMerge) }
         let environment = NSWorkspaceLauncher.gameEnvironment(
             inheriting: ProcessInfo.processInfo.environment, explicit: explicit, suppressInheritedPlayerMode: true)
         // Use the child's HOME; nxnative derives the per-title env.txt from it, not from the save path.
         let home = environment["HOME"] ?? ""
-        guard home.hasPrefix("/") else { return unreadableEnvironment(for: plan) }
-        let features = await EngineFeatures.installed(in: app, ancestry: ancestry)
+        guard home.hasPrefix("/") else { return unreadableEnvironment(for: plan, features: features) }
         let live = features.order && plan.mode != .merge && plan.slots.values.contains(where: { $0.controller != nil })
             ? await liveControllers?() : nil
         return evaluate(plan: plan, app: app, titleID: titleID,
@@ -114,6 +117,7 @@ public struct PlayersLaunch: Sendable {
                          features: EngineFeatures = .init(), mergePlayer: Int = 1,
                          connected: [ConnectedPlayerController] = [], fingerprints: [String: String] = [:],
                          avatarSymbols: [String] = [], portraitDirectory: URL? = nil) -> Self {
+        let mergePlayer = plan.mergePlayer ?? mergePlayer
         let access = plan.slot(1)?.profileAccess(in: profiles, unlockedProfileIDs: unlocked)
         let info = ImportService.info(at: app)
         let installedTitle = (info?["DMTitleID"] as? String) ?? titleID
@@ -121,14 +125,14 @@ public struct PlayersLaunch: Sendable {
         do {
             let hex = "0123456789abcdefABCDEF".utf8
             guard installedTitle.utf8.count == 16, installedTitle.utf8.allSatisfy(hex.contains) else {
-                return unreadableEnvironment(for: plan)
+                return unreadableEnvironment(for: plan, features: features)
             }
             let title = home.appendingPathComponent("Library/Application Support/nxnative")
                 .appendingPathComponent(installedTitle).appendingPathComponent("env.txt")
             let bundled = app.appendingPathComponent("Contents/Resources/dm/env.txt")
             fileValues = try readEnv(title).merging(readEnv(bundled)) { title, _ in title }
         } catch {
-            return unreadableEnvironment(for: plan)
+            return unreadableEnvironment(for: plan, features: features)
         }
 
         let rules = (info?["DMSettings"] as? [Any] ?? []).compactMap { $0 as? [String: Any] }
@@ -272,7 +276,8 @@ public struct PlayersLaunch: Sendable {
             }
         }
         return .init(plan: .active, controllerMode: controller, nickname: nickname, additions: additions,
-                     controllerOrder: order, profileNames: names, portraits: portraits, portraitFiles: files)
+                     controllerOrder: order, profileNames: names, portraits: portraits, portraitFiles: files,
+                     supportsExtendedMerge: features.extendedMerge)
     }
 
     private static func localName(_ value: String) -> String? {
@@ -285,11 +290,12 @@ public struct PlayersLaunch: Sendable {
         return name.isEmpty ? nil : String(name)
     }
 
-    private static func unreadableEnvironment(for plan: PlayerPlan) -> Self {
+    private static func unreadableEnvironment(for plan: PlayerPlan, features: EngineFeatures) -> Self {
         let profiles = plan.slots.filter { $0.value.profileID != nil }.mapValues { _ in PlayersLaunchStatus.Omission.environmentFileUnreadable }
         let controllers = plan.slots.filter { $0.value.controller != nil }.mapValues { _ in PlayersLaunchStatus.Omission.environmentFileUnreadable }
         return .init(plan: .active, controllerMode: .environmentFileUnreadable, nickname: profiles[1],
-                     controllerOrder: controllers, profileNames: profiles.filter { $0.key != 1 }, portraits: profiles)
+                     controllerOrder: controllers, profileNames: profiles.filter { $0.key != 1 }, portraits: profiles,
+                     supportsExtendedMerge: features.extendedMerge)
     }
 
     private static func networkMode(_ value: String?) -> PlayerLaunchNetworkMode {

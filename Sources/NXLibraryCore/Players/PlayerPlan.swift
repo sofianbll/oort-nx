@@ -29,11 +29,18 @@ public struct PlayerPlan: Equatable, Sendable {
     public enum InvalidSlot: Error, Equatable { case outOfRange(Int) }
     public static let maximumPlayers = 8
     public var mode: PlayerControllerMode
+    public private(set) var mergePlayer: Int?
+    public var mergeTarget: Int { mergePlayer ?? 1 }
     public private(set) var slots: [Int: PlayerSlot] = [:]
 
     public init(mode: PlayerControllerMode = .pressToJoin) { self.mode = mode }
 
     public func slot(_ number: Int) -> PlayerSlot? { slots[number] }
+
+    public mutating func setMergePlayer(_ number: Int?) throws {
+        if let number, !(1...Self.maximumPlayers).contains(number) { throw InvalidSlot.outOfRange(number) }
+        mergePlayer = number == 1 ? nil : number
+    }
 
     public mutating func set(_ slot: PlayerSlot, at number: Int) throws {
         guard (1...Self.maximumPlayers).contains(number) else { throw InvalidSlot.outOfRange(number) }
