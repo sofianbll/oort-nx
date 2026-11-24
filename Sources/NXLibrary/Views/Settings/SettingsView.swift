@@ -135,7 +135,8 @@ struct SettingsView: View {
                 originalDeadzone = GameControllerService.shared.legacyDeadzone
                 originalDockIcon = AppViewModel.legacyDockIcon
                 settings.beginDraft(fields: SettingsDraftFields.fields(profiles: profiles,
-                    languages: viewModel.availableLanguages, legacyToolchainOverride: legacy))
+                    languages: viewModel.availableLanguages, legacyToolchainOverride: legacy,
+                    steam: viewModel.catalogSnapshot.source(.steam)))
             }
             installKeyMonitor()
         }
@@ -306,6 +307,10 @@ struct SettingsView: View {
         case 0:
             do {
                 let changes = Set(settings.draft?.changes.map(\.id) ?? [])
+                if changes.contains("steamSource"), let choice = settings.editingSettings.launcherChoices.steamSource,
+                   try viewModel.catalogRepository.load().source(.steam)?.generation != choice.replaces {
+                    throw AppSettingsDraft.Failure.changedElsewhere
+                }
                 if changes.contains("controllerDeadzone"), settings.settings.launcherChoices.controllerDeadzone == nil,
                    originalDeadzone != GameControllerService.shared.legacyDeadzone { throw AppSettingsDraft.Failure.changedElsewhere }
                 if changes.contains("iconAppearance"), settings.settings.launcherChoices.dockIconAppearance == nil,
@@ -446,6 +451,7 @@ struct SettingsView: View {
         var rows: [String: AppSettingsDraft.Change] = [:]
         for change in settings.draft?.changes ?? [] {
             rows[SettingsDraftFields.row(change.id, in: section)] = change
+            if change.id == "steamSource", section == .sources { rows["Steam folder"] = change }
         }
         return rows
     }

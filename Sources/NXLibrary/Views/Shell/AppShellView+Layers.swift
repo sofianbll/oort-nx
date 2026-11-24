@@ -397,6 +397,9 @@ extension AppShellView {
             .onChange(of: settings.settings.launcherChoices.controllerDeadzone) { _, value in
                 GameControllerService.shared.useDeadzone(value)
             }
+            .onChange(of: settings.settings.launcherChoices.steamSource) { _, choice in
+                if let choice { sources.applySettingsChoice(choice) }
+            }
             .onChange(of: AppLocale(language: preview.appLanguage, region: preview.appRegion)) {
                 AppLocalization.shared.configure(preview)
             }

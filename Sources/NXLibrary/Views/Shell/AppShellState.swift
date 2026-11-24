@@ -47,9 +47,11 @@ final class AppShellState {
             guard let model else { return false }
             return model.isBuilding || model.isUpdatingApp || model.hasActiveSaveOperations
         }
-        sources = CatalogSourcesModel(repository: repository, initialConfiguration: catalog.source(.steam) ?? .init(integration: .steam)) { [weak model] document in
+        let sources = CatalogSourcesModel(repository: repository, initialConfiguration: catalog.source(.steam) ?? .init(integration: .steam)) { [weak model] document in
             model?.applyCatalog(document)
         }
+        self.sources = sources
+        if let choice = settings.settings.launcherChoices.steamSource { sources.applySettingsChoice(choice) }
         let router = AppRouter(settings: settings)
         router.hasPendingSettings = { [weak settings] in settings?.draft?.hasChanges == true }
         AppDelegate.requestSettingsQuit = { [weak router] proceed in

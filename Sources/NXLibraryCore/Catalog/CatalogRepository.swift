@@ -85,6 +85,19 @@ extension CatalogRepository {
         }
     }
 
+    /// Idempotent replay after Settings saves (also after a process interruption).
+    public func applySteamChoice(_ choice: SteamSourceChoice) throws -> CatalogDocument {
+        let current = try load()
+        if current.source(.steam)?.generation == choice.generation { return current }
+        guard current.source(.steam)?.generation == choice.replaces else { throw AppSettingsDraft.Failure.changedElsewhere }
+        var updated = current
+        let source = CatalogSourceConfiguration(integration: .steam, isEnabled: choice.enabled,
+                                               rootURL: choice.root, generation: choice.generation)
+        if let index = updated.sources.firstIndex(where: { $0.integration == .steam }) { updated.sources[index] = source }
+        else { updated.sources.append(source) }
+        return try store.save(updated, expectedRevision: current.revision)
+    }
+
     @discardableResult
     public func toggleFavorite(for id: UUID) throws -> CatalogDocument {
         try transaction { document in

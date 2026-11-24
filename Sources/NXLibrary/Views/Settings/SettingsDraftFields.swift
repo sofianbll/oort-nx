@@ -8,11 +8,16 @@ enum SettingsDraftFields {
     typealias Field = AppSettingsDraft.Field
 
     static func fields(profiles: LocalProfileStore?, languages: [(code: String, label: String)],
-                       legacyToolchainOverride: Bool = false) -> [Field] {
+                       legacyToolchainOverride: Bool = false, steam: CatalogSourceConfiguration? = nil) -> [Field] {
         let soundPacks = SoundPackLibrary().choices()
         let deadzone = GameControllerService.shared.legacyDeadzone
         let dockIcon = AppViewModel.legacyDockIcon
         return [
+            .init("steamSource", \.launcherChoices.steamSource, important: true) { choice in
+                let on = choice?.enabled ?? steam?.isEnabled ?? false
+                let root = choice?.root ?? steam?.rootURL ?? CatalogSourcesModel.defaultSteamRoot
+                return "\(onOff(on)) · \((root.path as NSString).abbreviatingWithTildeInPath)"
+            },
             .init("controllerDeadzone", \.launcherChoices.controllerDeadzone) {
                 ($0 ?? deadzone).formatted(.number.precision(.fractionLength(2)).locale(L10n.context.formatLocale))
             },
@@ -146,6 +151,7 @@ enum SettingsDraftFields {
         case "multiplayerVPN": "Local play uses this VPN. macOS network settings stay unchanged."
         case "cloudSaves": "This applies to all ported games at their next launch. No saves are deleted."
         case "toolchainOverride": "This changes the build compatibility gate. Existing apps are not changed."
+        case "steamSource": "Your Steam files stay where they are. Disabling this source keeps its games and personal choices."
         default: SettingsCatalog.all.first { $0.id == id }?.about
         }
     }

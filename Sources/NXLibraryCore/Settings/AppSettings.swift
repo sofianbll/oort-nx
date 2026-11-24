@@ -195,6 +195,22 @@ public enum InGameHomeButton: String, Codable, CaseIterable, Sendable {
 public struct LauncherSettingsChoices: Codable, Equatable {
     public var controllerDeadzone: Double?
     public var dockIconAppearance: String?
+    public var steamSource: SteamSourceChoice?
+}
+
+/// Desired source configuration and the exact catalog generation it may replace.
+public struct SteamSourceChoice: Codable, Equatable {
+    public var enabled: Bool
+    public var root: URL
+    public let replaces: UUID?
+    public let generation: UUID
+
+    public init(enabled: Bool, root: URL, replaces: UUID?, generation: UUID = UUID()) {
+        self.enabled = enabled
+        self.root = root
+        self.replaces = replaces
+        self.generation = generation
+    }
 }
 
 public struct AppSettings: Codable, Equatable {

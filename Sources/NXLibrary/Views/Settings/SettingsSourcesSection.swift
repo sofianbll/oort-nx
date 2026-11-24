@@ -10,7 +10,12 @@ struct SettingsSourcesSection: View {
     @Environment(\.nxAppLocale) private var localization
     let onActions: ([SettingsRowAction]) -> Void
 
-    private var defaultRoot: URL { CatalogSourcesModel.defaultSteamRoot }
+    private var staged: SteamSourceChoice? {
+        let choice = settings.settings.launcherChoices.steamSource
+        return choice == settings.store.settings.launcherChoices.steamSource ? nil : choice
+    }
+    private var enabled: Bool { staged?.enabled ?? sources.configuration.isEnabled }
+    private var root: URL { staged?.root ?? sources.discoveryRoot }
     private var hidden: [CatalogGame] { viewModel.catalogGames.filter { $0.integration == .steam && $0.isHidden } }
     private var review: [CatalogGame] {
         viewModel.catalogGames.filter { !$0.isHidden && $0.steamGame?.needsReview == true }
@@ -34,15 +39,13 @@ struct SettingsSourcesSection: View {
                 .disabled(!viewModel.macShortcuts.canEdit)
             SeleneToggleRow("Steam", subtitle: "Find installed native Mac games in your Steam libraries.",
                             info: "Your Steam files stay where they are. Disabling this source keeps its games and personal choices.",
-                            isOn: Binding(get: { sources.configuration.isEnabled }, set: { enabled in
-                                sources.configure(enabled: enabled, root: sources.configuration.rootURL ?? defaultRoot)
-                            }))
+                            isOn: Binding(get: { enabled }, set: { stage(enabled: $0, root: root) }))
             SeleneButtonRow("Refresh Steam", subtitle: statusText,
                             buttonTitle: sources.status == .scanning ? "Cancel" : "Refresh") {
                 if sources.status == .scanning { sources.cancel() } else { sources.refresh() }
-            }.disabled(!sources.configuration.isEnabled)
+            }.disabled(!sources.configuration.isEnabled && sources.status != .failed)
             SeleneValueRow("Steam folder", subtitle: "Choose the Steam folder containing steamapps.",
-                           value: (sources.configuration.rootURL ?? defaultRoot).path, actionTitle: "Change", action: chooseFolder)
+                           value: root.path, actionTitle: "Change", action: chooseFolder)
             SettingsSubheading("Play")
             SeleneToggleRow("Keep Steam in the background",
                             subtitle: "Steam starts quietly when possible and comes forward if it needs you.",
@@ -84,7 +87,7 @@ struct SettingsSourcesSection: View {
     private func chooseFolder() {
         let panel = NSOpenPanel()
         panel.canChooseFiles = false; panel.canChooseDirectories = true; panel.allowsMultipleSelection = false
-        panel.directoryURL = sources.configuration.rootURL ?? defaultRoot
+        panel.directoryURL = root
         panel.message = L10n.text("Choose the Steam folder containing steamapps.", context: localization)
         guard panel.runModal() == .OK, let chosen = panel.url else { return }
         let root = chosen.resolvingSymlinksInPath().standardizedFileURL
@@ -94,7 +97,16 @@ struct SettingsSourcesSection: View {
             viewModel.showSettingsNotice(title: L10n.text("Steam folder", context: localization), message: L10n.text("Choose the Steam folder containing steamapps.", context: localization))
             return
         }
-        sources.configure(enabled: sources.configuration.isEnabled, root: root)
+        stage(enabled: enabled, root: root)
+    }
+    private func stage(enabled: Bool, root: URL) {
+        if enabled == sources.configuration.isEnabled && root == sources.discoveryRoot {
+            settings.settings.launcherChoices.steamSource = settings.store.settings.launcherChoices.steamSource
+        } else {
+            settings.settings.launcherChoices.steamSource = .init(enabled: enabled, root: root,
+                replaces: staged.map(\.replaces) ?? viewModel.catalogSnapshot.source(.steam)?.generation,
+                generation: staged?.generation ?? UUID())
+        }
     }
     private func reveal(_ game: CatalogGame) {
         guard let location = game.steamGame?.installations.first?.contentURL else { return }
@@ -104,8 +116,8 @@ struct SettingsSourcesSection: View {
         var rows: [SettingsRowAction] = [
             .init(id: "macShortcutAdd", title: "Add an app…", rowID: "macShortcutAdd",
                   isEnabled: viewModel.macShortcuts.canEdit) { viewModel.macShortcuts.chooseApp() },
-            .init(id: "steamSource", title: "Steam") { sources.configure(enabled: !sources.configuration.isEnabled, root: sources.configuration.rootURL ?? defaultRoot) },
-            .init(id: "steamRefresh", title: "Refresh Steam", isEnabled: sources.configuration.isEnabled) {
+            .init(id: "steamSource", title: "Steam") { stage(enabled: !enabled, root: root) },
+            .init(id: "steamRefresh", title: "Refresh Steam", isEnabled: sources.configuration.isEnabled || sources.status == .failed) {
                 if sources.status == .scanning { sources.cancel() } else { sources.refresh() }
             },
             .init(id: "steamFolder", title: "Steam folder", activate: chooseFolder),
