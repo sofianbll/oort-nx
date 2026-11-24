@@ -1,5 +1,6 @@
 import Foundation
 import AppKit
+import Combine
 import NXLibraryCore
 
 final class GameControllerService: ObservableObject {
@@ -11,6 +12,9 @@ final class GameControllerService: ObservableObject {
     /// Reported glyphs (including system remapping); the brand supplies missing glyphs.
     @Published var buttonSymbols: [PromptButton: String] = [:]
     @Published private(set) var menuHoldStartedAt: TimeInterval?
+    @Published private(set) var connectedControllers: [ConnectedController] = []
+    private let buttonPresses = PassthroughSubject<String, Never>()
+    var controllerButtonPresses: AnyPublisher<String, Never> { buttonPresses.eraseToAnyPublisher() }
 
     var onAction: ((GamepadAction) -> Void)?
 
@@ -18,7 +22,7 @@ final class GameControllerService: ObservableObject {
     @Published var deadzone: Float = 0.35 {
         didSet {
             let clamped = min(max(deadzone, 0.10), 0.80)
-            AppData.preferences.set(Double(clamped), forKey: deadzoneKey)
+            preferences?.set(Double(clamped), forKey: deadzoneKey)
         }
     }
 
@@ -26,9 +30,14 @@ final class GameControllerService: ObservableObject {
     private var isAppActive = true
     private var lastNavTime: TimeInterval = 0
 
-    private let gcSource = GCControllerSource()
-    private let hidSource = HIDControllerSource()
+    private let gcSource: ControllerSource
+    private let hidSource: ControllerSource
+    private let preferences: UserDefaults?
     private var gcPad: ControllerIdentity?
+    private var roster = ControllerRoster()
+    private var sleeping = false
+    private var statusTimer: Timer?
+    private var observers: [(NotificationCenter, NSObjectProtocol)] = []
     private struct HIDPad {
         let identity: ControllerIdentity
         var admission: ControllerArbitration.HID
@@ -41,18 +50,31 @@ final class GameControllerService: ObservableObject {
     private var holds: [ControllerButton: HoldDetector] = [:]
     private var holdTimers: [ControllerButton: Timer] = [:]
 
-    private init() {
-        if AppData.preferences.object(forKey: deadzoneKey) != nil {
-            deadzone = min(max(Float(AppData.preferences.double(forKey: deadzoneKey)), 0.10), 0.80)
-        }
-        isAppActive = NSApplication.shared.isActive
-        let center = NotificationCenter.default
-        center.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
-            self?.isAppActive = true
-        }
-        center.addObserver(forName: NSApplication.didResignActiveNotification, object: nil, queue: .main) { [weak self] _ in
-            self?.isAppActive = false
-            self?.resetInput()
+    private convenience init() {
+        self.init(gcSource: GCControllerSource(), hidSource: HIDControllerSource(), preferences: AppData.preferences)
+    }
+
+    // Fakes pass no preferences and never initialize AppKit or enumerate hardware.
+    init(gcSource: ControllerSource, hidSource: ControllerSource, preferences: UserDefaults? = nil) {
+        self.gcSource = gcSource
+        self.hidSource = hidSource
+        self.preferences = preferences
+        if let preferences {
+            if preferences.object(forKey: deadzoneKey) != nil {
+                deadzone = min(max(Float(preferences.double(forKey: deadzoneKey)), 0.10), 0.80)
+            }
+            isAppActive = NSApplication.shared.isActive
+            observe(NotificationCenter.default, NSApplication.didBecomeActiveNotification) { service in
+                service.isAppActive = true
+                service.refreshControllers()
+            }
+            observe(NotificationCenter.default, NSApplication.didResignActiveNotification) { service in
+                service.isAppActive = false
+                service.resetInput()
+            }
+            let workspace = NSWorkspace.shared.notificationCenter
+            observe(workspace, NSWorkspace.willSleepNotification) { $0.suspendControllers() }
+            observe(workspace, NSWorkspace.didWakeNotification) { $0.resumeControllers() }
         }
         gcSource.onEvent = { [weak self] in self?.handle($0, fromHID: false) }
         hidSource.onEvent = { [weak self] in self?.handle($0, fromHID: true) }
@@ -60,34 +82,109 @@ final class GameControllerService: ObservableObject {
         hidSource.start()
     }
 
+    private func observe(_ center: NotificationCenter, _ name: Notification.Name,
+                         _ action: @escaping (GameControllerService) -> Void) {
+        let token = center.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+            if let self { action(self) }
+        }
+        observers.append((center, token))
+    }
+
+    deinit {
+        for (center, token) in observers { center.removeObserver(token) }
+        statusTimer?.invalidate()
+        fallbackTimer?.invalidate()
+    }
+
+    @discardableResult
+    func identify(_ connectionID: String) -> Bool {
+        guard !sleeping,
+              let entry = roster.visible.first(where: { $0.connectionID == connectionID }) else { return false }
+        return source(for: entry).identify(entry.controller.id)
+    }
+
+    func suspendControllers() {
+        guard !sleeping else { return }
+        sleeping = true
+        roster = ControllerRoster()
+        gcPad = nil
+        hidPads.removeAll()
+        selectController()
+        resetInput()
+        gcSource.stop()
+        hidSource.stop()
+        updateRoster()
+    }
+
+    func resumeControllers() {
+        guard sleeping else { return }
+        sleeping = false
+        gcSource.start()
+        hidSource.start()
+    }
+
     func refreshControllers() {
+        guard !sleeping else { return }
         gcSource.refresh()
         hidSource.start()
         selectController()
+        updateRoster()
     }
 
     private func handle(_ event: ControllerSourceEvent, fromHID: Bool) {
+        guard !sleeping else { return }
         switch event {
         case let .connected(identity, claimedByGC):
+            roster.connect(identity, isHID: fromHID, claimedByGC: claimedByGC)
             if fromHID {
-                hidPads.append(HIDPad(identity: identity,
-                                      admission: .init(name: identity.name, claimedByGC: claimedByGC,
-                                                       connectedAt: ProcessInfo.processInfo.systemUptime)))
-            } else {
+                if identity.supportsNavigation && !hidPads.contains(where: { $0.identity.id == identity.id }) {
+                    hidPads.append(HIDPad(identity: identity,
+                                          admission: .init(name: identity.name, claimedByGC: claimedByGC,
+                                                           connectedAt: ProcessInfo.processInfo.systemUptime)))
+                }
+            } else if gcSource.preferredID == identity.id {
                 gcPad = identity
             }
         case let .disconnected(id):
+            roster.disconnect(id)
             if fromHID {
                 hidPads.removeAll { $0.identity.id == id }
-            } else {
-                guard gcPad?.id == id else { return }
+            } else if gcPad?.id == id {
                 gcPad = nil
             }
         case let .input(id, input):
+            if !fromHID, case .button(_, true) = input { emitButtonPress(id) }
             if activePad?.id == id { handleInput(input) }
+            return
+        case let .buttonPressed(id):
+            emitButtonPress(id)
             return
         }
         selectController()
+        updateRoster()
+    }
+
+    private func emitButtonPress(_ id: ObjectIdentifier) {
+        guard isAppActive,
+              let entry = roster.visible.first(where: { $0.controller.id == id }) else { return }
+        buttonPresses.send(entry.connectionID)
+    }
+
+    private func source(for entry: ControllerRoster.Entry) -> ControllerSource { entry.isHID ? hidSource : gcSource }
+
+    private func updateRoster() {
+        let visible = roster.visible
+        hidSource.observe(Set(visible.filter(\.isHID).map(\.controller.id)))
+        let current = roster.snapshot(visible) { source(for: $0).status($0.controller.id) }
+        if connectedControllers != current { connectedControllers = current }
+        if current.isEmpty {
+            statusTimer?.invalidate()
+            statusTimer = nil
+        } else if statusTimer == nil {
+            let timer = Timer(timeInterval: 5, repeats: true) { [weak self] _ in self?.updateRoster() }
+            RunLoop.main.add(timer, forMode: .common)
+            statusTimer = timer
+        }
     }
 
     private func selectController() {
@@ -113,6 +210,7 @@ final class GameControllerService: ObservableObject {
             if let activePad, eligible.contains(activePad) { return }
             setActive(eligible.first { hidSource.select($0.id) })
         case .wait, nil:
+            hidSource.select(nil)
             setActive(nil)
         }
         if activePad == nil, let deadline {
