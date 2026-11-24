@@ -1203,7 +1203,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 
 | File | Responsabilità |
 |---|---|
-| [scripts/build_app.sh](../../scripts/build_app.sh) | Compila in staging, anche l’icona in `Assets.car`; prepara plist, runtime e risorse senza rclone; firma e pubblica il bundle con sostituzione atomica. |
+| [scripts/build_app.sh](../../scripts/build_app.sh) | Compila in staging e prepara risorse senza rclone; può registrare nel bundle Dev lo SHA dell’albero pulito. Firma e pubblica con sostituzione atomica. |
 | [scripts/inject_google_client.py](../../scripts/inject_google_client.py) | Scrive la coppia OAuth Google nel plist della build privata solo se completa, senza argomenti con credenziali. |
 | [scripts/install_built_app.swift](../../scripts/install_built_app.swift) | Ingresso CLI che riusa BuildOutputInstaller per firmare, verificare e installare Arcane dopo il packaging. |
 | [scripts/check_publication.py](../../scripts/check_publication.py) | Rifiuta contenuti personali o di gioco versionati e rclone nel bundle; verifica runtime, licenze, avvisi e sorgenti. |

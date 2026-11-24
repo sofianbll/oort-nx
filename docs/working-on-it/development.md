@@ -33,6 +33,7 @@ bash scripts/build_app.sh /tmp/NXLibrary-Review.app
 ~~~
 
 A plain development app uses bundle ID `local.nxlibrary.development`, takes its version from `VERSION` and has no release marker. It never installs its own updates.
+For an identifiable trial build, set `NX_DEV_COMMIT` to the full SHA of the clean checkout. The bundle records it and Settings → About shows its short form beside the build date.
 
 Register a public PKCE application with Nextendo for `http://127.0.0.1:47823/callback`, with the engine's `identity`, `friends`, `game.matchmaking`, `presence` and `profil` scopes. Enter the public ID in Online services when the selected engine declares support. To package a default instead, optionally set `DM_NEXTENDO_CLIENT_ID` when running `build_app.sh`; it writes only the public ID to `DMNextendoClientID`. Do not supply a client secret.
 

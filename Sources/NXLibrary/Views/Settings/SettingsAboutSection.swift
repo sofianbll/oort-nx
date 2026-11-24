@@ -41,7 +41,7 @@ struct SettingsAboutSection: View {
                     .seleneFont(16)
                     .foregroundColor(SeleneTheme.ink90)
                     .fixedSize(horizontal: false, vertical: true)
-                Text(L10n.format("Version %@ · Build %@ · Engine %@", [String(describing: version), String(describing: buildDate), String(describing: seleneShort(viewModel.pinnedEngineCommit))]))
+                Text(L10n.format("Version %@ · Build %@ · Engine %@", [version, buildLabel, seleneShort(viewModel.pinnedEngineCommit)]))
                     .seleneFont(13, .regular, design: .monospaced)
                     .foregroundColor(SeleneTheme.ink60)
                 Button(action: openProjectDocs) {
@@ -309,6 +309,11 @@ struct SettingsAboutSection: View {
 
     private var version: String {
         AppUpdate.versionLabel(Bundle.main.infoDictionary, context: localization)
+    }
+
+    private var buildLabel: String {
+        guard let commit = Bundle.main.object(forInfoDictionaryKey: "NXLibraryBuildCommit") as? String else { return buildDate }
+        return "\(buildDate) · \(seleneShort(commit))"
     }
 
     private var buildDate: String {

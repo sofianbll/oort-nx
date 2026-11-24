@@ -6,6 +6,7 @@
 # A development copy is "Oort NX Dev" (default ~/Applications/Oort NX Dev.app), the maintainer's test copy,
 # beside the released "Oort NX" that updates itself. The development marker selects separate launcher
 # data/preferences and a distinct bundle ID, so framework-owned preferences are separate too.
+# NX_DEV_COMMIT optionally records the exact, clean source revision in a Dev bundle.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -125,6 +126,14 @@ $RELEASE_KEY
 </plist>
 PLIST
 /usr/bin/plutil -insert CFBundleIconName -string AppIcon "$APP/Contents/Info.plist"
+if [[ -n "${NX_DEV_COMMIT:-}" ]]; then
+  if [[ "${NX_RELEASE:-0}" = "1" || ! "$NX_DEV_COMMIT" =~ ^[0-9a-f]{40}$ ||
+      "$(git rev-parse HEAD)" != "$NX_DEV_COMMIT" || -n "$(git status --porcelain)" ]]; then
+    echo "error: NX_DEV_COMMIT must match the clean checkout of a Dev build" >&2
+    exit 1
+  fi
+  /usr/bin/plutil -insert NXLibraryBuildCommit -string "$NX_DEV_COMMIT" "$APP/Contents/Info.plist"
+fi
 if [[ -n "$NEXTENDO_CLIENT_ID" ]]; then
   /usr/bin/plutil -insert DMNextendoClientID -string "$NEXTENDO_CLIENT_ID" "$APP/Contents/Info.plist"
 fi
