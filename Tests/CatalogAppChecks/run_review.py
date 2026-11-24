@@ -103,6 +103,8 @@ struct SpotlightPageModel { var links = [1]; var more: [Int] = [] }
     func clearGame() { game = nil }
 }
 @MainActor final class ViewModel {
+    let macShortcuts = Shortcuts()
+    struct Shortcuts { let canEdit = false }
     var spotlight = SpotlightState(focus: .actions)
     var showSetupCheck = false
     var profileOwnsInput = false

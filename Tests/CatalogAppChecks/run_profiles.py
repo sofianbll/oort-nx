@@ -34,6 +34,8 @@ import ArcanePorting
         precondition(CTFontManagerRegisterFontsForURL(font as CFURL, .process, nil))
         let data = AppData.supportRoot
         let settings = AppSettingsStore(fileURL: data.appendingPathComponent("settings.json"))
+        settings.settings.interfaceSounds = false
+        SoundEffectService.shared.bind(to: settings)
         settings.settings.nextendoClientID = "fixture-client"
         let profiles = LocalProfileStore(directory: data, settings: settings.settings, name: "Alex")
         let alex = profiles.active!
@@ -466,7 +468,6 @@ import ArcanePorting
         AppData.preferences.set(sourcesFolder.path, forKey: PortingModel.savedGameFolderKey)
         settings.settings.refreshLibraryAtLaunch.toggle()
         settings.settings.notifyPortingEnds.toggle()
-        SoundEffectService.shared.isSoundEnabled = false
         SettingsView(initialSection: .library, viewModel: vm, settings: settings, router: AppRouter(), artwork: art)
             .pressScreenFixtureReset()
         precondition(vm.libraryFolder?.path == appsFolder.path, "X must preserve the chosen game apps folder")
@@ -1020,10 +1021,6 @@ import ArcanePorting
         let summary = SessionSummary(session: play, game: game, total: 60)!
         var active = false
         let presenter = SessionCardPresenter(isActive: { active })
-        let soundEnabled = SoundEffectService.shared.isSoundEnabled
-        SoundEffectService.shared.isSoundEnabled = false
-        defer { SoundEffectService.shared.isSoundEnabled = soundEnabled }
-
         presenter.ended(summary, enabled: true)
         presenter.profileDidChange()
         active = true

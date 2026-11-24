@@ -25,6 +25,8 @@ import SwiftUI
         L10n.setContext(locale)
         let support = AppData.supportRoot
         let settings = AppSettingsStore(fileURL: support.appendingPathComponent("settings.json"))
+        settings.settings.interfaceSounds = false
+        SoundEffectService.shared.bind(to: settings)
         let app = AppViewModel(settingsStore: settings,
                                catalog: .init(), repository: .init(store: .init(directory: support)))
         let model = app.gameInbox
@@ -113,7 +115,6 @@ import SwiftUI
         router.back()
         precondition(router.route == .library, "Back must not reopen the disabled Inbox")
         try render("06-settings-inbox-off", page: folders(app, settings), to: output, locale: locale)
-        SoundEffectService.shared.isSoundEnabled = false
         router.openSettings(.library)
         SettingsView(initialSection: .library, viewModel: app, settings: settings, router: router, artwork: artwork)
             .pressInboxFixtureReset()

@@ -344,7 +344,7 @@ with tempfile.TemporaryDirectory(prefix="catalog-removal-") as temp:
         }}
         return AppDataProfile(home: URL(fileURLWithPath: "{temp}"), isDevelopment: true)
     }}()''')
-    replace(core / "App/AppDataProfile.swift", r"public static var preferences: UserDefaults \{ \.standard \}",
+    replace(core / "App/AppDataProfile.swift", r"public static var preferences: UserDefaults \{ configuredPreferences\(\) \}",
             'public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("fixture-prefs").path)!')
     cloud = app / "ViewModels/AppViewModel+CloudLibrary.swift"
     with cloud.open("a") as swift:

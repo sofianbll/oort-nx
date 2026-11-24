@@ -10,6 +10,7 @@ move_source = (ROOT / "Sources/NXLibrary/ViewModels/AppViewModel+CloudLibraryMov
 activity = (ROOT / "Sources/NXLibrary/Views/Shell/ActivityCenterView.swift").read_text()
 assert "case .build: return viewModel.isBuilding && !porting.isInstallingBuild" in activity
 assert "case .move: return cloudLibrary.libraryMove?.canCancel == true" in activity
+assert "cloud.libraryMove?.isVerifying = done == total" in move_source
 
 
 def declaration(signature, source=source):
@@ -84,8 +85,8 @@ require(move.canCancel, "a move can be cancelled before completion")
 move.isCancelling = true
 require(!move.canCancel, "a cancelling move cannot be cancelled again")
 move.isCancelling = false
-move.fraction = 1
-require(!move.canCancel, "a finishing move cannot be cancelled")
+move.isVerifying = true
+require(!move.canCancel, "a move in final verification cannot be cancelled")
 if failures != 0 { exit(1) }
 print("Build gates: engine switch, cancellation: PASS")
 """
