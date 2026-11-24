@@ -13536,6 +13536,100 @@
         }
       }
     },
+    "Saves stay on this Mac.": {
+      "comment": "CloudSaves.swift",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saves stay on this Mac."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I salvataggi restano su questo Mac."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les sauvegardes restent sur ce Mac."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spielstände bleiben auf diesem Mac."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las partidas se quedan en este Mac."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os dados salvos ficam neste Mac."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "存档保留在这台 Mac 上。"
+          }
+        }
+      }
+    },
+    "Now: %@. Your choice applies to every game at its next launch. Nothing is deleted.": {
+      "comment": "AppViewModel+GameActions.swift",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Now: %@. Your choice applies to every game at its next launch. Nothing is deleted."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ora: %@. La scelta vale per tutti i giochi dal prossimo avvio. Non viene eliminato nulla."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actuellement : %@. Votre choix vaut pour tous les jeux à leur prochain lancement. Rien n’est supprimé."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jetzt: %@. Deine Auswahl gilt für alle Spiele ab dem nächsten Start. Nichts wird gelöscht."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ahora: %@. La elección se aplica a todos los juegos en su próximo inicio. No se elimina nada."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agora: %@. A escolha vale para todos os jogos na próxima abertura. Nada é apagado."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前：%@。你的选择将在所有游戏下次启动时生效，不会删除任何内容。"
+          }
+        }
+      }
+    },
     "All games · Next launch": {
       "comment": "SettingsGamesSection.swift",
       "localizations": {

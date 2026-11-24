@@ -284,7 +284,7 @@ Regole della barra:
 | Game Options → Next launch | Configurazione di quel titolo, applicata al prossimo avvio. |
 | Use new game defaults | Copia una volta i default correnti nel gioco selezionato. |
 | Add Game → Review | Nuovo titolo: parte dai default. Titolo esistente: `GameRuntimeConfig.forReview` legge le sue opzioni effettive. La conferma salva i valori mostrati. |
-| Cloud saves | Preferenza riapplicata prima di ogni avvio, compreso Off. |
+| Cloud saves | La riga apre un dialogo: nessuna preferenza cambia prima della scelta. Preferenza riapplicata prima di ogni avvio, compreso Off. |
 | Controllers | Navigazione della libreria e tasto Home nei giochi nxnative compatibili. |
 
 - Options e Play passano da `RuntimeSettingsModel`. Un build con le scelte salvate usa `NXNativeGameSettings`; uno più vecchio ripiega su `GameRuntimeConfig.load`: prima le preferenze per titolo in UserDefaults, poi `env.txt` del titolo, poi quello nel bundle, infine i valori del modello.

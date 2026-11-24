@@ -39,6 +39,19 @@ extension AppViewModel {
         return true
     }
 
+    /// Cloud saves change every game, so the choice is explained and nothing moves until one is picked.
+    func askCloudSaves() {
+        guard let settings = settingsStore?.settings else { return }
+        let choices = settings.cloudSaves.alternatives(picked: settings.cloudSavesPickedFolder)
+        showSettingsNotice(
+            title: L10n.text("Cloud saves"),
+            message: L10n.format("Now: %@. Your choice applies to every game at its next launch. Nothing is deleted.",
+                                 [settings.cloudSaves.title]),
+            cancelTitle: "Cancel",
+            alternatives: choices.map { choice in (choice.title, { [weak self] in self?.setCloudSaves(choice) }) },
+            choiceDetails: Dictionary(uniqueKeysWithValues: choices.map { ($0.title, $0.detail) }))
+    }
+
     /// Gives the whole library one cloud saves folder (or none): written into every
     /// game's preferences now, and again before each start (see `launchGame`).
     func setCloudSaves(_ choice: CloudSaves) {

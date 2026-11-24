@@ -23,12 +23,12 @@ final class CloudSavesTests: XCTestCase {
         XCTAssertNil(CloudSaves.folder("").folderURL(home: home))
     }
 
-    func testSteppingSkipsFolderUntilOneIsPicked() {
-        XCTAssertEqual(CloudSaves.off.stepped(1, picked: ""), .iCloudDrive)
-        XCTAssertEqual(CloudSaves.iCloudDrive.stepped(1, picked: ""), .off)
-        XCTAssertEqual(CloudSaves.iCloudDrive.stepped(1, picked: "/a"), .folder("/a"))
-        XCTAssertEqual(CloudSaves.off.stepped(-1, picked: "/a"), .folder("/a"))
-        XCTAssertEqual(CloudSaves.folder("/a").stepped(1, picked: "/a"), .off)
+    func testAlternativesLeaveOutTheCurrentChoiceAndAFolderNeverPicked() {
+        XCTAssertEqual(CloudSaves.off.alternatives(picked: ""), [.iCloudDrive])
+        XCTAssertEqual(CloudSaves.off.alternatives(picked: "/a"), [.iCloudDrive, .folder("/a")])
+        XCTAssertEqual(CloudSaves.iCloudDrive.alternatives(picked: "/a"), [.off, .folder("/a")])
+        XCTAssertEqual(CloudSaves.folder("/a").alternatives(picked: "/a"), [.off, .iCloudDrive])
+        XCTAssertEqual(CloudSaves.folder("/Games/Switch/Saves").detail, "Switch › Saves")
     }
 
     func testSettingsDecodeWithoutCloudSavesAsOff() throws {

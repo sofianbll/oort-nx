@@ -255,6 +255,32 @@ import ArcanePorting
                            .environment(\.nxAppLocale, french),
                        in: out, refs, reference, size: .init(width: 1600, height: 900))
         }
+        // Cloud saves change every game: opening the row explains the choices and moves nothing.
+        vm.settingsStore = settings
+        settings.settings.cloudSaves = .iCloudDrive
+        settings.settings.cloudSavesPickedFolder = "/fixture/Switch/Saves"
+        L10n.setContext(french)
+        vm.askCloudSaves()
+        let cloudNotice = vm.settingsNotice!
+        precondition(settings.settings.cloudSaves == .iCloudDrive)
+        precondition(cloudNotice.choices.dropLast() == ["Désactivé", "Dossier"])
+        precondition(cloudNotice.initialFocus == cloudNotice.cancelIndex)
+        vm.settingsNotice = nil
+        cloudNotice.runChoice(cloudNotice.cancelIndex)
+        precondition(settings.settings.cloudSaves == .iCloudDrive)
+        let cloudPage = SettingsView(initialSection: .cloudSaves, viewModel: vm, settings: settings, router: settingsRouter,
+                                     artwork: art, profileAccount: linked).environment(\.nxAppLocale, french)
+        try render("settings-cloudSaves", cloudPage, in: out, refs, "none", size: .init(width: 1600, height: 900))
+        try render("settings-cloudSaves-ask", cloudPage.overlay {
+            SeleneOverlay(style: .dialog, onOutside: {}) {
+                SeleneChoiceDialog(title: cloudNotice.title, message: cloudNotice.message, choices: cloudNotice.choices,
+                                   focus: .constant(cloudNotice.initialFocus), cancelIndex: cloudNotice.cancelIndex,
+                                   details: cloudNotice.choiceDetails, onCancel: {}, onChoose: { _ in })
+            }
+        }.environment(\.nxAppLocale, french), in: out, refs, "none", size: .init(width: 1600, height: 900))
+        L10n.setContext(.init(language: .english, region: "US"))
+        settings.settings.cloudSaves = .off
+        settings.settings.cloudSavesPickedFolder = ""
         try render("settings-profile-pin", SettingsView(initialSection: .profileSecurity, viewModel: vm, settings: settings,
                    router: settingsRouter, artwork: art, fixturePIN: "set").environment(\.nxAppLocale, french),
                    in: out, refs, "none", names: .automatic)

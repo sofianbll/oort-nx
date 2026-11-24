@@ -37,11 +37,17 @@ public enum CloudSaves: Codable, Equatable {
         }
     }
 
-    /// Left/Right order: Off, iCloud Drive, then the picked folder when there is one.
-    public func stepped(_ step: Int, picked: String?) -> CloudSaves {
-        var options: [CloudSaves] = [.off, .iCloudDrive]
-        if let picked, !picked.isEmpty { options.append(.folder(picked)) }
-        let index = options.firstIndex(of: self) ?? 0
-        return options[(index + step % options.count + options.count) % options.count]
+    /// What the choice does, under its button.
+    public var detail: String {
+        switch self {
+        case .off: return L10n.text("Saves stay on this Mac.")
+        case .iCloudDrive: return "iCloud Drive › nxnative Saves"
+        case .folder(let path): return (path as NSString).pathComponents.suffix(2).joined(separator: " › ")
+        }
+    }
+
+    /// What this choice can become: Off, iCloud Drive, and the picked folder when there is one.
+    public func alternatives(picked: String) -> [CloudSaves] {
+        ([.off, .iCloudDrive] + (picked.isEmpty ? [] : [.folder(picked)])).filter { $0 != self }
     }
 }
