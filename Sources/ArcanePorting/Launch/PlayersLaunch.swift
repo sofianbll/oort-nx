@@ -7,29 +7,80 @@ public struct PlayersLaunchStatus: Equatable, Sendable {
     public enum Omission: Equatable, Sendable {
         case unsupportedEngine, environmentFileUnreadable, environmentFile, gameOption
         case networkMode(PlayerLaunchNetworkMode), missingProfile, lockedProfile, invalidNickname
+        case mergeMode, disconnectedController, unconfirmedController, controllerIdentityUnavailable
+        case incompatibleKeyboardSlot, invalidMergePlayer, invalidPortrait, portraitExportFailed
     }
 
     public let plan: PlanState
     public let controllerMode: Omission?
     public let nickname: Omission?
+    public let controllerOrder: [Int: Omission]
+    public let profileNames: [Int: Omission]
+    public let portraits: [Int: Omission]
+
+    init(plan: PlanState, controllerMode: Omission?, nickname: Omission?,
+         controllerOrder: [Int: Omission] = [:], profileNames: [Int: Omission] = [:],
+         portraits: [Int: Omission] = [:]) {
+        self.plan = plan
+        self.controllerMode = controllerMode
+        self.nickname = nickname
+        self.controllerOrder = controllerOrder
+        self.profileNames = profileNames
+        self.portraits = portraits
+    }
 }
 
 public struct PlayersLaunch: Sendable {
     static let controllerKeys: Set<String> = [PlayerLaunchEnvironment.pressToJoinKey, PlayerLaunchEnvironment.mergeKey]
     private static let nicknameKey = PlayerLaunchEnvironment.nicknameKey
-    private static let keys = controllerKeys.union([nicknameKey])
+    static let orderKey = "DM_PAD_ORDER"
+    static func nameKey(_ slot: Int) -> String { "DM_USER_\(slot)_NAME" }
+    static func imageKey(_ slot: Int) -> String { "DM_USER_\(slot)_IMAGE" }
+
+    struct EngineFeatures: Equatable {
+        var order = false
+        var extendedMerge = false
+        var names = false
+        var images = false
+
+        static let macFix = "4e48725b0785210ea51186a446c344a3fee04265"
+        static let orderCommit = "4c5e76d212a512a7524b6183ba578b18f4c0aece"
+        static let mergeCommit = "c77f82a732036858748990f8d048855673a7c3e0"
+        static let namesCommit = "3b67ef1f03023507ecf6174add942a4f1f94942b"
+        static let imagesCommit = "22143d4e80b29347d056a0868bfec520938ca1c9"
+
+        static func installed(in app: URL, ancestry: EngineAncestry?) async -> Self {
+            guard let ancestry, let commit = CheatLocator.engineCommit(appURL: app, recorded: nil),
+                  commit.utf8.allSatisfy("0123456789abcdefABCDEF".utf8.contains),
+                  FileManager.default.isReadableFile(atPath: HomeMenu.hostExecutable(in: app).path)
+            else { return .init() }
+            func contains(_ feature: String) async -> Bool {
+                await ancestry.answer(feature, in: commit) == true
+            }
+            let fixed = await contains(macFix)
+            let order = fixed ? await contains(orderCommit) : false
+            let merge = fixed ? await contains(mergeCommit) : false
+            let names = await contains(namesCommit)
+            let images = await contains(imagesCommit)
+            return .init(order: order, extendedMerge: merge, names: names, images: images)
+        }
+    }
 
     public let status: PlayersLaunchStatus
     let additions: [String: String]
 
     private init(plan: PlayersLaunchStatus.PlanState, controllerMode: PlayersLaunchStatus.Omission? = nil,
-                 nickname: PlayersLaunchStatus.Omission? = nil, additions: [String: String] = [:]) {
-        status = .init(plan: plan, controllerMode: controllerMode, nickname: nickname)
+                 nickname: PlayersLaunchStatus.Omission? = nil, additions: [String: String] = [:],
+                 controllerOrder: [Int: PlayersLaunchStatus.Omission] = [:],
+                 profileNames: [Int: PlayersLaunchStatus.Omission] = [:],
+                 portraits: [Int: PlayersLaunchStatus.Omission] = [:]) {
+        status = .init(plan: plan, controllerMode: controllerMode, nickname: nickname,
+                       controllerOrder: controllerOrder, profileNames: profileNames, portraits: portraits)
         self.additions = additions
     }
 
     public static func prepare(library: PlayerPlanLibrary, app: URL, titleID: String, explicit: [String: String],
-                               profiles: [LocalProfile]) async -> Self {
+                               profiles: [LocalProfile], ancestry: EngineAncestry? = nil, mergePlayer: Int = 1) async -> Self {
         let snapshot: (plan: PlayerPlan?, unlocked: Set<UUID>)
         do { snapshot = try await library.launchPlan(profiles: profiles) }
         catch { return .init(plan: .unreadable) }
@@ -39,14 +90,16 @@ public struct PlayersLaunch: Sendable {
         // Use the child's HOME; nxnative derives the per-title env.txt from it, not from the save path.
         let home = environment["HOME"] ?? ""
         guard home.hasPrefix("/") else { return unreadableEnvironment(for: plan) }
+        let features = await EngineFeatures.installed(in: app, ancestry: ancestry)
         return evaluate(plan: plan, app: app, titleID: titleID,
                         home: URL(fileURLWithPath: home, isDirectory: true), environment: environment,
-                        profiles: profiles, unlocked: snapshot.unlocked)
+                        profiles: profiles, unlocked: snapshot.unlocked, features: features, mergePlayer: mergePlayer)
     }
 
     static func evaluate(plan: PlayerPlan, app: URL, titleID: String, home: URL, environment: [String: String],
                          savedChoices: SavedChoicesStore = SystemSavedChoices(),
-                         profiles: [LocalProfile] = [], unlocked: Set<UUID> = []) -> Self {
+                         profiles: [LocalProfile] = [], unlocked: Set<UUID> = [],
+                         features: EngineFeatures = .init(), mergePlayer: Int = 1) -> Self {
         let access = plan.slot(1)?.profileAccess(in: profiles, unlockedProfileIDs: unlocked)
         let info = ImportService.info(at: app)
         let installedTitle = (info?["DMTitleID"] as? String) ?? titleID
@@ -79,20 +132,40 @@ public struct PlayersLaunch: Sendable {
             return value
         }
         let fileKeys = Set(fileValues.keys)
-        let optionKeys = Set(keys.filter { environment[$0] != nil || saved($0) != nil })
+        func blocked(_ key: String) -> PlayersLaunchStatus.Omission? {
+            if fileKeys.contains(key) { return .environmentFile }
+            if environment[key] != nil || saved(key) != nil { return .gameOption }
+            return nil
+        }
+        let existing = Set(controllerKeys.union([nicknameKey]).filter { blocked($0) != nil })
         let networkKey = NextendoLaunch.networkKey
         let network = networkMode(environment[networkKey] ?? fileValues[networkKey] ?? saved(networkKey))
         let capabilities = capabilities(in: app)
-        let additions = PlayerLaunchEnvironment.values(
+        var additions = PlayerLaunchEnvironment.values(
             plan: plan, capabilities: capabilities, networkMode: network,
-            envFileKeys: fileKeys.union(optionKeys), profiles: profiles, unlockedProfileIDs: unlocked)
+            envFileKeys: existing, profiles: profiles, unlockedProfileIDs: unlocked)
 
         let controller: PlayersLaunchStatus.Omission?
         if !fileKeys.isDisjoint(with: controllerKeys) { controller = .environmentFile }
-        else if !optionKeys.isDisjoint(with: controllerKeys) { controller = .gameOption }
-        else if (plan.mode == .merge && !capabilities.merge) || (plan.mode == .pressToJoin && !capabilities.pressToJoin) {
+        else if !existing.isDisjoint(with: controllerKeys) { controller = .gameOption }
+        else if plan.mode == .merge, !(1...PlayerPlan.maximumPlayers).contains(mergePlayer) {
+            controller = .invalidMergePlayer
+        } else if plan.mode == .merge && mergePlayer != 1 && !features.extendedMerge {
+            controller = .unsupportedEngine
+        } else if plan.mode == .merge && features.order,
+                  let reason = blocked(orderKey) {
+            controller = reason
+        } else if (plan.mode == .merge && !capabilities.merge && !features.extendedMerge) ||
+                    (plan.mode == .pressToJoin && !capabilities.pressToJoin) {
             controller = .unsupportedEngine
         } else { controller = nil }
+        if plan.mode == .merge {
+            let legacyFallback = mergePlayer != 1 && controller == .unsupportedEngine && capabilities.merge && !features.extendedMerge
+            // Preserve the existing P1 fallback on engines that only support legacy merge.
+            if !legacyFallback {
+                additions[PlayerLaunchEnvironment.mergeKey] = controller == nil ? String(mergePlayer) : nil
+            }
+        }
 
         let nickname: PlayersLaunchStatus.Omission?
         switch access {
@@ -100,13 +173,38 @@ public struct PlayersLaunch: Sendable {
         case .missing: nickname = .missingProfile
         case .locked: nickname = .lockedProfile
         case .ready:
-            if fileKeys.contains(nicknameKey) { nickname = .environmentFile }
-            else if optionKeys.contains(nicknameKey) { nickname = .gameOption }
+            if let reason = blocked(nicknameKey) { nickname = reason }
             else if !capabilities.nickname { nickname = .unsupportedEngine }
             else if network != .offline && network != .local { nickname = .networkMode(network) }
             else { nickname = additions[nicknameKey] == nil ? .invalidNickname : nil }
         }
-        return .init(plan: .active, controllerMode: controller, nickname: nickname, additions: additions)
+        var names: [Int: PlayersLaunchStatus.Omission] = [:]
+        for (number, slot) in plan.slots where number != 1 && slot.profileID != nil {
+            switch slot.profileAccess(in: profiles, unlockedProfileIDs: unlocked) {
+            case .missing: names[number] = .missingProfile
+            case .locked: names[number] = .lockedProfile
+            case let .ready(profile):
+                let key = nameKey(number)
+                if let reason = blocked(key) { names[number] = reason }
+                else if !features.names { names[number] = .unsupportedEngine }
+                else if network != .offline && network != .local { names[number] = .networkMode(network) }
+                else if let name = localName(profile.name) { additions[key] = name }
+                else { names[number] = .invalidNickname }
+            case .guest: break
+            }
+        }
+        return .init(plan: .active, controllerMode: controller, nickname: nickname, additions: additions,
+                     profileNames: names)
+    }
+
+    private static func localName(_ value: String) -> String? {
+        guard !value.utf8.contains(0) else { return nil }
+        var bytes = 0
+        let name = value.unicodeScalars.prefix { scalar in
+            bytes += scalar.utf8.count
+            return bytes <= 32
+        }
+        return name.isEmpty ? nil : String(name)
     }
 
     private static func unreadableEnvironment(for plan: PlayerPlan) -> Self {
