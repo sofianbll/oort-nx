@@ -95,6 +95,7 @@ public final class CloudGameSources: @unchecked Sendable {
                   !sources.isEmpty, sources.count <= 512 else { return nil }
             let parent = root.appendingPathComponent(folder, isDirectory: true)
             var names: [String: String] = [:]
+            var selections = Set<[String]>()
             var files: [GameFileItem] = []
             for source in sources {
                 let ext = URL(fileURLWithPath: source.filename).pathExtension.lowercased()
@@ -103,7 +104,9 @@ public final class CloudGameSources: @unchecked Sendable {
                       source.titleID.map(SaveLocation.validID) != false,
                       source.version.map({ Int($0.hasPrefix("v") ? String($0.dropFirst()) : $0) != nil }) != false,
                       fileExtensions.contains(ext), source.layout == (ext == "nup" ? .container : .package),
-                       names[key] == nil else { return nil }
+                       names[key].map({ $0.utf8.elementsEqual(source.filename.utf8) && ext == "nup" }) ?? true,
+                       selections.insert([key, source.kind.rawValue, source.titleID?.uppercased() ?? "", source.version ?? ""]).inserted
+                else { return nil }
                 names[key] = source.filename
                 files.append(.init(url: parent.appendingPathComponent(source.filename, isDirectory: false),
                                    kind: source.kind, titleId: source.titleID, versionString: source.version,
@@ -706,8 +709,8 @@ public final class CloudGameSources: @unchecked Sendable {
 
     private static func matchesPackageIdentity(_ source: GameFileItem, at url: URL) -> Bool {
         let ext = source.url.pathExtension.lowercased()
-        // NUPs are containers; their exact selected program is checked by the engine's NUP reader.
-        if ext == "nup" { return source.nupProgram != nil }
+        // Containers need the selected engine's reader, not a filename or a manifest claim.
+        guard ext != "nup" else { return false }
         // An extensionless staging name cannot let the parser silently reuse a title from the remote name.
         guard let actual = try? SourceCatalog().inspect(url) else { return false }
         return actual.kind == source.kind && String(format: "%016llX", actual.titleId) == source.titleId?.uppercased()

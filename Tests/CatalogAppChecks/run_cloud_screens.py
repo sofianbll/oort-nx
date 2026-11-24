@@ -1007,7 +1007,9 @@ AUDIT_QUEUE = r'''
         try fm.createDirectory(at: invalid.deletingLastPathComponent(), withIntermediateDirectories: true)
         try Data().write(to: invalid)
         let freshRepository = CatalogRepository(store: .init(directory: folder.appendingPathComponent("fresh-catalog")))
-        let importer = AppViewModel(settingsStore: settings, catalog: .init(), repository: freshRepository)
+        let freshCatalog = try freshRepository.load()
+        let importer = AppViewModel(settingsStore: settings, catalog: freshCatalog, repository: freshRepository)
+        importer.applyCatalog(freshCatalog)
         importer.cloudLibrary.installScreenArchives(backend)
         importer.importCloudGames(manually: true)
         await importer.cloudLibrary.importTask?.value
@@ -1025,7 +1027,9 @@ AUDIT_QUEUE = r'''
         let badOnly = folder.appendingPathComponent("bad-only")
         try fm.createDirectory(at: badOnly, withIntermediateDirectories: true)
         try fm.copyItem(at: remote.appendingPathComponent(badTitle), to: badOnly.appendingPathComponent(badTitle))
-        let badImporter = AppViewModel(settingsStore: settings, catalog: .init(), repository: emptyCatalog)
+        let observedEmpty = try emptyCatalog.load()
+        let badImporter = AppViewModel(settingsStore: settings, catalog: observedEmpty, repository: emptyCatalog)
+        badImporter.applyCatalog(observedEmpty)
         badImporter.cloudLibrary.installScreenArchives(RcloneStorageBackend(remote: ":local:", root: badOnly.path, run: run))
         badImporter.importCloudGames(manually: true)
         await badImporter.cloudLibrary.importTask?.value
