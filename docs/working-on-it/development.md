@@ -51,6 +51,8 @@ The managed path is `<profile support>/DriveTools/rclone-<version>/rclone`; only
 
 `bundle_runtime.sh` prepares `work/Runtime/` from the exact downloads and hashes in `runtime.lock`. It includes Python, capstone, lz4, fontTools, zbic (Nintendo's zstd variant, read by the engine for system 22.0.0+ code), nsz with its dependencies (NSZ / XCZ inputs), `zstd` and `glslangValidator`, their required non-system libraries and licence notices. zbic is GPLv2, so its source archive ships in `Runtime/sources/`. `EngineRuntimeRequirementsTests` fails when the pinned engine's README or `.github/requirements/tools.txt` asks for a Python package that `runtime.lock` lacks. It relinks the native libraries for the bundle, signs them and checks that the tools run without Homebrew on `PATH`.
 
+For a complete Dev trial, prepare that same runtime before building and check Setup in an isolated home. The runtime does not include rclone. The bundler removes Python's upstream build-user path from sysconfig metadata; Python computes the current user's base at runtime.
+
 Run it again when the lock changes. `build_app.sh` checks the runtime metadata against the lock before copying it. The lock is a reviewed input, not a request to install whichever package versions happen to be newest.
 
 Builds reject a bundled rclone and check the licence manifest against the staged

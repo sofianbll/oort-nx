@@ -320,7 +320,8 @@ struct SettingsEngineSection: View {
         let message = action == .backToTested
             ? "Future builds will use the tested engine (%@), but installed games will stay as they are."
             : "Future builds will use the untested engine (%@), but installed games will stay as they are."
-        viewModel.confirmSetting("Newest engine", message: L10n.format(message, [seleneShort(target)]),
+        viewModel.confirmSetting("Newest engine", message: L10n.format(message, [seleneShort(target)]) +
+                                 "\n\n" + L10n.format("Engine folder: %@", [path]),
                                  action: newestTitle(action)) {
             guard setup.canSwitchEngine, setup.nxnativePath == path, setup.newestEngineActions.contains(action) else { return }
             switch action {

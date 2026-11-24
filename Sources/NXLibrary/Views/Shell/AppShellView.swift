@@ -106,7 +106,8 @@ struct AppShellView: View {
             && viewModel.launchOverlay == nil && !router.isScreenshotViewerOpen
     }
     var showsSettingsNotice: Bool {
-        viewModel.settingsNotice != nil && !viewModel.showSetupCheck
+        guard let notice = viewModel.settingsNotice else { return false }
+        return notice.duringSetup || !viewModel.showSetupCheck
             && !router.isScreenshotViewerOpen && viewModel.launchOverlay == nil
             && viewModel.gameToClose == nil && viewModel.gameToRemove == nil
             && !showsInstallFailure && !showsUpdateOffer

@@ -120,6 +120,7 @@ extension AppShellView {
                 default: setupAction = nil
                 }
                 guard let setupAction else { return nil }
+                if showsSettingsNotice && setupAction == .confirm && event.isARepeat { return nil }
                 GameControllerService.shared.onAction?(setupAction)
                 return nil
             }

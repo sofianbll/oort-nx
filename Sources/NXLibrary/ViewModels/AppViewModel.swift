@@ -17,6 +17,7 @@ struct SettingsNotice: Identifiable {
     var alternatives: [(title: String, run: () -> Void)] = []
     var primaryFirst = false
     var choiceDetails: [String: String] = [:]
+    var duringSetup = false
     var initialFocus: Int { primaryFirst && retry != nil ? 0 : cancelIndex }
     var cancelIndex: Int { choices.count - 1 }
     var choices: [String] {
@@ -73,25 +74,26 @@ final class AppViewModel: ObservableObject {
 
     func showSettingsNotice(title: String, message: String, actionTitle: String = "Retry",
                             cancelTitle: String = "Back", alternatives: [(title: String, run: () -> Void)] = [],
-                            primaryFirst: Bool = false, choiceDetails: [String: String] = [:],
+                            primaryFirst: Bool = false, choiceDetails: [String: String] = [:], duringSetup: Bool = false,
                             retry: (() -> Void)? = nil) {
         let notice = SettingsNotice(title: title, message: message, retry: retry,
                                     actionTitle: actionTitle, cancelTitle: cancelTitle, alternatives: alternatives,
-                                    primaryFirst: primaryFirst, choiceDetails: choiceDetails)
+                                    primaryFirst: primaryFirst, choiceDetails: choiceDetails, duringSetup: duringSetup)
         settingsNoticeFocus = notice.initialFocus
         settingsNotice = notice
     }
 
     /// Settings keep their current value until a choice other than Cancel is activated.
     func confirmSetting(_ title: String, message: String,
-                        choices: [(title: String, run: () -> Void)], details: [String: String] = [:]) {
+                        choices: [(title: String, run: () -> Void)], details: [String: String] = [:], duringSetup: Bool = false) {
         guard settingsNotice == nil else { return }
         showSettingsNotice(title: title, message: message, cancelTitle: "Cancel",
-                           alternatives: choices, choiceDetails: details)
+                           alternatives: choices, choiceDetails: details, duringSetup: duringSetup)
     }
 
-    func confirmSetting(_ title: String, message: String, action: String, apply: @escaping () -> Void) {
-        confirmSetting(title, message: message, choices: [(action, apply)])
+    func confirmSetting(_ title: String, message: String, action: String, duringSetup: Bool = false,
+                        apply: @escaping () -> Void) {
+        confirmSetting(title, message: message, choices: [(action, apply)], duringSetup: duringSetup)
     }
 
     // MARK: - Storage Keys for Persistence

@@ -46,8 +46,9 @@ public struct SetupFacts: Equatable {
     public var engineFolder: URL
     public var pinnedCommit: String
     public var engineRemote: String? = nil
-    /// nil when the bundled Python, its modules and the tools all run.
+    /// nil when Python, its modules and the tools all run.
     public var runtimeProblem: String?
+    public var runtimeIsBundled = true
     public var keys: KeySummary?
     public var keysError: String?
     /// Only engines with an extracted-folder input can build without prod.keys.
@@ -133,7 +134,7 @@ public enum SetupCheck {
     }
 
     /// The cards Arcane fixes by itself, in card order: anything missing it can
-    /// install, the certified Metal compiler and the pinned engine commit. Since nxnative 641636e2 the
+    /// install, the certified Metal compiler and a fresh engine clone. Since nxnative 641636e2 the
     /// engine's tools are native executables, so there is no .NET to install or update.
     public static func automatic(_ items: [SetupItem]) -> [SetupItemID] {
         let xcodeReady = items.first { $0.id == .xcode }?.state == .ready
@@ -144,7 +145,7 @@ public enum SetupCheck {
                 // Metal comes through Xcode.
                 return xcodeReady && (item.state == .missing || item.state == .warning) ? item.id : nil
             case .engine:
-                return item.state == .missing || item.state == .warning ? item.id : nil
+                return item.state == .missing ? item.id : nil
             default:
                 return nil
             }
@@ -226,7 +227,7 @@ public enum SetupCheck {
                 card.actionTitle = L10n.text("Back to tested")
                 return card
             case .checkout(let head, false) where head != f.pinnedCommit:
-                // Warning either way: Setup reopens for it and Install all runs it.
+                // Setup reopens for it; changing a checkout requires confirmation.
                 if f.engineBehind == false {
                     return SetupItem(id: id, title: L10n.text("nxnative engine"), state: .warning, chip: L10n.text("OTHER VERSION"), about: about,
                                      detail: L10n.format("The engine here is at %@, not the %@ this version of Arcane is tested with. Switch moves it to %@. Games you built keep playing.", [String(describing: head.prefix(7)), String(describing: short), String(describing: short)]),
@@ -240,11 +241,20 @@ public enum SetupCheck {
             }
         case .runtime:
             let about = L10n.text("Python 3.14 with its modules, zstd and glslang, inside Arcane.")
-            if let problem = f.runtimeProblem {
-                return SetupItem(id: id, title: L10n.text("Python and tools"), state: .failed, chip: L10n.text("REINSTALL APP"), about: about,
-                                 detail: L10n.format("%@. Reinstall Arcane from its DMG.", [String(describing: problem)]), actionTitle: nil)
+            let title = L10n.text("Python and tools")
+            if !f.runtimeIsBundled {
+                let missing = L10n.text("This build does not include Python and tools.")
+                if let problem = f.runtimeProblem {
+                    return SetupItem(id: id, title: title, state: .failed, chip: L10n.text("NOT INCLUDED"), about: missing,
+                                     detail: L10n.text(problem) + ".", actionTitle: nil)
+                }
+                return ready(id, title, missing, L10n.text("This build uses local Python and tools."))
             }
-            return SetupItem(id: id, title: L10n.text("Python and tools"), state: .ready, chip: L10n.text("✓ INCLUDED"), about: about,
+            if let problem = f.runtimeProblem {
+                return SetupItem(id: id, title: title, state: .failed, chip: L10n.text("REINSTALL APP"), about: about,
+                                 detail: L10n.format("%@. Reinstall Arcane from its DMG.", [L10n.text(problem)]), actionTitle: nil)
+            }
+            return SetupItem(id: id, title: title, state: .ready, chip: L10n.text("✓ INCLUDED"), about: about,
                              detail: L10n.text("Nothing to install."), actionTitle: nil)
         case .keys:
             let about = L10n.text("Your console's prod.keys, which unlock your own games. They stay on this Mac.")
