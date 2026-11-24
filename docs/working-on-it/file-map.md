@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **922 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **923 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -112,7 +112,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [Sources/NXLibrary/ViewModels/AppViewModel+GameActions.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+GameActions.swift) | Azioni su un gioco: Game options, preferito, nascosto, salvataggi cloud, chiusura, rimozione e Mostra nel Finder. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+GameFiles.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+GameFiles.swift) | Rilegge voci e percorsi prima di spostare sorgenti e porting nel Cestino; cartella Ryujinx e log. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+Mods.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Mods.swift) | Crea lo `ModStore` di un gioco, il valore della riga Mods e le frasi per ogni errore. |
-| [Sources/NXLibrary/ViewModels/AppViewModel+Controller.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Controller.swift) | Sceglie il gioco su cui agiscono i comandi Play, Details e Options del menu. |
+| [Sources/NXLibrary/ViewModels/AppViewModel+Controller.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Controller.swift) | Sceglie il gioco su cui agiscono i comandi del menu, anche dalla Collection di un profilo. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+Diagnostics.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Diagnostics.swift) | Raccoglie ambiente, toolchain e ultimo build per il rapporto diagnostico ripulito. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+PendingInstall.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+PendingInstall.swift) | Riprende le installazioni differite rispettando i lease e aggiorna il confronto cloud dopo la pubblicazione del bundle. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+Porting.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Porting.swift) | Prepara tile, pill e stima del tempo del porting per la home. |
@@ -1094,6 +1094,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_nup_programs.py](../../Tests/CatalogAppChecks/run_nup_programs.py) | Esegue il probe NUP opzionale su snapshot sintetico, convertitori UI reali, persistenza e argv del rebuild. |
 | [run_add_game_back.py](../../Tests/CatalogAppChecks/run_add_game_back.py) | Esegue le regole reali di Back in Add Game: porting finito, fallito, in corso e Rebuild, passi della bozza e richiesta di scartare i file. Nessuna finestra. |
 | [run_guest_quit.py](../../Tests/CatalogAppChecks/run_guest_quit.py) | Esegue le regole reali dell’uscita ospite, dell’annullamento e del completamento con esiti di attività sintetici. |
+| [run_profile_collection_game.py](../../Tests/CatalogAppChecks/run_profile_collection_game.py) | Verifica la selezione dei giochi Switch e Steam nel menu nativo della Collection di un profilo. |
 | [run_save_restart.py](../../Tests/CatalogAppChecks/run_save_restart.py) | Arresti reali e nuovi processi nei checkpoint di transazione, recovery e pulizia; verifica tutti gli utenti, registro e integrità dei backup su fixture temporanee. |
 | [run_entrance.py](../../Tests/CatalogAppChecks/run_entrance.py) | Esegue i metodi reali di input e readiness: nessun comando agisce o salta l’entrata prima dell’atterraggio, clic su Profili, precedenza delle coperture, drawable mancante e presentazione su entrambi i percorsi. Nessuna finestra o GPU reale. |
 | [run_icon_cache.py](../../Tests/CatalogAppChecks/run_icon_cache.py) | Esegue il vero `GameIconProvider`: un gioco senza icona non si rilegge dal disco a ogni disegno; dopo `forget` o la build si legge di nuovo. |
