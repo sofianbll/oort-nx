@@ -409,7 +409,7 @@ Il percorso completo è in [flows.md](flows.md#5-costruire-un-gioco-switch-add-g
 - Un pacchetto illeggibile non nasconde gli altri giochi validi: la scansione tiene i risultati e segnala i file saltati.
 
 **Coda delle compilazioni.**
-Setup e Settings condividono lo stato di cambio motore: non modificano il checkout durante un porting o il suo controllo cloud, e la coda di compilazione aspetta il nuovo controllo di compatibilità.
+Setup e Settings condividono lo stato di cambio motore: non modificano il checkout durante un porting o il suo controllo cloud. La coda si risveglia dopo il controllo di compatibilità o, se il clone non lascia un motore valido, al termine della rilevazione per applicare il normale errore del gate.
 
 Build e Rebuild per un altro gioco entrano in `BuildQueue` quando un porting è attivo. `AppViewModel.buildQueue` espone gli UUID in attesa. `ActivityQueueFile` scrive `build-queue.json` atomico e versionato in `AppData.supportRoot`, con la richiesta attiva in testa e gli argomenti una tantum ammessi; non salva callback. Al riavvio scarta le singole voci illeggibili e deduplica per gioco e richiesta. I lavori ripresi passano per il catalogo, la verifica dell'ambiente, `SaveOperationGate` e i lock cloud, senza superare la testa della FIFO. Una richiesta ripresa non scarica sorgenti: la mancanza del gioco, delle sorgenti o dell'app da ricompilare produce un esito di errore senza avviare il worker. Un tentativo esplicito usa il normale percorso Porting, incluse le eventuali conferme cloud.
 

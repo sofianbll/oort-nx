@@ -266,6 +266,7 @@ final class SetupModel: ObservableObject {
             compatibilityReport = nil
             environmentStatus = nil
             isCheckingEnvironment = false
+            app.porting.scheduleNextBuild()
             return
         }
         isCheckingEnvironment = true
