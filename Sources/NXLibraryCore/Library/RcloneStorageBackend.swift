@@ -171,6 +171,69 @@ public struct RcloneStorageBackend: StorageBackend {
         return items.map(\.name)
     }
 
+    package struct ArchiveEntry: Sendable {
+        package let name: String
+        package let id: String?
+        package let isDirectory: Bool
+        package let object: StorageObject
+
+        package var normalizedName: String { name.precomposedStringWithCanonicalMapping.lowercased() }
+
+        package static func requireUnambiguous(_ entries: [Self]) throws {
+            let ids = entries.compactMap(\.id)
+            guard Set(entries.map(\.normalizedName)).count == entries.count, Set(ids).count == ids.count else {
+                throw CloudLibraryFailure.incomplete
+            }
+        }
+    }
+
+    /// Raw names and Drive object IDs, before rclone is asked to resolve a path by name.
+    package func archiveEntries(in prefix: String) async throws -> [ArchiveEntry] {
+        let directory = try prefix.isEmpty ? basePath() : path(for: .init(prefix))
+        let items: [Item]
+        let listedParent: String
+        if let output = try await rc("operations/list", [
+            "fs": basePath(), "remote": prefix, "opt": ["noModTime": true, "noMimeType": true],
+        ]) {
+            items = try decode(ListResult.self, from: output).list
+            // RC Path is relative to fs; CLI Path is relative to the directory argument.
+            listedParent = prefix.isEmpty ? "" : prefix + "/"
+        } else {
+            let output = try await run(["lsjson", directory, "--no-modtime", "--no-mimetype"], listingFolder: true)
+            items = try decode([Item].self, from: output)
+            listedParent = ""
+        }
+        if items.isEmpty { try await checkDirectory(try basePath(), prefix: prefix) }
+        return try items.map {
+            guard $0.path.utf8.elementsEqual((listedParent + $0.name).utf8), let isDirectory = $0.isDirectory else {
+                throw StorageBackendError.invalidResponse
+            }
+            let key = prefix.isEmpty ? $0.name : prefix + "/" + $0.name
+            return ArchiveEntry(name: $0.name, id: $0.id, isDirectory: isDirectory,
+                                object: .init(key: .init(key), size: $0.size, hashes: $0.hashes ?? [:]))
+        }
+    }
+
+    @discardableResult
+    package func archivePath(_ key: StorageObjectKey, directory: Bool) async throws -> Bool {
+        _ = try path(for: key)
+        var parent = ""
+        let components = key.value.components(separatedBy: "/")
+        for (index, name) in components.enumerated() {
+            let matches = try await archiveEntries(in: parent).filter {
+                $0.normalizedName == name.precomposedStringWithCanonicalMapping.lowercased()
+            }
+            try ArchiveEntry.requireUnambiguous(matches)
+            guard let item = matches.first else { return false }
+            guard item.name.utf8.elementsEqual(name.utf8),
+                  item.isDirectory == (index < components.count - 1 || directory) else {
+                throw CloudLibraryFailure.incomplete
+            }
+            parent = item.object.key.value
+        }
+        return true
+    }
+
     package func list(in prefix: StorageObjectKey, withHashes: Bool) async throws -> [StorageObject] {
         let directory = try path(for: prefix)
         let items: [Item]
@@ -189,16 +252,19 @@ public struct RcloneStorageBackend: StorageBackend {
         }
     }
 
-    package func tree(in prefix: StorageObjectKey) async throws -> [StorageObject] {
+    package func tree(in prefix: StorageObjectKey, withHashes: Bool = true) async throws -> [StorageObject] {
+        guard try await archivePath(prefix, directory: true) else { return [] }
         let target = try path(for: prefix)
         let items: [Item]
         do {
             items = try decode([Item].self, from: await run([
-                "lsjson", target, "--recursive", "--hash-type", "MD5", "--no-modtime", "--no-mimetype",
-            ]))
+                "lsjson", target, "--recursive", "--no-modtime", "--no-mimetype",
+            ] + (withHashes ? ["--hash-type", "MD5"] : [])))
         } catch StorageBackendError.notFound { return [] }
         // Include directories: a duplicate Drive directory makes all child paths ambiguous.
-        guard Set(items.map(\.path)).count == items.count else { throw StorageBackendError.invalidResponse }
+        let ids = items.compactMap(\.id)
+        guard Set(items.map { $0.path.precomposedStringWithCanonicalMapping.lowercased() }).count == items.count,
+              Set(ids).count == ids.count else { throw CloudLibraryFailure.incomplete }
         return items.filter { $0.isDirectory != true }.map {
             StorageObject(key: StorageObjectKey($0.path), size: $0.size, hashes: $0.hashes ?? [:])
         }
@@ -619,12 +685,13 @@ public struct RcloneStorageBackend: StorageBackend {
     private struct Item: Decodable {
         let path: String
         let name: String
+        let id: String?
         let size: Int64
         let hashes: [String: String]?
         let isDirectory: Bool?
 
         enum CodingKeys: String, CodingKey {
-            case path = "Path", name = "Name", size = "Size", hashes = "Hashes", isDirectory = "IsDir"
+            case path = "Path", name = "Name", id = "ID", size = "Size", hashes = "Hashes", isDirectory = "IsDir"
         }
     }
 

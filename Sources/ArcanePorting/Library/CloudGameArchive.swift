@@ -523,7 +523,9 @@ public actor CloudGameArchive {
     }
 
     public func latestManifests() async throws -> [CloudGameManifest] {
-        try await latestManifests(in: backend.rootDirectories())
+        let root = try await archiveFolders()
+        guard root.ambiguous.isEmpty else { throw CloudLibraryFailure.incomplete }
+        return try await latestManifests(in: root.names)
     }
 
     func latestManifests(in folders: [String]) async throws -> [CloudGameManifest] {
@@ -531,13 +533,14 @@ public actor CloudGameArchive {
     }
 
     package func latestManifestsForImport() async throws -> (manifests: [CloudGameManifest], invalidTitles: [String]) {
-        try await scanManifests(in: backend.rootDirectories(), skippingInvalid: true)
+        let root = try await archiveFolders()
+        return try await scanManifests(in: root.names, ambiguous: root.ambiguous, skippingInvalid: true)
     }
 
-    private func scanManifests(in folders: [String], skippingInvalid: Bool) async throws
+    private func scanManifests(in folders: [String], ambiguous: Set<String> = [], skippingInvalid: Bool) async throws
         -> (manifests: [CloudGameManifest], invalidTitles: [String]) {
         var titles: [String: [String]] = [:]
-        for folder in Set(folders) {
+        for folder in folders {
             if let title = CloudDriveFolders.titleID(in: folder) { titles[title, default: []].append(folder) }
         }
         guard titles.count <= 2_000 else { throw StorageBackendError.invalidResponse }
@@ -546,10 +549,15 @@ public actor CloudGameArchive {
         for title in titles.keys.sorted() {
             try Task.checkCancellation()
             do {
-                if let manifest = try await latest(titleID: title, folders: titles[title, default: []]) {
+                guard !ambiguous.contains(title) else { throw CloudLibraryFailure.incomplete }
+                let names = titles[title, default: []]
+                guard Set(names.map({ $0.precomposedStringWithCanonicalMapping.lowercased() })).count == names.count
+                else { throw CloudLibraryFailure.incomplete }
+                if let manifest = try await latest(titleID: title, folders: names) {
                     manifests.append(manifest)
                 }
-            } catch CloudArchiveError.invalidManifest where skippingInvalid {
+            } catch let error where skippingInvalid && ((error as? CloudArchiveError) == .invalidManifest
+                || (error as? CloudLibraryFailure) == .incomplete) {
                 invalidTitles.append(title)
             }
         }
@@ -565,7 +573,25 @@ public actor CloudGameArchive {
     }
 
     private func titleFolders(_ title: String) async throws -> [String] {
-        try await backend.rootDirectories().filter { CloudDriveFolders.titleID(in: $0) == title }
+        let root = try await archiveFolders()
+        guard !root.ambiguous.contains(title) else { throw CloudLibraryFailure.incomplete }
+        return root.names.filter { CloudDriveFolders.titleID(in: $0) == title }
+    }
+
+    private func archiveFolders() async throws -> (names: [String], ambiguous: Set<String>) {
+        guard let rclone = backend as? RcloneStorageBackend else { return (try await backend.rootDirectories(), []) }
+        let listed = try await rclone.archiveEntries(in: "")
+        let peers = Dictionary(grouping: listed, by: \.normalizedName)
+        let ids = Dictionary(grouping: listed.compactMap(\.id), by: { $0 })
+        var names: [String] = [], ambiguous = Set<String>()
+        for item in listed where item.isDirectory {
+            guard let title = CloudDriveFolders.titleID(in: item.name) else { continue }
+            if peers[item.normalizedName]?.count != 1 || item.id.map({ ids[$0]?.count != 1 }) == true {
+                ambiguous.insert(title)
+            }
+            names.append(item.name)
+        }
+        return (names, ambiguous)
     }
 
     private func latest(titleID title: String, folders: [String], expectingArchive: Bool = false) async throws -> CloudGameManifest? {
@@ -628,8 +654,24 @@ public actor CloudGameArchive {
             try Task.checkCancellation()
             let directory = "\(folder)/manifests"
             let listed: [StorageObject]
-            do { listed = try await backend.list(in: StorageObjectKey(directory)) }
-            catch CloudLibraryFailure.folderMissing { continue }
+            if let rclone = backend as? RcloneStorageBackend {
+                do {
+                    let matches = try await rclone.archiveEntries(in: folder).filter { $0.normalizedName == "manifests" }
+                    try RcloneStorageBackend.ArchiveEntry.requireUnambiguous(matches)
+                    guard let child = matches.first else { continue }
+                    guard child.isDirectory, child.name.utf8.elementsEqual("manifests".utf8)
+                    else { throw CloudLibraryFailure.incomplete }
+                    let objects = try await rclone.archiveEntries(in: child.object.key.value)
+                        .filter { $0.normalizedName.hasSuffix(".json") }
+                    try RcloneStorageBackend.ArchiveEntry.requireUnambiguous(objects)
+                    guard objects.allSatisfy({ !$0.isDirectory && $0.name.hasSuffix(".json") })
+                    else { throw CloudLibraryFailure.incomplete }
+                    listed = objects.map(\.object)
+                } catch CloudLibraryFailure.folderMissing { throw CloudLibraryFailure.incomplete }
+            } else {
+                do { listed = try await backend.list(in: StorageObjectKey(directory)) }
+                catch CloudLibraryFailure.folderMissing { continue }
+            }
             foundDirectory = true
             for object in listed where object.key.value.hasPrefix(directory + "/") && object.key.value.hasSuffix(".json") {
                 entries.append((object.key.value.dropFirst(directory.count + 1), object))
@@ -640,7 +682,7 @@ public actor CloudGameArchive {
         return entries
     }
 
-    /// Fetch just the newest manifest; local availability uses a single stat per registered artifact.
+    /// Resolve the remote revisions; local availability uses a single stat per registered artifact.
     public func availability(_ game: CloudArchiveGame, expectingArchive: Bool = false) async throws -> [CloudArtifactKind: CloudArtifactStatus] {
         let manifest = try await latest(titleID: game.titleID, expectingArchive: expectingArchive)
         try Task.checkCancellation()
@@ -782,6 +824,10 @@ public actor CloudGameArchive {
             let update = transfer(progress, phase: .uploading, kind: kind, total: bytes)
             try checkUpload(source, parent: parent, snapshot: snapshot, kind: kind)
             try game.protectSaves(in: source)
+            _ = try await uploader.tree(in: tree.key, withHashes: false)
+            if let old, old != tree.key { _ = try await uploader.tree(in: old, withHashes: false) }
+            try checkUpload(source, parent: parent, snapshot: snapshot, kind: kind)
+            try game.protectSaves(in: source)
             do {
                 try await uploader.copyFiles(files.map(\.path), from: source, to: tree.key,
                                              reusing: old == tree.key ? nil : old, progress: update)
@@ -837,6 +883,7 @@ public actor CloudGameArchive {
         try data.write(to: file)
         let hashes = try CloudArchiveInventory.hashes(at: file)
         let key = StorageObjectKey("\(folder)/manifests/\(String(format: "%016lld", timestamp))-\(hashes["sha256"]!).json")
+        try await (backend as? RcloneStorageBackend)?.archivePath(key, directory: false)
         try beforePublication()
         try await put(file, object: StorageObject(key: key, size: Int64(data.count), hashes: hashes), progress: nil)
     }
@@ -976,6 +1023,7 @@ public actor CloudGameArchive {
         } else {
             resume = nil
             guard let legacy = artifact.legacyObject(titleID: game.titleID) else { throw CloudArchiveError.invalidManifest }
+            try await (backend as? RcloneStorageBackend)?.archivePath(legacy.key, directory: false)
             try await backend.get(legacy.key, to: archive,
                                   progress: transfer(progress, phase: .downloading, kind: kind, total: legacy.size))
             progress?(.init(.verifying, kind: kind, downloadComplete: true))
@@ -1117,6 +1165,7 @@ public actor CloudGameArchive {
             guard let uploader = backend as? RcloneStorageBackend else { throw StorageBackendError.backendUnavailable }
             try await files.verify(on: uploader)
         } else if let object = artifact.legacyObject(titleID: titleID) {
+            try await (backend as? RcloneStorageBackend)?.archivePath(object.key, directory: false)
             try await backend.verify(object)
         } else {
             throw CloudArchiveError.invalidManifest

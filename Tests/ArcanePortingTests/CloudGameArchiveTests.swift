@@ -612,8 +612,8 @@ final class CloudGameArchiveTests: XCTestCase {
         } catch { XCTAssertEqual(error as? CloudLibraryFailure, .offline) }
         XCTAssertEqual(attempts, [title])
         let reachable = CloudGameArchive(backend: RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in
-            if args.contains("--dirs-only") { return .init(status: 0, stdout: "[]", stderr: "") }
             if args.contains("--stat") { return .init(status: 0, stdout: #"{"IsDir":true}"#, stderr: "") }
+            if args[1] == "fixture:Games" { return .init(status: 0, stdout: "[]", stderr: "") }
             return .init(status: 3, stdout: "", stderr: "directory not found")
         })
         attempts.removeAll()
@@ -1647,7 +1647,8 @@ final class CloudGameArchiveTests: XCTestCase {
                     print(json.dumps([dict(item(c), Path=str(c.relative_to(p))) for c in p.rglob("*")
                         if not c.is_relative_to(p / ".arcane-upload") and ("--files-only" not in args or c.is_file())]))
                 else:
-                    print(json.dumps([item(c) for c in p.iterdir() if c.is_dir() == ("--dirs-only" in args)]))
+                    print(json.dumps([item(c) for c in p.iterdir() if
+                        ("--dirs-only" not in args or c.is_dir()) and ("--files-only" not in args or c.is_file())]))
             else:
                 sys.exit(3)
         elif cmd == "copy":
