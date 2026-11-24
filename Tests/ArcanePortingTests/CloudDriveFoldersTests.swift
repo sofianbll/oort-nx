@@ -521,6 +521,34 @@ final class CloudDriveFoldersTests: XCTestCase {
         }
     }
 
+    func testCreationAndMoveRefuseTheFollowedFolderBeforeWriting() async throws {
+        try await withFakeDrive { fixture, root in
+            let key = "0100123456789ABC/app/\(String(repeating: "a", count: 64)).aar"
+            let source = root.appendingPathComponent("Old/\(key)")
+            let bytes = Data("archive".utf8)
+            try fixture.write(bytes, to: source)
+            let plan = try JSONDecoder().decode(CloudDriveFolders.MovePlan.self, from: JSONSerialization.data(withJSONObject: [
+                "source": "Old", "remote": "fixture", "games": 1, "bytes": bytes.count,
+                "binding": ["account": "accountA", "sourceID": "oldID", "destinationID": "newID", "destination": "New"],
+                "entries": [["file": ["key": ["value": key], "size": bytes.count,
+                                      "hashes": try CloudArchiveInventory.hashes(at: source)], "dependencies": []]],
+            ]))
+            for (folder, id) in [("Old", "oldID"), ("New", "newID")] {
+                let drive = fixture.backend(reference: id)
+                do {
+                    try await drive.create("Subfolder", in: folder)
+                    XCTFail("mkdir cannot run under the followed folder")
+                } catch CloudLibraryFailure.referenceOverlap {}
+                do {
+                    _ = try await drive.move(plan, to: "New") { _, _ in XCTFail("An overlapping move cannot begin") }
+                    XCTFail("moveid cannot move from or to the followed folder")
+                } catch CloudLibraryFailure.referenceOverlap {}
+                XCTAssertEqual(fixture.writes, 0)
+                XCTAssertEqual(try Data(contentsOf: source), bytes)
+            }
+        }
+    }
+
     private func withFakeDrive(_ body: (MoveDriveFixture, URL) async throws -> Void) async throws {
         let root = FileManager.default.temporaryDirectory.resolvingSymlinksInPath().appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }
@@ -548,8 +576,11 @@ final class CloudDriveFoldersTests: XCTestCase {
 
         var config: URL { root.appendingPathComponent("empty.conf") }
         var backend: CloudDriveFolders {
+            backend(reference: nil)
+        }
+        func backend(reference: String?) -> CloudDriveFolders {
             CloudDriveFolders(remote: "fixture", executable: URL(fileURLWithPath: "/synthetic/rclone"),
-                              config: config, run: { [self] _, args, _ in try run(args) })
+                              config: config, reference: reference, run: { [self] _, args, _ in try run(args) })
         }
 
         func write(_ data: Data, to file: URL) throws {
