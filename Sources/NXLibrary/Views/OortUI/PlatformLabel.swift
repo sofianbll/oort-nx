@@ -11,17 +11,18 @@ enum PlatformKind: String, CaseIterable {
     case gog = "GOG"
     case minecraft = "Minecraft"
     case crossover = "CrossOver"
+    case ryujinx = "Ryujinx-Nextendo"
     case support = "Buy Me a Coffee"
     case drive = "Google Drive"
     case nextendo = "Nextendo"
     case images = "Artwork and scores"
     case saves = "iCloud saves"
 
-    static let upcoming: [Self] = [.epic, .gog, .minecraft, .crossover, .mac]
+    static let upcoming: [Self] = [.epic, .gog, .minecraft, .crossover, .ryujinx]
 
     var asset: String {
         switch self {
-        case .switch1, .switch2: "gamepad-2"
+        case .switch1, .switch2, .ryujinx: "gamepad-2"
         case .steam: "disc-3"
         case .mac: "laptop"
         case .epic: "shield"
@@ -38,7 +39,7 @@ enum PlatformKind: String, CaseIterable {
 
     var fallback: String {
         switch self {
-        case .switch1, .switch2: "gamecontroller"
+        case .switch1, .switch2, .ryujinx: "gamecontroller"
         case .steam: "opticaldisc"
         case .mac: "laptopcomputer"
         case .epic: "shield"

@@ -12,6 +12,7 @@ struct OortRow: View {
     let platform: PlatformKind?
     var status: String?
     var focused = false
+    var tone: OortStatus.Tone = .neutral
     let preset: Preset
 
     var body: some View {
@@ -19,11 +20,8 @@ struct OortRow: View {
         case .navigation(let label, let action):
             Button(action: action) {
                 row {
-                    Label(label, systemImage: "chevron.right")
-                        .labelStyle(.iconOnly)
-                        .seleneFont(.text, .semibold)
-                        .foregroundStyle(SeleneTheme.glyph)
-                        .accessibilityHidden(true)
+                    Image(systemName: "chevron.right").seleneFont(.text, .semibold)
+                        .foregroundStyle(SeleneTheme.glyph).accessibilityHidden(true)
                 }
             }
             .buttonStyle(.plain)
@@ -38,8 +36,28 @@ struct OortRow: View {
     }
 
     private func row<Trailing: View>(@ViewBuilder trailing: @escaping () -> Trailing) -> some View {
-        SeleneOptionRow(icon: nil, title: title, about: status, focused: focused,
-                        platform: platform, trailing: trailing)
+        SeleneOptionRow(icon: nil, title: title, about: nil, focused: focused,
+                        platform: platform) {
+            HStack {
+                if let status {
+                    OortStatus(text: status, tone: tone)
+                }
+                trailing()
+            }
+        }
+    }
+}
+
+struct OortReadout: View {
+    enum Preset { case body, quiet }
+
+    let text: String
+    var preset: Preset = .body
+
+    var body: some View {
+        Text(text).seleneFont(preset == .body ? .text : .badge)
+            .foregroundStyle(preset == .body ? SeleneTheme.ink : SeleneTheme.ink75)
+            .fixedSize(horizontal: false, vertical: true)
     }
 }
 

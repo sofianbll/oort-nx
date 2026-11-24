@@ -21,7 +21,7 @@ struct IntegrationFixtureView: View {
         var data = IntegrationOverview()
         if index == 0 {
             data.engine = .detected
-            data.steam = .ready
+        data.steam = .ready
             data.drive = .transferring
             data.nextendo = .unavailable
             data.steamGridDB = true
@@ -190,6 +190,11 @@ struct IntegrationFixtureView: View {
                 try render(page, as: "all-rows", height: max(size.height, canvas.u(2500)))
                 router.integrationFocus = .saves
                 try render(page, as: "page-bottom")
+                for integration in IntegrationID.allCases {
+                    router.showIntegrationDetail(integration)
+                    try render(page, as: "detail-\(integration)")
+                    router.backFromIntegration()
+                }
                 for enabled in [false, true] {
                     try render(FoundGamesSetupContent(findings: .init(steamGameCount: 2, portedAppCount: 0),
                         steamOn: enabled, focus: .openLibrary, move: { _ in }, activate: { _ in }),

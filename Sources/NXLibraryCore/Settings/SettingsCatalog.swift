@@ -157,6 +157,7 @@ public enum SettingsCatalog {
             "Auto uses the game's own setting.") { $0.inGameHomeButton },
 
         // Steam
+        action("macShortcutAdd", .sources, "Mac apps", "Add local Mac apps as library shortcuts."),
         action("steamSource", .sources, "Steam", "Find installed native Mac games in your Steam libraries."),
         action("steamRefresh", .sources, "Refresh Steam", "Check enabled Steam libraries without changing your game files."),
         action("steamFolder", .sources, "Steam folder", "Choose the Steam folder containing steamapps."),

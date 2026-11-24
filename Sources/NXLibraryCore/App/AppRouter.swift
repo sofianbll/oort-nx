@@ -24,7 +24,9 @@ public enum AppRoute: Equatable {
 }
 
 public enum IntegrationID: CaseIterable, Hashable, Sendable {
-    case switchGames, steam, drive, nextendo, images, saves
+    case switchGames, steam, macApps, drive, nextendo, saves, images
+
+    public var isGameSource: Bool { self == .switchGames || self == .steam || self == .macApps }
 }
 
 /// A full-screen page covers lower UI layers while their shared background stays mounted.
@@ -79,6 +81,7 @@ public final class AppRouter: ObservableObject {
     @Published public var pendingSpotlightSelect: UUID?
     @Published public var integrationBarFocused = false
     @Published public var integrationFocus: IntegrationID?
+    @Published public private(set) var integrationDetail: IntegrationID?
     @Published public private(set) var settingsRowID: String?
 
     private var history: [AppRoute] = []
@@ -225,8 +228,18 @@ public final class AppRouter: ObservableObject {
     public func takeSettingsRowFocus() { settingsRowID = nil }
     public func openIntegrations() {
         guard route == .library || route == .collection else { return }
+        integrationDetail = nil
         integrationFocus = IntegrationID.allCases.first
         navigate(to: .integrations)
+    }
+    public func showIntegrationDetail(_ id: IntegrationID) {
+        guard route == .integrations else { return }
+        integrationFocus = id
+        integrationDetail = id
+    }
+    public func backFromIntegration() {
+        if integrationDetail != nil { integrationDetail = nil }
+        else { back() }
     }
     /// Only directional input or a return from the page can put focus on the home bar.
     public func stepIntegrationBar(_ step: MenuStep?, profileFocused: inout Bool, hasProfile: Bool) -> Bool {

@@ -47,7 +47,8 @@ final class IntegrationOverviewTests: XCTestCase {
         XCTAssertFalse(snapshot.open(.drive, in: router))
         XCTAssertEqual(router.route, .library)
         XCTAssertFalse(router.integrationBarFocused)
-        XCTAssertEqual(snapshot.rows.map(\.id), [.switchGames, .steam, .drive, .nextendo, .images, .saves])
+        XCTAssertEqual(snapshot.rows.filter(\.id.isGameSource).map(\.id), [.switchGames, .steam, .macApps])
+        XCTAssertEqual(snapshot.rows.filter { !$0.id.isGameSource }.map(\.id), [.drive, .nextendo, .saves, .images])
         XCTAssertTrue(snapshot.rows.allSatisfy { !$0.reads.isEmpty && !$0.writes.isEmpty && !$0.sends.isEmpty })
         router.openCollection()
         router.openIntegrations()
@@ -58,6 +59,7 @@ final class IntegrationOverviewTests: XCTestCase {
         for (id, section, setting) in [
             (IntegrationID.switchGames, SettingsSection.engine, "engineStatus"),
             (.steam, .sources, "steamSource"),
+            (.macApps, .sources, "macShortcutAdd"),
             (.drive, .cloudLibrary, "cloudLibraryEnabled"),
             (.nextendo, .profileNextendo, "nextendo"),
             (.images, .apiServices, "igdb"),
@@ -72,6 +74,22 @@ final class IntegrationOverviewTests: XCTestCase {
         router.back()
         XCTAssertEqual(router.route, .collection)
         XCTAssertTrue(router.integrationBarFocused)
+    }
+
+    func testDetailDoesNotOpenSettingsAndBackReturnsToSameRow() {
+        let snapshot = IntegrationOverview()
+        let router = AppRouter()
+        router.openIntegrations()
+        router.showIntegrationDetail(.macApps)
+        XCTAssertEqual(router.route, .integrations)
+        XCTAssertEqual(router.integrationDetail, .macApps)
+        XCTAssertNil(router.settingsRowID)
+        XCTAssertTrue(snapshot.open(.macApps, in: router))
+        router.back()
+        XCTAssertEqual(router.integrationDetail, .macApps)
+        router.backFromIntegration()
+        XCTAssertNil(router.integrationDetail)
+        XCTAssertEqual(router.integrationFocus, .macApps)
     }
 
     func testTheBarOnlyTakesConfirmAfterExplicitFocusEvenWhenAServiceFails() {
