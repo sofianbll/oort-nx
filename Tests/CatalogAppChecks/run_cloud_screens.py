@@ -21,6 +21,11 @@ import ArcanePorting
 
 @main struct CloudScreenProbe {
     @MainActor static func main() async throws {
+        let fixtureHome = URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!, isDirectory: true)
+            .resolvingSymlinksInPath().path
+        precondition(FileManager.default.homeDirectoryForCurrentUser.resolvingSymlinksInPath().path == fixtureHome
+            && URL(fileURLWithPath: NSHomeDirectory(), isDirectory: true).resolvingSymlinksInPath().path == fixtureHome,
+            "The cloud probe cannot run outside its temporary home")
         let output = URL(fileURLWithPath: CommandLine.arguments[1], isDirectory: true)
         let font = URL(fileURLWithPath: CommandLine.arguments[2])
         precondition(CTFontManagerRegisterFontsForURL(font as CFURL, .process, nil))
@@ -1296,16 +1301,6 @@ def main():
             subprocess.run(["tar", "-xf", "-", "-C", str(package)], input=archived, check=True)
         else:
             shutil.copytree(ROOT / "Sources", package / "Sources")
-        # Foundation can ignore HOME/CFFIXED_USER_HOME for the login user's home.
-        # Redirect engine paths too (save checks, runtime env), not just AppData.
-        fixture_home = 'ProcessInfo.processInfo.environment["HOME"]!'
-        for file in (package / "Sources").rglob("*.swift"):
-            text = file.read_text()
-            isolated = text.replace("FileManager.default.homeDirectoryForCurrentUser",
-                                    f"URL(fileURLWithPath: {fixture_home})")
-            isolated = isolated.replace("NSHomeDirectory()", f"({fixture_home})")
-            if isolated != text:
-                file.write_text(isolated)
         for name in ("NXLibraryCoreTests", "ArcanePortingTests"):
             folder = package / "Tests" / name
             folder.mkdir(parents=True)
