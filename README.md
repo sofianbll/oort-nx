@@ -155,7 +155,9 @@ If an installed app is moved or removed, its library entry stays with a blurred,
 
 ### Cloud library for ported games
 
-In **Settings → Porting → Cloud library**, Arcane uses the rclone included in releases. A development build can use [rclone.org](https://rclone.org/downloads/) or Homebrew, and **Advanced** lets you choose a different executable. Keep an existing connection or choose **Sign in**. If the build does not include a Google client, enter your own desktop OAuth client ID and secret. rclone opens your browser to ask for full Drive access and stores the credentials in its encrypted configuration; on this Mac, the configuration password is held in the login keychain. **Test connection** lists the selected cloud folder without changing its files.
+In **Settings → Porting → Cloud library**, Oort NX uses an existing rclone or asks before downloading the verified macOS arm64 release directly from [rclone.org](https://rclone.org/downloads/). No copy ships in the app. **Advanced** lets you choose an executable; turning off Drive can move only Oort NX’s own copy to the Trash. If you update from a version with a bundled rclone, your saved connection and transfer queue stay in place while you choose a replacement.
+
+Keep an existing connection or choose **Sign in**. If the build does not include a Google client, enter your own desktop OAuth client ID and secret. rclone opens your browser to ask for full Drive access and stores the credentials in its encrypted configuration; on this Mac, the configuration password is held in the login keychain. **Test connection** lists the selected cloud folder without changing its files.
 
 On first setup, Arcane looks for an existing library in `Games` and its immediate subfolders. Under the library you choose, it looks for game files in `GameFiles`, then `Switch/Jeux`, then `Switch/Games`. This is a suggestion; your saved game-files folder stays selected. You can choose a different path without moving files.
 

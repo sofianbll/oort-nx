@@ -82,21 +82,6 @@ cp "$ICON_BUILD/Assets.car" "$APP/Contents/Resources/"
 [ -f "$ROOT/LICENSE" ] && cp "$ROOT/LICENSE" "$APP/Contents/Resources/LICENSE"
 [ -f "$ROOT/NOTICE" ] && cp "$ROOT/NOTICE" "$APP/Contents/Resources/NOTICE"
 cp -R "$ROOT/Resources/ThirdPartyLicenses" "$APP/Contents/Resources/"
-if [ "${NX_RELEASE:-0}" = "1" ]; then
-  RCLONE_VERSION=1.75.2
-  RCLONE_SHA256=610ab7d48615135dfc60b763858b11a426a0d3d1160c1bb76fb0ae6011b02edd
-  RCLONE_BASE="https://downloads.rclone.org/v$RCLONE_VERSION"
-  RCLONE_NAME="rclone-v$RCLONE_VERSION-osx-arm64"
-  curl -qfsSL --proto '=https' --proto-redir '=https' --max-time 120 "$RCLONE_BASE/SHA256SUMS" -o "$STAGE/SHA256SUMS"
-  grep -Fx "$RCLONE_SHA256  $RCLONE_NAME.zip" "$STAGE/SHA256SUMS" >/dev/null \
-    || { echo "error: official rclone checksum differs from the pin" >&2; exit 1; }
-  curl -qfsSL --proto '=https' --proto-redir '=https' --max-time 120 "$RCLONE_BASE/$RCLONE_NAME.zip" -o "$STAGE/$RCLONE_NAME.zip"
-  (cd "$STAGE" && printf '%s  %s.zip\n' "$RCLONE_SHA256" "$RCLONE_NAME" | shasum -a 256 -c -)
-  mkdir -p "$APP/Contents/Helpers"
-  unzip -p "$STAGE/$RCLONE_NAME.zip" "$RCLONE_NAME/rclone" > "$APP/Contents/Helpers/rclone"
-  chmod 755 "$APP/Contents/Helpers/rclone"
-  codesign --force --sign - "$APP/Contents/Helpers/rclone"
-fi
 cp "$ROOT/scripts/validate_update.py" "$APP/Contents/Resources/validate_update.py"
 [ -d "$ROOT/Resources/Selene" ] && cp -R "$ROOT/Resources/Selene" "$APP/Contents/Resources/Selene"
 cp -R "$ROOT/Resources/SoundPacks" "$APP/Contents/Resources/SoundPacks"
@@ -161,8 +146,10 @@ swiftc -I "$ROOT/.build/$CONFIG" "$ROOT/scripts/check_app_profile.swift" \
 "$PROFILE_PROBE/Contents/MacOS/NXLibrary"
 
 python3 "$ROOT/scripts/check_localizations.py" --app "$APP"
-if [ "${NX_RELEASE:-0}" = "1" ]; then
+if [ "${NX_RELEASE:-0}" = "1" ] || [ -d "$APP/Contents/Resources/Runtime" ]; then
   python3 "$ROOT/scripts/check_publication.py" --app "$APP"
+else
+  python3 "$ROOT/scripts/check_publication.py" --app "$APP" --without-runtime
 fi
 swiftc -I "$ROOT/.build/$CONFIG" "$ROOT/scripts/install_built_app.swift" \
   "$ROOT/.build/$CONFIG/NXLibraryCore.o" "$ROOT/.build/$CONFIG/ArcanePorting.o" -o "$STAGE/install-app"

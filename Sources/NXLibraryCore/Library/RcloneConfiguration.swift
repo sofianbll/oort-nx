@@ -40,6 +40,8 @@ public struct CloudLibraryPreference: Equatable, Sendable {
     public static let enabledKey = "NXLibrary_CloudStorageEnabled"
     public static let executableKey = "NXLibrary_RclonePath"
     public static let referenceFolderKey = "NXLibrary_CloudReferenceFolder"
+    public static let toolChoiceKey = "NXLibrary_DriveToolChoice"
+    public static let toolOfferKey = "NXLibrary_DriveToolOfferSeen"
     public static let defaultRoot = "Games"
 
     public let remote: String?
@@ -193,14 +195,24 @@ public struct RcloneConfiguration: Sendable {
         return flags
     }
 
+    package static func sharesDefaultConfiguration(_ executable: URL,
+                                                   environment: [String: String] = environment()) -> Bool {
+        if let path = environment["RCLONE_CONFIG"], !path.isEmpty { return true }
+        // rclone prefers a portable config beside the executable to the shared user config.
+        return [executable, executable.resolvingSymlinksInPath()].allSatisfy {
+            !FileManager.default.fileExists(atPath: $0.deletingLastPathComponent().appendingPathComponent("rclone.conf").path)
+        }
+    }
+
     public enum Failure: Error, LocalizedError, Equatable {
-        case tool, configuration, encryption, connect, test, disconnect
+        case tool, portableConfiguration, configuration, encryption, connect, test, disconnect
 
         public var errorDescription: String? { L10n.text(key) }
 
         public var key: String {
             switch self {
             case .tool: return "Arcane could not run rclone. Choose a working rclone executable."
+            case .portableConfiguration: return "This rclone uses a separate configuration. Choose a copy that uses your existing Drive settings."
             case .configuration: return "Arcane could not read the rclone configuration. Check access to the login keychain and try again."
             case .encryption: return "Arcane could not encrypt the rclone configuration with the login keychain."
             case .connect: return "Google Drive could not be connected. Check your credentials and try again."

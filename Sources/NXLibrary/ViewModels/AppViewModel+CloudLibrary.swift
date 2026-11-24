@@ -258,6 +258,28 @@ final class CloudLibraryModel: ObservableObject {
 
     @Published private(set) var preference: CloudLibraryPreference
     @Published private(set) var chosenExecutable: URL?
+    @Published private(set) var needsDriveToolChoice = false
+    @Published var driveToolProgress: Double?
+    @Published var driveToolFailure: RcloneDownload.Failure?
+    var driveToolTask: Task<Void, Never>?
+    let driveTool = RcloneDownload(supportRoot: AppData.supportRoot)
+    private(set) var driveToolOfferSeen = false
+    var resolvedDriveTool: URL? {
+        if let chosenExecutable, RcloneStorageBackend.isExecutable(chosenExecutable),
+           canChooseDriveTool(chosenExecutable) { return chosenExecutable }
+        if let owned = driveTool.installedExecutable { return owned }
+        guard chosenExecutable == nil, let detected = RcloneStorageBackend.findExecutable(),
+              canChooseDriveTool(detected) else { return nil }
+        return detected
+    }
+    var needsDriveTool: Bool { needsDriveToolChoice || resolvedDriveTool == nil }
+    func canChooseDriveTool(_ tool: URL) -> Bool {
+        !needsDriveToolChoice || RcloneConfiguration.sharesDefaultConfiguration(tool)
+    }
+    var canTrashDriveTool: Bool {
+        guard let owned = driveTool.installedExecutable else { return false }
+        return chosenExecutable?.resolvingSymlinksInPath() != owned.resolvingSymlinksInPath()
+    }
     @Published private(set) var archive: CloudGameArchive?
     struct ReferenceCheck {
         let date: Date
@@ -402,11 +424,14 @@ final class CloudLibraryModel: ObservableObject {
         catalogCheck?.task.cancel()
         let transfer = active?.task
         transfer?.cancel()
+        let toolDownload = driveToolTask
+        toolDownload?.cancel()
         libraryMove?.isCancelling = true
         let move = libraryMoveTask
         return Task {
             await transfer?.value
             await move?.value
+            await toolDownload?.value
             await queueStore.flush()
         }
     }
@@ -430,6 +455,10 @@ final class CloudLibraryModel: ObservableObject {
             saveSourcesBinding(candidate)
         }
         chosenExecutable = defaults.string(forKey: CloudLibraryPreference.executableKey).map { URL(fileURLWithPath: $0) }
+        driveToolOfferSeen = defaults.bool(forKey: CloudLibraryPreference.toolOfferKey)
+        needsDriveToolChoice = preference.remote != nil
+            && !defaults.bool(forKey: CloudLibraryPreference.toolChoiceKey)
+            && chosenExecutable == nil && driveTool.installedExecutable == nil
         do { pendingMove = try moveJournal.load() }
         catch { moveJournalUnreadable = true }
         rebuildArchive()
@@ -481,6 +510,7 @@ final class CloudLibraryModel: ObservableObject {
             saveSourcesBinding(CloudLibraryPreference.SourcesBinding(next))
         }
         preference = next
+        if next.remote == nil { needsDriveToolChoice = false }
         rebuildArchive()
     }
 
@@ -510,9 +540,22 @@ final class CloudLibraryModel: ObservableObject {
     }
 
     @MainActor func chooseExecutable(_ executable: URL?) {
-        guard chosenExecutable != executable else { return }
+        guard chosenExecutable != executable, executable.map(canChooseDriveTool) != false else { return }
         AppData.preferences.set(executable?.path, forKey: CloudLibraryPreference.executableKey)
         chosenExecutable = executable
+        if needsDriveToolChoice && executable == nil { rebuildArchive() }
+        else { acceptDriveTool() }
+    }
+
+    @MainActor func markDriveToolOfferSeen() {
+        AppData.preferences.set(true, forKey: CloudLibraryPreference.toolOfferKey)
+        driveToolOfferSeen = true
+    }
+
+    @MainActor func acceptDriveTool() {
+        AppData.preferences.set(true, forKey: CloudLibraryPreference.toolChoiceKey)
+        needsDriveToolChoice = false
+        driveToolFailure = nil
         rebuildArchive()
     }
 
@@ -543,8 +586,9 @@ final class CloudLibraryModel: ObservableObject {
         sourcesNeedConfirmation = wanted != nil && !sameChoice
         let savedScope = AppData.preferences.data(forKey: Self.scopeKey)
             .flatMap { try? JSONDecoder().decode(CloudDriveScope.self, from: $0) }
-        guard current.enabled, !hasPendingMove, let remote = current.remote else { installScope(nil, backend: nil); return }
-        let raw = RcloneStorageBackend(remote: remote, root: current.root, executable: chosenExecutable)
+        guard current.enabled, !hasPendingMove, !needsDriveToolChoice, let remote = current.remote,
+              let tool = resolvedDriveTool else { installScope(nil, backend: nil); return }
+        let raw = RcloneStorageBackend(remote: remote, root: current.root, executable: tool)
         let saved = savedScope.flatMap { scope -> CloudDriveScope? in
             guard scope.remote == remote, scope.library.path == current.root, scope.reference == current.referenceFolder,
                   !sourcesNeedConfirmation, wanted == nil || savedChoice?.permits(scope) == true,

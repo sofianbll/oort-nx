@@ -59,6 +59,7 @@ extension AppShellView {
         // The entrance cue follows the initial game observation.
         if settings.settings.introAnimation { SoundEffectService.shared.play(.boot) }
         viewModel.router = router
+        Task { @MainActor [weak viewModel] in viewModel?.offerDriveUpgrade() }
         updater.blockedReason = { [weak viewModel, weak runningGames] in
             guard let viewModel else { return nil }
             if viewModel.isBuilding || viewModel.isCheckingCloudBuild { return L10n.text("After the porting") }
