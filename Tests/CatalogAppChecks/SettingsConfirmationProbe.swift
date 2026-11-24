@@ -35,7 +35,7 @@ import ArcanePorting
             precondition(args.contains("--drive-shared-with-me=false"))
             switch args.first {
             case "about":
-                return .init(status: 0, stdout: "{}", stderr: #"{"msg":"'root_folder_id = Account_ID' - save this in the config"}"#)
+                return .init(status: 0, stdout: "{}", stderr: #"{"msg":"'root_folder_id = Account_ID' - save this in the config to speed up startup"}"#)
             case "lsjson" where args.contains("--dirs-only"):
                 let directories = #"[{"Name":"Games","ID":"Library_ID","IsDir":true},{"Name":"Autre bibliothèque","ID":"Other_ID","IsDir":true},{"Name":"Autres sources","ID":"ROMs_ID","IsDir":true}]"#
                 let json = args.contains(where: { $0.hasPrefix("--drive-root-folder-id=") }) ? "[]" : directories
@@ -215,7 +215,8 @@ import ArcanePorting
         await migration.scopeTask?.value
         let unchangedQueue = try Data(contentsOf: queue)
         precondition(!migration.needsDriveToolChoice && migration.archive != nil && migration.preference == saved
-                     && !migration.hasRestoredQueue && downloadCalls == 1 && unchangedQueue == entries)
+                     && !migration.hasRestoredQueue && downloadCalls == 1 && unchangedQueue == entries,
+                     "Approved tool did not bind the original library: \(String(describing: migration.connectionCheck?.failure))")
         let installed = AppData.supportRoot.appendingPathComponent("DriveTools/rclone-\(RcloneDownload.version)", isDirectory: true)
         try FileManager.default.createDirectory(at: installed, withIntermediateDirectories: true)
         let managed = installed.appendingPathComponent("rclone")
