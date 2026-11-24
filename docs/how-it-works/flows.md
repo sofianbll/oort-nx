@@ -225,6 +225,7 @@ Conclusa l'importazione automatica e ripristinata la coda, Arcane verifica la pr
 Il primo profilo mantiene i file originali. Gli altri hanno salvataggi e backup distinti; nel
 pannello Saves, **Copy saves from another profile** copia il gioco corrente solo in uno spazio vuoto.
 **Back up now** usa il salvataggio e la cartella di backup del profilo attivo al momento del comando, anche se il profilo cambia mentre il lavoro attende in coda.
+Un recupero fallito blocca soltanto il percorso del profilo interessato; un'operazione ancora attiva resta esclusiva per l'intero gioco.
 Un rollback ripete una copia parziale a partire dal backup verificato prima di riabilitare Play.
 
 ```mermaid

@@ -9,10 +9,11 @@ public final class SaveOperationGate {
     private var appUpdate: UUID?
     public var onActivityChange: (() -> Void)?
     public init() {}
-    public func begin(titleID: String, recovering: Bool = false) -> UUID? {
+    public func begin(titleID: String, recoveryLocation: SaveLocation? = nil, recovering: Bool = false) -> UUID? {
         lock.lock(); defer { lock.unlock(); onActivityChange?() }
         let key = titleID.uppercased()
-        guard appUpdate == nil, leases[key] == nil, recovering || !recovery.contains(key) else { return nil }
+        guard appUpdate == nil, leases[key] == nil,
+              recovering || recoveryLocation.map({ recovery.contains($0.root.path) }) != true else { return nil }
         let token = UUID(); leases[key] = token; return token
     }
     public func end(titleID: String, token: UUID) {
@@ -20,14 +21,14 @@ public final class SaveOperationGate {
         let key = titleID.uppercased()
         if leases[key] == token { leases[key] = nil }
     }
-    public func isBusy(titleID: String) -> Bool {
+    public func isBusy(titleID: String, recoveryLocation: SaveLocation? = nil) -> Bool {
         lock.lock(); defer { lock.unlock() }
         let key = titleID.uppercased()
-        return appUpdate != nil || leases[key] != nil || recovery.contains(key)
+        return appUpdate != nil || leases[key] != nil || recoveryLocation.map { recovery.contains($0.root.path) } == true
     }
-    public func setRecoveryBlocked(_ blocked: Bool, titleID: String) {
+    public func setRecoveryBlocked(_ blocked: Bool, location: SaveLocation) {
         lock.lock()
-        let key = titleID.uppercased()
+        let key = location.root.path
         let changed = blocked ? recovery.insert(key).inserted : recovery.remove(key) != nil
         lock.unlock()
         if changed { onActivityChange?() }

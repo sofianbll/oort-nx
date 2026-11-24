@@ -639,7 +639,7 @@ Il percorso completo è in [flows.md](flows.md#6-importare-o-ripristinare-un-sal
   dopo un backup di sicurezza. La conferma spiega l’ambito prima di agire.
 - Il cloud dell’engine copre soltanto utente principale e device. Il pannello e le impostazioni lo
   dichiarano; un backup locale completo non equivale alla sincronizzazione di tutti gli utenti.
-- `SaveOperationGate` assegna lease per title ID, coordinando salvataggi, Play e installazioni anche quando più voci della libreria condividono lo stesso gioco.
+- `SaveOperationGate` assegna lease attivi per title ID, anche tra profili. Un recupero fermo dopo un errore blocca solo il percorso dei salvataggi interessato.
 
 **Integrità e recupero.**
 - `SaveFileIO` centralizza copie, hash, metadati, controlli dei percorsi, scritture durevoli e punti di errore sostituibili nei test.

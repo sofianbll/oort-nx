@@ -365,7 +365,7 @@ extension PortingModel {
         app.appIcon.appIconsInFlight.contains(game.id)
             || RunningGameMonitor.runningApplication(for: game) != nil
             || app.cloudLibrary.conflicts(with: buildScope(for: game))
-            || game.titleId.map { app.saveGate.isBusy(titleID: $0) } == true
+            || app.savesAreBusy(for: game)
     }
 
     private func startBuildImmediately(for game: PortedGame, request: BuildRequest, onStarted: (() -> Void)?,

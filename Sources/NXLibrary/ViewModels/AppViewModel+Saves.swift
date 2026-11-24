@@ -73,12 +73,17 @@ extension AppViewModel {
     /// Covers the complete replace operation, also when a successful build arrives from its background queue.
     func acquireSaveInstallLease(for game: PortedGame) -> (() -> Void)? {
         guard let tid = game.titleId else { return nil }
-        if let location = try? defaultSaveLocation(for: game), SaveTransaction.needsRecovery(location: location) { return nil }
-        guard let token = saveGate.begin(titleID: tid) else { return nil }
+        let location = try? defaultSaveLocation(for: game)
+        if let location, SaveTransaction.needsRecovery(location: location) { return nil }
+        guard let token = saveGate.begin(titleID: tid, recoveryLocation: location) else { return nil }
         if RunningGameMonitor.runningApplication(for: game) != nil {
             saveGate.end(titleID: tid, token: token); return nil
         }
         return { [saveGate] in saveGate.end(titleID: tid, token: token) }
+    }
+    func savesAreBusy(for game: PortedGame) -> Bool {
+        guard let tid = game.titleId else { return false }
+        return saveGate.isBusy(titleID: tid, recoveryLocation: try? defaultSaveLocation(for: game))
     }
     func savesPermitPlay(_ game: PortedGame) -> Bool {
         guard let tid = game.titleId else { return true }
@@ -86,12 +91,13 @@ extension AppViewModel {
             alertMessage = SaveFailure.unreadableConfiguration.localizedDescription
             return false
         }
-        if let location = try? defaultSaveLocation(for: game), SaveTransaction.needsRecovery(location: location) {
+        let location = try? defaultSaveLocation(for: game)
+        if let location, SaveTransaction.needsRecovery(location: location) {
             recoverSavesAtStartup()
             alertMessage = "This game's save needs recovery. Wait for recovery to finish, then press Play again. Backups are in \(saveBackupRoot.path)."
             return false
         }
-        if saveGate.isBusy(titleID: tid) {
+        if saveGate.isBusy(titleID: tid, recoveryLocation: location) {
             alertMessage = "This game's saves are being managed or need recovery. Finish that operation before Play."
             return false
         }
@@ -104,20 +110,21 @@ extension AppViewModel {
         for game in libraryGames {
             guard let location = try? defaultSaveLocation(for: game), SaveTransaction.needsRecovery(location: location),
                   RunningGameMonitor.runningApplication(for: game) == nil,
-                  let token = saveGate.begin(titleID: location.titleID, recovering: true) else { continue }
-            saveGate.setRecoveryBlocked(true, titleID: location.titleID)
-            let store = SaveSnapshotStore(root: saveBackupRoot)
+                  let token = saveGate.begin(titleID: location.titleID, recoveryLocation: location, recovering: true) else { continue }
+            saveGate.setRecoveryBlocked(true, location: location)
+            let backupRoot = saveBackupRoot
+            let store = SaveSnapshotStore(root: backupRoot)
             saveQueue.async { [weak self] in
                 guard let self else { return }
                 var failure: Error?
                 do { try SaveTransaction(store: store, isRunning: { RunningGameMonitor.runningApplication(for: game) != nil }).recover(location: location) }
                 catch { failure = error }
-                self.saveGate.setRecoveryBlocked(failure != nil, titleID: location.titleID)
+                self.saveGate.setRecoveryBlocked(failure != nil, location: location)
                 self.saveGate.end(titleID: location.titleID, token: token)
                 let message = failure?.localizedDescription
                 DispatchQueue.main.async {
                     if let message {
-                        self.logs.append(LogEntry(level: .error, message: L10n.format("Save recovery for %@: %@ Backups: %@", [String(describing: game.name), String(describing: message), String(describing: self.saveBackupRoot.path)])))
+                        self.logs.append(LogEntry(level: .error, message: L10n.format("Save recovery for %@: %@ Backups: %@", [game.name, message, backupRoot.path])))
                     } else {
                         self.logs.append(LogEntry(level: .info, message: L10n.format("Save recovery completed for %@.", [String(describing: game.name)])))
                         self.installPendingBuilds()
