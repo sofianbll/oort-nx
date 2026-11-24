@@ -91981,7 +91981,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "At %@, %@ of the tested %@, chosen in Settings → Settings title: Switch."
+            "value": "At %@, %@ of the tested %@, chosen in Settings → Switch."
           }
         },
         "it": {
@@ -92028,7 +92028,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Blocked by the Metal gate. See Settings → Settings title: Switch."
+            "value": "Blocked by the Metal gate. See Settings → Switch."
           }
         },
         "it": {
@@ -92075,7 +92075,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Build blocked — Settings → Settings title: Switch"
+            "value": "Build blocked — Settings → Switch"
           }
         },
         "it": {
@@ -92122,7 +92122,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Install the certified compiler from Setup, or allow untested toolchains in Settings → Settings title: Switch."
+            "value": "Install the certified compiler from Setup, or allow untested toolchains in Settings → Switch."
           }
         },
         "it": {
@@ -92169,7 +92169,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Newer Metal: turn on the override in Settings → Settings title: Switch"
+            "value": "Newer Metal: turn on the override in Settings → Switch"
           }
         },
         "it": {
@@ -92216,7 +92216,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Older Metal: update it, or use the override in Settings → Settings title: Switch"
+            "value": "Older Metal: update it, or use the override in Settings → Switch"
           }
         },
         "it": {
@@ -92263,7 +92263,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The nxnative checkout was not found. Choose it in Settings → Settings title: Switch."
+            "value": "The nxnative checkout was not found. Choose it in Settings → Switch."
           }
         },
         "it": {
@@ -92310,7 +92310,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose a folder with your %@. Existing apps play without these files. Change it later in Settings → Settings title: Switch."
+            "value": "Choose a folder with your %@. Existing apps play without these files. Change it later in Settings → Switch."
           }
         },
         "it": {
@@ -92357,7 +92357,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose where to keep your game apps. Put any existing nxnative games (.app) here. Change it later in Settings → Settings title: Switch."
+            "value": "Choose where to keep your game apps. Put any existing nxnative games (.app) here. Change it later in Settings → Switch."
           }
         },
         "it": {
@@ -92404,7 +92404,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Existing game apps play without sources. Choose later in Settings → Settings title: Switch."
+            "value": "Existing game apps play without sources. Choose later in Settings → Switch."
           }
         },
         "it": {
@@ -92451,7 +92451,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The Game apps folder is unavailable. Reconnect it or choose another in Settings → Settings title: Switch."
+            "value": "The Game apps folder is unavailable. Reconnect it or choose another in Settings → Switch."
           }
         },
         "it": {
