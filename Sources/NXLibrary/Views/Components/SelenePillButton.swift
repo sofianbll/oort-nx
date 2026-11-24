@@ -109,8 +109,13 @@ struct SelenePillButton: View {
                         .accessibilityHidden(true)
                 }
             }
-            .overlay(Capsule().strokeBorder(focused && !solid ? tint ?? SeleneTheme.focus : SeleneTheme.ink15,
-                                            lineWidth: solid ? 0 : max(1, canvas.u(focused && !solid ? 2 : 1))))
+            .overlay {
+                if !solid {
+                    PillOutline(width: max(1, canvas.u(focused ? 2 : 1)))
+                        .fill(focused ? tint ?? SeleneTheme.focus : SeleneTheme.ink15, style: FillStyle(eoFill: true))
+                        .allowsHitTesting(false)
+                }
+            }
             .shadow(color: solid ? SeleneTheme.focus.opacity(0.4) : .clear, radius: canvas.u(22))
             .scaleEffect(scalesOnFocus && focused && !reduceMotion ? 1.06 : 1)
             // Focus eases across pills; the colour change is a fade, so it stays under reduce motion.
@@ -122,6 +127,18 @@ struct SelenePillButton: View {
             Button(action: action) { capsule }
                 .buttonStyle(.plain)
         }
+    }
+}
+
+private struct PillOutline: Shape {
+    let width: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        // AppKit's display cache can draw spurs at the seams of Capsule.strokeBorder.
+        var ring = Capsule().path(in: rect)
+        let inner = rect.insetBy(dx: width, dy: width)
+        if !inner.isEmpty { ring.addPath(Capsule().path(in: inner)) }
+        return ring
     }
 }
 
