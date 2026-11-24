@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **921 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **923 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -842,7 +842,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [SettingsSourcesSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsSourcesSection.swift) | Attivazione, refresh/cancel, cartella Steam, avvio in background, revisione e recupero dei nascosti. |
 | [CatalogNativeArtwork.swift](../../Sources/NXLibrary/Views/Catalog/CatalogNativeArtwork.swift) | Icona nativa in sola lettura e indicatore Steam; nessun artwork Nintendo. |
 | [CatalogSteamInfo.swift](../../Sources/NXLibrary/Views/Catalog/CatalogSteamInfo.swift) | Intestazione condivisa nelle due librerie: Play/Riprendi/Annulla/Riprova, Opzioni e preferito, con la nota di stato. |
-| [SteamPlayCoordinator.swift](../../Sources/NXLibrary/Services/SteamPlayCoordinator.swift) | Play tramite il client verificato dopo la preparazione della schermata. La schermata copre Steam durante l'attesa. Sessioni dal processo dell’app installata. |
+| [SteamPlayCoordinator.swift](../../Sources/NXLibrary/Services/SteamPlayCoordinator.swift) | Play tramite il client verificato; sessioni dal processo dell’app installata. La fonte spenta lascia finire le sessioni, senza aprirne altre. |
 | [SteamPlaytimeCoordinator.swift](../../Sources/NXLibrary/Services/SteamPlaytimeCoordinator.swift) | Una lettura alla volta delle ore di Steam fuori dal thread principale; applica `SteamPlaytimeSync` e passa i totali a `PlaySessionStore`. |
 | [SteamOptionsView.swift](../../Sources/NXLibrary/Views/GameOptions/SteamOptionsView.swift) | Opzioni di un gioco Steam con l’aspetto e l’input di Game options: Play, Edit details, Move, preferito, nascosto, Finder. |
 | [PersonalizationSubject.swift](../../Sources/NXLibrary/Views/GameOptions/PersonalizationSubject.swift) | Il gioco che Change artwork e Change metadata personalizzano: scelte nxnative o archivio personale Steam, senza icona Mac per Steam. |
@@ -1082,6 +1082,8 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [CatalogBuildRecoveryTests.swift](../../Tests/ArcanePortingTests/CatalogBuildRecoveryTests.swift) | Vecchia build persistita e nuova conservata, sospensione automatica e conferme obsolete. |
 | [run_notices.py](../../Tests/CatalogAppChecks/run_notices.py) | Esegue il modello e i metodi reali degli avvisi e del ponte legacy senza finestre, dopo swift test. |
 | [run_review.py](../../Tests/CatalogAppChecks/run_review.py) | Verifica senza finestre achievement, loghi, focus, input del centro, badge mod in Online, priorità dei dialoghi e Steam durante Play. |
+| [audit_probe_host.py](../../Tests/CatalogAppChecks/audit_probe_host.py) | Collega sonde headless al binario di debug e le isola con home temporanea e senza rete. |
+| [run_steam_disabled_tracking.py](../../Tests/CatalogAppChecks/run_steam_disabled_tracking.py) | Disattiva una fonte Steam sintetica, chiude una sessione già aperta e rifiuta una nuova osservazione. |
 | [run_keymap_screens.py](../../Tests/CatalogAppChecks/run_keymap_screens.py) | Verifica tutti i glifi e rende la barra Selene per Xbox, Switch, DualSense e tastiera senza aprire finestre. |
 | [run_inbox_screens.py](../../Tests/CatalogAppChecks/run_inbox_screens.py) | Verifica e rende Inbox, route, menu, card delle chiavi e assenza di lettura con Inbox disattivata; usa un plist temporaneo e non apre finestre. |
 | [run_cloud_screens.py](../../Tests/CatalogAppChecks/run_cloud_screens.py) | Verifica Cloud, glifi, Play together e scelta dello schermo con fixture locali, plist temporaneo e rclone senza daemon. `--compare-with-5047557` confronta la scheda con Riduci movimento. |
