@@ -365,7 +365,6 @@ struct AppShellView: View {
                 artwork: artwork,
                 storeHost: modStoreHost
             )
-            .environment(\.integrationBar, AnyView(integrationSurface(isBar: true)))
         case .collection, .profileCollection:
             CollectionView(
                 viewModel: viewModel,
@@ -374,7 +373,6 @@ struct AppShellView: View {
                 playSessions: playSessions,
                 artwork: artwork
             )
-            .environment(\.integrationBar, router.route == .collection ? AnyView(integrationSurface(isBar: true)) : nil)
         case .integrations:
             integrationSurface(isBar: false)
         case .profile:

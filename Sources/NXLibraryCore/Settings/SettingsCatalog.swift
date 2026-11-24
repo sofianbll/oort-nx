@@ -83,6 +83,8 @@ public enum SettingsCatalog {
             "Which cards sit in the Spotlight row: Collection, Surprise me, Activity, Mods and Add game.") { $0.visibleSpotlightCards },
         row("startingTab", .spotlight, "Starting tab",
             "The filter Spotlight and Collection open on.") { $0.startingTab },
+        row("platformCardInfo", .spotlight, "Platform card",
+            "What shows beside the platform card.") { $0.platformCardInfo },
         row("spotlightOrder", .spotlight, "Tile order",
             "Your own order of games and cards on Spotlight. Reset puts everything back in place.") { $0.spotlightOrder },
 
@@ -160,6 +162,7 @@ public enum SettingsCatalog {
             "Auto follows the controller layout.") { $0.inGameHomeButton },
 
         // Steam
+        action("integrations", .sources, "All integrations", "See what each one reads, writes and sends."),
         action("macShortcutAdd", .sources, "Mac apps", "Add local Mac apps as library shortcuts."),
         action("steamSource", .sources, "Steam", "Find installed native Mac games in your Steam libraries."),
         action("steamRefresh", .sources, "Refresh Steam", "Check enabled Steam libraries without changing your game files."),

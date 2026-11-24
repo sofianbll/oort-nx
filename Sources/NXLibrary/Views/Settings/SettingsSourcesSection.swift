@@ -8,6 +8,7 @@ struct SettingsSourcesSection: View {
     @ObservedObject var settings: SettingsEditor
     @EnvironmentObject private var sources: CatalogSourcesModel
     @Environment(\.nxAppLocale) private var localization
+    let onOpenIntegrations: () -> Void
     let onActions: ([SettingsRowAction]) -> Void
 
     private var staged: SteamSourceChoice? {
@@ -33,6 +34,9 @@ struct SettingsSourcesSection: View {
     }
     var body: some View {
         OortSettingsGroup {
+            SeleneButtonRow("All integrations", id: "integrations",
+                            subtitle: "See what each one reads, writes and sends.",
+                            buttonTitle: "Open", action: onOpenIntegrations)
             SeleneButtonRow("Mac apps", id: "macShortcutAdd",
                             subtitle: "Add a shortcut to an app on this Mac. The app stays where it is.",
                             platform: .mac,
@@ -116,6 +120,7 @@ struct SettingsSourcesSection: View {
     }
     private func publishActions() {
         var rows: [SettingsRowAction] = [
+            .init(id: "integrations", title: "All integrations", rowID: "integrations", activate: onOpenIntegrations),
             .init(id: "macShortcutAdd", title: "Add an app…", rowID: "macShortcutAdd",
                   isEnabled: viewModel.macShortcuts.canEdit) { viewModel.macShortcuts.chooseApp() },
             .init(id: "steamSource", title: "Steam") { stage(enabled: !enabled, root: root) },

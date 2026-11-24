@@ -19,6 +19,7 @@ struct SettingsSectionContent: View {
     let onChooseLanguage: () -> Void
     let onChooseRegion: () -> Void
     let onOpenConsole: () -> Void
+    let onOpenIntegrations: () -> Void
     let onOpenGroup: (SettingDescriptor) -> Void
     let searchQuery: String
     @Binding var cloudAdvanced: Bool
@@ -116,7 +117,7 @@ struct SettingsSectionContent: View {
         case .library:
             SettingsLibrarySection(viewModel: viewModel, porting: viewModel.porting, settings: settings, onActions: onActions)
         case .sources:
-            SettingsSourcesSection(viewModel: viewModel, settings: settings, onActions: onActions)
+            SettingsSourcesSection(viewModel: viewModel, settings: settings, onOpenIntegrations: onOpenIntegrations, onActions: onActions)
         case .storage:
             SettingsStorageSection(viewModel: viewModel, artwork: artwork, onActions: onActions)
         case .portingStorage:

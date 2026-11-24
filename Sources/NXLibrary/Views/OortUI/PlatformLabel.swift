@@ -99,6 +99,7 @@ struct PlatformLabel: View {
 struct PlatformMark: View {
     @Environment(\.seleneCanvas) private var canvas
     let kind: PlatformKind
+    var size: CGFloat = SeleneTokens.Space.large
 
     private static let showsBrandMarks = true
 
@@ -119,7 +120,7 @@ struct PlatformMark: View {
     }()
 
     var body: some View {
-        let side = canvas.u(SeleneTokens.Space.large)
+        let side = canvas.u(size)
         let mark = Self.artwork[kind]
         let isSecond = kind == .switch2 && mark?.isBrand != true
         let drawnHeight: CGFloat = if mark?.isBrand == true {

@@ -32,6 +32,10 @@ struct SettingsSpotlightSection: View {
         }
     }
 
+    private func stepPlatformInfo(_ step: Int) {
+        settings.settings.platformCardInfo = settings.settings.platformCardInfo.stepped(step)
+    }
+
     var body: some View {
         OortSettingsGroup {
             SettingsSubheading(L10n.text("Cards"))
@@ -43,6 +47,9 @@ struct SettingsSpotlightSection: View {
             SeleneCycleRow("Starting tab",
                            subtitle: "The filter Spotlight and Collection open on.",
                            value: settings.settings.startingTab) { stepTab($0) }
+
+            SeleneCycleRow("Platform card", subtitle: "What shows beside the platform card.",
+                           value: settings.settings.platformCardInfo.titleKey, cycle: stepPlatformInfo)
 
             SeleneButtonRow("Tile order",
                             subtitle: settings.settings.spotlightOrder.isEmpty
@@ -60,6 +67,7 @@ struct SettingsSpotlightSection: View {
             .init(id: "card-\(card.rawValue)", title: card.title) { toggle(card) }
         }
         actions.append(.value("startingTab", "Starting tab") { stepTab($0) })
+        actions.append(.value("platformCardInfo", "Platform card", cycle: stepPlatformInfo))
         actions.append(.init(id: "order", title: "Tile order") {
             settings.settings.spotlightOrder = []
         })

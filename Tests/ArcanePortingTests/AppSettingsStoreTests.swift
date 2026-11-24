@@ -96,9 +96,11 @@ final class AppSettingsStoreTests: XCTestCase {
         var settings = AppSettings()
         settings.showsSessionCard = false
         settings.tileBadgePosition = .bottomLeft
+        settings.platformCardInfo = .none
         let back = try JSONDecoder().decode(AppSettings.self, from: JSONEncoder().encode(settings))
         XCTAssertFalse(back.showsSessionCard)
         XCTAssertEqual(back.tileBadgePosition, .bottomLeft)
+        XCTAssertEqual(back.platformCardInfo, .none)
     }
 
     func testCheckAppUpdatesDefaultsOnForOldFiles() throws {

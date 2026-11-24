@@ -528,6 +528,7 @@ struct SettingsView: View {
             onChooseLanguage: { localePicker = .language },
             onChooseRegion: { localePicker = .region },
             onOpenConsole: { router.openConsole() },
+            onOpenIntegrations: { router.openIntegrations() },
             onOpenGroup: openGroup,
             searchQuery: searchQuery,
             cloudAdvanced: $cloudAdvanced,

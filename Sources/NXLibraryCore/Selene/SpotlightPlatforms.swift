@@ -61,6 +61,11 @@ public struct SpotlightPlatformPicker: Equatable {
         return true
     }
 
+    /// A click on a card.
+    public mutating func move(to integration: CatalogIntegration?, in platforms: SpotlightPlatforms) {
+        cursor = platforms.card(for: integration).integration
+    }
+
     public mutating func reconcile(in platforms: SpotlightPlatforms) {
         cursor = platforms.card(for: cursor).integration
         settled = platforms.card(for: settled).integration

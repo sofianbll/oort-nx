@@ -92,6 +92,8 @@ public final class AppRouter: ObservableObject {
     /// A game id waiting for Spotlight to select it (Details' More like this).
     @Published public var pendingSpotlightSelect: UUID?
     @Published public var integrationBarFocused = false
+    /// The home screens no longer draw the bar; without it, nothing may move focus to it.
+    public var showsIntegrationBar = false
     @Published public var integrationFocus: IntegrationID?
     @Published public private(set) var integrationDetail: IntegrationID?
     @Published public private(set) var settingsRowID: String?
@@ -274,7 +276,7 @@ public final class AppRouter: ObservableObject {
     }
     public func takeSettingsRowFocus() { settingsRowID = nil }
     public func openIntegrations() {
-        guard route == .library || route == .collection else { return }
+        guard route != .integrations else { return }
         integrationDetail = nil
         integrationFocus = IntegrationID.allCases.first
         navigate(to: .integrations)
@@ -290,7 +292,7 @@ public final class AppRouter: ObservableObject {
     }
     /// Only directional input or a return from the page can put focus on the home bar.
     public func stepIntegrationBar(_ step: MenuStep?, profileFocused: inout Bool, hasProfile: Bool) -> Bool {
-        guard route == .library || route == .collection else { return false }
+        guard showsIntegrationBar, route == .library || route == .collection else { return false }
         if integrationBarFocused {
             switch step {
             case .confirm: openIntegrations(); return true
@@ -343,7 +345,7 @@ public final class AppRouter: ObservableObject {
         guard !defersRoute(previous, { [weak self] in self?.back() }) else { return }
         history.removeLast()
         isReturningFromBack = true
-        integrationBarFocused = route == .integrations && (previous == .library || previous == .collection)
+        integrationBarFocused = showsIntegrationBar && route == .integrations && (previous == .library || previous == .collection)
         settingsRowID = nil
         route = previous
     }

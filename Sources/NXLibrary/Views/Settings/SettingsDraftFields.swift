@@ -115,6 +115,7 @@ enum SettingsDraftFields {
             .init("launchStyle", \.launchStyle, previews: true) { $0.title },
             toggle("launchMotion", \.launchMotion, previews: true),
             .init("launchShade", \.launchShade, previews: true) { $0.title },
+            .init("platformCardInfo", \.platformCardInfo, previews: true) { L10n.text($0.titleKey) },
             .init("tileBadgePosition", \.tileBadgePosition, previews: true) { L10n.text($0.titleKey) },
             .init("surprisePool", \.surprisePool) {
                 let title = switch $0 { case .installed: "Installed"; case .notPlayed: "Not played yet"; case .all: "All games" }
