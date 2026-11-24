@@ -73,7 +73,8 @@ extension SpotlightView {
             sessions: playSessions.sessions, libraryGames: library, playtimeByGame: playtimes)
         let blocked = setup.compatibilityReport != nil && !setup.canPassToolchainGate
         let facts = DetailsFacts.switchGame(game, metadata: store.storeMetadata[game.id],
-                                            folderName: DetailsLink.folderName(of: game.url))
+                                            folderName: DetailsLink.folderName(of: game.url),
+                                            engine: viewModel.engineDetail(for: game))
         let links = DetailsLink.links(app: game.url, store: presentation.storeURL, hltb: presentation.hltbURL,
                                       viewModel: viewModel,
                                       cloudGame: cloudManagementPlacement(game) == .detailsLink ? game : nil)

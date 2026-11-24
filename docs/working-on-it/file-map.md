@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **948 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **951 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -116,7 +116,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [Sources/NXLibrary/ViewModels/AppViewModel+Controller.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Controller.swift) | Sceglie il gioco su cui agiscono i comandi del menu, anche dalla Collection di un profilo. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+Diagnostics.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Diagnostics.swift) | Raccoglie ambiente, toolchain e ultimo build per il rapporto diagnostico ripulito. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+PendingInstall.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+PendingInstall.swift) | Riprende le installazioni differite rispettando i lease, espone il motivo dell'errore e aggiorna il confronto cloud dopo la pubblicazione del bundle. |
-| [Sources/NXLibrary/ViewModels/AppViewModel+Porting.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Porting.swift) | Prepara tile, pill e stima del tempo del porting per la home. |
+| [Sources/NXLibrary/ViewModels/AppViewModel+Porting.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Porting.swift) | Prepara tile, pill e stima del tempo del porting per la home; usa la cache del motore e dei file per la riga Details e il badge. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+Saves.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Saves.swift) | Risolve contesto e identità se il profilo è leggibile, coordina i lease con motivo di rifiuto e recupera i journal del profilo selezionato. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+SteamGridDB.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+SteamGridDB.swift) | Verifica, salva e rimuove la chiave SteamGridDB dell’utente senza registrarne il valore. |
 | [Sources/NXLibrary/ViewModels/AppIconModel.swift](../../Sources/NXLibrary/ViewModels/AppIconModel.swift) | Applica o ripristina l’icona dell’app del gioco dopo build, avvio e chiusura del gioco, senza toccare giochi in esecuzione o in build; Change artwork ne osserva l’avanzamento e raggiunge il coordinatore solo da `app`. |
@@ -296,7 +296,7 @@ Cartella `Sources/NXLibraryCore/Details/`.
 |---|---|
 | [Sources/NXLibraryCore/Details/GameDetailPresentation.swift](../../Sources/NXLibraryCore/Details/GameDetailPresentation.swift) | Prepara badge, disponibilità delle azioni, date e dati della pagina Details; la pagina Steam è in `GameDetailPresentation+Steam.swift`, quella Switch in `ArcanePorting/Details/`. |
 | [Sources/NXLibraryCore/Details/MoreLikeThis.swift](../../Sources/NXLibraryCore/Details/MoreLikeThis.swift) | Ordina i giochi correlati per generi, sviluppatore ed editore, con precedenza alla stessa fonte e ripiego facoltativo. |
-| [Sources/NXLibraryCore/Details/DetailsFacts.swift](../../Sources/NXLibraryCore/Details/DetailsFacts.swift) | Sceglie le righe del pannello Details (Steam qui, Switch in `ArcanePorting/Details/DetailsFacts+Porting.swift`): solo i valori presenti, niente di tecnico. |
+| [Sources/NXLibraryCore/Details/DetailsFacts.swift](../../Sources/NXLibraryCore/Details/DetailsFacts.swift) | Sceglie le righe del pannello Details (Steam qui, Switch in `ArcanePorting/Details/DetailsFacts+Porting.swift`): solo i valori presenti, niente identificativi tecnici. |
 | [Sources/NXLibraryCore/Details/DetailsFocus.swift](../../Sources/NXLibraryCore/Details/DetailsFocus.swift) | Gestisce zone e spostamenti del focus nei link e nelle bande di Details. |
 | [Sources/NXLibraryCore/Details/GameOptionsPresentation.swift](../../Sources/NXLibraryCore/Details/GameOptionsPresentation.swift) | Righe, livelli, focus e titolo Next launch localizzato: Play, rete, azione RomFS in Online e schermo solo per gli host compatibili. |
 | [Sources/NXLibraryCore/Details/GameDetailPresentation+Steam.swift](../../Sources/NXLibraryCore/Details/GameDetailPresentation+Steam.swift) | Dati della pagina Steam e generi della testata Spotlight; ignora i dati di altri AppID e dà precedenza ai campi personali. |
@@ -455,8 +455,9 @@ Cartella `Sources/ArcanePorting/Details/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/ArcanePorting/Details/GameDetailPresentation+Porting.swift](../../Sources/ArcanePorting/Details/GameDetailPresentation+Porting.swift) | La pagina di un gioco portato: fatti dello store Nintendo, motore e toolchain della build, sorgenti, Rebuild e cartella dei salvataggi. |
-| [Sources/ArcanePorting/Details/DetailsFacts+Porting.swift](../../Sources/ArcanePorting/Details/DetailsFacts+Porting.swift) | Le righe Details di un gioco portato: crediti dello store, versione e dimensione della build, cartella dell’app. |
+| [Sources/ArcanePorting/Details/GameDetailPresentation+Porting.swift](../../Sources/ArcanePorting/Details/GameDetailPresentation+Porting.swift) | La pagina di un gioco portato: fatti dello store Nintendo, toolchain della build, sorgenti, Rebuild e cartella dei salvataggi. |
+| [Sources/ArcanePorting/Details/DetailsFacts+Porting.swift](../../Sources/ArcanePorting/Details/DetailsFacts+Porting.swift) | Le righe Details di un gioco portato: crediti, versione del gioco, data e stato del motore, dimensione e cartella dell’app. |
+| [Sources/ArcanePorting/Details/InstalledEngineVersion.swift](../../Sources/ArcanePorting/Details/InstalledEngineVersion.swift) | Legge `DMCommit` dal plist dell'app installata, riusa il confronto d'ascendenza con l'engine selezionato e presenta data e stato localizzati. |
 | [Sources/ArcanePorting/Details/GameOptionsPresentation+Porting.swift](../../Sources/ArcanePorting/Details/GameOptionsPresentation+Porting.swift) | Converte `GameSettingsSnapshot` in `GameOptionsBuildSettings`, incluso Play together se la build dichiara modalità di rete. |
 | [Sources/ArcanePorting/Details/MoreLikeThis+Porting.swift](../../Sources/ArcanePorting/Details/MoreLikeThis+Porting.swift) | More like this fra giochi portati, con autori e generi dello store Nintendo. |
 
@@ -687,7 +688,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/Detail/DetailsTopBlock.swift](../../Sources/NXLibrary/Views/Detail/DetailsTopBlock.swift) | Mostra logo, pillola Cloud senza punto fisso, fase e misura del trasferimento attivo (riempimento Download o barra), statistiche, generi e descrizione. |
 | [Sources/NXLibrary/Views/Detail/DetailsBands.swift](../../Sources/NXLibrary/Views/Detail/DetailsBands.swift) | Disegna screenshot, mod e fascia correlati condivisa, con copertine Switch o Steam secondo la fonte. |
 | [Sources/NXLibrary/Views/Detail/DetailsPanel.swift](../../Sources/NXLibrary/Views/Detail/DetailsPanel.swift) | Pannello Details uguale per ogni fonte: righe con icona, voto della critica in ultima riga e link in `SeleneActionGrid`; carica solo il voto del gioco mostrato. |
-| [Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift](../../Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift) | Cloud library: pulsante tondo con glifo e alone, copie, azioni per artefatto, Avanzate, Resume e percorso dell'app precedente; condivide lo stato con scheda e copertine. |
+| [Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift](../../Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift) | Cloud library: pulsante tondo con glifo e alone, copie, azioni per artefatto, Avanzate, Resume e percorso dell'app precedente; sceglie un solo badge per copertina, anche per il motore. |
 | [Sources/NXLibrary/Views/Detail/CriticRatingValue.swift](../../Sources/NXLibrary/Views/Detail/CriticRatingValue.swift) | Valore della riga Critic score: cinque stelle, numero /100 e fonte, senza finestre aggiuntive; caricamento e assenza espliciti. |
 | [Sources/NXLibrary/ViewModels/IGDBSettings.swift](../../Sources/NXLibrary/ViewModels/IGDBSettings.swift) | Configurazione IGDB facoltativa: verifica prima del salvataggio, rimozione e invalidazione delle richieste/voti precedenti. |
 | [Sources/NXLibrary/Views/Components/IGDBCredentialsDialog.swift](../../Sources/NXLibrary/Views/Components/IGDBCredentialsDialog.swift) | Guida sintetica in cinque passi, Client ID, Client Secret nascosto, verifica/salvataggio e annullamento; input Settings sospeso. |
@@ -1039,6 +1040,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/NXLibraryCoreTests/BackdropArtTests.swift](../../Tests/NXLibraryCoreTests/BackdropArtTests.swift) | Arte tenuta fra un gioco e l’altro e mai fra card e gioco, dissolvenze sull’orologio come Core Animation, livelli coperti tolti e scorrimento rapido. |
 | [Tests/NXLibraryCoreTests/BoundedDownloadTests.swift](../../Tests/NXLibraryCoreTests/BoundedDownloadTests.swift) | Blocchi raccolti fino al limite, corpo o lunghezza dichiarata oltre il limite rifiutati, nessun redirect, annullamento della lettura. |
 | [Tests/ArcanePortingTests/DetailsFactsTests.swift](../../Tests/ArcanePortingTests/DetailsFactsTests.swift) | Righe Details per Switch e Steam: ordine, valori mancanti o vuoti nascosti, mai la versione Steam, solo crediti durante il download, simboli. |
+| [Tests/ArcanePortingTests/InstalledEngineVersionTests.swift](../../Tests/ArcanePortingTests/InstalledEngineVersionTests.swift) | Plist e checkout sintetici: motore attuale, anteriore, successivo o ignoto; app mancante, file di gioco e precedenza del badge. |
 | [Tests/ArcanePortingTests/DetailsReviewFixTests.swift](../../Tests/ArcanePortingTests/DetailsReviewFixTests.swift) | Play costruisce un gioco non ancora costruito con le sorgenti; nome di cartella o volume letto una volta per URL. |
 | [Tests/NXLibraryCoreTests/EngineRuntimeRequirementsTests.swift](../../Tests/NXLibraryCoreTests/EngineRuntimeRequirementsTests.swift) | Il runtime incluso porta ogni pacchetto Python che il motore fissato chiede (riga `pip install` del README e `tools.txt`). |
 | [Tests/NXLibraryCoreTests/GameFocusTests.swift](../../Tests/NXLibraryCoreTests/GameFocusTests.swift) | Ritorno della libreria davanti solo per il gioco in primo piano, mai con un altro gioco aperto, uscita contata una volta. |
@@ -1090,7 +1092,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_steam_scoped_playtime.py](../../Tests/CatalogAppChecks/run_steam_scoped_playtime.py) | Aggiorna le ore Steam dopo sessioni Switch secondarie, anche archiviate, e congela dopo una sessione Steam secondaria. |
 | [run_keymap_screens.py](../../Tests/CatalogAppChecks/run_keymap_screens.py) | Verifica tutti i glifi e rende la barra Selene per Xbox, Switch, DualSense e tastiera senza aprire finestre. |
 | [run_inbox_screens.py](../../Tests/CatalogAppChecks/run_inbox_screens.py) | Verifica e rende Inbox, menu e card; controlla Inbox disattivata, riletture, duplicati e sorgenti collegate durante il triage con preferenze e Cestino simulati. |
-| [run_cloud_screens.py](../../Tests/CatalogAppChecks/run_cloud_screens.py) | Verifica Cloud, coda, importazione, accesso Google in inglese e francese, glifi, Play together e scelta dello schermo con fixture locali e rclone senza daemon. `--compare-with-5047557` confronta la scheda con Riduci movimento. |
+| [run_cloud_screens.py](../../Tests/CatalogAppChecks/run_cloud_screens.py) | Verifica Cloud, coda, importazione, accesso Google, glifi, Play together e scelta dello schermo con fixture locali e rclone senza daemon. Rende versione del motore in Details e badge nelle due librerie. `--compare-with-5047557` confronta la scheda con Riduci movimento. |
 | [run_profiles.py](../../Tests/CatalogAppChecks/run_profiles.py) | Rende profili, raccolte, impostazioni, primo avvio e PIN. Misura l'alone del selettore nel viewport AppKit non mostrato; verifica focus, PIN, moto ridotto, editor, salvataggi, backup e fine sessione senza dati reali. |
 | [run_startup_recovery.py](../../Tests/CatalogAppChecks/run_startup_recovery.py) | Coordinatore di avvio reale su profili sintetici: conflitto, scelta esplicita, offerta obsoleta, Retry e fallimento della preparazione; nessuna finestra. |
 | [run_source_access.py](../../Tests/CatalogAppChecks/run_source_access.py) | Esegue avvio, observer, selettori e preparazione dei file in Add Game: scansione limitata, cartella ricordata e riconoscimento del percorso estratto. |
@@ -1219,6 +1221,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 [Misure delle letture rclone](../history/reviews/2026-11-21-rclone-rc.md): comandi singoli e sessione persistente.
 [Divergenza dell’inventario cloud](../history/reviews/2026-11-21-cloud-upload-inventory.md): diagnosi del controllo prima dell’invio.
 [Uscita cloud e AppKit](../history/reviews/2026-11-21-cloud-quit-appkit.md): prova del ciclo di eventi.
+[Versione del motore installato](../history/reviews/2026-11-24-installed-engine-version.md): origine del commit e risultati della sonda visiva.
 
 | File | Responsabilità |
 |---|---|

@@ -65,7 +65,6 @@ final class GameDetailPresentationTests: XCTestCase {
         XCTAssertTrue(p.canPlay)
         XCTAssertFalse(p.canRebuild)
         XCTAssertTrue(p.sourcesDetached)
-        XCTAssertEqual(p.engineCommitShort, "1963fab")
         XCTAssertEqual(p.version, "1.9.0")
         XCTAssertEqual(p.playtime, "1h 0m")
         XCTAssertTrue(p.size.contains("18"))

@@ -25,7 +25,6 @@ public struct GameDetailPresentation: Equatable {
     public let lastPlayed: String
     public let version: String
     public let size: String
-    public let engineCommitShort: String
     public let toolchainVerified: Bool
     public let toolchainNote: String?
     public let canPlay: Bool
@@ -42,7 +41,7 @@ public struct GameDetailPresentation: Equatable {
                  descriptionIsEnglishFallback: Bool, descriptionLanguageNote: String?, descriptionLanguage: String?,
                  descriptionSettled: Bool, genres: [String], released: String?, developerLine: String?,
                  thisWeek: String, rank: String?, publisher: String?, releaseYear: String?, playtime: String,
-                 lastPlayed: String, version: String, size: String, engineCommitShort: String,
+                 lastPlayed: String, version: String, size: String,
                  toolchainVerified: Bool, toolchainNote: String?, canPlay: Bool, canRebuild: Bool,
                  sourcesDetached: Bool, hasBaseSource: Bool, storeURL: URL?, hltbURL: URL?, appPath: String,
                  savePath: String) {
@@ -65,7 +64,6 @@ public struct GameDetailPresentation: Equatable {
         self.lastPlayed = lastPlayed
         self.version = version
         self.size = size
-        self.engineCommitShort = engineCommitShort
         self.toolchainVerified = toolchainVerified
         self.toolchainNote = toolchainNote
         self.canPlay = canPlay

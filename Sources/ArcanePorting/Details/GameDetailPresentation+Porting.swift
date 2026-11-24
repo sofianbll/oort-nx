@@ -2,7 +2,7 @@ import Foundation
 import NXLibraryCore
 
 extension GameDetailPresentation {
-    /// A ported game's page: the Nintendo store's facts, the build's engine and toolchain, its sources and save folder.
+    /// A ported game's page: Nintendo store facts, build toolchain, sources and save folder.
     public init(game: PortedGame, metadata: NintendoStoreMetadata?,
                 totalPlaytime: TimeInterval, lastPlayed: Date?, now: Date = Date(),
                 sessions: [PlaySession] = [], libraryGames: [PortedGame] = [],
@@ -33,7 +33,6 @@ extension GameDetailPresentation {
         let lastPlayedText = LibraryPresentation.relative(lastPlayed, now: now)
         let version = game.versionString ?? "—"
         let size = game.sizeBytes.formatted(.byteCount(style: .file).locale(locale))
-        let engineCommitShort = game.toolchain.engineCommit.map { String($0.prefix(7)) } ?? "—"
         let toolchainVerified = game.toolchain.verified
         let toolchainNote = game.toolchain.note
         let canPlay = game.isPlayableLocally
@@ -62,7 +61,7 @@ extension GameDetailPresentation {
                   descriptionSettled: descriptionSettled, genres: genres, released: released,
                   developerLine: developerLine, thisWeek: thisWeek, rank: rank, publisher: publisher,
                   releaseYear: releaseYear, playtime: playtime, lastPlayed: lastPlayedText, version: version,
-                  size: size, engineCommitShort: engineCommitShort, toolchainVerified: toolchainVerified,
+                  size: size, toolchainVerified: toolchainVerified,
                   toolchainNote: toolchainNote, canPlay: canPlay, canRebuild: canRebuild,
                   sourcesDetached: sourcesDetached, hasBaseSource: hasBaseSource, storeURL: storeURL,
                   hltbURL: hltbURL, appPath: appPath, savePath: savePath)

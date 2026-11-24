@@ -2,6 +2,12 @@
 
 User-visible changes to Oort NX and its Arcane base (formerly NX Library) are recorded here. Entries are grouped by release, with the newest first. Engine changes also have their own [upgrade notes](docs/history/engine-upgrades/README.md).
 
+## Unreleased
+
+### Added
+
+- Switch game Details shows the installed app’s engine date and update status. An update icon appears on the cover only when the app is older and its game files are available.
+
 ## 0.3.1
 
 ### Fixed

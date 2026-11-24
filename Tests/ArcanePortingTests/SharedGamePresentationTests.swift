@@ -139,7 +139,7 @@ final class SharedGamePresentationTests: XCTestCase {
         XCTAssertEqual(page.rank, "#2 of 2")
         XCTAssertEqual(page.storeURL?.absoluteString, "https://store.steampowered.com/app/10/")
         XCTAssertFalse(page.canPlay); XCTAssertFalse(page.canRebuild); XCTAssertFalse(page.sourcesDetached)
-        XCTAssertEqual(page.savePath, ""); XCTAssertEqual(page.engineCommitShort, "—")
+        XCTAssertEqual(page.savePath, "")
         // Facts delivered for another game never reach this page.
         let stray = GameDetailPresentation(steamRecord: other, metadata: facts, totalPlaytime: 0, lastPlayed: nil)
         XCTAssertEqual(stray.description, "")

@@ -104,6 +104,8 @@ public enum BuildStageCopy {
 public enum PortingTileLook: Equatable {
     case transfer(Double)
     case normal
+    /// The app plays normally, and the files needed to rebuild with the selected engine are available.
+    case engineUpdate
     /// Black and white, blurred, a thin "step/count" bar with the stage and its step in small type.
     case preparing(step: Int, count: Int, title: String, detail: String)
     /// Colour risen to this fraction, the percentage in the middle.
@@ -125,8 +127,9 @@ public enum PortingTileLook: Equatable {
     }
 
     /// A game at rest. Nil in the cloud means it has not been checked.
-    public static func resting(playable: Bool, appInCloud: Bool?, filesHere: Bool, filesInCloud: Bool?) -> PortingTileLook {
-        if playable { return .normal }
+    public static func resting(playable: Bool, appInCloud: Bool?, filesHere: Bool, filesInCloud: Bool?,
+                               engineIsOlder: Bool = false) -> PortingTileLook {
+        if playable { return engineIsOlder && (filesHere || filesInCloud == true) ? .engineUpdate : .normal }
         if appInCloud == true { return .toDownload }
         if filesHere { return .toBuild }
         if filesInCloud == true { return .toDownloadFiles }
@@ -135,7 +138,7 @@ public enum PortingTileLook: Equatable {
 
     public var isAtRest: Bool {
         switch self {
-        case .normal, .toDownload, .toBuild, .toDownloadFiles, .unchecked, .missing: return true
+        case .normal, .engineUpdate, .toDownload, .toBuild, .toDownloadFiles, .unchecked, .missing: return true
         case .transfer, .preparing, .filling, .downloading: return false
         }
     }

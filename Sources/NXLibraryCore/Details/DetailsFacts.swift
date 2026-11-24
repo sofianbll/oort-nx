@@ -2,7 +2,7 @@ import Foundation
 
 /// One line of a game's Details panel: a player-facing fact with its label and grey icon.
 public struct DetailsFact: Equatable, Identifiable, Sendable {
-    public enum Kind: String, CaseIterable, Sendable { case developer, publisher, version, size, location }
+    public enum Kind: String, CaseIterable, Sendable { case developer, publisher, version, engine, size, location }
 
     public let kind: Kind
     public let value: String
@@ -18,6 +18,7 @@ public struct DetailsFact: Equatable, Identifiable, Sendable {
         case .developer: return L10n.text("Developer")
         case .publisher: return L10n.text("Publisher")
         case .version: return L10n.text("Version")
+        case .engine: return L10n.text("Engine")
         case .size: return L10n.text("Size on disk")
         case .location: return L10n.text("Installed in")
         }
@@ -29,6 +30,7 @@ public struct DetailsFact: Equatable, Identifiable, Sendable {
         case .developer: return "hammer"
         case .publisher: return "building.2"
         case .version: return "number"
+        case .engine: return "gearshape"
         case .size: return "internaldrive"
         case .location: return "folder"
         }
@@ -36,7 +38,7 @@ public struct DetailsFact: Equatable, Identifiable, Sendable {
 }
 
 /// The Details panel's rows for any source, in `Kind` order. A fact with no value has no row (never "—").
-/// Nothing technical: no engine, build, sources or Steam build ID. The two display names that need the
+/// No technical identifiers. The two display names that need the
 /// file system (the app's folder, the Steam library's volume) come from the caller.
 public enum DetailsFacts {
     /// A Steam game without an available installation (still downloading, not detected) shows only its credits.

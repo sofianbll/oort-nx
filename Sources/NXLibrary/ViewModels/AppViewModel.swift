@@ -123,11 +123,41 @@ final class AppViewModel: ObservableObject {
     // MARK: - Library
     @Published private(set) var libraryGames: [PortedGame] = [] {
         didSet {
-            gamesWithFilesHere = Set(libraryGames.filter { !$0.isPlayableLocally && GameResourceState.sourcesAvailable(for: $0) }.map(\.id))
+            refreshInstalledEngineVersions()
         }
     }
-    /// Games with no app whose files were on this Mac at the last library change; tiles never read the disk.
+    /// Results of the last background scan; tiles never probe app bundles, sources or Git.
+    @Published private(set) var installedVersions: [UUID: InstalledEngineVersion] = [:]
     private(set) var gamesWithFilesHere: Set<UUID> = []
+    private var installedVersionsRefresh: Task<Void, Never>?
+
+    @discardableResult
+    func refreshInstalledEngineVersions(reset: Bool = false) -> Task<Void, Never> {
+        installedVersionsRefresh?.cancel()
+        if reset { installedVersions = [:] }
+        let games = libraryGames
+        let checkout = setup.nxnativePath
+        let selected = setup.activeEngineCommit
+        let task = Task.detached(priority: .utility) { [weak self] in
+            var reader = InstalledEngineVersionReader(checkout: checkout, selected: selected)
+            var versions: [UUID: InstalledEngineVersion] = [:]
+            var local: Set<UUID> = []
+            for game in games {
+                guard !Task.isCancelled else { return }
+                let app = game.url.pathExtension.lowercased() == "app" && game.cloudImportPending != true ? game.url : nil
+                versions[game.id] = reader.version(of: app)
+                if GameResourceState.sourcesAvailable(for: game) { local.insert(game.id) }
+            }
+            await MainActor.run { [weak self, versions, local] in
+                guard !Task.isCancelled, let self,
+                      self.installedVersions != versions || self.gamesWithFilesHere != local else { return }
+                self.gamesWithFilesHere = local
+                self.installedVersions = versions
+            }
+        }
+        installedVersionsRefresh = task
+        return task
+    }
     @Published private(set) var catalogGames: [CatalogGame] = []
     private(set) var catalogSnapshot = CatalogDocument()
     @Published private(set) var catalogSourceConfigurations: [CatalogSourceConfiguration] = []

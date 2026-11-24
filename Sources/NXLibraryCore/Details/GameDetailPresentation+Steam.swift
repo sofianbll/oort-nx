@@ -53,7 +53,6 @@ extension GameDetailPresentation {
         self.lastPlayed = LibraryPresentation.relative(lastPlayed, now: now)
         version = "—"
         size = "—"
-        engineCommitShort = "—"
         toolchainVerified = false
         toolchainNote = nil
         canPlay = false

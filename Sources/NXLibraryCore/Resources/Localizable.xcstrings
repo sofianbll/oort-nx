@@ -1,6 +1,30 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@ · up to date": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"%@ · up to date"}}, "it": {"stringUnit":{"state":"translated","value":"%@ · aggiornato"}}, "fr": {"stringUnit":{"state":"translated","value":"%@ · à jour"}}, "de": {"stringUnit":{"state":"translated","value":"%@ · aktuell"}}, "es": {"stringUnit":{"state":"translated","value":"%@ · al día"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"%@ · atualizado"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"%@ · 已是最新版本"}}
+    }},
+    "%@ · update available": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"%@ · update available"}}, "it": {"stringUnit":{"state":"translated","value":"%@ · aggiornamento disponibile"}}, "fr": {"stringUnit":{"state":"translated","value":"%@ · mise à jour possible"}}, "de": {"stringUnit":{"state":"translated","value":"%@ · Update verfügbar"}}, "es": {"stringUnit":{"state":"translated","value":"%@ · actualización disponible"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"%@ · atualização disponível"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"%@ · 有可用更新"}}
+    }},
+    "%@ · game files needed first": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"%@ · game files needed first"}}, "it": {"stringUnit":{"state":"translated","value":"%@ · servono prima i file del gioco"}}, "fr": {"stringUnit":{"state":"translated","value":"%@ · fichiers du jeu requis pour la mise à jour"}}, "de": {"stringUnit":{"state":"translated","value":"%@ · zuerst Spieldateien benötigt"}}, "es": {"stringUnit":{"state":"translated","value":"%@ · primero necesitas los archivos del juego"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"%@ · primeiro, localize os arquivos do jogo"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"%@ · 更新前需要游戏文件"}}
+    }},
+    "%@ · newer than Oort’s engine": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"%@ · newer than Oort’s engine"}}, "it": {"stringUnit":{"state":"translated","value":"%@ · più recente del motore di Oort"}}, "fr": {"stringUnit":{"state":"translated","value":"%@ · plus récent que le moteur d’Oort"}}, "de": {"stringUnit":{"state":"translated","value":"%@ · neuer als die Oort-Engine"}}, "es": {"stringUnit":{"state":"translated","value":"%@ · más reciente que el motor de Oort"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"%@ · mais recente que o motor do Oort"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"%@ · 比 Oort 的引擎更新"}}
+    }},
+    "%@ · update status unknown": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"%@ · update status unknown"}}, "it": {"stringUnit":{"state":"translated","value":"%@ · aggiornamento non verificato"}}, "fr": {"stringUnit":{"state":"translated","value":"%@ · mise à jour non vérifiée"}}, "de": {"stringUnit":{"state":"translated","value":"%@ · Update-Status unbekannt"}}, "es": {"stringUnit":{"state":"translated","value":"%@ · actualización sin verificar"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"%@ · atualização não verificada"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"%@ · 更新状态未知"}}
+    }},
+    "No installed app": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"No installed app"}}, "it": {"stringUnit":{"state":"translated","value":"Nessuna app installata"}}, "fr": {"stringUnit":{"state":"translated","value":"Aucune app installée"}}, "de": {"stringUnit":{"state":"translated","value":"Keine App installiert"}}, "es": {"stringUnit":{"state":"translated","value":"No hay ninguna app instalada"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Nenhum app instalado"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"未安装应用"}}
+    }},
+    "Engine version unknown": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Engine version unknown"}}, "it": {"stringUnit":{"state":"translated","value":"Versione del motore sconosciuta"}}, "fr": {"stringUnit":{"state":"translated","value":"Version du moteur inconnue"}}, "de": {"stringUnit":{"state":"translated","value":"Engine-Version unbekannt"}}, "es": {"stringUnit":{"state":"translated","value":"Versión del motor desconocida"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Versão do motor desconhecida"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"引擎版本未知"}}
+    }},
+    "Engine update available": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Engine update available"}}, "it": {"stringUnit":{"state":"translated","value":"Aggiornamento del motore disponibile"}}, "fr": {"stringUnit":{"state":"translated","value":"Mise à jour du moteur possible"}}, "de": {"stringUnit":{"state":"translated","value":"Engine-Update verfügbar"}}, "es": {"stringUnit":{"state":"translated","value":"Actualización del motor disponible"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Atualização do motor disponível"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"有可用的引擎更新"}}
+    }},
     "Could not restore the game app. Recovery files: %@": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Could not restore the game app. Recovery files: %@"}}, "it": {"stringUnit":{"state":"translated","value":"Impossibile ripristinare l’app del gioco. File di recupero: %@"}}, "fr": {"stringUnit":{"state":"translated","value":"Impossible de restaurer l’app du jeu. Fichiers de récupération : %@"}}, "de": {"stringUnit":{"state":"translated","value":"Spiel-App konnte nicht wiederhergestellt werden. Wiederherstellungsdateien: %@"}}, "es": {"stringUnit":{"state":"translated","value":"No se pudo restaurar la app del juego. Archivos de recuperación: %@"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Não foi possível restaurar o app do jogo. Arquivos de recuperação: %@"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"无法恢复游戏应用。恢复文件：%@"}}
     }},
