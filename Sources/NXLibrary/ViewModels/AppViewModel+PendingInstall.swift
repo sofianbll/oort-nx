@@ -39,7 +39,7 @@ extension AppViewModel {
                               authorizeDevelopmentOperation(.icon, game: game) else { return }
                     }
                     guard RunningGameMonitor.runningApplication(for: game) == nil else { return }
-                    guard let lease = acquireSaveInstallLease(for: game) else { return }
+                    guard let lease = try requireSaveInstallLease(for: game) else { return }
                     release = lease
                     switch try PendingInstaller.install(&game) {
                     case .installed:
@@ -78,6 +78,7 @@ extension AppViewModel {
     func presentInstallFailure(for game: PortedGame, error: String) {
         logs.append(LogEntry(level: .error, message: L10n.format("Could not install the new build of %@: %@", [String(describing: game.name), String(describing: error)])))
         installFailureFocus = .cancel
+        installFailureDetail = error
         gameWithInstallFailure = game
     }
 

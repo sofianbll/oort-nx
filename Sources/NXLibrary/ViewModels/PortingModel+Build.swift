@@ -727,7 +727,7 @@ extension PortingModel {
             finalApp: finalApp,
             // Replacing the app under its running game can crash it: the new app waits for the game to quit.
             holdInstall: { RunningGameMonitor.runningApplication(for: target) != nil },
-            acquireInstall: { [weak self] in self?.app.acquireSaveInstallLease(for: target) },
+            acquireInstall: { [weak self] in try self?.app.requireSaveInstallLease(for: target) },
             eventHandler: { [weak self, weak service] event in
                 DispatchQueue.main.async {
                     guard let service, self?.buildService === service else { return }

@@ -83,8 +83,15 @@ extension AppViewModel {
     }
     /// Covers the complete replace operation, also when a successful build arrives from its background queue.
     func acquireSaveInstallLease(for game: PortedGame) -> (() -> Void)? {
-        guard (try? requireReadableSaveProfile()) != nil, let tid = game.titleId else { return nil }
-        let location = try? defaultSaveLocation(for: game)
+        try? requireSaveInstallLease(for: game)
+    }
+
+    func requireSaveInstallLease(for game: PortedGame) throws -> (() -> Void)? {
+        guard let tid = game.titleId else { return nil }
+        let location: SaveLocation?
+        do { location = try defaultSaveLocation(for: game) }
+        catch SaveFailure.profilesUnavailable { throw SaveFailure.profilesUnavailable }
+        catch { location = nil }
         if let location, SaveTransaction.needsRecovery(location: location) { return nil }
         guard let token = saveGate.begin(titleID: tid, recoveryLocation: location) else { return nil }
         if RunningGameMonitor.runningApplication(for: game) != nil {

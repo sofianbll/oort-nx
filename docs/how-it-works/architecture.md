@@ -620,7 +620,7 @@ Il percorso completo è in [flows.md](flows.md#6-importare-o-ripristinare-un-sal
   con `DM_SAVE` sotto `ProfileSaves/<UUID>/<Title ID>/save` e `DM_SAVE_SYNC=0`; le cache pipeline
   restano condivise tramite `DM_PSO_USER`. Il Finder non passa un profilo Arcane.
 - Il flusso usa il title ID e conserva i percorsi interni del salvataggio per ogni gioco. `SaveLocation` ammette l'ID esadecimale di 16 caratteri, risolve il percorso predefinito e legge la configurazione cloud effettiva. `AppViewModel+Saves` verifica anche l'identità nel bundle installato e le preferenze del gioco.
-- Se i profili non si leggono, pannello, cartelle dei backup e recupero automatico non ripiegano sui salvataggi del profilo originale.
+- Se i profili non si leggono, pannello, cartelle dei backup e recupero automatico non ripiegano sui salvataggi del profilo originale. Anche l'installazione resta bloccata: il dialogo e il porting indicano che i profili non si caricano, conservano il bundle pronto e lo riprendono senza ricompilare quando i profili sono di nuovo leggibili.
 - `RyujinxSaveFolder` riconosce `bis/user/save/<indice>`, risale dalle sottocartelle, confronta il title ID in `ExtraData0` e seleziona l'intero albero committed `0`. Le cartelle di esportazione ordinarie mantengono la propria struttura. Il tipo User/Device è una scelta separata dal nome della cartella sorgente.
 - `SaveSnapshotStore.stageImport` prepara una copia temporanea vicino alla destinazione. L'anteprima contiene inventario, hash SHA-256, attributi estesi e impronta del salvataggio attuale. `SaveRestorePreview.swift` prepara allo stesso modo un ripristino da backup. Alla conferma si ricontrollano sorgente, staging e salvataggio attuale.
 

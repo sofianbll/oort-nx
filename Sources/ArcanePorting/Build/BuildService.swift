@@ -90,7 +90,7 @@ public final class BuildService {
         tempApp: URL,
         finalApp: URL,
         holdInstall: @escaping () -> Bool = { false },
-        acquireInstall: @escaping () -> (() -> Void)? = { {} },
+        acquireInstall: @escaping () throws -> (() -> Void)? = { {} },
         eventHandler: @escaping (BuildEvent) -> Void,
         completion: @escaping (BuildResult) -> Void
     ) {
@@ -269,7 +269,7 @@ public final class BuildService {
     /// `holdInstall` is asked once the build succeeds: true keeps the new app at `tempApp` (its game is running and
     /// replacing the app under it can crash it).
     private func finish(proc: Process, logURL: URL, tempApp: URL, finalApp: URL,
-                        holdInstall: @escaping () -> Bool, acquireInstall: @escaping () -> (() -> Void)?,
+                        holdInstall: @escaping () -> Bool, acquireInstall: @escaping () throws -> (() -> Void)?,
                         outputClosed: DispatchGroup) {
         // The process may exit before the last pipe callback. Finish only after
         // both streams reached EOF and all their queued bytes were consumed.
@@ -297,18 +297,13 @@ public final class BuildService {
                     guard self.fm.fileExists(atPath: tempApp.appendingPathComponent("Contents/Info.plist").path) else {
                         throw BuildInstallError.invalidApp(tempApp.path)
                     }
-                    let release = holdInstall() ? nil : acquireInstall()
+                    held = tempApp
+                    let release = try (holdInstall() ? nil : acquireInstall())
                     defer { release?() }
-                    if release == nil {
-                        held = tempApp
-                    } else {
-                        do {
-                            try BuildOutputInstaller.install(tempApp: tempApp, finalApp: finalApp,
-                                                             fileManager: self.fm, requiresExistingParent: true)
-                        } catch {
-                            held = tempApp
-                            throw error
-                        }
+                    if release != nil {
+                        try BuildOutputInstaller.install(tempApp: tempApp, finalApp: finalApp,
+                                                         fileManager: self.fm, requiresExistingParent: true)
+                        held = nil
                     }
                     success = true
                 } catch let failure {
