@@ -492,6 +492,8 @@ extension CloudScreenProbe {
         let folder = root.appendingPathComponent("source-only-catalog")
         let repo = CatalogRepository(store: .init(directory: folder))
         let settings = AppSettingsStore(fileURL: folder.appendingPathComponent("settings.json"))
+        // The headless SwiftPM executable has no notification bundle.
+        settings.settings.notifyPortingEnds = false
         let title = "0100000000006000", referenceID = "source-reference-fixture"
         let folderName = "Lunar Observatory [\(title)]"
         let anchor = "fixture:Games/GameFiles/" + folderName
