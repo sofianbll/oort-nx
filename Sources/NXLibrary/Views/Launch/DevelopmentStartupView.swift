@@ -1,32 +1,84 @@
 import AppKit
 import SwiftUI
 import NXLibraryCore
+import Darwin
 import os
 
 @MainActor
 final class DevelopmentStartup: ObservableObject {
+    enum Notice: Equatable {
+        case copy([DowngradeCheckpoint.Omission])
+        case failed, diskFull
+
+        var canContinueWithoutCopy: Bool { self == .failed || self == .diskFull }
+    }
     @Published private(set) var shell: AppShellState?
     @Published private(set) var failure: String?
     @Published private(set) var working = false
     @Published private(set) var recovery: CatalogRecoveryCandidate?
     @Published private(set) var legacyConflict: CatalogLegacyConflictCandidate?
+    @Published private(set) var downgradeNotice: Notice?
+    @Published private(set) var showCopyProgress = false
+    @Published private(set) var paletteID = SelenePaletteCatalog.defaultID
+    private var skipCheckpoint = false
+    private var profileLease: DowngradeCheckpoint.ProfileLease?
     private let logger = Logger(subsystem: "local.nxlibrary", category: "Startup")
+    private let checkpoint: @Sendable (URL, Bool) throws -> DowngradeCheckpoint.Result
 
-    func prepare() async {
+    init(checkpoint: @escaping @Sendable (URL, Bool) throws -> DowngradeCheckpoint.Result = { root, acceptingWarning in
+        try DowngradeCheckpoint.prepare(in: root, acceptingWarning: acceptingWarning) {
+            let defaults = AppData.preferences
+            guard defaults.synchronize() else { throw CocoaError(.fileReadUnknown) }
+            return defaults.persistentDomain(forName: AppData.profile.preferencesDomain) ?? [:]
+        }
+    }) {
+        self.checkpoint = checkpoint
+    }
+
+    func prepare(acceptingDowngradeWarning: Bool = false) async {
         guard shell == nil, !working else { return }
         working = true
+        defer { working = false }
         failure = nil
         recovery = nil
         legacyConflict = nil
+        downgradeNotice = nil
         var profileReady = false
         do {
             // Services and SwiftUI StateObjects are created only after the profile transaction finishes.
-            if AppData.profile.isDevelopment,
-               NSRunningApplication.runningApplications(withBundleIdentifier: "local.nxlibrary")
+            if NSRunningApplication.runningApplications(withBundleIdentifier: "local.nxlibrary")
                 .contains(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }) {
                 throw DevelopmentStartupFailure.otherCopyRunning
             }
             try await Task.detached(priority: .userInitiated) { try AppData.prepare() }.value
+            if !AppData.profile.isDevelopment && profileLease == nil {
+                do {
+                    profileLease = try await Task.detached { try DowngradeCheckpoint.ProfileLease(in: AppData.supportRoot) }.value
+                } catch let error as POSIXError where error.code == .EWOULDBLOCK {
+                    throw DevelopmentStartupFailure.otherCopyRunning
+                }
+            }
+            if !AppData.profile.isDevelopment && !skipCheckpoint {
+                paletteID = await Task.detached { DowngradeCheckpoint.savedPalette(in: AppData.supportRoot) }.value
+                let progress = Task {
+                    try await Task.sleep(for: .seconds(1))
+                    showCopyProgress = true
+                }
+                defer { progress.cancel(); showCopyProgress = false }
+                do {
+                    let result = try await Task.detached(priority: .userInitiated) { [checkpoint] in
+                        try checkpoint(AppData.supportRoot, acceptingDowngradeWarning)
+                    }.value
+                    if case let .warning(omissions) = result {
+                        downgradeNotice = .copy(omissions)
+                        return
+                    }
+                } catch {
+                    logger.error("Launcher checkpoint failed: \(String(describing: error), privacy: .private)")
+                    downgradeNotice = Self.isDiskFull(error) ? .diskFull : .failed
+                    return
+                }
+            }
             profileReady = true
             let catalog = try await Task.detached(priority: .userInitiated) {
                 try CatalogStore(directory: AppData.supportRoot).loadOrMigrate()
@@ -48,7 +100,25 @@ final class DevelopmentStartup: ObservableObject {
                 }.value
             }
         }
-        working = false
+    }
+
+    func continueWithoutCopy() async {
+        guard !working, downgradeNotice?.canContinueWithoutCopy == true else { return }
+        skipCheckpoint = true
+        await prepare()
+    }
+
+    private static func isDiskFull(_ error: Error) -> Bool {
+        var current: NSError? = error as NSError
+        for _ in 0..<4 {
+            guard let candidate = current else { break }
+            if (candidate.domain == NSPOSIXErrorDomain && candidate.code == Int(ENOSPC))
+                || (candidate.domain == NSCocoaErrorDomain && candidate.code == CocoaError.fileWriteOutOfSpace.rawValue) {
+                return true
+            }
+            current = (candidate.userInfo[NSUnderlyingErrorKey] as? Error).map { $0 as NSError }
+        }
+        return false
     }
 
     func restoreBackup() async {
@@ -88,7 +158,8 @@ final class DevelopmentStartup: ObservableObject {
 private enum DevelopmentStartupFailure: LocalizedError {
     case otherCopyRunning
     var errorDescription: String? {
-        L10n.text("Close the other Arcane copy, then try again. Your original library has not been changed.", context: AppLocale(language: .automatic, region: nil))
+        let context = AppLocale(language: .automatic, region: nil)
+        return L10n.text("Close the other Arcane copy, then try again. Your original library has not been changed.", context: context)
     }
 }
 
@@ -103,6 +174,13 @@ struct DevelopmentStartupView: View {
                     .onAppear {
                         Logger(subsystem: "local.nxlibrary", category: "Startup").notice("Library view appeared")
                     }
+            } else if let notice = startup.downgradeNotice {
+                DowngradeWarningView(notice: notice, retry: { Task { await startup.prepare() } }, proceed: {
+                    Task {
+                        if notice.canContinueWithoutCopy { await startup.continueWithoutCopy() }
+                        else { await startup.prepare(acceptingDowngradeWarning: true) }
+                    }
+                }).seleneCanvasRoot()
             } else if let failure = startup.failure {
                 VStack(spacing: 20) {
                     if startup.working { ProgressView().controlSize(.large) }
@@ -137,6 +215,8 @@ struct DevelopmentStartupView: View {
                 .padding(48).frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color(red: 0.08, green: 0.09, blue: 0.12))
                 .onAppear { LaunchReveal.show() }
+            } else if startup.showCopyProgress {
+                DowngradeCopyProgress(context: context).seleneCanvasRoot()
             } else {
                 // While the profile is prepared (a fraction of a second) the window is still transparent
                 // (`LaunchReveal`) and stays on the scrim, with no words or spinner.
@@ -144,6 +224,7 @@ struct DevelopmentStartupView: View {
             }
         }
         .background(LaunchRevealHold())
+        .onChange(of: startup.paletteID, initial: true) { _, id in ThemeStore.shared.apply(id: id) }
         .task { await startup.prepare() }
     }
 }
