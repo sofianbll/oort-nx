@@ -24,7 +24,6 @@ import ArcanePorting
         let font = URL(fileURLWithPath: CommandLine.arguments[2])
         precondition(CTFontManagerRegisterFontsForURL(font as CFURL, .process, nil))
         NSApplication.shared.applicationIconImage = NSImage(contentsOfFile: CommandLine.arguments[3])
-        // SETTINGS_CONFIRMATIONS
         let data = AppData.supportRoot
         let settings = AppSettingsStore(fileURL: data.appendingPathComponent("settings.json"))
         let vm = AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: data)))
@@ -1027,86 +1026,6 @@ def change(file, old, new):
     file.write_text(text)
 
 
-def settings_confirmation_fixture(app, host):
-    def replace(path, old, new):
-        change(app / path, old, new)
-
-    def expose(file, names):
-        for name in names:
-            replace(file, rf'private func {name}\(', f'func {name}(')
-
-    settings = "Views/Settings/"
-    cloud = settings + "SettingsCloudLibrarySection.swift"
-    expose(cloud, ["setEnabled", "unfollow", "confirmDisconnect"])
-    replace(cloud, r'private var tool: URL\?', 'private var tool: URL? = URL(fileURLWithPath: "/fixture/rclone")')
-    replace(cloud, r'private var remotes: \[RcloneRemote\]\?', 'private var remotes: [RcloneRemote]? = SettingsConfirmationProbe.remotes')
-    replace(cloud, r'private var inspecting = true', 'private var inspecting = false')
-    replace(cloud, r'try await RcloneConfiguration\(executable: tool\)\.disconnect\(name\)',
-            'try SettingsConfirmationProbe.disconnect(tool, name)')
-    expose(settings + "SettingsAPISection.swift", ["publishActions"])
-    expose(settings + "SettingsEngineSection.swift", ["publishActions"])
-    expose(settings + "SettingsView.swift", ["resetSection"])
-    for file in ("CloudReferenceDialog.swift", "NextendoClientDialog.swift"):
-        expose(settings + file, ["save"])
-        with (app / (settings + file)).open("a") as output:
-            output.write(f"""
-extension {Path(file).stem} {{
-    func screenDraft(_ text: String) -> Self {{
-        var view = self
-        view._draft = State(initialValue: text)
-        return view
-    }}
-}}
-""")
-    nextendo = settings + "NextendoClientDialog.swift"
-    replace(nextendo, r'                TextField\(.*?\.onExitCommand\(perform: onClose\)',
-            '                Text(L10n.text("Nextendo client ID", context: localization))\n'
-            '                    .frame(maxWidth: .infinity, alignment: .leading)')
-    assistant = settings + "CloudSetupAssistant.swift"
-    expose(assistant, ["primary"])
-    with (app / assistant).open("a") as output:
-        output.write('''
-extension CloudSetupAssistant {
-    func screenFolder(_ path: String) -> Self {
-        var view = self
-        if entry == .sources {
-            view._sourcesPath = State(initialValue: path)
-        } else {
-            var next = CloudSetupAssistantDraft()
-            next.chooseAccount("fixture")
-            next.browse(path)
-            precondition(next.useFolder())
-            next.acceptAccessCheck(next.ticket)
-            view._draft = State(initialValue: next)
-        }
-        return view
-    }
-}
-''')
-
-    setup = "ViewModels/SetupModel.swift"
-    replace(setup, r'(func selectNxnativeFolder\(\) \{\n        guard [^\n]*\n)        let panel = NSOpenPanel\(\).*?'
-                   r'        if panel.runModal\(\) == \.OK, let url = panel.url \{',
-            lambda match: match[1] + '        if let url = SettingsConfirmationProbe.pickedEngine {')
-    replace(setup, r'(self.isNxnativeValid = true\n)            self.refreshCompatibility\(\)',
-            lambda match: match[1])  # Only the picker result and its persisted folder are under test.
-    engine = "ViewModels/SetupModel+NewestEngine.swift"
-    for method in ("useNewestEngine", "useTestedEngine"):
-        replace(engine, rf'(func {method}\(\) \{{).*?\n    \}}',
-                lambda match: match[1] + f'\n        SettingsConfirmationProbe.switches.append("{method}")\n    }}')
-    replace("ViewModels/AppViewModel+CloudLibrary.swift", r'(cloudLibrary.setReferenceFolder\(folder\)\n)            importCloudGames\(\)',
-            lambda match: match[1])  # No discovery or remote requests in the reference editor check.
-
-    shell = (app / "Views/Shell/AppShellView+Overlays.swift").read_text()
-    notice_methods = []
-    for name in ("settingsNoticeOverlay", "finishSettingsNotice", "presentLegacyNotice", "settingsNoticeInput"):
-        notice_methods.append(re.search(rf'    func {name}\(.*?\n    \}}', shell, re.S)[0])
-    probe = Path(__file__).with_name("SettingsConfirmationProbe.swift").read_text()
-    (app / "SettingsConfirmationProbe.swift").write_text(probe + "\nextension SettingsConfirmationProbe.Input {\n"
-                                                          + "\n".join(notice_methods) + "\n}\n")
-    return host.replace("// SETTINGS_CONFIRMATIONS", "try await SettingsConfirmationProbe.run(output)")
-
-
 def main():
     # Without a folder, as a release regression, render into a throwaway folder under work/.
     (ROOT / "work").mkdir(exist_ok=True)
@@ -1256,8 +1175,6 @@ extension ActivityCenterView {
 }
 """)
         host = HOST.replace("/* NOTICE_LAYOUT */", "vertical: notice.vertical," if before else "cancelIndex: notice.cancelIndex,")
-        if not before and not baseline:
-            host = settings_confirmation_fixture(app, host)
         if not before and not baseline:
             overlays = (app / "Views/Shell/AppShellView+Overlays.swift").read_text()
             copy = re.search(r': (L10n\.text\("Quitting stops the transfer[^"]+"\))', overlays)

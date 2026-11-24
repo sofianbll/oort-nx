@@ -71,12 +71,12 @@ final class SetupModel: ObservableObject {
 
     init(app: AppViewModel) {
         self.app = app
-        // Restored here, where they live; an initializer does not run their `didSet`, as before.
         if AppData.preferences.object(forKey: AppViewModel.StorageKeys.allowUntestedToolchain) != nil {
             allowUntestedToolchain = AppData.preferences.bool(forKey: AppViewModel.StorageKeys.allowUntestedToolchain)
         }
         if let data = AppData.preferences.data(forKey: AppViewModel.StorageKeys.newestEngineChoice) {
-            newestEngineChoice = try? JSONDecoder().decode(NewestEngineChoice.self, from: data)
+            // Restoring through the setter would refresh versions via app.setup while it is still being initialized.
+            _newestEngineChoice = Published(initialValue: try? JSONDecoder().decode(NewestEngineChoice.self, from: data))
         }
         if let data = AppData.preferences.data(forKey: upstreamCacheKey),
            let cached = try? JSONDecoder().decode(UpstreamStatus.self, from: data),

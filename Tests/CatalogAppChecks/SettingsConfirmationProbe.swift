@@ -1,14 +1,15 @@
 import AppKit
 import Combine
+import CoreText
 import SwiftUI
 import NXLibraryCore
 import ArcanePorting
 
-enum SettingsConfirmationProbe {
+@main enum SettingsConfirmationProbe {
     static let remotes = try! JSONDecoder().decode([RcloneRemote].self,
         from: Data(#"[{"name":"fixture","type":"drive","source":"file"}]"#.utf8))
     static var disconnects = 0
-    static var switches: [String] = []
+    static var pin: String?
     static var pickedEngine: URL?
 
     static func disconnect(_ tool: URL, _ name: String) throws {
@@ -20,21 +21,35 @@ enum SettingsConfirmationProbe {
         @ObservedObject var viewModel: AppViewModel
     }
 
-    @MainActor static func run(_ output: URL) async throws {
+    @MainActor static func main() async throws {
+        let output = URL(fileURLWithPath: CommandLine.arguments[1], isDirectory: true)
+        let font = URL(fileURLWithPath: CommandLine.arguments[2])
+        NSApplication.shared.setActivationPolicy(.prohibited)
+        precondition(CTFontManagerRegisterFontsForURL(font as CFURL, .process, nil))
+        let locale = AppLocale(language: .french, region: "FR")
+        L10n.setContext(locale)
         let root = AppData.supportRoot.appendingPathComponent("settings-confirmation-probe", isDirectory: true)
         let settings = AppSettingsStore(fileURL: root.appendingPathComponent("settings.json"))
-        let vm = AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: root)))
+        func makeModel() -> AppViewModel {
+            AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: root)))
+        }
+        let vm = makeModel()
         let model = vm.cloudLibrary
+        model.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: nil)
         let input = Input(viewModel: vm)
-        let locale = AppLocale(language: .french, region: "FR")
-        let previousLocale = L10n.context
-        L10n.setContext(locale)
-        defer { L10n.setContext(previousLocale) }
 
         func render<V: View>(_ name: String, _ view: V, height: CGFloat = 690) throws {
-            try CloudScreenProbe.render("confirm-\(name)-fr", output,
-                view.environment(\.nxAppLocale, locale).environment(\.seleneButtonNames, .xbox),
-                size: .init(width: 1140, height: height))
+            let renderer = ImageRenderer(content: view
+                .frame(width: 1140, height: height)
+                .background(Color(red: 0.09, green: 0.13, blue: 0.20))
+                .environment(\.nxAppLocale, locale)
+                .environment(\.seleneButtonNames, .xbox)
+                .environment(\.colorScheme, .dark)
+                .environment(\.seleneCanvas, SeleneCanvas(size: .init(width: 1920, height: 1080)))
+                .environment(\.seleneReduceMotion, true))
+            let image = renderer.cgImage!
+            let png = NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:])!
+            try png.write(to: output.appendingPathComponent("confirm-\(name)-fr.png"))
         }
 
         func confirm(_ name: String, _ open: () -> Void, count: () -> Int) throws {
@@ -42,6 +57,13 @@ enum SettingsConfirmationProbe {
             open()
             let notice = vm.settingsNotice!
             precondition(vm.settingsNoticeFocus == notice.cancelIndex && count() == before, name)
+            let frenchLine = [
+                "cloud-off": "cessera d’utiliser", "cloud-on": "utilisera de nouveau",
+                "cloud-disconnect": "connexion locale", "reference-unfollow": "aucun fichier ne sera supprimé",
+                "network-vpn": "le réglage VPN", "network-default": "aux prochains lancements",
+                "network-local-mode": "privilégieront le mode", "network-adapter": "réglage d’adaptateur",
+            ][name]
+            if let frenchLine { precondition(notice.message.contains(frenchLine), notice.message) }
             try render(name, input.settingsNoticeOverlay(notice))
             input.settingsNoticeInput(.navigateLeft)
             precondition(vm.settingsNoticeFocus == 0 && count() == before, name)
@@ -78,22 +100,22 @@ enum SettingsConfirmationProbe {
         precondition(model.preference.referenceFolder == nil && cloudWrites == 4)
 
         let library = CloudSetupAssistant(viewModel: vm, model: model, entry: .library, onClose: { closed += 1 })
-            .screenFolder("Other library")
+            .screenFolder("Autre bibliothèque")
         try render("cloud-library-folder", library, height: 1020)
         // The verified step's Cancel goes back to the folder list, not to activation.
         library.cancel()
         precondition(model.preference.root == "Games" && cloudWrites == 4)
         CloudSetupAssistant(viewModel: vm, model: model, entry: .library, onClose: { closed += 1 })
-            .screenFolder("Other library").primary()
-        precondition(model.preference.root == "Other library" && cloudWrites == 5 && closed == 3)
+            .screenFolder("Autre bibliothèque").primary()
+        precondition(model.preference.root == "Autre bibliothèque" && cloudWrites == 5 && closed == 3)
         let sources = CloudSetupAssistant(viewModel: vm, model: model, entry: .sources, onClose: { closed += 1 })
-            .screenFolder("Other sources")
+            .screenFolder("Autres sources")
         try render("cloud-game-files-folder", sources, height: 1020)
         sources.cancel()
         precondition(model.preference.sourcesRootOverride == nil && cloudWrites == 5 && closed == 4)
         CloudSetupAssistant(viewModel: vm, model: model, entry: .sources, onClose: { closed += 1 })
-            .screenFolder("Other sources").primary()
-        precondition(model.preference.sourcesRootOverride == "Other sources" && cloudWrites == 6 && closed == 5)
+            .screenFolder("Autres sources").primary()
+        precondition(model.preference.sourcesRootOverride == "Autres sources" && cloudWrites == 6 && closed == 5)
 
         try confirm("cloud-disconnect", cloud.confirmDisconnect, count: { disconnects })
         for _ in 0..<20 where model.isChangingConnection { await Task.yield() }
@@ -102,10 +124,29 @@ enum SettingsConfirmationProbe {
         let setup = vm.setup
         let engineFolder = root.appendingPathComponent("Engine", isDirectory: true)
         let scripts = engineFolder.appendingPathComponent("scripts", isDirectory: true)
+        let toolchain = engineFolder.appendingPathComponent("dm/gfx/tools", isDirectory: true)
         try FileManager.default.createDirectory(at: scripts, withIntermediateDirectories: true)
-        try FileManager.default.createDirectory(at: engineFolder.appendingPathComponent("dm"), withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: toolchain, withIntermediateDirectories: true)
         try Data().write(to: scripts.appendingPathComponent("build_ipa_from_nsp.py"))
-        let pin = vm.pinnedEngineCommit
+        try Data("metal_macosx\t32023.922\n".utf8).write(to: toolchain.appendingPathComponent("dmsh_chain.lock"))
+        @discardableResult func git(_ args: String...) throws -> String {
+            let result = try SystemCommandRunner().run(URL(fileURLWithPath: "/usr/bin/git"),
+                ["-C", engineFolder.path, "-c", "user.name=Fixture", "-c", "user.email=fixture@users.noreply.github.com",
+                 "-c", "commit.gpgsign=false"] + args, environment: nil, currentDirectory: nil)
+            precondition(result.status == 0, result.stderr)
+            return result.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        try git("init", "-q", "-b", "main")
+        try git("add", ".")
+        try git("commit", "-qm", "Tested")
+        let pin = try git("rev-parse", "HEAD")
+        Self.pin = pin
+        try git("commit", "-qm", "Newest", "--allow-empty")
+        let main = try git("rev-parse", "HEAD")
+        try git("commit", "-qm", "Updated", "--allow-empty")
+        let update = try git("rev-parse", "HEAD")
+        try git("remote", "add", "origin", ".")
+        try git("checkout", "--quiet", "--detach", pin)
         var engineActions: [SettingsRowAction] = []
         let engine = SettingsEngineSection(viewModel: vm, setup: setup, settings: settings, onActions: { engineActions = $0 })
         func pressEngine(_ id: String, _ button: Int = 0) {
@@ -128,20 +169,41 @@ enum SettingsConfirmationProbe {
         try confirm("toolchain-off", { pressEngine("override") }, count: { overrideWrites })
         precondition(!setup.allowUntestedToolchain && overrideWrites == 2)
 
-        let main = String(repeating: "e", count: 40)
-        setup.upstreamState = .loaded(.init(repository: "fixture", status: "ahead", baseCommit: pin, upstreamCommit: main,
-            aheadBy: 2, behindBy: 0, totalCommits: 2, commits: [],
-            compareURL: URL(string: "https://example.invalid")!, checkedAt: .now))
-        try confirm("engine-newest", { pressEngine("newest") }, count: { switches.count })
-        precondition(switches == ["useNewestEngine"])
-        setup.newestEngineChoice = .init(commit: String(repeating: "d", count: 40), aheadBy: 1, turnedOnOverride: true)
-        try confirm("engine-update", { pressEngine("newest") }, count: { switches.count })
-        try confirm("engine-tested", { pressEngine("newest", 1) }, count: { switches.count })
-        precondition(switches == ["useNewestEngine", "useNewestEngine", "useTestedEngine"] && vm.pinnedEngineCommit == pin)
+        func offer(_ commit: String, count: Int) {
+            setup.upstreamState = .loaded(.init(repository: "fixture", status: "ahead", baseCommit: pin, upstreamCommit: commit,
+                aheadBy: count, behindBy: 0, totalCommits: count, commits: [],
+                compareURL: URL(string: "https://example.invalid")!, checkedAt: .now))
+        }
+        func waitForSwitch() async throws {
+            let deadline = ContinuousClock.now.advanced(by: .seconds(10))
+            while setup.isSwitchingEngine && ContinuousClock.now < deadline { try await Task.sleep(for: .milliseconds(15)) }
+            precondition(!setup.isSwitchingEngine && setup.newestEngineProblem == nil, setup.newestEngineProblem ?? "Switch timed out")
+        }
+        var switches = 0
+        let switchObserver = setup.$isSwitchingEngine.dropFirst().filter { $0 }.sink { _ in switches += 1 }
+        offer(main, count: 1)
+        pressEngine("newest")
+        input.settingsNoticeInput(.cancel)
+        let cancelledHead = try git("rev-parse", "HEAD")
+        precondition(cancelledHead == pin && switches == 0 && makeModel().setup.newestEngineChoice == nil)
+        try confirm("engine-newest", { pressEngine("newest") }, count: { switches })
+        try await waitForSwitch()
+        let newestHead = try git("rev-parse", "HEAD")
+        let reopened = makeModel()
+        precondition(switches == 1 && newestHead == main && reopened.setup.newestEngineChoice?.commit == main && reopened.setup.allowUntestedToolchain)
+        offer(update, count: 2)
+        try confirm("engine-update", { pressEngine("newest") }, count: { switches })
+        try await waitForSwitch()
+        let updatedHead = try git("rev-parse", "HEAD")
+        precondition(switches == 2 && updatedHead == update && makeModel().setup.newestEngineChoice?.commit == update)
+        // An outstanding offer leaves Back to tested at the secondary button.
+        offer(main, count: 1)
+        try confirm("engine-tested", { pressEngine("newest", 1) }, count: { switches })
+        try await waitForSwitch()
+        let testedHead = try git("rev-parse", "HEAD")
+        precondition(switches == 3 && testedHead == pin && makeModel().setup.newestEngineChoice == nil && !setup.allowUntestedToolchain)
 
         var networkActions: [SettingsRowAction] = []
-        ScreenVPN.connected = true
-        defer { ScreenVPN.connected = false }
         let network = SettingsAPISection(viewModel: vm, settings: settings, showsMultiplayer: true,
             supportsNextendo: true, advanced: .constant(true), onActions: { networkActions = $0 })
         network.publishActions()
@@ -170,7 +232,7 @@ enum SettingsConfirmationProbe {
         try confirm("network-reset", page.resetSection, count: { networkWrites })
         precondition(networkWrites == 6 && SettingsReset.reset(.multiplayer, in: settings.settings) == settings.settings
             && settings.settings.nextendoClientID == "fixture-nextendo")
-        withExtendedLifetime((cloudObserver, engineObserver, overrideObserver, networkObserver)) {}
+        withExtendedLifetime((cloudObserver, engineObserver, overrideObserver, switchObserver, networkObserver)) {}
         print("Settings confirmation probe: cancel and single apply checked for cloud, engine and multiplayer.")
     }
 }

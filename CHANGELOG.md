@@ -14,6 +14,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 ### Fixed
 
 - Confirm changes to the cloud library, engine and multiplayer settings before applying them; appearance, sound and navigation still change immediately.
+- Reopen the launcher safely after choosing the newest engine.
 - A confirmed cloud library move can resume after interruption. It verifies both folders and refuses new archives outside the plan or conflicting copies.
 - Cloud setup recognizes `Switch/Games` inside the chosen library without changing a saved game-files folder.
 - Recent sessions and archived playtime are saved together so a session cannot disappear as it leaves the recent list.
