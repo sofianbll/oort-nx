@@ -112,6 +112,7 @@ flowchart TD
 Play applica la scelta per gioco o il default globale. In Local usa l'adattatore VPN scelto o, se l'utente conferma l'avviso, la rete locale; il lancio non modifica le scelte salvate. I parametri espliciti di `env.txt` mantengono la precedenza.
 
 Dopo lo scambio dell’app o la conferma VPN, Play continua solo se il profilo iniziale è ancora attivo e sbloccato. Controlla l’installazione attuale e restituisce l’esito all’osservatore iniziale.
+Se l’installazione cloud fallisce, viene annullata o torna in coda, Play è rifiutato senza aprire l’app precedente.
 
 Per Switch e Steam, un errore di lettura dello storico o dei suoi totali non impedisce di giocare. Le sessioni nuove restano in memoria, senza sostituire i file su disco.
 

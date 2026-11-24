@@ -14,9 +14,13 @@ extension AppViewModel {
         guard launchingGameId == nil, launchOverlay == nil else { return .refused(.launchInProgress) }
         guard target.installationAvailability != .unavailable(.sourceDisabled) else { return .refused(.sourceDisabled) }
         guard let requested = target.game.nxnativeGame else { return .refused(.invalidGame) }
-        // Resume the same request, against the current installation, or refuse if its profile no longer owns Play.
-        @MainActor func resume(acceptsLocalFallback: Bool) -> () -> Void {
-            { [weak self] in
+        // Resume the same request after preparation, or report its refusal without trying to launch.
+        @MainActor func resume(acceptsLocalFallback: Bool) -> (PlayRefusal?) -> Void {
+            { [weak self] refusal in
+                if let refusal {
+                    observe?(.result(.refused(refusal)))
+                    return
+                }
                 guard let self else { return }
                 guard self.playProfile == profile else {
                     observe?(.result(.refused(.profileLocked)))
@@ -98,7 +102,8 @@ extension AppViewModel {
         let isGuest = profile.isGuest
         let multiplayer = isGuest ? nil : gameSettings?.multiplayerLaunch(settings: appSettings, adapters: .current())
         if multiplayer?.warning != nil && !acceptsLocalFallback {
-            showMultiplayerVPNFallback(resume(acceptsLocalFallback: true))
+            let playLocally = resume(acceptsLocalFallback: true)
+            showMultiplayerVPNFallback { playLocally(nil) }
             return .refused(.confirmationRequired)
         }
         guard let saveLaunchToken = saveGate.begin(titleID: titleId) else {

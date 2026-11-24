@@ -20,6 +20,12 @@ import NXLibraryCore
 import ArcanePorting
 
 @main struct ProfileScreenProbe {
+    @MainActor static var regressions: [String] = []
+
+    @MainActor static func expect(_ condition: Bool, _ message: String) {
+        if !condition { regressions.append(message); print("FAIL: \(message)") }
+    }
+
     @MainActor static func main() async throws {
         let out = URL(fileURLWithPath: CommandLine.arguments[1], isDirectory: true)
         let font = URL(fileURLWithPath: CommandLine.arguments[2])
@@ -610,6 +616,7 @@ import ArcanePorting
         precondition(vm.play(steamGame) == .refused(.launcherMissing) && player.phase(of: steamGame) == .failed(.clientMissing))
         print("Common Play checks passed: profile ownership, guest, duplicate nxnative and missing Steam")
         try checkDeferredPlay(vm, profiles: profiles, other: alex, game: game)
+        try await checkCloudInstallFailure(game)
         vm.applyCatalog(.init(sources: [.init(integration: .nxnative, isEnabled: true)], games: [fixture] + avatarGames))
         let pack = LocalAchievementPack.linksAwakening!
         var progress = LocalAchievementProgress()
@@ -711,6 +718,40 @@ import ArcanePorting
             panel(NSImage(contentsOf: beforeImage)!, "Arcane · avant")
             panel(NSImage(contentsOf: afterImage)!, "Arcane · après")
         }), to: out.appendingPathComponent("15-sort-avant-apres.png"))
+        if !regressions.isEmpty { exit(1) }
+    }
+
+    @MainActor static var restoringFixture: ((PortedGame) throws -> Void)?
+
+    @MainActor static func checkCloudInstallFailure(_ game: PortedGame) async throws {
+        var fixture = game
+        let data = AppData.supportRoot.appendingPathComponent("CloudInstallPlay", isDirectory: true)
+        fixture.url = data.appendingPathComponent("Old.app", isDirectory: true)
+        fixture.bundleId = "example.oort.cloud-deferred-play"
+        fixture.status = .built
+        try FileManager.default.createDirectory(at: fixture.url, withIntermediateDirectories: true)
+        let catalog = CatalogGame(nxnative: fixture)
+        for cancelled in [false, true] {
+            let settings = AppSettingsStore(fileURL: data.appendingPathComponent("settings.json"))
+            let vm = AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: data)))
+            vm.applyCatalog(.init(games: [catalog]))
+            vm.cloudLibrary.usePlayFixtureArchive()
+            var events: [PlayEvent] = []
+            restoringFixture = { game in
+                precondition(vm.cloudLibrary.appInstall?.title == game.titleId)
+                precondition(vm.play(catalog) { events.append($0) } == .accepted(.pending))
+                if cancelled { throw CancellationError() }
+                throw CloudArchiveError.localChanged
+            }
+            vm.performCloudLibrary(.restore(.app), for: fixture)
+            let transfer = vm.cloudLibrary.active!.task
+            await transfer.value
+            restoringFixture = nil
+            await vm.cloudLibrary.queueStore.flush()
+            expect(events == [.result(.refused(cancelled ? .notStarted : .preparationFailed))],
+                   "Cloud \(cancelled ? "cancellation" : "failure") must refuse original Play, not retry the old app: \(events)")
+            precondition(vm.cloudLibrary.appInstall == nil && !vm.saveGate.isBusy(titleID: fixture.titleId!))
+        }
     }
 
     @MainActor static func checkDeferredPlay(_ vm: AppViewModel, profiles: LocalProfileStore,
@@ -731,7 +772,7 @@ import ArcanePorting
             let resume = vm.cloudLibrary.playAfterAppInstall!
             vm.cloudLibrary.appInstall = nil
             vm.cloudLibrary.playAfterAppInstall = nil
-            return resume
+            return { resume(nil) }
         }
         let staleInstall = afterInstall()
         precondition(profiles.choose(other.id))
@@ -1335,6 +1376,28 @@ def main():
             stub.mkdir(parents=True)
             (stub / "Empty.swift").touch()
         app = package / "Sources/NXLibrary"
+        cloud = app / "ViewModels/AppViewModel+CloudLibrary.swift"
+        replace(cloud, r"(                    let own = try await archive.latest\(titleID: target.titleID\))",
+                lambda m: """                    if let fixture = ProfileScreenProbe.restoringFixture {
+                        try await beforeAppInstall()
+                        try fixture(game)
+                    }
+""" + m[1])
+        with cloud.open("a") as swift:
+            swift.write("""
+extension CloudLibraryModel {
+    func usePlayFixtureArchive() {
+        archive = CloudGameArchive(backend: RcloneStorageBackend(remote: "fixture", root: "Games") { _, _, _ in
+            .init(status: 0, stdout: "[]", stderr: "")
+        })
+        hasRestoredQueue = true
+    }
+}
+""")
+        launch = app / "ViewModels/AppViewModel+Launch.swift"
+        replace(launch, r"        guard let saveLaunchToken =",
+                '        if game.bundleId == "example.oort.cloud-deferred-play" { return .refused(.openFailed) }\n'
+                '        guard let saveLaunchToken =')
         replace(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
         replace(app / "ViewModels/AppViewModel.swift", r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
         replace(app / "ViewModels/AppViewModel.swift", r"            updateDockIcon\(\)", "")
