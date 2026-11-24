@@ -406,9 +406,9 @@ public final class NintendoStoreMetadataService: @unchecked Sendable {
                 metadata.genres = $0.components(separatedBy: ", ")
             }
         }
-        // Keep verified GameTDB tags and older saved tags that the new catalogue does not carry.
+        // Keep older tags in the same language; a cache displayed during a language switch is not a source for tags.
         var available = Set(metadata.genres.map { GameGenre.title($0, context: locale).lowercased() })
-        for genre in (gameTDBEntry?.genres ?? []) + (saved?.genres ?? [])
+        for genre in previous?.genres ?? []
             where available.insert(GameGenre.title(genre, context: locale).lowercased()).inserted {
             metadata.genres.append(genre)
         }

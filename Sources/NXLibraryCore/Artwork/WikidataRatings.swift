@@ -72,17 +72,24 @@ public enum WikidataRatings {
     /// The one video game among `ids` that the query names: P31 video game, and the Steam app ID when either side has
     /// one. Shared by ratings and Wikipedia descriptions, so both name the same game.
     static func entity(in data: Data, ids: [String], query: CriticRatingQuery,
-                       requireSteamID: Bool) throws -> (id: String, entity: [String: Any])? {
+                       requireSteamID: Bool, disambiguateSwitchPlatform: Bool = false) throws -> (id: String, entity: [String: Any])? {
         let root = try object(data)
         guard let entities = root["entities"] as? [String: [String: Any]],
               ids.allSatisfy({ entities[$0] != nil }) else { throw URLError(.cannotParseResponse) }
-        let matched = ids.filter { id in
+        var matched = ids.filter { id in
             guard let claims = entities[id]?["claims"] as? [String: [[String: Any]]],
                   claimItems(claims["P31"] ?? []).contains("Q7889") else { return false }
             let steam = (claims["P1733"] ?? []).filter { ($0["rank"] as? String) != "deprecated" }
                 .compactMap { ($0["mainsnak"] as? [String: Any]).flatMap(value) as? String }
             if let expected = query.steamAppID, requireSteamID || !steam.isEmpty { return steam.contains(String(expected)) }
             return true
+        }
+        if matched.count > 1, disambiguateSwitchPlatform, query.platform != .mac {
+            // Use a declared platform to break a tie between the original release and a same-name remake.
+            matched = matched.filter { id in
+                let claims = entities[id]?["claims"] as? [String: [[String: Any]]]
+                return claimItems(claims?["P400"] ?? []).contains(query.platform.wikidataID)
+            }
         }
         guard matched.count == 1, let id = matched.first, let entity = entities[id] else { return nil }
         return (id, entity)

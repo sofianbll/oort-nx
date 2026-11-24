@@ -65,6 +65,22 @@ final class WikipediaDescriptionTests: XCTestCase {
         XCTAssertNil(try WikipediaDescriptions.sitelink(in: data, ids: ["Q10"], query: query, requireSteamID: true, edition: "it"))
     }
 
+    func testSameNameSwitchRemakeUsesItsOwnWikiOnlyWhenThePlatformBreaksTheTie() throws {
+        func item(_ id: String) -> [String: Any] { ["mainsnak": ["datavalue": ["value": ["id": id]]]] }
+        func entity(platform: String, page: String) -> [String: Any] {
+            ["claims": ["P31": [item("Q7889")], "P400": [item(platform)]], "sitelinks": ["frwiki": ["title": page]]]
+        }
+        let data = try JSONSerialization.data(withJSONObject: ["entities": [
+            "Q10": entity(platform: "Q184839", page: "Original"),
+            "Q11": entity(platform: "Q122761124", page: "Remake")
+        ]])
+        let ids = ["Q10", "Q11"]
+        XCTAssertEqual(try WikipediaDescriptions.sitelink(in: data, ids: ids,
+            query: .init(name: "Fixture", platform: .switch2), requireSteamID: false, edition: "fr"), "Remake")
+        XCTAssertNil(try WikipediaDescriptions.sitelink(in: data, ids: ids,
+            query: .init(name: "Fixture", platform: .switch), requireSteamID: false, edition: "fr"))
+    }
+
     func testIntroductionKeepsParagraphsAndItsPage() throws {
         let body = """
         {"query":{"pages":[{"title":"Stardew Valley","fullurl":"https://it.wikipedia.org/wiki/Stardew_Valley",
