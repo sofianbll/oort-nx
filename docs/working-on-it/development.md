@@ -50,6 +50,18 @@ The release build downloads the official macOS arm64 rclone 1.75.2 archive, veri
 
 Run it again when the lock changes. `build_app.sh` checks the runtime metadata against the lock before copying it. The lock is a reviewed input, not a request to install whichever package versions happen to be newest.
 
+Release builds also check the licence manifest against the staged app and again
+against the extracted release ZIP. Review the applicable obligations, original
+texts and source files whenever an input changes; update the checked hashes
+only after that review. To check an existing release bundle without building it:
+
+~~~sh
+python3 scripts/check_publication.py --app /path/to/NXLibrary.app
+~~~
+
+Passing this check establishes presence and byte identity of the reviewed files,
+not redistribution rights or completeness of corresponding source.
+
 For frontend-only work, `build_app.sh` can run without `work/Runtime/`. That development copy uses the configured engine's virtual environment and tools on `PATH` for game preparation. It is not a self-contained distribution build. A release requires the bundled runtime.
 
 Generated `.build/`, `work/` and `dist/` content stays outside version control. Do not commit the user's engine checkout, game apps, source packages, keys or diagnostics.
