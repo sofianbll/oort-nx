@@ -184,4 +184,16 @@ final class RcloneDownloadTests: XCTestCase {
         XCTAssertThrowsError(try fixture.installer.moveInstalledCopyToTrash())
         XCTAssertTrue(files.fileExists(atPath: candidate.path))
     }
+
+    func testReceiptDoesNotMakeAnUnsignedExecutableAvailable() throws {
+        let fixture = Fixture()
+        defer { fixture.clean() }
+        let files = FileManager.default
+        try files.createDirectory(at: fixture.installer.directory, withIntermediateDirectories: true)
+        let candidate = fixture.installer.directory.appendingPathComponent("rclone")
+        try Data("#!/bin/sh\nexit 0\n".utf8).write(to: candidate)
+        try files.setAttributes([.posixPermissions: 0o700], ofItemAtPath: candidate.path)
+        try Data().write(to: fixture.installer.directory.appendingPathComponent("oort-install"))
+        XCTAssertNil(fixture.installer.installedExecutable)
+    }
 }

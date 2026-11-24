@@ -52,7 +52,8 @@ public struct RcloneDownload: Sendable {
         guard Self.isDirectory(supportRoot), Self.isDirectory(parent), Self.isDirectory(directory),
               !Self.isLink(executable), RcloneStorageBackend.isExecutable(executable),
               Self.hasReceipt(in: directory),
-              (try? FileManager.default.contentsOfDirectory(atPath: directory.path).sorted()) == [Self.receipt, "rclone"]
+              (try? FileManager.default.contentsOfDirectory(atPath: directory.path).sorted()) == [Self.receipt, "rclone"],
+              Self.hasValidSignature(executable)
         else { return nil }
         return executable
     }
@@ -73,7 +74,7 @@ public struct RcloneDownload: Sendable {
 
     public func moveInstalledCopyToTrash() throws {
         let files = FileManager.default
-        guard installedExecutable != nil, Self.hasValidSignature(executable) else { throw Failure.installation }
+        guard installedExecutable != nil else { throw Failure.installation }
         do { try files.trashItem(at: directory, resultingItemURL: nil) }
         catch { throw Failure.installation }
     }
