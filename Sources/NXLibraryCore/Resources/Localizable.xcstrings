@@ -3807,7 +3807,7 @@
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Order of games in Spotlight and Collection."}},
         "it": {"stringUnit": {"state": "translated", "value": "Ordine dei giochi in Spotlight e Collection."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Ordre des jeux dans Spotlight et Collection."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ordre des jeux dans À la une et la grille."}},
         "de": {"stringUnit": {"state": "translated", "value": "Reihenfolge der Spiele in Spotlight und Sammlung."}},
         "es": {"stringUnit": {"state": "translated", "value": "Orden de los juegos en Spotlight y Colección."}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Ordem dos jogos no Spotlight e na Coleção."}},
@@ -25899,7 +25899,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Collection"
+            "value": "Grille"
           }
         },
         "it": {
@@ -25911,7 +25911,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Collection"
+            "value": "Grille"
           }
         },
         "de": {
@@ -25946,7 +25946,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Collection · Suggestions"
+            "value": "Grille · Suggestions"
           }
         },
         "it": {
@@ -25958,7 +25958,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Collection · Suggestions"
+            "value": "Grille · Suggestions"
           }
         },
         "de": {
@@ -55116,7 +55116,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Activé affiche l’illustration du jeu sélectionné dans À la une et Collection ; Désactivé conserve votre fond d’écran. Détails conserve l’illustration du jeu."
+            "value": "Activé affiche l’illustration du jeu sélectionné dans À la une et la grille ; Désactivé conserve votre fond d’écran. Détails conserve l’illustration du jeu."
           }
         },
         "de": {
@@ -57499,7 +57499,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Exclus d’À la une, Collection, Surprenez-moi et de la recherche."
+            "value": "Exclus d’À la une, de la grille, de Surprenez-moi et de la recherche."
           }
         },
         "de": {
@@ -59624,7 +59624,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Appuyer sur View alterne entre À la une et Collection ; un appui prolongé ouvre Trouver un jeu."
+            "value": "Appuyer sur View alterne entre À la une et la grille ; un appui prolongé ouvre Trouver un jeu."
           }
         },
         "de": {
@@ -69676,7 +69676,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "À la une et Collection"
+            "value": "À la une et la grille"
           }
         },
         "de": {
@@ -74799,7 +74799,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le filtre à l’ouverture d’À la une et de Collection."
+            "value": "Le filtre à l’ouverture d’À la une et de la grille."
           }
         },
         "de": {
@@ -77572,7 +77572,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "L’écran affiché à l’ouverture d’Arcane : À la une, Collection ou le dernier écran utilisé."
+            "value": "L’écran affiché à l’ouverture d’Arcane : À la une, la grille ou le dernier écran utilisé."
           }
         },
         "de": {
@@ -83392,7 +83392,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "View alterne entre À la une et Collection ; un appui prolongé ouvre Trouver un jeu."
+            "value": "View alterne entre À la une et la grille ; un appui prolongé ouvre Trouver un jeu."
           }
         },
         "de": {
@@ -84672,7 +84672,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les cartes affichées dans la rangée À la une : Collection, Surprenez-moi, Activité, Mods et Ajouter un jeu."
+            "value": "Les cartes affichées dans la rangée À la une : Grille, Surprenez-moi, Activité, Mods et Ajouter un jeu."
           }
         },
         "de": {

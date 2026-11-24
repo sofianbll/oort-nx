@@ -49,7 +49,12 @@ import ArcanePorting
             fixture.advance(0.24)
             try fixture.save("\(name)-ouvert-mac", to: output)
             precondition(fixture.profiles.active?.spotlightPlatform == nil)
-            fixture.press(.cancel)
+            fixture.press(.cancel)          // B leaves the choice as it was.
+            precondition(fixture.profiles.active?.spotlightPlatform == nil)
+            fixture.press(.confirm)
+            for _ in 0..<3 { fixture.press(.navigateDown) }
+            fixture.advance(0.24)
+            fixture.press(.confirm)
             precondition(fixture.profiles.active?.spotlightPlatform == .macShortcut,
                          "Closing should save Mac; saved: \(String(describing: fixture.profiles.active?.spotlightPlatform)), failure: \(fixture.profiles.failed)")
             precondition(fixture.app.spotlight.selectedKey == SpotlightItem.platform.key)

@@ -296,7 +296,6 @@ struct SpotlightRowView: View {
                         .foregroundStyle(SeleneTheme.ink)
                 }
                 .drawingGroup()
-                .shadow(color: .black.opacity(0.55), radius: canvas.u(9))
         }
         .accessibilityHidden(true)
     }
@@ -361,7 +360,9 @@ private struct TilePicture: ViewModifier {
     let shadow: CGFloat
 
     func body(content: Content) -> some View {
-        if whole { content.drawingGroup().shadow(color: .black.opacity(0.55), radius: shadow) } else { content }
+        // One shadow for a whole tile; the ribbon's cards cast their own.
+        Group { if whole { content.drawingGroup() } else { content } }
+            .shadow(color: .black.opacity(0.55), radius: whole ? shadow : 0)
     }
 }
 
