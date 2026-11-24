@@ -15,8 +15,10 @@ SCENARIOS = r'''
         L10n.setContext(fr)
         let settings = AppSettingsStore(fileURL: data.appendingPathComponent("settings.json"))
         let repository = CatalogRepository(store: .init(directory: data))
+        let catalog = try repository.load()
         let vm = AppViewModel(settingsStore: settings,
-                              catalog: try repository.load(), repository: repository)
+                              catalog: catalog, repository: repository)
+        vm.applyCatalog(catalog)
         let model = vm.cloudLibrary
         let router = AppRouter()
         router.setInitialRoute(.collection)
@@ -76,8 +78,8 @@ SCENARIOS = r'''
 
         let manifest = try JSONDecoder().decode(CloudGameManifest.self, from: Data(
             #"{"version":1,"title_id":"0100000000004000","created_at":0,"game_name":"Lunar Observatory","artifacts":[{"kind":"app","size":4,"sha256":"fixture","md5":"fixture","unpacked_size":4,"entry_count":1,"inventory_sha256":"fixture","options":{}}]}"#.utf8))
-        let catalog = try vm.catalogRepository.importCloudGames([manifest], in: vm.gameAppsFolder)
-        vm.applyCatalog(catalog)
+        let imported = try vm.catalogRepository.importCloudGames([manifest], in: vm.gameAppsFolder)
+        vm.applyCatalog(imported)
         let game = vm.libraryGames.first!
         model.remember { $0.personalApps.insert(game.id) }
         model.connectionCheck = .init(date: .now, failure: .offline)
@@ -105,6 +107,7 @@ SCENARIOS = r'''
             try capture("assistant-complete", SeleneChoiceDialog(title: notice.title, message: notice.message,
                 choices: notice.choices, focus: .constant(notice.initialFocus), onChoose: { _ in }))
         } else { failures.append("Finished setup must point to Cloud") }
+        vm.settingsNotice = nil
         model.setPendingMove(.init(id: UUID(), request: .init(plan: plan, destination: "New Library"),
                                    sourcesRoot: "Games/GameFiles"))
         var didClose = false
