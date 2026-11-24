@@ -69,6 +69,7 @@ struct ProfilePickerView: View {
     @State var removalFocus: SeleneConfirmButton = .cancel
     @State private var appeared = false
     @State private var hover = SeleneHoverFocus()
+    @State private var fadingEdges: Edge.Set = []
     @State private var newGuest = LocalProfile(name: L10n.text("Guest"), avatar: LocalProfile.avatarCount - 1, look: .init(AppSettings()))
     @AccessibilityFocusState(for: .voiceOver) private var accessibilityFocus: Tile?
     private enum Tile: Hashable { case profile(UUID), add }
@@ -130,7 +131,9 @@ struct ProfilePickerView: View {
     }
 
     private var selector: some View {
-        GeometryReader { geometry in
+        let haloInset = canvas.u(SeleneTokens.Space.group)
+        let extraHeight = haloInset - canvas.u(SeleneTokens.Space.control)
+        return GeometryReader { geometry in
             VStack(spacing: canvas.u(60)) {
                 Text(L10n.text("Who's playing?")).seleneFont(.profileScreenTitle).accessibilityAddTraits(.isHeader)
                 ScrollViewReader { scroll in
@@ -142,11 +145,21 @@ struct ProfilePickerView: View {
                             if let guest { tile(guest).id(guest.id) }
                             tile(nil).id("add")
                         }
-                        .padding(canvas.u(SeleneTokens.Space.control))
+                        .padding(haloInset)
                         .frame(minWidth: geometry.size.width, alignment: .center)
                     }
                     .scrollIndicators(.hidden)
-                    .horizontalEdgeFade()
+                    .onScrollGeometryChange(for: Edge.Set.self) { scroll in
+                        var edges: Edge.Set = []
+                        if scroll.visibleRect.minX > 0.5 { edges.insert(.leading) }
+                        if scroll.visibleRect.maxX < scroll.contentSize.width - 0.5 { edges.insert(.trailing) }
+                        return edges
+                    } action: { _, edges in
+                        fadingEdges = edges
+                    }
+                    .horizontalEdgeFade(edges: fadingEdges)
+                    // Give both the scroll clip and the fade room to paint without moving the row.
+                    .padding(.vertical, -extraHeight)
                     .onChange(of: selection, initial: true) { _, id in
                         if let id { scroll.scrollTo(id, anchor: .center) }
                         else { scroll.scrollTo("add", anchor: .center) }

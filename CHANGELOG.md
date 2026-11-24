@@ -2,6 +2,12 @@
 
 User-visible changes to Oort NX and its Arcane base (formerly NX Library) are recorded here. Entries are grouped by release, with the newest first. Engine changes also have their own [upgrade notes](docs/history/engine-upgrades/README.md).
 
+## Unreleased
+
+### Fixed
+
+- **Who's playing?** keeps the selected portrait's glow visible, including at both ends of a scrolling profile list.
+
 ## 0.3.0
 
 Based on Arcane 0.2.1. This is the first release in the fork's own `MAJOR.MINOR.PATCH` series.

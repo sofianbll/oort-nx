@@ -1,0 +1,36 @@
+# Alone del selettore profili — 24 novembre 2026
+
+Il viewport e la maschera orizzontale tagliavano anche in verticale. La tessera da 170u scala di 1,1; il bordo da 3u è 9u all'esterno e l'ombra ha raggio 11u. Con 18u di margine, il bordo stesso arrivava ~0,4u oltre il bordo superiore del viewport e quasi tutta l'ombra superiore spariva. Ai capi della lista si aggiungeva una dissolvenza di 15% della larghezza.
+
+La vista riserva 48u nel viewport. La compensazione verticale esterna lascia invariata la posizione dei ritratti; la dissolvenza resta dal lato con altro contenuto. Nelle liste che scorrono i capi hanno bisogno di più spazio orizzontale: il primo e l'ultimo ritratto sono 30u più lontani dal bordo.
+
+`NX_TEST_PROFILE_HALO_ONLY=1 python3 Tests/CatalogAppChecks/run_profiles.py <output>` acquisisce i PNG di un viewport AppKit reale in una finestra mai mostrata. Confronta la luce dell'ombra sopra, a sinistra, a destra e in basso in diagonale (senza sovrapporsi al nome), oltre il bordo del cerchio. Ripete con lista corta e lunga, ospite e Aggiungi, a 1920×1080, a 900×650 e con Riduci movimento. Nella lista lunga simula anche cambi di focus e controlla la posizione raggiunta.
+
+Su Ospite a 1920×1080, medie RGB massime delle quattro direzioni: `[3, 25, 20, 19]` prima, `[24, 25, 20, 19]` dopo. Al capo destro: `[0, 14, 0, 1]` → `[20, 20, 19, 17]`. Nelle liste corte i centri non si spostano; fuori dall'alone le differenze sono al massimo un livello RGB su 255 sui contorni rasterizzati, con sfondo, titolo e aiuto identici. Nella lista lunga cambia anche la fila vicino ai bordi; fuori dalla fila titolo e aiuto restano identici.
+
+## Controllo degli altri focus
+
+Misure di layout in unità Selene (u) a focus fermo; non equivalgono a misure dei pixel per tutte le viste o durante le transizioni. «No» significa che il bordo a fuoco rientra, non che un elemento fuori dal viewport possa rimanere visibile.
+
+| Vista e punto di ritaglio | Esito e misura |
+| --- | --- |
+| Spotlight, `SpotlightView+Stage.swift:122`, `SpotlightView+PageLayout.swift:94`, `SpotlightRowView.swift:171` | No sulla fila ferma: 40u di margine del renderer × 1,3 = 52u; il limite superiore dell'alone è circa y=90u, nella fascia opaca che inizia a y=84u. Il sollevamento durante il riordino può entrare di circa 6u nella sfumatura, non nel taglio netto. |
+| Schermate Spotlight e Details, `SpotlightScreenshotStrip.swift:73–91` | No: 14u di spazio contro 10,8u di estensione orizzontale (11u in Details); il calcolo dello scroll conserva lo stesso spazio a destra. |
+| Collection, `CollectionCoverRow.swift:39–53,95–99` | No: 61u sopra e sotto, contro circa 56u contando anche tutto il canvas del bagliore; a sinistra 80u, contro 51,4u. |
+| Editor, `ProfileEditorView.swift:297–356`, `ThemePickerView+ThemeStep.swift:67–81` | No al primo bordo: ring del tema 7,4u in verticale contro 6+8u; lo sfondo cresce di 7u contro 9+8u. Sì, attenuazione possibile in fondo: l'ultimo 20% del viewport (106u) sfuma anche quando il focus è sulla riga visibile. Lasciato: è una regola di scorrimento distinta dal ritaglio del ritratto. |
+| Avatar dell'editor, `ProfileEditorView.swift:244–263` | No: 27u verticali per lato, contro 18,7u di crescita e bordo; il focus è sempre al centro orizzontale. |
+| Scelta del tema, `ThemePickerView+ThemeStep.swift:14–27,70–81` | No: 9,6u orizzontali e 7,4u verticali attorno alla piastrella; il clip sagoma solo il contenuto e precede l'anello. La griglia non ha maschera. |
+| Sfondi e ricerca sfondi online, `ThemePickerView+BackgroundStep.swift:36–54,202–209`, `OnlineBrowsePanel.swift:204–228,282–293` | No taglio netto del bordo nel contenitore della piastrella: 10,4u in orizzontale contro 11u e 7,7u in verticale contro 13/14u. Sì, l'ultima riga può perdere luce negli ultimi 150u: al fondo dello scroll il bordo inferiore può restare a circa 16u dal bordo (circa 11% di opacità lì). Lasciato: validare separatamente il comportamento dei due rivelatori di fondo. |
+| Categorie online, `OnlineBrowsePanel.swift:152–176` | No taglio netto: 5u contro 3u di bordo. Sì attenuazione intenzionale nella sfumatura di 40,7u: al primo/ultimo bordo il ring può iniziare a 2u dal bordo della lista. Lasciato: nessuna ombra tagliata, cambierebbe anche l'aspetto delle categorie non a fuoco. |
+| Successi, `AchievementsScreen.swift:457–463,530–572` | No: il contorno usa `strokeBorder` (0u fuori riga), 6u di margine, 52u sopra la riga scorsa e spazio in fondo pari a dissolvenza + fascia dei comandi. |
+| Amici e profilo, `ProfilePage.swift:142–154,317–321,503–511,553–573`, `SettingsAPISection.swift:475,577` | No: contorni interni (0u di estensione) e le pillole di sezione non scalano. I ritagli delle miniature precedono i contorni. |
+| Centro di controllo e attività, `MenuOverlayView.swift:118–142`, `ActivityCenterView.swift:33–51,126,313–318` | No: i dischi 70u crescono di 3,5u per lato in celle da 96u senza clip; le pillole alte 44u crescono di 1,3u contro almeno 12u verticali nella lista attività, con 24u laterali. |
+| Opzioni, `GameOptionsView+Rows.swift:23–44`, `MoreSettingsPanel.swift:63–77`, `CheatsPanel.swift:229–241`, `ModsPanel.swift:170–201`, `SavesPanel.swift:113–124`, `ChangeMetadataView.swift:226–248` | No: focus interno alla riga (0u fuori) e 6/24u esterni; la riga parzialmente visibile sotto il puntatore può essere tagliata durante lo scroll manuale. |
+| Art delle opzioni, `ChangeArtworkView.swift:340–374`, `ChangeArtworkView+Tiles.swift:29–43` | La coda nominale del bagliore può debordare: per 352u, `(176 + 6 + 40) × 1,04 − 176 ≈ 55u` contro 30u. Il bordo solido richiede solo ~13u. Nessun taglio del bordo dimostrato; lasciato, il limite del layer non è la luce effettiva a 30u. |
+| Assistente cloud, `CloudSetupAssistant.swift:317–339,405–419` | No: le opzioni scorrevoli hanno il bordo interno (0u); le pillole che scalano sono fuori dai due scroll. |
+| Banda Mods, `DetailsBands.swift:146–151,364–368`, `SpotlightView+PageLayout.swift:60–69,98`, `GameDetailView.swift:248–275`, `ModDetailPanel.swift:92` | No: il bordo verticale sporge 8,0u; Spotlight include questo valore e 30u di riserva. Details rialza la banda quando scende il focus. Il pannello lascia 12u ai lati e sfuma l'asse verticale solo verso contenuto fuori vista. |
+| Ricerca giochi/mod, `FindGameView.swift:97–125`, `GameBananaFindPanel.swift:59–82` | No: la griglia locale può disegnare oltre la tile (4,8u per la scala, fino a 47,2u contando il layer del bagliore), ma non ha clip; nei risultati GameBanana il ring sporge 3u senza un clip esterno. |
+
+## Aplatti nello sfondo della segnalazione
+
+Il PNG è RGBA a 8 bit con indicazione sRGB. In una fascia libera in alto (y=15–59) dominano sette grigi equidistanti, da RGB 6 a 0. A y=40 il gradiente scende da sinistra a destra in plateau larghi decine di pixel, con pochi campioni intermedi a ±1 per canale. È quantizzazione del fondo molto scuro, non il limite del viewport dei profili. Il PNG da solo non permette di separare renderer, composizione e conversione della cattura; né prova che fosse la palette Vantablack. `MoonlightShaders.swift` applica già dither alla luce; non cambiare il gradiente o il renderer condiviso sulla base di questa prova.

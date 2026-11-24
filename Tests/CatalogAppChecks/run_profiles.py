@@ -32,6 +32,8 @@ import ArcanePorting
         let profiles = LocalProfileStore(directory: data, settings: settings.settings, name: "Alex")
         let alex = profiles.active!
         let sam = LocalProfile(name: "Sam", avatar: 3, look: alex.look)
+        try checkPickerHalo(in: out)
+        if ProcessInfo.processInfo.environment["NX_TEST_PROFILE_HALO_ONLY"] == "1" { return }
         let vm = AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: data)))
         vm.localProfiles = profiles
         let game = PortedGame(name: "Lunar Observatory", url: data.appendingPathComponent("Fixture.app"),
@@ -87,8 +89,8 @@ import ArcanePorting
                               onGuest: { _ in },
                               selected: selected, draft: editing, removing: removing)
         }
-        try render("01-who", picker(selected: alex.id), in: out, refs, "web/reddit-showcase-who-05s.png", reduced: false)
-        try render("02-add-focus", picker(selected: nil), in: out, refs, "web/182-10.png", reduced: false)
+        try render("01-who", picker(selected: alex.id), in: out, refs, "web/reddit-showcase-who-05s.png", reduced: false, native: true)
+        try render("02-add-focus", picker(selected: nil), in: out, refs, "web/182-10.png", reduced: false, native: true)
         for (step, ref) in [(ProfileEditorView.Step.name, "web/182-11.png"), (.avatar, "web/182-12.png"),
                             (.theme, "web/archive-theme-step.png"), (.background, "web/archive-background-step.png")] {
             try render("0\(step.rawValue + 3)-wizard-\(step)", ZStack {
@@ -287,7 +289,7 @@ import ArcanePorting
                     ProfileSwitchDialog(startsGuest: starting, endsGuest: ending, hasGame: running, hasSteam: false,
                                         waiting: false, onCancel: {}, onConfirm: {})
                 }
-            }, in: out, refs, "none")
+            }, in: out, refs, "none", native: true)
         }
         func lock(_ dialog: ProfilePINDialog) -> some View {
             ZStack {
@@ -297,9 +299,9 @@ import ArcanePorting
         }
         L10n.setContext(french)
         try render("33-profile-lock", lock(.init(title: "Unlock profile", onCancel: {}, onPIN: { _ in nil })),
-                   in: out, refs, "none", names: .nintendo)
-        try render("34-profile-lock-error", lock(rejectedPIN), in: out, refs, "none")
-        try render("35-profile-lock-ready", lock(readyPIN), in: out, refs, "none")
+                    in: out, refs, "none", names: .nintendo, native: true)
+        try render("34-profile-lock-error", lock(rejectedPIN), in: out, refs, "none", native: true)
+        try render("35-profile-lock-ready", lock(readyPIN), in: out, refs, "none", native: true)
         L10n.setContext(.init(language: .english, region: "US"))
         func stage<Bar: View>(_ top: Bar, showsSort: Bool = true, player: LocalProfile? = nil) -> some View {
             ZStack(alignment: .top) {
@@ -496,14 +498,14 @@ import ArcanePorting
         AppData.preferences.removeObject(forKey: PortingModel.savedGameFolderKey)
         precondition(SeleneConfirmButton.ordered == [.confirm, .cancel])
         try render("11-remove", picker(selected: sam.id, removing: sam).environment(\.nxAppLocale, french),
-                   in: out, refs, "web/182-15.png")
+                    in: out, refs, "web/182-15.png", native: true)
         L10n.setContext(.init(language: .english, region: "US"))
-        try render("11-original-protected", picker(selected: alex.id), in: out, refs, "none")
+        try render("11-original-protected", picker(selected: alex.id), in: out, refs, "none", native: true)
         // Y on a profile: the wizard replaces the selector, with one bar of hints; closing it brings the selector back.
         try render("21-picker-y-wizard", picker(selected: sam.id, editing: sam, overlay: true), in: out, refs,
-                   "web/182-12.png")
-        try render("22-picker-back", picker(selected: sam.id, overlay: true), in: out, refs, "web/reddit-showcase-who-05s.png")
-        try render("16-switch-profile", picker(selected: sam.id), in: out, refs, "web/reddit-showcase-who-05s.png", reduced: false)
+                    "web/182-12.png", native: true)
+        try render("22-picker-back", picker(selected: sam.id, overlay: true), in: out, refs, "web/reddit-showcase-who-05s.png", native: true)
+        try render("16-switch-profile", picker(selected: sam.id), in: out, refs, "web/reddit-showcase-who-05s.png", reduced: false, native: true)
         try render("17-second-profile-collection", stage(SpotlightTopBar(filter: .recentlyPlayed, sort: current), player: sam),
                    in: out, refs, "screenshots/library.png")
         let historyStore = PlaySessionStore(fileURL: data.appendingPathComponent("fixture-history.json"))
@@ -530,7 +532,7 @@ import ArcanePorting
                           runningGames: RunningGameMonitor(), artwork: art, storeHost: ModStoreHost())
                 .blur(radius: AppShellView.profileOverlayBlur)
             picker(selected: profiles.active?.id, overlay: true)
-        }, in: out, refs, "web/reddit-showcase-who-05s.png")
+        }, in: out, refs, "web/reddit-showcase-who-05s.png", native: true)
         vm.profileOwnsInput = false
         vm.librarySelection.query.filter = .notPlayed
         try render("23-spotlight-not-played", ZStack {
@@ -656,6 +658,102 @@ import ArcanePorting
             panel(NSImage(contentsOf: beforeImage)!, "Arcane · avant")
             panel(NSImage(contentsOf: afterImage)!, "Arcane · après")
         }), to: out.appendingPathComponent("15-sort-avant-apres.png"))
+    }
+
+    @MainActor static func checkPickerHalo(in out: URL) throws {
+        let french = AppLocale(language: .french, region: "FR")
+        L10n.setContext(french)
+        defer { L10n.setContext(.init(language: .english, region: "US")) }
+        let profiles = LocalProfileStore(directory: AppData.supportRoot.appendingPathComponent("halo-fixture"),
+                                         settings: AppSettings(), name: "Alex")
+        let first = profiles.active!
+        let guest = LocalProfile(name: "Invité", avatar: LocalProfile.avatarCount - 1, look: first.look)
+        precondition(profiles.beginGuest(guest))
+        let palette = ThemeStore.shared.palettes.first { $0.id == "vantablack" }!
+        let wallpaper = AppData.supportRoot.appendingPathComponent("halo-fixture/black.png")
+        try save(bitmap(Color.black.frame(width: 16, height: 16)), to: wallpaper)
+        var passed = true
+        func check(_ name: String, _ id: UUID?, size: CGSize, reduced: Bool, moves: [GamepadAction] = []) throws {
+            let canvas = SeleneCanvas(size: size)
+            ProfilePickerView.haloFixtureFrame = .null
+            let view = ProfilePickerView(profiles: profiles, initialSelection: id, canClose: false,
+                                         games: [], onChoose: { _ in }, onClose: {}, onActiveEdited: {}, onGuest: { _ in })
+                .environment(\.seleneBackdropStyle, .init(palette: palette, wallpaperURL: wallpaper, animated: false))
+                .environment(\.nxAppLocale, french)
+                .environment(\.seleneCanvas, canvas)
+                .environment(\.seleneReduceMotion, reduced)
+                .environment(\.seleneButtonNames, .xbox)
+                .frame(width: size.width, height: size.height)
+            let image = try hostedBitmap(view, size: size, moves: moves)
+            try image.representation(using: .png, properties: [:])!.write(to: out.appendingPathComponent("halo-\(name).png"))
+            let face = ProfilePickerView.haloFixtureFrame
+            precondition(!face.isNull && image.pixelsWide == Int(size.width) && image.pixelsHigh == Int(size.height))
+            if name.hasSuffix("-long-start") { precondition(face.midX < size.width * 0.1) }
+            if name.hasSuffix("-long-middle") { precondition(abs(face.midX - size.width / 2) < 1) }
+            if name.hasSuffix("-long-end") { precondition(face.midX > size.width * 0.9) }
+            let radius = canvas.u(94 * (reduced ? 1 : 1.1))
+            // Measure the shadow, not the stroke or the label, on the dark fixture background.
+            let directions: [(CGFloat, CGFloat)] = [(0, -1), (-1, 0), (1, 0), (0.6, 0.8)]
+            let samples = directions.map { dx, dy in
+                (6...11).map { offset -> Double in
+                    let distance = radius + canvas.u(CGFloat(offset))
+                    let x = Int((face.midX + dx * distance).rounded())
+                    let y = Int((face.midY + dy * distance).rounded())
+                    guard let pixel = image.colorAt(x: x, y: y)?.usingColorSpace(.sRGB) else { return 0 }
+                    return max(pixel.redComponent, pixel.greenComponent, pixel.blueComponent) * 255
+                }.reduce(0, +) / 6
+            }
+            let good = samples.min()! > 9 && samples.min()! >= samples.max()! * 0.65
+            let values = samples.map { Int($0.rounded()) }
+            print("halo \(name): \(good ? "PASS" : "FAIL") top/left/right/lower = \(values); center \(face.midX),\(face.midY)")
+            passed = passed && good
+        }
+        for (name, size, reduced) in [("full", SeleneCanvas.design, false),
+                                      ("narrow", .init(width: 900, height: 650), false),
+                                      ("reduced", SeleneCanvas.design, true)] {
+            try check("\(name)-first", first.id, size: size, reduced: reduced)
+            try check("\(name)-guest", guest.id, size: size, reduced: reduced)
+            try check("\(name)-add", nil, size: size, reduced: reduced)
+        }
+        let more = (1...10).map { LocalProfile(name: "P\($0)", avatar: $0, look: first.look) }
+        for profile in more { precondition(profiles.update(profile)) }
+        for (name, size, reduced) in [("full", SeleneCanvas.design, false),
+                                      ("narrow", .init(width: 900, height: 650), false),
+                                      ("reduced", SeleneCanvas.design, true)] {
+            try check("\(name)-long-start", first.id, size: size, reduced: reduced)
+            try check("\(name)-long-middle", more[4].id, size: size, reduced: reduced, moves: [.navigateRight])
+            try check("\(name)-long-guest", guest.id, size: size, reduced: reduced)
+            try check("\(name)-long-end", guest.id, size: size, reduced: reduced, moves: [.navigateRight])
+        }
+        if !passed { exit(1) }
+    }
+
+    // A never-ordered window lays out the actual AppKit scroll viewport; ImageRenderer omits it.
+    @MainActor static func hostedBitmap<V: View>(_ view: V, size: CGSize,
+                                                moves: [GamepadAction] = []) throws -> NSBitmapImageRep {
+        let host = NSHostingView(rootView: view)
+        host.frame.size = size
+        let window = NSWindow(contentRect: host.frame, styleMask: [.borderless], backing: .buffered, defer: false)
+        window.contentView = host
+        defer { window.contentView = nil }
+        window.layoutIfNeeded()
+        func settle() {
+            for _ in 0..<15 {
+                RunLoop.main.run(until: Date().addingTimeInterval(0.02))
+                host.layoutSubtreeIfNeeded()
+            }
+        }
+        settle()
+        for move in moves {
+            NotificationCenter.default.post(name: .nxProfileInput, object: move)
+            settle()
+        }
+        precondition(!window.isVisible)
+        guard let image = host.bitmapImageRepForCachingDisplay(in: host.bounds) else {
+            throw CocoaError(.fileWriteUnknown)
+        }
+        host.cacheDisplay(in: host.bounds, to: image)
+        return image
     }
 
     @MainActor static func checkSessionCard(game: CatalogGame, art: ArtworkStore, in out: URL, _ refs: URL) async throws {
@@ -894,12 +992,14 @@ import ArcanePorting
     static let screenSize = CGSize(width: 1440, height: 810)
 
     @MainActor static func render<V: View>(_ name: String, _ view: V, in out: URL, _ refs: URL, _ reference: String,
-                                          reduced: Bool = true, names: ButtonNameStyle = .xbox, size: CGSize = screenSize) throws {
-        let image = try bitmap(view
+                                           reduced: Bool = true, names: ButtonNameStyle = .xbox, size: CGSize = screenSize,
+                                           native: Bool = false) throws {
+        let content = view
             .environment(\.seleneCanvas, SeleneCanvas(size: size))
             .environment(\.seleneReduceMotion, reduced)
             .environment(\.seleneButtonNames, names)
-            .frame(width: size.width, height: size.height))
+            .frame(width: size.width, height: size.height)
+        let image = try native ? hostedBitmap(content, size: size).cgImage! : bitmap(content)
         try save(image, to: out.appendingPathComponent(name + ".png"))
         guard let ref = NSImage(contentsOf: refs.appendingPathComponent(reference)) else { return }
         let comparison = HStack(spacing: 12) {
@@ -1331,9 +1431,13 @@ extension ProfilePage {
             swift.write(SETTINGS_PIN_TEST)
         with (app / "Views/Settings/SettingsPortingStorageSection.swift").open("a") as swift:
             swift.write("\nextension SettingsPortingStorageSection {\n    func publishScreenFixtureActions() { publishActions() }\n}\n")
-        replace(app / "Views/Shell/ProfilePickerView.swift",
-                r"                ScrollViewReader .*?\n                        (HStack\(spacing: canvas.u\(56\)\).*?)\n                    }\n                    \.scrollIndicators.*?\n                }\n                if profiles.failed",
-                lambda m: "                " + m[1] + "\n                if profiles.failed")
+        picker = app / "Views/Shell/ProfilePickerView.swift"
+        replace(picker, r"    private func tile\(", "    @MainActor static var haloFixtureFrame = CGRect.null\n\n    private func tile(")
+        replace(picker, r"(\.scaleEffect\(isFocused && !reduceMotion \? 1\.1 : 1\))",
+                lambda m: m[1] + """
+                .onGeometryChange(for: CGRect?.self) { isFocused ? $0.frame(in: .global) : nil } action: {
+                    if let frame = $0 { Self.haloFixtureFrame = frame }
+                }""")
         # The wizard opens on the avatar step, with the game portraits the real flow loads in a task.
         replace(app / "Views/Shell/ProfilePickerView.swift", r"onSave: save\)",
                 "onSave: save, step: .avatar, cachedPortraits: ProfileEditorView.loadAvatars(avatarGames, artwork: artwork!))")

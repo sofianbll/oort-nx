@@ -56,10 +56,12 @@ extension View {
         seleneFont(token.rawValue, weight, design: design)
     }
 
-    /// Fades a scrolling row out over `fraction` of its width on each side, never a hard cut.
-    func horizontalEdgeFade(_ fraction: CGFloat = 0.15) -> some View {
-        mask(LinearGradient(stops: [.init(color: .clear, location: 0), .init(color: .black, location: fraction),
-                                    .init(color: .black, location: 1 - fraction), .init(color: .clear, location: 1)],
+    /// Fades a scrolling row out over `fraction` of its width on each requested side.
+    func horizontalEdgeFade(_ fraction: CGFloat = 0.15, edges: Edge.Set = .horizontal) -> some View {
+        mask(LinearGradient(stops: [.init(color: edges.contains(.leading) ? .clear : .black, location: 0),
+                                    .init(color: .black, location: fraction),
+                                    .init(color: .black, location: 1 - fraction),
+                                    .init(color: edges.contains(.trailing) ? .clear : .black, location: 1)],
                             startPoint: .leading, endPoint: .trailing))
     }
 

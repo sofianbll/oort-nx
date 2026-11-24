@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 23 novembre 2026. Copertura di **919 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **920 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -86,7 +86,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [Sources/NXLibrary/Views/Shell/FullscreenCursorView.swift](../../Sources/NXLibrary/Views/Shell/FullscreenCursorView.swift) | Gestisce il cursore inattivo nella sola finestra fullscreen del launcher, sospendendolo per pannelli e menu e ripristinando gli eventi al distacco. |
 | [Sources/NXLibrary/Views/Shell/StartupWindowView.swift](../../Sources/NXLibrary/Views/Shell/StartupWindowView.swift) | Applica il fullscreen dopo la comparsa della finestra e segnala fine transizione o scadenza alla fase dell’entrata. |
 | [Sources/NXLibrary/Views/Shell/MenuOverlayView.swift](../../Sources/NXLibrary/Views/Shell/MenuOverlayView.swift) | Disegna il control center a cinque icone con LB/RB e `MenuCard`, la scheda di pillole di pari larghezza sopra Profilo, Libreria e Power. Mostra le sole voci disponibili. Il puntatore fermo non riprende il focus delle icone. |
-| [Sources/NXLibrary/Views/Shell/ProfilePickerView.swift](../../Sources/NXLibrary/Views/Shell/ProfilePickerView.swift) | «Chi gioca?» all’avvio e in sovrapposizione, ritratto condiviso, aggiunta, modifica e conferma di rimozione solo per i profili aggiuntivi idonei. |
+| [Sources/NXLibrary/Views/Shell/ProfilePickerView.swift](../../Sources/NXLibrary/Views/Shell/ProfilePickerView.swift) | «Chi gioca?» all’avvio e in sovrapposizione, ritratto condiviso, fila con spazio per l'alone e sfumature verso i profili fuori vista, aggiunta, modifica e rimozione dei profili idonei. |
 | [Sources/NXLibrary/Views/Shell/ProfileEditorView.swift](../../Sources/NXLibrary/Views/Shell/ProfileEditorView.swift) | Bozza dei quattro passi, tastiera a schermo, avatar, ritaglio, anteprima, salvataggio rapido e conferma di scarto con l'aiuto del dialogo condiviso. |
 | [Sources/NXLibrary/Views/Shell/ProfileAvatar.swift](../../Sources/NXLibrary/Views/Shell/ProfileAvatar.swift) | Ritaglia artwork locale o file scelti, conserva i tempi dei GIF e mostra l’animazione in un cerchio con ritaglio centrato. |
 | [Sources/NXLibrary/Views/Shell/ProfilePage.swift](../../Sources/NXLibrary/Views/Shell/ProfilePage.swift) | Pagina profilo: arte sfumata, statistiche locali, schede percorse anche con LB/RB, pulsante Vedi tutto separato dal titolo, progressi e sblocchi, amici con miniature dei giochi riconosciuti. |
@@ -816,7 +816,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/Theme/ThemeStore.swift](../../Sources/NXLibrary/Views/Theme/ThemeStore.swift) | Mantiene palette attiva, wallpaper inclusi e importati e operazioni sulle scelte dell’utente. |
 | [Sources/NXLibrary/Views/Theme/SeleneTheme.swift](../../Sources/NXLibrary/Views/Theme/SeleneTheme.swift) | Espone colori, stili, curve di animazione, focus e ambiente Selene; solo il blu classico usa inchiostro tenue per i glifi delle righe. |
 | [Sources/NXLibrary/Views/Theme/SeleneFonts.swift](../../Sources/NXLibrary/Views/Theme/SeleneFonts.swift) | Registra il font incluso e definisce MaterialIconView. |
-| [Sources/NXLibrary/Views/Theme/SeleneCanvasEnvironment.swift](../../Sources/NXLibrary/Views/Theme/SeleneCanvasEnvironment.swift) | Pubblica il canvas della finestra e applica unità e font scalati. |
+| [Sources/NXLibrary/Views/Theme/SeleneCanvasEnvironment.swift](../../Sources/NXLibrary/Views/Theme/SeleneCanvasEnvironment.swift) | Pubblica il canvas, scala unità e font e applica le sfumature sui bordi orizzontali richiesti. |
 | [Sources/NXLibrary/Views/Theme/SeleneBackdrop.swift](../../Sources/NXLibrary/Views/Theme/SeleneBackdrop.swift) | Nella shell dichiara la richiesta di sfondo condiviso, fuori dalla shell disegna; consuma lo snapshot completo della palette e compone gradiente, wallpaper e Moonlight a particelle morbide; conserva le immagini decodificate e il fallback statico. |
 | [Sources/NXLibrary/Views/Theme/MoonlightRenderer.swift](../../Sources/NXLibrary/Views/Theme/MoonlightRenderer.swift) | Gestisce Metal, il `CAMetalDisplayLink` e il rendering live/statico. Disegna solo il link, anche il frame fermo, e il primo drawable presentato sblocca `LaunchReveal`; nella Dev registra creazione e prima presentazione. |
 | [Sources/NXLibrary/Views/Theme/MoonlightShaders.swift](../../Sources/NXLibrary/Views/Theme/MoonlightShaders.swift) | Contiene gli shader Metal del Moonlight, superfici analitiche Arcane/Flow, filamenti sottili antialias piegati da onde viaggianti e particelle morbide, compilati a runtime. |
@@ -1084,7 +1084,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_keymap_screens.py](../../Tests/CatalogAppChecks/run_keymap_screens.py) | Verifica tutti i glifi e rende la barra Selene per Xbox, Switch, DualSense e tastiera senza aprire finestre. |
 | [run_inbox_screens.py](../../Tests/CatalogAppChecks/run_inbox_screens.py) | Verifica e rende Inbox, route, menu, card delle chiavi e assenza di lettura con Inbox disattivata; usa un plist temporaneo e non apre finestre. |
 | [run_cloud_screens.py](../../Tests/CatalogAppChecks/run_cloud_screens.py) | Verifica Cloud, glifi, Play together e scelta dello schermo con fixture locali, plist temporaneo e rclone senza daemon. `--compare-with-5047557` confronta la scheda con Riduci movimento. |
-| [run_profiles.py](../../Tests/CatalogAppChecks/run_profiles.py) | Rende profili, raccolte, impostazioni (anche About, Look e menu) e PIN. Verifica ritaglio, focus, PIN e moto ridotto, editor, avvio, salvataggi, backup e reset della card di fine sessione con plist temporaneo, senza finestre né dati reali. |
+| [run_profiles.py](../../Tests/CatalogAppChecks/run_profiles.py) | Rende profili, raccolte, impostazioni e PIN. Misura l'alone del selettore nel viewport AppKit non mostrato; verifica focus, PIN, moto ridotto, avvio, editor, salvataggi, backup e fine sessione senza dati reali. |
 | [run_startup_recovery.py](../../Tests/CatalogAppChecks/run_startup_recovery.py) | Coordinatore di avvio reale su profili sintetici: conflitto, scelta esplicita, offerta obsoleta, Retry e fallimento della preparazione; nessuna finestra. |
 | [run_source_access.py](../../Tests/CatalogAppChecks/run_source_access.py) | Esegue avvio, observer, selettori e preparazione dei file in Add Game: scansione limitata, cartella ricordata e riconoscimento del percorso estratto. |
 | [run_onboarding.py](../../Tests/CatalogAppChecks/run_onboarding.py) | Esegue observer e ripristino del Setup con plist temporaneo, uscita durante lettura pendente con annullamento, input sotto modali, scelte acceso/spento/nil, radice della fonte, focus dopo Retry e richiesta notifiche; nessuna finestra. |
@@ -1234,6 +1234,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [docs/history/reviews/2026-11-22-browser-app-adoption.md](../history/reviews/2026-11-22-browser-app-adoption.md) | Sonda locale: riparazione e firma di ripiego di una copia estratta dallo ZIP del browser. |
 | [docs/history/reviews/2026-11-22-cloud-per-file.md](../history/reviews/2026-11-22-cloud-per-file.md) | Sonda locale: byte e tempo per il cambio di un solo file, archivio rispetto a copia incrementale. |
 | [docs/history/reviews/2026-11-22-local-removal-inventory.md](../history/reviews/2026-11-22-local-removal-inventory.md) | Inventario delle cancellazioni locali e verifica del contratto `DM_SAVE`. |
+| [docs/history/reviews/2026-11-24-profile-focus.md](../history/reviews/2026-11-24-profile-focus.md) | Sonda dell'alone profili, misure dei bordi negli altri viewport e diagnosi del banding. |
 
 ## Aggiornare questo catalogo
 
