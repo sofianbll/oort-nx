@@ -69,7 +69,9 @@ struct SteamOptionsView: View {
 
             if fullSettingsOpen {
                 GameSettingsScreen(gameName: current.name, items: fullSettingsItems, canHandleInput: {
-                    !editorOpen && !viewModel.shellDialogOwnsInput && viewModel.settingsNotice == nil
+                    !editorOpen && !viewModel.shellDialogOwnsInput && !viewModel.isWelcomeOpen && !viewModel.showSetupCheck
+                        && viewModel.gameToClose == nil && viewModel.alertMessage == nil
+                        && viewModel.settingsNotice == nil && viewModel.gameWithInstallFailure == nil
                 }, onClose: { fullSettingsOpen = false }) { _ in EmptyView() }
                 .opacity(editorOpen ? 0 : 1)
                 .seleneOverlayOwnership(!editorOpen)

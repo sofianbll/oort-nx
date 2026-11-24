@@ -249,7 +249,7 @@ struct CheatsPanel: View {
             .accessibilityElement(children: .combine)
         case .row(let row):
             let index = rows.firstIndex(of: row) ?? 0
-            rowView(row, focused: index == focus)
+            rowView(row, focused: embedding?.active.wrappedValue != false && index == focus)
                 .id(row)
                 .contentShape(Rectangle())
                 .onTapGesture {

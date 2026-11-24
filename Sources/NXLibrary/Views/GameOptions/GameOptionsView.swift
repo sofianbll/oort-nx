@@ -219,6 +219,8 @@ struct GameOptionsView: View {
             if fullSettingsOpen {
                 fullSettings(canHandleInput: {
                     !quickPanelOpen && confirm == nil && !viewModel.shellDialogOwnsInput
+                        && !viewModel.isWelcomeOpen && !viewModel.showSetupCheck
+                        && viewModel.gameToClose == nil && viewModel.alertMessage == nil
                         && viewModel.settingsNotice == nil && viewModel.gameWithInstallFailure == nil
                 })
                 .opacity(quickPanelOpen ? 0 : 1)

@@ -111,7 +111,7 @@ struct SavesPanel: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: canvas.u(8)) {
                     ForEach(Array(rows.enumerated()), id: \.element) { index, row in
-                        rowView(row, focused: index == focus)
+                        rowView(row, focused: embedding?.active.wrappedValue != false && index == focus)
                             .id(row).contentShape(Rectangle())
                             .onTapGesture { focus = index; activate(row) }
                     }

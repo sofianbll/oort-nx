@@ -171,7 +171,8 @@ struct ModsPanel: View {
                         if row == presentation.codeRows.first {
                             sectionHeader("Code mods", subtitle: "Rebuild the game after making changes. Turning off all code mods or re-enabling the entire built set needs no rebuild. Inactive online (Nextendo).")
                         }
-                        rowView(row, focused: index == focus.index, inactiveOnline: inactiveOnline)
+                        rowView(row, focused: embedding?.active.wrappedValue != false && index == focus.index,
+                                inactiveOnline: inactiveOnline)
                             .padding(.top, row == .openFolder ? canvas.u(8) : 0)
                             .id(row)
                             .contentShape(Rectangle())
