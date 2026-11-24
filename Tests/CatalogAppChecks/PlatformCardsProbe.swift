@@ -91,7 +91,7 @@ import ArcanePorting
         video.press(.confirm)
         var bitmaps: [NSBitmapImageRep] = []
         for index in 0..<43 {
-            if index == 5 || index == 9 { video.press(.navigateDown, settle: 0) }
+            if index == 5 || index == 7 { video.press(.navigateDown, settle: 0) }
             if index == 25 { video.press(.navigateDown, settle: 0) }
             if index == 37 { video.press(.confirm, settle: 0) }
             video.advance(1.0 / 24)
@@ -100,7 +100,7 @@ import ArcanePorting
         for (index, bitmap) in bitmaps.enumerated() {
             try png(bitmap).write(to: frames.appendingPathComponent(String(format: "%02d.png", index)))
         }
-        // The rightmost Steam art is still drawn just after the press, but not in Steam's scoped row.
+        // Steam starts on the right edge. Its tile moves left only once the choice settles.
         func endOfRail(_ frame: Int) -> NSColor? {
             bitmaps[frame].colorAt(x: 550, y: 100)?.usingColorSpace(.sRGB)
         }
