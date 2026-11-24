@@ -21,6 +21,34 @@ public enum GameInbox {
         fileprivate let stamp: Stamp?
     }
 
+    /// Preview-only memoization. The confirmed sort always verifies both files again.
+    public final class DuplicateReviews: @unchecked Sendable {
+        private struct Pair: Equatable {
+            let destination: URL
+            let incoming: Stamp
+            let stored: Stamp
+        }
+
+        private let lock = NSLock()
+        private var verified: [URL: Pair] = [:]
+
+        public init() {}
+
+        fileprivate func matches(_ source: URL, _ destination: URL, stamp: Stamp) -> Bool {
+            guard let existing = Stamp(destination) else { return false }
+            let pair = Pair(destination: destination, incoming: stamp, stored: existing)
+            if lock.withLock({ verified[source] == pair }) { return true }
+            guard (try? verifySame(source, destination)) == existing, Stamp(source) == stamp else { return false }
+            lock.withLock {
+                if verified[source] == nil, verified.count >= 512, let evicted = verified.keys.first {
+                    verified.removeValue(forKey: evicted)
+                }
+                verified[source] = pair
+            }
+            return true
+        }
+    }
+
     fileprivate struct Stamp: Equatable {
         let device: Int32, inode: UInt64, bytes: Int64
         let modificationSeconds: Int, modificationNanos: Int
@@ -68,14 +96,14 @@ public enum GameInbox {
 
     /// A nil reading map means package identification could not start without keys.
     public static func plan(inputs: [Input], readings: [URL: PackageReading]?, root: URL,
-                            names: (UInt64) -> String?) -> [Entry] {
+                            duplicateReviews: DuplicateReviews? = nil, names: (UInt64) -> String?) -> [Entry] {
         let folders = (try? files(in: root)) ?? []
         let entries: [Entry] = inputs.map { input in
             let url = input.url
             func ambiguous(_ issue: String, content: PackageContent? = nil) -> Entry {
                 Entry(source: url, destination: nil, content: content, issue: issue, needsKeys: false, duplicate: false, stamp: nil)
             }
-            guard input.canRead, safe(url), input.stamp == Stamp(url), !within(url, root) else {
+            guard input.canRead, safe(url), let stamp = input.stamp, stamp == Stamp(url), !within(url, root) else {
                 return ambiguous(L10n.text("Not a supported incoming file."))
             }
             guard let readings else {
@@ -116,7 +144,8 @@ public enum GameInbox {
             }
             let destination = folder.appendingPathComponent(filename, isDirectory: false)
             let duplicate = exists(destination)
-            if duplicate && (!safe(destination) || (try? verifySame(url, destination)) == nil) {
+            if duplicate && (!safe(destination) || !(duplicateReviews?.matches(url, destination, stamp: stamp)
+                ?? ((try? verifySame(url, destination)) != nil))) {
                 return ambiguous(L10n.text("A different file already occupies the destination."), content: row)
             }
             return Entry(source: url, destination: destination, content: row, issue: nil, needsKeys: false,
@@ -134,12 +163,14 @@ public enum GameInbox {
     }
 
     public static func store(_ entry: Entry, root: URL, discover: (URL, PackageContent) throws -> Bool,
-                             trash: (URL) throws -> Void = { _ = try FileManager.default.trashItem(at: $0, resultingItemURL: nil) }) throws {
-        try store(entry, root: root, discover: discover, trash: trash, copy: streamCopy)
+                             trash: @escaping (URL) throws -> Void = { _ = try FileManager.default.trashItem(at: $0, resultingItemURL: nil) },
+                             withTrashPermission: (URL, () throws -> Void) throws -> Void = { _, commit in try commit() }) throws {
+        try store(entry, root: root, discover: discover, trash: trash, copy: streamCopy, withTrashPermission: withTrashPermission)
     }
 
     static func store(_ entry: Entry, root: URL, discover: (URL, PackageContent) throws -> Bool,
-                      trash: (URL) throws -> Void, copy: (URL, URL) throws -> Void) throws {
+                      trash: @escaping (URL) throws -> Void, copy: (URL, URL) throws -> Void,
+                      withTrashPermission: (URL, () throws -> Void) throws -> Void = { _, commit in try commit() }) throws {
         guard let destination = entry.destination, let content = entry.content, let stamp = entry.stamp,
               within(destination, root), !within(entry.source, root) else { throw Failure.changed }
         let source = entry.source
@@ -171,9 +202,12 @@ public enum GameInbox {
 
         try recheck()
         guard Stamp(destination) == stored, try discover(destination, content) else { throw Failure.discovery }
-        try recheck()
-        guard Stamp(destination) == stored else { throw Failure.changed }
-        try trash(source)
+        try Task.checkCancellation()
+        try withTrashPermission(source) {
+            try recheck()
+            guard Stamp(destination) == stored else { throw Failure.changed }
+            try trash(source)
+        }
     }
 
     private static func verifySame(_ source: URL, _ destination: URL) throws -> Stamp {

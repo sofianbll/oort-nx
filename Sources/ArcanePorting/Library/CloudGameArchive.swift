@@ -513,20 +513,34 @@ public actor CloudGameArchive {
     }
 
     func latestManifests(in folders: [String]) async throws -> [CloudGameManifest] {
+        try await scanManifests(in: folders, skippingInvalid: false).manifests
+    }
+
+    package func latestManifestsForImport() async throws -> (manifests: [CloudGameManifest], invalidTitles: [String]) {
+        try await scanManifests(in: backend.rootDirectories(), skippingInvalid: true)
+    }
+
+    private func scanManifests(in folders: [String], skippingInvalid: Bool) async throws
+        -> (manifests: [CloudGameManifest], invalidTitles: [String]) {
         var titles: [String: [String]] = [:]
         for folder in Set(folders) {
             if let title = CloudDriveFolders.titleID(in: folder) { titles[title, default: []].append(folder) }
         }
         guard titles.count <= 2_000 else { throw StorageBackendError.invalidResponse }
         var manifests: [CloudGameManifest] = []
+        var invalidTitles: [String] = []
         for title in titles.keys.sorted() {
             try Task.checkCancellation()
-            if let manifest = try await latest(titleID: title, folders: titles[title, default: []]) {
-                manifests.append(manifest)
+            do {
+                if let manifest = try await latest(titleID: title, folders: titles[title, default: []]) {
+                    manifests.append(manifest)
+                }
+            } catch CloudArchiveError.invalidManifest where skippingInvalid {
+                invalidTitles.append(title)
             }
         }
         try Task.checkCancellation()
-        return manifests
+        return (manifests, invalidTitles)
     }
 
     public func latest(titleID: String, expectingArchive: Bool = false) async throws -> CloudGameManifest? {
@@ -628,8 +642,12 @@ public actor CloudGameArchive {
                 guard manifest.version == 2, artifact.size == nil, artifact.sha256 == nil, artifact.md5 == nil,
                       artifact.unpackedSize >= 0, artifact.kind != .app || !tree.entries.isEmpty,
                       artifact.entryCount == tree.entries.count else { throw CloudArchiveError.invalidManifest }
-                try tree.validate(titleID: title, kind: artifact.kind, digest: artifact.inventorySHA256,
-                                  bytes: artifact.unpackedSize)
+                do {
+                    try tree.validate(titleID: title, kind: artifact.kind, digest: artifact.inventorySHA256,
+                                      bytes: artifact.unpackedSize)
+                } catch CloudArchiveError.unsafePath {
+                    throw CloudArchiveError.invalidManifest
+                }
             } else {
                 guard let object = artifact.legacyObject(titleID: title), object.size > 0, artifact.unpackedSize >= 0,
                       (1...CloudArchiveInventory.maximumEntries).contains(artifact.entryCount),

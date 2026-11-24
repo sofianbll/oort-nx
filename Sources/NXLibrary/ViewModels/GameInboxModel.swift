@@ -11,6 +11,7 @@ final class GameInboxModel: ObservableObject {
     @Published private(set) var message: String?
     @Published private(set) var folder: URL
     private var dropped: [URL] = []
+    private let duplicateReviews = GameInbox.DuplicateReviews()
     private static let folderKey = "NXNative_GameInboxFolder"
 
     static var gamesRoot: URL { AppData.profile.home.appendingPathComponent("Games/Switch/Games", isDirectory: true) }
@@ -85,6 +86,7 @@ final class GameInboxModel: ObservableObject {
         let repo = URL(fileURLWithPath: app.setup.nxnativePath)
         let reader = packageReader()
         let installed = app.libraryGames
+        let duplicateReviews = duplicateReviews
         Task {
             guard isEnabled else { busy = false; return }
             let result = await Task.detached(priority: .userInitiated) {
@@ -94,7 +96,7 @@ final class GameInboxModel: ObservableObject {
                     let reading = Result { try reader?.contents(of: packages) ?? [:] }
                     let metadata = NintendoStoreMetadataService()
                     let entries = GameInbox.plan(inputs: inputs, readings: reader == nil ? nil : (try? reading.get()) ?? [:],
-                                                 root: root) { id in
+                                                 root: root, duplicateReviews: duplicateReviews) { id in
                         let titleID = String(format: "%016llX", id)
                         let profile = repo.appendingPathComponent("dm/games/\(titleID)/game.tsv")
                         if let text = try? String(contentsOf: profile, encoding: .utf8),
@@ -160,7 +162,7 @@ final class GameInboxModel: ObservableObject {
                         guard !linked.contains(entry.source.resolvingSymlinksInPath().path) else {
                             throw NXLibraryError.environmentBlocked(L10n.text("This file is linked to a library game."))
                         }
-                        try GameInbox.store(entry, root: root) { destination, content in
+                        try GameInbox.store(entry, root: root, discover: { destination, content in
                             guard PortingModel.sourceFileURLs(in: destination.deletingLastPathComponent()).contains(where: {
                                 $0.standardizedFileURL.path == destination.standardizedFileURL.path
                             }), case .contents(let rows)? = try reader.contents(of: [(destination, false)])[destination],
@@ -170,7 +172,24 @@ final class GameInboxModel: ObservableObject {
                                 game.baseTitleId == SourceCatalog.baseTitleId(for: content.titleId, kind: content.kind)
                                     && game.allSources.contains { $0.url == destination && $0.titleId == content.titleId }
                             }
-                        }
+                        }, withTrashPermission: { source, commit in
+                            // Attach Sources publishes on the main actor. Check and Trash in the same turn.
+                            try DispatchQueue.main.sync {
+                                try MainActor.assumeIsolated {
+                                    guard !self.app.porting.isScanningGameFolder else {
+                                        throw NXLibraryError.environmentBlocked(L10n.text("Wait for porting and transfers to finish before sorting."))
+                                    }
+                                    let sourcePath = source.resolvingSymlinksInPath().path
+                                    let games = try self.app.catalogRepository.load().nxnativeGames
+                                    guard !games.lazy.flatMap(\.sources).contains(where: {
+                                        $0.url.resolvingSymlinksInPath().path == sourcePath
+                                    }) else {
+                                        throw NXLibraryError.environmentBlocked(L10n.text("This file is linked to a library game."))
+                                    }
+                                    try commit()
+                                }
+                            }
+                        })
                         sorted.insert(entry.source)
                     } catch {
                         failures.append("\(entry.source.lastPathComponent): \(error.localizedDescription)")

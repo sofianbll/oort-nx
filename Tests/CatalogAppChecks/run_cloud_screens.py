@@ -416,7 +416,9 @@ extension CloudScreenProbe {
         monitor.setGames([game])
         RunningGameMonitor.screenRunning.withLock { $0 = bundleID }
         monitor.start(sessions: PlaySessionStore(), engineFolder: { "" })
-        let watch = monitor.$runningGameIDs.sink { _ in vm.cloudLibrary.appInstallWake?.yield(()) }
+        let watch = monitor.$runningGameIDs.sink { _ in
+            // QUEUE_MONITOR_CALLBACK
+        }
         defer { watch.cancel(); monitor.stop() }
         precondition(monitor.runningGameIDs == [game.id])
         vm.restoreCloudQueue()
@@ -548,9 +550,116 @@ extension CloudScreenProbe {
         let recoveryPanel = CloudLibraryPanel(viewModel: vm, model: vm.cloudLibrary, game: selected)
         try render("reference-replacement-panel", output, recoveryPanel.environment(\.nxAppLocale, fr))
         L10n.setContext(.init(language: .english, region: "US"))
+        // AUDIT_QUEUE
         print("Play during app upload, personal restart and reference swap verified with local fixtures.")
     }
 }
+'''
+
+AUDIT_QUEUE = r'''
+        let package = folder.appendingPathComponent("Source.nsp")
+        let approved = Data("first".utf8)
+        try approved.write(to: package)
+        let withSources = try repository.updateNXNative(id: game.id) {
+            $0.sources = [.init(url: package, kind: .base, titleId: title, versionString: "0",
+                              sizeBytes: Int64(approved.count))]
+        }
+        let sourceGame = withSources.nxnativeGames.first { $0.id == game.id }!
+        let selection = CloudSourceFiles(sourceGame)!
+        let sources = remote.appendingPathComponent("GameFiles")
+        try fm.createDirectory(at: sources, withIntermediateDirectories: true)
+        let remotePackage = sources.appendingPathComponent(selection.folderName).appendingPathComponent(package.lastPathComponent)
+        func reopen(_ entry: CloudTransferQueue.Entry) async throws -> AppViewModel {
+            let restarted = try makeModel()
+            restarted.cloudLibrary.installScreenSources(backend, root: sources.path)
+            restarted.cloudLibrary.queueStore.save([entry])
+            await restarted.cloudLibrary.queueStore.flush()
+            restarted.restoreCloudQueue()
+            try await until { restarted.cloudLibrary.hasRestoredQueue }
+            await restarted.cloudLibrary.active?.task.value
+            await restarted.cloudLibrary.queueStore.flush()
+            return restarted
+        }
+        var failures: [String] = []
+        let legacy = CloudTransferQueue.Entry(id: game.id, action: .uploadSources)
+        vm = try await reopen(legacy)
+        if fm.fileExists(atPath: remotePackage.path) {
+            let sent = try Data(contentsOf: remotePackage)
+            failures.append("Legacy upload wrote \(String(decoding: sent, as: UTF8.self)) to the current destination without approval")
+            try fm.removeItem(at: remotePackage)
+        } else {
+            let entry = vm.activityResults.entries.first!
+            vm.retryActivity(entry.id)
+            precondition(vm.cloudLibrary.active == nil && vm.settingsNotice?.retry == nil)
+            try renderNotice("queue-confirm-again", output, vm.settingsNotice!, width: 1280)
+        }
+        let expectedStorage = vm.cloudLibrary.storageScope(for: .uploadSources)
+        precondition(expectedStorage != nil)
+        let interruptedUpload = CloudTransferQueue.Entry(id: game.id, action: .uploadSources, token: UUID(), storage: expectedStorage)
+        let replacement = folder.appendingPathComponent("Replacement.nsp")
+        try Data("other".utf8).write(to: replacement)
+        try fm.removeItem(at: package)
+        try fm.moveItem(at: replacement, to: package)
+        vm = try await reopen(interruptedUpload)
+        if fm.fileExists(atPath: remotePackage.path) {
+            let sent = try Data(contentsOf: remotePackage)
+            failures.append("Interrupted upload wrote \(String(decoding: sent, as: UTF8.self)) without fresh approval")
+            try fm.removeItem(at: remotePackage)
+        } else {
+            precondition(vm.cloudLibrary.states[game.id]?.issue?.failed == true)
+            try render("queue-upload-not-replayed", output, CloudLibraryPanel(viewModel: vm, model: vm.cloudLibrary, game: sourceGame))
+        }
+
+        RunningGameMonitor.screenRunning.withLock { $0 = bundleID }
+        monitor.refresh()
+        await withCheckedContinuation { done in DispatchQueue.main.async { done.resume() } }
+        vm = try await reopen(.init(id: game.id, action: .restore(.cache), token: UUID(),
+                                    storage: vm.cloudLibrary.storageScope(for: .restore(.cache))))
+        precondition(vm.cloudLibrary.queue.count == 1 && vm.cloudLibrary.active == nil,
+                     "Cache transfer must be queued until the game closes")
+        RunningGameMonitor.screenRunning.withLock { $0 = nil }
+        monitor.refresh()
+        // The production close callback is dispatched to the main queue.
+        await withCheckedContinuation { done in DispatchQueue.main.async { done.resume() } }
+        if !vm.cloudLibrary.queue.isEmpty { failures.append("Queued transfer did not wake when the game closed") }
+        await vm.cloudLibrary.active?.task.value
+
+        let badTitle = "0100000000008000"
+        let invalid = remote.appendingPathComponent("\(badTitle)/manifests/zz-invalid.json")
+        try fm.createDirectory(at: invalid.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try Data().write(to: invalid)
+        let freshRepository = CatalogRepository(store: .init(directory: folder.appendingPathComponent("fresh-catalog")))
+        let importer = AppViewModel(settingsStore: settings, catalog: .init(), repository: freshRepository)
+        importer.cloudLibrary.installScreenArchives(backend)
+        importer.importCloudGames(manually: true)
+        await importer.cloudLibrary.importTask?.value
+        if try freshRepository.load().nxnativeGames.map(\.titleId) != [title] {
+            failures.append("Malformed manifest blocked import of a healthy game")
+        } else {
+            precondition(importer.settingsNotice?.message.contains(badTitle) == true)
+            try renderNotice("import-with-unreadable-title", output, importer.settingsNotice!, width: 1280)
+        }
+        if !failures.isEmpty {
+            FileHandle.standardError.write(Data(failures.joined(separator: "\n").utf8) + Data([10]))
+            throw CocoaError(.fileWriteUnknown, userInfo: [NSDebugDescriptionErrorKey: failures.joined(separator: "\n")])
+        }
+        let emptyCatalog = CatalogRepository(store: .init(directory: folder.appendingPathComponent("empty-catalog")))
+        let badOnly = folder.appendingPathComponent("bad-only")
+        try fm.createDirectory(at: badOnly, withIntermediateDirectories: true)
+        try fm.copyItem(at: remote.appendingPathComponent(badTitle), to: badOnly.appendingPathComponent(badTitle))
+        let badImporter = AppViewModel(settingsStore: settings, catalog: .init(), repository: emptyCatalog)
+        badImporter.cloudLibrary.installScreenArchives(RcloneStorageBackend(remote: ":local:", root: badOnly.path, run: run))
+        badImporter.importCloudGames(manually: true)
+        await badImporter.cloudLibrary.importTask?.value
+        precondition(badImporter.cloudLibrary.checkFailedDuringImport == true
+                     && badImporter.settingsNotice?.message.contains(badTitle) == true)
+        badImporter.cloudLibrary.installScreenArchives(RcloneStorageBackend(remote: ":local:", root: remote.path) { _, _, _ in
+            .init(status: 1, stdout: "", stderr: "connection reset")
+        })
+        badImporter.importCloudGames(manually: true)
+        await badImporter.cloudLibrary.importTask?.value
+        precondition(badImporter.cloudLibrary.connectionCheck?.failure == .offline)
+        print("Cloud audit: legacy destination, replaced source, close-game wake, and mixed manifests verified.")
 '''
 
 DISPLAY_FIXTURE = r'''
@@ -959,7 +1068,16 @@ extension CloudLibraryPanel {
             host = host.replace("// DOWNLOAD_FILL_CHECK",
                                 "do {\n" + DOWNLOAD_FILL.replace("WAITING_LABEL_FR", waiting_label) + "\n        }")
             if has_replacement:
-                host = host.replace("// PLAY_TRANSFER_CHECK", "try await checkPlayDuringTransfer(in: data, output: output)") + PLAY_TRANSFER
+                if compare or os.environ.get("ARCANE_CLOUD_SCREEN_BASE"):
+                    transfer = PLAY_TRANSFER.replace("// QUEUE_MONITOR_CALLBACK", "vm.cloudLibrary.appInstallWake?.yield(())")
+                else:
+                    startup = (app / "Views/Shell/AppShellView+Startup.swift").read_text()
+                    callback = re.search(r"closeGameWatch = runningGames\.\$runningGameIDs\.sink.*?"
+                                         r"(DispatchQueue\.main\.async \{\n.*?\n            \})", startup, re.S)
+                    assert callback, "Cannot find the running-game callback"
+                    transfer = PLAY_TRANSFER.replace("// QUEUE_MONITOR_CALLBACK", callback[1].replace("viewModel", "vm"))
+                    transfer = transfer.replace("// AUDIT_QUEUE", "do {\n" + AUDIT_QUEUE + "\n        }")
+                host = host.replace("// PLAY_TRANSFER_CHECK", "try await checkPlayDuringTransfer(in: data, output: output)") + transfer
             monitor = app / "Services/RunningGameMonitor.swift"
             change(monitor, r'import AppKit', "import AppKit\nimport os")
             change(monitor, r'    nonisolated static func runningApplication\(bundleID: String\).*?\n    }', '''
@@ -1104,6 +1222,9 @@ extension AppViewModel {
     }
 }
 extension CloudLibraryModel {
+    func installScreenSources(_ fixture: RcloneStorageBackend, root: String) {
+        sourceArchive = CloudGameSources(backend: fixture, root: root)
+    }
     func installScreenArchives(_ fixture: RcloneStorageBackend) {
         backend = fixture
         archive = CloudGameArchive(backend: fixture)

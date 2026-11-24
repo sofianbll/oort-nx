@@ -3,6 +3,15 @@ import Combine
 import NXLibraryCore
 import ArcanePorting
 
+private extension CloudLibraryAction {
+    var isUpload: Bool {
+        switch self {
+        case .upload, .uploadSources: return true
+        default: return false
+        }
+    }
+}
+
 extension CloudLibraryItem {
     var title: String {
         switch self {
@@ -499,10 +508,21 @@ extension AppViewModel {
             }
             let title = L10n.text("Import games from the cloud")
             var listedCloud = false
+            var invalidOnly: String?
             do {
-                let manifests = try await archive.latestManifests()
+                let (manifests, invalidTitles) = try await archive.latestManifestsForImport()
                 try Task.checkCancellation()
                 guard self.cloudLibrary.archive === archive else { return }
+                let warning = invalidTitles.isEmpty ? nil : L10n.format("Could not read cloud game records for: %@.",
+                    [invalidTitles.prefix(8).joined(separator: ", ") + (invalidTitles.count > 8 ? ", …" : "")])
+                if let warning {
+                    self.logs.append(LogEntry(level: .warning, message: L10n.format("Could not read cloud game records for: %@.",
+                        [invalidTitles.joined(separator: ", ")])))
+                    if manifests.isEmpty {
+                        invalidOnly = warning
+                        throw CloudArchiveError.invalidManifest
+                    }
+                }
                 listedCloud = true
                 self.cloudLibrary.connectionCheck = .init(date: .now, failure: nil)
                 let knownTitles = Set(self.libraryGames.compactMap { $0.titleId?.uppercased() })
@@ -538,14 +558,14 @@ extension AppViewModel {
                     self.applyCatalog(catalog)
                 }
                 if manually {
-                    self.showSettingsNotice(title: title, message: L10n.text(added
-                        ? "New cloud games are in your library." : "No new cloud games."))
+                    let summary = L10n.text(added ? "New cloud games are in your library." : "No new cloud games.")
+                    self.showSettingsNotice(title: title, message: [summary, warning].compactMap { $0 }.joined(separator: "\n"))
                 }
             } catch is CancellationError {
             } catch {
                 guard !Task.isCancelled, self.cloudLibrary.archive === archive else { return }
-                let message = self.cloudMessage(for: error)
-                self.logs.append(LogEntry(level: .warning, message: message))
+                let message = invalidOnly ?? self.cloudMessage(for: error)
+                if invalidOnly == nil { self.logs.append(LogEntry(level: .warning, message: message)) }
                 let failure = self.cloudFailure(for: error) ?? .unavailable
                 if !listedCloud { self.cloudLibrary.connectionCheck = .init(date: .now, failure: failure) }
                 self.cloudLibrary.checkFailedDuringImport = true
@@ -664,9 +684,13 @@ extension AppViewModel {
             self.objectWillChange.send()
             for entry in restored {
                 let storage = self.cloudLibrary.storageScope(for: entry.action)
-                guard entry.storage == nil || entry.storage == storage,
-                      let game = games.first(where: { $0.id == entry.id }),
+                guard let game = games.first(where: { $0.id == entry.id }),
                       game.titleId.map(SaveLocation.validID) == true else { continue }
+                guard let approvedStorage = entry.storage else {
+                    self.recordCloudReconfirmation(entry, name: game.name)
+                    continue
+                }
+                guard approvedStorage == storage else { continue }
                 self.cloudLibrary.reads[game.id]?.task.cancel()
                 self.cloudLibrary.reads[game.id] = nil
                 self.cloudLibrary.update(game.id) {
@@ -674,7 +698,7 @@ extension AppViewModel {
                 }
                 let destination = self.cloudImportDestination(for: game, action: entry.action)
                 self.cloudLibrary.queue.append(.init(token: entry.token ?? UUID(), id: game.id, name: game.name,
-                    action: entry.action, storage: storage, scope: destination.map {
+                    action: entry.action, storage: approvedStorage, scope: destination.map {
                     CloudWorkScope(title: game.titleId ?? "", urls: [$0])
                 } ?? CloudWorkScope(game), importDestination: destination,
                              sourceFiles: CloudSourceFiles(game), onSuccess: nil, resumed: true))
@@ -1114,9 +1138,27 @@ extension AppViewModel {
     }
 
     @MainActor func retryCloudOperation(_ entry: CloudTransferQueue.Entry, token: UUID) -> Bool {
+        if entry.storage == nil || entry.action.isUpload {
+            showSettingsNotice(title: L10n.text("Cloud library"), message: cloudReconfirmationMessage)
+            return true
+        }
         guard entry.storage == cloudLibrary.storageScope(for: entry.action),
               let game = libraryGames.first(where: { $0.id == entry.id }) else { return false }
         return enqueueCloudLibrary(entry.action, for: game, retryToken: token)
+    }
+
+    private var cloudReconfirmationMessage: String {
+        L10n.text("Open Cloud library to review and confirm this transfer again.")
+    }
+
+    @MainActor private func recordCloudReconfirmation(_ entry: CloudTransferQueue.Entry, name: String) {
+        let reason = cloudReconfirmationMessage
+        cloudLibrary.update(entry.id) {
+            $0.action = nil; $0.queued = false; $0.progress = nil
+            $0.issue = (entry.action.item(during: nil), reason, true)
+            $0.transferFailure = nil; $0.failedTransferID = nil
+        }
+        recordActivity(entry.token ?? UUID(), job: .cloud(entry), name: name, outcome: .failed(reason))
     }
 
     @MainActor @discardableResult
@@ -1180,6 +1222,12 @@ extension AppViewModel {
         while let request = cloudLibrary.queue.first {
             let id = request.id, action = request.action
             assert(cloudLibrary.states[id]?.action == action && cloudLibrary.states[id]?.queued == true)
+            if request.resumed && action.isUpload {
+                // The queue stores a destination, not a snapshot of the approved bytes.
+                cloudLibrary.queue.removeFirst()
+                recordCloudReconfirmation(request.entry, name: request.name)
+                continue
+            }
             guard let game = libraryGames.first(where: { $0.id == id }),
                   (request.importDestination != nil) == (game.cloudImportPending == true && action == .restore(.app)),
                   request.importDestination.map({ $0.deletingLastPathComponent().standardizedFileURL.path
@@ -1235,7 +1283,9 @@ extension AppViewModel {
                 }
                 if !self.cloudLibrary.isQuitting {
                     if deferred {
-                        self.cloudLibrary.queue.insert(request, at: 0)
+                        var paused = request
+                        if action.isUpload { paused.resumed = true }
+                        self.cloudLibrary.queue.insert(paused, at: 0)
                         self.cloudLibrary.persistQueue()
                         self.porting.scheduleNextBuild()
                     } else {
@@ -1444,11 +1494,8 @@ extension AppViewModel {
     @MainActor private func resumableCloudAction(_ request: CloudLibraryModel.Request, archive: CloudGameArchive,
                                                  game: PortedGame, target: CloudArchiveGame) async throws -> CloudLibraryAction? {
         let action = request.action
-        if action == .uploadSources || action == .downloadSources {
+        if action == .downloadSources {
             let state = try await readCloudSourceStatus(request.sourceFiles)?.get()
-            if action == .uploadSources {
-                return state?.state == .notInCloud && GameResourceState.sourcesAvailable(for: game) ? action : nil
-            }
             let reference = try await referenceManifest(titleID: target.titleID)
             let own = reference == nil ? nil : try await archive.latest(titleID: target.titleID)
             let shared = try await referenceSourceStatus(for: game, reference: reference, own: own)
@@ -1459,9 +1506,6 @@ extension AppViewModel {
         let manifest = kinds.isEmpty ? nil : try await archive.latest(titleID: target.titleID)
         let copies = kinds.isEmpty ? [:] : try await archive.copyStatuses(target, manifest: .success(manifest))
         switch action {
-        case .upload(let kind):
-            return (kind.map { CloudArtifactStatus.canUploadAlone($0, statuses: copies) }
-                    ?? CloudArtifactStatus.needsUpload(copies)) ? action : nil
         case .restore(let kind):
             if let reference = try await restoreReferenceManifest(titleID: target.titleID, kind: kind, personal: manifest),
                let referenceArchive = cloudLibrary.referenceArchive, referenceWins(reference, over: manifest, kind: kind) {
@@ -1487,7 +1531,7 @@ extension AppViewModel {
                 synchronized.insert(.sources)
             }
             return action.resumableFree(synchronized: synchronized)
-        case .uploadSources, .downloadSources: return nil
+        case .upload, .uploadSources, .downloadSources: return nil
         }
     }
 
