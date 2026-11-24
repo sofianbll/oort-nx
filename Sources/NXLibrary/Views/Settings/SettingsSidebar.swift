@@ -1,106 +1,79 @@
 import SwiftUI
-import AppKit
 import NXLibraryCore
 
-/// Left column of Settings: app mark, name and version, then the sections under their group headings.
-struct SettingsSidebar: View {
-    @Binding var selection: SettingsSection
-    var isFocused: Bool = false
-    let context: AppLocale
-    @Environment(\.seleneCanvas) private var canvas
+/// Categories, subjects and search results share the detail column, not their storage identities.
+enum SettingsPage: Hashable {
+    case category(SettingsCategory)
+    case subject(SettingsSection)
+    case search, changed
 
-    private var version: String {
-        L10n.format("Version %@", [AppUpdate.versionLabel(Bundle.main.infoDictionary, context: context)], context: context)
+    static let stops: [Self] = [.search, .changed] + SettingsCategory.allCases.map(Self.category)
+
+    static func opening(_ section: SettingsSection) -> OortSettingsStack<Self> {
+        guard let category = SettingsCategory(section: section) else {
+            return .init(section == .changed ? .changed : .search)
+        }
+        var stack = OortSettingsStack<Self>(.category(category))
+        if category.sections.count > 1 { stack.push(.subject(section)) }
+        return stack
     }
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            header
-                .padding(.bottom, canvas.u(26))
-            // The groups can be taller than the window: the selected section is always scrolled into view,
-            // at once like a macOS sidebar. An animated scroll started in the same frame as the new section's
-            // content and stuttered.
-            ScrollViewReader { proxy in
-                ScrollView {
-                    groups
-                }
-                .scrollIndicators(.hidden)
-                .onAppear { proxy.scrollTo(selection, anchor: .center) }
-                .onChange(of: selection) { _, section in proxy.scrollTo(section, anchor: .center) }
-            }
+    var section: SettingsSection? {
+        switch self {
+        case .search: .search
+        case .changed: .changed
+        case .subject(let section): section
+        case .category(let category): category.sections.count == 1 ? category.sections.first : nil
         }
     }
 
-    /// App-wide groups, then one per platform (`SettingsSidebarGroup`); a heading is a label, not a stop.
-    private var groups: some View {
-        VStack(alignment: .leading, spacing: canvas.u(6)) {
-            ForEach(SettingsSidebarGroup.all) { group in
-                if let heading = group.title(in: context) {
-                    Text(heading)
-                        .seleneFont(.compactCaption, .semibold)
-                        .foregroundColor(SeleneTheme.ink60)
-                        .padding(.leading, canvas.u(SeleneTokens.Space.panel))
-                        .padding(.top, canvas.u(SeleneTokens.Space.control))
-                        .padding(.bottom, canvas.u(SeleneTokens.Space.seam))
-                        .accessibilityAddTraits(.isHeader)
-                }
-                ForEach(group.sections) { section in groupRow(section).id(section) }
+    func title(in context: AppLocale) -> String {
+        switch self {
+        case .category(let category): return category.title(in: context)
+        case .subject(let section):
+            if let category = SettingsCategory(section: section) {
+                return category.sections.count == 1 ? category.title(in: context) : category.title(for: section, in: context)
             }
+            return section.title(in: context)
+        case .search, .changed: return L10n.text("Search", context: context)
+        }
+    }
+}
+
+struct SettingsSidebar: View {
+    let selection: SettingsPage
+    let isFocused: Bool
+    @Binding var query: String
+    let searchFieldRequest: Int
+    let onSelect: (SettingsPage) -> Void
+    let onSearchFocus: () -> Void
+    let onSubmit: () -> Void
+    @Environment(\.nxAppLocale) private var context
+    @Environment(\.seleneCanvas) private var canvas
+
+    typealias Sidebar = OortSettingsSidebar<SettingsPage, AnyView>
+
+    var body: some View {
+        Sidebar(sections: SettingsCategory.groups.map { group in
+            .init(title: group.heading.map { L10n.text($0, context: context) },
+                  items: group.categories.compactMap { category in
+                category.sections.first.map {
+                    .init(id: .category(category), title: category.title(in: context), icon: $0.icon)
+                }
+            })
+        }, selected: selection, focused: isFocused, onSelect: onSelect) {
+            AnyView(header)
         }
     }
 
     private var header: some View {
-        HStack(spacing: canvas.u(16)) {
-            Image(nsImage: NSApplication.shared.applicationIconImage)
-                .resizable()
-                .interpolation(.high)
-                .frame(width: canvas.u(48), height: canvas.u(48))
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: canvas.u(2)) {
-                Text(AppIdentity.displayName)
-                    .seleneFont(.title, .semibold)
-                    .foregroundColor(SeleneTheme.ink)
-                Text(version)
-                    .seleneFont(.caption)
-                    .foregroundColor(SeleneTheme.ink.opacity(0.55))
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
+            OortSettingsSearchField(query: $query, request: searchFieldRequest, onFocus: onSearchFocus, onSubmit: onSubmit)
+            HStack(spacing: canvas.u(SeleneTokens.Space.hairline)) {
+                SelenePillButton(title: "All", focused: selection == .search) { onSelect(.search) }
+                SelenePillButton(title: "Changed", focused: selection == .changed) { onSelect(.changed) }
             }
+            .accessibilityElement(children: .contain)
         }
-    }
-
-    private func groupRow(_ section: SettingsSection) -> some View {
-        let selected = selection == section
-        let lit = selected && isFocused
-        return Button {
-            selection = section
-        } label: {
-            HStack(spacing: canvas.u(16)) {
-                // Selene's section icons take the row's ink, like the title.
-                Group {
-                    if section == .multiplayer {
-                        Image(systemName: "person.2.fill")
-                            .seleneFont(20)
-                            .frame(width: canvas.u(24))
-                            .accessibilityHidden(true)
-                    } else {
-                        MaterialIconView(section.icon, size: 24)
-                    }
-                }
-                .foregroundColor(lit ? SeleneTheme.onFocus : SeleneTheme.ink)
-                Text(section.title(in: context))
-                    .seleneFont(.rowTitle, .medium)
-                    .foregroundColor(lit ? SeleneTheme.onFocus : SeleneTheme.ink)
-                Spacer(minLength: 0)
-            }
-            .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
-            .padding(.vertical, canvas.u(SeleneTokens.Space.line))
-            .background(
-                RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
-                    .fill(lit ? SeleneTheme.focus : (selected ? SeleneTheme.glass : Color.clear))
-            )
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(section.title(in: context))
-        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 }

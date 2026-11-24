@@ -195,7 +195,7 @@ La variante asincrona attende su una coda utility e invia SIGTERM al sottoproces
 - Aggiungere sorgenti dal wizard usa `merge(replacingSources: true)`. In Options → Edit details, Attach sources riusa il selettore dei file e la scansione di Add Game, richiede un solo gioco compilabile con lo stesso title ID e aggiorna la voce senza sostituirne il bundle o la cronologia. Mantiene il workspace e la cache registrati o pianifica quelli mancanti. I file originali restano dove sono. Le scansioni automatiche conservano la selezione registrata e il bundle installato.
 - `GameResourceState` riconcilia app, sorgenti e stato. Conserva build in corso e workspace non ancora compilati, distingue app mancante da file d'origine mancanti e mantiene Play per una build esistente. Le viste usano `PortingPills.unavailable` per il motivo breve e l'azione primaria disabilitata; `PortingTileLook` distingue il passo necessario e l'aggiornamento facoltativo. La voce resta in libreria: non si cerca l'app spostata, e Refresh controlla le cartelle già configurate. Un cambio di cartella durante la scansione scarta il contesto precedente e avvia quella nuova.
 - `AppSizeCache` ricorda le dimensioni per percorso e data di modifica.
-- Settings → Porting → Game folders usa un'unica riga **Scan game apps** per scoperta e refresh, disabilitata durante la scansione (anche come azione del controller). Collection conserva il proprio ingresso per importare build esistenti.
+- Settings → Switch → Game folders usa un'unica riga **Scan game apps** per scoperta e refresh, disabilitata durante la scansione (anche come azione del controller). Collection conserva il proprio ingresso per importare build esistenti.
 
 **Le fonti.**
 - `CatalogSourcesModel` tiene configurazione e stato della fonte Steam e la richiesta di scansione corrente. La lettura avviene su un worker annullabile. Disattivazione, cambio di cartella o nuova richiesta invalidano il risultato precedente. La generazione salvata distingue anche disattivazione e riattivazione sulla stessa radice; nei cataloghi schema 1 più vecchi il valore mancante si legge come una sentinella fissa. Un risultato valido si applica all'ultima revisione conservando le modifiche indipendenti ai preferiti.
@@ -274,27 +274,20 @@ contenere anche i titoli e i messaggi su più righe.
 
 `IntegrationOverview.open` risolve l’ID nell’inventario di Search e Changed (`SettingsCatalog.all`) e chiede ad `AppRouter` di aprire il gruppo, senza azionare il comando. `SettingsView` aspetta le azioni pubblicate per mettere a fuoco la riga e disabilita gli avvii automatici della destinazione. I testi «legge, scrive, invia» descrivono le operazioni dei servizi, non nuovi permessi: separano client Steam locale e servizi Valve, porting locale e download, e sincronizzazione delle partite e archivio dei giochi. Indietro ripristina la riga in Integrations e poi la barra; gli aggiornamenti di stato non cambiano il focus.
 
-**La barra laterale.** `SettingsSidebarGroup` raggruppa le sezioni: Search e Changed, poi cinque gruppi.
-- **Profile:** Identity, Theme and background, Security, Nextendo e Profile page agiscono sul profilo attivo.
-- **General:** Start-up, Navigation, Spotlight, Sound & music, Look, Controllers, Play together, Online services. `SettingsStartUpSection` fa scorrere le scelte di avvio; `LocalProfileStore` le risolve prima che `AppShellState` applichi l’aspetto del profilo attivo.
-- **Library:** Sources, Games, Storage. Valgono per i giochi di ogni fonte.
-- **Porting:** Setup and engine, Keys, Game folders, New games, Cloud saves, Cloud library, Porting storage. Valgono solo per i giochi convertiti.
-- **System:** About, Console. In `SettingsAboutSection`, il pulsante di sostegno volontario a tutta larghezza, prima dei crediti, mostra l’icona di Buy Me a Coffee e apre la pagina nel browser predefinito. Clic, tastiera e controller usano la stessa azione.
+**La barra laterale.** `SettingsCategory` dispone sedici rubriche: General, Appearance, Sound e Controllers; Profile (Account, Profile page, Multiplayer); Games (Home, Library, Switch, Saves, Cloud library); Oort (Integrations, Storage, Logs, About). Il campo in alto conserva la ricerca, con All e Changed come filtri. `OortSettingsShell` disegna barra, titolo e ritorno; `OortSettingsStack` conserva la radice e la pagina corrente. Una rubrica con più argomenti mostra collegamenti ai sottoargomenti, non tutti i controlli insieme. I risultati aprono il sottoargomento a partire dalla ricerca, mirano alla riga e al ritorno ripristinano il risultato.
 
-Regole della barra:
-- Porting è l'unico gruppo di piattaforma (`isPlatform`). Search, Changed e il titolo antepongono il gruppo alle sezioni di Porting e Profile.
-- `SettingsSection` dichiara i casi nell'ordine della barra, quindi `allCases` la percorre come è disegnata. I `rawValue` sono identità e non cambiano: `sources` è la pagina Sources, `library` e `games` sono Game folders e New games di Porting; `cloudSaves` e `cloudLibrary` sono distinti.
-- La barra dei comandi mette B (Back) a sinistra e LB/RB, X e A a destra.
+- `SettingsSection` e `SettingsSidebarGroup` conservano identità, nomi precedenti e contratti di ricerca e reset. La navigazione non salva né ricrea la bozza.
+- B/Esc torna alla rubrica o ai risultati, poi alla barra e solo dopo lascia Settings. La barra dei comandi mette B (Back) a sinistra e LB/RB, X e A a destra.
 - Ogni riga di `SettingsCatalog` tiene il suo `rowID` quando cambia sezione.
 - Dove stanno le righe che si potrebbero cercare altrove:
-  - schermata di lancio, Surprise me e card della sessione in Library → Games, perché valgono per ogni fonte; Hidden game apps elenca solo le app portate nascoste;
-  - Rumble e Rumble strength in Porting → New games, perché sono default copiati nei nuovi giochi convertiti;
-  - prod.keys in Porting → Keys; Check engine at launch e Setup in Setup and engine, dove Compatibility ripete già il controllo dell'ambiente;
-  - Refresh library at launch e Box covers in Porting → Game folders;
-  - le cache di compilazione, per gioco e per tutti, in Porting → Porting storage; spazio usato, log, cache di metadati e artwork e backup in Library → Storage;
-  - App icon in Look: è l'icona del Dock.
-- Online services (`apiServices`) raccoglie IGDB (voti) e SteamGridDB (artwork). La nota iniziale dice che le connessioni sono facoltative e che le fonti pubbliche funzionano senza chiavi. Non esiste un reset di gruppo che elimini le credenziali.
-- General → Play together è il punto globale per VPN, modalità predefinita e parametri locali avanzati. Il client ID pubblico in Advanced è un override facoltativo in `AppSettings`, con ripiego sul valore del bundle Arcane. La riga e i risultati corrispondenti richiedono il profilo originale e un checkout compatibile.
+  - schermata di lancio, Surprise me e card della sessione in Library, perché valgono per ogni fonte; Hidden game apps elenca solo le app portate nascoste;
+  - Rumble e Rumble strength in Switch → Defaults, perché sono default copiati nei nuovi giochi convertiti;
+  - prod.keys in Switch → Keys; Check engine at launch e Setup in Switch → Engine, dove Compatibility ripete già il controllo dell'ambiente;
+  - Refresh library at launch e Box covers in Switch → Game folders;
+  - le cache di compilazione, per gioco e per tutti, in Storage → Porting storage; spazio usato, log, cache di metadati e artwork e backup in Storage → Usage;
+  - App icon in Appearance → Display: è l'icona del Dock.
+- Integrations → Services (`apiServices`) raccoglie IGDB (voti) e SteamGridDB (artwork). La nota iniziale dice che le connessioni sono facoltative e che le fonti pubbliche funzionano senza chiavi. Non esiste un reset di gruppo che elimini le credenziali.
+- Multiplayer è il punto globale per VPN, modalità predefinita e parametri locali avanzati. Il client ID pubblico in Advanced è un override facoltativo in `AppSettings`, con ripiego sul valore del bundle Arcane. La riga e i risultati corrispondenti richiedono il profilo originale e un checkout compatibile.
 - La pagina del profilo mostra Amici solo con un conto collegato e riusa il pannello di conto per la gestione. Il primo profilo conserva il token nxnative dove si trova; gli altri usano `profile-credentials/<UUID>/refresh_token`. Arcane passa al gioco online solo il percorso `DM_NEXTENDO_LOGIN_DIR` e rifiuta per i profili aggiuntivi un host che non supporta questa variabile. I token non si copiano in Dev né nel backup di migrazione. I badge online leggono un conteggio pubblico per title ID solo se il profilo attivo ha un token; il token non viene inviato.
 - `SettingsAPISection` presenta Nextendo come gioco online facoltativo nella sezione del profilo, anche senza un conto collegato. Il reset disattiva la condivisione senza disconnettere il conto; Security richiede il PIN esistente o Touch ID per rimuovere il codice.
 - `NextendoSettings` pubblica lo stato della sessione e la scheda account in memoria. `NextendoBrowserSignIn` apre il browser predefinito e riceve il codice una sola volta su `127.0.0.1`, preferendo la porta `47823`. Il listener si chiude con Cancel o dopo cinque minuti. `NextendoAuthorization` verifica lo `state` OAuth e calcola il challenge PKCE.
@@ -390,7 +383,7 @@ Regole della barra:
 - Your games presenta Game apps, la cartella unica in cui cercare giochi nxnative esistenti e installare le prime build.
   - Il default `~/Applications` si prepara al primo uso solo se non è già stato scelto o ricordato un percorso. Le destinazioni personalizzate o confermate restano ricordate anche quando non sono disponibili.
   - La lettura basta per scoperta e Play; le nuove installazioni richiedono la scrittura.
-  - Game files è una scelta facoltativa in Settings → Porting → Game folders, separata dalla selezione temporanea del wizard.
+  - Game files è una scelta facoltativa in Settings → Switch → Game folders, separata dalla selezione temporanea del wizard.
   - Cambiare Game apps non sposta le app registrate; cambiare Game files non sostituisce i sorgenti di un titolo senza conferma esplicita. `GameFoldersCopy` mantiene coerenti i nomi.
 - Con un engine che riconosce le cartelle estratte, Setup permette di proseguire senza chiavi. Le sorgenti cifrate continuano a richiederle e a passare dal controllo preliminare.
 
@@ -427,7 +420,7 @@ Regole della barra:
 
 ## Sorgenti e porting
 
-L'Inbox (`GameInboxView`, `GameInboxModel`) si apre da Libreria o da una card Spotlight quando ci sono file in arrivo. **Settings → Porting → Game folders → Sort incoming files** è attivo anche per i vecchi profili; se disattivato, Arcane non avvia letture dell'Inbox, nasconde voce e card e blocca la route, anche al ritorno. Il reset della sezione riattiva l'Inbox senza modificare i percorsi.
+L'Inbox (`GameInboxView`, `GameInboxModel`) si apre da Libreria o da una card Spotlight quando ci sono file in arrivo. **Settings → Switch → Game folders → Sort incoming files** è attivo anche per i vecchi profili; se disattivato, Arcane non avvia letture dell'Inbox, nasconde voce e card e blocca la route, anche al ritorno. Il reset della sezione riattiva l'Inbox senza modificare i percorsi.
 
 La destinazione è `~/Games/Switch/Games/`; se **Game files** è diverso, la pagina propone la correzione con conferma. `GameInbox` produce una riga per pacchetto da `EnginePackageReader`, senza i raggruppamenti di Add Game. La riga usa il carattere del corpo quando mostra una destinazione da verificare. I nomi provengono dalle cartelle esistenti, dal profilo del motore o dai dati locali del catalogo; se non sono certi, il file resta dov'è. L'anteprima riusa i confronti positivi dei duplicati solo a parità di percorso, identità, dimensione e tempi dei due file nella sessione; il triage confermato ricalcola sempre gli hash. La copia nella libreria è una scelta distinta dal porting, che continua a collegare le sorgenti senza copiarle.
 
@@ -736,7 +729,7 @@ Il percorso completo è in [flows.md](flows.md#6-importare-o-ripristinare-un-sal
 ## Spazio su disco
 
 **Misura.**
-- Library → Storage e Porting → Porting storage usano `StorageManager.snapshot` (`ArcanePorting/Library/`: misura le app portate, le loro cache e i loro log). `GameStorageUsage` distingue app, cache e log per voce, compresi i giochi nascosti, e ordina le cache dalla più grande.
+- Library → Storage e Storage → Porting storage usano `StorageManager.snapshot` (`ArcanePorting/Library/`: misura le app portate, le loro cache e i loro log). `GameStorageUsage` distingue app, cache e log per voce, compresi i giochi nascosti, e ordina le cache dalla più grande.
 - `StorageSize` distingue file assenti da percorsi non leggibili o volumi scollegati.
 - Le misure sono dimensioni logiche dei file, compresi quelli nascosti. La visita fisica fts non segue i collegamenti interni e scarta le misure incomplete in caso di errore. I percorsi canonici condivisi si misurano e si contano una sola volta nei totali.
 - Lo spazio libero è quello della cartella Game apps corrente, senza ripiegare sul disco interno se questa manca.
@@ -933,7 +926,7 @@ Prove e misure di queste scelte: [docs/history/reviews/2026-11-16-ratings-metada
 - Download nel pannello Cloud, in Spotlight e in Details usa `SelenePillButton`: un solo bordo mobile maschera il fondo bianco e il testo nero. `CloudArchiveProgress` distingue il trasferimento completato dalla verifica iniziale, così il pulsante resta pieno durante verifica e ripristino senza anticipare Play. Senza un totale noto resta il contorno e si usa l'indicatore esistente. Riduci movimento disattiva l'interpolazione.
 - In Details il pulsante Cloud può aggiungere solo l'alone animato, senza un punto fisso; con Riduci movimento la scheda conserva il disegno di riferimento.
 - Quando Download indica il progresso, il pannello mostra i byte accanto al punto di stato; Spotlight e Details mostrano una riga con fase e byte. In questi casi non si ripete il progresso su una barra.
-- Porting → Porting storage: «Move to Trash» per la cache di un gioco è bloccato dai lavori di quel gioco (build, verifica, coda o trasferimento cloud, `AppViewModel.canDeleteCache(for:)`); per una cache condivisa o tutte le cache, aspetta che ogni lavoro finisca.
+- Storage → Porting storage: «Move to Trash» per la cache di un gioco è bloccato dai lavori di quel gioco (build, verifica, coda o trasferimento cloud, `AppViewModel.canDeleteCache(for:)`); per una cache condivisa o tutte le cache, aspetta che ogni lavoro finisca.
 - Menu apre il centro di controllo. Home e Cambia profilo usano `ProfilePickerView` sopra la schermata corrente; la shell mantiene montata la vista sottostante e le toglie l’input e l’accessibilità durante la scelta. Il centro di controllo e la schermata profilo hanno ciascuno la propria barra di suggerimenti: la shell segna schermata, Aggiungi gioco e console come coperti (`seleneHintsCovered`) e `SeleneHintsBar` si ritira. Nella schermata profilo la procedura guidata (Y o Aggiungi) sostituisce il selettore, che sfuma con i suoi suggerimenti e torna alla chiusura; `ProfileLayers` stabilisce lo strato che riceve l’input. Le pillole Power sono Quit, Sleep (`pmset sleepnow`, rinviato durante un trasferimento cloud), Hide e Restart app (`PowerAction`, `AppShellView.runPower`).
 - La fila di `ProfilePickerView` riserva spazio per l'alone nel viewport senza spostare il titolo o i ritratti della fila corta. Il bordo sfuma solo dal lato in cui ci sono altri profili da scorrere, così il primo e l'ultimo mantengono l'alone visibile. Fuori focus il glifo di aggiunta usa l'inchiostro dell'etichetta. [Misure](../history/reviews/2026-11-24-profile-focus.md).
 - `ThemePaletteSwatch` sfuma lo scrim dietro il campione di testo delle palette chiare per mantenerlo leggibile senza alterare la palette.

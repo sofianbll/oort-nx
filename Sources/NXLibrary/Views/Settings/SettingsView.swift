@@ -23,7 +23,12 @@ struct SettingsView: View {
 
     /// Opens the Search field when the player asks for it (`enterSection`).
     @State private var searchFieldRequest = 0
-    @State private var section: SettingsSection
+    @State private var searchQuery = ""
+    @State private var navigation: OortSettingsStack<SettingsPage>
+    @State private var requestedRowID: String?
+    @State private var returnRowID: String?
+    private var page: SettingsPage { navigation.current }
+    private var section: SettingsSection? { page.section }
     @State private var openedFromIntegrations: Bool
     @State private var showingControls = false
     @State private var showingPlayers = false
@@ -68,6 +73,7 @@ struct SettingsView: View {
     /// A palette change redraws the whole screen; selection and focus live here and survive it.
     @ObservedObject private var theme = ThemeStore.shared
     @ObservedObject private var igdb = IGDBSettings.shared
+    @ObservedObject private var controller = GameControllerService.shared
     @ObservedObject private var nextendo: NextendoSettings
     private let hasProfileAccount: Bool
     private let profiles: LocalProfileStore?
@@ -102,21 +108,20 @@ struct SettingsView: View {
         self.hasProfileAccount = account != nil
         _nextendo = ObservedObject(wrappedValue: account ?? .shared)
         profiles = viewModel.localProfiles
-        _section = State(initialValue: initialSection)
+        _navigation = State(initialValue: SettingsPage.opening(initialSection))
         _openedFromIntegrations = State(initialValue: router.previousRoute == .integrations)
     }
 
     private var layout: some View {
         let _ = profileRevision
         return VStack(spacing: 0) {
-            HStack(alignment: .top, spacing: canvas.u(24)) {
-                SettingsSidebar(selection: $section, isFocused: focusArea == .sidebar, context: localization)
-                    .frame(width: canvas.u(400))
+            OortSettingsShell(title: page.title(in: localization), onBack: navigation.canGoBack ? handleBack : nil) {
+                SettingsSidebar(selection: navigation.root, isFocused: focusArea == .sidebar, query: $searchQuery,
+                                searchFieldRequest: searchFieldRequest, onSelect: selectPage,
+                                onSearchFocus: focusSearch, onSubmit: enterRows)
+            } detail: {
                 content
             }
-            .padding(.horizontal, canvas.u(SeleneTokens.Space.stageGutter))
-            .padding(.top, canvas.u(SeleneTokens.Space.stageHeader))
-            .frame(maxHeight: .infinity, alignment: .top)
             SeleneHintsBar(left: [HintItem(.b, L10n.text("Back")) { handleBack() }], right: commandHints)
                 // Save remains visible even while previewing a change that hides the hints.
                 .environment(\.seleneShowButtonHints, hasPendingChanges || settings.presentation.showButtonHints)
@@ -185,19 +190,15 @@ struct SettingsView: View {
         .onChange(of: supportsNextendo) { _, supported in
             if !supported, section == .multiplayer { nextendo.isEditingClient = false }
         }
-        .onChange(of: section) { _, section in
-            if section != .cloudLibrary { cloudAdvanced = false }
-            if section != .multiplayer { multiplayerAdvanced = false }
-            rowActions = []
-            rowFocus = FocusIndex()
-            rowButton = 0
-        }
         .onChange(of: initialSection) { _, value in
-            section = value
-            focusArea = .sidebar
+            changePage(to: SettingsPage.opening(value))
             showingPlayers = false
         }
-        .onChange(of: router.settingsRowID) { _, _ in focusRequestedSetting() }
+        .onChange(of: router.settingsRowID) { _, id in
+            guard id != nil else { return }
+            if section != initialSection { changePage(to: SettingsPage.opening(initialSection)) }
+            focusRequestedSetting()
+        }
         .onChange(of: router.settingsDecision) {
             decisionFocus = 2
             decisionError = nil
@@ -471,13 +472,11 @@ struct SettingsView: View {
     }
 
     private var content: some View {
-        ScrollViewReader { proxy in
+        let visiblePage = page
+        return ScrollViewReader { proxy in
             ScrollView {
-                VStack(alignment: .leading, spacing: canvas.u(8)) {
-                    Text(section.place)
-                        .seleneFont(.compactCaption, .semibold)
-                        .foregroundColor(SeleneTheme.ink.opacity(0.55))
-                        .padding(.bottom, canvas.u(SeleneTokens.Space.tight))
+                VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
+                    if let section = visiblePage.section {
                     SettingsSectionContent(
                         section: section,
                         viewModel: viewModel,
@@ -495,19 +494,22 @@ struct SettingsView: View {
                         onChooseRegion: { localePicker = .region },
                         onOpenConsole: { router.openConsole() },
                         onOpenGroup: openGroup,
-                        onSearchSubmit: enterRows,
-                        searchFieldRequest: searchFieldRequest,
+                        searchQuery: searchQuery,
                         cloudAdvanced: $cloudAdvanced,
                         multiplayerAdvanced: $multiplayerAdvanced,
                         onEditCloud: { cloudAssistant = viewModel.cloudLibrary.preference.remote == nil ? .account : .credentials },
                         onEditCloudLibraryFolder: { cloudAssistant = .library },
                         onEditCloudSources: { cloudAssistant = .sources },
                         onEditCloudReference: { editingCloudReference = true },
-                        onActions: updateActions
+                        onActions: { if page == visiblePage { updateActions($0) } }
                     )
                     .environment(\.passiveSettingsArrival, openedFromIntegrations && section == initialSection)
                     .environment(\.settingsRowChanges, pendingRows)
+                    } else if case let .category(category) = visiblePage {
+                        subjectRows(category)
+                    }
                 }
+                .id(visiblePage)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .environment(\.seleneFocusedRowID, focusArea == .rows ? focusedRow?.rowID : nil)
                 .environment(\.seleneFocusedButton, rowButton)
@@ -529,7 +531,54 @@ struct SettingsView: View {
         settings.presentation.reduceMotion || environmentReduceMotion
     }
 
+    private func subjectRows(_ category: SettingsCategory) -> some View {
+        let visiblePage = page
+        let subjects = category.sections
+        return ForEach(subjects) { subject in
+            OortSettingsLink(id: subject.id, title: category.title(for: subject, in: localization),
+                             subtitle: subject.subtitle, value: subjectValue(subject)) {
+                openSubject(subject)
+            }
+        }
+        .onAppear {
+            guard page == visiblePage else { return }
+            updateActions(subjects.map { subject in
+                SettingsRowAction(id: subject.id, title: category.title(for: subject, in: localization),
+                                  rowID: subject.id) { openSubject(subject) }
+            })
+        }
+    }
+
+    private func subjectValue(_ subject: SettingsSection) -> String? {
+        switch subject {
+        case .look: SettingsDraftFields.onOff(editor.settings.reduceMotion)
+        case .profileLook: theme.palette.name
+        case .controllers: controller.connectedControllers.first?.name
+        case .navigation: SettingsDraftFields.onOff(editor.settings.showButtonHints)
+        case .profileIdentity: profiles?.active?.name
+        case .profileSecurity: profiles?.active.map { SettingsDraftFields.onOff($0.isLocked) }
+        case .profileNextendo: nextendo.accountName ?? L10n.text("No account linked")
+        case .engine: seleneShort(setup.currentEngineCommit)
+        case .keys: L10n.text(setup.isProdKeysValid ? "Keys imported" : "No prod.keys imported")
+        case .library: (editor.settings.launcherChoices.gameAppsPath ?? viewModel.libraryFolder?.path)
+            .map { URL(fileURLWithPath: $0).lastPathComponent }
+        case .games: SettingsDraftFields.onOff(editor.settings.gameDefaults.fullscreen)
+        case .sources: editor.settings.launcherChoices.steamSource.map { SettingsDraftFields.onOff($0.enabled) }
+        case .apiServices: SettingsDraftFields.onOff(igdb.isConfigured || viewModel.hasSteamGridDBKey)
+        case .storage: viewModel.storageUsage.map { seleneBytes($0.libraryBytes + $0.cacheBytes + $0.logsBytes) }
+        case .portingStorage: viewModel.storageUsage.map { seleneBytes($0.cacheBytes) }
+        default: nil
+        }
+    }
+
+    private func openSubject(_ subject: SettingsSection) {
+        var next = navigation
+        next.push(.subject(subject))
+        changePage(to: next, returnFocus: subject.id)
+    }
+
     private var pendingRows: [String: AppSettingsDraft.Change] {
+        guard let section else { return [:] }
         var rows: [String: AppSettingsDraft.Change] = [:]
         for change in settings.draft?.changes ?? [] {
             rows[SettingsDraftFields.row(change.id, in: section)] = change
@@ -551,7 +600,7 @@ struct SettingsView: View {
             hints.append(HintItem(.a, L10n.text("Open")) { enterSection() })
         } else if focusedRow?.cycle != nil {
             hints.append(HintItem(.a, L10n.text("Change")))
-        } else {
+        } else if focusedRow?.isEnabled == true {
             hints.append(HintItem(.a, L10n.text("Select")))
         }
         return hints
@@ -576,29 +625,60 @@ struct SettingsView: View {
     }
 
     private func focusRequestedSetting() {
-        guard router.route == .settings(section), let id = router.settingsRowID,
-              let setting = SettingsCatalog.all.first(where: { $0.id == id && $0.group == section }),
+        let externalID = section == initialSection ? router.settingsRowID : nil
+        guard let id = requestedRowID ?? externalID else { return }
+        let alias = section.map { SettingsDraftFields.row(id, in: $0) }
+        guard
               let index = rowActions.firstIndex(where: {
-                  $0.id == id || $0.rowID == setting.title || (id == "cloudLibraryService" && $0.id == "cloudRecovery")
+                  $0.id == id || $0.rowID == id || (id == "cloudLibraryService" && $0.id == "cloudRecovery")
+                      || $0.rowID == alias
               }) else { return }
         rowFocus.index = index
         rowButton = 0
         focusArea = .rows
-        router.takeSettingsRowFocus()
+        requestedRowID = nil
+        if externalID == id { router.takeSettingsRowFocus() }
     }
 
     private func openGroup(_ row: SettingDescriptor) {
-        section = row.group
+        var next = navigation
+        next.push(.subject(row.group))
+        changePage(to: next, focus: row.id, returnFocus: row.id)
         cloudAdvanced = SettingsCatalog.opensCloudAdvanced(row.id)
         multiplayerAdvanced = ["multiplayerLocalMode", "multiplayerAdapter", "nextendoClientID"].contains(row.id)
-        focusArea = .sidebar
         SoundEffectService.shared.play(.click)
+    }
+
+    private func changePage(to next: OortSettingsStack<SettingsPage>, focus: String? = nil, returnFocus: String? = nil) {
+        rowActions = []
+        rowFocus = FocusIndex()
+        rowButton = 0
+        requestedRowID = focus
+        returnRowID = returnFocus
+        focusArea = next.canGoBack ? .rows : .sidebar
+        navigation = next
+        cloudAdvanced = false
+        multiplayerAdvanced = false
+    }
+
+    private func selectPage(_ page: SettingsPage) {
+        NSApp.keyWindow?.makeFirstResponder(nil)
+        if navigation.current == page {
+            focusArea = .sidebar
+            return
+        }
+        changePage(to: .init(page))
+    }
+
+    private func focusSearch() {
+        guard page != .search, page != .changed else { return }
+        changePage(to: .init(.search))
     }
 
     /// A or Right on the sidebar. Search opens its field; every other section enters its rows.
     private func enterSection() {
         guard focusArea == .sidebar else { return }
-        if section == .search {
+        if page == .search {
             searchFieldRequest += 1
             SoundEffectService.shared.play(.focus)
         } else {
@@ -619,6 +699,7 @@ struct SettingsView: View {
     }
 
     private var canResetSection: Bool {
+        guard let section else { return false }
         if section == .profileSecurity { return profiles?.active?.isLocked == true && profiles?.guest == nil }
         if section == .profileNextendo { return hasProfileAccount }
         return SettingsReset.canReset(section)
@@ -627,7 +708,7 @@ struct SettingsView: View {
     /// `SettingsReset` puts the section's `AppSettings` back in one assignment; the preferences
     /// kept outside it are reset here.
     private func resetSection() {
-        guard canResetSection else { return }
+        guard canResetSection, let section else { return }
         switch section {
         case .look:
             let unset = settings.settings.launcherChoices.dockIconAppearance == nil
@@ -675,8 +756,7 @@ struct SettingsView: View {
 
     private func moveSection(by delta: Int) {
         guard !(NSApp.keyWindow?.firstResponder is NSText) else { return }
-        focusArea = .sidebar
-        section = SettingsSection.allCases.stepped(from: section, delta) ?? section
+        if let next = SettingsPage.stops.stepped(from: navigation.root, delta) { selectPage(next) }
         SoundEffectService.shared.play(.focus)
     }
 
@@ -760,7 +840,9 @@ struct SettingsView: View {
             }
             let action: GamepadAction
             switch event.keyCode {
-            case 126: action = .navigateUp
+            case 126:
+                if typing { return event }
+                action = .navigateUp
             case 125:
                 if typing {
                     // Down from the Search field goes to its results.
@@ -913,8 +995,10 @@ struct SettingsView: View {
         if let window = NSApp.keyWindow, window.firstResponder is NSText {
             window.makeFirstResponder(nil)
             SoundEffectService.shared.play(.focus)
-        } else if router.previousRoute == .profile || router.previousRoute == .integrations {
-            router.back()
+        } else if navigation.canGoBack {
+            var next = navigation
+            next.goBack()
+            changePage(to: next, focus: returnRowID)
         } else if focusArea == .rows {
             leaveRows()
         } else {

@@ -204,6 +204,10 @@ import ArcanePorting
         let vm = AppViewModel(settingsStore: settings, catalog: catalog, repository: repository)
         vm.applyCatalog(catalog) // This harness disables catalog application in the initializer.
         try checkDraft(vm: vm, settings: settings, output: output, locale: locale)
+        try checkNavigation(vm: vm, settings: settings, output: output, locale: locale, size: .init(width: 1440, height: 810), suffix: "fr")
+        try checkNavigation(vm: vm, settings: settings, output: output, locale: locale, size: .init(width: 840, height: 810), suffix: "etroit-fr")
+        try checkNavigation(vm: vm, settings: settings, output: output, locale: .init(language: .english, region: "US"),
+                            size: .init(width: 1440, height: 810), suffix: "en")
         if ProcessInfo.processInfo.environment["OORT_SETTINGS_DRAFT_ONLY"] == "1" { return }
         let model = vm.cloudLibrary
         model.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: nil)
@@ -612,5 +616,65 @@ import ArcanePorting
         settings.settings.multiplayerDefault = .offline
         settings.settings.interfaceSounds = true
         print("Settings draft: live row, one exit dialog, default Keep editing, Y and verified save, discard before quit.")
+    }
+
+    @MainActor private static func checkNavigation(vm: AppViewModel, settings: AppSettingsStore,
+            output: URL, locale: AppLocale, size: CGSize, suffix: String) throws {
+        let previousLocale = L10n.context
+        L10n.setContext(locale)
+        defer { L10n.setContext(previousLocale) }
+        let router = AppRouter(settings: settings)
+        router.hasPendingSettings = { settings.draft?.hasChanges == true }
+        router.openSettings(.cloudSaves) // Switch is the previous category.
+        let style = SeleneBackdropStyle(palette: ThemeStore.shared.palette,
+            wallpaperURL: ThemeStore.shared.wallpaper(for: settings.settings.wallpaperID)?.url,
+            sizing: .fill, animated: false, brightness: .bright)
+        precondition(style.wallpaperURL != nil)
+        let host = NSHostingView(rootView: SettingsView(initialSection: .cloudSaves, viewModel: vm,
+                settings: settings, router: router, artwork: ArtworkStore())
+            .environment(\.nxAppLocale, locale)
+            .environment(\.colorScheme, .dark)
+            .environment(\.seleneButtonNames, .nintendo)
+            .environment(\.seleneReduceMotion, true)
+            .environment(\.seleneBackdropStyle, style)
+            .seleneCanvasRoot())
+        host.frame.size = size
+        let window = NSWindow(contentRect: host.frame, styleMask: [.borderless], backing: .buffered, defer: false)
+        window.contentView = host
+        defer { window.contentView = nil; settings.endDraft() }
+        window.layoutIfNeeded()
+        func settle() {
+            for _ in 0..<8 {
+                RunLoop.main.run(until: Date().addingTimeInterval(0.016))
+                host.layoutSubtreeIfNeeded()
+            }
+        }
+        func send(_ action: GamepadAction) {
+            NotificationCenter.default.post(name: .nxSettingsGamepadAction, object: action)
+            settle()
+        }
+        func capture(_ name: String) throws {
+            precondition(!window.isVisible)
+            let image = host.bitmapImageRepForCachingDisplay(in: host.bounds)!
+            host.cacheDisplay(in: host.bounds, to: image)
+            try image.representation(using: .png, properties: [:])!
+                .write(to: output.appendingPathComponent("\(name)-\(suffix).png"))
+        }
+        settle()
+        settings.editingSettings.reduceMotion.toggle()
+        send(.tabPrevious)
+        send(.confirm)
+        try capture("navigation-01-switch")
+        send(.confirm)
+        try capture("navigation-02-engine")
+        send(.cancel)
+        precondition(router.settingsDecision == nil)
+        try capture("navigation-03-back")
+        send(.cancel)
+        precondition(router.settingsDecision == nil)
+        send(.cancel)
+        precondition(router.settingsDecision == .leave && settings.draft?.hasChanges == true,
+                     "Back must leave the subject, then the rows, then ask about the draft")
+        print("Settings navigation: category → subject → restored row → sidebar → draft exit (\(suffix)).")
     }
 }
