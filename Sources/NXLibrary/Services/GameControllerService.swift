@@ -72,7 +72,7 @@ final class GameControllerService: ObservableObject {
         self.gcSource = gcSource
         self.hidSource = hidSource
         self.preferences = preferences
-        if let preferences {
+        if preferences != nil {
             useDeadzone(nil)
             isAppActive = NSApplication.shared.isActive
             observe(NotificationCenter.default, NSApplication.didBecomeActiveNotification) { service in

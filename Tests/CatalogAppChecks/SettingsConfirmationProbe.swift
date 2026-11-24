@@ -430,10 +430,11 @@ import ArcanePorting
         pickedEngine = engineFolder
         pressEngine("repo")
         pickedEngine = nil
-        precondition(engineWrites == 0 && settings.editingSettings.launcherChoices.enginePath == engineFolder.path)
+        let enginePath = engineFolder.standardizedFileURL.path
+        precondition(engineWrites == 0 && settings.editingSettings.launcherChoices.enginePath == enginePath)
         try settings.commitDraft()
         setup.useSavedEnginePath(settings.settings.launcherChoices.enginePath!)
-        precondition(engineWrites == 1 && setup.nxnativePath == engineFolder.path && vm.pinnedEngineCommit == pin)
+        precondition(engineWrites == 1 && setup.nxnativePath == enginePath && vm.pinnedEngineCommit == pin)
         setup.compatibilityReport = .init(ok: false, checks: [])
         settings.beginDraft(fields: SettingsDraftFields.fields(profiles: nil, languages: vm.availableLanguages))
         var overrideWrites = 0
