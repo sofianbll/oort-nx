@@ -1,6 +1,50 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@ (development build)": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "%@ (development build)"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "%@ (version de développement)"}},
+        "it": {"stringUnit": {"state": "translated", "value": "%@ (versione di sviluppo)"}},
+        "de": {"stringUnit": {"state": "translated", "value": "%@ (Entwicklungsversion)"}},
+        "es": {"stringUnit": {"state": "translated", "value": "%@ (versión de desarrollo)"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "%@ (versão de desenvolvimento)"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "%@（开发版本）"}}
+      }
+    },
+    "nxnative engine, NVN/Metal host and ARM64 rewriter": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "nxnative engine, NVN/Metal host and ARM64 rewriter"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Moteur nxnative, hôte NVN/Metal et réécriture ARM64"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Motore nxnative, host NVN/Metal e riscrittura ARM64"}},
+        "de": {"stringUnit": {"state": "translated", "value": "nxnative-Engine, NVN/Metal-Host und ARM64-Rewriter"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Motor nxnative, host NVN/Metal y reescritura ARM64"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Motor nxnative, host NVN/Metal e reescrita ARM64"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "nxnative 引擎、NVN/Metal 宿主和 ARM64 重写器"}}
+      }
+    },
+    "Return to the tested toolchain?": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Return to the tested toolchain?"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Revenir aux outils testés ?"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Tornare alla toolchain testata?"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Zur getesteten Toolchain zurückkehren?"}},
+        "es": {"stringUnit": {"state": "translated", "value": "¿Volver a las herramientas probadas?"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Voltar às ferramentas testadas?"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "要恢复使用经过测试的工具链吗？"}}
+      }
+    },
+    "Cannot sort": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Cannot sort"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Rangement impossible"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Impossibile ordinare"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Einsortieren nicht möglich"}},
+        "es": {"stringUnit": {"state": "translated", "value": "No se puede ordenar"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Não é possível organizar"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法归类"}}
+      }
+    },
     "Oort NX will use the configured cloud library again without moving your files.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Oort NX will use the configured cloud library again without moving your files."}}, "fr": {"stringUnit":{"state":"translated","value":"Oort NX utilisera de nouveau la bibliothèque cloud configurée sans déplacer vos fichiers."}}, "it": {"stringUnit":{"state":"translated","value":"Oort NX userà di nuovo la libreria cloud configurata senza spostare i tuoi file."}}, "de": {"stringUnit":{"state":"translated","value":"Oort NX verwendet wieder die eingerichtete Cloud-Bibliothek, ohne deine Dateien zu verschieben."}}, "es": {"stringUnit":{"state":"translated","value":"Oort NX volverá a usar la biblioteca en la nube configurada sin mover tus archivos."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Oort NX voltará a usar a biblioteca na nuvem configurada sem mover seus arquivos."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"Oort NX 将重新使用已配置的云游戏库，不会移动你的文件。"}}
     }},
@@ -401,7 +445,7 @@
       "en": {"stringUnit":{"state":"translated","value":"Drive check failed"}}, "fr": {"stringUnit":{"state":"translated","value":"Échec de la vérification de Drive"}}, "it": {"stringUnit":{"state":"translated","value":"Verifica di Drive non riuscita"}}, "de": {"stringUnit":{"state":"translated","value":"Drive-Prüfung fehlgeschlagen"}}, "es": {"stringUnit":{"state":"translated","value":"Error al comprobar Drive"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Falha na verificação do Drive"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"Drive 检查失败"}}
     }},
     "Keep copies of ported apps, build caches or selected game files, not saves.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"Keep copies of ported apps, build caches or selected game files, not saves."}}, "fr": {"stringUnit":{"state":"translated","value":"Garde des copies des jeux compilés, des caches ou des fichiers de jeu choisis, pas des sauvegardes."}}, "it": {"stringUnit":{"state":"translated","value":"Conserva copie di app convertite, cache di build o file di gioco scelti, non dei salvataggi."}}, "de": {"stringUnit":{"state":"translated","value":"Kopien portierter Apps, Build-Caches oder ausgewählter Spieldateien behalten, keine Spielstände."}}, "es": {"stringUnit":{"state":"translated","value":"Guarda copias de juegos portados, cachés o archivos de juego seleccionados; no de partidas."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Guarde cópias de jogos portados, caches ou arquivos de jogo selecionados, não dados salvos."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"保留移植应用、构建缓存或选定游戏文件的副本，不包括存档。"}}
+      "en": {"stringUnit":{"state":"translated","value":"Keep copies of ported apps, build caches or selected game files, not saves."}}, "fr": {"stringUnit":{"state":"translated","value":"Conservez des copies des jeux compilés, des caches ou des fichiers de jeu choisis, pas des sauvegardes."}}, "it": {"stringUnit":{"state":"translated","value":"Conserva copie di app convertite, cache di build o file di gioco scelti, non dei salvataggi."}}, "de": {"stringUnit":{"state":"translated","value":"Kopien portierter Apps, Build-Caches oder ausgewählter Spieldateien behalten, keine Spielstände."}}, "es": {"stringUnit":{"state":"translated","value":"Guarda copias de juegos portados, cachés o archivos de juego seleccionados; no de partidas."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Guarde cópias de jogos portados, caches ou arquivos de jogo selecionados, não dados salvos."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"保留移植应用、构建缓存或选定游戏文件的副本，不包括存档。"}}
     }},
     "Open cloud library settings": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Open cloud library settings"}}, "fr": {"stringUnit":{"state":"translated","value":"Ouvrir les réglages de la bibliothèque cloud"}}, "it": {"stringUnit":{"state":"translated","value":"Apri le impostazioni della libreria cloud"}}, "de": {"stringUnit":{"state":"translated","value":"Einstellungen der Cloud-Bibliothek öffnen"}}, "es": {"stringUnit":{"state":"translated","value":"Abrir los ajustes de la biblioteca en la nube"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Abrir os ajustes da biblioteca na nuvem"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"打开云端游戏库设置"}}
@@ -434,7 +478,7 @@
       "en": {"stringUnit":{"state":"translated","value":"Nextendo unavailable"}}, "fr": {"stringUnit":{"state":"translated","value":"Nextendo indisponible"}}, "it": {"stringUnit":{"state":"translated","value":"Nextendo non disponibile"}}, "de": {"stringUnit":{"state":"translated","value":"Nextendo nicht verfügbar"}}, "es": {"stringUnit":{"state":"translated","value":"Nextendo no disponible"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Nextendo indisponível"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"Nextendo 不可用"}}
     }},
     "Play compatible nxnative games online and see your Nextendo friends.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"Play compatible nxnative games online and see your Nextendo friends."}}, "fr": {"stringUnit":{"state":"translated","value":"Joue en ligne aux jeux nxnative compatibles et retrouve tes amis Nextendo."}}, "it": {"stringUnit":{"state":"translated","value":"Gioca online ai giochi nxnative compatibili e ritrova gli amici Nextendo."}}, "de": {"stringUnit":{"state":"translated","value":"Kompatible nxnative-Spiele online spielen und Nextendo-Freunde sehen."}}, "es": {"stringUnit":{"state":"translated","value":"Juega en línea a juegos nxnative compatibles y ve a tus amigos de Nextendo."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Jogue online em jogos nxnative compatíveis e encontre seus amigos do Nextendo."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"在线玩兼容的 nxnative 游戏并查看 Nextendo 好友。"}}
+      "en": {"stringUnit":{"state":"translated","value":"Play compatible nxnative games online and see your Nextendo friends."}}, "fr": {"stringUnit":{"state":"translated","value":"Jouez en ligne aux jeux nxnative compatibles et retrouvez vos amis Nextendo."}}, "it": {"stringUnit":{"state":"translated","value":"Gioca online ai giochi nxnative compatibili e ritrova gli amici Nextendo."}}, "de": {"stringUnit":{"state":"translated","value":"Kompatible nxnative-Spiele online spielen und Nextendo-Freunde sehen."}}, "es": {"stringUnit":{"state":"translated","value":"Juega en línea a juegos nxnative compatibles y ve a tus amigos de Nextendo."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Jogue online em jogos nxnative compatíveis e encontre seus amigos do Nextendo."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"在线玩兼容的 nxnative 游戏并查看 Nextendo 好友。"}}
     }},
     "Open profile settings": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Open profile settings"}}, "fr": {"stringUnit":{"state":"translated","value":"Ouvrir les réglages de profil"}}, "it": {"stringUnit":{"state":"translated","value":"Apri le impostazioni del profilo"}}, "de": {"stringUnit":{"state":"translated","value":"Profileinstellungen öffnen"}}, "es": {"stringUnit":{"state":"translated","value":"Abrir los ajustes del perfil"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Abrir os ajustes do perfil"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"打开个人资料设置"}}
@@ -494,7 +538,7 @@
       "en": {"stringUnit":{"state":"translated","value":"iCloud saves"}}, "fr": {"stringUnit":{"state":"translated","value":"Sauvegardes iCloud"}}, "it": {"stringUnit":{"state":"translated","value":"Salvataggi iCloud"}}, "de": {"stringUnit":{"state":"translated","value":"iCloud-Spielstände"}}, "es": {"stringUnit":{"state":"translated","value":"Partidas en iCloud"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Dados salvos no iCloud"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"iCloud 存档"}}
     }},
     "Keep supported game saves in iCloud Drive or in a folder you choose.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"Keep supported game saves in iCloud Drive or in a folder you choose."}}, "fr": {"stringUnit":{"state":"translated","value":"Conserve les sauvegardes compatibles dans iCloud Drive ou dans le dossier de ton choix."}}, "it": {"stringUnit":{"state":"translated","value":"Conserva i salvataggi compatibili in iCloud Drive o in una cartella che scegli."}}, "de": {"stringUnit":{"state":"translated","value":"Unterstützte Spielstände in iCloud Drive oder einem eigenen Ordner speichern."}}, "es": {"stringUnit":{"state":"translated","value":"Guarda las partidas compatibles en iCloud Drive o en una carpeta que elijas."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Guarde dados salvos compatíveis no iCloud Drive ou em uma pasta que escolher."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"将受支持的游戏存档保存在 iCloud Drive 或所选文件夹。"}}
+      "en": {"stringUnit":{"state":"translated","value":"Keep supported game saves in iCloud Drive or in a folder you choose."}}, "fr": {"stringUnit":{"state":"translated","value":"Conservez les sauvegardes compatibles dans iCloud Drive ou dans le dossier de votre choix."}}, "it": {"stringUnit":{"state":"translated","value":"Conserva i salvataggi compatibili in iCloud Drive o in una cartella che scegli."}}, "de": {"stringUnit":{"state":"translated","value":"Unterstützte Spielstände in iCloud Drive oder einem eigenen Ordner speichern."}}, "es": {"stringUnit":{"state":"translated","value":"Guarda las partidas compatibles en iCloud Drive o en una carpeta que elijas."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Guarde dados salvos compatíveis no iCloud Drive ou em uma pasta que escolher."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"将受支持的游戏存档保存在 iCloud Drive 或所选文件夹。"}}
     }},
     "Open cloud save settings": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Open cloud save settings"}}, "fr": {"stringUnit":{"state":"translated","value":"Ouvrir les réglages des sauvegardes cloud"}}, "it": {"stringUnit":{"state":"translated","value":"Apri le impostazioni dei salvataggi cloud"}}, "de": {"stringUnit":{"state":"translated","value":"Cloud-Spielstandeinstellungen öffnen"}}, "es": {"stringUnit":{"state":"translated","value":"Abrir los ajustes de las partidas en la nube"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Abrir os ajustes dos dados salvos na nuvem"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"打开云端存档设置"}}
@@ -539,16 +583,16 @@
       "en": {"stringUnit":{"state":"translated","value":"Add a shortcut to an app on this Mac. The app stays where it is."}}, "it": {"stringUnit":{"state":"translated","value":"Aggiungi un collegamento a un’app di questo Mac. L’app resta dove si trova."}}, "fr": {"stringUnit":{"state":"translated","value":"Ajoute un raccourci vers une app de ce Mac. L’app reste à sa place."}}, "de": {"stringUnit":{"state":"translated","value":"Verknüpfe eine App auf diesem Mac. Die App bleibt an ihrem Ort."}}, "es": {"stringUnit":{"state":"translated","value":"Añade un acceso directo a una app de este Mac. La app no se mueve."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Adicione um atalho para um app neste Mac. O app fica onde está."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"为这台 Mac 上的应用添加快捷方式。应用不会被移动。"}}
     }},
     "Choose an app to add a tile. The app stays where it is.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"Choose an app to add a tile. The app stays where it is."}}, "it": {"stringUnit":{"state":"translated","value":"Scegli un’app per aggiungere una tessera. L’app resta dove si trova."}}, "fr": {"stringUnit":{"state":"translated","value":"Choisis une app pour ajouter une tuile. L’app reste à sa place."}}, "de": {"stringUnit":{"state":"translated","value":"Wähle eine App für die Kachel. Die App bleibt an ihrem Ort."}}, "es": {"stringUnit":{"state":"translated","value":"Elige una app para añadir una ficha. La app no se mueve."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Escolha um app para adicionar um bloco. O app fica onde está."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"选择一个应用以添加磁贴。应用不会被移动。"}}
+      "en": {"stringUnit":{"state":"translated","value":"Choose an app to add a tile. The app stays where it is."}}, "it": {"stringUnit":{"state":"translated","value":"Scegli un’app per aggiungere una tessera. L’app resta dove si trova."}}, "fr": {"stringUnit":{"state":"translated","value":"Choisissez une app pour ajouter une tuile. L’app reste à sa place."}}, "de": {"stringUnit":{"state":"translated","value":"Wähle eine App für die Kachel. Die App bleibt an ihrem Ort."}}, "es": {"stringUnit":{"state":"translated","value":"Elige una app para añadir una ficha. La app no se mueve."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Escolha um app para adicionar um bloco. O app fica onde está."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"选择一个应用以添加磁贴。应用不会被移动。"}}
     }},
     "Choose the original app at its new location.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"Choose the original app at its new location."}}, "it": {"stringUnit":{"state":"translated","value":"Scegli l’app originale nella nuova posizione."}}, "fr": {"stringUnit":{"state":"translated","value":"Choisis l’app d’origine à son nouvel emplacement."}}, "de": {"stringUnit":{"state":"translated","value":"Wähle die ursprüngliche App an ihrem neuen Ort."}}, "es": {"stringUnit":{"state":"translated","value":"Elige la app original en su nueva ubicación."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Escolha o app original no novo local."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"在新位置选择原来的应用。"}}
+      "en": {"stringUnit":{"state":"translated","value":"Choose the original app at its new location."}}, "it": {"stringUnit":{"state":"translated","value":"Scegli l’app originale nella nuova posizione."}}, "fr": {"stringUnit":{"state":"translated","value":"Choisissez l’app d’origine à son nouvel emplacement."}}, "de": {"stringUnit":{"state":"translated","value":"Wähle die ursprüngliche App an ihrem neuen Ort."}}, "es": {"stringUnit":{"state":"translated","value":"Elige la app original en su nueva ubicación."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Escolha o app original no novo local."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"在新位置选择原来的应用。"}}
     }},
     "Choose a valid Mac app (.app).": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"Choose a valid Mac app (.app)."}}, "it": {"stringUnit":{"state":"translated","value":"Scegli un’app Mac valida (.app)."}}, "fr": {"stringUnit":{"state":"translated","value":"Choisis une app Mac valide (.app)."}}, "de": {"stringUnit":{"state":"translated","value":"Wähle eine gültige Mac-App (.app)."}}, "es": {"stringUnit":{"state":"translated","value":"Elige una app de Mac válida (.app)."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Escolha um app válido do Mac (.app)."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"请选择有效的 Mac 应用（.app）。"}}
+      "en": {"stringUnit":{"state":"translated","value":"Choose a valid Mac app (.app)."}}, "it": {"stringUnit":{"state":"translated","value":"Scegli un’app Mac valida (.app)."}}, "fr": {"stringUnit":{"state":"translated","value":"Choisissez une app Mac valide (.app)."}}, "de": {"stringUnit":{"state":"translated","value":"Wähle eine gültige Mac-App (.app)."}}, "es": {"stringUnit":{"state":"translated","value":"Elige una app de Mac válida (.app)."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Escolha um app válido do Mac (.app)."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"请选择有效的 Mac 应用（.app）。"}}
     }},
     "This is not the app linked to this tile. Choose the original app.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"This is not the app linked to this tile. Choose the original app."}}, "it": {"stringUnit":{"state":"translated","value":"Questa non è l’app collegata alla tessera. Scegli l’app originale."}}, "fr": {"stringUnit":{"state":"translated","value":"Cette app ne correspond pas à la tuile. Choisis l’app d’origine."}}, "de": {"stringUnit":{"state":"translated","value":"Diese App gehört nicht zu dieser Kachel. Wähle die ursprüngliche App."}}, "es": {"stringUnit":{"state":"translated","value":"Esta app no está vinculada a esta ficha. Elige la app original."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Este não é o app vinculado ao bloco. Escolha o app original."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"这不是此磁贴关联的应用。请选择原来的应用。"}}
+      "en": {"stringUnit":{"state":"translated","value":"This is not the app linked to this tile. Choose the original app."}}, "it": {"stringUnit":{"state":"translated","value":"Questa non è l’app collegata alla tessera. Scegli l’app originale."}}, "fr": {"stringUnit":{"state":"translated","value":"Cette app ne correspond pas à la tuile. Choisissez l’app d’origine."}}, "de": {"stringUnit":{"state":"translated","value":"Diese App gehört nicht zu dieser Kachel. Wähle die ursprüngliche App."}}, "es": {"stringUnit":{"state":"translated","value":"Esta app no está vinculada a esta ficha. Elige la app original."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Este não é o app vinculado ao bloco. Escolha o app original."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"这不是此磁贴关联的应用。请选择原来的应用。"}}
     }},
     "That location is already linked to another tile.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"That location is already linked to another tile."}}, "it": {"stringUnit":{"state":"translated","value":"Questa posizione è già collegata a un’altra tessera."}}, "fr": {"stringUnit":{"state":"translated","value":"Cet emplacement est déjà lié à une autre tuile."}}, "de": {"stringUnit":{"state":"translated","value":"Dieser Ort ist schon mit einer anderen Kachel verknüpft."}}, "es": {"stringUnit":{"state":"translated","value":"Esa ubicación ya está vinculada a otra ficha."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Esse local já está vinculado a outro bloco."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"此位置已关联到另一块磁贴。"}}
@@ -560,7 +604,7 @@
       "en": {"stringUnit":{"state":"translated","value":"Mac app not found"}}, "it": {"stringUnit":{"state":"translated","value":"App Mac non trovata"}}, "fr": {"stringUnit":{"state":"translated","value":"App Mac introuvable"}}, "de": {"stringUnit":{"state":"translated","value":"Mac-App nicht gefunden"}}, "es": {"stringUnit":{"state":"translated","value":"No se encuentra la app de Mac"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"App do Mac não encontrado"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"找不到 Mac 应用"}}
     }},
     "The app has moved or no longer matches this tile. Choose the original app again.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"The app has moved or no longer matches this tile. Choose the original app again."}}, "it": {"stringUnit":{"state":"translated","value":"L’app è stata spostata o non corrisponde più alla tessera. Scegli di nuovo l’app originale."}}, "fr": {"stringUnit":{"state":"translated","value":"L’app a été déplacée ou ne correspond plus à la tuile. Choisis à nouveau l’app d’origine."}}, "de": {"stringUnit":{"state":"translated","value":"Die App wurde verschoben oder gehört nicht mehr zu dieser Kachel. Wähle erneut die ursprüngliche App."}}, "es": {"stringUnit":{"state":"translated","value":"La app se ha movido o ya no coincide con esta ficha. Vuelve a elegir la app original."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"O app foi movido ou não corresponde mais ao bloco. Escolha o app original novamente."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"应用已移动或不再与此磁贴匹配。请重新选择原来的应用。"}}
+      "en": {"stringUnit":{"state":"translated","value":"The app has moved or no longer matches this tile. Choose the original app again."}}, "it": {"stringUnit":{"state":"translated","value":"L’app è stata spostata o non corrisponde più alla tessera. Scegli di nuovo l’app originale."}}, "fr": {"stringUnit":{"state":"translated","value":"L’app a été déplacée ou ne correspond plus à la tuile. Choisissez à nouveau l’app d’origine."}}, "de": {"stringUnit":{"state":"translated","value":"Die App wurde verschoben oder gehört nicht mehr zu dieser Kachel. Wähle erneut die ursprüngliche App."}}, "es": {"stringUnit":{"state":"translated","value":"La app se ha movido o ya no coincide con esta ficha. Vuelve a elegir la app original."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"O app foi movido ou não corresponde mais ao bloco. Escolha o app original novamente."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"应用已移动或不再与此磁贴匹配。请重新选择原来的应用。"}}
     }},
     "Locate the app…": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Locate the app…"}}, "it": {"stringUnit":{"state":"translated","value":"Ritrova l’app…"}}, "fr": {"stringUnit":{"state":"translated","value":"Retrouver l’app…"}}, "de": {"stringUnit":{"state":"translated","value":"App suchen…"}}, "es": {"stringUnit":{"state":"translated","value":"Localizar la app…"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Localizar app…"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"定位应用…"}}
@@ -641,7 +685,7 @@
       "en": {"stringUnit":{"state":"translated","value":"Remove image"}}, "it": {"stringUnit":{"state":"translated","value":"Rimuovi immagine"}}, "fr": {"stringUnit":{"state":"translated","value":"Retirer l’image"}}, "de": {"stringUnit":{"state":"translated","value":"Bild entfernen"}}, "es": {"stringUnit":{"state":"translated","value":"Quitar imagen"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Remover imagem"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"移除图片"}}
     }},
     "Choose a valid image.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"Choose a valid image."}}, "it": {"stringUnit":{"state":"translated","value":"Scegli un’immagine valida."}}, "fr": {"stringUnit":{"state":"translated","value":"Choisis une image valide."}}, "de": {"stringUnit":{"state":"translated","value":"Wähle ein gültiges Bild."}}, "es": {"stringUnit":{"state":"translated","value":"Elige una imagen válida."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Escolha uma imagem válida."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"请选择有效的图片。"}}
+      "en": {"stringUnit":{"state":"translated","value":"Choose a valid image."}}, "it": {"stringUnit":{"state":"translated","value":"Scegli un’immagine valida."}}, "fr": {"stringUnit":{"state":"translated","value":"Choisissez une image valide."}}, "de": {"stringUnit":{"state":"translated","value":"Wähle ein gültiges Bild."}}, "es": {"stringUnit":{"state":"translated","value":"Elige una imagen válida."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Escolha uma imagem válida."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"请选择有效的图片。"}}
     }},
     "Arcane works without an account. These settings only apply to %@.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Optional: Arcane works without an account. These settings only apply to %@."}}, "it": {"stringUnit":{"state":"translated","value":"Facoltativo: Arcane funziona senza account. Queste impostazioni valgono solo per %@."}}, "fr": {"stringUnit":{"state":"translated","value":"Facultatif : Arcane fonctionne sans compte. Ces réglages ne concernent que le profil %@."}}, "de": {"stringUnit":{"state":"translated","value":"Optional: Arcane funktioniert ohne Konto. Diese Einstellungen gelten nur für %@."}}, "es": {"stringUnit":{"state":"translated","value":"Opcional: Arcane funciona sin cuenta. Estos ajustes solo se aplican a %@."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Opcional: o Arcane funciona sem conta. Estas configurações se aplicam apenas a %@."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"可选：Arcane 无需账号即可使用。这些设置仅适用于 %@。"}}
@@ -3139,7 +3183,7 @@
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Sleep"}},
         "it": {"stringUnit": {"state": "translated", "value": "Stop"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Veille"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Mettre le Mac en veille"}},
         "de": {"stringUnit": {"state": "translated", "value": "Ruhezustand"}},
         "es": {"stringUnit": {"state": "translated", "value": "Suspender"}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Repouso"}},
@@ -5529,7 +5573,7 @@
         "de": {"stringUnit": {"state": "translated", "value": "Baue das Spiel nach Änderungen neu. Alle Code-Mods auszuschalten oder den gesamten eingebauten Satz wieder zu aktivieren, erfordert keinen Neubau. Online inaktiv (Nextendo)."}},
         "en": {"stringUnit": {"state": "translated", "value": "Rebuild the game after making changes. Turning off all code mods or re-enabling the entire built set needs no rebuild. Inactive online (Nextendo)."}},
         "es": {"stringUnit": {"state": "translated", "value": "Recompila el juego después de hacer cambios. Desactivar todos los mods de código o reactivar todo el conjunto compilado no requiere recompilar. Inactivos en línea (Nextendo)."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Recompile le jeu après un changement. Tout couper ou tout réactiver le lot compilé ne demande pas de rebuild. Inactifs en ligne (Nextendo)."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Recompilez le jeu après toute modification. Il n’est pas nécessaire de le recompiler pour désactiver tous les mods de code ou réactiver tout le lot compilé. Ils sont inactifs en ligne (Nextendo)."}},
         "it": {"stringUnit": {"state": "translated", "value": "Ricompila il gioco dopo una modifica. Non serve ricompilare per disattivare tutte le mod di codice o riattivare l’intero gruppo compilato. Inattive online (Nextendo)."}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Recompile o jogo após fazer alterações. Desativar todos os mods de código ou reativar todo o conjunto compilado não exige recompilação. Inativos online (Nextendo)."}},
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "修改后请重新构建。关闭全部代码模组，或重新启用已构建的整组模组，不需要重新构建。联机时（Nextendo）不生效。"}}
@@ -5649,7 +5693,7 @@
         "de": {"stringUnit": {"state": "translated", "value": "Wie lokales Spielen auf der Switch: Spiele mit Macs oder iPhones im selben WLAN."}},
         "en": {"stringUnit": {"state": "translated", "value": "Like nearby play on Switch: play with Macs or iPhones on the same Wi-Fi."}},
         "es": {"stringUnit": {"state": "translated", "value": "Como el juego local en Switch: juega con Mac o iPhone en la misma red Wi-Fi."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Comme « Personnes à proximité » sur Switch : joue avec des Mac ou iPhone sur le même Wi-Fi."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Comme le jeu en proximité sur Switch : jouez avec des Mac ou iPhone sur le même Wi-Fi."}},
         "it": {"stringUnit": {"state": "translated", "value": "Come il gioco in locale su Switch: gioca con Mac o iPhone sulla stessa rete Wi-Fi."}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Como jogar com pessoas por perto no Switch: jogue com Macs ou iPhones na mesma rede Wi-Fi."}},
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "类似 Switch 的近距离游玩：与同一 Wi‑Fi 下的 Mac 或 iPhone 一起玩。"}}
@@ -5709,7 +5753,7 @@
         "de": {"stringUnit": {"state": "translated", "value": "Baue das Spiel neu, um Änderungen an Code-Mods zu übernehmen."}},
         "en": {"stringUnit": {"state": "translated", "value": "Rebuild to apply code mod changes."}},
         "es": {"stringUnit": {"state": "translated", "value": "Vuelve a compilar para aplicar los cambios de los mods de código."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Recompile le jeu pour appliquer les changements des mods de code."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Recompilez le jeu pour appliquer les changements des mods de code."}},
         "it": {"stringUnit": {"state": "translated", "value": "Ricompila il gioco per applicare le modifiche alle mod di codice."}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Recompile o jogo para aplicar as alterações nos mods de código."}},
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "重新构建以应用代码模组的更改。"}}
@@ -7673,7 +7717,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ est placé dans la corbeille ; vous pourrez l’y récupérer ou le télécharger à nouveau quand vous le souhaitez."
+            "value": "%@ est placé dans la Corbeille ; vous pourrez l’y récupérer ou le télécharger à nouveau quand vous le souhaitez."
           }
         },
         "de": {
@@ -16260,7 +16304,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Demande des derniers commits auprès de GitHub..."
+            "value": "Recherche des derniers commits auprès de GitHub…"
           }
         },
         "de": {
@@ -19703,7 +19747,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Calcul de l’espace de stockage..."
+            "value": "Calcul de l’espace de stockage…"
           }
         },
         "de": {
@@ -19938,7 +19982,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Annulation de la compilation..."
+            "value": "Annulation de la compilation…"
           }
         },
         "de": {
@@ -21771,7 +21815,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vérification..."
+            "value": "Vérification…"
           }
         },
         "de": {
@@ -28836,7 +28880,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Détecter Ryujinx..."
+            "value": "Détecter Ryujinx…"
           }
         },
         "de": {
@@ -34993,7 +35037,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fichiers de jeu"
+            "value": "Fichiers du jeu"
           }
         },
         "de": {
@@ -39646,7 +39690,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Importer une clé..."
+            "value": "Importer une clé…"
           }
         },
         "de": {
@@ -47035,7 +47079,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Placer %@ dans la corbeille ?"
+            "value": "Mettre %@ dans la Corbeille ?"
           }
         },
         "de": {
@@ -50319,7 +50363,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucun succès ici pour l'instant."
+            "value": "Aucun succès ici pour l’instant."
           }
         },
         "de": {
@@ -51665,7 +51709,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucun title ID lisible dans %@."
+            "value": "Impossible de trouver l’identifiant du jeu dans %@."
           }
         },
         "de": {
@@ -57696,7 +57740,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Création de l’app Mac"
+            "value": "Création d’apps Mac"
           }
         },
         "de": {
@@ -61395,7 +61439,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Remplacer la clé..."
+            "value": "Remplacer la clé…"
           }
         },
         "de": {
@@ -65356,7 +65400,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sélectionnez pour placer ces fichiers dans la corbeille."
+            "value": "Sélectionnez cette option pour placer ces fichiers dans la Corbeille."
           }
         },
         "de": {
@@ -72241,7 +72285,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les fichiers de codes de triche du build %@ sont placés dans la corbeille."
+            "value": "Les fichiers de codes de triche de la compilation %@ sont placés dans la Corbeille."
           }
         },
         "de": {
@@ -73698,7 +73742,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le jeu n’a pas de title ID. Choisissez une source NSP, XCI, NSZ ou XCZ valide."
+            "value": "Le jeu n’a pas d’identifiant de jeu. Choisissez un fichier NSP, XCI, NSZ ou XCZ valide."
           }
         },
         "de": {
@@ -76453,50 +76497,15 @@
         }
       }
     },
-    "Could not remove game sources: %@": {
+    "Could not remove the original game files. %@": {
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Could not remove game sources: %@"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Impossibile rimuovere i file del gioco: %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Impossible de retirer les sources du jeu : %@"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Die Quelldateien des Spiels konnten nicht entfernt werden: %@"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No se pudieron quitar los archivos de origen del juego: %@"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Não foi possível remover os arquivos de origem do jogo: %@"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "无法移除游戏源文件：%@"
-          }
-        }
+        "en": {"stringUnit": {"state": "translated", "value": "Could not remove the original game files. %@"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Impossible de retirer les fichiers d’origine du jeu. %@"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Impossibile rimuovere i file originali del gioco. %@"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Die Originaldateien des Spiels konnten nicht entfernt werden. %@"}},
+        "es": {"stringUnit": {"state": "translated", "value": "No se pudieron quitar los archivos originales del juego. %@"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Não foi possível remover os arquivos originais do jogo. %@"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法移除游戏原始文件。%@"}}
       }
     },
     "Removal could not be fully undone. Recovery record: %@": {
@@ -78452,7 +78461,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ce jeu nécessite un title ID valide pour gérer les sauvegardes."
+            "value": "Ce jeu nécessite un identifiant valide pour gérer les sauvegardes."
           }
         },
         "de": {
@@ -84486,7 +84495,7 @@
         "de": {"stringUnit": {"state": "translated", "value": "Deine Profiländerungen werden nicht gespeichert."}},
         "en": {"stringUnit": {"state": "translated", "value": "Your profile changes won’t be saved."}},
         "es": {"stringUnit": {"state": "translated", "value": "No se guardarán los cambios de tu perfil."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Les modifications de ton profil ne seront pas enregistrées."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Les modifications de votre profil ne seront pas enregistrées."}},
         "it": {"stringUnit": {"state": "translated", "value": "Le modifiche al tuo profilo non saranno salvate."}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "As alterações no seu perfil não serão salvas."}},
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "你对个人资料所做的更改将不会保存。"}}
@@ -88072,7 +88081,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "©2026 Valve Corporation. Steam et le logo Steam sont des marques déposées et/ou des marques enregistrées par Valve Corporation aux É.U. et/ou dans d'autres pays."
+            "value": "©2026 Valve Corporation. Steam et le logo Steam sont des marques et/ou des marques déposées de Valve Corporation aux États-Unis et dans d’autres pays."
           }
         },
         "de": {
@@ -88636,7 +88645,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Client ID"
+            "value": "Identifiant client"
           }
         },
         "de": {
@@ -88683,7 +88692,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Client Secret"
+            "value": "Secret client"
           }
         },
         "de": {
@@ -91223,7 +91232,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Porting"
+            "value": "Création d’apps Mac"
           }
         },
         "de": {
@@ -92060,7 +92069,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Voici ce qu'il y a sur votre Mac"
+            "value": "Voici ce qu’il y a sur votre Mac"
           }
         },
         "de": {
@@ -92342,7 +92351,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Arcane n'est pas affilié à Nintendo."
+            "value": "Arcane n’est pas affilié à Nintendo."
           }
         },
         "de": {
@@ -93244,7 +93253,7 @@
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Update ready · applied when you quit the game"}},
         "it": {"stringUnit": {"state": "translated", "value": "Aggiornamento pronto · si applica quando chiudi il gioco"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Mise à jour prête · appliquée quand tu quittes le jeu"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Mise à jour prête · appliquée à la fermeture du jeu"}},
         "de": {"stringUnit": {"state": "translated", "value": "Update bereit · wird beim Beenden des Spiels installiert"}},
         "es": {"stringUnit": {"state": "translated", "value": "Actualización lista · se aplica cuando sales del juego"}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Atualização pronta · será aplicada quando você sair do jogo"}},
