@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **1020 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **1024 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -161,10 +161,12 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [Sources/NXLibrary/Services/AppUpdater.swift](../../Sources/NXLibrary/Services/AppUpdater.swift) | Coordina aggiornamento e riavvio; se il gate blocca l'installazione, conserva lo ZIP verificato per il tentativo successivo. |
 | [Sources/NXLibrary/Services/NativeMenuCommands.swift](../../Sources/NXLibrary/Services/NativeMenuCommands.swift) | Coordina tracking, disponibilità nella scena e passaggio differito dai menu macOS alle azioni del launcher. |
 | [Sources/NXLibrary/Services/NextendoBrowserSignIn.swift](../../Sources/NXLibrary/Services/NextendoBrowserSignIn.swift) | Apre il browser predefinito e riceve una callback HTTP su loopback, con annullamento e scadenza. |
-| [Sources/NXLibrary/Services/ControllerSource.swift](../../Sources/NXLibrary/Services/ControllerSource.swift) | Contratto di connessione, identità e transizioni normalizzate per le sorgenti di input. |
-| [Sources/NXLibrary/Services/GameControllerService.swift](../../Sources/NXLibrary/Services/GameControllerService.swift) | Sceglie il pad attivo, distingue tap e hold (500 ms) di Menu e View, pubblica progresso di Menu, azioni e simboli. |
-| [Sources/NXLibrary/Services/GCControllerSource.swift](../../Sources/NXLibrary/Services/GCControllerSource.swift) | Legge il profilo esteso di GameController, lo schema dei tasti e i simboli di sistema. |
-| [Sources/NXLibrary/Services/HIDControllerSource.swift](../../Sources/NXLibrary/Services/HIDControllerSource.swift) | Scopre i pad HID Nintendo fisici e legge i report `0x3F` e `0x30` del pad selezionato in modalità condivisa. |
+| [Sources/NXLibrary/Services/ControllerSource.swift](../../Sources/NXLibrary/Services/ControllerSource.swift) | Contratto per connessioni, input, batteria e identificazione esplicita dei pad. |
+| [Sources/NXLibrary/Services/ControllerHardwareID.swift](../../Sources/NXLibrary/Services/ControllerHardwareID.swift) | Deriva un HMAC con sale locale dal seriale HID o dall'indirizzo Bluetooth esposto; non salva il valore originale. |
+| [Sources/NXLibrary/Services/ControllerRoster.swift](../../Sources/NXLibrary/Services/ControllerRoster.swift) | Assegna ID di connessione e riconcilia gruppi HID/GameController senza attribuire il seriale a un pad per nome. |
+| [Sources/NXLibrary/Services/GameControllerService.swift](../../Sources/NXLibrary/Services/GameControllerService.swift) | Pubblica pad collegati, batteria e pressioni; mantiene separati scelta del pad di navigazione e tap/hold di Menu e View. |
+| [Sources/NXLibrary/Services/GCControllerSource.swift](../../Sources/NXLibrary/Services/GCControllerSource.swift) | Osserva i pad GameController, legge batteria e simboli e identifica il pad con luce o vibrazione se esposte da macOS. |
+| [Sources/NXLibrary/Services/HIDControllerSource.swift](../../Sources/NXLibrary/Services/HIDControllerSource.swift) | Osserva i pad HID fisici in modalità condivisa; riserva i report Nintendo `0x3F` e `0x30` all'input Nintendo. |
 | [Sources/NXLibrary/Services/LaunchReadinessProbe.swift](../../Sources/NXLibrary/Services/LaunchReadinessProbe.swift) | Attende una finestra visibile del gioco (per bundle o, per Steam, per pid) per terminare la schermata di lancio. |
 | [Sources/NXLibrary/Services/NotificationService.swift](../../Sources/NXLibrary/Services/NotificationService.swift) | Invia notifiche dei porting e instrada i clic verso il titolo o l’errore interessato. |
 | [Sources/NXLibrary/Services/OnlineBackgroundService.swift](../../Sources/NXLibrary/Services/OnlineBackgroundService.swift) | Carica pagine e miniature e scarica wallpaper o video conservando progressi e crediti. |
@@ -1091,6 +1093,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [CatalogStoreTests.swift](../../Tests/ArcanePortingTests/CatalogStoreTests.swift) | Conversione, backup, corruzione, versioni, input cambiati, scrittori concorrenti, guasti di pubblicazione e tipi noti disattivati in un nuovo profilo. |
 | [MacShortcutTests.swift](../../Tests/NXLibraryCoreTests/MacShortcutTests.swift) | Aggiunta e deduplicazione, persistenza, app spostate o sostituite, ricollegamento e rimozione con bundle sintetici compilati. |
 | [MacShortcutProbe.swift](../../Tests/CatalogAppChecks/MacShortcutProbe.swift) | Sorgenti, libreria e dialoghi EN/FR fuori schermo; Play mediante Launch Services della sola fixture compilata, senza sessioni né modifiche al bundle. |
+| [ControllerIdentityProbe.swift](../../Tests/CatalogAppChecks/ControllerIdentityProbe.swift) | Twin, duplicati HID/GameController, pressioni, identificazione, sospensione e riconnessione con sorgenti sintetiche. |
 | [SteamCatalogReconcilerTests.swift](../../Tests/ArcanePortingTests/SteamCatalogReconcilerTests.swift) | Identità, aggiornamenti, installazioni ambigue, fonti assenti e scansioni obsolete/parziali. |
 | [CatalogTestSupport.swift](../../Tests/ArcanePortingTests/CatalogTestSupport.swift) | Record legacy sintetico completo e scrittura di fixture; nessun contenuto di gioco. |
 | [CatalogRepositoryTests.swift](../../Tests/ArcanePortingTests/CatalogRepositoryTests.swift) | Modifiche concorrenti, confini per integrazione, campi build, conservazione Steam/legacy e import cloud del programma NUP esatto. |
@@ -1120,6 +1123,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_add_game_back.py](../../Tests/CatalogAppChecks/run_add_game_back.py) | Esegue le regole di Back e verifica che poco spazio per compilare non blocchi l'aggiunta alla libreria. Nessuna finestra. |
 | [run_build_cache_thread.py](../../Tests/CatalogAppChecks/run_build_cache_thread.py) | Verifica che l’adozione della cache a fine porting non venga eseguita sul thread dell’interfaccia. |
 | [run_build_gates.py](../../Tests/CatalogAppChecks/run_build_gates.py) | Verifica il cambio motore e i limiti di annullamento per installazione e spostamento nel centro attività. |
+| [run_controller_identity.py](../../Tests/CatalogAppChecks/run_controller_identity.py) | Compila la verifica dei pad con il servizio effettivo e senza periferiche fisiche. |
 | [run_build_queue_engine.py](../../Tests/CatalogAppChecks/run_build_queue_engine.py) | Verifica il collegamento tra la fine del cambio motore e il risveglio della coda, anche quando il clone non produce un motore valido. |
 | [run_guest_quit.py](../../Tests/CatalogAppChecks/run_guest_quit.py) | Esegue il veto durante l’adozione della cache, la conferma ospite e l’uscita con esiti sintetici. |
 | [run_profile_collection_game.py](../../Tests/CatalogAppChecks/run_profile_collection_game.py) | Verifica la selezione dei giochi Switch e Steam nel menu nativo della Collection di un profilo. |
