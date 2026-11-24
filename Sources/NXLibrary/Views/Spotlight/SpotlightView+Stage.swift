@@ -60,7 +60,8 @@ extension SpotlightView {
     func stage(_ model: Snapshot, state: SpotlightState) -> some View {
         let items = model.items
         return ZStack(alignment: .topLeading) {
-            SpotlightTopBar(filter: filter, sort: settings.settings.librarySort, showClock: settings.settings.showClock,
+            SpotlightTopBar(filter: filter, sort: settings.settings.librarySort, tabs: settings.settings.libraryTabs,
+                            played: played, onFilters: openSort, showClock: settings.settings.showClock,
                             profileFocused: profileFocused, nextendo: viewModel.profileNextendo,
                             onSelect: { if !state.isLifted { setFilter($0) } })
                 // Comes in last with the hints (`finishEntrance`).
@@ -83,7 +84,7 @@ extension SpotlightView {
                     isEmptyFilter: LibraryEmptyState.showsMessage(
                         hasGames: items.contains { if case .game = $0 { return true } else { return false } },
                         isReadingLibrary: viewModel.isScanningLibrary) ? filter : nil,
-                    isPlatformScoped: model.platforms.card(for: activePlatform).integration != nil,
+                    isPlatformScoped: played != .any || model.platforms.card(for: activePlatform).integration != nil,
                     artwork: artwork,
                     tileLook: viewModel.portingTileLook,
                     cloud: viewModel.cloudLibrary,

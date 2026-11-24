@@ -121,7 +121,8 @@ struct CollectionView: View {
         .accessibilityHidden(router.sortMenu != nil)
         .overlay {
             if let sortMenu = router.sortMenu {
-                LibrarySortMenu(current: settings.settings.librarySort, focused: sortMenu, choose: setSort) {
+                LibrarySortMenu(sort: settings.settings.librarySort, played: viewModel.librarySelection.query.played,
+                                focused: sortMenu, choose: choose) {
                     router.sortMenu = nil
                 }
             }
@@ -185,7 +186,8 @@ struct CollectionView: View {
                     .padding(.horizontal, canvas.u(SeleneTokens.Space.chromeGutter))
                     .frame(height: canvas.u(SeleneTokens.Space.stageHeader))
             } else {
-                SpotlightTopBar(filter: filter, sort: settings.settings.librarySort, showClock: settings.settings.showClock,
+                SpotlightTopBar(filter: filter, sort: settings.settings.librarySort, tabs: settings.settings.libraryTabs,
+                                played: viewModel.librarySelection.query.played, onFilters: openSort, showClock: settings.settings.showClock,
                                 profileFocused: profileFocused, nextendo: viewModel.profileNextendo, onSelect: { setFilter($0) })
             }
 
@@ -358,11 +360,14 @@ struct CollectionView: View {
         SoundEffectService.shared.play(.tabSwitch)
     }
 
-    func openSort() { router.sortMenu = settings.settings.librarySort }
+    func openSort() { router.sortMenu = .sort(settings.settings.librarySort) }
 
-    func setSort(_ sort: LibrarySort) {
-        router.sortMenu = nil
-        settings.settings.librarySort = sort
+    func choose(_ item: LibraryMenuItem) {
+        router.sortMenu = item
+        switch item {
+        case .sort(let sort): settings.settings.librarySort = sort
+        case .played(let played): viewModel.librarySelection.query.played = played
+        }
         reconcile()
         SoundEffectService.shared.play(.tabSwitch)
     }

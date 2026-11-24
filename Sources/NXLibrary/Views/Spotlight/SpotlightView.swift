@@ -144,7 +144,9 @@ struct SpotlightView: View {
 
     var filter: LibraryFilter { viewModel.librarySelection.query.filter }
 
-    private var rowQuery: LibraryQuery { LibraryQuery(filter: filter, sort: settings.settings.librarySort) }
+    var played: LibraryPlayed { viewModel.librarySelection.query.played }
+
+    private var rowQuery: LibraryQuery { LibraryQuery(filter: filter, sort: settings.settings.librarySort, played: played) }
 
     var rowGames: [CatalogGame] {
         let visible = viewModel.visibleCatalogGames
@@ -291,7 +293,7 @@ struct SpotlightView: View {
         .accessibilityHidden(router.sortMenu != nil)
         .overlay {
             if let sortMenu = router.sortMenu {
-                LibrarySortMenu(current: settings.settings.librarySort, focused: sortMenu, choose: setSort) {
+                LibrarySortMenu(sort: settings.settings.librarySort, played: played, focused: sortMenu, choose: choose) {
                     router.sortMenu = nil
                 }
             }

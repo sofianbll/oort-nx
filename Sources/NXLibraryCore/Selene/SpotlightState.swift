@@ -389,10 +389,9 @@ public struct SpotlightState: Equatable {
 
 public extension LibraryFilter {
     /// The filter `delta` tabs away, clamped to the ends (LB / RB).
-    func shifted(by delta: Int) -> LibraryFilter {
-        let all = LibraryFilter.allCases
-        let index = all.firstIndex(of: self) ?? 0
-        return all[min(max(index + delta, 0), all.count - 1)]
+    func shifted(by delta: Int, in tabs: [LibraryFilter] = LibraryFilter.allCases) -> LibraryFilter {
+        guard let index = tabs.firstIndex(of: self) else { return tabs.first ?? .all }
+        return tabs[min(max(index + delta, 0), tabs.count - 1)]
     }
 
     /// `AppSettings.startingTab` raw value, falling back to All games.

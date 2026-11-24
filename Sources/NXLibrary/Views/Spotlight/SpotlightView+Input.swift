@@ -18,7 +18,7 @@ extension SpotlightView {
         if storeHost.isPanelOpen { return storeHost.panel.handlePanel(action) }
         if router.sortMenu != nil {
             var next = router.sortMenu
-            LibrarySortMenu.handle(action, focused: &next, choose: setSort)
+            LibrarySortMenu.handle(action, focused: &next, choose: choose)
             router.sortMenu = next
             return
         }
@@ -74,9 +74,9 @@ extension SpotlightView {
             mutate { moved = $0.moveUp(screenshotCount: shots, actionCount: actions, modsCount: mods,
                                        hasAchievements: hasAchievements) }
         case .tabPrevious:
-            setFilter(filter.shifted(by: -1))
+            setFilter(filter.shifted(by: -1, in: settings.settings.libraryTabs))
         case .tabNext:
-            setFilter(filter.shifted(by: 1))
+            setFilter(filter.shifted(by: 1, in: settings.settings.libraryTabs))
         case .jumpToStart, .jumpToEnd:
             let items = self.items
             mutate { moved = $0.jump(toEnd: action == .jumpToEnd, in: items) }

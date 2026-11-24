@@ -17,7 +17,7 @@ enum LibrarySortMenu {
     static func handle(_ action: GamepadAction, focused: inout Int?, choose: (Int) -> Void) {}
 }
 enum SpotlightTopBar { static func openProfile() {} }
-struct Filter { func shifted(by step: Int) -> Self { self } }
+struct Filter { func shifted(by step: Int, in tabs: [Int]) -> Self { self } }
 struct Game {
     let id = UUID()
     var isPlayableLocally = true
@@ -40,7 +40,7 @@ final class Router {
     func openSettings(_ route: Route) {}
     func handleIntegrationBar(_ action: GamepadAction, profileFocused: inout Bool, hasProfile: Bool) -> Bool { false }
 }
-struct Settings { let settings = Values(); struct Values { let viewButtonSwitches = true } }
+struct Settings { let settings = Values(); struct Values { let viewButtonSwitches = true; let libraryTabs: [Int] = [] } }
 struct Cloud { func downloadItem(for game: Game) -> Int? { nil } }
 enum Origin { case collection }
 struct SoundEffectService {
@@ -84,6 +84,7 @@ final class Collection {
     func setSort(_ sort: Int) {}
     func setFilter(_ filter: Filter) {}
     func openSort() {}
+    func choose(_ item: Int) {}
     func activateCatalog(_ record: Game) {}
     // HANDLE
 }

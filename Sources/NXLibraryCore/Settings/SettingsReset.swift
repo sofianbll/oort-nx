@@ -42,6 +42,7 @@ public enum SettingsReset {
             next.visibleSpotlightCards = defaults.visibleSpotlightCards
             next.showsRecentBuilds = defaults.showsRecentBuilds
             next.startingTab = defaults.startingTab
+            next.libraryTabs = defaults.libraryTabs
             next.platformCardInfo = defaults.platformCardInfo
             next.spotlightOrder = defaults.spotlightOrder
         case .soundMusic:

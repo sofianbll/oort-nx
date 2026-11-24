@@ -622,6 +622,29 @@ final class HomeSettingsFixture: ControllerHomeSettings {
                     }
                 }
                 settings.settings.launcherChoices.gamepadLayout = GamepadLayout.oort.rawValue
+                for (name, tabs, played, menu): (String, [LibraryFilter], LibraryPlayed, Bool) in [
+                    ("onglets-4", LibraryFilter.defaultTabs, .any, false),
+                    ("onglets-6", LibraryFilter.allCases, .any, false),
+                    ("onglets-filtre", LibraryFilter.defaultTabs, .notPlayed, false),
+                    ("onglets-panneau", LibraryFilter.defaultTabs, .any, true),
+                ] {
+                    settings.settings.libraryTabs = tabs
+                    vm.librarySelection.query.played = played
+                    _ = try withHost(ZStack {
+                        SeleneBackdrop().still(true)
+                        SpotlightView(viewModel: vm, router: router, settings: settings, playSessions: sessions,
+                                      runningGames: running, artwork: artwork, storeHost: storeHost)
+                            .environment(\.controllerHomeAvailable, true)
+                            .environment(\.seleneButtonNames, .nintendo)
+                    }, size: size, locale: locale, backdrop: backdrop) { host in
+                        let input = Notification.Name.nxSpotlightGamepadAction
+                        if menu { try capture(host, nil); send(input, .rightStickPress, .navigateDown) }
+                        try capture(host, name)
+                        if menu { send(input, .cancel) }
+                    }
+                }
+                settings.settings.libraryTabs = LibraryFilter.defaultTabs
+                vm.librarySelection.query.played = .any
             }
             vm.gameForSettingsSheet = game
             let options = try withHost(ZStack {

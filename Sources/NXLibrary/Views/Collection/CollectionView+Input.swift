@@ -8,7 +8,7 @@ extension CollectionView {
     func handle(_ action: GamepadAction) {
         if router.sortMenu != nil {
             var next = router.sortMenu
-            LibrarySortMenu.handle(action, focused: &next, choose: setSort)
+            LibrarySortMenu.handle(action, focused: &next, choose: choose)
             router.sortMenu = next
             return
         }
@@ -32,7 +32,7 @@ extension CollectionView {
             }
             let step = action == .navigateLeft || action == .tabPrevious ? -1 : 1
             if profileCard == nil, action == .tabPrevious || action == .tabNext {
-                setFilter(filter.shifted(by: step))
+                setFilter(filter.shifted(by: step, in: settings.settings.libraryTabs))
                 return
             }
             let before = viewModel.librarySelection.selectedGameID

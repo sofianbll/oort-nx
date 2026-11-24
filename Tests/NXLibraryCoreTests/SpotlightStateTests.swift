@@ -93,8 +93,10 @@ final class SpotlightStateTests: XCTestCase {
     func testFilterShiftClampsAndStartingTabFallsBack() {
         XCTAssertEqual(LibraryFilter.all.shifted(by: -1), .all)
         XCTAssertEqual(LibraryFilter.all.shifted(by: 1), .installed)
-        XCTAssertEqual(LibraryFilter.notPlayed.shifted(by: 1), .cloud)
-        XCTAssertEqual(LibraryFilter.cloud.shifted(by: 1), .cloud)
+        XCTAssertEqual(LibraryFilter.installed.shifted(by: 1, in: LibraryFilter.defaultTabs), .cloud)
+        XCTAssertEqual(LibraryFilter.favorites.shifted(by: 1, in: LibraryFilter.defaultTabs), .favorites)
+        XCTAssertEqual(LibraryFilter.notPlayed.shifted(by: 1, in: LibraryFilter.defaultTabs), .all)
+        XCTAssertEqual(LibraryFilter.tabs([.favorites, .favorites, .cloud]), [.all, .cloud, .favorites])
         XCTAssertEqual(LibraryFilter(startingTab: "Favorites"), .favorites)
         XCTAssertEqual(LibraryFilter(startingTab: "nonsense"), .all)
     }
@@ -280,9 +282,9 @@ final class SpotlightLiftTests: XCTestCase {
 
     func testFilterCyclesForwardAndWraps() {
         XCTAssertEqual(LibraryFilter.all.cycled(), .installed)
-        XCTAssertEqual(LibraryFilter.favorites.cycled(), .notPlayed)
-        XCTAssertEqual(LibraryFilter.notPlayed.cycled(), .cloud)
-        XCTAssertEqual(LibraryFilter.cloud.cycled(), .all)
+        XCTAssertEqual(LibraryFilter.favorites.cycled(), .recentlyPlayed)
+        XCTAssertEqual(LibraryFilter.recentlyPlayed.cycled(), .notPlayed)
+        XCTAssertEqual(LibraryFilter.notPlayed.cycled(), .all)
     }
 
     func testCollectionRowScrollsPastAnchor() {

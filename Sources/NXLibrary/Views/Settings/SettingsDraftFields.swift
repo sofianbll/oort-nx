@@ -88,6 +88,7 @@ enum SettingsDraftFields {
                 $0 == .automatic ? L10n.text("Automatic") : $0 == .playstation ? "PlayStation" : $0 == .xbox ? "Xbox" : "Nintendo"
             },
             toggle("viewButtonSwitches", \.viewButtonSwitches),
+            .init("libraryTabs", \.libraryTabs, previews: true) { $0.map { L10n.text($0.rawValue) }.joined(separator: ", ") },
             .init("startingTab", \.startingTab, describe: { L10n.text($0) }),
             .init("spotlightOrder", \.spotlightOrder) {
                 L10n.text($0.isEmpty ? "Spotlight uses its own order." : "Your own order of games and cards.")

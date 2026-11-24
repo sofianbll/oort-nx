@@ -13,6 +13,9 @@ struct SpotlightTopBar: View {
 
     let filter: LibraryFilter
     let sort: LibrarySort
+    var tabs = LibraryFilter.defaultTabs
+    var played = LibraryPlayed.any
+    var onFilters: () -> Void = {}
     var showClock: Bool = true
     var profileFocused = false
     /// The profile's Nextendo account: its presence dot shows while the profile is visible online.
@@ -30,8 +33,9 @@ struct SpotlightTopBar: View {
             }
             HStack(spacing: 0) {
                 badge(.lb)
-                ForEach(LibraryFilter.allCases) { tab($0) }
+                ForEach(LibraryFilter.tabs(tabs + [filter])) { tab($0) }
                 badge(.rb)
+                if played != .any { activeFilter }
             }
             // Selene's order, right to left: the clock, then the profile's avatar just before it.
             HStack(spacing: canvas.u(16)) {
@@ -90,6 +94,24 @@ struct SpotlightTopBar: View {
             .accessibilityAddTraits(on ? [.isButton, .isSelected] : .isButton)
     }
 
+    /// Says why games are missing, and opens the panel that brings them back.
+    private var activeFilter: some View {
+        Button(action: onFilters) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
+                MaterialIconView(.tune, size: 20)
+                Text(L10n.text(played.rawValue, context: locale)).seleneFont(.text, .medium)
+            }
+            .foregroundStyle(SeleneTheme.ink)
+            .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
+            .padding(.vertical, canvas.u(SeleneTokens.Space.tight))
+            .background(Capsule().fill(SeleneTheme.glassSolid))
+        }
+        .buttonStyle(.plain)
+        .padding(.leading, canvas.u(SeleneTokens.Space.small))
+        .accessibilityLabel(L10n.text("Sort and filter", context: locale))
+        .accessibilityValue(L10n.text(played.rawValue, context: locale))
+    }
+
     private func badge(_ button: PromptButton) -> some View {
         SelenePromptBadge(button: button, height: 26)
             .padding(.horizontal, canvas.u(SeleneTokens.Space.compact))
@@ -127,51 +149,54 @@ private struct OnlineDot: View {
     }
 }
 
-/// A compact list anchored above the RS hint, like the control centre's Power menu.
+/// Sort and filter, beside the games they change. A choice applies at once and the panel stays open.
 struct LibrarySortMenu: View {
-    let current: LibrarySort
-    let focused: LibrarySort
-    let choose: (LibrarySort) -> Void
+    let sort: LibrarySort
+    let played: LibraryPlayed
+    let focused: LibraryMenuItem
+    let choose: (LibraryMenuItem) -> Void
     let close: () -> Void
     @Environment(\.seleneCanvas) private var canvas
 
     var body: some View {
-        ZStack(alignment: .bottomTrailing) {
-            Color.black.opacity(0.24).contentShape(Rectangle()).onTapGesture(perform: close)
-            VStack(alignment: .leading, spacing: canvas.u(8)) {
-                Text(L10n.text("Sort games")).seleneFont(.text, .semibold)
-                    .foregroundStyle(SeleneTheme.ink75)
-                    .accessibilityAddTraits(.isHeader)
-                    .padding(.horizontal, canvas.u(15))
-                ForEach(LibrarySort.allCases, id: \.rawValue) { sort in
-                    SelenePillButton(title: L10n.text(sort.title), icon: sort == current ? .check : nil,
-                                     minWidth: 245, height: 44, focused: sort == focused, action: { choose(sort) })
-                        .accessibilityAddTraits(sort == current ? .isSelected : [])
-                }
+        ZStack(alignment: .trailing) {
+            SeleneTheme.scrim45.contentShape(Rectangle()).onTapGesture(perform: close)
+            OortSidePanel(title: L10n.text("Sort and filter")) {
+                SettingsSubheading(L10n.text("Sort games"))
+                ForEach(LibrarySort.allCases, id: \.self) { row(.sort($0), chosen: $0 == sort) }
+                SettingsSubheading(L10n.text("Games shown"))
+                ForEach(LibraryPlayed.allCases, id: \.self) { row(.played($0), chosen: $0 == played) }
             }
-            .padding(canvas.u(SeleneTokens.Space.medium))
-            .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.anchoredCard)).fill(SeleneTheme.glassCard))
-            .padding(.trailing, canvas.u(SeleneTokens.Space.chromeGutter))
-            .padding(.bottom, canvas.u(117))
             .accessibilityAction(named: Text(L10n.text("Back")), close)
         }
     }
 
-    static func handle(_ action: GamepadAction, focused: inout LibrarySort?, choose: (LibrarySort) -> Void) {
-        guard let sort = focused else { return }
+    private func row(_ item: LibraryMenuItem, chosen: Bool) -> some View {
+        Button { choose(item) } label: {
+            SeleneOptionRow(icon: nil, title: L10n.text(item.title), about: nil, focused: item == focused) {
+                if chosen { MaterialIconView(.check, size: 24).foregroundStyle(SeleneTheme.ink) }
+            }
+        }
+        .buttonStyle(.plain)
+        .containerValue(\.oortSettingsRow, true)
+        .accessibilityAddTraits(chosen ? [.isButton, .isSelected] : .isButton)
+    }
+
+    static func handle(_ action: GamepadAction, focused: inout LibraryMenuItem?, choose: (LibraryMenuItem) -> Void) {
+        guard let item = focused else { return }
         switch action {
         case .navigateUp, .navigateDown:
-            let options = LibrarySort.allCases
-            var position = FocusIndex(index: options.firstIndex(of: sort) ?? 0)
+            let options = LibraryMenuItem.all
+            var position = FocusIndex(index: options.firstIndex(of: item) ?? 0)
             position.move(by: action == .navigateUp ? -1 : 1, count: options.count)
             focused = options[position.index]
-        case .confirm: focused = nil; choose(sort)
+        case .confirm: choose(item)
         case .cancel, .rightStickPress, .menu: focused = nil
         default: break
         }
     }
 
     static func hint(_ sort: LibrarySort, action: @escaping () -> Void) -> HintItem {
-        HintItem(.rs, "Sort", hold: L10n.text(sort.title), action: action)
+        HintItem(.rs, "Sort and filter", hold: L10n.text(sort.title), action: action)
     }
 }

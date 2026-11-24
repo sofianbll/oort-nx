@@ -271,6 +271,7 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(s.spotlightCards, [.surprise, .activity, .addGame])
         XCTAssertEqual(s.spotlightOrder, [])
         XCTAssertEqual(s.startingTab, "All games")
+        XCTAssertEqual(s.libraryTabs, [.all, .installed, .cloud, .favorites])
         XCTAssertEqual(s.librarySort, .recent)
         XCTAssertEqual(s.surprisePool, .installed)
     }

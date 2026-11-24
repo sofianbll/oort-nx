@@ -280,6 +280,7 @@ public struct AppSettings: Codable, Equatable {
     }
     public var spotlightOrder: [String]
     public var startingTab: LibraryFilter.RawValue
+    public var libraryTabs = LibraryFilter.defaultTabs
     public var librarySort: LibrarySort
     public var surprisePool: SurprisePool
     public var showsCloudPlayIcon = true
@@ -413,7 +414,7 @@ public struct AppSettings: Codable, Equatable {
         case gameInboxEnabled
         case startInFullscreen
         case colorThemeID, buttonNames
-        case spotlightCards, showsModsCard, showsRecentBuilds, spotlightOrder, startingTab, surprisePool
+        case spotlightCards, showsModsCard, showsRecentBuilds, spotlightOrder, startingTab, libraryTabs, surprisePool
         case librarySort
         case showsCloudPlayIcon, showsCloudDetailsLink, cloudTileBadges, tileBadgePosition, platformCardInfo, interfaceZoom
         case startOn, lastHome
@@ -461,6 +462,9 @@ public struct AppSettings: Codable, Equatable {
         self.showsRecentBuilds = try container.decodeIfPresent(Bool.self, forKey: .showsRecentBuilds) ?? true
         self.spotlightOrder = try container.decodeIfPresent([String].self, forKey: .spotlightOrder) ?? []
         self.startingTab = try container.decodeIfPresent(String.self, forKey: .startingTab) ?? "All games"
+        // The tab the app opens on stays reachable when it came from before the tabs could be chosen.
+        self.libraryTabs = LibraryFilter.tabs((try container.decodeIfPresent([String].self, forKey: .libraryTabs))?
+            .compactMap(LibraryFilter.init(rawValue:)) ?? LibraryFilter.defaultTabs + [LibraryFilter(startingTab: startingTab)])
         self.librarySort = try container.decodeIfPresent(String.self, forKey: .librarySort)
             .flatMap(LibrarySort.init(rawValue:)) ?? .recent
         self.surprisePool = try container.decodeIfPresent(SurprisePool.self, forKey: .surprisePool) ?? .installed
@@ -528,6 +532,7 @@ public struct AppSettings: Codable, Equatable {
         try c.encode(showsRecentBuilds, forKey: .showsRecentBuilds)
         try c.encode(spotlightOrder, forKey: .spotlightOrder)
         try c.encode(startingTab, forKey: .startingTab)
+        try c.encode(libraryTabs.map(\.rawValue), forKey: .libraryTabs)
         try c.encode(librarySort, forKey: .librarySort)
         try c.encode(surprisePool, forKey: .surprisePool)
         try c.encode(multiplayerVPN, forKey: .multiplayerVPN)

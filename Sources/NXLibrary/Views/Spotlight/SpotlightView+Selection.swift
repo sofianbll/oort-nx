@@ -90,12 +90,17 @@ extension SpotlightView {
         guard platformPicker == nil, viewModel.spotlight.focus == .row, !viewModel.spotlight.isLifted,
               cardMenu == nil, viewer == nil, achievementsScreen == nil,
               !router.overlayHasHints(viewModel) else { return }
-        router.sortMenu = settings.settings.librarySort
+        router.sortMenu = .sort(settings.settings.librarySort)
     }
 
-    func setSort(_ sort: LibrarySort) {
-        router.sortMenu = nil
-        settings.settings.librarySort = sort
+    func choose(_ item: LibraryMenuItem) {
+        router.sortMenu = item
+        switch item {
+        case .sort(let sort): settings.settings.librarySort = sort
+        case .played(let played):
+            viewModel.librarySelection.query.played = played
+            reconcile() // Same frame: the selection is never missing from the row.
+        }
         SoundEffectService.shared.play(.tabSwitch)
     }
 

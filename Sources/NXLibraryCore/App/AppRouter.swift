@@ -79,7 +79,7 @@ public final class AppRouter: ObservableObject {
         }
     }
     @Published public var isSearchPresented = false
-    @Published package var sortMenu: LibrarySort?
+    @Published package var sortMenu: LibraryMenuItem?
     /// True while the full-screen screenshot viewer is open; the shell ignores its global shortcuts.
     @Published public var isScreenshotViewerOpen = false
     @Published public var menuSelection = MenuSelectionModel()

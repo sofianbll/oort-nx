@@ -734,15 +734,15 @@ import ArcanePorting
         L10n.setContext(.init(language: .english, region: "US"))
         try render("12-sort-before", stage(BeforeSortTopBar(), showsSort: false), in: out, refs, "screenshots/library.png")
         try render("13-sort-after", after, in: out, refs, "screenshots/library.png")
-        var focus: LibrarySort? = current
+        var focus: LibraryMenuItem? = .sort(current)
         LibrarySortMenu.handle(.navigateDown, focused: &focus) { _ in preconditionFailure() }
-        precondition(focus == .name)
+        precondition(focus == .sort(.name))
         try render("14-sort-menu", after.overlay {
-            LibrarySortMenu(current: current, focused: focus!, choose: { _ in }, close: {})
+            LibrarySortMenu(sort: current, played: .any, focused: focus!, choose: { _ in }, close: {})
         }, in: out, refs, "screenshots/library.png")
-        var chosen: LibrarySort?
+        var chosen: LibraryMenuItem?
         LibrarySortMenu.handle(.confirm, focused: &focus) { chosen = $0 }
-        precondition(focus == nil && chosen == .name)
+        precondition(focus == .sort(.name) && chosen == .sort(.name))
         let beforeImage = out.appendingPathComponent("12-sort-before.png")
         let afterImage = out.appendingPathComponent("13-sort-after.png")
         try save(bitmap(HStack(spacing: 12) {

@@ -16,9 +16,10 @@ play = play.split(' { _ in', 1)[1].strip().removesuffix('}')
 sort = '\n'.join(line for line in collection.splitlines() if 'func openSort()' in line)
 host = '''
 import Foundation
+enum LibraryMenuItem { case sort(Int) }
 enum Route { case library, collection }
 final class Router {
-    var sortMenu: Int?
+    var sortMenu: LibraryMenuItem?
     var route = Route.collection
     var isMenuPresented = false
     var isScreenshotViewerOpen = false
@@ -73,7 +74,7 @@ final class Shell {
 final class Collection {
     let router: Router
     let settings = Settings()
-    var sortMenu: Int?
+    var sortMenu: LibraryMenuItem?
     init(router: Router) { self.router = router }
     // SORT
 }

@@ -101,6 +101,19 @@ final class LibraryQueryTests: XCTestCase {
         XCTAssertEqual(result.map(\.name), ["Animal"])
     }
 
+    func testPlayedNarrowsAnyTab() {
+        let (games, h) = fixtures()
+        func names(_ query: LibraryQuery) -> [String] { query.apply(to: games, history: h).map(\.name) }
+        for filter in [LibraryFilter.all, .installed, .favorites] {
+            let whole = Set(names(LibraryQuery(filter: filter)))
+            let new = Set(names(LibraryQuery(filter: filter, played: .notPlayed)))
+            let played = Set(names(LibraryQuery(filter: filter, played: .played)))
+            XCTAssertEqual(new.union(played), whole)
+            XCTAssertTrue(new.isDisjoint(with: played))
+        }
+        XCTAssertEqual(Set(names(LibraryQuery(played: .played))), Set(names(LibraryQuery(filter: .recentlyPlayed))))
+    }
+
     func testHiddenExcludedEverywhere() {
         let (games, h) = fixtures()
         for filter in LibraryFilter.allCases {
