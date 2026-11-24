@@ -68,7 +68,7 @@ SCENARIOS = r'''
                 let scale = CGFloat(width) / 1120
                 let screen = DetailsTopBlock(game: displayed, logo: nil,
                     presentation: presentation, isRunning: false, focusedPill: 0,
-                    primaryEnabled: state != "engine-blocked" && presentation.canPlay || (state != "engine-blocked" && presentation.canRebuild),
+                    primaryEnabled: presentation.canPlay || (presentation.canRebuild && state != "engine-blocked"),
                     expanded: .constant(false),
                     onPrimary: {}, onSecondary: {}, onFavorite: {}, onHoverPill: { _ in },
                     pillSet: vm.portingPills(displayed).detailsPresentation(cloudOnly: cloud.downloadItem(for: displayed) != nil),
@@ -88,10 +88,12 @@ SCENARIOS = r'''
 
 
 def main():
-    output = Path(sys.argv[1]).resolve()
+    output = Path(sys.argv[1] if len(sys.argv) > 1 else tempfile.mkdtemp(prefix="store-next-captures-")).resolve()
     output.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="store-next-", dir=os.environ["HOME"]) as temp:
+    with tempfile.TemporaryDirectory(prefix="store-next-") as temp:
         package = Path(temp)
+        home = package / "home"
+        (home / "Library/Preferences").mkdir(parents=True)
         shutil.copyfile(ROOT / "Package.swift", package / "Package.swift")
         shutil.copytree(ROOT / "Sources", package / "Sources")
         for target in ("NXLibraryCoreTests", "ArcanePortingTests", "OortCoreTests"):
@@ -134,7 +136,8 @@ extension CloudArtifactStatus {
             "import Vision\n" + HOST.split("        // SCENARIO")[0] + SCENARIOS + render + ocr)
         subprocess.run(["swift", "run", "--jobs", "4", "--package-path", str(package), "NXLibrary",
                         str(output), str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"),
-                        str(ROOT / "Resources/AppIcon-Light.png")], check=True)
+                        str(ROOT / "Resources/AppIcon-Light.png")], check=True,
+                       env=dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home)))
 
 
 if __name__ == "__main__":

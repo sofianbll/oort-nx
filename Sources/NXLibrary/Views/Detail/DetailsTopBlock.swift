@@ -73,10 +73,13 @@ struct DetailsTopBlock: View {
                 NextendoOnlineBadge(titleID: game.titleId)
             }
                 .padding(.top, canvas.u(pillSet.isFailed ? 10 : 26))
-            if let active = transferState.activeItem, !transferState.queued,
-               (active != .sources || downloadFill != nil),
-               !(downloadStatus != nil && active == downloadItem && downloadFill == nil) {
-                CloudLibraryProgressView(progress: transferState.progress, showsBar: downloadFill == nil)
+            if downloadFill != nil,
+               let bytes = CloudLibraryProgressView.bytesSummary(transferState.progress, context: localization) {
+                Text(bytes).seleneFont(.compactCaption).monospacedDigit().foregroundColor(SeleneTheme.ink75)
+                    .padding(.top, canvas.u(SeleneTokens.Space.small))
+            } else if let active = transferState.activeItem, !transferState.queued, active != .sources,
+                      downloadStatus == nil || active != downloadItem {
+                CloudLibraryProgressView(progress: transferState.progress, showsBar: true)
                     .frame(maxWidth: canvas.u(SeleneTokens.Space.transferMeasure), alignment: .leading)
                     .padding(.top, canvas.u(SeleneTokens.Space.small))
             } else if let issue = cloud.states[game.id]?.issue, issue.item != .sources {
@@ -196,11 +199,12 @@ struct DetailsTopBlock: View {
                         SelenePillButton(title: downloadStatus, minWidth: 200, height: 52,
                                          horizontalPadding: 24, focused: false, downloadFill: downloadFill,
                                          passive: true, action: {})
-                            .accessibilityHidden(true)
                     } else {
-                        SeleneStatusDot(text: text(downloadStatus), color: CloudLibraryStatus.pending.color,
-                                        labelColor: SeleneTheme.ink90)
-                            .frame(minWidth: canvas.u(200), minHeight: canvas.u(52), alignment: .leading)
+                        HStack(spacing: canvas.u(8)) {
+                            SeleneStatusMark(color: CloudLibraryStatus.pending.color, pulses: false)
+                            Text(text(downloadStatus)).seleneFont(.body).foregroundColor(SeleneTheme.ink90)
+                        }
+                        .frame(minWidth: canvas.u(200), minHeight: canvas.u(52), alignment: .leading)
                     }
                 } else {
                     SelenePillButton(title: primaryTitle, minWidth: 200, height: 52,
@@ -234,7 +238,8 @@ struct DetailsTopBlock: View {
     private var primaryTitle: String {
         if isRunning { return "Resume" }
         if let downloadItem { return downloadItem == .app ? "Download app" : downloadItem.primaryDownloadTitle }
-        if pillSet.unavailableReason != nil { return "Unavailable" }
+        if pillSet.unavailableReason != nil ||
+            (!primaryEnabled && !presentation.canRebuild && !canCheckCloudSources) { return "Unavailable" }
         return presentation.canPlay ? "Play" : "Build"
     }
 
