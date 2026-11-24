@@ -8,6 +8,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 - A skippable first-run tour for language, controllers, profile, local games, services and appearance. Previously configured libraries see only the 0.4.0 highlights.
 
+- Filter Spotlight by platform from the first tile. Press up or down to browse and close to keep the choice for this profile.
 - Import Switch games from game files alone in your own cloud library or a followed reference. Personalize them before downloading, and find them with the **Cloud** filter in Spotlight and Collection.
 - Cloud downloads trace the rising fill on Spotlight and Collection covers with a band of light that glides between progress updates and briefly forms the Oort mark on success.
 - Pause an app or game-files download from Cloud library or Activity. The paused download stays first after a restart and waits for Resume.

@@ -10,14 +10,19 @@ import ArcanePorting
 struct SpotlightRowView: View {
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.seleneReduceMotion) private var reduceMotion
+    @Environment(\.nxAppLocale) private var locale
 
     let items: [SpotlightItem]
     let gamesByID: [UUID: PortedGame]
     var catalogGamesByID: [UUID: CatalogGame] = [:]
     let selectedKey: String?
+    var platforms: SpotlightPlatforms? = nil
+    var platform: SpotlightPlatforms.Card? = nil
+    var platformOpen = false
     /// The tile lifted for moving: raised 12u, its ring stays.
     var liftedKey: String? = nil
     let isEmptyFilter: LibraryFilter?
+    var isPlatformScoped = false
     let artwork: ArtworkStore
     /// The porting look of a game's tile (`PortingTileLook`).
     var tileLook: (PortedGame) -> PortingTileLook = { _ in .normal }
@@ -30,6 +35,7 @@ struct SpotlightRowView: View {
     var entrance: SpotlightEntrance.Phase = .landed
     /// The flight is over: everything is in.
     var onEntranceEnd: () -> Void = {}
+    var onPlatformMove: (Int) -> Void = { _ in }
     let onSelect: (SpotlightItem) -> Void
     let onActivate: (SpotlightItem) -> Void
 
@@ -60,6 +66,8 @@ struct SpotlightRowView: View {
                 let index = entry.index, item = entry.item
                 let isSelected = index == selected
                 tile(item, selected: isSelected)
+                    .allowsHitTesting(!platformOpen || item == .platform)
+                    .accessibilityHidden(platformOpen && item != .platform)
                     // Inside the glide: the tile grows about its own centre; the shift is undone by its own size.
                     .entrance(flights.isEmpty ? nil : flights[index - window.lowerBound], launched: launched,
                               unit: canvas.u(1),
@@ -71,7 +79,7 @@ struct SpotlightRowView: View {
                     .zIndex(isSelected ? 10 : 0)
                     .transition(.identity)
             }
-            if let selected {
+            if let selected, items[selected] != .platform {
                 let item = items[selected]
                 Text(title(of: item))
                     .seleneFont(.selectionTitle)
@@ -165,7 +173,7 @@ struct SpotlightRowView: View {
     private func tile(_ item: SpotlightItem, selected: Bool) -> some View {
         let native: PortedGame? = if case .game(let id) = item { gamesByID[id] } else { nil }
         let cloudState = native.flatMap(cloud.stateForTile)
-        return ZStack(alignment: .topLeading) {
+        let frame = ZStack(alignment: .topLeading) {
             face(item, selected: selected, cloudState: cloudState)
                 .padding(canvas.u(SeleneTokens.Space.badge))
             SeleneTileRing(cornerRadius: canvas.u(SeleneTokens.Radius.spotlightFocus), active: selected)
@@ -173,12 +181,19 @@ struct SpotlightRowView: View {
         }
         .frame(width: canvas.u(Self.host), height: canvas.u(Self.host), alignment: .topLeading)
         .contentShape(Rectangle())
-        // The single click selects at once; it does not wait for a possible double click.
-        .onTapGesture(count: 2) { onActivate(item) }
-        .simultaneousGesture(TapGesture().onEnded { onSelect(item) })
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(title(of: item))
-        .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
+        return Group {
+            if item == .platform, let platform, let platforms {
+                frame.overlay { platformActions(platform, in: platforms, selected: selected) }
+            } else {
+                frame
+                    // The single click selects at once; it does not wait for a possible double click.
+                    .onTapGesture(count: 2) { onActivate(item) }
+                    .simultaneousGesture(TapGesture().onEnded { onSelect(item) })
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(title(of: item))
+                    .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
+            }
+        }
         .modifier(CloudLibraryTileBadge(state: cloudState, showsCopyBadge: showsCloudBadges, position: badgePosition,
                                         look: native.map(tileLook) ?? .normal, onlineTitleID: native?.titleId))
     }
@@ -197,6 +212,13 @@ struct SpotlightRowView: View {
                 ZStack {
                     RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous).fill(SeleneTheme.ink15)
                     switch item {
+                    case .platform:
+                        if let platforms, let platform {
+                            face.fill(SeleneTheme.glassSolid)
+                                .overlay { platformFaces(platform, in: platforms, side: side) }
+                                .clipShape(face)
+                                .overlay(face.strokeBorder(SeleneTheme.ink15, lineWidth: max(1, canvas.u(1))))
+                        }
                     case .game(let id):
                         if let game = catalogGamesByID[id] {
                             CatalogNativeArtwork(game: game, role: .square, look: PortingTileLook.make(catalog: game))
@@ -229,9 +251,93 @@ struct SpotlightRowView: View {
 
     private func title(of item: SpotlightItem) -> String {
         switch item {
+        case .platform: return platform.map(platformName) ?? ""
         case .card(let card): return card.title
         case .game(let id): return gamesByID[id]?.name ?? catalogGamesByID[id]?.name ?? ""
         }
+    }
+
+    private func platformKind(_ card: SpotlightPlatforms.Card) -> PlatformKind {
+        switch card.integration {
+        case .nxnative: .switch1
+        case .steam: .steam
+        case .macShortcut: .mac
+        default: .library
+        }
+    }
+
+    private func platformName(_ card: SpotlightPlatforms.Card) -> String {
+        let kind = platformKind(card)
+        if kind == .library, let integration = card.integration { return integration.rawValue }
+        return L10n.text(kind == .mac ? "Mac apps" : kind.rawValue, context: locale)
+    }
+
+    private func platformCount(_ card: SpotlightPlatforms.Card) -> String {
+        L10n.count("%lld games", card.count, context: locale)
+    }
+
+    private func platformFaces(_ current: SpotlightPlatforms.Card, in platforms: SpotlightPlatforms, side: CGFloat) -> some View {
+        let index = platforms.cards.firstIndex { $0.integration == current.integration } ?? 0
+        // The lettering moves only between the next/previous controls, not underneath them.
+        let track = platformOpen ? side - 2 * canvas.u(SeleneTokens.Space.section) : side
+        return ZStack {
+            ForEach(Array(platforms.cards.enumerated()), id: \.element.integration) { indexOfCard, card in
+                VStack(spacing: canvas.u(SeleneTokens.Space.tight)) {
+                    PlatformLabel(platformKind(card), title: platformName(card), size: .body)
+                        .lineLimit(2)
+                    Text(verbatim: platformCount(card))
+                        .seleneFont(.caption)
+                        .foregroundStyle(SeleneTheme.ink90)
+                }
+                .padding(.horizontal, canvas.u(SeleneTokens.Space.compact))
+                .frame(width: side, height: track)
+                .offset(y: CGFloat(indexOfCard - index) * track)
+                .animation(Motion.rail(reduceMotion || !platformOpen, .spotlight), value: index)
+            }
+        }
+        .frame(width: side, height: track)
+        .clipped()
+        .frame(width: side, height: side)
+        .foregroundStyle(SeleneTheme.ink)
+        .accessibilityHidden(true)
+    }
+
+    private func platformActions(_ card: SpotlightPlatforms.Card, in platforms: SpotlightPlatforms, selected: Bool) -> some View {
+        ZStack {
+            Button { onActivate(.platform) } label: {
+                Rectangle().fill(.clear).contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(platformName(card))
+            .accessibilityValue(platformCount(card))
+            .accessibilityHint(L10n.text(platformOpen ? "Close" : "Open", context: locale))
+            .accessibilityAddTraits(selected ? .isSelected : [])
+            if platformOpen {
+                VStack {
+                    platformArrow(-1, enabled: platforms.adjacent(to: card.integration, by: -1) != card)
+                    Spacer(minLength: 0)
+                    platformArrow(1, enabled: platforms.adjacent(to: card.integration, by: 1) != card)
+                }
+                .padding(canvas.u(SeleneTokens.Space.badge))
+            }
+        }
+        .foregroundStyle(SeleneTheme.ink)
+    }
+
+    private func platformArrow(_ direction: Int, enabled: Bool) -> some View {
+        Button { onPlatformMove(direction) } label: {
+            Image(systemName: direction < 0 ? "chevron.up" : "chevron.down")
+                .seleneFont(.body, .semibold)
+                .frame(maxWidth: .infinity)
+                .frame(height: canvas.u(SeleneTokens.Space.group))
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(L10n.text(direction < 0 ? "Previous platform" : "Next platform", context: locale))
+        .disabled(!enabled)
+        .opacity(enabled ? 1 : 0)
+        .allowsHitTesting(enabled)
+        .accessibilityHidden(!enabled)
     }
 
     /// The title hides at once on a move and fades in (0.2 s) once the row has settled.
@@ -249,6 +355,7 @@ struct SpotlightRowView: View {
 
     private func emptyMessage(_ filter: LibraryFilter) -> some View {
         let (title, hint): (String, String) = {
+            if isPlatformScoped { return (L10n.text("No games match this filter.", context: locale), "") }
             switch filter {
             case .installed: return (L10n.text("Nothing installed"), L10n.text("Build a game and it shows up here."))
             case .recentlyPlayed: return (L10n.text("Nothing played lately"), L10n.text("Games you play show up here."))
@@ -260,9 +367,11 @@ struct SpotlightRowView: View {
         }()
         return VStack(alignment: .leading, spacing: canvas.u(6)) {
             Text(title).seleneFont(.selectionTitle, .medium).foregroundColor(SeleneTheme.ink90)
-            Text(hint).seleneFont(.caption).foregroundColor(SeleneTheme.ink60)
-                .frame(maxWidth: canvas.u(380), alignment: .leading)
-                .fixedSize(horizontal: false, vertical: true)
+            if !hint.isEmpty {
+                Text(hint).seleneFont(.caption).foregroundColor(SeleneTheme.ink60)
+                    .frame(maxWidth: canvas.u(380), alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
         .allowsHitTesting(false)
     }

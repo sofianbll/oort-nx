@@ -9,7 +9,7 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
 
-def run_host(host, source_fixture=None, *, save_model=False):
+def run_host(host, source_fixture=None, *, save_model=False, capture=None):
     build = ROOT / ".build"
     products = build / "out/Products/Debug"
     objects = list((build / "out/Intermediates.noindex/NXLibrary.build/Debug/NXLibrary-p.build/Objects-normal").glob("*/NXLibrary.LinkFileList"))
@@ -28,6 +28,9 @@ def run_host(host, source_fixture=None, *, save_model=False):
         source, binary = scratch / "host.swift", scratch / "probe"
         (scratch / "Library/Preferences").mkdir(parents=True)
         shutil.copytree(products / "NXLibrary_NXLibraryCore.bundle", scratch / "NXLibrary_NXLibraryCore.bundle")
+        if capture is not None:
+            shutil.copytree(ROOT / "Resources/Brands/Platforms", scratch / "Brands/Platforms")
+            shutil.copytree(ROOT / "Resources/Selene/Fonts", scratch / "Selene/Fonts")
         home_check = r'''
 func assertFixtureHome() {
     let home = URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!).resolvingSymlinksInPath().path
@@ -70,5 +73,9 @@ func suppressProbeNotifications() {
                    '(deny file-read-data file-write* (subpath (param "REAL_HOME")) (subpath "/Volumes")) '
                    '(deny file-write* (subpath "/Applications"))')
         real_home = Path(pwd.getpwuid(os.getuid()).pw_dir).resolve()
-        subprocess.run(["sandbox-exec", "-D", f"REAL_HOME={real_home}", "-p", sandbox, str(binary)],
-                       cwd=ROOT, env=env, check=True)
+        try:
+            subprocess.run(["sandbox-exec", "-D", f"REAL_HOME={real_home}", "-p", sandbox, str(binary)],
+                           cwd=ROOT, env=env, check=True)
+        finally:
+            if capture is not None and (scratch / "captures").is_dir():
+                shutil.copytree(scratch / "captures", capture, dirs_exist_ok=True)

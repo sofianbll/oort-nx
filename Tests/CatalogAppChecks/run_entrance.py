@@ -99,10 +99,13 @@ enum ProfileFlow {
 final class InputHost {
     let viewModel = InputState()
     var entrance = SpotlightEntrance.Phase.covered
+    var platformPicker: Bool?
+    var platformActions: [GamepadAction] = []
     var handled: [GamepadAction] = []
     var routed: [GamepadAction] = []
     // ACTUAL_OVERLAID
     // ACTUAL_COVERED
+    func handlePlatformPicker(_ action: GamepadAction) { platformActions.append(action) }
     func landEntrance() { entrance.land() }
     func handle(_ action: GamepadAction) {
         routed.append(action)
@@ -142,6 +145,10 @@ final class InputHost {
         landed.clickProfilesHint()
         require(ProfileFlow.requests == 2 && landed.routed == routedBeforeClick,
                 "Clicking the visible Profiles hint must ask the shell directly, like Home")
+        landed.platformPicker = true
+        landed.receive(Notification(name: .init("fixture"), object: GamepadAction.navigateDown))
+        require(landed.platformActions == [.navigateDown] && landed.handled == [.confirm],
+                "When open the platform picker owns Down, not the game page")
         for setup in [false, true] {
             let input = InputHost()
             input.viewModel.showSetupCheck = setup

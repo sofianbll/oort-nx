@@ -1,6 +1,30 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "No games match this filter.": {"localizations": {
+      "en":{"stringUnit":{"state":"translated","value":"No games match this filter."}},"fr":{"stringUnit":{"state":"translated","value":"Aucun jeu ne correspond à ce filtre."}},"it":{"stringUnit":{"state":"translated","value":"Nessun gioco corrisponde al filtro."}},"de":{"stringUnit":{"state":"translated","value":"Keine Spiele entsprechen diesem Filter."}},"es":{"stringUnit":{"state":"translated","value":"Ningún juego coincide con este filtro."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Nenhum jogo corresponde a este filtro."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"没有符合此筛选条件的游戏。"}}
+    }},
+    "Next platform": {"localizations": {
+      "en":{"stringUnit":{"state":"translated","value":"Next platform"}},"fr":{"stringUnit":{"state":"translated","value":"Plateforme suivante"}},"it":{"stringUnit":{"state":"translated","value":"Piattaforma successiva"}},"de":{"stringUnit":{"state":"translated","value":"Nächste Plattform"}},"es":{"stringUnit":{"state":"translated","value":"Plataforma siguiente"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Próxima plataforma"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"下一个平台"}}
+    }},
+    "Previous platform": {"localizations": {
+      "en":{"stringUnit":{"state":"translated","value":"Previous platform"}},"fr":{"stringUnit":{"state":"translated","value":"Plateforme précédente"}},"it":{"stringUnit":{"state":"translated","value":"Piattaforma precedente"}},"de":{"stringUnit":{"state":"translated","value":"Vorherige Plattform"}},"es":{"stringUnit":{"state":"translated","value":"Plataforma anterior"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Plataforma anterior"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"上一个平台"}}
+    }},
+    "Change platform": {"localizations": {
+      "en":{"stringUnit":{"state":"translated","value":"Change platform"}},"fr":{"stringUnit":{"state":"translated","value":"Changer de plateforme"}},"it":{"stringUnit":{"state":"translated","value":"Cambia piattaforma"}},"de":{"stringUnit":{"state":"translated","value":"Plattform wechseln"}},"es":{"stringUnit":{"state":"translated","value":"Cambiar de plataforma"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Mudar de plataforma"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"切换平台"}}
+    }},
+    "%lld games": {
+      "comment": "Total number of visible games on a Spotlight platform card.",
+      "localizations": {
+        "en": {"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld game"}},"other":{"stringUnit":{"state":"translated","value":"%lld games"}}}}},
+        "it": {"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld gioco"}},"other":{"stringUnit":{"state":"translated","value":"%lld giochi"}}}}},
+        "fr": {"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld jeu"}},"other":{"stringUnit":{"state":"translated","value":"%lld jeux"}}}}},
+        "de": {"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld Spiel"}},"other":{"stringUnit":{"state":"translated","value":"%lld Spiele"}}}}},
+        "es": {"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld juego"}},"other":{"stringUnit":{"state":"translated","value":"%lld juegos"}}}}},
+        "pt-BR": {"variations":{"plural":{"one":{"stringUnit":{"state":"translated","value":"%lld jogo"}},"other":{"stringUnit":{"state":"translated","value":"%lld jogos"}}}}},
+        "zh-Hans": {"stringUnit":{"state":"translated","value":"%lld 个游戏"}}
+      }
+    },
     "Choose the folder every game syncs its save through, for example one in iCloud Drive.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Choose the folder every game syncs its save through, for example one in iCloud Drive."}}, "fr": {"stringUnit":{"state":"translated","value":"Choisissez un dossier de synchronisation commun à tous les jeux, par exemple dans iCloud Drive."}}, "it": {"stringUnit":{"state":"translated","value":"Scegli la cartella di sincronizzazione comune a tutti i giochi, ad esempio in iCloud Drive."}}, "de": {"stringUnit":{"state":"translated","value":"Wähle den gemeinsamen Ordner für Spielstände aus, zum Beispiel in iCloud Drive."}}, "es": {"stringUnit":{"state":"translated","value":"Elija la carpeta donde todos los juegos sincronizarán sus partidas, por ejemplo en iCloud Drive."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Escolha a pasta em que todos os jogos sincronizarão o progresso, por exemplo no iCloud Drive."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"请选择供所有游戏同步存档的文件夹，例如 iCloud 云盘中的文件夹。"}}
     }},
