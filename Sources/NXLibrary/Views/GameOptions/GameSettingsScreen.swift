@@ -14,7 +14,7 @@ enum GameSettingsCategory: String, CaseIterable, Hashable {
         case .multiplayer: "Multiplayer"
         case .performance: "Performance"
         case .mods: "Mods"
-        case .cheats: "Cheats"
+        case .cheats: "Game settings: Cheats"
         case .saves: "Saves"
         case .details: "Details and artwork"
         case .app: "Mac app"
@@ -117,6 +117,7 @@ struct GameSettingsScreen<Pane: View>: View {
             }
         }
         .background(SeleneBackdrop(still: true))
+        .environment(\.seleneMinimumFont, SeleneTokens.Space.pageMinimumFont)
         .onReceive(NotificationCenter.default.publisher(for: .nxGameOptionsGamepadAction)) { note in
             if let action = note.object as? GamepadAction { handle(action) }
         }
