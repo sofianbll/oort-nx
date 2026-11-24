@@ -560,6 +560,29 @@ final class CloudDriveFoldersTests: XCTestCase {
         }
     }
 
+    func testCreationStaysInTheAccountAndFolderShown() async throws {
+        try await withFakeDrive { fixture, root in
+            let drive = fixture.backend
+            let shown = try await drive.creationParent("New")
+            XCTAssertEqual(shown, .init(account: "accountA", id: "newID"))
+            // The same name is now another folder, then another account answers under the same alias.
+            for change in [{ fixture.newID = "otherID" }, { fixture.newID = "newID"; fixture.account = "accountB" }] {
+                change()
+                do {
+                    try await drive.create("Games", in: "New", shown: shown)
+                    XCTFail("A folder cannot be created in a parent the player did not see")
+                } catch CloudLibraryFailure.scopeChanged {}
+                XCTAssertEqual(fixture.writes, 0)
+            }
+            fixture.account = "accountA"
+            try await drive.create("Games", in: "New", shown: shown)
+            XCTAssertEqual(fixture.writes, 1)
+            XCTAssertTrue(FileManager.default.fileExists(atPath: root.appendingPathComponent("New/Games").path))
+            try await drive.create("Games", in: "New", shown: shown)
+            XCTAssertEqual(fixture.writes, 1, "An existing folder is not created twice")
+        }
+    }
+
     private func withFakeDrive(_ body: (MoveDriveFixture, URL) async throws -> Void) async throws {
         let root = FileManager.default.temporaryDirectory.resolvingSymlinksInPath().appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }
@@ -646,6 +669,11 @@ final class CloudDriveFoldersTests: XCTestCase {
                 return writes == loseReply
                     ? .init(status: 1, stdout: "", stderr: "connection reset")
                     : .init(status: 0, stdout: "", stderr: "")
+            }
+            if args[0] == "mkdir", args[1].contains(",root_folder_id=") {
+                try fm.createDirectory(at: try node(args[1]), withIntermediateDirectories: false)
+                writes += 1
+                return .init(status: 0, stdout: "", stderr: "")
             }
             XCTAssertEqual(args[0], "lsjson", "No name-based writes are allowed")
             let parent = try node(args[1])

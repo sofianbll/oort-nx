@@ -597,7 +597,8 @@ public struct RcloneStorageBackend: StorageBackend {
         if writesToDrive, !isReference, let scope = driveScope, commandOverride == nil, !usingConfigSnapshot {
             let executable = try binary()
             let snapshot = try await RcloneConfigSnapshot.capture(executable: executable, config: config) {
-                try await SystemCommandRunner().runCancellable($0, $1, environment: $2)
+                // Like every other command: the managed copy is verified again before it runs.
+                try await RcloneDownload.runCancellable($0, $1, environment: $2)
             }
             defer { withExtendedLifetime(snapshot) {} }
             let checked = Self(remote: remote, root: root, executable: executable, config: snapshot.config).scoped(scope)
@@ -761,14 +762,15 @@ public struct RcloneStorageBackend: StorageBackend {
         }
     }
 
-    package func checkedCreationParent(_ folder: String, reference: String) async throws -> String {
+    package func checkedCreationParent(_ folder: String, reference: String?) async throws -> CloudDriveScope.CreationParent {
+        let account = try await accountIdentity()
         let ancestry = folder.isEmpty ? [] : try await folderAncestry(folder)
         guard ancestry.count == folder.split(separator: "/").count else { throw CloudLibraryFailure.folderMissing }
-        return try await checkedCreationParent(ancestry: ancestry, reference: reference)
+        return .init(account: account, id: try await checkedCreationParent(ancestry: ancestry, reference: reference))
     }
 
-    private func checkedCreationParent(ancestry: [String], reference: String) async throws -> String {
-        if ancestry.contains(reference) { throw CloudLibraryFailure.referenceOverlap }
+    private func checkedCreationParent(ancestry: [String], reference: String?) async throws -> String {
+        if let reference, ancestry.contains(reference) { throw CloudLibraryFailure.referenceOverlap }
         let id: String
         if let parent = ancestry.last {
             id = parent

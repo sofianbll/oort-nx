@@ -63,6 +63,8 @@ struct CloudSetupAssistant: View {
     @State private var work: (id: UUID, kind: Work, task: Task<Void, Never>)?
     @State private var folderName: String?
     @State private var creation: String?
+    /// The account and folder on screen; a folder is only created there.
+    @State private var shownParent: CloudDriveScope.CreationParent?
     @State private var activated = false
     @FocusState private var field: CloudSetupAssistantFocus.Target?
 
@@ -616,7 +618,7 @@ struct CloudSetupAssistant: View {
             sourcesPath = path
             ticket = draft.renewTicket()
         } else { ticket = draft.browse(path) }
-        listing = nil; count = nil; countUnknown = false; folderMissing = false
+        listing = nil; count = nil; countUnknown = false; folderMissing = false; shownParent = nil
         movePlan = nil; moveUnavailable = false; checkingMove = false; moveConflicts = []; moveFailure = nil
         let old = model.preference.root.split(separator: "/").joined(separator: "/")
         let approved = model.driveScope
@@ -625,15 +627,22 @@ struct CloudSetupAssistant: View {
         focus.reset()
         start(.browse) {
             let result: CloudDriveFolders.Listing
+            async let parent = try? service.creationParent(path)
             do { result = try await service.list(path, ticket: ticket) }
             catch StorageBackendError.notFound {
-                if !Task.isCancelled && draft.matches(ticket) { folderMissing = !path.isEmpty }
+                if !Task.isCancelled && draft.matches(ticket), !path.isEmpty {
+                    let above = try? await service.creationParent(path.split(separator: "/").dropLast().joined(separator: "/"))
+                    if !Task.isCancelled && draft.matches(ticket) { shownParent = above; folderMissing = true }
+                }
                 if usesDefaultSources { return }
                 throw CloudLibraryFailure.folderMissing
             }
             guard !Task.isCancelled, draft.matches(result.ticket) else { return }
             checkingMove = checkOld
             listing = result
+            let shown = await parent
+            guard !Task.isCancelled, draft.matches(ticket) else { return }
+            shownParent = shown
             if checkOld {
                 do {
                     let plan = try await service.movePlan(from: old, to: path, approved: approved)
@@ -662,6 +671,10 @@ struct CloudSetupAssistant: View {
 
     private func nameFolder() {
         guard folderControlsReady, !checkingMove else { return }
+        guard shownParent != nil else {
+            if work == nil { issue = CloudLibraryFailure.scopeChanged.messageKey }
+            return
+        }
         if folderMissing, let name = browsingPath.split(separator: "/").last {
             focus.reset()
             creation = String(name)
@@ -680,12 +693,12 @@ struct CloudSetupAssistant: View {
     }
 
     private func create(_ name: String) {
-        guard creation == name, folderControlsReady, let service else { return }
+        guard creation == name, folderControlsReady, let service, let shown = shownParent else { return }
         let parent = folderMissing ? browsingPath.split(separator: "/").dropLast().joined(separator: "/") : browsingPath
         let ticket = draft.ticket
         creation = nil; focus.reset()
         start(.create) {
-            try await service.create(name, in: parent)
+            try await service.create(name, in: parent, shown: shown)
             if !Task.isCancelled && draft.matches(ticket) { browse(CloudDriveFolders.joining(parent, name)) }
         }
     }

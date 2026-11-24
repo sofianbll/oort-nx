@@ -151,18 +151,30 @@ public struct CloudDriveFolders: Sendable {
         _ = try await list(folder, ticket: UUID())
     }
 
+    /// The account and folder a listing shows, to check again before writing into it. A local folder has neither.
+    package func creationParent(_ folder: String) async throws -> CloudDriveScope.CreationParent? {
+        guard remote != ":local:" else { return nil }
+        return try await referenceGuard.checkedCreationParent(folder, reference: reference)
+    }
+
     /// Only an explicit confirmation calls this. A lost reply is followed by a read, never another write.
-    public func create(_ name: String, in folder: String) async throws {
+    /// `shown` is the parent the player saw: the same name elsewhere, or another account, is refused.
+    package func create(_ name: String, in folder: String, shown: CloudDriveScope.CreationParent? = nil) async throws {
         guard Self.validName(name) else { throw StorageBackendError.invalidKey }
-        if reference != nil, remote != ":local:", configurationSnapshot == nil {
-            try await snapshot().create(name, in: folder)
+        let anchored = remote != ":local:" && (reference != nil || shown != nil)
+        if anchored, configurationSnapshot == nil {
+            try await snapshot().create(name, in: folder, shown: shown)
             return
         }
-        if try await list(folder, ticket: UUID()).names.contains(name) { return }
+        if try await list(folder, ticket: UUID()).names.contains(name) {
+            if let shown, try await creationParent(folder) != shown { throw CloudLibraryFailure.scopeChanged }
+            return
+        }
         let destination: String
-        if let reference, remote != ":local:" {
-            let parent = try await referenceGuard.checkedCreationParent(folder, reference: reference)
-            destination = try target(name, rootID: parent)
+        if anchored {
+            guard let parent = try await creationParent(folder), shown == nil || parent == shown
+            else { throw CloudLibraryFailure.scopeChanged }
+            destination = try target(name, rootID: parent.id)
         } else {
             destination = try target(Self.joining(folder, name))
         }

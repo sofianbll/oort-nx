@@ -12,6 +12,17 @@ package struct CloudDriveScope: Codable, Equatable, Sendable {
         }
     }
 
+    /// Where a new folder goes: the account and the parent's own ID, never its path alone.
+    package struct CreationParent: Equatable, Sendable {
+        package let account: String
+        package let id: String
+
+        package init(account: String, id: String) {
+            self.account = account
+            self.id = id
+        }
+    }
+
     package let remote: String
     package let account: String
     package let library: Folder
