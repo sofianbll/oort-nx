@@ -26,6 +26,7 @@ final class PortingModel: ObservableObject {
     // MARK: - Live build
     @Published var buildState: BuildState = .idle
     @Published var isCancellingBuild: Bool = false
+    @Published var isInstallingBuild = false
     @Published var currentStageName: String = ""
     @Published var currentStepName: String = ""
     @Published var stageIndex: Int = 0

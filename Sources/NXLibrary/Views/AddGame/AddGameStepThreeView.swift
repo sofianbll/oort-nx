@@ -31,6 +31,7 @@ struct AddGameStepThreeView: View {
         .onAppear(perform: publishActions)
         .onChange(of: viewModel.isBuilding) { publishActions() }
         .onChange(of: porting.isCancellingBuild) { publishActions() }
+        .onChange(of: porting.isInstallingBuild) { publishActions() }
         .onChange(of: porting.buildSuccessPath) { publishActions() }
         .onChange(of: porting.buildError) { publishActions() }
         .onChange(of: porting.portingFailureReason) { publishActions() }
@@ -59,8 +60,8 @@ struct AddGameStepThreeView: View {
     private var buildingView: some View {
         VStack(alignment: .leading, spacing: canvas.u(24)) {
             HStack(alignment: .top, spacing: canvas.u(36)) {
-                gameTile(caption: viewModel.portingETAText
-                    ?? BuildStageCopy.title(porting.currentStageName))
+                gameTile(caption: porting.isInstallingBuild ? L10n.text("Installing…") :
+                    viewModel.portingETAText ?? BuildStageCopy.title(porting.currentStageName))
                 stageList
             }
             PortingLogBox(logs: viewModel.logs, expanded: $porting.showLiveLogsInBuild)
@@ -110,7 +111,7 @@ struct AddGameStepThreeView: View {
     /// Compact stage rows: check, spinner or cross, the name and the time it took.
     private var stageList: some View {
         VStack(alignment: .leading, spacing: canvas.u(4)) {
-            if porting.buildStages.isEmpty {
+            if porting.buildStages.isEmpty && !porting.isInstallingBuild {
                 Text(L10n.text("Starting the porting…"))
                     .seleneFont(17)
                     .foregroundColor(SeleneTheme.ink60)
@@ -320,7 +321,7 @@ struct AddGameStepThreeView: View {
                            systemImage: nil, kind: .quiet, isEnabled: true) {
                     NotificationCenter.default.post(name: .nxLibraryOpenConsole, object: nil)
                 }
-            ]
+            ].filter { !porting.isInstallingBuild || $0.id != "cancel" }
         }
 
         if let path = porting.buildSuccessPath {

@@ -25,6 +25,15 @@ struct RunningGameMonitor { static func runningApplication(for game: PortedGame)
 enum L10n { static func text(_ value: String) -> String { value } }
 enum NXLibraryError: Error { case buildAlreadyRunning, environmentBlocked(String) }
 enum CloudArchiveError: Error { case busy }
+struct LogEntry {
+    enum Level { case warning }
+    var level: Level
+    var message: String
+}
+struct BuildService {
+    var acceptsCancellation = false
+    @discardableResult func cancel() -> Bool { acceptsCancellation }
+}
 struct BuildHost {
     struct App {
         struct Cloud { var isChangingConnection = false; var isWorking = false; func conflicts(with: Int) -> Bool { false } }
@@ -36,8 +45,13 @@ struct BuildHost {
         var isBuilding = false
         var isCleaningStorage = false
         var isUpdatingApp = false
+        var logs: [LogEntry] = []
     }
     var app = App()
+    var buildService: BuildService? = BuildService()
+    var isCancellingBuild = false
+    var currentStageName = "Installing"
+    func stopStageElapsedTimer() {}
     func buildScope(for game: PortedGame) -> Int { 0 }
     // RULES
     func allowsBuild() -> Bool { (try? checkBuildIdle(for: PortedGame())) != nil }
@@ -52,13 +66,21 @@ fixture.app.setup.isSwitchingEngine = true
 require(!fixture.allowsBuild(), "build cannot start during an engine switch")
 fixture.app.setup.isSwitchingEngine = false
 require(fixture.allowsBuild(), "build can start after the engine switch")
+fixture.app.isBuilding = true
+fixture.cancelBuild()
+require(!fixture.isCancellingBuild && fixture.app.logs.isEmpty,
+        "a cancellation rejected by the worker does not show Cancelling during installation")
+fixture.buildService?.acceptsCancellation = true
+fixture.cancelBuild()
+require(fixture.isCancellingBuild, "a cancellation accepted by the worker is shown")
 if failures != 0 { exit(1) }
-print("Build gate: engine switch: PASS")
+print("Build gates: engine switch, cancellation: PASS")
 """
 
 with tempfile.TemporaryDirectory(prefix="arcane-build-gate-") as directory:
     main = Path(directory) / "main.swift"
     executable = main.with_suffix("")
-    main.write_text(host.replace("// RULES", declaration("private func checkBuildIdle(")))
+    rules = [declaration("private func checkBuildIdle("), declaration("func cancelBuild(").replace("func cancelBuild(", "mutating func cancelBuild(", 1)]
+    main.write_text(host.replace("// RULES", "\n".join(rules)))
     subprocess.run(["xcrun", "swiftc", str(main), "-o", str(executable)], check=True)
     subprocess.run([str(executable)], check=True)

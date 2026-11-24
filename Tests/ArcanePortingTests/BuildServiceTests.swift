@@ -149,6 +149,33 @@ final class BuildServiceTests: XCTestCase {
         XCTAssertEqual(events.filter { if case .log = $0 { true } else { false } }.count, 1)
     }
 
+    func testInstallationPhaseRejectsCancellationBeforePublication() throws {
+        let fm = FileManager.default
+        let root = fm.temporaryDirectory.appendingPathComponent("NXInstallPhase-\(UUID())")
+        defer { try? fm.removeItem(at: root) }
+        try fm.createDirectory(at: root, withIntermediateDirectories: true)
+        let staged = root.appendingPathComponent("Staged.app")
+        let final = root.appendingPathComponent("Game.app")
+        let finished = expectation(description: "installed")
+        let installing = expectation(description: "entered non-cancellable phase")
+        let service = BuildService()
+        service.start(command: BuildCommand(executable: URL(fileURLWithPath: "/bin/sh"),
+            arguments: ["-c", #"mkdir -p "$1/Contents"; touch "$1/Contents/Info.plist""#, "synthetic", staged.path],
+            environment: [:], workingDirectory: root),
+            logURL: root.appendingPathComponent("build.log"), tempApp: staged, finalApp: final,
+            onInstalling: {
+                XCTAssertFalse(service.cancel())
+                XCTAssertFalse(fm.fileExists(atPath: final.path))
+                installing.fulfill()
+            }, eventHandler: { _ in }, completion: {
+                XCTAssertTrue($0.success)
+                XCTAssertFalse($0.cancelled)
+                finished.fulfill()
+            })
+        wait(for: [installing, finished], timeout: 10, enforceOrder: true)
+        XCTAssertTrue(fm.fileExists(atPath: final.path))
+    }
+
     private func captureOutput(script: String, firstChunkBytes: Int = 0) throws -> ([BuildEvent], Data) {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("NXOutput-\(UUID())")
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)

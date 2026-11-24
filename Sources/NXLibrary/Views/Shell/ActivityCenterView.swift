@@ -166,10 +166,11 @@ struct ActivityCenterView: View {
             let progress = viewModel.isBuilding ? viewModel.portingProgress : nil
             let fraction = progress?.activityFraction
             let stage = !viewModel.isBuilding ? text("Preparing build…")
+                : porting.isInstallingBuild ? text("Installing…")
                 : porting.isCancellingBuild ? text("Cancelling…")
                 : progress?.isUpdatingShaderCache == true ? text("Updating shader cache")
                 : BuildStageCopy.title(porting.currentStageName, context: localization)
-            let eta = porting.isCancellingBuild ? nil : progress.flatMap {
+            let eta = porting.isCancellingBuild || porting.isInstallingBuild ? nil : progress.flatMap {
                 PortingETA.text($0, lastFinishingSeconds: porting.lastPortingFinishSeconds,
                                 context: localization, compact: true)
             }
@@ -212,7 +213,8 @@ struct ActivityCenterView: View {
 
     private func canCancel(_ row: ActivityCenterFocus.Row) -> Bool {
         switch row {
-        case .build: return viewModel.isBuilding && row.canCancel(isCancellingBuild: porting.isCancellingBuild)
+        case .build: return viewModel.isBuilding && !porting.isInstallingBuild
+            && row.canCancel(isCancellingBuild: porting.isCancellingBuild)
         case .move: return cloudLibrary.libraryMove?.isCancelling == false
         case .cloud, .queuedCloud: return transferIndicator(row)?.state.transfer()?.canCancel == true
         default: return row.canCancel(isCancellingBuild: porting.isCancellingBuild)

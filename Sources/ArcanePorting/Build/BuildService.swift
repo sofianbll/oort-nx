@@ -95,6 +95,7 @@ public final class BuildService {
         expectedDestination: BuildOutputInstaller.DestinationExpectation? = nil,
         holdInstall: @escaping () -> Bool = { false },
         acquireInstall: @escaping () -> (() -> Void)? = { {} },
+        onInstalling: @escaping () -> Void = {},
         eventHandler: @escaping (BuildEvent) -> Void,
         completion: @escaping (BuildResult) -> Void
     ) {
@@ -165,7 +166,7 @@ public final class BuildService {
         process.terminationHandler = { [weak self] proc in
             self?.finish(proc: proc, logURL: logURL,
                          tempApp: tempApp, finalApp: finalApp, expectedDestination: destination, holdInstall: holdInstall,
-                         acquireInstall: acquireInstall, outputClosed: outputClosed)
+                         acquireInstall: acquireInstall, onInstalling: onInstalling, outputClosed: outputClosed)
         }
 
         do {
@@ -192,16 +193,19 @@ public final class BuildService {
         }
     }
 
-    public func cancel() {
+    @discardableResult
+    public func cancel() -> Bool {
         stateLock.lock()
+        guard let process, !cancelled else { stateLock.unlock(); return false }
         cancelled = true
-        let process = self.process
         stateLock.unlock()
-        guard let process, process.isRunning else { return }
-        killpg(process.processIdentifier, SIGTERM)
-        DispatchQueue.global().asyncAfter(deadline: .now() + stopGrace) {
-            if process.isRunning { Self.kill(tree: process.processIdentifier) }
+        if process.isRunning {
+            killpg(process.processIdentifier, SIGTERM)
+            DispatchQueue.global().asyncAfter(deadline: .now() + stopGrace) {
+                if process.isRunning { Self.kill(tree: process.processIdentifier) }
+            }
         }
+        return true
     }
 
     /// Synchronous stop for app termination: the same SIGTERM as a cancel, so the engine stops its tools, waiting at
@@ -286,6 +290,7 @@ public final class BuildService {
     private func finish(proc: Process, logURL: URL, tempApp: URL, finalApp: URL,
                         expectedDestination: BuildOutputInstaller.DestinationExpectation,
                         holdInstall: @escaping () -> Bool, acquireInstall: @escaping () -> (() -> Void)?,
+                        onInstalling: @escaping () -> Void,
                         outputClosed: DispatchGroup) {
         // The process may exit before the last pipe callback. Finish only after
         // both streams reached EOF and all their queued bytes were consumed.
@@ -313,6 +318,7 @@ public final class BuildService {
                     guard self.fm.fileExists(atPath: tempApp.appendingPathComponent("Contents/Info.plist").path) else {
                         throw BuildInstallError.invalidApp(tempApp.path)
                     }
+                    onInstalling()
                     let release = holdInstall() ? nil : acquireInstall()
                     defer { release?() }
                     if release == nil {

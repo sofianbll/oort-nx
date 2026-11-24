@@ -697,6 +697,7 @@ extension PortingModel {
         // The request belongs to an accepted porting, never to startup or Steam-only use.
         NotificationService.shared.requestAuthorization()
         self.isCancellingBuild = false
+        self.isInstallingBuild = false
         self.buildState = .running
         self.buildError = nil
         self.portingFailureReason = nil
@@ -735,6 +736,13 @@ extension PortingModel {
             // Replacing the app under its running game can crash it: the new app waits for the game to quit.
             holdInstall: { RunningGameMonitor.runningApplication(for: target) != nil },
             acquireInstall: { [weak self] in self?.app.acquireSaveInstallLease(for: target) },
+            onInstalling: { [weak self, weak service] in
+                DispatchQueue.main.async {
+                    guard let self, let service, self.buildService === service else { return }
+                    self.stopStageElapsedTimer()
+                    self.isInstallingBuild = true
+                }
+            },
             eventHandler: { [weak self, weak service] event in
                 DispatchQueue.main.async {
                     guard let service, self?.buildService === service else { return }
@@ -756,12 +764,11 @@ extension PortingModel {
     }
 
     func cancelBuild() {
-        guard app.isBuilding, let buildService else { return }
+        guard app.isBuilding, buildService?.cancel() == true else { return }
         stopStageElapsedTimer()
         self.isCancellingBuild = true
         self.currentStageName = "Cancelling build..."
         app.logs.append(LogEntry(level: .warning, message: L10n.text("Cancelling build...")))
-        buildService.cancel()
     }
 
     func openOutputInFinder() {

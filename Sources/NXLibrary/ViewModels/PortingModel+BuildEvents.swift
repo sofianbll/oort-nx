@@ -170,6 +170,7 @@ extension PortingModel {
         app.portingProgress?.finish(success: result.success)
         app.isBuilding = false
         self.isCancellingBuild = false
+        self.isInstallingBuild = false
         buildService = nil
         if result.heldApp == nil { try? FileManager.default.removeItem(at: tempDir) }
         buildTempDirectory = nil
