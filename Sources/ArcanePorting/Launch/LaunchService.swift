@@ -3,21 +3,22 @@ import AppKit
 import NXLibraryCore
 
 public protocol AppLaunching {
-    func open(_ url: URL, environment: [String: String], onExit: (() -> Void)?,
+    func open(_ url: URL, environment: [String: String], suppressInheritedPlayerMode: Bool, onExit: (() -> Void)?,
               completion: @escaping (Bool, String?) -> Void)
 }
 
 public final class NSWorkspaceLauncher: AppLaunching {
     public init() {}
 
-    public func open(_ url: URL, environment: [String: String], onExit: (() -> Void)?,
+    public func open(_ url: URL, environment: [String: String], suppressInheritedPlayerMode: Bool, onExit: (() -> Void)?,
                      completion: @escaping (Bool, String?) -> Void) {
         guard FileManager.default.fileExists(atPath: url.path) else {
             completion(false, "The app bundle is missing: \(url.path)")
             return
         }
         let configuration = NSWorkspace.OpenConfiguration()
-        configuration.environment = Self.gameEnvironment(inheriting: ProcessInfo.processInfo.environment, explicit: environment)
+        configuration.environment = Self.gameEnvironment(inheriting: ProcessInfo.processInfo.environment, explicit: environment,
+                                                          suppressInheritedPlayerMode: suppressInheritedPlayerMode)
         NSWorkspace.shared.openApplication(at: url, configuration: configuration) { app, error in
             if let error {
                 completion(false, error.localizedDescription)
@@ -66,8 +67,11 @@ public final class NSWorkspaceLauncher: AppLaunching {
         return system
     }
 
-    static func gameEnvironment(inheriting ambient: [String: String], explicit: [String: String]) -> [String: String] {
-        inheritedGameEnvironment(ambient).merging(explicit) { _, value in value }
+    static func gameEnvironment(inheriting ambient: [String: String], explicit: [String: String],
+                                suppressInheritedPlayerMode: Bool = false) -> [String: String] {
+        let inherited = inheritedGameEnvironment(ambient)
+        return (suppressInheritedPlayerMode ? inherited.filter { !PlayersLaunch.controllerKeys.contains($0.key) } : inherited)
+            .merging(explicit) { _, value in value }
     }
 
     private static func watchExit(of app: NSRunningApplication, onExit: @escaping () -> Void) {
@@ -120,18 +124,19 @@ public final class LaunchService {
     public func launch(appURL: URL, environment: [String: String] = [:],
                        homeButton: InGameHomeButton = .auto,
                        overlay: GameOverlayLaunch? = nil, snapshot: GameOverlaySnapshot? = nil,
-                       onExit: (() -> Void)? = nil,
+                       players: PlayersLaunch? = nil, onExit: (() -> Void)? = nil,
                        completion: @escaping (Bool, String?) -> Void) {
         launch(appURL: appURL, environment: environment, homeButton: homeButton, overlay: overlay, snapshot: snapshot,
-               temporaryDirectory: FileManager.default.temporaryDirectory, onExit: onExit, completion: completion)
+               temporaryDirectory: FileManager.default.temporaryDirectory, players: players, onExit: onExit, completion: completion)
     }
 
     func launch(appURL: URL, environment: [String: String] = [:],
                 homeButton: InGameHomeButton = .auto,
                 overlay: GameOverlayLaunch?, snapshot: GameOverlaySnapshot?, temporaryDirectory: URL,
-                onExit: (() -> Void)? = nil,
+                players: PlayersLaunch? = nil, onExit: (() -> Void)? = nil,
                 completion: @escaping (Bool, String?) -> Void) {
-        var values = environment.merging(Self.launchEnvironment) { _, fixed in fixed }
+        var values = environment.merging(players?.additions ?? [:]) { explicit, _ in explicit }
+        values.merge(Self.launchEnvironment) { _, fixed in fixed }
         values[GameOverlayLaunch.dataKey] = nil
         values[Self.overlayHomeSwapKey] = switch homeButton {
         case .auto: nil
@@ -147,7 +152,8 @@ public final class LaunchService {
             cleanup?()
             onExit?()
         }
-        launcher.open(appURL, environment: values, onExit: afterExit) { success, error in
+        launcher.open(appURL, environment: values, suppressInheritedPlayerMode: players?.status.plan == .active,
+                      onExit: afterExit) { success, error in
             if !success { cleanup?() }
             completion(success, error)
         }
