@@ -12,6 +12,7 @@ public enum BuildOutputInstaller {
     }
     public struct DestinationExpectation: Codable, Equatable {
         fileprivate let identity: Identity?
+        static let vacant = Self(identity: nil)
     }
 
     public static func expectedDestination(at url: URL, fileManager: FileManager = .default) -> DestinationExpectation {
@@ -86,7 +87,8 @@ public enum BuildOutputInstaller {
                 guard identity(destination, fileManager) == saved.previous else {
                     throw BuildInstallError.replaceFailed("The destination changed since this installation started.")
                 }
-                if let prepared = saved.prepared {
+                if let prepared = saved.prepared,
+                   expectedDestination == nil || expectedDestination?.identity == saved.previous {
                     let incoming = saved.copied ? copy : source
                     if identity(incoming, fileManager) == prepared {
                         try publish(saved, source: source, destination: destination, copy: copy,
@@ -101,7 +103,10 @@ public enum BuildOutputInstaller {
         guard let sourceID = identity(source, fileManager) else { throw BuildInstallError.invalidApp(tempApp.path) }
         let previous = identity(destination, fileManager)
         if let expectedDestination, previous != expectedDestination.identity {
-            throw BuildInstallError.replaceFailed("The destination changed since this installation started.")
+            let reason = expectedDestination == .vacant
+                ? "Move the app at the destination before retrying. This build cannot replace it safely."
+                : "Restore the original app at the destination before retrying. This build cannot replace a different app."
+            throw BuildInstallError.replaceFailed(reason)
         }
         if previous != nil, !fileManager.fileExists(atPath: destination.appendingPathComponent("Contents/Info.plist").path) {
             throw BuildInstallError.replaceFailed("refusing to replace a non-app item at \(destination.path)")

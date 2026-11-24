@@ -164,7 +164,7 @@ flowchart TD
     H --> I["BuildEventParser → PortingProgress<br/>tile, percentuale, ETA<br/>prewarm senza conteggio: attività e tempo trascorso"]
     H -->|"errore Nextendo"| X["Messaggio del motore; nessun tentativo offline"]
     I --> J["BuildOutputInstaller: verifica la destinazione fissata prima del motore, poi pubblica atomicamente"]
-    J -->|"gioco aperto o installazione fallita"| K["PendingInstall: Retry più tardi"]
+    J -->|"gioco aperto o installazione fallita"| K["PendingInstall: conserva il bundle e spiega un conflitto prima di Retry"]
     J --> L["CatalogRepository: BuildRecord, toolchain"]
     L --> M["AppIconWriter (se c'è un'icona scelta) · notifica"]
 ```

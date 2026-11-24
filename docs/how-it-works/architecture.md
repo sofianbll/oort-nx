@@ -445,14 +445,14 @@ La verifica e la copia della cache prodotta girano fuori dal thread dell'interfa
 
 **Installazione fallita.**
 - Se il motore termina bene con un bundle valido e fallisce solo l'installazione, `BuildResult.heldApp` conserva la build pronta, e `installationFailed` distingue questo caso dal porting fallito. `PortingModel` registra la stessa `PendingInstall` usata per i giochi aperti.
-- Un dialogo Selene offre Retry e Close: Retry installa quel bundle senza riavviare il motore, Close conserva la build. Anche gli errori delle installazioni differite passano da questo dialogo, e la schermata del porting offre Retry installation finché la build resta in attesa.
+- Un dialogo Selene spiega il motivo e offre Retry e Close: Retry riprova con lo stesso bundle senza riavviare il motore, Close conserva la build. Anche gli errori delle installazioni differite passano da questo dialogo.
 - Un errore di scrittura del catalogo conserva lo stato in memoria e impedisce che una scansione immediata lo sostituisca con quello precedente.
 
 **Ricevuta di installazione.**
 - Prima della pubblicazione l'installer scrive accanto all'app una piccola ricevuta, con il percorso di staging e l'identità filesystem dei bundle. Ne resta una per destinazione, aggiornata al porting successivo.
 - Se il processo termina prima del salvataggio del catalogo, il tentativo successivo riconosce l'app già pubblicata e completa il record, anche dopo la pulizia dello staging. *Perché:* evita un secondo scambio che rimetterebbe la vecchia app al suo posto.
 - Una destinazione modificata da fuori durante lo stesso tentativo causa un errore prudente. La vecchia app e l'eventuale sorgente copiata si eliminano solo dopo la pubblicazione.
-- Il porting fissa prima di avviare il motore se la destinazione è libera o quale identità filesystem ha il bundle autorizzato. Le nuove installazioni differite conservano la stessa attesa: non adottano un'app comparsa nel frattempo.
+- Il porting fissa prima di avviare il motore se la destinazione è libera o quale identità filesystem ha il bundle autorizzato. Le nuove installazioni differite conservano la stessa attesa. Per una vecchia installazione senza identità, serve una destinazione libera o una ricevuta corrispondente: non si adotta l'app presente al momento del retry.
 
 **Tempo e stime.**
 - La fase attiva mostra il tempo trascorso; durate ed ETA passano alle ore oltre i 60 minuti. Un timer a 1 Hz sul main run loop aggiorna la fase, mentre il controllo di `logs/pso_offline_mac.log` gira fuori dal main thread.

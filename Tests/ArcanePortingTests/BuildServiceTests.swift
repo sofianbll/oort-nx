@@ -233,7 +233,8 @@ final class BuildServiceTests: XCTestCase {
         game.status = .built
         let pending = PendingInstall(tempApp: try XCTUnwrap(ready.heldApp), finalApp: final,
             record: BuildRecord(startedAt: Date(timeIntervalSince1970: 10), engineCommit: "2716f78"),
-            toolchain: ToolchainInfo(engineCommit: "2716f78"))
+            toolchain: ToolchainInfo(engineCommit: "2716f78"),
+            expectedDestination: ready.expectedDestination)
         PendingInstaller.hold(pending, for: &game)
         XCTAssertThrowsError(try PendingInstaller.install(&game, fileManager: denied))
         XCTAssertEqual(game.pendingInstall, pending)

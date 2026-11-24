@@ -81,7 +81,7 @@ public enum PendingInstaller {
             // cleaned before its new build record reached the library.
             try BuildOutputInstaller.install(tempApp: pending.tempApp, finalApp: pending.finalApp,
                                              fileManager: fileManager, requiresExistingParent: true,
-                                             expectedDestination: pending.expectedDestination)
+                                             expectedDestination: pending.expectedDestination ?? .vacant)
         } catch BuildInstallError.invalidApp(let path) where path == pending.tempApp.standardizedFileURL.path
             && !fileManager.fileExists(atPath: pending.tempApp.path) {
             game.pendingInstall = nil

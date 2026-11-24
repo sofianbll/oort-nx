@@ -78,6 +78,7 @@ extension AppViewModel {
     func presentInstallFailure(for game: PortedGame, error: String) {
         logs.append(LogEntry(level: .error, message: L10n.format("Could not install the new build of %@: %@", [String(describing: game.name), String(describing: error)])))
         installFailureFocus = .cancel
+        installFailureDetail = error
         gameWithInstallFailure = game
     }
 
