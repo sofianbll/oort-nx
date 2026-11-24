@@ -14,8 +14,9 @@ SCENARIOS = r'''
         let fr = AppLocale(language: .french, region: "FR")
         L10n.setContext(fr)
         let settings = AppSettingsStore(fileURL: data.appendingPathComponent("settings.json"))
+        let repository = CatalogRepository(store: .init(directory: data))
         let vm = AppViewModel(settingsStore: settings,
-                              catalog: .init(), repository: .init(store: .init(directory: data)))
+                              catalog: try repository.load(), repository: repository)
         let model = vm.cloudLibrary
         let router = AppRouter()
         router.setInitialRoute(.collection)
@@ -55,7 +56,8 @@ SCENARIOS = r'''
         model.checkFailure = nil
         vm.importCloudGames()
         await model.importTask?.value
-        precondition(model.lastCompleteCheck != nil && model.checkFailure == nil, "Verified empty fixture")
+        precondition(model.lastCompleteCheck != nil && model.checkFailure == nil,
+                     "Verified empty fixture: \(String(describing: model.checkFailure))")
         try capture("verified-empty", collection)
 
         let manifest = try JSONDecoder().decode(CloudGameManifest.self, from: Data(
@@ -79,6 +81,13 @@ SCENARIOS = r'''
         try capture("move-conflict", assistant.shelfProbeAssistant(failure: CloudDriveFolders.MoveFailure.sourceNotEmpty.localizedDescription))
         let sources = CloudSetupAssistant(viewModel: vm, model: model, entry: .sources) {}
         try capture("sources-found", sources.shelfProbeAssistant(sources: .shelfProbeFound))
+        let ready = assistant.shelfProbeAssistant(verified: true)
+        try capture("assistant-verified", ready)
+        ready.perform(.primary)
+        if let notice = vm.settingsNotice {
+            try capture("assistant-complete", SeleneChoiceDialog(title: notice.title, message: notice.message,
+                choices: notice.choices, focus: .constant(notice.initialFocus), onChoose: { _ in }))
+        } else { failures.append("Finished setup must point to Cloud") }
         model.setPendingMove(.init(id: UUID(), request: .init(plan: plan, destination: "New Library"),
                                    sourcesRoot: "Games/GameFiles"))
         try capture("move-paused", assistant.shelfProbeAssistant(paused: true))
@@ -135,15 +144,19 @@ extension CollectionView {
             swift.write('''
 extension CloudSetupAssistant {
     func shelfProbeAssistant(plan: CloudDriveFolders.MovePlan? = nil, failure: String? = nil,
-                             paused: Bool = false, sources: CloudDriveFolders.Sources? = nil) -> Self {
+                             paused: Bool = false, sources: CloudDriveFolders.Sources? = nil,
+                             verified: Bool = false) -> Self {
         var view = self
-        if let plan {
+        if plan != nil || paused || verified {
             var draft = CloudSetupAssistantDraft()
             draft.chooseAccount("fixture")
             draft.browse("New Library")
+            if plan != nil || paused { draft.toggleMove() }
+            precondition(draft.useFolder())
+            draft.acceptAccessCheck(draft.ticket)
             view._draft = State(initialValue: draft)
             view._movePlan = State(initialValue: plan)
-            view._confirmingMove = State(initialValue: true)
+            view._confirmingMove = State(initialValue: plan != nil)
         }
         view._moveFailure = State(initialValue: failure)
         if paused { view._issue = State(initialValue: "Move paused. Close this window and choose Retry in Activity.") }
