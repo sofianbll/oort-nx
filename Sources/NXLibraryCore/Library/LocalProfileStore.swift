@@ -22,6 +22,7 @@ public struct LocalProfile: Codable, Equatable, Identifiable {
     public var look: Look
     public var createdAt: Date? = nil
     public var pageCards: ProfilePageCards? = nil
+    public fileprivate(set) var spotlightPlatform: CatalogIntegration? = nil
     public var appearsOnline: Bool? = nil
     public var showsCurrentGame: Bool? = nil
     public var sharesPresence: Bool { appearsOnline == true }
@@ -161,6 +162,14 @@ public final class LocalProfileStore: ObservableObject {
         guard document != nil, !failed, guest == nil, !profiles.contains(where: { $0.id == profile.id }) else { return false }
         guest = profile
         return true
+    }
+
+    /// The picker may have lost its input or its profile while its preview was open.
+    @discardableResult public func rememberSpotlightPlatform(_ integration: CatalogIntegration?, for profile: PlayProfile) -> Bool {
+        guard !profile.blocksPlay, var active, profile.id == active.id, profile.isGuest == (guest != nil) else { return false }
+        guard active.spotlightPlatform != integration else { return true }
+        active.spotlightPlatform = integration
+        return update(active)
     }
 
     @discardableResult public func update(_ value: LocalProfile) -> Bool {

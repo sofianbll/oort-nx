@@ -3,6 +3,34 @@ import XCTest
 @testable import NXLibraryCore
 
 final class LocalProfileStoreTests: XCTestCase {
+    func testSpotlightPlatformIsPerProfileAndGuestChoiceNeverWrites() throws {
+        try withDirectory { url in
+            let store = LocalProfileStore(directory: url, settings: .init(), name: "Host")
+            let host = try XCTUnwrap(store.active)
+            let other = LocalProfile(name: "Other", look: host.look)
+            let guest = LocalProfile(name: "Guest", look: host.look)
+            XCTAssertNil(host.spotlightPlatform)
+            XCTAssertTrue(store.update(other))
+            XCTAssertFalse(store.rememberSpotlightPlatform(.steam, for: .init(id: host.id, isGuest: false, blocksPlay: true)))
+            XCTAssertTrue(store.rememberSpotlightPlatform(.steam, for: .init(id: host.id, isGuest: false, blocksPlay: false)))
+            XCTAssertTrue(store.choose(other.id))
+            XCTAssertNil(store.active?.spotlightPlatform)
+            XCTAssertFalse(store.rememberSpotlightPlatform(.steam, for: .init(id: host.id, isGuest: false, blocksPlay: false)))
+            XCTAssertTrue(store.rememberSpotlightPlatform(.macShortcut, for: .init(id: other.id, isGuest: false, blocksPlay: false)))
+            let profilesURL = url.appendingPathComponent("profiles.json")
+            let saved = try Data(contentsOf: profilesURL)
+            XCTAssertTrue(store.beginGuest(guest))
+            XCTAssertNil(store.active?.spotlightPlatform)
+            XCTAssertTrue(store.rememberSpotlightPlatform(.steam, for: .init(id: guest.id, isGuest: true, blocksPlay: false)))
+            XCTAssertEqual(store.active?.spotlightPlatform, .steam)
+            XCTAssertEqual(try Data(contentsOf: profilesURL), saved)
+            let reopened = LocalProfileStore(directory: url, settings: .init(), name: "Host")
+            XCTAssertEqual(reopened.active?.spotlightPlatform, .macShortcut)
+            XCTAssertTrue(reopened.choose(host.id))
+            XCTAssertEqual(reopened.active?.spotlightPlatform, .steam)
+        }
+    }
+
     func testGuestDoesNotReplaceLastProfileOrShareFavorites() throws {
         try withDirectory { url in
             let store = LocalProfileStore(directory: url, settings: .init(), name: "Host")

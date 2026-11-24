@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **1092 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **1094 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -263,7 +263,7 @@ Cartella `Sources/NXLibraryCore/Library/`.
 | [Sources/NXLibraryCore/Library/ActivitySummary.swift](../../Sources/NXLibraryCore/Library/ActivitySummary.swift) | Aggrega sessioni, giorni e tempi della settimana per la scheda Activity. |
 | [Sources/NXLibraryCore/Library/ProfilePageCards.swift](../../Sources/NXLibraryCore/Library/ProfilePageCards.swift) | Ordine e visibilità per profilo, gruppi dell’attività e geometria della griglia. |
 | [Sources/NXLibraryCore/Library/PlaySessionStore.swift](../../Sources/NXLibraryCore/Library/PlaySessionStore.swift) | Registra avvio, heartbeat e fine; pubblica insieme storico e totali archiviati, importa i file precedenti e unisce i totali Steam con le sessioni successive. |
-| [Sources/NXLibraryCore/Library/LocalProfileStore.swift](../../Sources/NXLibraryCore/Library/LocalProfileStore.swift) | Identità, preferiti, presenza e visibilità, codice e profilo di avvio; protegge l'originale e include lo storico unico nella copia di migrazione. |
+| [Sources/NXLibraryCore/Library/LocalProfileStore.swift](../../Sources/NXLibraryCore/Library/LocalProfileStore.swift) | Identità, preferiti, scelta della piattaforma, presenza e visibilità, codice e profilo di avvio; protegge l'originale e include lo storico unico nella copia di migrazione. |
 | [Sources/NXLibraryCore/Players/PlayerLaunchEnvironment.swift](../../Sources/NXLibraryCore/Players/PlayerLaunchEnvironment.swift) | Calcola le opzioni supportate, rispetta `env.txt` e limita il nickname a offline e locale. |
 | [PlayerPlan.swift](../../Sources/NXLibraryCore/Players/PlayerPlan.swift) | Posti, profili protetti, tre modalità e giocatore destinatario facoltativo per la fusione. |
 | [PlayerPlanStore.swift](../../Sources/NXLibraryCore/Players/PlayerPlanStore.swift) | Piano JSON v1, lettura dei piani senza destinatario e scrittura atomica senza perdere i campi sconosciuti. |
@@ -310,6 +310,7 @@ Cartella `Sources/NXLibraryCore/Selene/`.
 | [Sources/NXLibraryCore/Selene/SelenePalette.swift](../../Sources/NXLibraryCore/Selene/SelenePalette.swift) | Decodifica palette e metadato moonlight; ordina Oort per prima, la usa come fallback e distingue l’ID del blu classico. |
 | [Sources/NXLibraryCore/Selene/SpotlightPage.swift](../../Sources/NXLibraryCore/Selene/SpotlightPage.swift) | Calcola estratti delle descrizioni e stati dello scorrimento della pagina Spotlight. |
 | [Sources/NXLibraryCore/Selene/SpotlightRow.swift](../../Sources/NXLibraryCore/Selene/SpotlightRow.swift) | Costruisce la sequenza per UUID e salva riordini conservando giochi/fonti/card temporaneamente nascosti; Surprise sceglie fra i giochi visibili di un pool (installati, mai giocati, tutti). |
+| [Sources/NXLibraryCore/Selene/SpotlightPlatforms.swift](../../Sources/NXLibraryCore/Selene/SpotlightPlatforms.swift) | Piattaforme presenti, conteggi, combinazione con la query, cursore e scelta stabilizzata. |
 | [Sources/NXLibraryCore/Selene/SpotlightRowGeometry.swift](../../Sources/NXLibraryCore/Selene/SpotlightRowGeometry.swift) | Posti delle tessere nella riga, camera unica che la fa scorrere e finestra delle tessere create; posto, scala e camera lungo lo scorrimento dalla posizione continua della selezione. |
 | [Sources/NXLibraryCore/Selene/SpotlightState.swift](../../Sources/NXLibraryCore/Selene/SpotlightState.swift) | Gestisce selezione, focus (anche la card Achievements), azioni e spostamento delle tile su Spotlight. |
 | [Sources/NXLibraryCore/Selene/SpotlightEntrance.swift](../../Sources/NXLibraryCore/Selene/SpotlightEntrance.swift) | Tempi e partenze del volo delle tessere, dissolvenza oltre il bordo, sfondo, informazioni, hint e fasi della prima entrata di Spotlight, compreso quando accetta input. |
@@ -1076,6 +1077,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/NXLibraryCoreTests/SpotlightPageTests.swift](../../Tests/NXLibraryCoreTests/SpotlightPageTests.swift) | Estratti del testo e stati dello scorrimento della pagina del gioco. |
 | [Tests/ArcanePortingTests/SpotlightRowTests.swift](../../Tests/ArcanePortingTests/SpotlightRowTests.swift) | Ordine, card, riordino delle tile, gioco avviato primo nell’ordine salvato e selezione Surprise. |
 | [Tests/NXLibraryCoreTests/SpotlightStateTests.swift](../../Tests/NXLibraryCoreTests/SpotlightStateTests.swift) | Focus, selezione, filtri, azioni e spostamento delle tile Spotlight. |
+| [Tests/NXLibraryCoreTests/SpotlightPlatformsTests.swift](../../Tests/NXLibraryCoreTests/SpotlightPlatformsTests.swift) | Conteggi, filtri, ordine, rimozione di piattaforme e cursore dell’anteprima. |
 | [Tests/NXLibraryCoreTests/SpotlightEntranceTests.swift](../../Tests/NXLibraryCoreTests/SpotlightEntranceTests.swift) | Partenze, tempi di volo e dissolvenza, bordi, durata, messaggio vuoto, avanzamento degli effetti e fasi dell’entrata; interruttore e Riduci movimento. |
 | [Tests/ArcanePortingTests/StorageManagerTests.swift](../../Tests/ArcanePortingTests/StorageManagerTests.swift) | Misure per gioco, cache condivise e nascoste, pulizia selettiva, protezione di app/sorgenti/symlink, file incoerenti e volumi/cartelle non disponibili. |
 | [Tests/NXLibraryCoreTests/ThemePickerTests.swift](../../Tests/NXLibraryCoreTests/ThemePickerTests.swift) | Navigazione della griglia, tab e selezione degli sfondi. |
