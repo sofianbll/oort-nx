@@ -58,7 +58,7 @@ struct PlayersScreen: View {
             if model.readable {
                 modes
                 Grid(horizontalSpacing: canvas.u(SeleneTokens.Space.small), verticalSpacing: canvas.u(SeleneTokens.Space.small)) {
-                    ForEach(0..<(model.places.count / Self.columns)) { band in
+                    ForEach(0..<(model.places.count / Self.columns), id: \.self) { band in
                         GridRow {
                             ForEach(1...Self.columns, id: \.self) { index in
                                 playerCard(band * Self.columns + index)
@@ -236,7 +236,7 @@ struct PlayersScreen: View {
             guard number == model.mergeTarget else { return t("On hold while controllers are combined") }
             if model.pads.isEmpty { return t("No controllers connected") }
             let suffix = model.pads.count > 2
-                ? [L10n.format("+%lld controllers", [model.pads.count - 2], context: localization)] : []
+                ? [L10n.format("+%lld more", [model.pads.count - 2], context: localization)] : []
             return (model.pads.prefix(2).map(padLabel) + suffix).joined(separator: "\n")
         }
         if let pad = model.connectedPad(number) { return padLabel(pad) }

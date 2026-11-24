@@ -58,7 +58,7 @@ extension PlayersScreen {
         var hints: [HintItem] = []
         if model.plan.slot(number) != nil {
             hints.append(HintItem(.x, "Move") { beginMove(number) })
-            hints.append(HintItem(.y, "Remove") { model.removePlayer(number) })
+            hints.append(HintItem(.y, "Free this place") { model.removePlayer(number) })
             if let title = controllerCommand(number) {
                 hints.append(HintItem(.rs, title) { runControllerCommand(number) })
             }

@@ -113,9 +113,26 @@ final class PlayersFixtureSource: ControllerSource {
                                         ("etroit", .init(width: 800, height: 640))]
         let oldNote = "This game's app is too old: rebuild it to keep the order."
         let detailsOnly = ProcessInfo.processInfo.environment["PLAYERS_DETAILS_ONLY"] == "1"
-        for (language, region) in [(AppLanguage.english, "US"), (.french, "FR")] {
+        let languages: [(AppLanguage, String)] = [(.english, "US"), (.french, "FR"), (.italian, "IT"),
+            (.german, "DE"), (.spanish, "ES"), (.portugueseBrazil, "BR"), (.chineseSimplified, "CN")]
+        for (language, region) in languages {
             let locale = AppLocale(language: language, region: region)
             L10n.setContext(locale)
+            for key in ["Empty place", "Choose the destination place.", "Choose a profile for offline or local play.",
+                        "Give all controllers", "Free this place", "Press a button on a free controller to join."] {
+                precondition((L10n.text(key, context: locale) == key) == (language == .english),
+                             "Missing Players copy: \(language.rawValue) \(key)")
+            }
+            if language != .english && language != .french {
+                guard !detailsOnly else { continue }
+                fixture.plan = eight
+                let model = await fixture.screen()
+                model.updatePads([known, xbox])
+                model.focus = .player(1)
+                try render(PlayersScreen(model: model, onClose: {}),
+                           name: "\(language.rawValue)-etroit-17-huit", size: sizes[1].1, locale: locale)
+                continue
+            }
             for (label, size) in sizes {
                 let prefix = "\(language.rawValue)-\(label)"
                 let states: [(String, PlayerPlan?, [ConnectedController])] = [
@@ -378,6 +395,17 @@ final class PlayersFixtureSource: ControllerSource {
         await settled(model)
         precondition(model.plan.mode == .merge && model.mergeTarget == 6, "One card action changes mode and recipient")
 
+        let ambiguous = PlayersFixture()
+        var remembered = PlayerPlan()
+        try remembered.set(.init(controller: .init(modelKey: twinA.modelKey)), at: 1)
+        ambiguous.plan = remembered
+        let ambiguousModel = await ambiguous.screen()
+        ambiguousModel.updatePads([twinA, twinB])
+        precondition(ambiguousModel.joinController(twinB.id))
+        await settled(ambiguousModel)
+        precondition(ambiguousModel.connectedPad(2)?.id == twinB.id && ambiguousModel.plan.slot(1) == remembered.slot(1))
+        precondition(ambiguousModel.resolution.slots[1] == .needsConfirmation([twinA.id]))
+
         let onlyHID = GameControllerService(gcSource: PlayersFixtureSource(), hidSource: hid)
         hid.onEvent?(.connected(.init(id: secondID, name: "HID only", brand: .generic, stableID: "synthetic-pad")))
         onlyHID.onAction = { navigated.append($0) }
@@ -493,6 +521,7 @@ final class PlayersFixtureSource: ControllerSource {
                 try capture(host, "reglages-\(name)")
                 send(input, .navigateRight, .navigateDown, .navigateDown, .navigateDown, .confirm)
                 let players = try capture(host, "reglages-\(name)-joueurs")
+                confirmForeground(players, from: "Settings")
                 send(input, .cancel)
                 if name == "clair" {
                     send(input, .navigateUp, .navigateUp, .confirm)
@@ -573,6 +602,7 @@ final class PlayersFixtureSource: ControllerSource {
                 try capture(host, "jeu-\(name)-options")
                 send(input, .navigateDown, .confirm)
                 let players = try capture(host, "jeu-\(name)-joueurs")
+                confirmForeground(players, from: "Game Options")
                 send(input, .cancel)
                 if name == "clair" {
                     send(input, .navigateDown, .confirm)
@@ -636,6 +666,19 @@ final class PlayersFixtureSource: ControllerSource {
     @MainActor static var referencePixels: [String: [UInt8]] = [:]
     @MainActor static var leaks = false
 
+    @MainActor static func confirmForeground(_ image: NSBitmapImageRep, from parent: String) {
+        let bytes = image.bitmapData!
+        // The title, controls and cards must be present, not merely a full-screen blank scrim.
+        for (x, y, width, height) in [(32, 65, 130, 70), (48, 180, 700, 70), (48, 250, 1200, 155)] {
+            let bright = (y..<(y + height)).reduce(into: 0) { count, row in
+                for column in x..<(x + width) where bytes[row * image.bytesPerRow + column * 4] > 200 {
+                    count += 1
+                }
+            }
+            precondition(bright > 100, "Players foreground missing when opened from \(parent)")
+        }
+    }
+
     @MainActor static func render<V: View>(_ view: V, name: String, size: CGSize, locale: AppLocale) throws {
         try withHost(ZStack { SeleneBackdrop().still(true); view }, size: size, locale: locale) { host in
             _ = try capture(host, name)
@@ -682,12 +725,12 @@ struct CloudSavesSettingsFixture: View {
     var body: some View {
         SettingsView(initialSection: .cloudSaves, viewModel: viewModel, settings: settings, router: router, artwork: artwork)
             .seleneOverlayOwnership(viewModel.settingsNotice == nil)
-            .overlay {
+                .overlay {
                 if let notice = viewModel.settingsNotice {
                     SeleneOverlay(style: .dialog) {
                         SeleneChoiceDialog(title: notice.title, message: notice.message, choices: notice.choices,
                                            focus: $viewModel.settingsNoticeFocus, cancelIndex: notice.cancelIndex,
-                                           details: notice.choiceDetails, onChoose: { _ in })
+                                           details: notice.choiceDetails, onCancel: { viewModel.settingsNotice = nil }, onChoose: { _ in })
                     }
                 }
             }
@@ -719,5 +762,5 @@ if __name__ == "__main__":
                 output.mkdir(parents=True, exist_ok=True)
                 for capture in captures:
                     shutil.copyfile(capture, output / capture.name)
-        assert parents_only or len(captures) == (12 if details_only else 72), len(captures)
+        assert parents_only or len(captures) == (12 if details_only else 77), len(captures)
         print(f"Rendered {len(captures)} captures" + (f": {output}" if output else ""))
