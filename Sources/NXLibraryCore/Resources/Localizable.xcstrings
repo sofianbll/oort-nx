@@ -4208,6 +4208,17 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "要使用参考库中的应用替换此 Mac 上的 %@ 吗？原应用将保留。"}}
       }
     },
+    "Could not read cloud game records for: %@.": {
+      "localizations": {
+        "de": {"stringUnit": {"state": "translated", "value": "Cloud-Spieleinträge konnten nicht gelesen werden: %@."}},
+        "en": {"stringUnit": {"state": "translated", "value": "Could not read cloud game records for: %@."}},
+        "es": {"stringUnit": {"state": "translated", "value": "No se pudieron leer los registros de estos juegos en la nube: %@."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Impossible de lire les fiches de jeux dans le cloud : %@."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Impossibile leggere le schede dei giochi nel cloud: %@."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Não foi possível ler as fichas dos jogos na nuvem: %@."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法读取以下云端游戏记录：%@。"}}
+      }
+    },
     "Open Cloud library to review and confirm this transfer again.": {
       "localizations": {
         "de": {"stringUnit": {"state": "translated", "value": "Öffne die Cloud-Bibliothek, um diese Übertragung zu prüfen und erneut zu bestätigen."}},

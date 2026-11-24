@@ -508,10 +508,21 @@ extension AppViewModel {
             }
             let title = L10n.text("Import games from the cloud")
             var listedCloud = false
+            var invalidOnly: String?
             do {
-                let manifests = try await archive.latestManifests()
+                let (manifests, invalidTitles) = try await archive.latestManifestsForImport()
                 try Task.checkCancellation()
                 guard self.cloudLibrary.archive === archive else { return }
+                let warning = invalidTitles.isEmpty ? nil : L10n.format("Could not read cloud game records for: %@.",
+                    [invalidTitles.prefix(8).joined(separator: ", ") + (invalidTitles.count > 8 ? ", …" : "")])
+                if let warning {
+                    self.logs.append(LogEntry(level: .warning, message: L10n.format("Could not read cloud game records for: %@.",
+                        [invalidTitles.joined(separator: ", ")])))
+                    if manifests.isEmpty {
+                        invalidOnly = warning
+                        throw CloudArchiveError.invalidManifest
+                    }
+                }
                 listedCloud = true
                 self.cloudLibrary.connectionCheck = .init(date: .now, failure: nil)
                 let knownTitles = Set(self.libraryGames.compactMap { $0.titleId?.uppercased() })
@@ -547,14 +558,14 @@ extension AppViewModel {
                     self.applyCatalog(catalog)
                 }
                 if manually {
-                    self.showSettingsNotice(title: title, message: L10n.text(added
-                        ? "New cloud games are in your library." : "No new cloud games."))
+                    let summary = L10n.text(added ? "New cloud games are in your library." : "No new cloud games.")
+                    self.showSettingsNotice(title: title, message: [summary, warning].compactMap { $0 }.joined(separator: "\n"))
                 }
             } catch is CancellationError {
             } catch {
                 guard !Task.isCancelled, self.cloudLibrary.archive === archive else { return }
-                let message = self.cloudMessage(for: error)
-                self.logs.append(LogEntry(level: .warning, message: message))
+                let message = invalidOnly ?? self.cloudMessage(for: error)
+                if invalidOnly == nil { self.logs.append(LogEntry(level: .warning, message: message)) }
                 let failure = self.cloudFailure(for: error) ?? .unavailable
                 if !listedCloud { self.cloudLibrary.connectionCheck = .init(date: .now, failure: failure) }
                 self.cloudLibrary.checkFailedDuringImport = true

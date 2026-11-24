@@ -623,11 +623,42 @@ AUDIT_QUEUE = r'''
         if !vm.cloudLibrary.queue.isEmpty { failures.append("Queued transfer did not wake when the game closed") }
         await vm.cloudLibrary.active?.task.value
 
+        let badTitle = "0100000000008000"
+        let invalid = remote.appendingPathComponent("\(badTitle)/manifests/zz-invalid.json")
+        try fm.createDirectory(at: invalid.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try Data().write(to: invalid)
+        let freshRepository = CatalogRepository(store: .init(directory: folder.appendingPathComponent("fresh-catalog")))
+        let importer = AppViewModel(settingsStore: settings, catalog: .init(), repository: freshRepository)
+        importer.cloudLibrary.installScreenArchives(backend)
+        importer.importCloudGames(manually: true)
+        await importer.cloudLibrary.importTask?.value
+        if try freshRepository.load().nxnativeGames.map(\.titleId) != [title] {
+            failures.append("Malformed manifest blocked import of a healthy game")
+        } else {
+            precondition(importer.settingsNotice?.message.contains(badTitle) == true)
+            try renderNotice("import-with-unreadable-title", output, importer.settingsNotice!, width: 1280)
+        }
         if !failures.isEmpty {
             FileHandle.standardError.write(Data(failures.joined(separator: "\n").utf8) + Data([10]))
             throw CocoaError(.fileWriteUnknown, userInfo: [NSDebugDescriptionErrorKey: failures.joined(separator: "\n")])
         }
-        print("Cloud audit: legacy destination, replaced source and close-game wake verified.")
+        let emptyCatalog = CatalogRepository(store: .init(directory: folder.appendingPathComponent("empty-catalog")))
+        let badOnly = folder.appendingPathComponent("bad-only")
+        try fm.createDirectory(at: badOnly, withIntermediateDirectories: true)
+        try fm.copyItem(at: remote.appendingPathComponent(badTitle), to: badOnly.appendingPathComponent(badTitle))
+        let badImporter = AppViewModel(settingsStore: settings, catalog: .init(), repository: emptyCatalog)
+        badImporter.cloudLibrary.installScreenArchives(RcloneStorageBackend(remote: ":local:", root: badOnly.path, run: run))
+        badImporter.importCloudGames(manually: true)
+        await badImporter.cloudLibrary.importTask?.value
+        precondition(badImporter.cloudLibrary.checkFailedDuringImport == true
+                     && badImporter.settingsNotice?.message.contains(badTitle) == true)
+        badImporter.cloudLibrary.installScreenArchives(RcloneStorageBackend(remote: ":local:", root: remote.path) { _, _, _ in
+            .init(status: 1, stdout: "", stderr: "connection reset")
+        })
+        badImporter.importCloudGames(manually: true)
+        await badImporter.cloudLibrary.importTask?.value
+        precondition(badImporter.cloudLibrary.connectionCheck?.failure == .offline)
+        print("Cloud audit: legacy destination, replaced source, close-game wake, and mixed manifests verified.")
 '''
 
 DISPLAY_FIXTURE = r'''
