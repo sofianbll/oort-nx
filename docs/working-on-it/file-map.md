@@ -447,7 +447,7 @@ Cartella `Sources/ArcanePorting/Library/`.
 | [Sources/ArcanePorting/Library/CloudGameArchive+Files.swift](../../Sources/ArcanePorting/Library/CloudGameArchive+Files.swift) | Calcola il diff, riprende il download v2 in staging, clona i file uguali, conserva la cache parziale verificata e ripara l'app prima della pubblicazione locale. |
 | [Sources/ArcanePorting/Library/CloudArchiveFingerprintCache.swift](../../Sources/ArcanePorting/Library/CloudArchiveFingerprintCache.swift) | Cache persistente e limitata delle impronte di app e cache, indicizzata da digest. |
 | [Sources/ArcanePorting/Library/CloudGameSources.swift](../../Sources/ArcanePorting/Library/CloudGameSources.swift) | Scopre le sorgenti sotto una radice autorizzata, rifiuta ambiguità e collisioni Unicode e riverifica la selezione, lo spazio, le impronte e l'identità NSP al download. |
-| [Sources/ArcanePorting/Library/CloudTransferQueue.swift](../../Sources/ArcanePorting/Library/CloudTransferQueue.swift) | Salva azioni e identità nel profilo, rimette il lavoro interrotto in testa e segnala una sola volta il mancato salvataggio. |
+| [Sources/ArcanePorting/Library/CloudTransferQueue.swift](../../Sources/ArcanePorting/Library/CloudTransferQueue.swift) | Salva azioni, portata Drive e fornitore nel profilo; rimette la richiesta interrotta in testa e segnala una sola volta il mancato salvataggio. |
 | [Sources/ArcanePorting/Library/CloudTransferPresentation.swift](../../Sources/ArcanePorting/Library/CloudTransferPresentation.swift) | Stati, misura esclusiva, annullamento e posizione del comando Cloud library con link di riserva. |
 | [Sources/ArcanePorting/Library/CloudDriveFolders.swift](../../Sources/ArcanePorting/Library/CloudDriveFolders.swift) | Cerca le sorgenti in `GameFiles`, `Switch/Jeux` e `Switch/Games` sotto la libreria scelta, lega lo spostamento agli ID Drive e verifica dipendenze e residui. |
 | [Sources/ArcanePorting/GameSettings/RemotePlayAdapters.swift](../../Sources/ArcanePorting/GameSettings/RemotePlayAdapters.swift) | Rileva ZeroTier, Tailscale e NetBird da interfacce IPv4 e identità VPN riportata dal sistema; segnala i tunnel ambigui. |
@@ -513,7 +513,7 @@ Cartella `Sources/ArcanePorting/Build/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/ArcanePorting/Build/GameResourceState.swift](../../Sources/ArcanePorting/Build/GameResourceState.swift) | Distingue app mancanti, sorgenti assenti e workspace non compilati, riconcilia gli stati e conserva Play per una build esistente. |
+| [Sources/ArcanePorting/Build/GameResourceState.swift](../../Sources/ArcanePorting/Build/GameResourceState.swift) | Distingue app mancanti, sorgenti assenti e workspace non compilati; rifiuta gli alias locali nelle selezioni scoperte dal cloud. Una build esistente mantiene Play. |
 | [Sources/ArcanePorting/Build/AppSizeCache.swift](../../Sources/ArcanePorting/Build/AppSizeCache.swift) | Conserva dimensioni per percorso e data del bundle e decide lo stato vuoto della libreria. |
 | [Sources/ArcanePorting/Build/BuildWarningCopy.swift](../../Sources/ArcanePorting/Build/BuildWarningCopy.swift) | Testo mostrato a fine build per `warn` dell’engine: archivio mancante o pipeline da preparare al primo avvio. |
 | [Sources/ArcanePorting/Build/NUPSourceCatalog.swift](../../Sources/ArcanePorting/Build/NUPSourceCatalog.swift) | Legge NUP con base o soli update; tiene distinti programma, applicazione e base DLC tramite il lettore upstream e conserva il default selezionato. |
