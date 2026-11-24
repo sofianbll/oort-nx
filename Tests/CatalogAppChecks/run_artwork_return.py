@@ -87,6 +87,15 @@ struct Image: View {
     var body: some View { Color.clear }
 }
 enum SeleneTheme { static var glassSolid: Color { .gray } }
+struct DownloadCloudTileStyle {}
+struct DownloadCloudArtRevision { let images: [NSImage?] }
+struct DownloadCloudArt<Art: View>: View {
+    let art: Art
+    let style: DownloadCloudTileStyle
+    let id: UUID
+    let revision: DownloadCloudArtRevision
+    var body: some View { art }
+}
 struct Canvas { func u(_ value: CGFloat) -> CGFloat { value } }
 struct CanvasKey: EnvironmentKey { static let defaultValue = Canvas() }
 extension EnvironmentValues {

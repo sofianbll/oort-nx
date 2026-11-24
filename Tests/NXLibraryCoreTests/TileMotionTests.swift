@@ -86,4 +86,29 @@ final class TileMotionTests: XCTestCase {
         XCTAssertLessThan(largest, 0.05)
         XCTAssertEqual(loop.values.first!, loop.values.last!, accuracy: 1e-3)
     }
+
+    func testCloudJumpStartsFromTheVisibleLevelAndSettlesAtTheNewOne() throws {
+        let size = CGSize(width: 170, height: 170)
+        let previous = try XCTUnwrap(DownloadCloudMotion.surface(.drift(0.2), at: 1.8))
+        let first = try XCTUnwrap(DownloadCloudMotion.surface(.drift(0.6), at: 1.8, elapsed: 0, from: previous))
+        XCTAssertEqual(first.y(at: 32, in: size), previous.y(at: 32, in: size), accuracy: 1e-9)
+        let rising = try XCTUnwrap(DownloadCloudMotion.surface(.drift(0.6), at: 2.12, elapsed: 0.32, from: first))
+        XCTAssertGreaterThan(rising.level ?? 0, 0.2)
+        XCTAssertGreaterThan(rising.energy, first.energy)
+        let quiet = try XCTUnwrap(DownloadCloudMotion.surface(.drift(0.6), at: 5.4, elapsed: 3.6, from: first))
+        XCTAssertEqual(quiet.y(at: 32, in: size), 68, accuracy: 1e-9)
+        XCTAssertEqual(quiet.y(at: 120, in: size), 68, accuracy: 1e-9)
+        XCTAssertEqual(quiet.activity, 0)
+    }
+
+    func testCloudUnknownIsNotAColourLevelAndReducedMotionHasNoClock() throws {
+        let size = CGSize(width: 170, height: 170)
+        let unknown = try XCTUnwrap(DownloadCloudMotion.surface(.drift(nil), at: 3))
+        XCTAssertNil(unknown.level)
+        XCTAssertGreaterThan(unknown.energy, 0)
+        let first = try XCTUnwrap(DownloadCloudMotion.surface(.drift(0.2), at: 3, reduced: true))
+        let second = try XCTUnwrap(DownloadCloudMotion.surface(.drift(0.2), at: 19, reduced: true))
+        XCTAssertEqual(first.y(at: 20, in: size), second.y(at: 20, in: size))
+        XCTAssertNotEqual(first.y(at: 20, in: size), first.y(at: 90, in: size))
+    }
 }

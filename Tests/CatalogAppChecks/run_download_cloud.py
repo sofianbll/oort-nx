@@ -23,6 +23,7 @@ import SwiftUI
     static let folder = URL(fileURLWithPath: /* OUTPUT */, isDirectory: true)
     static let size = CGSize(width: 376, height: 302)
     static let front = /* FRONT */
+    static let wave: DownloadCloudMotion.WaveHeight = /* WAVE */
     enum Cover: String, CaseIterable {
         case black, white, yellow, busy, title
         static let art: [Self] = [.black, .white, .yellow, .busy]
@@ -38,7 +39,6 @@ import SwiftUI
         let wanted = [("selene", "Selene"), ("vantablack", "Vantablack"), ("catppuccin-latte", "Latte")]
         checkMotion()
         let checkPalette = palette("selene", in: palettes)
-        checkScrim(checkPalette)
         if /* ONSCREEN */ {
             try checkWindow(checkPalette)
             return
@@ -72,7 +72,8 @@ import SwiftUI
         func pair(_ state: CloudLibraryState, _ previous: DownloadCloudTileState?, _ seconds: Double,
                   _ palette: SelenePalette, _ intensity: DownloadCloudMotion.Intensity,
                   reduced: Bool = false, before: Bool = false, look: PortingTileLook = .normal,
-                  cover: Cover = .title, scrimsOnly: Bool = false) -> some View {
+                  cover: Cover = .title, scrimsOnly: Bool = false, artOnly: Bool = false,
+                  elapsed: Double? = nil, previousElapsed: Double? = nil) -> some View {
             let game = fixtures[cover]!
             let item = SpotlightItem.game(game.id)
             model.states[game.id] = state
@@ -94,15 +95,19 @@ import SwiftUI
             .environment(\.seleneBackdropStyle, .init(palette: palette, animated: false))
             .environment(\.seleneReduceMotion, reduced)
             .environment(\.downloadCloudCapture, .init(seed: seed, time: seconds, intensity: intensity,
-                                                      previous: previous, before: before, scrimsOnly: scrimsOnly))
+                                                      previous: previous, before: before, scrimsOnly: scrimsOnly,
+                                                      artOnly: artOnly,
+                                                      waveHeight: wave, elapsed: elapsed, previousElapsed: previousElapsed))
         }
 
         // Render each state immediately: the two real rows read the same observable model.
         func frame(_ snapshot: Shot, _ palette: SelenePalette, _ intensity: DownloadCloudMotion.Intensity,
                    _ scale: CGFloat, reduced: Bool = false, before: Bool = false,
-                   look: PortingTileLook = .normal, cover: Cover = .title, scrimsOnly: Bool = false) -> CGImage {
+                   look: PortingTileLook = .normal, cover: Cover = .title, scrimsOnly: Bool = false,
+                   artOnly: Bool = false) -> CGImage {
             let renderer = ImageRenderer(content: pair(snapshot.state, snapshot.previous, snapshot.time, palette,
-                intensity, reduced: reduced, before: before, look: look, cover: cover, scrimsOnly: scrimsOnly))
+                intensity, reduced: reduced, before: before, look: look, cover: cover, scrimsOnly: scrimsOnly, artOnly: artOnly,
+                elapsed: snapshot.elapsed, previousElapsed: snapshot.previousElapsed))
             renderer.scale = scale
             return renderer.cgImage!
         }
@@ -117,7 +122,7 @@ import SwiftUI
             for (id, label) in wanted.prefix(2) {
                 let palette = palette(id, in: palettes)
                 for scale: CGFloat in [1, 3] {
-                    try strip(levels, title: "\(label) · Fine · \(Int(scale))×",
+                    try strip(levels, title: "\(label) · \(wave == .calm ? "Vague calme" : "Vague animée") · \(Int(scale))×",
                               scale: scale, file: "\(id)-fine-\(Int(scale))x") { shot, cover in
                         square(frame(shot, palette, .fine, scale, cover: cover), scale)
                     }
@@ -151,13 +156,17 @@ import SwiftUI
                                    frame(moving, checkPalette, .fine, 1, reduced: true, before: true)) > 0)
         // The shader percentage has its own wall-clock sheen; use the static preparation look for a pixel check.
         let build = PortingTileLook.preparing(step: 1, count: 2, title: "Fixture build", detail: "")
+        if front && wave == .calm {
+            try save(frame(moving, checkPalette, .fine, 1, look: build), "porting-preparation")
+            try save(frame(moving, checkPalette, .fine, 1, reduced: true, look: .filling(0.4)), "porting-compilation")
+        }
         unchanged(frame(moving, checkPalette, .fine, 1, look: build),
                   frame(moving, checkPalette, .fine, 1, before: true, look: build), "build-preparation")
         unchanged(frame(moving, checkPalette, .fine, 1, reduced: true, look: .filling(0.4)),
                   frame(moving, checkPalette, .fine, 1, reduced: true, before: true, look: .filling(0.4)),
                   "build-compilation")
         let withDots = frame(moving, checkPalette, .fine, 1)
-        let plain = frame(moving, checkPalette, .fine, 1, before: true)
+        let plain = frame(moving, checkPalette, .fine, 1, scrimsOnly: true)
         // A running download really changes both call sites, only near the front.
         for bounds in [CGRect(x: 11, y: 11, width: 172, height: 278), spotlight] {
             let differences = changedPixels(withDots.cropping(to: bounds)!, plain.cropping(to: bounds)!)
@@ -180,21 +189,28 @@ import SwiftUI
         }
 
         let yellow = levels.map { shot in
-            square(frame(shot, checkPalette, .fine, 1, reduced: true, before: true, cover: .yellow), 1)
+            square(frame(shot, checkPalette, .fine, 1, reduced: true, cover: .yellow, scrimsOnly: true), 1)
         }
         func blueColumn(_ image: CGImage) -> [Int] {
             let data = pixels(image)
             return (0..<image.height).map { Int(data[($0 * image.width + image.width / 2) * 4 + 2]) }
         }
-        precondition(blueColumn(yellow[0]).dropFirst(2).dropLast(2).allSatisfy { $0 > 195 })
+        precondition(blueColumn(yellow[0]).dropFirst(2).dropLast(18).allSatisfy { $0 > 195 })
         for (image, edge) in zip(yellow.dropFirst(), [128, 64, 8]) {
             let blue = blueColumn(image)
-            precondition((78...128).contains(blue[edge]), "Keep the measured level at the center of the feather.")
-            let profile = blue[max(2, edge - 12)..<(edge + 12)]
-            let intermediate = profile.filter { (5...197).contains($0) }
-            precondition(intermediate.count >= 14 && intermediate.count <= 22 && blue[edge + 12] < 5,
-                         "Expected a short soft saturation front at \(edge), saw \(Array(profile)).")
+            precondition(blue[max(2, edge - 5)] > 55 && blue[edge + 5] < 10,
+                         "Expected grey above and colour below the measured level \(edge).")
         }
+        let gray = square(frame(Shot("", transfer(0, total: 0), time: 2), checkPalette, .fine, 1,
+                                cover: .yellow, scrimsOnly: true), 1)
+        let grayData = pixels(gray)
+        for y in 3..<(gray.height - 3) {
+            let i = (y * gray.width + gray.width / 2) * 4
+            precondition(Int(grayData[i...i+2].max()!) - Int(grayData[i...i+2].min()!) <= 3)
+        }
+        let quietA = Shot("", transfer(60), time: 4, elapsed: 4)
+        let quietB = Shot("", transfer(60), time: 6, elapsed: 6)
+        unchanged(frame(quietA, checkPalette, .fine, 1), frame(quietB, checkPalette, .fine, 1), "quiet-running")
 
         let shots: [Shot] = [
             .init("01 · Départ", transfer(0), time: 0.30),
@@ -212,7 +228,7 @@ import SwiftUI
                   "cue-ended")
         let title = CGRect(x: 31, y: 213, width: 131, height: 14)
         let fallback = frame(shots[1], checkPalette, .fine, 1)
-        let fallbackPlain = frame(shots[1], checkPalette, .fine, 1, before: true)
+        let fallbackPlain = frame(shots[1], checkPalette, .fine, 1, artOnly: true)
         unchanged(fallback.cropping(to: title)!, fallbackPlain.cropping(to: title)!, "title-mask")
         try save(fallback, "collection-titre")
         try save(fallbackPlain, "collection-titre-sans-points")
@@ -230,8 +246,9 @@ import SwiftUI
                     }
                     for sample in front ? levels : [shots[2]] {
                         let level = CloudTransferPresentation.fraction(sample.state.progress)
+                        let surface = DownloadCloudMotion.surface(.drift(level), at: sample.time, height: wave)
                         let layout = DownloadCloudMotion.frame(.drift(level), seed: seed, at: sample.time,
-                                                              intensity: intensity, size: spotlight.size)
+                                                              intensity: intensity, size: spotlight.size, surface: surface)
                         for cover in Cover.art {
                             let all = square(frame(sample, palette, intensity, scale, cover: cover), scale)
                             let scrim = square(frame(sample, palette, intensity, scale, cover: cover, scrimsOnly: true), scale)
@@ -268,26 +285,35 @@ import SwiftUI
         }
 
         if /* VIDEO */ {
-            for intensity in front ? [.fine] : DownloadCloudMotion.Intensity.allCases {
-                for i in 0..<360 {
-                    let t = Double(i) / 60
-                    let known: Shot
-                    if t < 3.7 {
-                        known = Shot("", transfer(Int(t / 3.7 * 10_000), total: 10_000), time: t + 0.4)
-                    } else if t < 4.25 {
-                        known = Shot("", verifying(), previous: .running(.app, 0.99), time: t - 3.7)
-                    } else {
-                        known = Shot("", completed(), previous: .verifying(.app, 1), time: t - 4.25)
-                    }
-                    let unknown = t < 3.7 ? Shot("", transfer(0, total: 0), time: t + 0.4) : known
-                    let row = HStack(spacing: 8) {
-                        ForEach(Cover.art, id: \.self) { cover in
-                            Image(decorative: square(frame(cover == .black && !front ? unknown : known, checkPalette,
-                                                            intensity, 1, cover: cover), 1), scale: 1)
-                        }
-                    }.padding(8).background(Color(hex: 0x12141A))
-                    try save(ImageRenderer(content: row).cgImage!, "\(intensity.rawValue)/\(String(format: "%03d", i))")
+            for i in 0..<480 {
+                let t = Double(i) / 60
+                let shot: Shot
+                if t < 0.6 {
+                    shot = Shot("Départ", transfer(0), time: t, elapsed: t)
+                } else if t < 2.1 {
+                    shot = Shot("Transfert · 20 %", transfer(20), previous: .running(.app, 0),
+                                time: t, elapsed: t - 0.6, previousElapsed: 0.6)
+                } else if t < 5.9 {
+                    shot = Shot(t < 2.8 ? "Saut · 60 %" : "Pause · plus de données", transfer(60),
+                                previous: .running(.app, 0.2), time: t, elapsed: t - 2.1, previousElapsed: 1.5)
+                } else if t < 6.47 {
+                    shot = Shot("Vérification", verifying(), previous: .running(.app, 0.6),
+                                time: t, elapsed: t - 5.9, previousElapsed: 3.8)
+                } else {
+                    shot = Shot("Terminé", completed(), previous: .verifying(.app, 1), time: t - 6.47)
                 }
+                let row = VStack(alignment: .leading, spacing: 8) {
+                    Text(shot.label).font(.system(size: 16, weight: .semibold)).foregroundStyle(.white)
+                    HStack(spacing: 8) {
+                        ForEach([Cover.busy, .yellow], id: \.self) { cover in
+                            Image(decorative: square(frame(shot, checkPalette, .fine, 2, cover: cover), 2), scale: 2)
+                        }
+                    }
+                }
+                .padding(8).background(Color(hex: 0x12141A))
+                let renderer = ImageRenderer(content: row)
+                renderer.scale = 2
+                try save(renderer.cgImage!, "frames/\(String(format: "%03d", i))")
             }
         }
         checkCompositor(palette: checkPalette)
@@ -299,8 +325,12 @@ import SwiftUI
         let state: CloudLibraryState
         let previous: DownloadCloudTileState?
         let time: Double
-        init(_ label: String, _ state: CloudLibraryState, previous: DownloadCloudTileState? = nil, time: Double = 0) {
+        let elapsed: Double?
+        let previousElapsed: Double?
+        init(_ label: String, _ state: CloudLibraryState, previous: DownloadCloudTileState? = nil,
+             time: Double = 0, elapsed: Double? = nil, previousElapsed: Double? = nil) {
             self.label = label; self.state = state; self.previous = previous; self.time = time
+            self.elapsed = elapsed; self.previousElapsed = previousElapsed
         }
     }
 
@@ -439,7 +469,7 @@ import SwiftUI
         // Test the lit primary cores, outside the corners and the independently drawn cloud badge.
         return dots.filter {
             let x = $0.center.x, y = $0.center.y
-            return $0.radius >= 1.25 && $0.opacity >= 0.85
+            return $0.kind != .bubble && $0.opacity >= 0.85
                 && (8...(CGFloat(width) / scale - 8)).contains(x)
                 && (2...(CGFloat(image.height) / scale - 2)).contains(y)
                 && (y >= 36 || x < CGFloat(width) / scale - 39)
@@ -468,36 +498,45 @@ import SwiftUI
         let size = CGSize(width: 172, height: 278)
         func motes(_ scene: Motion.Scene, _ t: Double, _ intensity: Motion.Intensity = .fine) -> [Motion.Mote] {
             Motion.frame(scene, seed: seed, at: t, intensity: intensity, size: size).dots
-                .filter { $0.kind != .crest && $0.opacity > 0 }
+                .filter { $0.opacity > 0 }
         }
-        func crest(_ level: Double?, _ t: Double) -> [Motion.Mote] {
-            Motion.frame(.drift(level), seed: seed, at: t, intensity: .fine, size: size).dots
-                .filter { $0.kind == .crest && $0.opacity > 0 }
+        func points(_ surface: Motion.Surface) -> [Double] {
+            (0...40).map { surface.y(at: size.width * Double($0) / 40, in: size) }
         }
-        let glints = crest(0.6, 0.3)
-        precondition(!glints.isEmpty && glints != crest(0.6, 1.1)
-                     && [nil, 0, 1].allSatisfy { crest($0, 0.3).isEmpty })
-        precondition(glints.allSatisfy { abs($0.center.y - size.height * 0.4) < 5 && $0.opacity < 0.16 })
+        func spread(_ surface: Motion.Surface) -> Double { let ys = points(surface); return ys.max()! - ys.min()! }
+        let calm = Motion.surface(.drift(0.6), at: 2.7, height: .calm)!
+        let lively = Motion.surface(.drift(0.6), at: 2.7, height: .lively)!
+        precondition((7...11).contains(spread(calm)) && (10...15).contains(spread(lively)))
+        precondition(points(calm) != points(Motion.surface(.drift(0.6), at: 3.5)!))
+        precondition(Motion.surface(.drift(nil), at: 1)!.level == nil)
+        for end in [0.0, 1] { precondition(spread(Motion.surface(.drift(end), at: 2.7)!) == 0) }
+        precondition(spread(Motion.surface(.drift(0.95), at: 2.7)!) < spread(calm))
+        let target = Motion.Scene.drift(0.95)
+        precondition(Motion.surface(target, at: 2.7, elapsed: 0, from: calm)!.level == 0.6)
+        precondition(Motion.surface(target, at: 2.9, elapsed: 0.2, from: calm)!.level! > 0.60)
+        let jumped = Motion.surface(target, at: 3.02, elapsed: 0.32, from: calm)!
+        precondition(jumped.energy > calm.energy && jumped.level! < 0.95)
+        let quiet = Motion.surface(target, at: 9, elapsed: 4, from: calm)!
+        precondition(quiet.energy == 0 && quiet.activity == 0 && spread(quiet) == 0 && quiet.level == 0.95)
+        let fixed = Motion.surface(.drift(0.6), at: 1, reduced: true)!
+        precondition((1...3).contains(spread(fixed)))
+        precondition(points(fixed) == points(Motion.surface(.drift(0.6), at: 2, reduced: true)!))
+        let atTop = Motion.surface(.settle(1), at: 3.25, elapsed: 0.55, from: calm)!
+        precondition(atTop.level == 1 && points(atTop).allSatisfy { $0 == 0 })
         let a = motes(.drift(0.45), 1.11)
         precondition(a == motes(.drift(0.45), 1.11))
         precondition(a != Motion.frame(.drift(0.45), seed: seed + 1, at: 1.11,
                                        intensity: .fine, size: size).dots.filter { $0.opacity > 0 })
-        precondition(a.count > motes(.drift(0), 1.11).count && a.count < motes(.drift(1), 1.11).count)
         precondition(a.count < motes(.drift(0.45), 1.11, .present).count)
-        precondition(a.allSatisfy { (0...24).contains(0.55 * size.height - $0.center.y) })
-        precondition(a.filter { $0.radius > 1.3 && $0.opacity >= 0.85 }.count >= 8)
+        let crest = Motion.surface(.drift(0.45), at: 1.11)!
+        precondition(a.allSatisfy { (0...23).contains(crest.y(at: $0.center.x, in: size) - $0.center.y) })
+        precondition(a.filter { $0.kind != .bubble && $0.opacity >= 0.85 }.count == 16)
         let unknown = motes(.drift(nil), 0.33)
-        let repeated = motes(.drift(nil), 0.33 + Motion.Scene.drift(nil).duration)
-        precondition(unknown.count == repeated.count && zip(unknown, repeated).allSatisfy {
-            abs($0.center.y - $1.center.y) < 1e-9 && abs($0.opacity - $1.opacity) < 1e-9
-        })
         precondition(unknown != motes(.drift(nil), 0.8))
         precondition(motes(.drift(.nan), 0.33) == unknown)
         let settleStart = motes(.settle(0.7), 0)
         let settleEnd = motes(.settle(0.7), 0.47)
-        precondition(zip(settleStart, settleEnd).allSatisfy {
-            abs($1.center.y - 0.30 * size.height) <= abs($0.center.y - 0.30 * size.height) && $1.opacity < $0.opacity
-        })
+        precondition(settleEnd.map(\.opacity).max()! < settleStart.map(\.opacity).max()!)
         precondition(motes(.settle(0.7), 0.55).isEmpty && motes(.completion, 1.20).isEmpty)
         precondition(motes(.completion, 0.22).map(\.center) != motes(.completion, 0.65).map(\.center))
         let mark = motes(.completion, 0.77)
@@ -518,6 +557,9 @@ import SwiftUI
         precondition(project(transfer(43, direction: .downloadSources)) == .running(.sources, 0.43))
         precondition(project(transfer(43), look: .filling(0.22)) == .idle)
         precondition(project(queued()).scene(after: project(transfer(40)), reduceMotion: false) == nil)
+        precondition(project(queued()).hold(after: project(transfer(40))) == .holding(.app, 0.4))
+        precondition(project(failed()).hold(after: .running(.sources, 0.4)) == nil)
+        precondition(project(failed()).hold(after: project(transfer(40))) == .holding(.app, 0.4))
         precondition(project(failed()).scene(after: project(transfer(40)), reduceMotion: false) == nil)
         precondition(project(ready()).scene(after: project(verifying()), reduceMotion: false) == nil)
         precondition(project(verifying()).scene(after: project(transfer(99)), reduceMotion: false) == .settle(1))
@@ -526,16 +568,6 @@ import SwiftUI
         precondition(project(completed()).scene(after: project(ready()), reduceMotion: true) == .fade)
         precondition(project(completed()).scene(after: project(completed()), reduceMotion: false) == nil)
         print("Pure motion and real phase projection: PASS.")
-    }
-
-    static func checkScrim(_ palette: SelenePalette) {
-        let frame = DownloadCloudMotion.frame(.drift(0.6), seed: seed, at: 0, intensity: .fine, size: size)
-        let image = DownloadCloudSprites(.init(palette)).scrims(frame, size)[0].0
-        let bytes = pixels(image), w = image.width, h = image.height
-        func alpha(_ x: Int, _ y: Int) -> UInt8 { bytes[(y * w + x) * 4 + 3] }
-        precondition(alpha(w / 2, h / 2) > 140)
-        precondition((0..<h).allSatisfy { alpha(0, $0) < 8 && alpha(w - 1, $0) < 8 })
-        precondition((0..<w).allSatisfy { alpha($0, 0) < 8 && alpha($0, h - 1) < 8 })
     }
 
     @MainActor static func checkCompositor(palette: SelenePalette) {
@@ -561,25 +593,25 @@ import SwiftUI
             CATransaction.begin()
             CATransaction.setDisableActions(true)
             for (i, tile) in tiles.enumerated() {
-                let field = tile.root.sublayers!.first!
-                field.frame = CGRect(x: CGFloat(i % 4) * size.width, y: CGFloat(i / 4) * size.height,
-                                     width: size.width, height: size.height)
-                surface.addSublayer(field)
-                tile.apply(.init(scene: .drift(0.65), start: 0, colors: colors, seed: seed + UInt64(i), intensity: .fine),
+                tile.root.frame = CGRect(x: CGFloat(i % 4) * size.width, y: CGFloat(i / 4) * size.height,
+                                         width: size.width, height: size.height)
+                surface.addSublayer(tile.root)
+                let art = ImageRenderer(content: Color.yellow.frame(width: size.width, height: size.height))
+                tile.coat.contents = art.cgImage
+                tile.apply(.init(scene: .drift(0.65), start: 0, colors: colors, seed: seed + UInt64(i), intensity: .fine,
+                                 waveHeight: wave),
                            size: size, now: now)
-                for particle in field.sublayers ?? [] { particle.delegate = counter }
+                for particle in tile.field.sublayers ?? [] { particle.delegate = counter }
             }
             renderer.layer = surface
             renderer.bounds = bounds
             CATransaction.commit()
             CATransaction.flush()
             let milliseconds = (ProcessInfo.processInfo.systemUptime - start) * 1000
-            let fields = surface.sublayers ?? []
+            let fields = tiles.map(\.field)
             let particles = fields.flatMap { $0.sublayers ?? [] }
-            precondition((count == 0 && particles.isEmpty) || (count * 35...count * 57).contains(particles.count))
-            precondition(particles.allSatisfy { $0.contents != nil })
-            precondition(particles.filter { $0.animation(forKey: "cloud")?.repeatCount == .infinity }.count
-                         == particles.count - count, "only the local scrims are static")
+            precondition(particles.count == count * 39)
+            precondition(tiles.allSatisfy { $0.coat.mask?.animation(forKey: "cloud") != nil })
             func composite(_ offset: Double) -> [UInt8] {
                 renderer.beginFrame(atTime: now + offset, timeStamp: nil)
                 renderer.addUpdate(bounds)
@@ -598,6 +630,14 @@ import SwiftUI
             let first = composite(0.03)
             let last = composite(0.63)
             precondition((first == last) == (count == 0), "\(count) tiles: expected compositor motion only with active dots")
+            let quiet = composite(4)
+            precondition(quiet == composite(5), "\(count) tiles: stalled surface must be flat and static")
+            if count > 0 {
+                let a = (Int(size.width / 2) + Int(size.height * 0.2) * Int(bounds.width)) * 4
+                let b = (Int(size.width / 2) + Int(size.height * 0.8) * Int(bounds.width)) * 4
+                let one = quiet[a + 1], two = quiet[b + 1]
+                precondition(max(one, two) > 180 && min(one, two) < 50, "colour mask must reveal only one side: \(one), \(two)")
+            }
             precondition(counter.redraws == 0)
             for tile in tiles { tile.clear() }
             precondition(fields.allSatisfy { $0.sublayers?.isEmpty != false && $0.animationKeys()?.isEmpty != false }
@@ -674,6 +714,7 @@ import SwiftUI
         link.add(to: .current, forMode: .common)
         wait(1.3)
         link.invalidate()
+        wait(1)
         let rate = clock.rate
         print("Visible across \(Int(screen.frame.width))×\(Int(screen.frame.height)) points; display maximum "
               + "\(screen.maximumFramesPerSecond) Hz; 60 Hz window display link delivered \(String(format: "%.1f", rate)) Hz.")
@@ -689,28 +730,37 @@ import SwiftUI
 
         var report = ["Apple Core Animation, \(screen.maximumFramesPerSecond) Hz display, requested ≤60 fps;",
                       "window callback \(String(format: "%.1f", rate)) Hz (not measured compositor cadence).",
-                      "All 12 synthetic 170 pt tile faces visible; 8 s per position after warm-up.",
+                      "All 12 synthetic 170 pt tile faces visible; 2.35 s per position before automatic flattening.",
                       "Process CPU is percent of one core; mW from process energy only, excludes WindowServer/GPU."]
-        for intensity in DownloadCloudMotion.Intensity.allCases {
+        for height in DownloadCloudMotion.WaveHeight.allCases {
             for count in [0, 1, 6, 12, 0] {
                 let settled = count == 0 && tiles[0].input != nil
                 for (i, tile) in tiles.enumerated() {
                     if i < count || settled {
-                        tile.input = .init(scene: settled ? .completion : .drift(0.65), start: CACurrentMediaTime(),
-                                           colors: colors, seed: seed + UInt64(i), intensity: intensity)
+                        if !settled {
+                            tile.setArt(AnyView(Color.yellow), revision: .init(images: []))
+                        }
+                        tile.input = .init(scene: .drift(0.65), start: CACurrentMediaTime(),
+                                           colors: colors, seed: seed + UInt64(i), intensity: .fine,
+                                           bytes: Int64(count), waveHeight: height)
                     } else {
                         tile.input = nil
                     }
                 }
-                wait(settled ? 1.7 : 0.55)
-                if count == 0 {
-                    precondition(tiles.allSatisfy { $0.root.sublayers?.first?.sublayers?.isEmpty != false })
+                wait(settled ? 4.05 : 0.55)
+                if settled {
+                    // The model can retain a submitted key after the render server stops sampling it.
+                    precondition(tiles.allSatisfy {
+                        guard let mask = $0.coat.mask as? CAShapeLayer,
+                              let path = mask.presentation()?.path ?? mask.path else { return false }
+                        return abs(path.boundingBoxOfPath.minY - tileSize.height * 0.35) < 0.001
+                    }, "The quiet coat must remain visible and flat")
                 } else {
-                    precondition(tiles.filter { $0.root.sublayers?.first?.sublayers?.first?.presentation() != nil }.count == count)
+                    precondition(tiles.filter { $0.coat.mask?.animation(forKey: "cloud") != nil }.count == count)
                 }
                 let initial = usage()
                 let start = CACurrentMediaTime()
-                wait(8)
+                wait(2.35)
                 guard visible() else { throw CocoaError(.featureUnsupported) }
                 let end = usage()
                 let elapsed = CACurrentMediaTime() - start
@@ -719,7 +769,7 @@ import SwiftUI
                 let nj = end.ri_energy_nj - initial.ri_energy_nj
                 let power = Double(nj) / 1e6 / elapsed
                 let line = String(format: "%@, %2d active %@: CPU %.3f%%, process %.3f mW (%llu nJ)",
-                                  intensity.rawValue, count, settled ? "(cue finished)" : "", cpu, power, nj)
+                                  height.rawValue, count, settled ? "(quiet, coat still visible)" : "", cpu, power, nj)
                 print(line)
                 report.append(line)
                 if settled { for tile in tiles { tile.input = nil } }
@@ -751,6 +801,7 @@ def main():
     modes.add_argument("--video", action="store_true")
     modes.add_argument("--onscreen", action="store_true")
     parser.add_argument("--front", action="store_true", help="capture the Fine transfer front at 0/20/60/95 percent")
+    parser.add_argument("--lively", action="store_true", help="render the taller wave")
     args = parser.parse_args()
     destination = args.destination.resolve()
     destination.mkdir(parents=True, exist_ok=True)
@@ -762,23 +813,22 @@ def main():
         for asset in ["Selene/palettes.json", "Selene/Fonts/MaterialIcons-Regular.ttf"]:
             shutil.copyfile(ROOT / "Resources" / asset, stage / Path(asset).name)
         if ffmpeg:
-            for intensity in ("fine", "present"):
-                (stage / intensity).mkdir()
+            (stage / "frames").mkdir()
         try:
             run_host(HOST.replace("/* OUTPUT */", json.dumps(str(stage)))
                      .replace("/* ONSCREEN */", str(args.onscreen).lower())
                      .replace("/* FRONT */", str(args.front).lower())
+                     .replace("/* WAVE */", ".lively" if args.lively else ".calm")
                      .replace("/* VIDEO */", str(args.video).lower()))
         finally:
             for file in stage.iterdir():
                 if file.suffix in (".png", ".txt"):
                     shutil.copyfile(file, destination / file.name)
-            for intensity in ("fine", "present") if ffmpeg else ():
-                if (stage / intensity / "359.png").is_file():
-                    subprocess.run([ffmpeg, "-hide_banner", "-loglevel", "error", "-y", "-framerate", "60",
-                                    "-i", str(stage / intensity / "%03d.png"), "-an", "-c:v", "libx264", "-threads", "4",
-                                    "-pix_fmt", "yuv420p", "-movflags", "+faststart",
-                                    str(destination / f"transfert-{intensity}.mp4")], check=True)
+            if ffmpeg and (stage / "frames/479.png").is_file():
+                subprocess.run([ffmpeg, "-hide_banner", "-loglevel", "error", "-y", "-framerate", "60",
+                                "-i", str(stage / "frames/%03d.png"), "-an", "-c:v", "libx264", "-threads", "4",
+                                "-vf", "pad=ceil(iw/2)*2:ceil(ih/2)*2", "-pix_fmt", "yuv420p", "-movflags", "+faststart",
+                                str(destination / "transfert-2x.mp4")], check=True)
 
 
 if __name__ == "__main__":

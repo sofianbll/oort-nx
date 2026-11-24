@@ -3,6 +3,68 @@ import Foundation
 /// Coordinates and radii are in local tile points; drift time is on the shared clock.
 public enum DownloadCloudMotion {
     public enum Intensity: String, CaseIterable { case fine, present }
+    public enum WaveHeight: String, CaseIterable {
+        case calm, lively
+
+        public static let selected: Self = .calm
+        var amplitude: Double { self == .calm ? 5.4 : 7.8 }
+    }
+
+    public struct Surface {
+        public let level: Double?
+        public let energy: Double
+        public let activity: Double
+        public let phase: Double
+        public let height: WaveHeight
+
+        public func y(at x: Double, in size: CGSize) -> Double {
+            let y = size.height * (1 - (level ?? 0.50))
+            let u = x / size.width - 0.5
+            let scale = min(size.width, size.height) / 170
+            let room = min(1, min(y, size.height - y) / (16 * scale))
+            let a = 2 * Double.pi * (u * 1.10 - phase / 5.6) + 0.3
+            let b = 2 * Double.pi * (u * 1.93 + phase / 8.7) - 0.5
+            // Subtract each wave's mean across the glass: height still measures the bytes.
+            let ripple = 0.77 * (sin(a) - sin(a - 2 * .pi * u * 1.10) * sin(.pi * 1.10) / (.pi * 1.10))
+                + 0.23 * (sin(b) - sin(b - 2 * .pi * u * 1.93) * sin(.pi * 1.93) / (.pi * 1.93))
+            return y + scale * room * height.amplitude * energy * ripple
+        }
+    }
+
+    /// The live track ends by itself if progress stops. Reduced motion never schedules a track.
+    public static let quietAfter = 3.6
+
+    public static func surface(_ scene: Scene, at phase: Double, elapsed: Double? = nil,
+                               from previous: Surface? = nil, reduced: Bool = false,
+                               height: WaveHeight = .selected) -> Surface? {
+        let level: Double?, energy: Double, activity: Double
+        switch scene {
+        case .drift(let fraction):
+            let target = fraction.flatMap { $0.isFinite ? limit($0) : nil }
+            let t = max(0, elapsed ?? 0)
+            let climb = 1 - pow(1 - limit(t / 0.38), 3)
+            let from = previous?.level ?? target
+            level = target.map { (from ?? $0) + ($0 - (from ?? $0)) * (reduced ? 1 : climb) }
+            let rest = 1 - smooth((t - 2.55) / (quietAfter - 2.55))
+            let momentum = min(0.25, abs((target ?? 0) - (from ?? 0)) * 0.70)
+            let swell = momentum * pulse(t, at: 0.32, width: 0.32)
+            let base = target == nil ? 0.58 : 1
+            let wake = elapsed == nil ? 1 : smooth(t / 0.32)
+            energy = reduced ? 0.24 : rest * ((previous?.energy ?? 0) * (1 - wake) + base * wake + swell)
+            activity = reduced ? 0.80 : rest * ((previous?.activity ?? 0) * (1 - wake) + wake)
+        case .settle(let fraction):
+            let p = smooth(max(0, elapsed ?? phase) / scene.duration)
+            level = fraction.map { target in
+                let from = previous?.level ?? target
+                return from + (target - from) * (reduced ? 1 : p)
+            }
+            energy = reduced ? 0 : (previous?.energy ?? 1) * (1 - p)
+            activity = reduced ? 0 : (previous?.activity ?? 1) * (1 - p)
+        case .completion, .fade: return nil
+        }
+        return Surface(level: level, energy: energy, activity: activity, phase: reduced ? 0 : phase, height: height)
+    }
+
     public enum Scene: Equatable {
         case drift(Double?)
         case settle(Double?)
@@ -11,18 +73,18 @@ public enum DownloadCloudMotion {
 
         public var duration: Double {
             switch self {
-            case .drift: 6.4
+            case .drift: DownloadCloudMotion.quietAfter
             case .settle: 0.55
             case .completion: 1.20
             case .fade: 0.48
             }
         }
 
-        public var repeats: Bool { if case .drift = self { true } else { false } }
+        public var isDrift: Bool { if case .drift = self { true } else { false } }
     }
 
     public struct Mote: Equatable {
-        public enum Kind { case ink, accent, sun, star, crest }
+        public enum Kind { case ink, accent, bubble, sun, star }
         public let center: CGPoint
         public let radius: Double
         public let opacity: Double
@@ -37,11 +99,11 @@ public enum DownloadCloudMotion {
     }
 
     public static func frame(_ scene: Scene, seed: UInt64, at time: Double, intensity: Intensity,
-                             size: CGSize, sourceLevel: Double? = 1) -> Frame {
+                             size: CGSize, sourceLevel: Double? = 1, surface live: Surface? = nil) -> Frame {
         let empty = Frame(dots: [], bandY: 0, bandOpacity: 0, centreOpacity: 0)
         guard time.isFinite, size.width > 0, size.height > 0 else { return empty }
-        let t = scene.repeats ? time / scene.duration - floor(time / scene.duration) : limit(time / scene.duration)
-        guard scene.repeats || (time >= 0 && t < 1) else { return empty }
+        let t = limit(time / scene.duration)
+        guard scene.isDrift || (time >= 0 && t < 1) else { return empty }
         let w = size.width, h = size.height
         let scale = min(w, h) / 170
         let present = intensity == .present
@@ -53,45 +115,37 @@ public enum DownloadCloudMotion {
         }
 
         switch scene {
-        case .drift(let fraction), .settle(let fraction):
-            let level = fraction.flatMap { $0.isFinite ? limit($0) : nil }
-            let y = bandY(level)
-            let settling = !scene.repeats
-            let settle = settling ? smooth(t) : 0
+        case .drift, .settle:
+            guard let surface = live ?? surface(scene, at: time) else { return empty }
+            let level = surface.level
+            let y = surface.y(at: w / 2, in: size)
             let width = level == nil ? 0.74 : 0.88
             let columns = present ? 19 : 16
-            let reach = min(1, y / (24 * scale))
-            let activity = 1 - settle
+            let activity = surface.activity
+            let clock = surface.phase / 5.6
             var dots = [Mote]()
-            var crest = [Mote]()
-            for row in 0..<3 {
+            for row in 0..<2 {
                 for column in 0..<columns {
                     let phase = 2 * .pi * random.unit()
                     let spacing = w * width / Double(columns)
-                    let sway = 2 * .pi * t + phase
-                    let crossing = level == nil ? 9 * scale * sin(2 * .pi * t) * activity : 0
-                    let x = w * (1 - width) / 2 + crossing + (Double(column) + 0.45 + Double(row % 2) * 0.46
-                        + (random.unit() - 0.5) * 0.42 + 0.48 * sin(sway) * activity) * spacing
-                    let depth = ([6.9, 12.0, 19.0][row] + 3.0 * random.unit() + (level == nil ? 1.1 : 0)) * scale
-                    let wave = level == nil ? 3.1 * scale * sin(2 * .pi * (t + x / w)) : 0
-                    let py = y - (depth * (1 - 0.62 * settle) - wave - 1.4 * scale * cos(sway) * activity) * reach
-                    let density = [0.82, 0.62, 0.49][row] + (level ?? 0.20) * 0.55
-                    let fill = limit((density - random.unit()) * 3.8)
-                    let radius = ([1.44, 1.02, 0.64][row] + 0.27 * random.unit()) * scale * (present ? 1.09 : 1)
-                    let shimmer = 0.93 + 0.07 * sin(sway)
-                    let brightness = [1.0, 0.92, 0.71][row] * (level == nil ? 0.83 : 1)
-                    if row == 0, column.isMultiple(of: 2), let level, level > 0, level < 1 {
-                        let fade = smooth(min(x, w - x) / (w * 0.24))
-                        let ripple = 1.4 * (scale * (8.4 + cos(sway) * activity) - depth)
-                        crest.append(Mote(center: CGPoint(x: x, y: y + ripple), radius: scale,
-                                          opacity: 0.15 * fade * fill * activity * shimmer, kind: .crest))
-                    }
+                    let sway = 2 * .pi * clock + phase
+                    let jitter = (random.unit() - 0.5) * 0.83 + 0.23 * sin(sway) * activity
+                    let cycles = clock * 1.7 + phase / (2 * .pi)
+                    let bubble = cycles - floor(cycles)
+                    let x = w * (1 - width) / 2 + (Double(column) + 0.45 + jitter) * spacing
+                    let crest = surface.y(at: x, in: size)
+                    let depth = row == 0 ? 3.0 + 2.0 * random.unit() : 4 + 18 * bubble
+                    let py = max(2.5 * scale, crest - depth * scale)
+                    let radius = (row == 0 ? 0.98 + 0.51 * random.unit() : 0.62) * scale * (present ? 1.09 : 1)
+                    let shimmer = row == 0 ? 0.967 + 0.033 * sin(sway) : 0.64 * sin(.pi * bubble)
+                    let visible = row == 0 || column.isMultiple(of: 3)
+                    let reach = row == 0 ? 1 : smooth(crest / (17 * scale))
                     dots.append(Mote(center: CGPoint(x: x, y: py), radius: radius,
-                                     opacity: fill * activity * shimmer * brightness,
-                                     kind: column.isMultiple(of: 3) ? .accent : .ink))
+                                     opacity: visible ? reach * activity * shimmer : 0,
+                                     kind: row == 0 ? (column.isMultiple(of: 3) ? .accent : .ink) : .bubble))
                 }
             }
-            return Frame(dots: crest + dots, bandY: y, bandOpacity: activity * (level == nil ? 0.96 : 1), centreOpacity: 0)
+            return Frame(dots: dots, bandY: y, bandOpacity: activity, centreOpacity: 0)
 
         case .completion, .fade:
             let still = scene == .fade

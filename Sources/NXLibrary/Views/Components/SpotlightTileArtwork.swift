@@ -18,6 +18,7 @@ struct SpotlightTileArtwork: View {
     let artwork: ArtworkStore
     /// Show the game's own icon art (as on the Mac) whenever it exists (Spotlight's row).
     var ownIconFirst = false
+    var cloudTile: DownloadCloudTileStyle? = nil
 
     @ObservedObject private var picks = ArtworkPicks.shared
     @State private var better: NSImage?
@@ -42,31 +43,20 @@ struct SpotlightTileArtwork: View {
     private var automaticImage: NSImage? { better ?? TileArtMemo.shared.object(forKey: automaticKey) }
 
     var body: some View {
-        ZStack {
-            SeleneTheme.glassSolid
-            if let picked = pickedImage {
-                Image(nsImage: picked)
-                    .resizable()
-                    .interpolation(.high)
-                    .aspectRatio(contentMode: .fill)
-            } else if ownIconFirst, let own = GameIconProvider.squareArt(for: game) {
-                Image(nsImage: own)
-                    .resizable()
-                    .interpolation(.high)
-                    .aspectRatio(contentMode: .fill)
-            } else if let better = automaticImage {
-                Image(nsImage: better)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .transition(.opacity)
+        let personal = pickedImage
+        let own = personal == nil && ownIconFirst ? GameIconProvider.squareArt(for: game) : nil
+        let automatic = personal == nil && own == nil ? automaticImage : nil
+        let fallback = personal == nil && own == nil && automatic == nil ? GameIconProvider.icon(for: game) : nil
+        let face = art(personal, own, automatic, fallback)
+        return Group {
+            if let cloudTile {
+                DownloadCloudArt(art: face, style: cloudTile, id: game.id,
+                                 revision: .init(images: [personal, own, automatic, fallback]))
             } else {
-                Image(nsImage: GameIconProvider.icon(for: game))
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
+                face
             }
         }
         .frame(width: side, height: side)
-        .clipped()
         .preference(key: TileArtPendingKey.self, value: settled ? 0 : 1)
         .task(id: "\(game.id)|\(picks.revision)") {
             defer { if !settled { settled = true } }
@@ -94,6 +84,34 @@ struct SpotlightTileArtwork: View {
             TileArtMemo.store(loaded, for: key)
             withAnimation(.easeInOut(duration: 0.2)) { better = loaded }
         }
+    }
+
+    private func art(_ picked: NSImage?, _ own: NSImage?, _ automatic: NSImage?, _ fallback: NSImage?) -> some View {
+        ZStack {
+            SeleneTheme.glassSolid
+            if let picked {
+                Image(nsImage: picked)
+                    .resizable()
+                    .interpolation(.high)
+                    .aspectRatio(contentMode: .fill)
+            } else if let own {
+                Image(nsImage: own)
+                    .resizable()
+                    .interpolation(.high)
+                    .aspectRatio(contentMode: .fill)
+            } else if let better = automatic {
+                Image(nsImage: better)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .transition(.opacity)
+            } else if let fallback {
+                Image(nsImage: fallback)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            }
+        }
+        .frame(width: side, height: side)
+        .clipped()
     }
 
     private func loadIcon() async -> NSImage? {
