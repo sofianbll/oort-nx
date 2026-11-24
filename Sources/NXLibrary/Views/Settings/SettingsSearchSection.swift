@@ -27,7 +27,7 @@ struct SettingsSearchSection: View {
         VStack(alignment: .leading, spacing: canvas.u(8)) {
             TextField(L10n.text("Search settings"), text: $query)
                 .textFieldStyle(.plain)
-                .seleneFont(.panelBody)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink)
                 .focused($fieldFocused)
                 .onSubmit {
@@ -47,7 +47,7 @@ struct SettingsSearchSection: View {
 
             if !query.isEmpty && results.isEmpty {
                 Text(L10n.text("No settings match."))
-                    .seleneFont(.panelBody)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
             }
             SettingsDescriptorList(rows: results, onOpenGroup: onOpenGroup)
@@ -105,7 +105,7 @@ struct SettingsChangedSection: View {
         VStack(alignment: .leading, spacing: canvas.u(8)) {
             if rows.isEmpty {
                 Text(L10n.text("Nothing changed yet."))
-                    .seleneFont(.panelBody)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
             }
             SettingsDescriptorList(rows: rows, onOpenGroup: onOpenGroup)

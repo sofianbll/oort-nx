@@ -33,9 +33,9 @@ struct MoreSettingsPanel: View {
             SeleneTheme.scrim65.ignoresSafeArea().contentShape(Rectangle()).onTapGesture { onClose() }
             VStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 0) {
-                    Text(L10n.text("MORE SETTINGS")).seleneFont(.compactCaption, .semibold).foregroundColor(SeleneTheme.ink60)
+                    Text(L10n.text("MORE SETTINGS")).seleneFont(.text, .semibold).foregroundColor(SeleneTheme.ink60)
                         .padding(.leading, canvas.u(SeleneTokens.Space.compact))
-                    Text(game.name).seleneFont(.screenTitle).foregroundColor(SeleneTheme.ink).lineLimit(1)
+                    Text(game.name).seleneFont(.screen).foregroundColor(SeleneTheme.ink).lineLimit(1)
                         .padding(.leading, canvas.u(SeleneTokens.Space.tight))
                         .padding(.bottom, canvas.u(SeleneTokens.Space.line))
                     list

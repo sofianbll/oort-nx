@@ -16,7 +16,7 @@ struct SeleneOptionRow<Trailing: View>: View {
     var leading: AnyView? = nil
     var titleAccessory: AnyView? = nil
     var truncateAboutInMiddle = false
-    var aboutFont: SeleneTokens.Text = .compactCaption
+    var aboutFont: SeleneTokens.Text = .text
     var platform: PlatformKind? = nil
     @ViewBuilder var trailing: () -> Trailing
 
@@ -33,7 +33,7 @@ struct SeleneOptionRow<Trailing: View>: View {
                         if let platform {
                             PlatformLabel(platform, title: title, preset: .row)
                         } else {
-                            Text(title).seleneFont(.rowTitle, .medium)
+                            Text(title).seleneFont(.row, .medium)
                         }
                     }
                     .foregroundColor(destructive ? SeleneTheme.danger : (enabled ? SeleneTheme.ink : SeleneTheme.ink60))

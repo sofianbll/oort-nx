@@ -145,8 +145,8 @@ struct ThemePickerView: View {
 
     func header(_ title: String, _ sub: String) -> some View {
         VStack(spacing: canvas.u(10)) {
-            Text(title).seleneFont(.profileScreenTitle).foregroundColor(SeleneTheme.ink)
-            Text(sub).seleneFont(.rowTitle).foregroundColor(SeleneTheme.ink.opacity(0.7))
+            Text(title).seleneFont(.screen).foregroundColor(SeleneTheme.ink)
+            Text(sub).seleneFont(.row).foregroundColor(SeleneTheme.ink.opacity(0.7))
         }
         .multilineTextAlignment(.center)
         .padding(.top, canvas.u(110))

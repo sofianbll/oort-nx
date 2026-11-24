@@ -76,16 +76,16 @@ struct ModsPanel: View {
             VStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(L10n.text("MODS"))
-                        .seleneFont(.compactCaption, .semibold)
+                        .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.ink60)
                         .padding(.leading, canvas.u(SeleneTokens.Space.compact))
                     Text(game.name)
-                        .seleneFont(.screenTitle)
+                        .seleneFont(.screen)
                         .foregroundColor(SeleneTheme.ink)
                         .lineLimit(1)
                         .padding(.leading, canvas.u(SeleneTokens.Space.tight))
                     Text(ModsCopy.header(on: mods.filter(\.isOn).count, total: mods.count))
-                        .seleneFont(.compactCaption)
+                        .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink60)
                         .padding(.leading, canvas.u(SeleneTokens.Space.compact))
                         .padding(.bottom, canvas.u(SeleneTokens.Space.line))
@@ -144,17 +144,17 @@ struct ModsPanel: View {
             VStack(alignment: .leading, spacing: canvas.u(8)) {
                 ForEach(notices, id: \.self) { notice in
                     Label { Text(notice).fixedSize(horizontal: false, vertical: true) } icon: { MaterialIconView(.info, size: 20) }
-                        .seleneFont(.caption)
+                        .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink75)
                 }
                 ForEach(conflicts, id: \.message) { conflict in
                     Label { Text(conflict.message).fixedSize(horizontal: false, vertical: true) } icon: { MaterialIconView(.swap, size: 20) }
-                        .seleneFont(.caption)
+                        .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink75)
                 }
                 if let message {
                     Text(message)
-                        .seleneFont(.caption, .medium)
+                        .seleneFont(.text, .medium)
                         .foregroundColor(SeleneTheme.danger)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -206,11 +206,11 @@ struct ModsPanel: View {
     private func sectionHeader(_ title: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: canvas.u(3)) {
             Text(L10n.text(title, context: locale))
-                .seleneFont(.body, .semibold)
+                .seleneFont(.text, .semibold)
                 .foregroundColor(ThemeStore.shared.palette.id == SelenePaletteCatalog.classicBlueID ? SeleneTheme.ink75 : SeleneTheme.glyph)
                 .accessibilityAddTraits(.isHeader)
             Text(L10n.text(subtitle, context: locale))
-                .seleneFont(.compactCaption)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink60)
                 .fixedSize(horizontal: false, vertical: true)
         }

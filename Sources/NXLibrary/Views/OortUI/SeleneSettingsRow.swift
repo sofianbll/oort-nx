@@ -21,7 +21,7 @@ struct SeleneInfoTip: View {
             isShowing.wrappedValue.toggle()
         } label: {
             Image(systemName: "info.circle")
-                .seleneFont(.compactCaption, .semibold)
+                .seleneFont(.text, .semibold)
                 .foregroundColor(isShowing.wrappedValue ? SeleneTheme.glyph : SeleneTheme.ink60.opacity(0.85))
                 .padding(SeleneTokens.Space.seam)
                 .contentShape(Rectangle())
@@ -30,7 +30,7 @@ struct SeleneInfoTip: View {
         .popover(isPresented: isShowing, arrowEdge: .trailing) {
             VStack(alignment: .leading, spacing: 6) {
             Text(L10n.text(text, context: localization))
-                    .seleneFont(.compactCaption)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink.opacity(0.96))
                     .lineSpacing(2.5)
                     .fixedSize(horizontal: false, vertical: true)
@@ -147,7 +147,7 @@ struct SeleneValueRow: View {
                 if let actionTitle, let action {
                     Button(L10n.text(actionTitle), action: action)
                         .buttonStyle(.plain)
-                        .seleneFont(.metadata, .semibold)
+                        .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
                 }
             }
@@ -189,7 +189,7 @@ struct SeleneButtonRow: View {
                   truncateSubtitleInMiddle: truncateSubtitleInMiddle, platform: platform) {
             Button(L10n.text(buttonTitle, context: localization), action: action)
                 .buttonStyle(.plain)
-                .seleneFont(.compactCaption, .semibold)
+                .seleneFont(.text, .semibold)
                 .foregroundColor(SeleneTheme.glyph)
         }
     }
@@ -212,7 +212,7 @@ struct SeleneSegmented<Value: Hashable>: View {
                     selection = option.0
                 } label: {
                     Text(option.1)
-                        .seleneFont(.metadata, .semibold)
+                        .seleneFont(.text, .semibold)
                         .foregroundColor(selection == option.0 ? SeleneTheme.scrim : SeleneTheme.ink.opacity(0.5))
                         .padding(.horizontal, SeleneTokens.Space.small)
                         .padding(.vertical, SeleneTokens.Space.tight)
@@ -246,7 +246,7 @@ struct OortCard<Content: View>: View {
             if let title {
                 HStack(spacing: 6) {
                     Text(L10n.text(title, context: localization))
-                        .seleneFont(.groupKicker, .bold)
+                        .seleneFont(.badge, .bold)
                         .tracking(1.4)
                         .textCase(.uppercase)
                         .foregroundColor(SeleneTheme.ink60)

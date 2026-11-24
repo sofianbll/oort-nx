@@ -56,7 +56,7 @@ struct SettingsAPISection: View {
     private var serviceRows: some View {
         Group {
             Text(L10n.text("Connect optional services to enrich your library with ratings and artwork. Public sources remain available without API keys."))
-                .seleneFont(.caption)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink60)
                 .fixedSize(horizontal: false, vertical: true)
                 .multilineTextAlignment(.leading)
@@ -75,7 +75,7 @@ struct SettingsAPISection: View {
                             .foregroundColor(SeleneTheme.ink60).disabled(igdb.isRemoving)
                     }
                 }
-                .buttonStyle(.plain).seleneFont(.compactCaption, .semibold)
+                .buttonStyle(.plain).seleneFont(.text, .semibold)
             }
 
             SettingsSubheading(L10n.text("Artwork"))
@@ -95,7 +95,7 @@ struct SettingsAPISection: View {
             if accountOnly {
                 if let profile {
                     Text(L10n.format("Arcane works without an account. These settings only apply to %@.", [profile.name]))
-                        .seleneFont(.caption).foregroundStyle(SeleneTheme.ink60)
+                        .seleneFont(.text).foregroundStyle(SeleneTheme.ink60)
                     SettingsSubheading("Presence")
                     SeleneToggleRow("Appear online", isOn: preference(\.appearsOnline))
                     SeleneToggleRow("Show current game", subtitle: "Applies the next time you start a game.",
@@ -189,7 +189,7 @@ struct SettingsAPISection: View {
                 SeleneStatusDot(text: vpnStatus, color: vpnColor)
                 Button(text(vpnActionTitle), action: openVPN)
                     .buttonStyle(.plain)
-                    .seleneFont(.compactCaption, .semibold)
+                    .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.glyph)
             }
         }
@@ -340,14 +340,14 @@ struct SettingsAPISection: View {
     private var nextendoClientRow: some View {
         SeleneRow("Nextendo client ID", id: advancedRowID, subtitle: "Public client ID") {
             Text(settings.settings.nextendoClientID ?? text(clientID == nil ? "Not set" : "Built-in value"))
-                .seleneFont(.compactCaption)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink60)
                 .lineLimit(1)
                 .truncationMode(.middle)
                 .frame(maxWidth: canvas.u(200))
             Button(text("Edit")) { nextendo.isEditingClient = true }
                 .buttonStyle(.plain)
-                .seleneFont(.compactCaption, .semibold)
+                .seleneFont(.text, .semibold)
                 .foregroundColor(SeleneTheme.glyph)
                 .disabled(nextendo.isBusy)
         }
@@ -371,20 +371,20 @@ struct SettingsAPISection: View {
             VStack(alignment: .trailing, spacing: canvas.u(4)) {
                 if let failure = nextendo.failure {
                     Text(failure.localizedDescription)
-                        .seleneFont(.compactCaption)
+                        .seleneFont(.text)
                         .foregroundColor(SeleneTheme.danger)
                         .multilineTextAlignment(.trailing)
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: canvas.u(340), alignment: .trailing)
                     if let diagnostic = failure.checkDiagnostic {
                         Text(diagnostic.message(context: localization))
-                            .seleneFont(.compactCaption)
+                            .seleneFont(.text)
                             .foregroundStyle(SeleneTheme.ink60)
                     } else if failure == .discordUnlinked || failure == .emailUnverified {
                         Text(text(failure == .discordUnlinked
                                   ? "Nextendo account not yet verified: link Discord on nextendo.network. Verification may take a few minutes."
                                   : "Nextendo account not yet verified: confirm your email address."))
-                            .seleneFont(.compactCaption)
+                            .seleneFont(.text)
                             .foregroundStyle(SeleneTheme.ink60)
                             .multilineTextAlignment(.trailing)
                             .frame(maxWidth: canvas.u(340), alignment: .trailing)
@@ -508,7 +508,7 @@ struct SettingsAPISection: View {
                 .focused($friendCodeFocused)
                 .onSubmit(sendFriendCode)
                 .accessibilityLabel(text("Friend code"))
-                .seleneFont(.compactCaption)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink)
                 .padding(canvas.u(SeleneTokens.Space.compact))
                 .frame(maxWidth: canvas.u(195))
@@ -540,7 +540,7 @@ struct SettingsAPISection: View {
     private func playerLine(_ name: String, row: String, detail: String? = nil, buttons: [NextendoButton] = [],
                             @ViewBuilder game: () -> some View = { EmptyView() }) -> some View {
         HStack(spacing: canvas.u(8)) {
-            Text(name).seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink90).lineLimit(1)
+            Text(name).seleneFont(.text).foregroundColor(SeleneTheme.ink90).lineLimit(1)
             Spacer(minLength: canvas.u(8))
             if let detail { NextendoValue(text: detail) }
             game()
@@ -556,7 +556,7 @@ struct SettingsAPISection: View {
 
     private func friendNotice(_ key: String, isError: Bool) -> some View {
         Text(text(key))
-            .seleneFont(.compactCaption)
+            .seleneFont(.text)
             .foregroundColor(isError ? SeleneTheme.danger : SeleneTheme.ink90)
             .fixedSize(horizontal: false, vertical: true)
             .padding(.horizontal, canvas.u(SeleneTokens.Space.compact))
@@ -606,7 +606,7 @@ struct SettingsAPISection: View {
                     Image(systemName: symbol).accessibilityHidden(true)
                 }
             }
-            .seleneFont(.compactCaption, .semibold)
+            .seleneFont(.text, .semibold)
             .foregroundColor(SeleneTheme.glyph)
             .padding(.horizontal, canvas.u(SeleneTokens.Space.compact))
             .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
@@ -758,7 +758,7 @@ private struct NextendoValue: View {
     let text: String
 
     var body: some View {
-        Text(text).seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink60).lineLimit(1)
+        Text(text).seleneFont(.text).foregroundColor(SeleneTheme.ink60).lineLimit(1)
     }
 }
 
@@ -774,7 +774,7 @@ private struct NextendoFriendLine<Trailing: View>: View {
     var body: some View {
         HStack(spacing: canvas.u(8)) {
             NextendoAvatar(service: service, pid: friend.id, initial: String(friend.name.prefix(1)), revision: revision)
-            Text(friend.name).seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink90).lineLimit(1)
+            Text(friend.name).seleneFont(.text).foregroundColor(SeleneTheme.ink90).lineLimit(1)
             if friend.favorite {
                 MaterialIconView(.favorite, size: 16).foregroundColor(SeleneTheme.glyph)
                     .accessibilityLabel(L10n.text("Favorite", context: locale))
@@ -858,9 +858,9 @@ private struct NextendoAvatar: View {
                 ?? (loaded?.key == key ? loaded?.image : nil) {
                 Image(nsImage: avatar).resizable().scaledToFill()
             } else if let initial {
-                Text(initial).seleneFont(.attribution, .semibold).foregroundColor(SeleneTheme.ink90)
+                Text(initial).seleneFont(.badge, .semibold).foregroundColor(SeleneTheme.ink90)
             } else {
-                Image(systemName: "person.fill").seleneFont(.caption, .semibold).foregroundColor(SeleneTheme.rowIcon)
+                Image(systemName: "person.fill").seleneFont(.text, .semibold).foregroundColor(SeleneTheme.rowIcon)
             }
         }
         .frame(width: side, height: side)

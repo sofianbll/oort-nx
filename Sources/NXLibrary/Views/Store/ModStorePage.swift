@@ -67,11 +67,11 @@ struct ModStorePage: View {
             if let line = statusLine {
                 HStack(spacing: canvas.u(12)) {
                     if catalog.refreshing { ProgressView().controlSize(.small).tint(SeleneTheme.ink60) }
-                    Text(line).seleneFont(.menuCaption, .medium).foregroundColor(SeleneTheme.ink75)
+                    Text(line).seleneFont(.text, .medium).foregroundColor(SeleneTheme.ink75)
                 }
             }
             Text(L10n.text("Mod data provided by GameBanana · only mods that work with Arcane are shown"))
-                .seleneFont(.metadata)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink60)
         }
         .frame(width: canvas.u(1700), alignment: .leading)
@@ -111,7 +111,7 @@ struct ModStoreSortBar: View {
                 let focused = focusedIndex == index
                 HStack(alignment: .firstTextBaseline, spacing: canvas.u(10)) {
                     MaterialIconView(choice.icon, size: 22).iconOnCaps(of: 18, .semibold)
-                    Text(choice.title).seleneFont(.menuCaption, .semibold)
+                    Text(choice.title).seleneFont(.text, .semibold)
                 }
                 .foregroundColor(chosen ? SeleneTheme.onFocus : SeleneTheme.ink)
                 .padding(.horizontal, canvas.u(SeleneTokens.Space.titleGap))
@@ -183,28 +183,28 @@ struct ModStoreFeatured<Chip: View>: View {
             HStack(alignment: .center, spacing: canvas.u(48)) {
                 VStack(alignment: .leading, spacing: canvas.u(12)) {
                     Text(L10n.format("FEATURED · %@", [String(describing: entry.gameName.uppercased())]))
-                        .seleneFont(.compactCaption, .semibold)
+                        .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.ink75)
                         .lineLimit(1)
                     Text(entry.mod.name)
-                        .seleneFont(46, .semibold)
+                        .seleneFont(.screen, .semibold)
                         .foregroundColor(SeleneTheme.ink)
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
                     Text(L10n.format("by %@", [String(describing: entry.mod.author)]))
-                        .seleneFont(.panelBody, .medium)
+                        .seleneFont(.text, .medium)
                         .foregroundColor(SeleneTheme.ink82)
                     HStack(spacing: canvas.u(22)) {
                         stat(.thumbUp, "\(entry.mod.likes)")
                         stat(.download, "\(entry.mod.downloads)")
-                        Text(entry.category.title).seleneFont(.caption, .medium).foregroundColor(SeleneTheme.ink75)
+                        Text(entry.category.title).seleneFont(.text, .medium).foregroundColor(SeleneTheme.ink75)
                     }
                     .padding(.top, canvas.u(SeleneTokens.Space.hairline))
                     HStack(spacing: canvas.u(14)) {
                         chip(entry)
                         HStack(spacing: canvas.u(8)) {
                             SelenePromptBadge(button: .a)
-                            Text(L10n.text("View")).seleneFont(.menuCaption).foregroundColor(SeleneTheme.ink90)
+                            Text(L10n.text("View")).seleneFont(.text).foregroundColor(SeleneTheme.ink90)
                         }
                     }
                     .padding(.top, canvas.u(10))
@@ -241,7 +241,7 @@ struct ModStoreFeatured<Chip: View>: View {
     private func stat(_ icon: MaterialIcon, _ value: String) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: canvas.u(6)) {
             MaterialIconView(icon, size: 18).iconOnCaps(of: 16, .semibold)
-            Text(value).seleneFont(.caption, .semibold)
+            Text(value).seleneFont(.text, .semibold)
         }
         .foregroundColor(SeleneTheme.ink82)
     }
@@ -278,7 +278,7 @@ struct ModStoreRow: View {
                 }
                 DetailsBandTitle(text: section.title, size: Self.titleSize)
                 Text(section.entries.count == 1 ? L10n.text("1 mod") : L10n.format("%@ mods", [String(describing: section.entries.count)]))
-                    .seleneFont(.caption, .medium)
+                    .seleneFont(.text, .medium)
                     .foregroundColor(SeleneTheme.ink60)
             }
             HStack(alignment: .top, spacing: canvas.u(ModStoreLayout.gap)) {
@@ -327,11 +327,11 @@ struct ModStoreTile: View {
             VStack(alignment: .leading, spacing: canvas.u(2)) {
                 chip.padding(.bottom, canvas.u(SeleneTokens.Space.hairline))
                 Text(entry.mod.name)
-                    .seleneFont(.panelBody, .semibold)
+                    .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink)
                     .lineLimit(1)
                 Text(showsGame ? entry.gameName : L10n.format("by %@", [String(describing: entry.mod.author)]))
-                    .seleneFont(.metadata, .medium)
+                    .seleneFont(.text, .medium)
                     .foregroundColor(SeleneTheme.ink75)
                     .lineLimit(1)
             }
@@ -367,7 +367,7 @@ struct ModStoreChip: View {
     var body: some View {
         if let text = host.chip(for: entry) {
             Text(text)
-                .seleneFont(.attribution, .semibold)
+                .seleneFont(.badge, .semibold)
                 .foregroundColor(SeleneTheme.ink)
                 .padding(.horizontal, canvas.u(10))
                 .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))

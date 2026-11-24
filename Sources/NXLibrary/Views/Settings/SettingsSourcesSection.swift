@@ -51,17 +51,17 @@ struct SettingsSourcesSection: View {
                             info: "When Play opens Steam, it starts quietly. The waiting screen stays visible while the game starts. Steam comes forward if it needs input or the game takes too long.",
                             isOn: $settings.settings.steamInBackground)
             if let error = sources.errorMessage {
-                Text(error).seleneFont(.metadata).foregroundColor(SeleneTheme.danger)
+                Text(error).seleneFont(.text).foregroundColor(SeleneTheme.danger)
                     .fixedSize(horizontal: false, vertical: true).frame(maxWidth: .infinity, alignment: .leading).padding(24)
             }
             if sources.reviewCount > 0 {
                 Text(L10n.count("%lld Steam games need review", sources.reviewCount, context: localization))
-                    .seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink60).padding(.vertical, 10)
+                    .seleneFont(.text).foregroundColor(SeleneTheme.ink60).padding(.vertical, 10)
             }
             if !review.isEmpty {
                 SettingsSubheading("Review installations")
                 Text(L10n.text("Check these installations in Steam, then refresh this source. Only recognized native Mac games appear in the library.", context: localization))
-                    .seleneFont(.metadata).foregroundColor(SeleneTheme.ink60).fixedSize(horizontal: false, vertical: true)
+                    .seleneFont(.text).foregroundColor(SeleneTheme.ink60).fixedSize(horizontal: false, vertical: true)
                 ForEach(review) { game in
                     SeleneRow(game.name, id: "review-\(game.id)", subtitle: "Needs review", verbatimTitle: true) {
                         Button(L10n.text("Reveal", context: localization)) { reveal(game) }.buttonStyle(.plain).foregroundColor(SeleneTheme.glyph)

@@ -90,15 +90,15 @@ struct AchievementUnlockToast: View {
     var body: some View {
         HStack(spacing: canvas.u(SeleneTokens.Space.control)) {
             Image(systemName: "trophy.fill")
-                .font(.system(size: canvas.u(SeleneTokens.Text.panelTitle.rawValue), weight: .semibold))
+                .font(.system(size: canvas.u(SeleneTokens.Text.heading.rawValue), weight: .semibold))
                 .foregroundColor(SeleneTheme.ink)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.hairline)) {
                 Text(L10n.count("%lld achievements unlocked", names.count))
-                    .seleneFont(.compactCaption, .semibold)
+                    .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink60)
                 Text(names.formatted(.list(type: .and).locale(L10n.context.formatLocale)))
-                    .seleneFont(.selectionTitle, .semibold)
+                    .seleneFont(.row, .semibold)
                     .foregroundColor(SeleneTheme.ink)
                     .lineLimit(3)
             }
@@ -145,10 +145,10 @@ struct SessionCardView: View {
             HStack(spacing: canvas.u(16)) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(L10n.text("Session ended"))
-                        .seleneFont(.compactCaption)
+                        .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink.opacity(0.62))
                     Text(summary.gameName)
-                        .seleneFont(.selectionTitle, .semibold)
+                        .seleneFont(.row, .semibold)
                         .foregroundColor(SeleneTheme.ink)
                         .lineLimit(1)
                         .truncationMode(.tail)
@@ -157,7 +157,7 @@ struct SessionCardView: View {
                     HStack(alignment: .lastTextBaseline, spacing: canvas.u(12)) {
                         figure(summary.thisSession, L10n.text("this session"))
                         Text("·")
-                            .seleneFont(.menuCaption)
+                            .seleneFont(.text)
                             .foregroundColor(SeleneTheme.ink.opacity(0.45))
                         figure(summary.total, L10n.text("total"))
                     }
@@ -193,10 +193,10 @@ struct SessionCardView: View {
     private func figure(_ value: String, _ label: String) -> some View {
         HStack(alignment: .lastTextBaseline, spacing: canvas.u(7)) {
             Text(value)
-                .seleneFont(20, .semibold)
+                .seleneFont(.row, .semibold)
                 .foregroundColor(SeleneTheme.ink)
             Text(L10n.text(label))
-                .seleneFont(.compactCaption)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink.opacity(0.6))
         }
         .lineLimit(1)

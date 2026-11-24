@@ -138,18 +138,18 @@ struct ConsoleView: View {
     private func column(_ logs: [LogEntry]) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(L10n.text("CONSOLE"))
-                .seleneFont(.compactCaption, .semibold)
+                .seleneFont(.text, .semibold)
                 .tracking(1.2)
                 .foregroundColor(SeleneTheme.ink60)
                 .padding(.leading, canvas.u(SeleneTokens.Space.compact))
             HStack(alignment: .firstTextBaseline) {
                 Text(L10n.text("Build and launch output"))
-                    .seleneFont(.screenTitle)
+                    .seleneFont(.screen)
                     .foregroundColor(SeleneTheme.ink)
                     .lineLimit(1)
                 Spacer(minLength: canvas.u(20))
                 Text(countLine(logs))
-                    .seleneFont(.compactCaption)
+                    .seleneFont(.text)
                     .monospacedDigit()
                     .foregroundColor(SeleneTheme.ink60)
             }
@@ -179,7 +179,7 @@ struct ConsoleView: View {
             ForEach(ConsoleFilter.allCases) { item in
                 pill(.filter(item)) {
                     Text(L10n.text(item.title))
-                        .seleneFont(.compactCaption, filter == item ? .semibold : .regular)
+                        .seleneFont(.text, filter == item ? .semibold : .regular)
                         .foregroundColor(filter == item ? SeleneTheme.ink : SeleneTheme.ink60)
                 }
                 .background(Capsule().fill(filter == item ? SeleneTheme.glassLight : Color.clear))
@@ -192,13 +192,13 @@ struct ConsoleView: View {
                     if searching {
                         TextField(L10n.text("Search"), text: $searchText)
                             .textFieldStyle(.plain)
-                            .seleneFont(.compactCaption)
+                            .seleneFont(.text)
                             .foregroundColor(SeleneTheme.ink)
                             .focused($searchFocused)
                             .onSubmit(endSearch)
                     } else {
                         Text(searchText.isEmpty ? L10n.text("Search") : searchText)
-                            .seleneFont(.compactCaption)
+                            .seleneFont(.text)
                             .foregroundColor(searchText.isEmpty ? SeleneTheme.ink60 : SeleneTheme.ink)
                             .lineLimit(1)
                         Spacer(minLength: 0)
@@ -213,28 +213,28 @@ struct ConsoleView: View {
                         .fill(follow ? PortingLogBox.softGreen : SeleneTheme.ink25)
                         .frame(width: canvas.u(7), height: canvas.u(7))
                     Text(L10n.text("Follow"))
-                        .seleneFont(.compactCaption)
+                        .seleneFont(.text)
                         .foregroundColor(follow ? SeleneTheme.ink : SeleneTheme.ink60)
                 }
             }
             pill(.copy) {
                 Text(didCopy ? L10n.text("Copied") : L10n.text("Copy log"))
-                    .seleneFont(.compactCaption)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink)
             }
             pill(.diagnostics) {
                 Text(didCopyDiagnostics ? L10n.text("Copied") : L10n.text("Copy diagnostics"))
-                    .seleneFont(.compactCaption)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink)
             }
             pill(.reveal) {
                 Text(L10n.text("Show in Finder"))
-                    .seleneFont(.compactCaption)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink)
             }
             pill(.clear) {
                 Text(L10n.text("Clear"))
-                    .seleneFont(.compactCaption)
+                    .seleneFont(.text)
                     .foregroundColor(PortingPillCopy.softRed)
             }
         }
@@ -303,11 +303,11 @@ struct ConsoleView: View {
     private func logRow(_ entry: LogEntry) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: canvas.u(16)) {
             Text(entry.formattedTimestamp)
-                .seleneFont(12, .regular, design: .monospaced)
+                .seleneFont(.badge, .regular, design: .monospaced)
                 .foregroundColor(SeleneTheme.ink25)
                 .frame(width: canvas.u(64), alignment: .leading)
             Text(entry.message)
-                .seleneFont(.attribution, entry.level == .step ? .medium : .regular, design: .monospaced)
+                .seleneFont(.badge, entry.level == .step ? .medium : .regular, design: .monospaced)
                 .foregroundColor(color(for: entry.level))
                 .textSelection(.enabled)
                 .fixedSize(horizontal: false, vertical: true)
@@ -324,12 +324,12 @@ struct ConsoleView: View {
             MaterialIconView(.terminal, size: 30)
                 .foregroundColor(SeleneTheme.ink25)
             Text(viewModel.logs.isEmpty ? L10n.text("Nothing yet") : L10n.text("No lines match"))
-                .seleneFont(.panelBody, .medium)
+                .seleneFont(.text, .medium)
                 .foregroundColor(SeleneTheme.ink82)
             Text(viewModel.logs.isEmpty
                  ? L10n.text("Portings and launches write here.")
                  : L10n.text("Try another filter or search."))
-                .seleneFont(.metadata)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink60)
         }
         .frame(maxWidth: .infinity, minHeight: canvas.u(360))

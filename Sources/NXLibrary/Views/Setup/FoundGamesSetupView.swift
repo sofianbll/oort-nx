@@ -66,9 +66,9 @@ struct FoundGamesSetupContent: View {
         ZStack {
             SeleneBackdrop()
             VStack(spacing: 0) {
-                Text(title).seleneFont(46, .semibold).foregroundColor(SeleneTheme.ink)
+                Text(title).seleneFont(.screen, .semibold).foregroundColor(SeleneTheme.ink)
                     .multilineTextAlignment(.center)
-                Text(subtitle).seleneFont(.panelBody).foregroundColor(SeleneTheme.ink75)
+                Text(subtitle).seleneFont(.text).foregroundColor(SeleneTheme.ink75)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.top, canvas.u(10))

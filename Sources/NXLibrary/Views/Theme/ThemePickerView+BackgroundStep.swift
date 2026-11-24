@@ -28,7 +28,7 @@ extension ThemePickerView {
                     tabs
                         .padding(.bottom, canvas.u(SeleneTokens.Space.control))
                     Text(ThemeBackgrounds.group(focused, tab: state.tab))
-                        .seleneFont(.attribution, .semibold)
+                        .seleneFont(.badge, .semibold)
                         .foregroundColor(SeleneTheme.ink.opacity(0.55))
                         .padding(.leading, canvas.u(10))
                         .padding(.bottom, canvas.u(10))
@@ -61,7 +61,7 @@ extension ThemePickerView {
                                  videoURL: previewVideo, shade: settings.settings.backgroundShade,
                                  animated: settings.settings.animatedBackground)
                     Text(creditLine(focused) ?? " ")
-                        .seleneFont(.body)
+                        .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink75)
                         .lineLimit(1)
                         .padding(.top, canvas.u(SeleneTokens.Space.medium))
@@ -95,7 +95,7 @@ extension ThemePickerView {
             SelenePromptBadge(button: .lb, height: 26).accessibilityHidden(true)
             ForEach(BackgroundTab.allCases, id: \.self) { tab in
                 Text(tab == .wallpapers ? L10n.text("Wallpapers") : L10n.text("Live"))
-                    .seleneFont(.body, .semibold)
+                    .seleneFont(.text, .semibold)
                     .foregroundColor(tab == state.tab ? SeleneTheme.ink : SeleneTheme.ink60)
                     .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
                     .padding(.vertical, canvas.u(9))
@@ -174,7 +174,7 @@ extension ThemePickerView {
                 SeleneTheme.glassSolid
                 VStack(spacing: canvas.u(6)) {
                     MaterialIconView(.add, size: 34).foregroundColor(SeleneTheme.ink)
-                    Text(state.tab == .live ? L10n.text("Add your video…") : L10n.text("Add your own…")).seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink90)
+                    Text(state.tab == .live ? L10n.text("Add your video…") : L10n.text("Add your own…")).seleneFont(.text).foregroundColor(SeleneTheme.ink90)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             case .wallpaper(let id):
@@ -219,15 +219,15 @@ extension ThemePickerView {
             SeleneTheme.glassSolid
             VStack(spacing: canvas.u(6)) {
                 MaterialIconView(.language, size: 30).foregroundColor(SeleneTheme.ink)
-                Text(source.title).seleneFont(.menuCaption, .semibold).foregroundColor(SeleneTheme.ink)
-                Text(L10n.text("Browse online")).seleneFont(.attribution).foregroundColor(SeleneTheme.ink60)
+                Text(source.title).seleneFont(.text, .semibold).foregroundColor(SeleneTheme.ink)
+                Text(L10n.text("Browse online")).seleneFont(.badge).foregroundColor(SeleneTheme.ink60)
             }
         }
     }
 
     private func tileLabel(_ text: String) -> some View {
         Text(text)
-            .seleneFont(.compactCaption)
+            .seleneFont(.text)
             .foregroundColor(.white)
             .padding(.horizontal, canvas.u(10))
             .padding(.top, canvas.u(5))

@@ -42,7 +42,7 @@ struct DetailsAchievementsCard: View {
             VStack(alignment: .leading, spacing: canvas.u(16)) {
                 if appID == 0 {
                     Text(L10n.text("Arcane · local"))
-                        .seleneFont(.metadata)
+                        .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink60)
                 }
                 HStack(alignment: .center, spacing: canvas.u(16)) {
@@ -61,7 +61,7 @@ struct DetailsAchievementsCard: View {
                                 .opacity(active ? 1 : 0)
                                 .offset(y: active || !moves ? 0 : canvas.u(5))
                         }
-                        .seleneFont(.metadata, .semibold)
+                        .seleneFont(.text, .semibold)
                     }
                     .lineLimit(1)
                     Spacer(minLength: 0)
@@ -112,7 +112,7 @@ extension DetailsAchievementsCard {
                 Text("\(unlocked)\(total)")
             }
         }
-        .seleneFont(.selectionTitle, .bold)
+        .seleneFont(.row, .bold)
         .monospacedDigit()
     }
 

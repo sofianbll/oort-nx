@@ -61,12 +61,12 @@ struct PlatformLabel: View {
 
         var font: (SeleneTokens.Text, Font.Weight) {
             switch self {
-            case .heading: (.rowTitle, .semibold)
-            case .row: (.rowTitle, .medium)
-            case .summary: (.panelBody, .semibold)
-            case .caption: (.metadata, .semibold)
-            case .setup: (.selectionTitle, .semibold)
-            case .listing: (.panelBody, .regular)
+            case .heading: (.row, .semibold)
+            case .row: (.row, .medium)
+            case .summary: (.text, .semibold)
+            case .caption: (.text, .semibold)
+            case .setup: (.row, .semibold)
+            case .listing: (.text, .regular)
             }
         }
     }

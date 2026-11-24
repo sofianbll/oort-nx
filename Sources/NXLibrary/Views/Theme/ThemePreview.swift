@@ -30,7 +30,7 @@ struct ThemePreview: View {
         let shape = RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card), style: .continuous)
         return VStack(alignment: .leading, spacing: canvas.u(10)) {
             Text(L10n.text("PREVIEW"))
-                .seleneFont(.attribution, .semibold)
+                .seleneFont(.badge, .semibold)
                 .foregroundColor(SeleneTheme.ink.opacity(0.55))
                 .padding(.leading, canvas.u(SeleneTokens.Space.seam))
             ZStack(alignment: .topLeading) {

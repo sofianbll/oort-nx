@@ -27,7 +27,7 @@ struct CloudReferenceDialog: View {
                     .focused($fieldFocused)
                     .onSubmit(save)
                     .onExitCommand(perform: onClose)
-                    .seleneFont(.body)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink)
                     .padding(canvas.u(SeleneTokens.Space.medium))
                     .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content)).fill(SeleneTheme.glassLight))
@@ -35,7 +35,7 @@ struct CloudReferenceDialog: View {
                 if !draft.isEmpty, folder == nil {
                     Text(text("Enter a Google Drive folder link or a valid folder ID."))
                         .foregroundColor(SeleneTheme.danger)
-                        .seleneFont(.compactCaption)
+                        .seleneFont(.text)
                 }
             }
         }

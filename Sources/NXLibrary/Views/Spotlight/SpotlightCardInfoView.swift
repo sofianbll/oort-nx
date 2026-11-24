@@ -35,10 +35,10 @@ struct SpotlightCardInfoView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(headline)
-                .seleneFont(.title, .semibold)
+                .seleneFont(.heading, .semibold)
                 .foregroundColor(SeleneTheme.ink)
             Text(about)
-                .seleneFont(.panelBody)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink82)
                 .padding(.top, canvas.u(SeleneTokens.Space.compact))
             detail
@@ -137,7 +137,7 @@ struct SpotlightCardInfoView: View {
                     activityHeading("Recently built")
                     if recentBuilds.isEmpty {
                         Text(L10n.text("No completed builds yet."))
-                            .seleneFont(.caption)
+                            .seleneFont(.text)
                             .foregroundStyle(SeleneTheme.ink75)
                     } else {
                         HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.line)) {
@@ -154,7 +154,7 @@ struct SpotlightCardInfoView: View {
     private func activityHeading(_ title: String) -> some View {
         Text(L10n.text(title))
             .textCase(.uppercase)
-            .seleneFont(.metadata, .semibold)
+            .seleneFont(.text, .semibold)
             .foregroundStyle(SeleneTheme.ink60)
             .accessibilityAddTraits(.isHeader)
     }
@@ -163,7 +163,7 @@ struct SpotlightCardInfoView: View {
         VStack(spacing: canvas.u(SeleneTokens.Space.tight)) {
             activityTile(game, focused: false)
             Text(date.formatted(.dateTime.day().month(.abbreviated).locale(locale.formatLocale)))
-                .seleneFont(.metadata)
+                .seleneFont(.text)
                 .foregroundStyle(SeleneTheme.ink75)
                 .lineLimit(1)
         }
@@ -184,7 +184,7 @@ struct SpotlightCardInfoView: View {
                     RoundedRectangle(cornerRadius: canvas.u(4), style: .continuous)
                         .fill(value > 0 ? SeleneTheme.focus : SeleneTheme.ink15)
                         .frame(width: canvas.u(22), height: canvas.u(value > 0 ? max(6, 56 * value / peak) : 4))
-                    Text(days[day]).seleneFont(12, .semibold).foregroundColor(SeleneTheme.ink60)
+                    Text(days[day]).seleneFont(.badge, .semibold).foregroundColor(SeleneTheme.ink60)
                 }
             }
         }
@@ -207,8 +207,8 @@ struct SpotlightCardInfoView: View {
 
     private func stat(_ label: String, _ value: String) -> some View {
         VStack(alignment: .leading, spacing: canvas.u(4)) {
-            Text(L10n.text(label)).seleneFont(12, .semibold).foregroundColor(SeleneTheme.ink60)
-            Text(value).seleneFont(.rowTitle, .semibold).foregroundColor(SeleneTheme.ink)
+            Text(L10n.text(label)).seleneFont(.badge, .semibold).foregroundColor(SeleneTheme.ink60)
+            Text(value).seleneFont(.row, .semibold).foregroundColor(SeleneTheme.ink)
         }
     }
 
@@ -219,7 +219,7 @@ struct SpotlightCardInfoView: View {
     private func actionChip(_ label: String) -> some View {
         HStack(spacing: canvas.u(10)) {
             SelenePromptBadge(button: .a)
-            Text(L10n.text(label)).seleneFont(.panelBody).foregroundColor(SeleneTheme.ink90)
+            Text(L10n.text(label)).seleneFont(.text).foregroundColor(SeleneTheme.ink90)
         }
     }
 
@@ -248,15 +248,15 @@ struct SpotlightCardMenu: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: canvas.u(14)) {
-            Text(L10n.text(card.title)).seleneFont(.title, .semibold).foregroundColor(SeleneTheme.ink)
+            Text(L10n.text(card.title)).seleneFont(.heading, .semibold).foregroundColor(SeleneTheme.ink)
             VStack(spacing: canvas.u(8)) {
                 ForEach(Array(Self.rows.enumerated()), id: \.offset) { index, row in
                     let focused = index == focusedIndex
                     HStack(spacing: canvas.u(16)) {
                         MaterialIconView(row.icon, size: 28)
                         VStack(alignment: .leading, spacing: canvas.u(2)) {
-                            Text(row.title).seleneFont(.rowTitle, .semibold)
-                            Text(row.subtitle).seleneFont(.compactCaption)
+                            Text(row.title).seleneFont(.row, .semibold)
+                            Text(row.subtitle).seleneFont(.text)
                                 .foregroundColor(focused ? SeleneTheme.onFocus.opacity(0.8) : SeleneTheme.ink60)
                         }
                         Spacer(minLength: 0)

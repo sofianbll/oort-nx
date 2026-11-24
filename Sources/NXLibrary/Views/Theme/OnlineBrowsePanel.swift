@@ -131,7 +131,7 @@ struct OnlineBrowsePanel: View {
                     .padding(.bottom, canvas.u(10))
             }
             Text(status)
-                .seleneFont(.attribution, .semibold)
+                .seleneFont(.badge, .semibold)
                 .foregroundColor(SeleneTheme.ink.opacity(0.55))
                 .padding(.leading, canvas.u(10))
                 .padding(.bottom, canvas.u(10))
@@ -154,7 +154,7 @@ struct OnlineBrowsePanel: View {
                     ForEach(Array(state.categories.enumerated()), id: \.offset) { index, category in
                         let selected = index == state.categoryIndex
                         Text(category.displayTitle)
-                            .seleneFont(.caption, .semibold)
+                            .seleneFont(.text, .semibold)
                             .foregroundColor(selected ? SeleneTheme.ink : SeleneTheme.ink60)
                             .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
                             .padding(.vertical, canvas.u(SeleneTokens.Space.compact))
@@ -184,7 +184,7 @@ struct OnlineBrowsePanel: View {
             MaterialIconView(.search, size: 22).foregroundColor(SeleneTheme.ink60)
             TextField("", text: $searchText, prompt: Text(L10n.format("Search %@", [String(describing: state.source.title)])).foregroundColor(SeleneTheme.ink60))
                 .textFieldStyle(.plain)
-                .seleneFont(.menuCaption)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink)
                 .focused(searchFocused)
                 .onSubmit(onSubmit)
@@ -251,7 +251,7 @@ private struct OnlineTile: View {
             WallpaperThumb(url: item.thumbnailURL)
             HStack(spacing: canvas.u(4)) {
                 if item.kind == .video { MaterialIconView(.play, size: 13) }
-                Text(ResolutionBadge.label(width: item.width, height: item.height)).seleneFont(12, .semibold)
+                Text(ResolutionBadge.label(width: item.width, height: item.height)).seleneFont(.badge, .semibold)
             }
             .foregroundColor(.white)
             .padding(.horizontal, canvas.u(7))

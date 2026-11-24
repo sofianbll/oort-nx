@@ -475,7 +475,7 @@ private struct MenuHoldIndicator: View {
                             }
                         }
                         .frame(width: canvas.u(22), height: canvas.u(22))
-                    Text(L10n.text("Hold: Settings")).seleneFont(.panelBody)
+                    Text(L10n.text("Hold: Settings")).seleneFont(.text)
                 }
                 .foregroundStyle(SeleneTheme.ink)
                 .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))

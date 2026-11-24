@@ -35,8 +35,8 @@ struct YourGamesSetupView: View {
             SeleneBackdrop()
             VStack(spacing: 0) {
                 SetupStepIndicator(page: .games).padding(.bottom, canvas.u(SeleneTokens.Space.control))
-                Text(title).seleneFont(46, .semibold).foregroundColor(SeleneTheme.ink)
-                Text(subtitle).seleneFont(.panelBody).foregroundColor(SeleneTheme.ink75)
+                Text(title).seleneFont(.screen, .semibold).foregroundColor(SeleneTheme.ink)
+                Text(subtitle).seleneFont(.text).foregroundColor(SeleneTheme.ink75)
                     .padding(.top, canvas.u(10))
 
                 row(.apps, title: GameFoldersCopy.appsTitle,
@@ -48,7 +48,7 @@ struct YourGamesSetupView: View {
                 .padding(.top, canvas.u(SeleneTokens.Space.section))
 
                 if !viewModel.isScanningLibrary, let warning = viewModel.libraryScanWarnings.first {
-                    Text(warning).seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink75)
+                    Text(warning).seleneFont(.text).foregroundColor(SeleneTheme.ink75)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.top, canvas.u(SeleneTokens.Space.small))
@@ -67,7 +67,7 @@ struct YourGamesSetupView: View {
                 .padding(.top, canvas.u(SeleneTokens.Space.control))
 
                 if let folderProblem {
-                    Text(folderProblem).seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink75)
+                    Text(folderProblem).seleneFont(.text).foregroundColor(SeleneTheme.ink75)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.top, canvas.u(SeleneTokens.Space.small))
@@ -174,11 +174,11 @@ struct SetupStepIndicator: View {
 
     private func step(_ number: Int, _ title: String, active: Bool) -> some View {
         HStack(spacing: canvas.u(8)) {
-            Text(String(number)).seleneFont(.attribution, .semibold)
+            Text(String(number)).seleneFont(.badge, .semibold)
                 .foregroundColor(active ? SeleneTheme.onFocus : SeleneTheme.ink60)
                 .frame(width: canvas.u(24), height: canvas.u(24))
                 .background(Circle().fill(active ? SeleneTheme.focus : SeleneTheme.glass))
-            Text(title).seleneFont(.metadata, .semibold).foregroundColor(active ? SeleneTheme.ink : SeleneTheme.ink60)
+            Text(title).seleneFont(.text, .semibold).foregroundColor(active ? SeleneTheme.ink : SeleneTheme.ink60)
         }
     }
 }
@@ -209,18 +209,18 @@ struct SetupCardRow: View {
                     if let platform {
                         PlatformLabel(platform, title: title, preset: .setup)
                     } else {
-                        Text(title).seleneFont(.selectionTitle, .semibold)
+                        Text(title).seleneFont(.row, .semibold)
                     }
-                    Text(detail).seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink75)
+                    Text(detail).seleneFont(.text).foregroundColor(SeleneTheme.ink75)
                         .lineLimit(2).truncationMode(.middle)
                     if let note {
-                        Text(note).seleneFont(.attribution).foregroundColor(SeleneTheme.ink60).padding(.top, canvas.u(1))
+                        Text(note).seleneFont(.badge).foregroundColor(SeleneTheme.ink60).padding(.top, canvas.u(1))
                     }
                 }
                 Spacer(minLength: canvas.u(12))
                 switch trailing {
                 case .chevron: MaterialIconView(.chevron, size: 22)
-                case .text(let text): Text(text).seleneFont(.caption, .semibold)
+                case .text(let text): Text(text).seleneFont(.text, .semibold)
                 case .toggle(let isOn): SeleneSwitch(isOn: .constant(isOn)).allowsHitTesting(false)
                 case .none: EmptyView()
                 }

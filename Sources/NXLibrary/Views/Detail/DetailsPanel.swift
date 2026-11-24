@@ -171,7 +171,7 @@ struct DetailsPanel: View {
         HStack(alignment: .firstTextBaseline, spacing: 0) {
             label(symbol: fact.symbol, text: fact.label)
             Text(fact.value)
-                .seleneFont(.compactCaption, .semibold)
+                .seleneFont(.text, .semibold)
                 .foregroundColor(SeleneTheme.ink.opacity(0.92))
                 .lineLimit(fact.kind == .engine ? nil : 1)
                 .truncationMode(.tail)
@@ -188,7 +188,7 @@ struct DetailsPanel: View {
                 .foregroundColor(SeleneTheme.ink.opacity(0.55))
                 .frame(width: canvas.u(18))
             Text(text)
-                .seleneFont(.compactCaption)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink60)
                 .lineLimit(1)
                 .minimumScaleFactor(0.85)
@@ -226,7 +226,7 @@ struct SeleneActionGrid: View {
         let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
         return Button { onPressRow(index) } label: {
             Text(row.title)
-                .seleneFont(.metadata, .medium)
+                .seleneFont(.text, .medium)
                 .foregroundColor(SeleneTheme.ink90)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)

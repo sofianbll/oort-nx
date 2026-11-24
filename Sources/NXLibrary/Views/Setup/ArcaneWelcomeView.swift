@@ -36,11 +36,11 @@ struct ArcaneWelcomeView: View {
         ZStack {
             SeleneBackdrop()
             VStack(spacing: 0) {
-                Text(L10n.text("Welcome to Arcane")).seleneFont(46, .semibold).foregroundColor(SeleneTheme.ink)
+                Text(L10n.text("Welcome to Arcane")).seleneFont(.screen, .semibold).foregroundColor(SeleneTheme.ink)
                     .multilineTextAlignment(.center)
                 Text(L10n.format("%@ has a new name: your games and settings are right where you left them.",
                                  [AppIdentity.formerName]))
-                    .seleneFont(.panelBody).foregroundColor(SeleneTheme.ink75)
+                    .seleneFont(.text).foregroundColor(SeleneTheme.ink75)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.top, canvas.u(10))
@@ -82,11 +82,11 @@ struct ArcaneWelcomeView: View {
 
     private var newsCard: some View {
         VStack(alignment: .leading, spacing: canvas.u(14)) {
-            Text(L10n.text("What's new")).seleneFont(.body, .semibold).foregroundColor(SeleneTheme.ink60)
+            Text(L10n.text("What's new")).seleneFont(.text, .semibold).foregroundColor(SeleneTheme.ink60)
             ForEach(Self.news, id: \.1) { icon, line in
                 HStack(spacing: canvas.u(14)) {
                     MaterialIconView(icon, size: 22).foregroundColor(SeleneTheme.ink75)
-                    Text(L10n.text(line)).seleneFont(.panelBody).foregroundColor(SeleneTheme.ink)
+                    Text(L10n.text(line)).seleneFont(.text).foregroundColor(SeleneTheme.ink)
                         .fixedSize(horizontal: false, vertical: true)
                     Spacer(minLength: 0)
                 }
@@ -104,8 +104,8 @@ struct ArcaneWelcomeView: View {
         return HStack(spacing: canvas.u(16)) {
             MaterialIconView(.gamepad, size: 26).foregroundColor(SeleneTheme.ink75)
             VStack(alignment: .leading, spacing: canvas.u(4)) {
-                Text(L10n.count("Found %lld Steam games", count)).seleneFont(20, .semibold).foregroundColor(SeleneTheme.ink)
-                Text(L10n.text("Adding them doesn't change Steam's files.")).seleneFont(.caption).foregroundColor(SeleneTheme.ink60)
+                Text(L10n.count("Found %lld Steam games", count)).seleneFont(.row, .semibold).foregroundColor(SeleneTheme.ink)
+                Text(L10n.text("Adding them doesn't change Steam's files.")).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
                     .fixedSize(horizontal: false, vertical: true)
             }
             Spacer(minLength: 0)

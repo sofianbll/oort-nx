@@ -64,9 +64,9 @@ struct ProfileEditorView: View {
         ZStack(alignment: .top) {
             SeleneTheme.scrim.opacity(0.45).ignoresSafeArea()
             VStack(spacing: canvas.u(10)) {
-                Text(L10n.text(title)).seleneFont(.profileScreenTitle, step == .avatar ? .medium : .regular)
+                Text(L10n.text(title)).seleneFont(.screen, step == .avatar ? .medium : .regular)
                     .accessibilityAddTraits(.isHeader)
-                Text(L10n.text(subtitle)).seleneFont(.rowTitle).foregroundStyle(SeleneTheme.ink75)
+                Text(L10n.text(subtitle)).seleneFont(.row).foregroundStyle(SeleneTheme.ink75)
             }
             .multilineTextAlignment(.center)
             .padding(.top, canvas.u(SeleneTokens.Space.stageHeader))
@@ -81,7 +81,7 @@ struct ProfileEditorView: View {
             .accessibilityHidden(cropDraft != nil)
             .allowsHitTesting(cropDraft == nil)
             if let error {
-                Text(L10n.text(error)).seleneFont(.menuCaption)
+                Text(L10n.text(error)).seleneFont(.text)
                     .frame(maxHeight: .infinity, alignment: .bottom)
                     .padding(.bottom, canvas.u(154))
             }
@@ -176,7 +176,7 @@ struct ProfileEditorView: View {
         VStack(spacing: canvas.u(40)) {
             TextField(L10n.text("Name"), text: $profile.name)
                 .textFieldStyle(.plain)
-                .seleneFont(.sectionTitle)
+                .seleneFont(.heading)
                 .padding(.horizontal, canvas.u(SeleneTokens.Space.feature))
                 .frame(width: canvas.u(560), height: canvas.u(68))
                 .background(Capsule().fill(SeleneTheme.ink.opacity(0.10)))
@@ -206,7 +206,7 @@ struct ProfileEditorView: View {
             else if key == "Shift" { Image(systemName: shift ? "shift.fill" : "shift") }
             else { Text(L10n.text(key)) }
         }
-        .seleneFont(item < 39 ? .profileTitle : .panelBody)
+        .seleneFont(item < 39 ? .heading : .text)
         .frame(width: canvas.u(keyWidth(item)), height: canvas.u(64))
         .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card)).fill(SeleneTheme.glass))
         .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card)).strokeBorder(SeleneTheme.ink15, lineWidth: canvas.u(1)))
@@ -261,7 +261,7 @@ struct ProfileEditorView: View {
             }
             .frame(width: canvas.size.width, height: canvas.u(230))
             .horizontalEdgeFade()
-            Text(avatarLabel(index)).seleneFont(23).foregroundStyle(SeleneTheme.ink75)
+            Text(avatarLabel(index)).seleneFont(.row).foregroundStyle(SeleneTheme.ink75)
         }
     }
 
@@ -316,7 +316,7 @@ struct ProfileEditorView: View {
                                     } else if personal {
                                         MaterialIconView(.add, size: 32).frame(maxWidth: .infinity, maxHeight: .infinity)
                                     }
-                                    Text(L10n.text(name)).seleneFont(.compactCaption).lineLimit(1)
+                                    Text(L10n.text(name)).seleneFont(.text).lineLimit(1)
                                         .padding(canvas.u(SeleneTokens.Space.compact)).background(SeleneTheme.glassSolid)
                                 }
                                 .frame(width: canvas.u(198), height: canvas.u(112))
@@ -340,7 +340,7 @@ struct ProfileEditorView: View {
                 Text(step == .theme ? palette.name : customBackgroundSelected
                      ? customBackground?.deletingPathExtension().lastPathComponent ?? L10n.text("Add a picture")
                      : L10n.text(wallpaperName(wallpaper)))
-                    .seleneFont(.rowTitle)
+                    .seleneFont(.row)
             }
         }
     }
@@ -530,7 +530,7 @@ struct ProfileEditorView: View {
         ZStack {
             SeleneTheme.scrim65.ignoresSafeArea()
             VStack(spacing: canvas.u(18)) {
-                Text(L10n.text("Frame your picture")).seleneFont(.dialogTitle).accessibilityAddTraits(.isHeader)
+                Text(L10n.text("Frame your picture")).seleneFont(.screen).accessibilityAddTraits(.isHeader)
                 if let crop = draft.preview.cropping(to: draft.crop.rectangle(width: draft.preview.width, height: draft.preview.height)) {
                     Image(decorative: crop, scale: 1).resizable()
                         .frame(width: canvas.u(240), height: canvas.u(240)).clipShape(Circle())
@@ -554,7 +554,7 @@ struct ProfileEditorView: View {
                             _ range: ClosedRange<CGFloat>, fallback: CGFloat) -> some View {
         Slider(value: Binding(get: { cropDraft?.crop[keyPath: field] ?? fallback },
                               set: { cropDraft?.crop[keyPath: field] = $0 }), in: range) {
-            Text(L10n.text(name)).seleneFont(.menuCaption)
+            Text(L10n.text(name)).seleneFont(.text)
         }
     }
 

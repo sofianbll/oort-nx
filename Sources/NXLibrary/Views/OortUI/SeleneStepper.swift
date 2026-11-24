@@ -13,7 +13,7 @@ struct SeleneStepper: View {
                 if index > 0 {
                     Capsule().fill(SeleneTheme.ink15).frame(width: canvas.u(22), height: canvas.u(1))
                 }
-                Text("\(index + 1). \(labels[index])").seleneFont(.compactCaption, .semibold)
+                Text("\(index + 1). \(labels[index])").seleneFont(.text, .semibold)
                     .foregroundColor(index == active ? SeleneTheme.onFocus : SeleneTheme.ink75)
                     .padding(.horizontal, canvas.u(SeleneTokens.Space.small)).padding(.vertical, canvas.u(SeleneTokens.Space.tight))
                     .background(index == active ? SeleneTheme.focus : SeleneTheme.glass, in: Capsule())
@@ -29,7 +29,7 @@ struct OortField: ViewModifier {
 
     func body(content: Content) -> some View {
         let radius = canvas.u(SeleneTheme.rowRadius)
-        content.textFieldStyle(.plain).seleneFont(.body)
+        content.textFieldStyle(.plain).seleneFont(.text)
             .foregroundColor(SeleneTheme.ink)
             .padding(canvas.u(SeleneTokens.Space.fieldInset))
             .background(SeleneTheme.glassLight, in: RoundedRectangle(cornerRadius: radius))

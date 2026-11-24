@@ -16,7 +16,7 @@ struct SelenePillButton: View {
     /// Takes the width its container offers: pills stacked in a fixed-size column all take the widest one's.
     var fillsWidth = false
     var height: CGFloat = 60
-    var titleSize: SeleneTokens.Text = .rowTitle
+    var titleSize: SeleneTokens.Text = .row
     /// Selene's Padding="36,0"; the round Favorite pill uses 0.
     var horizontalPadding: CGFloat = 36
     let focused: Bool

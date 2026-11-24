@@ -38,10 +38,10 @@ struct SetupCheckView: View {
             VStack(spacing: 0) {
                 SetupStepIndicator(page: .requirements).padding(.bottom, canvas.u(SeleneTokens.Space.control))
                 Text(L10n.text("Let's get Arcane ready"))
-                    .seleneFont(46, .semibold)
+                    .seleneFont(.screen, .semibold)
                     .foregroundColor(SeleneTheme.ink)
                 Text(L10n.text("Check what you need to build. Your games come next."))
-                    .seleneFont(.panelBody)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink75)
                     .padding(.top, canvas.u(10))
                 grid.padding(.top, canvas.u(30))
@@ -95,7 +95,7 @@ struct SetupCheckView: View {
                 .foregroundColor(SeleneTheme.glyph)
                 .frame(height: canvas.u(30))
             Text(L10n.text(item.title))
-                .seleneFont(.menuCaption, .semibold)
+                .seleneFont(.text, .semibold)
                 .foregroundColor(SeleneTheme.ink)
                 .lineLimit(1)
                 .padding(.top, canvas.u(SeleneTokens.Space.compact))
@@ -103,7 +103,7 @@ struct SetupCheckView: View {
                 .padding(.top, canvas.u(10))
             if let error = item.inlineError {
                 Text(verbatim: error)
-                    .seleneFont(.compactCaption)
+                    .seleneFont(.text)
                     .foregroundStyle(SeleneTheme.danger)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
@@ -165,17 +165,17 @@ struct SetupCheckView: View {
                 .frame(width: canvas.u(40))
             VStack(alignment: .leading, spacing: canvas.u(6)) {
                 HStack(spacing: canvas.u(12)) {
-                    Text(L10n.text(story.title)).seleneFont(.profileTitle, .semibold).foregroundColor(SeleneTheme.ink)
+                    Text(L10n.text(story.title)).seleneFont(.heading, .semibold).foregroundColor(SeleneTheme.ink)
                     Text(story.state.uppercased())
-                        .seleneFont(.attribution, .bold)
+                        .seleneFont(.badge, .bold)
                         .foregroundColor(story.tone)
                 }
                 Text(story.about)
-                    .seleneFont(.body)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink90)
                     .fixedSize(horizontal: false, vertical: true)
                 Text(story.detail)
-                    .seleneFont(.compactCaption)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink75)
                     .lineLimit(2)
                     .truncationMode(.middle)
@@ -185,7 +185,7 @@ struct SetupCheckView: View {
             if let action = story.action {
                 HStack(spacing: canvas.u(8)) {
                     SelenePromptBadge(button: .a, height: 26)
-                    Text(action).seleneFont(.body, .semibold).foregroundColor(SeleneTheme.ink)
+                    Text(action).seleneFont(.text, .semibold).foregroundColor(SeleneTheme.ink)
                 }
             }
         }
@@ -296,7 +296,7 @@ private struct StatusChip: View {
     var body: some View {
         let tone = Self.tone(item)
         Text(item.chip)
-            .seleneFont(12, .bold)
+            .seleneFont(.badge, .bold)
             .foregroundColor(tone)
             .lineLimit(1)
             .padding(.horizontal, canvas.u(10))

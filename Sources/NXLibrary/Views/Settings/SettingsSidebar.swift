@@ -37,7 +37,7 @@ struct SettingsSidebar: View {
             ForEach(SettingsSidebarGroup.all) { group in
                 if let heading = group.title(in: context) {
                     Text(heading)
-                        .seleneFont(.compactCaption, .semibold)
+                        .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.ink60)
                         .padding(.leading, canvas.u(SeleneTokens.Space.panel))
                         .padding(.top, canvas.u(SeleneTokens.Space.control))
@@ -58,10 +58,10 @@ struct SettingsSidebar: View {
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: canvas.u(2)) {
                 Text(AppIdentity.displayName)
-                    .seleneFont(.title, .semibold)
+                    .seleneFont(.heading, .semibold)
                     .foregroundColor(SeleneTheme.ink)
                 Text(version)
-                    .seleneFont(.caption)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink.opacity(0.55))
             }
         }
@@ -78,7 +78,7 @@ struct SettingsSidebar: View {
                 Group {
                     if section == .multiplayer {
                         Image(systemName: "person.2.fill")
-                            .seleneFont(20)
+                            .seleneFont(.row)
                             .frame(width: canvas.u(24))
                             .accessibilityHidden(true)
                     } else {
@@ -87,7 +87,7 @@ struct SettingsSidebar: View {
                 }
                 .foregroundColor(lit ? SeleneTheme.onFocus : SeleneTheme.ink)
                 Text(section.title(in: context))
-                    .seleneFont(.rowTitle, .medium)
+                    .seleneFont(.row, .medium)
                     .foregroundColor(lit ? SeleneTheme.onFocus : SeleneTheme.ink)
                 Spacer(minLength: 0)
             }

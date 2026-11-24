@@ -45,9 +45,9 @@ struct SteamGridDBKeyDialog: View {
                             .buttonStyle(.plain)
                             .foregroundColor(SeleneTheme.focus)
                     }
-                    .seleneFont(.metadata)
+                    .seleneFont(.text)
                 }
-                .seleneFont(.body)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink)
                 .padding(canvas.u(SeleneTokens.Space.medium))
                 .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content)).fill(SeleneTheme.glassLight))

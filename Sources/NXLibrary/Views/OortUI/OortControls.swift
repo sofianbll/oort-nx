@@ -21,7 +21,7 @@ struct OortRow: View {
                 row {
                     Label(label, systemImage: "chevron.right")
                         .labelStyle(.iconOnly)
-                        .seleneFont(.caption, .semibold)
+                        .seleneFont(.text, .semibold)
                         .foregroundStyle(SeleneTheme.glyph)
                         .accessibilityHidden(true)
                 }
@@ -56,7 +56,7 @@ struct OortButton: View {
     var body: some View {
         SelenePillButton(title: title, minWidth: preset == .compact ? 0 : SeleneTokens.Space.pillWidth,
                          height: preset == .compact ? SeleneTokens.Space.compactPillHeight : SeleneTokens.Space.pillHeight,
-                         titleSize: preset == .compact ? .caption : .rowTitle,
+                         titleSize: preset == .compact ? .text : .row,
                          horizontalPadding: preset == .compact ? SeleneTokens.Space.medium : SeleneTokens.Space.pillInset,
                          focused: focused, scalesOnFocus: preset != .compact,
                          enabled: state != .blocked, waveDots: state == .busy) {

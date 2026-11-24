@@ -16,7 +16,7 @@ struct OortPage<ID: Hashable, Content: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.panel)) {
-            Text(title).seleneFont(.screenTitle, .semibold)
+            Text(title).seleneFont(.screen, .semibold)
                 .accessibilityAddTraits(.isHeader)
             ScrollViewReader { proxy in
                 ScrollView {
@@ -59,7 +59,7 @@ struct OortSection<Content: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
-            Text(title).seleneFont(.sectionTitle, .semibold)
+            Text(title).seleneFont(.heading, .semibold)
                 .accessibilityAddTraits(.isHeader)
             content()
         }
@@ -73,7 +73,7 @@ struct OortEmptyState: View {
 
     var body: some View {
         Text(title)
-            .seleneFont(.emptyStateTitle, .semibold)
+            .seleneFont(.heading, .semibold)
             .foregroundStyle(SeleneTheme.ink82)
             .fixedSize(horizontal: false, vertical: true)
             .padding(.vertical, canvas.u(SeleneTokens.Space.emptyStateInset))

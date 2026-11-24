@@ -25,7 +25,7 @@ struct NextendoClientDialog: View {
                     .focused($fieldFocused)
                     .onSubmit(save)
                     .onExitCommand(perform: onClose)
-                    .seleneFont(.body)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink)
                     .padding(canvas.u(SeleneTokens.Space.medium))
                     .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content)).fill(SeleneTheme.glassLight))
@@ -33,7 +33,7 @@ struct NextendoClientDialog: View {
                 if !valid {
                     Text(NextendoError.clientID.localizedDescription)
                         .foregroundColor(SeleneTheme.danger)
-                        .seleneFont(.compactCaption)
+                        .seleneFont(.text)
                 }
             }
         }

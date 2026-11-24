@@ -14,7 +14,7 @@ struct SeleneValueChip: View {
                 Text(text)
             }
         }
-            .seleneFont(.body, .semibold)
+            .seleneFont(.text, .semibold)
             .foregroundColor(SeleneTheme.ink)
             .lineLimit(1)
             .truncationMode(.middle)

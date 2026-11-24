@@ -96,17 +96,17 @@ struct IntegrationBar: View {
         Button(action: open) {
             HStack(spacing: canvas.u(12)) {
                 Image(systemName: "link")
-                    .seleneFont(.rowTitle)
+                    .seleneFont(.row)
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: canvas.u(2)) {
-                    Text(L10n.text("Integrations", context: locale)).seleneFont(.rowTitle, .semibold)
+                    Text(L10n.text("Integrations", context: locale)).seleneFont(.row, .semibold)
                     if let summary {
                         Text(L10n.text(summary.status, context: locale))
-                            .seleneFont(.caption)
+                            .seleneFont(.text)
                             .foregroundStyle(focused ? SeleneTheme.onFocus : SeleneTheme.ink82)
                     }
                 }
-                Image(systemName: "chevron.right").seleneFont(.caption).accessibilityHidden(true)
+                Image(systemName: "chevron.right").seleneFont(.text).accessibilityHidden(true)
             }
             .lineLimit(1)
             .padding(.horizontal, canvas.u(SeleneTokens.Space.control))
@@ -158,7 +158,7 @@ struct IntegrationsView: View {
 
     private var comingLater: some View {
         VStack(alignment: .leading, spacing: canvas.u(8)) {
-            Text(text("Coming later")).seleneFont(.rowTitle, .semibold)
+            Text(text("Coming later")).seleneFont(.row, .semibold)
                 .accessibilityAddTraits(.isHeader)
             LazyVGrid(columns: [GridItem(.adaptive(minimum: canvas.u(220)), alignment: .leading)],
                       alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
@@ -194,14 +194,14 @@ struct IntegrationsView: View {
                 Spacer()
                 SeleneStatusDot(text: text(row.status), color: color, labelColor: SeleneTheme.ink90)
             }
-            Text(text(row.purpose)).seleneFont(.panelBody)
+            Text(text(row.purpose)).seleneFont(.text)
             VStack(alignment: .leading, spacing: canvas.u(4)) {
                 access("Reads: %@", row.reads)
                 access("Writes: %@", row.writes)
                 access("Sends: %@", row.sends)
             }
             .foregroundStyle(SeleneTheme.ink82)
-            SelenePillButton(title: row.action, minWidth: 0, height: 42, titleSize: .caption,
+            SelenePillButton(title: row.action, minWidth: 0, height: 42, titleSize: .text,
                              horizontalPadding: 16, focused: focus, scalesOnFocus: false) {
                 overview.open(row.id, in: router)
             }
@@ -221,6 +221,6 @@ struct IntegrationsView: View {
     }
 
     private func access(_ key: String, _ value: String) -> some View {
-        Text(L10n.format(key, [text(value)], context: locale)).seleneFont(.caption)
+        Text(L10n.format(key, [text(value)], context: locale)).seleneFont(.text)
     }
 }

@@ -49,7 +49,7 @@ struct AddGameRowView: View {
         switch row.kind {
         case .heading:
             Text(row.title.uppercased())
-                .seleneFont(.attribution, .semibold)
+                .seleneFont(.badge, .semibold)
                 .tracking(1.2)
                 .foregroundColor(SeleneTheme.ink60)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -58,7 +58,7 @@ struct AddGameRowView: View {
                 .padding(.bottom, canvas.u(SeleneTokens.Space.seam))
         case .note:
             Text(row.title)
-                .seleneFont(.metadata)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink60)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -124,7 +124,7 @@ struct AddGameRowView: View {
         case .field(let text, let placeholder):
             TextField(placeholder, text: text)
                 .textFieldStyle(.plain)
-                .seleneFont(.metadata, .regular, design: .monospaced)
+                .seleneFont(.text, .regular, design: .monospaced)
                 .foregroundColor(SeleneTheme.ink)
                 .multilineTextAlignment(.trailing)
                 .focused(editing, equals: row.id)
@@ -140,15 +140,15 @@ struct AddGameRowView: View {
     private var warning: some View {
         HStack(alignment: .top, spacing: canvas.u(12)) {
             Image(systemName: "exclamationmark.triangle.fill")
-                .seleneFont(.metadata)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.untested.opacity(0.9))
             VStack(alignment: .leading, spacing: canvas.u(2)) {
                 Text(row.title)
-                    .seleneFont(.compactCaption, .medium)
+                    .seleneFont(.text, .medium)
                     .foregroundColor(SeleneTheme.ink)
                 if let about = row.about {
                     Text(about)
-                        .seleneFont(.attribution)
+                        .seleneFont(.badge)
                         .foregroundColor(SeleneTheme.ink60)
                         .fixedSize(horizontal: false, vertical: true)
                 }

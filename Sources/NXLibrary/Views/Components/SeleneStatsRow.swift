@@ -63,7 +63,7 @@ struct SeleneStatsRow: View {
         VStack(alignment: .leading, spacing: canvas.u(2)) {
             // Line boxes of Selene's Segoe UI 12 / 21 (16 and 28), so the strip lands 34 below.
             Text(L10n.text(item.label))
-                .seleneFont(12, .semibold)
+                .seleneFont(.badge, .semibold)
                 .foregroundColor(SeleneTheme.ink60)
                 .frame(height: canvas.u(16), alignment: .leading)
             Group {
@@ -84,7 +84,7 @@ struct SeleneStatsRow: View {
     }
 
     private func value(_ text: String) -> some View {
-        Text(text).seleneFont(.rowTitle, .semibold).foregroundColor(SeleneTheme.ink)
+        Text(text).seleneFont(.row, .semibold).foregroundColor(SeleneTheme.ink)
     }
 
     /// 1u ink25 rule, inset 4 top and bottom.

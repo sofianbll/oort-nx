@@ -74,7 +74,7 @@ struct SpotlightRowView: View {
             if let selected {
                 let item = items[selected]
                 Text(title(of: item))
-                    .seleneFont(.selectionTitle)
+                    .seleneFont(.row)
                     .foregroundColor(SeleneTheme.ink)
                     .lineLimit(1)
                     .frame(width: canvas.u(420), alignment: .leading)
@@ -258,8 +258,8 @@ struct SpotlightRowView: View {
             }
         }()
         return VStack(alignment: .leading, spacing: canvas.u(6)) {
-            Text(title).seleneFont(.selectionTitle, .medium).foregroundColor(SeleneTheme.ink90)
-            Text(hint).seleneFont(.caption).foregroundColor(SeleneTheme.ink60)
+            Text(title).seleneFont(.row, .medium).foregroundColor(SeleneTheme.ink90)
+            Text(hint).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
                 .frame(maxWidth: canvas.u(380), alignment: .leading)
                 .fixedSize(horizontal: false, vertical: true)
         }

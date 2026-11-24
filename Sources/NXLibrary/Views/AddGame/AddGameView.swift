@@ -108,12 +108,12 @@ struct AddGameView: View {
     private func column(_ rows: [AddGameRow], focused: AddGameRow?) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(L10n.text("ADD A GAME"))
-                .seleneFont(.compactCaption, .semibold)
+                .seleneFont(.text, .semibold)
                 .tracking(1.2)
                 .foregroundColor(SeleneTheme.ink60)
                 .padding(.leading, canvas.u(SeleneTokens.Space.compact))
             Text(stepTitle)
-                .seleneFont(.screenTitle)
+                .seleneFont(.screen)
                 .foregroundColor(SeleneTheme.ink)
                 .lineLimit(1)
                 .padding(.leading, canvas.u(SeleneTokens.Space.tight))
@@ -168,7 +168,7 @@ struct AddGameView: View {
         .overlay(alignment: .top) {
             if dropTargeted {
                 Text(L10n.text("Drop to add these files"))
-                    .seleneFont(.compactCaption, .semibold)
+                    .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.onFocus)
                     .padding(.horizontal, canvas.u(SeleneTokens.Space.control))
                     .frame(height: canvas.u(34))
@@ -204,7 +204,7 @@ struct AddGameView: View {
                     Circle().fill(SeleneTheme.ink25).frame(width: canvas.u(4), height: canvas.u(4))
                 }
                 Text(title)
-                    .seleneFont(.compactCaption, index + 1 == step ? .semibold : .regular)
+                    .seleneFont(.text, index + 1 == step ? .semibold : .regular)
                     .foregroundColor(index + 1 == step ? SeleneTheme.ink : SeleneTheme.ink60)
             }
         }

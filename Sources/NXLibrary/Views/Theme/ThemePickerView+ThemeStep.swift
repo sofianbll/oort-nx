@@ -24,7 +24,7 @@ extension ThemePickerView {
                         .padding(.top, canvas.u(SeleneTokens.Space.control))
                         .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
                     Text(palette.name + (palette.mode == .light ? L10n.text("  ·  light") : ""))
-                        .seleneFont(.sectionTitle)
+                        .seleneFont(.heading)
                         .foregroundColor(SeleneTheme.ink)
                         .padding(.top, canvas.u(SeleneTokens.Space.small))
                         .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
@@ -58,7 +58,7 @@ struct ThemePaletteSwatch: View {
                                        .init(color: readingShade.opacity(0), location: 1)],
                                startPoint: .leading, endPoint: .trailing)
                 HStack {
-                    Text(L10n.text("Aa")).seleneFont(.selectionTitle).foregroundColor(Color(hex: palette.ink))
+                    Text(L10n.text("Aa")).seleneFont(.row).foregroundColor(Color(hex: palette.ink))
                     Spacer(minLength: 0)
                     Circle()
                         .fill(Color(hex: palette.glyph))
@@ -72,7 +72,7 @@ struct ThemePaletteSwatch: View {
             .overlay(shape.strokeBorder(Color.white.opacity(0.25), lineWidth: 1))
             .modifier(TileFocus(focused: focused, radius: 14, scale: 1.08))
             Text(palette.name)
-                .seleneFont(.metadata)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink75)
                 .lineLimit(1)
                 .frame(maxWidth: canvas.u(140))

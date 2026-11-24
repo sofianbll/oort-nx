@@ -68,7 +68,7 @@ struct CatalogSteamInfo: View {
         VStack(alignment: .leading, spacing: 0) {
             if let note = playNote {
                 Text(note)
-                    .seleneFont(.panelBody, .semibold)
+                    .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink75)
                     .padding(.leading, canvas.u(collection ? 0 : 4))
                     .padding(.top, canvas.u(SeleneTokens.Space.panel))

@@ -121,14 +121,14 @@ struct SeleneHintsBar: View {
             }
             VStack(alignment: .leading, spacing: 0) {
                 ZStack(alignment: .leading) {
-                    ForEach(reserve, id: \.self) { Text(L10n.text($0, context: localization)).seleneFont(.panelBody).hidden() }
+                    ForEach(reserve, id: \.self) { Text(L10n.text($0, context: localization)).seleneFont(.text).hidden() }
                     Text(L10n.text(item.label, context: localization))
-                        .seleneFont(.panelBody)
+                        .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink90)
                 }
                 if let hold = item.hold, !ButtonPrompts.usesKeyboard(style: style, connected: pad) || item.button == .rs {
                     Text(item.button == .rs ? hold : L10n.text(hold, context: localization))
-                        .seleneFont(.attribution).foregroundColor(SeleneTheme.ink60)
+                        .seleneFont(.badge).foregroundColor(SeleneTheme.ink60)
                 }
             }
         }

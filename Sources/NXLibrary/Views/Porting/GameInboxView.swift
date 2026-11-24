@@ -51,11 +51,11 @@ struct GameInboxView: View {
     var page: some View {
         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.panel)) {
             Text(L10n.text("Inbox"))
-                .seleneFont(.inboxTitle, .semibold)
+                .seleneFont(.screen, .semibold)
                 .foregroundStyle(SeleneTheme.ink)
                 .accessibilityAddTraits(.isHeader)
             Text(L10n.text("Review the names and destinations before sorting your Switch files."))
-                .seleneFont(.rowTitle)
+                .seleneFont(.row)
                 .foregroundStyle(SeleneTheme.ink82)
             if model.needsGameFilesCorrection {
                 SeleneOptionRow(icon: .folder, title: L10n.text("Game files points to a different folder"),
@@ -74,10 +74,10 @@ struct GameInboxView: View {
             }
             VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.tight)) {
                 Text(L10n.text("Drop files here"))
-                    .seleneFont(.profileTitle, .semibold)
+                    .seleneFont(.heading, .semibold)
                     .foregroundStyle(SeleneTheme.ink)
                 Text(model.folder.path)
-                    .seleneFont(.caption)
+                    .seleneFont(.text)
                     .foregroundStyle(SeleneTheme.ink82)
                     .lineLimit(1)
                     .truncationMode(.middle)
@@ -90,10 +90,10 @@ struct GameInboxView: View {
                               style: StrokeStyle(lineWidth: canvas.u(2), dash: [canvas.u(8), canvas.u(6)])))
             .dropDestination(for: URL.self) { urls, _ in model.accept(urls) } isTargeted: { dropTarget = $0 }
             if model.busy {
-                Text(L10n.text("Checking files…")).seleneFont(.panelBody).foregroundStyle(SeleneTheme.ink82)
+                Text(L10n.text("Checking files…")).seleneFont(.text).foregroundStyle(SeleneTheme.ink82)
             }
             if let message = model.message {
-                Text(verbatim: message).seleneFont(.panelBody).foregroundStyle(SeleneTheme.ink)
+                Text(verbatim: message).seleneFont(.text).foregroundStyle(SeleneTheme.ink)
             }
             if model.entries.isEmpty, !model.busy {
                 OortEmptyState(title: L10n.text("No incoming files"))
@@ -123,12 +123,12 @@ struct GameInboxView: View {
         let preview = entry.destination.map { $0.path.replacingOccurrences(of: GameInboxModel.gamesRoot.path + "/", with: "Switch/Games/") }
         let details = [metadata, preview, entry.issue].compactMap { $0 }.joined(separator: "\n")
         return SeleneOptionRow(icon: .folder, title: entry.source.lastPathComponent, about: details,
-                               focused: focused == target, aboutFont: preview == nil ? .compactCaption : .body) {
+                               focused: focused == target) {
             if entry.issue == nil {
                 pill(entry.duplicate ? L10n.text("Review duplicate") : L10n.text("Sort file"), action: target,
                      enabled: !model.needsGameFilesCorrection)
             } else if !entry.needsKeys {
-                Text(L10n.text("Cannot sort", context: locale)).seleneFont(.body, .semibold).foregroundStyle(SeleneTheme.ink82)
+                Text(L10n.text("Cannot sort", context: locale)).seleneFont(.text, .semibold).foregroundStyle(SeleneTheme.ink82)
             }
         }
     }

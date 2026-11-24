@@ -94,7 +94,7 @@ struct ProfilePage: View {
 
     private var gap: CGFloat { canvas.u(SeleneTokens.Space.large) }
     private var layoutScale: CGFloat {
-        max(SeleneTokens.Text.metadata.rawValue / SeleneTokens.Text.body.rawValue,
+        max(SeleneTokens.Text.badge.rawValue / SeleneTokens.Text.text.rawValue,
             canvas.size.height / SeleneCanvas.design.height)
     }
     private var radius: CGFloat { canvas.u(SeleneTokens.Radius.card) }
@@ -118,7 +118,7 @@ struct ProfilePage: View {
             }
         }
         .foregroundStyle(SeleneTheme.ink)
-        .environment(\.seleneMinimumFont, SeleneTokens.Text.metadata.rawValue)
+        .environment(\.seleneMinimumFont, SeleneTokens.Text.badge.rawValue)
         .animation(Motion.screen(reduceMotion), value: achievementScreen != nil)
         .animation(Motion.overlay(reduceMotion), value: showFriends)
         .onChange(of: achievementScreen != nil) { _, open in router.isScreenshotViewerOpen = open }
@@ -195,7 +195,7 @@ struct ProfilePage: View {
                 ProfilePortrait(profile: profile, size: SeleneTokens.Space.stageGutter + SeleneTokens.Space.section, ring: true)
                 VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
                     metadata(L10n.text("My profile"))
-                    Text(profile.name).seleneFont(.profileHeroTitle, .semibold)
+                    Text(profile.name).seleneFont(.hero, .semibold)
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityAddTraits(.isHeader)
                     if let account, profile.sharesPresence, nextendo?.presenceShared == true {
@@ -243,8 +243,8 @@ struct ProfilePage: View {
         if let game, let played = data.activity[game.id] {
             VStack(alignment: .trailing, spacing: canvas.u(SeleneTokens.Space.hairline)) {
                 metadata(L10n.text("Most played"))
-                Text(game.name).seleneFont(.title, .semibold)
-                Text(LibraryPresentation.duration(played.duration)).seleneFont(.rowTitle)
+                Text(game.name).seleneFont(.heading, .semibold)
+                Text(LibraryPresentation.duration(played.duration)).seleneFont(.row)
             }
             .multilineTextAlignment(.trailing)
             .shadow(color: SeleneTheme.scrim, radius: canvas.u(SeleneTokens.Space.compact))
@@ -261,7 +261,7 @@ struct ProfilePage: View {
     private func pill(_ title: String, icon: String, id: Focus, data: PageData) -> some View {
         button(id, data: data, radius: canvas.u(SeleneTokens.Space.actionPillHeight / 2)) {
             Label(L10n.text(title), systemImage: icon)
-                .seleneFont(.rowTitle, .medium)
+                .seleneFont(.row, .medium)
                 .padding(.horizontal, canvas.u(SeleneTokens.Space.feature))
                 .frame(minHeight: canvas.u(SeleneTokens.Space.actionPillHeight))
                 .background(SeleneTheme.ink15, in: Capsule())
@@ -272,13 +272,13 @@ struct ProfilePage: View {
     private func stat(_ title: String, _ value: String) -> some View {
         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.hairline)) {
             metadata(L10n.text(title))
-            Text(value).seleneFont(.title, .semibold).monospacedDigit()
+            Text(value).seleneFont(.heading, .semibold).monospacedDigit()
         }
         .accessibilityElement(children: .combine)
     }
 
     private func metadata(_ text: String) -> some View {
-        Text(text).textCase(.uppercase).seleneFont(.metadata, .medium).foregroundStyle(SeleneTheme.ink75)
+        Text(text).textCase(.uppercase).seleneFont(.text, .medium).foregroundStyle(SeleneTheme.ink75)
     }
 
     @ViewBuilder private func sections(_ data: PageData, width: CGFloat) -> some View {
@@ -310,7 +310,7 @@ struct ProfilePage: View {
         let items = data.games(for: card)
         return VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small)) {
             HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
-                Text(L10n.text(card.title)).seleneFont(.sectionTitle, .semibold)
+                Text(L10n.text(card.title)).seleneFont(.heading, .semibold)
                     .accessibilityAddTraits(.isHeader)
                 Spacer(minLength: 0)
                 let target = Focus.card(card)
@@ -358,7 +358,7 @@ struct ProfilePage: View {
                 .overlay(alignment: .topLeading) {
                     if let activity = data.activity[game.id] {
                         Label(LibraryPresentation.duration(activity.duration), systemImage: "clock")
-                            .seleneFont(.panelBody, .semibold)
+                            .seleneFont(.text, .semibold)
                             .padding(canvas.u(SeleneTokens.Space.compact))
                             .background(SeleneTheme.glassSolid, in: Capsule())
                             .padding(canvas.u(SeleneTokens.Space.small))
@@ -369,7 +369,7 @@ struct ProfilePage: View {
                         if let date = data.activity[game.id]?.lastPlayed {
                             metadata(date.formatted(.dateTime.day().month(.abbreviated).locale(locale.formatLocale)))
                         }
-                        Text(game.name).seleneFont(.rowTitle, .semibold).lineLimit(2)
+                        Text(game.name).seleneFont(.row, .semibold).lineLimit(2)
                     }
                     .padding(canvas.u(SeleneTokens.Space.medium))
                 }
@@ -397,7 +397,7 @@ struct ProfilePage: View {
                         .fill(duration > 0 ? SeleneTheme.focus : SeleneTheme.ink25)
                         .frame(width: canvas.u(SeleneTokens.Space.group),
                                height: canvas.u(max(SeleneTokens.Space.hairline, SeleneTokens.Space.chromeGutter * duration / peak)))
-                    Text(day).seleneFont(.metadata).lineLimit(1)
+                    Text(day).seleneFont(.text).lineLimit(1)
                 }
                 .frame(maxWidth: .infinity)
                 .accessibilityElement(children: .ignore)
@@ -443,8 +443,8 @@ struct ProfilePage: View {
         achievementSurface {
             metadata(L10n.text("Overall progress"))
             HStack(alignment: .firstTextBaseline, spacing: canvas.u(SeleneTokens.Space.compact)) {
-                Text(unlocked, format: .number).seleneFont(.profileScreenTitle, .semibold)
-                Text("/ \(total.formatted(.number.locale(locale.formatLocale)))").seleneFont(.sectionTitle)
+                Text(unlocked, format: .number).seleneFont(.screen, .semibold)
+                Text("/ \(total.formatted(.number.locale(locale.formatLocale)))").seleneFont(.heading)
                     .foregroundStyle(SeleneTheme.ink60)
             }
             .monospacedDigit()
@@ -459,7 +459,7 @@ struct ProfilePage: View {
             achievementSurface {
                 HStack(spacing: canvas.u(SeleneTokens.Space.control)) {
                     Image(systemName: row.icon ?? "trophy")
-                        .seleneFont(.panelTitle)
+                        .seleneFont(.heading)
                         .frame(width: canvas.u(SeleneTokens.Space.chromeGutter),
                                height: canvas.u(SeleneTokens.Space.chromeGutter))
                         .background(SeleneTheme.statusCloud.opacity(SeleneTokens.Effect.panelVeil),
@@ -467,8 +467,8 @@ struct ProfilePage: View {
                         .overlay { RoundedRectangle(cornerRadius: radius).strokeBorder(SeleneTheme.ink25) }
                         .accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.hairline)) {
-                        Text(row.name).seleneFont(.rowTitle, .semibold)
-                        Text(row.description).seleneFont(.caption).foregroundStyle(SeleneTheme.ink75)
+                        Text(row.name).seleneFont(.row, .semibold)
+                        Text(row.description).seleneFont(.text).foregroundStyle(SeleneTheme.ink75)
                     }
                 }
                 if let date = row.unlockedAt {
@@ -527,12 +527,12 @@ struct ProfilePage: View {
         return HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
             ZStack {
                 Circle().strokeBorder(color).background(SeleneTheme.ink15, in: Circle())
-                Text(String(friend.name.prefix(1))).seleneFont(.rowTitle, .semibold)
+                Text(String(friend.name.prefix(1))).seleneFont(.row, .semibold)
             }
             .frame(width: diameter, height: diameter)
             .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.seam)) {
-                Text(friend.name).seleneFont(.rowTitle, .semibold)
+                Text(friend.name).seleneFont(.row, .semibold)
                 SeleneStatusDot(text: friendText(friend), color: color)
             }
             Spacer(minLength: 0)
@@ -553,7 +553,7 @@ struct ProfilePage: View {
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(alignment: .leading, spacing: gap) {
-                        Text(L10n.text("Friends")).seleneFont(.screenTitle, .semibold).accessibilityAddTraits(.isHeader)
+                        Text(L10n.text("Friends")).seleneFont(.screen, .semibold).accessibilityAddTraits(.isHeader)
                         friendsList(data: data)
                     }
                     .frame(maxWidth: canvas.u(SeleneTokens.Space.transferMeasure))
@@ -589,7 +589,7 @@ struct ProfilePage: View {
     }
 
     private func empty(_ title: String) -> some View {
-        surface { Text(L10n.text(title)).seleneFont(.caption).foregroundStyle(SeleneTheme.ink75) }
+        surface { Text(L10n.text(title)).seleneFont(.text).foregroundStyle(SeleneTheme.ink75) }
     }
 
     private func surface<Content: View>(@ViewBuilder content: () -> Content) -> some View {
@@ -730,7 +730,7 @@ private struct ProfileGameArt: View {
             } else if showsFallback, let game = game.nxnativeGame {
                 Image(nsImage: GameIconProvider.icon(for: game)).resizable().scaledToFit()
             } else if showsFallback {
-                Image(systemName: "gamecontroller").seleneFont(.heroTitle).foregroundStyle(SeleneTheme.ink25)
+                Image(systemName: "gamecontroller").seleneFont(.hero).foregroundStyle(SeleneTheme.ink25)
             }
         }
         .clipped()

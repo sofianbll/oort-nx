@@ -133,20 +133,20 @@ struct CheatsPanel: View {
             VStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(L10n.text("CHEATS"))
-                        .seleneFont(.compactCaption, .semibold)
+                        .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.ink60)
                         .padding(.leading, canvas.u(SeleneTokens.Space.compact))
                     Text(game.name)
-                        .seleneFont(.screenTitle)
+                        .seleneFont(.screen)
                         .foregroundColor(SeleneTheme.ink)
                         .lineLimit(1)
                         .padding(.leading, canvas.u(SeleneTokens.Space.tight))
                     Text(CheatCopy.header(version: context?.version ?? game.versionString, buildID: context?.buildID))
-                        .seleneFont(.compactCaption)
+                        .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink60)
                         .padding(.leading, canvas.u(SeleneTokens.Space.compact))
                     Text(CheatCopy.about)
-                        .seleneFont(.compactCaption)
+                        .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink60)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.leading, canvas.u(SeleneTokens.Space.compact))
@@ -209,12 +209,12 @@ struct CheatsPanel: View {
                     } icon: {
                         MaterialIconView(.info, size: 20)
                     }
-                    .seleneFont(.caption)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink75)
                 }
                 if let message {
                     Text(message)
-                        .seleneFont(.caption, .medium)
+                        .seleneFont(.text, .medium)
                         .foregroundColor(SeleneTheme.danger)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -248,7 +248,7 @@ struct CheatsPanel: View {
         switch line {
         case .heading(let title):
             Text(title.uppercased())
-                .seleneFont(.metadata, .semibold)
+                .seleneFont(.text, .semibold)
                 .foregroundColor(SeleneTheme.ink60)
                 .padding(.leading, canvas.u(10))
                 .padding(.top, canvas.u(SeleneTokens.Space.line))

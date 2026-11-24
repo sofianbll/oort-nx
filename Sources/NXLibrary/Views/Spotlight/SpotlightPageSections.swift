@@ -55,7 +55,7 @@ struct SpotlightGenreChips: View {
         HStack(spacing: 0) {
             ForEach(Array(genres.prefix(6)), id: \.self) { genre in
                 Text(genre)
-                    .seleneFont(.compactCaption)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink90)
                     .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
                     .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
@@ -91,11 +91,11 @@ struct SpotlightDescription: View {
             if let wikipediaPage {
                 WikipediaCredit(pageURL: wikipediaPage).padding(.bottom, canvas.u(SeleneTokens.Space.compact))
             } else if let languageNote {
-                Text(languageNote).seleneFont(.metadata).foregroundColor(SeleneTheme.ink60)
+                Text(languageNote).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
                     .padding(.bottom, canvas.u(SeleneTokens.Space.compact))
             }
             Text(text.isEmpty ? L10n.text("No description for this game yet.") : (expanded ? text : excerpt.text))
-                .seleneFont(.body)
+                .seleneFont(.text)
                 .lineSpacing(canvas.u(3))
                 .foregroundColor(text.isEmpty ? SeleneTheme.ink60 : SeleneTheme.ink90)
                 .fixedSize(horizontal: false, vertical: true)
@@ -103,7 +103,7 @@ struct SpotlightDescription: View {
             if excerpt.truncated {
                 Button(expanded ? L10n.text("Show less") : L10n.text("Read more"), action: onToggle)
                     .buttonStyle(.plain)
-                    .seleneFont(.compactCaption, .semibold)
+                    .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink)
                     .padding(.horizontal, canvas.u(SeleneTokens.Space.line))
                     .padding(.vertical, canvas.u(5))

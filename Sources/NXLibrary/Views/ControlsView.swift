@@ -64,10 +64,10 @@ struct ControlsView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: canvas.u(12)) {
                         Text(L10n.text("Controls"))
-                            .seleneFont(.screenTitle)
+                            .seleneFont(.screen)
                             .foregroundColor(SeleneTheme.ink)
                         Text(inGame ? L10n.text("Default game inputs. Older builds may differ.") : L10n.text("Navigate Arcane."))
-                            .seleneFont(.panelBody)
+                            .seleneFont(.text)
                             .foregroundColor(SeleneTheme.ink60)
                             .padding(.bottom, canvas.u(SeleneTokens.Space.control))
                         SeleneSegmented(selection: $inGame, options: [(false, "Library"), (true, "In game")])
@@ -77,7 +77,7 @@ struct ControlsView: View {
                             focused: focus == 0) {
                             Button(L10n.text("Detect")) { controller.refreshControllers() }
                                 .buttonStyle(.plain)
-                                .seleneFont(.compactCaption, .semibold)
+                                .seleneFont(.text, .semibold)
                                 .foregroundColor(SeleneTheme.glyph)
                         }
                         .id(0)

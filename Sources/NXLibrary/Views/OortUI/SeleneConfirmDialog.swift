@@ -35,7 +35,7 @@ struct SeleneConfirmDialog<Detail: View>: View {
         VStack(spacing: 0) {
             if warningIcon {
                 Image(systemName: "exclamationmark.triangle")
-                    .seleneFont(.title)
+                    .seleneFont(.heading)
                     .foregroundStyle(SeleneTheme.danger)
                     .frame(width: canvas.u(68), height: canvas.u(68))
                     .background(Circle().fill(SeleneTheme.danger.opacity(0.16)))
@@ -43,12 +43,12 @@ struct SeleneConfirmDialog<Detail: View>: View {
                     .accessibilityHidden(true)
             }
             Text(L10n.text(title))
-                .seleneFont(.dialogTitle, .semibold)
+                .seleneFont(.screen, .semibold)
                 .foregroundColor(SeleneTheme.ink)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
             Text(message)
-                .seleneFont(.panelBody)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink75)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
@@ -121,7 +121,7 @@ struct SeleneDialogNotes: View {
         switch line.kind {
         case .heading:
             Text(line.text.uppercased())
-                .seleneFont(.attribution, .semibold)
+                .seleneFont(.badge, .semibold)
                 .tracking(1.2)
                 .foregroundColor(SeleneTheme.ink60)
                 .padding(.top, first ? 0 : canvas.u(10))
@@ -134,14 +134,14 @@ struct SeleneDialogNotes: View {
                     .alignmentGuide(.firstTextBaseline) { $0[.bottom] + canvas.u(1) }
                     .accessibilityHidden(true)
                 inline(line.text)
-                    .seleneFont(.compactCaption)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink82)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(.leading, canvas.u(SeleneTokens.Space.seam))
         case .text:
             inline(line.text)
-                .seleneFont(.compactCaption)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink75)
                 .fixedSize(horizontal: false, vertical: true)
         case .blank:
@@ -165,16 +165,16 @@ struct SeleneSuccessNotice: View {
     var body: some View {
         HStack(spacing: canvas.u(16)) {
             Image(systemName: "checkmark.circle")
-                .font(.system(size: canvas.u(SeleneTokens.Text.panelTitle.rawValue), weight: .light))
+                .font(.system(size: canvas.u(SeleneTokens.Text.heading.rawValue), weight: .light))
                 .foregroundColor(SeleneTheme.ink75)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: canvas.u(6)) {
                 Text(L10n.text(title))
-                    .seleneFont(.title, .semibold)
+                    .seleneFont(.heading, .semibold)
                     .foregroundColor(SeleneTheme.ink)
                 if let message {
                     Text(message)
-                        .seleneFont(.body)
+                        .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink75)
                 }
             }
@@ -242,12 +242,12 @@ struct SeleneChoiceDialog: View {
         let textWidth = canvas.u(560)
         VStack(spacing: 0) {
             Text(L10n.text(title))
-                .seleneFont(.dialogTitle, .semibold)
+                .seleneFont(.screen, .semibold)
                 .foregroundColor(SeleneTheme.ink)
                 .frame(width: textWidth)
                 .fixedSize(horizontal: false, vertical: true)
             Text(message)
-                .seleneFont(.panelBody)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink75)
                 .frame(width: textWidth)
                 .fixedSize(horizontal: false, vertical: true)
@@ -262,7 +262,7 @@ struct SeleneChoiceDialog: View {
                             .accessibilityHint(details[choice] ?? "")
                         if let detail = details[choice] {
                             Text(detail)
-                                .seleneFont(.compactCaption)
+                                .seleneFont(.text)
                                 .foregroundColor(SeleneTheme.ink60)
                                 .frame(idealWidth: canvas.u(186), maxWidth: canvas.u(220))
                                 .fixedSize(horizontal: false, vertical: true)

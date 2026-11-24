@@ -138,11 +138,11 @@ struct ChangeArtworkView: View {
             VStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(browsing.map { L10n.format("%@ · BROWSE ONLINE", [String(describing: $0.title.uppercased())]) } ?? L10n.text("CHANGE ARTWORK"))
-                        .seleneFont(.compactCaption, .semibold)
+                        .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.ink60)
                         .padding(.leading, canvas.u(SeleneTokens.Space.compact))
                     Text(subject.name)
-                        .seleneFont(.screenTitle)
+                        .seleneFont(.screen)
                         .foregroundColor(SeleneTheme.ink)
                         .lineLimit(1)
                         .padding(.leading, canvas.u(SeleneTokens.Space.tight))
@@ -242,7 +242,7 @@ struct ChangeArtworkView: View {
         HStack(spacing: canvas.u(8)) {
             ForEach(ArtworkSlot.allCases, id: \.self) { tab in
                 Text(tab.title)
-                    .seleneFont(.body, .semibold)
+                    .seleneFont(.text, .semibold)
                     .foregroundColor(tab == slot ? SeleneTheme.ink : SeleneTheme.ink60)
                     .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
                     .padding(.vertical, canvas.u(9))
@@ -262,7 +262,7 @@ struct ChangeArtworkView: View {
             TextField("", text: $browseDraft,
                       prompt: Text(L10n.format("Search %@", [String(describing: browsing?.title ?? "")])).foregroundColor(SeleneTheme.ink60))
                 .textFieldStyle(.plain)
-                .seleneFont(.menuCaption)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink)
                 .focused($fieldFocused)
                 .onSubmit(submitSearch)
@@ -283,7 +283,7 @@ struct ChangeArtworkView: View {
     private var status: some View {
         let text = message ?? (browsing.map(browseStatus) ?? mainStatus)
         Text(text)
-            .seleneFont(.caption)
+            .seleneFont(.text)
             .foregroundColor(SeleneTheme.ink60)
             .lineLimit(1)
             .help(text)

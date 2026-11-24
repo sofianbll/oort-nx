@@ -50,7 +50,7 @@ struct SpotlightScreenshotStrip: View {
         if shown.isEmpty {
             if known {
                 Text(L10n.text("No screenshots for this game"))
-                    .seleneFont(.menuCaption)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
                     .shadow(color: .black.opacity(0.45), radius: canvas.u(4))
             }

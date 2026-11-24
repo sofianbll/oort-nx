@@ -137,7 +137,7 @@ struct AchievementsScreen: View {
                         .frame(maxWidth: canvas.u(520), maxHeight: canvas.u(130), alignment: .leading)
                 } else {
                     Text(game.name)
-                        .seleneFont(.screenTitle, .semibold)
+                        .seleneFont(.screen, .semibold)
                         .foregroundColor(SeleneTheme.ink)
                         .lineLimit(1)
                 }
@@ -147,14 +147,14 @@ struct AchievementsScreen: View {
 
             if game.steamGame == nil {
                 Text(L10n.text("Arcane · local"))
-                    .seleneFont(.panelBody, .semibold)
+                    .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink75)
             }
 
             if !recent.isEmpty {
                 VStack(alignment: .leading, spacing: canvas.u(12)) {
                     Text(L10n.text("Recently unlocked"))
-                        .seleneFont(.panelBody, .semibold)
+                        .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.ink90)
                         .accessibilityAddTraits(.isHeader)
                     HStack(spacing: canvas.u(14)) {
@@ -187,7 +187,7 @@ struct AchievementsScreen: View {
         let fraction = summary.total > 0 ? Double(summary.unlocked) / Double(summary.total) : 0
         return VStack(alignment: .leading, spacing: 0) {
             Text(Self.wholePercent(summary.percentComplete))
-                .seleneFont(.profileScreenTitle, .semibold)
+                .seleneFont(.screen, .semibold)
                 .monospacedDigit()
                 .foregroundColor(SeleneTheme.ink)
                 .lineLimit(1)
@@ -234,7 +234,7 @@ struct AchievementsScreen: View {
         VStack(spacing: 0) {
             arcaneOrb
             Text(AchievementTier.arcane.displayName())
-                .seleneFont(.screenTitle, .semibold)
+                .seleneFont(.screen, .semibold)
                 .foregroundColor(SeleneTheme.ink)
                 .lineLimit(1)
                 .padding(.top, canvas.u(10))
@@ -293,7 +293,7 @@ struct AchievementsScreen: View {
     /// The count line as the gauge and the medallion show it, in up to `lines` lines.
     private func countLineText(lines: Int) -> some View {
         Text(countLine)
-            .seleneFont(.caption)
+            .seleneFont(.text)
             .foregroundColor(SeleneTheme.ink75)
             .monospacedDigit()
             .lineLimit(lines)
@@ -330,7 +330,7 @@ struct AchievementsScreen: View {
                 Button { onFilter(filter) } label: {
                     let number = Text("  \(count)").foregroundColor(selected ? SeleneTheme.onFocus.opacity(0.7) : SeleneTheme.ink60)
                     Text("\(Text(Self.title(filter)))\(number)")
-                        .seleneFont(.caption, .semibold)
+                        .seleneFont(.text, .semibold)
                         .monospacedDigit()
                         .foregroundColor(selected ? SeleneTheme.onFocus : SeleneTheme.ink90)
                         .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
@@ -410,11 +410,11 @@ private struct AchievementsScreenRow: View {
             AchievementIcon(appID: appID, file: row.icon, size: 64, dimmed: !unlocked, secret: row.isMasked)
             VStack(alignment: .leading, spacing: canvas.u(4)) {
                 Text(row.name)
-                    .seleneFont(.menuCaption, .semibold)
+                    .seleneFont(.text, .semibold)
                     .foregroundColor(unlocked ? SeleneTheme.ink : SeleneTheme.ink82)
                     .lineLimit(1)
                 Text(row.description)
-                    .seleneFont(.metadata)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
                     .lineLimit(2)
                     .truncationMode(.tail)
@@ -450,7 +450,7 @@ private struct AchievementsScreenRow: View {
                         .foregroundColor(SeleneTheme.ink.opacity(0.45))
                 }
             }
-            .seleneFont(.attribution, .semibold)
+            .seleneFont(.badge, .semibold)
             .lineLimit(1)
             .fixedSize()
         }
@@ -501,7 +501,7 @@ private struct AchievementsList: View {
             Group {
                 if rows.isEmpty {
                     Text(L10n.text("No achievements here yet."))
-                        .seleneFont(.body)
+                        .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink60)
                         .padding(.top, canvas.u(SeleneTokens.Space.panel))
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)

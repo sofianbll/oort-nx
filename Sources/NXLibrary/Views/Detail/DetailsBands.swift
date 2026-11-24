@@ -174,13 +174,13 @@ struct DetailsModsBand: View {
                 DetailsBandTitle(text: title)
                 if let line = gameBanana.statusLine(context: localization) {
                     Text(line)
-                        .seleneFont(.caption, .medium)
+                        .seleneFont(.text, .medium)
                         .foregroundColor(SeleneTheme.ink60)
                 }
                 Spacer(minLength: 0)
                 if gameBanana.phase != .idle {
                     Text(L10n.text("Mod data provided by GameBanana"))
-                        .seleneFont(.metadata)
+                        .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink60)
                 }
             }
@@ -243,11 +243,11 @@ struct DetailsModsBand: View {
                 .foregroundColor(mod.isOn ? SeleneTheme.focus : SeleneTheme.ink60)
             Spacer(minLength: 0)
             Text(mod.folderName)
-                .seleneFont(.panelBody, .semibold)
+                .seleneFont(.text, .semibold)
                 .foregroundColor(SeleneTheme.ink)
                 .lineLimit(2)
             Text(Self.state(mod))
-                .seleneFont(.compactCaption, .medium)
+                .seleneFont(.text, .medium)
                 .foregroundColor(mod.isOn ? SeleneTheme.ink82 : SeleneTheme.ink60)
         }
     }
@@ -258,10 +258,10 @@ struct DetailsModsBand: View {
                 .foregroundColor(SeleneTheme.ink75)
             Spacer(minLength: 0)
             Text(mods.isEmpty ? L10n.text("Add mods") : L10n.text("Manage mods"))
-                .seleneFont(.panelBody, .semibold)
+                .seleneFont(.text, .semibold)
                 .foregroundColor(SeleneTheme.ink)
             Text(mods.isEmpty ? L10n.text("File mods, no rebuild") : mods.count > ModsBandLayout.maxInstalled ? L10n.format("All %@ mods", [String(describing: mods.count)]) : L10n.text("Order, folder, Remove"))
-                .seleneFont(.compactCaption, .medium)
+                .seleneFont(.text, .medium)
                 .foregroundColor(SeleneTheme.ink60)
         }
     }
@@ -285,7 +285,7 @@ struct DetailsModsBand: View {
             VStack(alignment: .leading, spacing: canvas.u(2)) {
                 if let chip = chip(for: mod) {
                     Text(chip)
-                        .seleneFont(.attribution, .semibold)
+                        .seleneFont(.badge, .semibold)
                         .foregroundColor(SeleneTheme.ink)
                         .padding(.horizontal, canvas.u(10))
                         .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
@@ -293,11 +293,11 @@ struct DetailsModsBand: View {
                         .padding(.bottom, canvas.u(SeleneTokens.Space.hairline))
                 }
                 Text(mod.name)
-                    .seleneFont(.menuCaption, .semibold)
+                    .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink)
                     .lineLimit(1)
                 Text(L10n.format("by %@", [String(describing: mod.author)]))
-                    .seleneFont(.metadata, .medium)
+                    .seleneFont(.text, .medium)
                     .foregroundColor(SeleneTheme.ink75)
                     .lineLimit(1)
             }
@@ -334,11 +334,11 @@ struct DetailsModsBand: View {
                 .foregroundColor(SeleneTheme.ink75)
             Spacer(minLength: 0)
             Text(text.title)
-                .seleneFont(.panelBody, .semibold)
+                .seleneFont(.text, .semibold)
                 .foregroundColor(SeleneTheme.ink)
                 .lineLimit(2)
             Text(text.about)
-                .seleneFont(.compactCaption, .medium)
+                .seleneFont(.text, .medium)
                 .foregroundColor(SeleneTheme.ink60)
                 .lineLimit(1)
         }

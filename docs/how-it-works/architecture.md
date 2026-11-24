@@ -217,6 +217,8 @@ diminuire. Rimuovere le occorrenze sostituite con token.
 `SeleneTokens` deriva da `design/oort.tokens.json` e conserva le misure del
 canvas, gli effetti e le durate condivise. Il fallback e la prima voce del
 catalogo usano gli stessi ruoli colore Oort; le altre palette non sono generate.
+I sei ruoli di testo crescono fino al doppio con le taglie di accessibilità del
+sistema; la lettura a tre metri si verifica in pixel sul testo disegnato.
 `SeleneTheme` applica la palette corrente. `Motion` definisce le curve per ruolo.
 Il rail di Spotlight e Collection ripunta la molla critica alla nuova selezione;
 con Riduci movimento la posizione e gli interruttori cambiano direttamente.

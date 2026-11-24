@@ -45,15 +45,15 @@ struct LocalePicker: View {
         ZStack {
             SeleneTheme.scrim65.ignoresSafeArea().onTapGesture(perform: onClose)
             VStack(alignment: .leading, spacing: canvas.u(16)) {
-                Text(L10n.text(mode == .language ? "Choose app language" : "Regional formats")).seleneFont(32, .semibold).foregroundColor(SeleneTheme.ink)
+                Text(L10n.text(mode == .language ? "Choose app language" : "Regional formats")).seleneFont(.screen, .semibold).foregroundColor(SeleneTheme.ink)
                 Text(L10n.text(mode == .language ? "Menus, genres and available game descriptions. The games’ own language stays separate." : "Dates, numbers and sizes only. Game descriptions follow the app language."))
-                    .seleneFont(.caption).foregroundColor(SeleneTheme.ink60)
+                    .seleneFont(.text).foregroundColor(SeleneTheme.ink60)
                 if mode == .region {
-                    Text(formatPreview).seleneFont(.caption).foregroundColor(SeleneTheme.ink)
+                    Text(formatPreview).seleneFont(.text).foregroundColor(SeleneTheme.ink)
                 }
                 if mode == .region {
                 TextField(L10n.text("Find a region"), text: $query)
-                    .textFieldStyle(.plain).seleneFont(20).focused($searchFocused)
+                    .textFieldStyle(.plain).seleneFont(.row).focused($searchFocused)
                     .onSubmit { choose() }
                     .padding(canvas.u(SeleneTokens.Space.line)).background(SeleneTheme.glass)
                     .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content)))
@@ -62,17 +62,17 @@ struct LocalePicker: View {
                     ScrollView {
                         LazyVStack(spacing: canvas.u(5)) {
                             if rows.isEmpty {
-                                Text(L10n.text("No matching regions.")).seleneFont(.menuCaption).foregroundColor(SeleneTheme.ink60)
+                                Text(L10n.text("No matching regions.")).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
                             }
                             ForEach(rows.indices, id: \.self) { index in
                                 Button { focus = index; choose() } label: {
                                     HStack {
-                                        Text(rows[index].name).seleneFont(20)
+                                        Text(rows[index].name).seleneFont(.row)
                                         Spacer()
                                         if rows[index].id == selectedID {
                                             MaterialIconView(.check, size: 22)
                                         }
-                                        if mode == .region, rows[index].id != "auto" { Text(rows[index].id).seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink60) }
+                                        if mode == .region, rows[index].id != "auto" { Text(rows[index].id).seleneFont(.text).foregroundColor(SeleneTheme.ink60) }
                                     }
                                     .foregroundColor(SeleneTheme.ink)
                                     .padding(canvas.u(SeleneTokens.Space.line))
@@ -98,7 +98,7 @@ struct LocalePicker: View {
                 .frame(height: canvas.u(420))
                 HStack {
                     Spacer()
-                    Button(L10n.text("Cancel"), action: onClose).buttonStyle(.plain).seleneFont(.panelBody, .semibold)
+                    Button(L10n.text("Cancel"), action: onClose).buttonStyle(.plain).seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.glyph).padding(canvas.u(SeleneTokens.Space.compact))
                 }
             }

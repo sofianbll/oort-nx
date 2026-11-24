@@ -89,11 +89,11 @@ struct SteamOptionsView: View {
         let focused = focusedRow
         return VStack(alignment: .leading, spacing: 0) {
             Text(L10n.text("GAME OPTIONS"))
-                .seleneFont(.compactCaption, .semibold)
+                .seleneFont(.text, .semibold)
                 .foregroundColor(SeleneTheme.ink60)
                 .padding(.leading, canvas.u(SeleneTokens.Space.compact))
             Text(current.name)
-                .seleneFont(.screenTitle)
+                .seleneFont(.screen)
                 .foregroundColor(SeleneTheme.ink)
                 .lineLimit(1)
                 .padding(.leading, canvas.u(SeleneTokens.Space.tight))
@@ -135,7 +135,7 @@ struct SteamOptionsView: View {
             .accessibilityAction { activate(row) }
         case .heading(let text):
             Text(L10n.text(text))
-                .seleneFont(.body, .semibold)
+                .seleneFont(.text, .semibold)
                 .foregroundColor(SeleneTheme.ink75)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, canvas.u(26))

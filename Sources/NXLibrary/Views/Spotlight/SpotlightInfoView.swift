@@ -53,14 +53,14 @@ struct SpotlightGameInfoView: View {
                 }
                 if case .failed(let failure) = pillSet {
                     Text(failure == .cancelled ? L10n.text("Porting cancelled") : L10n.text("Porting failed"))
-                        .seleneFont(.panelBody, .semibold)
+                        .seleneFont(.text, .semibold)
                         .foregroundColor(PortingPillCopy.softRed)
                         .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
                         .padding(.top, canvas.u(SeleneTokens.Space.panel))
                 }
                 if let reason = pillSet.unavailableReason, downloadItem == nil {
                     Text(reason.title)
-                        .seleneFont(.panelBody, .semibold)
+                        .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.ink75)
                         .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
                         .padding(.top, canvas.u(SeleneTokens.Space.panel))
@@ -106,33 +106,33 @@ struct SpotlightGameInfoView: View {
         case .porting:
             if let etaText {
                 Text(etaText)
-                    .seleneFont(.caption)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink75)
                     .transition(.opacity)
             }
         case .normalAfterFailure(let failure):
             Button(action: onOpenLog) {
                 Text(PortingPillCopy.lastFailure(failure, reason: game.portingFailureReason))
-                    .seleneFont(.compactCaption)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
             }
             .buttonStyle(.plain)
         case .failed(let failure):
             if failure == .failed, let reason = game.portingFailureReason {
                 Text(reason.title)
-                    .seleneFont(.compactCaption)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
             }
         case .unavailable(let reason) where downloadItem == nil:
-            Text(reason.detail).seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink60)
+            Text(reason.detail).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
         case .normal, .unavailable:
             if downloadItem != nil {
                 EmptyView()
             } else if !canCheckCloudSources && !game.sources.isEmpty && !GameResourceState.sourcesAvailable(for: game) {
                 Text(L10n.text("Game files not found · Rebuild unavailable"))
-                    .seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink60)
+                    .seleneFont(.text).foregroundColor(SeleneTheme.ink60)
             } else if !game.isPlayableLocally {
-                Text(L10n.text("Not built yet")).seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink60)
+                Text(L10n.text("Not built yet")).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
             }
         }
     }
@@ -193,11 +193,11 @@ struct SpotlightGameInfoView: View {
             NowPlayingDot()
                 .frame(width: canvas.u(20), height: canvas.u(20))
                 .padding(.trailing, canvas.u(9))
-            Text(L10n.text("NOW PLAYING")).seleneFont(.metadata, .bold).foregroundColor(SeleneTheme.success)
+            Text(L10n.text("NOW PLAYING")).seleneFont(.text, .bold).foregroundColor(SeleneTheme.success)
             Rectangle().fill(SeleneTheme.ink25)
                 .frame(width: max(1, canvas.u(1)), height: canvas.u(18))
                 .padding(.horizontal, canvas.u(SeleneTokens.Space.line))
-            Text(L10n.text("Continue where you left off")).seleneFont(.body).foregroundColor(SeleneTheme.ink90)
+            Text(L10n.text("Continue where you left off")).seleneFont(.text).foregroundColor(SeleneTheme.ink90)
         }
         .padding(EdgeInsets(top: canvas.u(6), leading: canvas.u(12), bottom: canvas.u(7), trailing: canvas.u(18)))
         .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.spotlightFocus), style: .continuous).fill(SeleneTheme.glassLight))

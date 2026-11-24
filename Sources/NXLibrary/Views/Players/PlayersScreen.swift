@@ -49,7 +49,7 @@ struct PlayersScreen: View {
     private var column: some View {
         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small)) {
             Text(verbatim: heading)
-                .seleneFont(.screenTitle)
+                .seleneFont(.screen)
                 .foregroundStyle(SeleneTheme.ink)
                 .accessibilityAddTraits(.isHeader)
             if model.page == .overview {
@@ -98,12 +98,12 @@ struct PlayersScreen: View {
             VStack(spacing: canvas.u(SeleneTokens.Space.control)) {
                 Label(L10n.format("Press a button on the controller for player %lld", [number], context: localization),
                       systemImage: "gamecontroller")
-                    .seleneFont(.dialogTitle, .semibold)
+                    .seleneFont(.screen, .semibold)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                 if model.hasIdenticalPads {
                     Text(verbatim: t("These controllers look identical. Your button press tells them apart."))
-                        .seleneFont(.panelBody)
+                        .seleneFont(.text)
                         .foregroundStyle(SeleneTheme.ink75)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -251,9 +251,9 @@ struct PlayersScreen: View {
         switch kind {
         case .nintendoSwitch:
             PlatformMark(kind: .switch1)
-        case .xbox: Image(systemName: "logo.xbox").seleneFont(.rowTitle)
-        case .playstation: Image(systemName: "logo.playstation").seleneFont(.rowTitle)
-        case .generic: Image(systemName: "gamecontroller").seleneFont(.rowTitle)
+        case .xbox: Image(systemName: "logo.xbox").seleneFont(.row)
+        case .playstation: Image(systemName: "logo.playstation").seleneFont(.row)
+        case .generic: Image(systemName: "gamecontroller").seleneFont(.row)
         }
     }
 
@@ -283,7 +283,7 @@ struct PlayersScreen: View {
     }
     private func copy(_ value: String) -> some View {
         Text(verbatim: t(value))
-            .seleneFont(.caption)
+            .seleneFont(.text)
             .foregroundStyle(SeleneTheme.ink75)
             .frame(maxWidth: .infinity, alignment: .leading)
             .fixedSize(horizontal: false, vertical: true)

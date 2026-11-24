@@ -41,7 +41,7 @@ struct ActivityCenterView: View {
         let focused = focus.current(in: rows)
         SeleneOverlay(style: .activity, alignment: .bottom, onOutside: onOutside) {
             VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.panel)) {
-                Text(text("Activity center")).seleneFont(.panelTitle, .semibold)
+                Text(text("Activity center")).seleneFont(.heading, .semibold)
                     .accessibilityAddTraits(.isHeader)
                 // The list takes its own height up to the cap, then scrolls; the inset keeps focus glows unclipped.
                 ScrollViewReader { scroll in
@@ -105,11 +105,11 @@ struct ActivityCenterView: View {
                          focused: ActivityCenterFocus.Row) -> some View {
         if !rows.isEmpty || empty != nil {
             VStack(alignment: .leading, spacing: canvas.u(8)) {
-                Text(text(key)).seleneFont(12, .bold).tracking(canvas.u(1.4))
+                Text(text(key)).seleneFont(.badge, .bold).tracking(canvas.u(1.4))
                     .textCase(.uppercase).foregroundColor(SeleneTheme.ink60)
                     .accessibilityAddTraits(.isHeader)
                 if rows.isEmpty, let empty {
-                    Text(text(empty)).seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink60)
+                    Text(text(empty)).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
                         .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
                 } else {
                     rowList(rows, focused: focused)
@@ -340,9 +340,9 @@ private struct ActivityRow: View {
 
     private var content: some View {
         VStack(alignment: .leading, spacing: canvas.u(3)) {
-            Text(title).seleneFont(.body, .semibold).lineLimit(1)
+            Text(title).seleneFont(.text, .semibold).lineLimit(1)
             if let detail, detail != status {
-                Text(detail).seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink60).lineLimit(2)
+                Text(detail).seleneFont(.text).foregroundColor(SeleneTheme.ink60).lineLimit(2)
                     .monospacedDigit()
             }
         }

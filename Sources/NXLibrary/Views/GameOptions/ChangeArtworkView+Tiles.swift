@@ -31,10 +31,10 @@ extension ChangeArtworkView {
             .overlay(SeleneTileRing(cornerRadius: canvas.u(18), active: focused).padding(canvas.u(-6)))
             VStack(alignment: .leading, spacing: canvas.u(2)) {
                 Text(caption(tile).title)
-                    .seleneFont(.metadata, .semibold)
+                    .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink)
                 Text(caption(tile).detail)
-                    .seleneFont(.attribution)
+                    .seleneFont(.badge)
                     .foregroundColor(SeleneTheme.ink60)
             }
             .lineLimit(1)

@@ -247,7 +247,7 @@ private struct IntegrationFixtureHome: View {
                 .environment(\.integrationBar, AnyView(IntegrationBar(rows: data.rows, focused: router.integrationBarFocused,
                                                                      open: router.openIntegrations)))
             VStack(alignment: .leading, spacing: canvas.u(20)) {
-                Text("Lunar Observatory").seleneFont(.screenTitle, .semibold)
+                Text("Lunar Observatory").seleneFont(.screen, .semibold)
                 SelenePillButton(title: "Play", focused: !router.integrationBarFocused) {}
             }
             .padding(.leading, canvas.u(SeleneTokens.Space.chromeGutter + SeleneTokens.Space.medium))

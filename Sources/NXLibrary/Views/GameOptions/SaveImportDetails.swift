@@ -32,10 +32,10 @@ struct SaveImportDetails: View {
 
             VStack(spacing: canvas.u(8)) {
                 Text(L10n.text("Your current save is backed up before replacement."))
-                    .seleneFont(.body, .medium)
+                    .seleneFont(.text, .medium)
                     .foregroundColor(SeleneTheme.ink)
                 Text(SavePresentation.importWarning)
-                    .seleneFont(.compactCaption)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
                     .lineSpacing(canvas.u(3))
             }
@@ -49,12 +49,12 @@ struct SaveImportDetails: View {
         let path = (folder.path as NSString).abbreviatingWithTildeInPath
         return VStack(spacing: canvas.u(8)) {
             Text(verbatim: label.uppercased())
-                .seleneFont(.attribution, .semibold)
+                .seleneFont(.badge, .semibold)
                 .tracking(canvas.u(1.2))
                 .foregroundColor(SeleneTheme.ink60)
             // Give long directory names a natural wrap point after each slash.
             Text(verbatim: path.replacingOccurrences(of: "/", with: "/\u{200B}"))
-                .seleneFont(.body)
+                .seleneFont(.text)
                 .lineSpacing(canvas.u(2))
                 .foregroundColor(SeleneTheme.ink)
                 .fixedSize(horizontal: false, vertical: true)

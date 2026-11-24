@@ -95,7 +95,7 @@ struct MenuOverlayView: View {
         } label: {
             VStack(spacing: 0) {
                 Text(action == .profile ? activeProfile?.name ?? action.title : action.title)
-                    .seleneFont(.menuCaption, .semibold)
+                    .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink)
                     .lineLimit(1)
                     .fixedSize()
@@ -104,7 +104,7 @@ struct MenuOverlayView: View {
                     .offset(y: isFocused || reduceMotion ? 0 : canvas.u(6))
                     .animation(Motion.focus(reduceMotion), value: isFocused)
                 if action == .profile, activeProfile != nil, isFocused {
-                    Text(action.title).seleneFont(.metadata).foregroundColor(SeleneTheme.ink60).lineLimit(1).fixedSize()
+                    Text(action.title).seleneFont(.text).foregroundColor(SeleneTheme.ink60).lineLimit(1).fixedSize()
                 }
 
                 ZStack {

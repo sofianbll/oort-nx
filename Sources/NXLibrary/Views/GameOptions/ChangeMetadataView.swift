@@ -144,11 +144,11 @@ struct ChangeMetadataView: View {
             VStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(L10n.text("CHANGE METADATA"))
-                        .seleneFont(.compactCaption, .semibold)
+                        .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.ink60)
                         .padding(.leading, canvas.u(SeleneTokens.Space.compact))
                     Text(subject.name)
-                        .seleneFont(.screenTitle)
+                        .seleneFont(.screen)
                         .foregroundColor(SeleneTheme.ink)
                         .lineLimit(1)
                         .padding(.leading, canvas.u(SeleneTokens.Space.tight))
@@ -158,7 +158,7 @@ struct ChangeMetadataView: View {
                         .padding(.bottom, canvas.u(SeleneTokens.Space.line))
                     tabs
                     Text(failure ?? sourceStatus)
-                        .seleneFont(.metadata)
+                        .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink60)
                         .lineLimit(1)
                         .help(failure ?? sourceStatus)
@@ -211,7 +211,7 @@ struct ChangeMetadataView: View {
         HStack(spacing: canvas.u(8)) {
             ForEach(MetadataField.allCases, id: \.self) { tab in
                 Text(tab.title)
-                    .seleneFont(.body, .semibold)
+                    .seleneFont(.text, .semibold)
                     .foregroundColor(tab == field ? SeleneTheme.ink : SeleneTheme.ink60)
                     .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
                     .padding(.vertical, canvas.u(9))
@@ -475,10 +475,10 @@ struct ChangeMetadataView: View {
                     Text(field == .genres ? L10n.text("Separate with commas.")
                         : field == .releaseDate ? L10n.text("YYYY-MM-DD")
                         : field == .description ? L10n.text("⌘Return to save · Empty for Automatic") : L10n.text("Empty for Automatic"))
-                        .seleneFont(.metadata)
+                        .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink60)
                 }
-                .seleneFont(.body)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink)
                 .padding(canvas.u(SeleneTokens.Space.medium))
                 .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content)).fill(SeleneTheme.glassLight))

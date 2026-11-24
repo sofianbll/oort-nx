@@ -26,19 +26,19 @@ struct IGDBCredentialsDialog: View {
                 VStack(alignment: .leading, spacing: canvas.u(14)) {
                     setupSteps
                     VStack(alignment: .leading, spacing: canvas.u(6)) {
-                        Text(L10n.text("Client ID")).seleneFont(.metadata).foregroundColor(SeleneTheme.ink60)
+                        Text(L10n.text("Client ID")).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
                         TextField(L10n.text("Client ID"), text: $clientID)
                             .focused($field, equals: .client).onSubmit { field = .secret }
                     }
                     .disabled(checking)
                     VStack(alignment: .leading, spacing: canvas.u(6)) {
-                        Text(L10n.text("Client Secret")).seleneFont(.metadata).foregroundColor(SeleneTheme.ink60)
+                        Text(L10n.text("Client Secret")).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
                         SecureField(L10n.text("Client Secret"), text: $secret)
                             .focused($field, equals: .secret).onSubmit(save)
                     }
                     .disabled(checking)
                     if let message {
-                        Text(message).seleneFont(.metadata).foregroundColor(SeleneTheme.danger)
+                        Text(message).seleneFont(.text).foregroundColor(SeleneTheme.danger)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     HStack {
@@ -50,7 +50,7 @@ struct IGDBCredentialsDialog: View {
                             NSWorkspace.shared.open(URL(string: "https://api-docs.igdb.com/#account-creation")!)
                         }
                     }
-                    .buttonStyle(.plain).seleneFont(.metadata).foregroundColor(SeleneTheme.focus)
+                    .buttonStyle(.plain).seleneFont(.text).foregroundColor(SeleneTheme.focus)
                 }
                 .textFieldStyle(.plain)
                 .font(.system(size: max(13, canvas.u(17)), design: .monospaced))
@@ -100,7 +100,7 @@ struct IGDBCredentialsDialog: View {
                 .foregroundColor(SeleneTheme.ink60)
                 .padding(.top, canvas.u(3))
         }
-        .seleneFont(.metadata)
+        .seleneFont(.text)
         .multilineTextAlignment(.leading)
         .fixedSize(horizontal: false, vertical: true)
         .padding(.bottom, canvas.u(SeleneTokens.Space.tight))

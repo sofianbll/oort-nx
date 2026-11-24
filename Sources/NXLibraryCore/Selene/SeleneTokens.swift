@@ -3,27 +3,12 @@ import CoreGraphics
 
 public enum SeleneTokens {
     public enum Text: CGFloat {
-        case screenTitle = 40
-        case title = 28
-        case body = 17
-        case caption = 16
-        case metadata = 14
-        case profileScreenTitle = 44
-        case dialogTitle = 34
-        case panelTitle = 30
-        case profileTitle = 24
-        case sectionTitle = 26
-        case selectionTitle = 22
-        case rowTitle = 21
-        case panelBody = 19
-        case menuCaption = 18
-        case compactCaption = 15
-        case heroTitle = 62
-        case profileHeroTitle = 82
-        case inboxTitle = 48
-        case emptyStateTitle = 25
-        case attribution = 13
-        case groupKicker = 12
+        case badge = 16
+        case text = 19
+        case row = 22
+        case heading = 28
+        case screen = 40
+        case hero = 62
     }
 
     public enum Space {
