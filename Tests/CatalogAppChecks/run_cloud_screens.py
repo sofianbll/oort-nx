@@ -650,13 +650,22 @@ extension CloudScreenProbe {
         try render("cloud-only-build-fr", output, details(selected, vm: vm), size: .init(width: 1120, height: 470))
         try await checkBuildAndPlay(vm, game: selected, in: root, output: output)
 
+        // Build completion starts a catalog scan; imports are refused until it finishes.
+        let scanDeadline = ContinuousClock.now + .seconds(10)
+        while vm.isScanningLibrary && ContinuousClock.now < scanDeadline {
+            try await Task.sleep(for: .milliseconds(15))
+        }
+        precondition(!vm.isScanningLibrary, "The post-build catalog scan did not finish")
         vm.cloudLibrary.setReferenceFolder(referenceID)
         vm.cloudLibrary.installScreenArchives(backend)
         vm.cloudLibrary.installScreenSources(backend, root: "Games/GameFiles")
         vm.cloudLibrary.installScreenReference(backend.reference(folderID: referenceID)!, sourceRoot: "GameFiles")
         vm.importCloudGames(manually: true)
-        await vm.cloudLibrary.importTask?.value
-        let shared = vm.libraryGames.first { $0.cloudSourcesReferenceFolder == referenceID }!
+        guard let referenceImport = vm.cloudLibrary.importTask else { preconditionFailure("Reference import did not start") }
+        await referenceImport.value
+        guard let shared = vm.libraryGames.first(where: { $0.cloudSourcesReferenceFolder == referenceID }) else {
+            preconditionFailure("No shared fixture after import: \(vm.settingsNotice?.message ?? "no notice")")
+        }
         precondition(vm.portingTileLook(shared) == .toDownloadFiles && !GameResourceState.sourcesAvailable(for: shared))
         vm.applyCatalog(try repo.forgetCloudReference(referenceID))
         precondition(!vm.libraryGames.contains { $0.id == shared.id })
