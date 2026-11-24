@@ -4,12 +4,33 @@ import XCTest
 @testable import ArcanePorting
 
 final class CloudGameSourcesTests: XCTestCase {
+    func testChangingLibraryCannotReadOrSendToTheOldSourcesRoot() async throws {
+        let title = "Fixture [0100000000001000]"
+        let file = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID()).nsp")
+        try Data("fixture".utf8).write(to: file)
+        defer { try? FileManager.default.removeItem(at: file) }
+        let backend = RcloneStorageBackend(remote: "fixture", root: "NewGames") { _, args, _ in
+            XCTFail("A remote operation escaped the selected library: \(args.prefix(3))")
+            throw StorageBackendError.invalidConfiguration
+        }
+        let service = CloudGameSources(backend: backend, root: "OldGames/GameFiles")
+        do {
+            _ = try await service.availability(folderName: title, files: [file])
+            XCTFail("An out-of-scope root must not be reported as absent")
+        } catch { XCTAssertEqual(error as? StorageBackendError, .invalidConfiguration) }
+        do {
+            try await service.upload(folderName: title, files: [file], progress: nil)
+            XCTFail("An out-of-scope root must not accept an upload")
+        } catch { XCTAssertEqual(error as? StorageBackendError, .invalidConfiguration) }
+    }
+
     func testDiscoveryIsScopedAndRejectsUncertainIdentity() async throws {
         let base = "0100000000001000", flat = "0100000000002000", duplicate = "0100000000003000"
         let folder = "Lunar Observatory [\(base)]", first = "First [\(duplicate)]", second = "Second [\(duplicate)]"
+        let unreadable = "Unreadable [0100000000006000]"
         let listings = [
             "fixture:Games": Self.entries(directories: ["GameFiles", "Switch"]),
-            "fixture:Games/GameFiles": Self.entries(directories: [folder, first, second, "Unreadable", "Ambiguous", "Case", "case", "Archive.app"],
+            "fixture:Games/GameFiles": Self.entries(directories: [folder, first, second, unreadable, "Ambiguous", "Case", "case", "Archive.app"],
                                                    files: ["Flat [\(flat)].xci", "Name only.nsp", "../Escape [\(flat)].nsp", "Other [\(flat)][\(base)].nsp"]),
             "fixture:Games/GameFiles/\(folder)": Self.entries(files: ["Game.nsp", "Update [0100000000001800][v64].nsz"]),
             "fixture:Games/GameFiles/\(first)": Self.entries(files: ["First.nsp"]),
@@ -21,7 +42,7 @@ final class CloudGameSourcesTests: XCTestCase {
             XCTAssertTrue(args.contains("--drive-skip-shortcuts"))
             XCTAssertFalse(args.contains("--hash"))
             let path = args[1]
-            if path == "fixture:Games/GameFiles/Unreadable" { return .init(status: 1, stdout: "", stderr: "403 forbidden") }
+            if path == "fixture:Games/GameFiles/\(unreadable)" { return .init(status: 1, stdout: "", stderr: "403 forbidden") }
             let listing = try XCTUnwrap(listings[path], "Unexpected read: \(path)")
             return .init(status: 0, stdout: listing, stderr: "")
         }
@@ -30,13 +51,164 @@ final class CloudGameSourcesTests: XCTestCase {
         XCTAssertEqual(discovery.games.first?.name, "Lunar Observatory")
         XCTAssertEqual(discovery.games.first?.files.map(\.kind), [.base, .update])
         XCTAssertEqual(discovery.ambiguous, ["Ambiguous", "Case", first, "Other [\(flat)][\(base)].nsp", second, "case"].sorted())
-        XCTAssertEqual(discovery.unreadable, ["../Escape [\(flat)].nsp", "Name only.nsp", "Unreadable"])
+        XCTAssertEqual(discovery.unreadable, ["../Escape [\(flat)].nsp", "Name only.nsp", unreadable])
 
         for path in ["Other/GameFiles", "GamesPrivate/GameFiles", "Games/../Other", "Games"] {
             let service = CloudGameSources(backend: backend, root: path)
             let result = try await service.discover()
             XCTAssertTrue(result.games.isEmpty)
         }
+    }
+
+    func testTimedOutFolderCannotSelectOrDownloadAnApparentlyUniqueTitle() async throws {
+        let title = "0100000000004000", folder = "Orbit [\(title)]", file = "Orbit.nsp"
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        func service(timedOut: String? = nil) -> CloudGameSources {
+            let source = "fixture:Games/GameFiles"
+            let backend = RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in
+                guard args.first == "lsjson" else {
+                    XCTFail("An incomplete inventory must not transfer a payload")
+                    throw StorageBackendError.invalidConfiguration
+                }
+                let listing: String
+                switch args[1] {
+                case "fixture:Games": listing = Self.entries(directories: ["GameFiles"])
+                case source: listing = Self.entries(directories: [folder] + [timedOut].compactMap { $0 })
+                case "\(source)/\(folder)": listing = Self.entries(files: [file], md5: "c4ca4238a0b923820dcc509a6f75849b")
+                case "\(source)/\(folder)/\(file)":
+                    listing = #"{"Name":"Orbit.nsp","Path":"Orbit.nsp","Size":1,"IsDir":false,"Hashes":{"md5":"c4ca4238a0b923820dcc509a6f75849b"}}"#
+                case "\(source)/\(timedOut ?? "")": return .init(status: 1, stdout: "", stderr: "i/o timeout")
+                default:
+                    XCTFail("Unexpected read: \(args[1])")
+                    throw StorageBackendError.invalidConfiguration
+                }
+                return .init(status: 0, stdout: listing, stderr: "")
+            }
+            return CloudGameSources(backend: backend, root: "Games/GameFiles", capacity: { _ in 10_000_000 }, trash: { _ in XCTFail("No trash") })
+        }
+        let complete = try await service().discover()
+        let registered = try XCTUnwrap(complete.games.first)
+        let files = registered.adopted(in: root)
+        let parent = try XCTUnwrap(files.first?.url.deletingLastPathComponent())
+        try FileManager.default.createDirectory(at: parent, withIntermediateDirectories: true)
+
+        for blocked in ["Duplicate [\(title)]", "Unlabelled"] {
+            let incomplete = service(timedOut: blocked)
+            let discovery = try await incomplete.discover()
+            XCTAssertTrue(discovery.games.isEmpty, blocked)
+            await assertError(.noRemoteCopy) {
+                try await incomplete.downloadDiscovered(titleID: title, directory: registered.directory, files: files, in: root, progress: nil)
+            }
+        }
+        XCTAssertTrue(try FileManager.default.contentsOfDirectory(atPath: parent.path).isEmpty)
+    }
+
+    func testDiscoveryReadsBareTitleIDsBeforeTheFileExtension() async throws {
+        let title = "0100000000004000", conflict = "0100000000005000", standalone = "0100000000006000"
+        let folder = "Orbit [\(title)]"
+        let listings = [
+            "fixture:Games": Self.entries(directories: ["GameFiles"]),
+            "fixture:Games/GameFiles": Self.entries(directories: [folder], files: ["\(standalone).nsp"]),
+            "fixture:Games/GameFiles/\(folder)": Self.entries(files: ["\(conflict).nsp"]),
+        ]
+        let backend = RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in
+            XCTAssertEqual(args.first, "lsjson")
+            return .init(status: 0, stdout: try XCTUnwrap(listings[args[1]]), stderr: "")
+        }
+        let discovery = try await CloudGameSources(backend: backend, root: "Games/GameFiles").discover()
+        XCTAssertEqual(discovery.games.map(\.titleID), [standalone])
+        XCTAssertEqual(discovery.ambiguous, [folder])
+    }
+
+    func testCloudSourceWithConflictingPackageIdentityIsNotBuildable() async throws {
+        let title = "0100000000004000", wrongTitle = "0100000000005000"
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let wrong = try Self.packageSource(root.appendingPathComponent("wrong.nsp"), titleID: wrongTitle)
+        let unreadable = root.appendingPathComponent("unreadable.nsp")
+        try Data("1".utf8).write(to: unreadable)
+        for payload in [wrong.url, unreadable] {
+            let sources = try Self.referenceSource(title: title, payload: payload, in: root)
+            let discovery = try await sources.discover()
+            let game = try XCTUnwrap(discovery.games.first)
+            let files = game.adopted(in: root)
+            let url = try XCTUnwrap(files.first?.url)
+            try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+            await assertError(.invalidArchive) {
+                try await sources.downloadDiscovered(titleID: title, directory: game.directory, files: files, in: root, progress: nil)
+            }
+            XCTAssertFalse(FileManager.default.fileExists(atPath: url.path), "Neither a conflicting nor an unreadable NSP must be published")
+        }
+    }
+
+    func testUnicodeCollisionRejectsDiscoveryAndDownloadBeforeAnyTransfer() async throws {
+        let title = "0100000000004000", folder = "Orbit [\(title)]"
+        let names = ["Orbit.nsp", "Straße [0100000000004800].nsp", "STRASSE [0100000000004800].nsp"]
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let path = "fixture:Games/GameFiles/\(folder)"
+        let backend = RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in
+            guard args.first == "lsjson" else {
+                XCTFail("A destination collision must be rejected before \(args[0])")
+                throw StorageBackendError.invalidConfiguration
+            }
+            let listing: String
+            switch args[1] {
+            case "fixture:Games": listing = Self.entries(directories: ["GameFiles"])
+            case "fixture:Games/GameFiles": listing = Self.entries(directories: [folder])
+            case path: listing = Self.entries(files: names, md5: "c4ca4238a0b923820dcc509a6f75849b")
+            default:
+                let name = try XCTUnwrap(names.first { args[1] == "\(path)/\($0)" })
+                listing = #"{"Name":"\#(name)","Path":"\#(name)","Size":1,"IsDir":false,"Hashes":{"md5":"c4ca4238a0b923820dcc509a6f75849b"}}"#
+            }
+            return .init(status: 0, stdout: listing, stderr: "")
+        }
+        let service = CloudGameSources(backend: backend, root: "Games/GameFiles", capacity: { _ in 10_000_000 }, trash: { _ in XCTFail("No trash") })
+        let discovery = try await service.discover()
+        XCTAssertTrue(discovery.games.isEmpty)
+        XCTAssertEqual(discovery.ambiguous, [folder])
+
+        do {
+            try await service.download(folderName: folder, files: names.map { root.appendingPathComponent($0) }, progress: nil)
+            XCTFail("An existing catalog selection with colliding paths must not download")
+        } catch {
+            let conflict = error as? CloudArchiveError
+            XCTAssertTrue(conflict == .unsafePath || conflict == .sourcesConflict || conflict == .localChanged,
+                          "Expected a destination conflict, not \(error)")
+        }
+        XCTAssertTrue(try FileManager.default.contentsOfDirectory(atPath: root.path).isEmpty)
+    }
+
+    func testUnicodeAliasesDoNotCountOneLocalFileTwice() throws {
+        let title = "0100000000004000", updateID = "0100000000004800"
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let base = root.appendingPathComponent("Orbit [\(title)].nsp")
+        let update = root.appendingPathComponent("Straße [\(updateID)].nsp")
+        let alias = root.appendingPathComponent("STRASSE [\(updateID)].nsp")
+        var game = PortedGame(name: "Orbit", url: root, platform: .macApp, sizeBytes: 0,
+                              modificationDate: .distantPast, titleId: title)
+        game.cloudImportPending = true
+        game.discoveredCloudSourceDirectory = "GameFiles/Orbit [\(title)]"
+        game.sources = [try Self.packageSource(base, titleID: title), try Self.packageSource(update, titleID: updateID, kind: .update)]
+        XCTAssertTrue(GameResourceState.sourcesAvailable(for: game))
+        if !FileManager.default.fileExists(atPath: alias.path) {
+            try FileManager.default.linkItem(at: update, to: alias)
+        }
+        game.sources.append(.init(url: alias, kind: .update, titleId: updateID, sizeBytes: game.sources[1].sizeBytes))
+        XCTAssertFalse(GameResourceState.sourcesAvailable(for: game), "Both names reach the same update, not two files")
+    }
+
+    private static func packageSource(_ url: URL, titleID: String, kind: SourceKind = .base) throws -> GameFileItem {
+        let type = kind == .update ? "Patch" : "Application"
+        let xml = "<ContentMeta><Type>\(type)</Type><Id>0x\(titleID)</Id><Version>0</Version></ContentMeta>"
+        try PFS0Fixture.write(to: url, files: [("meta.cnmt.xml", Data(xml.utf8))])
+        let bytes = try XCTUnwrap(url.resourceValues(forKeys: [.fileSizeKey]).fileSize)
+        return .init(url: url, kind: kind, titleId: titleID, sizeBytes: Int64(bytes))
     }
 
     func testReferenceSourcesOnlyAndCatalogKeepsLocalCopyAndExclusions() async throws {
@@ -48,7 +220,7 @@ final class CloudGameSourcesTests: XCTestCase {
         ]
         let backend = RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in
             XCTAssertEqual(args.first, "lsjson")
-            XCTAssertTrue(args.contains(reference))
+            XCTAssertTrue(args.contains("--drive-root-folder-id=\(reference)"))
             XCTAssertFalse(args.contains("--hash"))
             return .init(status: 0, stdout: try XCTUnwrap(listings[args[1]]), stderr: "")
         }
@@ -63,7 +235,8 @@ final class CloudGameSourcesTests: XCTestCase {
         let kept = try XCTUnwrap(catalog.nxnativeGames.first)
         let absent = try XCTUnwrap(catalog.nxnativeGames.last)
         XCTAssertTrue(kept.isCloudSourcePlaceholder)
-        XCTAssertEqual(kept.cloudReferenceFolder, reference)
+        XCTAssertNil(kept.cloudReferenceFolder)
+        XCTAssertEqual(kept.cloudSourcesReferenceFolder, reference)
         XCTAssertEqual(GameResourceState.unavailableReason(for: kept), .sourcesMissing)
         let files = CloudGameSources.importedFolder(for: kept.id, in: root)
         XCTAssertEqual(discovery.games[0].availability(for: kept.sources, in: files)?.state, .cloudOnly)
@@ -112,13 +285,33 @@ final class CloudGameSourcesTests: XCTestCase {
     }
 
     func testDiscoveredReferenceDownloadVerifiesBytesAndRefusesToReplaceChangedLocalFile() async throws {
-        let title = "0100000000004000", reference = "reference-fixture"
-        let file = "Lunar [\(title)].nsp"
+        let title = "0100000000004000"
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: root) }
+        let payload = try Self.packageSource(root.appendingPathComponent("remote.nsp"), titleID: title)
+        let sources = try Self.referenceSource(title: title, payload: payload.url, in: root)
+        let discovery = try await sources.discover()
+        let game = try XCTUnwrap(discovery.games.first)
+        let files = game.adopted(in: root)
+        let fileURL = try XCTUnwrap(files.first?.url)
+        try FileManager.default.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try await sources.downloadDiscovered(titleID: title, directory: game.directory, files: files, in: root, progress: nil)
+        XCTAssertEqual(try Data(contentsOf: fileURL), try Data(contentsOf: payload.url))
+        try Data("2".utf8).write(to: fileURL, options: .atomic)
+        await assertError(.localChanged) {
+            try await sources.downloadDiscovered(titleID: title, directory: game.directory, files: files, in: root, progress: nil)
+        }
+        XCTAssertEqual(try Data(contentsOf: fileURL), Data("2".utf8))
+    }
+
+    private static func referenceSource(title: String, payload: URL, in root: URL) throws -> CloudGameSources {
+        let reference = "reference-fixture", file = "Lunar [\(title)].nsp"
+        let data = try Data(contentsOf: payload)
+        let digest = try XCTUnwrap(CloudArchiveInventory.hashes(at: payload)["md5"])
         let backend = RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in
-            XCTAssertTrue(args.contains(reference))
-            let node = #"{"Name":"\#(file)","Path":"\#(file)","Size":1,"IsDir":false,"Hashes":{"md5":"c4ca4238a0b923820dcc509a6f75849b"}}"#
+            XCTAssertTrue(args.contains("--drive-root-folder-id=\(reference)"))
+            let node = #"{"Name":"\#(file)","Path":"\#(file)","Size":\#(data.count),"IsDir":false,"Hashes":{"md5":"\#(digest)"}}"#
             switch (args[0], args[1]) {
             case ("lsjson", "fixture:"):
                 return .init(status: 0, stdout: Self.entries(directories: ["GameFiles"]), stderr: "")
@@ -129,7 +322,7 @@ final class CloudGameSourcesTests: XCTestCase {
                 return .init(status: 0, stdout: node, stderr: "")
             case ("copyto", "fixture:GameFiles/\(file)"):
                 XCTAssertTrue(args[2].hasPrefix(root.path + "/"))
-                try Data("1".utf8).write(to: URL(fileURLWithPath: args[2]))
+                try data.write(to: URL(fileURLWithPath: args[2]))
                 return .init(status: 0, stdout: "", stderr: "")
             default:
                 XCTFail("Unexpected operation: \(args.prefix(2))")
@@ -137,24 +330,12 @@ final class CloudGameSourcesTests: XCTestCase {
             }
         }
         let shared = try XCTUnwrap(backend.reference(folderID: reference))
-        let sources = CloudGameSources(backend: shared, root: "GameFiles", capacity: { _ in 1_000_000_000 }, trash: { _ in XCTFail("Read only") })
-        let discovery = try await sources.discover()
-        let game = try XCTUnwrap(discovery.games.first)
-        let files = game.adopted(in: root)
-        let fileURL = try XCTUnwrap(files.first?.url)
-        try FileManager.default.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
-        try await sources.downloadDiscovered(titleID: title, directory: game.directory, files: files, in: root, progress: nil)
-        XCTAssertEqual(try Data(contentsOf: fileURL), Data("1".utf8))
-        try Data("2".utf8).write(to: fileURL, options: .atomic)
-        await assertError(.localChanged) {
-            try await sources.downloadDiscovered(titleID: title, directory: game.directory, files: files, in: root, progress: nil)
-        }
-        XCTAssertEqual(try Data(contentsOf: fileURL), Data("2".utf8))
+        return CloudGameSources(backend: shared, root: "GameFiles", capacity: { _ in 1_000_000_000 }, trash: { _ in XCTFail("Read only") })
     }
 
-    private static func entries(directories: [String] = [], files: [String] = []) -> String {
+    private static func entries(directories: [String] = [], files: [String] = [], md5: String? = nil) -> String {
         let rows: [[String: Any]] = directories.map { ["Name": $0, "Path": $0, "Size": -1, "IsDir": true] }
-            + files.map { ["Name": $0, "Path": $0, "Size": 1, "IsDir": false] }
+            + files.map { ["Name": $0, "Path": $0, "Size": 1, "IsDir": false, "Hashes": md5.map { ["md5": $0] } ?? [:]] }
         return String(decoding: try! JSONSerialization.data(withJSONObject: rows), as: UTF8.self)
     }
 
@@ -411,7 +592,7 @@ final class CloudGameSourcesTests: XCTestCase {
                 try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: executable.path)
             }
             backend = RcloneStorageBackend(remote: ":local:", root: root.path, executable: executable, config: config)
-            service = CloudGameSources(backend: backend, root: sourcesRoot.path) { [directory] file in
+            service = CloudGameSources(backend: backend, root: sourcesRoot.path, allowsIndependentRoot: true) { [directory] file in
                 try FileManager.default.moveItem(at: file, to: directory.appendingPathComponent(file.lastPathComponent))
             }
         }

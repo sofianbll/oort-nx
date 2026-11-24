@@ -22,8 +22,9 @@ public enum GameUnavailableReason: Equatable {
 
 public enum GameResourceState {
     public static func sourcesAvailable(for game: PortedGame, fileManager: FileManager = .default) -> Bool {
-        SourceSelection.hasGame(game.sources)
-            && game.sources.allSatisfy { fileManager.fileExists(atPath: $0.url.path) }
+        guard SourceSelection.hasGame(game.sources) else { return false }
+        if game.discoveredCloudSourceDirectory != nil { return CloudGameSources.discoveredSourcesAvailable(game.sources) }
+        return game.sources.allSatisfy { fileManager.fileExists(atPath: $0.url.path) }
     }
 
     public static func unavailableReason(for game: PortedGame) -> GameUnavailableReason? {
