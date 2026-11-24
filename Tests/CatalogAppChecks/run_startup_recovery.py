@@ -27,7 +27,11 @@ import os
 enum AppData {
     static var supportRoot = URL(fileURLWithPath: "/unused")
     static var rejectPreparation = false
-    struct Profile { var isDevelopment = false }
+    static var preferences: UserDefaults { UserDefaults(suiteName: supportRoot.appendingPathComponent("fixture-prefs").path)! }
+    struct Profile {
+        var isDevelopment = false
+        var preferencesDomain: String { AppData.supportRoot.appendingPathComponent("fixture-prefs").path }
+    }
     static let profile = Profile()
     static func prepare() throws {
         if rejectPreparation { throw CocoaError(.fileReadNoPermission) }
@@ -40,7 +44,7 @@ final class AppShellState {
         self.catalog = catalog
     }
 }
-enum DevelopmentStartupFailure: Error { case otherCopyRunning }
+enum DevelopmentStartupFailure: Error { case otherCopyRunning, checkpointFailed }
 // ACTUAL_COORDINATOR
 
 @main struct Check {
@@ -57,6 +61,9 @@ enum DevelopmentStartupFailure: Error { case otherCopyRunning }
 
         let startup = DevelopmentStartup()
         await startup.prepare()
+        precondition(startup.shell == nil && startup.needsDowngradeWarning && startup.failure == nil)
+        precondition(startup.recovery == nil && startup.legacyConflict == nil)
+        await startup.prepare(acceptingDowngradeWarning: true)
         precondition(startup.shell == nil && startup.failure != nil)
         precondition(startup.legacyConflict != nil && startup.recovery == nil && !startup.working)
         await startup.keepCurrentLibrary()
@@ -90,7 +97,14 @@ enum DevelopmentStartupFailure: Error { case otherCopyRunning }
         AppData.rejectPreparation = false
         await blocked.prepare()
         precondition(blocked.shell != nil && blocked.failure == nil)
-        print("Actual startup recovery checks passed: conflict, explicit keep, stale offer, retry, healthy startup and preparation failure.")
+
+        let checkpoint = root.appendingPathComponent("DowngradeProtection/checkpoint.plist")
+        try Data("damaged checkpoint".utf8).write(to: checkpoint)
+        let blockedCheckpoint = DevelopmentStartup()
+        await blockedCheckpoint.prepare()
+        precondition(blockedCheckpoint.shell == nil && blockedCheckpoint.failure != nil)
+        precondition(blockedCheckpoint.recovery == nil && blockedCheckpoint.legacyConflict == nil)
+        print("Actual startup recovery checks passed: pre-write warning, conflict, retry, healthy startup and fail-closed checkpoint.")
     }
 }
 '''.replace('// ACTUAL_COORDINATOR', coordinator)

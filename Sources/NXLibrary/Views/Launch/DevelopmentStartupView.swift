@@ -10,23 +10,44 @@ final class DevelopmentStartup: ObservableObject {
     @Published private(set) var working = false
     @Published private(set) var recovery: CatalogRecoveryCandidate?
     @Published private(set) var legacyConflict: CatalogLegacyConflictCandidate?
+    @Published private(set) var needsDowngradeWarning = false
     private let logger = Logger(subsystem: "local.nxlibrary", category: "Startup")
 
-    func prepare() async {
+    func prepare(acceptingDowngradeWarning: Bool = false) async {
         guard shell == nil, !working else { return }
         working = true
         failure = nil
         recovery = nil
         legacyConflict = nil
+        needsDowngradeWarning = false
         var profileReady = false
         do {
             // Services and SwiftUI StateObjects are created only after the profile transaction finishes.
-            if AppData.profile.isDevelopment,
-               NSRunningApplication.runningApplications(withBundleIdentifier: "local.nxlibrary")
+            if NSRunningApplication.runningApplications(withBundleIdentifier: "local.nxlibrary")
                 .contains(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }) {
                 throw DevelopmentStartupFailure.otherCopyRunning
             }
             try await Task.detached(priority: .userInitiated) { try AppData.prepare() }.value
+            if !AppData.profile.isDevelopment {
+                let ready = try await Task.detached(priority: .userInitiated) {
+                    do {
+                        return try DowngradeCheckpoint.prepare(in: AppData.supportRoot,
+                                                               acceptingWarning: acceptingDowngradeWarning) {
+                            let defaults = AppData.preferences
+                            guard defaults.synchronize() else { throw CocoaError(.fileReadUnknown) }
+                            return defaults.persistentDomain(forName: AppData.profile.preferencesDomain) ?? [:]
+                        }
+                    } catch {
+                        Logger(subsystem: "local.nxlibrary", category: "Startup").error("Pre-update checkpoint failed: \(String(describing: error), privacy: .private)")
+                        throw DevelopmentStartupFailure.checkpointFailed
+                    }
+                }.value
+                if !ready {
+                    needsDowngradeWarning = true
+                    working = false
+                    return
+                }
+            }
             profileReady = true
             let catalog = try await Task.detached(priority: .userInitiated) {
                 try CatalogStore(directory: AppData.supportRoot).loadOrMigrate()
@@ -86,9 +107,15 @@ final class DevelopmentStartup: ObservableObject {
 }
 
 private enum DevelopmentStartupFailure: LocalizedError {
-    case otherCopyRunning
+    case otherCopyRunning, checkpointFailed
     var errorDescription: String? {
-        L10n.text("Close the other Arcane copy, then try again. Your original library has not been changed.", context: AppLocale(language: .automatic, region: nil))
+        let context = AppLocale(language: .automatic, region: nil)
+        switch self {
+        case .otherCopyRunning:
+            return L10n.text("Close the other Arcane copy, then try again. Your original library has not been changed.", context: context)
+        case .checkpointFailed:
+            return L10n.text("The pre-update copy could not be verified. Your original library has not been changed.", context: context)
+        }
     }
 }
 
@@ -103,6 +130,8 @@ struct DevelopmentStartupView: View {
                     .onAppear {
                         Logger(subsystem: "local.nxlibrary", category: "Startup").notice("Library view appeared")
                     }
+            } else if startup.needsDowngradeWarning {
+                DowngradeWarningView(continueStartup: { Task { await startup.prepare(acceptingDowngradeWarning: true) } })
             } else if let failure = startup.failure {
                 VStack(spacing: 20) {
                     if startup.working { ProgressView().controlSize(.large) }
