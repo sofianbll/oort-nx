@@ -54,6 +54,7 @@ public enum SeleneTokens {
         public static let rowLeading: CGFloat = 26
         public static let fieldInset: CGFloat = 10
         public static let chipBottom: CGFloat = 5
+        public static let playerSlotContent: CGFloat = 126
     }
 
     public enum Radius {

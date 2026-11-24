@@ -139,6 +139,16 @@ private struct GallerySpecimen: View {
                                 status: text("No provider credentials"), preset: .info)
                     }
                 }
+                OortSegmented(selection: $enabled, options: [(true, text("On")), (false, text("Off"))],
+                              preset: .modeBar, focused: false)
+                HStack {
+                    OortPlayerSlot(title: "P1", detail: text("Empty place"), accessibilityTitle: "P1",
+                               accessibilityValue: text("Empty place"), focused: false, selected: false,
+                               marked: false, action: {}) { PlatformMark(kind: .switch1) }
+                    OortPlayerSlot(title: "P2 · Lunar Observatory", detail: text("On hold while controllers are combined"),
+                               accessibilityTitle: "P2", accessibilityValue: "Lunar Observatory", focused: true,
+                               selected: true, marked: true, action: {}) { PlatformMark(kind: .switch2) }
+                }
             }
         }
     }

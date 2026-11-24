@@ -130,7 +130,7 @@ struct SelenePillButton: View {
     }
 }
 
-private struct PillOutline: Shape {
+struct PillOutline: Shape {
     let width: CGFloat
 
     func path(in rect: CGRect) -> Path {

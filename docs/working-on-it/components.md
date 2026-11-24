@@ -18,6 +18,8 @@ I tipi con prefisso `Selene` restano disponibili per la migrazione.
 | `OortField` (`SeleneFieldSurface`) | Applicare al campo la superficie Selene | Focus o riposo | Passare il focus del campo · non ridefinire il contorno. |
 | `OortEmptyState` | Spiegare l'assenza di contenuto | Standard | Nominare ciò che manca · non confondere vuoto e caricamento. |
 | `SeleneHintsBar` | Mostrare le azioni del livello attivo | Tastiera e layout manetta; coperta, visibile | Legare gli hint alle azioni reali · non duplicare il ritorno. |
+| `OortPlayerSlot` | Una posizione di gioco, con ritratto e controller | Vuota o occupata; focus, selezione, indicatore | Conservare l'altezza e il nome accessibile · non ridimensionare la griglia al cambio di controller. |
+| `OortSegmented` | Scelta esclusiva e immediata | `compact`, `modeBar`; scelta e focus distinti | Muovere il focus senza cambiare modalità · attivare solo su conferma. |
 
 Per verificare una composizione usare la [galleria Debug](development.md#debug-configuration)
 e `python3 scripts/check_selene_tokens.py --base HEAD`. Le voci esistenti del

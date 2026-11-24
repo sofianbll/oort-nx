@@ -81,7 +81,8 @@
     "dialog-action-gap": {"$value": {"value": 34, "unit": "px"}},
     "row-leading": {"$value": {"value": 26, "unit": "px"}},
     "field-inset": {"$value": {"value": 10, "unit": "px"}},
-    "chip-bottom": {"$value": {"value": 5, "unit": "px"}}
+    "chip-bottom": {"$value": {"value": 5, "unit": "px"}},
+    "player-slot-content": {"$value": {"value": 126, "unit": "px"}}
   },
   "radius": {
     "$description": "Named Selene corner radii in canvas units.",

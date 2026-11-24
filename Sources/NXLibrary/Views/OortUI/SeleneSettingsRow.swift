@@ -205,31 +205,43 @@ struct SeleneButtonRow: View {
     }
 }
 
-struct SeleneSegmented<Value: Hashable>: View {
+struct OortSegmented<Value: Hashable>: View {
+    enum Preset { case compact, modeBar }
+    @State private var hover = SeleneHoverFocus()
     @Binding var selection: Value
     let options: [(Value, String)]
-
-    init(selection: Binding<Value>, options: [(Value, String)]) {
-        self._selection = selection
-        self.options = options
-    }
+    var preset: Preset = .compact
+    var focused: Value? = nil
+    var hint: (Value) -> String = { _ in "" }
+    var onFocus: (Value) -> Void = { _ in }
 
     var body: some View {
         HStack(spacing: 3) {
             ForEach(options.indices, id: \.self) { index in
                 let option = options[index]
+                let selected = selection == option.0
+                let active = focused == option.0
                 Button {
                     selection = option.0
                 } label: {
                     Text(option.1)
-                        .seleneFont(.text, .semibold)
-                        .foregroundColor(selection == option.0 ? SeleneTheme.scrim : SeleneTheme.ink.opacity(0.5))
+                        .seleneFont(preset == .compact ? .text : .row, .semibold)
+                        .foregroundColor(selected ? (preset == .compact ? SeleneTheme.scrim : SeleneTheme.onFocus)
+                                         : (preset == .compact ? SeleneTheme.ink.opacity(0.5) : SeleneTheme.ink75))
                         .padding(.horizontal, SeleneTokens.Space.small)
                         .padding(.vertical, SeleneTokens.Space.tight)
-                        .background(selection == option.0 ? SeleneTheme.focus : Color.clear)
+                        .background(selected ? SeleneTheme.focus : Color.clear)
                         .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
+                .padding(preset == .compact ? 0 : SeleneTokens.Space.seam)
+                .overlay(PillOutline(width: SeleneTokens.Space.focusStroke)
+                    .fill(active ? SeleneTheme.focus : .clear, style: FillStyle(eoFill: true))
+                    .allowsHitTesting(false))
+                .accessibilityAddTraits(selected ? .isSelected : [])
+                .accessibilityHint(hint(option.0))
+                .help(hint(option.0))
+                .onHover { if hover.moved($0) { onFocus(option.0) } }
             }
         }
         .padding(SeleneTokens.Space.segmentInset)
@@ -238,6 +250,8 @@ struct SeleneSegmented<Value: Hashable>: View {
         .clipShape(Capsule())
     }
 }
+
+typealias SeleneSegmented = OortSegmented
 
 struct OortCard<Content: View>: View {
     @Environment(\.nxAppLocale) private var localization

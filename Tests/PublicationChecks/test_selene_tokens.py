@@ -25,7 +25,7 @@ class SeleneTokenChecks(unittest.TestCase):
     def test_comments_strings_and_token_references_are_not_counted(self):
         text = '''// .seleneFont(12)
         /* .padding(8) */ let source = ".cornerRadius(2)"
-        view.seleneFont(.caption).padding(canvas.u(SeleneTokens.Space.small))'''
+        view.seleneFont(.text).padding(canvas.u(SeleneTokens.Space.small))'''
         self.assertEqual(list(check.literals(text)), [])
 
     def test_baseline_may_lose_but_not_gain_allowances(self):
