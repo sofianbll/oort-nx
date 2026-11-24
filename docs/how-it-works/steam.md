@@ -206,6 +206,8 @@ la data del file è cambiata; la regola di ogni lettura è il tipo puro `SteamPl
 conserva gli ultimi totali buoni dello stesso account; solo l’assenza di un account li azzera. Le sessioni uscite
 dall’elenco recente restano contate (`CarriedPlaytime.afterExternal`) finché Steam non aggiorna il valore; mentre i
 totali Steam sono nascosti, `PlaySessionStore.trimReferences` conserva il momento dell’ultimo valore di ogni gioco.
+Una sessione Steam di un profilo secondario, anche archiviata, congela l'ultimo totale importato per non attribuirla
+al profilo originale. Una sessione Switch non interferisce con questo aggiornamento.
 
 ## Achievement
 

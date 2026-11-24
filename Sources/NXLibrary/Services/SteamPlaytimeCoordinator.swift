@@ -18,6 +18,7 @@ final class SteamPlaytimeCoordinator {
     private var queue = SteamPlaytimeReadQueue()
     private let saving = DispatchQueue(label: "NXLibrary.SteamPlaytime.save", qos: .utility)
     private var followUp: Task<Void, Never>?
+    private var gameIDs: Set<UUID> { Set(games.map(\.id)) }
 
     /// Before any Steam session can start, so trimming already knows each game's last value.
     func start(sessions: PlaySessionStore) {
@@ -62,7 +63,7 @@ final class SteamPlaytimeCoordinator {
             sessions.setExternal([:])
             return
         }
-        if sessions.hasScopedSessions {
+        if sessions.hasScopedSessions(for: gameIDs) {
             // Steam's account totals cannot separate Arcane profiles. Keep the last imported baseline;
             // subsequent play is counted by Arcane's sessions rather than attributed to the wrong player.
             sessions.setExternal(sync.baselines.external(for: games))
@@ -78,7 +79,7 @@ final class SteamPlaytimeCoordinator {
 
     private func finish(_ result: SteamPlaytimeReading, ticket: Int) {
         let step = queue.finish(ticket)
-        if step.apply, let sessions, !sessions.hasScopedSessions {
+        if step.apply, let sessions, !sessions.hasScopedSessions(for: gameIDs) {
             let outcome = sync.handle(result, games: games, shownTotal: { sessions.originalDuration(for: $0, with: $1) }, now: Date())
             switch outcome {
             case .clear:
