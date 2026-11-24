@@ -159,10 +159,10 @@ final class CloudGameArchiveTests: XCTestCase {
         XCTAssertEqual(try BuildOutputInstaller.checkSignature(plan.destination).status, 0)
     }
 
-    func testNewestManifestWinsAcrossBothFolders() async throws {
+    func testPartRevisionsWinAcrossBothManifestFolders() async throws {
         let f = try fixture()
         defer { try? FileManager.default.removeItem(at: f.root) }
-        let legacy = try await publishLegacy(f)
+        _ = try await publishLegacy(f)
         let modern = try await f.service.upload(f.game)
         let imported = try await f.service.latestManifests()
         XCTAssertEqual(imported, [modern])
@@ -172,7 +172,7 @@ final class CloudGameArchiveTests: XCTestCase {
         try FileManager.default.copyItem(at: folder.appendingPathComponent(old),
             to: folder.appendingPathComponent("9999999999999999" + old.dropFirst(16)))
         let newest = try await f.service.latest(titleID: title, expectingArchive: true)
-        XCTAssertEqual(newest, legacy)
+        XCTAssertEqual(newest?.artifacts, modern.artifacts)
     }
 
     func testRenamedGameReusesNamedFolderWithoutAPublishedManifest() async throws {
@@ -207,6 +207,56 @@ final class CloudGameArchiveTests: XCTestCase {
 
     func testAppIsPublishedToReferenceWhileCacheIsStillTransferring() async throws {
         try await assertAppPublishedDuringCache(cancel: false)
+    }
+
+    func testConcurrentAppAndCachePublicationsStayVisible() async throws {
+        let f = try fixture(useSyntheticBackend: true)
+        defer { try? FileManager.default.removeItem(at: f.root) }
+        let original = try await f.service.upload(f.game)
+        let flag = f.root.appendingPathComponent("pause-cache")
+        let started = f.root.appendingPathComponent("cache-started")
+        try Data("cache B".utf8).write(to: f.cache.appendingPathComponent("run.key"))
+        try Data().write(to: flag)
+        // Give the second Mac an independent lease and pause its cache after it has read the old manifest.
+        let other = RcloneStorageBackend(remote: ":local:", root: f.remote.path,
+            executable: f.root.appendingPathComponent("fake-rclone"), config: f.root.appendingPathComponent("rclone.conf"))
+        let cacheWriter = CloudGameArchive(backend: other)
+        let sendingCache = Task { try await cacheWriter.upload(f.game, kinds: [.cache]) }
+        defer { sendingCache.cancel(); try? FileManager.default.removeItem(at: flag) }
+        for _ in 0..<500 {
+            if FileManager.default.fileExists(atPath: started.path) { break }
+            try await Task.sleep(for: .milliseconds(20))
+        }
+        _ = try XCTUnwrap(FileManager.default.fileExists(atPath: started.path) ? started : nil)
+        try Data("app A".utf8).write(to: f.app.appendingPathComponent("Contents/Resources/empty"))
+        try command("/usr/bin/codesign", ["--force", "--sign", "-", f.app.path])
+        let appA = try await f.service.upload(f.game, kinds: [.app])
+        try FileManager.default.removeItem(at: flag)
+        let cacheB = try await sendingCache.value
+        XCTAssertNotEqual(appA.artifacts.first?.inventorySHA256, original.artifacts.first?.inventorySHA256)
+        XCTAssertNotEqual(cacheB.artifacts.last?.inventorySHA256, original.artifacts.last?.inventorySHA256)
+        let lookedUp = try await f.service.latest(titleID: title)
+        XCTAssertEqual(lookedUp?.artifacts.first?.inventorySHA256, appA.artifacts.first?.inventorySHA256)
+        XCTAssertEqual(lookedUp?.artifacts.last?.inventorySHA256, cacheB.artifacts.last?.inventorySHA256)
+        let imported = try await f.service.latestManifests()
+        XCTAssertEqual(imported, [try XCTUnwrap(lookedUp)])
+        // v0.3.0 selects one snapshot by filename and ignores the extra artifact field.
+        let objects = try await f.backend.list()
+        let newest = try XCTUnwrap(objects.filter { $0.key.value.contains("/manifests/") }.max {
+            $0.key.value < $1.key.value
+        })
+        struct OldSnapshot: Decodable {
+            struct Artifact: Decodable {
+                let inventory_sha256: String
+            }
+            let version: Int
+            let artifacts: [Artifact]
+        }
+        let data = try Data(contentsOf: f.remote.appendingPathComponent(newest.key.value))
+        let old = try JSONDecoder().decode(OldSnapshot.self, from: data)
+        XCTAssertEqual(old.version, 2)
+        XCTAssertEqual(old.artifacts.map(\.inventory_sha256),
+                       [original.artifacts[0].inventorySHA256, cacheB.artifacts[1].inventorySHA256])
     }
 
     func testCancellingCacheKeepsThePublishedApp() async throws {
@@ -452,13 +502,7 @@ final class CloudGameArchiveTests: XCTestCase {
         let transfers = try String(contentsOf: log, encoding: .utf8).split(separator: "\n")
         XCTAssertEqual(transfers.map { $0.split(separator: "/").last! }, ["run.key"])
 
-        let legacy = try await publishLegacy(f)
-        let withBothFolders = try await service.latestManifests()
-        XCTAssertEqual(withBothFolders, [newer])
-        let legacyFolder = f.remote.appendingPathComponent("\(title)/manifests")
-        let original = try XCTUnwrap(FileManager.default.contentsOfDirectory(atPath: legacyFolder.path).first)
-        try FileManager.default.copyItem(at: legacyFolder.appendingPathComponent(original),
-            to: legacyFolder.appendingPathComponent("9999999999999999" + original.dropFirst(16)))
+        let legacy = try await publishLegacy(f, publishedAt: later)
         let listed = try await service.latest(titleID: title)
         XCTAssertEqual(listed, legacy)
         let listedCatalog = try await service.latestManifests()
@@ -1152,7 +1196,7 @@ final class CloudGameArchiveTests: XCTestCase {
         try bytes.write(to: fixture.cache.appendingPathComponent("large.bin"))
     }
 
-    private func publishLegacy(_ f: Fixture) async throws -> CloudGameManifest {
+    private func publishLegacy(_ f: Fixture, publishedAt: Date = Date(timeIntervalSince1970: 1_700_000_000)) async throws -> CloudGameManifest {
         var artifacts: [CloudGameManifest.Artifact] = []
         for kind in CloudArtifactKind.allCases {
             let source = try XCTUnwrap(f.game.locations[kind])
@@ -1168,7 +1212,8 @@ final class CloudGameArchiveTests: XCTestCase {
             try await f.backend.put(archive, as: XCTUnwrap(artifact.legacyObject(titleID: title)), progress: nil)
             artifacts.append(artifact)
         }
-        let manifest = CloudGameManifest(version: 1, titleID: title, createdAt: Date(timeIntervalSince1970: 1_700_000_000),
+        let seconds = Int64(publishedAt.timeIntervalSince1970)
+        let manifest = CloudGameManifest(version: 1, titleID: title, createdAt: Date(timeIntervalSince1970: Double(seconds)),
                                           artifacts: artifacts, gameName: "Fixture", bundleName: "Fixture.app")
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
@@ -1176,7 +1221,7 @@ final class CloudGameArchiveTests: XCTestCase {
         let data = try encoder.encode(manifest)
         try data.write(to: file)
         let hashes = try CloudArchiveInventory.hashes(at: file)
-        let key = StorageObjectKey("\(title)/manifests/0001700000000000-\(hashes["sha256"]!).json")
+        let key = StorageObjectKey("\(title)/manifests/\(String(format: "%016lld", seconds * 1000))-\(hashes["sha256"]!).json")
         try await f.backend.put(file, as: .init(key: key, size: Int64(data.count), hashes: hashes), progress: nil)
         return manifest
     }

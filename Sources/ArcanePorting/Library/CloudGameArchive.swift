@@ -113,10 +113,12 @@ public struct CloudGameManifest: Codable, Equatable, Sendable {
         public let options: [String: String]
         let files: CloudArtifactFiles.Tree?
         let publishedAt: Date?
+        let revision: Int64?
 
         init(kind: CloudArtifactKind, size: Int64? = nil, sha256: String? = nil, md5: String? = nil, unpackedSize: Int64,
              entryCount: Int, inventorySHA256: String, engineCommit: String?, shaderChain: String?,
-             options: [String: String], files: CloudArtifactFiles.Tree? = nil, publishedAt: Date? = nil) {
+             options: [String: String], files: CloudArtifactFiles.Tree? = nil, publishedAt: Date? = nil,
+             revision: Int64? = nil) {
             self.kind = kind
             self.size = size
             self.sha256 = sha256
@@ -129,6 +131,7 @@ public struct CloudGameManifest: Codable, Equatable, Sendable {
             self.options = options
             self.files = files
             self.publishedAt = publishedAt
+            self.revision = revision
         }
 
         func legacyObject(titleID: String) -> StorageObject? {
@@ -145,11 +148,11 @@ public struct CloudGameManifest: Codable, Equatable, Sendable {
             guard publishedAt == nil else { return self }
             return .init(kind: kind, size: size, sha256: sha256, md5: md5, unpackedSize: unpackedSize,
                          entryCount: entryCount, inventorySHA256: inventorySHA256, engineCommit: engineCommit,
-                         shaderChain: shaderChain, options: options, files: files, publishedAt: date)
+                         shaderChain: shaderChain, options: options, files: files, publishedAt: date, revision: revision)
         }
 
         enum CodingKeys: String, CodingKey {
-            case kind, size, sha256, md5, options, files
+            case kind, size, sha256, md5, options, files, revision
             case unpackedSize = "unpacked_size", entryCount = "entry_count", inventorySHA256 = "inventory_sha256"
             case engineCommit = "engine_commit", shaderChain = "shader_chain"
             case publishedAt = "published_at"
@@ -567,10 +570,40 @@ public actor CloudGameArchive {
 
     private func latest(titleID title: String, folders: [String], expectingArchive: Bool = false) async throws -> CloudGameManifest? {
         let entries = try await manifestObjects(for: title, in: folders, expectingArchive: expectingArchive)
-        // The immutable filename starts with the publication timestamp. Named folders win exact ties.
-        guard let newest = entries.max(by: { $0.name < $1.name })?.object else { return nil }
-        guard entries.filter({ $0.object.key == newest.key }).count == 1 else { throw CloudArchiveError.invalidManifest }
-        return try await readManifest(newest, titleID: title)
+        return try await latest(titleID: title, entries: entries)
+    }
+
+    private func latest(titleID title: String, entries: [(name: Substring, object: StorageObject)]) async throws -> CloudGameManifest? {
+        // Each v2 file remains a readable snapshot, but a retained part never acquires the snapshot's newer revision.
+        let ordered = entries.sorted { $0.name > $1.name } // Named folders win exact ties.
+        guard let first = ordered.first else { return nil }
+        guard Set(ordered.map(\.object.key)).count == ordered.count else { throw CloudLibraryFailure.incomplete }
+        let newest = try await readManifest(first.object, titleID: title)
+        var parts: [CloudArtifactKind: (item: Artifact, manifest: CloudGameManifest, stamp: Int64)] = [:]
+        func include(_ manifest: CloudGameManifest) {
+            for item in manifest.artifacts {
+                let stamp = item.revision ?? Int64((item.publishedAt ?? manifest.createdAt).timeIntervalSince1970 * 1000)
+                if parts[item.kind].map({ stamp > $0.stamp }) ?? true {
+                    parts[item.kind] = (item, manifest, stamp)
+                }
+            }
+        }
+        include(newest)
+        for entry in ordered.dropFirst() {
+            try Task.checkCancellation()
+            let ceiling = Int64(entry.name.prefix(16)) ?? .max
+            if parts.count == CloudArtifactKind.allCases.count, parts.values.allSatisfy({ $0.stamp >= ceiling }) { break }
+            include(try await readManifest(entry.object, titleID: title))
+        }
+        let chosen = CloudArtifactKind.allCases.compactMap { parts[$0] }
+        let app = parts[.app]?.manifest ?? newest
+        if chosen.map(\.item) == newest.artifacts { return newest }
+        let artifacts = chosen.map { $0.item.retainingPublication(from: $0.manifest.createdAt) }
+        return .init(version: artifacts.contains { $0.files != nil } ? 2 : newest.version,
+                     titleID: title, createdAt: max(newest.createdAt, chosen.map(\.manifest.createdAt).max() ?? newest.createdAt),
+                     artifacts: artifacts,
+                     gameName: app.gameName ?? newest.gameName, bundleName: app.bundleName ?? newest.bundleName,
+                     sourceSelection: newest.sourceSelection, libraryName: newest.libraryName)
     }
 
     func adoptionManifests(titleID title: String) async throws -> [CloudGameManifest] {
@@ -650,6 +683,11 @@ public actor CloudGameArchive {
               manifest.cloudOnlyApp != nil || manifest.sourceSelection?.adopted(in: stage, titleID: title) != nil,
               manifest.version != 1 || data.count <= Self.legacyManifestLimit else { throw CloudArchiveError.invalidManifest }
         for artifact in manifest.artifacts {
+            if let revision = artifact.revision {
+                guard revision > 0, let stamp = Int64(parts[0]), revision <= stamp,
+                      artifact.publishedAt == Date(timeIntervalSince1970: Double(revision / 1000))
+                else { throw CloudArchiveError.invalidManifest }
+            }
             if let tree = artifact.files {
                 guard manifest.version == 2, artifact.size == nil, artifact.sha256 == nil, artifact.md5 == nil,
                       artifact.unpackedSize >= 0, artifact.kind != .app || !tree.entries.isEmpty,
@@ -686,8 +724,9 @@ public actor CloudGameArchive {
         guard !selected.isEmpty else { throw CloudArchiveError.needsFullUpload }
         for kind in selected { try game.protectSaves(in: location(kind, for: game)) }
         let folders = try await titleFolders(game.titleID)
+        let entries = try await manifestObjects(for: game.titleID, in: folders)
         let previous: CloudGameManifest?
-        do { previous = try await latest(titleID: game.titleID, folders: folders) }
+        do { previous = try await latest(titleID: game.titleID, entries: entries) }
         catch CloudArchiveError.invalidManifest where selected.count == 1 { throw CloudArchiveError.needsFullUpload }
         catch CloudArchiveError.invalidManifest { previous = nil }
         var artifacts = previous.map { manifest in
@@ -717,7 +756,7 @@ public actor CloudGameArchive {
         var gameFolder = previous?.artifacts.compactMap { $0.files?.folder.components(separatedBy: "/").first }
             .first(where: namedFolders.contains) ?? namedFolders.first
         var current = previous
-        var timestamp: Int64 = 0
+        var timestamp = entries.compactMap { Int64($0.name.prefix(16)) }.max() ?? 0
         for kind in selected {
             progress?(.init(.preparing, kind: kind))
             let source = try location(kind, for: game)
@@ -755,13 +794,12 @@ public actor CloudGameArchive {
             try await tree.verify(on: uploader)
             timestamp = max(timestamp + 1, Self.publicationTimestamp)
             let publication = Date(timeIntervalSince1970: Double(timestamp / 1000))
+            let sameContent = artifacts.first { $0.kind == kind && $0.inventorySHA256 == digest }
             let item = Artifact(kind: kind, unpackedSize: bytes, entryCount: files.count, inventorySHA256: digest,
                 engineCommit: info["DMCommit"] ?? game.engineCommit, shaderChain: shaderChain(at: source, kind: kind),
                 options: info.filter { ["DMLanguage", "CFBundleShortVersionString"].contains($0.key) }, files: tree,
-                publishedAt: previous.flatMap { previous in
-                    previous.artifacts.first { $0.kind == kind && $0.inventorySHA256 == digest }
-                        .map { $0.publishedAt ?? previous.createdAt }
-                } ?? publication)
+                publishedAt: sameContent?.publishedAt ?? publication,
+                revision: sameContent == nil ? timestamp : sameContent?.revision)
             artifacts.removeAll { $0.kind == kind }
             if kind == .app { artifacts.insert(item, at: 0) }
             else { artifacts.append(item) }
