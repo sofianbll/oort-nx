@@ -12,7 +12,7 @@ struct SettingsKeysSection: View {
     private var configurationLocked: Bool { viewModel.isBuilding || viewModel.isUpdatingApp }
 
     var body: some View {
-        VStack(spacing: 9) {
+        OortSettingsGroup {
             SelenePanel(L10n.text("prod.keys"),
                         info: L10n.text("Nintendo Switch cryptographic keys required to decrypt game packages (NSP/XCI). Arcane stores a private copy with mode 0600 permissions; key values are never displayed or logged.")) {
                 HStack(spacing: 8) {

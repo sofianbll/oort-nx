@@ -85,7 +85,7 @@ struct GameSettingsScreen<Pane: View>: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            OortSettingsShell(title: L10n.text(current.titleKey, context: locale), onBack: goBack) {
+            OortSettingsShell(title: L10n.text(current.titleKey, context: locale), onBack: inDetail && nestedPane ? goBack : nil) {
                 OortSettingsSidebar(sections: [.init(title: nil, items: categories.map {
                     .init(id: $0, title: L10n.text($0.titleKey, context: locale), icon: $0.icon)
                 })], selected: current, focused: !inDetail, onSelect: select) {
@@ -148,19 +148,22 @@ struct GameSettingsScreen<Pane: View>: View {
         } else if inDetail {
             inDetail = false
         } else {
-            DispatchQueue.main.async { onClose() }
+            // Next turn of the run loop: the panel behind must not take this same press.
+            RunLoop.main.perform { MainActor.assumeIsolated { onClose() } }
         }
     }
 
     private func enterDetail() {
-        if showsPane { DispatchQueue.main.async { inDetail = true } }
+        if showsPane { RunLoop.main.perform { MainActor.assumeIsolated { inDetail = true } } }
         else { inDetail = true }
     }
 
     private func leavePane() {
-        DispatchQueue.main.async {
-            if nestedPane { nestedPane = false }
-            else { inDetail = false }
+        RunLoop.main.perform {
+            MainActor.assumeIsolated {
+                if nestedPane { nestedPane = false }
+                else { inDetail = false }
+            }
         }
     }
 

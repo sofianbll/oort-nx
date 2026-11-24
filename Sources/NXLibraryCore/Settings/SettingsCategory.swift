@@ -46,7 +46,7 @@ public enum SettingsCategory: String, CaseIterable, Identifiable {
         switch self {
         case .appearance: [.profileLook]
         case .account: [.profileIdentity, .profileSecurity]
-        case .switch: [.library]
+        case .switch: []
         case .storage: [.storage]
         default: sections
         }

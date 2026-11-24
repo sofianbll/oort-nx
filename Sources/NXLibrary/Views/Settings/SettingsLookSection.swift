@@ -60,7 +60,7 @@ struct SettingsLookSection: View {
     static func iconMode(_ value: String?) -> AppIconAppearanceMode { value == AppIconAppearanceMode.mono.rawValue ? .mono : .auto }
 
     var body: some View {
-        VStack(spacing: canvas.u(8)) {
+        OortSettingsGroup {
             if profileLook { profileRows } else { generalRows }
         }
         .onAppear(perform: publishActions)

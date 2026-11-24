@@ -8,7 +8,7 @@ struct SettingsPortingStorageSection: View {
     let onActions: ([SettingsRowAction]) -> Void
 
     var body: some View {
-        VStack(spacing: 9) {
+        OortSettingsGroup {
             Text(L10n.text("Largest build caches first. Sizes describe file contents; the space recovered can differ. Shared folders count once in totals."))
                 .seleneFont(.text).foregroundColor(SeleneTheme.ink60)
                 .frame(maxWidth: .infinity, alignment: .leading)

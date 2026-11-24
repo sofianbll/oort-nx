@@ -10,7 +10,7 @@ struct SettingsStorageSection: View {
     @State private var artworkBytes: Int64 = 0
 
     var body: some View {
-        VStack(spacing: 9) {
+        OortSettingsGroup {
             SelenePanel(L10n.text("Storage")) {
                 if let usage = viewModel.storageUsage {
                     usageRow(L10n.text("Library apps"), bytes: usage.libraryBytes)

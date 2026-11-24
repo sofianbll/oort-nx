@@ -33,7 +33,7 @@ struct SettingsLibrarySection: View {
     }
 
     var body: some View {
-        VStack(spacing: 9) {
+        OortSettingsGroup {
             SeleneRow(GameFoldersCopy.appsTitle,
                       subtitle: GameFoldersCopy.appsContents,
                       info: "Choose where to keep your game apps. Put any existing nxnative games (.app) here. Changing folders does not move apps; rebuilds update them where they are.") {

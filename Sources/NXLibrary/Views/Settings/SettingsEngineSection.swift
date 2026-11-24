@@ -22,7 +22,7 @@ struct SettingsEngineSection: View {
     }
 
     var body: some View {
-        VStack(spacing: 9) {
+        OortSettingsGroup {
             SeleneRow("Engine repository",
                       subtitle: "The upstream nxnative checkout used for builds. Updates stay manual.") {
                 HStack(spacing: 10) {

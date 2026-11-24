@@ -32,7 +32,7 @@ struct SettingsSourcesSection: View {
         }
     }
     var body: some View {
-        VStack(spacing: 9) {
+        OortSettingsGroup {
             SeleneButtonRow("Mac apps", id: "macShortcutAdd",
                             subtitle: "Add a shortcut to an app on this Mac. The app stays where it is.",
                             platform: .mac,

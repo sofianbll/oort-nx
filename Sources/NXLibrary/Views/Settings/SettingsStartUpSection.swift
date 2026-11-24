@@ -19,7 +19,7 @@ struct SettingsStartUpSection: View {
     }
 
     var body: some View {
-        VStack(spacing: canvas.u(8)) {
+        OortSettingsGroup {
             SettingsSubheading(L10n.text("Language & region"))
             SeleneButtonRow("App language",
                             subtitle: "Menus, genres and available game descriptions. The games’ own language stays separate.",

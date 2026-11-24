@@ -28,7 +28,7 @@ struct SettingsLibraryGamesSection: View {
     }
 
     var body: some View {
-        VStack(spacing: canvas.u(8)) {
+        OortSettingsGroup {
             SettingsSubheading(L10n.text("All games"))
 
             SeleneCycleRow("Sort games",

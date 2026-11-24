@@ -91,7 +91,7 @@ struct SettingsAPISection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: canvas.u(8)) {
+        OortSettingsGroup {
             if accountOnly {
                 if let profile {
                     Text(L10n.format("Arcane works without an account. These settings only apply to %@.", [profile.name]))

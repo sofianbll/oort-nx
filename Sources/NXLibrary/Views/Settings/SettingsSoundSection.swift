@@ -31,7 +31,7 @@ struct SettingsSoundSection: View {
     }
 
     var body: some View {
-        VStack(spacing: canvas.u(8)) {
+        OortSettingsGroup {
             SeleneToggleRow("Interface sounds",
                             subtitle: "Plays a short sound when you move, select, go back or launch a game.",
                             isOn: $settings.settings.interfaceSounds)

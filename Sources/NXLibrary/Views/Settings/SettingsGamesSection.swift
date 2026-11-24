@@ -22,7 +22,7 @@ struct SettingsGamesSection: View {
 
     var body: some View {
         let display = GameDisplay.resolve(settings.settings.gameDisplay, connected: displays, arcane: nil)
-        VStack(spacing: canvas.u(8)) {
+        OortSettingsGroup {
             SeleneToggleRow("Fullscreen",
                             subtitle: "Launch mode",
                             isOn: $settings.settings.gameDefaults.fullscreen)

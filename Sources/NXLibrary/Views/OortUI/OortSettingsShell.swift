@@ -24,6 +24,7 @@ struct OortSettingsShell<Sidebar: View, Detail: View>: View {
     let onBack: (() -> Void)?
     @ViewBuilder var sidebar: () -> Sidebar
     @ViewBuilder var detail: () -> Detail
+    @State private var rowHelp: String?
     @Environment(\.seleneCanvas) private var canvas
 
     var body: some View {
@@ -41,7 +42,10 @@ struct OortSettingsShell<Sidebar: View, Detail: View>: View {
                         .accessibilityAddTraits(.isHeader)
                 }
                 detail()
+                    .onPreferenceChange(OortRowHelpKey.self) { rowHelp = $0 }
+                    .safeAreaInset(edge: .bottom, spacing: 0) { OortSettingsHelp(text: rowHelp) }
             }
+            .frame(maxWidth: canvas.u(SeleneTokens.Space.settingsMeasure), alignment: .leading)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.horizontal, canvas.u(SeleneTokens.Space.chromeGutter))
@@ -82,7 +86,7 @@ struct OortSettingsSidebar<ID: Hashable, Header: View>: View {
                                     .seleneFont(.badge, .semibold)
                                     .foregroundStyle(SeleneTheme.ink)
                                     .padding(.leading, canvas.u(SeleneTokens.Space.panel))
-                                    .padding(.top, canvas.u(SeleneTokens.Space.compact))
+                                    .padding(.top, canvas.u(SeleneTokens.Space.line))
                                     .accessibilityAddTraits(.isHeader)
                             }
                             ForEach(section.items) { item in row(item).id(item.id) }
@@ -131,7 +135,7 @@ struct OortSettingsLink: View {
 
     var body: some View {
         Button(action: action) {
-            SeleneRow(title, id: id, subtitle: subtitle, verbatimTitle: true, verbatimSubtitle: true) {
+            SeleneRow(title, id: id, subtitle: subtitle, verbatimTitle: true) {
                 if let value { SeleneValueChip(text: value) }
                 MaterialIconView(.chevron, size: SeleneTokens.Space.large)
                     .foregroundStyle(SeleneTheme.ink60)
@@ -140,6 +144,7 @@ struct OortSettingsLink: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .containerValue(\.oortSettingsRow, true)
         .id("selene-row-\(id)")
     }
 }
@@ -175,7 +180,7 @@ struct OortSettingsRows<Content: View>: View {
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                VStack(spacing: canvas.u(SeleneTokens.Space.compact), content: content)
+                OortSettingsGroup(content: content)
                     .padding(.vertical, canvas.u(SeleneTokens.Space.tight))
             }
             .scrollIndicators(.hidden)
@@ -196,19 +201,23 @@ struct OortGameSettingRow: View {
     let action: (() -> Void)?
 
     var body: some View {
-        if let action, !fixed {
-            Button(action: action) { row }
-                .buttonStyle(.plain)
-                .accessibilityLabel(title)
-                .accessibilityValue(value ?? "")
-                .accessibilityHint(about ?? "")
-        } else {
-            row.accessibilityElement(children: .combine)
+        Group {
+            if let action, !fixed {
+                Button(action: action) { row }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(title)
+                    .accessibilityValue(value ?? "")
+                    .accessibilityHint(about ?? "")
+            } else {
+                row.accessibilityElement(children: .combine)
+            }
         }
+        .containerValue(\.oortSettingsRow, true)
     }
 
     private var row: some View {
-        SeleneOptionRow(icon: nil, title: title, about: about, focused: focused, enabled: !fixed) {
+        SeleneOptionRow(icon: nil, title: title, about: about, focused: focused, enabled: !fixed,
+                        aboutIsHelp: !fixed) {
             if let value { SeleneValueChip(text: value) }
         }
         .contentShape(Rectangle())

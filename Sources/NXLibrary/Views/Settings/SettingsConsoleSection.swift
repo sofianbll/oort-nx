@@ -7,7 +7,7 @@ struct SettingsConsoleSection: View {
     let onOpenConsole: () -> Void
 
     var body: some View {
-        VStack(spacing: 9) {
+        OortSettingsGroup {
             SeleneButtonRow("Console",
                             subtitle: "Filter, search and copy build and launch logs.",
                             buttonTitle: "Open") {
