@@ -12,7 +12,7 @@ extension AppShellView {
             SeleneConfirmDialog(title: movingLibrary ? "Moving the cloud library" : "A cloud transfer is in progress",
                                 message: movingLibrary
                                     ? L10n.text("Quitting stops the move between files. Files already moved stay in the new folder.")
-                                    : L10n.text("Quitting stops it. Your files and cloud copies stay intact; the queue resumes the next time you open Arcane."),
+                                    : L10n.text("Quitting stops the transfer. Your files and cloud copies stay intact. The next time you open Arcane, confirm uploads again from the game pages."),
                                 confirmTitle: "Quit", cancelTitle: "Stay", focus: $cloudQuitFocus,
                                 onCancel: { finishCloudQuit(false) },
                                 onConfirm: { finishCloudQuit(true) })

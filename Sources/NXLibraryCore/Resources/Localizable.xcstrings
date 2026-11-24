@@ -2462,15 +2462,15 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "正在进行云端传输"}}
       }
     },
-    "Quitting stops it. Your files and cloud copies stay intact; the queue resumes the next time you open Arcane.": {
+    "Quitting stops the transfer. Your files and cloud copies stay intact. The next time you open Arcane, confirm uploads again from the game pages.": {
       "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Quitting stops it. Your files and cloud copies stay intact; the queue resumes the next time you open Arcane."}},
-        "it": {"stringUnit": {"state": "translated", "value": "Uscire interrompe il trasferimento. I tuoi file e le copie nel cloud restano intatti; la coda riprende al prossimo avvio."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Quitter arrête le transfert. Vos fichiers et vos copies cloud restent intacts ; la file reprendra au prochain lancement."}},
-        "de": {"stringUnit": {"state": "translated", "value": "Beim Beenden wird die Übertragung gestoppt. Deine Dateien und Cloud-Kopien bleiben erhalten; die Warteschlange wird beim nächsten Start fortgesetzt."}},
-        "es": {"stringUnit": {"state": "translated", "value": "Salir detiene la transferencia. Tus archivos y las copias en la nube se conservan; la cola se reanuda al volver a abrir Arcane."}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Sair interrompe a transferência. Seus arquivos e as cópias na nuvem ficam intactos; a fila continua na próxima vez que você abrir o Arcane."}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "退出会停止传输。文件和云端副本不会丢失；下次打开 Arcane 时会继续处理队列。"}}
+        "en": {"stringUnit": {"state": "translated", "value": "Quitting stops the transfer. Your files and cloud copies stay intact. The next time you open Arcane, confirm uploads again from the game pages."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Uscire interrompe il trasferimento. I tuoi file e le copie nel cloud restano intatti. Al prossimo avvio, conferma di nuovo gli invii dalle schede dei giochi."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Quitter arrête le transfert. Vos fichiers et vos copies cloud restent intacts. Au prochain lancement, confirmez à nouveau les envois depuis les fiches des jeux."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Beim Beenden wird die Übertragung gestoppt. Deine Dateien und Cloud-Kopien bleiben erhalten. Bestätige beim nächsten Start die Uploads erneut auf den jeweiligen Spielseiten."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Salir detiene la transferencia. Tus archivos y las copias en la nube se conservan. Al volver a abrir Arcane, vuelve a confirmar las subidas desde las fichas de los juegos."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Sair interrompe a transferência. Seus arquivos e as cópias na nuvem ficam intactos. Ao abrir o Arcane novamente, confirme os envios novamente nas páginas dos jogos."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "退出会停止传输。文件和云端副本不会丢失。下次打开 Arcane 时，请在各游戏页面重新确认上传。"}}
       }
     },
     "Stay": {

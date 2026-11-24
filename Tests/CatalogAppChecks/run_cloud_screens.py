@@ -58,6 +58,7 @@ import ArcanePorting
             .environment(\.nxAppLocale, .init(language: .french, region: "FR"))
             .environment(\.seleneButtonNames, .xbox))
         // ACCOUNT_SCOPE
+        // QUIT_COPY
         precondition(CloudLibraryTileBadge.artworkOpacity(model.states[game.id]) == 0.55)
         try render("tile", output,
             CollectionCoverRow(games: [.init(nxnative: game)], selectedID: game.id,
@@ -604,6 +605,7 @@ AUDIT_QUEUE = r'''
             precondition(moved.job == .cloud(movedUpload))
             vm.retryActivity(moved.id)
             precondition(vm.settingsNotice?.message.contains("old-drive:Old folder") == true)
+            try renderNotice("queue-previous-destination", output, vm.settingsNotice!, width: 1280)
             let restarted = try makeModel()
             await restarted.restoreActivity()
             precondition(restarted.activityResults.entries.filter { $0.id == moved.id }.count == 1)
@@ -1043,6 +1045,20 @@ extension ActivityCenterView {
 }
 """)
         host = HOST.replace("/* NOTICE_LAYOUT */", "vertical: notice.vertical," if before else "cancelIndex: notice.cancelIndex,")
+        if not before and not baseline:
+            overlays = (app / "Views/Shell/AppShellView+Overlays.swift").read_text()
+            copy = re.search(r': (L10n\.text\("Quitting stops the transfer[^"]+"\))', overlays)
+            if copy:
+                host = host.replace("// QUIT_COPY", r'''
+        for (name, locale) in [("en", AppLocale(language: .english, region: "US")),
+                               ("fr", AppLocale(language: .french, region: "FR"))] {
+            L10n.setContext(locale)
+            try render("quit-uploads-\(name)", output, SeleneConfirmDialog(title: "A cloud transfer is in progress",
+                message: QUIT_MESSAGE, confirmTitle: "Quit", cancelTitle: "Stay", focus: .constant(.cancel),
+                onCancel: {}, onConfirm: {}).environment(\.nxAppLocale, locale), size: .init(width: 1280, height: 620))
+        }
+        L10n.setContext(.init(language: .english, region: "US"))
+'''.replace("QUIT_MESSAGE", copy[1]))
         host = host.replace("// ACCOUNT_SCOPE", account_fixture)
         has_display = (package / "Sources/ArcanePorting/Launch/GameDisplay.swift").is_file()
         if not before:

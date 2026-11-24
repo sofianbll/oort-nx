@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Execute the delegate's quit path with synthetic guest and activity state."""
 from pathlib import Path
+import json
 import subprocess
 import tempfile
 
@@ -14,6 +15,19 @@ properties = '\n'.join(line for line in delegate.splitlines() if '@MainActor sta
                        or '@MainActor static weak var' in line or '@MainActor private static var' in line)
 overlays = (ROOT / 'Sources/NXLibrary/Views/Shell/AppShellView+Overlays.swift').read_text()
 cloud_quit = overlays[overlays.index('    func finishCloudQuit('):overlays.index('    // MARK: - Retry')]
+dialog = overlays[overlays.index('    func cloudQuitOverlay('):overlays.index('    func finishCloudQuit(')]
+copy = (
+    "Quitting stops the transfer. Your files and cloud copies stay intact. The next time you open Arcane, "
+    "confirm uploads again from the game pages."
+)
+assert f'L10n.text("{copy}")' in dialog, "Quit must not promise that uploads resume automatically"
+catalog = json.loads((ROOT / "Sources/NXLibraryCore/Resources/Localizable.xcstrings").read_text())["strings"]
+expected = {"en": "confirm uploads again", "fr": "confirmez à nouveau les envois", "it": "conferma di nuovo gli invii",
+            "de": "Uploads erneut", "es": "vuelve a confirmar las subidas",
+            "pt-BR": "confirme os envios novamente", "zh-Hans": "重新确认上传"}
+assert set(catalog[copy]["localizations"]) == set(expected)
+for language, phrase in expected.items():
+    assert phrase in catalog[copy]["localizations"][language]["stringUnit"]["value"], language
 host = '''
 import Foundation
 @MainActor final class NSApplication {
