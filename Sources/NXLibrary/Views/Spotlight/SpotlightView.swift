@@ -55,6 +55,7 @@ struct SpotlightView: View {
     @Environment(\.profilePortrait) var profile
     @State var platformChoice: CatalogIntegration?
     @State var platformPicker: SpotlightPlatformPicker?
+    @State var platformPress = 0
     @State var hadGames = false
     /// The card Y menu: which card and the focused row.
     @State var cardMenu: CardMenuState?

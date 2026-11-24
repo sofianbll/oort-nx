@@ -22,6 +22,7 @@ final class IntegrationOverviewTests: XCTestCase {
     func testRoutesUseExistingSettingsAndBackKeepsTheOrigin() {
         var snapshot = IntegrationOverview()
         let router = AppRouter()
+        router.showsIntegrationBar = true
         router.openIntegrations()
         XCTAssertTrue(snapshot.open(.steam, in: router))
         XCTAssertEqual(router.route, .settings(.sources))
@@ -44,6 +45,7 @@ final class IntegrationOverviewTests: XCTestCase {
     func testOnlyCurrentPageCanOpenExistingSettingsAndAllRowsHaveAccessCopy() {
         var snapshot = IntegrationOverview()
         let router = AppRouter()
+        router.showsIntegrationBar = true
         XCTAssertFalse(snapshot.open(.drive, in: router))
         XCTAssertEqual(router.route, .library)
         XCTAssertFalse(router.integrationBarFocused)
@@ -79,6 +81,7 @@ final class IntegrationOverviewTests: XCTestCase {
     func testDetailDoesNotOpenSettingsAndBackReturnsToSameRow() {
         let snapshot = IntegrationOverview()
         let router = AppRouter()
+        router.showsIntegrationBar = true
         router.openIntegrations()
         router.showIntegrationDetail(.macApps)
         XCTAssertEqual(router.route, .integrations)
@@ -94,6 +97,7 @@ final class IntegrationOverviewTests: XCTestCase {
 
     func testTheBarOnlyTakesConfirmAfterExplicitFocusEvenWhenAServiceFails() {
         let router = AppRouter()
+        router.showsIntegrationBar = true
         var profileFocused = false
         var snapshot = IntegrationOverview()
         snapshot.drive = .failed
@@ -106,5 +110,18 @@ final class IntegrationOverviewTests: XCTestCase {
         XCTAssertFalse(profileFocused)
         XCTAssertTrue(router.stepIntegrationBar(.down, profileFocused: &profileFocused, hasProfile: true))
         XCTAssertFalse(router.stepIntegrationBar(.confirm, profileFocused: &profileFocused, hasProfile: true))
+    }
+
+    func testWithoutTheBarNothingFocusesItAndSettingsOpensThePage() {
+        let router = AppRouter()
+        var profileFocused = true
+        XCTAssertFalse(router.stepIntegrationBar(.left, profileFocused: &profileFocused, hasProfile: true))
+        XCTAssertTrue(profileFocused)
+        router.openSettings(.sources)
+        router.openIntegrations()
+        XCTAssertEqual(router.route, .integrations)
+        router.back()
+        XCTAssertEqual(router.route, .settings(.sources))
+        XCTAssertFalse(router.integrationBarFocused)
     }
 }

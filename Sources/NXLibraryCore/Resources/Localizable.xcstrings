@@ -1,6 +1,18 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Platform card": {"localizations": {
+      "en":{"stringUnit":{"state":"translated","value":"Platform card"}},"fr":{"stringUnit":{"state":"translated","value":"Carte de plateforme"}},"de":{"stringUnit":{"state":"translated","value":"Plattformkarte"}},"es":{"stringUnit":{"state":"translated","value":"Tarjeta de plataforma"}},"it":{"stringUnit":{"state":"translated","value":"Scheda piattaforma"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Cartão da plataforma"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"平台卡片"}}}},
+    "What shows beside the platform card.": {"localizations": {
+      "en":{"stringUnit":{"state":"translated","value":"What shows beside the platform card."}},"fr":{"stringUnit":{"state":"translated","value":"Ce qui s’affiche à côté de la carte de plateforme."}},"de":{"stringUnit":{"state":"translated","value":"Was neben der Plattformkarte angezeigt wird."}},"es":{"stringUnit":{"state":"translated","value":"Lo que se muestra junto a la tarjeta de plataforma."}},"it":{"stringUnit":{"state":"translated","value":"Cosa appare accanto alla scheda piattaforma."}},"pt-BR":{"stringUnit":{"state":"translated","value":"O que aparece ao lado do cartão da plataforma."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"平台卡片旁显示的内容。"}}}},
+    "Name and number of games": {"localizations": {
+      "en":{"stringUnit":{"state":"translated","value":"Name and number of games"}},"fr":{"stringUnit":{"state":"translated","value":"Nom et nombre de jeux"}},"de":{"stringUnit":{"state":"translated","value":"Name und Anzahl der Spiele"}},"es":{"stringUnit":{"state":"translated","value":"Nombre y número de juegos"}},"it":{"stringUnit":{"state":"translated","value":"Nome e numero di giochi"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Nome e número de jogos"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"名称和游戏数量"}}}},
+    "Name only": {"localizations": {
+      "en":{"stringUnit":{"state":"translated","value":"Name only"}},"fr":{"stringUnit":{"state":"translated","value":"Nom seulement"}},"de":{"stringUnit":{"state":"translated","value":"Nur Name"}},"es":{"stringUnit":{"state":"translated","value":"Solo el nombre"}},"it":{"stringUnit":{"state":"translated","value":"Solo nome"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Somente o nome"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"仅名称"}}}},
+    "All integrations": {"localizations": {
+      "en":{"stringUnit":{"state":"translated","value":"All integrations"}},"fr":{"stringUnit":{"state":"translated","value":"Toutes les intégrations"}},"de":{"stringUnit":{"state":"translated","value":"Alle Integrationen"}},"es":{"stringUnit":{"state":"translated","value":"Todas las integraciones"}},"it":{"stringUnit":{"state":"translated","value":"Tutte le integrazioni"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Todas as integrações"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"所有集成"}}}},
+    "See what each one reads, writes and sends.": {"localizations": {
+      "en":{"stringUnit":{"state":"translated","value":"See what each one reads, writes and sends."}},"fr":{"stringUnit":{"state":"translated","value":"Voir ce que chacune lit, écrit et envoie."}},"de":{"stringUnit":{"state":"translated","value":"Sehen, was jede liest, schreibt und sendet."}},"es":{"stringUnit":{"state":"translated","value":"Ver lo que cada una lee, escribe y envía."}},"it":{"stringUnit":{"state":"translated","value":"Vedi cosa legge, scrive e invia ciascuna."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Veja o que cada uma lê, grava e envia."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"查看每项集成读取、写入和发送的内容。"}}}},
     "Open System Settings": {"localizations": {
       "en":{"stringUnit":{"state":"translated","value":"Open System Settings"}},"fr":{"stringUnit":{"state":"translated","value":"Ouvrir Réglages Système"}},"de":{"stringUnit":{"state":"translated","value":"Systemeinstellungen öffnen"}},"es":{"stringUnit":{"state":"translated","value":"Abrir Ajustes del Sistema"}},"it":{"stringUnit":{"state":"translated","value":"Apri Impostazioni di Sistema"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Abrir Ajustes do Sistema"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"打开系统设置"}}}},
     "Home setting unavailable": {"localizations": {
@@ -3795,7 +3807,7 @@
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Order of games in Spotlight and Collection."}},
         "it": {"stringUnit": {"state": "translated", "value": "Ordine dei giochi in Spotlight e Collection."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Ordre des jeux dans Spotlight et Collection."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ordre des jeux dans À la une et la grille."}},
         "de": {"stringUnit": {"state": "translated", "value": "Reihenfolge der Spiele in Spotlight und Sammlung."}},
         "es": {"stringUnit": {"state": "translated", "value": "Orden de los juegos en Spotlight y Colección."}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Ordem dos jogos no Spotlight e na Coleção."}},
@@ -25887,7 +25899,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Collection"
+            "value": "Grille"
           }
         },
         "it": {
@@ -25899,7 +25911,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Collection"
+            "value": "Grille"
           }
         },
         "de": {
@@ -25934,7 +25946,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Collection · Suggestions"
+            "value": "Grille · Suggestions"
           }
         },
         "it": {
@@ -25946,7 +25958,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Collection · Suggestions"
+            "value": "Grille · Suggestions"
           }
         },
         "de": {
@@ -55104,7 +55116,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Activé affiche l’illustration du jeu sélectionné dans À la une et Collection ; Désactivé conserve votre fond d’écran. Détails conserve l’illustration du jeu."
+            "value": "Activé affiche l’illustration du jeu sélectionné dans À la une et la grille ; Désactivé conserve votre fond d’écran. Détails conserve l’illustration du jeu."
           }
         },
         "de": {
@@ -57487,7 +57499,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Exclus d’À la une, Collection, Surprenez-moi et de la recherche."
+            "value": "Exclus d’À la une, de la grille, de Surprenez-moi et de la recherche."
           }
         },
         "de": {
@@ -59612,7 +59624,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Appuyer sur View alterne entre À la une et Collection ; un appui prolongé ouvre Trouver un jeu."
+            "value": "Appuyer sur View alterne entre À la une et la grille ; un appui prolongé ouvre Trouver un jeu."
           }
         },
         "de": {
@@ -69664,7 +69676,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "À la une et Collection"
+            "value": "À la une et la grille"
           }
         },
         "de": {
@@ -74787,7 +74799,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le filtre à l’ouverture d’À la une et de Collection."
+            "value": "Le filtre à l’ouverture d’À la une et de la grille."
           }
         },
         "de": {
@@ -77560,7 +77572,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "L’écran affiché à l’ouverture d’Arcane : À la une, Collection ou le dernier écran utilisé."
+            "value": "L’écran affiché à l’ouverture d’Arcane : À la une, la grille ou le dernier écran utilisé."
           }
         },
         "de": {
@@ -83380,7 +83392,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "View alterne entre À la une et Collection ; un appui prolongé ouvre Trouver un jeu."
+            "value": "View alterne entre À la une et la grille ; un appui prolongé ouvre Trouver un jeu."
           }
         },
         "de": {
@@ -84660,7 +84672,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les cartes affichées dans la rangée À la une : Collection, Surprenez-moi, Activité, Mods et Ajouter un jeu."
+            "value": "Les cartes affichées dans la rangée À la une : Grille, Surprenez-moi, Activité, Mods et Ajouter un jeu."
           }
         },
         "de": {

@@ -13,18 +13,20 @@ extension SpotlightView {
         return platformChoice
     }
 
-    func togglePlatformPicker() {
+    /// `keeping` false leaves the choice as it was when the ribbon opened (B).
+    func togglePlatformPicker(keeping: Bool = true) {
         let owner = viewModel.playProfile
         guard !owner.blocksPlay else { return }
         if let picker = platformPicker {
             let choices = platforms(in: viewModel.visibleCatalogGames)
             let requested = choices.card(for: picker.cursor).integration
             // Closing an untouched preview must not overwrite an unavailable saved choice.
-            if picker.wantsCommit {
+            if keeping, picker.wantsCommit {
                 platformChoice = requested
                 viewModel.localProfiles?.rememberSpotlightPlatform(requested, for: owner)
             }
             platformPicker = nil
+            if keeping { platformPress += 1 }
         } else {
             platformPicker = SpotlightPlatformPicker(platformChoice, in: platforms(in: viewModel.visibleCatalogGames))
         }
@@ -42,11 +44,20 @@ extension SpotlightView {
             if platformPicker?.move(by: action == .navigateUp ? -1 : 1, in: choices) == true {
                 SoundEffectService.shared.play(.focus)
             }
-        case .confirm, .cancel:
+        case .confirm:
             togglePlatformPicker()
+        case .cancel:
+            togglePlatformPicker(keeping: false)
         default:
             break
         }
+    }
+
+    /// A click on a card below the frame chooses it at once.
+    func pickPlatform(_ card: SpotlightPlatforms.Card) {
+        guard platformPicker != nil else { return }
+        platformPicker?.move(to: card.integration, in: platforms(in: viewModel.visibleCatalogGames))
+        togglePlatformPicker()
     }
 
     /// Coalesce rapid presses before mounting the next set of game tiles and artwork.

@@ -19,6 +19,9 @@ struct SpotlightRowView: View {
     var platforms: SpotlightPlatforms? = nil
     var platform: SpotlightPlatforms.Card? = nil
     var platformOpen = false
+    /// Bumped when a choice is confirmed (the card's press).
+    var platformPress = 0
+    var platformInfo: PlatformCardInfo = .nameAndCount
     /// The tile lifted for moving: raised 12u, its ring stays.
     var liftedKey: String? = nil
     let isEmptyFilter: LibraryFilter?
@@ -36,6 +39,7 @@ struct SpotlightRowView: View {
     /// The flight is over: everything is in.
     var onEntranceEnd: () -> Void = {}
     var onPlatformMove: (Int) -> Void = { _ in }
+    var onPlatformPick: (SpotlightPlatforms.Card) -> Void = { _ in }
     let onSelect: (SpotlightItem) -> Void
     let onActivate: (SpotlightItem) -> Void
 
@@ -79,7 +83,7 @@ struct SpotlightRowView: View {
                     .zIndex(isSelected ? 10 : 0)
                     .transition(.identity)
             }
-            if let selected, items[selected] != .platform {
+            if let selected {
                 let item = items[selected]
                 Text(title(of: item))
                     .seleneFont(.row)
@@ -183,7 +187,7 @@ struct SpotlightRowView: View {
                 }
                 .frame(width: canvas.u(Self.host), height: canvas.u(Self.host), alignment: .topLeading)
                 .contentShape(Rectangle())
-                .overlay { platformActions(platform, in: platforms, selected: selected) }
+                .overlay { platformActions(platform, selected: selected) }
             } else {
                 OortGameTile(title: title(of: item), selected: selected, preset: .spotlight,
                              select: { onSelect(item) }, activate: { onActivate(item) }) {
@@ -211,10 +215,7 @@ struct SpotlightRowView: View {
                     switch item {
                     case .platform:
                         if let platforms, let platform {
-                            face.fill(SeleneTheme.glassSolid)
-                                .overlay { platformFaces(platform, in: platforms, side: side) }
-                                .clipShape(face)
-                                .overlay(face.strokeBorder(SeleneTheme.ink15, lineWidth: max(1, canvas.u(1))))
+                            platformRibbon(platform, in: platforms, side: side)
                         }
                     case .game(let id):
                         if let game = catalogGamesByID[id] {
@@ -234,8 +235,8 @@ struct SpotlightRowView: View {
                 }
                 .frame(width: side, height: side)
                 // Draw words and glyphs as one picture so they don't snap individually when a tile grows or slides.
-                .drawingGroup()
-                .shadow(color: .black.opacity(0.55), radius: canvas.u(9))
+                // The ribbon's cards leave the tile's square, so each is its own picture.
+                .modifier(TilePicture(whole: item != .platform, shadow: canvas.u(9)))
             }
             // So is a download's pulsing mark.
             if case .game(let id) = item, gamesByID[id] == nil, let game = catalogGamesByID[id] {
@@ -248,7 +249,7 @@ struct SpotlightRowView: View {
 
     private func title(of item: SpotlightItem) -> String {
         switch item {
-        case .platform: return platform.map(platformName) ?? ""
+        case .platform: return platform.map(platformTitle) ?? ""
         case .card(let card): return card.title
         case .game(let id): return gamesByID[id]?.name ?? catalogGamesByID[id]?.name ?? ""
         }
@@ -273,68 +274,45 @@ struct SpotlightRowView: View {
         L10n.count("%lld games", card.count, context: locale)
     }
 
-    private func platformFaces(_ current: SpotlightPlatforms.Card, in platforms: SpotlightPlatforms, side: CGFloat) -> some View {
-        let index = platforms.cards.firstIndex { $0.integration == current.integration } ?? 0
-        // The lettering moves only between the next/previous controls, not underneath them.
-        let track = platformOpen ? side - 2 * canvas.u(SeleneTokens.Space.section) : side
-        return ZStack {
-            ForEach(Array(platforms.cards.enumerated()), id: \.element.integration) { indexOfCard, card in
-                VStack(spacing: canvas.u(SeleneTokens.Space.tight)) {
-                    PlatformLabel(platformKind(card), title: platformName(card), preset: .summary)
-                        .lineLimit(2)
-                    Text(verbatim: platformCount(card))
-                        .seleneFont(.text)
-                        .foregroundStyle(SeleneTheme.ink90)
-                }
-                .padding(.horizontal, canvas.u(SeleneTokens.Space.compact))
-                .frame(width: side, height: track)
-                .offset(y: CGFloat(indexOfCard - index) * track)
-                .animation(Motion.rail(reduceMotion || !platformOpen, .spotlight), value: index)
-            }
+    /// Beside the selected card, where a game's name stands.
+    private func platformTitle(_ card: SpotlightPlatforms.Card) -> String {
+        switch platformInfo {
+        case .nameAndCount: "\(platformName(card)) · \(platformCount(card))"
+        case .name: platformName(card)
+        case .none: ""
         }
-        .frame(width: side, height: track)
-        .clipped()
-        .frame(width: side, height: side)
-        .foregroundStyle(SeleneTheme.ink)
+    }
+
+    private func platformRibbon(_ current: SpotlightPlatforms.Card, in platforms: SpotlightPlatforms, side: CGFloat) -> some View {
+        let face = RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content), style: .continuous)
+        let cursor = platforms.cards.firstIndex { $0.integration == current.integration } ?? 0
+        return OortCardRibbon(ids: platforms.cards.map(\.integration), cursor: cursor, open: platformOpen,
+                              locked: current.integration != nil, press: platformPress, side: side,
+                              onPick: { onPlatformPick(platforms.cards[$0]) }) { id in
+            face.fill(SeleneTheme.glassSolid)
+                .overlay(face.strokeBorder(SeleneTheme.ink15, lineWidth: max(1, canvas.u(1))))
+                .overlay {
+                    PlatformMark(kind: platformKind(platforms.card(for: id)), size: SeleneTokens.Space.group + SeleneTokens.Space.small)
+                        .foregroundStyle(SeleneTheme.ink)
+                }
+                .drawingGroup()
+        }
         .accessibilityHidden(true)
     }
 
-    private func platformActions(_ card: SpotlightPlatforms.Card, in platforms: SpotlightPlatforms, selected: Bool) -> some View {
-        ZStack {
-            Button { onActivate(.platform) } label: {
-                Spacer().frame(maxWidth: .infinity, maxHeight: .infinity).contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(platformName(card))
-            .accessibilityValue(platformCount(card))
-            .accessibilityHint(L10n.text(platformOpen ? "Close" : "Open", context: locale))
-            .accessibilityAddTraits(selected ? .isSelected : [])
-            if platformOpen {
-                VStack {
-                    platformArrow(-1, enabled: platforms.adjacent(to: card.integration, by: -1) != card)
-                    Spacer(minLength: 0)
-                    platformArrow(1, enabled: platforms.adjacent(to: card.integration, by: 1) != card)
-                }
-                .padding(canvas.u(SeleneTokens.Space.badge))
-            }
-        }
-        .foregroundStyle(SeleneTheme.ink)
-    }
-
-    private func platformArrow(_ direction: Int, enabled: Bool) -> some View {
-        Button { onPlatformMove(direction) } label: {
-            Image(systemName: direction < 0 ? "chevron.up" : "chevron.down")
-                .seleneFont(.text, .semibold)
-                .frame(maxWidth: .infinity)
-                .frame(height: canvas.u(SeleneTokens.Space.group))
-                .contentShape(Rectangle())
+    private func platformActions(_ card: SpotlightPlatforms.Card, selected: Bool) -> some View {
+        Button { onActivate(.platform) } label: {
+            Spacer().frame(maxWidth: .infinity, maxHeight: .infinity).contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(L10n.text(direction < 0 ? "Previous platform" : "Next platform", context: locale))
-        .disabled(!enabled)
-        .opacity(enabled ? 1 : 0)
-        .allowsHitTesting(enabled)
-        .accessibilityHidden(!enabled)
+        .accessibilityLabel(platformName(card))
+        .accessibilityValue(platformCount(card))
+        .accessibilityHint(L10n.text(platformOpen ? "Select" : "Open", context: locale))
+        .accessibilityAddTraits(selected ? .isSelected : [])
+        .accessibilityAdjustableAction { direction in
+            guard platformOpen else { return }
+            onPlatformMove(direction == .increment ? 1 : -1)
+        }
     }
 
     /// The title hides at once on a move and fades in (0.2 s) once the row has settled.
@@ -377,6 +355,17 @@ struct SpotlightRowView: View {
 /// A tile's place and size, worked out from the selection's position (`SpotlightRowGeometry`) at every frame of the
 /// glide. Each tile glides the same value as its neighbours and the camera, so the row keeps its gaps in any rhythm
 /// of presses. `grown` overrides the size while a tile is lifted (true for it, false for the rest).
+private struct TilePicture: ViewModifier {
+    let whole: Bool
+    let shadow: CGFloat
+
+    func body(content: Content) -> some View {
+        // One shadow for a whole tile; the ribbon's cards cast their own.
+        Group { if whole { content.drawingGroup() } else { content } }
+            .shadow(color: .black.opacity(0.55), radius: whole ? shadow : 0)
+    }
+}
+
 private struct TileGlide: GeometryEffect {
     var position: CGFloat
     var index: CGFloat

@@ -29,6 +29,19 @@ public enum StartScreen: String, Codable, CaseIterable {
     case spotlight, collection, last
 }
 
+/// What stands beside Spotlight's platform card.
+public enum PlatformCardInfo: String, Codable, CaseIterable {
+    case nameAndCount, name, none
+
+    public var titleKey: String {
+        switch self {
+        case .nameAndCount: return "Name and number of games"
+        case .name: return "Name only"
+        case .none: return "None"
+        }
+    }
+}
+
 /// The corner of a cover that holds its badge. Nextendo's keeps the fourth.
 public enum TileBadgePosition: String, Codable, CaseIterable {
     case topRight, topLeft, bottomLeft
@@ -273,6 +286,7 @@ public struct AppSettings: Codable, Equatable {
     public var showsCloudDetailsLink = true
     public var cloudTileBadges: CloudTileBadges = .both
     public var tileBadgePosition: TileBadgePosition = .topRight
+    public var platformCardInfo: PlatformCardInfo = .nameAndCount
     public var startOn: StartScreen
     /// The home screen last shown: `.spotlight` or `.collection`.
     public var lastHome: StartScreen
@@ -399,7 +413,7 @@ public struct AppSettings: Codable, Equatable {
         case colorThemeID, buttonNames
         case spotlightCards, showsModsCard, showsRecentBuilds, spotlightOrder, startingTab, surprisePool
         case librarySort
-        case showsCloudPlayIcon, showsCloudDetailsLink, cloudTileBadges, tileBadgePosition
+        case showsCloudPlayIcon, showsCloudDetailsLink, cloudTileBadges, tileBadgePosition, platformCardInfo
         case startOn, lastHome
         case introAnimation, viewButtonSwitches, interfaceSounds, soundVolume, quietLaunch, soundPackID
         case showProfilePicker, profileStartup
@@ -454,6 +468,8 @@ public struct AppSettings: Codable, Equatable {
             .flatMap(CloudTileBadges.init(rawValue:)) ?? .both
         self.tileBadgePosition = (try container.decodeIfPresent(String.self, forKey: .tileBadgePosition))
             .flatMap(TileBadgePosition.init(rawValue:)) ?? .topRight
+        self.platformCardInfo = (try container.decodeIfPresent(String.self, forKey: .platformCardInfo))
+            .flatMap(PlatformCardInfo.init(rawValue:)) ?? .nameAndCount
         self.startOn = try container.decodeIfPresent(StartScreen.self, forKey: .startOn) ?? .spotlight
         self.lastHome = try container.decodeIfPresent(StartScreen.self, forKey: .lastHome) ?? .spotlight
         self.introAnimation = try container.decodeIfPresent(Bool.self, forKey: .introAnimation) ?? true
@@ -519,6 +535,7 @@ public struct AppSettings: Codable, Equatable {
         try c.encode(showsCloudDetailsLink, forKey: .showsCloudDetailsLink)
         try c.encode(cloudTileBadges, forKey: .cloudTileBadges)
         try c.encode(tileBadgePosition, forKey: .tileBadgePosition)
+        try c.encode(platformCardInfo, forKey: .platformCardInfo)
         try c.encode(startOn, forKey: .startOn)
         try c.encode(lastHome, forKey: .lastHome)
         try c.encode(introAnimation, forKey: .introAnimation)

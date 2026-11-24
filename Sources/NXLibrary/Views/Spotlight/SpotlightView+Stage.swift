@@ -77,6 +77,8 @@ extension SpotlightView {
                     platforms: model.platforms,
                     platform: model.platformCursor ?? model.platforms.card(for: activePlatform),
                     platformOpen: model.platformCursor != nil,
+                    platformPress: platformPress,
+                    platformInfo: settings.settings.platformCardInfo,
                     liftedKey: state.lift?.key,
                     isEmptyFilter: LibraryEmptyState.showsMessage(
                         hasGames: items.contains { if case .game = $0 { return true } else { return false } },
@@ -91,6 +93,7 @@ extension SpotlightView {
                     entrance: entrance,
                     onEntranceEnd: { finishEntrance() },
                     onPlatformMove: { handlePlatformPicker($0 < 0 ? .navigateUp : .navigateDown) },
+                    onPlatformPick: pickPlatform,
                     onSelect: { item in
                         guard platformPicker == nil, !state.isLifted else { return }
                         mutate { $0.select(item) }

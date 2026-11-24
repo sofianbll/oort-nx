@@ -29,7 +29,7 @@ extension SpotlightView {
     func contextHints(_ model: Snapshot, _ state: SpotlightState) -> [HintItem] {
         if model.platformCursor != nil {
             let direction = model.platforms.cards.count > 1 ? [HintItem(.vertical, "Change platform")] : []
-            return direction + [HintItem(.b, "Close") { handle(.cancel) }, HintItem(.a, "Close") { handle(.confirm) }]
+            return direction + [HintItem(.b, "Cancel") { handle(.cancel) }, HintItem(.a, "Select") { handle(.confirm) }]
         }
         if state.isLifted {
             return [HintItem(.move, "Move"), HintItem(.a, L10n.text("Drop")), HintItem(.b, L10n.text("Cancel"))]
