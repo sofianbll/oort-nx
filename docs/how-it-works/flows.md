@@ -271,6 +271,7 @@ flowchart TD
 In Spotlight e Collection, la barra Integrations apre il riepilogo. Con tastiera o controller, Su raggiunge il ritratto se presente e Sinistra raggiunge la barra; senza ritratto basta Su. Giù torna ai giochi. Su/Giù nella pagina sceglie una riga; Apri raggiunge le impostazioni esistenti senza premere il controllo. Indietro ripristina la riga e poi la barra, senza cambiare il gioco selezionato.
 La destinazione Switch mostra lo stato già noto. Re-check controlla la compatibilità senza importare chiavi; l'import resta nelle impostazioni delle chiavi e nel Setup.
 La destinazione Nextendo mostra lo stato noto senza contattare il servizio. Check status e Sign in sono azioni separate; l'accesso normale dalle impostazioni mantiene il controllo automatico.
+In Spotlight, la rotella toglie il focus dalla barra quando porta il focus nella pagina del gioco. X, Y e i salti della riga non passano ai giochi mentre la barra è ancora a fuoco.
 
 ```mermaid
 flowchart TD

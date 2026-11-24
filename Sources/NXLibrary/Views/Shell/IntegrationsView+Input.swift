@@ -7,6 +7,7 @@ extension Notification.Name {
 
 extension AppRouter {
     func handleIntegrationBar(_ action: GamepadAction, profileFocused: inout Bool, hasProfile: Bool) -> Bool {
+        if integrationBarFocused, [.secondaryAction, .contextAction, .jumpToStart, .jumpToEnd].contains(action) { return true }
         let step: MenuStep? = switch action {
         case .navigateLeft: .left
         case .navigateRight: .right

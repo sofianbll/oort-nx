@@ -34,6 +34,16 @@ class IntegrationContract(unittest.TestCase):
         self.assertRegex(settings, r"case 36, 49, 76:\s*if typing \{ return event \}\s*"
                                   r"guard !event.isARepeat else \{ return nil \}\s*action = \.confirm")
 
+    def test_spotlight_leaves_header_focus_when_wheel_enters_content(self):
+        input_view = (VIEWS / "Spotlight/SpotlightView+Input.swift").read_text()
+        selection = (VIEWS / "Spotlight/SpotlightView+Selection.swift").read_text()
+        header = (VIEWS / "Shell/IntegrationsView+Input.swift").read_text()
+        self.assertRegex(input_view, r"func scrollPage[\s\S]*?mutate \{ \$0.focus = \.pills; \$0.pillIndex = 0 \}")
+        self.assertRegex(selection, r"if viewModel.spotlight.focus == \.row, state.focus != \.row \{\s*"
+                                    r"router.integrationBarFocused = false\s*profileFocused = false")
+        self.assertRegex(header, r"if integrationBarFocused, \[\.secondaryAction, \.contextAction, \.jumpToStart, \.jumpToEnd\]"
+                                 r"\.contains\(action\) \{ return true \}")
+
 
 if __name__ == "__main__":
     unittest.main()
