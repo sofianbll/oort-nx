@@ -174,7 +174,7 @@ flowchart TD
 
 Durante un porting, B o Esc nasconde il pannello senza annullare il lavoro. Dopo il completamento o l'annullamento, B o Esc torna a Review se c'è una selezione nel wizard; da un Build o Rebuild aperto direttamente senza bozza, torna alla schermata di partenza.
 
-Una notifica di compilazione riuscita seleziona subito il gioco in Spotlight. Se Aggiungi gioco o la console copre Spotlight, la selezione si applica al ritorno.
+Una notifica di compilazione riuscita seleziona subito il gioco in Spotlight. Se Aggiungi gioco o la console copre Spotlight, la selezione si applica al ritorno, anche se è in corso la compilazione di un altro gioco.
 
 **Menu → Centro attività.** La campanella si apre con un clic o con la selezione del menu (Menu sul controller, ⌘K da tastiera). Mostra l'azione e l'oggetto di ogni compilazione, trasferimento o spostamento cloud. Su/Giù sposta il focus; A, Invio o un clic su una riga di compilazione apre Porting. X, Canc o il pulsante tondo ferma il lavoro selezionato o rimuove la singola richiesta in coda. Nei Risultati, Retry (A/Invio) riaccoda lo stesso lavoro; Clear (X/Canc) rimuove la riga; Clear all (A/Invio) rimuove gli esiti senza annullare i lavori. B o Esc torna alla campanella; un clic fuori chiude tutto il menu. Nessuno dei due ferma i lavori.
 

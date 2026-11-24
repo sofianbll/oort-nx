@@ -640,7 +640,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibrary/Views/AddGame/AddGameView.swift](../../Sources/NXLibrary/Views/AddGame/AddGameView.swift) | Compone il wizard Choose/Review/Porting e osserva i blocchi cloud; navigazione e rilascio di sorgenti o di una singola app nel primo passo. |
+| [Sources/NXLibrary/Views/AddGame/AddGameView.swift](../../Sources/NXLibrary/Views/AddGame/AddGameView.swift) | Compone il wizard Choose/Review/Porting, gestisce il rilascio di file e i blocchi cloud; alla chiusura non sovrascrive una selezione Spotlight in attesa. |
 | [Sources/NXLibrary/Views/AddGame/AddGameView+Rows.swift](../../Sources/NXLibrary/Views/AddGame/AddGameView+Rows.swift) | Righe e focus del wizard, spiegazione del blocco dell'adozione locale e stato della verifica della cache di compilazione cloud. |
 | [Sources/NXLibrary/Views/AddGame/AddGameRows.swift](../../Sources/NXLibrary/Views/AddGame/AddGameRows.swift) | Rende le righe riutilizzabili per sorgenti e azioni di Add Game. |
 | [Sources/NXLibrary/Views/AddGame/AddGameAction.swift](../../Sources/NXLibrary/Views/AddGame/AddGameAction.swift) | Identifica le azioni navigabili dei passaggi del wizard. |
@@ -1097,7 +1097,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_profile_collection_game.py](../../Tests/CatalogAppChecks/run_profile_collection_game.py) | Verifica la selezione dei giochi Switch e Steam nel menu nativo della Collection di un profilo. |
 | [run_logo_cancellation.py](../../Tests/CatalogAppChecks/run_logo_cancellation.py) | Verifica il nuovo tentativo dopo una ricerca del logo annullata, senza rete. |
 | [run_metadata_preload.py](../../Tests/CatalogAppChecks/run_metadata_preload.py) | Verifica che il precaricamento del catalogo legga la cache fuori dal main thread e pubblichi i risultati sul main thread. |
-| [run_spotlight_notification_select.py](../../Tests/CatalogAppChecks/run_spotlight_notification_select.py) | Verifica la consegna della selezione da una notifica a Spotlight, anche al ritorno da una sovrapposizione. |
+| [run_spotlight_notification_select.py](../../Tests/CatalogAppChecks/run_spotlight_notification_select.py) | Verifica la selezione da una notifica, anche chiudendo Add Game mentre è in corso un altro porting. |
 | [run_sort_native_menu.py](../../Tests/CatalogAppChecks/run_sort_native_menu.py) | Verifica disponibilità e consegna di Gioca dal menu nativo con l’ordinamento aperto. |
 | [run_empty_collection_input.py](../../Tests/CatalogAppChecks/run_empty_collection_input.py) | Invia comandi di navigazione alla Collection vuota e verifica Aggiungi gioco e Importa build esistenti. |
 | [run_hero_cache_budget.py](../../Tests/CatalogAppChecks/run_hero_cache_budget.py) | Verifica che le cache degli sfondi ricevano i byte decodificati e abbiano un limite di costo. |
