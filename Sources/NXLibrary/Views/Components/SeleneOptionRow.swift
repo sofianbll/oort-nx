@@ -16,6 +16,7 @@ struct SeleneOptionRow<Trailing: View>: View {
     var leading: AnyView? = nil
     var titleAccessory: AnyView? = nil
     var truncateAboutInMiddle = false
+    var aboutFont: SeleneTokens.Text = .compactCaption
     @ViewBuilder var trailing: () -> Trailing
 
     var body: some View {
@@ -42,7 +43,7 @@ struct SeleneOptionRow<Trailing: View>: View {
                                 .truncationMode(truncateAboutInMiddle ? .middle : .tail)
                         }
                     }
-                        .seleneFont(15)
+                    .seleneFont(aboutFont)
                         .foregroundColor(SeleneTheme.ink60)
                         .fixedSize(horizontal: false, vertical: true)
                 }

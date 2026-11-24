@@ -44,6 +44,7 @@ struct ThemePaletteSwatch: View {
 
     var body: some View {
         let background = Color(hex: palette.base.stops.first?.color ?? palette.glass)
+        let readingShade = palette.mode == .light ? Color(hex: palette.scrim) : background
         let shape = RoundedRectangle(cornerRadius: canvas.u(14), style: .continuous)
         return VStack(spacing: canvas.u(8)) {
             ZStack {
@@ -52,9 +53,9 @@ struct ThemePaletteSwatch: View {
                     WallpaperThumb(url: url)
                 }
                 // The theme's color fades in from the left so "Aa" reads on any wallpaper.
-                LinearGradient(stops: [.init(color: background.opacity(0.9), location: 0),
-                                       .init(color: background.opacity(0.33), location: 0.55),
-                                       .init(color: background.opacity(0), location: 1)],
+                LinearGradient(stops: [.init(color: readingShade.opacity(0.9), location: 0),
+                                       .init(color: readingShade.opacity(0.33), location: 0.55),
+                                       .init(color: readingShade.opacity(0), location: 1)],
                                startPoint: .leading, endPoint: .trailing)
                 HStack {
                     Text(L10n.text("Aa")).seleneFont(22).foregroundColor(Color(hex: palette.ink))

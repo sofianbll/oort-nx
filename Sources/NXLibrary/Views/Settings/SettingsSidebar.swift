@@ -10,7 +10,7 @@ struct SettingsSidebar: View {
     @Environment(\.seleneCanvas) private var canvas
 
     private var version: String {
-        L10n.format("Version %@", [AppUpdate.versionLabel(Bundle.main.infoDictionary)], context: context)
+        L10n.format("Version %@", [AppUpdate.versionLabel(Bundle.main.infoDictionary, context: context)], context: context)
     }
 
     var body: some View {

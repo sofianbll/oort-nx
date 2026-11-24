@@ -213,7 +213,7 @@ extension GameOptionsView {
         if row.isToggle {
             // The row takes the click; the switch only shows the state.
             SeleneSwitch(isOn: .constant(toggleValue(row))).allowsHitTesting(false)
-        } else if row == .multiplayer && !presentation.isFixed(row) {
+        } else if (row == .multiplayer && !presentation.isFixed(row)) || (row == .gameDisplay && canChooseGameDisplay) {
             SeleneCycleValue(title: row.title, value: choiceText(row)) { adjust(row, by: $0) }
         } else if row.isChoice {
             SeleneValueChip(text: choiceText(row))

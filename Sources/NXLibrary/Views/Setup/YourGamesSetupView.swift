@@ -158,16 +158,18 @@ struct YourGamesSetupView: View {
 
 struct SetupStepIndicator: View {
     @Environment(\.seleneCanvas) private var canvas
+    @Environment(\.nxAppLocale) private var localization
     let page: FirstRunSetup.Page
 
     var body: some View {
         HStack(spacing: canvas.u(14)) {
-            step(1, L10n.text("Get ready"), active: page == .requirements)
+            step(1, L10n.text("Get ready", context: localization), active: page == .requirements)
             Capsule().fill(SeleneTheme.ink15).frame(width: canvas.u(38), height: canvas.u(1))
-            step(2, "Your games", active: page == .games)
+            step(2, L10n.text("Your games", context: localization), active: page == .games)
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(page == .requirements ? L10n.text("Step 1 of 2: Get ready") : L10n.text("Step 2 of 2: Your games"))
+        .accessibilityLabel(L10n.text(page == .requirements ? "Step 1 of 2: Get ready" : "Step 2 of 2: Your games",
+                                       context: localization))
     }
 
     private func step(_ number: Int, _ title: String, active: Bool) -> some View {

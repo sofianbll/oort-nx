@@ -205,7 +205,7 @@ struct ProfilePickerView: View {
                         Circle().fill(SeleneTheme.glassLight)
                             .overlay(Circle().strokeBorder(SeleneTheme.ink15, lineWidth: canvas.u(1)))
                             .overlay { Image(systemName: "plus").font(.system(size: canvas.u(65), weight: .ultraLight))
-                                .foregroundStyle(isFocused ? SeleneTheme.ink : SeleneTheme.ink25) }
+                                .foregroundStyle(isFocused ? SeleneTheme.ink : SeleneTheme.ink60) }
                             .frame(width: canvas.u(170), height: canvas.u(170))
                     }
                 }

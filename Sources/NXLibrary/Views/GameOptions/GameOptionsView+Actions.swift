@@ -58,6 +58,7 @@ extension GameOptionsView {
         SoundEffectService.shared.play(.click)
         switch row {
         case .gameDisplay:
+            setFocus(row)
             let choices: [String?] = [nil, ""] + gameDisplays.map { $0.id.uuidString }
             let current = gameDisplayOverride
             if let next = choices.stepped(from: choices.contains(current) ? current : "", delta) {

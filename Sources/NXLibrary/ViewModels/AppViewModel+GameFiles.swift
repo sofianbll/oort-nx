@@ -114,7 +114,7 @@ extension AppViewModel {
                 guard RunningGameMonitor.runningApplication(for: updated) == nil else { throw CatalogRemovalFailure.gameBusy }
             })
         } catch {
-            let message = L10n.format("Could not remove game sources: %@", [error.localizedDescription])
+            let message = L10n.format("Could not remove the original game files. %@", [error.localizedDescription])
             alertMessage = message
             logs.append(LogEntry(level: .error, message: message))
             return

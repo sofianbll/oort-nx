@@ -168,7 +168,7 @@ struct SettingsEngineSection: View {
 
     private func confirmOverride(_ enabled: Bool) {
         guard canChangeOverride, enabled != setup.allowUntestedToolchain else { return }
-        viewModel.confirmSetting(enabled ? "Enable untested toolchain?" : "Untested toolchain override",
+        viewModel.confirmSetting(enabled ? "Enable untested toolchain?" : "Return to the tested toolchain?",
             message: L10n.text(enabled
                 ? "The engine and compiler do not match the certified combination. Builds may fail or show incorrect graphics and will be marked as untested."
                 : "Future builds will require a tested toolchain again, but installed games will stay as they are."),

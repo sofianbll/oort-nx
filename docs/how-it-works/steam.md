@@ -134,7 +134,7 @@ sparisce senza Refresh.
 
 ## Libreria: tile, ordine, pagina
 
-**Tile.** Il riquadro quadrato mostra sempre un’icona vera, mai una copertina ritagliata. Ordine: scelta del
+**Tile.** Il riquadro quadrato mostra un’icona, mai una copertina ritagliata. Se ha un’app ma l’icona non è ancora disponibile, il glifo del controller prende il colore del testo Selene. Ordine: scelta del
 giocatore → icona dell’app installata → «Square» di LaunchBox della voce Mac o Windows, cercata per nome
 (`ArtworkStore.automaticSteamIcon`; un’assenza non si ricerca fino al prossimo avvio) → riquadro neutro. Nessuna
 etichetta «Steam» sulla tile: la piattaforma è nella pagina.

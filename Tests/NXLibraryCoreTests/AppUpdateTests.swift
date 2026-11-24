@@ -39,8 +39,13 @@ final class AppUpdateTests: XCTestCase {
     private let os = OperatingSystemVersion(majorVersion: 27, minorVersion: 2, patchVersion: 0)
 
     func testDevelopmentCopySaysSo() {
-        XCTAssertEqual(AppUpdate.versionLabel(["CFBundleShortVersionString": "0.1.3", "NXLibraryRelease": true]), "0.1.3")
-        XCTAssertEqual(AppUpdate.versionLabel(["CFBundleShortVersionString": "0.1.3"]), "0.1.3 (development build)")
+        let en = AppLocale(language: .english, region: "US")
+        let fr = AppLocale(language: .french, region: "FR")
+        let version = ["CFBundleShortVersionString": "0.1.3"]
+        XCTAssertEqual(AppUpdate.versionLabel(version, context: en), "0.1.3 (development build)")
+        XCTAssertEqual(AppUpdate.versionLabel(version, context: fr), "0.1.3 (version de développement)")
+        XCTAssertEqual(AppUpdate.versionLabel(["CFBundleShortVersionString": "0.1.3", "NXLibraryDevelopmentProfile": true], context: fr), "0.1.3 (Dev · Launcher)")
+        XCTAssertEqual(AppUpdate.versionLabel(["CFBundleShortVersionString": "0.1.3", "NXLibraryRelease": true], context: fr), "0.1.3")
     }
 
     /// The development version is the one in progress, and a release never ships under another number.
