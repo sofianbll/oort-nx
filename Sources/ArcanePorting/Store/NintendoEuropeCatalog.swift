@@ -7,7 +7,7 @@ enum NintendoEuropeCatalog {
     }
 
     static func request(titleID: String, language: String) -> URLRequest? {
-        guard NintendoStoreMetadataService.validTitleID(titleID), locale(for: language) != nil else { return nil }
+        guard SwitchGameMetadataService.validTitleID(titleID), locale(for: language) != nil else { return nil }
         var url = URLComponents(string: "https://searching.nintendo-europe.com/\(language)/select")!
         url.queryItems = [
             .init(name: "q", value: "*"),

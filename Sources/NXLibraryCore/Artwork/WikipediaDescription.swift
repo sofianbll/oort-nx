@@ -37,7 +37,7 @@ public enum WikipediaDescriptions {
     }
 
     /// A BCP 47 tag ("en", "zh-Hans"), or nil when the text is short or no language clearly leads.
-    static func detectLanguage(of text: String) -> String? {
+    package static func detectLanguage(of text: String) -> String? {
         guard text.count >= minimumLength else { return nil }
         let recognizer = NLLanguageRecognizer()
         recognizer.processString(text)

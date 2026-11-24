@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **1063 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **1065 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -626,7 +626,8 @@ Cartella `Sources/ArcanePorting/Store/`.
 | [Sources/ArcanePorting/Store/MetadataPicks+Porting.swift](../../Sources/ArcanePorting/Store/MetadataPicks+Porting.swift) | Le scelte del giocatore applicate ai metadati dello store Nintendo. |
 | [Sources/ArcanePorting/Store/CriticRatingQuery+Porting.swift](../../Sources/ArcanePorting/Store/CriticRatingQuery+Porting.swift) | La ricerca dei voti per un gioco portato, con la console di Details (Switch o Switch 2). |
 | [Sources/ArcanePorting/Store/NintendoEuropeCatalog.swift](../../Sources/ArcanePorting/Store/NintendoEuropeCatalog.swift) | Decodifica il catalogo Nintendo Europe e seleziona il prodotto base per ID e console. |
-| [Sources/ArcanePorting/Store/NintendoStoreMetadata.swift](../../Sources/ArcanePorting/Store/NintendoStoreMetadata.swift) | Combina Nintendo Europe e Title DB per campo e lingua, con ripiego LaunchBox e indice locale GameTDB, cache leggibili offline e fonti attribuite. |
+| [Sources/ArcanePorting/Store/NintendoStoreMetadata.swift](../../Sources/ArcanePorting/Store/NintendoStoreMetadata.swift) | Trasporto, ricerca, ripiego Title DB e cache Nintendo Store originali di Arcane. |
+| [Sources/ArcanePorting/Store/SwitchGameMetadataService.swift](../../Sources/ArcanePorting/Store/SwitchGameMetadataService.swift) | Conserva i dati Arcane e riempie i vuoti per campo e lingua con Nintendo Europe, Title DB, LaunchBox e l'indice locale GameTDB. |
 | [Sources/ArcanePorting/Store/ScreenshotFallback.swift](../../Sources/ArcanePorting/Store/ScreenshotFallback.swift) | Conserva per 30 giorni gli screenshot LaunchBox dei giochi senza screenshot Title DB e li sovrappone ai metadati. |
 
 ## Porting · salvataggi, backup e cloud
@@ -1007,7 +1008,8 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [MoonlightAppearanceTests.swift](../../Tests/ArcanePortingTests/MoonlightAppearanceTests.swift) | Ignora la preferenza storica delle particelle senza perdere altri valori; continuità del ciclo e bordi della griglia colori. |
 | [Tests/ArcanePortingTests/MoreArtworkSourcesTests.swift](../../Tests/ArcanePortingTests/MoreArtworkSourcesTests.swift) | Matching dei titoli e risposte delle sorgenti artwork aggiuntive. |
 | [Tests/ArcanePortingTests/MoreLikeThisTests.swift](../../Tests/ArcanePortingTests/MoreLikeThisTests.swift) | Ranking condiviso, precedenza Steam e ripiego Switch, giochi nascosti e metadati incompleti. |
-| [Tests/ArcanePortingTests/NintendoStoreMetadataTests.swift](../../Tests/ArcanePortingTests/NintendoStoreMetadataTests.swift) | Richiesta pubblica, selezione del prodotto base, lingue, cache precedenti, scelte personali e ripieghi. |
+| [Tests/ArcanePortingTests/NintendoStoreMetadataTests.swift](../../Tests/ArcanePortingTests/NintendoStoreMetadataTests.swift) | Decodifica store e Title DB, cache, screenshot e risposte incomplete della fonte Arcane. |
+| [Tests/ArcanePortingTests/SwitchGameMetadataServiceTests.swift](../../Tests/ArcanePortingTests/SwitchGameMetadataServiceTests.swift) | Priorità Arcane per campo, richiesta pubblica Europe, prodotto base, lingue, cache e ripieghi. |
 | [Tests/NXLibraryCoreTests/ReleaseNotesLayoutTests.swift](../../Tests/NXLibraryCoreTests/ReleaseNotesLayoutTests.swift) | Titoli, voci e righe vuote delle note di release, una voce per riga. |
 | [Tests/ArcanePortingTests/NewestEngineTests.swift](../../Tests/ArcanePortingTests/NewestEngineTests.swift) | Lock e Metal di main, validità della scelta, comandi git del cambio, gate Newest engine, scheda Setup e frase. |
 | [Tests/ArcanePortingTests/NUPSourceCatalogTests.swift](../../Tests/ArcanePortingTests/NUPSourceCatalogTests.swift) | NUP storici, multiprogramma e soli update; identità DLC, JSON, capacità checkout, programma zero nei vecchi record e argv coerenti. |

@@ -139,7 +139,7 @@ struct SettingsAboutSection: View {
             }
 
             SelenePanel(L10n.text("Nintendo Europe catalogue")) {
-                Text(L10n.text("The player’s app fetches Switch game information and artwork from the public Nintendo Europe catalogue without an account or API key. Text and images belong to their respective owners and are never shipped with the app."))
+                Text(L10n.text("The app keeps Arcane’s Nintendo Store source. Nintendo Europe supplements missing or untranslated information and artwork. Text and images belong to their respective owners and are never shipped with the app."))
                     .seleneFont(15)
                     .foregroundColor(SeleneTheme.ink90)
                     .fixedSize(horizontal: false, vertical: true)
