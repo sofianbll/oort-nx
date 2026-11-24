@@ -548,7 +548,7 @@ Cartella `Sources/ArcanePorting/Launch/`.
 | [Sources/ArcanePorting/Launch/NextendoOnlineCounts.swift](../../Sources/ArcanePorting/Launch/NextendoOnlineCounts.swift) | Solo in presenza di un token, legge e valida il conteggio pubblico per title ID, con download limitato e cache breve. |
 | [Sources/ArcanePorting/Launch/NextendoOAuth.swift](../../Sources/ArcanePorting/Launch/NextendoOAuth.swift) | Genera la richiesta PKCE, valida la callback, scambia e ruota i token e legge userinfo. Il trasporto è limitato e registra solo percorso e codice. |
 | [Sources/ArcanePorting/Launch/NextendoTokenStore.swift](../../Sources/ArcanePorting/Launch/NextendoTokenStore.swift) | Legge, sostituisce e rimuove il refresh token condiviso sotto il lock nxnative, con permessi privati. |
-| [Sources/ArcanePorting/Launch/AppIconWriter.swift](../../Sources/ArcanePorting/Launch/AppIconWriter.swift) | Scrive l’icona scelta nell’app del gioco, conserva l’originale, rifirma e verifica, e annulla tutto in caso di errore. |
+| [Sources/ArcanePorting/Launch/AppIconWriter.swift](../../Sources/ArcanePorting/Launch/AppIconWriter.swift) | Cambia o ripristina l'icona, rifirma e verifica; conserva le copie e il manifesto se il rollback non riesce. |
 | [Sources/ArcanePorting/Launch/NXNativeLibraryMerge.swift](../../Sources/ArcanePorting/Launch/NXNativeLibraryMerge.swift) | Algoritmo di merge nxnative usato dal repository del catalogo comune. |
 
 ## Porting · impostazioni del gioco

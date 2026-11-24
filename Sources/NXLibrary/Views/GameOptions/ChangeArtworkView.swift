@@ -278,10 +278,12 @@ struct ChangeArtworkView: View {
 
     @ViewBuilder
     private var status: some View {
-        Text(message ?? (browsing.map(browseStatus) ?? mainStatus))
+        let text = message ?? (browsing.map(browseStatus) ?? mainStatus)
+        Text(text)
             .seleneFont(16)
             .foregroundColor(SeleneTheme.ink60)
             .lineLimit(1)
+            .help(text)
             .frame(height: canvas.u(22), alignment: .leading)
             .padding(.leading, canvas.u(10))
             .padding(.vertical, canvas.u(10))
@@ -298,7 +300,7 @@ struct ChangeArtworkView: View {
         let progress = appIcon.appIconProgress[subject.id]
         if let progress {
             switch progress {
-            case .searching, .updating, .failed: return progress.message
+            case .searching, .updating, .failed, .recoveryRequired: return progress.message
             default: break
             }
         }

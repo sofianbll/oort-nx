@@ -184,7 +184,11 @@ final class AppIconModel: ObservableObject {
                         self.app.logs.append(LogEntry(level: .info, message: L10n.format("Updated the app icon of %@.", [String(describing: game.name)])))
                     }
                 case .failure(let error):
-                    self.appIconProgress[game.id] = .failed(error.localizedDescription)
+                    if case .recoveryRequired = error as? AppIconWriter.Failure {
+                        self.appIconProgress[game.id] = .recoveryRequired(error.localizedDescription)
+                    } else {
+                        self.appIconProgress[game.id] = .failed(error.localizedDescription)
+                    }
                     self.app.logs.append(LogEntry(level: .error,
                                               message: L10n.format("Could not change the app icon of %@: %@", [String(describing: game.name), String(describing: error.localizedDescription)])))
                 }

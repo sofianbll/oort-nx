@@ -764,7 +764,7 @@ Il percorso completo è in [flows.md](flows.md#6-importare-o-ripristinare-un-sal
   - La tile Icon location cambia la destinazione anche senza una scelta. La tile Automatic mostra l'anteprima risolta; lo stato distingue ricerca, firma e icona non disponibile.
 - **La scrittura.**
   - Crea `Resources/AppIcon.icns`, marca `Info.plist` con `NXLibraryAppIcon`, rifirma il bundle ad hoc come l'engine e verifica con `codesign --verify --deep --strict`.
-  - L'icona originale resta in `Application Support/NXLibrary/app-icons/<TitleID>/`; ogni errore rimette a posto i file toccati.
+  - L'icona originale resta in `Application Support/NXLibrary/app-icons/<TitleID>/`. Prima di modificare il bundle, il writer salva i file toccati e `restore.json` sotto `app-icons/recovery/`. Pulisce la copia dopo il successo o il ripristino completo; altrimenti la conserva e indica il percorso.
   - Avviene dopo ogni build installata (la rebuild sostituisce l'app), all'avvio e quando un gioco si chiude, mai mentre il gioco gira o si costruisce.
   - Durante la firma (circa 50 secondi per un gioco di 9–12 GB) avvio e build del gioco aspettano, e la riga di stato di Change artwork mostra l'avanzamento. Una scelta fatta mentre la stessa app si firma si riesegue alla fine, così vale l'ultima.
 - **Log e riconciliazione.**

@@ -11,13 +11,14 @@ import NXLibraryCore
 /// `Info.plist` with `NXLibraryAppIcon`, signs the bundle again ad hoc as the engine does and verifies it. The game's
 /// own icon (or its absence) is kept beside Arcane's data the first time, so Restore needs no rebuild. A rebuild
 /// replaces the whole app: its new Info.plist has no mark, so the next write keeps the new build's icon as the original.
-/// Any failure puts back every file it touched, leaving the app as it was.
+/// Rollback puts touched files back; an interrupted rollback leaves recovery files outside the game volume.
 public struct AppIconWriter {
     public enum Failure: LocalizedError, Equatable {
         case notAnApp
         case notAnImage
         case iconFailed(String)
         case signingFailed(String)
+        case recoveryRequired(String)
 
         public var errorDescription: String? {
             switch self {
@@ -25,6 +26,8 @@ public struct AppIconWriter {
             case .notAnImage: return L10n.text("The icon is not an image Arcane can read.")
             case .iconFailed(let detail): return L10n.format("The icon could not be made: %@", [String(describing: detail)])
             case .signingFailed(let detail): return L10n.format("The app could not be signed again, so it was left as it was: %@", [String(describing: detail)])
+            case .recoveryRequired(let path):
+                return L10n.format("Could not restore the game app. Recovery files: %@", [path])
             }
         }
     }
@@ -105,7 +108,7 @@ public struct AppIconWriter {
         let work = try temporaryFolder()
         defer { try? fileManager.removeItem(at: work) }
         let icns = try makeICNS(image, in: work)
-        try transaction(app, info: info, work: work) {
+        try transaction(app, info: info) {
             let target = resources(app).appendingPathComponent("\(Self.iconName).icns")
             try fileManager.createDirectory(at: resources(app), withIntermediateDirectories: true)
             if fileManager.fileExists(atPath: target.path) { try fileManager.removeItem(at: target) }
@@ -124,9 +127,7 @@ public struct AppIconWriter {
         let folder = backups.appendingPathComponent(key)
         let original = folder.appendingPathComponent("original.icns")
         let hadIcon = fileManager.fileExists(atPath: original.path)
-        let work = try temporaryFolder()
-        defer { try? fileManager.removeItem(at: work) }
-        try transaction(app, info: info, work: work) {
+        try transaction(app, info: info) {
             let target = resources(app).appendingPathComponent("\(Self.iconName).icns")
             if fileManager.fileExists(atPath: target.path) { try fileManager.removeItem(at: target) }
             var updated = info
@@ -249,39 +250,58 @@ public struct AppIconWriter {
         guard CGImageDestinationFinalize(destination) else { throw Failure.notAnImage }
     }
 
-    /// Runs `change`, signs the bundle again and verifies it. On any failure every file the change or the signing can
-    /// touch (Info.plist, the icon, the launcher with its signature, the resource seal) is put back as it was.
-    private func transaction(_ app: URL, info: [String: Any], work: URL, _ change: () throws -> Void) throws {
+    private struct RecoveryFile: Encodable {
+        let target: String
+        let backup: String?
+    }
+
+    /// Record the undo data on Arcane's volume before touching the game. A missing `backup` means remove the target.
+    private func transaction(_ app: URL, info: [String: Any], _ change: () throws -> Void) throws {
+        let identity = try app.resourceValues(forKeys: [.fileResourceIdentifierKey, .volumeIdentifierKey])
         let executable = (info["CFBundleExecutable"] as? String).map { app.appendingPathComponent("Contents/MacOS/\($0)") }
         let touched = [app.appendingPathComponent("Contents/Info.plist"),
                        resources(app).appendingPathComponent("\(Self.iconName).icns"),
                        app.appendingPathComponent("Contents/_CodeSignature/CodeResources"),
                        executable].compactMap { $0 }
-        let saved = work.appendingPathComponent("saved")
-        try fileManager.createDirectory(at: saved, withIntermediateDirectories: true)
-        var kept: [(URL, URL?)] = []
+        let saved = backups.appendingPathComponent("recovery/\(UUID().uuidString)")
+        try fileManager.createDirectory(at: saved, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
+        var preserveRecovery = false
+        defer { if !preserveRecovery { try? fileManager.removeItem(at: saved) } }
+        var kept: [RecoveryFile] = []
         for (index, file) in touched.enumerated() {
             if fileManager.fileExists(atPath: file.path) {
-                let copy = saved.appendingPathComponent("\(index)")
-                try fileManager.copyItem(at: file, to: copy)
-                kept.append((file, copy))
+                try fileManager.copyItem(at: file, to: saved.appendingPathComponent("\(index)"))
+                kept.append(.init(target: file.path, backup: "\(index)"))
             } else {
-                kept.append((file, nil))
+                kept.append(.init(target: file.path, backup: nil))
             }
         }
-        func rollBack() {
-            for (file, copy) in kept {
-                try? fileManager.removeItem(at: file)
-                if let copy { try? fileManager.copyItem(at: copy, to: file) }
-            }
-        }
+        try JSONEncoder().encode(kept).write(to: saved.appendingPathComponent("restore.json"), options: .atomic)
+        preserveRecovery = true
         do {
             try change()
             try sign(app)
         } catch {
-            rollBack()
+            let reopened = URL(fileURLWithPath: app.path)
+            guard let current = try? reopened.resourceValues(forKeys: [.fileResourceIdentifierKey, .volumeIdentifierKey]),
+                  let originalFile = identity.fileResourceIdentifier, originalFile.isEqual(current.fileResourceIdentifier),
+                  let originalVolume = identity.volumeIdentifier, originalVolume.isEqual(current.volumeIdentifier) else {
+                throw Failure.recoveryRequired(saved.path)
+            }
+            var restored = true
+            for item in kept {
+                let target = URL(fileURLWithPath: item.target)
+                do {
+                    do { try fileManager.removeItem(at: target) }
+                    catch let error as CocoaError where error.code == .fileNoSuchFile || error.code == .fileReadNoSuchFile {}
+                    if let backup = item.backup { try fileManager.copyItem(at: saved.appendingPathComponent(backup), to: target) }
+                } catch { restored = false }
+            }
+            guard restored else { throw Failure.recoveryRequired(saved.path) }
+            preserveRecovery = false
             throw error
         }
+        preserveRecovery = false
     }
 
     /// Ad hoc, as the engine signs (`dm/mac/pack_app.py`): the bundle only, its inner host keeps its signature.

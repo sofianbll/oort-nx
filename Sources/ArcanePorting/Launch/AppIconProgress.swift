@@ -5,6 +5,7 @@ import NXLibraryCore
 public enum AppIconProgress: Equatable {
     case searching, updating, updated, launcherOnly, original, unavailable
     case failed(String)
+    case recoveryRequired(String)
 
     public var message: String {
         switch self {
@@ -15,12 +16,14 @@ public enum AppIconProgress: Equatable {
         case .original: return L10n.text("Using the game's original app icon")
         case .unavailable: return L10n.text("No icon available. You can choose one.")
         case .failed(let reason): return L10n.format("The app icon was not changed: %@", [String(describing: reason)])
+        case .recoveryRequired(let reason): return reason
         }
     }
 
     public var buildMessage: String {
         if self == .unavailable { return L10n.text("Game ready. No icon found; add one in Change artwork.") }
         if case .failed = self { return "Game built. \(message)" }
+        if case .recoveryRequired = self { return "Game built. \(message)" }
         return "Game ready. \(message)"
     }
 
