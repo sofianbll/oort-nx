@@ -882,6 +882,42 @@
     "Nextendo settings": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Nextendo settings"}}, "it": {"stringUnit":{"state":"translated","value":"Impostazioni Nextendo"}}, "fr": {"stringUnit":{"state":"translated","value":"Paramètres Nextendo"}}, "de": {"stringUnit":{"state":"translated","value":"Nextendo-Einstellungen"}}, "es": {"stringUnit":{"state":"translated","value":"Ajustes de Nextendo"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Configurações do Nextendo"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"Nextendo 设置"}}
     }},
+    "Connect your cloud library in Settings → Porting → Cloud library.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Connect your cloud library in Settings → Porting → Cloud library."}},
+      "it": {"stringUnit":{"state":"translated","value":"Collega la libreria cloud in Impostazioni → Creazione dell’app per Mac → Libreria cloud."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Connectez-vous dans Réglages → Création d’apps Mac → Bibliothèque cloud."}},
+      "de": {"stringUnit":{"state":"translated","value":"Verbinde deine Cloud-Bibliothek unter Einstellungen → App-Erstellung → Cloud-Bibliothek."}},
+      "es": {"stringUnit":{"state":"translated","value":"Conecta tu biblioteca en Ajustes → Compilación → Biblioteca en la nube."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Conecte sua biblioteca em Ajustes → Compilação → Biblioteca na nuvem."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"请在「设置 → 移植 → 云端游戏库」中连接您的游戏库。"}}
+    }},
+    "Looking for cloud games…": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Looking for cloud games…"}},
+      "it": {"stringUnit":{"state":"translated","value":"Ricerca dei giochi nel cloud…"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Recherche des jeux dans le cloud…"}},
+      "de": {"stringUnit":{"state":"translated","value":"Cloud-Spiele werden gesucht …"}},
+      "es": {"stringUnit":{"state":"translated","value":"Buscando juegos en la nube…"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Buscando jogos na nuvem…"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"正在查找云端游戏…"}}
+    }},
+    "Could not check the cloud library. Check your connection in Settings.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Could not check the cloud library. Check your connection in Settings."}},
+      "it": {"stringUnit":{"state":"translated","value":"Impossibile verificare la libreria cloud. Controlla la connessione in Impostazioni."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Impossible de vérifier la bibliothèque cloud. Vérifiez la connexion dans Réglages."}},
+      "de": {"stringUnit":{"state":"translated","value":"Die Cloud-Bibliothek konnte nicht geprüft werden. Prüfe die Verbindung in den Einstellungen."}},
+      "es": {"stringUnit":{"state":"translated","value":"No se pudo comprobar la biblioteca en la nube. Revisa la conexión en Ajustes."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Não foi possível verificar a biblioteca na nuvem. Confira a conexão nos Ajustes."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"无法检查云端游戏库。请在设置中检查连接。"}}
+    }},
+    "No cloud games to download.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"No cloud games to download."}},
+      "it": {"stringUnit":{"state":"translated","value":"Nessun gioco da scaricare dal cloud."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Aucun jeu à télécharger dans le cloud."}},
+      "de": {"stringUnit":{"state":"translated","value":"Keine Cloud-Spiele zum Herunterladen."}},
+      "es": {"stringUnit":{"state":"translated","value":"No hay juegos que descargar de la nube."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Não há jogos para baixar da nuvem."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"没有可下载的云端游戏。"}}
+    }},
     "No games in this view.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"No games in this view."}}, "it": {"stringUnit":{"state":"translated","value":"Nessun gioco in questa vista."}}, "fr": {"stringUnit":{"state":"translated","value":"Aucun jeu dans cette vue."}}, "de": {"stringUnit":{"state":"translated","value":"Keine Spiele in dieser Ansicht."}}, "es": {"stringUnit":{"state":"translated","value":"No hay juegos en esta vista."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Nenhum jogo nesta visualização."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"此视图中没有游戏。"}}
     }},
@@ -2979,15 +3015,69 @@
     },
     "Archives still exist in the old folder. Pause uploads from other Macs and reconcile those archives before retrying. The library folder was not switched.": {
       "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Archives still exist in the old folder. Pause uploads from other Macs and reconcile those archives before retrying. The library folder was not switched."}},
-        "it": {"stringUnit": {"state": "translated", "value": "La vecchia cartella contiene ancora archivi. Sospendi gli invii dagli altri Mac e riconcilia gli archivi prima di riprovare. La cartella della libreria non è cambiata."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Des archives restent dans l’ancien dossier. Mettez en pause les envois des autres Mac et rapprochez les archives avant de réessayer. Le dossier actif n’a pas changé."}},
-        "de": {"stringUnit": {"state": "translated", "value": "Der alte Ordner enthält noch Archive. Pausiere Uploads anderer Macs und gleiche die Archive vor dem nächsten Versuch ab. Der Bibliotheksordner wurde nicht gewechselt."}},
-        "es": {"stringUnit": {"state": "translated", "value": "La carpeta anterior aún contiene archivos. Pausa las subidas de otros Mac y concilia los archivos antes de reintentarlo. La carpeta activa no ha cambiado."}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Ainda há arquivos na pasta antiga. Pause os envios de outros Macs e concilie os arquivos antes de tentar novamente. A pasta ativa não mudou."}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "旧文件夹中仍有归档。请暂停其他 Mac 的上传，核对这些归档后再重试。资料库文件夹未切换。"}}
+        "en": {"stringUnit": {"state": "translated", "value": "Pause uploads from other Macs. Move the remaining app and build cache archives and their manifests from the old library folder to a separate backup folder. Keep their paths and do not overwrite anything. Then retry. The active folder has not changed."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Sospendi gli invii dagli altri Mac. Sposta gli archivi delle app e delle cache di compilazione rimasti, con i loro manifesti, dalla vecchia libreria a una cartella di backup separata. Mantieni i percorsi e non sovrascrivere nulla. Poi riprova. La cartella attiva non è cambiata."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Mettez en pause les envois des autres Mac. Placez les archives d’apps et de caches de compilation restantes, avec leurs manifestes, de l’ancienne bibliothèque dans un dossier de sauvegarde séparé. Gardez leurs chemins sans rien écraser, puis réessayez. Le dossier actif n’a pas changé."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Pausiere Uploads anderer Macs. Verschiebe die verbliebenen App- und Build-Cache-Archive samt Manifesten aus der alten Bibliothek in einen separaten Sicherungsordner. Behalte die Pfade bei und überschreibe nichts. Versuche es erneut. Der aktive Ordner blieb unverändert."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Pausa las subidas de otros Mac. Mueve los archivos de apps y cachés de compilación que queden, con sus manifiestos, de la biblioteca anterior a una carpeta de respaldo separada. Conserva sus rutas y no sobrescribas nada. Vuelve a intentarlo. La carpeta activa no ha cambiado."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Pause os envios de outros Macs. Mova os arquivos de apps e caches de compilação restantes, com seus manifestos, da biblioteca antiga para uma pasta de backup separada. Mantenha os caminhos e não sobrescreva nada. Depois, tente de novo. A pasta ativa não mudou."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "请暂停其他 Mac 的上传。将旧游戏库文件夹中剩余的应用归档、构建缓存归档及其清单移至单独的备份文件夹。保留路径，不要覆盖任何文件，然后重试。当前使用的文件夹未更改。"}}
       }
     },
+    "Move app and build cache archives?": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Move app and build cache archives?"}},
+      "it": {"stringUnit":{"state":"translated","value":"Spostare gli archivi delle app e delle cache di compilazione?"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Déplacer les archives d’apps et de caches de compilation ?"}},
+      "de": {"stringUnit":{"state":"translated","value":"App- und Build-Cache-Archive verschieben?"}},
+      "es": {"stringUnit":{"state":"translated","value":"¿Mover los archivos de apps y cachés de compilación?"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Mover os arquivos de apps e caches de compilação?"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"移动应用和构建缓存归档？"}}
+    }},
+    "Destination: “%@” · %@. Game files stay where they are.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Destination: “%@” · %@. Game files stay where they are."}},
+      "it": {"stringUnit":{"state":"translated","value":"Destinazione: «%@» · %@. I file dei giochi restano dove sono."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Destination : « %@ » · %@. Les fichiers de jeu restent à leur place."}},
+      "de": {"stringUnit":{"state":"translated","value":"Ziel: „%@“ · %@. Die Spieldateien bleiben an ihrem Ort."}},
+      "es": {"stringUnit":{"state":"translated","value":"Destino: «%@» · %@. Los archivos de juego no se mueven."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Destino: “%@” · %@. Os arquivos dos jogos ficam onde estão."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"目标文件夹：“%@” · %@。游戏文件保持原位。"}}
+    }},
+    "Use folder “%@” (%d game)": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Use the folder “%@” (%d game)"}},
+      "it": {"stringUnit":{"state":"translated","value":"Usa la cartella «%@» (%d gioco)"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Utiliser le dossier « %@ » (%d jeu)"}},
+      "de": {"stringUnit":{"state":"translated","value":"Ordner „%@“ verwenden (%d Spiel)"}},
+      "es": {"stringUnit":{"state":"translated","value":"Usar la carpeta «%@» (%d juego)"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Usar a pasta “%@” (%d jogo)"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"使用“%@”文件夹（%d 个游戏）"}}
+    }},
+    "Use folder “%@” (%d games)": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Use the folder “%@” (%d games)"}},
+      "it": {"stringUnit":{"state":"translated","value":"Usa la cartella «%@» (%d giochi)"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Utiliser le dossier « %@ » (%d jeux)"}},
+      "de": {"stringUnit":{"state":"translated","value":"Ordner „%@“ verwenden (%d Spiele)"}},
+      "es": {"stringUnit":{"state":"translated","value":"Usar la carpeta «%@» (%d juegos)"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Usar a pasta “%@” (%d jogos)"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"使用“%@”文件夹（%d 个游戏）"}}
+    }},
+    "Use folder “%@”": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Use the folder “%@”"}},
+      "it": {"stringUnit":{"state":"translated","value":"Usa la cartella «%@»"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Utiliser le dossier « %@ »"}},
+      "de": {"stringUnit":{"state":"translated","value":"Ordner „%@“ verwenden"}},
+      "es": {"stringUnit":{"state":"translated","value":"Usar la carpeta «%@»"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Usar a pasta “%@”"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"使用“%@”文件夹"}}
+    }},
+    "Your cloud games will appear in Library → Cloud.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Your cloud games will appear in Library → Cloud."}},
+      "it": {"stringUnit":{"state":"translated","value":"I tuoi giochi nel cloud appariranno in Libreria → Cloud."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Vos jeux à télécharger apparaîtront dans Bibliothèque → Cloud."}},
+      "de": {"stringUnit":{"state":"translated","value":"Deine Cloud-Spiele erscheinen unter Bibliothek → Cloud."}},
+      "es": {"stringUnit":{"state":"translated","value":"Tus juegos en la nube aparecerán en Biblioteca → Nube."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Seus jogos na nuvem aparecerão em Biblioteca → Nuvem."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"您的云端游戏将显示在「游戏库 → 云端」中。"}}
+    }},
     "Unplanned archive in the old folder: %@. Pause uploads from other Macs and move this file outside the old folder without deleting it before retrying.": {
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Unplanned archive in the old folder: %@. Pause uploads from other Macs and move this file outside the old folder without deleting it before retrying."}},
