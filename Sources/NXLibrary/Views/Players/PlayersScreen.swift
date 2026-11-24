@@ -52,7 +52,7 @@ struct PlayersScreen: View {
     private var stage: some View {
         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.section)) {
             Text(verbatim: t("Players"))
-                .seleneFont(.screenTitle)
+                .seleneFont(.screen)
                 .foregroundStyle(SeleneTheme.ink)
                 .accessibilityAddTraits(.isHeader)
             copy(model.message ?? (model.loading ? "Loading…" : instruction))
@@ -84,25 +84,14 @@ struct PlayersScreen: View {
     }
 
     private var modes: some View {
-        HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
-            ForEach(PlayerControllerMode.allCases, id: \.self) { mode in
-                Button { model.focus = .mode(mode); model.selectMode(mode) } label: {
-                    SeleneOptionRow(icon: nil, title: modeTitle(mode), about: nil, focused: gridFocus == .mode(mode)) {
-                        if model.plan.mode == mode {
-                            MaterialIconView(.done, size: SeleneTokens.Space.large)
-                                .foregroundStyle(SeleneTheme.glyph)
-                                .accessibilityHidden(true)
-                        }
-                    }
-                }
-                .buttonStyle(.plain)
-                .accessibilityAddTraits(model.plan.mode == mode ? .isSelected : [])
-                .accessibilityHint(modeDescription(mode))
-                .help(modeDescription(mode))
-                .onHover { if hover.moved($0), !isEditing { model.focus = .mode(mode) } }
-                .disabled(isEditing || model.saving)
-            }
-        }
+        let focused: PlayerControllerMode? = if case .mode(let mode) = gridFocus { mode } else { nil }
+        return OortSegmented(selection: Binding(get: { model.plan.mode }, set: {
+            model.focus = .mode($0)
+            model.selectMode($0)
+        }), options: PlayerControllerMode.allCases.map { ($0, modeTitle($0)) },
+        preset: .modeBar, focused: focused, hint: modeDescription,
+        onFocus: { if !isEditing { model.focus = .mode($0) } })
+        .disabled(isEditing || model.saving)
         .accessibilityElement(children: .contain)
         .accessibilityLabel(t("Controller mode"))
     }
@@ -118,22 +107,13 @@ struct PlayersScreen: View {
             ? L10n.format("Player %lld · %@", [number, name], context: localization) : playerTitle(number)
         let details = hasPlayer ? padDescription(number) : name
         let row: PlayersScreenModel.Row = isMoving ? .swapWith(number) : .player(number)
-        return Button { chooseCard(number) } label: {
-            SeleneOptionRow(icon: nil, title: title, about: details,
-                            focused: gridFocus == row || profilePlayer == number, leading: portrait(profile),
-                            aboutFont: .panelBody) {
-                if mark {
-                    MaterialIconView(.done, size: SeleneTokens.Space.large)
-                        .foregroundStyle(SeleneTheme.glyph)
-                        .accessibilityHidden(true)
-                }
-            }
+        let spoken = ((hasPlayer ? [name] : []) + (receivesAllPads && !model.pads.isEmpty ? model.pads.map(padLabel) : [details]))
+            .joined(separator: ", ")
+        return OortPlayerSlot(title: title, detail: details, accessibilityTitle: playerTitle(number),
+                          accessibilityValue: spoken, focused: gridFocus == row || profilePlayer == number,
+                          selected: receivesAllPads, marked: mark, action: { chooseCard(number) }) {
+            portrait(profile)
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel(playerTitle(number))
-        .accessibilityValue(((hasPlayer ? [name] : []) + (receivesAllPads && !model.pads.isEmpty ? model.pads.map(padLabel) : [details]))
-            .joined(separator: ", "))
-        .accessibilityAddTraits(receivesAllPads ? .isSelected : [])
         .onHover { if hover.moved($0), profilePlayer == nil { model.focus = row } }
         .disabled(model.saving)
         .animation(reduceMotion ? nil : SeleneTheme.quick, value: model.joinedPlayer)
@@ -203,12 +183,12 @@ struct PlayersScreen: View {
             VStack(spacing: canvas.u(SeleneTokens.Space.control)) {
                 Label(L10n.format("Press a button on the controller for player %lld", [number], context: localization),
                       systemImage: "gamecontroller")
-                    .seleneFont(.dialogTitle, .semibold)
+                    .seleneFont(.screen, .semibold)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                 if model.hasIdenticalPads {
                     Text(verbatim: t("These controllers look identical. Your button press tells them apart."))
-                        .seleneFont(.panelBody)
+                        .seleneFont(.text)
                         .foregroundStyle(SeleneTheme.ink75)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -282,7 +262,7 @@ struct PlayersScreen: View {
     }
     private func copy(_ value: String) -> some View {
         Text(verbatim: t(value))
-            .seleneFont(.selectionTitle)
+            .seleneFont(.row)
             .foregroundStyle(SeleneTheme.ink75)
             .frame(maxWidth: .infinity, alignment: .leading)
             .fixedSize(horizontal: false, vertical: true)

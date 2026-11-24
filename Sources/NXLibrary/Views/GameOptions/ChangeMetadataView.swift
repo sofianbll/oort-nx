@@ -144,21 +144,21 @@ struct ChangeMetadataView: View {
             VStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(L10n.text("CHANGE METADATA"))
-                        .seleneFont(15, .semibold)
+                        .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.ink60)
-                        .padding(.leading, canvas.u(8))
+                        .padding(.leading, canvas.u(SeleneTokens.Space.compact))
                     Text(subject.name)
-                        .seleneFont(40)
+                        .seleneFont(.screen)
                         .foregroundColor(SeleneTheme.ink)
                         .lineLimit(1)
-                        .padding(.leading, canvas.u(6))
-                    PlatformLabel(subject.platformKind, size: .metadata)
+                        .padding(.leading, canvas.u(SeleneTokens.Space.tight))
+                    PlatformLabel(subject.platformKind, preset: .caption)
                         .foregroundStyle(SeleneTheme.ink75)
                         .padding(.leading, canvas.u(SeleneTokens.Space.tight))
-                        .padding(.bottom, canvas.u(14))
+                        .padding(.bottom, canvas.u(SeleneTokens.Space.line))
                     tabs
                     Text(failure ?? sourceStatus)
-                        .seleneFont(14)
+                        .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink60)
                         .lineLimit(1)
                         .help(failure ?? sourceStatus)
@@ -169,7 +169,7 @@ struct ChangeMetadataView: View {
                 .frame(width: canvas.u(1040), alignment: .leading)
                 .frame(maxHeight: .infinity, alignment: .top)
                 .padding(.top, canvas.u(90))
-                .padding(.bottom, canvas.u(20))
+                .padding(.bottom, canvas.u(SeleneTokens.Space.panel))
                 .contentShape(Rectangle())
 
                 SeleneHintsBar(left: [HintItem(.b, L10n.text("Back"), action: close)],
@@ -211,9 +211,9 @@ struct ChangeMetadataView: View {
         HStack(spacing: canvas.u(8)) {
             ForEach(MetadataField.allCases, id: \.self) { tab in
                 Text(tab.title)
-                    .seleneFont(17, .semibold)
+                    .seleneFont(.text, .semibold)
                     .foregroundColor(tab == field ? SeleneTheme.ink : SeleneTheme.ink60)
-                    .padding(.horizontal, canvas.u(20))
+                    .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
                     .padding(.vertical, canvas.u(9))
                     .background(Capsule().fill(tab == field ? SeleneTheme.glassSolid : Color.clear))
                     .contentShape(Capsule())
@@ -221,7 +221,7 @@ struct ChangeMetadataView: View {
                     .accessibilityAddTraits(tab == field ? [.isButton, .isSelected] : .isButton)
             }
         }
-        .padding(.leading, canvas.u(2))
+        .padding(.leading, canvas.u(SeleneTokens.Space.seam))
     }
 
     private func list(_ rows: [Row]) -> some View {
@@ -238,8 +238,8 @@ struct ChangeMetadataView: View {
                             }
                     }
                 }
-                .padding(.top, canvas.u(6))
-                .padding(.bottom, canvas.u(24))
+                .padding(.top, canvas.u(SeleneTokens.Space.tight))
+                .padding(.bottom, canvas.u(SeleneTokens.Space.large))
                 // Expansion and focus scrolling share one curve; the text itself
                 // stays laid out at its final width throughout the transition.
                 .animation(reduceMotion ? nil : SeleneTheme.quick, value: focus)
@@ -476,14 +476,14 @@ struct ChangeMetadataView: View {
                     Text(field == .genres ? L10n.text("Separate with commas.")
                         : field == .releaseDate ? L10n.text("YYYY-MM-DD")
                         : field == .description ? L10n.text("⌘Return to save · Empty for Automatic") : L10n.text("Empty for Automatic"))
-                        .seleneFont(14)
+                        .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink60)
                 }
-                .seleneFont(17)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink)
-                .padding(canvas.u(16))
-                .background(RoundedRectangle(cornerRadius: canvas.u(12)).fill(SeleneTheme.glassLight))
-                .padding(.top, canvas.u(24))
+                .padding(canvas.u(SeleneTokens.Space.medium))
+                .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content)).fill(SeleneTheme.glassLight))
+                .padding(.top, canvas.u(SeleneTokens.Space.large))
                 .onAppear { editorHasFocus = true }
             }
         }

@@ -82,7 +82,7 @@ struct SpotlightRowView: View {
             if let selected, items[selected] != .platform {
                 let item = items[selected]
                 Text(title(of: item))
-                    .seleneFont(.selectionTitle)
+                    .seleneFont(.row)
                     .foregroundColor(SeleneTheme.ink)
                     .lineLimit(1)
                     .frame(width: canvas.u(420), alignment: .leading)
@@ -173,25 +173,22 @@ struct SpotlightRowView: View {
     private func tile(_ item: SpotlightItem, selected: Bool) -> some View {
         let native: PortedGame? = if case .game(let id) = item { gamesByID[id] } else { nil }
         let cloudState = native.flatMap(cloud.stateForTile)
-        let frame = ZStack(alignment: .topLeading) {
-            face(item, selected: selected, cloudState: cloudState)
-                .padding(canvas.u(SeleneTokens.Space.badge))
-            SeleneTileRing(cornerRadius: canvas.u(SeleneTokens.Radius.spotlightFocus), active: selected)
-                .frame(width: canvas.u(Self.host), height: canvas.u(Self.host))
-        }
-        .frame(width: canvas.u(Self.host), height: canvas.u(Self.host), alignment: .topLeading)
-        .contentShape(Rectangle())
         return Group {
             if item == .platform, let platform, let platforms {
-                frame.overlay { platformActions(platform, in: platforms, selected: selected) }
+                ZStack(alignment: .topLeading) {
+                    face(item, selected: selected, cloudState: cloudState)
+                        .padding(canvas.u(SeleneTokens.Space.badge))
+                    SeleneTileRing(cornerRadius: canvas.u(SeleneTokens.Radius.spotlightFocus), active: selected)
+                        .frame(width: canvas.u(Self.host), height: canvas.u(Self.host))
+                }
+                .frame(width: canvas.u(Self.host), height: canvas.u(Self.host), alignment: .topLeading)
+                .contentShape(Rectangle())
+                .overlay { platformActions(platform, in: platforms, selected: selected) }
             } else {
-                frame
-                    // The single click selects at once; it does not wait for a possible double click.
-                    .onTapGesture(count: 2) { onActivate(item) }
-                    .simultaneousGesture(TapGesture().onEnded { onSelect(item) })
-                    .accessibilityElement(children: .ignore)
-                    .accessibilityLabel(title(of: item))
-                    .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
+                OortGameTile(title: title(of: item), selected: selected, preset: .spotlight,
+                             select: { onSelect(item) }, activate: { onActivate(item) }) {
+                    face(item, selected: selected, cloudState: cloudState)
+                }
             }
         }
         .modifier(CloudLibraryTileBadge(state: cloudState, showsCopyBadge: showsCloudBadges, position: badgePosition,
@@ -283,10 +280,10 @@ struct SpotlightRowView: View {
         return ZStack {
             ForEach(Array(platforms.cards.enumerated()), id: \.element.integration) { indexOfCard, card in
                 VStack(spacing: canvas.u(SeleneTokens.Space.tight)) {
-                    PlatformLabel(platformKind(card), title: platformName(card), size: .body)
+                    PlatformLabel(platformKind(card), title: platformName(card), preset: .summary)
                         .lineLimit(2)
                     Text(verbatim: platformCount(card))
-                        .seleneFont(.caption)
+                        .seleneFont(.text)
                         .foregroundStyle(SeleneTheme.ink90)
                 }
                 .padding(.horizontal, canvas.u(SeleneTokens.Space.compact))
@@ -327,7 +324,7 @@ struct SpotlightRowView: View {
     private func platformArrow(_ direction: Int, enabled: Bool) -> some View {
         Button { onPlatformMove(direction) } label: {
             Image(systemName: direction < 0 ? "chevron.up" : "chevron.down")
-                .seleneFont(.body, .semibold)
+                .seleneFont(.text, .semibold)
                 .frame(maxWidth: .infinity)
                 .frame(height: canvas.u(SeleneTokens.Space.group))
                 .contentShape(Rectangle())
@@ -366,9 +363,9 @@ struct SpotlightRowView: View {
             }
         }()
         return VStack(alignment: .leading, spacing: canvas.u(6)) {
-            Text(title).seleneFont(.selectionTitle, .medium).foregroundColor(SeleneTheme.ink90)
+            Text(title).seleneFont(.row, .medium).foregroundColor(SeleneTheme.ink90)
             if !hint.isEmpty {
-                Text(hint).seleneFont(.caption).foregroundColor(SeleneTheme.ink60)
+                Text(hint).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
                     .frame(maxWidth: canvas.u(380), alignment: .leading)
                     .fixedSize(horizontal: false, vertical: true)
             }

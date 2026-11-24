@@ -43,15 +43,15 @@ struct OnboardingScreen: View {
             SeleneOverlay(style: .deep) {
             VStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 if let progress {
-                    Text(verbatim: progress).seleneFont(.body, .semibold)
+                    Text(verbatim: progress).seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.ink75)
                 }
-                Text(verbatim: title).seleneFont(.screenTitle, .semibold)
+                Text(verbatim: title).seleneFont(.screen, .semibold)
                     .foregroundColor(SeleneTheme.ink)
                     .multilineTextAlignment(.center)
                     .accessibilityAddTraits(.isHeader)
                 if !detail.isEmpty {
-                    Text(verbatim: detail).seleneFont(.rowTitle)
+                    Text(verbatim: detail).seleneFont(.row)
                         .foregroundColor(SeleneTheme.ink90)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
@@ -68,7 +68,7 @@ struct OnboardingScreen: View {
                     }
                 }
                 if let message {
-                    Text(verbatim: message).seleneFont(.menuCaption)
+                    Text(verbatim: message).seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink90)
                         .multilineTextAlignment(.center)
                         .accessibilityAddTraits(.updatesFrequently)

@@ -135,7 +135,7 @@ struct ProfilePickerView: View {
         let extraHeight = haloInset - canvas.u(SeleneTokens.Space.control)
         return GeometryReader { geometry in
             VStack(spacing: canvas.u(60)) {
-                Text(L10n.text("Who's playing?")).seleneFont(.profileScreenTitle).accessibilityAddTraits(.isHeader)
+                Text(L10n.text("Who's playing?")).seleneFont(.screen).accessibilityAddTraits(.isHeader)
                 ScrollViewReader { scroll in
                     ScrollView(.horizontal) {
                         HStack(spacing: canvas.u(56)) {
@@ -165,7 +165,7 @@ struct ProfilePickerView: View {
                         else { scroll.scrollTo("add", anchor: .center) }
                     }
                 }
-                if profiles.failed { Text(L10n.text("Profiles could not be saved.")).seleneFont(.panelBody) }
+                if profiles.failed { Text(L10n.text("Profiles could not be saved.")).seleneFont(.text) }
             }
             .foregroundStyle(SeleneTheme.ink)
             .padding(.top, geometry.size.height * 0.28)
@@ -216,7 +216,7 @@ struct ProfilePickerView: View {
                     }
                 }
                 .scaleEffect(isFocused && !reduceMotion ? 1.1 : 1)
-                Text(title).seleneFont(.profileTitle).lineLimit(1)
+                Text(title).seleneFont(.heading).lineLimit(1)
                     .foregroundStyle(isFocused ? SeleneTheme.ink : SeleneTheme.ink60)
                     .frame(width: canvas.u(170))
             }

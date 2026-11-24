@@ -21,13 +21,13 @@ extension ThemePickerView {
                                  games: games, width: 780, shade: settings.settings.backgroundShade,
                                  animated: settings.settings.animatedBackground)
                     chips(palette)
-                        .padding(.top, canvas.u(18))
-                        .padding(.leading, canvas.u(4))
+                        .padding(.top, canvas.u(SeleneTokens.Space.control))
+                        .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
                     Text(palette.name + (palette.mode == .light ? L10n.text("  ·  light") : ""))
-                        .seleneFont(26)
+                        .seleneFont(.heading)
                         .foregroundColor(SeleneTheme.ink)
-                        .padding(.top, canvas.u(12))
-                        .padding(.leading, canvas.u(4))
+                        .padding(.top, canvas.u(SeleneTokens.Space.small))
+                        .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
                 }
             }
             .padding(.top, canvas.u(290))
@@ -45,7 +45,7 @@ struct ThemePaletteSwatch: View {
     var body: some View {
         let background = Color(hex: palette.base.stops.first?.color ?? palette.glass)
         let readingShade = palette.mode == .light ? Color(hex: palette.scrim) : background
-        let shape = RoundedRectangle(cornerRadius: canvas.u(14), style: .continuous)
+        let shape = RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
         return VStack(spacing: canvas.u(8)) {
             ZStack {
                 background
@@ -58,28 +58,28 @@ struct ThemePaletteSwatch: View {
                                        .init(color: readingShade.opacity(0), location: 1)],
                                startPoint: .leading, endPoint: .trailing)
                 HStack {
-                    Text(L10n.text("Aa")).seleneFont(22).foregroundColor(Color(hex: palette.ink))
+                    Text(L10n.text("Aa")).seleneFont(.row).foregroundColor(Color(hex: palette.ink))
                     Spacer(minLength: 0)
                     Circle()
                         .fill(Color(hex: palette.glyph))
                         .overlay(Circle().strokeBorder(Color.black.opacity(0.4), lineWidth: 1))
                         .frame(width: canvas.u(20), height: canvas.u(20))
                 }
-                .padding(.horizontal, canvas.u(12))
+                .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
             }
             .frame(width: canvas.u(132), height: canvas.u(76))
             .clipShape(shape)
             .overlay(shape.strokeBorder(Color.white.opacity(0.25), lineWidth: 1))
             .modifier(TileFocus(focused: focused, radius: 14, scale: 1.08))
             Text(palette.name)
-                .seleneFont(14)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink75)
                 .lineLimit(1)
                 .frame(maxWidth: canvas.u(140))
         }
         .padding(.horizontal, canvas.u(9))
-        .padding(.top, canvas.u(6))
-        .padding(.bottom, canvas.u(8))
+        .padding(.top, canvas.u(SeleneTokens.Space.tight))
+        .padding(.bottom, canvas.u(SeleneTokens.Space.compact))
         .contentShape(Rectangle())
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(palette.name)

@@ -55,7 +55,7 @@ struct ScreenshotViewer: View {
             VStack(spacing: 0) {
                 Spacer(minLength: 0)
                 Text(state.label)
-                    .seleneFont(17)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
                     .padding(.bottom, canvas.u(52))
                     .allowsHitTesting(false)

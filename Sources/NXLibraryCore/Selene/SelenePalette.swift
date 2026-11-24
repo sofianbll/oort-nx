@@ -42,12 +42,13 @@ public struct SelenePalette: Codable, Equatable, Identifiable {
     /// Built-in Oort palette, used when palettes.json is unavailable.
     public static let fallback = SelenePalette(
         id: SelenePaletteCatalog.defaultID, name: "Oort", mode: .dark,
-        focus: 0xFFFFFF, onFocus: 0x000000, ink: 0xFFFFFF, scrim: 0x000000,
-        glass: 0x0B0B0B, glyph: 0xFFC799, success: 0x99FFE4,
-        light: 0x8D8D8D,
+        focus: SeleneTokens.Palette.focus, onFocus: SeleneTokens.Palette.onFocus,
+        ink: SeleneTokens.Palette.ink, scrim: SeleneTokens.Palette.scrim,
+        glass: SeleneTokens.Palette.glass, glyph: SeleneTokens.Palette.glyph,
+        success: SeleneTokens.Palette.success, light: SeleneTokens.Palette.light,
         base: .init(kind: .radial, stops: [
-            .init(color: 0x121212, location: 0),
-            .init(color: 0x000000, location: 1)
+            .init(color: SeleneTokens.Palette.gradientStart, location: SeleneTokens.Palette.positionStart),
+            .init(color: SeleneTokens.Palette.gradientEnd, location: SeleneTokens.Palette.positionEnd)
         ])
     )
 }

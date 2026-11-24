@@ -48,22 +48,22 @@ struct SpotlightGameInfoView: View {
             Group {
                 if isRunning {
                     nowPlaying
-                        .padding(.leading, canvas.u(2))
-                        .padding(.top, canvas.u(24))
+                        .padding(.leading, canvas.u(SeleneTokens.Space.seam))
+                        .padding(.top, canvas.u(SeleneTokens.Space.large))
                 }
                 if case .failed(let failure) = pillSet {
                     Text(failure == .cancelled ? L10n.text("Porting cancelled") : L10n.text("Porting failed"))
-                        .seleneFont(19, .semibold)
+                        .seleneFont(.text, .semibold)
                         .foregroundColor(PortingPillCopy.softRed)
-                        .padding(.leading, canvas.u(4))
-                        .padding(.top, canvas.u(20))
+                        .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
+                        .padding(.top, canvas.u(SeleneTokens.Space.panel))
                 }
                 if let reason = pillSet.unavailableReason, downloadItem == nil {
                     Text(reason.title)
-                        .seleneFont(19, .semibold)
+                        .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.ink75)
-                        .padding(.leading, canvas.u(4))
-                        .padding(.top, canvas.u(20))
+                        .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
+                        .padding(.top, canvas.u(SeleneTokens.Space.panel))
                 }
                 HStack(spacing: canvas.u(14)) {
                     pills
@@ -73,7 +73,7 @@ struct SpotlightGameInfoView: View {
                                                      focused: focusedPill == index) { onPill(index) })
                     }
                 }
-                    .padding(.leading, canvas.u(2))
+                    .padding(.leading, canvas.u(SeleneTokens.Space.seam))
                     .padding(.top, canvas.u(pillSet.isFailed ? 10 : 18))
                 if let state = cloud.states[game.id] {
                     CloudGameStatus(state: state, playable: game.isPlayableLocally || isRunning,
@@ -82,10 +82,10 @@ struct SpotlightGameInfoView: View {
                         .padding(.top, canvas.u(SeleneTokens.Space.small))
                 }
                 portingNote
-                    .padding(.leading, canvas.u(4))
-                    .padding(.top, canvas.u(12))
+                    .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
+                    .padding(.top, canvas.u(SeleneTokens.Space.small))
                 SeleneStatsRow(presentation: presentation)
-                    .padding(.leading, canvas.u(4))
+                    .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
                     .padding(.top, canvas.u(26))
             }
             .opacity(restShown ? 1 : 0)
@@ -106,33 +106,33 @@ struct SpotlightGameInfoView: View {
         case .porting:
             if let etaText {
                 Text(etaText)
-                    .seleneFont(16)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink75)
                     .transition(.opacity)
             }
         case .normalAfterFailure(let failure):
             Button(action: onOpenLog) {
                 Text(PortingPillCopy.lastFailure(failure, reason: game.portingFailureReason))
-                    .seleneFont(15)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
             }
             .buttonStyle(.plain)
         case .failed(let failure):
             if failure == .failed, let reason = game.portingFailureReason {
                 Text(reason.title)
-                    .seleneFont(15)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
             }
         case .unavailable(let reason) where downloadItem == nil:
-            Text(reason.detail).seleneFont(15).foregroundColor(SeleneTheme.ink60)
+            Text(reason.detail).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
         case .normal, .unavailable:
             if downloadItem != nil {
                 EmptyView()
             } else if !canCheckCloudSources && !game.sources.isEmpty && !GameResourceState.sourcesAvailable(for: game) {
                 Text(L10n.text("Game files not found · Rebuild unavailable"))
-                    .seleneFont(15).foregroundColor(SeleneTheme.ink60)
+                    .seleneFont(.text).foregroundColor(SeleneTheme.ink60)
             } else if !game.isPlayableLocally {
-                Text(L10n.text("Not built yet")).seleneFont(15).foregroundColor(SeleneTheme.ink60)
+                Text(L10n.text("Not built yet")).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
             }
         }
     }
@@ -193,15 +193,15 @@ struct SpotlightGameInfoView: View {
             NowPlayingDot()
                 .frame(width: canvas.u(20), height: canvas.u(20))
                 .padding(.trailing, canvas.u(9))
-            Text(L10n.text("NOW PLAYING")).seleneFont(14, .bold).foregroundColor(SeleneTheme.success)
+            Text(L10n.text("NOW PLAYING")).seleneFont(.text, .bold).foregroundColor(SeleneTheme.success)
             Rectangle().fill(SeleneTheme.ink25)
                 .frame(width: max(1, canvas.u(1)), height: canvas.u(18))
-                .padding(.horizontal, canvas.u(14))
-            Text(L10n.text("Continue where you left off")).seleneFont(17).foregroundColor(SeleneTheme.ink90)
+                .padding(.horizontal, canvas.u(SeleneTokens.Space.line))
+            Text(L10n.text("Continue where you left off")).seleneFont(.text).foregroundColor(SeleneTheme.ink90)
         }
         .padding(EdgeInsets(top: canvas.u(6), leading: canvas.u(12), bottom: canvas.u(7), trailing: canvas.u(18)))
-        .background(RoundedRectangle(cornerRadius: canvas.u(19), style: .continuous).fill(SeleneTheme.glassLight))
-        .overlay(RoundedRectangle(cornerRadius: canvas.u(19), style: .continuous)
+        .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.spotlightFocus), style: .continuous).fill(SeleneTheme.glassLight))
+        .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.spotlightFocus), style: .continuous)
             .strokeBorder(SeleneTheme.ink25, lineWidth: max(1, canvas.u(1))))
     }
 

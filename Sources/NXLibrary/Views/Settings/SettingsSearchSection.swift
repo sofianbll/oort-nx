@@ -18,10 +18,10 @@ struct SettingsSearchSection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: canvas.u(8)) {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
             if !query.isEmpty && results.isEmpty {
                 Text(L10n.text("No settings match."))
-                    .seleneFont(.body)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
             }
             SettingsDescriptorList(rows: results, onOpenGroup: onOpenGroup)
@@ -78,10 +78,10 @@ struct SettingsChangedSection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: canvas.u(8)) {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
             if rows.isEmpty {
                 Text(L10n.text(query.isEmpty ? "Nothing changed yet." : "No settings match."))
-                    .seleneFont(.body)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
             }
             SettingsDescriptorList(rows: rows, onOpenGroup: onOpenGroup)
@@ -116,7 +116,7 @@ struct SettingsDescriptorList: View {
     }
 
     var body: some View {
-        VStack(spacing: canvas.u(8)) {
+        VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
             ForEach(rows) { row in
                 OortSettingsLink(id: row.id, title: Self.title(row),
                                  subtitle: "\(Self.path(row.group)) · \(L10n.text(row.about))") { onOpenGroup(row) }

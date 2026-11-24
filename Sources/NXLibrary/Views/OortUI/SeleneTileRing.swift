@@ -63,7 +63,7 @@ struct SeleneTileRing: View {
                     endPoint: UnitPoint(x: 0.5 + dx, y: 0.5 + dy)),
                 lineWidth: canvas.u(3))
             shape.strokeBorder(Color.white.opacity(0.18), lineWidth: max(0.5, canvas.u(1)))
-                .padding(canvas.u(1))
+                .padding(canvas.u(SeleneTokens.Space.thinStroke))
         }
         // Flattened on the GPU (Metal), not on the CPU. The margin keeps the glow's blur inside the
         // flattened layer.

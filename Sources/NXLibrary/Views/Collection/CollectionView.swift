@@ -175,7 +175,7 @@ struct CollectionView: View {
         ZStack(alignment: .topLeading) {
             if let profileCard {
                 Text(L10n.text(profileCard.title, context: localization))
-                    .seleneFont(.screenTitle, .semibold)
+                    .seleneFont(.screen, .semibold)
                     .foregroundStyle(SeleneTheme.ink)
                     .accessibilityAddTraits(.isHeader)
                     .padding(.horizontal, canvas.u(SeleneTokens.Space.chromeGutter))
@@ -258,7 +258,7 @@ struct CollectionView: View {
     private var emptyState: some View {
         if usesCloudShelf {
             Text(L10n.text(cloudEmptyKey, context: localization))
-                .seleneFont(.dialogTitle)
+                .seleneFont(.screen)
                 .foregroundColor(SeleneTheme.ink)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
@@ -268,19 +268,19 @@ struct CollectionView: View {
             EmptyView()
         } else if profileCard != nil {
             Text(L10n.text("No games in this view.", context: localization))
-                .seleneFont(.dialogTitle)
+                .seleneFont(.screen)
                 .foregroundColor(SeleneTheme.ink)
         } else if hasAnyGame {
             Text(L10n.format("No games in %@", [L10n.text(filter.rawValue)]))
-                .seleneFont(.dialogTitle)
+                .seleneFont(.screen)
                 .foregroundColor(SeleneTheme.ink)
                 .shadow(color: .black.opacity(0.45), radius: canvas.u(6))
                 .allowsHitTesting(false)
         } else {
             VStack(spacing: canvas.u(14)) {
-                Text(L10n.text("Add your first game")).seleneFont(.dialogTitle).foregroundColor(SeleneTheme.ink)
+                Text(L10n.text("Add your first game")).seleneFont(.screen).foregroundColor(SeleneTheme.ink)
                 Text(L10n.text("Choose game files or find your existing apps."))
-                    .seleneFont(.panelBody).foregroundColor(SeleneTheme.ink60)
+                    .seleneFont(.text).foregroundColor(SeleneTheme.ink60)
                 HStack(spacing: canvas.u(14)) {
                     SelenePillButton(title: L10n.text("Add game"), focused: !profileFocused && !importFocused) { router.openAddGame() }
                     SelenePillButton(title: L10n.text("Import existing builds"), minWidth: 0, focused: !profileFocused && importFocused) {
@@ -407,16 +407,16 @@ struct CollectionInfoView: View {
             logoArea
             if !cloudOnly, let reason = GameResourceState.unavailableReason(for: game) {
                 Text(reason.title)
-                    .seleneFont(.panelBody, .semibold)
+                    .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink75)
                     .padding(.top, canvas.u(SeleneTokens.Space.panel))
                 Text(reason.detail)
-                    .seleneFont(.compactCaption)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
                     .padding(.top, canvas.u(SeleneTokens.Space.tight))
             } else if !cloudOnly, !game.isPlayableLocally, game.status != .building, game.portingFailure == nil {
                 Text(L10n.text("Not built yet"))
-                    .seleneFont(.body)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink75)
                     .padding(.top, canvas.u(SeleneTokens.Space.panel))
             }

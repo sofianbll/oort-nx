@@ -31,19 +31,19 @@ struct DowngradeWarningView: View {
     var body: some View {
         VStack(spacing: canvas.u(SeleneTokens.Space.panel)) {
             Text(title)
-                .seleneFont(.screenTitle, .semibold)
+                .seleneFont(.screen, .semibold)
                 .accessibilityAddTraits(.isHeader)
             Text(summary)
-                .seleneFont(.panelBody)
+                .seleneFont(.text)
                 .foregroundStyle(SeleneTheme.ink90)
             Text(risk)
-                .seleneFont(.body)
+                .seleneFont(.text)
                 .foregroundStyle(SeleneTheme.ink75)
             HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 ForEach(choices.indices, id: \.self) { position in
                     let choice = choices[position]
                     SelenePillButton(title: label(choice), minWidth: 0, height: SeleneTokens.Space.actionPillHeight,
-                                     titleSize: .body, horizontalPadding: SeleneTokens.Space.large, focused: index == position,
+                                     titleSize: .text, horizontalPadding: SeleneTokens.Space.large, focused: index == position,
                                      scalesOnFocus: false) { perform(choice) }
                         .accessibilityAddTraits(index == position ? .isSelected : [])
                 }
@@ -160,7 +160,7 @@ struct DowngradeCopyProgress: View {
         HStack(spacing: SeleneTokens.Space.compact) {
             WaveDots()
             Text(L10n.text("Checking the library copy…", context: context))
-                .seleneFont(.body)
+                .seleneFont(.text)
         }
         .foregroundStyle(SeleneTheme.ink75)
         .frame(maxWidth: .infinity, maxHeight: .infinity)

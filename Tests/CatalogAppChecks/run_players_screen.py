@@ -190,8 +190,8 @@ final class PlayersFixtureSource: ControllerSource {
                 let settings = AppSettingsStore(fileURL: AppData.supportRoot.appendingPathComponent("settings.json"))
                 let controller = GameControllerService(gcSource: PlayersFixtureSource(), hidSource: PlayersFixtureSource())
                 try render(VStack(alignment: .leading) {
-                    Text(verbatim: L10n.text("Controllers")).seleneFont(.screenTitle)
-                    SettingsControllersSection(settings: settings, onActions: { _ in }, onViewControls: {}, onOpenPlayers: {},
+                    Text(verbatim: L10n.text("Controllers")).seleneFont(.screen)
+                    SettingsControllersSection(settings: SettingsEditor(settings), onActions: { _ in }, onViewControls: {}, onOpenPlayers: {},
                                                controller: controller)
                 }.padding().frame(maxWidth: 700).environment(\.seleneMinimumFont, 12),
                 name: "\(prefix)-voisin-manettes", size: size, locale: locale)

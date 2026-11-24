@@ -138,22 +138,22 @@ struct ChangeArtworkView: View {
             VStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(browsing.map { L10n.format("%@ · BROWSE ONLINE", [String(describing: $0.title.uppercased())]) } ?? L10n.text("CHANGE ARTWORK"))
-                        .seleneFont(15, .semibold)
+                        .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.ink60)
-                        .padding(.leading, canvas.u(8))
+                        .padding(.leading, canvas.u(SeleneTokens.Space.compact))
                     Text(subject.name)
-                        .seleneFont(40)
+                        .seleneFont(.screen)
                         .foregroundColor(SeleneTheme.ink)
                         .lineLimit(1)
-                        .padding(.leading, canvas.u(6))
-                    PlatformLabel(subject.platformKind, size: .metadata)
+                        .padding(.leading, canvas.u(SeleneTokens.Space.tight))
+                    PlatformLabel(subject.platformKind, preset: .caption)
                         .foregroundStyle(SeleneTheme.ink75)
                         .padding(.leading, canvas.u(SeleneTokens.Space.tight))
-                        .padding(.bottom, canvas.u(14))
+                        .padding(.bottom, canvas.u(SeleneTokens.Space.line))
                     tabs
                     if browsing != nil {
                         searchField
-                            .padding(.top, canvas.u(14))
+                            .padding(.top, canvas.u(SeleneTokens.Space.line))
                     }
                     status
                     grid
@@ -161,7 +161,7 @@ struct ChangeArtworkView: View {
                 .frame(width: canvas.u(1240), alignment: .leading)
                 .frame(maxHeight: .infinity, alignment: .top)
                 .padding(.top, canvas.u(90))
-                .padding(.bottom, canvas.u(20))
+                .padding(.bottom, canvas.u(SeleneTokens.Space.panel))
                 .contentShape(Rectangle())
 
                 SeleneHintsBar(left: [HintItem(.b, L10n.text("Back"), action: back)], right: rightHints,
@@ -242,9 +242,9 @@ struct ChangeArtworkView: View {
         HStack(spacing: canvas.u(8)) {
             ForEach(ArtworkSlot.allCases, id: \.self) { tab in
                 Text(tab.title)
-                    .seleneFont(17, .semibold)
+                    .seleneFont(.text, .semibold)
                     .foregroundColor(tab == slot ? SeleneTheme.ink : SeleneTheme.ink60)
-                    .padding(.horizontal, canvas.u(20))
+                    .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
                     .padding(.vertical, canvas.u(9))
                     .background(Capsule().fill(tab == slot ? SeleneTheme.glassSolid : Color.clear))
                     .contentShape(Capsule())
@@ -252,7 +252,7 @@ struct ChangeArtworkView: View {
                     .accessibilityAddTraits(tab == slot ? [.isButton, .isSelected] : .isButton)
             }
         }
-        .padding(.leading, canvas.u(2))
+        .padding(.leading, canvas.u(SeleneTokens.Space.seam))
     }
 
     /// The source's search, prefilled with the game's name; Return searches.
@@ -262,20 +262,20 @@ struct ChangeArtworkView: View {
             TextField("", text: $browseDraft,
                       prompt: Text(L10n.format("Search %@", [String(describing: browsing?.title ?? "")])).foregroundColor(SeleneTheme.ink60))
                 .textFieldStyle(.plain)
-                .seleneFont(18)
+                .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink)
                 .focused($fieldFocused)
                 .onSubmit(submitSearch)
                 .onExitCommand { fieldFocused = false }
         }
-        .padding(.horizontal, canvas.u(16))
+        .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
         .padding(.vertical, canvas.u(10))
         .background(Capsule().fill(SeleneTheme.glassSolid))
         .overlay(Capsule().strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(2.5))
             .padding(canvas.u(-4))
             .opacity(focus < 0 ? 1 : 0))
         .frame(width: canvas.u(560))
-        .padding(.leading, canvas.u(8))
+        .padding(.leading, canvas.u(SeleneTokens.Space.compact))
         .onChange(of: fieldFocused) { _, focused in if focused { focus = -1 } }
     }
 
@@ -283,7 +283,7 @@ struct ChangeArtworkView: View {
     private var status: some View {
         let text = message ?? (browsing.map(browseStatus) ?? mainStatus)
         Text(text)
-            .seleneFont(16)
+            .seleneFont(.text)
             .foregroundColor(SeleneTheme.ink60)
             .lineLimit(1)
             .help(text)

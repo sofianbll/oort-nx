@@ -25,21 +25,21 @@ struct SeleneInfoTip: View {
             isShowing.wrappedValue.toggle()
         } label: {
             Image(systemName: "info.circle")
-                .seleneFont(15, .semibold)
+                .seleneFont(.text, .semibold)
                 .foregroundColor(isShowing.wrappedValue ? SeleneTheme.glyph : SeleneTheme.ink60.opacity(0.85))
-                .padding(2)
+                .padding(SeleneTokens.Space.seam)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .popover(isPresented: isShowing, arrowEdge: .trailing) {
             VStack(alignment: .leading, spacing: 6) {
             Text(L10n.text(text, context: localization))
-                    .seleneFont(15)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink.opacity(0.96))
                     .lineSpacing(2.5)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .padding(14)
+            .padding(SeleneTokens.Space.line)
             .frame(width: 290, alignment: .leading)
             .background(SeleneTheme.glassSolid)
         }
@@ -157,7 +157,7 @@ struct SeleneValueRow: View {
                 if let actionTitle, let action {
                     Button(L10n.text(actionTitle), action: action)
                         .buttonStyle(.plain)
-                        .seleneFont(14, .semibold)
+                        .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
                 }
             }
@@ -199,47 +199,61 @@ struct SeleneButtonRow: View {
                   truncateSubtitleInMiddle: truncateSubtitleInMiddle, platform: platform) {
             Button(L10n.text(buttonTitle, context: localization), action: action)
                 .buttonStyle(.plain)
-                .seleneFont(15, .semibold)
+                .seleneFont(.text, .semibold)
                 .foregroundColor(SeleneTheme.glyph)
         }
     }
 }
 
-struct SeleneSegmented<Value: Hashable>: View {
+struct OortSegmented<Value: Hashable>: View {
+    enum Preset { case compact, modeBar }
+    @State private var hover = SeleneHoverFocus()
     @Binding var selection: Value
     let options: [(Value, String)]
-
-    init(selection: Binding<Value>, options: [(Value, String)]) {
-        self._selection = selection
-        self.options = options
-    }
+    var preset: Preset = .compact
+    var focused: Value? = nil
+    var hint: (Value) -> String = { _ in "" }
+    var onFocus: (Value) -> Void = { _ in }
 
     var body: some View {
         HStack(spacing: 3) {
             ForEach(options.indices, id: \.self) { index in
                 let option = options[index]
+                let selected = selection == option.0
+                let active = focused == option.0
                 Button {
                     selection = option.0
                 } label: {
                     Text(option.1)
-                        .seleneFont(14, .semibold)
-                        .foregroundColor(selection == option.0 ? SeleneTheme.scrim : SeleneTheme.ink.opacity(0.5))
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(selection == option.0 ? SeleneTheme.focus : Color.clear)
+                        .seleneFont(preset == .compact ? .text : .row, .semibold)
+                        .foregroundColor(selected ? (preset == .compact ? SeleneTheme.scrim : SeleneTheme.onFocus)
+                                         : (preset == .compact ? SeleneTheme.ink.opacity(0.5) : SeleneTheme.ink75))
+                        .padding(.horizontal, SeleneTokens.Space.small)
+                        .padding(.vertical, SeleneTokens.Space.tight)
+                        .background(selected ? SeleneTheme.focus : Color.clear)
                         .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
+                .padding(preset == .compact ? 0 : SeleneTokens.Space.seam)
+                .overlay(PillOutline(width: SeleneTokens.Space.focusStroke)
+                    .fill(active ? SeleneTheme.focus : .clear, style: FillStyle(eoFill: true))
+                    .allowsHitTesting(false))
+                .accessibilityAddTraits(selected ? .isSelected : [])
+                .accessibilityHint(hint(option.0))
+                .help(hint(option.0))
+                .onHover { if hover.moved($0) { onFocus(option.0) } }
             }
         }
-        .padding(3)
+        .padding(SeleneTokens.Space.segmentInset)
         .background(SeleneTheme.ink.opacity(0.055))
         .overlay(Capsule().strokeBorder(SeleneTheme.ink15, lineWidth: 1))
         .clipShape(Capsule())
     }
 }
 
-struct SelenePanel<Content: View>: View {
+typealias SeleneSegmented = OortSegmented
+
+struct OortCard<Content: View>: View {
     @Environment(\.nxAppLocale) private var localization
     let title: String?
     let info: String?
@@ -256,7 +270,7 @@ struct SelenePanel<Content: View>: View {
             if let title {
                 HStack(spacing: 6) {
                     Text(L10n.text(title, context: localization))
-                        .seleneFont(12, .bold)
+                        .seleneFont(.badge, .bold)
                         .tracking(1.4)
                         .textCase(.uppercase)
                         .foregroundColor(SeleneTheme.ink60)
@@ -267,7 +281,7 @@ struct SelenePanel<Content: View>: View {
             }
             content()
         }
-        .padding(16)
+        .padding(SeleneTokens.Space.medium)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(SeleneTheme.glassSolid)
         .overlay(
@@ -277,6 +291,8 @@ struct SelenePanel<Content: View>: View {
         .clipShape(RoundedRectangle(cornerRadius: SeleneTheme.cardRadius, style: .continuous))
     }
 }
+
+typealias SelenePanel = OortCard
 
 /// A value row that steps through its choices: Left/Right on a controller, the arrows with a pointer.
 struct SeleneCycleRow: View {

@@ -43,17 +43,17 @@ struct SavesPanel: View {
             SeleneTheme.scrim65.ignoresSafeArea().contentShape(Rectangle()).onTapGesture { close() }
             VStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 0) {
-                    Text(L10n.text("SAVES")).seleneFont(15, .semibold).foregroundColor(SeleneTheme.ink60)
-                        .padding(.leading, canvas.u(8))
-                    Text(game.name).seleneFont(40).foregroundColor(SeleneTheme.ink).lineLimit(1)
-                        .padding(.leading, canvas.u(6))
+                    Text(L10n.text("SAVES")).seleneFont(.text, .semibold).foregroundColor(SeleneTheme.ink60)
+                        .padding(.leading, canvas.u(SeleneTokens.Space.compact))
+                    Text(game.name).seleneFont(.screen).foregroundColor(SeleneTheme.ink).lineLimit(1)
+                        .padding(.leading, canvas.u(SeleneTokens.Space.tight))
                     summary
                     saveList
                     statusLine
                 }
                 .frame(width: canvas.u(1040), alignment: .leading)
                 .frame(maxHeight: .infinity, alignment: .top)
-                .padding(.top, canvas.u(90)).padding(.bottom, canvas.u(20))
+                .padding(.top, canvas.u(90)).padding(.bottom, canvas.u(SeleneTokens.Space.panel))
                 SeleneHintsBar(left: [HintItem(.b, L10n.text("Back"), action: close)], right: [HintItem(.a, L10n.text("Select"))],
                                bottom: SeleneBottomScrim.hintsBottom, leftInset: 18)
             }.frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -96,7 +96,7 @@ struct SavesPanel: View {
     private var summary: some View {
         HStack(spacing: canvas.u(12)) {
             Text([game.versionString.map { "v" + $0 }, model.running ? L10n.text("Game running") : SavePresentation.size(model.currentBytes)].compactMap { $0 }.joined(separator: " · "))
-                .seleneFont(15).foregroundColor(SeleneTheme.ink60).lineLimit(1)
+                .seleneFont(.text).foregroundColor(SeleneTheme.ink60).lineLimit(1)
             Spacer()
             // Always occupies the same space: refresh never changes header/list geometry.
             ProgressView().controlSize(.small).tint(SeleneTheme.ink60)
@@ -105,8 +105,8 @@ struct SavesPanel: View {
                 .accessibilityHidden(!model.busy)
                 .accessibilityLabel(L10n.text("Working"))
         }
-        .padding(.horizontal, canvas.u(8))
-        .padding(.top, canvas.u(6)).padding(.bottom, canvas.u(14))
+        .padding(.horizontal, canvas.u(SeleneTokens.Space.compact))
+        .padding(.top, canvas.u(SeleneTokens.Space.tight)).padding(.bottom, canvas.u(SeleneTokens.Space.line))
     }
     private var saveList: some View {
         ScrollViewReader { proxy in
@@ -117,7 +117,7 @@ struct SavesPanel: View {
                             .id(row).contentShape(Rectangle())
                             .onTapGesture { focus = index; activate(row) }
                     }
-                }.padding(.top, canvas.u(6)).padding(.bottom, canvas.u(24))
+                }.padding(.top, canvas.u(SeleneTokens.Space.tight)).padding(.bottom, canvas.u(SeleneTokens.Space.large))
             }.scrollIndicators(.hidden)
             .onChange(of: focus) { _, index in
                 guard rows.indices.contains(index) else { return }
@@ -127,10 +127,10 @@ struct SavesPanel: View {
     }
     private var statusLine: some View {
         Text(model.message ?? " ")
-            .seleneFont(15).foregroundColor(SeleneTheme.ink60)
+            .seleneFont(.text).foregroundColor(SeleneTheme.ink60)
             .lineLimit(1).frame(maxWidth: .infinity, alignment: .leading)
             .frame(height: canvas.u(24))
-            .padding(.horizontal, canvas.u(8))
+            .padding(.horizontal, canvas.u(SeleneTokens.Space.compact))
     }
     private var importValue: String? {
         if model.running { return "Game running" }
@@ -164,7 +164,7 @@ struct SavesPanel: View {
         return SeleneOptionRow(icon: row.icon, title: text.title, about: subtitle(row), focused: focused, enabled: text.enabled) {
             HStack(spacing: canvas.u(16)) {
                 if let value = text.value {
-                    Text(value).seleneFont(17).foregroundColor(SeleneTheme.ink60).lineLimit(1)
+                    Text(value).seleneFont(.text).foregroundColor(SeleneTheme.ink60).lineLimit(1)
                 }
                 if row == .target {
                     MaterialIconView(.chevronLeft, size: 18)

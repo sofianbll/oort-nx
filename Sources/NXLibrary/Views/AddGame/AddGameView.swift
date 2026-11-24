@@ -108,26 +108,26 @@ struct AddGameView: View {
     private func column(_ rows: [AddGameRow], focused: AddGameRow?) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(L10n.text("ADD A GAME"))
-                .seleneFont(15, .semibold)
+                .seleneFont(.text, .semibold)
                 .tracking(1.2)
                 .foregroundColor(SeleneTheme.ink60)
-                .padding(.leading, canvas.u(8))
+                .padding(.leading, canvas.u(SeleneTokens.Space.compact))
             Text(stepTitle)
-                .seleneFont(40)
+                .seleneFont(.screen)
                 .foregroundColor(SeleneTheme.ink)
                 .lineLimit(1)
-                .padding(.leading, canvas.u(6))
+                .padding(.leading, canvas.u(SeleneTokens.Space.tight))
             stepLine
-                .padding(.leading, canvas.u(8))
-                .padding(.top, canvas.u(4))
-                .padding(.bottom, canvas.u(14))
+                .padding(.leading, canvas.u(SeleneTokens.Space.compact))
+                .padding(.top, canvas.u(SeleneTokens.Space.hairline))
+                .padding(.bottom, canvas.u(SeleneTokens.Space.line))
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(spacing: canvas.u(8)) {
                         if porting.buildWizardStep == 3 {
                             AddGameStepThreeView(viewModel: viewModel, porting: porting, router: router, artwork: artwork,
                                                  onActions: publish)
-                                .padding(.bottom, canvas.u(12))
+                                .padding(.bottom, canvas.u(SeleneTokens.Space.small))
                         }
                         ForEach(rows) { row in
                             AddGameRowView(row: row, focused: row.id == focused?.id && !confirmDiscard,
@@ -138,9 +138,9 @@ struct AddGameView: View {
                         }
                     }
                     // The clip would shave the first row's focus border.
-                    .padding(.top, canvas.u(6))
-                    .padding(.horizontal, canvas.u(4))
-                    .padding(.bottom, canvas.u(24))
+                    .padding(.top, canvas.u(SeleneTokens.Space.tight))
+                    .padding(.horizontal, canvas.u(SeleneTokens.Space.hairline))
+                    .padding(.bottom, canvas.u(SeleneTokens.Space.large))
                 }
                 .scrollIndicators(.hidden)
                 // Rows fade under the title and into the hints instead of being cut.
@@ -164,13 +164,13 @@ struct AddGameView: View {
         .frame(width: canvas.u(1040), alignment: .leading)
         .frame(maxHeight: .infinity, alignment: .top)
         .padding(.top, canvas.u(90))
-        .padding(.bottom, canvas.u(24))
+        .padding(.bottom, canvas.u(SeleneTokens.Space.large))
         .overlay(alignment: .top) {
             if dropTargeted {
                 Text(L10n.text("Drop to add these files"))
-                    .seleneFont(15, .semibold)
+                    .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.onFocus)
-                    .padding(.horizontal, canvas.u(18))
+                    .padding(.horizontal, canvas.u(SeleneTokens.Space.control))
                     .frame(height: canvas.u(34))
                     .background(Capsule().fill(SeleneTheme.focus))
                     .padding(.top, canvas.u(40))
@@ -204,7 +204,7 @@ struct AddGameView: View {
                     Circle().fill(SeleneTheme.ink25).frame(width: canvas.u(4), height: canvas.u(4))
                 }
                 Text(title)
-                    .seleneFont(15, index + 1 == step ? .semibold : .regular)
+                    .seleneFont(.text, index + 1 == step ? .semibold : .regular)
                     .foregroundColor(index + 1 == step ? SeleneTheme.ink : SeleneTheme.ink60)
             }
         }

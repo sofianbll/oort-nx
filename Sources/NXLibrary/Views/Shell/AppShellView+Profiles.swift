@@ -354,14 +354,14 @@ struct ProfilePINDialog: View {
     var body: some View {
         VStack(spacing: canvas.u(SeleneTokens.Space.control)) {
             Label(L10n.text(title, context: localization), systemImage: "lock.fill")
-                .seleneFont(.dialogTitle, .semibold)
+                .seleneFont(.screen, .semibold)
                 .accessibilityAddTraits(.isHeader)
             Text(L10n.text(error ?? "Use four digits.", context: localization))
-                .seleneFont(.panelBody).foregroundStyle(error == nil ? SeleneTheme.ink75 : SeleneTheme.danger)
+                .seleneFont(.text).foregroundStyle(error == nil ? SeleneTheme.ink75 : SeleneTheme.danger)
             HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 ForEach(0..<LocalProfile.pinLength, id: \.self) { index in
                     Image(systemName: index < keypad.count ? "circle.fill" : "circle")
-                        .seleneFont(.caption)
+                        .seleneFont(.text)
                 }
             }
             .foregroundStyle(error == nil ? SeleneTheme.ink : SeleneTheme.danger)
@@ -426,8 +426,8 @@ struct ProfilePINDialog: View {
         }
         let enabled = !authenticating && (key != .validate || keypad.canValidate)
         let size = SeleneTokens.Space.profileKeypadKey
-        return SelenePillButton(title: title, icon: icon, iconSize: SeleneTokens.Text.title.rawValue, minWidth: size,
-                               height: size, titleSize: .title, horizontalPadding: 0, focused: keypad.selected == key,
+        return SelenePillButton(title: title, icon: icon, iconSize: SeleneTokens.Text.heading.rawValue, minWidth: size,
+                               height: size, titleSize: .heading, horizontalPadding: 0, focused: keypad.selected == key,
                                fillsOnFocus: false, scalesOnFocus: false, enabled: enabled, tint: .white) {
             keypad.focus(key)
             press(key)

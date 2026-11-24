@@ -55,7 +55,7 @@ struct WikipediaCredit: View {
                 Text(L10n.text("From Wikipedia, CC BY-SA."))
                 Image(systemName: "arrow.up.right")
             }
-            .seleneFont(14)
+            .seleneFont(.text)
             .foregroundColor(SeleneTheme.ink60)
         }
         .buttonStyle(.plain)

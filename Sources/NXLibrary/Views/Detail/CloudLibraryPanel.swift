@@ -85,18 +85,18 @@ struct CloudLibraryPanel: View {
     private var card: some View {
         VStack(alignment: .leading, spacing: canvas.u(14)) {
             VStack(alignment: .leading, spacing: canvas.u(3)) {
-                Text(text("Cloud library")).seleneFont(.panelTitle, .semibold)
+                Text(text("Cloud library")).seleneFont(.heading, .semibold)
                     .foregroundColor(SeleneTheme.ink).accessibilityAddTraits(.isHeader)
-                Text(game.name).seleneFont(.body).foregroundColor(SeleneTheme.ink75)
+                Text(game.name).seleneFont(.text).foregroundColor(SeleneTheme.ink75)
                     .lineLimit(1)
                 if state.referenceUnverified || state.referenceSourcesUnverified {
-                    Text(text("Reference offer not verified")).seleneFont(.metadata).foregroundColor(SeleneTheme.ink75)
+                    Text(text("Reference offer not verified")).seleneFont(.text).foregroundColor(SeleneTheme.ink75)
                 } else if !state.referenceKinds.isEmpty || state.referenceSources != nil {
-                    Text(text("Source: reference library")).seleneFont(.metadata).foregroundColor(SeleneTheme.ink75)
+                    Text(text("Source: reference library")).seleneFont(.text).foregroundColor(SeleneTheme.ink75)
                 }
             }
             if let unavailable {
-                Text(text(unavailable)).seleneFont(.body).foregroundColor(SeleneTheme.ink75)
+                Text(text(unavailable)).seleneFont(.text).foregroundColor(SeleneTheme.ink75)
             } else {
                 ForEach(visibleItems, id: \.self) { item in
                     artifactRow(item)
@@ -154,7 +154,7 @@ struct CloudLibraryPanel: View {
         return VStack(alignment: .leading, spacing: canvas.u(8)) {
             HStack(spacing: canvas.u(12)) {
                 VStack(alignment: .leading, spacing: canvas.u(5)) {
-                    Text(title).seleneFont(17, .semibold).foregroundColor(SeleneTheme.ink90)
+                    Text(title).seleneFont(.text, .semibold).foregroundColor(SeleneTheme.ink90)
                         .accessibilityAddTraits(.isHeader)
                     CloudPersonalAppUpdateRow(
                         comparison: item == .app && state.action == nil ? state.personalAppComparison : nil,
@@ -175,12 +175,12 @@ struct CloudLibraryPanel: View {
                     VStack(alignment: .trailing, spacing: canvas.u(4)) {
                         if live, CloudLibraryProgressView.fraction(state.progress) != nil {
                             Text(CloudLibraryProgressView.summary(state.progress, context: localization, showsPhase: false))
-                                .seleneFont(13).monospacedDigit()
+                                .seleneFont(.badge).monospacedDigit()
                                 .fixedSize(horizontal: false, vertical: true)
                         } else if reference == nil {
-                            if let size { Text(size).seleneFont(15).monospacedDigit() }
+                            if let size { Text(size).seleneFont(.text).monospacedDigit() }
                             if !indicator.progress, let published {
-                                Text(published).seleneFont(13)
+                                Text(published).seleneFont(.badge)
                             }
                         }
                     }
@@ -208,7 +208,7 @@ struct CloudLibraryPanel: View {
             }
             if advanced, let path = cloudPath(item) {
                 Text(verbatim: path)
-                    .seleneFont(13)
+                    .seleneFont(.badge)
                     .foregroundColor(SeleneTheme.ink60)
                     .lineLimit(1)
                     .truncationMode(.middle)
@@ -218,7 +218,7 @@ struct CloudLibraryPanel: View {
             if interrupted?.isUserPaused == true || cannotPause || interruption != nil {
                 Text(interrupted?.isUserPaused == true ? text("The current file may restart from the beginning.")
                      : interruption?.message(context: localization) ?? text("This transfer cannot be paused."))
-                    .seleneFont(.compactCaption)
+                    .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink75).fixedSize(horizontal: false, vertical: true)
             } else if live {
                 if state.transfer(for: item)?.gauge(hasCover: false, hasDownloadPill: downloading) == .bar {
@@ -230,7 +230,7 @@ struct CloudLibraryPanel: View {
                     failureLine(reason == statusText ? nil : reason, failure: state.transferFailure, item: item)
                 }
                 else {
-                    Text(issue.message).seleneFont(15).foregroundColor(SeleneTheme.ink60)
+                    Text(issue.message).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
                         .multilineTextAlignment(.leading)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -241,7 +241,7 @@ struct CloudLibraryPanel: View {
             if item == .app, let previous = state.previousApp {
                 HStack {
                     Text(L10n.format("Previous app: %@", [previous.path], context: localization))
-                        .seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink75)
+                        .seleneFont(.text).foregroundColor(SeleneTheme.ink75)
                         .multilineTextAlignment(.leading)
                         .lineLimit(3).truncationMode(.middle).textSelection(.enabled).help(previous.path)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -361,7 +361,7 @@ struct CloudLibraryPanel: View {
     private func failureLine(_ message: String?, failure: CloudLibraryFailure?, item: CloudLibraryItem?) -> some View {
         HStack {
             if let message {
-                Text(message).seleneFont(15).foregroundColor(CloudLibraryStatus.failed.color)
+                Text(message).seleneFont(.text).foregroundColor(CloudLibraryStatus.failed.color)
                     .fixedSize(horizontal: false, vertical: true)
             }
             if let failure, controls.contains(.recover(failure, item)) {
@@ -470,7 +470,7 @@ struct CloudLibraryPanel: View {
                 onCancel: { freeSelection = nil }, onConfirm: confirmFree) {
                 VStack(spacing: canvas.u(6)) {
                     Text(freeSummary(selection))
-                        .seleneFont(.panelBody, .semibold)
+                        .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.ink90)
                         .fixedSize(horizontal: false, vertical: true)
                     ForEach(CloudLibraryItem.allCases, id: \.self) { item in
@@ -485,7 +485,7 @@ struct CloudLibraryPanel: View {
                         .onHover { if $0 && selection.allows(item) { freeFocus = .item(item) } }
                     }
                 }
-                .padding(.top, canvas.u(18))
+                .padding(.top, canvas.u(SeleneTokens.Space.control))
             }
         }
     }
@@ -554,7 +554,7 @@ struct CloudGameStatus: View {
         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.tight)) {
             if !keys.isEmpty {
                 Text(keys.map { L10n.text($0, context: localization) }.joined(separator: " · "))
-                    .seleneFont(.metadata).foregroundColor(SeleneTheme.ink75)
+                    .seleneFont(.text).foregroundColor(SeleneTheme.ink75)
             }
             if let transfer = state.transfer() {
                 let bytes = transfer.canCancel ? CloudLibraryProgressView.bytesSummary(state.progress, context: localization) : nil
@@ -581,7 +581,7 @@ struct CloudLibraryProgressView: View {
         VStack(alignment: .leading, spacing: canvas.u(5)) {
             Text(showsBar ? Self.summary(progress, context: localization)
                  : Self.downloadSummary(progress, context: localization))
-                .seleneFont(.compactCaption).monospacedDigit()
+                .seleneFont(.text).monospacedDigit()
                 .foregroundColor(showsBar ? SeleneTheme.ink90 : SeleneTheme.ink75)
             if showsBar {
                 SeleneProgressBar(progress: Self.fraction(progress), height: 6, color: CloudLibraryStatus.pending.color)
@@ -864,7 +864,7 @@ struct TileMark: View {
     var body: some View {
         Group {
             if paused {
-                Image(systemName: "pause.fill").seleneFont(.caption, .semibold)
+                Image(systemName: "pause.fill").seleneFont(.text, .semibold)
             } else {
                 MaterialIconView(icon, size: SeleneTokens.Space.control)
             }

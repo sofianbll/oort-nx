@@ -23,6 +23,14 @@ extension AppRouter {
 
 extension IntegrationsView {
     func handle(_ action: GamepadAction) {
+        if let detail = router.integrationDetail {
+            switch action {
+            case .confirm: overview.open(detail, in: router)
+            case .cancel: router.backFromIntegration()
+            default: break
+            }
+            return
+        }
         let ids = overview.rows.map(\.id)
         guard let first = ids.first else { return }
         let id = router.integrationFocus ?? first
@@ -31,8 +39,8 @@ extension IntegrationsView {
             let index = ids.firstIndex(of: id) ?? 0
             let next = min(max(index + (action == .navigateUp ? -1 : 1), 0), ids.count - 1)
             router.integrationFocus = ids[next]
-        case .confirm: overview.open(id, in: router)
-        case .cancel: router.back()
+        case .confirm: router.showIntegrationDetail(id)
+        case .cancel: router.backFromIntegration()
         default: break
         }
     }

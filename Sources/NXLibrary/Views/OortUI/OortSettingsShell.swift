@@ -36,7 +36,7 @@ struct OortSettingsShell<Sidebar: View, Detail: View>: View {
                         SelenePillButton(title: "Back", focused: false, action: onBack)
                     }
                     Text(title)
-                        .seleneFont(.title, .semibold)
+                        .seleneFont(.heading, .semibold)
                         .foregroundStyle(SeleneTheme.ink)
                         .accessibilityAddTraits(.isHeader)
                 }
@@ -79,7 +79,7 @@ struct OortSettingsSidebar<ID: Hashable, Header: View>: View {
                         ForEach(sections.filter { !$0.items.isEmpty }) { section in
                             if let title = section.title {
                                 Text(title)
-                                    .seleneFont(.compactCaption, .semibold)
+                                    .seleneFont(.badge, .semibold)
                                     .foregroundStyle(SeleneTheme.ink)
                                     .padding(.leading, canvas.u(SeleneTokens.Space.panel))
                                     .padding(.top, canvas.u(SeleneTokens.Space.control))
@@ -104,7 +104,7 @@ struct OortSettingsSidebar<ID: Hashable, Header: View>: View {
                 MaterialIconView(item.icon, size: SeleneTokens.Space.large)
                     .accessibilityHidden(true)
                 Text(item.title)
-                    .seleneFont(.rowTitle, .medium)
+                    .seleneFont(.row, .medium)
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 0)
             }
@@ -154,7 +154,7 @@ struct OortSettingsSearchField: View {
     var body: some View {
         TextField(L10n.text("Search settings", context: locale), text: $query)
             .textFieldStyle(.plain)
-            .seleneFont(.body)
+            .seleneFont(.text)
             .foregroundStyle(SeleneTheme.ink)
             .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
             .padding(.vertical, canvas.u(SeleneTokens.Space.small))

@@ -55,8 +55,9 @@ class IntegrationContract(unittest.TestCase):
 
     def test_navigating_up_can_scroll_back_to_the_first_integration(self):
         page = (VIEWS / "Shell/IntegrationsView.swift").read_text()
-        self.assertRegex(page, r"\.onChange\(of: router.integrationFocus, initial: true\) \{ old, id in\s*"
-                               r"guard let id, old != id \|\| id != rows.first\?\.id \|\| router.isReturningFromBack")
+        self.assertRegex(page, r"scrollFocus: router.integrationFocus,\s*initialFocus:")
+        shared = (VIEWS / "OortUI/OortPage.swift").read_text()
+        self.assertRegex(shared, r"guard let id, old != id \|\| id != initialFocus \|\| restoreScroll")
 
     def test_access_copy_names_actual_destinations_and_local_writes_in_english_and_french(self):
         source = (ROOT / "Sources/ArcanePorting/Settings/IntegrationOverview.swift").read_text()
@@ -70,7 +71,7 @@ class IntegrationContract(unittest.TestCase):
                     rendered = {right: catalog[key]["localizations"][language]["stringUnit"]["value"]
                                 for right, key in rights.items()}
                     self.assertTrue(all(value.strip() for value in rendered.values()))
-                    for term in {"switchGames": ["GitHub", "Apple"], "steam": ["Steam", "App ID", "CDN"],
+                    for term in {"switchGames": ["GitHub", "Apple"], "steam": ["Steam", "App ID", "CDN"], "macApps": [],
                                  "drive": ["rclone", "OAuth", "Google"], "nextendo": ["Nextendo", "OAuth"],
                                  "images": ["SteamGridDB", "IGDB", "Twitch", "Wikidata", "Nlib", "Switch Icon Showdown"],
                                  "saves": ["iCloud Drive", "Apple"]}[row]:

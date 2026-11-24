@@ -40,7 +40,7 @@ struct SpotlightTopBar: View {
                 if showClock {
                     TimelineView(.everyMinute) { context in
                         Text(context.date, format: .dateTime.hour().minute())
-                            .seleneFont(30)
+                            .seleneFont(.heading)
                             .foregroundColor(SeleneTheme.ink)
                             .monospacedDigit()
                     }
@@ -74,7 +74,7 @@ struct SpotlightTopBar: View {
     private func tab(_ item: LibraryFilter) -> some View {
         let on = item == filter
         return Text(L10n.text(item.rawValue))
-            .seleneFont(.panelBody, on ? .semibold : .regular)
+            .seleneFont(.text, on ? .semibold : .regular)
             .foregroundColor(on ? SeleneTheme.onFocus : SeleneTheme.ink.opacity(0.7))
             .padding(EdgeInsets(top: canvas.u(5), leading: canvas.u(18),
                                 bottom: canvas.u(7), trailing: canvas.u(20)))
@@ -139,7 +139,7 @@ struct LibrarySortMenu: View {
         ZStack(alignment: .bottomTrailing) {
             Color.black.opacity(0.24).contentShape(Rectangle()).onTapGesture(perform: close)
             VStack(alignment: .leading, spacing: canvas.u(8)) {
-                Text(L10n.text("Sort games")).seleneFont(.panelBody, .semibold)
+                Text(L10n.text("Sort games")).seleneFont(.text, .semibold)
                     .foregroundStyle(SeleneTheme.ink75)
                     .accessibilityAddTraits(.isHeader)
                     .padding(.horizontal, canvas.u(15))

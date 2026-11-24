@@ -33,16 +33,16 @@ struct MoreSettingsPanel: View {
             SeleneTheme.scrim65.ignoresSafeArea().contentShape(Rectangle()).onTapGesture { onClose() }
             VStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 0) {
-                    Text(L10n.text("MORE SETTINGS")).seleneFont(15, .semibold).foregroundColor(SeleneTheme.ink60)
-                        .padding(.leading, canvas.u(8))
-                    Text(game.name).seleneFont(40).foregroundColor(SeleneTheme.ink).lineLimit(1)
-                        .padding(.leading, canvas.u(6))
-                        .padding(.bottom, canvas.u(14))
+                    Text(L10n.text("MORE SETTINGS")).seleneFont(.text, .semibold).foregroundColor(SeleneTheme.ink60)
+                        .padding(.leading, canvas.u(SeleneTokens.Space.compact))
+                    Text(game.name).seleneFont(.screen).foregroundColor(SeleneTheme.ink).lineLimit(1)
+                        .padding(.leading, canvas.u(SeleneTokens.Space.tight))
+                        .padding(.bottom, canvas.u(SeleneTokens.Space.line))
                     list
                 }
                 .frame(width: canvas.u(1040), alignment: .leading)
                 .frame(maxHeight: .infinity, alignment: .top)
-                .padding(.top, canvas.u(90)).padding(.bottom, canvas.u(20))
+                .padding(.top, canvas.u(90)).padding(.bottom, canvas.u(SeleneTokens.Space.panel))
                 SeleneHintsBar(left: [HintItem(.b, L10n.text("Back"), action: onClose)], right: [HintItem(.a, L10n.text("Select"))],
                                bottom: SeleneBottomScrim.hintsBottom, leftInset: 18)
             }
@@ -68,7 +68,7 @@ struct MoreSettingsPanel: View {
                             .onTapGesture { focus = index; change(setting, by: 1) }
                     }
                 }
-                .padding(.top, canvas.u(6)).padding(.bottom, canvas.u(24))
+                .padding(.top, canvas.u(SeleneTokens.Space.tight)).padding(.bottom, canvas.u(SeleneTokens.Space.large))
             }
             .scrollIndicators(.hidden)
             .frame(maxHeight: canvas.u(680))

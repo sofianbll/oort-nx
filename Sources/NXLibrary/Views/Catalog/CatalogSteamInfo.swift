@@ -68,10 +68,10 @@ struct CatalogSteamInfo: View {
         VStack(alignment: .leading, spacing: 0) {
             if let note = playNote {
                 Text(note)
-                    .seleneFont(19, .semibold)
+                    .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink75)
                     .padding(.leading, canvas.u(collection ? 0 : 4))
-                    .padding(.top, canvas.u(20))
+                    .padding(.top, canvas.u(SeleneTokens.Space.panel))
             }
             if !collection {
                 GamePrimaryActions(primaryTitle: primaryTitle,
@@ -79,13 +79,13 @@ struct CatalogSteamInfo: View {
                                    primaryEnabled: primaryEnabled,
                                    primaryWaveDots: primaryWaveDots,
                                    onAction: onAction, onHover: onHover)
-                    .padding(.leading, canvas.u(2)).padding(.top, canvas.u(18))
+                    .padding(.leading, canvas.u(SeleneTokens.Space.seam)).padding(.top, canvas.u(SeleneTokens.Space.control))
             }
             SeleneStatsRow(presentation: presentation)
                 .padding(.leading, canvas.u(collection ? 0 : 4)).padding(.top, canvas.u(collection ? 28 : 26))
             // Spotlight places the genres in their own block under the head, as for nxnative games.
             if collection, !presentation.genres.isEmpty {
-                SpotlightGenreChips(genres: presentation.genres).padding(.top, canvas.u(20))
+                SpotlightGenreChips(genres: presentation.genres).padding(.top, canvas.u(SeleneTokens.Space.panel))
             }
         }
     }

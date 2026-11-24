@@ -24,7 +24,7 @@ struct CloudPersonalAppUpdateRow: View {
                 SeleneStatusDot(text: L10n.text("Update available", context: locale) + " · " + bytes,
                                 color: SeleneTheme.statusCloud, labelColor: SeleneTheme.ink90)
                 SelenePillButton(title: "Update from my cloud", minWidth: 0, height: 40,
-                                 titleSize: .body, horizontalPadding: 14, focused: hovered, enabled: canUpdate,
+                                 titleSize: .text, horizontalPadding: 14, focused: hovered, enabled: canUpdate,
                                  accessory: showHints && !covered ? AnyView(
                                     SelenePromptBadge(button: .x, height: 22, keyboardOverride: .text("⌘U"))
                                         .accessibilityHidden(true)) : nil, action: review)
