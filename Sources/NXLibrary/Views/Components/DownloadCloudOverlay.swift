@@ -191,8 +191,8 @@ private struct DownloadCloudSprites {
             CGColor(srgbRed: Double(rgb >> 16 & 255) / 255, green: Double(rgb >> 8 & 255) / 255,
                     blue: Double(rgb & 255) / 255, alpha: alpha)
         }
-        let colors = [color(ink, 1), color(ink, 0.86), color(halo, 0.56), color(halo, 0)]
-        let gradient = CGGradient(colorsSpace: space, colors: colors as CFArray, locations: [0, 0.34, 0.51, 1])!
+        let colors = [color(ink, 1), color(ink, 0.86), color(halo, 0.32), color(halo, 0)]
+        let gradient = CGGradient(colorsSpace: space, colors: colors as CFArray, locations: [0, 0.34, 0.54, 1])!
         let center = CGPoint(x: 16, y: 16)
         context.drawRadialGradient(gradient, startCenter: center, startRadius: 0, endCenter: center,
                                    endRadius: 16, options: [])
@@ -231,8 +231,13 @@ final class DownloadCloudLayerView: TileMotionLayerView {
     }
 
     func clear() {
-        field.removeAllAnimations()
-        field.sublayers = nil
+        Self.withoutActions {
+            for dot in field.sublayers ?? [] {
+                dot.removeAllAnimations()
+                dot.removeFromSuperlayer()
+            }
+            field.removeAllAnimations()
+        }
         applied = nil
     }
 
@@ -273,6 +278,8 @@ final class DownloadCloudLayerView: TileMotionLayerView {
             animation.duration = duration
             return animation
         }
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
         for (index, mote) in frames[0].enumerated() {
             guard frames.contains(where: { $0[index].opacity > 0 }) else { continue }
             let dot = CALayer()
@@ -303,5 +310,13 @@ final class DownloadCloudLayerView: TileMotionLayerView {
             shift.timingFunction = CAMediaTimingFunction(name: .easeOut)
             field.add(shift, forKey: "fill")
         }
+        if !scene.repeats, let first = field.sublayers?.first {
+            CATransaction.setCompletionBlock { [weak self, weak first] in
+                // A cancelled cue must not clear the particles of the next transfer.
+                guard let first, self?.field.sublayers?.first === first else { return }
+                self?.clear()
+            }
+        }
+        CATransaction.commit()
     }
 }
