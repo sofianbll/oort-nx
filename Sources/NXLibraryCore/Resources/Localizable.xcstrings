@@ -79025,6 +79025,17 @@
         }
       }
     },
+    "Two sources have the same name. Rename one or choose a different file.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Two sources have the same name. Rename one or choose a different file."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Deux sources portent le même nom. Renommez-en une ou choisissez un autre fichier."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Due sorgenti hanno lo stesso nome. Rinomina una delle due o scegli un altro file."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Zwei Quelldateien haben denselben Namen. Benenne eine um oder wähle eine andere Datei."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Dos archivos tienen el mismo nombre. Cambia el nombre de uno o elige otro archivo."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Dois arquivos têm o mesmo nome. Renomeie um deles ou escolha outro arquivo."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "两个源文件同名。请重命名其中一个或选择其他文件。"}}
+      }
+    },
     "Update Arcane: its built-in Python includes zbic from 0.1.3.2. Installing zbic with pip does not reach it.": {
       "comment": "PortingFailureReason.swift",
       "localizations": {

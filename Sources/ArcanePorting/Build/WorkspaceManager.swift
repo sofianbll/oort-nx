@@ -37,6 +37,35 @@ public final class WorkspaceManager {
             return planned
         case .staged:
             try fm.createDirectory(at: dir, withIntermediateDirectories: true)
+            let volume = try? dir.resourceValues(forKeys: [.volumeSupportsCaseSensitiveNamesKey])
+            let caseSensitive = volume?.volumeSupportsCaseSensitiveNames == true
+            var staged: [(relative: String, source: URL)] = []
+            var seen: [String: URL] = [:]
+            for source in game.allSources {
+                let relative: String
+                if source.layout == .extracted {
+                    switch source.kind {
+                    case .base: relative = "base"
+                    case .update:
+                        guard let version = source.version, version > 0 else { throw EngineSourceError.invalidDump("invalid update version") }
+                        relative = "updates/\(version)"
+                    case .dlc: relative = String(format: "dlc/%016llX/0/romfs", source.titleId)
+                    case .unknown: throw EngineSourceError.invalidDump("unknown content")
+                    }
+                } else { relative = source.url.lastPathComponent }
+                let key = caseSensitive ? relative : relative.folding(options: .caseInsensitive, locale: Locale(identifier: "en_US_POSIX"))
+                let resolved = source.url.resolvingSymlinksInPath()
+                if let previous = seen[key] {
+                    guard previous.path == resolved.path else {
+                        throw CocoaError(.fileWriteFileExists, userInfo: [
+                            NSLocalizedDescriptionKey: L10n.text("Two sources have the same name. Rename one or choose a different file.")
+                        ])
+                    }
+                    continue
+                }
+                seen[key] = resolved
+                staged.append((relative, source.url))
+            }
             // Only links owned by this workspace are replaced. Never walk a link
             // into the original source tree, and leave build-cache contents alone.
             if let contents = fm.enumerator(at: dir, includingPropertiesForKeys: [.isSymbolicLinkKey]) {
@@ -65,20 +94,7 @@ public final class WorkspaceManager {
                 }
             }
             var links: [URL] = []
-            var seen = Set<String>()
-            for source in game.allSources {
-                let relative: String
-                if source.layout == .extracted {
-                    switch source.kind {
-                    case .base: relative = "base"
-                    case .update:
-                        guard let version = source.version, version > 0 else { throw EngineSourceError.invalidDump("invalid update version") }
-                        relative = "updates/\(version)"
-                    case .dlc: relative = String(format: "dlc/%016llX/0/romfs", source.titleId)
-                    case .unknown: throw EngineSourceError.invalidDump("unknown content")
-                    }
-                } else { relative = source.url.lastPathComponent }
-                guard seen.insert(relative).inserted else { continue }
+            for (relative, source) in staged {
                 let link = dir.appendingPathComponent(relative)
                 try fm.createDirectory(at: link.deletingLastPathComponent(), withIntermediateDirectories: true)
                 if fm.fileExists(atPath: link.path)
@@ -88,7 +104,7 @@ public final class WorkspaceManager {
                     }
                     try fm.removeItem(at: link)
                 }
-                try fm.createSymbolicLink(at: link, withDestinationURL: source.url)
+                try fm.createSymbolicLink(at: link, withDestinationURL: source)
                 links.append(link)
             }
             if createCache { try fm.createDirectory(at: cache, withIntermediateDirectories: true) }
