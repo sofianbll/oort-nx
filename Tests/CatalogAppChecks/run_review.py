@@ -272,6 +272,7 @@ extension GamepadAction {
         return result == .tap ? binding.tap : binding.hold
     }
 }
+struct ClosedFilePicker { func handle(_ action: GamepadAction) -> Bool { false } }
 @MainActor final class InputRecorder { var actions: [GamepadAction] = [] }
 // ACTUAL_ACTION_NAMES
 
@@ -318,6 +319,7 @@ func withAnimation(_ animation: Int?, _ update: () -> Void) { update() }
     var showsSettingsNotice = false
     var showsInstallFailure = false
     var showsUpdateOffer = false
+    let filePicker = ClosedFilePicker()
     var dialogActions: [GamepadAction] = []
     var isHomeRoute: Bool { router.route == .library || router.route == .collection }
     func availability() -> NativeMenuAvailability { nativeMenuAvailability }
@@ -759,7 +761,7 @@ host = host.replace('// ACTUAL_INACTIVE_ONLINE_MODS', declaration(
     'Sources/NXLibrary/Views/GameOptions/ModsPanel.swift', '    private var inactiveOnlineCodeMods:'))
 controller = declaration('Sources/NXLibrary/Views/Shell/AppShellView+Startup.swift',
                          '        GameControllerService.shared.onAction =')
-host = host.replace('// ACTUAL_CONTROLLER', controller.replace('[weak viewModel, weak router]', '[self, weak viewModel, weak router]'))
+host = host.replace('// ACTUAL_CONTROLLER', re.sub(r'(?<![.\w])filePicker\.', 'self.filePicker.', controller).replace('[weak viewModel, weak router]', '[self, weak viewModel, weak router]'))
 names = sorted(set(re.findall(r'name: \.(nx\w+)', controller)))
 host = host.replace('// ACTUAL_ACTION_NAMES', 'extension Notification.Name {\n' + '\n'.join(
     f'    static let {name} = Notification.Name("{name}")' for name in names) + '\n}')
