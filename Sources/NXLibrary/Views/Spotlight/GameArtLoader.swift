@@ -16,6 +16,8 @@ final class GameArtLoader {
     let steamArt = NSCache<NSString, NSImage>()
     /// Games already looked up online this launch, found or not.
     private var searchedOnline: Set<UUID> = []
+    /// Only present while this game's online logo search is in flight.
+    private var onlineLogoWaiters: [UUID: [CheckedContinuation<Void, Never>]] = [:]
 
     private init() {
         heroes.countLimit = 24
@@ -104,7 +106,14 @@ final class GameArtLoader {
            let url = await artwork.fetch(titleID: titleKey, remoteURL: remote, kind: .logo) {
             image = await Self.decodeLogo(at: url)
         }
-        if image == nil, !Task.isCancelled, searchedOnline.insert(game.id).inserted {
+        while image == nil, !Task.isCancelled, !searchedOnline.contains(game.id) {
+            if onlineLogoWaiters[game.id] != nil {
+                await withCheckedContinuation { onlineLogoWaiters[game.id, default: []].append($0) }
+                image = cachedLogo(for: game)
+                continue
+            }
+            onlineLogoWaiters[game.id] = []
+            defer { onlineLogoWaiters.removeValue(forKey: game.id)?.forEach { $0.resume() } }
             let names = [game.name, metadata?.name].compactMap { $0 }
             let found = await OnlineArtwork.find(names: names, slot: .logo,
                                                  platform: game.isSwitch2 ? .switch2 : .switch)
@@ -113,7 +122,8 @@ final class GameArtLoader {
                     image = await Self.decodeLogo(at: url)
                 }
             }
-            if Task.isCancelled { searchedOnline.remove(game.id) }
+            if !Task.isCancelled { searchedOnline.insert(game.id) }
+            break
         }
         if let image { logos.setObject(image, forKey: game.id as NSUUID) }
         return image

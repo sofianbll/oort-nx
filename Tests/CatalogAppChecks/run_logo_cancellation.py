@@ -6,8 +6,8 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
 loader = (ROOT / 'Sources/NXLibrary/Views/Spotlight/GameArtLoader.swift').read_text()
-start = loader.index('    func logo(for game: PortedGame')
-logo = loader[start:loader.index('\n    }\n', start) + len('\n    }\n')]
+logo = loader[loader.index('    /// Games already looked up online'):loader.index('    private init()')] + \
+    loader[loader.index('    func logo(for game: PortedGame'):loader.index('    static func decodedCost')]
 host = '''
 import Foundation
 class NSImage: NSObject {}
@@ -32,23 +32,31 @@ struct ArtworkPicks {
 }
 struct ArtworkStore {
     func cachedURL(titleID: String, kind: Slot) -> URL? { nil }
-    func fetch(titleID: String, remoteURL: URL?, kind: Slot) async -> URL? { nil }
+    func fetch(titleID: String, remoteURL: URL?, kind: Slot) async -> URL? { remoteURL }
 }
 @MainActor enum OnlineArtwork {
     struct Hit { let url: URL; let fallback: URL? }
     static var requests = 0
     static var suspended: CheckedContinuation<Void, Never>?
+    static let image = URL(fileURLWithPath: "/found-logo")
     static func find(names: [String], slot: Slot, platform: Platform) async -> [Hit] {
         requests += 1
         if requests == 1 { await withCheckedContinuation { suspended = $0 } }
-        return []
+        return requests == 2 ? [Hit(url: image, fallback: nil)] : []
     }
 }
 @MainActor final class Loader {
-    private var searchedOnline: Set<UUID> = []
     private let logos = NSCache<NSUUID, NSImage>()
     func cachedLogo(for game: PortedGame) -> NSImage? { logos.object(forKey: game.id as NSUUID) }
-    static func decodeLogo(at url: URL) async -> NSImage? { nil }
+    static var returning = false
+    static func decodeLogo(at url: URL) async -> NSImage? {
+        if returning {
+            returning = false
+            // The old request may resume only after the returning call reaches its next suspension.
+            OnlineArtwork.suspended?.resume()
+        }
+        return url == OnlineArtwork.image ? NSImage() : nil
+    }
     // LOGO
 }
 @main struct Check {
@@ -62,16 +70,22 @@ struct ArtworkStore {
         let task = Task { await load() }
         while OnlineArtwork.suspended == nil { await Task.yield() }
         task.cancel()
-        OnlineArtwork.suspended?.resume()
+        Loader.returning = true
+        let returned = await load()
         _ = await task.value
-        _ = await load()
-        guard OnlineArtwork.requests == 2 else {
-            print("FAIL: cancellation suppressed the next logo request")
+        guard returned != nil, OnlineArtwork.requests == 2 else {
+            print("FAIL: returning before the cancelled search exits loses the available logo")
             exit(1)
         }
-        _ = await load()
-        precondition(OnlineArtwork.requests == 2, "Completed misses should not repeat")
-        print("Logo search: cancellation permits retry; a completed miss stays cached")
+        precondition(loader.cachedLogo(for: game) != nil)
+        let missing = PortedGame()
+        for _ in 0..<2 {
+            let image = await loader.logo(for: missing, metadata: nil, artwork: ArtworkStore(),
+                                          personalizations: CatalogPersonalizations())
+            precondition(image == nil)
+        }
+        precondition(OnlineArtwork.requests == 3, "Completed misses should not repeat")
+        print("Logo search: rapid return finds the logo; a completed miss stays cached")
     }
 }
 '''

@@ -669,7 +669,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/Spotlight/SpotlightScreenshotStrip.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightScreenshotStrip.swift) | Disegna la striscia di screenshot con focus e stile adattabile alle schermate. |
 | [Sources/NXLibrary/Views/Spotlight/SeleneArtBackground.swift](../../Sources/NXLibrary/Views/Spotlight/SeleneArtBackground.swift) | Compone wallpaper, sfondo del gioco, transizioni e maschere leggendo la palette dallo snapshot condiviso; l'arte è un `CALayer` che dissolve nel render server (`SeleneArtLayer`) e che l'entrata di Spotlight tiene nascosto (`ArtReveal`). |
 | [Sources/NXLibrary/Views/Spotlight/SeleneHeroArt.swift](../../Sources/NXLibrary/Views/Spotlight/SeleneHeroArt.swift) | Coordina il caricamento differito di hero e logo del gioco selezionato. |
-| [Sources/NXLibrary/Views/Spotlight/GameArtLoader.swift](../../Sources/NXLibrary/Views/Spotlight/GameArtLoader.swift) | Carica hero e loghi, consente di ripetere una ricerca annullata e limita le cache degli sfondi anche per byte decodificato. |
+| [Sources/NXLibrary/Views/Spotlight/GameArtLoader.swift](../../Sources/NXLibrary/Views/Spotlight/GameArtLoader.swift) | Carica hero e loghi; aspetta la ricerca ancora in corso e la ripete se annullata. Limita le cache degli sfondi anche per byte decodificato. |
 | [Sources/NXLibrary/Views/Spotlight/GameArtLoader+Played.swift](../../Sources/NXLibrary/Views/Spotlight/GameArtLoader+Played.swift) | Hero e logo di un `PlayedGame` per schermata di lancio e card di fine sessione; per Steam le stesse scelte delle sue pagine. |
 
 ## UI · Collection e Details
@@ -1095,7 +1095,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_add_game_back.py](../../Tests/CatalogAppChecks/run_add_game_back.py) | Esegue le regole reali di Back in Add Game: porting finito, fallito, in corso e Rebuild, passi della bozza e richiesta di scartare i file. Nessuna finestra. |
 | [run_guest_quit.py](../../Tests/CatalogAppChecks/run_guest_quit.py) | Esegue le regole reali dell’uscita ospite, dell’annullamento e del completamento con esiti di attività sintetici. |
 | [run_profile_collection_game.py](../../Tests/CatalogAppChecks/run_profile_collection_game.py) | Verifica la selezione dei giochi Switch e Steam nel menu nativo della Collection di un profilo. |
-| [run_logo_cancellation.py](../../Tests/CatalogAppChecks/run_logo_cancellation.py) | Verifica il nuovo tentativo dopo una ricerca del logo annullata, senza rete. |
+| [run_logo_cancellation.py](../../Tests/CatalogAppChecks/run_logo_cancellation.py) | Verifica il recupero del logo tornando prima che la ricerca annullata finisca, senza rete. |
 | [run_metadata_preload.py](../../Tests/CatalogAppChecks/run_metadata_preload.py) | Verifica che il precaricamento del catalogo legga la cache fuori dal main thread e pubblichi i risultati sul main thread. |
 | [run_spotlight_notification_select.py](../../Tests/CatalogAppChecks/run_spotlight_notification_select.py) | Verifica la selezione da una notifica, anche chiudendo Add Game mentre è in corso un altro porting. |
 | [run_sort_native_menu.py](../../Tests/CatalogAppChecks/run_sort_native_menu.py) | Verifica disponibilità e consegna di Gioca dal menu nativo con l’ordinamento aperto. |
