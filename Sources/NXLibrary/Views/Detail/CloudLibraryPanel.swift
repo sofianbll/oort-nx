@@ -752,8 +752,10 @@ struct CloudLibraryTileBadge: ViewModifier {
     var position = TileBadgePosition.topRight
     /// What a game that cannot be played yet needs; it replaces the old lock, so it always shows.
     var look: PortingTileLook = .normal
+    var onlineTitleID: String? = nil
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.nxAppLocale) private var localization
+    @Environment(\.onlinePlayersByTitle) private var onlinePlayers
 
     private var alignment: Alignment {
         switch position {
@@ -770,6 +772,7 @@ struct CloudLibraryTileBadge: ViewModifier {
         case .toBuild: return (.build, "Not built yet")
         case .toDownloadFiles: return (.cloudDownload, "Download game files")
         case .missing: return (.search, "Game files not found")
+        case .engineUpdate: return (.update, "Engine update available")
         default: return nil
         }
     }
@@ -778,17 +781,22 @@ struct CloudLibraryTileBadge: ViewModifier {
         let badge = state.flatMap {
             showsCopyBadge || $0.transfer() != nil ? CloudLibraryBadge(indicator: CloudLibraryIndicator(state: $0)) : nil
         }
-        content.overlay(alignment: alignment) {
+        let need = need
+        let visibleBadge = badge.flatMap { $0.isVisibleOnTile ? $0 : nil }
+        let online = onlineTitleID.flatMap { onlinePlayers[$0.lowercased()] } ?? 0
+        content.overlay(alignment: need == nil && visibleBadge == nil ? .bottomTrailing : alignment) {
             Group {
                 if let need { TileMark(icon: need.icon) }
-                else if let badge, badge.isVisibleOnTile { badge }
+                else if let visibleBadge { visibleBadge }
+                else { NextendoOnlineBadge(titleID: onlineTitleID, compact: true) }
             }
             .padding(canvas.u(10))
             .allowsHitTesting(false)
             .accessibilityHidden(true)
         }
         .accessibilityValue(need.map { L10n.text($0.label, context: localization) }
-                            ?? (badge?.isVisibleOnTile == true ? badge?.indicator.label(context: localization) ?? "" : ""))
+                            ?? visibleBadge?.indicator.label(context: localization)
+                            ?? (online > 0 ? L10n.count("%lld online", online, context: localization) : ""))
     }
 }
 

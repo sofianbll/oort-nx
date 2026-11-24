@@ -180,10 +180,7 @@ struct SpotlightRowView: View {
         .accessibilityLabel(title(of: item))
         .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
         .modifier(CloudLibraryTileBadge(state: cloudState, showsCopyBadge: showsCloudBadges, position: badgePosition,
-                                        look: native.map(tileLook) ?? .normal))
-        .overlay(alignment: .bottomTrailing) {
-            NextendoOnlineBadge(titleID: native?.titleId, compact: true).padding(canvas.u(SeleneTokens.Space.small))
-        }
+                                        look: native.map(tileLook) ?? .normal, onlineTitleID: native?.titleId))
     }
 
     @ViewBuilder

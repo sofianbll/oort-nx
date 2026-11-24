@@ -105,10 +105,7 @@ struct CollectionCoverRow: View {
         .accessibilityLabel(game.name)
         .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
         .modifier(CloudLibraryTileBadge(state: cloudState, showsCopyBadge: showsCloudBadges, position: badgePosition,
-                                        look: game.nxnativeGame.map(tileLook) ?? .normal))
-        .overlay(alignment: .bottomTrailing) {
-            NextendoOnlineBadge(titleID: game.nxnativeGame?.titleId, compact: true).padding(canvas.u(SeleneTokens.Space.tight))
-        }
+                                        look: game.nxnativeGame.map(tileLook) ?? .normal, onlineTitleID: game.nxnativeGame?.titleId))
         .task(id: game.id) { if let native = game.nxnativeGame { needsMetadata(native) } }
     }
 }

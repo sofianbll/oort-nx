@@ -65,8 +65,8 @@ extension DetailsLink {
 /// 15 Nov 2026): what a player cares about as label → value rows with small grey icons, and the links under them.
 /// The rows sit on the page with a hairline between them, no panel (maintainer's choice "3", 16 Nov 2026): only
 /// what can be pressed — the achievements card and the links — has a surface. Rows without a value are not shown;
-/// with none at all only the title and the links remain, and with no links either nothing does. No build, engine or sources state: that is
-/// Options' business, and problems that stop the player show in Play's own note.
+/// with none at all only the links remain, and with no links either nothing does. Problems stopping Play
+/// show in Play's own note; the engine row only tells the player about rebuilding.
 struct DetailsPanel: View {
     @Environment(\.seleneCanvas) private var canvas
 
@@ -173,7 +173,7 @@ struct DetailsPanel: View {
             Text(fact.value)
                 .seleneFont(15, .semibold)
                 .foregroundColor(SeleneTheme.ink.opacity(0.92))
-                .lineLimit(1)
+                .lineLimit(fact.kind == .engine ? nil : 1)
                 .truncationMode(.tail)
             Spacer(minLength: 0)
         }

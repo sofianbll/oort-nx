@@ -35,20 +35,21 @@ final class DetailsFactsTests: XCTestCase {
 
     func testSwitchShowsEveryRowInOrder() {
         let rows = DetailsFacts.switchGame(switchGame(), metadata: meta(developers: ["Nintendo EPD"], publishers: ["Nintendo"]),
-                                           folderName: "Applications", locale: en)
-        XCTAssertEqual(rows.map(\.kind), [.developer, .publisher, .version, .size, .location])
-        XCTAssertEqual(rows.map(\.value), ["Nintendo EPD", "Nintendo", "1.2.0", "4 GB", "Applications"])
+                                           folderName: "Applications", engine: "Nov 23 · up to date", locale: en)
+        XCTAssertEqual(rows.map(\.kind), [.developer, .publisher, .version, .engine, .size, .location])
+        XCTAssertEqual(rows.map(\.value), ["Nintendo EPD", "Nintendo", "1.2.0", "Nov 23 · up to date", "4 GB", "Applications"])
     }
 
     func testSwitchHidesMissingValues() {
-        let rows = DetailsFacts.switchGame(switchGame(version: nil, size: 0), metadata: nil, folderName: nil, locale: en)
-        XCTAssertEqual(rows, [])
+        let rows = DetailsFacts.switchGame(switchGame(version: nil, size: 0), metadata: nil, folderName: nil,
+                                          engine: "No installed app", locale: en)
+        XCTAssertEqual(rows, [.init(kind: .engine, value: "No installed app")])
     }
 
     func testBlankNamesAndVersionAreHidden() {
         let rows = DetailsFacts.switchGame(switchGame(version: " "), metadata: meta(developers: ["  "], publishers: ["", "Sega"]),
-                                           folderName: nil, locale: en)
-        XCTAssertEqual(rows.map(\.kind), [.publisher, .size])
+                                           folderName: nil, engine: "Engine version unknown", locale: en)
+        XCTAssertEqual(rows.map(\.kind), [.publisher, .engine, .size])
         XCTAssertEqual(rows.first?.value, "Sega")
     }
 
@@ -79,6 +80,6 @@ final class DetailsFactsTests: XCTestCase {
 
     func testRowsCarryTheirSymbols() {
         XCTAssertEqual(DetailsFact.Kind.allCases.map { DetailsFact(kind: $0, value: "x").symbol },
-                       ["hammer", "building.2", "number", "internaldrive", "folder"])
+                       ["hammer", "building.2", "number", "gearshape", "internaldrive", "folder"])
     }
 }

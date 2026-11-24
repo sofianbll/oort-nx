@@ -101,7 +101,8 @@ struct GameDetailView: View {
         let blocked = toolchainBlocked
         let links = DetailsLink.links(app: game.url, store: p.storeURL, hltb: p.hltbURL, viewModel: viewModel,
                                       cloudGame: cloudManagementPlacement == .detailsLink ? game : nil)
-        let facts = DetailsFacts.switchGame(game, metadata: metadata, folderName: DetailsLink.folderName(of: game.url))
+        let facts = DetailsFacts.switchGame(game, metadata: metadata, folderName: DetailsLink.folderName(of: game.url),
+                                            engine: viewModel.engineDetail(for: game))
         return Model(presentation: p, facts: facts, links: links, screenshots: urls,
                      screenshotsKnown: screenshotsKnown,
                      more: more,

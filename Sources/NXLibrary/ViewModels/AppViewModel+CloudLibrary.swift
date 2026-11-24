@@ -667,8 +667,23 @@ extension AppViewModel {
                     guard current(), self.libraryGames.contains(game),
                           self.porting.cloudBuildScope?.title != title.uppercased() else { return }
                     self.cloudLibrary.update(game.id) { $0.availability = availability }
-                    if let files = CloudSourceFiles(game),
-                       self.cloudLibrary.referenceManifests[title.uppercased()]?.sourceSelection == nil {
+                    let reference = self.cloudLibrary.referenceManifests[title.uppercased()]
+                    let needsEngineSources = game.isPlayableLocally && !self.gamesWithFilesHere.contains(game.id)
+                    if let reference, reference.sourceSelection != nil, needsEngineSources {
+                        let shared: ReferenceSources?
+                        do {
+                            let own = try await archive.latest(titleID: title)
+                            shared = try await self.referenceSourceStatus(for: game, reference: reference, own: own)
+                        } catch { shared = nil } // If the reference can't be checked, try the personal sources.
+                        guard current(), self.libraryGames.contains(game),
+                              self.porting.cloudBuildScope?.title != title.uppercased() else { return }
+                        self.cloudLibrary.update(game.id) {
+                            $0.referenceSources = shared?.status
+                            $0.referenceSourceBytes = shared?.bytes
+                        }
+                        if shared != nil { return }
+                    }
+                    if let files = CloudSourceFiles(game), needsEngineSources || reference?.sourceSelection == nil {
                         checkingSources = true
                         let sources = try await sourceArchive.availability(folderName: files.folderName, files: files.files)
                         guard current(), self.libraryGames.contains(game),

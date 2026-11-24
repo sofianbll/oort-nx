@@ -2,6 +2,22 @@
 
 User-visible changes to Oort NX and its Arcane base (formerly NX Library) are recorded here. Entries are grouped by release, with the newest first. Engine changes also have their own [upgrade notes](docs/history/engine-upgrades/README.md).
 
+## Unreleased
+
+### Added
+
+- Switch game Details shows the installed app’s engine date and update status. An update icon appears on the cover only when the app is older and its game files are available.
+- The home bar and **Integrations** page show each service’s status and open its settings without activating it.
+- Add local Mac apps as library shortcuts without changing the apps or recording play sessions.
+- **Sound & music** offers optional built-in and local sound packs. Selene remains the default.
+
+### Fixed
+
+- A confirmed cloud library move can resume after interruption. It verifies both folders and refuses new archives outside the plan or conflicting copies.
+- Cloud setup recognizes `Switch/Games` inside the chosen library without changing a saved game-files folder.
+- Recent sessions and archived playtime are saved together so a session cannot disappear as it leaves the recent list.
+- Switch Play keeps the original profile and observer after installation, VPN confirmation or icon signing; it does not start the old app after a failed replacement.
+
 ## 0.3.1
 
 ### Fixed

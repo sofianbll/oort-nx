@@ -57,7 +57,7 @@ struct PortingArtLook: ViewModifier {
 
     private var fill: Double {
         switch look {
-        case .normal, .toDownload, .toBuild, .toDownloadFiles, .unchecked: return 1
+        case .normal, .engineUpdate, .toDownload, .toBuild, .toDownloadFiles, .unchecked: return 1
         case .preparing, .missing, .downloading: return 0
         case .filling(let value), .transfer(let value): return min(max(value, 0), 1)
         }
@@ -79,7 +79,7 @@ struct PortingArtLook: ViewModifier {
 
     private var stage: Stage {
         switch look {
-        case .normal, .transfer, .toDownload, .toBuild, .toDownloadFiles, .unchecked, .missing: return .none
+        case .normal, .engineUpdate, .transfer, .toDownload, .toBuild, .toDownloadFiles, .unchecked, .missing: return .none
         case .preparing: return .steps
         case .filling: return .percent
         case .downloading: return .download

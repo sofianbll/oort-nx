@@ -12,7 +12,11 @@ final class SetupModel: ObservableObject {
     unowned let app: AppViewModel
 
     // MARK: - Engine
-    @Published var nxnativePath: String = ""
+    @Published var nxnativePath: String = "" {
+        didSet {
+            if oldValue != nxnativePath { app.refreshInstalledEngineVersions(reset: true) }
+        }
+    }
     @Published var isNxnativeValid: Bool = false
     @Published var currentEngineCommit: String? = nil
     @Published var upstreamState: UpstreamCheckState = .idle
@@ -24,6 +28,7 @@ final class SetupModel: ObservableObject {
             } else {
                 AppData.preferences.removeObject(forKey: AppViewModel.StorageKeys.newestEngineChoice)
             }
+            if oldValue?.commit != newestEngineChoice?.commit { app.refreshInstalledEngineVersions(reset: true) }
         }
     }
     /// Whether upstream main can be used here, read from its lock after an Upstream check.
@@ -260,6 +265,7 @@ final class SetupModel: ObservableObject {
 
     func refreshCompatibility() {
         guard !app.isBuilding, !app.isUpdatingApp else { return }
+        app.refreshInstalledEngineVersions()
         let generation = UUID()
         environmentCheckGeneration = generation
         guard self.isNxnativeValid, !self.nxnativePath.isEmpty else {

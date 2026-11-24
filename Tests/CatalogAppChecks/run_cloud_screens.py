@@ -82,6 +82,7 @@ import ArcanePorting
                 showsCloudBadges: true, badgePosition: position, onSelect: { _ in }, onActivate: { _ in }),
             size: .init(width: 1500, height: 440))
         }
+        // ENGINE_VERSION
         let queuedRequest = CloudLibraryModel.Request(id: game.id, name: game.name, action: .restore(.app),
             storage: model.preference.storage, scope: .init(title: game.titleId!, urls: []),
             importDestination: nil, sourceFiles: nil, onSuccess: nil)
@@ -221,6 +222,115 @@ import ArcanePorting
         try png.write(to: output.appendingPathComponent(name + ".png"))
     }
 }
+'''
+
+ENGINE_VERSION = r'''
+    @MainActor static func checkEngineVersion(_ vm: AppViewModel, _ output: URL, _ settings: AppSettingsStore) async throws {
+        let root = AppData.supportRoot.appendingPathComponent("engine-screen")
+        let repo = root.appendingPathComponent("engine")
+        try FileManager.default.createDirectory(at: repo, withIntermediateDirectories: true)
+        func git(_ args: [String], day: String = "23") throws -> String {
+            var env = ProcessInfo.processInfo.environment
+            env["GIT_AUTHOR_DATE"] = "2026-11-\(day)T12:00:00Z"
+            env["GIT_COMMITTER_DATE"] = env["GIT_AUTHOR_DATE"]
+            let result = try SystemCommandRunner().run(URL(fileURLWithPath: "/usr/bin/git"),
+                ["-C", repo.path, "-c", "user.name=Fixture", "-c", "user.email=fixture@users.noreply.github.com",
+                 "-c", "commit.gpgsign=false"] + args, environment: env, currentDirectory: nil)
+            precondition(result.status == 0, result.stderr)
+            return result.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        _ = try git(["init", "-q"])
+        _ = try git(["commit", "-qm", "older", "--allow-empty"], day: "21")
+        let old = try git(["rev-parse", "HEAD"])
+        _ = try git(["commit", "-qm", "selected", "--allow-empty"])
+        let current = try git(["rev-parse", "HEAD"])
+        func fixture(_ name: String, _ commit: String?, number: Int, localFiles: Bool = false) throws -> PortedGame {
+            let bundle = root.appendingPathComponent(name + ".app")
+            let title = "010000000000100\(number)"
+            var game = PortedGame(name: name, url: bundle, platform: .macApp, sizeBytes: 2_000_000_000,
+                                  modificationDate: .now, titleId: title, versionString: "1.0")
+            game.toolchain.engineCommit = current // Deliberately wrong for the older fixtures.
+            game.status = commit == nil ? .appMissing : .built
+            let file = root.appendingPathComponent(name + ".nsp")
+            game.sources = [.init(url: file, kind: .base, titleId: title, sizeBytes: 1)]
+            if localFiles { try Data([0]).write(to: file) }
+            if let commit {
+                let plist = bundle.appendingPathComponent("Contents/Info.plist")
+                try FileManager.default.createDirectory(at: plist.deletingLastPathComponent(), withIntermediateDirectories: true)
+                let data = try PropertyListSerialization.data(fromPropertyList: ["DMCommit": String(commit.prefix(12))],
+                                                               format: .binary, options: 0)
+                try data.write(to: plist)
+            }
+            return game
+        }
+        let local = try fixture("Fichiers sur le Mac", old, number: 1, localFiles: true)
+        let cloud = try fixture("Fichiers dans le cloud", old, number: 2)
+        let missing = try fixture("Fichiers manquants", old, number: 3)
+        let updated = try fixture("App à jour", current, number: 4, localFiles: true)
+        let blocked = try fixture("App à télécharger", nil, number: 5, localFiles: true)
+        let games = [local, cloud, missing, updated, blocked]
+        let oldPath = vm.setup.nxnativePath
+        let oldChoice = vm.setup.newestEngineChoice
+        let oldCatalog = vm.catalogSnapshot
+        defer {
+            vm.setup.nxnativePath = oldPath
+            vm.setup.newestEngineChoice = oldChoice
+            vm.applyCatalog(oldCatalog)
+        }
+        vm.setup.nxnativePath = repo.path
+        vm.setup.newestEngineChoice = .init(commit: current, aheadBy: 1, turnedOnOverride: false)
+        vm.applyCatalog(.init(games: games.map { .init(nxnative: $0) }))
+        await vm.refreshInstalledEngineVersions().value
+        vm.cloudLibrary.update(local.id) { $0.copies[.app] = .screenFixture(.synchronized) }
+        vm.cloudLibrary.update(cloud.id) { $0.sourceAvailability = .versionFixture(cloud.sources[0].url) }
+        // A previous cloud observation for a different selection must not offer an update.
+        vm.cloudLibrary.update(missing.id) { $0.sourceAvailability = .versionFixture(cloud.sources[0].url) }
+        vm.cloudLibrary.update(blocked.id) { $0.copies[.app] = .screenFixture(.cloudOnly) }
+        precondition(games.map(vm.portingTileLook) == [.engineUpdate, .engineUpdate, .normal, .normal, .toDownload])
+
+        let previousLocale = L10n.context
+        let fr = AppLocale(language: .french, region: "FR")
+        L10n.setContext(fr)
+        defer { L10n.setContext(previousLocale) }
+        let expected = ["mise à jour possible", "mise à jour possible", "fichiers du jeu requis pour la mise à jour",
+                        "à jour", "Aucune app installée"]
+        let art = ArtworkStore()
+        let history = PlaySessionStore()
+        let running = RunningGameMonitor()
+        for (index, game) in games.enumerated() {
+            let details = GameDetailView(viewModel: vm, setup: vm.setup, store: vm.store, router: AppRouter(),
+                            settings: settings, playSessions: history, runningGames: running, artwork: art, game: game)
+            let facts = details.model.facts
+            precondition(facts.first(where: { $0.kind == .engine })?.value.hasSuffix(expected[index]) == true)
+            try render("engine-details-\(index)", output,
+                DetailsPanel(facts: facts, links: [], focusedLink: nil, onHoverLink: { _ in }, onPressLink: { _ in },
+                             width: index == 2 ? DetailsPanel.narrowWidth : DetailsPanel.wideWidth)
+                    .environment(\.nxAppLocale, fr),
+                size: .init(width: 1200, height: 260))
+        }
+        for position in TileBadgePosition.allCases {
+            try render("engine-collection-\(position.rawValue)", output,
+                CollectionCoverRow(games: games.map { .init(nxnative: $0) }, selectedID: local.id,
+                    artwork: art, boxArt: vm.boxArt, boxArtIndexVersion: 0, officialName: { _ in nil },
+                    needsMetadata: { _ in }, tileLook: vm.portingTileLook, cloud: vm.cloudLibrary, showsCloudBadges: true,
+                    badgePosition: position, onSelect: { _ in }, onActivate: { _ in })
+                    .environment(\.onlinePlayersByTitle, [local.titleId!.lowercased(): 8, updated.titleId!.lowercased(): 5])
+                    .environment(\.nxAppLocale, fr),
+                size: .init(width: 1340, height: 440))
+        }
+        let items = games.map { SpotlightItem.game($0.id) }
+        vm.cloudLibrary.update(cloud.id) {
+            $0.action = .downloadSources
+            $0.progress = .init(.downloading, transfer: .init(bytesTransferred: 42, totalBytes: 100))
+        }
+        try render("engine-spotlight", output,
+            SpotlightRowView(items: items, gamesByID: Dictionary(uniqueKeysWithValues: games.map { ($0.id, $0) }),
+                selectedKey: items[0].key, isEmptyFilter: nil, artwork: art, tileLook: vm.portingTileLook,
+                cloud: vm.cloudLibrary, showsCloudBadges: true, onSelect: { _ in }, onActivate: { _ in })
+                .environment(\.nxAppLocale, fr),
+            size: .init(width: 1180, height: 325))
+        print("Engine version from DMCommit, files local/cloud/missing, Details and both tile rows verified.")
+    }
 '''
 
 DOWNLOAD_FILL = r'''
@@ -1118,6 +1228,18 @@ extension CloudSetupAssistant {
                 swift.write('''
 extension CloudDriveFolders.Sources {
     public static var switchGamesScreenFixture: Self { .init(path: "Games/Switch/Games", games: 1) }
+}
+''')
+        if not before and not baseline:
+            host = host.replace("// ENGINE_VERSION", "try await checkEngineVersion(vm, output, settings)")
+            host = host.replace("    static func compareDetails", ENGINE_VERSION + "\n    static func compareDetails")
+            with (package / "Sources/ArcanePorting/Library/CloudGameSources.swift").open("a") as swift:
+                swift.write('''
+extension CloudSourcesStatus {
+    public static func versionFixture(_ url: URL) -> Self {
+        .init(files: [.init(url: url, state: .cloudOnly, localBytes: nil, remoteBytes: 1)],
+              state: .cloudOnly, localBytes: 0, remoteBytes: 1)
+    }
 }
 ''')
         has_display = (package / "Sources/ArcanePorting/Launch/GameDisplay.swift").is_file()
