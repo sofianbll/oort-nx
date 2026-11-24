@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **961 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **1013 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -170,7 +170,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [Sources/NXLibrary/Services/OnlineBackgroundService.swift](../../Sources/NXLibrary/Services/OnlineBackgroundService.swift) | Carica pagine e miniature e scarica wallpaper o video conservando progressi e crediti. |
 | [Sources/NXLibrary/Services/RunningGameMonitor.swift](../../Sources/NXLibrary/Services/RunningGameMonitor.swift) | Riconcilia applicazioni e libreria; osserva pausa, ripresa e uscita di `dmhost`, invia Resume e Quit con ripiego SIGTERM. |
 | [Sources/NXLibrary/Services/LibraryWindow.swift](../../Sources/NXLibrary/Services/LibraryWindow.swift) | Riporta davanti la finestra di Arcane dopo un gioco nxnative o Steam, mai sopra un gioco della libreria. |
-| [Sources/NXLibrary/Services/SoundEffectService.swift](../../Sources/NXLibrary/Services/SoundEffectService.swift) | Riproduce i cue Selene e applica attivazione, volume e file importati. |
+| [Sources/NXLibrary/Services/SoundEffectService.swift](../../Sources/NXLibrary/Services/SoundEffectService.swift) | Riproduce i cue del pacchetto scelto o di Selene, applica attivazione e volume, interrompe l’audio durante il gioco. |
 | [Sources/NXLibrary/Services/SystemDetector.swift](../../Sources/NXLibrary/Services/SystemDetector.swift) | Individua checkout nxnative, root personale e possibili percorsi delle chiavi. |
 
 ## Core · app: aggiornamento, primo avvio, diagnostica e comandi
@@ -272,6 +272,7 @@ Cartella `Sources/NXLibraryCore/Selene/`.
 | [Sources/NXLibraryCore/Selene/CursorIdleState.swift](../../Sources/NXLibraryCore/Selene/CursorIdleState.swift) | Politica del ritardo di visibilità del puntatore e reset su mouse o perdita di eleggibilità. |
 | [Sources/NXLibraryCore/Selene/OnlineBackgrounds.swift](../../Sources/NXLibraryCore/Selene/OnlineBackgrounds.swift) | Modella sorgenti e risultati e interpreta le risposte dei provider di sfondi fissi e video. |
 | [Sources/NXLibraryCore/Selene/SeleneImporter.swift](../../Sources/NXLibraryCore/Selene/SeleneImporter.swift) | Importa suoni e wallpaper dalla cartella Selene dell’utente e risolve cue e fallback. |
+| [Sources/NXLibraryCore/Selene/SoundPack.swift](../../Sources/NXLibraryCore/Selene/SoundPack.swift) | Valida manifesti, archivi e audio, sceglie le varianti e pubblica solo copie locali confermate. |
 | [Sources/NXLibraryCore/Selene/ButtonPrompts.swift](../../Sources/NXLibraryCore/Selene/ButtonPrompts.swift) | Traduce azioni, anche la navigazione in quattro direzioni, in simboli per tastiera e controller Switch, Xbox e PlayStation. |
 | [Sources/NXLibraryCore/Selene/ControllerInput.swift](../../Sources/NXLibraryCore/Selene/ControllerInput.swift) | Decodifica entrambi i report Nintendo, calibra gli stick per formato, calcola transizioni e decide il ripiego HID. |
 | [Sources/NXLibraryCore/Selene/FocusIndex.swift](../../Sources/NXLibraryCore/Selene/FocusIndex.swift) | Mantiene un indice di focus entro i limiti di una lista. |
@@ -747,7 +748,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/Settings/SettingsProfileIdentitySection.swift](../../Sources/NXLibrary/Views/Settings/SettingsProfileIdentitySection.swift) | Identità del profilo attivo: nome, illustrazione e immagine personale. |
 | [Sources/NXLibrary/Views/Settings/SettingsNavigationSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsNavigationSection.swift) | Espone le preferenze di navigazione e dei suggerimenti dei tasti. |
 | [Sources/NXLibrary/Views/Settings/SettingsSpotlightSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsSpotlightSection.swift) | Espone card, ordine e preferenze della home Spotlight. |
-| [Sources/NXLibrary/Views/Settings/SettingsSoundSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsSoundSection.swift) | Espone volume e suoni e importa risorse da una cartella Selene. |
+| [Sources/NXLibrary/Views/Settings/SettingsSoundSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsSoundSection.swift) | Espone volume, scelta e anteprima sonora; mostra la licenza prima di importare e rimuove solo la copia; mantiene l’import Selene storico. |
 | [Sources/NXLibrary/Views/Settings/SettingsLookSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsLookSection.swift) | Separa palette, sfondi e adattamento del profilo da luminosità, movimento e icona di Look. |
 | [Sources/NXLibrary/Views/Settings/SettingsGamesSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsGamesSection.swift) | Porting → New games: default dei nuovi giochi, vibrazione e schermo globale applicato al Play. |
 | [Sources/NXLibrary/Views/Settings/SettingsLibraryGamesSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsLibraryGamesSection.swift) | Library → Games: schermata di lancio, Surprise me, card della sessione e app di gioco portate nascoste. |
@@ -1068,6 +1069,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [SteamLaunchQuestionsTests.swift](../../Tests/NXLibraryCoreTests/SteamLaunchQuestionsTests.swift) | Fase `ShowInterstitials` a freddo, domande aperte o risposte subito, log per righe intere e sostituzione del file. |
 | [SteamPlaytimeSyncTests.swift](../../Tests/NXLibraryCoreTests/SteamPlaytimeSyncTests.swift) | Letture con o senza account, file illeggibili, file invariato, regole di pubblicazione e coda delle letture. |
 | [NativeMacApplicationTests.swift](../../Tests/NXLibraryCoreTests/NativeMacApplicationTests.swift) | Fixture native, classificazione, traversal/link, metadata non regolari e header invalidi. |
+| [SoundPackTests.swift](../../Tests/NXLibraryCoreTests/SoundPackTests.swift) | Verifica manifesti, ZIP, limiti, link, copia controllata, eventi mancanti e persistenza della scelta. |
 | [SteamLibrarySourceTests.swift](../../Tests/NXLibraryCoreTests/SteamLibrarySourceTests.swift) | Più fonti, dischi assenti, identità, manifest/path con campi duplicati o di tipo errato, file cambiati, limiti e assenza di scritture. |
 | [SteamDiscoveryConsistencyTests.swift](../../Tests/NXLibraryCoreTests/SteamDiscoveryConsistencyTests.swift) | Mutazioni reali di inventario e app durante scan, indice inizialmente assente, budget e propagazione dell'annullamento. |
 | [SteamTestSupport.swift](../../Tests/NXLibraryCoreTests/SteamTestSupport.swift) | Genera solo metadati e header sintetici nelle directory temporanee dei test. |
@@ -1211,6 +1213,10 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Resources/Selene/Sounds/Key.wav](../../Resources/Selene/Sounds/Key.wav) | Cue sonoro incluso per la pressione dei tasti. |
 | [Resources/Selene/Sounds/Success.wav](../../Resources/Selene/Sounds/Success.wav) | Cue sonoro incluso per il completamento di un’azione. |
 | [Resources/Selene/Sounds/navigation.wav](../../Resources/Selene/Sounds/navigation.wav) | Cue sonoro incluso per la navigazione. |
+| [Resources/SoundPacks/oort.oortsound](../../Resources/SoundPacks/oort.oortsound) | Manifesto CC0 e dieci cue WAV originali; firma punto/risposta al ritorno. |
+| [Resources/SoundPacks/pollen.oortsound](../../Resources/SoundPacks/pollen.oortsound) | Manifesto CC0 e dodici cue WAV chiari e brevi. |
+| [Resources/SoundPacks/umbra.oortsound](../../Resources/SoundPacks/umbra.oortsound) | Manifesto CC0 e dodici cue WAV morbidi. |
+| [Resources/SoundPacks/impulsion.oortsound](../../Resources/SoundPacks/impulsion.oortsound) | Manifesto CC0 e dodici cue WAV elettronici. |
 
 ## Screenshot e demo
 

@@ -291,6 +291,8 @@ flowchart TD
 
 ## 8. Cambiare un'impostazione
 
+**Settings → General → Sound & music.** Il giocatore sceglie il pacchetto e l’evento da ascoltare. Import sound pack legge una cartella o un archivio `.oortsound` e mostra nome, autore, licenza, versione ed eventi. Solo Import conferma la copia, senza attivarla. Remove sposta nel Cestino solo la copia importata; se era attiva, torna Selene. Un pacchetto selezionato illeggibile ripiega su Selene e la sezione spiega il motivo. Reset group mantiene le copie e seleziona Selene.
+
 In Spotlight e Collection, la barra Integrations apre il riepilogo. Con tastiera o controller, Su raggiunge il ritratto se presente e Sinistra raggiunge la barra; senza ritratto basta Su. Giù torna ai giochi. Su/Giù nella pagina sceglie una riga; Apri raggiunge le impostazioni esistenti senza premere il controllo. Indietro ripristina la riga e poi la barra, senza cambiare il gioco selezionato.
 La destinazione Switch mostra lo stato già noto. Re-check controlla la compatibilità senza importare chiavi; l'import resta nelle impostazioni delle chiavi e nel Setup.
 La destinazione Nextendo mostra lo stato noto senza contattare il servizio. Check status e Sign in sono azioni separate; l'accesso normale dalle impostazioni mantiene il controllo automatico.

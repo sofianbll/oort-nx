@@ -11,6 +11,7 @@ Come si aggiorna:
 
 | Parte | Stato | Prove ancora da fare |
 |---|---|---|
+| Pacchetti sonori | in attesa | Con un profilo di prova: ascoltare quattro pacchetti a basso volume, con musica personale, uscita cambiata, mono, ripetizioni e muto. Verificare silenzio in gioco e il ritorno, gestione di un file illeggibile, anteprima licenza/annullamento, rimozione della sola copia e ripiego su Selene. Provare tastiera, controller e VoiceOver, compresi i dialoghi nativi. |
 | Add Game con poco spazio per compilare | in attesa | Da Review, verificare che Add to library only rimanga attivo e Add and port indichi lo spazio necessario alla compilazione. |
 | Porting → installazione | in attesa | Con un porting di prova, verificare che Installazione sostituisca Annulla nel wizard e nel centro attività, anche con tastiera, controller e VoiceOver. |
 | Porting → build in attesa da 0.3.0 | in attesa | Su dati di prova, riaprire con un bundle diverso alla stessa destinazione, leggere il motivo, riprovare senza sostituirlo e verificare che Close conservi la build. |

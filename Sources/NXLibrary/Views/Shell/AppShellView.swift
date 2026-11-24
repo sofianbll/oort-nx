@@ -421,10 +421,12 @@ struct SoundCueHooks: ViewModifier {
                 ThemeStore.shared.reloadWallpapers()
             }
             .onChange(of: router.isMenuPresented) { _, open in
-                SoundEffectService.shared.play(open ? .openPanel : .back)
+                if open { SoundEffectService.shared.play(.openPanel) }
+                else { SoundEffectService.shared.play(.close, legacy: .back) }
             }
             .onChange(of: viewModel.optionsGameID) { _, id in
-                SoundEffectService.shared.play(id == nil ? .back : .openPanel)
+                if id == nil { SoundEffectService.shared.play(.close, legacy: .back) }
+                else { SoundEffectService.shared.play(.openPanel) }
             }
             .onChange(of: viewModel.gameToClose?.id) { _, id in
                 if id != nil { SoundEffectService.shared.play(.alert) }

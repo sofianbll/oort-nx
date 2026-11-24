@@ -939,7 +939,8 @@ Prove e misure di queste scelte: [docs/history/reviews/2026-11-16-ratings-metada
 - Su e Giù spostano il focus, A attiva la riga e B chiude prima la scheda, poi il menu (`AppRouter.menuStep`). `MenuCard` è accanto all’icona e ne supera i limiti per il puntatore; le pillole hanno la larghezza della più larga. `SeleneOverlay` usa lo stesso velo e sfocatura del selettore. Un clic su un’altra icona cambia scheda (`AppRouter.pressMenuIcon`).
 - `ButtonPrompts` esclude i segnaposto fatti solo di forme, comprese varianti come `capsule.portrait.fill`, e usa in quel caso i simboli della marca riconosciuta; conserva i glifi significativi come `circle.circle` e `square.circle`. Il clic dello stick destro usa il glifo della famiglia (RSB su Xbox, R3 su PlayStation e Switch), mai il disco "R" di Apple, che si confonde con il tasto dorsale R; un pad che riporta quel disco riceve il glifo della famiglia.
 - I modelli di focus rendono verificabile la navigazione.
-- `SoundEffectService` risolve i cue tramite `SeleneImporter` e applica volume e attivazione.
+- `SoundEffectService` mantiene volume, attivazione e riproduzione sulla coda audio. Selene resta la scelta predefinita e il ripiego dei cue compatibili. Un gioco osservato interrompe i suoni; un pacchetto scelto può suonare il ritorno dopo la fine dell’ultima partita, solo in primo piano. L’ambiente si ascolta nell’anteprima, senza riproduzione automatica.
+- `SoundPack` valida cartelle e archivi `.oortsound` come soli dati: manifesta gli eventi supportati, limita byte, durata e livello ed esamina i WAV mono prima di usarli. `SoundPackLibrary` legge quattro pacchetti originali inclusi e conserva le copie dell’utente in `Application Support/NXLibrary/SoundPacks` (radice `AppData`); la preferenza si salva in `AppSettings.soundPackID`.
 
 ## Dati su disco
 

@@ -139,6 +139,9 @@ support page. The artwork belongs to Buy Me a Coffee.
 Bundled media (Material Icons, Selene sounds and palettes): see
 Resources/Selene/NOTICE.txt and
 Resources/Selene/NOTICE-palettes.txt, which ship inside the app bundle.
+
+The four packs of synthesized interface cues in Resources/SoundPacks are declared
+CC0-1.0 in their manifests: https://creativecommons.org/publicdomain/zero/1.0/
 Platform icon adapted from SVG Repo (https://www.svgrepo.com), CC0 / Open Vector License.
 
 --------------------------------------------------------------------------------

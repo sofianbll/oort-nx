@@ -83,6 +83,10 @@ button cycles synthetic states and `Onboarding` opens the setup preview. Use
 Selene views to PNG in French and English, at 1440 and 780 points wide, without
 opening a window.
 
+`--render-sound-fixture /absolute/output` usa la stessa radice temporanea e
+rende la sezione reale Sound & music nelle due lingue e larghezze, con Selene
+e Oort selezionati, senza eseguire l’avvio normale o riprodurre audio.
+
 ## Verification
 
 ~~~sh
