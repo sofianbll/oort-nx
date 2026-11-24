@@ -28,9 +28,9 @@ public enum LibraryFilter: String, CaseIterable, Identifiable, Equatable {
     /// Recently played is also a sort, and Not played yet also a filter: both stay one setting away.
     public static let defaultTabs: [LibraryFilter] = [.all, .installed, .cloud, .favorites]
 
-    /// Known tabs once each, in order, with All games always there.
+    /// Each tab once, in the chosen order, with All games always there.
     public static func tabs(_ chosen: [LibraryFilter]) -> [LibraryFilter] {
-        allCases.filter { $0 == .all || chosen.contains($0) }
+        (chosen.contains(.all) ? chosen : [.all] + chosen).reduce(into: []) { if !$0.contains($1) { $0.append($1) } }
     }
 }
 

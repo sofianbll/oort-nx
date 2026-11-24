@@ -624,6 +624,9 @@ final class HomeSettingsFixture: ControllerHomeSettings {
                 settings.settings.launcherChoices.gamepadLayout = GamepadLayout.oort.rawValue
                 for (name, tabs, played, menu): (String, [LibraryFilter], LibraryPlayed, Bool) in [
                     ("onglets-4", LibraryFilter.defaultTabs, .any, false),
+                    ("onglets-favoris-avant", [.all, .favorites, .installed, .cloud], .any, false),
+                    ("onglets-favoris-premier", [.favorites, .all, .installed, .cloud], .any, false),
+                    ("onglets-3", [.all, .installed, .cloud], .any, false),
                     ("onglets-6", LibraryFilter.allCases, .any, false),
                     ("onglets-filtre", LibraryFilter.defaultTabs, .notPlayed, false),
                     ("onglets-panneau", LibraryFilter.defaultTabs, .any, true),
@@ -638,7 +641,7 @@ final class HomeSettingsFixture: ControllerHomeSettings {
                             .environment(\.seleneButtonNames, .nintendo)
                     }, size: size, locale: locale, backdrop: backdrop) { host in
                         let input = Notification.Name.nxSpotlightGamepadAction
-                        if menu { try capture(host, nil); send(input, .rightStickPress, .navigateDown) }
+                        if menu { try capture(host, nil); send(input, .rightStickPress) }
                         try capture(host, name)
                         if menu { send(input, .cancel) }
                     }

@@ -96,7 +96,8 @@ final class SpotlightStateTests: XCTestCase {
         XCTAssertEqual(LibraryFilter.installed.shifted(by: 1, in: LibraryFilter.defaultTabs), .cloud)
         XCTAssertEqual(LibraryFilter.favorites.shifted(by: 1, in: LibraryFilter.defaultTabs), .favorites)
         XCTAssertEqual(LibraryFilter.notPlayed.shifted(by: 1, in: LibraryFilter.defaultTabs), .all)
-        XCTAssertEqual(LibraryFilter.tabs([.favorites, .favorites, .cloud]), [.all, .cloud, .favorites])
+        XCTAssertEqual(LibraryFilter.tabs([.favorites, .favorites, .cloud]), [.all, .favorites, .cloud])
+        XCTAssertEqual(LibraryFilter.tabs([.favorites, .all]), [.favorites, .all])
         XCTAssertEqual(LibraryFilter(startingTab: "Favorites"), .favorites)
         XCTAssertEqual(LibraryFilter(startingTab: "nonsense"), .all)
     }

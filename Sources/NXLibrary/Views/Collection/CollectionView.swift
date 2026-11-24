@@ -106,7 +106,7 @@ struct CollectionView: View {
                 : hints + (profileCard == nil
                 ? [LibrarySortMenu.hint(settings.settings.librarySort, action: openSort)]
                 : [HintItem(.lb, "Previous") { handle(.tabPrevious) }, HintItem(.rb, "Next") { handle(.tabNext) }]),
-            hintsHidden: router.overlayHasHints(viewModel)
+            hintsHidden: router.overlayHasHints(viewModel) || router.sortMenu != nil
                 || (selectedCatalogGame?.macShortcut != nil && viewModel.settingsNotice != nil),
             backdrop: {
                 SeleneArtBackground(image: art.image, imageKey: art.key,

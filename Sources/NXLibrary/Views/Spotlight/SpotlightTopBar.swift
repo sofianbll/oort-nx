@@ -35,7 +35,10 @@ struct SpotlightTopBar: View {
                 badge(.lb)
                 ForEach(LibraryFilter.tabs(tabs + [filter])) { tab($0) }
                 badge(.rb)
-                if played != .any { activeFilter }
+            }
+            // Beside the tabs, which stay where they are.
+            .overlay(alignment: .trailing) {
+                if played != .any { activeFilter.fixedSize().alignmentGuide(.trailing) { $0[.leading] } }
             }
             // Selene's order, right to left: the clock, then the profile's avatar just before it.
             HStack(spacing: canvas.u(16)) {
@@ -168,6 +171,11 @@ struct LibrarySortMenu: View {
                 ForEach(LibraryPlayed.allCases, id: \.self) { row(.played($0), chosen: $0 == played) }
             }
             .accessibilityAction(named: Text(L10n.text("Back")), close)
+            VStack {
+                Spacer()
+                SeleneHintsBar(left: [HintItem(.b, "Back", action: close)],
+                               right: [HintItem(.a, "Select", action: { choose(focused) })])
+            }
         }
     }
 

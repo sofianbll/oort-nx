@@ -268,7 +268,7 @@ struct SpotlightView: View {
                 : hints + (platformPicker == nil && state.focus == .row && !state.isLifted && cardMenu == nil
                     ? [LibrarySortMenu.hint(settings.settings.librarySort, action: openSort)] : []),
             rightReserve: hintReserve(state),
-            hintsHidden: router.overlayHasHints(viewModel) || achievementsScreen != nil
+            hintsHidden: router.overlayHasHints(viewModel) || router.sortMenu != nil || achievementsScreen != nil
                 || (model.selectedCatalogGame?.macShortcut != nil && viewModel.settingsNotice != nil),
             hintsHeld: !controlsShown,
             backdrop: {
