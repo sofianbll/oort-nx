@@ -14,6 +14,8 @@ final class GameControllerService: ObservableObject {
     }
     private var assignment: Assignment?
     private var assignmentTimer: Timer?
+    private var playerJoining: (owner: UUID, consume: (String) -> Bool)?
+    private var joiningHID: ObjectIdentifier?
 
     @Published var isGamepadConnected: Bool = false
     @Published var activeControllerName: String = "No Gamepad Connected"
@@ -122,6 +124,15 @@ final class GameControllerService: ObservableObject {
         return { [weak self] in self?.finishAssignment(token) }
     }
 
+    /// Only the visible Players page may claim the first press of an unassigned pad.
+    func watchPlayerJoining(_ consume: @escaping (String) -> Bool) -> () -> Void {
+        let owner = UUID()
+        playerJoining = (owner, consume)
+        return { [weak self] in
+            if self?.playerJoining?.owner == owner { self?.playerJoining = nil }
+        }
+    }
+
     private func finishAssignment(_ token: UUID? = nil, event: AssignmentEvent? = nil) {
         guard let waiting = assignment, token == nil || token == waiting.token else { return }
         assignment = nil
@@ -200,12 +211,23 @@ final class GameControllerService: ObservableObject {
                 }
                 return
             }
-            if !fromHID, case .button(_, true) = input { emitButtonPress(id) }
+            if !fromHID, case .button(_, true) = input {
+                emitButtonPress(id)
+                if consumePlayerJoining(id, fromHID: false) { return }
+            }
+            if fromHID, joiningHID == id { return }
             if activePad?.id == id { handleInput(input) }
             return
         case let .buttonPressed(id):
             if assignment != nil { queueAssignment(id, fromHID: fromHID) }
-            else { emitButtonPress(id) }
+            else {
+                emitButtonPress(id)
+                if consumePlayerJoining(id, fromHID: fromHID), fromHID {
+                    // HID sends mapped changes synchronously after the raw press in the same report.
+                    joiningHID = id
+                    DispatchQueue.main.async { [weak self] in self?.joiningHID = nil }
+                }
+            }
             return
         }
         selectController()
@@ -229,6 +251,16 @@ final class GameControllerService: ObservableObject {
         guard isAppActive,
               let entry = visibleControllers.first(where: { $0.controller.id == id }) else { return }
         buttonPresses.send(entry.connectionID)
+    }
+
+    private func consumePlayerJoining(_ id: ObjectIdentifier, fromHID: Bool) -> Bool {
+        guard isAppActive, let playerJoining,
+              let entry = visibleControllers.first(where: {
+                  $0.controller.id == id || (!fromHID && $0.secondaryGCID == id)
+              }),
+              // A proven pair uses the GC event so the same press cannot navigate after joining.
+              !fromHID || entry.secondaryGCID == nil else { return false }
+        return playerJoining.consume(entry.connectionID)
     }
 
     private func source(for entry: ControllerRoster.Entry) -> ControllerSource { entry.isHID ? hidSource : gcSource }

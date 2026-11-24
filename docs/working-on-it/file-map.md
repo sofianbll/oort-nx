@@ -169,7 +169,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [Sources/NXLibrary/Services/ControllerSource.swift](../../Sources/NXLibrary/Services/ControllerSource.swift) | Contratto per connessioni, input, batteria e identificazione esplicita dei pad. |
 | [Sources/NXLibrary/Services/ControllerHardwareID.swift](../../Sources/NXLibrary/Services/ControllerHardwareID.swift) | Deriva un HMAC con sale locale dal seriale HID o dall'indirizzo Bluetooth esposto; non salva il valore originale. |
 | [Sources/NXLibrary/Services/ControllerRoster.swift](../../Sources/NXLibrary/Services/ControllerRoster.swift) | Assegna ID di connessione e riconcilia gruppi HID/GameController senza attribuire il seriale a un pad per nome. |
-| [Sources/NXLibrary/Services/GameControllerService.swift](../../Sources/NXLibrary/Services/GameControllerService.swift) | Pubblica pad collegati, batteria e pressioni; mantiene separati scelta del pad di navigazione e tap/hold di Menu e View. |
+| [Sources/NXLibrary/Services/GameControllerService.swift](../../Sources/NXLibrary/Services/GameControllerService.swift) | Pubblica pad, batteria e pressioni; Giocatori può consumare una pressione prima della navigazione o dei tap/hold di Menu e View. |
 | [Sources/NXLibrary/Services/GCControllerSource.swift](../../Sources/NXLibrary/Services/GCControllerSource.swift) | Osserva i pad GameController, legge batteria e simboli e identifica il pad con luce o vibrazione se esposte da macOS. |
 | [Sources/NXLibrary/Services/HIDControllerSource.swift](../../Sources/NXLibrary/Services/HIDControllerSource.swift) | Osserva i pad HID fisici in modalità condivisa; riserva i report Nintendo `0x3F` e `0x30` all'input Nintendo. |
 | [Sources/NXLibrary/Services/LaunchReadinessProbe.swift](../../Sources/NXLibrary/Services/LaunchReadinessProbe.swift) | Attende una finestra visibile del gioco (per bundle o, per Steam, per pid) per terminare la schermata di lancio. |
@@ -737,10 +737,10 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | File | Responsabilità |
 |---|---|
 | [Sources/NXLibrary/Views/GameOptions/GameOptionsView.swift](../../Sources/NXLibrary/Views/GameOptions/GameOptionsView.swift) | Opzioni del gioco, Edit details e pannelli; aggiorna capacità dello schermo, adattatori e rischio RomFS. |
-| [PlayersScreen.swift](../../Sources/NXLibrary/Views/Players/PlayersScreen.swift) | Righe Selene, modalità, profili e dialoghi del pannello Giocatori. |
-| [PlayersScreenModel.swift](../../Sources/NXLibrary/Views/Players/PlayersScreenModel.swift) | Focus, risoluzione delle manette, modifiche al piano, conferme di sessione e PIN. |
-| [PlayersScreen+Input.swift](../../Sources/NXLibrary/Views/Players/PlayersScreen+Input.swift) | Traduce tastiera e controller nel solo strato attivo. |
-| [PlayersScreenHost.swift](../../Sources/NXLibrary/Views/Players/PlayersScreenHost.swift) | Collega il pannello alle notifiche di input del genitore, al registro e alla diagnostica del motore. |
+| [PlayersScreen.swift](../../Sources/NXLibrary/Views/Players/PlayersScreen.swift) | Otto posti, modalità, profili in linea e dialoghi, composti con le viste Selene. |
+| [PlayersScreenModel.swift](../../Sources/NXLibrary/Views/Players/PlayersScreenModel.swift) | Risoluzione dei controller, arrivo, spostamento, aggiornamento del piano, sessione e PIN. |
+| [PlayersScreen+Input.swift](../../Sources/NXLibrary/Views/Players/PlayersScreen+Input.swift) | Focus nella griglia, comandi diretti del posto, tastiera e controller nello strato attivo. |
+| [PlayersScreenHost.swift](../../Sources/NXLibrary/Views/Players/PlayersScreenHost.swift) | Collega la pagina alle notifiche del genitore, alla cattura delle pressioni, al registro e alla diagnostica. |
 | [Sources/NXLibrary/Views/GameOptions/GameOptionsView+Rows.swift](../../Sources/NXLibrary/Views/GameOptions/GameOptionsView+Rows.swift) | Colonna, ciclo Play together con icona a due persone, frecce quando modificabili, percorso di rete, accessibilità e barra Rebuild. |
 | [Sources/NXLibrary/Views/GameOptions/GameOptionsView+Confirmation.swift](../../Sources/NXLibrary/Views/GameOptions/GameOptionsView+Confirmation.swift) | Conferma: overlay, testi, richiesta, annullamento ed esecuzione dell’azione confermata. |
 | [Sources/NXLibrary/Views/GameOptions/GameOptionsView+Focus.swift](../../Sources/NXLibrary/Views/GameOptions/GameOptionsView+Focus.swift) | Focus: impostazione, spostamento, ingresso e uscita da Edit details. |

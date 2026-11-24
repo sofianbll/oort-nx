@@ -268,15 +268,16 @@ struct SettingsView: View {
 
     @ViewBuilder private var profileNameOverlay: some View {
         if editingProfileName, let profiles, let profile = profiles.active {
-            ProfileEditorView(profile: profile, games: [], isNew: false, nameOnly: true,
-                              onCancel: { editingProfileName = false }) { draft in
-                guard var active = profiles.active, active.id == draft.id else { return false }
-                active.rename(to: draft.name)
-                guard profiles.update(active) else { return false }
-                editingProfileName = false
-                return true
+            SeleneOverlay(style: .page) {
+                ProfileEditorView(profile: profile, games: [], isNew: false, nameOnly: true,
+                                  onCancel: { editingProfileName = false }) { draft in
+                    guard var active = profiles.active, active.id == draft.id else { return false }
+                    active.rename(to: draft.name)
+                    guard profiles.update(active) else { return false }
+                    editingProfileName = false
+                    return true
+                }
             }
-            .accessibilityAddTraits(.isModal)
         }
     }
 
