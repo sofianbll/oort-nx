@@ -98,6 +98,31 @@ final class SettingsCatalogTests: XCTestCase {
         XCTAssertEqual(SettingsSection.allCases, groups.flatMap(\.sections), "allCases follows the sidebar")
     }
 
+    func testVisibleCategoriesCoverEachLegacySectionExactlyOnce() {
+        let groups = SettingsCategory.groups.map { $0.categories }
+        XCTAssertEqual(groups.map(\.count), [4, 3, 5, 4])
+        XCTAssertEqual(groups.flatMap { $0 }, SettingsCategory.allCases)
+        let sections = groups.flatMap { $0 }.flatMap(\.sections)
+        XCTAssertEqual(sections.count, SettingsSection.allCases.count - 2)
+        XCTAssertEqual(Set(sections), Set(SettingsSection.allCases).subtracting([.search, .changed]))
+        XCTAssertEqual(SettingsCategory.switch.sections, [.engine, .keys, .library, .games])
+        XCTAssertEqual(SettingsCategory.account.sections, [.profileIdentity, .profileSecurity, .profileNextendo])
+        XCTAssertEqual(SettingsCategory.integrations.sections, [.sources, .apiServices])
+        XCTAssertEqual(SettingsCategory.switch.inlineSections, [.library])
+        XCTAssertEqual(SettingsCategory.switch.subjects, [.engine, .keys, .games])
+        XCTAssertEqual(SettingsCategory.account.subjects, [.profileNextendo])
+        XCTAssertEqual(SettingsCategory.appearance.subjects, [.look])
+        XCTAssertTrue(SettingsCategory.controllers.subjects.isEmpty)
+        XCTAssertTrue(SettingsCategory.integrations.subjects.isEmpty)
+    }
+
+    func testSearchFindsBothCurrentAndLegacySectionNames() {
+        let rows = SettingsCatalog.all
+        for query in ["Setup and engine", "Switch"] {
+            XCTAssertTrue(SettingsCatalog.search(query, in: rows).contains { $0.group == .engine }, query)
+        }
+    }
+
     func testPortingIsThePlatformGroup() {
         XCTAssertEqual(SettingsSection.games.place(in: Self.english), "Porting · New games")
         XCTAssertEqual(SettingsSection.engine.place(in: Self.english), "Porting · Setup and engine")

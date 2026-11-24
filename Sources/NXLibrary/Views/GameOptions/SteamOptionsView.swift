@@ -21,6 +21,7 @@ struct SteamOptionsView: View {
     @State private var pickedRow: GameOptionsRow?
     @State private var artworkOpen = false
     @State private var metadataOpen = false
+    @State private var fullSettingsOpen = false
     @State private var keyMonitor: Any?
     @State private var hover = SeleneHoverFocus()
 
@@ -40,14 +41,19 @@ struct SteamOptionsView: View {
         SteamOptionsPresentation(canPlay: player.canPlay(current), hasApp: application != nil)
     }
 
-    private var rows: [GameOptionsRow] { presentation.focusableRows(level: level, origin: origin) }
+    private var rows: [GameOptionsRow] {
+        var rows = presentation.focusableRows(level: level, origin: origin)
+        if level == .main { rows.insert(.allSettings, at: min(1, rows.count)) }
+        return rows
+    }
 
     private var focusedRow: GameOptionsRow? {
         let rows = self.rows
         return GameOptionsFocus(row: pickedRow, in: rows).row(in: rows)
     }
 
-    private var panelOpen: Bool { artworkOpen || metadataOpen }
+    private var editorOpen: Bool { artworkOpen || metadataOpen }
+    private var panelOpen: Bool { editorOpen || fullSettingsOpen }
 
     var body: some View {
         let p = presentation
@@ -61,6 +67,15 @@ struct SteamOptionsView: View {
             .opacity(panelOpen ? 0 : 1)
             .seleneOverlayOwnership(!panelOpen)
 
+            if fullSettingsOpen {
+                GameSettingsScreen(gameName: current.name, items: fullSettingsItems, canHandleInput: {
+                    !editorOpen && !viewModel.shellDialogOwnsInput && !viewModel.isWelcomeOpen && !viewModel.showSetupCheck
+                        && viewModel.gameToClose == nil && viewModel.alertMessage == nil
+                        && viewModel.settingsNotice == nil && viewModel.gameWithInstallFailure == nil
+                }, onClose: { fullSettingsOpen = false }) { _ in EmptyView() }
+                .opacity(editorOpen ? 0 : 1)
+                .seleneOverlayOwnership(!editorOpen)
+            }
             if artworkOpen {
                 ChangeArtworkView(viewModel: viewModel, subject: PersonalizationSubject(steam: current)) { artworkOpen = false }
                     .transition(.opacity)
@@ -101,9 +116,19 @@ struct SteamOptionsView: View {
                 .foregroundStyle(SeleneTheme.ink75)
                 .padding(.leading, canvas.u(SeleneTokens.Space.tight))
                 .padding(.bottom, canvas.u(SeleneTokens.Space.line))
-            VStack(spacing: canvas.u(8)) {
-                ForEach(Array(p.entries(level: level, origin: origin).enumerated()), id: \.offset) { _, entry in
-                    entryView(entry, p, focused: focused)
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
+                        ForEach(Array(p.entries(level: level, origin: origin).enumerated()), id: \.offset) { _, entry in
+                            entryView(entry, p, focused: focused)
+                            if level == .main, entry == .row(.play) {
+                                entryView(.row(.allSettings), p, focused: focused)
+                            }
+                        }
+                    }
+                }
+                .onChange(of: focused) { _, row in
+                    if let row { proxy.scrollTo(row) }
                 }
             }
             .padding(.top, canvas.u(SeleneTokens.Space.tight))
@@ -133,6 +158,7 @@ struct SteamOptionsView: View {
             .accessibilityValue(row.isToggle ? (toggleValue(row) ? "On" : "Off") : "")
             .accessibilityAddTraits(.isButton)
             .accessibilityAction { activate(row) }
+            .id(row)
         case .heading(let text):
             Text(L10n.text(text))
                 .seleneFont(.text, .semibold)
@@ -183,6 +209,9 @@ struct SteamOptionsView: View {
             SoundEffectService.shared.play(.click)
             pickedRow = presentation.focusableRows(level: .editDetails, origin: origin).first
             level = .editDetails
+        case .allSettings:
+            SoundEffectService.shared.play(.click)
+            fullSettingsOpen = true
         case .move:
             SoundEffectService.shared.play(.click)
             onMove()
@@ -211,6 +240,21 @@ struct SteamOptionsView: View {
         default:
             break
         }
+    }
+
+    private var fullSettingsItems: [GameSettingsCategory: [GameSettingsItem]] {
+        let main = presentation.focusableRows(level: .main, origin: origin)
+        let details = presentation.focusableRows(level: .editDetails, origin: origin)
+        func item(_ row: GameOptionsRow) -> GameSettingsItem {
+            .init(id: row.rawValue, title: row.title, about: presentation.about(row),
+                  value: row.isToggle ? L10n.text(toggleValue(row) ? "On" : "Off") : nil,
+                  activate: { perform(row) })
+        }
+        return [
+            .general: main.filter { ![.editDetails, .showInFinder].contains($0) }.map(item),
+            .details: details.filter { $0 != .showInFinder }.map(item),
+            .app: main.filter { $0 == .showInFinder }.map(item)
+        ]
     }
 
     // MARK: - Input

@@ -2,21 +2,15 @@ import SwiftUI
 import NXLibraryCore
 import ArcanePorting
 
-/// Search: a Selene pill field over `SettingsCatalog.search`; picking a result opens its group.
+/// Results for the query in the sidebar.
 struct SettingsSearchSection: View {
     @ObservedObject var cloudLibrary: CloudLibraryModel
     let supportsNextendo: Bool
     let hasProfileAccount: Bool
     let onOpenGroup: (SettingDescriptor) -> Void
-    let onSubmit: () -> Void
-    /// Bumped when the player opens the field (A or Right from the sidebar). Selecting Search never
-    /// takes the keys by itself: Up/Down keep moving through the sidebar.
-    let fieldRequest: Int
+    let query: String
     let onActions: ([SettingsRowAction]) -> Void
     @Environment(\.seleneCanvas) private var canvas
-
-    @State private var query = ""
-    @FocusState private var fieldFocused: Bool
 
     private var results: [SettingDescriptor] {
         SettingsCatalog.search(query, supportsNextendo: supportsNextendo, hasProfileAccount: hasProfileAccount,
@@ -24,36 +18,13 @@ struct SettingsSearchSection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: canvas.u(8)) {
-            TextField(L10n.text("Search settings"), text: $query)
-                .textFieldStyle(.plain)
-                .seleneFont(.text)
-                .foregroundColor(SeleneTheme.ink)
-                .focused($fieldFocused)
-                .onSubmit {
-                    fieldFocused = false
-                    onSubmit()
-                }
-                .padding(.leading, canvas.u(26))
-                .padding(.top, canvas.u(11))
-                .padding(.trailing, canvas.u(26))
-                .padding(.bottom, canvas.u(13))
-                .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.field), style: .continuous)
-                    .fill(SeleneTheme.glass))
-                .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.field), style: .continuous)
-                    .strokeBorder(fieldFocused ? SeleneTheme.focus : SeleneTheme.ink15,
-                                  lineWidth: max(1, canvas.u(2))))
-                .padding(.bottom, canvas.u(SeleneTokens.Space.compact))
-
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
             if !query.isEmpty && results.isEmpty {
-                Text(L10n.text("No settings match."))
-                    .seleneFont(.text)
-                    .foregroundColor(SeleneTheme.ink60)
+                OortEmptyState(title: L10n.text("No settings match."))
             }
             SettingsDescriptorList(rows: results, onOpenGroup: onOpenGroup)
         }
         .onAppear(perform: publishActions)
-        .onChange(of: fieldRequest) { fieldFocused = true }
         .onChange(of: results.map(\.id)) { publishActions() }
     }
 
@@ -73,6 +44,7 @@ struct SettingsChangedSection: View {
     @ObservedObject private var controller = GameControllerService.shared
     let supportsNextendo: Bool
     let hasProfileAccount: Bool
+    let query: String
     let onOpenGroup: (SettingDescriptor) -> Void
     let onActions: ([SettingsRowAction]) -> Void
     @Environment(\.seleneCanvas) private var canvas
@@ -96,17 +68,17 @@ struct SettingsChangedSection: View {
         if URL(fileURLWithPath: setup.nxnativePath).standardizedFileURL != root.appendingPathComponent("nxnative").standardizedFileURL {
             external.insert("engineFolder")
         }
-        return SettingsCatalog.changed(in: settings.settings, externalChanges: external, supportsNextendo: supportsNextendo,
-                                       hasProfileAccount: hasProfileAccount,
-                                       cloudConfigured: cloudLibrary.preference.remote != nil)
+        let changed = SettingsCatalog.changed(in: settings.settings, externalChanges: external, supportsNextendo: supportsNextendo,
+                                              hasProfileAccount: hasProfileAccount,
+                                              cloudConfigured: cloudLibrary.preference.remote != nil)
+        return query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? changed : SettingsCatalog.search(query, in: changed)
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: canvas.u(8)) {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
             if rows.isEmpty {
-                Text(L10n.text("Nothing changed yet."))
-                    .seleneFont(.text)
-                    .foregroundColor(SeleneTheme.ink60)
+                OortEmptyState(title: L10n.text(query.isEmpty ? "Nothing changed yet." : "No settings match."))
             }
             SettingsDescriptorList(rows: rows, onOpenGroup: onOpenGroup)
         }
@@ -125,7 +97,12 @@ struct SettingsDescriptorList: View {
     let onOpenGroup: (SettingDescriptor) -> Void
     @Environment(\.seleneCanvas) private var canvas
 
-    static func title(_ row: SettingDescriptor) -> String { "\(row.group.place) · \(L10n.text(row.title))" }
+    static func title(_ row: SettingDescriptor) -> String { L10n.text(row.title) }
+
+    static func path(_ section: SettingsSection) -> String {
+        guard let category = SettingsCategory(section: section) else { return section.place }
+        return category.sections.count == 1 ? category.title() : "\(category.title()) · \(category.title(for: section))"
+    }
 
     static func actions(_ rows: [SettingDescriptor],
                         onOpenGroup: @escaping (SettingDescriptor) -> Void) -> [SettingsRowAction] {
@@ -135,14 +112,10 @@ struct SettingsDescriptorList: View {
     }
 
     var body: some View {
-        VStack(spacing: canvas.u(8)) {
+        VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
             ForEach(rows) { row in
-                SeleneRow(Self.title(row), id: row.id, subtitle: row.about) {
-                    MaterialIconView(.chevron, size: 24)
-                        .foregroundColor(SeleneTheme.ink60)
-                }
-                .contentShape(Rectangle())
-                .onTapGesture { onOpenGroup(row) }
+                OortSettingsLink(id: row.id, title: Self.title(row),
+                                 subtitle: "\(Self.path(row.group)) · \(L10n.text(row.about))") { onOpenGroup(row) }
             }
         }
     }

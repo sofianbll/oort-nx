@@ -34,7 +34,9 @@ final class GameOptionsFiles: ObservableObject {
     @Published var modsValue: String
 
     init(viewModel: AppViewModel, game: PortedGame) {
-        supportsRenderScale = viewModel.runtimeSettings.supportsSetting("DM_RENDER_SCALE", for: game)
+        supportsRenderScale = GameOptionsRow.renderScale.settingKey.map {
+            viewModel.runtimeSettings.supportsSetting($0, for: game)
+        } ?? false
         config = viewModel.runtimeSettings.loadRuntimeConfig(for: game)
         snapshot = viewModel.runtimeSettings.settingsSnapshot(for: game)
         gameDisplayOverride = game.titleId.flatMap { viewModel.settingsStore?.settings.gameDisplayOverrides[$0.uppercased()] }
@@ -99,13 +101,16 @@ struct GameOptionsView: View {
         modsRevision = UUID()
     }
     @State var moreOpen = false
+    @State var fullSettingsOpen = false
+    @State var fullSettingsEnvironment: String?
     @State var playersOpen = false
     var cheatsValue: String? {
         get { files.cheatsValue }
         nonmutating set { files.cheatsValue = newValue }
     }
     /// A panel over the list has the input.
-    var panelOpen: Bool { artworkOpen || metadataOpen || cheatsOpen || modsOpen || savesOpen || moreOpen || playersOpen }
+    private var quickPanelOpen: Bool { artworkOpen || metadataOpen || cheatsOpen || modsOpen || savesOpen || moreOpen || playersOpen }
+    var panelOpen: Bool { quickPanelOpen || (fullSettingsOpen && confirm == nil) }
     @State var confirmFocus: SeleneConfirmButton = .cancel
     /// The row whose explanation is open beside its info button (a click on it, or Y on the focused row).
     @State var infoRow: GameOptionsRow?
@@ -172,7 +177,7 @@ struct GameOptionsView: View {
     var rows: [GameOptionsItem] {
         var rows = presentation.focusableRows(level: level, origin: origin).map(GameOptionsItem.game)
         if level == .main, let play = rows.firstIndex(of: .game(.play)) {
-            rows.insert(.players, at: play + 1)
+            rows.insert(contentsOf: [.players, .game(.allSettings)], at: play + 1)
         }
         return rows
     }
@@ -208,8 +213,19 @@ struct GameOptionsView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             // A panel (Change artwork, Change metadata, Cheats) takes the screen; the list never shows through.
-            .opacity(panelOpen ? 0 : 1)
-            .seleneOverlayOwnership(!panelOpen && confirm == nil)
+            .opacity(panelOpen || fullSettingsOpen ? 0 : 1)
+            .seleneOverlayOwnership(!panelOpen && !fullSettingsOpen && confirm == nil)
+
+            if fullSettingsOpen {
+                fullSettings(canHandleInput: {
+                    !quickPanelOpen && confirm == nil && !viewModel.shellDialogOwnsInput
+                        && !viewModel.isWelcomeOpen && !viewModel.showSetupCheck
+                        && viewModel.gameToClose == nil && viewModel.alertMessage == nil
+                        && viewModel.settingsNotice == nil && viewModel.gameWithInstallFailure == nil
+                })
+                .opacity(quickPanelOpen ? 0 : 1)
+                .seleneOverlayOwnership(!quickPanelOpen && confirm == nil)
+            }
 
             if artworkOpen {
                 ChangeArtworkView(viewModel: viewModel, subject: PersonalizationSubject(current, viewModel: viewModel)) { artworkOpen = false }

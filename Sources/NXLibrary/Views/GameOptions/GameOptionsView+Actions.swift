@@ -139,6 +139,11 @@ extension GameOptionsView {
         case .moreSettings:
             SoundEffectService.shared.play(.click)
             moreOpen = true
+        case .allSettings:
+            SoundEffectService.shared.play(.click)
+            fullSettingsEnvironment = NXNativeGameSettings.playerEnvironment(for: current)
+            snapshot = viewModel.runtimeSettings.settingsSnapshot(for: current)
+            fullSettingsOpen = true
         case .rumble:
             SoundEffectService.shared.play(.click)
             config.rumble.toggle()

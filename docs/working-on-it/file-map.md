@@ -1,9 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **1094 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
-Aggiornato il 24 novembre 2026. Copertura di **1065 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
-Aggiornato il 24 novembre 2026. Copertura di **1097 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
-Aggiornato il 24 novembre 2026. Copertura di **1111 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati non versionati e gli appunti sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **1123 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -400,6 +397,7 @@ Cartella `Sources/NXLibraryCore/Settings/`. Il catalogo dei testi sta in `Resour
 | [Sources/NXLibraryCore/Settings/SettingsRowAction.swift](../../Sources/NXLibraryCore/Settings/SettingsRowAction.swift) | Identifica azioni e righe Settings, mantenendo una sola azione primaria per riga senza accorpare giochi omonimi. |
 | [Sources/NXLibraryCore/Settings/SettingsCatalog.swift](../../Sources/NXLibraryCore/Settings/SettingsCatalog.swift) | Righe fuori da Porting, incluse Play together, Hidden game apps e Home in gioco; ordina, cerca e confronta per identità. |
 | [Sources/NXLibraryCore/Settings/SettingsSection.swift](../../Sources/NXLibraryCore/Settings/SettingsSection.swift) | Titoli e icone della barra: General, Library, Porting (con Game folders e Porting storage) e System. |
+| [Sources/NXLibraryCore/Settings/SettingsCategory.swift](../../Sources/NXLibraryCore/Settings/SettingsCategory.swift) | Rubriche brevi localizzate e associazione con le sezioni storiche, senza cambiare le rotte. |
 | [Sources/NXLibraryCore/Settings/SettingsReset.swift](../../Sources/NXLibraryCore/Settings/SettingsReset.swift) | Reset group per sezione, anche Inbox con Game folders, Compilati di recente con Spotlight, Home in gioco e scelte Play together, non l'ID Nextendo né i percorsi delle cartelle di gioco. |
 | [Sources/NXLibraryCore/Settings/AppLocale.swift](../../Sources/NXLibraryCore/Settings/AppLocale.swift) | Sette lingue, risoluzione delle preferenze e regione indipendente; nomi e ricerca delle regioni. |
 | [Sources/NXLibraryCore/Settings/AppLocalization.swift](../../Sources/NXLibraryCore/Settings/AppLocalization.swift) | Contesto osservabile, lookup delle risorse, interpolazioni/plurali e nome Oort NX nei testi resi. |
@@ -775,6 +773,8 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/ViewModels/ModsBandHost.swift](../../Sources/NXLibrary/ViewModels/ModsBandHost.swift) | Fascia Mods condivisa da Spotlight e Details. Legge mod installate, coordina GameBanana e pannelli, svuota i dati del gioco precedente sulla riga Spotlight. |
 | [Sources/NXLibrary/ViewModels/GameBananaServices.swift](../../Sources/NXLibrary/ViewModels/GameBananaServices.swift) | Client, cache delle immagini e abbinamenti GameBanana condivisi da tutta l'app. |
 | [Sources/NXLibrary/Views/GameOptions/SavesPanel.swift](../../Sources/NXLibrary/Views/GameOptions/SavesPanel.swift) | Azioni, anteprime ed esiti dei salvataggi; la scelta del profilo parte da Annulla a destra e mostra il suo aiuto. |
+| [Sources/NXLibrary/Views/GameOptions/GameSettingsScreen.swift](../../Sources/NXLibrary/Views/GameOptions/GameSettingsScreen.swift) | Pagina completa raggiunta da All settings per Switch e Steam; barra, focus, input e ritorno al pannello rapido. |
+| [Sources/NXLibrary/Views/GameOptions/GameOptionsView+FullSettings.swift](../../Sources/NXLibrary/Views/GameOptions/GameOptionsView+FullSettings.swift) | Traduce i gruppi del catalogo e le azioni esistenti del gioco Switch in righe; riusa Mods, Cheats e Saves. |
 | [Sources/NXLibrary/Views/GameOptions/MoreSettingsPanel.swift](../../Sources/NXLibrary/Views/GameOptions/MoreSettingsPanel.swift) | Mostra le impostazioni del launcher.json senza riga dedicata: interruttori, scelte e intervalli; le righe fissate da env.txt restano attenuate. |
 | [Sources/NXLibrary/Views/GameOptions/SaveImportDetails.swift](../../Sources/NXLibrary/Views/GameOptions/SaveImportDetails.swift) | Disegna percorsi From/To centrati, riquadri leggeri e freccia con riflesso direzionale. |
 
@@ -783,10 +783,11 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | File | Responsabilità |
 |---|---|
 | [Sources/NXLibrary/Views/Settings/SettingsView.swift](../../Sources/NXLibrary/Views/Settings/SettingsView.swift) | Coordina sezioni, bozza, riepilogo di salvataggio e input, arrivo passivo da Integrations e sottopannelli. |
+| [Sources/NXLibrary/Views/OortUI/OortSettingsShell.swift](../../Sources/NXLibrary/Views/OortUI/OortSettingsShell.swift) | Layout riusabile: barra, titolo, pila di pagine, ritorno, collegamenti e campo di ricerca. |
 | [Sources/NXLibrary/Views/Settings/SettingsDraftFields.swift](../../Sources/NXLibrary/Views/Settings/SettingsDraftFields.swift) | Elenca le chiavi di Settings, distingue anteprima e applicazione differita e descrive i cambi in ordine di importanza. |
-| [Sources/NXLibrary/Views/Settings/SettingsSidebar.swift](../../Sources/NXLibrary/Views/Settings/SettingsSidebar.swift) | Disegna intestazione con versione localizzata e sezioni per gruppo, con icona a due persone per Play together. |
+| [Sources/NXLibrary/Views/Settings/SettingsSidebar.swift](../../Sources/NXLibrary/Views/Settings/SettingsSidebar.swift) | Associa le pagine alle rubriche, al campo di ricerca e ai filtri; mantiene i collegamenti diretti alle sezioni. |
 | [Sources/NXLibrary/Views/Settings/SettingsSectionContent.swift](../../Sources/NXLibrary/Views/Settings/SettingsSectionContent.swift) | Instrada le sezioni, distingue Play together da Online services, passa gli ingressi cloud e mostra le azioni del blocco profilo. Usa un trattino se manca il commit del motore. |
-| [Sources/NXLibrary/Views/Settings/SettingsSearchSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsSearchSection.swift) | Presenta ricerca e Changed, con apertura del gruppo della riga selezionata. |
+| [Sources/NXLibrary/Views/Settings/SettingsSearchSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsSearchSection.swift) | Presenta risultati e valori modificati filtrati dal campo nella barra; ciascun risultato apre la riga nella sua pagina. |
 | [Sources/NXLibrary/Views/Settings/SettingsStartUpSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsStartUpSection.swift) | Espone il profilo all’avvio, schermata iniziale, animazione e aggiornamenti; `SettingsProfileCardsSection` ordina e attiva le schede del profilo. |
 | [Sources/NXLibrary/Views/Settings/SettingsProfileIdentitySection.swift](../../Sources/NXLibrary/Views/Settings/SettingsProfileIdentitySection.swift) | Identità del profilo attivo: nome, illustrazione e immagine personale. |
 | [Sources/NXLibrary/Views/Settings/SettingsNavigationSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsNavigationSection.swift) | Espone le preferenze di navigazione e dei suggerimenti dei tasti. |

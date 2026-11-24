@@ -121,50 +121,40 @@ struct CheatsPanel: View {
 
     // MARK: - Body
 
+    @Environment(\.oortSettingsPane) private var embedding
+
     var body: some View {
         let lines = self.lines
         let rows = self.rows
         return ZStack {
-            SeleneTheme.scrim65
-                .ignoresSafeArea()
-                .contentShape(Rectangle())
-                .onTapGesture { close() }
-
-            VStack(spacing: 0) {
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(L10n.text("CHEATS"))
-                        .seleneFont(.text, .semibold)
-                        .foregroundColor(SeleneTheme.ink60)
-                        .padding(.leading, canvas.u(SeleneTokens.Space.compact))
-                    Text(game.name)
-                        .seleneFont(.screen)
-                        .foregroundColor(SeleneTheme.ink)
-                        .lineLimit(1)
-                        .padding(.leading, canvas.u(SeleneTokens.Space.tight))
-                    Text(CheatCopy.header(version: context?.version ?? game.versionString, buildID: context?.buildID))
-                        .seleneFont(.text)
-                        .foregroundColor(SeleneTheme.ink60)
-                        .padding(.leading, canvas.u(SeleneTokens.Space.compact))
-                    Text(CheatCopy.about)
-                        .seleneFont(.text)
-                        .foregroundColor(SeleneTheme.ink60)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.leading, canvas.u(SeleneTokens.Space.compact))
-                        .padding(.top, canvas.u(SeleneTokens.Space.hairline))
-                        .padding(.bottom, canvas.u(SeleneTokens.Space.line))
-                    noticeArea
-                    list(lines, rows: rows)
-                }
-                .frame(width: canvas.u(1040), alignment: .leading)
-                .frame(maxHeight: .infinity, alignment: .top)
-                .padding(.top, canvas.u(90))
-                .padding(.bottom, canvas.u(SeleneTokens.Space.panel))
-                .contentShape(Rectangle())
-
-                SeleneHintsBar(left: [HintItem(.b, L10n.text("Back"), action: close)], right: [HintItem(.a, L10n.text("Select"))],
-                               bottom: SeleneBottomScrim.hintsBottom, leftInset: 18)
+            if embedding == nil {
+                SeleneTheme.scrim65.ignoresSafeArea().contentShape(Rectangle()).onTapGesture { close() }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            OortSettingsPaneLayout(back: close, hints: [HintItem(.a, "Select")], locked: confirm != nil) {
+                Text(L10n.text("CHEATS"))
+                    .seleneFont(.text, .semibold)
+                    .foregroundColor(SeleneTheme.ink60)
+                    .padding(.leading, canvas.u(SeleneTokens.Space.compact))
+                Text(game.name)
+                    .seleneFont(.screen)
+                    .foregroundColor(SeleneTheme.ink)
+                    .lineLimit(1)
+                    .padding(.leading, canvas.u(SeleneTokens.Space.tight))
+            } content: {
+                Text(CheatCopy.header(version: context?.version ?? game.versionString, buildID: context?.buildID))
+                    .seleneFont(.text)
+                    .foregroundColor(SeleneTheme.ink60)
+                    .padding(.leading, canvas.u(SeleneTokens.Space.compact))
+                Text(CheatCopy.about)
+                    .seleneFont(.text)
+                    .foregroundColor(SeleneTheme.ink60)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.leading, canvas.u(SeleneTokens.Space.compact))
+                    .padding(.top, canvas.u(SeleneTokens.Space.hairline))
+                    .padding(.bottom, canvas.u(SeleneTokens.Space.line))
+                noticeArea
+                list(lines, rows: rows)
+            }
             .seleneOverlayOwnership(confirm == nil)
             .overlay(
                 RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card), style: .continuous)
@@ -259,7 +249,7 @@ struct CheatsPanel: View {
             .accessibilityElement(children: .combine)
         case .row(let row):
             let index = rows.firstIndex(of: row) ?? 0
-            rowView(row, focused: index == focus)
+            rowView(row, focused: embedding?.active.wrappedValue != false && index == focus)
                 .id(row)
                 .contentShape(Rectangle())
                 .onTapGesture {
@@ -520,6 +510,7 @@ struct CheatsPanel: View {
     private func close() {
         SoundEffectService.shared.play(.focus)
         onClose()
+        embedding?.onBack()
     }
 
     private func moveConfirmFocus(_ to: SeleneConfirmButton) {
@@ -529,6 +520,7 @@ struct CheatsPanel: View {
     }
 
     private func handleGamepad(_ action: GamepadAction) {
+        guard embedding?.active.wrappedValue != false else { return }
         if confirm != nil {
             switch action {
             case .navigateLeft: moveConfirmFocus(.left)
@@ -551,7 +543,7 @@ struct CheatsPanel: View {
     private func installKeyMonitor() {
         guard keyMonitor == nil else { return }
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
-            guard viewModel.gameForSettingsSheet?.id == game.id,
+            guard embedding?.active.wrappedValue != false, viewModel.gameForSettingsSheet?.id == game.id,
                   !viewModel.cloudQuitRequested,
                   viewModel.gameWithInstallFailure == nil, viewModel.settingsNotice == nil,
                   let window = event.window, !window.isSheet, window.attachedSheet == nil,

@@ -27,7 +27,10 @@ extension GameOptionsView {
                     VStack(spacing: canvas.u(8)) {
                         ForEach(Array(entries.enumerated()), id: \.offset) { _, entry in
                             entryView(entry, p, focused: focused)
-                            if level == .main, entry == .row(.play) { playersRow }
+                            if level == .main, entry == .row(.play) {
+                                playersRow
+                                rowView(.allSettings, p, focused: focused)
+                            }
                         }
                     }
                     // The clip would shave the first row's focus border.
@@ -224,8 +227,8 @@ extension GameOptionsView {
     }
 
     /// The state a VoiceOver user hears for a switch or a value chip.
-    private func accessibilityValue(_ row: GameOptionsRow) -> String? {
-        if row.isToggle { return toggleValue(row) ? "On" : "Off" }
+    func accessibilityValue(_ row: GameOptionsRow) -> String? {
+        if row.isToggle { return L10n.text(toggleValue(row) ? "On" : "Off") }
         if row.isChoice { return choiceText(row) }
         if row == .cheats { return cheatsValue }
         if row == .mods { return presentation.modsValue }

@@ -630,7 +630,7 @@ struct ProfilePage: View {
         case .edit: onEdit()
         case .change: onSwitch()
         case .account: onAccount()
-        case .lock: router.openSettings(.profileSecurity)
+        case .lock: router.openSettings(.profileSecurity, rowID: "profileLock")
         case .card(.friends):
             friendIndex = 0
             showFriends = account != nil

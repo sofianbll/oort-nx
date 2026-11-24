@@ -210,7 +210,8 @@ final class GameOptionsPresentationTests: XCTestCase {
                 }
             }
         }
-        XCTAssertEqual(seen, Set(GameOptionsRow.allCases))
+        XCTAssertEqual(seen, Set(GameOptionsRow.allCases).subtracting([.allSettings]),
+                       "The shared launcher entry is inserted by the two quick options views.")
     }
 
     func testRowKindsAreDisjoint() {

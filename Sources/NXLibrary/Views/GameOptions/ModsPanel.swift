@@ -65,43 +65,33 @@ struct ModsPanel: View {
 
     // MARK: - Body
 
+    @Environment(\.oortSettingsPane) private var embedding
+
     var body: some View {
         let inactiveOnline = inactiveOnlineCodeMods
         return ZStack {
-            SeleneTheme.scrim65
-                .ignoresSafeArea()
-                .contentShape(Rectangle())
-                .onTapGesture { close() }
-
-            VStack(spacing: 0) {
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(L10n.text("MODS"))
-                        .seleneFont(.text, .semibold)
-                        .foregroundColor(SeleneTheme.ink60)
-                        .padding(.leading, canvas.u(SeleneTokens.Space.compact))
-                    Text(game.name)
-                        .seleneFont(.screen)
-                        .foregroundColor(SeleneTheme.ink)
-                        .lineLimit(1)
-                        .padding(.leading, canvas.u(SeleneTokens.Space.tight))
-                    Text(ModsCopy.header(on: mods.filter(\.isOn).count, total: mods.count))
-                        .seleneFont(.text)
-                        .foregroundColor(SeleneTheme.ink60)
-                        .padding(.leading, canvas.u(SeleneTokens.Space.compact))
-                        .padding(.bottom, canvas.u(SeleneTokens.Space.line))
-                    noticeArea(hasInactiveOnlineMods: !inactiveOnline.isEmpty)
-                    list(presentation, inactiveOnline: inactiveOnline)
-                }
-                .frame(width: canvas.u(1040), alignment: .leading)
-                .frame(maxHeight: .infinity, alignment: .top)
-                .padding(.top, canvas.u(90))
-                .padding(.bottom, canvas.u(SeleneTokens.Space.panel))
-                .contentShape(Rectangle())
-
-                SeleneHintsBar(left: [HintItem(.b, L10n.text("Back"), action: close)], right: hints,
-                               bottom: SeleneBottomScrim.hintsBottom, leftInset: 18)
+            if embedding == nil {
+                SeleneTheme.scrim65.ignoresSafeArea().contentShape(Rectangle()).onTapGesture { close() }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            OortSettingsPaneLayout(back: close, hints: hints, locked: confirmRemove != nil) {
+                Text(L10n.text("MODS"))
+                    .seleneFont(.text, .semibold)
+                    .foregroundColor(SeleneTheme.ink60)
+                    .padding(.leading, canvas.u(SeleneTokens.Space.compact))
+                Text(game.name)
+                    .seleneFont(.screen)
+                    .foregroundColor(SeleneTheme.ink)
+                    .lineLimit(1)
+                    .padding(.leading, canvas.u(SeleneTokens.Space.tight))
+            } content: {
+                Text(ModsCopy.header(on: mods.filter(\.isOn).count, total: mods.count))
+                    .seleneFont(.text)
+                    .foregroundColor(SeleneTheme.ink60)
+                    .padding(.leading, canvas.u(SeleneTokens.Space.compact))
+                    .padding(.bottom, canvas.u(SeleneTokens.Space.line))
+                noticeArea(hasInactiveOnlineMods: !inactiveOnline.isEmpty)
+                list(presentation, inactiveOnline: inactiveOnline)
+            }
             .seleneOverlayOwnership(confirmRemove == nil)
 
             if let name = confirmRemove {
@@ -181,7 +171,8 @@ struct ModsPanel: View {
                         if row == presentation.codeRows.first {
                             sectionHeader("Code mods", subtitle: "Rebuild the game after making changes. Turning off all code mods or re-enabling the entire built set needs no rebuild. Inactive online (Nextendo).")
                         }
-                        rowView(row, focused: index == focus.index, inactiveOnline: inactiveOnline)
+                        rowView(row, focused: embedding?.active.wrappedValue != false && index == focus.index,
+                                inactiveOnline: inactiveOnline)
                             .padding(.top, row == .openFolder ? canvas.u(8) : 0)
                             .id(row)
                             .contentShape(Rectangle())
@@ -418,6 +409,7 @@ struct ModsPanel: View {
     private func close() {
         SoundEffectService.shared.play(.focus)
         onClose()
+        embedding?.onBack()
     }
 
     private func moveConfirmFocus(_ to: SeleneConfirmButton) {
@@ -427,6 +419,7 @@ struct ModsPanel: View {
     }
 
     private func handleGamepad(_ action: GamepadAction) {
+        guard embedding?.active.wrappedValue != false else { return }
         if confirmRemove != nil {
             switch action {
             case .navigateLeft: moveConfirmFocus(.left)
@@ -453,7 +446,7 @@ struct ModsPanel: View {
     private func installKeyMonitor() {
         guard keyMonitor == nil else { return }
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
-            guard viewModel.gameForSettingsSheet?.id == game.id,
+            guard embedding?.active.wrappedValue != false, viewModel.gameForSettingsSheet?.id == game.id,
                   !viewModel.cloudQuitRequested,
                   viewModel.gameWithInstallFailure == nil, viewModel.settingsNotice == nil,
                   let window = event.window, !window.isSheet, window.attachedSheet == nil,

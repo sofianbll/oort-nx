@@ -2,6 +2,7 @@ import AppKit
 import Combine
 import CoreText
 import SwiftUI
+import Vision
 import NXLibraryCore
 import ArcanePorting
 
@@ -204,6 +205,11 @@ import ArcanePorting
         let vm = AppViewModel(settingsStore: settings, catalog: catalog, repository: repository)
         vm.applyCatalog(catalog) // This harness disables catalog application in the initializer.
         try checkDraft(vm: vm, settings: settings, output: output, locale: locale)
+        try checkNavigation(vm: vm, settings: settings, output: output, locale: locale, size: .init(width: 1440, height: 810), suffix: "fr")
+        try checkNavigation(vm: vm, settings: settings, output: output, locale: locale, size: .init(width: 840, height: 810), suffix: "etroit-fr")
+        try checkNavigation(vm: vm, settings: settings, output: output, locale: .init(language: .english, region: "US"),
+                            size: .init(width: 1440, height: 810), suffix: "en")
+        try checkGameSettings(vm: vm, settings: settings, output: output)
         if ProcessInfo.processInfo.environment["OORT_SETTINGS_DRAFT_ONLY"] == "1" { return }
         let model = vm.cloudLibrary
         model.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: nil)
@@ -612,5 +618,173 @@ import ArcanePorting
         settings.settings.multiplayerDefault = .offline
         settings.settings.interfaceSounds = true
         print("Settings draft: live row, one exit dialog, default Keep editing, Y and verified save, discard before quit.")
+    }
+
+    @MainActor private static func checkNavigation(vm: AppViewModel, settings: AppSettingsStore,
+            output: URL, locale: AppLocale, size: CGSize, suffix: String) throws {
+        let previousLocale = L10n.context
+        L10n.setContext(locale)
+        defer { L10n.setContext(previousLocale) }
+        let router = AppRouter(settings: settings)
+        router.hasPendingSettings = { settings.draft?.hasChanges == true }
+        router.openSettings(.cloudSaves) // Switch is the previous category.
+        let style = SeleneBackdropStyle(palette: ThemeStore.shared.palette,
+            wallpaperURL: ThemeStore.shared.wallpaper(for: settings.settings.wallpaperID)?.url,
+            sizing: .fill, animated: false, brightness: .bright)
+        precondition(style.wallpaperURL != nil)
+        let host = NSHostingView(rootView: SettingsView(initialSection: .cloudSaves, viewModel: vm,
+                settings: settings, router: router, artwork: ArtworkStore())
+            .environment(\.nxAppLocale, locale)
+            .environment(\.colorScheme, .dark)
+            .environment(\.seleneButtonNames, .nintendo)
+            .environment(\.seleneReduceMotion, true)
+            .environment(\.seleneBackdropStyle, style)
+            .seleneCanvasRoot())
+        host.frame.size = size
+        let window = NSWindow(contentRect: host.frame, styleMask: [.borderless], backing: .buffered, defer: false)
+        window.contentView = host
+        defer { window.contentView = nil; settings.endDraft() }
+        window.layoutIfNeeded()
+        func settle() {
+            for _ in 0..<8 {
+                RunLoop.main.run(until: Date().addingTimeInterval(0.016))
+                host.layoutSubtreeIfNeeded()
+            }
+        }
+        func send(_ action: GamepadAction) {
+            NotificationCenter.default.post(name: .nxSettingsGamepadAction, object: action)
+            settle()
+        }
+        func capture(_ name: String) throws {
+            precondition(!window.isVisible)
+            let image = host.bitmapImageRepForCachingDisplay(in: host.bounds)!
+            host.cacheDisplay(in: host.bounds, to: image)
+            try image.representation(using: .png, properties: [:])!
+                .write(to: output.appendingPathComponent("\(name)-\(suffix).png"))
+        }
+        settle()
+        settings.editingSettings.reduceMotion.toggle()
+        send(.tabPrevious)
+        send(.confirm)
+        try capture("navigation-01-switch")
+        // Folder controls are inline. Start from the last of the three subject links and go up to Engine.
+        for _ in 0..<12 { send(.navigateDown) }
+        send(.navigateUp)
+        send(.navigateUp)
+        send(.confirm)
+        try capture("navigation-02-engine")
+        send(.cancel)
+        precondition(router.settingsDecision == nil)
+        try capture("navigation-03-back")
+        send(.cancel)
+        precondition(router.settingsDecision == nil)
+        send(.cancel)
+        precondition(router.settingsDecision == .leave && settings.draft?.hasChanges == true,
+                     "Back must leave the subject, then the rows, then ask about the draft")
+        print("Settings navigation: category → subject → restored row → sidebar → draft exit (\(suffix)).")
+    }
+
+    @MainActor private static func checkGameSettings(vm: AppViewModel, settings: AppSettingsStore, output: URL) throws {
+        let root = AppData.profile.home
+        let app = root.appendingPathComponent("Navigation Fixture.app")
+        let dm = app.appendingPathComponent("Contents/Resources/dm")
+        let title = "010000000000F012"
+        let envFolder = root.appendingPathComponent("Library/Application Support/nxnative/\(title)")
+        let env = envFolder.appendingPathComponent("env.txt")
+        let source = Data("DM_DYNAMIC_RESOLUTION=1\nNAVIGATION_FIXTURE_ONLY=read-only\n".utf8)
+        try FileManager.default.createDirectory(at: dm, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: envFolder, withIntermediateDirectories: true)
+        try source.write(to: env)
+        let plist: [String: Any] = ["CFBundleIdentifier": "test.oort.navigation", "DMSettings": []]
+        try PropertyListSerialization.data(fromPropertyList: plist, format: .xml, options: 0)
+            .write(to: app.appendingPathComponent("Contents/Info.plist"))
+        let metadata = """
+        {"game":"Navigation Fixture","settings":[
+          {"env":"DM_DYNAMIC_RESOLUTION","kind":"toggle","section":"Picture","label":"Dynamic resolution","default":"0","on":"1","off":"0"},
+          {"env":"DM_SOUND_FIXTURE","kind":"toggle","section":"Sound","label":"Fixture effect","default":"0","on":"1","off":"0"}
+        ]}
+        """
+        try Data(metadata.utf8).write(to: dm.appendingPathComponent("launcher.json"))
+        let game = PortedGame(name: "Navigation Fixture", url: app, platform: .macApp, sizeBytes: 0,
+                              modificationDate: .now, bundleId: "test.oort.navigation", titleId: title)
+        precondition(vm.runtimeSettings.settingsSnapshot(for: game)?.fixed.contains("DM_DYNAMIC_RESOLUTION") == true)
+        let wallpaper = ThemeStore.shared.wallpaper(for: settings.settings.wallpaperID)?.url
+        precondition(wallpaper != nil)
+        let style = SeleneBackdropStyle(palette: ThemeStore.shared.palette, wallpaperURL: wallpaper,
+                                       sizing: .fill, animated: false, brightness: .bright)
+        func withHost<V: View>(_ view: V, size: CGSize, locale: AppLocale,
+                               check: (() -> Void, (String) throws -> String) throws -> Void) throws {
+            let oldLocale = L10n.context
+            L10n.setContext(locale)
+            defer { L10n.setContext(oldLocale) }
+            let host = NSHostingView(rootView: ZStack { SeleneBackdrop(still: true); view }
+                .environment(\.nxAppLocale, locale)
+                .environment(\.colorScheme, .dark)
+                .environment(\.seleneButtonNames, .nintendo)
+                .environment(\.seleneReduceMotion, true)
+                .environment(\.seleneBackdropStyle, style)
+                .seleneCanvasRoot())
+            host.frame.size = size
+            let window = NSWindow(contentRect: host.frame, styleMask: [.borderless], backing: .buffered, defer: false)
+            window.contentView = host
+            defer { window.contentView = nil }
+            window.layoutIfNeeded()
+            func settle() {
+                for _ in 0..<8 {
+                    RunLoop.main.run(until: Date().addingTimeInterval(0.016))
+                    host.layoutSubtreeIfNeeded()
+                }
+            }
+            settle()
+            try check(settle) { name in
+                precondition(!window.isVisible)
+                let bitmap = host.bitmapImageRepForCachingDisplay(in: host.bounds)!
+                host.cacheDisplay(in: host.bounds, to: bitmap)
+                try bitmap.representation(using: .png, properties: [:])!
+                    .write(to: output.appendingPathComponent("\(name).png"))
+                let request = VNRecognizeTextRequest()
+                request.recognitionLanguages = [locale.language == .french ? "fr-FR" : "en-US"]
+                try VNImageRequestHandler(cgImage: bitmap.cgImage!).perform([request])
+                return request.results?.compactMap { $0.topCandidates(1).first?.string }.joined(separator: " ") ?? ""
+            }
+        }
+        func send(_ action: GamepadAction, settle: () -> Void) {
+            NotificationCenter.default.post(name: .nxGameOptionsGamepadAction, object: action)
+            settle()
+        }
+        for (size, locale, name) in [(CGSize(width: 1440, height: 810), L10n.context, "fr"),
+            (.init(width: 840, height: 810), L10n.context, "etroit-fr"),
+            (.init(width: 1440, height: 810), AppLocale(language: .english, region: "US"), "en")] {
+            vm.gameForSettingsSheet = game
+            try withHost(GameOptionsView(viewModel: vm, game: game, origin: .details,
+                           onClose: {}, onShowBuild: {}, onMove: {}), size: size, locale: locale) { settle, capture in
+                send(.navigateDown, settle: settle) // Players
+                send(.navigateDown, settle: settle) // All settings
+                send(.confirm, settle: settle)
+                send(.navigateDown, settle: settle) // Picture
+                let image = try capture("jeu-image-\(name)")
+                let fixedLabel = L10n.text("Set in env.txt")
+                precondition(image.localizedCaseInsensitiveContains(fixedLabel), "Missing \(fixedLabel): \(image)")
+                send(.confirm, settle: settle)
+                send(.confirm, settle: settle) // The fixed row does not write.
+                precondition(try! Data(contentsOf: env) == source)
+                send(.cancel, settle: settle)
+                send(.cancel, settle: settle)
+                let quick = try capture("jeu-panneau-\(name)")
+                precondition(quick.localizedCaseInsensitiveContains(L10n.text("All settings")), quick)
+            }
+            vm.gameForSettingsSheet = nil
+        }
+        let steam = CatalogGame(steam: .init(appID: 2147483000, name: "Steam Fixture"))
+        vm.steamOptionsGame = steam
+        try withHost(SteamOptionsView(viewModel: vm, game: steam, origin: .details, onClose: {}, onMove: {}),
+                     size: .init(width: 1440, height: 810), locale: L10n.context) { settle, capture in
+            send(.navigateDown, settle: settle)
+            send(.confirm, settle: settle)
+            let image = try capture("jeu-steam-fr")
+            precondition(image.contains("Steam Fixture") && image.contains("Fiche et images"), image)
+        }
+        vm.steamOptionsGame = nil
+        print("Game settings: quick panel ↔ full screen, fixed env.txt, Switch and Steam.")
     }
 }

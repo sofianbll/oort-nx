@@ -93,7 +93,7 @@ Porting uses nxnative commit `99224562` with Xcode 27.2 and Metal 32023.922. Por
 | **Arcane library** | Apple silicon, macOS 26 or later. Steam and each game can require a newer macOS version. |
 | **Porting and nxnative game apps** | macOS 26.6 or later for the Mac hosts built by the pinned engine. This is separate from Arcane's own minimum. |
 | **Xcode for porting** | 27.2 or later, with the Metal compiler certified for the pinned engine. Browsing the library and using Steam do not require Xcode. |
-| **Porting engine** | nxnative at the pinned commit. Setup can prepare the checkout. To select an existing folder, use **Settings → Porting → Setup and engine**. |
+| **Porting engine** | nxnative at the pinned commit. Setup can prepare the checkout. To select an existing folder, use **Settings → Switch → Engine**. |
 | **Porting inputs** | Your own supported game sources and keys, with the rights and permissions needed to use them. |
 
 A packaged app includes Python and its required packages, `zstd` and `glslangValidator`. Homebrew is used to prepare that runtime during development; it is not needed to use a packaged copy. A source build without the bundled runtime uses the engine's virtual environment and tools on `PATH`.
@@ -129,7 +129,7 @@ Packaged fork releases check this repository for app updates; no GitHub account 
 
 On first launch, Oort NX offers a short, skippable tour. Choose your language, check your controller, keep or edit your local profile, and review the games on this Mac. It lists detected nxnative apps and the files in a folder you choose. Add recognised games without moving their files or building anything. Unidentified files remain in the chosen folder for **Add Game**.
 
-Steam, Google Drive, Nextendo and cloud saves are optional. Choose a service to open its settings, or leave it for later. **Settings → Start-up → Welcome setup** reopens the tour without resetting anything. If you quit, the first-run tour resumes on its saved step. Existing players see **What’s new** once for 0.4.0 rather than repeating the tour.
+Steam, Google Drive, Nextendo and cloud saves are optional. Choose a service to open its settings, or leave it for later. **Settings → General → Welcome setup** reopens the tour without resetting anything. If you quit, the first-run tour resumes on its saved step. Existing players see **What’s new** once for 0.4.0 rather than repeating the tour.
 
 To link an app already on your Mac, choose **Add an app…** in Sources or the macOS Game menu, or drop one `.app` on Spotlight or Collection. **Play** hands it to macOS without tracking time or changing the app. Use **Tile options** to pick an image from a file or remove just the tile. If the app moves, use **Locate the app…** when prompted.
 
@@ -137,15 +137,15 @@ To link an app already on your Mac, choose **Add an app…** in Sources or the m
 
 The default Game apps folder is `~/Applications`; first use can prepare this default without an extra picker. Remembered or custom unavailable folders are never recreated automatically. Changing folders does not move installed apps, and a rebuild updates an existing app in its current location. A read-only folder still allows discovery and Play; installing new builds needs write access.
 
-Discovery includes subfolders of **Game apps**, skips app contents and limits the search depth. **Settings → Porting → Game folders → Scan game apps** reports search limits and unreadable folders. If several builds of a title are found, Arcane keeps the registered app while it exists. For a newly discovered title, it uses the most recently modified build.
+Discovery includes subfolders of **Game apps**, skips app contents and limits the search depth. **Settings → Switch → Scan game apps** reports search limits and unreadable folders. If several builds of a title are found, Arcane keeps the registered app while it exists. For a newly discovered title, it uses the most recently modified build.
 
-**Game files** is a separate optional folder choice in **Settings → Porting → Game folders**. Selecting individual files leaves that choice in place. **Reset group** preserves both folders; the **Game apps** row has its own **Reset** button.
+**Game files** is a separate optional folder choice in **Settings → Switch**. Selecting individual files leaves that choice in place. **Reset group** preserves both folders; the **Game apps** row has its own **Reset** button.
 
 Import your `prod.keys` when prompted. Arcane keeps a private copy with mode `0600` and leaves the original file unchanged. Key values are not displayed or logged.
 
-Open this tools panel from **Settings → Porting → Setup and engine → Open Setup**. Oort NX never runs `sudo`, accepts the Xcode licence for you or changes `xcode-select`.
+Open this tools panel from **Settings → Switch → Engine → Open Setup**. Oort NX never runs `sudo`, accepts the Xcode licence for you or changes `xcode-select`.
 
-To discover existing nxnative game apps, choose **Settings → Porting → Game folders → Scan game apps → Scan**. Play works with the installed app. To rebuild it, attach the original sources.
+To discover existing nxnative game apps, choose **Settings → Switch → Scan game apps → Scan**. Play works with the installed app. To rebuild it, attach the original sources.
 
 If an installed app is moved or removed, its library entry stays with a blurred, locked tile and **App not found**. Restore it to its folder or change **Game apps**, then refresh the library. Arcane does not search elsewhere for it. Missing build inputs show **Game files not found** when there is no app to play. An existing app still plays when its source files are missing; only rebuilding is unavailable. To reconnect a game's moved inputs, use **Game Options → Edit details → Attach sources…**.
 
@@ -153,7 +153,7 @@ If an installed app is moved or removed, its library entry stays with a blurred,
 
 ### Cloud library for ported games
 
-In **Settings → Porting → Cloud library**, Oort NX uses an existing rclone or asks before downloading the verified macOS arm64 release directly from [rclone.org](https://rclone.org/downloads/). No copy ships in the app. **Advanced** lets you choose an executable; turning off Drive can move only Oort NX’s own copy to the Trash. If you update from a version with a bundled rclone, your saved connection and transfer queue stay in place while you choose a replacement.
+In **Settings → Cloud library**, Oort NX uses an existing rclone or asks before downloading the verified macOS arm64 release directly from [rclone.org](https://rclone.org/downloads/). No copy ships in the app. **Advanced** lets you choose an executable; turning off Drive can move only Oort NX’s own copy to the Trash. If you update from a version with a bundled rclone, your saved connection and transfer queue stay in place while you choose a replacement.
 
 Keep an existing connection or choose **Sign in**. If the build does not include a Google client, enter your own desktop OAuth client ID and secret. rclone opens your browser to ask for full Drive access and stores the credentials in its encrypted configuration; on this Mac, the configuration password is held in the login keychain. **Test connection** verifies access to the approved Drive account and folders without importing or changing files.
 
@@ -179,9 +179,9 @@ If you download a ported `.app` folder through Google Drive in your browser, unz
 
 Scroll down for screenshots, the game description and **More like this** when matching titles are in your library. Steam games can show playtime and an **Achievements** card with rarity, unlocked items and crystal tiers. The animated Arcane appears when every achievement is unlocked.
 
-Use **Find a game** for search, **Game Options** for title-specific actions, and the menu for themes, Settings and running-game controls. Hidden ported apps can be restored under **Settings → Library → Games → Hidden game apps**.
+Use **Find a game** for search, **Game Options** for title-specific actions, and the menu for themes, Settings and running-game controls. In **Game Options**, choose **All settings** for the game’s full settings page. Hidden ported apps can be restored under **Settings → Library → Hidden game apps**.
 
-When you quit a game, Arcane comes back to the front, unless you had moved to another app or another game is still open. A **session card** in the top right shows how long you played this time and in total; sessions under 10 seconds show none. Turn it off in **Settings → Library → Games → Session card**.
+When you quit a game, Arcane comes back to the front, unless you had moved to another app or another game is still open. A **session card** in the top right shows how long you played this time and in total; sessions under 10 seconds show none. Turn it off in **Settings → Library → Session card**.
 
 ![The quick menu open over Spotlight, with Theme selected](docs/media/quick-menu.webp)
 
@@ -189,7 +189,7 @@ When you quit a game, Arcane comes back to the front, unless you had moved to an
 
 ### Language and region
 
-Arcane is available in **English, Italiano, Français, Deutsch, Español, Português (Brasil) and 简体中文**. **Settings → Start-up → Language & region** follows the Mac automatically or lets you choose the app language and region separately. Changes apply immediately and are remembered. **Regional formats** controls dates, numbers and sizes. **Game options → Language** controls each supported game's language.
+Arcane is available in **English, Italiano, Français, Deutsch, Español, Português (Brasil) and 简体中文**. **Settings → General → Language & region** follows the Mac automatically or lets you choose the app language and region separately. Changes apply immediately and are remembered. **Regional formats** controls dates, numbers and sizes. **Game options → Language** controls each supported game's language.
 
 Choose a language directly from its list. Known catalog genres are translated locally, without changing the saved metadata. Descriptions from Nlib are requested in the app language when supported, with cached descriptions shared between regions using the same language. Switching language reuses available artwork and credits; when those are fresh, only the localized description is requested. When the store has no description in your language, **About this game** shows the game's Wikipedia introduction in that language instead, credited with a link to the article (CC BY-SA). Without one, the English text stays with a note. Nothing is machine-translated, and a description you chose is always kept. Personal names, metadata choices, artwork and game settings are preserved.
 
@@ -207,7 +207,7 @@ Use the dialog's **Developer portal** and **Setup guide** links to create your c
 
 ### Add or rebuild a game
 
-Use this workflow for games you want to port with nxnative. Arcane discovers installed Steam games through **Settings → Library → Sources**.
+Use this workflow for games you want to port with nxnative. Arcane discovers installed Steam games through **Settings → Integrations**.
 
 1. Open **Add game** and choose or drop a supported file or folder.
 2. Review the detected base game, update and DLC. Arcane accepts NSP, XCI, NSZ, XCZ and Switch 2 NUP packages, plus supported source folders.
@@ -230,12 +230,12 @@ A rebuild of a running game waits to replace its app until it closes. If compila
 
 | Where | Scope | When it applies |
 |---|---|---|
-| **Settings → Porting → New games** | Starting values for titles added later. | When a new title is added. Existing titles keep their choices. |
+| **Settings → Switch → Defaults** | Starting values for titles added later. | When a new title is added. Existing titles keep their choices. |
 | **Game Options → Next launch** | The selected game. | Its next launch. |
 | **Game Options → Use new game defaults** | Copies the current defaults into that game once. | Its next launch. |
 | **Add game → Review** | The title being added or rebuilt. | That operation, including its saved language. |
-| **Settings → Porting → Cloud saves** | Library-wide preference, subject to advanced game configuration overrides. | Reapplied before each launch, including when Off. |
-| **Settings → Look** | The library's presentation. | The app interface; game artwork and launch-screen style have their own controls. |
+| **Settings → Saves** | Library-wide preference, subject to advanced game configuration overrides. | Reapplied before each launch, including when Off. |
+| **Settings → Appearance** | The library's presentation. | The app interface; game artwork and launch-screen style have their own controls. |
 
 For games built with nxnative, options can include fullscreen, FPS target, docked mode, language, rumble, render scale, MetalFX upscaling and Metal HUD. **MetalFX upscaling** enlarges the finished picture, including the HUD, to your window or screen. **Game's upscaler** is offered for games that upscale inside the frame, such as Donkey Kong Bananza. Available options depend on the installed build and game.
 
@@ -274,7 +274,7 @@ Cheats change values while you play, for one game version only. New items, looks
 
 ### Multiplayer
 
-Open **Settings → General → Play together** to choose a default: **Offline**, **Local** or **Online**. In **Game Options**, the **Play together** row below **Play** overrides it for that game. Older builds without network settings do not show the row. Existing per-game network choices carry over.
+Open **Settings → Multiplayer** to choose a default: **Offline**, **Local** or **Online**. In **Game Options**, the **Play together** row below **Play** overrides it for that game. Older builds without network settings do not show the row. Existing per-game network choices carry over.
 
 - **Local** uses your local network or your selected VPN: ZeroTier, Tailscale or NetBird. If Arcane cannot select an adapter, it asks before starting on the local network instead. Use **Advanced** to select an adapter, or to force LAN or local wireless. Automatic uses both local modes on builds without Nextendo and local wireless on Nextendo builds, where the engine's automatic mode also enables online services. For a VPN that does not carry room discovery, `DM_NET_DISCOVERY_PEER` in the player's `env.txt` can point to the host's VPN IPv4 address.
 - **Online** requires a Nextendo-enabled game build and an account. Nextendo is a free community service, not a Nintendo service. Sign in from **Play together**. Use **Friends** to add by code, manage requests or add recent players when their code is available. Building does not require signing in: a compatible engine needs a public client ID from **Advanced** or the Arcane bundle. Rebuild a game that does not offer Online. The engine pin does not change.
@@ -300,8 +300,8 @@ GameBanana archives can contain RomFS, ExeFS, or both side by side under one roo
 
 - **Game Options → Edit details** changes one game's artwork or metadata. Manual artwork choices take priority over automatic images. After choosing an Icon in **Change artwork**, choose **Only here** to keep it inside Arcane or **Use on the Mac** to show it in Finder and the Dock too. This choice is available for every game, including apps with no original icon, and survives restarts and rebuilds. **Only here** restores the original app icon (or its absence) if a custom one was already applied. **Automatic** removes the personal image and uses the game's own icon, then available online artwork, while keeping your location choice. On the Icon tab, **Icon location** changes **Only here** / **Use on the Mac** at any time, including with Automatic selected. If no image is found, the app keeps the standard macOS icon and remains playable; Change artwork explains that no icon is available. The finished build log records the separate icon result.
 - **Menu → Theme** opens colors first, then backgrounds. **Oort** is the default; **Arcane** keeps the original blue moonlight. Optional **Arcane Crystal** and **Arcane Flow** offer fine moving light threads, with barely visible ambient light. Background choices include local images, muted looping videos and optional online sources; source credits appear in the picker.
-- **Settings → Look** controls wallpaper placement, sizing, brightness, game backgrounds, Reduce Motion and the Halftone/Particles app icon.
-- **Settings → Sound & music** controls interface cues and volume. Four interface sounds are bundled; additional sounds and wallpapers can be imported from a Selene theme folder you own.
+- **Settings → Appearance** controls wallpaper placement, sizing, brightness, game backgrounds, Reduce Motion and the Halftone/Particles app icon.
+- **Settings → Sound** controls interface cues and volume. Four interface sounds are bundled; additional sounds and wallpapers can be imported from a Selene theme folder you own.
 
 Online artwork and wallpapers require their providers to be available. Their content and service terms remain those of the respective owners.
 
@@ -319,7 +319,7 @@ Online artwork and wallpapers require their providers to be available. Their con
 
 ### Controls
 
-**Settings → Start-up → Start in fullscreen** chooses the launcher window mode at the next opening. It is separate from each game’s Fullscreen option.
+**Settings → General → Start in fullscreen** chooses the launcher window mode at the next opening. It is separate from each game’s Fullscreen option.
 
 The macOS **Game** menu follows the current selection. **Game Details** opens the existing game page in Spotlight or the selected cover’s details in Collection; **Game Options…** opens the same options as the in-app button. Unavailable commands are disabled.
 
@@ -342,8 +342,8 @@ Home has no action in Arcane. Prompts follow the connected controller and suppor
 
 | What you see | What to do |
 |---|---|
-| **A Steam game is missing** | Open **Settings → Library → Sources**, verify the Steam folder, then choose **Refresh Steam**. Arcane lists supported titles installed as Mac apps. |
-| **Play works, Rebuild is blocked** | Open **Settings → Porting → Setup and engine** and check Compatibility. Existing apps and new builds have separate requirements. |
+| **A Steam game is missing** | Open **Settings → Integrations**, verify the Steam folder, then choose **Refresh Steam**. Arcane lists supported titles installed as Mac apps. |
+| **Play works, Rebuild is blocked** | Open **Settings → Switch → Engine** and check Compatibility. Existing apps and new builds have separate requirements. |
 | **Sources detached / missing** | Use **Attach Sources…** or locate the original files. The installed app remains usable. |
 | **Ready build waiting to install** | Close the running game or finish the save operation, then retry the installation if prompted. |
 | **Import is unavailable** | Close the game, finish any active operation and follow the cloud-sync or recovery action shown in Saves. |
@@ -355,7 +355,7 @@ Before reporting a problem, review copied diagnostics and remove anything person
 
 ### Compatibility and limitations
 
-- Arcane uses a manually pinned engine and checks its commit, working tree, CLI contract and Metal compiler before new builds. It does not follow upstream `main` automatically. **Settings → Setup and engine → Newest engine** lets you choose `main` yourself before Arcane has tested it: an orange dot marks it, builds are recorded as untested, **Update** moves to a newer `main` when there is one, **Back to tested** returns to the pinned engine, and it is not offered when `main` needs a different Metal compiler.
+- Arcane uses a manually pinned engine and checks its commit, working tree, CLI contract and Metal compiler before new builds. It does not follow upstream `main` automatically. **Settings → Switch → Engine → Newest engine** lets you choose `main` yourself before Arcane has tested it: an orange dot marks it, builds are recorded as untested, **Update** moves to a newer `main` when there is one, **Back to tested** returns to the pinned engine, and it is not offered when `main` needs a different Metal compiler.
 - The current engine is `99224562` and certifies Metal `32023.922`. **Build anyway with an untested toolchain** requires explicit confirmation and marks the resulting build as untested. A successful launch does not turn it into a certified combination.
 - Game compatibility depends on nxnative, the game version and the toolchain.
 - Output follows the window/display; native 1440p/4K internal rendering is not supported. Render scale is 50–100% where the build supports it. MetalFX is spatial upscaling.
@@ -371,9 +371,9 @@ App data lives in `~/Library/Application Support/NXLibrary/`. Local game data us
 
 **Send** makes a SHA-256-verified copy of the app and its registered build cache. Arcane refuses to send an app or cache containing excluded data, such as saves, converted packages or obsolete build files. **Free up space** moves one unchanged, fully backed-up local copy to the Trash only after confirmation and remote verification; the Trash still occupies disk space until emptied. **Download** from the Cloud library panel checks an archive before installing it at its registered location and does not overwrite a local copy. Sources and saves are not sent.
 
-**Settings → Porting → Porting storage** shows app, build cache and log sizes for ported games, including hidden ones, with the largest caches first. **Move to Trash** moves one game's build cache or all build caches after confirmation. Apps, original game files, saves and logs stay in place. The next rebuild may take longer. Shared cache confirmations list the other affected entries.
+**Settings → Storage → Porting storage** shows app, build cache and log sizes for ported games, including hidden ones, with the largest caches first. **Move to Trash** moves one game's build cache or all build caches after confirmation. Apps, original game files, saves and logs stay in place. The next rebuild may take longer. Shared cache confirmations list the other affected entries.
 
-**Settings → Library → Storage** can recalculate sizes, clear logs and open the shared backups folder. **Remove Sources & Build Cache** also moves selected original source files to the Trash, while retaining the installed app and saves. Read that confirmation carefully; it differs from clearing a cache.
+**Settings → Storage** can recalculate sizes, clear logs and open the shared backups folder. **Remove Sources & Build Cache** also moves selected original source files to the Trash, while retaining the installed app and saves. Read that confirmation carefully; it differs from clearing a cache.
 
 ## Documentation and development
 

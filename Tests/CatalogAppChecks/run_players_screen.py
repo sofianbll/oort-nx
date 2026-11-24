@@ -541,11 +541,11 @@ final class PlayersFixtureSource: ControllerSource {
                     }
                 }
                 for (section, label) in [(SettingsSection.profileIdentity, "nom"), (.profileSecurity, "code")] {
-                    router.openSettings(section)
+                    router.openSettings(section, rowID: section == .profileIdentity ? "profileName" : "profileLock")
                     _ = try withHost(SettingsView(initialSection: section, viewModel: vm, settings: settings,
                                                   router: router, artwork: artwork),
                                      size: size, locale: locale, backdrop: backdrop) { host in
-                        send(.nxSettingsGamepadAction, .navigateRight, .confirm)
+                        send(.nxSettingsGamepadAction, .confirm)
                         try capture(host, "reglages-clair-profil-\(label)")
                     }
                 }
@@ -605,7 +605,7 @@ final class PlayersFixtureSource: ControllerSource {
                 confirmForeground(players, from: "Game Options")
                 send(input, .cancel)
                 if name == "clair" {
-                    send(input, .navigateDown, .confirm)
+                    send(input, .navigateDown, .navigateDown, .confirm) // Skip All settings.
                     try capture(host, "jeu-clair-edit-details")
                     send(input, .confirm)
                     try capture(host, "jeu-clair-illustrations")

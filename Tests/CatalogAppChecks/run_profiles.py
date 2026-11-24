@@ -241,8 +241,8 @@ import ArcanePorting
                                   (.account, .profileNextendo), (.lock, .profileSecurity)] {
             entry.openSettingsFixture(action)
             precondition(settingsRouter.route == .settings(section))
-            SettingsView(initialSection: section, viewModel: vm, settings: settings, router: settingsRouter, artwork: art)
-                .pressScreenFixtureBack()
+            if action == .lock { precondition(settingsRouter.settingsRowID == "profileLock") }
+            settingsRouter.back() // The mounted settings probe covers the internal back stack.
             precondition(settingsRouter.route == .profile)
         }
         SettingsView.checkIntegrationJump(viewModel: vm, settings: settings, artwork: art)
@@ -1500,6 +1500,8 @@ extension SettingsView {
         }
         precondition(router.settingsRowID == nil && !sources.configuration.isEnabled, "Focus the published Steam row, do not activate it")
         NotificationCenter.default.post(name: .nxSettingsGamepadAction, object: GamepadAction.cancel)
+        precondition(router.route == .settings(.sources), "Return to the Settings sidebar first")
+        NotificationCenter.default.post(name: .nxSettingsGamepadAction, object: GamepadAction.cancel)
         precondition(router.route == .integrations && router.integrationFocus == .steam && host.window == nil)
         NotificationCenter.default.post(name: .nxSettingsGamepadAction, object: GamepadAction.confirm)
         precondition(!sources.configuration.isEnabled, "The dismissed Settings view must not receive Confirm")
@@ -1509,7 +1511,7 @@ extension SettingsView {
     @MainActor static func checkPINChange(viewModel: AppViewModel, settings: AppSettingsStore,
                                           artwork: ArtworkStore, profiles: LocalProfileStore) {
         let router = AppRouter()
-        router.openSettings(.profileSecurity)
+        router.openSettings(.profileSecurity, rowID: "profileLock")
         let view = Self(initialSection: .profileSecurity, viewModel: viewModel, settings: settings,
                         router: router, artwork: artwork)
         let host = NSHostingView(rootView: AnyView(view.frame(width: 1440, height: 810)))
@@ -1529,8 +1531,7 @@ extension SettingsView {
             press(.menu)
         }
         settle()
-        press(.confirm) // Enter the Security rows.
-        press(.confirm) // Change code.
+        press(.confirm) // The Account page focuses the code row directly.
         enter([4, 3, 2, 1])
         enter([4, 3, 2, 1])
         enter([4, 3, 2, 1])
@@ -1718,9 +1719,9 @@ extension ProfilePage {
         # ImageRenderer does not rasterize AppKit scroll views or fields. Render their real SwiftUI contents.
         # Real Settings views, with only the AppKit-backed scroll containers flattened.
         replace(app / "Views/Settings/SettingsView.swift",
-                r"        ScrollViewReader \{ proxy in\n            ScrollView \{(.*?)\n            }\n            \.scrollIndicators\(\.hidden\).*?\n        }\n    }\n\n    private var reduceMotion",
-                lambda m: "        Color.clear.overlay(alignment: .top) {" + m[1] +
-                "\n                .fixedSize(horizontal: false, vertical: true)\n        }.clipped()\n    }\n\n    private var reduceMotion")
+                r"        return ScrollViewReader \{ proxy in\n            ScrollView \{(.*?)\n            }\n            \.scrollIndicators\(\.hidden\).*?\n        }\n    }",
+                lambda m: "        return Color.clear.overlay(alignment: .top) {" + m[1] +
+                "\n                .fixedSize(horizontal: false, vertical: true)\n        }.clipped()\n    }")
         settings_view = app / "Views/Settings/SettingsView.swift"
         replace(settings_view, r"profileAccount: NextendoSettings\? = nil\) \{",
                 "profileAccount: NextendoSettings? = nil, fixturePIN: String? = nil) {")
@@ -1729,16 +1730,17 @@ extension ProfilePage {
                 "        _pinProfileID = State(initialValue: fixturePIN != nil ? profiles?.active?.id : nil)\n"
                 '        _pinAction = State(initialValue: fixturePIN == "remove" ? .remove : fixturePIN == "change" ? .change : .set)')
         replace(settings_view, r"@State private var focusArea: SettingsFocusArea = \.sidebar", "@State private var focusArea: SettingsFocusArea")
-        replace(settings_view, r"_section = State\(initialValue: initialSection\)",
-                "_section = State(initialValue: initialSection)\n"
+        replace(settings_view, r"_navigation = State\(initialValue: SettingsPage.opening\(initialSection\)\)",
+                "_navigation = State(initialValue: SettingsPage.opening(initialSection))\n"
                 "        _focusArea = State(initialValue: initialSection == .profileIdentity ? .rows : .sidebar)")
         replace(settings_view, r"focusArea == \.rows \? focusedRow\?\.rowID : nil",
                 'initialSection == .profileIdentity ? "Avatar" : focusArea == .rows ? focusedRow?.rowID : nil')
-        replace(app / "Views/Settings/SettingsSidebar.swift", r"            ScrollViewReader \{ proxy in\n.*?\n            }",
-                "            GeometryReader { _ in groups }.clipped()")
+        replace(app / "Views/OortUI/OortSettingsShell.swift",
+                r"            ScrollViewReader \{ proxy in\n                ScrollView \{(.*?)\n"
+                r"                }\n                \.scrollIndicators\(\.hidden\).*?\n            }",
+                lambda m: "            GeometryReader { _ in" + m[1] + "\n            }.clipped()")
         with (app / "Views/Settings/SettingsView.swift").open("a") as swift:
-            swift.write("\nextension SettingsView {\n    func pressScreenFixtureReset() { handleGamepad(.secondaryAction) }\n"
-                        "    func pressScreenFixtureBack() { handleBack() }\n}\n")
+            swift.write("\nextension SettingsView {\n    func pressScreenFixtureReset() { handleGamepad(.secondaryAction) }\n}\n")
             swift.write(SETTINGS_PIN_TEST)
         with (app / "Views/Settings/SettingsPortingStorageSection.swift").open("a") as swift:
             swift.write("\nextension SettingsPortingStorageSection {\n    func publishScreenFixtureActions() { publishActions() }\n}\n")

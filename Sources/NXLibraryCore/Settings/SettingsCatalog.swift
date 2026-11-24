@@ -215,6 +215,10 @@ public enum SettingsCatalog {
                 || L10n.text($0.about).range(of: needle, options: options) != nil
                 || $0.about.range(of: needle, options: options) != nil
                 || $0.group.place.range(of: needle, options: options) != nil
+                || $0.group.title.range(of: needle, options: options) != nil
+                || $0.group.title(in: AppLocale(language: .english, region: "US")).range(of: needle, options: options) != nil
+                || SettingsCategory(section: $0.group)?.title().range(of: needle, options: options) != nil
+                || SettingsCategory(section: $0.group)?.title(for: $0.group).range(of: needle, options: options) != nil
         }
     }
 }

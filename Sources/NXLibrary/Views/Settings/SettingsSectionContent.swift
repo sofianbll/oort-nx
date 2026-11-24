@@ -20,8 +20,7 @@ struct SettingsSectionContent: View {
     let onChooseRegion: () -> Void
     let onOpenConsole: () -> Void
     let onOpenGroup: (SettingDescriptor) -> Void
-    let onSearchSubmit: () -> Void
-    let searchFieldRequest: Int
+    let searchQuery: String
     @Binding var cloudAdvanced: Bool
     @Binding var multiplayerAdvanced: Bool
     let onEditCloud: () -> Void
@@ -35,13 +34,13 @@ struct SettingsSectionContent: View {
         case .search:
             SettingsSearchSection(cloudLibrary: viewModel.cloudLibrary, supportsNextendo: supportsNextendo,
                                   hasProfileAccount: profileNextendo != nil, onOpenGroup: onOpenGroup,
-                                  onSubmit: onSearchSubmit, fieldRequest: searchFieldRequest, onActions: onActions)
+                                  query: searchQuery, onActions: onActions)
         case .changed:
             if let profiles = viewModel.localProfiles {
                 SettingsChangedSection(settings: settings.store, viewModel: viewModel, setup: viewModel.setup,
                                        cloudLibrary: viewModel.cloudLibrary, profiles: profiles,
                                        supportsNextendo: supportsNextendo, hasProfileAccount: profileNextendo != nil,
-                                       onOpenGroup: onOpenGroup, onActions: onActions)
+                                       query: searchQuery, onOpenGroup: onOpenGroup, onActions: onActions)
             }
         case .startUp:
             if let profiles = viewModel.localProfiles {
