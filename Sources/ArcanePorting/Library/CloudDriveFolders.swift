@@ -247,8 +247,7 @@ public struct CloudDriveFolders: Sendable {
     /// Run only after confirmation; a skipped key (or manifest with missing dependencies) prevents activation.
     public func move(_ plan: MovePlan, to destination: String,
                      progress: (Int, Int) async throws -> Void) async throws -> [String] {
-        guard remote == plan.remote, Self.canMove(from: plan.source, to: destination),
-              !plan.entries.isEmpty, plan.entries.allSatisfy(Self.validMoveEntry) else {
+        guard remote == plan.remote, Self.validMove(plan, to: destination) else {
             throw StorageBackendError.invalidKey
         }
         try await verifyUniqueFolder(plan.source)
@@ -287,6 +286,13 @@ public struct CloudDriveFolders: Sendable {
             try await progress(index + 1, plan.entries.count)
         }
         return conflicts
+    }
+
+    package static func validMove(_ plan: MovePlan, to destination: String) -> Bool {
+        canMove(from: plan.source, to: destination)
+            && [plan.source, destination].allSatisfy { $0.components(separatedBy: "/").allSatisfy(validName) }
+            && !plan.entries.isEmpty && plan.entries.allSatisfy(validMoveEntry)
+            && Set(plan.entries.map(\.file.key)).count == plan.entries.count
     }
 
     private static func validMoveEntry(_ entry: MoveEntry) -> Bool {
@@ -348,7 +354,7 @@ public struct CloudDriveFolders: Sendable {
         if !existing.isEmpty {
             guard Self.matches(file, existing),
                   current[0].ID.map({ $0 != existing[0].ID }) ?? true else { return nil }
-            _ = try await checked(["deletefile", old])
+            _ = try await checked(["deletefile", old, "--drive-use-trash=true"])
         } else if remote == ":local:" {
             // The local rclone Move uses a replacing rename.
             let path = String(new.dropFirst(remote.count))

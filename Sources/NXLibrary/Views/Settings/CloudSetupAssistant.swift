@@ -209,8 +209,9 @@ struct CloudSetupAssistant: View {
             guard current == nil, let previous, previous == moveID,
                   let result = viewModel.activityResults.entries.first(where: { $0.id == previous }) else { return }
             switch result.outcome {
-            case .cancelled: issue = "Move stopped. Try again to move the remaining files."
-            case .failed: if moveConflicts.isEmpty { issue = "Could not finish moving games. Try again to move the remaining files." }
+            case .cancelled, .failed:
+                if model.hasPendingMove { issue = "Move paused. Close this window and choose Retry in Activity." }
+                else if moveConflicts.isEmpty { issue = LibraryMoveActivity.unfinished }
             case .succeeded: break
             }
         }
@@ -693,6 +694,7 @@ struct CloudSetupAssistant: View {
         if creation != nil { creation = nil; return }
         if confirmingMove { confirmingMove = false; return }
         if let move { viewModel.cancelLibraryMove(move.id); return }
+        if model.hasPendingMove { onClose(); return }
         if enteredSourcesPath != nil { enteredSourcesPath = nil; focus.select(.enterSourcesPath); return }
         if folderName != nil { folderName = nil; return }
         if work?.kind == .create { return }

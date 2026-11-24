@@ -1,4 +1,6 @@
 import Foundation
+import NXLibraryCore
+import Darwin
 
 package struct ActivityHistory {
     package enum Job: Equatable, Codable, Sendable {
@@ -19,6 +21,7 @@ package struct ActivityHistory {
 
         package var canRetry: Bool {
             if case .failed = outcome { return true }
+            if case .cancelled = outcome, case .move = job { return true }
             return false
         }
     }
@@ -59,5 +62,76 @@ package struct LibraryMoveRequest: Equatable, Codable, Sendable {
     package init(plan: CloudDriveFolders.MovePlan, destination: String) {
         self.plan = plan
         self.destination = destination
+    }
+}
+
+/// Separate from dismissible activity results. The confirmed plan, not a new scan of
+/// the now partial source library, is the only safe input for another attempt.
+package struct LibraryMoveJournal {
+    package struct Pending: Codable, Equatable, Sendable {
+        private let version: Int
+        package let id: UUID
+        package let request: LibraryMoveRequest
+        package let sourcesRoot: String
+
+        package init(id: UUID, request: LibraryMoveRequest, sourcesRoot: String) {
+            version = 1
+            self.id = id
+            self.request = request
+            self.sourcesRoot = sourcesRoot
+        }
+
+        fileprivate var isValid: Bool {
+            version == 1 && CloudLibraryPreference.validSourcesRoot(sourcesRoot)
+                && CloudDriveFolders.validMove(request.plan, to: request.destination)
+        }
+    }
+
+    private let file: URL
+    private static let maximumBytes = 64 * 1024 * 1024
+    package init(in directory: URL) { file = directory.appendingPathComponent("cloud-library-move.json") }
+
+    package func load() throws -> Pending? {
+        let fd = open(file.path, O_RDONLY | O_NOFOLLOW | O_CLOEXEC | O_NONBLOCK)
+        if fd < 0 && errno == ENOENT { return nil }
+        guard fd >= 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+        let handle = FileHandle(fileDescriptor: fd, closeOnDealloc: true)
+        defer { try? handle.close() }
+        var status = stat()
+        guard fstat(fd, &status) == 0, status.st_mode & mode_t(S_IFMT) == mode_t(S_IFREG),
+              (1...Self.maximumBytes).contains(Int(status.st_size)),
+              let data = try handle.read(upToCount: Self.maximumBytes + 1), data.count <= Self.maximumBytes else {
+            throw StorageBackendError.invalidConfiguration
+        }
+        let pending = try JSONDecoder().decode(Pending.self, from: data)
+        guard pending.isValid else { throw StorageBackendError.invalidConfiguration }
+        return pending
+    }
+
+    package func begin(_ pending: Pending) throws {
+        guard pending.isValid else { throw StorageBackendError.invalidConfiguration }
+        let fm = FileManager.default
+        let directory = file.deletingLastPathComponent()
+        try fm.createDirectory(at: directory, withIntermediateDirectories: true)
+        let stage = directory.appendingPathComponent(".cloud-move-\(UUID())")
+        defer { try? fm.removeItem(at: stage) }
+        let bytes = try JSONEncoder().encode(pending)
+        guard bytes.count <= Self.maximumBytes else { throw StorageBackendError.invalidConfiguration }
+        guard fm.createFile(atPath: stage.path, contents: bytes, attributes: [.posixPermissions: 0o600]) else {
+            throw StorageBackendError.invalidConfiguration
+        }
+        let handle = try FileHandle(forWritingTo: stage)
+        try handle.synchronize()
+        try handle.close()
+        try fm.linkItem(at: stage, to: file)
+        let fd = open(directory.path, O_RDONLY | O_DIRECTORY | O_CLOEXEC)
+        guard fd >= 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+        defer { close(fd) }
+        guard fsync(fd) == 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+    }
+
+    package func finish(_ pending: Pending) throws {
+        guard try load() == pending else { throw StorageBackendError.invalidConfiguration }
+        try FileManager.default.removeItem(at: file)
     }
 }

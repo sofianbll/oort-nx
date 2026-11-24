@@ -10,6 +10,15 @@ extension AppViewModel {
         guard !hasLoadedActivity else { return }
         let hasNewResults = !activityResults.entries.isEmpty
         activityResults.restore(history)
+        if cloudLibrary.moveJournalUnreadable {
+            showSettingsNotice(title: L10n.text("Move library"),
+                               message: L10n.text("The saved library move cannot be read. Cloud transfers are paused."), cancelTitle: "Close")
+        }
+        if let pending = cloudLibrary.pendingMove, cloudLibrary.libraryMove == nil,
+           !activityResults.entries.contains(where: { $0.id == pending.id && $0.job == .move(pending.request) && $0.canRetry }) {
+            activityResults.record(id: pending.id, job: .move(pending.request), name: pending.request.destination,
+                                   outcome: .failed(L10n.text(LibraryMoveActivity.unfinished)))
+        }
         hasLoadedActivity = true
         if hasNewResults { persistActivity() }
         porting.restoreBuildQueue(builds)
@@ -22,7 +31,11 @@ extension AppViewModel {
 
     func clearActivity(_ id: UUID? = nil) {
         guard hasLoadedActivity else { return }
+        let pending = cloudLibrary.pendingMove.flatMap { pending in
+            activityResults.entries.first { $0.id == pending.id }
+        }
         activityResults.clear(id)
+        if let pending { activityResults.restore([pending]) }
         persistActivity()
     }
 

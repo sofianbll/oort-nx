@@ -2283,15 +2283,26 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "有 %d 个文件冲突。第一个是：%@"}}
       }
     },
-    "Move stopped. Try again to move the remaining files.": {
+    "Move paused. Close this window and choose Retry in Activity.": {
       "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Move stopped. Try again to move the remaining files."}},
-        "it": {"stringUnit": {"state": "translated", "value": "Spostamento interrotto. Riprova per spostare i file rimasti."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Déplacement arrêté. Réessayez pour déplacer les fichiers restants."}},
-        "de": {"stringUnit": {"state": "translated", "value": "Verschieben gestoppt. Versuche es erneut, um die übrigen Dateien zu verschieben."}},
-        "es": {"stringUnit": {"state": "translated", "value": "Traslado detenido. Vuelve a intentarlo para mover los archivos restantes."}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Transferência interrompida. Tente de novo para mover os arquivos restantes."}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "移动已停止。请重试以移动其余文件。"}}
+        "en": {"stringUnit": {"state": "translated", "value": "Move paused. Close this window and choose Retry in Activity."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Spostamento in pausa. Chiudi questa finestra e scegli Riprova in Attività."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Déplacement en pause. Fermez cette fenêtre, puis choisissez Réessayer dans Activité."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Verschieben pausiert. Schließe dieses Fenster und wähle in Aktivitäten „Erneut versuchen“."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Traslado en pausa. Cierra esta ventana y selecciona Reintentar en Actividad."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Transferência em pausa. Feche esta janela e selecione Tentar de novo em Atividade."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "移动已暂停。请关闭此窗口，然后在活动中心选择重试。"}}
+      }
+    },
+    "The saved library move cannot be read. Cloud transfers are paused.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "The saved library move cannot be read. Cloud transfers are paused."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Impossibile leggere lo spostamento salvato. I trasferimenti cloud sono in pausa."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Le déplacement enregistré est illisible. Les transferts cloud sont en pause."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Der gespeicherte Verschiebevorgang kann nicht gelesen werden. Cloud-Übertragungen sind pausiert."}},
+        "es": {"stringUnit": {"state": "translated", "value": "No se puede leer el traslado guardado. Las transferencias en la nube están en pausa."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Não foi possível ler a transferência salva. As transferências na nuvem estão em pausa."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法读取已保存的移动记录。云端传输已暂停。"}}
       }
     },
     "Could not finish moving games. Try again to move the remaining files.": {

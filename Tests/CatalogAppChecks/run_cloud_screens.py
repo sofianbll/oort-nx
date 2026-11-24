@@ -145,6 +145,7 @@ import ArcanePorting
                               message: L10n.text("Content not verified"), cancelTitle: L10n.text("Close"))
         try renderNotice("adoption-unverified", output, vm.settingsNotice!, width: 1280)
         // REFERENCE_END
+        // MOVE_RECOVERY
         if CommandLine.arguments.count > 4 {
             try compareDetails(output, baseline: URL(fileURLWithPath: CommandLine.arguments[4], isDirectory: true))
         }
@@ -1049,6 +1050,54 @@ extension RemotePlayAdapters {
 }
 ''')
         (app / "CloudScreenProbe.swift").write_text(host)
+        if "func recoverPendingMove()" in (app / "ViewModels/AppViewModel+CloudLibrary.swift").read_text():
+            with assistant.open("a") as swift:
+                swift.write('''
+extension CloudSetupAssistant {
+    func screenPausedMove() -> Self {
+        var view = self
+        view._issue = State(initialValue: "Move paused. Close this window and choose Retry in Activity.")
+        return view
+    }
+}
+''')
+            with activity.open("a") as swift:
+                swift.write('''
+extension ActivityCenterView {
+    func checkMoveHints(_ id: UUID) {
+        precondition(hints(.result(id)).map(\\.label) == ["Retry"])
+    }
+}
+''')
+            host = host.replace("// MOVE_RECOVERY", '''
+        let archiveKey = "0100000000001000/app/" + String(repeating: "a", count: 64) + ".aar"
+        let moveData = Data(#"{"source":"Games","remote":"fixture","games":1,"bytes":1,"entries":[{"file":{"key":{"value":"\#(archiveKey)"},"size":1,"hashes":{"md5":"c4ca4238a0b923820dcc509a6f75849b"}},"dependencies":[]}]}"#.utf8)
+        let movePlan = try JSONDecoder().decode(CloudDriveFolders.MovePlan.self, from: moveData)
+        let pending = LibraryMoveJournal.Pending(id: UUID(), request: .init(plan: movePlan, destination: "New Library"),
+                                                 sourcesRoot: "Games/GameFiles")
+        try model.moveJournal.begin(pending)
+        model.recoverPendingMove()
+        precondition(model.archive == nil && model.pendingMove == pending)
+        precondition(!vm.canConfigureCloudLibrary)
+        L10n.setContext(.init(language: .french, region: "FR"))
+        await vm.restoreActivity()
+        precondition(vm.activityResults.entries.first?.id == pending.id)
+        vm.clearActivity()
+        precondition(vm.activityResults.entries.first?.id == pending.id)
+        precondition(ActivityCenterView.rows(vm).contains(.result(pending.id)))
+        precondition(!ActivityCenterView.rows(vm).contains(.clearAll))
+        activity.checkMoveHints(pending.id)
+        for (name, locale) in [("en", AppLocale(language: .english, region: "US")),
+                               ("fr", AppLocale(language: .french, region: "FR"))] {
+            L10n.setContext(locale)
+            vm.recordActivity(pending.id, job: .move(pending.request), name: pending.request.destination,
+                              outcome: .failed(L10n.text(LibraryMoveActivity.unfinished)))
+            try render("activity-move-retry-" + name, output, activity.environment(\\.nxAppLocale, locale))
+            let paused = CloudSetupAssistant(viewModel: vm, model: model, entry: .library, onClose: {})
+            try render("assistant-move-paused-" + name, output, paused.screenPausedMove().environment(\\.nxAppLocale, locale))
+        }
+''')
+            (app / "CloudScreenProbe.swift").write_text(host)
         with (app / "ViewModels/AppViewModel+CloudLibrary.swift").open("a") as swift:
             probe = '''
 extension AppViewModel {

@@ -266,6 +266,10 @@ final class CloudLibraryModel: ObservableObject {
     var playAfterAppInstall: (() -> Void)?
     @Published var libraryMove: LibraryMoveActivity?
     var libraryMoveTask: Task<Void, Never>?
+    let moveJournal = LibraryMoveJournal(in: AppData.supportRoot)
+    private(set) var pendingMove: LibraryMoveJournal.Pending?
+    private(set) var moveJournalUnreadable = false
+    var hasPendingMove: Bool { pendingMove != nil || moveJournalUnreadable }
     let queueStore = CloudTransferQueue()
     var isRestoringQueue = false
     var hasRestoredQueue = false
@@ -330,7 +334,19 @@ final class CloudLibraryModel: ObservableObject {
             sourcesRoot: defaults.string(forKey: CloudLibraryPreference.sourcesRootKey),
             referenceFolder: defaults.string(forKey: CloudLibraryPreference.referenceFolderKey))
         chosenExecutable = defaults.string(forKey: CloudLibraryPreference.executableKey).map { URL(fileURLWithPath: $0) }
+        do { pendingMove = try moveJournal.load() }
+        catch { moveJournalUnreadable = true }
         rebuildArchive()
+    }
+
+    @MainActor func setPendingMove(_ pending: LibraryMoveJournal.Pending?) {
+        pendingMove = pending
+        rebuildArchive()
+    }
+
+    @MainActor func recoverPendingMove() {
+        do { setPendingMove(try moveJournal.load()) }
+        catch { moveJournalUnreadable = true; rebuildArchive() }
     }
 
     /// `reload` restarts the backend for an unchanged preference, after new Google credentials replaced the remote's token.
@@ -383,7 +399,7 @@ final class CloudLibraryModel: ObservableObject {
         reads.values.forEach { $0.task.cancel() }
         reads.removeAll()
         states = [:]
-        backend = preference.enabled ? preference.remote.map {
+        backend = preference.enabled && !hasPendingMove ? preference.remote.map {
             RcloneStorageBackend(remote: $0, root: preference.root, executable: chosenExecutable)
         } : nil
         sourceArchive = backend.map {
@@ -715,8 +731,13 @@ extension AppViewModel {
     }
 
     var canConfigureCloudLibrary: Bool {
+        canStartLibraryMove && !cloudLibrary.hasPendingMove
+    }
+
+    var canStartLibraryMove: Bool {
         !isBuilding && !isCheckingCloudBuild && !isUpdatingApp && !cloudLibrary.isWorking
-            && !cloudLibrary.isChangingConnection && !cloudLibrary.isQuitting && !cloudQuitRequested
+            && !cloudLibrary.isRestoringQueue && !cloudLibrary.isChangingConnection
+            && !cloudLibrary.isQuitting && !cloudQuitRequested
     }
 
     @MainActor func canChangeCloudLibrary(_ action: CloudLibraryAction, for game: PortedGame) -> Bool {
