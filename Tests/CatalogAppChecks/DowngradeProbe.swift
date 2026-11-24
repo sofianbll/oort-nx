@@ -34,13 +34,20 @@ import SwiftUI
         case "restored": try await updated(restored: true)
         case "capture":
             let language: AppLanguage = CommandLine.arguments[2] == "fr" ? .french : .english
-            let notice: DevelopmentStartup.Notice = switch CommandLine.arguments[4] {
+            let scenario = CommandLine.arguments[4]
+            let notice: DevelopmentStartup.Notice = switch scenario {
             case "failed": .failed
+            case "disk-full": .diskFull
             case "partial": .copy([.artwork, .sound])
             default: .copy([])
             }
-            let renderer = ImageRenderer(content: DowngradeWarningView(notice: notice, retry: {}, proceed: {},
-                context: .init(language: language, region: nil)).frame(width: 900, height: 460))
+            let context = AppLocale(language: language, region: nil)
+            let warning = DowngradeWarningView(notice: notice, retry: {}, proceed: {}, context: context)
+            check(warning.risk.contains("Oort\u{00a0}NX\u{00a0}0.3.0"), "version does not break across lines")
+            let renderer = ImageRenderer(content: Group {
+                if scenario == "progress" { DowngradeCopyProgress(context: context) }
+                else { warning }
+            }.seleneCanvasRoot().frame(width: 1120, height: 630))
             guard let image = renderer.cgImage, let png = NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:])
             else { throw CocoaError(.fileWriteUnknown) }
             try png.write(to: URL(fileURLWithPath: CommandLine.arguments[3]))
