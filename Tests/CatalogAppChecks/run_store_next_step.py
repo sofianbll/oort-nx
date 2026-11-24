@@ -21,12 +21,20 @@ SCENARIOS = r'''
         try FileManager.default.createDirectory(at: data, withIntermediateDirectories: true)
         let source = data.appendingPathComponent("Fixture.nsp")
         try Data([0]).write(to: source)
-        for state in ["online-app", "offline-local", "offline-cache", "reference-files", "local-files", "running", "verifying", "waiting", "queued"] {
+        let en = AppLocale(language: .english, region: "US")
+        let scenarios = ["online-app", "offline-local", "offline-app", "offline-cache", "reference-files",
+                         "local-files", "engine-blocked", "cache-only", "unchecked",
+                         "running", "verifying", "waiting", "queued", "refreshing", "blocked"]
+        for state in scenarios {
             var displayed = game
             cloud.states[game.id] = .init()
+            cloud.localSourceIDs.removeAll()
+            cloud.catalogChecked = state != "unchecked"
+            cloud.remember { $0.referenceFiles.removeAll() }
             switch state {
             case "offline-local": displayed.status = .builtSourcesMissing
-            case "local-files": displayed.sources = [.init(url: source, name: source.lastPathComponent, sizeBytes: 1, type: .base)]
+            case "local-files", "engine-blocked":
+                displayed.sources = [.init(url: source, name: source.lastPathComponent, sizeBytes: 1, type: .base)]
                 cloud.localSourceIDs.insert(game.id)
             default: break
             }
@@ -34,11 +42,12 @@ SCENARIOS = r'''
             cloud.update(game.id) {
                 if state == "reference-files" {
                     displayed.cloudSourcesReferenceFolder = "fixture-reference"
-                } else if state == "offline-cache" {
+                } else if ["offline-cache", "cache-only", "unchecked"].contains(state) {
                     $0.availability[.cache] = .nextStepFixture(.cloudOnly)
-                } else if !["offline-local", "local-files"].contains(state) {
+                } else if !["offline-local", "local-files", "engine-blocked"].contains(state) {
                     $0.availability[.app] = .nextStepFixture(.cloudOnly)
                 }
+                $0.refreshing = state == "refreshing"
                 if ["running", "verifying", "waiting", "queued"].contains(state) {
                     $0.action = .restore(.app)
                     $0.queued = state == "queued"
@@ -52,13 +61,18 @@ SCENARIOS = r'''
                 }
             }
             if state == "reference-files" { cloud.remember { $0.referenceFiles.insert(game.id) } }
+            L10n.setContext(fr)
+            let presentation = GameDetailPresentation(game: displayed, metadata: nil, totalPlaytime: 0, lastPlayed: nil)
+            L10n.setContext(en) // The view uses its own locale, not the previous global render's.
             for (width, height) in [(1120, 535), (700, 335)] {
                 let scale = CGFloat(width) / 1120
                 let screen = DetailsTopBlock(game: displayed, logo: nil,
-                    presentation: .init(game: displayed, metadata: nil, totalPlaytime: 0, lastPlayed: nil),
-                    isRunning: false, focusedPill: 0, primaryEnabled: true, expanded: .constant(false),
+                    presentation: presentation, isRunning: false, focusedPill: 0,
+                    primaryEnabled: state != "engine-blocked" && presentation.canPlay || (state != "engine-blocked" && presentation.canRebuild),
+                    expanded: .constant(false),
                     onPrimary: {}, onSecondary: {}, onFavorite: {}, onHoverPill: { _ in },
-                    pillSet: .normal, cloud: cloud, showsCloudPill: true, downloadEnabled: true)
+                    pillSet: vm.portingPills(displayed).detailsPresentation(cloudOnly: cloud.downloadItem(for: displayed) != nil),
+                    cloud: cloud, showsCloudPill: true, downloadEnabled: state != "blocked")
                     .environment(\.nxAppLocale, fr)
                     .environment(\.seleneCanvas, SeleneCanvas(size: .init(width: 1920 * scale, height: 1080 * scale)))
                 try render("\(state)-\(width)", output, screen, size: .init(width: width, height: height))
