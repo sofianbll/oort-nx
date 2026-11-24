@@ -142,11 +142,15 @@ struct IntegrationFixtureView: View {
                         .frame(width: size.width, height: height)
                         .environment(\.seleneSharesBackdrop, true)
                         .background {
-                            ZStack {
-                                Color(hex: palette.scrim)
-                                Rectangle().fill(SeleneTheme.baseGradient(for: palette)).opacity(0.6)
-                                MoonlightBackdrop(accent: SeleneTheme.glyph, ink: SeleneTheme.ink,
-                                                  moving: false, asImage: true, surface: palette.surface)
+                            if CommandLine.arguments.contains("--fixture-bright") {
+                                OortGalleryWallpaper()
+                            } else {
+                                ZStack {
+                                    Color(hex: palette.scrim)
+                                    Rectangle().fill(SeleneTheme.baseGradient(for: palette)).opacity(0.6)
+                                    MoonlightBackdrop(accent: SeleneTheme.glyph, ink: SeleneTheme.ink,
+                                                      moving: false, asImage: true, surface: palette.surface)
+                                }
                             }
                         }
                         .environment(\.seleneCanvas, canvas)
@@ -155,23 +159,8 @@ struct IntegrationFixtureView: View {
                         .environment(\.seleneButtonNames, .xbox)
                         .environment(\.seleneReduceMotion, true)
                         .environment(\.colorScheme, .dark))
-                    host.frame = CGRect(x: 0, y: 0, width: size.width, height: height)
-                    // The AppKit-backed scroll view needs a window to lay out. Never order it onscreen.
-                    let window = NSWindow(contentRect: host.frame, styleMask: [.borderless], backing: .buffered, defer: false)
-                    window.contentView = host
-                    defer { window.contentView = nil }
-                    window.layoutIfNeeded()
-                    for _ in 0..<10 {
-                        RunLoop.main.run(until: Date().addingTimeInterval(0.02))
-                        host.layoutSubtreeIfNeeded()
-                    }
-                    precondition(!window.isVisible)
-                    guard let bitmap = host.bitmapImageRepForCachingDisplay(in: host.bounds) else {
-                        throw CocoaError(.fileWriteUnknown)
-                    }
-                    host.cacheDisplay(in: host.bounds, to: bitmap)
-                    guard let png = bitmap.representation(using: .png, properties: [:]) else { throw CocoaError(.fileWriteUnknown) }
-                    try png.write(to: output.appendingPathComponent("\(prefix)-\(suffix).png"))
+                    try captureWindow(host, size: CGSize(width: size.width, height: height),
+                                      to: output.appendingPathComponent("\(prefix)-\(suffix).png"))
                 }
                 if soundOnly {
                     let store = AppSettingsStore()
@@ -208,6 +197,24 @@ struct IntegrationFixtureView: View {
                 }
             }
         }
+    }
+
+    @MainActor static func captureWindow(_ host: NSView, size: CGSize, to file: URL) throws {
+        host.frame = CGRect(origin: .zero, size: size)
+        // AppKit-backed scroll views need a window to lay out. Never order it onscreen.
+        let window = NSWindow(contentRect: host.frame, styleMask: [.borderless], backing: .buffered, defer: false)
+        window.contentView = host
+        defer { window.contentView = nil }
+        window.layoutIfNeeded()
+        for _ in 0..<10 {
+            RunLoop.main.run(until: Date().addingTimeInterval(0.02))
+            host.layoutSubtreeIfNeeded()
+        }
+        precondition(!window.isVisible)
+        guard let bitmap = host.bitmapImageRepForCachingDisplay(in: host.bounds) else { throw CocoaError(.fileWriteUnknown) }
+        host.cacheDisplay(in: host.bounds, to: bitmap)
+        guard let png = bitmap.representation(using: .png, properties: [:]) else { throw CocoaError(.fileWriteUnknown) }
+        try png.write(to: file)
     }
 
     @MainActor private static func captureAlert(_ alert: NSAlert, to file: URL) throws {

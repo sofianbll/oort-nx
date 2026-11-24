@@ -92,6 +92,12 @@ opening a window.
 rende la sezione reale Sound & music nelle due lingue e larghezze, con Selene
 e Oort selezionati, senza eseguire l’avvio normale o riprodurre audio.
 
+`--oort-ui-gallery` opens a Debug-only component gallery, with no game catalog
+or service. Pass `--render-oort-ui-gallery /absolute/output` to render it
+offscreen in French and German on Oort, Catppuccin Latte and Vantablack.
+Compare the matching PNGs against a recorded run at the same size; use a
+tolerant comparison across OS versions and inspect flagged differences.
+
 ## Verification
 
 ~~~sh
