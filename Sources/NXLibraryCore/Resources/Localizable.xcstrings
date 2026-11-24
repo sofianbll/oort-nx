@@ -3427,6 +3427,50 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "移到废纸篓。清倒废纸篓后可释放空间。所有内容仍可下载。"}}
       }
     },
+    "On this Mac: %@ to move to the Trash.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "On this Mac: %@ to move to the Trash."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Su questo Mac: %@ da spostare nel Cestino."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Sur ce Mac : %@ à mettre à la Corbeille."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Auf diesem Mac: %@ für den Papierkorb."}},
+        "es": {"stringUnit": {"state": "translated", "value": "En este Mac: %@ para mover a la papelera."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Neste Mac: %@ para mover para o Lixo."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "此 Mac 上将移到废纸篓的内容：%@。"}}
+      }
+    },
+    "Trash on this Mac: total size unknown.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Trash on this Mac: total size unknown."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Cestino di questo Mac: dimensione totale sconosciuta."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Taille totale inconnue · Corbeille de ce Mac."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Papierkorb auf diesem Mac: Gesamtgröße unbekannt."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Papelera de este Mac: tamaño total desconocido."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Lixo deste Mac: tamanho total desconhecido."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "此 Mac 上将移到废纸篓的内容：总大小未知。"}}
+      }
+    },
+    "No items selected.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "No items selected."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nessun elemento selezionato."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aucun élément sélectionné."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Keine Elemente ausgewählt."}},
+        "es": {"stringUnit": {"state": "translated", "value": "No hay elementos seleccionados."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhum item selecionado."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "未选择任何项目。"}}
+      }
+    },
+    "Your verified copy stays available in your personal cloud. Your saves are unchanged. Empty the Trash to reclaim space.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Your verified copy stays available in your personal cloud. Your saves are unchanged. Empty the Trash to reclaim space."}},
+        "it": {"stringUnit": {"state": "translated", "value": "La copia verificata resta disponibile nel cloud personale. I salvataggi non cambiano. Svuotare il Cestino per recuperare spazio."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Votre copie vérifiée reste disponible dans votre cloud personnel. Vos sauvegardes restent intactes. Videz la Corbeille pour récupérer l’espace."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Ihre geprüfte Kopie bleibt in Ihrer persönlichen Cloud verfügbar. Ihre Spielstände bleiben unverändert. Leeren Sie den Papierkorb, um Speicherplatz freizugeben."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Su copia verificada sigue disponible en su nube personal. Sus partidas guardadas no cambian. Vacíe la papelera para recuperar espacio."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Sua cópia verificada continua disponível na nuvem pessoal. Seus jogos salvos não são alterados. Esvazie o Lixo para recuperar espaço."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "您可以继续从个人云端下载已验证的副本。您的存档不会更改。清倒废纸篓后可释放空间。"}}
+      }
+    },
     "Download %@ to rebuild?": {
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Download %@ to rebuild?"}},
