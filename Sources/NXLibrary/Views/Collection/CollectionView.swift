@@ -84,6 +84,13 @@ struct CollectionView: View {
         let games = self.games
         let record = selectedCatalogGame(in: games)
         let game = record?.nxnativeGame
+        let lifecycle = sortAndLifecycle(on: chrome(games: games, record: record, game: game))
+        let library = libraryChanges(on: lifecycle)
+        let input = inputEvents(on: library)
+        return loadSelection(game, record: record, on: input)
+    }
+
+    private func chrome(games: [CatalogGame], record: CatalogGame?, game: PortedGame?) -> some View {
         SeleneHomeChrome(
             leftHints: profileCard != nil ? [HintItem(.b, "Back", action: router.back)] : HintItem.homeGlobals(other: "Spotlight",
                                              onOther: settings.settings.viewButtonSwitches ? { handle(.view) } : nil,
@@ -102,6 +109,10 @@ struct CollectionView: View {
                                     showsArt: !settings.settings.keepWallpaperOnGames)
             },
             stage: { stage(games: games, game: game, record: record) })
+    }
+
+    private func sortAndLifecycle(on content: some View) -> some View {
+        content
         .accessibilityHidden(router.sortMenu != nil)
         .overlay {
             if let sortMenu = router.sortMenu {
@@ -117,16 +128,25 @@ struct CollectionView: View {
             router.sortMenu = nil
             removeKeyMonitor()
         }
+    }
+
+    private func libraryChanges(on content: some View) -> some View {
+        let filteredIDs: Set<UUID> = filter == .cloud ? viewModel.cloudOnlyGameIDs : []
+        return content
         .onChange(of: viewModel.catalogGames) {
             store.preloadCachedStoreMetadata()
             reconcile()
         }
         .onChange(of: viewModel.catalogSourceConfigurations) { reconcile() }
         .onChange(of: filter) { reconcile() }
-        .onChange(of: filter == .cloud ? viewModel.cloudOnlyGameIDs : []) { reconcile() }
+        .onChange(of: filteredIDs) { reconcile() }
         .onChange(of: settings.settings.librarySort) { reconcile() }
         .onChange(of: showsEmptyActions) { _, shown in if !shown { importFocused = false } }
         .onChange(of: viewModel.librarySelection.selectedGameID) { selectionChanged() }
+    }
+
+    private func inputEvents(on content: some View) -> some View {
+        content
         .onReceive(NotificationCenter.default.publisher(for: .nxCollectionGamepadAction)) { note in
             guard viewModel.alertMessage == nil, viewModel.settingsNotice == nil else { return }
             if let action = note.object as? GamepadAction { handle(action) }
@@ -140,6 +160,10 @@ struct CollectionView: View {
         .onChange(of: playSessions.sessions.count) { reconcile() }
         .onChange(of: playSessions.profileID) { reconcile() }
         .onChange(of: viewModel.isScanningLibrary) { reconcile() }
+    }
+
+    private func loadSelection(_ game: PortedGame?, record: CatalogGame?, on content: some View) -> some View {
+        content
         .task(id: art.heroTaskKey(game, metadata: game.flatMap { store.storeMetadata[$0.id] })) { await loadHero(game) }
         .task(id: art.steamHeroTaskKey(record)) { await art.loadSteamHero(game: record, current: { selectedCatalogGame?.id }, artwork: artwork) }
         .task(id: art.logoTaskKey(game, metadata: game.flatMap { store.storeMetadata[$0.id] })) { await loadLogo(game) }

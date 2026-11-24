@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **1016 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **1017 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -108,7 +108,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [Sources/NXLibrary/ViewModels/AppViewModel.swift](../../Sources/NXLibrary/ViewModels/AppViewModel.swift) | Coordina libreria e catalogo, sorgenti, lancio, primo avvio, Game Options, spazio su disco e icona del Dock. Tiene il pin, crea i modelli Switch, conserva il modello Nextendo per profilo e manda gli esiti HTTP e di rete alla Console. Conserva la scelta Steam del Setup. Il modello degli avvisi decide ordine e focus, non l'impaginazione. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+Storage.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Storage.swift) | Spazio su disco: misura, cancella cache e log. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+Library.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Library.swift) | Scansione e cartella Game apps, adozione con conferma e avviso nel risultato per contenuto non verificato, trascinamento e collegamento di sorgenti per title ID. |
-| [Sources/NXLibrary/ViewModels/AppViewModel+CloudLibrary.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+CloudLibrary.swift) | Coordina archivio, coda, riconferme e importazione delle schede leggibili. Riserva il bundle durante lo scambio e riprende Play solo dopo un'installazione riuscita; sceglie la cache per Rebuild. |
+| [Sources/NXLibrary/ViewModels/AppViewModel+CloudLibrary.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+CloudLibrary.swift) | Coordina archivio, coda e importazione di manifest e sorgenti personali o di riferimento. Conserva l’ultima presenza per ambito, non esiti di verifica. Riserva il bundle e riprende Play solo dopo un’installazione riuscita. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+CloudLibraryMove.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+CloudLibraryMove.swift) | Ricontrolla l'origine prima di registrare il piano; pubblica progressi e annullabilità, coordina verifica e ripresa sotto lock e attiva la destinazione solo dopo l'esito verificato. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+Activity.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Activity.swift) | Ripristina, registra e cancella gli esiti; invia Retry al proprietario del lavoro e conserva l'esito dello spostamento pendente o mostra il percorso del registro illeggibile. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+Play.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Play.swift) | Entrata Play comune; prepara il target e il profilo correnti e adatta il percorso nxnative al contratto Core. |
@@ -120,7 +120,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [Sources/NXLibrary/ViewModels/AppViewModel+Controller.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Controller.swift) | Sceglie il gioco su cui agiscono i comandi del menu, anche dalla Collection di un profilo. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+Diagnostics.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Diagnostics.swift) | Raccoglie ambiente, toolchain e ultimo build per il rapporto diagnostico ripulito. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+PendingInstall.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+PendingInstall.swift) | Riprende le installazioni differite rispettando i lease, espone il motivo dell'errore e aggiorna il confronto cloud dopo la pubblicazione del bundle. |
-| [Sources/NXLibrary/ViewModels/AppViewModel+Porting.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Porting.swift) | Prepara tile, pill e stima del tempo del porting per la home; usa la cache del motore e dei file per la riga Details e il badge. |
+| [Sources/NXLibrary/ViewModels/AppViewModel+Porting.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Porting.swift) | Prepara tile, pill e stima del porting; proietta disponibilità locale e remota per il filtro Cloud e i badge senza leggere il disco. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+Saves.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Saves.swift) | Risolve contesto e identità se il profilo è leggibile, coordina i lease con motivo di rifiuto e recupera i journal del profilo selezionato. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+SteamGridDB.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+SteamGridDB.swift) | Verifica, salva e rimuove la chiave SteamGridDB dell’utente senza registrarne il valore. |
 | [Sources/NXLibrary/ViewModels/AppIconModel.swift](../../Sources/NXLibrary/ViewModels/AppIconModel.swift) | Applica o ripristina l’icona senza toccare giochi in esecuzione o in build. Conserva la richiesta Play legata al dialogo durante la firma; Change artwork ne osserva l’avanzamento. |
@@ -234,7 +234,7 @@ Cartella `Sources/NXLibraryCore/Library/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibraryCore/Library/LibraryFilter.swift](../../Sources/NXLibraryCore/Library/LibraryFilter.swift) | Definisce filtri, PlayHistory e query condivisa per ricerca/ordine del catalogo misto; `LibraryQueryRecord` è ciò che filtro, ricerca e Surprise leggono da un gioco di qualunque fonte. |
+| [Sources/NXLibraryCore/Library/LibraryFilter.swift](../../Sources/NXLibraryCore/Library/LibraryFilter.swift) | Definisce filtri, storico e query condivisa del catalogo misto; Cloud riceve gli ID solo remoti dal chiamante. `LibraryQueryRecord` è il contratto comune con ricerca e Surprise. |
 | [Sources/NXLibraryCore/Library/LibrarySelectionState.swift](../../Sources/NXLibraryCore/Library/LibrarySelectionState.swift) | Mantiene selezione e spostamento nel risultato filtrato della Collection. |
 | [Sources/NXLibraryCore/Library/LibraryPresentation.swift](../../Sources/NXLibraryCore/Library/LibraryPresentation.swift) | Formatta metadati e statistiche temporali per le schermate della libreria: i valori pronti e la strada Steam; quella Switch sta in `ArcanePorting/Library/LibraryPresentation+Porting.swift`. |
 | [Sources/NXLibraryCore/Library/PlaySession.swift](../../Sources/NXLibraryCore/Library/PlaySession.swift) | Descrive una sessione persistibile con gioco e riferimenti temporali. |
@@ -250,7 +250,7 @@ Cartella `Sources/NXLibraryCore/Library/`.
 | [Sources/NXLibraryCore/App/FileHandle+Chunks.swift](../../Sources/NXLibraryCore/App/FileHandle+Chunks.swift) | Legge a blocchi, rilasciandoli uno alla volta durante il calcolo delle impronte. |
 | [Sources/NXLibraryCore/Library/StorageBackend.swift](../../Sources/NXLibraryCore/Library/StorageBackend.swift) | Contratto oggetti remoti: chiavi e impronte serializzabili, trasferimenti, avanzamento e lease condiviso. |
 | [Sources/NXLibraryCore/Library/CloudLibraryFailure.swift](../../Sources/NXLibraryCore/Library/CloudLibraryFailure.swift) | Cause e recupero cloud: distingue volume locale pieno, quota Drive e rete; non riporta l'output di rclone. |
-| [Sources/NXLibraryCore/Library/RcloneStorageBackend.swift](../../Sources/NXLibraryCore/Library/RcloneStorageBackend.swift) | Risolve il binario, verifica cartelle via demone o CLI e pubblica oggetti in staging; limita il riferimento a letture e copie verso staging locale. |
+| [Sources/NXLibraryCore/Library/RcloneStorageBackend.swift](../../Sources/NXLibraryCore/Library/RcloneStorageBackend.swift) | Risolve il binario, elenca metadati con duplicati sotto radici convalidate e distingue errore e cartella vuota. Limita il riferimento a letture sotto l’ID scelto e copie verso staging locale. |
 | [Sources/NXLibraryCore/Library/CloudSetupAssistant.swift](../../Sources/NXLibraryCore/Library/CloudSetupAssistant.swift) | Bozza dell'assistente: passi, selezione, verifica, formato dell'ID client e client Google facoltativo nel plist. |
 | [Sources/NXLibraryCore/Selene/CloudSetupAssistantFocus.swift](../../Sources/NXLibraryCore/Selene/CloudSetupAssistantFocus.swift) | Bersagli per tastiera e controller, inclusi azione e campo del percorso manuale; priorità all'azione principale e a Cancel nelle conferme. |
 | [Sources/NXLibraryCore/Library/RcloneConfiguration.swift](../../Sources/NXLibraryCore/Library/RcloneConfiguration.swift) | Preferenza compatibile, remoti e tool locali, prova di lettura con errori tipizzati, cifratura con portachiavi e OAuth Drive annullabile senza segreto negli argomenti. |
@@ -410,7 +410,7 @@ Cartella `Sources/ArcanePorting/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/ArcanePorting/PortedGame.swift](../../Sources/ArcanePorting/PortedGame.swift) | Modello persistente del gioco con bundle, sorgenti, impostazioni, build e installazione in attesa; espone la dimensione localizzata. |
+| [Sources/ArcanePorting/PortedGame.swift](../../Sources/ArcanePorting/PortedGame.swift) | Modello persistente del gioco, anche solo remoto: bundle, sorgenti, posizione remota relativa, impostazioni, build e installazione in attesa. |
 | [Sources/ArcanePorting/LibraryFile.swift](../../Sources/ArcanePorting/LibraryFile.swift) | Contenitore versionato del catalogo della libreria. |
 | [Sources/ArcanePorting/GameStatus.swift](../../Sources/ArcanePorting/GameStatus.swift) | Enumera disponibilità e stato del gioco rispetto ad app, sorgenti e porting. |
 | [Sources/ArcanePorting/TargetPlatform.swift](../../Sources/ArcanePorting/TargetPlatform.swift) | Definisce il target mac-app e le sue etichette per l’interfaccia. |
@@ -424,7 +424,7 @@ Cartella `Sources/ArcanePorting/Catalog/`.
 | [Sources/ArcanePorting/Catalog/PortedGame+Catalog.swift](../../Sources/ArcanePorting/Catalog/PortedGame+Catalog.swift) | `PortedGame` nel contratto del catalogo (validazione, presenza, avvio, ricerca), integrazione `.nxnative`, tipi noti dell’app (`CatalogRecordKinds.standard`) ed entrate `nxnativeGame`, `init(nxnative:)`, `updateNXNative`. |
 | [Sources/ArcanePorting/Catalog/CatalogPersonalizations+Porting.swift](../../Sources/ArcanePorting/Catalog/CatalogPersonalizations+Porting.swift) | Chiave personale nxnative (title ID o chiave storica) e radice dei dati personali: nxnative alla radice, ogni altra integrazione in `integrations/<nome>`. |
 | [Sources/ArcanePorting/Catalog/CatalogStore+Porting.swift](../../Sources/ArcanePorting/Catalog/CatalogStore+Porting.swift) | Lo store dell’app con tutti i tipi noti e l’import di `library.json`: `CatalogStore(directory:)`, `CatalogStore.decode(_:)`, `CatalogLegacyImport.nxnative` e `CatalogDocument.converting`. |
-| [Sources/ArcanePorting/Catalog/CatalogRepository+Porting.swift](../../Sources/ArcanePorting/Catalog/CatalogRepository+Porting.swift) | Modifiche nxnative del catalogo: merge di scansioni, adozione e ripristino delle app, esiti di build, import cloud con sorgenti e proiezione `nxnativeGames`. |
+| [Sources/ArcanePorting/Catalog/CatalogRepository+Porting.swift](../../Sources/ArcanePorting/Catalog/CatalogRepository+Porting.swift) | Modifiche nxnative del catalogo: merge di scansioni, adozione e ripristino delle app, esiti di build, import delle sole sorgenti cloud, esclusioni e proiezione `nxnativeGames`. |
 | [Sources/ArcanePorting/Catalog/CatalogBuildRecoveries.swift](../../Sources/ArcanePorting/Catalog/CatalogBuildRecoveries.swift) | Generazioni di build non ancora salvate, selezione del retry e conferma della sola generazione persistita. |
 
 ## Porting · libreria, sessioni e spazio
@@ -446,7 +446,7 @@ Cartella `Sources/ArcanePorting/Library/`.
 | [Sources/ArcanePorting/Library/CloudGameArchive.swift](../../Sources/ArcanePorting/Library/CloudGameArchive.swift) | Pubblica app e cache separatamente; distingue manifest non validi (inclusi conflitti dell'albero dichiarato) ed errori di lettura nell'importazione; riusa la cache compatibile prima di Rebuild completo; ripristino atomico e recupero di Free up space. |
 | [Sources/ArcanePorting/Library/CloudGameArchive+Files.swift](../../Sources/ArcanePorting/Library/CloudGameArchive+Files.swift) | Calcola il diff, riprende il download v2 in staging, clona i file uguali, conserva la cache parziale verificata e ripara l'app prima della pubblicazione locale. |
 | [Sources/ArcanePorting/Library/CloudArchiveFingerprintCache.swift](../../Sources/ArcanePorting/Library/CloudArchiveFingerprintCache.swift) | Cache persistente e limitata delle impronte di app e cache, indicizzata da digest. |
-| [Sources/ArcanePorting/Library/CloudGameSources.swift](../../Sources/ArcanePorting/Library/CloudGameSources.swift) | Formati e identità delle sorgenti, selezione portabile, confronto, invio e ripristino con verifica dello spazio e delle impronte. |
+| [Sources/ArcanePorting/Library/CloudGameSources.swift](../../Sources/ArcanePorting/Library/CloudGameSources.swift) | Scopre le sorgenti per nome e dimensione sotto una radice, rifiuta ambiguità e riverifica la selezione al download. Gestisce identità, confronto, invio e ripristino con verifica dello spazio e delle impronte. |
 | [Sources/ArcanePorting/Library/CloudTransferQueue.swift](../../Sources/ArcanePorting/Library/CloudTransferQueue.swift) | Salva azioni e identità nel profilo, rimette il lavoro interrotto in testa e segnala una sola volta il mancato salvataggio. |
 | [Sources/ArcanePorting/Library/CloudTransferPresentation.swift](../../Sources/ArcanePorting/Library/CloudTransferPresentation.swift) | Stati, misura esclusiva, annullamento e posizione del comando Cloud library con link di riserva. |
 | [Sources/ArcanePorting/Library/CloudDriveFolders.swift](../../Sources/ArcanePorting/Library/CloudDriveFolders.swift) | Cerca le sorgenti in `GameFiles`, `Switch/Jeux` e `Switch/Games` sotto la libreria scelta, lega lo spostamento agli ID Drive e verifica dipendenze e residui. |
@@ -687,7 +687,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibrary/Views/Collection/CollectionView.swift](../../Sources/NXLibrary/Views/Collection/CollectionView.swift) | Compone copertine e suggerimenti, inclusi i collegamenti Mac, riusando una sola lista ordinata globale o del profilo. |
+| [Sources/NXLibrary/Views/Collection/CollectionView.swift](../../Sources/NXLibrary/Views/Collection/CollectionView.swift) | Compone copertine, filtro Cloud e suggerimenti; separa ciclo di vita, cambi di libreria, input e caricamento della selezione. |
 | [Sources/NXLibrary/Views/Collection/CollectionView+Input.swift](../../Sources/NXLibrary/Views/Collection/CollectionView+Input.swift) | Muove il focus nella barra, nell’elenco o tra le azioni della Collection vuota; inoltra Play, Download e opzioni per fonte, e apre l’ordinamento nella Collection principale. |
 | [Sources/NXLibrary/Views/Collection/CollectionCoverRow.swift](../../Sources/NXLibrary/Views/Collection/CollectionCoverRow.swift) | Disegna copertine e scorrimento della riga Collection. |
 | [Sources/NXLibrary/Views/Detail/GameDetailView.swift](../../Sources/NXLibrary/Views/Detail/GameDetailView.swift) | Compone la pagina Details e coordina bande, modello corrente e focus. |
@@ -992,7 +992,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/ArcanePortingTests/PortingFailureReasonTests.swift](../../Tests/ArcanePortingTests/PortingFailureReasonTests.swift) | Classificazione dei fallimenti e corrispondenza con i messaggi del pin, anche da un checkout separato scelto con NX_TEST_ENGINE_REPO. |
 | [Tests/ArcanePortingTests/PortingNoticeTests.swift](../../Tests/ArcanePortingTests/PortingNoticeTests.swift) | Condizioni e testi delle notifiche di esito del porting. |
 | [Tests/ArcanePortingTests/PortingPresentationTests.swift](../../Tests/ArcanePortingTests/PortingPresentationTests.swift) | ETA, prewarm, tile, fallimenti del porting e posizione e focus della pill Cloud. |
-| [Tests/ArcanePortingTests/CloudGameSourcesTests.swift](../../Tests/ArcanePortingTests/CloudGameSourcesTests.swift) | Spazio insufficiente con runner finto; conflitti, lease, annullamento e Cestino simulato con rclone locale. |
+| [Tests/ArcanePortingTests/CloudGameSourcesTests.swift](../../Tests/ArcanePortingTests/CloudGameSourcesTests.swift) | Scoperta con solo metadati, radici isolate, errori e rifiuti; voci solo remote, esclusioni, Unfollow, spazio, conflitti, lease e Cestino sintetico. |
 | [Tests/ArcanePortingTests/CloudTransferQueueTests.swift](../../Tests/ArcanePortingTests/CloudTransferQueueTests.swift) | Persistenza, ordine, caricamento delle vecchie richieste con `offer`, errore di scrittura una tantum e richieste ancora valide. |
 | [Tests/ArcanePortingTests/CloudTransferPresentationTests.swift](../../Tests/ArcanePortingTests/CloudTransferPresentationTests.swift) | Stati e azioni, misura esclusiva per superficie, movimento ridotto e punto d'ingresso unico. |
 | [Tests/ArcanePortingTests/BuildQueueTests.swift](../../Tests/ArcanePortingTests/BuildQueueTests.swift) | FIFO, ripristino, voci non valide, sorgenti mancanti, persistenza degli esiti e retry. |
@@ -1105,7 +1105,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_steam_scoped_playtime.py](../../Tests/CatalogAppChecks/run_steam_scoped_playtime.py) | Aggiorna le ore Steam dopo sessioni Switch secondarie, anche archiviate, e congela dopo una sessione Steam secondaria. |
 | [run_keymap_screens.py](../../Tests/CatalogAppChecks/run_keymap_screens.py) | Verifica tutti i glifi e rende la barra Selene per Xbox, Switch, DualSense e tastiera senza aprire finestre. |
 | [run_inbox_screens.py](../../Tests/CatalogAppChecks/run_inbox_screens.py) | Verifica e rende Inbox, menu e card; controlla Inbox disattivata, riletture, duplicati e sorgenti collegate durante il triage con preferenze e Cestino simulati. |
-| [run_cloud_screens.py](../../Tests/CatalogAppChecks/run_cloud_screens.py) | Verifica Cloud, coda, accesso Google, scoperta delle sorgenti, spostamento, glifi, Play together e schermo su fixture locali. Rende anche la versione del motore e il badge in Spotlight e Collection. `--compare-with-5047557` confronta la scheda con Riduci movimento. |
+| [run_cloud_screens.py](../../Tests/CatalogAppChecks/run_cloud_screens.py) | Verifica Cloud, coda, accesso Google, spostamento, Play together e schermo su fixture locali. Rende tessere, scheda, filtro ed esito per giochi solo cloud, e verifica personalizzazione, riavvio offline e download. `--compare-with-5047557` confronta la scheda con Riduci movimento. |
 | [run_integration_contract.py](../../Tests/CatalogAppChecks/run_integration_contract.py) | Controlla il collegamento di Integrations alle viste reali senza aprirle. |
 | [run_profiles.py](../../Tests/CatalogAppChecks/run_profiles.py) | Rende profili, raccolte, impostazioni, primo avvio e PIN. Verifica focus da Integrations, alone, moto ridotto, salvataggi e ripresa di Play dopo scambio cloud, firma o conferma VPN. Prova i collegamenti Mac su richiesta, sempre con preferenze temporanee. |
 | [run_startup_recovery.py](../../Tests/CatalogAppChecks/run_startup_recovery.py) | Coordinatore di avvio reale su profili sintetici: conflitto, scelta esplicita, offerta obsoleta, Retry e fallimento della preparazione; nessuna finestra. |
@@ -1240,6 +1240,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 [Misure delle letture rclone](../history/reviews/2026-11-21-rclone-rc.md): comandi singoli e sessione persistente.
 [Divergenza dell’inventario cloud](../history/reviews/2026-11-21-cloud-upload-inventory.md): diagnosi del controllo prima dell’invio.
 [Uscita cloud e AppKit](../history/reviews/2026-11-21-cloud-quit-appkit.md): prova del ciclo di eventi.
+[Giochi con sole sorgenti cloud](../history/reviews/2026-11-24-cloud-only.md): elenco confinato, personalizzazione, trasferimento e riapertura offline su fixture.
 [Versione del motore installato](../history/reviews/2026-11-24-installed-engine-version.md): origine del commit e risultati della sonda visiva.
 
 | File | Responsabilità |

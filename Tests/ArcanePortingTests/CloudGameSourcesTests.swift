@@ -82,6 +82,76 @@ final class CloudGameSourcesTests: XCTestCase {
         XCTAssertEqual(try repository.importCloudGames([], discovered: discovery.games, in: root, sourceRoot: root).nxnativeGames.map(\.id), [kept.id])
     }
 
+    func testFailedRootDoesNotFallThroughToAnEmptyDiscovery() async throws {
+        let backend = RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in
+            XCTAssertEqual(Array(args.prefix(2)), ["lsjson", "fixture:Games"])
+            return .init(status: 3, stdout: "[]", stderr: "directory not found")
+        }
+        do {
+            _ = try await CloudGameSources(backend: backend, root: "Games/GameFiles", usesDefaultRoot: true).discover()
+            XCTFail("Reading the library failed; no child can be confirmed absent")
+        } catch { XCTAssertEqual(error as? CloudLibraryFailure, .folderMissing) }
+    }
+
+    func testManifestWithSourcesAndNoAppCreatesAnUnbuiltGame() throws {
+        let title = "0100000000004000"
+        let sources = try XCTUnwrap(CloudGameSources.ArchivedSelection(folder: "Lunar [\(title)]",
+            files: [.init(url: URL(fileURLWithPath: "/fixture/Games/Lunar.nsp"), kind: .base, titleId: title, sizeBytes: 1)],
+            titleID: title))
+        let manifest = CloudGameManifest(version: 2, titleID: title, createdAt: .now, artifacts: [],
+                                         gameName: "Lunar", sourceSelection: sources)
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let repository = CatalogRepository(store: .init(directory: root.appendingPathComponent("catalog")))
+        let catalog = try repository.importCloudGames([manifest], in: root, sourceRoot: root)
+        let game = try XCTUnwrap(catalog.nxnativeGames.first)
+        XCTAssertTrue(game.isCloudSourcePlaceholder)
+        XCTAssertEqual(game.status, .notBuilt)
+        XCTAssertEqual(game.sources.first?.titleId, title)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: game.url.path))
+    }
+
+    func testDiscoveredReferenceDownloadVerifiesBytesAndRefusesToReplaceChangedLocalFile() async throws {
+        let title = "0100000000004000", reference = "reference-fixture"
+        let file = "Lunar [\(title)].nsp"
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let backend = RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in
+            XCTAssertTrue(args.contains(reference))
+            let node = #"{"Name":"\#(file)","Path":"\#(file)","Size":1,"IsDir":false,"Hashes":{"md5":"c4ca4238a0b923820dcc509a6f75849b"}}"#
+            switch (args[0], args[1]) {
+            case ("lsjson", "fixture:"):
+                return .init(status: 0, stdout: Self.entries(directories: ["GameFiles"]), stderr: "")
+            case ("lsjson", "fixture:GameFiles"):
+                return .init(status: 0, stdout: "[\(node)]", stderr: "")
+            case ("lsjson", "fixture:GameFiles/\(file)"):
+                XCTAssertTrue(args.contains("--stat"))
+                return .init(status: 0, stdout: node, stderr: "")
+            case ("copyto", "fixture:GameFiles/\(file)"):
+                XCTAssertTrue(args[2].hasPrefix(root.path + "/"))
+                try Data("1".utf8).write(to: URL(fileURLWithPath: args[2]))
+                return .init(status: 0, stdout: "", stderr: "")
+            default:
+                XCTFail("Unexpected operation: \(args.prefix(2))")
+                return .init(status: 1, stdout: "", stderr: "")
+            }
+        }
+        let shared = try XCTUnwrap(backend.reference(folderID: reference))
+        let sources = CloudGameSources(backend: shared, root: "GameFiles", capacity: { _ in 1_000_000_000 }, trash: { _ in XCTFail("Read only") })
+        let discovery = try await sources.discover()
+        let game = try XCTUnwrap(discovery.games.first)
+        let files = game.adopted(in: root)
+        let fileURL = try XCTUnwrap(files.first?.url)
+        try FileManager.default.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try await sources.downloadDiscovered(titleID: title, directory: game.directory, files: files, in: root, progress: nil)
+        XCTAssertEqual(try Data(contentsOf: fileURL), Data("1".utf8))
+        try Data("2".utf8).write(to: fileURL, options: .atomic)
+        await assertError(.localChanged) {
+            try await sources.downloadDiscovered(titleID: title, directory: game.directory, files: files, in: root, progress: nil)
+        }
+        XCTAssertEqual(try Data(contentsOf: fileURL), Data("2".utf8))
+    }
+
     private static func entries(directories: [String] = [], files: [String] = []) -> String {
         let rows: [[String: Any]] = directories.map { ["Name": $0, "Path": $0, "Size": -1, "IsDir": true] }
             + files.map { ["Name": $0, "Path": $0, "Size": 1, "IsDir": false] }

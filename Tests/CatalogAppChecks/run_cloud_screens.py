@@ -533,7 +533,14 @@ extension CloudScreenProbe {
         let fr = AppLocale(language: .french, region: "FR")
         L10n.setContext(fr)
         let previous = AppData.preferences.data(forKey: "NXLibrary_CloudLastKnownAvailability")
-        defer { AppData.preferences.set(previous, forKey: "NXLibrary_CloudLastKnownAvailability") }
+        let sourcesPreference = AppData.preferences.string(forKey: CloudLibraryPreference.sourcesRootKey)
+        let referencePreference = AppData.preferences.string(forKey: CloudLibraryPreference.referenceFolderKey)
+        AppData.preferences.removeObject(forKey: CloudLibraryPreference.sourcesRootKey)
+        defer {
+            AppData.preferences.set(previous, forKey: "NXLibrary_CloudLastKnownAvailability")
+            AppData.preferences.set(sourcesPreference, forKey: CloudLibraryPreference.sourcesRootKey)
+            AppData.preferences.set(referencePreference, forKey: CloudLibraryPreference.referenceFolderKey)
+        }
         var vm = try newModel()
         vm.cloudLibrary.installScreenArchives(backend)
         vm.cloudLibrary.installScreenSources(backend, root: "Games/GameFiles")
@@ -593,11 +600,15 @@ extension CloudScreenProbe {
         vm.cloudLibrary.installScreenArchives(backend)
         vm.cloudLibrary.installScreenSources(backend, root: "Games/GameFiles")
         vm.cloudLibrary.hasRestoredQueue = true
+        precondition(vm.cloudLibrary.matchesPersistedStorage(), "The isolated fixture must own its source root")
         vm.downloadCloudGame(selected)
         let task = vm.cloudLibrary.active?.task
         precondition(task != nil, "Download game files must go through the transfer queue")
         await task?.value
-        precondition(try! Data(contentsOf: selected.sources[0].url) == payload)
+        let bytes = try? Data(contentsOf: selected.sources[0].url)
+        let state = vm.cloudLibrary.states[game.id]
+        precondition(bytes == payload,
+                     "Source download failed: \(state?.issue?.message ?? "no issue"); \(String(describing: vm.cloudLibrary.queuePause))")
         precondition(vm.portingTileLook(selected) == .toBuild)
         precondition(vm.cloudLibrary.downloadItem(for: selected) == nil)
         precondition(vm.queryLibrary(.init(filter: .cloud), history: NoPlayHistory()).isEmpty)

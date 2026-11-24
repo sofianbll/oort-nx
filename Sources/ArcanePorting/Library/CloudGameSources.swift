@@ -59,6 +59,7 @@ public final class CloudGameSources: @unchecked Sendable {
         package var games: [DiscoveredGame] = []
         package var ambiguous: [String] = []
         package var unreadable: [String] = []
+        package var failedDirectories: Set<String> = []
     }
 
     public struct ArchivedSelection: Codable, Equatable, Sendable {
@@ -153,26 +154,28 @@ public final class CloudGameSources: @unchecked Sendable {
     package func discover() async throws -> Discovery {
         var result = Discovery()
         for root in discoveryRoots {
-            do {
-                guard try await directoryIsUnique(root) else { return .init(ambiguous: [root]) }
-                result = try await discover(in: root)
+            switch try await directoryPath(root) {
+            case .missing: continue
+            case .ambiguous: return .init(ambiguous: [root])
+            case .present: result = try await discover(in: root)
             }
-            catch CloudLibraryFailure.folderMissing { continue }
             if !result.games.isEmpty || !result.ambiguous.isEmpty || !result.unreadable.isEmpty { break }
         }
         return result
     }
 
-    private func directoryIsUnique(_ relative: String) async throws -> Bool {
+    private enum DirectoryPath { case present, missing, ambiguous }
+
+    private func directoryPath(_ relative: String) async throws -> DirectoryPath {
         var prefix = ""
         for component in relative.components(separatedBy: "/") {
             let key = Self.normalizedName(component)
             let matches = try await library.directoryEntries(in: prefix).filter { Self.normalizedName($0.name) == key }
-            if matches.isEmpty { throw CloudLibraryFailure.folderMissing }
-            guard matches.count == 1, matches[0].isDirectory, matches[0].name == component else { return false }
+            if matches.isEmpty { return .missing }
+            guard matches.count == 1, matches[0].isDirectory, matches[0].name == component else { return .ambiguous }
             prefix = prefix.isEmpty ? component : prefix + "/" + component
         }
-        return true
+        return .present
     }
 
     private static func normalizedName(_ name: String) -> String {
@@ -183,7 +186,7 @@ public final class CloudGameSources: @unchecked Sendable {
         guard let root = discoveryRoots.first,
               let files = selection.adopted(in: URL(fileURLWithPath: "/"), titleID: titleID) else { return false }
         let directory = root + "/" + selection.folderName
-        guard try await directoryIsUnique(directory) else { return false }
+        guard try await directoryPath(directory) == .present else { return false }
         let entries = try await library.directoryEntries(in: directory)
         let byName = Dictionary(grouping: entries, by: { Self.normalizedName($0.name) })
         return files.allSatisfy { file in
@@ -266,7 +269,10 @@ public final class CloudGameSources: @unchecked Sendable {
                             entries: Dictionary(grouping: children, by: { normalized($0.name) }))
                     }
                 } catch is CancellationError { throw CancellationError() }
-                catch { result.unreadable.append(entry.name) }
+                catch {
+                    result.unreadable.append(entry.name)
+                    result.failedDirectories.insert(directory)
+                }
             }
         }
         for packages in loose.values {
@@ -290,7 +296,7 @@ public final class CloudGameSources: @unchecked Sendable {
         let selection = try Selection(game.directory, files.map(\.url), titleID: titleID)
         guard let lease = library.leases.begin(selection.title) else { throw CloudArchiveError.busy }
         defer { library.leases.end(selection.title, token: lease) }
-        guard try await directoryIsUnique(game.directory) else { throw CloudArchiveError.localChanged }
+        guard try await directoryPath(game.directory) == .present else { throw CloudArchiveError.localChanged }
         let entries = try await library.directoryEntries(in: game.directory, withHashes: true)
         let byName = Dictionary(grouping: entries, by: { Self.normalizedName($0.name) })
         var remote: [String: StorageObject] = [:]
@@ -301,7 +307,7 @@ public final class CloudGameSources: @unchecked Sendable {
             else { throw CloudArchiveError.localChanged }
             remote[name] = entry.object
         }
-        try await download(using: library, pending: downloads(selection, remote: remote), progress: progress)
+        try await download(using: library, pending: downloads(selection, remote: remote, verifyExisting: true), progress: progress)
     }
 
     public static func importedFolder(for id: UUID, in root: URL = AppData.supportRoot) -> URL {
@@ -515,12 +521,12 @@ public final class CloudGameSources: @unchecked Sendable {
     }
 
     private func downloads(_ selection: Selection, remote: [String: StorageObject], replacingBefore: Date? = nil,
-                           replacing: Set<URL> = []) async throws -> [(URL, StorageObject, Stamp?)] {
+                           replacing: Set<URL> = [], verifyExisting: Bool = false) async throws -> [(URL, StorageObject, Stamp?)] {
         var pending: [(URL, StorageObject, Stamp?)] = []
         for source in selection.files {
             try Task.checkCancellation()
             let local = try stamp(at: source)
-            if local != nil && replacingBefore == nil { continue }
+            if local != nil && replacingBefore == nil && !verifyExisting { continue }
             guard let item = remote[source.lastPathComponent] else { throw CloudArchiveError.noRemoteCopy }
             guard let digest = item.md5 else { throw CloudArchiveError.invalidArchive }
             if let local {

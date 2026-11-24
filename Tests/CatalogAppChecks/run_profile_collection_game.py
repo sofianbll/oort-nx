@@ -39,6 +39,9 @@ struct AppViewModel {
     var librarySelection: Selection
     var visibleCatalogGames: [CatalogGame]
     var playSessionStore: History?
+    func queryLibrary(_ query: Query, history: History) -> [CatalogGame] {
+        query.applyCatalog(to: visibleCatalogGames, history: history)
+    }
     // CATALOG_SELECTION
 }
 // GAME_SELECTION

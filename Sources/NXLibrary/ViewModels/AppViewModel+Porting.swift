@@ -16,7 +16,7 @@ extension AppViewModel {
         let state = cloudLibrary.states[game.id]
         func inCloud(_ item: CloudLibraryItem) -> Bool? {
             guard cloudLibrary.archive != nil else { return false }
-            guard cloudLibrary.checkFailure == nil, cloudLibrary.referenceCheck?.failure == nil else { return nil }
+            guard !cloudLibrary.hasCloudReadFailure else { return nil }
             switch state?.copy(item) {
             case .cloudOnly: return true
             case .notInCloud: return false
