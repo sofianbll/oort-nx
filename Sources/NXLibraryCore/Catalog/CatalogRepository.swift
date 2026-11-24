@@ -1,4 +1,5 @@
 import Foundation
+import Darwin
 
 public enum CatalogRepositoryError: Error, Equatable { case gameNotFound }
 
@@ -21,6 +22,113 @@ public struct CatalogRepository {
         var draft = current
         guard try change(&draft) else { return current }
         return try store.save(draft, expectedRevision: current.revision)
+    }
+
+    /// A recovery trace precedes both publication and Trash. A failed Trash must not leave a
+    /// removed catalog entry, or overwrite a new file at the original location during rollback.
+    package func transactionRemovingFiles(from original: CatalogDocument, gameID: UUID, files: [URL],
+                                          beforeTrash: () throws -> Void,
+                                          _ change: (inout CatalogDocument) throws -> Void) throws -> CatalogDocument {
+        var draft = original
+        try change(&draft)
+        guard !files.isEmpty else { return try store.save(draft, expectedRevision: original.revision) }
+        let identities = try files.map(Self.removalIdentity)
+        let journal = store.directory.appendingPathComponent("catalog-removal-\(UUID()).json")
+        let record = original.games.first { $0.id == gameID }
+        var trace = RemovalTrace(revision: original.revision, game: record, files: files,
+                                 cloudImportExclusions: original.cloudImportExclusions)
+        func saveTrace(replacing: Bool) throws {
+            let stage = try CatalogPublication.stage(JSONEncoder().encode(trace), in: store.directory)
+            defer { try? FileManager.default.removeItem(at: stage) }
+            try CatalogPublication.atomic.publish(stage, journal, replacing) {}
+            try CatalogPublication.synchronize(store.directory)
+        }
+        try saveTrace(replacing: false)
+        func finish() { try? FileManager.default.removeItem(at: journal) }
+        func rollback(from latest: CatalogDocument) throws {
+            var restored = original
+            restored.revision = latest.revision
+            _ = try store.save(restored, expectedRevision: latest.revision)
+        }
+
+        let saved: CatalogDocument
+        do {
+            saved = try store.save(draft, expectedRevision: original.revision)
+        } catch CatalogStoreError.commitUncertain {
+            do {
+                let latest = try load()
+                draft.revision = latest.revision
+                guard latest == draft else { throw CatalogStoreError.staleRevision }
+                try rollback(from: latest)
+                finish()
+            } catch { throw CatalogRemovalRecovery(journal: journal) }
+            throw CatalogStoreError.commitUncertain
+        } catch {
+            finish()
+            throw error
+        }
+        var unidentifiedTrash = false
+        do {
+            for (file, identity) in zip(files, identities) {
+                try beforeTrash()
+                let found = try Self.removalIdentity(file)
+                guard found == identity else { throw CatalogStoreError.staleRevision }
+                var destination: NSURL?
+                do {
+                    try FileManager.default.trashItem(at: file, resultingItemURL: &destination)
+                } catch {
+                    if let destination = destination as URL? {
+                        trace.trashed.append(.init(original: file, destination: destination))
+                        try? saveTrace(replacing: true)
+                    } else if (try? Self.removalIdentity(file)).map({ $0 == identity }) != true {
+                        unidentifiedTrash = true
+                    }
+                    throw error
+                }
+                guard let destination = destination as URL? else {
+                    unidentifiedTrash = true
+                    throw CatalogStoreError.commitUncertain
+                }
+                trace.trashed.append(.init(original: file, destination: destination))
+                try saveTrace(replacing: true)
+            }
+        } catch {
+            var restored = !unidentifiedTrash
+            for item in trace.trashed.reversed() {
+                if renamex_np(item.destination.path, item.original.path, UInt32(RENAME_EXCL)) != 0 { restored = false }
+            }
+            do { try rollback(from: saved) }
+            catch { restored = false }
+            guard restored else { throw CatalogRemovalRecovery(journal: journal) }
+            finish()
+            throw error
+        }
+        finish()
+        return saved
+    }
+
+    private static func removalIdentity(_ url: URL) throws -> (dev_t, ino_t, mode_t) {
+        var status = stat()
+        guard url.isFileURL, lstat(url.path, &status) == 0 else { throw CatalogStoreError.staleRevision }
+        return (status.st_dev, status.st_ino, status.st_mode)
+    }
+
+    private struct RemovalTrace: Encodable {
+        struct Trashed: Encodable { let original: URL; let destination: URL }
+        let version = 1
+        let revision: UUID
+        let game: CatalogGame?
+        let files: [URL]
+        let cloudImportExclusions: Set<String>?
+        var trashed: [Trashed] = []
+    }
+}
+
+package struct CatalogRemovalRecovery: LocalizedError {
+    let journal: URL
+
+    package var errorDescription: String? {
+        L10n.format("Removal could not be fully undone. Recovery record: %@", [journal.path])
     }
 }
 

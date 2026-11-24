@@ -75314,51 +75314,61 @@
         }
       }
     },
-    "The sources were removed, but the library could not be saved: %@": {
-      "comment": "Source removal safety copy. User paths/names remain verbatim.",
+    "Could not remove game sources: %@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The sources were removed, but the library could not be saved: %@"
+            "value": "Could not remove game sources: %@"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le sorgenti sono state rimosse, ma non è stato possibile salvare la libreria: %@"
+            "value": "Impossibile rimuovere i file del gioco: %@"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les sources ont été supprimées, mais la bibliothèque n’a pas pu être enregistrée : %@"
+            "value": "Impossible de retirer les sources du jeu : %@"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die Quelldateien wurden entfernt, aber die Bibliothek konnte nicht gespeichert werden: %@"
+            "value": "Die Quelldateien des Spiels konnten nicht entfernt werden: %@"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Se eliminaron los archivos de origen, pero no se pudo guardar la biblioteca: %@"
+            "value": "No se pudieron quitar los archivos de origen del juego: %@"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Os arquivos de origem foram removidos, mas não foi possível salvar a biblioteca: %@"
+            "value": "Não foi possível remover os arquivos de origem do jogo: %@"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "来源已移除，但无法保存游戏库：%@"
+            "value": "无法移除游戏源文件：%@"
           }
         }
+      }
+    },
+    "Removal could not be fully undone. Recovery record: %@": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Removal could not be fully undone. Recovery record: %@"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Non è stato possibile annullare tutta la rimozione. Registro di recupero: %@"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Le retrait n’a pas pu être entièrement annulé. Fichier de récupération : %@"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Das Entfernen konnte nicht vollständig rückgängig gemacht werden. Wiederherstellungsdatei: %@"}},
+        "es": {"stringUnit": {"state": "translated", "value": "No se pudo deshacer toda la eliminación. Registro de recuperación: %@"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Não foi possível desfazer toda a remoção. Registro de recuperação: %@"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法完全撤销移除操作。恢复记录：%@"}}
       }
     },
     "The store logo, then Steam": {

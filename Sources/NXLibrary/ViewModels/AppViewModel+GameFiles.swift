@@ -53,10 +53,9 @@ extension AppViewModel {
 
         let appPath = resolvedRemovalPath(updated.url)
         let otherGames = current.nxnativeGames.filter { $0.id != game.id }
-        var removedCount = 0
         var removedBytes: Int64 = 0
         var failures: [String] = []
-        var trashed = Set<URL>()
+        var sources = [URL]()
 
         for source in updated.sources {
             let url = source.url.standardizedFileURL
@@ -83,37 +82,26 @@ extension AppViewModel {
                 failures.append(L10n.format("%@ is also used by another library entry", [url.lastPathComponent]))
                 continue
             }
-            do {
-                let size = (try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize)
+            if !sources.contains(url) {
+                sources.append(url)
+                removedBytes += (try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize)
                     .map(Int64.init) ?? source.sizeBytes
-                guard RunningGameMonitor.runningApplication(for: updated) == nil else {
-                    throw CloudArchiveError.busy
-                }
-                try fm.trashItem(at: url, resultingItemURL: nil)
-                trashed.insert(url)
-                removedCount += 1
-                removedBytes += size
-            } catch {
-                failures.append("\(url.lastPathComponent): \(error.localizedDescription)")
             }
         }
 
+        var files = sources
         var removedWorkspace = false
         if let path = updated.workspacePath, failures.isEmpty {
             let workspace = URL(fileURLWithPath: path).standardizedFileURL
             if BuildScratch.isManaged(workspace, core: core),
                fm.fileExists(atPath: workspace.path),
                workspaceCanBeTrashed(workspace, protecting: current.nxnativeGames, owner: updated) {
-                do {
-                    try fm.trashItem(at: workspace, resultingItemURL: nil)
-                    removedWorkspace = true
-                } catch {
-                    failures.append(L10n.format("Build cache: %@", [error.localizedDescription]))
-                }
+                files.append(workspace)
+                removedWorkspace = true
             }
         }
 
-        updated.sources.removeAll { trashed.contains($0.url.standardizedFileURL) }
+        updated.sources.removeAll { sources.contains($0.url.standardizedFileURL) }
         if removedWorkspace {
             updated.workspacePath = nil
             updated.buildCachePath = nil
@@ -122,18 +110,17 @@ extension AppViewModel {
             updated.status = .builtSourcesMissing
         }
         do {
-            applyCatalog(try catalogRepository.updateNXNative(id: game.id) { stored in
-                stored.sources = updated.sources
-                stored.workspacePath = updated.workspacePath
-                stored.buildCachePath = updated.buildCachePath
-                stored.status = updated.status
+            applyCatalog(try catalogRepository.removeNXNativeFiles(id: game.id, from: current, files: files,
+                keeping: updated) {
+                guard RunningGameMonitor.runningApplication(for: updated) == nil else { throw CloudArchiveError.busy }
             })
         } catch {
-            alertMessage = L10n.format("The sources were removed, but the library could not be saved: %@", [error.localizedDescription])
-            logs.append(LogEntry(level: .error, message: alertMessage!))
+            let message = L10n.format("Could not remove game sources: %@", [error.localizedDescription])
+            alertMessage = message
+            logs.append(LogEntry(level: .error, message: message))
             return
         }
-        let removed = L10n.count("Removed %lld source files (%@).", removedCount, arguments: [Self.formatBytes(removedBytes)])
+        let removed = L10n.count("Removed %lld source files (%@).", sources.count, arguments: [Self.formatBytes(removedBytes)])
             + (removedWorkspace ? " " + L10n.text("The build cache was also removed.") : "")
         if failures.isEmpty {
             logs.append(LogEntry(level: .success,
@@ -194,7 +181,8 @@ extension AppViewModel {
             return
         }
         do {
-            let games = try catalogRepository.load().nxnativeGames
+            let catalog = try catalogRepository.load()
+            let games = catalog.nxnativeGames
             guard let current = games.first(where: { $0.id == game.id }),
                   current.url == game.url, current.workspacePath == game.workspacePath, current.sources == game.sources,
                   RunningGameMonitor.runningApplication(for: current) == nil,
@@ -207,9 +195,7 @@ extension AppViewModel {
                 let path = resolvedRemovalPath($0.url)
                 return path == appPath || path.hasPrefix(appPath + "/")
             }
-            if deleteBundle, FileManager.default.fileExists(atPath: game.url.path) {
-                try FileManager.default.trashItem(at: game.url, resultingItemURL: nil)
-            }
+            var files = deleteBundle && FileManager.default.fileExists(atPath: game.url.path) ? [game.url] : []
 
             // Remove only the app-owned staged workspace. A folder-mode game's
             // workspace is the user's source folder and must never be touched.
@@ -219,12 +205,14 @@ extension AppViewModel {
                 if BuildScratch.isManaged(workspace, core: core),
                    FileManager.default.fileExists(atPath: workspace.path),
                    workspaceCanBeTrashed(workspace, protecting: games, owner: current) {
-                    try FileManager.default.trashItem(at: workspace, resultingItemURL: nil)
+                    files.append(workspace)
                     removedWorkspace = true
                 }
             }
 
-            applyCatalog(try catalogRepository.removeNXNative(id: game.id))
+            applyCatalog(try catalogRepository.removeNXNativeFiles(id: game.id, from: catalog, files: files, keeping: nil) {
+                guard RunningGameMonitor.runningApplication(for: current) == nil else { throw CloudArchiveError.busy }
+            })
             if deleteBundle {
                 logs.append(LogEntry(level: .warning,
                     message: L10n.format("Game app deleted: %@%@", [String(describing: game.name), String(describing: removedWorkspace ? "; staged workspace removed" : "")])))
