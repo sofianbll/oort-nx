@@ -153,7 +153,7 @@ public struct CloudDriveFolders: Sendable {
 
     static func discoverSources(library: String, files: (String) async throws -> [String]) async throws -> Sources? {
         guard library.components(separatedBy: "/").allSatisfy(validName) else { throw StorageBackendError.invalidKey }
-        for path in [joining(library, "GameFiles"), joining(library, "Switch/Jeux")] {
+        for path in ["GameFiles", "Switch/Jeux", "Switch/Games"].map({ joining(library, $0) }) {
             guard let names = try await listingIfPresent(path, list: files) else { continue }
             guard names.count <= 10_000 else { throw StorageBackendError.invalidResponse }
             var groups = Set<String>()
@@ -162,6 +162,7 @@ public struct CloudDriveFolders: Sendable {
                 try Task.checkCancellation()
                 let parts = name.components(separatedBy: "/")
                 guard parts.count <= 2, parts.allSatisfy(validName),
+                    !parts.dropLast().contains(where: { $0.lowercased().hasSuffix(".app") }),
                     CloudGameSources.fileExtensions.contains((name as NSString).pathExtension.lowercased())
                 else { continue }
                 if parts.count == 1 { loose = true }

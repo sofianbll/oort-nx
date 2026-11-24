@@ -146,6 +146,7 @@ import ArcanePorting
                               message: L10n.text("Content not verified"), cancelTitle: L10n.text("Close"))
         try renderNotice("adoption-unverified", output, vm.settingsNotice!, width: 1280)
         // REFERENCE_END
+        // SWITCH_GAMES_SOURCES
         if CommandLine.arguments.count > 4 {
             try compareDetails(output, baseline: URL(fileURLWithPath: CommandLine.arguments[4], isDirectory: true))
         }
@@ -854,6 +855,46 @@ extension ActivityCenterView {
 """)
         host = HOST.replace("/* NOTICE_LAYOUT */", "vertical: notice.vertical," if before else "cancelIndex: notice.cancelIndex,")
         host = host.replace("// ACCOUNT_SCOPE", account_fixture)
+        if "private var shouldSuggestSources:" in assistant.read_text():
+            host = host.replace("// SWITCH_GAMES_SOURCES", r'''
+        let savedSources = model.preference.sourcesRootOverride
+        let suggestion = CloudDriveFolders.Sources.switchGamesScreenFixture
+        for (name, locale) in [("en", AppLocale(language: .english, region: "US")),
+                               ("fr", AppLocale(language: .french, region: "FR"))] {
+            model.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: nil)
+            let unset = CloudSetupAssistant(viewModel: vm, model: model, entry: .sources) {}
+            try render("assistant-sources-found-" + name, output,
+                       unset.screenSources(suggestion).environment(\.nxAppLocale, locale))
+            precondition(model.preference.sourcesRootOverride == nil, "Suggesting must not save the path")
+            model.chooseSourcesRoot("Games/My sources")
+            let kept = CloudSetupAssistant(viewModel: vm, model: model, entry: .sources) {}
+            try render("assistant-sources-kept-" + name, output,
+                       kept.screenSources(suggestion).environment(\.nxAppLocale, locale))
+            precondition(model.preference.sourcesRootOverride == "Games/My sources")
+        }
+        model.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: savedSources)
+''')
+            with assistant.open("a") as swift:
+                swift.write('''
+extension CloudSetupAssistant {
+    func screenSources(_ suggestion: CloudDriveFolders.Sources) -> Self {
+        var view = self
+        if shouldSuggestSources {
+            precondition(sourcesPath == "Games/GameFiles")
+            view._sourcesSuggestion = State(initialValue: suggestion)
+        } else {
+            precondition(sourcesPath == "Games/My sources")
+        }
+        return view
+    }
+}
+''')
+            with (package / "Sources/ArcanePorting/Library/CloudDriveFolders.swift").open("a") as swift:
+                swift.write('''
+extension CloudDriveFolders.Sources {
+    public static var switchGamesScreenFixture: Self { .init(path: "Games/Switch/Games", games: 1) }
+}
+''')
         has_display = (package / "Sources/ArcanePorting/Launch/GameDisplay.swift").is_file()
         if not before:
             host = host.replace("// DISPLAY_FIXTURE", DISPLAY_FIXTURE)

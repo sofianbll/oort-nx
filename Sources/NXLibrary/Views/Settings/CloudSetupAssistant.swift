@@ -84,6 +84,7 @@ struct CloudSetupAssistant: View {
     private var folderNames: [String] { listing?.names ?? [] }
     private var browsingPath: String { selectingSources ? sourcesPath : draft.path }
     private var defaultSourcesPath: String { CloudDriveFolders.joining(draft.path, "GameFiles") }
+    private var shouldSuggestSources: Bool { entry != .sources || model.preference.sourcesRootOverride == nil }
     private var usesDefaultSources: Bool { onboarding && sourcesPath == defaultSourcesPath }
     private var selectedSourcesOverride: String? { usesDefaultSources ? nil : sourcesPath }
     private var typedSourcesRoot: String? { enteredSourcesPath?.trimmingCharacters(in: .whitespacesAndNewlines) }
@@ -500,6 +501,7 @@ struct CloudSetupAssistant: View {
     }
 
     private func discoverSources() {
+        guard shouldSuggestSources else { browse(sourcesPath); return }
         guard let service else { return }
         let path = draft.path, ticket = draft.renewTicket()
         listing = nil; folderMissing = false; count = nil; countUnknown = false
