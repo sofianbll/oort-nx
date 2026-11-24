@@ -609,6 +609,7 @@ import ArcanePorting
         precondition(vm.playRouter.availability(of: vm.playTarget(for: steamGame)) == .unavailable(.launcherMissing))
         precondition(vm.play(steamGame) == .refused(.launcherMissing) && player.phase(of: steamGame) == .failed(.clientMissing))
         print("Common Play checks passed: profile ownership, guest, duplicate nxnative and missing Steam")
+        try checkDeferredPlay(vm, profiles: profiles, other: alex, game: game)
         vm.applyCatalog(.init(sources: [.init(integration: .nxnative, isEnabled: true)], games: [fixture] + avatarGames))
         let pack = LocalAchievementPack.linksAwakening!
         var progress = LocalAchievementProgress()
@@ -710,6 +711,71 @@ import ArcanePorting
             panel(NSImage(contentsOf: beforeImage)!, "Arcane · avant")
             panel(NSImage(contentsOf: afterImage)!, "Arcane · après")
         }), to: out.appendingPathComponent("15-sort-avant-apres.png"))
+    }
+
+    @MainActor static func checkDeferredPlay(_ vm: AppViewModel, profiles: LocalProfileStore,
+                                             other: LocalProfile, game: PortedGame) throws {
+        let original = profiles.active!
+        let fm = FileManager.default
+        var fixture = game
+        fixture.url = game.url.deletingLastPathComponent().appendingPathComponent("DeferredPlay.app")
+        fixture.bundleId = "example.oort.deferred-play-fixture"
+        fixture.status = .built
+        let catalog = CatalogGame(nxnative: fixture)
+        vm.applyCatalog(.init(games: [catalog]))
+        var events: [PlayEvent] = []
+        func afterInstall() -> () -> Void {
+            vm.cloudLibrary.appInstall = (fixture.titleId!, {})
+            precondition(vm.play(catalog) { events.append($0) } == .accepted(.pending))
+            precondition(vm.play(catalog) == .refused(.launchInProgress))
+            let resume = vm.cloudLibrary.playAfterAppInstall!
+            vm.cloudLibrary.appInstall = nil
+            vm.cloudLibrary.playAfterAppInstall = nil
+            return resume
+        }
+        let staleInstall = afterInstall()
+        precondition(profiles.choose(other.id))
+        staleInstall()
+        precondition(events == [.result(.refused(.profileLocked))] && vm.alertMessage == nil,
+                     "Cloud completion must not play under a different profile, and must notify the original observer")
+        precondition(profiles.choose(original.id))
+        events.removeAll()
+        afterInstall()()
+        precondition(events == [.result(.refused(.installationMissing))], "The original observer must receive the resumed result")
+        vm.alertMessage = nil
+        let settings = vm.settingsStore!
+        let old = settings.settings
+        defer { settings.settings = old; vm.applyCatalog(.init()); vm.alertMessage = nil }
+        settings.settings.multiplayerVPN = .zeroTier
+        settings.settings.multiplayerDefault = .local
+        func confirmVPN() throws -> () -> Void {
+            let contents = fixture.url.appendingPathComponent("Contents")
+            let dm = contents.appendingPathComponent("Resources/dm")
+            try fm.createDirectory(at: dm, withIntermediateDirectories: true)
+            try PropertyListSerialization.data(fromPropertyList: ["CFBundleIdentifier": fixture.bundleId!, "DMSettings": []],
+                                                format: .xml, options: 0).write(to: contents.appendingPathComponent("Info.plist"))
+            // No VPN setting: this host always requires a fallback, regardless of the machine's interfaces.
+            try Data("""
+                {"schema":1,"game":"0100000000001000","settings":[
+                 {"env":"DM_NETWORK","kind":"choice","section":"Game","label":"Network","default":"offline",
+                  "options":[["offline","Offline"],["ldn","Local communication"]]}]}
+                """.utf8).write(to: dm.appendingPathComponent("launcher.json"))
+            precondition(vm.play(catalog) { events.append($0) } == .refused(.confirmationRequired))
+            let retry = vm.settingsNotice!.retry!
+            vm.settingsNotice = nil
+            try fm.removeItem(at: fixture.url)
+            return retry
+        }
+        events.removeAll()
+        let staleVPN = try confirmVPN()
+        precondition(profiles.choose(other.id))
+        staleVPN()
+        precondition(events == [.result(.refused(.profileLocked))] && vm.alertMessage == nil)
+        precondition(profiles.choose(original.id))
+        events.removeAll()
+        try confirmVPN()()
+        precondition(events == [.result(.refused(.installationMissing))])
+        print("Deferred Play checks passed: installation, VPN, original observer and stale profile")
     }
 
     @MainActor static func checkSessionCard(game: CatalogGame, art: ArtworkStore, in out: URL, _ refs: URL) async throws {

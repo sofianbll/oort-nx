@@ -465,6 +465,8 @@ I percorsi completi sono in [flows.md](flows.md#3-play-di-un-gioco-switch-nxnati
 
 `AppViewModel.play` inoltra i comandi Play a `GamePlay` nel Core. Il target mantiene il record della sua fonte e l'unica installazione utilizzabile, senza trasformare Steam in un gioco portato. Un `PlayConnector` dichiara la disponibilità di un nuovo avvio e riceve il profilo corrente; i connettori macOS (`NXNativePlayConnector` e `SteamPlayCoordinator`) conservano i controlli e gli avvisi del loro percorso. La richiesta in preparazione, la consegna al client e l'apertura osservata del gioco sono distinte. Quando un connettore osserva una finestra o l'uscita, può segnalarla; la chiusura della schermata d'attesa per timeout non significa che il gioco sia pronto.
 
+Una ripresa nxnative dopo lo scambio cloud o la conferma VPN rilegge il gioco per UUID ma conserva il profilo e l'osservatore della richiesta. Un profilo diverso o bloccato annulla la ripresa.
+
 Resume nello Spotlight o nella scheda Switch resta un comando del monitor: se il processo nel frattempo esce, Resume non avvia una nuova partita. Cancel e Downloads di Steam e la scelta di aprire Details o Build restano azioni distinte da Play.
 
 **Preparazione.**

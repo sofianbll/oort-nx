@@ -14,12 +14,26 @@ extension AppViewModel {
         guard launchingGameId == nil, launchOverlay == nil else { return .refused(.launchInProgress) }
         guard target.installationAvailability != .unavailable(.sourceDisabled) else { return .refused(.sourceDisabled) }
         guard let requested = target.game.nxnativeGame else { return .refused(.invalidGame) }
-        if let title = requested.titleId, cloudLibrary.appInstall?.title == title.uppercased() {
-            cloudLibrary.playAfterAppInstall = { [weak self] in
-                guard let self, let current = self.libraryGames.first(where: { $0.id == requested.id }) else { return }
-                _ = self.playNXNative(self.playTarget(for: .init(nxnative: current)), profile: self.playProfile,
-                                      observe: nil, acceptsLocalFallback: acceptsLocalFallback)
+        // Resume the same request, against the current installation, or refuse if its profile no longer owns Play.
+        @MainActor func resume(acceptsLocalFallback: Bool) -> () -> Void {
+            { [weak self] in
+                guard let self else { return }
+                guard self.playProfile == profile else {
+                    observe?(.result(.refused(.profileLocked)))
+                    return
+                }
+                guard let current = self.libraryGames.first(where: { $0.id == requested.id }) else {
+                    observe?(.result(.refused(.missingTarget)))
+                    return
+                }
+                let result = self.playNXNative(self.playTarget(for: .init(nxnative: current)), profile: profile,
+                                               observe: observe, acceptsLocalFallback: acceptsLocalFallback)
+                if result != .accepted(.pending) { observe?(.result(result)) }
             }
+        }
+        if let title = requested.titleId, cloudLibrary.appInstall?.title == title.uppercased() {
+            guard cloudLibrary.playAfterAppInstall == nil else { return .refused(.launchInProgress) }
+            cloudLibrary.playAfterAppInstall = resume(acceptsLocalFallback: acceptsLocalFallback)
             return .accepted(.pending)
         }
         // A running game is brought forward, never started a second time.
@@ -84,11 +98,7 @@ extension AppViewModel {
         let isGuest = profile.isGuest
         let multiplayer = isGuest ? nil : gameSettings?.multiplayerLaunch(settings: appSettings, adapters: .current())
         if multiplayer?.warning != nil && !acceptsLocalFallback {
-            showMultiplayerVPNFallback { [weak self] in
-                guard let self else { return }
-                _ = self.playNXNative(self.playTarget(for: .init(nxnative: game)), profile: self.playProfile,
-                                      observe: nil, acceptsLocalFallback: true)
-            }
+            showMultiplayerVPNFallback(resume(acceptsLocalFallback: true))
             return .refused(.confirmationRequired)
         }
         guard let saveLaunchToken = saveGate.begin(titleID: titleId) else {
