@@ -146,7 +146,7 @@ struct ChangeArtworkView: View {
                         .foregroundColor(SeleneTheme.ink)
                         .lineLimit(1)
                         .padding(.leading, canvas.u(SeleneTokens.Space.tight))
-                    PlatformLabel(subject.platformKind, size: .metadata)
+                    PlatformLabel(subject.platformKind, preset: .caption)
                         .foregroundStyle(SeleneTheme.ink75)
                         .padding(.leading, canvas.u(SeleneTokens.Space.tight))
                         .padding(.bottom, canvas.u(SeleneTokens.Space.line))

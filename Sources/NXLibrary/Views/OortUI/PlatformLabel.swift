@@ -56,25 +56,38 @@ enum PlatformKind: String, CaseIterable {
 
 /// A platform takes the ink of the surrounding row; only the name is spoken.
 struct PlatformLabel: View {
+    enum Preset {
+        case heading, row, summary, caption, setup, listing
+
+        var font: (SeleneTokens.Text, Font.Weight) {
+            switch self {
+            case .heading: (.rowTitle, .semibold)
+            case .row: (.rowTitle, .medium)
+            case .summary: (.panelBody, .semibold)
+            case .caption: (.metadata, .semibold)
+            case .setup: (.selectionTitle, .semibold)
+            case .listing: (.panelBody, .regular)
+            }
+        }
+    }
+
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.nxAppLocale) private var locale
     let kind: PlatformKind
-    var title: String? = nil
-    var size: SeleneTokens.Text = .rowTitle
-    var weight: Font.Weight = .semibold
+    let title: String?
+    let preset: Preset
 
-    init(_ kind: PlatformKind, title: String? = nil, size: SeleneTokens.Text = .rowTitle, weight: Font.Weight = .semibold) {
+    init(_ kind: PlatformKind, title: String? = nil, preset: Preset = .heading) {
         self.kind = kind
         self.title = title
-        self.size = size
-        self.weight = weight
+        self.preset = preset
     }
 
     var body: some View {
         HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
             PlatformMark(kind: kind)
             Text(verbatim: title ?? L10n.text(kind.rawValue, context: locale))
-                .seleneFont(size, weight)
+                .seleneFont(preset.font.0, preset.font.1)
         }
     }
 }

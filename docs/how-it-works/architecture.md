@@ -930,7 +930,7 @@ Prove e misure di queste scelte: [docs/history/reviews/2026-11-16-ratings-metada
 **Canvas, temi e componenti.**
 - `build_app.sh` compila `AppIcon.icon` in `Assets.car` e registra `CFBundleIconName`; macOS disegna la trama nativa in aspetto chiaro, scuro e tinto. In Look, Particles applica al Dock l’immagine chiara o scura. I valori salvati `Auto (System)` e `Monochrome` non cambiano.
 - `SeleneCanvas` scala il canvas 1920×1080 nello spazio disponibile, e `seleneCanvas` (in `SeleneCanvasEnvironment.swift`) espone unità e font alle viste. `SeleneTheme` ricava colori e curve di animazione dalla palette. `MaterialIcon` elenca i glifi; `SeleneFonts` registra il font e li rende in SwiftUI.
-- I componenti condivisi in `Views/Components` disegnano righe, switch, pill, focus, suggerimenti dei tasti, dialoghi e conferme. Quando usarli è in [conventions.md](../working-on-it/conventions.md#3-una-schermata-o-un-pannello-selene).
+- `Views/OortUI` contiene le primitive Selene promosse: pagina, sezioni, righe, campo, pillole, dialoghi, etichette piattaforma, stato, badge, suggerimenti dei tasti e tessera condivisa tra Spotlight e Collection. `Views/Components` conserva gli altri componenti specializzati. Quando usarli è in [conventions.md](../working-on-it/conventions.md#3-una-schermata-o-un-pannello-selene).
 
 **Suggerimenti dei tasti.**
 - Le barre `SeleneHintsBar` stanno a 32 unità Selene dal fondo (`SeleneBottomScrim.hintsBottom`). I simboli sono da 30 unità; solo Q/E e i corrispondenti LB/RB accanto ai filtri Achievements sono da 22, con area cliccabile di 30×36. Il margine sinistro aggiuntivo è 18.

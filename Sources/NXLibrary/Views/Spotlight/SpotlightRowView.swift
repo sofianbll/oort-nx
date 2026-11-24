@@ -165,20 +165,10 @@ struct SpotlightRowView: View {
     private func tile(_ item: SpotlightItem, selected: Bool) -> some View {
         let native: PortedGame? = if case .game(let id) = item { gamesByID[id] } else { nil }
         let cloudState = native.flatMap(cloud.stateForTile)
-        return ZStack(alignment: .topLeading) {
+        return OortGameTile(title: title(of: item), selected: selected, preset: .spotlight,
+                            select: { onSelect(item) }, activate: { onActivate(item) }) {
             face(item, selected: selected, cloudState: cloudState)
-                .padding(canvas.u(SeleneTokens.Space.badge))
-            SeleneTileRing(cornerRadius: canvas.u(SeleneTokens.Radius.spotlightFocus), active: selected)
-                .frame(width: canvas.u(Self.host), height: canvas.u(Self.host))
         }
-        .frame(width: canvas.u(Self.host), height: canvas.u(Self.host), alignment: .topLeading)
-        .contentShape(Rectangle())
-        // The single click selects at once; it does not wait for a possible double click.
-        .onTapGesture(count: 2) { onActivate(item) }
-        .simultaneousGesture(TapGesture().onEnded { onSelect(item) })
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(title(of: item))
-        .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
         .modifier(CloudLibraryTileBadge(state: cloudState, showsCopyBadge: showsCloudBadges, position: badgePosition,
                                         look: native.map(tileLook) ?? .normal, onlineTitleID: native?.titleId))
     }

@@ -88,7 +88,7 @@ struct SelenePillButton: View {
             }
             if waveDots {
                 WaveDots()
-                    .padding(.leading, canvas.u(-4))
+                    .padding(.leading, -canvas.u(SeleneTokens.Space.hairline))
             }
         }
         .padding(.horizontal, canvas.u(horizontalPadding))

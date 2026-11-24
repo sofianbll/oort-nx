@@ -31,7 +31,7 @@ struct SeleneOptionRow<Trailing: View>: View {
                 HStack(spacing: canvas.u(8)) {
                     Group {
                         if let platform {
-                            PlatformLabel(platform, title: title, weight: .medium)
+                            PlatformLabel(platform, title: title, preset: .row)
                         } else {
                             Text(title).seleneFont(.rowTitle, .medium)
                         }
@@ -69,7 +69,7 @@ struct SeleneOptionRowSurface: ViewModifier {
     func body(content: Content) -> some View {
         let radius = canvas.u(16)
         content
-            .padding(.leading, canvas.u(26))
+            .padding(.leading, canvas.u(SeleneTokens.Space.rowLeading))
             .padding(.trailing, canvas.u(SeleneTokens.Space.large))
             .padding(.vertical, canvas.u(SeleneTokens.Space.control))
             .background(SeleneTheme.glass, in: RoundedRectangle(cornerRadius: radius, style: .continuous))

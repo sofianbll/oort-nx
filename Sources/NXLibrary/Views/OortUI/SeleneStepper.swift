@@ -23,7 +23,7 @@ struct SeleneStepper: View {
     }
 }
 
-struct SeleneFieldSurface: ViewModifier {
+struct OortField: ViewModifier {
     @Environment(\.seleneCanvas) private var canvas
     let focused: Bool
 
@@ -31,8 +31,10 @@ struct SeleneFieldSurface: ViewModifier {
         let radius = canvas.u(SeleneTheme.rowRadius)
         content.textFieldStyle(.plain).seleneFont(.body)
             .foregroundColor(SeleneTheme.ink)
-            .padding(canvas.u(10))
+            .padding(canvas.u(SeleneTokens.Space.fieldInset))
             .background(SeleneTheme.glassLight, in: RoundedRectangle(cornerRadius: radius))
             .seleneRowFocus(focused, radius: radius)
     }
 }
+
+typealias SeleneFieldSurface = OortField

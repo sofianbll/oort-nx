@@ -55,8 +55,9 @@ class IntegrationContract(unittest.TestCase):
 
     def test_navigating_up_can_scroll_back_to_the_first_integration(self):
         page = (VIEWS / "Shell/IntegrationsView.swift").read_text()
-        self.assertRegex(page, r"\.onChange\(of: router.integrationFocus, initial: true\) \{ old, id in\s*"
-                               r"guard let id, old != id \|\| id != rows.first\?\.id \|\| router.isReturningFromBack")
+        self.assertIn("scrollFocus: router.integrationFocus, initialFocus:", page)
+        shared = (VIEWS / "OortUI/OortPage.swift").read_text()
+        self.assertRegex(shared, r"guard let id, old != id \|\| id != initialFocus \|\| restoreScroll")
 
     def test_access_copy_names_actual_destinations_and_local_writes_in_english_and_french(self):
         source = (ROOT / "Sources/ArcanePorting/Settings/IntegrationOverview.swift").read_text()

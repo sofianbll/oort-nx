@@ -18,7 +18,7 @@ extension GameOptionsView {
                 .foregroundColor(SeleneTheme.ink)
                 .lineLimit(1)
                 .padding(.leading, canvas.u(SeleneTokens.Space.tight))
-            PlatformLabel(current.isSwitch2 ? .switch2 : .switch1, size: .metadata)
+            PlatformLabel(current.isSwitch2 ? .switch2 : .switch1, preset: .caption)
                 .foregroundStyle(SeleneTheme.ink75)
                 .padding(.leading, canvas.u(SeleneTokens.Space.tight))
                 .padding(.bottom, canvas.u(SeleneTokens.Space.line))

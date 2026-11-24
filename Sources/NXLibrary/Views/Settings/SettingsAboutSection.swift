@@ -188,8 +188,7 @@ struct SettingsAboutSection: View {
                 HStack(spacing: canvas.u(14)) {
                     VStack(alignment: .leading, spacing: canvas.u(4)) {
                         PlatformLabel(.support,
-                                      title: L10n.format("Support %@ on Buy Me a Coffee", ["Bium23"], context: localization),
-                                      size: .panelBody)
+                                      title: L10n.format("Support %@ on Buy Me a Coffee", ["Bium23"], context: localization), preset: .summary)
                             .foregroundStyle(SeleneTheme.ink)
                         Text(L10n.text("Optional contributions support development and maintenance.", context: localization))
                             .seleneFont(.metadata)

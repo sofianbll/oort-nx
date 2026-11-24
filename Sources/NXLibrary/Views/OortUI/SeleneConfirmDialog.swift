@@ -65,7 +65,7 @@ struct SeleneConfirmDialog<Detail: View>: View {
                     }
                 }
             }
-            .padding(.top, canvas.u(34))
+            .padding(.top, canvas.u(SeleneTokens.Space.dialogActionGap))
         }
         .modifier(SeleneDialogCard(cancelHint: cancelTitle.map { _ in HintItem(.b, "Cancel") },
                                    confirmHint: confirmEnabled || cancelTitle != nil ? HintItem(.a, "Select") : nil))
@@ -165,7 +165,7 @@ struct SeleneSuccessNotice: View {
     var body: some View {
         HStack(spacing: canvas.u(16)) {
             Image(systemName: "checkmark.circle")
-                .font(.system(size: canvas.u(30), weight: .light))
+                .font(.system(size: canvas.u(SeleneTokens.Text.panelTitle.rawValue), weight: .light))
                 .foregroundColor(SeleneTheme.ink75)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: canvas.u(6)) {
@@ -196,9 +196,9 @@ struct SeleneDialogCard: ViewModifier {
         let hasHints = showHints && (cancelHint != nil || confirmHint != nil)
         content
             .multilineTextAlignment(.center)
-            .padding(.leading, canvas.u(40))
-            .padding(.top, canvas.u(40))
-            .padding(.trailing, canvas.u(40))
+            .padding(.leading, canvas.u(SeleneTokens.Space.dialogInset))
+            .padding(.top, canvas.u(SeleneTokens.Space.dialogInset))
+            .padding(.trailing, canvas.u(SeleneTokens.Space.dialogInset))
             .padding(.bottom, canvas.u(hasHints ? 72 : 36))
             .frame(width: width.map(canvas.u))
             .background(
@@ -272,7 +272,7 @@ struct SeleneChoiceDialog: View {
                 }
             }
             .fixedSize(horizontal: true, vertical: false)
-            .padding(.top, canvas.u(34))
+            .padding(.top, canvas.u(SeleneTokens.Space.dialogActionGap))
         }
         .fixedSize(horizontal: true, vertical: false)
         .modifier(SeleneDialogCard(width: nil,

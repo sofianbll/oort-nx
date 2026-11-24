@@ -23,6 +23,7 @@ public enum SeleneTokens {
         case inboxTitle = 48
         case emptyStateTitle = 25
         case attribution = 13
+        case groupKicker = 12
     }
 
     public enum Space {
@@ -53,6 +54,21 @@ public enum SeleneTokens {
         public static let emptyStateInset: CGFloat = 25
         public static let toastTop: CGFloat = 112
         public static let transferMeasure: CGFloat = 700
+        public static let pageMeasure: CGFloat = 1300
+        public static let pageMinimumFont: CGFloat = 11
+        public static let pillWidth: CGFloat = 180
+        public static let pillHeight: CGFloat = 60
+        public static let pillInset: CGFloat = 36
+        public static let compactPillHeight: CGFloat = 42
+        public static let sliderMeasure: CGFloat = 220
+        public static let focusStroke: CGFloat = 2
+        public static let thinStroke: CGFloat = 1
+        public static let segmentInset: CGFloat = 3
+        public static let dialogInset: CGFloat = 40
+        public static let dialogActionGap: CGFloat = 34
+        public static let rowLeading: CGFloat = 26
+        public static let fieldInset: CGFloat = 10
+        public static let chipBottom: CGFloat = 5
     }
 
     public enum Radius {
@@ -67,6 +83,8 @@ public enum SeleneTokens {
         public static let spotlightFocus: CGFloat = 19
         public static let badge: CGFloat = 14
         public static let anchoredCard: CGFloat = 18
+        public static let chip: CGFloat = 17
+        public static let hint: CGFloat = 15
     }
 
     public enum Color {

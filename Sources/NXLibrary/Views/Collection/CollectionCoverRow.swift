@@ -68,7 +68,8 @@ struct CollectionCoverRow: View {
         let w = canvas.u(CollectionRow.coverWidth), h = canvas.u(CollectionRow.coverHeight)
         let face = RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content), style: .continuous)
         let cloudState = game.nxnativeGame.flatMap(cloud.stateForTile)
-        return ZStack {
+        return OortGameTile(title: game.name, selected: selected, preset: .collection,
+                            select: { onSelect(game) }, activate: { onActivate(game) }) {
             Group {
                 if let native = game.nxnativeGame {
             let buildLook = tileLook(native)
@@ -95,18 +96,7 @@ struct CollectionCoverRow: View {
             }
             SeleneShine(cornerRadius: canvas.u(SeleneTokens.Radius.content), active: selected)
                 .frame(width: w, height: h)
-            SeleneTileRing(cornerRadius: canvas.u(SeleneTokens.Radius.collectionFocus), active: selected)
-                .frame(width: w + canvas.u(12), height: h + canvas.u(12))
         }
-        .frame(width: w, height: h)
-        .scaleEffect(selected ? CollectionRow.selectedScale : 1)
-        .contentShape(Rectangle())
-        // The single click selects at once; it does not wait for a possible double click.
-        .onTapGesture(count: 2) { onActivate(game) }
-        .simultaneousGesture(TapGesture().onEnded { onSelect(game) })
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(game.name)
-        .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
         .modifier(CloudLibraryTileBadge(state: cloudState, showsCopyBadge: showsCloudBadges, position: badgePosition,
                                         look: game.nxnativeGame.map(tileLook) ?? .normal, onlineTitleID: game.nxnativeGame?.titleId))
         .task(id: game.id) { if let native = game.nxnativeGame { needsMetadata(native) } }

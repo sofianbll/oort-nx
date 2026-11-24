@@ -207,7 +207,7 @@ struct SetupCardRow: View {
                 if platform == nil { MaterialIconView(icon, size: 30).frame(width: canvas.u(40)) }
                 VStack(alignment: .leading, spacing: canvas.u(5)) {
                     if let platform {
-                        PlatformLabel(platform, title: title, size: .selectionTitle)
+                        PlatformLabel(platform, title: title, preset: .setup)
                     } else {
                         Text(title).seleneFont(.selectionTitle, .semibold)
                     }

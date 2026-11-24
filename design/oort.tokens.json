@@ -49,7 +49,8 @@
     "profile-hero-title": {"$value": {"value": 82, "unit": "px"}},
     "inbox-title": {"$value": {"value": 48, "unit": "px"}},
     "empty-state-title": {"$value": {"value": 25, "unit": "px"}},
-    "attribution": {"$value": {"value": 13, "unit": "px"}}
+    "attribution": {"$value": {"value": 13, "unit": "px"}},
+    "group-kicker": {"$value": {"value": 12, "unit": "px"}}
   },
   "space": {
     "$description": "Selene canvas units, not fixed AppKit points.",
@@ -80,7 +81,22 @@
     "inbox-page-inset": {"$value": {"value": 62, "unit": "px"}},
     "empty-state-inset": {"$value": {"value": 25, "unit": "px"}},
     "toast-top": {"$value": {"value": 112, "unit": "px"}},
-    "transfer-measure": {"$value": {"value": 700, "unit": "px"}}
+    "transfer-measure": {"$value": {"value": 700, "unit": "px"}},
+    "page-measure": {"$value": {"value": 1300, "unit": "px"}},
+    "page-minimum-font": {"$value": {"value": 11, "unit": "px"}},
+    "pill-width": {"$value": {"value": 180, "unit": "px"}},
+    "pill-height": {"$value": {"value": 60, "unit": "px"}},
+    "pill-inset": {"$value": {"value": 36, "unit": "px"}},
+    "compact-pill-height": {"$value": {"value": 42, "unit": "px"}},
+    "slider-measure": {"$value": {"value": 220, "unit": "px"}},
+    "focus-stroke": {"$value": "{space.seam}"},
+    "thin-stroke": {"$value": {"value": 1, "unit": "px"}},
+    "segment-inset": {"$value": {"value": 3, "unit": "px"}},
+    "dialog-inset": {"$value": {"value": 40, "unit": "px"}},
+    "dialog-action-gap": {"$value": {"value": 34, "unit": "px"}},
+    "row-leading": {"$value": {"value": 26, "unit": "px"}},
+    "field-inset": {"$value": {"value": 10, "unit": "px"}},
+    "chip-bottom": {"$value": {"value": 5, "unit": "px"}}
   },
   "radius": {
     "$description": "Named Selene corner radii in canvas units.",
@@ -95,7 +111,9 @@
     "collection-focus": {"$value": {"value": 18, "unit": "px"}},
     "spotlight-focus": {"$value": {"value": 19, "unit": "px"}},
     "badge": {"$value": {"value": 14, "unit": "px"}},
-    "anchored-card": {"$value": {"value": 18, "unit": "px"}}
+    "anchored-card": {"$value": {"value": 18, "unit": "px"}},
+    "chip": {"$value": {"value": 17, "unit": "px"}},
+    "hint": {"$value": {"value": 15, "unit": "px"}}
   },
   "status": {
     "$description": "Status roles are independent of the selected palette.",

@@ -36,13 +36,9 @@ struct SettingsSoundSection: View {
                             subtitle: "Plays a short sound when you move, select, go back or launch a game.",
                             isOn: $settings.settings.interfaceSounds)
 
-            SeleneRow("Sound volume", subtitle: "How loud the interface sounds are.") {
-                HStack(spacing: canvas.u(12)) {
-                    Slider(value: $settings.settings.soundVolume, in: 0...1, step: 0.05)
-                        .frame(width: canvas.u(220))
-                    SeleneValueChip(text: "\(Int((settings.settings.soundVolume * 100).rounded()))%")
-                }
-            }
+            OortSliderRow(title: "Sound volume", subtitle: "How loud the interface sounds are.",
+                          value: $settings.settings.soundVolume, range: 0...1, step: 0.05,
+                          displayValue: "\(Int((settings.settings.soundVolume * 100).rounded()))%")
 
             SeleneToggleRow("Quiet launch screen",
                             subtitle: "Game cues only",

@@ -23,7 +23,7 @@ struct SeleneInfoTip: View {
             Image(systemName: "info.circle")
                 .seleneFont(.compactCaption, .semibold)
                 .foregroundColor(isShowing.wrappedValue ? SeleneTheme.glyph : SeleneTheme.ink60.opacity(0.85))
-                .padding(2)
+                .padding(SeleneTokens.Space.seam)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -35,7 +35,7 @@ struct SeleneInfoTip: View {
                     .lineSpacing(2.5)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .padding(14)
+            .padding(SeleneTokens.Space.line)
             .frame(width: 290, alignment: .leading)
             .background(SeleneTheme.glassSolid)
         }
@@ -214,22 +214,22 @@ struct SeleneSegmented<Value: Hashable>: View {
                     Text(option.1)
                         .seleneFont(.metadata, .semibold)
                         .foregroundColor(selection == option.0 ? SeleneTheme.scrim : SeleneTheme.ink.opacity(0.5))
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
+                        .padding(.horizontal, SeleneTokens.Space.small)
+                        .padding(.vertical, SeleneTokens.Space.tight)
                         .background(selection == option.0 ? SeleneTheme.focus : Color.clear)
                         .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
             }
         }
-        .padding(3)
+        .padding(SeleneTokens.Space.segmentInset)
         .background(SeleneTheme.ink.opacity(0.055))
         .overlay(Capsule().strokeBorder(SeleneTheme.ink15, lineWidth: 1))
         .clipShape(Capsule())
     }
 }
 
-struct SelenePanel<Content: View>: View {
+struct OortCard<Content: View>: View {
     @Environment(\.nxAppLocale) private var localization
     let title: String?
     let info: String?
@@ -246,7 +246,7 @@ struct SelenePanel<Content: View>: View {
             if let title {
                 HStack(spacing: 6) {
                     Text(L10n.text(title, context: localization))
-                        .seleneFont(12, .bold)
+                        .seleneFont(.groupKicker, .bold)
                         .tracking(1.4)
                         .textCase(.uppercase)
                         .foregroundColor(SeleneTheme.ink60)
@@ -257,7 +257,7 @@ struct SelenePanel<Content: View>: View {
             }
             content()
         }
-        .padding(16)
+        .padding(SeleneTokens.Space.medium)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(SeleneTheme.glassSolid)
         .overlay(
@@ -267,6 +267,8 @@ struct SelenePanel<Content: View>: View {
         .clipShape(RoundedRectangle(cornerRadius: SeleneTheme.cardRadius, style: .continuous))
     }
 }
+
+typealias SelenePanel = OortCard
 
 /// A value row that steps through its choices: Left/Right on a controller, the arrows with a pointer.
 struct SeleneCycleRow: View {

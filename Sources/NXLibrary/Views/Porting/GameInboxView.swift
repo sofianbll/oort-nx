@@ -96,10 +96,7 @@ struct GameInboxView: View {
                 Text(verbatim: message).seleneFont(.panelBody).foregroundStyle(SeleneTheme.ink)
             }
             if model.entries.isEmpty, !model.busy {
-                Text(L10n.text("No incoming files"))
-                    .seleneFont(.emptyStateTitle, .semibold)
-                    .foregroundStyle(SeleneTheme.ink82)
-                    .padding(.vertical, canvas.u(SeleneTokens.Space.emptyStateInset))
+                OortEmptyState(title: L10n.text("No incoming files"))
             }
             ForEach(model.entries) { entry in
                 row(entry)

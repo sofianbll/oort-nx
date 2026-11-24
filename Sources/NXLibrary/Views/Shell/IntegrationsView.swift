@@ -131,7 +131,6 @@ struct IntegrationBar: View {
 
 struct IntegrationsView: View {
     @Environment(\.seleneCanvas) private var canvas
-    @Environment(\.seleneReduceMotion) private var reduceMotion
     @Environment(\.nxAppLocale) private var locale
     @AccessibilityFocusState(for: .voiceOver) private var accessibilityFocus: IntegrationID?
     let overview: IntegrationOverview
@@ -142,40 +141,13 @@ struct IntegrationsView: View {
 
     var body: some View {
         let rows = overview.rows
-        VStack(alignment: .leading, spacing: canvas.u(20)) {
-            Text(text("Integrations"))
-                .seleneFont(.screenTitle, .semibold)
-                .accessibilityAddTraits(.isHeader)
-            ScrollViewReader { proxy in
-                ScrollView {
-                    VStack(alignment: .leading, spacing: canvas.u(12)) {
-                        ForEach(rows) { row($0).id($0.id) }
-                        comingLater
-                    }
-                    .padding(.bottom, canvas.u(SeleneTokens.Space.control))
-                }
-                .onChange(of: router.integrationFocus, initial: true) { old, id in
-                    guard let id, old != id || id != rows.first?.id || router.isReturningFromBack else { return }
-                    withAnimation(reduceMotion ? nil : SeleneTheme.quick) {
-                        proxy.scrollTo(id, anchor: .top)
-                    }
-                }
-            }
-        }
-        .frame(maxWidth: canvas.u(1300))
-        .padding(.horizontal, canvas.u(SeleneTokens.Space.stageGutter))
-        .padding(.top, canvas.u(SeleneTokens.Space.stageHeader))
-        .padding(.bottom, canvas.u(SeleneBottomScrim.contentClearance))
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .environment(\.seleneMinimumFont, 11)
-        .foregroundStyle(SeleneTheme.ink)
-        .background(SeleneBackdrop(still: reduceMotion))
-        .overlay(alignment: .bottom) {
-            if showsHints {
-                SeleneHintsBar(left: [HintItem(.b, text("Back"), action: router.back)],
-                               right: [HintItem(.a, text("Open")) { handle(.confirm) }],
-                               bottom: SeleneBottomScrim.hintsBottom, leftInset: 18)
-            }
+        OortPage(title: text("Integrations"), preset: .legacyBackdrop,
+                 scrollFocus: router.integrationFocus, initialFocus: rows.first?.id,
+                 restoreScroll: router.isReturningFromBack,
+                 back: showsHints ? HintItem(.b, text("Back"), action: router.back) : nil,
+                 confirm: showsHints ? HintItem(.a, text("Open")) { handle(.confirm) } : nil) {
+            ForEach(rows) { row($0).id($0.id) }
+            comingLater
         }
         .onReceive(NotificationCenter.default.publisher(for: .nxIntegrationsAction)) { note in
             guard router.route == .integrations, let action = note.object as? GamepadAction else { return }
@@ -191,7 +163,7 @@ struct IntegrationsView: View {
             LazyVGrid(columns: [GridItem(.adaptive(minimum: canvas.u(220)), alignment: .leading)],
                       alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
                 ForEach(PlatformKind.upcoming, id: \.self) { platform in
-                    PlatformLabel(platform, size: .panelBody, weight: .regular)
+                    PlatformLabel(platform, preset: .listing)
                 }
             }
             .foregroundStyle(SeleneTheme.ink75)

@@ -48,7 +48,7 @@ final class ShellOverlayHintsTests: XCTestCase {
         }
         let overlay = try source("Components/SeleneOverlay.swift")
         XCTAssertTrue(overlay.contains(".transformEnvironment(\\.seleneHintsCovered) { $0 = $0 || !ownsInput }"))
-        XCTAssertTrue(try source("Components/SeleneHintsBar.swift").contains(".seleneOverlaidHints(covered)"))
+        XCTAssertTrue(try source("OortUI/SeleneHintsBar.swift").contains(".seleneOverlaidHints(covered)"))
     }
 
     func testTheProfilePickerHidesItsSelectorAndHintsUnderTheWizard() throws {
