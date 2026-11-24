@@ -6,7 +6,8 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
 loader = (ROOT / 'Sources/NXLibrary/Views/Spotlight/GameArtLoader.swift').read_text()
-logo = loader[loader.index('    func logo(for game: PortedGame'):loader.index('    /// Decodes off')]
+start = loader.index('    func logo(for game: PortedGame')
+logo = loader[start:loader.index('\n    }\n', start) + len('\n    }\n')]
 host = '''
 import Foundation
 class NSImage: NSObject {}

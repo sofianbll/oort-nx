@@ -30,7 +30,7 @@ extension GameArtLoader {
             let key = Self.steamKey(game, .hero)
             guard let url = await Self.steamHeroURL(for: game, artwork: artwork),
                   let image = await Self.decodeHero(at: url) else { return nil }
-            steamArt.setObject(image, forKey: key)
+            steamArt.setObject(image, forKey: key, cost: Self.decodedCost(image))
             return image
         }
     }
@@ -45,7 +45,7 @@ extension GameArtLoader {
             let key = Self.steamKey(game, .logo)
             guard let url = await Self.steamLogoURL(for: game),
                   let image = await Self.decodeLogo(at: url) else { return nil }
-            steamArt.setObject(image, forKey: key)
+            steamArt.setObject(image, forKey: key, cost: Self.decodedCost(image))
             return image
         }
     }

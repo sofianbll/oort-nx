@@ -19,8 +19,10 @@ final class GameArtLoader {
 
     private init() {
         heroes.countLimit = 24
+        heroes.totalCostLimit = 128 * 1024 * 1024
         logos.countLimit = 64
         steamArt.countLimit = 16
+        steamArt.totalCostLimit = 64 * 1024 * 1024
     }
 
     func cachedHero(for game: PortedGame) -> NSImage? { heroes.object(forKey: game.id as NSUUID) }
@@ -68,7 +70,7 @@ final class GameArtLoader {
                 image = await Self.decodeHero(at: url)
             }
         }
-        if let image { heroes.setObject(image, forKey: game.id as NSUUID) }
+        if let image { heroes.setObject(image, forKey: game.id as NSUUID, cost: Self.decodedCost(image)) }
         return image
     }
 
@@ -115,6 +117,11 @@ final class GameArtLoader {
         }
         if let image { logos.setObject(image, forKey: game.id as NSUUID) }
         return image
+    }
+
+    static func decodedCost(_ image: NSImage) -> Int {
+        let pixels = image.representations.first.map { $0.pixelsWide * $0.pixelsHigh } ?? 0
+        return max(pixels, 1) * 4
     }
 
     /// Decodes off the main thread, capped at 2560 px.
