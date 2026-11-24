@@ -664,9 +664,13 @@ extension AppViewModel {
             self.objectWillChange.send()
             for entry in restored {
                 let storage = self.cloudLibrary.storageScope(for: entry.action)
-                guard entry.storage == nil || entry.storage == storage,
-                      let game = games.first(where: { $0.id == entry.id }),
+                guard let game = games.first(where: { $0.id == entry.id }),
                       game.titleId.map(SaveLocation.validID) == true else { continue }
+                guard let approvedStorage = entry.storage else {
+                    self.recordCloudReconfirmation(entry, name: game.name)
+                    continue
+                }
+                guard approvedStorage == storage else { continue }
                 self.cloudLibrary.reads[game.id]?.task.cancel()
                 self.cloudLibrary.reads[game.id] = nil
                 self.cloudLibrary.update(game.id) {
@@ -674,7 +678,7 @@ extension AppViewModel {
                 }
                 let destination = self.cloudImportDestination(for: game, action: entry.action)
                 self.cloudLibrary.queue.append(.init(token: entry.token ?? UUID(), id: game.id, name: game.name,
-                    action: entry.action, storage: storage, scope: destination.map {
+                    action: entry.action, storage: approvedStorage, scope: destination.map {
                     CloudWorkScope(title: game.titleId ?? "", urls: [$0])
                 } ?? CloudWorkScope(game), importDestination: destination,
                              sourceFiles: CloudSourceFiles(game), onSuccess: nil, resumed: true))
@@ -1114,9 +1118,27 @@ extension AppViewModel {
     }
 
     @MainActor func retryCloudOperation(_ entry: CloudTransferQueue.Entry, token: UUID) -> Bool {
+        if entry.storage == nil {
+            showSettingsNotice(title: L10n.text("Cloud library"), message: cloudReconfirmationMessage)
+            return true
+        }
         guard entry.storage == cloudLibrary.storageScope(for: entry.action),
               let game = libraryGames.first(where: { $0.id == entry.id }) else { return false }
         return enqueueCloudLibrary(entry.action, for: game, retryToken: token)
+    }
+
+    private var cloudReconfirmationMessage: String {
+        L10n.text("Open Cloud library to review and confirm this transfer again.")
+    }
+
+    @MainActor private func recordCloudReconfirmation(_ entry: CloudTransferQueue.Entry, name: String) {
+        let reason = cloudReconfirmationMessage
+        cloudLibrary.update(entry.id) {
+            $0.action = nil; $0.queued = false; $0.progress = nil
+            $0.issue = (entry.action.item(during: nil), reason, true)
+            $0.transferFailure = nil; $0.failedTransferID = nil
+        }
+        recordActivity(entry.token ?? UUID(), job: .cloud(entry), name: name, outcome: .failed(reason))
     }
 
     @MainActor @discardableResult
