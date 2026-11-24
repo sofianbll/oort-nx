@@ -6,12 +6,14 @@ final class LaunchServiceTests: XCTestCase {
     final class FakeLauncher: AppLaunching {
         var opened: URL?
         var environment: [String: String] = [:]
+        var suppressInheritedPlayerMode = false
         var shouldSucceed = true
         var onExit: (() -> Void)?
-        func open(_ url: URL, environment: [String: String], onExit: (() -> Void)?,
+        func open(_ url: URL, environment: [String: String], suppressInheritedPlayerMode: Bool, onExit: (() -> Void)?,
                   completion: @escaping (Bool, String?) -> Void) {
             opened = url
             self.environment = environment
+            self.suppressInheritedPlayerMode = suppressInheritedPlayerMode
             self.onExit = onExit
             completion(shouldSucceed, shouldSucceed ? nil : "sample launch error")
         }

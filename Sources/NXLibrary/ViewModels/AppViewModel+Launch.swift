@@ -272,7 +272,8 @@ extension AppViewModel {
             } else {
                 overrides[GameDisplay.key] = nil
             }
-            openGame(game, titleId: titleId, token: saveLaunchToken, environment: overrides,
+            let players = await preparePlayers(for: game, titleID: titleId, environment: overrides)
+            openGame(game, titleId: titleId, token: saveLaunchToken, environment: overrides, players: players,
                      overlay: overlay, snapshot: overlayData.snapshot, observe: observe)
         }
         return .accepted(.pending)
@@ -305,7 +306,8 @@ extension AppViewModel {
     }
 
     @MainActor private func openGame(_ game: PortedGame, titleId: String, token saveLaunchToken: UUID,
-                                     environment: [String: String], overlay: GameOverlayLaunch, snapshot: GameOverlaySnapshot,
+                                     environment: [String: String], players: PlayersLaunch,
+                                     overlay: GameOverlayLaunch, snapshot: GameOverlaySnapshot,
                                      observe: PlayObserver?) {
         let evaluate = snapshot.profile.flatMap { localAchievementExit(for: game, profile: $0.id, environment: environment) }
         let onExit: (() -> Void)? = if let observe {
@@ -314,7 +316,7 @@ extension AppViewModel {
         launchService.launch(appURL: game.url, environment: environment,
                              homeButton: settingsStore?.settings.inGameHomeButton ?? .auto,
                              overlay: overlay, snapshot: snapshot,
-                             onExit: onExit) { [weak self] success, error in
+                             players: players, onExit: onExit) { [weak self] success, error in
             DispatchQueue.main.async {
                 guard let self else { return }
                 self.saveGate.end(titleID: titleId, token: saveLaunchToken)
