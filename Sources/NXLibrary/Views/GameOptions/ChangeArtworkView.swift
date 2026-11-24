@@ -146,6 +146,9 @@ struct ChangeArtworkView: View {
                         .foregroundColor(SeleneTheme.ink)
                         .lineLimit(1)
                         .padding(.leading, canvas.u(6))
+                    PlatformLabel(subject.platformKind, size: .metadata)
+                        .foregroundStyle(SeleneTheme.ink75)
+                        .padding(.leading, canvas.u(SeleneTokens.Space.tight))
                         .padding(.bottom, canvas.u(14))
                     tabs
                     if browsing != nil {

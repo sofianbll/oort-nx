@@ -30,10 +30,12 @@ struct SettingsSourcesSection: View {
         VStack(spacing: 9) {
             SeleneButtonRow("Mac apps", id: "macShortcutAdd",
                             subtitle: "Add a shortcut to an app on this Mac. The app stays where it is.",
+                            platform: .mac,
                             buttonTitle: "Add an app…") { viewModel.macShortcuts.chooseApp() }
                 .disabled(!viewModel.macShortcuts.canEdit)
             SeleneToggleRow("Steam", subtitle: "Find installed native Mac games in your Steam libraries.",
                             info: "Your Steam files stay where they are. Disabling this source keeps its games and personal choices.",
+                            platform: .steam,
                             isOn: Binding(get: { sources.configuration.isEnabled }, set: { enabled in
                                 sources.configure(enabled: enabled, root: sources.configuration.rootURL ?? defaultRoot)
                             }))

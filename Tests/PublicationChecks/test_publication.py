@@ -109,6 +109,8 @@ class PublicationChecks(unittest.TestCase):
         (runtime / "versions.json").write_text(json.dumps(
             {"python": "3.14.6", "lock": hashlib.sha256(lock).hexdigest()}))
         contents = {"NOTICE": b"main notice", "ThirdPartyLicenses/rclone-LICENSES.txt": b"rclone licence",
+                    "Brands/Platforms/disc-3.svg": b"reviewed symbol",
+                    "Brands/Platforms/NOTICE.txt": b"symbol provenance",
                     "Runtime/licenses/python.txt": b"Python licence",
                     "Runtime/sources/zbic.tar.gz": b"source archive"}
         manifest = {name: hashlib.sha256(data).hexdigest() for name, data in contents.items()}
@@ -121,6 +123,12 @@ class PublicationChecks(unittest.TestCase):
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(data)
         self.assertEqual(self.scan("--app", str(app)).returncode, 0)
+        unreviewed = resources / "Brands/Platforms/extra.svg"
+        unreviewed.write_text("unreviewed symbol")
+        result = self.scan("--app", str(app))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("Unreviewed brand resource: Brands/Platforms/extra.svg", result.stdout)
+        unreviewed.unlink()
         for relative in ("Contents/Helpers/rclone", "Contents/Resources/rclone-v1-osx-arm64.zip",
                          "Contents/MacOS/RCLONE"):
             with self.subTest(relative=relative):

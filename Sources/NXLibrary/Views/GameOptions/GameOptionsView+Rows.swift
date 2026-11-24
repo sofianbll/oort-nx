@@ -18,7 +18,9 @@ extension GameOptionsView {
                 .foregroundColor(SeleneTheme.ink)
                 .lineLimit(1)
                 .padding(.leading, canvas.u(6))
-                // With the list's 6 top inset this keeps Selene's 20 under the name.
+            PlatformLabel(current.isSwitch2 ? .switch2 : .switch1, size: .metadata)
+                .foregroundStyle(SeleneTheme.ink75)
+                .padding(.leading, canvas.u(SeleneTokens.Space.tight))
                 .padding(.bottom, canvas.u(14))
             ScrollViewReader { proxy in
                 ScrollView {

@@ -126,15 +126,15 @@ No Nintendo games, keys, logos, fonts, sounds, or other Nintendo assets are
 included in this repository. NX Library is not affiliated with, endorsed by,
 or sponsored by Nintendo.
 
-The Steam logo (Resources/Brands/SteamLogo.png, the inverse logo from Valve's
-Steam brand guidelines, unaltered) marks Steam games in the library.
+Steam games are identified by name with a generic disc symbol, not the Steam logo.
 ©2026 Valve Corporation. Steam and the Steam logo are trademarks and/or
 registered trademarks of Valve Corporation in the U.S. and/or other countries.
 NX Library is not affiliated with, endorsed by, or sponsored by Valve.
 
-The Buy Me a Coffee cup (Resources/Brands/BuyMeACoffee.png) is from the
-official brand kit (https://buymeacoffee.com/brand) and identifies the external
-support page. The artwork belongs to Buy Me a Coffee.
+Platform and external-support labels use generic Lucide symbols (ISC, with
+Feather MIT notice), not the providers' trademarks as artwork. The original
+SVGs, their provenance and licence notices ship in Resources/Brands/Platforms.
+Platform and service names remain marks of their respective owners.
 
 --------------------------------------------------------------------------------
 Bundled media (Material Icons, Selene sounds and palettes): see

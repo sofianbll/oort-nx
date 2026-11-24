@@ -74,6 +74,16 @@ def check_runtime(root, runtime):
     return []
 
 
+def unexpected_brands(resources, expected):
+    folder = resources / "Brands"
+    if folder.is_symlink():
+        return ["Invalid bundle brand folder: Brands"]
+    return ["Unreviewed brand resource: " + name
+            for path in sorted(folder.rglob("*"))
+            if ((name := path.relative_to(resources).as_posix()) not in expected
+                and (path.is_symlink() or not path.is_dir()))]
+
+
 def check_app(root, app, require_runtime=True):
     resources = app / "Contents/Resources"
     issues = []
@@ -90,6 +100,7 @@ def check_app(root, app, require_runtime=True):
         expected = json.loads((root / "scripts/bundle-licences.json").read_text())
         if not isinstance(expected, dict) or not expected:
             return issues + ["Bundle licence manifest must not be empty."]
+        issues += unexpected_brands(resources, expected)
         expected["NOTICE"] = hashlib.sha256((root / "NOTICE").read_bytes()).hexdigest()
         for name, digest in expected.items():
             if not require_runtime and name.startswith("Runtime/"):

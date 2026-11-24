@@ -154,6 +154,8 @@ La variante asincrona attende su una coda utility e invia SIGTERM al sottoproces
 
 ## Catalogo, fonti e libreria
 
+`PlatformLabel` mostra un simbolo Lucide monocromatico e il nome nelle statistiche, nelle intestazioni e nelle fonti; l'inchiostro è quello della riga. Il numero sul simbolo distingue Switch 2. La pagina Integrazioni e il collegamento di sostegno usano la stessa etichetta, senza loghi ufficiali né nuovi servizi.
+
 **Il catalogo comune.**
 - `CatalogGame` conserva il record della sua fonte, un `any CatalogSourceRecord`: il `PortedGame` completo per nxnative (conformità in `ArcanePorting/Catalog/PortedGame+Catalog.swift`) oppure `SteamCatalogGame` (`SteamCatalogGame+Record.swift`). Il protocollo porta identità, preferito e nascosto, validazione, presenza (`CatalogRecordPresence`) e termini di ricerca; due voci sono uguali solo con record dello stesso tipo e valore. Nome, UUID e scelte personali hanno un solo proprietario; il riferimento alle personalizzazioni conserva chiave e namespace dell'integrazione. Non si costruisce mai un falso gioco nxnative per Steam.
   - `CatalogIntegration` è un nome aperto (`"steam"` nella base, `"nxnative"` dichiarato dal modulo). I tipi che un lettore conosce (`CatalogRecordKinds`) arrivano al decoder in `userInfo`; senza, conosce solo Steam. `CatalogStore` li riceve alla creazione insieme all'import legacy (`CatalogLegacyImport`): `CatalogStore(directory:)` del modulo passa `CatalogRecordKinds.standard` e `CatalogLegacyImport.nxnative`. *Perché:* la base legge il catalogo senza conoscere il formato Switch, e senza il modulo i giochi Switch restano conservati.

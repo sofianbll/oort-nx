@@ -54,13 +54,14 @@ struct SeleneRow<Trailing: View>: View {
     let verbatimTitle: Bool
     let verbatimSubtitle: Bool
     private let truncateSubtitleInMiddle: Bool
+    private let platform: PlatformKind?
     @ViewBuilder var trailing: () -> Trailing
 
     @Environment(\.seleneFocusedRowID) private var focusedRowID
 
     init(_ title: String, id: String? = nil, subtitle: String? = nil, info: String? = nil,
          verbatimTitle: Bool = false, verbatimSubtitle: Bool = false,
-         truncateSubtitleInMiddle: Bool = false,
+         truncateSubtitleInMiddle: Bool = false, platform: PlatformKind? = nil,
                 @ViewBuilder trailing: @escaping () -> Trailing) {
         self.rowID = id ?? title
         self.title = title
@@ -69,6 +70,7 @@ struct SeleneRow<Trailing: View>: View {
         self.verbatimTitle = verbatimTitle
         self.verbatimSubtitle = verbatimSubtitle
         self.truncateSubtitleInMiddle = truncateSubtitleInMiddle
+        self.platform = platform
         self.trailing = trailing
     }
 
@@ -77,7 +79,7 @@ struct SeleneRow<Trailing: View>: View {
     var body: some View {
         SeleneOptionRow(icon: nil, title: verbatimTitle ? title : L10n.text(title, context: localization),
                         about: verbatimSubtitle ? subtitle : subtitle.map { L10n.text($0, context: localization) }, focused: isFocused,
-                        truncateAboutInMiddle: truncateSubtitleInMiddle) {
+                        truncateAboutInMiddle: truncateSubtitleInMiddle, platform: platform) {
             HStack(spacing: 10) {
                 if let info {
                     SeleneInfoTip(info)
@@ -100,17 +102,19 @@ struct SeleneToggleRow: View {
     let title: String
     let subtitle: String?
     let info: String?
+    let platform: PlatformKind?
     @Binding var isOn: Bool
 
-    init(_ title: String, subtitle: String? = nil, info: String? = nil, isOn: Binding<Bool>) {
+    init(_ title: String, subtitle: String? = nil, info: String? = nil, platform: PlatformKind? = nil, isOn: Binding<Bool>) {
         self.title = title
         self.subtitle = subtitle
         self.info = info
+        self.platform = platform
         self._isOn = isOn
     }
 
     var body: some View {
-        SeleneRow(title, subtitle: subtitle, info: info) {
+        SeleneRow(title, subtitle: subtitle, info: info, platform: platform) {
             Toggle("", isOn: $isOn)
                 .labelsHidden()
                 .toggleStyle(SeleneToggleStyle())
@@ -161,11 +165,12 @@ struct SeleneButtonRow: View {
     let verbatimTitle: Bool
     let verbatimSubtitle: Bool
     private let truncateSubtitleInMiddle: Bool
+    private let platform: PlatformKind?
     let action: () -> Void
 
     init(_ title: String, id: String? = nil, subtitle: String? = nil, info: String? = nil,
          verbatimTitle: Bool = false, verbatimSubtitle: Bool = false,
-         truncateSubtitleInMiddle: Bool = false,
+         truncateSubtitleInMiddle: Bool = false, platform: PlatformKind? = nil,
                 buttonTitle: String, action: @escaping () -> Void) {
         self.rowID = id ?? title
         self.title = title
@@ -174,13 +179,14 @@ struct SeleneButtonRow: View {
         self.verbatimTitle = verbatimTitle
         self.verbatimSubtitle = verbatimSubtitle
         self.truncateSubtitleInMiddle = truncateSubtitleInMiddle
+        self.platform = platform
         self.buttonTitle = buttonTitle
         self.action = action
     }
 
     var body: some View {
         SeleneRow(title, id: rowID, subtitle: subtitle, info: info, verbatimTitle: verbatimTitle, verbatimSubtitle: verbatimSubtitle,
-                  truncateSubtitleInMiddle: truncateSubtitleInMiddle) {
+                  truncateSubtitleInMiddle: truncateSubtitleInMiddle, platform: platform) {
             Button(L10n.text(buttonTitle, context: localization), action: action)
                 .buttonStyle(.plain)
                 .seleneFont(15, .semibold)

@@ -1,0 +1,10 @@
+Generic platform symbols, not trademarks or official logos.
+
+The unmodified SVG source files come from Lucide:
+https://github.com/lucide-icons/lucide/tree/7981a0798a4f7184296bf42e94b6a8677f3ef2a0/icons
+See LICENSE-Lucide.txt for the ISC licence and the upstream Feather MIT notice.
+The app applies the current foreground colour as an image template.
+
+Nintendo Switch, Nintendo Switch 2, Steam, Mac, Epic Games, GOG, Minecraft,
+CrossOver, Buy Me a Coffee and Google Drive are names or marks of their owners.
+Their use as labels does not imply affiliation or endorsement.
