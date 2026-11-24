@@ -9,6 +9,7 @@ struct FoundGamesSetupView: View {
     @Environment(\.seleneReduceMotion) var reduceMotion
     @ObservedObject var viewModel: AppViewModel
     let steamRoot: URL
+    let steamEnabled: Bool
     /// The Steam switch lives in `FirstRunSetup`, so it survives the Porting path; the shell applies it.
     let onOpenLibrary: (_ importPorted: Bool) -> Void
 
@@ -20,7 +21,7 @@ struct FoundGamesSetupView: View {
     var hasSteam: Bool { steamCount != nil || findings?.steamReadFailed == true }
     var portedCount: Int { findings?.portedAppCount ?? 0 }
     var isReading: Bool { findings == nil }
-    var steamOn: Bool { viewModel.firstRunSetup.steamChoice ?? true }
+    var steamOn: Bool { viewModel.firstRunSetup.steamChoice ?? steamEnabled }
 
     private var title: String {
         if isReading { return L10n.text("Looking at your Mac…") }
@@ -97,10 +98,6 @@ struct FoundGamesSetupView: View {
         .onDisappear { reader.cancel() }
         .onChange(of: findings) { _, found in
             if found != nil, !hasSteam, focus == .steamToggle { move(to: .openLibrary) }
-            // The switch starts on; that is the choice until the player turns it off.
-            if found?.steamGameCount != nil, viewModel.firstRunSetup.steamChoice == nil {
-                viewModel.chooseSteamOnFound(true)
-            }
         }
         .onReceive(NotificationCenter.default.publisher(for: .nxSetupCheckGamepadAction)) { note in
             guard let action = note.object as? GamepadAction else { return }
