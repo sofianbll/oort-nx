@@ -581,3 +581,62 @@ final class RcloneStorageBackendTests: XCTestCase {
         }
     }
 }
+final class FollowedDriveMutationTests: XCTestCase {
+    func testPersonalMutationCannotTargetTheFollowedFolderID() async throws {
+        let backend = RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in
+            switch args[0] {
+            case "about":
+                return .init(status: 0, stdout: "{}",
+                             stderr: #"{"msg":"'root_folder_id = AccountID' - save this in the config to speed up startup"}"#)
+            case "lsjson":
+                return .init(status: 0, stdout: #"[{"Name":"Games","IsDir":true,"ID":"FollowedID"}]"#, stderr: "")
+            case "deletefile":
+                XCTFail("A mutation reached the followed ID: \(args[1]); pinned = \(args.contains("--drive-root-folder-id=FollowedID"))")
+                return .init(status: 0, stdout: "", stderr: "")
+            default:
+                throw StorageBackendError.invalidConfiguration
+            }
+        }
+        let scope = try await backend.resolveScope(reference: "FollowedID")
+        do {
+            try await backend.scoped(scope).delete(.init("fixture-only.txt"))
+            XCTFail("A write-capable backend accepted the followed folder")
+        } catch {
+            XCTAssertNotNil(error)
+        }
+    }
+
+    func testPersonalMutationCannotOverlapReferenceInEitherDirection() async throws {
+        for (children, expectedAllowed) in [
+            (["PersonalID": "ReferenceID"], false),
+            (["ReferenceID": "PersonalID"], false),
+            (["PersonalID": "UnrelatedChild"], true),
+        ] {
+            let backend = RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in
+                switch args[0] {
+                case "about":
+                    return .init(status: 0, stdout: "{}",
+                                 stderr: "'root_folder_id = AccountID' - save this in the config to speed up startup")
+                case "lsjson" where args.contains("--recursive"):
+                    let id = args.first { $0.hasPrefix("--drive-root-folder-id=") }?.split(separator: "=").last.map(String.init)
+                    let child = id.flatMap { children[$0] }
+                    return .init(status: 0, stdout: child.map { #"[{"Name":"child","IsDir":true,"ID":"\#($0)"}]"# } ?? "[]", stderr: "")
+                case "lsjson":
+                    return .init(status: 0, stdout: #"[{"Name":"Games","IsDir":true,"ID":"PersonalID"}]"#, stderr: "")
+                case "deletefile":
+                    XCTAssertTrue(expectedAllowed, "A mutation crossed the reference boundary")
+                    return .init(status: 0, stdout: "", stderr: "")
+                default:
+                    throw StorageBackendError.invalidConfiguration
+                }
+            }
+            let scope = try await backend.resolveScope(reference: "ReferenceID")
+            do {
+                try await backend.scoped(scope).delete(.init("fixture-only.txt"))
+                XCTAssertTrue(expectedAllowed)
+            } catch {
+                XCTAssertFalse(expectedAllowed, "\(error)")
+            }
+        }
+    }
+}

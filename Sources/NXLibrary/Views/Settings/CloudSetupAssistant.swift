@@ -96,7 +96,8 @@ struct CloudSetupAssistant: View {
     }
     private var service: CloudDriveFolders? {
         guard let remote = draft.remote, let tool else { return nil }
-        return CloudDriveFolders(remote: remote, executable: tool, config: replacement?.config)
+        return CloudDriveFolders(remote: remote, executable: tool, config: replacement?.config,
+                                 reference: model.preference.referenceFolder)
     }
     private var breadcrumbs: [String] {
         var path = ""
@@ -115,7 +116,7 @@ struct CloudSetupAssistant: View {
     }
     private var primaryEnabled: Bool {
         guard canEdit, !activated else { return false }
-        if let typedSourcesRoot { return CloudLibraryPreference.validSourcesRoot(typedSourcesRoot) }
+        if let typedSourcesRoot { return work == nil && CloudLibraryPreference.validSourcesRoot(typedSourcesRoot) }
         switch draft.step {
         case .account:
             return work == nil && remotes != nil && (showCredentials
@@ -165,7 +166,7 @@ struct CloudSetupAssistant: View {
                     case .folder: folders
                     case .verify: verification
                     }
-                    if enteredSourcesPath == nil, let issue {
+                    if let issue {
                         Text(text(issue)).seleneFont(16).foregroundColor(SeleneTheme.danger)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -299,7 +300,7 @@ struct CloudSetupAssistant: View {
                               prompt: Text(verbatim: "Games/GameFiles"))
                         .focused($field, equals: .sourcesPath).onSubmit(primary)
                 }
-                if !primaryEnabled {
+                if typedSourcesRoot.map(CloudLibraryPreference.validSourcesRoot) != true {
                     Text(text("Enter a folder path such as Games or Archive/Games."))
                         .seleneFont(15).foregroundColor(SeleneTheme.danger)
                 }
@@ -551,8 +552,20 @@ struct CloudSetupAssistant: View {
     private func useSources() {
         if entry == .sources {
             let path = typedSourcesRoot ?? sourcesPath
-            if path != model.preference.sourcesRoot || model.sourcesNeedConfirmation { model.chooseSourcesRoot(path) }
-            onClose()
+            let preference = model.preference
+            let apply = {
+                if path != model.preference.sourcesRoot || model.sourcesNeedConfirmation { model.chooseSourcesRoot(path) }
+                onClose()
+            }
+            if preference.referenceFolder == nil { apply() }
+            else if let service {
+                start(.verify) {
+                    try await service.verifyPersonalFolder(path, allowMissing: self.typedSourcesRoot != nil)
+                    guard !Task.isCancelled, self.model.preference == preference,
+                          path == (self.typedSourcesRoot ?? self.sourcesPath) else { return }
+                    apply()
+                }
+            }
         } else { finishFolder() }
     }
 
@@ -621,6 +634,10 @@ struct CloudSetupAssistant: View {
                     if !Task.isCancelled && draft.matches(ticket) { movePlan = plan }
                 } catch let failure as CloudDriveFolders.MoveFailure {
                     if !Task.isCancelled && draft.matches(ticket) { moveFailure = failure.localizedDescription }
+                } catch CloudLibraryFailure.referenceOverlap {
+                    if !Task.isCancelled && draft.matches(ticket) {
+                        moveFailure = CloudLibraryFailure.referenceOverlap.localizedDescription
+                    }
                 } catch {
                     if !Task.isCancelled && draft.matches(ticket) { moveUnavailable = true }
                 }
@@ -673,7 +690,11 @@ struct CloudSetupAssistant: View {
         let sources = onboarding ? selectedSourcesOverride : nil
         start(.verify) {
             try await service.verifyAccess(to: path)
-            if let sources, sources != path { try await service.verifyAccess(to: sources) }
+            try await service.verifyPersonalFolder(path)
+            if let sources, sources != path {
+                try await service.verifyAccess(to: sources)
+                try await service.verifyPersonalFolder(sources)
+            }
             if !Task.isCancelled { draft.acceptAccessCheck(ticket) }
         }
     }

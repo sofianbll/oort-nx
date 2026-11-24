@@ -67,17 +67,19 @@ public struct CloudDriveFolders: Sendable {
     private let localRoot: URL?
     private let config: URL?
     private let run: RcloneConfiguration.Run
+    private let reference: String?
 
-    public init(remote: String, executable: URL, config: URL? = nil) {
-        self.init(remote: remote, executable: executable, config: config, run: Self.runCommand)
+    public init(remote: String, executable: URL, config: URL? = nil, reference: String? = nil) {
+        self.init(remote: remote, executable: executable, config: config, reference: reference, run: Self.runCommand)
     }
 
-    init(remote: String, executable: URL, localRoot: URL? = nil, config: URL? = nil,
+    init(remote: String, executable: URL, localRoot: URL? = nil, config: URL? = nil, reference: String? = nil,
          run: @escaping RcloneConfiguration.Run = Self.runCommand) {
         self.remote = remote
         self.executable = executable
         self.localRoot = localRoot
         self.config = config
+        self.reference = reference
         self.run = run
     }
 
@@ -123,8 +125,14 @@ public struct CloudDriveFolders: Sendable {
     /// Only an explicit confirmation calls this. A lost reply is followed by a read, never another write.
     public func create(_ name: String, in folder: String) async throws {
         guard Self.validName(name) else { throw StorageBackendError.invalidKey }
-        let destination = try target(Self.joining(folder, name))
         if try await list(folder, ticket: UUID()).names.contains(name) { return }
+        let destination: String
+        if let reference, remote != ":local:" {
+            let parent = try await referenceGuard.checkedCreationParent(folder, reference: reference)
+            destination = try target(name, rootID: parent)
+        } else {
+            destination = try target(Self.joining(folder, name))
+        }
         do {
             _ = try await checked(["mkdir", destination])
         } catch is CancellationError {
@@ -133,6 +141,15 @@ public struct CloudDriveFolders: Sendable {
             if try await list(folder, ticket: UUID()).names.contains(name) { return }
             throw error
         }
+    }
+
+    public func verifyPersonalFolder(_ path: String, allowMissing: Bool = false) async throws {
+        try await referenceGuard.verifyPersonalFolder(path, from: reference, allowMissing: allowMissing)
+    }
+
+    private var referenceGuard: RcloneStorageBackend {
+        RcloneStorageBackend(remote: remote, root: "", executable: executable, config: config,
+                             readsConfiguration: true, run: run)
     }
 
     public func libraryCount(in folder: String, folders: [String]) async throws -> Int {
@@ -234,6 +251,9 @@ public struct CloudDriveFolders: Sendable {
         let binding: MoveBinding?
         if let destination, remote != ":local:" {
             binding = try await moveBinding(from: source, to: destination)
+            if let binding {
+                try await referenceGuard.verifyFolderSeparation([binding.sourceID, binding.destinationID], from: reference)
+            }
         } else {
             guard remote == ":local:" else { throw MoveFailure.missingIdentity }
             _ = try await folderID(source)
@@ -477,6 +497,7 @@ public struct CloudDriveFolders: Sendable {
         } else if let binding, let id = current[0].ID, Self.validID(id) {
             guard current[0].Name.utf8.elementsEqual(name?.utf8 ?? "".utf8) else { return false }
             guard try await accountID() == binding.account else { throw MoveFailure.accountChanged }
+            try await referenceGuard.verifyFolderSeparation([binding.sourceID, binding.destinationID], from: reference)
             _ = try await checked(["backend", "moveid", try target("", rootID: binding.sourceID), id, new,
                                    "--drive-server-side-across-configs", "--drive-use-trash=true",
                                    "--disable", "Copy", "--max-transfer", "0"])
@@ -518,6 +539,7 @@ public struct CloudDriveFolders: Sendable {
         let sourceID = try await folderID(plan.source)
         let destinationID = try await folderID(destination)
         guard sourceID == binding.sourceID, destinationID == binding.destinationID else { throw MoveFailure.foldersChanged }
+        try await referenceGuard.verifyFolderSeparation([sourceID, destinationID], from: reference)
     }
 
     private static func matches(_ file: StorageObject, _ items: [Item]) -> Bool {

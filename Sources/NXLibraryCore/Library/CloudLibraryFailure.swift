@@ -4,6 +4,7 @@ import Foundation
 public enum CloudLibraryFailure: LocalizedError, Hashable, Sendable {
     case offline, authentication, folderMissing, quotaFull, macFull, queueNotSaved, unavailable, requiresDrive, incomplete, scopeChanged
     case volumeFull(String)
+    case referenceOverlap
 
     public enum Action: Equatable, Sendable {
         case retry, reconnect, chooseFolder, manageDriveStorage, freeMacStorage, dismiss
@@ -24,7 +25,7 @@ public enum CloudLibraryFailure: LocalizedError, Hashable, Sendable {
         switch self {
         case .offline, .unavailable, .incomplete: return .retry
         case .authentication: return .reconnect
-        case .folderMissing, .scopeChanged: return .chooseFolder
+        case .folderMissing, .scopeChanged, .referenceOverlap: return .chooseFolder
         case .quotaFull: return .manageDriveStorage
         case .macFull, .volumeFull: return .freeMacStorage
         case .queueNotSaved, .requiresDrive: return .dismiss
@@ -43,6 +44,7 @@ public enum CloudLibraryFailure: LocalizedError, Hashable, Sendable {
         case .requiresDrive: return "Choose a Google Drive connection configured directly in rclone."
         case .incomplete: return "The cloud check is incomplete. Previous results were kept."
         case .scopeChanged: return "The Google Drive account or folder changed. Check the cloud settings."
+        case .referenceOverlap: return "Choose a personal folder outside the followed reference. Neither can contain the other."
         }
     }
 

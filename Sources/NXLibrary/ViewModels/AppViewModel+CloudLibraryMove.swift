@@ -42,7 +42,7 @@ extension AppViewModel {
                 guard cloud.libraryMove?.isCancelling != true else { throw CancellationError() }
                 let lease = try cloud.moveJournal.acquire()
                 defer { withExtendedLifetime(lease) {} }
-                let folders = CloudDriveFolders(remote: request.plan.remote, executable: tool)
+                let folders = CloudDriveFolders(remote: request.plan.remote, executable: tool, reference: preference.referenceFolder)
                 let pending: LibraryMoveJournal.Pending
                 if let saved = try cloud.moveJournal.load() {
                     guard saved.request == request, saved.id == id else { throw CloudArchiveError.busy }
@@ -93,6 +93,7 @@ extension AppViewModel {
                 outcome = .cancelled
             } catch {
                 outcome = .failed((error as? CloudDriveFolders.MoveFailure)?.localizedDescription
+                    ?? (error as? CloudLibraryFailure)?.localizedDescription
                     ?? (error as? CloudArchiveError)?.localizedDescription
                     ?? (error as? RcloneConfiguration.Failure)?.localizedDescription
                     ?? L10n.text(LibraryMoveActivity.unfinished))
