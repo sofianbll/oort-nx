@@ -28,7 +28,7 @@ struct SteamGridDBKeyDialog: View {
                                 confirmTitle: checking ? "Checking…" : L10n.text("Save"),
                                 confirmEnabled: !checking && SteamGridDBKey.normalized(draft) != nil,
                                 focus: $focus, onCancel: { close(saved: false) }, onConfirm: save) {
-                VStack(alignment: .leading, spacing: canvas.u(12)) {
+                VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small)) {
                     TextField(L10n.text("API key"), text: $draft)
                         .textFieldStyle(.plain)
                         .font(.system(size: max(13, canvas.u(17)), design: .monospaced))
@@ -36,7 +36,7 @@ struct SteamGridDBKeyDialog: View {
                         .onSubmit(save)
                         .onExitCommand { close(saved: false) }
                         .disabled(checking)
-                    HStack(spacing: canvas.u(6)) {
+                    HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                         Text(message ?? L10n.text("Free with a SteamGridDB account."))
                             .foregroundColor(message == nil ? SeleneTheme.ink60 : SeleneTheme.danger)
                             .fixedSize(horizontal: false, vertical: true)

@@ -164,7 +164,7 @@ struct SteamOptionsView: View {
                 .seleneFont(.text, .semibold)
                 .foregroundColor(SeleneTheme.ink75)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.leading, canvas.u(26))
+                .padding(.leading, canvas.u(SeleneTokens.Space.large))
                 .padding(.top, canvas.u(SeleneTokens.Space.medium))
         case .note, .gap:
             EmptyView()

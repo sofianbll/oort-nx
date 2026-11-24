@@ -122,7 +122,7 @@ private struct ScreenshotTile: View {
         .drawingGroup()
         .overlay(
             RoundedRectangle(cornerRadius: canvas.u(style.radius + 3), style: .continuous)
-                .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(3))
+                .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
                 .padding(canvas.u(-4))
                 .opacity(focused ? 1 : 0)
         )

@@ -123,7 +123,7 @@ struct AddGameView: View {
                 .padding(.bottom, canvas.u(SeleneTokens.Space.line))
             ScrollViewReader { proxy in
                 ScrollView {
-                    VStack(spacing: canvas.u(8)) {
+                    VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                         if porting.buildWizardStep == 3 {
                             AddGameStepThreeView(viewModel: viewModel, porting: porting, router: router, artwork: artwork,
                                                  onActions: publish)
@@ -198,7 +198,7 @@ struct AddGameView: View {
     /// "Choose · Review · Porting", the current step in full ink.
     private var stepLine: some View {
         let step = porting.buildWizardStep
-        return HStack(spacing: canvas.u(10)) {
+        return HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
             ForEach(Array(["Choose", L10n.text("Review"), "Porting"].enumerated()), id: \.offset) { index, title in
                 if index > 0 {
                     Circle().fill(SeleneTheme.ink25).frame(width: canvas.u(4), height: canvas.u(4))

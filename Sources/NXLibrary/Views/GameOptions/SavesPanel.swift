@@ -92,7 +92,7 @@ struct SavesPanel: View {
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in model.refresh() }
     }
     private var summary: some View {
-        HStack(spacing: canvas.u(12)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
             Text([game.versionString.map { "v" + $0 }, model.running ? L10n.text("Game running") : SavePresentation.size(model.currentBytes)].compactMap { $0 }.joined(separator: " · "))
                 .seleneFont(.text).foregroundColor(SeleneTheme.ink60).lineLimit(1)
             Spacer()
@@ -109,7 +109,7 @@ struct SavesPanel: View {
     private var saveList: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: canvas.u(8)) {
+                LazyVStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
                     ForEach(Array(rows.enumerated()), id: \.element) { index, row in
                         rowView(row, focused: embedding?.active.wrappedValue != false && index == focus)
                             .id(row).contentShape(Rectangle())
@@ -160,7 +160,7 @@ struct SavesPanel: View {
     private func rowView(_ row: Row, focused: Bool) -> some View {
         let text = description(row)
         return SeleneOptionRow(icon: row.icon, title: text.title, about: subtitle(row), focused: focused, enabled: text.enabled) {
-            HStack(spacing: canvas.u(16)) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 if let value = text.value {
                     Text(value).seleneFont(.text).foregroundColor(SeleneTheme.ink60).lineLimit(1)
                 }

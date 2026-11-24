@@ -340,7 +340,7 @@ struct SpotlightRowView: View {
             case .cloud: return (L10n.text("No games only in the cloud"), L10n.text("Cloud-only games appear here."))
             }
         }()
-        return VStack(alignment: .leading, spacing: canvas.u(6)) {
+        return VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
             Text(title).seleneFont(.row, .medium).foregroundColor(SeleneTheme.ink90)
             if !hint.isEmpty {
                 Text(hint).seleneFont(.text).foregroundColor(SeleneTheme.ink60)

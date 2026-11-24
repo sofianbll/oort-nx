@@ -34,7 +34,7 @@ struct SpotlightTopBar: View {
                 badge(.rb)
             }
             // Selene's order, right to left: the clock, then the profile's avatar just before it.
-            HStack(spacing: canvas.u(16)) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 Spacer()
                 if let profile { profileButton(profile) }
                 if showClock {
@@ -121,7 +121,7 @@ private struct OnlineDot: View {
         if nextendo.presenceShared == true {
             Circle().fill(SeleneTheme.statusOK)
                 .frame(width: canvas.u(12), height: canvas.u(12))
-                .overlay(Circle().strokeBorder(SeleneTheme.scrim, lineWidth: canvas.u(2)))
+                .overlay(Circle().strokeBorder(SeleneTheme.scrim, lineWidth: canvas.u(SeleneTokens.Space.focusStroke)))
                 .accessibilityHidden(true)
         }
     }
@@ -138,11 +138,11 @@ struct LibrarySortMenu: View {
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             Color.black.opacity(0.24).contentShape(Rectangle()).onTapGesture(perform: close)
-            VStack(alignment: .leading, spacing: canvas.u(8)) {
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
                 Text(L10n.text("Sort games")).seleneFont(.text, .semibold)
                     .foregroundStyle(SeleneTheme.ink75)
                     .accessibilityAddTraits(.isHeader)
-                    .padding(.horizontal, canvas.u(15))
+                    .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
                 ForEach(LibrarySort.allCases, id: \.rawValue) { sort in
                     SelenePillButton(title: L10n.text(sort.title), icon: sort == current ? .check : nil,
                                      minWidth: 245, height: 44, focused: sort == focused, action: { choose(sort) })

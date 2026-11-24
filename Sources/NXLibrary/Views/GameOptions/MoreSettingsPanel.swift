@@ -61,7 +61,7 @@ struct MoreSettingsPanel: View {
     private var list: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: canvas.u(8)) {
+                LazyVStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
                     ForEach(Array(rows.enumerated()), id: \.element.env) { index, setting in
                         rowView(setting, focused: index == focus)
                             .id(setting.env).contentShape(Rectangle())

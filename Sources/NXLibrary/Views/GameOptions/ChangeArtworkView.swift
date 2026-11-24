@@ -239,13 +239,13 @@ struct ChangeArtworkView: View {
     }
 
     private var tabs: some View {
-        HStack(spacing: canvas.u(8)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
             ForEach(ArtworkSlot.allCases, id: \.self) { tab in
                 Text(tab.title)
                     .seleneFont(.text, .semibold)
                     .foregroundColor(tab == slot ? SeleneTheme.ink : SeleneTheme.ink60)
                     .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
-                    .padding(.vertical, canvas.u(9))
+                    .padding(.vertical, canvas.u(SeleneTokens.Space.compact))
                     .background(Capsule().fill(tab == slot ? SeleneTheme.glassSolid : Color.clear))
                     .contentShape(Capsule())
                     .onTapGesture { select(tab) }
@@ -257,7 +257,7 @@ struct ChangeArtworkView: View {
 
     /// The source's search, prefilled with the game's name; Return searches.
     private var searchField: some View {
-        HStack(spacing: canvas.u(10)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
             MaterialIconView(.search, size: 22).foregroundColor(SeleneTheme.ink60)
             TextField("", text: $browseDraft,
                       prompt: Text(L10n.format("Search %@", [String(describing: browsing?.title ?? "")])).foregroundColor(SeleneTheme.ink60))
@@ -269,9 +269,9 @@ struct ChangeArtworkView: View {
                 .onExitCommand { fieldFocused = false }
         }
         .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
-        .padding(.vertical, canvas.u(10))
+        .padding(.vertical, canvas.u(SeleneTokens.Space.small))
         .background(Capsule().fill(SeleneTheme.glassSolid))
-        .overlay(Capsule().strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(2.5))
+        .overlay(Capsule().strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
             .padding(canvas.u(-4))
             .opacity(focus < 0 ? 1 : 0))
         .frame(width: canvas.u(560))
@@ -288,8 +288,8 @@ struct ChangeArtworkView: View {
             .lineLimit(1)
             .help(text)
             .frame(height: canvas.u(22), alignment: .leading)
-            .padding(.leading, canvas.u(10))
-            .padding(.vertical, canvas.u(10))
+            .padding(.leading, canvas.u(SeleneTokens.Space.small))
+            .padding(.vertical, canvas.u(SeleneTokens.Space.small))
     }
 
     private var mainStatus: String {
@@ -343,9 +343,9 @@ struct ChangeArtworkView: View {
         let rows = stride(from: 0, to: tiles.count, by: columns).map { Array($0..<min($0 + columns, tiles.count)) }
         return ScrollViewReader { proxy in
             ScrollView {
-                VStack(alignment: .leading, spacing: canvas.u(22)) {
+                VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.large)) {
                     ForEach(rows, id: \.self) { row in
-                        HStack(alignment: .top, spacing: canvas.u(24)) {
+                        HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.large)) {
                             ForEach(row, id: \.self) { index in
                                 tileView(tiles[index], focused: index == focus)
                                     .id(index)

@@ -10,8 +10,8 @@ struct CriticRatingValue: View {
     var body: some View {
         Group {
             if let rating = result?.rating {
-                HStack(alignment: .center, spacing: canvas.u(8)) {
-                    HStack(spacing: canvas.u(2)) {
+                HStack(alignment: .center, spacing: canvas.u(SeleneTokens.Space.compact)) {
+                    HStack(spacing: canvas.u(SeleneTokens.Space.seam)) {
                         ForEach(Array(rating.starFills.enumerated()), id: \.offset) { _, fill in
                             Image(systemName: "star.fill")
                                 .foregroundColor(SeleneTheme.ink.opacity(0.18))

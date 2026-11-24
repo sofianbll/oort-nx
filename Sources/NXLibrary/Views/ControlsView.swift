@@ -61,7 +61,7 @@ struct ControlsView: View {
         VStack(spacing: 0) {
             ScrollViewReader { proxy in
                 ScrollView {
-                    VStack(alignment: .leading, spacing: canvas.u(12)) {
+                    VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small)) {
                         Text(L10n.text("Controls"))
                             .seleneFont(.screen)
                             .foregroundColor(SeleneTheme.ink)

@@ -65,7 +65,7 @@ struct SpotlightGameInfoView: View {
                         .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
                         .padding(.top, canvas.u(SeleneTokens.Space.panel))
                 }
-                HStack(spacing: canvas.u(14)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                     pills
                     if showsCloudPill && (pillSet == .porting || pillSet.isFailed) {
                         let index = pillSet.detailsCloudIndex
@@ -86,7 +86,7 @@ struct SpotlightGameInfoView: View {
                     .padding(.top, canvas.u(SeleneTokens.Space.small))
                 SeleneStatsRow(presentation: presentation)
                     .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
-                    .padding(.top, canvas.u(26))
+                    .padding(.top, canvas.u(SeleneTokens.Space.large))
             }
             .opacity(restShown ? 1 : 0)
         }
@@ -144,7 +144,7 @@ struct SpotlightGameInfoView: View {
                                      waveDots: true) { onPill(0) })
                 .accessibilityLabel(L10n.text("Porting, show progress"))
         case .failed:
-            HStack(spacing: canvas.u(14)) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 ForEach(Array(PortingPillCopy.failedTitles.enumerated()), id: \.offset) { index, title in
                     pill(index, SelenePillButton(title: title, height: 52,
                                                  focused: focusedPill == index) { onPill(index) })
@@ -192,7 +192,7 @@ struct SpotlightGameInfoView: View {
         HStack(spacing: 0) {
             NowPlayingDot()
                 .frame(width: canvas.u(20), height: canvas.u(20))
-                .padding(.trailing, canvas.u(9))
+                .padding(.trailing, canvas.u(SeleneTokens.Space.compact))
             Text(L10n.text("NOW PLAYING")).seleneFont(.text, .bold).foregroundColor(SeleneTheme.success)
             Rectangle().fill(SeleneTheme.ink25)
                 .frame(width: max(1, canvas.u(1)), height: canvas.u(18))

@@ -175,7 +175,7 @@ struct ConsoleView: View {
     }
 
     private var controls: some View {
-        HStack(spacing: canvas.u(6)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
             ForEach(ConsoleFilter.allCases) { item in
                 pill(.filter(item)) {
                     Text(L10n.text(item.title))
@@ -186,7 +186,7 @@ struct ConsoleView: View {
             }
             Spacer(minLength: canvas.u(20))
             pill(.search) {
-                HStack(spacing: canvas.u(8)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                     MaterialIconView(.search, size: 16)
                         .foregroundColor(SeleneTheme.ink60)
                     if searching {
@@ -208,7 +208,7 @@ struct ConsoleView: View {
             }
             .background(Capsule().fill(SeleneTheme.glassLight))
             pill(.follow) {
-                HStack(spacing: canvas.u(8)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                     Circle()
                         .fill(follow ? PortingLogBox.softGreen : SeleneTheme.ink25)
                         .frame(width: canvas.u(7), height: canvas.u(7))
@@ -301,7 +301,7 @@ struct ConsoleView: View {
     }
 
     private func logRow(_ entry: LogEntry) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: canvas.u(16)) {
+        HStack(alignment: .firstTextBaseline, spacing: canvas.u(SeleneTokens.Space.medium)) {
             Text(entry.formattedTimestamp)
                 .seleneFont(.badge, .regular, design: .monospaced)
                 .foregroundColor(SeleneTheme.ink25)
@@ -314,13 +314,13 @@ struct ConsoleView: View {
             Spacer(minLength: 0)
         }
         .padding(.horizontal, canvas.u(SeleneTokens.Space.large))
-        .padding(.vertical, canvas.u(3))
+        .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(entry.formattedTimestamp), \(levelName(entry.level)): \(entry.message)")
     }
 
     private var emptyState: some View {
-        VStack(spacing: canvas.u(8)) {
+        VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
             MaterialIconView(.terminal, size: 30)
                 .foregroundColor(SeleneTheme.ink25)
             Text(viewModel.logs.isEmpty ? L10n.text("Nothing yet") : L10n.text("No lines match"))

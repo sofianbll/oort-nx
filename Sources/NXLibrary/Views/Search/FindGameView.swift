@@ -65,7 +65,7 @@ struct FindGameView: View {
     }
 
     private var field: some View {
-        HStack(spacing: canvas.u(14)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
             MaterialIconView(.search, size: 24)
                 .foregroundColor(SeleneTheme.ink60)
             TextField(L10n.text("Find a game"), text: $query)
@@ -75,10 +75,10 @@ struct FindGameView: View {
                 .focused($fieldFocused)
                 .onSubmit { pick(results.first) }
         }
-        .padding(.leading, canvas.u(26))
-        .padding(.top, canvas.u(11))
-        .padding(.trailing, canvas.u(26))
-        .padding(.bottom, canvas.u(13))
+        .padding(.leading, canvas.u(SeleneTokens.Space.large))
+        .padding(.top, canvas.u(SeleneTokens.Space.small))
+        .padding(.trailing, canvas.u(SeleneTokens.Space.large))
+        .padding(.bottom, canvas.u(SeleneTokens.Space.small))
         .frame(width: canvas.u(720))
         .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.field), style: .continuous).fill(SeleneTheme.glass))
         .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.field), style: .continuous)
@@ -92,9 +92,9 @@ struct FindGameView: View {
                 .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink60)
         } else {
-            LazyVGrid(columns: Array(repeating: GridItem(.fixed(canvas.u(160)), spacing: canvas.u(28)),
+            LazyVGrid(columns: Array(repeating: GridItem(.fixed(canvas.u(160)), spacing: canvas.u(SeleneTokens.Space.feature)),
                                      count: Self.columns),
-                      spacing: canvas.u(28)) {
+                      spacing: canvas.u(SeleneTokens.Space.feature)) {
                 ForEach(Array(games.enumerated()), id: \.element.id) { index, game in
                     tile(game, selected: focused == index)
                         .onTapGesture { pick(game) }
@@ -110,7 +110,7 @@ struct FindGameView: View {
     }
 
     private func tile(_ game: CatalogGame, selected: Bool) -> some View {
-        VStack(spacing: canvas.u(10)) {
+        VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
             Group {
                 if let native = game.nxnativeGame { SpotlightTileArtwork(game: native, side: canvas.u(160), artwork: artwork) }
                 else { CatalogNativeArtwork(game: game, role: .square) }

@@ -302,7 +302,7 @@ private struct IntegrationFixtureHome: View {
             SpotlightTopBar(filter: .all, sort: .recent, showClock: false)
                 .environment(\.integrationBar, AnyView(IntegrationBar(rows: data.rows, focused: router.integrationBarFocused,
                                                                      open: router.openIntegrations)))
-            VStack(alignment: .leading, spacing: canvas.u(20)) {
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.panel)) {
                 Text("Lunar Observatory").seleneFont(.screen, .semibold)
                 SelenePillButton(title: "Play", focused: !router.integrationBarFocused) {}
             }

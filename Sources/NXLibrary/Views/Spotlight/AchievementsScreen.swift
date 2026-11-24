@@ -64,7 +64,7 @@ struct AchievementsScreen: View {
                 }
                 .frame(width: canvas.u(Self.listWidth + Self.ring))
                 .padding(.top, canvas.u(70))
-                pills.padding(.top, canvas.u(30))
+                pills.padding(.top, canvas.u(SeleneTokens.Space.section))
                 AchievementsList(scroll: model.scroll, model: model, rows: rows, focused: state.index,
                                  appID: game.steamGame?.appID ?? 0, onFocus: onFocus)
                     .padding(.top, canvas.u(SeleneTokens.Space.feature))
@@ -127,7 +127,7 @@ struct AchievementsScreen: View {
     /// The logo, then the newest unlocked icons (look only, no focus stop); no strip before the first unlock.
     private var header: some View {
         let recent = summary.recentUnlockedIcons(limit: Self.recentLimit)
-        return VStack(alignment: .leading, spacing: canvas.u(24)) {
+        return VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.large)) {
             Group {
                 if let logo = logos.logo(for: "\(game.id)|\(picks.revision)") {
                     Image(nsImage: logo)
@@ -152,12 +152,12 @@ struct AchievementsScreen: View {
             }
 
             if !recent.isEmpty {
-                VStack(alignment: .leading, spacing: canvas.u(12)) {
+                VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small)) {
                     Text(L10n.text("Recently unlocked"))
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.ink90)
                         .accessibilityAddTraits(.isHeader)
-                    HStack(spacing: canvas.u(14)) {
+                    HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                         ForEach(Array(recent.enumerated()), id: \.offset) { _, icon in
                             AchievementIcon(appID: game.steamGame?.appID ?? 0, file: icon, size: 72)
                         }
@@ -176,7 +176,7 @@ struct AchievementsScreen: View {
         if summary.isComplete {
             medallion
         } else {
-            TrophyColumn(minWidth: canvas.u(Self.fourTrophies), spacing: canvas.u(24)) {
+            TrophyColumn(minWidth: canvas.u(Self.fourTrophies), spacing: canvas.u(SeleneTokens.Space.large)) {
                 board
                 gauge
             }
@@ -197,7 +197,7 @@ struct AchievementsScreen: View {
                 .padding(.top, canvas.u(SeleneTokens.Space.hairline))
             // A long language wraps under the trophies rather than overflowing them.
             countLineText(lines: 2)
-                .padding(.top, canvas.u(10))
+                .padding(.top, canvas.u(SeleneTokens.Space.small))
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(L10n.format("Achievements: %d of %d", [summary.unlocked, summary.total]))
@@ -216,7 +216,7 @@ struct AchievementsScreen: View {
         return HStack(alignment: .top, spacing: canvas.u(Self.trophySpacing)) {
             ForEach(tiers, id: \.self) { tier in
                 let count = counts[tier] ?? TierCount(unlocked: 0, total: 0)
-                VStack(spacing: canvas.u(6)) {
+                VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                     TierCrystal(tier: tier, size: Self.trophy, dimmed: count.unlocked == 0)
                     countText(count, size: 18)
                 }
@@ -237,15 +237,15 @@ struct AchievementsScreen: View {
                 .seleneFont(.screen, .semibold)
                 .foregroundColor(SeleneTheme.ink)
                 .lineLimit(1)
-                .padding(.top, canvas.u(10))
+                .padding(.top, canvas.u(SeleneTokens.Space.small))
             countLineText(lines: 1)
                 .padding(.top, canvas.u(SeleneTokens.Space.hairline))
             if summary.hasRarity {
                 let counts = summary.tierCounts
-                HStack(spacing: canvas.u(24)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.large)) {
                     ForEach([AchievementTier.gold, .silver, .bronze], id: \.self) { tier in
                         let count = counts[tier] ?? TierCount(unlocked: 0, total: 0)
-                        HStack(spacing: canvas.u(6)) {
+                        HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                             TierCrystal(tier: tier, size: 28, dimmed: count.unlocked == 0)
                             countText(count, size: 16)
                         }
@@ -321,7 +321,7 @@ struct AchievementsScreen: View {
 
     /// The filters between the shoulder badges, as on Selene: LB and RB step through them (and take a click).
     private var pills: some View {
-        HStack(spacing: canvas.u(12)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
             shoulder(.lb, L10n.text("Previous"), step: -1)
                 .opacity(state.isDetailOpen ? 0 : 1)
             ForEach(AchievementFilter.allCases, id: \.self) { filter in
@@ -406,9 +406,9 @@ private struct AchievementsScreenRow: View {
         let radius = canvas.u(SeleneTheme.contentRadius)
         let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
         let unlocked = row.unlockedAt != nil
-        HStack(spacing: canvas.u(18)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
             AchievementIcon(appID: appID, file: row.icon, size: 64, dimmed: !unlocked, secret: row.isMasked)
-            VStack(alignment: .leading, spacing: canvas.u(4)) {
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.hairline)) {
                 Text(row.name)
                     .seleneFont(.text, .semibold)
                     .foregroundColor(unlocked ? SeleneTheme.ink : SeleneTheme.ink82)
@@ -422,9 +422,9 @@ private struct AchievementsScreenRow: View {
             }
             Spacer(minLength: canvas.u(16))
             // The tier with its crystal and how many players have it, the date under it.
-            VStack(alignment: .trailing, spacing: canvas.u(6)) {
+            VStack(alignment: .trailing, spacing: canvas.u(SeleneTokens.Space.compact)) {
                 if let tier = row.tier, let percent = row.percent {
-                    HStack(spacing: canvas.u(6)) {
+                    HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                         TierCrystal(tier: tier, size: 24, dimmed: !unlocked)
                         Text(tier.displayName())
                             .foregroundColor(unlocked ? SeleneTheme.ink : SeleneTheme.ink75)

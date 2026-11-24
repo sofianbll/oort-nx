@@ -50,6 +50,7 @@ public enum SeleneTokens {
         public static let compactPillHeight: CGFloat = 42
         public static let sliderMeasure: CGFloat = 220
         public static let focusStroke: CGFloat = 2
+        public static let strongStroke: CGFloat = 3
         public static let thinStroke: CGFloat = 1
         public static let segmentInset: CGFloat = 3
         public static let dialogInset: CGFloat = 40

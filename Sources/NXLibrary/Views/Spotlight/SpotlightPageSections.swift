@@ -89,7 +89,7 @@ struct SpotlightDescription: View {
         VStack(alignment: .leading, spacing: 0) {
             DetailsBandTitle(text: L10n.text("About this game"))
             if languageNote != nil || wikipediaPage != nil {
-                HStack(spacing: canvas.u(12)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                     if let languageNote {
                         Text(languageNote).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
                     }
@@ -109,7 +109,7 @@ struct SpotlightDescription: View {
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink)
                     .padding(.horizontal, canvas.u(SeleneTokens.Space.line))
-                    .padding(.vertical, canvas.u(5))
+                    .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
                     .background(Capsule().fill(SeleneTheme.ink15))
                     .seleneRowFocus(focused, radius: canvas.u(15))
                     .padding(.top, canvas.u(SeleneTokens.Space.small))

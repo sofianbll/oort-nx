@@ -67,7 +67,7 @@ struct SettingsAPISection: View {
             SeleneRow("IGDB", subtitle: igdb.message ?? (igdb.isConfigured
                       ? "IGDB connected · Wikidata is the fallback"
                       : "Optional critic scores with your own credentials")) {
-                HStack(spacing: canvas.u(18)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                     Button(L10n.text(igdb.isConfigured ? "Edit credentials" : "Connect")) { igdb.isEditing = true }
                         .foregroundColor(SeleneTheme.glyph)
                     if igdb.isConfigured {
@@ -346,7 +346,7 @@ struct SettingsAPISection: View {
                                leading: signedOut ? nil : AnyView(NextendoAvatar(service: nextendo.accountService, pid: account?.avatarPID, image: account?.avatar,
                                                                               revision: nextendo.revision)),
                                titleAccessory: signedOut ? nil : AnyView(accountStatus)) {
-            VStack(alignment: .trailing, spacing: canvas.u(4)) {
+            VStack(alignment: .trailing, spacing: canvas.u(SeleneTokens.Space.hairline)) {
                 if let failure = nextendo.failure {
                     Text(failure.localizedDescription)
                         .seleneFont(.text)
@@ -373,8 +373,8 @@ struct SettingsAPISection: View {
                                              : canContactNextendo ? "Signed out" : "Connection not tested"))
                 }
                 ViewThatFits(in: .horizontal) {
-                    HStack(spacing: canvas.u(8)) { accountActions(buttons) }.fixedSize()
-                    VStack(alignment: .trailing, spacing: canvas.u(2)) { accountActions(buttons) }
+                    HStack(spacing: canvas.u(SeleneTokens.Space.compact)) { accountActions(buttons) }.fixedSize()
+                    VStack(alignment: .trailing, spacing: canvas.u(SeleneTokens.Space.seam)) { accountActions(buttons) }
                 }
                 .disabled(!canActivateNextendo)
             }
@@ -434,7 +434,7 @@ struct SettingsAPISection: View {
             }
             if let requests = friendData?.requests, !requests.isEmpty {
                 SettingsSubheading(text("Received requests"))
-                LazyVStack(spacing: canvas.u(8)) {
+                LazyVStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                     ForEach(requests) { player in
                         playerLine(player.name, row: requestRowID(player.id), buttons: requestButtons(player.id))
                     }
@@ -442,7 +442,7 @@ struct SettingsAPISection: View {
             }
             if let sent = friendData?.sent, !sent.isEmpty {
                 SettingsSubheading(text("Sent requests"))
-                LazyVStack(spacing: canvas.u(8)) {
+                LazyVStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                     ForEach(sent) { player in
                         playerLine(player.name, row: "nextendoSent-\(player.id)", detail: text("Pending"))
                     }
@@ -456,7 +456,7 @@ struct SettingsAPISection: View {
                 .accessibilityValue(text(recentExpanded ? "Expanded" : "Collapsed"))
             if recentExpanded { recentPlayers }
             if let friends, !friends.isEmpty {
-                LazyVStack(spacing: canvas.u(8)) {
+                LazyVStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                     ForEach(friends) { friend in
                         let row = friendRowID(friend.id)
                         NextendoFriendLine(friend: friend, revision: nextendo.revision, service: nextendo.accountService,
@@ -471,7 +471,7 @@ struct SettingsAPISection: View {
                 NextendoValue(text: text(friends == nil ? "Friends unavailable" : "No friends yet."))
                     .padding(.horizontal, canvas.u(SeleneTokens.Space.compact))
             }
-            HStack(spacing: canvas.u(8)) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                 Spacer(minLength: 0)
                 action(openProfile, row: linksRowID, index: 0)
             }
@@ -490,7 +490,7 @@ struct SettingsAPISection: View {
                 .foregroundColor(SeleneTheme.ink)
                 .padding(canvas.u(SeleneTokens.Space.compact))
                 .frame(maxWidth: canvas.u(195))
-                .background(RoundedRectangle(cornerRadius: canvas.u(7)).fill(SeleneTheme.glassLight))
+                .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.cover)).fill(SeleneTheme.glassLight))
                 .seleneRowFocus(friendCodeFocused || (focusedRow == addRowID && focusedButton == 0), radius: canvas.u(7))
             action(.init("Add", action: sendFriendCode), row: addRowID, index: 1)
         }
@@ -500,7 +500,7 @@ struct SettingsAPISection: View {
     private var recentPlayers: some View {
         Group {
             if let players = friendData?.recentPlayers, !players.isEmpty {
-                LazyVStack(spacing: canvas.u(8)) {
+                LazyVStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                     ForEach(players) { player in
                         playerLine(player.name, row: recentPlayerRowID(player.id),
                                    buttons: recentButton(player).map { [$0] } ?? []) {
@@ -517,7 +517,7 @@ struct SettingsAPISection: View {
 
     private func playerLine(_ name: String, row: String, detail: String? = nil, buttons: [NextendoButton] = [],
                             @ViewBuilder game: () -> some View = { EmptyView() }) -> some View {
-        HStack(spacing: canvas.u(8)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
             Text(name).seleneFont(.text).foregroundColor(SeleneTheme.ink90).lineLimit(1)
             Spacer(minLength: canvas.u(8))
             if let detail { NextendoValue(text: detail) }
@@ -578,7 +578,7 @@ struct SettingsAPISection: View {
 
     private func action(_ button: NextendoButton, row: String, index: Int, outline: Bool = true) -> some View {
         Button(action: button.action) {
-            HStack(spacing: canvas.u(4)) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.hairline)) {
                 Text(text(button.title))
                 if let symbol = button.symbol {
                     Image(systemName: symbol).accessibilityHidden(true)
@@ -593,7 +593,7 @@ struct SettingsAPISection: View {
         .buttonStyle(.plain)
         .overlay {
             if outline && focusedRow == row && focusedButton == index {
-                Capsule().strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(2)).allowsHitTesting(false)
+                Capsule().strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.focusStroke)).allowsHitTesting(false)
             }
         }
     }
@@ -750,7 +750,7 @@ private struct NextendoFriendLine<Trailing: View>: View {
     @ViewBuilder var trailing: () -> Trailing
 
     var body: some View {
-        HStack(spacing: canvas.u(8)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
             NextendoAvatar(service: service, pid: friend.id, initial: String(friend.name.prefix(1)), revision: revision)
             Text(friend.name).seleneFont(.text).foregroundColor(SeleneTheme.ink90).lineLimit(1)
             if friend.favorite {
@@ -758,7 +758,7 @@ private struct NextendoFriendLine<Trailing: View>: View {
                     .accessibilityLabel(L10n.text("Favorite", context: locale))
             }
             Spacer(minLength: canvas.u(8))
-            HStack(spacing: canvas.u(4)) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.hairline)) {
                 SeleneStatusDot(text: L10n.text(status, context: locale), color: color).fixedSize()
                 if friend.presence == .playing {
                     NextendoGameTitle(service: service, name: friend.game, id: friend.gameID, prefix: "· ",
@@ -770,7 +770,7 @@ private struct NextendoFriendLine<Trailing: View>: View {
         .padding(.horizontal, canvas.u(SeleneTokens.Space.compact))
         .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
         .background(SeleneTheme.glass.opacity(0.75))
-        .clipShape(RoundedRectangle(cornerRadius: canvas.u(7), style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.cover), style: .continuous))
     }
 
     private var status: String {
@@ -843,7 +843,7 @@ private struct NextendoAvatar: View {
         }
         .frame(width: side, height: side)
         .clipShape(Circle())
-        .overlay { Circle().strokeBorder(SeleneTheme.ink15, lineWidth: canvas.u(1)) }
+        .overlay { Circle().strokeBorder(SeleneTheme.ink15, lineWidth: canvas.u(SeleneTokens.Space.thinStroke)) }
         .accessibilityHidden(true)
         .task(id: passiveArrival ? nil : key) {
             guard !passiveArrival, image == nil, let pid, TileArtMemo.shared.object(forKey: key as NSString) == nil,

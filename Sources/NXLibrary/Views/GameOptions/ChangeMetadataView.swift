@@ -452,7 +452,7 @@ struct ChangeMetadataView: View {
                 .onTapGesture { editing = false }
             SeleneConfirmDialog(title: field.title, message: subject.name, confirmTitle: L10n.text("Save"),
                 focus: $editorFocus, onCancel: { editing = false }, onConfirm: saveDraft) {
-                VStack(alignment: .leading, spacing: canvas.u(12)) {
+                VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small)) {
                     if field == .description {
                         TextEditor(text: $draft)
                             .scrollContentBackground(.hidden)

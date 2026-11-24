@@ -95,11 +95,11 @@ struct IntegrationBar: View {
 
     var body: some View {
         Button(action: open) {
-            HStack(spacing: canvas.u(12)) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                 Image(systemName: "link")
                     .seleneFont(.row)
                     .accessibilityHidden(true)
-                VStack(alignment: .leading, spacing: canvas.u(2)) {
+                VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.seam)) {
                     Text(L10n.text("Integrations", context: locale)).seleneFont(.row, .semibold)
                     if let summary {
                         Text(L10n.text(summary.status, context: locale))

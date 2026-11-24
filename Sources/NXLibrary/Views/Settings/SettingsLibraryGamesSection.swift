@@ -73,7 +73,7 @@ struct SettingsLibraryGamesSection: View {
                     .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading, canvas.u(26))
+                    .padding(.leading, canvas.u(SeleneTokens.Space.large))
             } else {
                 ForEach(hiddenGames) { game in
                     SeleneButtonRow(game.name, id: "hidden-\(game.id)",

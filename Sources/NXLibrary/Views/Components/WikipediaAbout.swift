@@ -51,7 +51,7 @@ struct WikipediaCredit: View {
         Button {
             NSWorkspace.shared.open(pageURL)
         } label: {
-            HStack(spacing: canvas.u(4)) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.hairline)) {
                 Text(L10n.text("From Wikipedia, CC BY-SA."))
                 Image(systemName: "arrow.up.right")
             }

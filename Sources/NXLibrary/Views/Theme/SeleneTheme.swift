@@ -122,7 +122,7 @@ private struct SeleneRowFocusModifier: ViewModifier {
         content
             .overlay {
                 RoundedRectangle(cornerRadius: radius, style: .continuous)
-                    .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(2))
+                    .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.focusStroke))
                     .opacity(focused ? 1 : 0)
             }
             .animation(Motion.focus(reduceMotion), value: focused)

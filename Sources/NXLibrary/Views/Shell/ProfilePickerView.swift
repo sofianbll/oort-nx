@@ -197,13 +197,13 @@ struct ProfilePickerView: View {
             selected = profile?.id
             accept()
         } label: {
-            VStack(spacing: canvas.u(26)) {
+            VStack(spacing: canvas.u(SeleneTokens.Space.large)) {
                 Group {
                     if let profile {
                         ProfilePortrait(profile: profile, size: 170)
                     } else {
                         Circle().fill(SeleneTheme.glassLight)
-                            .overlay(Circle().strokeBorder(SeleneTheme.ink15, lineWidth: canvas.u(1)))
+                            .overlay(Circle().strokeBorder(SeleneTheme.ink15, lineWidth: canvas.u(SeleneTokens.Space.thinStroke)))
                             .overlay { Image(systemName: "plus").font(.system(size: canvas.u(65), weight: .ultraLight))
                                 .foregroundStyle(isFocused ? SeleneTheme.ink : SeleneTheme.ink60) }
                             .frame(width: canvas.u(170), height: canvas.u(170))
@@ -211,7 +211,7 @@ struct ProfilePickerView: View {
                 }
                 .overlay {
                     if isFocused {
-                        Circle().strokeBorder(accent, lineWidth: canvas.u(3)).padding(-canvas.u(9))
+                        Circle().strokeBorder(accent, lineWidth: canvas.u(SeleneTokens.Space.strongStroke)).padding(-canvas.u(9))
                             .shadow(color: accent.opacity(0.8), radius: canvas.u(11))
                     }
                 }

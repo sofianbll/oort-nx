@@ -38,7 +38,7 @@ extension GameOptionsView {
                 .padding(.bottom, canvas.u(SeleneTokens.Space.line))
             ScrollViewReader { proxy in
                 ScrollView {
-                    VStack(spacing: canvas.u(8)) {
+                    VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                         ForEach(Array(entries.enumerated()), id: \.offset) { _, entry in
                             entryView(entry, p, focused: focused)
                         }
@@ -82,10 +82,10 @@ extension GameOptionsView {
                 .seleneFont(.text, .semibold)
                 .foregroundColor(isSelene ? SeleneTheme.ink75 : SeleneTheme.glyph)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.leading, canvas.u(26))
+                .padding(.leading, canvas.u(SeleneTokens.Space.large))
                 .padding(.top, canvas.u(SeleneTokens.Space.medium))
         case .note(let title, let text):
-            VStack(alignment: .leading, spacing: canvas.u(3)) {
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.hairline)) {
                 Text(title)
                     .seleneFont(.row, .medium)
                     .foregroundColor(SeleneTheme.ink60)
@@ -95,7 +95,7 @@ extension GameOptionsView {
                     .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading, canvas.u(26))
+            .padding(.leading, canvas.u(SeleneTokens.Space.large))
             .padding(.top, canvas.u(SeleneTokens.Space.control))
             .padding(.trailing, canvas.u(SeleneTokens.Space.large))
             .padding(.bottom, canvas.u(SeleneTokens.Space.control))
@@ -134,7 +134,7 @@ extension GameOptionsView {
                                 .frame(width: canvas.u(24))
                                 .accessibilityHidden(true)
                         ) : nil) {
-            HStack(spacing: canvas.u(12)) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                 if checking {
                     SeleneProgressBar(progress: nil).frame(width: canvas.u(96))
                     Text(L10n.text("Cancel")).seleneFont(.text).foregroundColor(SeleneTheme.ink75)
@@ -257,7 +257,7 @@ extension GameOptionsView {
         } else if row.isChoice {
             SeleneValueChip(text: choiceText(row))
         } else if row == .cheats || row == .mods {
-            HStack(spacing: canvas.u(10)) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                 if row == .mods || cheatsValue != nil {
                     SeleneValueChip(text: row == .cheats ? presentation.cheatsValue : presentation.modsValue)
                 }

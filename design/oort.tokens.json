@@ -78,6 +78,7 @@
     "compact-pill-height": {"$value": {"value": 42, "unit": "px"}},
     "slider-measure": {"$value": {"value": 220, "unit": "px"}},
     "focus-stroke": {"$value": "{space.seam}"},
+    "strong-stroke": {"$value": {"value": 3, "unit": "px"}},
     "thin-stroke": {"$value": {"value": 1, "unit": "px"}},
     "segment-inset": {"$value": {"value": 3, "unit": "px"}},
     "dialog-inset": {"$value": {"value": 40, "unit": "px"}},

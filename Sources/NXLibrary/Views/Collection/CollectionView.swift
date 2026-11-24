@@ -281,11 +281,11 @@ struct CollectionView: View {
                 .shadow(color: .black.opacity(0.45), radius: canvas.u(6))
                 .allowsHitTesting(false)
         } else {
-            VStack(spacing: canvas.u(14)) {
+            VStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 Text(L10n.text("Add your first game")).seleneFont(.screen).foregroundColor(SeleneTheme.ink)
                 Text(L10n.text("Choose game files or find your existing apps."))
                     .seleneFont(.text).foregroundColor(SeleneTheme.ink60)
-                HStack(spacing: canvas.u(14)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                     SelenePillButton(title: L10n.text("Add game"), focused: !profileFocused && !importFocused) { router.openAddGame() }
                     SelenePillButton(title: L10n.text("Import existing builds"), minWidth: 0, focused: !profileFocused && importFocused) {
                         viewModel.importExistingBuilds()

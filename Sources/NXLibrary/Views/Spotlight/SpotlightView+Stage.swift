@@ -268,7 +268,7 @@ extension SpotlightView {
                     card: .mods, gameCount: 0, installedCount: 0, poolLabel: "", activity: ActivitySummary(),
                     topGames: [], focusedTop: nil, artwork: artwork, onTopGame: { _ in },
                     modCounts: storeHost.counts)
-                    .padding(.top, canvas.u(10))
+                    .padding(.top, canvas.u(SeleneTokens.Space.small))
                     .spotlightBlock(.head)
                 ModStorePage(host: storeHost, catalog: storeHost.catalog, active: state.focus == .store)
                     .padding(.top, canvas.u(Self.storeGap))
@@ -295,7 +295,7 @@ extension SpotlightView {
                 },
                 recentBuilds: card == .activity ? recentBuilds : nil
             )
-            .padding(.top, canvas.u(10))
+            .padding(.top, canvas.u(SeleneTokens.Space.small))
         }
     }
 

@@ -23,15 +23,15 @@ struct IGDBCredentialsDialog: View {
                                 confirmTitle: checking ? L10n.text("Checking…") : L10n.text("Check and save"),
                                 confirmEnabled: !checking && draft != nil,
                                 focus: $focus, onCancel: close, onConfirm: save) {
-                VStack(alignment: .leading, spacing: canvas.u(14)) {
+                VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.medium)) {
                     setupSteps
-                    VStack(alignment: .leading, spacing: canvas.u(6)) {
+                    VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
                         Text(L10n.text("Client ID")).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
                         TextField(L10n.text("Client ID"), text: $clientID)
                             .focused($field, equals: .client).onSubmit { field = .secret }
                     }
                     .disabled(checking)
-                    VStack(alignment: .leading, spacing: canvas.u(6)) {
+                    VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
                         Text(L10n.text("Client Secret")).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
                         SecureField(L10n.text("Client Secret"), text: $secret)
                             .focused($field, equals: .secret).onSubmit(save)
@@ -87,9 +87,9 @@ struct IGDBCredentialsDialog: View {
             L10n.text("Create → Manage → New Secret."),
             L10n.text("Paste Client ID and Client Secret below, then Check and save.")
         ]
-        return VStack(alignment: .leading, spacing: canvas.u(7)) {
+        return VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
             ForEach(Array(steps.enumerated()), id: \.offset) { index, text in
-                HStack(alignment: .top, spacing: canvas.u(9)) {
+                HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.compact)) {
                     Text("\(index + 1).")
                         .foregroundColor(SeleneTheme.ink60)
                         .frame(width: canvas.u(18), alignment: .leading)
@@ -98,7 +98,7 @@ struct IGDBCredentialsDialog: View {
             }
             Text(L10n.text("Twitch requires a verified email and two-factor authentication."))
                 .foregroundColor(SeleneTheme.ink60)
-                .padding(.top, canvas.u(3))
+                .padding(.top, canvas.u(SeleneTokens.Space.hairline))
         }
         .seleneFont(.text)
         .multilineTextAlignment(.leading)

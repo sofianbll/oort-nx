@@ -71,9 +71,9 @@ struct FoundGamesSetupContent: View {
                 Text(subtitle).seleneFont(.text).foregroundColor(SeleneTheme.ink75)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
-                    .padding(.top, canvas.u(10))
+                    .padding(.top, canvas.u(SeleneTokens.Space.small))
 
-                VStack(spacing: canvas.u(12)) {
+                VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                     if let steamCount = findings?.steamGameCount {
                         SetupCardRow(title: "Steam",
                                      detail: L10n.count("%lld installed Mac games", steamCount),
@@ -106,7 +106,7 @@ struct FoundGamesSetupContent: View {
                     activate(.openLibrary)
                 }
                 .onHover { if $0 { move(.openLibrary) } }
-                .padding(.top, canvas.u(30))
+                .padding(.top, canvas.u(SeleneTokens.Space.section))
             }
             .frame(width: canvas.u(960))
             .offset(y: canvas.u(-20))

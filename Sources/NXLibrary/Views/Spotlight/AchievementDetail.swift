@@ -33,22 +33,22 @@ struct AchievementDetail: View {
                     .multilineTextAlignment(.center)
                     .lineLimit(3)
                     .fixedSize(horizontal: false, vertical: true)
-                    .padding(.top, canvas.u(34))
+                    .padding(.top, canvas.u(SeleneTokens.Space.section))
                 if !row.description.isEmpty {
                     Text(row.description)
                         .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink82)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
-                        .padding(.top, canvas.u(10))
+                        .padding(.top, canvas.u(SeleneTokens.Space.small))
                 }
                 Rectangle()
                     .fill(SeleneTheme.ink15)
                     .frame(width: canvas.u(80), height: max(1, canvas.u(1)))
-                    .padding(.top, canvas.u(26))
-                VStack(spacing: canvas.u(10)) {
+                    .padding(.top, canvas.u(SeleneTokens.Space.large))
+                VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                     if let tier = row.tier, let percent = row.percent {
-                        HStack(spacing: canvas.u(10)) {
+                        HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                             Text(tier.displayName())
                                 .foregroundColor(SeleneTheme.ink)
                             Text("·").foregroundColor(SeleneTheme.ink60)

@@ -146,7 +146,7 @@ struct DetailsPanel: View {
                 if index > 0 {
                     Rectangle().fill(SeleneTheme.ink15).frame(height: max(1, canvas.u(1)))
                 }
-                row(fact).padding(.vertical, canvas.u(9))
+                row(fact).padding(.vertical, canvas.u(SeleneTokens.Space.compact))
             }
             if includeRating, ratingQuery != nil {
                 if !facts.isEmpty {
@@ -157,7 +157,7 @@ struct DetailsPanel: View {
                     CriticRatingValue(result: currentRatingResult)
                     Spacer(minLength: 0)
                 }
-                .padding(.vertical, canvas.u(9))
+                .padding(.vertical, canvas.u(SeleneTokens.Space.compact))
             }
         }
         .frame(width: canvas.u(width), alignment: .topLeading)
@@ -182,7 +182,7 @@ struct DetailsPanel: View {
     }
 
     private func label(symbol: String, text: String) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: canvas.u(10)) {
+        HStack(alignment: .firstTextBaseline, spacing: canvas.u(SeleneTokens.Space.small)) {
             Image(systemName: symbol)
                 .font(.system(size: canvas.u(14), weight: .regular))
                 .foregroundColor(SeleneTheme.ink.opacity(0.55))
@@ -210,9 +210,9 @@ struct SeleneActionGrid: View {
     static let cellWidth: CGFloat = 168
 
     var body: some View {
-        VStack(alignment: .leading, spacing: canvas.u(8)) {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
             ForEach(Array(stride(from: 0, to: rows.count, by: Self.columns)), id: \.self) { first in
-                HStack(spacing: canvas.u(8)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                     ForEach(first..<min(first + Self.columns, rows.count), id: \.self) { index in
                         cell(rows[index], index: index)
                     }
@@ -230,7 +230,7 @@ struct SeleneActionGrid: View {
                 .foregroundColor(SeleneTheme.ink90)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
-                .padding(.horizontal, canvas.u(10))
+                .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
                 .frame(width: canvas.u(Self.cellWidth), height: canvas.u(32))
                 .background(shape.fill(SeleneTheme.glass))
                 .overlay(shape.strokeBorder(SeleneTheme.ink15, lineWidth: max(1, canvas.u(1))))

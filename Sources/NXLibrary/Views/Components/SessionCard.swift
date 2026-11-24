@@ -142,7 +142,7 @@ struct SessionCardView: View {
                                                  .init(color: .black, location: 0.85)],
                                          startPoint: .leading, endPoint: .trailing))
             }
-            HStack(spacing: canvas.u(16)) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(L10n.text("Session ended"))
                         .seleneFont(.text)
@@ -154,7 +154,7 @@ struct SessionCardView: View {
                         .truncationMode(.tail)
                         .padding(.top, canvas.u(SeleneTokens.Space.seam))
                         .padding(.bottom, canvas.u(SeleneTokens.Space.compact))
-                    HStack(alignment: .lastTextBaseline, spacing: canvas.u(12)) {
+                    HStack(alignment: .lastTextBaseline, spacing: canvas.u(SeleneTokens.Space.small)) {
                         figure(summary.thisSession, L10n.text("this session"))
                         Text("·")
                             .seleneFont(.text)
@@ -191,7 +191,7 @@ struct SessionCardView: View {
     }
 
     private func figure(_ value: String, _ label: String) -> some View {
-        HStack(alignment: .lastTextBaseline, spacing: canvas.u(7)) {
+        HStack(alignment: .lastTextBaseline, spacing: canvas.u(SeleneTokens.Space.compact)) {
             Text(value)
                 .seleneFont(.row, .semibold)
                 .foregroundColor(SeleneTheme.ink)

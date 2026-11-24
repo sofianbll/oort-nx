@@ -18,19 +18,19 @@ struct SaveImportDetails: View {
     }
 
     private var content: some View {
-        VStack(spacing: canvas.u(18)) {
-            VStack(spacing: canvas.u(13)) {
+        VStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
+            VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                 endpoint(L10n.text("From"), folder: source)
                 SaveTransferArrow()
                 endpoint("To", folder: destination)
             }
             .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
-            .padding(.vertical, canvas.u(10))
+            .padding(.vertical, canvas.u(SeleneTokens.Space.small))
             .frame(maxWidth: .infinity)
             .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
                 .fill(SeleneTheme.glassLight))
 
-            VStack(spacing: canvas.u(8)) {
+            VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                 Text(L10n.text("Your current save is backed up before replacement."))
                     .seleneFont(.text, .medium)
                     .foregroundColor(SeleneTheme.ink)
@@ -47,7 +47,7 @@ struct SaveImportDetails: View {
 
     private func endpoint(_ label: String, folder: URL) -> some View {
         let path = (folder.path as NSString).abbreviatingWithTildeInPath
-        return VStack(spacing: canvas.u(8)) {
+        return VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
             Text(verbatim: label.uppercased())
                 .seleneFont(.badge, .semibold)
                 .tracking(canvas.u(1.2))
@@ -59,7 +59,7 @@ struct SaveImportDetails: View {
                 .foregroundColor(SeleneTheme.ink)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
-                .padding(.vertical, canvas.u(10))
+                .padding(.vertical, canvas.u(SeleneTokens.Space.small))
                 .frame(maxWidth: .infinity)
                 .overlay {
                     RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.row), style: .continuous)

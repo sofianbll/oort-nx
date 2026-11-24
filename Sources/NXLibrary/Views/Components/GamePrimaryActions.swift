@@ -18,7 +18,7 @@ struct GamePrimaryActions: View {
     var onHover: (Int) -> Void = { _ in }
     @Environment(\.seleneCanvas) private var canvas
     var body: some View {
-        HStack(spacing: canvas.u(14)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
             if primaryQueued {
                 pill(0, SelenePillButton.buildQueue(focused: focused == 0) { onAction(0) })
             } else {

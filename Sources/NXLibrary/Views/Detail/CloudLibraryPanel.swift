@@ -83,8 +83,8 @@ struct CloudLibraryPanel: View {
     }
 
     private var card: some View {
-        VStack(alignment: .leading, spacing: canvas.u(14)) {
-            VStack(alignment: .leading, spacing: canvas.u(3)) {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.medium)) {
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.hairline)) {
                 Text(text("Cloud library")).seleneFont(.heading, .semibold)
                     .foregroundColor(SeleneTheme.ink).accessibilityAddTraits(.isHeader)
                 Text(game.name).seleneFont(.text).foregroundColor(SeleneTheme.ink75)
@@ -108,7 +108,7 @@ struct CloudLibraryPanel: View {
                 failureLine(failure.message(context: localization), failure: failure, item: nil)
             }
             if controls.contains(where: { [.close, .settings, .refresh, .free, .upload(nil), .advanced].contains($0) }) {
-                HStack(spacing: canvas.u(10)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                     if !showHints { button(.close, "Close") }
                     if controls.contains(.settings) { button(.settings, "Open settings") }
                     if controls.contains(.refresh) { button(.refresh, "Refresh") }
@@ -151,9 +151,9 @@ struct CloudLibraryPanel: View {
         let ready = downloading && state.progress?.phase == .readyToInstall
         let downloadBytes = downloading ? CloudLibraryProgressView.bytesSummary(state.progress, context: localization) : nil
         let statusText = personalCopyIsOlder ? text("Your cloud copy is older") : indicator.label(context: localization)
-        return VStack(alignment: .leading, spacing: canvas.u(8)) {
-            HStack(spacing: canvas.u(12)) {
-                VStack(alignment: .leading, spacing: canvas.u(5)) {
+        return VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
+                VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.hairline)) {
                     Text(title).seleneFont(.text, .semibold).foregroundColor(SeleneTheme.ink90)
                         .accessibilityAddTraits(.isHeader)
                     CloudPersonalAppUpdateRow(
@@ -172,7 +172,7 @@ struct CloudLibraryPanel: View {
                 .layoutPriority(1)
                 Spacer(minLength: 0)
                 if downloadFill == nil {
-                    VStack(alignment: .trailing, spacing: canvas.u(4)) {
+                    VStack(alignment: .trailing, spacing: canvas.u(SeleneTokens.Space.hairline)) {
                         if live, CloudLibraryProgressView.fraction(state.progress) != nil {
                             Text(CloudLibraryProgressView.summary(state.progress, context: localization, showsPhase: false))
                                 .seleneFont(.badge).monospacedDigit()
@@ -187,7 +187,7 @@ struct CloudLibraryPanel: View {
                     .foregroundColor(SeleneTheme.ink75)
                     .multilineTextAlignment(.trailing)
                 }
-                HStack(spacing: canvas.u(10)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                     if interrupted != nil { button(.resume, "Resume") }
                     if canPause { button(.pause, "Pause") }
                     if downloading, !checkingDownload, control == .cancel {
@@ -468,7 +468,7 @@ struct CloudLibraryPanel: View {
                 focus: Binding(get: { freeFocus == .confirm ? .confirm : .cancel },
                                set: { freeFocus = $0 == .cancel ? .cancel : .confirm }),
                 onCancel: { freeSelection = nil }, onConfirm: confirmFree) {
-                VStack(spacing: canvas.u(6)) {
+                VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                     Text(freeSummary(selection))
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.ink90)
@@ -578,7 +578,7 @@ struct CloudLibraryProgressView: View {
     let showsBar: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: canvas.u(5)) {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.hairline)) {
             Text(showsBar ? Self.summary(progress, context: localization)
                  : Self.downloadSummary(progress, context: localization))
                 .seleneFont(.text).monospacedDigit()
@@ -845,7 +845,7 @@ struct CloudLibraryTileBadge: ViewModifier {
                 else if let visibleBadge { visibleBadge }
                 else { NextendoOnlineBadge(titleID: onlineTitleID, compact: true) }
             }
-            .padding(canvas.u(10))
+            .padding(canvas.u(SeleneTokens.Space.small))
             .allowsHitTesting(false)
             .accessibilityHidden(true)
         }

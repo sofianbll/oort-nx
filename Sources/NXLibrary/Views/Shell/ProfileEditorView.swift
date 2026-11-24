@@ -63,7 +63,7 @@ struct ProfileEditorView: View {
     var body: some View {
         ZStack(alignment: .top) {
             SeleneTheme.scrim.opacity(0.45).ignoresSafeArea()
-            VStack(spacing: canvas.u(10)) {
+            VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                 Text(L10n.text(title)).seleneFont(.screen, step == .avatar ? .medium : .regular)
                     .accessibilityAddTraits(.isHeader)
                 Text(L10n.text(subtitle)).seleneFont(.row).foregroundStyle(SeleneTheme.ink75)
@@ -86,7 +86,7 @@ struct ProfileEditorView: View {
                     .padding(.bottom, canvas.u(154))
             }
             if !nameOnly {
-                HStack(spacing: canvas.u(10)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                     ForEach(Step.allCases, id: \.rawValue) { dot in
                         Circle().fill(SeleneTheme.ink.opacity(dot == step ? 1 : 0.3))
                             .frame(width: canvas.u(8), height: canvas.u(8))
@@ -178,12 +178,12 @@ struct ProfileEditorView: View {
                 .padding(.horizontal, canvas.u(SeleneTokens.Space.feature))
                 .frame(width: canvas.u(560), height: canvas.u(68))
                 .background(Capsule().fill(SeleneTheme.ink.opacity(0.10)))
-                .overlay(Capsule().strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(2)))
+                .overlay(Capsule().strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.focusStroke)))
                 .focused($nameFocused)
                 .onSubmit { advance() }
-            VStack(spacing: canvas.u(9)) {
+            VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                 ForEach(keyRows, id: \.lowerBound) { row in
-                    HStack(spacing: canvas.u(9)) {
+                    HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                         ForEach(row, id: \.self) { item in
                             button(item, label: L10n.text(keys[item]), action: { selectKey(item) }) {
                                 keyFace(item)
@@ -207,12 +207,12 @@ struct ProfileEditorView: View {
         .seleneFont(item < 39 ? .heading : .text)
         .frame(width: canvas.u(keyWidth(item)), height: canvas.u(64))
         .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card)).fill(SeleneTheme.glass))
-        .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card)).strokeBorder(SeleneTheme.ink15, lineWidth: canvas.u(1)))
+        .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card)).strokeBorder(SeleneTheme.ink15, lineWidth: canvas.u(SeleneTokens.Space.thinStroke)))
         .overlay(alignment: .topTrailing) {
             if item > 39 && (item != 42 || isNew) {
                 SelenePromptBadge(button: item == 40 ? .y : item == 41 ? .x : .menu, height: 22,
                                   keyboardOverride: item == 42 ? .symbol("return") : nil)
-                    .padding(canvas.u(5)).accessibilityHidden(true)
+                    .padding(canvas.u(SeleneTokens.Space.hairline)).accessibilityHidden(true)
             }
         }
         .modifier(TileFocus(focused: index == item && !nameFocused, radius: 16, scale: 1.1))
@@ -225,7 +225,7 @@ struct ProfileEditorView: View {
         let count = itemCount
         // Items keep their identity so they slide; the row spans the screen and fades out at both edges.
         let reach = min(Int(ceil(canvas.size.width / 2 / canvas.u(Self.avatarSpacing))), (count - 1) / 2)
-        return VStack(spacing: canvas.u(24)) {
+        return VStack(spacing: canvas.u(SeleneTokens.Space.large)) {
             ZStack {
                 ForEach((-reach...reach).map { (index + $0 + count) % count }, id: \.self) { item in
                     let wrapped = (item - index + count) % count
@@ -320,7 +320,7 @@ struct ProfileEditorView: View {
                                 .frame(width: canvas.u(198), height: canvas.u(112))
                                 .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content)))
                                 .modifier(TileFocus(focused: index == item, radius: 12, scale: 1.05))
-                                .padding(.vertical, canvas.u(9))
+                                .padding(.vertical, canvas.u(SeleneTokens.Space.compact))
                             }
                             .id(item)
                         }
@@ -332,7 +332,7 @@ struct ProfileEditorView: View {
                                      startPoint: .top, endPoint: .bottom))
                 .onChange(of: index) { _, target in scroll.scrollTo(target) }
             }
-            VStack(alignment: .leading, spacing: canvas.u(12)) {
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small)) {
                 ThemePreview(palette: palette, wallpaperURL: url, games: games, width: step == .theme ? 780 : 820,
                              animated: !reduceMotion)
                 Text(step == .theme ? palette.name : customBackgroundSelected
@@ -527,7 +527,7 @@ struct ProfileEditorView: View {
     private func cropPanel(_ draft: AvatarCropDraft) -> some View {
         ZStack {
             SeleneTheme.scrim65.ignoresSafeArea()
-            VStack(spacing: canvas.u(18)) {
+            VStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 Text(L10n.text("Frame your picture")).seleneFont(.screen).accessibilityAddTraits(.isHeader)
                 if let crop = draft.preview.cropping(to: draft.crop.rectangle(width: draft.preview.width, height: draft.preview.height)) {
                     Image(decorative: crop, scale: 1).resizable()
@@ -538,7 +538,7 @@ struct ProfileEditorView: View {
                 cropSlider("Vertical position", \.y, 0...1, fallback: 0.5)
                 cropSlider("Zoom", \.zoom, 1...3, fallback: 1)
                 if isCropping { ProgressView().controlSize(.small).accessibilityLabel(L10n.text("Loading…")) }
-                HStack(spacing: canvas.u(14)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                     SelenePillButton(title: "Cancel", focused: false, action: cancelCrop)
                     SelenePillButton(title: "Done", focused: true, enabled: !isCropping, action: saveCrop)
                 }

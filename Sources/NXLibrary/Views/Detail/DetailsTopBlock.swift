@@ -67,7 +67,7 @@ struct DetailsTopBlock: View {
                     .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
                     .padding(.top, canvas.u(SeleneTokens.Space.titleGap))
             }
-            HStack(spacing: canvas.u(14)) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 pills
                 if showsCloudPill && (pillSet == .porting || pillSet.isFailed) { cloudPill }
                 NextendoOnlineBadge(titleID: game.titleId)
@@ -176,7 +176,7 @@ struct DetailsTopBlock: View {
                 .onHover { if $0 { onHoverPill(0) } }
                 .accessibilityLabel(L10n.text("Porting, show progress"))
         case .failed:
-            HStack(spacing: canvas.u(14)) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 ForEach(Array(PortingPillCopy.failedTitles.enumerated()), id: \.offset) { index, title in
                     SelenePillButton(title: title, minWidth: 200, height: 52, horizontalPadding: 36,
                                      focused: focusedPill == index) { onPill(index) }
@@ -189,7 +189,7 @@ struct DetailsTopBlock: View {
     }
 
     private var normalPills: some View {
-        HStack(spacing: canvas.u(14)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
             Group {
                 if pillSet == .queued {
                     SelenePillButton.buildQueue(minWidth: 200, focused: focusedPill == 0, action: onPrimary)
@@ -200,7 +200,7 @@ struct DetailsTopBlock: View {
                                          horizontalPadding: 24, focused: false, downloadFill: downloadFill,
                                          passive: true, action: {})
                     } else {
-                        HStack(spacing: canvas.u(8)) {
+                        HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                             SeleneStatusMark(color: CloudLibraryStatus.pending.color, pulses: false)
                             Text(text(downloadStatus)).seleneFont(.text).foregroundColor(SeleneTheme.ink90)
                         }
@@ -363,14 +363,14 @@ struct DetailsTopBlock: View {
         let showingPreview = !expanded && about.preview != nil
         let note = about.note(showingPreview: showingPreview)
         let text = showingPreview ? about.preview ?? about.text : about.text
-        VStack(alignment: .leading, spacing: canvas.u(6)) {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
             if text.isEmpty {
                 Text(self.text("No description for this game yet."))
                     .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
             } else {
                 // Keep the action clear of the fixed screenshot band, even with a source and language note.
-                HStack(spacing: canvas.u(12)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                     if let note {
                         Text(note).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
                     }

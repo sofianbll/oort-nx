@@ -89,7 +89,7 @@ struct SpotlightCardInfoView: View {
     private var detail: some View {
         switch card {
         case .collection:
-            HStack(spacing: canvas.u(26)) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.large)) {
                 stat(L10n.text("GAMES"), "\(gameCount)")
                 divider
                 stat(L10n.text("INSTALLED"), "\(installedCount)")
@@ -100,7 +100,7 @@ struct SpotlightCardInfoView: View {
             activityDetail
         case .mods:
             if let counts = modCounts, counts.mods > 0 {
-                HStack(spacing: canvas.u(26)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.large)) {
                     stat("MODS", "\(counts.mods)")
                     divider
                     stat(L10n.text("FOR"), counts.games == 1 ? L10n.text("1 game") : L10n.format("%@ games", [String(describing: counts.games)]))
@@ -177,10 +177,10 @@ struct SpotlightCardInfoView: View {
     private var bars: some View {
         let peak = max(activity.perDay.max() ?? 0, 1)
         let days = Self.dayLetters
-        return HStack(alignment: .bottom, spacing: canvas.u(10)) {
+        return HStack(alignment: .bottom, spacing: canvas.u(SeleneTokens.Space.small)) {
             ForEach(0..<7, id: \.self) { day in
                 let value = day < activity.perDay.count ? activity.perDay[day] : 0
-                VStack(spacing: canvas.u(6)) {
+                VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                     RoundedRectangle(cornerRadius: canvas.u(4), style: .continuous)
                         .fill(value > 0 ? SeleneTheme.focus : SeleneTheme.ink15)
                         .frame(width: canvas.u(22), height: canvas.u(value > 0 ? max(6, 56 * value / peak) : 4))
@@ -199,14 +199,14 @@ struct SpotlightCardInfoView: View {
             .clipShape(shape)
             .overlay(shape.strokeBorder(SeleneTheme.ink15, lineWidth: max(1, canvas.u(1))))
             .overlay(shape.inset(by: canvas.u(-4))
-                .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(3))
+                .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
                 .opacity(focused ? 1 : 0))
             .scaleEffect(focused && !reduceMotion ? 1.06 : 1)
             .animation(reduceMotion ? nil : .easeOut(duration: 0.15), value: focused)
     }
 
     private func stat(_ label: String, _ value: String) -> some View {
-        VStack(alignment: .leading, spacing: canvas.u(4)) {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.hairline)) {
             Text(L10n.text(label)).seleneFont(.badge, .semibold).foregroundColor(SeleneTheme.ink60)
             Text(value).seleneFont(.row, .semibold).foregroundColor(SeleneTheme.ink)
         }
@@ -217,7 +217,7 @@ struct SpotlightCardInfoView: View {
     }
 
     private func actionChip(_ label: String) -> some View {
-        HStack(spacing: canvas.u(10)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
             SelenePromptBadge(button: .a)
             Text(L10n.text(label)).seleneFont(.text).foregroundColor(SeleneTheme.ink90)
         }
@@ -247,14 +247,14 @@ struct SpotlightCardMenu: View {
     let onChoose: (Int) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: canvas.u(14)) {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.medium)) {
             Text(L10n.text(card.title)).seleneFont(.heading, .semibold).foregroundColor(SeleneTheme.ink)
-            VStack(spacing: canvas.u(8)) {
+            VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                 ForEach(Array(Self.rows.enumerated()), id: \.offset) { index, row in
                     let focused = index == focusedIndex
-                    HStack(spacing: canvas.u(16)) {
+                    HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                         MaterialIconView(row.icon, size: 28)
-                        VStack(alignment: .leading, spacing: canvas.u(2)) {
+                        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.seam)) {
                             Text(row.title).seleneFont(.row, .semibold)
                             Text(row.subtitle).seleneFont(.text)
                                 .foregroundColor(focused ? SeleneTheme.onFocus.opacity(0.8) : SeleneTheme.ink60)

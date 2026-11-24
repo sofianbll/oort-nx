@@ -28,7 +28,7 @@ struct ThemePreview: View {
         let w = canvas.u(width)
         let h = w * 9 / 16
         let shape = RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card), style: .continuous)
-        return VStack(alignment: .leading, spacing: canvas.u(10)) {
+        return VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small)) {
             Text(L10n.text("PREVIEW"))
                 .seleneFont(.badge, .semibold)
                 .foregroundColor(SeleneTheme.ink.opacity(0.55))

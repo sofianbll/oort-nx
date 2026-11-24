@@ -86,7 +86,7 @@ struct DetailsMoreBand: View {
         return ZStack {
             cover(game, width: w, height: h)
                 .clipShape(face)
-            SeleneTileRing(cornerRadius: canvas.u(21), active: focused)
+            SeleneTileRing(cornerRadius: canvas.u(SeleneTokens.Radius.field), active: focused)
                 .frame(width: w + canvas.u(14), height: h + canvas.u(14))
         }
         .frame(width: w, height: h)
@@ -170,7 +170,7 @@ struct DetailsModsBand: View {
         let columns = ModsBandLayout.columns, rows = ModsBandLayout.rows(count: tiles.count)
         let pitchX = style.tileWidth + style.gap, pitchY = style.tileHeight + style.gap
         return VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .firstTextBaseline, spacing: canvas.u(18)) {
+            HStack(alignment: .firstTextBaseline, spacing: canvas.u(SeleneTokens.Space.medium)) {
                 DetailsBandTitle(text: title)
                 if let line = gameBanana.statusLine(context: localization) {
                     Text(line)
@@ -238,7 +238,7 @@ struct DetailsModsBand: View {
     }
 
     private func installedFace(_ mod: LocalMod) -> some View {
-        VStack(alignment: .leading, spacing: canvas.u(8)) {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
             MaterialIconView(.puzzle, size: 26)
                 .foregroundColor(mod.isOn ? SeleneTheme.focus : SeleneTheme.ink60)
             Spacer(minLength: 0)
@@ -253,7 +253,7 @@ struct DetailsModsBand: View {
     }
 
     private var manageFace: some View {
-        VStack(alignment: .leading, spacing: canvas.u(8)) {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
             MaterialIconView(mods.isEmpty ? .add : .settings, size: 26)
                 .foregroundColor(SeleneTheme.ink75)
             Spacer(minLength: 0)
@@ -282,12 +282,12 @@ struct DetailsModsBand: View {
         ZStack(alignment: .bottomLeading) {
             GameBananaImageView(url: mod.thumbnailURL, maxPixelSize: Self.thumbnailPixels)
             LinearGradient(colors: [.clear, .black.opacity(0.78)], startPoint: .center, endPoint: .bottom)
-            VStack(alignment: .leading, spacing: canvas.u(2)) {
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.seam)) {
                 if let chip = chip(for: mod) {
                     Text(chip)
                         .seleneFont(.badge, .semibold)
                         .foregroundColor(SeleneTheme.ink)
-                        .padding(.horizontal, canvas.u(10))
+                        .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
                         .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
                         .background(Capsule().fill(SeleneTheme.glassSolid))
                         .padding(.bottom, canvas.u(SeleneTokens.Space.hairline))
@@ -329,7 +329,7 @@ struct DetailsModsBand: View {
 
     private func statusFace(_ action: ModsBandAction) -> some View {
         let text = statusText(action)
-        return VStack(alignment: .leading, spacing: canvas.u(8)) {
+        return VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
             MaterialIconView(text.icon, size: 26)
                 .foregroundColor(SeleneTheme.ink75)
             Spacer(minLength: 0)
@@ -361,7 +361,7 @@ struct DetailsModsBand: View {
         .drawingGroup()
         .overlay(
             RoundedRectangle(cornerRadius: canvas.u(style.radius + 3), style: .continuous)
-                .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(3))
+                .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
                 .padding(canvas.u(-Self.ringOutset))
                 .opacity(focused ? 1 : 0)
         )
