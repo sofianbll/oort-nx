@@ -228,8 +228,8 @@ extension PortingModel {
                     self.currentStageName = "Installation failed"
                     self.buildState = .failed
                     self.buildSuccessPath = nil
-                    self.buildError = "The build is ready. Retry installation."
-                    activityFailure = L10n.text("Installation failed")
+                    self.buildError = result.error ?? L10n.text("Installation failed")
+                    activityFailure = self.buildError
                     self.portingFailureReason = nil
                     app.lastError = result.error
                     app.presentInstallFailure(for: game, error: result.error ?? "Installation failed.")

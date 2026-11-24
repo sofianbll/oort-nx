@@ -367,7 +367,7 @@ extension PortingModel {
         app.appIcon.appIconsInFlight.contains(game.id)
             || RunningGameMonitor.runningApplication(for: game) != nil
             || app.cloudLibrary.conflicts(with: buildScope(for: game))
-            || game.titleId.map { app.saveGate.isBusy(titleID: $0) } == true
+            || app.savesAreBusy(for: game)
     }
 
     private func startBuildImmediately(for game: PortedGame, request: BuildRequest, onStarted: (() -> Void)?,
@@ -735,7 +735,7 @@ extension PortingModel {
             expectedDestination: expectedDestination,
             // Replacing the app under its running game can crash it: the new app waits for the game to quit.
             holdInstall: { RunningGameMonitor.runningApplication(for: target) != nil },
-            acquireInstall: { [weak self] in self?.app.acquireSaveInstallLease(for: target) },
+            acquireInstall: { [weak self] in try self?.app.requireSaveInstallLease(for: target) },
             onInstalling: { [weak self, weak service] in
                 DispatchQueue.main.async {
                     guard let self, let service, self.buildService === service else { return }

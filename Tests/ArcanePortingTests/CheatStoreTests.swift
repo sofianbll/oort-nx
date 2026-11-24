@@ -25,7 +25,15 @@ final class CheatStoreTests: XCTestCase {
     private func store(build: String? = nil) -> CheatStore {
         CheatStore(folder: folder, titleID: tid, buildID: build ?? self.build,
                    canWrite: { [unowned self] in allowed },
-                   trash: { [unowned self] url in trashed.append(url.lastPathComponent); try FileManager.default.removeItem(at: url) })
+                   trash: { [unowned self] url in
+                       let fm = FileManager.default
+                       if url.lastPathComponent.hasPrefix(".previous-") {
+                           trashed += try fm.contentsOfDirectory(atPath: url.path)
+                       } else {
+                           trashed.append(url.lastPathComponent)
+                       }
+                       try fm.removeItem(at: url)
+                   })
     }
 
     private let abc = Data("[A]\n04000000 00004000 00000001\n[B]\n04000000 00004004 00000001\n{M}\n04000000 00004008 00000001\n[X]\n04000000 0000400C 00000001\n[X]\n04000000 00004010 00000001\n[Note]\n".utf8)
@@ -56,6 +64,25 @@ final class CheatStoreTests: XCTestCase {
         try store().install(Data("[A]\n04000000 00004000 00000002\n[C]\n04000000 00004004 00000002\n".utf8), replacing: true)
         XCTAssertEqual(store().state().enabled, ["A"])
         XCTAssertEqual(read("\(build).enabled"), "A\n")
+    }
+
+    func testReplacementPreservesEveryOldFileWhenTrashRefusesValues() throws {
+        let fm = FileManager.default
+        try store().install(abc, replacing: false)
+        try store().setEnabled(["A"])
+        for suffix in ["meta.tsv", "values"] {
+            try Data(suffix.utf8).write(to: folder.appendingPathComponent("\(build).\(suffix)"))
+        }
+        let before = folderSnapshot()
+        let values = "\(build).values"
+        let replacing = CheatStore(folder: folder, titleID: tid, buildID: build, canWrite: { true }, trash: { url in
+            if url.lastPathComponent == values || fm.fileExists(atPath: url.appendingPathComponent(values).path) {
+                throw CocoaError(.fileWriteNoPermission)
+            }
+            try fm.removeItem(at: url)
+        })
+        XCTAssertThrowsError(try replacing.install(Data("[C]\n04000000 00004000 00000002\n".utf8), replacing: true))
+        XCTAssertEqual(folderSnapshot(), before)
     }
 
     /// hle_cheats.c states_save: one key per line in file order; masters, labels, one-pass cheats never saved.
@@ -165,7 +192,7 @@ final class CheatStoreTests: XCTestCase {
         try store().install(abc, replacing: false)
         try Data("name\tsection\nA\tOld\n".utf8).write(to: folder.appendingPathComponent("\(build).meta.tsv"))
         try store().install(abc, replacing: true)
-        XCTAssertEqual(trashed, ["\(build).meta.tsv"])
+        XCTAssertEqual(Set(trashed), ["\(build).txt", "\(build).enabled", "\(build).meta.tsv"])
         XCTAssertNil(store().state().file?.entries.first?.section)
     }
 

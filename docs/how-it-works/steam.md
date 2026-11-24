@@ -166,9 +166,9 @@ Favorite, Hidden, Show in Finder.
 
 - Play invia `steam://run/<AppID>` (`SteamPlayCoordinator`) solo al client di Valve registrato. La richiesta aspetta che Arcane ordini e invii la finestra d'attesa al server delle finestre, così la copertura precede il passaggio di Space. Se il pannello non si prepara, la richiesta parte entro un secondo.
   Il controllo senza finestre attende il completamento del task di ripiego, così il carico del runner non anticipa l'asserzione rispetto all'invio.
-- La sessione inizia quando compare il processo dell’app installata (stesso bundle ed eseguibile) e finisce quando
+- Con la fonte abilitata, la sessione inizia quando compare il processo dell’app installata (stesso bundle ed eseguibile) e finisce quando
   esce. Steam aperto non conta; un gioco avviato da Steam viene seguito allo stesso modo. Attesa massima 300 s; un pid
-  riusato non è il gioco. Una sessione in corso segue il processo che ha visto partire (pid e bundle) anche se il
+  riusato non è il gioco. Disattivare la fonte non apre nuove sessioni. Una sessione in corso segue il processo che ha visto partire (pid e bundle) anche se il
   catalogo nel frattempo cambia; le risposte tardive si scartano per generazione. Il coordinatore non osserva nulla
   prima di Play: `RunningGameMonitor` chiude le sessioni rimaste aperte all’ultimo heartbeat e un gioco ancora in
   esecuzione ne apre una nuova. I percorsi di ogni pid si risolvono una volta finché vive.
@@ -206,6 +206,8 @@ la data del file è cambiata; la regola di ogni lettura è il tipo puro `SteamPl
 conserva gli ultimi totali buoni dello stesso account; solo l’assenza di un account li azzera. Le sessioni uscite
 dall’elenco recente restano contate (`CarriedPlaytime.afterExternal`) finché Steam non aggiorna il valore; mentre i
 totali Steam sono nascosti, `PlaySessionStore.trimReferences` conserva il momento dell’ultimo valore di ogni gioco.
+Una sessione Steam di un profilo secondario, anche archiviata, congela l'ultimo totale importato per non attribuirla
+al profilo originale. Una sessione Switch non interferisce con questo aggiornamento.
 
 ## Achievement
 

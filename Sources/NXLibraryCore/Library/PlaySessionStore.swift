@@ -6,7 +6,10 @@ public final class PlaySessionStore: ObservableObject, PlayHistory {
     @Published private var history: [PlaySession] = []
     @Published public var profileID: UUID?
     public var sessions: [PlaySession] { history.filter { $0.profileID == profileID } }
-    public var hasScopedSessions: Bool { history.contains { $0.profileID != nil } || archive.keys.contains { $0 != nil } }
+    public func hasScopedSessions(for gameIDs: Set<UUID>) -> Bool {
+        history.contains { $0.profileID != nil && gameIDs.contains($0.gameID) }
+            || archive.contains { owner, totals in owner != nil && totals.keys.contains(where: gameIDs.contains) }
+    }
     /// Play time and last start of sessions trimmed from `sessions`, per game,
     /// so totals and last-played survive trimming.
     @Published private var archive: [UUID?: [UUID: CarriedPlaytime]] = [:]

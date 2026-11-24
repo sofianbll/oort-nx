@@ -377,6 +377,48 @@ final class BuildServiceTests: XCTestCase {
         gate.end(titleID: "0100000000000001", token: token)
     }
 
+    func testUnreadableProfilesReportTheDenialAndKeepTheBuildForRetry() throws {
+        let fm = FileManager.default
+        let root = fm.temporaryDirectory.appendingPathComponent("NXProfileHold-\(UUID())")
+        defer { try? fm.removeItem(at: root) }
+        try fm.createDirectory(at: root, withIntermediateDirectories: true)
+        let profiles = root.appendingPathComponent("profiles.json")
+        XCTAssertFalse(LocalProfileStore(directory: root, settings: .init(), name: "Fixture").failed)
+        let restored = try Data(contentsOf: profiles)
+        try Data("unreadable".utf8).write(to: profiles)
+        let denied = LocalProfileStore(directory: root, settings: .init(), name: "Fixture").failed
+        XCTAssertTrue(denied)
+
+        let script = root.appendingPathComponent("fake.sh")
+        let temp = root.appendingPathComponent("Stage/Game.app")
+        let final = root.appendingPathComponent("Game.app")
+        try "mkdir -p \"$1/Contents\"\nprintf new > \"$1/Contents/Info.plist\"\n".write(to: script, atomically: true, encoding: .utf8)
+        let done = expectation(description: "installation blocked by unreadable profiles")
+        let service = BuildService()
+        var result: BuildResult?
+        service.start(command: BuildCommand(executable: URL(fileURLWithPath: "/bin/sh"),
+            arguments: [script.path, temp.path], environment: [:], workingDirectory: root),
+            logURL: root.appendingPathComponent("log"), tempApp: temp, finalApp: final,
+            acquireInstall: {
+                if denied { throw SaveFailure.profilesUnavailable }
+                return {}
+            }, eventHandler: { _ in }, completion: { result = $0; done.fulfill() })
+        wait(for: [done], timeout: 10)
+        let ready = try XCTUnwrap(result)
+        XCTAssertTrue(ready.installationFailed)
+        XCTAssertEqual(ready.error, SaveFailure.profilesUnavailable.localizedDescription)
+        XCTAssertEqual(ready.heldApp, temp)
+        XCTAssertFalse(fm.fileExists(atPath: final.path))
+        XCTAssertEqual(try Data(contentsOf: profiles), Data("unreadable".utf8))
+
+        try restored.write(to: profiles, options: .atomic)
+        XCTAssertFalse(LocalProfileStore(directory: root, settings: .init(), name: "Fixture").failed)
+        var game = PortedGame(name: "Game", url: final, platform: .macApp, sizeBytes: 0, modificationDate: .now)
+        game.pendingInstall = PendingInstall(tempApp: temp, finalApp: final, record: BuildRecord(), toolchain: ToolchainInfo())
+        XCTAssertEqual(try PendingInstaller.install(&game), .installed)
+        XCTAssertEqual(try String(contentsOf: final.appendingPathComponent("Contents/Info.plist"), encoding: .utf8), "new")
+    }
+
     func testCancelKillsChild() throws {
         let root = FileManager.default.temporaryDirectory
             .appendingPathComponent("NXCancel-\(UUID().uuidString)")

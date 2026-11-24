@@ -4,6 +4,75 @@ import os
 @testable import ArcanePorting
 
 final class CodeModStoreTests: XCTestCase {
+    func testSyncKeepsMissingModRecordUntilOverlayCanBeWritten() throws {
+        let fm = FileManager.default
+        let root = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? fm.removeItem(at: root) }
+        let store = ModStore(supportFolder: root, recordsFile: root.appendingPathComponent("mods.json"),
+                             titleID: "0100000000010000", canWrite: { true }, trash: { _ in XCTFail() })
+        let mod = store.modsFolder.appendingPathComponent("Pack")
+        try fm.createDirectory(at: mod.appendingPathComponent("romfs"), withIntermediateDirectories: true)
+        try store.setOn(true, folderName: "Pack")
+        let savedEnv = root.appendingPathComponent("old-env")
+        let movedMod = root.appendingPathComponent("missing-mod")
+        try fm.moveItem(at: mod, to: movedMod)
+        try fm.moveItem(at: store.envFile, to: savedEnv)
+        try fm.createDirectory(at: store.envFile, withIntermediateDirectories: false)
+        XCTAssertThrowsError(try store.sync())
+        try fm.removeItem(at: store.envFile)
+        try fm.moveItem(at: savedEnv, to: store.envFile)
+        try store.sync()
+        try fm.moveItem(at: movedMod, to: mod)
+        XCTAssertEqual(store.mods().first?.isOn, false)
+        XCTAssertFalse(try String(contentsOf: store.envFile, encoding: .utf8).contains("DM_ROMFS_OVERLAY="))
+    }
+
+    func testNameCollisionRefusesTogglesAndBuildStaging() throws {
+        let fm = FileManager.default
+        let root = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? fm.removeItem(at: root) }
+        let store = ModStore(supportFolder: root, recordsFile: root.appendingPathComponent("mods.json"),
+                             titleID: "0100000000010000", canWrite: { true }, trash: { _ in XCTFail() })
+        try fm.createDirectory(at: store.modsFolder.appendingPathComponent("Pack/romfs"), withIntermediateDirectories: true)
+        try store.setOn(true, folderName: "Pack")
+        let tree = store.codeModsFolder.appendingPathComponent("Pack/exefs")
+        try fm.createDirectory(at: tree, withIntermediateDirectories: true)
+        try Data("synthetic patch".utf8).write(to: tree.appendingPathComponent("fixture.pchtxt"))
+        XCTAssertThrowsError(try BuildService.stageCodeMods(store, in: root.appendingPathComponent("build"), engineSupportsMods: true))
+        XCTAssertThrowsError(try store.setOn(false, folderName: "Pack"))
+        XCTAssertThrowsError(try store.setOn(true, folderName: "Pack"))
+        try fm.moveItem(at: tree.deletingLastPathComponent(), to: store.codeModsFolder.appendingPathComponent("CodePack"))
+        XCTAssertTrue(store.mods().first { $0.folderName == "Pack" }?.isOn == true)
+        XCTAssertNil(try BuildService.stageCodeMods(store, in: root.appendingPathComponent("build"), engineSupportsMods: true))
+        try store.setOn(true, folderName: "CodePack")
+        XCTAssertNotNil(try BuildService.stageCodeMods(store, in: root.appendingPathComponent("build"), engineSupportsMods: true))
+    }
+
+    func testAmbiguousLocalModsKeepTheAlreadyBuiltCodeDisabledOffline() throws {
+        let fm = FileManager.default
+        let root = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? fm.removeItem(at: root) }
+        let store = ModStore(supportFolder: root, recordsFile: root.appendingPathComponent("mods.json"),
+                             titleID: "0100000000010000", canWrite: { true }, trash: { _ in XCTFail() })
+        try fm.createDirectory(at: store.codeModsFolder.appendingPathComponent("Pack/exefs"), withIntermediateDirectories: true)
+        try store.setOn(false, folderName: "Pack")
+        let app = root.appendingPathComponent("Game.app")
+        let built = app.appendingPathComponent("Contents/Resources/dm/mods/BuiltPack")
+        try fm.createDirectory(at: built, withIntermediateDirectories: true)
+        try Data().write(to: built.appendingPathComponent("dm_code.tsv"))
+        XCTAssertEqual(store.codeModsLaunchEnvironment(app: app), ["DM_MODS_OFF": "BuiltPack"])
+
+        let romfs = store.modsFolder.appendingPathComponent("Pack/romfs")
+        try fm.createDirectory(at: romfs, withIntermediateDirectories: true)
+        XCTAssertThrowsError(try store.sync(automatic: false))
+        XCTAssertTrue(store.codeModsNeedRebuild(app: app))
+        XCTAssertEqual(store.codeModsLaunchEnvironment(app: app, online: false), ["DM_MODS_OFF": "BuiltPack"])
+        try fm.moveItem(at: store.modsFolder, to: root.appendingPathComponent("old-romfs"))
+        try Data().write(to: store.modsFolder)
+        XCTAssertThrowsError(try store.sync(automatic: false))
+        XCTAssertEqual(store.codeModsLaunchEnvironment(app: app, online: false), ["DM_MODS_OFF": "BuiltPack"])
+    }
+
     func testDisablingOnlineRiskKeepsTexturesAndAllowsReenabling() throws {
         let fm = FileManager.default
         let root = fm.temporaryDirectory.appendingPathComponent("OnlineMods-\(UUID())")

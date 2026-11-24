@@ -43,6 +43,8 @@ extension AppViewModel {
         case .overlayTooLong: return "Too many mods are on for one game. Turn one off first."
         case .invalidCodeMod(let name):
             return L10n.format("%@ needs an exefs folder with .pchtxt or .ips files only, without links.", [name])
+        case .duplicateFolderName(let name):
+            return L10n.format("File and code mods both use the folder name %@. Rename one folder.", [name])
         case .writeFailed(let reason): return "The mods could not be saved: \(reason)"
         }
     }

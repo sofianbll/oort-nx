@@ -39,7 +39,7 @@ extension AppViewModel {
                               authorizeDevelopmentOperation(.icon, game: game) else { return }
                     }
                     guard RunningGameMonitor.runningApplication(for: game) == nil else { return }
-                    guard let lease = acquireSaveInstallLease(for: game) else { return }
+                    guard let lease = try requireSaveInstallLease(for: game) else { return }
                     release = lease
                     switch try PendingInstaller.install(&game) {
                     case .installed:

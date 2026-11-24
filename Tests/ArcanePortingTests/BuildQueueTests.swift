@@ -128,16 +128,17 @@ final class BuildQueueTests: XCTestCase {
         XCTAssertEqual(queue.takeNext { _ in .start }?.value, 1)
     }
 
-    func testSaveRecoveryReleaseWakesAWaitingTitle() {
+    func testSaveRecoveryReleaseWakesAWaitingTitle() throws {
         let gate = SaveOperationGate()
         let queue = BuildQueue<String>()
         let id = UUID(), title = "0100A00000000000"
+        let location = try SaveLocation.profileLocation(titleID: title, profileID: UUID(), in: FileManager.default.temporaryDirectory)
         queue.enqueue(title, id: id, activeID: nil)
-        gate.setRecoveryBlocked(true, titleID: title)
-        XCTAssertNil(queue.takeNext { _ in gate.isBusy(titleID: title) ? .wait : .start })
+        gate.setRecoveryBlocked(true, location: location)
+        XCTAssertNil(queue.takeNext { _ in gate.isBusy(titleID: title, recoveryLocation: location) ? .wait : .start })
         var started: UUID?
-        gate.onActivityChange = { started = queue.takeNext { _ in gate.isBusy(titleID: title) ? .wait : .start }?.id }
-        gate.setRecoveryBlocked(false, titleID: title.lowercased())
+        gate.onActivityChange = { started = queue.takeNext { _ in gate.isBusy(titleID: title, recoveryLocation: location) ? .wait : .start }?.id }
+        gate.setRecoveryBlocked(false, location: location)
         XCTAssertEqual(started, id)
     }
 }

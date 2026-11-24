@@ -327,7 +327,7 @@ final class SteamPlayCoordinator: ObservableObject {
         let followed = Set(games.map(\.id)).union(states.keys)
         for id in followed {
             let game = games.first { $0.id == id }
-            let app = game?.steamGame?.firstAvailableInstallation?.primaryApplication
+            let app = steamEnabled ? game?.steamGame?.firstAvailableInstallation?.primaryApplication : nil
             var state = next[id] ?? SteamPlayState()
             switch state.observe(processes, application: app, now: now) {
             case .started(let pid):

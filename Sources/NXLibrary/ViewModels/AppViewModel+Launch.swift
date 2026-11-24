@@ -84,7 +84,7 @@ extension AppViewModel {
             }
             return
         }
-        guard let saveLaunchToken = saveGate.begin(titleID: titleId) else {
+        guard let saveLaunchToken = saveGate.begin(titleID: titleId, recoveryLocation: try? defaultSaveLocation(for: game)) else {
             alertMessage = SaveFailure.busy.localizedDescription
             return
         }
@@ -348,7 +348,7 @@ extension AppViewModel {
     private func evaluateLocalAchievements(for game: PortedGame, pack: LocalAchievementPack,
                                            profile: UUID, location: SaveLocation) {
         guard localAchievementPack(for: game, profile: profile) != nil,
-              let token = saveGate.begin(titleID: location.titleID) else { return }
+              let token = saveGate.begin(titleID: location.titleID, recoveryLocation: location) else { return }
         let date = Date.now
         saveQueue.async { [weak self, saveGate] in
             let counts: [LocalAchievementPack.Metric: Int]?

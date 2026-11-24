@@ -40,6 +40,7 @@ final class SavePanelModel: ObservableObject {
     private let store: SaveSnapshotStore
     private let profileID: UUID?
     private var lease: UUID?
+    private var leaseLocation: SaveLocation?
     private var abandoned = false
     var canMutate: Bool { !busy && !running && !recoveryRequired && context != nil && context?.cloudReason == nil }
     init(viewModel: AppViewModel, game: PortedGame) {
@@ -82,19 +83,27 @@ final class SavePanelModel: ObservableObject {
         issue = Issue(title: activity.failureTitle, message: error.localizedDescription)
     }
     private func acquire(activity: Activity = .refresh, recovering: Bool = false) -> Bool {
+        do { try viewModel.requireReadableSaveProfile() }
+        catch { report(error, during: activity); return false }
         guard profileID == viewModel.secondarySaveProfile, !busy, lease == nil, let tid = game.titleId,
-              let token = viewModel.saveGate.begin(titleID: tid, recovering: recovering) else {
+              let location = try? viewModel.defaultSaveLocation(for: game),
+              let token = viewModel.saveGate.begin(titleID: tid, recoveryLocation: location, recovering: recovering) else {
             report(SaveFailure.busy, during: activity)
             return false
         }
         if activity != .refresh { importSuccess = nil }
-        lease = token; busy = true; message = nil; issue = nil; self.activity = activity
+        lease = token; leaseLocation = location; busy = true; message = nil; issue = nil; self.activity = activity
         return true
     }
     private func release() {
         if let lease, let tid = game.titleId { viewModel.saveGate.end(titleID: tid, token: lease) }
-        lease = nil; busy = false
+        lease = nil; leaseLocation = nil; busy = false
         viewModel.installPendingBuilds()
+    }
+    private func selectedContext() throws -> SaveContext {
+        let context = try viewModel.saveContext(for: game)
+        guard context.location == leaseLocation else { throw SaveFailure.changed }
+        return context
     }
     private func transaction() -> SaveTransaction {
         SaveTransaction(store: store, isRunning: { RunningGameMonitor.runningApplication(for: self.game) != nil },
@@ -102,22 +111,22 @@ final class SavePanelModel: ObservableObject {
                 let selected = Thread.isMainThread ? self.viewModel.secondarySaveProfile
                     : DispatchQueue.main.sync { self.viewModel.secondarySaveProfile }
                 guard selected == self.profileID else { throw SaveFailure.changed }
-                try self.viewModel.saveContext(for: self.game).requireWrites()
+                try self.selectedContext().requireWrites()
             })
     }
     func refresh(resultMessage: String? = nil) {
         guard lease == nil, !busy, issue == nil else { return }
-        guard acquire(recovering: true) else { return }
+        guard acquire(recovering: true), let location = leaseLocation else { return }
         viewModel.saveQueue.async {
             var context: SaveContext?; var latestBackup: Date?; var bytes: Int64 = 0; var date: Date?; var error: Error?
             let running = RunningGameMonitor.runningApplication(for: self.game) != nil
             do {
-                let location = try self.viewModel.defaultSaveLocation(for: self.game)
+                try self.viewModel.requireReadableSaveProfile()
                 if SaveTransaction.needsRecovery(location: location) {
                     do { try self.transaction().recover(location: location) }
                     catch let caught { error = caught }
                 }
-                context = try self.viewModel.saveContext(for: self.game)
+                context = try self.selectedContext()
                 latestBackup = try self.store.list(titleID: location.titleID).first?.created
                 if !running {
                     let inventory = try self.currentInventory(location)
@@ -125,8 +134,8 @@ final class SavePanelModel: ObservableObject {
                     date = SaveSlot.allCases.compactMap { try? location.directory($0).resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate }.max()
                 }
             } catch let caught { error = caught }
-            let recovery = (try? self.viewModel.defaultSaveLocation(for: self.game)).map { SaveTransaction.needsRecovery(location: $0) } ?? false
-            self.viewModel.saveGate.setRecoveryBlocked(recovery, titleID: self.game.titleId ?? "")
+            let recovery = SaveTransaction.needsRecovery(location: location)
+            self.viewModel.saveGate.setRecoveryBlocked(recovery, location: location)
             DispatchQueue.main.async {
                 self.context = context; self.latestBackupDate = latestBackup; self.currentBytes = bytes; self.currentDate = date
                 self.running = running; self.recoveryRequired = recovery
@@ -141,7 +150,7 @@ final class SavePanelModel: ObservableObject {
     }
     func backUp() {
         guard acquire(activity: .backup) else { return }
-        let location = Result { try viewModel.saveContext(for: game).location }
+        let location = Result { try selectedContext().location }
         viewModel.saveQueue.async {
             do {
                 guard RunningGameMonitor.runningApplication(for: self.game) == nil else { throw SaveFailure.running }
@@ -163,7 +172,7 @@ final class SavePanelModel: ObservableObject {
         viewModel.saveQueue.async {
             do {
                 guard RunningGameMonitor.runningApplication(for: self.game) == nil else { throw SaveFailure.running }
-                let context = try self.viewModel.saveContext(for: self.game); try context.requireWrites()
+                let context = try self.selectedContext(); try context.requireWrites()
                 let selection = try self.store.previewFolder(source, slot: slot, location: context.location)
                 DispatchQueue.main.async {
                     self.context = context
@@ -230,10 +239,12 @@ final class SavePanelModel: ObservableObject {
     }
     private func finishFailure(_ error: Error, clearPreview: Bool = false) {
         var recovery = false
-        if let location = try? viewModel.defaultSaveLocation(for: game), SaveTransaction.needsRecovery(location: location) {
-            do { try transaction().recover(location: location) } catch { recovery = true }
+        if let location = leaseLocation, (try? viewModel.requireReadableSaveProfile()) != nil {
+            if SaveTransaction.needsRecovery(location: location) {
+                do { try transaction().recover(location: location) } catch { recovery = true }
+            }
+            viewModel.saveGate.setRecoveryBlocked(recovery, location: location)
         }
-        viewModel.saveGate.setRecoveryBlocked(recovery, titleID: game.titleId ?? "")
         DispatchQueue.main.async {
             self.report(error, during: self.activity)
             if clearPreview { self.preview = nil; self.restorePreview = nil }
@@ -241,11 +252,12 @@ final class SavePanelModel: ObservableObject {
         }
     }
     func showFolder() {
-        guard let context else { return }
+        guard canOpenFolder(), let context else { return }
         let url = context.location.directory(.account)
         NSWorkspace.shared.activateFileViewerSelecting([FileManager.default.fileExists(atPath: url.path) ? url : context.location.root])
     }
     func showBackups() {
+        guard canOpenFolder() else { return }
         viewModel.saveQueue.async {
             do {
                 let folder = try self.store.backupFolder(titleID: self.game.titleId ?? "")
@@ -257,6 +269,16 @@ final class SavePanelModel: ObservableObject {
             } catch {
                 DispatchQueue.main.async { self.report(error, during: .openFolder) }
             }
+        }
+    }
+    private func canOpenFolder() -> Bool {
+        do {
+            try viewModel.requireReadableSaveProfile()
+            guard profileID == viewModel.secondarySaveProfile else { throw SaveFailure.changed }
+            return true
+        } catch {
+            report(error, during: .openFolder)
+            return false
         }
     }
     func close() {

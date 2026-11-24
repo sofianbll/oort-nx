@@ -94,7 +94,7 @@ public final class BuildService {
         finalApp: URL,
         expectedDestination: BuildOutputInstaller.DestinationExpectation? = nil,
         holdInstall: @escaping () -> Bool = { false },
-        acquireInstall: @escaping () -> (() -> Void)? = { {} },
+        acquireInstall: @escaping () throws -> (() -> Void)? = { {} },
         onInstalling: @escaping () -> Void = {},
         eventHandler: @escaping (BuildEvent) -> Void,
         completion: @escaping (BuildResult) -> Void
@@ -289,7 +289,7 @@ public final class BuildService {
     /// replacing the app under it can crash it).
     private func finish(proc: Process, logURL: URL, tempApp: URL, finalApp: URL,
                         expectedDestination: BuildOutputInstaller.DestinationExpectation,
-                        holdInstall: @escaping () -> Bool, acquireInstall: @escaping () -> (() -> Void)?,
+                        holdInstall: @escaping () -> Bool, acquireInstall: @escaping () throws -> (() -> Void)?,
                         onInstalling: @escaping () -> Void,
                         outputClosed: DispatchGroup) {
         // The process may exit before the last pipe callback. Finish only after
@@ -319,19 +319,14 @@ public final class BuildService {
                         throw BuildInstallError.invalidApp(tempApp.path)
                     }
                     onInstalling()
-                    let release = holdInstall() ? nil : acquireInstall()
+                    held = tempApp
+                    let release = try (holdInstall() ? nil : acquireInstall())
                     defer { release?() }
-                    if release == nil {
-                        held = tempApp
-                    } else {
-                        do {
-                            try BuildOutputInstaller.install(tempApp: tempApp, finalApp: finalApp,
-                                                             fileManager: self.fm, requiresExistingParent: true,
-                                                             expectedDestination: expectedDestination)
-                        } catch {
-                            held = tempApp
-                            throw error
-                        }
+                    if release != nil {
+                        try BuildOutputInstaller.install(tempApp: tempApp, finalApp: finalApp,
+                                                         fileManager: self.fm, requiresExistingParent: true,
+                                                         expectedDestination: expectedDestination)
+                        held = nil
                     }
                     success = true
                 } catch let failure {

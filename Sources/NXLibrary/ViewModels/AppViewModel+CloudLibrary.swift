@@ -744,12 +744,12 @@ extension AppViewModel {
     }
 
     @MainActor func canChangeCloudLibrary(_ action: CloudLibraryAction, for game: PortedGame) -> Bool {
-        guard let title = game.titleId else { return false }
+        guard game.titleId != nil else { return false }
         return porting.cloudBuildScope?.overlaps(CloudWorkScope(game)) != true &&
             !isCleaningStorage && !isUpdatingApp && !isScanningLibrary &&
             !cloudLibrary.isChangingConnection &&
             !appIcon.appIconsInFlight.contains(game.id) && game.pendingInstall == nil &&
-            !saveGate.isBusy(titleID: title) &&
+            !savesAreBusy(for: game) &&
             (action.allowsPlay || RunningGameMonitor.runningApplication(for: game) == nil)
     }
 
@@ -1476,7 +1476,7 @@ extension AppViewModel {
                 throw CloudArchiveError.busy
             }
             if RunningGameMonitor.runningApplication(for: game) == nil,
-               cloudLibrary.appInstall != nil || !saveGate.isBusy(titleID: title) {
+               cloudLibrary.appInstall != nil || !savesAreBusy(for: game) {
                 if cloudLibrary.appInstall == nil, let release = acquireSaveInstallLease(for: game) {
                     cloudLibrary.appInstall = (title.uppercased(), release)
                 }

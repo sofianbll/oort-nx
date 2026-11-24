@@ -47,6 +47,7 @@ public enum ModStoreError: Error, Equatable {
     /// The active mods' paths would not fit the launcher's line (`overlayLimit`).
     case overlayTooLong
     case invalidCodeMod(String)
+    case duplicateFolderName(String)
     case writeFailed(String)
 }
 
@@ -108,7 +109,13 @@ public struct ModStore {
     }
 
     private func checkedEntries() throws -> [URL] {
-        try checkedEntries(in: modsFolder) + checkedEntries(in: codeModsFolder)
+        let files = try checkedEntries(in: modsFolder)
+        let code = try checkedEntries(in: codeModsFolder)
+        let names = Set(files.map(\.lastPathComponent))
+        if let duplicate = code.map(\.lastPathComponent).filter({ names.contains($0) }).min() {
+            throw ModStoreError.duplicateFolderName(duplicate)
+        }
+        return files + code
     }
 
     private func mods(entries: [URL], records: [ModRecord]) -> [LocalMod] {
@@ -353,10 +360,10 @@ public struct ModStore {
         if let value, value.utf8.count > Self.overlayLimit { throw ModStoreError.overlayTooLong }
         let recorded = Set(stored.map(\.folderName))
         let kept = list.filter { recorded.contains($0.folderName) }.map(\.folderName)
+        if stored.contains(where: { $0.codeOnly != true }) { try writeOverlay(value) }
         if kept != stored.map(\.folderName) {
             try write(records: stored.filter { kept.contains($0.folderName) })
         }
-        if stored.contains(where: { $0.codeOnly != true }) { try writeOverlay(value) }
     }
 
     // MARK: - Internals
@@ -467,7 +474,7 @@ public struct ModStore {
                 ? build?.builtCodeMods ?? [] : []
         )
         guard let selection = try? localCodeMods(),
-              let selected = try? codeMods(selection.filter(\.isOn), stage: nil) else { return (true, nil) }
+              let selected = try? codeMods(selection.filter(\.isOn), stage: nil) else { return (true, built.first) }
         if selected.isEmpty {
             // Without a local build or selectable patches, leave a transferred bundle's defaults alone.
             return (false, build == nil && selection.isEmpty ? nil : built.first)
@@ -489,7 +496,9 @@ public struct ModStore {
     }
 
     private func localCodeMods() throws -> [LocalMod] {
-        let entries = try checkedEntries(in: codeModsFolder)
+        let entries = try checkedEntries().filter {
+            $0.deletingLastPathComponent().lastPathComponent == codeModsFolder.lastPathComponent
+        }
         guard !entries.isEmpty else { return [] }
         return mods(entries: entries, records: try checkedRecords()).filter { $0.exefs != nil }
     }

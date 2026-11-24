@@ -15,13 +15,19 @@ final class SaveOperationGateTests: XCTestCase {
     }
     func testRecoveryBlockSurvivesLeaseAndCanBeRecoveredUnderLease() throws {
         let gate = SaveOperationGate()
-        gate.setRecoveryBlocked(true, titleID: "0100000000000001")
-        XCTAssertNil(gate.begin(titleID: "0100000000000001"))
-        let token = try XCTUnwrap(gate.begin(titleID: "0100000000000001", recovering: true))
-        gate.end(titleID: "0100000000000001", token: token)
-        XCTAssertTrue(gate.isBusy(titleID: "0100000000000001"))
-        gate.setRecoveryBlocked(false, titleID: "0100000000000001")
-        XCTAssertNotNil(gate.begin(titleID: "0100000000000001"))
+        let title = "0100000000000001"
+        let root = FileManager.default.temporaryDirectory
+        let a = try SaveLocation.profileLocation(titleID: title, profileID: UUID(), in: root)
+        let b = try SaveLocation.profileLocation(titleID: title, profileID: UUID(), in: root)
+        gate.setRecoveryBlocked(true, location: a)
+        XCTAssertNil(gate.begin(titleID: title, recoveryLocation: a))
+        let token = try XCTUnwrap(gate.begin(titleID: title, recoveryLocation: a, recovering: true))
+        XCTAssertNil(gate.begin(titleID: title, recoveryLocation: b), "Active recovery still leases the entire title")
+        gate.end(titleID: title, token: token)
+        XCTAssertTrue(gate.isBusy(titleID: title, recoveryLocation: a))
+        XCTAssertFalse(gate.isBusy(titleID: title, recoveryLocation: b))
+        gate.setRecoveryBlocked(false, location: a)
+        XCTAssertNotNil(gate.begin(titleID: title, recoveryLocation: a))
     }
 
     func testAppUpdateWaitsForActiveIOAndExcludesNewOperations() throws {
@@ -42,10 +48,12 @@ final class SaveOperationGateTests: XCTestCase {
 
     func testAnInactiveRecoveryBlockDoesNotPreventAnAppUpdate() throws {
         let gate = SaveOperationGate()
-        gate.setRecoveryBlocked(true, titleID: "0100000000000001")
+        let title = "0100000000000001"
+        let location = try SaveLocation.profileLocation(titleID: title, profileID: UUID(), in: FileManager.default.temporaryDirectory)
+        gate.setRecoveryBlocked(true, location: location)
         XCTAssertFalse(gate.hasActiveOperations)
         let update = try XCTUnwrap(gate.beginAppUpdate())
         gate.endAppUpdate(token: update)
-        XCTAssertTrue(gate.isBusy(titleID: "0100000000000001"))
+        XCTAssertTrue(gate.isBusy(titleID: title, recoveryLocation: location))
     }
 }
