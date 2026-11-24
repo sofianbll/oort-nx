@@ -46,7 +46,7 @@ struct SettingsSectionContent: View {
         case .startUp:
             if let profiles = viewModel.localProfiles {
                 SettingsStartUpSection(settings: settings, onActions: onActions, onChooseLanguage: onChooseLanguage,
-                                       onChooseRegion: onChooseRegion, profiles: profiles)
+                                       onChooseRegion: onChooseRegion, onOpenOnboarding: viewModel.reopenOnboarding, profiles: profiles)
             }
         case .profileIdentity:
             if let profiles = viewModel.localProfiles {

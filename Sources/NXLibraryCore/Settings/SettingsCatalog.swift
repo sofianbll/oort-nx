@@ -55,6 +55,7 @@ public enum SettingsCatalog {
         action("showsCurrentGame", .profileNextendo, "Show current game", "Applies the next time you start a game."),
         // Start-up
         row("appLanguage", .startUp, "App language", "Menus, genres and available game descriptions. The games’ own language stays separate.") { $0.appLanguage },
+        action("onboarding", .startUp, "Welcome setup", "Reopen the guided setup without resetting your library."),
         row("appRegion", .startUp, "Regional formats", "Dates, numbers and sizes only. Game descriptions follow the app language.") { $0.appRegion },
         row("startOn", .startUp, "Start on",
             "The screen Arcane opens on: Spotlight, Collection, or where you left it.") { $0.startOn },

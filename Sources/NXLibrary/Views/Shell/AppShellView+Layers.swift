@@ -13,13 +13,15 @@ extension AppShellView {
                 .environment(\.seleneBackdropStyle, background.style)
                 .environment(\.seleneSharesBackdrop, false)
                 .blur(radius: contentBlur)
-            content
+            if !viewModel.isGuidedSetupOpen {
+                content
                 // Game options, Add game and the console blur the screen behind instead of darkening it.
                 .blur(radius: contentBlur)
                 // Keep artwork/tiles drawn and warm, as during Spotlight's entrance, while the full page covers them.
                 .opacity(fullScreenCover ? 0.001 : 1)
                 .seleneOverlayOwnership(!fullScreenCover && !router.route.isOverlay && !viewModel.isGameOptionsOpen
                                         && !isCloseGameOpen && !router.isMenuPresented && !router.isSearchPresented && profileFlow == nil)
+            }
             if router.route == .addGame {
                 AddGameView(viewModel: viewModel,
                             router: router,
@@ -49,7 +51,11 @@ extension AppShellView {
             }
             if viewModel.showSetupCheck {
                 Group {
-                    if viewModel.firstRunSetup.page == .found {
+                    if viewModel.isGuidedSetupOpen {
+                        OnboardingView(viewModel: viewModel, settings: settings, profiles: profiles, sources: sources,
+                                       finish: finishOnboarding, openSettings: openOnboardingSettings)
+                            .id(viewModel.firstRunSetup.page)
+                    } else if viewModel.firstRunSetup.page == .found {
                         FoundGamesSetupView(viewModel: viewModel, steamRoot: sources.discoveryRoot,
                                             steamEnabled: sources.configuration.isEnabled) { importPorted in
                             finishFromFound(importPorted: importPorted)
@@ -71,13 +77,7 @@ extension AppShellView {
                     .transformPreference(SeleneBackdropRequestKey.self) { $0?.priority = ShellBackdropCover.setup.priority }
             }
             if showsWelcome {
-                ArcaneWelcomeView(steamEnabled: sources.configuration.isEnabled,
-                                  steamRoot: sources.discoveryRoot,
-                                  appsFolder: viewModel.gameAppsFolder,
-                                  onAddSteam: {
-                                      sources.configure(enabled: true, root: sources.discoveryRoot)
-                                  },
-                                  onExit: closeWelcome)
+                OnboardingNewsView(onExit: closeWelcome)
                     .opacity(opacityBelowCover(ShellBackdropCover.welcome.priority))
                     .allowsHitTesting(!currentBackdropCover.covers(ShellBackdropCover.welcome.priority))
                     .transition(.opacity)
@@ -369,6 +369,12 @@ extension AppShellView {
         // Closing clears it once the fade has ended (`closeWelcome`), so nothing under it moves or takes input before.
         .onChange(of: showsWelcome) { if $1 { viewModel.isWelcomeOpen = true } }
         .onChange(of: router.route) { _, route in
+            if resumeOnboardingAfterSettings, case .settings = route {
+                // Settings owns input until its return to the assistant.
+            } else if resumeOnboardingAfterSettings {
+                resumeOnboardingAfterSettings = false
+                viewModel.showSetupCheck = true
+            }
             viewModel.cloudLibraryGameID = nil
             if route == .profile && !router.isReturningFromBack { profilePageFocus = nil }
             recordLastHome(route)
@@ -395,10 +401,10 @@ extension AppShellView {
         .environment(\.catalogPersonalizations, viewModel.personalizations)
         .environment(\.profilePortrait, router.isMenuPresented ? nil : profiles.active)
         .environment(\.onlinePlayersByTitle, onlinePlayers)
-        .task(id: profiles.active?.id) {
+        .task(id: viewModel.setupCompleted ? profiles.active?.id : nil) {
             guard !Task.isCancelled else { return }
             onlinePlayers = [:]
-            guard let store = viewModel.profileNextendo?.store else { return }
+            guard viewModel.setupCompleted, let store = viewModel.profileNextendo?.store else { return }
             while !Task.isCancelled {
                 let counts = (try? await Self.onlineCounts.read(tokenStore: store)) ?? [:]
                 guard !Task.isCancelled else { return }

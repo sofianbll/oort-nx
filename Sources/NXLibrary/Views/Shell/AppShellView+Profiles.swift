@@ -46,7 +46,7 @@ extension Notification.Name {
 
 extension AppShellView {
     @ViewBuilder var profilePresenceTask: some View {
-        if let profile = profiles.active, let nextendo = viewModel.profileNextendo {
+        if viewModel.setupCompleted, let profile = profiles.active, let nextendo = viewModel.profileNextendo {
             let clientID = settings.settings.nextendoClientID ?? NextendoLaunch.buildClientID
             let eligible = {
                 profiles.active?.id == profile.id && profiles.active?.sharesPresence == true && !profiles.failed

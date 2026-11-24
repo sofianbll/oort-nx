@@ -20,6 +20,9 @@ final class DevelopmentStartup: ObservableObject {
     @Published private(set) var downgradeNotice: Notice?
     @Published private(set) var showCopyProgress = false
     @Published private(set) var paletteID = SelenePaletteCatalog.defaultID
+    @Published private(set) var offersLibraryCopy = false
+    private var libraryCopyChoice: DevelopmentProfileImporter.Contents?
+    var canStartWithoutLibraryCopy: Bool { libraryCopyChoice == .library && shell == nil && !working }
     private var skipCheckpoint = false
     private var profileLease: DowngradeCheckpoint.ProfileLease?
     private let logger = Logger(subsystem: "local.nxlibrary", category: "Startup")
@@ -45,12 +48,19 @@ final class DevelopmentStartup: ObservableObject {
         downgradeNotice = nil
         var profileReady = false
         do {
+            if libraryCopyChoice == nil, await Task.detached(operation: {
+                DevelopmentProfileImporter.offersLibraryCopy(for: AppData.profile)
+            }).value {
+                offersLibraryCopy = true
+                return
+            }
             // Services and SwiftUI StateObjects are created only after the profile transaction finishes.
             if NSRunningApplication.runningApplications(withBundleIdentifier: "local.nxlibrary")
                 .contains(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }) {
                 throw DevelopmentStartupFailure.otherCopyRunning
             }
-            try await Task.detached(priority: .userInitiated) { try AppData.prepare() }.value
+            let contents = libraryCopyChoice ?? .empty
+            try await Task.detached(priority: .userInitiated) { try AppData.prepare(contents: contents) }.value
             if !AppData.profile.isDevelopment && profileLease == nil {
                 do {
                     profileLease = try await Task.detached { try DowngradeCheckpoint.ProfileLease(in: AppData.supportRoot) }.value
@@ -100,6 +110,13 @@ final class DevelopmentStartup: ObservableObject {
                 }.value
             }
         }
+    }
+
+    func chooseLibraryCopy(_ copy: Bool) async {
+        guard !working, offersLibraryCopy || (!copy && canStartWithoutLibraryCopy) else { return }
+        offersLibraryCopy = false
+        libraryCopyChoice = copy ? .library : .empty
+        await prepare()
     }
 
     func continueWithoutCopy() async {
@@ -174,6 +191,9 @@ struct DevelopmentStartupView: View {
                     .onAppear {
                         Logger(subsystem: "local.nxlibrary", category: "Startup").notice("Library view appeared")
                     }
+            } else if startup.offersLibraryCopy {
+                OnboardingCopyOffer { copy in Task { await startup.chooseLibraryCopy(copy) } }
+                    .seleneCanvasRoot()
             } else if let notice = startup.downgradeNotice {
                 DowngradeWarningView(notice: notice, retry: { Task { await startup.prepare() } }, proceed: {
                     Task {
@@ -209,6 +229,11 @@ struct DevelopmentStartupView: View {
                             .keyboardShortcut("o", modifiers: [.command])
                         Button(L10n.text("Retry", context: context)) { Task { await startup.prepare() } }
                             .keyboardShortcut(.defaultAction)
+                        if startup.canStartWithoutLibraryCopy {
+                            Button(L10n.text("Start without a copy", context: context)) {
+                                Task { await startup.chooseLibraryCopy(false) }
+                            }
+                        }
                     }.disabled(startup.working)
                 }
                 .foregroundColor(.white)

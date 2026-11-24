@@ -43,7 +43,7 @@ public enum AppData {
     public static let integrationFixtureHome: URL? = {
         let arguments = ProcessInfo.processInfo.arguments
         guard arguments.contains("--integration-fixture") || arguments.contains("--render-integration-fixture") ||
-                arguments.contains("--render-sound-fixture") else { return nil }
+                arguments.contains("--render-sound-fixture") || arguments.contains("--render-onboarding-fixture") else { return nil }
         let home = FileManager.default.temporaryDirectory.appendingPathComponent("oort-integrations-\(UUID())", isDirectory: true)
         try! FileManager.default.createDirectory(at: home, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
         return home
@@ -62,12 +62,15 @@ public enum AppData {
         }
     }
     /// `checks` validate the module's own files in the copy (Porting: `prepare()`).
-    public static func prepare(checks: [String: DevelopmentProfileImporter.Check]) throws {
+    public static func prepare(checks: [String: DevelopmentProfileImporter.Check],
+                               contents: DevelopmentProfileImporter.Contents = .legacy,
+                               sanitizeLibrary: (URL) throws -> Void = { _ in }) throws {
         // An unmarked/mispackaged executable must not silently open the live profile.
         try validateBuildIdentity(Bundle.main.infoDictionary ?? [:])
         guard profile.isDevelopment else { return }
         let defaults = preferences
-        _ = try DevelopmentProfileImporter(checks: checks).prepare(profile: profile, sourcePreferences: {
+        _ = try DevelopmentProfileImporter(checks: checks).prepare(profile: profile, contents: contents,
+                                                                   sanitizeLibrary: sanitizeLibrary, sourcePreferences: {
             UserDefaults.standard.persistentDomain(forName: "local.nxlibrary") ?? [:]
         }, savePreferences: { values in
             defaults.setPersistentDomain(values, forName: profile.preferencesDomain)

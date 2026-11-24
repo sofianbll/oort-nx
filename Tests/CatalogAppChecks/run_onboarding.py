@@ -7,6 +7,7 @@ lives in the probe's temporary directory; no player profile or game data is read
 from pathlib import Path
 import os
 import subprocess
+import sys
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -81,6 +82,8 @@ final class Host {
     func choose(_ value: Bool) { firstRunSetup.chooseSteam(value) }
     func openPorting() { firstRunSetup.openPorting() }
     func openPortingFromFound() { firstRunSetup.openPorting() }
+    // MOVE
+    // FINISH_TOUR
     func finish() { firstRunSetup.finish() }
     func acceptBuild() {
         // ACCEPTED_BUILD
@@ -147,6 +150,14 @@ func require(_ ok: @autoclosure () -> Bool, _ message: String) {
 }
 let initialBoot = Host()
 require(NotificationRegistration.registered, "Startup registers notification click handling without requesting authorization")
+require(initialBoot.firstRunSetup.page == .welcome, "New profiles start with welcome and language")
+for page in FirstRunSetup.Page.tour {
+    require(Host().firstRunSetup.page == page, "A fresh host resumes at \\(page)")
+    _ = initialBoot.moveOnboarding(1)
+}
+initialBoot.finishOnboarding()
+require(Host().firstRunSetup.isCompleted, "Tour completion survives quit")
+require(AppData.preferences.bool(forKey: Host.StorageKeys.onboardingNewsSeen), "A fresh player does not receive news")
 for savedPage in ["found", "requirements", "games"] {
     for enabled in [false, true] {
         for oldChoice in [true, false] {
@@ -184,6 +195,7 @@ for value in [true, false] {
 for enabled in [true, false] {
     for choice: Bool? in [true, false, nil] {
         AppData.preferences.removePersistentDomain(forName: AppData.domain)
+        AppData.preferences.set("found", forKey: Host.StorageKeys.setupPage)
         let model = Host()
         if let choice { model.choose(choice) }
         let custom = URL(fileURLWithPath: "/synthetic/Custom Steam")
@@ -204,6 +216,7 @@ for enabled in [true, false] {
 for count in [0, 2] {
     for optIn in [false, true] {
         AppData.preferences.removePersistentDomain(forName: AppData.domain)
+        AppData.preferences.set("found", forKey: Host.StorageKeys.setupPage)
         let model = Host()
         model.showSetupCheck = true
         let page = FoundHost(model)
@@ -235,6 +248,7 @@ require(retry.focus == .openLibrary, "Retry that finds no Steam leaves no invisi
 retry.receive(FirstRunFindings(steamGameCount: 2, portedAppCount: 0))
 require(retryModel.firstRunSetup.steamChoice == false, "Retry never resets an explicit off choice")
 AppData.preferences.removePersistentDomain(forName: AppData.domain)
+AppData.preferences.set("found", forKey: Host.StorageKeys.setupPage)
 let waitingModel = Host()
 waitingModel.showSetupCheck = true
 let waiting = FoundHost(waitingModel)
@@ -268,6 +282,8 @@ print("Onboarding persistence and notification timing: PASS")
 host = host.replace('// ACTIVATE_FOUND', declaration('    func activate(', (ROOT / 'Sources/NXLibrary/Views/Setup/FoundGamesSetupView+Input.swift').read_text()))
 host = host.replace('// KEYS', declaration('    enum StorageKeys'))
 host = host.replace('// SETUP', declaration('    @Published private(set) var firstRunSetup ='))
+host = host.replace('// MOVE', '@discardableResult ' + declaration('func moveOnboarding('))
+host = host.replace('// FINISH_TOUR', declaration('    func finishOnboarding('))
 host = host.replace('// FINDINGS_CHANGED', findings_changed)
 host = host.replace('// STEAM_ON', declaration('    var steamOn:', found))
 host = host.replace('// FINISH', finish)
@@ -283,4 +299,7 @@ with tempfile.TemporaryDirectory(prefix='arcane-onboarding-check-') as scratch:
                     str(library / 'NXLibraryCore.o'), str(library / 'ArcanePorting.o'), str(library / 'OortCore.o'),
                     '-o', str(binary)], check=True)
     subprocess.run([str(binary), str(scratch / 'test-preferences')],
+                   env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(library)), check=True)
+if len(sys.argv) > 1:
+    subprocess.run([str(library / 'NXLibrary'), '--render-onboarding-fixture', sys.argv[1]],
                    env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(library)), check=True)

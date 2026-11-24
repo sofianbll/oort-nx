@@ -23,11 +23,60 @@ extension DevelopmentProfileImporter {
         let document = try CatalogStore.decode(data)
         try CatalogStore(directory: copy).validateImportedOrigin(document)
     }
+
+    package static func clearCopiedOperations(in stage: URL) throws {
+        let fm = FileManager.default
+        func clean(_ original: PortedGame) -> PortedGame {
+            var game = original
+            game.pendingInstall = nil
+            game.appIconPending = false
+            game.usesPickedAppIcon = false
+            game.appIconOnMac = false
+            if game.status == .building { game.status = game.url.pathExtension == "app" ? .builtSourcesMissing : .notBuilt }
+            return game
+        }
+        let main = stage.appendingPathComponent("catalog.json")
+        if fm.fileExists(atPath: main.path) {
+            for name in ["catalog.json", "catalog.json.bak"] {
+                let file = stage.appendingPathComponent(name)
+                guard fm.fileExists(atPath: file.path) else { continue }
+                let source = try CatalogStore.decode(Data(contentsOf: file))
+                let games = try source.games.map { entry in
+                    var entry = entry
+                    if let game = entry.nxnativeGame { try entry.updateNXNative(clean(game)) }
+                    return entry
+                }
+                let sources = source.sources.map { $0.integration == .steam ? .init(integration: .steam) : $0 }
+                let catalog = CatalogDocument(sources: sources, games: games,
+                                              preservedGames: source.preservedGames, preservedSources: source.preservedSources)
+                try catalog.validate()
+                try JSONEncoder().encode(catalog).write(to: file, options: .atomic)
+            }
+            // This new profile has its own baseline; only discard legacy files inside our disposable stage.
+            for name in ["library.json", "library.json.bak"] {
+                let file = stage.appendingPathComponent(name)
+                if fm.fileExists(atPath: file.path) { try fm.removeItem(at: file) }
+            }
+        } else {
+            for name in ["library.json", "library.json.bak"] {
+                let file = stage.appendingPathComponent(name)
+                guard fm.fileExists(atPath: file.path) else { continue }
+                let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .iso8601
+                var library = try decoder.decode(LibraryFile.self, from: Data(contentsOf: file))
+                library.games = library.games.map(clean)
+                let encoder = JSONEncoder()
+                encoder.dateEncodingStrategy = .iso8601
+                try encoder.encode(library).write(to: file, options: .atomic)
+            }
+        }
+    }
 }
 
 extension AppData {
     /// Prepares the profile with the Porting checks.
-    public static func prepare() throws {
-        try prepare(checks: DevelopmentProfileImporter.portingChecks)
+    public static func prepare(contents: DevelopmentProfileImporter.Contents = .legacy) throws {
+        try prepare(checks: DevelopmentProfileImporter.portingChecks, contents: contents,
+                    sanitizeLibrary: DevelopmentProfileImporter.clearCopiedOperations)
     }
 }

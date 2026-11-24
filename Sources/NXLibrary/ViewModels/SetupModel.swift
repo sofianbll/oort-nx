@@ -250,12 +250,12 @@ final class SetupModel: ObservableObject {
         refreshCompatibility()
     }
 
-    func restoreBuildInputs(customRyujinxDir: String? = nil, automatic: Bool = false) {
+    func restoreBuildInputs(customRyujinxDir: String? = nil, automatic: Bool = false, readKeys: Bool = true) {
         let nxResult = SystemDetector.shared.detectNxnativeDirectory(
             saved: AppData.preferences.string(forKey: AppViewModel.StorageKeys.savedEngineFolder))
         self.nxnativePath = nxResult.path
         self.isNxnativeValid = nxResult.isValid
-        if !automatic || !AppData.profile.isDevelopment { self.ensureKeysImported(customRyujinxDir: customRyujinxDir) }
+        if readKeys && (!automatic || !AppData.profile.isDevelopment) { self.ensureKeysImported(customRyujinxDir: customRyujinxDir) }
     }
 
     /// With launch checks off, inspecting a build screen performs the check on demand.

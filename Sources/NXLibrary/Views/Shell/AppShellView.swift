@@ -34,6 +34,7 @@ struct AppShellView: View {
     /// Rescans the Steam source when Steam rewrites a manifest (a download finishing, a game installed or removed).
     @State var steamWatcher = SteamManifestWatcher()
     @State var setupSourceEntryID: UUID?
+    @State var resumeOnboardingAfterSettings = false
     /// "Welcome to Arcane" is on screen (once, after the update from NX Library).
     @State var showsWelcome = false
     /// Closed in this session: never presented again, even while its fade has not yet saved it as shown.
@@ -62,9 +63,32 @@ struct AppShellView: View {
     func updateLocale() {
         let previousLanguage = AppLocalization.shared.context.language
         AppLocalization.shared.configure(settings.settings)
-        if previousLanguage != AppLocalization.shared.context.language {
+        if previousLanguage != AppLocalization.shared.context.language && !viewModel.isGuidedSetupOpen {
             store.refreshLocalizedMetadata()
         }
+    }
+
+    func finishOnboarding() {
+        resumeOnboardingAfterSettings = false
+        router.showLibrary()
+        let games = viewModel.visibleCatalogGames.filter { !$0.isHidden }
+        if let first = games.first(where: { $0.nxnativeGame?.isPlayableLocally == true }) ?? games.first {
+            router.requestSpotlightSelect(first.id)
+        }
+        viewModel.finishOnboarding()
+    }
+
+    func openOnboardingSettings(_ section: SettingsSection) {
+        if case .settings = router.route { router.showLibrary() }
+        resumeOnboardingAfterSettings = true
+        viewModel.showSetupCheck = false
+        let rowID: String?
+        switch section {
+        case .profileIdentity: rowID = "Name"
+        case .sources: rowID = "Steam"
+        default: rowID = nil
+        }
+        router.openSettings(section, rowID: rowID)
     }
 
     var backdropStyle: SeleneBackdropStyle {

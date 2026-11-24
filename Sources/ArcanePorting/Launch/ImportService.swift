@@ -41,11 +41,13 @@ public final class ImportService {
         self.maximumDirectories = max(1, maximumDirectories)
     }
 
-    public func scan(directories: [URL]) -> [ImportedApp] {
-        scan(directories: directories, matchingTitle: nil)
+    public func scan(directories: [URL], measureSize: Bool = true,
+                     cancelled: () -> Bool = { false }) -> [ImportedApp] {
+        scan(directories: directories, matchingTitle: nil, measureSize: measureSize, cancelled: cancelled)
     }
 
-    private func scan(directories: [URL], matchingTitle: String?) -> [ImportedApp] {
+    private func scan(directories: [URL], matchingTitle: String?, measureSize: Bool = true,
+                      cancelled: () -> Bool = { false }) -> [ImportedApp] {
         var apps: [ImportedApp] = []
         scanWarnings = []
         var queue: [(url: URL, depth: Int)] = []
@@ -71,7 +73,7 @@ public final class ImportService {
         }
         for directory in directories { enqueue(directory, depth: 0) }
         var next = 0
-        while next < queue.count {
+        while next < queue.count, !cancelled() {
             let (directory, depth) = queue[next]
             next += 1
             let items: [URL]
@@ -85,6 +87,7 @@ public final class ImportService {
                 continue
             }
             for item in items.sorted(by: { $0.path < $1.path }) {
+                if cancelled() { break }
                 if item.pathExtension.lowercased() != "app" {
                     if let values = try? item.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey, .isPackageKey]),
                        values.isDirectory == true, values.isSymbolicLink != true, values.isPackage != true {
@@ -98,7 +101,7 @@ public final class ImportService {
                 guard appPaths.insert(canonical).inserted else { continue }
                 if let info = Self.info(at: item), var app = Self.observation(at: item, info: info, bytes: 0),
                    matchingTitle == nil || matchingTitle == app.titleId {
-                    if matchingTitle == nil { app.sizeBytes = size(of: item, date: app.modificationDate) }
+                    if measureSize, matchingTitle == nil { app.sizeBytes = size(of: item, date: app.modificationDate) }
                     apps.append(app)
                 }
             }

@@ -20,6 +20,7 @@ public enum DevelopmentProfileError: Error, LocalizedError {
 
 /// An allowlisted, one-time snapshot. Reads source bytes directly: source-store load/recovery hooks never run.
 public struct DevelopmentProfileImporter {
+    public enum Contents: Equatable, Sendable { case legacy, library, empty }
     /// Reads a copied file (its bytes, and the copy's folder) and throws when it is not what its owner wrote.
     public typealias Check = @Sendable (_ data: Data, _ copy: URL) throws -> Void
     private let fm: FileManager
@@ -32,6 +33,8 @@ public struct DevelopmentProfileImporter {
     }
     private static let files = ["library.json", "library.json.bak", "catalog.json", "catalog.json.bak", "settings.json", "profiles.json", "profiles-active", "play-sessions.json", "play-sessions-totals.json", SessionHistoryState.filename, "metadata-picks.json", "integrations/steam/metadata-picks.json", "app-sizes.json"]
     private static let folders = ["artwork-picks", "integrations/steam/artwork-picks", "artwork", "metadata", "SeleneImports", "app-icons", "mods", "gamebanana"]
+    private static let libraryFiles = files.filter { $0 != "settings.json" && $0 != "app-sizes.json" }
+    private static let libraryFolders = ["artwork-picks", "integrations/steam/artwork-picks", "artwork", "SeleneImports", "app-icons"]
     private static let marker = ".development-import.json"
     private static let preferenceFile = ".import-preferences.plist"
     private struct ImportState: Codable {
@@ -39,7 +42,19 @@ public struct DevelopmentProfileImporter {
         var ready: Bool
         let hashes: [String: String]
     }
-    public func prepare(profile: AppDataProfile, sourcePreferences: () throws -> [String: Any],
+    public static func offersLibraryCopy(for profile: AppDataProfile, fileManager: FileManager = .default) -> Bool {
+        guard profile.isDevelopment,
+              (try? fileManager.attributesOfItem(atPath: profile.supportRoot.path)) == nil,
+              (try? fileManager.attributesOfItem(atPath: profile.stableSupportRoot.path)[.type] as? FileAttributeType) == .typeDirectory else { return false }
+        return ["catalog.json", "library.json"].contains {
+            let path = profile.stableSupportRoot.appendingPathComponent($0).path
+            return (try? fileManager.attributesOfItem(atPath: path)[.type] as? FileAttributeType) == .typeRegular
+        }
+    }
+
+    public func prepare(profile: AppDataProfile, contents: Contents = .legacy,
+                        sanitizeLibrary: (URL) throws -> Void = { _ in },
+                        sourcePreferences: () throws -> [String: Any],
                         savePreferences: ([String: Any]) throws -> Void) throws -> Bool {
         guard profile.isDevelopment else { return false }
         let source = profile.stableSupportRoot, destination = profile.supportRoot
@@ -55,9 +70,9 @@ public struct DevelopmentProfileImporter {
             try finish(destination, state: state, savePreferences: savePreferences)
             return true
         }
-        if try exists(source) { try regularDirectory(source) }
-        let before = try snapshot(source)
-        let preferences = try sourcePreferences().filter { Self.ownedPreference($0.key) }
+        if contents != .empty, try exists(source) { try regularDirectory(source) }
+        let before = try snapshot(source, contents: contents)
+        let preferences = contents == .legacy ? try sourcePreferences().filter { Self.ownedPreference($0.key) } : [:]
         let preferencesData = try PropertyListSerialization.data(fromPropertyList: preferences, format: .binary, options: 0)
         let parent = destination.deletingLastPathComponent()
         try fm.createDirectory(at: parent, withIntermediateDirectories: true)
@@ -76,8 +91,10 @@ public struct DevelopmentProfileImporter {
             }
         }
         try validateRequiredData(stage)
-        guard try snapshot(source) == before,
-              NSDictionary(dictionary: try sourcePreferences().filter { Self.ownedPreference($0.key) }).isEqual(to: preferences) else { throw DevelopmentProfileError.sourceChanged }
+        let verifiedPreferences = contents == .legacy ? try sourcePreferences().filter { Self.ownedPreference($0.key) } : [:]
+        guard try snapshot(source, contents: contents) == before,
+              NSDictionary(dictionary: verifiedPreferences).isEqual(to: preferences) else { throw DevelopmentProfileError.sourceChanged }
+        if contents == .library { try sanitizeLibrary(stage) }
         try preferencesData.write(to: stage.appendingPathComponent(Self.preferenceFile), options: .atomic)
         // End a copied unfinished session at its last recorded heartbeat, never at the current time.
         func closeOpenSessions(_ sessions: inout [PlaySession]) -> Bool {
@@ -148,7 +165,8 @@ public struct DevelopmentProfileImporter {
             } catch { throw DevelopmentProfileError.unreadableFile(name) }
         }
     }
-    private func snapshot(_ root: URL) throws -> [String: String] {
+    private func snapshot(_ root: URL, contents: Contents = .legacy) throws -> [String: String] {
+        if contents == .empty { return [:] }
         var result: [String: String] = [:]
         func visit(_ relative: String, depth: Int) throws {
             guard depth < 32, result.count < 100_000 else { throw DevelopmentProfileError.unsafeFile }
@@ -161,7 +179,12 @@ public struct DevelopmentProfileImporter {
             default: throw DevelopmentProfileError.unsafeFile
             }
         }
-        for name in Self.files + Self.folders {
+        for name in contents == .library ? Self.libraryFiles + Self.libraryFolders : Self.files + Self.folders {
+            var parent = root
+            for component in name.split(separator: "/").dropLast() {
+                parent.appendPathComponent(String(component))
+                if try exists(parent) { try regularDirectory(parent) }
+            }
             let url = root.appendingPathComponent(name)
             // attributes also detects broken symlinks, which fileExists would silently skip.
             if try exists(url) { try visit(name, depth: 0) }

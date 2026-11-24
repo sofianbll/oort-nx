@@ -43,10 +43,18 @@ final class FirstRunSetupTests: XCTestCase {
         XCTAssertFalse(entry.consume(second, isReady: true, titleCount: 1))
     }
 
-    func testNewUserStartsOnFound() {
-        let flow = FirstRunSetup(completed: false)
-        XCTAssertEqual(flow.page, .found)
-        XCTAssertEqual(flow.pageToRemember, "found")
+    func testNewTourResumesOnEveryScreenAndCanReopenWithoutRestartingOnQuit() {
+        var flow = FirstRunSetup(completed: false)
+        for page in FirstRunSetup.Page.tour {
+            XCTAssertEqual(flow.page, page)
+            XCTAssertEqual(FirstRunSetup(savedPage: flow.pageToRemember).page, page)
+            XCTAssertEqual(flow.moveTour(1), page != .look)
+        }
+        flow.finish()
+        flow.openTour()
+        XCTAssertEqual(flow.page, .welcome)
+        XCTAssertTrue(flow.isCompleted)
+        XCTAssertNil(flow.pageToRemember)
     }
 
     func testInterruptedOldSetupResumesWhereItWas() {
@@ -54,9 +62,9 @@ final class FirstRunSetupTests: XCTestCase {
         XCTAssertEqual(FirstRunSetup(completed: false, savedPage: "requirements").page, .requirements)
     }
 
-    func testUnknownSavedPageStartsOnFound() {
-        XCTAssertEqual(FirstRunSetup(completed: false, savedPage: "unknown").page, .found)
-        XCTAssertEqual(FirstRunSetup(completed: false, savedPage: nil).page, .found)
+    func testUnknownSavedPageStartsOnWelcome() {
+        XCTAssertEqual(FirstRunSetup(completed: false, savedPage: "unknown").page, .welcome)
+        XCTAssertEqual(FirstRunSetup(completed: false, savedPage: nil).page, .welcome)
     }
 
     func testPortingCardOpensRequirements() {
@@ -131,7 +139,7 @@ final class FirstRunSetupTests: XCTestCase {
 
     func testExistingUsersIgnoreStaleOrUnknownProgress() {
         XCTAssertTrue(FirstRunSetup(completed: true, savedPage: "games").isCompleted)
-        XCTAssertEqual(FirstRunSetup(completed: false, savedPage: "unknown").page, .found)
+        XCTAssertEqual(FirstRunSetup(completed: true, savedPage: "welcome").page, .requirements)
     }
 
     func testBackReturnsToRequirementsWithoutCompletingSetup() {
@@ -195,5 +203,31 @@ final class FirstRunSetupTests: XCTestCase {
         var setup = FirstRunSetup(completed: true)
         setup.chooseSteam(true)
         XCTAssertNil(setup.steamChoice)
+    }
+
+    func testLocalInventoryListsReadyAndUnidentifiedFilesWithoutTouchingThem() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        addTeardownBlock { try? FileManager.default.removeItem(at: root) }
+        let contents = root.appendingPathComponent("Moon.app/Contents")
+        try FileManager.default.createDirectory(at: contents, withIntermediateDirectories: true)
+        let id = "0100000000011000"
+        let plist = try PropertyListSerialization.data(fromPropertyList: [
+            "CFBundleIdentifier": "org.nxnative.\(id)", "DMTitleID": id, "CFBundleName": "Moon"
+        ], format: .xml, options: 0)
+        try plist.write(to: contents.appendingPathComponent("Info.plist"))
+        let identified = root.appendingPathComponent("Moon [\(id)].xci")
+        let unknown = root.appendingPathComponent("Unknown.xci")
+        for file in [identified, unknown] { try Data([0xAF]).write(to: file) }
+
+        let first = OnboardingInventory.read(apps: [root], files: root, existing: [])
+        XCTAssertEqual(first.entries.map(\.name), ["Moon", "Unknown.xci"])
+        let game = try XCTUnwrap(first.entries.first?.game)
+        XCTAssertTrue(game.isPlayableLocally)
+        XCTAssertEqual(game.sources.map(\.url.path), [identified.path])
+        XCTAssertNil(first.entries.last?.game)
+        let second = OnboardingInventory.read(apps: [root], files: root, existing: [game])
+        XCTAssertTrue(second.entries.first?.alreadyInLibrary == true)
+        XCTAssertEqual(try Data(contentsOf: unknown), Data([0xAF]))
     }
 }
