@@ -1879,6 +1879,9 @@ extension AppViewModel {
                     if args[1] == "fixture:" {
                         return .init(status: 0, stdout: #"[{"Name":"\#(title)","Path":"\#(title)","Size":-1,"IsDir":true}]"#, stderr: "")
                     }
+                    if args[1] == "fixture:\(title)" {
+                        return .init(status: 0, stdout: #"[{"Name":"manifests","Path":"manifests","Size":-1,"IsDir":true}]"#, stderr: "")
+                    }
                     if args[1] == "fixture:\(title)/manifests" {
                         return .init(status: 0, stdout: #"[{"Name":"bad.json","Path":"bad.json","Size":1,"IsDir":false}]"#, stderr: "")
                     }
@@ -1973,6 +1976,8 @@ extension AppViewModel {
             switch (args[0], args[1]) {
             case ("lsjson", "fixture:") where isReference:
                 return .init(status: 0, stdout: #"[{"Name":"\#(folder)","Path":"\#(folder)","Size":-1,"IsDir":true}]"#, stderr: "")
+            case ("lsjson", "fixture:\(folder)") where isReference:
+                return .init(status: 0, stdout: #"[{"Name":"manifests","Path":"manifests","Size":-1,"IsDir":true}]"#, stderr: "")
             case ("lsjson", "fixture:\(folder)/manifests") where isReference:
                 return .init(status: 0, stdout: #"[{"Name":"\#(name)","Path":"\#(name)","Size":\#(data.count),"IsDir":false}]"#, stderr: "")
             case ("lsjson", "fixture:\(folder)/manifests/\(name)") where isReference:
