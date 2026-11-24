@@ -14,6 +14,7 @@ HOST = r'''
 import AppKit
 import Combine
 import CoreText
+import CryptoKit
 import SwiftUI
 import NXLibraryCore
 import ArcanePorting
@@ -28,6 +29,7 @@ import ArcanePorting
         let settings = AppSettingsStore(fileURL: data.appendingPathComponent("settings.json"))
         let vm = AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: data)))
         let model = vm.cloudLibrary
+        // SCOPED_FIXTURE
         let game = PortedGame(name: "Lunar Observatory", url: data.appendingPathComponent("Fixture.app"),
                               platform: .macApp, sizeBytes: 0, modificationDate: .now, titleId: "0100000000001000")
         model.update(game.id) {
@@ -134,11 +136,38 @@ import ArcanePorting
                 .padding(24).frame(width: 1040)
         }
         try await vm.checkReferenceScreen(access: true)
-        precondition(model.referenceCheck?.name == "Arcane-nx" && model.referenceCheck?.count == 0)
+        precondition(model.referenceCheck?.name == nil && model.referenceCheck?.count == 0)
         try render("reference-settings", output, referenceSettings())
         try await vm.checkReferenceScreen(access: false)
-        precondition(model.referenceCheck?.failure == .folderMissing)
+        precondition(model.referenceCheck?.failure == .unavailable)
         try render("reference-error", output, referenceSettings())
+        // CLOUD_REVIEW_START
+        try await vm.checkManifestOnlyReferenceSelection()
+        do {
+            let defaults = AppData.preferences
+            let keys = [CloudLibraryPreference.storageKey, CloudLibraryPreference.enabledKey,
+                        CloudLibraryPreference.sourcesRootKey, CloudLibraryPreference.sourcesBindingKey]
+            let saved = keys.map { defaults.object(forKey: $0) }
+            defer { for (key, value) in zip(keys, saved) { defaults.set(value, forKey: key) } }
+            let settingsFixture = CloudLibraryModel()
+            settingsFixture.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: nil)
+            settingsFixture.chooseSourcesRoot("Independent/GameFiles")
+            precondition(!settingsFixture.sourcesNeedConfirmation)
+            settingsFixture.configure(remote: "fixture", root: "NewGames", enabled: true, sourcesRoot: "Independent/GameFiles")
+            precondition(settingsFixture.sourcesNeedConfirmation && settingsFixture.sourceArchive == nil)
+            let view = SettingsCloudLibrarySection(viewModel: vm, model: settingsFixture, settings: settings,
+                advanced: .constant(false), onEdit: {}, onEditSources: {}, onActions: { _ in })
+            try render("settings-sources-confirmation-fr", output, view.environment(\.nxAppLocale, L10n.context)
+                .padding(24).frame(width: 1040))
+            view.requestSourceConfirmationForProbe()
+            if let notice = vm.settingsNotice {
+                precondition(notice.choices == ["Keep this folder", "Use default", "Cancel"])
+                precondition(notice.initialFocus == notice.cancelIndex)
+                try renderNotice("settings-sources-question-fr", output, notice, width: 1120)
+                vm.settingsNotice = nil
+            } else { preconditionFailure("The source choice must show a confirmation") }
+        }
+        // CLOUD_REVIEW_END
         try render("reference-editor", output, CloudReferenceDialog(viewModel: vm, onClose: {})
             .environment(\.nxAppLocale, L10n.context))
         model.update(game.id) {
@@ -489,7 +518,13 @@ extension CloudScreenProbe {
         let title = "0100000000006000", referenceID = "source-reference-fixture"
         let folderName = "Lunar Observatory [\(title)]"
         let anchor = "fixture:Games/GameFiles/" + folderName
-        let payload = Data("1".utf8)
+        let xml = Data("<ContentMeta><Type>Application</Type><Id>0x\(title)</Id><Version>0</Version></ContentMeta>".utf8)
+        let name = Data("meta.cnmt.xml\0".utf8)
+        func le32(_ n: Int) -> Data { var v = UInt32(n).littleEndian; return Data(bytes: &v, count: 4) }
+        func le64(_ n: Int) -> Data { var v = UInt64(n).littleEndian; return Data(bytes: &v, count: 8) }
+        let payload = Data("PFS0".utf8) + le32(1) + le32(name.count) + le32(0)
+            + le64(0) + le64(xml.count) + le32(0) + le32(0) + name + xml
+        let checksum = Insecure.MD5.hash(data: payload).map { String(format: "%02x", $0) }.joined()
         let localRoot = root.path + "/"
         func newModel() throws -> AppViewModel {
             let catalog = try repo.load()
@@ -499,14 +534,14 @@ extension CloudScreenProbe {
         }
         let backend = RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in
             precondition(args.contains("--drive-skip-shortcuts"))
-            let scope = args.contains(referenceID)
+            let scope = args.contains("--drive-root-folder-id=\(referenceID)")
             let root = scope ? "fixture:" : "fixture:Games"
             let files = scope ? "fixture:GameFiles" : "fixture:Games/GameFiles"
             func entries(_ names: [String], dir: Bool) -> String {
                 let rows: [[String: Any]] = names.map { ["Name": $0, "Path": $0, "Size": dir ? -1 : 1, "IsDir": dir] }
                 return String(decoding: try! JSONSerialization.data(withJSONObject: rows), as: UTF8.self)
             }
-            let node = #"{"Name":"Game.nsp","Path":"Game.nsp","Size":1,"IsDir":false,"Hashes":{"md5":"c4ca4238a0b923820dcc509a6f75849b"}}"#
+            let node = #"{"Name":"Game.nsp","Path":"Game.nsp","Size":\#(payload.count),"IsDir":false,"Hashes":{"md5":"\#(checksum)"}}"#
             switch (args[0], args[1]) {
             case ("lsjson", root):
                 if args.contains("--stat") { return .init(status: 0, stdout: #"{"Name":"Reference fixture","IsDir":true}"#, stderr: "") }
@@ -552,6 +587,8 @@ extension CloudScreenProbe {
         precondition(!GameResourceState.sourcesAvailable(for: game))
         precondition(vm.settingsNotice?.message.contains("Dossier ambigu") == true)
         precondition(vm.settingsNotice?.message.contains("Sans identifiant") == true)
+        precondition(vm.cloudLibrary.lastCompleteCheck == nil && vm.cloudLibrary.connectionCheck?.failure == .incomplete)
+        vm.checkPartialCloudReview(game)
         try renderNotice("cloud-only-import-fr", output, vm.settingsNotice!, width: 1120)
 
         let png = try Data(contentsOf: output.appendingPathComponent("tile.png"))
@@ -626,7 +663,7 @@ extension CloudScreenProbe {
         vm.cloudLibrary.installScreenReference(backend.reference(folderID: referenceID)!, sourceRoot: "GameFiles")
         vm.importCloudGames(manually: true)
         await vm.cloudLibrary.importTask?.value
-        let shared = vm.libraryGames.first { $0.cloudReferenceFolder == referenceID }!
+        let shared = vm.libraryGames.first { $0.cloudSourcesReferenceFolder == referenceID }!
         precondition(vm.portingTileLook(shared) == .toDownloadFiles && !GameResourceState.sourcesAvailable(for: shared))
         vm.applyCatalog(try repo.forgetCloudReference(referenceID))
         precondition(!vm.libraryGames.contains { $0.id == shared.id })
@@ -1332,7 +1369,23 @@ extension ActivityCenterView {
 """)
         host = HOST.replace("/* NOTICE_LAYOUT */", "vertical: notice.vertical," if before else "cancelIndex: notice.cancelIndex,")
         if not before and not baseline:
+            host = host.replace("// SCOPED_FIXTURE", '''
+        model.installScreenArchives(RcloneStorageBackend(remote: "fixture", root: "Games") { _, _, _ in
+            .init(status: 1, stdout: "", stderr: "connection reset")
+        })
+''')
             host = host.replace("// SOURCE_ONLY_CHECK", "try await checkSourceOnly(in: data, output: output)") + SOURCE_ONLY
+            source_catalog = package / "Sources/ArcanePorting/Catalog/CatalogRepository+Porting.swift"
+            change(source_catalog, r'(        return try transactionIfChanged \{ draft in\n            try Task\.checkCancellation\(\))',
+                   lambda match: '        precondition(!Thread.isMainThread, "Cloud import catalog disk work ran on the UI thread")\n'
+                                 + match[1])
+            with section.open("a") as swift:
+                swift.write("\nextension SettingsCloudLibrarySection {\n"
+                            "    func requestSourceConfirmationForProbe() { confirmSourcesFolder() }\n}\n")
+        elif baseline:
+            host = re.sub(r'// CLOUD_REVIEW_START.*?// CLOUD_REVIEW_END', '', host, flags=re.S)
+            host = host.replace('model.referenceCheck?.name == nil', 'model.referenceCheck?.name == "Arcane-nx"')
+            host = host.replace('model.referenceCheck?.failure == .unavailable', 'model.referenceCheck?.failure == .folderMissing')
         if not before and not baseline:
             overlays = (app / "Views/Shell/AppShellView+Overlays.swift").read_text()
             copy = re.search(r': (L10n\.text\("Quitting stops the transfer[^"]+"\))', overlays)
@@ -1698,17 +1751,53 @@ extension ActivityCenterView {
 ''')
             (app / "CloudScreenProbe.swift").write_text(host)
         with (app / "ViewModels/AppViewModel+CloudLibrary.swift").open("a") as swift:
-            probe = '''
+            probe = r'''
 extension AppViewModel {
+    @MainActor func checkManifestOnlyReferenceSelection() async throws {
+        let title = "0100000000004000", folder = "Orbit [0100000000004000]"
+        let referenceFolder = cloudLibrary.preference.referenceFolder!
+        let fixture = RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in
+            precondition(args[0] == "lsjson" && args[1] == "fixture:GameFiles/" + folder)
+            precondition(args.contains("--drive-root-folder-id=\(referenceFolder)"))
+            return .init(status: 0, stdout: #"[{"Path":"Orbit.nsp","Name":"Orbit.nsp","Size":7,"IsDir":false,"Hashes":{"md5":"b4a1b45d938819f647fcbacc3fce7a4d"}}]"#, stderr: "")
+        }
+        cloudLibrary.installScreenReference(fixture.reference(folderID: referenceFolder)!, sourceRoot: "GameFiles")
+        let id = UUID(), root = CloudGameSources.importedFolder(for: id)
+        let source = GameFileItem(url: root.appendingPathComponent(folder).appendingPathComponent("Orbit.nsp"),
+                                  kind: .base, titleId: title, sizeBytes: 7)
+        let selection = CloudGameSources.ArchivedSelection(folder: folder, files: [source], titleID: title)!
+        let data = try JSONEncoder().encode(selection)
+        let manifest = try JSONDecoder().decode(CloudGameManifest.self, from:
+            Data(#"{"version":2,"title_id":"\#(title)","created_at":0,"artifacts":[],"source_selection":\#(String(decoding: data, as: UTF8.self))}"#.utf8))
+        var game = PortedGame(id: id, name: "Orbit", url: root, platform: .macApp, sizeBytes: 0,
+                              modificationDate: .now, titleId: title)
+        game.status = .notBuilt
+        game.cloudImportPending = true
+        game.sources = [source]
+        let remote = try await referenceSourceStatus(for: game, reference: manifest, own: nil)
+        precondition(remote?.bytes == 7 && remote?.urls == [source.url],
+                     "The placeholder's own source folder is not an app or an overlapping destination")
+    }
+
+    @MainActor func checkPartialCloudReview(_ game: PortedGame) {
+        cloudLibrary.remember { $0.personalApps.insert(game.id) }
+        recordCloudListing(.init(invalidTitles: [game.titleId!], unlistedSources: true),
+                           catalog: catalogSnapshot, statuses: [:], reference: false)
+        precondition(cloudLibrary.lastKnown.personalApps.contains(game.id), "An incomplete manifest must keep the earlier presence")
+        cloudLibrary.remember { $0.personalApps.remove(game.id) }
+    }
+
     @MainActor func checkReferenceScreen(access: Bool) async throws {
+        let folder = cloudLibrary.preference.referenceFolder!
         let backend = RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in
-            precondition(args.contains("--drive-root-folder-id") && args[0] == "lsjson")
+            precondition(args.contains("--drive-root-folder-id=\(folder)") && args[0] == "lsjson")
+            precondition(args.contains("--drive-shared-with-me=false") && args.contains("--drive-skip-shortcuts"))
             if !access { return .init(status: 1, stdout: "", stderr: "googleapi: Error 403: forbidden") }
-            let name = #"{"Name":"Arcane-nx","ID":"1-arcane-fixture","IsDir":true}"#
-            let output = args.contains("--drive-shared-with-me") ? "[\(name)]" : args.contains("--stat") ? name : "[]"
+            let output = args.contains("--stat") ? #"{"IsDir":true}"# : "[]"
             return .init(status: 0, stdout: output, stderr: "")
         }
-        let reference = backend.reference(folderID: cloudLibrary.preference.referenceFolder!)!
+        let reference = backend.reference(folderID: folder)!
+        if cloudLibrary.archive == nil { cloudLibrary.installScreenArchives(backend) }
         cloudLibrary.installScreenReference(reference)
         _ = await importCloudReference(archive: cloudLibrary.archive!)
     }
@@ -1726,6 +1815,7 @@ extension CloudLibraryModel {
         sourceArchive = CloudGameSources(backend: fixture, root: root)
     }
     func installScreenArchives(_ fixture: RcloneStorageBackend) {
+        scopeTask?.cancel()
         backend = fixture
         archive = CloudGameArchive(backend: fixture)
         sourceArchive = nil
@@ -1739,8 +1829,17 @@ extension CloudLibraryModel {
 }
 '''
             if before:
-                probe = re.sub(r'    @MainActor func checkReferenceScreen.*?(?=    @MainActor func screenRebuildNotice)',
+                probe = re.sub(r'    @MainActor func checkManifestOnlyReferenceSelection.*?(?=    @MainActor func screenRebuildNotice)',
                                '', probe, flags=re.S).split('extension CloudLibraryModel')[0]
+            elif baseline:
+                probe = re.sub(r'    @MainActor func checkManifestOnlyReferenceSelection.*?(?=    @MainActor func checkReferenceScreen)',
+                               '', probe, flags=re.S)
+                probe = probe.replace('        scopeTask?.cancel()\n', '')
+                probe = probe.replace('args.contains("--drive-root-folder-id=\\(folder)")', 'args.contains("--drive-root-folder-id")')
+                probe = probe.replace('            precondition(args.contains("--drive-shared-with-me=false") && args.contains("--drive-skip-shortcuts"))\n', '')
+                probe = probe.replace('            let output = args.contains("--stat") ? #"{"IsDir":true}"# : "[]"',
+                                      '            let name = #"{"Name":"Arcane-nx","ID":"1-arcane-fixture","IsDir":true}"#\n'
+                                      '            let output = args.contains("--drive-shared-with-me") ? "[\\(name)]" : args.contains("--stat") ? name : "[]"')
             swift.write(probe)
         with (package / "Sources/ArcanePorting/Library/CloudGameArchive.swift").open("a") as swift:
             swift.write('''

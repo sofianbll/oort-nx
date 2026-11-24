@@ -135,6 +135,11 @@ final class CloudDriveFoldersTests: XCTestCase {
         let restored = try JSONDecoder().decode(LibraryMoveRequest.self, from: saved)
         let drive = CloudDriveFolders(remote: "fixture", executable: URL(fileURLWithPath: "/synthetic/rclone"),
                                       config: URL(fileURLWithPath: "/dev/null")) { _, args, _ in
+            if args.first == "listremotes" {
+                return .init(status: 0, stdout: #"[{"name":"fixture","type":"drive","source":"file"}]"#, stderr: "")
+            }
+            XCTAssertTrue(args.contains("--drive-shared-with-me=false"))
+            XCTAssertTrue(args.contains("--drive-skip-shortcuts"))
             if args[0] == "about" {
                 return .init(status: 0, stdout: "{}", stderr: "'root_folder_id = accountA' - save this in the config to speed up startup")
             }
@@ -508,6 +513,10 @@ final class CloudDriveFoldersTests: XCTestCase {
                 if accountRoot && file.lastPathComponent == "New" { return newID }
                 return "\(try CloudArchiveInventory.node(at: file).st_ino)"
             }
+            if args[0] == "listremotes" {
+                return .init(status: 0, stdout: #"[{"name":"fixture","type":"drive","source":"file"}]"#, stderr: "")
+            }
+            XCTAssertTrue(args.contains("--drive-shared-with-me=false"))
             if args[0] == "about" {
                 XCTAssertEqual(args[1], "fixture,root_folder_id=,team_drive=:")
                 return .init(status: 0, stdout: "{}", stderr: "'root_folder_id = \(account)' - save this in the config to speed up startup")
@@ -607,7 +616,10 @@ final class CloudDriveFoldersTests: XCTestCase {
     func testLostMkdirResponseIsReconciledWithoutResubmitting() async throws {
         let calls = Calls()
         let drive = CloudDriveFolders(remote: "drive", executable: URL(fileURLWithPath: "/rclone")) { _, args, _ in
-            await calls.run(args[0])
+            if args.first == "listremotes" {
+                return .init(status: 0, stdout: #"[{"name":"drive","type":"drive","source":"file"}]"#, stderr: "")
+            }
+            return await calls.run(args[0])
         }
         try await drive.create("Arcane", in: "")
         let commands = await calls.commands

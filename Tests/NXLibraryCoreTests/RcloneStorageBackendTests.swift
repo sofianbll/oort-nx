@@ -3,6 +3,104 @@ import XCTest
 @testable import NXLibraryCore
 
 final class RcloneStorageBackendTests: XCTestCase {
+    func testSavedDriveScopeRejectsAccountAndHomonymousFolderReplacement() async throws {
+        actor Drive {
+            var account = "accountA", folder = "folderA"
+            var reads = 0
+            func replace(account: String, folder: String) { self.account = account; self.folder = folder }
+            func run(_ args: [String]) -> CommandResult {
+                switch args[0] {
+                case "about":
+                    return .init(status: 0, stdout: "{}", stderr: #"{"level":"debug","msg":"'root_folder_id = \#(account)' - save this in the config to speed up startup"}"#)
+                case "lsjson" where args[1] == "fixture:" && args.contains("--dirs-only") &&
+                    !args.contains(where: { $0.hasPrefix("--drive-root-folder-id=") }):
+                    return .init(status: 0, stdout: #"[{"Name":"Games","IsDir":true,"ID":"\#(folder)"}]"#, stderr: "")
+                case "lsjson":
+                    reads += 1
+                    XCTAssertEqual(args[1], "fixture:GameFiles")
+                    XCTAssertTrue(args.contains("--drive-root-folder-id=folderA"))
+                    return .init(status: 0, stdout: #"[{"Path":"sample","Name":"sample","Size":-1,"IsDir":true}]"#, stderr: "")
+                default:
+                    XCTFail("Unexpected command: \(args)")
+                    return .init(status: 1, stdout: "", stderr: "")
+                }
+            }
+        }
+        let drive = Drive()
+        let backend = RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in await drive.run(args) }
+        let scope = try await backend.resolveScope(reference: nil)
+        let persisted = try JSONDecoder().decode(CloudDriveScope.self, from: JSONEncoder().encode(scope))
+        let previouslyApproved = backend.scoped(persisted)
+        let actual = try await previouslyApproved.directoryEntries(in: "GameFiles")
+        XCTAssertEqual(actual.map(\.name), ["sample"])
+        for (account, folder) in [("accountB", "folderA"), ("accountA", "folderB")] {
+            await drive.replace(account: account, folder: folder)
+            do {
+                _ = try await previouslyApproved.directoryEntries(in: "GameFiles")
+                XCTFail("The old scope must refuse content reads")
+            } catch { XCTAssertEqual(error as? CloudLibraryFailure, .scopeChanged) }
+        }
+        let reads = await drive.reads
+        XCTAssertEqual(reads, 1)
+    }
+
+    func testReferenceCommandsUseOnlyTheConfiguredDriveAndExactFolderID() async throws {
+        let id = "Reference_ID-1"
+        let scopedFlags = ["--drive-shared-with-me=false", "--drive-starred-only=false", "--drive-skip-shortcuts", "--drive-root-folder-id=\(id)"]
+        let empty = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: empty, withIntermediateDirectories: false)
+        defer { try? FileManager.default.removeItem(at: empty) }
+        let backend = RcloneStorageBackend(remote: "fixture", root: "Games", readsConfiguration: true) { _, args, _ in
+            if args.first == "listremotes" {
+                XCTAssertEqual(Array(args.prefix(2)), ["listremotes", "--json"])
+                return .init(status: 0, stdout: #"[{"name":"fixture","type":"drive","source":"file"}]"#, stderr: "")
+            }
+            for flag in scopedFlags { XCTAssertTrue(args.contains(flag), "\(args)") }
+            XCTAssertFalse(args.contains("--drive-shared-with-me"))
+            switch args.first {
+            case "lsjson":
+                XCTAssertEqual(args[1], "fixture:GameFiles")
+                return .init(status: 0, stdout: #"[{"Path":"sample","Name":"sample","Size":-1,"IsDir":true}]"#, stderr: "")
+            case "copy":
+                XCTAssertEqual(Array(args.prefix(3)), ["copy", "fixture:GameFiles", empty.path])
+                return .init(status: 0, stdout: "", stderr: "")
+            default:
+                XCTFail("Unexpected command: \(args)")
+                throw StorageBackendError.invalidConfiguration
+            }
+        }
+        let reference = try XCTUnwrap(backend.reference(folderID: id))
+        let directories = try await reference.directoryEntries(in: "GameFiles")
+        XCTAssertEqual(directories.map(\.name), ["sample"])
+        try await reference.downloadFiles(["sample"], from: .init("GameFiles"), to: empty, progress: nil)
+    }
+
+    func testNonDriveReferenceIsRefusedBeforeAnyRemoteCommand() async throws {
+        let backend = RcloneStorageBackend(remote: "fixture", root: "Games", readsConfiguration: true) { _, args, _ in
+            if args.first == "listremotes" {
+                return .init(status: 0, stdout: #"[{"name":"fixture","type":"alias","source":"file"}]"#, stderr: "")
+            }
+            XCTFail("The backend has not been verified: \(args)")
+            throw StorageBackendError.invalidConfiguration
+        }
+        let reference = try XCTUnwrap(backend.reference(folderID: "Reference_ID-1"))
+        do {
+            _ = try await reference.rootDirectories()
+            XCTFail("An alias is not a plain Drive backend")
+        } catch { XCTAssertEqual(error as? CloudLibraryFailure, .requiresDrive) }
+    }
+
+    func testReferenceRateLimitIsNotAFolderMissing() async throws {
+        let backend = RcloneStorageBackend(remote: "fixture", root: "Games") { _, _, _ in
+            .init(status: 3, stdout: "[]", stderr: "googleapi: Error 403: rateLimitExceeded")
+        }
+        let reference = try XCTUnwrap(backend.reference(folderID: "Reference_ID-1"))
+        do {
+            _ = try await reference.rootDirectories()
+            XCTFail("A failed listing must not become an empty library")
+        } catch { XCTAssertEqual(error as? CloudLibraryFailure, .unavailable) }
+    }
+
     func testSourceListingUsesOnlyMetadataAndNeverTurnsErrorsIntoEmptyFolders() async throws {
         let root = "fixture:Chosen/Subfolder"
         let backend = RcloneStorageBackend(remote: "fixture", root: "Chosen") { _, args, _ in
@@ -33,21 +131,6 @@ final class RcloneStorageBackendTests: XCTestCase {
             _ = try await statOffline.directoryEntries(in: "Subfolder")
             XCTFail("An empty response needs a successful directory stat")
         } catch { XCTAssertEqual(error as? CloudLibraryFailure, .offline) }
-    }
-
-    func testReferenceLabelStatsOnlyTheBoundRoot() async throws {
-        let folder = "Reference_ID-1"
-        let backend = RcloneStorageBackend(remote: "fixture", root: "Chosen") { _, args, _ in
-            XCTAssertEqual(Array(args.prefix(5)), ["lsjson", "fixture:", "--stat", "--no-modtime", "--no-mimetype"])
-            XCTAssertFalse(args.contains("--drive-shared-with-me"))
-            XCTAssertTrue(args.contains("--drive-skip-shortcuts"))
-            let flag = try XCTUnwrap(args.firstIndex(of: "--drive-root-folder-id"))
-            XCTAssertEqual(args[flag + 1], folder)
-            return .init(status: 0, stdout: #"{"ID":"Reference_ID-1","Name":"Reference","IsDir":true}"#, stderr: "")
-        }
-        let reference = try XCTUnwrap(backend.reference(folderID: folder))
-        let name = try await reference.referenceName()
-        XCTAssertEqual(name, "Reference")
     }
 
     func testLocalDiskFullIsNotOfflineOrDriveQuota() async throws {
@@ -87,8 +170,7 @@ final class RcloneStorageBackendTests: XCTestCase {
             XCTAssertNil(CloudLibraryPreference.referenceFolderID(invalid), invalid)
         }
         let personal = RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in
-            if let flag = args.firstIndex(of: "--drive-root-folder-id") {
-                XCTAssertEqual(args[flag + 1], id)
+            if args.contains("--drive-root-folder-id=\(id)") {
                 XCTAssertEqual(args[1], args[0] == "copy" ? "fixture:Title" : "fixture:")
                 XCTAssertTrue(["copy", "lsjson"].contains(args[0]), "Reference command: \(args[0])")
                 if args[0] == "copy" { XCTAssertTrue(args[2].hasPrefix(":local,links=true:/")) }
@@ -305,7 +387,10 @@ final class RcloneStorageBackendTests: XCTestCase {
         await assertError(.backendUnavailable) { _ = try await unavailable.list() }
         let missingRemote = RcloneStorageBackend(remote: "missing-fixture", root: "not-used",
                                                  config: URL(fileURLWithPath: "/dev/null"))
-        await assertError(.backendUnavailable) { _ = try await missingRemote.list() }
+        do {
+            _ = try await missingRemote.list()
+            XCTFail("An unconfigured name is not a direct Drive connection")
+        } catch { XCTAssertEqual(error as? CloudLibraryFailure, .requiresDrive) }
     }
 
     func testHashMismatchDoesNotPublishAndExistingObjectsAreNotReplaced() async throws {
@@ -325,9 +410,11 @@ final class RcloneStorageBackendTests: XCTestCase {
 
     func testVerificationDownloadsSHA256EvenWhenRemoteMD5Matches() async throws {
         let fixture = try Fixture()
-        let config = fixture.directory.appendingPathComponent("rclone-test.conf")
-        try Data("[fixture]\ntype = local\nhashes = md5\n".utf8).write(to: config)
-        let backend = RcloneStorageBackend(remote: "fixture", root: fixture.remote.path, config: config)
+        let rclone = try XCTUnwrap(RcloneStorageBackend.findExecutable())
+        let shim = fixture.directory.appendingPathComponent("md5-only")
+        try Data("#!/bin/sh\nRCLONE_LOCAL_HASHES=md5 exec \(shellQuoted(rclone.path)) \"$@\"\n".utf8).write(to: shim)
+        try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: shim.path)
+        let backend = RcloneStorageBackend(remote: ":local:", root: fixture.remote.path, executable: shim, config: fixture.config)
         let md5 = "0bee89b07a248e27c83fc3d5951213c1"
         let wrong = StorageObject(key: fixture.object.key, size: fixture.object.size,
                                   hashes: ["sha256": String(repeating: "0", count: 64), "md5": md5])

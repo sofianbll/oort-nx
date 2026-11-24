@@ -625,17 +625,23 @@ public struct CloudDriveFolders: Sendable {
 
     private func checkedResult(_ arguments: [String]) async throws -> CommandResult {
         let environment = RcloneConfiguration.environment()
-        let flags = ["--drive-skip-shortcuts", "--local-links=false", "--copy-links=false",
+        let flags = RcloneConfiguration.driveFlags + ["--local-links=false", "--copy-links=false",
                      "--retries", "1", "--low-level-retries", "1", "--contimeout", "5s", "--timeout", "10s"]
+        let configFlags = RcloneConfiguration.flags(config: config, environment: environment)
         do {
             try Task.checkCancellation()
-            let result = try await run(executable, arguments + flags
-                + RcloneConfiguration.flags(config: config, environment: environment), environment)
+            if remote != ":local:" {
+                let configured = try await run(executable, ["listremotes", "--json"] + configFlags, environment)
+                guard configured.status == 0 else { throw RcloneConfiguration.Failure.configuration }
+                try RcloneConfiguration.requireDrive(remote, in: configured.stdout)
+            }
             try Task.checkCancellation()
-            if result.status == 3 && arguments.first == "lsjson" { throw StorageBackendError.notFound }
+            let result = try await run(executable, arguments + flags + configFlags, environment)
+            try Task.checkCancellation()
             if result.status != 0, let failure = CloudLibraryFailure.rclone(result.stderr, status: result.status) {
                 throw failure
             }
+            if result.status == 3 && arguments.first == "lsjson" { throw StorageBackendError.notFound }
             guard result.status == 0 else { throw RcloneConfiguration.Failure.test }
             if result.stderr.contains("search result INCOMPLETE") { throw StorageBackendError.invalidResponse }
             return result

@@ -206,20 +206,25 @@ final class CloudLibraryModel: ObservableObject {
         var referenceApps: Set<UUID> = []
         var personalFiles: Set<UUID> = []
         var referenceFiles: Set<UUID> = []
+        var verifiedAt: Date?
     }
 
     private static let lastKnownKey = "NXLibrary_CloudLastKnownAvailability"
+    private static let scopeKey = "NXLibrary_CloudDriveScope"
     @Published private(set) var lastKnown = LastKnown(scope: [])
     var localSourceIDs: Set<UUID> = []
+    private var sourcesBinding: CloudLibraryPreference.SourcesBinding?
+    @Published private(set) var sourcesNeedConfirmation = false
     private var availabilityScope: [String] {
-        [preference.storage ?? "", preference.sourcesRoot, preference.referenceFolder ?? ""]
+        [preference.storage ?? "", preference.sourcesRoot, preference.referenceFolder ?? ""] + (driveScope?.availabilityKey ?? [])
     }
 
     func remember(_ change: (inout LastKnown) -> Void) {
         var snapshot = lastKnown
         change(&snapshot)
         guard snapshot.personalApps != lastKnown.personalApps || snapshot.referenceApps != lastKnown.referenceApps
-            || snapshot.personalFiles != lastKnown.personalFiles || snapshot.referenceFiles != lastKnown.referenceFiles else { return }
+            || snapshot.personalFiles != lastKnown.personalFiles || snapshot.referenceFiles != lastKnown.referenceFiles
+            || snapshot.verifiedAt != lastKnown.verifiedAt else { return }
         lastKnown = snapshot
         if let data = try? JSONEncoder().encode(snapshot) { AppData.preferences.set(data, forKey: Self.lastKnownKey) }
     }
@@ -243,8 +248,12 @@ final class CloudLibraryModel: ObservableObject {
         let onSuccess: (() -> Void)?
         var resumed = false
         var appReplacement: CloudGameArchive.ReferenceAppReplacement?
+        var sourceReference: String?
+        var driveScope: CloudDriveScope?
 
-        var entry: CloudTransferQueue.Entry { .init(id: id, action: action, token: token, storage: storage) }
+        var entry: CloudTransferQueue.Entry {
+            .init(id: id, action: action, token: token, storage: storage, sourceReference: sourceReference, driveScope: driveScope)
+        }
     }
 
     @Published private(set) var preference: CloudLibraryPreference
@@ -255,6 +264,7 @@ final class CloudLibraryModel: ObservableObject {
         var name: String? = nil
         var count: Int? = nil
         var failure: CloudLibraryFailure? = nil
+        var incomplete = false
     }
     @Published var referenceCheck: ReferenceCheck?
     private(set) var referenceArchive: CloudGameArchive?
@@ -288,7 +298,7 @@ final class CloudLibraryModel: ObservableObject {
 
     func discovery(for game: PortedGame) -> CloudGameSources.DiscoveredGame? {
         guard let title = game.titleId?.uppercased(), let directory = game.discoveredCloudSourceDirectory else { return nil }
-        let candidate = (game.cloudReferenceFolder == nil ? sourceDiscovery : referenceDiscovery)[title]
+        let candidate = (game.cloudSourcesReferenceFolder == nil ? sourceDiscovery : referenceDiscovery)[title]
         return candidate?.directory == directory ? candidate : nil
     }
 
@@ -316,6 +326,7 @@ final class CloudLibraryModel: ObservableObject {
     @Published var importTask: Task<Void, Never>?
     @Published var checkFailure: CloudLibraryFailure?
     @Published var connectionCheck: ConnectionCheck?
+    var lastCompleteCheck: Date? { lastKnown.verifiedAt }
     @Published var queueFailure: CloudLibraryFailure?
     @Published var startupFailure: CloudLibraryFailure?
     @Published var recovery: Recovery?
@@ -327,6 +338,8 @@ final class CloudLibraryModel: ObservableObject {
     @Published var catalogChecked = false
     @Published var states: [UUID: CloudLibraryState] = [:]
     private var backend: RcloneStorageBackend?
+    private(set) var driveScope: CloudDriveScope?
+    private var scopeTask: Task<Void, Never>?
     var reads: [UUID: (token: UUID, task: Task<Void, Never>)] = [:]
     var queue: [Request] = []
     @Published var queuePause: CloudLibraryFailure?
@@ -353,11 +366,14 @@ final class CloudLibraryModel: ObservableObject {
     }
 
     func storageScope(for action: CloudLibraryAction) -> String? {
+        guard archive != nil else { return nil }
         let storage: String?
         switch action {
         case .uploadSources, .downloadSources:
+            guard !sourcesNeedConfirmation else { return nil }
             storage = preference.sourcesStorage
         case .free(let items) where items.contains(.sources):
+            guard !sourcesNeedConfirmation else { return nil }
             return [preference.storage, preference.sourcesStorage].compactMap { $0 }.joined(separator: "\n")
         default:
             storage = preference.storage
@@ -382,6 +398,7 @@ final class CloudLibraryModel: ObservableObject {
         guard !isQuitting else { return nil }
         isQuitting = true
         importTask?.cancel()
+        scopeTask?.cancel()
         catalogCheck?.task.cancel()
         let transfer = active?.task
         transfer?.cancel()
@@ -404,6 +421,14 @@ final class CloudLibraryModel: ObservableObject {
             enabled: defaults.object(forKey: CloudLibraryPreference.enabledKey) as? Bool,
             sourcesRoot: defaults.string(forKey: CloudLibraryPreference.sourcesRootKey),
             referenceFolder: defaults.string(forKey: CloudLibraryPreference.referenceFolderKey))
+        if let binding = defaults.data(forKey: CloudLibraryPreference.sourcesBindingKey) {
+            sourcesBinding = try? JSONDecoder().decode(CloudLibraryPreference.SourcesBinding.self, from: binding)
+        } else if let candidate = CloudLibraryPreference.SourcesBinding(preference),
+                  let saved = defaults.data(forKey: Self.lastKnownKey)
+                    .flatMap({ try? JSONDecoder().decode(LastKnown.self, from: $0) }),
+                  Array(saved.scope.prefix(2)) == [candidate.storage, candidate.sources] {
+            saveSourcesBinding(candidate)
+        }
         chosenExecutable = defaults.string(forKey: CloudLibraryPreference.executableKey).map { URL(fileURLWithPath: $0) }
         do { pendingMove = try moveJournal.load() }
         catch { moveJournalUnreadable = true }
@@ -429,9 +454,13 @@ final class CloudLibraryModel: ObservableObject {
         guard defaults.synchronize() else { return false }
         let disk = CloudLibraryPreference(storage: defaults.string(forKey: CloudLibraryPreference.storageKey),
                                           enabled: defaults.object(forKey: CloudLibraryPreference.enabledKey) as? Bool,
-                                          sourcesRoot: defaults.string(forKey: CloudLibraryPreference.sourcesRootKey))
+                                          sourcesRoot: defaults.string(forKey: CloudLibraryPreference.sourcesRootKey),
+                                          referenceFolder: defaults.string(forKey: CloudLibraryPreference.referenceFolderKey))
+        let savedScope = defaults.data(forKey: Self.scopeKey)
+            .flatMap { try? JSONDecoder().decode(CloudDriveScope.self, from: $0) }
         return disk.storage == preference.storage && disk.enabled == preference.enabled
             && disk.sourcesRootOverride == preference.sourcesRootOverride
+            && disk.referenceFolder == preference.referenceFolder && savedScope == driveScope
     }
 
     /// `reload` restarts the backend for an unchanged preference, after new Google credentials replaced the remote's token.
@@ -442,16 +471,32 @@ final class CloudLibraryModel: ObservableObject {
         AppData.preferences.set(next.storage, forKey: CloudLibraryPreference.storageKey)
         AppData.preferences.set(next.enabled, forKey: CloudLibraryPreference.enabledKey)
         AppData.preferences.set(next.sourcesRootOverride, forKey: CloudLibraryPreference.sourcesRootKey)
+        if reload || next.remote != preference.remote {
+            saveSourcesBinding(sourcesRoot != preference.sourcesRootOverride
+                ? CloudLibraryPreference.SourcesBinding(next) : nil)
+            AppData.preferences.removeObject(forKey: Self.scopeKey)
+        } else if sourcesRoot != preference.sourcesRootOverride && next.storage == preference.storage {
+            saveSourcesBinding(CloudLibraryPreference.SourcesBinding(next))
+        }
         preference = next
         rebuildArchive()
     }
 
-    @MainActor func chooseSourcesRoot(_ root: String) {
-        guard CloudLibraryPreference.validSourcesRoot(root), root != preference.sourcesRootOverride else { return }
+    @MainActor func chooseSourcesRoot(_ root: String?) {
+        guard root.map(CloudLibraryPreference.validSourcesRoot) ?? true,
+              root != preference.sourcesRootOverride || sourcesNeedConfirmation else { return }
         AppData.preferences.set(root, forKey: CloudLibraryPreference.sourcesRootKey)
         preference = CloudLibraryPreference(storage: preference.storage, enabled: preference.enabled, sourcesRoot: root,
                                             referenceFolder: preference.referenceFolder)
+        saveSourcesBinding(CloudLibraryPreference.SourcesBinding(preference))
         rebuildArchive()
+    }
+
+    private func saveSourcesBinding(_ binding: CloudLibraryPreference.SourcesBinding?) {
+        sourcesBinding = binding
+        // A nil marker prevents a later restart from treating a revoked selection as legacy.
+        AppData.preferences.set(binding.flatMap { try? JSONEncoder().encode($0) } ?? Data(),
+                                forKey: CloudLibraryPreference.sourcesBindingKey)
     }
 
     @MainActor func setReferenceFolder(_ folder: String?) {
@@ -470,6 +515,7 @@ final class CloudLibraryModel: ObservableObject {
     }
 
     private func rebuildArchive() {
+        scopeTask?.cancel()
         importTask?.cancel()
         importTask = nil
         triedAutomaticImport = false
@@ -484,30 +530,78 @@ final class CloudLibraryModel: ObservableObject {
         reads.values.forEach { $0.task.cancel() }
         reads.removeAll()
         states = [:]
-        let scope = availabilityScope
-        var saved = AppData.preferences.data(forKey: Self.lastKnownKey)
-            .flatMap { try? JSONDecoder().decode(LastKnown.self, from: $0) }
-            .flatMap { $0.scope.prefix(2) == scope.prefix(2) ? $0 : nil } ?? .init(scope: scope)
-        if saved.scope != scope {
-            saved.referenceApps = []
-            saved.referenceFiles = []
-            saved.scope = scope
-        }
-        lastKnown = saved
         sourceDiscovery = [:]
         referenceDiscovery = [:]
-        backend = preference.enabled && !hasPendingMove ? preference.remote.map {
-            RcloneStorageBackend(remote: $0, root: preference.root, executable: chosenExecutable)
-        } : nil
-        sourceArchive = backend.map {
-            CloudGameSources(backend: $0, root: preference.sourcesRoot, usesDefaultRoot: preference.sourcesRootOverride == nil)
-        }
-        archive = backend.map { CloudGameArchive(backend: $0) }
         referenceCheck = nil
         referenceManifests = [:]
+        let current = preference
+        let wanted = CloudLibraryPreference.SourcesBinding(current)
+        let savedChoice = sourcesBinding
+        let sameChoice = wanted?.storage == savedChoice?.storage && wanted?.sources == savedChoice?.sources
+        sourcesNeedConfirmation = wanted != nil && !sameChoice
+        let savedScope = AppData.preferences.data(forKey: Self.scopeKey)
+            .flatMap { try? JSONDecoder().decode(CloudDriveScope.self, from: $0) }
+        guard current.enabled, !hasPendingMove, let remote = current.remote else { installScope(nil, backend: nil); return }
+        let raw = RcloneStorageBackend(remote: remote, root: current.root, executable: chosenExecutable)
+        let saved = savedScope.flatMap { scope -> CloudDriveScope? in
+            guard scope.remote == remote, scope.library.path == current.root, scope.reference == current.referenceFolder,
+                  !sourcesNeedConfirmation, wanted == nil || savedChoice?.permits(scope) == true,
+                  scope.sources == nil ? wanted == nil : scope.sources?.path == current.sourcesRoot else { return nil }
+            return scope
+        }
+        installScope(saved, backend: saved.map { raw.scoped($0) })
+        scopeTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                var scope = try await raw.resolveScope(reference: current.referenceFolder)
+                try Task.checkCancellation()
+                guard self.preference == current else { return }
+                if let wanted, sameChoice, savedChoice?.permits(scope) == true {
+                    var boundChoice = wanted
+                    boundChoice.account = scope.account
+                    boundChoice.folderID = scope.library.id
+                    let folder = try await raw.sourceFolder(wanted.sources, in: scope)
+                    try Task.checkCancellation()
+                    guard self.preference == current else { return }
+                    if let folder, let before = savedScope?.sources, before.path == folder.path, before.id != folder.id {
+                        self.sourcesNeedConfirmation = true
+                    } else {
+                        scope.sources = folder
+                        self.saveSourcesBinding(boundChoice)
+                    }
+                } else if wanted != nil { self.sourcesNeedConfirmation = true }
+                else {
+                    scope.sources = try await raw.sourceFolder(current.sourcesRoot, in: scope)
+                    try Task.checkCancellation()
+                    guard self.preference == current else { return }
+                }
+                if let data = try? JSONEncoder().encode(scope) { AppData.preferences.set(data, forKey: Self.scopeKey) }
+                guard self.driveScope != scope || self.archive == nil else { return }
+                self.installScope(scope, backend: raw.scoped(scope))
+            } catch is CancellationError {
+            } catch {
+                guard !Task.isCancelled, self.preference == current else { return }
+                self.connectionCheck = .init(date: .now, failure: (error as? CloudLibraryFailure) ?? .unavailable)
+            }
+        }
+    }
+
+    private func installScope(_ scope: CloudDriveScope?, backend: RcloneStorageBackend?) {
+        driveScope = scope
+        let fingerprint = availabilityScope
+        lastKnown = AppData.preferences.data(forKey: Self.lastKnownKey)
+            .flatMap { try? JSONDecoder().decode(LastKnown.self, from: $0) }
+            .flatMap { $0.scope == fingerprint ? $0 : nil } ?? .init(scope: fingerprint)
+        self.backend = backend
+        let wanted = preference.sourcesRootOverride
+        sourceArchive = sourcesNeedConfirmation || (wanted != nil && scope?.sources == nil) ? nil : backend.map {
+            CloudGameSources(backend: $0, root: preference.sourcesRoot, usesDefaultRoot: wanted == nil,
+                             allowsIndependentRoot: wanted != nil)
+        }
         referenceBackend = preference.referenceFolder.flatMap { backend?.reference(folderID: $0) }
         referenceArchive = referenceBackend.map { CloudGameArchive(backend: $0) }
         referenceSourceArchive = referenceBackend.map { CloudGameSources(backend: $0, root: "GameFiles", usesDefaultRoot: true) }
+        archive = backend.map { CloudGameArchive(backend: $0) }
     }
 
     func stopRemoteControl() { backend?.stopRemoteControl() }
@@ -525,6 +619,11 @@ extension AppViewModel {
         var invalidTitles: [String] = []
         var discovery: CloudGameSources.Discovery?
         var unlistedSources = false
+        var archivesComplete: Bool { invalidTitles.isEmpty }
+        var sourcesComplete: Bool {
+            !unlistedSources && (discovery.map { $0.ambiguous.isEmpty && $0.unreadable.isEmpty } ?? true)
+        }
+        var complete: Bool { archivesComplete && sourcesComplete }
 
         var warnings: [String] {
             func warning(_ key: String, _ names: [String]) -> String? {
@@ -567,16 +666,54 @@ extension AppViewModel {
         return listing
     }
 
+    @MainActor private func adoptCloudListing(_ listing: CloudImportListing, archive: CloudGameArchive,
+                                             legacyNames: [String: String] = [:],
+                                             referenceFolder: String? = nil) async throws -> Bool {
+        let baseline = catalogSnapshot.revision, folder = gameAppsFolder, repository = catalogRepository
+        let inUse = Set(([cloudLibrary.active?.request.scope.title, porting.cloudBuildScope?.title]
+            + cloudLibrary.queue.map { Optional($0.scope.title) }).compactMap { $0 })
+        let manifest = listing.manifests, discoveries = listing.discovery?.games ?? []
+        let worker = Task.detached(priority: .utility) {
+            let catalog = try repository.importCloudGames(manifest, discovered: discoveries, in: folder, legacyNames: legacyNames,
+                referenceFolder: referenceFolder, leases: archive.leases, protectedTitles: inUse, observedRevision: baseline)
+            let discovered = Dictionary(uniqueKeysWithValues: discoveries.map { ($0.titleID, $0) })
+            let statuses = Dictionary(uniqueKeysWithValues: catalog.nxnativeGames.compactMap { game -> (UUID, CloudSourcesStatus)? in
+                guard game.cloudSourcesReferenceFolder == referenceFolder, let title = game.titleId?.uppercased(),
+                      let candidate = discovered[title], candidate.directory == game.discoveredCloudSourceDirectory,
+                      let status = candidate.availability(for: game.sources, in: CloudGameSources.importedFolder(for: game.id))
+                else { return nil }
+                return (game.id, status)
+            })
+            return (catalog, statuses)
+        }
+        let (catalog, statuses) = try await withTaskCancellationHandler { try await worker.value } onCancel: { worker.cancel() }
+        try Task.checkCancellation()
+        guard cloudLibrary.archive === archive, folder == gameAppsFolder, catalogSnapshot.revision == baseline,
+              referenceFolder == nil || referenceFolder == cloudLibrary.preference.referenceFolder else {
+            throw CatalogStoreError.staleRevision
+        }
+        let previousIDs = Set(libraryGames.map(\.id))
+        recordCloudListing(listing, catalog: catalog, statuses: statuses, reference: referenceFolder != nil)
+        if catalog.revision != baseline {
+            cloudLibrary.catalogCheck?.task.cancel()
+            cloudLibrary.catalogChecked = false
+            applyCatalog(catalog)
+        }
+        return catalog.nxnativeGames.contains { !previousIDs.contains($0.id) }
+    }
+
     @MainActor private func recordCloudListing(_ listing: CloudImportListing, catalog: CatalogDocument,
+                                               statuses: [UUID: CloudSourcesStatus],
                                                reference: Bool) {
         let manifests = Dictionary(uniqueKeysWithValues: listing.manifests.map { ($0.titleID, $0) })
         var discovered = Dictionary(uniqueKeysWithValues: (listing.discovery?.games ?? []).map { ($0.titleID, $0) })
-        if let failed = listing.discovery?.failedDirectories, !failed.isEmpty {
+        if !listing.sourcesComplete {
             let previous = reference ? cloudLibrary.referenceDiscovery : cloudLibrary.sourceDiscovery
-            discovered.merge(previous.filter { failed.contains($0.value.directory) }) { fresh, _ in fresh }
+            discovered.merge(previous) { fresh, _ in fresh }
         }
         if reference {
-            cloudLibrary.referenceManifests = manifests
+            if listing.archivesComplete { cloudLibrary.referenceManifests = manifests }
+            else { cloudLibrary.referenceManifests.merge(manifests) { _, fresh in fresh } }
             if listing.discovery != nil { cloudLibrary.referenceDiscovery = discovered }
         } else if listing.discovery != nil {
             cloudLibrary.sourceDiscovery = discovered
@@ -591,13 +728,14 @@ extension AppViewModel {
                     states[game.id, default: .init()].referenceAvailability[.app] = app
                     states[game.id, default: .init()].referenceKinds.insert(.app)
                 } else { states[game.id, default: .init()].copies[.app] = app }
-            } else if reference {
+            } else if reference && listing.archivesComplete {
                 states[game.id]?.referenceAvailability[.app] = nil
                 states[game.id]?.referenceKinds.remove(.app)
-            } else if !game.isPlayableLocally { states[game.id]?.copies[.app] = nil }
-            guard game.cloudImportPending == true, (game.cloudReferenceFolder != nil) == reference else { continue }
-            if let status = cloudLibrary.discovery(for: game)?.availability(for: game.sources,
-                    in: CloudGameSources.importedFolder(for: game.id)), status.state == .cloudOnly {
+            } else if !reference && listing.archivesComplete && !game.isPlayableLocally { states[game.id]?.copies[.app] = nil }
+            guard (game.cloudImportPending == true || game.discoveredCloudSourceDirectory != nil
+                   || game.cloudSourcesReferenceFolder != nil),
+                  (game.cloudSourcesReferenceFolder != nil) == reference else { continue }
+            if let status = statuses[game.id], status.state == .cloudOnly {
                 files.insert(game.id)
                 if reference {
                     states[game.id, default: .init()].referenceSources = status
@@ -609,7 +747,7 @@ extension AppViewModel {
                       listing.discovery?.failedDirectories.contains(directory) == true {
                 let previous = reference ? cloudLibrary.lastKnown.referenceFiles : cloudLibrary.lastKnown.personalFiles
                 if previous.contains(game.id) { files.insert(game.id) }
-            } else if listing.discovery != nil, game.discoveredCloudSourceDirectory != nil {
+            } else if listing.sourcesComplete, listing.discovery != nil, game.discoveredCloudSourceDirectory != nil {
                 if reference {
                     states[game.id]?.referenceSources = nil
                     states[game.id]?.referenceSourceBytes = nil
@@ -622,18 +760,18 @@ extension AppViewModel {
         cloudLibrary.states = states
         cloudLibrary.remember {
             if reference {
-                $0.referenceApps = apps
-                if !listing.unlistedSources { $0.referenceFiles = files }
+                if listing.archivesComplete { $0.referenceApps = apps } else { $0.referenceApps.formUnion(apps) }
+                if listing.complete { $0.referenceFiles = files } else { $0.referenceFiles.formUnion(files) }
             } else {
-                $0.personalApps = apps
-                if !listing.unlistedSources {
+                if listing.archivesComplete { $0.personalApps = apps } else { $0.personalApps.formUnion(apps) }
+                if listing.complete {
                     let checked = Set(catalog.nxnativeGames.filter {
-                        $0.cloudImportPending == true && $0.cloudReferenceFolder == nil &&
+                        $0.cloudImportPending == true && $0.cloudSourcesReferenceFolder == nil &&
                             ($0.isCloudSourcePlaceholder || $0.discoveredCloudSourceDirectory != nil)
                     }.map(\.id))
                     $0.personalFiles.subtract(checked)
-                    $0.personalFiles.formUnion(files)
                 }
+                $0.personalFiles.formUnion(files)
             }
         }
     }
@@ -641,36 +779,52 @@ extension AppViewModel {
     @MainActor func followCloudReference(_ folder: String?) {
         guard canConfigureCloudLibrary, folder != cloudLibrary.preference.referenceFolder,
               folder.map({ CloudLibraryPreference.referenceFolderID($0) == $0 }) ?? true else { return }
-        do {
-            if let previous = cloudLibrary.preference.referenceFolder {
-                // Cancel discovery before dropping its catalog placeholders.
-                cloudLibrary.importTask?.cancel()
-                applyCatalog(try catalogRepository.forgetCloudReference(previous))
-            }
+        guard let previous = cloudLibrary.preference.referenceFolder else {
             cloudLibrary.setReferenceFolder(folder)
             importCloudGames()
-        } catch { showSettingsNotice(title: L10n.text("Reference library"), message: error.localizedDescription) }
+            return
+        }
+        // Do not let an import from the old reference race its removal.
+        cloudLibrary.importTask?.cancel()
+        cloudLibrary.isChangingConnection = true
+        let repo = catalogRepository, revision = catalogSnapshot.revision
+        Task {
+            defer { cloudLibrary.isChangingConnection = false }
+            do {
+                let worker = Task.detached(priority: .utility) { try repo.forgetCloudReference(previous, observedRevision: revision) }
+                let catalog = try await withTaskCancellationHandler { try await worker.value } onCancel: { worker.cancel() }
+                guard !Task.isCancelled, catalogSnapshot.revision == revision,
+                      cloudLibrary.preference.referenceFolder == previous else { return }
+                if catalog.revision != revision { applyCatalog(catalog) }
+                cloudLibrary.setReferenceFolder(folder)
+                importCloudGames()
+            } catch { showSettingsNotice(title: L10n.text("Reference library"), message: error.localizedDescription) }
+        }
     }
 
     @MainActor private func importCloudReference(archive: CloudGameArchive) async -> (added: Bool, warnings: [String]) {
-        guard let reference = cloudLibrary.referenceArchive, let backend = cloudLibrary.referenceBackend,
+        guard let reference = cloudLibrary.referenceArchive,
               let folder = cloudLibrary.preference.referenceFolder else { return (false, []) }
         do {
             let listing = try await cloudImportListing(reference, sources: cloudLibrary.referenceSourceArchive)
             let discovered = listing.discovery?.games ?? []
-            // Do not enumerate other shared folders as part of discovery.
-            let name = try await backend.referenceName()
-            guard name != nil || !listing.manifests.isEmpty || !discovered.isEmpty else { throw CloudLibraryFailure.folderMissing }
             try Task.checkCancellation()
             guard cloudLibrary.archive === archive else { return (false, []) }
-            let previousIDs = Set(libraryGames.map(\.id))
-            let catalog = try catalogRepository.importCloudGames(listing.manifests, discovered: discovered,
-                                                                  in: gameAppsFolder, referenceFolder: folder)
-            recordCloudListing(listing, catalog: catalog, reference: true)
-            cloudLibrary.referenceCheck = .init(date: .now, name: name ?? folder,
-                count: Set(listing.manifests.map(\.titleID) + discovered.map(\.titleID)).count)
-            if catalog.games != catalogGames { applyCatalog(catalog) }
-            return (catalog.nxnativeGames.contains { !previousIDs.contains($0.id) }, listing.warnings)
+            let names = Set(listing.manifests.compactMap { manifest in
+                manifest.libraryName.map {
+                    String($0.unicodeScalars.filter { !CharacterSet.controlCharacters.contains($0) }.prefix(120))
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                }.flatMap { $0.isEmpty ? nil : $0 }
+            })
+            let name = names.count == 1 ? names.first : nil
+            if listing.manifests.isEmpty && discovered.isEmpty {
+                cloudLibrary.referenceCheck = .init(date: .now, name: name, count: 0)
+                return (false, listing.warnings)
+            }
+            let added = try await adoptCloudListing(listing, archive: archive, referenceFolder: folder)
+            cloudLibrary.referenceCheck = .init(date: .now, name: name,
+                count: Set(listing.manifests.map(\.titleID) + discovered.map(\.titleID)).count, incomplete: !listing.complete)
+            return (added, listing.warnings)
         } catch {
             guard !Task.isCancelled, cloudLibrary.archive === archive else { return (false, []) }
             cloudLibrary.referenceCheck = .init(date: .now, failure: cloudFailure(for: error) ?? .unavailable)
@@ -681,20 +835,9 @@ extension AppViewModel {
     @MainActor private func referenceManifest(titleID: String) async throws -> CloudGameManifest? {
         guard let referenceArchive = cloudLibrary.referenceArchive,
               cloudLibrary.referenceCheck == nil || cloudLibrary.referenceCheck?.failure != nil
+                || cloudLibrary.referenceCheck?.count == 0 || cloudLibrary.referenceCheck?.incomplete == true
                 || cloudLibrary.referenceManifests[titleID.uppercased()] != nil else { return nil }
         return try await referenceArchive.latest(titleID: titleID)
-    }
-
-    @MainActor private func restoreReferenceManifest(titleID: String, kind: CloudArtifactKind,
-                                                      personal: CloudGameManifest?) async throws -> CloudGameManifest? {
-        do { return try await referenceManifest(titleID: titleID) }
-        catch {
-            try Task.checkCancellation()
-            guard !(error is CancellationError), personal?.artifacts.contains(where: { $0.kind == kind }) == true
-            else { throw error }
-            // The personal artifact still goes through normal restore verification.
-            return nil
-        }
     }
 
     @MainActor func importCloudGames(manually: Bool = false) {
@@ -726,7 +869,8 @@ extension AppViewModel {
             var added = false
             var warnings: [String] = []
             do {
-                let listing = try await self.cloudImportListing(archive, sources: self.cloudLibrary.sourceArchive)
+                var listing = try await self.cloudImportListing(archive, sources: self.cloudLibrary.sourceArchive)
+                if self.cloudLibrary.sourcesNeedConfirmation { listing.unlistedSources = true }
                 let manifests = listing.manifests
                 let discovered = listing.discovery?.games ?? []
                 try Task.checkCancellation()
@@ -741,7 +885,6 @@ extension AppViewModel {
                     }
                 }
                 listedCloud = true
-                self.cloudLibrary.connectionCheck = .init(date: .now, failure: nil)
                 let knownTitles = Set(self.libraryGames.compactMap { $0.titleId?.uppercased() })
                 let missingNames = manifests.filter {
                     !knownTitles.contains($0.titleID) && $0.gameName?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty != false
@@ -759,15 +902,15 @@ extension AppViewModel {
                 let names = try await withTaskCancellationHandler { try await worker.value } onCancel: { worker.cancel() }
                 try Task.checkCancellation()
                 guard self.cloudLibrary.archive === archive else { return }
-                let previousIDs = Set(self.libraryGames.map(\.id))
-                let catalog = try self.catalogRepository.importCloudGames(manifests, discovered: discovered,
-                                                                           in: self.gameAppsFolder, legacyNames: names)
-                self.recordCloudListing(listing, catalog: catalog, reference: false)
-                added = catalog.nxnativeGames.contains { !previousIDs.contains($0.id) }
-                if catalog.games != self.catalogGames {
-                    self.cloudLibrary.catalogCheck?.task.cancel()
-                    self.cloudLibrary.catalogChecked = false
-                    self.applyCatalog(catalog)
+                added = try await self.adoptCloudListing(listing, archive: archive, legacyNames: names)
+                if listing.complete {
+                    let date = Date.now
+                    self.cloudLibrary.remember { $0.verifiedAt = date }
+                    self.cloudLibrary.connectionCheck = .init(date: date, failure: nil)
+                } else {
+                    self.cloudLibrary.connectionCheck = .init(date: .now, failure: .incomplete)
+                    self.cloudLibrary.checkFailure = .incomplete
+                    self.cloudLibrary.checkFailedDuringImport = true
                 }
             } catch is CancellationError {
             } catch {
@@ -913,7 +1056,11 @@ extension AppViewModel {
             guard !self.cloudLibrary.isQuitting else { return }
             let knownGames = self.libraryGames
             let gameIDs = Set(knownGames.map(\.id))
-            let reconfirmations = entries.filter { $0.action.isUpload || ($0.storage == nil && gameIDs.contains($0.id)) }
+            let reconfirmations = entries.filter {
+                $0.action.isUpload || (gameIDs.contains($0.id) &&
+                    ($0.storage == nil || $0.driveScope != self.cloudLibrary.driveScope ||
+                     $0.storage != self.cloudLibrary.storageScope(for: $0.action)))
+            }
             if !reconfirmations.isEmpty {
                 let rows = reconfirmations.map { entry in
                     (entry, knownGames.first(where: { $0.id == entry.id })?.name)
@@ -930,7 +1077,7 @@ extension AppViewModel {
             let games = self.libraryGames
             guard !entries.isEmpty else { return }
             for entry in reconfirmations { self.showCloudReconfirmation(entry) }
-            let resumable = entries.filter { !$0.action.isUpload && $0.storage != nil }
+            let resumable = entries.filter { !reconfirmations.contains($0) }
             let restored = CloudTransferQueue.restoring(resumable, gameIDs: Set(games.map(\.id)))
             self.objectWillChange.send()
             for entry in restored {
@@ -948,7 +1095,8 @@ extension AppViewModel {
                     action: entry.action, storage: approvedStorage, scope: destination.map {
                     CloudWorkScope(title: game.titleId ?? "", urls: [$0])
                 } ?? CloudWorkScope(game), importDestination: destination,
-                             sourceFiles: CloudSourceFiles(game), onSuccess: nil, resumed: true))
+                             sourceFiles: CloudSourceFiles(game), onSuccess: nil, resumed: true,
+                             sourceReference: entry.sourceReference, driveScope: entry.driveScope))
             }
             self.startNextCloudOperation()
             await self.cloudLibrary.queueStore.flush()
@@ -1301,11 +1449,13 @@ extension AppViewModel {
             }
             guard includeSources else { return }
             if discovered {
-                let status = self.cloudLibrary.discovery(for: game)?.availability(for: game.sources,
-                    in: CloudGameSources.importedFolder(for: id))
+                let candidate = self.cloudLibrary.discovery(for: game)
+                let sources = game.sources, folder = CloudGameSources.importedFolder(for: id)
+                let status = await Task.detached(priority: .utility) { candidate?.availability(for: sources, in: folder) }.value
+                guard isCurrent() else { return }
                 self.cloudLibrary.update(id) {
-                    $0.sources = game.cloudReferenceFolder == nil ? status : nil
-                    $0.referenceSources = game.cloudReferenceFolder != nil ? status : nil
+                    $0.sources = game.cloudSourcesReferenceFolder == nil ? status : nil
+                    $0.referenceSources = game.cloudSourcesReferenceFolder != nil ? status : nil
                     $0.referenceSourceBytes = $0.referenceSources.flatMap { $0.state == .cloudOnly ? $0.remoteBytes : nil }
                     $0.sourcesCanFree = false
                 }
@@ -1365,25 +1515,31 @@ extension AppViewModel {
         } else if !game.sources.isEmpty { return nil } // Do not silently relink extracted or multi-volume sources.
         let urls = Array(Set(items.map(\.url))).sorted { $0.path < $1.path }
         let existingPaths = Set(existing?.files ?? [])
-        let scope = CloudWorkScope(title: "", urls: urls)
-        guard !libraryGames.contains(where: { $0.id != game.id && scope.overlaps(CloudWorkScope($0)) }),
-              !scope.overlaps(.init(title: "", urls: [game.url] +
-                [game.buildCachePath, game.workspacePath].compactMap { $0.map { URL(fileURLWithPath: $0) } })) else { return nil }
+        let app = game.url.pathExtension.lowercased() == "app" ? [game.url] : []
+        let otherGames = libraryGames.filter { $0.id != game.id }
+        let protected = app + [game.buildCachePath, game.workspacePath].compactMap { $0.map { URL(fileURLWithPath: $0) } }
+        let overlaps = await Task.detached(priority: .utility) {
+            let scope = CloudWorkScope(title: "", urls: urls)
+            return otherGames.contains { scope.overlaps(CloudWorkScope($0)) }
+                || scope.overlaps(.init(title: "", urls: protected))
+        }.value
+        guard !overlaps else { return nil }
         let status = try await sources.status(folderName: selection.folderName, files: urls)
-        guard status.files.allSatisfy({
+        let compatible = await Task.detached(priority: .utility) {
+            status.files.allSatisfy {
                   guard $0.remoteBytes != nil else { return false }
                   if $0.state == .synchronized || $0.state == .cloudOnly { return true }
                   guard $0.state == .newerOnThisMac, existingPaths.contains($0.url),
                         let local = try? $0.url.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate
                   else { return false }
                   return local < date
-              }) else { return nil }
+            } && !existingPaths.subtracting(urls).contains {
+                (try? $0.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate).map { $0 >= date } == true
+            }
+        }.value
+        guard compatible else { return nil }
         let changed = status.files.filter { $0.state != .synchronized }
         let relink = Set(urls) != existingPaths
-        // Newer local inputs must also win if the reference no longer lists them.
-        if relink, existing?.files.filter({ !urls.contains($0) }).contains(where: {
-            (try? $0.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate).map { $0 >= date } == true
-        }) == true { return nil }
         return .init(selection: items, status: status, bytes: changed.isEmpty && !relink ? nil :
             changed.reduce(0) { $0 + ($1.remoteBytes ?? 0) })
     }
@@ -1413,7 +1569,7 @@ extension AppViewModel {
     }
 
     @MainActor func retryCloudOperation(_ entry: CloudTransferQueue.Entry, token: UUID) -> Bool {
-        if entry.storage == nil || entry.action.isUpload {
+        if entry.storage == nil || entry.action.isUpload || entry.driveScope != cloudLibrary.driveScope {
             showSettingsNotice(title: L10n.text("Cloud library"), message: cloudReconfirmationMessage(for: entry))
             if !cloudLibrary.hasRestoredQueue { restoreCloudQueue() }
             else if cloudLibrary.queue.first?.token == token { startNextCloudOperation() }
@@ -1421,7 +1577,7 @@ extension AppViewModel {
         }
         guard entry.storage == cloudLibrary.storageScope(for: entry.action),
               let game = libraryGames.first(where: { $0.id == entry.id }) else { return false }
-        return enqueueCloudLibrary(entry.action, for: game, retryToken: token)
+        return enqueueCloudLibrary(entry.action, for: game, retryToken: token, previousSource: entry)
     }
 
     private func cloudReconfirmationMessage(for entry: CloudTransferQueue.Entry) -> String {
@@ -1460,6 +1616,7 @@ extension AppViewModel {
     private func enqueueCloudLibrary(_ action: CloudLibraryAction, for selected: PortedGame,
                                      retryToken: UUID? = nil,
                                      appReplacement: CloudGameArchive.ReferenceAppReplacement? = nil,
+                                     previousSource: CloudTransferQueue.Entry? = nil,
                                      onSuccess: (() -> Void)? = nil) -> Bool {
         guard cloudLibrary.archive != nil, !cloudLibrary.isQuitting, !cloudLibrary.isPublishingReconfirmation,
               cloudLibrary.hasRestoredQueue,
@@ -1477,6 +1634,26 @@ extension AppViewModel {
         }
         let state = cloudLibrary.states[game.id] ?? CloudLibraryState()
         let files = CloudSourceFiles(game)
+        let sourceReference: String?
+        if let previousSource { sourceReference = previousSource.sourceReference }
+        else {
+            switch action {
+            case .downloadSources:
+                if game.discoveredCloudSourceDirectory != nil || (game.cloudImportPending == true && !game.sources.isEmpty) {
+                    sourceReference = game.cloudSourcesReferenceFolder
+                } else {
+                    sourceReference = game.cloudSourcesReferenceFolder ??
+                        (state.referenceSourceBytes == nil ? nil : cloudLibrary.preference.referenceFolder)
+                }
+            case .restore(let kind):
+                sourceReference = (kind == .app ? game.cloudReferenceFolder : nil)
+                    ?? (state.referenceKinds.contains(kind) || appReplacement != nil ? cloudLibrary.preference.referenceFolder : nil)
+            case .restoreBuildCache:
+                sourceReference = state.referenceKinds.contains(.cache) ? cloudLibrary.preference.referenceFolder : nil
+            default: sourceReference = nil
+            }
+        }
+        guard sourceReference == nil || sourceReference == cloudLibrary.preference.referenceFolder else { return false }
         switch (action, retryToken != nil) {
         case (_, true): break // Retry rechecks current copies under the lease, after the FIFO wait.
         case (.upload(let kind), false):
@@ -1501,7 +1678,8 @@ extension AppViewModel {
             CloudWorkScope(title: game.titleId ?? "", urls: [$0])
         } ?? CloudWorkScope(game), importDestination: destination,
                                         sourceFiles: files, onSuccess: onSuccess, resumed: retryToken != nil,
-                                        appReplacement: appReplacement))
+                                        appReplacement: appReplacement, sourceReference: sourceReference,
+                                        driveScope: cloudLibrary.driveScope))
         cloudLibrary.update(game.id) {
             $0.action = action; $0.queued = true; $0.progress = nil; $0.message = nil; $0.issue = nil; $0.refreshing = false
             $0.transferFailure = nil; $0.completedItem = nil; $0.failedTransferID = nil
@@ -1632,7 +1810,8 @@ extension AppViewModel {
                 try Task.checkCancellation()
                 let lease = try self.cloudLibrary.moveJournal.acquire()
                 defer { withExtendedLifetime(lease) {} }
-                guard try self.cloudLibrary.moveJournal.load() == nil, self.cloudLibrary.matchesPersistedStorage() else {
+                guard request.driveScope == self.cloudLibrary.driveScope,
+                      try self.cloudLibrary.moveJournal.load() == nil, self.cloudLibrary.matchesPersistedStorage() else {
                     throw CloudArchiveError.busy
                 }
                 let operation: CloudLibraryAction
@@ -1684,7 +1863,7 @@ extension AppViewModel {
                         try await self.waitToInstallCloudApp(game)
                     }
                     let own = try await archive.latest(titleID: target.titleID)
-                    let reference = try await self.restoreReferenceManifest(titleID: target.titleID, kind: kind, personal: own)
+                    let reference = request.sourceReference == nil ? nil : try await self.referenceManifest(titleID: target.titleID)
                     if kind == .app && game.cloudImportPending == true {
                         guard let destination = target.locations[.app] else { throw CloudArchiveError.unsafePath }
                         let folder = destination.deletingLastPathComponent()
@@ -1724,7 +1903,7 @@ extension AppViewModel {
                             }
                         }
                     } else {
-                        guard request.appReplacement == nil else { throw CloudArchiveError.localChanged }
+                        guard request.sourceReference == nil, request.appReplacement == nil else { throw CloudArchiveError.noRemoteCopy }
                         try await archive.restore(kind, for: target, from: own, onlyIfMissing: action != .restoreBuildCache,
                                                   progress: progress, beforeMutation: gameClosed,
                                                   beforeAppInstall: beforeAppInstall)
@@ -1817,11 +1996,13 @@ extension AppViewModel {
             if game.discoveredCloudSourceDirectory != nil {
                 return GameResourceState.sourcesAvailable(for: game) ? nil : action
             }
-            let state = try await readCloudSourceStatus(request.sourceFiles)?.get()
-            let reference = try await referenceManifest(titleID: target.titleID)
-            let own = reference == nil ? nil : try await archive.latest(titleID: target.titleID)
-            let shared = try await referenceSourceStatus(for: game, reference: reference, own: own)
-            return state?.state == .cloudOnly || shared?.bytes != nil ? action : nil
+            if request.sourceReference != nil {
+                guard request.sourceReference == cloudLibrary.preference.referenceFolder else { return nil }
+                let reference = try await referenceManifest(titleID: target.titleID)
+                let shared = try await referenceSourceStatus(for: game, reference: reference, own: nil)
+                return shared?.bytes != nil ? action : nil
+            }
+            return try await readCloudSourceStatus(request.sourceFiles)?.get().state == .cloudOnly ? action : nil
         }
         var kinds = Set(CloudArtifactKind.allCases)
         if case .free(let items) = action { kinds = Set(items.compactMap(\.artifact)) }
@@ -1829,8 +2010,10 @@ extension AppViewModel {
         let copies = kinds.isEmpty ? [:] : try await archive.copyStatuses(target, manifest: .success(manifest))
         switch action {
         case .restore(let kind):
-            if let reference = try await restoreReferenceManifest(titleID: target.titleID, kind: kind, personal: manifest),
-               let referenceArchive = cloudLibrary.referenceArchive, referenceWins(reference, over: manifest, kind: kind) {
+            if request.sourceReference != nil {
+                guard let reference = try await referenceManifest(titleID: target.titleID),
+                      let referenceArchive = cloudLibrary.referenceArchive, referenceWins(reference, over: manifest, kind: kind)
+                else { return nil }
                 let status = try await referenceArchive.copyStatuses(target, manifest: .success(reference))
                 return try await referenceArchive.referenceCopy(kind, for: target, manifest: reference,
                     status: status[kind], matchesOlderCopy: copies[kind]?.state == .synchronized) != nil ? action : nil
@@ -1840,8 +2023,11 @@ extension AppViewModel {
             }
             return copies[kind]?.state == .cloudOnly ? action : nil
         case .restoreBuildCache:
-            if let reference = try await restoreReferenceManifest(titleID: target.titleID, kind: .cache, personal: manifest),
-               referenceWins(reference, over: manifest, kind: .cache), target.locations[.cache] != nil { return action }
+            if request.sourceReference != nil {
+                guard let reference = try await referenceManifest(titleID: target.titleID),
+                      referenceWins(reference, over: manifest, kind: .cache), target.locations[.cache] != nil else { return nil }
+                return action
+            }
             return target.locations[.cache] != nil && manifest?.artifacts.contains(where: { $0.kind == .cache }) == true
                 && copies[.cache]?.state != .synchronized ? action : nil
         case .free(let items):
@@ -1860,9 +2046,7 @@ extension AppViewModel {
     @MainActor private func runCloudSources(_ phase: CloudArchiveProgress.Phase, request: CloudLibraryModel.Request,
                                             game: PortedGame,
                                             progress: @escaping CloudGameArchive.Progress, gameClosed: () throws -> Void) async throws {
-        guard let sources = cloudLibrary.sourceArchive else {
-            throw CloudArchiveError.unsafePath
-        }
+        let sources = cloudLibrary.sourceArchive
         try Task.checkCancellation()
         try gameClosed()
         cloudLibrary.update(request.id) { $0.progress = .init(phase) }
@@ -1871,44 +2055,47 @@ extension AppViewModel {
         }
         switch phase {
         case .uploading:
-            guard let files = request.sourceFiles else { throw CloudArchiveError.unsafePath }
+            guard let files = request.sourceFiles, let sources else { throw CloudArchiveError.unsafePath }
             try await sources.upload(folderName: files.folderName, files: files.files, progress: transfer)
         case .downloading:
             let title = game.titleId?.uppercased() ?? ""
             if let directory = game.discoveredCloudSourceDirectory {
-                guard let owner = game.cloudReferenceFolder == nil ? sources :
-                    (game.cloudReferenceFolder == cloudLibrary.preference.referenceFolder ? cloudLibrary.referenceSourceArchive : nil),
+                guard game.cloudSourcesReferenceFolder == request.sourceReference,
+                      let owner = request.sourceReference == nil ? sources :
+                    (request.sourceReference == cloudLibrary.preference.referenceFolder ? cloudLibrary.referenceSourceArchive : nil),
                     let parent = request.sourceFiles?.files.first?.deletingLastPathComponent() else {
                     throw CloudArchiveError.noRemoteCopy
                 }
-                try CloudGameSources.prepareImportedFolder(parent, for: game.id)
+                try await CloudGameSources.prepareImportedFolder(parent, for: game.id)
                 try await owner.downloadDiscovered(titleID: title, directory: directory, files: game.sources,
                     in: CloudGameSources.importedFolder(for: game.id), progress: transfer)
-            } else {
-                let reference = try await referenceManifest(titleID: title)
-                let own = reference == nil ? nil : try await cloudLibrary.archive?.latest(titleID: title)
-                if let reference, let referenceSources = cloudLibrary.referenceSourceArchive,
-                   let selection = reference.sourceSelection,
-                   let shared = try await referenceSourceStatus(for: game, reference: reference, own: own) {
-                    if let parent = shared.urls.first?.deletingLastPathComponent() {
-                        try CloudGameSources.prepareImportedFolder(parent, for: game.id)
-                    }
-                    try await referenceSources.download(folderName: selection.folderName, files: shared.urls,
-                        replacingBefore: selection.publishedAt ?? reference.createdAt,
-                        replacing: Set(request.sourceFiles?.files ?? []), progress: transfer)
-                    if shared.bytes != nil {
-                        self.applyCatalog(try self.catalogRepository.updateNXNative(id: game.id) {
-                            guard $0.sources == game.sources else { throw CloudArchiveError.localChanged }
-                            $0.sources = shared.selection
-                        })
-                    }
-                } else {
-                    guard let files = request.sourceFiles else { throw CloudArchiveError.noRemoteCopy }
-                    if let parent = files.files.first?.deletingLastPathComponent() {
-                        try CloudGameSources.prepareImportedFolder(parent, for: game.id)
-                    }
-                    try await sources.download(folderName: files.folderName, files: files.files, progress: transfer)
+            } else if let referenceID = request.sourceReference {
+                guard referenceID == cloudLibrary.preference.referenceFolder,
+                      let reference = try await referenceManifest(titleID: title),
+                      let referenceSources = cloudLibrary.referenceSourceArchive,
+                      let selection = reference.sourceSelection,
+                      let shared = try await referenceSourceStatus(for: game, reference: reference, own: nil)
+                else { throw CloudArchiveError.noRemoteCopy }
+                if let parent = shared.urls.first?.deletingLastPathComponent() {
+                    try await CloudGameSources.prepareImportedFolder(parent, for: game.id)
                 }
+                try await referenceSources.download(folderName: selection.folderName, files: shared.urls,
+                    replacingBefore: selection.publishedAt ?? reference.createdAt,
+                    replacing: Set(request.sourceFiles?.files ?? []), progress: transfer)
+                if shared.bytes != nil {
+                    self.applyCatalog(try self.catalogRepository.updateNXNative(id: game.id) {
+                        guard $0.sources == game.sources else { throw CloudArchiveError.localChanged }
+                        $0.sources = shared.selection
+                        $0.cloudSourcesReferenceFolder = referenceID
+                    })
+                }
+            } else {
+                guard game.cloudSourcesReferenceFolder == nil, let files = request.sourceFiles, let sources
+                else { throw CloudArchiveError.noRemoteCopy }
+                if let parent = files.files.first?.deletingLastPathComponent() {
+                    try await CloudGameSources.prepareImportedFolder(parent, for: game.id)
+                }
+                try await sources.download(folderName: files.folderName, files: files.files, progress: transfer)
             }
             guard let current = libraryGames.first(where: { $0.id == game.id }),
                   GameResourceState.sourcesAvailable(for: current) else { throw NXLibraryError.missingSources }
@@ -1919,7 +2106,7 @@ extension AppViewModel {
             }
             cloudLibrary.remember { $0.personalFiles.remove(game.id); $0.referenceFiles.remove(game.id) }
         case .verifying:
-            guard let files = request.sourceFiles else { throw CloudArchiveError.unsafePath }
+            guard let files = request.sourceFiles, let sources else { throw CloudArchiveError.unsafePath }
             guard canFreeCloudSources(files, for: game) else { throw CloudArchiveError.unsafePath }
             _ = try await sources.free(folderName: files.folderName, files: files.files, confirmed: true)
         default:

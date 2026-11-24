@@ -1527,9 +1527,13 @@ final class CloudGameArchiveTests: XCTestCase {
         cmd, *args = sys.argv[1:]
         if cmd == "rcd":
             sys.exit(1)
+        if cmd == "listremotes":
+            print(json.dumps([dict(name="fixture", type="drive", source="file")]))
+            sys.exit(0)
         root = Path(__file__).resolve().parent
-        reference = "--drive-root-folder-id" in args
+        reference = "--drive-root-folder-id=1Reference" in args
         if reference:
+            assert "--drive-shared-with-me=false" in args and "--drive-skip-shortcuts" in args
             assert cmd in ("lsjson", "copy", "copyto")
             assert args[0].startswith("fixture:")
             if cmd != "lsjson":

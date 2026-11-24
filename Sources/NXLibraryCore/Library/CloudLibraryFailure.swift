@@ -2,7 +2,7 @@ import Foundation
 
 /// Safe cloud recovery information. Never retain rclone output: OAuth errors can contain secrets.
 public enum CloudLibraryFailure: LocalizedError, Hashable, Sendable {
-    case offline, authentication, folderMissing, quotaFull, macFull, queueNotSaved, unavailable
+    case offline, authentication, folderMissing, quotaFull, macFull, queueNotSaved, unavailable, requiresDrive, incomplete, scopeChanged
     case volumeFull(String)
 
     public enum Action: Equatable, Sendable {
@@ -22,12 +22,12 @@ public enum CloudLibraryFailure: LocalizedError, Hashable, Sendable {
 
     public var action: Action {
         switch self {
-        case .offline, .unavailable: return .retry
+        case .offline, .unavailable, .incomplete: return .retry
         case .authentication: return .reconnect
-        case .folderMissing: return .chooseFolder
+        case .folderMissing, .scopeChanged: return .chooseFolder
         case .quotaFull: return .manageDriveStorage
         case .macFull, .volumeFull: return .freeMacStorage
-        case .queueNotSaved: return .dismiss
+        case .queueNotSaved, .requiresDrive: return .dismiss
         }
     }
 
@@ -40,6 +40,9 @@ public enum CloudLibraryFailure: LocalizedError, Hashable, Sendable {
         case .macFull, .volumeFull: return "Not enough space on this Mac."
         case .queueNotSaved: return "The cloud queue could not be saved. Transfers continue, but may not resume after quitting."
         case .unavailable: return "Cloud storage is unavailable. Check rclone and try again."
+        case .requiresDrive: return "Choose a Google Drive connection configured directly in rclone."
+        case .incomplete: return "The cloud check is incomplete. Previous results were kept."
+        case .scopeChanged: return "The Google Drive account or folder changed. Check the cloud settings."
         }
     }
 
@@ -94,6 +97,7 @@ public enum CloudLibraryFailure: LocalizedError, Hashable, Sendable {
                     "temporary failure in name resolution", "error 502", "error 503", "error 504") {
             return .offline
         }
+        if contains("error 403", "403 forbidden", "ratelimitexceeded") { return .unavailable }
         if listingFolder && (status == 3 || status == 4 || text.contains("directory not found")) { return .folderMissing }
         return nil
     }

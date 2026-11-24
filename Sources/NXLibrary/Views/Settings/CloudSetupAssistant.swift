@@ -552,7 +552,7 @@ struct CloudSetupAssistant: View {
     private func useSources() {
         if entry == .sources {
             let path = typedSourcesRoot ?? sourcesPath
-            if path != model.preference.sourcesRoot { model.chooseSourcesRoot(path) }
+            if path != model.preference.sourcesRoot || model.sourcesNeedConfirmation { model.chooseSourcesRoot(path) }
             onClose()
         } else { finishFolder() }
     }
