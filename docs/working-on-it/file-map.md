@@ -98,8 +98,8 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [Sources/NXLibraryCore/Selene/ActivityCenterFocus.swift](../../Sources/NXLibraryCore/Selene/ActivityCenterFocus.swift) | Identità e navigazione delle righe attive, in coda, concluse e del comando Clear all. |
 | [Sources/NXLibraryCore/NXLibraryCore.swift](../../Sources/NXLibraryCore/NXLibraryCore.swift) | Espone la versione nominale del modulo Core. |
 | [LaunchReveal.swift](../../Sources/NXLibrary/Views/Launch/LaunchReveal.swift) | Rende visibile la finestra al primo frame del moonlight, con dissolvenza e scadenza, poi consente il fullscreen; integra il bootstrap con un NSView non interattivo. |
-| [DevelopmentStartupView.swift](../../Sources/NXLibrary/Views/Launch/DevelopmentStartupView.swift) | Avvio asincrono: copia prima degli scrittori della release e scelta di proseguire una sola volta se fallisce; recupero degli errori e conflitto legacy prima della shell. |
-| [DowngradeWarningView.swift](../../Sources/NXLibrary/Views/Launch/DowngradeWarningView.swift) | Avviso sul ritorno a 0.3.0, gruppi omessi e scelte con mouse, tastiera e controller. |
+| [DevelopmentStartupView.swift](../../Sources/NXLibrary/Views/Launch/DevelopmentStartupView.swift) | Avvio asincrono: blocco del profilo fino alla chiusura, copia prima degli scrittori della release, avanzamento dopo un secondo e prosecuzione una sola volta se fallisce; recupero e conflitto legacy prima della shell. |
+| [DowngradeWarningView.swift](../../Sources/NXLibrary/Views/Launch/DowngradeWarningView.swift) | Avvisi Selene sul ritorno a 0.3.0, gruppi omessi, spazio insufficiente e scelte con mouse, tastiera e controller. |
 | [AppShellState.swift](../../Sources/NXLibrary/Views/Shell/AppShellState.swift) | Prepara coordinatore, router, fonti, lingua e tema. Collega le impostazioni al router e al delegato, che riceve anche le attività per la chiusura. |
 
 ## Coordinamento applicativo
@@ -198,7 +198,7 @@ Cartella `Sources/NXLibraryCore/App/`.
 | [Sources/NXLibraryCore/App/AppIdentity.swift](../../Sources/NXLibraryCore/App/AppIdentity.swift) | Distingue Oort NX (nome visibile) da Arcane (identità e User-Agent), con vecchio nome, modulo Porting e pagina del progetto. |
 | [Sources/NXLibraryCore/App/AppDataProfile.swift](../../Sources/NXLibraryCore/App/AppDataProfile.swift) | Policy di percorsi, cache e preferenze; prepara il profilo di sviluppo e assegna una radice temporanea alla fixture Debug. |
 | [Sources/NXLibraryCore/App/DevelopmentProfileImporter.swift](../../Sources/NXLibraryCore/App/DevelopmentProfileImporter.swift) | Copia iniziale selettiva, anche della scelta Steam; hash, validazione e ripresa senza modificare la sorgente. Chiude le sessioni della copia all'ultimo heartbeat e conserva i totali. |
-| [Sources/NXLibraryCore/App/DowngradeCheckpoint.swift](../../Sources/NXLibraryCore/App/DowngradeCheckpoint.swift) | Copia selettiva privata che dà priorità ai file essenziali; verifica SHA-256, elenco dei gruppi omessi, conferma e rotazione per generazione. |
+| [Sources/NXLibraryCore/App/DowngradeCheckpoint.swift](../../Sources/NXLibraryCore/App/DowngradeCheckpoint.swift) | Copia privata con file essenziali prioritari, SHA-256, gruppi omessi, conferma e rotazione riprendibile senza perdere le due copie precedenti alla pubblicazione. |
 | [Sources/NXLibraryCore/App/DevelopmentOperationStore.swift](../../Sources/NXLibraryCore/App/DevelopmentOperationStore.swift) | Autorizzazioni persistenti per le operazioni richieste nella Dev, distinte da quelle importate. |
 | [Sources/NXLibraryCore/App/VersionNumber.swift](../../Sources/NXLibraryCore/App/VersionNumber.swift) | Confronta numeri di versione puntati parte per parte, per i requisiti della toolchain e l'updater. |
 | [Sources/NXLibraryCore/App/LineBuffer.swift](../../Sources/NXLibraryCore/App/LineBuffer.swift) | Divide un flusso di byte in righe su \n o \r, comprese le righe parziali dei misuratori di avanzamento. |

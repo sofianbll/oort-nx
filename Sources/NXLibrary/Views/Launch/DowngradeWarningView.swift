@@ -16,6 +16,7 @@ struct DowngradeWarningView: View {
     let proceed: () -> Void
     var context = AppLocale(language: .automatic, region: nil)
     @Environment(\.seleneCanvas) private var canvas
+    @ObservedObject private var theme = ThemeStore.shared
     @StateObject private var controller = ControllerInput()
     @State private var index = 0
     @FocusState private var acceptsKeys: Bool
@@ -57,7 +58,7 @@ struct DowngradeWarningView: View {
             SeleneHintsBar(left: [HintItem(.b, "Quit") { perform(.quit) }],
                            right: [HintItem(.a, "Select") { perform(choices[index]) }])
         }
-        .background(SeleneTheme.baseGradient)
+        .background(SeleneTheme.baseGradient(for: theme.palette))
         .environment(\.nxAppLocale, context)
         .focusable()
         .focused($acceptsKeys)
@@ -152,17 +153,19 @@ struct DowngradeWarningView: View {
 
 struct DowngradeCopyProgress: View {
     let context: AppLocale
+    @ObservedObject private var theme = ThemeStore.shared
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         HStack(spacing: SeleneTokens.Space.compact) {
-            ProgressView().controlSize(.small)
-                .accessibilityHidden(true)
+            WaveDots()
             Text(L10n.text("Checking the library copy…", context: context))
                 .seleneFont(.body)
         }
         .foregroundStyle(SeleneTheme.ink75)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(SeleneTheme.baseGradient)
+        .background(SeleneTheme.baseGradient(for: theme.palette))
+        .environment(\.seleneReduceMotion, reduceMotion)
         .onAppear { LaunchReveal.show() }
     }
 }

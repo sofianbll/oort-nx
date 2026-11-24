@@ -224,7 +224,9 @@ struct DevelopmentStartupView: View {
             }
         }
         .background(LaunchRevealHold())
-        .onChange(of: startup.paletteID, initial: true) { _, id in ThemeStore.shared.apply(id: id) }
+        .onChange(of: startup.paletteID, initial: true) { _, id in
+            if startup.shell == nil { ThemeStore.shared.apply(id: id) }
+        }
         .task { await startup.prepare() }
     }
 }

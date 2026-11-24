@@ -11,7 +11,7 @@ Come si aggiorna:
 
 | Parte | Stato | Prove ancora da fare |
 |---|---|---|
-| Ritorno a 0.3.0 | in attesa | Su una libreria sintetica, verificare l’avviso una volta per aggiornamento e i gruppi omessi oltre il limite. Con copia impossibile provare il focus su Retry, Continua senza copia (solo per questo avvio) e Quit con mouse, tastiera, controller e VoiceOver. Verificare entrambe le versioni su copie separate, senza operazioni cloud pendenti. |
+| Ritorno a 0.3.0 | in attesa | Su una libreria sintetica, verificare l’avviso una volta per aggiornamento, i gruppi omessi e la riga di avanzamento dopo un secondo. Con copia impossibile provare il focus su Retry, Continua senza copia e Quit con mouse, tastiera, controller e VoiceOver. Verificare entrambe le versioni su copie separate, senza operazioni cloud pendenti. |
 | Pacchetti sonori | in attesa | Con un profilo di prova: ascoltare quattro pacchetti a basso volume, con musica personale, uscita cambiata, mono, ripetizioni e muto. Verificare silenzio in gioco e il ritorno, gestione di un file illeggibile, anteprima licenza/annullamento, rimozione della sola copia e ripiego su Selene. Provare tastiera, controller e VoiceOver, compresi i dialoghi nativi. |
 | Add Game con poco spazio per compilare | in attesa | Da Review, verificare che Add to library only rimanga attivo e Add and port indichi lo spazio necessario alla compilazione. |
 | Porting → installazione | in attesa | Con un porting di prova, verificare che Installazione sostituisca Annulla nel wizard e nel centro attività, anche con tastiera, controller e VoiceOver. |
