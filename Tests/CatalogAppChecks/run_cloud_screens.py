@@ -1931,7 +1931,7 @@ extension CloudArtifactStatus {
         icon = ROOT / "Resources/AppIcon-Light.png"
         scenarios = ("screens",) if before or baseline else ("screens", "play", "sources")
         for index, scenario in enumerate(scenarios):
-            home = package / scenario
+            home = package / f"probe-home-{scenario}"
             home.mkdir()
             command = ["swift", "run", "--jobs", "4", "--package-path", str(package)]
             if index:
