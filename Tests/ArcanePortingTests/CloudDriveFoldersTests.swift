@@ -14,7 +14,7 @@ final class CloudDriveFoldersTests: XCTestCase {
             switch path {
             case "Games": return ["Empty", "Library", DiscoveryBackend.title]
             case "Games/Empty": return ["Nested"]
-            case "Games/Library": return [DiscoveryBackend.title, named, named]
+            case "Games/Library": return [DiscoveryBackend.title, named]
             default: throw StorageBackendError.invalidKey
             }
         }, count: { path, folders in

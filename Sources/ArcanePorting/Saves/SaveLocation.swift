@@ -36,6 +36,60 @@ public struct SaveLocation: Equatable {
     /// nxnative's journal of a cloud-save pull (dm/host/save_sync.c, `<DM_SAVE>.pull`, nxnative e6048dea): while it is
     /// there, the game's next start puts this device's save back, so nothing may replace the save folders first.
     public var cloudPullJournal: URL { root.appendingPathComponent("save.pull") }
+    static let archiveSaveNames = SaveSlot.allCases.map(\.fileName)
+        + ["save.pull", "save.pull.tmp", "save.sync", "save.sync.tmp", "save.sync-tmp", "save-backups", "save.dmsync"]
+
+    /// Check paths even if no slot has been created yet. The macOS launcher runs the host from the title's support directory.
+    static func requireArchiveSeparation(_ tree: URL, titleID: String, apps: [URL]) throws {
+        let environment = NSWorkspaceLauncher.inheritedGameEnvironment()
+        let home = URL(fileURLWithPath: environment["HOME"]!, isDirectory: true)
+        let support = home.appendingPathComponent("Library/Application Support/nxnative/\(titleID)", isDirectory: true)
+        func path(_ url: URL) -> String {
+            var ancestor = url.standardizedFileURL
+            var suffix: [String] = []
+            while !SaveFiles.exists(ancestor), ancestor.path != "/" {
+                suffix.append(ancestor.lastPathComponent)
+                ancestor.deleteLastPathComponent()
+            }
+            return suffix.reversed().reduce(ancestor.resolvingSymlinksInPath()) { $0.appendingPathComponent($1) }
+                .path.precomposedStringWithCanonicalMapping.lowercased()
+        }
+        let treePath = path(tree)
+        func protect(_ account: URL) throws {
+            let parent = account.deletingLastPathComponent()
+            for name in archiveSaveNames {
+                let slot = path(parent.appendingPathComponent(account.lastPathComponent + name.dropFirst(4)))
+                guard slot != "/", slot != treePath, !slot.hasPrefix(treePath + "/"), !treePath.hasPrefix(slot + "/")
+                else { throw CloudArchiveError.excludedFiles }
+            }
+        }
+        func configuredSave(_ file: URL) throws -> String? {
+            var node = stat()
+            if lstat(file.path, &node) != 0 {
+                guard errno == ENOENT else { throw SaveFailure.unreadableConfiguration }
+                return nil
+            }
+            guard let text = String(data: try SaveFiles.readRegular(file, limit: 1024 * 1024), encoding: .utf8),
+                  !text.contains("\0"), text.components(separatedBy: "\n").allSatisfy({ $0.utf8.count < 4095 })
+            else { throw SaveFailure.unreadableConfiguration }
+            return CheatLocator.envLines(text).first { $0.0 == "DM_SAVE" }?.1
+        }
+        func protectOverride(_ value: String) throws {
+            guard !value.isEmpty else { return }
+            let url = URL(fileURLWithPath: value, isDirectory: true, relativeTo: support).standardizedFileURL
+            try protect(url)
+        }
+        try protect(support.appendingPathComponent("save"))
+        if let value = try environment["DM_SAVE"] ?? configuredSave(support.appendingPathComponent("env.txt")) {
+            try protectOverride(value)
+        } else {
+            for app in apps {
+                if let value = try configuredSave(app.appendingPathComponent("Contents/Resources/dm/env.txt")) {
+                    try protectOverride(value)
+                }
+            }
+        }
+    }
     public static func validID(_ value: String) -> Bool {
         value.utf8.count == 16 && value.utf8.allSatisfy { (48...57).contains($0) || (65...70).contains($0) || (97...102).contains($0) }
     }

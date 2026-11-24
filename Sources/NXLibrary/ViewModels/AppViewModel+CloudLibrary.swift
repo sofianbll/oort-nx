@@ -2296,7 +2296,8 @@ extension AppViewModel {
             return CloudArchiveGame(titleID: game.titleId ?? "", locations: locations,
                                     engineCommit: game.lastBuild?.exitCode == 0 ? game.lastBuild?.engineCommit : nil,
                                     cacheIsRegistered: game.buildCachePath != nil,
-                                    sourceSelection: sourceSelection)
+                                    sourceSelection: sourceSelection,
+                                    installedApp: game.cloudImportPending == true ? nil : game.url)
         }.value
     }
 

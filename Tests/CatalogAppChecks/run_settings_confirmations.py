@@ -170,7 +170,8 @@ def main():
         prepare(package)
         env = {key: value for key, value in os.environ.items() if not key.startswith(("GIT_", "RCLONE_"))}
         env.update(HOME=str(home), CFFIXED_USER_HOME=str(home), RCLONE_CONFIG=str(home / "rclone.conf"),
-                   RCLONE_PASSWORD_COMMAND="/usr/bin/false", GIT_CONFIG_NOSYSTEM="1", GIT_ALLOW_PROTOCOL="file")
+                   RCLONE_CONFIG_PASS="fixture-only", RCLONE_PASSWORD_COMMAND="/usr/bin/false",
+                   GIT_CONFIG_NOSYSTEM="1", GIT_ALLOW_PROTOCOL="file")
         font = ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"
         subprocess.run(["swift", "run", "--jobs", "4", "--package-path", temp, "NXLibrary", str(output), str(font)],
                        env=env, check=True)

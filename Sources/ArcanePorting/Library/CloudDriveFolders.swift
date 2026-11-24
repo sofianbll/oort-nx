@@ -138,7 +138,7 @@ public struct CloudDriveFolders: Sendable {
     public func libraryCount(in folder: String, folders: [String]) async throws -> Int {
         let backend = try backend(in: folder)
         defer { backend.stopRemoteControl() }
-        return try await Self.libraryCount(backend, folders: folders)
+        return try await CloudGameArchive(backend: backend).latestManifests().count
     }
 
     public func discoverLibrary() async throws -> Library? {
