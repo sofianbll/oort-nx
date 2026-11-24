@@ -107,7 +107,7 @@ extension AppShellView {
                 return
             }
             if router.settingsDecision != nil {
-                NotificationCenter.default.post(name: .nxSettingsGamepadAction, object: action)
+                NotificationCenter.default.post(name: .nxSettingsDecisionInput, object: action)
                 return
             }
             if showsWelcome, !showsInstallFailure, viewModel.gameToClose == nil, viewModel.gameToRemove == nil,

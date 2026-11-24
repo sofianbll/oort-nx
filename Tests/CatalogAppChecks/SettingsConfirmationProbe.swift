@@ -558,7 +558,8 @@ import ArcanePorting
             try image.representation(using: .png, properties: [:])!.write(to: output.appendingPathComponent(name + ".png"))
         }
         func send(_ action: GamepadAction) {
-            NotificationCenter.default.post(name: .nxSettingsGamepadAction, object: action)
+            let input: Notification.Name = router.settingsDecision == nil ? .nxSettingsGamepadAction : .nxSettingsDecisionInput
+            NotificationCenter.default.post(name: input, object: action)
             settle()
         }
         try capture("01-reglages-sauvegardes")

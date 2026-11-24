@@ -195,7 +195,12 @@ struct SettingsView: View {
             decisionScroll = 0
         }
         .onReceive(NotificationCenter.default.publisher(for: .nxSettingsGamepadAction)) { note in
-            guard (!showingPlayers || router.settingsDecision != nil), router.route == .settings(initialSection),
+            guard router.settingsDecision == nil, !showingPlayers, router.route == .settings(initialSection),
+                  let action = note.object as? GamepadAction else { return }
+            handleGamepad(action)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .nxSettingsDecisionInput)) { note in
+            guard router.settingsDecision != nil, router.route == .settings(initialSection),
                   let action = note.object as? GamepadAction else { return }
             handleGamepad(action)
         }
@@ -309,6 +314,7 @@ struct SettingsView: View {
                     }
                 }
                 try settings.commitDraft()
+                decisionFocus = 2
                 router.finishSettingsDecision(proceed: true)
             } catch {
                 decisionError = L10n.text((error as? AppSettingsDraft.Failure)?.errorDescription
@@ -317,8 +323,10 @@ struct SettingsView: View {
             }
         case 1:
             settings.discardDraft()
+            decisionFocus = 2
             router.finishSettingsDecision(proceed: true)
         default:
+            decisionFocus = 2
             router.finishSettingsDecision(proceed: false)
         }
     }
