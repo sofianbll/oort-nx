@@ -6,6 +6,7 @@ catalog, conflict candidates, archives and recovery operations are real Core I/O
 """
 from pathlib import Path
 import os
+import re
 import subprocess
 import tempfile
 
@@ -114,7 +115,8 @@ with tempfile.TemporaryDirectory(prefix='catalog-startup-recovery-') as folder:
     swift = scratch / 'check.swift'
     swift.write_text(host)
     executable = scratch / 'check'
-    subprocess.run(['xcrun', 'swiftc', '-parse-as-library', '-I', str(BIN), str(swift),
+    package_name = re.search(r'"SWIFT_PACKAGE_NAME"\s*:\s*"([^"]+)"', (ROOT / '.build/manifest.pif').read_text())[1]
+    subprocess.run(['xcrun', 'swiftc', '-j', '4', '-parse-as-library', '-package-name', package_name, '-I', str(BIN), str(swift),
                     str(BIN / 'NXLibraryCore.o'), str(BIN / 'ArcanePorting.o'), '-o', str(executable)], cwd=ROOT, check=True)
     subprocess.run([str(executable), str(scratch / 'profile')], check=True,
                    env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)))
