@@ -97,6 +97,7 @@ package enum DowngradeCheckpoint {
         if let pending = try readSnapshot(retained) {
             guard let old, pending.generation <= old.generation else { throw InstallationFileReadError.sourceChanged }
             if pending.generation < old.generation {
+                try CatalogPublication.synchronize(folder)
                 try finishRotation(retained, previous: previous, in: folder)
             } else if pending.id != old.id {
                 throw InstallationFileReadError.sourceChanged
