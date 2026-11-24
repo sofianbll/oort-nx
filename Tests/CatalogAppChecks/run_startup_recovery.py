@@ -45,7 +45,7 @@ final class AppShellState {
         self.catalog = catalog
     }
 }
-enum DevelopmentStartupFailure: Error { case otherCopyRunning, checkpointFailed }
+enum DevelopmentStartupFailure: Error { case otherCopyRunning }
 // ACTUAL_COORDINATOR
 
 @main struct Check {
@@ -62,7 +62,7 @@ enum DevelopmentStartupFailure: Error { case otherCopyRunning, checkpointFailed 
 
         let startup = DevelopmentStartup()
         await startup.prepare()
-        precondition(startup.shell == nil && startup.needsDowngradeWarning && startup.failure == nil)
+        precondition(startup.shell == nil && startup.downgradeNotice == .copy([]) && startup.failure == nil)
         precondition(startup.recovery == nil && startup.legacyConflict == nil)
         await startup.prepare(acceptingDowngradeWarning: true)
         precondition(startup.shell == nil && startup.failure != nil)
@@ -100,12 +100,26 @@ enum DevelopmentStartupFailure: Error { case otherCopyRunning, checkpointFailed 
         precondition(blocked.shell != nil && blocked.failure == nil)
 
         let checkpoint = root.appendingPathComponent("DowngradeProtection/checkpoint.plist")
+        let verified = try Data(contentsOf: checkpoint)
         try Data("damaged checkpoint".utf8).write(to: checkpoint)
-        let blockedCheckpoint = DevelopmentStartup()
-        await blockedCheckpoint.prepare()
-        precondition(blockedCheckpoint.shell == nil && blockedCheckpoint.failure != nil)
-        precondition(blockedCheckpoint.recovery == nil && blockedCheckpoint.legacyConflict == nil)
-        print("Actual startup recovery checks passed: pre-write warning, conflict, retry, healthy startup and fail-closed checkpoint.")
+        let withoutCopy = DevelopmentStartup()
+        await withoutCopy.prepare()
+        precondition(withoutCopy.shell == nil && withoutCopy.failure == nil && withoutCopy.downgradeNotice == .failed)
+        precondition(withoutCopy.recovery == nil && withoutCopy.legacyConflict == nil)
+        await withoutCopy.prepare()
+        precondition(withoutCopy.downgradeNotice == .failed)
+        await withoutCopy.continueWithoutCopy()
+        precondition(withoutCopy.shell != nil && withoutCopy.downgradeNotice == nil)
+        let unchanged = try Data(contentsOf: checkpoint)
+        precondition(unchanged == Data("damaged checkpoint".utf8))
+
+        let nextStart = DevelopmentStartup()
+        await nextStart.prepare()
+        precondition(nextStart.shell == nil && nextStart.downgradeNotice == .failed, "Skipping is only in memory")
+        try verified.write(to: checkpoint)
+        await nextStart.prepare()
+        precondition(nextStart.shell != nil && nextStart.downgradeNotice == nil)
+        print("Actual startup recovery checks passed: one-time warning, legacy conflict, retry, and skip for one start only.")
     }
 }
 '''.replace('// ACTUAL_COORDINATOR', coordinator)

@@ -21,8 +21,8 @@ final class DowngradeCheckpointTests: XCTestCase {
         try write("not a preference", to: "keys/synthetic")
         let preferences = { ["NXLibrary_CloudStorage": "fixture:Library", "synthetic-secret": "do not copy"] }
 
-        XCTAssertFalse(try DowngradeCheckpoint.prepare(in: root, preferences: preferences))
-        XCTAssertFalse(try DowngradeCheckpoint.prepare(in: root, preferences: preferences))
+        XCTAssertEqual(try DowngradeCheckpoint.prepare(in: root, preferences: preferences), .warning([]))
+        XCTAssertEqual(try DowngradeCheckpoint.prepare(in: root, preferences: preferences), .warning([]))
         let contents = try Data(contentsOf: checkpoint)
         let manifest = try plist(contents)
         let files = try XCTUnwrap(manifest["files"] as? [String: [String: Data]])
@@ -32,10 +32,10 @@ final class DowngradeCheckpointTests: XCTestCase {
         let scoped = try plist(XCTUnwrap(preferenceItem["data"]))
         XCTAssertEqual(scoped as? [String: String], ["NXLibrary_CloudStorage": "fixture:Library"])
         XCTAssertEqual(try fm.attributesOfItem(atPath: checkpoint.path)[.posixPermissions] as? Int, 0o600)
-        XCTAssertTrue(try DowngradeCheckpoint.prepare(in: root, acceptingWarning: true, preferences: preferences))
+        XCTAssertEqual(try DowngradeCheckpoint.prepare(in: root, acceptingWarning: true, preferences: preferences), .ready)
 
         try write("new settings", to: "settings.json")
-        XCTAssertTrue(try DowngradeCheckpoint.prepare(in: root, preferences: { [:] }))
+        XCTAssertEqual(try DowngradeCheckpoint.prepare(in: root, preferences: { [:] }), .ready)
         XCTAssertEqual(try Data(contentsOf: checkpoint), contents)
     }
 
@@ -43,8 +43,8 @@ final class DowngradeCheckpointTests: XCTestCase {
         let previous = checkpoint.deletingLastPathComponent().appendingPathComponent("previous.plist")
         for generation in 1...3 {
             try write("generation \(generation)", to: "settings.json")
-            XCTAssertFalse(try DowngradeCheckpoint.prepare(in: root, generation: generation, preferences: { [:] }))
-            XCTAssertTrue(try DowngradeCheckpoint.prepare(in: root, generation: generation, acceptingWarning: true, preferences: { [:] }))
+            XCTAssertEqual(try DowngradeCheckpoint.prepare(in: root, generation: generation, preferences: { [:] }), .warning([]))
+            XCTAssertEqual(try DowngradeCheckpoint.prepare(in: root, generation: generation, acceptingWarning: true, preferences: { [:] }), .ready)
             XCTAssertEqual(try plist(Data(contentsOf: checkpoint))["generation"] as? Int, generation)
             if generation > 1 {
                 XCTAssertEqual(try plist(Data(contentsOf: previous))["generation"] as? Int, generation - 1)
@@ -53,7 +53,7 @@ final class DowngradeCheckpointTests: XCTestCase {
         XCTAssertThrowsError(try DowngradeCheckpoint.prepare(in: root, generation: 2, preferences: { [:] }))
     }
 
-    func testRefusesLinkAndSizeLimitWithoutPublishingOrChangingOriginal() throws {
+    func testRefusesLinkAndLeavesOversizedSettingsUntouched() throws {
         try write("sentinel", to: "excluded/sentinel")
         let live = root.appendingPathComponent("settings.json")
         try fm.createSymbolicLink(at: live, withDestinationURL: root.appendingPathComponent("excluded/sentinel"))
@@ -65,17 +65,42 @@ final class DowngradeCheckpointTests: XCTestCase {
         let handle = try FileHandle(forWritingTo: live)
         try handle.truncate(atOffset: 128 * 1024 * 1024 + 1)
         try handle.close()
-        XCTAssertThrowsError(try DowngradeCheckpoint.prepare(in: root, preferences: { [:] }))
-        XCTAssertFalse(fm.fileExists(atPath: checkpoint.path))
+        try write("small sessions", to: "play-sessions.json")
+        XCTAssertEqual(try DowngradeCheckpoint.prepare(in: root, preferences: { [:] }), .warning([.settings]))
+        let files = try XCTUnwrap(plist(Data(contentsOf: checkpoint))["files"] as? [String: [String: Data]])
+        XCTAssertEqual(files["play-sessions.json"]?["data"], Data("small sessions".utf8))
+        XCTAssertNil(files["settings.json"])
         XCTAssertEqual(try fm.attributesOfItem(atPath: live.path)[.size] as? Int, 128 * 1024 * 1024 + 1)
     }
 
-    func testFreshProfileDoesNotPromptButCorruptCheckpointBlocksLaunch() throws {
-        XCTAssertTrue(try DowngradeCheckpoint.prepare(in: root, preferences: { [:] }))
+    func testFreshProfileDoesNotPromptAndCorruptCheckpointIsNotReplaced() throws {
+        XCTAssertEqual(try DowngradeCheckpoint.prepare(in: root, preferences: { [:] }), .ready)
         try Data("incomplete snapshot".utf8).write(to: checkpoint)
         try write("new settings", to: "settings.json")
         XCTAssertThrowsError(try DowngradeCheckpoint.prepare(in: root, acceptingWarning: true, preferences: { [:] }))
         XCTAssertEqual(try Data(contentsOf: checkpoint), Data("incomplete snapshot".utf8))
+    }
+
+    func testOversizedArtworkKeepsTheEssentialFilesAndReportsOmission() throws {
+        for name in ["play-sessions.json", "catalog.json", "settings.json", "profiles.json", "cloud-transfer-queue.json"] {
+            try write(name, to: name)
+        }
+        let relative = "artwork-picks/FIXTURE/square.png"
+        try write("", to: relative)
+        let handle = try FileHandle(forWritingTo: root.appendingPathComponent(relative))
+        try handle.truncate(atOffset: 128 * 1024 * 1024 + 1)
+        try handle.close()
+        let prefs = { ["NXLibrary_CloudLastKnownAvailability": Data([42])] }
+        XCTAssertEqual(try DowngradeCheckpoint.prepare(in: root, preferences: prefs), .warning([.artwork]))
+        let manifest = try plist(Data(contentsOf: checkpoint))
+        let files = try XCTUnwrap(manifest["files"] as? [String: [String: Data]])
+        XCTAssertNil(files[relative])
+        XCTAssertEqual(manifest["omitted"] as? [String], ["artwork"])
+        XCTAssertEqual(files.keys.sorted(), ["catalog.json", "cloud-transfer-queue.json", "play-sessions.json", "profiles.json", "settings.json"])
+        let preference = try XCTUnwrap(manifest["preferences"] as? [String: Data])
+        XCTAssertEqual(try plist(XCTUnwrap(preference["data"]))["NXLibrary_CloudLastKnownAvailability"] as? Data, Data([42]))
+        XCTAssertEqual(try DowngradeCheckpoint.prepare(in: root, acceptingWarning: true, preferences: prefs), .ready)
+        XCTAssertEqual(try DowngradeCheckpoint.prepare(in: root, preferences: prefs), .ready)
     }
 
     private func write(_ text: String, to name: String) throws {

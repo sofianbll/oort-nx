@@ -34,7 +34,12 @@ import SwiftUI
         case "restored": try await updated(restored: true)
         case "capture":
             let language: AppLanguage = CommandLine.arguments[2] == "fr" ? .french : .english
-            let renderer = ImageRenderer(content: DowngradeWarningView(continueStartup: {},
+            let notice: DevelopmentStartup.Notice = switch CommandLine.arguments[4] {
+            case "failed": .failed
+            case "partial": .copy([.artwork, .sound])
+            default: .copy([])
+            }
+            let renderer = ImageRenderer(content: DowngradeWarningView(notice: notice, retry: {}, proceed: {},
                 context: .init(language: language, region: nil)).frame(width: 900, height: 460))
             guard let image = renderer.cgImage, let png = NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:])
             else { throw CocoaError(.fileWriteUnknown) }
@@ -188,8 +193,8 @@ import SwiftUI
     }
     #else
     @MainActor private static func upgrade() async throws {
-        check(try !DowngradeCheckpoint.prepare(in: root, preferences: prefs), "pre-update copy requires warning")
-        check(try DowngradeCheckpoint.prepare(in: root, acceptingWarning: true, preferences: prefs), "pre-update copy acknowledged")
+        check(try DowngradeCheckpoint.prepare(in: root, preferences: prefs) == .warning([]), "pre-update copy requires warning")
+        check(try DowngradeCheckpoint.prepare(in: root, acceptingWarning: true, preferences: prefs) == .ready, "pre-update copy acknowledged")
         let split = try ["play-sessions.json", "play-sessions-totals.json"].map { try Data(contentsOf: url($0)) }
         play(seconds: 60)
         check(PlaySessionStore().totalDuration(for: gameID) == 2360, "next imports split and folds atomically")

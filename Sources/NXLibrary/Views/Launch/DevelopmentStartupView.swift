@@ -5,21 +5,27 @@ import os
 
 @MainActor
 final class DevelopmentStartup: ObservableObject {
+    enum Notice: Equatable {
+        case copy([DowngradeCheckpoint.Omission])
+        case failed
+    }
     @Published private(set) var shell: AppShellState?
     @Published private(set) var failure: String?
     @Published private(set) var working = false
     @Published private(set) var recovery: CatalogRecoveryCandidate?
     @Published private(set) var legacyConflict: CatalogLegacyConflictCandidate?
-    @Published private(set) var needsDowngradeWarning = false
+    @Published private(set) var downgradeNotice: Notice?
+    private var skipCheckpoint = false
     private let logger = Logger(subsystem: "local.nxlibrary", category: "Startup")
 
     func prepare(acceptingDowngradeWarning: Bool = false) async {
         guard shell == nil, !working else { return }
         working = true
+        defer { working = false }
         failure = nil
         recovery = nil
         legacyConflict = nil
-        needsDowngradeWarning = false
+        downgradeNotice = nil
         var profileReady = false
         do {
             // Services and SwiftUI StateObjects are created only after the profile transaction finishes.
@@ -28,23 +34,23 @@ final class DevelopmentStartup: ObservableObject {
                 throw DevelopmentStartupFailure.otherCopyRunning
             }
             try await Task.detached(priority: .userInitiated) { try AppData.prepare() }.value
-            if !AppData.profile.isDevelopment {
-                let ready = try await Task.detached(priority: .userInitiated) {
-                    do {
+            if !AppData.profile.isDevelopment && !skipCheckpoint {
+                do {
+                    let result = try await Task.detached(priority: .userInitiated) {
                         return try DowngradeCheckpoint.prepare(in: AppData.supportRoot,
                                                                acceptingWarning: acceptingDowngradeWarning) {
                             let defaults = AppData.preferences
                             guard defaults.synchronize() else { throw CocoaError(.fileReadUnknown) }
                             return defaults.persistentDomain(forName: AppData.profile.preferencesDomain) ?? [:]
                         }
-                    } catch {
-                        Logger(subsystem: "local.nxlibrary", category: "Startup").error("Pre-update checkpoint failed: \(String(describing: error), privacy: .private)")
-                        throw DevelopmentStartupFailure.checkpointFailed
+                    }.value
+                    if case let .warning(omissions) = result {
+                        downgradeNotice = .copy(omissions)
+                        return
                     }
-                }.value
-                if !ready {
-                    needsDowngradeWarning = true
-                    working = false
+                } catch {
+                    logger.error("Launcher checkpoint failed: \(String(describing: error), privacy: .private)")
+                    downgradeNotice = .failed
                     return
                 }
             }
@@ -69,7 +75,12 @@ final class DevelopmentStartup: ObservableObject {
                 }.value
             }
         }
-        working = false
+    }
+
+    func continueWithoutCopy() async {
+        guard !working, downgradeNotice == .failed else { return }
+        skipCheckpoint = true
+        await prepare()
     }
 
     func restoreBackup() async {
@@ -107,15 +118,10 @@ final class DevelopmentStartup: ObservableObject {
 }
 
 private enum DevelopmentStartupFailure: LocalizedError {
-    case otherCopyRunning, checkpointFailed
+    case otherCopyRunning
     var errorDescription: String? {
         let context = AppLocale(language: .automatic, region: nil)
-        switch self {
-        case .otherCopyRunning:
-            return L10n.text("Close the other Arcane copy, then try again. Your original library has not been changed.", context: context)
-        case .checkpointFailed:
-            return L10n.text("The pre-update copy could not be verified. Your original library has not been changed.", context: context)
-        }
+        return L10n.text("Close the other Arcane copy, then try again. Your original library has not been changed.", context: context)
     }
 }
 
@@ -130,8 +136,13 @@ struct DevelopmentStartupView: View {
                     .onAppear {
                         Logger(subsystem: "local.nxlibrary", category: "Startup").notice("Library view appeared")
                     }
-            } else if startup.needsDowngradeWarning {
-                DowngradeWarningView(continueStartup: { Task { await startup.prepare(acceptingDowngradeWarning: true) } })
+            } else if let notice = startup.downgradeNotice {
+                DowngradeWarningView(notice: notice, retry: { Task { await startup.prepare() } }, proceed: {
+                    Task {
+                        if notice == .failed { await startup.continueWithoutCopy() }
+                        else { await startup.prepare(acceptingDowngradeWarning: true) }
+                    }
+                })
             } else if let failure = startup.failure {
                 VStack(spacing: 20) {
                     if startup.working { ProgressView().controlSize(.large) }

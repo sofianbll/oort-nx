@@ -72,7 +72,8 @@ if __name__ == "__main__":
     compile_probe(ROOT, after, legacy=False)
     if args.capture:
         for language in ("fr", "en"):
-            run_probe(after, output / "capture-home", "capture", language, str(output / f"warning-{language}.png"))
+            for notice in ("ready", "failed", "partial"):
+                run_probe(after, output / "capture-home", "capture", language, str(output / f"{notice}-{language}.png"), notice)
     home = output / "fixture-home"
     live = home / "Library/Application Support/NXLibrary"
     run_probe(before, home, "seed")

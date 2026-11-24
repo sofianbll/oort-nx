@@ -6,12 +6,21 @@ import Foundation
 package enum DowngradeCheckpoint {
     private static let maximumBytes = 128 * 1024 * 1024
     private static let maximumEntries = 8_192
-    private static let fixedFiles = [
-        "catalog.json", "catalog.json.bak", "catalog-removal-pending.json", "library.json", "library.json.bak",
-        "settings.json", "profiles.json", "profiles-active", "play-sessions.json", "play-sessions-totals.json",
-        SessionHistoryState.filename, "cloud-transfer-queue.json", "cloud-library-move.json", "activity-results.json",
-        "build-queue.json", "metadata-picks.json", "integrations/steam/metadata-picks.json",
-        "integrations/steam/personal/personal.json", "integrations/steam/playtime-baselines.json",
+    package enum Omission: String, Codable, CaseIterable, Sendable {
+        case sessions, catalog, settings, profiles, queue, preferences, artwork, sound
+    }
+
+    package enum Result: Equatable, Sendable {
+        case ready, warning([Omission])
+    }
+
+    private static let essential: [(Omission, [String])] = [
+        (.sessions, ["play-sessions.json", "play-sessions-totals.json", SessionHistoryState.filename,
+                     "integrations/steam/playtime-baselines.json"]),
+        (.catalog, ["catalog.json", "catalog.json.bak", "catalog-removal-pending.json", "library.json", "library.json.bak"]),
+        (.settings, ["settings.json"]),
+        (.profiles, ["profiles.json", "profiles-active"]),
+        (.queue, ["cloud-transfer-queue.json", "cloud-library-move.json", "activity-results.json", "build-queue.json"]),
     ]
     private static let preferenceKeys: Set<String> = [
         CloudLibraryPreference.storageKey, CloudLibraryPreference.enabledKey, CloudLibraryPreference.sourcesRootKey,
@@ -33,12 +42,13 @@ package enum DowngradeCheckpoint {
         var id = UUID()
         var files: [String: Item]
         var preferences: Item?
-        var needsWarning: Bool { !files.isEmpty || preferences != nil }
+        var omitted: [Omission]?
+        var needsWarning: Bool { !files.isEmpty || preferences != nil || omitted?.isEmpty == false }
     }
 
-    /// Returns true only when launch may continue. A retry never replaces a verified checkpoint of this generation.
+    /// A retry never replaces a verified checkpoint of this generation.
     package static func prepare(in root: URL, generation: Int = 1, acceptingWarning: Bool = false,
-                                preferences: () throws -> [String: Any]) throws -> Bool {
+                                preferences: () throws -> [String: Any]) throws -> Result {
         let fm = FileManager.default
         try fm.createDirectory(at: root, withIntermediateDirectories: true)
         try requireDirectory(root)
@@ -75,37 +85,51 @@ package enum DowngradeCheckpoint {
         // Also synchronize a checkpoint visible after an interrupted publication before allowing live writes.
         try CatalogPublication.synchronize(folder)
         try CatalogPublication.synchronize(root)
-        guard snapshot.needsWarning else { return true }
+        guard snapshot.needsWarning else { return .ready }
         let token = Data(snapshot.id.uuidString.utf8)
-        if try read(acknowledged, limit: token.count)?.data == token { return true }
-        guard acceptingWarning else { return false }
+        if try read(acknowledged, limit: token.count)?.data == token { return .ready }
+        guard acceptingWarning else { return .warning(snapshot.omitted ?? []) }
         try publish(token, to: acknowledged) { _ in }
-        return true
+        return .ready
     }
 
     private static func capture(in root: URL, generation: Int,
                                 preferences: () throws -> [String: Any]) throws -> Snapshot {
         let values = try preferences().filter { preferenceKeys.contains($0.key) }
-        let plist = try values.isEmpty ? nil : PropertyListSerialization.data(fromPropertyList: values, format: .binary, options: 0)
-        var remaining = maximumBytes - (plist?.count ?? 0)
+        var plist = try values.isEmpty ? nil : PropertyListSerialization.data(fromPropertyList: values, format: .binary, options: 0)
+        var remaining = maximumBytes - 4096 // Manifest header, checkpoint ID and top-level keys.
+        var omitted = Set<Omission>()
+        if let bytes = plist {
+            if bytes.count <= remaining { remaining -= bytes.count }
+            else { plist = nil; omitted.insert(.preferences) }
+        }
         var files: [String: Item] = [:]
         let names = try fileNames(under: root)
         var observations: [InstallationFileObservation] = []
-        for name in names {
+        for (group, name) in names {
             let path = root.appendingPathComponent(name)
-            guard let bytes = try read(path, limit: remaining) else { throw InstallationFileReadError.sourceChanged }
-            files[name] = Item(bytes.data)
-            remaining -= bytes.data.count
-            observations.append(bytes.observation)
+            // Leave room for the path, digest and binary-plist object table.
+            let overhead = 2 * name.utf8.count + 128
+            guard files.count < maximumEntries, remaining >= overhead else { omitted.insert(group); continue }
+            do {
+                guard let bytes = try read(path, limit: remaining - overhead) else { throw InstallationFileReadError.sourceChanged }
+                files[name] = Item(bytes.data)
+                remaining -= overhead + bytes.data.count
+                observations.append(bytes.observation)
+            } catch InstallationFileReadError.tooLarge {
+                omitted.insert(group)
+            }
         }
-        guard try fileNames(under: root) == names, try NSDictionary(dictionary: preferences().filter {
+        guard try fileNames(under: root).elementsEqual(names, by: ==), try NSDictionary(dictionary: preferences().filter {
             preferenceKeys.contains($0.key)
         }).isEqual(to: values) else { throw InstallationFileReadError.sourceChanged }
         for observation in observations { try observation.verifyUnchanged() }
-        return Snapshot(generation: generation, files: files, preferences: plist.map(Item.init))
+        let omissions = Omission.allCases.filter(omitted.contains)
+        return Snapshot(generation: generation, files: files, preferences: plist.map(Item.init),
+                        omitted: omissions.isEmpty ? nil : omissions)
     }
 
-    private static func fileNames(under root: URL) throws -> [String] {
+    private static func fileNames(under root: URL) throws -> [(Omission, String)] {
         let fm = FileManager.default
         func present(_ name: String) throws -> URL? {
             let parts = name.split(separator: "/")
@@ -122,24 +146,30 @@ package enum DowngradeCheckpoint {
             try requireDirectory(url)
             return try fm.contentsOfDirectory(atPath: url.path).filter { !$0.hasPrefix(".") }
         }
-        var names = try fixedFiles.filter { try present($0) != nil }
+        var names: [(Omission, String)] = []
+        for (group, paths) in essential {
+            names += try paths.filter { try present($0) != nil }.map { (group, $0) }
+        }
+        var art = try ["metadata-picks.json", "integrations/steam/metadata-picks.json",
+                       "integrations/steam/personal/personal.json"].filter { try present($0) != nil }
         let artNames = Set(ArtworkSlot.allCases.flatMap { slot in ["\(slot.kind.rawValue).png", "\(slot.kind.rawValue).jpg"] })
         for picks in ["artwork-picks", "integrations/steam/artwork-picks"] {
             for title in try children(picks) {
                 let folder = "\(picks)/\(title)"
-                names += try children(folder).filter(artNames.contains).map { "\(folder)/\($0)" }
+                art += try children(folder).filter(artNames.contains).map { "\(folder)/\($0)" }
             }
         }
         let steamAssets = "integrations/steam/personal/assets"
-        names += try children(steamAssets).filter {
+        art += try children(steamAssets).filter {
             $0.hasSuffix(".png") && UUID(uuidString: String($0.dropLast(4))) != nil
         }.map { "\(steamAssets)/\($0)" }
+        names += art.sorted().map { (.artwork, $0) }
+        var audio: [String] = []
         for pack in try children("SoundPacks") where pack.hasSuffix(".oortsound") {
             let folder = "SoundPacks/\(pack)"
-            names += try children(folder).filter { $0 == "manifest.json" || $0.hasSuffix(".wav") }.map { "\(folder)/\($0)" }
+            audio += try children(folder).filter { $0 == "manifest.json" || $0.hasSuffix(".wav") }.map { "\(folder)/\($0)" }
         }
-        guard names.count <= maximumEntries else { throw InstallationFileReadError.tooLarge }
-        return names.sorted()
+        return names + audio.sorted().map { (.sound, $0) }
     }
 
     private static func readSnapshot(_ url: URL) throws -> Snapshot? {
