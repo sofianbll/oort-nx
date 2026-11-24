@@ -201,10 +201,12 @@ public struct RcloneDownload: Sendable {
                 } catch where Self.isDirectory(parent) { /* Another installer created it. */ }
             }
             guard Self.isDirectory(parent) else { throw Failure.installation }
+            let (stage, stageLease) = try await makeDownloadStage()
+            defer {
+                try? files.removeItem(at: stage)
+                close(stageLease)
+            }
             if let free = try available(parent), free < release.bytes + release.executableBytes { throw Failure.space }
-            let stage = parent.appendingPathComponent(".download-\(UUID())", isDirectory: true)
-            try files.createDirectory(at: stage, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
-            defer { try? files.removeItem(at: stage) }
             let archive = stage.appendingPathComponent("download.zip")
             try await Self.fetch(release, to: archive, configuration: transport, progress: progress)
             let payload = stage.appendingPathComponent("payload", isDirectory: true)
@@ -230,6 +232,49 @@ public struct RcloneDownload: Sendable {
             if error is URLError { throw Failure.network }
             throw Failure.installation
         }
+    }
+
+    private func makeDownloadStage() async throws -> (URL, Int32) {
+        let parentFD = open(parent.path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
+        guard parentFD >= 0 else { throw Failure.installation }
+        defer { close(parentFD) }
+        let clock = ContinuousClock()
+        let deadline = clock.now + .seconds(2)
+        while flock(parentFD, LOCK_EX | LOCK_NB) != 0 {
+            guard errno == EWOULDBLOCK, clock.now < deadline else { throw Failure.installation }
+            try await Task.sleep(for: .milliseconds(20))
+        }
+        let files = FileManager.default
+        let prefix = ".download-"
+        // The parent lock covers the gap between creating a staging directory and locking that directory.
+        for orphan in (try? files.contentsOfDirectory(atPath: parent.path)) ?? []
+            where orphan.hasPrefix(prefix) && UUID(uuidString: String(orphan.dropFirst(prefix.count))) != nil {
+            let fd = Self.lockStage(parentFD, orphan)
+            guard fd >= 0 else { continue }
+            defer { close(fd) }
+            let url = parent.appendingPathComponent(orphan, isDirectory: true)
+            if let entries = try? files.contentsOfDirectory(atPath: url.path),
+               Set(entries).isSubset(of: ["download.zip", "payload"]) {
+                try? files.removeItem(at: url)
+            }
+        }
+        try Task.checkCancellation()
+        let name = prefix + UUID().uuidString
+        let stage = parent.appendingPathComponent(name, isDirectory: true)
+        try files.createDirectory(at: stage, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+        let fd = Self.lockStage(parentFD, name)
+        guard fd >= 0 else { try? files.removeItem(at: stage); throw Failure.installation }
+        return (stage, fd)
+    }
+
+    private static func lockStage(_ parent: Int32, _ name: String) -> Int32 {
+        let fd = openat(parent, name, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
+        guard fd >= 0 else { return -1 }
+        var info = stat()
+        if fstat(fd, &info) == 0, info.st_uid == geteuid(), info.st_mode & 0o777 == 0o700,
+           flock(fd, LOCK_EX | LOCK_NB) == 0 { return fd }
+        close(fd)
+        return -1
     }
 
     private static func fetch(_ release: Release, to archive: URL, configuration: URLSessionConfiguration,

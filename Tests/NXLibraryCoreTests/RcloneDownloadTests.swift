@@ -249,4 +249,31 @@ final class RcloneDownloadTests: XCTestCase {
         XCTAssertEqual(results, [tool.installedExecutable, tool.installedExecutable])
     }
 
+    func testNextDownloadReapsOnlyAbandonedPrivateStaging() async throws {
+        let fixture = Fixture()
+        defer { fixture.clean() }
+        let files = FileManager.default
+        let tool = fixture.installer
+        let parent = tool.directory.deletingLastPathComponent()
+        try files.createDirectory(at: parent, withIntermediateDirectories: true)
+        let stale = parent.appendingPathComponent(".download-\(UUID())", isDirectory: true)
+        let live = parent.appendingPathComponent(".download-\(UUID())", isDirectory: true)
+        let foreign = parent.appendingPathComponent(".download-keep", isDirectory: true)
+        for stage in [stale, live, foreign] {
+            try files.createDirectory(at: stage, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+            try Data([42]).write(to: stage.appendingPathComponent("download.zip"))
+        }
+        let fd = open(live.path, O_RDONLY | O_DIRECTORY | O_CLOEXEC)
+        XCTAssertGreaterThanOrEqual(fd, 0)
+        defer { close(fd) }
+        XCTAssertEqual(flock(fd, LOCK_EX | LOCK_NB), 0)
+        let release = fixture.release(nil)
+        do {
+            _ = try await tool.install(release, transport: fixture.transport, available: { _ in 0 })
+            XCTFail("Installed without space")
+        } catch { XCTAssertEqual(error as? RcloneDownload.Failure, .space) }
+        XCTAssertFalse(files.fileExists(atPath: stale.path))
+        XCTAssertTrue(files.fileExists(atPath: live.path))
+        XCTAssertTrue(files.fileExists(atPath: foreign.path))
+    }
 }
