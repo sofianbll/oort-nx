@@ -30,7 +30,7 @@ SECRET_PATTERNS = [
 ]
 NINTENDO_PLATFORM_MARKS = {
     "Brands/Platforms/Marks/Nintendo Switch.svg": "cca242aa61d7cdccf1ff8b62f5329994bab7d8af433a7e994e99c63f8071714b",
-    "Brands/Platforms/Marks/Nintendo Switch 2.svg": "ffbd5d9b3eede1c8bb99b7502d10e1fbefa63f0f1d1e99c06e9ab83c2c72b4b7",
+    "Brands/Platforms/Marks/Nintendo Switch 2.svg": "7d4b99ea3894f662e39430e3be2a59ab501af02f1ae565337763a9a73f8bccb1",
 }
 
 

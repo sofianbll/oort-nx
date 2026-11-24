@@ -154,7 +154,7 @@ La variante asincrona attende su una coda utility e invia SIGTERM al sottoproces
 
 ## Catalogo, fonti e libreria
 
-`PlatformLabel` mostra il simbolo di marca disponibile, o un simbolo Lucide, seguito dal nome; l'inchiostro è quello della riga. `PlatformMark` dimensiona otticamente i simboli e una costante riporta tutti ai simboli generici. Integrazioni e il collegamento di sostegno usano la stessa etichetta, senza nuovi servizi.
+`PlatformLabel` mostra il simbolo di marca disponibile, o un simbolo Lucide, seguito dal nome; l'inchiostro è quello della riga. `PlatformMark` pareggia l'altezza ottica; il marchio Switch 2 usa più larghezza per lasciare leggibile il numero. Una costante riporta tutti ai simboli generici. Tutte le righe Integrazioni e il collegamento di sostegno usano la stessa etichetta, senza nuovi servizi.
 
 **Il catalogo comune.**
 - `CatalogGame` conserva il record della sua fonte, un `any CatalogSourceRecord`: il `PortedGame` completo per nxnative (conformità in `ArcanePorting/Catalog/PortedGame+Catalog.swift`) oppure `SteamCatalogGame` (`SteamCatalogGame+Record.swift`). Il protocollo porta identità, preferito e nascosto, validazione, presenza (`CatalogRecordPresence`) e termini di ricerca; due voci sono uguali solo con record dello stesso tipo e valore. Nome, UUID e scelte personali hanno un solo proprietario; il riferimento alle personalizzazioni conserva chiave e namespace dell'integrazione. Non si costruisce mai un falso gioco nxnative per Steam.

@@ -22,11 +22,11 @@
     "adaptation": "Pinned Simple Icons path; role badge geometry kept, monochrome template."
   },
   "Brands/Platforms/Marks/GOG.svg": {
-    "sha256": "756fa1ee5c0f70ee564a72ce448d8c261211147ddcc872a4f35a37af98fb57f0",
+    "sha256": "5789a5926749ede7d8fb9ea5e15dc0fcbb433fe0cb560a1623674cf24003ed3f",
     "source": "https://github.com/simple-icons/simple-icons/blob/d59bb32d4f94b1aa8c7cef9d264280d35d5f8f97/icons/gogdotcom.svg",
     "drawingLicence": "No per-icon drawing licence declared by Simple Icons",
     "trademarkOwner": "GOG sp. z o.o.",
-    "adaptation": "Pinned Simple Icons path; role badge geometry kept, monochrome template."
+    "adaptation": "Pinned Simple Icons path; inverted existing tile outline into a filled badge with transparent lettering."
   },
   "Brands/Platforms/Marks/Google Drive.svg": {
     "sha256": "9462287e60ce17f0c1ad82673da062ba5aa89926d02bcdd9615922831c95a70c",
@@ -36,7 +36,7 @@
     "adaptation": "Pinned Simple Icons path; role badge geometry kept, monochrome template."
   },
   "Brands/Platforms/Marks/Nintendo Switch 2.svg": {
-    "sha256": "ffbd5d9b3eede1c8bb99b7502d10e1fbefa63f0f1d1e99c06e9ab83c2c72b4b7",
+    "sha256": "7d4b99ea3894f662e39430e3be2a59ab501af02f1ae565337763a9a73f8bccb1",
     "source": "https://commons.wikimedia.org/wiki/File:Nintendo_Switch_2_logo.svg",
     "drawingLicence": "Public domain below originality threshold according to Commons",
     "trademarkOwner": "Nintendo Co., Ltd.",
@@ -59,11 +59,14 @@
   "Brands/Platforms/NOTICE.txt": "883cac4ed05dac958fff7c3566ea1012b93549c3969a3d8fded5a34a38d56bbd",
   "Brands/Platforms/arrow-left-right.svg": "2d64da427cbb3f14e522658459903829575b09ec15162c1a69ea6ad341a4359a",
   "Brands/Platforms/boxes.svg": "7e301f6c38337389f5a96675d14cb9d8ef8a613329e99c3dfcf7c635bdd1faae",
+  "Brands/Platforms/cloud.svg": "28a34022ed00177eb1f218eea5d2b7af30d09b529187fe32219e4dd8ea2b9740",
   "Brands/Platforms/coffee.svg": "970595bdafac0df42c00b847d53fd00c2283ecc3b83881274de2aa7dbce2bbc8",
   "Brands/Platforms/disc-3.svg": "93b3102c857a46d590ffc268a8d9ea740abf9bfb30f76de42b9899e34bbba438",
   "Brands/Platforms/gamepad-2.svg": "b0671de7afbebdafc4d655d867d9851947170b906fb187e749410039df867509",
   "Brands/Platforms/hard-drive.svg": "324363c40f54e4ca843de0ad1d023b063b70a26a83bb2e0a9e9f4aad9af37378",
+  "Brands/Platforms/image.svg": "619c9db58c879dce6250376ba67d9c9102ca6dbb3b1efb9294c9f180e22273a5",
   "Brands/Platforms/laptop.svg": "b8389056d3b7125670b60a4bd03e6d4ecc440e228f4140e7b66c4e97dcb0dc70",
+  "Brands/Platforms/network.svg": "626be730feea1e5ea7539fbf78b4a3fcb927ce5d7dc43364f2216908672ac792",
   "Brands/Platforms/package.svg": "69d6bc7650d26c4d24dd55eb22791607b982ce7637073944c256f1f61575509d",
   "Brands/Platforms/shield.svg": "be32f6a86df7cbe43a83c439dd8849e5bcf5145e484d23420c20d8b98a78e82b",
   "LICENSE": "9a7cb594e0bd606755a21ca7ae34b51c51c4cb109eb7d05d7ae2b3170df6161d",

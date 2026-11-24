@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **1078 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **1081 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -1265,6 +1265,9 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Resources/Brands/Platforms/NOTICE.txt](../../Resources/Brands/Platforms/NOTICE.txt) | Provenienza e nota sui marchi. |
 | [Resources/Brands/Platforms/arrow-left-right.svg](../../Resources/Brands/Platforms/arrow-left-right.svg) | Simbolo generico CrossOver. |
 | [Resources/Brands/Platforms/boxes.svg](../../Resources/Brands/Platforms/boxes.svg) | Simbolo generico Minecraft. |
+| [Resources/Brands/Platforms/cloud.svg](../../Resources/Brands/Platforms/cloud.svg) | Simbolo Lucide per i salvataggi iCloud. |
+| [Resources/Brands/Platforms/image.svg](../../Resources/Brands/Platforms/image.svg) | Simbolo Lucide per immagini e valutazioni. |
+| [Resources/Brands/Platforms/network.svg](../../Resources/Brands/Platforms/network.svg) | Simbolo Lucide per Nextendo. |
 | [Resources/Brands/Platforms/coffee.svg](../../Resources/Brands/Platforms/coffee.svg) | Tazza generica per il collegamento di sostegno. |
 | [Resources/Brands/Platforms/disc-3.svg](../../Resources/Brands/Platforms/disc-3.svg) | Simbolo generico Steam. |
 | [Resources/Brands/Platforms/gamepad-2.svg](../../Resources/Brands/Platforms/gamepad-2.svg) | Simbolo generico Switch e base del segno Switch 2. |

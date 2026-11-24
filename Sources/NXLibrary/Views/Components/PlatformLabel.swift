@@ -13,6 +13,9 @@ enum PlatformKind: String, CaseIterable {
     case crossover = "CrossOver"
     case support = "Buy Me a Coffee"
     case drive = "Google Drive"
+    case nextendo = "Nextendo"
+    case images = "Artwork and scores"
+    case saves = "iCloud saves"
 
     static let upcoming: [Self] = [.epic, .gog, .minecraft, .crossover, .mac]
 
@@ -27,6 +30,9 @@ enum PlatformKind: String, CaseIterable {
         case .crossover: "arrow-left-right"
         case .support: "coffee"
         case .drive: "hard-drive"
+        case .nextendo: "network"
+        case .images: "image"
+        case .saves: "cloud"
         }
     }
 
@@ -41,6 +47,9 @@ enum PlatformKind: String, CaseIterable {
         case .crossover: "arrow.left.arrow.right"
         case .support: "cup.and.saucer"
         case .drive: "externaldrive"
+        case .nextendo: "network"
+        case .images: "photo"
+        case .saves: "icloud"
         }
     }
 }
@@ -96,14 +105,18 @@ struct PlatformMark: View {
         let side = canvas.u(SeleneTokens.Space.large)
         let mark = Self.artwork[kind]
         let isSecond = kind == .switch2 && mark?.isBrand != true
-        // Dense, filled marks need less width than the outlined marks in the same box.
-        let scale: CGFloat = if mark?.isBrand == true {
+        let drawnHeight: CGFloat = if mark?.isBrand == true {
+            // Compensate for the transparent margins in the original SVG artboards.
             switch kind {
-            case .switch1, .steam: 0.78
-            case .epic, .gog, .drive: 0.84
-            default: 1
+            case .switch1: side * 0.94
+            case .switch2: side * 0.89
+            case .drive: side * 0.96
+            case .crossover: side * 1.08
+            case .steam, .epic, .gog, .support: side * 0.84
+            default: side
             }
-        } else { 1 }
+        } else { side }
+        let drawnWidth = mark.map { drawnHeight * $0.image.size.width / $0.image.size.height } ?? side
         return VStack(spacing: 0) {
             Group {
                 if let mark {
@@ -113,7 +126,7 @@ struct PlatformMark: View {
                 }
             }
             .scaledToFit()
-            .frame(width: isSecond ? side * 0.87 : side * scale, height: isSecond ? side * 0.65 : side * scale)
+            .frame(width: isSecond ? side * 0.87 : drawnWidth, height: isSecond ? side * 0.65 : drawnHeight)
             if isSecond {
                 Text(verbatim: "2")
                     .font(.system(size: side * 0.44, weight: .bold, design: .monospaced))
@@ -121,7 +134,7 @@ struct PlatformMark: View {
                     .frame(height: side * 0.35)
             }
         }
-        .frame(width: side, height: side)
+        .frame(width: kind == .switch2 ? max(side, drawnWidth) : side, height: side)
         .accessibilityHidden(true)
     }
 }

@@ -213,7 +213,9 @@ struct IntegrationsView: View {
                     case .switchGames: PlatformLabel(.switch1, title: text(row.name))
                     case .steam: PlatformLabel(.steam)
                     case .drive: PlatformLabel(.drive)
-                    default: Text(text(row.name)).seleneFont(.rowTitle, .semibold)
+                    case .nextendo: PlatformLabel(.nextendo, title: text(row.name))
+                    case .images: PlatformLabel(.images, title: text(row.name))
+                    case .saves: PlatformLabel(.saves, title: text(row.name))
                     }
                 }
                 .accessibilityAddTraits(.isHeader)
