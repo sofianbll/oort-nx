@@ -11,6 +11,7 @@ struct SettingsEngineSection: View {
 
     @Environment(\.seleneFocusedRowID) private var focusedRowTitle
     @Environment(\.seleneFocusedButton) private var focusedButton
+    @Environment(\.passiveSettingsArrival) private var passiveArrival
     private var configurationLocked: Bool { viewModel.isBuilding || viewModel.isUpdatingApp }
 
     var body: some View {
@@ -52,7 +53,7 @@ struct SettingsEngineSection: View {
                         .seleneFont(15, .semibold)
                         .foregroundColor(statusColor)
                     Spacer()
-                    Button(L10n.text("Re-check")) { setup.detectEnvironment() }
+                    Button(L10n.text("Re-check"), action: recheck)
                         .buttonStyle(.plain)
                         .seleneFont(14, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
@@ -71,7 +72,7 @@ struct SettingsEngineSection: View {
                         checkRow(title: check.title, status: check.status, detail: detail(for: check),
                                  metal: check.id == "metal" ? report.metal : nil)
                     }
-                } else {
+                } else if setup.isCheckingEnvironment {
                     HStack(spacing: 8) {
                         ProgressView().controlSize(.small)
                         Text(L10n.text("Running the compatibility check..."))
@@ -147,7 +148,7 @@ struct SettingsEngineSection: View {
             .disabled(configurationLocked)
         }
         .onAppear {
-            setup.prepareBuildEnvironmentIfNeeded()
+            if !passiveArrival { setup.prepareBuildEnvironmentIfNeeded() }
             publishActions()
         }
         .onChange(of: setup.allowUntestedToolchain) { publishActions() }
@@ -158,6 +159,11 @@ struct SettingsEngineSection: View {
         .onChange(of: setup.isSwitchingEngine) { publishActions() }
         .onChange(of: viewModel.isBuilding) { publishActions() }
         .onChange(of: viewModel.isUpdatingApp) { publishActions() }
+    }
+
+    private func recheck() {
+        if passiveArrival { setup.refreshCompatibility() }
+        else { setup.detectEnvironment() }
     }
 
     private func confirmOverride() {
@@ -203,7 +209,7 @@ struct SettingsEngineSection: View {
     }
 
     private var statusText: String {
-        setup.toolchainGateSummary?.label ?? L10n.text("Checking")
+        setup.toolchainGateSummary?.label ?? L10n.text(setup.isCheckingEnvironment ? "Checking" : "Unknown")
     }
 
     private var statusColor: Color {
@@ -508,9 +514,7 @@ struct SettingsEngineSection: View {
             .init(id: "repo", title: "Engine repository", isEnabled: !configurationLocked) {
                 setup.selectNxnativeFolder()
             },
-            .init(id: "recheck", title: "Compatibility", isEnabled: !configurationLocked) {
-                setup.detectEnvironment()
-            },
+            .init(id: "recheck", title: "Compatibility", isEnabled: !configurationLocked, activate: recheck),
             .init(id: "engineAtLaunch", title: "Check engine at launch") {
                 settings.settings.checkEngineAtLaunch.toggle()
             },

@@ -7,6 +7,10 @@ import os
 
 enum SettingsFocusArea { case sidebar, rows }
 
+extension EnvironmentValues {
+    @Entry var passiveSettingsArrival = false
+}
+
 /// Selene's settings screen (`SettingsScreen.cs`): groups on the left, the group's rows on the right.
 struct SettingsView: View {
     private let initialSection: SettingsSection
@@ -19,6 +23,7 @@ struct SettingsView: View {
     /// Opens the Search field when the player asks for it (`enterSection`).
     @State private var searchFieldRequest = 0
     @State private var section: SettingsSection
+    @State private var openedFromIntegrations: Bool
     @State private var showingControls = false
     @State private var cloudAssistant: CloudSetupAssistant.Entry?
     @State private var editingCloudReference = false
@@ -87,6 +92,7 @@ struct SettingsView: View {
         _nextendo = ObservedObject(wrappedValue: account ?? .shared)
         profiles = viewModel.localProfiles
         _section = State(initialValue: initialSection)
+        _openedFromIntegrations = State(initialValue: router.previousRoute == .integrations)
     }
 
     private var layout: some View {
@@ -309,6 +315,7 @@ struct SettingsView: View {
                         onEditCloudReference: { editingCloudReference = true },
                         onActions: updateActions
                     )
+                    .environment(\.passiveSettingsArrival, openedFromIntegrations && section == initialSection)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .environment(\.seleneFocusedRowID, focusArea == .rows ? focusedRow?.rowID : nil)
