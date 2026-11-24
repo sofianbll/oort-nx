@@ -94,6 +94,27 @@ final class BuildServiceTests: XCTestCase {
         XCTAssertEqual(log.first, 0xff, "The raw log keeps the original bytes")
     }
 
+    func testLogWriteFailureWarnsOnceAndKeepsEngineEvents() throws {
+        var oldLimit = rlimit()
+        guard getrlimit(RLIMIT_FSIZE, &oldLimit) == 0 else { return XCTFail("getrlimit failed") }
+        var limited = oldLimit
+        limited.rlim_cur = min(oldLimit.rlim_cur, 1024)
+        let oldSignal = signal(SIGXFSZ, SIG_IGN)
+        defer { _ = signal(SIGXFSZ, oldSignal) }
+        guard setrlimit(RLIMIT_FSIZE, &limited) == 0 else { return XCTFail("setrlimit failed") }
+        defer { _ = setrlimit(RLIMIT_FSIZE, &oldLimit) }
+        let (events, log) = try captureOutput(script: #"""
+        printf '{"ev":"say","msg":"%4096s"}\n' 'too big for the log'
+        printf '{"ev":"say","msg":"Still here"}\n'
+        printf '{"ev":"say","msg":"Finished"}\n'
+        exit 1
+        """#)
+        XCTAssertLessThanOrEqual(log.count, 1024)
+        XCTAssertTrue(events.contains(.say("Still here")))
+        XCTAssertTrue(events.contains(.say("Finished")))
+        XCTAssertEqual(events.filter { if case .log = $0 { true } else { false } }.count, 1)
+    }
+
     private func captureOutput(script: String, firstChunkBytes: Int = 0) throws -> ([BuildEvent], Data) {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("NXOutput-\(UUID())")
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)

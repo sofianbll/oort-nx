@@ -77382,6 +77382,17 @@
         }
       }
     },
+    "The build log could not be written. Porting continues.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "The build log could not be written. Porting continues."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Impossible d’écrire le journal. Le portage continue."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Impossibile scrivere il log. Il porting continua."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Das Build-Protokoll konnte nicht geschrieben werden. Die Portierung läuft weiter."}},
+        "es": {"stringUnit": {"state": "translated", "value": "No se pudo escribir el registro. La compilación continúa."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Não foi possível gravar o log. A compilação continua."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法写入构建日志。移植将继续。"}}
+      }
+    },
     "The build queue could not be saved. Builds may not resume after quitting.": {
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "The build queue could not be saved. Builds may not resume after quitting."}},

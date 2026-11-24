@@ -525,7 +525,7 @@ Cartella `Sources/ArcanePorting/Build/`.
 | [Sources/ArcanePorting/Build/BuildCommandBuilder.swift](../../Sources/ArcanePorting/Build/BuildCommandBuilder.swift) | Contratto CLI nxnative: Mac, JSON, versione pacchetto, selezione --program esplicita, override toolchain e Nextendo con ID pubblico. |
 | [Sources/ArcanePorting/Build/BuildEvent.swift](../../Sources/ArcanePorting/Build/BuildEvent.swift) | Definisce gli eventi di fase, step, avanzamento e log ricevuti dal motore. |
 | [Sources/ArcanePorting/Build/BuildEventParser.swift](../../Sources/ArcanePorting/Build/BuildEventParser.swift) | Decodifica eventi JSON e tratta le altre righe come log. |
-| [Sources/ArcanePorting/Build/BuildService.swift](../../Sources/ArcanePorting/Build/BuildService.swift) | Avvia il porting, gestisce processi, cancellazione, log ed eventi; conserva il bundle valido quando fallisce solo l’installazione. |
+| [Sources/ArcanePorting/Build/BuildService.swift](../../Sources/ArcanePorting/Build/BuildService.swift) | Gestisce processi, cancellazione, log ed eventi; continua a leggere l’engine se non può scrivere il log. Conserva il bundle valido quando fallisce solo l’installazione. |
 | [Sources/ArcanePorting/Build/BuildOutputInstaller.swift](../../Sources/ArcanePorting/Build/BuildOutputInstaller.swift) | Firma ad hoc e verifica per packaging e adozione; pubblica il bundle con rinomina o scambio atomico e riprende i tentativi tramite ricevuta. |
 | [Sources/ArcanePorting/Build/GameAppDestination.swift](../../Sources/ArcanePorting/Build/GameAppDestination.swift) | Risolve la destinazione per build, rebuild e adozione; evita conflitti di nome e rimanda a Game folders se la destinazione non è disponibile. |
 

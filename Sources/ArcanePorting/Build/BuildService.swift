@@ -110,6 +110,7 @@ public final class BuildService {
                                 withIntermediateDirectories: true)
         fm.createFile(atPath: logURL.path, contents: nil)
         logHandle = try? FileHandle(forWritingTo: logURL)
+        if logHandle == nil { reportLogWriteFailure() }
 
         var assertion = IOPMAssertionID(0)
         if IOPMAssertionCreateWithName(
@@ -171,7 +172,7 @@ public final class BuildService {
                 try? pipe.fileHandleForReading.close()
                 try? pipe.fileHandleForWriting.close()
             }
-            logHandle?.closeFile()
+            try? logHandle?.close()
             logHandle = nil
             releaseAssertion()
             stateLock.lock()
@@ -235,7 +236,12 @@ public final class BuildService {
         guard !data.isEmpty else { return }
         ioQueue.async { [weak self] in
             guard let self else { return }
-            self.logHandle?.write(data)
+            do { try self.logHandle?.write(contentsOf: data) }
+            catch {
+                try? self.logHandle?.close()
+                self.logHandle = nil
+                self.reportLogWriteFailure()
+            }
             if isError {
                 self.stderrBuffer.append(data)
                 self.drain(&self.stderrBuffer, asError: true)
@@ -244,6 +250,10 @@ public final class BuildService {
                 self.drain(&self.stdoutBuffer, asError: false)
             }
         }
+    }
+
+    private func reportLogWriteFailure() {
+        eventHandler?(.log(L10n.text("The build log could not be written. Porting continues.")))
     }
 
     private func drain(_ buffer: inout Data, asError: Bool, atEOF: Bool = false) {
@@ -277,7 +287,7 @@ public final class BuildService {
             guard let self else { return }
             self.drain(&self.stdoutBuffer, asError: false, atEOF: true)
             self.drain(&self.stderrBuffer, asError: true, atEOF: true)
-            self.logHandle?.closeFile()
+            try? self.logHandle?.close()
             self.logHandle = nil
             self.releaseAssertion()
 
