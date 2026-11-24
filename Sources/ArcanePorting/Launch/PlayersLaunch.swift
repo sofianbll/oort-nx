@@ -39,7 +39,7 @@ public struct PlayersLaunch: Sendable {
     static func nameKey(_ slot: Int) -> String { "DM_USER_\(slot)_NAME" }
     static func imageKey(_ slot: Int) -> String { "DM_USER_\(slot)_IMAGE" }
 
-    struct EngineFeatures: Equatable {
+    struct EngineFeatures: Equatable, Sendable {
         var order = false
         var extendedMerge = false
         var names = false
@@ -51,29 +51,47 @@ public struct PlayersLaunch: Sendable {
         static let namesCommit = "3b67ef1f03023507ecf6174add942a4f1f94942b"
         static let imagesCommit = "22143d4e80b29347d056a0868bfec520938ca1c9"
 
-        static func installed(in app: URL, ancestry: EngineAncestry?) async -> Self {
-            guard let ancestry, let commit = CheatLocator.engineCommit(appURL: app, recorded: nil),
+        static func packedCommit(in app: URL) -> String? {
+            guard let commit = CheatLocator.engineCommit(appURL: app, recorded: nil),
                   commit.utf8.allSatisfy("0123456789abcdefABCDEF".utf8.contains),
                   FileManager.default.isReadableFile(atPath: HomeMenu.hostExecutable(in: app).path)
-            else { return .init() }
-            func contains(_ feature: String) async -> Bool {
-                await ancestry.answer(feature, in: commit) == true
+            else { return nil }
+            return commit
+        }
+
+        static func cached(in app: URL, ancestry: EngineAncestry?) -> Self {
+            guard let ancestry, let commit = packedCommit(in: app) else { return .init() }
+            func contains(_ feature: String) -> Bool { (ancestry.keptAnswer(feature, in: commit) ?? nil) == true }
+            let fixed = contains(macFix)
+            return .init(order: fixed && contains(orderCommit), extendedMerge: fixed && contains(mergeCommit),
+                         names: contains(namesCommit), images: contains(imagesCommit))
+        }
+
+        static func installed(in app: URL, ancestry: EngineAncestry?) async -> Self {
+            guard let ancestry, let commit = packedCommit(in: app) else { return .init() }
+            async let fixed = ancestry.answer(macFix, in: commit)
+            async let names = ancestry.answer(namesCommit, in: commit)
+            async let images = ancestry.answer(imagesCommit, in: commit)
+            if await fixed == true {
+                async let order = ancestry.answer(orderCommit, in: commit)
+                async let merge = ancestry.answer(mergeCommit, in: commit)
+                return await .init(order: order == true, extendedMerge: merge == true, names: names == true, images: images == true)
             }
-            let fixed = await contains(macFix)
-            let order = fixed ? await contains(orderCommit) : false
-            let merge = fixed ? await contains(mergeCommit) : false
-            let names = await contains(namesCommit)
-            let images = await contains(imagesCommit)
-            return .init(order: order, extendedMerge: merge, names: names, images: images)
+            return await .init(names: names == true, images: images == true)
         }
     }
 
     public let status: PlayersLaunchStatus
     let additions: [String: String]
-    fileprivate let portraitFiles: PlayerLaunchPortraits?
+    let portraitFiles: PlayerLaunchPortraits?
 
     public typealias LiveControllers = @MainActor @Sendable () -> (connected: [ConnectedPlayerController],
                                                                   fingerprints: [String: String])
+
+    /// Prepare proof ahead of Play. Unknown ancestry never enables an option.
+    public static func warmEngine(in app: URL, ancestry: EngineAncestry) async {
+        _ = await EngineFeatures.installed(in: app, ancestry: ancestry)
+    }
 
     private init(plan: PlayersLaunchStatus.PlanState, controllerMode: PlayersLaunchStatus.Omission? = nil,
                  nickname: PlayersLaunchStatus.Omission? = nil, additions: [String: String] = [:],
@@ -95,7 +113,7 @@ public struct PlayersLaunch: Sendable {
         let snapshot: (plan: PlayerPlan?, unlocked: Set<UUID>)
         do { snapshot = try await library.launchPlan(profiles: profiles) }
         catch { return .init(plan: .unreadable) }
-        let features = await EngineFeatures.installed(in: app, ancestry: ancestry)
+        let features = EngineFeatures.cached(in: app, ancestry: ancestry)
         guard let plan = snapshot.plan else { return .init(plan: .absent, supportsExtendedMerge: features.extendedMerge) }
         let environment = NSWorkspaceLauncher.gameEnvironment(
             inheriting: ProcessInfo.processInfo.environment, explicit: explicit, suppressInheritedPlayerMode: true)
@@ -259,35 +277,25 @@ public struct PlayersLaunch: Sendable {
                 if number != 1 {
                     let key = nameKey(number)
                     if let reason = unavailable(key, supported: features.names) { names[number] = reason }
-                    else if let name = localName(profile.name) { additions[key] = name }
+                    else if let name = PlayerLaunchEnvironment.wireName(profile.name) { additions[key] = name }
                     else { names[number] = .invalidNickname }
                 }
                 let key = imageKey(number)
                 if let reason = unavailable(key, supported: features.images) { portraits[number] = reason }
-                else if let jpeg = PlayerLaunchPortraits.jpeg(profile: profile, symbols: avatarSymbols) {
-                    if let root = portraitDirectory {
+                else if let root = portraitDirectory {
+                    if let jpeg = PlayerLaunchPortraits.jpeg(profile: profile, symbols: avatarSymbols) {
                         do {
                             if files == nil { files = try PlayerLaunchPortraits(in: root) }
                             additions[key] = try files?.write(jpeg, player: number)
                         } catch { portraits[number] = .portraitExportFailed }
-                    }
-                } else { portraits[number] = .invalidPortrait }
+                    } else { portraits[number] = .invalidPortrait }
+                }
             case .guest: break
             }
         }
         return .init(plan: .active, controllerMode: controller, nickname: nickname, additions: additions,
                      controllerOrder: order, profileNames: names, portraits: portraits, portraitFiles: files,
                      supportsExtendedMerge: features.extendedMerge)
-    }
-
-    private static func localName(_ value: String) -> String? {
-        guard !value.utf8.contains(0) else { return nil }
-        var bytes = 0
-        let name = value.unicodeScalars.prefix { scalar in
-            bytes += scalar.utf8.count
-            return bytes <= 32
-        }
-        return name.isEmpty ? nil : String(name)
     }
 
     private static func unreadableEnvironment(for plan: PlayerPlan, features: EngineFeatures) -> Self {
@@ -345,23 +353,5 @@ public struct PlayersLaunch: Sendable {
             if values[key] == nil { values[key] = String(decoding: value[..<end], as: UTF8.self) }
         }
         return values
-    }
-}
-
-extension LaunchService {
-    /// Prepared Play carries a portrait lease; the legacy overload also serves launches without a plan.
-    public func launch(appURL: URL, environment: [String: String], homeButton: InGameHomeButton,
-                       overlay: GameOverlayLaunch?, snapshot: GameOverlaySnapshot?, players: PlayersLaunch,
-                       onExit: (() -> Void)?, completion: @escaping (Bool, String?) -> Void) {
-        let files = players.portraitFiles
-        let afterExit: (() -> Void)? = files == nil ? onExit : {
-            files?.clean()
-            onExit?()
-        }
-        launch(appURL: appURL, environment: environment, homeButton: homeButton, overlay: overlay, snapshot: snapshot,
-               temporaryDirectory: FileManager.default.temporaryDirectory, players: players, onExit: afterExit) { success, error in
-            if !success { files?.clean() }
-            completion(success, error)
-        }
     }
 }

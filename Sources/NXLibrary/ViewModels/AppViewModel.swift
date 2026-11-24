@@ -165,6 +165,7 @@ final class AppViewModel: ObservableObject {
                 self.cloudLibrary.localSourceIDs = local
                 self.installedVersions = versions
             }
+            await Self.warmPlayerEngines(games.filter(\.isPlayableLocally).map(\.url), path: checkout)
         }
         installedVersionsRefresh = task
         return task

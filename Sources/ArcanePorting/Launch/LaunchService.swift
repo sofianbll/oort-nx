@@ -148,13 +148,15 @@ public final class LaunchService {
             values[GameOverlayLaunch.dataKey] = file.path
             cleanup = { try? FileManager.default.removeItem(at: file.deletingLastPathComponent()) }
         }
-        let afterExit: (() -> Void)? = (cleanup == nil && onExit == nil) ? nil : {
+        let portraits = players?.portraitFiles
+        let afterExit: (() -> Void)? = (cleanup == nil && portraits == nil && onExit == nil) ? nil : {
             cleanup?()
+            portraits?.clean()
             onExit?()
         }
         launcher.open(appURL, environment: values, suppressInheritedPlayerMode: players?.status.plan == .active,
                       onExit: afterExit) { success, error in
-            if !success { cleanup?() }
+            if !success { cleanup?(); portraits?.clean() }
             completion(success, error)
         }
     }

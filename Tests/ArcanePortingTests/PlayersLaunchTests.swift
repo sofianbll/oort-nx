@@ -258,9 +258,96 @@ final class PlayersLaunchTests: XCTestCase {
                                                             serial: "synthetic-pad-A "))
         XCTAssertNil(PlayerPadFingerprint.make(transport: "hid", vendor: 0, product: 0, serial: "A\0B"))
         XCTAssertNil(PlayerPadFingerprint.make(transport: "hid", vendor: 0, product: 0, serial: String(repeating: "é", count: 256)))
-        XCTAssertEqual(PlayerPadFingerprint.unique([(hash, "first")]), ["first": hash])
-        XCTAssertTrue(PlayerPadFingerprint.unique([(hash, "first"), (hash, nil)]).isEmpty)
-        XCTAssertTrue(PlayerPadFingerprint.unique([(hash, "first"), ("other", "first")]).isEmpty)
+        XCTAssertEqual(PlayerPadFingerprint.unique([(hash, "first", nil)]), ["first": hash])
+        XCTAssertTrue(PlayerPadFingerprint.unique([(hash, "first", nil), (hash, nil, nil)]).isEmpty)
+        XCTAssertTrue(PlayerPadFingerprint.unique([(hash, "first", nil), ("other", "first", nil)]).isEmpty)
+    }
+
+    func testDoubleUsageCountsEachRegistryDeviceOnceButNeverMatchesPhysicalTwins() {
+        XCTAssertEqual(PlayerPadFingerprint.unique([("hash", "pad", 42), ("hash", "pad", 42)]), ["pad": "hash"])
+        XCTAssertEqual(PlayerPadFingerprint.unique([("hash", "pad", 42), ("hash", "pad", 43)]), [:])
+        XCTAssertEqual(PlayerPadFingerprint.unique([("hash", "pad", nil), ("hash", "pad", nil)]), [:])
+    }
+
+    func testPlayOnlyUsesWarmedGitProofAndDoesNotReadHIDOnColdLaunch() async throws {
+        struct PositiveGit: CommandRunning, Sendable {
+            func run(_ executable: URL, _ arguments: [String], environment: [String: String]?,
+                     currentDirectory: URL?) throws -> CommandResult {
+                XCTAssertFalse(Thread.isMainThread)
+                return .init(status: 0, stdout: "", stderr: "")
+            }
+        }
+        let f = try fixture()
+        try f.writeRules([:], commit: "123abcd")
+        try f.write("\0DM_PAD_MERGE\0", to: f.host)
+        let ancestry = EngineAncestry(runner: PositiveGit(), engineFolder: f.home)
+        let library = PlayerPlanLibrary(url: f.plan)
+        var plan = PlayerPlan(mode: .inOrder)
+        try plan.set(.init(controller: .init(stableID: "pad")), at: 3)
+        try await library.save(plan)
+        func play() async -> PlayersLaunch {
+            await PlayersLaunch.prepare(library: library, app: f.app, titleID: f.id, explicit: ["HOME": f.home.path],
+                                       profiles: [], ancestry: ancestry, liveControllers: {
+                XCTFail("Cold Play asked for controller data without cached proof")
+                return ([], [:])
+            })
+        }
+        let cold = await play()
+        XCTAssertFalse(cold.status.supportsExtendedMerge)
+        XCTAssertNil(ancestry.keptAnswer(PlayersLaunch.EngineFeatures.macFix, in: "123abcd") as Bool??)
+        _ = await PlayersLaunch.EngineFeatures.installed(in: f.app, ancestry: ancestry)
+        plan.mode = .merge
+        try plan.setMergePlayer(3)
+        try await library.save(plan)
+        let warmed = await play()
+        XCTAssertEqual(warmed.additions[merge], "3")
+    }
+
+    func testPortraitLeaseIsRetainedByOptionalLaunchAndRetiredOnFailureOrExit() throws {
+        let f = try fixture()
+        let profile = LocalProfile(name: "Portrait", look: .init(.init()))
+        var plan = PlayerPlan()
+        try plan.set(.init(profileID: profile.id), at: 1)
+        for succeeds in [true, false] {
+            let stub = LaunchServiceTests.FakeLauncher()
+            stub.shouldSucceed = succeeds
+            var payload: PlayersLaunch? = PlayersLaunch.evaluate(
+                plan: plan, app: f.app, titleID: f.id, home: f.home, environment: [network: "offline"],
+                profiles: [profile], features: .init(images: true), avatarSymbols: ["person.fill"], portraitDirectory: f.home)
+            let image = try XCTUnwrap(payload?.additions["DM_USER_1_IMAGE"])
+            LaunchService(launcher: stub).launch(appURL: f.app, players: payload) { success, _ in
+                XCTAssertEqual(success, succeeds)
+            }
+            payload = nil
+            XCTAssertEqual(FileManager.default.fileExists(atPath: image), succeeds)
+            if succeeds { try XCTUnwrap(stub.onExit)() }
+            XCTAssertFalse(FileManager.default.fileExists(atPath: image))
+        }
+    }
+
+    func testPreviewDoesNotDecodeThePortraitButLaunchReportsCorruption() throws {
+        let f = try fixture()
+        let profile = LocalProfile(name: "Broken image", portrait: Data([0, 0, 0]), look: .init(.init()))
+        var plan = PlayerPlan()
+        try plan.set(.init(profileID: profile.id), at: 1)
+        func evaluate(_ directory: URL?) -> PlayersLaunch {
+            PlayersLaunch.evaluate(plan: plan, app: f.app, titleID: f.id, home: f.home, environment: [network: "offline"],
+                                   profiles: [profile], features: .init(images: true), portraitDirectory: directory)
+        }
+        XCTAssertNil(evaluate(nil).status.portraits[1], "Preview must not try to decode or encode the image")
+        XCTAssertNil(evaluate(nil).additions["DM_USER_1_IMAGE"])
+        XCTAssertEqual(evaluate(f.home).status.portraits[1], .invalidPortrait)
+    }
+
+    func testNameTruncatesOnlyBetweenWholeCharactersForEveryPlayer() throws {
+        let f = try fixture()
+        try f.write("\0\(nick)\0", to: f.host)
+        let profile = LocalProfile(name: "12345678👨‍👩‍👧‍👦", look: .init(.init()))
+        var plan = PlayerPlan()
+        for number in [1, 2, 8] { try plan.set(.init(profileID: profile.id), at: number) }
+        let result = PlayersLaunch.evaluate(plan: plan, app: f.app, titleID: f.id, home: f.home,
+                                            environment: [network: "offline"], profiles: [profile], features: .init(names: true))
+        for key in [nick, "DM_USER_2_NAME", "DM_USER_8_NAME"] { XCTAssertEqual(result.additions[key], "12345678") }
     }
 
     func testPackedCommitMustProveEachFeatureAndTheMacFix() async throws {

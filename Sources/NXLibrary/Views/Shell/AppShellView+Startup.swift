@@ -87,6 +87,7 @@ extension AppShellView {
         }
         updater.checkAtLaunch(enabled: settings.settings.checkAppUpdatesAtLaunch)
         installGestureKeyMonitor()
+        viewModel.watchPlayerPads()
         GameControllerService.shared.onAction = { [weak viewModel, weak router] action in
             guard let viewModel, let router else { return }
             guard !nativeMenus.isTracking, !nativeDialogOwnsInput, viewModel.launchOverlay == nil else { return }
