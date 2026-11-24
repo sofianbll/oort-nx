@@ -226,6 +226,10 @@ struct CloudSetupAssistant: View {
     private var account: some View {
         VStack(alignment: .leading, spacing: canvas.u(10)) {
             if let version { SeleneStatusDot(text: format("rclone detected · %@", [version]), color: SeleneTheme.statusOK) }
+            if tool != nil, remotes != nil, work == nil {
+                Text(text("New connections request full Google Drive access. Google does not limit that permission to the folders you choose here."))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             if work?.kind == .inspect { progress("Checking…") }
             else if work?.kind == .connect { progress("Waiting for Google sign-in in your browser…") }
             else if tool == nil {
@@ -247,7 +251,7 @@ struct CloudSetupAssistant: View {
                     option(.changeCredentials, text("Change credentials")) { editingCredentials = true }
                 }
             } else {
-                Text(text("Use a Google OAuth client for a desktop app. rclone asks for full Google Drive access."))
+                Text(text("Use a Google OAuth client for a desktop app."))
                     .fixedSize(horizontal: false, vertical: true)
                 HStack(spacing: canvas.u(12)) {
                     option(.console, text("Google Console")) { openConsole() }
