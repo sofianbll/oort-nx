@@ -11,6 +11,7 @@ final class GCControllerSource: ControllerSource {
     private var connected: [ObjectIdentifier: GCController] = [:]
     private var unbindActivity: [ObjectIdentifier: () -> Void] = [:]
     private var stopIdentification: [ObjectIdentifier: () -> Void] = [:]
+    private var generation = 0
     var preferredID: ObjectIdentifier? { controller.map(ObjectIdentifier.init) }
 
     func start() {
@@ -32,6 +33,7 @@ final class GCControllerSource: ControllerSource {
     deinit { tearDown() }
 
     private func tearDown() {
+        generation += 1
         observers.forEach(NotificationCenter.default.removeObserver)
         observers.removeAll()
         unbind?()
@@ -88,6 +90,7 @@ final class GCControllerSource: ControllerSource {
 
     private func bindActivity(_ controller: GCController, excluding: Set<ObjectIdentifier>) {
         let id = ObjectIdentifier(controller)
+        let generation = generation
         let profile = controller.physicalInputProfile
         let directions = profile.dpads.values.flatMap { [$0.up, $0.down, $0.left, $0.right] }
         var seen = excluding
@@ -96,7 +99,7 @@ final class GCControllerSource: ControllerSource {
             button.pressedChangedHandler = { [weak self, weak controller] _, _, pressed in
                 guard pressed else { return }
                 let deliver = { [weak self, weak controller] in
-                    guard let self, let controller, self.connected[id] === controller else { return }
+                    guard let self, let controller, self.generation == generation, self.connected[id] === controller else { return }
                     self.onEvent?(.buttonPressed(id))
                 }
                 if Thread.isMainThread { deliver() } else { DispatchQueue.main.async(execute: deliver) }
@@ -110,7 +113,9 @@ final class GCControllerSource: ControllerSource {
     func status(_ id: ObjectIdentifier) -> ControllerStatus {
         guard let controller = connected[id] else { return .init() }
         let battery = controller.battery
-        let level = battery.flatMap { (0...1).contains($0.batteryLevel) ? $0.batteryLevel : nil }
+        let level = battery.flatMap {
+            (0...1).contains($0.batteryLevel) && ($0.batteryLevel != 0 || $0.batteryState != .unknown) ? $0.batteryLevel : nil
+        }
         let charging: Bool?
         switch battery?.batteryState {
         case .charging: charging = true
@@ -158,11 +163,12 @@ final class GCControllerSource: ControllerSource {
     private func bind(_ controller: GCController, pad: GCExtendedGamepad, face: FaceButtons,
                       view: GCControllerButtonInput?) {
         let id = ObjectIdentifier(controller)
+        let generation = generation
         let emit: (ControllerInputChange) -> Void = { [weak self, weak controller] input in
             // GameController defaults to the main queue; also honor the source contract
             // if the handler queue has been changed.
             let deliver = { [weak self, weak controller] in
-                guard let self, let controller, self.controller === controller else { return }
+                guard let self, let controller, self.generation == generation, self.controller === controller else { return }
                 self.onEvent?(.input(id, input))
             }
             if Thread.isMainThread { deliver() } else { DispatchQueue.main.async(execute: deliver) }

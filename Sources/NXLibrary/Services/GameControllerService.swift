@@ -35,6 +35,7 @@ final class GameControllerService: ObservableObject {
     private let preferences: UserDefaults?
     private var gcPad: ControllerIdentity?
     private var roster = ControllerRoster()
+    private var visibleControllers: [ControllerRoster.Entry] = []
     private var sleeping = false
     private var statusTimer: Timer?
     private var observers: [(NotificationCenter, NSObjectProtocol)] = []
@@ -99,14 +100,14 @@ final class GameControllerService: ObservableObject {
     @discardableResult
     func identify(_ connectionID: String) -> Bool {
         guard !sleeping,
-              let entry = roster.visible.first(where: { $0.connectionID == connectionID }) else { return false }
+              let entry = visibleControllers.first(where: { $0.connectionID == connectionID }) else { return false }
         return source(for: entry).identify(entry.controller.id)
     }
 
     func suspendControllers() {
         guard !sleeping else { return }
         sleeping = true
-        roster = ControllerRoster()
+        roster.suspend()
         gcPad = nil
         hidPads.removeAll()
         selectController()
@@ -166,7 +167,7 @@ final class GameControllerService: ObservableObject {
 
     private func emitButtonPress(_ id: ObjectIdentifier) {
         guard isAppActive,
-              let entry = roster.visible.first(where: { $0.controller.id == id }) else { return }
+              let entry = visibleControllers.first(where: { $0.controller.id == id }) else { return }
         buttonPresses.send(entry.connectionID)
     }
 
@@ -174,6 +175,7 @@ final class GameControllerService: ObservableObject {
 
     private func updateRoster() {
         let visible = roster.visible
+        visibleControllers = visible
         hidSource.observe(Set(visible.filter(\.isHID).map(\.controller.id)))
         let current = roster.snapshot(visible) { source(for: $0).status($0.controller.id) }
         if connectedControllers != current { connectedControllers = current }

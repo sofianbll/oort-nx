@@ -55,7 +55,7 @@ protocol ControllerSource: AnyObject {
     func stop()
     func refresh()
     var preferredID: ObjectIdentifier? { get }
-    func select(_ id: ObjectIdentifier?) -> Bool
+    @discardableResult func select(_ id: ObjectIdentifier?) -> Bool
     func observe(_ ids: Set<ObjectIdentifier>)
     func status(_ id: ObjectIdentifier) -> ControllerStatus
     func identify(_ id: ObjectIdentifier) -> Bool
