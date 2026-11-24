@@ -60,14 +60,6 @@ struct AppShellView: View {
         _showsWelcome = State(initialValue: state.opensWithWelcome)
     }
 
-    func updateLocale() {
-        let previousLanguage = AppLocalization.shared.context.language
-        AppLocalization.shared.configure(settings.settings)
-        if previousLanguage != AppLocalization.shared.context.language && !viewModel.isGuidedSetupOpen {
-            store.refreshLocalizedMetadata()
-        }
-    }
-
     func finishOnboarding() {
         resumeOnboardingAfterSettings = false
         router.showLibrary()
@@ -92,11 +84,12 @@ struct AppShellView: View {
     }
 
     var backdropStyle: SeleneBackdropStyle {
-        SeleneBackdropStyle(palette: theme.palette,
-                            wallpaperURL: theme.wallpaper(for: settings.settings.wallpaperID)?.url,
-                            sizing: settings.settings.backgroundSizing,
-                            animated: settings.settings.animatedBackground,
-                            brightness: settings.settings.wallpaperBrightness)
+        let values = settings.presentation
+        return SeleneBackdropStyle(palette: theme.palette,
+                            wallpaperURL: theme.wallpaper(for: values.wallpaperID)?.url,
+                            sizing: values.backgroundSizing,
+                            animated: values.animatedBackground,
+                            brightness: values.wallpaperBrightness)
     }
 
     func updateSharedBackdrop(_ request: SeleneBackdropRequest?) {
@@ -118,6 +111,7 @@ struct AppShellView: View {
     var isCloseGameOpen: Bool {
         viewModel.gameToClose != nil || viewModel.gameToRemove != nil || showsUpdateOffer || showsInstallFailure
             || showsSettingsNotice || viewModel.cloudLibraryGameID != nil || viewModel.cloudQuitRequested
+            || router.settingsDecision != nil
     }
     var showsInstallFailure: Bool {
         viewModel.gameWithInstallFailure != nil && !viewModel.showSetupCheck
@@ -138,7 +132,7 @@ struct AppShellView: View {
     }
 
     var reduceMotion: Bool {
-        settings.settings.reduceMotion || accessibilityReduceMotion
+        settings.presentation.reduceMotion || accessibilityReduceMotion
     }
 
     /// Native alerts and file pickers own input, including while their parent has no key window.

@@ -11,6 +11,7 @@ struct PlayersScreen: View {
     var orderNotes: [Int: String] = [:]
     var modeNote: String?
     var profileNotes: [Int: String] = [:]
+    var saveSettingsDraft: (() -> Void)?
 
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.nxAppLocale) private var localization

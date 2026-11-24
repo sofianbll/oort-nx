@@ -6,26 +6,33 @@ struct SettingsEngineSection: View {
     @ObservedObject var viewModel: AppViewModel
     /// Engine, upstream and Newest engine (`SetupModel`), observed on their own.
     @ObservedObject var setup: SetupModel
-    @ObservedObject var settings: AppSettingsStore
+    @ObservedObject var settings: SettingsEditor
     let onActions: ([SettingsRowAction]) -> Void
 
     @Environment(\.seleneFocusedRowID) private var focusedRowTitle
     @Environment(\.seleneFocusedButton) private var focusedButton
     @Environment(\.passiveSettingsArrival) private var passiveArrival
     private var configurationLocked: Bool { viewModel.isBuilding || viewModel.isUpdatingApp }
+    private var enginePath: String { settings.settings.launcherChoices.enginePath ?? setup.nxnativePath }
+    private func chooseEnginePath() {
+        setup.selectNxnativeFolder(startingAt: enginePath.isEmpty ? nil : URL(fileURLWithPath: enginePath)) { url in
+            settings.settings.launcherChoices.enginePath = url.path == setup.nxnativePath
+                ? settings.store.settings.launcherChoices.enginePath : url.path
+        }
+    }
 
     var body: some View {
         VStack(spacing: 9) {
             SeleneRow("Engine repository",
                       subtitle: "The upstream nxnative checkout used for builds. Updates stay manual.") {
                 HStack(spacing: 10) {
-                    Text(setup.nxnativePath.isEmpty ? L10n.text("Not selected") : setup.nxnativePath)
+                    Text(enginePath.isEmpty ? L10n.text("Not selected") : enginePath)
                         .seleneFont(15, .medium)
                         .foregroundColor(SeleneTheme.ink.opacity(0.62))
                         .lineLimit(1)
                         .truncationMode(.middle)
                         .frame(maxWidth: 300, alignment: .trailing)
-                    Button(L10n.text("Change")) { setup.selectNxnativeFolder() }
+                    Button(L10n.text("Change"), action: chooseEnginePath)
                         .buttonStyle(.plain)
                         .seleneFont(14, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
@@ -115,7 +122,7 @@ struct SettingsEngineSection: View {
                     .labelsHidden()
                     .toggleStyle(SeleneToggleStyle())
                     .disabled(!canChangeOverride)
-                    .accessibilityValue(setup.allowUntestedToolchain ? L10n.text("On") : L10n.text("Off"))
+                    .accessibilityValue(proposedOverride ? L10n.text("On") : L10n.text("Off"))
             }
 
             SeleneButtonRow("Upstream",
@@ -151,7 +158,7 @@ struct SettingsEngineSection: View {
             if !passiveArrival { setup.prepareBuildEnvironmentIfNeeded() }
             publishActions()
         }
-        .onChange(of: setup.allowUntestedToolchain) { publishActions() }
+        .onChange(of: proposedOverride) { publishActions() }
         .onChange(of: setup.compatibilityReport?.ok) { publishActions() }
         .onChange(of: setup.upstreamState) { publishActions() }
         .onChange(of: setup.newestEngineChoice) { publishActions() }
@@ -166,28 +173,24 @@ struct SettingsEngineSection: View {
         else { setup.detectEnvironment() }
     }
 
-    private func confirmOverride(_ enabled: Bool) {
-        guard canChangeOverride, enabled != setup.allowUntestedToolchain else { return }
-        viewModel.confirmSetting(enabled ? "Enable untested toolchain?" : "Return to the tested toolchain?",
-            message: L10n.text(enabled
-                ? "The engine and compiler do not match the certified combination. Builds may fail or show incorrect graphics and will be marked as untested."
-                : "Future builds will require a tested toolchain again, but installed games will stay as they are."),
-            action: enabled ? "Enable" : "Turn off") {
-            guard canChangeOverride, enabled != setup.allowUntestedToolchain else { return }
-            setup.allowUntestedToolchain = enabled
-        }
+    private var proposedOverride: Bool { setup.usesNewestEngine || (settings.settings.toolchainOverride ?? setup.legacyToolchainOverride) }
+
+    private func stageOverride(_ enabled: Bool) {
+        guard canChangeOverride, enabled != proposedOverride else { return }
+        settings.settings.toolchainOverride = settings.store.settings.toolchainOverride == nil
+            && enabled == setup.legacyToolchainOverride ? nil : enabled
     }
 
     private var overrideBinding: Binding<Bool> {
         Binding(
-            get: { setup.allowUntestedToolchain },
-            set: confirmOverride
+            get: { proposedOverride },
+            set: stageOverride
         )
     }
 
     private var canChangeOverride: Bool {
         ToolchainGateCopy.canChangeOverride(certified: setup.compatibilityReport?.ok,
-            overrideOn: setup.allowUntestedToolchain, locked: configurationLocked,
+            overrideOn: proposedOverride, locked: configurationLocked,
             newest: setup.usesNewestEngine)
     }
 
@@ -522,7 +525,7 @@ struct SettingsEngineSection: View {
     private func publishActions() {
         var actions: [SettingsRowAction] = [
             .init(id: "repo", title: "Engine repository", isEnabled: !configurationLocked) {
-                setup.selectNxnativeFolder()
+                chooseEnginePath()
             },
             .init(id: "recheck", title: "Compatibility", isEnabled: !configurationLocked, activate: recheck),
             .init(id: "engineAtLaunch", title: "Check engine at launch") {
@@ -530,7 +533,7 @@ struct SettingsEngineSection: View {
             },
             .init(id: "override", title: "Untested toolchain override",
                   isEnabled: canChangeOverride) {
-                confirmOverride(!setup.allowUntestedToolchain)
+                stageOverride(!proposedOverride)
             },
             .init(id: "upstream", title: "Upstream") {
                 setup.checkUpstreamChangelog()

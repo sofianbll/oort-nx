@@ -63,7 +63,7 @@ final class StoreMetadataModel: ObservableObject {
     }
 
     /// A language change only resets presentation metadata, never the library, personal picks or game settings.
-    func refreshLocalizedMetadata() {
+    func refreshLocalizedMetadata(locale: AppLocale) {
         metadataLocaleGeneration = UUID()
         let generation = metadataLocaleGeneration
         localizedMetadataRefresh?.cancel()
@@ -71,7 +71,6 @@ final class StoreMetadataModel: ObservableObject {
         storeMetadataErrors.removeAll()
         storeMetadataLoading.removeAll()
         let games = app.libraryGames
-        let locale = L10n.context
         let service = storeMetadataService
         // Keep a visible description while another language loads. Disk reads do not block the UI.
         localizedMetadataRefresh = Task { @MainActor [weak self] in

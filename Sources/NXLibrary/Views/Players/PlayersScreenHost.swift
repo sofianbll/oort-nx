@@ -16,6 +16,8 @@ struct PlayersScreenHost: View {
     let canHandleInput: () -> Bool
     let onClose: () -> Void
     var readNotes: (() async -> Notes)?
+    var hasSettingsDraft = false
+    var saveSettingsDraft: (() -> Void)?
 
     @Environment(\.seleneHintsCovered) private var covered
     @State private var notes = Notes()
@@ -24,7 +26,8 @@ struct PlayersScreenHost: View {
 
     var body: some View {
         let screen = PlayersScreen(model: model, onClose: onClose,
-                                   orderNotes: notes.order, modeNote: notes.mode, profileNotes: notes.profiles)
+                                   orderNotes: notes.order, modeNote: notes.mode, profileNotes: notes.profiles,
+                                   saveSettingsDraft: hasSettingsDraft ? saveSettingsDraft : nil)
         screen
             .task { await model.load() }
             .task(id: model.saving) {

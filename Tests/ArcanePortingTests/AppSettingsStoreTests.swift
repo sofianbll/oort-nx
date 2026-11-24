@@ -233,7 +233,7 @@ final class AppSettingsStoreTests: XCTestCase {
         {"gameDefaults":{"fullscreen":true,"language":"it","renderScale":0.75,"rumbleGain":2},
          "cloudSaves":{"folder":{"_0":"/x"}},"cloudSavesPickedFolder":"/x",
          "gameDisplay":"00000000-0000-0000-0000-000000000001","gameDisplayOverrides":{"0100000000000001":""},
-         "nextendoClientID":"sample-client","future":{"n":1},"showClock":false}
+         "nextendoClientID":"sample-client","toolchainOverride":false,"future":{"n":1},"showClock":false}
         """#
         let settings = try JSONDecoder().decode(AppSettings.self, from: Data(kept.utf8))
         XCTAssertEqual(Set(settings.moduleValues.keys), AppSettings.moduleKeys)

@@ -30,11 +30,14 @@ final class GameControllerService: ObservableObject {
     var onAction: ((GamepadAction) -> Void)?
 
     private let deadzoneKey = "NXNative_ControllerDeadzone"
-    @Published var deadzone: Float = 0.35 {
-        didSet {
-            let clamped = min(max(deadzone, 0.10), 0.80)
-            preferences?.set(Double(clamped), forKey: deadzoneKey)
-        }
+    @Published private(set) var deadzone: Float = 0.35
+    var legacyDeadzone: Double {
+        guard let preferences, preferences.object(forKey: deadzoneKey) != nil else { return 0.35 }
+        return min(max(preferences.double(forKey: deadzoneKey), 0.10), 0.80)
+    }
+    func useDeadzone(_ value: Double?) {
+        let next = Float(min(max(value ?? legacyDeadzone, 0.10), 0.80))
+        if next != deadzone { deadzone = next }
     }
 
     var navigationInterval: TimeInterval = 0.12
@@ -71,10 +74,8 @@ final class GameControllerService: ObservableObject {
         self.gcSource = gcSource
         self.hidSource = hidSource
         self.preferences = preferences
-        if let preferences {
-            if preferences.object(forKey: deadzoneKey) != nil {
-                deadzone = min(max(Float(preferences.double(forKey: deadzoneKey)), 0.10), 0.80)
-            }
+        if preferences != nil {
+            useDeadzone(nil)
             isAppActive = NSApplication.shared.isActive
             observe(NotificationCenter.default, NSApplication.didBecomeActiveNotification) { service in
                 service.isAppActive = true

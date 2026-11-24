@@ -17,6 +17,7 @@ struct SettingsView: View {
     @ObservedObject var viewModel: AppViewModel
     @ObservedObject var setup: SetupModel
     @ObservedObject var settings: AppSettingsStore
+    @StateObject private var editor: SettingsEditor
     @ObservedObject var router: AppRouter
     @ObservedObject var artwork: ArtworkStore
 
@@ -44,6 +45,14 @@ struct SettingsView: View {
     @State private var rowButton = 0
     @State private var rowActions: [SettingsRowAction] = []
     @State private var keyMonitor: Any?
+    @State private var decisionFocus = 2
+    @State private var decisionError: String?
+    @State private var decisionScroll = 0
+    @State private var savingPlayers = false
+    @State private var originalToolchainOverride: Bool?
+    @State private var originalDeadzone: Double?
+    @State private var originalDockIcon: String?
+    @State private var originalPaths = LauncherSettingsChoices()
     @Environment(\.seleneReduceMotion) private var environmentReduceMotion
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.seleneBackdropStyle) private var appBackdropStyle
@@ -51,8 +60,8 @@ struct SettingsView: View {
     /// The app's backdrop with the Settings wallpaper (Settings → Look), which may be the app's own.
     private var settingsBackdropStyle: SeleneBackdropStyle {
         var style = appBackdropStyle
-        let id = WallpaperCatalog.settingsWallpaper(settingsID: settings.settings.settingsWallpaperID,
-                                                    appID: settings.settings.wallpaperID)
+        let values = settings.presentation
+        let id = WallpaperCatalog.settingsWallpaper(settingsID: values.settingsWallpaperID, appID: values.wallpaperID)
         style.wallpaperURL = theme.wallpaper(for: id)?.url
         return style
     }
@@ -86,6 +95,7 @@ struct SettingsView: View {
         self.viewModel = viewModel
         self.setup = viewModel.setup
         self.settings = settings
+        _editor = StateObject(wrappedValue: SettingsEditor(settings))
         self.router = router
         self.artwork = artwork
         let account = profileAccount ?? viewModel.profileNextendo
@@ -108,6 +118,8 @@ struct SettingsView: View {
             .padding(.top, canvas.u(SeleneTokens.Space.stageHeader))
             .frame(maxHeight: .infinity, alignment: .top)
             SeleneHintsBar(left: [HintItem(.b, L10n.text("Back")) { handleBack() }], right: commandHints)
+                // Save remains visible even while previewing a change that hides the hints.
+                .environment(\.seleneShowButtonHints, hasPendingChanges || settings.presentation.showButtonHints)
                 .seleneOverlaidHints(showingControls || showingPlayers || localePicker != nil || showingCloudAssistant
                     || viewModel.isEditingSteamGridDBKey || igdb.isEditing
                     || profileDialogOpen || nextendo.isEditingClient || nextendo.friendToRemove != nil)
@@ -118,7 +130,20 @@ struct SettingsView: View {
 
     private var observedLayout: some View {
         layout
-        .onAppear(perform: installKeyMonitor)
+        .onAppear {
+            if settings.draft == nil {
+                let legacy = setup.legacyToolchainOverride
+                originalToolchainOverride = legacy
+                originalDeadzone = GameControllerService.shared.legacyDeadzone
+                originalDockIcon = AppViewModel.legacyDockIcon
+                originalPaths = currentPaths
+                settings.beginDraft(fields: SettingsDraftFields.fields(profiles: profiles,
+                    languages: viewModel.availableLanguages, legacyToolchainOverride: legacy,
+                    steam: viewModel.catalogSnapshot.source(.steam), paths: originalPaths,
+                    cloudEnabled: viewModel.cloudLibrary.preference.enabled, editor: editor))
+            }
+            installKeyMonitor()
+        }
         .onReceive(profiles?.objectWillChange.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { _ in
             profileRevision.toggle()
         }
@@ -173,8 +198,23 @@ struct SettingsView: View {
             showingPlayers = false
         }
         .onChange(of: router.settingsRowID) { _, _ in focusRequestedSetting() }
+        .onChange(of: router.settingsDecision) {
+            decisionFocus = 2
+            decisionError = nil
+            decisionScroll = 0
+        }
         .onReceive(NotificationCenter.default.publisher(for: .nxSettingsGamepadAction)) { note in
-            guard !showingPlayers, router.route == .settings(initialSection), let action = note.object as? GamepadAction else { return }
+            guard router.settingsDecision == nil, router.route == .settings(initialSection),
+                  let action = note.object as? GamepadAction else { return }
+            if showingPlayers {
+                if action == .menu { router.isMenuPresented = true }
+                return
+            }
+            handleGamepad(action)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .nxSettingsDecisionInput)) { note in
+            guard router.settingsDecision != nil, router.route == .settings(initialSection),
+                  let action = note.object as? GamepadAction else { return }
             handleGamepad(action)
         }
     }
@@ -197,7 +237,7 @@ struct SettingsView: View {
         .accessibilityHidden(nextendo.isEditingClient)
         .overlay {
             if nextendo.isEditingClient {
-                NextendoClientDialog(settings: settings) { nextendo.isEditingClient = false }
+                NextendoClientDialog(settings: editor) { nextendo.isEditingClient = false }
             }
         }
         .disabled(showingCloudAssistant)
@@ -230,25 +270,160 @@ struct SettingsView: View {
         }
         .overlay {
             if let mode = localePicker {
-                LocalePicker(mode: mode, settings: settings, canHandleInput: {
+                LocalePicker(mode: mode, settings: editor, canHandleInput: {
                     !router.isMenuPresented && !NativeMenuCommands.shared.isTracking
                         && !viewModel.showSetupCheck && !viewModel.shellDialogOwnsInput && !viewModel.isWelcomeOpen
-                        && viewModel.settingsNotice == nil && NSApp.modalWindow == nil
+                        && viewModel.settingsNotice == nil && NSApp.modalWindow == nil && router.settingsDecision == nil
                 }) { localePicker = nil }
             }
         }
         .seleneOverlayOwnership(!showingPlayers)
         .overlay {
             if showingPlayers {
-                viewModel.playersScreen(input: .nxSettingsGamepadAction, canHandleInput: {
+                viewModel.playersScreen(input: .nxSettingsGamepadAction, settingsEditor: editor,
+                    hasSettingsDraft: hasPendingChanges, saveSettingsDraft: router.requestSettingsSave, canHandleInput: {
                     router.route == .settings(initialSection) && !router.isMenuPresented && !viewModel.showSetupCheck
                         && !viewModel.shellDialogOwnsInput && !viewModel.isWelcomeOpen
                         && !NativeMenuCommands.shared.isTracking && viewModel.settingsNotice == nil
                         && viewModel.gameWithInstallFailure == nil && viewModel.alertMessage == nil
+                        && router.settingsDecision == nil
                 }) { showingPlayers = false }
             }
         }
+        .seleneOverlayOwnership(router.settingsDecision == nil)
+        .overlay { decisionOverlay }
         .environment(\.seleneMinimumFont, 12)
+    }
+
+    private var hasPendingChanges: Bool { settings.draft?.hasChanges == true }
+
+    @ViewBuilder var decisionOverlay: some View {
+        if let mode = router.settingsDecision, let draft = settings.draft {
+            SeleneOverlay(style: .profileRemoval, onOutside: { decide(2) }) {
+                SeleneChoiceDialog(title: "Unsaved settings",
+                    message: decisionError ?? L10n.text("Review what will change before you save."),
+                    choices: ["Save", mode == .leave ? "Leave without saving" : "Discard changes", "Continue editing settings"],
+                    focus: $decisionFocus, cancelIndex: 2, notes: SettingsDraftFields.summary(draft.changes),
+                    notesScrollRequest: decisionScroll, onCancel: { decide(2) }, onChoose: decide)
+                    .environment(\.seleneShowButtonHints, true)
+            }
+        }
+    }
+
+    private func decide(_ index: Int) {
+        guard router.settingsDecision != nil, !savingPlayers else { return }
+        switch index {
+        case 0:
+            if let plan = settings.editingSettings.launcherChoices.players, plan != settings.settings.launcherChoices.players {
+                savingPlayers = true
+                Task { @MainActor in
+                    defer { savingPlayers = false }
+                    do {
+                        guard try await viewModel.readPlayerPlan() == editor.originalPlayers else {
+                            throw AppSettingsDraft.Failure.changedElsewhere
+                        }
+                        guard applyDraft() else { return }
+                        await viewModel.acceptPlayerDraftGrants(editor.playerGrants, plan: plan)
+                        editor.originalPlayers = plan
+                        editor.playerGrants = []
+                        finishDecision(proceed: true)
+                    } catch { showDecisionError(error) }
+                }
+            } else if applyDraft() {
+                finishDecision(proceed: true)
+            }
+        case 1:
+            settings.discardDraft()
+            showingPlayers = false
+            editor.resetPlayers()
+            finishDecision(proceed: true)
+        default:
+            finishDecision(proceed: false)
+        }
+    }
+
+    private func finishDecision(proceed: Bool) {
+        decisionFocus = 2
+        router.finishSettingsDecision(proceed: proceed)
+    }
+
+    private func applyDraft() -> Bool {
+            do {
+                let changes = Set(settings.draft?.changes.map(\.id) ?? [])
+                if changes.contains("cloudLibraryEnabled"), let proposal = settings.editingSettings.launcherChoices.cloudActivation {
+                    guard viewModel.canConfigureCloudLibrary,
+                          viewModel.cloudLibrary.activationChoice(enabled: proposal.enabled) == proposal,
+                          !proposal.enabled || !viewModel.cloudLibrary.needsDriveTool else {
+                        throw AppSettingsDraft.Failure.changedElsewhere
+                    }
+                }
+                if changes.contains("steamSource"), let choice = settings.editingSettings.launcherChoices.steamSource,
+                   try viewModel.catalogRepository.load().source(.steam)?.generation != choice.replaces {
+                    throw AppSettingsDraft.Failure.changedElsewhere
+                }
+                if changes.contains("controllerDeadzone"), settings.settings.launcherChoices.controllerDeadzone == nil,
+                   originalDeadzone != GameControllerService.shared.legacyDeadzone { throw AppSettingsDraft.Failure.changedElsewhere }
+                if changes.contains("iconAppearance"), settings.settings.launcherChoices.dockIconAppearance == nil,
+                   originalDockIcon != AppViewModel.legacyDockIcon { throw AppSettingsDraft.Failure.changedElsewhere }
+                try validatePaths(changes)
+                if settings.draft?.changes.contains(where: { $0.id == "toolchainOverride" }) == true {
+                    guard ToolchainGateCopy.canChangeOverride(certified: setup.compatibilityReport?.ok,
+                        overrideOn: setup.allowUntestedToolchain,
+                        locked: viewModel.isBuilding || viewModel.isUpdatingApp || setup.isSwitchingEngine || changes.contains("engineFolder"),
+                        newest: setup.usesNewestEngine) else {
+                        decisionError = L10n.text("The toolchain setting is unavailable now. Your changes are still here.")
+                        return false
+                    }
+                    if settings.settings.toolchainOverride == nil, originalToolchainOverride != setup.legacyToolchainOverride {
+                        throw AppSettingsDraft.Failure.changedElsewhere
+                    }
+                }
+                try settings.commitDraft()
+                return true
+            } catch {
+                showDecisionError(error)
+                return false
+            }
+    }
+
+    private func showDecisionError(_ error: Error) {
+        decisionError = L10n.text((error as? AppSettingsDraft.Failure)?.errorDescription
+            ?? "Settings could not be saved. Your changes are still here.")
+        SoundEffectService.shared.play(.error)
+    }
+
+    private var currentPaths: LauncherSettingsChoices {
+        var paths = LauncherSettingsChoices()
+        paths.gameAppsPath = viewModel.libraryFolder?.path
+        paths.gameSourcesPath = viewModel.porting.gameFilesFolder?.path
+        paths.enginePath = setup.nxnativePath
+        return paths
+    }
+
+    private func validatePaths(_ changes: Set<String>) throws {
+        let committed = settings.settings.launcherChoices
+        let proposed = settings.editingSettings.launcherChoices
+        let paths = currentPaths
+        let checks: [(String, WritableKeyPath<LauncherSettingsChoices, String?>)] = [
+            ("libraryFolder", \.gameAppsPath), ("gameFolder", \.gameSourcesPath), ("engineFolder", \.enginePath)
+        ]
+        for (id, key) in checks where changes.contains(id) {
+            if committed[keyPath: key] == nil && originalPaths[keyPath: key] != paths[keyPath: key] {
+                throw AppSettingsDraft.Failure.changedElsewhere
+            }
+            guard let path = proposed[keyPath: key], path.isEmpty || (path.hasPrefix("/") && path != "/"),
+                  !viewModel.isBuilding, !viewModel.isUpdatingApp else { throw AppSettingsDraft.Failure.verification }
+            if id == "engineFolder" {
+                guard !setup.isSwitchingEngine, EngineLocation.isEngine(URL(fileURLWithPath: path)) else {
+                    throw AppSettingsDraft.Failure.verification
+                }
+            } else if !path.isEmpty && !(id == "libraryFolder" && path == viewModel.defaultGameAppsPath) {
+                var directory: ObjCBool = false
+                guard FileManager.default.fileExists(atPath: path, isDirectory: &directory), directory.boolValue else {
+                    throw AppSettingsDraft.Failure.verification
+                }
+            }
+        }
     }
 
     @ViewBuilder private var profilePINOverlay: some View {
@@ -306,7 +481,7 @@ struct SettingsView: View {
                     SettingsSectionContent(
                         section: section,
                         viewModel: viewModel,
-                        settings: settings,
+                        settings: editor,
                         artwork: artwork,
                         supportsNextendo: supportsNextendo,
                         activeProfile: profiles?.active,
@@ -331,6 +506,7 @@ struct SettingsView: View {
                         onActions: updateActions
                     )
                     .environment(\.passiveSettingsArrival, openedFromIntegrations && section == initialSection)
+                    .environment(\.settingsRowChanges, pendingRows)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .environment(\.seleneFocusedRowID, focusArea == .rows ? focusedRow?.rowID : nil)
@@ -350,7 +526,16 @@ struct SettingsView: View {
     }
 
     private var reduceMotion: Bool {
-        settings.settings.reduceMotion || environmentReduceMotion
+        settings.presentation.reduceMotion || environmentReduceMotion
+    }
+
+    private var pendingRows: [String: AppSettingsDraft.Change] {
+        var rows: [String: AppSettingsDraft.Change] = [:]
+        for change in settings.draft?.changes ?? [] {
+            rows[SettingsDraftFields.row(change.id, in: section)] = change
+            if change.id == "steamSource", section == .sources { rows["Steam folder"] = change }
+        }
+        return rows
     }
 
     private var commandHints: [HintItem] {
@@ -358,6 +543,9 @@ struct SettingsView: View {
                      HintItem(.rb, "Next") { moveSection(by: 1) }]
         if canResetSection {
             hints.append(HintItem(.x, L10n.text("Reset group")) { resetSection() })
+        }
+        if hasPendingChanges {
+            hints.append(HintItem(.y, "Save", keyboard: .text("Y")) { router.requestSettingsSave() })
         }
         if focusArea == .sidebar {
             hints.append(HintItem(.a, L10n.text("Open")) { enterSection() })
@@ -440,22 +628,11 @@ struct SettingsView: View {
     /// kept outside it are reset here.
     private func resetSection() {
         guard canResetSection else { return }
-        if section == .multiplayer {
-            guard SettingsReset.reset(.multiplayer, in: settings.settings) != settings.settings else { return }
-            viewModel.confirmSetting("Reset group",
-                message: L10n.text("Multiplayer defaults will be restored without changing individual game choices or the Nextendo client ID."),
-                action: "Reset") {
-                settings.settings = SettingsReset.reset(.multiplayer, in: settings.settings)
-                SoundEffectService.shared.play(.focus)
-            }
-            return
-        }
-        let defaults = AppSettings()
         switch section {
-        case .profileLook:
-            ThemeStore.shared.apply(id: defaults.colorThemeID)
         case .look:
-            viewModel.iconAppearanceMode = .auto
+            let unset = settings.settings.launcherChoices.dockIconAppearance == nil
+            editor.settings.launcherChoices.dockIconAppearance = unset && SettingsLookSection.iconMode(AppViewModel.legacyDockIcon) == .auto
+                ? nil : AppIconAppearanceMode.auto.rawValue
         case .profileIdentity:
             if let profiles, var profile = profiles.active {
                 profile.name = profile.defaultName
@@ -477,11 +654,13 @@ struct SettingsView: View {
                 saveProfileSetting(profile, in: profiles, notifying: viewModel)
             }
         case .controllers:
-            GameControllerService.shared.deadzone = 0.35
+            let unset = settings.settings.launcherChoices.controllerDeadzone == nil
+            editor.settings.launcherChoices.controllerDeadzone = unset && GameControllerService.shared.legacyDeadzone == 0.35
+                ? nil : 0.35
         default:
             break
         }
-        settings.settings = SettingsReset.reset(section, in: settings.settings)
+        editor.settings = SettingsReset.reset(section, in: editor.settings)
         SoundEffectService.shared.play(.focus)
     }
 
@@ -542,14 +721,27 @@ struct SettingsView: View {
                   !NativeMenuCommands.shared.isTracking,
                   !router.isMenuPresented,
                   !viewModel.showSetupCheck,
-                  !showingControls, !showingPlayers, localePicker == nil, !viewModel.isEditingSteamGridDBKey, !igdb.isEditing,
-                  !nextendo.isEditingClient, !showingCloudAssistant,
                   viewModel.alertMessage == nil, viewModel.settingsNotice == nil,
                   viewModel.gameWithInstallFailure == nil,
                   let window = event.window,
                   !window.isSheet,
                   window.attachedSheet == nil,
                   NSApp.modalWindow == nil else { return event }
+            if router.settingsDecision != nil {
+                guard event.modifierFlags.intersection([.command, .control, .option]).isEmpty else { return event }
+                switch event.keyCode {
+                case 123: handleGamepad(.navigateLeft)
+                case 124: handleGamepad(.navigateRight)
+                case 125: handleGamepad(.navigateDown)
+                case 126: handleGamepad(.navigateUp)
+                case 36, 49, 76: if !event.isARepeat { handleGamepad(.confirm) }
+                case 53: handleGamepad(.cancel)
+                default: return event
+                }
+                return nil
+            }
+            guard !showingControls, !showingPlayers, localePicker == nil, !viewModel.isEditingSteamGridDBKey,
+                  !igdb.isEditing, !nextendo.isEditingClient, !showingCloudAssistant else { return event }
             if pinProfileID != nil {
                 return ProfilePINDialog.handleKey(event, input: .nxSettingsPINInput)
             }
@@ -595,6 +787,9 @@ struct SettingsView: View {
             case 7:                                     // X
                 if typing { return event }
                 action = .secondaryAction
+            case 16:                                    // Y
+                if typing || !hasPendingChanges { return event }
+                action = .contextAction
             default:
                 return event
             }
@@ -609,6 +804,19 @@ struct SettingsView: View {
     }
 
     private func handleGamepad(_ action: GamepadAction) {
+        if router.settingsDecision != nil {
+            switch action {
+            case .navigateLeft: decisionFocus = max(0, decisionFocus - 1)
+            case .navigateRight: decisionFocus = min(2, decisionFocus + 1)
+            case .navigateUp: decisionScroll = max(0, decisionScroll - 1)
+            case .navigateDown:
+                decisionScroll = min(max(0, (settings.draft?.changes.count ?? 1) - 1), decisionScroll + 1)
+            case .confirm: decide(decisionFocus)
+            case .cancel: decide(2)
+            default: break
+            }
+            return
+        }
         if pinProfileID != nil {
             NotificationCenter.default.post(name: .nxSettingsPINInput, object: action)
             return
@@ -655,6 +863,8 @@ struct SettingsView: View {
             handleBack()
         case .secondaryAction:
             resetSection()
+        case .contextAction:
+            router.requestSettingsSave()
         case .menu:
             router.isMenuPresented = true
         default:

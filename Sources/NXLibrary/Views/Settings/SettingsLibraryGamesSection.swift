@@ -5,7 +5,7 @@ import ArcanePorting
 /// Library → Games: how every game launches and closes, Surprise me and the hidden games.
 struct SettingsLibraryGamesSection: View {
     @ObservedObject var viewModel: AppViewModel
-    @ObservedObject var settings: AppSettingsStore
+    @ObservedObject var settings: SettingsEditor
     let onActions: ([SettingsRowAction]) -> Void
     @Environment(\.seleneCanvas) private var canvas
 

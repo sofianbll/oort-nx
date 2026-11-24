@@ -79,7 +79,7 @@ public struct PlayerPlanStore: Sendable {
         return document
     }
 
-    private struct Document: Decodable {
+    fileprivate struct Document: Codable {
         let version: Int
         let mode: PlayerControllerMode
         let mergePlayer: Int?
@@ -95,5 +95,14 @@ public struct PlayerPlanStore: Sendable {
             }
             return plan
         }
+    }
+}
+
+extension PlayerPlan: Codable {
+    public init(from decoder: Decoder) throws { self = try PlayerPlanStore.Document(from: decoder).plan() }
+
+    public func encode(to encoder: Encoder) throws {
+        let slots = Dictionary(uniqueKeysWithValues: self.slots.map { (String($0.key), $0.value) })
+        try PlayerPlanStore.Document(version: 1, mode: mode, mergePlayer: mergePlayer, slots: slots).encode(to: encoder)
     }
 }

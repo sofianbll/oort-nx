@@ -29,7 +29,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 - Platform labels show the monochrome platform mark and name, with a distinct Switch 2 mark and generic fallbacks.
 - Cloud operations check the selected Drive account and folder IDs. Changing either no longer reuses an approved transfer or a separately chosen game-files folder without confirmation.
 - Game-file downloads keep their selected provider. An incomplete cloud check keeps previous results without marking them verified.
-- Confirm changes to the cloud library, engine and multiplayer settings before applying them; appearance, sound and navigation still change immediately.
+- Review and save a single Settings draft for launcher preferences, including multiplayer, cloud saves and the toolchain override. Appearance, sound and language preview without saving. Connections, library moves and engine updates keep their own confirmations.
 - Reopen the launcher safely after choosing the newest engine.
 - A Drive outage preserves the last known availability of cloud games across launcher restarts without treating it as verified synchronization.
 - A confirmed cloud library move can resume after interruption. It verifies both folders and refuses new archives outside the plan or conflicting copies.

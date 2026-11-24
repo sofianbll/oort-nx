@@ -8,7 +8,7 @@ public enum CatalogSourceStatus: Equatable, Sendable { case disabled, idle, scan
 @MainActor
 public final class CatalogSourcesModel: ObservableObject {
     /// Steam's own folder, where the first launch and Settings → Sources look first.
-    public static var defaultSteamRoot: URL { AppData.profile.home.appendingPathComponent("Library/Application Support/Steam") }
+    nonisolated public static var defaultSteamRoot: URL { AppData.profile.home.appendingPathComponent("Library/Application Support/Steam") }
     /// Discovery and its eventual opt-in must use the same folder, including a disabled source's choice.
     public var discoveryRoot: URL { configuration.rootURL ?? Self.defaultSteamRoot }
     public typealias Scanner = @Sendable (URL, @escaping () -> Bool) throws -> SteamLibrarySnapshot
@@ -33,6 +33,7 @@ public final class CatalogSourcesModel: ObservableObject {
     private var rescanTimer: Task<Void, Never>?
     private var rescanAfterScan = false
     private var lastScanStart: Date?
+    private var unappliedChoice: SteamSourceChoice?
 
     public init(repository: CatalogRepository, initialConfiguration: CatalogSourceConfiguration,
                 scanner: @escaping Scanner = { root, cancelled in try SteamLibrarySource(root: root).scan(cancelled: cancelled) },
@@ -45,6 +46,7 @@ public final class CatalogSourcesModel: ObservableObject {
     }
     public func startIfEnabled() { if configuration.isEnabled && status == .idle { refresh() } }
     public func configure(enabled: Bool, root: URL?) {
+        unappliedChoice = nil
         invalidate()
         dropRescan()
         libraryRoots = []
@@ -57,12 +59,29 @@ public final class CatalogSourcesModel: ObservableObject {
             if enabled { refresh() }
         } catch { failed(error) }
     }
+    public func applySettingsChoice(_ choice: SteamSourceChoice) {
+        if configuration.generation == choice.generation { unappliedChoice = nil; return }
+        invalidate()
+        dropRescan()
+        libraryRoots = []
+        unappliedChoice = choice
+        do {
+            let document = try repository.applySteamChoice(choice)
+            unappliedChoice = nil
+            configuration = document.source(.steam)!
+            errorMessage = nil; issues = []; observedGameCount = 0; reviewCount = 0
+            status = choice.enabled ? .idle : .disabled
+            onCommit(document)
+            startIfEnabled()
+        } catch { failed(error) }
+    }
     public func cancel() {
         invalidate()
         dropRescan()
         status = configuration.isEnabled ? .cancelled : .disabled
     }
     public func refresh() {
+        if let unappliedChoice { applySettingsChoice(unappliedChoice); return }
         invalidate()
         let expected: CatalogSourceConfiguration
         do {

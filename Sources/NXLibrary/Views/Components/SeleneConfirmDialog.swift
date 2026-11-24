@@ -88,6 +88,7 @@ struct SeleneDialogNotes: View {
     @Environment(\.seleneCanvas) private var canvas
     let detail: String?
     var scrollRequest = 0
+    var plainText = false
     @Environment(\.seleneReduceMotion) private var reduceMotion
 
     var body: some View {
@@ -136,6 +137,7 @@ struct SeleneDialogNotes: View {
                 inline(line.text)
                     .seleneFont(15)
                     .foregroundColor(SeleneTheme.ink82)
+                    .multilineTextAlignment(plainText ? .leading : .center)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(.leading, canvas.u(2))
@@ -151,7 +153,8 @@ struct SeleneDialogNotes: View {
 
     /// Bold and code inside a line, as GitHub shows them.
     private func inline(_ text: String) -> Text {
-        Text((try? AttributedString(markdown: text, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)))
+        if plainText { return Text(verbatim: text) }
+        return Text((try? AttributedString(markdown: text, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)))
              ?? AttributedString(text))
     }
 }
@@ -235,6 +238,8 @@ struct SeleneChoiceDialog: View {
     @Binding var focus: Int
     var cancelIndex: Int? = nil
     var details: [String: String] = [:]
+    var notes: String? = nil
+    var notesScrollRequest = 0
     var onCancel: (() -> Void)? = nil
     let onChoose: (Int) -> Void
 
@@ -252,6 +257,8 @@ struct SeleneChoiceDialog: View {
                 .frame(width: textWidth)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, canvas.u(14))
+            SeleneDialogNotes(detail: notes, scrollRequest: notesScrollRequest, plainText: true)
+                .frame(width: textWidth)
             HStack(alignment: .top, spacing: canvas.u(18)) {
                 ForEach(Array(choices.enumerated()), id: \.offset) { index, choice in
                     VStack(spacing: canvas.u(8)) {

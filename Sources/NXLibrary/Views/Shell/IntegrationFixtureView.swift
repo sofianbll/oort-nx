@@ -203,7 +203,7 @@ struct IntegrationFixtureView: View {
                     for (key, suffix) in [("selene", "default"), ("oort", "oort")] {
                         store.settings.soundPackID = key
                         try render(ScrollView {
-                            SettingsSoundSection(settings: store, onActions: { _ in }, soundPackLibrary: library)
+                            SettingsSoundSection(settings: SettingsEditor(store), onActions: { _ in }, soundPackLibrary: library)
                                 .padding(canvas.u(SeleneTokens.Space.large))
                                 .frame(maxWidth: 950)
                                 .frame(maxWidth: .infinity)

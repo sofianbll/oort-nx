@@ -22,6 +22,18 @@ final class CatalogSourcesModelTests: XCTestCase {
         XCTAssertEqual(model.discoveryRoot, CatalogSourcesModel.defaultSteamRoot)
     }
 
+    func testSettingsChoiceReplaysAtMostOnceAndNeverOverwritesAnotherSourceChange() throws {
+        let (fixture, repository, initial) = try prepared()
+        let root = fixture.root.appendingPathComponent("New Steam")
+        let choice = SteamSourceChoice(enabled: false, root: root, replaces: initial.generation)
+        let first = try repository.applySteamChoice(choice)
+        XCTAssertEqual(first.source(.steam)?.rootURL, root)
+        XCTAssertEqual(try repository.applySteamChoice(choice).revision, first.revision)
+        let other = try repository.configureSource(.steam, enabled: false, root: fixture.root)
+        XCTAssertThrowsError(try repository.applySteamChoice(choice))
+        XCTAssertEqual(try repository.load().source(.steam), other.source(.steam))
+    }
+
     private func prepared() throws -> (SteamTestFixture, CatalogRepository, CatalogSourceConfiguration) {
         let f = try SteamTestFixture.temporary(in: self)
         _ = try CatalogTestSupport.writeLegacy([CatalogTestSupport.completeLegacyGame()], to: f.root)

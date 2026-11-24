@@ -67,9 +67,9 @@ extension SetupModel {
                 switch result {
                 case .success:
                     let previous = self.newestEngineChoice
-                    let turnedOn = !self.allowUntestedToolchain || previous?.turnedOnOverride == true
-                    self.allowUntestedToolchain = true
-                    self.newestEngineChoice = NewestEngineChoice(commit: commit, aheadBy: ahead, turnedOnOverride: turnedOn)
+                    // A newest-engine choice implies its override without changing the user's saved setting.
+                    self.newestEngineChoice = NewestEngineChoice(commit: commit, aheadBy: ahead,
+                                                                turnedOnOverride: previous?.turnedOnOverride == true)
                     let message: String
                     if let previous {
                         message = L10n.format("Engine updated from %@ to nxnative main %@ (%@); builds are recorded as untested.",
@@ -121,6 +121,9 @@ extension SetupModel {
     func forgetNewestEngine() {
         guard let choice = newestEngineChoice else { return }
         newestEngineChoice = nil
-        if choice.turnedOnOverride { self.allowUntestedToolchain = false }
+        // Older versions wrote an automatic override to preferences; remove only that legacy override.
+        if choice.turnedOnOverride {
+            AppData.preferences.set(false, forKey: AppViewModel.StorageKeys.allowUntestedToolchain)
+        }
     }
 }

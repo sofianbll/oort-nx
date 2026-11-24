@@ -5,6 +5,12 @@ import NXLibraryCore
 /// (`AppSettings.moduleValues`); a missing or unreadable value is its default, and an unreadable one stays in the
 /// file until it is changed.
 extension AppSettings {
+    /// Nil leaves the older preference as a fallback until the user chooses a value here.
+    public var toolchainOverride: Bool? {
+        get { moduleValue("toolchainOverride", as: Bool.self) }
+        set { moduleValues["toolchainOverride"] = newValue.map(CatalogJSON.bool) }
+    }
+
     /// Optional public OAuth client ID. The token is never stored here.
     public var nextendoClientID: String? {
         get {

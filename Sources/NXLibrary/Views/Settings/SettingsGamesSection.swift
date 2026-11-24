@@ -5,7 +5,7 @@ import ArcanePorting
 /// Porting → New games: the defaults copied into each new ported game, rumble included.
 struct SettingsGamesSection: View {
     @ObservedObject var viewModel: AppViewModel
-    @ObservedObject var settings: AppSettingsStore
+    @ObservedObject var settings: SettingsEditor
     let onActions: ([SettingsRowAction]) -> Void
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.nxAppLocale) private var localization

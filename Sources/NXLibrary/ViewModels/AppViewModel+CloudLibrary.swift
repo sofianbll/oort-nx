@@ -230,6 +230,7 @@ final class CloudLibraryModel: ObservableObject {
 
     private static let lastKnownKey = "NXLibrary_CloudLastKnownAvailability"
     private static let scopeKey = "NXLibrary_CloudDriveScope"
+    private static let connectionKey = "NXLibrary_CloudSettingsConnection"
     @Published private(set) var lastKnown = LastKnown(scope: [])
     var localSourceIDs: Set<UUID> = []
     private var sourcesBinding: CloudLibraryPreference.SourcesBinding?
@@ -293,6 +294,28 @@ final class CloudLibraryModel: ObservableObject {
     }
 
     @Published private(set) var preference: CloudLibraryPreference
+    private var settingsActivation: CloudLibraryActivation?
+    private static var connectionID: String? { AppData.preferences.string(forKey: connectionKey) }
+    private static var configuredPreference: CloudLibraryPreference {
+        let defaults = AppData.preferences
+        return CloudLibraryPreference(storage: defaults.string(forKey: CloudLibraryPreference.storageKey),
+            enabled: defaults.object(forKey: CloudLibraryPreference.enabledKey) as? Bool,
+            sourcesRoot: defaults.string(forKey: CloudLibraryPreference.sourcesRootKey),
+            referenceFolder: defaults.string(forKey: CloudLibraryPreference.referenceFolderKey))
+    }
+
+    func activationChoice(enabled: Bool) -> CloudLibraryActivation? {
+        CloudLibraryActivation(Self.configuredPreference, connection: Self.connectionID, enabled: enabled)
+    }
+
+    func useSettingsActivation(_ activation: CloudLibraryActivation?) {
+        settingsActivation = activation
+        let base = Self.configuredPreference
+        let next = activation?.applying(to: base, connection: Self.connectionID) ?? base
+        guard preference != next else { return }
+        preference = next
+        rebuildArchive()
+    }
     @Published private(set) var chosenExecutable: URL?
     @Published private(set) var needsDriveToolChoice = false
     @Published var driveToolProgress: Double?
@@ -505,12 +528,11 @@ final class CloudLibraryModel: ObservableObject {
         active?.request.scope.overlaps(scope) == true || queue.contains { $0.scope.overlaps(scope) }
     }
 
-    init() {
+    init(activation: CloudLibraryActivation? = nil) {
         let defaults = AppData.preferences
-        preference = CloudLibraryPreference(storage: defaults.string(forKey: CloudLibraryPreference.storageKey),
-            enabled: defaults.object(forKey: CloudLibraryPreference.enabledKey) as? Bool,
-            sourcesRoot: defaults.string(forKey: CloudLibraryPreference.sourcesRootKey),
-            referenceFolder: defaults.string(forKey: CloudLibraryPreference.referenceFolderKey))
+        let base = Self.configuredPreference
+        settingsActivation = activation
+        preference = activation?.applying(to: base, connection: Self.connectionID) ?? base
         if let binding = defaults.data(forKey: CloudLibraryPreference.sourcesBindingKey) {
             sourcesBinding = try? JSONDecoder().decode(CloudLibraryPreference.SourcesBinding.self, from: binding)
         } else if let candidate = CloudLibraryPreference.SourcesBinding(preference),
@@ -546,10 +568,8 @@ final class CloudLibraryModel: ObservableObject {
     func matchesPersistedStorage() -> Bool {
         let defaults = AppData.preferences
         guard defaults.synchronize() else { return false }
-        let disk = CloudLibraryPreference(storage: defaults.string(forKey: CloudLibraryPreference.storageKey),
-                                          enabled: defaults.object(forKey: CloudLibraryPreference.enabledKey) as? Bool,
-                                          sourcesRoot: defaults.string(forKey: CloudLibraryPreference.sourcesRootKey),
-                                          referenceFolder: defaults.string(forKey: CloudLibraryPreference.referenceFolderKey))
+        let base = Self.configuredPreference
+        let disk = settingsActivation?.applying(to: base, connection: Self.connectionID) ?? base
         let savedScope = defaults.data(forKey: Self.scopeKey)
             .flatMap { try? JSONDecoder().decode(CloudDriveScope.self, from: $0) }
         return disk.storage == preference.storage && disk.enabled == preference.enabled
@@ -564,6 +584,8 @@ final class CloudLibraryModel: ObservableObject {
                                           sourcesRoot: sourcesRoot, referenceFolder: preference.referenceFolder)
         let reselect = confirmLibrary && connectionCheck?.failure == .scopeChanged && connectionCheck?.onSources != true
         guard next != preference || reload || reselect else { return }
+        AppData.preferences.set(UUID().uuidString, forKey: Self.connectionKey)
+        settingsActivation = nil
         AppData.preferences.set(next.storage, forKey: CloudLibraryPreference.storageKey)
         AppData.preferences.set(next.enabled, forKey: CloudLibraryPreference.enabledKey)
         AppData.preferences.set(next.sourcesRootOverride, forKey: CloudLibraryPreference.sourcesRootKey)

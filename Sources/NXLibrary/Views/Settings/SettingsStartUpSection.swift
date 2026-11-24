@@ -2,7 +2,7 @@ import SwiftUI
 import NXLibraryCore
 
 struct SettingsStartUpSection: View {
-    @ObservedObject var settings: AppSettingsStore
+    @ObservedObject var settings: SettingsEditor
     let onActions: ([SettingsRowAction]) -> Void
     let onChooseLanguage: () -> Void
     let onChooseRegion: () -> Void

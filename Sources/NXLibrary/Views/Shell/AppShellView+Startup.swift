@@ -17,6 +17,7 @@ extension AppShellView {
         viewModel.playSessionStore = playSessions
         playSessions.profileID = profiles.active?.id == profiles.originalID ? nil : profiles.active?.id
         viewModel.settingsStore = settings
+        GameControllerService.shared.useDeadzone(settings.settings.launcherChoices.controllerDeadzone)
         SoundEffectService.shared.bind(to: settings)
         artwork.trimCache()
         if viewModel.setupCompleted { viewModel.refreshBoxArtIndex() }
@@ -108,6 +109,14 @@ extension AppShellView {
             if viewModel.showSetupCheck {
                 // The Setup check owns the controller; Menu does nothing there (as in Selene).
                 NotificationCenter.default.post(name: .nxSetupCheckGamepadAction, object: action)
+                return
+            }
+            if showsSettingsNotice {
+                settingsNoticeInput(action)
+                return
+            }
+            if router.settingsDecision != nil {
+                NotificationCenter.default.post(name: .nxSettingsDecisionInput, object: action)
                 return
             }
             if showsWelcome, !showsInstallFailure, viewModel.gameToClose == nil, viewModel.gameToRemove == nil,

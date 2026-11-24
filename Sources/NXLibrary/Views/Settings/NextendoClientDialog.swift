@@ -3,7 +3,7 @@ import NXLibraryCore
 import ArcanePorting
 
 struct NextendoClientDialog: View {
-    @ObservedObject var settings: AppSettingsStore
+    @ObservedObject var settings: SettingsEditor
     let onClose: () -> Void
     @State private var draft = ""
     @State private var focus: SeleneConfirmButton = .confirm
@@ -18,7 +18,7 @@ struct NextendoClientDialog: View {
             SeleneTheme.scrim45.ignoresSafeArea().contentShape(Rectangle()).onTapGesture(perform: onClose)
             SeleneConfirmDialog(title: L10n.text("Nextendo client ID", context: localization),
                                 message: L10n.text("Public OAuth client ID for sign-in and online play. Clear the field to use the build default.", context: localization),
-                                confirmTitle: "Save", confirmEnabled: valid, focus: $focus,
+                                 confirmTitle: "Done", confirmEnabled: valid, focus: $focus,
                                 onCancel: onClose, onConfirm: save) {
                 TextField(L10n.text("Nextendo client ID", context: localization), text: $draft)
                     .textFieldStyle(.plain)

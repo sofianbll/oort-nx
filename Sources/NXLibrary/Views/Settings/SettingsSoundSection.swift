@@ -4,7 +4,7 @@ import NXLibraryCore
 import UniformTypeIdentifiers
 
 struct SettingsSoundSection: View {
-    @ObservedObject var settings: AppSettingsStore
+    @ObservedObject var settings: SettingsEditor
     let onActions: ([SettingsRowAction]) -> Void
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.nxAppLocale) private var localization
@@ -18,7 +18,7 @@ struct SettingsSoundSection: View {
     @State private var importTicket = UUID()
     let soundPackLibrary: SoundPackLibrary
 
-    init(settings: AppSettingsStore, onActions: @escaping ([SettingsRowAction]) -> Void,
+    init(settings: SettingsEditor, onActions: @escaping ([SettingsRowAction]) -> Void,
          soundPackLibrary: SoundPackLibrary = SoundPackLibrary()) {
         self.settings = settings
         self.onActions = onActions

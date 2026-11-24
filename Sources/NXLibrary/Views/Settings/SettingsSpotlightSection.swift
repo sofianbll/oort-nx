@@ -2,7 +2,7 @@ import SwiftUI
 import NXLibraryCore
 
 struct SettingsSpotlightSection: View {
-    @ObservedObject var settings: AppSettingsStore
+    @ObservedObject var settings: SettingsEditor
     let onActions: ([SettingsRowAction]) -> Void
     @Environment(\.seleneCanvas) private var canvas
 

@@ -1,6 +1,10 @@
 import SwiftUI
 import NXLibraryCore
 
+extension EnvironmentValues {
+    @Entry var settingsRowChanges: [String: AppSettingsDraft.Change] = [:]
+}
+
 /// An info button: a click shows `text` beside it. Pass `isShowing` for a screen that also opens it from the
 /// keyboard or a controller.
 struct SeleneInfoTip: View {
@@ -47,6 +51,7 @@ struct SeleneInfoTip: View {
 
 struct SeleneRow<Trailing: View>: View {
     @Environment(\.nxAppLocale) private var localization
+    @Environment(\.settingsRowChanges) private var pending
     let rowID: String
     let title: String
     let subtitle: String?
@@ -77,9 +82,14 @@ struct SeleneRow<Trailing: View>: View {
     private var isFocused: Bool { focusedRowID == rowID }
 
     var body: some View {
+        let change = pending[rowID]
+        let previous = change.map { L10n.format("Was: %@", [$0.before], context: localization) }
+        let original = verbatimSubtitle ? subtitle : subtitle.map { L10n.text($0, context: localization) }
+        let about = [original, previous].compactMap { $0 }.joined(separator: " · ")
         SeleneOptionRow(icon: nil, title: verbatimTitle ? title : L10n.text(title, context: localization),
-                        about: verbatimSubtitle ? subtitle : subtitle.map { L10n.text($0, context: localization) }, focused: isFocused,
-                        truncateAboutInMiddle: truncateSubtitleInMiddle, platform: platform) {
+                        about: about.isEmpty ? nil : about, focused: isFocused,
+                        titleAccessory: change.map { _ in AnyView(SeleneStatusMark(color: SeleneTheme.glyph, pulses: false)) },
+                        truncateAboutInMiddle: truncateSubtitleInMiddle && change == nil, platform: platform) {
             HStack(spacing: 10) {
                 if let info {
                     SeleneInfoTip(info)
