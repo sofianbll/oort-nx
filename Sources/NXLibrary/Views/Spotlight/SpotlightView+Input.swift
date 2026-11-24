@@ -15,10 +15,10 @@ extension SpotlightView {
         if cardMenu != nil { return handleCardMenu(action) }
         if modsHost.isPanelOpen { return modsHost.handlePanel(action) }
         if storeHost.isPanelOpen { return storeHost.panel.handlePanel(action) }
-        if sortMenu != nil {
-            var next = sortMenu
+        if router.sortMenu != nil {
+            var next = router.sortMenu
             LibrarySortMenu.handle(action, focused: &next, choose: setSort)
-            sortMenu = next
+            router.sortMenu = next
             return
         }
         if profileFocused {

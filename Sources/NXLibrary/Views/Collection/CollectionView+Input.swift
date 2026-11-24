@@ -6,10 +6,10 @@ import ArcanePorting
 /// Collection's controller, keyboard and pointer input.
 extension CollectionView {
     func handle(_ action: GamepadAction) {
-        if sortMenu != nil {
-            var next = sortMenu
+        if router.sortMenu != nil {
+            var next = router.sortMenu
             LibrarySortMenu.handle(action, focused: &next, choose: setSort)
-            sortMenu = next
+            router.sortMenu = next
             return
         }
         if profileFocused {
@@ -126,7 +126,7 @@ extension CollectionView {
             switch event.keyCode {
             case 123: action = .navigateLeft
             case 124: action = .navigateRight
-            case 125 where sortMenu != nil || profileFocused: action = .navigateDown
+            case 125 where router.sortMenu != nil || profileFocused: action = .navigateDown
             case 126: action = .navigateUp
             case 36, 49, 76: action = .confirm
             case 53: action = .cancel

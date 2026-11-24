@@ -49,7 +49,6 @@ struct SpotlightView: View {
     /// Only traits are retained for the cache pass, without artwork, screenshots or descriptions.
     @State var cachedSteamRelated: (request: SteamRelatedRequest, traits: [UInt32: MoreLikeThis.Traits])?
     @State var keyMonitor: Any?
-    @State var sortMenu: LibrarySort?
     @State var profileFocused = false
     @Environment(\.profilePortrait) var profile
     @State var hadGames = false
@@ -265,11 +264,11 @@ struct SpotlightView: View {
         .animation(Motion.screen(reduceMotion), value: achievementsScreen != nil)
         .overlay(model.selectedGame.map { ModsBandOverlay(host: modsHost, find: modsHost.find, game: $0) })
         .overlay(storeOverlay(model))
-        .accessibilityHidden(sortMenu != nil)
+        .accessibilityHidden(router.sortMenu != nil)
         .overlay {
-            if let sortMenu {
+            if let sortMenu = router.sortMenu {
                 LibrarySortMenu(current: settings.settings.librarySort, focused: sortMenu, choose: setSort) {
-                    self.sortMenu = nil
+                    router.sortMenu = nil
                 }
             }
         }
@@ -314,6 +313,7 @@ struct SpotlightView: View {
         .onDisappear {
             landEntrance()
             removeKeyMonitor()
+            router.sortMenu = nil
             router.isScreenshotViewerOpen = false
             achievementsScreen = nil
             modsHost.stop()

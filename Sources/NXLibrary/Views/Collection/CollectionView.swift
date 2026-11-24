@@ -28,7 +28,6 @@ struct CollectionView: View {
     /// Steam Play phases drive the A hint.
     @ObservedObject var steamPlayer = SteamPlayCoordinator.shared
     @State var keyMonitor: Any?
-    @State var sortMenu: LibrarySort?
     @State var profileFocused = false
     @Environment(\.profilePortrait) var profile
 
@@ -97,18 +96,21 @@ struct CollectionView: View {
                                     showsArt: !settings.settings.keepWallpaperOnGames)
             },
             stage: { stage(games: games, game: game) })
-        .accessibilityHidden(sortMenu != nil)
+        .accessibilityHidden(router.sortMenu != nil)
         .overlay {
-            if let sortMenu {
+            if let sortMenu = router.sortMenu {
                 LibrarySortMenu(current: settings.settings.librarySort, focused: sortMenu, choose: setSort) {
-                    self.sortMenu = nil
+                    router.sortMenu = nil
                 }
             }
         }
         .onAppear(perform: appear)
         // A launch on Collection: Spotlight's entrance belongs to the first home only (`SpotlightView+Entrance`).
         .onAppear { viewModel.homeSeen = true }
-        .onDisappear(perform: removeKeyMonitor)
+        .onDisappear {
+            router.sortMenu = nil
+            removeKeyMonitor()
+        }
         .onChange(of: viewModel.catalogGames) {
             store.preloadCachedStoreMetadata()
             reconcile()
@@ -275,10 +277,10 @@ struct CollectionView: View {
         SoundEffectService.shared.play(.tabSwitch)
     }
 
-    func openSort() { sortMenu = settings.settings.librarySort }
+    func openSort() { router.sortMenu = settings.settings.librarySort }
 
     func setSort(_ sort: LibrarySort) {
-        sortMenu = nil
+        router.sortMenu = nil
         settings.settings.librarySort = sort
         reconcile()
         SoundEffectService.shared.play(.tabSwitch)

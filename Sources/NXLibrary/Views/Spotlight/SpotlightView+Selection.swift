@@ -82,11 +82,11 @@ extension SpotlightView {
         guard viewModel.spotlight.focus == .row, !viewModel.spotlight.isLifted,
               cardMenu == nil, viewer == nil, achievementsScreen == nil,
               !router.overlayHasHints(viewModel) else { return }
-        sortMenu = settings.settings.librarySort
+        router.sortMenu = settings.settings.librarySort
     }
 
     func setSort(_ sort: LibrarySort) {
-        sortMenu = nil
+        router.sortMenu = nil
         settings.settings.librarySort = sort
         SoundEffectService.shared.play(.tabSwitch)
     }

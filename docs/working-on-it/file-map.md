@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **926 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **927 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -174,7 +174,7 @@ Cartella `Sources/NXLibraryCore/App/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibraryCore/App/AppRouter.swift](../../Sources/NXLibraryCore/App/AppRouter.swift) | Gestisce route e ritorno, esclude l’Inbox disattivata, menu (`menuStep`: tasti, cambio pannello e ritorno del control center), ricerca e richieste Spotlight; ShellBackdropCover definisce quali strati sono coperti da Setup, benvenuto e scelta tema. |
+| [Sources/NXLibraryCore/App/AppRouter.swift](../../Sources/NXLibraryCore/App/AppRouter.swift) | Gestisce route, ritorno, Inbox, menu, ricerca, focus di ordinamento e richieste Spotlight; ShellBackdropCover definisce quali strati sono coperti da Setup, benvenuto e scelta tema. |
 | [Sources/NXLibraryCore/App/ProfileLayers.swift](../../Sources/NXLibraryCore/App/ProfileLayers.swift) | Strati della schermata profilo (selettore, procedura guidata, domanda di rimozione): solo quella in cima riceve l’input e mostra i suggerimenti; la procedura guidata nasconde il selettore. |
 | [Sources/NXLibraryCore/App/FirstRunSetup.swift](../../Sources/NXLibraryCore/App/FirstRunSetup.swift) | Coordina pagina e completamento del Setup, scelta Steam persistente fino alla fine, ripresa, focus e consumo unico delle selezioni da Your games. |
 | [Sources/NXLibraryCore/App/FirstRunFindings.swift](../../Sources/NXLibraryCore/App/FirstRunFindings.swift) | Conta giochi Steam senza modifiche, e le app del modulo con il conteggio che riceve; distingue lettura incompleta da assenza e permette nuove letture annullabili. |
@@ -652,7 +652,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibrary/Views/Spotlight/SpotlightView.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightView.swift) | Compone home, tessere e pagina; espone la card Inbox solo se attiva, osserva il cloud per i comandi, conserva il focus di ordinamento e collega il clic su Profili al selettore della shell. |
+| [Sources/NXLibrary/Views/Spotlight/SpotlightView.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightView.swift) | Compone home, tessere e pagina; espone la card Inbox solo se attiva, osserva il cloud, collega Profili alla shell e libera il focus di ordinamento all’uscita. |
 | [Sources/NXLibrary/Views/Spotlight/SpotlightView+Stage.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightView+Stage.swift) | Palco Spotlight: riga, azioni cloud, arte hero, overlay, focus di ordinamento e selezione delle ultime cinque compilazioni. |
 | [Sources/NXLibrary/Views/Spotlight/SpotlightView+Hints.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightView+Hints.swift) | Suggerimenti per focus e stato, inclusi Download per un'app solo cloud e X per mostrare o nascondere le compilazioni. |
 | [Sources/NXLibrary/Views/Spotlight/SpotlightView+Selection.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightView+Selection.swift) | Selezione: comparsa, cambi di filtro e di libreria, gioco selezionato tenuto nella riga. |
@@ -1098,6 +1098,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_logo_cancellation.py](../../Tests/CatalogAppChecks/run_logo_cancellation.py) | Verifica il nuovo tentativo dopo una ricerca del logo annullata, senza rete. |
 | [run_metadata_preload.py](../../Tests/CatalogAppChecks/run_metadata_preload.py) | Verifica che il precaricamento del catalogo legga la cache fuori dal main thread e pubblichi i risultati sul main thread. |
 | [run_spotlight_notification_select.py](../../Tests/CatalogAppChecks/run_spotlight_notification_select.py) | Verifica la consegna della selezione da una notifica a Spotlight, anche al ritorno da una sovrapposizione. |
+| [run_sort_native_menu.py](../../Tests/CatalogAppChecks/run_sort_native_menu.py) | Verifica disponibilità e consegna di Gioca dal menu nativo con l’ordinamento aperto. |
 | [run_save_restart.py](../../Tests/CatalogAppChecks/run_save_restart.py) | Arresti reali e nuovi processi nei checkpoint di transazione, recovery e pulizia; verifica tutti gli utenti, registro e integrità dei backup su fixture temporanee. |
 | [run_entrance.py](../../Tests/CatalogAppChecks/run_entrance.py) | Esegue i metodi reali di input e readiness: nessun comando agisce o salta l’entrata prima dell’atterraggio, clic su Profili, precedenza delle coperture, drawable mancante e presentazione su entrambi i percorsi. Nessuna finestra o GPU reale. |
 | [run_icon_cache.py](../../Tests/CatalogAppChecks/run_icon_cache.py) | Esegue il vero `GameIconProvider`: un gioco senza icona non si rilegge dal disco a ogni disegno; dopo `forget` o la build si legge di nuovo. |
