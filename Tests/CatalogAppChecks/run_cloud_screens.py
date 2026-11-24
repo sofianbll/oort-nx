@@ -572,6 +572,7 @@ extension CloudScreenProbe {
         let sourcesPreference = AppData.preferences.string(forKey: CloudLibraryPreference.sourcesRootKey)
         let referencePreference = AppData.preferences.string(forKey: CloudLibraryPreference.referenceFolderKey)
         AppData.preferences.removeObject(forKey: CloudLibraryPreference.sourcesRootKey)
+        AppData.preferences.removeObject(forKey: CloudLibraryPreference.referenceFolderKey)
         defer {
             AppData.preferences.set(previous, forKey: "NXLibrary_CloudLastKnownAvailability")
             AppData.preferences.set(sourcesPreference, forKey: CloudLibraryPreference.sourcesRootKey)
