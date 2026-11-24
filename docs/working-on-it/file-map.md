@@ -1,6 +1,7 @@
 # Arcane — catalogo dei file
 
 Aggiornato il 24 novembre 2026. Copertura di **1094 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **1065 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -203,7 +204,7 @@ Cartella `Sources/NXLibraryCore/App/`.
 |---|---|
 | [Sources/NXLibraryCore/App/AppRouter.swift](../../Sources/NXLibraryCore/App/AppRouter.swift) | Gestisce route, ritorno, Inbox, menu, ricerca, focus di ordinamento e di Integrations, destinazione Settings e richieste Spotlight; ShellBackdropCover definisce la priorità degli strati. |
 | [Sources/NXLibraryCore/App/ProfileLayers.swift](../../Sources/NXLibraryCore/App/ProfileLayers.swift) | Strati della schermata profilo (selettore, procedura guidata, domanda di rimozione): solo quella in cima riceve l’input e mostra i suggerimenti; la procedura guidata nasconde il selettore. |
-| [Sources/NXLibraryCore/App/FirstRunSetup.swift](../../Sources/NXLibraryCore/App/FirstRunSetup.swift) | Coordina pagina e completamento del Setup, scelta Steam persistente fino alla fine, ripresa, focus e consumo unico delle selezioni da Your games. |
+| [Sources/NXLibraryCore/App/FirstRunSetup.swift](../../Sources/NXLibraryCore/App/FirstRunSetup.swift) | Ordine e ripresa del tour, completamento e riapertura; conserva il percorso legacy e il consumo unico della selezione in Your games. |
 | [Sources/NXLibraryCore/App/FirstRunFindings.swift](../../Sources/NXLibraryCore/App/FirstRunFindings.swift) | Conta giochi Steam senza modifiche, e le app del modulo con il conteggio che riceve; distingue lettura incompleta da assenza e permette nuove letture annullabili. |
 | [Sources/NXLibraryCore/App/ArcaneWelcome.swift](../../Sources/NXLibraryCore/App/ArcaneWelcome.swift) | Decide quando compare il benvenuto in Arcane, l'offerta di Steam, il focus e come ogni uscita lo segna visto. |
 | [Sources/NXLibraryCore/App/ReleaseNotesLayout.swift](../../Sources/NXLibraryCore/App/ReleaseNotesLayout.swift) | Divide le note di release in titoli, voci e testo, una riga per volta, per il dialogo degli aggiornamenti. |
@@ -502,6 +503,7 @@ Cartelle `Sources/ArcanePorting/Settings/` e `ArcanePorting/App/`.
 | [Sources/ArcanePorting/Settings/SettingsReset+Porting.swift](../../Sources/ArcanePorting/Settings/SettingsReset+Porting.swift) | Reset group completo: quello della base più New games (default e scelta globale dello schermo). |
 | [Sources/ArcanePorting/App/AppDataProfile+Porting.swift](../../Sources/ArcanePorting/App/AppDataProfile+Porting.swift) | Dove le build mettono i file temporanei: la cartella del profilo e, nel profilo stabile, accanto a ogni cartella Game apps. |
 | [Sources/ArcanePorting/App/FirstRunFindings+Porting.swift](../../Sources/ArcanePorting/App/FirstRunFindings+Porting.swift) | Il primo avvio conta le app nxnative della cartella Game apps, nella lettura e nel lettore annullabile. |
+| [Sources/ArcanePorting/App/OnboardingInventory.swift](../../Sources/ArcanePorting/App/OnboardingInventory.swift) | Scoperta locale annullabile di app nxnative e file Switch senza chiavi, raggruppamento per titolo e stato già in libreria. |
 | [Sources/ArcanePorting/App/DevelopmentProfileImporter+Porting.swift](../../Sources/ArcanePorting/App/DevelopmentProfileImporter+Porting.swift) | I controlli Porting della copia di sviluppo (`library.json`, catalogo con i tipi noti e l’import legacy) e `DevelopmentProfileImporter()` e `AppData.prepare()` con questi. |
 | [Sources/ArcanePorting/Settings/SettingsCatalog+Porting.swift](../../Sources/ArcanePorting/Settings/SettingsCatalog+Porting.swift) | Righe Porting (inclusi Inbox e Cestino per le cache), disponibilità Nextendo in Play together e apertura di Cloud → Advanced da Search e Changed. |
 | [Sources/ArcanePorting/Settings/IntegrationOverview.swift](../../Sources/ArcanePorting/Settings/IntegrationOverview.swift) | Proietta fatti in righe, con oggetti letti, scritture e destinatari esterni; `open` naviga senza eseguire i controlli. |
@@ -799,7 +801,9 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibrary/Views/Setup/SetupCheckView.swift](../../Sources/NXLibrary/Views/Setup/SetupCheckView.swift) | Disegna schede dei requisiti, motivo del rifiuto sulla scheda Chiavi, dettagli, progressi e pulsanti Install all/Continue. Usa la scossa Selene condivisa. |
+| [Sources/NXLibrary/Views/Setup/SetupCheckView.swift](../../Sources/NXLibrary/Views/Setup/SetupCheckView.swift) | Schede dei requisiti, errore chiavi, progressi e conferme distinte per Metal e motore; continua senza installare. |
+| [Sources/NXLibrary/Views/Setup/OnboardingView.swift](../../Sources/NXLibrary/Views/Setup/OnboardingView.swift) | Pagine e input del tour locale, inventario, importazione selettiva e rinvii ai servizi e alla modifica profilo. |
+| [Sources/NXLibrary/Views/Setup/OnboardingScreen.swift](../../Sources/NXLibrary/Views/Setup/OnboardingScreen.swift) | Composizione Selene del tour, novità della 0.4.0 e conferma della copia locale. |
 | [Sources/NXLibrary/Views/Setup/SetupCheckView+Input.swift](../../Sources/NXLibrary/Views/Setup/SetupCheckView+Input.swift) | Gestisce focus iniziale, navigazione della griglia, attivazione delle schede Setup e B verso `found` durante il primo avvio. |
 | [Sources/NXLibrary/Views/Setup/ArcaneWelcomeView.swift](../../Sources/NXLibrary/Views/Setup/ArcaneWelcomeView.swift) | Disegna il benvenuto in Arcane: nome nuovo, novità, offerta Steam dalla cartella scelta, Add / Not now e Open library. |
 | [Sources/NXLibrary/Views/Setup/ArcaneWelcomeView+Input.swift](../../Sources/NXLibrary/Views/Setup/ArcaneWelcomeView+Input.swift) | Gestisce focus, mouse, tastiera e controller del benvenuto. |
@@ -1167,7 +1171,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [DowngradeProbe.swift](../../Tests/CatalogAppChecks/DowngradeProbe.swift) | Verifica i lettori e gli scrittori effettivi su sessioni, impostazioni, profili, catalogo, integrazioni, coda e stato cloud e immagini. |
 | [run_source_access.py](../../Tests/CatalogAppChecks/run_source_access.py) | Esegue avvio, observer, selettori e preparazione dei file in Add Game: scansione limitata, cartella ricordata e riconoscimento del percorso estratto. |
 | [run_catalog_removal.py](../../Tests/CatalogAppChecks/run_catalog_removal.py) | Prova il Cestino con arresti, concorrenza, file sostituiti e alias. Due avvii del profilo 0.3.0 sintetico verificano anche la coda cloud e la build in attesa. |
-| [run_onboarding.py](../../Tests/CatalogAppChecks/run_onboarding.py) | Esegue observer e ripristino del Setup con plist temporaneo, scelte Steam 0.3.0 e nuove, rilevamento senza opt-in, radice, focus dopo Retry, annullamento alla chiusura, input sotto modali e richiesta notifiche. |
+| [run_onboarding.py](../../Tests/CatalogAppChecks/run_onboarding.py) | Prova ripresa e chiusura del tour oltre ai casi legacy di Steam, modali e notifiche; può rendere le viste in francese su due taglie. |
 | [run_artwork_return.py](../../Tests/CatalogAppChecks/run_artwork_return.py) | Viste, task e host Mods reali su fixture: primo body con arte warm, scelte personali, aggiornamenti Steam nello stesso percorso, badge dopo rimozione, cambi abbinamento e snapshot completato fuori ordine; nessuna finestra o rendering. |
 | [run_nested_bundles.py](../../Tests/CatalogAppChecks/run_nested_bundles.py) | App sintetiche con bundle dati annidati e firme reali: installazione, icona, rollback, copia forzata, ripresa e rifiuto di dati alterati; nessuna UI. |
 | [run_nup_programs.py](../../Tests/CatalogAppChecks/run_nup_programs.py) | Esegue il probe NUP opzionale su snapshot sintetico, convertitori UI reali, persistenza e argv del rebuild. |

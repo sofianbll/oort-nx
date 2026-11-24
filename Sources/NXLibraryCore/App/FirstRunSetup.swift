@@ -1,9 +1,18 @@
 import Foundation
 
-/// First launch stays unfinished until the player opens the library, picks sources, or explicitly skips.
-/// It starts on `found` (what is already on the Mac); the Porting card leads to `requirements` and `games`.
+/// The current first-run tour and the resumable legacy Porting path share the Setup layer.
 public struct FirstRunSetup: Equatable {
-    public enum Page: String { case found, requirements, games }
+    public enum Page: String {
+        case welcome, controller, profile, localGames, services, look
+        case found, requirements, games
+
+        public static let tour: [Self] = [.welcome, .controller, .profile, .localGames, .services, .look]
+        public var isGuided: Bool { Self.tour.contains(self) }
+        public func guidedStep(_ offset: Int) -> Self? {
+            guard let index = Self.tour.firstIndex(of: self), Self.tour.indices.contains(index + offset) else { return nil }
+            return Self.tour[index + offset]
+        }
+    }
     public enum LibraryState: Equatable { case scanning, empty, ready }
 
     public private(set) var page: Page
@@ -16,7 +25,7 @@ public struct FirstRunSetup: Equatable {
         isCompleted = completed
         steamChoice = completed ? nil : savedSteamChoice
         // Settings → Open Setup starts on the requirements; an interrupted first launch resumes where it was.
-        page = completed ? .requirements : savedPage.flatMap(Page.init(rawValue:)) ?? .found
+        page = completed ? .requirements : savedPage.flatMap(Page.init(rawValue:)) ?? .welcome
     }
 
     public var pageToRemember: String? { isCompleted ? nil : page.rawValue }
@@ -25,6 +34,14 @@ public struct FirstRunSetup: Equatable {
     public mutating func chooseSteam(_ on: Bool) {
         guard !isCompleted else { return }
         steamChoice = on
+    }
+
+    public mutating func openTour() { page = .welcome }
+
+    @discardableResult public mutating func moveTour(_ offset: Int) -> Bool {
+        guard let next = page.guidedStep(offset) else { return false }
+        page = next
+        return true
     }
 
     /// The Porting card on `found`: the requirements of today's Setup.

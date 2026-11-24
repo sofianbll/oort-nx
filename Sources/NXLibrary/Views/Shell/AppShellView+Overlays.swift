@@ -73,19 +73,19 @@ extension AppShellView {
     }
 
     var welcomeTrigger: [Bool] {
-        [welcomeBlocked, viewModel.setupCompleted, settings.settings.welcomeArcaneShown,
+        [welcomeBlocked, viewModel.setupCompleted, AppData.preferences.bool(forKey: AppViewModel.StorageKeys.onboardingNewsSeen),
          viewModel.gameWithInstallFailure != nil, viewModel.hasActiveSaveOperations]
     }
 
     func presentWelcomeIfDue() async {
         guard !showsWelcome, !welcomeDismissed, !welcomeBlocked, viewModel.setupCompleted,
-              !settings.settings.welcomeArcaneShown else { return }
+              !AppData.preferences.bool(forKey: AppViewModel.StorageKeys.onboardingNewsSeen) else { return }
         // `hasActiveSaveOperations` is in the trigger: the welcome comes back here when the save recovery ends.
         let pending = viewModel.hasActiveSaveOperations || viewModel.saveGate.hasActiveOperations
             || viewModel.gameWithInstallFailure != nil
         guard !Task.isCancelled, !welcomeBlocked,
               ArcaneWelcome.shouldShow(setupCompleted: viewModel.setupCompleted,
-                                       shown: settings.settings.welcomeArcaneShown,
+                                       shown: AppData.preferences.bool(forKey: AppViewModel.StorageKeys.onboardingNewsSeen),
                                        hasPendingRecovery: pending) else { return }
         withAnimation(reduceMotion ? nil : SeleneTheme.screen) { showsWelcome = true }
     }
@@ -95,6 +95,7 @@ extension AppShellView {
     func closeWelcome(_ exit: ArcaneWelcome.Exit) {
         guard showsWelcome else { return }
         welcomeDismissed = true
+        AppData.preferences.set(true, forKey: AppViewModel.StorageKeys.onboardingNewsSeen)
         let finish = {
             settings.settings = ArcaneWelcome.settings(after: exit, from: settings.settings)
             if exit == .openLibrary { router.navigate(to: .library) }

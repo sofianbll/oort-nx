@@ -191,11 +191,14 @@ extension AppViewModel {
         let fm = FileManager.default
         let directories = [gameAppsFolder]
         let importer = importService
+        let excluded = Set(AppData.preferences.stringArray(forKey: StorageKeys.onboardingExclusions) ?? [])
         let folderSnapshot = libraryFolder?.standardizedFileURL
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             let scanned = importer.scan(directories: directories)
             let scanWarnings = importer.scanWarnings
-            let selected = importer.appsForLibrary(scanned: scanned, existing: existing)
+            let selected = importer.appsForLibrary(scanned: scanned, existing: existing).filter { app in
+                !excluded.contains(app.id.uppercased()) || existing.contains { $0.titleId == app.titleId }
+            }
             let importedGames = selected.map { importer.makeGame(from: $0) }
             DispatchQueue.main.async {
                 guard let self else { return }
@@ -249,6 +252,7 @@ extension AppViewModel {
     }
 
     func importExistingBuilds() {
+        AppData.preferences.removeObject(forKey: StorageKeys.onboardingExclusions)
         do { applyCatalog(try catalogRepository.configureSource(.nxnative, enabled: true, root: nil)); loadLibrary() }
         catch { reportCatalogFailure(error) }
     }

@@ -108,6 +108,9 @@ final class AppViewModel: ObservableObject {
         static let setupPage = "NXLibrary_SetupPage"
         static let legacySetupSteamChoice = "NXLibrary_SetupSteamChoice"
         static let setupSteamChoice = "NXLibrary_SetupSteamExplicitChoice"
+        static let onboardingNewsSeen = "OortNX_WhatsNew_0_4"
+        static let onboardingFreshProfile = "OortNX_OnboardingFreshProfile"
+        static let onboardingExclusions = "OortNX_Onboarding_ExcludedLocalGames"
         /// A chosen engine folder other than ~/nxnative.
         static let savedEngineFolder = "NXLibrary_EngineFolder"
         static let newestEngineChoice = "NXLibrary_NewestEngineChoice"
@@ -241,6 +244,7 @@ final class AppViewModel: ObservableObject {
         }
     }
     var setupCompleted: Bool { firstRunSetup.isCompleted }
+    var isGuidedSetupOpen: Bool { showSetupCheck && firstRunSetup.page.isGuided }
     @Published var lastError: String? = nil
     @Published var alertMessage: String? = nil
     @Published var buildLogURL: URL? = nil
@@ -362,7 +366,7 @@ final class AppViewModel: ObservableObject {
     var libraryRescanRequested = false
 
     init(settingsStore: AppSettingsStore, catalog: CatalogDocument, repository: CatalogRepository,
-         localProfiles: LocalProfileStore? = nil) {
+         localProfiles: LocalProfileStore? = nil, registerNotifications: Bool = true) {
         self.catalogRepository = repository
         self.settingsStore = settingsStore
         self.localProfiles = localProfiles
@@ -388,6 +392,7 @@ final class AppViewModel: ObservableObject {
                                            savedPage: AppData.preferences.string(forKey: StorageKeys.setupPage),
                                            savedSteamChoice: explicitSteamChoice ?? (legacySteamChoice == false ? false : nil))
         self.showSetupCheck = !didCompleteSetup
+        if firstRunSetup.page.isGuided { AppData.preferences.set(true, forKey: StorageKeys.onboardingFreshProfile) }
 
         // 1. Resolve safe root directory (anchored to SSD / Bundle, NEVER "/")
         let root = SystemDetector.shared.resolveRootDirectory()
@@ -409,8 +414,11 @@ final class AppViewModel: ObservableObject {
             self.iconAppearanceMode = mode == .mono ? .mono : .auto
         }
 
-        setup.restoreBuildInputs(automatic: true)
-        if !AppData.profile.isDevelopment && (startup.checkEngineAtLaunch || !didCompleteSetup) { setup.refreshCompatibility() }
+        setup.restoreBuildInputs(automatic: true,
+                                 readKeys: !AppData.preferences.bool(forKey: StorageKeys.onboardingFreshProfile))
+        if !AppData.profile.isDevelopment && startup.checkEngineAtLaunch && !firstRunSetup.page.isGuided {
+            setup.refreshCompatibility()
+        }
 
         // Keep Game files as a picker preference, not an active Add game draft.
         // Assigning selectedGameFolder scans it; launch refresh only concerns installed apps.
@@ -433,10 +441,11 @@ final class AppViewModel: ObservableObject {
             }
         }
         if !setupCompleted && firstRunSetup.page == .games { prepareInitialGameAppsFolder() }
-        if startup.refreshLibraryAtLaunch || (!setupCompleted && firstRunSetup.page == .games) { scanLibrary(using: catalog) }
+        if (!firstRunSetup.page.isGuided && startup.refreshLibraryAtLaunch) ||
+            (!setupCompleted && firstRunSetup.page == .games) { scanLibrary(using: catalog) }
         updateDockIcon()
         // Register notification-click routing at launch without asking for permission.
-        _ = NotificationService.shared
+        if registerNotifications { _ = NotificationService.shared }
 
         let held = PendingInstaller.keptFolders(libraryGames)
         let staging = AppData.profile.automaticStagingFolders(
@@ -537,6 +546,7 @@ final class AppViewModel: ObservableObject {
     }
 
     func completeSetup() {
+        AppData.preferences.set(true, forKey: StorageKeys.onboardingNewsSeen)
         prepareInitialGameAppsFolder()
         AppData.preferences.set(gameAppsFolder.path, forKey: StorageKeys.savedLibraryFolder)
         firstRunSetup.finish()
@@ -548,6 +558,20 @@ final class AppViewModel: ObservableObject {
         guard !isBuilding, !isUpdatingApp else { return }
         firstRunSetup.goBack()
         showSetupCheck = true
+    }
+
+    func reopenOnboarding() {
+        guard !isBuilding, !isUpdatingApp else { return }
+        firstRunSetup.openTour()
+        showSetupCheck = true
+    }
+
+    @discardableResult func moveOnboarding(_ offset: Int) -> Bool { firstRunSetup.moveTour(offset) }
+
+    func finishOnboarding() {
+        AppData.preferences.set(true, forKey: StorageKeys.onboardingNewsSeen)
+        firstRunSetup.finish()
+        showSetupCheck = false
     }
 
     func cleanStorage(games: [PortedGame], caches: Bool) {

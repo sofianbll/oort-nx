@@ -109,6 +109,10 @@ extension AppShellView {
             if viewModel.showSetupCheck || (showsWelcome && !showsSettingsNotice && !showsInstallFailure
                                             && !showsUpdateOffer && viewModel.gameToClose == nil
                                             && viewModel.gameToRemove == nil) {
+                if viewModel.isGuidedSetupOpen, event.keyCode == 48, mods.isEmpty || mods == [.shift] {
+                    GameControllerService.shared.onAction?(mods.isEmpty ? .navigateDown : .navigateUp)
+                    return nil
+                }
                 guard mods.isEmpty, !(event.window?.firstResponder is NSText) else { return event }
                 let setupAction: GamepadAction?
                 switch event.keyCode {

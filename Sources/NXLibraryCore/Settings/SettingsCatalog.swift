@@ -68,6 +68,7 @@ public enum SettingsCatalog {
             "The library's tiles fly in with the boot sound when the app opens.") { $0.introAnimation },
         row("showProfilePicker", .startUp, "At startup",
             "Choose who plays when Arcane opens.") { $0.profileStartup },
+        action("onboarding", .startUp, "Welcome setup", "Reopen the guided setup without resetting your library."),
 
         // Navigation
         row("showButtonHints", .navigation, "Button hints",

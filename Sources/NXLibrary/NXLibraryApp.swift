@@ -35,10 +35,11 @@ struct NXLibraryApp: App {
     #if DEBUG
     init() {
         let args = CommandLine.arguments
-        if let index = args.firstIndex(where: { ["--render-integration-fixture", "--render-sound-fixture"].contains($0) }) {
+        if let index = args.firstIndex(where: { ["--render-integration-fixture", "--render-sound-fixture", "--render-onboarding-fixture"].contains($0) }) {
             precondition(index + 1 < CommandLine.arguments.count, "Pass a directory for the fixture PNGs")
             try! IntegrationFixtureView.capture(to: URL(fileURLWithPath: args[index + 1], isDirectory: true),
-                                                soundOnly: args[index] == "--render-sound-fixture")
+                                                soundOnly: args[index] == "--render-sound-fixture",
+                                                onboardingOnly: args[index] == "--render-onboarding-fixture")
             exit(EXIT_SUCCESS)
         }
     }

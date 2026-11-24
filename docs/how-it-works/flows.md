@@ -26,8 +26,8 @@ flowchart TD
     D --> E["AppShellState risolve il profilo di avvio e prepara coordinatore, router, tema"]
     E --> F["AppShellView: AppViewModel, store, monitor, updater"]
     F --> G{"Primo avvio completato?<br/>(FirstRunSetup)"}
-    G -->|"no"| H["Setup: found (Steam, app portate) → Open library<br/>oppure Porting → Get ready → Your games"]
-    G -->|"sì"| I["Benvenuto in Oort NX una volta, per chi aggiorna<br/>altrimenti home scelta"]
+    G -->|"no"| H["Tour: lingua → controller → profilo → giochi locali<br/>→ servizi facoltativi → aspetto e suono"]
+    G -->|"sì"| I["Novità 0.4.0 una volta<br/>altrimenti home scelta"]
     H --> K["Prima home Spotlight: moonlight condiviso → entrata<br/>Entrance animation; niente volo con Riduci movimento"]
     I --> K
     F --> J["In background: recuperi dei salvataggi, installazioni in attesa,<br/>scansione Steam se attivo, controllo engine se attivo, aggiornamenti;<br/>avviso se la copia è temporanea (App Translocation)"]
@@ -38,7 +38,8 @@ flowchart TD
 Punti fissi:
 - Gli store si costruiscono una volta sola, prima della shell.
 - Un archivio illeggibile non diventa mai una libreria vuota.
-- La Dev legge e scrive solo nel suo profilo.
+- La Dev scrive solo nel proprio profilo. Al primo avvio offre una copia selettiva della libreria stabile, senza intervenire sulla sorgente.
+- Il tour riprende al passo salvato. L'elenco locale non installa nulla; i servizi si configurano separatamente. Gli strumenti Switch si preparano solo attraverso il controllo dei requisiti, ciascuno con una conferma.
 - La scelta Steam del primo Setup resta salvata anche alla chiusura; lettura e attivazione usano la cartella scelta nella fonte. La scansione non sceglie Steam e Open library conserva la fonte in assenza di scelta. Una lettura incompleta offre Retry, senza dichiarare la libreria vuota.
 - Riprendendo un Setup precedente, il vecchio Steam acceso non basta per attivare una fonte spenta: occorre sceglierlo sulla prima pagina o in Settings. Una fonte già attiva rimane visibile in assenza di una scelta contraria.
 - Se il file delle chiavi viene rifiutato in Get ready, il motivo compare sulla scheda Chiavi, dalla quale si può riprovare senza chiudere un dialogo.

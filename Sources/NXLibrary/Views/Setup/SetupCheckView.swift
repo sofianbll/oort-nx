@@ -16,6 +16,8 @@ struct SetupCheckView: View {
     @State var focus: SetupFocus = .carryOn
     @State var focusPlaced = false
     @State var shakes = 0
+    @State var pendingTool: SetupItemID?
+    @State var toolFocus: SeleneConfirmButton = .cancel
     @State private var risen = false
     @State private var popping: Set<SetupItemID> = []
 
@@ -37,10 +39,10 @@ struct SetupCheckView: View {
             SeleneBackdrop()
             VStack(spacing: 0) {
                 SetupStepIndicator(page: .requirements).padding(.bottom, canvas.u(18))
-                Text(L10n.text("Let's get Arcane ready"))
+                Text(L10n.text("Tools for building Switch games"))
                     .seleneFont(46, .semibold)
                     .foregroundColor(SeleneTheme.ink)
-                Text(L10n.text("Check what you need to build. Your games come next."))
+                Text(L10n.text("You don’t need these tools to play a game that’s already built."))
                     .seleneFont(19)
                     .foregroundColor(SeleneTheme.ink75)
                     .padding(.top, canvas.u(10))
@@ -49,11 +51,19 @@ struct SetupCheckView: View {
                 buttons.padding(.top, canvas.u(20))
             }
             .modifier(SeleneShake(amount: CGFloat(shakes), distance: 8))
+            .seleneOverlayOwnership(pendingTool == nil)
             .offset(y: canvas.u(-20))
             VStack {
                 Spacer(minLength: 0)
                 SeleneHintsBar(right: [HintItem(.a, L10n.text("Select")), HintItem(.b, L10n.text("Back"))],
                                bottom: SeleneBottomScrim.hintsBottom, leftInset: 18)
+            }.seleneOverlayOwnership(pendingTool == nil)
+            if let pendingTool {
+                SeleneOverlay(style: .dialog) {
+                    SeleneConfirmDialog(title: pendingTool == .engine ? "Prepare nxnative?" : "Install the Metal compiler?",
+                                        message: toolMessage(pendingTool), confirmTitle: "Continue", focus: $toolFocus,
+                                        onCancel: { self.pendingTool = nil }, onConfirm: confirmTool)
+                }
             }
         }
         .frame(width: canvas.size.width, height: canvas.size.height)
@@ -71,6 +81,21 @@ struct SetupCheckView: View {
         .onReceive(NotificationCenter.default.publisher(for: .nxSetupCheckGamepadAction)) { note in
             if let action = note.object as? GamepadAction { handle(action) }
         }
+    }
+
+    private func toolMessage(_ tool: SetupItemID) -> String {
+        if tool == .engine {
+            return L10n.format("Oort will contact the engine’s Git server and prepare the tested nxnative revision in %@. This can update that checkout.",
+                               [viewModel.setup.nxnativePath])
+        }
+        return L10n.format("Oort will ask Apple to download the Metal compiler for Xcode at %@. It does not replace Xcode.",
+                           [viewModel.setup.resolvedDeveloperDir().path])
+    }
+
+    func confirmTool() {
+        guard let pendingTool else { return }
+        self.pendingTool = nil
+        setup.activate(pendingTool)
     }
 
     // MARK: - Cards
@@ -183,10 +208,7 @@ struct SetupCheckView: View {
             }
             Spacer(minLength: 0)
             if let action = story.action {
-                HStack(spacing: canvas.u(8)) {
-                    SelenePromptBadge(button: .a, height: 26)
-                    Text(action).seleneFont(17, .semibold).foregroundColor(SeleneTheme.ink)
-                }
+                Text(action).seleneFont(.body, .semibold).foregroundColor(SeleneTheme.ink)
             }
         }
         .padding(canvas.u(22))
@@ -208,21 +230,6 @@ struct SetupCheckView: View {
             return Story(icon: Self.icon(item.id), tone: StatusChip.tone(item), title: item.title,
                          state: StatusChip.stateName(item), about: item.about, detail: item.detail,
                          action: item.actionTitle)
-        case .installAll:
-            let names = missingNames
-            if model.installAllRunning, let progress = model.installAllProgress {
-                return Story(icon: .sync, tone: SeleneTheme.glyph, title: L10n.text("Install all"), state: progress,
-                             about: names.isEmpty ? L10n.text("Finishing…") : names.joined(separator: " · "),
-                             detail: L10n.text("Each card shows how it is going."), action: nil)
-            }
-            if names.isEmpty {
-                return Story(icon: .check, tone: SeleneTheme.success, title: L10n.text("Install all"), state: "Done",
-                             about: L10n.text("Everything Arcane can install by itself is installed."),
-                             detail: L10n.text("Import your keys on their card if needed."), action: nil)
-            }
-            return Story(icon: .sync, tone: SeleneTheme.glyph, title: L10n.text("Install all"), state: L10n.format("%@ to go", [String(describing: names.count)]),
-                         about: names.joined(separator: " · "),
-                         detail: L10n.text("Import your keys on their card if needed."), action: "Install all")
         default:
             let required = items.filter(\.isRequired)
             let ready = required.filter { $0.state == .ready }.count
@@ -238,33 +245,17 @@ struct SetupCheckView: View {
         }
     }
 
-    var missingNames: [String] {
-        model.missingAutomatic.compactMap { id in items.first { $0.id == id }?.title }
-    }
-
     // MARK: - Buttons
 
     private var buttons: some View {
-        let count = model.missingAutomatic.count
-        let title = model.installAllProgress ?? (count > 0 ? L10n.format("Install all (%@)", [String(describing: count)]) : L10n.text("All installed"))
-        return HStack(spacing: canvas.u(22)) {
-            SelenePillButton(title: title, minWidth: 240, focused: focus == .installAll,
-                             enabled: count > 0 && !model.installAllRunning) {
-                move(to: .installAll); activate()
-            }
-            .onHover { if $0 { move(to: .installAll) } }
-            .opacity(model.installAllRunning ? 0.75 : 1)
-            SelenePillButton(title: L10n.text("Continue"), minWidth: 200, focused: focus == .carryOn) {
-                move(to: .carryOn); activate()
-            }
-            .onHover { if $0 { move(to: .carryOn) } }
+        SelenePillButton(title: "Continue", focused: focus == .carryOn) {
+            move(to: .carryOn); activate()
         }
+        .onHover { if $0 { move(to: .carryOn) } }
     }
 }
 
-enum SetupFocus: Equatable {
-    case card(Int), installAll, carryOn
-}
+enum SetupFocus: Equatable { case card(Int), carryOn }
 
 /// The card's state in a word or two, coloured by state; a running action breathes.
 private struct StatusChip: View {
