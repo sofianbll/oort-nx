@@ -497,8 +497,25 @@ public struct RcloneStorageBackend: StorageBackend {
     private func run(_ arguments: [String], progress: (@Sendable (StorageProgress) -> Void)? = nil,
                       listingFolder: Bool = false, localDestination: URL? = nil,
                       checkingConfiguration: Bool = false, scopeProbe: Bool = false,
-                     probingParent: String? = nil, diagnostic: Bool = false) async throws -> String {
+                      probingParent: String? = nil, diagnostic: Bool = false,
+                      usingConfigSnapshot: Bool = false) async throws -> String {
         try Task.checkCancellation()
+        let writesToDrive: Bool
+        switch arguments.first {
+        case "deletefile", "moveto": writesToDrive = true
+        case "copy", "copyto": writesToDrive = arguments.count > 2 && arguments[2].hasPrefix(remote + ":")
+        default: writesToDrive = false
+        }
+        if writesToDrive, !isReference, let scope = driveScope, commandOverride == nil, !usingConfigSnapshot {
+            let executable = try binary()
+            let snapshot = try await RcloneConfigSnapshot.capture(executable: executable, config: config) {
+                try await SystemCommandRunner().runCancellable($0, $1, environment: $2)
+            }
+            defer { withExtendedLifetime(snapshot) {} }
+            let checked = Self(remote: remote, root: root, executable: executable, config: snapshot.config).scoped(scope)
+            return try await checked.run(arguments, progress: progress, listingFolder: listingFolder,
+                                         localDestination: localDestination, usingConfigSnapshot: true)
+        }
         let flags = ["--use-json-log", "--stats", "1s", "--stats-log-level", "NOTICE"] + Self.flags
         let environment = RcloneConfiguration.environment()
         var referenceFlags: [String] = []
@@ -528,14 +545,8 @@ public struct RcloneStorageBackend: StorageBackend {
                 if let sources = scope.sources, sources != scope.library,
                    try await folderIdentity(sources.path) != sources.id { throw CloudLibraryFailure.scopeChanged }
                 referenceFlags = ["--drive-root-folder-id=\(target.folder.id)"]
-                switch arguments.first {
-                case "deletefile", "moveto":
+                if writesToDrive {
                     try await verifyFolderSeparation([target.folder.id], from: scope.reference)
-                case "copy", "copyto":
-                    if arguments.count > 2 && arguments[2].hasPrefix(remote + ":") {
-                        try await verifyFolderSeparation([target.folder.id], from: scope.reference)
-                    }
-                default: break
                 }
             }
         }

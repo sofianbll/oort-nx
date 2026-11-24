@@ -42,7 +42,8 @@ extension AppViewModel {
                 guard cloud.libraryMove?.isCancelling != true else { throw CancellationError() }
                 let lease = try cloud.moveJournal.acquire()
                 defer { withExtendedLifetime(lease) {} }
-                let folders = CloudDriveFolders(remote: request.plan.remote, executable: tool, reference: preference.referenceFolder)
+                let folders = try await CloudDriveFolders(remote: request.plan.remote, executable: tool,
+                                                          reference: preference.referenceFolder).snapshot()
                 let pending: LibraryMoveJournal.Pending
                 if let saved = try cloud.moveJournal.load() {
                     guard saved.request == request, saved.id == id else { throw CloudArchiveError.busy }
@@ -54,6 +55,7 @@ extension AppViewModel {
                     guard CloudDriveFolders.isBound(request.plan, to: request.destination) else {
                         throw CloudDriveFolders.MoveFailure.missingIdentity
                     }
+                    try request.plan.verifyApproved(cloud.driveScope)
                     try await folders.preflightMove(request.plan, to: request.destination)
                     var sources = preference.sourcesRootOverride
                     if sources == nil {
@@ -81,7 +83,8 @@ extension AppViewModel {
                     let verified = try cloud.moveJournal.markVerified(pending)
                     cloud.setPendingMove(verified)
                     cloud.configure(remote: request.plan.remote, root: request.destination, enabled: true,
-                                    sourcesRoot: pending.sourcesRoot)
+                                    sourcesRoot: pending.sourcesRoot,
+                                    approvedLibrary: try request.plan.destinationScope(reference: preference.referenceFolder))
                     guard AppData.preferences.synchronize() else { throw StorageBackendError.publicationFailed }
                     try cloud.moveJournal.finish(verified)
                     cloud.setPendingMove(nil)

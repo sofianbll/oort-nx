@@ -614,6 +614,7 @@ struct CloudSetupAssistant: View {
         listing = nil; count = nil; countUnknown = false; folderMissing = false
         movePlan = nil; moveUnavailable = false; checkingMove = false; moveConflicts = []; moveFailure = nil
         let old = model.preference.root.split(separator: "/").joined(separator: "/")
+        let approved = model.driveScope
         let checkOld = !selectingSources && model.preference.remote == draft.remote && replacement == nil
             && CloudDriveFolders.canMove(from: old, to: path)
         focus.reset()
@@ -630,8 +631,8 @@ struct CloudSetupAssistant: View {
             listing = result
             if checkOld {
                 do {
-                    let plan = try await service.movePlan(from: old, to: path)
-                    if !Task.isCancelled && draft.matches(ticket) { movePlan = plan }
+                    let plan = try await service.movePlan(from: old, to: path, approved: approved)
+                    if !Task.isCancelled && draft.matches(ticket) && model.driveScope == approved { movePlan = plan }
                 } catch let failure as CloudDriveFolders.MoveFailure {
                     if !Task.isCancelled && draft.matches(ticket) { moveFailure = failure.localizedDescription }
                 } catch CloudLibraryFailure.referenceOverlap {

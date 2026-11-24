@@ -5,6 +5,11 @@ package struct CloudDriveScope: Codable, Equatable, Sendable {
     package struct Folder: Codable, Equatable, Sendable {
         package let path: String
         package let id: String
+
+        package init(path: String, id: String) {
+            self.path = path
+            self.id = id
+        }
     }
 
     package let remote: String
@@ -12,6 +17,14 @@ package struct CloudDriveScope: Codable, Equatable, Sendable {
     package let library: Folder
     package var sources: Folder?
     package var reference: String?
+
+    package init(remote: String, account: String, library: Folder, sources: Folder? = nil, reference: String? = nil) {
+        self.remote = remote
+        self.account = account
+        self.library = library
+        self.sources = sources
+        self.reference = reference
+    }
 
     package var availabilityKey: [String] { [remote, account, library.id, sources?.id ?? "", reference ?? ""] }
 
@@ -30,6 +43,43 @@ package struct CloudDriveScope: Codable, Equatable, Sendable {
 
     static func validID(_ id: String) -> Bool {
         id != "root" && id != "appDataFolder" && id.range(of: #"^[A-Za-z0-9_-]{1,256}\z"#, options: .regularExpression) != nil
+    }
+}
+
+/// Keep one private config for an effect and its checks; never write refreshed credentials back over the user's file.
+package final class RcloneConfigSnapshot: Sendable {
+    package let config: URL
+
+    private init(config: URL) { self.config = config }
+    deinit { try? FileManager.default.removeItem(at: config.deletingLastPathComponent()) }
+
+    package static func capture(executable: URL, config: URL?, run: RcloneConfiguration.Run) async throws -> RcloneConfigSnapshot {
+        let original: URL
+        if let config {
+            original = config
+        } else {
+            let environment = RcloneConfiguration.environment()
+            let result = try await run(executable, ["config", "file"]
+                + RcloneConfiguration.flags(config: nil, environment: environment), environment)
+            guard result.status == 0, let path = result.stdout.split(whereSeparator: \.isNewline).last,
+                  path.hasPrefix("/") else { throw RcloneConfiguration.Failure.configuration }
+            original = URL(fileURLWithPath: String(path))
+        }
+        return try await Task.detached(priority: .utility) {
+            try Task.checkCancellation()
+            let regularFile = original.resolvingSymlinksInPath()
+            guard try regularFile.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile == true else {
+                throw RcloneConfiguration.Failure.configuration
+            }
+            let contents = try Data(contentsOf: regularFile)
+            let fm = FileManager.default
+            let directory = fm.temporaryDirectory.appendingPathComponent("arcane-rclone-config-\(UUID())")
+            try fm.createDirectory(at: directory, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+            let snapshot = RcloneConfigSnapshot(config: directory.appendingPathComponent("rclone.conf"))
+            guard fm.createFile(atPath: snapshot.config.path, contents: contents, attributes: [.posixPermissions: 0o600])
+            else { throw RcloneConfiguration.Failure.configuration }
+            return snapshot
+        }.value
     }
 }
 

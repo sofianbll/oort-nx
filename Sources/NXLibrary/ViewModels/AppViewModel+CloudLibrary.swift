@@ -494,7 +494,7 @@ final class CloudLibraryModel: ObservableObject {
 
     /// `reload` restarts the backend for an unchanged preference, after new Google credentials replaced the remote's token.
     @MainActor func configure(remote: String?, root: String, enabled: Bool, sourcesRoot: String?, reload: Bool = false,
-                             confirmLibrary: Bool = false) {
+                              confirmLibrary: Bool = false, approvedLibrary: CloudDriveScope? = nil) {
         let next = CloudLibraryPreference(storage: "\(remote ?? ""):\(root)", enabled: enabled,
                                           sourcesRoot: sourcesRoot, referenceFolder: preference.referenceFolder)
         let reselect = confirmLibrary && connectionCheck?.failure == .scopeChanged
@@ -508,6 +508,9 @@ final class CloudLibraryModel: ObservableObject {
             AppData.preferences.removeObject(forKey: Self.scopeKey)
         } else if sourcesRoot != preference.sourcesRootOverride && next.storage == preference.storage {
             saveSourcesBinding(CloudLibraryPreference.SourcesBinding(next))
+        }
+        if let approvedLibrary, let data = try? JSONEncoder().encode(approvedLibrary) {
+            AppData.preferences.set(data, forKey: Self.scopeKey)
         }
         preference = next
         if next.remote == nil { needsDriveToolChoice = false }

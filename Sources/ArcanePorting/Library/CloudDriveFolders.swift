@@ -26,6 +26,17 @@ public struct CloudDriveFolders: Sendable {
         fileprivate let entries: [MoveEntry]
         // Optional for decoding old activity results, never for an actual remote move.
         fileprivate var binding: MoveBinding?
+
+        package func verifyApproved(_ scope: CloudDriveScope?) throws {
+            guard let binding else { throw MoveFailure.missingIdentity }
+            try binding.verifyApproved(scope, remote: remote, source: source)
+        }
+
+        package func destinationScope(reference: String?) throws -> CloudDriveScope {
+            guard let binding else { throw MoveFailure.missingIdentity }
+            return .init(remote: remote, account: binding.account,
+                         library: .init(path: binding.destination, id: binding.destinationID), reference: reference)
+        }
     }
 
     package struct MoveBinding: Equatable, Codable, Sendable {
@@ -33,6 +44,15 @@ public struct CloudDriveFolders: Sendable {
         let sourceID: String
         let destinationID: String
         let destination: String
+
+        fileprivate func verifyApproved(_ scope: CloudDriveScope?, remote: String, source: String) throws {
+            guard let scope, scope.remote == remote,
+                  scope.library.path.split(separator: "/").joined(separator: "/") == source else {
+                throw MoveFailure.missingIdentity
+            }
+            guard scope.account == account else { throw MoveFailure.accountChanged }
+            guard scope.library.id == sourceID else { throw MoveFailure.foldersChanged }
+        }
     }
 
     package enum MoveFailure: LocalizedError {
@@ -68,19 +88,28 @@ public struct CloudDriveFolders: Sendable {
     private let config: URL?
     private let run: RcloneConfiguration.Run
     private let reference: String?
+    private let configurationSnapshot: RcloneConfigSnapshot?
 
     public init(remote: String, executable: URL, config: URL? = nil, reference: String? = nil) {
         self.init(remote: remote, executable: executable, config: config, reference: reference, run: Self.runCommand)
     }
 
     init(remote: String, executable: URL, localRoot: URL? = nil, config: URL? = nil, reference: String? = nil,
+         configurationSnapshot: RcloneConfigSnapshot? = nil,
          run: @escaping RcloneConfiguration.Run = Self.runCommand) {
         self.remote = remote
         self.executable = executable
         self.localRoot = localRoot
-        self.config = config
+        self.config = configurationSnapshot?.config ?? config
         self.reference = reference
+        self.configurationSnapshot = configurationSnapshot
         self.run = run
+    }
+
+    package func snapshot() async throws -> Self {
+        guard remote != ":local:", configurationSnapshot == nil else { return self }
+        let captured = try await RcloneConfigSnapshot.capture(executable: executable, config: config, run: run)
+        return Self(remote: remote, executable: executable, reference: reference, configurationSnapshot: captured, run: run)
     }
 
     public static func validName(_ name: String) -> Bool {
@@ -125,6 +154,10 @@ public struct CloudDriveFolders: Sendable {
     /// Only an explicit confirmation calls this. A lost reply is followed by a read, never another write.
     public func create(_ name: String, in folder: String) async throws {
         guard Self.validName(name) else { throw StorageBackendError.invalidKey }
+        if reference != nil, remote != ":local:", configurationSnapshot == nil {
+            try await snapshot().create(name, in: folder)
+            return
+        }
         if try await list(folder, ticket: UUID()).names.contains(name) { return }
         let destination: String
         if let reference, remote != ":local:" {
@@ -247,13 +280,16 @@ public struct CloudDriveFolders: Sendable {
         return true
     }
 
-    public func movePlan(from source: String, to destination: String? = nil) async throws -> MovePlan {
+    package func movePlan(from source: String, to destination: String? = nil, approved: CloudDriveScope? = nil) async throws -> MovePlan {
+        if remote != ":local:", configurationSnapshot == nil {
+            return try await snapshot().movePlan(from: source, to: destination, approved: approved)
+        }
         let binding: MoveBinding?
         if let destination, remote != ":local:" {
-            binding = try await moveBinding(from: source, to: destination)
-            if let binding {
-                try await referenceGuard.verifyFolderSeparation([binding.sourceID, binding.destinationID], from: reference)
-            }
+            let checked = try await moveBinding(from: source, to: destination)
+            try checked.verifyApproved(approved, remote: remote, source: source)
+            try await referenceGuard.verifyFolderSeparation([checked.sourceID, checked.destinationID], from: reference)
+            binding = checked
         } else {
             guard remote == ":local:" else { throw MoveFailure.missingIdentity }
             _ = try await folderID(source)
@@ -263,7 +299,10 @@ public struct CloudDriveFolders: Sendable {
         let sourceRoot = sourceID == nil ? source : ""
         let items = try await contents(sourceRoot, recursive: true, rootID: sourceID, allowMissing: false)
         let paths = Dictionary(grouping: items, by: \.Path)
-        let backend = try backend(in: source)
+        let raw = try backend(in: source)
+        let backend = binding.map {
+            raw.scoped(.init(remote: remote, account: $0.account, library: .init(path: source, id: $0.sourceID)))
+        } ?? raw
         defer { backend.stopRemoteControl() }
         let archive = CloudGameArchive(backend: backend)
         var archiveTitles = Set<String>()
@@ -320,6 +359,9 @@ public struct CloudDriveFolders: Sendable {
     /// Run only after confirmation; a skipped key (or manifest with missing dependencies) prevents activation.
     public func move(_ plan: MovePlan, to destination: String,
                      progress: (Int, Int) async throws -> Void) async throws -> [String] {
+        if remote != ":local:", configurationSnapshot == nil {
+            return try await snapshot().move(plan, to: destination, progress: progress)
+        }
         try await preflightMove(plan, to: destination)
         let sourceID = plan.binding?.sourceID, destinationID = plan.binding?.destinationID
         let folders = Set(plan.entries.compactMap { Self.treeFolder($0.file.key.value) })
