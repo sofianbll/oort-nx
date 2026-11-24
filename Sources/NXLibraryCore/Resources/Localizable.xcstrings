@@ -68828,49 +68828,49 @@
         }
       }
     },
-    "Storage warning: this build needs ~%@ free (twice the selected sources plus 10 GB), but only %@ is available. Free at least %@ before adding it.": {
+    "Storage warning: this build needs ~%@ free (twice the selected sources plus 10 GB), but only %@ is available. Free at least %@ before building.": {
       "comment": "App-owned presentation copy; preserve data identifiers separately.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Storage warning: this build needs ~%@ free (twice the selected sources plus 10 GB), but only %@ is available. Free at least %@ before adding it."
+            "value": "Storage warning: this build needs ~%@ free (twice the selected sources plus 10 GB), but only %@ is available. Free at least %@ before building."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Attenzione allo spazio: questa build richiede circa %@ liberi (il doppio delle sorgenti selezionate più 10 GB), ma sono disponibili solo %@. Libera almeno %@ prima di aggiungerla."
+            "value": "Attenzione allo spazio: questa build richiede circa %@ liberi (il doppio delle sorgenti selezionate più 10 GB), ma sono disponibili solo %@. Libera almeno %@ prima di avviarla."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Attention au stockage : cette compilation nécessite environ %@ libres (deux fois les sources sélectionnées plus 10 Go), mais seuls %@ sont disponibles. Libérez au moins %@ avant de l’ajouter."
+            "value": "Attention au stockage : il faut environ %@ libres pour compiler (deux fois les sources sélectionnées plus 10 Go), mais seulement %@ sont disponibles. Libérez au moins %@ avant de compiler."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Speicherwarnung: Dieser Build benötigt etwa %@ freien Speicher (das Doppelte der ausgewählten Quelldateien plus 10 GB), aber nur %@ sind verfügbar. Gib mindestens %@ frei, bevor du ihn hinzufügst."
+            "value": "Speicherwarnung: Dieser Build benötigt etwa %@ freien Speicher (das Doppelte der ausgewählten Quelldateien plus 10 GB), aber nur %@ sind verfügbar. Gib vor dem Build mindestens %@ frei."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Advertencia de espacio: esta compilación necesita unos %@ libres (el doble de los archivos seleccionados más 10 GB), pero solo hay %@ disponibles. Libera al menos %@ antes de añadirla."
+            "value": "Advertencia de espacio: esta compilación necesita unos %@ libres (el doble de los archivos seleccionados más 10 GB), pero solo hay %@ disponibles. Libera al menos %@ antes de compilar."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aviso de espaço: esta compilação precisa de cerca de %@ livres (o dobro dos arquivos selecionados mais 10 GB), mas só há %@ disponíveis. Libere pelo menos %@ antes de adicioná-la."
+            "value": "Aviso de espaço: esta compilação precisa de cerca de %@ livres (o dobro dos arquivos selecionados mais 10 GB), mas só há %@ disponíveis. Libere pelo menos %@ antes de compilar."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "存储空间警告：此构建需要约 %@ 的可用空间（所选来源的两倍再加 10 GB），但只有 %@ 可用。添加前请至少释放 %@。"
+            "value": "存储空间警告：此构建需要约 %@ 的可用空间（所选来源的两倍再加 10 GB），但只有 %@ 可用。构建前请至少释放 %@。"
           }
         }
       }

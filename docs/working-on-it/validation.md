@@ -11,6 +11,7 @@ Come si aggiorna:
 
 | Parte | Stato | Prove ancora da fare |
 |---|---|---|
+| Add Game con poco spazio per compilare | in attesa | Da Review, verificare che Add to library only rimanga attivo e Add and port indichi lo spazio necessario alla compilazione. |
 | Cloud → accesso al pannello | in attesa | Spegnere entrambi gli interruttori Aspetto con Cloud attiva: aprire dal link Details in Spotlight e nella scheda, poi tornare allo stesso focus. Riattivare il tondo e verificare che non ci siano duplicati. Ripetere con Cloud spenta, mouse, tastiera, controller e VoiceOver. |
 | Cloud → riprendere dopo una disconnessione | in attesa | Interrompere un trasferimento durante la copia, chiudere l'avviso e verificare motivo e Resume nel centro attività e nel pannello Cloud. Provare Resume con mouse, tastiera e controller; la testa della coda resta la stessa. |
 | Cloud → disco pieno durante un trasferimento | in attesa | Su un volume di prova, esaurire lo spazio dopo la verifica iniziale: volume nominato, copia originale intatta e coda non sospesa. Confrontare con quota Drive e rete interrotta. |

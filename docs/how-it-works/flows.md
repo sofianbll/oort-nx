@@ -147,6 +147,7 @@ flowchart TD
     B --> C["SourceSelection: titolo e versioni scelte"]
     C --> D["KeyCheck (se le sorgenti sono cifrate)<br/>NUP: identità programma e capacità del checkout"]
     D --> E["Review: GameAppDestination, GameRuntimeConfig.forReview"]
+    E --> ALO["Add to library only: senza la riserva di spazio per compilare"]
     E --> R{"Sorgenti presenti e cache uguale al cloud o locale più recente, se prevista?"}
     R -->|"sorgenti mancanti e disponibili nel cloud"| U["Conferma la dimensione e accoda il download"]
     U -->|"scaricate e verificate"| R

@@ -132,12 +132,6 @@ final class PortingModel: ObservableObject {
     @Published var isScanningGameFolder: Bool = false
     @Published var scanError: String? = nil
 
-    var availableDiskBytes: Int64? {
-        freeBytes(at: selectedGameFolder
-            ?? URL(fileURLWithPath: app.defaultInstallPath.isEmpty
-                ? NSHomeDirectory() : app.defaultInstallPath))
-    }
-
     /// Review and the first-build space check use the same destination policy as the installer.
     var selectedBuildAppURL: URL {
         let customName = appName.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -181,11 +175,6 @@ final class PortingModel: ObservableObject {
         selectedSourcesSizeBytes * 2 + 10_000_000_000
     }
 
-    var isAddDiskSpaceLow: Bool {
-        guard let avail = availableDiskBytes, selectedSourcesSizeBytes > 0 else { return false }
-        return avail < requiredBuildDiskBytes
-    }
-
     var isDiskSpaceLow: Bool {
         guard let avail = availableBuildDiskBytes, selectedSourcesSizeBytes > 0 else { return false }
         return avail < requiredBuildDiskBytes
@@ -197,7 +186,7 @@ final class PortingModel: ObservableObject {
         let availStr = AppViewModel.formatBytes(avail)
         let requiredStr = AppViewModel.formatBytes(requiredBuildDiskBytes)
         let neededStr = AppViewModel.formatBytes(needed)
-        return L10n.format("Storage warning: this build needs ~%@ free (twice the selected sources plus 10 GB), but only %@ is available. Free at least %@ before adding it.", [requiredStr, availStr, neededStr])
+        return L10n.format("Storage warning: this build needs ~%@ free (twice the selected sources plus 10 GB), but only %@ is available. Free at least %@ before building.", [requiredStr, availStr, neededStr])
     }
 
     var canAddSelectedGame: Bool {
@@ -205,7 +194,6 @@ final class PortingModel: ObservableObject {
         return game.hasGame
             && SourceSelection.hasGame(selectedSources)
             && selectedSourcesSizeBytes > 0
-            && !isAddDiskSpaceLow
     }
 
     func resetSourceSelection(for game: SelectableGame) {

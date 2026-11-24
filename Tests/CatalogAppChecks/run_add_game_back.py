@@ -28,6 +28,18 @@ import Foundation
 enum PortingModel {
     // RULES
 }
+struct AddReadiness {
+    struct Game { var hasGame = true }
+    struct SourceSelection { static func hasGame(_ selected: [Int]) -> Bool { !selected.isEmpty } }
+    struct App { var isBuilding = false; var isCheckingCloudBuild = false }
+    var app = App()
+    var isScanningGameFolder = false
+    var selectedGame: Game? = Game()
+    var selectedSources = [1]
+    var selectedSourcesSizeBytes = 40_000_000_000
+    var isAddDiskSpaceLow = true
+    // READINESS
+}
 var failures = 0
 func require(_ ok: Bool, _ message: String) {
     if !ok { failures += 1; print("FAIL: " + message) }
@@ -60,6 +72,10 @@ require(!PortingModel.closingAsks(isBuilding: false, succeeded: false, hasDraft:
         "closing an empty draft does not ask")
 require(!PortingModel.wizardStepReachable(2, hasSelectedGame: false), "Options need a chosen game")
 require(PortingModel.wizardStepReachable(3, hasSelectedGame: false), "Porting is always reachable")
+var add = AddReadiness()
+require(add.canAddSelectedGame, "insufficient build space still permits adding a reference")
+add.selectedSources = []
+require(!add.canAddSelectedGame, "adding still requires the base game")
 if failures > 0 { exit(1) }
 print("Add Game Back: finished, failed, running and draft steps: PASS")
 '''
@@ -71,7 +87,7 @@ with tempfile.TemporaryDirectory(prefix='arcane-add-game-back-') as scratch:
         '    static func stepBack(',
         '    static func closingAsks('))
     main = scratch / 'main.swift'
-    main.write_text(host.replace('// RULES', rules))
+    main.write_text(host.replace('// RULES', rules).replace('// READINESS', declaration('    var canAddSelectedGame:')))
     executable = scratch / 'add-game-back'
     subprocess.run(['xcrun', 'swiftc', str(main), '-o', str(executable)], check=True)
     subprocess.run([str(executable)], env=dict(os.environ), check=True)
