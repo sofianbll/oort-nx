@@ -64,6 +64,7 @@ public struct SetupProbe {
         facts.libraryNeedsConfirmation = libraryNeedsConfirmation
         facts.newestEngine = newestEngine
         facts.engineRemote = engineRemote
+        facts.runtimeIsBundled = toolchain.isBundled
         facts.sourcesFolder = sourcesFolder
         facts.sourcesReadable = sourcesFolder.map { readableDirectory($0) }
         facts.extractedFoldersSupported = capabilities.extractedFolders
@@ -101,7 +102,7 @@ public struct SetupProbe {
         return (result.status, ToolchainRequirements.xcodeVersion(from: result.stdout))
     }
 
-    private func engine() -> EngineFacts {
+    package func engine() -> EngineFacts {
         var isDirectory: ObjCBool = false
         guard fileManager.fileExists(atPath: engineFolder.path, isDirectory: &isDirectory), isDirectory.boolValue else {
             return .missing

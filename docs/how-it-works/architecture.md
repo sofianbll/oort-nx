@@ -370,6 +370,8 @@ Regole della barra:
 - `SetupActions.engineOverride` legge insieme `NXLibraryEngineRepository` e `NXLibraryEngineCommit` dal plist. Senza una coppia valida, rimangono i default upstream. Con un pin personalizzato, la scheda motore indica il deposito; Setup clona da lì o scarica il solo pin senza modificare `origin`. `UpstreamChecker` confronta sempre con `seedds/nxnative` `main`.
 - Get ready mostra soltanto i cinque requisiti tecnici, in una griglia 3 + 2. I problemi alle cartelle non riaprono questa schermata.
 - `SetupCheckModel` combina l'errore di importazione di `SetupModel` con il risultato della verifica: la scheda Chiavi mostra il motivo senza aprire un avviso dietro al Setup. Le etichette delle schede sono localizzate.
+- Install all può clonare un motore mancante, ma non modifica checkout esistenti. Update, Switch e Back to tested nel Setup usano la conferma Selene condivisa, con Annulla a fuoco e il percorso del motore; ogni cambio ricontrolla lo stato della cartella prima di scrivere.
+- La scheda Python distingue il runtime incluso ma guasto da una build senza runtime. Una build senza runtime può usare un ambiente locale funzionante; non invita a reinstallare dal DMG.
 - Your games presenta Game apps, la cartella unica in cui cercare giochi nxnative esistenti e installare le prime build.
   - Il default `~/Applications` si prepara al primo uso solo se non è già stato scelto o ricordato un percorso. Le destinazioni personalizzate o confermate restano ricordate anche quando non sono disponibili.
   - La lettura basta per scoperta e Play; le nuove installazioni richiedono la scrittura.

@@ -66,6 +66,7 @@ extension AppShellView {
                         SetupCheckView(viewModel: viewModel, isFirstRun: !viewModel.setupCompleted)
                     }
                 }
+                    .seleneOverlayOwnership(!showsSettingsNotice)
                     .transition(.opacity)
                     .zIndex(ShellBackdropCover.setup.priority)
                     .transformPreference(SeleneBackdropRequestKey.self) { $0?.priority = ShellBackdropCover.setup.priority }

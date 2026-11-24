@@ -108,7 +108,7 @@ final class SetupCheckTests: XCTestCase {
         // After an Arcane update the engine here is older than the pin: an update, not an error.
         for behind in [true, nil] as [Bool?] {
             let update = item(.engine) { $0.engine = .checkout(head: "ee369f0", dirty: false); $0.engineBehind = behind }
-            XCTAssertEqual(update.state, .warning, "still reopens Setup and runs with Install all")
+            XCTAssertEqual(update.state, .warning, "still reopens Setup; updating is explicit")
             XCTAssertEqual(update.chip, "UPDATE READY")
             XCTAssertEqual(update.actionTitle, "Update")
             XCTAssertEqual(update.detail, "This version of Oort NX uses nxnative af616f5; the engine here is at ee369f0. Update downloads it and switches to it. Games you built keep playing.")
@@ -139,6 +139,19 @@ final class SetupCheckTests: XCTestCase {
         XCTAssertEqual(broken.chip, "REINSTALL APP")
         XCTAssertNil(broken.actionTitle)
         XCTAssertTrue(broken.detail.contains("capstone 6"))
+    }
+
+    func testUnbundledRuntimeDoesNotRecommendReinstalling() {
+        let missing = item(.runtime) {
+            $0.runtimeIsBundled = false
+            $0.runtimeProblem = "Python or its modules (capstone 5, lz4, fontTools, zbic, nsz) did not start"
+        }
+        XCTAssertEqual(missing.state, .failed)
+        XCTAssertEqual(missing.chip, "NOT INCLUDED")
+        XCTAssertEqual(missing.about, "This build does not include Python and tools.")
+        XCTAssertFalse(missing.detail.contains("DMG"))
+        XCTAssertNil(missing.actionTitle)
+        XCTAssertEqual(item(.runtime) { $0.runtimeIsBundled = false }.chip, "✓ READY")
     }
 
     func testDivergedPersonalEngineNamesTheConfiguredRepositoryAndPin() {
@@ -261,6 +274,13 @@ final class SetupCheckTests: XCTestCase {
         f.xcodeStatus = nil
         XCTAssertEqual(SetupCheck.automatic(SetupCheck.items(from: f)), [.engine])
         f.xcodeStatus = 0
+
+        // Neither a known divergence nor an update to an existing checkout is automatic.
+        f.engine = .checkout(head: "ee369f0", dirty: false)
+        for behind in [true, false, nil] as [Bool?] {
+            f.engineBehind = behind
+            XCTAssertFalse(SetupCheck.automatic(SetupCheck.items(from: f)).contains(.engine))
+        }
 
         f.certifiedMetal = "32024.5"
         f.engine = .checkout(head: "ee369f0", dirty: true)

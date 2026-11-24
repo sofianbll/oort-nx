@@ -97,13 +97,13 @@ extension AppShellView {
                 cloudQuitInput(action)
                 return
             }
+            if showsSettingsNotice {
+                settingsNoticeInput(action)
+                return
+            }
             if viewModel.showSetupCheck {
                 // The Setup check owns the controller; Menu does nothing there (as in Selene).
                 NotificationCenter.default.post(name: .nxSetupCheckGamepadAction, object: action)
-                return
-            }
-            if showsSettingsNotice {
-                settingsNoticeInput(action)
                 return
             }
             if showsWelcome, !showsInstallFailure, viewModel.gameToClose == nil, viewModel.gameToRemove == nil,

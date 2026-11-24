@@ -388,4 +388,4 @@ flowchart TD
 
 Alla chiusura successiva, una copia release che si chiama ancora `NX Library.app` diventa `Oort NX.app` se la destinazione è libera; una copia `Arcane.app` resta al suo percorso (`AppBundleRename`, chiamato da `AppDelegate.applicationWillTerminate`). Non succede se un riavvio è in programma, perché l'aiuto che riapre l'app usa il percorso attuale.
 
-Dopo il riavvio, Setup confronta l'engine locale con il pin della nuova app. Se la release specifica un repository, Clone, Update e Switch usano quello; un checkout modificato resta intatto. I giochi già compilati non vengono ricompilati dalla procedura.
+Dopo il riavvio, Setup confronta l'engine locale con il pin della nuova app. Se la release specifica un repository, Clone, Update e Switch usano quello. Install all può clonare in una cartella mancante, ma per cambiare un checkout esistente bisogna scegliere la sua scheda e confermare il percorso e la versione. Un checkout modificato resta intatto. I giochi già compilati non vengono ricompilati dalla procedura.

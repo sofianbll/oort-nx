@@ -153,9 +153,24 @@ final class SetupCheckModel: ObservableObject {
                 let app = viewModel.setup.resolvedDeveloperDir().deletingLastPathComponent().deletingLastPathComponent()
                 NSWorkspace.shared.open(app)
             }
-        case .metal, .engine:
+        case .metal:
             guard item.actionTitle != nil || item.state == .needsYou else { return }
             perform(id) { _ in }
+        case .engine:
+            guard let facts, let action = item.actionTitle else { return }
+            if case .checkout = facts.engine {
+                let resolved = facts.engineFolder.resolvingSymlinksInPath()
+                viewModel.confirmSetting(item.title, message: item.detail + "\n\n" +
+                                         L10n.format("Engine folder: %@", [facts.engineFolder.path]),
+                                         action: action, duringSetup: true) { [weak self] in
+                    guard let self, self.facts?.engineFolder == facts.engineFolder, self.facts?.engine == facts.engine,
+                          self.facts?.pinnedCommit == facts.pinnedCommit,
+                          facts.engineFolder.resolvingSymlinksInPath() == resolved else { return }
+                    self.fetchEngine(approvedCheckout: true) { _ in }
+                }
+            } else {
+                perform(id) { _ in }
+            }
         case .runtime:
             break
         case .keys:
@@ -179,8 +194,8 @@ final class SetupCheckModel: ObservableObject {
         }
     }
 
-    func installAll(_ ids: [SetupItemID]? = nil) {
-        let ids = ids ?? missingAutomatic
+    func installAll() {
+        let ids = missingAutomatic
         guard !ids.isEmpty, !installAllRunning else { return }
         installAllRunning = true
         step(ids, 0)
@@ -286,8 +301,10 @@ final class SetupCheckModel: ObservableObject {
         }
     }
 
-    private func fetchEngine(_ completion: @escaping (Bool) -> Void) {
-        guard let facts, viewModel.setup.canMutateEngine else { completion(false); return }
+    private func fetchEngine(approvedCheckout: Bool = false, _ completion: @escaping (Bool) -> Void) {
+        guard let facts, viewModel.setup.canMutateEngine,
+              facts.engineFolder.path == viewModel.setup.nxnativePath else { completion(false); return }
+        if case .checkout = facts.engine, !approvedCheckout { completion(false); return }
         if case .checkout(let head, false) = facts.engine, head == facts.newestEngine?.commit {
             guard viewModel.setup.canSwitchEngine else { completion(false); return }
             backToTestedEngine(completion)
@@ -298,12 +315,22 @@ final class SetupCheckModel: ObservableObject {
         let commands = SetupActions.gitCommands(for: action, folder: facts.engineFolder, pinned: facts.pinnedCommit,
                                                remote: facts.engineRemote)
         guard !commands.isEmpty else { completion(false); return }
+        let probe = Self.makeProbe(viewModel, runner: runner, developerDir: viewModel.setup.resolvedDeveloperDir())
         viewModel.setup.isSwitchingEngine = true
         let chip = action == .clone ? L10n.text("CLONING…") : L10n.text("UPDATING…")
         setOverride(.engine, .working(chip, progress: 0, detail: L10n.text("Connecting to GitHub…")))
         let env = environment
         queue.async { [weak self] in
             guard let self else { return }
+            guard probe.engine() == facts.engine else {
+                DispatchQueue.main.async {
+                    self.viewModel.setup.isSwitchingEngine = false
+                    self.setOverride(.engine, nil)
+                    self.refresh()
+                    completion(false)
+                }
+                return
+            }
             var result = CommandResult(status: 0, stdout: "", stderr: "")
             for command in commands {
                 result = self.stream("/usr/bin/git", command, env: env) { line in

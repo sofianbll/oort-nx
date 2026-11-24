@@ -42,6 +42,14 @@ SITE="$STDLIB/site-packages"
 
 # 3. Trim.
 rm -rf "$STDLIB/test" "$STDLIB/idlelib" "$STDLIB/tkinter" "$STDLIB/ensurepip"
+# sysconfig derives userbase at startup; discard the upstream build user's home.
+"$PY" -I -B - "$STDLIB" <<'PY'
+import json, pathlib, sys
+for path in pathlib.Path(sys.argv[1]).glob("_sysconfig_vars_*.json"):
+    config = json.loads(path.read_text())
+    config.pop("userbase", None)
+    path.write_text(json.dumps(config) + "\n")
+PY
 
 # 4. Wheels, by URL and hash only.
 REQS="$WORK/requirements.txt"
