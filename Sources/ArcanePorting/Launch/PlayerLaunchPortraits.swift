@@ -10,8 +10,11 @@ final class PlayerLaunchPortraits: Sendable {
 
     init(in root: URL) throws {
         var template = root.appendingPathComponent("Arcane-players-XXXXXX").path.utf8CString
-        guard let path = mkdtemp(&template) else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
-        directory = URL(fileURLWithPath: String(cString: path), isDirectory: true)
+        let path = template.withUnsafeMutableBufferPointer { buffer in
+            buffer.baseAddress.flatMap { mkdtemp($0) }.map { String(cString: $0) }
+        }
+        guard let path else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+        directory = URL(fileURLWithPath: path, isDirectory: true)
     }
 
     deinit { clean() }
@@ -28,8 +31,9 @@ final class PlayerLaunchPortraits: Sendable {
 
     static func jpeg(profile: LocalProfile, symbols: [String]) -> Data? {
         let size = 256
-        guard let canvas = CGContext(data: nil, width: size, height: size, bitsPerComponent: 8, bytesPerRow: 0,
-                                     space: CGColorSpace(name: CGColorSpace.sRGB)!,
+        guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB),
+              let canvas = CGContext(data: nil, width: size, height: size, bitsPerComponent: 8, bytesPerRow: 0,
+                                     space: colorSpace,
                                      bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue) else { return nil }
         let bounds = CGRect(x: 0, y: 0, width: size, height: size)
         canvas.setFillColor(red: 0.15, green: 0.29, blue: 0.44, alpha: 1)
@@ -37,16 +41,19 @@ final class PlayerLaunchPortraits: Sendable {
         if let portrait = profile.portrait {
             guard portrait.count <= LocalProfileStore.maximumPortraitBytes,
                   let source = CGImageSourceCreateWithData(portrait as CFData, nil),
+                  let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+                  let width = properties[kCGImagePropertyPixelWidth] as? Int, (1...16_384).contains(width),
+                  let height = properties[kCGImagePropertyPixelHeight] as? Int, (1...16_384).contains(height),
                   let image = CGImageSourceCreateThumbnailAtIndex(source, 0, [
                       kCGImageSourceCreateThumbnailFromImageAlways: true,
                       kCGImageSourceCreateThumbnailWithTransform: true,
                       kCGImageSourceThumbnailMaxPixelSize: 512
                   ] as CFDictionary), image.width > 0, image.height > 0 else { return nil }
             let scale = CGFloat(size) / CGFloat(min(image.width, image.height))
-            let width = CGFloat(image.width) * scale, height = CGFloat(image.height) * scale
+            let scaledWidth = CGFloat(image.width) * scale, scaledHeight = CGFloat(image.height) * scale
             canvas.interpolationQuality = .high
-            canvas.draw(image, in: CGRect(x: (CGFloat(size) - width) / 2, y: (CGFloat(size) - height) / 2,
-                                          width: width, height: height))
+            canvas.draw(image, in: CGRect(x: (CGFloat(size) - scaledWidth) / 2, y: (CGFloat(size) - scaledHeight) / 2,
+                                          width: scaledWidth, height: scaledHeight))
         } else {
             guard symbols.indices.contains(profile.avatar),
                   let symbol = NSImage(systemSymbolName: symbols[profile.avatar], accessibilityDescription: nil)?

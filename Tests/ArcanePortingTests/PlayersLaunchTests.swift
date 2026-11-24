@@ -152,7 +152,8 @@ final class PlayersLaunchTests: XCTestCase {
         try store.set("0", join, domain: f.domain)
         try store.set("Saved name", nick, domain: f.domain)
         let saved = run(f, plan, choices: store, profiles: [profile])
-        XCTAssertEqual(saved.status, .init(plan: .active, controllerMode: .gameOption, nickname: .gameOption))
+        XCTAssertEqual(saved.status, .init(plan: .active, controllerMode: .gameOption, nickname: .gameOption,
+                                           portraits: [1: .unsupportedEngine]))
         XCTAssertTrue(saved.additions.isEmpty)
         let ignored = run(f, plan, explicit: ["DM_SAVED_CHOICES": "0"], choices: store, profiles: [profile])
         XCTAssertEqual(ignored.additions, [merge: "1", nick: "Local name"])
@@ -310,6 +311,7 @@ final class PlayersLaunchTests: XCTestCase {
         let features = PlayersLaunch.EngineFeatures(order: true, extendedMerge: true)
         XCTAssertEqual(run(features).additions, [join: "1", "DM_PAD_ORDER": "3:\(hash)"])
         XCTAssertEqual(run(features).status.controllerOrder, [5: .disconnectedController])
+        XCTAssertEqual(run(features, options: [merge: "0"]).additions, [join: "1", "DM_PAD_ORDER": "3:\(hash)"])
         XCTAssertEqual(run(.init()).additions, [join: "1"])
         XCTAssertEqual(run(.init()).status.controllerOrder[3], .unsupportedEngine)
         let explicit = ["DM_PAD_ORDER": "user order"]
@@ -317,6 +319,7 @@ final class PlayersLaunchTests: XCTestCase {
         XCTAssertEqual(run(features, options: explicit).status.controllerOrder[3], .gameOption)
         plan.mode = .merge
         XCTAssertEqual(run(features, player: 3).additions, [merge: "3"])
+        XCTAssertEqual(run(features, player: 3, options: [join: "0"]).additions, [merge: "3"])
         XCTAssertEqual(run(features, player: 3).status.controllerOrder[3], .mergeMode)
         XCTAssertEqual(run(.init(), player: 3).additions, [merge: "1"])
         XCTAssertEqual(run(.init(), player: 3).status.controllerMode, .unsupportedEngine)
@@ -357,6 +360,7 @@ final class PlayersLaunchTests: XCTestCase {
         for success in [true, false] {
             let players = run("offline", root: f.home)
             XCTAssertEqual(players.status.portraits[1], .environmentFile)
+            XCTAssertNil(players.status.portraits[2])
             XCTAssertEqual(players.status.portraits[8], .lockedProfile)
             XCTAssertEqual(players.status.profileNames[8], .lockedProfile)
             XCTAssertEqual(players.additions["DM_USER_2_NAME"], String(repeating: "é", count: 16))
