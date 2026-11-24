@@ -598,10 +598,9 @@ final class HomeSettingsFixture: ControllerHomeSettings {
                 try withHost(CloudSavesSettingsFixture(viewModel: vm, settings: settings, router: router, artwork: artwork),
                              size: size, locale: locale, backdrop: backdrop) { host in
                     send(.nxSettingsGamepadAction, .navigateRight, .confirm)
-                    precondition(vm.settingsNotice != nil)
+                    // The choice stays in the draft: nothing is written before Save.
+                    precondition(vm.settingsNotice == nil)
                     try capture(host, "reglages-clair-sauvegardes-cloud")
-                    // Never choose an option: it would write game preferences.
-                    vm.settingsNotice = nil
                 }
             }
             router.navigate(to: .library)
@@ -635,26 +634,15 @@ final class HomeSettingsFixture: ControllerHomeSettings {
             }, size: size, locale: locale, backdrop: backdrop) { host in
                 let input = Notification.Name.nxGameOptionsGamepadAction
                 try capture(host, "jeu-\(name)-options")
-                send(input, .navigateDown, .confirm)
+                // The quick panel opens on Players; All settings is its last row.
+                send(input, .confirm)
                 let players = try capture(host, "jeu-\(name)-joueurs")
                 confirmForeground(players, from: "Game Options")
                 send(input, .cancel)
                 if name == "clair" {
-                    send(input, .navigateDown, .navigateDown, .confirm) // Skip All settings.
-                    try capture(host, "jeu-clair-edit-details")
+                    for _ in 0..<12 { send(input, .navigateDown) }
                     send(input, .confirm)
-                    try capture(host, "jeu-clair-illustrations")
-                    send(input, .cancel, .navigateDown, .confirm)
-                    try capture(host, "jeu-clair-metadonnees")
-                    send(input, .cancel, .cancel)
-                    for label in ["triches", "mods", "sauvegardes"] {
-                        send(input, .navigateDown, .confirm)
-                        try capture(host, "jeu-clair-\(label)")
-                        send(input, .cancel)
-                    }
-                    send(input, .cancel)
-                    send(input, .navigateDown, .navigateDown, .navigateDown, .navigateDown, .confirm)
-                    try capture(host, "jeu-clair-reglages-avances")
+                    try capture(host, "jeu-clair-tous-les-reglages")
                 }
                 return players
             }
@@ -720,9 +708,14 @@ final class HomeSettingsFixture: ControllerHomeSettings {
         }
     }
 
+    @MainActor static let sources = CatalogSourcesModel(
+        repository: CatalogRepository(store: .init(directory: stage.appendingPathComponent("fixture-sources"))),
+        initialConfiguration: .init(integration: .steam)) { _ in }
+
     @MainActor static func withHost<V: View, Result>(_ view: V, size: CGSize, locale: AppLocale,
         backdrop: SeleneBackdropStyle = .init(), _ inspect: (NSView) throws -> Result) rethrows -> Result {
-        let host = NSHostingView(rootView: view.environment(\.nxAppLocale, locale)
+        let host = NSHostingView(rootView: view.environmentObject(sources).environmentObject(AppUpdater())
+            .environment(\.nxAppLocale, locale)
             .environment(\.seleneReduceMotion, true).environment(\.seleneBackdropStyle, backdrop).seleneCanvasRoot())
         host.frame.size = size
         let window = NSWindow(contentRect: host.frame, styleMask: .borderless, backing: .buffered, defer: false)
@@ -797,5 +790,5 @@ if __name__ == "__main__":
                 output.mkdir(parents=True, exist_ok=True)
                 for capture in captures:
                     shutil.copyfile(capture, output / capture.name)
-        assert parents_only or len(captures) == (12 if details_only else 79), len(captures)
+        assert parents_only or len(captures) == (12 if details_only else 77), len(captures)
         print(f"Rendered {len(captures)} captures" + (f": {output}" if output else ""))

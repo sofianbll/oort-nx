@@ -199,11 +199,13 @@ final class Router {
     var route = AppRoute.library
     var isScreenshotViewerOpen = false
     var isSearchPresented = false
+    var isThemePickerOpen = false
     var isMenuPresented = false
     var sortMenu: Int?
     var settingsDecision: AppRouter.SettingsDecision?
     var activityCenterFocus: ActivityCenterFocus?
     func openSettings(_ section: SettingsSection) { route = .settings(section) }
+    func closeMenu() { isMenuPresented = false; isThemePickerOpen = false; activityCenterFocus = nil }
 }
 // ACTUAL_PROFILE_FLOW
 final class WindowState { var attachedSheet: Int?; var isSheet = false }
@@ -259,6 +261,16 @@ final class NativeMenus { var isTracking = false }
 @MainActor final class GameControllerService {
     static let shared = GameControllerService()
     var onAction: ((GamepadAction) -> Void)?
+}
+/// The Arcane layout, outside browsing: the bindings this probe was written against.
+extension GamepadAction {
+    static func onPress(_ button: ControllerButton) -> Self? {
+        GamepadLayout.arcane.binding(button, browsing: false).flatMap { $0.release ? nil : $0.tap }
+    }
+    static func holdAction(_ button: ControllerButton, _ result: HoldResult) -> Self? {
+        guard let binding = GamepadLayout.arcane.binding(button, browsing: false), binding.release else { return nil }
+        return result == .tap ? binding.tap : binding.hold
+    }
 }
 @MainActor final class InputRecorder { var actions: [GamepadAction] = [] }
 // ACTUAL_ACTION_NAMES

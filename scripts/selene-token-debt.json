@@ -226,13 +226,6 @@
       ".padding(canvas.u(-4": 1,
       "color:Color.clear": 1
     },
-    "Sources/NXLibrary/Views/GameOptions/ChangeMetadataView.swift": {
-      ".padding(.leading,canvas.u(10": 1,
-      ".padding(.top,canvas.u(90": 1,
-      ".padding(.vertical,canvas.u(10": 1,
-      ".padding(.vertical,canvas.u(9": 1,
-      "color:Color.clear": 1
-    },
     "Sources/NXLibrary/Views/GameOptions/CheatsPanel.swift": {
       ".padding(.horizontal,canvas.u(10": 1,
       ".padding(.leading,canvas.u(10": 1

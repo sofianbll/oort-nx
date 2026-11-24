@@ -9,7 +9,7 @@ root = Path(__file__).resolve().parents[2]
 source = (root / 'Sources/NXLibrary/Views/Collection/CollectionView.swift').read_text()
 select = re.search(r'    (?:private )?func selected.*?(?=    // MARK: - Body)', source, re.S)[0]
 snapshot = source[source.index('        let games = self.games'):source.index('        let lifecycle = ')]
-hints = re.search(r'(?:rightHints:|:) (contextHints\([^\n]*?\)) \+', source)[1]
+hints = re.search(r'let hints = (contextHints\([^\n]*\))', source)[1]
 task_key = re.search(r'\.task\(id: (art\.steamHeroTaskKey\([^\n]*?\))\)', source)[1]
 hint_lookup = re.search(r'(    private func contextHints[^\n]*\{\n.*?)(?=        guard let game)', source, re.S)[1]
 host = '''
@@ -23,10 +23,14 @@ struct CatalogGame {
     let macShortcut: Int? = nil
 }
 struct HintItem {
-    enum Button { case a, y }
-    init(_ button: Button, _ title: String, action: (() -> Void)? = nil) {}
+    enum Button { case a, x, y, menu }
+    let button: Button
+    init(_ button: Button, _ title: String, action: (() -> Void)? = nil) { self.button = button }
+    static func browsingOptions(_ layout: GamepadLayout, _ label: String, hasHome: Bool, action: (() -> Void)?) -> Self { .init(.menu, label) }
 }
 enum L10n { static func text(_ title: String) -> String { title } }
+struct GamepadLayout { init(_ settings: Int) {} }
+struct Settings { let settings = 0 }
 struct SteamPlayCoordinator {
     static let shared = Self()
     func hint(for game: CatalogGame) -> [HintItem] { [] }
@@ -46,6 +50,8 @@ final class Collection {
     }
     func activateCatalog(_ game: CatalogGame) {}
     let art = Art()
+    let settings = Settings()
+    let controllerHomeAvailable = true
     var queryCount = 0
     var games: [CatalogGame] { queryCount += 1; return catalog }
     // SELECT

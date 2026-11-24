@@ -111,7 +111,7 @@ struct OortSidePanel<Content: View>: View {
         .onPreferenceChange(OortRowHelpKey.self) { help = $0 }
         .padding(.horizontal, canvas.u(SeleneTokens.Space.section))
         .padding(.top, canvas.u(SeleneTokens.Space.stageHeader))
-        .padding(.bottom, canvas.u(SeleneTokens.Space.section))
+        .padding(.bottom, canvas.u(SeleneTokens.Space.settingsHintsClearance))
         .frame(width: canvas.u(SeleneTokens.Space.sidePanel))
         .frame(maxHeight: .infinity, alignment: .top)
         .background(SeleneTheme.glassSolid)
