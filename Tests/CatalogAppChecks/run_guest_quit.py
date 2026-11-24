@@ -47,9 +47,11 @@ final class AppSettingsStore {}
     var isWorking = false
     var hasQueueWrites = false
     var isQuitting = false
+    var driveToolTask: Task<Void, Never>?
     func stopForQuit() -> Task<Void, Never>? {
         isQuitting = true
-        return Task {}
+        driveToolTask?.cancel()
+        return Task { await driveToolTask?.value }
     }
 }
 final class Store { func flush() async {} }
@@ -115,11 +117,12 @@ final class AppViewModel {
         var shell = Shell(viewModel: .init(cloud))
         shell.finishCloudQuit(false)
         cloud.isWorking = false
+        cloud.driveToolTask = Task { try? await Task.sleep(for: .seconds(30)) }
         app.terminate(nil)
-        guard guestPrompts == 3, !cloud.isQuitting else { exit(4) }
+        guard guestPrompts == 3, !cloud.isQuitting, cloud.driveToolTask?.isCancelled == false else { exit(4) }
         AppDelegate.quitAfterGuestConfirmation()
         for _ in 0..<100 where app.quits == 0 { try? await Task.sleep(for: .milliseconds(1)) }
-        guard cloud.isQuitting, app.quits == 1, guestPrompts == 3 else { exit(5) }
+        guard cloud.isQuitting, cloud.driveToolTask?.isCancelled == true, app.quits == 1, guestPrompts == 3 else { exit(5) }
         print("Guest quit: cancellation doesn't start shutdown; confirmation drains and quits once")
     }
 }
