@@ -23,6 +23,7 @@ public enum SeleneTokens {
         case profileHeroTitle = 82
         case inboxTitle = 48
         case emptyStateTitle = 25
+        case attribution = 13
     }
 
     public enum Space {

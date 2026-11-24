@@ -28,6 +28,7 @@ struct PersonalizationSubject {
 
     var titleId: String? { ported?.titleId }
     var steamAppID: UInt32? { steam?.steamGame?.appID }
+    var platformKind: PlatformKind { steam != nil ? .steam : (ported?.isSwitch2 == true ? .switch2 : .switch1) }
 
     private var steamArt: SteamPersonalizationStore { SteamPersonalizations.shared.artwork }
     private var steamFields: SteamPersonalizationStore { SteamPersonalizations.shared.metadata }

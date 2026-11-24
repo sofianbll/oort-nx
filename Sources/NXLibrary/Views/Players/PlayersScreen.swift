@@ -250,7 +250,7 @@ struct PlayersScreen: View {
     @ViewBuilder private func padIcon(_ kind: GamepadBrand) -> some View {
         switch kind {
         case .nintendoSwitch:
-            SwitchPlatformIcon().frame(width: canvas.u(SeleneTokens.Space.large), height: canvas.u(SeleneTokens.Space.large))
+            PlatformMark(kind: .switch1)
         case .xbox: Image(systemName: "logo.xbox").seleneFont(.rowTitle)
         case .playstation: Image(systemName: "logo.playstation").seleneFont(.rowTitle)
         case .generic: Image(systemName: "gamecontroller").seleneFont(.rowTitle)

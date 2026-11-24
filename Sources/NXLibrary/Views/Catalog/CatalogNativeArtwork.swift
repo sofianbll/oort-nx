@@ -85,8 +85,8 @@ struct MacShortcutInfo: View {
                     SelenePillButton(title: "Tile options", focused: focused == 1) { onAction(1) }
                 }
             }
-            Text(L10n.text("Mac app shortcut", context: localization))
-                .seleneFont(.panelBody).foregroundStyle(SeleneTheme.ink60)
+            PlatformLabel(.mac, title: L10n.text("Mac app shortcut", context: localization), size: .panelBody)
+                .foregroundStyle(SeleneTheme.ink60)
         }
     }
 }

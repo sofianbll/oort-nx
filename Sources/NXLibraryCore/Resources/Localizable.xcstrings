@@ -840,6 +840,9 @@
     "Coming later": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Coming later"}}, "fr": {"stringUnit":{"state":"translated","value":"À venir"}}, "it": {"stringUnit":{"state":"translated","value":"In arrivo"}}, "de": {"stringUnit":{"state":"translated","value":"Später verfügbar"}}, "es": {"stringUnit":{"state":"translated","value":"Más adelante"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Em breve"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"未来推出"}}
     }},
+    "Mac app": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Mac app"}}, "fr": {"stringUnit":{"state":"translated","value":"App Mac"}}, "it": {"stringUnit":{"state":"translated","value":"App Mac"}}, "de": {"stringUnit":{"state":"translated","value":"Mac-App"}}, "es": {"stringUnit":{"state":"translated","value":"App de Mac"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"App do Mac"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"Mac 应用"}}
+    }},
     "Mac apps": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Mac apps"}}, "fr": {"stringUnit":{"state":"translated","value":"Apps Mac"}}, "it": {"stringUnit":{"state":"translated","value":"App Mac"}}, "de": {"stringUnit":{"state":"translated","value":"Mac-Apps"}}, "es": {"stringUnit":{"state":"translated","value":"Apps de Mac"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Apps para Mac"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"Mac 应用"}}
     }},
@@ -1934,16 +1937,27 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "基于 %3$@ 开发的 %1$@ %2$@"}}
       }
     },
-    "Support the author of %@": {
-      "comment": "A donation goes to the author of the upstream project.",
+    "Support %@ on Buy Me a Coffee": {
+      "comment": "The placeholder is the upstream author's name. Buy Me a Coffee is a brand name.",
       "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Support the author of %@"}},
-        "it": {"stringUnit": {"state": "translated", "value": "Sostieni l’autore di %@"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Soutenir l’auteur d’%@"}},
-        "de": {"stringUnit": {"state": "translated", "value": "Den Autor von %@ unterstützen"}},
-        "es": {"stringUnit": {"state": "translated", "value": "Apoyar al autor de %@"}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Apoiar o autor de %@"}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "支持 %@ 的作者"}}
+        "en": {"stringUnit": {"state": "translated", "value": "Support %@ on Buy Me a Coffee"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Sostieni %@ su Buy Me a Coffee"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Soutenir %@ sur Buy Me a Coffee"}},
+        "de": {"stringUnit": {"state": "translated", "value": "%@ auf Buy Me a Coffee unterstützen"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Apoyar a %@ en Buy Me a Coffee"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Apoiar %@ no Buy Me a Coffee"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "在 Buy Me a Coffee 上支持 %@"}}
+      }
+    },
+    "Platform names and logos identify their respective platforms. They belong to their owners and do not imply affiliation or endorsement.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Platform names and logos identify their respective platforms. They belong to their owners and do not imply affiliation or endorsement."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nomi e loghi identificano le rispettive piattaforme. Appartengono ai rispettivi titolari e non implicano affiliazione o approvazione."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Les noms et logos servent à identifier les plateformes. Ils appartiennent à leurs titulaires et n’impliquent ni affiliation ni approbation."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Namen und Logos kennzeichnen die jeweiligen Plattformen. Sie gehören ihren Inhabern und bedeuten weder eine Zugehörigkeit noch eine Billigung."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Los nombres y logotipos identifican sus respectivas plataformas. Pertenecen a sus titulares y no implican afiliación ni respaldo."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Os nomes e logotipos identificam as respectivas plataformas. Pertencem a seus titulares e não implicam afiliação nem endosso."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "平台名称和标志用于识别各自的平台，归各自的权利人所有，不代表存在关联或获得认可。"}}
       }
     },
     "Screen used to open ported games.": {

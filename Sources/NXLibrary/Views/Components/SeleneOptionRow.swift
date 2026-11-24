@@ -17,6 +17,7 @@ struct SeleneOptionRow<Trailing: View>: View {
     var titleAccessory: AnyView? = nil
     var truncateAboutInMiddle = false
     var aboutFont: SeleneTokens.Text = .compactCaption
+    var platform: PlatformKind? = nil
     @ViewBuilder var trailing: () -> Trailing
 
     var body: some View {
@@ -28,9 +29,14 @@ struct SeleneOptionRow<Trailing: View>: View {
             }
             VStack(alignment: .leading, spacing: canvas.u(3)) {
                 HStack(spacing: canvas.u(8)) {
-                    Text(title)
-                        .seleneFont(21, .medium)
-                        .foregroundColor(destructive ? SeleneTheme.danger : (enabled ? SeleneTheme.ink : SeleneTheme.ink60))
+                    Group {
+                        if let platform {
+                            PlatformLabel(platform, title: title, weight: .medium)
+                        } else {
+                            Text(title).seleneFont(21, .medium)
+                        }
+                    }
+                    .foregroundColor(destructive ? SeleneTheme.danger : (enabled ? SeleneTheme.ink : SeleneTheme.ink60))
                     titleAccessory
                 }
                 if let about {

@@ -1,7 +1,7 @@
 import SwiftUI
 import NXLibraryCore
 
-/// One stat in the row: a label over a value, or the platform (icon and name; Steam's logo alone).
+/// One stat in the row: a label over a value, or the platform (icon and name).
 struct SeleneStat: Identifiable {
     enum Value {
         case text(String)
@@ -25,7 +25,6 @@ struct SeleneStat: Identifiable {
 /// passes its own items and a 28 gap. The caller places it.
 struct SeleneStatsRow: View {
     @Environment(\.seleneCanvas) private var canvas
-    @Environment(\.displayScale) private var displayScale
 
     let items: [SeleneStat]
     /// Space either side of each rule, in Selene units.
@@ -71,13 +70,10 @@ struct SeleneStatsRow: View {
                 switch item.value {
                 case .text(let text):
                     value(text)
-                case .platform(let console) where console == SteamPlatformLogo.platformName:
-                    steamLogo
                 case .platform(let console):
-                    HStack(spacing: canvas.u(9)) {
-                        SwitchPlatformIcon()
-                            .foregroundColor(SeleneTheme.ink)
-                            .frame(width: canvas.u(27), height: canvas.u(27))
+                    if let platform = PlatformKind(rawValue: console) {
+                        PlatformLabel(platform).foregroundStyle(SeleneTheme.ink)
+                    } else {
                         value(console)
                     }
                 }
@@ -85,15 +81,6 @@ struct SeleneStatsRow: View {
             .frame(minHeight: canvas.u(28))
         }
         .accessibilityElement(children: .combine)
-    }
-
-    /// Valve's logo alone in the value's place: as tall as the value line, or the guidelines' on-screen minimum.
-    /// A taller logo (a 1x display, a small window) starts at the line's top and runs into the space below the row,
-    /// never up into the label, and the row stays as tall as for any other game. The label above sits closer than
-    /// the crank's clear space: the label was the player's choice.
-    private var steamLogo: some View {
-        SteamPlatformLogo(height: SteamPlatformLogo.height(canvas.u(28), displayScale: displayScale))
-            .frame(height: canvas.u(28), alignment: .topLeading)
     }
 
     private func value(_ text: String) -> some View {

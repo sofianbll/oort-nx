@@ -14,8 +14,6 @@ struct SettingsAboutSection: View {
 
     @State private var didCopyDiagnostics = false
     private static let supportTitle = "Support Arcane"
-    private static let supportArtwork = Bundle.main.url(forResource: "BuyMeACoffee", withExtension: "png",
-                                                        subdirectory: "Brands").flatMap(NSImage.init(contentsOf:))
 
     private let credits: [(name: String, role: String, url: String)] = [
         ("seedds", L10n.text("nxnative engine, NVN/Metal host and ARM64 rewriter"), "https://github.com/seedds/nxnative"),
@@ -160,9 +158,17 @@ struct SettingsAboutSection: View {
                 Text(L10n.text("This app is not affiliated with Valve."))
                     .seleneFont(13, .semibold)
                     .foregroundColor(SeleneTheme.ink60)
-                // Valve's attribution for the Steam logo, in Valve's own wording for each language.
+                // Valve's attribution, in Valve's own wording for each language.
                 Text(L10n.text("©2026 Valve Corporation. Steam and the Steam logo are trademarks and/or registered trademarks of Valve Corporation in the U.S. and/or other countries."))
                     .seleneFont(13)
+                    .foregroundColor(SeleneTheme.ink60)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(L10n.text("Platform names and logos identify their respective platforms. They belong to their owners and do not imply affiliation or endorsement."))
+                    .seleneFont(.attribution)
+                    .foregroundColor(SeleneTheme.ink60)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(verbatim: "Nintendo · Valve Corporation · Epic Games · GOG · CodeWeavers · Buy Me a Coffee · Google")
+                    .seleneFont(.attribution)
                     .foregroundColor(SeleneTheme.ink60)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -180,19 +186,11 @@ struct SettingsAboutSection: View {
         Button(action: openSupportPage) {
             SelenePanel {
                 HStack(spacing: canvas.u(14)) {
-                    if let artwork = Self.supportArtwork {
-                        Image(nsImage: artwork)
-                            .resizable()
-                            .interpolation(.high)
-                            .scaledToFit()
-                            .frame(width: canvas.u(44), height: canvas.u(44))
-                            .clipShape(RoundedRectangle(cornerRadius: canvas.u(9), style: .continuous))
-                            .accessibilityHidden(true)
-                    }
                     VStack(alignment: .leading, spacing: canvas.u(4)) {
-                        Text(L10n.format("Support the author of %@", [AppIdentity.name], context: localization))
-                            .seleneFont(19, .semibold)
-                            .foregroundColor(SeleneTheme.ink)
+                        PlatformLabel(.support,
+                                      title: L10n.format("Support %@ on Buy Me a Coffee", ["Bium23"], context: localization),
+                                      size: .panelBody)
+                            .foregroundStyle(SeleneTheme.ink)
                         Text(L10n.text("Optional contributions support development and maintenance.", context: localization))
                             .seleneFont(14)
                             .foregroundColor(SeleneTheme.ink75)

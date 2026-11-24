@@ -21,6 +21,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 ### Fixed
 
 - Setup explains when a build lacks bundled Python and tools, and localizes the Python startup diagnosis. Install all no longer changes an existing engine checkout; the engine card asks for confirmation and names the folder.
+- Platform labels show the monochrome platform mark and name, with a distinct Switch 2 mark and generic fallbacks.
 - Cloud operations check the selected Drive account and folder IDs. Changing either no longer reuses an approved transfer or a separately chosen game-files folder without confirmation.
 - Game-file downloads keep their selected provider. An incomplete cloud check keeps previous results without marking them verified.
 - Confirm changes to the cloud library, engine and multiplayer settings before applying them; appearance, sound and navigation still change immediately.

@@ -97,6 +97,9 @@ struct SteamOptionsView: View {
                 .foregroundColor(SeleneTheme.ink)
                 .lineLimit(1)
                 .padding(.leading, canvas.u(SeleneTokens.Space.tight))
+            PlatformLabel(.steam, size: .metadata)
+                .foregroundStyle(SeleneTheme.ink75)
+                .padding(.leading, canvas.u(SeleneTokens.Space.tight))
                 .padding(.bottom, canvas.u(SeleneTokens.Space.line))
             VStack(spacing: canvas.u(8)) {
                 ForEach(Array(p.entries(level: level, origin: origin).enumerated()), id: \.offset) { _, entry in
