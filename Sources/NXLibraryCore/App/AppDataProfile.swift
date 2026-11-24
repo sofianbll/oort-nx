@@ -4,18 +4,31 @@ import Foundation
 public struct AppDataProfile: Sendable {
     public let home: URL
     public let isDevelopment: Bool
-    public init(home: URL = FileManager.default.homeDirectoryForCurrentUser, isDevelopment: Bool) {
+    public let isTrial2: Bool
+    private static let devIdentifier = "local.nxlibrary.development"
+    private static let trial2Identifier = devIdentifier + ".trial2"
+
+    public init(home: URL = FileManager.default.homeDirectoryForCurrentUser, isDevelopment: Bool, isTrial2: Bool = false) {
         self.home = home
         self.isDevelopment = isDevelopment
+        self.isTrial2 = isDevelopment && isTrial2
     }
     /// Folders are built as folders (`isDirectory: true`), never by asking the disk, so a root is the same URL
     /// before and after it is created: equal to `file.deletingLastPathComponent()` on a fresh Mac too.
     public var stableSupportRoot: URL { home.appendingPathComponent("Library/Application Support/NXLibrary", isDirectory: true) }
     public var supportRoot: URL {
-        isDevelopment ? home.appendingPathComponent("Library/Application Support/NXLibrary-Development", isDirectory: true) : stableSupportRoot
+        home.appendingPathComponent("Library/Application Support/" + folder, isDirectory: true)
     }
-    public var cacheRoot: URL { home.appendingPathComponent("Library/Caches/" + (isDevelopment ? "NXLibrary-Development" : "NXLibrary"), isDirectory: true) }
-    public var preferencesDomain: String { isDevelopment ? "local.nxlibrary.development" : "local.nxlibrary" }
+    public var cacheRoot: URL { home.appendingPathComponent("Library/Caches/" + folder, isDirectory: true) }
+    private var folder: String { isTrial2 ? "NXLibrary-Development-Trial2" : isDevelopment ? "NXLibrary-Development" : "NXLibrary" }
+    public var preferencesDomain: String {
+        isTrial2 ? Self.trial2Identifier : isDevelopment ? Self.devIdentifier : "local.nxlibrary"
+    }
+
+    fileprivate static func isTrial2Identifier(_ identifier: String?) -> Bool { identifier == trial2Identifier }
+    fileprivate static func isDevelopmentIdentifier(_ identifier: String?) -> Bool {
+        identifier == devIdentifier || isTrial2Identifier(identifier)
+    }
 }
 
 /// All app-owned stores use this composition-root policy, including their default initializers.
@@ -26,6 +39,9 @@ public enum AppData {
         #if DEBUG
         if let home = integrationFixtureHome { return AppDataProfile(home: home, isDevelopment: true) }
         #endif
+        if AppDataProfile.isTrial2Identifier(Bundle.main.bundleIdentifier) {
+            return AppDataProfile(isDevelopment: true, isTrial2: true)
+        }
         return AppDataProfile(isDevelopment: Bundle.main.object(forInfoDictionaryKey: "NXLibraryDevelopmentProfile") as? Bool == true)
     }
     public static var supportRoot: URL { profile.supportRoot }
@@ -56,7 +72,7 @@ public enum AppData {
         let development = info["NXLibraryDevelopmentProfile"] as? Bool == true
         let release = info["NXLibraryRelease"] as? Bool == true
         let identifier = info["CFBundleIdentifier"] as? String
-        guard (development && !release && identifier == "local.nxlibrary.development")
+        guard (development && !release && AppDataProfile.isDevelopmentIdentifier(identifier))
                 || (release && !development && identifier == "local.nxlibrary") else {
             throw DevelopmentProfileError.invalidConfiguration
         }
@@ -65,7 +81,8 @@ public enum AppData {
     public static func prepare(checks: [String: DevelopmentProfileImporter.Check]) throws {
         // An unmarked/mispackaged executable must not silently open the live profile.
         try validateBuildIdentity(Bundle.main.infoDictionary ?? [:])
-        guard profile.isDevelopment else { return }
+        // The trial's stable data copy is explicit; opening it never runs the legacy import.
+        guard profile.isDevelopment, !profile.isTrial2 else { return }
         let defaults = preferences
         _ = try DevelopmentProfileImporter(checks: checks).prepare(profile: profile, sourcePreferences: {
             UserDefaults.standard.persistentDomain(forName: "local.nxlibrary") ?? [:]

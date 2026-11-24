@@ -7,6 +7,7 @@
 # beside the released "Oort NX" that updates itself. The development marker selects separate launcher
 # data/preferences and a distinct bundle ID, so framework-owned preferences are separate too.
 # NX_DEV_COMMIT optionally records the exact, clean source revision in a Dev bundle.
+# NX_DEV_TRIAL2=1 selects an isolated trial profile and preferences, never the normal Dev profile.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -18,6 +19,10 @@ else
   NAME="Oort NX Dev"
   BUNDLE_ID="local.nxlibrary.development"
   APP="${1:-$HOME/Applications/$NAME.app}"
+fi
+if [[ "${NX_DEV_TRIAL2:-0}" = "1" ]]; then
+  [[ "${NX_RELEASE:-0}" != "1" ]] || { echo "error: trial profile requires a Dev build" >&2; exit 1; }
+  BUNDLE_ID="$BUNDLE_ID.trial2"
 fi
 CONFIG="${NX_BUILD_CONFIG:-release}"
 VERSION="${NX_VERSION:-$(tr -d '[:space:]' < "$ROOT/VERSION")}"

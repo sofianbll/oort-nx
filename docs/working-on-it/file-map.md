@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **1092 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **1094 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -218,8 +218,8 @@ Cartella `Sources/NXLibraryCore/App/`.
 | [Sources/NXLibraryCore/App/ConnectivityWatcher.swift](../../Sources/NXLibraryCore/App/ConnectivityWatcher.swift) | Avvisa sul main thread quando il Mac torna online, perché il giro delle descrizioni riprenda da solo; la prima lettura non conta. |
 | [Sources/NXLibraryCore/App/DisplayNameCache.swift](../../Sources/NXLibraryCore/App/DisplayNameCache.swift) | Nomi visualizzati di cartelle e volumi letti una volta per URL: la pagina si ricostruisce a ogni disegno e un disco esterno in stop bloccherebbe ogni volta. |
 | [Sources/NXLibraryCore/App/AppIdentity.swift](../../Sources/NXLibraryCore/App/AppIdentity.swift) | Distingue Oort NX (nome visibile) da Arcane (identità e User-Agent), con vecchio nome, modulo Porting e pagina del progetto. |
-| [Sources/NXLibraryCore/App/AppDataProfile.swift](../../Sources/NXLibraryCore/App/AppDataProfile.swift) | Policy di percorsi, cache e preferenze; prepara il profilo di sviluppo e assegna una radice temporanea alla fixture Debug. |
-| [Sources/NXLibraryCore/App/DevelopmentProfileImporter.swift](../../Sources/NXLibraryCore/App/DevelopmentProfileImporter.swift) | Copia iniziale selettiva, anche della scelta Steam; hash, validazione e ripresa senza modificare la sorgente. Chiude le sessioni della copia all'ultimo heartbeat e conserva i totali. |
+| [Sources/NXLibraryCore/App/AppDataProfile.swift](../../Sources/NXLibraryCore/App/AppDataProfile.swift) | Policy di percorsi e preferenze; separa release, Dev, essai 2 e fixture Debug. |
+| [Sources/NXLibraryCore/App/DevelopmentProfileImporter.swift](../../Sources/NXLibraryCore/App/DevelopmentProfileImporter.swift) | Copia selettiva senza modificare la sorgente; per l’essai 2 usa un elenco ristretto senza preferenze. Chiude le sessioni copiate all’ultimo heartbeat. |
 | [Sources/NXLibraryCore/App/DowngradeCheckpoint.swift](../../Sources/NXLibraryCore/App/DowngradeCheckpoint.swift) | Copia privata con file essenziali prioritari, SHA-256, gruppi omessi, conferma e rotazione riprendibile senza perdere le due copie precedenti alla pubblicazione. |
 | [Sources/NXLibraryCore/App/DevelopmentOperationStore.swift](../../Sources/NXLibraryCore/App/DevelopmentOperationStore.swift) | Autorizzazioni persistenti per le operazioni richieste nella Dev, distinte da quelle importate. |
 | [Sources/NXLibraryCore/App/BuildInstallIO.swift](../../Sources/NXLibraryCore/App/BuildInstallIO.swift) | Confine sostituibile per la pubblicazione atomica di un bundle (stesso volume, rinomina o scambio) e il suo errore; lo usano installazione dei giochi e aggiornamento di Arcane. |
@@ -1103,7 +1103,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/NXLibraryCoreTests/TileMotionTests.swift](../../Tests/NXLibraryCoreTests/TileMotionTests.swift) | Curve di bagliore, ring e riflesso; continuità a 60 Hz tra raffiche, pausa, verifica, riavvio e movimento ridotto. |
 | [Tests/ArcanePortingTests/AppLocaleTests.swift](../../Tests/ArcanePortingTests/AppLocaleTests.swift) | Preferenze, formati, traduzioni e nome Oort NX senza cambiare trofeo, argomenti o User-Agent. |
 | [Tests/PublicationChecks/test_localizations.py](../../Tests/PublicationChecks/test_localizations.py) | Rifiuto di cataloghi incompleti e bundle senza risorse. |
-| [DevelopmentProfileTests.swift](../../Tests/ArcanePortingTests/DevelopmentProfileTests.swift) | Copia, conservazione della sorgente, errori, libreria malformata, sessioni e totali, symlink e ripetizione. |
+| [DevelopmentProfileTests.swift](../../Tests/ArcanePortingTests/DevelopmentProfileTests.swift) | Identità separate, copie e filtro dell’essai 2, sorgente intatta, symlink, sovrascrittura, sessioni e totali. |
 | [DevelopmentProfileEffectTests.swift](../../Tests/ArcanePortingTests/DevelopmentProfileEffectTests.swift) | Isolamento Dev, staging e richieste esplicite. Verifica anche che la riconciliazione delle mod conservi record e overlay dopo un errore di lettura. |
 | [test_profile_boundaries.py](../../Tests/PublicationChecks/test_profile_boundaries.py) | Guardia contro percorsi/defaults del launcher non centralizzati. |
 | [SteamKeyValuesTests.swift](../../Tests/NXLibraryCoreTests/SteamKeyValuesTests.swift) | Formato, escape, Unicode, duplicati, input troncati e limiti del parser. |
@@ -1234,6 +1234,8 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/PublicationChecks/test_selene_tokens.py](../../Tests/PublicationChecks/test_selene_tokens.py) | Prova argomenti multilinea, valori scalati ed esclusioni. |
 | [scripts/check_metadata_text_layout.swift](../../scripts/check_metadata_text_layout.swift) | Verifica fuori schermo il layout delle descrizioni e la destinazione dello scroll dopo cambi di focus, anche rapidi e con Riduci movimento. |
 | [check_app_profile.swift](../../scripts/check_app_profile.swift) | Prova senza UI di identità, accesso reale alle preferenze e percorsi nel pacchetto prodotto dalla build; non importa né scrive dati. |
+| [seed_trial2.sh](../../scripts/seed_trial2.sh) | Compila e lancia la copia esplicita per l’essai 2 da una build Debug. |
+| [seed_trial2.swift](../../scripts/seed_trial2.swift) | Seleziona il profilo essai 2 e usa l’importatore con i controlli di Porting. |
 
 ## Risorse incluse
 
