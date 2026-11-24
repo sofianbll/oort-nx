@@ -43,7 +43,7 @@ package enum DowngradeCheckpoint {
         try fm.createDirectory(at: root, withIntermediateDirectories: true)
         try requireDirectory(root)
         let folder = root.appendingPathComponent("DowngradeProtection", isDirectory: true)
-        try fm.createDirectory(at: folder, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+        guard mkdir(folder.path, 0o700) == 0 || errno == EEXIST else { throw posixError() }
         try requireDirectory(folder)
         let fd = open(folder.appendingPathComponent(".lock").path, O_RDWR | O_CREAT | O_NOFOLLOW | O_CLOEXEC, 0o600)
         guard fd >= 0 else { throw posixError() }
