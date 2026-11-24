@@ -61,10 +61,10 @@ final class MetadataPickerTests: XCTestCase {
         let picks = MetadataPicks(directory: dir)
         XCTAssertEqual(picks.applied(to: store, titleID: store.titleId), store)
 
-        picks.set("Your own text.", titleID: store.titleId, field: .description)
-        picks.set("Action, Open World", titleID: store.titleId, field: .genres)
-        picks.set("Monolith Soft", titleID: store.titleId, field: .developer)
-        picks.set("2023-05-11", titleID: store.titleId, field: .releaseDate)
+        try picks.set("Your own text.", titleID: store.titleId, field: .description)
+        try picks.set("Action, Open World", titleID: store.titleId, field: .genres)
+        try picks.set("Monolith Soft", titleID: store.titleId, field: .developer)
+        try picks.set("2023-05-11", titleID: store.titleId, field: .releaseDate)
         XCTAssertEqual(picks.revision, 4)
 
         let reread = MetadataPicks(directory: dir)
@@ -76,12 +76,29 @@ final class MetadataPickerTests: XCTestCase {
         XCTAssertEqual(applied.releaseDate, "2023-05-11")
         XCTAssertEqual(reread.value(titleID: store.titleId, field: .developer), "Monolith Soft")
 
-        reread.remove(titleID: store.titleId, field: .developer)
+        try reread.remove(titleID: store.titleId, field: .developer)
         XCTAssertEqual(MetadataPicks(directory: dir).applied(to: store, titleID: store.titleId).developers, ["Nintendo EPD"])
 
         // A blank value is no pick.
-        reread.set("   ", titleID: store.titleId, field: .publisher)
+        try reread.set("   ", titleID: store.titleId, field: .publisher)
         XCTAssertNil(reread.value(titleID: store.titleId, field: .publisher))
+    }
+
+    func testFailedWriteKeepsTheLastSavedDescriptionAndRevision() throws {
+        let dir = tempDir()
+        let picks = MetadataPicks(directory: dir)
+        try picks.set("Saved", titleID: store.titleId, field: .description)
+        let file = dir.appendingPathComponent("metadata-picks.json")
+        let saved = dir.appendingPathComponent("saved.json")
+        try FileManager.default.moveItem(at: file, to: saved)
+        try FileManager.default.createDirectory(at: file, withIntermediateDirectories: false)
+        XCTAssertThrowsError(try picks.set("Not saved", titleID: store.titleId, field: .description))
+        XCTAssertThrowsError(try picks.remove(titleID: store.titleId, field: .description))
+        XCTAssertEqual(picks.value(titleID: store.titleId, field: .description), "Saved")
+        XCTAssertEqual(picks.revision, 1)
+        try FileManager.default.removeItem(at: file)
+        try FileManager.default.moveItem(at: saved, to: file)
+        XCTAssertEqual(MetadataPicks(directory: dir).value(titleID: store.titleId, field: .description), "Saved")
     }
 
     func testFieldsAreTheSpecsFive() {

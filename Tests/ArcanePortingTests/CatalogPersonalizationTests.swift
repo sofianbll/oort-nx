@@ -22,8 +22,8 @@ final class CatalogPersonalizationTests: XCTestCase {
         let steam = CatalogGame(steam: SteamCatalogGame(appID: 10, name: "Steam")).personalizationReference
         let nxStore = MetadataPicks(directory: nx.supportRoot(in: root))
         let steamStore = MetadataPicks(directory: steam.supportRoot(in: root))
-        nxStore.set("Switch text", titleID: nx.key, field: .description)
-        steamStore.set("Steam text", titleID: steam.key, field: .description)
+        try nxStore.set("Switch text", titleID: nx.key, field: .description)
+        try steamStore.set("Steam text", titleID: steam.key, field: .description)
         XCTAssertEqual(MetadataPicks(directory: root).value(titleID: "steam-10", field: .description), "Switch text")
         XCTAssertEqual(MetadataPicks(directory: steam.supportRoot(in: root)).value(titleID: "steam-10", field: .description), "Steam text")
         XCTAssertNotEqual(nx.supportRoot(in: root), steam.supportRoot(in: root))

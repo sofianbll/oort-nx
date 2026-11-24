@@ -774,6 +774,7 @@ Il percorso completo è in [flows.md](flows.md#6-importare-o-ripristinare-un-sal
 **Change metadata** (`ChangeMetadataView`). Il selettore propone, per descrizione, generi, sviluppatore, editore e data, i valori delle fonti disponibili per nxnative e Steam.
 - **Comportamento del selettore.**
   - Caricare le proposte non modifica `MetadataPicks`, `SteamPersonalizations` o i dati dello store. A decide solo il campo in anteprima, Automatic rimuove l'override, Write your own resta disponibile.
+  - Per Switch, `MetadataPicks` pubblica la scelta o la rimozione solo dopo la scrittura atomica. Se fallisce, il selettore mostra l'errore e la scheda mantiene il valore salvato.
   - Le descrizioni mantengono la lingua originale e lo dicono nel sottotitolo. Non si aggiungono artwork né sostituzioni automatiche.
   - Il valore adottato è una copia personale, non un abbonamento alla fonte: compare una sola volta in "La tua scelta", con la spunta. Le righe delle fonti restano alternative, senza spunte multiple quando condividono lo stesso testo. Salvataggio e rimozione conservano il focus per identità della riga.
   - Le righe hanno identità per fonte e alternativa, non per testo scaricato, quindi caricamento, disponibilità e cambio di campo non ricreano la lista. Sono dichiarati campo assente, risultato ambiguo, valore uguale ad Automatic, copia salvata e fonte non disponibile.

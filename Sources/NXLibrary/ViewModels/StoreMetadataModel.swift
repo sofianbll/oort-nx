@@ -213,10 +213,10 @@ final class StoreMetadataModel: ObservableObject {
     }
 
     /// Keeps the player's value for a field, or (nil) goes back to the store's.
-    func pickMetadata(_ value: String?, field: MetadataField, for game: PortedGame) {
+    func pickMetadata(_ value: String?, field: MetadataField, for game: PortedGame) throws {
         let key = app.personalizationKey(for: game)
-        if let value { MetadataPicks.shared.set(value, titleID: key, field: field) }
-        else { MetadataPicks.shared.remove(titleID: key, field: field) }
+        if let value { try MetadataPicks.shared.set(value, titleID: key, field: field) }
+        else { try MetadataPicks.shared.remove(titleID: key, field: field) }
         if let original = storeMetadataOriginals[game.id] { setStoreMetadata(original, for: game) }
     }
 
