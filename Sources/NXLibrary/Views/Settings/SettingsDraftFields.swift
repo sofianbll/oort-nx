@@ -10,7 +10,15 @@ enum SettingsDraftFields {
     static func fields(profiles: LocalProfileStore?, languages: [(code: String, label: String)],
                        legacyToolchainOverride: Bool = false) -> [Field] {
         let soundPacks = SoundPackLibrary().choices()
+        let deadzone = GameControllerService.shared.legacyDeadzone
+        let dockIcon = AppViewModel.legacyDockIcon
         return [
+            .init("controllerDeadzone", \.launcherChoices.controllerDeadzone) {
+                ($0 ?? deadzone).formatted(.number.precision(.fractionLength(2)).locale(L10n.context.formatLocale))
+            },
+            .init("iconAppearance", \.launcherChoices.dockIconAppearance, previews: true) {
+                SettingsLookSection.iconMode($0 ?? dockIcon).label
+            },
             .init("toolchainOverride", \.toolchainOverride, important: true) { onOff($0 ?? legacyToolchainOverride) },
             .init("multiplayerVPN", \.multiplayerVPN, important: true) { L10n.text($0.label) },
             .init("multiplayerDefault", \.multiplayerDefault, important: true) { L10n.text($0.label) },

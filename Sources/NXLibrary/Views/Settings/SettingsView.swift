@@ -49,6 +49,8 @@ struct SettingsView: View {
     @State private var decisionError: String?
     @State private var decisionScroll = 0
     @State private var originalToolchainOverride: Bool?
+    @State private var originalDeadzone: Double?
+    @State private var originalDockIcon: String?
     @Environment(\.seleneReduceMotion) private var environmentReduceMotion
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.seleneBackdropStyle) private var appBackdropStyle
@@ -130,6 +132,8 @@ struct SettingsView: View {
             if settings.draft == nil {
                 let legacy = setup.legacyToolchainOverride
                 originalToolchainOverride = legacy
+                originalDeadzone = GameControllerService.shared.legacyDeadzone
+                originalDockIcon = AppViewModel.legacyDockIcon
                 settings.beginDraft(fields: SettingsDraftFields.fields(profiles: profiles,
                     languages: viewModel.availableLanguages, legacyToolchainOverride: legacy))
             }
@@ -301,6 +305,11 @@ struct SettingsView: View {
         switch index {
         case 0:
             do {
+                let changes = Set(settings.draft?.changes.map(\.id) ?? [])
+                if changes.contains("controllerDeadzone"), settings.settings.launcherChoices.controllerDeadzone == nil,
+                   originalDeadzone != GameControllerService.shared.legacyDeadzone { throw AppSettingsDraft.Failure.changedElsewhere }
+                if changes.contains("iconAppearance"), settings.settings.launcherChoices.dockIconAppearance == nil,
+                   originalDockIcon != AppViewModel.legacyDockIcon { throw AppSettingsDraft.Failure.changedElsewhere }
                 if settings.draft?.changes.contains(where: { $0.id == "toolchainOverride" }) == true {
                     guard ToolchainGateCopy.canChangeOverride(certified: setup.compatibilityReport?.ok,
                         overrideOn: setup.allowUntestedToolchain,
@@ -533,7 +542,9 @@ struct SettingsView: View {
         guard canResetSection else { return }
         switch section {
         case .look:
-            viewModel.iconAppearanceMode = .auto
+            let unset = settings.settings.launcherChoices.dockIconAppearance == nil
+            editor.settings.launcherChoices.dockIconAppearance = unset && SettingsLookSection.iconMode(AppViewModel.legacyDockIcon) == .auto
+                ? nil : AppIconAppearanceMode.auto.rawValue
         case .profileIdentity:
             if let profiles, var profile = profiles.active {
                 profile.name = profile.defaultName
@@ -555,7 +566,9 @@ struct SettingsView: View {
                 saveProfileSetting(profile, in: profiles, notifying: viewModel)
             }
         case .controllers:
-            GameControllerService.shared.deadzone = 0.35
+            let unset = settings.settings.launcherChoices.controllerDeadzone == nil
+            editor.settings.launcherChoices.controllerDeadzone = unset && GameControllerService.shared.legacyDeadzone == 0.35
+                ? nil : 0.35
         default:
             break
         }

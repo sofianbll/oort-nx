@@ -17,6 +17,7 @@ extension AppShellView {
         viewModel.playSessionStore = playSessions
         playSessions.profileID = profiles.active?.id == profiles.originalID ? nil : profiles.active?.id
         viewModel.settingsStore = settings
+        GameControllerService.shared.useDeadzone(settings.settings.launcherChoices.controllerDeadzone)
         SoundEffectService.shared.bind(to: settings)
         artwork.trimCache()
         viewModel.refreshBoxArtIndex()

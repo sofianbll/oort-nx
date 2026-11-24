@@ -393,6 +393,10 @@ extension AppShellView {
         let committed = AppLocale(language: settings.settings.appLanguage, region: settings.settings.appRegion)
         return styled
             .onChange(of: preview.colorThemeID) { _, id in ThemeStore.shared.apply(id: id) }
+            .onChange(of: preview.launcherChoices.dockIconAppearance) { _, value in viewModel.useDockIcon(value) }
+            .onChange(of: settings.settings.launcherChoices.controllerDeadzone) { _, value in
+                GameControllerService.shared.useDeadzone(value)
+            }
             .onChange(of: AppLocale(language: preview.appLanguage, region: preview.appRegion)) {
                 AppLocalization.shared.configure(preview)
             }

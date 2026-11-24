@@ -191,7 +191,14 @@ public enum InGameHomeButton: String, Codable, CaseIterable, Sendable {
     }
 }
 
+/// Launcher choices moved here from separate stores. Missing fields fall back to the older store.
+public struct LauncherSettingsChoices: Codable, Equatable {
+    public var controllerDeadzone: Double?
+    public var dockIconAppearance: String?
+}
+
 public struct AppSettings: Codable, Equatable {
+    public var launcherChoices = LauncherSettingsChoices()
     public var appLanguage: AppLanguage = .automatic
     public var appRegion: String? = nil
     public var inGameHomeButton: InGameHomeButton = .auto
@@ -357,6 +364,7 @@ public struct AppSettings: Codable, Equatable {
     }
 
     enum CodingKeys: String, CodingKey, CaseIterable {
+        case launcherChoices
         case appLanguage, appRegion, remotePlayMode
         case inGameHomeButton
         case multiplayerVPN, multiplayerDefault, multiplayerLocalMode, multiplayerAdapter
@@ -380,6 +388,7 @@ public struct AppSettings: Codable, Equatable {
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        launcherChoices = try container.decodeIfPresent(LauncherSettingsChoices.self, forKey: .launcherChoices) ?? .init()
         appLanguage = (try container.decodeIfPresent(String.self, forKey: .appLanguage)).flatMap(AppLanguage.init(rawValue:)) ?? .automatic
         appRegion = AppLocale.validRegion(try container.decodeIfPresent(String.self, forKey: .appRegion))
         inGameHomeButton = (try? container.decode(InGameHomeButton.self, forKey: .inGameHomeButton)) ?? .auto
@@ -450,6 +459,7 @@ public struct AppSettings: Codable, Equatable {
 
     public func encode(to encoder: Encoder) throws {
         var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(launcherChoices, forKey: .launcherChoices)
         try c.encode(appLanguage, forKey: .appLanguage)
         try c.encodeIfPresent(appRegion, forKey: .appRegion)
         try c.encode(inGameHomeButton, forKey: .inGameHomeButton)

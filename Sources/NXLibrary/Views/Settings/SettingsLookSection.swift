@@ -49,8 +49,15 @@ struct SettingsLookSection: View {
     }
 
     private func stepIcon(_ step: Int) {
-        viewModel.iconAppearanceMode = AppIconAppearanceMode.selectable.stepped(from: viewModel.iconAppearanceMode, step) ?? .auto
+        let next = AppIconAppearanceMode.selectable.stepped(from: draftIcon, step) ?? .auto
+        let unset = settings.store.settings.launcherChoices.dockIconAppearance == nil
+        settings.settings.launcherChoices.dockIconAppearance = unset && next == Self.iconMode(AppViewModel.legacyDockIcon)
+            ? nil : next.rawValue
     }
+    private var draftIcon: AppIconAppearanceMode {
+        Self.iconMode(settings.settings.launcherChoices.dockIconAppearance ?? AppViewModel.legacyDockIcon)
+    }
+    static func iconMode(_ value: String?) -> AppIconAppearanceMode { value == AppIconAppearanceMode.mono.rawValue ? .mono : .auto }
 
     var body: some View {
         VStack(spacing: canvas.u(8)) {
@@ -124,7 +131,7 @@ struct SettingsLookSection: View {
 
             SeleneCycleRow("App icon",
                            subtitle: "Dock & app",
-                           value: viewModel.iconAppearanceMode.label) { stepIcon($0) }
+                           value: draftIcon.label) { stepIcon($0) }
         }
     }
 

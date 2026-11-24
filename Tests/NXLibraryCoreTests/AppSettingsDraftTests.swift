@@ -7,6 +7,8 @@ final class AppSettingsDraftTests: XCTestCase {
         .init("language", \.appLanguage, previews: true, describe: { $0.rawValue }),
         .init("look", \.colorThemeID, previews: true, describe: { $0 }),
         .init("network", \.multiplayerDefault, important: true, describe: { $0.rawValue }),
+        .init("deadzone", \.launcherChoices.controllerDeadzone, describe: { String($0 ?? 0.35) }),
+        .init("dockIcon", \.launcherChoices.dockIconAppearance, previews: true, describe: { $0 ?? "Auto" }),
     ]
 
     private func withStore(fileManager: FileManager = .default, _ run: (AppSettingsStore) throws -> Void) throws {
@@ -102,6 +104,23 @@ final class AppSettingsDraftTests: XCTestCase {
             XCTAssertEqual(try Data(contentsOf: store.fileURL), previous)
             XCTAssertEqual(AppSettingsStore(fileURL: store.fileURL).settings, AppSettings())
             XCTAssertTrue(store.draft!.hasChanges)
+        }
+    }
+
+    func testLauncherChoicesShareTheDraftAndDoNotChangeLegacyDefaults() throws {
+        try withStore { store in
+            XCTAssertNil(store.settings.launcherChoices.controllerDeadzone)
+            store.editingSettings.launcherChoices.controllerDeadzone = 0.6
+            store.editingSettings.launcherChoices.dockIconAppearance = "Monochrome"
+            XCTAssertNil(store.presentation.launcherChoices.controllerDeadzone)
+            XCTAssertEqual(store.presentation.launcherChoices.dockIconAppearance, "Monochrome")
+            store.discardDraft()
+            XCTAssertNil(store.presentation.launcherChoices.dockIconAppearance)
+            store.editingSettings.launcherChoices.controllerDeadzone = 0.6
+            store.editingSettings.launcherChoices.dockIconAppearance = "Monochrome"
+            try store.commitDraft()
+            XCTAssertEqual(AppSettingsStore(fileURL: store.fileURL).settings.launcherChoices, store.settings.launcherChoices)
+            XCTAssertEqual(store.settings.launcherChoices.controllerDeadzone, 0.6)
         }
     }
 }

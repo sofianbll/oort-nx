@@ -282,11 +282,13 @@ final class AppViewModel: ObservableObject {
             && (libraryGames.contains { $0.id == lastBuildGameID && $0.pendingInstall != nil }
                 || catalogBuildRecoveries.values.contains { $0.id == lastBuildGameID && $0.pendingInstall != nil })
     }
-    @Published var iconAppearanceMode: AppIconAppearanceMode = .auto {
-        didSet {
-            AppData.preferences.set(iconAppearanceMode.rawValue, forKey: StorageKeys.savedIconAppearanceMode)
-            updateDockIcon()
-        }
+    @Published private(set) var iconAppearanceMode: AppIconAppearanceMode = .auto
+    static var legacyDockIcon: String? { AppData.preferences.string(forKey: StorageKeys.savedIconAppearanceMode) }
+    func useDockIcon(_ value: String?) {
+        let next: AppIconAppearanceMode = (value ?? Self.legacyDockIcon) == AppIconAppearanceMode.mono.rawValue ? .mono : .auto
+        guard next != iconAppearanceMode else { return }
+        iconAppearanceMode = next
+        updateDockIcon()
     }
 
     // MARK: - Navigation
@@ -402,10 +404,7 @@ final class AppViewModel: ObservableObject {
         }
 
         // Restore user preferences
-        if let savedMode = AppData.preferences.string(forKey: StorageKeys.savedIconAppearanceMode),
-           let mode = AppIconAppearanceMode(rawValue: savedMode) {
-            self.iconAppearanceMode = mode == .mono ? .mono : .auto
-        }
+        useDockIcon(startup.launcherChoices.dockIconAppearance)
 
         setup.restoreBuildInputs(automatic: true)
         if !AppData.profile.isDevelopment && (startup.checkEngineAtLaunch || !didCompleteSetup) { setup.refreshCompatibility() }

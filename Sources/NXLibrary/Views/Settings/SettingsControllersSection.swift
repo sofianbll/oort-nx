@@ -8,6 +8,7 @@ struct SettingsControllersSection: View {
     var onOpenPlayers: (() -> Void)?
 
     @ObservedObject var controller = GameControllerService.shared
+    private var draftDeadzone: Double { settings.settings.launcherChoices.controllerDeadzone ?? controller.legacyDeadzone }
 
     var body: some View {
         VStack(spacing: 9) {
@@ -38,11 +39,11 @@ struct SettingsControllersSection: View {
                       info: "Adjusts minimum thumbstick deflection needed to trigger menu navigation. Increase if your analog stick has slight drift causing unintended scrolling.") {
                 HStack(spacing: 10) {
                     Slider(value: Binding(
-                        get: { Double(controller.deadzone) },
-                        set: { controller.deadzone = Float($0) }
+                        get: { draftDeadzone },
+                        set: setDeadzone
                     ), in: 0.10...0.80, step: 0.01)
                     .frame(width: 170)
-                    Text(String(format: "%.2f", controller.deadzone))
+                    Text(String(format: "%.2f", draftDeadzone))
                         .seleneFont(13, .semibold, design: .monospaced)
                         .foregroundColor(SeleneTheme.glyph)
                         .frame(width: 38, alignment: .trailing)
@@ -69,10 +70,15 @@ struct SettingsControllersSection: View {
                 onViewControls()
             },
             .value("deadzone", "Stick navigation deadzone") { step in
-                controller.deadzone = min(0.80, max(0.10, controller.deadzone + 0.05 * Float(step)))
+                setDeadzone(min(0.80, max(0.10, (draftDeadzone * 100 + 5 * Double(step)).rounded() / 100)))
             },
         ] + (onOpenPlayers.map { action in [.init(id: "players", title: "Players", activate: action)] } ?? [])
           + [.value("inGameHomeButton", "Home button in games", cycle: stepHomeButton)])
+    }
+
+    private func setDeadzone(_ value: Double) {
+        let unset = settings.store.settings.launcherChoices.controllerDeadzone == nil
+        settings.settings.launcherChoices.controllerDeadzone = unset && value == controller.legacyDeadzone ? nil : value
     }
 
     private func stepHomeButton(_ step: Int) {
