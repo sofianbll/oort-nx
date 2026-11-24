@@ -79,6 +79,18 @@ final class AppViewModel: ObservableObject {
         settingsNotice = notice
     }
 
+    /// Settings keep their current value until a choice other than Cancel is activated.
+    func confirmSetting(_ title: String, message: String,
+                        choices: [(title: String, run: () -> Void)], details: [String: String] = [:]) {
+        guard settingsNotice == nil else { return }
+        showSettingsNotice(title: title, message: message, cancelTitle: "Cancel",
+                           alternatives: choices, choiceDetails: details)
+    }
+
+    func confirmSetting(_ title: String, message: String, action: String, apply: @escaping () -> Void) {
+        confirmSetting(title, message: message, choices: [(action, apply)])
+    }
+
     // MARK: - Storage Keys for Persistence
     enum StorageKeys {
         static let savedGameFolder = "NXNative_SavedGameFolder"

@@ -166,25 +166,22 @@ struct SettingsEngineSection: View {
         else { setup.detectEnvironment() }
     }
 
-    private func confirmOverride() {
-        viewModel.showSettingsNotice(title: L10n.text("Enable untested toolchain?"),
-            message: L10n.text("The engine and compiler do not match the certified combination. Builds may fail or show incorrect graphics and will be marked as untested."),
-            actionTitle: L10n.text("Enable"), cancelTitle: L10n.text("Cancel")) {
-                guard !configurationLocked else { return }
-                setup.allowUntestedToolchain = true
-            }
+    private func confirmOverride(_ enabled: Bool) {
+        guard canChangeOverride, enabled != setup.allowUntestedToolchain else { return }
+        viewModel.confirmSetting(enabled ? "Enable untested toolchain?" : "Untested toolchain override",
+            message: L10n.text(enabled
+                ? "The engine and compiler do not match the certified combination. Builds may fail or show incorrect graphics and will be marked as untested."
+                : "Future builds will require a tested toolchain again, but installed games will stay as they are."),
+            action: enabled ? "Enable" : "Turn off") {
+            guard canChangeOverride, enabled != setup.allowUntestedToolchain else { return }
+            setup.allowUntestedToolchain = enabled
+        }
     }
 
     private var overrideBinding: Binding<Bool> {
         Binding(
             get: { setup.allowUntestedToolchain },
-            set: { newValue in
-                if newValue {
-                    confirmOverride()
-                } else {
-                    setup.allowUntestedToolchain = false
-                }
-            }
+            set: confirmOverride
         )
     }
 
@@ -264,7 +261,7 @@ struct SettingsEngineSection: View {
                         // With two buttons, the one Left and Right put the focus on carries the focus ring.
                         let focused = actions.count > 1 && setup.canSwitchEngine
                             && focusedRowTitle == "Newest engine" && focusedButton == index
-                        Button(newestTitle(action)) { newestAction(action) }
+                        Button(L10n.text(newestTitle(action))) { newestAction(action) }
                             .buttonStyle(.plain)
                             .seleneFont(15, .semibold)
                             .foregroundColor(setup.canSwitchEngine ? SeleneTheme.glyph : SeleneTheme.ink60)
@@ -309,17 +306,29 @@ struct SettingsEngineSection: View {
 
     private func newestTitle(_ action: NewestEngineAction) -> String {
         switch action {
-        case .useNewest: return L10n.text("Use newest")
+        case .useNewest: return "Use newest"
         case .update: return "Update"
         case .backToTested: return "Back to tested"
         }
     }
 
     private func newestAction(_ action: NewestEngineAction) {
-        guard setup.canSwitchEngine else { return }
-        switch action {
-        case .useNewest, .update: setup.useNewestEngine()
-        case .backToTested: setup.useTestedEngine()
+        guard setup.canSwitchEngine, setup.newestEngineActions.contains(action) else { return }
+        let path = setup.nxnativePath
+        let target = action == .backToTested ? viewModel.pinnedEngineCommit : setup.newestEngineOffer?.upstreamCommit
+        guard let target else { return }
+        let message = action == .backToTested
+            ? "Future builds will use the tested engine (%@), but installed games will stay as they are."
+            : "Future builds will use the untested engine (%@), but installed games will stay as they are."
+        viewModel.confirmSetting("Newest engine", message: L10n.format(message, [seleneShort(target)]),
+                                 action: newestTitle(action)) {
+            guard setup.canSwitchEngine, setup.nxnativePath == path, setup.newestEngineActions.contains(action) else { return }
+            switch action {
+            case .useNewest, .update:
+                guard setup.newestEngineOffer?.upstreamCommit == target else { return }
+                setup.useNewestEngine()
+            case .backToTested: setup.useTestedEngine()
+            }
         }
     }
 
@@ -520,11 +529,7 @@ struct SettingsEngineSection: View {
             },
             .init(id: "override", title: "Untested toolchain override",
                   isEnabled: canChangeOverride) {
-                if setup.allowUntestedToolchain {
-                    setup.allowUntestedToolchain = false
-                } else {
-                    confirmOverride()
-                }
+                confirmOverride(!setup.allowUntestedToolchain)
             },
             .init(id: "upstream", title: "Upstream") {
                 setup.checkUpstreamChangelog()

@@ -425,6 +425,16 @@ struct SettingsView: View {
     /// kept outside it are reset here.
     private func resetSection() {
         guard canResetSection else { return }
+        if section == .multiplayer {
+            guard SettingsReset.reset(.multiplayer, in: settings.settings) != settings.settings else { return }
+            viewModel.confirmSetting("Reset group",
+                message: L10n.text("Multiplayer defaults will be restored without changing individual game choices or the Nextendo client ID."),
+                action: "Reset") {
+                settings.settings = SettingsReset.reset(.multiplayer, in: settings.settings)
+                SoundEffectService.shared.play(.focus)
+            }
+            return
+        }
         let defaults = AppSettings()
         switch section {
         case .profileLook:

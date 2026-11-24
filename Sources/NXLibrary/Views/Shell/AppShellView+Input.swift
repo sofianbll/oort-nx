@@ -136,6 +136,7 @@ extension AppShellView {
                 default: closeAction = nil
                 }
                 if let closeAction {
+                    if showsSettingsNotice && closeAction == .confirm && event.isARepeat { return nil }
                     GameControllerService.shared.onAction?(closeAction)
                     return nil
                 }
