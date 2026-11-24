@@ -171,10 +171,14 @@ extension CollectionView {
     var shelfKeyForProbe: String? { SHELF_KEY }
 }
 '''.replace("SHELF_KEY", "cloudEmptyKey" if "--before" not in sys.argv else "nil"))
-        # ImageRenderer substitutes a warning for the AppKit art layer. No fixture has hero art.
+        # ImageRenderer substitutes a warning for AppKit backdrop surfaces. Keep the real still Moonlight.
         change(app / "Views/Spotlight/SeleneArtBackground.swift", r"            SeleneArtLayer\(image: art,[^\n]*\n", "")
+        change(app / "Views/Theme/SeleneBackdrop.swift", r"MoonlightMetalView\(engine: engine, colors: colors, moving: moving\)",
+               "MoonlightStill(engine: engine, colors: colors)")
         change(app / "Views/Theme/MoonlightRenderer.swift", r"                if let image \{\n                    Image\(decorative:",
                "                if let image = engine.snapshot(width: max(w, 1), height: max(h, 1), colors: colors) {\n                    Image(decorative:")
+        # The activation action is invoked outside a mounted view, so give it the fixture environment too.
+        change(app / "Views/Theme/AppLocaleEnvironment.swift", r'\.english, region: "US"', '.french, region: "FR"')
         assistant = app / "Views/Settings/CloudSetupAssistant.swift"
         change(assistant, r'        \.onAppear \{ inspect\(\); installAssistantKeys\(\) }', '')
         with assistant.open("a") as swift:
