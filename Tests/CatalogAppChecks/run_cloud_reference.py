@@ -16,7 +16,6 @@ SCENARIO = r'''
         let settings = AppSettingsStore(fileURL: data.appendingPathComponent("settings.json"))
         let vm = AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: data)))
         var failures: [String] = []
-        let baseline = ProcessInfo.processInfo.environment["REFERENCE_BASELINE"] == "1"
         let title = "0100000000008000"
         let folder = "FixtureFolderID"
         let fixture = RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in
@@ -57,7 +56,7 @@ SCENARIO = r'''
             try renderNotice("import-with-unreadable-title\(suffix)", output, vm.settingsNotice!, width: width)
         }
         for failure in failures { print("FAIL: \(failure)") }
-        exit(failures.isEmpty ? 0 : baseline ? 3 : 1)
+        exit(failures.isEmpty ? 0 : 3)
     }
 
     @MainActor static var measuredSave: (focused: Bool, enabled: Bool)?
@@ -95,11 +94,16 @@ extension CloudLibraryModel {
 
 def main():
     output = Path(sys.argv[1]).resolve()
+    baseline = sys.argv[2] if len(sys.argv) == 3 else None
     output.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="reference-probe-", dir=output.parent) as temp:
         package = Path(temp)
         copyfile(ROOT / "Package.swift", package / "Package.swift")
-        copytree(ROOT / "Sources", package / "Sources")
+        if baseline:
+            sources = subprocess.check_output(["git", "-C", str(ROOT), "archive", baseline, "Sources"])
+            subprocess.run(["tar", "-xf", "-", "-C", str(package)], input=sources, check=True)
+        else:
+            copytree(ROOT / "Sources", package / "Sources")
         for name in ("NXLibraryCoreTests", "ArcanePortingTests", "OortCoreTests"):
             folder = package / "Tests" / name
             folder.mkdir(parents=True)
@@ -121,6 +125,7 @@ def main():
         change(dialog, r'                TextField\(.*?\.onExitCommand\(perform: onClose\)',
                '                Text(draft.isEmpty ? text("Google Drive folder link or ID") : draft)\n'
                '                    .frame(maxWidth: .infinity, alignment: .leading)')
+        change(dialog, r'        \.onAppear \{.*?\n        }\n', "")
         with dialog.open("a") as file:
             file.write("\nextension CloudReferenceDialog {\n"
                        "    func probeDraft(_ draft: String) -> Self {\n"
@@ -143,12 +148,13 @@ def main():
                    '(deny file-read-data file-write* (subpath (param "REAL_LIBRARY")) (subpath "/Volumes")) '
                    '(deny file-write* (subpath "/Applications"))')
         real_library = Path(pwd.getpwuid(os.getuid()).pw_dir) / "Library"
-        subprocess.run(["sandbox-exec", "-D", f"REAL_LIBRARY={real_library}", "-p", sandbox,
-                        str(package / ".build/debug/NXLibrary"), str(output),
-                        str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"),
-                        str(ROOT / "Resources/AppIcon-Light.png")], check=True,
-                       env=dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home),
-                                REFERENCE_BASELINE=str(int("--before" in sys.argv[2:]))))
+        result = subprocess.run(["sandbox-exec", "-D", f"REAL_LIBRARY={real_library}", "-p", sandbox,
+                                 str(package / ".build/debug/NXLibrary"), str(output),
+                                 str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"),
+                                 str(ROOT / "Resources/AppIcon-Light.png")],
+                                env=dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home)))
+        if result.returncode or baseline:
+            raise SystemExit(result.returncode or "The baseline unexpectedly passed.")
 
 
 if __name__ == "__main__":

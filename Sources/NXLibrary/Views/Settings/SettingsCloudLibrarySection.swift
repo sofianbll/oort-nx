@@ -152,7 +152,7 @@ struct SettingsCloudLibrarySection: View {
             }
             if let folder = selection.referenceFolder, selection.remote != nil {
                 let failed = model.referenceCheck?.failure != nil
-                SeleneRow(model.referenceCheck?.name ?? "\(text("Reference library")) · …\(folder.suffix(6))", id: "cloudReferenceStatus",
+                SeleneRow(model.referenceCheck?.name ?? "\(text("Folder")) · …\(folder.suffix(6))", id: "cloudReferenceStatus",
                           subtitle: referenceStatus, verbatimTitle: true, verbatimSubtitle: true) {
                     SeleneStatusDot(text: text(failed ? "No access" : "Read only"), color: failed
                         ? CloudLibraryStatus.failed.color : model.referenceCheck == nil
