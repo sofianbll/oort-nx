@@ -9,6 +9,7 @@ struct SpotlightTopBar: View {
     @Environment(\.seleneReduceMotion) private var reduceMotion
     @Environment(\.nxAppLocale) private var locale
     @Environment(\.profilePortrait) private var profile
+    @Environment(\.integrationBar) private var integrationBar
 
     let filter: LibraryFilter
     let sort: LibrarySort
@@ -23,6 +24,10 @@ struct SpotlightTopBar: View {
 
     var body: some View {
         ZStack {
+            HStack {
+                integrationBar
+                Spacer()
+            }
             HStack(spacing: 0) {
                 badge(.lb)
                 ForEach(LibraryFilter.allCases) { tab($0) }

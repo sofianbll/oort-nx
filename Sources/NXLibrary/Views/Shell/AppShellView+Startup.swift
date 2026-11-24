@@ -172,6 +172,10 @@ extension AppShellView {
                 NotificationCenter.default.post(name: .nxDetailGamepadAction, object: action)
             case .settings:
                 NotificationCenter.default.post(name: .nxSettingsGamepadAction, object: action)
+            case .integrations:
+                if action == .menu { router.isMenuPresented = true }
+                else if action == .menuHold { router.openSettings(.startUp) }
+                else { NotificationCenter.default.post(name: .nxIntegrationsAction, object: action) }
             case .addGame:
                 NotificationCenter.default.post(name: .nxAddGameGamepadAction, object: action)
             case .gameInbox:

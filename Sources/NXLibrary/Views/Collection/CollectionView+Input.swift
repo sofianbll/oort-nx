@@ -12,6 +12,8 @@ extension CollectionView {
             sortMenu = next
             return
         }
+        if integrationBar != nil, profileCard == nil,
+           router.handleIntegrationBar(action, profileFocused: &profileFocused, hasProfile: profile != nil) { return }
         if profileFocused {
             switch action {
             case .confirm: SpotlightTopBar.openProfile(); return
@@ -78,6 +80,7 @@ extension CollectionView {
     }
 
     func activateCatalog(_ record: CatalogGame) {
+        router.integrationBarFocused = false
         if let native = record.nxnativeGame { play(native) }
         else if record.integration == .steam { SoundEffectService.shared.play(.click); SteamPlayCoordinator.shared.press(record) }
         else { SoundEffectService.shared.play(.click); router.showDetail(record.id) }
@@ -126,7 +129,7 @@ extension CollectionView {
             switch event.keyCode {
             case 123: action = .navigateLeft
             case 124: action = .navigateRight
-            case 125 where sortMenu != nil || profileFocused: action = .navigateDown
+            case 125 where sortMenu != nil || profileFocused || router.integrationBarFocused: action = .navigateDown
             case 126: action = .navigateUp
             case 36, 49, 76: action = .confirm
             case 53: action = .cancel
