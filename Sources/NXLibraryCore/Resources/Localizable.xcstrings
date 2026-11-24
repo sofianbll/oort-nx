@@ -2272,6 +2272,17 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "旧文件夹中仍有归档。请暂停其他 Mac 的上传，核对这些归档后再重试。资料库文件夹未切换。"}}
       }
     },
+    "Unplanned archive in the old folder: %@. Pause uploads from other Macs and move this file outside the old folder without deleting it before retrying.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Unplanned archive in the old folder: %@. Pause uploads from other Macs and move this file outside the old folder without deleting it before retrying."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Archivio non previsto nella vecchia cartella: %@. Sospendi gli invii dagli altri Mac e sposta il file fuori dalla vecchia cartella senza eliminarlo prima di riprovare."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Archive hors du plan dans l’ancien dossier : %@. Mettez en pause les envois des autres Mac et déplacez ce fichier hors de l’ancien dossier sans le supprimer, puis réessayez."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Nicht eingeplantes Archiv im alten Ordner: %@. Pausiere Uploads anderer Macs und verschiebe die Datei aus dem alten Ordner, ohne sie zu löschen. Versuche es dann erneut."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Archivo no previsto en la carpeta anterior: %@. Pausa las subidas de otros Mac y mueve el archivo fuera de la carpeta anterior sin eliminarlo antes de reintentar."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Arquivo não previsto na pasta antiga: %@. Pause os envios de outros Macs e mova o arquivo para fora da pasta antiga sem excluí-lo antes de tentar novamente."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "旧文件夹中有计划之外的归档：%@。请暂停其他 Mac 的上传，将此文件移出旧文件夹但不要删除，然后重试。"}}
+      }
+    },
     "The destination no longer matches the confirmed archives. Restore the missing or changed files before retrying.": {
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "The destination no longer matches the confirmed archives. Restore the missing or changed files before retrying."}},

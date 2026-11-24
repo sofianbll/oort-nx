@@ -37,6 +37,7 @@ public struct CloudDriveFolders: Sendable {
 
     package enum MoveFailure: LocalizedError {
         case missingIdentity, accountChanged, foldersChanged, sourceNotEmpty, destinationChanged
+        case sourceResidue(String)
 
         package var errorDescription: String? {
             switch self {
@@ -48,6 +49,8 @@ public struct CloudDriveFolders: Sendable {
                 return L10n.text("A library folder was replaced, renamed or cannot be read. Restore the original folders at their original paths before retrying.")
             case .sourceNotEmpty:
                 return L10n.text("Archives still exist in the old folder. Pause uploads from other Macs and reconcile those archives before retrying. The library folder was not switched.")
+            case .sourceResidue(let path):
+                return L10n.format("Unplanned archive in the old folder: %@. Pause uploads from other Macs and move this file outside the old folder without deleting it before retrying.", [path])
             case .destinationChanged:
                 return L10n.text("The destination no longer matches the confirmed archives. Restore the missing or changed files before retrying.")
             }
@@ -236,7 +239,9 @@ public struct CloudDriveFolders: Sendable {
             _ = try await folderID(source)
             binding = nil
         }
-        let items = try await contents(source, recursive: true)
+        let sourceID = binding?.sourceID
+        let sourceRoot = sourceID == nil ? source : ""
+        let items = try await contents(sourceRoot, recursive: true, rootID: sourceID, allowMissing: false)
         let paths = Dictionary(grouping: items, by: \.Path)
         let backend = try backend(in: source)
         defer { backend.stopRemoteControl() }
@@ -252,7 +257,7 @@ public struct CloudDriveFolders: Sendable {
                 guard Self.uniquePath(path, in: paths) else { throw StorageBackendError.alreadyExists }
                 let manifest: CloudGameManifest
                 do { manifest = try await archive.readManifest(item.object, titleID: title) }
-                catch CloudArchiveError.invalidManifest { continue }
+                catch CloudArchiveError.invalidManifest, CloudArchiveError.unsafePath { continue }
                 archiveTitles.insert(manifest.titleID)
                 let dependencies = manifest.artifacts.flatMap { $0.objects(titleID: manifest.titleID) }
                 manifests.append(.init(file: item.object, dependencies: dependencies))
@@ -278,17 +283,24 @@ public struct CloudDriveFolders: Sendable {
         }
         let plan = MovePlan(source: source, games: archiveTitles.count, bytes: bytes, remote: remote,
                             entries: entries, binding: binding)
+        try await verifySourceArchives(sourceRoot, id: sourceID, allowing: entries)
         if remote != ":local:", let destination { try await verifyBinding(plan, to: destination) }
         return plan
+    }
+
+    package func preflightMove(_ plan: MovePlan, to destination: String) async throws {
+        guard remote == plan.remote, Self.validMove(plan, to: destination) else {
+            throw StorageBackendError.invalidKey
+        }
+        try await verifyBinding(plan, to: destination)
+        let id = plan.binding?.sourceID
+        try await verifySourceArchives(id == nil ? plan.source : "", id: id, allowing: plan.entries)
     }
 
     /// Run only after confirmation; a skipped key (or manifest with missing dependencies) prevents activation.
     public func move(_ plan: MovePlan, to destination: String,
                      progress: (Int, Int) async throws -> Void) async throws -> [String] {
-        guard remote == plan.remote, Self.validMove(plan, to: destination) else {
-            throw StorageBackendError.invalidKey
-        }
-        try await verifyBinding(plan, to: destination)
+        try await preflightMove(plan, to: destination)
         let sourceID = plan.binding?.sourceID, destinationID = plan.binding?.destinationID
         let folders = Set(plan.entries.compactMap { Self.treeFolder($0.file.key.value) })
         func paths(at root: String, id: String?) async throws -> [String: [Item]] {
@@ -331,7 +343,7 @@ public struct CloudDriveFolders: Sendable {
             Self.uniquePath($0.key.value, in: actual) && Self.matches($0, actual[$0.key.value] ?? [])
         }) else { throw MoveFailure.destinationChanged }
         try await verifyBinding(plan, to: destination)
-        try await verifySourceEmpty(sourceID == nil ? plan.source : "", id: sourceID)
+        try await verifySourceArchives(sourceID == nil ? plan.source : "", id: sourceID)
         try await verifyBinding(plan, to: destination)
         return conflicts
     }
@@ -348,7 +360,9 @@ public struct CloudDriveFolders: Sendable {
         return true
     }
 
-    private func verifySourceEmpty(_ root: String, id: String?) async throws {
+    private func verifySourceArchives(_ root: String, id: String?, allowing entries: [MoveEntry]? = nil) async throws {
+        // Swift String equality folds NFC/NFD; Drive can list both spellings.
+        var allowed = Set((entries ?? []).map { Array($0.file.key.value.utf8) })
         let children = try await contents(root, recursive: false, hashes: false, rootID: id, allowMissing: false)
         let titles = children.filter { $0.IsDir && Self.titleID(in: $0.Name) != nil }
         guard Set(titles.map(\.Name)).count == titles.count else { throw MoveFailure.foldersChanged }
@@ -357,11 +371,14 @@ public struct CloudDriveFolders: Sendable {
                                            deep: true, rootID: id, allowMissing: false)
             for item in items where !item.IsDir {
                 let key = Self.joining(child.Name, item.Path)
-                let parts = key.components(separatedBy: "/")
-                if Self.treeFolder(key) != nil || (parts.count == 3 && (
-                    (parts[1] == "manifests" && parts[2].hasSuffix(".json")) ||
-                    (CloudArtifactKind(rawValue: parts[1]) != nil && parts[2].hasSuffix(".aar"))
-                )) { throw MoveFailure.sourceNotEmpty }
+                let parts = item.Path.lowercased().components(separatedBy: "/")
+                if Self.treeFolder(key) != nil || (parts.count == 2 && (
+                    (parts[0] == "manifests" && parts[1].hasSuffix(".json")) ||
+                    (CloudArtifactKind(rawValue: parts[0]) != nil && parts[1].hasSuffix(".aar"))
+                )), allowed.remove(Array(key.utf8)) == nil {
+                    if entries != nil { throw MoveFailure.sourceResidue(key) }
+                    throw MoveFailure.sourceNotEmpty
+                }
             }
         }
     }

@@ -55,6 +55,7 @@ extension AppViewModel {
                     guard CloudDriveFolders.isBound(request.plan, to: request.destination) else {
                         throw CloudDriveFolders.MoveFailure.missingIdentity
                     }
+                    try await folders.preflightMove(request.plan, to: request.destination)
                     var sources = preference.sourcesRootOverride
                     if sources == nil {
                         sources = try await folders.originalSourcesRoot(request.plan, to: request.destination)

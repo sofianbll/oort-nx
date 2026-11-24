@@ -213,6 +213,82 @@ final class CloudDriveFoldersTests: XCTestCase {
         }
     }
 
+    func testBlockingArchivesRefusePreviewAndRetryBeforeMovingAnyFiles() async throws {
+        try await withMoveFixture { drive, root in
+            let title = "0100123456789ABC", other = "0100123456789ABD"
+            let old = root.appendingPathComponent("Old"), new = root.appendingPathComponent("New")
+            let fm = FileManager.default
+            func write(_ data: Data, to path: String) throws -> URL {
+                let file = old.appendingPathComponent(path)
+                try fm.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
+                try data.write(to: file)
+                return file
+            }
+            let raw = Data("archive".utf8)
+            let sha = CloudArchiveInventory.hex(SHA256.hash(data: raw))
+            let md5 = CloudArchiveInventory.hex(Insecure.MD5.hash(data: raw))
+            let objectKey = "\(title)/app/\(sha).aar"
+            let object = try write(raw, to: objectKey)
+            let artifact = CloudGameManifest.Artifact(kind: .app, size: Int64(raw.count), sha256: sha, md5: md5,
+                unpackedSize: 1, entryCount: 1, inventorySHA256: sha, engineCommit: nil, shaderChain: nil, options: [:])
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .iso8601
+            let data = try encoder.encode(CloudGameManifest(version: 1, titleID: title, createdAt: .now, artifacts: [artifact]))
+            let manifestKey = "\(title)/manifests/0000000000000001-\(CloudArchiveInventory.hex(SHA256.hash(data: data))).json"
+            let manifest = try write(data, to: manifestKey)
+            let plan = try await drive.movePlan(from: "Old", to: "New")
+            XCTAssertEqual(plan.games, 1)
+            for residue in [
+                "\(other)/manifests/zz-invalid.json",
+                "\(other)/MANIFESTS/zz-invalid.JSON",
+                "\(other)/app/\(sha).aar",
+                "Café [\(other)]/cache/\(sha)/empty",
+            ] {
+                let blocker = try write(Data(), to: residue)
+                do {
+                    _ = try await drive.movePlan(from: "Old", to: "New")
+                    XCTFail("Preview offered to move despite \(residue)")
+                } catch {
+                    guard case .sourceResidue(let path)? = error as? CloudDriveFolders.MoveFailure else { throw error }
+                    XCTAssertEqual(path.lowercased(), residue.lowercased())
+                }
+                do {
+                    _ = try await drive.move(plan, to: "New") { _, _ in XCTFail("A blocked move must not start") }
+                    XCTFail("An old plan must not ignore \(residue)")
+                } catch {
+                    guard case .sourceResidue(let path)? = error as? CloudDriveFolders.MoveFailure else { throw error }
+                    XCTAssertEqual(path.lowercased(), residue.lowercased())
+                }
+                XCTAssertEqual(try Data(contentsOf: object), raw)
+                XCTAssertEqual(try Data(contentsOf: manifest), data)
+                XCTAssertTrue(try fm.contentsOfDirectory(atPath: new.path).isEmpty)
+                XCTAssertEqual(try Data(contentsOf: blocker), Data())
+                try fm.removeItem(at: blocker)
+            }
+            // Simulate the old mover having relocated the healthy files before reporting the residue.
+            let blocker = try write(Data(), to: "\(other)/manifests/zz-invalid.json")
+            for (source, key) in [(object, objectKey), (manifest, manifestKey)] {
+                let destination = new.appendingPathComponent(key)
+                try fm.createDirectory(at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
+                try fm.moveItem(at: source, to: destination)
+            }
+            do {
+                _ = try await drive.move(plan, to: "New") { _, _ in XCTFail("Retry must still refuse the residue") }
+                XCTFail("A partially completed old move must not activate")
+            } catch {
+                XCTAssertTrue(error.localizedDescription.contains("zz-invalid.json"))
+                XCTAssertTrue(error.localizedDescription.contains("before retrying"))
+            }
+            let saved = root.appendingPathComponent("preserved.json")
+            try fm.moveItem(at: blocker, to: saved)
+            let conflicts = try await drive.move(plan, to: "New") { _, _ in }
+            XCTAssertEqual(conflicts, [])
+            XCTAssertEqual(try Data(contentsOf: new.appendingPathComponent(objectKey)), raw)
+            XCTAssertEqual(try Data(contentsOf: new.appendingPathComponent(manifestKey)), data)
+            XCTAssertEqual(try Data(contentsOf: saved), Data())
+        }
+    }
+
     func testJournalResumesWithRealFilesAfterEachProgressAndLostWriteReply() async throws {
         let cuts = ["progress-0", "reply-0", "progress-1", "reply-1", "progress-2", "reply-2", "progress-3"]
         for cut in cuts {

@@ -594,7 +594,7 @@ struct CloudSetupAssistant: View {
             ticket = draft.renewTicket()
         } else { ticket = draft.browse(path) }
         listing = nil; count = nil; countUnknown = false; folderMissing = false
-        movePlan = nil; moveUnavailable = false; checkingMove = false; moveConflicts = []
+        movePlan = nil; moveUnavailable = false; checkingMove = false; moveConflicts = []; moveFailure = nil
         let old = model.preference.root.split(separator: "/").joined(separator: "/")
         let checkOld = !selectingSources && model.preference.remote == draft.remote && replacement == nil
             && CloudDriveFolders.canMove(from: old, to: path)
@@ -614,6 +614,8 @@ struct CloudSetupAssistant: View {
                 do {
                     let plan = try await service.movePlan(from: old, to: path)
                     if !Task.isCancelled && draft.matches(ticket) { movePlan = plan }
+                } catch let failure as CloudDriveFolders.MoveFailure {
+                    if !Task.isCancelled && draft.matches(ticket) { moveFailure = failure.localizedDescription }
                 } catch {
                     if !Task.isCancelled && draft.matches(ticket) { moveUnavailable = true }
                 }
