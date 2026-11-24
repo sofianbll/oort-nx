@@ -9,6 +9,7 @@ final class AppSettingsDraftTests: XCTestCase {
         .init("network", \.multiplayerDefault, important: true, describe: { $0.rawValue }),
         .init("deadzone", \.launcherChoices.controllerDeadzone, describe: { String($0 ?? 0.35) }),
         .init("dockIcon", \.launcherChoices.dockIconAppearance, previews: true, describe: { $0 ?? "Auto" }),
+        .init("gameSources", \.launcherChoices.gameSourcesPath, describe: { $0 ?? "Legacy" }),
     ]
 
     private func withStore(fileManager: FileManager = .default, _ run: (AppSettingsStore) throws -> Void) throws {
@@ -121,6 +122,16 @@ final class AppSettingsDraftTests: XCTestCase {
             try store.commitDraft()
             XCTAssertEqual(AppSettingsStore(fileURL: store.fileURL).settings.launcherChoices, store.settings.launcherChoices)
             XCTAssertEqual(store.settings.launcherChoices.controllerDeadzone, 0.6)
+        }
+    }
+
+    func testClearingSourcesRemembersTheExplicitEmptyChoice() throws {
+        try withStore { store in
+            XCTAssertNil(store.settings.launcherChoices.gameSourcesPath)
+            store.editingSettings.launcherChoices.gameSourcesPath = ""
+            XCTAssertNil(store.presentation.launcherChoices.gameSourcesPath)
+            try store.commitDraft()
+            XCTAssertEqual(AppSettingsStore(fileURL: store.fileURL).settings.launcherChoices.gameSourcesPath, "")
         }
     }
 }

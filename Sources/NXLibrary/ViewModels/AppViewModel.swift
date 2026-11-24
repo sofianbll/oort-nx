@@ -179,16 +179,12 @@ final class AppViewModel: ObservableObject {
     @Published private(set) var personalizations = CatalogPersonalizations.empty
     /// Finished file operations whose catalog save must still be retried.
     @Published var catalogBuildRecoveries = CatalogBuildRecoveries()
-    @Published var libraryFolder: URL? {
-        didSet {
-            if let folder = libraryFolder {
-                AppData.preferences.set(folder.path, forKey: StorageKeys.savedLibraryFolder)
-            }
-        }
-    }
+    @Published var libraryFolder: URL?
+    var defaultGameAppsPath: String { URL(fileURLWithPath: defaultInstallPath).appendingPathComponent("Applications").path }
+    var legacyGameAppsPath: String? { AppData.preferences.string(forKey: StorageKeys.savedLibraryFolder) }
     /// First use asks where to find existing games and install new ones; later visits keep that choice.
     var requiresGameAppsFolderChoice: Bool {
-        !setupCompleted && AppData.preferences.string(forKey: StorageKeys.savedLibraryFolder) == nil
+        !setupCompleted && settingsStore?.settings.launcherChoices.gameAppsPath == nil && legacyGameAppsPath == nil
     }
     @Published var isScanningLibrary: Bool = false
     /// Non-blocking scan details shown beside Library refresh, never an automatic launch dialog.
@@ -395,7 +391,7 @@ final class AppViewModel: ObservableObject {
 
         // The launcher's old ~/Games default is not a Mac-app library.
         let oldGamesDefault = root.appendingPathComponent("Games").standardized.path
-        if let savedLib = AppData.preferences.string(forKey: StorageKeys.savedLibraryFolder),
+        if let savedLib = startup.launcherChoices.gameAppsPath ?? legacyGameAppsPath,
            savedLib != oldGamesDefault, !savedLib.isEmpty, savedLib != "/" {
             self.libraryFolder = URL(fileURLWithPath: savedLib)
         } else {
@@ -527,7 +523,7 @@ final class AppViewModel: ObservableObject {
     private func prepareInitialGameAppsFolder() {
         do {
             try GameAppDestination.prepareInitialFolder(gameAppsFolder,
-                hasExplicitChoice: AppData.preferences.string(forKey: StorageKeys.savedLibraryFolder) != nil)
+                hasExplicitChoice: settingsStore?.settings.launcherChoices.gameAppsPath != nil || legacyGameAppsPath != nil)
         } catch {
             logs.append(LogEntry(level: .warning, message: L10n.format("Could not prepare the default Game apps folder: %@", [String(describing: error.localizedDescription)])))
         }

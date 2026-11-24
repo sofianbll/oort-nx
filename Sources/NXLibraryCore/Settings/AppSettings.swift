@@ -193,9 +193,14 @@ public enum InGameHomeButton: String, Codable, CaseIterable, Sendable {
 
 /// Launcher choices moved here from separate stores. Missing fields fall back to the older store.
 public struct LauncherSettingsChoices: Codable, Equatable {
+    public init() {}
     public var controllerDeadzone: Double?
     public var dockIconAppearance: String?
     public var steamSource: SteamSourceChoice?
+    public var gameAppsPath: String?
+    /// An empty path clears the legacy choice without forgetting that the player cleared it.
+    public var gameSourcesPath: String?
+    public var enginePath: String?
 }
 
 /// Desired source configuration and the exact catalog generation it may replace.

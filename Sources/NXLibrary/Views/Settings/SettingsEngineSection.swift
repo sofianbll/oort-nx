@@ -13,19 +13,26 @@ struct SettingsEngineSection: View {
     @Environment(\.seleneFocusedButton) private var focusedButton
     @Environment(\.passiveSettingsArrival) private var passiveArrival
     private var configurationLocked: Bool { viewModel.isBuilding || viewModel.isUpdatingApp }
+    private var enginePath: String { settings.settings.launcherChoices.enginePath ?? setup.nxnativePath }
+    private func chooseEnginePath() {
+        setup.selectNxnativeFolder(startingAt: enginePath.isEmpty ? nil : URL(fileURLWithPath: enginePath)) { url in
+            settings.settings.launcherChoices.enginePath = url.path == setup.nxnativePath
+                ? settings.store.settings.launcherChoices.enginePath : url.path
+        }
+    }
 
     var body: some View {
         VStack(spacing: 9) {
             SeleneRow("Engine repository",
                       subtitle: "The upstream nxnative checkout used for builds. Updates stay manual.") {
                 HStack(spacing: 10) {
-                    Text(setup.nxnativePath.isEmpty ? L10n.text("Not selected") : setup.nxnativePath)
+                    Text(enginePath.isEmpty ? L10n.text("Not selected") : enginePath)
                         .seleneFont(15, .medium)
                         .foregroundColor(SeleneTheme.ink.opacity(0.62))
                         .lineLimit(1)
                         .truncationMode(.middle)
                         .frame(maxWidth: 300, alignment: .trailing)
-                    Button(L10n.text("Change")) { setup.selectNxnativeFolder() }
+                    Button(L10n.text("Change"), action: chooseEnginePath)
                         .buttonStyle(.plain)
                         .seleneFont(14, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
@@ -517,7 +524,7 @@ struct SettingsEngineSection: View {
     private func publishActions() {
         var actions: [SettingsRowAction] = [
             .init(id: "repo", title: "Engine repository", isEnabled: !configurationLocked) {
-                setup.selectNxnativeFolder()
+                chooseEnginePath()
             },
             .init(id: "recheck", title: "Compatibility", isEnabled: !configurationLocked, activate: recheck),
             .init(id: "engineAtLaunch", title: "Check engine at launch") {

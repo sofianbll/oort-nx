@@ -8,11 +8,15 @@ enum SettingsDraftFields {
     typealias Field = AppSettingsDraft.Field
 
     static func fields(profiles: LocalProfileStore?, languages: [(code: String, label: String)],
-                       legacyToolchainOverride: Bool = false, steam: CatalogSourceConfiguration? = nil) -> [Field] {
+                       legacyToolchainOverride: Bool = false, steam: CatalogSourceConfiguration? = nil,
+                       paths: LauncherSettingsChoices = .init()) -> [Field] {
         let soundPacks = SoundPackLibrary().choices()
         let deadzone = GameControllerService.shared.legacyDeadzone
         let dockIcon = AppViewModel.legacyDockIcon
         return [
+            .init("libraryFolder", \.launcherChoices.gameAppsPath, important: true) { path($0 ?? paths.gameAppsPath) },
+            .init("gameFolder", \.launcherChoices.gameSourcesPath, important: true) { path($0 ?? paths.gameSourcesPath) },
+            .init("engineFolder", \.launcherChoices.enginePath, important: true) { path($0 ?? paths.enginePath) },
             .init("steamSource", \.launcherChoices.steamSource, important: true) { choice in
                 let on = choice?.enabled ?? steam?.isEnabled ?? false
                 let root = choice?.root ?? steam?.rootURL ?? CatalogSourcesModel.defaultSteamRoot
@@ -131,6 +135,10 @@ enum SettingsDraftFields {
     }
 
     static func onOff(_ value: Bool) -> String { L10n.text(value ? "On" : "Off") }
+    private static func path(_ path: String?) -> String {
+        guard let path, !path.isEmpty else { return L10n.text("Not selected") }
+        return (path as NSString).abbreviatingWithTildeInPath
+    }
     private static func percent(_ value: Double) -> String { value.formatted(.percent.locale(L10n.context.formatLocale)) }
 
     static func row(_ id: String, in section: SettingsSection) -> String {

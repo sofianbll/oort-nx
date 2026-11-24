@@ -417,11 +417,15 @@ import ArcanePorting
         }
         var engineWrites = 0
         let engineObserver = setup.$nxnativePath.dropFirst().sink { _ in engineWrites += 1 }
+        settings.beginDraft(fields: SettingsDraftFields.fields(profiles: nil, languages: vm.availableLanguages))
         pressEngine("repo") // Native picker returned Cancel.
         precondition(engineWrites == 0)
         pickedEngine = engineFolder
         pressEngine("repo")
         pickedEngine = nil
+        precondition(engineWrites == 0 && settings.editingSettings.launcherChoices.enginePath == engineFolder.path)
+        try settings.commitDraft()
+        setup.useSavedEnginePath(settings.settings.launcherChoices.enginePath!)
         precondition(engineWrites == 1 && setup.nxnativePath == engineFolder.path && vm.pinnedEngineCommit == pin)
         setup.compatibilityReport = .init(ok: false, checks: [])
         settings.beginDraft(fields: SettingsDraftFields.fields(profiles: nil, languages: vm.availableLanguages))

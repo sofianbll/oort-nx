@@ -400,6 +400,12 @@ extension AppShellView {
             .onChange(of: settings.settings.launcherChoices.steamSource) { _, choice in
                 if let choice { sources.applySettingsChoice(choice) }
             }
+            .onChange(of: settings.settings.launcherChoices.gameAppsPath) { _, path in
+                if let path { viewModel.useGameAppsPath(path) }
+            }
+            .onChange(of: settings.settings.launcherChoices.enginePath) { _, path in
+                if let path { setup.useSavedEnginePath(path) }
+            }
             .onChange(of: AppLocale(language: preview.appLanguage, region: preview.appRegion)) {
                 AppLocalization.shared.configure(preview)
             }

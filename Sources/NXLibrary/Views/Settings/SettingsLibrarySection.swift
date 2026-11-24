@@ -9,6 +9,28 @@ struct SettingsLibrarySection: View {
     @ObservedObject var porting: PortingModel
     @ObservedObject var settings: SettingsEditor
     let onActions: ([SettingsRowAction]) -> Void
+    private var appsPath: String? { settings.settings.launcherChoices.gameAppsPath ?? viewModel.libraryFolder?.path }
+    private var sourcesPath: String? {
+        let path = settings.settings.launcherChoices.gameSourcesPath ?? porting.gameFilesFolder?.path
+        return path == "" ? nil : path
+    }
+    private func stageAppsPath(_ path: String) {
+        settings.settings.launcherChoices.gameAppsPath = path == viewModel.libraryFolder?.path
+            ? settings.store.settings.launcherChoices.gameAppsPath : path
+    }
+    private func stageSourcesPath(_ path: String?) {
+        settings.settings.launcherChoices.gameSourcesPath = path == porting.gameFilesFolder?.path
+            ? settings.store.settings.launcherChoices.gameSourcesPath : (path ?? "")
+    }
+    private func chooseAppsPath() {
+        viewModel.selectLibraryFolder(startingAt: appsPath.map { URL(fileURLWithPath: $0) }) { stageAppsPath($0.path) }
+    }
+    private func chooseSourcesPath() {
+        porting.selectGameFolder(startingAt: sourcesPath.map { URL(fileURLWithPath: $0) }) {
+            guard $0.path != "/" else { return }
+            stageSourcesPath($0.path)
+        }
+    }
 
     var body: some View {
         VStack(spacing: 9) {
@@ -16,20 +38,18 @@ struct SettingsLibrarySection: View {
                       subtitle: GameFoldersCopy.appsContents,
                       info: "Choose where to keep your game apps. Put any existing nxnative games (.app) here. Changing folders does not move apps; rebuilds update them where they are.") {
                 HStack(spacing: 10) {
-                    Text(viewModel.libraryFolder?.path ?? L10n.text("Not selected"))
+                    Text(appsPath ?? L10n.text("Not selected"))
                         .seleneFont(15, .medium)
                         .foregroundColor(SeleneTheme.ink.opacity(0.62))
                         .lineLimit(1)
                         .truncationMode(.middle)
                         .frame(maxWidth: 320, alignment: .trailing)
-                    Button(L10n.text("Change")) { viewModel.selectLibraryFolder() }
+                    Button(L10n.text("Change"), action: chooseAppsPath)
                         .buttonStyle(.plain)
                         .seleneFont(14, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
                     Button(L10n.text("Reset")) {
-                        viewModel.libraryFolder = URL(fileURLWithPath: viewModel.defaultInstallPath)
-                            .appendingPathComponent("Applications")
-                        viewModel.loadLibrary()
+                        stageAppsPath(viewModel.defaultGameAppsPath)
                     }
                     .buttonStyle(.plain)
                     .seleneFont(14, .semibold)
@@ -41,18 +61,18 @@ struct SettingsLibrarySection: View {
                       subtitle: GameFoldersCopy.sourcesAbout(extractedFolders: viewModel.setup.engineSourceCapabilities.extractedFolders),
                       info: "Existing game apps play without their sources. Reset group keeps this folder. Clear removes the selection, keeping your files.") {
                 HStack(spacing: 10) {
-                    Text(porting.gameFilesFolder?.path ?? L10n.text("Not selected · Optional"))
+                    Text(sourcesPath ?? L10n.text("Not selected · Optional"))
                         .seleneFont(15, .medium)
                         .foregroundColor(SeleneTheme.ink.opacity(0.62))
                         .lineLimit(1)
                         .truncationMode(.middle)
                         .frame(maxWidth: 320, alignment: .trailing)
-                    Button(L10n.text("Choose")) { porting.selectGameFolder() }
+                    Button(L10n.text("Choose"), action: chooseSourcesPath)
                         .buttonStyle(.plain)
                         .seleneFont(14, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
-                    if porting.gameFilesFolder != nil {
-                        Button(L10n.text("Clear")) { porting.selectedGameFolder = nil }
+                    if sourcesPath != nil {
+                        Button(L10n.text("Clear")) { stageSourcesPath(nil) }
                             .buttonStyle(.plain)
                             .seleneFont(14, .semibold)
                             .foregroundColor(SeleneTheme.danger)
@@ -108,10 +128,10 @@ struct SettingsLibrarySection: View {
     private func publishActions() {
         onActions([
             .init(id: "appsChange", title: GameFoldersCopy.appsTitle) {
-                viewModel.selectLibraryFolder()
+                chooseAppsPath()
             },
             .init(id: "romChoose", title: GameFoldersCopy.sourcesTitle) {
-                porting.selectGameFolder()
+                chooseSourcesPath()
             },
             .init(id: "gameInboxEnabled", title: "Sort incoming files") {
                 settings.settings.gameInboxEnabled.toggle()

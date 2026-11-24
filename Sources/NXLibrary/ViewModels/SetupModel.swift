@@ -120,12 +120,15 @@ final class SetupModel: ObservableObject {
         return error.localizedDescription
     }
 
-    func selectNxnativeFolder() {
+    var legacyEnginePath: String? { AppData.preferences.string(forKey: AppViewModel.StorageKeys.savedEngineFolder) }
+
+    func selectNxnativeFolder(startingAt start: URL? = nil, stage: ((URL) -> Void)? = nil) {
         guard !app.isBuilding, !app.isUpdatingApp else { return }
         let panel = NSOpenPanel()
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
+        panel.directoryURL = start
         panel.prompt = "Select nxnative Folder"
         panel.message = "Choose the directory containing the nxnative scripts and tools."
 
@@ -135,16 +138,21 @@ final class SetupModel: ObservableObject {
                 SoundEffectService.shared.play(.error)
                 return
             }
+            if let stage { stage(url.standardizedFileURL); return }
             // Remembered, so launch and every check use it; ~/nxnative itself needs nothing stored.
             if let saved = EngineLocation.savedValue(for: url, home: SystemDetector.shared.resolveRootDirectory()) {
                 AppData.preferences.set(saved, forKey: AppViewModel.StorageKeys.savedEngineFolder)
             } else {
                 AppData.preferences.removeObject(forKey: AppViewModel.StorageKeys.savedEngineFolder)
             }
-            self.nxnativePath = url.path
-            self.isNxnativeValid = true
-            self.refreshCompatibility()
+            useSavedEnginePath(url.path)
         }
+    }
+
+    func useSavedEnginePath(_ path: String) {
+        nxnativePath = path
+        isNxnativeValid = EngineLocation.isEngine(URL(fileURLWithPath: path))
+        refreshCompatibility()
     }
 
     // MARK: - Keys import
@@ -250,7 +258,7 @@ final class SetupModel: ObservableObject {
 
     func restoreBuildInputs(customRyujinxDir: String? = nil, automatic: Bool = false) {
         let nxResult = SystemDetector.shared.detectNxnativeDirectory(
-            saved: AppData.preferences.string(forKey: AppViewModel.StorageKeys.savedEngineFolder))
+            saved: app.settingsStore?.settings.launcherChoices.enginePath ?? legacyEnginePath)
         self.nxnativePath = nxResult.path
         self.isNxnativeValid = nxResult.isValid
         if !automatic || !AppData.profile.isDevelopment { self.ensureKeysImported(customRyujinxDir: customRyujinxDir) }

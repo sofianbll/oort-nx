@@ -51,6 +51,7 @@ struct SettingsView: View {
     @State private var originalToolchainOverride: Bool?
     @State private var originalDeadzone: Double?
     @State private var originalDockIcon: String?
+    @State private var originalPaths = LauncherSettingsChoices()
     @Environment(\.seleneReduceMotion) private var environmentReduceMotion
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.seleneBackdropStyle) private var appBackdropStyle
@@ -134,9 +135,10 @@ struct SettingsView: View {
                 originalToolchainOverride = legacy
                 originalDeadzone = GameControllerService.shared.legacyDeadzone
                 originalDockIcon = AppViewModel.legacyDockIcon
+                originalPaths = currentPaths
                 settings.beginDraft(fields: SettingsDraftFields.fields(profiles: profiles,
                     languages: viewModel.availableLanguages, legacyToolchainOverride: legacy,
-                    steam: viewModel.catalogSnapshot.source(.steam)))
+                    steam: viewModel.catalogSnapshot.source(.steam), paths: originalPaths))
             }
             installKeyMonitor()
         }
@@ -315,10 +317,11 @@ struct SettingsView: View {
                    originalDeadzone != GameControllerService.shared.legacyDeadzone { throw AppSettingsDraft.Failure.changedElsewhere }
                 if changes.contains("iconAppearance"), settings.settings.launcherChoices.dockIconAppearance == nil,
                    originalDockIcon != AppViewModel.legacyDockIcon { throw AppSettingsDraft.Failure.changedElsewhere }
+                try validatePaths(changes)
                 if settings.draft?.changes.contains(where: { $0.id == "toolchainOverride" }) == true {
                     guard ToolchainGateCopy.canChangeOverride(certified: setup.compatibilityReport?.ok,
                         overrideOn: setup.allowUntestedToolchain,
-                        locked: viewModel.isBuilding || viewModel.isUpdatingApp || setup.isSwitchingEngine,
+                        locked: viewModel.isBuilding || viewModel.isUpdatingApp || setup.isSwitchingEngine || changes.contains("engineFolder"),
                         newest: setup.usesNewestEngine) else {
                         decisionError = L10n.text("The toolchain setting is unavailable now. Your changes are still here.")
                         return
@@ -342,6 +345,40 @@ struct SettingsView: View {
         default:
             decisionFocus = 2
             router.finishSettingsDecision(proceed: false)
+        }
+    }
+
+    private var currentPaths: LauncherSettingsChoices {
+        var paths = LauncherSettingsChoices()
+        paths.gameAppsPath = viewModel.libraryFolder?.path
+        paths.gameSourcesPath = viewModel.porting.gameFilesFolder?.path
+        paths.enginePath = setup.nxnativePath
+        return paths
+    }
+
+    private func validatePaths(_ changes: Set<String>) throws {
+        let committed = settings.settings.launcherChoices
+        let proposed = settings.editingSettings.launcherChoices
+        let paths = currentPaths
+        let checks: [(String, WritableKeyPath<LauncherSettingsChoices, String?>)] = [
+            ("libraryFolder", \.gameAppsPath), ("gameFolder", \.gameSourcesPath), ("engineFolder", \.enginePath)
+        ]
+        for (id, key) in checks where changes.contains(id) {
+            if committed[keyPath: key] == nil && originalPaths[keyPath: key] != paths[keyPath: key] {
+                throw AppSettingsDraft.Failure.changedElsewhere
+            }
+            guard let path = proposed[keyPath: key], path.isEmpty || (path.hasPrefix("/") && path != "/"),
+                  !viewModel.isBuilding, !viewModel.isUpdatingApp else { throw AppSettingsDraft.Failure.verification }
+            if id == "engineFolder" {
+                guard !setup.isSwitchingEngine, EngineLocation.isEngine(URL(fileURLWithPath: path)) else {
+                    throw AppSettingsDraft.Failure.verification
+                }
+            } else if !path.isEmpty && !(id == "libraryFolder" && path == viewModel.defaultGameAppsPath) {
+                var directory: ObjCBool = false
+                guard FileManager.default.fileExists(atPath: path, isDirectory: &directory), directory.boolValue else {
+                    throw AppSettingsDraft.Failure.verification
+                }
+            }
         }
     }
 
