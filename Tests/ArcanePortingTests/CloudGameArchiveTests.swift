@@ -1352,6 +1352,49 @@ final class CloudGameArchiveTests: XCTestCase {
         XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: f.trash.path), [])
     }
 
+    func testArchiveDoesNotIncludeTheDeviceSaveOrUsersRegistryInALegacyRunFolder() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let run = root.appendingPathComponent("run")
+        let device = run.appendingPathComponent(SaveSlot.device.fileName)
+        try FileManager.default.createDirectory(at: device, withIntermediateDirectories: true)
+        try Data([42]).write(to: device.appendingPathComponent("payload"))
+        try Data([42]).write(to: run.appendingPathComponent(SaveSlot.users.fileName))
+        let inventory = try CloudArchiveInventory.signature(root, kind: .cache)
+        XCTAssertTrue(inventory.hasExcludedFiles)
+        XCTAssertFalse(inventory.entries.contains { $0.path.hasPrefix("run/save") })
+        for prefix in ["", "run/", "Contents/Resources/run/", "tmp/jit_run/"] {
+            for name in SaveSlot.allCases.map(\.fileName) + ["save.pull", "save.sync", "save.sync.tmp", "save.sync-tmp", "save-backups"] {
+                let path = prefix + name
+                XCTAssertTrue(CloudArchiveInventory.isExcluded(path, .cache), path)
+                XCTAssertNotNil(path.range(of: CloudArchiveInventory.protectedArchiveExclusion,
+                                            options: .regularExpression), path)
+            }
+        }
+    }
+
+    func testArchiveOperationsRefuseAnEffectiveSaveLocationEvenWithoutAccountSlot() async throws {
+        let f = try fixture(useSyntheticBackend: true)
+        defer { try? FileManager.default.removeItem(at: f.root) }
+        let service = f.service
+        _ = try await service.upload(f.game)
+        let config = f.app.appendingPathComponent("Contents/Resources/dm/env.txt")
+        try FileManager.default.createDirectory(at: config.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try "DM_SAVE=\(f.cache.path)/portable/account\n".write(to: config, atomically: true, encoding: .utf8)
+        for operation in ["upload", "restore", "free"] {
+            do {
+                switch operation {
+                case "upload": _ = try await service.upload(f.game, kinds: [.cache])
+                case "restore": try await service.restore(.cache, for: f.game)
+                default: try await service.free(.cache, for: f.game, confirmed: true)
+                }
+                XCTFail("\(operation) reached the effective save location")
+            } catch { XCTAssertEqual(error as? CloudArchiveError, .excludedFiles, operation) }
+        }
+        XCTAssertEqual(try cacheContents(f.cache), "cache-data")
+        XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: f.trash.path), [])
+    }
+
     func testCacheSkipsRootObsoleteAndNSPInUploadFreeAndRestore() async throws {
         let f = try fixture()
         defer { try? FileManager.default.removeItem(at: f.root) }

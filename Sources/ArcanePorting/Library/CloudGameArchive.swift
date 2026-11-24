@@ -80,14 +80,22 @@ public struct CloudArchiveGame: Sendable {
     public let engineCommit: String?
     let cacheIsRegistered: Bool
     public let sourceSelection: CloudGameSources.ArchivedSelection?
+    let installedApp: URL?
 
     public init(titleID: String, locations: [CloudArtifactKind: URL], engineCommit: String? = nil,
-                cacheIsRegistered: Bool? = nil, sourceSelection: CloudGameSources.ArchivedSelection? = nil) {
+                cacheIsRegistered: Bool? = nil, sourceSelection: CloudGameSources.ArchivedSelection? = nil,
+                installedApp: URL? = nil) {
         self.titleID = titleID.uppercased()
         self.locations = locations
         self.engineCommit = engineCommit
         self.cacheIsRegistered = cacheIsRegistered ?? (locations[.cache] != nil)
         self.sourceSelection = sourceSelection
+        self.installedApp = installedApp ?? locations[.app]
+    }
+
+    func protectSaves(in tree: URL, incomingApp: URL? = nil) throws {
+        try SaveLocation.requireArchiveSeparation(tree, titleID: titleID,
+                                                  apps: [installedApp, incomingApp].compactMap { $0 })
     }
 }
 
@@ -676,6 +684,7 @@ public actor CloudGameArchive {
         guard let uploader = backend as? RcloneStorageBackend else { throw StorageBackendError.backendUnavailable }
         let selected = CloudArtifactKind.allCases.filter { kinds.contains($0) }
         guard !selected.isEmpty else { throw CloudArchiveError.needsFullUpload }
+        for kind in selected { try game.protectSaves(in: location(kind, for: game)) }
         let folders = try await titleFolders(game.titleID)
         let previous: CloudGameManifest?
         do { previous = try await latest(titleID: game.titleID, folders: folders) }
@@ -733,6 +742,7 @@ public actor CloudGameArchive {
             let old = previous?.artifacts.first { $0.kind == kind }?.files.flatMap { $0.entries.isEmpty ? nil : $0.key }
             let update = transfer(progress, phase: .uploading, kind: kind, total: bytes)
             try checkUpload(source, parent: parent, snapshot: snapshot, kind: kind)
+            try game.protectSaves(in: source)
             do {
                 try await uploader.copyFiles(files.map(\.path), from: source, to: tree.key,
                                              reusing: old == tree.key ? nil : old, progress: update)
@@ -766,6 +776,7 @@ public actor CloudGameArchive {
             try await publishManifest(manifest, in: gameFolder, timestamp: timestamp) {
                 try self.checkUpload(source, parent: parent, snapshot: snapshot, kind: kind)
                 try beforePublication()
+                try game.protectSaves(in: source)
             }
             current = manifest
         }
@@ -799,7 +810,8 @@ public actor CloudGameArchive {
         let lease = try begin(game.titleID)
         defer { leases.end(game.titleID, token: lease) }
         let target = try location(kind, for: game)
-        if kind == .cache { try Self.recoverInterruptedFree(at: target) }
+        try game.protectSaves(in: target)
+        if kind == .cache { try Self.recoverInterruptedFree(at: target, for: game) }
         let parent = target.deletingLastPathComponent()
         let volume = try CloudArchiveInventory.node(at: parent)
         let before = try CloudArchiveInventory.node(at: target)
@@ -815,6 +827,7 @@ public actor CloudGameArchive {
               try sameDirectory(volume, at: parent),
               try sameNode(before, at: target) else { throw CloudArchiveError.localChanged }
         try beforeMutation()
+        try game.protectSaves(in: target)
         if artifact.files != nil, try CloudArchiveInventory.signature(target, kind: kind).sha256 != snapshot.sha256 {
             throw CloudArchiveError.localChanged
         }
@@ -863,7 +876,8 @@ public actor CloudGameArchive {
         defer { leases.end(game.titleID, token: lease) }
         progress?(.init(.verifying, kind: kind))
         let destination = try location(kind, for: game)
-        if kind == .cache { try Self.recoverInterruptedFree(at: destination) }
+        try game.protectSaves(in: destination)
+        if kind == .cache { try Self.recoverInterruptedFree(at: destination, for: game) }
         let parent = destination.deletingLastPathComponent()
         let volume = try CloudArchiveInventory.node(at: parent)
         let previous = try existingNode(at: destination)
@@ -871,7 +885,7 @@ public actor CloudGameArchive {
             throw CloudArchiveError.unsafePath
         }
         let replacingReference = (backend as? RcloneStorageBackend)?.isReference == true && !onlyIfMissing
-        let existing = previous != nil && (kind == .cache || replacingReference)
+        let existing = previous != nil
             ? try CloudArchiveInventory.signature(destination, kind: kind) : nil
         guard existing?.hasExcludedFiles != true else { throw CloudArchiveError.excludedFiles }
         let skippedOnly = existing?.isSkippedOnly == true
@@ -917,6 +931,7 @@ public actor CloudGameArchive {
                                             incoming: incoming, progress: progress, partialCache: previous == nil || partial || skippedOnly,
                                             beforePartial: {
                 try beforeMutation()
+                try game.protectSaves(in: destination)
                 guard try self.sameDirectory(volume, at: parent), try self.sameNode(previous, at: destination)
                 else { throw CloudArchiveError.localChanged }
             })
@@ -971,6 +986,7 @@ public actor CloudGameArchive {
             try beforeMutation()
         }
         try Task.checkCancellation()
+        try game.protectSaves(in: destination, incomingApp: kind == .app ? incoming : nil)
         let flags = previous == nil ? RENAME_EXCL : RENAME_SWAP
         guard renamex_np(incoming.path, destination.path, UInt32(flags)) == 0 else {
             if errno == ENOSPC { throw CloudLibraryFailure.diskFull(at: parent) }
@@ -1098,7 +1114,7 @@ public actor CloudGameArchive {
     }
 
     /// Resume a local, journalled Free up space without any remote access.
-    public nonisolated static func recoverInterruptedFree(at target: URL) throws {
+    public nonisolated static func recoverInterruptedFree(at target: URL, for game: CloudArchiveGame? = nil) throws {
         freeRecoveryLock.lock()
         defer { freeRecoveryLock.unlock() }
         let parent = target.deletingLastPathComponent().resolvingSymlinksInPath()
@@ -1117,6 +1133,7 @@ public actor CloudGameArchive {
             let record = try JSONDecoder().decode(FreeRecovery.self, from: SaveFiles.readRegular(file, limit: 16 * 1024 * 1024))
             guard record.name == target.lastPathComponent else { continue }
             let visible = parent.appendingPathComponent(record.name)
+            try game?.protectSaves(in: visible)
             let bucket = stage.appendingPathComponent(record.name)
             if let bucketNode = try node(bucket) {
                 guard bucketNode.st_mode & S_IFMT == S_IFDIR,

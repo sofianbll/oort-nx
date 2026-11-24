@@ -67,9 +67,13 @@ enum CloudArchiveInventory {
     static let cacheFingerprintOption = "cache_inventory_without_root_mtime"
     static let excludedNames = ["prod.keys", "title.keys", "dev.keys", "keys.txt"]
 
-    static let excludedPaths = ["run/save", "Contents/Resources/run/save"]
     // The stream reaches private remote staging before validation: exclude case variants at the producer too.
-    static let protectedArchiveExclusion = "(?i)(^|/)(\(excludedNames.map(NSRegularExpression.escapedPattern(for:)).joined(separator: "|")))(/|$)|^(\(excludedPaths.joined(separator: "|")))(/|$)"
+    static let protectedArchiveExclusion: String = {
+        let keys = excludedNames.map(NSRegularExpression.escapedPattern(for:)).joined(separator: "|")
+        let saves = SaveLocation.archiveSaveNames.map(NSRegularExpression.escapedPattern(for:)).joined(separator: "|")
+        return "(?i)(^|/)(\(keys))(/|$)|^(?:(?:Contents/Resources/)?(?:run/)?|tmp/[^/]+_run/)(\(saves)|save\\.users\\.[a-z0-9]{6})(/|$)"
+    }()
+    private static let protectedPaths = try! NSRegularExpression(pattern: protectedArchiveExclusion)
     private static let skippedCacheRoots = ["obsolete", "nsp"]
 
     static func archiveExclusions(_ kind: CloudArtifactKind) -> [String] {
@@ -79,8 +83,7 @@ enum CloudArchiveInventory {
 
     static func isExcluded(_ path: String, _ kind: CloudArtifactKind) -> Bool {
         let lower = path.lowercased()
-        return excludedNames.contains(where: { lower.split(separator: "/").contains(Substring($0)) })
-            || excludedPaths.contains { lower == $0.lowercased() || lower.hasPrefix($0.lowercased() + "/") }
+        return protectedPaths.firstMatch(in: path, range: NSRange(path.startIndex..., in: path)) != nil
             || (kind == .cache && skippedCacheRoots.contains { lower == $0 || lower.hasPrefix($0 + "/") })
     }
 

@@ -419,7 +419,9 @@ final class AppViewModel: ObservableObject {
                 let manager = StorageManager()
                 for game in games {
                     guard let cache = try? manager.cacheURL(for: game, protecting: games) else { continue }
-                    do { try CloudGameArchive.recoverInterruptedFree(at: cache) }
+                    let target = CloudArchiveGame(titleID: game.titleId ?? "", locations: [.cache: cache],
+                                                  installedApp: game.cloudImportPending == true ? nil : game.url)
+                    do { try CloudGameArchive.recoverInterruptedFree(at: cache, for: target) }
                     catch {
                         let message = error.localizedDescription
                         DispatchQueue.main.async { [weak self] in self?.logs.append(LogEntry(level: .error, message: message)) }
