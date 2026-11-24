@@ -33,15 +33,15 @@ final class SelenePaletteTests: XCTestCase {
         XCTAssertEqual(p.name, "Oort")
         XCTAssertEqual(p.mode, .dark)
         XCTAssertEqual(p.focus, 0xFFFFFF)
-        XCTAssertEqual(p.onFocus, 0x111111)
+        XCTAssertEqual(p.onFocus, 0x000000)
         XCTAssertEqual(p.ink, 0xFFFFFF)
         XCTAssertEqual(p.scrim, 0x000000)
-        XCTAssertEqual(p.glass, 0x14181F)
-        XCTAssertEqual(p.glyph, 0xAFC3E6)
-        XCTAssertEqual(p.success, SelenePaletteCatalog.resolve("selene", in: all).success)
+        XCTAssertEqual(p.glass, 0x0B0B0B)
+        XCTAssertEqual(p.glyph, 0xFFC799)
+        XCTAssertEqual(p.success, 0x99FFE4)
         XCTAssertEqual(p.surface, .classic)
         XCTAssertEqual(p.base.kind, .radial)
-        XCTAssertEqual(p.base.stops, [.init(color: 0x141A24, location: 0), .init(color: 0x05070B, location: 1)])
+        XCTAssertEqual(p.base.stops, [.init(color: 0x121212, location: 0), .init(color: 0x000000, location: 1)])
     }
 
     func testSelenePaletteValues() throws {

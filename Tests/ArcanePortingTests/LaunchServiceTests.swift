@@ -281,7 +281,7 @@ final class LaunchServiceTests: XCTestCase {
             ok, _ in XCTAssertTrue(ok)
         }
         XCTAssertEqual(launcher.environment["DM_OVERLAY_THEME_V1"],
-                       "ink=#FFFFFFFF;surface=#14181FFF;scrim=#000000FF;focus=#FFFFFFFF;onFocus=#111111FF")
+                       "ink=#FFFFFFFF;surface=#0B0B0BFF;scrim=#000000FF;focus=#FFFFFFFF;onFocus=#000000FF")
         XCTAssertEqual(launcher.environment["DM_OVERLAY_PLAYTIME_MIN"], "43")
         XCTAssertEqual(launcher.environment["DM_OVERLAY_COVER"], cover.path)
         XCTAssertEqual(try Data(contentsOf: env), before)

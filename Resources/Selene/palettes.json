@@ -4,21 +4,21 @@
     "name": "Oort",
     "mode": "dark",
     "focus": 16777215,
-    "onFocus": 1118481,
+    "onFocus": 0,
     "ink": 16777215,
     "scrim": 0,
-    "glass": 1316895,
-    "glyph": 11518950,
-    "success": 4054148,
+    "glass": 723723,
+    "glyph": 16762777,
+    "success": 10092516,
     "base": {
       "kind": "radial",
       "stops": [
         {
-          "color": 1317412,
+          "color": 1184274,
           "location": 0.0
         },
         {
-          "color": 329483,
+          "color": 0,
           "location": 1.0
         }
       ]

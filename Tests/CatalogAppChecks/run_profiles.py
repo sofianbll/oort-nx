@@ -756,7 +756,10 @@ import ArcanePorting
             settle()
         }
         precondition(!window.isVisible)
-        guard let image = host.bitmapImageRepForCachingDisplay(in: host.bounds) else {
+        // One pixel per point, also when the current screen is Retina.
+        guard let image = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(size.width), pixelsHigh: Int(size.height),
+                                           bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
+                                           colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0) else {
             throw CocoaError(.fileWriteUnknown)
         }
         host.cacheDisplay(in: host.bounds, to: image)
