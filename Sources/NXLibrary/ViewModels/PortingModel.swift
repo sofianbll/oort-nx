@@ -56,6 +56,7 @@ final class PortingModel: ObservableObject {
     var stageElapsedTimer: Timer?
     var currentStageStartedAt: Date?
     var currentBuildCacheURL: URL?
+    var isAdoptingBuildCache = false
     var pipelinePollGeneration = UUID()
     var isPollingPipelineArchive = false
     /// The remembered Game files folder (the picker's starting point), shared with Settings.

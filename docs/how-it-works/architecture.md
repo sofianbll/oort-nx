@@ -441,6 +441,8 @@ In Spotlight e Details `PortingPills.queued` sostituisce la sola azione primaria
 - Le prime build usano Game apps; un rebuild conserva l'app esistente se il suo percorso è sicuro, anche dopo un cambio di cartella. Un nome già usato da un altro titolo riceve un percorso distinto.
 - La destinazione si fissa prima del porting e resta tale anche nelle installazioni differite. Le installazioni richiedono che la cartella esista ancora: se si scollega o non è più scrivibile, il risultato pronto si conserva per Retry. Il packaging del frontend può creare la propria cartella di installazione.
 
+La verifica e la copia della cache prodotta girano fuori dal thread dell'interfaccia. Il porting resta occupato e conserva il lease cloud fino al termine; il catalogo si aggiorna sul thread principale.
+
 **Installazione fallita.**
 - Se il motore termina bene con un bundle valido e fallisce solo l'installazione, `BuildResult.heldApp` conserva la build pronta, e `installationFailed` distingue questo caso dal porting fallito. `PortingModel` registra la stessa `PendingInstall` usata per i giochi aperti.
 - Un dialogo Selene offre Retry e Close: Retry installa quel bundle senza riavviare il motore, Close conserva la build. Anche gli errori delle installazioni differite passano da questo dialogo, e la schermata del porting offre Retry installation finché la build resta in attesa.

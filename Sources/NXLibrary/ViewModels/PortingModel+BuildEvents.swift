@@ -140,11 +140,16 @@ extension PortingModel {
     @MainActor func finishBuild(_ result: BuildResult, gameID: UUID,
                      finalApp: URL, tempDir: URL, adoptingCache: (work: URL, cache: URL)? = nil,
                      relocatedCache: Bool = false,
-                     nextendoRequested: Bool, stagedCodeMods: [String]?) {
+                     nextendoRequested: Bool, stagedCodeMods: [String]?,
+                     releaseCloudBuild: (() async -> Void)? = nil) async {
         stopStageElapsedTimer()
         if let adoptingCache, result.success || result.installationFailed {
+            isAdoptingBuildCache = true
+            defer { isAdoptingBuildCache = false }
             do {
-                try LocalBuildCache.adopt(adoptingCache.work, as: adoptingCache.cache)
+                try await Task.detached(priority: .utility) {
+                    try LocalBuildCache.adopt(adoptingCache.work, as: adoptingCache.cache)
+                }.value
                 if relocatedCache {
                     let games = app.libraryGames
                     let old = games.first(where: { $0.id == gameID }).flatMap {
@@ -165,6 +170,7 @@ extension PortingModel {
             catch { app.logs.append(LogEntry(level: .warning,
                 message: L10n.format("The new build cache could not be kept: %@", [error.localizedDescription]))) }
         }
+        if let releaseCloudBuild { await releaseCloudBuild() }
         currentBuildCacheURL = nil
         activeCloudBuildScope = nil
         app.portingProgress?.finish(success: result.success)

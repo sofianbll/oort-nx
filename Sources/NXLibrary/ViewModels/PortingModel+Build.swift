@@ -751,13 +751,16 @@ extension PortingModel {
             },
             completion: { [weak self, weak service] result in
                 Task { @MainActor in
-                    if let releaseCloudBuild { await releaseCloudBuild() }
-                    guard let service, self?.buildService === service else { return }
-                    self?.finishBuild(result, gameID: target.id,
+                    guard let self, let service, self.buildService === service else {
+                        if let releaseCloudBuild { await releaseCloudBuild() }
+                        return
+                    }
+                    await self.finishBuild(result, gameID: target.id,
                                       finalApp: finalApp, tempDir: tempRoot,
                                       adoptingCache: workDir.flatMap { work in cacheDestination.map { (work, $0) } },
                                       relocatedCache: movingCache,
-                                      nextendoRequested: nextendoRequested, stagedCodeMods: stagedCodeMods)
+                                      nextendoRequested: nextendoRequested, stagedCodeMods: stagedCodeMods,
+                                      releaseCloudBuild: releaseCloudBuild)
                 }
             }
         )

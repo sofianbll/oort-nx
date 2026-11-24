@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **922 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **923 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -124,7 +124,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [Sources/NXLibrary/ViewModels/PortingModel.swift](../../Sources/NXLibrary/ViewModels/PortingModel.swift) | Stato di Add Game e del porting: bozza, selezione delle sorgenti e spazio richiesto, chiavi, passo del wizard, stato della build mostrato ed esito. Il lavoro sta nelle estensioni qui sotto; raggiunge il coordinatore solo da `app`. |
 | [Sources/NXLibrary/ViewModels/PortingModel+AddGame.swift](../../Sources/NXLibrary/ViewModels/PortingModel+AddGame.swift) | Selettore e preparazione condivisi dei file, scansione e scelta delle sorgenti, passi di Add Game e regole di Back. |
 | [Sources/NXLibrary/ViewModels/PortingModel+Build.swift](../../Sources/NXLibrary/ViewModels/PortingModel+Build.swift) | Avvio con gioco chiuso, annullamento del porting o della verifica cache, nuovo tentativo e FIFO persistente. |
-| [Sources/NXLibrary/ViewModels/PortingModel+BuildEvents.swift](../../Sources/NXLibrary/ViewModels/PortingModel+BuildEvents.swift) | Eventi del motore, timer delle fasi, salvataggio dell'esito nel catalogo e nel centro attività. |
+| [Sources/NXLibrary/ViewModels/PortingModel+BuildEvents.swift](../../Sources/NXLibrary/ViewModels/PortingModel+BuildEvents.swift) | Eventi del motore, timer, adozione cache in background e salvataggio dell'esito nel catalogo e nel centro attività. |
 | [Sources/NXLibrary/ViewModels/PortingModel+Failure.swift](../../Sources/NXLibrary/ViewModels/PortingModel+Failure.swift) | Port anyway con override nella singola richiesta, notifica di fine e azioni dell’errore. |
 | [Sources/NXLibrary/ViewModels/PortingModel+Folders.swift](../../Sources/NXLibrary/ViewModels/PortingModel+Folders.swift) | Cartelle della build, spazio libero, sorgenti supportate e durata delle fasi finali per la stima. |
 | [Sources/NXLibrary/ViewModels/RuntimeSettingsModel.swift](../../Sources/NXLibrary/ViewModels/RuntimeSettingsModel.swift) | Legge e scrive le scelte, anche multigiocatore, per Game Options, More settings e i default dei nuovi giochi. |
@@ -1093,6 +1093,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_nested_bundles.py](../../Tests/CatalogAppChecks/run_nested_bundles.py) | App sintetiche con bundle dati annidati e firme reali: installazione, icona, rollback, copia forzata, ripresa e rifiuto di dati alterati; nessuna UI. |
 | [run_nup_programs.py](../../Tests/CatalogAppChecks/run_nup_programs.py) | Esegue il probe NUP opzionale su snapshot sintetico, convertitori UI reali, persistenza e argv del rebuild. |
 | [run_add_game_back.py](../../Tests/CatalogAppChecks/run_add_game_back.py) | Esegue le regole di Back e verifica che poco spazio per compilare non blocchi l'aggiunta alla libreria. Nessuna finestra. |
+| [run_build_cache_thread.py](../../Tests/CatalogAppChecks/run_build_cache_thread.py) | Verifica che l’adozione della cache a fine porting non venga eseguita sul thread dell’interfaccia. |
 | [run_build_gates.py](../../Tests/CatalogAppChecks/run_build_gates.py) | Esegue il controllo per il cambio motore e l'azione di annullamento quando il worker la rifiuta. |
 | [run_save_restart.py](../../Tests/CatalogAppChecks/run_save_restart.py) | Arresti reali e nuovi processi nei checkpoint di transazione, recovery e pulizia; verifica tutti gli utenti, registro e integrità dei backup su fixture temporanee. |
 | [run_entrance.py](../../Tests/CatalogAppChecks/run_entrance.py) | Esegue i metodi reali di input e readiness: nessun comando agisce o salta l’entrata prima dell’atterraggio, clic su Profili, precedenza delle coperture, drawable mancante e presentazione su entrambi i percorsi. Nessuna finestra o GPU reale. |

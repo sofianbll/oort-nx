@@ -49,6 +49,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard let cloud = Self.cloudLibrary else { return .terminateNow }
         // .terminateLater runs a modal loop that stalls shell input and main-actor cleanup.
         let activity = Self.activityOwner
+        if activity?.porting.isAdoptingBuildCache == true { return .terminateCancel }
         switch CloudQuitDecision.resolve(isWorking: cloud.isWorking, hasQueueWrites: cloud.hasQueueWrites
                                             || activity?.hasActivityWrites == true || activity?.porting.hasBuildQueueWrites == true
                                             || activity?.buildQueue.isEmpty == false || activity?.activityResults.entries.isEmpty == false,
