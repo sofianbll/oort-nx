@@ -280,10 +280,10 @@ struct SpotlightRowView: View {
         return ZStack {
             ForEach(Array(platforms.cards.enumerated()), id: \.element.integration) { indexOfCard, card in
                 VStack(spacing: canvas.u(SeleneTokens.Space.tight)) {
-                    PlatformLabel(platformKind(card), title: platformName(card), size: .body)
+                    PlatformLabel(platformKind(card), title: platformName(card), preset: .summary)
                         .lineLimit(2)
                     Text(verbatim: platformCount(card))
-                        .seleneFont(.caption)
+                        .seleneFont(.text)
                         .foregroundStyle(SeleneTheme.ink90)
                 }
                 .padding(.horizontal, canvas.u(SeleneTokens.Space.compact))
@@ -324,7 +324,7 @@ struct SpotlightRowView: View {
     private func platformArrow(_ direction: Int, enabled: Bool) -> some View {
         Button { onPlatformMove(direction) } label: {
             Image(systemName: direction < 0 ? "chevron.up" : "chevron.down")
-                .seleneFont(.body, .semibold)
+                .seleneFont(.text, .semibold)
                 .frame(maxWidth: .infinity)
                 .frame(height: canvas.u(SeleneTokens.Space.group))
                 .contentShape(Rectangle())
