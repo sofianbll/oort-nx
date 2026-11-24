@@ -216,6 +216,7 @@ final class CloudLibraryModel: ObservableObject {
     @Published private(set) var lastKnown = LastKnown(scope: [])
     var localSourceIDs: Set<UUID> = []
     private var sourcesBinding: CloudLibraryPreference.SourcesBinding?
+    private var pendingLegacySources: CloudLibraryPreference.SourcesBinding?
     @Published private(set) var sourcesNeedConfirmation = false
     private var availabilityScope: [String] {
         [preference.storage ?? "", preference.sourcesRoot, preference.referenceFolder ?? ""] + (driveScope?.availabilityKey ?? [])
@@ -237,6 +238,7 @@ final class CloudLibraryModel: ObservableObject {
         let failure: CloudLibraryFailure?
         var explicit = false
         var onSources = false
+        var scopeCheck = false
     }
     struct Request {
         var token = UUID()
@@ -462,7 +464,7 @@ final class CloudLibraryModel: ObservableObject {
         driveToolOfferSeen = defaults.bool(forKey: CloudLibraryPreference.toolOfferKey)
         needsDriveToolChoice = preference.remote != nil
             && !defaults.bool(forKey: CloudLibraryPreference.toolChoiceKey)
-            && chosenExecutable == nil && driveTool.installedExecutable == nil
+            && (legacySourcesCandidate != nil || (chosenExecutable == nil && driveTool.installedExecutable == nil))
         do { pendingMove = try moveJournal.load() }
         catch { moveJournalUnreadable = true }
         rebuildArchive()
@@ -498,10 +500,10 @@ final class CloudLibraryModel: ObservableObject {
 
     /// `reload` restarts the backend for an unchanged preference, after new Google credentials replaced the remote's token.
     @MainActor func configure(remote: String?, root: String, enabled: Bool, sourcesRoot: String?, reload: Bool = false,
-                             confirmLibrary: Bool = false) {
+                              confirmLibrary: Bool = false, approvedLibrary: CloudDriveScope? = nil) {
         let next = CloudLibraryPreference(storage: "\(remote ?? ""):\(root)", enabled: enabled,
                                           sourcesRoot: sourcesRoot, referenceFolder: preference.referenceFolder)
-        let reselect = confirmLibrary && connectionCheck?.failure == .scopeChanged
+        let reselect = confirmLibrary && connectionCheck?.failure == .scopeChanged && connectionCheck?.onSources != true
         guard next != preference || reload || reselect else { return }
         AppData.preferences.set(next.storage, forKey: CloudLibraryPreference.storageKey)
         AppData.preferences.set(next.enabled, forKey: CloudLibraryPreference.enabledKey)
@@ -512,6 +514,10 @@ final class CloudLibraryModel: ObservableObject {
             AppData.preferences.removeObject(forKey: Self.scopeKey)
         } else if sourcesRoot != preference.sourcesRootOverride && next.storage == preference.storage {
             saveSourcesBinding(CloudLibraryPreference.SourcesBinding(next))
+            clearSourcesApproval()
+        }
+        if let approvedLibrary, let data = try? JSONEncoder().encode(approvedLibrary) {
+            AppData.preferences.set(data, forKey: Self.scopeKey)
         }
         preference = next
         if next.remote == nil { needsDriveToolChoice = false }
@@ -522,10 +528,19 @@ final class CloudLibraryModel: ObservableObject {
         guard root.map(CloudLibraryPreference.validSourcesRoot) ?? true,
               root != preference.sourcesRootOverride || sourcesNeedConfirmation else { return }
         AppData.preferences.set(root, forKey: CloudLibraryPreference.sourcesRootKey)
+        pendingLegacySources = nil
         preference = CloudLibraryPreference(storage: preference.storage, enabled: preference.enabled, sourcesRoot: root,
                                             referenceFolder: preference.referenceFolder)
         saveSourcesBinding(CloudLibraryPreference.SourcesBinding(preference))
+        clearSourcesApproval()
         rebuildArchive()
+    }
+
+    private func clearSourcesApproval() {
+        guard var saved = AppData.preferences.data(forKey: Self.scopeKey)
+            .flatMap({ try? JSONDecoder().decode(CloudDriveScope.self, from: $0) }) else { return }
+        saved.clearSourcesApproval()
+        if let data = try? JSONEncoder().encode(saved) { AppData.preferences.set(data, forKey: Self.scopeKey) }
     }
 
     private func saveSourcesBinding(_ binding: CloudLibraryPreference.SourcesBinding?) {
@@ -547,7 +562,7 @@ final class CloudLibraryModel: ObservableObject {
         guard chosenExecutable != executable, executable.map(canChooseDriveTool) != false else { return }
         AppData.preferences.set(executable?.path, forKey: CloudLibraryPreference.executableKey)
         chosenExecutable = executable
-        if needsDriveToolChoice && executable == nil { rebuildArchive() }
+        if needsDriveToolChoice && (executable == nil || legacySourcesToConfirm != nil) { rebuildArchive() }
         else { acceptDriveTool() }
     }
 
@@ -556,7 +571,17 @@ final class CloudLibraryModel: ObservableObject {
         driveToolOfferSeen = true
     }
 
-    @MainActor func acceptDriveTool() {
+    private var legacySourcesCandidate: CloudLibraryPreference.SourcesBinding? {
+        let defaults = AppData.preferences
+        guard defaults.object(forKey: CloudLibraryPreference.sourcesBindingKey) == nil,
+              defaults.object(forKey: Self.scopeKey) == nil else { return nil }
+        return CloudLibraryPreference.SourcesBinding(preference)
+    }
+
+    var legacySourcesToConfirm: String? { needsDriveToolChoice ? legacySourcesCandidate?.sources : nil }
+
+    @MainActor func acceptDriveTool(confirmLegacySources: Bool = false) {
+        if confirmLegacySources, needsDriveToolChoice { pendingLegacySources = legacySourcesCandidate }
         AppData.preferences.set(true, forKey: CloudLibraryPreference.toolChoiceKey)
         needsDriveToolChoice = false
         driveToolFailure = nil
@@ -587,20 +612,49 @@ final class CloudLibraryModel: ObservableObject {
         let wanted = CloudLibraryPreference.SourcesBinding(current)
         let savedChoice = sourcesBinding
         let sameChoice = wanted?.storage == savedChoice?.storage && wanted?.sources == savedChoice?.sources
-        sourcesNeedConfirmation = wanted != nil && !sameChoice
-        let savedScope = AppData.preferences.data(forKey: Self.scopeKey)
-            .flatMap { try? JSONDecoder().decode(CloudDriveScope.self, from: $0) }
+        let savedScope = savedDriveScope()
+        sourcesNeedConfirmation = (wanted != nil && !sameChoice && pendingLegacySources != wanted)
+            || (savedScope?.remote == current.remote && savedScope?.library.path == current.root
+                && savedScope?.approvedSources?.path == current.sourcesRoot && savedScope?.sourcesIdentityChanged == true)
         guard current.enabled, !hasPendingMove, !needsDriveToolChoice, let remote = current.remote,
               let tool = resolvedDriveTool else { installScope(nil, backend: nil); return }
         let raw = RcloneStorageBackend(remote: remote, root: current.root, executable: tool)
         let saved = savedScope.flatMap { scope -> CloudDriveScope? in
             guard scope.remote == remote, scope.library.path == current.root, scope.reference == current.referenceFolder,
                   !sourcesNeedConfirmation, wanted == nil || savedChoice?.permits(scope) == true,
-                  scope.sources == nil ? wanted == nil : scope.sources?.path == current.sourcesRoot else { return nil }
+                   scope.sources == nil || scope.sources?.path == current.sourcesRoot else { return nil }
             return scope
         }
         installScope(saved, backend: saved.map { raw.scoped($0) })
-        scopeTask = Task { @MainActor [weak self] in
+        scopeTask = driveScopeCheck(current, remote: remote, raw: raw, savedScope: savedScope, reportSuccess: false, explicit: false)
+    }
+
+    private func savedDriveScope() -> CloudDriveScope? {
+        AppData.preferences.data(forKey: Self.scopeKey).flatMap { try? JSONDecoder().decode(CloudDriveScope.self, from: $0) }
+    }
+
+    var canCheckDriveScope: Bool {
+        !hasPendingMove && !needsDriveToolChoice && !isQuitting && preference.remote != nil && resolvedDriveTool != nil
+    }
+
+    @MainActor @discardableResult func checkDriveScope(explicit: Bool = false) -> Task<Void, Never>? {
+        let current = preference
+        guard !hasPendingMove, !needsDriveToolChoice, !isQuitting, let remote = current.remote,
+              let tool = resolvedDriveTool else { return nil }
+        scopeTask?.cancel()
+        let raw = RcloneStorageBackend(remote: remote, root: current.root, executable: tool)
+        scopeTask = driveScopeCheck(current, remote: remote, raw: raw, savedScope: savedDriveScope(),
+                                    reportSuccess: true, explicit: explicit)
+        return scopeTask
+    }
+
+    private func driveScopeCheck(_ current: CloudLibraryPreference, remote: String, raw: RcloneStorageBackend,
+                                 savedScope: CloudDriveScope?, reportSuccess: Bool, explicit: Bool) -> Task<Void, Never> {
+        let wanted = CloudLibraryPreference.SourcesBinding(current)
+        let savedChoice = sourcesBinding
+        let sameChoice = wanted?.storage == savedChoice?.storage && wanted?.sources == savedChoice?.sources
+        let resumesLegacySources = wanted != nil && pendingLegacySources == wanted && savedChoice == nil
+        return Task { @MainActor [weak self] in
             guard let self else { return }
             do {
                 var scope = try await raw.resolveScope(reference: current.referenceFolder)
@@ -610,35 +664,67 @@ final class CloudLibraryModel: ObservableObject {
                    (savedScope.account != scope.account || savedScope.library.id != scope.library.id) {
                     self.sourcesNeedConfirmation = wanted != nil
                     self.installScope(nil, backend: nil)
-                    self.connectionCheck = .init(date: .now, failure: .scopeChanged)
+                    self.connectionCheck = .init(date: .now, failure: .scopeChanged, explicit: explicit, scopeCheck: true)
                     return
                 }
-                if let wanted, sameChoice, savedChoice?.permits(scope) == true {
+                var legacySourcesFailure: CloudLibraryFailure?
+                if let wanted, (sameChoice && savedChoice?.permits(scope) == true) || resumesLegacySources {
                     var boundChoice = wanted
                     boundChoice.account = scope.account
                     boundChoice.folderID = scope.library.id
-                    let folder = try await raw.sourceFolder(wanted.sources, in: scope)
+                    var folder = try await raw.sourceFolder(wanted.sources, in: scope)
+                    if resumesLegacySources {
+                        if let found = folder {
+                            do { try await raw.verifyFolderSeparation([found.id], from: scope.reference) }
+                            catch CloudLibraryFailure.referenceOverlap {
+                                folder = nil
+                                legacySourcesFailure = .referenceOverlap
+                            }
+                        } else { legacySourcesFailure = .folderMissing }
+                    }
                     try Task.checkCancellation()
                     guard self.preference == current else { return }
-                    if let folder, let before = savedScope?.sources, before.path == folder.path, before.id != folder.id {
-                        self.sourcesNeedConfirmation = true
-                    } else {
-                        scope.sources = folder
+                    scope.resolveSources(folder, at: wanted.sources, previous: savedScope)
+                    self.sourcesNeedConfirmation = scope.sourcesIdentityChanged == true
+                    if !self.sourcesNeedConfirmation, !resumesLegacySources || folder != nil {
                         self.saveSourcesBinding(boundChoice)
+                        if resumesLegacySources { self.pendingLegacySources = nil }
                     }
-                } else if wanted != nil { self.sourcesNeedConfirmation = true }
+                } else if wanted != nil {
+                    self.sourcesNeedConfirmation = true
+                    scope.resolveSources(nil, at: current.sourcesRoot, previous: savedScope)
+                }
                 else {
-                    scope.sources = try await raw.sourceFolder(current.sourcesRoot, in: scope)
+                    let folder = try await raw.sourceFolder(current.sourcesRoot, in: scope)
+                    try Task.checkCancellation()
+                    guard self.preference == current else { return }
+                    scope.resolveSources(folder, at: current.sourcesRoot, previous: savedScope)
+                    self.sourcesNeedConfirmation = scope.sourcesIdentityChanged == true
+                }
+                let backend = raw.scoped(scope)
+                if reportSuccess {
+                    try await backend.verifyLibraryReadAccess()
                     try Task.checkCancellation()
                     guard self.preference == current else { return }
                 }
                 if let data = try? JSONEncoder().encode(scope) { AppData.preferences.set(data, forKey: Self.scopeKey) }
-                guard self.driveScope != scope || self.archive == nil else { return }
-                self.installScope(scope, backend: raw.scoped(scope))
+                if current.enabled, self.driveScope != scope || self.archive == nil {
+                    self.installScope(scope, backend: backend)
+                }
+                let sourceFailure: CloudLibraryFailure? = legacySourcesFailure ?? (self.sourcesNeedConfirmation ? .scopeChanged
+                    : (wanted != nil && scope.sources == nil ? .folderMissing : nil))
+                if reportSuccess || scope.sourcesIdentityChanged == true || legacySourcesFailure != nil {
+                    self.connectionCheck = .init(date: .now, failure: sourceFailure, explicit: explicit,
+                                                 onSources: sourceFailure != nil, scopeCheck: true)
+                }
             } catch is CancellationError {
             } catch {
                 guard !Task.isCancelled, self.preference == current else { return }
-                self.connectionCheck = .init(date: .now, failure: (error as? CloudLibraryFailure) ?? .unavailable)
+                let failure = (error as? CloudLibraryFailure) ?? .unavailable
+                if [.scopeChanged, .folderMissing, .authentication, .requiresDrive].contains(failure) {
+                    self.installScope(nil, backend: nil)
+                }
+                self.connectionCheck = .init(date: .now, failure: failure, explicit: explicit, scopeCheck: true)
             }
         }
     }
@@ -666,7 +752,7 @@ final class CloudLibraryModel: ObservableObject {
             .flatMap { $0.scope == fingerprint ? $0 : nil } ?? .init(scope: fingerprint)
         self.backend = backend
         let wanted = preference.sourcesRootOverride
-        sourceArchive = sourcesNeedConfirmation || (wanted != nil && scope?.sources == nil) ? nil : backend.map {
+        sourceArchive = sourcesNeedConfirmation || ((wanted != nil || scope?.approvedSources != nil) && scope?.sources == nil) ? nil : backend.map {
             CloudGameSources(backend: $0, root: preference.sourcesRoot, usesDefaultRoot: wanted == nil,
                              allowsIndependentRoot: wanted != nil)
         }
@@ -1015,6 +1101,10 @@ extension AppViewModel {
     }
 
     @MainActor func retryCloudCheck() {
+        if let result = cloudLibrary.connectionCheck, result.scopeCheck, result.failure != nil {
+            cloudLibrary.checkDriveScope(explicit: result.explicit)
+            return
+        }
         cloudLibrary.queuePause = nil
         startNextCloudOperation()
         if cloudLibrary.checkFailedDuringImport {

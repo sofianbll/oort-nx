@@ -1,4 +1,5 @@
 import AppKit
+import ArcanePorting
 import NXLibraryCore
 import SwiftUI
 
@@ -46,14 +47,16 @@ struct SettingsCloudLibrarySection: View {
     private var showToolRecovery: Bool {
         model.driveToolFailure != nil || (selection.enabled && selection.remote != nil && model.needsDriveTool)
     }
-    private var canTest: Bool { editable && !inspecting && connected != nil }
+    private var hasKnownConnection: Bool { editable && !inspecting && connected != nil }
+    private var canTest: Bool { hasKnownConnection && model.canCheckDriveScope }
     private var canImport: Bool { editable && model.archive != nil && model.importTask == nil && !viewModel.isScanningLibrary }
     private var recoveryFailure: CloudLibraryFailure? {
         if let result = model.connectionCheck { return result.failure }
         return model.checkFailure
     }
     private var canRecover: Bool {
-        recoveryFailure?.action == .retry ? (model.connectionCheck?.explicit == true ? canTest : canImport) : editable
+        guard recoveryFailure?.action == .retry else { return editable }
+        return model.connectionCheck?.scopeCheck == true ? editable && model.canCheckDriveScope : canImport
     }
     private var focusedToolButton: Int? { focusedRowID == "rclone" ? focusedButton : nil }
     private var canFollow: Bool { editable && model.archive != nil && (connected == nil || connected?.type == "drive") }
@@ -135,8 +138,8 @@ struct SettingsCloudLibrarySection: View {
                 SeleneButtonRow("Configure cloud library", buttonTitle: "Open", action: openSetup)
                     .disabled(!editable)
             }
-            if let folder = selection.sourcesRootOverride, selection.remote != nil, model.sourcesNeedConfirmation {
-                SeleneButtonRow("Confirm the game files folder", id: "cloudConfirmSources", subtitle: folder, verbatimSubtitle: true,
+            if selection.remote != nil, model.sourcesNeedConfirmation {
+                SeleneButtonRow("Confirm the game files folder", id: "cloudConfirmSources", subtitle: selection.sourcesRoot, verbatimSubtitle: true,
                                 buttonTitle: "Choose", action: confirmSourcesFolder)
                     .disabled(!editable)
             }
@@ -191,7 +194,7 @@ struct SettingsCloudLibrarySection: View {
         }
         .onChange(of: recoveryFailure) { publishActions() }
         .onChange(of: model.sourcesNeedConfirmation) { publishActions() }
-        .onChange(of: model.connectionCheck?.explicit) { publishActions() }
+        .onChange(of: [model.connectionCheck?.scopeCheck == true, canRecover, hasKnownConnection]) { publishActions() }
         .onChange(of: model.driveToolProgress != nil) { publishActions() }
         .onChange(of: model.driveToolFailure) { publishActions() }
         .onChange(of: model.needsDriveToolChoice) { publishActions() }
@@ -239,7 +242,7 @@ struct SettingsCloudLibrarySection: View {
                     .disabled(!canTest)
                 SeleneButtonRow("Disconnect", subtitle: "Removes only the local connection. Cloud files stay where they are.",
                                 buttonTitle: "Disconnect", action: confirmDisconnect)
-                    .disabled(!canTest)
+                    .disabled(!hasKnownConnection)
             }
         }
     }
@@ -307,7 +310,7 @@ struct SettingsCloudLibrarySection: View {
             }
             if selection.remote != nil {
                 actions.append(.init(id: "cloudLibraryTest", title: "Test connection", isEnabled: canTest, activate: test))
-                actions.append(.init(id: "cloudLibraryDisconnect", title: "Disconnect", isEnabled: canTest, activate: confirmDisconnect))
+                actions.append(.init(id: "cloudLibraryDisconnect", title: "Disconnect", isEnabled: hasKnownConnection, activate: confirmDisconnect))
             }
         }
         onActions(actions)
@@ -372,16 +375,37 @@ struct SettingsCloudLibrarySection: View {
 
     private func confirmSourcesFolder() {
         let before = selection
-        guard editable, model.sourcesNeedConfirmation, let folder = before.sourcesRootOverride else { return }
+        guard editable, model.sourcesNeedConfirmation else { return }
+        let keep = { selectSourcesFolder(before.sourcesRootOverride, from: before) }
+        if before.sourcesRootOverride == nil {
+            viewModel.confirmSetting(text("Game files folder"),
+                message: L10n.format("Confirm “%@” as the game files folder for this library?", [before.sourcesRoot]),
+                action: "Keep this folder", apply: keep)
+            return
+        }
         viewModel.confirmSetting(text("Game files folder"),
-            message: L10n.format("Keep “%@” for game files in this library, or use its default folder?", [folder]),
-            choices: [("Keep this folder", {
-                guard model.preference == before else { return }
-                model.chooseSourcesRoot(folder)
-            }), ("Use default", {
-                guard model.preference == before else { return }
-                model.chooseSourcesRoot(nil)
-            })])
+            message: L10n.format("Keep “%@” for game files in this library, or use its default folder?", [before.sourcesRoot]),
+            choices: [("Keep this folder", keep), ("Use default", { selectSourcesFolder(nil, from: before) })])
+    }
+
+    private func selectSourcesFolder(_ root: String?, from before: CloudLibraryPreference) {
+        guard selection == before else { return }
+        guard let reference = before.referenceFolder else { model.chooseSourcesRoot(root); return }
+        guard let remote = before.remote, let tool = model.resolvedDriveTool else { return }
+        let folder = root ?? CloudLibraryPreference(storage: before.storage, enabled: before.enabled).sourcesRoot
+        let service = CloudDriveFolders(remote: remote, executable: tool, reference: reference)
+        Task { @MainActor in
+            do {
+                try await service.verifyPersonalFolder(folder, allowMissing: true)
+                guard editable, selection == before else { return }
+                model.chooseSourcesRoot(root)
+            } catch is CancellationError {
+            } catch {
+                guard selection == before else { return }
+                let failure = (error as? CloudLibraryFailure) ?? .unavailable
+                viewModel.showSettingsNotice(title: text("Game files folder"), message: text(failure.messageKey))
+            }
+        }
     }
 
     private func unfollow() {
@@ -398,7 +422,8 @@ struct SettingsCloudLibrarySection: View {
         guard canRecover, let failure = recoveryFailure else { return }
         let result = model.connectionCheck
         viewModel.recoverCloud(failure.action, sourceFolder: result?.onSources ?? model.checkFailureOnSources) {
-            if result?.explicit == true { test() } else { viewModel.retryCloudCheck() }
+            if result?.scopeCheck == true { checkScope(explicit: result?.explicit == true) }
+            else { viewModel.retryCloudCheck() }
         }
     }
 
@@ -448,30 +473,24 @@ struct SettingsCloudLibrarySection: View {
     }
 
     private func test() {
-        guard canTest, let tool else { return }
-        let preference = selection
+        guard canTest else { return }
+        checkScope(explicit: true)
+    }
+
+    private func checkScope(explicit: Bool) {
+        guard let task = model.checkDriveScope(explicit: explicit) else { return }
         testTask = Task { @MainActor in
             defer { testTask = nil }
-            let failure: CloudLibraryFailure?
-            do {
-                try await RcloneConfiguration(executable: tool).test(preference)
-                failure = nil
-            } catch is CancellationError {
-                return
-            } catch {
-                failure = (error as? CloudLibraryFailure) ?? .unavailable
-            }
-            guard !Task.isCancelled, preference == selection else { return }
-            model.connectionCheck = .init(date: .now, failure: failure, explicit: true)
+            await withTaskCancellationHandler { await task.value } onCancel: { task.cancel() }
         }
     }
 
     private func confirmDisconnect() {
-        guard canTest, let tool, let name = connected?.name else { return }
+        guard hasKnownConnection, let tool, let name = connected?.name else { return }
         viewModel.confirmSetting(text("Disconnect cloud service?"),
             message: "\(name)\n\n\(text("Removes only the local connection. Cloud files stay where they are."))",
             action: "Disconnect") {
-                guard canTest, model.preference.remote == name else { return }
+                guard hasKnownConnection, model.preference.remote == name else { return }
                 model.isChangingConnection = true
                 Task { @MainActor in
                     var disconnected = false

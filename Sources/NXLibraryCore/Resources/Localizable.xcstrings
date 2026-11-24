@@ -2988,6 +2988,15 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法读取已保存的移动记录，或记录缺少 Drive 标识。云端传输已暂停。请保留此恢复记录：%@。"}}
       }
     },
+    "Confirm “%@” as the game files folder for this library?": {"localizations": {
+      "en": {"stringUnit": {"state": "translated", "value": "Confirm “%@” as the game files folder for this library?"}},
+      "fr": {"stringUnit": {"state": "translated", "value": "Confirmer « %@ » comme dossier des fichiers de jeu pour cette bibliothèque ?"}},
+      "it": {"stringUnit": {"state": "translated", "value": "Confermare «%@» come cartella dei file di gioco per questa libreria?"}},
+      "de": {"stringUnit": {"state": "translated", "value": "„%@“ als Spieldateiordner für diese Bibliothek bestätigen?"}},
+      "es": {"stringUnit": {"state": "translated", "value": "¿Confirmar «%@» como carpeta de archivos de juego para esta biblioteca?"}},
+      "pt-BR": {"stringUnit": {"state": "translated", "value": "Confirmar “%@” como pasta de arquivos de jogos desta biblioteca?"}},
+      "zh-Hans": {"stringUnit": {"state": "translated", "value": "确认将“%@”用作此游戏库的游戏文件夹吗？"}}
+    }},
     "Confirm the game files folder": {"localizations": {
       "en": {"stringUnit": {"state": "translated", "value": "Confirm the game files folder"}},
       "it": {"stringUnit": {"state": "translated", "value": "Conferma la cartella dei file di gioco"}},
@@ -3101,6 +3110,15 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "有 %d 个文件冲突。第一个是：%@"}}
       }
     },
+    "Choose a personal folder outside the followed reference. Neither can contain the other.": {"localizations": {
+      "en": {"stringUnit": {"state": "translated", "value": "Choose a personal folder outside the followed reference. Neither can contain the other."}},
+      "fr": {"stringUnit": {"state": "translated", "value": "Choisissez un dossier personnel distinct de la référence suivie. Aucun des deux ne peut contenir l’autre."}},
+      "it": {"stringUnit": {"state": "translated", "value": "Scegli una cartella personale distinta dal riferimento seguito. Nessuna delle due può contenere l’altra."}},
+      "de": {"stringUnit": {"state": "translated", "value": "Wähle einen eigenen Ordner außerhalb der verfolgten Referenz. Keiner der beiden darf den anderen enthalten."}},
+      "es": {"stringUnit": {"state": "translated", "value": "Elige una carpeta personal distinta de la referencia que sigues. Ninguna puede contener a la otra."}},
+      "pt-BR": {"stringUnit": {"state": "translated", "value": "Escolha uma pasta pessoal separada da referência seguida. Nenhuma pode conter a outra."}},
+      "zh-Hans": {"stringUnit": {"state": "translated", "value": "请选择与已关注的参考库分开的个人文件夹。两者不能互相包含。"}}
+    }},
     "Move paused. Close this window and choose Retry in Activity.": {
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Move paused. Close this window and choose Retry in Activity."}},
@@ -4454,6 +4472,15 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "使用桌面应用的 Google OAuth 客户端。"}}
       }
     },
+    "Oort NX will reconnect “%@” and keep “%@” as its game files folder.": {"localizations": {
+      "en": {"stringUnit": {"state": "translated", "value": "Oort NX will reconnect “%@” and keep “%@” as its game files folder."}},
+      "fr": {"stringUnit": {"state": "translated", "value": "Oort NX reconnectera « %@ » et gardera « %@ » comme dossier des fichiers de jeu."}},
+      "it": {"stringUnit": {"state": "translated", "value": "Oort NX riconnetterà «%@» e manterrà «%@» come cartella dei file di gioco."}},
+      "de": {"stringUnit": {"state": "translated", "value": "Oort NX verbindet „%@“ erneut und behält „%@“ als Spieldateiordner bei."}},
+      "es": {"stringUnit": {"state": "translated", "value": "Oort NX reconectará «%@» y conservará «%@» como carpeta de archivos de juego."}},
+      "pt-BR": {"stringUnit": {"state": "translated", "value": "Oort NX reconectará “%@” e manterá “%@” como pasta de arquivos de jogos."}},
+      "zh-Hans": {"stringUnit": {"state": "translated", "value": "Oort NX 将重新连接“%@”，并保留“%@”作为其游戏文件夹。"}}
+    }},
     "New connections request full Google Drive access. Google does not limit that permission to the folders you choose here.": {
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "New connections request full Google Drive access. Google does not limit that permission to the folders you choose here."}},

@@ -133,8 +133,11 @@ final class CloudDriveFoldersTests: XCTestCase {
         let request = LibraryMoveRequest(plan: plan, destination: "New")
         let saved = try JSONEncoder().encode(request)
         let restored = try JSONDecoder().decode(LibraryMoveRequest.self, from: saved)
+        let config = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try Data().write(to: config)
+        defer { try? FileManager.default.removeItem(at: config) }
         let drive = CloudDriveFolders(remote: "fixture", executable: URL(fileURLWithPath: "/synthetic/rclone"),
-                                      config: URL(fileURLWithPath: "/dev/null")) { _, args, _ in
+                                      config: config) { _, args, _ in
             if args.first == "listremotes" {
                 return .init(status: 0, stdout: #"[{"name":"fixture","type":"drive","source":"file"}]"#, stderr: "")
             }
@@ -467,13 +470,94 @@ final class CloudDriveFoldersTests: XCTestCase {
         }
     }
 
+    func testMoveUsesSameConfigurationForAccountCheckAndMutation() async throws {
+        try await withFakeDrive { fixture, root in
+            let key = "0100123456789ABC/app/\(String(repeating: "a", count: 64)).aar"
+            let source = root.appendingPathComponent("Old/\(key)")
+            let bytes = Data("archive".utf8)
+            try fixture.write(bytes, to: source)
+            try Data("accountA".utf8).write(to: fixture.config)
+            fixture.readAccountFromConfig = true
+            let plan = try JSONDecoder().decode(CloudDriveFolders.MovePlan.self, from: JSONSerialization.data(withJSONObject: [
+                "source": "Old", "remote": "fixture", "games": 1, "bytes": bytes.count,
+                "binding": ["account": "accountA", "sourceID": "oldID", "destinationID": "newID", "destination": "New"],
+                "entries": [["file": ["key": ["value": key], "size": bytes.count,
+                                      "hashes": try CloudArchiveInventory.hashes(at: source)], "dependencies": []]],
+            ]))
+            do {
+                let conflicts = try await fixture.backend.move(plan, to: "New") { done, _ in
+                    if done == 0 { fixture.swapConfigAfterAccountCheck = true }
+                }
+                XCTAssertEqual(conflicts, [])
+            } catch {
+                XCTFail("The checked snapshot should still be usable: \(error)")
+            }
+            XCTAssertEqual(fixture.mutationAccount, "accountA")
+            XCTAssertEqual(try String(contentsOf: fixture.config, encoding: .utf8), "accountB")
+        }
+    }
+
+    func testMovePreviewRequiresAlreadyApprovedAccountAndSourceID() async throws {
+        try await withFakeDrive { fixture, _ in
+            let scope = CloudDriveScope(remote: "fixture", account: "accountA", library: .init(path: "Old", id: "oldID"))
+            for fault in ["account", "folder"] {
+                fixture.account = fault == "account" ? "accountB" : "accountA"
+                fixture.oldID = fault == "folder" ? "otherOldID" : "oldID"
+                do {
+                    _ = try await fixture.backend.movePlan(from: "Old", to: "New", approved: scope)
+                    XCTFail("A mismatched move must not reach the preview")
+                } catch let error as CloudDriveFolders.MoveFailure {
+                    switch (fault, error) {
+                    case ("account", .accountChanged), ("folder", .foldersChanged): break
+                    default: XCTFail("Unexpected failure: \(error)")
+                    }
+                }
+            }
+            XCTAssertEqual(fixture.recursiveListings, 0)
+            fixture.oldID = "oldID"
+            let plan = try await fixture.backend.movePlan(from: "Old", to: "New", approved: scope)
+            try plan.verifyApproved(scope)
+            XCTAssertEqual(try plan.destinationScope(reference: nil).library.id, "newID")
+        }
+    }
+
+    func testCreationAndMoveRefuseTheFollowedFolderBeforeWriting() async throws {
+        try await withFakeDrive { fixture, root in
+            let key = "0100123456789ABC/app/\(String(repeating: "a", count: 64)).aar"
+            let source = root.appendingPathComponent("Old/\(key)")
+            let bytes = Data("archive".utf8)
+            try fixture.write(bytes, to: source)
+            let plan = try JSONDecoder().decode(CloudDriveFolders.MovePlan.self, from: JSONSerialization.data(withJSONObject: [
+                "source": "Old", "remote": "fixture", "games": 1, "bytes": bytes.count,
+                "binding": ["account": "accountA", "sourceID": "oldID", "destinationID": "newID", "destination": "New"],
+                "entries": [["file": ["key": ["value": key], "size": bytes.count,
+                                      "hashes": try CloudArchiveInventory.hashes(at: source)], "dependencies": []]],
+            ]))
+            for (folder, id) in [("Old", "oldID"), ("New", "newID")] {
+                let drive = fixture.backend(reference: id)
+                do {
+                    try await drive.create("Subfolder", in: folder)
+                    XCTFail("mkdir cannot run under the followed folder")
+                } catch CloudLibraryFailure.referenceOverlap {}
+                do {
+                    _ = try await drive.move(plan, to: "New") { _, _ in XCTFail("An overlapping move cannot begin") }
+                    XCTFail("moveid cannot move from or to the followed folder")
+                } catch CloudLibraryFailure.referenceOverlap {}
+                XCTAssertEqual(fixture.writes, 0)
+                XCTAssertEqual(try Data(contentsOf: source), bytes)
+            }
+        }
+    }
+
     private func withFakeDrive(_ body: (MoveDriveFixture, URL) async throws -> Void) async throws {
         let root = FileManager.default.temporaryDirectory.resolvingSymlinksInPath().appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }
         for name in ["Old", "New"] {
             try FileManager.default.createDirectory(at: root.appendingPathComponent(name), withIntermediateDirectories: true)
         }
-        try await body(MoveDriveFixture(root: root), root)
+        let fixture = MoveDriveFixture(root: root)
+        try Data().write(to: fixture.config)
+        try await body(fixture, root)
     }
 
     /// Stable inode-backed file IDs and actual file moves; never runs an external command or opens a real config.
@@ -483,12 +567,20 @@ final class CloudDriveFoldersTests: XCTestCase {
         var matchesDecomposedOnly = false
         var loseReply: Int?
         var writes = 0
+        var readAccountFromConfig = false
+        var swapConfigAfterAccountCheck = false
+        var mutationAccount: String?
+        var recursiveListings = 0
         let fm = FileManager.default
         init(root: URL) { self.root = root }
 
+        var config: URL { root.appendingPathComponent("empty.conf") }
         var backend: CloudDriveFolders {
+            backend(reference: nil)
+        }
+        func backend(reference: String?) -> CloudDriveFolders {
             CloudDriveFolders(remote: "fixture", executable: URL(fileURLWithPath: "/synthetic/rclone"),
-                              config: root.appendingPathComponent("empty.conf"), run: { [self] _, args, _ in try run(args) })
+                              config: config, reference: reference, run: { [self] _, args, _ in try run(args) })
         }
 
         func write(_ data: Data, to file: URL) throws {
@@ -497,6 +589,11 @@ final class CloudDriveFoldersTests: XCTestCase {
         }
 
         func run(_ args: [String]) throws -> CommandResult {
+            func configuredAccount() throws -> String {
+                guard readAccountFromConfig else { return account }
+                let path = args[try XCTUnwrap(args.lastIndex(of: "--config")) + 1]
+                return try String(contentsOfFile: path, encoding: .utf8)
+            }
             func node(_ target: String) throws -> URL {
                 for (prefix, path) in [("fixture,root_folder_id=\(oldID):", "Old"),
                                        ("fixture,root_folder_id=\(newID):", "New"), ("fixture:", "")] {
@@ -519,9 +616,15 @@ final class CloudDriveFoldersTests: XCTestCase {
             XCTAssertTrue(args.contains("--drive-shared-with-me=false"))
             if args[0] == "about" {
                 XCTAssertEqual(args[1], "fixture,root_folder_id=,team_drive=:")
+                let account = try configuredAccount()
+                if swapConfigAfterAccountCheck {
+                    swapConfigAfterAccountCheck = false
+                    try Data("accountB".utf8).write(to: config, options: .atomic)
+                }
                 return .init(status: 0, stdout: "{}", stderr: "'root_folder_id = \(account)' - save this in the config to speed up startup")
             }
             if args[0] == "backend" && args[1] == "moveid" {
+                mutationAccount = try configuredAccount()
                 let source = try node(args[2])
                 let target = try node(args[4])
                 let children = try XCTUnwrap(fm.enumerator(at: source, includingPropertiesForKeys: nil))
@@ -542,6 +645,7 @@ final class CloudDriveFoldersTests: XCTestCase {
             }
             let files: [URL]
             if args.contains("--recursive") {
+                recursiveListings += 1
                 files = (fm.enumerator(at: parent, includingPropertiesForKeys: nil)?.allObjects ?? []).compactMap { $0 as? URL }
             } else { files = try fm.contentsOfDirectory(at: parent, includingPropertiesForKeys: nil) }
             let items: [[String: Any]] = try files.map { file in

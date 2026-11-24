@@ -25,8 +25,9 @@ public struct RcloneStorageBackend: StorageBackend {
                   control: RcloneRemoteControl(), leases: CloudTitleLeases(), commandOverride: nil)
     }
 
-    package init(remote: String, root: String, readsConfiguration: Bool = false, run: @escaping RcloneConfiguration.Run) {
-        self.init(remote: remote, root: root, executable: nil, config: nil,
+    package init(remote: String, root: String, executable: URL? = nil, config: URL? = nil,
+                 readsConfiguration: Bool = false, run: @escaping RcloneConfiguration.Run) {
+        self.init(remote: remote, root: root, executable: executable, config: config,
                   control: RcloneRemoteControl(), leases: CloudTitleLeases(), commandOverride: { executable, args, env in
             if !readsConfiguration, args.first == "listremotes" {
                 struct Fixture: Encodable { let name: String; let type = "drive"; let source = "file" }
@@ -106,6 +107,10 @@ public struct RcloneStorageBackend: StorageBackend {
         var backend = self
         backend.driveScope = scope
         return backend
+    }
+
+    package func verifyLibraryReadAccess() async throws {
+        try await checkDirectory(basePath())
     }
 
     /// Ends the RC session when the cloud configuration is replaced or the app quits.
@@ -560,10 +565,27 @@ public struct RcloneStorageBackend: StorageBackend {
     }
 
     private func run(_ arguments: [String], progress: (@Sendable (StorageProgress) -> Void)? = nil,
-                     listingFolder: Bool = false, localDestination: URL? = nil,
-                     checkingConfiguration: Bool = false, scopeProbe: Bool = false,
-                     probingParent: String? = nil, diagnostic: Bool = false) async throws -> String {
+                      listingFolder: Bool = false, localDestination: URL? = nil,
+                      checkingConfiguration: Bool = false, scopeProbe: Bool = false,
+                      probingParent: String? = nil, diagnostic: Bool = false,
+                      usingConfigSnapshot: Bool = false) async throws -> String {
         try Task.checkCancellation()
+        let writesToDrive: Bool
+        switch arguments.first {
+        case "deletefile", "moveto": writesToDrive = true
+        case "copy", "copyto": writesToDrive = arguments.count > 2 && arguments[2].hasPrefix(remote + ":")
+        default: writesToDrive = false
+        }
+        if writesToDrive, !isReference, let scope = driveScope, commandOverride == nil, !usingConfigSnapshot {
+            let executable = try binary()
+            let snapshot = try await RcloneConfigSnapshot.capture(executable: executable, config: config) {
+                try await SystemCommandRunner().runCancellable($0, $1, environment: $2)
+            }
+            defer { withExtendedLifetime(snapshot) {} }
+            let checked = Self(remote: remote, root: root, executable: executable, config: snapshot.config).scoped(scope)
+            return try await checked.run(arguments, progress: progress, listingFolder: listingFolder,
+                                         localDestination: localDestination, usingConfigSnapshot: true)
+        }
         let flags = ["--use-json-log", "--stats", "1s", "--stats-log-level", "NOTICE"] + Self.flags
         let environment = RcloneConfiguration.driveEnvironment(remote)
         var referenceFlags: [String] = []
@@ -593,6 +615,9 @@ public struct RcloneStorageBackend: StorageBackend {
                 if let sources = scope.sources, sources != scope.library,
                    try await folderIdentity(sources.path) != sources.id { throw CloudLibraryFailure.scopeChanged }
                 referenceFlags = ["--drive-root-folder-id=\(target.folder.id)"]
+                if writesToDrive {
+                    try await verifyFolderSeparation([target.folder.id], from: scope.reference)
+                }
             }
         }
         try Task.checkCancellation()
@@ -600,7 +625,7 @@ public struct RcloneStorageBackend: StorageBackend {
         let result: CommandResult
         do {
             if let commandOverride {
-                result = try await commandOverride(URL(fileURLWithPath: "/fixture/rclone"), command,
+                result = try await commandOverride(executable ?? URL(fileURLWithPath: "/fixture/rclone"), command,
                                                    RcloneConfiguration.driveEnvironment(remote, base: [:]))
             } else {
                 result = try await SystemCommandRunner().runCancellable(binary(), command, environment: environment) { line in
@@ -652,21 +677,99 @@ public struct RcloneStorageBackend: StorageBackend {
     }
 
     private func folderIdentity(_ path: String) async throws -> String? {
+        let ancestry = try await folderAncestry(path)
+        return ancestry.count == path.split(separator: "/").count ? ancestry.last : nil
+    }
+
+    private func folderAncestry(_ path: String) async throws -> [String] {
         guard CloudLibraryPreference.validSourcesRoot(path) else { throw StorageBackendError.invalidKey }
         struct Folder: Decodable { let ID: String?; let Name: String; let IsDir: Bool }
-        var parent: String?
+        var ancestry: [String] = []
         for part in path.split(separator: "/") {
             let response = try await run(["lsjson", "\(remote):", "--dirs-only", "--no-modtime", "--no-mimetype"],
-                                         listingFolder: true, scopeProbe: true, probingParent: parent)
+                                         listingFolder: true, scopeProbe: true, probingParent: ancestry.last)
             let matches = try decode([Folder].self, from: response).filter {
                 $0.Name.precomposedStringWithCanonicalMapping == part.precomposedStringWithCanonicalMapping
             }
-            if matches.isEmpty { return nil }
+            if matches.isEmpty { break }
             guard matches.count == 1, matches[0].IsDir, matches[0].Name.utf8.elementsEqual(part.utf8),
                   let id = matches[0].ID, CloudDriveScope.validID(id) else { throw CloudLibraryFailure.scopeChanged }
-            parent = id
+            ancestry.append(id)
         }
-        return parent
+        return ancestry
+    }
+
+    package func verifyFolderSeparation(_ ids: [String], from reference: String?, checkAncestors: Bool = true) async throws {
+        guard let reference else { return }
+        guard CloudDriveScope.validID(reference), ids.allSatisfy(CloudDriveScope.validID) else {
+            throw CloudLibraryFailure.scopeChanged
+        }
+        guard !ids.contains(reference) else { throw CloudLibraryFailure.referenceOverlap }
+        struct Directory: Decodable { let ID: String; let IsDir: Bool }
+        func descendants(_ id: String) async throws -> [String] {
+            // ID-rooted recursion also covers a reference shared outside the configured browse root.
+            let response = try await run(["lsjson", "\(remote):", "--dirs-only", "--recursive",
+                                          "--no-modtime", "--no-mimetype", "--drive-auth-owner-only=false",
+                                          "--drive-trashed-only=false"],
+                                         listingFolder: true, scopeProbe: true, probingParent: id)
+            let folders = try decode([Directory].self, from: response)
+            guard folders.allSatisfy({ $0.IsDir && CloudDriveScope.validID($0.ID) }) else {
+                throw StorageBackendError.invalidResponse
+            }
+            return folders.map(\.ID)
+        }
+        if try await descendants(reference).contains(where: { ids.contains($0) }) {
+            throw CloudLibraryFailure.referenceOverlap
+        }
+        if checkAncestors {
+            for id in Set(ids) where try await descendants(id).contains(reference) {
+                throw CloudLibraryFailure.referenceOverlap
+            }
+        }
+    }
+
+    package func verifyPersonalFolder(_ path: String, from reference: String?, allowMissing: Bool) async throws {
+        guard let reference else { return }
+        let ancestry = try await folderAncestry(path)
+        if ancestry.contains(reference) { throw CloudLibraryFailure.referenceOverlap }
+        if ancestry.count == path.split(separator: "/").count, let id = ancestry.last {
+            try await verifyFolderSeparation([id], from: reference)
+        } else if allowMissing {
+            _ = try await checkedCreationParent(ancestry: ancestry, reference: reference)
+        } else {
+            throw CloudLibraryFailure.folderMissing
+        }
+    }
+
+    package func checkedCreationParent(_ folder: String, reference: String) async throws -> String {
+        let ancestry = folder.isEmpty ? [] : try await folderAncestry(folder)
+        guard ancestry.count == folder.split(separator: "/").count else { throw CloudLibraryFailure.folderMissing }
+        return try await checkedCreationParent(ancestry: ancestry, reference: reference)
+    }
+
+    private func checkedCreationParent(ancestry: [String], reference: String) async throws -> String {
+        if ancestry.contains(reference) { throw CloudLibraryFailure.referenceOverlap }
+        let id: String
+        if let parent = ancestry.last {
+            id = parent
+        } else {
+            try await requireDrive()
+            let settings = try await run(["config", "redacted", remote], checkingConfiguration: true)
+            var roots: [String: String] = [:]
+            for line in settings.split(whereSeparator: \.isNewline) {
+                let parts = line.split(separator: "=", maxSplits: 1).map { $0.trimmingCharacters(in: .whitespaces) }
+                if parts.count == 2, ["root_folder_id", "team_drive"].contains(parts[0]), !parts[1].isEmpty {
+                    roots[parts[0]] = parts[1]
+                }
+            }
+            if let configured = roots["root_folder_id"] ?? roots["team_drive"], configured != "root" {
+                id = configured
+            } else {
+                id = try await accountIdentity()
+            }
+        }
+        try await verifyFolderSeparation([id], from: reference, checkAncestors: false)
+        return id
     }
 
     private func decode<T: Decodable>(_ type: T.Type, from output: String) throws -> T {

@@ -13,6 +13,10 @@ import ArcanePorting
     static var pickedEngine: URL?
     static var availableDriveTool: URL? = URL(fileURLWithPath: "/fixture/rclone")
     static var scopeTool: URL?
+    static var scopeAccount = "Account_ID"
+    static var scopeLibraryID = "Library_ID"
+    static var scopeSourcesID: String? = "Initial_ROMs_ID"
+    static var scopeOffline = false
     static var downloadCalls = 0
     static var finishDownload: CheckedContinuation<Void, Never>?
 
@@ -35,10 +39,20 @@ import ArcanePorting
             precondition(args.contains("--drive-shared-with-me=false"))
             switch args.first {
             case "about":
-                return .init(status: 0, stdout: "{}", stderr: #"{"msg":"'root_folder_id = Account_ID' - save this in the config to speed up startup"}"#)
+                if scopeOffline { return .init(status: 1, stdout: "", stderr: "network is unreachable") }
+                return .init(status: 0, stdout: "{}", stderr: "'root_folder_id = \(scopeAccount)' - save this in the config to speed up startup")
+            case "lsjson" where args.contains("--stat"):
+                return .init(status: 0, stdout: #"{"IsDir":true}"#, stderr: "")
             case "lsjson" where args.contains("--dirs-only"):
-                let directories = #"[{"Name":"Games","ID":"Library_ID","IsDir":true},{"Name":"Autre bibliothèque","ID":"Other_ID","IsDir":true},{"Name":"Autres sources","ID":"ROMs_ID","IsDir":true}]"#
-                let json = args.contains(where: { $0.hasPrefix("--drive-root-folder-id=") }) ? "[]" : directories
+                let json: String
+                if args.contains("--drive-root-folder-id=\(scopeLibraryID)") {
+                    let gameFiles = scopeSourcesID.map { #"{"Name":"GameFiles","ID":"\#($0)","IsDir":true},"# } ?? ""
+                    json = "[" + gameFiles + #"{"Name":"Switch","ID":"Switch_ID","IsDir":true}]"#
+                } else if args.contains("--drive-root-folder-id=Switch_ID") {
+                    json = scopeSourcesID.map { #"[{"Name":"Jeux","ID":"\#($0)","IsDir":true}]"# } ?? "[]"
+                } else {
+                    json = #"[{"Name":"Games","ID":"\#(scopeLibraryID)","IsDir":true},{"Name":"Autre bibliothèque","ID":"Other_ID","IsDir":true},{"Name":"Autres sources","ID":"ROMs_ID","IsDir":true}]"#
+                }
                 return .init(status: 0, stdout: json, stderr: "")
             default: preconditionFailure("Unexpected fixture command: \(args)")
             }
@@ -49,7 +63,126 @@ import ArcanePorting
         @ObservedObject var viewModel: AppViewModel
     }
 
+    @MainActor static func checkDriveScope(settings: AppSettingsStore, makeModel: () -> AppViewModel) async throws {
+        let roms = "Games/Switch/Jeux"
+        let prefs = AppData.preferences
+        let keys = ["NXLibrary_CloudDriveScope", "NXLibrary_CloudSourcesBinding", "NXLibrary_CloudLastKnownAvailability",
+                    CloudLibraryPreference.referenceFolderKey, CloudLibraryPreference.toolOfferKey]
+        let initial = (keys + [CloudLibraryPreference.storageKey, CloudLibraryPreference.enabledKey,
+                              CloudLibraryPreference.toolChoiceKey, CloudLibraryPreference.sourcesRootKey])
+            .map { ($0, prefs.object(forKey: $0)) }
+        defer { for (key, value) in initial { prefs.set(value, forKey: key) } }
+        func seed(_ explicit: Bool, migrating: Bool = false) {
+            for key in keys { prefs.removeObject(forKey: key) }
+            prefs.set("fixture:Games", forKey: CloudLibraryPreference.storageKey)
+            prefs.set(true, forKey: CloudLibraryPreference.enabledKey)
+            prefs.set(!migrating, forKey: CloudLibraryPreference.toolChoiceKey)
+            prefs.set(explicit ? roms : nil, forKey: CloudLibraryPreference.sourcesRootKey)
+            scopeSourcesID = "Initial_ROMs_ID"
+            scopeAccount = "Account_ID"
+            scopeLibraryID = "Library_ID"
+            scopeOffline = false
+        }
+        var failures: [String] = []
+        func check(_ ok: Bool, _ message: String) {
+            if !ok { failures.append(message) }
+        }
+        for explicit in [true, false] {
+            seed(explicit)
+            let original = makeModel().cloudLibrary
+            if explicit {
+                original.chooseSourcesRoot(roms)
+            }
+            await original.scopeTask?.value
+            precondition(original.driveScope?.sources?.id == "Initial_ROMs_ID")
+            scopeSourcesID = nil
+            original.setReferenceFolder("TemporaryRef")
+            await original.scopeTask?.value
+            precondition(original.driveScope?.sources == nil)
+            scopeSourcesID = "Replacement_ROMs_ID"
+            let replaced = makeModel().cloudLibrary
+            await replaced.scopeTask?.value
+            check(replaced.sourceArchive == nil && replaced.sourcesNeedConfirmation, "N3: replacement accepted (explicit=\(explicit))")
+            scopeSourcesID = "Initial_ROMs_ID"
+            let restored = makeModel().cloudLibrary
+            await restored.scopeTask?.value
+            check(restored.sourceArchive == nil && restored.sourcesNeedConfirmation, "N3: mismatch forgotten after restart")
+            restored.chooseSourcesRoot(explicit ? roms : nil)
+            await restored.scopeTask?.value
+            check(restored.sourceArchive != nil && !restored.sourcesNeedConfirmation, "N3: a fresh choice cannot enable the valid folder")
+        }
+
+        seed(false)
+        scopeOffline = true
+        let offline = makeModel()
+        let model = offline.cloudLibrary
+        await model.scopeTask?.value
+        precondition(model.connectionCheck?.failure == .offline && model.archive == nil)
+        var actions: [SettingsRowAction] = []
+        let settingsView = SettingsCloudLibrarySection(viewModel: offline, model: model, settings: settings,
+            advanced: .constant(true), onEdit: {}, onEditLibrary: {}, onEditSources: {}, onActions: { actions = $0 })
+        settingsView.publishActions()
+        scopeOffline = false
+        if let retry = actions.first(where: { $0.id == "cloudRecovery" }), retry.isEnabled {
+            retry.press(button: 0)
+            let deadline = ContinuousClock.now + .seconds(3)
+            while model.archive == nil && ContinuousClock.now < deadline { try await Task.sleep(for: .milliseconds(15)) }
+        }
+        check(model.archive != nil && model.connectionCheck?.failure == nil && model.importTask == nil,
+              "N12: Retry cannot recover the scope without importing")
+        if model.archive == nil {
+            model.setReferenceFolder("TemporaryRef")
+            await model.scopeTask?.value
+        }
+        precondition(model.driveScope?.account == "Account_ID")
+        scopeAccount = "Replacement_Account_ID"
+        model.connectionCheck = nil
+        settingsView.test()
+        let deadline = ContinuousClock.now + .seconds(3)
+        while model.connectionCheck == nil && ContinuousClock.now < deadline { try await Task.sleep(for: .milliseconds(15)) }
+        check(model.connectionCheck?.failure == .scopeChanged && model.archive == nil, "N12: Test connection accepted a replacement account")
+        scopeAccount = "Account_ID"
+        scopeLibraryID = "Replacement_Library_ID"
+        model.connectionCheck = nil
+        settingsView.test()
+        let folderDeadline = ContinuousClock.now + .seconds(3)
+        while model.connectionCheck == nil && ContinuousClock.now < folderDeadline { try await Task.sleep(for: .milliseconds(15)) }
+        check(model.connectionCheck?.failure == .scopeChanged && model.archive == nil, "N12: Test connection accepted a replacement folder")
+
+        seed(true, migrating: true)
+        let upgraded = makeModel()
+        let migration = upgraded.cloudLibrary
+        let input = Input(viewModel: upgraded)
+        upgraded.prepareDriveTool {}
+        let consent = upgraded.settingsNotice!
+        check(consent.message.contains(roms), "N13: the existing-tool consent does not show the saved ROM path")
+        input.settingsNoticeInput(.confirm)
+        check(migration.needsDriveToolChoice && migration.preference.sourcesRootOverride == roms && migration.sourceArchive == nil,
+              "N13: Cancel changed the ROM selection")
+        scopeOffline = true
+        upgraded.prepareDriveTool {}
+        input.settingsNoticeInput(.navigateLeft)
+        input.settingsNoticeInput(.confirm)
+        await migration.scopeTask?.value
+        check(migration.connectionCheck?.failure == .offline && migration.sourceArchive == nil
+              && migration.preference.sourcesRootOverride == roms
+              && prefs.object(forKey: "NXLibrary_CloudSourcesBinding") == nil, "N13: migration approved an unverified ROM folder")
+        scopeOffline = false
+        await migration.checkDriveScope()?.value
+        let restarted = makeModel().cloudLibrary
+        await restarted.scopeTask?.value
+        check(migration.driveScope?.sources?.id == "Initial_ROMs_ID" && restarted.sourceArchive != nil
+            && !restarted.sourcesNeedConfirmation, "N13: a second consent is needed to use the saved ROM path")
+        precondition(failures.isEmpty, failures.joined(separator: "; "))
+        print("Drive scope regressions passed: N3/N12/N13")
+    }
+
     @MainActor static func main() async throws {
+        let fixtureHome = URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!, isDirectory: true)
+            .resolvingSymlinksInPath().path
+        precondition(URL(fileURLWithPath: NSHomeDirectory()).resolvingSymlinksInPath().path == fixtureHome
+            && AppData.profile.home.resolvingSymlinksInPath().path == fixtureHome,
+            "The settings probe cannot run outside its temporary home")
         let output = URL(fileURLWithPath: CommandLine.arguments[1], isDirectory: true)
         let font = URL(fileURLWithPath: CommandLine.arguments[2])
         NSApplication.shared.setActivationPolicy(.prohibited)
@@ -61,6 +194,8 @@ import ArcanePorting
         func makeModel() -> AppViewModel {
             AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: root)))
         }
+        try await checkDriveScope(settings: settings, makeModel: makeModel)
+        if ProcessInfo.processInfo.environment["OORT_SCOPE_ONLY"] == "1" { return }
         // Unfollow compares the displayed catalog revision with the on-disk revision.
         let repository = CatalogRepository(store: .init(directory: root))
         let catalog = try repository.load()
