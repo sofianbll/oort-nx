@@ -24,9 +24,9 @@ public enum CheatStatus: Equatable, Sendable {
 
     /// The Game Options row's value: "Rebuild", "None", "Off" or "N on".
     public static func rowValue(_ status: CheatStatus, state: CheatState?) -> String {
-        guard status == .ready else { return "Rebuild" }
-        guard let state, state.file != nil else { return "None" }
-        return state.masterOn ? "\(state.onCount) on" : "Off"
+        guard status == .ready else { return L10n.text("Rebuild") }
+        guard let state, state.file != nil else { return L10n.text("None") }
+        return state.masterOn ? L10n.format("%@ on", [String(state.onCount)]) : L10n.text("Off")
     }
 
     /// The detail page's "Cheats on": the master switch on and at least one switch on (masters alone do not count).

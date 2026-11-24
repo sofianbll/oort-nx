@@ -79,7 +79,7 @@ public struct ModStore {
 
     /// The Mods row's value: "None" without mods, "Off" when none is on, otherwise "<n> on".
     public static func rowValue(on: Int, total: Int) -> String {
-        total == 0 ? "None" : on == 0 ? "Off" : "\(on) on"
+        total == 0 ? L10n.text("None") : on == 0 ? L10n.text("Off") : L10n.format("%@ on", [String(on)])
     }
 
     public var modsFolder: URL { supportFolder.appendingPathComponent("mods") }

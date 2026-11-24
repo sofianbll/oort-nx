@@ -1,6 +1,8 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@ on": {"localizations": {
+      "en":{"stringUnit":{"state":"translated","value":"%@ on"}},"fr":{"stringUnit":{"state":"translated","value":"%@ actifs"}},"de":{"stringUnit":{"state":"translated","value":"%@ aktiv"}},"es":{"stringUnit":{"state":"translated","value":"%@ activos"}},"it":{"stringUnit":{"state":"translated","value":"%@ attivi"}},"pt-BR":{"stringUnit":{"state":"translated","value":"%@ ativos"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"已启用 %@ 个"}}}},
     "Game settings: Cheats": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Cheats"}},"it":{"stringUnit":{"state":"translated","value":"Trucchi"}},"fr":{"stringUnit":{"state":"translated","value":"Triches"}},"de":{"stringUnit":{"state":"translated","value":"Cheats"}},"es":{"stringUnit":{"state":"translated","value":"Trucos"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Trapaças"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"金手指"}}}},
     "All settings for this game.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"All settings for this game."}},"fr":{"stringUnit":{"state":"translated","value":"Tous les réglages de ce jeu."}},"de":{"stringUnit":{"state":"translated","value":"Alle Einstellungen für dieses Spiel."}},"es":{"stringUnit":{"state":"translated","value":"Todos los ajustes de este juego."}},"it":{"stringUnit":{"state":"translated","value":"Tutte le impostazioni di questo gioco."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Todos os ajustes deste jogo."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"此游戏的所有设置。"}}}},
     "All settings": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"All settings"}},"fr":{"stringUnit":{"state":"translated","value":"Tous les réglages"}},"de":{"stringUnit":{"state":"translated","value":"Alle Einstellungen"}},"es":{"stringUnit":{"state":"translated","value":"Todos los ajustes"}},"it":{"stringUnit":{"state":"translated","value":"Tutte le impostazioni"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Todos os ajustes"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"所有设置"}}}},
@@ -1179,7 +1181,7 @@
     }},
     "GitHub for engine downloads and updates; Apple for Metal downloads. Local porting does not upload game files or keys.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"GitHub for engine downloads and updates; Apple for Metal downloads. Local porting does not upload game files or keys."}},
-      "fr": {"stringUnit":{"state":"translated","value":"GitHub pour télécharger et mettre à jour le moteur ; Apple pour télécharger Metal. Le portage local n’envoie ni fichiers de jeu ni clés."}},
+      "fr": {"stringUnit":{"state":"translated","value":"GitHub pour télécharger et mettre à jour le moteur ; Apple pour télécharger Metal. Compiler n’envoie ni fichiers de jeu ni clés."}},
       "it": {"stringUnit":{"state":"translated","value":"GitHub per scaricare e aggiornare il motore; Apple per scaricare Metal. Il porting locale non invia file di gioco né chiavi."}},
       "de": {"stringUnit":{"state":"translated","value":"GitHub für Engine-Downloads und Updates, Apple für Metal-Downloads. Lokale Portierung lädt keine Spieldateien oder Schlüssel hoch."}},
       "es": {"stringUnit":{"state":"translated","value":"GitHub para descargar y actualizar el motor; Apple para descargar Metal. La adaptación local no sube archivos de juego ni claves."}},
@@ -1775,13 +1777,13 @@
       "en": {"stringUnit":{"state":"translated","value":"Nextendo settings"}}, "it": {"stringUnit":{"state":"translated","value":"Impostazioni Nextendo"}}, "fr": {"stringUnit":{"state":"translated","value":"Paramètres Nextendo"}}, "de": {"stringUnit":{"state":"translated","value":"Nextendo-Einstellungen"}}, "es": {"stringUnit":{"state":"translated","value":"Ajustes de Nextendo"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Configurações do Nextendo"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"Nextendo 设置"}}
     }},
     "Connect your cloud library in Settings → Porting → Cloud library.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"Connect your cloud library in Settings → Porting → Cloud library."}},
-      "it": {"stringUnit":{"state":"translated","value":"Collega la libreria cloud in Impostazioni → Creazione dell’app per Mac → Libreria cloud."}},
-      "fr": {"stringUnit":{"state":"translated","value":"Connectez-vous dans Réglages → Création d’apps Mac → Bibliothèque cloud."}},
-      "de": {"stringUnit":{"state":"translated","value":"Verbinde deine Cloud-Bibliothek unter Einstellungen → App-Erstellung → Cloud-Bibliothek."}},
-      "es": {"stringUnit":{"state":"translated","value":"Conecta tu biblioteca en Ajustes → Compilación → Biblioteca en la nube."}},
-      "pt-BR": {"stringUnit":{"state":"translated","value":"Conecte sua biblioteca em Ajustes → Compilação → Biblioteca na nuvem."}},
-      "zh-Hans": {"stringUnit":{"state":"translated","value":"请在「设置 → 移植 → 云端游戏库」中连接您的游戏库。"}}
+      "en": {"stringUnit":{"state":"translated","value":"Connect your cloud library in Settings → Cloud library."}},
+      "it": {"stringUnit":{"state":"translated","value":"Collega la libreria cloud in Impostazioni → Libreria cloud."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Connectez-vous dans Réglages → Bibliothèque cloud."}},
+      "de": {"stringUnit":{"state":"translated","value":"Verbinde deine Cloud-Bibliothek unter Einstellungen → Cloud-Bibliothek."}},
+      "es": {"stringUnit":{"state":"translated","value":"Conecta tu biblioteca en Ajustes → Biblioteca en la nube."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Conecte sua biblioteca em Ajustes → Biblioteca na nuvem."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"请在「设置 → 云端游戏库」中连接您的游戏库。"}}
     }},
     "Looking for cloud games…": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Looking for cloud games…"}},
@@ -2087,7 +2089,7 @@
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Wait for porting and transfers to finish before sorting."}},
         "it": {"stringUnit": {"state": "translated", "value": "Attendi la fine del porting e dei trasferimenti prima di ordinare."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Attendez la fin du portage et des transferts avant de ranger."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Attendez la fin de la compilation et des transferts avant de ranger."}},
         "de": {"stringUnit": {"state": "translated", "value": "Warte vor dem Sortieren, bis Portierung und Übertragungen abgeschlossen sind."}},
         "es": {"stringUnit": {"state": "translated", "value": "Espera a que terminen la portabilidad y las transferencias antes de ordenar."}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Aguarde o fim da portabilidade e das transferências antes de organizar."}},
@@ -4952,7 +4954,7 @@
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Open porting"}},
         "it": {"stringUnit": {"state": "translated", "value": "Apri il porting"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Ouvrir le portage"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ouvrir la compilation"}},
         "de": {"stringUnit": {"state": "translated", "value": "App-Erstellung öffnen"}},
         "es": {"stringUnit": {"state": "translated", "value": "Abrir la compilación"}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Abrir compilação"}},
@@ -5370,7 +5372,7 @@
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Cloud storage for ported apps and build caches, separate from saves."}},
         "it": {"stringUnit": {"state": "translated", "value": "Spazio cloud per app convertite e cache di compilazione, separato dai salvataggi."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Stockez les apps portées et leurs caches de compilation sans toucher aux sauvegardes."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Gardez vos jeux compilés en ligne. Vos sauvegardes n’y sont pas."}},
         "de": {"stringUnit": {"state": "translated", "value": "Cloud-Speicher für portierte Apps und Build-Caches, getrennt von Spielständen."}},
         "es": {"stringUnit": {"state": "translated", "value": "Almacenamiento en la nube para apps adaptadas y cachés de compilación, separado de las partidas guardadas."}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Armazenamento na nuvem para apps portados e caches de compilação, separado dos jogos salvos."}},
@@ -10985,7 +10987,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@. You can change both wallpapers any time in Settings → Look."
+            "value": "%@. You can change both wallpapers any time in Settings → Appearance."
           }
         },
         "it": {
@@ -10997,13 +10999,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@. Vous pouvez changer les deux fonds d’écran à tout moment dans Réglages → Apparence."
+            "value": "%@. Vous pouvez changer les deux fonds d’écran à tout moment dans Réglages → Affichage."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@. Du kannst beide Hintergrundbilder jederzeit unter Einstellungen → Erscheinungsbild ändern."
+            "value": "%@. Du kannst beide Hintergrundbilder jederzeit unter Einstellungen → Anzeige ändern."
           }
         },
         "es": {
@@ -13302,7 +13304,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Une notification quand la création d’une app Mac se termine alors qu’Arcane est en arrière-plan."
+            "value": "Une notification quand une compilation se termine alors qu’Arcane est en arrière-plan."
           }
         },
         "de": {
@@ -13349,7 +13351,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Un rapport pour signaler un problème : versions, configuration et dernière création d’app Mac. Aucune clé."
+            "value": "Un rapport pour signaler un problème : versions, configuration et dernière compilation. Aucune clé."
           }
         },
         "de": {
@@ -14321,7 +14323,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ajouter et créer l’app Mac"
+            "value": "Ajouter et compiler"
           }
         },
         "de": {
@@ -31832,7 +31834,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chaque création d’app Mac nécessite un seul jeu ; ce dossier contient les fichiers de plusieurs jeux."
+            "value": "On compile un seul jeu à la fois ; ce dossier contient les fichiers de plusieurs jeux."
           }
         },
         "de": {
@@ -44566,7 +44568,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dernière création d’app Mac annulée · Ouvrir le journal"
+            "value": "Dernière compilation annulée · Ouvrir le journal"
           }
         },
         "de": {
@@ -44613,7 +44615,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Échec de la dernière création d’app Mac"
+            "value": "Échec de la dernière compilation"
           }
         },
         "de": {
@@ -54575,7 +54577,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Notifier à la fin de la création d’une app Mac"
+            "value": "Notifier à la fin d’une compilation"
           }
         },
         "de": {
@@ -64877,7 +64879,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Certains pipelines n’ont pas pu être préparés pendant le portage. Le jeu les préparera au premier lancement, qui pourra prendre plus de temps. "
+            "value": "Certains pipelines n’ont pas pu être préparés pendant la compilation. Le jeu les préparera au premier lancement, qui pourra prendre plus de temps. "
           }
         },
         "de": {
@@ -70223,43 +70225,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Steam couldn't be read completely. Try again or continue and check Settings → Sources later."
+            "value": "Steam couldn't be read completely. Try again or continue and check Settings → Integrations later."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Non è stato possibile leggere tutti i dati di Steam. Riprova o continua e controlla Impostazioni → Fonti più tardi."
+            "value": "Non è stato possibile leggere tutti i dati di Steam. Riprova o continua e controlla Impostazioni → Integrazioni più tardi."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossible de lire toutes les données Steam. Réessayez ou continuez et vérifiez Réglages → Sources plus tard."
+            "value": "Impossible de lire toutes les données Steam. Réessayez ou continuez et vérifiez Réglages → Intégrations plus tard."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Steam konnte nicht vollständig gelesen werden. Erneut versuchen oder fortfahren und später unter Einstellungen → Quellen prüfen."
+            "value": "Steam konnte nicht vollständig gelesen werden. Erneut versuchen oder fortfahren und später unter Einstellungen → Integrationen prüfen."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se pudieron leer todos los datos de Steam. Reintenta o continúa y revisa Ajustes → Fuentes más tarde."
+            "value": "No se pudieron leer todos los datos de Steam. Reintenta o continúa y revisa Ajustes → Integraciones más tarde."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não foi possível ler todos os dados do Steam. Tente novamente ou continue e confira Ajustes → Fontes depois."
+            "value": "Não foi possível ler todos os dados do Steam. Tente novamente ou continue e confira Ajustes → Integrações depois."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无法完整读取 Steam。请重试，或继续并稍后检查“设置”→“来源”。"
+            "value": "无法完整读取 Steam。请重试，或继续并稍后检查“设置”→“集成”。"
           }
         }
       }
@@ -79968,7 +79970,7 @@
     "The build log could not be written. Porting continues.": {
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "The build log could not be written. Porting continues."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Impossible d’écrire le journal. Le portage continue."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Impossible d’écrire le journal. La compilation continue."}},
         "it": {"stringUnit": {"state": "translated", "value": "Impossibile scrivere il log. Il porting continua."}},
         "de": {"stringUnit": {"state": "translated", "value": "Das Build-Protokoll konnte nicht geschrieben werden. Die Portierung läuft weiter."}},
         "es": {"stringUnit": {"state": "translated", "value": "No se pudo escribir el registro. La compilación continúa."}},
@@ -85842,7 +85844,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Votre compilation a été conservée. Réessayer l’installe sans recréer l’app Mac."
+            "value": "Votre compilation a été conservée. Réessayer l’installe sans recompiler."
           }
         },
         "de": {
@@ -91941,43 +91943,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "At %@, %@ of the tested %@, chosen in Settings → Setup and engine."
+            "value": "At %@, %@ of the tested %@, chosen in Settings → Settings title: Switch."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Al commit %@, %@ rispetto al commit testato %@, scelto in Impostazioni → Configurazione e motore."
+            "value": "Al commit %@, %@ rispetto al commit testato %@, scelto in Impostazioni → Cambia."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Au commit %@, %@ par rapport au commit testé %@, choisi dans Réglages → Configuration et moteur."
+            "value": "Au commit %@, %@ par rapport au commit testé %@, choisi dans Réglages → Changer."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stand %@, %@ (getestet: %@), gewählt unter Einstellungen → Einrichtung und Engine."
+            "value": "Stand %@, %@ (getestet: %@), gewählt unter Einstellungen → Wechseln."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En %@, %@ de la versión probada %@, elegido en Ajustes → Configuración y motor."
+            "value": "En %@, %@ de la versión probada %@, elegido en Ajustes → Cambiar."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Em %@, %@ em relação à versão testada %@, escolhido em Ajustes → Configuração e engine."
+            "value": "Em %@, %@ em relação à versão testada %@, escolhido em Ajustes → Trocar."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "当前为 %1$@，比经过测试的 %3$@ %2$@，在“设置”→“配置与引擎”中选择。"
+            "value": "当前为 %1$@，比经过测试的 %3$@ %2$@，在“设置”→“Switch”中选择。"
           }
         }
       }
@@ -91988,43 +91990,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Blocked by the Metal gate. See Settings → Setup and engine."
+            "value": "Blocked by the Metal gate. See Settings → Settings title: Switch."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloccato dal controllo Metal. Vedi Impostazioni → Configurazione e motore."
+            "value": "Bloccato dal controllo Metal. Vedi Impostazioni → Cambia."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloqué par le contrôle Metal. Consultez Réglages → Configuration et moteur."
+            "value": "Bloqué par le contrôle Metal. Consultez Réglages → Changer."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Durch die Metal-Prüfung gesperrt. Siehe Einstellungen → Einrichtung und Engine."
+            "value": "Durch die Metal-Prüfung gesperrt. Siehe Einstellungen → Wechseln."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloqueado por el control de Metal. Consulta Ajustes → Configuración y motor."
+            "value": "Bloqueado por el control de Metal. Consulta Ajustes → Cambiar."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloqueado pela verificação do Metal. Veja Ajustes → Configuração e engine."
+            "value": "Bloqueado pela verificação do Metal. Veja Ajustes → Trocar."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "被 Metal 检查阻止。请查看“设置”→“配置与引擎”。"
+            "value": "被 Metal 检查阻止。请查看“设置”→“Switch”。"
           }
         }
       }
@@ -92035,43 +92037,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Build blocked — Settings → Setup and engine"
+            "value": "Build blocked — Settings → Settings title: Switch"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Compilazione bloccata — Impostazioni → Configurazione e motore"
+            "value": "Compilazione bloccata — Impostazioni → Cambia"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Compilation bloquée — Réglages → Configuration et moteur"
+            "value": "Compilation bloquée — Réglages → Changer"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Build gesperrt — Einstellungen → Einrichtung und Engine"
+            "value": "Build gesperrt — Einstellungen → Wechseln"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Compilación bloqueada — Ajustes → Configuración y motor"
+            "value": "Compilación bloqueada — Ajustes → Cambiar"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Compilação bloqueada — Ajustes → Configuração e engine"
+            "value": "Compilação bloqueada — Ajustes → Trocar"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "构建被阻止 — “设置”→“配置与引擎”"
+            "value": "构建被阻止 — “设置”→“Switch”"
           }
         }
       }
@@ -92082,43 +92084,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Install the certified compiler from Setup, or allow untested toolchains in Settings → Setup and engine."
+            "value": "Install the certified compiler from Setup, or allow untested toolchains in Settings → Settings title: Switch."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Installa il compilatore certificato da Configurazione oppure consenti le toolchain non testate in Impostazioni → Configurazione e motore."
+            "value": "Installa il compilatore certificato da Configurazione oppure consenti le toolchain non testate in Impostazioni → Cambia."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Installez le compilateur certifié depuis Configuration, ou autorisez les chaînes d’outils non testées dans Réglages → Configuration et moteur."
+            "value": "Installez le compilateur certifié depuis Configuration, ou autorisez les chaînes d’outils non testées dans Réglages → Changer."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Installiere den zertifizierten Compiler über die Einrichtung oder erlaube ungetestete Toolchains unter Einstellungen → Einrichtung und Engine."
+            "value": "Installiere den zertifizierten Compiler über die Einrichtung oder erlaube ungetestete Toolchains unter Einstellungen → Wechseln."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Instala el compilador certificado desde Configuración inicial o permite cadenas de herramientas no probadas en Ajustes → Configuración y motor."
+            "value": "Instala el compilador certificado desde Configuración inicial o permite cadenas de herramientas no probadas en Ajustes → Cambiar."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Instale o compilador certificado em Configuração ou permita conjuntos de ferramentas não testados em Ajustes → Configuração e engine."
+            "value": "Instale o compilador certificado em Configuração ou permita conjuntos de ferramentas não testados em Ajustes → Trocar."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请从“配置”中安装认证的编译器，或在“设置”→“配置与引擎”中允许未测试的工具链。"
+            "value": "请从“配置”中安装认证的编译器，或在“设置”→“Switch”中允许未测试的工具链。"
           }
         }
       }
@@ -92129,43 +92131,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Newer Metal: turn on the override in Settings → Setup and engine"
+            "value": "Newer Metal: turn on the override in Settings → Settings title: Switch"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Metal più recente: ignora il controllo in Impostazioni → Configurazione e motore"
+            "value": "Metal più recente: ignora il controllo in Impostazioni → Cambia"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Metal plus récent : activez la dérogation dans Réglages → Configuration et moteur"
+            "value": "Metal plus récent : activez la dérogation dans Réglages → Changer"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Neueres Metal: Ausnahme unter Einstellungen → Einrichtung und Engine aktivieren"
+            "value": "Neueres Metal: Ausnahme unter Einstellungen → Wechseln aktivieren"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Metal más reciente: activa la excepción en Ajustes → Configuración y motor"
+            "value": "Metal más reciente: activa la excepción en Ajustes → Cambiar"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Metal mais recente: ative a exceção em Ajustes → Configuração e engine"
+            "value": "Metal mais recente: ative a exceção em Ajustes → Trocar"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "较新的 Metal：在“设置”→“配置与引擎”中开启覆盖"
+            "value": "较新的 Metal：在“设置”→“Switch”中开启覆盖"
           }
         }
       }
@@ -92176,43 +92178,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Older Metal: update it, or use the override in Settings → Setup and engine"
+            "value": "Older Metal: update it, or use the override in Settings → Settings title: Switch"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Metal precedente: aggiornalo oppure ignora il controllo in Impostazioni → Configurazione e motore"
+            "value": "Metal precedente: aggiornalo oppure ignora il controllo in Impostazioni → Cambia"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Metal plus ancien : mettez-le à jour ou utilisez la dérogation dans Réglages → Configuration et moteur"
+            "value": "Metal plus ancien : mettez-le à jour ou utilisez la dérogation dans Réglages → Changer"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Älteres Metal: aktualisieren oder Ausnahme unter Einstellungen → Einrichtung und Engine verwenden"
+            "value": "Älteres Metal: aktualisieren oder Ausnahme unter Einstellungen → Wechseln verwenden"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Metal anterior: actualízalo o usa la excepción en Ajustes → Configuración y motor"
+            "value": "Metal anterior: actualízalo o usa la excepción en Ajustes → Cambiar"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Metal mais antigo: atualize ou use a exceção em Ajustes → Configuração e engine"
+            "value": "Metal mais antigo: atualize ou use a exceção em Ajustes → Trocar"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "较旧的 Metal：更新它，或在“设置”→“配置与引擎”中使用覆盖"
+            "value": "较旧的 Metal：更新它，或在“设置”→“Switch”中使用覆盖"
           }
         }
       }
@@ -92223,43 +92225,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The nxnative checkout was not found. Choose it in Settings → Setup and engine."
+            "value": "The nxnative checkout was not found. Choose it in Settings → Settings title: Switch."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il checkout di nxnative non è stato trovato. Selezionalo in Impostazioni → Configurazione e motore."
+            "value": "Il checkout di nxnative non è stato trovato. Selezionalo in Impostazioni → Cambia."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "La copie de travail de nxnative est introuvable. Choisissez-la dans Réglages → Configuration et moteur."
+            "value": "La copie de travail de nxnative est introuvable. Choisissez-la dans Réglages → Changer."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Der nxnative-Checkout wurde nicht gefunden. Wähle ihn unter Einstellungen → Einrichtung und Engine aus."
+            "value": "Der nxnative-Checkout wurde nicht gefunden. Wähle ihn unter Einstellungen → Wechseln aus."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se ha encontrado la copia local de nxnative. Selecciónala en Ajustes → Configuración y motor."
+            "value": "No se ha encontrado la copia local de nxnative. Selecciónala en Ajustes → Cambiar."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O checkout do nxnative não foi encontrado. Selecione-o em Ajustes → Configuração e engine."
+            "value": "O checkout do nxnative não foi encontrado. Selecione-o em Ajustes → Trocar."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "未找到 nxnative 检出目录。请在“设置”→“配置与引擎”中选择。"
+            "value": "未找到 nxnative 检出目录。请在“设置”→“Switch”中选择。"
           }
         }
       }
@@ -92270,43 +92272,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose a folder with your %@. Existing apps play without these files. Change it later in Settings → Porting → Game folders."
+            "value": "Choose a folder with your %@. Existing apps play without these files. Change it later in Settings → Settings title: Switch."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Scegli una cartella con i tuoi %@. Le app esistenti funzionano senza questi file. Puoi cambiarla in seguito in Impostazioni → Porting → Cartelle dei giochi."
+            "value": "Scegli una cartella con i tuoi %@. Le app esistenti funzionano senza questi file. Puoi cambiarla in seguito in Impostazioni → Cambia."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choisissez un dossier contenant vos %@. Les apps existantes fonctionnent sans ces fichiers. Vous pourrez modifier ce choix dans Réglages → Porting → Dossiers de jeux."
+            "value": "Choisissez un dossier contenant vos %@. Les apps existantes fonctionnent sans ces fichiers. Vous pourrez modifier ce choix dans Réglages → Changer."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wähle einen Ordner mit deinen %@. Vorhandene Apps lassen sich ohne diese Dateien spielen. Du kannst den Ordner später unter Einstellungen → Porting → Spieleordner ändern."
+            "value": "Wähle einen Ordner mit deinen %@. Vorhandene Apps lassen sich ohne diese Dateien spielen. Du kannst den Ordner später unter Einstellungen → Wechseln ändern."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elige una carpeta con tus %@. Las apps existentes se pueden ejecutar sin estos archivos. Puedes cambiarlo más tarde en Ajustes → Porting → Carpetas de juegos."
+            "value": "Elige una carpeta con tus %@. Las apps existentes se pueden ejecutar sin estos archivos. Puedes cambiarlo más tarde en Ajustes → Cambiar."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Escolha uma pasta com seus %@. Apps existentes funcionam sem esses arquivos. Altere depois em Ajustes → Porting → Pastas de jogos."
+            "value": "Escolha uma pasta com seus %@. Apps existentes funcionam sem esses arquivos. Altere depois em Ajustes → Trocar."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "选择存放你的%@的文件夹。现有的 App 无需这些文件即可游玩。以后可在“设置”→“移植”→“游戏文件夹”中更改。"
+            "value": "选择存放你的%@的文件夹。现有的 App 无需这些文件即可游玩。以后可在“设置”→“Switch”中更改。"
           }
         }
       }
@@ -92317,43 +92319,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose where to keep your game apps. Put any existing nxnative games (.app) here. Change it later in Settings → Porting → Game folders."
+            "value": "Choose where to keep your game apps. Put any existing nxnative games (.app) here. Change it later in Settings → Settings title: Switch."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Scegli dove conservare le app dei giochi. Inserisci qui eventuali giochi nxnative (.app) esistenti. Puoi cambiarla in seguito in Impostazioni → Porting → Cartelle dei giochi."
+            "value": "Scegli dove conservare le app dei giochi. Inserisci qui eventuali giochi nxnative (.app) esistenti. Puoi cambiarla in seguito in Impostazioni → Cambia."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choisissez où conserver vos apps de jeux. Placez-y vos jeux nxnative existants (.app). Vous pourrez modifier ce choix dans Réglages → Porting → Dossiers de jeux."
+            "value": "Choisissez où conserver vos apps de jeux. Placez-y vos jeux nxnative existants (.app). Vous pourrez modifier ce choix dans Réglages → Changer."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wähle, wo deine Spiele-Apps gespeichert werden. Lege hier auch vorhandene nxnative-Spiele (.app) ab. Du kannst den Ordner später unter Einstellungen → Porting → Spieleordner ändern."
+            "value": "Wähle, wo deine Spiele-Apps gespeichert werden. Lege hier auch vorhandene nxnative-Spiele (.app) ab. Du kannst den Ordner später unter Einstellungen → Wechseln ändern."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elige dónde guardar tus apps de juegos. Coloca aquí tus juegos existentes de nxnative (.app). Puedes cambiarlo más tarde en Ajustes → Porting → Carpetas de juegos."
+            "value": "Elige dónde guardar tus apps de juegos. Coloca aquí tus juegos existentes de nxnative (.app). Puedes cambiarlo más tarde en Ajustes → Cambiar."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Escolha onde manter os apps dos seus jogos. Coloque aqui os jogos existentes do nxnative (.app). Altere depois em Ajustes → Porting → Pastas de jogos."
+            "value": "Escolha onde manter os apps dos seus jogos. Coloque aqui os jogos existentes do nxnative (.app). Altere depois em Ajustes → Trocar."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "选择存放游戏 App 的位置。请把现有的 nxnative 游戏（.app）放在这里。以后可在“设置”→“移植”→“游戏文件夹”中更改。"
+            "value": "选择存放游戏 App 的位置。请把现有的 nxnative 游戏（.app）放在这里。以后可在“设置”→“Switch”中更改。"
           }
         }
       }
@@ -92364,43 +92366,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Existing game apps play without sources. Choose later in Settings → Porting → Game folders."
+            "value": "Existing game apps play without sources. Choose later in Settings → Settings title: Switch."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le app dei giochi esistenti funzionano senza sorgenti. Puoi scegliere più tardi in Impostazioni → Porting → Cartelle dei giochi."
+            "value": "Le app dei giochi esistenti funzionano senza sorgenti. Puoi scegliere più tardi in Impostazioni → Cambia."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les apps de jeux existantes fonctionnent sans sources. Vous pourrez choisir plus tard dans Réglages → Porting → Dossiers de jeux."
+            "value": "Les apps de jeux existantes fonctionnent sans sources. Vous pourrez choisir plus tard dans Réglages → Changer."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vorhandene Spiele-Apps lassen sich ohne Quellen spielen. Wähle sie später unter Einstellungen → Porting → Spieleordner aus."
+            "value": "Vorhandene Spiele-Apps lassen sich ohne Quellen spielen. Wähle sie später unter Einstellungen → Wechseln aus."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Las apps de juegos existentes se pueden ejecutar sin sus archivos de origen. Puedes elegirlos más tarde en Ajustes → Porting → Carpetas de juegos."
+            "value": "Las apps de juegos existentes se pueden ejecutar sin sus archivos de origen. Puedes elegirlos más tarde en Ajustes → Cambiar."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apps de jogos existentes funcionam sem os arquivos de origem. Escolha depois em Ajustes → Porting → Pastas de jogos."
+            "value": "Apps de jogos existentes funcionam sem os arquivos de origem. Escolha depois em Ajustes → Trocar."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "现有的游戏 App 无需来源即可游玩。以后可在“设置”→“移植”→“游戏文件夹”中选择。"
+            "value": "现有的游戏 App 无需来源即可游玩。以后可在“设置”→“Switch”中选择。"
           }
         }
       }
@@ -92411,43 +92413,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The Game apps folder is unavailable. Reconnect it or choose another in Settings → Porting → Game folders."
+            "value": "The Game apps folder is unavailable. Reconnect it or choose another in Settings → Settings title: Switch."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "La cartella App dei giochi non è disponibile. Ricollegala o scegline un’altra in Impostazioni → Porting → Cartelle dei giochi."
+            "value": "La cartella App dei giochi non è disponibile. Ricollegala o scegline un’altra in Impostazioni → Cambia."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le dossier Apps de jeux est indisponible. Reconnectez-le ou choisissez-en un autre dans Réglages → Porting → Dossiers de jeux."
+            "value": "Le dossier Apps de jeux est indisponible. Reconnectez-le ou choisissez-en un autre dans Réglages → Changer."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Der Spiele-App-Ordner ist nicht verfügbar. Verbinde ihn erneut oder wähle unter Einstellungen → Porting → Spieleordner einen anderen."
+            "value": "Der Spiele-App-Ordner ist nicht verfügbar. Verbinde ihn erneut oder wähle unter Einstellungen → Wechseln einen anderen."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "La carpeta Apps de juegos no está disponible. Vuelve a conectarla o elige otra en Ajustes → Porting → Carpetas de juegos."
+            "value": "La carpeta Apps de juegos no está disponible. Vuelve a conectarla o elige otra en Ajustes → Cambiar."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "A pasta de Apps de jogos está indisponível. Reconecte ou escolha outra em Ajustes → Porting → Pastas de jogos."
+            "value": "A pasta de Apps de jogos está indisponível. Reconecte ou escolha outra em Ajustes → Trocar."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "“游戏 App”文件夹不可用。请重新连接，或在“设置”→“移植”→“游戏文件夹”中选择其他文件夹。"
+            "value": "“游戏 App”文件夹不可用。请重新连接，或在“设置”→“Switch”中选择其他文件夹。"
           }
         }
       }
@@ -92458,43 +92460,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Turn off Cloud saves in Settings → Cloud saves to import or restore."
+            "value": "Turn off Cloud saves in Settings → Saves to import or restore."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Disattiva Salvataggi cloud in Impostazioni → Salvataggi cloud per importare o ripristinare."
+            "value": "Disattiva Salvataggi cloud in Impostazioni → Salvataggi per importare o ripristinare."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Désactivez Sauvegardes dans le cloud dans Réglages → Sauvegardes dans le cloud pour importer ou restaurer."
+            "value": "Désactivez Sauvegardes dans le cloud dans Réglages → Sauvegardes pour importer ou restaurer."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deaktiviere Cloud-Spielstände unter Einstellungen → Cloud-Spielstände, um Spielstände zu importieren oder wiederherzustellen."
+            "value": "Deaktiviere Cloud-Spielstände unter Einstellungen → Spielstände, um Spielstände zu importieren oder wiederherzustellen."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Desactiva Partidas en la nube en Ajustes → Partidas en la nube para importar o restaurar."
+            "value": "Desactiva Partidas en la nube en Ajustes → Partidas guardadas para importar o restaurar."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Desative Dados salvos na nuvem em Ajustes → Dados salvos na nuvem para importar ou restaurar."
+            "value": "Desative Dados salvos na nuvem em Ajustes → Dados salvos para importar ou restaurar."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请在“设置”→“云存档”中关闭云存档，以便导入或恢复。"
+            "value": "请在“设置”→“存档”中关闭云存档，以便导入或恢复。"
           }
         }
       }
@@ -92505,43 +92507,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "IGDB is optional · connect it in Settings → Online services."
+            "value": "IGDB is optional · connect it in Settings → Integrations."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "IGDB è facoltativo · collegalo in Impostazioni → Servizi online."
+            "value": "IGDB è facoltativo · collegalo in Impostazioni → Integrazioni."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "IGDB est facultatif · connectez-le dans Paramètres → Services en ligne."
+            "value": "IGDB est facultatif · connectez-le dans Paramètres → Intégrations."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "IGDB ist optional · unter Einstellungen → Online-Dienste verbinden."
+            "value": "IGDB ist optional · unter Einstellungen → Integrationen verbinden."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "IGDB es opcional · conéctalo en Ajustes → Servicios en línea."
+            "value": "IGDB es opcional · conéctalo en Ajustes → Integraciones."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O IGDB é opcional · conecte em Configurações → Serviços online."
+            "value": "O IGDB é opcional · conecte em Configurações → Integrações."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "IGDB 是可选的 · 可在“设置”→“在线服务”中连接。"
+            "value": "IGDB 是可选的 · 可在“设置”→“集成”中连接。"
           }
         }
       }
@@ -92899,7 +92901,7 @@
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Porting storage"}},
         "it": {"stringUnit": {"state": "translated", "value": "Spazio di porting"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Stockage de Porting"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Fichiers de compilation"}},
         "de": {"stringUnit": {"state": "translated", "value": "Portierungsspeicher"}},
         "es": {"stringUnit": {"state": "translated", "value": "Almacenamiento de portabilidad"}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Armazenamento de portabilidade"}},
@@ -93485,43 +93487,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Steam and ported apps aren't here yet. Add them later from Settings → Sources or with Porting."
+            "value": "Steam and built games aren't here yet. Add them later from Settings → Integrations, or build a game."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Steam e le app portate non ci sono ancora. Puoi aggiungerli dopo, da Impostazioni → Fonti o con Porting."
+            "value": "Steam e le app portate non ci sono ancora. Puoi aggiungerli dopo, da Impostazioni → Integrazioni o con Porting."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Steam et les apps portées ne sont pas encore là. Ajoutez-les plus tard depuis Réglages → Sources ou avec Porting."
+            "value": "Steam et vos jeux compilés ne sont pas encore là. Ajoutez-les plus tard depuis Réglages → Intégrations, ou compilez un jeu."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Steam und portierte Apps sind noch nicht da. Füge sie später unter Einstellungen → Quellen oder mit Porting hinzu."
+            "value": "Steam und portierte Apps sind noch nicht da. Füge sie später unter Einstellungen → Integrationen oder mit Porting hinzu."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Steam y las apps portadas aún no están. Añádelos después desde Ajustes → Fuentes o con Porting."
+            "value": "Steam y las apps portadas aún no están. Añádelos después desde Ajustes → Integraciones o con Porting."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O Steam e os apps portados ainda não estão aqui. Adicione-os depois em Ajustes → Fontes ou com Porting."
+            "value": "O Steam e os apps portados ainda não estão aqui. Adicione-os depois em Ajustes → Integrações ou com Porting."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Steam 和移植的 App 还不在这里。以后可在“设置”→“来源”中或通过“移植”添加。"
+            "value": "Steam 和移植的 App 还不在这里。以后可在“设置”→“集成”中或通过“移植”添加。"
           }
         }
       }

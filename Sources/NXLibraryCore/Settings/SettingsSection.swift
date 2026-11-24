@@ -85,28 +85,28 @@ public enum SettingsSection: String, CaseIterable, Identifiable, Equatable {
         switch self {
         case .search: return .search
         case .changed: return .history
-        case .startUp: return .rocket
+        case .startUp: return .settings
         case .profileIdentity: return .person
         case .profileLook: return .image
         case .profileSecurity: return .lock
         case .profileNextendo: return .language
-        case .profileCards: return .collections
+        case .profileCards: return .star
         case .navigation: return .gamepad
         case .spotlight: return .spotlight
         case .soundMusic: return .volume
         case .look: return .palette
-        case .multiplayer: return .gamepad
+        case .multiplayer: return .language
         case .apiServices: return .link
         case .controllers: return .gamepad
-        case .sources: return .collections
-        case .libraryGames: return .play
+        case .sources: return .puzzle
+        case .libraryGames: return .collections
         case .storage: return .storage
         case .engine: return .build
         case .keys: return .key
-        case .library: return .collections
+        case .library: return .folder
         case .games: return .tune
-        case .cloudSaves: return .sync
-        case .cloudLibrary: return .collections
+        case .cloudSaves: return .save
+        case .cloudLibrary: return .cloud
         case .portingStorage: return .folder
         case .about: return .info
         case .console: return .terminal

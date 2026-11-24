@@ -17,7 +17,7 @@ extension AppViewModel {
     }
 
     func modsRowValue(for game: PortedGame) -> String {
-        guard let store = modStore(for: game) else { return "None" }
+        guard let store = modStore(for: game) else { return L10n.text("None") }
         if store.codeModsNeedRebuild(app: game.url, build: game.lastBuild) { return L10n.text("Rebuild") }
         let mods = store.mods()
         return ModStore.rowValue(on: mods.filter(\.isOn).count, total: mods.count)
