@@ -1522,6 +1522,12 @@ extension NextendoSettings {
             host = re.sub(r'        let beforeImage = .*?(?=\n    })', "", host, flags=re.S)
             host = re.sub(r'    struct BeforeSortTopBar: View \{.*?\n    }\n', "", host, flags=re.S)
         (app / "ProfileScreenProbe.swift").write_text(host)
+        if os.environ.get("OORT_MAC_SHORTCUT_PROBE") == "1":
+            shutil.copyfile(ROOT / "Tests/CatalogAppChecks/MacShortcutProbe.swift", app / "MacShortcutProbe.swift")
+            replace(app / "ProfileScreenProbe.swift", r"        try checkDeferredPlay\(vm, profiles: profiles, other: alex, game: game\)",
+                    "        try checkDeferredPlay(vm, profiles: profiles, other: alex, game: game)\n"
+                    "        try await checkMacShortcuts(in: out, refs: refs)\n"
+                    "        L10n.setContext(fr)")
         subprocess.run(["swift", "run", "--package-path", str(package), "ProfileScreenProbe", str(out),
                         str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"), str(refs)],
                        check=True, env=dict(os.environ, HOME=temp, CFFIXED_USER_HOME=temp))

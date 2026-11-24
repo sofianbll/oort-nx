@@ -7,8 +7,8 @@ extension CatalogIntegration {
 }
 
 extension CatalogRecordKinds {
-    /// Every kind this app knows: ported games and Steam.
-    public static let standard = Self([PortedGame.self, SteamCatalogGame.self])
+    /// Every kind this app knows: ported games and the base's local sources.
+    public static let standard = Self([PortedGame.self] + base.types)
 }
 
 /// A ported game in the catalog: the complete nxnative record, kept whole.

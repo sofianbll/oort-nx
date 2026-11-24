@@ -244,6 +244,15 @@ extension SpotlightView {
                         .transition(.opacity)
                 }
             }
+        } else if let game = model.selectedCatalogGame, game.macShortcut != nil {
+            MacShortcutInfo(game: game, focused: state.focus == .pills ? state.pillIndex : nil,
+                            canEdit: viewModel.macShortcuts.canEdit) { index in
+                guard !state.isLifted else { return }
+                mutate { $0.focus = .pills; $0.pillIndex = index }
+                pressCatalogPill(index, game: game)
+            }
+            .id(game.id)
+            .spotlightBlock(.head)
         } else if model.selectedItem == .card(.mods) {
             VStack(alignment: .leading, spacing: 0) {
                 SpotlightCardInfoView(

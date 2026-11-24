@@ -86,17 +86,27 @@ extension ChangeArtworkView {
     }
 
     private func chooseFile() {
+        do {
+            if let data = try Self.chooseArtworkFile(slot: slot, name: subject.name) { save(data) }
+        } catch {
+            message = error.localizedDescription
+            SoundEffectService.shared.play(.error)
+        }
+    }
+
+    @MainActor static func chooseArtworkFile(slot: ArtworkSlot, name: String) throws -> Data? {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.png, .jpeg, .heic, .webP, .image]
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
-        panel.message = L10n.format("Choose a %@ for %@.", [String(describing: slot.title.lowercased()), String(describing: subject.name)])
-        guard panel.runModal() == .OK, let url = panel.url else { return }
-        guard let data = try? Data(contentsOf: url) else {
-            message = L10n.text("That file could not be read.")
-            SoundEffectService.shared.play(.error)
-            return
-        }
-        save(data)
+        panel.message = L10n.format("Choose a %@ for %@.", [slot.title.lowercased(), name])
+        guard panel.runModal() == .OK, let url = panel.url else { return nil }
+        guard let data = try? Data(contentsOf: url) else { throw ArtworkFileReadError.unreadable }
+        return data
+    }
+
+    private enum ArtworkFileReadError: LocalizedError {
+        case unreadable
+        var errorDescription: String? { L10n.text("That file could not be read.") }
     }
 }

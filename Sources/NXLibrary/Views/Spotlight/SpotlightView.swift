@@ -194,6 +194,7 @@ struct SpotlightView: View {
 
     /// One pill while the selected game ports, three otherwise.
     var selectedPillCount: Int {
+        if selectedCatalogGame?.macShortcut != nil { return viewModel.macShortcuts.canEdit ? 2 : 1 }
         guard let selectedGame else { return SpotlightState.pillCount }
         return spotlightPills(selectedGame).count + (showsCloudPill(selectedGame) ? 1 : 0)
     }
@@ -244,7 +245,8 @@ struct SpotlightView: View {
             rightHints: contextHints(model, state) + (state.focus == .row && !state.isLifted && cardMenu == nil
                 ? [LibrarySortMenu.hint(settings.settings.librarySort, action: openSort)] : []),
             rightReserve: hintReserve(state),
-            hintsHidden: router.overlayHasHints(viewModel) || achievementsScreen != nil,
+            hintsHidden: router.overlayHasHints(viewModel) || achievementsScreen != nil
+                || (model.selectedCatalogGame?.macShortcut != nil && viewModel.settingsNotice != nil),
             hintsHeld: !controlsShown,
             backdrop: {
                 // On a card no art; on the Mods card the moonlight glides to gold (and stays gold until the next

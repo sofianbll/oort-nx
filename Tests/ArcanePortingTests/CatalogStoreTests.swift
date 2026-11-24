@@ -34,7 +34,7 @@ final class CatalogStoreTests: XCTestCase {
         let root = try fixture().root
         let result = try CatalogStore(directory: root).loadOrMigrate()
         XCTAssertTrue(result.games.isEmpty)
-        XCTAssertEqual(Set(result.sources.map(\.integration)), [.steam, .nxnative])
+        XCTAssertEqual(Set(result.sources.map(\.integration)), [.steam, .nxnative, .macShortcut])
         XCTAssertTrue(result.sources.allSatisfy { !$0.isEnabled })
         XCTAssertFalse(FileManager.default.fileExists(atPath: url(root, "library.json").path))
         XCTAssertEqual(try CatalogStore.decode(Data(contentsOf: url(root, "catalog.json.bak"))), result)
@@ -252,7 +252,7 @@ final class CatalogStoreTests: XCTestCase {
     func testNewDocumentListsTheStoresKinds() throws {
         let root = try fixture().root
         let created = try CatalogStore(directory: root, kinds: .base, legacy: nil).loadOrMigrate()
-        XCTAssertEqual(created.sources.map(\.integration), [.steam])
+        XCTAssertEqual(Set(created.sources.map(\.integration)), [.steam, .macShortcut])
         XCTAssertTrue(created.sources.allSatisfy { !$0.isEnabled })
     }
 }

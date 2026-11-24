@@ -21,6 +21,7 @@ extension Notification.Name {
     static let nxLibraryOpenConsole = Notification.Name("NXLibraryOpenConsole")
     static let nxLibraryOpenLibrary = Notification.Name("NXLibraryOpenLibrary")
     static let nxLibraryOpenAddGame = Notification.Name("NXLibraryOpenAddGame")
+    static let nxLibraryAddMacApp = Notification.Name("NXLibraryAddMacApp")
     static let nxLibraryOpenDetails = Notification.Name("NXLibraryOpenDetails")
     static let nxLibraryOpenGameOptions = Notification.Name("NXLibraryOpenGameOptions")
 }
@@ -65,6 +66,8 @@ struct NXLibraryApp: App {
                     NativeMenuCommands.shared.post(.nxLibraryOpenAddGame)
                 }
                 .disabled(availability?.general != true)
+                Button(L10n.text("Add an app…")) { NativeMenuCommands.shared.post(.nxLibraryAddMacApp) }
+                    .disabled(availability?.addMacApp != true)
                 Divider()
                 Button(L10n.text("Play Selected Game")) {
                     NativeMenuCommands.shared.post(.nxLibraryPlayFocused)

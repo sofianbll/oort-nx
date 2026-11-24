@@ -28,6 +28,10 @@ struct SettingsSourcesSection: View {
     }
     var body: some View {
         VStack(spacing: 9) {
+            SeleneButtonRow("Mac apps", id: "macShortcutAdd",
+                            subtitle: "Add a shortcut to an app on this Mac. The app stays where it is.",
+                            buttonTitle: "Add an app…") { viewModel.macShortcuts.chooseApp() }
+                .disabled(!viewModel.macShortcuts.canEdit)
             SeleneToggleRow("Steam", subtitle: "Find installed native Mac games in your Steam libraries.",
                             info: "Your Steam files stay where they are. Disabling this source keeps its games and personal choices.",
                             isOn: Binding(get: { sources.configuration.isEnabled }, set: { enabled in
@@ -98,6 +102,8 @@ struct SettingsSourcesSection: View {
     }
     private func publishActions() {
         var rows: [SettingsRowAction] = [
+            .init(id: "macShortcutAdd", title: "Add an app…", rowID: "macShortcutAdd",
+                  isEnabled: viewModel.macShortcuts.canEdit) { viewModel.macShortcuts.chooseApp() },
             .init(id: "steamSource", title: "Steam") { sources.configure(enabled: !sources.configuration.isEnabled, root: sources.configuration.rootURL ?? defaultRoot) },
             .init(id: "steamRefresh", title: "Refresh Steam", isEnabled: sources.configuration.isEnabled) {
                 if sources.status == .scanning { sources.cancel() } else { sources.refresh() }

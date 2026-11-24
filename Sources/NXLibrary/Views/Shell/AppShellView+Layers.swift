@@ -430,7 +430,7 @@ extension AppShellView {
                   !viewModel.isGameOptionsOpen,
                   !isCloseGameOpen,
                   isHomeRoute,
-                  let game = viewModel.currentFocusedCatalogGame else { return }
+                  let game = viewModel.currentFocusedCatalogGame, game.macShortcut == nil else { return }
             if router.route == .library { viewModel.spotlight.showGameDetails() }
             else if game.integration != .steam { router.showDetail(game.id) }
         }

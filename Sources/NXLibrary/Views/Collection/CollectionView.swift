@@ -90,7 +90,8 @@ struct CollectionView: View {
             rightHints: contextHints(game) + (profileCard == nil
                 ? [LibrarySortMenu.hint(settings.settings.librarySort, action: openSort)]
                 : [HintItem(.lb, "Previous") { handle(.tabPrevious) }, HintItem(.rb, "Next") { handle(.tabNext) }]),
-            hintsHidden: router.overlayHasHints(viewModel),
+            hintsHidden: router.overlayHasHints(viewModel)
+                || (selectedCatalogGame?.macShortcut != nil && viewModel.settingsNotice != nil),
             backdrop: {
                 SeleneArtBackground(image: art.image, imageKey: art.key,
                                     shade: settings.settings.backgroundShade,
@@ -166,6 +167,14 @@ struct CollectionView: View {
                     .id(record.id)
                     .frame(width: canvas.u(1100), alignment: .topLeading)
                     .offset(x: canvas.u(80), y: canvas.u(110))
+            } else if let record = selectedCatalogGame, record.macShortcut != nil {
+                MacShortcutInfo(game: record, collection: true, canEdit: viewModel.macShortcuts.canEdit) { action in
+                    if action == 0 { activateCatalog(record) }
+                    else { viewModel.macShortcuts.showTileOptions(record) }
+                }
+                .id(record.id)
+                .frame(width: canvas.u(1100), alignment: .topLeading)
+                .offset(x: canvas.u(80), y: canvas.u(110))
             }
 
             if games.isEmpty {
@@ -230,6 +239,10 @@ struct CollectionView: View {
         if let steam = selectedCatalogGame, steam.integration == .steam {
             return SteamPlayCoordinator.shared.hint(for: steam)
                 + [HintItem(.y, L10n.text("Game options"))]
+        }
+        if let record = selectedCatalogGame, record.macShortcut != nil {
+            return [HintItem(.a, "Play") { activateCatalog(record) }]
+                + (viewModel.macShortcuts.canEdit ? [HintItem(.y, "Tile options") { viewModel.macShortcuts.showTileOptions(record) }] : [])
         }
         guard let game else {
             if viewModel.isScanningLibrary { return [] }

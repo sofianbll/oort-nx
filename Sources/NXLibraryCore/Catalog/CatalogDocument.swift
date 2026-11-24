@@ -119,9 +119,13 @@ public struct CatalogDocument: Codable, Equatable {
             if source.integration == .steam && source.isEnabled && source.rootURL == nil { throw CatalogModelError.invalidRecord }
         }
         var ids = Set<UUID>(), appIDs = Set<UInt32>(), installationIDs = Set<UUID>()
+        var shortcutPaths = Set<String>()
         for game in games {
             try game.validateRecord()
             guard ids.insert(game.id).inserted else { throw CatalogModelError.duplicateGameID }
+            if let shortcut = game.macShortcut, !shortcutPaths.insert(shortcut.url.path).inserted {
+                throw CatalogModelError.invalidRecord
+            }
             if let steam = game.steamGame {
                 guard appIDs.insert(steam.appID).inserted else { throw CatalogModelError.duplicateSteamAppID }
                 for installation in steam.installations {

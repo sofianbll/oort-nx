@@ -51,7 +51,7 @@
 
 ### What comes from Arcane
 
-- **One library for your Mac games.** Add installed Steam games for Mac alongside games ported with nxnative. Browse in Spotlight or Collection and launch from either view.
+- **One library for your Mac games.** Add Mac app shortcuts and installed Steam games alongside games ported with nxnative. Browse in Spotlight or Collection and launch from either view.
 - **Steam achievements.** See playtime, achievement rarity and crystal tiers when available. Complete every achievement in a game to reveal the animated Arcane.
 - **An interface built for browsing.** Navigate with a controller, keyboard or mouse, and personalise your library with artwork, themes and live backgrounds.
 
@@ -128,6 +128,8 @@ Packaged fork releases check this repository for app updates; no GitHub account 
 ### First-run setup
 
 On first launch, Arcane looks for installed Steam games for Mac and previously ported apps. Choose whether to include Steam and select **Open library**. Use **Settings → Library → Sources** to change your Steam source or refresh it later. Choose **Porting** on the first screen to set up local game builds with nxnative.
+
+To link an app already on your Mac, choose **Add an app…** in Sources or the macOS Game menu, or drop one `.app` on Spotlight or Collection. **Play** hands it to macOS without tracking time or changing the app. Use **Tile options** to pick an image from a file or remove just the tile. If the app moves, use **Locate the app…** when prompted.
 
 **Get ready** shows the engine, build tools and keys. **Install all** prepares the engine checkout and certified Metal compiler. Install Xcode from the App Store and follow its licence and system prompts. Choose **Continue** to proceed. Build requirements can be completed later, and existing game apps remain playable.
 

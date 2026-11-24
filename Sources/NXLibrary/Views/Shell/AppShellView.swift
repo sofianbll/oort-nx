@@ -130,10 +130,12 @@ struct AppShellView: View {
         let game = general && !router.isMenuPresented ? viewModel.currentFocusedGame : nil
         let focused = general && !router.isMenuPresented ? viewModel.currentFocusedCatalogGame : nil
         let steam = focused?.integration == .steam ? focused : nil
-        // A Steam game's details are its Spotlight page; it has no separate Details screen.
+        let shortcut = focused?.macShortcut
+        // Steam only has a Spotlight page; a Mac shortcut has no details.
         return NativeMenuAvailability(general: general,
-            play: game?.isPlayableLocally == true || steam.map(SteamPlayCoordinator.shared.canPlay) == true,
-            details: isHomeRoute && focused != nil && (focused?.integration != .steam || router.route == .library),
+            addMacApp: general && viewModel.macShortcuts.canEdit,
+            play: game?.isPlayableLocally == true || steam.map(SteamPlayCoordinator.shared.canPlay) == true || shortcut != nil,
+            details: isHomeRoute && focused != nil && shortcut == nil && (steam == nil || router.route == .library),
             options: game != nil || steam != nil,
             catalogRecovery: general && !viewModel.isBuilding && !viewModel.catalogBuildRecoveries.isEmpty)
     }
@@ -185,8 +187,21 @@ struct AppShellView: View {
         currentBackdropCover.covers(priority) ? 0.001 : 1
     }
 
-    var body: some View {
+    private var macShortcutCommands: some View {
         nativeGameCommands
+            .onReceive(NotificationCenter.default.publisher(for: .nxLibraryAddMacApp)) { _ in
+                guard nativeMenuAvailability.addMacApp else { return }
+                router.closeMenu()
+                viewModel.macShortcuts.chooseApp()
+            }
+            .dropDestination(for: URL.self) { urls, _ in
+                guard isHomeRoute, !router.isMenuPresented, nativeMenuAvailability.addMacApp else { return false }
+                return viewModel.macShortcuts.acceptDrop(urls)
+            }
+    }
+
+    var body: some View {
+        macShortcutCommands
         .onReceive(NotificationCenter.default.publisher(for: .nxLibraryCheckAppUpdates)) { _ in
             guard nativeMenuAvailability.general else { return }
             router.closeMenu()

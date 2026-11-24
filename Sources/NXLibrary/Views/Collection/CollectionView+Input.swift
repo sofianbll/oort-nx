@@ -55,6 +55,10 @@ extension CollectionView {
                 router.showDetail(game.id)
             }
         case .contextAction:
+            if let record = selectedCatalogGame, record.macShortcut != nil {
+                viewModel.macShortcuts.showTileOptions(record)
+                return
+            }
             if let steam = selectedCatalogGame, steam.integration == .steam {
                 SoundEffectService.shared.play(.click)
                 viewModel.openSteamOptions(steam, from: .collection)

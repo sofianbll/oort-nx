@@ -97,6 +97,10 @@ extension SpotlightView {
                 mutate { if $0.focus == .row { moved = $0.showGameDetails() } }
             }
         case .contextAction:
+            if let record = selectedCatalogGame, record.macShortcut != nil {
+                viewModel.macShortcuts.showTileOptions(record)
+                return
+            }
             if let steam = selectedCatalogGame, steam.integration == .steam {
                 SoundEffectService.shared.play(.click)
                 viewModel.openSteamOptions(steam, from: .spotlight)
@@ -136,6 +140,11 @@ extension SpotlightView {
     }
 
     func pressCatalogPill(_ index: Int, game: CatalogGame) {
+        if game.macShortcut != nil {
+            if index == 0 { SoundEffectService.shared.play(.click); viewModel.pressPlay(game) }
+            else if index == 1 { viewModel.macShortcuts.showTileOptions(game) }
+            return
+        }
         switch index {
         // The positions of Play, Options and favorite, as for an nxnative game.
         case 0: SoundEffectService.shared.play(.click); viewModel.pressPlay(game)

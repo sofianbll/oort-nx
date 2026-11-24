@@ -254,7 +254,8 @@ final class AppViewModel: ObservableObject {
     var launchProbeTask: Task<Void, Never>?
 
     var playSessionStore: PlaySessionStore?
-    @MainActor lazy var playRouter = GamePlay([NXNativePlayConnector(app: self), SteamPlayCoordinator.shared])
+    @MainActor lazy var macShortcuts = MacShortcutAdapter(app: self)
+    @MainActor lazy var playRouter = GamePlay([NXNativePlayConnector(app: self), SteamPlayCoordinator.shared, macShortcuts])
     var localProfiles: LocalProfileStore?
     private var profileNextendoAccounts: [UUID: NextendoSettings] = [:]
     @MainActor var profileNextendo: NextendoSettings? {

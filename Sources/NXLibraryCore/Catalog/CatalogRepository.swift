@@ -25,6 +25,44 @@ public struct CatalogRepository {
 }
 
 extension CatalogRepository {
+    public func addMacShortcut(at url: URL) throws -> CatalogDocument {
+        let shortcut = try MacShortcutRecord(chosenURL: url)
+        return try transactionIfChanged { document in
+            guard !document.games.contains(where: { $0.macShortcut?.url.path == shortcut.url.path }) else { return false }
+            document.games.append(.init(record: shortcut, personalizationKey: shortcut.key))
+            if let index = document.sources.firstIndex(where: { $0.integration == .macShortcut }) {
+                document.sources[index].isEnabled = true
+            } else {
+                document.sources.append(.init(integration: .macShortcut, isEnabled: true))
+            }
+            return true
+        }
+    }
+
+    public func relinkMacShortcut(id: UUID, at url: URL) throws -> CatalogDocument {
+        try transactionIfChanged { document in
+            guard let index = document.games.firstIndex(where: { $0.id == id }),
+                  var shortcut = document.games[index].macShortcut else { throw CatalogRepositoryError.gameNotFound }
+            let previous = shortcut.url
+            try shortcut.relink(to: url)
+            guard shortcut.url.path != previous.path else { return false }
+            guard !document.games.contains(where: { $0.macShortcut?.url.path == shortcut.url.path }) else {
+                throw MacShortcutError.alreadyLinked
+            }
+            try document.games[index].replaceRecord(shortcut)
+            return true
+        }
+    }
+
+    public func removeMacShortcut(id: UUID) throws -> CatalogDocument {
+        try transaction { document in
+            guard let index = document.games.firstIndex(where: { $0.id == id && $0.macShortcut != nil }) else {
+                throw CatalogRepositoryError.gameNotFound
+            }
+            document.games.remove(at: index)
+        }
+    }
+
     @discardableResult
     public func configureSource(_ integration: CatalogIntegration, enabled: Bool, root: URL?) throws -> CatalogDocument {
         try transaction { document in
