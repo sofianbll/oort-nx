@@ -48,6 +48,31 @@ final class CodeModStoreTests: XCTestCase {
         XCTAssertNotNil(try BuildService.stageCodeMods(store, in: root.appendingPathComponent("build"), engineSupportsMods: true))
     }
 
+    func testAmbiguousLocalModsKeepTheAlreadyBuiltCodeDisabledOffline() throws {
+        let fm = FileManager.default
+        let root = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? fm.removeItem(at: root) }
+        let store = ModStore(supportFolder: root, recordsFile: root.appendingPathComponent("mods.json"),
+                             titleID: "0100000000010000", canWrite: { true }, trash: { _ in XCTFail() })
+        try fm.createDirectory(at: store.codeModsFolder.appendingPathComponent("Pack/exefs"), withIntermediateDirectories: true)
+        try store.setOn(false, folderName: "Pack")
+        let app = root.appendingPathComponent("Game.app")
+        let built = app.appendingPathComponent("Contents/Resources/dm/mods/BuiltPack")
+        try fm.createDirectory(at: built, withIntermediateDirectories: true)
+        try Data().write(to: built.appendingPathComponent("dm_code.tsv"))
+        XCTAssertEqual(store.codeModsLaunchEnvironment(app: app), ["DM_MODS_OFF": "BuiltPack"])
+
+        let romfs = store.modsFolder.appendingPathComponent("Pack/romfs")
+        try fm.createDirectory(at: romfs, withIntermediateDirectories: true)
+        XCTAssertThrowsError(try store.sync(automatic: false))
+        XCTAssertTrue(store.codeModsNeedRebuild(app: app))
+        XCTAssertEqual(store.codeModsLaunchEnvironment(app: app, online: false), ["DM_MODS_OFF": "BuiltPack"])
+        try fm.moveItem(at: store.modsFolder, to: root.appendingPathComponent("old-romfs"))
+        try Data().write(to: store.modsFolder)
+        XCTAssertThrowsError(try store.sync(automatic: false))
+        XCTAssertEqual(store.codeModsLaunchEnvironment(app: app, online: false), ["DM_MODS_OFF": "BuiltPack"])
+    }
+
     func testDisablingOnlineRiskKeepsTexturesAndAllowsReenabling() throws {
         let fm = FileManager.default
         let root = fm.temporaryDirectory.appendingPathComponent("OnlineMods-\(UUID())")

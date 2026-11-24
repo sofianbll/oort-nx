@@ -474,7 +474,7 @@ public struct ModStore {
                 ? build?.builtCodeMods ?? [] : []
         )
         guard let selection = try? localCodeMods(),
-              let selected = try? codeMods(selection.filter(\.isOn), stage: nil) else { return (true, nil) }
+              let selected = try? codeMods(selection.filter(\.isOn), stage: nil) else { return (true, built.first) }
         if selected.isEmpty {
             // Without a local build or selectable patches, leave a transferred bundle's defaults alone.
             return (false, build == nil && selection.isEmpty ? nil : built.first)

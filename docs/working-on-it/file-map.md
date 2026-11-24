@@ -619,7 +619,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/ArcanePorting/Mods/ModStore.swift](../../Sources/ArcanePorting/Mods/ModStore.swift) | Ordine, overlay, ambiente ExeFS, snapshot, conflitti e Cestino. Riconcilia prima l'overlay e rifiuta le scritture con nomi condivisi fra le due radici. |
+| [Sources/ArcanePorting/Mods/ModStore.swift](../../Sources/ArcanePorting/Mods/ModStore.swift) | Ordine, overlay, ambiente ExeFS, snapshot, conflitti e Cestino. Rifiuta le scritture con nomi condivisi fra le due radici e tiene spento il gruppo ExeFS noto se la selezione non è risolvibile. |
 | [Sources/ArcanePorting/Mods/ModFolderScanner.swift](../../Sources/ArcanePorting/Mods/ModFolderScanner.swift) | Elenca cartelle, archivi e file RomFS; classifica il contenuto come visivo, dati o incerto per il gioco online. |
 | [Sources/ArcanePorting/Mods/ModSupport.swift](../../Sources/ArcanePorting/Mods/ModSupport.swift) | Quali file di mod funzionano (solo RomFS), dov'è la loro cartella `romfs`, nomi di cartella sicuri. |
 | [Sources/ArcanePorting/Mods/GameBanana/GameBananaAPI.swift](../../Sources/ArcanePorting/Mods/GameBanana/GameBananaAPI.swift) | URL di ricerca e ID dai link, host fidati, risposte GameBanana e testo dalle descrizioni HTML. |
@@ -913,7 +913,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/ArcanePortingTests/CheatLocatorTests.swift](../../Tests/ArcanePortingTests/CheatLocatorTests.swift) | Identità nel bundle e precedenza dei percorsi cheats e delle variabili del launcher. |
 | [Tests/ArcanePortingTests/CheatStatusTests.swift](../../Tests/ArcanePortingTests/CheatStatusTests.swift) | Ancestry del motore, necessità di rebuild, valore della riga e indicatore attivo. |
 | [Tests/ArcanePortingTests/CheatStoreTests.swift](../../Tests/ArcanePortingTests/CheatStoreTests.swift) | Installazione, enabled, master switch, sostituzione e ripristino se il Cestino rifiuta il set. |
-| [Tests/ArcanePortingTests/ModStoreTests.swift](../../Tests/ArcanePortingTests/ModStoreTests.swift) | Overlay (anche dopo errore di scrittura), conflitti, omonimi fra RomFS ed ExeFS, Cestino e gruppo ExeFS escluso in Online. |
+| [Tests/ArcanePortingTests/ModStoreTests.swift](../../Tests/ArcanePortingTests/ModStoreTests.swift) | Overlay (anche dopo errore di scrittura), conflitti, omonimi fra RomFS ed ExeFS, Cestino e gruppo ExeFS escluso in Online o con selezione illeggibile. |
 | [Tests/ArcanePortingTests/ModFolderScannerTests.swift](../../Tests/ArcanePortingTests/ModFolderScannerTests.swift) | Voci della cartella mods, layout `romfs`/Atmosphère, symlink, file relativi e file nascosti. |
 | [Tests/ArcanePortingTests/EnvFileEditorTests.swift](../../Tests/ArcanePortingTests/EnvFileEditorTests.swift) | Modifica di una chiave dell'`env.txt`: commenti, duplicati, CRLF, merge al lancio. |
 | [Tests/ArcanePortingTests/GameBananaAPITests.swift](../../Tests/ArcanePortingTests/GameBananaAPITests.swift) | Decodifica tollerante delle risposte, URL, host fidati, contenuto degli archivi e testo dalle descrizioni. |
