@@ -152,9 +152,8 @@ public struct CloudDriveFolders: Sendable {
     }
 
     static func discoverSources(library: String, files: (String) async throws -> [String]) async throws -> Sources? {
-        let candidates = [joining(library, "GameFiles"), joining(library, "Switch/Jeux"), "Games/Switch/Jeux", "Switch/Jeux"]
-        var visited = Set<String>()
-        for path in candidates where visited.insert(path).inserted {
+        guard library.components(separatedBy: "/").allSatisfy(validName) else { throw StorageBackendError.invalidKey }
+        for path in [joining(library, "GameFiles"), joining(library, "Switch/Jeux")] {
             guard let names = try await listingIfPresent(path, list: files) else { continue }
             guard names.count <= 10_000 else { throw StorageBackendError.invalidResponse }
             var groups = Set<String>()

@@ -3614,15 +3614,26 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "Google 客户端密钥"}}
       }
     },
-    "Use a Google OAuth client for a desktop app. rclone asks for full Google Drive access.": {
+    "Use a Google OAuth client for a desktop app.": {
       "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Use a Google OAuth client for a desktop app. rclone asks for full Google Drive access."}},
-        "it": {"stringUnit": {"state": "translated", "value": "Usa un client OAuth di Google per un'applicazione desktop. rclone chiede accesso completo a Google Drive."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Utilisez un client OAuth Google de type Application de bureau. rclone demande un accès complet à Google Drive."}},
-        "de": {"stringUnit": {"state": "translated", "value": "Verwende einen Google-OAuth-Client für eine Desktop-App. rclone fragt nach Vollzugriff auf Google Drive."}},
-        "es": {"stringUnit": {"state": "translated", "value": "Usa un cliente OAuth de Google de tipo aplicación de escritorio. rclone solicita acceso completo a Google Drive."}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Use um cliente OAuth do Google do tipo aplicativo para computador. O rclone solicita acesso total ao Google Drive."}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "使用桌面应用的 Google OAuth 客户端。rclone 会请求 Google Drive 的完整访问权限。"}}
+        "en": {"stringUnit": {"state": "translated", "value": "Use a Google OAuth client for a desktop app."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Usa un client OAuth di Google per un'applicazione desktop."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Utilisez un client OAuth Google de type Application de bureau."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Verwende einen Google-OAuth-Client für eine Desktop-App."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Usa un cliente OAuth de Google de tipo aplicación de escritorio."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Use um cliente OAuth do Google do tipo aplicativo para computador."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "使用桌面应用的 Google OAuth 客户端。"}}
+      }
+    },
+    "New connections request full Google Drive access. Google does not limit that permission to the folders you choose here.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "New connections request full Google Drive access. Google does not limit that permission to the folders you choose here."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Le nuove connessioni richiedono l'accesso completo a Google Drive. Google non limita l'accesso alle cartelle che scegli qui."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Une nouvelle connexion demande un accès complet à Google Drive. Google ne limite pas cet accès aux dossiers que vous choisissez ici."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Neue Verbindungen benötigen Vollzugriff auf Google Drive. Google beschränkt diesen Zugriff nicht auf die hier gewählten Ordner."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Las conexiones nuevas solicitan acceso completo a Google Drive. Google no limita ese acceso a las carpetas que eliges aquí."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Novas conexões solicitam acesso total ao Google Drive. O Google não limita esse acesso às pastas que você escolhe aqui."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "新连接会请求 Google Drive 的完整访问权限。Google 不会将此权限限制在你在此处选择的文件夹内。"}}
       }
     },
     "Waiting for Google sign-in in your browser…": {

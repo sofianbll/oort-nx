@@ -65,15 +65,34 @@ final class CloudDriveFoldersTests: XCTestCase {
             checked.append(path)
             switch path {
             case "Games/Library/GameFiles": return ["title/deeper/game.nsp", "readme.txt"]
-            case "Games/Library/Switch/Jeux": throw StorageBackendError.notFound
-            case "Games/Switch/Jeux": return ["Title/Game.XCI"]
+            case "Games/Library/Switch/Jeux": return ["Title/Game.XCI"]
             default: throw StorageBackendError.invalidKey
             }
         }
-        XCTAssertEqual(match, .init(path: "Games/Switch/Jeux", games: 1))
-        XCTAssertEqual(checked, ["Games/Library/GameFiles", "Games/Library/Switch/Jeux", "Games/Switch/Jeux"])
+        XCTAssertEqual(match, .init(path: "Games/Library/Switch/Jeux", games: 1))
+        XCTAssertEqual(checked, ["Games/Library/GameFiles", "Games/Library/Switch/Jeux"])
         let loose = try await CloudDriveFolders.discoverSources(library: "Games") { _ in ["game.nsp", "update.nup"] }
         XCTAssertEqual(loose, .init(path: "Games/GameFiles", games: nil))
+    }
+
+    func testAutomaticSourceDiscoveryDoesNotListSiblingsOfTheSelectedLibrary() async throws {
+        var checked: [String] = []
+        let result = try await CloudDriveFolders.discoverSources(library: "Games/Chosen library") { path in
+            checked.append(path)
+            if path == "Games/Switch/Jeux" { return ["Unrelated/Game.XCI"] }
+            return []
+        }
+        XCTAssertEqual(checked, ["Games/Chosen library/GameFiles", "Games/Chosen library/Switch/Jeux"])
+        XCTAssertNil(result, "An unrelated folder must not be indexed or suggested")
+        for invalid in ["", "Games/../Other", "Games//Other"] {
+            do {
+                _ = try await CloudDriveFolders.discoverSources(library: invalid) { _ in
+                    XCTFail("No automatic scan is allowed without a valid selected folder")
+                    return []
+                }
+                XCTFail("Expected an invalid key")
+            } catch StorageBackendError.invalidKey {}
+        }
     }
 
     func testSavedMoveCanBeCancelledThenRetryReusesTheDestinationCopy() async throws {

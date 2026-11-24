@@ -57,6 +57,7 @@ import ArcanePorting
         try render("assistant", output, assistant
             .environment(\.nxAppLocale, .init(language: .french, region: "FR"))
             .environment(\.seleneButtonNames, .xbox))
+        // ACCOUNT_SCOPE
         precondition(CloudLibraryTileBadge.artworkOpacity(model.states[game.id]) == 0.55)
         try render("tile", output,
             CollectionCoverRow(games: [.init(nxnative: game)], selectedID: game.id,
@@ -737,6 +738,7 @@ def main():
     output = Path(sys.argv[1] if len(sys.argv) > 1 else tempfile.mkdtemp(prefix="cloud-screens-", dir=ROOT / "work")).resolve()
     output.mkdir(parents=True, exist_ok=True)
     before = len(sys.argv) > 2 and sys.argv[2] == "--before"
+    baseline = os.environ.get("ARCANE_CLOUD_SCREEN_BASE")
     compare = len(sys.argv) > 2 and sys.argv[2] == "--compare-with-5047557"
     if compare:
         pixel_reference = output / "5047557"
@@ -748,7 +750,7 @@ def main():
         if before:
             archived = subprocess.check_output(["git", "-C", str(ROOT), "archive", "528f4fb", "Sources"])
             subprocess.run(["tar", "-xf", "-", "-C", str(package)], input=archived, check=True)
-        elif baseline := os.environ.get("ARCANE_CLOUD_SCREEN_BASE"):
+        elif baseline:
             archived = subprocess.check_output(["git", "-C", str(ROOT), "archive", baseline, "Sources"])
             subprocess.run(["tar", "-xf", "-", "-C", str(package)], input=archived, check=True)
         else:
@@ -785,6 +787,29 @@ def main():
         assistant = app / "Views/Settings/CloudSetupAssistant.swift"
         change(assistant, r'        \.onAppear \{\s*.*?installAssistantKeys\(\)(?: \}|\n        })\n', "")
         change(assistant, r'@State private var remotes: \[RcloneRemote\]\?', '@State private var remotes: [RcloneRemote]? = []')
+        account_fixture = ""
+        if not before and ("New connections request full Google Drive access." in assistant.read_text()
+                           or baseline == "5070a5ec"):
+            with assistant.open("a") as swift:
+                swift.write('''
+extension CloudSetupAssistant {
+    func screenAccount() throws -> Self {
+        var view = self
+        view._tool = State(initialValue: URL(fileURLWithPath: "/fixture/rclone"))
+        view._version = State(initialValue: "v1.75.2")
+        view._remotes = State(initialValue: try JSONDecoder().decode([RcloneRemote].self,
+            from: Data(#"[{"name":"fixture","type":"drive","source":"file"}]"#.utf8)))
+        return view
+    }
+}
+''')
+            account_fixture = '''
+        let account = try CloudSetupAssistant(viewModel: vm, model: model, onClose: {}).screenAccount()
+        for (name, locale) in [("en", AppLocale(language: .english, region: "US")),
+                               ("fr", AppLocale(language: .french, region: "FR"))] {
+            try render("assistant-account-" + name, output, account.environment(\\.nxAppLocale, locale))
+        }
+'''
         browser = "private var browsingPath" in assistant.read_text()
         if browser:
             change(assistant, r'        self.onClose = onClose', '''        self.onClose = onClose
@@ -828,6 +853,7 @@ extension ActivityCenterView {
 }
 """)
         host = HOST.replace("/* NOTICE_LAYOUT */", "vertical: notice.vertical," if before else "cancelIndex: notice.cancelIndex,")
+        host = host.replace("// ACCOUNT_SCOPE", account_fixture)
         has_display = (package / "Sources/ArcanePorting/Launch/GameDisplay.swift").is_file()
         if not before:
             host = host.replace("// DISPLAY_FIXTURE", DISPLAY_FIXTURE)
@@ -1102,7 +1128,7 @@ extension CloudArtifactStatus {
             ', remoteFolder: fileByFile ? "Fixture [0100000000001000]/app/version" : nil'))
         font = ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"
         icon = ROOT / "Resources/AppIcon-Light.png"
-        subprocess.run(["swift", "run", "--package-path", str(package), "NXLibrary", str(output), str(font), str(icon)]
+        subprocess.run(["swift", "run", "-j", "6", "--package-path", str(package), "NXLibrary", str(output), str(font), str(icon)]
                        + ([str(pixel_reference)] if compare else []),
                        check=True, env=dict(os.environ, HOME=temp, CFFIXED_USER_HOME=temp))
 
