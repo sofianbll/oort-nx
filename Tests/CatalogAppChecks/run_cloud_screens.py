@@ -21,6 +21,11 @@ import ArcanePorting
 
 @main struct CloudScreenProbe {
     @MainActor static func main() async throws {
+        let fixtureHome = URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!, isDirectory: true)
+            .resolvingSymlinksInPath().path
+        precondition(FileManager.default.homeDirectoryForCurrentUser.resolvingSymlinksInPath().path == fixtureHome
+            && URL(fileURLWithPath: NSHomeDirectory(), isDirectory: true).resolvingSymlinksInPath().path == fixtureHome,
+            "The cloud probe cannot run outside its temporary home")
         let output = URL(fileURLWithPath: CommandLine.arguments[1], isDirectory: true)
         let font = URL(fileURLWithPath: CommandLine.arguments[2])
         precondition(CTFontManagerRegisterFontsForURL(font as CFURL, .process, nil))
@@ -568,6 +573,7 @@ extension CloudScreenProbe {
         vm.settingsNotice?.runChoice(0)
         vm.settingsNotice = nil
         precondition(!model.sourcesNeedConfirmation && model.preference.sourcesRootOverride == "Games/GameFiles")
+        print("Changed library: Cancel kept source downloads blocked; Keep this folder confirmed Games/GameFiles.")
         vm.cloudLibrary.installScreenArchives(backend)
         vm.cloudLibrary.installScreenSources(backend, root: "Games/GameFiles")
         vm.importCloudGames(manually: true)
@@ -640,16 +646,26 @@ extension CloudScreenProbe {
         precondition(vm.portingTileLook(selected) == .toBuild)
         precondition(vm.cloudLibrary.downloadItem(for: selected) == nil)
         precondition(vm.queryLibrary(.init(filter: .cloud), history: NoPlayHistory()).isEmpty)
+        print("Download files: verified fixture bytes; tile changed to Build.")
         try render("cloud-only-build-fr", output, details(selected, vm: vm), size: .init(width: 1120, height: 470))
         try await checkBuildAndPlay(vm, game: selected, in: root, output: output)
 
+        // Build completion starts a catalog scan; imports are refused until it finishes.
+        let scanDeadline = ContinuousClock.now + .seconds(10)
+        while vm.isScanningLibrary && ContinuousClock.now < scanDeadline {
+            try await Task.sleep(for: .milliseconds(15))
+        }
+        precondition(!vm.isScanningLibrary, "The post-build catalog scan did not finish")
         vm.cloudLibrary.setReferenceFolder(referenceID)
         vm.cloudLibrary.installScreenArchives(backend)
         vm.cloudLibrary.installScreenSources(backend, root: "Games/GameFiles")
         vm.cloudLibrary.installScreenReference(backend.reference(folderID: referenceID)!, sourceRoot: "GameFiles")
         vm.importCloudGames(manually: true)
-        await vm.cloudLibrary.importTask?.value
-        let shared = vm.libraryGames.first { $0.cloudSourcesReferenceFolder == referenceID }!
+        guard let referenceImport = vm.cloudLibrary.importTask else { preconditionFailure("Reference import did not start") }
+        await referenceImport.value
+        guard let shared = vm.libraryGames.first(where: { $0.cloudSourcesReferenceFolder == referenceID }) else {
+            preconditionFailure("No shared fixture after import: \(vm.settingsNotice?.message ?? "no notice")")
+        }
         precondition(vm.portingTileLook(shared) == .toDownloadFiles && !GameResourceState.sourcesAvailable(for: shared))
         vm.applyCatalog(try repo.forgetCloudReference(referenceID))
         precondition(!vm.libraryGames.contains { $0.id == shared.id })
@@ -663,8 +679,10 @@ extension CloudScreenProbe {
         for dir in [apps, engine.appendingPathComponent("scripts"), engine.appendingPathComponent(".venv/bin")] {
             try fm.createDirectory(at: dir, withIntermediateDirectories: true)
         }
+        // The system launcher resolves by the link's name ("python"), not by "/usr/bin/python3".
+        let python = ProcessInfo.processInfo.environment["OORT_CLOUD_PROBE_PYTHON"]!
         try fm.createSymbolicLink(at: engine.appendingPathComponent(".venv/bin/python"),
-                                  withDestinationURL: URL(fileURLWithPath: "/usr/bin/python3"))
+                                  withDestinationURL: URL(fileURLWithPath: python))
         try """
         import pathlib, plistlib, shutil, subprocess, sys
         args = sys.argv
@@ -673,7 +691,8 @@ extension CloudScreenProbe {
         app = pathlib.Path(args[args.index("-o")+1])
         exe = app / "Contents/MacOS/Fixture"
         exe.parent.mkdir(parents=True)
-        shutil.copy2("/usr/bin/true", exe)
+        shutil.copyfile("/usr/bin/true", exe)
+        exe.chmod(0o755)
         contents = dict(CFBundleIdentifier="local.oort.cloud-proof", CFBundleExecutable="Fixture",
                         CFBundlePackageType="APPL", CFBundleShortVersionString="1.0", DMTitleID="0100000000006000")
         with (app / "Contents/Info.plist").open("wb") as stream:
@@ -697,10 +716,12 @@ extension CloudScreenProbe {
               ready.isFavorite, ready.url.path.hasPrefix(apps.path + "/"),
               fm.fileExists(atPath: ready.url.appendingPathComponent("Contents/MacOS/Fixture").path)
         else { preconditionFailure("Synthetic build failed: \(vm.settingsNotice?.message ?? vm.porting.buildError ?? "no result"); \(vm.logs.suffix(8))") }
+        print("Build: synthetic app installed in FixtureApps and catalog marked it playable; favorite preserved.")
         var launched: URL?
         vm.screenPlay = { launched = $0.url }
         vm.launchGame(ready)
         precondition(launched == ready.url && vm.portingTileLook(ready) == .normal)
+        print("Play: routed to the newly built fixture app (launch intercepted).")
         try render("cloud-only-play-fr", output, DetailsTopBlock(game: ready, logo: nil,
             presentation: .init(game: ready, metadata: nil, totalPlaytime: 0, lastPlayed: nil),
             isRunning: false, focusedPill: 0, primaryEnabled: true, expanded: .constant(false),
@@ -1942,7 +1963,8 @@ extension CloudArtifactStatus {
             if compare and scenario == "screens":
                 command.append(str(pixel_reference))
             subprocess.run(command, check=True, env=dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home),
-                                                         OORT_CLOUD_PROBE_CASE=scenario))
+                                                         OORT_CLOUD_PROBE_CASE=scenario,
+                                                         OORT_CLOUD_PROBE_PYTHON=str(Path(sys.executable).resolve())))
 
 
 if __name__ == "__main__":
