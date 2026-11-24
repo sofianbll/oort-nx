@@ -3,6 +3,15 @@ import Combine
 import NXLibraryCore
 import ArcanePorting
 
+private extension CloudLibraryAction {
+    var isUpload: Bool {
+        switch self {
+        case .upload, .uploadSources: return true
+        default: return false
+        }
+    }
+}
+
 extension CloudLibraryItem {
     var title: String {
         switch self {
@@ -1118,7 +1127,7 @@ extension AppViewModel {
     }
 
     @MainActor func retryCloudOperation(_ entry: CloudTransferQueue.Entry, token: UUID) -> Bool {
-        if entry.storage == nil {
+        if entry.storage == nil || entry.action.isUpload {
             showSettingsNotice(title: L10n.text("Cloud library"), message: cloudReconfirmationMessage)
             return true
         }
@@ -1202,6 +1211,12 @@ extension AppViewModel {
         while let request = cloudLibrary.queue.first {
             let id = request.id, action = request.action
             assert(cloudLibrary.states[id]?.action == action && cloudLibrary.states[id]?.queued == true)
+            if request.resumed && action.isUpload {
+                // The queue stores a destination, not a snapshot of the approved bytes.
+                cloudLibrary.queue.removeFirst()
+                recordCloudReconfirmation(request.entry, name: request.name)
+                continue
+            }
             guard let game = libraryGames.first(where: { $0.id == id }),
                   (request.importDestination != nil) == (game.cloudImportPending == true && action == .restore(.app)),
                   request.importDestination.map({ $0.deletingLastPathComponent().standardizedFileURL.path
@@ -1257,7 +1272,9 @@ extension AppViewModel {
                 }
                 if !self.cloudLibrary.isQuitting {
                     if deferred {
-                        self.cloudLibrary.queue.insert(request, at: 0)
+                        var paused = request
+                        if action.isUpload { paused.resumed = true }
+                        self.cloudLibrary.queue.insert(paused, at: 0)
                         self.cloudLibrary.persistQueue()
                         self.porting.scheduleNextBuild()
                     } else {
@@ -1466,11 +1483,8 @@ extension AppViewModel {
     @MainActor private func resumableCloudAction(_ request: CloudLibraryModel.Request, archive: CloudGameArchive,
                                                  game: PortedGame, target: CloudArchiveGame) async throws -> CloudLibraryAction? {
         let action = request.action
-        if action == .uploadSources || action == .downloadSources {
+        if action == .downloadSources {
             let state = try await readCloudSourceStatus(request.sourceFiles)?.get()
-            if action == .uploadSources {
-                return state?.state == .notInCloud && GameResourceState.sourcesAvailable(for: game) ? action : nil
-            }
             let reference = try await referenceManifest(titleID: target.titleID)
             let own = reference == nil ? nil : try await archive.latest(titleID: target.titleID)
             let shared = try await referenceSourceStatus(for: game, reference: reference, own: own)
@@ -1481,9 +1495,6 @@ extension AppViewModel {
         let manifest = kinds.isEmpty ? nil : try await archive.latest(titleID: target.titleID)
         let copies = kinds.isEmpty ? [:] : try await archive.copyStatuses(target, manifest: .success(manifest))
         switch action {
-        case .upload(let kind):
-            return (kind.map { CloudArtifactStatus.canUploadAlone($0, statuses: copies) }
-                    ?? CloudArtifactStatus.needsUpload(copies)) ? action : nil
         case .restore(let kind):
             if let reference = try await restoreReferenceManifest(titleID: target.titleID, kind: kind, personal: manifest),
                let referenceArchive = cloudLibrary.referenceArchive, referenceWins(reference, over: manifest, kind: kind) {
@@ -1509,7 +1520,7 @@ extension AppViewModel {
                 synchronized.insert(.sources)
             }
             return action.resumableFree(synchronized: synchronized)
-        case .uploadSources, .downloadSources: return nil
+        case .upload, .uploadSources, .downloadSources: return nil
         }
     }
 

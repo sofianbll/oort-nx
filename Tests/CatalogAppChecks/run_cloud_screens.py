@@ -590,11 +590,28 @@ AUDIT_QUEUE = r'''
             precondition(vm.cloudLibrary.active == nil && vm.settingsNotice?.retry == nil)
             try renderNotice("queue-confirm-again", output, vm.settingsNotice!, width: 1280)
         }
+        let expectedStorage = vm.cloudLibrary.storageScope(for: .uploadSources)
+        precondition(expectedStorage != nil)
+        let interruptedUpload = CloudTransferQueue.Entry(id: game.id, action: .uploadSources, token: UUID(), storage: expectedStorage)
+        let replacement = folder.appendingPathComponent("Replacement.nsp")
+        try Data("other".utf8).write(to: replacement)
+        try fm.removeItem(at: package)
+        try fm.moveItem(at: replacement, to: package)
+        vm = try await reopen(interruptedUpload)
+        if fm.fileExists(atPath: remotePackage.path) {
+            let sent = try Data(contentsOf: remotePackage)
+            failures.append("Interrupted upload wrote \(String(decoding: sent, as: UTF8.self)) without fresh approval")
+            try fm.removeItem(at: remotePackage)
+        } else {
+            precondition(vm.cloudLibrary.states[game.id]?.issue?.failed == true)
+            try render("queue-upload-not-replayed", output, CloudLibraryPanel(viewModel: vm, model: vm.cloudLibrary, game: sourceGame))
+        }
+
         if !failures.isEmpty {
             FileHandle.standardError.write(Data(failures.joined(separator: "\n").utf8) + Data([10]))
             throw CocoaError(.fileWriteUnknown, userInfo: [NSDebugDescriptionErrorKey: failures.joined(separator: "\n")])
         }
-        print("Cloud audit: legacy destination verified.")
+        print("Cloud audit: legacy destination and replaced source verified.")
 '''
 
 DISPLAY_FIXTURE = r'''
