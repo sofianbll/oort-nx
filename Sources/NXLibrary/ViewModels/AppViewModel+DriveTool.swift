@@ -3,7 +3,7 @@ import NXLibraryCore
 
 extension AppViewModel {
     @MainActor func offerDriveUpgrade() {
-        guard settingsNotice == nil, cloudLibrary.needsDriveToolChoice, !cloudLibrary.driveToolOfferSeen,
+        guard settingsNotice == nil, cloudLibrary.preference.enabled, cloudLibrary.needsDriveToolChoice, !cloudLibrary.driveToolOfferSeen,
               canStartLibraryMove else { return }
         cloudLibrary.markDriveToolOfferSeen()
         prepareDriveTool(fromStartup: true) {}

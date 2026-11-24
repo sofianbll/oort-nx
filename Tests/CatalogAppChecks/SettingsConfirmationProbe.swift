@@ -150,6 +150,13 @@ import ArcanePorting
             advanced: .constant(false), onEdit: {}, onEditLibrary: {}, onEditSources: {}, onActions: { _ in })
         let saved = migration.preference
         precondition(migration.needsDriveToolChoice && migration.archive == nil)
+        let portable = root.appendingPathComponent("portable/rclone")
+        try FileManager.default.createDirectory(at: portable.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try FileManager.default.copyItem(at: URL(fileURLWithPath: "/usr/bin/true"), to: portable)
+        try Data().write(to: portable.deletingLastPathComponent().appendingPathComponent("rclone.conf"))
+        precondition(!migration.canChooseDriveTool(portable))
+        migration.chooseExecutable(portable)
+        precondition(migration.chosenExecutable == nil && migration.archive == nil)
         upgraded.offerDriveUpgrade()
         let consent = upgraded.settingsNotice!
         precondition(upgraded.settingsNoticeFocus == consent.cancelIndex && consent.message.contains("licence MIT")

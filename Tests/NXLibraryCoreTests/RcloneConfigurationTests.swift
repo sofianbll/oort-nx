@@ -2,6 +2,25 @@ import XCTest
 @testable import NXLibraryCore
 
 final class RcloneConfigurationTests: XCTestCase {
+    func testPortableConfigBesideExecutableOrLinkCannotReplaceBundledDefault() throws {
+        let files = FileManager.default
+        let root = files.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? files.removeItem(at: root) }
+        let directory = root.appendingPathComponent("portable", isDirectory: true)
+        try files.createDirectory(at: directory, withIntermediateDirectories: true)
+        let executable = directory.appendingPathComponent("rclone")
+        let link = root.appendingPathComponent("rclone")
+        try Data().write(to: executable)
+        try files.createSymbolicLink(at: link, withDestinationURL: executable)
+        XCTAssertTrue(RcloneConfiguration.sharesDefaultConfiguration(link, environment: [:]))
+        let config = directory.appendingPathComponent("rclone.conf")
+        try Data().write(to: config)
+        XCTAssertFalse(RcloneConfiguration.sharesDefaultConfiguration(executable, environment: [:]))
+        XCTAssertFalse(RcloneConfiguration.sharesDefaultConfiguration(link, environment: [:]))
+        XCTAssertTrue(RcloneConfiguration.sharesDefaultConfiguration(link,
+            environment: ["RCLONE_CONFIG": root.appendingPathComponent("shared.conf").path]))
+    }
+
     func testRCConfigMutationTransfersParametersOverStdinToLocalFixture() async throws {
         guard let executable = RcloneStorageBackend.findExecutable() else { throw XCTSkip("rclone is not installed") }
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)

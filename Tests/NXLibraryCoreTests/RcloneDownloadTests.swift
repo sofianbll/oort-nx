@@ -160,6 +160,9 @@ final class RcloneDownloadTests: XCTestCase {
         XCTAssertEqual(try Data(contentsOf: installed), try Data(contentsOf: member))
         let extras = try files.contentsOfDirectory(atPath: fixture.installer.directory.deletingLastPathComponent().path)
         XCTAssertEqual(extras, [fixture.installer.directory.lastPathComponent])
+        try Data().write(to: fixture.installer.directory.appendingPathComponent("rclone.conf"))
+        XCTAssertNil(fixture.installer.installedExecutable)
+        XCTAssertThrowsError(try fixture.installer.moveInstalledCopyToTrash())
     }
 
     func testRemovalDoesNotTouchUnownedOrSymlinkedCopy() throws {

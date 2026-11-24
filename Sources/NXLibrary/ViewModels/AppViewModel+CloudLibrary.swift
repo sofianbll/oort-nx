@@ -256,11 +256,17 @@ final class CloudLibraryModel: ObservableObject {
     let driveTool = RcloneDownload(supportRoot: AppData.supportRoot)
     private(set) var driveToolOfferSeen = false
     var resolvedDriveTool: URL? {
-        if let chosenExecutable, RcloneStorageBackend.isExecutable(chosenExecutable) { return chosenExecutable }
+        if let chosenExecutable, RcloneStorageBackend.isExecutable(chosenExecutable),
+           canChooseDriveTool(chosenExecutable) { return chosenExecutable }
         if let owned = driveTool.installedExecutable { return owned }
-        return chosenExecutable == nil ? RcloneStorageBackend.findExecutable() : nil
+        guard chosenExecutable == nil, let detected = RcloneStorageBackend.findExecutable(),
+              canChooseDriveTool(detected) else { return nil }
+        return detected
     }
     var needsDriveTool: Bool { needsDriveToolChoice || resolvedDriveTool == nil }
+    func canChooseDriveTool(_ tool: URL) -> Bool {
+        !needsDriveToolChoice || RcloneConfiguration.sharesDefaultConfiguration(tool)
+    }
     var canTrashDriveTool: Bool {
         guard let owned = driveTool.installedExecutable else { return false }
         return chosenExecutable?.resolvingSymlinksInPath() != owned.resolvingSymlinksInPath()
@@ -424,10 +430,10 @@ final class CloudLibraryModel: ObservableObject {
             sourcesRoot: defaults.string(forKey: CloudLibraryPreference.sourcesRootKey),
             referenceFolder: defaults.string(forKey: CloudLibraryPreference.referenceFolderKey))
         chosenExecutable = defaults.string(forKey: CloudLibraryPreference.executableKey).map { URL(fileURLWithPath: $0) }
-        needsDriveToolChoice = preference.enabled && preference.remote != nil
-            && !defaults.bool(forKey: CloudLibraryPreference.toolChoiceKey)
-            && chosenExecutable.map(RcloneStorageBackend.isExecutable) != true && driveTool.installedExecutable == nil
         driveToolOfferSeen = defaults.bool(forKey: CloudLibraryPreference.toolOfferKey)
+        needsDriveToolChoice = preference.remote != nil
+            && !defaults.bool(forKey: CloudLibraryPreference.toolChoiceKey)
+            && chosenExecutable == nil && driveTool.installedExecutable == nil
         do { pendingMove = try moveJournal.load() }
         catch { moveJournalUnreadable = true }
         rebuildArchive()
@@ -466,7 +472,7 @@ final class CloudLibraryModel: ObservableObject {
         AppData.preferences.set(next.enabled, forKey: CloudLibraryPreference.enabledKey)
         AppData.preferences.set(next.sourcesRootOverride, forKey: CloudLibraryPreference.sourcesRootKey)
         preference = next
-        if !enabled { needsDriveToolChoice = false }
+        if next.remote == nil { needsDriveToolChoice = false }
         rebuildArchive()
     }
 
@@ -487,10 +493,11 @@ final class CloudLibraryModel: ObservableObject {
     }
 
     @MainActor func chooseExecutable(_ executable: URL?) {
-        guard chosenExecutable != executable else { return }
+        guard chosenExecutable != executable, executable.map(canChooseDriveTool) != false else { return }
         AppData.preferences.set(executable?.path, forKey: CloudLibraryPreference.executableKey)
         chosenExecutable = executable
-        acceptDriveTool()
+        if needsDriveToolChoice && executable == nil { rebuildArchive() }
+        else { acceptDriveTool() }
     }
 
     @MainActor func markDriveToolOfferSeen() {

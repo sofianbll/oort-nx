@@ -60,6 +60,9 @@ def prepare(package):
     replace(app / "ViewModels/AppViewModel+CloudLibrary.swift",
             r'var resolvedDriveTool: URL\? \{.*?\n    }',
             'var resolvedDriveTool: URL? { SettingsConfirmationProbe.availableDriveTool ?? driveTool.installedExecutable }')
+    replace(app / "ViewModels/AppViewModel+CloudLibrary.swift",
+            r'RcloneConfiguration\.sharesDefaultConfiguration\(tool\)',
+            'RcloneConfiguration.sharesDefaultConfiguration(tool, environment: [:])')
     replace(app / "ViewModels/AppViewModel+DriveTool.swift",
             r'            let installer = cloud.driveTool\n', '')
     replace(app / "ViewModels/AppViewModel+DriveTool.swift",

@@ -1,6 +1,9 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "This rclone uses a separate configuration. Choose a copy that uses your existing Drive settings.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"This rclone uses a separate configuration. Choose a copy that uses your existing Drive settings."}}, "fr": {"stringUnit":{"state":"translated","value":"Ce rclone utilise une configuration distincte. Choisissez une copie qui reprend vos réglages Drive actuels."}}, "it": {"stringUnit":{"state":"translated","value":"Questo rclone usa una configurazione separata. Scegli una copia che usi le impostazioni Drive esistenti."}}, "de": {"stringUnit":{"state":"translated","value":"Dieses rclone hat eine eigene Konfiguration. Wähle eine Kopie mit deinen bisherigen Drive-Einstellungen."}}, "es": {"stringUnit":{"state":"translated","value":"Este rclone usa una configuración distinta. Elige una copia que use tus ajustes de Drive actuales."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Este rclone usa uma configuração separada. Escolha uma cópia que use suas configurações atuais do Drive."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"此 rclone 使用独立配置。请选择使用你现有 Drive 设置的副本。"}}
+    }},
     "Download rclone": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Download rclone"}}, "fr": {"stringUnit":{"state":"translated","value":"Télécharger rclone"}}, "it": {"stringUnit":{"state":"translated","value":"Scarica rclone"}}, "de": {"stringUnit":{"state":"translated","value":"rclone herunterladen"}}, "es": {"stringUnit":{"state":"translated","value":"Descargar rclone"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Baixar o rclone"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"下载 rclone"}}
     }},

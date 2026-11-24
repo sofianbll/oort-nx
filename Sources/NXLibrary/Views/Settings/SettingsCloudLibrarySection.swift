@@ -44,8 +44,7 @@ struct SettingsCloudLibrarySection: View {
     private var editable: Bool { viewModel.canConfigureCloudLibrary && testTask == nil }
     private var canPrepareTool: Bool { viewModel.canStartLibraryMove && testTask == nil }
     private var showToolRecovery: Bool {
-        model.driveToolFailure != nil || model.needsDriveToolChoice
-            || (selection.enabled && selection.remote != nil && model.resolvedDriveTool == nil)
+        model.driveToolFailure != nil || (selection.enabled && selection.remote != nil && model.needsDriveTool)
     }
     private var canTest: Bool { editable && !inspecting && connected != nil }
     private var canImport: Bool { editable && model.archive != nil && model.importTask == nil && !viewModel.isScanningLibrary }
@@ -383,6 +382,7 @@ struct SettingsCloudLibrarySection: View {
         panel.message = text("Choose the rclone executable or use the detected one.")
         guard panel.runModal() == .OK, let chosen = panel.url, editable else { return }
         guard RcloneStorageBackend.isExecutable(chosen) else { issue = .tool; return }
+        guard model.canChooseDriveTool(chosen) else { issue = .portableConfiguration; return }
         model.chooseExecutable(chosen)
     }
 
