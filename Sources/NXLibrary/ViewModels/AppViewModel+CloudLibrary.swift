@@ -113,7 +113,7 @@ struct CloudLibraryState {
     }
 
     func coverLook(_ buildLook: PortingTileLook) -> PortingTileLook {
-        guard buildLook == .normal || buildLook == .locked,
+        guard buildLook.isAtRest,
               let transfer = transfer(), transfer.canCancel, !queued else { return buildLook }
         return .transfer(transfer.coverFraction)
     }
@@ -263,7 +263,7 @@ final class CloudLibraryModel: ObservableObject {
     var triedAutomaticImport = false
     var resumeCatalogCheck: (() -> Void)?
     var catalogCheck: (token: UUID, task: Task<Void, Never>)?
-    var catalogChecked = false
+    @Published var catalogChecked = false
     @Published var states: [UUID: CloudLibraryState] = [:]
     private var backend: RcloneStorageBackend?
     var reads: [UUID: (token: UUID, task: Task<Void, Never>)] = [:]

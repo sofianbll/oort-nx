@@ -8,8 +8,23 @@ extension AppViewModel {
     var portingGameID: UUID? { isBuilding ? currentBuildGameID : nil }
 
     func portingTileLook(_ game: PortedGame) -> PortingTileLook {
-        if game.id != portingGameID, cloudLibrary.states[game.id]?.appIsCloudOnly == true { return .normal }
-        return PortingTileLook.make(game: game, portingGameID: portingGameID, progress: portingProgress)
+        PortingTileLook.make(game: game, portingGameID: portingGameID, progress: portingProgress,
+                             resting: restingTileLook(game))
+    }
+
+    private func restingTileLook(_ game: PortedGame) -> PortingTileLook {
+        let state = cloudLibrary.states[game.id]
+        func inCloud(_ item: CloudLibraryItem, expected: Bool) -> Bool? {
+            guard cloudLibrary.archive != nil else { return false }
+            switch state?.copy(item) {
+            case .cloudOnly: return true
+            case .notInCloud: return false
+            default: return expected ? true : cloudLibrary.catalogChecked ? false : nil
+            }
+        }
+        // An imported title is only listed because its app is in the cloud.
+        return .resting(playable: game.isPlayableLocally, appInCloud: inCloud(.app, expected: game.cloudImportPending == true),
+                        filesHere: gamesWithFilesHere.contains(game.id), filesInCloud: inCloud(.sources, expected: false))
     }
 
     func portingPills(_ game: PortedGame) -> PortingPills {

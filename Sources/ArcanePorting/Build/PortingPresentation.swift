@@ -108,8 +108,14 @@ public enum PortingTileLook: Equatable {
     case preparing(step: Int, count: Int, title: String, detail: String)
     /// Colour risen to this fraction, the percentage in the middle.
     case filling(Double)
-    /// No app can be played: black and white with a lock.
-    case locked
+    /// One gesture from playing keeps its colours: the app is in the cloud, or the game files are here.
+    case toDownload, toBuild
+    /// Only the game files are in the cloud: download, then build. Softened.
+    case toDownloadFiles
+    /// Nothing here, and the cloud has not answered yet: softened, no verdict.
+    case unchecked
+    /// Neither here nor in the cloud: black and white.
+    case missing
     /// A Steam game Steam is still installing: black and white, the download glyph and "Downloading".
     case downloading
 
@@ -118,7 +124,24 @@ public enum PortingTileLook: Equatable {
         game.steamGame?.isDownloading == true ? .downloading : .normal
     }
 
-    public static func make(game: PortedGame, portingGameID: UUID?, progress: PortingProgress?) -> PortingTileLook {
+    /// A game at rest. Nil in the cloud means it has not been checked.
+    public static func resting(playable: Bool, appInCloud: Bool?, filesHere: Bool, filesInCloud: Bool?) -> PortingTileLook {
+        if playable { return .normal }
+        if appInCloud == true { return .toDownload }
+        if filesHere { return .toBuild }
+        if filesInCloud == true { return .toDownloadFiles }
+        return appInCloud == nil || filesInCloud == nil ? .unchecked : .missing
+    }
+
+    public var isAtRest: Bool {
+        switch self {
+        case .normal, .toDownload, .toBuild, .toDownloadFiles, .unchecked, .missing: return true
+        case .transfer, .preparing, .filling, .downloading: return false
+        }
+    }
+
+    public static func make(game: PortedGame, portingGameID: UUID?, progress: PortingProgress?,
+                            resting: PortingTileLook) -> PortingTileLook {
         if game.id == portingGameID, let progress {
             switch progress.phase {
             case .preparing:
@@ -128,8 +151,7 @@ public enum PortingTileLook: Equatable {
             case .done, .failed: break
             }
         }
-        if !game.isPlayableLocally { return .locked }
-        return .normal
+        return resting
     }
 }
 

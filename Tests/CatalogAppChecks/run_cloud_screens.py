@@ -59,13 +59,27 @@ import ArcanePorting
             .environment(\.seleneButtonNames, .xbox))
         // ACCOUNT_SCOPE
         // QUIT_COPY
-        precondition(CloudLibraryTileBadge.artworkOpacity(model.states[game.id]) == 0.55)
+        precondition(vm.portingTileLook(game) == .toDownload)
         try render("tile", output,
             CollectionCoverRow(games: [.init(nxnative: game)], selectedID: game.id,
                 artwork: ArtworkStore(), boxArt: vm.boxArt, boxArtIndexVersion: 0,
                 officialName: { _ in nil }, needsMetadata: { _ in }, cloud: model,
                 showsCloudBadges: true, onSelect: { _ in }, onActivate: { _ in }),
             size: .init(width: 400, height: 440))
+        // Every resting look, with its corner mark.
+        let looks: [PortingTileLook] = [.normal, .toDownload, .toBuild, .toDownloadFiles, .unchecked, .missing]
+        let shelf = looks.enumerated().map { index, look in
+            PortedGame(name: ["Ready", "App in cloud", "Files here", "Files in cloud", "Not checked", "Not found"][index],
+                       url: URL(fileURLWithPath: "/fixture/\(index).app"), platform: .macApp, sizeBytes: 0, modificationDate: .now)
+        }
+        let lookByID = Dictionary(uniqueKeysWithValues: zip(shelf.map(\.id), looks))
+        try render("tile-looks", output,
+            CollectionCoverRow(games: shelf.map { .init(nxnative: $0) }, selectedID: shelf[0].id,
+                artwork: ArtworkStore(), boxArt: vm.boxArt, boxArtIndexVersion: 0,
+                officialName: { _ in nil }, needsMetadata: { _ in },
+                tileLook: { lookByID[$0.id] ?? .normal }, cloud: model,
+                showsCloudBadges: true, onSelect: { _ in }, onActivate: { _ in }),
+            size: .init(width: 1500, height: 440))
         let queuedRequest = CloudLibraryModel.Request(id: game.id, name: game.name, action: .restore(.app),
             storage: model.preference.storage, scope: .init(title: game.titleId!, urls: []),
             importDestination: nil, sourceFiles: nil, onSuccess: nil)

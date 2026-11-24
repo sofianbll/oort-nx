@@ -121,7 +121,13 @@ final class AppViewModel: ObservableObject {
     @Published var dropErrorMessage: String? = nil
 
     // MARK: - Library
-    @Published private(set) var libraryGames: [PortedGame] = []
+    @Published private(set) var libraryGames: [PortedGame] = [] {
+        didSet {
+            gamesWithFilesHere = Set(libraryGames.filter { !$0.isPlayableLocally && GameResourceState.sourcesAvailable(for: $0) }.map(\.id))
+        }
+    }
+    /// Games with no app whose files were on this Mac at the last library change; tiles never read the disk.
+    private(set) var gamesWithFilesHere: Set<UUID> = []
     @Published private(set) var catalogGames: [CatalogGame] = []
     private(set) var catalogSnapshot = CatalogDocument()
     @Published private(set) var catalogSourceConfigurations: [CatalogSourceConfiguration] = []

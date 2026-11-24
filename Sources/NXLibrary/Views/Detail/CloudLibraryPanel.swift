@@ -749,25 +749,50 @@ struct CloudLibraryIndicator {
 struct CloudLibraryTileBadge: ViewModifier {
     let state: CloudLibraryState?
     var showsCopyBadge = true
+    /// What a game that cannot be played yet needs; it replaces the old lock, so it always shows.
+    var look: PortingTileLook = .normal
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.nxAppLocale) private var localization
 
-    static func artworkOpacity(_ state: CloudLibraryState?) -> Double { state?.appIsCloudOnly == true ? 0.55 : 1 }
+    private var need: (icon: MaterialIcon, label: String)? {
+        guard state?.transfer() == nil, state.map({ CloudLibraryIndicator(state: $0).failed }) != true else { return nil }
+        switch look {
+        case .toDownload: return (.cloudDownload, "Cloud only")
+        case .toBuild: return (.build, "Not built yet")
+        case .toDownloadFiles: return (.cloudDownload, "Download game files")
+        case .missing: return (.search, "Game files not found")
+        default: return nil
+        }
+    }
 
     func body(content: Content) -> some View {
         let badge = state.flatMap {
             showsCopyBadge || $0.transfer() != nil ? CloudLibraryBadge(indicator: CloudLibraryIndicator(state: $0)) : nil
         }
         content.overlay(alignment: .topTrailing) {
-            if let badge, badge.isVisibleOnTile {
-                badge
-                    .padding(canvas.u(10))
-                    .allowsHitTesting(false)
-                    .accessibilityHidden(true)
+            Group {
+                if let need { TileMark(icon: need.icon) }
+                else if let badge, badge.isVisibleOnTile { badge }
             }
+            .padding(canvas.u(10))
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
         }
-        .accessibilityValue(badge?.isVisibleOnTile == true
-                            ? badge?.indicator.label(context: localization) ?? "" : "")
+        .accessibilityValue(need.map { L10n.text($0.label, context: localization) }
+                            ?? (badge?.isVisibleOnTile == true ? badge?.indicator.label(context: localization) ?? "" : ""))
+    }
+}
+
+/// The round mark in a tile's corner.
+struct TileMark: View {
+    let icon: MaterialIcon
+    @Environment(\.seleneCanvas) private var canvas
+
+    var body: some View {
+        MaterialIconView(icon, size: SeleneTokens.Space.control)
+            .foregroundColor(SeleneTheme.ink)
+            .frame(width: canvas.u(SeleneTokens.Space.section), height: canvas.u(SeleneTokens.Space.section))
+            .background(Circle().fill(SeleneTheme.scrim.opacity(SeleneTokens.Effect.cloudBadgeOpacity)))
     }
 }
 
@@ -785,10 +810,7 @@ struct CloudLibraryBadge: View {
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
-            Circle().fill(SeleneTheme.scrim.opacity(SeleneTokens.Effect.cloudBadgeOpacity))
-            MaterialIconView(indicator.icon, size: SeleneTokens.Space.control)
-                .foregroundColor(SeleneTheme.ink)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            TileMark(icon: indicator.icon)
             SeleneStatusMark(color: indicator.status.color, pulses: false)
                 .padding(canvas.u(SeleneTokens.Space.seam))
         }

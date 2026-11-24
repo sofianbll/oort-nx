@@ -86,7 +86,6 @@ struct CollectionCoverRow: View {
                         .clipShape(face)
                 }
             }
-            .opacity(CloudLibraryTileBadge.artworkOpacity(showsCloudBadges ? cloudState : nil))
             if game.nxnativeGame == nil {
                 PortingDownloadMark(look: PortingTileLook.make(catalog: game), width: w, height: h)
             }
@@ -104,7 +103,8 @@ struct CollectionCoverRow: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(game.name)
         .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
-        .modifier(CloudLibraryTileBadge(state: cloudState, showsCopyBadge: showsCloudBadges))
+        .modifier(CloudLibraryTileBadge(state: cloudState, showsCopyBadge: showsCloudBadges,
+                                        look: game.nxnativeGame.map(tileLook) ?? .normal))
         .overlay(alignment: .bottomTrailing) {
             NextendoOnlineBadge(titleID: game.nxnativeGame?.titleId, compact: true).padding(canvas.u(SeleneTokens.Space.tight))
         }

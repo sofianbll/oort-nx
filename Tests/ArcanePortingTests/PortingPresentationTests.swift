@@ -179,26 +179,34 @@ final class PortingPresentationTests: XCTestCase {
     func testTileFollowsThePortingPhase() {
         let porting = game(app: false)
         let preparing = progress([.stage(k: 3, n: 7, name: "rewrite", step: "checking the inputs")])
-        XCTAssertEqual(PortingTileLook.make(game: porting, portingGameID: porting.id, progress: preparing),
+        XCTAssertEqual(PortingTileLook.make(game: porting, portingGameID: porting.id, progress: preparing, resting: .normal),
                        .preparing(step: 3, count: 7, title: "Rewrite", detail: "checking the inputs"))
-        XCTAssertEqual(PortingTileLook.make(game: porting, portingGameID: porting.id, progress: inShaders),
+        XCTAssertEqual(PortingTileLook.make(game: porting, portingGameID: porting.id, progress: inShaders, resting: .normal),
                        .filling(0.45))
-        XCTAssertEqual(PortingTileLook.make(game: porting, portingGameID: UUID(), progress: inShaders), .locked)
+        XCTAssertEqual(PortingTileLook.make(game: porting, portingGameID: UUID(), progress: inShaders,
+                                            resting: .toBuild), .toBuild)
     }
 
-    func testLockOnlyWithoutAWorkingApp() {
-        let failed = game(app: false, failure: .failed)
-        XCTAssertEqual(PortingTileLook.make(game: failed, portingGameID: nil, progress: nil), .locked)
-        let rebuild = game(app: true, failure: .failed)
-        XCTAssertEqual(PortingTileLook.make(game: rebuild, portingGameID: nil, progress: nil), .normal)
-        XCTAssertEqual(PortingTileLook.make(game: game(app: false, failure: .cancelled), portingGameID: nil,
-                                            progress: nil), .locked)
+    /// Every mix of app and game files, here, in the cloud, nowhere or not checked yet.
+    func testTileKeepsItsColoursOneGestureFromPlaying() {
+        func look(_ playable: Bool = false, app: Bool?, here: Bool = false, files: Bool?) -> PortingTileLook {
+            .resting(playable: playable, appInCloud: app, filesHere: here, filesInCloud: files)
+        }
+        for app in [true, false, nil] { for files in [true, false, nil] {
+            XCTAssertEqual(look(true, app: app, files: files), .normal)
+            XCTAssertEqual(look(app: app, here: true, files: files), app == true ? .toDownload : .toBuild)
+            XCTAssertEqual(look(app: true, files: files), .toDownload)
+        } }
+        XCTAssertEqual(look(app: false, files: true), .toDownloadFiles)
+        XCTAssertEqual(look(app: nil, files: true), .toDownloadFiles)
+        XCTAssertEqual(look(app: false, files: false), .missing)
+        XCTAssertEqual(look(app: nil, files: false), .unchecked)
+        XCTAssertEqual(look(app: false, files: nil), .unchecked)
     }
 
-    func testMissingAppUsesLockAndUnavailableActions() {
+    func testMissingAppKeepsUnavailableActions() {
         var missing = game(app: true)
         missing.status = .appMissing
-        XCTAssertEqual(PortingTileLook.make(game: missing, portingGameID: nil, progress: nil), .locked)
         XCTAssertNotEqual(PortingPills.make(game: missing, portingGameID: nil), .normal)
     }
 
@@ -212,7 +220,7 @@ final class PortingPresentationTests: XCTestCase {
         var existing = game(app: true)
         existing.status = .builtSourcesMissing
         existing.sources = [GameFileItem(url: URL(fileURLWithPath: "/missing-\(UUID())/base.nsp"), kind: .base, sizeBytes: 1)]
-        XCTAssertEqual(PortingTileLook.make(game: existing, portingGameID: nil, progress: nil), .normal)
+        XCTAssertEqual(PortingTileLook.make(game: existing, portingGameID: nil, progress: nil, resting: .normal), .normal)
         XCTAssertEqual(PortingPills.make(game: existing, portingGameID: nil), .normal)
         XCTAssertTrue(existing.isPlayableLocally)
     }

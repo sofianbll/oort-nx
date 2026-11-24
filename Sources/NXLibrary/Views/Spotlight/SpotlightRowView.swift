@@ -166,7 +166,6 @@ struct SpotlightRowView: View {
         let cloudState = native.flatMap { cloud.states[$0.id] }
         return ZStack(alignment: .topLeading) {
             face(item, selected: selected, cloudState: cloudState)
-                .opacity(CloudLibraryTileBadge.artworkOpacity(showsCloudBadges ? cloudState : nil))
                 .padding(canvas.u(SeleneTokens.Space.badge))
             SeleneTileRing(cornerRadius: canvas.u(SeleneTokens.Radius.spotlightFocus), active: selected)
                 .frame(width: canvas.u(Self.host), height: canvas.u(Self.host))
@@ -179,7 +178,8 @@ struct SpotlightRowView: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(title(of: item))
         .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
-        .modifier(CloudLibraryTileBadge(state: cloudState, showsCopyBadge: showsCloudBadges))
+        .modifier(CloudLibraryTileBadge(state: cloudState, showsCopyBadge: showsCloudBadges,
+                                        look: native.map(tileLook) ?? .normal))
         .overlay(alignment: .bottomTrailing) {
             NextendoOnlineBadge(titleID: native?.titleId, compact: true).padding(canvas.u(SeleneTokens.Space.small))
         }

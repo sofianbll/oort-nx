@@ -6,9 +6,9 @@ import ArcanePorting
 /// from the bottom with the progress and a thin luminous line on its edge. Before
 /// the shaders compile, a thin "k/n" bar with the stage and its step in small type
 /// sits on the softly blurred art; then the percentage fades in, small, with a slow
-/// pastel sheen. A failed porting with no app keeps the art black and white,
-/// lightly blurred, under a lock; a Steam game still installing looks the same with
-/// "Downloading" under a thin download mark that pulses (`PortingDownloadMark`).
+/// pastel sheen. At rest, a game one gesture from playing keeps its colours, one that needs more is
+/// softened, and one found nowhere is black and white; the corner mark says what to do. A Steam game still installing is
+/// black and white, lightly blurred, with "Downloading" under a thin download mark that pulses (`PortingDownloadMark`).
 ///
 /// The art is drawn once: a grey layer in `.saturation` blend takes the colour out
 /// above the fill line. The sheen moves only while compiling, and stands still
@@ -33,6 +33,8 @@ struct PortingArtLook: ViewModifier {
                         .blendMode(.saturation)
                 }
                 .compositingGroup()
+                .saturation(isSoftened ? 0.35 : 1)
+                .overlay(Color.black.opacity(look == .missing ? 0.45 : isSoftened ? 0.28 : 0))
                 .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
                 if fill > 0, fill < 1 {
                     edge(width: geo.size.width, side: side)
@@ -55,30 +57,31 @@ struct PortingArtLook: ViewModifier {
 
     private var fill: Double {
         switch look {
-        case .normal: return 1
-        case .preparing, .locked, .downloading: return 0
+        case .normal, .toDownload, .toBuild, .toDownloadFiles, .unchecked: return 1
+        case .preparing, .missing, .downloading: return 0
         case .filling(let value), .transfer(let value): return min(max(value, 0), 1)
         }
     }
+
+    private var isSoftened: Bool { look == .toDownloadFiles || look == .unchecked }
 
     /// Blur as a fraction of the side.
     private var blur: CGFloat {
         switch look {
         case .preparing: return 0.02
-        case .locked, .downloading: return 0.012
-        case .normal, .filling, .transfer: return 0
+        case .downloading: return 0.012
+        default: return 0
         }
     }
 
     /// What sits on the art; animating between them is the slow dissolve.
-    private enum Stage: Equatable { case none, steps, percent, lock, download }
+    private enum Stage: Equatable { case none, steps, percent, download }
 
     private var stage: Stage {
         switch look {
-        case .normal, .transfer: return .none
+        case .normal, .transfer, .toDownload, .toBuild, .toDownloadFiles, .unchecked, .missing: return .none
         case .preparing: return .steps
         case .filling: return .percent
-        case .locked: return .lock
         case .downloading: return .download
         }
     }
@@ -108,12 +111,6 @@ struct PortingArtLook: ViewModifier {
                 }
                 if stage == .percent, case .filling(let value) = look {
                     percent(value, side: side, phase: moving ? time.truncatingRemainder(dividingBy: 9) / 9 : 0.35)
-                        .transition(.opacity)
-                }
-                if stage == .lock {
-                    MaterialIconView(.lock, size: side * 0.22)
-                        .foregroundColor(.white.opacity(0.88))
-                        .shadow(color: .black.opacity(0.55), radius: side * 0.04)
                         .transition(.opacity)
                 }
                 if stage == .download {
