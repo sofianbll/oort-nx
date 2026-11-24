@@ -26,6 +26,7 @@ import ArcanePorting
         precondition(CTFontManagerRegisterFontsForURL(font as CFURL, .process, nil))
         NSApplication.shared.applicationIconImage = NSImage(contentsOfFile: CommandLine.arguments[3])
         let data = AppData.supportRoot
+        // SCENARIO
         let settings = AppSettingsStore(fileURL: data.appendingPathComponent("settings.json"))
         let vm = AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: data)))
         let model = vm.cloudLibrary
@@ -143,31 +144,6 @@ import ArcanePorting
         try render("reference-error", output, referenceSettings())
         // CLOUD_REVIEW_START
         try await vm.checkManifestOnlyReferenceSelection()
-        do {
-            let defaults = AppData.preferences
-            let keys = [CloudLibraryPreference.storageKey, CloudLibraryPreference.enabledKey,
-                        CloudLibraryPreference.sourcesRootKey, CloudLibraryPreference.sourcesBindingKey]
-            let saved = keys.map { defaults.object(forKey: $0) }
-            defer { for (key, value) in zip(keys, saved) { defaults.set(value, forKey: key) } }
-            let settingsFixture = CloudLibraryModel()
-            settingsFixture.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: nil)
-            settingsFixture.chooseSourcesRoot("Independent/GameFiles")
-            precondition(!settingsFixture.sourcesNeedConfirmation)
-            settingsFixture.configure(remote: "fixture", root: "NewGames", enabled: true, sourcesRoot: "Independent/GameFiles")
-            precondition(settingsFixture.sourcesNeedConfirmation && settingsFixture.sourceArchive == nil)
-            let view = SettingsCloudLibrarySection(viewModel: vm, model: settingsFixture, settings: settings,
-                advanced: .constant(false), onEdit: {}, onEditSources: {}, onActions: { _ in })
-            try render("settings-sources-confirmation-fr", output, view.environment(\.nxAppLocale, L10n.context)
-                .padding(24).frame(width: 1040))
-            vm.settingsNotice = nil
-            view.requestSourceConfirmationForProbe()
-            if let notice = vm.settingsNotice {
-                precondition(notice.choices == ["Keep this folder", "Use default", "Cancel"])
-                precondition(notice.initialFocus == notice.cancelIndex)
-                try renderNotice("settings-sources-question-fr", output, notice, width: 1120)
-                vm.settingsNotice = nil
-            } else { preconditionFailure("The source choice must show a confirmation") }
-        }
         // CLOUD_REVIEW_END
         try render("reference-editor", output, CloudReferenceDialog(viewModel: vm, onClose: {})
             .environment(\.nxAppLocale, L10n.context))
@@ -568,17 +544,28 @@ extension CloudScreenProbe {
         }
         let fr = AppLocale(language: .french, region: "FR")
         L10n.setContext(fr)
-        let previous = AppData.preferences.data(forKey: "NXLibrary_CloudLastKnownAvailability")
-        let sourcesPreference = AppData.preferences.string(forKey: CloudLibraryPreference.sourcesRootKey)
-        let referencePreference = AppData.preferences.string(forKey: CloudLibraryPreference.referenceFolderKey)
-        AppData.preferences.removeObject(forKey: CloudLibraryPreference.sourcesRootKey)
-        AppData.preferences.removeObject(forKey: CloudLibraryPreference.referenceFolderKey)
-        defer {
-            AppData.preferences.set(previous, forKey: "NXLibrary_CloudLastKnownAvailability")
-            AppData.preferences.set(sourcesPreference, forKey: CloudLibraryPreference.sourcesRootKey)
-            AppData.preferences.set(referencePreference, forKey: CloudLibraryPreference.referenceFolderKey)
-        }
         var vm = try newModel()
+        let model = vm.cloudLibrary
+        model.configure(remote: "fixture", root: "PreviousGames", enabled: true, sourcesRoot: nil)
+        model.chooseSourcesRoot("Games/GameFiles")
+        precondition(!model.sourcesNeedConfirmation)
+        model.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: "Games/GameFiles")
+        precondition(model.sourcesNeedConfirmation && model.sourceArchive == nil)
+        let sourceSettings = SettingsCloudLibrarySection(viewModel: vm, model: model, settings: settings,
+            advanced: .constant(false), onEdit: {}, onEditLibrary: {}, onEditSources: {}, onActions: { _ in })
+        try render("settings-sources-confirmation-fr", output, sourceSettings.environment(\.nxAppLocale, fr)
+            .padding(24).frame(width: 1040))
+        sourceSettings.requestSourceConfirmationForProbe()
+        guard let notice = vm.settingsNotice else { preconditionFailure("No source confirmation") }
+        precondition(notice.choices == ["Keep this folder", "Use default", "Cancel"] && notice.initialFocus == notice.cancelIndex)
+        try renderNotice("settings-sources-question-fr", output, notice, width: 1120)
+        vm.settingsNotice = nil
+        notice.runChoice(notice.cancelIndex)
+        precondition(model.sourcesNeedConfirmation && model.sourceArchive == nil)
+        sourceSettings.requestSourceConfirmationForProbe()
+        vm.settingsNotice?.runChoice(0)
+        vm.settingsNotice = nil
+        precondition(!model.sourcesNeedConfirmation && model.preference.sourcesRootOverride == "Games/GameFiles")
         vm.cloudLibrary.installScreenArchives(backend)
         vm.cloudLibrary.installScreenSources(backend, root: "Games/GameFiles")
         vm.importCloudGames(manually: true)
@@ -652,12 +639,7 @@ extension CloudScreenProbe {
         precondition(vm.cloudLibrary.downloadItem(for: selected) == nil)
         precondition(vm.queryLibrary(.init(filter: .cloud), history: NoPlayHistory()).isEmpty)
         try render("cloud-only-build-fr", output, details(selected, vm: vm), size: .init(width: 1120, height: 470))
-        let ready = try repo.updateNXNative(id: game.id) {
-            $0.cloudImportPending = nil
-            $0.url = folder.appendingPathComponent("Fixture.app")
-            $0.status = .built
-        }.nxnativeGames.first!
-        precondition(ready.isPlayableLocally && vm.portingTileLook(ready) == .normal)
+        try await checkBuildAndPlay(vm, game: selected, in: root, output: output)
 
         vm.cloudLibrary.setReferenceFolder(referenceID)
         vm.cloudLibrary.installScreenArchives(backend)
@@ -669,7 +651,60 @@ extension CloudScreenProbe {
         precondition(vm.portingTileLook(shared) == .toDownloadFiles && !GameResourceState.sourcesAvailable(for: shared))
         vm.applyCatalog(try repo.forgetCloudReference(referenceID))
         precondition(!vm.libraryGames.contains { $0.id == shared.id })
-        print("Cloud-only: personal and reference discovery, artwork, filter, restart offline, queue download and Build/Play verified.")
+        print("Cloud-only: changed library confirmation, discovery, restart offline, Download files, synthetic Build, and Play dispatch verified.")
+    }
+
+    @MainActor static func checkBuildAndPlay(_ vm: AppViewModel, game: PortedGame, in root: URL, output: URL) async throws {
+        let fm = FileManager.default
+        let apps = root.appendingPathComponent("FixtureApps", isDirectory: true)
+        let engine = root.appendingPathComponent("SyntheticEngine", isDirectory: true)
+        for dir in [apps, engine.appendingPathComponent("scripts"), engine.appendingPathComponent(".venv/bin")] {
+            try fm.createDirectory(at: dir, withIntermediateDirectories: true)
+        }
+        try fm.createSymbolicLink(at: engine.appendingPathComponent(".venv/bin/python"),
+                                  withDestinationURL: URL(fileURLWithPath: "/usr/bin/python3"))
+        try """
+        import pathlib, plistlib, shutil, subprocess, sys
+        args = sys.argv
+        workspace = pathlib.Path(args[1])
+        assert (workspace / "Game.nsp").read_bytes().startswith(b"PFS0")
+        app = pathlib.Path(args[args.index("-o")+1])
+        exe = app / "Contents/MacOS/Fixture"
+        exe.parent.mkdir(parents=True)
+        shutil.copy2("/usr/bin/true", exe)
+        contents = dict(CFBundleIdentifier="local.oort.cloud-proof", CFBundleExecutable="Fixture",
+                        CFBundlePackageType="APPL", CFBundleShortVersionString="1.0", DMTitleID="0100000000006000")
+        with (app / "Contents/Info.plist").open("wb") as stream:
+            plistlib.dump(contents, stream)
+        subprocess.run(["/usr/bin/codesign", "--force", "--sign", "-", str(app)], check=True)
+        """.write(to: engine.appendingPathComponent("scripts/build_ipa_from_nsp.py"), atomically: true, encoding: .utf8)
+        vm.libraryFolder = apps
+        vm.setup.nxnativePath = engine.path
+        vm.setup.isNxnativeValid = true
+        vm.setup.environmentStatus = .screenCloudFixture(engine)
+        vm.porting.restoreBuildQueue([])
+        vm.settingsNotice = nil
+        vm.porting.startBuild(for: game)
+        let deadline = ContinuousClock.now + .seconds(20)
+        while ContinuousClock.now < deadline,
+              vm.libraryGames.first(where: { $0.id == game.id })?.isPlayableLocally != true {
+            if vm.settingsNotice != nil || vm.porting.buildError != nil { break }
+            await Task.yield()
+        }
+        guard let ready = vm.libraryGames.first(where: { $0.id == game.id }), ready.isPlayableLocally,
+              ready.isFavorite, ready.url.path.hasPrefix(apps.path + "/"),
+              fm.fileExists(atPath: ready.url.appendingPathComponent("Contents/MacOS/Fixture").path)
+        else { preconditionFailure("Synthetic build failed: \(vm.settingsNotice?.message ?? vm.porting.buildError ?? "no result"); \(vm.logs.suffix(8))") }
+        var launched: URL?
+        vm.screenPlay = { launched = $0.url }
+        vm.launchGame(ready)
+        precondition(launched == ready.url && vm.portingTileLook(ready) == .normal)
+        try render("cloud-only-play-fr", output, DetailsTopBlock(game: ready, logo: nil,
+            presentation: .init(game: ready, metadata: nil, totalPlaytime: 0, lastPlayed: nil),
+            isRunning: false, focusedPill: 0, primaryEnabled: true, expanded: .constant(false),
+            onPrimary: {}, onSecondary: {}, onFavorite: {}, onHoverPill: { _ in }, pillSet: .normal,
+            cloud: vm.cloudLibrary, showsCloudPill: true, downloadEnabled: true)
+            .environment(\.nxAppLocale, L10n.context), size: .init(width: 1120, height: 470))
     }
 }
 '''
@@ -1289,16 +1324,17 @@ package enum CloudWriteFault {
                "    }\n\n    // MARK: - Dynamic")
         change(package / "Sources/NXLibraryCore/App/AppDataProfile.swift",
                r'public static let profile = [^\n]*',
-               f'public static let profile = AppDataProfile(home: URL(fileURLWithPath: "{temp}"), isDevelopment: true)')
+               'public static let profile = AppDataProfile(home: URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!), isDevelopment: true)')
         change(package / "Sources/NXLibraryCore/App/AppDataProfile.swift",
                r'public static var preferences: UserDefaults \{ [^\n]+ \}',
                'public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
-        change(app / "ViewModels/AppViewModel+CloudLibrary.swift",
-               r'        let defaults = AppData\.preferences.*?(?=        rebuildArchive\(\))',
-               '        preference = .init(storage: "fixture:Games", enabled: true, sourcesRoot: nil)\n'
-               '        AppData.preferences.set(preference.storage, forKey: CloudLibraryPreference.storageKey)\n'
-               '        AppData.preferences.set(preference.enabled, forKey: CloudLibraryPreference.enabledKey)\n'
-               '        chosenExecutable = nil\n')
+        if before or baseline:
+            change(app / "ViewModels/AppViewModel+CloudLibrary.swift",
+                   r'        let defaults = AppData\.preferences.*?(?=        rebuildArchive\(\))',
+                   '        preference = .init(storage: "fixture:Games", enabled: true, sourcesRoot: nil)\n'
+                   '        AppData.preferences.set(preference.storage, forKey: CloudLibraryPreference.storageKey)\n'
+                   '        AppData.preferences.set(preference.enabled, forKey: CloudLibraryPreference.enabledKey)\n'
+                   '        chosenExecutable = nil\n')
         section = app / "Views/Settings/SettingsCloudLibrarySection.swift"
         change(section,
                r'        \.task\(id: Inspection.*?\n        }\n', "")
@@ -1379,12 +1415,21 @@ extension ActivityCenterView {
 """)
         host = HOST.replace("/* NOTICE_LAYOUT */", "vertical: notice.vertical," if before else "cancelIndex: notice.cancelIndex,")
         if not before and not baseline:
+            host = host.replace("// SCENARIO", '''
+        AppData.preferences.set("fixture:Games", forKey: CloudLibraryPreference.storageKey)
+        AppData.preferences.set(true, forKey: CloudLibraryPreference.enabledKey)
+        switch ProcessInfo.processInfo.environment["OORT_CLOUD_PROBE_CASE"] {
+        case "play": try await checkPlayDuringTransfer(in: data, output: output); return
+        case "sources": try await checkSourceOnly(in: data, output: output); return
+        default: break
+        }
+''')
             host = host.replace("// SCOPED_FIXTURE", '''
         model.installScreenArchives(RcloneStorageBackend(remote: "fixture", root: "Games") { _, _, _ in
             .init(status: 1, stdout: "", stderr: "connection reset")
         })
 ''')
-            host = host.replace("// SOURCE_ONLY_CHECK", "try await checkSourceOnly(in: data, output: output)") + SOURCE_ONLY
+            host += SOURCE_ONLY
             source_catalog = package / "Sources/ArcanePorting/Catalog/CatalogRepository+Porting.swift"
             change(source_catalog, r'(        return try transactionIfChanged \{ draft in\n            try Task\.checkCancellation\(\))',
                    lambda match: '        precondition(!Thread.isMainThread, "Cloud import catalog disk work ran on the UI thread")\n'
@@ -1392,6 +1437,26 @@ extension ActivityCenterView {
             with section.open("a") as swift:
                 swift.write("\nextension SettingsCloudLibrarySection {\n"
                             "    func requestSourceConfirmationForProbe() { confirmSourcesFolder() }\n}\n")
+            build = app / "ViewModels/PortingModel+Build.swift"
+            change(build, r'        if requiresKeys \{\n', '''        let syntheticEngine = ProcessInfo.processInfo.environment["OORT_CLOUD_PROBE_CASE"] == "sources"
+        if requiresKeys && !syntheticEngine {
+''')
+            change(build, r'        \} else if !app\.setup\.engineSourceCapabilities\.extractedFolders \{',
+                   '        } else if !requiresKeys && !app.setup.engineSourceCapabilities.extractedFolders {')
+            change(build, r'        let report = try\? checker\.check\(expectedEngineCommit: app\.setup\.activeEngineCommit\)',
+                   '        let report = syntheticEngine ? nil : try? checker.check(expectedEngineCommit: app.setup.activeEngineCommit)')
+            change(build, r'        if report\?\.ok != true && !app\.setup\.allowUntestedToolchain \{',
+                   '        if !syntheticEngine && report?.ok != true && !app.setup.allowUntestedToolchain {')
+            change(build, r'        NotificationService\.shared\.requestAuthorization\(\)',
+                   '        if !syntheticEngine { NotificationService.shared.requestAuthorization() }')
+            with (package / "Sources/ArcanePorting/Setup/NXNativeEnvironment.swift").open("a") as swift:
+                swift.write('''
+extension EnvironmentStatus {
+    public static func screenCloudFixture(_ repo: URL) -> Self {
+        .init(repoURL: repo, pythonURL: nil, developerDir: nil, metalVersion: nil, xcodeVersion: nil, tools: [], issues: [])
+    }
+}
+''')
         elif baseline:
             host = re.sub(r'// CLOUD_REVIEW_START.*?// CLOUD_REVIEW_END', '', host, flags=re.S)
             host = host.replace('model.referenceCheck?.name == nil', 'model.referenceCheck?.name == "Arcane-nx"')
@@ -1574,7 +1639,8 @@ extension CloudLibraryPanel {
                     transfer = PLAY_TRANSFER.replace("// QUEUE_MONITOR_CALLBACK", callback[1].replace("viewModel", "vm"))
                     if not baseline:
                         transfer = transfer.replace("// AUDIT_QUEUE", "do {\n" + AUDIT_QUEUE + "\n        }")
-                host = host.replace("// PLAY_TRANSFER_CHECK", "try await checkPlayDuringTransfer(in: data, output: output)") + transfer
+                call = "try await checkPlayDuringTransfer(in: data, output: output)" if baseline else ""
+                host = host.replace("// PLAY_TRANSFER_CHECK", call) + transfer
             monitor = app / "Services/RunningGameMonitor.swift"
             change(monitor, r'import AppKit', "import AppKit\nimport os")
             change(monitor, r'    nonisolated static func runningApplication\(bundleID: String\).*?\n    }', '''
@@ -1863,9 +1929,18 @@ extension CloudArtifactStatus {
             ', remoteFolder: fileByFile ? "Fixture [0100000000001000]/app/version" : nil'))
         font = ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"
         icon = ROOT / "Resources/AppIcon-Light.png"
-        subprocess.run(["swift", "run", "-j", "6", "--package-path", str(package), "NXLibrary", str(output), str(font), str(icon)]
-                       + ([str(pixel_reference)] if compare else []),
-                       check=True, env=dict(os.environ, HOME=temp, CFFIXED_USER_HOME=temp))
+        scenarios = ("screens",) if before or baseline else ("screens", "play", "sources")
+        for index, scenario in enumerate(scenarios):
+            home = package / scenario
+            home.mkdir()
+            command = ["swift", "run", "--jobs", "4", "--package-path", str(package)]
+            if index:
+                command += ["--skip-build"]
+            command += ["NXLibrary", str(output), str(font), str(icon)]
+            if compare and scenario == "screens":
+                command.append(str(pixel_reference))
+            subprocess.run(command, check=True, env=dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home),
+                                                         OORT_CLOUD_PROBE_CASE=scenario))
 
 
 if __name__ == "__main__":
