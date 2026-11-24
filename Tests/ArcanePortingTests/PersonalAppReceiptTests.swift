@@ -93,6 +93,34 @@ final class PersonalAppReceiptTests: XCTestCase {
         XCTAssertEqual(store.receipt(titleID: title, scope: scope())?.publishedAt, firstDate)
     }
 
+    func testUpdateApprovalRejectsChangedOriginPublicationAndLocalBytes() async throws {
+        let root = try makeRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let app = try makeApp(in: root)
+        let game = CloudArchiveGame(titleID: title, locations: [.app: app])
+        let archive = CloudGameArchive(backend: RcloneStorageBackend(remote: ":local:", root: root.path), trash: { _ in })
+        let store = PersonalAppReceipt.Store(in: root.appendingPathComponent("profile"))
+        let newDate = firstDate.addingTimeInterval(60)
+        let a = try publication("900150983cd24fb0d6963f7d28e17f72", date: firstDate)
+        let b = try publication("4ed9407630eb1000c0f6b63842defa7d", date: newDate)
+        try store.record(a, for: game, scope: scope())
+        let copies = try await archive.copyStatuses(game, manifest: .success(b))
+        guard case .update(let offer) = store.compare(b, for: game, status: copies[.app], scope: scope())
+        else { return XCTFail("Expected a candidate") }
+
+        XCTAssertTrue(offer.approves(b, scope: scope()))
+        XCTAssertFalse(offer.approves(b, scope: scope(folder: "folder-b")))
+        XCTAssertFalse(offer.approves(b, scope: nil))
+        XCTAssertFalse(offer.approves(a, scope: scope()))
+        XCTAssertFalse(offer.approves(try publication("4ed9407630eb1000c0f6b63842defa7d",
+                                                     date: newDate.addingTimeInterval(60)), scope: scope()))
+        XCTAssertNoThrow(try offer.requireUnchangedLocal(in: store, scope: scope()))
+        let payload = app.appendingPathComponent("Contents/payload")
+        try Data("xyz".utf8).write(to: payload)
+        XCTAssertThrowsError(try offer.requireUnchangedLocal(in: store, scope: scope()))
+        XCTAssertEqual(try String(contentsOf: payload, encoding: .utf8), "xyz")
+    }
+
     private func scope(account: String = "account-a", folder: String = "folder-a") -> CloudDriveScope {
         .init(remote: "fixture", account: account, library: .init(path: "Games", id: folder))
     }

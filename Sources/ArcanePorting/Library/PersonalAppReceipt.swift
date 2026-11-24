@@ -20,6 +20,26 @@ package struct PersonalAppReceipt: Codable, Equatable, Sendable {
         fileprivate let remoteFingerprint: String
         fileprivate let remoteDate: Date
         fileprivate let remoteRevision: Int64?
+
+        package func approves(_ manifest: CloudGameManifest?, scope: CloudDriveScope?) -> Bool {
+            guard Origin(scope) == receipt.origin, let manifest, manifest.titleID == receipt.titleID,
+                  let artifact = manifest.artifacts.first(where: { $0.kind == .app }) else { return false }
+            return artifact.inventorySHA256 == remoteFingerprint && artifact.publishedAt == remoteDate
+                && artifact.revision == remoteRevision
+        }
+
+        package func requireUnchangedLocal(in store: Store, scope: CloudDriveScope?) throws {
+            guard store.receipt(titleID: receipt.titleID, scope: scope) == receipt else {
+                throw CloudArchiveError.localChanged
+            }
+            try SaveFiles.safePath(destination)
+            let before = try CloudArchiveInventory.signature(destination, kind: .app)
+            let snapshot = try CloudArchiveInventory.scan(destination, kind: .app)
+            guard !before.hasExcludedFiles, !snapshot.hasExcludedFiles, snapshot.sha256 == receipt.localSHA256,
+                  try CloudArchiveInventory.signature(destination, kind: .app).sha256 == before.sha256 else {
+                throw CloudArchiveError.localChanged
+            }
+        }
     }
 
     private struct Origin: Codable, Equatable, Sendable {

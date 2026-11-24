@@ -130,7 +130,7 @@ struct CloudLibraryState {
         if let personal = copies[.app] ?? availability[.app], personal.uploadedAt != nil {
             keys.append("Copy in your cloud")
         }
-        if case .update = personalAppComparison { keys.append("Update available") }
+        if action == nil, case .update = personalAppComparison { keys.append("Update available") }
         else if referenceCopies[.app]?.updatesLocal == true { keys.append("Update available") }
         return keys
     }
@@ -154,6 +154,7 @@ struct CloudLibraryState {
         return sources.map { $0.state == .cloudOnly ? $0.remoteBytes : $0.localBytes }
     }
     func canUpload(_ kind: CloudArtifactKind) -> Bool {
+        if kind == .app, case .update = personalAppComparison { return false }
         guard !mustResendBoth, let copy = copies[kind], copy.hasLocalCopy else { return false }
         switch copy.state {
         case .notInCloud, .newerOnThisMac, .unknown, .synchronized:
@@ -171,7 +172,8 @@ struct CloudLibraryState {
         }
     }
     var canUploadBoth: Bool {
-        needsCombinedUpload || CloudArtifactKind.allCases.allSatisfy {
+        if case .update = personalAppComparison { return false }
+        return needsCombinedUpload || CloudArtifactKind.allCases.allSatisfy {
             (copies[$0]?.state == .newerOnThisMac || copies[$0]?.canMigrateArchive == true) && canUpload($0)
         }
     }
@@ -254,13 +256,16 @@ final class CloudLibraryModel: ObservableObject {
         let onSuccess: (() -> Void)?
         var resumed = false
         var appReplacement: CloudGameArchive.ReferenceAppReplacement?
+        var personalAppUpdate: PersonalAppReceipt.Offer?
         var sourceReference: String?
         var driveScope: CloudDriveScope?
         var rebuildSources: CloudTransferQueue.RebuildSources?
         var toolIdentity: String?
 
         var entry: CloudTransferQueue.Entry {
-            .init(id: id, action: action, token: token, storage: storage, sourceReference: sourceReference,
+            // A row with no approved destination requires consent again on restart or retry.
+            .init(id: id, action: action, token: token, storage: personalAppUpdate == nil ? storage : nil,
+                  sourceReference: sourceReference,
                   driveScope: driveScope, rebuildSources: rebuildSources, toolIdentity: toolIdentity)
         }
     }
@@ -1789,6 +1794,22 @@ extension AppViewModel {
         return !libraryGames.contains { $0.id != game.id && scope.overlaps(CloudWorkScope($0)) }
     }
 
+    @MainActor func reviewPersonalAppUpdate(for game: PortedGame) {
+        guard settingsNotice == nil, cloudLibrary.hasRestoredQueue, canChangeCloudLibrary(.restore(.app), for: game),
+              let state = cloudLibrary.states[game.id], state.action == nil, !state.refreshing,
+              case .update(let offer) = state.personalAppComparison else { return }
+        let size = offer.downloadBytes.formatted(.byteCount(style: .file).locale(L10n.context.formatLocale))
+        showSettingsNotice(title: L10n.text("Update from my cloud"),
+            message: L10n.format("Download %@ from your cloud and replace %@ on this Mac? The previous app will be kept.",
+                                 [size, offer.destination.lastPathComponent]),
+            actionTitle: "Update app", cancelTitle: "Cancel") { [weak self] in
+            guard let self else { return }
+            if !self.enqueueCloudLibrary(.restore(.app), for: game, personalAppUpdate: offer) {
+                Task { await self.refreshCloudLibrary(game) }
+            }
+        }
+    }
+
     @MainActor func performCloudLibrary(_ action: CloudLibraryAction, for selected: PortedGame) {
         if action == .restore(.app), let replacement = cloudLibrary.states[selected.id]?.referenceCopies[.app]?.appReplacement {
             showSettingsNotice(title: L10n.text("Replace"),
@@ -1851,6 +1872,7 @@ extension AppViewModel {
     private func enqueueCloudLibrary(_ action: CloudLibraryAction, for selected: PortedGame,
                                      retryToken: UUID? = nil,
                                      appReplacement: CloudGameArchive.ReferenceAppReplacement? = nil,
+                                     personalAppUpdate: PersonalAppReceipt.Offer? = nil,
                                      previousSource: CloudTransferQueue.Entry? = nil,
                                      rebuildSources: (reference: String?, offer: CloudTransferQueue.RebuildSources)? = nil,
                                      onSuccess: (() -> Void)? = nil) -> Bool {
@@ -1871,7 +1893,11 @@ extension AppViewModel {
         let state = cloudLibrary.states[game.id] ?? CloudLibraryState()
         let files = CloudSourceFiles(game)
         let sourceReference: String?
-        if let rebuildSources { sourceReference = rebuildSources.reference }
+        if let personalAppUpdate {
+            guard action == .restore(.app), state.personalAppComparison == .update(personalAppUpdate),
+                  game.cloudImportPending != true, cloudLibrary.driveScope != nil else { return false }
+            sourceReference = nil
+        } else if let rebuildSources { sourceReference = rebuildSources.reference }
         else if let previousSource { sourceReference = previousSource.sourceReference }
         else {
             switch action {
@@ -1916,7 +1942,8 @@ extension AppViewModel {
             CloudWorkScope(title: game.titleId ?? "", urls: [$0])
         } ?? CloudWorkScope(game), importDestination: destination,
                                         sourceFiles: files, onSuccess: onSuccess, resumed: retryToken != nil,
-                                        appReplacement: appReplacement, sourceReference: sourceReference,
+                                        appReplacement: appReplacement, personalAppUpdate: personalAppUpdate,
+                                        sourceReference: sourceReference,
                                         driveScope: cloudLibrary.driveScope,
                                         rebuildSources: rebuildSources?.offer ?? previousSource?.rebuildSources,
                                         toolIdentity: toolIdentity))
@@ -2004,6 +2031,7 @@ extension AppViewModel {
                 self.cloudLibrary.playAfterAppInstall = nil
                 self.cloudLibrary.update(id) {
                     if action != .uploadSources && action != .downloadSources { $0.copies = [:] }
+                    $0.personalAppComparison = nil
                     $0.availability = [:]; $0.sourceAvailability = nil
                     $0.completedItem = outcome == .succeeded ? action.item(during: $0.progress) : nil
                     $0.action = deferred ? action : nil; $0.queued = deferred; $0.progress = nil
@@ -2104,11 +2132,19 @@ extension AppViewModel {
                     let kind: CloudArtifactKind
                     if case .restore(let selectedKind) = action { kind = selectedKind } else { kind = .cache }
                     if kind == .cache { try gameClosed() }
+                    let offer = request.personalAppUpdate
+                    let driveScope = request.driveScope
                     let beforeAppInstall: @MainActor @Sendable () async throws -> Void = {
                         // Drain verification updates before publishing the stable waiting state.
                         continuation.finish()
                         await listener.value
                         try await self.waitToInstallCloudApp(game)
+                        if let offer {
+                            let latest = try await archive.latest(titleID: target.titleID, expectingArchive: true)
+                            guard self.cloudLibrary.archive === archive, self.cloudLibrary.driveScope == driveScope,
+                                  self.cloudLibrary.matchesPersistedStorage(), offer.approves(latest, scope: driveScope)
+                            else { throw CloudArchiveError.localChanged }
+                        }
                     }
                     let own = try await archive.latest(titleID: target.titleID)
                     let reference = request.sourceReference == nil ? nil : try await self.referenceManifest(titleID: target.titleID)
@@ -2130,7 +2166,23 @@ extension AppViewModel {
                             try FileManager.default.createDirectory(at: parent, withIntermediateDirectories: true)
                         }
                     }
-                    if let reference, let referenceArchive = self.cloudLibrary.referenceArchive,
+                    if let offer {
+                        guard kind == .app, request.sourceReference == nil, let own,
+                              target.locations[.app] == offer.destination, offer.approves(own, scope: driveScope)
+                        else { throw CloudArchiveError.localChanged }
+                        let store = self.cloudLibrary.personalAppReceipts
+                        let preflight = Task.detached(priority: .utility) {
+                            try offer.requireUnchangedLocal(in: store, scope: driveScope)
+                        }
+                        try await withTaskCancellationHandler { try await preflight.value } onCancel: { preflight.cancel() }
+                        // Reuse staged verification and the atomic swap that keeps the old bundle.
+                        let previous = try await archive.restore(.app, for: target, from: own, onlyIfMissing: false,
+                            progress: progress, beforeMutation: {
+                                try offer.requireUnchangedLocal(in: store, scope: driveScope)
+                                try beforeFree()
+                            }, beforeAppInstall: beforeAppInstall)
+                        self.cloudLibrary.update(id) { $0.previousApp = previous }
+                    } else if let reference, let referenceArchive = self.cloudLibrary.referenceArchive,
                        self.referenceWins(reference, over: own, kind: kind) {
                         let statuses = try await referenceArchive.copyStatuses(target, manifest: .success(reference))
                         let personal = try await archive.copyStatuses(target, manifest: .success(own))
@@ -2192,11 +2244,15 @@ extension AppViewModel {
                 let destination = item.artifact.flatMap { target.locations[$0] }
                     ?? request.sourceFiles?.files.first ?? CloudGameSources.importedFolder(for: id)
                 let failure = self.cloudFailure(for: error, destination: destination)
+                let copyChanged = (error as? CloudArchiveError) == .localChanged
                 let needsConsent = action == .restore(.app) && ((error as? CloudArchiveError) == .confirmationRequired
-                    || request.appReplacement != nil && (error as? CloudArchiveError) == .localChanged)
-                let reason = needsConsent ? L10n.text("Open Cloud library to confirm replacing the app on this Mac.")
-                    : failure?.message() ?? self.cloudMessage(for: error)
-                if !Task.isCancelled, CloudTransferQueue.waitsForConnection(after: failure.map { $0 as Error } ?? error) {
+                    || request.appReplacement != nil && copyChanged)
+                let reason = request.personalAppUpdate != nil && copyChanged
+                    ? L10n.text("The update could not be verified again. The installed app was kept.")
+                    : needsConsent ? L10n.text("Open Cloud library to confirm replacing the app on this Mac.")
+                        : failure?.message() ?? self.cloudMessage(for: error)
+                if request.personalAppUpdate == nil, !Task.isCancelled,
+                   CloudTransferQueue.waitsForConnection(after: failure.map { $0 as Error } ?? error) {
                     deferred = true
                     let pause = failure ?? .offline
                     self.cloudLibrary.queuePause = pause
@@ -2211,7 +2267,7 @@ extension AppViewModel {
                     $0.issue = (action.item(during: $0.progress), reason, outcome != .cancelled)
                     if outcome != .cancelled {
                         $0.transferFailure = failure
-                        $0.failedTransferID = needsConsent ? nil : request.token
+                        $0.failedTransferID = needsConsent || request.personalAppUpdate != nil ? nil : request.token
                     }
                 }
             }
