@@ -82,7 +82,8 @@ final class CloudDriveFoldersTests: XCTestCase {
             if path == "Games/Switch/Jeux" { return ["Unrelated/Game.XCI"] }
             return []
         }
-        XCTAssertEqual(checked, ["Games/Chosen library/GameFiles", "Games/Chosen library/Switch/Jeux"])
+        XCTAssertEqual(checked, ["Games/Chosen library/GameFiles", "Games/Chosen library/Switch/Jeux",
+                                 "Games/Chosen library/Switch/Games"])
         XCTAssertNil(result, "An unrelated folder must not be indexed or suggested")
         for invalid in ["", "Games/../Other", "Games//Other"] {
             do {
@@ -92,6 +93,25 @@ final class CloudDriveFoldersTests: XCTestCase {
                 }
                 XCTFail("Expected an invalid key")
             } catch StorageBackendError.invalidKey {}
+        }
+    }
+
+    func testDiscoverSourcesFindsSwitchGamesOnlyAfterExistingLocationsAndIgnoresAppArchives() async throws {
+        let library = "Games/Chosen library"
+        let candidates = ["GameFiles", "Switch/Jeux", "Switch/Games"].map { "\(library)/\($0)" }
+        let archives = ["Fixture [0100123456789ABC]/manifest.json", "Fixture [0100123456789ABC]/app/old.aar",
+                        "Fixture [0100123456789ABC]/cache/partial.xci", "Fixture.App/embedded.nsp"]
+        for selected in [0, 1, 2, nil] as [Int?] {
+            var checked = [String]()
+            let match = try await CloudDriveFolders.discoverSources(library: library) { path in
+                checked.append(path)
+                let index = try XCTUnwrap(candidates.firstIndex(of: path), "Only scan sources under the selected library")
+                return selected.map { index >= $0 } == true
+                    ? archives + ["Fixture [0100123456789ABC]/Base.nsp", "Fixture [0100123456789ABC]/Update.nsp"]
+                    : archives
+            }
+            XCTAssertEqual(match, selected.map { .init(path: candidates[$0], games: 1) })
+            XCTAssertEqual(checked, Array(candidates.prefix(selected.map { $0 + 1 } ?? candidates.count)))
         }
     }
 
