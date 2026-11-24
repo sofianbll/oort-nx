@@ -472,4 +472,15 @@ final class GameOptionsPresentationTests: XCTestCase {
         XCTAssertEqual(GameOptionsValues.steppedIndex(0, by: -1, count: 3), 2)
         XCTAssertEqual(GameOptionsValues.steppedIndex(0, by: 1, count: 0), 0)
     }
+
+    func testTheQuickPanelIsShortAndOnlyOffersRowsOfTheFullList() {
+        for p in [presentation(), presentation(detached: true)] {
+            let quick = p.quickRows(), all = p.focusableRows(level: .main, origin: .details)
+            XCTAssertLessThanOrEqual(quick.count, 7)
+            XCTAssertEqual(Set(quick).count, quick.count)
+            XCTAssertTrue(quick.allSatisfy(all.contains))
+            XCTAssertTrue(quick.contains(.mods))
+            XCTAssertFalse(quick.contains(.removeGame))
+        }
+    }
 }

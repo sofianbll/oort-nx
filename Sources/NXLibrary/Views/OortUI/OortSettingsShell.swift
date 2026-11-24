@@ -171,8 +171,8 @@ struct OortSettingsSearchField: View {
     }
 }
 
-struct OortSettingsRows<Content: View>: View {
-    var focus: String?
+struct OortSettingsRows<ID: Hashable, Content: View>: View {
+    var focus: ID?
     @ViewBuilder var content: () -> Content
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.seleneReduceMotion) private var reduceMotion

@@ -153,7 +153,7 @@ import ArcanePorting
                 .environment(\.seleneShowButtonHints, true)
                 .environment(\.seleneButtonNames, name == "grand" || name == "motion" ? .nintendo : .automatic)
                 .environment(\.colorScheme, .dark)
-                .seleneCanvasRoot()
+                .seleneCanvasRoot(zoom: CGFloat(Double(ProcessInfo.processInfo.environment["OORT_ZOOM"] ?? "") ?? 1))
                 .frame(width: size.width, height: size.height)
             host = NSHostingView(rootView: AnyView(view))
             host.frame.size = size

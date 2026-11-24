@@ -557,7 +557,7 @@ import ArcanePorting
             .environment(\.seleneButtonNames, .nintendo)
             .environment(\.seleneReduceMotion, true)
             .environment(\.seleneBackdropStyle, style)
-            .seleneCanvasRoot())
+            .seleneCanvasRoot(zoom: CGFloat(Double(ProcessInfo.processInfo.environment["OORT_ZOOM"] ?? "") ?? 1)))
         host.frame.size = size
         let window = NSWindow(contentRect: host.frame, styleMask: [.borderless], backing: .buffered, defer: false)
         window.contentView = host
@@ -644,7 +644,7 @@ import ArcanePorting
             .environment(\.seleneButtonNames, .nintendo)
             .environment(\.seleneReduceMotion, true)
             .environment(\.seleneBackdropStyle, style)
-            .seleneCanvasRoot())
+            .seleneCanvasRoot(zoom: CGFloat(Double(ProcessInfo.processInfo.environment["OORT_ZOOM"] ?? "") ?? 1)))
         host.frame.size = size
         let window = NSWindow(contentRect: host.frame, styleMask: [.borderless], backing: .buffered, defer: false)
         window.contentView = host
@@ -731,7 +731,7 @@ import ArcanePorting
                 .environment(\.seleneButtonNames, .nintendo)
                 .environment(\.seleneReduceMotion, true)
                 .environment(\.seleneBackdropStyle, style)
-                .seleneCanvasRoot())
+                .seleneCanvasRoot(zoom: CGFloat(Double(ProcessInfo.processInfo.environment["OORT_ZOOM"] ?? "") ?? 1)))
             host.frame.size = size
             let window = NSWindow(contentRect: host.frame, styleMask: [.borderless], backing: .buffered, defer: false)
             window.contentView = host
@@ -766,8 +766,8 @@ import ArcanePorting
             vm.gameForSettingsSheet = game
             try withHost(GameOptionsView(viewModel: vm, game: game, origin: .details,
                            onClose: {}, onShowBuild: {}, onMove: {}), size: size, locale: locale) { settle, capture in
-                send(.navigateDown, settle: settle) // Players
-                send(.navigateDown, settle: settle) // All settings
+                _ = try capture("panneau-court-\(name)")
+                for _ in 0..<12 { send(.navigateDown, settle: settle) } // All settings, the last row
                 send(.confirm, settle: settle)
                 send(.navigateDown, settle: settle) // Picture
                 let image = try capture("jeu-image-\(name)")

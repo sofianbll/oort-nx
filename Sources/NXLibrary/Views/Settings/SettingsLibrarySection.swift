@@ -23,20 +23,21 @@ struct SettingsLibrarySection: View {
             ? settings.store.settings.launcherChoices.gameSourcesPath : (path ?? "")
     }
     private func chooseAppsPath() {
-        viewModel.selectLibraryFolder(startingAt: appsPath.map { URL(fileURLWithPath: $0) }) { stageAppsPath($0.path) }
+        viewModel.selectLibraryFolder(startingAt: appsPath.map { URL(fileURLWithPath: $0) }, stage: { stageAppsPath($0.path) })
     }
     private func chooseSourcesPath() {
-        porting.selectGameFolder(startingAt: sourcesPath.map { URL(fileURLWithPath: $0) }) {
+        porting.selectGameFolder(startingAt: sourcesPath.map { URL(fileURLWithPath: $0) }, stage: {
             guard $0.path != "/" else { return }
             stageSourcesPath($0.path)
-        }
+        })
     }
 
     var body: some View {
         OortSettingsGroup {
             SeleneRow(GameFoldersCopy.appsTitle,
                       subtitle: GameFoldersCopy.appsContents,
-                      info: "Choose where to keep your game apps. Put any existing nxnative games (.app) here. Changing folders does not move apps; rebuilds update them where they are.") {
+                      info: "Choose where to keep your game apps. Put any existing nxnative games (.app) here. Changing folders does not move apps; rebuilds update them where they are.",
+                      verbatimSubtitle: true, formatBadges: GameFoldersCopy.appBadges) {
                 HStack(spacing: 10) {
                     Text(appsPath ?? L10n.text("Not selected"))
                         .seleneFont(.text, .medium)
@@ -58,8 +59,9 @@ struct SettingsLibrarySection: View {
             }
 
             SeleneRow(GameFoldersCopy.sourcesTitle,
-                      subtitle: GameFoldersCopy.sourcesAbout(extractedFolders: viewModel.setup.engineSourceCapabilities.extractedFolders),
-                      info: "Existing game apps play without their sources. Reset group keeps this folder. Clear removes the selection, keeping your files.") {
+                      subtitle: GameFoldersCopy.sourcesContents,
+                      info: "Existing game apps play without their sources. Reset group keeps this folder. Clear removes the selection, keeping your files.",
+                      verbatimSubtitle: true, formatBadges: GameFoldersCopy.sourceBadges) {
                 HStack(spacing: 10) {
                     Text(sourcesPath ?? L10n.text("Not selected · Optional"))
                         .seleneFont(.text, .medium)

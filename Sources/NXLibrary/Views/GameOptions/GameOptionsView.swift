@@ -175,11 +175,8 @@ struct GameOptionsView: View {
     }
 
     var rows: [GameOptionsItem] {
-        var rows = presentation.focusableRows(level: level, origin: origin).map(GameOptionsItem.game)
-        if level == .main, let play = rows.firstIndex(of: .game(.play)) {
-            rows.insert(contentsOf: [.players, .game(.allSettings)], at: play + 1)
-        }
-        return rows
+        guard level == .main else { return presentation.focusableRows(level: level, origin: origin).map(GameOptionsItem.game) }
+        return [.players] + presentation.quickRows().map(GameOptionsItem.game) + [.game(.allSettings)]
     }
 
     func setGameDisplay(_ choice: String?) {
@@ -204,9 +201,11 @@ struct GameOptionsView: View {
 
     var body: some View {
         let p = presentation
-        return SeleneOverlay(style: .page, onOutside: back) {
-            VStack(spacing: 0) {
+        return SeleneOverlay(style: level == .main && !panelOpen && !fullSettingsOpen ? .options : .page, onOutside: back) {
+            // The side panel reaches the bottom of the screen, under the hints.
+            OptionsStack(overlaid: level == .main) {
                 column(p)
+            } hints: {
                 // Where the screen underneath had its hints (which hide while this is open).
                 SeleneHintsBar(left: [HintItem(.b, L10n.text("Back"))], right: rightHints(p),
                                bottom: SeleneBottomScrim.hintsBottom, leftInset: 18)
@@ -373,5 +372,19 @@ struct OptionRowFrames: PreferenceKey {
     static var defaultValue: [GameOptionsItem: CGRect] = [:]
     static func reduce(value: inout [GameOptionsItem: CGRect], nextValue: () -> [GameOptionsItem: CGRect]) {
         value.merge(nextValue()) { $1 }
+    }
+}
+
+private struct OptionsStack<Content: View, Hints: View>: View {
+    let overlaid: Bool
+    @ViewBuilder var content: () -> Content
+    @ViewBuilder var hints: () -> Hints
+
+    var body: some View {
+        if overlaid {
+            ZStack(alignment: .bottom) { content(); hints() }
+        } else {
+            VStack(spacing: 0) { content(); hints() }
+        }
     }
 }

@@ -229,18 +229,13 @@ final class SetupModel: ObservableObject {
         }
     }
 
-    func selectProdKeysFile() {
+    func selectProdKeysFile(onPick: (() -> Void)? = nil) {
         guard !app.isBuilding, !app.isUpdatingApp else { return }
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = true
-        panel.canChooseDirectories = false
-        panel.allowsMultipleSelection = false
-        panel.allowedContentTypes = []
-        panel.prompt = "Select prod.keys"
-        panel.message = "Choose your Nintendo Switch prod.keys file."
-
-        if panel.runModal() == .OK, let url = panel.url {
-            importKeys(from: url)
+        OortFilePickerPresentation.open(.keys, title: L10n.text("Keys"),
+            message: L10n.text("Choose your prod.keys file. It stays on this Mac.")) { [weak self] urls in
+            guard let self, !self.app.isBuilding, !self.app.isUpdatingApp, let url = urls.first else { return }
+            self.importKeys(from: url)
+            onPick?()
         }
     }
 

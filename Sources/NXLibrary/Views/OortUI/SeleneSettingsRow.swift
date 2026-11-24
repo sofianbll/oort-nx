@@ -60,13 +60,14 @@ struct SeleneRow<Trailing: View>: View {
     let verbatimSubtitle: Bool
     private let truncateSubtitleInMiddle: Bool
     private let platform: PlatformKind?
+    private let formatBadges: [String]
     @ViewBuilder var trailing: () -> Trailing
 
     @Environment(\.seleneFocusedRowID) private var focusedRowID
 
     init(_ title: String, id: String? = nil, subtitle: String? = nil, info: String? = nil,
          verbatimTitle: Bool = false, verbatimSubtitle: Bool = false,
-         truncateSubtitleInMiddle: Bool = false, platform: PlatformKind? = nil,
+         truncateSubtitleInMiddle: Bool = false, platform: PlatformKind? = nil, formatBadges: [String] = [],
                 @ViewBuilder trailing: @escaping () -> Trailing) {
         self.rowID = id ?? title
         self.title = title
@@ -76,6 +77,7 @@ struct SeleneRow<Trailing: View>: View {
         self.verbatimSubtitle = verbatimSubtitle
         self.truncateSubtitleInMiddle = truncateSubtitleInMiddle
         self.platform = platform
+        self.formatBadges = formatBadges
         self.trailing = trailing
     }
 
@@ -90,7 +92,7 @@ struct SeleneRow<Trailing: View>: View {
                         about: about.isEmpty ? nil : about, focused: isFocused,
                         titleAccessory: change.map { _ in AnyView(SeleneStatusMark(color: SeleneTheme.glyph, pulses: false)) },
                         truncateAboutInMiddle: truncateSubtitleInMiddle && change == nil, platform: platform,
-                        aboutIsHelp: !verbatimSubtitle) {
+                        aboutIsHelp: !verbatimSubtitle, formatBadges: formatBadges) {
             HStack(spacing: 10) {
                 if let info {
                     SeleneInfoTip(info)

@@ -22,6 +22,7 @@ struct SeleneOptionRow<Trailing: View>: View {
     var platform: PlatformKind? = nil
     /// False: the line is data (a path, a state), not an explanation, and stays on the row.
     var aboutIsHelp = true
+    var formatBadges: [String] = []
     @ViewBuilder var trailing: () -> Trailing
 
     var body: some View {
@@ -57,6 +58,7 @@ struct SeleneOptionRow<Trailing: View>: View {
                         .foregroundColor(SeleneTheme.ink60)
                         .fixedSize(horizontal: false, vertical: true)
                 }
+                OortFormatBadges(labels: formatBadges)
             }
             Spacer(minLength: canvas.u(16))
             trailing()

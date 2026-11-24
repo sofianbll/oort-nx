@@ -44,18 +44,14 @@ struct SettingsCloudSavesSection: View {
     }
 
     private func chooseFolder() {
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = false
-        panel.canChooseDirectories = true
-        panel.canCreateDirectories = false
-        panel.allowsMultipleSelection = false
-        panel.prompt = L10n.text("Choose…")
-        panel.message = L10n.text("Choose the folder every game syncs its save through, for example one in iCloud Drive.")
-        panel.directoryURL = CloudSaves.iCloudDriveRoot()
-        guard panel.runModal() == .OK, let url = panel.url else { return }
-        var draft = settings.settings
-        draft.cloudSavesPickedFolder = url.path
-        draft.cloudSaves = .folder(url.path)
-        settings.settings = draft
+        OortFilePickerPresentation.open(.folder, title: L10n.text("Cloud saves folder"),
+            message: L10n.text("Choose the folder every game syncs its save through, for example one in iCloud Drive."),
+            startingAt: CloudSaves.iCloudDriveRoot()) { urls in
+            guard let url = urls.first else { return }
+            var draft = settings.settings
+            draft.cloudSavesPickedFolder = url.path
+            draft.cloudSaves = .folder(url.path)
+            settings.settings = draft
+        }
     }
 }

@@ -5,14 +5,28 @@ import ArcanePorting
 
 /// The column and its rows: entries, hints, the info line, accessibility values and each row's trailing value.
 extension GameOptionsView {
+    @ViewBuilder
     func column(_ p: GameOptionsPresentation) -> some View {
+        if level == .main { quickPanel(p) } else { detailsColumn(p) }
+    }
+
+    /// Beside the game it belongs to, which stays in view: name, a few rows, then the full page.
+    private func quickPanel(_ p: GameOptionsPresentation) -> some View {
+        let focused = focusedRow
+        return HStack(spacing: 0) {
+            Spacer(minLength: 0)
+            OortSidePanel(title: current.name) {
+                playersRow
+                ForEach(p.quickRows(), id: \.self) { rowView($0, p, focused: focused) }
+                rowView(.allSettings, p, focused: focused)
+            }
+        }
+    }
+
+    private func detailsColumn(_ p: GameOptionsPresentation) -> some View {
         let entries = p.entries(level: level, origin: origin, context: localization)
         let focused = focusedRow
         return VStack(alignment: .leading, spacing: 0) {
-            Text(L10n.text("GAME OPTIONS"))
-                .seleneFont(.text, .semibold)
-                .foregroundColor(SeleneTheme.ink60)
-                .padding(.leading, canvas.u(SeleneTokens.Space.compact))
             Text(current.name)
                 .seleneFont(.screen)
                 .foregroundColor(SeleneTheme.ink)
@@ -27,10 +41,6 @@ extension GameOptionsView {
                     VStack(spacing: canvas.u(8)) {
                         ForEach(Array(entries.enumerated()), id: \.offset) { _, entry in
                             entryView(entry, p, focused: focused)
-                            if level == .main, entry == .row(.play) {
-                                playersRow
-                                rowView(.allSettings, p, focused: focused)
-                            }
                         }
                     }
                     // The clip would shave the first row's focus border.
@@ -151,6 +161,7 @@ extension GameOptionsView {
             scrollBox.holdScroll = true
             setFocus(row)
         }
+        .containerValue(\.oortSettingsRow, true)
         .id(GameOptionsItem.game(row))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(title)
@@ -169,6 +180,7 @@ extension GameOptionsView {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .containerValue(\.oortSettingsRow, true)
         .background(GeometryReader { geometry in
             Color.clear.preference(key: OptionRowFrames.self,
                                    value: [.players: geometry.frame(in: .named(OptionsScrollBox.space))])

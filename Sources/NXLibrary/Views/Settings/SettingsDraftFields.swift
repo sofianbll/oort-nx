@@ -115,6 +115,7 @@ enum SettingsDraftFields {
             .init("launchStyle", \.launchStyle, previews: true) { $0.title },
             toggle("launchMotion", \.launchMotion, previews: true),
             .init("launchShade", \.launchShade, previews: true) { $0.title },
+            .init("interfaceZoom", \.interfaceZoom, previews: true, describe: percent),
             .init("platformCardInfo", \.platformCardInfo, previews: true) { L10n.text($0.titleKey) },
             .init("tileBadgePosition", \.tileBadgePosition, previews: true) { L10n.text($0.titleKey) },
             .init("surprisePool", \.surprisePool) {

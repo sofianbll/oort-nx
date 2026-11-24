@@ -88,3 +88,33 @@ struct OortSettingsHelp: View {
             .accessibilityHidden(true)
     }
 }
+
+/// A short panel at the screen's right edge, over what it belongs to: a title, grouped rows, one help line.
+struct OortSidePanel<Content: View>: View {
+    let title: String
+    @ViewBuilder var content: () -> Content
+    @State private var help: String?
+    @Environment(\.seleneCanvas) private var canvas
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.large)) {
+            Text(verbatim: title)
+                .seleneFont(.heading, .semibold)
+                .foregroundStyle(SeleneTheme.ink)
+                .lineLimit(2)
+                .accessibilityAddTraits(.isHeader)
+            ScrollView { OortSettingsGroup(content: content) }
+                .scrollIndicators(.hidden)
+                .scrollBounceBehavior(.basedOnSize)
+            OortSettingsHelp(text: help)
+        }
+        .onPreferenceChange(OortRowHelpKey.self) { help = $0 }
+        .padding(.horizontal, canvas.u(SeleneTokens.Space.section))
+        .padding(.top, canvas.u(SeleneTokens.Space.stageHeader))
+        .padding(.bottom, canvas.u(SeleneTokens.Space.settingsHintsClearance))
+        .frame(width: canvas.u(SeleneTokens.Space.sidePanel))
+        .frame(maxHeight: .infinity, alignment: .top)
+        .background(SeleneTheme.glassSolid)
+        .contentShape(Rectangle())
+    }
+}

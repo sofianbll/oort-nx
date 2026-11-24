@@ -174,23 +174,14 @@ final class SetupCheckModel: ObservableObject {
         case .runtime:
             break
         case .keys:
-            let panel = NSOpenPanel()
-            panel.canChooseFiles = true
-            panel.canChooseDirectories = false
-            panel.allowsMultipleSelection = false
-            panel.prompt = L10n.text("Import")
-            panel.message = "Choose your prod.keys file. It stays on this Mac."
-            if panel.runModal() == .OK, let url = panel.url {
-                viewModel.setup.importKeys(from: url)
-                if let facts { apply(facts) }
+            viewModel.setup.selectProdKeysFile { [weak self] in
+                if let facts = self?.facts { self?.apply(facts) }
+                self?.refresh()
             }
-            refresh()
         case .library:
-            viewModel.selectLibraryFolder()
-            refresh()
+            viewModel.selectLibraryFolder(onPick: { [weak self] in self?.refresh() })
         case .sources:
-            viewModel.porting.selectGameFolder()
-            refresh()
+            viewModel.porting.selectGameFolder(onPick: { [weak self] in self?.refresh() })
         }
     }
 

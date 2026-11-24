@@ -99,6 +99,10 @@ offscreen in French and German on Oort, Catppuccin Latte and Vantablack.
 Compare the matching PNGs against a recorded run at the same size; use a
 tolerant comparison across OS versions and inspect flagged differences.
 
+From the checkout root, run `.build/debug/NXLibrary --render-file-picker /absolute/output`
+to list synthetic folders and capture the real picker in French at two widths
+over a bright fixture wallpaper. The probe never displays a window.
+
 ## Verification
 
 ~~~sh

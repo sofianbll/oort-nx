@@ -13,6 +13,7 @@ extension Notification.Name {
     static let nxDetailGamepadAction = Notification.Name("NXDetailGamepadAction")
     static let nxSpotlightGamepadAction = Notification.Name("NXSpotlightGamepadAction")
     static let nxCollectionGamepadAction = Notification.Name("NXCollectionGamepadAction")
+    static let nxInterfaceZoom = Notification.Name("NXInterfaceZoom")
     static let nxGameOptionsGamepadAction = Notification.Name("NXGameOptionsGamepadAction")
     static let nxSetupCheckGamepadAction = Notification.Name("NXSetupCheckGamepadAction")
     static let nxArcaneWelcomeGamepadAction = Notification.Name("NXArcaneWelcomeGamepadAction")
@@ -36,6 +37,11 @@ struct NXLibraryApp: App {
     #if DEBUG
     init() {
         let args = CommandLine.arguments
+        if let index = args.firstIndex(of: "--render-file-picker") {
+            precondition(args.indices.contains(index + 1), "Pass a directory for the file picker PNGs")
+            try! OortFilePickerProbe.capture(to: URL(fileURLWithPath: args[index + 1], isDirectory: true))
+            exit(EXIT_SUCCESS)
+        }
         if let index = args.firstIndex(of: "--render-oort-ui-gallery") {
             precondition(args.indices.contains(index + 1), "Pass a directory for the gallery PNGs")
             try! OortUIGallery.capture(to: URL(fileURLWithPath: args[index + 1], isDirectory: true))
@@ -107,6 +113,12 @@ struct NXLibraryApp: App {
                 .disabled(availability?.options != true)
             }
             CommandGroup(after: .sidebar) {
+                ForEach([("Larger interface", 1, "+"), ("Smaller interface", -1, "-"), ("Actual size", 0, "0")], id: \.1) { title, steps, key in
+                    Button(L10n.text(title)) {
+                        NotificationCenter.default.post(name: .nxInterfaceZoom, object: steps)
+                    }
+                    .keyboardShortcut(KeyEquivalent(Character(key)), modifiers: [.command])
+                }
                 Button(L10n.text("Menu")) {
                     NativeMenuCommands.shared.post(.nxLibraryOpenMenu)
                 }

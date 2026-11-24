@@ -66,8 +66,19 @@ struct SettingsLookSection: View {
         .onAppear(perform: publishActions)
     }
 
+    private var zoomLabel: String {
+        settings.settings.interfaceZoom.formatted(.percent.precision(.fractionLength(0)).locale(L10n.context.formatLocale))
+    }
+
+    private func stepZoom(_ step: Int) {
+        settings.settings.interfaceZoom = Double(InterfaceZoom.stepped(CGFloat(settings.settings.interfaceZoom), by: step))
+    }
+
     private var profileRows: some View {
         Group {
+            SeleneCycleRow("Interface size", subtitle: "Makes text, buttons and covers larger or smaller.",
+                           value: zoomLabel, verbatimValue: true, cycle: stepZoom)
+
             SettingsSubheading(L10n.text("Theme"))
 
             SeleneCycleRow("Color theme",
@@ -137,6 +148,7 @@ struct SettingsLookSection: View {
 
     private func publishActions() {
         onActions(profileLook ? [
+            .value("interfaceZoom", "Interface size", cycle: stepZoom),
             .value("theme", "Color theme") { stepTheme($0) },
             .value("wallpaper", "Wallpaper") { stepWallpaper($0) },
             .value("settingsWallpaper", "Settings wallpaper") { stepSettingsWallpaper($0) },
