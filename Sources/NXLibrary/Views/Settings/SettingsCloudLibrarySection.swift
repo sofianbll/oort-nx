@@ -151,9 +151,10 @@ struct SettingsCloudLibrarySection: View {
                     .disabled(!canFollow)
             }
             if let folder = selection.referenceFolder, selection.remote != nil {
-                SeleneRow(model.referenceCheck?.name ?? "\(text("Reference library")) · …\(folder.suffix(6))", id: "cloudReferenceStatus",
+                let failed = model.referenceCheck?.failure != nil
+                SeleneRow(model.referenceCheck?.name ?? "\(text("Folder")) · …\(folder.suffix(6))", id: "cloudReferenceStatus",
                           subtitle: referenceStatus, verbatimTitle: true, verbatimSubtitle: true) {
-                    SeleneStatusDot(text: text("Read only"), color: model.referenceCheck?.failure != nil
+                    SeleneStatusDot(text: text(failed ? "No access" : "Read only"), color: failed
                         ? CloudLibraryStatus.failed.color : model.referenceCheck == nil
                          ? CloudLibraryStatus.pending.color : model.referenceCheck?.count == 0 || model.referenceCheck?.incomplete == true
                          ? CloudLibraryStatus.unknown.color : CloudLibraryStatus.synchronized.color)

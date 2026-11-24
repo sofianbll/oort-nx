@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **1064 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **1065 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -726,10 +726,10 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/ViewModels/IGDBSettings.swift](../../Sources/NXLibrary/ViewModels/IGDBSettings.swift) | Configurazione IGDB facoltativa: verifica prima del salvataggio, rimozione e invalidazione delle richieste/voti precedenti. |
 | [Sources/NXLibrary/Views/Components/IGDBCredentialsDialog.swift](../../Sources/NXLibrary/Views/Components/IGDBCredentialsDialog.swift) | Guida sintetica in cinque passi, Client ID, Client Secret nascosto, verifica/salvataggio e annullamento; input Settings sospeso. |
 | [Sources/NXLibrary/Views/Settings/SettingsAPISection.swift](../../Sources/NXLibrary/Views/Settings/SettingsAPISection.swift) | Online services, Play together e Nextendo; conferma le scelte della rete e conserva i titoli risolti per gli amici. Da Integrations attende Check status o Sign in. |
-| [Sources/NXLibrary/Views/Settings/SettingsCloudLibrarySection.swift](../../Sources/NXLibrary/Views/Settings/SettingsCloudLibrarySection.swift) | Porting → Cloud library: verifiche, recuperi, consenso, progresso e Cestino per rclone, riferimento, importazione e aspetto. Da Integrations ispeziona rclone solo aprendo Avanzate. |
+| [Sources/NXLibrary/Views/Settings/SettingsCloudLibrarySection.swift](../../Sources/NXLibrary/Views/Settings/SettingsCloudLibrarySection.swift) | Porting → Cloud library: verifiche, recuperi, consenso e Cestino per rclone, riferimento in sola lettura o senza accesso, importazione e aspetto. Da Integrations ispeziona rclone solo in Avanzate. |
 | [Sources/NXLibrary/Views/Settings/CloudSetupAssistant.swift](../../Sources/NXLibrary/Views/Settings/CloudSetupAssistant.swift) | Spiega il diritto Google, sceglie le cartelle, mostra blocchi e indica Collection → Cloud dopo l’attivazione; uno spostamento pendente si riprende da Attività. |
 | [Sources/NXLibrary/Views/Settings/CloudSetupAssistant+Input.swift](../../Sources/NXLibrary/Views/Settings/CloudSetupAssistant+Input.swift) | Traduce tastiera e controller in azioni sul bersaglio corrente, lasciando precedenza al menu e alla conferma di uscita. |
-| [Sources/NXLibrary/Views/Settings/CloudReferenceDialog.swift](../../Sources/NXLibrary/Views/Settings/CloudReferenceDialog.swift) | Editor Selene del link o ID di una cartella Drive di riferimento, con validazione e azioni da tastiera e controller. |
+| [Sources/NXLibrary/Views/Settings/CloudReferenceDialog.swift](../../Sources/NXLibrary/Views/Settings/CloudReferenceDialog.swift) | Editor del link o ID Drive: spiega sola lettura e assenza di condivisione reciproca; un ID non valido lascia il focus su Cancel. |
 | [Sources/NXLibrary/Views/Settings/NextendoClientDialog.swift](../../Sources/NXLibrary/Views/Settings/NextendoClientDialog.swift) | Dialogo Selene per scegliere e validare l’ID client pubblico o riprendere il default della build. |
 
 ## UI · Game Options, cheats e salvataggi
@@ -942,7 +942,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/ArcanePortingTests/BuildServiceTests.swift](../../Tests/ArcanePortingTests/BuildServiceTests.swift) | Processi, eventi, cancellazione, lease e conservazione della build dopo un errore d’installazione o profili illeggibili, con retry senza nuova esecuzione del motore. |
 | [Tests/NXLibraryCoreTests/SystemCommandRunnerTests.swift](../../Tests/NXLibraryCoreTests/SystemCommandRunnerTests.swift) | Un comando atteso, sincrono o in streaming, non fa girare il run loop mentre aspetta. |
 | [Tests/NXLibraryCoreTests/CommandRunnerTests.swift](../../Tests/NXLibraryCoreTests/CommandRunnerTests.swift) | Verifica stdout, stderr, attesa senza run loop, annullamento con pipe ereditate, scadenze e progresso reale. |
-| [Tests/NXLibraryCoreTests/RcloneStorageBackendTests.swift](../../Tests/NXLibraryCoreTests/RcloneStorageBackendTests.swift) | Precedenza del binario, oggetti, impronte, avanzamento e annullamento con rclone locale; prefissi assenti o vuoti via demone, comando singolo e runner finto. |
+| [Tests/NXLibraryCoreTests/RcloneStorageBackendTests.swift](../../Tests/NXLibraryCoreTests/RcloneStorageBackendTests.swift) | Binario, oggetti, impronte, avanzamento e annullamento; prefissi assenti o vuoti; Drive configurato e ID esatto per il riferimento in sola lettura. |
 | [Tests/NXLibraryCoreTests/RcloneDownloadTests.swift](../../Tests/NXLibraryCoreTests/RcloneDownloadTests.swift) | Trasporto locale e archivi sintetici: rifiuti, annullamento, firma, pubblicazione atomica e protezione delle copie altrui. |
 | [Tests/NXLibraryCoreTests/RcloneConfigurationTests.swift](../../Tests/NXLibraryCoreTests/RcloneConfigurationTests.swift) | Preferenze, comandi OAuth, cifratura e recuperi tipizzati con runner finto; prova stdin su una configurazione rclone temporanea; senza configurazione o portachiavi reali. |
 | [Tests/NXLibraryCoreTests/CloudSetupAssistantTests.swift](../../Tests/NXLibraryCoreTests/CloudSetupAssistantTests.swift) | Bozza, verifica, formato dell'ID client, priorità dell'azione principale e conferme su Cancel. |
@@ -1150,6 +1150,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_download_cloud.py](../../Tests/CatalogAppChecks/run_download_cloud.py) | Verifica pixel, contrasto e compositing del cue Download; cattura il fronte a quattro livelli e misura un campione di tile in finestra isolata. |
 | [run_cloud_queue_pause.py](../../Tests/CatalogAppChecks/run_cloud_queue_pause.py) | Riapre una coda sintetica con pausa registrata e confronta le righe Attività in francese prima e dopo, senza backend. |
 | [run_cloud_shelf.py](../../Tests/CatalogAppChecks/run_cloud_shelf.py) | Rende lo scaffale Cloud in francese e verifica gli stati vuoti, i titoli importati e il recupero nell’assistente con fixture. |
+| [run_cloud_reference.py](../../Tests/CatalogAppChecks/run_cloud_reference.py) | Rende il dialogo del riferimento e la riga con accesso, senza accesso e in controllo, usando dati sintetici. |
 | [run_settings_confirmations.py](../../Tests/CatalogAppChecks/run_settings_confirmations.py) | Lancia la sonda delle conferme in un processo con dati e preferenze propri, in francese e senza servizi reali. |
 | [SettingsConfirmationProbe.swift](../../Tests/CatalogAppChecks/SettingsConfirmationProbe.swift) | Verifica conferme di Cloud, rclone, motore e rete, consenso, stato del download e ambito Drive della copia gestita; rende le carte senza finestre native. |
 | [run_integration_contract.py](../../Tests/CatalogAppChecks/run_integration_contract.py) | Controlla il collegamento di Integrations alle viste reali senza aprirle. |

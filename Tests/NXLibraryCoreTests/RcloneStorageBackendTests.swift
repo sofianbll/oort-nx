@@ -168,15 +168,26 @@ final class RcloneStorageBackendTests: XCTestCase {
         let id = "1Reference_0123-456"
         XCTAssertEqual(CloudLibraryPreference.referenceFolderID(" \(id)\n"), id)
         XCTAssertEqual(CloudLibraryPreference.referenceFolderID("https://drive.google.com/drive/folders/\(id)/?usp=sharing"), id)
-        for invalid in ["root", "appDataFolder", "-flag", "a/b", "https://drive.google.com/file/d/\(id)",
+        for invalid in ["", " \n", "root", "appDataFolder", "-flag", "a/b", "https://drive.google.com/file/d/\(id)",
                         "https://drive.google.com.evil.test/drive/folders/\(id)",
                         "https://someone@drive.google.com/drive/folders/\(id)",
                         "https://drive.google.com/drive/folders/\(id)%2Fother"] {
             XCTAssertNil(CloudLibraryPreference.referenceFolderID(invalid), invalid)
         }
-        let personal = RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in
+        actor DriveSpy {
+            private(set) var calls: [[String]] = []
+            func record(_ args: [String]) { calls.append(args) }
+        }
+        let drive = DriveSpy()
+        let personal = RcloneStorageBackend(remote: "fixture", root: "Games", readsConfiguration: true) { _, args, _ in
+            await drive.record(args)
+            if args.first == "listremotes" {
+                return .init(status: 0, stdout: #"[{"name":"fixture","type":"drive","source":"file"}]"#, stderr: "")
+            }
             if args.contains("--drive-root-folder-id=\(id)") {
                 XCTAssertEqual(args[1], args[0] == "copy" ? "fixture:Title" : "fixture:")
+                XCTAssertTrue(args.contains("--drive-shared-with-me=false"))
+                XCTAssertTrue(args.contains("--drive-skip-shortcuts"))
                 XCTAssertTrue(["copy", "lsjson"].contains(args[0]), "Reference command: \(args[0])")
                 if args[0] == "copy" { XCTAssertTrue(args[2].hasPrefix(":local,links=true:/")) }
             } else { XCTAssertEqual(Array(args.prefix(2)), ["deletefile", "fixture:Games/test"]) }
@@ -185,18 +196,33 @@ final class RcloneStorageBackendTests: XCTestCase {
         let reference = try XCTUnwrap(personal.reference(folderID: id))
         let folders = try await reference.rootDirectories()
         XCTAssertEqual(folders, ["Games"])
-        let local = URL(fileURLWithPath: "/fixture")
+        let local = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: local, withIntermediateDirectories: false)
+        defer { try? FileManager.default.removeItem(at: local) }
+        let file = local.appendingPathComponent("one")
+        try Data("a".utf8).write(to: file)
         let key = StorageObjectKey("test")
+        let object = StorageObject(key: key, size: 1, hashes: [
+            "md5": "0cc175b9c0f1b6a831c399e269772661",
+            "sha256": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
+        ])
         try await reference.downloadFiles(["one"], from: .init("Title"), to: local, decodeLinks: true, progress: nil)
+        let reads = await drive.calls
+        XCTAssertEqual(reads.compactMap(\.first), ["listremotes", "lsjson", "listremotes", "copy"])
         for send: () async throws -> Void in [
             { try await reference.delete(key) },
             { try await reference.atRoot("GameFiles").copyFiles(["one"], from: local, to: key, reusing: nil, progress: nil) },
-            { try await reference.putSource(local, as: .init(key: key, size: 1, hashes: ["md5": String(repeating: "a", count: 32)]), progress: nil) },
+            { try await reference.put(file, as: object, progress: nil) },
+            { try await reference.putSource(file, as: object, progress: nil) },
         ] {
             do { try await send(); XCTFail("Reference accepted a mutation") }
             catch { XCTAssertEqual(error as? StorageBackendError, .invalidConfiguration) }
         }
+        let afterRefusals = await drive.calls
+        XCTAssertEqual(afterRefusals, reads)
         try await personal.delete(key)
+        let afterPersonalDelete = await drive.calls
+        XCTAssertEqual(afterPersonalDelete.dropFirst(reads.count).compactMap(\.first), ["listremotes", "deletefile"])
     }
 
     func testPrefixListingDistinguishesMissingFromEmptyDirectoryWithoutLaunchingRclone() async throws {
