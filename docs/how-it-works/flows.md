@@ -225,6 +225,8 @@ L'apertura del pannello Cloud legge le revisioni e confronta i contenuti locali;
 
 Se la connessione cade durante un trasferimento, il lavoro resta in testa. Anche dopo aver chiuso l'avviso, sia il pannello del gioco sia il centro attività mostrano il motivo e Resume per la stessa richiesta. Se era un invio, Resume chiede una nuova conferma invece di trasmettere i file correnti. Un trasferimento in attesa di un gioco aperto riparte quando il gioco si chiude.
 
+Il formato della coda riconosce anche un marcatore per la pausa volontaria dei download in testa; il pannello e il centro attività non lo comandano ancora.
+
 Prima di togliere dalla coda un invio da riconfermare, Arcane salva il risultato con lo stesso identificatore e sincronizza file e directory. Se non ci riesce, la richiesta resta nella coda su disco. Un arresto tra le due scritture non duplica il risultato al riavvio.
 
 **File del gioco (Porting).** Data la selezione del gioco, `CloudGameSources` riusa i file remoti con MD5 uguale e invia solo gli assenti; una divergenza blocca un nuovo invio. Il download conta i file mancanti con copia remota verificabile e controlla lo spazio totale prima del primo file. Per le sorgenti importate crea una cartella dedicata nel profilo, solo su richiesta di ripristino. Il ripristino pubblica ogni file verificato nella sua cartella; la liberazione sposta nel Cestino solo i file locali appena verificati. Un annullamento non annulla i file già pubblicati o spostati nel Cestino.

@@ -8,6 +8,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 - Import Switch games from game files alone in your own cloud library or a followed reference. Personalize them before downloading, and find them with the **Cloud** filter in Spotlight and Collection.
 - Cloud downloads trace the rising fill on Spotlight and Collection covers with a band of light and briefly form the Oort mark on success.
+- The cloud queue format can record a paused app or game-files download without changing its order. This does not add a Pause button yet.
 - Switch game Details shows the installed app’s engine date and update status. An update icon appears on the cover only when the app is older and its game files are available.
 - The home bar and **Integrations** page show each service’s status and open its settings without activating it.
 - Add local Mac apps as library shortcuts without changing the apps or recording play sessions.
