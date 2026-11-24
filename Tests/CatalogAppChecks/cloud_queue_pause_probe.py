@@ -70,6 +70,11 @@ def main():
         change(app / "ViewModels/AppViewModel+CloudLibrary.swift",
                r"        let defaults = AppData\.preferences.*?(?=        rebuildArchive\(\))",
                '        preference = .init(storage: nil, enabled: false, sourcesRoot: nil)\n        chosenExecutable = nil\n')
+        # Like run_cloud_screens: ImageRenderer cannot draw the native scrolling container.
+        activity = app / "Views/Shell/ActivityCenterView.swift"
+        change(activity, r"                ScrollViewReader \{ scroll in\n                    ScrollView \{\n", "")
+        change(activity, r"                    }\n                    \.padding\(EdgeInsets.*?\.onChange\(of: focused\)[^\n]*\n                }\n", "")
+        change(activity, r"        LazyVStack\(", "        VStack(")
         profile = package / "Sources/NXLibraryCore/App/AppDataProfile.swift"
         change(profile, r"public static let profile = [^\n]*",
                'public static let profile = AppDataProfile(home: URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!), isDevelopment: true)')
