@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **1095 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **1097 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -301,7 +301,7 @@ Cartella `Sources/NXLibraryCore/Selene/`.
 | [Sources/NXLibraryCore/Selene/OnlineBackgrounds.swift](../../Sources/NXLibraryCore/Selene/OnlineBackgrounds.swift) | Modella sorgenti e risultati e interpreta le risposte dei provider di sfondi fissi e video. |
 | [Sources/NXLibraryCore/Selene/SeleneImporter.swift](../../Sources/NXLibraryCore/Selene/SeleneImporter.swift) | Importa suoni e wallpaper dalla cartella Selene dell’utente e risolve cue e fallback. |
 | [Sources/NXLibraryCore/Selene/SoundPack.swift](../../Sources/NXLibraryCore/Selene/SoundPack.swift) | Valida manifesti, archivi e audio, sceglie le varianti e pubblica solo copie locali confermate. |
-| [Sources/NXLibraryCore/Selene/ButtonPrompts.swift](../../Sources/NXLibraryCore/Selene/ButtonPrompts.swift) | Traduce azioni, anche la navigazione in quattro direzioni, in simboli per tastiera e controller Switch, Xbox e PlayStation. |
+| [Sources/NXLibraryCore/Selene/ButtonPrompts.swift](../../Sources/NXLibraryCore/Selene/ButtonPrompts.swift) | Traduce azioni e direzioni, incluse Su/Giù, in simboli per tastiera e controller Switch, Xbox e PlayStation. |
 | [Sources/NXLibraryCore/Selene/MaterialIcon.swift](../../Sources/NXLibraryCore/Selene/MaterialIcon.swift) | Elenca i glifi del font incluso, compresi cancellazione e conferma del PIN. |
 | [Sources/NXLibraryCore/Selene/MenuSelectionModel.swift](../../Sources/NXLibraryCore/Selene/MenuSelectionModel.swift) | Gestisce icone, voci delle schede e pillole Power; salta l'Inbox disattivata e lascia il focus sull'icona alla chiusura. |
 | [Sources/NXLibraryCore/Selene/MoonlightAppearance.swift](../../Sources/NXLibraryCore/Selene/MoonlightAppearance.swift) | Identità delle superfici classica/Arcane/Flow e campionamento dei colori locali condiviso fra shader e fallback. |
@@ -700,7 +700,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/Spotlight/SpotlightView+PageContent.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightView+PageContent.swift) | Cosa contiene la pagina per un gioco Switch o Steam: About, Details, screenshot e giochi correlati. |
 | [Sources/NXLibrary/Views/Spotlight/SpotlightView+Input.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightView+Input.swift) | Traduce input, card, azioni cloud, screenshot e ordinamento. X sulla carta Attività cambia la visibilità delle compilazioni. Le frecce orizzontali nella riga usano solo le tessere. |
 | [Sources/NXLibrary/Views/Spotlight/SpotlightView+Entrance.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightView+Entrance.swift) | Coordina l’entrata su moonlight condiviso: coperture e fullscreen, pausa, attesa dell’arte, effetti di volo e dissolvenza, barra in alto e hint per ultimi, atterraggio di sicurezza; nessun input salta l’entrata. |
-| [Sources/NXLibrary/Views/Spotlight/SpotlightRowView.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightRowView.swift) | Disegna la riga di tile con finestra visibile, focus, titoli e cue Cloud; la faccia della card Mods (`ModsCardCover`). |
+| [Sources/NXLibrary/Views/Spotlight/SpotlightRowView.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightRowView.swift) | Disegna la riga, il focus e i cue Cloud; mostra le facce scorrevoli della piattaforma e quella della carta Mods (`ModsCardCover`). |
 | [Sources/NXLibrary/Views/Spotlight/SpotlightTopBar.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightTopBar.swift) | Disegna Integrations a sinistra, filtri al centro, ritratto e orologio a destra; il menu di ordinamento parte dal prompt in fondo. |
 | [Sources/NXLibrary/Views/Spotlight/SpotlightInfoView.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightInfoView.swift) | Mostra logo, Play o Download con fase e byte, Cloud, statistiche e stato di porting. |
 | [Sources/NXLibrary/Views/Spotlight/SpotlightCardInfoView.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightCardInfoView.swift) | Mostra informazioni e azioni delle card Spotlight, incluse Inbox e le tessere quadrate con date di compilazione su Attività. |
@@ -1147,6 +1147,8 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_update_wait.py](../../Tests/CatalogAppChecks/run_update_wait.py) | Bundle di prova: conserva l'aggiornamento verificato mentre un gioco o un lease blocca; riprende dallo ZIP senza rete e rifiuta modifiche. |
 | [run_review.py](../../Tests/CatalogAppChecks/run_review.py) | Verifica senza finestre achievement, loghi, focus, input del centro e di Integrations, badge mod in Online, priorità dei dialoghi e Steam durante Play. |
 | [audit_probe_host.py](../../Tests/CatalogAppChecks/audit_probe_host.py) | Collega sonde headless al binario di debug e le isola con home temporanea e senza rete. |
+| [run_platform_cards.py](../../Tests/CatalogAppChecks/run_platform_cards.py) | Lancia Spotlight isolato e conserva i PNG e, con ffmpeg, lo scorrimento video. |
+| [PlatformCardsProbe.swift](../../Tests/CatalogAppChecks/PlatformCardsProbe.swift) | Verifica input, filtro, chiusura e recupero su tre fonti, una fonte e libreria vuota; rende Spotlight in francese con sfondo chiaro. |
 | [run_steam_disabled_tracking.py](../../Tests/CatalogAppChecks/run_steam_disabled_tracking.py) | Disattiva una fonte Steam sintetica, chiude una sessione già aperta e rifiuta una nuova osservazione. |
 | [run_steam_scoped_playtime.py](../../Tests/CatalogAppChecks/run_steam_scoped_playtime.py) | Aggiorna le ore Steam dopo sessioni Switch secondarie, anche archiviate, e congela dopo una sessione Steam secondaria. |
 | [run_keymap_screens.py](../../Tests/CatalogAppChecks/run_keymap_screens.py) | Verifica tutti i glifi e rende la barra Selene per Xbox, Switch, DualSense e tastiera senza aprire finestre. |

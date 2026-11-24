@@ -569,8 +569,10 @@ extension SpotlightView {
             case 124: action = .navigateRight
             case 125: action = .navigateDown
             case 126: action = .navigateUp
-            case 36, 49, 76: action = .confirm
-            case 53: action = .cancel
+            case 36, 49, 76, 53:
+                // A held key must not toggle the picker, or close it and then leave the screen.
+                if event.isARepeat, selectedItem == .platform { return nil }
+                action = event.keyCode == 53 ? .cancel : .confirm
             case 7: action = .secondaryAction   // X
             case 16: action = .contextAction    // Y
             case 12: action = .tabPrevious      // Q

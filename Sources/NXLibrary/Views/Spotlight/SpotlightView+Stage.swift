@@ -81,7 +81,7 @@ extension SpotlightView {
                     isEmptyFilter: LibraryEmptyState.showsMessage(
                         hasGames: items.contains { if case .game = $0 { return true } else { return false } },
                         isReadingLibrary: viewModel.isScanningLibrary) ? filter : nil,
-                    scopeIsEmpty: model.platforms.card(for: activePlatform).integration != nil,
+                    isPlatformScoped: model.platforms.card(for: activePlatform).integration != nil,
                     artwork: artwork,
                     tileLook: viewModel.portingTileLook,
                     cloud: viewModel.cloudLibrary,

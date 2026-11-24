@@ -22,7 +22,7 @@ struct SpotlightRowView: View {
     /// The tile lifted for moving: raised 12u, its ring stays.
     var liftedKey: String? = nil
     let isEmptyFilter: LibraryFilter?
-    var scopeIsEmpty = false
+    var isPlatformScoped = false
     let artwork: ArtworkStore
     /// The porting look of a game's tile (`PortingTileLook`).
     var tileLook: (PortedGame) -> PortingTileLook = { _ in .normal }
@@ -360,7 +360,7 @@ struct SpotlightRowView: View {
 
     private func emptyMessage(_ filter: LibraryFilter) -> some View {
         let (title, hint): (String, String) = {
-            if scopeIsEmpty { return (L10n.text("No games match this filter."), "") }
+            if isPlatformScoped { return (L10n.text("No games match this filter.", context: locale), "") }
             switch filter {
             case .installed: return (L10n.text("Nothing installed"), L10n.text("Build a game and it shows up here."))
             case .recentlyPlayed: return (L10n.text("Nothing played lately"), L10n.text("Games you play show up here."))

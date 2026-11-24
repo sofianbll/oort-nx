@@ -120,6 +120,8 @@ The artwork-return check compiles the real tile views, loading tasks and retaine
 
 For the optional Mac shortcut handoff check, set `OORT_MAC_SHORTCUT_PROBE=1` for `Tests/CatalogAppChecks/run_profiles.py` and pass a fresh output directory. The probe renders Sources, Spotlight, Collection and the shortcut dialogs in English and French at two sizes, and hands only its own temporary, compiled fixture to Launch Services.
 
+After building Debug, `python3 Tests/CatalogAppChecks/run_platform_cards.py /absolute/new-output` renders Spotlight in French at two sizes on a bright synthetic wallpaper. It exercises the card through the screen's controller action receiver without opening a window or running games; with ffmpeg it also saves a silent clip.
+
 Passing checks do not establish that an interactive update or a game works. See the [test catalog](file-map.md#test-e-fixture).
 
 For manual setup checks on an existing account, use **Settings → Start-up → Open Setup**: Continue opens Your games without resetting the library. Check file-picker cancellation, Back, Open library and source review. A fresh account additionally verifies Skip persistence and resuming an interrupted first setup. Interactive checks remain the user's responsibility; agents do not launch the UI.

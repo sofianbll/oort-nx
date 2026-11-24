@@ -301,7 +301,7 @@ struct CollectionView: View {
                 + [HintItem(.y, L10n.text("Game options"))]
         }
         if let record, record.macShortcut != nil {
-            return [HintItem(.a, "Play") { self.activateCatalog(record) }]
+            return [HintItem(.a, "Open") { self.activateCatalog(record) }]
                 + (viewModel.macShortcuts.canEdit ? [HintItem(.y, "Tile options") { self.viewModel.macShortcuts.showTileOptions(record) }] : [])
         }
         guard let game else {

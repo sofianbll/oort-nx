@@ -80,7 +80,7 @@ struct MacShortcutInfo: View {
         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.control)) {
             GameLogoArea(title: game.name, logo: nil, collection: collection)
             HStack(spacing: canvas.u(SeleneTokens.Space.control)) {
-                SelenePillButton(title: "Play", icon: .play, focused: focused == 0) { onAction(0) }
+                SelenePillButton(title: "Open", icon: .play, focused: focused == 0) { onAction(0) }
                 if canEdit {
                     SelenePillButton(title: "Tile options", focused: focused == 1) { onAction(1) }
                 }
