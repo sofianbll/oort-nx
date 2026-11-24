@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **1023 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **1030 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -243,6 +243,10 @@ Cartella `Sources/NXLibraryCore/Library/`.
 | [Sources/NXLibraryCore/Library/ProfilePageCards.swift](../../Sources/NXLibraryCore/Library/ProfilePageCards.swift) | Ordine e visibilità per profilo, gruppi dell’attività e geometria della griglia. |
 | [Sources/NXLibraryCore/Library/PlaySessionStore.swift](../../Sources/NXLibraryCore/Library/PlaySessionStore.swift) | Registra avvio, heartbeat e fine; pubblica insieme storico e totali archiviati, importa i file precedenti e unisce i totali Steam con le sessioni successive. |
 | [Sources/NXLibraryCore/Library/LocalProfileStore.swift](../../Sources/NXLibraryCore/Library/LocalProfileStore.swift) | Identità, preferiti, presenza e visibilità, codice e profilo di avvio; protegge l'originale e include lo storico unico nella copia di migrazione. |
+| [Sources/NXLibraryCore/Players/PlayerPlan.swift](../../Sources/NXLibraryCore/Players/PlayerPlan.swift) | Modalità, otto posti, profili ospiti, mancanti, bloccati o utilizzabili e controller ricordati. |
+| [Sources/NXLibraryCore/Players/PlayerControllerResolution.swift](../../Sources/NXLibraryCore/Players/PlayerControllerResolution.swift) | Abbina conferme o identità univoche; un modello compatibile è solo un suggerimento. |
+| [Sources/NXLibraryCore/Players/PlayerPlanStore.swift](../../Sources/NXLibraryCore/Players/PlayerPlanStore.swift) | Legge il documento versionato e pubblica atomicamente, conservando campi sconosciuti. |
+| [Sources/NXLibraryCore/Players/PlayerLaunchEnvironment.swift](../../Sources/NXLibraryCore/Players/PlayerLaunchEnvironment.swift) | Calcola le opzioni supportate, rispetta `env.txt` e limita il nickname a offline e locale. |
 | [Sources/NXLibraryCore/Library/ProfileKeypad.swift](../../Sources/NXLibraryCore/Library/ProfileKeypad.swift) | Griglia PIN, focus bidimensionale, cancellazione e conferma esplicita a quattro cifre. |
 | [Sources/NXLibraryCore/Library/GameFocus.swift](../../Sources/NXLibraryCore/Library/GameFocus.swift) | Quando un gioco che esce riporta Arcane davanti: solo se era l’app in primo piano e nessun altro gioco della libreria è aperto. |
 | [Sources/NXLibraryCore/Library/SessionSummary.swift](../../Sources/NXLibraryCore/Library/SessionSummary.swift) | Cosa dice la card di fine sessione: gioco, durata di questa sessione e totale scritto come nelle info del gioco; niente card sotto i dieci secondi. |
@@ -989,6 +993,9 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/ArcanePortingTests/PendingInstallTests.swift](../../Tests/ArcanePortingTests/PendingInstallTests.swift) | Staging, rifiuto di un bundle estraneo con record vecchio, ripresa a destinazione libera e riconoscimento dopo pubblicazione. |
 | [Tests/ArcanePortingTests/PlaySessionStoreTests.swift](../../Tests/ArcanePortingTests/PlaySessionStoreTests.swift) | Persistenza atomica di storico e totali, import dei file precedenti senza sovrascriverli, conservazione dei dati illeggibili, durata, heartbeat, riconciliazione e bundle ID. |
 | [Tests/NXLibraryCoreTests/LocalProfileStoreTests.swift](../../Tests/NXLibraryCoreTests/LocalProfileStoreTests.swift) | Migrazione, profilo corrente, protezione del profilo originale, dati illeggibili e attribuzione al profilo che avvia il gioco. |
+| [Tests/NXLibraryCoreTests/PlayerPlanTests.swift](../../Tests/NXLibraryCoreTests/PlayerPlanTests.swift) | Posti, accesso ai profili, identità ambigue e conferme dei controller. |
+| [Tests/NXLibraryCoreTests/PlayerPlanStoreTests.swift](../../Tests/NXLibraryCoreTests/PlayerPlanStoreTests.swift) | Persistenza e conservazione dei campi sconosciuti; rifiuto dei documenti non validi. |
+| [Tests/NXLibraryCoreTests/PlayerLaunchEnvironmentTests.swift](../../Tests/NXLibraryCoreTests/PlayerLaunchEnvironmentTests.swift) | Modalità di lancio, capacità dichiarate, precedenza di `env.txt` e limiti del nickname. |
 | [Tests/NXLibraryCoreTests/ProfileKeypadTests.swift](../../Tests/NXLibraryCoreTests/ProfileKeypadTests.swift) | Bordi in due dimensioni, raggiungibilità dei tasti finali, cancellazione, zero iniziale e invio solo a quattro cifre. |
 | [Tests/NXLibraryCoreTests/ProfileLayersTests.swift](../../Tests/NXLibraryCoreTests/ProfileLayersTests.swift) | In ogni stato un solo strato della schermata profilo riceve l’input e mostra i suggerimenti; la procedura guidata sostituisce il selettore. |
 | [Tests/ArcanePortingTests/PortedGameTests.swift](../../Tests/ArcanePortingTests/PortedGameTests.swift) | Modello del gioco, compatibilità dei record, disponibilità dell’app e selezione delle ultime compilazioni riuscite. |
