@@ -42,7 +42,68 @@ private final class FakeSource: ControllerSource {
         ambiguousPairStaysUnpaired(twinOnHID: false)
         ambiguousPairStaysUnpaired(twinOnHID: true)
         repeatedHardwareID()
+        exclusiveAssignment()
         print("Controller identity: hash privacy, pairing, sticky ambiguity, activity, output routing, sleep and hot plug passed")
+    }
+
+    private static func exclusiveAssignment() {
+        let gc = FakeSource(), hid = FakeSource()
+        let menu = NSObject(), other = NSObject(), raw = NSObject()
+        let first = ControllerIdentity(id: ObjectIdentifier(menu), name: "Menu pad", brand: .xbox)
+        let second = ControllerIdentity(id: ObjectIdentifier(other), name: "Second", brand: .generic)
+        let third = ControllerIdentity(id: ObjectIdentifier(raw), name: "Raw", brand: .nintendoSwitch)
+        gc.preferredID = first.id
+        gc.add(first)
+        gc.add(second)
+        hid.add(third)
+        let service = GameControllerService(gcSource: gc, hidSource: hid)
+        var actions: [GamepadAction] = []
+        var assignments: [GameControllerService.AssignmentEvent] = []
+        service.onAction = { actions.append($0) }
+        func settle(_ time: TimeInterval = 0.01) { RunLoop.main.run(until: Date(timeIntervalSinceNow: time)) }
+        func wait(_ timeout: TimeInterval = 12) -> () -> Void {
+            service.waitForAssignment(timeout: timeout) { assignments.append($0) }!
+        }
+        // Starting a lease invalidates a queued menu command and an already armed hold.
+        gc.onEvent?(.input(first.id, .button(.a, true)))
+        gc.onEvent?(.input(first.id, .button(.menu, true)))
+        let staleRelease = wait()
+        precondition(service.menuHoldStartedAt == nil)
+        gc.onEvent?(.input(first.id, .button(.home, true)))
+        gc.onEvent?(.input(first.id, .button(.home, false)))
+        gc.onEvent?(.input(first.id, .button(.menu, false)))
+        settle()
+        precondition(actions.isEmpty && assignments == [.button(service.connectedControllers[0].id)])
+        _ = wait()
+        staleRelease()
+        gc.onEvent?(.buttonPressed(second.id))
+        settle()
+        precondition(actions.isEmpty && assignments.last == .button(service.connectedControllers[1].id))
+        _ = wait()
+        gc.onEvent?(.input(first.id, .button(.b, true)))
+        gc.onEvent?(.input(first.id, .button(.b, false)))
+        settle()
+        precondition(actions.isEmpty && assignments.last == .cancelled)
+        _ = wait(0.01)
+        settle(0.04)
+        precondition(assignments.last == .timedOut)
+        gc.onEvent?(.input(first.id, .button(.a, true)))
+        settle()
+        precondition(actions == [.confirm])
+        gc.remove(first)
+        let count = assignments.count
+        _ = wait()
+        hid.onEvent?(.buttonPressed(third.id))
+        hid.onEvent?(.input(third.id, .button(.b, true)))
+        hid.onEvent?(.input(third.id, .button(.a, true)))
+        settle()
+        precondition(assignments.count == count + 1 && assignments.last == .cancelled && actions == [.confirm])
+        let release = wait()
+        release()
+        hid.onEvent?(.input(third.id, .button(.a, true)))
+        settle()
+        precondition(actions == [.confirm, .confirm])
+        withExtendedLifetime([menu, other, raw]) {}
     }
 
     private static func hashes() {

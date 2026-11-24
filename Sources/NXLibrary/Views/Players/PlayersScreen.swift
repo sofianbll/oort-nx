@@ -103,18 +103,17 @@ struct PlayersScreen: View {
                     .fixedSize(horizontal: false, vertical: true)
                 if model.hasIdenticalPads {
                     Text(verbatim: t("These controllers look identical. Your button press tells them apart."))
-                        .seleneFont(.caption)
+                        .seleneFont(.panelBody)
                         .foregroundStyle(SeleneTheme.ink75)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                SelenePillButton(title: "Cancel", focused: false, action: back)
+                SelenePillButton(title: "Cancel", focused: true, scalesOnFocus: false, action: back)
             }
             .foregroundStyle(SeleneTheme.ink)
             .modifier(SeleneDialogCard(width: 1040))
         }
         .overlay(alignment: .bottom) {
-            // Every controller button is input for this step, even the usual Back button.
-            SeleneHintsBar(left: [HintItem(nil, "Cancel (Esc)", glyph: .close, action: back)])
+            SeleneHintsBar(left: [HintItem(.b, "Cancel", action: back)])
         }
     }
 
@@ -125,18 +124,14 @@ struct PlayersScreen: View {
         } label: {
             SeleneOptionRow(icon: presentation.icon, title: presentation.title, about: presentation.about,
                             focused: model.focusedRow == id, destructive: id == .remove,
-                            leading: presentation.portrait.map { AnyView(ProfilePortrait(profile: $0, size: SeleneTokens.Space.group)) }) {
+                            leading: portrait(presentation)) {
                 if presentation.selected {
                     MaterialIconView(.done, size: SeleneTokens.Space.large)
                         .foregroundStyle(SeleneTheme.glyph)
                         .accessibilityHidden(true)
                 } else if presentation.opens {
                     HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
-                        if let pad = presentation.pad {
-                            Image(systemName: pad)
-                                .seleneFont(.rowTitle)
-                                .foregroundStyle(SeleneTheme.rowIcon)
-                        }
+                        if let pad = presentation.pad { padIcon(pad).foregroundStyle(SeleneTheme.rowIcon) }
                         MaterialIconView(.chevron, size: SeleneTokens.Space.large)
                             .foregroundStyle(SeleneTheme.ink60)
                     }
@@ -157,9 +152,21 @@ struct PlayersScreen: View {
         var about: String?
         var icon: MaterialIcon?
         var portrait: LocalProfile?
-        var pad: String?
+        var avatar = false
+        var pad: GamepadBrand?
         var selected = false
         var opens = false
+    }
+
+    private func portrait(_ presentation: Presentation) -> AnyView? {
+        guard presentation.avatar else { return nil }
+        if let profile = presentation.portrait {
+            return AnyView(ProfilePortrait(profile: profile, size: SeleneTokens.Space.group))
+        }
+        return AnyView(MaterialIconView(.person, size: SeleneTokens.Space.large)
+            .foregroundStyle(SeleneTheme.rowIcon)
+            .frame(width: canvas.u(SeleneTokens.Space.group))
+            .accessibilityHidden(true))
     }
 
     private func presentation(_ row: PlayersScreenModel.Row) -> Presentation {
@@ -178,8 +185,8 @@ struct PlayersScreen: View {
             case .locked: note = t("Profile locked")
             default: note = profileNotes[number].map(t)
             }
-            return .init(title: label, about: joined([padDescription(number), orderNotes[number].map(t), note]), icon: profile == nil ? .person : nil,
-                         portrait: profile, pad: padSymbol(number), opens: row == .player(number))
+            return .init(title: label, about: joined([padDescription(number), orderNotes[number].map(t), note]),
+                         portrait: profile, avatar: true, pad: padKind(number), opens: row == .player(number))
         case .add: return .init(title: t("Add player"), icon: .add)
         case .reset: return .init(title: t("Reset players"), icon: .restore)
         case .retry: return .init(title: t("Retry"), icon: .sync)
@@ -187,7 +194,7 @@ struct PlayersScreen: View {
             let number = if case .player(let number) = model.page { number } else { 0 }
             let profile = model.profile(for: number)
             return .init(title: t("Choose a profile"), about: profile?.name ?? t("Guest"),
-                         icon: profile == nil ? .person : nil, portrait: profile, opens: true)
+                         portrait: profile, avatar: true, opens: true)
         case .assign: return .init(title: t("Assign controller"), icon: .gamepad, opens: true)
         case .identify: return .init(title: t("Identify"), icon: .gamepad)
         case .swap: return .init(title: t("Swap players"), icon: .swap, opens: true)
@@ -200,13 +207,13 @@ struct PlayersScreen: View {
                          about: joined([playerTitle(number), limitation]), icon: .person, opens: true)
         case .target(let number):
             let profile = model.profile(for: number)
-            return .init(title: playerTitle(number), about: profile?.name ?? t("Guest"), icon: profile == nil ? .person : nil,
-                         portrait: profile, selected: number == model.mergeTarget)
+            return .init(title: playerTitle(number), about: profile?.name ?? t("Guest"),
+                         portrait: profile, avatar: true, selected: number == model.mergeTarget)
         case .profile(let id):
             let profile = model.profiles.first { $0.id == id }
             let number = if case .profiles(let number) = model.page { number } else { 0 }
             return .init(title: profile?.name ?? t("Guest"), about: profile?.isLocked == true ? t("Profile locked") : nil,
-                         icon: profile == nil ? .person : nil, portrait: profile, selected: model.plan.slot(number)?.profileID == id)
+                         portrait: profile, avatar: true, selected: model.plan.slot(number)?.profileID == id)
         }
     }
 
@@ -235,17 +242,19 @@ struct PlayersScreen: View {
         return joined([pad.name ?? t("Gamepad"), t("Connected"), battery], separator: " · ") ?? ""
     }
 
-    private func padSymbol(_ number: Int) -> String? {
-        if model.plan.mode == .merge { return number == model.mergeTarget ? "gamecontroller" : nil }
-        if let pad = model.connectedPad(number) {
-            switch pad.kind {
-            case .nintendoSwitch: return "l.joystick.fill"
-            case .xbox: return "logo.xbox"
-            case .playstation: return "logo.playstation"
-            case .generic: return "gamecontroller"
-            }
+    private func padKind(_ number: Int) -> GamepadBrand? {
+        if model.plan.mode == .merge { return number == model.mergeTarget ? .generic : nil }
+        return model.connectedPad(number)?.kind ?? (model.plan.slot(number)?.controller == nil ? nil : .generic)
+    }
+
+    @ViewBuilder private func padIcon(_ kind: GamepadBrand) -> some View {
+        switch kind {
+        case .nintendoSwitch:
+            SwitchPlatformIcon().frame(width: canvas.u(SeleneTokens.Space.large), height: canvas.u(SeleneTokens.Space.large))
+        case .xbox: Image(systemName: "logo.xbox").seleneFont(.rowTitle)
+        case .playstation: Image(systemName: "logo.playstation").seleneFont(.rowTitle)
+        case .generic: Image(systemName: "gamecontroller").seleneFont(.rowTitle)
         }
-        return model.plan.slot(number)?.controller == nil ? nil : "gamecontroller"
     }
 
     private func modeTitle(_ mode: PlayerControllerMode) -> String {

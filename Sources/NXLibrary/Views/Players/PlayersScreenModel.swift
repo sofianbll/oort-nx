@@ -34,7 +34,7 @@ import NXLibraryCore
     let identify: (String) -> Bool
     /// Must lease the raw input upstream of menu arbitration, including held gestures.
     /// A nil result means the host has no exclusive capture connector.
-    let leaseCapture: ((@escaping (String) -> Void) -> (() -> Void)?)?
+    let leaseCapture: ((@escaping (GameControllerService.AssignmentEvent) -> Void) -> (() -> Void)?)?
     private var releaseCapture: (() -> Void)?
 
     @Published var page: Page = .overview
@@ -57,7 +57,7 @@ import NXLibraryCore
          unlock: @escaping (UUID, String, PlayerPlan) async throws -> Bool,
          profiles: @escaping () -> [LocalProfile],
          identify: @escaping (String) -> Bool = { _ in false },
-         leaseCapture: ((@escaping (String) -> Void) -> (() -> Void)?)? = nil) {
+         leaseCapture: ((@escaping (GameControllerService.AssignmentEvent) -> Void) -> (() -> Void)?)? = nil) {
         self.session = session
         self.read = read
         self.write = write
@@ -235,7 +235,18 @@ import NXLibraryCore
     func startCapture(_ number: Int) {
         guard canAssign(number), capturePlayer == nil else { return }
         capturePlayer = number
-        releaseCapture = leaseCapture? { [weak self] id in self?.assign(id, to: number) }
+        releaseCapture = leaseCapture? { [weak self] event in
+            guard let self else { return }
+            switch event {
+            case .button(let id):
+                self.assign(id, to: number)
+                self.endCapture()
+            case .cancelled: self.endCapture()
+            case .timedOut:
+                self.endCapture()
+                self.message = "No button was pressed. Try assigning the controller again."
+            }
+        }
         if releaseCapture == nil {
             capturePlayer = nil
             message = "Controller assignment is unavailable right now."
@@ -271,7 +282,6 @@ import NXLibraryCore
         }, confirmed: confirmed, then: {
             self.open(.overview, focus: .player(number))
         })
-        endCapture()
     }
 
     func submitPIN(_ code: String) -> String? {

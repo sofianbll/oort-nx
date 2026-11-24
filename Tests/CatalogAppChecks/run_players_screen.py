@@ -23,7 +23,7 @@ final class PlayersFixtureSource: ControllerSource {
 
 @MainActor final class PlayersFixture {
     var plan: PlayerPlan?
-    var presses: ((String) -> Void)?
+    var presses: ((GameControllerService.AssignmentEvent) -> Void)?
     var identified: [String] = []
     var failRead = false
     var failWrite = false
@@ -91,6 +91,7 @@ final class PlayersFixtureSource: ControllerSource {
         let sizes: [(String, CGSize)] = [("large", .init(width: 1440, height: 810)),
                                         ("etroit", .init(width: 800, height: 640))]
         let oldNote = "This game's app is too old: rebuild it to keep the order."
+        let detailsOnly = ProcessInfo.processInfo.environment["PLAYERS_DETAILS_ONLY"] == "1"
         for (language, region) in [(AppLanguage.english, "US"), (.french, "FR")] {
             let locale = AppLocale(language: language, region: region)
             L10n.setContext(locale)
@@ -107,6 +108,7 @@ final class PlayersFixtureSource: ControllerSource {
                     ("16-actions", four, [known, xbox]),
                 ]
                 for (name, plan, pads) in states {
+                    if detailsOnly && !["02-un", "03-quatre", "13-appuyer"].contains(name) { continue }
                     fixture.plan = plan
                     let model = await fixture.screen()
                     model.updatePads(pads)
@@ -136,6 +138,7 @@ final class PlayersFixtureSource: ControllerSource {
                                name: "\(prefix)-\(name)", size: size, locale: locale)
                     model.endCapture()
                 }
+                if detailsOnly { continue }
                 let settings = AppSettingsStore(fileURL: AppData.supportRoot.appendingPathComponent("settings.json"))
                 let controller = GameControllerService(gcSource: PlayersFixtureSource(), hidSource: PlayersFixtureSource())
                 try render(VStack(alignment: .leading) {
@@ -187,9 +190,7 @@ final class PlayersFixtureSource: ControllerSource {
         screen.handleController(.profiles)
         screen.handleController(.cancel)
         precondition(m.capturePlayer == 2 && closed == 0)
-        f.presses?("unknown-connection")
-        precondition(m.capturePlayer == 2)
-        f.presses?(twinB.id)
+        f.presses?(.button(twinB.id))
         await settled()
         precondition(m.capturePlayer == nil && m.connectedPad(2)?.id == twinB.id)
         precondition(f.plan?.slot(2)?.controller?.stableID == nil && f.plan?.slot(2)?.controller?.modelKey == twinB.modelKey)
@@ -198,7 +199,16 @@ final class PlayersFixtureSource: ControllerSource {
         screen.handleController(.confirm)
         precondition(!m.rows.contains(.identify))
         m.select(.assign)
-        f.presses?(twinA.id)
+        f.presses?(.timedOut)
+        precondition(m.capturePlayer == nil && m.message != nil)
+        m.select(.assign)
+        key(53)
+        precondition(m.capturePlayer == nil && f.presses == nil)
+        m.select(.assign)
+        f.presses?(.cancelled)
+        precondition(m.capturePlayer == nil)
+        m.select(.assign)
+        f.presses?(.button(twinA.id))
         await settled()
         m.select(.player(2))
         m.select(.identify)
@@ -280,14 +290,19 @@ final class PlayersFixtureSource: ControllerSource {
 '''
 
 if __name__ == "__main__":
-    output = Path(sys.argv[1]).resolve() if len(sys.argv) == 2 else None
+    args = sys.argv[1:]
+    details_only = "--details-only" in args
+    if details_only:
+        args.remove("--details-only")
+        os.environ["PLAYERS_DETAILS_ONLY"] = "1"
+    output = Path(args[0]).resolve() if len(args) == 1 else None
     with tempfile.TemporaryDirectory(prefix="players-screen-", dir="/private/tmp") as stage:
         stage = Path(stage)
         shutil.copyfile(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf", stage / "MaterialIcons.ttf")
         os.environ["PLAYERS_STAGE"] = str(stage)
         run_host(HOST)
         captures = sorted(stage.glob("*.png"))
-        assert len(captures) == 68, len(captures)
+        assert len(captures) == (12 if details_only else 68), len(captures)
         if output:
             output.mkdir(parents=True, exist_ok=True)
             for capture in captures:

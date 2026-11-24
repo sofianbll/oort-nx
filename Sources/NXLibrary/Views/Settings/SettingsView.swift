@@ -25,6 +25,7 @@ struct SettingsView: View {
     @State private var section: SettingsSection
     @State private var openedFromIntegrations: Bool
     @State private var showingControls = false
+    @State private var showingPlayers = false
     @State private var cloudAssistant: CloudSetupAssistant.Entry?
     @State private var editingCloudReference = false
     private var showingCloudAssistant: Bool { cloudAssistant != nil || editingCloudReference }
@@ -107,7 +108,7 @@ struct SettingsView: View {
             .padding(.top, canvas.u(SeleneTokens.Space.stageHeader))
             .frame(maxHeight: .infinity, alignment: .top)
             SeleneHintsBar(left: [HintItem(.b, L10n.text("Back")) { handleBack() }], right: commandHints)
-                .seleneOverlaidHints(showingControls || localePicker != nil || showingCloudAssistant
+                .seleneOverlaidHints(showingControls || showingPlayers || localePicker != nil || showingCloudAssistant
                     || viewModel.isEditingSteamGridDBKey || igdb.isEditing
                     || profileDialogOpen || nextendo.isEditingClient || nextendo.friendToRemove != nil)
         }
@@ -169,10 +170,11 @@ struct SettingsView: View {
         .onChange(of: initialSection) { _, value in
             section = value
             focusArea = .sidebar
+            showingPlayers = false
         }
         .onChange(of: router.settingsRowID) { _, _ in focusRequestedSetting() }
         .onReceive(NotificationCenter.default.publisher(for: .nxSettingsGamepadAction)) { note in
-            guard router.route == .settings(initialSection), let action = note.object as? GamepadAction else { return }
+            guard !showingPlayers, router.route == .settings(initialSection), let action = note.object as? GamepadAction else { return }
             handleGamepad(action)
         }
     }
@@ -233,6 +235,17 @@ struct SettingsView: View {
                         && !viewModel.showSetupCheck && !viewModel.shellDialogOwnsInput && !viewModel.isWelcomeOpen
                         && viewModel.settingsNotice == nil && NSApp.modalWindow == nil
                 }) { localePicker = nil }
+            }
+        }
+        .seleneOverlayOwnership(!showingPlayers)
+        .overlay {
+            if showingPlayers {
+                viewModel.playersScreen(input: .nxSettingsGamepadAction, canHandleInput: {
+                    router.route == .settings(initialSection) && !router.isMenuPresented && !viewModel.showSetupCheck
+                        && !viewModel.shellDialogOwnsInput && !viewModel.isWelcomeOpen
+                        && !NativeMenuCommands.shared.isTracking && viewModel.settingsNotice == nil
+                        && viewModel.gameWithInstallFailure == nil && viewModel.alertMessage == nil
+                }) { showingPlayers = false }
             }
         }
         .environment(\.seleneMinimumFont, 12)
@@ -301,6 +314,7 @@ struct SettingsView: View {
                         onProfilePIN: openPIN,
                         onRemovePIN: { openPIN(removing: true) },
                         onViewControls: { showingControls = true },
+                        onOpenPlayers: { showingPlayers = true },
                         onChooseLanguage: { localePicker = .language },
                         onChooseRegion: { localePicker = .region },
                         onOpenConsole: { router.openConsole() },
@@ -527,7 +541,7 @@ struct SettingsView: View {
                   !NativeMenuCommands.shared.isTracking,
                   !router.isMenuPresented,
                   !viewModel.showSetupCheck,
-                  !showingControls, localePicker == nil, !viewModel.isEditingSteamGridDBKey, !igdb.isEditing,
+                  !showingControls, !showingPlayers, localePicker == nil, !viewModel.isEditingSteamGridDBKey, !igdb.isEditing,
                   !nextendo.isEditingClient, !showingCloudAssistant,
                   viewModel.alertMessage == nil, viewModel.settingsNotice == nil,
                   viewModel.gameWithInstallFailure == nil,

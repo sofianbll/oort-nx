@@ -1,4 +1,4 @@
-import Foundation
+import AppKit
 import NXLibraryCore
 import ArcanePorting
 
@@ -17,7 +17,14 @@ extension AppViewModel {
                                                            read: self.readPlayerPlan, write: self.savePlayerPlan,
                                                            unlock: self.unlockPlayerProfile,
                                                            profiles: { self.profilesForPlayersScreen },
-                                                           identify: controller.identify),
+                                                           identify: controller.identify, leaseCapture: { receive in
+                                                               guard canHandleInput() else { return nil }
+                                                               return controller.waitForAssignment { event in
+                                                                   receive(canHandleInput() && !NativeMenuCommands.shared.isTracking
+                                                                       && NSApp.modalWindow == nil && NSApp.keyWindow?.attachedSheet == nil
+                                                                       ? event : .cancelled)
+                                                               }
+                                                           }),
                                  controller: controller, input: input,
                                  canHandleInput: canHandleInput, onClose: onClose,
                                  readNotes: game.map { game in { await self.playersScreenNotes(for: game) } })

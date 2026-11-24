@@ -6,6 +6,15 @@ import NXLibraryCore
 final class GameControllerService: ObservableObject {
     static let shared = GameControllerService()
 
+    enum AssignmentEvent: Equatable { case button(String), cancelled, timedOut }
+    private struct Assignment {
+        let token: UUID
+        let receive: (AssignmentEvent) -> Void
+        var cancelling = false
+    }
+    private var assignment: Assignment?
+    private var assignmentTimer: Timer?
+
     @Published var isGamepadConnected: Bool = false
     @Published var activeControllerName: String = "No Gamepad Connected"
     @Published var activeBrand: GamepadBrand = .generic
@@ -71,6 +80,7 @@ final class GameControllerService: ObservableObject {
             }
             observe(NotificationCenter.default, NSApplication.didResignActiveNotification) { service in
                 service.isAppActive = false
+                service.finishAssignment(event: .cancelled)
                 service.resetInput()
             }
             let workspace = NSWorkspace.shared.notificationCenter
@@ -95,6 +105,30 @@ final class GameControllerService: ObservableObject {
         for (center, token) in observers { center.removeObserver(token) }
         statusTimer?.invalidate()
         fallbackTimer?.invalidate()
+        assignmentTimer?.invalidate()
+    }
+
+    /// Lease the input before it is turned into menu, Home, View or navigation actions.
+    func waitForAssignment(timeout: TimeInterval = 12, receive: @escaping (AssignmentEvent) -> Void) -> (() -> Void)? {
+        guard assignment == nil, isAppActive, !sleeping else { return nil }
+        let token = UUID()
+        resetInput()
+        assignment = .init(token: token, receive: receive)
+        let timer = Timer(timeInterval: timeout, repeats: false) { [weak self] _ in
+            self?.finishAssignment(token, event: .timedOut)
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        assignmentTimer = timer
+        return { [weak self] in self?.finishAssignment(token) }
+    }
+
+    private func finishAssignment(_ token: UUID? = nil, event: AssignmentEvent? = nil) {
+        guard let waiting = assignment, token == nil || token == waiting.token else { return }
+        assignment = nil
+        assignmentTimer?.invalidate()
+        assignmentTimer = nil
+        resetInput()
+        if let event { waiting.receive(event) }
     }
 
     @discardableResult
@@ -108,6 +142,7 @@ final class GameControllerService: ObservableObject {
     func suspendControllers() {
         guard !sleeping else { return }
         sleeping = true
+        finishAssignment(event: .cancelled)
         roster.suspend()
         gcPad = nil
         hidPads.removeAll()
@@ -155,15 +190,39 @@ final class GameControllerService: ObservableObject {
                 gcPad = nil
             }
         case let .input(id, input):
+            if let waiting = assignment {
+                if case let .button(button, true) = input {
+                    if button == .b, id == activePad?.id {
+                        assignment?.cancelling = true
+                        // HID delivers the raw press before the mapped changes in the same report.
+                        DispatchQueue.main.async { [weak self] in self?.finishAssignment(waiting.token, event: .cancelled) }
+                    } else if !fromHID { queueAssignment(id, fromHID: false) }
+                }
+                return
+            }
             if !fromHID, case .button(_, true) = input { emitButtonPress(id) }
             if activePad?.id == id { handleInput(input) }
             return
         case let .buttonPressed(id):
-            emitButtonPress(id)
+            if assignment != nil { queueAssignment(id, fromHID: fromHID) }
+            else { emitButtonPress(id) }
             return
         }
         selectController()
         updateRoster()
+    }
+
+    private func queueAssignment(_ id: ObjectIdentifier, fromHID: Bool) {
+        guard let waiting = assignment, let entry = visibleControllers.first(where: {
+            $0.controller.id == id || (!fromHID && $0.secondaryGCID == id)
+        }),
+        // For a proven pair use the GC activity once, not its duplicate HID event.
+        !fromHID || entry.secondaryGCID == nil else { return }
+        DispatchQueue.main.async { [weak self] in
+            guard let self, self.assignment?.token == waiting.token, self.assignment?.cancelling == false,
+                  self.visibleControllers.contains(where: { $0.connectionID == entry.connectionID }) else { return }
+            self.finishAssignment(waiting.token, event: .button(entry.connectionID))
+        }
     }
 
     private func emitButtonPress(_ id: ObjectIdentifier) {

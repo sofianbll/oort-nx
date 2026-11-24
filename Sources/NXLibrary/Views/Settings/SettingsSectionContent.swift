@@ -15,6 +15,7 @@ struct SettingsSectionContent: View {
     let onProfilePIN: () -> Void
     let onRemovePIN: () -> Void
     let onViewControls: () -> Void
+    let onOpenPlayers: () -> Void
     let onChooseLanguage: () -> Void
     let onChooseRegion: () -> Void
     let onOpenConsole: () -> Void
@@ -112,7 +113,7 @@ struct SettingsSectionContent: View {
                                         onEditSources: onEditCloudSources, onEditReference: onEditCloudReference, onActions: onActions)
         case .controllers:
             SettingsControllersSection(settings: settings, onActions: onActions,
-                                       onViewControls: onViewControls)
+                                       onViewControls: onViewControls, onOpenPlayers: onOpenPlayers)
         case .library:
             SettingsLibrarySection(viewModel: viewModel, porting: viewModel.porting, settings: settings, onActions: onActions)
         case .sources:
