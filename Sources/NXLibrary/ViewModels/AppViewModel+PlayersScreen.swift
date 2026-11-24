@@ -11,11 +11,34 @@ extension AppViewModel {
     }
 
     @MainActor func playersScreen(game: PortedGame? = nil, input: Notification.Name,
+                                  settingsEditor: SettingsEditor? = nil,
+                                  hasSettingsDraft: Bool = false, saveSettingsDraft: (() -> Void)? = nil,
                                   canHandleInput: @escaping () -> Bool, onClose: @escaping () -> Void) -> PlayersScreenHost {
         let controller = GameControllerService.shared
-        return PlayersScreenHost(model: PlayersScreenModel(session: Self.playersScreenSession,
-                                                           read: self.readPlayerPlan, write: self.savePlayerPlan,
-                                                           unlock: self.unlockPlayerProfile,
+        return PlayersScreenHost(model: PlayersScreenModel(session: settingsEditor?.playersSession ?? Self.playersScreenSession,
+                                                           read: {
+                                                               guard let editor = settingsEditor else { return try await self.readPlayerPlan() }
+                                                               if !editor.hasReadPlayers {
+                                                                   editor.originalPlayers = try await self.readPlayerPlan()
+                                                                   editor.hasReadPlayers = true
+                                                               }
+                                                               return editor.settings.launcherChoices.players ?? editor.originalPlayers
+                                                           }, write: { plan in
+                                                               guard let editor = settingsEditor else { try await self.savePlayerPlan(plan); return }
+                                                               guard editor.store.draft != nil else { throw CancellationError() }
+                                                               editor.playerGrants = []
+                                                               editor.settings.launcherChoices.players = plan == (editor.originalPlayers ?? PlayerPlan())
+                                                                   ? editor.store.settings.launcherChoices.players : plan
+                                                           }, unlock: { id, pin, plan in
+                                                               guard let editor = settingsEditor else {
+                                                                   return try await self.unlockPlayerProfile(id, pin: pin, for: plan)
+                                                               }
+                                                               guard let profile = self.profilesForPlayersScreen.first(where: { $0.id == id }),
+                                                                     let grant = PlayerPlanLibrary.DraftAuthorization(profile: profile, pin: pin, plan: plan)
+                                                               else { return false }
+                                                               editor.playerGrants.append(grant)
+                                                               return true
+                                                           },
                                                            profiles: { self.profilesForPlayersScreen },
                                                            identify: controller.identify, leaseCapture: { receive in
                                                                guard canHandleInput() else { return nil }
@@ -27,7 +50,8 @@ extension AppViewModel {
                                                            }),
                                  controller: controller, input: input,
                                  canHandleInput: canHandleInput, onClose: onClose,
-                                 readNotes: game.map { game in { await self.playersScreenNotes(for: game) } })
+                                 readNotes: game.map { game in { await self.playersScreenNotes(for: game) } },
+                                 hasSettingsDraft: hasSettingsDraft, saveSettingsDraft: saveSettingsDraft)
     }
 
     @MainActor private func playersScreenNotes(for game: PortedGame) async -> PlayersScreenHost.Notes {

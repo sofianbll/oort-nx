@@ -202,6 +202,7 @@ public struct LauncherSettingsChoices: Codable, Equatable {
     public var gameSourcesPath: String?
     public var enginePath: String?
     public var cloudActivation: CloudLibraryActivation?
+    public var players: PlayerPlan?
 }
 
 /// Desired source configuration and the exact catalog generation it may replace.

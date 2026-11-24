@@ -9,11 +9,28 @@ enum SettingsDraftFields {
 
     static func fields(profiles: LocalProfileStore?, languages: [(code: String, label: String)],
                        legacyToolchainOverride: Bool = false, steam: CatalogSourceConfiguration? = nil,
-                       paths: LauncherSettingsChoices = .init(), cloudEnabled: Bool = false) -> [Field] {
+                       paths: LauncherSettingsChoices = .init(), cloudEnabled: Bool = false,
+                       editor: SettingsEditor? = nil) -> [Field] {
         let soundPacks = SoundPackLibrary().choices()
         let deadzone = GameControllerService.shared.legacyDeadzone
         let dockIcon = AppViewModel.legacyDockIcon
         return [
+            .init("playerPlan", \.launcherChoices.players, important: true) { [weak editor, weak profiles] value in
+                let plan = value ?? editor?.originalPlayers ?? PlayerPlan()
+                let mode: String
+                switch plan.mode {
+                case .inOrder: mode = L10n.text("In order")
+                case .pressToJoin: mode = L10n.text("Press to join")
+                case .merge: mode = L10n.text("All controllers on one player") + " · " + L10n.format("Player %lld", [plan.mergeTarget])
+                }
+                let slots = plan.slots.keys.sorted().compactMap { number -> String? in
+                    guard let slot = plan.slot(number) else { return nil }
+                    let name = profiles?.profiles.first { $0.id == slot.profileID }?.name ?? L10n.text("Guest")
+                    let label = L10n.format("Player %lld · %@", [number, name])
+                    return slot.controller == nil ? label : label + " · " + L10n.text("Gamepad")
+                }
+                return ([mode] + slots).joined(separator: " / ")
+            },
             .init("cloudLibraryEnabled", \.launcherChoices.cloudActivation, important: true) { onOff($0?.enabled ?? cloudEnabled) },
             .init("libraryFolder", \.launcherChoices.gameAppsPath, important: true) { path($0 ?? paths.gameAppsPath) },
             .init("gameFolder", \.launcherChoices.gameSourcesPath, important: true) { path($0 ?? paths.gameSourcesPath) },
@@ -151,6 +168,7 @@ enum SettingsDraftFields {
     }
 
     static func title(_ id: String) -> String {
+        if id == "playerPlan" { return "Players" }
         if let card = SpotlightCard.allCases.first(where: { id == "card-\($0.rawValue)" }) { return card.title }
         return SettingsCatalog.all.first { $0.id == id }?.title ?? id
     }
@@ -179,6 +197,16 @@ enum SettingsDraftFields {
 final class SettingsEditor: ObservableObject {
     let store: AppSettingsStore
     private var observation: AnyCancellable?
+    @MainActor lazy var playersSession = PlayersScreenSession()
+    var originalPlayers: PlayerPlan?
+    var hasReadPlayers = false
+    var playerGrants: [PlayerPlanLibrary.DraftAuthorization] = []
+
+    @MainActor func resetPlayers() {
+        playersSession = PlayersScreenSession()
+        hasReadPlayers = false
+        playerGrants = []
+    }
     var settings: AppSettings {
         get { store.editingSettings }
         set { store.editingSettings = newValue }

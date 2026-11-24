@@ -34,6 +34,13 @@ public final class AppSettingsStore: ObservableObject {
     /// The same rename and read-back cover every changed field. No observer gets unverified values.
     public func commitDraft() throws {
         guard let draft, draft.hasChanges else { return }
+        try commit(draft)
+        self.draft = draft.restarting(from: settings)
+    }
+
+    /// A separate editor, such as Game options, may own an immediate change to one canonical field.
+    package func commit(_ draft: AppSettingsDraft) throws {
+        guard draft.hasChanges else { return }
         let memory = snapshotForWrite()
         let revision = nextWriteRevision()
         let saved = try writer.sync {
@@ -49,7 +56,6 @@ public final class AppSettingsStore: ObservableObject {
         isLoading = true
         settings = saved
         isLoading = false
-        self.draft = draft.restarting(from: saved)
         publish((nil, nil), revision: revision)
     }
 

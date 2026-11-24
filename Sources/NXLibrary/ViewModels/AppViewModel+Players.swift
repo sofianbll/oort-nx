@@ -31,16 +31,31 @@ extension AppViewModel {
     }
 
     @MainActor func readPlayerPlan() async throws -> PlayerPlan? {
-        try await Self.playerPlanLibrary.load()
+        try await Self.playerPlanLibrary.load(committed: settingsStore?.settings.launcherChoices.players)
     }
 
     @MainActor func savePlayerPlan(_ plan: PlayerPlan) async throws {
-        try await Self.playerPlanLibrary.save(plan)
+        if let store = settingsStore, store.settings.launcherChoices.players != nil {
+            var change = AppSettingsDraft(store.settings, fields: [
+                .init("playerPlan", \.launcherChoices.players) { _ in "" }
+            ])
+            change.values.launcherChoices.players = plan
+            try store.commit(change)
+            _ = try await Self.playerPlanLibrary.load(committed: plan)
+        } else {
+            try await Self.playerPlanLibrary.save(plan)
+        }
     }
 
     @MainActor func unlockPlayerProfile(_ id: UUID, pin: String, for plan: PlayerPlan) async throws -> Bool {
         guard let profile = playerProfiles.first(where: { $0.id == id }) else { return false }
-        return try await Self.playerPlanLibrary.authorize(profile, pin: pin, for: plan)
+        return try await Self.playerPlanLibrary.authorize(profile, pin: pin, for: plan,
+                                                          committed: settingsStore?.settings.launcherChoices.players)
+    }
+
+    @MainActor func acceptPlayerDraftGrants(_ grants: [PlayerPlanLibrary.DraftAuthorization], plan: PlayerPlan) async {
+        guard settingsStore?.settings.launcherChoices.players == plan else { return }
+        await Self.playerPlanLibrary.accept(grants, committed: plan, profiles: playerProfiles)
     }
 
     @MainActor func playerLaunchStatus(for game: PortedGame) async -> PlayersLaunchStatus? {
@@ -66,7 +81,8 @@ extension AppViewModel {
             library: Self.playerPlanLibrary, app: game.url, titleID: titleID, explicit: environment,
             profiles: playerProfiles, ancestry: ancestry, mergePlayer: mergePlayer, liveControllers: {
                 Self.playerPads.snapshot(GameControllerService.shared.connectedControllers)
-            }, avatarSymbols: ProfilePortrait.symbols, portraitDirectory: preview ? nil : FileManager.default.temporaryDirectory)
+            }, avatarSymbols: ProfilePortrait.symbols, portraitDirectory: preview ? nil : FileManager.default.temporaryDirectory,
+            committedPlan: settingsStore?.settings.launcherChoices.players)
     }
 
     @MainActor private var playerProfiles: [LocalProfile] {

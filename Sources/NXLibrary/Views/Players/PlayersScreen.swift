@@ -9,6 +9,7 @@ struct PlayersScreen: View {
     var orderNotes: [Int: String] = [:]
     var modeNote: String?
     var profileNotes: [Int: String] = [:]
+    var saveSettingsDraft: (() -> Void)?
 
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.nxAppLocale) private var localization
@@ -21,7 +22,9 @@ struct PlayersScreen: View {
             VStack(spacing: 0) {
                 column
                 SeleneHintsBar(left: [HintItem(.b, "Back", action: back)],
-                               right: [HintItem(.navigate, "Move"), HintItem(.a, "Select", action: activate)])
+                               right: [HintItem(.navigate, "Move")]
+                                + (saveSettingsDraft.map { [HintItem(.y, "Save", keyboard: .text("Y"), action: $0)] } ?? [])
+                                + [HintItem(.a, "Select", action: activate)])
             }
             .seleneOverlayOwnership(!covered)
             .opacity(model.capturePlayer != nil || model.pin != nil ? 0.24 : 1)

@@ -48,6 +48,7 @@ struct SettingsView: View {
     @State private var decisionFocus = 2
     @State private var decisionError: String?
     @State private var decisionScroll = 0
+    @State private var savingPlayers = false
     @State private var originalToolchainOverride: Bool?
     @State private var originalDeadzone: Double?
     @State private var originalDockIcon: String?
@@ -139,7 +140,7 @@ struct SettingsView: View {
                 settings.beginDraft(fields: SettingsDraftFields.fields(profiles: profiles,
                     languages: viewModel.availableLanguages, legacyToolchainOverride: legacy,
                     steam: viewModel.catalogSnapshot.source(.steam), paths: originalPaths,
-                    cloudEnabled: viewModel.cloudLibrary.preference.enabled))
+                    cloudEnabled: viewModel.cloudLibrary.preference.enabled, editor: editor))
             }
             installKeyMonitor()
         }
@@ -203,8 +204,12 @@ struct SettingsView: View {
             decisionScroll = 0
         }
         .onReceive(NotificationCenter.default.publisher(for: .nxSettingsGamepadAction)) { note in
-            guard router.settingsDecision == nil, !showingPlayers, router.route == .settings(initialSection),
+            guard router.settingsDecision == nil, router.route == .settings(initialSection),
                   let action = note.object as? GamepadAction else { return }
+            if showingPlayers {
+                if action == .menu { router.isMenuPresented = true }
+                return
+            }
             handleGamepad(action)
         }
         .onReceive(NotificationCenter.default.publisher(for: .nxSettingsDecisionInput)) { note in
@@ -275,7 +280,8 @@ struct SettingsView: View {
         .seleneOverlayOwnership(!showingPlayers)
         .overlay {
             if showingPlayers {
-                viewModel.playersScreen(input: .nxSettingsGamepadAction, canHandleInput: {
+                viewModel.playersScreen(input: .nxSettingsGamepadAction, settingsEditor: editor,
+                    hasSettingsDraft: hasPendingChanges, saveSettingsDraft: router.requestSettingsSave, canHandleInput: {
                     router.route == .settings(initialSection) && !router.isMenuPresented && !viewModel.showSetupCheck
                         && !viewModel.shellDialogOwnsInput && !viewModel.isWelcomeOpen
                         && !NativeMenuCommands.shared.isTracking && viewModel.settingsNotice == nil
@@ -305,9 +311,43 @@ struct SettingsView: View {
     }
 
     private func decide(_ index: Int) {
-        guard router.settingsDecision != nil else { return }
+        guard router.settingsDecision != nil, !savingPlayers else { return }
         switch index {
         case 0:
+            if let plan = settings.editingSettings.launcherChoices.players, plan != settings.settings.launcherChoices.players {
+                savingPlayers = true
+                Task { @MainActor in
+                    defer { savingPlayers = false }
+                    do {
+                        guard try await viewModel.readPlayerPlan() == editor.originalPlayers else {
+                            throw AppSettingsDraft.Failure.changedElsewhere
+                        }
+                        guard applyDraft() else { return }
+                        await viewModel.acceptPlayerDraftGrants(editor.playerGrants, plan: plan)
+                        editor.originalPlayers = plan
+                        editor.playerGrants = []
+                        finishDecision(proceed: true)
+                    } catch { showDecisionError(error) }
+                }
+            } else if applyDraft() {
+                finishDecision(proceed: true)
+            }
+        case 1:
+            settings.discardDraft()
+            showingPlayers = false
+            editor.resetPlayers()
+            finishDecision(proceed: true)
+        default:
+            finishDecision(proceed: false)
+        }
+    }
+
+    private func finishDecision(proceed: Bool) {
+        decisionFocus = 2
+        router.finishSettingsDecision(proceed: proceed)
+    }
+
+    private func applyDraft() -> Bool {
             do {
                 let changes = Set(settings.draft?.changes.map(\.id) ?? [])
                 if changes.contains("cloudLibraryEnabled"), let proposal = settings.editingSettings.launcherChoices.cloudActivation {
@@ -332,28 +372,24 @@ struct SettingsView: View {
                         locked: viewModel.isBuilding || viewModel.isUpdatingApp || setup.isSwitchingEngine || changes.contains("engineFolder"),
                         newest: setup.usesNewestEngine) else {
                         decisionError = L10n.text("The toolchain setting is unavailable now. Your changes are still here.")
-                        return
+                        return false
                     }
                     if settings.settings.toolchainOverride == nil, originalToolchainOverride != setup.legacyToolchainOverride {
                         throw AppSettingsDraft.Failure.changedElsewhere
                     }
                 }
                 try settings.commitDraft()
-                decisionFocus = 2
-                router.finishSettingsDecision(proceed: true)
+                return true
             } catch {
-                decisionError = L10n.text((error as? AppSettingsDraft.Failure)?.errorDescription
-                    ?? "Settings could not be saved. Your changes are still here.")
-                SoundEffectService.shared.play(.error)
+                showDecisionError(error)
+                return false
             }
-        case 1:
-            settings.discardDraft()
-            decisionFocus = 2
-            router.finishSettingsDecision(proceed: true)
-        default:
-            decisionFocus = 2
-            router.finishSettingsDecision(proceed: false)
-        }
+    }
+
+    private func showDecisionError(_ error: Error) {
+        decisionError = L10n.text((error as? AppSettingsDraft.Failure)?.errorDescription
+            ?? "Settings could not be saved. Your changes are still here.")
+        SoundEffectService.shared.play(.error)
     }
 
     private var currentPaths: LauncherSettingsChoices {

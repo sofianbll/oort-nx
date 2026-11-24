@@ -16,6 +16,8 @@ struct PlayersScreenHost: View {
     let canHandleInput: () -> Bool
     let onClose: () -> Void
     var readNotes: (() async -> Notes)?
+    var hasSettingsDraft = false
+    var saveSettingsDraft: (() -> Void)?
 
     @Environment(\.seleneHintsCovered) private var covered
     @State private var notes = Notes()
@@ -23,7 +25,8 @@ struct PlayersScreenHost: View {
 
     var body: some View {
         let screen = PlayersScreen(model: model, onClose: onClose,
-                                   orderNotes: notes.order, modeNote: notes.mode, profileNotes: notes.profiles)
+                                   orderNotes: notes.order, modeNote: notes.mode, profileNotes: notes.profiles,
+                                   saveSettingsDraft: hasSettingsDraft ? saveSettingsDraft : nil)
         screen
             .task { await model.load() }
             .task(id: model.saving) {
@@ -41,6 +44,11 @@ struct PlayersScreenHost: View {
             }
             .onReceive(NotificationCenter.default.publisher(for: input)) { event in
                 guard !covered, canHandleInput(), let action = event.object as? GamepadAction else { return }
+                if hasSettingsDraft, let saveSettingsDraft, action == .contextAction,
+                   !model.saving, model.pin == nil, model.capturePlayer == nil, !model.confirmsReset {
+                    saveSettingsDraft()
+                    return
+                }
                 screen.handleController(action)
             }
             .onAppear {
@@ -48,6 +56,11 @@ struct PlayersScreenHost: View {
                     guard !covered, canHandleInput(), !NativeMenuCommands.shared.isTracking,
                           let window = event.window, window.isKeyWindow, !window.isSheet,
                           window.attachedSheet == nil, NSApp.modalWindow == nil else { return event }
+                    if hasSettingsDraft, event.keyCode == 16, event.modifierFlags.intersection([.command, .option, .control]).isEmpty,
+                       !model.saving, model.pin == nil, model.capturePlayer == nil, !model.confirmsReset {
+                        saveSettingsDraft?()
+                        return nil
+                    }
                     return screen.handleKey(event)
                 }
             }

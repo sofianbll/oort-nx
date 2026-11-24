@@ -10,6 +10,7 @@ final class AppSettingsDraftTests: XCTestCase {
         .init("deadzone", \.launcherChoices.controllerDeadzone, describe: { String($0 ?? 0.35) }),
         .init("dockIcon", \.launcherChoices.dockIconAppearance, previews: true, describe: { $0 ?? "Auto" }),
         .init("gameSources", \.launcherChoices.gameSourcesPath, describe: { $0 ?? "Legacy" }),
+        .init("players", \.launcherChoices.players, describe: { $0?.mode.rawValue ?? "Default" }),
     ]
 
     private func withStore(fileManager: FileManager = .default, _ run: (AppSettingsStore) throws -> Void) throws {
@@ -132,6 +133,26 @@ final class AppSettingsDraftTests: XCTestCase {
             XCTAssertNil(store.presentation.launcherChoices.gameSourcesPath)
             try store.commitDraft()
             XCTAssertEqual(AppSettingsStore(fileURL: store.fileURL).settings.launcherChoices.gameSourcesPath, "")
+        }
+    }
+
+    func testPlayersAndSoundAreSavedTogetherOrDiscardedTogether() throws {
+        try withStore { store in
+            var plan = PlayerPlan(mode: .merge)
+            try plan.setMergePlayer(2)
+            try plan.set(.init(profileID: UUID()), at: 2)
+            store.editingSettings.launcherChoices.players = plan
+            store.editingSettings.soundVolume = 0.3
+            XCTAssertNil(AppSettingsStore(fileURL: store.fileURL).settings.launcherChoices.players)
+            store.discardDraft()
+            XCTAssertNil(store.editingSettings.launcherChoices.players)
+            XCTAssertEqual(store.editingSettings.soundVolume, 0.6)
+            store.editingSettings.launcherChoices.players = plan
+            store.editingSettings.soundVolume = 0.3
+            try store.commitDraft()
+            let saved = AppSettingsStore(fileURL: store.fileURL).settings
+            XCTAssertEqual(saved.launcherChoices.players, plan)
+            XCTAssertEqual(saved.soundVolume, 0.3)
         }
     }
 }
