@@ -353,6 +353,11 @@ struct AppShellView: View {
     /// The current screen; under Add game or the console, the screen they were opened from.
     @ViewBuilder
     var content: some View {
+        if !viewModel.isGuidedSetupOpen { routeContent }
+    }
+
+    @ViewBuilder
+    private var routeContent: some View {
         switch router.route.isOverlay ? router.underlyingRoute : router.route {
         case .library:
             SpotlightView(

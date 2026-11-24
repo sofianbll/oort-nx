@@ -13,15 +13,13 @@ extension AppShellView {
                 .environment(\.seleneBackdropStyle, background.style)
                 .environment(\.seleneSharesBackdrop, false)
                 .blur(radius: contentBlur)
-            if !viewModel.isGuidedSetupOpen {
-                content
+            content
                 // Game options, Add game and the console blur the screen behind instead of darkening it.
                 .blur(radius: contentBlur)
                 // Keep artwork/tiles drawn and warm, as during Spotlight's entrance, while the full page covers them.
                 .opacity(fullScreenCover ? 0.001 : 1)
                 .seleneOverlayOwnership(!fullScreenCover && !router.route.isOverlay && !viewModel.isGameOptionsOpen
                                         && !isCloseGameOpen && !router.isMenuPresented && !router.isSearchPresented && profileFlow == nil)
-            }
             if router.route == .addGame {
                 AddGameView(viewModel: viewModel,
                             router: router,
