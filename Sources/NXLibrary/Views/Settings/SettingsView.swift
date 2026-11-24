@@ -268,7 +268,7 @@ struct SettingsView: View {
         .allowsHitTesting(!showingControls)
         .overlay {
             if showingControls {
-                ControlsView(canHandleInput: {
+                ControlsView(layout: GamepadLayout(editor.settings), canHandleInput: {
                     !router.isMenuPresented && !viewModel.showSetupCheck
                         && !viewModel.shellDialogOwnsInput && !viewModel.isWelcomeOpen && !NativeMenuCommands.shared.isTracking
                         && viewModel.settingsNotice == nil && viewModel.gameWithInstallFailure == nil

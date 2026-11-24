@@ -43,6 +43,9 @@ enum SettingsDraftFields {
             .init("controllerDeadzone", \.launcherChoices.controllerDeadzone) {
                 ($0 ?? deadzone).formatted(.number.precision(.fractionLength(2)).locale(L10n.context.formatLocale))
             },
+            .init("controllerLayout", \.launcherChoices.gamepadLayout) {
+                ($0.flatMap(GamepadLayout.init(rawValue:)) ?? .arcane).title
+            },
             .init("iconAppearance", \.launcherChoices.dockIconAppearance, previews: true) {
                 SettingsLookSection.iconMode($0 ?? dockIcon).label
             },

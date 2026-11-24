@@ -39,7 +39,7 @@ extension AppShellView {
                     .transition(overlayTransition)
                     .zIndex(0.8)
             }
-            if router.isSearchPresented && (router.route == .library || router.route == .collection) {
+            if router.isSearchPresented {
                 FindGameView(router: router, viewModel: viewModel, playSessions: playSessions,
                              artwork: artwork)
                     .opacity(opacityBelowCover(0.5))
@@ -138,6 +138,7 @@ extension AppShellView {
                             .transformPreference(SeleneBackdropRequestKey.self) { $0?.priority = ShellBackdropCover.themePicker.priority }
                     } else {
                         MenuOverlayView(
+                            gamepadLayout: GamepadLayout(settings.settings),
                             router: router,
                             cloudLibrary: viewModel.cloudLibrary,
                             activeProfile: profiles.active,
@@ -402,6 +403,13 @@ extension AppShellView {
             .onChange(of: settings.settings.launcherChoices.controllerDeadzone) { _, value in
                 GameControllerService.shared.useDeadzone(value)
             }
+            .onChange(of: settings.settings.launcherChoices.gamepadLayout) { _, value in
+                GameControllerService.shared.layout = GamepadLayout(settings.settings)
+                if var profile = profiles.active, profile.gamepadLayout != value {
+                    profile.gamepadLayout = value
+                    _ = profiles.update(profile)
+                }
+            }
             .onChange(of: settings.settings.launcherChoices.steamSource) { _, choice in
                 if let choice { sources.applySettingsChoice(choice) }
             }
@@ -432,6 +440,7 @@ extension AppShellView {
         .environment(\.nxAppLocale, localization.context)
         .environment(\.catalogPersonalizations, viewModel.personalizations)
         .environment(\.profilePortrait, router.isMenuPresented ? nil : profiles.active)
+        .environment(\.controllerHomeAvailable, gamepad.homeAccess.hasHome)
         .environment(\.onlinePlayersByTitle, onlinePlayers)
         .task(id: viewModel.setupCompleted ? profiles.active?.id : nil) {
             guard !Task.isCancelled else { return }

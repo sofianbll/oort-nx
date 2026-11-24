@@ -242,6 +242,9 @@ extension AppShellView {
         if profile.look != .init(settings.settings) {
             profile.look.apply(to: &settings.settings)
         }
+        if settings.settings.launcherChoices.gamepadLayout != profile.gamepadLayout {
+            settings.settings.launcherChoices.gamepadLayout = profile.gamepadLayout
+        }
         ThemeStore.shared.apply(id: profile.look.theme)
     }
 

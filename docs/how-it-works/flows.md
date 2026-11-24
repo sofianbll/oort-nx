@@ -31,7 +31,7 @@ flowchart TD
     H --> K["Prima home Spotlight: moonlight condiviso → entrata<br/>Entrance animation; niente volo con Riduci movimento"]
     I --> K
     F --> J["In background: recuperi dei salvataggi, installazioni in attesa,<br/>scansione Steam se attivo, controllo engine se attivo, aggiornamenti;<br/>avviso se la copia è temporanea (App Translocation)"]
-    P["GameController · ripiego HID 0x3F / 0x30"] --> Q["GameControllerService: GamepadAction<br/>Menu: centro / Settings; View: cambia vista / Cerca; Home: profili"]
+    P["GameController · ripiego HID 0x3F / 0x30"] --> Q["GameControllerService → GamepadLayout<br/>Pulsante + gesto + contesto → GamepadAction"]
     Q --> F
 ```
 
@@ -343,7 +343,7 @@ La rimozione non è disponibile per il profilo originale: conserva l'accesso a p
 
 Il carosello degli avatar usa artwork già nella cache, con ritaglio sul volto rilevato o al centro, e simboli neutri del sistema. L’ultima tessera apre la scelta di una foto, con assi e zoom per inquadrarla; B o Esc annulla. Per le GIF si conservano i fotogrammi e i tempi; con Riduci movimento si vede solo il primo.
 
-Home, Cambia profilo e un clic su Profili nella barra Spotlight aprono il selettore. La carta Attività di Spotlight, il ritratto a destra e Profilo → Il mio profilo aprono la pagina profilo anche senza conto. I pulsanti Modifica, Nextendo e Verrou aprono le rispettive sezioni Identity, Nextendo e Security di Settings; Menu premuto apre Profile page, per attivare e riordinare le sette schede. B torna al profilo. Le anteprime dei giochi aprono i dettagli; «Vedi tutto» apre Collection nell'ordine proprio della scheda o il dettaglio Amici o Obiettivi, senza toccare le preferenze globali. Il vecchio pannello non è più separato: codice e Nextendo sono in Settings. Un profilo bloccato chiede il PIN o Touch ID, se disponibile; Touch ID riconosce l’utente macOS, non distingue i profili Arcane. Senza codice né Touch ID si può scegliere un altro profilo; non c’è un ripristino dal servizio online.
+Home con la disposizione Arcane, Cambia profilo e un clic su Profili nella barra Spotlight aprono il selettore. La carta Attività di Spotlight, il ritratto a destra e Profilo → Il mio profilo aprono la pagina profilo anche senza conto. I pulsanti Modifica, Nextendo e Verrou aprono le rispettive sezioni Identity, Nextendo e Security di Settings; Menu premuto apre Profile page, per attivare e riordinare le sette schede. B torna al profilo. Le anteprime dei giochi aprono i dettagli; «Vedi tutto» apre Collection nell'ordine proprio della scheda o il dettaglio Amici o Obiettivi, senza toccare le preferenze globali. Il vecchio pannello non è più separato: codice e Nextendo sono in Settings. Un profilo bloccato chiede il PIN o Touch ID, se disponibile; Touch ID riconosce l’utente macOS, non distingue i profili Arcane. Senza codice né Touch ID si può scegliere un altro profilo; non c’è un ripristino dal servizio online.
 
 Il tastierino condiviso accetta croce, stick, frecce, cifre e clic. A/Invio preme il tasto in focus; ⌫ o X cancella l'ultima cifra; B/Esc annulla. ✓, Menu/+ o ⌘Invio confermano dopo quattro cifre. In Settings → Account si può impostare, cambiare o rimuovere il codice: per cambiarlo si inserisce il codice attuale, poi il nuovo due volte. Fino al salvataggio il codice precedente resta valido. Per rimuoverlo si usa il PIN attuale o Touch ID.
 

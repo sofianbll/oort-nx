@@ -152,10 +152,12 @@ public enum SettingsCatalog {
         action("controllerStatus", .controllers, "Gamepad",
                "The connected controller and how its buttons map."),
         action("buttonLayout", .controllers, "Button layout", "View the library controls."),
+        row("controllerLayout", .controllers, "Controller layout",
+            "While browsing") { $0.launcherChoices.gamepadLayout },
         action("controllerDeadzone", .controllers, "Stick navigation deadzone",
                "Thumbstick threshold for library navigation; does not alter game input."),
         row("inGameHomeButton", .controllers, "Home button in games",
-            "Auto uses the game's own setting.") { $0.inGameHomeButton },
+            "Auto follows the controller layout.") { $0.inGameHomeButton },
 
         // Steam
         action("macShortcutAdd", .sources, "Mac apps", "Add local Mac apps as library shortcuts."),

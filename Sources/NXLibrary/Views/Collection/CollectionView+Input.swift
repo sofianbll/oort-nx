@@ -79,13 +79,13 @@ extension CollectionView {
             router.back()
         case .view:
             if profileCard == nil, settings.settings.viewButtonSwitches { router.setInitialRoute(.library) }
-        case .search:
+        case .search, .browseSearch:
             if profileCard == nil { router.isSearchPresented = true }
         case .menu:
             router.isMenuPresented = true
         case .menuHold:
             router.openSettings(.startUp)
-        case .profiles:
+        case .profiles, .controlCenter, .fullMenu:
             break // The shell owns the picker.
         }
         if moved { SoundEffectService.shared.play(.focus) }

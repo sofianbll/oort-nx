@@ -20,6 +20,7 @@ public struct LocalProfile: Codable, Equatable, Identifiable {
     public var avatar: Int
     public var portrait: Data?
     public var look: Look
+    public var gamepadLayout: String? = "oort"
     public var createdAt: Date? = nil
     public var pageCards: ProfilePageCards? = nil
     public fileprivate(set) var spotlightPlatform: CatalogIntegration? = nil

@@ -17,7 +17,20 @@ extension AppShellView {
         viewModel.playSessionStore = playSessions
         playSessions.profileID = profiles.active?.id == profiles.originalID ? nil : profiles.active?.id
         viewModel.settingsStore = settings
+        if let profile = profiles.active, settings.settings.launcherChoices.gamepadLayout != profile.gamepadLayout {
+            settings.settings.launcherChoices.gamepadLayout = profile.gamepadLayout
+        }
         GameControllerService.shared.useDeadzone(settings.settings.launcherChoices.controllerDeadzone)
+        GameControllerService.shared.layout = GamepadLayout(settings.settings)
+        GameControllerService.shared.isBrowsing = { [weak router, weak viewModel] in
+            guard let router, let viewModel, !router.isThemePickerOpen, !router.isSearchPresented,
+                  !router.isScreenshotViewerOpen, !viewModel.isGameOptionsOpen, !viewModel.profileOwnsInput,
+                  viewModel.cloudLibraryGameID == nil, !viewModel.showSetupCheck else { return false }
+            switch router.route {
+            case .library, .collection, .profileCollection, .detail: return true
+            default: return false
+            }
+        }
         SoundEffectService.shared.bind(to: settings)
         artwork.trimCache()
         if viewModel.setupCompleted { viewModel.refreshBoxArtIndex() }
@@ -94,10 +107,28 @@ extension AppShellView {
         updater.checkAtLaunch(enabled: viewModel.setupCompleted && settings.settings.checkAppUpdatesAtLaunch)
         installGestureKeyMonitor()
         viewModel.watchPlayerPads()
+        GameControllerService.shared.onPadUse = { [weak viewModel, weak router] in
+            let controller = GameControllerService.shared
+            let seenKey = "Oort.ControllerHomeNoticeSeen"
+            guard let viewModel, let router, controller.homeAccess == .system,
+                  !AppData.preferences.bool(forKey: seenKey), launcherIsFrontmost,
+                  !nativeMenus.isTracking, !nativeDialogOwnsInput, !isCloseGameOpen,
+                  viewModel.settingsNotice == nil, viewModel.launchOverlay == nil,
+                  !viewModel.showSetupCheck, !showsWelcome, !viewModel.profileOwnsInput,
+                  router.settingsDecision == nil, !viewModel.isGameOptionsOpen else { return false }
+            AppData.preferences.set(true, forKey: seenKey)
+            viewModel.showSettingsNotice(title: L10n.text("Home opens the Apple overlay"),
+                message: L10n.text("Change Home Button Overrides in System Settings, or keep Apple’s action."),
+                actionTitle: "Give it to Oort", cancelTitle: "Keep Apple",
+                retry: controller.openHomeSettings)
+            return true
+        }
         GameControllerService.shared.onAction = { [weak viewModel, weak router] action in
             guard let viewModel, let router else { return }
             guard !nativeMenus.isTracking, !nativeDialogOwnsInput, viewModel.launchOverlay == nil else { return }
-            if action == .profiles, !launcherIsFrontmost { return }
+            if action == .profiles || action == .controlCenter || action == .fullMenu {
+                guard launcherIsFrontmost else { return }
+            }
             if viewModel.cloudQuitRequested {
                 cloudQuitInput(action)
                 return
@@ -149,6 +180,18 @@ extension AppShellView {
                 else { postProfileAction(action) }
                 return
             }
+            if action == .controlCenter || action == .fullMenu {
+                guard !router.isScreenshotViewerOpen, !viewModel.isGameOptionsOpen,
+                      !router.isThemePickerOpen, !router.isSearchPresented else { return }
+                if action == .controlCenter {
+                    if router.isMenuPresented { router.closeMenu() }
+                    else { router.isMenuPresented = true }
+                } else {
+                    router.closeMenu()
+                    if !router.route.isSettings { router.openSettings(.startUp) }
+                }
+                return
+            }
             if action == .profiles {
                 guard !router.isScreenshotViewerOpen else { return }
                 if router.route == .library, !router.isMenuPresented, !router.isSearchPresented, !viewModel.isGameOptionsOpen {
@@ -168,7 +211,7 @@ extension AppShellView {
                 NotificationCenter.default.post(name: .nxGameOptionsGamepadAction, object: action)
                 return
             }
-            if router.isSearchPresented, isHomeRoute {
+            if router.isSearchPresented {
                 NotificationCenter.default.post(name: .nxFindGameGamepadAction, object: action)
                 return
             }

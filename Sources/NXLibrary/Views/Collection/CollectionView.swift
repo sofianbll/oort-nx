@@ -20,6 +20,7 @@ struct CollectionView: View {
     @ObservedObject var cloud: CloudLibraryModel
 
     @Environment(\.seleneCanvas) var canvas
+    @Environment(\.controllerHomeAvailable) private var controllerHomeAvailable
     @Environment(\.nxAppLocale) private var localization
     @Environment(\.integrationBar) var integrationBar
 
@@ -92,14 +93,17 @@ struct CollectionView: View {
     }
 
     private func chrome(games: [CatalogGame], record: CatalogGame?, game: PortedGame?) -> some View {
-        SeleneHomeChrome(
+        let hints = contextHints(game, record: record)
+        return SeleneHomeChrome(
             leftHints: profileCard != nil ? [HintItem(.b, "Back", action: router.back)] : HintItem.homeGlobals(other: "Spotlight",
                                              onOther: settings.settings.viewButtonSwitches ? { handle(.view) } : nil,
                                              onMenu: { router.isMenuPresented = true },
                                              onSearch: { handle(.search) },
-                                             onProfiles: { ProfileFlow.requestPicker() }),
+                                             onProfiles: { ProfileFlow.requestPicker() },
+                                             layout: GamepadLayout(settings.settings), hasHome: controllerHomeAvailable,
+                                             showsOptions: !router.integrationBarFocused && hints.contains { $0.button == .menu }),
             rightHints: router.integrationBarFocused ? [HintItem(.a, L10n.text("Open")) { handle(.confirm) }]
-                : contextHints(game, record: record) + (profileCard == nil
+                : hints + (profileCard == nil
                 ? [LibrarySortMenu.hint(settings.settings.librarySort, action: openSort)]
                 : [HintItem(.lb, "Previous") { handle(.tabPrevious) }, HintItem(.rb, "Next") { handle(.tabNext) }]),
             hintsHidden: router.overlayHasHints(viewModel)
@@ -296,28 +300,31 @@ struct CollectionView: View {
     // MARK: - Hints
 
     private func contextHints(_ game: PortedGame?, record: CatalogGame?) -> [HintItem] {
+        func options(_ label: String, action: (() -> Void)? = nil) -> HintItem {
+            .browsingOptions(GamepadLayout(settings.settings), label, hasHome: controllerHomeAvailable, action: action)
+        }
         if let steam = record, steam.integration == .steam {
             return SteamPlayCoordinator.shared.hint(for: steam)
-                + [HintItem(.y, L10n.text("Game options"))]
+                + [options("Game options")]
         }
         if let record, record.macShortcut != nil {
             return [HintItem(.a, "Open") { self.activateCatalog(record) }]
-                + (viewModel.macShortcuts.canEdit ? [HintItem(.y, "Tile options") { self.viewModel.macShortcuts.showTileOptions(record) }] : [])
+                + (viewModel.macShortcuts.canEdit ? [options("Tile options") { self.viewModel.macShortcuts.showTileOptions(record) }] : [])
         }
         guard let game else {
             guard showsEmptyActions else { return [] }
             return [HintItem(.a, importFocused ? L10n.text("Import existing builds") : L10n.text("Add game"))]
         }
         if let item = cloud.downloadItem(for: game) {
-            return [HintItem(.a, item.primaryDownloadTitle), HintItem(.x, "Details"), HintItem(.y, "Game options")]
+            return [HintItem(.a, item.primaryDownloadTitle), HintItem(.x, "Details"), options("Game options")]
         }
         if game.isPlayableLocally {
-            return [HintItem(.a, L10n.text("Play")), HintItem(.x, L10n.text("Details")), HintItem(.y, L10n.text("Game options"))]
+            return [HintItem(.a, L10n.text("Play")), HintItem(.x, L10n.text("Details")), options("Game options")]
         }
         if game.isCloudSourcePlaceholder, viewModel.gamesWithFilesHere.contains(game.id) {
-            return [HintItem(.a, "Build"), HintItem(.x, "Details"), HintItem(.y, "Game options")]
+            return [HintItem(.a, "Build"), HintItem(.x, "Details"), options("Game options")]
         }
-        return [HintItem(.a, L10n.text("Details")), HintItem(.y, L10n.text("Game options"))]
+        return [HintItem(.a, L10n.text("Details")), options("Game options")]
     }
 
     // MARK: - Selection

@@ -9,6 +9,7 @@ struct SettingsControllersSection: View {
 
     @ObservedObject var controller = GameControllerService.shared
     private var draftDeadzone: Double { settings.settings.launcherChoices.controllerDeadzone ?? controller.legacyDeadzone }
+    private var layout: GamepadLayout { .init(settings.settings) }
 
     var body: some View {
         VStack(spacing: 9) {
@@ -28,6 +29,18 @@ struct SettingsControllersSection: View {
                 }
             }
 
+            SeleneCycleRow("Controller layout", value: layout.title, cycle: stepLayout)
+            let pad = ConnectedPad(connected: controller.isGamepadConnected, brand: controller.activeBrand)
+            SeleneRow("While browsing", subtitle: layout.guide(hasHome: controller.homeAccess.hasHome).filter {
+                [.menu, .view, .y, .home].contains($0.prompt)
+            }.map { $0.summary(style: settings.settings.buttonNames, pad: pad) }.joined(separator: "   |   "),
+                      verbatimSubtitle: true) { EmptyView() }
+            if controller.canOpenHomeSettings {
+                SeleneButtonRow("Home Button Overrides", subtitle: controller.homeAccess.title,
+                                buttonTitle: "Open System Settings", action: controller.openHomeSettings)
+            } else {
+                SeleneRow("Home Button Overrides", subtitle: controller.homeAccess.title) { EmptyView() }
+            }
             SeleneButtonRow("Button layout",
                             subtitle: "Library & game",
                             buttonTitle: "View") {
@@ -54,11 +67,12 @@ struct SettingsControllersSection: View {
             if let onOpenPlayers {
                 SeleneButtonRow("Players", buttonTitle: "Open", action: onOpenPlayers)
             }
-            SeleneCycleRow("Home button in games", subtitle: "Auto uses the game's own setting.",
+            SeleneCycleRow("Home button in games", subtitle: "Auto follows the controller layout.",
                            value: settings.settings.inGameHomeButton.title, cycle: stepHomeButton)
         }
         .onAppear(perform: publishActions)
         .onChange(of: controller.deadzone) { publishActions() }
+        .onChange(of: controller.homeAccess) { publishActions() }
     }
 
     private func publishActions() {
@@ -66,6 +80,7 @@ struct SettingsControllersSection: View {
             .init(id: "detect", title: "Gamepad") {
                 controller.refreshControllers()
             },
+            .value("controllerLayout", "Controller layout", cycle: stepLayout),
             .init(id: "layout", title: "Button layout") {
                 onViewControls()
             },
@@ -73,7 +88,9 @@ struct SettingsControllersSection: View {
                 setDeadzone(min(0.80, max(0.10, (draftDeadzone * 100 + 5 * Double(step)).rounded() / 100)))
             },
         ] + (onOpenPlayers.map { action in [.init(id: "players", title: "Players", activate: action)] } ?? [])
-          + [.value("inGameHomeButton", "Home button in games", cycle: stepHomeButton)])
+          + [.value("inGameHomeButton", "Home button in games", cycle: stepHomeButton)]
+          + (controller.canOpenHomeSettings
+             ? [.init(id: "systemHome", title: "Home Button Overrides", activate: controller.openHomeSettings)] : []))
     }
 
     private func setDeadzone(_ value: Double) {
@@ -83,5 +100,11 @@ struct SettingsControllersSection: View {
 
     private func stepHomeButton(_ step: Int) {
         settings.settings.inGameHomeButton = settings.settings.inGameHomeButton.stepped(step)
+    }
+
+    private func stepLayout(_ step: Int) {
+        let layouts = GamepadLayout.allCases
+        let index = layouts.firstIndex(of: layout) ?? 0
+        settings.settings.launcherChoices.gamepadLayout = layouts[(index + step % layouts.count + layouts.count) % layouts.count].rawValue
     }
 }

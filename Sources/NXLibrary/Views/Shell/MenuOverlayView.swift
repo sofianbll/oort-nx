@@ -10,6 +10,8 @@ import NXLibraryCore
 /// while the menu is open and sent through `menuInput`, the same path as the
 /// controller. Mouse: hover focuses, click activates, a click on the scrim closes.
 struct MenuOverlayView: View {
+    @Environment(\.controllerHomeAvailable) private var hasHome
+    var gamepadLayout: GamepadLayout = .arcane
     @ObservedObject var router: AppRouter
     @ObservedObject var cloudLibrary: CloudLibraryModel
     var activeProfile: LocalProfile? = nil
@@ -66,7 +68,7 @@ struct MenuOverlayView: View {
             }
 
             // Where the screen underneath had its hints, which step aside while this is open.
-            SeleneHintsBar(left: [HintItem(.b, L10n.text("Close"))],
+            SeleneHintsBar(left: backHints,
                            right: [HintItem(.lb, "Previous") { onTab(-1) },
                                    HintItem(.rb, "Next") { onTab(1) },
                                    HintItem(.a, L10n.text("Select"))],
@@ -75,6 +77,24 @@ struct MenuOverlayView: View {
         .animation(Motion.anchoredCard(reduceMotion), value: submenuOpen)
         .onAppear { presented = true }
     }
+
+    private var backHints: [HintItem] {
+        let back = HintItem(.b, "Close")
+        if hasHome, let center = gamepadLayout.tap(.controlCenter) {
+            var hint = HintItem(center.prompt, "Close", hold: "Hold: Settings", action: router.closeMenu)
+            hint.controllerOnly = true
+            return [back, hint]
+        }
+        if router.route == .library || router.route.isCollection || isDetail,
+           let fallback = gamepadLayout.guide().first(where: { $0.hold == .controlCenter }) {
+            var hint = HintItem(fallback.prompt, "Hold: Close", action: router.closeMenu)
+            hint.controllerOnly = true
+            return [back, hint]
+        }
+        return [back]
+    }
+
+    private var isDetail: Bool { if case .detail = router.route { true } else { false } }
 
     // MARK: - Row
 

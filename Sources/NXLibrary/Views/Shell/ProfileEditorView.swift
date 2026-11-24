@@ -148,10 +148,8 @@ struct ProfileEditorView: View {
         case .background: customBackgroundSelected && customBackground == nil ? "Add a picture" : isNew ? "Create profile" : "Save"
         }
         let select = HintItem(.a, label, action: accept)
-        if step == .name && !isNew {
-            return [HintItem(.menu, "Save", keyboard: .text("+"), action: { handle(.menu) }), select]
-        }
-        return [select]
+        let menuLabel = step == .name ? (isNew && !nameOnly ? "Next" : "Save") : label
+        return [HintItem(.menu, menuLabel, keyboard: .text("+"), action: { handle(.menu) }), select]
     }
 
     private var title: String {
