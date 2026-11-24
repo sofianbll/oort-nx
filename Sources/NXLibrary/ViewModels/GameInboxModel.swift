@@ -160,7 +160,7 @@ final class GameInboxModel: ObservableObject {
                         guard !linked.contains(entry.source.resolvingSymlinksInPath().path) else {
                             throw NXLibraryError.environmentBlocked(L10n.text("This file is linked to a library game."))
                         }
-                        try GameInbox.store(entry, root: root) { destination, content in
+                        try GameInbox.store(entry, root: root, discover: { destination, content in
                             guard PortingModel.sourceFileURLs(in: destination.deletingLastPathComponent()).contains(where: {
                                 $0.standardizedFileURL.path == destination.standardizedFileURL.path
                             }), case .contents(let rows)? = try reader.contents(of: [(destination, false)])[destination],
@@ -170,7 +170,24 @@ final class GameInboxModel: ObservableObject {
                                 game.baseTitleId == SourceCatalog.baseTitleId(for: content.titleId, kind: content.kind)
                                     && game.allSources.contains { $0.url == destination && $0.titleId == content.titleId }
                             }
-                        }
+                        }, withTrashPermission: { source, commit in
+                            // Attach Sources publishes on the main actor. Check and Trash in the same turn.
+                            try DispatchQueue.main.sync {
+                                try MainActor.assumeIsolated {
+                                    guard !self.app.porting.isScanningGameFolder else {
+                                        throw NXLibraryError.environmentBlocked(L10n.text("Wait for porting and transfers to finish before sorting."))
+                                    }
+                                    let sourcePath = source.resolvingSymlinksInPath().path
+                                    let games = try self.app.catalogRepository.load().nxnativeGames
+                                    guard !games.lazy.flatMap(\.sources).contains(where: {
+                                        $0.url.resolvingSymlinksInPath().path == sourcePath
+                                    }) else {
+                                        throw NXLibraryError.environmentBlocked(L10n.text("This file is linked to a library game."))
+                                    }
+                                    try commit()
+                                }
+                            }
+                        })
                         sorted.insert(entry.source)
                     } catch {
                         failures.append("\(entry.source.lastPathComponent): \(error.localizedDescription)")

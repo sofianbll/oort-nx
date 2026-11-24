@@ -397,6 +397,8 @@ L'Inbox (`GameInboxView`, `GameInboxModel`) si apre da Libreria o da una card Sp
 
 La destinazione è `~/Games/Switch/Games/`; se **Game files** è diverso, la pagina propone la correzione con conferma. `GameInbox` produce una riga per pacchetto da `EnginePackageReader`, senza i raggruppamenti di Add Game. I nomi provengono dalle cartelle esistenti, dal profilo del motore o dai dati locali del catalogo; se non sono certi, il file resta dov'è. La copia nella libreria è una scelta distinta dal porting, che continua a collegare le sorgenti senza copiarle.
 
+La copia e gli hash sono preparati fuori dal main actor. L'Inbox rilegge il catalogo e sposta l'originale nel Cestino nello stesso turno del main actor, che applica anche Attach sources. Se il file è ormai collegato o una ricerca delle sorgenti è ancora in corso, la copia verificata e l'originale restano entrambi sul disco.
+
 Senza chiavi valide, le righe dei pacchetti supportati spiegano che manca il prerequisito invece di segnalare metadati ambigui.
 
 Il percorso completo è in [flows.md](flows.md#5-costruire-un-gioco-switch-add-game).

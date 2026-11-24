@@ -134,12 +134,14 @@ public enum GameInbox {
     }
 
     public static func store(_ entry: Entry, root: URL, discover: (URL, PackageContent) throws -> Bool,
-                             trash: (URL) throws -> Void = { _ = try FileManager.default.trashItem(at: $0, resultingItemURL: nil) }) throws {
-        try store(entry, root: root, discover: discover, trash: trash, copy: streamCopy)
+                             trash: @escaping (URL) throws -> Void = { _ = try FileManager.default.trashItem(at: $0, resultingItemURL: nil) },
+                             withTrashPermission: (URL, () throws -> Void) throws -> Void = { _, commit in try commit() }) throws {
+        try store(entry, root: root, discover: discover, trash: trash, copy: streamCopy, withTrashPermission: withTrashPermission)
     }
 
     static func store(_ entry: Entry, root: URL, discover: (URL, PackageContent) throws -> Bool,
-                      trash: (URL) throws -> Void, copy: (URL, URL) throws -> Void) throws {
+                      trash: @escaping (URL) throws -> Void, copy: (URL, URL) throws -> Void,
+                      withTrashPermission: (URL, () throws -> Void) throws -> Void = { _, commit in try commit() }) throws {
         guard let destination = entry.destination, let content = entry.content, let stamp = entry.stamp,
               within(destination, root), !within(entry.source, root) else { throw Failure.changed }
         let source = entry.source
@@ -171,9 +173,12 @@ public enum GameInbox {
 
         try recheck()
         guard Stamp(destination) == stored, try discover(destination, content) else { throw Failure.discovery }
-        try recheck()
-        guard Stamp(destination) == stored else { throw Failure.changed }
-        try trash(source)
+        try Task.checkCancellation()
+        try withTrashPermission(source) {
+            try recheck()
+            guard Stamp(destination) == stored else { throw Failure.changed }
+            try trash(source)
+        }
     }
 
     private static func verifySame(_ source: URL, _ destination: URL) throws -> Stamp {

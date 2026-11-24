@@ -145,7 +145,67 @@ import SwiftUI
         try render("09-library-menu-inbox-off", page:
             MenuOverlayView(router: router, cloudLibrary: app.cloudLibrary, hasBuildActivity: false,
                 onSelect: { _ in }, onSelectPower: { _ in }, onTab: { _ in }), to: output, locale: locale)
+        settings.settings.gameInboxEnabled = true
+        try await checkSorting(app: app, files: files, view: view, output: output, locale: locale)
         print("Inbox: route, menu, Spotlight, disabled reads and settings verified offscreen.")
+    }
+
+    @MainActor static func checkSorting(app: AppViewModel, files: [URL], view: GameInboxView,
+                                       output: URL, locale: AppLocale) async throws {
+        let fm = FileManager.default
+        let home = AppData.profile.home
+        let model = app.gameInbox
+        for file in files { try fm.removeItem(at: file) }
+        let source = model.folder.appendingPathComponent("audit.nsp")
+        try Data([1]).write(to: source)
+        let file = try FileHandle(forWritingTo: source)
+        try file.truncate(atOffset: 32 * 1024 * 1024)
+        try file.close()
+        let title = "0100000000004000"
+        let game = PortedGame(name: "Lunar Observatory", url: home.appendingPathComponent("Fixture.app"),
+                              platform: .macApp, sizeBytes: 0, modificationDate: .now, titleId: title)
+        app.applyCatalog(try app.catalogRepository.mergeNXNative(scanned: [game], enableSource: true))
+        try Data().write(to: home.appendingPathComponent("audit-reader"))
+        func until(_ predicate: () -> Bool) async throws {
+            let deadline = ContinuousClock.now + .seconds(10)
+            while !predicate(), ContinuousClock.now < deadline { try await Task.sleep(for: .milliseconds(10)) }
+            guard predicate() else { throw CocoaError(.fileReadUnknown, userInfo: [NSDebugDescriptionErrorKey: "Inbox fixture timed out"]) }
+        }
+        func refresh() async throws {
+            model.refresh()
+            try await until { !model.busy }
+        }
+        try await refresh()
+        let destination = model.entries.first(where: { $0.source == source })!.destination!
+        try fm.createDirectory(at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try fm.copyItem(at: source, to: destination)
+        try await refresh()
+        var failures: [String] = []
+        let proposal = model.entries.first { $0.source == source }!
+        precondition(proposal.duplicate)
+        app.settingsNotice = nil
+        model.confirm([proposal])
+        precondition(app.settingsNotice?.choices.count == 2, "Inbox did not confirm sorting")
+        app.settingsNotice!.runChoice(0)
+        precondition(model.busy, model.message ?? "Inbox did not start sorting")
+        let discovery = home.appendingPathComponent("audit-discovery")
+        try await until { fm.fileExists(atPath: discovery.path) || !model.busy }
+        precondition(fm.fileExists(atPath: discovery.path), model.message ?? "Inbox worker did not reach the barrier")
+        app.applyCatalog(try app.catalogRepository.updateNXNative(id: game.id) {
+            $0.sources = [.init(url: source, kind: .base, titleId: title, versionString: "0", sizeBytes: 32 * 1024 * 1024)]
+        })
+        try Data().write(to: home.appendingPathComponent("audit-continue"))
+        try await until { !model.busy }
+        precondition(fm.fileExists(atPath: destination.path), "Sorting must finish and publish the copy")
+        if !fm.fileExists(atPath: source.path) {
+            failures.append("Original was sent to Trash after being linked to the game")
+        }
+        if !failures.isEmpty {
+            FileHandle.standardError.write(Data(failures.joined(separator: "\n").utf8) + Data([10]))
+            throw CocoaError(.fileWriteUnknown, userInfo: [NSDebugDescriptionErrorKey: failures.joined(separator: "\n")])
+        }
+        try render("10-linked-source-kept", page: view.page, to: output, locale: locale)
+        print("Inbox audit: newly linked source stays in place.")
     }
 
     @MainActor static func folders(_ app: AppViewModel, _ settings: AppSettingsStore) -> some View {
@@ -244,6 +304,39 @@ def main():
                '        if folder.lastPathComponent == "Inbox" {\n'
                '            try Data().write(to: folder.appendingPathComponent(".probe-read"))\n'
                "        }\n")
+        reader = package / "Sources/ArcanePorting/Setup/EnginePackageReader.swift"
+        declaration = "    public func contents(of packages: [(url: URL, alreadyIdentified: Bool)]) throws -> [URL: PackageReading] {\n"
+        change(reader, declaration, declaration + r'''
+        let home = AppData.profile.home
+        if FileManager.default.fileExists(atPath: home.appendingPathComponent("audit-reader").path) {
+            return Dictionary(uniqueKeysWithValues: packages.map {
+                ($0.url, .contents([.init(kind: .base, titleId: 0x0100000000004000, version: 0)]))
+            })
+        }
+''')
+        inbox_model = app / "ViewModels/GameInboxModel.swift"
+        change(inbox_model, "        guard app.setup.isProdKeysValid else { return nil }",
+               '        guard FileManager.default.fileExists(atPath: AppData.profile.home.appendingPathComponent("audit-reader").path)\n'
+               '        else { return nil }')
+        # Replace the only reachable Inbox Trash implementation with a fixture-local rename.
+        inbox_service = package / "Sources/ArcanePorting/Library/GameInbox.swift"
+        worker = "                for entry in requested {\n                    do {\n"
+        change(inbox_model, worker, worker + r'''
+                        let home = AppData.profile.home
+                        try Data().write(to: home.appendingPathComponent("audit-discovery"))
+                        let deadline = Date().addingTimeInterval(10)
+                        while !FileManager.default.fileExists(atPath: home.appendingPathComponent("audit-continue").path) {
+                            guard Date() < deadline else { throw CocoaError(.fileReadUnknown) }
+                            try await Task.sleep(for: .milliseconds(10))
+                        }
+''')
+        for path in (inbox_service, inbox_model):
+            text = path.read_text()
+            for url in ("$0", "source"):
+                text = text.replace(f"_ = try FileManager.default.trashItem(at: {url}, resultingItemURL: nil)",
+                                    f'try FileManager.default.moveItem(at: {url}, to: AppData.profile.home.appendingPathComponent("audit-trash"))')
+            assert ".trashItem(" not in text
+            path.write_text(text)
         # SwiftUI's AppKit-backed drop wrapper produces a placeholder in ImageRenderer.
         change(app / "Views/Porting/GameInboxView.swift",
                "            .dropDestination(for: URL.self) { urls, _ in model.accept(urls) } isTargeted: { dropTarget = $0 }\n",
