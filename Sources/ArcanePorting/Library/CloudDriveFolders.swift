@@ -647,7 +647,7 @@ public struct CloudDriveFolders: Sendable {
     }
 
     private static let runCommand: RcloneConfiguration.Run = { executable, arguments, environment in
-        try await SystemCommandRunner().runCancellable(executable, arguments, environment: environment)
+        try await RcloneDownload.runCancellable(executable, arguments, environment: environment)
     }
 }
 
@@ -675,7 +675,7 @@ public final class CloudDriveCredentialChange: Sendable {
         let environment = RcloneConfiguration.environment()
         @Sendable func run(_ args: [String], config: URL? = nil) async throws -> String {
             do {
-                let result = try await SystemCommandRunner().runCancellable(executable,
+                let result = try await RcloneDownload.runCancellable(executable,
                     args + RcloneConfiguration.flags(config: config, environment: environment), environment: environment)
                 guard result.status == 0 else { throw RcloneConfiguration.Failure.connect }
                 return result.stdout

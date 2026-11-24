@@ -14,6 +14,7 @@ final class RcloneRemoteControl: @unchecked Sendable {
 
     private struct Session {
         let process: Process
+        let executable: URL
         let directory: URL
         let lease: Int32
         let readyBy: Double
@@ -44,13 +45,14 @@ final class RcloneRemoteControl: @unchecked Sendable {
     func call(_ operation: String, _ parameters: [String: Any], executable: URL,
               environment: [String: String], flags: [String], sensitive: Bool = false) async throws -> String? {
         try Task.checkCancellation()
+        try RcloneDownload.requireApproved(executable)
         let body = String(decoding: try JSONSerialization.data(withJSONObject: parameters), as: UTF8.self)
         // Sweep happens once off the UI executor, even if multiple reads arrive together.
         _ = await Task.detached(priority: .utility) { Self.sweptOrphans }.value
         try Task.checkCancellation()
         guard let current = try lock.withLock({ () throws -> Session? in
             if stopped { throw CancellationError() }
-            if let session, session.process.isRunning, session.process.executableURL == executable { return session }
+            if let session, session.process.isRunning, session.executable == executable { return session }
             session?.stop()
             session = nil
             guard ProcessInfo.processInfo.systemUptime >= retryAfter else { return nil }
@@ -101,6 +103,8 @@ final class RcloneRemoteControl: @unchecked Sendable {
     private func backOff() { retryAfter = ProcessInfo.processInfo.systemUptime + 30 }
 
     private static func launch(executable: URL, environment: [String: String], flags: [String]) -> Session? {
+        guard let launch = try? RcloneDownload.launchable(executable) else { return nil }
+        defer { withExtendedLifetime(launch) {} }
         var template = temporary.appendingPathComponent(directoryPrefix + "XXXXXX").path.utf8CString
         guard let directory = template.withUnsafeMutableBufferPointer({ buffer -> URL? in
             guard let path = mkdtemp(buffer.baseAddress!) else { return nil }
@@ -110,13 +114,13 @@ final class RcloneRemoteControl: @unchecked Sendable {
         guard lease >= 0 else { _ = rmdir(directory.path); return nil }
 
         let process = Process()
-        let session = Session(process: process, directory: directory, lease: lease,
+        let session = Session(process: process, executable: executable, directory: directory, lease: lease,
                               readyBy: ProcessInfo.processInfo.systemUptime + 2)
         guard session.socket.path.utf8.count < MemoryLayout.size(ofValue: sockaddr_un().sun_path) else {
             session.stop()
             return nil
         }
-        process.executableURL = executable
+        process.executableURL = launch.url
         process.arguments = ["rcd", "--rc-addr", "unix://\(session.socket.path)", "--rc-no-auth"] + flags
         // Socket activation would override --rc-addr. Do not inherit that or any unfiltered rclone flags.
         process.environment = environment.filter { !["LISTEN_PID", "LISTEN_FDS", "LISTEN_FDNAMES"].contains($0.key) }

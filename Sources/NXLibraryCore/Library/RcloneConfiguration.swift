@@ -162,7 +162,7 @@ public struct RcloneConfiguration: Sendable {
 
     public init(executable: URL) {
         self.init(executable: executable, config: nil, run: {
-            try await SystemCommandRunner().runCancellable($0, $1, environment: $2)
+            try await RcloneDownload.runCancellable($0, $1, environment: $2)
         }, ensurePassword: {
             try await Task.detached(priority: .utility) { try Self.ensureKeychainPassword() }.value
         }, environment: Self.environment())

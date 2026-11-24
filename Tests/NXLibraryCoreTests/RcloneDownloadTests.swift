@@ -26,7 +26,11 @@ final class RcloneDownloadTests: XCTestCase {
 
     private struct Fixture {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("rclone-test-\(UUID())", isDirectory: true)
-        var installer: RcloneDownload { .init(supportRoot: root.appendingPathComponent("Support", isDirectory: true)) }
+        var installer: RcloneDownload {
+            let bytes = try! Data(contentsOf: URL(fileURLWithPath: "/usr/bin/true"))
+            return .init(supportRoot: root.appendingPathComponent("Support", isDirectory: true),
+                         expectedSHA256: SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined())
+        }
         var transport: URLSessionConfiguration {
             let configuration = URLSessionConfiguration.ephemeral
             configuration.protocolClasses = [FixtureTransport.self]
@@ -196,4 +200,24 @@ final class RcloneDownloadTests: XCTestCase {
         try Data().write(to: fixture.installer.directory.appendingPathComponent("oort-install"))
         XCTAssertNil(fixture.installer.installedExecutable)
     }
+
+    func testManagedReceiptCannotAuthorizeADifferentSignedExecutable() throws {
+        let fixture = Fixture()
+        defer { fixture.clean() }
+        let tool = fixture.installer
+        let files = FileManager.default
+        try files.createDirectory(at: tool.directory, withIntermediateDirectories: true)
+        let candidate = tool.directory.appendingPathComponent("rclone")
+        try files.copyItem(at: URL(fileURLWithPath: "/usr/bin/true"), to: candidate)
+        try Data().write(to: tool.directory.appendingPathComponent("oort-install"))
+        XCTAssertEqual(tool.installedExecutable, candidate)
+        let launch = try tool.launchable()
+        try files.removeItem(at: candidate)
+        try files.copyItem(at: URL(fileURLWithPath: "/usr/bin/false"), to: candidate)
+        XCTAssertNil(tool.installedExecutable, "A different signed file passed the managed resolver")
+        XCTAssertThrowsError(try tool.launchable())
+        XCTAssertEqual(try Data(contentsOf: launch.url), try Data(contentsOf: URL(fileURLWithPath: "/usr/bin/true")))
+        XCTAssertEqual(try RcloneDownload.launchable(URL(fileURLWithPath: "/usr/bin/false")).url.path, "/usr/bin/false")
+    }
+
 }

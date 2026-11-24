@@ -536,7 +536,7 @@ public struct RcloneStorageBackend: StorageBackend {
             if let commandOverride {
                 result = try await commandOverride(URL(fileURLWithPath: "/fixture/rclone"), command, [:])
             } else {
-                result = try await SystemCommandRunner().runCancellable(binary(), command, environment: environment) { line in
+                result = try await RcloneDownload.runCancellable(binary(), command, environment: environment) { line in
                     if let progress, let update = Self.transferProgress(from: line) { progress(update) }
                 }
             }
