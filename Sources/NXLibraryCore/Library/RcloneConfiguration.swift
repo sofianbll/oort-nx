@@ -16,6 +16,8 @@ package struct CloudDriveScope: Codable, Equatable, Sendable {
     package let account: String
     package let library: Folder
     package var sources: Folder?
+    package var approvedSources: Folder?
+    package var sourcesIdentityChanged: Bool?
     package var reference: String?
 
     package init(remote: String, account: String, library: Folder, sources: Folder? = nil, reference: String? = nil) {
@@ -27,6 +29,26 @@ package struct CloudDriveScope: Codable, Equatable, Sendable {
     }
 
     package var availabilityKey: [String] { [remote, account, library.id, sources?.id ?? "", reference ?? ""] }
+
+    package mutating func resolveSources(_ found: Folder?, at path: String, previous: CloudDriveScope?) {
+        let prior = previous.flatMap { old -> CloudDriveScope? in
+            old.remote == remote && old.account == account && old.library == library ? old : nil
+        }
+        let previousApproval = (prior?.approvedSources ?? prior?.sources).flatMap { $0.path == path ? $0 : nil }
+        approvedSources = previousApproval ?? found
+        if let previousApproval, prior?.sourcesIdentityChanged == true || (found != nil && found != previousApproval) {
+            sourcesIdentityChanged = true
+            sources = nil
+        } else {
+            sources = found
+        }
+    }
+
+    package mutating func clearSourcesApproval() {
+        sources = nil
+        approvedSources = nil
+        sourcesIdentityChanged = nil
+    }
 
     // shortcut: rclone does not expose the canonical My Drive ID as structured data.
     package static func accountID(in diagnostic: String) -> String? {

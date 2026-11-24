@@ -508,6 +508,7 @@ final class CloudLibraryModel: ObservableObject {
             AppData.preferences.removeObject(forKey: Self.scopeKey)
         } else if sourcesRoot != preference.sourcesRootOverride && next.storage == preference.storage {
             saveSourcesBinding(CloudLibraryPreference.SourcesBinding(next))
+            clearSourcesApproval()
         }
         if let approvedLibrary, let data = try? JSONEncoder().encode(approvedLibrary) {
             AppData.preferences.set(data, forKey: Self.scopeKey)
@@ -524,7 +525,15 @@ final class CloudLibraryModel: ObservableObject {
         preference = CloudLibraryPreference(storage: preference.storage, enabled: preference.enabled, sourcesRoot: root,
                                             referenceFolder: preference.referenceFolder)
         saveSourcesBinding(CloudLibraryPreference.SourcesBinding(preference))
+        clearSourcesApproval()
         rebuildArchive()
+    }
+
+    private func clearSourcesApproval() {
+        guard var saved = AppData.preferences.data(forKey: Self.scopeKey)
+            .flatMap({ try? JSONDecoder().decode(CloudDriveScope.self, from: $0) }) else { return }
+        saved.clearSourcesApproval()
+        if let data = try? JSONEncoder().encode(saved) { AppData.preferences.set(data, forKey: Self.scopeKey) }
     }
 
     private func saveSourcesBinding(_ binding: CloudLibraryPreference.SourcesBinding?) {
@@ -586,16 +595,18 @@ final class CloudLibraryModel: ObservableObject {
         let wanted = CloudLibraryPreference.SourcesBinding(current)
         let savedChoice = sourcesBinding
         let sameChoice = wanted?.storage == savedChoice?.storage && wanted?.sources == savedChoice?.sources
-        sourcesNeedConfirmation = wanted != nil && !sameChoice
         let savedScope = AppData.preferences.data(forKey: Self.scopeKey)
             .flatMap { try? JSONDecoder().decode(CloudDriveScope.self, from: $0) }
+        sourcesNeedConfirmation = (wanted != nil && !sameChoice)
+            || (savedScope?.remote == current.remote && savedScope?.library.path == current.root
+                && savedScope?.approvedSources?.path == current.sourcesRoot && savedScope?.sourcesIdentityChanged == true)
         guard current.enabled, !hasPendingMove, !needsDriveToolChoice, let remote = current.remote,
               let tool = resolvedDriveTool else { installScope(nil, backend: nil); return }
         let raw = RcloneStorageBackend(remote: remote, root: current.root, executable: tool)
         let saved = savedScope.flatMap { scope -> CloudDriveScope? in
             guard scope.remote == remote, scope.library.path == current.root, scope.reference == current.referenceFolder,
                   !sourcesNeedConfirmation, wanted == nil || savedChoice?.permits(scope) == true,
-                  scope.sources == nil ? wanted == nil : scope.sources?.path == current.sourcesRoot else { return nil }
+                   scope.sources == nil || scope.sources?.path == current.sourcesRoot else { return nil }
             return scope
         }
         installScope(saved, backend: saved.map { raw.scoped($0) })
@@ -619,17 +630,21 @@ final class CloudLibraryModel: ObservableObject {
                     let folder = try await raw.sourceFolder(wanted.sources, in: scope)
                     try Task.checkCancellation()
                     guard self.preference == current else { return }
-                    if let folder, let before = savedScope?.sources, before.path == folder.path, before.id != folder.id {
-                        self.sourcesNeedConfirmation = true
-                    } else {
-                        scope.sources = folder
+                    scope.resolveSources(folder, at: wanted.sources, previous: savedScope)
+                    self.sourcesNeedConfirmation = scope.sourcesIdentityChanged == true
+                    if !self.sourcesNeedConfirmation {
                         self.saveSourcesBinding(boundChoice)
                     }
-                } else if wanted != nil { self.sourcesNeedConfirmation = true }
+                } else if wanted != nil {
+                    self.sourcesNeedConfirmation = true
+                    scope.resolveSources(nil, at: current.sourcesRoot, previous: savedScope)
+                }
                 else {
-                    scope.sources = try await raw.sourceFolder(current.sourcesRoot, in: scope)
+                    let folder = try await raw.sourceFolder(current.sourcesRoot, in: scope)
                     try Task.checkCancellation()
                     guard self.preference == current else { return }
+                    scope.resolveSources(folder, at: current.sourcesRoot, previous: savedScope)
+                    self.sourcesNeedConfirmation = scope.sourcesIdentityChanged == true
                 }
                 if let data = try? JSONEncoder().encode(scope) { AppData.preferences.set(data, forKey: Self.scopeKey) }
                 guard self.driveScope != scope || self.archive == nil else { return }
@@ -665,7 +680,7 @@ final class CloudLibraryModel: ObservableObject {
             .flatMap { $0.scope == fingerprint ? $0 : nil } ?? .init(scope: fingerprint)
         self.backend = backend
         let wanted = preference.sourcesRootOverride
-        sourceArchive = sourcesNeedConfirmation || (wanted != nil && scope?.sources == nil) ? nil : backend.map {
+        sourceArchive = sourcesNeedConfirmation || ((wanted != nil || scope?.approvedSources != nil) && scope?.sources == nil) ? nil : backend.map {
             CloudGameSources(backend: $0, root: preference.sourcesRoot, usesDefaultRoot: wanted == nil,
                              allowsIndependentRoot: wanted != nil)
         }

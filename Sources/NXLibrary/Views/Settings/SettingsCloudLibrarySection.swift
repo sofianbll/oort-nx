@@ -1,4 +1,5 @@
 import AppKit
+import ArcanePorting
 import NXLibraryCore
 import SwiftUI
 
@@ -135,8 +136,8 @@ struct SettingsCloudLibrarySection: View {
                 SeleneButtonRow("Configure cloud library", buttonTitle: "Open", action: openSetup)
                     .disabled(!editable)
             }
-            if let folder = selection.sourcesRootOverride, selection.remote != nil, model.sourcesNeedConfirmation {
-                SeleneButtonRow("Confirm the game files folder", id: "cloudConfirmSources", subtitle: folder, verbatimSubtitle: true,
+            if selection.remote != nil, model.sourcesNeedConfirmation {
+                SeleneButtonRow("Confirm the game files folder", id: "cloudConfirmSources", subtitle: selection.sourcesRoot, verbatimSubtitle: true,
                                 buttonTitle: "Choose", action: confirmSourcesFolder)
                     .disabled(!editable)
             }
@@ -372,16 +373,37 @@ struct SettingsCloudLibrarySection: View {
 
     private func confirmSourcesFolder() {
         let before = selection
-        guard editable, model.sourcesNeedConfirmation, let folder = before.sourcesRootOverride else { return }
+        guard editable, model.sourcesNeedConfirmation else { return }
+        let keep = { selectSourcesFolder(before.sourcesRootOverride, from: before) }
+        if before.sourcesRootOverride == nil {
+            viewModel.confirmSetting(text("Game files folder"),
+                message: L10n.format("Confirm “%@” as the game files folder for this library?", [before.sourcesRoot]),
+                action: "Keep this folder", apply: keep)
+            return
+        }
         viewModel.confirmSetting(text("Game files folder"),
-            message: L10n.format("Keep “%@” for game files in this library, or use its default folder?", [folder]),
-            choices: [("Keep this folder", {
-                guard model.preference == before else { return }
-                model.chooseSourcesRoot(folder)
-            }), ("Use default", {
-                guard model.preference == before else { return }
-                model.chooseSourcesRoot(nil)
-            })])
+            message: L10n.format("Keep “%@” for game files in this library, or use its default folder?", [before.sourcesRoot]),
+            choices: [("Keep this folder", keep), ("Use default", { selectSourcesFolder(nil, from: before) })])
+    }
+
+    private func selectSourcesFolder(_ root: String?, from before: CloudLibraryPreference) {
+        guard selection == before else { return }
+        guard let reference = before.referenceFolder else { model.chooseSourcesRoot(root); return }
+        guard let remote = before.remote, let tool = model.resolvedDriveTool else { return }
+        let folder = root ?? CloudLibraryPreference(storage: before.storage, enabled: before.enabled).sourcesRoot
+        let service = CloudDriveFolders(remote: remote, executable: tool, reference: reference)
+        Task { @MainActor in
+            do {
+                try await service.verifyPersonalFolder(folder, allowMissing: true)
+                guard editable, selection == before else { return }
+                model.chooseSourcesRoot(root)
+            } catch is CancellationError {
+            } catch {
+                guard selection == before else { return }
+                let failure = (error as? CloudLibraryFailure) ?? .unavailable
+                viewModel.showSettingsNotice(title: text("Game files folder"), message: text(failure.messageKey))
+            }
+        }
     }
 
     private func unfollow() {

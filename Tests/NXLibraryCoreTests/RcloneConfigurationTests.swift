@@ -2,6 +2,28 @@ import XCTest
 @testable import NXLibraryCore
 
 final class RcloneConfigurationTests: XCTestCase {
+    func testApprovedSourceIdentityOutlivesMissingFolderAndRestart() throws {
+        let path = "Games/Switch/Jeux"
+        let a = CloudDriveScope.Folder(path: path, id: "FolderA")
+        let b = CloudDriveScope.Folder(path: path, id: "FolderB")
+        let initial = CloudDriveScope(remote: "fixture", account: "account", library: .init(path: "Games", id: "GamesID"), sources: a)
+        func next(_ found: CloudDriveScope.Folder?, previous: CloudDriveScope) throws -> CloudDriveScope {
+            var scope = CloudDriveScope(remote: initial.remote, account: initial.account, library: initial.library)
+            scope.resolveSources(found, at: path, previous: previous)
+            return try JSONDecoder().decode(CloudDriveScope.self, from: JSONEncoder().encode(scope))
+        }
+        let absent = try next(nil, previous: initial)
+        XCTAssertEqual(absent.approvedSources, a)
+        XCTAssertNil(absent.sources)
+        XCTAssertEqual(try next(a, previous: absent).sources, a)
+        var replacement = try next(b, previous: absent)
+        XCTAssertEqual(replacement.sourcesIdentityChanged, true)
+        XCTAssertNil(replacement.sources)
+        XCTAssertNil(try next(a, previous: replacement).sources)
+        replacement.clearSourcesApproval()
+        XCTAssertEqual(try next(b, previous: replacement).sources, b)
+    }
+
     func testPortableConfigBesideExecutableOrLinkCannotReplaceBundledDefault() throws {
         let files = FileManager.default
         let root = files.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
