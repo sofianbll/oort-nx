@@ -11,7 +11,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 - The home bar and **Integrations** page show each service’s status and open its settings without activating it.
 - Add local Mac apps as library shortcuts without changing the apps or recording play sessions.
 - **Sound & music** offers optional built-in and local sound packs. Selene remains the default.
-- Before writing to an existing library, the update keeps a verified copy of launcher data and warns about returning to 0.3.0. The copy does not include games or saves.
+- Before writing to an existing library, the update warns about returning to 0.3.0 and keeps a verified copy of launcher data. It keeps essential files first and names omissions. If copying fails, you can retry or open the app without a copy for this launch. Games and saves are not copied.
 
 ### Fixed
 
