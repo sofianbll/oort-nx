@@ -405,7 +405,7 @@ extension SpotlightView {
             }
             return
         case .unavailable:
-            if index == 0, !runningGames.isRunning(game), !downloadsCloudApp(game) {
+            if index == 0, !runningGames.isRunning(game), downloadItem(game) == nil {
                 SoundEffectService.shared.play(.error)
                 return
             }
@@ -434,8 +434,8 @@ extension SpotlightView {
 
     /// Play, or Build for a game not built yet (as on the Details page); the page has no build button any more.
     private func play(_ game: PortedGame) {
-        if downloadsCloudApp(game) {
-            viewModel.downloadCloudApp(game)
+        if downloadItem(game) != nil {
+            viewModel.downloadCloudGame(game)
             return
         }
         let step = GamePrimaryStep.decide(unavailable: viewModel.portingPills(game).unavailableReason != nil,

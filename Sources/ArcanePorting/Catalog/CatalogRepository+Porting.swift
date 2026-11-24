@@ -87,23 +87,51 @@ extension CatalogRepository {
                                  legacyNames: [String: String] = [:],
                                  sourceRoot: URL = AppData.supportRoot,
                                  referenceFolder: String? = nil) throws -> CatalogDocument {
+        try importCloudGames(manifests, discovered: [], in: folder, legacyNames: legacyNames,
+                             sourceRoot: sourceRoot, referenceFolder: referenceFolder)
+    }
+
+    package func importCloudGames(_ manifests: [CloudGameManifest], discovered: [CloudGameSources.DiscoveredGame],
+                                  in folder: URL, legacyNames: [String: String] = [:],
+                                  sourceRoot: URL = AppData.supportRoot, referenceFolder: String? = nil) throws -> CatalogDocument {
         try transactionIfChanged { draft in
             let count = draft.games.count
             var seen = draft.cloudImportExclusions ?? []
-            let known = Dictionary(draft.games.enumerated().compactMap { index, record in
+            var known = Dictionary(draft.games.enumerated().compactMap { index, record in
                 record.nxnativeGame?.titleId.map { ($0.uppercased(), index) }
             }, uniquingKeysWith: { first, _ in first })
             var adopted = false
             for manifest in manifests {
                 let title = manifest.titleID.uppercased()
-                guard SaveLocation.validID(title), let app = manifest.artifacts.first(where: { $0.kind == .app }),
-                      seen.insert(title).inserted else { continue }
+                let id = known[title].map { draft.games[$0].id } ?? UUID()
+                let files = CloudGameSources.importedFolder(for: id, in: sourceRoot)
+                let app = manifest.artifacts.first { $0.kind == .app }
+                let selection = manifest.sourceSelection?.adopted(in: files, titleID: title)
+                guard SaveLocation.validID(title), app != nil || selection != nil, seen.insert(title).inserted else { continue }
+                let bundle = manifest.bundleName.flatMap { value -> String? in
+                    guard (5...200).contains(value.utf8.count), !value.hasPrefix("."),
+                          value.rangeOfCharacter(from: CharacterSet(charactersIn: "/:\\").union(.controlCharacters)) == nil,
+                          value.lowercased().hasSuffix(".app") else { return nil }
+                    return value
+                } ?? "\(title).app"
                 if let index = known[title] {
                     guard var game = draft.games[index].nxnativeGame, game.cloudImportPending == true else { continue }
                     let previous = game
-                    if referenceFolder == nil { game.cloudReferenceFolder = nil }
-                    if game.sources.isEmpty, let sources = manifest.sourceSelection?.adopted(
-                        in: CloudGameSources.importedFolder(for: game.id, in: sourceRoot), titleID: title) { game.sources = sources }
+                    if app != nil, game.isCloudSourcePlaceholder, game.cloudReferenceFolder == referenceFolder {
+                        game.url = folder.appendingPathComponent(bundle, isDirectory: true)
+                        game.status = .appMissing
+                    }
+                    if referenceFolder == nil, game.cloudReferenceFolder != nil, app != nil {
+                        game.url = folder.appendingPathComponent(bundle, isDirectory: true)
+                        game.status = .appMissing
+                        game.cloudReferenceFolder = nil
+                        if game.discoveredCloudSourceDirectory != nil,
+                           !game.sources.contains(where: { FileManager.default.fileExists(atPath: $0.url.path) }) {
+                            game.sources = []
+                        }
+                        game.discoveredCloudSourceDirectory = nil
+                    }
+                    if game.sources.isEmpty, game.cloudReferenceFolder == referenceFolder, let selection { game.sources = selection }
                     guard game != previous else { continue }
                     try draft.games[index].updateNXNative(game)
                     adopted = true
@@ -111,22 +139,36 @@ extension CatalogRepository {
                 }
                 let name = [manifest.gameName, legacyNames[title]].compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
                     .first { !$0.isEmpty } ?? title
-                let bundle = manifest.bundleName.flatMap { value -> String? in
-                    guard (5...200).contains(value.utf8.count), !value.hasPrefix("."),
-                          value.rangeOfCharacter(from: CharacterSet(charactersIn: "/:\\").union(.controlCharacters)) == nil,
-                          value.lowercased().hasSuffix(".app") else { return nil }
-                    return value
-                } ?? "\(title).app"
-                var game = PortedGame(name: name,
-                    url: folder.appendingPathComponent(bundle, isDirectory: true), platform: .macApp,
-                    sizeBytes: app.unpackedSize, modificationDate: manifest.createdAt,
+                var game = PortedGame(id: id, name: name,
+                    url: app == nil ? files : folder.appendingPathComponent(bundle, isDirectory: true), platform: .macApp,
+                    sizeBytes: app?.unpackedSize ?? 0, modificationDate: manifest.createdAt,
                     titleId: title, versionString: manifest.gameVersion)
-                game.status = .appMissing
+                game.status = app == nil ? .notBuilt : .appMissing
                 game.cloudImportPending = true
                 game.cloudReferenceFolder = referenceFolder
-                game.sources = manifest.sourceSelection?.adopted(
-                    in: CloudGameSources.importedFolder(for: game.id, in: sourceRoot), titleID: title) ?? []
+                game.sources = selection ?? []
+                known[title] = draft.games.count
                 draft.games.append(.init(nxnative: game))
+            }
+            for candidate in discovered where !(draft.cloudImportExclusions ?? []).contains(candidate.titleID) {
+                if let index = known[candidate.titleID] {
+                    guard var game = draft.games[index].nxnativeGame, game.cloudImportPending == true,
+                          game.cloudReferenceFolder == referenceFolder, game.sources.isEmpty else { continue }
+                    game.sources = candidate.adopted(in: CloudGameSources.importedFolder(for: game.id, in: sourceRoot))
+                    game.discoveredCloudSourceDirectory = candidate.directory
+                    try draft.games[index].updateNXNative(game)
+                    adopted = true
+                } else {
+                    let id = UUID(), files = CloudGameSources.importedFolder(for: id, in: sourceRoot)
+                    var game = PortedGame(id: id, name: candidate.name, url: files, platform: .macApp,
+                                          sizeBytes: 0, modificationDate: .now, titleId: candidate.titleID)
+                    game.sources = candidate.adopted(in: files)
+                    game.cloudImportPending = true
+                    game.cloudReferenceFolder = referenceFolder
+                    game.discoveredCloudSourceDirectory = candidate.directory
+                    known[candidate.titleID] = draft.games.count
+                    draft.games.append(.init(nxnative: game))
+                }
             }
             guard draft.games.count != count else { return adopted }
             var source = draft.source(.nxnative) ?? .init(integration: .nxnative)

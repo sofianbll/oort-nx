@@ -67,7 +67,7 @@ struct CollectionCoverRow: View {
     private func cover(_ game: CatalogGame, selected: Bool) -> some View {
         let w = canvas.u(CollectionRow.coverWidth), h = canvas.u(CollectionRow.coverHeight)
         let face = RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content), style: .continuous)
-        let cloudState = game.nxnativeGame.flatMap { cloud.states[$0.id] }
+        let cloudState = game.nxnativeGame.flatMap(cloud.stateForTile)
         return ZStack {
             Group {
                 if let native = game.nxnativeGame {

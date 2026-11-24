@@ -164,6 +164,7 @@ import ArcanePorting
                               message: L10n.text("Content not verified"), cancelTitle: L10n.text("Close"))
         try renderNotice("adoption-unverified", output, vm.settingsNotice!, width: 1280)
         // REFERENCE_END
+        // SOURCE_ONLY_CHECK
         // SWITCH_GAMES_SOURCES
         // MOVE_RECOVERY
         if CommandLine.arguments.count > 4 {
@@ -367,7 +368,7 @@ DOWNLOAD_FILL = r'''
                 SpotlightGameInfoView(game: game, logo: nil,
                     presentation: .init(game: game, metadata: nil, totalPlaytime: 0, lastPlayed: nil),
                     isRunning: false, focusedPill: 0, onPill: { _ in }, onHoverPill: { _ in },
-                    cloud: model, showsCloudPill: true, downloadsApp: true, downloadEnabled: true)
+                    cloud: model, showsCloudPill: true, downloadEnabled: true)
                     .environment(\.nxAppLocale, fr),
                 size: .init(width: 1120, height: 460))
             try render("details-download-\(suffix)", output,
@@ -477,6 +478,161 @@ CLOUD_BUTTON = r'''
                 size: .init(width: 1120, height: 520))
         }
         model.update(game.id) { $0 = .init() }
+'''
+
+SOURCE_ONLY = r'''
+extension CloudScreenProbe {
+    @MainActor static func checkSourceOnly(in root: URL, output: URL) async throws {
+        let folder = root.appendingPathComponent("source-only-catalog")
+        let repo = CatalogRepository(store: .init(directory: folder))
+        let settings = AppSettingsStore(fileURL: folder.appendingPathComponent("settings.json"))
+        let title = "0100000000006000", referenceID = "source-reference-fixture"
+        let folderName = "Lunar Observatory [\(title)]"
+        let anchor = "fixture:Games/GameFiles/" + folderName
+        let payload = Data("1".utf8)
+        let localRoot = root.path + "/"
+        func newModel() throws -> AppViewModel {
+            let catalog = try repo.load()
+            let vm = AppViewModel(settingsStore: settings, catalog: catalog, repository: repo)
+            vm.applyCatalog(catalog) // The harness disables startup services.
+            return vm
+        }
+        let backend = RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in
+            precondition(args.contains("--drive-skip-shortcuts"))
+            let scope = args.contains(referenceID)
+            let root = scope ? "fixture:" : "fixture:Games"
+            let files = scope ? "fixture:GameFiles" : "fixture:Games/GameFiles"
+            func entries(_ names: [String], dir: Bool) -> String {
+                let rows: [[String: Any]] = names.map { ["Name": $0, "Path": $0, "Size": dir ? -1 : 1, "IsDir": dir] }
+                return String(decoding: try! JSONSerialization.data(withJSONObject: rows), as: UTF8.self)
+            }
+            let node = #"{"Name":"Game.nsp","Path":"Game.nsp","Size":1,"IsDir":false,"Hashes":{"md5":"c4ca4238a0b923820dcc509a6f75849b"}}"#
+            switch (args[0], args[1]) {
+            case ("lsjson", root):
+                if args.contains("--stat") { return .init(status: 0, stdout: #"{"Name":"Reference fixture","IsDir":true}"#, stderr: "") }
+                return .init(status: 0, stdout: entries(["GameFiles"], dir: true), stderr: "")
+            case ("lsjson", files):
+                let names = scope ? ["Aube [0100000000007000]"] : [folderName, "Dossier ambigu", "Sans identifiant"]
+                return .init(status: 0, stdout: entries(names, dir: true), stderr: "")
+            case ("lsjson", anchor), ("lsjson", "fixture:GameFiles/Aube [0100000000007000]"):
+                return .init(status: 0, stdout: "[\(node)]", stderr: "")
+            case ("lsjson", "fixture:Games/GameFiles/Dossier ambigu"):
+                return .init(status: 0, stdout: entries(["Two [0100000000008000].nsp", "One [0100000000009000].nsp"], dir: false), stderr: "")
+            case ("lsjson", "fixture:Games/GameFiles/Sans identifiant"):
+                return .init(status: 0, stdout: entries(["Unknown.nsp"], dir: false), stderr: "")
+            case ("lsjson", anchor + "/Game.nsp"):
+                precondition(args.contains("--stat"))
+                return .init(status: 0, stdout: node, stderr: "")
+            case ("copyto", anchor + "/Game.nsp"):
+                precondition(args[2].hasPrefix(localRoot))
+                try payload.write(to: URL(fileURLWithPath: args[2]))
+                return .init(status: 0, stdout: "", stderr: "")
+            default: preconditionFailure("Unexpected remote operation: \(args.prefix(2))")
+            }
+        }
+        let fr = AppLocale(language: .french, region: "FR")
+        L10n.setContext(fr)
+        let previous = AppData.preferences.data(forKey: "NXLibrary_CloudLastKnownAvailability")
+        let sourcesPreference = AppData.preferences.string(forKey: CloudLibraryPreference.sourcesRootKey)
+        let referencePreference = AppData.preferences.string(forKey: CloudLibraryPreference.referenceFolderKey)
+        AppData.preferences.removeObject(forKey: CloudLibraryPreference.sourcesRootKey)
+        defer {
+            AppData.preferences.set(previous, forKey: "NXLibrary_CloudLastKnownAvailability")
+            AppData.preferences.set(sourcesPreference, forKey: CloudLibraryPreference.sourcesRootKey)
+            AppData.preferences.set(referencePreference, forKey: CloudLibraryPreference.referenceFolderKey)
+        }
+        var vm = try newModel()
+        vm.cloudLibrary.installScreenArchives(backend)
+        vm.cloudLibrary.installScreenSources(backend, root: "Games/GameFiles")
+        vm.importCloudGames(manually: true)
+        await vm.cloudLibrary.importTask?.value
+        let game = vm.libraryGames.first { $0.titleId == title }!
+        precondition(vm.libraryGames.count == 1 && game.isCloudSourcePlaceholder)
+        precondition(vm.cloudLibrary.downloadItem(for: game) == .sources && vm.portingTileLook(game) == .toDownloadFiles)
+        precondition(!GameResourceState.sourcesAvailable(for: game))
+        precondition(vm.settingsNotice?.message.contains("Dossier ambigu") == true)
+        precondition(vm.settingsNotice?.message.contains("Sans identifiant") == true)
+        try renderNotice("cloud-only-import-fr", output, vm.settingsNotice!, width: 1120)
+
+        let png = try Data(contentsOf: output.appendingPathComponent("tile.png"))
+        let pick = try ArtworkPicks.shared.save(png, titleID: vm.personalizationKey(for: game), slot: .icon)
+        precondition(ArtworkPicks.shared.url(titleID: vm.personalizationKey(for: game), slot: .icon) == pick)
+        vm.applyCatalog(try repo.updateNXNative(id: game.id) { $0.isFavorite = true })
+        let selected = vm.libraryGames.first { $0.id == game.id }!
+        precondition(selected.isFavorite && !GameResourceState.sourcesAvailable(for: selected))
+        let results = vm.queryLibrary(.init(filter: .cloud), history: NoPlayHistory())
+        precondition(results.map(\.id) == [game.id])
+        let cover = CollectionCoverRow(games: results, selectedID: selected.id,
+            artwork: ArtworkStore(), boxArt: vm.boxArt, boxArtIndexVersion: 0,
+            officialName: { _ in nil }, needsMetadata: { _ in }, tileLook: vm.portingTileLook,
+            cloud: vm.cloudLibrary, showsCloudBadges: true, onSelect: { _ in }, onActivate: { _ in })
+        try render("cloud-only-tile-fr", output, cover, size: .init(width: 400, height: 440))
+        try render("cloud-only-filter-fr", output, VStack(spacing: 0) {
+            SpotlightTopBar(filter: .cloud, sort: .name, showClock: false)
+            cover
+        }.environment(\.nxAppLocale, fr), size: .init(width: 1400, height: 580))
+        func details(_ game: PortedGame, vm: AppViewModel) -> some View {
+            let model = vm.cloudLibrary
+            return DetailsTopBlock(game: game, logo: nil,
+                presentation: .init(game: game, metadata: nil, totalPlaytime: 0, lastPlayed: nil),
+                isRunning: false, focusedPill: 0, primaryEnabled: true, expanded: .constant(false),
+                onPrimary: {}, onSecondary: {}, onFavorite: {}, onHoverPill: { _ in },
+                pillSet: vm.portingPills(game).detailsPresentation(cloudOnly: model.downloadItem(for: game) != nil),
+                cloud: model, showsCloudPill: true, downloadEnabled: true).environment(\.nxAppLocale, fr)
+        }
+        try render("cloud-only-details-fr", output, details(selected, vm: vm), size: .init(width: 1120, height: 470))
+
+        // Recreate the app model from disk before connecting the unavailable backend.
+        vm = try newModel()
+        let offline = RcloneStorageBackend(remote: "fixture", root: "Games") { _, _, _ in
+            .init(status: 1, stdout: "", stderr: "connection reset")
+        }
+        vm.cloudLibrary.installScreenArchives(offline)
+        vm.cloudLibrary.installScreenSources(offline, root: "Games/GameFiles")
+        vm.importCloudGames(manually: true)
+        await vm.cloudLibrary.importTask?.value
+        precondition(vm.cloudLibrary.connectionCheck?.failure == .offline)
+        precondition(vm.portingTileLook(selected) == .toDownloadFiles)
+        precondition(vm.cloudLibrary.states[game.id]?.copy(.sources) != .synchronized)
+        precondition(vm.queryLibrary(.init(filter: .cloud), history: NoPlayHistory()).map(\.id) == [game.id])
+
+        vm = try newModel()
+        vm.cloudLibrary.installScreenArchives(backend)
+        vm.cloudLibrary.installScreenSources(backend, root: "Games/GameFiles")
+        vm.cloudLibrary.hasRestoredQueue = true
+        precondition(vm.cloudLibrary.matchesPersistedStorage(), "The isolated fixture must own its source root")
+        vm.downloadCloudGame(selected)
+        let task = vm.cloudLibrary.active?.task
+        precondition(task != nil, "Download game files must go through the transfer queue")
+        await task?.value
+        let bytes = try? Data(contentsOf: selected.sources[0].url)
+        let state = vm.cloudLibrary.states[game.id]
+        precondition(bytes == payload,
+                     "Source download failed: \(state?.issue?.message ?? "no issue"); \(String(describing: vm.cloudLibrary.queuePause))")
+        precondition(vm.portingTileLook(selected) == .toBuild)
+        precondition(vm.cloudLibrary.downloadItem(for: selected) == nil)
+        precondition(vm.queryLibrary(.init(filter: .cloud), history: NoPlayHistory()).isEmpty)
+        try render("cloud-only-build-fr", output, details(selected, vm: vm), size: .init(width: 1120, height: 470))
+        let ready = try repo.updateNXNative(id: game.id) {
+            $0.cloudImportPending = nil
+            $0.url = folder.appendingPathComponent("Fixture.app")
+            $0.status = .built
+        }.nxnativeGames.first!
+        precondition(ready.isPlayableLocally && vm.portingTileLook(ready) == .normal)
+
+        vm.cloudLibrary.setReferenceFolder(referenceID)
+        vm.cloudLibrary.installScreenArchives(backend)
+        vm.cloudLibrary.installScreenSources(backend, root: "Games/GameFiles")
+        vm.cloudLibrary.installScreenReference(backend.reference(folderID: referenceID)!, sourceRoot: "GameFiles")
+        vm.importCloudGames(manually: true)
+        await vm.cloudLibrary.importTask?.value
+        let shared = vm.libraryGames.first { $0.cloudReferenceFolder == referenceID }!
+        precondition(vm.portingTileLook(shared) == .toDownloadFiles && !GameResourceState.sourcesAvailable(for: shared))
+        vm.applyCatalog(try repo.forgetCloudReference(referenceID))
+        precondition(!vm.libraryGames.contains { $0.id == shared.id })
+        print("Cloud-only: personal and reference discovery, artwork, filter, restart offline, queue download and Build/Play verified.")
+    }
+}
 '''
 
 PLAY_TRANSFER = r'''
@@ -1176,6 +1332,8 @@ extension ActivityCenterView {
 """)
         host = HOST.replace("/* NOTICE_LAYOUT */", "vertical: notice.vertical," if before else "cancelIndex: notice.cancelIndex,")
         if not before and not baseline:
+            host = host.replace("// SOURCE_ONLY_CHECK", "try await checkSourceOnly(in: data, output: output)") + SOURCE_ONLY
+        if not before and not baseline:
             overlays = (app / "Views/Shell/AppShellView+Overlays.swift").read_text()
             copy = re.search(r': (L10n\.text\("Quitting stops the transfer[^"]+"\))', overlays)
             if copy:
@@ -1546,13 +1704,13 @@ extension AppViewModel {
         let backend = RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in
             precondition(args.contains("--drive-root-folder-id") && args[0] == "lsjson")
             if !access { return .init(status: 1, stdout: "", stderr: "googleapi: Error 403: forbidden") }
-            let name = #"[{"Name":"Arcane-nx","Path":"Arcane-nx","ID":"1-arcane-fixture","Size":-1}]"#
-            let output = args.contains("--drive-shared-with-me") ? name : args.contains("--stat") ? #"{"IsDir":true}"# : "[]"
+            let name = #"{"Name":"Arcane-nx","ID":"1-arcane-fixture","IsDir":true}"#
+            let output = args.contains("--drive-shared-with-me") ? "[\(name)]" : args.contains("--stat") ? name : "[]"
             return .init(status: 0, stdout: output, stderr: "")
         }
         let reference = backend.reference(folderID: cloudLibrary.preference.referenceFolder!)!
         cloudLibrary.installScreenReference(reference)
-        await importCloudReference(archive: cloudLibrary.archive!)
+        _ = await importCloudReference(archive: cloudLibrary.archive!)
     }
 
     @MainActor func screenRebuildNotice() {
@@ -1573,9 +1731,10 @@ extension CloudLibraryModel {
         sourceArchive = nil
         referenceArchive = nil
     }
-    func installScreenReference(_ reference: RcloneStorageBackend) {
+    func installScreenReference(_ reference: RcloneStorageBackend, sourceRoot: String? = nil) {
         referenceBackend = reference
         referenceArchive = CloudGameArchive(backend: reference)
+        if let sourceRoot { referenceSourceArchive = CloudGameSources(backend: reference, root: sourceRoot, usesDefaultRoot: true) }
     }
 }
 '''

@@ -178,8 +178,7 @@ extension SpotlightView {
                     cloud: viewModel.cloudLibrary,
                     showsCloudPill: showsCloudPill(game),
                     cloudCoverVisible: rowOpacity > Self.unseenOpacity,
-                    downloadsApp: downloadsCloudApp(game),
-                    downloadEnabled: viewModel.canChangeCloudLibrary(.restore(.app), for: game),
+                    downloadEnabled: downloadItem(game).map { viewModel.canChangeCloudLibrary($0.downloadAction, for: game) } == true,
                     canCheckCloudSources: viewModel.canCheckCloudSources(for: game),
                     etaText: viewModel.portingETAText,
                     onOpenLog: { viewModel.revealLog(for: game) }

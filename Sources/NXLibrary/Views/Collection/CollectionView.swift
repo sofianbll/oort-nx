@@ -59,7 +59,7 @@ struct CollectionView: View {
     private func games(using query: LibraryQuery) -> [CatalogGame] {
         let games = viewModel.visibleCatalogGames
         guard let card = profileCard else {
-            return query.applyCatalog(to: games, history: playSessions)
+            return viewModel.queryLibrary(query, history: playSessions)
         }
         let now = Date.now
         return card.games(in: games, activity: playSessions.profileActivity(at: now),
@@ -84,6 +84,13 @@ struct CollectionView: View {
         let games = self.games
         let record = selectedCatalogGame(in: games)
         let game = record?.nxnativeGame
+        let lifecycle = sortAndLifecycle(on: chrome(games: games, record: record, game: game))
+        let library = libraryChanges(on: lifecycle)
+        let input = inputEvents(on: library)
+        return loadSelection(game, record: record, on: input)
+    }
+
+    private func chrome(games: [CatalogGame], record: CatalogGame?, game: PortedGame?) -> some View {
         SeleneHomeChrome(
             leftHints: profileCard != nil ? [HintItem(.b, "Back", action: router.back)] : HintItem.homeGlobals(other: "Spotlight",
                                              onOther: settings.settings.viewButtonSwitches ? { handle(.view) } : nil,
@@ -102,6 +109,10 @@ struct CollectionView: View {
                                     showsArt: !settings.settings.keepWallpaperOnGames)
             },
             stage: { stage(games: games, game: game, record: record) })
+    }
+
+    private func sortAndLifecycle(on content: some View) -> some View {
+        content
         .accessibilityHidden(router.sortMenu != nil)
         .overlay {
             if let sortMenu = router.sortMenu {
@@ -117,15 +128,25 @@ struct CollectionView: View {
             router.sortMenu = nil
             removeKeyMonitor()
         }
+    }
+
+    private func libraryChanges(on content: some View) -> some View {
+        let filteredIDs: Set<UUID> = filter == .cloud ? viewModel.cloudOnlyGameIDs : []
+        return content
         .onChange(of: viewModel.catalogGames) {
             store.preloadCachedStoreMetadata()
             reconcile()
         }
         .onChange(of: viewModel.catalogSourceConfigurations) { reconcile() }
         .onChange(of: filter) { reconcile() }
+        .onChange(of: filteredIDs) { reconcile() }
         .onChange(of: settings.settings.librarySort) { reconcile() }
         .onChange(of: showsEmptyActions) { _, shown in if !shown { importFocused = false } }
         .onChange(of: viewModel.librarySelection.selectedGameID) { selectionChanged() }
+    }
+
+    private func inputEvents(on content: some View) -> some View {
+        content
         .onReceive(NotificationCenter.default.publisher(for: .nxCollectionGamepadAction)) { note in
             guard viewModel.alertMessage == nil, viewModel.settingsNotice == nil else { return }
             if let action = note.object as? GamepadAction { handle(action) }
@@ -139,6 +160,10 @@ struct CollectionView: View {
         .onChange(of: playSessions.sessions.count) { reconcile() }
         .onChange(of: playSessions.profileID) { reconcile() }
         .onChange(of: viewModel.isScanningLibrary) { reconcile() }
+    }
+
+    private func loadSelection(_ game: PortedGame?, record: CatalogGame?, on content: some View) -> some View {
+        content
         .task(id: art.heroTaskKey(game, metadata: game.flatMap { store.storeMetadata[$0.id] })) { await loadHero(game) }
         .task(id: art.steamHeroTaskKey(record)) { await art.loadSteamHero(game: record, current: { selectedCatalogGame?.id }, artwork: artwork) }
         .task(id: art.logoTaskKey(game, metadata: game.flatMap { store.storeMetadata[$0.id] })) { await loadLogo(game) }
@@ -161,6 +186,7 @@ struct CollectionView: View {
 
             if let game {
                 CollectionInfoView(game: game, logo: art.logo(for: game),
+                                   cloudOnly: cloud.downloadItem(for: game) != nil,
                                    presentation: LibraryPresentation(
                                        game: game, metadata: store.storeMetadata[game.id],
                                        totalPlaytime: playSessions.totalDuration(for: game.id),
@@ -257,11 +283,14 @@ struct CollectionView: View {
             guard showsEmptyActions else { return [] }
             return [HintItem(.a, importFocused ? L10n.text("Import existing builds") : L10n.text("Add game"))]
         }
-        if cloud.downloadsCloudApp(game) {
-            return [HintItem(.a, "Download"), HintItem(.x, "Details"), HintItem(.y, "Game options")]
+        if let item = cloud.downloadItem(for: game) {
+            return [HintItem(.a, item.primaryDownloadTitle), HintItem(.x, "Details"), HintItem(.y, "Game options")]
         }
         if game.isPlayableLocally {
             return [HintItem(.a, L10n.text("Play")), HintItem(.x, L10n.text("Details")), HintItem(.y, L10n.text("Game options"))]
+        }
+        if game.isCloudSourcePlaceholder, viewModel.gamesWithFilesHere.contains(game.id) {
+            return [HintItem(.a, "Build"), HintItem(.x, "Details"), HintItem(.y, "Game options")]
         }
         return [HintItem(.a, L10n.text("Details")), HintItem(.y, L10n.text("Game options"))]
     }
@@ -342,6 +371,7 @@ struct CollectionInfoView: View {
 
     let game: PortedGame
     let logo: NSImage?
+    let cloudOnly: Bool
     let presentation: LibraryPresentation
 
     @State private var shown = true
@@ -350,7 +380,7 @@ struct CollectionInfoView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             logoArea
-            if let reason = GameResourceState.unavailableReason(for: game) {
+            if !cloudOnly, let reason = GameResourceState.unavailableReason(for: game) {
                 Text(reason.title)
                     .seleneFont(.panelBody, .semibold)
                     .foregroundColor(SeleneTheme.ink75)
@@ -359,7 +389,7 @@ struct CollectionInfoView: View {
                     .seleneFont(.compactCaption)
                     .foregroundColor(SeleneTheme.ink60)
                     .padding(.top, canvas.u(SeleneTokens.Space.tight))
-            } else if !game.isPlayableLocally, game.status != .building, game.portingFailure == nil {
+            } else if !cloudOnly, !game.isPlayableLocally, game.status != .building, game.portingFailure == nil {
                 Text(L10n.text("Not built yet"))
                     .seleneFont(.body)
                     .foregroundColor(SeleneTheme.ink75)

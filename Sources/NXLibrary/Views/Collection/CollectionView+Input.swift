@@ -60,7 +60,8 @@ extension CollectionView {
             }
         case .secondaryAction:
             // A Steam game's details are its Spotlight page; Collection has no Details screen for it.
-            if let game = selectedGame, game.isPlayableLocally || cloud.downloadsCloudApp(game) {
+            if let game = selectedGame, game.isPlayableLocally || cloud.downloadItem(for: game) != nil
+                || game.isCloudSourcePlaceholder && viewModel.gamesWithFilesHere.contains(game.id) {
                 router.showDetail(game.id)
             }
         case .contextAction:
@@ -100,10 +101,12 @@ extension CollectionView {
     /// A on a cover: plays, or opens Details when the game is not built (Spotlight's rule).
     func play(_ game: PortedGame) {
         SoundEffectService.shared.play(.click)
-        if cloud.downloadsCloudApp(game) {
-            viewModel.downloadCloudApp(game)
+        if cloud.downloadItem(for: game) != nil {
+            viewModel.downloadCloudGame(game)
         } else if game.isPlayableLocally {
             viewModel.launchGame(game)
+        } else if game.isCloudSourcePlaceholder, viewModel.gamesWithFilesHere.contains(game.id) {
+            viewModel.porting.startBuild(for: game) { router.openAddGame() }
         } else {
             router.showDetail(game.id)
         }

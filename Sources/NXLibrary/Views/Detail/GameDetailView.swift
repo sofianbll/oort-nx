@@ -229,10 +229,10 @@ struct GameDetailView: View {
     }
 
     var showsCloudPill: Bool { cloudManagementPlacement == .primaryActions }
-    var downloadsCloudApp: Bool {
-        cloud.downloadsCloudApp(game) && !runningGames.isRunning(game)
+    var downloadItem: CloudLibraryItem? {
+        runningGames.isRunning(game) ? nil : cloud.downloadItem(for: game)
     }
-    var pillSet: PortingPills { viewModel.portingPills(game).detailsPresentation(cloudOnly: downloadsCloudApp) }
+    var pillSet: PortingPills { viewModel.portingPills(game).detailsPresentation(cloudOnly: downloadItem != nil) }
     private var pillCount: Int { pillSet.count + (showsCloudPill ? 1 : 0) }
 
     // MARK: - Stage
@@ -306,7 +306,7 @@ struct GameDetailView: View {
                             etaText: viewModel.portingETAText,
                             cloud: cloud,
                             showsCloudPill: showsCloudPill,
-                            downloadEnabled: viewModel.canChangeCloudLibrary(.restore(.app), for: game),
+                            downloadEnabled: downloadItem.map { viewModel.canChangeCloudLibrary($0.downloadAction, for: game) } == true,
                             canCheckCloudSources: viewModel.canCheckCloudSources(for: game),
                             onPill: { pressPill($0) },
                             onOpenLog: { viewModel.revealLog(for: game) })

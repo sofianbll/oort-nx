@@ -164,7 +164,7 @@ struct SpotlightRowView: View {
     /// A tile at its own size; `TileGlide` places and grows it.
     private func tile(_ item: SpotlightItem, selected: Bool) -> some View {
         let native: PortedGame? = if case .game(let id) = item { gamesByID[id] } else { nil }
-        let cloudState = native.flatMap { cloud.states[$0.id] }
+        let cloudState = native.flatMap(cloud.stateForTile)
         return ZStack(alignment: .topLeading) {
             face(item, selected: selected, cloudState: cloudState)
                 .padding(canvas.u(SeleneTokens.Space.badge))
@@ -258,6 +258,7 @@ struct SpotlightRowView: View {
             case .favorites: return (L10n.text("No favorites yet"), L10n.text("Choose the heart on a game to add it to your favorites."))
             case .notPlayed: return (L10n.text("You've started everything"), L10n.text("Every game in your library has been played at least once."))
             case .all: return (L10n.text("No games yet"), L10n.text("Add a game to start your collection."))
+            case .cloud: return (L10n.text("No games only in the cloud"), L10n.text("Cloud-only games appear here."))
             }
         }()
         return VStack(alignment: .leading, spacing: canvas.u(6)) {

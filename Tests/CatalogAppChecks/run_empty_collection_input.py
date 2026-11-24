@@ -21,6 +21,7 @@ struct Filter { func shifted(by step: Int) -> Self { self } }
 struct Game {
     let id = UUID()
     var isPlayableLocally = true
+    var isCloudSourcePlaceholder = false
     enum Integration { case steam, native }
     var integration = Integration.native
     let macShortcut: Int? = nil
@@ -40,7 +41,7 @@ final class Router {
     func handleIntegrationBar(_ action: GamepadAction, profileFocused: inout Bool, hasProfile: Bool) -> Bool { false }
 }
 struct Settings { let settings = Values(); struct Values { let viewButtonSwitches = true } }
-struct Cloud { func downloadsCloudApp(_ game: Game) -> Bool { false } }
+struct Cloud { func downloadItem(for game: Game) -> Int? { nil } }
 enum Origin { case collection }
 struct SoundEffectService {
     static let shared = Self()
@@ -50,6 +51,7 @@ struct SoundEffectService {
 final class Model {
     var imports = 0
     var isScanningLibrary = false
+    var gamesWithFilesHere: Set<UUID> = []
     let macShortcuts = Shortcuts()
     struct Shortcuts { func showTileOptions(_ game: Game) {} }
     let librarySelection = Selection()

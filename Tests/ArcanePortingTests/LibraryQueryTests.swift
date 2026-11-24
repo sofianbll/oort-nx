@@ -111,6 +111,17 @@ final class LibraryQueryTests: XCTestCase {
         XCTAssertTrue(searched.isEmpty)
     }
 
+    func testCloudFilterUsesConfirmedIDsAndStillExcludesHiddenGames() {
+        let (games, history) = fixtures()
+        let visible = games.first { !$0.isHidden }!
+        let hidden = games.first { $0.isHidden }!
+        let catalog = games.map(CatalogGame.init(nxnative:))
+        let query = LibraryQuery(filter: .cloud)
+        XCTAssertEqual(query.applyCatalog(to: catalog, history: history, cloudOnly: [visible.id, hidden.id]).map(\.id),
+                       [visible.id])
+        XCTAssertTrue(query.applyCatalog(to: catalog, history: history).isEmpty)
+    }
+
     func testSearchMatchesNameTitleAndBundleCaseInsensitively() {
         let games = [
             game("Super Mario Odyssey", titleId: "0100000000010000", bundleId: "org.nxnative.0100000000010000"),

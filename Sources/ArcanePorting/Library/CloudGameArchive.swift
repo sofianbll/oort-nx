@@ -635,7 +635,8 @@ public actor CloudGameArchive {
         decoder.dateDecodingStrategy = .iso8601
         guard let manifest = try? decoder.decode(CloudGameManifest.self, from: data),
               [1, 2].contains(manifest.version), manifest.titleID == title,
-              [[.app], CloudArtifactKind.allCases].contains(manifest.artifacts.map(\.kind)),
+              [[.app], CloudArtifactKind.allCases, [], [.cache]].contains(manifest.artifacts.map(\.kind)),
+              manifest.cloudOnlyApp != nil || manifest.sourceSelection?.adopted(in: stage, titleID: title) != nil,
               manifest.version != 1 || data.count <= Self.legacyManifestLimit else { throw CloudArchiveError.invalidManifest }
         for artifact in manifest.artifacts {
             if let tree = artifact.files {
@@ -655,7 +656,7 @@ public actor CloudGameArchive {
                       Self.isHex(object.hashes["md5"] ?? "", count: 32) else { throw CloudArchiveError.invalidManifest }
             }
         }
-        guard manifest.version != 2 || manifest.artifacts.contains(where: { $0.files != nil })
+        guard manifest.version != 2 || manifest.artifacts.isEmpty || manifest.artifacts.contains(where: { $0.files != nil })
         else { throw CloudArchiveError.invalidManifest }
         return manifest
     }

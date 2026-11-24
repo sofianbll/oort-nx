@@ -69,8 +69,8 @@ extension SpotlightView {
                 if pills == .porting {
                     return [HintItem(.y, L10n.text("Options")), HintItem(.a, L10n.text("Porting"))]
                 }
-                if downloadsCloudApp(game), pills != .queued {
-                    return [HintItem(.y, "Options"), HintItem(.a, "Download")]
+                if let item = downloadItem(game), pills != .queued {
+                    return [HintItem(.y, "Options"), HintItem(.a, item.primaryDownloadTitle)]
                 }
                 if pills.unavailableReason != nil, !runningGames.isRunning(game) {
                     return [HintItem(.y, L10n.text("Options"))]

@@ -3,6 +3,53 @@ import XCTest
 @testable import NXLibraryCore
 
 final class RcloneStorageBackendTests: XCTestCase {
+    func testSourceListingUsesOnlyMetadataAndNeverTurnsErrorsIntoEmptyFolders() async throws {
+        let root = "fixture:Chosen/Subfolder"
+        let backend = RcloneStorageBackend(remote: "fixture", root: "Chosen") { _, args, _ in
+            XCTAssertEqual(Array(args.prefix(4)), ["lsjson", root, "--no-modtime", "--no-mimetype"])
+            XCTAssertTrue(args.contains("--drive-skip-shortcuts"))
+            XCTAssertFalse(args.contains("--hash"))
+            XCTAssertFalse(args.contains("--recursive"))
+            return .init(status: 1, stdout: "[]", stderr: "connection reset")
+        }
+        do {
+            _ = try await backend.directoryEntries(in: "Subfolder")
+            XCTFail("An error with an empty JSON payload is not a successful listing")
+        } catch { XCTAssertEqual(error as? CloudLibraryFailure, .offline) }
+        for path in ["../Other", "/Other", "Subfolder//Other", ":Other"] {
+            do {
+                _ = try await backend.directoryEntries(in: path)
+                XCTFail("Unexpected listing outside the selected path: \(path)")
+            } catch { XCTAssertEqual(error as? StorageBackendError, .invalidKey) }
+        }
+        let statOffline = RcloneStorageBackend(remote: "fixture", root: "Chosen") { _, args, _ in
+            XCTAssertEqual(Array(args.prefix(2)), ["lsjson", root])
+            XCTAssertFalse(args.contains("--hash"))
+            return args.contains("--stat")
+                ? .init(status: 1, stdout: #"{"IsDir":true}"#, stderr: "connection reset")
+                : .init(status: 0, stdout: "[]", stderr: "")
+        }
+        do {
+            _ = try await statOffline.directoryEntries(in: "Subfolder")
+            XCTFail("An empty response needs a successful directory stat")
+        } catch { XCTAssertEqual(error as? CloudLibraryFailure, .offline) }
+    }
+
+    func testReferenceLabelStatsOnlyTheBoundRoot() async throws {
+        let folder = "Reference_ID-1"
+        let backend = RcloneStorageBackend(remote: "fixture", root: "Chosen") { _, args, _ in
+            XCTAssertEqual(Array(args.prefix(5)), ["lsjson", "fixture:", "--stat", "--no-modtime", "--no-mimetype"])
+            XCTAssertFalse(args.contains("--drive-shared-with-me"))
+            XCTAssertTrue(args.contains("--drive-skip-shortcuts"))
+            let flag = try XCTUnwrap(args.firstIndex(of: "--drive-root-folder-id"))
+            XCTAssertEqual(args[flag + 1], folder)
+            return .init(status: 0, stdout: #"{"ID":"Reference_ID-1","Name":"Reference","IsDir":true}"#, stderr: "")
+        }
+        let reference = try XCTUnwrap(backend.reference(folderID: folder))
+        let name = try await reference.referenceName()
+        XCTAssertEqual(name, "Reference")
+    }
+
     func testLocalDiskFullIsNotOfflineOrDriveQuota() async throws {
         let destination = FileManager.default.temporaryDirectory
         let volume = try XCTUnwrap(destination.resourceValues(forKeys: [.volumeLocalizedNameKey]).volumeLocalizedName)

@@ -19,6 +19,49 @@ public struct CloudSourcesStatus: Equatable, Sendable {
 
 public final class CloudGameSources: @unchecked Sendable {
     public typealias Progress = @Sendable (StorageProgress) -> Void
+    package struct DiscoveredGame: Equatable, Sendable {
+        package let titleID: String
+        package let name: String
+        package let directory: String
+        let files: [GameFileItem]
+
+        package func adopted(in root: URL) -> [GameFileItem] {
+            let parent = root.appendingPathComponent("Game [\(titleID)]", isDirectory: true)
+            return files.map {
+                var file = $0
+                file.url = parent.appendingPathComponent($0.url.lastPathComponent, isDirectory: false)
+                return file
+            }
+        }
+
+        package func matches(_ sources: [GameFileItem], in root: URL) -> Bool {
+            let expected = adopted(in: root)
+            return expected.count == sources.count && zip(expected, sources).allSatisfy { discovered, registered in
+                var discovered = discovered
+                discovered.id = registered.id
+                return discovered == registered
+            }
+        }
+
+        package func availability(for sources: [GameFileItem], in root: URL) -> CloudSourcesStatus? {
+            guard matches(sources, in: root) else { return nil }
+            let states = zip(sources, files).map { source, remote in
+                let local = SaveFiles.exists(source.url)
+                return CloudSourcesStatus.File(url: source.url, state: local ? .unknown : .cloudOnly,
+                                               localBytes: nil, remoteBytes: remote.sizeBytes)
+            }
+            return .init(files: states, state: states.contains { $0.state == .cloudOnly } ? .cloudOnly : .unknown,
+                         localBytes: 0, remoteBytes: files.reduce(0) { $0 + $1.sizeBytes })
+        }
+    }
+
+    package struct Discovery: Sendable {
+        package var games: [DiscoveredGame] = []
+        package var ambiguous: [String] = []
+        package var unreadable: [String] = []
+        package var failedDirectories: Set<String> = []
+    }
+
     public struct ArchivedSelection: Codable, Equatable, Sendable {
         private struct Source: Codable, Equatable, Sendable {
             let filename: String
@@ -79,6 +122,8 @@ public final class CloudGameSources: @unchecked Sendable {
     }
 
     private let backend: RcloneStorageBackend
+    private let library: RcloneStorageBackend
+    private let discoveryRoots: [String]
     private let capacity: @Sendable (URL) -> Int64?
     private let implicitRootParent: RcloneStorageBackend?
     private let trash: @Sendable (URL) throws -> Void
@@ -96,9 +141,173 @@ public final class CloudGameSources: @unchecked Sendable {
              (try? FileManager.default.attributesOfFileSystem(forPath: $0.path)[.systemFreeSize] as? NSNumber)?.int64Value
          }, trash: @escaping @Sendable (URL) throws -> Void) {
         self.backend = backend.atRoot(root)
+        self.library = backend
+        let relative = backend.descendant(ofRoot: root)
+        self.discoveryRoots = relative.map { relative in
+            usesDefaultRoot && relative == "GameFiles" ? [relative, "Switch/Jeux", "Switch/Games"] : [relative]
+        } ?? []
         self.capacity = capacity
         self.implicitRootParent = usesDefaultRoot ? backend : nil
         self.trash = trash
+    }
+
+    package func discover() async throws -> Discovery {
+        var result = Discovery()
+        for root in discoveryRoots {
+            switch try await directoryPath(root) {
+            case .missing: continue
+            case .ambiguous: return .init(ambiguous: [root])
+            case .present: result = try await discover(in: root)
+            }
+            if !result.games.isEmpty || !result.ambiguous.isEmpty || !result.unreadable.isEmpty { break }
+        }
+        return result
+    }
+
+    private enum DirectoryPath { case present, missing, ambiguous }
+
+    private func directoryPath(_ relative: String) async throws -> DirectoryPath {
+        var prefix = ""
+        for component in relative.components(separatedBy: "/") {
+            let key = Self.normalizedName(component)
+            let matches = try await library.directoryEntries(in: prefix).filter { Self.normalizedName($0.name) == key }
+            if matches.isEmpty { return .missing }
+            guard matches.count == 1, matches[0].isDirectory, matches[0].name == component else { return .ambiguous }
+            prefix = prefix.isEmpty ? component : prefix + "/" + component
+        }
+        return .present
+    }
+
+    private static func normalizedName(_ name: String) -> String {
+        name.precomposedStringWithCanonicalMapping.lowercased()
+    }
+
+    package func manifestFilesAvailable(_ selection: ArchivedSelection, titleID: String) async throws -> Bool {
+        guard let root = discoveryRoots.first,
+              let files = selection.adopted(in: URL(fileURLWithPath: "/"), titleID: titleID) else { return false }
+        let directory = root + "/" + selection.folderName
+        guard try await directoryPath(directory) == .present else { return false }
+        let entries = try await library.directoryEntries(in: directory)
+        let byName = Dictionary(grouping: entries, by: { Self.normalizedName($0.name) })
+        return files.allSatisfy { file in
+            let name = file.url.lastPathComponent
+            guard let entries = byName[Self.normalizedName(name)], entries.count == 1,
+                  let entry = entries.first else { return false }
+            return entry.name == name && !entry.isDirectory && entry.object.size == file.sizeBytes
+        }
+    }
+
+    private func discover(in root: String) async throws -> Discovery {
+        typealias Entry = (name: String, isDirectory: Bool, object: StorageObject)
+        func supported(_ entry: Entry) -> Bool {
+            !entry.isDirectory && Self.fileExtensions.contains((entry.name as NSString).pathExtension.lowercased())
+        }
+        let normalized = Self.normalizedName
+        func ids(_ name: String) -> Set<UInt64> {
+            if SaveLocation.validID(name), let id = UInt64(name, radix: 16) { return [id] }
+            return Set(SourceCatalog.titleIDs(in: name))
+        }
+        let entries = try await library.directoryEntries(in: root)
+        guard entries.count <= 10_000 else { throw StorageBackendError.invalidResponse }
+        let byName = Dictionary(grouping: entries, by: { normalized($0.name) })
+        var result = Discovery()
+        var candidates: [(String, DiscoveredGame)] = []
+        func add(_ packages: [Entry], at directory: String, folder: String?, label: String,
+                 entries: [String: [Entry]]) {
+            let folderIDs = folder.map(ids) ?? []
+            let explicit = packages.flatMap { ids($0.name) }
+            let bases = Set(explicit.map { SourceCatalog.baseTitleId(for: $0, kind: SourceCatalog.classify(titleId: $0)) })
+            let gameIDs = bases.union(folderIDs)
+            guard gameIDs.count <= 1, packages.allSatisfy({ (entries[normalized($0.name)]?.count ?? 0) == 1 && ids($0.name).count <= 1 })
+            else { result.ambiguous.append(label); return }
+            guard let base = gameIDs.first, SourceCatalog.classify(titleId: base) == .base,
+                  !packages.isEmpty, packages.count <= 512,
+                  packages.allSatisfy({ Selection.safeName($0.name) && $0.object.size > 0
+                      && $0.object.size <= Int64.max / 512 && ($0.name as NSString).pathExtension.lowercased() != "nup" }),
+                  packages.filter({ ids($0.name).isEmpty }).count <= 1,
+                  packages.allSatisfy({ !ids($0.name).isEmpty || !folderIDs.isEmpty })
+            else { result.unreadable.append(label); return }
+            let files = packages.sorted { $0.name < $1.name }.map { entry in
+                let id = ids(entry.name).first ?? base
+                let url = URL(fileURLWithPath: "/" + entry.name, isDirectory: false)
+                return GameFileItem(url: url, kind: SourceCatalog.classify(titleId: id),
+                                    titleId: String(format: "%016llX", id),
+                                    versionString: SourceCatalog.versionFromName(url).map { "v\($0)" },
+                                    sizeBytes: entry.object.size)
+            }
+            let baseFiles = files.filter { $0.kind == .base }
+            guard baseFiles.count <= 1 else { result.ambiguous.append(label); return }
+            guard let baseFile = baseFiles.first else { result.unreadable.append(label); return }
+            let title = String(format: "%016llX", base)
+            let folderName = folder.map {
+                SourceCatalog.cleanName(URL(fileURLWithPath: "/" + $0 + ".name"))
+            }
+            let name = folderName.flatMap { ids($0).isEmpty ? $0 : nil } ?? SourceCatalog.cleanName(baseFile.url)
+            candidates.append((label, .init(titleID: title, name: name, directory: directory, files: files)))
+        }
+
+        var loose: [UInt64: [Entry]] = [:]
+        for entry in entries {
+            try Task.checkCancellation()
+            if supported(entry) {
+                guard Selection.safeName(entry.name) else { result.unreadable.append(entry.name); continue }
+                let matches = ids(entry.name)
+                if matches.count > 1 { result.ambiguous.append(entry.name) }
+                else if let id = matches.first {
+                    let base = SourceCatalog.baseTitleId(for: id, kind: SourceCatalog.classify(titleId: id))
+                    loose[base, default: []].append(entry)
+                } else { result.unreadable.append(entry.name) }
+            } else if entry.isDirectory, !entry.name.hasPrefix("."), !entry.name.lowercased().hasSuffix(".app") {
+                guard Selection.safeName(entry.name) else { result.unreadable.append(entry.name); continue }
+                guard byName[normalized(entry.name)]?.count == 1 else { result.ambiguous.append(entry.name); continue }
+                let directory = root + "/" + entry.name
+                do {
+                    let children = try await library.directoryEntries(in: directory)
+                    let packages = children.filter(supported)
+                    if !packages.isEmpty || !ids(entry.name).isEmpty {
+                        add(packages, at: directory, folder: entry.name, label: entry.name,
+                            entries: Dictionary(grouping: children, by: { normalized($0.name) }))
+                    }
+                } catch is CancellationError { throw CancellationError() }
+                catch {
+                    result.unreadable.append(entry.name)
+                    result.failedDirectories.insert(directory)
+                }
+            }
+        }
+        for packages in loose.values {
+            add(packages, at: root, folder: nil, label: packages.map(\.name).sorted()[0], entries: byName)
+        }
+        // The same ID in two locations is not an invitation to pick a copy.
+        for group in Dictionary(grouping: candidates, by: { $0.1.titleID }).values {
+            if group.count == 1, let entry = group.first { result.games.append(entry.1) }
+            else { result.ambiguous += group.map(\.0) }
+        }
+        result.games.sort { $0.titleID < $1.titleID }
+        result.ambiguous = Array(Set(result.ambiguous)).sorted()
+        result.unreadable = Array(Set(result.unreadable)).sorted()
+        return result
+    }
+
+    package func downloadDiscovered(titleID: String, directory: String, files: [GameFileItem], in root: URL,
+                                    progress: Progress?) async throws {
+        guard let game = try await discover().games.first(where: { $0.titleID == titleID }),
+              game.directory == directory, game.matches(files, in: root) else { throw CloudArchiveError.noRemoteCopy }
+        let selection = try Selection(game.directory, files.map(\.url), titleID: titleID)
+        guard let lease = library.leases.begin(selection.title) else { throw CloudArchiveError.busy }
+        defer { library.leases.end(selection.title, token: lease) }
+        guard try await directoryPath(game.directory) == .present else { throw CloudArchiveError.localChanged }
+        let entries = try await library.directoryEntries(in: game.directory, withHashes: true)
+        let byName = Dictionary(grouping: entries, by: { Self.normalizedName($0.name) })
+        var remote: [String: StorageObject] = [:]
+        for file in game.files {
+            let name = file.url.lastPathComponent
+            guard let matches = byName[Self.normalizedName(name)], matches.count == 1,
+                  let entry = matches.first, entry.name == name, !entry.isDirectory, entry.object.size == file.sizeBytes
+            else { throw CloudArchiveError.localChanged }
+            remote[name] = entry.object
+        }
+        try await download(using: library, pending: downloads(selection, remote: remote, verifyExisting: true), progress: progress)
     }
 
     public static func importedFolder(for id: UUID, in root: URL = AppData.supportRoot) -> URL {
@@ -223,6 +432,11 @@ public final class CloudGameSources: @unchecked Sendable {
         guard let lease = backend.leases.begin(selection.title) else { throw CloudArchiveError.busy }
         defer { backend.leases.end(selection.title, token: lease) }
         let pending = try await downloads(selection, replacingBefore: replacingBefore, replacing: replacing)
+        try await download(using: backend, pending: pending, progress: progress)
+    }
+
+    private func download(using backend: RcloneStorageBackend, pending: [(URL, StorageObject, Stamp?)],
+                          progress: Progress?) async throws {
         let bytes = try total(pending.map { $0.1.size })
         var reservations: [dev_t: Int64] = [:]
         for (destination, item, _) in pending {
@@ -303,11 +517,16 @@ public final class CloudGameSources: @unchecked Sendable {
     private func downloads(_ selection: Selection, replacingBefore: Date? = nil,
                            replacing: Set<URL> = []) async throws -> [(URL, StorageObject, Stamp?)] {
         let remote = try await remoteFiles(selection)
+        return try await downloads(selection, remote: remote, replacingBefore: replacingBefore, replacing: replacing)
+    }
+
+    private func downloads(_ selection: Selection, remote: [String: StorageObject], replacingBefore: Date? = nil,
+                           replacing: Set<URL> = [], verifyExisting: Bool = false) async throws -> [(URL, StorageObject, Stamp?)] {
         var pending: [(URL, StorageObject, Stamp?)] = []
         for source in selection.files {
             try Task.checkCancellation()
             let local = try stamp(at: source)
-            if local != nil && replacingBefore == nil { continue }
+            if local != nil && replacingBefore == nil && !verifyExisting { continue }
             guard let item = remote[source.lastPathComponent] else { throw CloudArchiveError.noRemoteCopy }
             guard let digest = item.md5 else { throw CloudArchiveError.invalidArchive }
             if let local {
@@ -437,10 +656,11 @@ public final class CloudGameSources: @unchecked Sendable {
         let directory: StorageObjectKey
         let files: [URL]
 
-        init(_ folder: String, _ urls: [URL]) throws {
-            guard Self.safeName(folder) else { throw CloudArchiveError.unsafePath }
+        init(_ folder: String, _ urls: [URL], titleID: String? = nil) throws {
+            guard folder.components(separatedBy: "/").allSatisfy(Self.safeName),
+                  titleID != nil || Self.safeName(folder) else { throw CloudArchiveError.unsafePath }
             directory = StorageObjectKey(folder)
-            title = CloudGameSources.title(in: folder)
+            title = titleID ?? CloudGameSources.title(in: folder)
             var names: [String: URL] = [:]
             var files: [URL] = []
             for url in urls {
