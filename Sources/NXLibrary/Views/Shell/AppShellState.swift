@@ -6,6 +6,7 @@ import NXLibraryCore
 /// StateObject creation while the prepared shell enters the view graph.
 @MainActor
 final class AppShellState {
+    private let dockProgress: DockProgress
     let settings: AppSettingsStore
     let viewModel: AppViewModel
     let router: AppRouter
@@ -48,6 +49,7 @@ final class AppShellState {
         viewModel = model
         AppDelegate.cloudLibrary = model.cloudLibrary
         AppDelegate.activityOwner = model
+        dockProgress = DockProgress(model)
         AppDelegate.showCloudQuit = { [weak model] in
             guard let model, !model.cloudQuitRequested else { return }
             model.dismissLaunchOverlay()
