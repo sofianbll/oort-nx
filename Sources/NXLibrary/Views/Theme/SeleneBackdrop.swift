@@ -143,7 +143,7 @@ struct SeleneBackdrop: View {
                 wallpaper(image)
                     .mask(style.brightness.mask)
             } else {
-                MoonlightBackdrop(accent: modsTint ? Self.modsAccent : Color(hex: style.palette.glyph),
+                MoonlightBackdrop(accent: modsTint ? Self.modsAccent : Color(hex: style.palette.backgroundLight),
                                   ink: Color(hex: style.palette.ink),
                                   tint: modsTint ? 1 : 0, moving: moving,
                                   surface: modsTint ? .classic : style.palette.surface)

@@ -33,6 +33,9 @@ public struct SelenePalette: Codable, Equatable, Identifiable {
     public var glyph: UInt32
     public var success: UInt32
     public var moonlight: String? = nil
+    /// The background light, when it is not the accent.
+    public var light: UInt32? = nil
+    public var backgroundLight: UInt32 { light ?? glyph }
     public var surface: MoonlightSurface { MoonlightSurface(rawValue: moonlight ?? "") ?? .classic }
     public var base: BaseGradient
 
@@ -41,6 +44,7 @@ public struct SelenePalette: Codable, Equatable, Identifiable {
         id: SelenePaletteCatalog.defaultID, name: "Oort", mode: .dark,
         focus: 0xFFFFFF, onFocus: 0x000000, ink: 0xFFFFFF, scrim: 0x000000,
         glass: 0x0B0B0B, glyph: 0xFFC799, success: 0x99FFE4,
+        light: 0x8D8D8D,
         base: .init(kind: .radial, stops: [
             .init(color: 0x121212, location: 0),
             .init(color: 0x000000, location: 1)

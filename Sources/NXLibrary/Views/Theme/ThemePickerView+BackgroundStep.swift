@@ -166,7 +166,7 @@ extension ThemePickerView {
                 tileLabel("Theme's own")
             case .none:
                 if state.tab == .live {
-                    MoonlightBackdrop(accent: SeleneTheme.glyph, ink: SeleneTheme.ink, moving: false, asImage: true,
+                    MoonlightBackdrop(accent: SeleneTheme.backgroundLight, ink: SeleneTheme.ink, moving: false, asImage: true,
                                       surface: SeleneTheme.moonlightSurface)
                 }
                 tileLabel(state.tab == .live ? L10n.text("Moonlight") : "None")

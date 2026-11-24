@@ -44,6 +44,14 @@ final class SelenePaletteTests: XCTestCase {
         XCTAssertEqual(p.base.stops, [.init(color: 0x121212, location: 0), .init(color: 0x000000, location: 1)])
     }
 
+    /// The background light follows the accent, unless a palette keeps it apart.
+    func testBackgroundLightFollowsTheAccentUnlessSet() throws {
+        let all = try SelenePaletteCatalog.load(from: paletteURL)
+        let vantablack = SelenePaletteCatalog.resolve("vantablack", in: all)
+        XCTAssertEqual(SelenePaletteCatalog.resolve("oort", in: all).backgroundLight, vantablack.glyph)
+        for palette in all where palette.id != "oort" { XCTAssertEqual(palette.backgroundLight, palette.glyph, palette.id) }
+    }
+
     func testSelenePaletteValues() throws {
         let all = try SelenePaletteCatalog.load(from: paletteURL)
         let p = SelenePaletteCatalog.resolve("selene", in: all)

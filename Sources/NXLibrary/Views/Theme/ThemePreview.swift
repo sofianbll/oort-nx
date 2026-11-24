@@ -49,7 +49,7 @@ struct ThemePreview: View {
                             .onDisappear { videoReady = false }
                     }
                 } else {
-                    MoonlightBackdrop(accent: Color(hex: palette.glyph), ink: Color(hex: palette.ink),
+                    MoonlightBackdrop(accent: Color(hex: palette.backgroundLight), ink: Color(hex: palette.ink),
                                       moving: animated && !reduceMotion,
                                       asImage: !animated || reduceMotion,
                                       surface: palette.surface)
