@@ -62516,6 +62516,72 @@
         }
       }
     },
+    "Pause": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Pause"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Metti in pausa"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Mettre en pause"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Pausieren"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Pausar"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Pausar"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "暂停"}}
+      }
+    },
+    "Paused": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Paused"}},
+        "it": {"stringUnit": {"state": "translated", "value": "In pausa"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "En pause"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Pausiert"}},
+        "es": {"stringUnit": {"state": "translated", "value": "En pausa"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Em pausa"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "已暂停"}}
+      }
+    },
+    "The current file may restart from the beginning.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "The current file may restart from the beginning."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Il download del file corrente potrebbe ripartire dall’inizio."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Le téléchargement du fichier en cours peut reprendre depuis le début."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Der Download der aktuellen Datei kann von vorn beginnen."}},
+        "es": {"stringUnit": {"state": "translated", "value": "La descarga del archivo actual puede empezar de nuevo."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "O download do arquivo atual pode recomeçar do início."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "当前文件可能会从头下载。"}}
+      }
+    },
+    "This transfer cannot be paused.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "This transfer cannot be paused."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Questo trasferimento non può essere messo in pausa."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Vous ne pouvez pas mettre ce transfert en pause."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Diese Übertragung kann nicht pausiert werden."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Esta transferencia no se puede pausar."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Não é possível pausar esta transferência."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法暂停此传输。"}}
+      }
+    },
+    "Confirm the download destination: %@": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Confirm the download destination: %@"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Conferma la destinazione del download: %@"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Confirmez la destination du téléchargement : %@"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Bestätige den Download-Zielort: %@"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Confirma el destino de la descarga: %@"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Confirme o destino do download: %@"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "请确认下载位置：%@"}}
+      }
+    },
+    "The download destination has changed. Review it in Cloud library.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "The download destination has changed. Review it in Cloud library."}},
+        "it": {"stringUnit": {"state": "translated", "value": "La destinazione del download è cambiata. Controllala nella libreria cloud."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "La destination du téléchargement a changé. Vérifiez-la dans la bibliothèque cloud."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Der Download-Zielort hat sich geändert. Prüfe ihn in der Cloud-Bibliothek."}},
+        "es": {"stringUnit": {"state": "translated", "value": "El destino de la descarga ha cambiado. Revísalo en la biblioteca en la nube."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "O destino do download mudou. Verifique-o na biblioteca na nuvem."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "下载位置已更改，请在云端游戏库中检查。"}}
+      }
+    },
     "Resume": {
       "comment": "DetailsTopBlock.swift:174",
       "localizations": {
