@@ -2083,9 +2083,11 @@ extension AppViewModel {
             try await sources.upload(folderName: files.folderName, files: files.files, progress: transfer)
         case .downloading:
             let title = game.titleId?.uppercased() ?? ""
-            let engine = URL(fileURLWithPath: setup.nxnativePath), toolchain = setup.engineToolchain
-            let developer = setup.resolvedDeveloperDir(), keys = setup.isProdKeysValid ? setup.keyStore.keyURL : nil
+            let engine = URL(fileURLWithPath: setup.nxnativePath)
+            let keys = setup.isProdKeysValid ? setup.keyStore.keyURL : nil
             let verify: CloudGameSources.VerifySources = { url, files in
+                let toolchain = EngineToolchain.resolve(runtime: .locate(), repo: engine)
+                let developer = SetupModel.resolveDeveloperDir()
                 if url.pathExtension.lowercased() == "nup" {
                     let capabilities = EngineSourceCapabilities(repo: engine)
                     let program = SourceSelection.programIndex(for: files, titleID: title, nupPrograms: capabilities.nupPrograms)
