@@ -236,7 +236,8 @@ extension AppShellView {
         }
         .modifier(SoundCueHooks(router: router, viewModel: viewModel))
         // Inside the canvas root so the sheet inherits the window's canvas units.
-        .seleneCanvasRoot()
+        .seleneCanvasRoot(zoom: CGFloat(settings.presentation.interfaceZoom))
+        .modifier(InterfaceZoomCommands(settings: settings))
         .animation(Motion.screen(reduceMotion), value: viewModel.optionsGameID)
         .animation(Motion.overlay(reduceMotion), value: router.isMenuPresented)
         .animation(Motion.anchoredCard(reduceMotion), value: router.menuSelection.isSubmenuOpen)
@@ -528,6 +529,20 @@ private struct MenuHoldIndicator: View {
                 .padding(.bottom, canvas.u(SeleneBottomScrim.hintsBottom + 50))
             }
             .allowsHitTesting(false)
+        }
+    }
+}
+
+/// ⌘+, ⌘− and ⌘0.
+private struct InterfaceZoomCommands: ViewModifier {
+    let settings: AppSettingsStore
+
+    func body(content: Content) -> some View {
+        content.onReceive(NotificationCenter.default.publisher(for: .nxInterfaceZoom)) { note in
+            guard let steps = note.object as? Int else { return }
+            let next = steps == 0 ? 1 : InterfaceZoom.stepped(CGFloat(settings.presentation.interfaceZoom), by: steps)
+            // While Settings is open the change joins its draft.
+            settings.editingSettings.interfaceZoom = Double(next)
         }
     }
 }

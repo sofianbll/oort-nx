@@ -41,7 +41,7 @@ final class SettingsCatalogTests: XCTestCase {
         "gameDefaults.enableMetalFXUpscale", "gameDefaults.enableMetalHUD", "gameDefaults.language",
         "gameDefaults.renderScale", "controllerStatus", "buttonLayout", "controllerLayout", "controllerDeadzone", "inGameHomeButton", "gameDefaults.rumble",
         "gameDefaults.rumbleGain", "gameFolder", "libraryFolder", "gameInboxEnabled", "libraryRefresh", "notifyPortingEnds",
-        "integrations", "platformCardInfo", "macShortcutAdd", "steamSource", "steamRefresh", "steamFolder", "steamInBackground", "storageUsage", "buildCaches", "logs",
+        "integrations", "interfaceZoom", "platformCardInfo", "macShortcutAdd", "steamSource", "steamRefresh", "steamFolder", "steamInBackground", "storageUsage", "buildCaches", "logs",
         "controllerLayout", "metadataCache", "artworkCache", "saveBackups", "console", "engineFolder", "engineStatus",
         "toolchainOverride", "upstream", "newestEngine", "compare", "keys", "setup", "diagnostics", "appUpdates",
         "projectDocs", "multiplayerVPN", "multiplayerDefault", "multiplayerLocalMode", "multiplayerAdapter",
@@ -196,7 +196,7 @@ final class SettingsCatalogTests: XCTestCase {
     /// The rows in screen order, as before the Porting rows moved to their module.
     func testRowsKeepTheirScreenOrder() {
         XCTAssertEqual(SettingsCatalog.all.map(\.id), [
-        "profileName", "profileAvatar", "profilePortrait", "colorThemeID", "wallpaperID", "settingsWallpaperID",
+        "profileName", "profileAvatar", "profilePortrait", "interfaceZoom", "colorThemeID", "wallpaperID", "settingsWallpaperID",
         "backgroundSizing", "profileLock", "appearsOnline", "showsCurrentGame", "nextendo", "nextendoFriends", "nextendoAddFriend",
         ] + ProfilePageCard.allCases.map { "profile-card-\($0.rawValue)" } + [
         "appLanguage", "appRegion", "startOn", "restoreLastGame", "startInFullscreen", "checkAppUpdatesAtLaunch",

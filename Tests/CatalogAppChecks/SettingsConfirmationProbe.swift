@@ -557,7 +557,7 @@ import ArcanePorting
             .environment(\.seleneButtonNames, .nintendo)
             .environment(\.seleneReduceMotion, true)
             .environment(\.seleneBackdropStyle, style)
-            .seleneCanvasRoot())
+            .seleneCanvasRoot(zoom: CGFloat(Double(ProcessInfo.processInfo.environment["OORT_ZOOM"] ?? "") ?? 1)))
         host.frame.size = size
         let window = NSWindow(contentRect: host.frame, styleMask: [.borderless], backing: .buffered, defer: false)
         window.contentView = host
@@ -644,7 +644,7 @@ import ArcanePorting
             .environment(\.seleneButtonNames, .nintendo)
             .environment(\.seleneReduceMotion, true)
             .environment(\.seleneBackdropStyle, style)
-            .seleneCanvasRoot())
+            .seleneCanvasRoot(zoom: CGFloat(Double(ProcessInfo.processInfo.environment["OORT_ZOOM"] ?? "") ?? 1)))
         host.frame.size = size
         let window = NSWindow(contentRect: host.frame, styleMask: [.borderless], backing: .buffered, defer: false)
         window.contentView = host
@@ -731,7 +731,7 @@ import ArcanePorting
                 .environment(\.seleneButtonNames, .nintendo)
                 .environment(\.seleneReduceMotion, true)
                 .environment(\.seleneBackdropStyle, style)
-                .seleneCanvasRoot())
+                .seleneCanvasRoot(zoom: CGFloat(Double(ProcessInfo.processInfo.environment["OORT_ZOOM"] ?? "") ?? 1)))
             host.frame.size = size
             let window = NSWindow(contentRect: host.frame, styleMask: [.borderless], backing: .buffered, defer: false)
             window.contentView = host

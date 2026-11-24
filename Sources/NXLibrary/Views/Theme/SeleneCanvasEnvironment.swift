@@ -44,11 +44,13 @@ private struct SeleneFontModifier: ViewModifier {
 }
 
 private struct SeleneCanvasRoot: ViewModifier {
+    let zoom: CGFloat
+
     func body(content: Content) -> some View {
         GeometryReader { proxy in
             content
                 .frame(width: proxy.size.width, height: proxy.size.height)
-                .environment(\.seleneCanvas, SeleneCanvas(size: proxy.size))
+                .environment(\.seleneCanvas, SeleneCanvas(size: proxy.size, zoom: zoom))
         }
         // Full bleed under the hidden title bar: windowed looks like full screen.
         .ignoresSafeArea()
@@ -77,7 +79,7 @@ extension View {
     }
 
     /// Measures the available space and publishes it as `seleneCanvas`.
-    func seleneCanvasRoot() -> some View {
-        modifier(SeleneCanvasRoot())
+    func seleneCanvasRoot(zoom: CGFloat = 1) -> some View {
+        modifier(SeleneCanvasRoot(zoom: zoom))
     }
 }

@@ -13,6 +13,7 @@ extension Notification.Name {
     static let nxDetailGamepadAction = Notification.Name("NXDetailGamepadAction")
     static let nxSpotlightGamepadAction = Notification.Name("NXSpotlightGamepadAction")
     static let nxCollectionGamepadAction = Notification.Name("NXCollectionGamepadAction")
+    static let nxInterfaceZoom = Notification.Name("NXInterfaceZoom")
     static let nxGameOptionsGamepadAction = Notification.Name("NXGameOptionsGamepadAction")
     static let nxSetupCheckGamepadAction = Notification.Name("NXSetupCheckGamepadAction")
     static let nxArcaneWelcomeGamepadAction = Notification.Name("NXArcaneWelcomeGamepadAction")
@@ -107,6 +108,12 @@ struct NXLibraryApp: App {
                 .disabled(availability?.options != true)
             }
             CommandGroup(after: .sidebar) {
+                ForEach([("Larger interface", 1, "+"), ("Smaller interface", -1, "-"), ("Actual size", 0, "0")], id: \.1) { title, steps, key in
+                    Button(L10n.text(title)) {
+                        NotificationCenter.default.post(name: .nxInterfaceZoom, object: steps)
+                    }
+                    .keyboardShortcut(KeyEquivalent(Character(key)), modifiers: [.command])
+                }
                 Button(L10n.text("Menu")) {
                     NativeMenuCommands.shared.post(.nxLibraryOpenMenu)
                 }

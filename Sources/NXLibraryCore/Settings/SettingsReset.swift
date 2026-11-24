@@ -50,6 +50,7 @@ public enum SettingsReset {
             next.soundPackID = defaults.soundPackID
             next.quietLaunch = defaults.quietLaunch
         case .profileLook:
+            next.interfaceZoom = defaults.interfaceZoom
             next.colorThemeID = defaults.colorThemeID
             next.wallpaperID = defaults.wallpaperID
             next.settingsWallpaperID = defaults.settingsWallpaperID

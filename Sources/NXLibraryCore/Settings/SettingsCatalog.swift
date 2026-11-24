@@ -101,6 +101,8 @@ public enum SettingsCatalog {
                "Copies optional sounds and wallpapers from a local Selene folder you own."),
 
         // Look
+        row("interfaceZoom", .profileLook, "Interface size",
+            "Makes text, buttons and covers larger or smaller.") { $0.interfaceZoom },
         row("colorThemeID", .profileLook, "Color theme",
             "The palette for focus, text and backgrounds.") { $0.colorThemeID },
         row("wallpaperID", .profileLook, "Wallpaper",

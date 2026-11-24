@@ -32,6 +32,8 @@ struct ChangeMetadataView: View {
     @State private var failure: String?
     @State private var field: MetadataField = .description
     @State private var focus = 0
+    @State private var readingPosition = ScrollPosition(edge: .top)
+    @State private var readingOffset: CGFloat = 0
     @State private var titleDB: TitleDBInfo?
     @State private var gameTDB: [GameTDBEntry] = []
     @State private var searching: Bool
@@ -136,46 +138,25 @@ struct ChangeMetadataView: View {
     var body: some View {
         let rows = self.rows
         return ZStack {
-            SeleneTheme.scrim65
-                .ignoresSafeArea()
-                .contentShape(Rectangle())
-                .onTapGesture { close() }
-
             VStack(spacing: 0) {
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(L10n.text("CHANGE METADATA"))
-                        .seleneFont(.text, .semibold)
-                        .foregroundColor(SeleneTheme.ink60)
-                        .padding(.leading, canvas.u(SeleneTokens.Space.compact))
-                    Text(subject.name)
-                        .seleneFont(.screen)
-                        .foregroundColor(SeleneTheme.ink)
-                        .lineLimit(1)
-                        .padding(.leading, canvas.u(SeleneTokens.Space.tight))
-                    PlatformLabel(subject.platformKind, preset: .caption)
-                        .foregroundStyle(SeleneTheme.ink75)
-                        .padding(.leading, canvas.u(SeleneTokens.Space.tight))
-                        .padding(.bottom, canvas.u(SeleneTokens.Space.line))
-                    tabs
-                    Text(failure ?? sourceStatus)
-                        .seleneFont(.text)
-                        .foregroundColor(SeleneTheme.ink60)
-                        .lineLimit(1)
-                        .help(failure ?? sourceStatus)
-                        .padding(.leading, canvas.u(10))
-                        .padding(.vertical, canvas.u(10))
-                    list(rows)
+                OortSettingsShell(title: field.title, onBack: nil) {
+                    OortSettingsSidebar(sections: [.init(title: nil, items: MetadataField.allCases.map {
+                        .init(id: $0, title: $0.title, icon: fieldIcon($0))
+                    })], selected: field, focused: false, onSelect: select) {
+                        OortReadout(text: subject.name)
+                    }
+                } detail: {
+                    HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.large)) {
+                        list(rows)
+                            .frame(maxWidth: field == .description ? canvas.u(SeleneTokens.Space.metadataList) : .infinity)
+                        if field == .description { reading }
+                    }
                 }
-                .frame(width: canvas.u(1040), alignment: .leading)
-                .frame(maxHeight: .infinity, alignment: .top)
-                .padding(.top, canvas.u(90))
-                .padding(.bottom, canvas.u(SeleneTokens.Space.panel))
-                .contentShape(Rectangle())
-
                 SeleneHintsBar(left: [HintItem(.b, L10n.text("Back"), action: close)],
                                right: rightHints,
                                bottom: SeleneBottomScrim.hintsBottom, leftInset: 18)
             }
+            .background(SeleneBackdrop(still: true))
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .seleneOverlayOwnership(!editing)
             if editing { editor }
@@ -194,6 +175,7 @@ struct ChangeMetadataView: View {
 
     private var rightHints: [HintItem] {
         var hints = [HintItem(.lb, L10n.text("Previous")), HintItem(.rb, L10n.text("Next"))]
+        if field == .description { hints.append(HintItem(.rt, L10n.text("Read more"))) }
         if rows.indices.contains(focus), enabled(rows[focus]) {
             let row = rows[focus]
             let retrying: Bool
@@ -207,58 +189,73 @@ struct ChangeMetadataView: View {
         return hints
     }
 
-    private var tabs: some View {
-        HStack(spacing: canvas.u(8)) {
-            ForEach(MetadataField.allCases, id: \.self) { tab in
-                Text(tab.title)
-                    .seleneFont(.text, .semibold)
-                    .foregroundColor(tab == field ? SeleneTheme.ink : SeleneTheme.ink60)
-                    .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
-                    .padding(.vertical, canvas.u(9))
-                    .background(Capsule().fill(tab == field ? SeleneTheme.glassSolid : Color.clear))
-                    .contentShape(Capsule())
-                    .onTapGesture { select(tab) }
-                    .accessibilityAddTraits(tab == field ? [.isButton, .isSelected] : .isButton)
-            }
+    /// The whole text of the row in focus, at reading size; the list beside it stays short.
+    private var reading: some View {
+        let text = rows.indices.contains(focus) ? fullText(rows[focus]) : nil
+        return ScrollView {
+            Text(verbatim: text ?? failure ?? sourceStatus)
+                .seleneFont(.row)
+                .foregroundStyle(text == nil ? SeleneTheme.ink75 : SeleneTheme.ink)
+                .lineSpacing(canvas.u(SeleneTokens.Space.hairline))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(canvas.u(SeleneTokens.Space.large))
         }
-        .padding(.leading, canvas.u(SeleneTokens.Space.seam))
+        .scrollPosition($readingPosition)
+        .scrollIndicators(.hidden)
+        .background(SeleneTheme.glassSolid,
+                    in: RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card), style: .continuous))
+        .onChange(of: focus) { readingPosition.scrollTo(edge: .top) }
+        .onChange(of: field) { readingPosition.scrollTo(edge: .top) }
+        .accessibilityElement(children: .combine)
+    }
+
+    private func scrollReading(_ direction: CGFloat) {
+        readingOffset = max(0, (readingPosition.y ?? readingOffset) + direction * canvas.u(420))
+        withAnimation(reduceMotion ? nil : SeleneTheme.quick) { readingPosition.scrollTo(y: readingOffset) }
+    }
+
+    private func fullText(_ row: Row) -> String? {
+        switch row {
+        case .automatic: automaticValue.map(displayValue)
+        case .yourPick(let value): displayValue(value)
+        case .source: option(row).map { displayValue($0.value) } ?? describe(row).value
+        case .retry, .write: nil
+        }
+    }
+
+    private func fieldIcon(_ field: MetadataField) -> MaterialIcon {
+        switch field {
+        case .description: .edit
+        case .genres: .tune
+        case .developer: .build
+        case .publisher: .store
+        case .releaseDate: .schedule
+        }
     }
 
     private func list(_ rows: [Row]) -> some View {
-        ScrollViewReader { proxy in
-            ScrollView {
-                VStack(spacing: canvas.u(8)) {
-                    ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
-                        rowView(row, focused: index == focus)
-                            .id(index)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                focus = index
-                                choose(row)
-                            }
+        OortSettingsRows(focus: focus) {
+            ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
+                rowView(row, focused: index == focus)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        focus = index
+                        choose(row)
                     }
-                }
-                .padding(.top, canvas.u(SeleneTokens.Space.tight))
-                .padding(.bottom, canvas.u(SeleneTokens.Space.large))
-                // Expansion and focus scrolling share one curve; the text itself
-                // stays laid out at its final width throughout the transition.
-                .animation(reduceMotion ? nil : SeleneTheme.quick, value: focus)
-            }
-            .scrollIndicators(.hidden)
-            .onChange(of: focus) { _, index in
-                // A description can exceed the viewport: reveal its beginning,
-                // rather than centring it with the heading already off screen.
-                withAnimation(reduceMotion ? nil : SeleneTheme.quick) { proxy.scrollTo(index, anchor: .top) }
+                    .containerValue(\.oortSettingsRow, true)
+                    .id(index)
             }
         }
+        .id(field)
     }
 
     private func rowView(_ row: Row, focused: Bool) -> some View {
         let text = describe(row)
-        return SeleneOptionRow(icon: icon(row), title: text.title, about: text.value,
-                               focused: focused, enabled: enabled(row), aboutPreview: excerpt(text.value)) {
+        // A description is read beside the list; a short value belongs on its row.
+        return SeleneOptionRow(icon: icon(row), title: text.title, about: field == .description ? nil : text.value,
+                               focused: focused, enabled: enabled(row), aboutIsHelp: false) {
             if isCurrent(row) {
-                MaterialIconView(.check, size: 26).foregroundColor(SeleneTheme.focus)
+                MaterialIconView(.check, size: SeleneTokens.Space.large).foregroundColor(SeleneTheme.focus)
             }
         }
         .accessibilityElement(children: .ignore)
@@ -300,12 +297,6 @@ struct ChangeMetadataView: View {
 
     private func displayValue(_ value: String) -> String {
         field == .genres ? GameGenre.list(value.components(separatedBy: ",")).joined(separator: ", ") : value
-    }
-
-    /// Long descriptions show in full only on the focused row.
-    private func excerpt(_ value: String?) -> String? {
-        guard let value, value.count > 240 else { return nil }
-        return String(value.prefix(240)).trimmingCharacters(in: .whitespaces) + "…"
     }
 
     private func isCurrent(_ row: Row) -> Bool {
@@ -546,6 +537,8 @@ struct ChangeMetadataView: View {
         case .navigateDown: move(by: 1)
         case .navigateLeft, .tabPrevious: shiftField(by: -1)
         case .navigateRight, .tabNext: shiftField(by: 1)
+        case .jumpToStart: scrollReading(-1)
+        case .jumpToEnd: scrollReading(1)
         case .confirm: chooseFocused()
         case .cancel: close()
         default: break
