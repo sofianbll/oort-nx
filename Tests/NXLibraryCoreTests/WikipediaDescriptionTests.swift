@@ -42,6 +42,11 @@ final class WikipediaDescriptionTests: XCTestCase {
         XCTAssertFalse(WikipediaDescriptions.wanted(description: "A farming game.", descriptionLanguage: nil, language: .italian))
     }
 
+    func testSpanishOpeningPunctuationIsNotMistakenForCatalan() {
+        XCTAssertEqual(WikipediaDescriptions.resolvedTag(.catalan, text: "¡Visita el pueblo y busca a tus amigos!"), "es")
+        XCTAssertEqual(WikipediaDescriptions.resolvedTag(.catalan, text: "Visita el poble i cerca els teus amics!"), "ca")
+    }
+
     func testEditions() {
         XCTAssertEqual(WikipediaDescriptions.edition(for: .chineseSimplified)?.code, "zh")
         XCTAssertEqual(WikipediaDescriptions.edition(for: .chineseSimplified)?.variant, "zh-cn")

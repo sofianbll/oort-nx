@@ -43,6 +43,12 @@ public enum WikipediaDescriptions {
         recognizer.processString(text)
         guard let (language, confidence) = recognizer.languageHypotheses(withMaximum: 1).first,
               language != .undetermined, confidence >= minimumConfidence else { return nil }
+        return resolvedTag(language, text: text)
+    }
+
+    static func resolvedTag(_ language: NLLanguage, text: String) -> String {
+        // NaturalLanguage can mistake Spanish store text for Catalan, especially when game names dominate it.
+        if language == .catalan, text.contains("¡") || text.contains("¿") { return NLLanguage.spanish.rawValue }
         return language.rawValue
     }
 
