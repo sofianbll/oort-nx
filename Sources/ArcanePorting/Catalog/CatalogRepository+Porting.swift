@@ -129,14 +129,15 @@ extension CatalogRepository {
                     return value
                 } ?? "\(title).app"
                 if let index = known[title] {
-                    guard var game = draft.games[index].nxnativeGame, game.cloudImportPending == true else { continue }
+                    guard var game = draft.games[index].nxnativeGame else { continue }
                     let previous = game
-                    if app != nil, game.isCloudSourcePlaceholder, game.cloudSourcesReferenceFolder == referenceFolder {
+                    if game.cloudImportPending == true, app != nil, game.isCloudSourcePlaceholder,
+                       game.cloudSourcesReferenceFolder == referenceFolder {
                         game.url = folder.appendingPathComponent(bundle, isDirectory: true)
                         game.status = .appMissing
                         game.cloudReferenceFolder = referenceFolder
                     }
-                    if referenceFolder == nil, app != nil, game.cloudReferenceFolder != nil
+                    if game.cloudImportPending == true, referenceFolder == nil, app != nil, game.cloudReferenceFolder != nil
                         || (game.isCloudSourcePlaceholder && game.cloudSourcesReferenceFolder != nil) {
                         let sourceReference = game.cloudSourcesReferenceFolder
                         game.cloudSourcesReferenceFolder = sourceReference
@@ -144,7 +145,10 @@ extension CatalogRepository {
                         game.status = .appMissing
                         game.cloudReferenceFolder = nil
                     }
-                    if game.sources.isEmpty, game.cloudReferenceFolder == referenceFolder, let selection {
+                    if let selection, let archived = manifest.sourceSelection,
+                       (game.sources.isEmpty && game.cloudImportPending == true && game.cloudReferenceFolder == referenceFolder)
+                            || (game.discoveredCloudSourceDirectory == nil && game.cloudSourcesReferenceFolder == referenceFolder
+                                && Self.canRefreshManifestSources(game.sources, with: archived, in: files, title: title)) {
                         game.sources = selection
                         game.cloudSourcesReferenceFolder = referenceFolder
                     }
@@ -212,6 +216,17 @@ extension CatalogRepository {
                 else { draft.sources.append(source) }
             }
             return true
+        }
+    }
+
+    private static func canRefreshManifestSources(_ sources: [GameFileItem], with selection: CloudGameSources.ArchivedSelection,
+                                                  in root: URL, title: String) -> Bool {
+        guard let parent = sources.first?.url.deletingLastPathComponent().standardizedFileURL,
+              parent.deletingLastPathComponent().path == root.standardizedFileURL.path,
+              let existing = CloudGameSources.ArchivedSelection(folder: parent.lastPathComponent, files: sources, titleID: title),
+              !selection.sameFiles(as: existing) else { return false }
+        return sources.allSatisfy {
+            $0.url.deletingLastPathComponent().standardizedFileURL == parent && Self.definitelyAbsent($0.url)
         }
     }
 
