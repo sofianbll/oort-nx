@@ -1,4 +1,5 @@
 import XCTest
+import ImageIO
 import NXLibraryCore
 @testable import ArcanePorting
 
@@ -24,12 +25,13 @@ final class PlayersLaunchTests: XCTestCase {
             try Data(text.utf8).write(to: url)
         }
 
-        func writeRules(_ options: [String: [String]]) throws {
-            let properties: [String: Any] = [
+        func writeRules(_ options: [String: [String]], commit: String? = nil) throws {
+            var properties: [String: Any] = [
                 "CFBundleIdentifier": domain, "CFBundleExecutable": "fixture", "CFBundlePackageType": "APPL",
                 "DMTitleID": id,
                 "DMSettings": options.map { ["env": $0.key, "values": $0.value] },
             ]
+            properties["DMCommit"] = commit
             try FileManager.default.createDirectory(at: info.deletingLastPathComponent(), withIntermediateDirectories: true)
             try PropertyListSerialization.data(fromPropertyList: properties, format: .xml, options: 0).write(to: info)
         }
@@ -244,5 +246,142 @@ final class PlayersLaunchTests: XCTestCase {
         XCTAssertEqual(changed.status.nickname, .lockedProfile)
         XCTAssertNil(launch(f, players: changed, explicit: explicit)[nick])
         XCTAssertFalse(try String(contentsOf: f.plan, encoding: .utf8).contains("1234"))
+    }
+
+    func testEngineFingerprintVectorAndDuplicates() throws {
+        let hash = try XCTUnwrap(PlayerPadFingerprint.make(transport: "hid", vendor: 0x057e, product: 0x2009,
+                                                           serial: "synthetic-pad-A"))
+        // Shared vector: nxnative dm/host/tests/t_hid.c, pad_order_hash launch contract.
+        XCTAssertEqual(hash, "63175a1f3b3d6edf2eb9f38e9b83ca9f9bda37d1ea527d77af61aeaca0260eaf")
+        XCTAssertNotEqual(hash, PlayerPadFingerprint.make(transport: "hid", vendor: 0x057e, product: 0x2009,
+                                                            serial: "synthetic-pad-A "))
+        XCTAssertNil(PlayerPadFingerprint.make(transport: "hid", vendor: 0, product: 0, serial: "A\0B"))
+        XCTAssertNil(PlayerPadFingerprint.make(transport: "hid", vendor: 0, product: 0, serial: String(repeating: "é", count: 256)))
+        XCTAssertEqual(PlayerPadFingerprint.unique([(hash, "first")]), ["first": hash])
+        XCTAssertTrue(PlayerPadFingerprint.unique([(hash, "first"), (hash, nil)]).isEmpty)
+        XCTAssertTrue(PlayerPadFingerprint.unique([(hash, "first"), ("other", "first")]).isEmpty)
+    }
+
+    func testPackedCommitMustProveEachFeatureAndTheMacFix() async throws {
+        typealias Features = PlayersLaunch.EngineFeatures
+        struct Graph: CommandRunning, Sendable {
+            let commits: Set<String>
+            func run(_ executable: URL, _ arguments: [String], environment: [String: String]?,
+                     currentDirectory: URL?) throws -> CommandResult {
+                let status: Int32
+                if arguments.suffix(2).last != "123abcd" { status = 128 }
+                else { status = commits.contains(arguments[4]) ? 0 : 1 }
+                return .init(status: status, stdout: "", stderr: "")
+            }
+        }
+        let f = try fixture()
+        try f.write("\0DM_PAD_ORDER\0DM_PAD_MERGE\0DM_USER_%d_NAME\0DM_USER_%d_IMAGE\0", to: f.host)
+        let controllerCommits: Set<String> = [Features.orderCommit, Features.mergeCommit]
+        func prove(commit: String?, ancestors: Set<String>) async throws -> Features {
+            try f.writeRules([:], commit: commit)
+            let git = EngineAncestry(runner: Graph(commits: ancestors), engineFolder: f.home)
+            return await Features.installed(in: f.app, ancestry: git)
+        }
+        let accepted = try await prove(commit: "123abcd",
+                                       ancestors: controllerCommits.union([Features.macFix, Features.namesCommit]))
+        XCTAssertEqual(accepted, .init(order: true, extendedMerge: true, names: true))
+        let withoutFix = try await prove(commit: "123abcd", ancestors: controllerCommits.union([Features.imagesCommit]))
+        XCTAssertEqual(withoutFix, .init(images: true))
+        for commit in ["123abcd+dirty", "123abce", nil] {
+            let unknown = try await prove(commit: commit, ancestors: controllerCommits.union([Features.macFix,
+                                                    Features.namesCommit, Features.imagesCommit]))
+            XCTAssertEqual(unknown, .init())
+        }
+    }
+
+    func testVerifiedControllerOrderMergeAndGamePriority() throws {
+        let f = try fixture()
+        try f.write("\0\(join)\0\(merge)\0", to: f.host)
+        let hash = String(repeating: "a", count: 64)
+        var plan = PlayerPlan(mode: .pressToJoin)
+        try plan.set(.init(controller: .init(stableID: "opaque")), at: 3)
+        try plan.set(.init(controller: .init(stableID: "other")), at: 5)
+        let live = [ConnectedPlayerController(id: "connection", stableID: "opaque")]
+        func run(_ features: PlayersLaunch.EngineFeatures, player: Int = 1, options: [String: String] = [:]) -> PlayersLaunch {
+            PlayersLaunch.evaluate(plan: plan, app: f.app, titleID: f.id, home: f.home, environment: options,
+                                   savedChoices: MemorySavedChoices(), features: features, mergePlayer: player,
+                                   connected: live, fingerprints: ["opaque": hash])
+        }
+        let features = PlayersLaunch.EngineFeatures(order: true, extendedMerge: true)
+        XCTAssertEqual(run(features).additions, [join: "1", "DM_PAD_ORDER": "3:\(hash)"])
+        XCTAssertEqual(run(features).status.controllerOrder, [5: .disconnectedController])
+        XCTAssertEqual(run(.init()).additions, [join: "1"])
+        XCTAssertEqual(run(.init()).status.controllerOrder[3], .unsupportedEngine)
+        let explicit = ["DM_PAD_ORDER": "user order"]
+        XCTAssertEqual(run(features, options: explicit).additions, [join: "1"])
+        XCTAssertEqual(run(features, options: explicit).status.controllerOrder[3], .gameOption)
+        plan.mode = .merge
+        XCTAssertEqual(run(features, player: 3).additions, [merge: "3"])
+        XCTAssertEqual(run(features, player: 3).status.controllerOrder[3], .mergeMode)
+        XCTAssertEqual(run(.init(), player: 3).additions, [merge: "1"])
+        XCTAssertEqual(run(.init(), player: 3).status.controllerMode, .unsupportedEngine)
+        XCTAssertEqual(run(features, player: 3, options: [merge: "2"]).status.controllerMode, .gameOption)
+        XCTAssertTrue(run(features, player: 3, options: explicit).additions.isEmpty)
+        XCTAssertEqual(run(features, player: 9).status.controllerMode, .invalidMergePlayer)
+    }
+
+    func testPortraitsAndNamesHonorEachKeyAndLiveUntilExitOrOpenFailure() throws {
+        let f = try fixture()
+        try f.write("\0\(nick)\0", to: f.host)
+        let first = LocalProfile(name: "First", look: .init(.init()))
+        let second = LocalProfile(name: String(repeating: "é", count: 17), look: .init(.init()))
+        var locked = LocalProfile(name: "Locked", look: .init(.init()))
+        XCTAssertTrue(locked.setPIN("1234"))
+        var plan = PlayerPlan(mode: .inOrder)
+        for (number, profile) in [(1, first), (2, second), (8, locked)] {
+            try plan.set(.init(profileID: profile.id), at: number)
+        }
+        try f.write("DM_USER_1_IMAGE=/fixture/preferred.jpg", to: f.titleEnv)
+        func run(_ mode: String, features: PlayersLaunch.EngineFeatures = .init(names: true, images: true),
+                 root: URL? = nil) -> PlayersLaunch {
+            PlayersLaunch.evaluate(plan: plan, app: f.app, titleID: f.id, home: f.home,
+                                   environment: [network: mode], savedChoices: MemorySavedChoices(),
+                                   profiles: [first, second, locked], features: features,
+                                   avatarSymbols: ["person.fill"], portraitDirectory: root)
+        }
+        let old = run("offline", features: .init(), root: f.home)
+        XCTAssertEqual(old.additions, [nick: "First"])
+        XCTAssertEqual(launch(f, players: old), launch(f, players: run("offline", features: .init(), root: nil)))
+        XCTAssertEqual(run("nextendo", root: f.home).additions, [:])
+        XCTAssertEqual(run("nextendo").status.portraits[2], .networkMode(.nextendo))
+        XCTAssertEqual(run("auto").status.profileNames[2], .networkMode(.automatic))
+        let preview = run("lan")
+        XCTAssertNil(preview.additions["DM_USER_2_IMAGE"])
+        XCTAssertNil(preview.status.portraits[2])
+        XCTAssertEqual(run("offline", root: f.home.appendingPathComponent("missing")).status.portraits[2], .portraitExportFailed)
+        for success in [true, false] {
+            let players = run("offline", root: f.home)
+            XCTAssertEqual(players.status.portraits[1], .environmentFile)
+            XCTAssertEqual(players.status.portraits[8], .lockedProfile)
+            XCTAssertEqual(players.status.profileNames[8], .lockedProfile)
+            XCTAssertEqual(players.additions["DM_USER_2_NAME"], String(repeating: "é", count: 16))
+            let path = try XCTUnwrap(players.additions["DM_USER_2_IMAGE"])
+            let url = URL(fileURLWithPath: path)
+            let data = try Data(contentsOf: url)
+            XCTAssertTrue(data.starts(with: [0xff, 0xd8]))
+            XCTAssertLessThanOrEqual(data.count, 128 * 1024)
+            let source = try XCTUnwrap(CGImageSourceCreateWithData(data as CFData, nil))
+            let image = try XCTUnwrap(CGImageSourceCreateImageAtIndex(source, 0, nil))
+            XCTAssertEqual(image.width, 256)
+            XCTAssertEqual(image.height, 256)
+            let folder = url.deletingLastPathComponent()
+            let attributes = try FileManager.default.attributesOfItem(atPath: folder.path)
+            XCTAssertEqual(attributes[.posixPermissions] as? Int, 0o700)
+            let stub = LaunchServiceTests.FakeLauncher()
+            stub.shouldSucceed = success
+            LaunchService(launcher: stub).launch(appURL: f.app, environment: [:], homeButton: .auto,
+                                                overlay: nil, snapshot: nil, players: players, onExit: nil) { opened, _ in
+                XCTAssertEqual(opened, success)
+            }
+            XCTAssertEqual(stub.environment["DM_USER_2_IMAGE"], path)
+            XCTAssertEqual(FileManager.default.fileExists(atPath: path), success)
+            if success { try XCTUnwrap(stub.onExit)() }
+            XCTAssertFalse(FileManager.default.fileExists(atPath: folder.path))
+        }
     }
 }

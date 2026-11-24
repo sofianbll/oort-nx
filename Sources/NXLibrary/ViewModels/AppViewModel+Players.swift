@@ -24,12 +24,25 @@ extension AppViewModel {
         let explicit = playProfile.isGuest ? NextendoLaunch.guestEnvironment() :
             runtimeSettings.gameSettings(for: game)?.multiplayerLaunch(
                 settings: settingsStore?.settings ?? AppSettings(), adapters: .current()).environment ?? [:]
-        return await preparePlayers(for: game, titleID: titleID, environment: explicit).status
+        return await preparePlayers(for: game, titleID: titleID, environment: explicit, preview: true).status
     }
 
-    @MainActor func preparePlayers(for game: PortedGame, titleID: String, environment: [String: String]) async -> PlayersLaunch {
-        await PlayersLaunch.prepare(library: Self.playerPlanLibrary, app: game.url, titleID: titleID,
-                                    explicit: environment, profiles: playerProfiles)
+    @MainActor func preparePlayers(for game: PortedGame, titleID: String, environment: [String: String],
+                                   mergePlayer: Int = 1, preview: Bool = false) async -> PlayersLaunch {
+        let path = setup.nxnativePath
+        let ancestry = path.isEmpty ? nil : EngineAncestry(runner: SystemCommandRunner(), engineFolder: URL(fileURLWithPath: path))
+        return await PlayersLaunch.prepare(
+            library: Self.playerPlanLibrary, app: game.url, titleID: titleID, explicit: environment,
+            profiles: playerProfiles, ancestry: ancestry, mergePlayer: mergePlayer, liveControllers: {
+                let connected = GameControllerService.shared.connectedControllers.map {
+                    ConnectedPlayerController(id: $0.id, stableID: $0.stableID, modelKey: $0.modelKey)
+                }
+                let fingerprints = PlayerPadFingerprint.liveHID { serial, vendor, product in
+                    ControllerHardwareID.make(serial: serial, bluetoothAddress: nil, vendor: vendor, product: product,
+                                              salt: ControllerHardwareID.installationSalt)
+                }
+                return (connected, fingerprints)
+            }, avatarSymbols: ProfilePortrait.symbols, portraitDirectory: preview ? nil : FileManager.default.temporaryDirectory)
     }
 
     @MainActor private var playerProfiles: [LocalProfile] {
