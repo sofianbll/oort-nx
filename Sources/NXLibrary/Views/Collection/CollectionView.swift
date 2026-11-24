@@ -21,6 +21,7 @@ struct CollectionView: View {
 
     @Environment(\.seleneCanvas) var canvas
     @Environment(\.nxAppLocale) private var localization
+    @Environment(\.integrationBar) var integrationBar
 
     @StateObject var art = SeleneHeroArt()
     /// Art the player picks redraws the hero and logo (their task keys carry its revision).
@@ -89,7 +90,8 @@ struct CollectionView: View {
                                              onMenu: { router.isMenuPresented = true },
                                              onSearch: { handle(.search) },
                                              onProfiles: { ProfileFlow.requestPicker() }),
-            rightHints: contextHints(game, record: record) + (profileCard == nil
+            rightHints: router.integrationBarFocused ? [HintItem(.a, L10n.text("Open")) { handle(.confirm) }]
+                : contextHints(game, record: record) + (profileCard == nil
                 ? [LibrarySortMenu.hint(settings.settings.librarySort, action: openSort)]
                 : [HintItem(.lb, "Previous") { handle(.tabPrevious) }, HintItem(.rb, "Next") { handle(.tabNext) }]),
             hintsHidden: router.overlayHasHints(viewModel),

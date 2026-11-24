@@ -24,6 +24,7 @@ struct AppShellView: View {
     @StateObject var sessionCard = SessionCardPresenter()
     @StateObject var updater = AppUpdater()
     @StateObject var sources: CatalogSourcesModel
+    private let igdb: IGDBSettings
     private let modStoreHost: ModStoreHost
     @StateObject var nativeMenus = NativeMenuCommands.shared
     @ObservedObject private var theme = ThemeStore.shared
@@ -51,6 +52,7 @@ struct AppShellView: View {
         _store = ObservedObject(wrappedValue: state.viewModel.store)
         _router = StateObject(wrappedValue: state.router)
         _profiles = ObservedObject(wrappedValue: state.profiles)
+        igdb = state.igdb
         _profileFlow = State(initialValue: state.viewModel.profileOwnsInput
             ? ProfileFlow(page: .picker, selected: state.profiles.startupSelection(state.settings.settings.profileStartup), atStartup: true) : nil)
         modStoreHost = state.modStoreHost
@@ -275,6 +277,8 @@ struct AppShellView: View {
                 // AddGameView handles its own Esc.
             } else if router.route == .gameInbox {
                 // The page handles Esc with its own input route.
+            } else if router.route == .integrations {
+                // The integration page handles Esc with its own input route.
             } else if case .console = router.route {
                 // ConsoleView handles its own Esc.
             } else {
@@ -321,6 +325,7 @@ struct AppShellView: View {
                 artwork: artwork,
                 storeHost: modStoreHost
             )
+            .environment(\.integrationBar, AnyView(integrationSurface(isBar: true)))
         case .collection, .profileCollection:
             CollectionView(
                 viewModel: viewModel,
@@ -329,6 +334,9 @@ struct AppShellView: View {
                 playSessions: playSessions,
                 artwork: artwork
             )
+            .environment(\.integrationBar, router.route == .collection ? AnyView(integrationSurface(isBar: true)) : nil)
+        case .integrations:
+            integrationSurface(isBar: false)
         case .profile:
             if let profile = profiles.active {
                 ProfilePage(profile: profile, viewModel: viewModel, history: playSessions, artwork: artwork,
@@ -380,6 +388,11 @@ struct AppShellView: View {
         }
     }
 
+    private func integrationSurface(isBar: Bool) -> IntegrationSurface {
+        IntegrationSurface(router: router, sources: sources, app: viewModel, setup: setup,
+                           cloud: viewModel.cloudLibrary, settings: settings, igdb: igdb,
+                           nextendo: viewModel.profileNextendo, isBar: isBar)
+    }
 }
 
 /// Selene's panel and back cues for the shell's overlays and routes.

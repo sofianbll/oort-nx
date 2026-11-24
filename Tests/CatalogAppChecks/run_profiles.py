@@ -236,6 +236,7 @@ import ArcanePorting
                 .pressScreenFixtureBack()
             precondition(settingsRouter.route == .profile)
         }
+        SettingsView.checkIntegrationJump(viewModel: vm, settings: settings, artwork: art)
         var settingsProfile = profiles.active!
         settingsProfile.portrait = square
         settingsProfile.avatar = 7
@@ -1276,6 +1277,28 @@ extension ProfilePINDialog {
 
 SETTINGS_PIN_TEST = r'''
 extension SettingsView {
+    @MainActor static func checkIntegrationJump(viewModel: AppViewModel, settings: AppSettingsStore, artwork: ArtworkStore) {
+        let router = AppRouter()
+        router.openIntegrations()
+        precondition(IntegrationOverview().open(.steam, in: router))
+        let sources = CatalogSourcesModel(repository: viewModel.catalogRepository,
+            initialConfiguration: .init(integration: .steam), onCommit: { _ in preconditionFailure("Unexpected Steam change") })
+        let view = Self(initialSection: .sources, viewModel: viewModel, settings: settings, router: router, artwork: artwork)
+        let host = NSHostingView(rootView: view.environmentObject(sources).frame(width: 1280, height: 800))
+        host.frame = CGRect(x: 0, y: 0, width: 1280, height: 800)
+        for _ in 0..<10 {
+            _ = host.fittingSize
+            host.layoutSubtreeIfNeeded()
+            RunLoop.main.run(until: Date().addingTimeInterval(0.02))
+        }
+        precondition(router.settingsRowID == nil && !sources.configuration.isEnabled, "Focus the published Steam row, do not activate it")
+        NotificationCenter.default.post(name: .nxSettingsGamepadAction, object: GamepadAction.cancel)
+        precondition(router.route == .integrations && router.integrationFocus == .steam && host.window == nil)
+        NotificationCenter.default.post(name: .nxSettingsGamepadAction, object: GamepadAction.confirm)
+        precondition(!sources.configuration.isEnabled, "The dismissed Settings view must not receive Confirm")
+        print("Integration → Settings row focus and return checks passed")
+    }
+
     @MainActor static func checkPINChange(viewModel: AppViewModel, settings: AppSettingsStore,
                                           artwork: ArtworkStore, profiles: LocalProfileStore) {
         let router = AppRouter()
@@ -1360,7 +1383,7 @@ def main():
                 r'public static let profile = [^\n]*',
                 f'public static let profile = AppDataProfile(home: URL(fileURLWithPath: "{temp}"), isDevelopment: true)')
         replace(package / "Sources/NXLibraryCore/App/AppDataProfile.swift",
-                r'public static var preferences: UserDefaults \{ \.standard \}',
+                r'public static var preferences: UserDefaults \{ [^\n]+ \}',
                 'public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
         replace(app / "Views/Shell/MenuOverlayView.swift", r"var presented = false", "var presented = true")
         replace(app / "Views/Setup/FoundGamesSetupView.swift", r"    var findings: FirstRunFindings\? \{ reader.findings \}",
@@ -1500,7 +1523,7 @@ extension ProfilePage {
         replace(app / "Services/GameControllerService.swift", r"        gcSource.start\(\)\n        hidSource.start\(\)",
                 "        // The probe never starts physical controller discovery.")
         api = app / "Views/Settings/SettingsAPISection.swift"
-        replace(api, r"            if supportsNextendo && accountOnly \{ nextendo.check\(clientID: clientID\) \}", "")
+        replace(api, r"            if canContactNextendo && supportsNextendo && accountOnly \{ nextendo.check\(clientID: clientID\) \}", "")
         replace(api, r"@State private var friendsExpanded = false",
                 "@State private var friendsExpanded = true")
         replace(api, r'            TextField\(text\("Friend code"\).*?\n                \.onSubmit\(sendFriendCode\)',
@@ -1544,7 +1567,7 @@ extension NextendoSettings {
             host = re.sub(r'        let beforeImage = .*?(?=\n    })', "", host, flags=re.S)
             host = re.sub(r'    struct BeforeSortTopBar: View \{.*?\n    }\n', "", host, flags=re.S)
         (app / "ProfileScreenProbe.swift").write_text(host)
-        subprocess.run(["swift", "run", "--package-path", str(package), "ProfileScreenProbe", str(out),
+        subprocess.run(["swift", "run", "--jobs", "2", "--package-path", str(package), "ProfileScreenProbe", str(out),
                         str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"), str(refs)],
                        check=True, env=dict(os.environ, HOME=temp, CFFIXED_USER_HOME=temp))
 

@@ -185,8 +185,9 @@ extension AppShellView {
                     return nil
                 }
             }
-            if !router.isMenuPresented, mods.isEmpty, router.route == .gameInbox,
-               let action = GameInboxView.keyAction(event.keyCode) {
+            if !router.isMenuPresented, mods.isEmpty,
+               let action = router.route == .gameInbox ? GameInboxView.keyAction(event.keyCode)
+                 : router.route == .integrations ? IntegrationsView.keyAction(event.keyCode) : nil {
                 if !event.isARepeat || [.navigateUp, .navigateDown, .navigateLeft, .navigateRight].contains(action) {
                     GameControllerService.shared.onAction?(action)
                 }

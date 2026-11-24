@@ -30,9 +30,20 @@ struct NXLibraryApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @FocusedValue(\.nxMenuAvailability) private var availability
     @ObservedObject private var localization = AppLocalization.shared
+
+    #if DEBUG
+    init() {
+        if let index = CommandLine.arguments.firstIndex(of: "--render-integration-fixture") {
+            precondition(index + 1 < CommandLine.arguments.count, "Pass a directory for the fixture PNGs")
+            try! IntegrationFixtureView.capture(to: URL(fileURLWithPath: CommandLine.arguments[index + 1], isDirectory: true))
+            exit(EXIT_SUCCESS)
+        }
+    }
+    #endif
+
     var body: some Scene {
-        Window(AppIdentity.displayName, id: "main") {
-            DevelopmentStartupView()
+        Window(windowTitle, id: windowID) {
+            startup
         }
         .windowStyle(.hiddenTitleBar)
         .defaultSize(width: 1440, height: 900)
@@ -91,5 +102,28 @@ struct NXLibraryApp: App {
                 .disabled(availability?.general != true)
             }
         }
+    }
+
+    private var windowTitle: String {
+        #if DEBUG
+        if AppData.integrationFixtureHome != nil { return "Oort NX · Fixture" }
+        #endif
+        return AppIdentity.displayName
+    }
+
+    private var windowID: String {
+        #if DEBUG
+        if AppData.integrationFixtureHome != nil { return "integration-fixture" }
+        #endif
+        return "main"
+    }
+
+    @ViewBuilder private var startup: some View {
+        #if DEBUG
+        if AppData.integrationFixtureHome != nil { IntegrationFixtureView() }
+        else { DevelopmentStartupView() }
+        #else
+        DevelopmentStartupView()
+        #endif
     }
 }

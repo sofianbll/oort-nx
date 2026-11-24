@@ -21,6 +21,7 @@ struct SettingsAPISection: View {
     @Environment(\.seleneReduceMotion) private var reduceMotion
     @Environment(\.openURL) private var openURL
     @Environment(\.nxAppLocale) private var localization
+    @Environment(\.passiveSettingsArrival) private var passiveArrival
     @ObservedObject private var igdb = IGDBSettings.shared
     @ObservedObject var nextendo = NextendoSettings.shared
     @State private var friendsExpanded = false
@@ -30,7 +31,9 @@ struct SettingsAPISection: View {
     @State private var copiedCode: String?
     @State var remotePlayAdapters = RemotePlayAdapters()
     @State private var vpnAppURL: URL?
+    @State private var nextendoRequested = false
 
+    private var canContactNextendo: Bool { !passiveArrival || nextendoRequested }
     private var clientID: String? { settings.settings.nextendoClientID ?? NextendoLaunch.buildClientID }
     private let accountRowID = "Nextendo"
     private let friendsRowID = "nextendoFriends"
@@ -103,10 +106,11 @@ struct SettingsAPISection: View {
             }
             else if showsMultiplayer { multiplayerRows } else { serviceRows }
         }
+        .environment(\.passiveSettingsArrival, !canContactNextendo)
         .onAppear {
             refreshRemotePlay()
             publishActions()
-            if supportsNextendo && accountOnly { nextendo.check(clientID: clientID) }
+            if canContactNextendo && supportsNextendo && accountOnly { nextendo.check(clientID: clientID) }
         }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             refreshRemotePlay()
@@ -119,12 +123,14 @@ struct SettingsAPISection: View {
         .onChange(of: advanced) { if showsMultiplayer { publishActions() } }
         .onChange(of: igdb.revision) { publishActions() }
         .onChange(of: supportsNextendo) { _, supported in
-            if supported && accountOnly { nextendo.check(clientID: clientID) }
-            else if accountOnly { endNextendoVisit() }
+            if canContactNextendo, accountOnly {
+                if supported { nextendo.check(clientID: clientID) }
+                else { endNextendoVisit() }
+            }
             publishActions()
         }
         .onChange(of: clientID) {
-            if supportsNextendo {
+            if canContactNextendo, supportsNextendo {
                 nextendo.clientChanged()
                 publishActions()
             }
@@ -152,9 +158,9 @@ struct SettingsAPISection: View {
         .onChange(of: nextendo.isWaitingForBrowser) { if supportsNextendo { publishActions() } }
         .onChange(of: profile?.appearsOnline) { if accountOnly { publishActions() } }
         .onChange(of: profile?.showsCurrentGame) { if accountOnly { publishActions() } }
-        .onDisappear { if accountOnly { endNextendoVisit() } }
-        .task(id: friendsRefreshClient) {
-            guard let clientID = friendsRefreshClient else { return }
+        .onDisappear { if canContactNextendo && accountOnly { endNextendoVisit() } }
+        .task(id: canContactNextendo ? friendsRefreshClient : nil) {
+            guard canContactNextendo, let clientID = friendsRefreshClient else { return }
             if let date = nextendo.friendsUpdatedAt, Date.now.timeIntervalSince(date) >= 60 {
                 nextendo.refreshFriends(clientID: clientID)
             }
@@ -302,6 +308,11 @@ struct SettingsAPISection: View {
         nextendo.refreshFriends(clientID: friendsRefreshClient)
     }
 
+    private func checkNextendo() {
+        nextendoRequested = true
+        nextendo.check(clientID: clientID)
+    }
+
     private var nextendoClientRow: some View {
         SeleneRow("Nextendo client ID", id: advancedRowID, subtitle: "Public client ID") {
             Text(settings.settings.nextendoClientID ?? text(clientID == nil ? "Not set" : "Built-in value"))
@@ -356,7 +367,8 @@ struct SettingsAPISection: View {
                     }
                 } else if nextendo.isWaitingForBrowser || nextendo.isBusy && !nextendo.isRefreshingFriends || signedOut {
                     NextendoValue(text: text(nextendo.isWaitingForBrowser ? "Waiting for your browser…"
-                                             : nextendo.isBusy ? "Checking…" : "Signed out"))
+                                             : nextendo.isBusy ? "Checking…"
+                                             : canContactNextendo ? "Signed out" : "Connection not tested"))
                 }
                 ViewThatFits(in: .horizontal) {
                     HStack(spacing: canvas.u(8)) { accountActions(buttons) }.fixedSize()
@@ -380,15 +392,20 @@ struct SettingsAPISection: View {
 
     private var accountButtons: [NextendoButton] {
         if nextendo.isWaitingForBrowser { return [.init("Cancel", action: nextendo.cancelBrowser)] }
-        let signIn = NextendoButton("Sign in…") { nextendo.signIn(clientID: clientID) }
-        if nextendo.status == .signedOut { return [signIn] }
+        let signIn = NextendoButton("Sign in…") {
+            nextendoRequested = true
+            nextendo.signIn(clientID: clientID)
+        }
+        if nextendo.status == .signedOut {
+            return canContactNextendo ? [signIn] : [.init("Check status", action: checkNextendo), signIn]
+        }
         var buttons: [NextendoButton] = []
         if let code = nextendo.account?.friendCode {
             buttons.append(.init(copiedCode == code ? "Copied" : "Copy code",
                                  symbol: copiedCode == code ? "checkmark" : "doc.on.doc", action: copyCode))
         }
         if nextendo.status == .expired { buttons.append(signIn) }
-        buttons.append(.init("Check status") { nextendo.check(clientID: clientID) })
+        buttons.append(.init("Check status", action: checkNextendo))
         if nextendo.failure == .discordUnlinked || nextendo.failure == .emailUnverified {
             buttons.append(.init("Open Nextendo account") {
                 NSWorkspace.shared.open(URL(string: "https://nextendo.network/compte.html")!)
@@ -773,6 +790,7 @@ private struct NextendoFriendLine<Trailing: View>: View {
 
 private struct NextendoGameTitle: View {
     @Environment(\.nxAppLocale) private var locale
+    @Environment(\.passiveSettingsArrival) private var passiveArrival
     @State private var resolved: (key: String, title: String)?
     let service: NextendoAccountService
     let name: String?
@@ -787,8 +805,8 @@ private struct NextendoGameTitle: View {
                 NextendoValue(text: prefix + title).help(title)
             }
         }
-        .task(id: key) {
-            guard name == nil, let id,
+        .task(id: passiveArrival ? nil : key) {
+            guard !passiveArrival, name == nil, let id,
                   let title = try? await service.gameTitle(id: id, language: locale.language),
                   !Task.isCancelled else { return }
             resolved = (key, title)
@@ -799,6 +817,7 @@ private struct NextendoGameTitle: View {
 
 private struct NextendoAvatar: View {
     @Environment(\.seleneCanvas) private var canvas
+    @Environment(\.passiveSettingsArrival) private var passiveArrival
     @State private var loaded: (key: String, image: NSImage)?
     let service: NextendoAccountService
     let pid: UInt64?
@@ -824,8 +843,8 @@ private struct NextendoAvatar: View {
         .clipShape(Circle())
         .overlay { Circle().strokeBorder(SeleneTheme.ink15, lineWidth: canvas.u(1)) }
         .accessibilityHidden(true)
-        .task(id: key) {
-            guard image == nil, let pid, TileArtMemo.shared.object(forKey: key as NSString) == nil,
+        .task(id: passiveArrival ? nil : key) {
+            guard !passiveArrival, image == nil, let pid, TileArtMemo.shared.object(forKey: key as NSString) == nil,
                   let data = try? await service.avatar(pid: pid),
                   !Task.isCancelled, let avatar = NSImage(data: data) else { return }
             TileArtMemo.store(avatar, for: key as NSString)

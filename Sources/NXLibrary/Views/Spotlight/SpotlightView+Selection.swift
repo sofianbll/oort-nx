@@ -9,6 +9,10 @@ extension SpotlightView {
     func mutate(_ change: (inout SpotlightState) -> Void) {
         var state = viewModel.spotlight
         change(&state)
+        if viewModel.spotlight.focus == .row, state.focus != .row {
+            router.integrationBarFocused = false
+            profileFocused = false
+        }
         if state != viewModel.spotlight { viewModel.spotlight = state }
     }
 

@@ -374,7 +374,7 @@ def main():
         profile = package / "Sources/NXLibraryCore/App/AppDataProfile.swift"
         change(profile, 'AppDataProfile(isDevelopment: Bundle.main.object(forInfoDictionaryKey: "NXLibraryDevelopmentProfile") as? Bool == true)',
                f'AppDataProfile(home: URL(fileURLWithPath: {json.dumps(str(home))}), isDevelopment: true)')
-        change(profile, "public static var preferences: UserDefaults { .standard }",
+        change(profile, "public static var preferences: UserDefaults { configuredPreferences() }",
                'public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
         (app / "InboxProbe.swift").write_text(HOST)
         font = ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"

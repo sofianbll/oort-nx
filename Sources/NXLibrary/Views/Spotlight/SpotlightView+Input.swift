@@ -21,6 +21,8 @@ extension SpotlightView {
             router.sortMenu = next
             return
         }
+        if integrationBar != nil, viewModel.spotlight.focus == .row,
+           router.handleIntegrationBar(action, profileFocused: &profileFocused, hasProfile: profile != nil) { return }
         if profileFocused {
             switch action {
             case .confirm: SpotlightTopBar.openProfile(); return
@@ -331,6 +333,7 @@ extension SpotlightView {
     /// A on a row item: a game plays (or opens Details when it is not built);
     /// a card does its one obvious thing until the cards get their own screens.
     func activate(_ item: SpotlightItem) {
+        router.integrationBarFocused = false
         switch item {
         case .game(let id):
             if let steam = viewModel.visibleCatalogGames.first(where: { $0.id == id }), steam.integration == .steam {

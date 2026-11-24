@@ -7,6 +7,10 @@ import os
 
 enum SettingsFocusArea { case sidebar, rows }
 
+extension EnvironmentValues {
+    @Entry var passiveSettingsArrival = false
+}
+
 /// Selene's settings screen (`SettingsScreen.cs`): groups on the left, the group's rows on the right.
 struct SettingsView: View {
     private let initialSection: SettingsSection
@@ -19,6 +23,7 @@ struct SettingsView: View {
     /// Opens the Search field when the player asks for it (`enterSection`).
     @State private var searchFieldRequest = 0
     @State private var section: SettingsSection
+    @State private var openedFromIntegrations: Bool
     @State private var showingControls = false
     @State private var cloudAssistant: CloudSetupAssistant.Entry?
     @State private var editingCloudReference = false
@@ -87,6 +92,7 @@ struct SettingsView: View {
         _nextendo = ObservedObject(wrappedValue: account ?? .shared)
         profiles = viewModel.localProfiles
         _section = State(initialValue: initialSection)
+        _openedFromIntegrations = State(initialValue: router.previousRoute == .integrations)
     }
 
     private var layout: some View {
@@ -128,7 +134,7 @@ struct SettingsView: View {
         .onDisappear(perform: removeKeyMonitor)
         .onDisappear { igdb.isEditing = false }
         .onDisappear { cloudAssistant = nil; editingCloudReference = false }
-        .onReceive(viewModel.cloudLibrary.$recovery) { action in
+        .onReceive(viewModel.cloudLibrary.$recovery.dropFirst(openedFromIntegrations ? 1 : 0)) { action in
             guard let action, router.route == .settings(.cloudLibrary) else { return }
             switch action {
             case .reconnect: cloudAssistant = .credentials
@@ -138,9 +144,9 @@ struct SettingsView: View {
             Task { @MainActor in viewModel.cloudLibrary.recovery = nil }
         }
         .onDisappear {
+            if !openedFromIntegrations { nextendo.cancelBrowser() }
             nextendo.isEditingClient = false
             nextendo.friendToRemove = nil
-            nextendo.cancelBrowser()
         }
         .task(id: engine) {
             guard let selected = engine else { nextendoEngine = nil; return }
@@ -164,8 +170,9 @@ struct SettingsView: View {
             section = value
             focusArea = .sidebar
         }
+        .onChange(of: router.settingsRowID) { _, _ in focusRequestedSetting() }
         .onReceive(NotificationCenter.default.publisher(for: .nxSettingsGamepadAction)) { note in
-            guard let action = note.object as? GamepadAction else { return }
+            guard router.route == .settings(initialSection), let action = note.object as? GamepadAction else { return }
             handleGamepad(action)
         }
     }
@@ -308,6 +315,7 @@ struct SettingsView: View {
                         onEditCloudReference: { editingCloudReference = true },
                         onActions: updateActions
                     )
+                    .environment(\.passiveSettingsArrival, openedFromIntegrations && section == initialSection)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .environment(\.seleneFocusedRowID, focusArea == .rows ? focusedRow?.rowID : nil)
@@ -315,11 +323,10 @@ struct SettingsView: View {
                 .padding(.bottom, canvas.u(SeleneTokens.Space.settingsInfoClearance))
             }
             .scrollIndicators(.hidden)
-            .onChange(of: rowFocus.index) {
+            .onChange(of: focusArea == .rows ? focusedRow?.rowID : nil) { _, rowID in
                 rowButton = 0
-                guard focusArea == .rows,
-                      rowActions.indices.contains(rowFocus.index) else { return }
-                let id = "selene-row-\(rowActions[rowFocus.index].rowID)"
+                guard let rowID else { return }
+                let id = "selene-row-\(rowID)"
                 withAnimation(reduceMotion ? nil : SeleneTheme.quick) {
                     proxy.scrollTo(id, anchor: .center)
                 }
@@ -362,6 +369,19 @@ struct SettingsView: View {
         rowFocus.move(by: 0, count: rowActions.count)
         if focusedID != focusedRow?.id || focusedButtonCount != focusedRow?.buttonCount { rowButton = 0 }
         if rowActions.isEmpty, focusArea == .rows { focusArea = .sidebar }
+        focusRequestedSetting()
+    }
+
+    private func focusRequestedSetting() {
+        guard router.route == .settings(section), let id = router.settingsRowID,
+              let setting = SettingsCatalog.all.first(where: { $0.id == id && $0.group == section }),
+              let index = rowActions.firstIndex(where: {
+                  $0.id == id || $0.rowID == setting.title || (id == "cloudLibraryService" && $0.id == "cloudRecovery")
+              }) else { return }
+        rowFocus.index = index
+        rowButton = 0
+        focusArea = .rows
+        router.takeSettingsRowFocus()
     }
 
     private func openGroup(_ row: SettingDescriptor) {
@@ -491,7 +511,7 @@ struct SettingsView: View {
     private func installKeyMonitor() {
         guard keyMonitor == nil else { return }
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
-            guard case .settings = router.route,
+            guard router.route == .settings(initialSection),
                   !viewModel.shellDialogOwnsInput,
                   !viewModel.isWelcomeOpen,
                   !NativeMenuCommands.shared.isTracking,
@@ -541,11 +561,9 @@ struct SettingsView: View {
             case 12, 14:
                 if typing { return event }
                 action = event.keyCode == 12 ? .tabPrevious : .tabNext
-            case 36, 76:
+            case 36, 49, 76:
                 if typing { return event }
-                action = .confirm
-            case 49:
-                if typing { return event }
+                guard !event.isARepeat else { return nil }
                 action = .confirm
             case 53:
                 action = .cancel
@@ -660,7 +678,7 @@ struct SettingsView: View {
         if let window = NSApp.keyWindow, window.firstResponder is NSText {
             window.makeFirstResponder(nil)
             SoundEffectService.shared.play(.focus)
-        } else if router.previousRoute == .profile {
+        } else if router.previousRoute == .profile || router.previousRoute == .integrations {
             router.back()
         } else if focusArea == .rows {
             leaveRows()

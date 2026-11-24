@@ -484,6 +484,7 @@ func withAnimation(_ animation: Int?, _ update: () -> Void) { update() }
             (.library, .nxSpotlightGamepadAction), (.collection, .nxCollectionGamepadAction),
             (.detail(UUID()), .nxDetailGamepadAction), (.settings(.startUp), .nxSettingsGamepadAction),
             (.addGame, .nxAddGameGamepadAction), (.console, .nxConsoleGamepadAction),
+            (.integrations, .nxIntegrationsAction),
         ]
         for (route, name) in screens {
             let routeInput = InputRecorder()
@@ -492,15 +493,15 @@ func withAnimation(_ animation: Int?, _ update: () -> Void) { update() }
             }
             input.router.route = route
             let local = actions.filter { ($0 != .profiles || route == .library)
-                && (route != .console || ($0 != .menu && $0 != .menuHold)) }
+                && ((route != .console && route != .integrations) || ($0 != .menu && $0 != .menuHold)) }
             for action in local { GameControllerService.shared.onAction?(action) }
             require(routeInput.actions == local, "\(route) must receive each command exactly once")
-            if route == .console {
+            if route == .console || route == .integrations {
                 GameControllerService.shared.onAction?(.menu)
-                require(input.router.isMenuPresented, "Menu opens the control center in Console")
+                require(input.router.isMenuPresented, "Menu opens the control center from \(route)")
                 input.router.isMenuPresented = false
                 GameControllerService.shared.onAction?(.menuHold)
-                require(input.router.route == .settings(.startUp), "Menu hold opens Settings from Console")
+                require(input.router.route == .settings(.startUp), "Menu hold opens Settings from \(route)")
             }
             NotificationCenter.default.removeObserver(observer)
         }

@@ -978,7 +978,7 @@ package enum CloudWriteFault {
                r'public static let profile = [^\n]*',
                f'public static let profile = AppDataProfile(home: URL(fileURLWithPath: "{temp}"), isDevelopment: true)')
         change(package / "Sources/NXLibraryCore/App/AppDataProfile.swift",
-               r'public static var preferences: UserDefaults \{ \.standard \}',
+               r'public static var preferences: UserDefaults \{ [^\n]+ \}',
                'public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
         change(app / "ViewModels/AppViewModel+CloudLibrary.swift",
                r'        let defaults = AppData\.preferences.*?(?=        rebuildArchive\(\))',

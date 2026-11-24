@@ -379,7 +379,7 @@ extension AppShellView {
                     returningFromBack: router.isReturningFromBack,
                     preservingSelection: setupSourceEntryID != nil
                 )
-            case .library, .collection, .detail, .gameInbox, .profile, .profileCollection:
+            case .library, .collection, .detail, .gameInbox, .profile, .profileCollection, .integrations:
                 setupSourceEntryID = nil
                 viewModel.porting.addGameDidLeave()
             default:

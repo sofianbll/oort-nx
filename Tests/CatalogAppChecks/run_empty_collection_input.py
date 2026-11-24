@@ -36,6 +36,7 @@ final class Router {
     func back() {}
     func setInitialRoute(_ route: Route) {}
     func openSettings(_ route: Route) {}
+    func handleIntegrationBar(_ action: GamepadAction, profileFocused: inout Bool, hasProfile: Bool) -> Bool { false }
 }
 struct Settings { let settings = Values(); struct Values { let viewButtonSwitches = true } }
 struct Cloud { func downloadsCloudApp(_ game: Game) -> Bool { false } }
@@ -66,6 +67,7 @@ final class Collection {
     let filter = Filter()
     var sortMenu: Int?
     var profileFocused = false
+    let integrationBar: Int? = nil
     var profile: Int?
     var profileCard: Int?
     var hasAnyGame = false

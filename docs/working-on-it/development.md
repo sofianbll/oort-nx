@@ -74,6 +74,15 @@ NX_BUILD_CONFIG=debug bash scripts/build_app.sh /tmp/NXLibrary-Debug.app
 
 Debug builds recognise `--show-setup` and `--preview-build` for manual inspection of Setup and the simulated porting presentation. These flags are compiled out of Release builds. The preview is UI development data, not evidence that a real game builds or launches.
 
+For the offline integration fixture, run the packaged Debug executable with
+`--integration-fixture` (add `--fixture-fr` to start in French). The fixture never
+mounts the normal startup or opens real game, settings or service actions. It
+uses a fresh private temporary app-data root and preferences file. The `Fixture`
+button cycles synthetic states and `Onboarding` opens the setup preview. Use
+`--render-integration-fixture /absolute/output` instead to write the same
+Selene views to PNG in French and English, at 1440 and 780 points wide, without
+opening a window.
+
 ## Verification
 
 ~~~sh

@@ -9,7 +9,7 @@ root = Path(__file__).resolve().parents[2]
 source = (root / 'Sources/NXLibrary/Views/Collection/CollectionView.swift').read_text()
 select = re.search(r'    (?:private )?func selected.*?(?=    // MARK: - Body)', source, re.S)[0]
 snapshot = source[source.index('        let games = self.games'):source.index('        SeleneHomeChrome(')]
-hints = re.search(r'rightHints: (contextHints\([^\n]*?\)) \+', source)[1]
+hints = re.search(r'(?:rightHints:|:) (contextHints\([^\n]*?\)) \+', source)[1]
 task_key = re.search(r'\.task\(id: (art\.steamHeroTaskKey\([^\n]*?\))\)', source)[1]
 hint_lookup = re.search(r'(    private func contextHints[^\n]*\{\n.*?)(?=        guard let game)', source, re.S)[1]
 host = '''
