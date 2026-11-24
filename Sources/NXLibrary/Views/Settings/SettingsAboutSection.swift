@@ -18,7 +18,7 @@ struct SettingsAboutSection: View {
                                                         subdirectory: "Brands").flatMap(NSImage.init(contentsOf:))
 
     private let credits: [(name: String, role: String, url: String)] = [
-        ("seedds", "nxnative engine, NVN/Metal host and ARM64 rewriter", "https://github.com/seedds/nxnative"),
+        ("seedds", L10n.text("nxnative engine, NVN/Metal host and ARM64 rewriter"), "https://github.com/seedds/nxnative"),
         ("d2r-mobile", L10n.text("Foundational native execution architecture"), "https://github.com/jhaizhou-ops/d2r-mobile"),
         ("Ryujinx Team", L10n.text("Maxwell shader translator and SPIR-V generator"), "https://github.com/Ryujinx/Ryujinx"),
         ("Atmosphère NX", L10n.text("Mesosphère kernel synchronization semantics"), "https://github.com/Atmosphere-NX/Atmosphere"),
@@ -308,7 +308,7 @@ struct SettingsAboutSection: View {
     }
 
     private var version: String {
-        AppUpdate.versionLabel(Bundle.main.infoDictionary)
+        AppUpdate.versionLabel(Bundle.main.infoDictionary, context: localization)
     }
 
     private var buildDate: String {

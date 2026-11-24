@@ -318,6 +318,7 @@ Regole della barra:
 **Propagazione alle viste.**
 - `AppLocalization` pubblica il contesto. La shell lo propaga alle viste tramite `nxAppLocale`, una dipendenza SwiftUI esplicita che non ricrea identità o stato.
 - Settings passa questo valore alla barra laterale, e `SettingsSection.title(in:)` risolve le categorie nel contesto ricevuto, anche con il focus sulle righe. Righe, informazioni, pannelli e suggerimenti condivisi usano lo stesso valore.
+- Il numero di versione non cambia con la lingua; il suffisso delle build senza marker è localizzato in About e nella barra laterale. I due passi del Setup usano lo stesso locale anche per VoiceOver.
 - `L10n` tiene al massimo un bundle per ciascuna delle sette lingue. Le risorse iniettate restano isolate, senza memorizzare testi interpolati o dati personali. Cattura il contesto per il lavoro asincrono e legge il catalogo compilato, cercando prima nel bundle installato. Non si usa nessun servizio esterno di posizione o traduzione.
 
 **Testi.**

@@ -131,7 +131,7 @@ struct GameInboxView: View {
                 pill(entry.duplicate ? L10n.text("Review duplicate") : L10n.text("Sort file"), action: target,
                      enabled: !model.needsGameFilesCorrection)
             } else if !entry.needsKeys {
-                Text(L10n.text("Ambiguous")).seleneFont(.body, .semibold).foregroundStyle(SeleneTheme.ink82)
+                Text(L10n.text("Cannot sort", context: locale)).seleneFont(.body, .semibold).foregroundStyle(SeleneTheme.ink82)
             }
         }
     }

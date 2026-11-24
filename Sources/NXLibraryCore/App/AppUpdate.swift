@@ -29,11 +29,11 @@ public enum AppUpdate {
 
     /// The version as Settings shows it: a copy without the release marker is a development build
     /// of the version in progress, so it never reads like a published release.
-    public static func versionLabel(_ info: [String: Any]?) -> String {
+    public static func versionLabel(_ info: [String: Any]?, context: AppLocale? = nil) -> String {
         let short = info?["CFBundleShortVersionString"] as? String ?? "?"
         if info?[releaseMarker] as? Bool == true { return short }
         if info?["NXLibraryDevelopmentProfile"] as? Bool == true { return "\(short) (Dev · Launcher)" }
-        return "\(short) (development build)"
+        return L10n.format("%@ (development build)", [short], context: context)
     }
 
     public static func repository(defaults: UserDefaults = AppData.preferences) -> String? {
