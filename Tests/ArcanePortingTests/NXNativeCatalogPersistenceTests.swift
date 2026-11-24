@@ -100,6 +100,33 @@ final class NXNativeCatalogPersistenceTests: XCTestCase {
         XCTAssertEqual(merged.nxnativeGames.first?.isHidden, true)
     }
 
+    func testScanUsesTheRecoveredAppsProvenanceInsteadOfTheMissingAppsBuildRecord() throws {
+        let store = CatalogRepository(store: CatalogStore(directory: dir.appendingPathComponent("store")))
+        try store.configureSource(.nxnative, enabled: true, root: nil)
+        let titleID = "0100000000000001"
+        var old = PortedGame(name: "Game", url: dir.appendingPathComponent("Old.app"), platform: .macApp,
+                             sizeBytes: 1, modificationDate: Date(), titleId: titleID, versionString: "1.0")
+        old.status = .builtSourcesMissing
+        old.isFavorite = true
+        old.toolchain = ToolchainInfo(engineCommit: "old", verified: true)
+        old.lastBuild = BuildRecord(engineCommit: "old", toolchainVerified: true)
+        try store.updateNXNativeGames { $0 = [old] }
+
+        let recoveredApp = dir.appendingPathComponent("Recovered.app")
+        try FileManager.default.createDirectory(at: recoveredApp, withIntermediateDirectories: true)
+        var observed = PortedGame(name: "Game", url: recoveredApp, platform: .macApp,
+                                  sizeBytes: 2, modificationDate: Date(), titleId: titleID, versionString: "2.0")
+        observed.status = .builtSourcesMissing
+        observed.toolchain = ToolchainInfo(engineCommit: "recovered")
+        let merged = try XCTUnwrap(try store.mergeNXNative(scanned: [observed]).nxnativeGames.first)
+        XCTAssertEqual(merged.id, old.id)
+        XCTAssertTrue(merged.isFavorite)
+        XCTAssertEqual(merged.url, recoveredApp)
+        XCTAssertEqual(merged.versionString, "2.0")
+        XCTAssertEqual(merged.toolchain, observed.toolchain)
+        XCTAssertNil(merged.lastBuild)
+    }
+
     func testRepeatedScansKeepPendingInstallAndFailureDetails() throws {
         let apps = dir.appendingPathComponent("Applications")
         let app = apps.appendingPathComponent("Game.app")

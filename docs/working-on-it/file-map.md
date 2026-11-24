@@ -549,7 +549,7 @@ Cartella `Sources/ArcanePorting/Launch/`.
 | [Sources/ArcanePorting/Launch/NextendoOAuth.swift](../../Sources/ArcanePorting/Launch/NextendoOAuth.swift) | Genera la richiesta PKCE, valida la callback, scambia e ruota i token e legge userinfo. Il trasporto è limitato e registra solo percorso e codice. |
 | [Sources/ArcanePorting/Launch/NextendoTokenStore.swift](../../Sources/ArcanePorting/Launch/NextendoTokenStore.swift) | Legge, sostituisce e rimuove il refresh token condiviso sotto il lock nxnative, con permessi privati. |
 | [Sources/ArcanePorting/Launch/AppIconWriter.swift](../../Sources/ArcanePorting/Launch/AppIconWriter.swift) | Scrive l’icona scelta nell’app del gioco, conserva l’originale, rifirma e verifica, e annulla tutto in caso di errore. |
-| [Sources/ArcanePorting/Launch/NXNativeLibraryMerge.swift](../../Sources/ArcanePorting/Launch/NXNativeLibraryMerge.swift) | Algoritmo di merge nxnative usato dal repository del catalogo comune. |
+| [Sources/ArcanePorting/Launch/NXNativeLibraryMerge.swift](../../Sources/ArcanePorting/Launch/NXNativeLibraryMerge.swift) | Merge nxnative: preserva l'identità di libreria, ma aggiorna la provenienza se il disco restituisce un bundle diverso. |
 
 ## Porting · impostazioni del gioco
 
@@ -951,7 +951,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/NXLibraryCoreTests/LaunchBoxArtTests.swift](../../Tests/NXLibraryCoreTests/LaunchBoxArtTests.swift) | Risultati di ricerca, scelta della voce Switch/Switch 2, payload Nuxt con file pieni e screenshot. |
 | [Tests/ArcanePortingTests/LibraryPresentationTests.swift](../../Tests/ArcanePortingTests/LibraryPresentationTests.swift) | Formattazione dei metadati e delle statistiche della libreria. |
 | [Tests/ArcanePortingTests/LibraryQueryTests.swift](../../Tests/ArcanePortingTests/LibraryQueryTests.swift) | Filtri, ricerca, ordinamento e rapporto con la cronologia di gioco. |
-| [Tests/ArcanePortingTests/NXNativeCatalogPersistenceTests.swift](../../Tests/ArcanePortingTests/NXNativeCatalogPersistenceTests.swift) | Persistenza e merge nxnative attraverso il repository attuale: sorgenti, impostazioni, preferiti, installazioni in attesa e dettagli degli errori. Recupero e conversione legacy sono verificati da CatalogStoreTests. |
+| [Tests/ArcanePortingTests/NXNativeCatalogPersistenceTests.swift](../../Tests/ArcanePortingTests/NXNativeCatalogPersistenceTests.swift) | Persistenza e merge nxnative: sorgenti, impostazioni, preferiti, installazioni in attesa, errori e provenienza di un'app ritrovata. |
 | [Tests/NXLibraryCoreTests/MaterialIconTests.swift](../../Tests/NXLibraryCoreTests/MaterialIconTests.swift) | Integrità dei glifi e del font delle icone. |
 | [Tests/ArcanePortingTests/MetadataPickerTests.swift](../../Tests/ArcanePortingTests/MetadataPickerTests.swift) | Alternative per campo, override persistiti e applicazione ai metadati del gioco. |
 | [Tests/NXLibraryCoreTests/MoonlightFieldTests.swift](../../Tests/NXLibraryCoreTests/MoonlightFieldTests.swift) | Generazione deterministica e limiti dei dati delle particelle. |
