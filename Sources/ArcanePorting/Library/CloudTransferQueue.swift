@@ -80,6 +80,7 @@ public final class CloudTransferQueue: Sendable {
         package let driveScope: CloudDriveScope?
         package let rebuildSources: RebuildSources?
         package let toolIdentity: String?
+        package var approvedDestination: [String]?
         private var userPaused: Bool?
 
         package var isUserPaused: Bool {

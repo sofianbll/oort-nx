@@ -8,9 +8,10 @@ extension AppShellView {
     func activityCenterInput(_ action: GamepadAction, router: AppRouter, viewModel: AppViewModel) {
         guard var focus = router.activityCenterFocus else { return }
         let rows = ActivityCenterView.rows(viewModel)
-        let current = focus.current(in: rows)
+        let current = ActivityCenterView.selectedRow(focus, in: rows)
         switch action {
         case .navigateUp, .navigateDown:
+            if focus.selected != nil { focus.selected = current }
             focus.move(by: action == .navigateUp ? -1 : 1, in: rows)
             router.activityCenterFocus = focus
             if focus.selected != current { SoundEffectService.shared.play(.focus) }
@@ -38,7 +39,7 @@ extension AppShellView {
         guard ActivityCenterView.rows(viewModel).contains(row) else { return }
         switch row {
         case .result(let id): viewModel.retryActivity(id)
-        case .queuedCloud(let token): viewModel.resumeCloudTransfer(token)
+        case .cloud, .queuedCloud: viewModel.activateCloudActivityRow(row)
         case .clearAll: viewModel.clearActivity()
         default:
             guard row.opensPorting else { return }

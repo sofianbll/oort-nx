@@ -27,7 +27,7 @@ struct CloudLibraryPanel: View {
 
     private enum Control: Hashable {
         case upload(CloudArtifactKind?), download(CloudArtifactKind), uploadSources, downloadSources
-        case free, cancel, refresh, settings, close, advanced, resume, previousApp
+        case free, cancel, refresh, settings, close, advanced, pause, resume, previousApp
         case recover(CloudLibraryFailure, CloudLibraryItem?)
         case retry(UUID)
     }
@@ -36,8 +36,12 @@ struct CloudLibraryPanel: View {
 
     private var state: CloudLibraryState { model.states[game.id] ?? CloudLibraryState() }
     private var interrupted: CloudLibraryModel.Request? {
-        guard let head = model.queue.first, head.id == game.id, model.interruption(of: head.token) != nil else { return nil }
+        guard let head = model.queue.first, head.id == game.id, model.canResume(head.token) else { return nil }
         return head
+    }
+    private var pausable: UUID? {
+        guard let request = model.active?.request, request.id == game.id, model.canPause(request.token) else { return nil }
+        return request.token
     }
     private func canChange(_ action: CloudLibraryAction) -> Bool {
         state.action == nil && !state.refreshing && viewModel.canChangeCloudLibrary(action, for: game)
@@ -54,7 +58,7 @@ struct CloudLibraryPanel: View {
             VStack(spacing: 0) {
                 card.frame(maxWidth: .infinity, maxHeight: .infinity)
                 SeleneHintsBar(left: [HintItem(.b, "Close", action: close)],
-                               right: controls.isEmpty ? [] : [HintItem(.a, "Select")])
+                               right: actionHints)
             }
             .seleneOverlayOwnership(freeSelection == nil)
             if let freeSelection { freeDialog(freeSelection) }
@@ -66,6 +70,15 @@ struct CloudLibraryPanel: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .nxCloudLibraryGamepadAction)) { note in
             if let action = note.object as? GamepadAction { handle(action) }
+        }
+    }
+
+    private var actionHints: [HintItem] {
+        switch focus ?? controls.first {
+        case .pause: return [HintItem(.a, "Pause") { choose(.pause) }]
+        case .resume: return [HintItem(.a, "Resume") { choose(.resume) }]
+        case .none: return []
+        default: return [HintItem(.a, "Select")]
         }
     }
 
@@ -124,7 +137,12 @@ struct CloudLibraryPanel: View {
                         context: localization)
         }
         let control = artifactControl(item)
-        let interruption = state.activeItem == item ? interrupted.flatMap { model.interruption(of: $0.token) } : nil
+        let interrupted = state.activeItem == item ? self.interrupted : nil
+        let interruption = interrupted.flatMap { model.interruption(of: $0.token) }
+        let canPause = state.activeItem == item && pausable != nil
+        let cannotPause = state.activeItem == item && model.active.map {
+            $0.request.id == game.id && model.explainsNoPause($0.request.token)
+        } == true
         let personalCopyIsOlder = !live && !state.queued && !indicator.appPublished
             && item.artifact.map(state.personalCopyIsOlder) == true
         let downloadFill = CloudLibraryProgressView.downloadFill(state, item: item)
@@ -170,7 +188,8 @@ struct CloudLibraryPanel: View {
                     .multilineTextAlignment(.trailing)
                 }
                 HStack(spacing: canvas.u(10)) {
-                    if interruption != nil { button(.resume, "Resume") }
+                    if interrupted != nil { button(.resume, "Resume") }
+                    if canPause { button(.pause, "Pause") }
                     if downloading, !checkingDownload, control == .cancel {
                         downloadButton(nil, fill: downloadFill ?? 0, ready: ready)
                     }
@@ -196,8 +215,10 @@ struct CloudLibraryPanel: View {
                     .textSelection(.enabled)
                     .help(path)
             }
-            if let interruption {
-                Text(interruption.message(context: localization)).seleneFont(.compactCaption)
+            if interrupted?.isUserPaused == true || cannotPause || interruption != nil {
+                Text(interrupted?.isUserPaused == true ? text("The current file may restart from the beginning.")
+                     : interruption?.message(context: localization) ?? text("This transfer cannot be paused."))
+                    .seleneFont(.compactCaption)
                     .foregroundColor(SeleneTheme.ink75).fixedSize(horizontal: false, vertical: true)
             } else if live {
                 if state.transfer(for: item)?.gauge(hasCover: false, hasDownloadPill: downloading) == .bar {
@@ -263,7 +284,10 @@ struct CloudLibraryPanel: View {
     }
 
     private func artifactControl(_ item: CloudLibraryItem) -> Control? {
-        if state.activeItem == item, state.transfer(for: item)?.canCancel == true { return .cancel }
+        if state.activeItem == item, state.transfer(for: item)?.canCancel == true {
+            if let request = model.active?.request, request.id == game.id, !model.canCancelCloud(request.token) { return nil }
+            return .cancel
+        }
         if retryResult(for: item) != nil, state.transferFailure?.action == nil || state.transferFailure?.action == .retry {
             return nil
         }
@@ -290,12 +314,14 @@ struct CloudLibraryPanel: View {
 
     private var controls: [Control] {
         let close: [Control] = showHints ? [] : [.close]
+        if state.action != nil {
+            let primary: [Control] = interrupted != nil ? [.resume] : pausable != nil ? [.pause] : []
+            return primary + visibleItems.compactMap(artifactControl) + close + [.advanced]
+        }
         if model.archive == nil { return close + [.settings] }
         if unavailable != nil { return close }
         let artifacts = visibleItems.compactMap(artifactControl) + (state.previousApp == nil ? [] : [.previousApp])
-        if state.action != nil || state.refreshing {
-            return (interrupted == nil ? [] : [.resume]) + artifacts + close + [.advanced]
-        }
+        if state.refreshing { return artifacts + close + [.advanced] }
         var buttons = artifacts + close + [.advanced]
         if let failure = state.failure ?? (state.message == nil && state.issue == nil && state.sourcesMessage == nil
                                            ? model.checkFailure : nil), canRecover(failure) {
@@ -405,6 +431,8 @@ struct CloudLibraryPanel: View {
             freeSelection = CloudFreeSelection(state: state)
         case .download(let kind): viewModel.performCloudLibrary(.restore(kind), for: game)
         case .cancel: viewModel.cancelCloudLibrary(game)
+        case .pause:
+            if let pausable { viewModel.pauseCloudTransfer(pausable) }
         case .resume:
             if let interrupted { viewModel.resumeCloudTransfer(interrupted.token) }
         case .previousApp:
@@ -748,6 +776,7 @@ struct CloudLibraryIndicator {
     }
 
     func label(context: AppLocale) -> String {
+        if showsAction && state.isUserPaused { return L10n.text("Paused", context: context) }
         if appPublished { return L10n.text("App published · sending build cache…", context: context) }
         if let kind = item?.artifact, state.copies[kind]?.canMigrateArchive == true,
            !showsAction, !failed {
@@ -829,10 +858,17 @@ struct CloudLibraryTileBadge: ViewModifier {
 /// The round mark in a tile's corner.
 struct TileMark: View {
     let icon: MaterialIcon
+    var paused = false
     @Environment(\.seleneCanvas) private var canvas
 
     var body: some View {
-        MaterialIconView(icon, size: SeleneTokens.Space.control)
+        Group {
+            if paused {
+                Image(systemName: "pause.fill").font(.system(size: canvas.u(16), weight: .semibold))
+            } else {
+                MaterialIconView(icon, size: SeleneTokens.Space.control)
+            }
+        }
             .foregroundColor(SeleneTheme.ink)
             .frame(width: canvas.u(SeleneTokens.Space.section), height: canvas.u(SeleneTokens.Space.section))
             .background(Circle().fill(SeleneTheme.scrim.opacity(SeleneTokens.Effect.cloudBadgeOpacity)))
@@ -853,7 +889,7 @@ struct CloudLibraryBadge: View {
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
-            TileMark(icon: indicator.icon)
+            TileMark(icon: indicator.icon, paused: indicator.state.isUserPaused)
             SeleneStatusMark(color: indicator.status.color, pulses: false)
                 .padding(canvas.u(SeleneTokens.Space.seam))
         }

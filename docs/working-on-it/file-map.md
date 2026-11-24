@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **1072 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **1073 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -722,7 +722,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/Detail/DetailsTopBlock.swift](../../Sources/NXLibrary/Views/Detail/DetailsTopBlock.swift) | Mostra logo, prossima azione, luogo dei contenuti, stato o misura non duplicati, statistiche, generi e descrizione. |
 | [Sources/NXLibrary/Views/Detail/DetailsBands.swift](../../Sources/NXLibrary/Views/Detail/DetailsBands.swift) | Disegna screenshot, mod e fascia correlati condivisa, con copertine Switch o Steam secondo la fonte. |
 | [Sources/NXLibrary/Views/Detail/DetailsPanel.swift](../../Sources/NXLibrary/Views/Detail/DetailsPanel.swift) | Pannello Details uguale per ogni fonte: righe con icona, voto della critica in ultima riga e link in `SeleneActionGrid`; carica solo il voto del gioco mostrato. |
-| [Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift](../../Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift) | Cloud library: copie, azioni per artefatto, Resume e app precedente; somma la selezione locale da liberare e distingue verifica e avanzamento. |
+| [Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift](../../Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift) | Cloud library: copie, azioni per artefatto, Pause/Resume e app precedente; somma la selezione locale da liberare e distingue verifica e avanzamento. |
 | [CloudPersonalAppUpdateRow.swift](../../Sources/NXLibrary/Views/Detail/CloudPersonalAppUpdateRow.swift) | Mostra aggiornamento personale e quantità da scaricare, oppure copie diverse senza invito alla sostituzione. |
 | [Sources/NXLibrary/Views/Detail/CriticRatingValue.swift](../../Sources/NXLibrary/Views/Detail/CriticRatingValue.swift) | Valore della riga Critic score: cinque stelle, numero /100 e fonte, senza finestre aggiuntive; caricamento e assenza espliciti. |
 | [Sources/NXLibrary/ViewModels/IGDBSettings.swift](../../Sources/NXLibrary/ViewModels/IGDBSettings.swift) | Configurazione IGDB facoltativa: verifica prima del salvataggio, rimozione e invalidazione delle richieste/voti precedenti. |
@@ -1152,6 +1152,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_cloud_screens.py](../../Tests/CatalogAppChecks/run_cloud_screens.py) | Verifica Cloud, coda, accesso Google, scoperta delle sorgenti, spostamento, glifi, Play together e schermo su fixture locali. Separa schermate, trasferimenti, giochi solo cloud e risultati incompleti in processi con directory e preferenze proprie. Verifica anche il fornitore e la selezione di Rebuild. `--compare-with-5047557` confronta la scheda con Riduci movimento. |
 | [run_download_cloud.py](../../Tests/CatalogAppChecks/run_download_cloud.py) | Verifica pixel, contrasto e compositing del cue Download; cattura il fronte a quattro livelli e misura un campione di tile in finestra isolata. |
 | [run_cloud_queue_pause.py](../../Tests/CatalogAppChecks/run_cloud_queue_pause.py) | Riapre una coda sintetica con pausa registrata e confronta le righe Attività in francese prima e dopo, senza backend. |
+| [run_cloud_pause.py](../../Tests/CatalogAppChecks/run_cloud_pause.py) | Verifica la pausa e la ripresa esplicita dopo riavvio, ordine e controlli in Cloud e Attività con un backend sintetico. |
 | [run_cloud_shelf.py](../../Tests/CatalogAppChecks/run_cloud_shelf.py) | Rende lo scaffale Cloud in francese e verifica gli stati vuoti, i titoli importati e il recupero nell’assistente con fixture. |
 | [run_cloud_reference.py](../../Tests/CatalogAppChecks/run_cloud_reference.py) | Rende il dialogo del riferimento e la riga con accesso, senza accesso e in controllo, usando dati sintetici. |
 | [run_cloud_free_space.py](../../Tests/CatalogAppChecks/run_cloud_free_space.py) | Rende la conferma di liberazione con selezioni e lo stato di verifica, senza toccare il Cestino. |
