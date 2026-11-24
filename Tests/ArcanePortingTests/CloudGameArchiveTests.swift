@@ -8,6 +8,59 @@ import XCTest
 final class CloudGameArchiveTests: XCTestCase {
     private let title = "0100E65002BB8000"
 
+    func testImportIsolatesManifestPathCollisionsWithoutDiscardingValidTitles() async throws {
+        let f = try fixture(useSyntheticBackend: true)
+        let fm = FileManager.default
+        defer { try? fm.removeItem(at: f.root) }
+        let badTitle = "0100E65002BB8001"
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        func publish(_ id: String, _ paths: [String]) throws -> URL {
+            let entries = paths.map {
+                CloudArtifactFiles.Entry(path: $0, size: $0.hasSuffix(".rclonelink") ? 1 : 0,
+                    md5: "d41d8cd98f00b204e9800998ecf8427e")
+            }
+            let digest = try CloudArtifactFiles.digest(entries)
+            let artifact = CloudGameManifest.Artifact(kind: .app, unpackedSize: entries.reduce(0) { $0 + $1.size },
+                entryCount: entries.count, inventorySHA256: digest, engineCommit: nil, shaderChain: nil, options: [:],
+                files: .init(folder: "Fixture [\(id)]/app/\(digest)/Fixture.app", entries: entries))
+            let data = try encoder.encode(CloudGameManifest(version: 2, titleID: id, createdAt: .now, artifacts: [artifact]))
+            let stage = f.root.appendingPathComponent("manifest-fixture")
+            try data.write(to: stage)
+            let sha = try XCTUnwrap(CloudArchiveInventory.hashes(at: stage)["sha256"])
+            let folder = f.remote.appendingPathComponent("\(id)/manifests")
+            try fm.createDirectory(at: folder, withIntermediateDirectories: true)
+            let object = folder.appendingPathComponent("0000000000000001-\(sha).json")
+            try fm.moveItem(at: stage, to: object)
+            return object
+        }
+        let good = try publish(title, ["Contents/empty"])
+        for paths in [
+            ["Contents/A", "Contents/a"],
+            ["Contents/A/file", "Contents/a/other"],
+            ["Contents/café", "Contents/cafe\u{301}"],
+            ["Contents/café/file", "Contents/cafe\u{301}/other"],
+            ["Contents/file", "Contents/file"],
+            ["Contents/file", "Contents/file/child"],
+            ["Contents/link", "Contents/link.rclonelink"],
+        ] {
+            let bad = try publish(badTitle, paths)
+            let result = try await f.service.latestManifestsForImport()
+            XCTAssertEqual(result.manifests.map(\.titleID), [title])
+            XCTAssertEqual(result.invalidTitles, [badTitle])
+            try fm.removeItem(at: bad)
+        }
+        _ = try publish(badTitle, ["Contents/A", "Contents/a"])
+        try fm.removeItem(at: good)
+        let onlyInvalid = try await f.service.latestManifestsForImport()
+        XCTAssertTrue(onlyInvalid.manifests.isEmpty)
+        XCTAssertEqual(onlyInvalid.invalidTitles, [badTitle], "The caller needs a failure reason, not an empty library")
+        do {
+            _ = try await f.service.latestManifests()
+            XCTFail("A strict scan must still reject a malformed manifest")
+        } catch CloudArchiveError.invalidManifest {}
+    }
+
     func testUnreadableCacheIsNotTreatedAsMissing() async throws {
         let f = try fixture()
         defer { try? FileManager.default.removeItem(at: f.root) }

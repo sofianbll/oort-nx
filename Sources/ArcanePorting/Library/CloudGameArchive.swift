@@ -642,8 +642,12 @@ public actor CloudGameArchive {
                 guard manifest.version == 2, artifact.size == nil, artifact.sha256 == nil, artifact.md5 == nil,
                       artifact.unpackedSize >= 0, artifact.kind != .app || !tree.entries.isEmpty,
                       artifact.entryCount == tree.entries.count else { throw CloudArchiveError.invalidManifest }
-                try tree.validate(titleID: title, kind: artifact.kind, digest: artifact.inventorySHA256,
-                                  bytes: artifact.unpackedSize)
+                do {
+                    try tree.validate(titleID: title, kind: artifact.kind, digest: artifact.inventorySHA256,
+                                      bytes: artifact.unpackedSize)
+                } catch CloudArchiveError.unsafePath {
+                    throw CloudArchiveError.invalidManifest
+                }
             } else {
                 guard let object = artifact.legacyObject(titleID: title), object.size > 0, artifact.unpackedSize >= 0,
                       (1...CloudArchiveInventory.maximumEntries).contains(artifact.entryCount),
