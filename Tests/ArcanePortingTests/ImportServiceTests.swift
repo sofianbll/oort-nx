@@ -196,6 +196,36 @@ final class ImportServiceTests: XCTestCase {
         XCTAssertTrue(fm.fileExists(atPath: replacement.path))
     }
 
+    func testAdoptionPreservesDestinationEditedAfterPreview() async throws {
+        let fm = FileManager.default
+        let root = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? fm.removeItem(at: root) }
+        let folder = root.appendingPathComponent("Apps")
+        try fm.createDirectory(at: folder, withIntermediateDirectories: true)
+        let installed = folder.appendingPathComponent("Installed.app")
+        let replacement = root.appendingPathComponent("Replacement.app")
+        let bundleID = "org.nxnative.01007ef00011e000"
+        try signedApp(at: installed, bundleID: bundleID, version: "1")
+        try signedApp(at: replacement, bundleID: bundleID, version: "2")
+        let resources = installed.appendingPathComponent("Contents/Resources")
+        try fm.createDirectory(at: resources, withIntermediateDirectories: true)
+        let resource = resources.appendingPathComponent("fixture.txt")
+        try Data("before".utf8).write(to: resource)
+        let service = ImportService()
+        let plan = try service.prepareAdoption(from: replacement, into: folder, existing: [])
+        XCTAssertTrue(plan.conflicts)
+        XCTAssertEqual(plan.destination.path, installed.path)
+        let edited = Data("edited".utf8)
+        try edited.write(to: resource)
+        let staged = try await service.stageAdoption(plan, replacing: true)
+        defer { service.cleanupAdoption(staged, published: false) }
+        XCTAssertThrowsError(try service.publishAdoption(staged) { _ in }) {
+            XCTAssertEqual($0 as? CloudArchiveError, .localChanged)
+        }
+        XCTAssertEqual(BuildOutputInstaller.version(of: installed), "1")
+        XCTAssertEqual(try Data(contentsOf: resource), edited)
+    }
+
     private func expectAdoptionError(_ expected: CloudArchiveError, line: UInt = #line,
                                      _ stage: () async throws -> ImportService.StagedAdoption) async {
         do {

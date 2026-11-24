@@ -197,7 +197,7 @@ public final class ImportService {
         public let destination: URL
         public var conflicts: Bool { existing != nil || discovered }
         fileprivate let discovered: Bool
-        fileprivate let previous: stat?
+        fileprivate let previous: String?
         fileprivate let volume: stat
     }
 
@@ -240,8 +240,7 @@ public final class ImportService {
         let target = previousURL ?? GameAppDestination.url(name: app.name, titleId: title, in: folder, reusingExisting: false)
         let destination = URL(fileURLWithPath: target.path, isDirectory: true)
         guard !destination.path.hasPrefix(source.path + "/") else { throw CloudArchiveError.unsafePath }
-        let previous = try previousURL.map(CloudArchiveInventory.node)
-        guard previous.map({ $0.st_mode & S_IFMT == S_IFDIR }) ?? true else { throw CloudArchiveError.unsafePath }
+        let previous = try previousURL.map(Self.adoptionSignature)
         let volume = try CloudArchiveInventory.node(at: destination.deletingLastPathComponent())
         return .init(app: app, existing: known, destination: destination, discovered: !discovered.isEmpty,
                      previous: previous, volume: volume)
@@ -388,14 +387,10 @@ public final class ImportService {
     public func publishAdoption(_ staged: StagedAdoption, record: (ImportedApp) throws -> Void) throws {
         let plan = staged.plan
         try Self.checkAdoptionVolume(plan)
-        let current: stat?
-        do { current = try CloudArchiveInventory.node(at: plan.destination) }
+        let current: String?
+        do { current = try Self.adoptionSignature(plan.destination) }
         catch CloudArchiveError.localMissing { current = nil }
-        guard current?.st_dev == plan.previous?.st_dev, current?.st_ino == plan.previous?.st_ino,
-              current?.st_ctimespec.tv_sec == plan.previous?.st_ctimespec.tv_sec,
-              current?.st_ctimespec.tv_nsec == plan.previous?.st_ctimespec.tv_nsec else {
-            throw CloudArchiveError.localChanged
-        }
+        guard current == plan.previous else { throw CloudArchiveError.localChanged }
         let replace = current != nil
         try BuildInstallIO().publish(staged.incoming, plan.destination, replace)
         do { try record(staged.app) }
@@ -406,6 +401,12 @@ public final class ImportService {
             }
             throw error
         }
+    }
+
+    private static func adoptionSignature(_ bundle: URL) throws -> String {
+        let snapshot = try CloudArchiveInventory.signature(bundle, kind: .app)
+        guard !snapshot.hasExcludedFiles else { throw CloudArchiveError.excludedFiles }
+        return snapshot.sha256
     }
 
     private static func checkAdoptionVolume(_ plan: Adoption) throws {
