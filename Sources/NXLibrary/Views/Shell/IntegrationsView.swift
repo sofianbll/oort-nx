@@ -154,8 +154,8 @@ struct IntegrationsView: View {
                     }
                     .padding(.bottom, canvas.u(18))
                 }
-                .onChange(of: router.integrationFocus, initial: true) { _, id in
-                    guard let id, id != rows.first?.id || router.isReturningFromBack else { return }
+                .onChange(of: router.integrationFocus, initial: true) { old, id in
+                    guard let id, old != id || id != rows.first?.id || router.isReturningFromBack else { return }
                     withAnimation(reduceMotion ? nil : SeleneTheme.quick) {
                         proxy.scrollTo(id, anchor: .top)
                     }

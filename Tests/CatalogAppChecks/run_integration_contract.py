@@ -51,6 +51,11 @@ class IntegrationContract(unittest.TestCase):
         self.assertRegex(header, r"if integrationBarFocused, \[\.secondaryAction, \.contextAction, \.jumpToStart, \.jumpToEnd\]"
                                  r"\.contains\(action\) \{ return true \}")
 
+    def test_navigating_up_can_scroll_back_to_the_first_integration(self):
+        page = (VIEWS / "Shell/IntegrationsView.swift").read_text()
+        self.assertRegex(page, r"\.onChange\(of: router.integrationFocus, initial: true\) \{ old, id in\s*"
+                               r"guard let id, old != id \|\| id != rows.first\?\.id \|\| router.isReturningFromBack")
+
 
 if __name__ == "__main__":
     unittest.main()
