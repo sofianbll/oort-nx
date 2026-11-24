@@ -83,11 +83,9 @@ extension AppViewModel {
                 failures.append(L10n.format("%@ is also used by another library entry", [url.lastPathComponent]))
                 continue
             }
-            if !sources.contains(url) {
-                sources.append(url)
-                removedBytes += (try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize)
-                    .map(Int64.init) ?? source.sizeBytes
-            }
+            sources.append(url)
+            removedBytes += (try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize)
+                .map(Int64.init) ?? source.sizeBytes
         }
 
         var files = sources

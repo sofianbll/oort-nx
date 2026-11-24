@@ -267,7 +267,7 @@ with tempfile.TemporaryDirectory(prefix="catalog-removal-") as temp:
     replace(core / "Catalog/CatalogStore.swift", r"try publication\.publish\(candidate,",
             "if RemovalFixture.failPublication { throw CocoaError(.fileWriteNoPermission) }\n        try publication.publish(candidate,")
     removal = core / "Catalog/CatalogStore+Removal.swift"
-    replace(removal, r"try fm.url\(for: \.trashDirectory,.*?create: false\)", "try RemovalFixture.trashDirectory()")
+    replace(removal, r"try removalTrashDirectory\(source\)", "try RemovalFixture.trashDirectory()")
     models = app / "ViewModels/AppViewModel+GameFiles.swift"
     text, substitutions = re.subn(r"(guard RunningGameMonitor.runningApplication\(for: (?:updated|current)\) == nil else \{ throw CatalogRemovalFailure.gameBusy \})",
                                   r"\1\n                try RemovalFixture.checkTrash()", models.read_text())

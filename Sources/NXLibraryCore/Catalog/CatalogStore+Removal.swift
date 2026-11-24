@@ -24,8 +24,7 @@ extension CatalogStore {
                     guard file.isFileURL else { throw CatalogStoreError.staleRevision }
                     let parent = file.deletingLastPathComponent().resolvingSymlinksInPath()
                     let source = parent.appendingPathComponent(file.lastPathComponent)
-                    let trash = try fm.url(for: .trashDirectory, in: .userDomainMask,
-                                           appropriateFor: source, create: false).resolvingSymlinksInPath()
+                    let trash = try removalTrashDirectory(source).resolvingSymlinksInPath()
                     let bucket = trash.appendingPathComponent("Oort NX - \(moveRevision)-\(index)")
                     let target = bucket.appendingPathComponent(source.lastPathComponent)
                     guard let identity = try RemovalIdentity.read(source),
@@ -37,6 +36,7 @@ extension CatalogStore {
                     return .init(source: source, target: target, identity: identity, origin: origin, trash: trashIdentity)
                 }
             } catch { throw CatalogRemovalFailure.trashUnavailable }
+            guard Set(items.map(\.identity)).count == items.count else { throw CatalogRemovalFailure.duplicateFiles }
             let intent = RemovalIntent(original: original.revision, moved: moveRevision, restored: UUID(),
                                        record: original.games[index], index: index,
                                        exclusions: original.cloudImportExclusions, items: items)
@@ -100,7 +100,8 @@ extension CatalogStore {
             guard intent.version == 1, intent.index >= 0,
                   [intent.original, intent.moved, intent.restored].contains(catalog.revision)
             else { throw CatalogStoreError.staleRevision }
-            for item in intent.items.reversed() {
+            let counts = Dictionary(grouping: intent.items, by: \.identity).mapValues(\.count)
+            func undo(_ item: RemovalIntent.Item, deferringAliases: Bool) throws -> Bool {
                 try item.checkParents()
                 let source = try RemovalIdentity.read(item.source)
                 let target = try RemovalIdentity.read(item.target)
@@ -113,9 +114,16 @@ extension CatalogStore {
                 } else if catalog.revision == intent.moved, source == nil, target == item.identity {
                     try item.rename(from: item.target, to: item.source)
                     guard try RemovalIdentity.read(item.source) == item.identity else { throw CatalogStoreError.staleRevision }
+                } else if deferringAliases, catalog.revision == intent.moved, source == nil, target == nil,
+                          counts[item.identity, default: 0] > 1 {
+                    // Old plans could put the only directory entry in another item's bucket.
+                    return false
                 } else { throw CatalogStoreError.staleRevision }
                 if rmdir(item.bucket.path) == 0 { try CatalogPublication.synchronize(item.trashRoot) }
+                return true
             }
+            let deferred = try intent.items.reversed().filter { try !undo($0, deferringAliases: true) }
+            for item in deferred { _ = try undo(item, deferringAliases: false) }
             if catalog.revision == intent.moved {
                 catalog.games.removeAll { $0.id == intent.record.id }
                 catalog.games.insert(intent.record, at: min(intent.index, catalog.games.count))
@@ -172,7 +180,7 @@ private struct RemovalIntent: Codable {
     }
 }
 
-private struct RemovalIdentity: Codable, Equatable {
+private struct RemovalIdentity: Codable, Hashable {
     let device: dev_t
     let inode: ino_t
     let type: mode_t
@@ -192,13 +200,14 @@ private struct RemovalIdentity: Codable, Equatable {
 }
 
 package enum CatalogRemovalFailure: LocalizedError {
-    case trashUnavailable, writeFailed, gameBusy
+    case trashUnavailable, writeFailed, gameBusy, duplicateFiles
 
     package var errorDescription: String? {
         switch self {
         case .trashUnavailable: return L10n.text("Trash is unavailable on this volume. The files were kept.")
         case .writeFailed: return L10n.text("The removal could not be saved. The files were kept.")
         case .gameBusy: return L10n.text("Close the game before removing its files. Do not launch it from Finder during the removal.")
+        case .duplicateFiles: return L10n.text("Several selected paths refer to the same file. The files were kept.")
         }
     }
 }

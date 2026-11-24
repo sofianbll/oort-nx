@@ -24,6 +24,7 @@ public struct CatalogLegacyImport {
 public struct CatalogStore {
     public let directory: URL
     private let publication: CatalogPublication
+    let removalTrashDirectory: (URL) throws -> URL
     private static let maximumBytes = 16 * 1024 * 1024
 
     /// The record kinds this store reads; a record of any other kind is kept as it is (`CatalogDocument.preservedGames`).
@@ -34,11 +35,15 @@ public struct CatalogStore {
     public init(directory: URL, kinds: CatalogRecordKinds, legacy: CatalogLegacyImport?) {
         self.init(directory: directory, publication: .atomic, kinds: kinds, legacy: legacy)
     }
-    package init(directory: URL, publication: CatalogPublication, kinds: CatalogRecordKinds, legacy: CatalogLegacyImport?) {
+    package init(directory: URL, publication: CatalogPublication, kinds: CatalogRecordKinds, legacy: CatalogLegacyImport?,
+                 removalTrashDirectory: @escaping (URL) throws -> URL = {
+                     try FileManager.default.url(for: .trashDirectory, in: .userDomainMask, appropriateFor: $0, create: false)
+                 }) {
         self.directory = directory.standardizedFileURL
         self.publication = publication
         self.kinds = kinds
         self.legacy = legacy
+        self.removalTrashDirectory = removalTrashDirectory
     }
     private func file(_ name: String) -> URL { directory.appendingPathComponent(name) }
 

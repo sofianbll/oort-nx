@@ -75382,6 +75382,17 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "此宗卷上的废纸篓不可用。文件已保留。"}}
       }
     },
+    "Several selected paths refer to the same file. The files were kept.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Several selected paths refer to the same file. The files were kept."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Più percorsi selezionati indicano lo stesso file. I file sono stati conservati."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Plusieurs chemins sélectionnés désignent le même fichier. Les fichiers sont conservés."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Mehrere ausgewählte Pfade verweisen auf dieselbe Datei. Die Dateien wurden behalten."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Varias rutas seleccionadas apuntan al mismo archivo. Se conservaron los archivos."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Vários caminhos selecionados apontam para o mesmo arquivo. Os arquivos foram mantidos."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "多个已选路径指向同一文件。文件已保留。"}}
+      }
+    },
     "The removal could not be saved. The files were kept.": {
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "The removal could not be saved. The files were kept."}},
