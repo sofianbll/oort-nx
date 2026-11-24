@@ -419,6 +419,7 @@ In Spotlight e Details `PortingPills.queued` sostituisce la sola azione primaria
    - La bozza si azzera solo dopo la conferma del selettore. Più titoli richiedono una scelta esplicita.
    - Le riletture dello stesso titolo mantengono nome, impostazioni e selezioni di update/DLC anche se cambiano gli UUID delle righe.
 2. **Chiavi.** `KeyStore` verifica che `header_key` contenga 32 byte esadecimali prima di pubblicare gli stessi dati che ha letto. `PortingModel.refreshKeyCheck` chiama `KeyCheck` sulle sorgenti selezionate. Il risultato vale per la selezione corrente, quindi un controllo precedente non abilita un porting diverso.
+   - `KeyCheck` legge solo gli header PFS0 che rientrano nel file; senza header leggibili il pacchetto non è verificabile.
 3. **Workspace.** `WorkspaceManager` usa la cartella sorgente così com'è oppure prepara un workspace di collegamenti simbolici, riusando una cache esistente. `BuildScratch` sceglie dove mettere workspace e app temporanea: sul volume dell'app.
    - Se la cartella delle app è su un altro volume locale APFS o Mac OS esteso, vanno in `.nxlibrary-build/` accanto alle app, così il disco del Mac non serve e l'installazione è una rinomina. exFAT e FAT accettano i link ma tengono gli attributi in file `._` che rompono la firma; il tipo lo dà `statfs`.
    - Negli altri casi (stesso volume, exFAT, rete) restano in Application Support.

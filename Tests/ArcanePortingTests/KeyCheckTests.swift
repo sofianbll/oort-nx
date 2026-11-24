@@ -153,6 +153,18 @@ final class KeyCheckTests: XCTestCase {
         guard case .unsupported = KeyCheck.readContainer(url) else { return XCTFail("expected unsupported") }
     }
 
+    func testReadContainerRejectsAHeaderRangeBeyondTheFile() throws {
+        let name = Array("a.nca".utf8) + [0, 0, 0]
+        var file = Array("PFS0".utf8)
+        file += le32(1) + le32(UInt32(name.count)) + le32(0)
+        file += le64(1) + le64(UInt64(KeyCheck.headerBytes)) + le32(0) + le32(0)
+        file += name + [UInt8](repeating: 0, count: KeyCheck.headerBytes)
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("keycheck-\(UUID()).nsp")
+        try Data(file).write(to: url)
+        defer { try? FileManager.default.removeItem(at: url) }
+        guard case .unsupported = KeyCheck.readContainer(url) else { return XCTFail("expected an unreadable container") }
+    }
+
     func testRunWithUnreadableKeys() {
         let missing = URL(fileURLWithPath: "/nonexistent/prod.keys")
         XCTAssertEqual(KeyCheck.run(keysURL: missing, files: []), .unreadableKeys)
