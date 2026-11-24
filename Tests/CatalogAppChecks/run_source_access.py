@@ -56,29 +56,23 @@ final class SettingsStore {
 struct SetupPage { let isGuided = false }
 struct FirstRunSetup { let page = SetupPage() }
 enum GameFoldersCopy {
+    static let sourcesTitle = "Game files"
     static func sourcesPickerMessage(extractedFolders: Bool) -> String { "Fixture picker" }
 }
 enum ExtractedSourceCatalog {
     static func recognizes(_ folder: URL) -> Bool { folder.lastPathComponent == "Extracted fixture" }
 }
 
-// Only the system picker is substituted. The production methods configure it
-// and choose which scan to request; no permissions or real windows are involved.
-final class NSOpenPanel {
-    enum Response { case OK, cancel }
-    static var response = Response.cancel
+// Only the picker is substituted; save its completion to exercise delayed selection.
+enum OortFilePickerPresentation {
+    enum Choice { case folder, gameFiles(allowFolder: Bool) }
     static var picked: [URL] = []
     static var openedAt: URL?
-    var canChooseFiles = false
-    var canChooseDirectories = false
-    var allowsMultipleSelection = false
-    var directoryURL: URL?
-    var prompt = ""
-    var message = ""
-    var allowedContentTypes: [UTType] = []
-    var urls: [URL] { Self.picked }
-    var url: URL? { urls.first }
-    func runModal() -> Response { Self.openedAt = directoryURL; return Self.response }
+    static var completion: (([URL]) -> Void)?
+    static func open(_ choice: Choice, title: String, message: String, startingAt: URL?, completion: @escaping ([URL]) -> Void) {
+        openedAt = startingAt
+        self.completion = completion
+    }
 }
 
 enum L10n { static func text(_ key: String) -> String { key } }
@@ -143,14 +137,16 @@ final class SourceHost {
 
         let model = SourceHost()
         model.boot(Startup())
-        NSOpenPanel.response = .cancel
-        require(!model.selectGameFolder(), "Cancelling the picker must return false")
+        var folderPicked = false
+        model.selectGameFolder(onPick: { folderPicked = true })
+        OortFilePickerPresentation.completion = nil
+        require(!folderPicked, "Cancelling the picker must not report a choice")
         require(model.scans.isEmpty, "Cancelling the picker must not scan sources")
-        require(NSOpenPanel.openedAt == folder, "The folder picker must start at the remembered folder")
+        require(OortFilePickerPresentation.openedAt == folder, "The folder picker receives the remembered folder")
 
-        NSOpenPanel.response = .OK
-        NSOpenPanel.picked = [folder]
-        require(model.selectGameFolder(), "An explicit folder choice must be accepted")
+        model.selectGameFolder(onPick: { folderPicked = true })
+        OortFilePickerPresentation.completion?([folder])
+        require(folderPicked, "An explicit folder choice must be accepted")
         require(model.scans.count == 1 && model.scans.last?.folder == folder,
                 "An explicit folder choice must request one scan")
 
@@ -158,8 +154,11 @@ final class SourceHost {
         let files = [otherFolder.appendingPathComponent("chosen.nsp"), otherFolder.appendingPathComponent("update.nsp")]
         let filesModel = SourceHost()
         filesModel.boot(Startup())
-        NSOpenPanel.picked = files
-        require(filesModel.selectGameFiles(), "Explicit file choices must be accepted")
+        var filesPicked = false
+        filesModel.selectGameFiles(onPick: { filesPicked = true })
+        require(!filesPicked && filesModel.scans.isEmpty, "Opening the picker must not scan sources")
+        OortFilePickerPresentation.completion?(files)
+        require(filesPicked, "Explicit file choices must be accepted")
         require(filesModel.scans.count == 1 && filesModel.scans.last?.files == files,
                 "Explicit files must request one scan limited to those files")
         require(filesModel.gameFilesFolder == folder, "File picks must preserve the remembered folder")

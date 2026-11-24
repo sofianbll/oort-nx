@@ -6,6 +6,7 @@ import ArcanePorting
 
 struct AppShellView: View {
     @ObservedObject var gamepad = GameControllerService.shared
+    @ObservedObject var filePicker = OortFilePickerPresentation.shared
     @StateObject var viewModel: AppViewModel
     /// The Setup (`SetupModel`): the update offer names the Xcode a release needs.
     @ObservedObject var setup: SetupModel

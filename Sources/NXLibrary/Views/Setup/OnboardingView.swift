@@ -151,11 +151,16 @@ struct OnboardingView: View {
 
     private var gameRows: [OnboardingScreen.Row] {
         [
-            .init("files", L10n.text("Choose a folder of game files"),
-                  viewModel.porting.gameFilesFolder?.lastPathComponent ?? L10n.text("No folder selected"), .folder,
+            .init("files", L10n.text(GameFoldersCopy.sourcesTitle),
+                  GameFoldersCopy.sourcesContents, .folder,
+                  note: viewModel.porting.gameFilesFolder?.lastPathComponent ?? L10n.text("No folder selected"),
+                  badges: GameFoldersCopy.sourceBadges,
                   action: { pickFolder(apps: false) }),
-            .init("apps", L10n.text("Game apps folder"), viewModel.gameAppsFolder.lastPathComponent, .folder,
-                  action: { pickFolder(apps: true) })
+            .init("apps", L10n.text(GameFoldersCopy.appsTitle), GameFoldersCopy.appsContents, .folder,
+                  note: viewModel.gameAppsFolder.lastPathComponent,
+                  badges: GameFoldersCopy.appBadges, action: { pickFolder(apps: true) }),
+            .init("keys", L10n.text(GameFoldersCopy.keysTitle), GameFoldersCopy.keysContents, .key,
+                  badges: GameFoldersCopy.keyBadges, action: { viewModel.setup.selectProdKeysFile() })
         ] + (inventory?.entries.map { entry in
             let label = entry.alreadyInLibrary ? "Already in your library" :
                 entry.isApp ? "Ready to play" : entry.game == nil ? "Identify later in Add Game" : "Game files · build later"
@@ -208,17 +213,18 @@ struct OnboardingView: View {
     }
 
     private func pickFolder(apps: Bool) {
-        let panel = NSOpenPanel()
-        panel.canChooseDirectories = true
-        panel.canChooseFiles = false
-        panel.directoryURL = apps ? viewModel.gameAppsFolder : viewModel.porting.gameFilesFolder
-        guard panel.runModal() == .OK, let folder = panel.url,
-              folder.standardizedFileURL.path != "/" else { return }
-        if apps { viewModel.libraryFolder = folder }
-        else { AppData.preferences.set(folder.path, forKey: AppViewModel.StorageKeys.savedGameFolder) }
-        inventory = nil
-        error = nil
-        scanID = UUID()
+        OortFilePickerPresentation.open(.folder, title: L10n.text(apps ? GameFoldersCopy.appsTitle : GameFoldersCopy.sourcesTitle),
+            message: apps ? GameFoldersCopy.appsPickerMessage
+                : GameFoldersCopy.sourcesPickerMessage(extractedFolders: viewModel.setup.engineSourceCapabilities.extractedFolders),
+            startingAt: apps ? viewModel.gameAppsFolder : viewModel.porting.gameFilesFolder,
+            canCreateDirectories: true) { urls in
+            guard let folder = urls.first, folder.standardizedFileURL.path != "/" else { return }
+            if apps { viewModel.libraryFolder = folder }
+            else { AppData.preferences.set(folder.path, forKey: AppViewModel.StorageKeys.savedGameFolder) }
+            inventory = nil
+            error = nil
+            scanID = UUID()
+        }
     }
 
     @MainActor private func scan() async {

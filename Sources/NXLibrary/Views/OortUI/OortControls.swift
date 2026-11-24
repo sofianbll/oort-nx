@@ -1,6 +1,19 @@
 import SwiftUI
 import NXLibraryCore
 
+struct OortFormatBadges: View {
+    @Environment(\.seleneCanvas) private var canvas
+    let labels: [String]
+
+    var body: some View {
+        if !labels.isEmpty {
+            HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
+                ForEach(labels, id: \.self) { SeleneValueChip(text: $0) }
+            }
+        }
+    }
+}
+
 /// Selectable and passive rows share the existing Selene option-row surface.
 struct OortRow: View {
     enum Preset {

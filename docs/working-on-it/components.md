@@ -17,6 +17,7 @@ I tipi con prefisso `Selene` restano disponibili per la migrazione.
 | `SeleneValueChip`, `OortStatus` | Valore breve o stato scritto | Testo/simbolo; neutro, in corso, attenzione, pronto | Scrivere lo stato · non affidarlo a colore o animazione. |
 | `PlatformLabel`, `PlatformMark` | Nome leggibile e marchio piattaforma | Intestazione, riga, riepilogo, didascalia, setup, elenco | Usare il marchio con il nome · non aggiungere un secondo disegno. |
 | `OortField` (`SeleneFieldSurface`) | Applicare al campo la superficie Selene | Focus o riposo | Passare il focus del campo · non ridefinire il contorno. |
+| `OortFilePicker`, `OortFormatBadges` | Navigare il disco e spiegare i formati | Cartella, file Switch, prod.keys | Passare tipi accettati e callback; il selettore non legge il contenuto dei file. |
 | `OortEmptyState` | Spiegare l'assenza di contenuto | Standard | Nominare ciò che manca · non confondere vuoto e caricamento. |
 | `SeleneHintsBar` | Mostrare le azioni del livello attivo | Tastiera e layout manetta; coperta, visibile | Legare gli hint alle azioni reali · non duplicare il ritorno. |
 | `OortPlayerSlot` | Una posizione di gioco, con ritratto e controller | Vuota o occupata; focus, selezione, indicatore | Conservare l'altezza e il nome accessibile · non ridimensionare la griglia al cambio di controller. |

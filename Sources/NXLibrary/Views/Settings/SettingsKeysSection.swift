@@ -1,5 +1,6 @@
 import SwiftUI
 import NXLibraryCore
+import ArcanePorting
 
 /// Porting → Keys: the private copy of prod.keys that new portings need.
 struct SettingsKeysSection: View {
@@ -13,8 +14,10 @@ struct SettingsKeysSection: View {
 
     var body: some View {
         OortSettingsGroup {
-            SelenePanel(L10n.text("prod.keys"),
+            SelenePanel(GameFoldersCopy.keysTitle,
                         info: L10n.text("Nintendo Switch cryptographic keys required to decrypt game packages (NSP/XCI). Arcane stores a private copy with mode 0600 permissions; key values are never displayed or logged.")) {
+                OortReadout(text: GameFoldersCopy.keysContents)
+                OortFormatBadges(labels: GameFoldersCopy.keyBadges)
                 HStack(spacing: 8) {
                     Image(systemName: setup.isProdKeysValid ? "checkmark.circle.fill" : "xmark.octagon.fill")
                         .seleneFont(.text, .bold)

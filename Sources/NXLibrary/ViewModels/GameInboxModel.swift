@@ -42,16 +42,14 @@ final class GameInboxModel: ObservableObject {
 
     func chooseFolder() {
         guard isEnabled, !busy else { return }
-        let panel = NSOpenPanel()
-        panel.canChooseDirectories = true
-        panel.canChooseFiles = false
-        panel.canCreateDirectories = true
-        panel.directoryURL = folder
-        panel.prompt = L10n.text("Choose folder")
-        guard panel.runModal() == .OK, isEnabled, let path = panel.url else { return }
-        AppData.preferences.set(path.path, forKey: Self.folderKey)
-        folder = path
-        refresh()
+        OortFilePickerPresentation.open(.folder, title: L10n.text("Inbox folder"),
+            message: L10n.text("Choose the folder where incoming Switch files arrive."),
+            startingAt: folder, canCreateDirectories: true) { [weak self] urls in
+            guard let self, self.isEnabled, !self.busy, let path = urls.first else { return }
+            AppData.preferences.set(path.path, forKey: Self.folderKey)
+            self.folder = path
+            self.refresh()
+        }
     }
 
     func offerGameFilesCorrection() {
