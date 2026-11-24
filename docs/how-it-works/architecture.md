@@ -210,9 +210,9 @@ La variante asincrona attende su una coda utility e invia SIGTERM al sottoproces
 
 ## Navigazione e focus
 
-`check_selene_tokens.py` impedisce alla CI di accettare nuovi argomenti numerici
-per font, padding e raggi. In una pull request ogni voce della baseline può solo
-diminuire. Rimuovere le occorrenze sostituite con token.
+`check_selene_tokens.py` controlla dimensioni, colori, opacità, ombre, font,
+animazioni e nuove dichiarazioni di riga, scheda, dialogo o pulsante fuori da
+OortUI. Ogni voce della baseline può solo diminuire.
 
 `SeleneTokens` deriva da `design/oort.tokens.json` e conserva le misure del
 canvas, gli effetti e le durate condivise. Il fallback e la prima voce del
