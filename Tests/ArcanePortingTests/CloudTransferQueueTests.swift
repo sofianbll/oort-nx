@@ -107,7 +107,8 @@ final class CloudTransferQueueTests: XCTestCase {
           {"id":"00000000-0000-0000-0000-000000000002","action":{"uploadSources":{}},
            "token":"00000000-0000-0000-0000-000000000012","storage":"fixture:Games","userPaused":true},
           {"id":"00000000-0000-0000-0000-000000000003","action":{"free":{"_0":["app"]}},
-           "token":"00000000-0000-0000-0000-000000000013","storage":"fixture:Games","userPaused":true},
+           "token":"00000000-0000-0000-0000-000000000013","storage":"fixture:Games",
+           "toolIdentity":"approved-copy","userPaused":true},
           {"id":"00000000-0000-0000-0000-000000000004","action":{"downloadSources":{}},
            "token":"00000000-0000-0000-0000-000000000014","storage":"fixture:Files","userPaused":true},
           {"id":"00000000-0000-0000-0000-000000000005","action":{"upload":{}},"userPaused":"true"},
@@ -119,6 +120,16 @@ final class CloudTransferQueueTests: XCTestCase {
         XCTAssertEqual(loaded.map(\.id.uuidString), [
             "00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000006"
         ])
+
+        // Even as the only head, a paused write may not become runnable.
+        var snapshot = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let entries = try XCTUnwrap(snapshot["entries"] as? [[String: Any]])
+        for write in entries[1...2] {
+            snapshot["entries"] = [write, entries[5]]
+            try JSONSerialization.data(withJSONObject: snapshot).write(to: file)
+            let reloaded = await CloudTransferQueue(file: file).load()
+            XCTAssertEqual(reloaded.map(\.id.uuidString), ["00000000-0000-0000-0000-000000000006"])
+        }
     }
 
     func testNetworkFailureDefersButInvalidContentDoesNot() {
