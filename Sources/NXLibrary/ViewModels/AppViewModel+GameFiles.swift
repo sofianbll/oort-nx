@@ -45,11 +45,12 @@ extension AppViewModel {
         do { current = try catalogRepository.load() }
         catch { reportCatalogFailure(error); return }
         guard var updated = current.nxnativeGames.first(where: { $0.id == game.id }),
-              updated.sources == game.sources, updated.workspacePath == game.workspacePath, updated.url == game.url,
-              RunningGameMonitor.runningApplication(for: updated) == nil else {
+              updated.sources == game.sources, updated.workspacePath == game.workspacePath, updated.url == game.url else {
             alertMessage = L10n.format("Could not load the library entry for %@.", [game.name])
             return
         }
+        guard let release = removalLease(for: updated) else { return }
+        defer { release() }
 
         let appPath = resolvedRemovalPath(updated.url)
         let otherGames = current.nxnativeGames.filter { $0.id != game.id }
@@ -112,7 +113,7 @@ extension AppViewModel {
         do {
             applyCatalog(try catalogRepository.removeNXNativeFiles(id: game.id, from: current, files: files,
                 keeping: updated) {
-                guard RunningGameMonitor.runningApplication(for: updated) == nil else { throw CloudArchiveError.busy }
+                guard RunningGameMonitor.runningApplication(for: updated) == nil else { throw CatalogRemovalFailure.gameBusy }
             })
         } catch {
             let message = L10n.format("Could not remove game sources: %@", [error.localizedDescription])
@@ -136,6 +137,13 @@ extension AppViewModel {
 
     private func resolvedRemovalPath(_ url: URL) -> String {
         url.resolvingSymlinksInPath().standardizedFileURL.path.precomposedStringWithCanonicalMapping.lowercased()
+    }
+
+    private func removalLease(for game: PortedGame) -> (() -> Void)? {
+        if game.titleId != nil, let release = acquireSaveInstallLease(for: game) { return release }
+        if game.titleId == nil, RunningGameMonitor.runningApplication(for: game) == nil { return {} }
+        alertMessage = CatalogRemovalFailure.gameBusy.localizedDescription
+        return nil
     }
 
     private func workspaceCanBeTrashed(_ workspace: URL, protecting games: [PortedGame], owner: PortedGame) -> Bool {
@@ -185,11 +193,12 @@ extension AppViewModel {
             let games = catalog.nxnativeGames
             guard let current = games.first(where: { $0.id == game.id }),
                   current.url == game.url, current.workspacePath == game.workspacePath, current.sources == game.sources,
-                  RunningGameMonitor.runningApplication(for: current) == nil,
                   workspaceCanBeTrashed(game.url, protecting: games.filter { $0.id != game.id }, owner: current) else {
                 alertMessage = L10n.format("Could not load the library entry for %@.", [game.name])
                 return
             }
+            guard let release = removalLease(for: current) else { return }
+            defer { release() }
             let appPath = resolvedRemovalPath(current.url)
             let deleteBundle = current.canDeleteAppBundle() && !current.sources.contains {
                 let path = resolvedRemovalPath($0.url)
@@ -211,7 +220,7 @@ extension AppViewModel {
             }
 
             applyCatalog(try catalogRepository.removeNXNativeFiles(id: game.id, from: catalog, files: files, keeping: nil) {
-                guard RunningGameMonitor.runningApplication(for: current) == nil else { throw CloudArchiveError.busy }
+                guard RunningGameMonitor.runningApplication(for: current) == nil else { throw CatalogRemovalFailure.gameBusy }
             })
             if deleteBundle {
                 logs.append(LogEntry(level: .warning,

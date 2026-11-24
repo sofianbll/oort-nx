@@ -63,6 +63,7 @@ public struct CatalogStore {
 
     public func loadOrMigrate() throws -> CatalogDocument {
         try locked {
+            try recoverRemoval()
             let current = try currentCatalog()
             if let document = current.document {
                 try verifyLegacy(document.legacyOrigin)
@@ -80,16 +81,27 @@ public struct CatalogStore {
 
     public func save(_ draft: CatalogDocument, expectedRevision: UUID) throws -> CatalogDocument {
         try locked {
-            let current = try currentCatalog()
-            guard let old = current.document, old.revision == expectedRevision, draft.revision == expectedRevision,
-                  old.legacyOrigin == draft.legacyOrigin else { throw CatalogStoreError.staleRevision }
-            try verifyLegacy(old.legacyOrigin)
-            var committed = draft
-            committed.revision = UUID()
-            let data = try encode(committed)
-            try commit(data, previous: current.state.data, current: current.state) { try self.verifyLegacy(old.legacyOrigin) }
-            return committed
+            try recoverRemoval()
+            return try saveLocked(draft, expectedRevision: expectedRevision)
         }
+    }
+
+    func saveLocked(_ draft: CatalogDocument, expectedRevision: UUID, revision: UUID = UUID()) throws -> CatalogDocument {
+        let current = try currentCatalog()
+        guard let old = current.document, old.revision == expectedRevision, draft.revision == expectedRevision,
+              old.legacyOrigin == draft.legacyOrigin else { throw CatalogStoreError.staleRevision }
+        try verifyLegacy(old.legacyOrigin)
+        var committed = draft
+        committed.revision = revision
+        let data = try encode(committed)
+        try commit(data, previous: current.state.data, current: current.state) { try self.verifyLegacy(old.legacyOrigin) }
+        return committed
+    }
+
+    func removalDocument() throws -> CatalogDocument {
+        guard let document = try currentCatalog().document else { throw CatalogStoreError.staleRevision }
+        try verifyLegacy(document.legacyOrigin)
+        return document
     }
 
     private struct FileState {
@@ -187,7 +199,7 @@ public struct CatalogStore {
         catch { throw CatalogStoreError.commitUncertain }
     }
 
-    private func locked<T>(_ operation: () throws -> T) throws -> T {
+    func locked<T>(_ operation: () throws -> T) throws -> T {
         guard directory.isFileURL else { throw CatalogStoreError.unsafeDirectory }
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         var status = stat()
@@ -233,6 +245,7 @@ extension CatalogStore {
     /// legacy bytes. A later legacy edit still blocks load/save in the usual way.
     public func keepCurrentLibrary(_ candidate: CatalogLegacyConflictCandidate) throws -> CatalogDocument {
         try locked {
+            try refusePendingRemoval()
             guard candidate.directory == directory else { throw CatalogStoreError.staleRevision }
             guard let names = conflictNames else { throw CatalogStoreError.staleRevision }
             let states = try names.map(read)
@@ -289,6 +302,7 @@ extension CatalogStore {
 
     public func restoreBackup(_ candidate: CatalogRecoveryCandidate) throws -> CatalogDocument {
         try locked {
+            try refusePendingRemoval()
             guard candidate.directory == directory else { throw CatalogStoreError.staleRevision }
             let main = try read("catalog.json"), backup = try read("catalog.json.bak")
             guard main.data.map(Self.digest) == candidate.primaryDigest,

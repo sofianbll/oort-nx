@@ -75371,6 +75371,39 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法完全撤销移除操作。恢复记录：%@"}}
       }
     },
+    "Trash is unavailable on this volume. The files were kept.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Trash is unavailable on this volume. The files were kept."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Il Cestino non è disponibile su questo volume. I file sono stati conservati."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "La Corbeille est indisponible sur ce volume. Les fichiers sont conservés."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Der Papierkorb ist auf diesem Volume nicht verfügbar. Die Dateien wurden behalten."}},
+        "es": {"stringUnit": {"state": "translated", "value": "La Papelera no está disponible en este volumen. Se conservaron los archivos."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "O Lixo não está disponível neste volume. Os arquivos foram mantidos."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "此宗卷上的废纸篓不可用。文件已保留。"}}
+      }
+    },
+    "The removal could not be saved. The files were kept.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "The removal could not be saved. The files were kept."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Impossibile salvare la rimozione. I file sono stati conservati."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Le retrait n’a pas pu être enregistré. Les fichiers sont conservés."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Das Entfernen konnte nicht gespeichert werden. Die Dateien wurden behalten."}},
+        "es": {"stringUnit": {"state": "translated", "value": "No se pudo guardar la retirada. Se conservaron los archivos."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Não foi possível salvar a remoção. Os arquivos foram mantidos."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法保存移除操作。文件已保留。"}}
+      }
+    },
+    "Close the game before removing its files. Do not launch it from Finder during the removal.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Close the game before removing its files. Do not launch it from Finder during the removal."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Chiudi il gioco prima di rimuoverne i file. Non avviarlo da Finder durante la rimozione."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Fermez le jeu avant de retirer ses fichiers. Ne le lancez pas depuis le Finder pendant le retrait."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Schließe das Spiel vor dem Entfernen seiner Dateien. Starte es dabei nicht über den Finder."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Cierra el juego antes de retirar sus archivos. No lo abras desde Finder durante la retirada."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Feche o jogo antes de remover os arquivos. Não o abra pelo Finder durante a remoção."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "移除游戏文件前请关闭游戏。移除期间不要从访达启动游戏。"}}
+      }
+    },
     "The store logo, then Steam": {
       "comment": "ChangeArtworkView.swift:438",
       "localizations": {

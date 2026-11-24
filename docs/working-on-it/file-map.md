@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Mis à jour le 24 novembre 2026. **920 fichiers** suivis : sources, tests, contrôles de publication, ressources et guides. Les dossiers personnels et les sorties de tests ne sont pas suivis.
+Aggiornato il 24 novembre 2026. **921 file** versionati: sorgenti, test, controlli di pubblicazione, risorse e guide. I dati personali e gli output dei test non sono versionati.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -211,7 +211,8 @@ Cartella `Sources/NXLibraryCore/Catalog/`.
 | [Sources/NXLibraryCore/Catalog/CatalogGamePresentation.swift](../../Sources/NXLibraryCore/Catalog/CatalogGamePresentation.swift) | Contratto comune per presentazione, operazioni supportate e target di avvio; nessuna operazione I/O. |
 | [Sources/NXLibraryCore/Catalog/CatalogStore.swift](../../Sources/NXLibraryCore/Catalog/CatalogStore.swift) | Conversione conservativa attraverso l’import legacy ricevuto (`CatalogLegacyImport`), letture limitate, revisioni attese, lock e archiviazione esplicita del conflitto legacy senza fusione. |
 | [Sources/NXLibraryCore/Catalog/CatalogPublication.swift](../../Sources/NXLibraryCore/Catalog/CatalogPublication.swift) | Staging verificato, creazione esclusiva e sostituzione atomica, con confine di errore controllabile. |
-| [Sources/NXLibraryCore/Catalog/CatalogRepository.swift](../../Sources/NXLibraryCore/Catalog/CatalogRepository.swift) | Modifications typées du catalogue. Pour un retrait de fichiers, journalise et publie avant la Corbeille, puis annule en cas d’erreur si possible. |
+| [Sources/NXLibraryCore/Catalog/CatalogRepository.swift](../../Sources/NXLibraryCore/Catalog/CatalogRepository.swift) | Modifiche tipizzate del catalogo; delega la rimozione di file alla transazione dello store. |
+| [Sources/NXLibraryCore/Catalog/CatalogStore+Removal.swift](../../Sources/NXLibraryCore/Catalog/CatalogStore+Removal.swift) | Intento sincronizzato prima del Cestino, verifica delle identità, ripristino all'avvio sotto il lock del catalogo. |
 | [Sources/NXLibraryCore/Catalog/CatalogRecovery.swift](../../Sources/NXLibraryCore/Catalog/CatalogRecovery.swift) | Offerte di recupero e conflitto legacy con impronte degli input, rivalidate all’accettazione. |
 | [Sources/NXLibraryCore/Catalog/CatalogPersonalizations.swift](../../Sources/NXLibraryCore/Catalog/CatalogPersonalizations.swift) | Lookup personali immutabili per identità. |
 | [Sources/NXLibraryCore/Catalog/CatalogErrorCopy.swift](../../Sources/NXLibraryCore/Catalog/CatalogErrorCopy.swift) | Errori recuperabili del catalogo nelle sei lingue. |
@@ -1087,7 +1088,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_profiles.py](../../Tests/CatalogAppChecks/run_profiles.py) | Rende profili, raccolte, impostazioni (anche About, Look e menu) e PIN. Verifica ritaglio, focus, PIN e moto ridotto, editor, avvio, salvataggi, backup e reset della card di fine sessione senza finestre né dati reali. |
 | [run_startup_recovery.py](../../Tests/CatalogAppChecks/run_startup_recovery.py) | Coordinatore di avvio reale su profili sintetici: conflitto, scelta esplicita, offerta obsoleta, Retry e fallimento della preparazione; nessuna finestra. |
 | [run_source_access.py](../../Tests/CatalogAppChecks/run_source_access.py) | Esegue avvio, observer, selettori e preparazione dei file in Add Game: scansione limitata, cartella ricordata e riconoscimento del percorso estratto. |
-| [run_catalog_removal.py](../../Tests/CatalogAppChecks/run_catalog_removal.py) | Exécute les deux retraits sur un catalogue et des fichiers temporaires ; simule les échecs de publication, de Corbeille et de retour arrière. |
+| [run_catalog_removal.py](../../Tests/CatalogAppChecks/run_catalog_removal.py) | Prova i due percorsi con file temporanei, un Cestino finto, arresti di processo tra le scritture, una scrittura concorrente e un file sostituito. |
 | [run_onboarding.py](../../Tests/CatalogAppChecks/run_onboarding.py) | Esegue observer e ripristino del Setup, uscita durante lettura pendente con annullamento, input sotto modali, scelte acceso/spento/nil, radice della fonte, focus dopo Retry e richiesta notifiche su dati sintetici; nessuna finestra. |
 | [run_artwork_return.py](../../Tests/CatalogAppChecks/run_artwork_return.py) | Viste, task e host Mods reali su fixture: primo body con arte warm, scelte personali, aggiornamenti Steam nello stesso percorso, badge dopo rimozione, cambi abbinamento e snapshot completato fuori ordine; nessuna finestra o rendering. |
 | [run_nested_bundles.py](../../Tests/CatalogAppChecks/run_nested_bundles.py) | App sintetiche con bundle dati annidati e firme reali: installazione, icona, rollback, copia forzata, ripresa e rifiuto di dati alterati; nessuna UI. |
