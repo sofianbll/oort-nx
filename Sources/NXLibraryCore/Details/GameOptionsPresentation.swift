@@ -18,7 +18,7 @@ public enum GameOptionsRow: String, CaseIterable, Sendable {
     case play, multiplayer, disableOnlineRiskMods, move, favorite, hidden
     case fullscreen, fps60, frameRate, metalFX, gameUpscaler, metalHUD, consoleMode, language, rumble, rumbleStrength
     case gameDisplay
-    case renderScale, moreSettings, restoreDefaults
+    case renderScale, moreSettings, allSettings, restoreDefaults
     case cheats, mods, rebuild, showInFinder, openSaves, editDetails, removeGame
     case changeArtwork, changeMetadata, storePage, searchStore, attachSources, openLog, removeSources
 
@@ -36,6 +36,7 @@ public enum GameOptionsRow: String, CaseIterable, Sendable {
         case .frameRate: return L10n.text("Frame rate")
         case .gameUpscaler: return L10n.text("Game's upscaler")
         case .moreSettings: return L10n.text("More settings")
+        case .allSettings: return L10n.text("All settings")
         case .metalFX: return L10n.text("MetalFX upscaling")
         case .metalHUD: return L10n.text("Metal HUD")
         case .consoleMode: return L10n.text("Console mode")
@@ -72,7 +73,7 @@ public enum GameOptionsRow: String, CaseIterable, Sendable {
         case .fullscreen, .gameDisplay: return .monitor
         case .fps60, .frameRate: return .sync
         case .gameUpscaler: return .tune
-        case .moreSettings: return .settings
+        case .moreSettings, .allSettings: return .settings
         case .metalFX: return .tune
         case .metalHUD: return .timeline
         case .consoleMode: return .gamepad
@@ -114,7 +115,7 @@ public enum GameOptionsRow: String, CaseIterable, Sendable {
 
     /// Opens a sub-list (chevron).
     public var opensSubmenu: Bool {
-        [.editDetails, .changeArtwork, .changeMetadata, .cheats, .mods, .openSaves, .moreSettings].contains(self)
+        [.editDetails, .changeArtwork, .changeMetadata, .cheats, .mods, .openSaves, .moreSettings, .allSettings].contains(self)
     }
 
     /// The engine setting a row shows, for a build with saved choices.
@@ -300,6 +301,7 @@ public struct GameOptionsPresentation: Equatable {
         case .fps60, .frameRate: return L10n.text("Frame-rate target")
         case .gameUpscaler: return L10n.text("The game's own 3D upscaler, or MetalFX instead")
         case .moreSettings: return L10n.text("Other settings this build offers.")
+        case .allSettings: return L10n.text("All settings for this game.")
         case .metalFX: return L10n.text("Sharper scaling of the whole picture to your screen")
         case .metalHUD: return L10n.text("Performance overlay")
         case .consoleMode: return L10n.text("Console profile")

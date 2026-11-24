@@ -235,8 +235,7 @@
     },
     "Sources/NXLibrary/Views/GameOptions/CheatsPanel.swift": {
       ".padding(.horizontal,canvas.u(10": 1,
-      ".padding(.leading,canvas.u(10": 1,
-      ".padding(.top,canvas.u(90": 1
+      ".padding(.leading,canvas.u(10": 1
     },
     "Sources/NXLibrary/Views/GameOptions/GameOptionsView+Rows.swift": {
       ".padding(.leading,canvas.u(26": 2,
@@ -245,8 +244,7 @@
     },
     "Sources/NXLibrary/Views/GameOptions/ModsPanel.swift": {
       ".padding(.horizontal,canvas.u(10": 1,
-      ".padding(.leading,canvas.u(26": 1,
-      ".padding(.top,canvas.u(90": 1
+      ".padding(.leading,canvas.u(26": 1
     },
     "Sources/NXLibrary/Views/GameOptions/MoreSettingsPanel.swift": {
       ".padding(.top,canvas.u(90": 1
@@ -255,9 +253,6 @@
       ".font(.system(size:canvas.u(22": 1,
       ".padding(.vertical,canvas.u(10": 2,
       "opacity:.opacity(0.80": 1
-    },
-    "Sources/NXLibrary/Views/GameOptions/SavesPanel.swift": {
-      ".padding(.top,canvas.u(90": 1
     },
     "Sources/NXLibrary/Views/GameOptions/SteamOptionsView.swift": {
       ".padding(.leading,canvas.u(26": 1,

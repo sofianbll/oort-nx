@@ -303,6 +303,14 @@ public struct NXNativeGameSettings {
 
     // MARK: - env.txt
 
+    public static func playerEnvironment(for game: PortedGame,
+                                         supportDirectory: URL = FileManager.default.homeDirectoryForCurrentUser
+                                             .appendingPathComponent("Library/Application Support/nxnative")) -> String? {
+        guard let titleID = game.titleId, !titleID.isEmpty else { return nil }
+        let file = supportDirectory.appendingPathComponent(titleID).appendingPathComponent("env.txt")
+        return try? String(contentsOf: file, encoding: .utf8)
+    }
+
     private func envValues() -> [String: String] {
         guard let text = try? String(contentsOf: envURL, encoding: .utf8) else { return [:] }
         var values: [String: String] = [:]

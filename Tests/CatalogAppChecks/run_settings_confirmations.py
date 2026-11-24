@@ -151,6 +151,10 @@ extension CloudSetupAssistant {
             lambda m: m[1] + '        if let url = SettingsConfirmationProbe.pickedEngine {')
     replace(setup, r'    func refreshCompatibility\(\) \{.*?(?=\n    func |\n\})',
             '    func refreshCompatibility() {}\n')  # The probe switches commits but never evaluates the Mac toolchain.
+    replace(setup, r'    func prepareBuildEnvironmentIfNeeded\(\) \{.*?\n    \}',
+            '    func prepareBuildEnvironmentIfNeeded() {}')
+    replace(app / "Views/GameOptions/SteamOptionsView.swift",
+            r'        \.task\(id: game.id\) \{.*?\n        \}', '')
 
     shell = (app / "Views/Shell/AppShellView+Overlays.swift").read_text()
     methods = [re.search(rf'    func {name}\(.*?\n    \}}', shell, re.S)[0] for name in

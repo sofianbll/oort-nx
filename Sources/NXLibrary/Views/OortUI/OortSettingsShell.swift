@@ -163,3 +163,97 @@ struct OortSettingsSearchField: View {
             }
     }
 }
+
+struct OortSettingsRows<Content: View>: View {
+    var focus: String?
+    @ViewBuilder var content: () -> Content
+    @Environment(\.seleneCanvas) private var canvas
+    @Environment(\.seleneReduceMotion) private var reduceMotion
+
+    var body: some View {
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(spacing: canvas.u(SeleneTokens.Space.compact), content: content)
+                    .padding(.vertical, canvas.u(SeleneTokens.Space.tight))
+            }
+            .scrollIndicators(.hidden)
+            .onChange(of: focus) { _, id in
+                guard let id else { return }
+                withAnimation(Motion.focus(reduceMotion)) { proxy.scrollTo(id, anchor: .center) }
+            }
+        }
+    }
+}
+
+struct OortGameSettingRow: View {
+    let title: String
+    let about: String?
+    let value: String?
+    let fixed: Bool
+    let focused: Bool
+    let action: (() -> Void)?
+
+    var body: some View {
+        if let action, !fixed {
+            Button(action: action) { row }
+                .buttonStyle(.plain)
+                .accessibilityLabel(title)
+                .accessibilityValue(value ?? "")
+                .accessibilityHint(about ?? "")
+        } else {
+            row.accessibilityElement(children: .combine)
+        }
+    }
+
+    private var row: some View {
+        SeleneOptionRow(icon: nil, title: title, about: about, focused: focused, enabled: !fixed) {
+            if let value { SeleneValueChip(text: value) }
+        }
+        .contentShape(Rectangle())
+    }
+}
+
+/// Previously standalone panels can share the settings detail pane without taking sidebar input.
+struct OortSettingsPane {
+    let active: Binding<Bool>
+    let locked: Binding<Bool>
+    let onBack: () -> Void
+}
+
+extension EnvironmentValues {
+    @Entry var oortSettingsPane: OortSettingsPane? = nil
+}
+
+struct OortSettingsPaneLayout<Header: View, Content: View>: View {
+    let back: () -> Void
+    let hints: [HintItem]
+    let locked: Bool
+    @ViewBuilder var header: () -> Header
+    @ViewBuilder var content: () -> Content
+    @Environment(\.seleneCanvas) private var canvas
+    @Environment(\.oortSettingsPane) private var pane
+
+    var body: some View {
+        VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 0) {
+                if pane == nil { header() }
+                content()
+            }
+            .frame(maxWidth: pane == nil ? canvas.u(1040) : .infinity, alignment: .leading)
+            .frame(maxHeight: .infinity, alignment: .top)
+            .padding(.top, pane == nil ? canvas.u(90) : 0)
+            .padding(.bottom, canvas.u(SeleneTokens.Space.panel))
+            .contentShape(Rectangle())
+
+            if pane?.active.wrappedValue ?? true {
+                SeleneHintsBar(left: [HintItem(.b, "Back", action: back)], right: hints,
+                               bottom: SeleneBottomScrim.hintsBottom, leftInset: SeleneTokens.Space.control)
+            }
+        }
+        .onChange(of: locked, initial: true) { _, locked in
+            if locked { pane?.active.wrappedValue = true }
+            pane?.locked.wrappedValue = locked
+        }
+        .onDisappear { pane?.locked.wrappedValue = false }
+    }
+}

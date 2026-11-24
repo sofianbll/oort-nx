@@ -38,25 +38,23 @@ struct SavesPanel: View {
     }
     private var confirming: Bool { model.preview != nil || model.restorePreview != nil || cloudPrompt || model.issue != nil || !copyFrom.isEmpty }
     private var rows: [Row] { Row.allCases.filter { $0 != .copy || !model.saveCopySources.isEmpty } }
+    @Environment(\.oortSettingsPane) private var embedding
+
     var body: some View {
         ZStack {
-            SeleneTheme.scrim65.ignoresSafeArea().contentShape(Rectangle()).onTapGesture { close() }
-            VStack(spacing: 0) {
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(L10n.text("SAVES")).seleneFont(.text, .semibold).foregroundColor(SeleneTheme.ink60)
-                        .padding(.leading, canvas.u(SeleneTokens.Space.compact))
-                    Text(game.name).seleneFont(.screen).foregroundColor(SeleneTheme.ink).lineLimit(1)
-                        .padding(.leading, canvas.u(SeleneTokens.Space.tight))
-                    summary
-                    saveList
-                    statusLine
-                }
-                .frame(width: canvas.u(1040), alignment: .leading)
-                .frame(maxHeight: .infinity, alignment: .top)
-                .padding(.top, canvas.u(90)).padding(.bottom, canvas.u(SeleneTokens.Space.panel))
-                SeleneHintsBar(left: [HintItem(.b, L10n.text("Back"), action: close)], right: [HintItem(.a, L10n.text("Select"))],
-                               bottom: SeleneBottomScrim.hintsBottom, leftInset: 18)
-            }.frame(maxWidth: .infinity, maxHeight: .infinity)
+            if embedding == nil {
+                SeleneTheme.scrim65.ignoresSafeArea().contentShape(Rectangle()).onTapGesture { close() }
+            }
+            OortSettingsPaneLayout(back: close, hints: [HintItem(.a, "Select")], locked: confirming || model.busy) {
+                Text(L10n.text("SAVES")).seleneFont(.text, .semibold).foregroundColor(SeleneTheme.ink60)
+                    .padding(.leading, canvas.u(SeleneTokens.Space.compact))
+                Text(game.name).seleneFont(.screen).foregroundColor(SeleneTheme.ink).lineLimit(1)
+                    .padding(.leading, canvas.u(SeleneTokens.Space.tight))
+            } content: {
+                summary
+                saveList
+                statusLine
+            }
             .seleneOverlayOwnership(!confirming)
             if confirming {
                 ZStack {
@@ -250,6 +248,7 @@ struct SavesPanel: View {
         if cloudPrompt { cloudPrompt = false; return }
         if !copyFrom.isEmpty { copyFrom = []; return }
         onClose()
+        embedding?.onBack()
     }
     private func chooseCopySource(_ index: Int) {
         let sources = copyFrom
@@ -257,6 +256,7 @@ struct SavesPanel: View {
         if sources.indices.contains(index) { model.copySaves(from: sources[index]) }
     }
     private func handle(_ action: GamepadAction) {
+        guard embedding?.active.wrappedValue != false else { return }
         if confirming {
             guard !model.busy else { return }
             if !copyFrom.isEmpty {
@@ -296,7 +296,7 @@ struct SavesPanel: View {
     private func installKeyMonitor() {
         guard keyMonitor == nil else { return }
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
-            guard viewModel.gameForSettingsSheet?.id == game.id, let window = event.window,
+            guard embedding?.active.wrappedValue != false, viewModel.gameForSettingsSheet?.id == game.id, let window = event.window,
                   !viewModel.cloudQuitRequested,
                   viewModel.gameWithInstallFailure == nil, viewModel.settingsNotice == nil,
                   !window.isSheet, window.attachedSheet == nil, NSApp.modalWindow == nil,
