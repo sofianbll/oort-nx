@@ -214,7 +214,9 @@ La variante asincrona attende su una coda utility e invia SIGTERM al sottoproces
 per font, padding e raggi. In una pull request ogni voce della baseline può solo
 diminuire. Rimuovere le occorrenze sostituite con token.
 
-`SeleneTokens` conserva le misure di riferimento del canvas e gli effetti condivisi;
+`SeleneTokens` deriva da `design/oort.tokens.json` e conserva le misure del
+canvas, gli effetti e le durate condivise. Il fallback e la prima voce del
+catalogo usano gli stessi ruoli colore Oort; le altre palette non sono generate.
 `SeleneTheme` applica la palette corrente. `Motion` definisce le curve per ruolo.
 Il rail di Spotlight e Collection ripunta la molla critica alla nuova selezione;
 con Riduci movimento la posizione e gli interruttori cambiano direttamente.

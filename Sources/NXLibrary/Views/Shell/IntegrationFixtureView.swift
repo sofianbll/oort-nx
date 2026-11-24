@@ -152,6 +152,7 @@ struct IntegrationFixtureView: View {
                         .environment(\.seleneCanvas, canvas)
                         .environment(\.nxAppLocale, locale)
                         .environment(\.locale, locale.formatLocale)
+                        .environment(\.seleneButtonNames, .xbox)
                         .environment(\.seleneReduceMotion, true)
                         .environment(\.colorScheme, .dark))
                     host.frame = CGRect(x: 0, y: 0, width: size.width, height: height)
