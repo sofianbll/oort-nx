@@ -2,85 +2,216 @@ import Foundation
 
 /// Coordinates and radii are in local tile points; drift time is on the shared clock.
 public enum DownloadCloudMotion {
-    public enum Intensity: String, CaseIterable { case fine, present }
-    public enum WaveHeight: String, CaseIterable {
-        case calm, lively
-
-        public static let selected: Self = .calm
-        var amplitude: Double { self == .calm ? 5.4 : 7.8 }
-    }
-
     public struct Surface {
         public let level: Double?
         public let energy: Double
         public let activity: Double
         public let phase: Double
-        public let height: WaveHeight
 
         public func y(at x: Double, in size: CGSize) -> Double {
             let y = size.height * (1 - (level ?? 0.50))
             let u = x / size.width - 0.5
             let scale = min(size.width, size.height) / 170
-            let room = min(1, min(y, size.height - y) / (16 * scale))
+            let room = ease(min(y, size.height - y) / (16 * scale))
             let a = 2 * Double.pi * (u * 1.10 - phase / 5.6) + 0.3
             let b = 2 * Double.pi * (u * 1.93 + phase / 8.7) - 0.5
             // Subtract each wave's mean across the glass: height still measures the bytes.
             let ripple = 0.77 * (sin(a) - sin(a - 2 * .pi * u * 1.10) * sin(.pi * 1.10) / (.pi * 1.10))
                 + 0.23 * (sin(b) - sin(b - 2 * .pi * u * 1.93) * sin(.pi * 1.93) / (.pi * 1.93))
-            return y + scale * room * height.amplitude * energy * ripple
+            return y + scale * room * 5.4 * energy * ripple
         }
-    }
-
-    /// The live track ends by itself if progress stops. Reduced motion never schedules a track.
-    public static let quietAfter = 3.6
-
-    public static func surface(_ scene: Scene, at phase: Double, elapsed: Double? = nil,
-                               from previous: Surface? = nil, reduced: Bool = false,
-                               height: WaveHeight = .selected) -> Surface? {
-        let level: Double?, energy: Double, activity: Double
-        switch scene {
-        case .drift(let fraction):
-            let target = fraction.flatMap { $0.isFinite ? limit($0) : nil }
-            let t = max(0, elapsed ?? 0)
-            let climb = 1 - pow(1 - limit(t / 0.38), 3)
-            let from = previous?.level ?? target
-            level = target.map { (from ?? $0) + ($0 - (from ?? $0)) * (reduced ? 1 : climb) }
-            let rest = 1 - smooth((t - 2.55) / (quietAfter - 2.55))
-            let momentum = min(0.25, abs((target ?? 0) - (from ?? 0)) * 0.70)
-            let swell = momentum * pulse(t, at: 0.32, width: 0.32)
-            let base = target == nil ? 0.58 : 1
-            let wake = elapsed == nil ? 1 : smooth(t / 0.32)
-            energy = reduced ? 0.24 : rest * ((previous?.energy ?? 0) * (1 - wake) + base * wake + swell)
-            activity = reduced ? 0.80 : rest * ((previous?.activity ?? 0) * (1 - wake) + wake)
-        case .settle(let fraction):
-            let p = smooth(max(0, elapsed ?? phase) / scene.duration)
-            level = fraction.map { target in
-                let from = previous?.level ?? target
-                return from + (target - from) * (reduced ? 1 : p)
-            }
-            energy = reduced ? 0 : (previous?.energy ?? 1) * (1 - p)
-            activity = reduced ? 0 : (previous?.activity ?? 1) * (1 - p)
-        case .completion, .fade: return nil
-        }
-        return Surface(level: level, energy: energy, activity: activity, phase: reduced ? 0 : phase, height: height)
     }
 
     public enum Scene: Equatable {
         case drift(Double?)
         case settle(Double?)
+        case verify(Double?)
         case completion
         case fade
 
+        public var level: Double? {
+            switch self {
+            case .drift(let level), .settle(let level), .verify(let level):
+                level.flatMap { $0.isFinite ? limit($0) : nil }
+            case .completion, .fade: 1
+            }
+        }
+
         public var duration: Double {
             switch self {
-            case .drift: DownloadCloudMotion.quietAfter
-            case .settle: 0.55
             case .completion: 1.20
             case .fade: 0.48
+            default: 0
             }
         }
 
         public var isDrift: Bool { if case .drift = self { true } else { false } }
+        var isSuccess: Bool { self == .completion || self == .fade }
+    }
+
+    public struct Band {
+        public let level: Double
+        public let opacity: Double
+    }
+
+    public struct Sample {
+        public let surface: Surface
+        public let opacity: Double
+        public let bands: [Band]
+        public let celebration: Double?
+    }
+
+    /// Finite critical damping: three identical real poles, with the last tail eased to exactly zero.
+    /// Each earned increment owns its response; another report adds a zero-position/speed/acceleration
+    /// term instead of restarting the moving front. The sum never spends unreported bytes.
+    public struct Track {
+        private static let lift = 3.2, stillFade = 0.52, waveEase = 2.0, silence = 1.4, restartFade = 0.8
+        private var levels: Levels
+        private var retiring: (levels: Levels, appeared: Double, fade: Double, at: Double)?
+        private var appeared: Double
+        private var appearanceDuration = 0.38
+        private var wave = Ramp()
+        private var sleep: Double?
+        private var success: Double?
+        private var scene: Scene
+        private let reduced: Bool
+
+        public init(_ scene: Scene, at time: Double, reduced: Bool = false, appear: Bool = true) {
+            self.scene = scene
+            self.reduced = reduced
+            appeared = appear ? time : -.infinity
+            levels = Levels(base: scene.level)
+            if scene.isSuccess { success = time }
+            if scene.isDrift && !reduced {
+                wave.set(1, at: time, duration: Self.waveEase)
+                sleep = time + Self.silence
+            }
+        }
+
+        public mutating func receive(_ scene: Scene, at time: Double, restart: Bool = false, advanced: Bool = false) {
+            let duration = reduced ? Self.stillFade : Self.lift
+            if let old = retiring, time >= old.at + Self.restartFade { retiring = nil }
+            // A revised total can also invalidate the old fraction without a byte-counter reset.
+            let rewind = restart || (scene.isDrift && scene.level.map { $0 < (levels.target ?? $0) } == true)
+            let resolved = !reduced && levels.base == nil && levels.steps.isEmpty && scene.level != nil
+            if rewind || resolved {
+                if retiring == nil {
+                    retiring = (levels, appeared, appearanceDuration, time)
+                    appeared = time + Self.restartFade
+                    appearanceDuration = Self.restartFade
+                }
+                levels = Levels(base: rewind ? scene.level : 0)
+            }
+            if let level = scene.level { levels.add(level, at: max(time, appeared), duration: duration) }
+            if !reduced {
+                if let sleep, sleep <= time {
+                    wave.set(0, at: sleep, duration: Self.waveEase)
+                    self.sleep = nil
+                }
+                switch scene {
+                case .drift:
+                    if advanced || scene != self.scene || rewind {
+                        wave.set(1, at: time, duration: Self.waveEase)
+                        sleep = time + Self.silence
+                    }
+                case .verify where self.scene.isDrift && wave.target == 1:
+                    sleep = max(time, levels.end(duration))
+                case .settle where scene != self.scene:
+                    wave.set(0, at: time, duration: Self.waveEase)
+                    sleep = nil
+                default: break
+                }
+            }
+            if scene.isSuccess {
+                if success == nil { success = max(time, levels.end(duration), appeared + appearanceDuration) }
+                if wave.target == 1 { sleep = success }
+            } else {
+                success = nil
+            }
+            self.scene = scene
+        }
+
+        public var end: Double {
+            max(appeared + appearanceDuration, levels.end(reduced ? Self.stillFade : Self.lift),
+                wave.end(Self.waveEase), (sleep ?? -.infinity) + Self.waveEase,
+                (success ?? -.infinity) + scene.duration)
+        }
+
+        public func sample(at time: Double) -> Sample {
+            let duration = reduced ? Self.stillFade : Self.lift
+            let beforeSwap = retiring.map { time < $0.at + Self.restartFade } ?? false
+            let levelTrack = beforeSwap ? retiring!.levels : levels
+            let opacity = beforeSwap
+                ? ease((time - retiring!.appeared) / retiring!.fade) * (1 - ease((time - retiring!.at) / Self.restartFade))
+                : ease((time - appeared) / appearanceDuration)
+            let level = levelTrack.value(at: time, duration: duration, reduced: reduced)
+            // A pending sleep is evaluated like a real event so a late update can wake mid-fade.
+            var energy = wave.value(at: time, duration: Self.waveEase)
+            if let sleep { energy -= ease((time - sleep) / Self.waveEase) }
+            let cue = success.map { time - $0 }
+            let activity = limit(energy) * (1 - ease((cue ?? 0) / 0.38))
+            let surface = Surface(level: level, energy: limit(energy), activity: activity, phase: reduced ? 0 : time)
+            return Sample(surface: surface, opacity: opacity,
+                          bands: reduced ? levelTrack.bands(at: time, duration: duration) : [],
+                          celebration: cue.flatMap { $0 >= 0 && $0 < scene.duration ? $0 : nil })
+        }
+    }
+
+    private struct Ramp {
+        var base = 0.0
+        var target = 0.0
+        var steps: [(at: Double, delta: Double)] = []
+
+        mutating func set(_ target: Double, at time: Double, duration: Double) {
+            guard target != self.target else { return }
+            while let first = steps.first, time - first.at >= duration { base += steps.removeFirst().delta }
+            steps.append((time, target - self.target))
+            self.target = target
+        }
+
+        func end(_ duration: Double) -> Double { (steps.last?.at ?? -.infinity) + duration }
+        func value(at time: Double, duration: Double) -> Double {
+            steps.reduce(base) { $0 + $1.delta * ease((time - $1.at) / duration) }
+        }
+    }
+
+    private struct Levels {
+        var base: Double?
+        var steps: [(at: Double, level: Double)] = []
+        var target: Double? { steps.last?.level ?? base }
+
+        mutating func add(_ level: Double, at time: Double, duration: Double) {
+            guard level > (target ?? -1) else { return }
+            while let first = steps.first, time - first.at >= duration { base = steps.removeFirst().level }
+            if steps.last?.at == time { steps.removeLast() }
+            steps.append((time, level))
+        }
+
+        func end(_ duration: Double) -> Double { (steps.last?.at ?? -.infinity) + duration }
+
+        func value(at time: Double, duration: Double, reduced: Bool) -> Double? {
+            guard base != nil || !steps.isEmpty else { return nil }
+            var previous = base ?? 0, level = previous
+            for step in steps {
+                let t = max(0, time - step.at)
+                let u = 2.05 * t
+                let response = reduced ? ease(t / duration)
+                    : t >= duration ? 1 : 1 - exp(-u) * (1 + u + u * u / 2) * (1 - ease((t - 1.8) / (duration - 1.8)))
+                level += (step.level - previous) * response
+                previous = step.level
+            }
+            return min(max(0, level), previous)
+        }
+
+        func bands(at time: Double, duration: Double) -> [Band] {
+            var result = base.flatMap { $0 > 0 ? [Band(level: $0, opacity: 1)] : nil } ?? []
+            for step in steps where step.level > 0 {
+                let alpha = ease((time - step.at) / duration)
+                if result.last?.opacity == alpha { result.removeLast() }
+                result.append(Band(level: step.level, opacity: alpha))
+            }
+            return result
+        }
     }
 
     public struct Mote: Equatable {
@@ -98,29 +229,28 @@ public enum DownloadCloudMotion {
         public let centreOpacity: Double
     }
 
-    public static func frame(_ scene: Scene, seed: UInt64, at time: Double, intensity: Intensity,
-                             size: CGSize, sourceLevel: Double? = 1, surface live: Surface? = nil) -> Frame {
+    public static func preview(_ scene: Scene, at time: Double, reduced: Bool = false) -> Sample {
+        let moving = scene.isDrift && !reduced
+        return Sample(surface: Surface(level: scene.level, energy: moving ? 1 : 0,
+                                       activity: moving ? 1 : 0, phase: reduced ? 0 : time),
+                      opacity: 1, bands: [], celebration: scene.isSuccess && time < scene.duration ? time : nil)
+    }
+
+    public static func frame(_ scene: Scene, seed: UInt64, at time: Double, size: CGSize, surface: Surface? = nil) -> Frame {
         let empty = Frame(dots: [], bandY: 0, bandOpacity: 0, centreOpacity: 0)
         guard time.isFinite, size.width > 0, size.height > 0 else { return empty }
-        let t = limit(time / scene.duration)
-        guard scene.isDrift || (time >= 0 && t < 1) else { return empty }
         let w = size.width, h = size.height
         let scale = min(w, h) / 170
-        let present = intensity == .present
         let destination = CGPoint(x: w * 0.5, y: h * 0.46)
         var random = SplitMix(seed: seed)
 
-        func bandY(_ level: Double?) -> Double {
-            level.map { max(6 * scale, h * edgeY($0)) } ?? h * 0.56
-        }
-
         switch scene {
-        case .drift, .settle:
-            guard let surface = live ?? surface(scene, at: time) else { return empty }
+        case .drift, .settle, .verify:
+            let surface = surface ?? preview(scene, at: time).surface
             let level = surface.level
             let y = surface.y(at: w / 2, in: size)
             let width = level == nil ? 0.74 : 0.88
-            let columns = present ? 19 : 16
+            let columns = 16
             let activity = surface.activity
             let clock = surface.phase / 5.6
             var dots = [Mote]()
@@ -136,10 +266,10 @@ public enum DownloadCloudMotion {
                     let crest = surface.y(at: x, in: size)
                     let depth = row == 0 ? 3.0 + 2.0 * random.unit() : 4 + 18 * bubble
                     let py = max(2.5 * scale, crest - depth * scale)
-                    let radius = (row == 0 ? 0.98 + 0.51 * random.unit() : 0.62) * scale * (present ? 1.09 : 1)
+                    let radius = (row == 0 ? 0.98 + 0.51 * random.unit() : 0.62) * scale
                     let shimmer = row == 0 ? 0.967 + 0.033 * sin(sway) : 0.64 * sin(.pi * bubble)
                     let visible = row == 0 || column.isMultiple(of: 3)
-                    let reach = row == 0 ? 1 : smooth(crest / (17 * scale))
+                    let reach = row == 0 ? 0.2 + 0.8 * ease(crest / (7 * scale)) : ease(crest / (17 * scale))
                     dots.append(Mote(center: CGPoint(x: x, y: py), radius: radius,
                                      opacity: visible ? reach * activity * shimmer : 0,
                                      kind: row == 0 ? (column.isMultiple(of: 3) ? .accent : .ink) : .bubble))
@@ -148,14 +278,15 @@ public enum DownloadCloudMotion {
             return Frame(dots: dots, bandY: y, bandOpacity: activity, centreOpacity: 0)
 
         case .completion, .fade:
+            guard time >= 0, time < scene.duration else { return empty }
+            let t = time / scene.duration
             let still = scene == .fade
             let gather = still ? 1 : smooth(t / 0.48)
             let reveal = smooth(t / (still ? 0.13 : 0.18))
             let dissolve = 1 - smooth((t - (still ? 0.18 : 0.70)) / (still ? 0.82 : 0.30))
             let flash = still ? 0 : pulse(t, at: 0.58, width: 0.13)
             let glint = still ? 0 : pulse(t, at: 0.64, width: 0.12)
-            let origin = bandY(sourceLevel.flatMap { $0.isFinite ? limit($0) : nil })
-            let mark = present ? presentMark : fineMark
+            let origin = 6 * scale
             let r = min(w, h) * 0.28
             let dots = mark.map { point in
                 let x = w * 0.5 + (point.x * 0.36 + (random.unit() - 0.5) * 0.15) * w
@@ -174,27 +305,22 @@ public enum DownloadCloudMotion {
         }
     }
 
-    public static func edgeY(_ fraction: Double) -> Double { 1 - limit(fraction) }
-
     private struct MarkPoint {
         let x, y, radius, light: Double
         let kind: Mote.Kind
     }
 
-    private static let fineMark = mark(present: false)
-    private static let presentMark = mark(present: true)
-
     /// Sparse sampling of scripts/brand_icons.py: RIM = .86, cut_x(y) = .55 √(1 − y²),
     /// and trumpet(x) = .012 + .2 (|x| / end)^2.4. Keep the two fans empty at the sun.
-    private static func mark(present: Bool) -> [MarkPoint] {
-        let count = present ? 41 : 35
+    private static let mark: [MarkPoint] = {
+        let count = 35
         var points: [MarkPoint] = (0..<count).compactMap { i in
             let a = 2 * .pi * (Double(i) + 0.5) / Double(count)
             if abs(cos(a)) < 0.07 { return nil } // the cut's tip already joins the rim here
             return MarkPoint(x: 0.95 * cos(a), y: 0.95 * sin(a),
                              radius: 0.94 + 0.54 * max(0, -cos(a)), light: 0.88, kind: .ink)
         }
-        let cuts = present ? 28 : 24
+        let cuts = 24
         for i in 0..<cuts {
             let a = .pi * ((Double(i) + 0.5) / Double(cuts) - 0.5)
             let x = cos(a), y = sin(a)
@@ -217,9 +343,13 @@ public enum DownloadCloudMotion {
         }
         points.append(MarkPoint(x: 0, y: 0, radius: 2.20, light: 1, kind: .star))
         return points
-    }
+    }()
 
     private static func limit(_ x: Double) -> Double { min(max(x, 0), 1) }
+    private static func ease(_ x: Double) -> Double {
+        let p = limit(x)
+        return p * p * p * (10 + p * (-15 + 6 * p))
+    }
     private static func smooth(_ x: Double) -> Double { let p = limit(x); return p * p * (3 - 2 * p) }
     private static func pulse(_ x: Double, at: Double, width: Double) -> Double { smooth(1 - abs(x - at) / width) }
 }

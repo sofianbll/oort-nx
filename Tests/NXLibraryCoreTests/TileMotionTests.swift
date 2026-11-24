@@ -87,28 +87,78 @@ final class TileMotionTests: XCTestCase {
         XCTAssertEqual(loop.values.first!, loop.values.last!, accuracy: 1e-3)
     }
 
-    func testCloudJumpStartsFromTheVisibleLevelAndSettlesAtTheNewOne() throws {
-        let size = CGSize(width: 170, height: 170)
-        let previous = try XCTUnwrap(DownloadCloudMotion.surface(.drift(0.2), at: 1.8))
-        let first = try XCTUnwrap(DownloadCloudMotion.surface(.drift(0.6), at: 1.8, elapsed: 0, from: previous))
-        XCTAssertEqual(first.y(at: 32, in: size), previous.y(at: 32, in: size), accuracy: 1e-9)
-        let rising = try XCTUnwrap(DownloadCloudMotion.surface(.drift(0.6), at: 2.12, elapsed: 0.32, from: first))
-        XCTAssertGreaterThan(rising.level ?? 0, 0.2)
-        XCTAssertGreaterThan(rising.energy, first.energy)
-        let quiet = try XCTUnwrap(DownloadCloudMotion.surface(.drift(0.6), at: 5.4, elapsed: 3.6, from: first))
-        XCTAssertEqual(quiet.y(at: 32, in: size), 68, accuracy: 1e-9)
-        XCTAssertEqual(quiet.y(at: 120, in: size), 68, accuracy: 1e-9)
-        XCTAssertEqual(quiet.activity, 0)
+    func testCloudLevelIsBoundedAndGlidesThroughIrregularUpdates() {
+        typealias Motion = DownloadCloudMotion
+        for updates: [(Double, Motion.Scene)] in [
+            [(0.5, .drift(1))],
+            [(0.51, .drift(0.1)), (0.52, .drift(0.28)), (0.52, .drift(0.46)), (0.81, .drift(0.50)),
+             (1.4, .settle(0.5)), (6.4, .drift(0.55)), (6.57, .drift(0.7)),
+             (6.63, .verify(1)), (6.80, .completion)],
+            [(0.1, .drift(0.01)), (0.4, .drift(0.22)), (5.4, .drift(0.85)), (5.6, .settle(0.85)),
+             (5.9, .drift(0.92)), (6.2, .drift(1))],
+        ] {
+            var track = Motion.Track(.drift(0), at: 0)
+            var next = 0, cap = 0.0, last = 0.0, speed = 0.0
+            for i in 0...720 {
+                let t = Double(i) / 60
+                while next < updates.count && updates[next].0 <= t {
+                    let (time, scene) = updates[next]
+                    let before = track
+                    track.receive(scene, at: time)
+                    for offset in [-0.0001, 0, 0.0001] {
+                        let a = before.sample(at: time + offset), b = track.sample(at: time + offset)
+                        XCTAssertEqual(a.surface.level!, b.surface.level!, accuracy: 1e-10)
+                        XCTAssertEqual(a.surface.energy, b.surface.energy, accuracy: 1e-10)
+                    }
+                    cap = scene.level ?? cap
+                    next += 1
+                }
+                let sample = track.sample(at: t)
+                let level = sample.surface.level!
+                let step = level - last
+                XCTAssertLessThanOrEqual(level, cap + 1e-10)
+                XCTAssertGreaterThanOrEqual(step, -1e-10)
+                XCTAssertLessThanOrEqual(step, 0.012)
+                XCTAssertLessThanOrEqual(abs(step * 60 - speed), 0.032)
+                if sample.celebration != nil { XCTAssertEqual(level, 1, accuracy: 1e-10) }
+                last = level
+                speed = step * 60
+            }
+            XCTAssertEqual(last, cap, accuracy: 1e-10)
+            XCTAssertEqual(track.sample(at: 12).surface.energy, 0, accuracy: 1e-10)
+        }
     }
 
-    func testCloudUnknownIsNotAColourLevelAndReducedMotionHasNoClock() throws {
-        let size = CGSize(width: 170, height: 170)
-        let unknown = try XCTUnwrap(DownloadCloudMotion.surface(.drift(nil), at: 3))
-        XCTAssertNil(unknown.level)
-        XCTAssertGreaterThan(unknown.energy, 0)
-        let first = try XCTUnwrap(DownloadCloudMotion.surface(.drift(0.2), at: 3, reduced: true))
-        let second = try XCTUnwrap(DownloadCloudMotion.surface(.drift(0.2), at: 19, reduced: true))
-        XCTAssertEqual(first.y(at: 20, in: size), second.y(at: 20, in: size))
-        XCTAssertNotEqual(first.y(at: 20, in: size), first.y(at: 90, in: size))
+    func testCloudRestartDissolvesAndReducedMotionFadesOnlyEarnedBands() {
+        typealias Motion = DownloadCloudMotion
+        var track = Motion.Track(.drift(0.8), at: 0)
+        XCTAssertEqual(track.sample(at: 0).surface.level, 0.8)
+        XCTAssertEqual(track.sample(at: 0).opacity, 0)
+        track.receive(.drift(0.06), at: 1, restart: true)
+        track.receive(.drift(0.16), at: 1.3)
+        XCTAssertEqual(track.sample(at: 1).opacity, 1)
+        var last = 1.0
+        for i in 0...120 {
+            let sample = track.sample(at: 1 + Double(i) / 60)
+            XCTAssertLessThan(abs(sample.opacity - last), 0.055)
+            if sample.surface.level == 0.8 { XCTAssertLessThanOrEqual(sample.opacity, last + 1e-10) }
+            last = sample.opacity
+        }
+        XCTAssertEqual(track.sample(at: 5).surface.level!, 0.16, accuracy: 1e-10)
+        track.receive(.drift(0.10), at: 5) // A revised total, not a new request.
+        XCTAssertEqual(track.sample(at: 5).surface.level!, 0.16, accuracy: 1e-10)
+        XCTAssertEqual(track.sample(at: 5.8).opacity, 0)
+        XCTAssertEqual(track.sample(at: 7).surface.level!, 0.10, accuracy: 1e-10)
+
+        var still = Motion.Track(.drift(nil), at: 0, reduced: true)
+        XCTAssertNil(still.sample(at: 0.4).surface.level)
+        still.receive(.drift(0.45), at: 1)
+        still.receive(.drift(0.6), at: 1.12)
+        let bands = still.sample(at: 1.2).bands
+        XCTAssertEqual(bands.map(\.level), [0.45, 0.6])
+        XCTAssertGreaterThan(bands[0].opacity, bands[1].opacity)
+        XCTAssertGreaterThan(bands[1].opacity, 0)
+        XCTAssertEqual(still.sample(at: 1.2).surface.energy, 0)
+        XCTAssertEqual(still.sample(at: 2).bands.map(\.opacity), [1])
     }
 }

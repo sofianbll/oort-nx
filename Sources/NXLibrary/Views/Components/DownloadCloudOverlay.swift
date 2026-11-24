@@ -5,7 +5,7 @@ import SwiftUI
 
 /// Keeps the phase and the real success event that the cover's numeric look cannot carry.
 enum DownloadCloudTileState: Equatable {
-    case idle, waiting(CloudLibraryItem), running(CloudLibraryItem, Double?)
+    case idle, waiting(CloudLibraryItem, complete: Bool = false), running(CloudLibraryItem, Double?)
     case verifying(CloudLibraryItem, Double?), completed(CloudLibraryItem)
     case interrupted(CloudLibraryItem), holding(CloudLibraryItem, Double?)
 
@@ -27,33 +27,25 @@ enum DownloadCloudTileState: Equatable {
         switch state.progress?.phase {
         case .downloading: self = .running(item, fraction)
         case .verifying, .restoring: self = .verifying(item, state.progress?.downloadComplete == true ? 1 : fraction)
-        case .readyToInstall, .preparing, nil: self = .waiting(item)
+        case .readyToInstall: self = .waiting(item, complete: state.progress?.downloadComplete == true)
+        case .preparing, nil: self = .waiting(item)
         case .uploading: break
         }
     }
 
-    func scene(after previous: Self?, reduceMotion: Bool) -> DownloadCloudMotion.Scene? {
+    var item: CloudLibraryItem? {
         switch self {
-        case .running(_, let fraction):
-            return reduceMotion ? nil : .drift(fraction)
-        case .verifying(let item, let fraction):
-            guard !reduceMotion, case .running(item, let lastFraction) = previous else { return nil }
-            return .settle(fraction ?? lastFraction ?? 1)
-        case .completed(let item):
-            switch previous {
-            case .running(item, _), .verifying(item, _), .waiting(item), .holding(item, _):
-                return reduceMotion ? .fade : .completion
-            default: return nil
-            }
-        case .idle, .waiting, .holding, .interrupted: return nil
+        case .running(let item, _), .verifying(let item, _), .holding(let item, _),
+             .completed(let item), .waiting(let item, _), .interrupted(let item): item
+        case .idle: nil
         }
     }
 
-    var sourceLevel: Double? {
-        switch self {
-        case .running(_, let level), .holding(_, let level): level
-        case .verifying(_, let level): level ?? 1
-        default: 1
+    func completes(_ previous: Self?) -> Bool {
+        guard case .completed(let item) = self else { return false }
+        switch previous {
+        case .running(item, _), .verifying(item, _), .waiting(item, _), .holding(item, _): return true
+        default: return false
         }
     }
 
@@ -61,19 +53,21 @@ enum DownloadCloudTileState: Equatable {
         switch self {
         case .running(_, let fraction): .drift(fraction)
         case .holding(_, let fraction): .settle(fraction)
-        case .verifying: .settle(1)
+        case .verifying(_, let fraction): .verify(fraction)
         default: nil
         }
     }
 
     func hold(after previous: Self?) -> Self? {
-        let item: CloudLibraryItem
-        switch self {
-        case .waiting(let value), .interrupted(let value): item = value
-        default: return nil
-        }
+        guard let item else { return nil }
         switch previous {
-        case .running(item, let fraction), .holding(item, let fraction): return .holding(item, fraction)
+        case .running(item, let fraction), .verifying(item, let fraction), .holding(item, let fraction):
+            switch self {
+            case .waiting(_, complete: true): return .holding(item, 1)
+            case .waiting, .interrupted: return .holding(item, fraction)
+            case .verifying(_, nil): return .verifying(item, fraction)
+            default: return nil
+            }
         default: return nil
         }
     }
@@ -83,14 +77,11 @@ enum DownloadCloudTileState: Equatable {
 struct DownloadCloudCapture {
     let seed: UInt64
     let time: Double
-    let intensity: DownloadCloudMotion.Intensity
     var previous: DownloadCloudTileState?
     var before = false
     var scrimsOnly = false
     var artOnly = false
-    var waveHeight: DownloadCloudMotion.WaveHeight = .selected
-    var elapsed: Double? = nil
-    var previousElapsed: Double? = nil
+    var sample: DownloadCloudMotion.Sample? = nil
 }
 
 private struct DownloadCloudCaptureKey: EnvironmentKey {
@@ -126,12 +117,16 @@ struct DownloadCloudArt<Art: View>: View {
 
     @Environment(\.downloadCloudCapture) private var capture
     @Environment(\.seleneCanvas) private var canvas
+    @Environment(\.seleneReduceMotion) private var reduceMotion
     @State private var lastPhase: DownloadCloudTileState?
+    @State private var completedHere = false
 
     var body: some View {
         let current = DownloadCloudTileState(style.state, buildLook: style.buildLook)
         let phase = current.hold(after: capture?.previous ?? lastPhase) ?? current
-        let look = phase.fillScene != nil && capture?.before != true
+        let completing = phase.completes(capture?.previous ?? lastPhase) || (phase == lastPhase && completedHere)
+        let scene = phase.fillScene ?? (completing ? (reduceMotion ? .fade : .completion) : nil)
+        let look = scene != nil && capture?.before != true
             ? PortingTileLook.transfer(0) : (style.state?.coverLook(style.buildLook) ?? style.buildLook)
         ZStack {
             if let radius = style.backplateRadius {
@@ -143,35 +138,39 @@ struct DownloadCloudArt<Art: View>: View {
             .drawingGroup()
             .shadow(color: .black.opacity(0.55), radius: canvas.u(9))
             .overlayPreferenceValue(BoxArtTitleBounds.self) { anchor in
-                GeometryReader { proxy in
-                    DownloadCloudOverlay(state: phase, id: id, cornerRadius: style.cornerRadius,
-                                         title: anchor.map { proxy[$0] },
-                                         art: AnyView(art), revision: revision,
-                                         bytes: style.state?.progress?.transfer?.bytesTransferred)
+                if let scene, capture?.before != true {
+                    GeometryReader { proxy in
+                        DownloadCloudOverlay(scene: scene, item: phase.item, id: id, cornerRadius: style.cornerRadius,
+                                             title: anchor.map { proxy[$0] },
+                                             art: AnyView(art), revision: revision,
+                                             bytes: style.state?.progress?.transfer?.bytesTransferred,
+                                             onSettled: { completedHere = false })
+                    }
                 }
             }
             .onChange(of: current, initial: true) { old, new in
-                lastPhase = new.hold(after: lastPhase ?? old) ?? new
+                let previous = lastPhase ?? old
+                completedHere = new.completes(previous)
+                lastPhase = new.hold(after: previous) ?? new
             }
     }
 }
 
 /// Lives above the flattened artwork and below the badge. No animation view is mounted at rest.
 struct DownloadCloudOverlay: View {
-    let state: DownloadCloudTileState
+    let scene: DownloadCloudMotion.Scene
+    let item: CloudLibraryItem?
     let id: UUID
     let cornerRadius: CGFloat
     var title: CGRect? = nil
     let art: AnyView
     var revision: DownloadCloudArtRevision
     let bytes: Int64?
-    private static let intensity: DownloadCloudMotion.Intensity = .fine
+    let onSettled: () -> Void
 
     @Environment(\.seleneReduceMotion) private var reduceMotion
     @Environment(\.seleneBackdropStyle) private var backdrop
     @Environment(\.downloadCloudCapture) private var capture
-    @State private var cue: (scene: DownloadCloudMotion.Scene, start: Double, sourceLevel: Double?)?
-    @State private var lastProgress = 0.0
 
     var body: some View {
         let colors = DownloadCloudColors(backdrop.palette)
@@ -179,145 +178,109 @@ struct DownloadCloudOverlay: View {
                                                 glass: backdrop.palette.glass)
         Group {
             if let capture {
-                if !capture.before, let scene = state.fillScene ?? state.scene(after: capture.previous, reduceMotion: reduceMotion) {
-                    let from = capture.previous?.fillScene.flatMap {
-                        DownloadCloudMotion.surface($0, at: capture.time, elapsed: capture.previousElapsed,
-                                                    height: capture.waveHeight)
-                    }
-                    snapshot(scene, at: capture.time, seed: capture.seed, intensity: capture.intensity,
-                             sourceLevel: capture.previous.flatMap { $0.sourceLevel }, previous: from,
-                             height: capture.waveHeight, elapsed: capture.elapsed, scrimsOnly: capture.scrimsOnly,
-                             artOnly: capture.artOnly)
-                }
-            } else if reduceMotion, let scene = state.fillScene {
-                snapshot(scene, at: 0, seed: seed, intensity: Self.intensity, sourceLevel: nil)
-            } else if let cue = liveCue {
+                let sample = capture.sample ?? DownloadCloudMotion.preview(scene, at: capture.time, reduced: reduceMotion)
+                snapshot(sample, seed: capture.seed, scrimsOnly: capture.scrimsOnly, artOnly: capture.artOnly)
+            } else {
                 DownloadCloudLive(
-                    input: .init(scene: cue.scene, start: cue.start, colors: colors, seed: seed,
-                                 intensity: Self.intensity, title: title, sourceLevel: cue.sourceLevel, bytes: bytes),
-                    art: art, revision: revision)
+                    input: .init(scene: scene, colors: colors, seed: seed,
+                                 title: title, item: item, bytes: bytes, reduced: reduceMotion),
+                    art: art, revision: revision, onSettled: onSettled)
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         .allowsHitTesting(false)
         .accessibilityHidden(true)
-        .onChange(of: bytes, initial: true) { _, _ in lastProgress = CACurrentMediaTime() }
-        .onChange(of: state) { old, new in
-            if let fill = new.fillScene {
-                if case .drift = fill {
-                    cue = nil
-                    lastProgress = CACurrentMediaTime()
-                } else if old.fillScene != fill {
-                    cue = (fill, CACurrentMediaTime(), old.sourceLevel)
-                }
-                return
-            }
-            cue = new.scene(after: old, reduceMotion: reduceMotion).flatMap {
-                $0.isDrift ? nil : ($0, CACurrentMediaTime(), old.sourceLevel)
-            }
-        }
-        .onChange(of: reduceMotion) { _, reduced in
-            if reduced, cue?.scene != .fade { cue = nil }
-        }
-        .onDisappear { cue = nil }
     }
 
     private var seed: UInt64 {
         withUnsafeBytes(of: id.uuid) { $0.prefix(8).reduce(0) { ($0 << 8) | UInt64($1) } }
     }
 
-    private func snapshot(_ scene: DownloadCloudMotion.Scene, at time: Double, seed: UInt64,
-                          intensity: DownloadCloudMotion.Intensity, sourceLevel: Double?,
-                          previous: DownloadCloudMotion.Surface? = nil,
-                          height: DownloadCloudMotion.WaveHeight = .selected,
-                          elapsed: Double? = nil, scrimsOnly: Bool = false, artOnly: Bool = false) -> some View {
-        let phase = reduceMotion && state.fillScene != nil ? 0 : time
-        let surface = DownloadCloudMotion.surface(scene, at: phase, elapsed: elapsed, from: previous,
-                                                  reduced: reduceMotion, height: height)
-        return ZStack {
-            if let surface, surface.level != nil {
+    private func snapshot(_ sample: DownloadCloudMotion.Sample, seed: UInt64,
+                          scrimsOnly: Bool, artOnly: Bool) -> some View {
+        ZStack {
+            if sample.surface.level != nil {
                 art.mask {
                     Canvas { context, size in
-                        context.fill(Path(DownloadCloudFront.path(surface, size, fill: true)), with: .color(.white))
+                        if sample.bands.isEmpty {
+                            context.fill(Path(DownloadCloudFront.path(sample.surface, size, fill: true)), with: .color(.white))
+                        } else {
+                            var bottom = 1.0
+                            for band in sample.bands {
+                                let top = 1 - band.level
+                                let rect = CGRect(x: 0, y: top * size.height, width: size.width,
+                                                  height: (bottom - top) * size.height)
+                                context.fill(Path(rect), with: .color(.white.opacity(band.opacity)))
+                                bottom = top
+                            }
+                        }
                     }
                 }
             }
-            light(scene, at: phase, elapsed: elapsed, seed: seed, intensity: intensity,
-                  sourceLevel: sourceLevel, surface: surface, scrimsOnly: scrimsOnly, artOnly: artOnly)
+            light(sample, seed: seed, scrimsOnly: scrimsOnly, artOnly: artOnly)
         }
+        .opacity(sample.opacity)
     }
 
-    private func light(_ scene: DownloadCloudMotion.Scene, at time: Double, elapsed: Double?, seed: UInt64,
-                       intensity: DownloadCloudMotion.Intensity, sourceLevel: Double?,
-                       surface: DownloadCloudMotion.Surface?, scrimsOnly: Bool, artOnly: Bool) -> some View {
+    private func light(_ sample: DownloadCloudMotion.Sample, seed: UInt64, scrimsOnly: Bool, artOnly: Bool) -> some View {
         let sprites = DownloadCloudSprites(.init(backdrop.palette))
         return Canvas { context, size in
-            let sample = scene.isDrift ? time : elapsed ?? time
-            let frame = DownloadCloudMotion.frame(scene, seed: seed, at: sample, intensity: intensity, size: size,
-                                                  sourceLevel: sourceLevel, surface: surface)
+            let surface = sample.surface
             context.withCGContext { cg in
                 guard !artOnly else { return }
                 if let title {
                     cg.addPath(DownloadCloudSprites.titleMask(size, title))
                     cg.clip(using: .evenOdd)
                 }
-                if let surface { DownloadCloudFront.draw(surface, size, in: cg) }
-                for (image, rect, opacity) in sprites.scrims(frame, size, completion: surface == nil) where opacity > 0 {
-                    // Canvas draws CGImage in its y-down context; Core Animation draws its contents upright.
-                    cg.saveGState()
-                    cg.setAlpha(opacity)
-                    cg.translateBy(x: 0, y: 2 * rect.midY)
-                    cg.scaleBy(x: 1, y: -1)
-                    cg.draw(image, in: rect)
-                    cg.restoreGState()
+                func draw(_ frame: DownloadCloudMotion.Frame, completion: Bool) {
+                    for (image, rect, opacity) in sprites.scrims(frame, size, completion: completion) where opacity > 0 {
+                        // Canvas draws CGImage Y-down; Core Animation draws it upright.
+                        cg.saveGState()
+                        cg.setAlpha(opacity)
+                        cg.translateBy(x: 0, y: 2 * rect.midY)
+                        cg.scaleBy(x: 1, y: -1)
+                        cg.draw(image, in: rect)
+                        cg.restoreGState()
+                    }
+                    for mote in frame.dots where mote.opacity > 0 {
+                        let rect = DownloadCloudSprites.rect(mote)
+                        cg.setAlpha(mote.opacity)
+                        if !completion, mote.kind != .bubble { cg.draw(DownloadCloudSprites.underpoint, in: rect) }
+                        if !scrimsOnly { cg.draw(sprites.image(mote), in: rect) }
+                    }
+                    cg.setAlpha(1)
                 }
-                for mote in frame.dots where mote.opacity > 0 {
-                    let rect = DownloadCloudSprites.rect(mote)
-                    if surface != nil, mote.kind != .bubble {
-                        cg.setAlpha(mote.opacity)
-                        cg.draw(DownloadCloudSprites.underpoint, in: rect)
-                    }
-                    if !scrimsOnly {
-                        cg.setAlpha(mote.opacity)
-                        cg.draw(sprites.image(mote), in: rect)
-                    }
+                if surface.activity > 0 {
+                    DownloadCloudFront.draw(surface, size, in: cg)
+                    draw(DownloadCloudMotion.frame(.drift(surface.level), seed: seed, at: surface.phase,
+                                                   size: size, surface: surface), completion: false)
+                }
+                if let time = sample.celebration {
+                    draw(DownloadCloudMotion.frame(reduceMotion ? .fade : .completion, seed: seed, at: time,
+                                                   size: size), completion: true)
                 }
             }
         }
     }
 
-    private var liveCue: (scene: DownloadCloudMotion.Scene, start: Double, sourceLevel: Double?)? {
-        if let fill = state.fillScene {
-            if case .drift = fill { return (fill, lastProgress, nil) }
-            return cue ?? (fill, 0, 1)
-        }
-        return cue
-    }
 }
 
 private struct DownloadCloudLive: View {
-        let input: DownloadCloudLayerView.Input
+    let input: DownloadCloudLayerView.Input
     let art: AnyView
     let revision: DownloadCloudArtRevision
+    let onSettled: () -> Void
     @Environment(\.seleneCanvas) private var canvas
-    @Environment(\.controlActiveState) private var windowState
     @State private var visible = false
 
     var body: some View {
         Group {
-            if visible && windowState != .inactive {
-                DownloadCloudLayers(input: input, art: art, revision: revision)
+            if visible {
+                DownloadCloudLayers(input: input, art: art, revision: revision, onSettled: onSettled)
+            } else if input.scene.duration > 0 {
+                art
             } else {
-                if let surface = DownloadCloudMotion.surface(input.scene, at: 0, elapsed: .infinity),
-                   surface.level != nil {
-                    art.mask {
-                        Canvas { context, size in
-                            context.fill(Path(DownloadCloudFront.path(surface, size, fill: true)), with: .color(.white))
-                        }
-                    }
-                } else {
-                    Color.clear
-                }
+                Color.clear
             }
         }
         .transition(.identity)
@@ -331,13 +294,16 @@ private struct DownloadCloudLayers: NSViewRepresentable {
     let input: DownloadCloudLayerView.Input
     let art: AnyView
     let revision: DownloadCloudArtRevision
+    let onSettled: () -> Void
     func makeNSView(context: Context) -> DownloadCloudLayerView { DownloadCloudLayerView() }
     func updateNSView(_ view: DownloadCloudLayerView, context: Context) {
-        view.setArt(input.hasArt ? art : nil, revision: revision)
+        view.setArt(art, revision: revision)
+        view.onSettled = onSettled
         view.input = input
     }
     static func dismantleNSView(_ view: DownloadCloudLayerView, coordinator: ()) {
         view.input = nil
+        view.onSettled = nil
         view.clear()
     }
 }
@@ -388,7 +354,8 @@ enum DownloadCloudFront {
 
     static func lineOpacity(_ surface: DownloadCloudMotion.Surface) -> Double {
         guard let level = surface.level else { return 0 }
-        return min(1, min(level, 1 - level) * 100) * (0.32 + 0.39 * surface.activity)
+        let edge = min(1, min(level, 1 - level) * 40)
+        return edge * edge * (3 - 2 * edge) * 0.71 * surface.activity
     }
 
     static func shadeOpacity(_ surface: DownloadCloudMotion.Surface) -> Double {
@@ -542,34 +509,26 @@ struct DownloadCloudSprites {
 final class DownloadCloudLayerView: TileMotionLayerView {
     struct Input: Equatable {
         let scene: DownloadCloudMotion.Scene
-        let start: Double
         let colors: DownloadCloudColors
         let seed: UInt64
-        let intensity: DownloadCloudMotion.Intensity
         var title: CGRect? = nil
-        var sourceLevel: Double? = nil
+        var item: CloudLibraryItem? = nil
         var bytes: Int64? = nil
-        var waveHeight: DownloadCloudMotion.WaveHeight = .selected
-
-        var hasArt: Bool {
-            switch scene {
-            case .drift(let level), .settle(let level): level != nil
-            default: false
-            }
-        }
+        var reduced = false
     }
 
     var input: Input? { didSet { if oldValue != input { needsLayout = true } } }
+    var onSettled: (() -> Void)?
     let field = CALayer()
     let coat = CALayer()
     private let fillMask = CAShapeLayer()
     private var applied: Input?
     private var appliedSize: CGSize = .zero
-    private var startTime: Double = 0
-    private var fromSurface: DownloadCloudMotion.Surface?
+    private var track: DownloadCloudMotion.Track?
+    private var lastBytes: Int64?
+    private var generation = 0
     private var sprites: DownloadCloudSprites?
     private var spriteColors: DownloadCloudColors?
-    private var generation = 0
     private var art: AnyView?
     private var artRevision: DownloadCloudArtRevision?
     private var renderedSize: CGSize = .zero
@@ -604,6 +563,8 @@ final class DownloadCloudLayerView: TileMotionLayerView {
         Self.withoutActions { coat.contents = nil }
         renderedSize = .zero
         applied = nil
+        track = nil
+        lastBytes = nil
     }
 
     private func removeTracks() {
@@ -615,14 +576,16 @@ final class DownloadCloudLayerView: TileMotionLayerView {
             }
             field.removeAllAnimations()
             field.mask = nil
+            coat.removeAllAnimations()
             fillMask.removeAllAnimations()
+            fillMask.sublayers = nil
             fillMask.path = nil
         }
     }
 
     override func arrange(scale: CGFloat) {
         guard let input, window != nil, !bounds.isEmpty else { clear(); return }
-        if let art, input.hasArt {
+        if let art {
             if renderedSize != bounds.size || renderedScale != scale {
                 let renderer = ImageRenderer(content: art.frame(width: bounds.width, height: bounds.height))
                 renderer.scale = scale
@@ -640,51 +603,39 @@ final class DownloadCloudLayerView: TileMotionLayerView {
     /// Kept independent of the window so the same scheduling can be exercised headlessly.
     func apply(_ input: Input, size: CGSize, now: Double) {
         guard applied != input || appliedSize != size else { return }
-        let last = applied
-        let previous = last.flatMap {
-            DownloadCloudMotion.surface($0.scene, at: now, elapsed: now - startTime,
-                                        from: fromSurface, height: $0.waveHeight)
-        }
-        removeTracks()
-        applied = input
-        let sameSize = size == appliedSize
-        appliedSize = size
         let scene = input.scene
-        let duration = scene.duration
-        if let last, last.scene != scene || last.bytes != input.bytes && scene.isDrift {
-            // A changed fraction reaches AppKit even before SwiftUI publishes its matching timestamp.
-            startTime = now
-            fromSurface = sameSize ? previous : nil
-        } else if last == nil {
-            startTime = scene.isDrift && input.start == 0 ? now : input.start
-            fromSurface = nil
+        if let last = applied {
+            if last.reduced != input.reduced {
+                track = .init(.settle(track?.sample(at: now).surface.level), at: now,
+                              reduced: input.reduced, appear: false)
+            }
+            if last.scene != scene || last.bytes != input.bytes || last.item != input.item || last.reduced != input.reduced {
+                let previous = lastBytes
+                let restart = scene.isDrift && (last.item != input.item || last.scene.duration > 0
+                    || input.bytes.map { $0 < (previous ?? $0) } == true)
+                let advanced = input.bytes.map { $0 > (previous ?? -1) } == true
+                track?.receive(scene, at: now, restart: restart, advanced: advanced)
+            }
+        } else {
+            // A success seen for the first time (scrolling back in) must not replay its cue.
+            track = .init(scene.duration > 0 ? .settle(1) : scene, at: now, reduced: input.reduced,
+                          appear: scene.duration == 0)
         }
-        let elapsed = max(0, now - startTime)
-        let painting = DownloadCloudMotion.surface(scene, at: now, elapsed: elapsed, from: fromSurface,
-                                                   height: input.waveHeight) != nil
-        guard painting || elapsed < duration else { return }
+        if let bytes = input.bytes { lastBytes = bytes }
+        else if input.item != applied?.item { lastBytes = nil }
+        applied = input
+        appliedSize = size
+        guard let track else { return }
         if spriteColors != input.colors || sprites == nil {
             sprites = DownloadCloudSprites(input.colors)
             spriteColors = input.colors
         }
         let sprites = sprites!
-        let remaining = max(0, duration - elapsed)
-        let steps = remaining > 0 ? (scene.isDrift ? 32 : 24) : 0
-        let times = (0...steps).map {
-            let t = steps == 0 ? 0 : Double($0) / Double(steps)
-            return scene.isDrift ? t * t : t
-        }
-        let surfaces = times.map {
-            let t = elapsed + $0 * remaining
-            return DownloadCloudMotion.surface(scene, at: startTime + t, elapsed: t, from: fromSurface,
-                                               height: input.waveHeight)
-        }
-        let frames = times.enumerated().map { index, progress in
-            let t = elapsed + progress * remaining
-            return DownloadCloudMotion.frame(scene, seed: input.seed, at: scene.isDrift ? startTime + t : min(t, duration.nextDown),
-                                             intensity: input.intensity, size: size, sourceLevel: input.sourceLevel,
-                                             surface: surfaces[index])
-        }
+        let remaining = max(0, track.end - now)
+        let steps = Int(ceil(remaining * 30))
+        let times = (0...steps).map { steps == 0 ? 0 : Double($0) / Double(steps) }
+        let samples = times.map { track.sample(at: now + $0 * remaining) }
+        let surfaces = samples.map(\.surface)
         func keyframes(_ key: String, _ values: [Any]) -> CAKeyframeAnimation {
             let animation = CAKeyframeAnimation(keyPath: key)
             animation.values = values
@@ -694,12 +645,12 @@ final class DownloadCloudLayerView: TileMotionLayerView {
         }
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        if !painting {
+        removeTracks()
+        if scene.duration > 0 {
             let generation = generation
             CATransaction.setCompletionBlock { [weak self] in
-                // Install before adding animation tracks; a cancelled cue cannot clear the next transfer.
                 guard self?.generation == generation else { return }
-                self?.clear()
+                self?.onSettled?()
             }
         }
         let rect = CGRect(origin: .zero, size: size)
@@ -731,70 +682,104 @@ final class DownloadCloudLayerView: TileMotionLayerView {
             animation.preferredFrameRateRange = CAFrameRateRange(minimum: 60, maximum: 60, preferred: 60)
             layer.add(animation, forKey: "cloud")
         }
-        if painting {
-            let surfaces = surfaces.compactMap { $0 }
+        func playOpacity(_ layer: CALayer, _ values: [Double]) {
+            layer.opacity = Float(values.last!)
+            if values.contains(where: { $0 != values.last! }) {
+                animate(layer, [keyframes("opacity", values)])
+            }
+        }
+        if input.reduced {
+            let levels = Set(samples.flatMap { $0.bands.map(\.level) }).sorted()
+            var below = 0.0
+            for level in levels {
+                let band = CALayer()
+                band.backgroundColor = NSColor.white.cgColor
+                band.frame = CGRect(x: 0, y: (1 - level) * size.height, width: size.width,
+                                    height: (level - below) * size.height)
+                fillMask.addSublayer(band)
+                let midpoint = (level + below) / 2
+                playOpacity(band, samples.map { $0.bands.first { $0.level >= midpoint }?.opacity ?? 0 })
+                below = level
+            }
+        } else if surfaces.contains(where: { $0.level != nil || $0.activity > 0 }) {
             let curves = surfaces.map { DownloadCloudFront.path($0, size) }
-            if input.hasArt {
+            if surfaces.contains(where: { $0.level != nil }) {
                 let paths = curves.map { DownloadCloudFront.filled($0, size) }
                 fillMask.path = paths.last
-                animate(fillMask, [keyframes("path", paths)])
+                if paths.contains(where: { $0 != paths.last! }) {
+                    animate(fillMask, [keyframes("path", paths)])
+                }
             }
-            let fades = CAGradientLayer()
-            fades.frame = rect
-            fades.startPoint = CGPoint(x: 0, y: 0.5)
-            fades.endPoint = CGPoint(x: 1, y: 0.5)
-            fades.colors = DownloadCloudFront.fade.map { NSColor(white: 1, alpha: $0).cgColor }
-            fades.locations = DownloadCloudFront.stops.map { NSNumber(value: Double($0)) }
-            let strokes = CALayer()
-            strokes.frame = rect
-            strokes.mask = fades
-            field.addSublayer(strokes)
-            func stroke(_ offset: Double, _ width: Double, _ color: CGColor, _ opacity: [Double]) {
-                guard opacity.contains(where: { $0 > 0 }) else { return }
-                let layer = CAShapeLayer()
-                layer.frame = rect
-                layer.fillColor = nil
-                layer.strokeColor = color
-                let scale = min(size.width, size.height) / 170
-                layer.position.y += offset * scale
-                layer.lineWidth = width * scale
-                layer.path = curves.last
-                layer.opacity = Float(opacity.last!)
-                strokes.addSublayer(layer)
-                animate(layer, [keyframes("path", curves), keyframes("opacity", opacity)])
+            playOpacity(fillMask, surfaces.map { $0.level == nil ? 0 : 1 })
+            if surfaces.contains(where: { $0.activity > 0 }) {
+                let fades = CAGradientLayer()
+                fades.frame = rect
+                fades.startPoint = CGPoint(x: 0, y: 0.5)
+                fades.endPoint = CGPoint(x: 1, y: 0.5)
+                fades.colors = DownloadCloudFront.fade.map { NSColor(white: 1, alpha: $0).cgColor }
+                fades.locations = DownloadCloudFront.stops.map { NSNumber(value: Double($0)) }
+                let strokes = CALayer()
+                strokes.frame = rect
+                strokes.mask = fades
+                field.addSublayer(strokes)
+                func stroke(_ offset: Double, _ width: Double, _ color: CGColor, _ opacity: [Double]) {
+                    guard opacity.contains(where: { $0 > 0 }) else { return }
+                    let layer = CAShapeLayer()
+                    layer.frame = rect
+                    layer.fillColor = nil
+                    layer.strokeColor = color
+                    let scale = min(size.width, size.height) / 170
+                    layer.position.y += offset * scale
+                    layer.lineWidth = width * scale
+                    layer.path = curves.last
+                    layer.opacity = Float(opacity.last!)
+                    strokes.addSublayer(layer)
+                    animate(layer, [keyframes("path", curves), keyframes("opacity", opacity)])
+                }
+                for band in DownloadCloudFront.bands {
+                    stroke(DownloadCloudFront.shadeOffset, band.width, NSColor.black.cgColor,
+                           surfaces.map { band.alpha * DownloadCloudFront.shadeOpacity($0) })
+                }
+                stroke(0, 1.55, NSColor.black.cgColor, surfaces.map { DownloadCloudFront.lineOpacity($0) * 0.28 })
+                stroke(0, 0.9, NSColor.white.cgColor, surfaces.map(DownloadCloudFront.lineOpacity))
             }
-            for band in DownloadCloudFront.bands {
-                stroke(DownloadCloudFront.shadeOffset, band.width, NSColor.black.cgColor,
-                       surfaces.map { band.alpha * DownloadCloudFront.shadeOpacity($0) })
-            }
-            stroke(0, 1.55, NSColor.black.cgColor, surfaces.map { DownloadCloudFront.lineOpacity($0) * 0.28 })
-            stroke(0, 0.9, NSColor.white.cgColor, surfaces.map(DownloadCloudFront.lineOpacity))
         }
-        let scrims = frames.map { sprites.scrims($0, size, completion: !painting) }
-        for (index, (image, rect, _)) in scrims[0].enumerated() {
-            let alphas = scrims.map { $0[index].2 }
-            guard alphas.contains(where: { $0 > 0 }) else { continue }
-            let layer = sprite(image, rect, 0)
-            animate(layer, [keyframes("opacity", alphas.map { NSNumber(value: $0) })])
+        if input.reduced { fillMask.opacity = 1 }
+        playOpacity(coat, samples.map(\.opacity))
+        playOpacity(field, samples.map(\.opacity))
+
+        func draw(_ frames: [DownloadCloudMotion.Frame], gathering: Bool) {
+            let scrims = frames.map { sprites.scrims($0, size, completion: gathering) }
+            for (index, (image, rect, _)) in scrims[0].enumerated() {
+                playOpacity(sprite(image, rect), scrims.map { $0[index].2 })
+            }
+            for (index, mote) in frames[0].dots.enumerated() {
+                let samples = frames.map { $0.dots[index] }
+                guard samples.contains(where: { $0.opacity > 0 }) else { continue }
+                let rect = DownloadCloudSprites.rect(mote)
+                var tracks = [keyframes("opacity", samples.map(\.opacity))]
+                if scene != .fade || !gathering {
+                    tracks.append(keyframes("position", samples.map { NSValue(point: $0.center) }))
+                }
+                if gathering && scene == .completion {
+                    tracks.append(keyframes("transform.scale", samples.map { $0.radius / mote.radius }))
+                }
+                if !gathering, mote.kind != .bubble {
+                    animate(sprite(DownloadCloudSprites.underpoint, rect), tracks)
+                }
+                animate(sprite(sprites.image(mote), rect), tracks)
+            }
         }
-        for (index, mote) in frames[0].dots.enumerated() {
-            let samples = frames.map { $0.dots[index] }
-            guard samples.contains(where: { $0.opacity > 0 }) else { continue }
-            let first = DownloadCloudSprites.rect(mote)
-            if painting, mote.kind != .bubble {
-                let underpoint = sprite(DownloadCloudSprites.underpoint, first)
-                animate(underpoint, [keyframes("opacity", samples.map(\.opacity)),
-                                     keyframes("position", samples.map { NSValue(point: $0.center) })])
-            }
-            let dot = sprite(sprites.image(mote), first)
-            var tracks = [keyframes("opacity", samples.map { NSNumber(value: $0.opacity) })]
-            if scene != .fade {
-                tracks.append(keyframes("position", samples.map { NSValue(point: $0.center) }))
-            }
-            if scene == .completion {
-                tracks.append(keyframes("transform.scale", samples.map { NSNumber(value: $0.radius / mote.radius) }))
-            }
-            animate(dot, tracks)
+        if surfaces.contains(where: { $0.activity > 0 }) {
+            draw(surfaces.map { DownloadCloudMotion.frame(.drift($0.level), seed: input.seed, at: $0.phase,
+                                                         size: size, surface: $0) }, gathering: false)
+        }
+        if samples.contains(where: { $0.celebration != nil }) {
+            let unlit = DownloadCloudMotion.frame(scene, seed: input.seed, at: 0, size: size)
+            draw(samples.map {
+                guard let time = $0.celebration else { return unlit }
+                return DownloadCloudMotion.frame(scene, seed: input.seed, at: time, size: size)
+            }, gathering: true)
         }
         CATransaction.commit()
     }
