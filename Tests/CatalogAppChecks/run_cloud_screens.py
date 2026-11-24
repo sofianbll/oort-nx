@@ -1296,6 +1296,16 @@ def main():
             subprocess.run(["tar", "-xf", "-", "-C", str(package)], input=archived, check=True)
         else:
             shutil.copytree(ROOT / "Sources", package / "Sources")
+        # Foundation can ignore HOME/CFFIXED_USER_HOME for the login user's home.
+        # Redirect engine paths too (save checks, runtime env), not just AppData.
+        fixture_home = 'ProcessInfo.processInfo.environment["HOME"]!'
+        for file in (package / "Sources").rglob("*.swift"):
+            text = file.read_text()
+            isolated = text.replace("FileManager.default.homeDirectoryForCurrentUser",
+                                    f"URL(fileURLWithPath: {fixture_home})")
+            isolated = isolated.replace("NSHomeDirectory()", f"({fixture_home})")
+            if isolated != text:
+                file.write_text(isolated)
         for name in ("NXLibraryCoreTests", "ArcanePortingTests"):
             folder = package / "Tests" / name
             folder.mkdir(parents=True)
