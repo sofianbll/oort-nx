@@ -46,7 +46,7 @@ class AppBundleInfo(unittest.TestCase):
         source = BUILD_APP.parents[1] / "Sources/NXLibraryCore/App/AppUpdate.swift"
         probe = script[start:end] + """
         gh() {
-            [[ "$*" == "api repos/sofianbll/NxLibrary --jq select(.private == false) | .full_name" ]] || return 2
+            [[ "$*" == "api repos/sofianbll/NxLibrary --hostname github.com --jq select(.private == false) | .full_name" ]] || return 2
             printf '%s' "$CANONICAL"
         }
         resolve_release_repository "$1"

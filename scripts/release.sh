@@ -3,10 +3,9 @@
 #
 # Builds a release copy of NX Library (version in its plist, NXLibraryRelease marker, bundled
 # runtime), verifies its signature and zips it as work/release/NXLibrary-<version>.zip, the asset
-# the app's updater looks for, plus work/release/NXLibrary-<version>.dmg for a first install (the
-# DMG must hold the release copy, or that install would never update itself). Nothing leaves
-# this Mac unless --publish is given: then the tag v<version> is pushed and a GitHub release is
-# created with both files (GitHub computes the zip's digest, which the app checks).
+# the app's updater looks for, plus work/release/NXLibrary-<version>.dmg for a first install.
+# Only --publish pushes v<version> and creates a GitHub release with both files, in the same
+# verified repository (GitHub computes the zip's digest, which the app checks).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -24,7 +23,7 @@ ENGINE_COMMIT=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --publish) PUBLISH=1 ;;
-    --notes) shift; NOTES="${1:-}" ;;
+    --notes) [ $# -ge 2 ] && [ -n "$2" ] || usage; NOTES="$2"; shift ;;
     --engine-repo) [ $# -ge 2 ] && [ -n "$2" ] || usage; ENGINE_REPO="$2"; shift ;;
     --engine-commit) [ $# -ge 2 ] && [ -n "$2" ] || usage; ENGINE_COMMIT="$2"; shift ;;
     *) usage ;;
@@ -39,15 +38,69 @@ resolve_release_repository() {
   default="$(sed -n 's/.*defaultRepository: String? = "\([^"]*\)".*/\1/p' "$source")"
   successor="$(sed -n 's/.*successorRepository: String? = "\([^"]*\)".*/\1/p' "$source")"
   [ -n "$default" ] || fail "no public update repository is configured"
-  canonical="$(gh api "repos/$default" --jq 'select(.private == false) | .full_name')" \
+  canonical="$(gh api "repos/$default" --hostname github.com --jq 'select(.private == false) | .full_name')" \
     || fail "could not look up the public update repository"
   [[ -n "$canonical" && ( "$canonical" == "$default" || "$canonical" == "$successor" ) ]] \
     || fail "the update repository must be public and match the configured fork or its successor"
   printf '%s\n' "$canonical"
 }
 
+check_release_tree() {
+  local changes
+  changes="$(git status --porcelain --untracked-files=all)" || fail "could not check the working tree"
+  [ -z "$changes" ] || fail "the working tree has changes; commit or stash them first"
+  if [ "$PRIVATE" = "0" ] && git rev-parse -q --verify "$TAG_REF" >/dev/null; then
+    fail "the local tag $TAG already exists"
+  fi
+  [ "$(tr -d '[:space:]' < "$ROOT/VERSION")" = "$VERSION" ] \
+    || fail "VERSION must match $VERSION"
+}
+
+release_refs() {
+  local url="https://github.com/$REPOSITORY.git" effective
+  effective="$(git ls-remote --get-url "$url")" || fail "could not resolve the release Git URL"
+  [ "$effective" = "$url" ] \
+    || fail "Git rewrites the URL for github.com/$REPOSITORY"
+  git -c http.followRedirects=false ls-remote "$url" refs/heads/main "$TAG_REF" "$TAG_REF^{}" \
+    || fail "could not read main and $TAG in github.com/$REPOSITORY"
+}
+
+check_publish_target() {
+  local push_url refs
+  [ "$(git rev-parse --verify HEAD)" = "$RELEASE_COMMIT" ] \
+    || fail "HEAD changed during release preparation"
+  push_url="$(git remote get-url --push --all origin)" || fail "could not read the origin push URL"
+  case "${push_url%.git}" in
+    "https://github.com/$REPOSITORY"|"git@github.com:$REPOSITORY"|"ssh://git@github.com/$REPOSITORY") ;;
+    *) fail "origin push URL must point only to github.com/$REPOSITORY (the public release repository)" ;;
+  esac
+  refs="$(release_refs)"
+  [ "$(awk '$2 == "refs/heads/main" { print $1 }' <<< "$refs")" = "$RELEASE_COMMIT" ] \
+    || fail "HEAD is not the published main of github.com/$REPOSITORY; merge and push the release commit first"
+  [ -z "$(awk -v tag="$TAG_REF" '$2 == tag || $2 == tag "^{}"' <<< "$refs")" ] \
+    || fail "the remote tag $TAG already exists in github.com/$REPOSITORY"
+}
+
+# Check anonymous branch reachability, not merely existence in GitHub's fork network.
+check_engine_pin() (
+  local repo="$1" commit="$2" heads probe
+  probe="$(mktemp -d)" || return 1
+  trap 'rm -rf "$probe"' EXIT
+  cd "$probe" || return 1
+  unset GIT_DIR GIT_WORK_TREE GIT_COMMON_DIR GIT_CONFIG GIT_CONFIG_PARAMETERS
+  export HOME="$probe" XDG_CONFIG_HOME="$probe" GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null
+  export GIT_CONFIG_COUNT=0 GIT_TERMINAL_PROMPT=0 GIT_ASKPASS=/usr/bin/false
+  heads="$(git -c http.followRedirects=false ls-remote --exit-code --heads "$repo")" || return 1
+  if ! awk -v pin="$commit" '$1 == pin { found = 1 } END { exit !found }' <<< "$heads"; then
+    git -c http.followRedirects=false clone --quiet --bare --filter=blob:none --no-tags "$repo" checkout \
+      || return 1
+    [ -n "$(git -C checkout for-each-ref --count=1 --contains="$commit" refs/heads)" ]
+  fi
+)
+
 [[ "$VERSION" =~ ^(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*)){2}$ ]] || fail "use MAJOR.MINOR.PATCH, like 0.3.0"
 TAG="v$VERSION"
+TAG_REF="refs/tags/$TAG"
 
 # Private Google client: published builds never receive these variables.
 if [ "$PUBLISH" = "1" ] && [ -n "${ARCANE_GOOGLE_CLIENT_ID+x}${ARCANE_GOOGLE_CLIENT_SECRET+x}" ]; then
@@ -59,43 +112,35 @@ unset ARCANE_GOOGLE_CLIENT_ID ARCANE_GOOGLE_CLIENT_SECRET
 PRIVATE=0
 if [[ "$GOOGLE_CLIENT_ID" =~ [^[:space:]] && "$GOOGLE_CLIENT_SECRET" =~ [^[:space:]] ]]; then PRIVATE=1; fi
 
+check_release_tree
 if [ "$PUBLISH" = "1" ]; then
   [ -n "$NOTES" ] && [ -f "$NOTES" ] || fail "--publish needs --notes <file> with the release notes"
   command -v gh >/dev/null || fail "--publish needs the GitHub CLI (gh)"
   REPOSITORY="$(resolve_release_repository "$ROOT/Sources/NXLibraryCore/App/AppUpdate.swift")"
-fi
-[ -z "$(git status --porcelain)" ] || fail "the working tree has changes; commit or stash them first"
-if [ "$PRIVATE" = "0" ] && git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
-  fail "the tag $TAG already exists"
-fi
-[ "$(tr -d '[:space:]' < "$ROOT/VERSION")" = "$VERSION" ] || fail "VERSION says $(tr -d '[:space:]' < "$ROOT/VERSION"); set it to $VERSION first"
-if [ "$PUBLISH" = "1" ]; then
-  # The tag goes on what players can see: the tip of the pushed main branch.
-  git fetch -q origin main
-  [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" ] \
-    || fail "HEAD is not origin/main; merge the release into main and push it first"
+  RELEASE_COMMIT="$(git rev-parse --verify HEAD)" || fail "could not resolve the release commit"
+  check_publish_target
 fi
 
-# Optional tested-engine pin. Validate reachability from a public branch, not merely
-# existence as an object in GitHub's fork network. A tip needs no clone.
+MIN_XCODE="$(sed -n 's/.*minimumXcode: "\([0-9.]*\)".*/\1/p' "$ROOT/Sources/ArcanePorting/Setup/ToolchainRequirements.swift" | head -1)"
+ENGINE="${ENGINE_COMMIT:-$(sed -n 's/.*let defaultPinnedEngineCommit = "\([0-9a-f]\{40\}\)".*/\1/p' "$ROOT/Sources/NXLibrary/ViewModels/AppViewModel.swift" | head -1)}"
+[ -n "$MIN_XCODE" ] && [ -n "$ENGINE" ] || fail "could not read minimumXcode or defaultPinnedEngineCommit from the sources"
+
+# An implicit pin uses the app's upstream engine; a partially supplied override is never valid.
+ENGINE_TARGET="$ENGINE_REPO"
 if [[ -n "$ENGINE_REPO$ENGINE_COMMIT" ]]; then
-  [[ "$ENGINE_REPO" =~ ^https://github\.com/[A-Za-z0-9_-]+/[A-Za-z0-9_-][A-Za-z0-9_.-]*$ ]] \
+  [ -n "$ENGINE_REPO" ] && [ -n "$ENGINE_COMMIT" ] || fail "supply both --engine-repo and --engine-commit"
+fi
+if [ "$PUBLISH" = "1" ]; then
+  ENGINE_TARGET="${ENGINE_TARGET:-$(sed -n 's/.*let engineRemote = "\([^"]*\)".*/\1/p' "$ROOT/Sources/ArcanePorting/Setup/SetupActions.swift")}"
+  [ -n "$ENGINE_TARGET" ] || fail "could not read the default engine repository from the sources"
+fi
+if [ -n "$ENGINE_TARGET" ]; then
+  [[ "$ENGINE_TARGET" =~ ^https://github\.com/[A-Za-z0-9_-]+/[A-Za-z0-9_-][A-Za-z0-9_.-]*$ ]] \
     || fail "--engine-repo must be an HTTPS GitHub repository URL"
-  [[ "$ENGINE_COMMIT" =~ ^[0-9a-f]{40}$ ]] \
+  [[ "$ENGINE" =~ ^[0-9a-f]{40}$ ]] \
     || fail "--engine-commit must be the full 40-character lowercase SHA"
-  if ! (
-    export GIT_TERMINAL_PROMPT=0
-    export GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=credential.helper GIT_CONFIG_VALUE_0=
-    heads="$(git ls-remote --exit-code --heads "$ENGINE_REPO")" || exit 1
-    if ! awk -v pin="$ENGINE_COMMIT" '$1 == pin { found = 1 } END { exit !found }' <<< "$heads"; then
-      probe="$(mktemp -d)" || exit 1
-      trap 'rm -rf "$probe"' EXIT
-      git clone --quiet --bare --filter=blob:none --no-tags "$ENGINE_REPO" "$probe" || exit 1
-      [ -n "$(git -C "$probe" for-each-ref --count=1 --contains="$ENGINE_COMMIT" refs/heads)" ]
-    fi
-  ); then
-    fail "engine commit $ENGINE_COMMIT must be reachable from a public branch of $ENGINE_REPO"
-  fi
+  check_engine_pin "$ENGINE_TARGET" "$ENGINE" \
+    || fail "engine commit $ENGINE must be reachable from a public branch of $ENGINE_TARGET"
 fi
 # Always pass the validated pair (or empty values), never ambient build options.
 export NX_ENGINE_REPO="$ENGINE_REPO" NX_ENGINE_COMMIT="$ENGINE_COMMIT"
@@ -114,9 +159,6 @@ python3 "$ROOT/scripts/check_publication.py" --runtime "$ROOT/work/Runtime"
 
 # What this release needs on a player's Mac, as a hidden line in its notes (AppUpdate.requirements(in:)): the
 # update dialog warns about an Xcode to update first and the engine Setup downloads after the restart.
-MIN_XCODE="$(sed -n 's/.*minimumXcode: "\([0-9.]*\)".*/\1/p' "$ROOT/Sources/ArcanePorting/Setup/ToolchainRequirements.swift" | head -1)"
-ENGINE="${ENGINE_COMMIT:-$(sed -n 's/.*let defaultPinnedEngineCommit = "\([0-9a-f]\{40\}\)".*/\1/p' "$ROOT/Sources/NXLibrary/ViewModels/AppViewModel.swift" | head -1)}"
-[ -n "$MIN_XCODE" ] && [ -n "$ENGINE" ] || fail "could not read minimumXcode or defaultPinnedEngineCommit from the sources"
 REQUIRES="<!-- nxlibrary-requires xcode=$MIN_XCODE engine=$ENGINE -->"
 echo "Requires: Xcode $MIN_XCODE, nxnative ${ENGINE:0:7}"
 
@@ -173,8 +215,6 @@ mv "$ROOT/dist/NXLibrary.dmg" "$DMG"
 echo "DMG: $DMG"
 
 if [ "$PUBLISH" = "1" ]; then
-  git tag "$TAG"
-  git push origin "$TAG"
   {
     cat "$NOTES"
     if [[ -n "$ENGINE_REPO" ]]; then
@@ -182,8 +222,27 @@ if [ "$PUBLISH" = "1" ]; then
     fi
     printf '\n\n%s\n' "$REQUIRES"
   } > "$OUT/notes.md"
-  gh release create "$TAG" "$ZIP" "$DMG" --repo "$REPOSITORY" \
-    --title "Oort NX $VERSION" --notes-file "$OUT/notes.md"
+  # Packaging takes time: repeat the guards just before the first write.
+  check_engine_pin "$ENGINE_TARGET" "$ENGINE" \
+    || fail "engine commit $ENGINE is no longer verified on a public branch of $ENGINE_TARGET"
+  check_release_tree
+  [ "$(resolve_release_repository "$ROOT/Sources/NXLibraryCore/App/AppUpdate.swift")" = "$REPOSITORY" ] \
+    || fail "the public update repository changed during release preparation"
+  check_publish_target
+  git tag "$TAG" "$RELEASE_COMMIT" || fail "could not create the local tag $TAG"
+  tag_object="$(git rev-parse --verify "$TAG_REF")" || fail "could not resolve the local tag $TAG"
+  [ "$(git rev-parse --verify "$tag_object^{commit}")" = "$RELEASE_COMMIT" ] \
+    || fail "the local tag $TAG does not point to the expected commit"
+  git -c http.followRedirects=false push --no-follow-tags --recurse-submodules=no origin "$tag_object:$TAG_REF" \
+    || fail "could not confirm push of $TAG to github.com/$REPOSITORY; check the tag before retrying"
+  refs="$(release_refs)"
+  tag_commit="$(awk -v tag="$TAG_REF" '$2 == tag { direct = $1 } $2 == tag "^{}" { peeled = $1 }
+    END { print (peeled == "" ? direct : peeled) }' <<< "$refs")"
+  [ "$tag_commit" = "$RELEASE_COMMIT" ] \
+    || fail "$TAG does not resolve to the expected commit in github.com/$REPOSITORY; no release created"
+  gh release create "$TAG" "$ZIP" "$DMG" --repo "github.com/$REPOSITORY" --verify-tag \
+    --title "Oort NX $VERSION" --notes-file "$OUT/notes.md" \
+    || fail "the tag was pushed but release creation or upload was not confirmed; check github.com/$REPOSITORY before retrying"
   echo "Published $TAG"
 else
   echo "Not published (add --publish --notes <file> to create the GitHub release)."

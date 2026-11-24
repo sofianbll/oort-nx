@@ -114,7 +114,9 @@ An upgrade requires reviewing the upstream delta and CLI, deciding which capabil
 
 ## Release packaging
 
-Use `scripts/release.sh` for releases. It requires a clean working tree, an unused version tag, a `VERSION` file that names the release and a runtime that matches the lock, and runs `swift test` and the publication checks' tests first. With `--publish` it also requires HEAD to be the pushed `origin/main`, so the tag always marks what players see on main. Commit or deliberately stash local work first; do not discard changes to satisfy the check.
+Use `scripts/release.sh` for releases. It requires a clean working tree, an unused version tag, a `VERSION` file that names the release and a runtime that matches the lock, and runs `swift test` and the publication checks' tests first. Commit or deliberately stash local work first; do not discard changes to satisfy the check.
+
+With `--publish`, the effective `origin` push URL must point to the one public GitHub repository resolved from the updater source. The script reads `main` and the version tag directly in that repository, not from the fetch URL or a cached tracking ref. It requires `HEAD` to match that `main`, the version tag to be unused locally and remotely, and the engine pin to be reachable from a public branch. It checks again after packaging, pushes only that tag, and verifies its commit before asking GitHub to create the release in the same repository. If the tag push or release upload fails, check the remote tag and release state before retrying.
 
 For example, to prepare a later release locally:
 
@@ -149,7 +151,7 @@ Oort NX utilise son propre `MAJOR.MINOR.PATCH` : **PATCH** pour les correctifs s
 
    Pour la publication perso, passer `DM_NEXTENDO_CLIENT_ID=nxc_G33XSxgJwhk9` aux deux commandes : le build inscrit cet identifiant public dans `DMNextendoClientID` dans le plist de l’app. Ne pas fournir de secret Nextendo. Le script refuse un SHA qui n'est pas accessible depuis une branche du dépôt. Sans les deux options moteur, la build conserve le dépôt et le pin amont.
 
-3. Après validation et accord de publication, placer le commit de release sur `origin/main` et refaire la même build avec les notes approuvées. Le script publie le tag app `vX.Y.Z`. Il résout le nom public depuis `sofianbll/NxLibrary` et accepte uniquement ce nom ou `sofianbll/oort-nx`. Publier le pont en conservant le nom actuel : la 0.2.1.20261129 ne saura pas mettre à jour depuis le nouveau nom. Les notes peuvent rester hors du dépôt ; le script y ajoute le dépôt et le SHA embarqués et les métadonnées Xcode/moteur.
+3. Après validation et accord de publication, placer le commit de release sur `main` dans le dépôt public et refaire la même build avec les notes approuvées. Le script résout le nom public depuis `sofianbll/NxLibrary` et accepte uniquement ce nom ou `sofianbll/oort-nx`. L’envoi d’`origin` doit viser ce même dépôt pour le tag `vX.Y.Z` et la release. Publier le pont en conservant le nom actuel : la 0.2.1.20261129 ne saura pas mettre à jour depuis le nouveau nom. Les notes peuvent rester hors du dépôt ; le script y ajoute le dépôt et le SHA embarqués et les métadonnées Xcode/moteur.
 
    ~~~sh
    DM_NEXTENDO_CLIENT_ID=nxc_G33XSxgJwhk9 bash scripts/release.sh 0.3.0 \
