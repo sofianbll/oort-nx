@@ -36,9 +36,11 @@ extension AppViewModel {
         }
         let size = (Double(RcloneDownload.downloadBytes) / 1_000_000)
             .formatted(.number.locale(L10n.context.formatLocale).precision(.fractionLength(1)))
+        let download = L10n.format("Oort NX will download rclone %@ from %@ (%@ MB, MIT licence).",
+                                   [RcloneDownload.version, RcloneDownload.host, size])
+        let purpose = L10n.text("rclone is the open-source tool that reads and writes files in your own Google Drive; nothing is sent to Oort NX.")
         confirmSetting(L10n.text("Download rclone"),
-            message: L10n.format("Oort NX will download rclone %@ from %@ (%@ MB, MIT licence).",
-                                 [RcloneDownload.version, RcloneDownload.host, size]),
+            message: "\(download)\n\n\(purpose)",
             action: "Download") { [weak self] in
             guard let self, stillCurrent(), cloud.resolvedDriveTool == nil else { return }
             if fromStartup { self.router?.openSettings(.cloudLibrary) }
