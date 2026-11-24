@@ -19,6 +19,7 @@ public struct CloudSourcesStatus: Equatable, Sendable {
 
 public final class CloudGameSources: @unchecked Sendable {
     public typealias Progress = @Sendable (StorageProgress) -> Void
+    package typealias VerifySources = @Sendable (URL, [GameFileItem]) throws -> Bool
     package struct DiscoveredGame: Equatable, Sendable {
         package let titleID: String
         package let name: String
@@ -315,7 +316,7 @@ public final class CloudGameSources: @unchecked Sendable {
     }
 
     package func downloadDiscovered(titleID: String, directory: String, files: [GameFileItem], in root: URL,
-                                    progress: Progress?) async throws {
+                                     verifySources: VerifySources? = nil, progress: Progress?) async throws {
         guard let game = try await discover().games.first(where: { $0.titleID == titleID }),
               game.directory == directory, game.matches(files, in: root) else { throw CloudArchiveError.noRemoteCopy }
         let selection = try Selection(game.directory, files.map(\.url), titleID: titleID)
@@ -332,9 +333,9 @@ public final class CloudGameSources: @unchecked Sendable {
             else { throw CloudArchiveError.localChanged }
             remote[name] = entry.object
         }
-        let expected = Dictionary(uniqueKeysWithValues: files.map { ($0.url.standardizedFileURL, $0) })
+        let expected = Dictionary(grouping: files, by: { $0.url.standardizedFileURL })
         try await download(using: library, pending: downloads(selection, remote: remote, verifyExisting: true),
-                           expected: expected, progress: progress)
+                            expected: expected, verifySources: verifySources, progress: progress)
     }
 
     public static func importedFolder(for id: UUID, in root: URL = AppData.supportRoot) -> URL {
@@ -454,18 +455,18 @@ public final class CloudGameSources: @unchecked Sendable {
     }
 
     package func download(folderName: String, files: [URL], replacingBefore: Date?, replacing: Set<URL>,
-                           expectedSources: [GameFileItem] = [], progress: Progress?) async throws {
+                            expectedSources: [GameFileItem] = [], verifySources: VerifySources? = nil,
+                            progress: Progress?) async throws {
         let selection = try Selection(folderName, files)
         guard let lease = backend.leases.begin(selection.title) else { throw CloudArchiveError.busy }
         defer { backend.leases.end(selection.title, token: lease) }
         let pending = try await downloads(selection, replacingBefore: replacingBefore, replacing: replacing)
-        let expected = Dictionary(expectedSources.map { ($0.url.standardizedFileURL, $0) },
-                                  uniquingKeysWith: { first, _ in first })
-        try await download(using: backend, pending: pending, expected: expected, progress: progress)
+        let expected = Dictionary(grouping: expectedSources, by: { $0.url.standardizedFileURL })
+        try await download(using: backend, pending: pending, expected: expected, verifySources: verifySources, progress: progress)
     }
 
     private func download(using backend: RcloneStorageBackend, pending: [(URL, StorageObject, Stamp?)],
-                          expected: [URL: GameFileItem] = [:],
+                           expected: [URL: [GameFileItem]], verifySources: VerifySources?,
                           progress: Progress?) async throws {
         let bytes = try total(pending.map { $0.1.size })
         var reservations: [dev_t: Int64] = [:]
@@ -516,8 +517,18 @@ public final class CloudGameSources: @unchecked Sendable {
                   try await hash(candidate, stamp: snapshot, fresh: true) == item.md5 else {
                 throw CloudArchiveError.invalidArchive
             }
-            if let source = expected[destination], !Self.matchesPackageIdentity(source, at: candidate) {
-                throw CloudArchiveError.invalidArchive
+            if let sources = expected[destination] {
+                let verified = sources.allSatisfy { Self.matchesPackageIdentity($0, at: candidate) }
+                if !verified {
+                    let inspectable = staging.appendingPathComponent("payload").appendingPathExtension(destination.pathExtension)
+                    try FileManager.default.linkItem(at: candidate, to: inspectable)
+                    defer { try? FileManager.default.removeItem(at: inspectable) }
+                    guard let before = try stamp(at: candidate), before.inode == snapshot.inode,
+                          before.mtimeSeconds == snapshot.mtimeSeconds, before.mtimeNanos == snapshot.mtimeNanos,
+                          before.bytes == snapshot.bytes else { throw CloudArchiveError.localChanged }
+                    guard try verifySources?(inspectable, sources) == true else { throw CloudArchiveError.invalidArchive }
+                    guard try stamp(at: candidate) == before else { throw CloudArchiveError.localChanged }
+                }
             }
             guard try Stamp.directory(parent) == directory, try stamp(at: destination) == previous else {
                 throw CloudArchiveError.localChanged

@@ -464,14 +464,16 @@ final class CloudLibraryModel: ObservableObject {
     }
 
     /// `reload` restarts the backend for an unchanged preference, after new Google credentials replaced the remote's token.
-    @MainActor func configure(remote: String?, root: String, enabled: Bool, sourcesRoot: String?, reload: Bool = false) {
+    @MainActor func configure(remote: String?, root: String, enabled: Bool, sourcesRoot: String?, reload: Bool = false,
+                             confirmLibrary: Bool = false) {
         let next = CloudLibraryPreference(storage: "\(remote ?? ""):\(root)", enabled: enabled,
                                           sourcesRoot: sourcesRoot, referenceFolder: preference.referenceFolder)
-        guard next != preference || reload else { return }
+        let reselect = confirmLibrary && connectionCheck?.failure == .scopeChanged
+        guard next != preference || reload || reselect else { return }
         AppData.preferences.set(next.storage, forKey: CloudLibraryPreference.storageKey)
         AppData.preferences.set(next.enabled, forKey: CloudLibraryPreference.enabledKey)
         AppData.preferences.set(next.sourcesRootOverride, forKey: CloudLibraryPreference.sourcesRootKey)
-        if reload || next.remote != preference.remote {
+        if reload || reselect || next.remote != preference.remote {
             saveSourcesBinding(sourcesRoot != preference.sourcesRootOverride
                 ? CloudLibraryPreference.SourcesBinding(next) : nil)
             AppData.preferences.removeObject(forKey: Self.scopeKey)
@@ -556,6 +558,13 @@ final class CloudLibraryModel: ObservableObject {
                 var scope = try await raw.resolveScope(reference: current.referenceFolder)
                 try Task.checkCancellation()
                 guard self.preference == current else { return }
+                if let savedScope, savedScope.remote == remote, savedScope.library.path == current.root,
+                   (savedScope.account != scope.account || savedScope.library.id != scope.library.id) {
+                    self.sourcesNeedConfirmation = wanted != nil
+                    self.installScope(nil, backend: nil)
+                    self.connectionCheck = .init(date: .now, failure: .scopeChanged)
+                    return
+                }
                 if let wanted, sameChoice, savedChoice?.permits(scope) == true {
                     var boundChoice = wanted
                     boundChoice.account = scope.account
@@ -587,6 +596,21 @@ final class CloudLibraryModel: ObservableObject {
     }
 
     private func installScope(_ scope: CloudDriveScope?, backend: RcloneStorageBackend?) {
+        if driveScope != scope {
+            importTask?.cancel()
+            importTask = nil
+            catalogCheck?.task.cancel()
+            catalogCheck = nil
+            catalogChecked = false
+            triedAutomaticImport = false
+            reads.values.forEach { $0.task.cancel() }
+            reads.removeAll()
+            states = states.filter { $0.value.action != nil }
+            sourceDiscovery = [:]
+            referenceDiscovery = [:]
+            referenceManifests = [:]
+            referenceCheck = nil
+        }
         driveScope = scope
         let fingerprint = availabilityScope
         lastKnown = AppData.preferences.data(forKey: Self.lastKnownKey)
@@ -2059,6 +2083,28 @@ extension AppViewModel {
             try await sources.upload(folderName: files.folderName, files: files.files, progress: transfer)
         case .downloading:
             let title = game.titleId?.uppercased() ?? ""
+            let engine = URL(fileURLWithPath: setup.nxnativePath), toolchain = setup.engineToolchain
+            let developer = setup.resolvedDeveloperDir(), keys = setup.isProdKeysValid ? setup.keyStore.keyURL : nil
+            let verify: CloudGameSources.VerifySources = { url, files in
+                if url.pathExtension.lowercased() == "nup" {
+                    let capabilities = EngineSourceCapabilities(repo: engine)
+                    let program = SourceSelection.programIndex(for: files, titleID: title, nupPrograms: capabilities.nupPrograms)
+                    let nup = try NUPSourceCatalog(repo: engine, toolchain: toolchain, developerDir: developer)
+                        .scan(nup: url, program: program)
+                    return nup.id == title && files.allSatisfy { file in
+                        nup.allSources.contains {
+                            $0.kind == file.kind && String(format: "%016llX", $0.titleId) == file.titleId?.uppercased()
+                                && (file.nupProgram == nil || $0.nupProgram == file.nupProgram)
+                        }
+                    }
+                }
+                guard let keys else { return false }
+                let reader = EnginePackageReader(repo: engine, toolchain: toolchain, keys: keys, developerDir: developer)
+                guard case .contents(let findings) = try reader.contents(of: [(url, false)])[url] else { return false }
+                return files.allSatisfy { file in findings.contains {
+                    $0.kind == file.kind && String(format: "%016llX", $0.titleId) == file.titleId?.uppercased()
+                } }
+            }
             if let directory = game.discoveredCloudSourceDirectory {
                 guard game.cloudSourcesReferenceFolder == request.sourceReference,
                       let owner = request.sourceReference == nil ? sources :
@@ -2068,7 +2114,7 @@ extension AppViewModel {
                 }
                 try await CloudGameSources.prepareImportedFolder(parent, for: game.id)
                 try await owner.downloadDiscovered(titleID: title, directory: directory, files: game.sources,
-                    in: CloudGameSources.importedFolder(for: game.id), progress: transfer)
+                    in: CloudGameSources.importedFolder(for: game.id), verifySources: verify, progress: transfer)
             } else if let referenceID = request.sourceReference {
                 guard referenceID == cloudLibrary.preference.referenceFolder,
                       let reference = try await referenceManifest(titleID: title),
@@ -2081,7 +2127,8 @@ extension AppViewModel {
                 }
                 try await referenceSources.download(folderName: selection.folderName, files: shared.urls,
                     replacingBefore: selection.publishedAt ?? reference.createdAt,
-                    replacing: Set(request.sourceFiles?.files ?? []), expectedSources: shared.selection, progress: transfer)
+                    replacing: Set(request.sourceFiles?.files ?? []), expectedSources: shared.selection,
+                    verifySources: verify, progress: transfer)
                 if shared.bytes != nil {
                     self.applyCatalog(try self.catalogRepository.updateNXNative(id: game.id) {
                         guard $0.sources == game.sources else { throw CloudArchiveError.localChanged }
@@ -2095,10 +2142,13 @@ extension AppViewModel {
                 if let parent = files.files.first?.deletingLastPathComponent() {
                     try await CloudGameSources.prepareImportedFolder(parent, for: game.id)
                 }
-                try await sources.download(folderName: files.folderName, files: files.files, progress: transfer)
+                let expected = game.sources.filter { $0.titleId != nil }
+                try await sources.download(folderName: files.folderName, files: files.files, replacingBefore: nil, replacing: [],
+                                           expectedSources: expected, verifySources: verify, progress: transfer)
             }
-            guard let current = libraryGames.first(where: { $0.id == game.id }),
-                  GameResourceState.sourcesAvailable(for: current) else { throw NXLibraryError.missingSources }
+            guard let current = libraryGames.first(where: { $0.id == game.id }) else { throw NXLibraryError.missingSources }
+            let available = await Task.detached(priority: .utility) { GameResourceState.sourcesAvailable(for: current) }.value
+            guard available else { throw NXLibraryError.missingSources }
             cloudLibrary.localSourceIDs.insert(game.id)
             cloudLibrary.update(game.id) {
                 $0.sources = nil; $0.sourceAvailability = nil

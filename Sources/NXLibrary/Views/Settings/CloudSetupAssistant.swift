@@ -686,7 +686,8 @@ struct CloudSetupAssistant: View {
             try replacement?.apply()
             activated = true
             let sources = onboarding ? selectedSourcesOverride : model.preference.sourcesRootOverride
-            model.configure(remote: preference.remote, root: preference.root, enabled: true, sourcesRoot: sources, reload: replaced)
+            model.configure(remote: preference.remote, root: preference.root, enabled: true, sourcesRoot: sources,
+                            reload: replaced, confirmLibrary: true)
             model.connectionCheck = .init(date: .now, failure: nil)
             onClose()
         } catch {

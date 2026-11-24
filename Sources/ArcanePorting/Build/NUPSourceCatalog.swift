@@ -35,15 +35,20 @@ public struct NUPSourceCatalog {
     }
 
     public func scan(nup: URL) throws -> DetectedGame {
+        try scan(nup: nup, program: nil)
+    }
+
+    package func scan(nup: URL, program: Int?) throws -> DetectedGame {
         let script = #"""
 import sys
 from pathlib import Path
 repo, path = Path(sys.argv[1]), Path(sys.argv[2])
+program = int(sys.argv[3]) if len(sys.argv) == 4 else None
 sys.path.insert(0, str(repo / 'scripts'))
 import pack_nup
 try:
     with pack_nup.Nup(path) as n:
-        app, base, vers, dlc = pack_nup.scan(n)
+        app, base, vers, dlc = pack_nup.scan(n, program) if program is not None else pack_nup.scan(n)
         newest = vers[max(vers)] if vers else base
         name = ''
         # No base game (nxnative 777a5f6c): the name comes from the newest update, else the metadata record.
@@ -67,7 +72,7 @@ except pack_nup.Error as e:
     sys.exit(str(e))
 """#
         let environment = toolchain.environment(base: ProcessInfo.processInfo.environment, developerDir: developerDir)
-        let result = try runner.run(toolchain.python, ["-B", "-c", script, repo.path, nup.path],
+        let result = try runner.run(toolchain.python, ["-B", "-c", script, repo.path, nup.path] + (program.map { [String($0)] } ?? []),
                                     environment: environment, currentDirectory: repo)
         guard result.status == 0 else {
             let detail = result.stderr.split(separator: "\n").last.map(String.init) ?? ""
