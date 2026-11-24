@@ -7,17 +7,22 @@ extension GameOptionsView {
     // MARK: - Focus
 
     func setFocus(_ row: GameOptionsRow) {
-        if row != focusedRow { infoRow = nil }
+        setFocus(.game(row))
+    }
+
+    func setFocus(_ row: GameOptionsItem) {
+        if row != focusedItem { infoRow = nil }
         pickedRow = row
     }
 
     func moveFocus(by delta: Int) {
         let rows = self.rows
-        let previous = focusedRow
-        var focus = GameOptionsFocus(row: pickedRow, in: rows)
+        let previous = focusedItem
+        guard let previous, let index = rows.firstIndex(of: previous) else { return }
+        var focus = FocusIndex(index: index)
         focus.move(by: delta, count: rows.count)
-        pickedRow = focus.row(in: rows)
-        if focusedRow != previous {
+        pickedRow = rows[focus.index]
+        if focusedItem != previous {
             infoRow = nil
             SoundEffectService.shared.play(.focus)
         }
@@ -25,7 +30,7 @@ extension GameOptionsView {
 
     func enterEditDetails() {
         // Pin the focus to the first row now; a Store page that arrives later goes above it without moving it.
-        pickedRow = presentation.focusableRows(level: .editDetails, origin: origin).first
+        pickedRow = presentation.focusableRows(level: .editDetails, origin: origin).first.map(GameOptionsItem.game)
         infoRow = nil
         level = .editDetails
         // The store link needs the store metadata; Details asks for it the same way.
@@ -36,7 +41,7 @@ extension GameOptionsView {
         infoRow = nil
         level = .main
         // Back on the main list, the focus returns to Edit details, where it was left.
-        pickedRow = .editDetails
+        pickedRow = .game(.editDetails)
         SoundEffectService.shared.play(.focus)
     }
 }

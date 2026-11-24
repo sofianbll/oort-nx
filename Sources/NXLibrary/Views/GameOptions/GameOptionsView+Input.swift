@@ -73,11 +73,11 @@ extension GameOptionsView {
         let frames = scrollBox.frames
             .filter { rows.contains($0.key) }
             .mapValues { $0.offsetBy(dx: 0, dy: -top) }
-        if let row = focusedRow, let frame = frames[row], frame.minY >= 0, frame.maxY <= viewport { return }
+        if let row = focusedItem, let frame = frames[row], frame.minY >= 0, frame.maxY <= viewport { return }
         let inView = frames.filter { $0.value.maxY > 0 && $0.value.minY < viewport }
         guard let nearest = inView.min(by: {
             abs($0.value.midY - viewport / 2) < abs($1.value.midY - viewport / 2)
-        })?.key, nearest != focusedRow else { return }
+        })?.key, nearest != focusedItem else { return }
         scrollBox.holdScroll = true
         setFocus(nearest)
         SoundEffectService.shared.play(.focus)
@@ -119,7 +119,9 @@ extension GameOptionsView {
 
     /// B: close an open explanation, then leave the dialog, then Edit details, then close.
     func back() {
-        if infoRow != nil {
+        if playersOpen {
+            return
+        } else if infoRow != nil {
             infoRow = nil
         } else if confirm != nil {
             dismissConfirm()
@@ -139,8 +141,16 @@ extension GameOptionsView {
             if confirmFocus == .confirm { runConfirm() } else { dismissConfirm() }
             return
         }
+        if focusedItem == .players { openPlayers(); return }
         guard let row = focusedRow else { return }
         perform(row)
+    }
+
+    func openPlayers() {
+        guard confirm == nil, !panelOpen else { return }
+        setFocus(GameOptionsItem.players)
+        SoundEffectService.shared.play(.click)
+        playersOpen = true
     }
 
     func activate(_ row: GameOptionsRow) {

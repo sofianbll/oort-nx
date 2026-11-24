@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **1024 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **1043 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -118,6 +118,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [Sources/NXLibrary/ViewModels/AppViewModel+GameFiles.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+GameFiles.swift) | Verifica giochi e percorsi prima della rimozione; passa al catalogo tutte le sorgenti candidate, anche ripetute; selettore Ryujinx e log. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+Mods.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Mods.swift) | Crea lo `ModStore`, il valore della riga Mods e gli errori, inclusi nomi condivisi da File e Code mods. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+Controller.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Controller.swift) | Sceglie il gioco su cui agiscono i comandi del menu, anche dalla Collection di un profilo. |
+| [AppViewModel+PlayersScreen.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+PlayersScreen.swift) | Collega il pannello giocatori al piano, ai profili, al registro delle manette e alle capacità del gioco. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+Diagnostics.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Diagnostics.swift) | Raccoglie ambiente, toolchain e ultimo build per il rapporto diagnostico ripulito. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+PendingInstall.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+PendingInstall.swift) | Riprende le installazioni differite rispettando i lease, espone il motivo dell'errore e aggiorna il confronto cloud dopo la pubblicazione del bundle. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+Porting.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Porting.swift) | Prepara tile, pill e stima del porting; proietta disponibilità locale e remota per il filtro Cloud e i badge senza leggere il disco. |
@@ -714,6 +715,10 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | File | Responsabilità |
 |---|---|
 | [Sources/NXLibrary/Views/GameOptions/GameOptionsView.swift](../../Sources/NXLibrary/Views/GameOptions/GameOptionsView.swift) | Opzioni del gioco, Edit details e pannelli; aggiorna capacità dello schermo, adattatori e rischio RomFS. |
+| [PlayersScreen.swift](../../Sources/NXLibrary/Views/Players/PlayersScreen.swift) | Righe Selene, modalità, profili e dialoghi del pannello Giocatori. |
+| [PlayersScreenModel.swift](../../Sources/NXLibrary/Views/Players/PlayersScreenModel.swift) | Focus, risoluzione delle manette, modifiche al piano, conferme di sessione e PIN. |
+| [PlayersScreen+Input.swift](../../Sources/NXLibrary/Views/Players/PlayersScreen+Input.swift) | Traduce tastiera e controller nel solo strato attivo. |
+| [PlayersScreenHost.swift](../../Sources/NXLibrary/Views/Players/PlayersScreenHost.swift) | Collega il pannello alle notifiche di input del genitore, al registro e alla diagnostica del motore. |
 | [Sources/NXLibrary/Views/GameOptions/GameOptionsView+Rows.swift](../../Sources/NXLibrary/Views/GameOptions/GameOptionsView+Rows.swift) | Colonna, ciclo Play together con icona a due persone, percorso di rete, accessibilità e barra Rebuild. |
 | [Sources/NXLibrary/Views/GameOptions/GameOptionsView+Confirmation.swift](../../Sources/NXLibrary/Views/GameOptions/GameOptionsView+Confirmation.swift) | Conferma: overlay, testi, richiesta, annullamento ed esecuzione dell’azione confermata. |
 | [Sources/NXLibrary/Views/GameOptions/GameOptionsView+Focus.swift](../../Sources/NXLibrary/Views/GameOptions/GameOptionsView+Focus.swift) | Focus: impostazione, spostamento, ingresso e uscita da Edit details. |
@@ -1124,6 +1129,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_build_cache_thread.py](../../Tests/CatalogAppChecks/run_build_cache_thread.py) | Verifica che l’adozione della cache a fine porting non venga eseguita sul thread dell’interfaccia. |
 | [run_build_gates.py](../../Tests/CatalogAppChecks/run_build_gates.py) | Verifica il cambio motore e i limiti di annullamento per installazione e spostamento nel centro attività. |
 | [run_controller_identity.py](../../Tests/CatalogAppChecks/run_controller_identity.py) | Compila la verifica dei pad con il servizio effettivo e senza periferiche fisiche. |
+| [run_players_screen.py](../../Tests/CatalogAppChecks/run_players_screen.py) | Prova il focus e gli stati con controller sintetici e rende il pannello reale in inglese e francese. |
 | [run_build_queue_engine.py](../../Tests/CatalogAppChecks/run_build_queue_engine.py) | Verifica il collegamento tra la fine del cambio motore e il risveglio della coda, anche quando il clone non produce un motore valido. |
 | [run_guest_quit.py](../../Tests/CatalogAppChecks/run_guest_quit.py) | Esegue il veto durante l’adozione della cache, la conferma ospite e l’uscita con esiti sintetici. |
 | [run_profile_collection_game.py](../../Tests/CatalogAppChecks/run_profile_collection_game.py) | Verifica la selezione dei giochi Switch e Steam nel menu nativo della Collection di un profilo. |

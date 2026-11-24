@@ -25,6 +25,7 @@ extension GameOptionsView {
                     VStack(spacing: canvas.u(8)) {
                         ForEach(Array(entries.enumerated()), id: \.offset) { _, entry in
                             entryView(entry, p, focused: focused)
+                            if level == .main, entry == .row(.play) { playersRow }
                         }
                     }
                     // The clip would shave the first row's focus border.
@@ -36,12 +37,12 @@ extension GameOptionsView {
                 }
                 .scrollIndicators(.hidden)
                 .frame(maxHeight: canvas.u(680))
-                .onChange(of: focusedRow) { _, row in
+                .onChange(of: focusedItem) { _, row in
                     // A focus that followed the wheel leaves the list where the user put it.
                     if scrollBox.holdScroll { scrollBox.holdScroll = false; return }
                     guard let row else { return }
                     withAnimation(reduceMotion ? nil : SeleneTheme.quick) {
-                        proxy.scrollTo(row.rawValue, anchor: .center)
+                        proxy.scrollTo(row, anchor: .center)
                     }
                 }
             }
@@ -136,22 +137,43 @@ extension GameOptionsView {
         .help(checking ? L10n.text("Cancel") : p.info(row) ?? "")
         .background(GeometryReader { geometry in
             Color.clear.preference(key: OptionRowFrames.self,
-                                   value: [row: geometry.frame(in: .named(OptionsScrollBox.space))])
+                                   value: [.game(row): geometry.frame(in: .named(OptionsScrollBox.space))])
         })
         .contentShape(Rectangle())
         .onTapGesture { activate(row) }
         .onHover {
-            guard rows.contains(row), row != focusedRow, hover.moved($0) else { return }
+            guard rows.contains(.game(row)), row != focusedRow, hover.moved($0) else { return }
             scrollBox.holdScroll = true
             setFocus(row)
         }
-        .id(row.rawValue)
+        .id(GameOptionsItem.game(row))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(title)
         .accessibilityHint(checking ? L10n.text("Cancel") : about ?? "")
         .accessibilityValue(accessibilityValue(row) ?? "")
         .accessibilityAddTraits(.isButton)
         .accessibilityAction { activate(row) }
+    }
+
+    private var playersRow: some View {
+        Button(action: openPlayers) {
+            SeleneOptionRow(icon: .gamepad, title: L10n.text("Players", context: localization), about: nil,
+                            focused: focusedItem == .players) {
+                MaterialIconView(.chevron, size: 24).foregroundColor(SeleneTheme.ink60).accessibilityHidden(true)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .background(GeometryReader { geometry in
+            Color.clear.preference(key: OptionRowFrames.self,
+                                   value: [.players: geometry.frame(in: .named(OptionsScrollBox.space))])
+        })
+        .onHover {
+            guard focusedItem != .players, hover.moved($0) else { return }
+            scrollBox.holdScroll = true
+            setFocus(GameOptionsItem.players)
+        }
+        .id(GameOptionsItem.players)
     }
 
     private var multiplayerRoute: String? {
