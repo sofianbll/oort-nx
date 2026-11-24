@@ -545,7 +545,9 @@ final class CloudLibraryModel: ObservableObject {
         driveToolOfferSeen = defaults.bool(forKey: CloudLibraryPreference.toolOfferKey)
         needsDriveToolChoice = preference.remote != nil
             && !defaults.bool(forKey: CloudLibraryPreference.toolChoiceKey)
-            && (legacySourcesCandidate != nil || (chosenExecutable == nil && driveTool.installedExecutable == nil))
+            // 0.3.0 recorded no account: nothing is read from Drive before the player agrees to reconnect.
+            && (defaults.object(forKey: Self.scopeKey) == nil || legacySourcesCandidate != nil
+                || (chosenExecutable == nil && driveTool.installedExecutable == nil))
         do { pendingMove = try moveJournal.load() }
         catch { moveJournalUnreadable = true }
         rebuildArchive()
