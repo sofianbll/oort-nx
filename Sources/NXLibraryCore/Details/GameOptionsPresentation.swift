@@ -395,6 +395,20 @@ public struct GameOptionsPresentation: Equatable {
     }
 
     /// The focusable rows of one level, top to bottom.
+    /// The short panel: what a player changes before a game, six rows at most. Everything else, and these too, is on
+    /// the game's full settings page.
+    public func quickRows() -> [GameOptionsRow] {
+        let offered = focusableRows(level: .main, origin: .details)
+        var rows: [GameOptionsRow] = []
+        for choice: [GameOptionsRow] in [[.multiplayer], [.fullscreen], [.frameRate, .fps60], [.renderScale, .metalFX], [.mods], [.favorite]] {
+            if let row = choice.first(where: offered.contains) { rows.append(row) }
+        }
+        if let mods = rows.firstIndex(of: .mods), offered.contains(.disableOnlineRiskMods) {
+            rows.insert(.disableOnlineRiskMods, at: mods + 1)
+        }
+        return rows
+    }
+
     public func focusableRows(level: GameOptionsLevel, origin: GameOptionsOrigin) -> [GameOptionsRow] {
         entries(level: level, origin: origin).compactMap { entry in
             if case .row(let row) = entry { return row }

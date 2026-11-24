@@ -175,11 +175,8 @@ struct GameOptionsView: View {
     }
 
     var rows: [GameOptionsItem] {
-        var rows = presentation.focusableRows(level: level, origin: origin).map(GameOptionsItem.game)
-        if level == .main, let play = rows.firstIndex(of: .game(.play)) {
-            rows.insert(contentsOf: [.players, .game(.allSettings)], at: play + 1)
-        }
-        return rows
+        guard level == .main else { return presentation.focusableRows(level: level, origin: origin).map(GameOptionsItem.game) }
+        return [.players] + presentation.quickRows().map(GameOptionsItem.game) + [.game(.allSettings)]
     }
 
     func setGameDisplay(_ choice: String?) {
@@ -204,7 +201,7 @@ struct GameOptionsView: View {
 
     var body: some View {
         let p = presentation
-        return SeleneOverlay(style: .page, onOutside: back) {
+        return SeleneOverlay(style: level == .main && !panelOpen && !fullSettingsOpen ? .options : .page, onOutside: back) {
             VStack(spacing: 0) {
                 column(p)
                 // Where the screen underneath had its hints (which hide while this is open).

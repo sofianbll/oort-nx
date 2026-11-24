@@ -72,7 +72,7 @@ final class SettingsCatalogTests: XCTestCase {
         XCTAssertEqual(groups["inGameHomeButton"], .controllers)
         for (section, ids) in [
             (SettingsSection.profileIdentity, ["profileName", "profileAvatar", "profilePortrait"]),
-            (.profileLook, ["colorThemeID", "wallpaperID", "settingsWallpaperID", "backgroundSizing"]),
+            (.profileLook, ["interfaceZoom", "colorThemeID", "wallpaperID", "settingsWallpaperID", "backgroundSizing"]),
             (.profileSecurity, ["profileLock"]),
             (.profileNextendo, ["appearsOnline", "showsCurrentGame", "nextendo", "nextendoFriends", "nextendoAddFriend"]),
             (.profileCards, ProfilePageCard.allCases.map { "profile-card-\($0.rawValue)" }),

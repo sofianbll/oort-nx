@@ -41,6 +41,7 @@ public enum SeleneTokens {
         public static let transferMeasure: CGFloat = 700
         public static let pageMeasure: CGFloat = 1300
         public static let metadataList: CGFloat = 400
+        public static let sidePanel: CGFloat = 640
         public static let settingsMeasure: CGFloat = 1120
         public static let pageMinimumFont: CGFloat = 11
         public static let pillWidth: CGFloat = 180
