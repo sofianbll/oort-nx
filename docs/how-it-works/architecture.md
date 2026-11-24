@@ -687,7 +687,7 @@ Il percorso completo è in [flows.md](flows.md#6-importare-o-ripristinare-un-sal
 - Durante un ripristino le radici esclusivamente locali sono clonate o copiate prima dello scambio,
   non spostate. Free up space registra le identità prima di svuotare parzialmente una cache: al
   riavvio Arcane ripristina le radici rimaste nello staging senza collegarsi al cloud.
-- La coda cloud conserva la testa quando manca un lease o la connessione. Il motivo di una pausa di rete e Resume restano sulla richiesta in testa nel pannello e nel centro attività anche dopo la chiusura dell'avviso. Un errore di salvataggio della coda delle compilazioni avvisa il giocatore.
+- La coda cloud conserva la testa quando manca un lease o la connessione. La chiusura di un gioco risveglia anche i trasferimenti in attesa, non solo le installazioni già in corso. Il motivo di una pausa di rete e Resume restano sulla richiesta in testa nel pannello e nel centro attività anche dopo la chiusura dell'avviso. Un errore di salvataggio della coda delle compilazioni avvisa il giocatore.
 - Una richiesta salvata senza destinazione non riparte: pannello e centro attività invitano a confermarla di nuovo. Un invio interrotto richiede lo stesso gesto anche se la destinazione coincide, perché la coda non conserva i byte approvati.
 - Una lettura non riuscita non equivale a cache assente. Una cache completata viene preparata sul
   volume di destinazione e pubblicata prima che il Cestino riceva la copia precedente.

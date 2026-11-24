@@ -49,9 +49,10 @@ extension AppShellView {
         closeGameWatch = runningGames.$runningGameIDs.sink { [weak viewModel] ids in
             guard let viewModel else { return }
             viewModel.runningGameCount = ids.count
-            // A game that quit lets the build that waited for it go in (after this change is published).
+            // Wake work waiting for a game to close after the new running set is published.
             DispatchQueue.main.async {
                 viewModel.cloudLibrary.appInstallWake?.yield(())
+                if !viewModel.cloudLibrary.queue.isEmpty { viewModel.startNextCloudOperation() }
                 viewModel.porting.scheduleNextBuild()
                 viewModel.installPendingBuilds()
                 // An icon chosen while the game ran goes on once it quits.

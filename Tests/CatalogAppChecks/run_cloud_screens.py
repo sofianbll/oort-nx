@@ -415,7 +415,9 @@ extension CloudScreenProbe {
         monitor.setGames([game])
         RunningGameMonitor.screenRunning.withLock { $0 = bundleID }
         monitor.start(sessions: PlaySessionStore(), engineFolder: { "" })
-        let watch = monitor.$runningGameIDs.sink { _ in vm.cloudLibrary.appInstallWake?.yield(()) }
+        let watch = monitor.$runningGameIDs.sink { _ in
+            // QUEUE_MONITOR_CALLBACK
+        }
         defer { watch.cancel(); monitor.stop() }
         precondition(monitor.runningGameIDs == [game.id])
         vm.restoreCloudQueue()
@@ -607,11 +609,25 @@ AUDIT_QUEUE = r'''
             try render("queue-upload-not-replayed", output, CloudLibraryPanel(viewModel: vm, model: vm.cloudLibrary, game: sourceGame))
         }
 
+        RunningGameMonitor.screenRunning.withLock { $0 = bundleID }
+        monitor.refresh()
+        await withCheckedContinuation { done in DispatchQueue.main.async { done.resume() } }
+        vm = try await reopen(.init(id: game.id, action: .restore(.cache), token: UUID(),
+                                    storage: vm.cloudLibrary.storageScope(for: .restore(.cache))))
+        precondition(vm.cloudLibrary.queue.count == 1 && vm.cloudLibrary.active == nil,
+                     "Cache transfer must be queued until the game closes")
+        RunningGameMonitor.screenRunning.withLock { $0 = nil }
+        monitor.refresh()
+        // The production close callback is dispatched to the main queue.
+        await withCheckedContinuation { done in DispatchQueue.main.async { done.resume() } }
+        if !vm.cloudLibrary.queue.isEmpty { failures.append("Queued transfer did not wake when the game closed") }
+        await vm.cloudLibrary.active?.task.value
+
         if !failures.isEmpty {
             FileHandle.standardError.write(Data(failures.joined(separator: "\n").utf8) + Data([10]))
             throw CocoaError(.fileWriteUnknown, userInfo: [NSDebugDescriptionErrorKey: failures.joined(separator: "\n")])
         }
-        print("Cloud audit: legacy destination and replaced source verified.")
+        print("Cloud audit: legacy destination, replaced source and close-game wake verified.")
 '''
 
 DISPLAY_FIXTURE = r'''
@@ -995,8 +1011,14 @@ extension CloudLibraryPanel {
             host = host.replace("// DOWNLOAD_FILL_CHECK",
                                 "do {\n" + DOWNLOAD_FILL.replace("WAITING_LABEL_FR", waiting_label) + "\n        }")
             if has_replacement:
-                transfer = PLAY_TRANSFER
-                if not (compare or os.environ.get("ARCANE_CLOUD_SCREEN_BASE")):
+                if compare or os.environ.get("ARCANE_CLOUD_SCREEN_BASE"):
+                    transfer = PLAY_TRANSFER.replace("// QUEUE_MONITOR_CALLBACK", "vm.cloudLibrary.appInstallWake?.yield(())")
+                else:
+                    startup = (app / "Views/Shell/AppShellView+Startup.swift").read_text()
+                    callback = re.search(r"closeGameWatch = runningGames\.\$runningGameIDs\.sink.*?"
+                                         r"(DispatchQueue\.main\.async \{\n.*?\n            \})", startup, re.S)
+                    assert callback, "Cannot find the running-game callback"
+                    transfer = PLAY_TRANSFER.replace("// QUEUE_MONITOR_CALLBACK", callback[1].replace("viewModel", "vm"))
                     transfer = transfer.replace("// AUDIT_QUEUE", "do {\n" + AUDIT_QUEUE + "\n        }")
                 host = host.replace("// PLAY_TRANSFER_CHECK", "try await checkPlayDuringTransfer(in: data, output: output)") + transfer
             monitor = app / "Services/RunningGameMonitor.swift"
