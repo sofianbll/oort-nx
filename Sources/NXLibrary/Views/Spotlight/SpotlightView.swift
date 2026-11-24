@@ -359,6 +359,7 @@ struct SpotlightView: View {
         // The viewer and the Achievements screen both keep the shell's own buttons away.
         .onChange(of: viewer != nil || achievementsScreen != nil) { router.isScreenshotViewerOpen = $1 }
         .onChange(of: router.pendingSpotlightMove) { consumePendingMove() }
+        .onChange(of: router.route == .library ? router.pendingSpotlightSelect : nil) { consumePendingSelect() }
     }
 
     /// Find a game and the controller.

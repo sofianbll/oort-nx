@@ -223,7 +223,9 @@ struct AppShellView: View {
                     router.openAddGame()
                 }
             } else {
-                router.showLibrary()
+                if !router.route.isOverlay || router.underlyingRoute != .library {
+                    router.showLibrary()
+                }
                 router.requestSpotlightSelect(id)
             }
         }

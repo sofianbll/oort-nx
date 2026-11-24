@@ -456,7 +456,7 @@ extension SpotlightView {
 
     /// Details asked Spotlight to select a game (More like this): the same path as Surprise.
     func consumePendingSelect() {
-        guard let id = router.pendingSpotlightSelect else { return }
+        guard router.route == .library, let id = router.pendingSpotlightSelect else { return }
         router.pendingSpotlightSelect = nil
         selectGame(id)
         if router.previousRoute == .profile { mutate { _ = $0.showGameDetails() } }
