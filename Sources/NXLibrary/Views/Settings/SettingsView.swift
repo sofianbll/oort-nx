@@ -561,11 +561,9 @@ struct SettingsView: View {
             case 12, 14:
                 if typing { return event }
                 action = event.keyCode == 12 ? .tabPrevious : .tabNext
-            case 36, 76:
+            case 36, 49, 76:
                 if typing { return event }
-                action = .confirm
-            case 49:
-                if typing { return event }
+                guard !event.isARepeat else { return nil }
                 action = .confirm
             case 53:
                 action = .cancel

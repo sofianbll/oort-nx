@@ -29,6 +29,11 @@ class IntegrationContract(unittest.TestCase):
         self.assertIn('.init("Check status", action: checkNextendo)', api)
         self.assertRegex(api, r"func checkNextendo\(\) \{\s*nextendoRequested = true\s*nextendo.check\(clientID: clientID\)")
 
+    def test_settings_consumes_confirmation_repeated_from_integrations(self):
+        settings = (VIEWS / "Settings/SettingsView.swift").read_text()
+        self.assertRegex(settings, r"case 36, 49, 76:\s*if typing \{ return event \}\s*"
+                                  r"guard !event.isARepeat else \{ return nil \}\s*action = \.confirm")
+
 
 if __name__ == "__main__":
     unittest.main()
