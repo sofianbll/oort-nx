@@ -44,6 +44,7 @@ struct GameDetailView: View {
     }
 
     @Environment(\.seleneCanvas) var canvas
+    @Environment(\.controllerHomeAvailable) private var controllerHomeAvailable
     @Environment(\.seleneReduceMotion) var reduceMotion
 
     @StateObject var art = SeleneHeroArt()
@@ -173,8 +174,9 @@ struct GameDetailView: View {
             // Anchor to the window, like Settings and Home, rather than the centred 16:9 stage.
             VStack(spacing: 0) {
                 Spacer(minLength: 0)
-                SeleneHintsBar(left: [HintItem(.b, L10n.text("Back"), action: { router.back() })],
-                               right: [HintItem(.y, "Options")] + confirmHint,
+                SeleneHintsBar(left: detailHints,
+                               right: [.browsingOptions(GamepadLayout(settings.settings), "Options",
+                                                        hasHome: controllerHomeAvailable)] + confirmHint,
                                bottom: SeleneBottomScrim.hintsBottom, leftInset: 18)
             }
             .seleneOverlaidHints(router.overlayHasHints(viewModel))
@@ -219,6 +221,22 @@ struct GameDetailView: View {
             await art.loadLogo(game: game, metadata: metadata, artwork: artwork, personalizations: viewModel.personalizations)
         }
         .task(id: viewModel.cloudLibrary.selectionCheck(for: game)) { await viewModel.prefetchCloudLibrary(game) }
+    }
+
+    private var detailHints: [HintItem] {
+        let layout = GamepadLayout(settings.settings)
+        var hints = [HintItem(.b, "Back", action: router.back)]
+        if let search = layout.tap(.browseSearch) {
+            var hint = HintItem(search.prompt, "Search") { handle(.browseSearch) }
+            hint.controllerOnly = true
+            hints.append(hint)
+        }
+        if let center = layout.tap(.controlCenter), controllerHomeAvailable {
+            var hint = HintItem(center.prompt, "Control center", hold: "Hold: Settings") { router.isMenuPresented = true }
+            hint.controllerOnly = true
+            hints.append(hint)
+        }
+        return hints
     }
 
     private var cloudManagementPlacement: CloudGameManagementPlacement? {

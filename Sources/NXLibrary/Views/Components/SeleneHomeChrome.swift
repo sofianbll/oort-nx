@@ -1,6 +1,17 @@
 import SwiftUI
 import NXLibraryCore
 
+private struct ControllerHomeAvailableKey: EnvironmentKey {
+    static let defaultValue = true
+}
+
+extension EnvironmentValues {
+    var controllerHomeAvailable: Bool {
+        get { self[ControllerHomeAvailableKey.self] }
+        set { self[ControllerHomeAvailableKey.self] = newValue }
+    }
+}
+
 /// The frame Spotlight and Collection share, so what stays put between them sits
 /// in the same place: the art (and any dimming) full bleed, the bottom fade, the
 /// 1920 × 1080 stage centred across and pinned to the top (a taller window gives
@@ -45,13 +56,44 @@ struct SeleneHomeChrome<Backdrop: View, Stage: View>: View {
 extension HintItem {
     /// Both home screens share View's hold label and the keyboard-only search keycap.
     static func homeGlobals(other: String, onOther: (() -> Void)?, onMenu: @escaping () -> Void,
-                            onSearch: @escaping () -> Void, onProfiles: @escaping () -> Void) -> [HintItem] {
-        var view = HintItem(.view, onOther == nil ? "Hold: Search" : other,
+                            onSearch: @escaping () -> Void, onProfiles: @escaping () -> Void,
+                            layout: GamepadLayout = .arcane, hasHome: Bool = true,
+                            showsOptions: Bool = true) -> [HintItem] {
+        var view = HintItem(layout.tap(.view)?.prompt, onOther == nil ? "Hold: Search" : other,
                             hold: onOther == nil ? nil : "Hold: Search", action: onOther ?? onSearch)
         view.controllerOnly = onOther == nil
-        return [view, HintItem(.menu, "Menu", hold: "Hold: Settings", action: onMenu),
-                HintItem(.search, "Search", action: onSearch),
-                HintItem(.home, "Profiles", action: onProfiles)]
+        var hints = [view, HintItem(.search, "Search", action: onSearch)]
+        if let menu = layout.tap(.menu) {
+            hints.insert(HintItem(menu.prompt, "Menu", hold: "Hold: Settings", action: onMenu), at: 1)
+        } else {
+            var keyboardMenu = HintItem(.menu, "Menu", action: onMenu)
+            keyboardMenu.keyboardOnly = true
+            hints.insert(keyboardMenu, at: 1)
+        }
+        if let search = layout.tap(.browseSearch) {
+            var hint = HintItem(search.prompt, "Search", action: onSearch)
+            hint.controllerOnly = true
+            hints.append(hint)
+        }
+        if let center = layout.tap(.controlCenter), hasHome {
+            var hint = HintItem(center.prompt, "Control center", hold: "Hold: Settings", action: onMenu)
+            hint.controllerOnly = true
+            hints.append(hint)
+        } else if !showsOptions, let fallback = layout.guide().first(where: { $0.hold == .controlCenter }) {
+            var hint = HintItem(fallback.prompt, "Hold: Control center", action: onMenu)
+            hint.controllerOnly = true
+            hints.append(hint)
+        }
+        var profiles = HintItem(layout.tap(.profiles)?.prompt ?? .home, "Profiles", action: onProfiles)
+        profiles.keyboardOnly = !hasHome || layout.tap(.profiles) == nil
+        return hints + [profiles]
+    }
+
+    static func browsingOptions(_ layout: GamepadLayout, _ label: String, hasHome: Bool,
+                                action: (() -> Void)? = nil) -> HintItem {
+        let binding = layout.tap(.contextAction)
+        return HintItem(binding?.prompt, label, hold: !hasHome && binding?.hold == .controlCenter
+                        ? "Hold: Control center" : nil, keyboard: .text("Y"), action: action)
     }
 }
 

@@ -36,6 +36,7 @@ struct SpotlightView: View {
     @ObservedObject var artwork: ArtworkStore
 
     @Environment(\.seleneCanvas) var canvas
+    @Environment(\.controllerHomeAvailable) var controllerHomeAvailable
     @Environment(\.seleneReduceMotion) var reduceMotion
     @Environment(\.nxAppLocale) var localization
     @Environment(\.integrationBar) var integrationBar
@@ -250,15 +251,18 @@ struct SpotlightView: View {
 
     private func chrome(_ model: Snapshot, state: SpotlightState) -> some View {
         let barFocused = router.integrationBarFocused
+        let hints = contextHints(model, state)
         return SeleneHomeChrome(
             leftHints: platformPicker != nil || state.isLifted || cardMenu != nil || state.focus != .row
                 ? [] : HintItem.homeGlobals(other: "Collection",
                                              onOther: settings.settings.viewButtonSwitches ? { handle(.view) } : nil,
                                              onMenu: { router.isMenuPresented = true },
                                              onSearch: { handle(.search) },
-                                             onProfiles: { ProfileFlow.requestPicker() }),
+                                             onProfiles: { ProfileFlow.requestPicker() },
+                                             layout: GamepadLayout(settings.settings), hasHome: controllerHomeAvailable,
+                                             showsOptions: !barFocused && hints.contains { $0.button == .menu }),
             rightHints: barFocused ? [HintItem(.a, L10n.text("Open")) { handle(.confirm) }]
-                : contextHints(model, state) + (platformPicker == nil && state.focus == .row && !state.isLifted && cardMenu == nil
+                : hints + (platformPicker == nil && state.focus == .row && !state.isLifted && cardMenu == nil
                     ? [LibrarySortMenu.hint(settings.settings.librarySort, action: openSort)] : []),
             rightReserve: hintReserve(state),
             hintsHidden: router.overlayHasHints(viewModel) || achievementsScreen != nil

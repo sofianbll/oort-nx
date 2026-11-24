@@ -194,6 +194,7 @@ public enum InGameHomeButton: String, Codable, CaseIterable, Sendable {
 /// Launcher choices moved here from separate stores. Missing fields fall back to the older store.
 public struct LauncherSettingsChoices: Codable, Equatable {
     public init() {}
+    public var gamepadLayout: String? = "oort"
     public var controllerDeadzone: Double?
     public var dockIconAppearance: String?
     public var steamSource: SteamSourceChoice?
@@ -411,7 +412,11 @@ public struct AppSettings: Codable, Equatable {
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        launcherChoices = try container.decodeIfPresent(LauncherSettingsChoices.self, forKey: .launcherChoices) ?? .init()
+        if let choices = try container.decodeIfPresent(LauncherSettingsChoices.self, forKey: .launcherChoices) {
+            launcherChoices = choices
+        } else {
+            launcherChoices.gamepadLayout = nil  // Profiles saved before layouts keep Arcane.
+        }
         appLanguage = (try container.decodeIfPresent(String.self, forKey: .appLanguage)).flatMap(AppLanguage.init(rawValue:)) ?? .automatic
         appRegion = AppLocale.validRegion(try container.decodeIfPresent(String.self, forKey: .appRegion))
         inGameHomeButton = (try? container.decode(InGameHomeButton.self, forKey: .inGameHomeButton)) ?? .auto

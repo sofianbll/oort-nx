@@ -177,6 +177,11 @@ struct FindGameView: View {
         guard let game else { return }
         SoundEffectService.shared.play(.click)
         router.isSearchPresented = false
+        if case .detail = router.route {
+            router.setInitialRoute(.library)
+            router.requestSpotlightSelect(game.id)
+            return
+        }
         // The home screen applies its own landing rule.
         NotificationCenter.default.post(name: .nxFindGameSelect, object: game.id)
     }

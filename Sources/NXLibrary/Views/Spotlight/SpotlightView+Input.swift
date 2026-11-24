@@ -117,7 +117,7 @@ extension SpotlightView {
             }
         case .view:
             if settings.settings.viewButtonSwitches { router.setInitialRoute(.collection) }
-        case .search:
+        case .search, .browseSearch:
             router.isSearchPresented = true
         case .menu:
             router.isMenuPresented = true
@@ -125,7 +125,7 @@ extension SpotlightView {
             router.openSettings(.startUp)
         case .rightStickPress:
             openSort()
-        case .profiles:
+        case .profiles, .controlCenter, .fullMenu:
             break // The shell owns the picker; don't move the current focus.
         }
         if moved { SoundEffectService.shared.play(.focus) }

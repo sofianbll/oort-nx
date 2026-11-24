@@ -8,6 +8,7 @@ extension Notification.Name {
 
 /// Library navigation and the pinned engine's default game inputs are separate guides.
 struct ControlsView: View {
+    var layout: GamepadLayout = .arcane
     let onClose: () -> Void
     let canHandleInput: () -> Bool
     @ObservedObject private var controller = GameControllerService.shared
@@ -17,7 +18,8 @@ struct ControlsView: View {
     @State private var focus = 0
     @State private var keyMonitor: Any?
 
-    init(canHandleInput: @escaping () -> Bool, onClose: @escaping () -> Void) {
+    init(layout: GamepadLayout = .arcane, canHandleInput: @escaping () -> Bool, onClose: @escaping () -> Void) {
+        self.layout = layout
         self.canHandleInput = canHandleInput
         self.onClose = onClose
     }
@@ -43,17 +45,14 @@ struct ControlsView: View {
             ]
         }
         let pad = ConnectedPad(connected: controller.isGamepadConnected, brand: controller.activeBrand)
-        func name(_ button: PromptButton) -> String {
-            ButtonPrompts.label(button, style: .automatic, connected: pad)
-        }
         return [
             ("Move", L10n.text("Arrows · D-pad or left stick")),
-            ("Select", L10n.text("Return / Space · ") + name(.a)),
-            ("Back", L10n.text("Escape · ") + name(.b)),
-            ("Menu", "⌘K · " + name(.menu)),
-            ("Hold: Settings", "⌘, · " + name(.menu)),
-            ("View", "V · " + name(.view)),
-            ("Find a game", "⌘F · " + name(.view) + " (\(L10n.text("Hold: Search")))"),
+        ] + layout.guide(hasHome: controller.homeAccess.hasHome)
+            .map { (L10n.text($0.tap.guideTitle), $0.summary(style: .automatic, pad: pad)) } + [
+            (L10n.text("Menu"), "⌘K"),
+            (L10n.text("Settings"), "⌘,"),
+            (L10n.text("Search"), "⌘F"),
+            (L10n.text("Profiles"), "⇧⌘P"),
             (L10n.text("Move a tile"), L10n.text("Hold Confirm on a Spotlight tile"))
         ]
     }

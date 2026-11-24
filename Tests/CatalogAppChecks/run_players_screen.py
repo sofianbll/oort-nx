@@ -24,6 +24,16 @@ final class PlayersFixtureSource: ControllerSource {
     func select(_ id: ObjectIdentifier?) -> Bool { id != nil }
 }
 
+final class HomeSettingsFixture: ControllerHomeSettings {
+    var update: ((ControllerHomeAccess) -> Void)?
+    var opens = 0
+    func observe(_ update: @escaping (ControllerHomeAccess) -> Void) -> () -> Void {
+        self.update = update
+        return { self.update = nil }
+    }
+    func open() { opens += 1 }
+}
+
 @MainActor final class PlayersFixture {
     var plan: PlayerPlan?
     var presses: ((GameControllerService.AssignmentEvent) -> Void)?
@@ -70,6 +80,21 @@ final class PlayersFixtureSource: ControllerSource {
 
     @MainActor static func main() async throws {
         assertFixtureHome()
+        let homeSettings = HomeSettingsFixture()
+        var homeAccess = ControllerHomeAccess.disconnected
+        let disconnectedSource = GCControllerSource(homeSettings: homeSettings)
+        disconnectedSource.openHomeSettings()
+        precondition(homeSettings.opens == 0)
+        _ = observeControllerHome(homeSettings, hasHome: false) { homeAccess = $0 }
+        precondition(homeAccess == .noHome && homeSettings.update == nil)
+        let stop = observeControllerHome(homeSettings, hasHome: true) { homeAccess = $0 }
+        precondition(homeAccess == .unavailable)
+        homeSettings.update?(.system)
+        precondition(homeAccess == .system && !homeAccess.hasHome)
+        homeSettings.update?(.launcher)
+        precondition(homeAccess.hasHome)
+        stop()
+        precondition(homeSettings.update == nil)
         if ProcessInfo.processInfo.environment["PLAYERS_PARENTS_ONLY"] == "1" {
             suppressProbeNotifications()
         }
@@ -519,7 +544,7 @@ final class PlayersFixtureSource: ControllerSource {
                                        size: size, locale: locale, backdrop: backdrop) { host in
                 let input = Notification.Name.nxSettingsGamepadAction
                 try capture(host, "reglages-\(name)")
-                send(input, .navigateRight, .navigateDown, .navigateDown, .navigateDown, .confirm)
+                send(input, .navigateRight, .navigateDown, .navigateDown, .navigateDown, .navigateDown, .confirm)
                 let players = try capture(host, "reglages-\(name)-joueurs")
                 confirmForeground(players, from: "Settings")
                 send(input, .cancel)
@@ -580,16 +605,26 @@ final class PlayersFixtureSource: ControllerSource {
                 }
             }
             router.navigate(to: .library)
-            vm.gameForSettingsSheet = game
             if name == "clair" {
-                _ = try withHost(ZStack {
-                    SeleneBackdrop().still(true)
-                    SpotlightView(viewModel: vm, router: router, settings: settings, playSessions: sessions,
-                                  runningGames: running, artwork: artwork, storeHost: storeHost)
-                }, size: size, locale: locale, backdrop: backdrop) { host in
-                    try capture(host, "jeu-clair-spotlight")
+                for (layout, hasHome, name): (GamepadLayout, Bool, String) in [
+                    (.oort, true, "jeu-clair-spotlight"),
+                    (.arcane, true, "spotlight-arcane"),
+                    (.oort, false, "spotlight-oort-apple"),
+                ] {
+                    settings.settings.launcherChoices.gamepadLayout = layout.rawValue
+                    _ = try withHost(ZStack {
+                        SeleneBackdrop().still(true)
+                        SpotlightView(viewModel: vm, router: router, settings: settings, playSessions: sessions,
+                                      runningGames: running, artwork: artwork, storeHost: storeHost)
+                            .environment(\.controllerHomeAvailable, hasHome)
+                            .environment(\.seleneButtonNames, .nintendo)
+                    }, size: size, locale: locale, backdrop: backdrop) { host in
+                        try capture(host, name)
+                    }
                 }
+                settings.settings.launcherChoices.gamepadLayout = GamepadLayout.oort.rawValue
             }
+            vm.gameForSettingsSheet = game
             let options = try withHost(ZStack {
                 SeleneBackdrop().still(true)
                 SpotlightView(viewModel: vm, router: router, settings: settings, playSessions: sessions,
@@ -762,5 +797,5 @@ if __name__ == "__main__":
                 output.mkdir(parents=True, exist_ok=True)
                 for capture in captures:
                     shutil.copyfile(capture, output / capture.name)
-        assert parents_only or len(captures) == (12 if details_only else 77), len(captures)
+        assert parents_only or len(captures) == (12 if details_only else 79), len(captures)
         print(f"Rendered {len(captures)} captures" + (f": {output}" if output else ""))

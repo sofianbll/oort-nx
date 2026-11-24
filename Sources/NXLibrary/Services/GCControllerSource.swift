@@ -3,6 +3,47 @@ import CoreHaptics
 import GameController
 import NXLibraryCore
 
+protocol ControllerHomeSettings {
+    func observe(_ update: @escaping (ControllerHomeAccess) -> Void) -> () -> Void
+    func open()
+}
+
+func observeControllerHome(_ settings: ControllerHomeSettings?, hasHome: Bool,
+                           update: @escaping (ControllerHomeAccess) -> Void) -> () -> Void {
+    guard hasHome else { update(.noHome); return {} }
+    guard let settings else { update(.launcher); return {} }
+    update(.unavailable)
+    return settings.observe(update)
+}
+
+@available(macOS 27, *)
+private struct MacControllerHomeSettings: ControllerHomeSettings {
+    func observe(_ update: @escaping (ControllerHomeAccess) -> Void) -> () -> Void {
+        let task = Task { @MainActor in
+            guard !Task.isCancelled, !GCController.controllers().isEmpty else { return }
+            let manager = GCControllerHomeButtonSettingsManager()
+            func read() {
+                guard !Task.isCancelled, !GCController.controllers().isEmpty else { return }
+                switch try? manager.controllerHomeButtonInAppAction.action {
+                case .defer, .disabled: update(.launcher)
+                case .systemDefault: update(.system)
+                default: update(.unavailable)
+                }
+            }
+            read()
+            for await _ in manager.settingsUpdates { read() }
+        }
+        return { task.cancel() }
+    }
+
+    func open() {
+        Task { @MainActor in
+            guard !GCController.controllers().isEmpty else { return }
+            try? GCControllerHomeButtonSettingsManager().openControllerHomeButtonSettings(for: .customizeInAppAction)
+        }
+    }
+}
+
 final class GCControllerSource: ControllerSource {
     var onEvent: ((ControllerSourceEvent) -> Void)?
     private var observers: [NSObjectProtocol] = []
@@ -13,6 +54,24 @@ final class GCControllerSource: ControllerSource {
     private var stopIdentification: [ObjectIdentifier: () -> Void] = [:]
     private var generation = 0
     var preferredID: ObjectIdentifier? { controller.map(ObjectIdentifier.init) }
+    private let homeSettings: ControllerHomeSettings?
+    var onHomeAccess: ((ControllerHomeAccess) -> Void)?
+    private(set) var homeAccess: ControllerHomeAccess = .disconnected {
+        didSet { if oldValue != homeAccess { onHomeAccess?(homeAccess) } }
+    }
+    var canOpenHomeSettings: Bool { controller?.extendedGamepad?.buttonHome != nil && homeSettings != nil }
+
+    convenience init() {
+        if #available(macOS 27, *) { self.init(homeSettings: MacControllerHomeSettings()) }
+        else { self.init(homeSettings: nil) }
+    }
+
+    init(homeSettings: ControllerHomeSettings?) { self.homeSettings = homeSettings }
+
+    func openHomeSettings() {
+        guard canOpenHomeSettings else { return }
+        homeSettings?.open()
+    }
 
     func start() {
         guard observers.isEmpty else { return }
@@ -39,6 +98,7 @@ final class GCControllerSource: ControllerSource {
         unbind?()
         unbind = nil
         controller = nil
+        homeAccess = .disconnected
         for cleanup in unbindActivity.values { cleanup() }
         for cleanup in stopIdentification.values { cleanup() }
         unbindActivity.removeAll()
@@ -65,6 +125,7 @@ final class GCControllerSource: ControllerSource {
             unbind?()
             unbind = nil
             controller = next
+            homeAccess = next == nil ? .disconnected : .noHome
         }
         // Publish a replacement first so the service doesn't briefly fall back to HID.
         let ordered = (next.map { [$0] } ?? []) + controllers.filter { $0 !== next }
@@ -184,16 +245,23 @@ final class GCControllerSource: ControllerSource {
         var unbindHome: (() -> Void)?
         if let home = pad.buttonHome, !buttons.contains(where: { $0.0 === home }) {
             buttons.append((home, .home))
-            // Arcane takes the system gesture only while it owns the foreground.
             let previous = home.preferredSystemGestureState
-            home.preferredSystemGestureState = NSApp.isActive ? .disabled : previous
+            let refreshHome = { [weak self] in
+                home.preferredSystemGestureState = NSApp.isActive && self?.homeAccess == .launcher ? .disabled : previous
+            }
+            let stopHome = observeControllerHome(homeSettings, hasHome: true) { [weak self, weak controller] state in
+                guard let self, let controller, self.controller === controller else { return }
+                self.homeAccess = state
+                refreshHome()
+            }
             let homeObservers = [
                 NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification,
-                                                       object: nil, queue: .main) { _ in home.preferredSystemGestureState = .disabled },
+                                                       object: nil, queue: .main) { _ in refreshHome() },
                 NotificationCenter.default.addObserver(forName: NSApplication.didResignActiveNotification,
                                                        object: nil, queue: .main) { _ in home.preferredSystemGestureState = previous },
             ]
             unbindHome = {
+                stopHome()
                 homeObservers.forEach(NotificationCenter.default.removeObserver)
                 home.preferredSystemGestureState = previous
             }
@@ -204,7 +272,9 @@ final class GCControllerSource: ControllerSource {
         let systemGestures = gestures.map { ($0, $0.preferredSystemGestureState) }
         for (button, _) in systemGestures { button.preferredSystemGestureState = .disabled }
         for (button, control) in buttons {
-            button.pressedChangedHandler = { _, _, pressed in emit(.button(control, pressed)) }
+            button.pressedChangedHandler = { [weak self] _, _, pressed in
+                if control != .home || self?.homeAccess == .launcher { emit(.button(control, pressed)) }
+            }
         }
         pad.leftThumbstick.valueChangedHandler = { _, x, y in emit(.leftStick(SIMD2(x, y))) }
         bindActivity(controller, excluding: Set(buttons.map { ObjectIdentifier($0.0) }))

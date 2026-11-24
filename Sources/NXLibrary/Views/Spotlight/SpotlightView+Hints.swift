@@ -5,6 +5,9 @@ import ArcanePorting
 
 /// The hints bar: what the buttons do for the focus and state on screen.
 extension SpotlightView {
+    func optionsHint(_ label: String, action: (() -> Void)? = nil) -> HintItem {
+        .browsingOptions(GamepadLayout(settings.settings), label, hasHome: controllerHomeAvailable, action: action)
+    }
     // MARK: - Hints
 
     /// The A slot keeps one width per place (row, page), so the prompts hold still
@@ -59,33 +62,33 @@ extension SpotlightView {
                 return [HintItem(.a, "Open") { handle(.confirm) }]
             case .card(let card):
                 if card == .inbox { return [HintItem(.a, L10n.text("Open"))] }
-                let more = [HintItem(.y, L10n.text("Card options"))]
+                let more = [optionsHint("Card options")]
                 return more + [HintItem(.a, card == .surprise ? L10n.text("Pick") : card == .mods ? L10n.text("Browse") : L10n.text("Open"))]
                     + (card == .activity ? [buildHistoryHint] : [])
             case .game:
                 if let steam = model.selectedCatalogGame, steam.integration == .steam {
-                    return [HintItem(.y, L10n.text("Options"))] + SteamPlayCoordinator.shared.hint(for: steam)
+                    return [optionsHint("Options")] + SteamPlayCoordinator.shared.hint(for: steam)
                 }
                 if let record = model.selectedCatalogGame, record.macShortcut != nil {
-                    return (viewModel.macShortcuts.canEdit ? [HintItem(.y, "Tile options") { viewModel.macShortcuts.showTileOptions(record) }] : [])
+                    return (viewModel.macShortcuts.canEdit ? [optionsHint("Tile options") { viewModel.macShortcuts.showTileOptions(record) }] : [])
                         + [HintItem(.a, "Open") { activate(.game(record.id)) }]
                 }
                 guard let game = model.selectedGame else { return [] }
                 let pills = viewModel.portingPills(game)
                 if pills == .porting {
-                    return [HintItem(.y, "Options"), HintItem(.a, "Show")]
+                    return [optionsHint("Options"), HintItem(.a, "Show")]
                 }
                 if let item = downloadItem(game), pills != .queued {
-                    return [HintItem(.y, "Options"), HintItem(.a, item.primaryDownloadTitle)]
+                    return [optionsHint("Options"), HintItem(.a, item.primaryDownloadTitle)]
                 }
                 if pills.unavailableReason != nil, !runningGames.isRunning(game) {
-                    return [HintItem(.y, L10n.text("Options"))]
+                    return [optionsHint("Options")]
                 }
                 if game.isPlayableLocally {
-                    return [HintItem(.y, "Options"), HintItem(.a, runningGames.isRunning(game) ? "Resume" : "Play")]
+                    return [optionsHint("Options"), HintItem(.a, runningGames.isRunning(game) ? "Resume" : "Play")]
                 }
-                if pills == .queued { return [HintItem(.y, "Options"), HintItem(.a, "Show")] }
-                return [HintItem(.y, L10n.text("Options")), HintItem(.a, L10n.text("Build"))]
+                if pills == .queued { return [optionsHint("Options"), HintItem(.a, "Show")] }
+                return [optionsHint("Options"), HintItem(.a, L10n.text("Build"))]
             case nil:
                 return []
             }

@@ -10,6 +10,7 @@ struct HintItem: Identifiable {
     var hold: String?
     var keyboard: KeyCap?
     var controllerOnly = false
+    var keyboardOnly = false
     /// A mouse click on the hint, when the screen has one for it.
     var action: (() -> Void)?
 
@@ -87,7 +88,10 @@ struct SeleneHintsBar: View {
     }
 
     func visibleLeft(style: ButtonNameStyle, connected: ConnectedPad) -> [HintItem] {
-        left.filter { ButtonPrompts.showsHint($0.button, controllerOnly: $0.controllerOnly, style: style, connected: connected) }
+        left.filter {
+            (!$0.keyboardOnly || ButtonPrompts.usesKeyboard(style: style, connected: connected))
+                && ButtonPrompts.showsHint($0.button, controllerOnly: $0.controllerOnly, style: style, connected: connected)
+        }
     }
 
     private var rightSlots: [HintItem?] {

@@ -314,7 +314,9 @@ extension AppViewModel {
             { evaluate?(); DispatchQueue.main.async { observe(.exited) } }
         } else { evaluate }
         launchService.launch(appURL: game.url, environment: environment,
-                             homeButton: settingsStore?.settings.inGameHomeButton ?? .auto,
+                             homeButton: settingsStore.map { store in
+                                 GamepadLayout(store.settings).gameHome(store.settings.inGameHomeButton)
+                             } ?? .auto,
                              overlay: overlay, snapshot: snapshot,
                              players: players, onExit: onExit) { [weak self] success, error in
             DispatchQueue.main.async {

@@ -24,10 +24,18 @@ final class GameControllerService: ObservableObject {
     @Published var buttonSymbols: [PromptButton: String] = [:]
     @Published private(set) var menuHoldStartedAt: TimeInterval?
     @Published private(set) var connectedControllers: [ConnectedController] = []
+    @Published private(set) var homeAccess: ControllerHomeAccess = .disconnected
+    var canOpenHomeSettings: Bool { (gcSource as? GCControllerSource)?.canOpenHomeSettings == true }
+    func openHomeSettings() { (gcSource as? GCControllerSource)?.openHomeSettings() }
     private let buttonPresses = PassthroughSubject<String, Never>()
     var controllerButtonPresses: AnyPublisher<String, Never> { buttonPresses.eraseToAnyPublisher() }
 
     var onAction: ((GamepadAction) -> Void)?
+    var onPadUse: (() -> Bool)?
+    var layout = GamepadLayout.arcane {
+        didSet { if layout != oldValue { resetInput() } }
+    }
+    var isBrowsing: () -> Bool = { false }
 
     private let deadzoneKey = "NXNative_ControllerDeadzone"
     @Published private(set) var deadzone: Float = 0.35
@@ -62,8 +70,13 @@ final class GameControllerService: ObservableObject {
     private var activePad: ControllerIdentity?
     private var inputGeneration = 0
 
-    private var holds: [ControllerButton: HoldDetector] = [:]
+    private struct PendingHold {
+        let binding: GamepadLayout.Binding
+        var detector = HoldDetector()
+    }
+    private var holds: [ControllerButton: PendingHold] = [:]
     private var holdTimers: [ControllerButton: Timer] = [:]
+    private var settingsHoldButton: ControllerButton?
 
     private convenience init() {
         self.init(gcSource: GCControllerSource(), hidSource: HIDControllerSource(), preferences: AppData.preferences)
@@ -91,6 +104,11 @@ final class GameControllerService: ObservableObject {
             observe(workspace, NSWorkspace.didWakeNotification) { $0.resumeControllers() }
         }
         gcSource.onEvent = { [weak self] in self?.handle($0, fromHID: false) }
+        (gcSource as? GCControllerSource)?.onHomeAccess = { [weak self] access in
+            guard let self else { return }
+            self.homeAccess = access
+            self.resetInput()
+        }
         hidSource.onEvent = { [weak self] in self?.handle($0, fromHID: true) }
         gcSource.start()
         hidSource.start()
@@ -352,33 +370,42 @@ final class GameControllerService: ObservableObject {
             lastNavTime = now
             triggerAction(action)
         case let .button(button, pressed):
-            if button == .menu || button == .view || button == .home {
-                handleHold(button, pressed: pressed)
-            } else if pressed, let action = GamepadAction.onPress(button) {
-                triggerAction(action)
+            guard let binding = layout.binding(button, browsing: isBrowsing()) else { return }
+            if binding.release {
+                handleHold(binding, pressed: pressed)
+            } else if pressed {
+                triggerAction(binding.tap)
             }
         }
     }
 
-    private func handleHold(_ button: ControllerButton, pressed: Bool) {
+    private func handleHold(_ binding: GamepadLayout.Binding, pressed: Bool) {
+        let button = binding.button
         let now = ProcessInfo.processInfo.systemUptime
         guard pressed else {
-            var detector = holds.removeValue(forKey: button)
-            let action = detector?.release(at: now)
-                .flatMap { GamepadAction.holdAction(button, $0) }
+            var pending = holds.removeValue(forKey: button)
             stopHoldTimer(button)
+            guard pending?.binding.tap == binding.tap, pending?.binding.hold == binding.hold else { return }
+            let gesture = pending?.detector.release(at: now)
+            let action = gesture.flatMap { $0 == .tap ? binding.tap : binding.hold }
             if let action { triggerAction(action) }
             return
         }
         guard holds[button] == nil else { return }
-        holds[button, default: HoldDetector()].press(at: now)
-        guard button != .home else { return }
-        if button == .menu { menuHoldStartedAt = now }
+        var pending = PendingHold(binding: binding)
+        pending.detector.press(at: now)
+        holds[button] = pending
+        guard let action = binding.hold else { return }
+        if action == .menuHold || action == .fullMenu {
+            settingsHoldButton = button
+            menuHoldStartedAt = now
+        }
         let timer = Timer(timeInterval: HoldDetector.defaultThreshold, repeats: false) { [weak self] _ in
-            guard let self, let result = self.holds[button]?.tick(at: ProcessInfo.processInfo.systemUptime),
-                  let action = GamepadAction.holdAction(button, result) else { return }
+            guard let self, self.holds[button]?.detector.tick(at: ProcessInfo.processInfo.systemUptime) != nil else { return }
             self.stopHoldTimer(button)
-            self.triggerAction(action)
+            if self.layout.binding(button, browsing: self.isBrowsing())?.hold == action {
+                self.triggerAction(action)
+            }
         }
         RunLoop.main.add(timer, forMode: .common)
         holdTimers[button] = timer
@@ -386,7 +413,10 @@ final class GameControllerService: ObservableObject {
 
     private func stopHoldTimer(_ button: ControllerButton) {
         holdTimers.removeValue(forKey: button)?.invalidate()
-        if button == .menu { menuHoldStartedAt = nil }
+        if settingsHoldButton == button {
+            settingsHoldButton = nil
+            menuHoldStartedAt = nil
+        }
     }
 
     private func resetInput() {
@@ -400,7 +430,7 @@ final class GameControllerService: ObservableObject {
         let generation = inputGeneration
         DispatchQueue.main.async { [weak self] in
             guard let self, self.isAppActive, self.inputGeneration == generation else { return }
-            self.onAction?(action)
+            if self.onPadUse?() != true { self.onAction?(action) }
         }
     }
 }
