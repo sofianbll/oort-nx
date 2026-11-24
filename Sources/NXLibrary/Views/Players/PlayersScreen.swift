@@ -17,7 +17,7 @@ struct PlayersScreen: View {
 
     var body: some View {
         let covered = model.pin != nil || model.capturePlayer != nil || model.confirmsReset
-        SeleneOverlay(style: .deep, onOutside: back) {
+        SeleneOverlay(style: .page, onOutside: back) {
             VStack(spacing: 0) {
                 column
                 SeleneHintsBar(left: [HintItem(.b, "Back", action: back)],

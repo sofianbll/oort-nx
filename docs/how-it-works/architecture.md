@@ -217,14 +217,16 @@ diminuire. Rimuovere le occorrenze sostituite con token.
 Il rail di Spotlight e Collection ripunta la molla critica alla nuova selezione;
 con Riduci movimento la posizione e gli interruttori cambiano direttamente.
 
-`SeleneOverlay` fornisce il velo e il clic esterno per menu, ricerca, opzioni,
-profili, conferme e Cloud. La shell applica il blur associato allo stile e
+`SeleneOverlay` fornisce il velo e il clic esterno per menu, ricerca, profili,
+conferme e Cloud. Le Opzioni di gioco (anche Steam) e Giocatori usano invece
+lo sfondo opaco della palette: nomi e comandi della pagina coperta non si leggono.
+La shell applica il blur associato allo stile e
 nasconde input del puntatore, VoiceOver e suggerimenti dei livelli coperti.
 Router e pannelli continuano a gestire gli stessi comandi e identità di focus;
 `ProfileLayers` decide quale strato dei profili resta attivo.
 `SeleneConfirmDialog` condivide l'ordine dei pulsanti con la navigazione:
 conferma a sinistra, annullamento a destra. Il chiamante conserva il focus
-iniziale sulla scelta sicura. `SeleneDialogCard` mostra i suggerimenti del
+iniziale sulla scelta sicura. `SeleneDialogCard` usa una superficie opaca sopra il velo e mostra i suggerimenti del
 dialogo attivo, anche per le scelte multiple e per l'assistente cloud. A indica
 la selezione del pulsante attivo, anche se è la scelta sicura. Nei dialoghi a
 scelta il testo ha una larghezza definita prima di misurare l'altezza, per

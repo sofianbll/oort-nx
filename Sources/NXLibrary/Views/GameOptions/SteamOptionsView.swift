@@ -51,7 +51,7 @@ struct SteamOptionsView: View {
 
     var body: some View {
         let p = presentation
-        return SeleneOverlay(style: .options, onOutside: back) {
+        return SeleneOverlay(style: .page, onOutside: back) {
             VStack(spacing: 0) {
                 column(p)
                 SeleneHintsBar(left: [HintItem(.b, L10n.text("Back"))], right: [HintItem(.a, L10n.text("Select"))],

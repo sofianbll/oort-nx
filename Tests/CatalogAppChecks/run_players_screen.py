@@ -10,6 +10,7 @@ from audit_probe_host import ROOT, run_host
 
 HOST = r'''
 import AppKit
+import ArcanePorting
 import CoreText
 import SwiftUI
 @testable import NXLibrary
@@ -67,9 +68,16 @@ final class PlayersFixtureSource: ControllerSource {
 
     @MainActor static func main() async throws {
         assertFixtureHome()
+        if ProcessInfo.processInfo.environment["PLAYERS_PARENTS_ONLY"] == "1" {
+            suppressProbeNotifications()
+        }
         NSApplication.shared.setActivationPolicy(.prohibited)
         let font = stage.appendingPathComponent("MaterialIcons.ttf")
         precondition(CTFontManagerRegisterFontsForURL(font as CFURL, .process, nil))
+        if ProcessInfo.processInfo.environment["PLAYERS_PARENTS_ONLY"] == "1" {
+            try checkParents()
+            return
+        }
         try await checkInput()
         let fixture = PlayersFixture()
         let alex = fixture.profiles[0].id
@@ -265,26 +273,204 @@ final class PlayersFixtureSource: ControllerSource {
         print("Players: keyboard and controller focus, capture, twins, identify, PIN, swap, removal, merge and failure handling")
     }
 
+    @MainActor static func checkParents() throws {
+        let locale = AppLocale(language: .french, region: "FR")
+        L10n.setContext(locale)
+        let settings = AppSettingsStore(fileURL: AppData.supportRoot.appendingPathComponent("settings.json"))
+        settings.settings.checkEngineAtLaunch = false
+        settings.settings.refreshLibraryAtLaunch = false
+        settings.settings.animatedBackground = false
+        let profiles = LocalProfileStore(directory: AppData.supportRoot, settings: settings.settings, name: "Alex")
+        AppData.preferences.set(true, forKey: AppViewModel.StorageKeys.setupCompleted)
+        AppData.preferences.set(AppData.supportRoot.appendingPathComponent("Apps").path,
+                                forKey: AppViewModel.StorageKeys.savedLibraryFolder)
+        let game = PortedGame(name: "Sunny Coast", url: AppData.supportRoot.appendingPathComponent("Fixture.app"),
+                              platform: .macApp, sizeBytes: 0, modificationDate: .now, titleId: "0100000000000001")
+        let vm = AppViewModel(settingsStore: settings,
+                              catalog: .init(sources: [.init(integration: .nxnative, isEnabled: true)],
+                                             games: [.init(nxnative: game)]),
+                              repository: .init(store: .init(directory: AppData.supportRoot)), localProfiles: profiles)
+        let router = AppRouter(settings: settings)
+        let artwork = ArtworkStore()
+        let size = CGSize(width: 1440, height: 810)
+        func send(_ input: Notification.Name, _ actions: GamepadAction...) {
+            for action in actions {
+                NotificationCenter.default.post(name: input, object: action)
+                RunLoop.main.run(until: Date().addingTimeInterval(0.035))
+            }
+        }
+        func wallpaper(_ name: String, _ colors: [[UInt8]]) throws -> (String, URL) {
+            let image = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 120, pixelsHigh: 68,
+                                          bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
+                                          colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
+            for y in 0..<68 {
+                let color = colors[(y / 14) % colors.count]
+                for x in 0..<120 {
+                    let offset = y * image.bytesPerRow + x * 4
+                    for channel in 0..<4 { image.bitmapData![offset + channel] = color[channel] }
+                }
+            }
+            let url = stage.appendingPathComponent(name + ".png")
+            try image.representation(using: .png, properties: [:])!.write(to: url)
+            return (try ThemeStore.shared.importWallpaper(from: url), url)
+        }
+        let bright = try wallpaper("fixture-sunny", [[87, 193, 230, 255], [255, 223, 122, 255],
+                                                       [247, 245, 236, 255], [106, 191, 143, 255]])
+        let dark = try wallpaper("fixture-dark", [[0, 0, 0, 255]])
+        try FileManager.default.createDirectory(at: game.url, withIntermediateDirectories: true)
+        let sessions = PlaySessionStore()
+        let running = RunningGameMonitor()
+        let storeHost = ModStoreHost()
+        vm.homeSeen = true
+        vm.spotlight.select(.game(game.id))
+
+        for (name, fixture) in [("clair", bright), ("sombre", dark)] {
+            settings.settings.settingsWallpaperID = fixture.0
+            settings.settings.wallpaperID = fixture.0
+            let backdrop = SeleneBackdropStyle(palette: ThemeStore.shared.palette, wallpaperURL: fixture.1,
+                                               animated: false, brightness: .bright)
+            router.openSettings(.controllers)
+            let players = try withHost(SettingsView(initialSection: .controllers, viewModel: vm, settings: settings,
+                                                      router: router, artwork: artwork),
+                                       size: size, locale: locale, backdrop: backdrop) { host in
+                let input = Notification.Name.nxSettingsGamepadAction
+                try capture(host, "reglages-\(name)")
+                send(input, .navigateRight, .navigateDown, .navigateDown, .navigateDown, .confirm)
+                let players = try capture(host, "reglages-\(name)-joueurs")
+                send(input, .cancel)
+                if name == "clair" {
+                    send(input, .navigateUp, .navigateUp, .confirm)
+                    try capture(host, "reglages-clair-disposition")
+                    send(input, .cancel)
+                }
+                return players
+            }
+            if name == "clair" {
+                for (id, label) in [("appLanguage", "langue"), ("appRegion", "region")] {
+                    router.openSettings(.startUp, rowID: id)
+                    try withHost(SettingsView(initialSection: .startUp, viewModel: vm, settings: settings,
+                                              router: router, artwork: artwork),
+                                 size: size, locale: locale, backdrop: backdrop) { host in
+                        send(.nxSettingsGamepadAction, .confirm)
+                        _ = try capture(host, "reglages-clair-\(label)")
+                    }
+                }
+                router.openSettings(.cloudSaves)
+                try withHost(CloudSavesSettingsFixture(viewModel: vm, settings: settings, router: router, artwork: artwork),
+                             size: size, locale: locale, backdrop: backdrop) { host in
+                    send(.nxSettingsGamepadAction, .navigateRight, .confirm)
+                    precondition(vm.settingsNotice != nil)
+                    try capture(host, "reglages-clair-sauvegardes-cloud")
+                    // Never choose an option: it would write game preferences.
+                    vm.settingsNotice = nil
+                }
+            }
+            router.navigate(to: .library)
+            vm.gameForSettingsSheet = game
+            let options = try withHost(ZStack {
+                SeleneBackdrop().still(true)
+                SpotlightView(viewModel: vm, router: router, settings: settings, playSessions: sessions,
+                              runningGames: running, artwork: artwork, storeHost: storeHost)
+                    .blur(radius: SeleneOverlayStyle.options.backdropBlur)
+                    .seleneOverlayOwnership(false)
+                GameOptionsView(viewModel: vm, game: game, origin: .spotlight, onClose: {}, onShowBuild: {}, onMove: {})
+            }, size: size, locale: locale, backdrop: backdrop) { host in
+                let input = Notification.Name.nxGameOptionsGamepadAction
+                try capture(host, "jeu-\(name)-options")
+                send(input, .navigateDown, .confirm)
+                let players = try capture(host, "jeu-\(name)-joueurs")
+                send(input, .cancel)
+                if name == "clair" {
+                    send(input, .navigateDown, .confirm)
+                    try capture(host, "jeu-clair-edit-details")
+                    send(input, .confirm)
+                    try capture(host, "jeu-clair-illustrations")
+                    send(input, .cancel, .navigateDown, .confirm)
+                    try capture(host, "jeu-clair-metadonnees")
+                    send(input, .cancel, .cancel)
+                    for label in ["triches", "mods", "sauvegardes"] {
+                        send(input, .navigateDown, .confirm)
+                        try capture(host, "jeu-clair-\(label)")
+                        send(input, .cancel)
+                    }
+                }
+                return players
+            }
+            vm.gameForSettingsSheet = nil
+            for (parent, image) in [("reglages", players), ("jeu", options)] {
+                // Sample unoccupied canvas on both sides, outside the foreground page's content.
+                let edge = [(32, 300), (1400, 180), (1400, 620)]
+                let pixels = edge.flatMap { x, y in
+                    Array(UnsafeBufferPointer(start: image.bitmapData! + y * image.bytesPerRow + x * 4, count: 4))
+                }
+                if name == "clair" {
+                    referencePixels[parent] = pixels
+                } else if pixels != referencePixels[parent] {
+                    fputs("Players still shows the \(parent) backdrop\n", stderr)
+                    leaks = true
+                }
+            }
+        }
+        if leaks { exit(1) }
+        print("Players: real Controllers and Game Options routes hide both bright and dark backdrops")
+    }
+
+    @MainActor static var referencePixels: [String: [UInt8]] = [:]
+    @MainActor static var leaks = false
+
     @MainActor static func render<V: View>(_ view: V, name: String, size: CGSize, locale: AppLocale) throws {
-        let host = NSHostingView(rootView: ZStack {
-            SeleneBackdrop().still(true)
-            view
-        }.environment(\.nxAppLocale, locale).environment(\.seleneReduceMotion, true).seleneCanvasRoot())
+        try withHost(ZStack { SeleneBackdrop().still(true); view }, size: size, locale: locale) { host in
+            _ = try capture(host, name)
+        }
+    }
+
+    @MainActor static func withHost<V: View, Result>(_ view: V, size: CGSize, locale: AppLocale,
+        backdrop: SeleneBackdropStyle = .init(), _ inspect: (NSView) throws -> Result) rethrows -> Result {
+        let host = NSHostingView(rootView: view.environment(\.nxAppLocale, locale)
+            .environment(\.seleneReduceMotion, true).environment(\.seleneBackdropStyle, backdrop).seleneCanvasRoot())
         host.frame.size = size
         let window = NSWindow(contentRect: host.frame, styleMask: .borderless, backing: .buffered, defer: false)
         window.contentView = host
         defer { window.contentView = nil }
         window.layoutIfNeeded()
+        return try inspect(host)
+    }
+
+    @MainActor @discardableResult static func capture(_ host: NSView, _ name: String) throws -> NSBitmapImageRep {
         for _ in 0..<6 {
             RunLoop.main.run(until: Date().addingTimeInterval(0.025))
             host.layoutSubtreeIfNeeded()
         }
-        precondition(!window.isVisible)
+        precondition(host.window?.isVisible == false)
+        let size = host.bounds.size
         let image = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(size.width), pixelsHigh: Int(size.height),
                                      bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
                                      colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
         host.cacheDisplay(in: host.bounds, to: image)
         try image.representation(using: .png, properties: [:])!.write(to: stage.appendingPathComponent(name + ".png"))
+        return image
+    }
+}
+
+/// The shell's usual choice card over the actual Settings row, without starting the shell's services.
+struct CloudSavesSettingsFixture: View {
+    @ObservedObject var viewModel: AppViewModel
+    let settings: AppSettingsStore
+    let router: AppRouter
+    let artwork: ArtworkStore
+
+    var body: some View {
+        SettingsView(initialSection: .cloudSaves, viewModel: viewModel, settings: settings, router: router, artwork: artwork)
+            .seleneOverlayOwnership(viewModel.settingsNotice == nil)
+            .overlay {
+                if let notice = viewModel.settingsNotice {
+                    SeleneOverlay(style: .dialog) {
+                        SeleneChoiceDialog(title: notice.title, message: notice.message, choices: notice.choices,
+                                           focus: $viewModel.settingsNoticeFocus, cancelIndex: notice.cancelIndex,
+                                           details: notice.choiceDetails, onChoose: { _ in })
+                    }
+                }
+            }
     }
 }
 '''
@@ -292,6 +478,10 @@ final class PlayersFixtureSource: ControllerSource {
 if __name__ == "__main__":
     args = sys.argv[1:]
     details_only = "--details-only" in args
+    parents_only = "--parents-only" in args
+    if parents_only:
+        args.remove("--parents-only")
+        os.environ["PLAYERS_PARENTS_ONLY"] = "1"
     if details_only:
         args.remove("--details-only")
         os.environ["PLAYERS_DETAILS_ONLY"] = "1"
@@ -300,11 +490,13 @@ if __name__ == "__main__":
         stage = Path(stage)
         shutil.copyfile(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf", stage / "MaterialIcons.ttf")
         os.environ["PLAYERS_STAGE"] = str(stage)
-        run_host(HOST)
-        captures = sorted(stage.glob("*.png"))
-        assert len(captures) == (12 if details_only else 68), len(captures)
-        if output:
-            output.mkdir(parents=True, exist_ok=True)
-            for capture in captures:
-                shutil.copyfile(capture, output / capture.name)
-        print(f"Rendered {len(captures)} English/French wide/narrow images" + (f": {output}" if output else ""))
+        try:
+            run_host(HOST, save_model=True)
+        finally:
+            captures = sorted(p for p in stage.glob("*.png") if not p.name.startswith("fixture-"))
+            if output:
+                output.mkdir(parents=True, exist_ok=True)
+                for capture in captures:
+                    shutil.copyfile(capture, output / capture.name)
+        assert parents_only or len(captures) == (12 if details_only else 68), len(captures)
+        print(f"Rendered {len(captures)} captures" + (f": {output}" if output else ""))
