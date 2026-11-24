@@ -136,11 +136,14 @@ struct SettingsAboutSection: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            SelenePanel(L10n.text("Nintendo Store data")) {
-                Text(L10n.text("Descriptions, genres and artwork are fetched from the public Nintendo Store catalog for personal use, cached locally for seven days, and never committed or redistributed."))
+            SelenePanel(L10n.text("Nintendo Europe catalogue")) {
+                Text(L10n.text("The app keeps Arcane’s Nintendo Store source. Nintendo Europe supplements missing or untranslated information and artwork. Text and images belong to their respective owners and are never shipped with the app."))
                     .seleneFont(15)
                     .foregroundColor(SeleneTheme.ink90)
                     .fixedSize(horizontal: false, vertical: true)
+                Text(verbatim: "searching.nintendo-europe.com")
+                    .seleneFont(13)
+                    .foregroundColor(SeleneTheme.ink60)
                 Text(L10n.text("The app ships no keys, ROMs, game art or Nintendo UI assets."))
                     .seleneFont(13)
                     .foregroundColor(SeleneTheme.ink60)

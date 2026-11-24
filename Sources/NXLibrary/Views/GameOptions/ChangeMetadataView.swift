@@ -277,8 +277,9 @@ struct ChangeMetadataView: View {
     private func describe(_ row: Row) -> (title: String, value: String?) {
         switch row {
         case .automatic:
-            let format = subject.steam != nil ? "Steam: %@" : "Nintendo store: %@"
-            return (L10n.text("Automatic"), automaticValue.map { L10n.format(format, [displayValue($0)]) } ?? L10n.text("Nothing from the store yet."))
+            let source = subject.steam != nil ? "Steam" : store?.origin(for: field).rawValue ?? "Nintendo store"
+            return (L10n.text("Automatic"), automaticValue.map { L10n.text(source) + " · " + displayValue($0) }
+                ?? L10n.text("Nothing from the store yet."))
         case .yourPick(let value):
             return (L10n.text("Your choice"), displayValue(value))
         case .source(let source, _):

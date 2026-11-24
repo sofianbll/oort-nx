@@ -14,6 +14,10 @@ public struct GameDetailPresentation: Equatable {
     /// The store's answer in the app language is final (`NintendoStoreMetadata.languageResolved`); until then the
     /// page shows the old text and Wikipedia is not asked, so the text changes once, not twice.
     public let descriptionSettled: Bool
+    /// A short store blurb can coexist with a longer description from another source.
+    public let descriptionExcerpt: String?
+    public let descriptionIsExcerpt: Bool
+    public let descriptionSource: String?
     public let genres: [String]
     public let released: String?
     public let developerLine: String?
@@ -36,10 +40,31 @@ public struct GameDetailPresentation: Equatable {
     public let appPath: String
     public let savePath: String
 
+    package static let shortStoreDescriptionLimit = 200
+
+    /// The same text and credits feed Details and Spotlight, including the collapsed view.
+    package func aboutDescription(wikipedia: WikipediaDescription?, language: AppLanguage) -> GameAboutDescription {
+        let excerpt = descriptionExcerpt
+        let sameLanguage = descriptionLanguage == String(language.rawValue.prefix(2))
+        let short = excerpt.map { $0.count < Self.shortStoreDescriptionLimit } == true
+        let hasLocalLongText = sameLanguage && !descriptionIsExcerpt && description.count >= Self.shortStoreDescriptionLimit
+        let wiki = short && hasLocalLongText ? nil : wikipedia
+        let full = wiki?.text ?? description
+        if let excerpt, short, wiki != nil || sameLanguage, full.count > excerpt.count {
+            let text = full.hasPrefix(excerpt) ? full : excerpt + " " + full
+            return .init(text: text, sources: ["Nintendo Europe", wiki == nil ? descriptionSource : nil].compactMap { $0 },
+                         wikipediaPage: wiki?.pageURL)
+        }
+        return .init(text: full, preview: excerpt == full ? nil : excerpt,
+                     sources: [wiki == nil ? descriptionSource : nil].compactMap { $0 },
+                     languageNote: wiki == nil ? descriptionLanguageNote : nil, wikipediaPage: wiki?.pageURL)
+    }
+
     /// Every value of the page, for a source's own entry (`GameDetailPresentation+Porting.swift`).
     package init(title: String, console: String, eyebrow: String, description: String,
                  descriptionIsEnglishFallback: Bool, descriptionLanguageNote: String?, descriptionLanguage: String?,
-                 descriptionSettled: Bool, genres: [String], released: String?, developerLine: String?,
+                 descriptionSettled: Bool, descriptionExcerpt: String? = nil, descriptionIsExcerpt: Bool = false,
+                 descriptionSource: String? = nil, genres: [String], released: String?, developerLine: String?,
                  thisWeek: String, rank: String?, publisher: String?, releaseYear: String?, playtime: String,
                  lastPlayed: String, version: String, size: String,
                  toolchainVerified: Bool, toolchainNote: String?, canPlay: Bool, canRebuild: Bool,
@@ -53,6 +78,9 @@ public struct GameDetailPresentation: Equatable {
         self.descriptionLanguageNote = descriptionLanguageNote
         self.descriptionLanguage = descriptionLanguage
         self.descriptionSettled = descriptionSettled
+        self.descriptionExcerpt = descriptionExcerpt
+        self.descriptionIsExcerpt = descriptionIsExcerpt
+        self.descriptionSource = descriptionSource
         self.genres = genres
         self.released = released
         self.developerLine = developerLine
@@ -129,5 +157,20 @@ public struct GameDetailPresentation: Equatable {
         var components = URLComponents(string: "https://howlongtobeat.com/")
         components?.queryItems = [URLQueryItem(name: "q", value: name)]
         return components?.url
+    }
+}
+
+package struct GameAboutDescription {
+    package let text: String
+    package var preview: String?
+    package let sources: [String]
+    package var languageNote: String?
+    package var wikipediaPage: URL?
+
+    package func note(showingPreview: Bool) -> String? {
+        let credits = showingPreview ? ["Nintendo Europe"] : sources
+        let note = (credits.map { L10n.text($0) } + (showingPreview ? [] : [languageNote].compactMap { $0 }))
+            .joined(separator: " · ")
+        return note.isEmpty ? nil : note
     }
 }

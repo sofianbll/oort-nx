@@ -58,7 +58,13 @@ extension GameDetailPresentation {
         self.init(title: title, console: console, eyebrow: eyebrow, description: description,
                   descriptionIsEnglishFallback: descriptionIsEnglishFallback,
                   descriptionLanguageNote: descriptionLanguageNote, descriptionLanguage: descriptionLanguage,
-                  descriptionSettled: descriptionSettled, genres: genres, released: released,
+                  descriptionSettled: descriptionSettled,
+                  descriptionExcerpt: metadata?.isInLanguage(L10n.context) == true ? metadata?.excerpt : nil,
+                  descriptionIsExcerpt: metadata?.descriptionIsExcerpt == true,
+                  descriptionSource: metadata.flatMap {
+                      let source = $0.origin(for: .description)
+                      return source == .legacy ? nil : source.rawValue
+                  }, genres: genres, released: released,
                   developerLine: developerLine, thisWeek: thisWeek, rank: rank, publisher: publisher,
                   releaseYear: releaseYear, playtime: playtime, lastPlayed: lastPlayedText, version: version,
                   size: size, toolchainVerified: toolchainVerified,

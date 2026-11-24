@@ -11,6 +11,7 @@ Come si aggiorna:
 
 | Parte | Stato | Prove ancora da fare |
 |---|---|---|
+| Schede Switch · Nintendo Europe | in attesa | Su un profilo separato, passare fra le sette lingue, aprire il link della scheda prodotto e controllare il gioco base, il testo breve/lungo, i crediti e le scelte manuali. Riprovare offline e con una cache precedente; controllare italiano, portoghese brasiliano e cinese semplificato. |
 | Giocatori e profili per il prossimo avvio | in attesa | Con profili di prova, verificare focus, PIN, aggiunta, scambio, rimozione e Reset. Provare controller identici, disconnessione, batteria, luce e vibrazione con manette fisiche. Su copie di prova, confrontare la fusione P1 e P2–P8, le omissioni del vecchio motore, e i nomi Offline/Local e Nextendo. |
 | Ritorno a 0.3.0 | in attesa | Su una libreria sintetica, verificare l’avviso una volta per aggiornamento, i gruppi omessi oltre il limite e la riga di avanzamento dopo un secondo. Con copia impossibile provare Retry, Continua senza copia (solo per questo avvio) e Quit con mouse, tastiera, controller e VoiceOver. Verificare entrambe le versioni su copie separate, senza operazioni cloud pendenti. |
 | Setup → runtime e checkout esistente | in attesa | Su profili isolati, verificare Python pronto con il pacchetto completo e assenza del consiglio DMG senza runtime. Con un checkout di prova su un altro commit, verificare che Install all non lo tocchi; aprire la conferma dalla scheda e annullare con mouse, tastiera e controller. |

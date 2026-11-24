@@ -325,7 +325,7 @@ Cartella `Sources/NXLibraryCore/Details/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibraryCore/Details/GameDetailPresentation.swift](../../Sources/NXLibraryCore/Details/GameDetailPresentation.swift) | Prepara badge, disponibilità delle azioni, date e dati della pagina Details; la pagina Steam è in `GameDetailPresentation+Steam.swift`, quella Switch in `ArcanePorting/Details/`. |
+| [Sources/NXLibraryCore/Details/GameDetailPresentation.swift](../../Sources/NXLibraryCore/Details/GameDetailPresentation.swift) | Prepara i dati della pagina Details e compone estratto, testo lungo e crediti per Details e Spotlight; le entrate Steam e Switch sono in estensioni distinte. |
 | [Sources/NXLibraryCore/Details/MoreLikeThis.swift](../../Sources/NXLibraryCore/Details/MoreLikeThis.swift) | Ordina i giochi correlati per generi, sviluppatore ed editore, con precedenza alla stessa fonte e ripiego facoltativo. |
 | [Sources/NXLibraryCore/Details/DetailsFacts.swift](../../Sources/NXLibraryCore/Details/DetailsFacts.swift) | Sceglie le righe del pannello Details (Steam qui, Switch in `ArcanePorting/Details/DetailsFacts+Porting.swift`): solo i valori presenti, niente identificativi tecnici. |
 | [Sources/NXLibraryCore/Details/DetailsFocus.swift](../../Sources/NXLibraryCore/Details/DetailsFocus.swift) | Gestisce zone e spostamenti del focus nei link e nelle bande di Details. |
@@ -345,7 +345,7 @@ Cartella `Sources/NXLibraryCore/Artwork/`.
 | [Sources/NXLibraryCore/Artwork/GameTitleKey.swift](../../Sources/NXLibraryCore/Artwork/GameTitleKey.swift) | Un titolo come parole da confrontare (minuscole, senza ™ ® © né punteggiatura, "&" come "and"), per le ricerche di artwork online e GameTDB. |
 | [Sources/NXLibraryCore/Artwork/HTMLPlainText.swift](../../Sources/NXLibraryCore/Artwork/HTMLPlainText.swift) | Una descrizione HTML (store, Steam, database, mod) come testo semplice: righe ed elenchi tenuti, altri tag tolti, entità decodificate. |
 | [Sources/NXLibraryCore/Artwork/OnlineArtworkSources.swift](../../Sources/NXLibraryCore/Artwork/OnlineArtworkSources.swift) | Ricava artwork Steam e loghi da MediaWiki e Wikimedia Commons. |
-| [Sources/NXLibraryCore/Artwork/MoreArtworkSources.swift](../../Sources/NXLibraryCore/Artwork/MoreArtworkSources.swift) | Aggiunge matching dei nomi e sorgenti Xbox, GOG, Nintendo Europe, wiki e altri cataloghi. |
+| [Sources/NXLibraryCore/Artwork/MoreArtworkSources.swift](../../Sources/NXLibraryCore/Artwork/MoreArtworkSources.swift) | Matching dei nomi e sorgenti Xbox, GOG, Nintendo Europe, wiki e altri cataloghi; controllo della variante Nintendo più grande prima del primo download. |
 | [Sources/NXLibraryCore/Artwork/ArtworkBrowse.swift](../../Sources/NXLibraryCore/Artwork/ArtworkBrowse.swift) | Sorgenti sfogliabili da Change artwork (LaunchBox, SteamGridDB): nomi cercati e risultati per tutti gli slot. |
 | [Sources/NXLibraryCore/Artwork/LaunchBoxArt.swift](../../Sources/NXLibraryCore/Artwork/LaunchBoxArt.swift) | Legge ricerca e pagina gioco di LaunchBox; dal payload Nuxt ricava anteprime, file pieni, tipo, regione e dimensioni; screenshot Gameplay. |
 | [Sources/NXLibraryCore/Artwork/SteamGridDBArt.swift](../../Sources/NXLibraryCore/Artwork/SteamGridDBArt.swift) | Conserva la chiave SteamGridDB in un file 0600 e interroga l’API v2 per griglie, hero, loghi e icone statiche accreditate. |
@@ -624,11 +624,13 @@ Cartella `Sources/ArcanePorting/Store/`.
 |---|---|
 | [Sources/ArcanePorting/Store/BoxArtService.swift](../../Sources/ArcanePorting/Store/BoxArtService.swift) | Trova copertine Switch in GameTDB e ricorda copertine e ricerche senza risultato. |
 | [Sources/ArcanePorting/Store/GameTDB.swift](../../Sources/ArcanePorting/Store/GameTDB.swift) | Decodifica il database GameTDB, abbina nomi e regioni e conserva l’indice locale. |
-| [Sources/ArcanePorting/Store/ArtworkCandidates+Porting.swift](../../Sources/ArcanePorting/Store/ArtworkCandidates+Porting.swift) | Le immagini del picker per un gioco Switch: GameTDB per regione, Title DB, store Nintendo, poi quelle trovate online. |
+| [Sources/ArcanePorting/Store/ArtworkCandidates+Porting.swift](../../Sources/ArcanePorting/Store/ArtworkCandidates+Porting.swift) | Le immagini del picker per un gioco Switch: Nintendo Europe, GameTDB per regione, Title DB, poi quelle trovate online. |
 | [Sources/ArcanePorting/Store/MetadataOptions.swift](../../Sources/ArcanePorting/Store/MetadataOptions.swift) | I valori di Change metadata per un gioco Switch: store Nintendo, Title DB e GameTDB, senza ripetizioni. |
 | [Sources/ArcanePorting/Store/MetadataPicks+Porting.swift](../../Sources/ArcanePorting/Store/MetadataPicks+Porting.swift) | Le scelte del giocatore applicate ai metadati dello store Nintendo. |
 | [Sources/ArcanePorting/Store/CriticRatingQuery+Porting.swift](../../Sources/ArcanePorting/Store/CriticRatingQuery+Porting.swift) | La ricerca dei voti per un gioco portato, con la console di Details (Switch o Switch 2). |
-| [Sources/ArcanePorting/Store/NintendoStoreMetadata.swift](../../Sources/ArcanePorting/Store/NintendoStoreMetadata.swift) | Consulta i cataloghi pubblici dello store e Title DB e conserva descrizioni, immagini e screenshot per lingua; finché la nuova lingua arriva, la pagina mostra l'ultima descrizione letta in un'altra. |
+| [Sources/ArcanePorting/Store/NintendoEuropeCatalog.swift](../../Sources/ArcanePorting/Store/NintendoEuropeCatalog.swift) | Decodifica il catalogo Nintendo Europe e seleziona il prodotto base per ID e console. |
+| [Sources/ArcanePorting/Store/NintendoStoreMetadata.swift](../../Sources/ArcanePorting/Store/NintendoStoreMetadata.swift) | Trasporto, ricerca, ripiego Title DB e cache Nintendo Store originali di Arcane. |
+| [Sources/ArcanePorting/Store/SwitchGameMetadataService.swift](../../Sources/ArcanePorting/Store/SwitchGameMetadataService.swift) | Conserva i dati Arcane e riempie i vuoti per campo e lingua con Nintendo Europe, Title DB, LaunchBox e l'indice locale GameTDB. |
 | [Sources/ArcanePorting/Store/ScreenshotFallback.swift](../../Sources/ArcanePorting/Store/ScreenshotFallback.swift) | Conserva per 30 giorni gli screenshot LaunchBox dei giochi senza screenshot Title DB e li sovrappone ai metadati. |
 
 ## Porting · salvataggi, backup e cloud
@@ -707,8 +709,8 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/Spotlight/SpotlightPageSections.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightPageSections.swift) | Modello della pagina inferiore con dettagli, link e giochi correlati del catalogo; generi e descrizione; la descrizione può venire da Wikipedia (`WikipediaAbout`). |
 | [Sources/NXLibrary/Views/Spotlight/SpotlightScreenshotStrip.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightScreenshotStrip.swift) | Disegna la striscia di screenshot con focus e stile adattabile alle schermate. |
 | [Sources/NXLibrary/Views/Spotlight/SeleneArtBackground.swift](../../Sources/NXLibrary/Views/Spotlight/SeleneArtBackground.swift) | Compone wallpaper, sfondo del gioco, transizioni e maschere leggendo la palette dallo snapshot condiviso; l'arte è un `CALayer` che dissolve nel render server (`SeleneArtLayer`) e che l'entrata di Spotlight tiene nascosto (`ArtReveal`). |
-| [Sources/NXLibrary/Views/Spotlight/SeleneHeroArt.swift](../../Sources/NXLibrary/Views/Spotlight/SeleneHeroArt.swift) | Coordina il caricamento differito di hero e logo del gioco selezionato. |
-| [Sources/NXLibrary/Views/Spotlight/GameArtLoader.swift](../../Sources/NXLibrary/Views/Spotlight/GameArtLoader.swift) | Carica hero e loghi; aspetta la ricerca ancora in corso e la ripete se annullata. Limita le cache degli sfondi anche per byte decodificato. |
+| [Sources/NXLibrary/Views/Spotlight/SeleneHeroArt.swift](../../Sources/NXLibrary/Views/Spotlight/SeleneHeroArt.swift) | Coordina il caricamento differito di hero e logo del gioco selezionato; aggiorna l'hero quando arriva l'URL del catalogo. |
+| [Sources/NXLibrary/Views/Spotlight/GameArtLoader.swift](../../Sources/NXLibrary/Views/Spotlight/GameArtLoader.swift) | Carica hero e loghi, con le scelte personali prima del catalogo e il vecchio hero disponibile offline. Limita le cache degli sfondi anche per byte decodificato. |
 | [Sources/NXLibrary/Views/Spotlight/GameArtLoader+Played.swift](../../Sources/NXLibrary/Views/Spotlight/GameArtLoader+Played.swift) | Hero e logo di un `PlayedGame` per schermata di lancio e card di fine sessione; per Steam le stesse scelte delle sue pagine. |
 
 ## UI · Collection e Details
@@ -1011,7 +1013,8 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [MoonlightAppearanceTests.swift](../../Tests/ArcanePortingTests/MoonlightAppearanceTests.swift) | Ignora la preferenza storica delle particelle senza perdere altri valori; continuità del ciclo e bordi della griglia colori. |
 | [Tests/ArcanePortingTests/MoreArtworkSourcesTests.swift](../../Tests/ArcanePortingTests/MoreArtworkSourcesTests.swift) | Matching dei titoli e risposte delle sorgenti artwork aggiuntive. |
 | [Tests/ArcanePortingTests/MoreLikeThisTests.swift](../../Tests/ArcanePortingTests/MoreLikeThisTests.swift) | Ranking condiviso, precedenza Steam e ripiego Switch, giochi nascosti e metadati incompleti. |
-| [Tests/ArcanePortingTests/NintendoStoreMetadataTests.swift](../../Tests/ArcanePortingTests/NintendoStoreMetadataTests.swift) | Decodifica store e Title DB, cache, screenshot e risposte incomplete. |
+| [Tests/ArcanePortingTests/NintendoStoreMetadataTests.swift](../../Tests/ArcanePortingTests/NintendoStoreMetadataTests.swift) | Decodifica store e Title DB, cache, screenshot e risposte incomplete della fonte Arcane. |
+| [Tests/ArcanePortingTests/SwitchGameMetadataServiceTests.swift](../../Tests/ArcanePortingTests/SwitchGameMetadataServiceTests.swift) | Priorità Arcane per campo, richiesta pubblica Europe, prodotto base, lingue, cache e ripieghi. |
 | [Tests/NXLibraryCoreTests/ReleaseNotesLayoutTests.swift](../../Tests/NXLibraryCoreTests/ReleaseNotesLayoutTests.swift) | Titoli, voci e righe vuote delle note di release, una voce per riga. |
 | [Tests/ArcanePortingTests/NewestEngineTests.swift](../../Tests/ArcanePortingTests/NewestEngineTests.swift) | Lock e Metal di main, validità della scelta, comandi git del cambio, gate Newest engine, scheda Setup e frase. |
 | [Tests/ArcanePortingTests/NUPSourceCatalogTests.swift](../../Tests/ArcanePortingTests/NUPSourceCatalogTests.swift) | NUP storici, multiprogramma e soli update; identità DLC, JSON, capacità checkout, programma zero nei vecchi record e argv coerenti. |
@@ -1077,7 +1080,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/ArcanePortingTests/SourceCatalogTests.swift](../../Tests/ArcanePortingTests/SourceCatalogTests.swift) | Fixture PFS0/CNMT e riconoscimento di base, aggiornamenti e DLC. |
 | [Tests/ArcanePortingTests/GameInboxTests.swift](../../Tests/ArcanePortingTests/GameInboxTests.swift) | Nomi, chiavi mancanti, metadati ambigui, collisioni, duplicati, copia interrotta, ritrovamento e Cestino simulato. |
 | [Tests/ArcanePortingTests/EngineUpgradeSourcesTests.swift](../../Tests/ArcanePortingTests/EngineUpgradeSourcesTests.swift) | Cartelle estratte, pacchetti multipli, collegamento per ID esatto, persistenza, bridge Python e restaging senza perdita di originali. |
-| [Tests/NXLibraryCoreTests/SpotlightPageTests.swift](../../Tests/NXLibraryCoreTests/SpotlightPageTests.swift) | Estratti del testo e stati dello scorrimento della pagina del gioco. |
+| [Tests/NXLibraryCoreTests/SpotlightPageTests.swift](../../Tests/NXLibraryCoreTests/SpotlightPageTests.swift) | Estratti, precedenza e crediti del testo nella lingua del giocatore, e stati dello scorrimento. |
 | [Tests/ArcanePortingTests/SpotlightRowTests.swift](../../Tests/ArcanePortingTests/SpotlightRowTests.swift) | Ordine, card, riordino delle tile, gioco avviato primo nell’ordine salvato e selezione Surprise. |
 | [Tests/NXLibraryCoreTests/SpotlightStateTests.swift](../../Tests/NXLibraryCoreTests/SpotlightStateTests.swift) | Focus, selezione, filtri, azioni e spostamento delle tile Spotlight. |
 | [Tests/NXLibraryCoreTests/SpotlightEntranceTests.swift](../../Tests/NXLibraryCoreTests/SpotlightEntranceTests.swift) | Partenze, tempi di volo e dissolvenza, bordi, durata, messaggio vuoto, avanzamento degli effetti e fasi dell’entrata; interruttore e Riduci movimento. |

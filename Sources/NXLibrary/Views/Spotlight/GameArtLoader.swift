@@ -1,4 +1,5 @@
 import AppKit
+import CryptoKit
 import ImageIO
 import NXLibraryCore
 import ArcanePorting
@@ -11,6 +12,7 @@ final class GameArtLoader {
     static let shared = GameArtLoader()
 
     private let heroes = NSCache<NSUUID, NSImage>()
+    private let heroCatalogURLs = NSCache<NSUUID, NSURL>()
     private let logos = NSCache<NSUUID, NSImage>()
     /// Steam games' launch-screen and session-card art, by game, role and pick revision (`GameArtLoader+Played`).
     let steamArt = NSCache<NSString, NSImage>()
@@ -22,6 +24,7 @@ final class GameArtLoader {
     private init() {
         heroes.countLimit = 24
         heroes.totalCostLimit = 128 * 1024 * 1024
+        heroCatalogURLs.countLimit = 24
         logos.countLimit = 64
         steamArt.countLimit = 16
         steamArt.totalCostLimit = 64 * 1024 * 1024
@@ -33,13 +36,17 @@ final class GameArtLoader {
     /// Drops a game's decoded art, so the next load reads a new pick.
     func forget(_ game: PortedGame) {
         heroes.removeObject(forKey: game.id as NSUUID)
+        heroCatalogURLs.removeObject(forKey: game.id as NSUUID)
         logos.removeObject(forKey: game.id as NSUUID)
     }
 
-    /// The player's pick, local hero files, the disk cache, then the store /
-    /// titledb banner.
+    /// The player's pick, local hero files, Nintendo Europe, then the legacy cache or Title DB banner.
     func hero(for game: PortedGame, metadata: NintendoStoreMetadata?, artwork: ArtworkStore, personalizations: CatalogPersonalizations) async -> NSImage? {
-        if let cached = cachedHero(for: game) { return cached }
+        let catalogURL = (metadata?.headerImageURL ?? metadata?.imageURL).flatMap { url in
+            url.host == "www.nintendo.com" && url.path.hasPrefix("/eu/media/images/") ? url : nil
+        }
+        if let cached = cachedHero(for: game),
+           catalogURL == nil || heroCatalogURLs.object(forKey: game.id as NSUUID).map({ $0 as URL }) == catalogURL { return cached }
         let titleKey = personalizations.nxnativeKey(for: game)
         var image: NSImage?
 
@@ -62,11 +69,20 @@ final class GameArtLoader {
             }
         }
 
+        if image == nil, let catalogURL, !Task.isCancelled {
+            // Keep the previous image as an offline fallback rather than rewriting a usable legacy cache.
+            let digest = SHA256.hash(data: Data(catalogURL.absoluteString.utf8)).map { String(format: "%02x", $0) }.joined()
+            let cacheKey = titleKey + "-eu-" + digest
+            if let url = await artwork.fetch(titleID: cacheKey, remoteURL: catalogURL, kind: .hero) {
+                image = await Self.decodeHero(at: url)
+                if image != nil { heroCatalogURLs.setObject(catalogURL as NSURL, forKey: game.id as NSUUID) }
+            }
+        }
         if image == nil, let url = artwork.cachedURL(titleID: titleKey, kind: .hero) {
             image = await Self.decodeHero(at: url)
         }
         if image == nil, !Task.isCancelled {
-            let remote = metadata?.headerImageURL ?? metadata?.imageURL
+            let remote = (catalogURL == nil ? metadata?.headerImageURL ?? metadata?.imageURL : nil)
                 ?? game.titleId.flatMap { URL(string: "https://api.nlib.cc/nx/\($0)/banner") }
             if let url = await artwork.fetch(titleID: titleKey, remoteURL: remote, kind: .hero) {
                 image = await Self.decodeHero(at: url)

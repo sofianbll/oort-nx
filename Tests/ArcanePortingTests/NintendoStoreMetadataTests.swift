@@ -235,7 +235,7 @@ final class NintendoStoreMetadataTests: XCTestCase {
         XCTAssertEqual(metadata.genres, ["Adventure", "Action"])
         XCTAssertEqual(metadata.publishers, ["Nintendo"])
         XCTAssertEqual(metadata.releaseYear, "2017")
-        XCTAssertEqual(metadata.storeURL.absoluteString,
+        XCTAssertEqual(metadata.storeURL?.absoluteString,
                        "https://www.nintendo.com/games/detail/the-legend-of-zelda-breath-of-the-wild-switch/")
         XCTAssertFalse(client.requested.contains { $0.contains("nintendo.com/us/store/products") })
     }
@@ -273,7 +273,7 @@ final class NintendoStoreMetadataTests: XCTestCase {
         XCTAssertEqual(metadata.genres, ["Action"])
         XCTAssertEqual(metadata.publishers, ["Nintendo"])
         XCTAssertEqual(metadata.releaseYear, "2023")
-        XCTAssertEqual(metadata.storeURL.absoluteString,
+        XCTAssertEqual(metadata.storeURL?.absoluteString,
                        "https://www.nintendo.com/us/store/products/super-mario-bros-wonder-switch/")
         XCTAssertEqual(metadata.headerImageURL?.absoluteString, "https://assets.nintendo.com/wonder.jpg")
         XCTAssertNil(metadata.imageURL)

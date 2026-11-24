@@ -24,7 +24,7 @@ struct DetailsTopBlock: View {
     let primaryEnabled: Bool
     /// Description expanded by "Read more" (the page passes wheel scrolling through meanwhile).
     @Binding var expanded: Bool
-    /// Wikipedia's introduction, shown instead of a store text in another language (`WikipediaAbout`).
+    /// Wikipedia's introduction for a short or foreign-language store text (`WikipediaAbout`).
     var wikipedia: WikipediaDescription? = nil
     let onPrimary: () -> Void
     let onSecondary: () -> Void
@@ -359,17 +359,30 @@ struct DetailsTopBlock: View {
 
     @ViewBuilder
     private var description: some View {
-        let text = wikipedia?.text ?? presentation.description
+        let about = presentation.aboutDescription(wikipedia: wikipedia, language: localization.language)
+        let showingPreview = !expanded && about.preview != nil
+        let note = about.note(showingPreview: showingPreview)
+        let text = showingPreview ? about.preview ?? about.text : about.text
         VStack(alignment: .leading, spacing: canvas.u(6)) {
             if text.isEmpty {
                 Text(self.text("No description for this game yet."))
                     .seleneFont(.body)
                     .foregroundColor(SeleneTheme.ink60)
             } else {
-                if let wikipedia {
-                    WikipediaCredit(pageURL: wikipedia.pageURL)
-                } else if let note = presentation.descriptionLanguageNote {
-                    Text(note).seleneFont(.metadata).foregroundColor(SeleneTheme.ink60)
+                // Keep the action clear of the fixed screenshot band, even with a source and language note.
+                HStack(spacing: canvas.u(12)) {
+                    if let note {
+                        Text(note).seleneFont(.metadata).foregroundColor(SeleneTheme.ink60)
+                    }
+                    if !showingPreview, let page = about.wikipediaPage {
+                        WikipediaCredit(pageURL: page)
+                    }
+                    if about.text.count > Self.readMoreThreshold || about.preview != nil {
+                        Button(expanded ? L10n.text("Show less") : L10n.text("Read more")) { expanded.toggle() }
+                            .buttonStyle(.plain)
+                            .seleneFont(.compactCaption, .semibold)
+                            .foregroundColor(SeleneTheme.glyph)
+                    }
                 }
                 if expanded {
                     ScrollView(.vertical, showsIndicators: false) {
@@ -382,12 +395,6 @@ struct DetailsTopBlock: View {
                         .lineLimit(5)
                         .frame(maxHeight: canvas.u(130), alignment: .top)
                         .clipped()
-                }
-                if text.count > Self.readMoreThreshold {
-                    Button(self.text(expanded ? "Show less" : "Read more")) { expanded.toggle() }
-                        .buttonStyle(.plain)
-                        .seleneFont(.compactCaption, .semibold)
-                        .foregroundColor(SeleneTheme.glyph)
                 }
             }
         }

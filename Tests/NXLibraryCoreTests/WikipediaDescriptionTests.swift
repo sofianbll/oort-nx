@@ -42,6 +42,11 @@ final class WikipediaDescriptionTests: XCTestCase {
         XCTAssertFalse(WikipediaDescriptions.wanted(description: "A farming game.", descriptionLanguage: nil, language: .italian))
     }
 
+    func testSpanishOpeningPunctuationIsNotMistakenForCatalan() {
+        XCTAssertEqual(WikipediaDescriptions.resolvedTag(.catalan, text: "¡Visita el pueblo y busca a tus amigos!"), "es")
+        XCTAssertEqual(WikipediaDescriptions.resolvedTag(.catalan, text: "Visita el poble i cerca els teus amics!"), "ca")
+    }
+
     func testEditions() {
         XCTAssertEqual(WikipediaDescriptions.edition(for: .chineseSimplified)?.code, "zh")
         XCTAssertEqual(WikipediaDescriptions.edition(for: .chineseSimplified)?.variant, "zh-cn")
@@ -63,6 +68,22 @@ final class WikipediaDescriptionTests: XCTestCase {
         let data = try entities(steam: "1", links: ["itwiki": "Other game"])
         let query = CriticRatingQuery(name: "Stardew Valley", platform: .mac, steamAppID: 413150)
         XCTAssertNil(try WikipediaDescriptions.sitelink(in: data, ids: ["Q10"], query: query, requireSteamID: true, edition: "it"))
+    }
+
+    func testSameNameSwitchRemakeUsesItsOwnWikiOnlyWhenThePlatformBreaksTheTie() throws {
+        func item(_ id: String) -> [String: Any] { ["mainsnak": ["datavalue": ["value": ["id": id]]]] }
+        func entity(platform: String, page: String) -> [String: Any] {
+            ["claims": ["P31": [item("Q7889")], "P400": [item(platform)]], "sitelinks": ["frwiki": ["title": page]]]
+        }
+        let data = try JSONSerialization.data(withJSONObject: ["entities": [
+            "Q10": entity(platform: "Q184839", page: "Original"),
+            "Q11": entity(platform: "Q122761124", page: "Remake")
+        ]])
+        let ids = ["Q10", "Q11"]
+        XCTAssertEqual(try WikipediaDescriptions.sitelink(in: data, ids: ids,
+            query: .init(name: "Fixture", platform: .switch2), requireSteamID: false, edition: "fr"), "Remake")
+        XCTAssertNil(try WikipediaDescriptions.sitelink(in: data, ids: ids,
+            query: .init(name: "Fixture", platform: .switch), requireSteamID: false, edition: "fr"))
     }
 
     func testIntroductionKeepsParagraphsAndItsPage() throws {

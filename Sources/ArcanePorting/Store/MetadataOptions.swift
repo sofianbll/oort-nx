@@ -18,25 +18,27 @@ public enum MetadataOptions {
             list.map { $0.trimmingCharacters(in: .whitespaces).capitalized }.filter { !$0.isEmpty }
                 .joined(separator: ", ")
         }
+        let source = store?.origin(for: field).rawValue ?? NintendoMetadataOrigin.legacy.rawValue
         switch field {
         case .description:
-            add("Nintendo store", store?.description)
+            add(source, store?.description)
+            add(NintendoMetadataOrigin.europe.rawValue, store?.excerpt)
             add("Title DB", titleDB?.description)
             gameTDB.forEach { add("GameTDB", $0.synopsis) }
         case .genres:
-            add("Nintendo store", store.map { genres($0.genres) })
+            add(source, store.map { genres($0.genres) })
             add("Title DB", titleDB.map { genres($0.categories) })
             gameTDB.forEach { add("GameTDB", genres($0.genres)) }
         case .developer:
-            add("Nintendo store", store?.developers.joined(separator: ", "))
+            add(source, store?.developers.joined(separator: ", "))
             add("Title DB", titleDB?.developer)
             gameTDB.forEach { add("GameTDB", $0.developer) }
         case .publisher:
-            add("Nintendo store", store?.publishers.joined(separator: ", "))
+            add(source, store?.publishers.joined(separator: ", "))
             add("Title DB", titleDB?.publisher)
             gameTDB.forEach { add("GameTDB", $0.publisher) }
         case .releaseDate:
-            add("Nintendo store", store?.releaseDate)
+            add(source, store?.releaseDate)
             add("Title DB", titleDB?.releaseDate)
             gameTDB.forEach { add("GameTDB", $0.releaseDate) }
         }

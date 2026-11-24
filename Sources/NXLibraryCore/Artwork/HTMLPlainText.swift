@@ -24,7 +24,7 @@ public enum HTMLPlainText {
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    private static func decodeEntities(_ text: String) -> String {
+    static func decodeEntities(_ text: String) -> String {
         var text = text
         for (entity, value) in [("&quot;", "\""), ("&#39;", "'"), ("&apos;", "'"), ("&lt;", "<"), ("&gt;", ">"),
                                 ("&nbsp;", " "), ("&#160;", " ")] {

@@ -20,7 +20,9 @@ final class StoreMetadataModel: ObservableObject {
     @Published var storeMetadata: [UUID: NintendoStoreMetadata] = [:]
     @Published var storeMetadataLoading: Set<UUID> = []
     @Published var storeMetadataErrors: [UUID: String] = [:]
-    private lazy var storeMetadataService = NintendoStoreMetadataService()
+    private let legacyMetadata = NintendoStoreMetadataService()
+    private lazy var storeMetadataService = SwitchGameMetadataService(
+        legacy: legacyMetadata, launchBox: DatabaseMetadataService.shared(.launchBox), gameTDB: app.boxArt)
     private var metadataLocaleGeneration = UUID()
     private var localizedMetadataRefresh: Task<Void, Never>?
     private var cachedMetadataPreload: Task<Void, Never>?
@@ -238,7 +240,7 @@ final class StoreMetadataModel: ObservableObject {
     }
 
     func metadataCacheSize() -> Int64 {
-        storeMetadataService.cacheSize() + WikipediaDescriptionService.shared.cacheSize()
+        legacyMetadata.cacheSize() + WikipediaDescriptionService.shared.cacheSize()
     }
 
     func clearMetadataCache() {
@@ -250,7 +252,7 @@ final class StoreMetadataModel: ObservableObject {
         languageFetchWaiting.removeAll()
         storeMetadataLoading.removeAll()
         storeMetadataErrors.removeAll()
-        storeMetadataService.clearCache()
+        legacyMetadata.clearCache()
         WikipediaDescriptionService.shared.clearCache()
         storeMetadata.removeAll()
         storeMetadataOriginals.removeAll()
