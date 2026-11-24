@@ -11,6 +11,7 @@ final class GameInboxModel: ObservableObject {
     @Published private(set) var message: String?
     @Published private(set) var folder: URL
     private var dropped: [URL] = []
+    private let duplicateReviews = GameInbox.DuplicateReviews()
     private static let folderKey = "NXNative_GameInboxFolder"
 
     static var gamesRoot: URL { AppData.profile.home.appendingPathComponent("Games/Switch/Games", isDirectory: true) }
@@ -85,6 +86,7 @@ final class GameInboxModel: ObservableObject {
         let repo = URL(fileURLWithPath: app.setup.nxnativePath)
         let reader = packageReader()
         let installed = app.libraryGames
+        let duplicateReviews = duplicateReviews
         Task {
             guard isEnabled else { busy = false; return }
             let result = await Task.detached(priority: .userInitiated) {
@@ -94,7 +96,7 @@ final class GameInboxModel: ObservableObject {
                     let reading = Result { try reader?.contents(of: packages) ?? [:] }
                     let metadata = NintendoStoreMetadataService()
                     let entries = GameInbox.plan(inputs: inputs, readings: reader == nil ? nil : (try? reading.get()) ?? [:],
-                                                 root: root) { id in
+                                                 root: root, duplicateReviews: duplicateReviews) { id in
                         let titleID = String(format: "%016llX", id)
                         let profile = repo.appendingPathComponent("dm/games/\(titleID)/game.tsv")
                         if let text = try? String(contentsOf: profile, encoding: .utf8),

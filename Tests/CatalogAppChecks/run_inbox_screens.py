@@ -179,8 +179,26 @@ import SwiftUI
         let destination = model.entries.first(where: { $0.source == source })!.destination!
         try fm.createDirectory(at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
         try fm.copyItem(at: source, to: destination)
+        let hashes = home.appendingPathComponent("audit-hashes")
+        try await refresh()
+        precondition(model.entries.first(where: { $0.source == source })?.duplicate == true)
+        let firstCount = try Data(contentsOf: hashes).count
+        precondition(firstCount == 1, "First duplicate review must read the source")
         try await refresh()
         var failures: [String] = []
+        if try Data(contentsOf: hashes).count != firstCount {
+            failures.append("Unchanged duplicate was hashed again during preview")
+            FileHandle.standardError.write(Data((failures[0] + "\n").utf8))
+        }
+        // A changed destination invalidates the review even when its size is unchanged.
+        let change = try FileHandle(forWritingTo: destination)
+        try change.write(contentsOf: Data([2]))
+        try change.close()
+        try await refresh()
+        precondition(model.entries.first(where: { $0.source == source })?.destination == nil)
+        try fm.removeItem(at: destination)
+        try fm.copyItem(at: source, to: destination)
+        try await refresh()
         let proposal = model.entries.first { $0.source == source }!
         precondition(proposal.duplicate)
         app.settingsNotice = nil
@@ -205,7 +223,7 @@ import SwiftUI
             throw CocoaError(.fileWriteUnknown, userInfo: [NSDebugDescriptionErrorKey: failures.joined(separator: "\n")])
         }
         try render("10-linked-source-kept", page: view.page, to: output, locale: locale)
-        print("Inbox audit: newly linked source stays in place.")
+        print("Inbox audit: unchanged duplicate is not rehashed; newly linked source stays in place.")
     }
 
     @MainActor static func folders(_ app: AppViewModel, _ settings: AppSettingsStore) -> some View {
@@ -337,6 +355,18 @@ def main():
                                     f'try FileManager.default.moveItem(at: {url}, to: AppData.profile.home.appendingPathComponent("audit-trash"))')
             assert ".trashItem(" not in text
             path.write_text(text)
+        inventory = package / "Sources/ArcanePorting/Library/CloudArchiveInventory.swift"
+        text = inventory.read_text()
+        start = text.index("    static func hashes(at url: URL")
+        body = text.index("{", start) + 1
+        inventory.write_text(text[:body] + r'''
+        if url.lastPathComponent == "audit.nsp" {
+            let count = AppData.profile.home.appendingPathComponent("audit-hashes")
+            var reads = (try? Data(contentsOf: count)) ?? Data()
+            reads.append(1)
+            try reads.write(to: count)
+        }
+''' + text[body:])
         # SwiftUI's AppKit-backed drop wrapper produces a placeholder in ImageRenderer.
         change(app / "Views/Porting/GameInboxView.swift",
                "            .dropDestination(for: URL.self) { urls, _ in model.accept(urls) } isTargeted: { dropTarget = $0 }\n",
