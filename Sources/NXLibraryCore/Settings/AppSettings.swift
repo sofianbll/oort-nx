@@ -201,6 +201,7 @@ public struct LauncherSettingsChoices: Codable, Equatable {
     /// An empty path clears the legacy choice without forgetting that the player cleared it.
     public var gameSourcesPath: String?
     public var enginePath: String?
+    public var cloudActivation: CloudLibraryActivation?
 }
 
 /// Desired source configuration and the exact catalog generation it may replace.

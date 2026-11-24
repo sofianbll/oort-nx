@@ -9,11 +9,12 @@ enum SettingsDraftFields {
 
     static func fields(profiles: LocalProfileStore?, languages: [(code: String, label: String)],
                        legacyToolchainOverride: Bool = false, steam: CatalogSourceConfiguration? = nil,
-                       paths: LauncherSettingsChoices = .init()) -> [Field] {
+                       paths: LauncherSettingsChoices = .init(), cloudEnabled: Bool = false) -> [Field] {
         let soundPacks = SoundPackLibrary().choices()
         let deadzone = GameControllerService.shared.legacyDeadzone
         let dockIcon = AppViewModel.legacyDockIcon
         return [
+            .init("cloudLibraryEnabled", \.launcherChoices.cloudActivation, important: true) { onOff($0?.enabled ?? cloudEnabled) },
             .init("libraryFolder", \.launcherChoices.gameAppsPath, important: true) { path($0 ?? paths.gameAppsPath) },
             .init("gameFolder", \.launcherChoices.gameSourcesPath, important: true) { path($0 ?? paths.gameSourcesPath) },
             .init("engineFolder", \.launcherChoices.enginePath, important: true) { path($0 ?? paths.enginePath) },

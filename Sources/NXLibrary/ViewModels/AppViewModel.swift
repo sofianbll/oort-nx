@@ -35,7 +35,7 @@ final class AppViewModel: ObservableObject {
     /// The automatic Icon's online lookup, shared by Switch and Steam games' Change artwork.
     static let automaticIconArtwork = ArtworkStore()
     let saveGate = SaveOperationGate()
-    let cloudLibrary = CloudLibraryModel()
+    let cloudLibrary: CloudLibraryModel
     @Published var activityResults = ActivityHistory()
     let activityStore = ActivityQueueFile<ActivityHistory.Result>(file: AppData.supportRoot.appendingPathComponent("activity-results.json"))
     var hasLoadedActivity = false
@@ -362,6 +362,7 @@ final class AppViewModel: ObservableObject {
         self.catalogRepository = repository
         self.settingsStore = settingsStore
         self.localProfiles = localProfiles
+        self.cloudLibrary = CloudLibraryModel(activation: settingsStore.settings.launcherChoices.cloudActivation)
         applyCatalog(catalog)
         saveGate.onActivityChange = { [weak self] in
             DispatchQueue.main.async {

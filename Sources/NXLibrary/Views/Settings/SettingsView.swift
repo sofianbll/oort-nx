@@ -138,7 +138,8 @@ struct SettingsView: View {
                 originalPaths = currentPaths
                 settings.beginDraft(fields: SettingsDraftFields.fields(profiles: profiles,
                     languages: viewModel.availableLanguages, legacyToolchainOverride: legacy,
-                    steam: viewModel.catalogSnapshot.source(.steam), paths: originalPaths))
+                    steam: viewModel.catalogSnapshot.source(.steam), paths: originalPaths,
+                    cloudEnabled: viewModel.cloudLibrary.preference.enabled))
             }
             installKeyMonitor()
         }
@@ -309,6 +310,13 @@ struct SettingsView: View {
         case 0:
             do {
                 let changes = Set(settings.draft?.changes.map(\.id) ?? [])
+                if changes.contains("cloudLibraryEnabled"), let proposal = settings.editingSettings.launcherChoices.cloudActivation {
+                    guard viewModel.canConfigureCloudLibrary,
+                          viewModel.cloudLibrary.activationChoice(enabled: proposal.enabled) == proposal,
+                          !proposal.enabled || !viewModel.cloudLibrary.needsDriveTool else {
+                        throw AppSettingsDraft.Failure.changedElsewhere
+                    }
+                }
                 if changes.contains("steamSource"), let choice = settings.editingSettings.launcherChoices.steamSource,
                    try viewModel.catalogRepository.load().source(.steam)?.generation != choice.replaces {
                     throw AppSettingsDraft.Failure.changedElsewhere

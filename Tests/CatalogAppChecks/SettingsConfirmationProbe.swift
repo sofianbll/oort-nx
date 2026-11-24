@@ -229,7 +229,6 @@ import ArcanePorting
             let notice = vm.settingsNotice!
             precondition(vm.settingsNoticeFocus == notice.cancelIndex && count() == before, name)
             let frenchLine = [
-                "cloud-off": "cessera d’utiliser", "cloud-on": "utilisera de nouveau",
                 "cloud-disconnect": "connexion locale", "reference-unfollow": "aucun fichier ne sera supprimé",
                 "network-vpn": "le réglage VPN", "network-default": "aux prochains lancements",
                 "network-local-mode": "privilégieront le mode", "network-adapter": "réglage d’adaptateur",
@@ -255,10 +254,18 @@ import ArcanePorting
         let cloudObserver = model.$preference.dropFirst().sink { _ in cloudWrites += 1 }
         let cloud = SettingsCloudLibrarySection(viewModel: vm, model: model, settings: SettingsEditor(settings),
             advanced: .constant(true), onEdit: {}, onEditLibrary: {}, onEditSources: {}, onActions: { _ in })
-        try confirm("cloud-off", { cloud.setEnabled(false) }, count: { cloudWrites })
+        settings.beginDraft(fields: SettingsDraftFields.fields(profiles: nil, languages: vm.availableLanguages, cloudEnabled: true))
+        cloud.setEnabled(false)
+        precondition(model.preference.enabled && cloudWrites == 0 && settings.editingSettings.launcherChoices.cloudActivation?.enabled == false)
+        try settings.commitDraft()
+        model.useSettingsActivation(settings.settings.launcherChoices.cloudActivation)
         precondition(!model.preference.enabled && cloudWrites == 1)
-        try confirm("cloud-on", { cloud.setEnabled(true) }, count: { cloudWrites })
+        cloud.setEnabled(true)
+        precondition(!model.preference.enabled && cloudWrites == 1 && settings.editingSettings.launcherChoices.cloudActivation?.enabled == true)
+        try settings.commitDraft()
+        model.useSettingsActivation(settings.settings.launcherChoices.cloudActivation)
         precondition(model.preference.enabled && cloudWrites == 2)
+        settings.endDraft()
 
         var closed = 0
         let follow = CloudReferenceDialog(viewModel: vm, onClose: { closed += 1 }).screenDraft("1-test-reference")

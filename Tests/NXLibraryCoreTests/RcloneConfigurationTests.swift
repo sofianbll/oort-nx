@@ -1,4 +1,15 @@
 import XCTest
+
+final class CloudLibraryActivationTests: XCTestCase {
+    func testSavedActivationCannotChangeAnotherConnection() throws {
+        let base = CloudLibraryPreference(storage: "fixture:Games", enabled: false)
+        let choice = try XCTUnwrap(CloudLibraryActivation(base, connection: "old", enabled: true))
+        XCTAssertTrue(choice.applying(to: base, connection: "old").enabled)
+        XCTAssertFalse(choice.applying(to: base, connection: "new").enabled)
+        let different = CloudLibraryPreference(storage: "fixture:Other", enabled: false)
+        XCTAssertEqual(choice.applying(to: different, connection: "old"), different)
+    }
+}
 @testable import NXLibraryCore
 
 final class RcloneConfigurationTests: XCTestCase {

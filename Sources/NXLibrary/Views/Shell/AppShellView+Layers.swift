@@ -406,6 +406,9 @@ extension AppShellView {
             .onChange(of: settings.settings.launcherChoices.enginePath) { _, path in
                 if let path { setup.useSavedEnginePath(path) }
             }
+            .onChange(of: settings.settings.launcherChoices.cloudActivation) { _, choice in
+                viewModel.cloudLibrary.useSettingsActivation(choice)
+            }
             .onChange(of: AppLocale(language: preview.appLanguage, region: preview.appRegion)) {
                 AppLocalization.shared.configure(preview)
             }
