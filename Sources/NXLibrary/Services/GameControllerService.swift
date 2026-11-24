@@ -101,6 +101,7 @@ final class GameControllerService: ObservableObject {
     func identify(_ connectionID: String) -> Bool {
         guard !sleeping,
               let entry = visibleControllers.first(where: { $0.connectionID == connectionID }) else { return false }
+        if let id = entry.secondaryGCID, gcSource.identify(id) { return true }
         return source(for: entry).identify(entry.controller.id)
     }
 
@@ -177,7 +178,15 @@ final class GameControllerService: ObservableObject {
         let visible = roster.visible
         visibleControllers = visible
         hidSource.observe(Set(visible.filter(\.isHID).map(\.controller.id)))
-        let current = roster.snapshot(visible) { source(for: $0).status($0.controller.id) }
+        let current = roster.snapshot(visible) { entry in
+            let primary = source(for: entry).status(entry.controller.id)
+            guard let id = entry.secondaryGCID else { return primary }
+            let secondary = gcSource.status(id)
+            return ControllerStatus(batteryLevel: primary.batteryLevel ?? secondary.batteryLevel,
+                                    isCharging: primary.isCharging ?? secondary.isCharging,
+                                    canIdentifyWithLights: primary.canIdentifyWithLights || secondary.canIdentifyWithLights,
+                                    canIdentifyWithRumble: primary.canIdentifyWithRumble || secondary.canIdentifyWithRumble)
+        }
         if connectedControllers != current { connectedControllers = current }
         if current.isEmpty {
             statusTimer?.invalidate()

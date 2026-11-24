@@ -39,8 +39,10 @@ private final class FakeSource: ControllerSource {
         gameControllerTwins()
         mixedSourcesAndWake()
         dualSourceTwins()
+        ambiguousPairStaysUnpaired(twinOnHID: false)
+        ambiguousPairStaysUnpaired(twinOnHID: true)
         repeatedHardwareID()
-        print("Controller identity: hash privacy, twins, deduplication, activity, output routing, sleep and hot plug passed")
+        print("Controller identity: hash privacy, pairing, sticky ambiguity, activity, output routing, sleep and hot plug passed")
     }
 
     private static func hashes() {
@@ -103,10 +105,20 @@ private final class FakeSource: ControllerSource {
         let different = ControllerIdentity(id: ObjectIdentifier(otherModel), name: "Other", brand: .generic, supportsNavigation: false)
         let service = GameControllerService(gcSource: gc, hidSource: hid)
         gc.preferredID = a.id
+        let gcStatus = ControllerStatus(batteryLevel: 0.75, isCharging: true,
+                                        canIdentifyWithLights: true, canIdentifyWithRumble: true)
+        gc.statuses[a.id] = gcStatus
         gc.add(a)
         hid.add(h, claimed: true)
         let row = service.connectedControllers[0]
         precondition(service.connectedControllers.count == 1 && row.stableID == "synthetic")
+        precondition(row.status == gcStatus, "A unique HID/GC pair must retain GC battery, lights and rumble")
+        precondition(service.identify(row.id) && gc.identified == [a.id], "Identify must reach the paired GC device")
+        hid.statuses[h.id] = .init(batteryLevel: 0.5, isCharging: false)
+        service.refreshControllers()
+        precondition(service.connectedControllers[0].status == .init(batteryLevel: 0.5, isCharging: false,
+                                                                     canIdentifyWithLights: true,
+                                                                     canIdentifyWithRumble: true))
         precondition(hid.observed == [h.id] && hid.selected == nil)
         var pulses: [String] = []
         let subscription = service.controllerButtonPresses.sink { pulses.append($0) }
@@ -126,14 +138,19 @@ private final class FakeSource: ControllerSource {
         precondition(!service.identify(row.id))
         service.resumeControllers()
         precondition(service.connectedControllers.count == 2 && service.isGamepadConnected)
-        let resumed = service.connectedControllers.first { $0.stableID == "synthetic" }
-        precondition(resumed?.stableID == row.stableID && resumed?.id != row.id)
+        guard let resumed = service.connectedControllers.first(where: { $0.stableID == "synthetic" }) else {
+            preconditionFailure("The HID identity must return after sleep")
+        }
+        precondition(resumed.stableID == row.stableID && resumed.id != row.id)
+        precondition(resumed.status.canIdentifyWithLights)
         precondition(!service.identify(row.id))
         gc.preferredID = nil
         gc.remove(a)
         precondition(service.activeControllerName == h.name && hid.selected == h.id)
+        precondition(service.connectedControllers.first?.status == hid.statuses[h.id])
+        precondition(!service.identify(resumed.id) && gc.identified == [a.id])
         hid.onEvent?(.buttonPressed(h.id))
-        precondition(pulses.last == resumed?.id)
+        precondition(pulses.last == resumed.id)
         withExtendedLifetime([os, hardware, otherModel]) {}
     }
 
@@ -153,6 +170,38 @@ private final class FakeSource: ControllerSource {
         precondition(rows[0].id != rows[1].id)
         precondition(!service.identify(rows[0].id) && gc.identified.isEmpty)
         withExtendedLifetime(objects) {}
+    }
+
+    private static func ambiguousPairStaysUnpaired(twinOnHID: Bool) {
+        let gc = FakeSource(), hid = FakeSource()
+        let os = NSObject(), hardware = NSObject(), twin = NSObject()
+        let a = ControllerIdentity(id: ObjectIdentifier(os), name: "Twin", brand: .xbox)
+        let h = ControllerIdentity(id: ObjectIdentifier(hardware), name: "Twin", brand: .xbox, stableID: "hardware")
+        let b = ControllerIdentity(id: ObjectIdentifier(twin), name: "Twin", brand: .xbox)
+        gc.statuses[a.id] = .init(batteryLevel: 0.9, isCharging: true, canIdentifyWithRumble: true)
+        let service = GameControllerService(gcSource: gc, hidSource: hid)
+        gc.add(a)
+        hid.add(h, claimed: true)
+        precondition(service.connectedControllers.first?.status == gc.statuses[a.id])
+
+        func expectNoTransfer() {
+            guard let row = service.connectedControllers.first(where: { $0.stableID == "hardware" }) else {
+                preconditionFailure("The HID identity must stay visible")
+            }
+            precondition(row.status == .init() && !service.identify(row.id) && gc.identified.isEmpty,
+                         "A same-model twin forbids borrowing GC status and output for the rest of the session")
+        }
+
+        // Even a HID twin that macOS does not claim makes the model ambiguous.
+        let twinSource = twinOnHID ? hid : gc
+        twinSource.add(b)
+        expectNoTransfer()
+        twinSource.remove(b)
+        expectNoTransfer()
+        service.suspendControllers()
+        service.resumeControllers()
+        expectNoTransfer()
+        withExtendedLifetime([os, hardware, twin]) {}
     }
 
     private static func repeatedHardwareID() {
