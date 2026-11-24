@@ -25,6 +25,9 @@ public struct PortingFailureReason: Codable, Equatable, Sendable {
     /// engine that reads them differently and a profile not split again (issue #20). Kept as `unknown` for rollback.
     static let profileMismatchDetail = "shader-profile-mismatch"
     private var isProfileMismatch: Bool { kind == .unknown && detail == Self.profileMismatchDetail }
+    // Persist as `unknown` so older launchers can still read the game.
+    static let pythonLaunchDetail = "python-launch"
+    private var isPythonLaunchFailure: Bool { kind == .unknown && detail == Self.pythonLaunchDetail }
     /// The game lacks the language its Game options ask for; the detail names it ("missing-language:Japanese").
     static let missingLanguagePrefix = "missing-language:"
     static let nextendoFailurePrefix = "nextendo:"
@@ -71,6 +74,7 @@ public struct PortingFailureReason: Codable, Equatable, Sendable {
         case .cloudFolder: return L10n.text("The library is in a cloud folder")
         case .noProfile: return L10n.text("This game is not supported yet")
         case .unknown:
+            if isPythonLaunchFailure { return L10n.text("Python could not start") }
             if isProfileMismatch { return L10n.text("The engine's profile does not match these files") }
             return missingLanguage == nil ? L10n.text("The porting stopped") : L10n.text("The game does not have this language")
         }
@@ -104,6 +108,7 @@ public struct PortingFailureReason: Codable, Equatable, Sendable {
             let at = detail.map { L10n.format(" (rewrite stopped at 0x%@)", [String(describing: $0)]) } ?? ""
             return L10n.format("%@ has no verified nxnative game profile%@; the pinned engine does not support it yet.", [String(describing: game), String(describing: at)])
         case .unknown:
+            if isPythonLaunchFailure { return L10n.format("macOS could not launch %@.", ["Python"]) }
             if let language = missingLanguage { return L10n.format("%@ has no %@, the language set in its Game options.", [String(describing: game), String(describing: language)]) }
             if isProfileMismatch { return L10n.format("The engine's profile for %@ expects other shaders than these files hold: either they are another version or update than the one the profile supports, or the engine now reads them differently and the profile is not updated yet.", [String(describing: game)]) }
             if let detail, detail.hasPrefix(Self.nextendoFailurePrefix) {
@@ -139,6 +144,7 @@ public struct PortingFailureReason: Codable, Equatable, Sendable {
         case .cloudFolder: return L10n.text("Move the library to a folder outside iCloud Drive.")
         case .noProfile: return L10n.text("Watch for an engine update that adds this game.")
         case .unknown:
+            if isPythonLaunchFailure { return L10n.text("Open Setup and check the nxnative engine card.") }
             if missingLanguage != nil { return L10n.text("In Game options, set Language to Game Default or to one of the game's languages, then port again.") }
             if isProfileMismatch { return L10n.text("If the base and update are the ones the engine supports for this game, nothing on this Mac needs fixing: wait for an engine update. Otherwise add the supported update and port again.") }
             return L10n.text("Open the log, or copy diagnostics for a bug report.")
@@ -154,6 +160,7 @@ public struct PortingFailureReason: Codable, Equatable, Sendable {
         case .keys: return isMissingTicket ? .none : .importKeys
         case .keysTooOld, .keysWrong: return .importKeys
         case .diskFull: return .openStorage
+        case .unknown where isPythonLaunchFailure: return .openSetup
         default: return .none
         }
     }
@@ -209,10 +216,10 @@ public enum PortingFailureClassifier {
         ("icloud.detritus", .cloudFolder, "resource fork, Finder information, or similar detritus not allowed", nil),
     ]
 
-    /// Inputs first (a drive that is gone makes every later message a consequence), then Nextendo and the table,
-    /// then unreadable keys, then the provisional-profile markers (a warning that also precedes real
-    /// stops, so it is matched last), else `unknown`.
+    /// Inputs first, then explicit launch and engine errors, then status-only launch failures and unreadable keys.
+    /// Provisional-profile markers are warnings that also precede real stops, so they are matched last.
     public static func classify(log: String, keysPath: String, sourcePaths: [String],
+                                exitCode: Int32? = nil,
                                 volumes: String = "/Volumes",
                                 isReadable: (String) -> Bool = { FileManager.default.isReadableFile(atPath: $0) },
                                 isMounted: (String) -> Bool = { FileManager.default.fileExists(atPath: $0) })
@@ -222,12 +229,20 @@ public enum PortingFailureClassifier {
             guard let name = path.dropFirst(prefix.count).split(separator: "/").first.map(String.init) else { continue }
             if !isMounted(prefix + name) { return PortingFailureReason(kind: .driveMissing, detail: name) }
         }
+        let pythonLaunch = PortingFailureReason(kind: .unknown, detail: PortingFailureReason.pythonLaunchDetail)
+        // `nxbuild` is the Bash wrapper that execs Python; the Xcode shim can fail before Python runs.
+        if log.range(of: #"(?m)^(?:nxbuild: line \d+: exec: [^\r\n]+: (?:cannot execute|not found)|xcode-select: Failed to locate 'python(?:3)?')"#,
+                     options: .regularExpression) != nil {
+            return pythonLaunch
+        }
         if let message = nextendoFailure(in: log) {
             return PortingFailureReason(kind: .unknown, detail: PortingFailureReason.nextendoFailurePrefix + message)
         }
         for row in table where log.range(of: row.pattern, options: .regularExpression) != nil {
             return PortingFailureReason(kind: row.kind, detail: detail(of: row.kind, in: log))
         }
+        // The process can fail to start (-1), or the Xcode Python shim can exit 72 without a usable log.
+        if exitCode == -1 || exitCode == 72 { return pythonLaunch }
         if !keysPath.isEmpty, !isReadable(keysPath) { return PortingFailureReason(kind: .keys) }
         if log.contains("provisional game profile") || log.contains("no game profile for") {
             return PortingFailureReason(kind: .noProfile, detail: jumpTableAddress(in: log))

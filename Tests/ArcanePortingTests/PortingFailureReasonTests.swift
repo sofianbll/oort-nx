@@ -32,8 +32,8 @@ final class PortingFailureReasonTests: XCTestCase {
     ]
 
     private func classify(_ log: String, sources: [String] = [], keys: String = "",
-                          mounted: Bool = true, readable: Bool = true) -> PortingFailureReason {
-        PortingFailureClassifier.classify(log: log, keysPath: keys, sourcePaths: sources,
+                          mounted: Bool = true, readable: Bool = true, exitCode: Int32? = nil) -> PortingFailureReason {
+        PortingFailureClassifier.classify(log: log, keysPath: keys, sourcePaths: sources, exitCode: exitCode,
                                           isReadable: { _ in readable }, isMounted: { _ in mounted })
     }
 
@@ -121,6 +121,34 @@ final class PortingFailureReasonTests: XCTestCase {
 
     func testUnreadableKeysWithoutAMessage() {
         XCTAssertEqual(classify("nx_extract exit code 3", keys: "/k/prod.keys", readable: false).kind, .keys)
+    }
+
+    func testPythonLaunchFailureDoesNotBlameUnreadableKeys() {
+        let logs = [
+            """
+            python: error: failed with exit code 17664
+            xcode-select: Failed to locate 'python', requesting installation of command line developer tools.
+            """,
+            "nxbuild: line 0: exec: /fixture dir/.venv/bin/python: cannot execute: No such file or directory",
+            "nxbuild: line 0: exec: /fixture/.venv/bin/python: cannot execute: Undefined error: 0",
+        ]
+        for log in logs {
+            let reason = classify(log, keys: "/synthetic/prod.keys", readable: false)
+            XCTAssertEqual(reason.title, "Python could not start", log)
+            XCTAssertEqual(reason.what(game: "Fixture"), "macOS could not launch Python.", log)
+            XCTAssertEqual(reason.action, .openSetup, log)
+        }
+    }
+
+    func testPythonLaunchExitStatusIsAFallbackWhenTheLogIsMissing() {
+        for exitCode in [-1, 72] as [Int32] {
+            let reason = classify("", keys: "/synthetic/prod.keys", readable: false, exitCode: exitCode)
+            XCTAssertEqual(reason.action, .openSetup)
+        }
+        let reason = classify("[RED] no such file: /synthetic/prod.keys", keys: "/synthetic/prod.keys",
+                              readable: false, exitCode: 72)
+        XCTAssertEqual(reason.title, "Your keys could not be read")
+        XCTAssertEqual(reason.action, .importKeys)
     }
 
     func testUnknownKeepsNoDetail() {

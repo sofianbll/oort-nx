@@ -258,7 +258,8 @@ extension PortingModel {
                 let reason = PortingFailureClassifier.classify(
                     log: buildLogTail(result.logURL),
                     keysPath: SourceSelection.requiresKeys(game.sources) ? app.setup.keyStore.keyURL.path : "",
-                    sourcePaths: game.sources.map(\.url.path)
+                    sourcePaths: game.sources.map(\.url.path),
+                    exitCode: result.exitCode
                 )
                 let message = reason.what(game: game.name)
                 activityFailure = reason.title

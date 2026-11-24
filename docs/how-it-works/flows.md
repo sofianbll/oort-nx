@@ -175,6 +175,7 @@ flowchart TD
     N --> H["BuildCommandBuilder → BuildService<br/>processo dell'engine nxnative"]
     H --> I["BuildEventParser → PortingProgress<br/>tile, percentuale, ETA<br/>prewarm senza conteggio: attività e tempo trascorso"]
     H -->|"errore Nextendo"| X["Messaggio del motore; nessun tentativo offline"]
+    H -->|"Python non parte"| Y["Motivo del fallimento → Open Setup"]
     I --> J["BuildOutputInstaller: verifica la destinazione fissata prima del motore, poi pubblica atomicamente"]
     J -->|"gioco aperto, profili illeggibili o installazione fallita"| K["PendingInstall: conserva il bundle e indica il motivo"]
     J --> L["CatalogRepository: BuildRecord, toolchain"]
