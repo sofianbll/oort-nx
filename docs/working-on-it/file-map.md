@@ -473,7 +473,7 @@ Cartelle `Sources/ArcanePorting/Settings/` e `ArcanePorting/App/`.
 | [Sources/ArcanePorting/App/FirstRunFindings+Porting.swift](../../Sources/ArcanePorting/App/FirstRunFindings+Porting.swift) | Il primo avvio conta le app nxnative della cartella Game apps, nella lettura e nel lettore annullabile. |
 | [Sources/ArcanePorting/App/DevelopmentProfileImporter+Porting.swift](../../Sources/ArcanePorting/App/DevelopmentProfileImporter+Porting.swift) | I controlli Porting della copia di sviluppo (`library.json`, catalogo con i tipi noti e l’import legacy) e `DevelopmentProfileImporter()` e `AppData.prepare()` con questi. |
 | [Sources/ArcanePorting/Settings/SettingsCatalog+Porting.swift](../../Sources/ArcanePorting/Settings/SettingsCatalog+Porting.swift) | Righe Porting (inclusi Inbox e Cestino per le cache), disponibilità Nextendo in Play together e apertura di Cloud → Advanced da Search e Changed. |
-| [Sources/ArcanePorting/Settings/IntegrationOverview.swift](../../Sources/ArcanePorting/Settings/IntegrationOverview.swift) | Proietta fatti in righe con destinazioni dal catalogo Settings; `open` naviga senza eseguire i controlli. |
+| [Sources/ArcanePorting/Settings/IntegrationOverview.swift](../../Sources/ArcanePorting/Settings/IntegrationOverview.swift) | Proietta fatti in righe, con oggetti letti, scritture e destinatari esterni; `open` naviga senza eseguire i controlli. |
 
 ## Porting · Setup, motore e chiavi
 

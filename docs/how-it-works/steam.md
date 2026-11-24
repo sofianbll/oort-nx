@@ -23,8 +23,10 @@ documento da leggere prima di toccare qualunque parte Steam. `architecture.md` n
 
 ## Principi
 
-- **Steam non viene mai scritto.** Arcane legge file di Steam e invia solo URL `steam://` al client di Valve
-  (bundle `com.valvesoftware.steam`); non apre mai l’app di un gioco direttamente.
+- **Steam non viene mai scritto.** Arcane legge i file di Steam e passa l'App ID al client locale tramite `steam://`
+  (bundle `com.valvesoftware.steam`); non apre mai l’app di un gioco direttamente. I metadati e gli obiettivi
+  usano anche richieste agli endpoint pubblici di Valve (`store.steampowered.com`, `api.steampowered.com`)
+  e al CDN `steamstatic.com`, senza inviare lo storico o gli obiettivi privati.
 - **Dati privati fuori dal tipo.** `localconfig.vdf`, `loginusers.vdf` e i file delle statistiche contengono ticket,
   amici e altro: ogni lettore estrae solo i campi che servono, non li registra nei log e non li conserva oltre il
   necessario. Nessun dato privato va in rete.

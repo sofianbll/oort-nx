@@ -1,6 +1,132 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Game apps, build caches, logs and a private copy of imported keys. nxnative writes local saves.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Game apps, build caches, logs and a private copy of imported keys. nxnative writes local saves."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Apps de jeu, caches, journaux et copie privée des clés importées. nxnative écrit les sauvegardes locales."}},
+      "it": {"stringUnit":{"state":"translated","value":"App di gioco, cache, log e una copia privata delle chiavi importate. nxnative scrive i salvataggi locali."}},
+      "de": {"stringUnit":{"state":"translated","value":"Spiele-Apps, Build-Caches, Protokolle und eine private Kopie importierter Schlüssel. nxnative schreibt lokale Spielstände."}},
+      "es": {"stringUnit":{"state":"translated","value":"Apps de juegos, cachés, registros y una copia privada de las claves importadas. nxnative guarda las partidas locales."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Apps de jogos, caches, registros e uma cópia privada das chaves importadas. O nxnative grava os dados salvos locais."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"写入游戏应用、构建缓存、日志及导入密钥的私有副本。nxnative 写入本地存档。"}}
+    }},
+    "GitHub for engine downloads and updates; Apple for Metal downloads. Local porting does not upload game files or keys.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"GitHub for engine downloads and updates; Apple for Metal downloads. Local porting does not upload game files or keys."}},
+      "fr": {"stringUnit":{"state":"translated","value":"GitHub pour télécharger et mettre à jour le moteur ; Apple pour télécharger Metal. Le portage local n’envoie ni fichiers de jeu ni clés."}},
+      "it": {"stringUnit":{"state":"translated","value":"GitHub per scaricare e aggiornare il motore; Apple per scaricare Metal. Il porting locale non invia file di gioco né chiavi."}},
+      "de": {"stringUnit":{"state":"translated","value":"GitHub für Engine-Downloads und Updates, Apple für Metal-Downloads. Lokale Portierung lädt keine Spieldateien oder Schlüssel hoch."}},
+      "es": {"stringUnit":{"state":"translated","value":"GitHub para descargar y actualizar el motor; Apple para descargar Metal. La adaptación local no sube archivos de juego ni claves."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"GitHub para baixar e atualizar o motor; Apple para baixar o Metal. O port local não envia arquivos de jogo nem chaves."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"从 GitHub 下载和更新引擎，从 Apple 下载 Metal。本地移植不会上传游戏文件或密钥。"}}
+    }},
+    "Oort NX catalog, play activity and local caches for metadata and achievements; no Steam files.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Oort NX catalog, play activity and local caches for metadata and achievements; no Steam files."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Catalogue Oort NX, activité de jeu et caches locaux des métadonnées et des succès ; aucun fichier Steam."}},
+      "it": {"stringUnit":{"state":"translated","value":"Catalogo Oort NX, attività di gioco e cache locali di metadati e obiettivi; nessun file di Steam."}},
+      "de": {"stringUnit":{"state":"translated","value":"Oort-NX-Katalog, Spielaktivität und lokale Caches für Metadaten und Erfolge; keine Steam-Dateien."}},
+      "es": {"stringUnit":{"state":"translated","value":"Catálogo de Oort NX, actividad y cachés locales de metadatos y logros; ningún archivo de Steam."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Catálogo do Oort NX, atividade e caches locais de metadados e conquistas; nenhum arquivo do Steam."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"写入 Oort NX 目录、游玩记录及元数据和成就的本地缓存，不修改 Steam 文件。"}}
+    }},
+    "Play sends the App ID to local Steam. Browsing sends IDs and language to the Steam store and requests achievement data and icons from Valve’s API and CDN.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Play sends the App ID to local Steam. Browsing sends IDs and language to the Steam store and requests achievement data and icons from Valve’s API and CDN."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Jouer transmet l’App ID à Steam sur ce Mac. En parcourant la bibliothèque, Oort transmet les identifiants et la langue au magasin Steam et demande les données et icônes de succès à l’API et au CDN de Valve."}},
+      "it": {"stringUnit":{"state":"translated","value":"Gioca passa l’App ID a Steam sul Mac. La navigazione invia ID e lingua allo store Steam e chiede dati e icone degli obiettivi all’API e al CDN di Valve."}},
+      "de": {"stringUnit":{"state":"translated","value":"Spielen übergibt die App-ID an das lokale Steam. Beim Stöbern erhält der Steam-Shop IDs und Sprache; Erfolgsdaten und Symbole kommen von Valves API und CDN."}},
+      "es": {"stringUnit":{"state":"translated","value":"Jugar envía el App ID al Steam local. Al explorar, se envían los ID y el idioma a la tienda de Steam y se piden datos e iconos de logros a la API y al CDN de Valve."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Jogar envia o App ID ao Steam local. Navegar envia IDs e idioma à loja Steam e solicita dados e ícones de conquistas à API e à CDN da Valve."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"开始游戏时将应用 ID 传给本机 Steam。浏览时将 ID 和语言发送到 Steam 商店，并从 Valve 的 API 和 CDN 请求成就数据和图标。"}}
+    }},
+    "Local copies and rclone connection settings; uploads write to the personal library, not the reference.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Local copies and rclone connection settings; uploads write to the personal library, not the reference."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Copies locales et réglages de connexion rclone. Les envois ciblent la bibliothèque personnelle, pas le dossier déclaré comme référence."}},
+      "it": {"stringUnit":{"state":"translated","value":"Copie locali e impostazioni di rclone; i caricamenti scrivono nella libreria personale, non in quella di riferimento."}},
+      "de": {"stringUnit":{"state":"translated","value":"Lokale Kopien und rclone-Verbindungseinstellungen. Uploads gehen in die persönliche Bibliothek, nicht in die Referenz."}},
+      "es": {"stringUnit":{"state":"translated","value":"Copias locales y ajustes de conexión de rclone. Se sube a la biblioteca personal, no a la de referencia."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Cópias locais e configurações de conexão do rclone. Os envios gravam na biblioteca pessoal, não na de referência."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"写入本地副本和 rclone 连接设置。上传写入个人库，不写入参考库。"}}
+    }},
+    "rclone exchanges OAuth credentials and tokens with Google and uploads files to Drive. New connections made here request full Drive access.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"rclone exchanges OAuth credentials and tokens with Google and uploads files to Drive. New connections made here request full Drive access."}},
+      "fr": {"stringUnit":{"state":"translated","value":"rclone échange les identifiants et jetons OAuth avec Google et envoie les fichiers vers Drive. Une connexion créée ici demande l’accès complet à Drive."}},
+      "it": {"stringUnit":{"state":"translated","value":"rclone scambia credenziali e token OAuth con Google e carica file su Drive. Le nuove connessioni create qui chiedono accesso completo a Drive."}},
+      "de": {"stringUnit":{"state":"translated","value":"rclone tauscht OAuth-Zugangsdaten und Tokens mit Google aus und lädt Dateien auf Drive hoch. Neue, hier erstellte Verbindungen verlangen vollen Drive-Zugriff."}},
+      "es": {"stringUnit":{"state":"translated","value":"rclone intercambia credenciales y tokens OAuth con Google y sube archivos a Drive. Las conexiones nuevas creadas aquí piden acceso completo a Drive."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"O rclone troca credenciais e tokens OAuth com o Google e envia arquivos ao Drive. Novas conexões criadas aqui pedem acesso total ao Drive."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"rclone 与 Google 交换 OAuth 凭据和令牌，并向 Drive 上传文件。在此新建连接会请求完整的 Drive 访问权限。"}}
+    }},
+    "Local sign-in token; Nextendo account, friends, avatars and online activity.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Local sign-in token; Nextendo account, friends, avatars and online activity."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Jeton de connexion local ; compte Nextendo, amis, avatars et activité en ligne."}},
+      "it": {"stringUnit":{"state":"translated","value":"Token di accesso locale; account Nextendo, amici, avatar e attività online."}},
+      "de": {"stringUnit":{"state":"translated","value":"Lokaler Anmeldetoken; Nextendo-Konto, Freunde, Avatare und Online-Aktivität."}},
+      "es": {"stringUnit":{"state":"translated","value":"Token de sesión local; cuenta de Nextendo, amigos, avatares y actividad en línea."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Token de login local; conta do Nextendo, amigos, avatares e atividade online."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"读取本地登录令牌，以及 Nextendo 账户、好友、头像和在线活动。"}}
+    }},
+    "A local refresh token; requested friend changes on Nextendo.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"A local refresh token; requested friend changes on Nextendo."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Un jeton de renouvellement sur ce Mac ; les changements demandés à la liste d’amis sur Nextendo."}},
+      "it": {"stringUnit":{"state":"translated","value":"Un token di rinnovo locale; le modifiche richieste agli amici su Nextendo."}},
+      "de": {"stringUnit":{"state":"translated","value":"Ein lokaler Aktualisierungstoken; angeforderte Änderungen der Freundesliste auf Nextendo."}},
+      "es": {"stringUnit":{"state":"translated","value":"Un token de renovación local; los cambios solicitados en la lista de amigos de Nextendo."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Um token de renovação local; alterações solicitadas na lista de amigos do Nextendo."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"写入本地刷新令牌，并在 Nextendo 上应用你请求的好友变更。"}}
+    }},
+    "Nextendo receives OAuth codes and tokens, friend actions and player or game IDs. Online play uses Nextendo; presence and current game depend on your settings.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Nextendo receives OAuth codes and tokens, friend actions and player or game IDs. Online play uses Nextendo; presence and current game depend on your settings."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Nextendo reçoit les codes et jetons OAuth, les actions sur les amis et des identifiants de joueur ou de jeu. Le jeu en ligne passe par Nextendo ; le partage de la présence et du jeu en cours dépend de vos réglages."}},
+      "it": {"stringUnit":{"state":"translated","value":"Nextendo riceve codici e token OAuth, azioni sugli amici e ID di giocatori o giochi. Il gioco online usa Nextendo; presenza e gioco corrente dipendono dalle impostazioni."}},
+      "de": {"stringUnit":{"state":"translated","value":"Nextendo erhält OAuth-Codes und Tokens, Freundschaftsaktionen sowie Spieler- oder Spiel-IDs. Online-Spiele nutzen Nextendo; Präsenz und aktuelles Spiel hängen von deinen Einstellungen ab."}},
+      "es": {"stringUnit":{"state":"translated","value":"Nextendo recibe códigos y tokens OAuth, acciones de amistad e ID de jugadores o juegos. El juego en línea usa Nextendo; la presencia y el juego actual dependen de tus ajustes."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"O Nextendo recebe códigos e tokens OAuth, ações de amizade e IDs de jogadores ou jogos. O jogo online usa o Nextendo; a presença e o jogo atual dependem dos ajustes."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"Nextendo 接收 OAuth 授权码和令牌、好友操作以及玩家或游戏 ID。联机使用 Nextendo；在线状态和当前游戏是否共享取决于你的设置。"}}
+    }},
+    "Configure SteamGridDB and IGDB. Automatic icons and scores also use public sources.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Configure SteamGridDB and IGDB. Automatic icons and scores also use public sources."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Configurer SteamGridDB et IGDB. La recherche automatique d’icônes et de notes utilise aussi des sources publiques."}},
+      "it": {"stringUnit":{"state":"translated","value":"Configura SteamGridDB e IGDB. Icone e voti automatici usano anche fonti pubbliche."}},
+      "de": {"stringUnit":{"state":"translated","value":"SteamGridDB und IGDB konfigurieren. Automatische Symbole und Bewertungen nutzen auch öffentliche Quellen."}},
+      "es": {"stringUnit":{"state":"translated","value":"Configura SteamGridDB e IGDB. Los iconos y las puntuaciones automáticos también usan fuentes públicas."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Configure SteamGridDB e IGDB. Ícones e notas automáticos também usam fontes públicas."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"配置 SteamGridDB 和 IGDB。自动查找图标和评分也会使用公开来源。"}}
+    }},
+    "Private API credentials, artwork preferences, saved images and cached scores on this Mac.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Private API credentials, artwork preferences, saved images and cached scores on this Mac."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Identifiants d’API privés, préférences d’illustration, images enregistrées et notes en cache sur ce Mac."}},
+      "it": {"stringUnit":{"state":"translated","value":"Credenziali API private, preferenze grafiche, immagini salvate e voti in cache su questo Mac."}},
+      "de": {"stringUnit":{"state":"translated","value":"Private API-Zugangsdaten, Grafikeinstellungen, gespeicherte Bilder und zwischengespeicherte Bewertungen auf diesem Mac."}},
+      "es": {"stringUnit":{"state":"translated","value":"Credenciales privadas de API, preferencias de imágenes, imágenes guardadas y puntuaciones en caché en este Mac."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Credenciais privadas de API, preferências de arte, imagens salvas e notas em cache neste Mac."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"在此 Mac 上写入私有 API 凭据、图片偏好、已保存图片和评分缓存。"}}
+    }},
+    "Searches and key to SteamGridDB; searches, client ID and access token to IGDB; client ID and secret to Twitch. Game names or Steam IDs to Wikidata, title IDs to Nlib and game names to Switch Icon Showdown.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Searches and key to SteamGridDB; searches, client ID and access token to IGDB; client ID and secret to Twitch. Game names or Steam IDs to Wikidata, title IDs to Nlib and game names to Switch Icon Showdown."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Recherches et clé à SteamGridDB ; recherches, ID client et jeton d’accès à IGDB ; ID et secret client à Twitch. Noms de jeux ou identifiants Steam à Wikidata, identifiants de titres à Nlib et noms de jeux à Switch Icon Showdown."}},
+      "it": {"stringUnit":{"state":"translated","value":"Ricerche e chiave a SteamGridDB; ricerche, ID client e token a IGDB; ID client e segreto a Twitch. Nomi dei giochi o ID Steam a Wikidata, ID dei titoli a Nlib e nomi dei giochi a Switch Icon Showdown."}},
+      "de": {"stringUnit":{"state":"translated","value":"Suchanfragen und Schlüssel an SteamGridDB; Suchanfragen, Client-ID und Zugriffstoken an IGDB; Client-ID und Geheimnis an Twitch. Spielnamen oder Steam-IDs an Wikidata, Titel-IDs an Nlib und Spielnamen an Switch Icon Showdown."}},
+      "es": {"stringUnit":{"state":"translated","value":"Búsquedas y clave a SteamGridDB; búsquedas, ID de cliente y token a IGDB; ID y secreto de cliente a Twitch. Nombres o ID de Steam a Wikidata, ID de títulos a Nlib y nombres de juegos a Switch Icon Showdown."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Buscas e chave ao SteamGridDB; buscas, ID do cliente e token ao IGDB; ID e segredo do cliente à Twitch. Nomes ou IDs do Steam ao Wikidata, IDs dos títulos ao Nlib e nomes dos jogos ao Switch Icon Showdown."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"向 SteamGridDB 发送搜索和密钥，向 IGDB 发送搜索、客户端 ID 和访问令牌，向 Twitch 发送客户端 ID 和密钥。向 Wikidata 发送游戏名称或 Steam ID，向 Nlib 发送标题 ID，向 Switch Icon Showdown 发送游戏名称。"}}
+    }},
+    "Oort creates the folder and sets each game’s preference. nxnative writes the copies; a game-specific setting can override the global choice.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Oort creates the folder and sets each game’s preference. nxnative writes the copies; a game-specific setting can override the global choice."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Oort crée le dossier et écrit la préférence de chaque jeu. nxnative écrit les copies ; un réglage propre au jeu peut remplacer le choix global."}},
+      "it": {"stringUnit":{"state":"translated","value":"Oort crea la cartella e imposta la preferenza di ogni gioco. nxnative scrive le copie; un’impostazione del gioco può prevalere sulla scelta globale."}},
+      "de": {"stringUnit":{"state":"translated","value":"Oort legt den Ordner und die Einstellung pro Spiel an. nxnative schreibt die Kopien; eine spielspezifische Einstellung kann die globale Wahl überschreiben."}},
+      "es": {"stringUnit":{"state":"translated","value":"Oort crea la carpeta y guarda la preferencia de cada juego. nxnative escribe las copias; un ajuste del juego puede sustituir al global."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"O Oort cria a pasta e define a preferência de cada jogo. O nxnative grava as cópias; um ajuste do jogo pode substituir a opção global."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"Oort 创建文件夹并设置每款游戏的偏好。nxnative 写入副本；单个游戏的设置可以覆盖全局选项。"}}
+    }},
+    "Oort does not upload saves directly. iCloud Drive syncs to Apple; other folders depend on their sync client.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Oort does not upload saves directly. iCloud Drive syncs to Apple; other folders depend on their sync client."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Oort n’envoie pas directement les sauvegardes. iCloud Drive les synchronise avec Apple ; pour un autre dossier, cela dépend de son logiciel de synchronisation."}},
+      "it": {"stringUnit":{"state":"translated","value":"Oort non carica direttamente i salvataggi. iCloud Drive li sincronizza con Apple; altre cartelle dipendono dal proprio client di sincronizzazione."}},
+      "de": {"stringUnit":{"state":"translated","value":"Oort lädt Spielstände nicht direkt hoch. iCloud Drive synchronisiert mit Apple; andere Ordner hängen von ihrem Sync-Client ab."}},
+      "es": {"stringUnit":{"state":"translated","value":"Oort no sube las partidas directamente. iCloud Drive las sincroniza con Apple; las demás carpetas dependen de su cliente de sincronización."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"O Oort não envia dados salvos diretamente. O iCloud Drive sincroniza com a Apple; outras pastas dependem do cliente de sincronização."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"Oort 不直接上传存档。iCloud Drive 与 Apple 同步；其他文件夹取决于各自的同步客户端。"}}
+    }},
     "Engine not detected": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Engine not detected"}}, "fr": {"stringUnit":{"state":"translated","value":"Moteur non détecté"}}, "it": {"stringUnit":{"state":"translated","value":"Motore non rilevato"}}, "de": {"stringUnit":{"state":"translated","value":"Engine nicht erkannt"}}, "es": {"stringUnit":{"state":"translated","value":"Motor no detectado"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Motor não detectado"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"未检测到引擎"}}
     }},

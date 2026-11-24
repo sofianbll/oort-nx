@@ -54,8 +54,8 @@ public struct IntegrationOverview {
             return .init(id: id, name: "Switch (nxnative)", purpose: "Build compatible Switch games for Mac and open games already built.",
                          status: state.0, emphasis: state.1, action: "Open engine settings",
                          reads: "Selected game files, local keys and installed game apps.",
-                         writes: "Game apps, build caches and logs; the engine writes local saves.",
-                         sends: "Setup contacts GitHub and Apple for engine and tool checks. Game files and keys stay local.",
+                         writes: "Game apps, build caches, logs and a private copy of imported keys. nxnative writes local saves.",
+                         sends: "GitHub for engine downloads and updates; Apple for Metal downloads. Local porting does not upload game files or keys.",
                          settingID: engine == .blocked ? "engineStatus" : "engineFolder")
         case .steam:
             let state: (String, IntegrationRow.Emphasis) = switch steam {
@@ -70,8 +70,8 @@ public struct IntegrationOverview {
             return .init(id: id, name: "Steam", purpose: "Find installed Mac games and open them in Steam.",
                          status: state.0, emphasis: state.1, action: "Open Steam source settings",
                          reads: "Steam manifests, local play history and achievements.",
-                         writes: "Oort NX catalog and local activity; no Steam files.",
-                         sends: "The game ID goes to the local Steam app on Play; Steam manages its own traffic.",
+                         writes: "Oort NX catalog, play activity and local caches for metadata and achievements; no Steam files.",
+                         sends: "Play sends the App ID to local Steam. Browsing sends IDs and language to the Steam store and requests achievement data and icons from Valve’s API and CDN.",
                          settingID: "steamSource")
         case .drive:
             let state: (String, IntegrationRow.Emphasis) = switch drive {
@@ -94,8 +94,8 @@ public struct IntegrationOverview {
             return .init(id: id, name: "Google Drive", purpose: "Keep copies of ported apps, build caches or selected game files, not saves.",
                          status: state.0, emphasis: state.1, action: "Open cloud library settings",
                          reads: "Selected local files and Drive folders; the reference library is read-only.",
-                         writes: "Personal Drive and local copies; the reference library is not changed.",
-                         sends: "Selected files to personal Drive. Google grants full Drive access; Oort NX uses the configured folders.",
+                         writes: "Local copies and rclone connection settings; uploads write to the personal library, not the reference.",
+                         sends: "rclone exchanges OAuth credentials and tokens with Google and uploads files to Drive. New connections made here request full Drive access.",
                          settingID: setting)
         case .nextendo:
             let state: (String, IntegrationRow.Emphasis) = switch nextendo {
@@ -109,9 +109,9 @@ public struct IntegrationOverview {
             return .init(id: id, name: "Nextendo", purpose: "Play compatible nxnative games online and see your Nextendo friends.",
                          status: state.0, emphasis: state.1,
                          action: nextendo == .noLocalProfile ? "Open profile settings" : "Open Nextendo settings",
-                         reads: "Nextendo account, friends and online activity.",
-                         writes: "A local sign-in token; requested friend changes on Nextendo.",
-                         sends: "Sign-in, online play and, when enabled, presence and current game to Nextendo.",
+                         reads: "Local sign-in token; Nextendo account, friends, avatars and online activity.",
+                         writes: "A local refresh token; requested friend changes on Nextendo.",
+                         sends: "Nextendo receives OAuth codes and tokens, friend actions and player or game IDs. Online play uses Nextendo; presence and current game depend on your settings.",
                          settingID: nextendo == .noLocalProfile ? "showProfilePicker" : "nextendo")
         case .images:
             let state: String
@@ -121,11 +121,11 @@ public struct IntegrationOverview {
             case (false, true): state = "Only IGDB configured"
             case (false, false): state = "No provider credentials"
             }
-            return .init(id: id, name: "Artwork and scores", purpose: "Find artwork with SteamGridDB and critic scores with IGDB.",
+            return .init(id: id, name: "Artwork and scores", purpose: "Configure SteamGridDB and IGDB. Automatic icons and scores also use public sources.",
                          status: state, emphasis: .neutral, action: "Open provider settings",
                          reads: "Game titles or IDs and provider results.",
-                         writes: "Local preferences, saved artwork and cached scores.",
-                         sends: "Searches to SteamGridDB or IGDB; SteamGridDB key to SteamGridDB and IGDB credentials to Twitch.",
+                         writes: "Private API credentials, artwork preferences, saved images and cached scores on this Mac.",
+                         sends: "Searches and key to SteamGridDB; searches, client ID and access token to IGDB; client ID and secret to Twitch. Game names or Steam IDs to Wikidata, title IDs to Nlib and game names to Switch Icon Showdown.",
                          settingID: steamGridDB && !igdb ? "igdb" : "steamGridDB")
         case .saves:
             let state = switch saves {
@@ -136,8 +136,8 @@ public struct IntegrationOverview {
             return .init(id: id, name: "iCloud saves", purpose: "Keep supported game saves in iCloud Drive or in a folder you choose.",
                          status: state, emphasis: .neutral, action: "Open cloud save settings",
                          reads: "The primary user and device saves and their copies in the chosen folder.",
-                         writes: "The engine reads and writes save copies in that folder, separate from game archives.",
-                         sends: "macOS handles iCloud Drive sync; another folder depends on its sync client.",
+                         writes: "Oort creates the folder and sets each game’s preference. nxnative writes the copies; a game-specific setting can override the global choice.",
+                         sends: "Oort does not upload saves directly. iCloud Drive syncs to Apple; other folders depend on their sync client.",
                          settingID: "cloudSaves")
         }
     }
