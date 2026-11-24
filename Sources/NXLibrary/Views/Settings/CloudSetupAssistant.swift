@@ -72,6 +72,15 @@ struct CloudSetupAssistant: View {
         guard model.libraryMove?.id == moveID else { return nil }
         return model.libraryMove
     }
+    private var movePaused: Bool { move == nil && model.hasPendingMove }
+    private var cancelTitle: String {
+        if move != nil { return "Cancel" }
+        if movePaused { return "Close" }
+        if draft.step == .verify || folderName != nil || enteredSourcesPath != nil || (selectingSources && entry != .sources) {
+            return "Back"
+        }
+        return "Cancel"
+    }
     private var existing: RcloneRemote? {
         let selected = remotes?.first { $0.type == "drive" && $0.name == model.preference.remote }
         return selected ?? (entry == .credentials ? nil : remotes?.first { $0.type == "drive" })
@@ -132,7 +141,7 @@ struct CloudSetupAssistant: View {
         }
     }
     private var showsPrimary: Bool {
-        (draft.step != .account || remotes != nil)
+        !movePaused && (draft.step != .account || remotes != nil)
             && (enteredSourcesPath != nil || (work?.kind != .discover
                 && librarySuggestion == nil && sourcesSuggestion == nil))
     }
@@ -148,9 +157,8 @@ struct CloudSetupAssistant: View {
                                     onCancel: cancel, onConfirm: { create(creation) })
             } else if confirmingMove, let movePlan {
                 let size = movePlan.bytes.formatted(.byteCount(style: .file).locale(localization.formatLocale))
-                SeleneConfirmDialog(title: format(movePlan.games == 1
-                    ? "Move %d game (%@) to %@?" : "Move %d games (%@) to %@?", [movePlan.games, size, draft.path]),
-                    message: text("Only app and build cache archives move. Game files stay where they are.")
+                SeleneConfirmDialog(title: text("Move app and build cache archives?"),
+                    message: format("Destination: “%@” · %@. Game files stay where they are.", [draft.path, size])
                         + " " + text("Pause uploads on other Macs. Drive cannot lock both folders; uploads during or after the final check may be missed."),
                     confirmTitle: "Move",
                     focus: Binding(get: { focusedTarget == .confirmMove ? .confirm : .cancel },
@@ -187,13 +195,11 @@ struct CloudSetupAssistant: View {
                         } else if showsPrimary {
                             pill(.primary, primaryTitle, enabled: primaryEnabled, action: primary)
                         }
-                        pill(.cancel, move != nil ? "Cancel" : draft.step == .verify || folderName != nil
-                             || enteredSourcesPath != nil || (selectingSources && entry != .sources) ? "Back" : "Cancel",
-                             enabled: move?.canCancel != false, action: cancel)
+                        pill(.cancel, cancelTitle, enabled: move?.canCancel != false, action: cancel)
                     }
                 }
                 .modifier(SeleneDialogCard(
-                    cancelHint: move?.canCancel == false ? nil : HintItem(.b, "Cancel"),
+                    cancelHint: move?.canCancel == false ? nil : HintItem(.b, movePaused ? "Close" : "Cancel"),
                     confirmHint: focusRows.joined().isEmpty ? nil : HintItem(.a, "Select")))
             }
         }
@@ -219,8 +225,7 @@ struct CloudSetupAssistant: View {
             case .succeeded:
                 draft.acceptMove(draft.ticket)
                 guard draft.activation != nil else { return }
-                activated = true
-                onClose()
+                completeActivation()
             }
         }
         .onChange(of: field) { _, target in if let target { focus.select(target) } }
@@ -314,9 +319,9 @@ struct CloudSetupAssistant: View {
                 option(.otherFolder, text("Choose another folder"), action: chooseOtherFolder)
             } else if let sourcesSuggestion {
                 option(.resumeFolder, sourcesSuggestion.games.map { games in
-                    format(games == 1 ? "Resume %@ (%d game)" : "Resume %@ (%d games)",
+                    format(games == 1 ? "Use folder “%@” (%d game)" : "Use folder “%@” (%d games)",
                            [folderLabel(sourcesSuggestion.path), games])
-                } ?? format("Reuse game files in %@", [folderLabel(sourcesSuggestion.path)]), icon: .folder,
+                } ?? format("Use folder “%@”", [folderLabel(sourcesSuggestion.path)]), icon: .folder,
                        enabled: canEdit, wide: true, action: resumeFolder)
                 Text(verbatim: sourcesSuggestion.path).seleneFont(15).foregroundColor(SeleneTheme.ink75)
                 option(.otherFolder, text("Choose another folder"), action: chooseOtherFolder)
@@ -400,7 +405,7 @@ struct CloudSetupAssistant: View {
                 SeleneProgressBar(progress: move.fraction, color: status.color)
             } else if work != nil { progress("Checking…") }
             else if draft.verified { SeleneStatusDot(text: text("Connection OK"), color: SeleneTheme.statusOK) }
-            else { pill(.retry, "Try again", action: verify) }
+            else if !movePaused { pill(.retry, "Try again", action: verify) }
         }
     }
 
@@ -705,15 +710,22 @@ struct CloudSetupAssistant: View {
         do {
             let replaced = replacement != nil
             try replacement?.apply()
-            activated = true
             let sources = onboarding ? selectedSourcesOverride : model.preference.sourcesRootOverride
             model.configure(remote: preference.remote, root: preference.root, enabled: true, sourcesRoot: sources,
                             reload: replaced, confirmLibrary: true)
             model.connectionCheck = .init(date: .now, failure: nil)
-            onClose()
+            completeActivation()
         } catch {
             issue = RcloneConfiguration.Failure.configuration.key
         }
+    }
+
+    private func completeActivation() {
+        activated = true
+        onClose()
+        viewModel.showSettingsNotice(title: text("Cloud library"),
+                                     message: text("Your cloud games will appear in Library → Cloud."),
+                                     cancelTitle: "Close")
     }
 
     private func moveGames() {
@@ -771,6 +783,7 @@ struct CloudSetupAssistant: View {
     var focusedTarget: Target { focus.current(in: focusRows) }
 
     private var focusRows: [[Target]] {
+        if movePaused { return [[.cancel]] }
         if creation != nil { return [[.create, .cancel]] }
         if confirmingMove { return [[.confirmMove, .cancel]] }
         if folderName != nil { return [[.folderName], (folderName.map(CloudDriveFolders.validName) == true ? [.create] : []) + [.cancel]] }

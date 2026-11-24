@@ -30,11 +30,20 @@ SCENARIOS = r'''
         }
         let before = CommandLine.arguments.contains("--before")
         var failures: [String] = []
+        func expectShelf(_ expected: String) {
+            if let key = collection.shelfKeyForProbe, key != expected {
+                failures.append("Expected \(expected), got \(key)")
+            }
+        }
         vm.librarySelection.query.filter = .all
         try capture("all-empty", collection)
         if !collection.showsLocalImportHintForProbe { failures.append("All games must keep Add game") }
+        collection.handle(.confirm)
+        if router.route != .addGame { failures.append("Confirm on All games must still open Add game") }
+        router.setInitialRoute(.collection)
         vm.librarySelection.query.filter = .cloud
         try capture("disabled", collection)
+        expectShelf("Connect your cloud library in Settings → Porting → Cloud library.")
         if collection.showsLocalImportHintForProbe { failures.append("Cloud must not advertise Add game") }
         collection.handle(.confirm)
         if router.route == .addGame { failures.append("Confirm on an empty Cloud shelf must not open Add game") }
@@ -48,17 +57,22 @@ SCENARIOS = r'''
         let loading = Task<Void, Never> {}
         model.importTask = loading
         try capture("searching", collection)
+        expectShelf("Looking for cloud games…")
         model.importTask = nil
         model.checkFailure = .offline
         try capture("failed", collection)
-        model.checkFailure = .incomplete
-        try capture("partial", collection)
+        expectShelf("Could not check the cloud library. Check your connection in Settings.")
         model.checkFailure = nil
         vm.importCloudGames()
         await model.importTask?.value
         precondition(model.lastCompleteCheck != nil && model.checkFailure == nil,
                      "Verified empty fixture: \(String(describing: model.checkFailure))")
         try capture("verified-empty", collection)
+        expectShelf("No cloud games to download.")
+        model.checkFailure = .incomplete
+        try capture("partial", collection)
+        expectShelf("Could not check the cloud library. Check your connection in Settings.")
+        model.checkFailure = nil
 
         let manifest = try JSONDecoder().decode(CloudGameManifest.self, from: Data(
             #"{"version":1,"title_id":"0100000000004000","created_at":0,"game_name":"Lunar Observatory","artifacts":[{"kind":"app","size":4,"sha256":"fixture","md5":"fixture","unpacked_size":4,"entry_count":1,"inventory_sha256":"fixture","options":{}}]}"#.utf8))
@@ -85,13 +99,23 @@ SCENARIOS = r'''
         try capture("assistant-verified", ready)
         ready.perform(.primary)
         if let notice = vm.settingsNotice {
+            if !notice.message.contains("Bibliothèque → Cloud") || notice.choices != ["Close"] {
+                failures.append("The completion notice must name the Cloud tab and offer Close")
+            }
             try capture("assistant-complete", SeleneChoiceDialog(title: notice.title, message: notice.message,
                 choices: notice.choices, focus: .constant(notice.initialFocus), onChoose: { _ in }))
         } else { failures.append("Finished setup must point to Cloud") }
         model.setPendingMove(.init(id: UUID(), request: .init(plan: plan, destination: "New Library"),
                                    sourcesRoot: "Games/GameFiles"))
-        try capture("move-paused", assistant.shelfProbeAssistant(paused: true))
-        // ADDITIONAL_CHECKS
+        var didClose = false
+        let paused = CloudSetupAssistant(viewModel: vm, model: model, entry: .library) { didClose = true }
+            .shelfProbeAssistant(paused: true)
+        try capture("move-paused", paused)
+        if paused.shelfCancelTitleForProbe != "Close" || paused.focusedTarget != .cancel {
+            failures.append("A paused move must focus Close")
+        }
+        paused.handleAssistantInput(.confirm)
+        if !didClose || !model.hasPendingMove { failures.append("Closing must leave the pending move intact") }
         if !failures.isEmpty {
             print(failures.map { "FAIL: " + $0 }.joined(separator: "\n"))
             if !before { exit(1) }
@@ -106,8 +130,12 @@ def main():
         package = Path(temp)
         home = package / "home"
         home.mkdir()
-        shutil.copyfile(ROOT / "Package.swift", package / "Package.swift")
-        shutil.copytree(ROOT / "Sources", package / "Sources")
+        if "--before" in sys.argv:
+            archived = subprocess.check_output(["git", "-C", str(ROOT), "archive", "e432ed20", "Sources", "Package.swift"])
+            subprocess.run(["tar", "-xf", "-", "-C", str(package)], input=archived, check=True)
+        else:
+            shutil.copyfile(ROOT / "Package.swift", package / "Package.swift")
+            shutil.copytree(ROOT / "Sources", package / "Sources")
         for name in ("NXLibraryCoreTests", "ArcanePortingTests", "OortCoreTests"):
             folder = package / "Tests" / name
             folder.mkdir(parents=True)
@@ -132,17 +160,24 @@ extension CloudLibraryModel {
     }
 }
 ''')
-        with (app / "Views/Collection/CollectionView.swift").open("a") as swift:
+        collection = app / "Views/Collection/CollectionView.swift"
+        with collection.open("a") as swift:
             swift.write('''
 extension CollectionView {
     var showsLocalImportHintForProbe: Bool { contextHints(nil, record: nil).contains { $0.button == .a } }
+    var shelfKeyForProbe: String? { SHELF_KEY }
 }
-''')
+'''.replace("SHELF_KEY", "cloudEmptyKey" if "--before" not in sys.argv else "nil"))
+        # ImageRenderer substitutes a warning for the AppKit art layer. No fixture has hero art.
+        change(app / "Views/Spotlight/SeleneArtBackground.swift", r"            SeleneArtLayer\(image: art,[^\n]*\n", "")
+        change(app / "Views/Theme/MoonlightRenderer.swift", r"                if let image \{\n                    Image\(decorative:",
+               "                if let image = engine.snapshot(width: max(w, 1), height: max(h, 1), colors: colors) {\n                    Image(decorative:")
         assistant = app / "Views/Settings/CloudSetupAssistant.swift"
         change(assistant, r'        \.onAppear \{ inspect\(\); installAssistantKeys\(\) }', '')
         with assistant.open("a") as swift:
             swift.write('''
 extension CloudSetupAssistant {
+    var shelfCancelTitleForProbe: String { CANCEL_TITLE }
     func shelfProbeAssistant(plan: CloudDriveFolders.MovePlan? = nil, failure: String? = nil,
                              paused: Bool = false, sources: CloudDriveFolders.Sources? = nil,
                              verified: Bool = false) -> Self {
@@ -164,7 +199,7 @@ extension CloudSetupAssistant {
         return view
     }
 }
-''')
+'''.replace("CANCEL_TITLE", "cancelTitle" if "--before" not in sys.argv else '"Back"'))
         with (package / "Sources/ArcanePorting/Library/CloudDriveFolders.swift").open("a") as swift:
             swift.write('''
 extension CloudDriveFolders.Sources {
