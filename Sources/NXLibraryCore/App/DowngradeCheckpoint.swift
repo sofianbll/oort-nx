@@ -59,7 +59,7 @@ package enum DowngradeCheckpoint {
         guard fd >= 0 else { throw posixError() }
         defer { close(fd) }
         _ = try InstallationFileObservation.capture(fileDescriptor: fd, url: folder.appendingPathComponent(".lock"))
-        guard flock(fd, LOCK_EX) == 0 else { throw posixError() }
+        guard flock(fd, LOCK_EX | LOCK_NB) == 0 else { throw posixError() }
 
         let current = folder.appendingPathComponent("checkpoint.plist")
         let previous = folder.appendingPathComponent("previous.plist")

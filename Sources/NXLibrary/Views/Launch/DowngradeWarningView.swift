@@ -71,8 +71,9 @@ struct DowngradeWarningView: View {
         }
         .onAppear {
             acceptsKeys = true
-            controller.handle = input
-            GameControllerService.shared.onAction = { [weak controller] in controller?.handle?($0) }
+            let receiver = controller
+            receiver.handle = input
+            GameControllerService.shared.onAction = { [weak receiver] in receiver?.handle?($0) }
             LaunchReveal.show()
         }
         // Do not clear the shared router: the shell can already have installed its own handler.
@@ -88,7 +89,7 @@ struct DowngradeWarningView: View {
     private var summary: String {
         if failed { return text("Try again, or open the app without a copy just this once.") }
         if !omissions.isEmpty {
-            return L10n.format("The copy reached its 128 MB limit. Not fully copied: %@.", [
+            return L10n.format("The copy reached its 128 MiB limit. Not fully copied: %@.", [
                 omissions.map(omissionLabel).joined(separator: ", "),
             ], context: context)
         }
