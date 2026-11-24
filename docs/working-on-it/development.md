@@ -114,7 +114,9 @@ An upgrade requires reviewing the upstream delta and CLI, deciding which capabil
 
 ## Release packaging
 
-Use `scripts/release.sh` for releases. It requires a clean working tree, an unused version tag, a `VERSION` file that names the release and a runtime that matches the lock, and runs `swift test` and the publication checks' tests first. It tests the exact pin shipped in the bundle in an anonymous temporary engine checkout, not the player's checkout. An unavailable pin fails the release. Commit or deliberately stash local work first; do not discard changes to satisfy the check.
+Use `scripts/release.sh` for releases. It requires a clean working tree, a `VERSION` file that names the release and a runtime that matches the lock. It tests the exact engine pin shipped in the bundle in an anonymous temporary checkout and runs the publication checks before packaging. An unavailable pin fails the release. Commit or deliberately stash local work first; do not discard changes to satisfy the check.
+
+Publication normally requires an unused tag. If the tag was pushed but the release is absent, run the same publish command again: it accepts only identical local and remote tag objects that resolve to the published release commit. An existing release (including a draft) or an unverified release list stops the script. This does not move or re-push the tag.
 
 With `--publish`, the effective `origin` push URL must point to the one public GitHub repository resolved from the updater source. The script reads `main` and the version tag directly in that repository, not from the fetch URL or a cached tracking ref. It requires `HEAD` to match that `main`, the version tag to be unused locally and remotely, and the engine pin to be reachable from a public branch. It checks again after packaging, pushes only that tag, and verifies its commit before asking GitHub to create the release in the same repository. If the tag push or release upload fails, check the remote tag and release state before retrying.
 

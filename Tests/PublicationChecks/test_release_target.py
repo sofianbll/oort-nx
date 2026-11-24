@@ -123,7 +123,14 @@ esac
         self.stub(
             "gh",
             """case "$1" in
-  api) printf '%s\\n' "$CANONICAL" ;;
+  api)
+    case "$2" in
+      "repos/$CANONICAL/releases")
+        [[ " $* " == *" --paginate "* ]]
+        [[ "${RELEASE_LIST_FAIL:-0}" != 1 ]] || exit 90
+        if [[ -f "$FIXTURES/existing-release" ]]; then cat "$FIXTURES/existing-release"; fi ;;
+      *) printf '%s\\n' "$CANONICAL" ;;
+    esac ;;
   release)
     [[ "$2" == create && " $* " == *" --repo github.com/$CANONICAL --verify-tag "* ]]
     "$REAL_GIT" -C "$FIXTURES/${CANONICAL#*/}" rev-parse --verify "refs/tags/$3"
@@ -186,6 +193,44 @@ esac
     def test_refuses_an_existing_tag_on_the_destination(self):
         self.git_run("tag", "-a", "-m", "Already used", "v0.3.1", cwd=self.root / "NxLibrary")
         self.assert_blocked("the remote tag v0.3.1 already exists")
+
+    def install_matching_tags(self):
+        self.git_run("tag", "-a", "-m", "Fixture tag", "v0.3.1")
+        self.git_run("push", str(self.root / "NxLibrary"), "refs/tags/v0.3.1")
+        return self.git_run("rev-parse", "refs/tags/v0.3.1").stdout.strip()
+
+    def test_resumes_after_pushing_the_identical_tag(self):
+        tag = self.install_matching_tags()
+        self.stub("swift", ":\n")
+        result = self.publish()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual((self.root / "released").read_text(), f"{PUBLIC} v0.3.1\n")
+        for repo in (self.app, self.root / "NxLibrary"):
+            self.assertEqual(self.git_run("rev-parse", "refs/tags/v0.3.1", cwd=repo).stdout.strip(), tag)
+
+    def test_does_not_resume_with_different_tag_objects_at_the_same_commit(self):
+        self.git_run("tag", "v0.3.1")
+        self.git_run("tag", "-a", "-m", "Remote annotation", "v0.3.1", cwd=self.root / "NxLibrary")
+        result = self.publish()
+        self.assertIn("the remote tag v0.3.1 already exists", result.stderr)
+        self.assertFalse((self.root / "released").exists())
+
+    def test_does_not_resume_with_identical_tags_at_a_different_commit(self):
+        self.git_run("commit", "--allow-empty", "-qm", "Not the release")
+        self.install_matching_tags()
+        self.git_run("update-ref", "refs/heads/main", self.commit)
+        self.git_run("read-tree", self.commit)
+        result = self.publish()
+        self.assertIn("does not point to the expected commit", result.stderr)
+        self.assertFalse((self.root / "released").exists())
+
+    def test_does_not_resume_when_release_exists_or_cannot_be_checked(self):
+        self.install_matching_tags()
+        (self.root / "existing-release").write_text("v0.3.1\n")
+        self.assertIn("a release for v0.3.1 already exists", self.publish().stderr)
+        self.env["RELEASE_LIST_FAIL"] = "1"
+        self.assertIn("could not list releases", self.publish().stderr)
+        self.assertFalse((self.root / "released").exists())
 
     def test_refuses_dirty_tree_and_local_tag(self):
         self.write("leftover", "")
