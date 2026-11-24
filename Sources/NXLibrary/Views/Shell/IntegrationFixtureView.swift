@@ -255,7 +255,8 @@ struct IntegrationFixtureView: View {
         let settings = AppSettingsStore()
         settings.settings.appLanguage = .french
         let profiles = LocalProfileStore(settings: settings.settings, name: "Camille")
-        let model = AppViewModel(settingsStore: settings, catalog: catalog, repository: repository, localProfiles: profiles)
+        let model = AppViewModel(settingsStore: settings, catalog: catalog, repository: repository,
+                                 localProfiles: profiles, registerNotifications: false)
         model.libraryFolder = apps
         let sources = CatalogSourcesModel(repository: repository, initialConfiguration: .init(integration: .steam)) { _ in }
         return (model, settings, profiles, sources)

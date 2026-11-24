@@ -208,10 +208,7 @@ struct SetupCheckView: View {
             }
             Spacer(minLength: 0)
             if let action = story.action {
-                HStack(spacing: canvas.u(8)) {
-                    SelenePromptBadge(button: .a, height: 26)
-                    Text(action).seleneFont(17, .semibold).foregroundColor(SeleneTheme.ink)
-                }
+                Text(action).seleneFont(.body, .semibold).foregroundColor(SeleneTheme.ink)
             }
         }
         .padding(canvas.u(22))

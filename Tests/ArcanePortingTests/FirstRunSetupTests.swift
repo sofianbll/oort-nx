@@ -231,4 +231,29 @@ final class FirstRunSetupTests: XCTestCase {
         XCTAssertTrue(second.entries.first?.alreadyInLibrary == true)
         XCTAssertEqual(try Data(contentsOf: unknown), Data([0xAF]))
     }
+
+    func testConsentCopiesOnlyLibraryDataAndLeavesTheStableSourceIntact() throws {
+        let home = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let profile = AppDataProfile(home: home, isDevelopment: true)
+        let origin = profile.stableSupportRoot
+        let importer = DevelopmentProfileImporter()
+        let sourceDB = CatalogStore(directory: origin)
+        let source = try sourceDB.loadOrMigrate()
+        addTeardownBlock { try? FileManager.default.removeItem(at: home) }
+        let excluded = ["prod.keys", "settings.json", "cloud-transfer-queue.json", "SaveBackups"]
+        for item in excluded { try Data([0xAA]).write(to: origin.appendingPathComponent(item)) }
+        XCTAssertTrue(DevelopmentProfileImporter.offersLibraryCopy(for: profile))
+        let copied = try importer.prepare(profile: profile, contents: .library,
+                                          sanitizeLibrary: DevelopmentProfileImporter.clearCopiedOperations,
+                                          sourcePreferences: { XCTFail("Copy does not read preferences"); return [:] },
+                                          savePreferences: { XCTAssertTrue($0.isEmpty) })
+        XCTAssertTrue(copied)
+        XCTAssertFalse(DevelopmentProfileImporter.offersLibraryCopy(for: profile))
+        for item in excluded {
+            XCTAssertFalse(FileManager.default.fileExists(atPath: profile.supportRoot.appendingPathComponent(item).path))
+            XCTAssertEqual(try Data(contentsOf: origin.appendingPathComponent(item)), Data([0xAA]))
+        }
+        XCTAssertEqual(try sourceDB.loadOrMigrate(), source)
+        XCTAssertEqual(try CatalogStore(directory: profile.supportRoot).loadOrMigrate().games, source.games)
+    }
 }

@@ -6,6 +6,8 @@ lives in the probe's temporary directory; no player profile or game data is read
 """
 from pathlib import Path
 import os
+import plistlib
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -72,6 +74,7 @@ final class Host {
     var isBuilding = false
     var isCancellingBuild = false
     var isInstallingBuild = false
+    let registerNotifications = true
     var app: Host { self }
     let gameAppsFolder = URL(fileURLWithPath: "/synthetic/apps")
     init() {
@@ -301,5 +304,18 @@ with tempfile.TemporaryDirectory(prefix='arcane-onboarding-check-') as scratch:
     subprocess.run([str(binary), str(scratch / 'test-preferences')],
                    env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(library)), check=True)
 if len(sys.argv) > 1:
-    subprocess.run([str(library / 'NXLibrary'), '--render-onboarding-fixture', sys.argv[1]],
-                   env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(library)), check=True)
+    with tempfile.TemporaryDirectory(prefix='oort-onboarding-render-') as scratch:
+        bundle = Path(scratch) / 'Onboarding Probe.app' / 'Contents'
+        resources = bundle / 'Resources' / 'Selene'
+        resources.mkdir(parents=True)
+        executable = bundle / 'MacOS' / 'NXLibrary'
+        executable.parent.mkdir()
+        shutil.copy2(library / 'NXLibrary', executable)
+        shutil.copytree(ROOT / 'Resources/Selene/Fonts', resources / 'Fonts')
+        shutil.copy2(ROOT / 'Resources/Selene/palettes.json', resources)
+        (bundle / 'Info.plist').write_bytes(plistlib.dumps({
+            'CFBundleIdentifier': 'local.oort.onboarding.probe', 'CFBundleExecutable': executable.name,
+            'CFBundlePackageType': 'APPL',
+        }))
+        subprocess.run([str(executable), '--render-onboarding-fixture', sys.argv[1]],
+                       env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(library.resolve())), check=True)

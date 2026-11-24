@@ -57,27 +57,13 @@ struct OnboardingScreen: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 if !rows.isEmpty {
-                    ScrollViewReader { proxy in
-                        ScrollView {
-                            VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
-                                ForEach(rows) { row in
-                                    SetupCardRow(title: row.title, detail: row.detail, icon: row.icon,
-                                                 trailing: row.trailing, focused: focus == row.id,
-                                                 onHover: { if row.action != nil, hover.moved(true) { focus = row.id } }) {
-                                        guard let action = row.action else { return }
-                                        focus = row.id
-                                        action()
-                                    }
-                                    .allowsHitTesting(row.action != nil)
-                                    .accessibilityAddTraits(row.action == nil ? .isStaticText : [])
-                                    .id(row.id)
-                                }
+                    ViewThatFits(in: .vertical) {
+                        rowList.fixedSize(horizontal: false, vertical: true)
+                        ScrollViewReader { proxy in
+                            ScrollView { rowList }
+                            .onChange(of: focus) { _, target in
+                                if rows.contains(where: { $0.id == target }) { proxy.scrollTo(target) }
                             }
-                            .padding(.vertical, canvas.u(SeleneTokens.Space.compact))
-                            .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
-                        }
-                        .onChange(of: focus) { _, target in
-                            if rows.contains(where: { $0.id == target }) { proxy.scrollTo(target) }
                         }
                     }
                 }
@@ -105,6 +91,25 @@ struct OnboardingScreen: View {
             }
         }
         .frame(width: canvas.size.width, height: canvas.size.height)
+    }
+
+    private var rowList: some View {
+        VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
+            ForEach(rows) { row in
+                SetupCardRow(title: row.title, detail: row.detail, icon: row.icon,
+                             trailing: row.trailing, focused: focus == row.id,
+                             onHover: { if row.action != nil, hover.moved(true) { focus = row.id } }) {
+                    guard let action = row.action else { return }
+                    focus = row.id
+                    action()
+                }
+                .allowsHitTesting(row.action != nil)
+                .accessibilityAddTraits(row.action == nil ? .isStaticText : [])
+                .id(row.id)
+            }
+        }
+        .padding(.vertical, canvas.u(SeleneTokens.Space.compact))
+        .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
     }
 
     private func pill(_ item: (String, () -> Void), id: String) -> some View {
@@ -143,7 +148,7 @@ struct OnboardingCopyOffer: View {
         SeleneOverlay(style: .deep) {
             SeleneConfirmDialog(title: "Copy your Oort library?",
                                 message: L10n.text("Copy your catalog, profiles, artwork and play time. Keys, accounts, queues and saves aren’t copied. The original stays unchanged."),
-                                confirmTitle: "Copy library", cancelTitle: "Start without a copy", focus: $focus,
+                                confirmTitle: "Copy", cancelTitle: "Not now", focus: $focus,
                                 onCancel: { choose(false) }, onConfirm: { choose(true) })
         }
         .focusable()

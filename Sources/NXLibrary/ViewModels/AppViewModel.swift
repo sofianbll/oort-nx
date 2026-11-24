@@ -364,7 +364,7 @@ final class AppViewModel: ObservableObject {
     var libraryRescanRequested = false
 
     init(settingsStore: AppSettingsStore, catalog: CatalogDocument, repository: CatalogRepository,
-         localProfiles: LocalProfileStore? = nil) {
+         localProfiles: LocalProfileStore? = nil, registerNotifications: Bool = true) {
         self.catalogRepository = repository
         self.settingsStore = settingsStore
         self.localProfiles = localProfiles
@@ -443,7 +443,7 @@ final class AppViewModel: ObservableObject {
             (!setupCompleted && firstRunSetup.page == .games) { scanLibrary(using: catalog) }
         updateDockIcon()
         // Register notification-click routing at launch without asking for permission.
-        _ = NotificationService.shared
+        if registerNotifications { _ = NotificationService.shared }
 
         let held = PendingInstaller.keptFolders(libraryGames)
         let staging = AppData.profile.automaticStagingFolders(

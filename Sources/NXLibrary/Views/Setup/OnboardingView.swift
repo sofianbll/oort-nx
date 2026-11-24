@@ -91,6 +91,10 @@ struct OnboardingView: View {
     }
 
     private func advance() {
+        if page == .localGames, inventory == nil {
+            finish()
+            return
+        }
         if page == .localGames, let inventory {
             let picked = inventory.entries.filter { !exclusions.contains($0.id) && !$0.alreadyInLibrary }.compactMap(\.game)
             if !picked.isEmpty {
@@ -148,19 +152,20 @@ struct OnboardingView: View {
     private var gameRows: [OnboardingScreen.Row] {
         [
             .init("files", L10n.text("Choose a folder of game files"),
-                  viewModel.porting.gameFilesFolder?.path ?? L10n.text("No folder selected"), .folder,
+                  viewModel.porting.gameFilesFolder?.lastPathComponent ?? L10n.text("No folder selected"), .folder,
                   action: { pickFolder(apps: false) }),
-            .init("apps", L10n.text("Game apps folder"), viewModel.gameAppsFolder.path, .folder,
+            .init("apps", L10n.text("Game apps folder"), viewModel.gameAppsFolder.lastPathComponent, .folder,
                   action: { pickFolder(apps: true) })
         ] + (inventory?.entries.map { entry in
             let label = entry.alreadyInLibrary ? "Already in your library" :
                 entry.isApp ? "Ready to play" : entry.game == nil ? "Identify later in Add Game" : "Game files · build later"
+            let canAdd = entry.game != nil && !entry.alreadyInLibrary
             return .init(entry.id, entry.name, L10n.text(label), entry.isApp ? .gamepad : .folder,
-                         entry.alreadyInLibrary ? .text("✓") : .toggle(!exclusions.contains(entry.id)),
-                         action: entry.alreadyInLibrary ? nil : {
+                         canAdd ? .toggle(!exclusions.contains(entry.id)) : entry.alreadyInLibrary ? .text("✓") : .none,
+                         action: canAdd ? {
                 if !exclusions.insert(entry.id).inserted { exclusions.remove(entry.id) }
                 AppData.preferences.set(Array(exclusions), forKey: AppViewModel.StorageKeys.onboardingExclusions)
-            })
+            } : nil)
         } ?? [])
     }
 
@@ -175,7 +180,14 @@ struct OnboardingView: View {
 
     private func service(_ id: String, _ name: String, _ subtitle: String, _ icon: MaterialIcon,
                          _ section: SettingsSection) -> OnboardingScreen.Row {
-        let enabled = id == "steam" && sources.configuration.isEnabled
+        let enabled: Bool
+        switch section {
+        case .sources: enabled = sources.configuration.isEnabled
+        case .cloudLibrary: enabled = viewModel.cloudLibrary.archive != nil
+        case .profileNextendo: enabled = viewModel.profileNextendo?.status == .signedIn
+        case .cloudSaves: enabled = settings.settings.cloudSaves != .off
+        default: enabled = false
+        }
         return .init(id, L10n.text(name), L10n.text(subtitle), icon, .text(L10n.text(enabled ? "Enabled" : "Later")),
                      action: { openSettings(section) })
     }
