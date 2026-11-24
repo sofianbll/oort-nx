@@ -24,7 +24,7 @@ extension AppViewModel {
               CloudDriveFolders.canMove(from: request.plan.source, to: request.destination) else { return nil }
         if let previous = cloud.pendingMove, previous.request != request { return nil }
         let id = cloud.pendingMove?.id ?? id
-        let chosen = executable ?? cloud.chosenExecutable
+        let chosen = executable ?? (cloud.needsDriveToolChoice ? nil : cloud.resolvedDriveTool)
         cloud.isChangingConnection = true
         cloud.libraryMove = .init(id: id, request: request)
         cloud.libraryMoveTask = Task { [self] in
@@ -37,9 +37,8 @@ extension AppViewModel {
             let job = ActivityHistory.Job.move(request)
             var outcome: ActivityHistory.Outcome
             do {
-                guard let tool = await Task.detached(priority: .utility, operation: {
-                    chosen ?? RcloneStorageBackend.findExecutable()
-                }).value else { throw StorageBackendError.backendUnavailable }
+                guard let tool = chosen, RcloneStorageBackend.isExecutable(tool)
+                else { throw StorageBackendError.backendUnavailable }
                 guard cloud.libraryMove?.isCancelling != true else { throw CancellationError() }
                 let lease = try cloud.moveJournal.acquire()
                 defer { withExtendedLifetime(lease) {} }

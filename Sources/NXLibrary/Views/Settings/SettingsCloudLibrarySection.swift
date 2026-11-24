@@ -31,6 +31,7 @@ struct SettingsCloudLibrarySection: View {
         let enabled: Bool
         let chosen: URL?
         let changing: Bool
+        let resolved: URL?
         let attempt: Int
     }
 
@@ -41,6 +42,11 @@ struct SettingsCloudLibrarySection: View {
         return nil
     }
     private var editable: Bool { viewModel.canConfigureCloudLibrary && testTask == nil }
+    private var canPrepareTool: Bool { viewModel.canStartLibraryMove && testTask == nil }
+    private var showToolRecovery: Bool {
+        model.driveToolFailure != nil || model.needsDriveToolChoice
+            || (selection.enabled && selection.remote != nil && model.resolvedDriveTool == nil)
+    }
     private var canTest: Bool { editable && !inspecting && connected != nil }
     private var canImport: Bool { editable && model.archive != nil && model.importTask == nil && !viewModel.isScanningLibrary }
     private var recoveryFailure: CloudLibraryFailure? {
@@ -95,7 +101,7 @@ struct SettingsCloudLibrarySection: View {
             let path = (tool.path as NSString).abbreviatingWithTildeInPath
             return version.map { "\($0) · \(path)" } ?? path
         }
-        return text(inspecting ? "Checking…" : "Install rclone from rclone.org or with Homebrew: brew install rclone.")
+        return text(inspecting ? "Checking…" : "Choose your own rclone or let Oort NX download it when you turn on Drive.")
     }
 
     var body: some View {
@@ -106,6 +112,14 @@ struct SettingsCloudLibrarySection: View {
                       subtitle: lastTest, verbatimTitle: true, verbatimSubtitle: true) {
                 SeleneStatusDot(text: serviceStatus, color: connectionStatus.color)
             }
+            if let progress = model.driveToolProgress {
+                SeleneButtonRow("Downloading rclone…", id: "driveToolProgress", buttonTitle: "Cancel", action: cancelTool)
+                SeleneProgressBar(progress: progress, color: CloudLibraryStatus.pending.color)
+            } else if showToolRecovery {
+                SeleneButtonRow(model.driveToolFailure?.messageKey ?? "Drive is waiting for rclone.", id: "driveToolRecovery",
+                                buttonTitle: model.driveToolFailure == nil ? "Continue" : "Retry", action: recoverTool)
+                    .disabled(!canPrepareTool)
+            }
             if let failure = recoveryFailure {
                 SeleneButtonRow(failure.messageKey, id: "cloudRecovery", buttonTitle: failure.action.titleKey, action: recover)
                     .disabled(!canRecover)
@@ -115,7 +129,7 @@ struct SettingsCloudLibrarySection: View {
                                 isOn: Binding(get: { selection.enabled }, set: setEnabled))
                     .disabled(!editable)
             } else {
-                SeleneButtonRow("Configure cloud library", buttonTitle: "Open", action: onEdit)
+                SeleneButtonRow("Configure cloud library", buttonTitle: "Open", action: openSetup)
                     .disabled(!editable)
             }
 
@@ -157,7 +171,7 @@ struct SettingsCloudLibrarySection: View {
             if advanced { advancedRows }
         }
         .task(id: Inspection(enabled: !passiveArrival || advanced, chosen: model.chosenExecutable,
-                             changing: model.isChangingConnection, attempt: inspection)) {
+                             changing: model.isChangingConnection, resolved: model.resolvedDriveTool, attempt: inspection)) {
             guard !passiveArrival || advanced else { inspecting = false; return }
             if !model.isChangingConnection { await inspect() }
         }
@@ -168,6 +182,9 @@ struct SettingsCloudLibrarySection: View {
         }
         .onChange(of: recoveryFailure) { publishActions() }
         .onChange(of: model.connectionCheck?.explicit) { publishActions() }
+        .onChange(of: model.driveToolProgress != nil) { publishActions() }
+        .onChange(of: model.driveToolFailure) { publishActions() }
+        .onChange(of: model.needsDriveToolChoice) { publishActions() }
         .onDisappear { testTask?.cancel() }
     }
 
@@ -194,6 +211,12 @@ struct SettingsCloudLibrarySection: View {
                 SelenePillButton(title: "Refresh", minWidth: 96, height: 34, horizontalPadding: 14,
                                  focused: focusedToolButton == (model.chosenExecutable == nil ? 1 : 2),
                                  enabled: editable && !inspecting, action: refresh)
+            }
+            if model.canTrashDriveTool {
+                SeleneButtonRow("Oort NX’s copy of rclone", id: "driveToolOwned",
+                                subtitle: "Only Oort NX’s download is moved to the Trash; other copies stay in place.",
+                                buttonTitle: "Move to Trash", action: confirmTrashTool)
+                    .disabled(!canPrepareTool || selection.enabled)
             }
 
             if let issue {
@@ -237,7 +260,13 @@ struct SettingsCloudLibrarySection: View {
                 actions.insert(.init(id: "cloudRecovery", title: failure.messageKey, isEnabled: canRecover, activate: recover), at: 0)
             }
         } else {
-            actions = [.init(id: "cloudLibrarySetup", title: "Configure cloud library", isEnabled: editable, activate: onEdit)]
+            actions = [.init(id: "cloudLibrarySetup", title: "Configure cloud library", isEnabled: editable, activate: openSetup)]
+        }
+        if model.driveToolProgress != nil {
+            actions.insert(.init(id: "driveToolProgress", title: "Downloading rclone…", activate: cancelTool), at: 0)
+        } else if showToolRecovery {
+            actions.insert(.init(id: "driveToolRecovery", title: "Drive is waiting for rclone.", isEnabled: canPrepareTool,
+                                 activate: recoverTool), at: 0)
         }
         actions += [
             .init(id: "showsCloudPlayIcon", title: "Icon next to Play") { settings.settings.showsCloudPlayIcon.toggle() },
@@ -258,6 +287,10 @@ struct SettingsCloudLibrarySection: View {
             actions.append(.init(id: "cloudLibraryTool", title: "rclone", isEnabled: editable,
                                  secondary: automatic ? ("Automatic", useAutomaticTool) : ("Refresh", refresh),
                                  additionalButtons: automatic ? [refresh] : [], activate: chooseTool))
+            if model.canTrashDriveTool {
+                actions.append(.init(id: "driveToolOwned", title: "Oort NX’s copy of rclone",
+                                     isEnabled: canPrepareTool && !selection.enabled, activate: confirmTrashTool))
+            }
             if selection.remote != nil {
                 actions.append(.init(id: "cloudLibraryTest", title: "Test connection", isEnabled: canTest, activate: test))
                 actions.append(.init(id: "cloudLibraryDisconnect", title: "Disconnect", isEnabled: canTest, activate: confirmDisconnect))
@@ -269,13 +302,52 @@ struct SettingsCloudLibrarySection: View {
     private func setEnabled(_ enabled: Bool) {
         let before = selection
         guard editable, before.remote != nil, enabled != before.enabled else { return }
+        let apply = {
+            guard editable, selection == before else { return }
+            if enabled { model.acceptDriveTool() }
+            model.configure(remote: before.remote, root: before.root, enabled: enabled, sourcesRoot: before.sourcesRootOverride)
+        }
+        if enabled && model.needsDriveTool {
+            viewModel.prepareDriveTool(then: apply)
+            return
+        }
+        var choices: [(title: String, run: () -> Void)] = [(enabled ? "Turn on" : "Turn off", apply)]
+        if !enabled && model.canTrashDriveTool {
+            choices.append(("Turn off and trash", {
+                apply()
+                viewModel.trashDriveTool()
+                refresh()
+            }))
+        }
         viewModel.confirmSetting(text("Cloud library"),
             message: text(enabled
                 ? "Oort NX will use the configured cloud library again without moving your files."
                 : "Oort NX will stop using the cloud library without moving your files."),
-            action: enabled ? "Turn on" : "Turn off") {
-            guard editable, selection == before else { return }
-            model.configure(remote: before.remote, root: before.root, enabled: enabled, sourcesRoot: before.sourcesRootOverride)
+            choices: choices, details: ["Turn off and trash": text("Only Oort NX’s download is moved to the Trash; other copies stay in place.")])
+    }
+
+    private func openSetup() { viewModel.prepareDriveTool(then: onEdit) }
+
+    private func recoverTool() {
+        let before = selection
+        viewModel.prepareDriveTool {
+            guard selection == before else { return }
+            if before.remote == nil { onEdit() }
+            else if !before.enabled {
+                model.configure(remote: before.remote, root: before.root, enabled: true, sourcesRoot: before.sourcesRootOverride)
+            }
+        }
+    }
+
+    private func cancelTool() { model.driveToolTask?.cancel() }
+
+    private func confirmTrashTool() {
+        guard !selection.enabled, canPrepareTool else { return }
+        viewModel.confirmSetting(text("Oort NX’s copy of rclone"),
+            message: text("Only Oort NX’s download is moved to the Trash; other copies stay in place."),
+            action: "Move to Trash") {
+            viewModel.trashDriveTool()
+            inspection += 1
         }
     }
 
@@ -329,8 +401,7 @@ struct SettingsCloudLibrarySection: View {
         version = nil; remotes = nil; issue = nil
         defer { if !Task.isCancelled { inspecting = false } }
         do {
-            let chosen = model.chosenExecutable
-            let found = await Task.detached(priority: .utility) { RcloneStorageBackend.findExecutable(preferred: chosen) }.value
+            let found = model.resolvedDriveTool
             try Task.checkCancellation()
             tool = found
             guard let found else { return }
@@ -374,10 +445,15 @@ struct SettingsCloudLibrarySection: View {
                 guard canTest, model.preference.remote == name else { return }
                 model.isChangingConnection = true
                 Task { @MainActor in
-                    defer { model.isChangingConnection = false }
+                    var disconnected = false
+                    defer {
+                        model.isChangingConnection = false
+                        if disconnected && model.canTrashDriveTool { confirmTrashTool() }
+                    }
                     do {
                         try await RcloneConfiguration(executable: tool).disconnect(name)
                         model.configure(remote: nil, root: selection.root, enabled: false, sourcesRoot: selection.sourcesRootOverride)
+                        disconnected = true
                     } catch {
                         viewModel.showSettingsNotice(title: text("Disconnect"),
                                                      message: text(RcloneConfiguration.Failure.disconnect.key))

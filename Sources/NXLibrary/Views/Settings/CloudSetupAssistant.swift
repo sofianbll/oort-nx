@@ -456,10 +456,9 @@ struct CloudSetupAssistant: View {
     }
 
     private func inspect() {
-        let chosen = model.chosenExecutable
+        let found = model.resolvedDriveTool
         tool = nil; version = nil; remotes = nil
         start(.inspect) {
-            let found = await Task.detached(priority: .utility) { RcloneStorageBackend.findExecutable(preferred: chosen) }.value
             try Task.checkCancellation()
             guard let found, RcloneStorageBackend.isExecutable(found) else { return }
             tool = found

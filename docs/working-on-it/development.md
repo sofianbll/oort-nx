@@ -42,7 +42,9 @@ Register a public PKCE application with Nextendo for `http://127.0.0.1:47823/cal
 
 Supply both `ARCANE_GOOGLE_CLIENT_ID` and `ARCANE_GOOGLE_CLIENT_SECRET` in the environment of `scripts/release.sh` (without `--publish`) or `scripts/build_app.sh`. Use a desktop OAuth client. If either variable is missing or blank, no Google client keys are added to `Info.plist`. These keys are readable by anyone with the app, ZIP or DMG: keep the artifacts private and don't run the scripts with shell tracing. `release.sh --publish` refuses either variable even if set to an empty string and checks that the built plist has neither key. Personal releases go to `work/release-private`, accept an existing version tag without changing it, and can lose the embedded client when a public update replaces the app.
 
-The release build downloads the official macOS arm64 rclone 1.75.2 archive, verifies it against both the pinned SHA-256 and the upstream `SHA256SUMS`, then signs the helper in `Contents/Helpers`. Development builds use a local rclone; Arcane never downloads a helper at runtime.
+No app bundle includes rclone. With the player’s consent, `RcloneDownload` fetches the pinned macOS arm64 ZIP directly from the official HTTPS host, checks its exact size and SHA-256 against the reviewed [upstream checksums](https://downloads.rclone.org/v1.75.2/SHA256SUMS), and extracts only the expected member into the private app-data tree on the destination volume. `SecStaticCodeCheckValidity` verifies the original embedded signature before an exclusive atomic rename. The upstream signature is ad hoc, not a Developer ID or notarization claim; the checked archive hash is the identity of this release. URLSession writes bytes into app-created files, rather than opening a Finder download, and the app does not remove quarantine, re-sign or run approval overrides. Externally chosen executables retain their own signatures and quarantine. If macOS refuses one, choose a working executable in Advanced.
+
+The managed path is `<profile support>/DriveTools/rclone-<version>/rclone`; only a completed, receipted copy can be resolved or offered for Trash. The same resolved absolute executable is used for CLI calls and the Unix-socket `rclone rcd`; replacing the backend stops the old daemon. Neither the helper nor the daemon creates a new cloud configuration path. A failed or cancelled download does not publish an executable or touch the configured remote.
 
 ### Bundled runtime
 
@@ -50,8 +52,8 @@ The release build downloads the official macOS arm64 rclone 1.75.2 archive, veri
 
 Run it again when the lock changes. `build_app.sh` checks the runtime metadata against the lock before copying it. The lock is a reviewed input, not a request to install whichever package versions happen to be newest.
 
-Release builds also check the licence manifest against the staged app and again
-against the extracted release ZIP. Review the applicable obligations, original
+Builds reject a bundled rclone and check the licence manifest against the staged
+app and, for releases, against the extracted release ZIP. Review applicable obligations, original
 texts and source files whenever an input changes; update the checked hashes
 only after that review. To check an existing release bundle without building it:
 

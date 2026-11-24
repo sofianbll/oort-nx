@@ -5,7 +5,7 @@ This product includes and is built on work from the following MIT projects.
 The MIT permission notice is reproduced for each project below.
 
 --------------------------------------------------------------------------------
-rclone (macOS arm64, v1.75.2)
+rclone (optional download from upstream; no binary is included)
 https://github.com/rclone/rclone
 
 Copyright (C) 2012 by Nick Craig-Wood http://www.craig-wood.com/nick/
@@ -28,10 +28,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-Upstream source, Go toolchain and dependency notices for this binary are in
-ThirdPartyLicenses/rclone-LICENSES.txt. The vendor source archive linked there
-contains the source files of the MPL-2.0 dependencies. These notices are not a
-source or relinking offer for the potentially LGPL-covered cloudsoda/sddl.
+If the player chooses to download rclone, Oort NX fetches the pinned macOS arm64
+release directly from https://downloads.rclone.org/ and verifies it before use.
+The upstream source, Go toolchain and dependency notices for that release are
+in ThirdPartyLicenses/rclone-LICENSES.txt. The MIT text above describes rclone
+itself, not every dependency; see the linked vendor sources and notices.
 
 --------------------------------------------------------------------------------
 nxnative

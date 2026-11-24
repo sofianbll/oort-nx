@@ -74,18 +74,26 @@ def check_runtime(root, runtime):
     return []
 
 
-def check_app(root, app):
+def check_app(root, app, require_runtime=True):
     resources = app / "Contents/Resources"
-    issues = check_runtime(root, resources / "Runtime")
-    if not (app / "Contents/Helpers/rclone").is_file():
-        issues.append("Release app is missing rclone.")
+    issues = []
+    if require_runtime or (resources / "Runtime").exists():
+        require_runtime = True
+        issues += check_runtime(root, resources / "Runtime")
     try:
+        for _, dirs, files in os.walk(app):
+            if any(re.fullmatch(r"rclone(?:\.exe|(?:-.*)?\.zip)?", name, re.I) for name in dirs + files):
+                issues.append("App must not contain rclone or its binary archive.")
+                break
         if not resources.resolve().is_relative_to(app.resolve()):
             return issues + ["Bundle resources point outside the app."]
         expected = json.loads((root / "scripts/bundle-licences.json").read_text())
         if not isinstance(expected, dict) or not expected:
             return issues + ["Bundle licence manifest must not be empty."]
+        expected["NOTICE"] = hashlib.sha256((root / "NOTICE").read_bytes()).hexdigest()
         for name, digest in expected.items():
+            if not require_runtime and name.startswith("Runtime/"):
+                continue
             path = resources / name
             if path.is_symlink() or not path.resolve().is_relative_to(resources.resolve()):
                 issues.append("Invalid bundle licence path: " + name)
@@ -103,13 +111,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--runtime", type=Path, help="Also verify a bundled runtime against runtime.lock.")
     parser.add_argument("--app", type=Path, help="Also verify a release app's reviewed licence and source files.")
+    parser.add_argument("--without-runtime", action="store_true", help="Allow a development bundle without the runtime.")
     args = parser.parse_args()
     root = Path(subprocess.check_output(["git", "rev-parse", "--show-toplevel"]).decode().strip())
     issues = check_files(root)
     if args.runtime:
         issues += check_runtime(root, args.runtime)
     if args.app:
-        issues += check_app(root, args.app)
+        issues += check_app(root, args.app, require_runtime=not args.without_runtime)
     for issue in issues:
         print(issue)
     if not issues:

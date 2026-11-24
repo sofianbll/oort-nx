@@ -1,6 +1,7 @@
 import hashlib
 import json
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -101,18 +102,18 @@ class PublicationChecks(unittest.TestCase):
         runtime = resources / "Runtime"
         lock = b'{"python":{"version":"3.14.6"},"wheels":[],"brew":[]}'
         (self.root / "runtime.lock").write_bytes(lock)
-        for path in [runtime / name for name in ["python/bin/python3", "bin/zstd", "bin/glslangValidator"]] + [
-            app / "Contents/Helpers/rclone"
-        ]:
+        for path in [runtime / name for name in ["python/bin/python3", "bin/zstd", "bin/glslangValidator"]]:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text("fixture")
             path.chmod(0o755)
         (runtime / "versions.json").write_text(json.dumps(
             {"python": "3.14.6", "lock": hashlib.sha256(lock).hexdigest()}))
-        contents = {"ThirdPartyLicenses/rclone.txt": b"rclone licence",
+        contents = {"NOTICE": b"main notice", "ThirdPartyLicenses/rclone-LICENSES.txt": b"rclone licence",
                     "Runtime/licenses/python.txt": b"Python licence",
                     "Runtime/sources/zbic.tar.gz": b"source archive"}
         manifest = {name: hashlib.sha256(data).hexdigest() for name, data in contents.items()}
+        manifest.pop("NOTICE")
+        (self.root / "NOTICE").write_bytes(contents["NOTICE"])
         (self.root / "scripts").mkdir()
         (self.root / "scripts/bundle-licences.json").write_text(json.dumps(manifest))
         for name, data in contents.items():
@@ -120,6 +121,16 @@ class PublicationChecks(unittest.TestCase):
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(data)
         self.assertEqual(self.scan("--app", str(app)).returncode, 0)
+        for relative in ("Contents/Helpers/rclone", "Contents/Resources/rclone-v1-osx-arm64.zip",
+                         "Contents/MacOS/RCLONE"):
+            with self.subTest(relative=relative):
+                forbidden = app / relative
+                forbidden.parent.mkdir(parents=True, exist_ok=True)
+                forbidden.symlink_to("missing")
+                result = self.scan("--app", str(app))
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("must not contain rclone", result.stdout)
+                forbidden.unlink()
         for name, data in contents.items():
             with self.subTest(name=name):
                 path = resources / name
@@ -132,6 +143,11 @@ class PublicationChecks(unittest.TestCase):
                 self.assertNotEqual(result.returncode, 0)
                 self.assertIn("Changed bundle licence or source: " + name, result.stdout)
                 path.write_bytes(data)
+        shutil.rmtree(runtime)
+        self.assertNotEqual(self.scan("--app", str(app)).returncode, 0)
+        self.assertEqual(self.scan("--app", str(app), "--without-runtime").returncode, 0)
+        (resources / "NOTICE").unlink()
+        self.assertNotEqual(self.scan("--app", str(app), "--without-runtime").returncode, 0)
 
 
 if __name__ == "__main__":

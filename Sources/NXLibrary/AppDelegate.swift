@@ -51,6 +51,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let activity = Self.activityOwner
         if activity?.porting.isAdoptingBuildCache == true { return .terminateCancel }
         let decision = CloudQuitDecision.resolve(isWorking: cloud.isWorking, hasQueueWrites: cloud.hasQueueWrites
+                                            || cloud.driveToolTask != nil
                                             || activity?.hasActivityWrites == true || activity?.porting.hasBuildQueueWrites == true
                                             || activity?.buildQueue.isEmpty == false || activity?.activityResults.entries.isEmpty == false,
                                          isQuitting: cloud.isQuitting, cleanupComplete: Self.cloudQuitCleanupComplete,

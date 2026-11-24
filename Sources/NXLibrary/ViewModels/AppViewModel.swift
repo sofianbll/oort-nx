@@ -55,7 +55,10 @@ final class AppViewModel: ObservableObject {
             if appIcon.iconLaunchWait.gameID != nil, settingsNotice?.id != appIcon.iconLaunchWait.noticeID {
                 appIcon.cancelIconLaunchWait()
             }
-            if settingsNotice == nil { porting.scheduleNextBuild() }
+            if settingsNotice == nil {
+                porting.scheduleNextBuild()
+                Task { @MainActor [weak self] in self?.offerDriveUpgrade() }
+            }
         }
     }
     @Published var settingsNoticeFocus = 0

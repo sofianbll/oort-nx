@@ -50,7 +50,7 @@ final class RcloneRemoteControl: @unchecked Sendable {
         try Task.checkCancellation()
         guard let current = try lock.withLock({ () throws -> Session? in
             if stopped { throw CancellationError() }
-            if let session, session.process.isRunning { return session }
+            if let session, session.process.isRunning, session.process.executableURL == executable { return session }
             session?.stop()
             session = nil
             guard ProcessInfo.processInfo.systemUptime >= retryAfter else { return nil }

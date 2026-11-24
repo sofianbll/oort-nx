@@ -7,6 +7,8 @@ public struct CloudLibraryPreference: Equatable, Sendable {
     public static let enabledKey = "NXLibrary_CloudStorageEnabled"
     public static let executableKey = "NXLibrary_RclonePath"
     public static let referenceFolderKey = "NXLibrary_CloudReferenceFolder"
+    public static let toolChoiceKey = "NXLibrary_DriveToolChoice"
+    public static let toolOfferKey = "NXLibrary_DriveToolOfferSeen"
     public static let defaultRoot = "Games"
 
     public let remote: String?

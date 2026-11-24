@@ -11,6 +11,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 - The home bar and **Integrations** page show each service’s status and open its settings without activating it.
 - Add local Mac apps as library shortcuts without changing the apps or recording play sessions.
 - **Sound & music** offers optional built-in and local sound packs. Selene remains the default.
+- Drive reuses an existing rclone or asks before downloading it from upstream. The app no longer embeds rclone, and you can trash Oort NX’s own copy without removing your connection or files.
 
 ### Fixed
 

@@ -48,7 +48,8 @@ def prepare(package):
 
     settings = app / "Views/Settings"
     cloud = settings / "SettingsCloudLibrarySection.swift"
-    expose(cloud, "setEnabled", "unfollow", "confirmDisconnect")
+    expose(cloud, "setEnabled", "unfollow", "confirmDisconnect", "confirmTrashTool")
+    replace(cloud, r'private var advancedRows:', 'var advancedRows:')
     replace(cloud, r'private var tool: URL\?', 'private var tool: URL? = URL(fileURLWithPath: "/fixture/rclone")')
     replace(cloud, r'private var remotes: \[RcloneRemote\]\?', 'private var remotes: [RcloneRemote]? = SettingsConfirmationProbe.remotes')
     replace(cloud, r'private var inspecting = true', 'private var inspecting = false')
@@ -56,6 +57,14 @@ def prepare(package):
             'try SettingsConfirmationProbe.disconnect(tool, name)')
     replace(app / "ViewModels/AppViewModel+CloudLibrary.swift",
             r'(cloudLibrary.setReferenceFolder\(folder\)\n)            importCloudGames\(\)', lambda m: m[1])
+    replace(app / "ViewModels/AppViewModel+CloudLibrary.swift",
+            r'var resolvedDriveTool: URL\? \{.*?\n    }',
+            'var resolvedDriveTool: URL? { SettingsConfirmationProbe.availableDriveTool ?? driveTool.installedExecutable }')
+    replace(app / "ViewModels/AppViewModel+DriveTool.swift",
+            r'            let installer = cloud.driveTool\n', '')
+    replace(app / "ViewModels/AppViewModel+DriveTool.swift",
+            r'                    _ = try await installer.install \{',
+            '                    try await SettingsConfirmationProbe.installTool {')
     for name in ("SettingsAPISection", "SettingsEngineSection"):
         expose(settings / f"{name}.swift", "publishActions")
     expose(settings / "SettingsView.swift", "resetSection")

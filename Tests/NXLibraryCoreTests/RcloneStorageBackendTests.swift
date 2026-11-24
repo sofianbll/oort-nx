@@ -132,7 +132,7 @@ final class RcloneStorageBackendTests: XCTestCase {
         }
     }
 
-    func testExecutableResolutionPrefersExplicitThenBundledThenSystemAndAbsolutePath() throws {
+    func testExecutableResolutionNeverUsesBundleAndPrefersExplicitThenSystemAndAbsolutePath() throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }
         let bundle = root.appendingPathComponent("Fixture.app")
@@ -146,14 +146,12 @@ final class RcloneStorageBackendTests: XCTestCase {
             try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: file.path)
         }
         func find(_ preferred: URL? = nil) -> URL? {
-            RcloneStorageBackend.findExecutable(preferred: preferred, bundle: bundle,
+            RcloneStorageBackend.findExecutable(preferred: preferred,
                 path: ".:\(path.deletingLastPathComponent().path)", systemDirectories: [system.deletingLastPathComponent().path])
         }
         XCTAssertEqual(find(custom)?.path, custom.path)
-        XCTAssertEqual(find()?.path, helper.path)
-        XCTAssertNil(find(helper.deletingLastPathComponent()))
-        try FileManager.default.removeItem(at: helper)
         XCTAssertEqual(find()?.path, system.path)
+        XCTAssertNil(find(helper.deletingLastPathComponent()))
         try FileManager.default.removeItem(at: system)
         XCTAssertEqual(find()?.path, path.path)
     }

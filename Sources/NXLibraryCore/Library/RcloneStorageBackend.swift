@@ -92,15 +92,13 @@ public struct RcloneStorageBackend: StorageBackend {
     public func stopRemoteControl() { control.stop() }
 
     public static func findExecutable(preferred: URL? = nil) -> URL? {
-        findExecutable(preferred: preferred, bundle: Bundle.main.bundleURL,
+        findExecutable(preferred: preferred,
                        path: ProcessInfo.processInfo.environment["PATH"] ?? "",
                        systemDirectories: ["/opt/homebrew/bin", "/usr/local/bin"])
     }
 
-    static func findExecutable(preferred: URL?, bundle: URL, path: String, systemDirectories: [String]) -> URL? {
+    static func findExecutable(preferred: URL?, path: String, systemDirectories: [String]) -> URL? {
         if let preferred { return isExecutable(preferred) ? preferred : nil }
-        let bundled = bundle.appendingPathComponent("Contents/Helpers/rclone")
-        if isExecutable(bundled) { return bundled }
         return (systemDirectories + path.split(separator: ":").map(String.init))
             .filter { $0.hasPrefix("/") }
             .map { URL(fileURLWithPath: $0).appendingPathComponent("rclone") }

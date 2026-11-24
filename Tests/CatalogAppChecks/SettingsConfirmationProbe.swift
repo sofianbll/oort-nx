@@ -11,6 +11,17 @@ import ArcanePorting
     static var disconnects = 0
     static var pin: String?
     static var pickedEngine: URL?
+    static var availableDriveTool: URL? = URL(fileURLWithPath: "/fixture/rclone")
+    static var downloadCalls = 0
+    static var finishDownload: CheckedContinuation<Void, Never>?
+
+    @MainActor static func installTool(progress: (Double) -> Void) async throws {
+        downloadCalls += 1
+        progress(0.42)
+        await withCheckedContinuation { finishDownload = $0 }
+        try Task.checkCancellation()
+        throw RcloneDownload.Failure.network
+    }
 
     static func disconnect(_ tool: URL, _ name: String) throws {
         precondition(tool.path == "/fixture/rclone" && name == "fixture")
@@ -120,6 +131,70 @@ import ArcanePorting
         try confirm("cloud-disconnect", cloud.confirmDisconnect, count: { disconnects })
         for _ in 0..<20 where model.isChangingConnection { await Task.yield() }
         precondition(disconnects == 1 && model.preference.remote == nil && cloudWrites == 7)
+
+        // Upgrade from the embedded helper: do not touch the preference or retry automatically after Cancel.
+        AppData.preferences.set("fixture:Games", forKey: CloudLibraryPreference.storageKey)
+        AppData.preferences.set(true, forKey: CloudLibraryPreference.enabledKey)
+        AppData.preferences.removeObject(forKey: CloudLibraryPreference.toolChoiceKey)
+        AppData.preferences.removeObject(forKey: CloudLibraryPreference.toolOfferKey)
+        let queue = AppData.supportRoot.appendingPathComponent("cloud-transfer-queue.json")
+        try FileManager.default.createDirectory(at: AppData.supportRoot, withIntermediateDirectories: true)
+        let entries = try JSONEncoder().encode([CloudTransferQueue.Entry(id: UUID(), action: .restore(.app),
+            token: UUID(), storage: "fixture:Games")])
+        try entries.write(to: queue)
+        availableDriveTool = nil
+        let upgraded = makeModel()
+        let migration = upgraded.cloudLibrary
+        let upgradeInput = Input(viewModel: upgraded)
+        let drive = SettingsCloudLibrarySection(viewModel: upgraded, model: migration, settings: settings,
+            advanced: .constant(false), onEdit: {}, onEditLibrary: {}, onEditSources: {}, onActions: { _ in })
+        let saved = migration.preference
+        precondition(migration.needsDriveToolChoice && migration.archive == nil)
+        upgraded.offerDriveUpgrade()
+        let consent = upgraded.settingsNotice!
+        precondition(upgraded.settingsNoticeFocus == consent.cancelIndex && consent.message.contains("licence MIT")
+                     && consent.message.contains(RcloneDownload.host) && downloadCalls == 0)
+        try render("drive-download", upgradeInput.settingsNoticeOverlay(consent))
+        upgradeInput.settingsNoticeInput(.confirm)
+        precondition(upgraded.settingsNotice == nil && migration.archive == nil && migration.preference == saved)
+        let reopenedCloud = makeModel()
+        reopenedCloud.offerDriveUpgrade()
+        precondition(reopenedCloud.settingsNotice == nil && reopenedCloud.cloudLibrary.needsDriveToolChoice)
+
+        upgraded.prepareDriveTool {}
+        upgradeInput.settingsNoticeInput(.navigateLeft)
+        upgradeInput.settingsNoticeInput(.confirm)
+        for _ in 0..<100 where finishDownload == nil { await Task.yield() }
+        precondition(downloadCalls == 1 && migration.archive == nil && migration.driveToolProgress == 0.42)
+        try render("drive-progress", drive, height: 950)
+        finishDownload?.resume()
+        finishDownload = nil
+        await migration.driveToolTask?.value
+        precondition(migration.driveToolFailure == .network && migration.archive == nil && migration.preference == saved)
+        try render("drive-failure", drive, height: 950)
+        availableDriveTool = URL(fileURLWithPath: "/fixture/rclone")
+        upgraded.prepareDriveTool {}
+        precondition(upgraded.settingsNoticeFocus == upgraded.settingsNotice?.cancelIndex && migration.archive == nil)
+        upgradeInput.settingsNoticeInput(.navigateLeft)
+        upgradeInput.settingsNoticeInput(.confirm)
+        let unchangedQueue = try Data(contentsOf: queue)
+        precondition(!migration.needsDriveToolChoice && migration.archive != nil && migration.preference == saved
+                     && !migration.hasRestoredQueue && downloadCalls == 1 && unchangedQueue == entries)
+        let installed = AppData.supportRoot.appendingPathComponent("DriveTools/rclone-\(RcloneDownload.version)", isDirectory: true)
+        try FileManager.default.createDirectory(at: installed, withIntermediateDirectories: true)
+        try FileManager.default.copyItem(at: URL(fileURLWithPath: "/usr/bin/true"), to: installed.appendingPathComponent("rclone"))
+        try Data().write(to: installed.appendingPathComponent("oort-install"))
+        migration.configure(remote: "fixture", root: "Games", enabled: false, sourcesRoot: nil)
+        precondition(migration.canTrashDriveTool)
+        try render("drive-settings", VStack(spacing: 8) { drive.advancedRows }, height: 570)
+        drive.confirmTrashTool()
+        let trash = upgraded.settingsNotice!
+        precondition(upgraded.settingsNoticeFocus == trash.cancelIndex)
+        try render("drive-trash", upgradeInput.settingsNoticeOverlay(trash))
+        upgradeInput.settingsNoticeInput(.cancel)
+        precondition(migration.canTrashDriveTool)
+        migration.chooseExecutable(installed.appendingPathComponent("rclone"))
+        precondition(!migration.canTrashDriveTool)
 
         let setup = vm.setup
         let engineFolder = root.appendingPathComponent("Engine", isDirectory: true)
