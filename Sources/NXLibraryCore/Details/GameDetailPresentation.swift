@@ -14,6 +14,10 @@ public struct GameDetailPresentation: Equatable {
     /// The store's answer in the app language is final (`NintendoStoreMetadata.languageResolved`); until then the
     /// page shows the old text and Wikipedia is not asked, so the text changes once, not twice.
     public let descriptionSettled: Bool
+    /// A short store blurb can coexist with a longer description from another source.
+    public let descriptionExcerpt: String?
+    public let descriptionIsExcerpt: Bool
+    public let descriptionSource: String?
     public let genres: [String]
     public let released: String?
     public let developerLine: String?
@@ -39,7 +43,8 @@ public struct GameDetailPresentation: Equatable {
     /// Every value of the page, for a source's own entry (`GameDetailPresentation+Porting.swift`).
     package init(title: String, console: String, eyebrow: String, description: String,
                  descriptionIsEnglishFallback: Bool, descriptionLanguageNote: String?, descriptionLanguage: String?,
-                 descriptionSettled: Bool, genres: [String], released: String?, developerLine: String?,
+                 descriptionSettled: Bool, descriptionExcerpt: String? = nil, descriptionIsExcerpt: Bool = false,
+                 descriptionSource: String? = nil, genres: [String], released: String?, developerLine: String?,
                  thisWeek: String, rank: String?, publisher: String?, releaseYear: String?, playtime: String,
                  lastPlayed: String, version: String, size: String,
                  toolchainVerified: Bool, toolchainNote: String?, canPlay: Bool, canRebuild: Bool,
@@ -53,6 +58,9 @@ public struct GameDetailPresentation: Equatable {
         self.descriptionLanguageNote = descriptionLanguageNote
         self.descriptionLanguage = descriptionLanguage
         self.descriptionSettled = descriptionSettled
+        self.descriptionExcerpt = descriptionExcerpt
+        self.descriptionIsExcerpt = descriptionIsExcerpt
+        self.descriptionSource = descriptionSource
         self.genres = genres
         self.released = released
         self.developerLine = developerLine

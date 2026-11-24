@@ -80,6 +80,6 @@ final class DetailsFactsTests: XCTestCase {
 
     func testRowsCarryTheirSymbols() {
         XCTAssertEqual(DetailsFact.Kind.allCases.map { DetailsFact(kind: $0, value: "x").symbol },
-                       ["hammer", "building.2", "number", "gearshape", "internaldrive", "folder"])
+                       ["hammer", "building.2", "person.2", "checkmark.shield", "number", "gearshape", "internaldrive", "folder"])
     }
 }

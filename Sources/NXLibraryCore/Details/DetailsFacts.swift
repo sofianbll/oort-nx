@@ -2,7 +2,7 @@ import Foundation
 
 /// One line of a game's Details panel: a player-facing fact with its label and grey icon.
 public struct DetailsFact: Equatable, Identifiable, Sendable {
-    public enum Kind: String, CaseIterable, Sendable { case developer, publisher, version, engine, size, location }
+    public enum Kind: String, CaseIterable, Sendable { case developer, publisher, players, ageRating, version, engine, size, location }
 
     public let kind: Kind
     public let value: String
@@ -17,6 +17,8 @@ public struct DetailsFact: Equatable, Identifiable, Sendable {
         switch kind {
         case .developer: return L10n.text("Developer")
         case .publisher: return L10n.text("Publisher")
+        case .players: return L10n.text("Players")
+        case .ageRating: return L10n.text("Age rating")
         case .version: return L10n.text("Version")
         case .engine: return L10n.text("Engine")
         case .size: return L10n.text("Size on disk")
@@ -29,6 +31,8 @@ public struct DetailsFact: Equatable, Identifiable, Sendable {
         switch kind {
         case .developer: return "hammer"
         case .publisher: return "building.2"
+        case .players: return "person.2"
+        case .ageRating: return "checkmark.shield"
         case .version: return "number"
         case .engine: return "gearshape"
         case .size: return "internaldrive"

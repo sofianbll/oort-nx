@@ -111,14 +111,12 @@ public final class ArtworkStore: ObservableObject {
         }
         guard let fetchURL = targetURL else { return nil }
 
-        var request = URLRequest(url: fetchURL)
-        request.timeoutInterval = 15
-        request.setValue(AppIdentity.userAgent(),
-                         forHTTPHeaderField: "User-Agent")
-
         do {
-            let (data, http) = try await client.data(for: request)
-            guard (200..<300).contains(http.statusCode), !data.isEmpty else {
+            let large = await NintendoEuropeImageSize.shared.larger(fetchURL,
+                width: kind == .hero ? 1600 : 1000, client: client)
+            let preferred = if let large { try? await fetchData(large) } else { nil as Data? }
+            let data = if let preferred { preferred } else { try await fetchData(fetchURL) }
+            guard let data else {
                 if kind == .hero, fetchURL.absoluteString != "https://api.nlib.cc/nx/\(titleID)/banner",
                    titleID.count == 16, titleID.hasPrefix("0100") {
                     return await fetch(titleID: titleID,
@@ -160,6 +158,15 @@ public final class ArtworkStore: ObservableObject {
             }
             return cachedURL(titleID: titleID, kind: kind)
         }
+    }
+
+    private func fetchData(_ url: URL) async throws -> Data? {
+        var request = URLRequest(url: url, timeoutInterval: 15)
+        let isNintendo = NintendoEuropeImageSize.isNintendoImage(url)
+        if isNintendo { request.httpShouldHandleCookies = false }
+        request.setValue(isNintendo ? "Game Library" : AppIdentity.userAgent(), forHTTPHeaderField: "User-Agent")
+        let (data, http) = try await client.data(for: request)
+        return (200..<300).contains(http.statusCode) && !data.isEmpty ? data : nil
     }
 
     /// Cached title screenshot (`screen-<index>.jpg`, max 1600 px). Cache hit needs no network.

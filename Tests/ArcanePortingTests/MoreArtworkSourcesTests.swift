@@ -108,16 +108,42 @@ final class MoreArtworkSourcesTests: XCTestCase {
       "image_url_h2x1_s":"https://www.nintendo.com/eu/media/images/H2x1_Celeste_image500w.jpg"}]}}
     """.utf8)
 
-    func testNintendoEuropeGivesItsBannerLargeAndItsSquare() {
+    func testNintendoEuropeListsTheKnownBannerAndSquareWithoutGuessing() {
         let url = NintendoEuropeArt.searchURL(for: "Celeste™")
         XCTAssertEqual(query(url)["q"], "Celeste")
         XCTAssertTrue(query(url)["fq"]?.contains("nintendoswitch") == true)
         let list = NintendoEuropeArt.candidates(in: europeSearch, matching: ["Celeste"])
         let background = list.first { $0.slot == .background }
-        XCTAssertEqual(background?.url.absoluteString, "https://www.nintendo.com/eu/media/images/H2x1_Celeste_image1600w.jpg")
-        XCTAssertEqual(background?.fallback?.absoluteString, "https://www.nintendo.com/eu/media/images/H2x1_Celeste_image500w.jpg")
+        XCTAssertEqual(background?.url.absoluteString, "https://www.nintendo.com/eu/media/images/H2x1_Celeste_image500w.jpg")
+        XCTAssertNil(background?.fallback)
         XCTAssertEqual(by(list, .icon), ["https://www.nintendo.com/eu/media/images/SQ_Celeste_image500w.jpg"])
         XCTAssertEqual(NintendoEuropeArt.candidates(in: europeSearch, matching: ["Hades"]), [])
+    }
+
+    func testOnlyVerifiedNintendoSizesAreUsedAndTheHeadResultIsCached() async throws {
+        struct HeadClient: ArtworkHTTPClient {
+            let check: (URLRequest) -> Int
+            func data(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {
+                (Data(), HTTPURLResponse(url: request.url!, statusCode: check(request), httpVersion: nil,
+                                         headerFields: ["Content-Type": "image/jpeg"])!)
+            }
+        }
+        let sizes = NintendoEuropeImageSize()
+        let base = try XCTUnwrap(URL(string: "https://www.nintendo.com/eu/media/images/fixture_image500w.jpg"))
+        let client = HeadClient { request in
+            XCTAssertEqual(request.httpMethod, "HEAD")
+            XCTAssertFalse(request.httpShouldHandleCookies)
+            return request.url?.lastPathComponent.hasSuffix("1600w.jpg") == true ? 200 : 404
+        }
+        let large = await sizes.larger(base, width: 1600, client: client)
+        XCTAssertEqual(large?.lastPathComponent, "fixture_image1600w.jpg")
+        let absent = await sizes.larger(base, width: 1000, client: client)
+        XCTAssertNil(absent)
+        let noNetwork = HeadClient { _ in XCTFail("A cached HEAD result sent another request"); return 503 }
+        let again = await sizes.larger(base, width: 1600, client: noNetwork)
+        let absentAgain = await sizes.larger(base, width: 1000, client: noNetwork)
+        XCTAssertEqual(again, large)
+        XCTAssertNil(absentAgain)
     }
 
     // MARK: - Steam screenshots

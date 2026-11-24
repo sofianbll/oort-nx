@@ -72,7 +72,7 @@ final class ArtworkPickerTests: XCTestCase {
         let header = URL(string: "https://img.example/header.jpg")!
         let backgrounds = ArtworkCandidates.list(for: .background, entries: [], titleDB: info,
                                                  storeHeader: header, storeImage: header, storeLogo: nil)
-        XCTAssertEqual(backgrounds.map(\.source), ["Title DB banner", "Title DB screenshot 1", "Nintendo store"])
+        XCTAssertEqual(backgrounds.map(\.source), ["Nintendo store", "Title DB banner", "Title DB screenshot 1"])
 
         let icons = ArtworkCandidates.list(for: .icon, entries: [totk], titleDB: info,
                                            storeHeader: nil, storeImage: nil, storeLogo: nil)

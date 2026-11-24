@@ -116,8 +116,11 @@ extension SpotlightView {
 
     /// About this game's cut for the page, as tall as the column beside it.
     func aboutExcerpt(_ page: SpotlightPageModel) -> DescriptionExcerpt {
-        SpotlightDescription.excerpt(aboutWikipedia(page)?.text ?? page.presentation.description,
-                                     columnHeight: blocks[.column] ?? 0, canvas: canvas)
+        let full = aboutWikipedia(page)?.text ?? page.presentation.description
+        if let short = page.presentation.descriptionExcerpt, short != full {
+            return DescriptionExcerpt(text: short, truncated: true)
+        }
+        return SpotlightDescription.excerpt(full, columnHeight: blocks[.column] ?? 0, canvas: canvas)
     }
 
     func aboutLookup(_ page: SpotlightPageModel) -> WikipediaAboutLookup? {

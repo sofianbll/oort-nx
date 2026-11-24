@@ -92,9 +92,13 @@ extension SpotlightView {
         HStack(alignment: .top, spacing: 0) {
             let excerpt = aboutExcerpt(page)
             let wikipedia = aboutWikipedia(page)
+            let short = !aboutExpanded && page.presentation.descriptionExcerpt != nil
+            let source = short ? "Nintendo Europe" : page.presentation.descriptionSource
+            let note = [source.map { L10n.text($0) }, page.presentation.descriptionLanguageNote]
+                .compactMap { $0 }.joined(separator: " · ")
             SpotlightDescription(text: wikipedia?.text ?? page.presentation.description,
-                                 languageNote: wikipedia == nil ? page.presentation.descriptionLanguageNote : nil,
-                                 wikipediaPage: wikipedia?.pageURL, excerpt: excerpt,
+                                 languageNote: note.isEmpty ? nil : note,
+                                 wikipediaPage: short ? nil : wikipedia?.pageURL, excerpt: excerpt,
                                  expanded: aboutExpanded, focused: state.focus == .about,
                                  onToggle: { aboutExpanded.toggle() })
                 .spotlightBlock(.about)

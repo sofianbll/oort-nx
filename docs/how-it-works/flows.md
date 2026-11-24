@@ -362,7 +362,7 @@ In System → About, il riepilogo collega Arcane 0.2.1 di Bium23 al progetto ori
 
 Tornando alla home, le viste delle tessere ricreate leggono subito le immagini decodificate in `TileArtMemo`; i task caricano quelle mancanti e rivalidano i file Steam. La cover della card Mods resta nel `ModStoreHost` posseduto dalla shell ed è rivalidata in background rispetto agli abbinamenti correnti.
 
-In Settings → Storage, svuotare la cache dei metadati scarta anche i risultati di precaricamento già letti ma non ancora mostrati. Una nuova apertura può caricare una descrizione aggiornata.
+La scheda Switch cerca il prodotto Nintendo Europe con l'ID del titolo quando lo si seleziona o apre. Mostra il testo nella lingua dell'app, con Nlib e Wikipedia per i testi più lunghi, e indica fonte e lingua di ripiego. Le modifiche da Change metadata restano locali e prevalgono. In Settings → Storage, svuotare la cache dei metadati scarta anche i risultati di precaricamento già letti ma non ancora mostrati. Una nuova apertura può caricare dati aggiornati.
 
 ## 9. Aggiornare l'app
 

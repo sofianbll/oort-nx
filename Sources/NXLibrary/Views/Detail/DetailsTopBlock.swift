@@ -274,17 +274,25 @@ struct DetailsTopBlock: View {
 
     @ViewBuilder
     private var description: some View {
-        let text = wikipedia?.text ?? presentation.description
+        let excerpt = presentation.descriptionExcerpt
+        let wiki = expanded || excerpt == nil ? wikipedia : nil
+        let fullText = wikipedia?.text ?? presentation.description
+        let text = wiki?.text ?? (expanded ? presentation.description : excerpt ?? presentation.description)
         VStack(alignment: .leading, spacing: canvas.u(6)) {
             if text.isEmpty {
                 Text(L10n.text("No description for this game yet."))
                     .seleneFont(.body)
                     .foregroundColor(SeleneTheme.ink60)
             } else {
-                if let wikipedia {
-                    WikipediaCredit(pageURL: wikipedia.pageURL)
-                } else if let note = presentation.descriptionLanguageNote {
-                    Text(note).seleneFont(.metadata).foregroundColor(SeleneTheme.ink60)
+                if let wiki {
+                    WikipediaCredit(pageURL: wiki.pageURL)
+                } else {
+                    let source = !expanded && excerpt != nil ? "Nintendo Europe" : presentation.descriptionSource
+                    let note = [source.map { L10n.text($0) }, presentation.descriptionLanguageNote]
+                        .compactMap { $0 }.joined(separator: " · ")
+                    if !note.isEmpty {
+                        Text(note).seleneFont(.metadata).foregroundColor(SeleneTheme.ink60)
+                    }
                 }
                 if expanded {
                     ScrollView(.vertical, showsIndicators: false) {
@@ -298,7 +306,7 @@ struct DetailsTopBlock: View {
                         .frame(maxHeight: canvas.u(130), alignment: .top)
                         .clipped()
                 }
-                if text.count > Self.readMoreThreshold {
+                if fullText.count > Self.readMoreThreshold || (excerpt != nil && excerpt != fullText) {
                     Button(expanded ? L10n.text("Show less") : L10n.text("Read more")) { expanded.toggle() }
                         .buttonStyle(.plain)
                         .seleneFont(.compactCaption, .semibold)

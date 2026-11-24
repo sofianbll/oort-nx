@@ -45,8 +45,8 @@ final class SeleneHeroArt: ObservableObject {
             }
             return
         }
-        // Loaded already, unless the player has picked new art since.
-        let loadedFor = "\(game.id.uuidString)|r\(ArtworkPicks.shared.revision)|"
+        // A new catalogue URL can arrive after the playable page has already shown its local fallback.
+        let loadedFor = heroTaskKey(game, metadata: metadata) + "|"
         if key.hasPrefix(loadedFor) { return }
         try? await Task.sleep(nanoseconds: settle)
         guard !Task.isCancelled else { return }

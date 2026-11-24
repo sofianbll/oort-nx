@@ -35,7 +35,9 @@ extension ChangeArtworkView {
             if online == nil { online = await OnlineArtwork.find(names: names, platform: switch2 ? .switch2 : .switch) }
             candidates = ArtworkCandidates.list(for: slot, entries: entries, titleDB: titleDB,
                                                 storeHeader: metadata?.headerImageURL, storeImage: metadata?.imageURL,
-                                                storeLogo: metadata?.logoURL, online: online ?? [])
+                                                storeLogo: metadata?.logoURL, online: online ?? [],
+                                                storeSquare: metadata?.squareImageURL,
+                                                storeCover: metadata?.storeLanguage == nil ? nil : metadata?.imageURL)
             await collect(candidates, slot: slot, from: 0)
         }
         if slot == .icon, !Task.isCancelled,
