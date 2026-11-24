@@ -272,6 +272,170 @@ final class NXNativeCatalogPersistenceTests: XCTestCase {
         XCTAssertNil(merged.lastBuild)
     }
 
+    func testCloudImportDefersSourcesForATitleWithAnActiveLease() async throws {
+        let title = "0100000000004000", folder = "Orbit [\(title)]"
+        let temp = dir!
+        let repo = CatalogRepository(store: .init(directory: temp))
+        let backend = RcloneStorageBackend(remote: "fixture", root: "Games") { _, _, _ in
+            throw StorageBackendError.invalidConfiguration
+        }
+        let archive = CloudGameArchive(backend: backend)
+        let source = GameFileItem(url: URL(fileURLWithPath: "/\(folder)/Orbit.nsp"), kind: .base,
+                                  titleId: title, sizeBytes: 4)
+        let encoded = try XCTUnwrap(CloudGameSources.ArchivedSelection(folder: folder, files: [source], titleID: title))
+        let manifest = CloudGameManifest(version: 2, titleID: title, createdAt: .now, artifacts: [],
+                                         gameName: "Orbit", sourceSelection: encoded)
+        let lease = try await archive.beginBuild(titleID: title)
+        let busy = try repo.importCloudGames([manifest], discovered: [], in: temp, sourceRoot: temp, leases: archive.leases)
+        XCTAssertTrue(busy.nxnativeGames.isEmpty, "Import must not mutate a title while a build or transfer holds its lease")
+        await archive.endBuild(titleID: title, token: lease)
+        let available = try repo.importCloudGames([manifest], discovered: [], in: temp, sourceRoot: temp, leases: archive.leases)
+        XCTAssertEqual(available.nxnativeGames.map(\.titleId), [title])
+    }
+
+    func testCloudAppRestoreKeepsReferenceSourceProvenanceAfterReload() throws {
+        let repository = CatalogRepository(store: CatalogStore(directory: dir))
+        let title = "0100000000004000", reference = "1FixtureReference"
+        let candidate = cloudSources(title: title, folder: "Original")
+        let imported = try repository.importCloudGames([cloudApp(title: title)], discovered: [candidate],
+            in: dir, sourceRoot: dir, referenceFolder: reference)
+        let game = try XCTUnwrap(imported.nxnativeGames.first)
+        XCTAssertEqual(game.sources.count, 1)
+
+        let restoredApp = dir.appendingPathComponent("Restored.app", isDirectory: true)
+        try writeCloudAppFixture(at: restoredApp, title: title)
+        _ = try repository.recordCloudAppRestore(id: game.id, at: restoredApp)
+        let restored = try XCTUnwrap(try repository.load().nxnativeGames.first)
+        XCTAssertEqual(restored.id, game.id)
+        XCTAssertEqual(restored.url, restoredApp)
+        XCTAssertTrue(restored.isPlayableLocally)
+        XCTAssertEqual(restored.sources, game.sources)
+        XCTAssertEqual(restored.discoveredCloudSourceDirectory, candidate.directory)
+        XCTAssertNil(restored.cloudReferenceFolder)
+        XCTAssertEqual(restored.cloudSourcesReferenceFolder, reference)
+
+        let updated = cloudSources(title: title, folder: "Original", updated: true)
+        let refreshed = try repository.importCloudGames([], discovered: [updated],
+            in: dir, sourceRoot: dir, referenceFolder: reference)
+        XCTAssertEqual(refreshed.nxnativeGames.first?.url, restoredApp)
+        XCTAssertEqual(refreshed.nxnativeGames.first?.sources.map(\.kind), [.base, .update])
+    }
+
+    func testCloudSourceRefreshAdoptsUpdateAndRenameWithoutReplacingPersonalization() throws {
+        let repository = CatalogRepository(store: CatalogStore(directory: dir))
+        let title = "0100000000004000", reference = "1FixtureReference"
+        var candidate = cloudSources(title: title, folder: "Original")
+        let imported = try repository.importCloudGames([], discovered: [candidate],
+            in: dir, sourceRoot: dir, referenceFolder: reference)
+        let game = try XCTUnwrap(imported.nxnativeGames.first)
+        let customized = try repository.updateNXNative(id: game.id) {
+            $0.isFavorite = true
+            $0.isHidden = true
+            $0.settings.metalHUD = true
+        }
+
+        for folder in ["Original", "Renamed"] {
+            candidate = cloudSources(title: title, folder: folder, updated: true)
+            _ = try repository.importCloudGames([], discovered: [candidate],
+                in: dir, sourceRoot: dir, referenceFolder: reference)
+            let saved = try repository.load()
+            let refreshed = try XCTUnwrap(saved.nxnativeGames.first)
+            XCTAssertEqual(saved.nxnativeGames.count, 1)
+            XCTAssertEqual(refreshed.id, game.id)
+            XCTAssertEqual(refreshed.discoveredCloudSourceDirectory, candidate.directory)
+            XCTAssertNil(refreshed.cloudReferenceFolder)
+            XCTAssertEqual(refreshed.cloudSourcesReferenceFolder, reference)
+            XCTAssertEqual(refreshed.sources.map(\.kind), [.base, .update])
+            XCTAssertTrue(candidate.matches(refreshed.sources,
+                in: CloudGameSources.importedFolder(for: game.id, in: dir)))
+            XCTAssertTrue(refreshed.isFavorite)
+            XCTAssertTrue(refreshed.isHidden)
+            XCTAssertTrue(refreshed.settings.metalHUD)
+            XCTAssertEqual(saved.games.first?.personalizationReference, customized.games.first?.personalizationReference)
+        }
+    }
+
+    func testCloudSourceRefreshKeepsEvenAPartlyDownloadedLocalSelection() throws {
+        let repository = CatalogRepository(store: CatalogStore(directory: dir))
+        let title = "0100000000004000", reference = "1FixtureReference"
+        let original = cloudSources(title: title, folder: "Original", updated: true)
+        let imported = try repository.importCloudGames([], discovered: [original],
+            in: dir, sourceRoot: dir, referenceFolder: reference)
+        let game = try XCTUnwrap(imported.nxnativeGames.first)
+        let base = try XCTUnwrap(game.sources.first?.url)
+        let update = try XCTUnwrap(game.sources.last?.url)
+        let bytes = Data([42])
+        try FileManager.default.createDirectory(at: base.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try bytes.write(to: base)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: update.path))
+
+        _ = try repository.importCloudGames([], discovered: [cloudSources(title: title, folder: "Changed")],
+            in: dir, sourceRoot: dir, referenceFolder: reference)
+        XCTAssertEqual(try repository.load().games, imported.games)
+        XCTAssertEqual(try Data(contentsOf: base), bytes)
+    }
+
+    func testUnfollowKeepsTheMatchingLocalAppBeforeTheNextScan() throws {
+        let repository = CatalogRepository(store: CatalogStore(directory: dir))
+        let title = "0100000000004000", reference = "1FixtureReference"
+        let imported = try repository.importCloudGames([cloudApp(title: title)], in: dir,
+            sourceRoot: dir, referenceFolder: reference)
+        let game = try XCTUnwrap(imported.nxnativeGames.first)
+        let customized = try repository.updateNXNative(id: game.id) { $0.isFavorite = true }
+        try writeCloudAppFixture(at: game.url, title: title)
+
+        _ = try repository.forgetCloudReference(reference)
+        let saved = try repository.load()
+        let kept = try XCTUnwrap(saved.nxnativeGames.first)
+        XCTAssertEqual(kept.id, game.id)
+        XCTAssertEqual(kept.url, game.url)
+        XCTAssertTrue(kept.isFavorite)
+        XCTAssertEqual(saved.games.first?.personalizationReference, customized.games.first?.personalizationReference)
+        XCTAssertEqual(ImportService.titleID(in: try XCTUnwrap(ImportService.info(at: game.url))), title)
+    }
+
+    func testUnfollowDoesNotForgetAnAppWhenLocalAccessIsUncertain() throws {
+        let repository = CatalogRepository(store: CatalogStore(directory: dir))
+        let title = "0100000000004000", reference = "1FixtureReference"
+        let apps = dir.appendingPathComponent("Unavailable", isDirectory: true)
+        let imported = try repository.importCloudGames([cloudApp(title: title)], in: apps,
+            sourceRoot: dir, referenceFolder: reference)
+        let game = try XCTUnwrap(imported.nxnativeGames.first)
+        // A loop yields a lookup error even for users who can bypass mode-bit restrictions.
+        try FileManager.default.createSymbolicLink(atPath: apps.path, withDestinationPath: apps.path)
+        var node = stat()
+        let lookup = lstat(game.url.path, &node)
+        let lookupError = errno
+        XCTAssertEqual(lookup, -1)
+        XCTAssertEqual(lookupError, ELOOP)
+
+        _ = try repository.forgetCloudReference(reference)
+        XCTAssertEqual(try repository.load().games, imported.games)
+    }
+
+    private func cloudApp(title: String) -> CloudGameManifest {
+        let app = CloudGameManifest.Artifact(kind: .app, unpackedSize: 4, entryCount: 1, inventorySHA256: "fixture",
+            engineCommit: nil, shaderChain: nil, options: [:])
+        return .init(version: 2, titleID: title, createdAt: .distantPast, artifacts: [app], bundleName: "Fixture.app")
+    }
+
+    private func cloudSources(title: String, folder: String, updated: Bool = false) -> CloudGameSources.DiscoveredGame {
+        var files: [GameFileItem] = [.init(url: URL(fileURLWithPath: "/Fixture.nsp"), kind: .base, titleId: title, sizeBytes: 1)]
+        if updated {
+            files.append(.init(url: URL(fileURLWithPath: "/Update.nsp"), kind: .update,
+                titleId: "0100000000004800", sizeBytes: 2))
+        }
+        return .init(titleID: title, name: "Fixture", directory: "GameFiles/\(folder) [\(title)]", files: files)
+    }
+
+    private func writeCloudAppFixture(at app: URL, title: String) throws {
+        let contents = app.appendingPathComponent("Contents", isDirectory: true)
+        try FileManager.default.createDirectory(at: contents, withIntermediateDirectories: true)
+        let info = ["CFBundleIdentifier": "org.nxnative.\(title.lowercased())", "DMTitleID": title]
+        try PropertyListSerialization.data(fromPropertyList: info, format: .xml, options: 0)
+            .write(to: contents.appendingPathComponent("Info.plist"))
+    }
+
     func testRepeatedScansKeepPendingInstallAndFailureDetails() throws {
         let apps = dir.appendingPathComponent("Applications")
         let app = apps.appendingPathComponent("Game.app")

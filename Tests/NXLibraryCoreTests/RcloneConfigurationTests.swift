@@ -102,15 +102,16 @@ final class RcloneConfigurationTests: XCTestCase {
     }
 
     func testReadOnlyFolderTestRejectsFilesAndDisconnectDeletesOnlyLocalConfig() async throws {
-        let folder = Fixture([.ok(#"{"IsDir":true}"#), .ok("synthetic-file"), .ok(), .ok("[]")])
+        let folder = Fixture([.ok(Self.list), .ok(#"{"IsDir":true}"#), .ok("synthetic-file"), .ok(), .ok("[]")])
         let config = CloudLibraryPreference(storage: "gdrive:Games", enabled: true)
         try await folder.client.test(config)
         try await folder.client.disconnect("gdrive")
         let commands = await folder.recorder.commands.map { Array($0.prefix(3)) }
-        XCTAssertEqual(commands, [["lsjson", "gdrive:Games", "--stat"], ["lsf", "gdrive:Games", "--max-depth"],
+        XCTAssertEqual(commands, [["listremotes", "--json", "--ask-password=false"],
+                                  ["lsjson", "gdrive:Games", "--stat"], ["lsf", "gdrive:Games", "--max-depth"],
                                   ["config", "delete", "gdrive"], ["listremotes", "--json", "--ask-password=false"]])
 
-        let file = Fixture([.ok(#"{"IsDir":false}"#)])
+        let file = Fixture([.ok(Self.list), .ok(#"{"IsDir":false}"#)])
         do {
             try await file.client.test(config)
             XCTFail("A file is not a folder")
@@ -118,7 +119,7 @@ final class RcloneConfigurationTests: XCTestCase {
             XCTAssertEqual(error as? RcloneConfiguration.Failure, .test)
         }
         let count = await file.recorder.commands.count
-        XCTAssertEqual(count, 1)
+        XCTAssertEqual(count, 2)
     }
 
     func testCloudConnectionFailuresHaveDistinctRecoveryWithoutLeakingOutput() async {
@@ -133,7 +134,7 @@ final class RcloneConfigurationTests: XCTestCase {
             (1, "googleapi: Error 403: rateLimitExceeded", .unavailable, .retry),
         ]
         for (status, stderr, failure, action) in samples {
-            let fixture = Fixture([.init(status: status, stdout: "", stderr: stderr)])
+            let fixture = Fixture([.ok(Self.list), .init(status: status, stdout: "", stderr: stderr)])
             do {
                 try await fixture.client.test(.init(storage: "gdrive:Games", enabled: true))
                 XCTFail("A failed command cannot verify a folder")

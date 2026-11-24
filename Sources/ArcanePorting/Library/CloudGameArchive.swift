@@ -154,6 +154,7 @@ public struct CloudGameManifest: Codable, Equatable, Sendable {
     public let artifacts: [Artifact]
     public let gameName: String?
     public let bundleName: String?
+    public let libraryName: String?
     public let sourceSelection: CloudGameSources.ArchivedSelection?
     public var gameVersion: String? { artifacts.first { $0.kind == .app }?.options["CFBundleShortVersionString"] }
 
@@ -172,7 +173,7 @@ public struct CloudGameManifest: Codable, Equatable, Sendable {
 
     init(version: Int, titleID: String, createdAt: Date, artifacts: [Artifact],
          gameName: String? = nil, bundleName: String? = nil,
-         sourceSelection: CloudGameSources.ArchivedSelection? = nil) {
+         sourceSelection: CloudGameSources.ArchivedSelection? = nil, libraryName: String? = nil) {
         self.version = version
         self.titleID = titleID
         self.createdAt = createdAt
@@ -180,6 +181,7 @@ public struct CloudGameManifest: Codable, Equatable, Sendable {
         self.gameName = gameName
         self.bundleName = bundleName
         self.sourceSelection = sourceSelection
+        self.libraryName = libraryName
     }
 
     enum CodingKeys: String, CodingKey {
@@ -187,6 +189,7 @@ public struct CloudGameManifest: Codable, Equatable, Sendable {
         case titleID = "title_id", createdAt = "created_at"
         case gameName = "game_name", bundleName = "bundle_name"
         case sourceSelection = "source_selection"
+        case libraryName = "library_name"
     }
 }
 
@@ -261,7 +264,7 @@ public actor CloudGameArchive {
     let backend: any StorageBackend
     private let capacity: @Sendable (URL) -> Int64?
     private let trash: @Sendable (URL) throws -> Void
-    private let leases: CloudTitleLeases
+    package nonisolated let leases: CloudTitleLeases
     private let fingerprints: CloudArchiveFingerprintCache
 
     public init(backend: any StorageBackend) {

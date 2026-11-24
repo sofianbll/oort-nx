@@ -1,3 +1,4 @@
+import Darwin
 import Foundation
 import NXLibraryCore
 
@@ -82,7 +83,7 @@ extension CatalogRepository {
             && earlier.appIconPending == current.appIconPending
     }
 
-    /// Cloud discovery only adds missing titles; no local observation or personal choice is replaced.
+    /// Cloud discovery adds missing titles and refreshes remote-only selections from the same provider.
     public func importCloudGames(_ manifests: [CloudGameManifest], in folder: URL,
                                  legacyNames: [String: String] = [:],
                                  sourceRoot: URL = AppData.supportRoot,
@@ -93,8 +94,20 @@ extension CatalogRepository {
 
     package func importCloudGames(_ manifests: [CloudGameManifest], discovered: [CloudGameSources.DiscoveredGame],
                                   in folder: URL, legacyNames: [String: String] = [:],
-                                  sourceRoot: URL = AppData.supportRoot, referenceFolder: String? = nil) throws -> CatalogDocument {
-        try transactionIfChanged { draft in
+                                  sourceRoot: URL = AppData.supportRoot, referenceFolder: String? = nil,
+                                  leases: CloudTitleLeases? = nil, protectedTitles: Set<String> = [],
+                                  observedRevision: UUID? = nil) throws -> CatalogDocument {
+        let titles = Set(manifests.map { $0.titleID.uppercased() } + discovered.map(\.titleID)).subtracting(protectedTitles)
+        let reservations = leases.map { leases in
+            Dictionary(uniqueKeysWithValues: titles.compactMap { title in leases.begin(title).map { (title, $0) } })
+        }
+        defer { if let leases, let reservations { for (title, token) in reservations { leases.end(title, token: token) } } }
+        func mayImport(_ title: String) -> Bool {
+            titles.contains(title) && (leases == nil || reservations?[title] != nil)
+        }
+        return try transactionIfChanged { draft in
+            try Task.checkCancellation()
+            if let observedRevision, draft.revision != observedRevision { throw CatalogStoreError.staleRevision }
             let count = draft.games.count
             var seen = draft.cloudImportExclusions ?? []
             var known = Dictionary(draft.games.enumerated().compactMap { index, record in
@@ -107,7 +120,8 @@ extension CatalogRepository {
                 let files = CloudGameSources.importedFolder(for: id, in: sourceRoot)
                 let app = manifest.artifacts.first { $0.kind == .app }
                 let selection = manifest.sourceSelection?.adopted(in: files, titleID: title)
-                guard SaveLocation.validID(title), app != nil || selection != nil, seen.insert(title).inserted else { continue }
+                guard mayImport(title), SaveLocation.validID(title), app != nil || selection != nil,
+                      seen.insert(title).inserted else { continue }
                 let bundle = manifest.bundleName.flatMap { value -> String? in
                     guard (5...200).contains(value.utf8.count), !value.hasPrefix("."),
                           value.rangeOfCharacter(from: CharacterSet(charactersIn: "/:\\").union(.controlCharacters)) == nil,
@@ -117,21 +131,23 @@ extension CatalogRepository {
                 if let index = known[title] {
                     guard var game = draft.games[index].nxnativeGame, game.cloudImportPending == true else { continue }
                     let previous = game
-                    if app != nil, game.isCloudSourcePlaceholder, game.cloudReferenceFolder == referenceFolder {
+                    if app != nil, game.isCloudSourcePlaceholder, game.cloudSourcesReferenceFolder == referenceFolder {
                         game.url = folder.appendingPathComponent(bundle, isDirectory: true)
                         game.status = .appMissing
+                        game.cloudReferenceFolder = referenceFolder
                     }
-                    if referenceFolder == nil, game.cloudReferenceFolder != nil, app != nil {
+                    if referenceFolder == nil, app != nil, game.cloudReferenceFolder != nil
+                        || (game.isCloudSourcePlaceholder && game.cloudSourcesReferenceFolder != nil) {
+                        let sourceReference = game.cloudSourcesReferenceFolder
+                        game.cloudSourcesReferenceFolder = sourceReference
                         game.url = folder.appendingPathComponent(bundle, isDirectory: true)
                         game.status = .appMissing
                         game.cloudReferenceFolder = nil
-                        if game.discoveredCloudSourceDirectory != nil,
-                           !game.sources.contains(where: { FileManager.default.fileExists(atPath: $0.url.path) }) {
-                            game.sources = []
-                        }
-                        game.discoveredCloudSourceDirectory = nil
                     }
-                    if game.sources.isEmpty, game.cloudReferenceFolder == referenceFolder, let selection { game.sources = selection }
+                    if game.sources.isEmpty, game.cloudReferenceFolder == referenceFolder, let selection {
+                        game.sources = selection
+                        game.cloudSourcesReferenceFolder = referenceFolder
+                    }
                     guard game != previous else { continue }
                     try draft.games[index].updateNXNative(game)
                     adopted = true
@@ -145,16 +161,32 @@ extension CatalogRepository {
                     titleId: title, versionString: manifest.gameVersion)
                 game.status = app == nil ? .notBuilt : .appMissing
                 game.cloudImportPending = true
-                game.cloudReferenceFolder = referenceFolder
+                game.cloudReferenceFolder = app == nil ? nil : referenceFolder
                 game.sources = selection ?? []
+                if selection != nil { game.cloudSourcesReferenceFolder = referenceFolder }
                 known[title] = draft.games.count
                 draft.games.append(.init(nxnative: game))
             }
-            for candidate in discovered where !(draft.cloudImportExclusions ?? []).contains(candidate.titleID) {
+            for candidate in discovered where mayImport(candidate.titleID)
+                && !(draft.cloudImportExclusions ?? []).contains(candidate.titleID) {
                 if let index = known[candidate.titleID] {
-                    guard var game = draft.games[index].nxnativeGame, game.cloudImportPending == true,
-                          game.cloudReferenceFolder == referenceFolder, game.sources.isEmpty else { continue }
-                    game.sources = candidate.adopted(in: CloudGameSources.importedFolder(for: game.id, in: sourceRoot))
+                    guard var game = draft.games[index].nxnativeGame else { continue }
+                    let root = CloudGameSources.importedFolder(for: game.id, in: sourceRoot)
+                    let selection = candidate.adopted(in: root)
+                    if game.sources.isEmpty {
+                        guard game.cloudImportPending == true, game.cloudReferenceFolder == referenceFolder else { continue }
+                    } else {
+                        guard let managed = selection.first?.url.deletingLastPathComponent().standardizedFileURL,
+                              game.discoveredCloudSourceDirectory != nil, game.cloudSourcesReferenceFolder == referenceFolder,
+                              game.sources.allSatisfy({
+                                  $0.url.deletingLastPathComponent().standardizedFileURL == managed
+                                      && Self.definitelyAbsent($0.url)
+                              }),
+                              game.discoveredCloudSourceDirectory != candidate.directory
+                                || !candidate.matches(game.sources, in: root) else { continue }
+                    }
+                    game.sources = selection
+                    game.cloudSourcesReferenceFolder = referenceFolder
                     game.discoveredCloudSourceDirectory = candidate.directory
                     try draft.games[index].updateNXNative(game)
                     adopted = true
@@ -164,12 +196,13 @@ extension CatalogRepository {
                                           sizeBytes: 0, modificationDate: .now, titleId: candidate.titleID)
                     game.sources = candidate.adopted(in: files)
                     game.cloudImportPending = true
-                    game.cloudReferenceFolder = referenceFolder
+                    game.cloudSourcesReferenceFolder = referenceFolder
                     game.discoveredCloudSourceDirectory = candidate.directory
                     known[candidate.titleID] = draft.games.count
                     draft.games.append(.init(nxnative: game))
                 }
             }
+            try Task.checkCancellation()
             guard draft.games.count != count else { return adopted }
             var source = draft.source(.nxnative) ?? .init(integration: .nxnative)
             if !source.isEnabled {
@@ -183,16 +216,33 @@ extension CatalogRepository {
     }
 
     /// Forget only catalog placeholders. Installed apps, downloaded sources and caches never get deleted here.
-    package func forgetCloudReference(_ folder: String) throws -> CatalogDocument {
+    package func forgetCloudReference(_ folder: String, observedRevision: UUID? = nil) throws -> CatalogDocument {
         try transactionIfChanged { document in
+            try Task.checkCancellation()
+            if let observedRevision, observedRevision != document.revision { throw CatalogStoreError.staleRevision }
             let count = document.games.count
             document.games.removeAll { record in
-                guard let game = record.nxnativeGame, game.cloudReferenceFolder == folder,
+                guard let game = record.nxnativeGame,
+                      game.cloudReferenceFolder == folder
+                        || (game.isCloudSourcePlaceholder && game.cloudSourcesReferenceFolder == folder),
                       game.cloudImportPending == true, game.workspacePath == nil, game.buildCachePath == nil else { return false }
-                return !game.sources.contains { FileManager.default.fileExists(atPath: $0.url.path) }
+                guard !game.isFavorite, !game.isHidden, !game.usesPickedAppIcon, game.pendingInstall == nil else { return false }
+                guard game.sources.allSatisfy({ Self.definitelyAbsent($0.url) }) else { return false }
+                if game.url.pathExtension.lowercased() == "app", !Self.definitelyAbsent(game.url) {
+                    guard let info = ImportService.info(at: game.url),
+                          let titleID = ImportService.titleID(in: info), let expected = game.titleId else { return false }
+                    return titleID.caseInsensitiveCompare(expected) != .orderedSame
+                }
+                return true
             }
+            try Task.checkCancellation()
             return document.games.count != count
         }
+    }
+
+    private static func definitelyAbsent(_ url: URL) -> Bool {
+        var node = stat()
+        return url.isFileURL && lstat(url.path, &node) != 0 && errno == ENOENT
     }
 
     public func removeNXNative(id: UUID) throws -> CatalogDocument {
@@ -222,6 +272,8 @@ extension CatalogRepository {
     /// Records an app after the archive service has verified and published it.
     public func recordCloudAppRestore(id: UUID, at url: URL) throws -> CatalogDocument {
         try updateNXNative(id: id) { game in
+            let sourceReference = game.cloudSourcesReferenceFolder
+            game.cloudSourcesReferenceFolder = sourceReference
             game.url = url
             game.cloudImportPending = nil
             game.cloudReferenceFolder = nil

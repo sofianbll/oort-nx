@@ -493,19 +493,9 @@ public struct CloudDriveFolders: Sendable {
 
     private func accountID() async throws -> String {
         guard CloudLibraryPreference.validRemote(remote) else { throw MoveFailure.missingIdentity }
-        // shortcut: rclone 1.75.2 reports the canonical My Drive root in debug output; use a structured ID when available.
         // Clear remote overrides so a shared folder ID cannot stand in for the account ID.
         let result = try await checkedResult(["about", "\(remote),root_folder_id=,team_drive=:", "--json", "--log-level", "DEBUG"])
-        let marker = "'root_folder_id = "
-        let suffix = "' - save this in the config to speed up startup"
-        let candidates = result.stderr.split(whereSeparator: \.isNewline).compactMap { line -> String? in
-            guard line.hasSuffix(suffix), let start = line.range(of: marker, options: .backwards)
-            else { return nil }
-            return String(line[start.upperBound..<line.index(line.endIndex, offsetBy: -suffix.count)])
-        }
-        guard let id = candidates.first, Set(candidates).count == 1, Self.validID(id) else {
-            throw MoveFailure.missingIdentity
-        }
+        guard let id = CloudDriveScope.accountID(in: result.stderr) else { throw MoveFailure.missingIdentity }
         return id
     }
 
@@ -625,17 +615,23 @@ public struct CloudDriveFolders: Sendable {
 
     private func checkedResult(_ arguments: [String]) async throws -> CommandResult {
         let environment = RcloneConfiguration.environment()
-        let flags = ["--drive-skip-shortcuts", "--local-links=false", "--copy-links=false",
+        let flags = RcloneConfiguration.driveFlags + ["--local-links=false", "--copy-links=false",
                      "--retries", "1", "--low-level-retries", "1", "--contimeout", "5s", "--timeout", "10s"]
+        let configFlags = RcloneConfiguration.flags(config: config, environment: environment)
         do {
             try Task.checkCancellation()
-            let result = try await run(executable, arguments + flags
-                + RcloneConfiguration.flags(config: config, environment: environment), environment)
+            if remote != ":local:" {
+                let configured = try await run(executable, ["listremotes", "--json"] + configFlags, environment)
+                guard configured.status == 0 else { throw RcloneConfiguration.Failure.configuration }
+                try RcloneConfiguration.requireDrive(remote, in: configured.stdout)
+            }
             try Task.checkCancellation()
-            if result.status == 3 && arguments.first == "lsjson" { throw StorageBackendError.notFound }
+            let result = try await run(executable, arguments + flags + configFlags, environment)
+            try Task.checkCancellation()
             if result.status != 0, let failure = CloudLibraryFailure.rclone(result.stderr, status: result.status) {
                 throw failure
             }
+            if result.status == 3 && arguments.first == "lsjson" { throw StorageBackendError.notFound }
             guard result.status == 0 else { throw RcloneConfiguration.Failure.test }
             if result.stderr.contains("search result INCOMPLETE") { throw StorageBackendError.invalidResponse }
             return result

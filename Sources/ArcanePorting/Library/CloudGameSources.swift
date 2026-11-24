@@ -19,6 +19,7 @@ public struct CloudSourcesStatus: Equatable, Sendable {
 
 public final class CloudGameSources: @unchecked Sendable {
     public typealias Progress = @Sendable (StorageProgress) -> Void
+    package typealias VerifySources = @Sendable (URL, [GameFileItem]) throws -> Bool
     package struct DiscoveredGame: Equatable, Sendable {
         package let titleID: String
         package let name: String
@@ -95,15 +96,18 @@ public final class CloudGameSources: @unchecked Sendable {
                   !sources.isEmpty, sources.count <= 512 else { return nil }
             let parent = root.appendingPathComponent(folder, isDirectory: true)
             var names: [String: String] = [:]
+            var selections = Set<[String]>()
             var files: [GameFileItem] = []
             for source in sources {
                 let ext = URL(fileURLWithPath: source.filename).pathExtension.lowercased()
-                let key = source.filename.precomposedStringWithCanonicalMapping.lowercased()
+                let key = CloudGameSources.normalizedName(source.filename)
                 guard Selection.safeName(source.filename), source.bytes >= 0, source.kind != .unknown,
                       source.titleID.map(SaveLocation.validID) != false,
                       source.version.map({ Int($0.hasPrefix("v") ? String($0.dropFirst()) : $0) != nil }) != false,
                       fileExtensions.contains(ext), source.layout == (ext == "nup" ? .container : .package),
-                      names[key].map({ $0 == source.filename }) != false else { return nil }
+                       names[key].map({ $0.utf8.elementsEqual(source.filename.utf8) && ext == "nup" }) ?? true,
+                       selections.insert([key, source.kind.rawValue, source.titleID?.uppercased() ?? "", source.version ?? ""]).inserted
+                else { return nil }
                 names[key] = source.filename
                 files.append(.init(url: parent.appendingPathComponent(source.filename, isDirectory: false),
                                    kind: source.kind, titleId: source.titleID, versionString: source.version,
@@ -124,28 +128,32 @@ public final class CloudGameSources: @unchecked Sendable {
     private let backend: RcloneStorageBackend
     private let library: RcloneStorageBackend
     private let discoveryRoots: [String]
+    private let rootAllowed: Bool
     private let capacity: @Sendable (URL) -> Int64?
     private let implicitRootParent: RcloneStorageBackend?
     private let trash: @Sendable (URL) throws -> Void
     private let lock = NSLock()
     private var fingerprints: [URL: (stamp: Stamp, md5: String)] = [:]
 
-    public convenience init(backend: RcloneStorageBackend, root: String, usesDefaultRoot: Bool = false) {
-        self.init(backend: backend, root: root, usesDefaultRoot: usesDefaultRoot) {
+    public convenience init(backend: RcloneStorageBackend, root: String, usesDefaultRoot: Bool = false,
+                            allowsIndependentRoot: Bool = false) {
+        self.init(backend: backend, root: root, usesDefaultRoot: usesDefaultRoot, allowsIndependentRoot: allowsIndependentRoot) {
             try FileManager.default.trashItem(at: $0, resultingItemURL: nil)
         }
     }
 
-    init(backend: RcloneStorageBackend, root: String, usesDefaultRoot: Bool = false,
+    init(backend: RcloneStorageBackend, root: String, usesDefaultRoot: Bool = false, allowsIndependentRoot: Bool = false,
          capacity: @escaping @Sendable (URL) -> Int64? = {
              (try? FileManager.default.attributesOfFileSystem(forPath: $0.path)[.systemFreeSize] as? NSNumber)?.int64Value
          }, trash: @escaping @Sendable (URL) throws -> Void) {
         self.backend = backend.atRoot(root)
-        self.library = backend
         let relative = backend.descendant(ofRoot: root)
+        let independent = relative == nil && allowsIndependentRoot && !backend.isReference
+        self.library = independent ? self.backend : backend
+        self.rootAllowed = relative != nil || independent
         self.discoveryRoots = relative.map { relative in
             usesDefaultRoot && relative == "GameFiles" ? [relative, "Switch/Jeux", "Switch/Games"] : [relative]
-        } ?? []
+        } ?? (independent ? [""] : [])
         self.capacity = capacity
         self.implicitRootParent = usesDefaultRoot ? backend : nil
         self.trash = trash
@@ -167,25 +175,27 @@ public final class CloudGameSources: @unchecked Sendable {
     private enum DirectoryPath { case present, missing, ambiguous }
 
     private func directoryPath(_ relative: String) async throws -> DirectoryPath {
+        if relative.isEmpty { return .present }
         var prefix = ""
         for component in relative.components(separatedBy: "/") {
             let key = Self.normalizedName(component)
             let matches = try await library.directoryEntries(in: prefix).filter { Self.normalizedName($0.name) == key }
             if matches.isEmpty { return .missing }
             guard matches.count == 1, matches[0].isDirectory, matches[0].name == component else { return .ambiguous }
-            prefix = prefix.isEmpty ? component : prefix + "/" + component
+            prefix = CloudDriveFolders.joining(prefix, component)
         }
         return .present
     }
 
     private static func normalizedName(_ name: String) -> String {
-        name.precomposedStringWithCanonicalMapping.lowercased()
+        name.folding(options: .caseInsensitive, locale: Locale(identifier: "en_US_POSIX"))
+            .precomposedStringWithCanonicalMapping
     }
 
     package func manifestFilesAvailable(_ selection: ArchivedSelection, titleID: String) async throws -> Bool {
         guard let root = discoveryRoots.first,
               let files = selection.adopted(in: URL(fileURLWithPath: "/"), titleID: titleID) else { return false }
-        let directory = root + "/" + selection.folderName
+        let directory = CloudDriveFolders.joining(root, selection.folderName)
         guard try await directoryPath(directory) == .present else { return false }
         let entries = try await library.directoryEntries(in: directory)
         let byName = Dictionary(grouping: entries, by: { Self.normalizedName($0.name) })
@@ -207,28 +217,40 @@ public final class CloudGameSources: @unchecked Sendable {
             if SaveLocation.validID(name), let id = UInt64(name, radix: 16) { return [id] }
             return Set(SourceCatalog.titleIDs(in: name))
         }
+        func packageIDs(_ name: String) -> Set<UInt64> { ids((name as NSString).deletingPathExtension) }
+        func candidateDirectory(_ entry: Entry) -> Bool {
+            entry.isDirectory && !entry.name.hasPrefix(".") && !entry.name.lowercased().hasSuffix(".app")
+        }
         let entries = try await library.directoryEntries(in: root)
         guard entries.count <= 10_000 else { throw StorageBackendError.invalidResponse }
         let byName = Dictionary(grouping: entries, by: { normalized($0.name) })
+        var claimed: [UInt64: Set<String>] = [:]
+        for entry in entries where candidateDirectory(entry) && Selection.safeName(entry.name) {
+            for id in ids(entry.name) {
+                let base = SourceCatalog.baseTitleId(for: id, kind: SourceCatalog.classify(titleId: id))
+                claimed[base, default: []].insert(entry.name)
+            }
+        }
         var result = Discovery()
+        var hasUnidentifiedFailure = false
         var candidates: [(String, DiscoveredGame)] = []
         func add(_ packages: [Entry], at directory: String, folder: String?, label: String,
                  entries: [String: [Entry]]) {
             let folderIDs = folder.map(ids) ?? []
-            let explicit = packages.flatMap { ids($0.name) }
+            let explicit = packages.flatMap { packageIDs($0.name) }
             let bases = Set(explicit.map { SourceCatalog.baseTitleId(for: $0, kind: SourceCatalog.classify(titleId: $0)) })
             let gameIDs = bases.union(folderIDs)
-            guard gameIDs.count <= 1, packages.allSatisfy({ (entries[normalized($0.name)]?.count ?? 0) == 1 && ids($0.name).count <= 1 })
+            guard gameIDs.count <= 1, packages.allSatisfy({ (entries[normalized($0.name)]?.count ?? 0) == 1 && packageIDs($0.name).count <= 1 })
             else { result.ambiguous.append(label); return }
             guard let base = gameIDs.first, SourceCatalog.classify(titleId: base) == .base,
                   !packages.isEmpty, packages.count <= 512,
                   packages.allSatisfy({ Selection.safeName($0.name) && $0.object.size > 0
                       && $0.object.size <= Int64.max / 512 && ($0.name as NSString).pathExtension.lowercased() != "nup" }),
-                  packages.filter({ ids($0.name).isEmpty }).count <= 1,
-                  packages.allSatisfy({ !ids($0.name).isEmpty || !folderIDs.isEmpty })
+                  packages.filter({ packageIDs($0.name).isEmpty }).count <= 1,
+                  packages.allSatisfy({ !packageIDs($0.name).isEmpty || !folderIDs.isEmpty })
             else { result.unreadable.append(label); return }
             let files = packages.sorted { $0.name < $1.name }.map { entry in
-                let id = ids(entry.name).first ?? base
+                let id = packageIDs(entry.name).first ?? base
                 let url = URL(fileURLWithPath: "/" + entry.name, isDirectory: false)
                 return GameFileItem(url: url, kind: SourceCatalog.classify(titleId: id),
                                     titleId: String(format: "%016llX", id),
@@ -251,16 +273,16 @@ public final class CloudGameSources: @unchecked Sendable {
             try Task.checkCancellation()
             if supported(entry) {
                 guard Selection.safeName(entry.name) else { result.unreadable.append(entry.name); continue }
-                let matches = ids(entry.name)
+                let matches = packageIDs(entry.name)
                 if matches.count > 1 { result.ambiguous.append(entry.name) }
                 else if let id = matches.first {
                     let base = SourceCatalog.baseTitleId(for: id, kind: SourceCatalog.classify(titleId: id))
                     loose[base, default: []].append(entry)
                 } else { result.unreadable.append(entry.name) }
-            } else if entry.isDirectory, !entry.name.hasPrefix("."), !entry.name.lowercased().hasSuffix(".app") {
+            } else if candidateDirectory(entry) {
                 guard Selection.safeName(entry.name) else { result.unreadable.append(entry.name); continue }
                 guard byName[normalized(entry.name)]?.count == 1 else { result.ambiguous.append(entry.name); continue }
-                let directory = root + "/" + entry.name
+                let directory = CloudDriveFolders.joining(root, entry.name)
                 do {
                     let children = try await library.directoryEntries(in: directory)
                     let packages = children.filter(supported)
@@ -272,6 +294,7 @@ public final class CloudGameSources: @unchecked Sendable {
                 catch {
                     result.unreadable.append(entry.name)
                     result.failedDirectories.insert(directory)
+                    if ids(entry.name).isEmpty { hasUnidentifiedFailure = true }
                 }
             }
         }
@@ -279,9 +302,12 @@ public final class CloudGameSources: @unchecked Sendable {
             add(packages, at: root, folder: nil, label: packages.map(\.name).sorted()[0], entries: byName)
         }
         // The same ID in two locations is not an invitation to pick a copy.
-        for group in Dictionary(grouping: candidates, by: { $0.1.titleID }).values {
-            if group.count == 1, let entry = group.first { result.games.append(entry.1) }
-            else { result.ambiguous += group.map(\.0) }
+        for (title, group) in Dictionary(grouping: candidates, by: { $0.1.titleID }) {
+            let labels = UInt64(title, radix: 16).flatMap { claimed[$0] } ?? []
+            let names = labels.union(group.map(\.0))
+            if group.count == 1, names.count == 1, let entry = group.first {
+                if !hasUnidentifiedFailure { result.games.append(entry.1) }
+            } else { result.ambiguous.append(contentsOf: names) }
         }
         result.games.sort { $0.titleID < $1.titleID }
         result.ambiguous = Array(Set(result.ambiguous)).sorted()
@@ -290,7 +316,7 @@ public final class CloudGameSources: @unchecked Sendable {
     }
 
     package func downloadDiscovered(titleID: String, directory: String, files: [GameFileItem], in root: URL,
-                                    progress: Progress?) async throws {
+                                     verifySources: VerifySources? = nil, progress: Progress?) async throws {
         guard let game = try await discover().games.first(where: { $0.titleID == titleID }),
               game.directory == directory, game.matches(files, in: root) else { throw CloudArchiveError.noRemoteCopy }
         let selection = try Selection(game.directory, files.map(\.url), titleID: titleID)
@@ -307,14 +333,16 @@ public final class CloudGameSources: @unchecked Sendable {
             else { throw CloudArchiveError.localChanged }
             remote[name] = entry.object
         }
-        try await download(using: library, pending: downloads(selection, remote: remote, verifyExisting: true), progress: progress)
+        let expected = Dictionary(grouping: files, by: { $0.url.standardizedFileURL })
+        try await download(using: library, pending: downloads(selection, remote: remote, verifyExisting: true),
+                            expected: expected, verifySources: verifySources, progress: progress)
     }
 
     public static func importedFolder(for id: UUID, in root: URL = AppData.supportRoot) -> URL {
         root.appendingPathComponent("CloudGameFiles", isDirectory: true).appendingPathComponent(id.uuidString, isDirectory: true)
     }
 
-    public static func prepareImportedFolder(_ parent: URL, for id: UUID) throws {
+    public static func prepareImportedFolder(_ parent: URL, for id: UUID) async throws {
         guard parent.deletingLastPathComponent().standardizedFileURL.path == importedFolder(for: id).standardizedFileURL.path else { return }
         try SaveFiles.safePath(parent)
         try FileManager.default.createDirectory(at: parent, withIntermediateDirectories: true)
@@ -427,24 +455,48 @@ public final class CloudGameSources: @unchecked Sendable {
     }
 
     package func download(folderName: String, files: [URL], replacingBefore: Date?, replacing: Set<URL>,
-                          progress: Progress?) async throws {
+                            expectedSources: [GameFileItem] = [], verifySources: VerifySources? = nil,
+                            progress: Progress?) async throws {
         let selection = try Selection(folderName, files)
         guard let lease = backend.leases.begin(selection.title) else { throw CloudArchiveError.busy }
         defer { backend.leases.end(selection.title, token: lease) }
         let pending = try await downloads(selection, replacingBefore: replacingBefore, replacing: replacing)
-        try await download(using: backend, pending: pending, progress: progress)
+        let expected = Dictionary(grouping: expectedSources, by: { $0.url.standardizedFileURL })
+        try await download(using: backend, pending: pending, expected: expected, verifySources: verifySources, progress: progress)
     }
 
     private func download(using backend: RcloneStorageBackend, pending: [(URL, StorageObject, Stamp?)],
+                           expected: [URL: [GameFileItem]], verifySources: VerifySources?,
                           progress: Progress?) async throws {
         let bytes = try total(pending.map { $0.1.size })
         var reservations: [dev_t: Int64] = [:]
+        var destinations: [FileIdentity: [URL]] = [:]
         for (destination, item, _) in pending {
             let parent = destination.deletingLastPathComponent()
-            let (device, _) = try Stamp.directory(parent)
+            let (device, inode) = try Stamp.directory(parent)
             let (reserved, overflow) = (reservations[device] ?? 1_048_576).addingReportingOverflow(item.size)
             guard !overflow, let available = capacity(parent), available >= reserved else { throw CloudLibraryFailure.diskFull(at: parent) }
             reservations[device] = reserved
+            destinations[.init(device: device, inode: inode), default: []].append(destination)
+        }
+        // The target filesystem can equate names that Unicode folding alone cannot.
+        for targets in destinations.values where targets.count > 1 {
+            try Task.checkCancellation()
+            let parent = targets[0].deletingLastPathComponent()
+            let staging = parent.appendingPathComponent(".arcane-sources-\(UUID())", isDirectory: true)
+            try FileManager.default.createDirectory(at: staging, withIntermediateDirectories: false,
+                                                    attributes: [.posixPermissions: 0o700])
+            defer { try? FileManager.default.removeItem(at: staging) }
+            for target in targets {
+                let probe = staging.appendingPathComponent(target.lastPathComponent)
+                let fd = open(probe.path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o600)
+                guard fd >= 0 else {
+                    if errno == EEXIST { throw CloudArchiveError.localChanged }
+                    if errno == ENOSPC { throw CloudLibraryFailure.diskFull(at: parent) }
+                    throw CloudArchiveError.installFailed
+                }
+                close(fd)
+            }
         }
         var received: Int64 = 0
         for (destination, item, previous) in pending {
@@ -464,6 +516,19 @@ public final class CloudGameSources: @unchecked Sendable {
             guard let snapshot = try stamp(at: candidate), snapshot.bytes == item.size,
                   try await hash(candidate, stamp: snapshot, fresh: true) == item.md5 else {
                 throw CloudArchiveError.invalidArchive
+            }
+            if let sources = expected[destination] {
+                let verified = sources.allSatisfy { Self.matchesPackageIdentity($0, at: candidate) }
+                if !verified {
+                    let inspectable = staging.appendingPathComponent("payload").appendingPathExtension(destination.pathExtension)
+                    try FileManager.default.linkItem(at: candidate, to: inspectable)
+                    defer { try? FileManager.default.removeItem(at: inspectable) }
+                    guard let before = try stamp(at: candidate), before.inode == snapshot.inode,
+                          before.mtimeSeconds == snapshot.mtimeSeconds, before.mtimeNanos == snapshot.mtimeNanos,
+                          before.bytes == snapshot.bytes else { throw CloudArchiveError.localChanged }
+                    guard try verifySources?(inspectable, sources) == true else { throw CloudArchiveError.invalidArchive }
+                    guard try stamp(at: candidate) == before else { throw CloudArchiveError.localChanged }
+                }
             }
             guard try Stamp.directory(parent) == directory, try stamp(at: destination) == previous else {
                 throw CloudArchiveError.localChanged
@@ -523,9 +588,13 @@ public final class CloudGameSources: @unchecked Sendable {
     private func downloads(_ selection: Selection, remote: [String: StorageObject], replacingBefore: Date? = nil,
                            replacing: Set<URL> = [], verifyExisting: Bool = false) async throws -> [(URL, StorageObject, Stamp?)] {
         var pending: [(URL, StorageObject, Stamp?)] = []
+        var occupied: Set<FileIdentity> = []
         for source in selection.files {
             try Task.checkCancellation()
             let local = try stamp(at: source)
+            if let local, !occupied.insert(.init(device: local.device, inode: local.inode)).inserted {
+                throw CloudArchiveError.localChanged
+            }
             if local != nil && replacingBefore == nil && !verifyExisting { continue }
             guard let item = remote[source.lastPathComponent] else { throw CloudArchiveError.noRemoteCopy }
             guard let digest = item.md5 else { throw CloudArchiveError.invalidArchive }
@@ -541,6 +610,7 @@ public final class CloudGameSources: @unchecked Sendable {
 
     private func remoteFiles(_ selection: Selection, withHashes: Bool = true,
                              allowMissingTitle: Bool = false) async throws -> [String: StorageObject] {
+        guard rootAllowed else { throw StorageBackendError.invalidConfiguration }
         try Task.checkCancellation()
         let selected = Set(selection.files.map(\.lastPathComponent))
         let entries: [StorageObject]
@@ -643,6 +713,28 @@ public final class CloudGameSources: @unchecked Sendable {
         }
     }
 
+    private struct FileIdentity: Hashable {
+        let device: dev_t
+        let inode: ino_t
+    }
+
+    private static func matchesPackageIdentity(_ source: GameFileItem, at url: URL) -> Bool {
+        let ext = source.url.pathExtension.lowercased()
+        // Containers need the selected engine's reader, not a filename or a manifest claim.
+        guard ext != "nup" else { return false }
+        // An extensionless staging name cannot let the parser silently reuse a title from the remote name.
+        guard let actual = try? SourceCatalog().inspect(url) else { return false }
+        return actual.kind == source.kind && String(format: "%016llX", actual.titleId) == source.titleId?.uppercased()
+    }
+
+    static func discoveredSourcesAvailable(_ sources: [GameFileItem]) -> Bool {
+        var files: Set<FileIdentity> = []
+        return sources.allSatisfy { source in
+            guard let node = try? CloudArchiveInventory.node(at: source.url), node.st_mode & S_IFMT == S_IFREG else { return false }
+            return files.insert(.init(device: node.st_dev, inode: node.st_ino)).inserted
+        }
+    }
+
     static let fileExtensions: Set<String> = ["nsp", "xci", "nsz", "xcz", "nup"]
 
     static func title(in folder: String) -> String {
@@ -657,8 +749,9 @@ public final class CloudGameSources: @unchecked Sendable {
         let files: [URL]
 
         init(_ folder: String, _ urls: [URL], titleID: String? = nil) throws {
-            guard folder.components(separatedBy: "/").allSatisfy(Self.safeName),
-                  titleID != nil || Self.safeName(folder) else { throw CloudArchiveError.unsafePath }
+            guard folder.isEmpty ? titleID != nil :
+                (titleID == nil ? Self.safeName(folder) : folder.components(separatedBy: "/").allSatisfy(Self.safeName))
+            else { throw CloudArchiveError.unsafePath }
             directory = StorageObjectKey(folder)
             title = titleID ?? CloudGameSources.title(in: folder)
             var names: [String: URL] = [:]
@@ -670,7 +763,7 @@ public final class CloudGameSources: @unchecked Sendable {
                     throw CloudArchiveError.unsafePath
                 }
                 let file = url.standardizedFileURL
-                let name = file.lastPathComponent
+                let name = CloudGameSources.normalizedName(file.lastPathComponent)
                 if let existing = names[name] {
                     guard existing == file else { throw CloudArchiveError.unsafePath }
                 } else {

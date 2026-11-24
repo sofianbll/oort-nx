@@ -37,7 +37,14 @@ public struct PortedGame: Identifiable, Codable, Equatable {
     /// Only remote files are registered. Resolve any app download using the current Game apps folder.
     public var cloudImportPending: Bool? = nil
     package var cloudReferenceFolder: String? = nil
+    private var registeredCloudSourcesReferenceFolder: String? = nil
     package var discoveredCloudSourceDirectory: String? = nil
+
+    /// Older catalog entries used the app offer's reference for both selections.
+    package var cloudSourcesReferenceFolder: String? {
+        get { registeredCloudSourcesReferenceFolder ?? (sources.isEmpty ? nil : cloudReferenceFolder) }
+        set { registeredCloudSourcesReferenceFolder = newValue }
+    }
 
     package var isCloudSourcePlaceholder: Bool {
         cloudImportPending == true && url.pathExtension.lowercased() != "app"
@@ -93,6 +100,7 @@ public struct PortedGame: Identifiable, Codable, Equatable {
         appIconPending = try c.decodeIfPresent(Bool.self, forKey: .appIconPending) ?? false
         cloudImportPending = try c.decodeIfPresent(Bool.self, forKey: .cloudImportPending)
         cloudReferenceFolder = try c.decodeIfPresent(String.self, forKey: .cloudReferenceFolder)
+        registeredCloudSourcesReferenceFolder = try c.decodeIfPresent(String.self, forKey: .registeredCloudSourcesReferenceFolder)
         discoveredCloudSourceDirectory = try c.decodeIfPresent(String.self, forKey: .discoveredCloudSourceDirectory)
     }
 

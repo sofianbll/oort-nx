@@ -1,9 +1,42 @@
 import Foundation
 import Security
 
+package struct CloudDriveScope: Codable, Equatable, Sendable {
+    package struct Folder: Codable, Equatable, Sendable {
+        package let path: String
+        package let id: String
+    }
+
+    package let remote: String
+    package let account: String
+    package let library: Folder
+    package var sources: Folder?
+    package var reference: String?
+
+    package var availabilityKey: [String] { [remote, account, library.id, sources?.id ?? "", reference ?? ""] }
+
+    // shortcut: rclone does not expose the canonical My Drive ID as structured data.
+    package static func accountID(in diagnostic: String) -> String? {
+        struct LogLine: Decodable { let msg: String }
+        let marker = "'root_folder_id = ", suffix = "' - save this in the config to speed up startup"
+        let matches = Set(diagnostic.split(whereSeparator: \.isNewline).compactMap { raw -> String? in
+            let line = (try? JSONDecoder().decode(LogLine.self, from: Data(raw.utf8)))?.msg ?? String(raw)
+            guard let start = line.range(of: marker, options: .backwards), line.hasSuffix(suffix) else { return nil }
+            return String(line[start.upperBound..<line.index(line.endIndex, offsetBy: -suffix.count)])
+        })
+        guard matches.count == 1, let id = matches.first, validID(id) else { return nil }
+        return id
+    }
+
+    static func validID(_ id: String) -> Bool {
+        id != "root" && id != "appDataFolder" && id.range(of: #"^[A-Za-z0-9_-]{1,256}\z"#, options: .regularExpression) != nil
+    }
+}
+
 public struct CloudLibraryPreference: Equatable, Sendable {
     public static let storageKey = "NXLibrary_CloudStorage"
     public static let sourcesRootKey = "NXLibrary_CloudSourcesRoot"
+    package static let sourcesBindingKey = "NXLibrary_CloudSourcesBinding"
     public static let enabledKey = "NXLibrary_CloudStorageEnabled"
     public static let executableKey = "NXLibrary_RclonePath"
     public static let referenceFolderKey = "NXLibrary_CloudReferenceFolder"
@@ -49,6 +82,24 @@ public struct CloudLibraryPreference: Equatable, Sendable {
 
     public var sourcesStorage: String? { remote.map { "\($0):\(sourcesRoot)" } }
 
+    package struct SourcesBinding: Codable, Equatable, Sendable {
+        package let storage: String
+        package let sources: String
+        package var account: String?
+        package var folderID: String?
+
+        package init?(_ preference: CloudLibraryPreference) {
+            guard let storage = preference.storage, preference.remote != nil,
+                  let sources = preference.sourcesRootOverride else { return nil }
+            self.storage = storage
+        self.sources = sources
+        }
+
+        package func permits(_ scope: CloudDriveScope) -> Bool {
+            (account == nil || account == scope.account) && (folderID == nil || folderID == scope.library.id)
+        }
+    }
+
     public var storage: String? {
         if let remote { return "\(remote):\(root)" }
         return root == Self.defaultRoot ? nil : ":\(root)"
@@ -91,6 +142,9 @@ public struct RcloneRemote: Equatable, Sendable, Decodable {
 }
 
 public struct RcloneConfiguration: Sendable {
+    // Drive replaces the parent-ID predicate at the root in either of these modes.
+    package static let driveFlags = ["--drive-shared-with-me=false", "--drive-starred-only=false", "--drive-skip-shortcuts"]
+
     static let passwordCommand = "/usr/bin/security find-generic-password -a rclone -s rclone-config -w"
     private static let service = "rclone-config"
     private static let account = "rclone"
@@ -175,6 +229,11 @@ public struct RcloneConfiguration: Sendable {
         return remotes.filter { $0.source == "file" && CloudLibraryPreference.validRemote($0.name) }
     }
 
+    package static func requireDrive(_ name: String, in output: String) throws {
+        let matches = try parseRemotes(output).filter { $0.name == name }
+        guard matches.count == 1, matches[0].type == "drive" else { throw CloudLibraryFailure.requiresDrive }
+    }
+
     public func connect(clientID: String, secret: String) async throws -> RcloneRemote {
         let clientID = clientID.trimmingCharacters(in: .whitespacesAndNewlines)
         let secret = secret.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -223,7 +282,7 @@ public struct RcloneConfiguration: Sendable {
         do {
             guard try await control.call(replacing ? "config/update" : "config/create", body,
                 executable: executable, environment: environment,
-                flags: flags(config: config, environment: environment), sensitive: true) != nil else {
+                flags: driveFlags + flags(config: config, environment: environment), sensitive: true) != nil else {
                 throw Failure.connect
             }
         } catch is CancellationError { throw CancellationError() }
@@ -232,8 +291,9 @@ public struct RcloneConfiguration: Sendable {
 
     public func test(_ preference: CloudLibraryPreference) async throws {
         guard let remote = preference.remote else { throw Failure.test }
+        try Self.requireDrive(remote, in: await checked(["listremotes", "--json"], or: .configuration))
         let path = "\(remote):\(preference.root)"
-        let flags = ["--drive-skip-shortcuts", "--retries", "1", "--low-level-retries", "1",
+        let flags = Self.driveFlags + ["--retries", "1", "--low-level-retries", "1",
                      "--contimeout", "5s", "--timeout", "10s"]
         func checkFolder(_ arguments: [String]) async throws -> String {
             let result = try await command(arguments + flags, or: .test)
@@ -243,6 +303,7 @@ public struct RcloneConfiguration: Sendable {
                 }
                 throw Failure.test
             }
+            guard !result.stderr.contains("search result INCOMPLETE") else { throw CloudLibraryFailure.incomplete }
             return result.stdout
         }
         let output = try await checkFolder(["lsjson", path, "--stat"])

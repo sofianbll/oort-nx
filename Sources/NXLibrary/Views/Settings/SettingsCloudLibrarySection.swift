@@ -63,6 +63,8 @@ struct SettingsCloudLibrarySection: View {
             }
             return text(failure.messageKey)
         }
+        if result.count == 0 { return text("No games found. The reference is not verified.") }
+        if result.incomplete { return text(CloudLibraryFailure.incomplete.messageKey) }
         return L10n.format("Games: %@ · Checked %@", [
             (result.count ?? 0).formatted(.number.locale(localization.formatLocale)),
             result.date.formatted(.dateTime.month().day().hour().minute().locale(localization.formatLocale)),
@@ -78,8 +80,8 @@ struct SettingsCloudLibrarySection: View {
     }
 
     private var lastTest: String? {
-        model.connectionCheck.map {
-            L10n.format("Last test: %@", [$0.date.formatted(.dateTime.year().month().day().hour().minute()
+        model.lastCompleteCheck.map {
+            L10n.format("Last verified: %@", [$0.formatted(.dateTime.year().month().day().hour().minute()
                 .locale(localization.formatLocale))], context: localization)
         }
     }
@@ -118,6 +120,11 @@ struct SettingsCloudLibrarySection: View {
                 SeleneButtonRow("Configure cloud library", buttonTitle: "Open", action: onEdit)
                     .disabled(!editable)
             }
+            if let folder = selection.sourcesRootOverride, selection.remote != nil, model.sourcesNeedConfirmation {
+                SeleneButtonRow("Confirm the game files folder", id: "cloudConfirmSources", subtitle: folder, verbatimSubtitle: true,
+                                buttonTitle: "Choose", action: confirmSourcesFolder)
+                    .disabled(!editable)
+            }
 
             if selection.remote != nil {
                 SeleneButtonRow("Reference library", id: "cloudReferenceFolder",
@@ -126,11 +133,12 @@ struct SettingsCloudLibrarySection: View {
                     .disabled(!canFollow)
             }
             if let folder = selection.referenceFolder, selection.remote != nil {
-                SeleneRow(model.referenceCheck?.name ?? folder, id: "cloudReferenceStatus",
+                SeleneRow(model.referenceCheck?.name ?? "\(text("Reference library")) · …\(folder.suffix(6))", id: "cloudReferenceStatus",
                           subtitle: referenceStatus, verbatimTitle: true, verbatimSubtitle: true) {
                     SeleneStatusDot(text: text("Read only"), color: model.referenceCheck?.failure != nil
                         ? CloudLibraryStatus.failed.color : model.referenceCheck == nil
-                        ? CloudLibraryStatus.pending.color : CloudLibraryStatus.synchronized.color)
+                         ? CloudLibraryStatus.pending.color : model.referenceCheck?.count == 0 || model.referenceCheck?.incomplete == true
+                         ? CloudLibraryStatus.unknown.color : CloudLibraryStatus.synchronized.color)
                     Button(text("Unfollow"), action: unfollow)
                         .buttonStyle(.plain)
                         .seleneFont(15, .semibold)
@@ -167,6 +175,7 @@ struct SettingsCloudLibrarySection: View {
             publishActions()
         }
         .onChange(of: recoveryFailure) { publishActions() }
+        .onChange(of: model.sourcesNeedConfirmation) { publishActions() }
         .onChange(of: model.connectionCheck?.explicit) { publishActions() }
         .onDisappear { testTask?.cancel() }
     }
@@ -233,6 +242,10 @@ struct SettingsCloudLibrarySection: View {
                                      isEnabled: editable, activate: unfollow),
                                at: actions.count - 1)
             }
+            if model.sourcesNeedConfirmation {
+                actions.insert(.init(id: "cloudConfirmSources", title: "Confirm the game files folder",
+                                     isEnabled: editable, activate: confirmSourcesFolder), at: 1)
+            }
             if let failure = recoveryFailure {
                 actions.insert(.init(id: "cloudRecovery", title: failure.messageKey, isEnabled: canRecover, activate: recover), at: 0)
             }
@@ -282,6 +295,20 @@ struct SettingsCloudLibrarySection: View {
     private func importGames() {
         guard canImport else { return }
         viewModel.importCloudGames(manually: true)
+    }
+
+    private func confirmSourcesFolder() {
+        let before = selection
+        guard editable, model.sourcesNeedConfirmation, let folder = before.sourcesRootOverride else { return }
+        viewModel.confirmSetting(text("Game files folder"),
+            message: L10n.format("Keep “%@” for game files in this library, or use its default folder?", [folder]),
+            choices: [("Keep this folder", {
+                guard model.preference == before else { return }
+                model.chooseSourcesRoot(folder)
+            }), ("Use default", {
+                guard model.preference == before else { return }
+                model.chooseSourcesRoot(nil)
+            })])
     }
 
     private func unfollow() {

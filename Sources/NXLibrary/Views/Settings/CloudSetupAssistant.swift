@@ -552,7 +552,7 @@ struct CloudSetupAssistant: View {
     private func useSources() {
         if entry == .sources {
             let path = typedSourcesRoot ?? sourcesPath
-            if path != model.preference.sourcesRoot { model.chooseSourcesRoot(path) }
+            if path != model.preference.sourcesRoot || model.sourcesNeedConfirmation { model.chooseSourcesRoot(path) }
             onClose()
         } else { finishFolder() }
     }
@@ -686,7 +686,8 @@ struct CloudSetupAssistant: View {
             try replacement?.apply()
             activated = true
             let sources = onboarding ? selectedSourcesOverride : model.preference.sourcesRootOverride
-            model.configure(remote: preference.remote, root: preference.root, enabled: true, sourcesRoot: sources, reload: replaced)
+            model.configure(remote: preference.remote, root: preference.root, enabled: true, sourcesRoot: sources,
+                            reload: replaced, confirmLibrary: true)
             model.connectionCheck = .init(date: .now, failure: nil)
             onClose()
         } catch {

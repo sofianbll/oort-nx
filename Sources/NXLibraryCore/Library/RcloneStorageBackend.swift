@@ -4,7 +4,7 @@ import Foundation
 public struct RcloneStorageBackend: StorageBackend {
     private static let staging = ".arcane-upload"
     private static let smallDownloadLimit: Int64 = 64 * 1024
-    private static let flags = ["--drive-skip-shortcuts", "--local-links=false", "--copy-links=false",
+    private static let flags = RcloneConfiguration.driveFlags + ["--local-links=false", "--copy-links=false",
                                 "--drive-chunk-size", "64M", "--multi-thread-streams", "4",
                                 "--multi-thread-cutoff", "64M"]
     private let remote: String
@@ -13,6 +13,7 @@ public struct RcloneStorageBackend: StorageBackend {
     private let config: URL?
     private let commandOverride: RcloneConfiguration.Run?
     private let referenceID: String?
+    private var driveScope: CloudDriveScope?
     package var isReference: Bool { referenceID != nil }
     let control: RcloneRemoteControl
     package let leases: CloudTitleLeases
@@ -24,9 +25,16 @@ public struct RcloneStorageBackend: StorageBackend {
                   control: RcloneRemoteControl(), leases: CloudTitleLeases(), commandOverride: nil)
     }
 
-    package init(remote: String, root: String, run: @escaping RcloneConfiguration.Run) {
+    package init(remote: String, root: String, readsConfiguration: Bool = false, run: @escaping RcloneConfiguration.Run) {
         self.init(remote: remote, root: root, executable: nil, config: nil,
-                  control: RcloneRemoteControl(), leases: CloudTitleLeases(), commandOverride: run)
+                  control: RcloneRemoteControl(), leases: CloudTitleLeases(), commandOverride: { executable, args, env in
+            if !readsConfiguration, args.first == "listremotes" {
+                struct Fixture: Encodable { let name: String; let type = "drive"; let source = "file" }
+                return .init(status: 0, stdout: String(decoding: try JSONEncoder().encode([Fixture(name: remote)]), as: UTF8.self),
+                             stderr: "")
+            }
+            return try await run(executable, args, env)
+        })
     }
 
     private init(remote: String, root: String, executable: URL?, config: URL?,
@@ -43,8 +51,10 @@ public struct RcloneStorageBackend: StorageBackend {
     }
 
     package func atRoot(_ root: String) -> Self {
-        Self(remote: remote, root: root, executable: executable, config: config,
-             control: control, leases: leases, commandOverride: commandOverride, referenceID: referenceID)
+        var backend = Self(remote: remote, root: root, executable: executable, config: config,
+                           control: control, leases: leases, commandOverride: commandOverride, referenceID: referenceID)
+        backend.driveScope = driveScope
+        return backend
     }
 
     package func descendant(ofRoot path: String) -> String? {
@@ -74,18 +84,28 @@ public struct RcloneStorageBackend: StorageBackend {
 
     package func reference(folderID: String) -> Self? {
         guard remote != ":local:", CloudLibraryPreference.referenceFolderID(folderID) == folderID else { return nil }
-        return Self(remote: remote, root: "", executable: executable, config: config,
-                    control: control, leases: leases, commandOverride: commandOverride, referenceID: folderID)
+        guard driveScope.map({ $0.reference == folderID }) ?? true else { return nil }
+        var backend = Self(remote: remote, root: "", executable: executable, config: config,
+                           control: control, leases: leases, commandOverride: commandOverride, referenceID: folderID)
+        backend.driveScope = driveScope
+        return backend
     }
 
-    package func referenceName() async throws -> String? {
-        guard let referenceID else { throw StorageBackendError.invalidConfiguration }
-        struct Folder: Decodable { let ID: String?; let Name: String?; let IsDir: Bool }
-        let folder = try decode(Folder?.self, from: await run([
-            "lsjson", basePath(), "--stat", "--no-modtime", "--no-mimetype",
-        ], listingFolder: true))
-        guard let folder, folder.IsDir, folder.ID == nil || folder.ID == referenceID else { return nil }
-        return folder.Name.flatMap { $0.isEmpty ? nil : $0 } ?? referenceID
+    package func resolveScope(reference: String?) async throws -> CloudDriveScope {
+        let account = try await accountIdentity()
+        guard let library = try await folderIdentity(root) else { throw CloudLibraryFailure.folderMissing }
+        return .init(remote: remote, account: account, library: .init(path: root, id: library), reference: reference)
+    }
+
+    package func sourceFolder(_ path: String, in scope: CloudDriveScope) async throws -> CloudDriveScope.Folder? {
+        guard scope.remote == remote, try await accountIdentity() == scope.account else { throw CloudLibraryFailure.scopeChanged }
+        return try await folderIdentity(path).map { .init(path: path, id: $0) }
+    }
+
+    package func scoped(_ scope: CloudDriveScope) -> Self {
+        var backend = self
+        backend.driveScope = scope
+        return backend
     }
 
     /// Ends the RC session when the cloud configuration is replaced or the app quits.
@@ -389,8 +409,10 @@ public struct RcloneStorageBackend: StorageBackend {
     }
 
     private func rc(_ operation: String, _ parameters: [String: Any]) async throws -> String? {
-        if commandOverride != nil || isReference { return nil }
+        // A Drive command must authenticate with the checked configuration, not a cached RC filesystem.
+        if commandOverride != nil || isReference || driveScope != nil { return nil }
         guard let binary = Self.findExecutable(preferred: executable) else { return nil }
+        try await requireDrive()
         let environment = RcloneConfiguration.environment()
         do {
             return try await control.call(operation, parameters, executable: binary, environment: environment,
@@ -445,7 +467,25 @@ public struct RcloneStorageBackend: StorageBackend {
               remote == ":local:" ? root.hasPrefix("/") && root != "/" :
                   CloudLibraryPreference.validRemote(name)
         else { throw StorageBackendError.invalidConfiguration }
-        return (remote == ":local:" ? remote : name + ":") + root
+        let base = remote == ":local:" ? remote : name + ":"
+        if driveScope != nil && !isReference {
+            guard let target = scopedTarget else { throw CloudLibraryFailure.scopeChanged }
+            return base + target.relative
+        }
+        return base + root
+    }
+
+    private var scopedTarget: (folder: CloudDriveScope.Folder, relative: String)? {
+        guard let scope = driveScope else { return nil }
+        let cleaned = root.split(separator: "/").joined(separator: "/")
+        let library = scope.library.path.split(separator: "/").joined(separator: "/")
+        if cleaned == library { return (scope.library, "") }
+        if let sources = scope.sources, cleaned == sources.path.split(separator: "/").joined(separator: "/") {
+            return (sources, "")
+        }
+        let prefix = library + "/"
+        guard cleaned.hasPrefix(prefix) else { return nil }
+        return (scope.library, String(cleaned.dropFirst(prefix.count)))
     }
 
     private func binary() throws -> URL {
@@ -456,12 +496,14 @@ public struct RcloneStorageBackend: StorageBackend {
     }
 
     private func run(_ arguments: [String], progress: (@Sendable (StorageProgress) -> Void)? = nil,
-                     listingFolder: Bool = false, localDestination: URL? = nil) async throws -> String {
+                     listingFolder: Bool = false, localDestination: URL? = nil,
+                     checkingConfiguration: Bool = false, scopeProbe: Bool = false,
+                     probingParent: String? = nil, diagnostic: Bool = false) async throws -> String {
         try Task.checkCancellation()
         let flags = ["--use-json-log", "--stats", "1s", "--stats-log-level", "NOTICE"] + Self.flags
         let environment = RcloneConfiguration.environment()
         var referenceFlags: [String] = []
-        if let referenceID {
+        if let referenceID, !checkingConfiguration, !scopeProbe {
             let prefix = (remote.hasSuffix(":") ? remote : remote + ":")
             switch arguments.first {
             case "lsjson":
@@ -475,8 +517,21 @@ public struct RcloneStorageBackend: StorageBackend {
                 }
             default: throw StorageBackendError.invalidConfiguration
             }
-            referenceFlags = ["--drive-root-folder-id", referenceID]
+            referenceFlags = ["--drive-root-folder-id=\(referenceID)"]
         }
+        if !checkingConfiguration { try await requireDrive() }
+        if let probingParent { referenceFlags = ["--drive-root-folder-id=\(probingParent)"] }
+        if let scope = driveScope, !checkingConfiguration, !scopeProbe {
+            guard scope.remote == remote, try await accountIdentity() == scope.account,
+                  try await folderIdentity(scope.library.path) == scope.library.id else { throw CloudLibraryFailure.scopeChanged }
+            if !isReference {
+                guard let target = scopedTarget else { throw CloudLibraryFailure.scopeChanged }
+                if let sources = scope.sources, sources != scope.library,
+                   try await folderIdentity(sources.path) != sources.id { throw CloudLibraryFailure.scopeChanged }
+                referenceFlags = ["--drive-root-folder-id=\(target.folder.id)"]
+            }
+        }
+        try Task.checkCancellation()
         let command = arguments + flags + referenceFlags + RcloneConfiguration.flags(config: config, environment: environment)
         let result: CommandResult
         do {
@@ -498,12 +553,9 @@ public struct RcloneStorageBackend: StorageBackend {
             throw failure == .macFull ? CloudLibraryFailure.diskFull(at: localDestination ?? FileManager.default.temporaryDirectory)
                 : failure
         }
-        if isReference && result.status != 0,
-           result.stderr.lowercased().contains("error 403") || result.stderr.lowercased().contains("error 404") {
-            throw CloudLibraryFailure.folderMissing
-        }
+        if result.stderr.contains("search result INCOMPLETE") { throw StorageBackendError.invalidResponse }
         switch result.status {
-        case 0: return result.stdout
+        case 0: return diagnostic ? result.stderr : result.stdout
         case 3, 4: throw StorageBackendError.notFound
         default:
             let messages: [String] = result.stderr.split(whereSeparator: \.isNewline).suffix(8).compactMap {
@@ -517,6 +569,39 @@ public struct RcloneStorageBackend: StorageBackend {
             // OAuth responses in stderr can contain credentials even outside recognizable keys.
             throw StorageBackendError.processFailed(status: result.status)
         }
+    }
+
+    private func requireDrive() async throws {
+        guard remote != ":local:" else { return }
+        let name = remote.hasSuffix(":") ? String(remote.dropLast()) : remote
+        guard CloudLibraryPreference.validRemote(name) else { throw CloudLibraryFailure.requiresDrive }
+        try RcloneConfiguration.requireDrive(name, in: await run(["listremotes", "--json"], checkingConfiguration: true))
+        try Task.checkCancellation()
+    }
+
+    private func accountIdentity() async throws -> String {
+        let response = try await run(["about", "\(remote),root_folder_id=,team_drive=:", "--json", "--log-level", "DEBUG"],
+                                     scopeProbe: true, diagnostic: true)
+        guard let account = CloudDriveScope.accountID(in: response) else { throw CloudLibraryFailure.scopeChanged }
+        return account
+    }
+
+    private func folderIdentity(_ path: String) async throws -> String? {
+        guard CloudLibraryPreference.validSourcesRoot(path) else { throw StorageBackendError.invalidKey }
+        struct Folder: Decodable { let ID: String?; let Name: String; let IsDir: Bool }
+        var parent: String?
+        for part in path.split(separator: "/") {
+            let response = try await run(["lsjson", "\(remote):", "--dirs-only", "--no-modtime", "--no-mimetype"],
+                                         listingFolder: true, scopeProbe: true, probingParent: parent)
+            let matches = try decode([Folder].self, from: response).filter {
+                $0.Name.precomposedStringWithCanonicalMapping == part.precomposedStringWithCanonicalMapping
+            }
+            if matches.isEmpty { return nil }
+            guard matches.count == 1, matches[0].IsDir, matches[0].Name.utf8.elementsEqual(part.utf8),
+                  let id = matches[0].ID, CloudDriveScope.validID(id) else { throw CloudLibraryFailure.scopeChanged }
+            parent = id
+        }
+        return parent
     }
 
     private func decode<T: Decodable>(_ type: T.Type, from output: String) throws -> T {

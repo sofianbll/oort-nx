@@ -1672,6 +1672,33 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "尚未测试连接"}}
       }
     },
+    "Last verified: %@": {"localizations": {
+      "en": {"stringUnit": {"state": "translated", "value": "Last verified: %@"}},
+      "it": {"stringUnit": {"state": "translated", "value": "Ultima verifica: %@"}},
+      "fr": {"stringUnit": {"state": "translated", "value": "Dernière vérification : %@"}},
+      "de": {"stringUnit": {"state": "translated", "value": "Zuletzt geprüft: %@"}},
+      "es": {"stringUnit": {"state": "translated", "value": "Última verificación: %@"}},
+      "pt-BR": {"stringUnit": {"state": "translated", "value": "Última verificação: %@"}},
+      "zh-Hans": {"stringUnit": {"state": "translated", "value": "上次验证：%@"}}
+    }},
+    "The cloud check is incomplete. Previous results were kept.": {"localizations": {
+      "en": {"stringUnit": {"state": "translated", "value": "The cloud check is incomplete. Previous results were kept."}},
+      "it": {"stringUnit": {"state": "translated", "value": "Controllo cloud incompleto. I risultati precedenti sono stati conservati."}},
+      "fr": {"stringUnit": {"state": "translated", "value": "La vérification cloud est incomplète. Les résultats précédents ont été conservés."}},
+      "de": {"stringUnit": {"state": "translated", "value": "Die Cloud-Prüfung ist unvollständig. Frühere Ergebnisse wurden beibehalten."}},
+      "es": {"stringUnit": {"state": "translated", "value": "La comprobación de la nube está incompleta. Se conservaron los resultados anteriores."}},
+      "pt-BR": {"stringUnit": {"state": "translated", "value": "A verificação da nuvem está incompleta. Os resultados anteriores foram mantidos."}},
+      "zh-Hans": {"stringUnit": {"state": "translated", "value": "云端检查未完成。已保留之前的结果。"}}
+    }},
+    "The Google Drive account or folder changed. Check the cloud settings.": {"localizations": {
+      "en": {"stringUnit": {"state": "translated", "value": "The Google Drive account or folder changed. Check the cloud settings."}},
+      "it": {"stringUnit": {"state": "translated", "value": "L’account o la cartella di Google Drive è cambiato. Controlla le impostazioni cloud."}},
+      "fr": {"stringUnit": {"state": "translated", "value": "Le compte ou le dossier Google Drive a changé. Vérifiez les réglages cloud."}},
+      "de": {"stringUnit": {"state": "translated", "value": "Das Google-Drive-Konto oder der Ordner hat sich geändert. Prüfe die Cloud-Einstellungen."}},
+      "es": {"stringUnit": {"state": "translated", "value": "La cuenta o la carpeta de Google Drive ha cambiado. Revisa los ajustes de la nube."}},
+      "pt-BR": {"stringUnit": {"state": "translated", "value": "A conta ou a pasta do Google Drive mudou. Confira os ajustes da nuvem."}},
+      "zh-Hans": {"stringUnit": {"state": "translated", "value": "Google 云端硬盘的帐号或文件夹已更改。请检查云端设置。"}}
+    }},
     "Last test: %@": {
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Last test: %@"}},
@@ -2904,6 +2931,42 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法读取已保存的移动记录，或记录缺少 Drive 标识。云端传输已暂停。请保留此恢复记录：%@。"}}
       }
     },
+    "Confirm the game files folder": {"localizations": {
+      "en": {"stringUnit": {"state": "translated", "value": "Confirm the game files folder"}},
+      "it": {"stringUnit": {"state": "translated", "value": "Conferma la cartella dei file di gioco"}},
+      "fr": {"stringUnit": {"state": "translated", "value": "Confirmer le dossier des fichiers de jeu"}},
+      "de": {"stringUnit": {"state": "translated", "value": "Ordner für Spieldateien bestätigen"}},
+      "es": {"stringUnit": {"state": "translated", "value": "Confirma la carpeta de archivos del juego"}},
+      "pt-BR": {"stringUnit": {"state": "translated", "value": "Confirme a pasta de arquivos dos jogos"}},
+      "zh-Hans": {"stringUnit": {"state": "translated", "value": "确认游戏文件夹"}}
+    }},
+    "Keep “%@” for game files in this library, or use its default folder?": {"localizations": {
+      "en": {"stringUnit": {"state": "translated", "value": "Keep “%@” for game files in this library, or use its default folder?"}},
+      "it": {"stringUnit": {"state": "translated", "value": "Vuoi tenere «%@» per i file di gioco di questa libreria o usare la sua cartella predefinita?"}},
+      "fr": {"stringUnit": {"state": "translated", "value": "Garder « %@ » pour les fichiers de jeu de cette bibliothèque ou utiliser son dossier par défaut ?"}},
+      "de": {"stringUnit": {"state": "translated", "value": "„%@“ für die Spieldateien dieser Bibliothek behalten oder ihren Standardordner verwenden?"}},
+      "es": {"stringUnit": {"state": "translated", "value": "¿Conservar «%@» para los archivos de juego de esta biblioteca o usar su carpeta predeterminada?"}},
+      "pt-BR": {"stringUnit": {"state": "translated", "value": "Manter “%@” para os arquivos de jogos desta biblioteca ou usar a pasta padrão dela?"}},
+      "zh-Hans": {"stringUnit": {"state": "translated", "value": "为此游戏库保留“%@”作为游戏文件夹，还是使用其默认文件夹？"}}
+    }},
+    "Keep this folder": {"localizations": {
+      "en": {"stringUnit": {"state": "translated", "value": "Keep this folder"}},
+      "it": {"stringUnit": {"state": "translated", "value": "Tieni questa cartella"}},
+      "fr": {"stringUnit": {"state": "translated", "value": "Garder ce dossier"}},
+      "de": {"stringUnit": {"state": "translated", "value": "Diesen Ordner behalten"}},
+      "es": {"stringUnit": {"state": "translated", "value": "Conservar esta carpeta"}},
+      "pt-BR": {"stringUnit": {"state": "translated", "value": "Manter esta pasta"}},
+      "zh-Hans": {"stringUnit": {"state": "translated", "value": "保留此文件夹"}}
+    }},
+    "Use default": {"localizations": {
+      "en": {"stringUnit": {"state": "translated", "value": "Use default"}},
+      "it": {"stringUnit": {"state": "translated", "value": "Usa quella predefinita"}},
+      "fr": {"stringUnit": {"state": "translated", "value": "Utiliser le dossier par défaut"}},
+      "de": {"stringUnit": {"state": "translated", "value": "Standardordner wählen"}},
+      "es": {"stringUnit": {"state": "translated", "value": "Usar carpeta predeterminada"}},
+      "pt-BR": {"stringUnit": {"state": "translated", "value": "Usar a pasta padrão"}},
+      "zh-Hans": {"stringUnit": {"state": "translated", "value": "使用默认文件夹"}}
+    }},
     "Game files folder": {
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Game files folder"}},
@@ -5032,6 +5095,15 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "重新连接"}}
       }
     },
+    "Choose a Google Drive connection configured directly in rclone.": {"localizations": {
+      "en": {"stringUnit": {"state": "translated", "value": "Choose a Google Drive connection configured directly in rclone."}},
+      "it": {"stringUnit": {"state": "translated", "value": "Scegli una connessione Google Drive configurata direttamente in rclone."}},
+      "fr": {"stringUnit": {"state": "translated", "value": "Choisissez une connexion Google Drive configurée directement dans rclone."}},
+      "de": {"stringUnit": {"state": "translated", "value": "Wähle eine direkt in rclone eingerichtete Google-Drive-Verbindung."}},
+      "es": {"stringUnit": {"state": "translated", "value": "Elige una conexión de Google Drive configurada directamente en rclone."}},
+      "pt-BR": {"stringUnit": {"state": "translated", "value": "Escolha uma conexão do Google Drive configurada diretamente no rclone."}},
+      "zh-Hans": {"stringUnit": {"state": "translated", "value": "请选择直接在 rclone 中配置的 Google 云端硬盘连接。"}}
+    }},
     "Choose a folder": {
       "localizations": {
         "de": {"stringUnit": {"state": "translated", "value": "Ordner auswählen"}},
@@ -50783,6 +50855,15 @@
         }
       }
     },
+    "No games found. The reference is not verified.": {"localizations": {
+      "en": {"stringUnit": {"state": "translated", "value": "No games found. The reference is not verified."}},
+      "it": {"stringUnit": {"state": "translated", "value": "Nessun gioco trovato. La libreria di riferimento non è verificata."}},
+      "fr": {"stringUnit": {"state": "translated", "value": "Aucun jeu trouvé. La bibliothèque de référence n’est pas vérifiée."}},
+      "de": {"stringUnit": {"state": "translated", "value": "Keine Spiele gefunden. Die Referenzbibliothek ist nicht bestätigt."}},
+      "es": {"stringUnit": {"state": "translated", "value": "No se encontraron juegos. La biblioteca de referencia no está verificada."}},
+      "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhum jogo encontrado. A biblioteca de referência não foi verificada."}},
+      "zh-Hans": {"stringUnit": {"state": "translated", "value": "未找到游戏。参考库尚未验证。"}}
+    }},
     "No games found. Try another name.": {
       "comment": "GameBananaFindPanel.swift",
       "localizations": {
