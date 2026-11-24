@@ -302,7 +302,7 @@ struct SpotlightRowView: View {
     private func platformActions(_ card: SpotlightPlatforms.Card, in platforms: SpotlightPlatforms, selected: Bool) -> some View {
         ZStack {
             Button { onActivate(.platform) } label: {
-                Rectangle().fill(SeleneTheme.ink.opacity(0)).contentShape(Rectangle())
+                Spacer().frame(maxWidth: .infinity, maxHeight: .infinity).contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .accessibilityLabel(platformName(card))
