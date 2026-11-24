@@ -88,6 +88,8 @@ struct CloudLibraryState {
     var referenceKinds: Set<CloudArtifactKind> = []
     var referenceSources: CloudSourcesStatus?
     var referenceSourceBytes: Int64?
+    var referenceUnverified = false
+    var referenceSourcesUnverified = false
     var sourceAvailability: CloudSourcesStatus?
     var sources: CloudSourcesStatus?
     var sourcesMessage: String?
@@ -886,7 +888,7 @@ extension AppViewModel {
             })
             let name = names.count == 1 ? names.first : nil
             if listing.manifests.isEmpty && discovered.isEmpty {
-                cloudLibrary.referenceCheck = .init(date: .now, name: name, count: 0)
+                cloudLibrary.referenceCheck = .init(date: .now, name: name, count: 0, incomplete: !listing.complete)
                 return (false, listing.warnings)
             }
             let added = try await adoptCloudListing(listing, archive: archive, referenceFolder: folder)
@@ -1071,18 +1073,22 @@ extension AppViewModel {
                     let reference = self.cloudLibrary.referenceManifests[title.uppercased()]
                     let needsEngineSources = game.isPlayableLocally && !self.gamesWithFilesHere.contains(game.id)
                     if let reference, reference.sourceSelection != nil, needsEngineSources {
-                        let shared: ReferenceSources?
                         do {
                             let own = try await archive.latest(titleID: title)
-                            shared = try await self.referenceSourceStatus(for: game, reference: reference, own: own)
-                        } catch { shared = nil } // If the reference can't be checked, try the personal sources.
-                        guard current(), self.libraryGames.contains(game),
-                              self.porting.cloudBuildScope?.title != title.uppercased() else { return }
-                        self.cloudLibrary.update(game.id) {
-                            $0.referenceSources = shared?.status
-                            $0.referenceSourceBytes = shared?.bytes
+                            let shared = try await self.referenceSourceStatus(for: game, reference: reference, own: own)
+                            guard current(), self.libraryGames.contains(game),
+                                  self.porting.cloudBuildScope?.title != title.uppercased() else { return }
+                            self.cloudLibrary.update(game.id) {
+                                $0.referenceSources = shared?.status
+                                $0.referenceSourceBytes = shared?.bytes
+                                $0.referenceSourcesUnverified = false
+                            }
+                            if shared != nil { return }
+                        } catch {
+                            guard current(), self.libraryGames.contains(game),
+                                  self.porting.cloudBuildScope?.title != title.uppercased() else { return }
+                            self.cloudLibrary.update(game.id) { $0.referenceSourcesUnverified = true }
                         }
-                        if shared != nil { return }
                     }
                     if let files = CloudSourceFiles(game), needsEngineSources || reference?.sourceSelection == nil {
                         checkingSources = true
@@ -1481,30 +1487,39 @@ extension AppViewModel {
             }
             guard let copies, isCurrent() else { return }
             let own = (try? lookup.get()) ?? nil
-            let reference = (try? await self.referenceManifest(titleID: titleID)) ?? nil
+            let referenceLookup: Result<CloudGameManifest?, Error>
+            do { referenceLookup = .success(try await self.referenceManifest(titleID: titleID)) }
+            catch { referenceLookup = .failure(error) }
             var referenceKinds: Set<CloudArtifactKind> = []
             var referenceCopies: [CloudArtifactKind: CloudGameArchive.ReferenceCopy] = [:]
             var referenceAvailability: [CloudArtifactKind: CloudArtifactStatus] = [:]
-            if case .success = lookup, let reference, let referenceArchive = self.cloudLibrary.referenceArchive {
-                referenceKinds = Set(CloudArtifactKind.allCases.filter { self.referenceWins(reference, over: own, kind: $0) })
-                if !referenceKinds.isEmpty {
-                    let compared = try? await referenceArchive.copyStatuses(target, manifest: .success(reference))
-                    for kind in referenceKinds {
-                        let status = kind == .app && game.cloudImportPending == true ? reference.cloudOnlyApp : compared?[kind]
-                        referenceAvailability[kind] = status
-                        if kind == .app && game.cloudImportPending == true || target.locations[kind] != nil {
-                            referenceCopies[kind] = try? await referenceArchive.referenceCopy(kind, for: target,
-                                manifest: reference, status: status, matchesOlderCopy: copies[kind]?.state == .synchronized)
+            var referenceUnverified = false
+            do {
+                if let reference = try referenceLookup.get(), let referenceArchive = self.cloudLibrary.referenceArchive {
+                    _ = try lookup.get()
+                    referenceKinds = Set(CloudArtifactKind.allCases.filter { self.referenceWins(reference, over: own, kind: $0) })
+                    if !referenceKinds.isEmpty {
+                        let compared = try await referenceArchive.copyStatuses(target, manifest: .success(reference))
+                        for kind in referenceKinds {
+                            let status = kind == .app && game.cloudImportPending == true ? reference.cloudOnlyApp : compared[kind]
+                            referenceAvailability[kind] = status
+                            if kind == .app && game.cloudImportPending == true || target.locations[kind] != nil {
+                                referenceCopies[kind] = try await referenceArchive.referenceCopy(kind, for: target,
+                                    manifest: reference, status: status, matchesOlderCopy: copies[kind]?.state == .synchronized)
+                            }
                         }
                     }
                 }
-            }
+            } catch { referenceUnverified = true }
             guard isCurrent() else { return }
             self.cloudLibrary.update(id) {
                 $0.copies = copies
-                $0.referenceAvailability = referenceAvailability
-                $0.referenceKinds = referenceKinds
-                $0.referenceCopies = referenceCopies
+                $0.referenceUnverified = referenceUnverified
+                if !referenceUnverified {
+                    $0.referenceAvailability = referenceAvailability
+                    $0.referenceKinds = referenceKinds
+                    $0.referenceCopies = referenceCopies
+                }
                 if case .failure(let error) = lookup {
                     $0.message = self.cloudMessage(for: error)
                     $0.failure = self.cloudFailure(for: error)
@@ -1524,26 +1539,41 @@ extension AppViewModel {
                 guard isCurrent() else { return }
                 self.cloudLibrary.update(id) {
                     $0.sources = game.cloudSourcesReferenceFolder == nil ? status : nil
-                    $0.referenceSources = game.cloudSourcesReferenceFolder != nil ? status : nil
-                    $0.referenceSourceBytes = $0.referenceSources.flatMap { $0.state == .cloudOnly ? $0.remoteBytes : nil }
+                    $0.referenceSourcesUnverified = game.cloudSourcesReferenceFolder != nil && (referenceUnverified
+                        || self.cloudLibrary.referenceCheck?.failure != nil || self.cloudLibrary.referenceCheck?.incomplete == true)
+                    if !$0.referenceSourcesUnverified {
+                        $0.referenceSources = game.cloudSourcesReferenceFolder != nil ? status : nil
+                        $0.referenceSourceBytes = $0.referenceSources.flatMap { $0.state == .cloudOnly ? $0.remoteBytes : nil }
+                    }
                     $0.sourcesCanFree = false
                 }
                 return
             }
             let sources = await sourceStatus
-            let referenceSources = try? await self.referenceSourceStatus(for: game, reference: reference, own: own)
+            let referenceSources: Result<ReferenceSources?, Error>
+            do {
+                let reference = try referenceLookup.get()
+                if reference?.sourceSelection != nil { _ = try lookup.get() }
+                referenceSources = .success(try await self.referenceSourceStatus(for: game, reference: reference, own: own))
+            } catch { referenceSources = .failure(error) }
             guard isCurrent() else { return }
             let previous = self.cloudLibrary.states[id]?.sources?.state
             let status = try? sources?.get()
             if previous != status?.state { self.objectWillChange.send() }
             self.cloudLibrary.update(id) {
                 $0.sources = status
-                $0.referenceSources = referenceSources?.status
-                $0.referenceSourceBytes = referenceSources?.bytes
+                switch referenceSources {
+                case .success(let shared):
+                    $0.referenceSources = shared?.status
+                    $0.referenceSourceBytes = shared?.bytes
+                    $0.referenceSourcesUnverified = false
+                case .failure:
+                    $0.referenceSourcesUnverified = true
+                }
                 $0.sourcesCanFree = files.map { self.canFreeCloudSources($0, for: game) } ?? false
                 $0.sourcesMessage = nil
                 $0.sourceFailure = nil
-                if referenceSources == nil, case .failure(let error) = sources {
+                if $0.referenceSources == nil, case .failure(let error) = sources {
                     $0.sourcesMessage = self.cloudMessage(for: error)
                     $0.sourceFailure = self.cloudFailure(for: error)
                 }

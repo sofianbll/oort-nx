@@ -70,8 +70,8 @@ struct SettingsCloudLibrarySection: View {
             }
             return text(failure.messageKey)
         }
-        if result.count == 0 { return text("No games found. The reference is not verified.") }
         if result.incomplete { return text(CloudLibraryFailure.incomplete.messageKey) }
+        if result.count == 0 { return text("No games found. The reference is not verified.") }
         return L10n.format("Games: %@ · Checked %@", [
             (result.count ?? 0).formatted(.number.locale(localization.formatLocale)),
             result.date.formatted(.dateTime.month().day().hour().minute().locale(localization.formatLocale)),

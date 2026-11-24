@@ -76,7 +76,9 @@ struct CloudLibraryPanel: View {
                     .foregroundColor(SeleneTheme.ink).accessibilityAddTraits(.isHeader)
                 Text(game.name).seleneFont(.body).foregroundColor(SeleneTheme.ink75)
                     .lineLimit(1)
-                if !state.referenceKinds.isEmpty || state.referenceSources != nil {
+                if state.referenceUnverified || state.referenceSourcesUnverified {
+                    Text(text("Reference offer not verified")).seleneFont(.metadata).foregroundColor(SeleneTheme.ink75)
+                } else if !state.referenceKinds.isEmpty || state.referenceSources != nil {
                     Text(text("Source: reference library")).seleneFont(.metadata).foregroundColor(SeleneTheme.ink75)
                 }
             }
