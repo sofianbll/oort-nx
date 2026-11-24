@@ -224,7 +224,8 @@ final class FirstRunSetupTests: XCTestCase {
         XCTAssertEqual(first.entries.map(\.name), ["Moon", "Unknown.xci"])
         let game = try XCTUnwrap(first.entries.first?.game)
         XCTAssertTrue(game.isPlayableLocally)
-        XCTAssertEqual(game.sources.map(\.url.path), [identified.path])
+        XCTAssertEqual(game.sources.map { $0.url.resolvingSymlinksInPath().path },
+                       [identified.resolvingSymlinksInPath().path])
         XCTAssertNil(first.entries.last?.game)
         let second = OnboardingInventory.read(apps: [root], files: root, existing: [game])
         XCTAssertTrue(second.entries.first?.alreadyInLibrary == true)
