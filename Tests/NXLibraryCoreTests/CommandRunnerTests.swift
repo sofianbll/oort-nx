@@ -22,6 +22,49 @@ final class CommandRunnerTests: XCTestCase {
         }
     }
 
+    func testCancellationDoesNotWaitForAnInheritedPipeOrIgnoredTerm() async throws {
+        let started = expectation(description: "child inherited the output pipe")
+        let task = Task {
+            try await SystemCommandRunner().runCancellable(URL(fileURLWithPath: "/bin/sh"),
+                ["-c", "trap '' TERM; /bin/sleep 2 & printf 'ready\\n' >&2; wait"], environment: [:]) { line in
+                if line == "ready" { started.fulfill() }
+            }
+        }
+        await fulfillment(of: [started], timeout: 3)
+        let clock = ContinuousClock()
+        let start = clock.now
+        task.cancel()
+        do { _ = try await task.value; XCTFail("Expected cancellation") }
+        catch is CancellationError { XCTAssertLessThan(start.duration(to: clock.now), .seconds(1)) }
+    }
+
+    func testDeadlineBoundsSilentChildAndBlockedStdin() async throws {
+        let clock = ContinuousClock()
+        let start = clock.now
+        do {
+            _ = try await SystemCommandRunner().runCancellable(URL(fileURLWithPath: "/bin/sleep"),
+                ["4"], environment: [:], input: Data(repeating: 1, count: 512 * 1024), seconds: 0.25)
+            XCTFail("The command outlasted its deadline")
+        } catch is CommandDeadline {
+            XCTAssertLessThan(start.duration(to: clock.now), .seconds(1))
+        }
+    }
+
+    func testProgressExtendsAnInactivityDeadlineButRepeatedStatsDoNot() async throws {
+        let runner = SystemCommandRunner(), shell = URL(fileURLWithPath: "/bin/sh")
+        let progress: @Sendable (String) -> [Int64]? = { Int64($0).map { [$0] } }
+        let result = try await runner.runCancellable(shell,
+            ["-c", "for i in 1 2 3 4 5; do printf '%s\\n' \"$i\" >&2; /bin/sleep 0.2; done"],
+            environment: [:], seconds: 0.7, activity: progress)
+        XCTAssertEqual(result.status, 0)
+        do {
+            _ = try await runner.runCancellable(shell,
+                ["-c", "for i in 1 2 3 4 5; do printf '1\\n' >&2; /bin/sleep 0.2; done"],
+                environment: [:], seconds: 0.5, activity: progress)
+            XCTFail("Repeated statistics kept an inactive process alive")
+        } catch is CommandDeadline {}
+    }
+
     @MainActor
     func testWaitingForExitDoesNotServiceTheMainRunLoop() throws {
         let runner = SystemCommandRunner()

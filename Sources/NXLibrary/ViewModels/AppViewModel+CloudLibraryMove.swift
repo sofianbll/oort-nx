@@ -9,12 +9,13 @@ struct LibraryMoveActivity {
     var fraction: Double?
     var isCancelling = false
     var isVerifying = false
-    var canCancel: Bool { !isCancelling && !isVerifying }
+    var canCancel: Bool { !isCancelling }
 }
 
 extension AppViewModel {
     @MainActor @discardableResult
     func startLibraryMove(_ request: LibraryMoveRequest, id: UUID = UUID(),
+                          verifyOnly: Bool = false,
                           onConflicts: (([String]) -> Void)? = nil) -> UUID? {
         let cloud = cloudLibrary
         let preference = cloud.preference
@@ -37,20 +38,21 @@ extension AppViewModel {
             let job = ActivityHistory.Job.move(request)
             var outcome: ActivityHistory.Outcome
             do {
-                guard let tool = chosen, RcloneStorageBackend.isExecutable(tool)
+                guard let tool = chosen, let toolIdentity = RcloneDownload.identity(of: tool)
                 else { throw StorageBackendError.backendUnavailable }
-                guard cloud.libraryMove?.isCancelling != true else { throw CancellationError() }
+                try Task.checkCancellation()
                 let lease = try cloud.moveJournal.acquire()
                 defer { withExtendedLifetime(lease) {} }
                 let folders = CloudDriveFolders(remote: request.plan.remote, executable: tool)
                 let pending: LibraryMoveJournal.Pending
                 if let saved = try cloud.moveJournal.load() {
                     guard saved.request == request, saved.id == id else { throw CloudArchiveError.busy }
+                    if verifyOnly && saved.toolIdentity != toolIdentity { throw CloudArchiveError.confirmationRequired }
                     pending = saved
                     // A previous journal link/rename may have succeeded with a failed directory sync.
                     try cloud.moveJournal.sync()
                 } else {
-                    guard cloud.pendingMove == nil, cloud.matchesPersistedStorage() else { throw CloudArchiveError.busy }
+                    guard !verifyOnly, cloud.pendingMove == nil, cloud.matchesPersistedStorage() else { throw CloudArchiveError.busy }
                     guard CloudDriveFolders.isBound(request.plan, to: request.destination) else {
                         throw CloudDriveFolders.MoveFailure.missingIdentity
                     }
@@ -59,8 +61,8 @@ extension AppViewModel {
                     if sources == nil {
                         sources = try await folders.originalSourcesRoot(request.plan, to: request.destination)
                     }
-                    guard cloud.libraryMove?.isCancelling != true else { throw CancellationError() }
-                    pending = .init(id: id, request: request, sourcesRoot: sources)
+                    try Task.checkCancellation()
+                    pending = .init(id: id, request: request, sourcesRoot: sources, toolIdentity: toolIdentity)
                     do { try cloud.moveJournal.begin(pending) }
                     catch {
                         // Publication may have succeeded before a local sync error.
@@ -69,15 +71,24 @@ extension AppViewModel {
                     }
                 }
                 cloud.setPendingMove(pending)
-                let conflicts = try await folders.move(request.plan, to: request.destination) { done, total in
-                    try await MainActor.run {
-                        if cloud.libraryMove?.isCancelling == true { throw CancellationError() }
-                        cloud.libraryMove?.fraction = total > 0 ? Double(done) / Double(total) : nil
-                        cloud.libraryMove?.isVerifying = done == total
+                let conflicts: [String]
+                if verifyOnly {
+                    cloud.libraryMove?.isVerifying = true
+                    try await folders.verifyCompletedMove(request.plan, to: request.destination)
+                    conflicts = []
+                } else {
+                    conflicts = try await folders.move(request.plan, to: request.destination) { done, total in
+                        try Task.checkCancellation()
+                        await MainActor.run {
+                            cloud.libraryMove?.fraction = total > 0 ? Double(done) / Double(total) : nil
+                            cloud.libraryMove?.isVerifying = done == total
+                        }
                     }
                 }
                 onConflicts?(conflicts)
                 if conflicts.isEmpty {
+                    try Task.checkCancellation()
+                    guard RcloneDownload.identity(of: tool) == toolIdentity else { throw CloudArchiveError.confirmationRequired }
                     let verified = try cloud.moveJournal.markVerified(pending)
                     cloud.setPendingMove(verified)
                     cloud.configure(remote: request.plan.remote, root: request.destination, enabled: true,
@@ -109,5 +120,6 @@ extension AppViewModel {
     @MainActor func cancelLibraryMove(_ id: UUID) {
         guard let move = cloudLibrary.libraryMove, move.id == id, move.canCancel else { return }
         cloudLibrary.libraryMove?.isCancelling = true
+        cloudLibrary.libraryMoveTask?.cancel()
     }
 }

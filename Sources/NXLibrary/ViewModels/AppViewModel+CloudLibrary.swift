@@ -430,6 +430,7 @@ final class CloudLibraryModel: ObservableObject {
         toolDownload?.cancel()
         libraryMove?.isCancelling = true
         let move = libraryMoveTask
+        move?.cancel()
         return Task {
             await transfer?.value
             await move?.value
@@ -2154,12 +2155,13 @@ extension AppViewModel {
             let engine = URL(fileURLWithPath: setup.nxnativePath)
             let keys = setup.isProdKeysValid ? setup.keyStore.keyURL : nil
             let verify: CloudGameSources.VerifySources = { url, files in
+              try await SystemCommandRunner().withCancellableCommands { runner in
                 let toolchain = EngineToolchain.resolve(runtime: .locate(), repo: engine)
-                let developer = SetupModel.resolveDeveloperDir()
+                let developer = SetupModel.resolveDeveloperDir(runner: runner)
                 if url.pathExtension.lowercased() == "nup" {
                     let capabilities = EngineSourceCapabilities(repo: engine)
                     let program = SourceSelection.programIndex(for: files, titleID: title, nupPrograms: capabilities.nupPrograms)
-                    let nup = try NUPSourceCatalog(repo: engine, toolchain: toolchain, developerDir: developer)
+                    let nup = try NUPSourceCatalog(repo: engine, toolchain: toolchain, developerDir: developer, runner: runner)
                         .scan(nup: url, program: program)
                     return nup.id == title && files.allSatisfy { file in
                         nup.allSources.contains {
@@ -2169,11 +2171,12 @@ extension AppViewModel {
                     }
                 }
                 guard let keys else { return false }
-                let reader = EnginePackageReader(repo: engine, toolchain: toolchain, keys: keys, developerDir: developer)
+                let reader = EnginePackageReader(repo: engine, toolchain: toolchain, keys: keys, developerDir: developer, runner: runner)
                 guard case .contents(let findings) = try reader.contents(of: [(url, false)])[url] else { return false }
                 return files.allSatisfy { file in findings.contains {
                     $0.kind == file.kind && String(format: "%016llX", $0.titleId) == file.titleId?.uppercased()
                 } }
+              }
             }
             if let directory = game.discoveredCloudSourceDirectory {
                 guard game.cloudSourcesReferenceFolder == request.sourceReference,

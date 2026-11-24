@@ -73,13 +73,15 @@ package struct LibraryMoveJournal {
         package let id: UUID
         package let request: LibraryMoveRequest
         package let sourcesRoot: String?
+        package let toolIdentity: String?
         fileprivate var verified = false
 
-        package init(id: UUID, request: LibraryMoveRequest, sourcesRoot: String?) {
+        package init(id: UUID, request: LibraryMoveRequest, sourcesRoot: String?, toolIdentity: String? = nil) {
             version = 2
             self.id = id
             self.request = request
             self.sourcesRoot = sourcesRoot
+            self.toolIdentity = toolIdentity
         }
 
         fileprivate var isValid: Bool {

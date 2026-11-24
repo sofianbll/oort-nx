@@ -162,11 +162,13 @@ public struct RcloneDownload: Sendable {
     }
 
     package static func runCancellable(_ tool: URL, _ arguments: [String], environment: [String: String],
+                                       seconds: Double = 60, activity: (@Sendable (String) -> [Int64]?)? = nil,
                                        onStderr: (@Sendable (String) -> Void)? = nil) async throws -> CommandResult {
         try Task.checkCancellation()
         let launch = try launchable(tool)
         defer { withExtendedLifetime(launch) {} }
-        return try await SystemCommandRunner().runCancellable(launch.url, arguments, environment: environment, onStderr: onStderr)
+        return try await SystemCommandRunner().runCancellable(launch.url, arguments, environment: environment,
+                                                              seconds: seconds, activity: activity, onStderr: onStderr)
     }
 
     private static func isLink(_ url: URL) -> Bool {
@@ -223,7 +225,7 @@ public struct RcloneDownload: Sendable {
             let payload = stage.appendingPathComponent("payload", isDirectory: true)
             try files.createDirectory(at: payload, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
             let candidate = payload.appendingPathComponent("rclone")
-            try Self.extract(release, archive: archive, to: candidate)
+            try await Self.extract(release, archive: archive, to: candidate)
             guard Self.hasValidSignature(candidate),
                   try Self.checksum(FileHandle(forReadingFrom: candidate)) == expectedSHA256 else { throw Failure.integrity }
             try Data().write(to: payload.appendingPathComponent(Self.receipt), options: .withoutOverwriting)
@@ -334,22 +336,16 @@ public struct RcloneDownload: Sendable {
         await progress(1)
     }
 
-    private static func extract(_ release: Release, archive: URL, to candidate: URL) throws {
+    private static func extract(_ release: Release, archive: URL, to candidate: URL) async throws {
         try Task.checkCancellation()
         try Data().write(to: candidate, options: .withoutOverwriting)
         let output = try FileHandle(forWritingTo: candidate)
         defer { try? output.close() }
         // Only the pinned member of an already verified archive is ever extracted; no archive path becomes a local path.
-        let unzip = Process()
-        unzip.executableURL = URL(fileURLWithPath: "/usr/bin/unzip")
-        unzip.arguments = ["-p", archive.path, release.member]
-        unzip.environment = [:]
-        unzip.standardOutput = output
-        unzip.standardError = FileHandle.nullDevice
-        try unzip.run()
-        unzip.waitUntilExit()
-        guard unzip.terminationStatus == 0 else {
-            if unzip.terminationStatus == 50 { throw Failure.space } // Info-ZIP: disk full.
+        let unzip = try await SystemCommandRunner().runCancellable(URL(fileURLWithPath: "/usr/bin/unzip"),
+            ["-p", archive.path, release.member], environment: [:], output: output)
+        guard unzip.status == 0 else {
+            if unzip.status == 50 { throw Failure.space } // Info-ZIP: disk full.
             throw Failure.integrity
         }
         guard try candidate.resourceValues(forKeys: [.fileSizeKey]).fileSize == release.executableBytes else {

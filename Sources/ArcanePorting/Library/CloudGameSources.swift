@@ -19,7 +19,7 @@ public struct CloudSourcesStatus: Equatable, Sendable {
 
 public final class CloudGameSources: @unchecked Sendable {
     public typealias Progress = @Sendable (StorageProgress) -> Void
-    package typealias VerifySources = @Sendable (URL, [GameFileItem]) throws -> Bool
+    package typealias VerifySources = @Sendable (URL, [GameFileItem]) async throws -> Bool
     package struct DiscoveredGame: Equatable, Sendable {
         package let titleID: String
         package let name: String
@@ -526,7 +526,7 @@ public final class CloudGameSources: @unchecked Sendable {
                     guard let before = try stamp(at: candidate), before.inode == snapshot.inode,
                           before.mtimeSeconds == snapshot.mtimeSeconds, before.mtimeNanos == snapshot.mtimeNanos,
                           before.bytes == snapshot.bytes else { throw CloudArchiveError.localChanged }
-                    guard try verifySources?(inspectable, sources) == true else { throw CloudArchiveError.invalidArchive }
+                    guard try await verifySources?(inspectable, sources) == true else { throw CloudArchiveError.invalidArchive }
                     guard try stamp(at: candidate) == before else { throw CloudArchiveError.localChanged }
                 }
             }

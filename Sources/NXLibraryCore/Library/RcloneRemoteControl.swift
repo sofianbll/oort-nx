@@ -4,16 +4,21 @@ import Foundation
 /// One optional rcd per backend. The lock guards process ownership, not concurrent RC requests.
 final class RcloneRemoteControl: @unchecked Sendable {
     private static let directoryPrefix = "arcane-rc-"
-    private static let temporary = FileManager.default.temporaryDirectory
+    private static let temporary: URL = {
+        if let path = ProcessInfo.processInfo.environment["TMPDIR"], path.hasPrefix("/") {
+            return URL(fileURLWithPath: path, isDirectory: true)
+        }
+        return FileManager.default.temporaryDirectory
+    }()
     private static let curl = URL(fileURLWithPath: "/usr/bin/curl")
-    private static let sweptOrphans: Void = reapOrphans(in: temporary)
+    private static let sweep = Task.detached(priority: .utility) { reapOrphans(in: temporary) }
     private let lock = NSLock()
     private var session: Session?
     private var stopped = false
     private var retryAfter = 0.0
 
     private struct Session {
-        let process: Process
+        let process: BoundedChild
         let executable: URL
         let directory: URL
         let lease: Int32
@@ -22,7 +27,7 @@ final class RcloneRemoteControl: @unchecked Sendable {
         var socket: URL { directory.appendingPathComponent("s") }
 
         func stop() {
-            if process.isRunning { process.terminate() }
+            process.stop()
             try? FileManager.default.removeItem(at: directory)
             close(lease)
         }
@@ -39,7 +44,7 @@ final class RcloneRemoteControl: @unchecked Sendable {
     }
 
     var processID: Int32? {
-        lock.withLock { session.flatMap { $0.process.isRunning ? $0.process.processIdentifier : nil } }
+        lock.withLock { session.flatMap { $0.process.status == nil ? $0.process.pid : nil } }
     }
 
     func call(_ operation: String, _ parameters: [String: Any], executable: URL,
@@ -47,12 +52,12 @@ final class RcloneRemoteControl: @unchecked Sendable {
         try Task.checkCancellation()
         try RcloneDownload.requireApproved(executable)
         let body = String(decoding: try JSONSerialization.data(withJSONObject: parameters), as: UTF8.self)
-        // Sweep happens once off the UI executor, even if multiple reads arrive together.
-        _ = await Task.detached(priority: .utility) { Self.sweptOrphans }.value
+        // Sweep happens once off the UI executor without delaying a request or its cancellation.
+        _ = Self.sweep
         try Task.checkCancellation()
         guard let current = try lock.withLock({ () throws -> Session? in
             if stopped { throw CancellationError() }
-            if let session, session.process.isRunning, session.executable == executable { return session }
+            if let session, session.process.status == nil, session.executable == executable { return session }
             session?.stop()
             session = nil
             guard ProcessInfo.processInfo.systemUptime >= retryAfter else { return nil }
@@ -64,20 +69,25 @@ final class RcloneRemoteControl: @unchecked Sendable {
         // rcd creates the socket as it starts listening. Wait briefly without serializing readers.
         let socket = current.socket
         while !FileManager.default.fileExists(atPath: socket.path),
-              ProcessInfo.processInfo.systemUptime < current.readyBy, lock.withLock({ current.process.isRunning }) {
-            try await Task.sleep(nanoseconds: 20_000_000)
+              ProcessInfo.processInfo.systemUptime < current.readyBy, lock.withLock({ session?.process === current.process && current.process.status == nil }) {
+            do { try await Task.sleep(nanoseconds: 20_000_000) }
+            catch { if sensitive { discard(current) }; throw error }
         }
         let ready = FileManager.default.fileExists(atPath: socket.path)
         let result: CommandResult?
         do {
             result = ready ? try await SystemCommandRunner().runCancellable(Self.curl,
-                Self.request(socket: socket, operation: operation, body: sensitive ? "@-" : body, timeout: "300"),
-                environment: [:], input: sensitive ? Data(body.utf8) : nil) : nil
-        } catch is CancellationError { throw CancellationError() }
-        catch { return nil }
+                Self.request(socket: socket, operation: operation, body: sensitive ? "@-" : body,
+                             timeout: sensitive ? "300" : "60"),
+                environment: [:], input: sensitive ? Data(body.utf8) : nil, seconds: sensitive ? 305 : 62) : nil
+        } catch is CancellationError {
+            if sensitive || operation == "operations/copyfile" { discard(current) }
+            throw CancellationError()
+        }
+        catch { discard(current); return nil }
         try lock.withLock {
             if stopped { throw CancellationError() }
-            if (!ready || result?.status == 7), session?.process === current.process {
+            if (!ready || result?.status == 7 || result?.status == 28), session?.process === current.process {
                 session?.stop()
                 session = nil
                 if !ready { backOff() }
@@ -102,6 +112,14 @@ final class RcloneRemoteControl: @unchecked Sendable {
 
     private func backOff() { retryAfter = ProcessInfo.processInfo.systemUptime + 30 }
 
+    private func discard(_ current: Session) {
+        lock.withLock {
+            guard session?.process === current.process else { return }
+            session?.stop()
+            session = nil
+        }
+    }
+
     private static func launch(executable: URL, environment: [String: String], flags: [String]) -> Session? {
         guard let launch = try? RcloneDownload.launchable(executable) else { return nil }
         defer { withExtendedLifetime(launch) {} }
@@ -113,22 +131,17 @@ final class RcloneRemoteControl: @unchecked Sendable {
         let lease = claim(directory)
         guard lease >= 0 else { _ = rmdir(directory.path); return nil }
 
-        let process = Process()
-        let session = Session(process: process, executable: executable, directory: directory, lease: lease,
-                              readyBy: ProcessInfo.processInfo.systemUptime + 2)
-        guard session.socket.path.utf8.count < MemoryLayout.size(ofValue: sockaddr_un().sun_path) else {
-            session.stop()
-            return nil
+        let socket = directory.appendingPathComponent("s")
+        if socket.path.utf8.count < MemoryLayout.size(ofValue: sockaddr_un().sun_path),
+           let process = try? BoundedChild(launch.url, ["rcd", "--rc-addr", "unix://\(socket.path)", "--rc-no-auth"] + flags,
+               // Socket activation would override --rc-addr.
+               environment: environment.filter { !["LISTEN_PID", "LISTEN_FDS", "LISTEN_FDNAMES"].contains($0.key) }) {
+            return Session(process: process, executable: executable, directory: directory, lease: lease,
+                           readyBy: ProcessInfo.processInfo.systemUptime + 2)
         }
-        process.executableURL = launch.url
-        process.arguments = ["rcd", "--rc-addr", "unix://\(session.socket.path)", "--rc-no-auth"] + flags
-        // Socket activation would override --rc-addr. Do not inherit that or any unfiltered rclone flags.
-        process.environment = environment.filter { !["LISTEN_PID", "LISTEN_FDS", "LISTEN_FDNAMES"].contains($0.key) }
-        process.standardInput = FileHandle.nullDevice
-        process.standardOutput = FileHandle.nullDevice
-        process.standardError = FileHandle.nullDevice
-        do { try process.run(); return session }
-        catch { session.stop(); return nil }
+        close(lease)
+        try? FileManager.default.removeItem(at: directory)
+        return nil
     }
 
     private static func request(socket: URL, operation: String, body: String, timeout: String) -> [String] {
@@ -160,9 +173,9 @@ final class RcloneRemoteControl: @unchecked Sendable {
             let socket = directory.appendingPathComponent("s")
             var info = stat()
             guard lstat(socket.path, &info) == 0, info.st_mode & S_IFMT == S_IFSOCK else { continue }
-            let result = try? SystemCommandRunner().run(curl,
+            let result = try? SystemCommandRunner.runBounded(curl,
                 request(socket: socket, operation: "core/quit", body: "{}", timeout: "1"),
-                environment: [:], currentDirectory: nil)
+                seconds: 2)
             // Don't lose a live daemon's address if the quit request timed out.
             if result?.stdout.hasSuffix("\n200") == true || result?.status == 7 {
                 if unlink(socket.path) == 0 || errno == ENOENT { _ = rmdir(directory.path) }

@@ -40,15 +40,34 @@ public final class SystemCommandRunner: CommandRunning, Sendable {
 
     /// Runs off the caller's executor and terminates the subprocess on cancellation.
     package func runCancellable(_ executable: URL, _ arguments: [String], environment: [String: String]?,
-                        input: Data? = nil,
-                        onStderr: (@Sendable (String) -> Void)? = nil) async throws -> CommandResult {
+                                input: Data? = nil, output: FileHandle? = nil, seconds: Double = 60,
+                                activity: (@Sendable (String) -> [Int64]?)? = nil,
+                                onStderr: (@Sendable (String) -> Void)? = nil) async throws -> CommandResult {
+        try await withBoundedCommands(seconds: seconds) { runner in
+            try runner.run(executable, arguments, environment: environment, input: input, output: output,
+                           onStderr: onStderr, activity: activity)
+        }
+    }
+
+    package func withCancellableCommands<T: Sendable>(_ work: @escaping @Sendable (CommandRunning) throws -> T) async throws -> T {
+        try await withBoundedCommands(seconds: 60) { try work($0) }
+    }
+
+    static func runBounded(_ executable: URL, _ arguments: [String], seconds: Double) throws -> CommandResult {
+        try BoundedCommandRunner(seconds: seconds, cancellation: .init())
+            .run(executable, arguments, environment: [:], input: nil)
+    }
+
+    package static func stopCloudProcesses() { BoundedChild.stopAll() }
+
+    private func withBoundedCommands<T: Sendable>(seconds: Double,
+                                                  _ work: @escaping @Sendable (BoundedCommandRunner) throws -> T) async throws -> T {
         let cancellation = CommandCancellation()
         return try await withTaskCancellationHandler {
-            let result: Result<CommandResult, Error> = await withCheckedContinuation { continuation in
+            let result: Result<T, Error> = await withCheckedContinuation { continuation in
                 DispatchQueue.global(qos: .utility).async {
                     continuation.resume(returning: Result {
-                        try self.execute(executable, arguments, environment: environment, currentDirectory: nil,
-                                         cancellation: cancellation, input: input, onStderr: onStderr)
+                        try work(BoundedCommandRunner(seconds: seconds, cancellation: cancellation))
                     })
                 }
             }
@@ -61,8 +80,6 @@ public final class SystemCommandRunner: CommandRunning, Sendable {
 
     private func execute(_ executable: URL, _ arguments: [String],
                          environment: [String: String]?, currentDirectory: URL?,
-                         cancellation: CommandCancellation? = nil,
-                         input: Data? = nil,
                          onStdout: ((String) -> Void)? = nil,
                          onStderr: ((String) -> Void)? = nil) throws -> CommandResult {
         let process = Process()
@@ -74,22 +91,8 @@ public final class SystemCommandRunner: CommandRunning, Sendable {
         let err = Pipe()
         process.standardOutput = out
         process.standardError = err
-        let stdin = input.map { _ in Pipe() }
-        if let stdin {
-            guard fcntl(stdin.fileHandleForWriting.fileDescriptor, F_SETNOSIGPIPE, 1) != -1 else {
-                throw POSIXError(.EIO)
-            }
-            process.standardInput = stdin
-        } else if cancellation != nil { process.standardInput = FileHandle.nullDevice }
-
         let group = DispatchGroup()
-        let waitForExit = try process.runWithExitWait {
-            if let cancellation {
-                try cancellation.launch(process)
-            } else {
-                try process.run()
-            }
-        }
+        let waitForExit = try process.runWithExitWait()
 
         let lock = NSLock()
         var collected = [Data(), Data()]
@@ -111,14 +114,8 @@ public final class SystemCommandRunner: CommandRunning, Sendable {
                 if let onLine { buffer.append(chunk).forEach(onLine) }
             }
         }
-        if let stdin, let input {
-            // Cancellation or failed launch inside the child may close its read end first.
-            try? stdin.fileHandleForWriting.write(contentsOf: input)
-            try? stdin.fileHandleForWriting.close()
-        }
         waitForExit()
         group.wait()
-        cancellation?.finish()
         func decode(_ data: Data) -> String {
             onStdout == nil && onStderr == nil ? (String(data: data, encoding: .utf8) ?? "") : String(decoding: data, as: UTF8.self)
         }
@@ -149,26 +146,13 @@ extension Process {
     }
 }
 
-package final class CommandCancellation: @unchecked Sendable {
-    package init() {}
+final class CommandCancellation: @unchecked Sendable {
     private let lock = NSLock()
-    private var process: Process?
     private var cancelled = false
 
-    package func launch(_ process: Process) throws {
-        try lock.withLock {
-            if cancelled { throw CancellationError() }
-            try process.run()
-            self.process = process
-        }
+    func check() throws {
+        if lock.withLock({ cancelled }) { throw CancellationError() }
     }
 
-    package func finish() { lock.withLock { process = nil } }
-
-    package func cancel() {
-        lock.withLock {
-            cancelled = true
-            if let process, process.isRunning { process.terminate() }
-        }
-    }
+    func cancel() { lock.withLock { cancelled = true } }
 }

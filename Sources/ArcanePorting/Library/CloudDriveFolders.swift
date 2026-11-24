@@ -302,19 +302,9 @@ public struct CloudDriveFolders: Sendable {
                      progress: (Int, Int) async throws -> Void) async throws -> [String] {
         try await preflightMove(plan, to: destination)
         let sourceID = plan.binding?.sourceID, destinationID = plan.binding?.destinationID
-        let folders = Set(plan.entries.compactMap { Self.treeFolder($0.file.key.value) })
-        func paths(at root: String, id: String?) async throws -> [String: [Item]] {
-            var result = Dictionary(grouping: try await contents(root, recursive: true, rootID: id, allowMissing: false), by: \.Path)
-            for folder in folders.sorted() {
-                for item in try await contents(Self.joining(root, folder), recursive: true, deep: true, rootID: id) {
-                    result[Self.joining(folder, item.Path), default: []].append(item)
-                }
-            }
-            return result
-        }
-        let sourcePaths = try await paths(at: sourceID == nil ? plan.source : "", id: sourceID)
+        let sourcePaths = try await movePaths(plan, at: sourceID == nil ? plan.source : "", id: sourceID)
         let destinationRoot = destinationID == nil ? destination : ""
-        let destinationPaths = try await paths(at: destinationRoot, id: destinationID)
+        let destinationPaths = try await movePaths(plan, at: destinationRoot, id: destinationID)
         var conflicts: [String] = []
         var blockedTitles = Set<String>()
         try await progress(0, plan.entries.count)
@@ -337,7 +327,15 @@ public struct CloudDriveFolders: Sendable {
             try await progress(index + 1, plan.entries.count)
         }
         guard conflicts.isEmpty else { return conflicts }
-        let actual = try await paths(at: destinationRoot, id: destinationID)
+        try await verifyCompletedMove(plan, to: destination)
+        return conflicts
+    }
+
+    package func verifyCompletedMove(_ plan: MovePlan, to destination: String) async throws {
+        guard remote == plan.remote, Self.validMove(plan, to: destination) else { throw StorageBackendError.invalidKey }
+        let sourceID = plan.binding?.sourceID, destinationID = plan.binding?.destinationID
+        try await verifyBinding(plan, to: destination)
+        let actual = try await movePaths(plan, at: destinationID == nil ? destination : "", id: destinationID)
         let expected = plan.entries.flatMap { [$0.file] + $0.dependencies }
         guard expected.allSatisfy({
             Self.uniquePath($0.key.value, in: actual) && Self.matches($0, actual[$0.key.value] ?? [])
@@ -345,7 +343,17 @@ public struct CloudDriveFolders: Sendable {
         try await verifyBinding(plan, to: destination)
         try await verifySourceArchives(sourceID == nil ? plan.source : "", id: sourceID)
         try await verifyBinding(plan, to: destination)
-        return conflicts
+    }
+
+    private func movePaths(_ plan: MovePlan, at root: String, id: String?) async throws -> [String: [Item]] {
+        let folders = Set(plan.entries.compactMap { Self.treeFolder($0.file.key.value) })
+        var result = Dictionary(grouping: try await contents(root, recursive: true, rootID: id, allowMissing: false), by: \.Path)
+        for folder in folders.sorted() {
+            for item in try await contents(Self.joining(root, folder), recursive: true, deep: true, rootID: id) {
+                result[Self.joining(folder, item.Path), default: []].append(item)
+            }
+        }
+        return result
     }
 
     private func dependenciesMatch(_ dependencies: [StorageObject], at root: String, id: String?) async throws -> Bool {

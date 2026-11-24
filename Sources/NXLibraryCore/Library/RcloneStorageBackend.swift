@@ -294,10 +294,12 @@ public struct RcloneStorageBackend: StorageBackend {
 
         let temporary = try objectPath("\(Self.staging)/\(UUID().uuidString)")
         var createdFinal = false
+        var publicationStarted = false
         do {
             _ = try await run(["copyto", source.path, temporary], progress: progress)
             progress?(StorageProgress(bytesTransferred: object.size, totalBytes: object.size, isVerifying: true))
             try await verify(object, at: temporary, md5Only: md5Only)
+            publicationStarted = true
             if md5Only && remote == ":local:" {
                 // rclone's local Move uses a replacing rename, so make the local publication exclusive.
                 let destination = URL(fileURLWithPath: String(final.dropFirst(remote.count)))
@@ -314,19 +316,33 @@ public struct RcloneStorageBackend: StorageBackend {
                 _ = try await run(["moveto", temporary, final, "--ignore-existing", "--immutable", "--checksum",
                                    "--disable", "Copy", "--max-transfer", "0", "--retries", "1"])
                 // A skipped move leaves our unique staging object behind, even for identical content.
-                createdFinal = try await Task.detached { try await item(at: temporary) == nil }.value
+                createdFinal = try await item(at: temporary) == nil
             }
             guard createdFinal else { throw StorageBackendError.alreadyExists }
             // The sources service verifies the published entry in a fresh directory listing for duplicates.
             if !md5Only { try await verify(object, at: final) }
         } catch {
-            let cleanup = createdFinal && !md5Only ? [final, temporary] : [temporary]
-            await Task.detached {
-                for target in cleanup {
-                    _ = try? await run(["deletefile", target, "--retries", "1", "--low-level-retries", "1",
-                                        "--contimeout", "5s", "--timeout", "5s"])
+            if Task.isCancelled {
+                // The final name is not ours to clean up once publication might have reached Drive.
+                if !publicationStarted {
+                    let cleanup = Task.detached {
+                        _ = try? await run(["deletefile", temporary, "--retries", "1", "--low-level-retries", "1",
+                                            "--contimeout", "1s", "--timeout", "1s"])
+                    }
+                    let deadline = Task.detached {
+                        try await Task.sleep(for: .seconds(2))
+                        cleanup.cancel()
+                    }
+                    await cleanup.value
+                    deadline.cancel()
                 }
-            }.value
+                throw CancellationError()
+            }
+            let cleanup = createdFinal && !md5Only ? [final, temporary] : [temporary]
+            for target in cleanup {
+                _ = try? await run(["deletefile", target, "--retries", "1", "--low-level-retries", "1",
+                                    "--contimeout", "5s", "--timeout", "5s"])
+            }
             throw error
         }
     }
@@ -538,7 +554,9 @@ public struct RcloneStorageBackend: StorageBackend {
             if let commandOverride {
                 result = try await commandOverride(URL(fileURLWithPath: "/fixture/rclone"), command, [:])
             } else {
-                result = try await RcloneDownload.runCancellable(binary(), command, environment: environment) { line in
+                let transferring = ["copy", "copyto", "hashsum"].contains(arguments.first ?? "")
+                result = try await RcloneDownload.runCancellable(binary(), command, environment: environment,
+                    seconds: transferring ? 120 : 60, activity: transferring ? Self.transferActivity : nil) { line in
                     if let progress, let update = Self.transferProgress(from: line) { progress(update) }
                 }
             }
@@ -610,12 +628,21 @@ public struct RcloneStorageBackend: StorageBackend {
     }
 
     static func transferProgress(from line: String) -> StorageProgress? {
-        guard let stats = (try? JSONDecoder().decode(Log.self, from: Data(line.utf8)))?.stats,
+        guard let stats = logStats(line),
               stats.bytes >= 0, stats.totalBytes > 0 else { return nil }
         let speed = [stats.speed, stats.transferring?.first?.speed].compactMap { $0 }.first { $0.isFinite && $0 > 0 }
         let eta = stats.eta ?? speed.map { Double(max(0, stats.totalBytes - stats.bytes)) / $0 }
         return StorageProgress(bytesTransferred: min(stats.bytes, stats.totalBytes), totalBytes: stats.totalBytes,
                                bytesPerSecond: speed, etaSeconds: eta)
+    }
+
+    private static func logStats(_ line: String) -> Log.Stats? {
+        (try? JSONDecoder().decode(Log.self, from: Data(line.utf8)))?.stats
+    }
+
+    private static let transferActivity: @Sendable (String) -> [Int64]? = { line in
+        guard let stats = logStats(line) else { return nil }
+        return [stats.bytes, stats.checks ?? 0, stats.transfers ?? 0]
     }
 
     private struct Item: Decodable {
@@ -647,6 +674,8 @@ public struct RcloneStorageBackend: StorageBackend {
             let speed: Double?
             let eta: Double?
             let transferring: [Active]?
+            let checks: Int64?
+            let transfers: Int64?
         }
 
         let message: String
