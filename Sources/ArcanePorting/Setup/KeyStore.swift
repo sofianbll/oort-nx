@@ -41,12 +41,16 @@ public final class KeyStore {
     }
 
     public func validate(at url: URL) throws -> KeySummary {
+        try readValidated(at: url).summary
+    }
+
+    private func readValidated(at url: URL) throws -> (summary: KeySummary, data: Data) {
         if url.standardizedFileURL == keyURL.standardizedFileURL {
             let values = try url.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey])
             guard values.isRegularFile == true, values.isSymbolicLink != true else { throw KeyStoreError.unreadable }
             try fm.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
         }
-        guard let text = try? String(contentsOf: url, encoding: .utf8) else {
+        guard let data = try? Data(contentsOf: url), let text = String(data: data, encoding: .utf8) else {
             throw KeyStoreError.unreadable
         }
         var hasHeader = false
@@ -60,24 +64,26 @@ public final class KeyStore {
             guard parts.count == 2, !parts[1].isEmpty else {
                 throw KeyStoreError.invalidLine(index + 1)
             }
-            if parts[0] == "header_key" { hasHeader = true }
+            if parts[0] == "header_key" {
+                guard KeyCheck.hex(parts[1])?.count == 32 else { throw KeyStoreError.invalidLine(index + 1) }
+                hasHeader = true
+            }
             if parts[0].hasPrefix("key_area_key_application_"),
                let n = Int(parts[0].suffix(2), radix: 16) {
                 generations.append(n)
             }
         }
         guard hasHeader else { throw KeyStoreError.missingHeaderKey }
-        return KeySummary(hasHeaderKey: true,
-                          applicationKeyGenerations: Array(Set(generations)).sorted())
+        return (KeySummary(hasHeaderKey: true,
+                           applicationKeyGenerations: Array(Set(generations)).sorted()), data)
     }
 
     @discardableResult
     public func importKey(from source: URL) throws -> KeySummary {
-        let summary = try validate(at: source)
+        let (summary, data) = try readValidated(at: source)
         try fm.createDirectory(at: keyURL.deletingLastPathComponent(),
                                withIntermediateDirectories: true,
                                attributes: [.posixPermissions: 0o700])
-        let data = try Data(contentsOf: source)
         let tmp = keyURL.deletingLastPathComponent()
             .appendingPathComponent(".prod.keys-\(UUID()).tmp")
         defer { try? fm.removeItem(at: tmp) }

@@ -492,7 +492,7 @@ Cartella `Sources/ArcanePorting/Setup/`.
 | [Sources/ArcanePorting/Setup/CompatibilityChecker.swift](../../Sources/ArcanePorting/Setup/CompatibilityChecker.swift) | Controlla commit, modifiche del checkout, Metal e opzioni CLI richieste dal frontend. |
 | [Sources/ArcanePorting/Setup/SetupProbe.swift](../../Sources/ArcanePorting/Setup/SetupProbe.swift) | Raccoglie i fatti mostrati dal Setup, compresa la divergenza dal pin selezionato. |
 | [Sources/ArcanePorting/Setup/SetupActions.swift](../../Sources/ArcanePorting/Setup/SetupActions.swift) | Legge il pin facoltativo dal plist e costruisce i comandi Git per installare o allineare il motore al pin. |
-| [Sources/ArcanePorting/Setup/KeyStore.swift](../../Sources/ArcanePorting/Setup/KeyStore.swift) | Valida le chiavi, espone solo il riepilogo e pubblica atomicamente la copia gestita con permessi 0600. |
+| [Sources/ArcanePorting/Setup/KeyStore.swift](../../Sources/ArcanePorting/Setup/KeyStore.swift) | Valida `header_key` e pubblica atomicamente gli stessi dati letti con permessi 0600; espone solo il riepilogo. |
 | [Sources/ArcanePorting/Setup/KeyCheck.swift](../../Sources/ArcanePorting/Setup/KeyCheck.swift) | Legge intestazioni NCA e ticket e verifica se le chiavi possono aprire le sorgenti selezionate. |
 | [Sources/ArcanePorting/Setup/UpstreamChecker.swift](../../Sources/ArcanePorting/Setup/UpstreamChecker.swift) | Consulta i commit upstream tramite HTTP e produce stato e collegamento di confronto. |
 
@@ -944,7 +944,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/NXLibraryCoreTests/CursorIdleTests.swift](../../Tests/NXLibraryCoreTests/CursorIdleTests.swift) | Ritardo del cursore, ripristino e ripartenza dopo interruzione o attività del mouse. |
 | [Tests/ArcanePortingTests/InstallProgressTests.swift](../../Tests/ArcanePortingTests/InstallProgressTests.swift) | Fasi Git, percentuali, byte e ricomposizione delle righe parziali. |
 | [Tests/ArcanePortingTests/KeyCheckTests.swift](../../Tests/ArcanePortingTests/KeyCheckTests.swift) | Cifratura e lettura delle intestazioni sintetiche e chiavi richieste dalle sorgenti. |
-| [Tests/ArcanePortingTests/KeyStoreTests.swift](../../Tests/ArcanePortingTests/KeyStoreTests.swift) | Importazione e sostituzione atomica, conservazione della copia precedente in caso di errore, permessi 0600 e riepilogo. |
+| [Tests/ArcanePortingTests/KeyStoreTests.swift](../../Tests/ArcanePortingTests/KeyStoreTests.swift) | Importazione e sostituzione atomica, conservazione della copia precedente anche con header malformato, permessi 0600 e riepilogo. |
 | [Tests/ArcanePortingTests/LaunchServiceTests.swift](../../Tests/ArcanePortingTests/LaunchServiceTests.swift) | Avvio, ambiente Home e overlay, permessi e pulizia dello snapshot; capacità, ripiego e override dello schermo. |
 | [Tests/ArcanePortingTests/HomeMenuTests.swift](../../Tests/ArcanePortingTests/HomeMenuTests.swift) | Capacità e ambiente del bundle, stati e segnale al solo figlio sintetico. |
 | [Tests/ArcanePortingTests/LauncherSettingsTests.swift](../../Tests/ArcanePortingTests/LauncherSettingsTests.swift) | Metadati launcher.json e fallback dei controlli per build precedenti. |
