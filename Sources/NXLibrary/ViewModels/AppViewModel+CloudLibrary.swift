@@ -2081,7 +2081,7 @@ extension AppViewModel {
                 }
                 try await referenceSources.download(folderName: selection.folderName, files: shared.urls,
                     replacingBefore: selection.publishedAt ?? reference.createdAt,
-                    replacing: Set(request.sourceFiles?.files ?? []), progress: transfer)
+                    replacing: Set(request.sourceFiles?.files ?? []), expectedSources: shared.selection, progress: transfer)
                 if shared.bytes != nil {
                     self.applyCatalog(try self.catalogRepository.updateNXNative(id: game.id) {
                         guard $0.sources == game.sources else { throw CloudArchiveError.localChanged }

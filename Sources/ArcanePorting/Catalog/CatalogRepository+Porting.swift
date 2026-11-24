@@ -226,6 +226,7 @@ extension CatalogRepository {
                       game.cloudReferenceFolder == folder
                         || (game.isCloudSourcePlaceholder && game.cloudSourcesReferenceFolder == folder),
                       game.cloudImportPending == true, game.workspacePath == nil, game.buildCachePath == nil else { return false }
+                guard !game.isFavorite, !game.isHidden, !game.usesPickedAppIcon, game.pendingInstall == nil else { return false }
                 guard game.sources.allSatisfy({ Self.definitelyAbsent($0.url) }) else { return false }
                 if game.url.pathExtension.lowercased() == "app", !Self.definitelyAbsent(game.url) {
                     guard let info = ImportService.info(at: game.url),

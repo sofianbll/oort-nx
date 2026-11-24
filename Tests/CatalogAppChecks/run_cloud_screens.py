@@ -839,6 +839,8 @@ extension CloudScreenProbe {
         _ = try await CloudGameArchive(backend: referenceWrite).upload(.init(titleID: title, locations: [.app: app]), kinds: [.app])
         try fm.removeItem(at: app)
         try fm.moveItem(at: older, to: app)
+        vm.cloudLibrary.setReferenceFolder("1-fixture")
+        vm.cloudLibrary.installScreenArchives(backend)
         vm.cloudLibrary.installScreenReference(referenceRead)
         let selected = vm.libraryGames.first { $0.id == game.id }!
         RunningGameMonitor.screenRunning.withLock { $0 = bundleID }
@@ -857,6 +859,8 @@ extension CloudScreenProbe {
         let approved = vm.settingsNotice!
         vm.settingsNotice = nil
         approved.runChoice(0)
+        precondition(vm.cloudLibrary.active?.request.sourceReference == "1-fixture",
+                     "The confirmed replacement must retain its reference provider")
         try await until { vm.cloudLibrary.states[game.id]?.progress?.phase == .readyToInstall }
         let versionDuringPlay = try version()
         precondition(versionDuringPlay == "1.0")

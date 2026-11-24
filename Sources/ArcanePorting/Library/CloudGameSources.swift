@@ -103,7 +103,7 @@ public final class CloudGameSources: @unchecked Sendable {
                       source.titleID.map(SaveLocation.validID) != false,
                       source.version.map({ Int($0.hasPrefix("v") ? String($0.dropFirst()) : $0) != nil }) != false,
                       fileExtensions.contains(ext), source.layout == (ext == "nup" ? .container : .package),
-                      names[key].map({ $0 == source.filename }) != false else { return nil }
+                       names[key] == nil else { return nil }
                 names[key] = source.filename
                 files.append(.init(url: parent.appendingPathComponent(source.filename, isDirectory: false),
                                    kind: source.kind, titleId: source.titleID, versionString: source.version,
@@ -451,12 +451,14 @@ public final class CloudGameSources: @unchecked Sendable {
     }
 
     package func download(folderName: String, files: [URL], replacingBefore: Date?, replacing: Set<URL>,
-                          progress: Progress?) async throws {
+                           expectedSources: [GameFileItem] = [], progress: Progress?) async throws {
         let selection = try Selection(folderName, files)
         guard let lease = backend.leases.begin(selection.title) else { throw CloudArchiveError.busy }
         defer { backend.leases.end(selection.title, token: lease) }
         let pending = try await downloads(selection, replacingBefore: replacingBefore, replacing: replacing)
-        try await download(using: backend, pending: pending, progress: progress)
+        let expected = Dictionary(expectedSources.map { ($0.url.standardizedFileURL, $0) },
+                                  uniquingKeysWith: { first, _ in first })
+        try await download(using: backend, pending: pending, expected: expected, progress: progress)
     }
 
     private func download(using backend: RcloneStorageBackend, pending: [(URL, StorageObject, Stamp?)],
@@ -704,9 +706,10 @@ public final class CloudGameSources: @unchecked Sendable {
 
     private static func matchesPackageIdentity(_ source: GameFileItem, at url: URL) -> Bool {
         let ext = source.url.pathExtension.lowercased()
-        guard ext == "nsp" || ext == "nsz" else { return true }
+        // NUPs are containers; their exact selected program is checked by the engine's NUP reader.
+        if ext == "nup" { return source.nupProgram != nil }
         // An extensionless staging name cannot let the parser silently reuse a title from the remote name.
-        guard let actual = try? SourceCatalog().inspect(url) else { return ext != "nsp" }
+        guard let actual = try? SourceCatalog().inspect(url) else { return false }
         return actual.kind == source.kind && String(format: "%016llX", actual.titleId) == source.titleId?.uppercased()
     }
 
