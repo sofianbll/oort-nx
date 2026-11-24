@@ -27,6 +27,27 @@ final class CodeModStoreTests: XCTestCase {
         XCTAssertFalse(try String(contentsOf: store.envFile, encoding: .utf8).contains("DM_ROMFS_OVERLAY="))
     }
 
+    func testNameCollisionRefusesTogglesAndBuildStaging() throws {
+        let fm = FileManager.default
+        let root = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? fm.removeItem(at: root) }
+        let store = ModStore(supportFolder: root, recordsFile: root.appendingPathComponent("mods.json"),
+                             titleID: "0100000000010000", canWrite: { true }, trash: { _ in XCTFail() })
+        try fm.createDirectory(at: store.modsFolder.appendingPathComponent("Pack/romfs"), withIntermediateDirectories: true)
+        try store.setOn(true, folderName: "Pack")
+        let tree = store.codeModsFolder.appendingPathComponent("Pack/exefs")
+        try fm.createDirectory(at: tree, withIntermediateDirectories: true)
+        try Data("synthetic patch".utf8).write(to: tree.appendingPathComponent("fixture.pchtxt"))
+        XCTAssertThrowsError(try BuildService.stageCodeMods(store, in: root.appendingPathComponent("build"), engineSupportsMods: true))
+        XCTAssertThrowsError(try store.setOn(false, folderName: "Pack"))
+        XCTAssertThrowsError(try store.setOn(true, folderName: "Pack"))
+        try fm.moveItem(at: tree.deletingLastPathComponent(), to: store.codeModsFolder.appendingPathComponent("CodePack"))
+        XCTAssertTrue(store.mods().first { $0.folderName == "Pack" }?.isOn == true)
+        XCTAssertNil(try BuildService.stageCodeMods(store, in: root.appendingPathComponent("build"), engineSupportsMods: true))
+        try store.setOn(true, folderName: "CodePack")
+        XCTAssertNotNil(try BuildService.stageCodeMods(store, in: root.appendingPathComponent("build"), engineSupportsMods: true))
+    }
+
     func testDisablingOnlineRiskKeepsTexturesAndAllowsReenabling() throws {
         let fm = FileManager.default
         let root = fm.temporaryDirectory.appendingPathComponent("OnlineMods-\(UUID())")

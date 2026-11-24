@@ -4719,6 +4719,18 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "路径中包含逗号、冒号或换行符时，无法构建代码模组。"}}
       }
     },
+    "File and code mods both use the folder name %@. Rename one folder.": {
+      "comment": "ModStore: two roots share one record name",
+      "localizations": {
+        "de": {"stringUnit": {"state": "translated", "value": "Datei- und Code-Mods verwenden beide den Ordnernamen %@. Benenne einen der Ordner um."}},
+        "en": {"stringUnit": {"state": "translated", "value": "File and code mods both use the folder name %@. Rename one folder."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Los mods de archivos y de código usan el mismo nombre de carpeta: %@. Cambia el nombre de una carpeta."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Un mod de fichiers et un mod de code ont le même nom de dossier : %@. Renommez l’un des dossiers."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Una mod di file e una mod di codice usano lo stesso nome di cartella: %@. Rinomina una cartella."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Um mod de arquivos e um mod de código usam o mesmo nome de pasta: %@. Renomeie uma das pastas."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "文件模组和代码模组使用了同一个文件夹名称 %@。请重命名其中一个文件夹。"}}
+      }
+    },
     "Copy a folder with exefs patches. The original stays in place.": {
       "comment": "ModsPanel.swift",
       "localizations": {

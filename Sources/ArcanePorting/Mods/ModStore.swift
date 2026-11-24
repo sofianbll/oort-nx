@@ -47,6 +47,7 @@ public enum ModStoreError: Error, Equatable {
     /// The active mods' paths would not fit the launcher's line (`overlayLimit`).
     case overlayTooLong
     case invalidCodeMod(String)
+    case duplicateFolderName(String)
     case writeFailed(String)
 }
 
@@ -108,7 +109,13 @@ public struct ModStore {
     }
 
     private func checkedEntries() throws -> [URL] {
-        try checkedEntries(in: modsFolder) + checkedEntries(in: codeModsFolder)
+        let files = try checkedEntries(in: modsFolder)
+        let code = try checkedEntries(in: codeModsFolder)
+        let names = Set(files.map(\.lastPathComponent))
+        if let duplicate = code.map(\.lastPathComponent).filter({ names.contains($0) }).min() {
+            throw ModStoreError.duplicateFolderName(duplicate)
+        }
+        return files + code
     }
 
     private func mods(entries: [URL], records: [ModRecord]) -> [LocalMod] {
@@ -489,7 +496,9 @@ public struct ModStore {
     }
 
     private func localCodeMods() throws -> [LocalMod] {
-        let entries = try checkedEntries(in: codeModsFolder)
+        let entries = try checkedEntries().filter {
+            $0.deletingLastPathComponent().lastPathComponent == codeModsFolder.lastPathComponent
+        }
         guard !entries.isEmpty else { return [] }
         return mods(entries: entries, records: try checkedRecords()).filter { $0.exefs != nil }
     }
