@@ -1,6 +1,9 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Could not restore the game app. Recovery files: %@": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Could not restore the game app. Recovery files: %@"}}, "it": {"stringUnit":{"state":"translated","value":"Impossibile ripristinare l’app del gioco. File di recupero: %@"}}, "fr": {"stringUnit":{"state":"translated","value":"Impossible de restaurer l’app du jeu. Fichiers de récupération : %@"}}, "de": {"stringUnit":{"state":"translated","value":"Spiel-App konnte nicht wiederhergestellt werden. Wiederherstellungsdateien: %@"}}, "es": {"stringUnit":{"state":"translated","value":"No se pudo restaurar la app del juego. Archivos de recuperación: %@"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Não foi possível restaurar o app do jogo. Arquivos de recuperação: %@"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"无法恢复游戏应用。恢复文件：%@"}}
+    }},
     "Settings group: Profile": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Profile"}}, "it": {"stringUnit":{"state":"translated","value":"Profilo"}}, "fr": {"stringUnit":{"state":"translated","value":"Profil"}}, "de": {"stringUnit":{"state":"translated","value":"Profil"}}, "es": {"stringUnit":{"state":"translated","value":"Perfil"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Perfil"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"个人资料"}}
     }},
@@ -92168,6 +92171,9 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "更新已就绪 · 退出游戏时应用"}}
       }
     },
+    "Update ready to install": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Update ready to install"}}, "it": {"stringUnit":{"state":"translated","value":"Aggiornamento pronto da installare"}}, "fr": {"stringUnit":{"state":"translated","value":"Mise à jour prête à installer"}}, "de": {"stringUnit":{"state":"translated","value":"Update zur Installation bereit"}}, "es": {"stringUnit":{"state":"translated","value":"Actualización lista para instalar"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Atualização pronta para instalar"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"更新已准备好安装"}}
+    }},
     "Ready to install": {
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Ready"}},

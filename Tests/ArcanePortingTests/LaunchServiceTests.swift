@@ -17,6 +17,97 @@ final class LaunchServiceTests: XCTestCase {
         }
     }
 
+    func testWorkspaceGameEnvironmentKeepsPlayerSettingsButNotLauncherSecretsOrSessionData() throws {
+        let ambient = ["HOME": "/Users/fixture", "TMPDIR": "/private/fixture-temp", "PATH": "/untrusted/bin",
+                       "LANG": "fr_FR.UTF-8", "LC_NUMERIC": "C", "TZ": "Europe/Paris",
+                       "MTL_HUD_ENABLED": "1", "MTL_HUD_ELEMENTS": "fps", "DM_HID_MAP": "fixture-map",
+                       "SDL_GAMECONTROLLERCONFIG": "fixture-sdl-map", "SDL_JOYSTICK_HIDAPI_SWITCH": "1",
+                       "DM_NETWORK_INTERFACE": "en5", "DM_NET_DISCOVERY_PEER": "192.0.2.12",
+                       "https_proxy": "http://proxy.test:3128", "NO_PROXY": "localhost",
+                       "ALL_PROXY": "http://fixture:password@proxy.test:3128",
+                       "DM_SAVE": "/fixture/custom-save", "DM_SAVE_SYNC": "/fixture/cloud",
+                       "ARCANE_GOOGLE_CLIENT_ID": "fixture", "ARCANE_GOOGLE_CLIENT_SECRET": "fake-secret",
+                       "FIXTURE_API_TOKEN": "fake-secret", "DYLD_INSERT_LIBRARIES": "/untrusted/library",
+                       "DM_ROOT": "/untrusted/game", "DM_SCREEN": "stale", "SSH_AUTH_SOCK": "/fixture/socket",
+                       "DM_NEXTENDO_CLIENT_ID": "stale", "DM_NEXTENDO_LOGIN_DIR": "/stale/login",
+                       "DM_OVERLAY_DATA": "/stale/session", "DM_MODS_OFF": "stale"]
+        let explicit = ["DM_LAUNCHER": "0", "DM_SCREEN": "2", "DM_OVERLAY_DATA": "/fixture/overlay.json",
+                        "DM_NETWORK_INTERFACE": "utun2"]
+        let expected = [
+            "HOME": "/Users/fixture", "TMPDIR": "/private/fixture-temp", "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
+            "LANG": "fr_FR.UTF-8", "LC_NUMERIC": "C", "TZ": "Europe/Paris", "MTL_HUD_ENABLED": "1",
+            "MTL_HUD_ELEMENTS": "fps", "DM_HID_MAP": "fixture-map", "SDL_GAMECONTROLLERCONFIG": "fixture-sdl-map",
+            "SDL_JOYSTICK_HIDAPI_SWITCH": "1", "DM_NET_DISCOVERY_PEER": "192.0.2.12",
+            "https_proxy": "http://proxy.test:3128", "NO_PROXY": "localhost",
+            "DM_SAVE": "/fixture/custom-save", "DM_SAVE_SYNC": "/fixture/cloud",
+            "DM_LAUNCHER": "0", "DM_SCREEN": "2", "DM_OVERLAY_DATA": "/fixture/overlay.json", "DM_NETWORK_INTERFACE": "utun2",
+        ]
+        let environment = NSWorkspaceLauncher.gameEnvironment(inheriting: ambient, explicit: explicit)
+        XCTAssertEqual(environment, expected)
+        XCTAssertEqual(try childEnvironment(environment).filter { expected.keys.contains($0.key) }, expected)
+
+        let withoutAmbient = NSWorkspaceLauncher.gameEnvironment(inheriting: [:], explicit: [:])
+        XCTAssertEqual(Set(withoutAmbient.keys), ["HOME", "PATH", "TMPDIR"])
+        XCTAssertTrue(withoutAmbient["HOME"]?.hasPrefix("/") == true)
+        XCTAssertTrue(withoutAmbient["TMPDIR"]?.hasPrefix("/") == true)
+    }
+
+    func testAllLegacyRuntimeOptionsAndExplicitProfileAndGameSettingsReachTheChild() throws {
+        let config = GameRuntimeConfig(enable60FPS: false, enableMetalHUD: true, isDockedMode: false,
+                                       renderScale: 0.75, enableMetalFXUpscale: true, language: "fr",
+                                       rumble: false, rumbleGain: 2, fullscreen: true)
+        let launcher = FakeLauncher()
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("NXLaunchProfile-\(UUID())")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let id = "0100000000000001"
+        let shared = try SaveLocation.defaultLocation(titleID: id, home: root)
+        let profile = try SaveLocation.profileLocation(titleID: id, profileID: UUID(), in: root)
+        let launch = try config.toEnvironmentDict().merging(profile.profileLaunchEnvironment(shared: shared)) { _, value in value }
+        LaunchService(launcher: launcher).launch(appURL: root.appendingPathComponent("Game.app"),
+            environment: launch.merging(["DM_NETWORK": "ldn", "DM_NET_VPN": "1", "DM_SCREEN": "fixture-display",
+                                         "DM_MODS_OFF": "", "DM_ROMFS_OVERLAY": "/fixture/romfs"]) { _, value in value },
+            homeButton: .quickAccess) { ok, _ in XCTAssertTrue(ok) }
+        let environment = NSWorkspaceLauncher.gameEnvironment(
+            inheriting: ["DM_SAVE": "/stale/save", "DM_SAVE_SYNC": "/stale/cloud", "DM_OVERLAY_HOME_SWAP": "0"],
+            explicit: launcher.environment)
+        let expected = ["DM_FPS_TARGET": "30", "DM_METAL_HUD": "1", "DM_OPMODE": "0", "DM_RENDER_SCALE": "0.75",
+                        "DM_PRESENT_UPSCALE": "metalfx", "DM_LANG": "fr", "DM_RUMBLE": "0", "DM_RUMBLE_GAIN": "2",
+                        "DM_FULLSCREEN": "1", "DM_SAVE": profile.directory(.account).path, "DM_SAVE_SYNC": "0",
+                        "DM_PSO_USER": shared.root.appendingPathComponent("pso_user.tsv").path,
+                        "DM_NETWORK": "ldn", "DM_NET_VPN": "1", "DM_SCREEN": "fixture-display", "DM_MODS_OFF": "",
+                        "DM_ROMFS_OVERLAY": "/fixture/romfs", "DM_OVERLAY_HOME_SWAP": "1", "DM_LAUNCHER": "0"]
+        XCTAssertEqual(try childEnvironment(environment).filter { $0.key.hasPrefix("DM_") }, expected)
+    }
+
+    func testCustomSaveDetectionAgreesWithTheChild() throws {
+        let home = FileManager.default.temporaryDirectory
+        let appURL = home.appendingPathComponent("\(UUID()).app")
+        let title = "0100000000000001"
+        let environment = NSWorkspaceLauncher.gameEnvironment(inheriting: ["HOME": home.path, "DM_SAVE": "/fixture/save"], explicit: [:])
+        XCTAssertEqual(try childEnvironment(environment)["DM_SAVE"], "/fixture/save")
+        XCTAssertThrowsError(try SaveLocation.inspect(titleID: title, appURL: appURL, home: home, environment: environment,
+                                                     gameCloudFolder: nil, libraryCloudFolder: nil)) {
+            XCTAssertEqual($0 as? SaveFailure, .customSavePath)
+        }
+    }
+
+    private func childEnvironment(_ environment: [String: String]) throws -> [String: String] {
+        let pipe = Pipe()
+        let child = Process()
+        child.executableURL = URL(fileURLWithPath: "/usr/bin/printenv")
+        child.environment = environment
+        child.standardOutput = pipe
+        try child.run()
+        let output = pipe.fileHandleForReading.readDataToEndOfFile()
+        child.waitUntilExit()
+        XCTAssertEqual(child.terminationStatus, 0)
+        return Dictionary(uniqueKeysWithValues: String(decoding: output, as: UTF8.self)
+            .split(whereSeparator: \.isNewline).compactMap { line in
+                guard let equals = line.firstIndex(of: "=") else { return nil }
+                return (String(line[..<equals]), String(line[line.index(after: equals)...]))
+            })
+    }
+
     func testInGameHomeButtonReachesTheGameEnvironmentOnlyWhenExplicit() throws {
         let launcher = FakeLauncher()
         let service = LaunchService(launcher: launcher)

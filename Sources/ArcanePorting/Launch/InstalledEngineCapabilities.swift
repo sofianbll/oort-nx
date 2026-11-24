@@ -35,7 +35,7 @@ public actor InstalledEngineCapabilities {
     }
 
     public func mergesTrpfd(in app: URL, engineFolder: String, gameData: URL,
-                            environment: [String: String] = ProcessInfo.processInfo.environment) async -> Bool {
+                            environment: [String: String] = NSWorkspaceLauncher.inheritedGameEnvironment()) async -> Bool {
         // Only the Z-A profile is supported. Unknown metadata must not hide warnings.
         guard CheatLocator.titleID(appURL: app, fallback: nil) == Self.trpfdTitleID,
               let commit = await engineCommit(in: app, engineFolder: engineFolder, containing: Self.trpfdCommit),

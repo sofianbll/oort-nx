@@ -10,8 +10,15 @@ struct AppUpdateDialog: View {
     private var primaryTitle: String {
         switch updater.state {
         case .available where updater.canInstallRelease: return L10n.text("Update")
+        case .readyToInstall where updater.canInstallRelease: return L10n.text("Install")
         case .failed: return L10n.text("Retry")
         default: return "Close"
+        }
+    }
+    private var canConfirm: Bool {
+        switch updater.state {
+        case .available, .readyToInstall: return !updater.canInstallRelease || blockedReason == nil
+        default: return true
         }
     }
     private var title: String {
@@ -19,6 +26,7 @@ struct AppUpdateDialog: View {
         case .checking: return L10n.text("Checking for updates")
         case .upToDate: return L10n.text("You’re up to date")
         case .available(let release): return L10n.format("Arcane %@", [String(describing: release.version)])
+        case .readyToInstall: return L10n.text("Update ready to install")
         case .downloading: return L10n.text("Downloading update")
         case .verifying: return L10n.text("Verifying update")
         case .installing: return L10n.text("Installing update")
@@ -40,6 +48,8 @@ struct AppUpdateDialog: View {
                 lines.append(L10n.text(reason))
             } else { lines.append(L10n.text("Arcane restarts to finish.")) }
             return (lines + requirementNotes).joined(separator: "\n\n")
+        case .readyToInstall:
+            return ([blockedReason ?? L10n.text("Arcane restarts to finish.")] + requirementNotes).joined(separator: "\n\n")
         case .downloading(let progress): return L10n.format("%@%% · Download continues if you close this dialog.", [String(describing: Int((progress * 100).rounded()))])
         case .verifying: return L10n.text("Checking the download before installing.")
         case .installing: return L10n.text("Arcane will reopen automatically.")
@@ -53,7 +63,7 @@ struct AppUpdateDialog: View {
     var body: some View {
         SeleneConfirmDialog(title: title, message: message,
             confirmTitle: primaryTitle, cancelTitle: updater.dialogHasSecondaryButton ? L10n.text("Close") : nil,
-            confirmEnabled: primaryTitle != L10n.text("Update") || blockedReason == nil,
+            confirmEnabled: canConfirm,
             focus: $updater.offerFocus, onCancel: updater.later, onConfirm: updater.confirmDialog) {
                 if case .checking = updater.state { ProgressView().padding(.top, 16) }
                 if let release = updater.dialogRelease, !release.notes.isEmpty {

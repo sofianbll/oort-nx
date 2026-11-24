@@ -3,6 +3,7 @@ import Foundation
 public enum AppUpdateState: Equatable {
     case hidden, developer, readOnly, idle, checking, upToDate
     case available(AppUpdate.Release)
+    case readyToInstall(AppUpdate.Release)
     case downloading(Double), verifying, installing
     case failed(String)
 }

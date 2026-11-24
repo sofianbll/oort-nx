@@ -42,7 +42,8 @@ final class NXNativeGameSettingsTests: XCTestCase {
         var envURL: URL { support.appendingPathComponent("040074A01BF12000/env.txt") }
     }
 
-    private func fixture(dmSettings: Bool = true, env: String? = nil, vpn: Bool = false, online: Bool = true) throws -> Fixture {
+    private func fixture(dmSettings: Bool = true, env: String? = nil, vpn: Bool = false, online: Bool = true,
+                         offeredChoices: [String: String]? = nil) throws -> Fixture {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("NXSettings-\(UUID().uuidString)")
         addTeardownBlock { try? FileManager.default.removeItem(at: root) }
         let app = root.appendingPathComponent("Donkey Kong Bananza.app")
@@ -52,8 +53,18 @@ final class NXNativeGameSettingsTests: XCTestCase {
             ,{"env":"DM_NET_VPN","kind":"toggle","section":"Game","label":"Play over a VPN","default":"0","on":"1","off":"0"},
             {"env":"DM_NETWORK","kind":"choice","section":"Game","label":"Network","default":"lan","options":[["auto","Automatic"],["offline","Offline"],["ldn","Local communication"],["lan","LAN"],["nextendo","Online"]]}]}
             """ : launcherJSON
-        try Data((online ? json : json.replacingOccurrences(of: #",["nextendo","Online"]"#, with: "")).utf8)
-            .write(to: dm.appendingPathComponent("launcher.json"))
+        let data: Data
+        if let offeredChoices {
+            // This fixture checks the wire key for every macOS control, not title-specific default values.
+            let rows: [[String: Any]] = offeredChoices.map { key, value in
+                ["env": key, "kind": "choice", "section": "Game", "label": key, "default": "default",
+                 "options": [["default", "Default"], [value, "Selected"]]]
+            }
+            data = try JSONSerialization.data(withJSONObject: ["schema": 1, "game": titleID, "settings": rows])
+        } else {
+            data = Data((online ? json : json.replacingOccurrences(of: #",["nextendo","Online"]"#, with: "")).utf8)
+        }
+        try data.write(to: dm.appendingPathComponent("launcher.json"))
         var info: [String: Any] = ["CFBundleIdentifier": domain, "DMTitleID": titleID]
         if dmSettings { info["DMSettings"] = [["env": "DM_RUMBLE", "values": ["1", "0"]]] }
         try PropertyListSerialization.data(fromPropertyList: info, format: .xml, options: 0)
@@ -68,6 +79,28 @@ final class NXNativeGameSettingsTests: XCTestCase {
         let game = PortedGame(name: "Donkey Kong Bananza", url: app, platform: .macApp, sizeBytes: 1,
                               modificationDate: Date(), titleId: titleID)
         return Fixture(game: game, support: support, store: MemorySavedChoices(), preferences: preferences)
+    }
+
+    func testFilteredAmbientNeverShadowsAnyMacRuntimeChoice() throws {
+        // Player controls from dm/games/settings.tsv (engine 46612553). Network/VPN have a separate launch path.
+        let controls = ["DM_FPS_TARGET": "120", "DM_DYNAMIC_RESOLUTION": "1", "DM_RENDER_SCALE": "0.75",
+                        "DM_ZA_SHADOW_CASCADES": "1", "DM_OPMODE": "0", "DM_PRESENT_UPSCALE": "metalfx",
+                        "DM_UPSCALER": "metalfx", "DM_LANG": "fr", "DM_FULLSCREEN": "1", "DM_SHOW_FPS": "1",
+                        "DM_RUMBLE": "0", "DM_RUMBLE_GAIN": "2", "DM_RUMBLE_MIN": "0.2", "DM_PAD_PRESS_TO_JOIN": "1",
+                        "DM_SW2": "1", "DM_MIC": "1", "DM_MIC_GAIN": "5", "DM_SCREEN_ASPECT": "1.6",
+                        "DM_PRESENT_SNAP": "0", "DM_PSO_MTL4": "0", "DM_PSO_PREBUILD": "0",
+                        "DM_NVN_ENC_THREAD": "0", "DM_FPS_HOLD": "on", "DM_METAL_HUD": "1"]
+        let f = try fixture(offeredChoices: controls)
+        let s = try settings(f)
+        XCTAssertEqual(Set(s.settings.map(\.env)), Set(controls.keys))
+        let ambient = controls.mapValues { _ in "stale" }.merging(["DM_SAVED_CHOICES": "0"]) { _, value in value }
+        let inherited = NSWorkspaceLauncher.gameEnvironment(inheriting: ambient, explicit: [:])
+        for (key, value) in controls {
+            try s.set(key, to: value)
+            XCTAssertNil(inherited[key], key)
+            XCTAssertEqual(s.effectiveLaunchValue(key, environment: inherited), value, key)
+        }
+        XCTAssertEqual(f.store.values[domain], controls)
     }
 
     private func settings(_ f: Fixture) throws -> NXNativeGameSettings {

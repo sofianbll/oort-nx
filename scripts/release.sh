@@ -38,10 +38,10 @@ resolve_release_repository() {
   default="$(sed -n 's/.*defaultRepository: String? = "\([^"]*\)".*/\1/p' "$source")"
   successor="$(sed -n 's/.*successorRepository: String? = "\([^"]*\)".*/\1/p' "$source")"
   [ -n "$default" ] || fail "no public update repository is configured"
-  canonical="$(gh api "repos/$default" --hostname github.com --jq 'select(.private == false) | .full_name')" \
+  canonical="$(gh api "repos/$default" --hostname github.com --jq 'select(.private == false and .permissions.push == true) | .full_name')" \
     || fail "could not look up the public update repository"
   [[ -n "$canonical" && ( "$canonical" == "$default" || "$canonical" == "$successor" ) ]] \
-    || fail "the update repository must be public and match the configured fork or its successor"
+    || fail "the update repository must be public, grant push access, and match the configured fork or its successor"
   printf '%s\n' "$canonical"
 }
 
@@ -49,7 +49,7 @@ check_release_tree() {
   local changes
   changes="$(git status --porcelain --untracked-files=all)" || fail "could not check the working tree"
   [ -z "$changes" ] || fail "the working tree has changes; commit or stash them first"
-  if [ "$PRIVATE" = "0" ] && git rev-parse -q --verify "$TAG_REF" >/dev/null; then
+  if [ "$PRIVATE" = "0" ] && [ "$PUBLISH" = "0" ] && git rev-parse -q --verify "$TAG_REF" >/dev/null; then
     fail "the local tag $TAG already exists"
   fi
   [ "$(tr -d '[:space:]' < "$ROOT/VERSION")" = "$VERSION" ] \
@@ -66,7 +66,7 @@ release_refs() {
 }
 
 check_publish_target() {
-  local push_url refs
+  local push_url refs local_tag remote_tag
   [ "$(git rev-parse --verify HEAD)" = "$RELEASE_COMMIT" ] \
     || fail "HEAD changed during release preparation"
   push_url="$(git remote get-url --push --all origin)" || fail "could not read the origin push URL"
@@ -77,8 +77,28 @@ check_publish_target() {
   refs="$(release_refs)"
   [ "$(awk '$2 == "refs/heads/main" { print $1 }' <<< "$refs")" = "$RELEASE_COMMIT" ] \
     || fail "HEAD is not the published main of github.com/$REPOSITORY; merge and push the release commit first"
-  [ -z "$(awk -v tag="$TAG_REF" '$2 == tag || $2 == tag "^{}"' <<< "$refs")" ] \
-    || fail "the remote tag $TAG already exists in github.com/$REPOSITORY"
+  local_tag="$(git rev-parse -q --verify "$TAG_REF" || true)"
+  remote_tag="$(awk -v tag="$TAG_REF" '$2 == tag { print $1 }' <<< "$refs")"
+  RESUME_TAG=0
+  if [ -n "$remote_tag" ]; then
+    [ "$remote_tag" = "$local_tag" ] || fail "the remote tag $TAG already exists and is not the identical local tag"
+    [ "$(git rev-parse --verify "$local_tag^{commit}")" = "$RELEASE_COMMIT" ] \
+      || fail "the local tag $TAG does not point to the expected commit"
+    RESUME_TAG=1
+  elif [ -n "$local_tag" ]; then
+    fail "the local tag $TAG already exists without the identical published tag"
+  fi
+  check_release_absent
+}
+
+check_release_absent() {
+  local releases
+  # A successful authenticated list includes drafts; a failed request is not absence.
+  releases="$(gh api "repos/$REPOSITORY/releases" --hostname github.com --paginate --jq '.[].tag_name')" \
+    || fail "could not list releases in github.com/$REPOSITORY"
+  if grep -Fxq -- "$TAG" <<< "$releases"; then
+    fail "a release for $TAG already exists in github.com/$REPOSITORY"
+  fi
 }
 
 # Check anonymous branch reachability, not merely existence in GitHub's fork network.
@@ -126,27 +146,31 @@ ENGINE="${ENGINE_COMMIT:-$(sed -n 's/.*let defaultPinnedEngineCommit = "\([0-9a-
 [ -n "$MIN_XCODE" ] && [ -n "$ENGINE" ] || fail "could not read minimumXcode or defaultPinnedEngineCommit from the sources"
 
 # An implicit pin uses the app's upstream engine; a partially supplied override is never valid.
-ENGINE_TARGET="$ENGINE_REPO"
+ENGINE_TARGET="${ENGINE_REPO:-$(sed -n 's/.*let engineRemote = "\([^"]*\)".*/\1/p' "$ROOT/Sources/ArcanePorting/Setup/SetupActions.swift")}"
 if [[ -n "$ENGINE_REPO$ENGINE_COMMIT" ]]; then
   [ -n "$ENGINE_REPO" ] && [ -n "$ENGINE_COMMIT" ] || fail "supply both --engine-repo and --engine-commit"
 fi
-if [ "$PUBLISH" = "1" ]; then
-  ENGINE_TARGET="${ENGINE_TARGET:-$(sed -n 's/.*let engineRemote = "\([^"]*\)".*/\1/p' "$ROOT/Sources/ArcanePorting/Setup/SetupActions.swift")}"
-  [ -n "$ENGINE_TARGET" ] || fail "could not read the default engine repository from the sources"
-fi
-if [ -n "$ENGINE_TARGET" ]; then
-  [[ "$ENGINE_TARGET" =~ ^https://github\.com/[A-Za-z0-9_-]+/[A-Za-z0-9_-][A-Za-z0-9_.-]*$ ]] \
+[[ "$ENGINE_TARGET" =~ ^https://github\.com/[A-Za-z0-9_-]+/[A-Za-z0-9_-][A-Za-z0-9_.-]*$ ]] \
     || fail "--engine-repo must be an HTTPS GitHub repository URL"
-  [[ "$ENGINE" =~ ^[0-9a-f]{40}$ ]] \
+[[ "$ENGINE" =~ ^[0-9a-f]{40}$ ]] \
     || fail "--engine-commit must be the full 40-character lowercase SHA"
-  check_engine_pin "$ENGINE_TARGET" "$ENGINE" \
-    || fail "engine commit $ENGINE must be reachable from a public branch of $ENGINE_TARGET"
-fi
+
+engine_probe="$(mktemp -d)" || fail "could not create the engine test directory"
+trap 'rm -rf "$engine_probe"' EXIT
+(
+  cd "$engine_probe"
+  unset GIT_DIR GIT_WORK_TREE GIT_COMMON_DIR GIT_CONFIG GIT_CONFIG_PARAMETERS
+  export HOME="$engine_probe" XDG_CONFIG_HOME="$engine_probe" GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null
+  export GIT_CONFIG_COUNT=0 GIT_TERMINAL_PROMPT=0 GIT_ASKPASS=/usr/bin/false
+  git -c http.followRedirects=false clone --quiet --no-checkout --no-tags "$ENGINE_TARGET" checkout &&
+    [ -n "$(git -C checkout for-each-ref --count=1 --contains="$ENGINE" refs/remotes/origin)" ]
+) || fail "engine commit $ENGINE must be reachable from a public branch of $ENGINE_TARGET"
 # Always pass the validated pair (or empty values), never ambient build options.
 export NX_ENGINE_REPO="$ENGINE_REPO" NX_ENGINE_COMMIT="$ENGINE_COMMIT"
 
 # Every release is tested from its own tree.
-DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}" swift test --package-path "$ROOT" \
+NX_TEST_ENGINE_REPO="$engine_probe/checkout" NX_TEST_ENGINE_COMMIT="$ENGINE" NX_TEST_ENGINE_REQUIRED=1 \
+  DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}" swift test --package-path "$ROOT" \
   || fail "swift test failed"
 for check in "$ROOT"/Tests/CatalogAppChecks/run_*.py; do
   DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}" python3 "$check" \
@@ -229,17 +253,24 @@ if [ "$PUBLISH" = "1" ]; then
   [ "$(resolve_release_repository "$ROOT/Sources/NXLibraryCore/App/AppUpdate.swift")" = "$REPOSITORY" ] \
     || fail "the public update repository changed during release preparation"
   check_publish_target
-  git tag "$TAG" "$RELEASE_COMMIT" || fail "could not create the local tag $TAG"
+  if [ "$RESUME_TAG" = "0" ]; then
+    git tag "$TAG" "$RELEASE_COMMIT" || fail "could not create the local tag $TAG"
+  fi
   tag_object="$(git rev-parse --verify "$TAG_REF")" || fail "could not resolve the local tag $TAG"
   [ "$(git rev-parse --verify "$tag_object^{commit}")" = "$RELEASE_COMMIT" ] \
     || fail "the local tag $TAG does not point to the expected commit"
-  git -c http.followRedirects=false push --no-follow-tags --recurse-submodules=no origin "$tag_object:$TAG_REF" \
-    || fail "could not confirm push of $TAG to github.com/$REPOSITORY; check the tag before retrying"
+  if [ "$RESUME_TAG" = "0" ]; then
+    git -c http.followRedirects=false push --no-follow-tags --recurse-submodules=no origin "$tag_object:$TAG_REF" \
+      || fail "could not confirm push of $TAG to github.com/$REPOSITORY; check the tag before retrying"
+  fi
   refs="$(release_refs)"
+  [ "$(awk -v tag="$TAG_REF" '$2 == tag { print $1 }' <<< "$refs")" = "$tag_object" ] \
+    || fail "the remote tag is not identical to $TAG; no release created"
   tag_commit="$(awk -v tag="$TAG_REF" '$2 == tag { direct = $1 } $2 == tag "^{}" { peeled = $1 }
     END { print (peeled == "" ? direct : peeled) }' <<< "$refs")"
   [ "$tag_commit" = "$RELEASE_COMMIT" ] \
     || fail "$TAG does not resolve to the expected commit in github.com/$REPOSITORY; no release created"
+  check_release_absent
   gh release create "$TAG" "$ZIP" "$DMG" --repo "github.com/$REPOSITORY" --verify-tag \
     --title "Oort NX $VERSION" --notes-file "$OUT/notes.md" \
     || fail "the tag was pushed but release creation or upload was not confirmed; check github.com/$REPOSITORY before retrying"

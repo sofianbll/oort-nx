@@ -54,22 +54,25 @@ public final class MetadataPicks: ObservableObject {
     }
 
     /// A blank value takes the pick back.
-    public func set(_ value: String, titleID: String, field: MetadataField) {
+    public func set(_ value: String, titleID: String, field: MetadataField) throws {
         let value = value.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !value.isEmpty else { return remove(titleID: titleID, field: field) }
-        table[titleID, default: [:]][field.rawValue] = value
-        changed()
+        guard !value.isEmpty else { return try remove(titleID: titleID, field: field) }
+        var updated = table
+        updated[titleID, default: [:]][field.rawValue] = value
+        try save(updated)
     }
 
-    public func remove(titleID: String, field: MetadataField) {
-        table[titleID]?[field.rawValue] = nil
-        if table[titleID]?.isEmpty == true { table[titleID] = nil }
-        changed()
+    public func remove(titleID: String, field: MetadataField) throws {
+        var updated = table
+        updated[titleID]?[field.rawValue] = nil
+        if updated[titleID]?.isEmpty == true { updated[titleID] = nil }
+        try save(updated)
     }
 
-    private func changed() {
-        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        if let data = try? JSONEncoder().encode(table) { try? data.write(to: fileURL, options: .atomic) }
+    private func save(_ updated: [String: [String: String]]) throws {
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        try JSONEncoder().encode(updated).write(to: fileURL, options: .atomic)
+        table = updated
         revision += 1
     }
 }

@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **932 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **933 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -153,7 +153,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibrary/Services/AppUpdater.swift](../../Sources/NXLibrary/Services/AppUpdater.swift) | Coordina aggiornamento e riavvio di Oort NX a partire dal bundle `NXLibrary.app` nello ZIP. |
+| [Sources/NXLibrary/Services/AppUpdater.swift](../../Sources/NXLibrary/Services/AppUpdater.swift) | Coordina aggiornamento e riavvio; se il gate blocca l'installazione, conserva lo ZIP verificato per il tentativo successivo. |
 | [Sources/NXLibrary/Services/NativeMenuCommands.swift](../../Sources/NXLibrary/Services/NativeMenuCommands.swift) | Coordina tracking, disponibilità nella scena e passaggio differito dai menu macOS alle azioni del launcher. |
 | [Sources/NXLibrary/Services/NextendoBrowserSignIn.swift](../../Sources/NXLibrary/Services/NextendoBrowserSignIn.swift) | Apre il browser predefinito e riceve una callback HTTP su loopback, con annullamento e scadenza. |
 | [Sources/NXLibrary/Services/ControllerSource.swift](../../Sources/NXLibrary/Services/ControllerSource.swift) | Contratto di connessione, identità e transizioni normalizzate per le sorgenti di input. |
@@ -309,7 +309,7 @@ Cartella `Sources/NXLibraryCore/Artwork/`.
 | [Sources/NXLibraryCore/Artwork/AutomaticIconResolver.swift](../../Sources/NXLibraryCore/Artwork/AutomaticIconResolver.swift) | Risolve icone automatiche con cache, abbinamento prudente e rispetto delle restrizioni del provider. |
 | [Sources/NXLibraryCore/Artwork/ArtworkStore.swift](../../Sources/NXLibraryCore/Artwork/ArtworkStore.swift) | Scarica, ridimensiona e conserva immagini e screenshot nella cache per titolo e tipo. |
 | [Sources/NXLibraryCore/Artwork/ArtworkPicker.swift](../../Sources/NXLibraryCore/Artwork/ArtworkPicker.swift) | Aggrega candidati per cover, sfondo, icona e logo (quelli Steam qui, quelli Switch in `ArcanePorting/Store/ArtworkCandidates+Porting.swift`) e conserva le scelte manuali. |
-| [Sources/NXLibraryCore/Artwork/MetadataPicker.swift](../../Sources/NXLibraryCore/Artwork/MetadataPicker.swift) | Campi e valori alternativi dei metadati; conserva gli override dell’utente per campo (`MetadataPicks`). |
+| [Sources/NXLibraryCore/Artwork/MetadataPicker.swift](../../Sources/NXLibraryCore/Artwork/MetadataPicker.swift) | Campi alternativi e override per campo: `MetadataPicks` scrive atomicamente prima di pubblicare la modifica. |
 | [Sources/NXLibraryCore/Artwork/GameTitleKey.swift](../../Sources/NXLibraryCore/Artwork/GameTitleKey.swift) | Un titolo come parole da confrontare (minuscole, senza ™ ® © né punteggiatura, "&" come "and"), per le ricerche di artwork online e GameTDB. |
 | [Sources/NXLibraryCore/Artwork/HTMLPlainText.swift](../../Sources/NXLibraryCore/Artwork/HTMLPlainText.swift) | Una descrizione HTML (store, Steam, database, mod) come testo semplice: righe ed elenchi tenuti, altri tag tolti, entità decodificate. |
 | [Sources/NXLibraryCore/Artwork/OnlineArtworkSources.swift](../../Sources/NXLibraryCore/Artwork/OnlineArtworkSources.swift) | Ricava artwork Steam e loghi da MediaWiki e Wikimedia Commons. |
@@ -384,7 +384,7 @@ Cartella `Sources/NXLibraryCore/Steam/`.
 | [Sources/NXLibraryCore/Steam/InstallationFileSnapshot.swift](../../Sources/NXLibraryCore/Steam/InstallationFileSnapshot.swift) | Letture limitate e non bloccanti di file regolari; verifica dell'identità prima della pubblicazione. |
 | [Sources/NXLibraryCore/Steam/InstallationDirectorySnapshot.swift](../../Sources/NXLibraryCore/Steam/InstallationDirectorySnapshot.swift) | Lettura incrementale delle cartelle, budget anche sulle voci nascoste e annullamento durante l'enumerazione. |
 | [Sources/NXLibraryCore/Steam/NativeMacApplication.swift](../../Sources/NXLibraryCore/Steam/NativeMacApplication.swift) | Evidenze del bundle Mac e degli header eseguibili, architetture e categoria dichiarata, senza avvio. |
-| [Sources/NXLibraryCore/Steam/SteamLibrarySource.swift](../../Sources/NXLibraryCore/Steam/SteamLibrarySource.swift) | Snapshot delle librerie/manifest dichiarati, disponibilità, ambiguità, limiti e annullamento; non modifica il catalogo. |
+| [Sources/NXLibraryCore/Steam/SteamLibrarySource.swift](../../Sources/NXLibraryCore/Steam/SteamLibrarySource.swift) | Snapshot delle librerie/manifest; omette i percorsi non pubblicabili e segnala una scansione parziale senza modificare il catalogo. |
 | [Sources/NXLibraryCore/Steam/SteamPlayState.swift](../../Sources/NXLibraryCore/Steam/SteamPlayState.swift) | Stato di Play per un gioco Steam: processi osservati con i percorsi risolti, passaggio a Steam, sessione solo quando gira l’app di questa installazione, attese e rifiuti. |
 | [Sources/NXLibraryCore/Steam/SteamBinaryKeyValues.swift](../../Sources/NXLibraryCore/Steam/SteamBinaryKeyValues.swift) | Lettura limitata del formato KeyValues binario di Steam (`appcache/stats`): tipi noti, profondità, voci e dimensione; qualunque altro byte è un errore. |
 | [Sources/NXLibraryCore/Steam/SteamAchievementReader.swift](../../Sources/NXLibraryCore/Steam/SteamAchievementReader.swift) | Achievement di un gioco per l’account corrente: schema (nomi nella lingua dell’app, poi inglese; nascosti; icone) e soli `AchievementTimes` del file delle statistiche; nessun file, account o statistiche: nessun dato. |
@@ -539,7 +539,7 @@ Cartella `Sources/ArcanePorting/Launch/`.
 | [Sources/ArcanePorting/Launch/ImportService.swift](../../Sources/ArcanePorting/Launch/ImportService.swift) | Identità e scansione dei bundle nxnative; ripara la copia in staging e verifica l'impronta del bundle da sostituire. Firma ad hoc solo se la firma originale non verifica e la politica dei manifest lo consente. |
 | [Sources/ArcanePorting/Launch/AppIconProgress.swift](../../Sources/ArcanePorting/Launch/AppIconProgress.swift) | Stati e testi della preparazione icona, con esito informativo aggiunto al log della build conclusa. |
 | [Sources/ArcanePorting/Launch/IconLaunchWait.swift](../../Sources/ArcanePorting/Launch/IconLaunchWait.swift) | Conserva una richiesta Play durante la firma dell'icona e la revoca su annullamento, errore o chiusura del dialogo. |
-| [Sources/ArcanePorting/Launch/LaunchService.swift](../../Sources/ArcanePorting/Launch/LaunchService.swift) | Scrive le impostazioni runtime su file quando richiesto; avvia con NSWorkspace, passa chiavi overlay e scelta esplicita di Home solo al processo, rimuove lo snapshot all'uscita o all'errore. |
+| [Sources/ArcanePorting/Launch/LaunchService.swift](../../Sources/ArcanePorting/Launch/LaunchService.swift) | Scrive le impostazioni runtime su file quando richiesto; avvia con NSWorkspace e ambiente consentito, passa chiavi overlay e Home al processo, rimuove lo snapshot all'uscita o all'errore. |
 | [Sources/ArcanePorting/Launch/HomeMenu.swift](../../Sources/ArcanePorting/Launch/HomeMenu.swift) | Rileva il protocollo Home del bundle, identifica `dmhost` e modella pausa, ripresa e uscita. |
 | [Sources/ArcanePorting/Launch/GameOverlayLaunch.swift](../../Sources/ArcanePorting/Launch/GameOverlayLaunch.swift) | Riconosce le chiavi overlay nel `dmhost`; prepara palette, tempo, copertina e snapshot JSON privato con i soli campi visibili. |
 | [Sources/ArcanePorting/Launch/InstalledEngineCapabilities.swift](../../Sources/ArcanePorting/Launch/InstalledEngineCapabilities.swift) | Risolve Home, overlay, `DM_SCREEN` e descrittore Z-A dal bundle, con cache Git per le verifiche di ascendenza. |
@@ -549,7 +549,7 @@ Cartella `Sources/ArcanePorting/Launch/`.
 | [Sources/ArcanePorting/Launch/NextendoOnlineCounts.swift](../../Sources/ArcanePorting/Launch/NextendoOnlineCounts.swift) | Solo in presenza di un token, legge e valida il conteggio pubblico per title ID, con download limitato e cache breve. |
 | [Sources/ArcanePorting/Launch/NextendoOAuth.swift](../../Sources/ArcanePorting/Launch/NextendoOAuth.swift) | Genera la richiesta PKCE, valida la callback, scambia e ruota i token e legge userinfo. Il trasporto è limitato e registra solo percorso e codice. |
 | [Sources/ArcanePorting/Launch/NextendoTokenStore.swift](../../Sources/ArcanePorting/Launch/NextendoTokenStore.swift) | Legge, sostituisce e rimuove il refresh token condiviso sotto il lock nxnative, con permessi privati. |
-| [Sources/ArcanePorting/Launch/AppIconWriter.swift](../../Sources/ArcanePorting/Launch/AppIconWriter.swift) | Scrive l’icona scelta nell’app del gioco, conserva l’originale, rifirma e verifica, e annulla tutto in caso di errore. |
+| [Sources/ArcanePorting/Launch/AppIconWriter.swift](../../Sources/ArcanePorting/Launch/AppIconWriter.swift) | Cambia o ripristina l'icona, rifirma e verifica; conserva le copie e il manifesto se il rollback non riesce. |
 | [Sources/ArcanePorting/Launch/NXNativeLibraryMerge.swift](../../Sources/ArcanePorting/Launch/NXNativeLibraryMerge.swift) | Merge nxnative: preserva l'identità di libreria, ma aggiorna la provenienza se il disco restituisce un bundle diverso. |
 
 ## Porting · impostazioni del gioco
@@ -946,7 +946,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/ArcanePortingTests/InstallProgressTests.swift](../../Tests/ArcanePortingTests/InstallProgressTests.swift) | Fasi Git, percentuali, byte e ricomposizione delle righe parziali. |
 | [Tests/ArcanePortingTests/KeyCheckTests.swift](../../Tests/ArcanePortingTests/KeyCheckTests.swift) | Cifratura e lettura di intestazioni sintetiche, intervalli troncati e chiavi richieste dalle sorgenti. |
 | [Tests/ArcanePortingTests/KeyStoreTests.swift](../../Tests/ArcanePortingTests/KeyStoreTests.swift) | Importazione e sostituzione atomica, conservazione della copia precedente anche con header malformato, permessi 0600 e riepilogo. |
-| [Tests/ArcanePortingTests/LaunchServiceTests.swift](../../Tests/ArcanePortingTests/LaunchServiceTests.swift) | Avvio, ambiente Home e overlay, permessi e pulizia dello snapshot; capacità, ripiego e override dello schermo. |
+| [Tests/ArcanePortingTests/LaunchServiceTests.swift](../../Tests/ArcanePortingTests/LaunchServiceTests.swift) | Processo fittizio, impostazioni runtime e profilo, ambiente ereditato senza segreti, Home e overlay, permessi e pulizia dello snapshot; capacità, ripiego e override dello schermo. |
 | [Tests/ArcanePortingTests/HomeMenuTests.swift](../../Tests/ArcanePortingTests/HomeMenuTests.swift) | Capacità e ambiente del bundle, stati e segnale al solo figlio sintetico. |
 | [Tests/ArcanePortingTests/LauncherSettingsTests.swift](../../Tests/ArcanePortingTests/LauncherSettingsTests.swift) | Metadati launcher.json e fallback dei controlli per build precedenti. |
 | [Tests/NXLibraryCoreTests/LaunchBoxArtTests.swift](../../Tests/NXLibraryCoreTests/LaunchBoxArtTests.swift) | Risultati di ricerca, scelta della voce Switch/Switch 2, payload Nuxt con file pieni e screenshot. |
@@ -963,7 +963,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/NXLibraryCoreTests/ReleaseNotesLayoutTests.swift](../../Tests/NXLibraryCoreTests/ReleaseNotesLayoutTests.swift) | Titoli, voci e righe vuote delle note di release, una voce per riga. |
 | [Tests/ArcanePortingTests/NewestEngineTests.swift](../../Tests/ArcanePortingTests/NewestEngineTests.swift) | Lock e Metal di main, validità della scelta, comandi git del cambio, gate Newest engine, scheda Setup e frase. |
 | [Tests/ArcanePortingTests/NUPSourceCatalogTests.swift](../../Tests/ArcanePortingTests/NUPSourceCatalogTests.swift) | NUP storici, multiprogramma e soli update; identità DLC, JSON, capacità checkout, programma zero nei vecchi record e argv coerenti. |
-| [Tests/ArcanePortingTests/NXNativeGameSettingsTests.swift](../../Tests/ArcanePortingTests/NXNativeGameSettingsTests.swift) | Migrazione da un plist temporaneo, precedenza di `env.txt`, scelta VPN, ripiego locale e valori al lancio. |
+| [Tests/ArcanePortingTests/NXNativeGameSettingsTests.swift](../../Tests/ArcanePortingTests/NXNativeGameSettingsTests.swift) | Migrazione da un plist temporaneo, precedenza di `env.txt`, scelta VPN, ripiego locale e tutte le scelte runtime macOS con ambiente filtrato. |
 | [Tests/ArcanePortingTests/NextendoLaunchTests.swift](../../Tests/ArcanePortingTests/NextendoLaunchTests.swift) | Online solo per build compatibili, ordine e focus di Play, presenza di Favorite, Search e blocco senza sessione. |
 | [Tests/ArcanePortingTests/NextendoAccountServiceTests.swift](../../Tests/ArcanePortingTests/NextendoAccountServiceTests.swift) | Account, liste, stati di presenza e rinnovo OAuth con trasporto finto, messaggi diagnostici, verifiche Discord ed e-mail e annullamento. |
 | [Tests/ArcanePortingTests/NextendoOnlineCountsTests.swift](../../Tests/ArcanePortingTests/NextendoOnlineCountsTests.swift) | Verifica assenza di richieste senza token, normalizzazione, collisioni, zeri e forma del conteggio. |
@@ -1082,6 +1082,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [CatalogPersonalizationTests.swift](../../Tests/ArcanePortingTests/CatalogPersonalizationTests.swift) | Rinomina senza perdita del lookup e isolamento di chiavi uguali tra fonti. |
 | [CatalogBuildRecoveryTests.swift](../../Tests/ArcanePortingTests/CatalogBuildRecoveryTests.swift) | Vecchia build persistita e nuova conservata, sospensione automatica e conferme obsolete. |
 | [run_notices.py](../../Tests/CatalogAppChecks/run_notices.py) | Esegue il modello e i metodi reali degli avvisi e del ponte legacy senza finestre, dopo swift test. |
+| [run_update_wait.py](../../Tests/CatalogAppChecks/run_update_wait.py) | Bundle di prova: conserva l'aggiornamento verificato mentre un gioco o un lease blocca; riprende dallo ZIP senza rete e rifiuta modifiche. |
 | [run_review.py](../../Tests/CatalogAppChecks/run_review.py) | Verifica senza finestre achievement, loghi, focus, input del centro, badge mod in Online, priorità dei dialoghi e Steam durante Play. |
 | [audit_probe_host.py](../../Tests/CatalogAppChecks/audit_probe_host.py) | Collega sonde headless al binario di debug e le isola con home temporanea e senza rete. |
 | [run_steam_disabled_tracking.py](../../Tests/CatalogAppChecks/run_steam_disabled_tracking.py) | Disattiva una fonte Steam sintetica, chiude una sessione già aperta e rifiuta una nuova osservazione. |
@@ -1133,7 +1134,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [scripts/check_publication.py](../../scripts/check_publication.py) | Rifiuta contenuti personali o di gioco versionati e formati di segreto riconoscibili; verifica il runtime rispetto al lock prima del packaging. |
 | [scripts/build_dmg.sh](../../scripts/build_dmg.sh) | Confeziona un bundle già costruito come `Oort NX.app` nel volume DMG Oort NX. |
 | [scripts/bundle_runtime.sh](../../scripts/bundle_runtime.sh) | Prepara Python e strumenti dalle versioni bloccate, verifica gli hash e firma il runtime incluso. |
-| [scripts/release.sh](../../scripts/release.sh) | Esegue le verifiche di release; produce ZIP con radice `NXLibrary.app` e DMG Oort NX. La pubblicazione opzionale verifica un solo repository per il tag e la release. |
+| [scripts/release.sh](../../scripts/release.sh) | Verifica il pin effettivo in un checkout anonimo temporaneo; produce ZIP con radice `NXLibrary.app` e DMG Oort NX. Riprende la pubblicazione solo con tag identici sul commit atteso e release assente. |
 | [scripts/validate_update.py](../../scripts/validate_update.py) | Verifica struttura, percorsi e limiti degli archivi prima dell'estrazione, sia nel bundle sia durante il packaging delle release. |
 | [scripts/relink_macho.py](../../scripts/relink_macho.py) | Riscrive riferimenti Mach-O dei binari e delle librerie affinché il runtime incluso sia rilocabile. |
 | [scripts/make_icons.swift](../../scripts/make_icons.swift) | Rigenera il cristallo dell’icona originale. |

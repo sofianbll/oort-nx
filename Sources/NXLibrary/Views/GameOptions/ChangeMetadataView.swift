@@ -446,7 +446,7 @@ struct ChangeMetadataView: View {
             failure = nil
         }
         catch {
-            failure = error.localizedDescription
+            failure = subject.ported == nil ? error.localizedDescription : L10n.text("Your changes could not be saved. Try again.")
             SoundEffectService.shared.play(.error)
         }
     }

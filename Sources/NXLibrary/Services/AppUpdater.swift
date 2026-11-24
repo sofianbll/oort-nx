@@ -56,7 +56,7 @@ final class AppUpdater: ObservableObject {
     var dialogRelease: AppUpdate.Release? { offer ?? checkedRelease ?? release }
     var dialogHasSecondaryButton: Bool {
         switch state {
-        case .available: return canInstallRelease
+        case .available, .readyToInstall: return canInstallRelease
         case .failed: return true
         default: return false
         }
@@ -68,7 +68,8 @@ final class AppUpdater: ObservableObject {
     }
     func confirmDialog() {
         switch state {
-        case .available where canInstallRelease: update()
+        case .available, .readyToInstall:
+            if canInstallRelease { update() } else { later() }
         case .failed: checkNow()
         default: later()
         }
@@ -82,8 +83,10 @@ final class AppUpdater: ObservableObject {
 
     /// The release the About row and the dialog act on.
     var release: AppUpdate.Release? {
-        if case .available(let release) = state { return release }
-        return offer ?? lastRelease
+        switch state {
+        case .available(let release), .readyToInstall(let release): return release
+        default: return offer ?? lastRelease
+        }
     }
 
     func checkAtLaunch(enabled: Bool) {
@@ -161,22 +164,29 @@ final class AppUpdater: ObservableObject {
     func update() {
         guard let release, canInstallRelease, blockedReason() == nil else { return }
         offer = nil
+        let folder = Self.workFolder()
+        let zip = folder.appendingPathComponent("NXLibrary-\(release.version).zip")
         switch state {
+        case .readyToInstall:
+            isCheckPresented = true
+            verifyAndInstall(zip: zip, release: release, folder: folder)
+            return
         case .available, .failed: break
         default: return
         }
         isCheckPresented = true
         state = .downloading(0)
-        let folder = Self.workFolder()
-        try? FileManager.default.removeItem(at: folder)
-        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        do {
+            let fm = FileManager.default
+            if fm.fileExists(atPath: folder.path) { try fm.removeItem(at: folder) }
+            try fm.createDirectory(at: folder, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
+        } catch { return fail(L10n.text("The update archive could not be verified; nothing was changed.")) }
         let policy = AppUpdateDownload(expectedBytes: release.archiveBytes, progress: { [weak self] fraction in
             Task { @MainActor in
                 guard let self, case .downloading = self.state else { return }
                 self.state = .downloading(fraction)
             }
         }) { [weak self] location, response, error in
-            let zip = folder.appendingPathComponent("NXLibrary-\(release.version).zip")
             let status = (response as? HTTPURLResponse)?.statusCode ?? 0
             var moved = false
             if let location, error == nil, status == 200 {
@@ -223,6 +233,11 @@ final class AppUpdater: ObservableObject {
             return .failure(.init(message: L10n.text("The download did not match the release; nothing was changed.")))
         }
         let unpacked = folder.appendingPathComponent("unpacked")
+        // A retry re-verifies and extracts the retained ZIP, rather than trusting a staged app left on disk.
+        if FileManager.default.fileExists(atPath: unpacked.path) {
+            do { try FileManager.default.removeItem(at: unpacked) }
+            catch { return .failure(.init(message: L10n.text("The update archive could not be verified; nothing was changed."))) }
+        }
         guard let resources = Bundle.main.resourceURL,
               let runtime = BundledRuntime.locate(resourceURL: resources),
               run(runtime.python.path, ["-I", "-B", resources.appendingPathComponent("validate_update.py").path,
@@ -246,9 +261,9 @@ final class AppUpdater: ObservableObject {
         guard AppUpdate.mayInstall(release, runningVersion: runningVersion, installation: installation) else {
             return fail("This copy cannot install updates. Download a release copy to Applications.")
         }
-        if let reason = blockedReason() { return fail("\(reason); nothing was changed.") }
-        guard let releaseLease = acquireInstallLease() else {
-            return fail("An operation is still running. Try the update again when it finishes.")
+        guard blockedReason() == nil, let releaseLease = acquireInstallLease() else {
+            state = .readyToInstall(release)
+            return
         }
         state = .installing
         let current = Bundle.main.bundleURL

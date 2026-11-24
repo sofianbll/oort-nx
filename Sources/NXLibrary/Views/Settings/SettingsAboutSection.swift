@@ -279,6 +279,7 @@ struct SettingsAboutSection: View {
             let xcode = AppUpdate.neededXcode(release.requirements, installedXcode: setup.environmentStatus?.xcodeVersion)
                 .map { L10n.format(" · new portings need Xcode %@", [String(describing: $0)]) } ?? ""
             return (updater.blockedReason().map { L10n.format("%@ is available · %@", [String(describing: release.version), String(describing: $0)]) } ?? L10n.format("%@ is available", [String(describing: release.version)])) + xcode
+        case .readyToInstall: return L10n.text("Update ready to install")
         case .downloading(let fraction): return L10n.format("Downloading %@%%", [String(describing: Int((fraction * 100).rounded()))])
         case .verifying: return L10n.text("Checking download…")
         case .installing: return L10n.text("Installing…")
@@ -299,6 +300,8 @@ struct SettingsAboutSection: View {
             return [checkNow]
         case .available:
             return [UpdateAction(title: L10n.text("View update")) { updater.showDetails() }, checkNow]
+        case .readyToInstall:
+            return [UpdateAction(title: L10n.text("View update")) { updater.showDetails() }]
         case .failed:
             return [checkNow]
         }

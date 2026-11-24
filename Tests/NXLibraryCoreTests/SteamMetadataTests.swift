@@ -52,7 +52,7 @@ final class SteamMetadataTests: XCTestCase {
         let other = await offline.metadata(appID: 10, language: "english")
         XCTAssertNil(other)
         let picks = MetadataPicks(directory: root.appendingPathComponent("personal"))
-        picks.set("My description", titleID: "10", field: .description)
+        try picks.set("My description", titleID: "10", field: .description)
         _ = await online.metadata(appID: 10, language: "italian", refresh: true)
         XCTAssertEqual(picks.value(titleID: "10", field: .description), "My description")
     }

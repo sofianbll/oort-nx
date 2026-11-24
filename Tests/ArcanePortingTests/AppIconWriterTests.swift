@@ -8,6 +8,7 @@ final class AppIconWriterTests: XCTestCase {
         var calls: [[String]] = []
         /// Exit status for each codesign call in turn; 0 once the list runs out.
         var codesignStatus: [Int32] = []
+        var onSign: (() throws -> Void)?
         var iconOutputs: [Data] = []
 
         func run(_ executable: URL, _ arguments: [String], environment: [String: String]?,
@@ -19,6 +20,7 @@ final class AppIconWriterTests: XCTestCase {
                 try output.write(to: URL(fileURLWithPath: arguments[4]))
                 return CommandResult(status: 0, stdout: "", stderr: "")
             case "codesign":
+                if arguments.first == "--force" { try onSign?() }
                 let status = codesignStatus.isEmpty ? 0 : codesignStatus.removeFirst()
                 return CommandResult(status: status, stdout: "", stderr: status == 0 ? "" : "boom: invalid\nmore")
             default:
@@ -189,6 +191,27 @@ final class AppIconWriterTests: XCTestCase {
         XCTAssertEqual(icon(app), "original")
         XCTAssertEqual(try Data(contentsOf: app.appendingPathComponent("Contents/Info.plist")), before)
         XCTAssertEqual(try String(contentsOf: app.appendingPathComponent("Contents/MacOS/nxnative"), encoding: .utf8), "launcher")
+        XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: writer.backups.appendingPathComponent("recovery").path), [])
+    }
+
+    func testInterruptedSigningKeepsRecoveryFilesAndReportsTheirLocation() throws {
+        let app = try makeApp(icon: "original")
+        let parked = root.appendingPathComponent("disconnected.app")
+        runner.codesignStatus = [1]
+        runner.onSign = { try FileManager.default.moveItem(at: app, to: parked) }
+
+        var message = ""
+        XCTAssertThrowsError(try writer.apply(image: png, to: app, key: "0100")) { message = $0.localizedDescription }
+        let recovery = writer.backups.appendingPathComponent("recovery")
+        let folders = try FileManager.default.contentsOfDirectory(at: recovery, includingPropertiesForKeys: nil)
+        let folder = try XCTUnwrap(folders.first)
+        XCTAssertTrue(message.contains(folder.lastPathComponent), message)
+        let entries = try JSONDecoder().decode([[String: String]].self,
+            from: Data(contentsOf: folder.appendingPathComponent("restore.json")))
+        XCTAssertTrue(entries.contains { $0["target"]?.hasSuffix("/Contents/Info.plist") == true })
+        XCTAssertTrue(entries.contains { $0["target"]?.hasSuffix("/Contents/MacOS/nxnative") == true })
+        XCTAssertEqual(try String(contentsOf: folder.appendingPathComponent("1"), encoding: .utf8), "original")
+        XCTAssertEqual(try String(contentsOf: folder.appendingPathComponent("3"), encoding: .utf8), "launcher")
     }
 
     func testOriginalIconIsRememberedIncludingItsAbsence() throws {
