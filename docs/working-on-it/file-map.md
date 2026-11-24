@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **1094 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **1095 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -693,6 +693,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/Spotlight/SpotlightView.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightView.swift) | Compone home, tessere e pagina; espone la card Inbox solo se attiva, osserva il cloud, collega Profili alla shell e libera il focus di ordinamento all’uscita. |
 | [Sources/NXLibrary/Views/Spotlight/SpotlightView+Stage.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightView+Stage.swift) | Palco Spotlight: riga, testate per fonte, azioni cloud, arte hero, overlay, focus di ordinamento e ultime cinque compilazioni. |
 | [Sources/NXLibrary/Views/Spotlight/SpotlightView+Hints.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightView+Hints.swift) | Suggerimenti per il focus, incluse le azioni dei collegamenti Mac, Download e X per la cronologia delle compilazioni. |
+| [Sources/NXLibrary/Views/Spotlight/SpotlightView+Platforms.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightView+Platforms.swift) | Input, attesa prima di montare le nuove copertine, filtro del profilo e accesso a un gioco fuori filtro. |
 | [Sources/NXLibrary/Views/Spotlight/SpotlightView+Selection.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightView+Selection.swift) | Selezione, filtri e libreria; entrando nella pagina si lascia il focus della testata. |
 | [Sources/NXLibrary/Views/Spotlight/SpotlightView+Mods.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightView+Mods.swift) | Fascia Mods e store delle mod che si apre da lì. |
 | [Sources/NXLibrary/Views/Spotlight/SpotlightView+PageLayout.swift](../../Sources/NXLibrary/Views/Spotlight/SpotlightView+PageLayout.swift) | Offset e maschera della pagina, riga Mods a fuoco sempre visibile e cosa mostra About. |

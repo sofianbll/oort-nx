@@ -43,10 +43,14 @@ public struct SpotlightPlatforms: Equatable {
 public struct SpotlightPlatformPicker: Equatable {
     public private(set) var cursor: CatalogIntegration?
     public private(set) var settled: CatalogIntegration?
+    private var initial: CatalogIntegration?
+
+    public var wantsCommit: Bool { cursor != initial }
 
     public init(_ saved: CatalogIntegration?, in platforms: SpotlightPlatforms) {
         cursor = platforms.card(for: saved).integration
         settled = cursor
+        initial = cursor
     }
 
     @discardableResult
@@ -60,6 +64,7 @@ public struct SpotlightPlatformPicker: Equatable {
     public mutating func reconcile(in platforms: SpotlightPlatforms) {
         cursor = platforms.card(for: cursor).integration
         settled = platforms.card(for: settled).integration
+        initial = platforms.card(for: initial).integration
     }
 
     public mutating func settle() { settled = cursor }

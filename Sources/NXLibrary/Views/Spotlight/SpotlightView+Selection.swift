@@ -35,6 +35,9 @@ extension SpotlightView {
     func consumePendingMove() {
         guard let key = router.pendingSpotlightMove else { return }
         router.pendingSpotlightMove = nil
+        if key.hasPrefix("game:"), let id = UUID(uuidString: String(key.dropFirst("game:".count))) {
+            showPlatformContaining(id)
+        }
         if !items.contains(where: { $0.key == key }), filter != .all {
             viewModel.librarySelection.query.filter = .all
         }
@@ -65,6 +68,7 @@ extension SpotlightView {
     }
 
     func reconcile() {
+        if platformPicker != nil { platformPicker?.reconcile(in: platforms(in: viewModel.visibleCatalogGames)) }
         // The lifted tile vanished (library reload, settings change): put it back.
         if let lifted = viewModel.spotlight.lift?.key, !items.contains(where: { $0.key == lifted }) {
             mutate { $0.cancelLift() }
@@ -83,7 +87,7 @@ extension SpotlightView {
     }
 
     func openSort() {
-        guard viewModel.spotlight.focus == .row, !viewModel.spotlight.isLifted,
+        guard platformPicker == nil, viewModel.spotlight.focus == .row, !viewModel.spotlight.isLifted,
               cardMenu == nil, viewer == nil, achievementsScreen == nil,
               !router.overlayHasHints(viewModel) else { return }
         router.sortMenu = settings.settings.librarySort

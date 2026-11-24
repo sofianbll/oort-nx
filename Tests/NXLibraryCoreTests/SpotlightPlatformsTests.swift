@@ -37,9 +37,11 @@ final class SpotlightPlatformsTests: XCTestCase {
         XCTAssertEqual(one.games([mac], on: unknown), [mac])
 
         var picker = SpotlightPlatformPicker(unknown, in: one)
+        XCTAssertFalse(picker.wantsCommit)
         XCTAssertFalse(picker.move(by: -1, in: one))
         XCTAssertTrue(picker.move(by: 1, in: one))
         XCTAssertEqual(picker.cursor, .macShortcut)
+        XCTAssertTrue(picker.wantsCommit)
         XCTAssertNil(picker.settled)
         XCTAssertFalse(picker.move(by: 1, in: one))
         picker.settle()
@@ -47,6 +49,30 @@ final class SpotlightPlatformsTests: XCTestCase {
         picker.reconcile(in: empty)
         XCTAssertNil(picker.cursor)
         XCTAssertNil(picker.settled)
+        XCTAssertFalse(picker.wantsCommit)
+    }
+
+    func testAnUnknownRecordIsPreservedButNeverGetsACard() throws {
+        let unknown = game("Unknown", FixtureAlpha.self)
+        let document = CatalogDocument(sources: [.init(integration: earlier, isEnabled: true)], games: [unknown])
+        let decoded = try JSONDecoder().decode(CatalogDocument.self, from: JSONEncoder().encode(document))
+        XCTAssertEqual(decoded.preservedGames.count, 1)
+        XCTAssertTrue(decoded.games.isEmpty)
+        XCTAssertEqual(projection(CatalogLibraryProjection.visible(games: decoded.games, sources: decoded.sources)).cards,
+                       [.init(integration: nil, count: 0)])
+    }
+
+    func testRailHeadCannotBeLiftedOrDisplaced() {
+        let game = SpotlightItem.game(UUID())
+        let items: [SpotlightItem] = [.platform, game, .card(.addGame)]
+        var state = SpotlightState()
+        state.reconcile(with: items)
+        XCTAssertEqual(state.selectedItem(in: items), game)
+        XCTAssertTrue(state.move(by: -1, in: items))
+        XCTAssertEqual(state.selectedItem(in: items), .platform)
+        XCTAssertFalse(state.beginLift(in: items))
+        XCTAssertEqual(SpotlightRow.moving(game, by: -1, in: items), items)
+        XCTAssertEqual(SpotlightRow.moving(.platform, by: 1, in: items), items)
     }
 
     private func projection(_ games: [CatalogGame]) -> SpotlightPlatforms {

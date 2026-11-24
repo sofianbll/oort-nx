@@ -314,6 +314,8 @@ La destinazione Nextendo mostra lo stato noto senza contattare il servizio. Chec
 Aprire Drive da Integrations non ripropone un recupero pendente e non esegue rclone; aprire Folders and connection tools avvia l'ispezione locale.
 In Spotlight, la rotella toglie il focus dalla barra quando porta il focus nella pagina del gioco. X, Y e i salti della riga non passano ai giochi mentre la barra è ancora a fuoco.
 
+La prima tessera di Spotlight filtra per piattaforma senza cambiare schermata. A, Invio o un clic aprono; Su/Giù o le frecce sulla tessera scorrono fra Tutti e le piattaforme presenti. Le copertine seguono dopo una breve pausa, con il filtro e l'ordinamento già scelti. A/B, Invio/Esc o un clic sulla tessera chiudono e lasciano il fuoco sulla tessera. L'apertura di un risultato di ricerca fuori piattaforma mostra tutti i giochi senza cambiare la preferenza del profilo.
+
 ```mermaid
 flowchart TD
     A["Riga in Settings (SettingsCatalog)"] --> B["AppSettings modificato"]

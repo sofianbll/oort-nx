@@ -10,9 +10,9 @@ extension SpotlightView {
     /// The A slot keeps one width per place (row, page), so the prompts hold still
     /// as the focus moves. Y and B sit leftmost, where a longer label shifts nothing.
     func hintReserve(_ state: SpotlightState) -> [[String]] {
-        if state.isLifted || cardMenu != nil { return [] }
+        if platformPicker != nil || state.isLifted || cardMenu != nil { return [] }
         switch state.focus {
-        case .row: return [[], ["Play", "Download", "Build", "Pick", "Open", "Show"]]
+        case .row: return [[], ["Play", "Resume", "Download", "Build", "Pick", "Open", "Show"]]
         case .pills, .strip, .mods, .about, .actions, .more, .achievements: return [[], ["Select", "View", "Show", "Open", "Cancel"]]
         case .store: return [[], ["Sort", "View"]]
         case .topGames: return []
@@ -24,6 +24,10 @@ extension SpotlightView {
     }
 
     func contextHints(_ model: Snapshot, _ state: SpotlightState) -> [HintItem] {
+        if model.platformCursor != nil {
+            let direction = model.platforms.cards.count > 1 ? [HintItem(.vertical, "Change platform")] : []
+            return direction + [HintItem(.b, "Close") { handle(.cancel) }, HintItem(.a, "Close") { handle(.confirm) }]
+        }
         if state.isLifted {
             return [HintItem(.move, "Move"), HintItem(.a, L10n.text("Drop")), HintItem(.b, L10n.text("Cancel"))]
         }
@@ -51,6 +55,8 @@ extension SpotlightView {
             return chosen ? [HintItem(.b, L10n.text("Back"))] : [HintItem(.b, L10n.text("Back")), HintItem(.a, L10n.text("Sort"))]
         case .row:
             switch model.selectedItem {
+            case .platform:
+                return [HintItem(.a, "Open") { handle(.confirm) }]
             case .card(let card):
                 if card == .inbox { return [HintItem(.a, L10n.text("Open"))] }
                 let more = [HintItem(.y, L10n.text("Card options"))]
@@ -67,7 +73,7 @@ extension SpotlightView {
                 guard let game = model.selectedGame else { return [] }
                 let pills = viewModel.portingPills(game)
                 if pills == .porting {
-                    return [HintItem(.y, L10n.text("Options")), HintItem(.a, L10n.text("Porting"))]
+                    return [HintItem(.y, "Options"), HintItem(.a, "Show")]
                 }
                 if let item = downloadItem(game), pills != .queued {
                     return [HintItem(.y, "Options"), HintItem(.a, item.primaryDownloadTitle)]
@@ -76,7 +82,7 @@ extension SpotlightView {
                     return [HintItem(.y, L10n.text("Options"))]
                 }
                 if game.isPlayableLocally {
-                    return [HintItem(.y, L10n.text("Options")), HintItem(.a, L10n.text("Play"))]
+                    return [HintItem(.y, "Options"), HintItem(.a, runningGames.isRunning(game) ? "Resume" : "Play")]
                 }
                 if pills == .queued { return [HintItem(.y, "Options"), HintItem(.a, "Show")] }
                 return [HintItem(.y, L10n.text("Options")), HintItem(.a, L10n.text("Build"))]

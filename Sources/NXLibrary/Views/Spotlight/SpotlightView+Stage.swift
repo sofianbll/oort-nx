@@ -65,7 +65,8 @@ extension SpotlightView {
                             onSelect: { if !state.isLifted { setFilter($0) } })
                 // Comes in last with the hints (`finishEntrance`).
                 .opacity(rowShown && controlsShown ? 1 : 0)
-                .allowsHitTesting(rowShown && entrance.takesInput)
+                .allowsHitTesting(rowShown && entrance.takesInput && platformPicker == nil)
+                .accessibilityHidden(platformPicker != nil)
 
             ZStack(alignment: .topLeading) {
                 SpotlightRowView(
@@ -73,10 +74,14 @@ extension SpotlightView {
                     gamesByID: model.gamesByID,
                     catalogGamesByID: model.catalogGamesByID,
                     selectedKey: state.selectedKey,
+                    platforms: model.platforms,
+                    platform: model.platformCursor ?? model.platforms.card(for: activePlatform),
+                    platformOpen: model.platformCursor != nil,
                     liftedKey: state.lift?.key,
                     isEmptyFilter: LibraryEmptyState.showsMessage(
                         hasGames: items.contains { if case .game = $0 { return true } else { return false } },
                         isReadingLibrary: viewModel.isScanningLibrary) ? filter : nil,
+                    scopeIsEmpty: model.platforms.card(for: activePlatform).integration != nil,
                     artwork: artwork,
                     tileLook: viewModel.portingTileLook,
                     cloud: viewModel.cloudLibrary,
@@ -85,12 +90,13 @@ extension SpotlightView {
                     modsCover: storeHost.cover,
                     entrance: entrance,
                     onEntranceEnd: { finishEntrance() },
+                    onPlatformMove: { handlePlatformPicker($0 < 0 ? .navigateUp : .navigateDown) },
                     onSelect: { item in
-                        guard !state.isLifted else { return }
+                        guard platformPicker == nil, !state.isLifted else { return }
                         mutate { $0.select(item) }
                     },
                     onActivate: { item in
-                        guard !state.isLifted else { return }
+                        guard !state.isLifted, platformPicker == nil || item == .platform else { return }
                         mutate { $0.select(item) }
                         activate(item)
                     }

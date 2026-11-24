@@ -52,6 +52,8 @@ struct SpotlightView: View {
     @State var keyMonitor: Any?
     @State var profileFocused = false
     @Environment(\.profilePortrait) var profile
+    @State var platformChoice: CatalogIntegration?
+    @State var platformPicker: SpotlightPlatformPicker?
     @State var hadGames = false
     /// The card Y menu: which card and the focused row.
     @State var cardMenu: CardMenuState?
@@ -130,6 +132,7 @@ struct SpotlightView: View {
         self.cloud = viewModel.cloudLibrary
         self.artwork = artwork
         self.storeHost = storeHost
+        _platformChoice = State(initialValue: viewModel.localProfiles?.active?.spotlightPlatform)
         // Held hidden from the first frame (the opening, or under the welcome); `entranceAppear` lands it when not due.
         _entrance = State(initialValue: viewModel.homeSeen ? .landed : .covered)
         _controlsShown = State(initialValue: viewModel.homeSeen)
@@ -142,7 +145,14 @@ struct SpotlightView: View {
     private var rowQuery: LibraryQuery { LibraryQuery(filter: filter, sort: settings.settings.librarySort) }
 
     var rowGames: [CatalogGame] {
-        viewModel.queryLibrary(rowQuery, history: playSessions)
+        let visible = viewModel.visibleCatalogGames
+        return rowGames(in: visible, platforms: platforms(in: visible))
+    }
+
+    private func rowGames(in visible: [CatalogGame], platforms: SpotlightPlatforms) -> [CatalogGame] {
+        let scoped = platforms.games(visible, on: activePlatform)
+        return rowQuery.applyCatalog(to: scoped, history: playSessions,
+                                     cloudOnly: filter == .cloud ? viewModel.cloudOnlyGameIDs : [])
     }
     var selectedCatalogGame: CatalogGame? {
         guard case .game(let id) = selectedItem else { return nil }
@@ -152,7 +162,7 @@ struct SpotlightView: View {
 
     private func rowItems(for games: [CatalogGame]) -> [SpotlightItem] {
         let ids = games.map(\.id)
-        return SpotlightRow.build(gameIDs: ids,
+        return [.platform] + SpotlightRow.build(gameIDs: ids,
                                   enabledCards: settings.settings.visibleSpotlightCards.filter { $0 != .inbox }
                                     + (settings.settings.gameInboxEnabled && gameInbox.hasWaitingFiles ? [.inbox] : []),
                                   order: viewModel.spotlight.lift?.order ?? settings.settings.spotlightOrder,
@@ -176,11 +186,14 @@ struct SpotlightView: View {
         let selectedGame: PortedGame?
         let catalogGamesByID: [UUID: CatalogGame]
         let selectedCatalogGame: CatalogGame?
+        let platforms: SpotlightPlatforms
+        let platformCursor: SpotlightPlatforms.Card?
     }
 
     private func snapshot() -> Snapshot {
         let visible = viewModel.visibleCatalogGames
-        let rowGames = viewModel.queryLibrary(rowQuery, history: playSessions)
+        let platforms = platforms(in: visible)
+        let rowGames = rowGames(in: visible, platforms: platforms)
         let items = rowItems(for: rowGames)
         let gamesByID = Dictionary(viewModel.libraryGames.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         let item = viewModel.spotlight.selectedItem(in: items)
@@ -189,7 +202,8 @@ struct SpotlightView: View {
         if case .game(let selected) = item { id = selected } else { id = nil }
         return Snapshot(items: items, gamesByID: gamesByID, selectedItem: item,
                         selectedGame: id.flatMap { gamesByID[$0] }, catalogGamesByID: catalog,
-                        selectedCatalogGame: id.flatMap { catalog[$0] })
+                        selectedCatalogGame: id.flatMap { catalog[$0] }, platforms: platforms,
+                        platformCursor: platformPicker.map { platforms.card(for: $0.cursor) })
     }
 
     /// One pill while the selected game ports, three otherwise.
@@ -237,14 +251,14 @@ struct SpotlightView: View {
     private func chrome(_ model: Snapshot, state: SpotlightState) -> some View {
         let barFocused = router.integrationBarFocused
         return SeleneHomeChrome(
-            leftHints: state.isLifted || cardMenu != nil || state.focus != .row
+            leftHints: platformPicker != nil || state.isLifted || cardMenu != nil || state.focus != .row
                 ? [] : HintItem.homeGlobals(other: "Collection",
                                              onOther: settings.settings.viewButtonSwitches ? { handle(.view) } : nil,
                                              onMenu: { router.isMenuPresented = true },
                                              onSearch: { handle(.search) },
                                              onProfiles: { ProfileFlow.requestPicker() }),
             rightHints: barFocused ? [HintItem(.a, L10n.text("Open")) { handle(.confirm) }]
-                : contextHints(model, state) + (state.focus == .row && !state.isLifted && cardMenu == nil
+                : contextHints(model, state) + (platformPicker == nil && state.focus == .row && !state.isLifted && cardMenu == nil
                     ? [LibrarySortMenu.hint(settings.settings.librarySort, action: openSort)] : []),
             rightReserve: hintReserve(state),
             hintsHidden: router.overlayHasHints(viewModel) || achievementsScreen != nil
@@ -285,6 +299,14 @@ struct SpotlightView: View {
         .onAppear(perform: appear)
         .onAppear(perform: entranceAppear)
         .onChange(of: isCovered) { _, covered in if !covered { uncoverEntrance() } }
+        .onChange(of: viewModel.playProfile) { old, new in
+            platformPicker = nil
+            if old.id != new.id { platformChoice = viewModel.localProfiles?.active?.spotlightPlatform }
+            reconcile()
+        }
+        .onChange(of: router.overlayHasHints(viewModel)) { _, covered in
+            if covered { platformPicker = nil }
+        }
         .onChange(of: reduceMotion) { _, reduced in if reduced { landEntrance() } }
         // A resize mid-flight lands it; before the flight the starts follow the window (the launch can still size it).
         .onChange(of: canvas) {
@@ -316,6 +338,7 @@ struct SpotlightView: View {
         // Another game, or the row: the screen belongs to the game it opened on.
         .onChange(of: viewModel.spotlight.selectedKey) { achievementsScreen = nil }
         .onDisappear {
+            platformPicker = nil
             landEntrance()
             removeKeyMonitor()
             router.sortMenu = nil
@@ -375,12 +398,7 @@ struct SpotlightView: View {
         .onReceive(NotificationCenter.default.publisher(for: .nxFindGameSelect)) { note in
             guard let id = note.object as? UUID else { return }
             // Find a game lands on Spotlight; a tab without the game gives way to All games.
-            let key = SpotlightItem.game(id).key
-            if !items.contains(where: { $0.key == key }) { setFilter(.all) }
-            mutate {
-                $0.selectedKey = key
-                $0.focus = .row
-            }
+            selectGame(id)
         }
         .onReceive(NotificationCenter.default.publisher(for: .nxSpotlightGamepadAction)) { note in
             // The welcome's fade: the controller reaches Spotlight only once it has gone.
@@ -392,6 +410,7 @@ struct SpotlightView: View {
     /// Play history and the art of the selected game.
     private func tasks(_ model: Snapshot, on content: some View) -> some View {
         content
+        .task(id: model.platformCursor.map(\.integration)) { await settlePlatformPreview(model.platformCursor) }
         .onChange(of: playSessions.sessions.count) { reconcile() }
         .onChange(of: playSessions.profileID) { reconcile() }
         .task(id: art.heroTaskKey(model.selectedGame, metadata: model.selectedGame.flatMap { store.storeMetadata[$0.id] })) { await loadHero(model.selectedGame) }

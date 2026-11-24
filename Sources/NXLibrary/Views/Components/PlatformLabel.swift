@@ -3,6 +3,7 @@ import SwiftUI
 import NXLibraryCore
 
 enum PlatformKind: String, CaseIterable {
+    case library = "All"
     case switch1 = "Nintendo Switch"
     case switch2 = "Nintendo Switch 2"
     case steam = "Steam"
@@ -21,6 +22,7 @@ enum PlatformKind: String, CaseIterable {
 
     var asset: String {
         switch self {
+        case .library: "library"
         case .switch1, .switch2: "gamepad-2"
         case .steam: "disc-3"
         case .mac: "laptop"
@@ -38,6 +40,7 @@ enum PlatformKind: String, CaseIterable {
 
     var fallback: String {
         switch self {
+        case .library: "square.grid.2x2"
         case .switch1, .switch2: "gamecontroller"
         case .steam: "opticaldisc"
         case .mac: "laptopcomputer"

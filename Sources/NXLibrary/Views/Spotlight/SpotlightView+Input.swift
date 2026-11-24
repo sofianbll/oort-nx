@@ -8,6 +8,7 @@ extension SpotlightView {
     func handle(_ action: GamepadAction) {
         // Settings stays available during the entrance (including via ⌘,).
         guard entrance.takesInput || action == .menuHold else { return }
+        if platformPicker != nil { return handlePlatformPicker(action) }
         if action == .profiles { return ProfileFlow.requestPicker() }
         if viewer != nil { return handleViewer(action) }
         if achievementsScreen != nil { return handleAchievements(action) }
@@ -344,6 +345,8 @@ extension SpotlightView {
     func activate(_ item: SpotlightItem) {
         router.integrationBarFocused = false
         switch item {
+        case .platform:
+            togglePlatformPicker()
         case .game(let id):
             if let record = viewModel.visibleCatalogGames.first(where: { $0.id == id }), record.nxnativeGame == nil,
                viewModel.playRouter.supports(record.integration) {
@@ -478,6 +481,7 @@ extension SpotlightView {
     /// Selects a game in the row, switching to All games when the current
     /// filter hides it.
     func selectGame(_ id: UUID) {
+        showPlatformContaining(id)
         if !items.contains(.game(id)) {
             viewModel.librarySelection.query.filter = .all
         }
@@ -516,6 +520,7 @@ extension SpotlightView {
                 return shortcut ? event : nil
             }
             if event.type == .scrollWheel {
+                if platformPicker != nil { return nil }
                 // The Achievements screen's list takes the wheel on its own offset, like a mod panel's
                 // description: a notch glides, a trackpad follows the fingers; the page beneath stays.
                 if let screen = achievementsScreen {

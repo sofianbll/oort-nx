@@ -6,6 +6,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Added
 
+- Filter Spotlight by platform from the first tile. Press up or down to browse and close to keep the choice for this profile.
 - Import Switch games from game files alone in your own cloud library or a followed reference. Personalize them before downloading, and find them with the **Cloud** filter in Spotlight and Collection.
 - Cloud downloads trace the rising fill on Spotlight and Collection covers with a band of light and briefly form the Oort mark on success.
 - Pause an app or game-files download from Cloud library or Activity. The paused download stays first after a restart and waits for Resume.

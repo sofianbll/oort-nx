@@ -27,11 +27,13 @@ public enum SpotlightCard: String, Codable, CaseIterable {
 }
 
 public enum SpotlightItem: Hashable {
+    case platform
     case card(SpotlightCard)
     case game(UUID)
 
     public var key: String {
         switch self {
+        case .platform: return "platform"
         case .card(let c): return "card:\(c.rawValue)"
         case .game(let id): return "game:\(id.uuidString)"
         }
@@ -148,8 +150,9 @@ public enum SpotlightRow {
     /// Returns `items` unchanged if the item is absent.
     public static func moving(_ item: SpotlightItem, by delta: Int,
                               in items: [SpotlightItem]) -> [SpotlightItem] {
-        guard let index = items.firstIndex(of: item) else { return items }
-        let target = min(max(index + delta, 0), items.count - 1)
+        guard item != .platform, let index = items.firstIndex(of: item) else { return items }
+        let first = items.first == .platform ? 1 : 0
+        let target = min(max(index + delta, first), items.count - 1)
         guard target != index else { return items }
         var copy = items
         copy.remove(at: index)

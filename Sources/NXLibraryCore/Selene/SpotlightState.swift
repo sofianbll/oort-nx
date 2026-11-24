@@ -351,7 +351,7 @@ public struct SpotlightState: Equatable {
     /// Lifts the selected item. `items` is the row as shown.
     @discardableResult
     public mutating func beginLift(in items: [SpotlightItem]) -> Bool {
-        guard lift == nil, let item = selectedItem(in: items) else { return false }
+        guard lift == nil, let item = selectedItem(in: items), item != .platform else { return false }
         focus = .row
         let keys = items.map(\.key)
         lift = SpotlightLift(key: item.key, order: keys, before: keys)
