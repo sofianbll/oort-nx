@@ -180,10 +180,6 @@ public enum LaunchBoxArt {
     }
 
     static func unescape(_ text: String) -> String {
-        var out = text
-        for (entity, value) in [("&quot;", "\""), ("&#39;", "'"), ("&#x27;", "'"), ("&lt;", "<"), ("&gt;", ">"), ("&amp;", "&")] {
-            out = out.replacingOccurrences(of: entity, with: value)
-        }
-        return out
+        HTMLPlainText.decodeEntities(text)
     }
 }
