@@ -126,27 +126,31 @@ ENGINE="${ENGINE_COMMIT:-$(sed -n 's/.*let defaultPinnedEngineCommit = "\([0-9a-
 [ -n "$MIN_XCODE" ] && [ -n "$ENGINE" ] || fail "could not read minimumXcode or defaultPinnedEngineCommit from the sources"
 
 # An implicit pin uses the app's upstream engine; a partially supplied override is never valid.
-ENGINE_TARGET="$ENGINE_REPO"
+ENGINE_TARGET="${ENGINE_REPO:-$(sed -n 's/.*let engineRemote = "\([^"]*\)".*/\1/p' "$ROOT/Sources/ArcanePorting/Setup/SetupActions.swift")}"
 if [[ -n "$ENGINE_REPO$ENGINE_COMMIT" ]]; then
   [ -n "$ENGINE_REPO" ] && [ -n "$ENGINE_COMMIT" ] || fail "supply both --engine-repo and --engine-commit"
 fi
-if [ "$PUBLISH" = "1" ]; then
-  ENGINE_TARGET="${ENGINE_TARGET:-$(sed -n 's/.*let engineRemote = "\([^"]*\)".*/\1/p' "$ROOT/Sources/ArcanePorting/Setup/SetupActions.swift")}"
-  [ -n "$ENGINE_TARGET" ] || fail "could not read the default engine repository from the sources"
-fi
-if [ -n "$ENGINE_TARGET" ]; then
-  [[ "$ENGINE_TARGET" =~ ^https://github\.com/[A-Za-z0-9_-]+/[A-Za-z0-9_-][A-Za-z0-9_.-]*$ ]] \
+[[ "$ENGINE_TARGET" =~ ^https://github\.com/[A-Za-z0-9_-]+/[A-Za-z0-9_-][A-Za-z0-9_.-]*$ ]] \
     || fail "--engine-repo must be an HTTPS GitHub repository URL"
-  [[ "$ENGINE" =~ ^[0-9a-f]{40}$ ]] \
+[[ "$ENGINE" =~ ^[0-9a-f]{40}$ ]] \
     || fail "--engine-commit must be the full 40-character lowercase SHA"
-  check_engine_pin "$ENGINE_TARGET" "$ENGINE" \
-    || fail "engine commit $ENGINE must be reachable from a public branch of $ENGINE_TARGET"
-fi
+
+engine_probe="$(mktemp -d)" || fail "could not create the engine test directory"
+trap 'rm -rf "$engine_probe"' EXIT
+(
+  cd "$engine_probe"
+  unset GIT_DIR GIT_WORK_TREE GIT_COMMON_DIR GIT_CONFIG GIT_CONFIG_PARAMETERS
+  export HOME="$engine_probe" XDG_CONFIG_HOME="$engine_probe" GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null
+  export GIT_CONFIG_COUNT=0 GIT_TERMINAL_PROMPT=0 GIT_ASKPASS=/usr/bin/false
+  git -c http.followRedirects=false clone --quiet --no-checkout --no-tags "$ENGINE_TARGET" checkout &&
+    [ -n "$(git -C checkout for-each-ref --count=1 --contains="$ENGINE" refs/remotes/origin)" ]
+) || fail "engine commit $ENGINE must be reachable from a public branch of $ENGINE_TARGET"
 # Always pass the validated pair (or empty values), never ambient build options.
 export NX_ENGINE_REPO="$ENGINE_REPO" NX_ENGINE_COMMIT="$ENGINE_COMMIT"
 
 # Every release is tested from its own tree.
-DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}" swift test --package-path "$ROOT" \
+NX_TEST_ENGINE_REPO="$engine_probe/checkout" NX_TEST_ENGINE_COMMIT="$ENGINE" NX_TEST_ENGINE_REQUIRED=1 \
+  DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}" swift test --package-path "$ROOT" \
   || fail "swift test failed"
 for check in "$ROOT"/Tests/CatalogAppChecks/run_*.py; do
   DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}" python3 "$check" \

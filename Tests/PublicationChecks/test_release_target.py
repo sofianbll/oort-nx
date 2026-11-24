@@ -102,8 +102,12 @@ case " $* " in
     repo=$(mapped "$("$REAL_GIT" remote get-url origin)") || exit 99
     exec "$REAL_GIT" fetch -q "$repo" main:refs/remotes/origin/main ;;
   *" clone "*" --no-tags "*)
+    flags=()
+    for arg do
+      if [[ "$arg" == --bare || "$arg" == --no-checkout ]]; then flags+=("$arg"); fi
+    done
     while [[ "$1" != https://github.com/* ]]; do shift; done
-    exec "$REAL_GIT" clone -q --bare --no-tags "$(mapped "$1")" "$2" ;;
+    exec "$REAL_GIT" clone -q "${flags[@]}" --no-tags "$(mapped "$1")" "$2" ;;
   *" push "*)
     repo=$(mapped "$("$REAL_GIT" remote get-url --push origin)") || exit 99
     args=()
@@ -196,6 +200,20 @@ esac
         pin = self.git_run("commit-tree", "HEAD^{tree}", "-p", "HEAD", "-m", "Engine tag only").stdout.strip()
         self.git_run("push", str(self.root / "nxnative"), f"{pin}:refs/tags/tag-only")
         self.assert_blocked("must be reachable from a public branch", pin=pin)
+
+    def test_swift_checks_use_the_packaged_engine_instead_of_ambient_settings(self):
+        # The packaged pin exists upstream, but not in an ambient checkout.
+        pin = self.git_run("commit-tree", "HEAD^{tree}", "-p", "HEAD", "-m", "Engine pin").stdout.strip()
+        self.git_run("push", str(self.root / "nxnative"), f"{pin}:refs/heads/tested")
+        self.env.update(NX_TEST_ENGINE_REPO="/not-the-packaged-engine", NX_TEST_ENGINE_COMMIT=self.commit)
+        self.stub("swift", f'''[[ "$NX_TEST_ENGINE_COMMIT" == "{pin}" ]]
+"$REAL_GIT" -C "$NX_TEST_ENGINE_REPO" cat-file -e "$NX_TEST_ENGINE_COMMIT^{{commit}}"
+[[ "$NX_TEST_ENGINE_REQUIRED" == 1 ]]
+printf '%s' "$NX_TEST_ENGINE_REPO" > "$FIXTURES/test-engine"
+''')
+        result = self.publish(pin=pin)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse(Path((self.root / "test-engine").read_text()).exists())
 
     def test_rechecks_destination_after_the_build_checks(self):
         self.stub("swift", f'"$REAL_GIT" remote set-url --push origin "git@github.com:{OTHER}.git"\n')

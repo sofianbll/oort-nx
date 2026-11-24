@@ -30,7 +30,12 @@ final class EngineRuntimeRequirementsTests: XCTestCase {
         let pin = ProcessInfo.processInfo.environment["NX_TEST_ENGINE_COMMIT"]
             ?? String(viewModel[match].dropFirst("defaultPinnedEngineCommit = \"".count).dropLast())
 
-        guard let readme = gitShow("\(pin):README.md", in: engine) else { throw XCTSkip("\(pin) is not in the engine checkout") }
+        guard let readme = gitShow("\(pin):README.md", in: engine) else {
+            if ProcessInfo.processInfo.environment["NX_TEST_ENGINE_REQUIRED"] == "1" {
+                return XCTFail("README.md at \(pin) is unavailable in the release engine checkout")
+            }
+            throw XCTSkip("\(pin) is not in the engine checkout")
+        }
         let fromReadme = Self.pipPackages(in: readme)
         XCTAssertFalse(fromReadme.isEmpty, "no `pip install` line in nxnative \(pin.prefix(7)) README.md")
         let required = fromReadme + Self.requirementPackages(in: gitShow("\(pin):.github/requirements/tools.txt", in: engine) ?? "")
