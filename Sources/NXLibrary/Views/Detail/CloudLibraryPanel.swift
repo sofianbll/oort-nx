@@ -749,10 +749,19 @@ struct CloudLibraryIndicator {
 struct CloudLibraryTileBadge: ViewModifier {
     let state: CloudLibraryState?
     var showsCopyBadge = true
+    var position = TileBadgePosition.topRight
     /// What a game that cannot be played yet needs; it replaces the old lock, so it always shows.
     var look: PortingTileLook = .normal
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.nxAppLocale) private var localization
+
+    private var alignment: Alignment {
+        switch position {
+        case .topRight: return .topTrailing
+        case .topLeft: return .topLeading
+        case .bottomLeft: return .bottomLeading
+        }
+    }
 
     private var need: (icon: MaterialIcon, label: String)? {
         guard state?.transfer() == nil, state.map({ CloudLibraryIndicator(state: $0).failed }) != true else { return nil }
@@ -769,7 +778,7 @@ struct CloudLibraryTileBadge: ViewModifier {
         let badge = state.flatMap {
             showsCopyBadge || $0.transfer() != nil ? CloudLibraryBadge(indicator: CloudLibraryIndicator(state: $0)) : nil
         }
-        content.overlay(alignment: .topTrailing) {
+        content.overlay(alignment: alignment) {
             Group {
                 if let need { TileMark(icon: need.icon) }
                 else if let badge, badge.isVisibleOnTile { badge }

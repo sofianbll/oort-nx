@@ -136,6 +136,8 @@ public enum SettingsCatalog {
             "A slow drift of the art while the game starts.") { $0.launchMotion },
         row("launchShade", .libraryGames, "Launch screen shade",
             "How much the launch art is darkened.") { $0.launchShade },
+        row("tileBadgePosition", .libraryGames, "Badge position",
+            "The corner of game covers that holds the badge.") { $0.tileBadgePosition },
         row("surprisePool", .libraryGames, "Surprise me pool",
             "Which games Surprise me picks from.") { $0.surprisePool },
         row("showsSessionCard", .libraryGames, "Session card",

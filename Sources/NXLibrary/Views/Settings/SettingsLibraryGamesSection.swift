@@ -35,6 +35,10 @@ struct SettingsLibraryGamesSection: View {
                            subtitle: "Order of games in Spotlight and Collection.",
                            value: settings.settings.librarySort.title, cycle: stepSort)
 
+            SeleneCycleRow("Badge position",
+                           subtitle: "The corner of game covers that holds the badge.",
+                           value: settings.settings.tileBadgePosition.titleKey, cycle: stepBadgePosition)
+
             SeleneCycleRow("Launch screen style",
                            subtitle: "Artwork layout",
                            value: settings.settings.launchStyle.title) { step in
@@ -94,8 +98,13 @@ struct SettingsLibraryGamesSection: View {
         settings.settings.librarySort = settings.settings.librarySort.stepped(step)
     }
 
+    private func stepBadgePosition(_ step: Int) {
+        settings.settings.tileBadgePosition = settings.settings.tileBadgePosition.stepped(step)
+    }
+
     private var launchActions: [SettingsRowAction] {
         [
+            .value("tileBadgePosition", "Badge position", cycle: stepBadgePosition),
             .value("launchStyle", "Launch screen style") { step in
                 settings.settings.launchStyle = settings.settings.launchStyle.stepped(step)
             },

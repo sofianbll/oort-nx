@@ -24,6 +24,7 @@ struct CollectionCoverRow: View {
     var tileLook: (PortedGame) -> PortingTileLook = { _ in .normal }
     @ObservedObject var cloud: CloudLibraryModel
     let showsCloudBadges: Bool
+    var badgePosition: TileBadgePosition = .topRight
     let onSelect: (CatalogGame) -> Void
     let onActivate: (CatalogGame) -> Void
 
@@ -103,7 +104,7 @@ struct CollectionCoverRow: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(game.name)
         .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
-        .modifier(CloudLibraryTileBadge(state: cloudState, showsCopyBadge: showsCloudBadges,
+        .modifier(CloudLibraryTileBadge(state: cloudState, showsCopyBadge: showsCloudBadges, position: badgePosition,
                                         look: game.nxnativeGame.map(tileLook) ?? .normal))
         .overlay(alignment: .bottomTrailing) {
             NextendoOnlineBadge(titleID: game.nxnativeGame?.titleId, compact: true).padding(canvas.u(SeleneTokens.Space.tight))

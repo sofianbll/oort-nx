@@ -73,13 +73,15 @@ import ArcanePorting
                        url: URL(fileURLWithPath: "/fixture/\(index).app"), platform: .macApp, sizeBytes: 0, modificationDate: .now)
         }
         let lookByID = Dictionary(uniqueKeysWithValues: zip(shelf.map(\.id), looks))
-        try render("tile-looks", output,
+        for position in TileBadgePosition.allCases {
+        try render("tile-looks-\(position.rawValue)", output,
             CollectionCoverRow(games: shelf.map { .init(nxnative: $0) }, selectedID: shelf[0].id,
                 artwork: ArtworkStore(), boxArt: vm.boxArt, boxArtIndexVersion: 0,
                 officialName: { _ in nil }, needsMetadata: { _ in },
                 tileLook: { lookByID[$0.id] ?? .normal }, cloud: model,
-                showsCloudBadges: true, onSelect: { _ in }, onActivate: { _ in }),
+                showsCloudBadges: true, badgePosition: position, onSelect: { _ in }, onActivate: { _ in }),
             size: .init(width: 1500, height: 440))
+        }
         let queuedRequest = CloudLibraryModel.Request(id: game.id, name: game.name, action: .restore(.app),
             storage: model.preference.storage, scope: .init(title: game.titleId!, urls: []),
             importDestination: nil, sourceFiles: nil, onSuccess: nil)

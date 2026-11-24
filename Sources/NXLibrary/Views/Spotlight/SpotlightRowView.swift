@@ -23,6 +23,7 @@ struct SpotlightRowView: View {
     var tileLook: (PortedGame) -> PortingTileLook = { _ in .normal }
     @ObservedObject var cloud: CloudLibraryModel
     let showsCloudBadges: Bool
+    var badgePosition: TileBadgePosition = .topRight
     /// Mods' art for the Mods card's face (up to four); empty draws Selene's own face.
     var modsCover: [URL] = []
     /// Spotlight's entrance (`SpotlightView+Entrance`): the tiles fly in from the centre while it plays.
@@ -178,7 +179,7 @@ struct SpotlightRowView: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(title(of: item))
         .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
-        .modifier(CloudLibraryTileBadge(state: cloudState, showsCopyBadge: showsCloudBadges,
+        .modifier(CloudLibraryTileBadge(state: cloudState, showsCopyBadge: showsCloudBadges, position: badgePosition,
                                         look: native.map(tileLook) ?? .normal))
         .overlay(alignment: .bottomTrailing) {
             NextendoOnlineBadge(titleID: native?.titleId, compact: true).padding(canvas.u(SeleneTokens.Space.small))

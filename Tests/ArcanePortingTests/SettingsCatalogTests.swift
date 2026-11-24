@@ -33,7 +33,7 @@ final class SettingsCatalogTests: XCTestCase {
         "quietLaunch", "importSeleneSounds", "colorThemeID", "wallpaperID", "settingsWallpaperID", "backgroundSizing",
         "wallpaperBrightness", "animatedBackground", "keepWallpaperOnGames", "backgroundShade", "readableText",
         "showClock", "reduceMotion", "iconAppearance", "boxCovers", "igdb", "steamGridDB", "librarySort", "launchStyle",
-        "launchMotion", "launchShade", "surprisePool", "cloudSaves", "cloudSavesPickedFolder", "showsSessionCard",
+        "launchMotion", "launchShade", "tileBadgePosition", "surprisePool", "cloudSaves", "cloudSavesPickedFolder", "showsSessionCard",
         "cloudLibraryEnabled", "cloudLibraryService", "cloudLibraryConnect", "cloudLibraryFolder", "cloudLibraryImport",
         "showsCloudPlayIcon", "showsCloudDetailsLink", "cloudTileBadges",
         "cloudLibrarySetup", "cloudLibraryAdvanced", "cloudSourcesRoot", "cloudReferenceFolder", "cloudLibraryTest", "cloudLibraryTool", "cloudLibraryDisconnect",
@@ -56,7 +56,7 @@ final class SettingsCatalogTests: XCTestCase {
 
     func testEveryRowSitsInItsNewSection() {
         let groups = Dictionary(uniqueKeysWithValues: SettingsCatalog.all.map { ($0.id, $0.group) })
-        for id in ["librarySort", "launchStyle", "launchMotion", "launchShade", "surprisePool", "showsSessionCard", "hiddenGames"] {
+        for id in ["librarySort", "launchStyle", "launchMotion", "launchShade", "tileBadgePosition", "surprisePool", "showsSessionCard", "hiddenGames"] {
             XCTAssertEqual(groups[id], .libraryGames, id)
         }
         XCTAssertEqual(groups["cloudSaves"], .cloudSaves)
@@ -182,7 +182,7 @@ final class SettingsCatalogTests: XCTestCase {
         "controllerStatus", "buttonLayout", "controllerDeadzone", "inGameHomeButton", "multiplayerVPN", "multiplayerDefault",
         "multiplayerLocalMode", "multiplayerAdapter", "nextendoClientID", "igdb", "steamGridDB", "steamSource",
         "steamRefresh", "steamFolder", "steamInBackground", "librarySort", "launchStyle", "launchMotion", "launchShade",
-        "surprisePool", "showsSessionCard", "hiddenGames", "storageUsage", "logs", "metadataCache", "artworkCache",
+        "tileBadgePosition", "surprisePool", "showsSessionCard", "hiddenGames", "storageUsage", "logs", "metadataCache", "artworkCache",
         "saveBackups", "checkEngineAtLaunch", "engineFolder", "engineStatus", "toolchainOverride", "upstream",
         "newestEngine", "compare", "setup", "keys", "refreshLibraryAtLaunch", "boxCovers", "gameFolder",
         "libraryFolder", "gameInboxEnabled", "libraryRefresh", "notifyPortingEnds", "gameDefaults.fullscreen", "gameDisplay",

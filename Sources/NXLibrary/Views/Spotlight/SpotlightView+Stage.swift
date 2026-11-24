@@ -81,6 +81,7 @@ extension SpotlightView {
                     tileLook: viewModel.portingTileLook,
                     cloud: viewModel.cloudLibrary,
                     showsCloudBadges: settings.settings.cloudTileBadges.showsOnSpotlight,
+                    badgePosition: settings.settings.tileBadgePosition,
                     modsCover: storeHost.cover,
                     entrance: entrance,
                     onEntranceEnd: { finishEntrance() },

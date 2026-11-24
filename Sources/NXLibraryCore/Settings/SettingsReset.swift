@@ -66,6 +66,7 @@ public enum SettingsReset {
             next.launchShade = defaults.launchShade
             next.showsSessionCard = defaults.showsSessionCard
             next.surprisePool = defaults.surprisePool
+            next.tileBadgePosition = defaults.tileBadgePosition
         case .library:
             next.gameInboxEnabled = defaults.gameInboxEnabled
             next.refreshLibraryAtLaunch = defaults.refreshLibraryAtLaunch
