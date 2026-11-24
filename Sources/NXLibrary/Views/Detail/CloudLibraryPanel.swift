@@ -129,6 +129,7 @@ struct CloudLibraryPanel: View {
             && item.artifact.map(state.personalCopyIsOlder) == true
         let downloadFill = CloudLibraryProgressView.downloadFill(state, item: item)
         let downloading = CloudLibraryProgressView.isDownloading(state, item: item)
+        let checkingDownload = state.progress?.phase == .verifying || state.progress?.phase == .restoring
         let ready = downloading && state.progress?.phase == .readyToInstall
         let downloadBytes = downloading ? CloudLibraryProgressView.bytesSummary(state.progress, context: localization) : nil
         let statusText = personalCopyIsOlder ? text("Your cloud copy is older") : indicator.label(context: localization)
@@ -170,7 +171,7 @@ struct CloudLibraryPanel: View {
                 }
                 HStack(spacing: canvas.u(10)) {
                     if interruption != nil { button(.resume, "Resume") }
-                    if downloading, control == .cancel {
+                    if downloading, !checkingDownload, control == .cancel {
                         downloadButton(nil, fill: downloadFill ?? 0, ready: ready)
                     }
                     if let control {
@@ -433,13 +434,17 @@ struct CloudLibraryPanel: View {
     private func freeDialog(_ selection: CloudFreeSelection) -> some View {
         SeleneOverlay(style: .dialog, onOutside: { freeSelection = nil }) {
             SeleneConfirmDialog(title: "Free up space",
-                message: text("Moves to the Trash. Empty it to reclaim space. Everything stays available to download."),
+                message: text("Your verified copy stays available in your personal cloud. Your saves are unchanged. Empty the Trash to reclaim space."),
                 confirmTitle: "Free up space", confirmEnabled: !selection.selected.isEmpty,
                 highlightsPills: freeFocus == .cancel || freeFocus == .confirm,
                 focus: Binding(get: { freeFocus == .confirm ? .confirm : .cancel },
                                set: { freeFocus = $0 == .cancel ? .cancel : .confirm }),
                 onCancel: { freeSelection = nil }, onConfirm: confirmFree) {
                 VStack(spacing: canvas.u(6)) {
+                    Text(freeSummary(selection))
+                        .seleneFont(.panelBody, .semibold)
+                        .foregroundColor(SeleneTheme.ink90)
+                        .fixedSize(horizontal: false, vertical: true)
                     ForEach(CloudLibraryItem.allCases, id: \.self) { item in
                         let size = selection.sizes[item].map(formattedBytes) ?? "—"
                         SeleneRow(item.title, subtitle: size, verbatimSubtitle: true) {
@@ -455,6 +460,20 @@ struct CloudLibraryPanel: View {
                 .padding(.top, canvas.u(18))
             }
         }
+    }
+
+    private func freeSummary(_ selection: CloudFreeSelection) -> String {
+        guard !selection.selected.isEmpty else { return text("No items selected.") }
+        var total: Int64 = 0
+        for item in selection.selected {
+            guard let bytes = selection.sizes[item], bytes >= 0 else {
+                return text("Trash on this Mac: total size unknown.")
+            }
+            let (sum, overflow) = total.addingReportingOverflow(bytes)
+            guard !overflow else { return text("Trash on this Mac: total size unknown.") }
+            total = sum
+        }
+        return L10n.format("On this Mac: %@ to move to the Trash.", [formattedBytes(total)], context: localization)
     }
 
     private func handleFree(_ action: GamepadAction, selection: CloudFreeSelection) {
