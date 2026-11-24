@@ -274,10 +274,10 @@ struct DetailsTopBlock: View {
 
     @ViewBuilder
     private var description: some View {
-        let excerpt = presentation.descriptionExcerpt
-        let wiki = expanded || excerpt == nil ? wikipedia : nil
-        let fullText = wikipedia?.text ?? presentation.description
-        let text = wiki?.text ?? (expanded ? presentation.description : excerpt ?? presentation.description)
+        let about = presentation.aboutDescription(wikipedia: wikipedia, language: localization.language)
+        let showingPreview = !expanded && about.preview != nil
+        let note = about.note(showingPreview: showingPreview)
+        let text = showingPreview ? about.preview ?? about.text : about.text
         VStack(alignment: .leading, spacing: canvas.u(6)) {
             if text.isEmpty {
                 Text(L10n.text("No description for this game yet."))
@@ -286,18 +286,13 @@ struct DetailsTopBlock: View {
             } else {
                 // Keep the action clear of the fixed screenshot band, even with a source and language note.
                 HStack(spacing: canvas.u(12)) {
-                    if let wiki {
-                        WikipediaCredit(pageURL: wiki.pageURL)
-                    } else {
-                        let source = !expanded && excerpt != nil ? "Nintendo Europe" : presentation.descriptionSource
-                        let language = !expanded && excerpt != nil ? nil : presentation.descriptionLanguageNote
-                        let note = [source.map { L10n.text($0) }, language]
-                            .compactMap { $0 }.joined(separator: " · ")
-                        if !note.isEmpty {
-                            Text(note).seleneFont(.metadata).foregroundColor(SeleneTheme.ink60)
-                        }
+                    if let note {
+                        Text(note).seleneFont(.metadata).foregroundColor(SeleneTheme.ink60)
                     }
-                    if fullText.count > Self.readMoreThreshold || (excerpt != nil && excerpt != fullText) {
+                    if !showingPreview, let page = about.wikipediaPage {
+                        WikipediaCredit(pageURL: page)
+                    }
+                    if about.text.count > Self.readMoreThreshold || about.preview != nil {
                         Button(expanded ? L10n.text("Show less") : L10n.text("Read more")) { expanded.toggle() }
                             .buttonStyle(.plain)
                             .seleneFont(.compactCaption, .semibold)

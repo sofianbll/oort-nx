@@ -58,7 +58,8 @@ extension GameDetailPresentation {
         self.init(title: title, console: console, eyebrow: eyebrow, description: description,
                   descriptionIsEnglishFallback: descriptionIsEnglishFallback,
                   descriptionLanguageNote: descriptionLanguageNote, descriptionLanguage: descriptionLanguage,
-                  descriptionSettled: descriptionSettled, descriptionExcerpt: metadata?.excerpt,
+                  descriptionSettled: descriptionSettled,
+                  descriptionExcerpt: metadata?.isInLanguage(L10n.context) == true ? metadata?.excerpt : nil,
                   descriptionIsExcerpt: metadata?.descriptionIsExcerpt == true,
                   descriptionSource: metadata.flatMap {
                       let source = $0.origin(for: .description)

@@ -115,12 +115,11 @@ extension SpotlightView {
     static let moreGap: CGFloat = 72
 
     /// About this game's cut for the page, as tall as the column beside it.
-    func aboutExcerpt(_ page: SpotlightPageModel) -> DescriptionExcerpt {
-        let full = aboutWikipedia(page)?.text ?? page.presentation.description
-        if let short = page.presentation.descriptionExcerpt, short != full {
+    func aboutExcerpt(_ about: GameAboutDescription) -> DescriptionExcerpt {
+        if let short = about.preview {
             return DescriptionExcerpt(text: short, truncated: true)
         }
-        return SpotlightDescription.excerpt(full, columnHeight: blocks[.column] ?? 0, canvas: canvas)
+        return SpotlightDescription.excerpt(about.text, columnHeight: blocks[.column] ?? 0, canvas: canvas)
     }
 
     func aboutLookup(_ page: SpotlightPageModel) -> WikipediaAboutLookup? {

@@ -324,7 +324,7 @@ Cartella `Sources/NXLibraryCore/Details/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibraryCore/Details/GameDetailPresentation.swift](../../Sources/NXLibraryCore/Details/GameDetailPresentation.swift) | Prepara badge, disponibilità delle azioni, date e dati della pagina Details; la pagina Steam è in `GameDetailPresentation+Steam.swift`, quella Switch in `ArcanePorting/Details/`. |
+| [Sources/NXLibraryCore/Details/GameDetailPresentation.swift](../../Sources/NXLibraryCore/Details/GameDetailPresentation.swift) | Prepara i dati della pagina Details e compone estratto, testo lungo e crediti per Details e Spotlight; le entrate Steam e Switch sono in estensioni distinte. |
 | [Sources/NXLibraryCore/Details/MoreLikeThis.swift](../../Sources/NXLibraryCore/Details/MoreLikeThis.swift) | Ordina i giochi correlati per generi, sviluppatore ed editore, con precedenza alla stessa fonte e ripiego facoltativo. |
 | [Sources/NXLibraryCore/Details/DetailsFacts.swift](../../Sources/NXLibraryCore/Details/DetailsFacts.swift) | Sceglie le righe del pannello Details (Steam qui, Switch in `ArcanePorting/Details/DetailsFacts+Porting.swift`): solo i valori presenti, niente identificativi tecnici. |
 | [Sources/NXLibraryCore/Details/DetailsFocus.swift](../../Sources/NXLibraryCore/Details/DetailsFocus.swift) | Gestisce zone e spostamenti del focus nei link e nelle bande di Details. |
@@ -1072,7 +1072,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/ArcanePortingTests/SourceCatalogTests.swift](../../Tests/ArcanePortingTests/SourceCatalogTests.swift) | Fixture PFS0/CNMT e riconoscimento di base, aggiornamenti e DLC. |
 | [Tests/ArcanePortingTests/GameInboxTests.swift](../../Tests/ArcanePortingTests/GameInboxTests.swift) | Nomi, chiavi mancanti, metadati ambigui, collisioni, duplicati, copia interrotta, ritrovamento e Cestino simulato. |
 | [Tests/ArcanePortingTests/EngineUpgradeSourcesTests.swift](../../Tests/ArcanePortingTests/EngineUpgradeSourcesTests.swift) | Cartelle estratte, pacchetti multipli, collegamento per ID esatto, persistenza, bridge Python e restaging senza perdita di originali. |
-| [Tests/NXLibraryCoreTests/SpotlightPageTests.swift](../../Tests/NXLibraryCoreTests/SpotlightPageTests.swift) | Estratti del testo e stati dello scorrimento della pagina del gioco. |
+| [Tests/NXLibraryCoreTests/SpotlightPageTests.swift](../../Tests/NXLibraryCoreTests/SpotlightPageTests.swift) | Estratti, precedenza e crediti del testo nella lingua del giocatore, e stati dello scorrimento. |
 | [Tests/ArcanePortingTests/SpotlightRowTests.swift](../../Tests/ArcanePortingTests/SpotlightRowTests.swift) | Ordine, card, riordino delle tile, gioco avviato primo nell’ordine salvato e selezione Surprise. |
 | [Tests/NXLibraryCoreTests/SpotlightStateTests.swift](../../Tests/NXLibraryCoreTests/SpotlightStateTests.swift) | Focus, selezione, filtri, azioni e spostamento delle tile Spotlight. |
 | [Tests/NXLibraryCoreTests/SpotlightEntranceTests.swift](../../Tests/NXLibraryCoreTests/SpotlightEntranceTests.swift) | Partenze, tempi di volo e dissolvenza, bordi, durata, messaggio vuoto, avanzamento degli effetti e fasi dell’entrata; interruttore e Riduci movimento. |

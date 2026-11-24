@@ -40,6 +40,26 @@ public struct GameDetailPresentation: Equatable {
     public let appPath: String
     public let savePath: String
 
+    package static let shortStoreDescriptionLimit = 200
+
+    /// The same text and credits feed Details and Spotlight, including the collapsed view.
+    package func aboutDescription(wikipedia: WikipediaDescription?, language: AppLanguage) -> GameAboutDescription {
+        let excerpt = descriptionExcerpt
+        let sameLanguage = descriptionLanguage == String(language.rawValue.prefix(2))
+        let short = excerpt.map { $0.count < Self.shortStoreDescriptionLimit } == true
+        let hasLocalLongText = sameLanguage && !descriptionIsExcerpt && description.count >= Self.shortStoreDescriptionLimit
+        let wiki = short && hasLocalLongText ? nil : wikipedia
+        let full = wiki?.text ?? description
+        if let excerpt, short, wiki != nil || sameLanguage, full.count > excerpt.count {
+            let text = full.hasPrefix(excerpt) ? full : excerpt + " " + full
+            return .init(text: text, sources: ["Nintendo Europe", wiki == nil ? descriptionSource : nil].compactMap { $0 },
+                         wikipediaPage: wiki?.pageURL)
+        }
+        return .init(text: full, preview: excerpt == full ? nil : excerpt,
+                     sources: [wiki == nil ? descriptionSource : nil].compactMap { $0 },
+                     languageNote: wiki == nil ? descriptionLanguageNote : nil, wikipediaPage: wiki?.pageURL)
+    }
+
     /// Every value of the page, for a source's own entry (`GameDetailPresentation+Porting.swift`).
     package init(title: String, console: String, eyebrow: String, description: String,
                  descriptionIsEnglishFallback: Bool, descriptionLanguageNote: String?, descriptionLanguage: String?,
@@ -137,5 +157,20 @@ public struct GameDetailPresentation: Equatable {
         var components = URLComponents(string: "https://howlongtobeat.com/")
         components?.queryItems = [URLQueryItem(name: "q", value: name)]
         return components?.url
+    }
+}
+
+package struct GameAboutDescription {
+    package let text: String
+    package var preview: String?
+    package let sources: [String]
+    package var languageNote: String?
+    package var wikipediaPage: URL?
+
+    package func note(showingPreview: Bool) -> String? {
+        let credits = showingPreview ? ["Nintendo Europe"] : sources
+        let note = (credits.map { L10n.text($0) } + (showingPreview ? [] : [languageNote].compactMap { $0 }))
+            .joined(separator: " · ")
+        return note.isEmpty ? nil : note
     }
 }

@@ -90,15 +90,11 @@ extension SpotlightView {
     private func aboutAndColumn<Panel: View>(_ page: SpotlightPageModel, state: SpotlightState,
                                              @ViewBuilder panel: () -> Panel) -> some View {
         HStack(alignment: .top, spacing: 0) {
-            let excerpt = aboutExcerpt(page)
-            let wikipedia = aboutWikipedia(page)
-            let short = !aboutExpanded && page.presentation.descriptionExcerpt != nil
-            let source = short ? "Nintendo Europe" : page.presentation.descriptionSource
-            let note = [source.map { L10n.text($0) }, short ? nil : page.presentation.descriptionLanguageNote]
-                .compactMap { $0 }.joined(separator: " · ")
-            SpotlightDescription(text: wikipedia?.text ?? page.presentation.description,
-                                 languageNote: note.isEmpty ? nil : note,
-                                 wikipediaPage: short ? nil : wikipedia?.pageURL, excerpt: excerpt,
+            let about = page.presentation.aboutDescription(wikipedia: aboutWikipedia(page), language: L10n.context.language)
+            let excerpt = aboutExcerpt(about)
+            let showingPreview = !aboutExpanded && about.preview != nil
+            SpotlightDescription(text: about.text, languageNote: about.note(showingPreview: showingPreview),
+                                 wikipediaPage: showingPreview ? nil : about.wikipediaPage, excerpt: excerpt,
                                  expanded: aboutExpanded, focused: state.focus == .about,
                                  onToggle: { aboutExpanded.toggle() })
                 .spotlightBlock(.about)
