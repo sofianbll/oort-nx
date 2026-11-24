@@ -1,4 +1,5 @@
 import AppKit
+import CoreHaptics
 import GameController
 import NXLibraryCore
 
@@ -7,6 +8,10 @@ final class GCControllerSource: ControllerSource {
     private var observers: [NSObjectProtocol] = []
     private var controller: GCController?
     private var unbind: (() -> Void)?
+    private var connected: [ObjectIdentifier: GCController] = [:]
+    private var unbindActivity: [ObjectIdentifier: () -> Void] = [:]
+    private var stopIdentification: [ObjectIdentifier: () -> Void] = [:]
+    var preferredID: ObjectIdentifier? { controller.map(ObjectIdentifier.init) }
 
     func start() {
         guard observers.isEmpty else { return }
@@ -19,9 +24,9 @@ final class GCControllerSource: ControllerSource {
     }
 
     func stop() {
-        let previous = controller.map(ObjectIdentifier.init)
+        let previous = Array(connected.keys)
         tearDown()
-        if let previous { onEvent?(.disconnected(previous)) }
+        for id in previous { onEvent?(.disconnected(id)) }
     }
 
     deinit { tearDown() }
@@ -32,29 +37,122 @@ final class GCControllerSource: ControllerSource {
         unbind?()
         unbind = nil
         controller = nil
+        for cleanup in unbindActivity.values { cleanup() }
+        for cleanup in stopIdentification.values { cleanup() }
+        unbindActivity.removeAll()
+        stopIdentification.removeAll()
+        connected.removeAll()
     }
 
     func refresh() {
         guard !observers.isEmpty else { return }
         // A controller without an extended profile can't drive the launcher.
-        let next = GCController.controllers().first { $0.extendedGamepad != nil }
+        let controllers = GCController.controllers().filter { !$0.isSnapshot }
+        let next = controllers.first { $0.extendedGamepad != nil }
         let previous = controller
+        let current = Set(controllers.map(ObjectIdentifier.init))
+        let removed = connected.keys.filter { !current.contains($0) }
+        for id in removed {
+            unbindActivity.removeValue(forKey: id)?()
+            stopIdentification.removeValue(forKey: id)?()
+            connected.removeValue(forKey: id)
+        }
         if previous !== next {
+            if let previous { unbindActivity.removeValue(forKey: ObjectIdentifier(previous))?() }
+            if let next { unbindActivity.removeValue(forKey: ObjectIdentifier(next))?() }
             unbind?()
             unbind = nil
             controller = next
         }
-        if let next, let pad = next.extendedGamepad {
-            let name = next.vendorName ?? "Gamepad"
-            let brand = Self.brand(vendor: name, category: next.productCategory)
-            let face = Self.faceButtons(pad, nintendo: brand == .nintendoSwitch)
-            let view = Self.viewButton(pad, brand: brand)
-            if unbind == nil { bind(next, pad: pad, face: face, view: view) }
-            onEvent?(.connected(ControllerIdentity(id: ObjectIdentifier(next), name: next.vendorName, brand: brand,
-                                                  symbols: Self.symbols(pad, face: face, view: view))))
-        }
         // Publish a replacement first so the service doesn't briefly fall back to HID.
-        if let previous, previous !== next { onEvent?(.disconnected(ObjectIdentifier(previous))) }
+        let ordered = (next.map { [$0] } ?? []) + controllers.filter { $0 !== next }
+        for item in ordered {
+            let id = ObjectIdentifier(item)
+            connected[id] = item
+            let brand = Self.brand(vendor: item.vendorName ?? "", category: item.productCategory)
+            let pad = item.extendedGamepad
+            var symbols: [PromptButton: String] = [:]
+            if item === next, let pad {
+                let face = Self.faceButtons(pad, nintendo: brand == .nintendoSwitch)
+                let view = Self.viewButton(pad, brand: brand)
+                if unbind == nil { bind(item, pad: pad, face: face, view: view) }
+                symbols = Self.symbols(pad, face: face, view: view)
+            } else if unbindActivity[id] == nil {
+                bindActivity(item, excluding: [])
+            }
+            onEvent?(.connected(ControllerIdentity(id: id, name: item.vendorName, brand: brand, symbols: symbols,
+                                                  supportsNavigation: pad != nil)))
+        }
+        for id in removed { onEvent?(.disconnected(id)) }
+    }
+
+    private func bindActivity(_ controller: GCController, excluding: Set<ObjectIdentifier>) {
+        let id = ObjectIdentifier(controller)
+        let profile = controller.physicalInputProfile
+        let directions = profile.dpads.values.flatMap { [$0.up, $0.down, $0.left, $0.right] }
+        var seen = excluding
+        let buttons = (Array(profile.buttons.values) + directions).filter { seen.insert(ObjectIdentifier($0)).inserted }
+        for button in buttons {
+            button.pressedChangedHandler = { [weak self, weak controller] _, _, pressed in
+                guard pressed else { return }
+                let deliver = { [weak self, weak controller] in
+                    guard let self, let controller, self.connected[id] === controller else { return }
+                    self.onEvent?(.buttonPressed(id))
+                }
+                if Thread.isMainThread { deliver() } else { DispatchQueue.main.async(execute: deliver) }
+            }
+        }
+        unbindActivity[id] = {
+            for button in buttons { button.pressedChangedHandler = nil }
+        }
+    }
+
+    func status(_ id: ObjectIdentifier) -> ControllerStatus {
+        guard let controller = connected[id] else { return .init() }
+        let battery = controller.battery
+        let level = battery.flatMap { (0...1).contains($0.batteryLevel) ? $0.batteryLevel : nil }
+        let charging: Bool?
+        switch battery?.batteryState {
+        case .charging: charging = true
+        case .full, .discharging: charging = false
+        default: charging = nil
+        }
+        return .init(batteryLevel: level, isCharging: charging, canIdentifyWithLights: controller.light != nil,
+                     canIdentifyWithRumble: controller.haptics != nil)
+    }
+
+    func identify(_ id: ObjectIdentifier) -> Bool {
+        guard let controller = connected[id] else { return false }
+        stopIdentification.removeValue(forKey: id)?()
+        let cleanup: () -> Void
+        let duration: TimeInterval
+        if let light = controller.light {
+            let previous = light.color
+            let flash = previous.red > 0.5 ? GCColor(red: 0, green: 0.7, blue: 1) : GCColor(red: 1, green: 1, blue: 1)
+            light.color = flash
+            cleanup = { if light.color == flash { light.color = previous } }
+            duration = 0.7
+        } else if let engine = controller.haptics?.createEngine(withLocality: .default) {
+            do {
+                let event = CHHapticEvent(eventType: .hapticContinuous,
+                                          parameters: [.init(parameterID: .hapticIntensity, value: 0.55)],
+                                          relativeTime: 0, duration: 0.25)
+                let player = try engine.makePlayer(with: CHHapticPattern(events: [event], parameters: []))
+                try engine.start()
+                try player.start(atTime: CHHapticTimeImmediate)
+                cleanup = { _ = player; engine.stop(completionHandler: nil) }
+                duration = 0.35
+            } catch {
+                engine.stop(completionHandler: nil)
+                return false
+            }
+        } else { return false }
+        let timer = Timer(timeInterval: duration, repeats: false) { [weak self] _ in
+            self?.stopIdentification.removeValue(forKey: id)?()
+        }
+        stopIdentification[id] = { timer.invalidate(); cleanup() }
+        RunLoop.main.add(timer, forMode: .common)
+        return true
     }
 
     private func bind(_ controller: GCController, pad: GCExtendedGamepad, face: FaceButtons,
@@ -103,6 +201,7 @@ final class GCControllerSource: ControllerSource {
             button.pressedChangedHandler = { _, _, pressed in emit(.button(control, pressed)) }
         }
         pad.leftThumbstick.valueChangedHandler = { _, x, y in emit(.leftStick(SIMD2(x, y))) }
+        bindActivity(controller, excluding: Set(buttons.map { ObjectIdentifier($0.0) }))
         unbind = {
             unbindHome?()
             for (button, _) in buttons { button.pressedChangedHandler = nil }
@@ -118,7 +217,7 @@ final class GCControllerSource: ControllerSource {
         return button === pad.buttonMenu ? nil : button
     }
 
-    private static func brand(vendor: String, category: String) -> GamepadBrand {
+    static func brand(vendor: String, category: String) -> GamepadBrand {
         switch category {
         case GCProductCategoryDualSense, GCProductCategoryDualShock4: return .playstation
         case GCProductCategoryXboxOne: return .xbox
