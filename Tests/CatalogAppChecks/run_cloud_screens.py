@@ -772,6 +772,8 @@ def main():
         change(app / "ViewModels/AppViewModel+CloudLibrary.swift",
                r'        let defaults = AppData\.preferences.*?(?=        rebuildArchive\(\))',
                '        preference = .init(storage: "fixture:Games", enabled: true, sourcesRoot: nil)\n'
+               '        AppData.preferences.set(preference.storage, forKey: CloudLibraryPreference.storageKey)\n'
+               '        AppData.preferences.set(preference.enabled, forKey: CloudLibraryPreference.enabledKey)\n'
                '        chosenExecutable = nil\n')
         section = app / "Views/Settings/SettingsCloudLibrarySection.swift"
         change(section,
