@@ -3,6 +3,14 @@ import NXLibraryCore
 import ArcanePorting
 
 extension AppViewModel {
+    @MainActor func activateCloudActivityRow(_ row: ActivityCenterFocus.Row) {
+        switch row {
+        case .cloud(let token): pauseCloudTransfer(token)
+        case .queuedCloud(let token): resumeCloudTransfer(token)
+        default: break
+        }
+    }
+
     @MainActor func restoreActivity() async {
         guard !hasLoadedActivity else { return }
         let history = await activityStore.load()

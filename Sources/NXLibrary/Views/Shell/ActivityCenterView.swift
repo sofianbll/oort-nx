@@ -32,13 +32,24 @@ struct ActivityCenterView: View {
         return results.count == 1 && results.first == cloud.pendingMove?.id ? rows.filter { $0 != .clearAll } : rows
     }
 
+    static func selectedRow(_ focus: ActivityCenterFocus, in rows: [ActivityCenterFocus.Row]) -> ActivityCenterFocus.Row {
+        if let selected = focus.selected, !rows.contains(selected) {
+            switch selected {
+            case .cloud(let token) where rows.contains(.queuedCloud(token)): return .queuedCloud(token)
+            case .queuedCloud(let token) where rows.contains(.cloud(token)): return .cloud(token)
+            default: break
+            }
+        }
+        return focus.current(in: rows)
+    }
+
     private var focusInset: EdgeInsets {
         EdgeInsets(top: canvas.u(12), leading: canvas.u(24), bottom: canvas.u(12), trailing: canvas.u(24))
     }
 
     var body: some View {
         let rows = Self.rows(viewModel)
-        let focused = focus.current(in: rows)
+        let focused = Self.selectedRow(focus, in: rows)
         SeleneOverlay(style: .activity, alignment: .bottom, onOutside: onOutside) {
             VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.panel)) {
                 Text(text("Activity center")).seleneFont(.panelTitle, .semibold)
@@ -90,15 +101,20 @@ struct ActivityCenterView: View {
             ].compactMap { $0 }
         case .clearAll:
             return [HintItem(.a, "Clear all", action: { onOpen(row) })]
-        case .queuedCloud(let token) where cloudLibrary.interruption(of: token) != nil:
-            return [HintItem(.a, "Resume", action: { onOpen(row) }),
-                    HintItem(.x, "Cancel", action: { onCancel(row) })]
         default: break
         }
         return [
-            row.opensPorting ? HintItem(.a, "Open", action: { onOpen(row) }) : nil,
+            primaryTitle(row).map { HintItem(.a, $0, action: { onOpen(row) }) },
             canCancel(row) ? HintItem(.x, "Cancel", action: { onCancel(row) }) : nil
         ].compactMap { $0 }
+    }
+
+    private func primaryTitle(_ row: ActivityCenterFocus.Row) -> String? {
+        switch row {
+        case .cloud(let token) where cloudLibrary.canPause(token): return "Pause"
+        case .queuedCloud(let token) where cloudLibrary.canResume(token): return "Resume"
+        default: return row.opensPorting ? "Open" : nil
+        }
     }
 
     @ViewBuilder private func section(_ key: String, empty: String? = nil, rows: [ActivityCenterFocus.Row],
@@ -140,9 +156,7 @@ struct ActivityCenterView: View {
                         let job = liveJob(row)
                         let indicator = transferIndicator(row)
                         let cloud = !row.opensPorting
-                        let interrupted: Bool = if case .queuedCloud(let token) = row {
-                            cloudLibrary.interruption(of: token) != nil
-                        } else { false }
+                        let command = row.opensPorting ? nil : primaryTitle(row)
                         let color = cloud ? (indicator?.status ?? .pending).color
                             : (job.active ? SeleneTheme.ink : SeleneTheme.ink60)
                         let moving: Bool = if case .move = row { cloudLibrary.libraryMove?.canCancel == true } else { false }
@@ -153,7 +167,7 @@ struct ActivityCenterView: View {
                                     color: color, progressColor: cloud ? color : SeleneTheme.focus,
                                     focused: focused == row, open: row.opensPorting ? { onOpen(row) } : nil,
                                     cancel: canCancel(row) ? { onCancel(row) } : nil,
-                                    retry: interrupted ? { onOpen(row) } : nil, retryTitle: "Resume", clear: nil)
+                                    retry: command == nil ? nil : { onOpen(row) }, retryTitle: command ?? "Retry", clear: nil)
                     }
                 }
                 .id(row)
@@ -191,14 +205,16 @@ struct ActivityCenterView: View {
             let fraction = state?.transfer()?.gauge(hasCover: false, hasDownloadPill: false) == .bar
                 ? CloudTransferPresentation.fraction(progress) : nil
             return (title(.cloud(request.entry), name: request.name),
-                    CloudLibraryProgressView.bytesSummary(progress, context: localization),
+                    state?.pauseUnavailable == true ? text("This transfer cannot be paused.")
+                        : CloudLibraryProgressView.bytesSummary(progress, context: localization),
                     fraction, true)
         case .queuedCloud(let token):
             guard let request = cloudLibrary.queue.first(where: { $0.token == token }) else {
                 return (text("Cloud"), nil, nil, false)
             }
             return (title(.cloud(request.entry), name: request.name),
-                    cloudLibrary.interruption(of: token)?.message(context: localization), nil, false)
+                    request.isUserPaused ? text("The current file may restart from the beginning.")
+                        : cloudLibrary.interruption(of: token)?.message(context: localization), nil, false)
         case .move:
             guard let move = cloudLibrary.libraryMove else { return (text("Move library"), nil, nil, true) }
             return (title(.move(move.request), name: move.request.destination),
@@ -218,7 +234,7 @@ struct ActivityCenterView: View {
         case .build: return viewModel.isBuilding && !porting.isInstallingBuild
             && row.canCancel(isCancellingBuild: porting.isCancellingBuild)
         case .move: return cloudLibrary.libraryMove?.canCancel == true
-        case .cloud, .queuedCloud: return transferIndicator(row)?.state.transfer()?.canCancel == true
+        case .cloud(let token), .queuedCloud(let token): return cloudLibrary.canCancelCloud(token)
         default: return row.canCancel(isCancellingBuild: porting.isCancellingBuild)
         }
     }
