@@ -2062,8 +2062,9 @@ extension AppViewModel {
                 switch operation {
                 case .upload(let kind):
                     if !operation.allowsPlay { try gameClosed() }
-                    _ = try await archive.upload(target, kinds: Set(kind.map { [$0] } ?? CloudArtifactKind.allCases),
-                                                 progress: progress, beforePublication: operation.allowsPlay ? {} : gameClosed)
+                    let manifest = try await archive.upload(target, kinds: Set(kind.map { [$0] } ?? CloudArtifactKind.allCases),
+                                                            progress: progress, beforePublication: operation.allowsPlay ? {} : gameClosed)
+                    if kind != .cache { await self.recordPersonalApp(manifest, for: target, scope: request.driveScope) }
                     self.cloudLibrary.update(id) { $0.mustResendBoth = false }
                 case .free(let items):
                     for item in CloudLibraryItem.allCases where items.contains(item) {
@@ -2142,6 +2143,9 @@ extension AppViewModel {
                     if kind == .app, let url = target.locations[.app] {
                         GameIconProvider.forget(game)
                         self.applyCatalog(try self.catalogRepository.recordCloudAppRestore(id: id, at: url))
+                        if request.sourceReference == nil, let own {
+                            await self.recordPersonalApp(own, for: target, scope: request.driveScope)
+                        }
                     }
                     if kind == .cache, let url = target.locations[.cache], game.buildCachePath == nil {
                         self.applyCatalog(try self.catalogRepository.updateNXNative(id: id) {
@@ -2195,6 +2199,17 @@ extension AppViewModel {
                     }
                 }
             }
+        }
+    }
+
+    @MainActor private func recordPersonalApp(_ manifest: CloudGameManifest, for game: CloudArchiveGame,
+                                              scope: CloudDriveScope?) async {
+        guard let scope else { return }
+        let store = PersonalAppReceipt.Store()
+        do {
+            try await Task.detached(priority: .utility) { try store.record(manifest, for: game, scope: scope) }.value
+        } catch {
+            logs.append(LogEntry(level: .warning, message: "Could not save the personal app receipt."))
         }
     }
 
