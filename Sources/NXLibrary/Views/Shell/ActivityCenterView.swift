@@ -205,7 +205,7 @@ struct ActivityCenterView: View {
             let fraction = state?.transfer()?.gauge(hasCover: false, hasDownloadPill: false) == .bar
                 ? CloudTransferPresentation.fraction(progress) : nil
             return (title(.cloud(request.entry), name: request.name),
-                    state?.pauseUnavailable == true ? text("This transfer cannot be paused.")
+                    cloudLibrary.explainsNoPause(request.token) ? text("This transfer cannot be paused.")
                         : CloudLibraryProgressView.bytesSummary(progress, context: localization),
                     fraction, true)
         case .queuedCloud(let token):

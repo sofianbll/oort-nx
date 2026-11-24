@@ -438,6 +438,11 @@ final class CloudLibraryModel: ObservableObject {
         return pauseWindow?.withLock { $0 } == true
     }
 
+    func explainsNoPause(_ token: UUID) -> Bool {
+        guard let request = active?.request, request.token == token, let state = states[request.id] else { return false }
+        return state.pauseUnavailable || (state.progress?.phase == .downloading && !request.supportsPause)
+    }
+
     func canCancelCloud(_ token: UUID) -> Bool {
         if let request = active?.request, request.token == token {
             guard !request.isUserPaused else { return false }
@@ -2528,8 +2533,8 @@ extension AppViewModel {
         try gameClosed()
         cloudLibrary.update(request.id) { $0.progress = .init(phase) }
         let transfer: CloudGameSources.Progress = { value in
-            progress(.init(value.isVerifying ? .verifying : phase, transfer: value,
-                downloadComplete: phase == .downloading && value.isVerifying && value.bytesTransferred >= value.totalBytes))
+            let complete = phase == .downloading && value.totalBytes > 0 && value.bytesTransferred >= value.totalBytes
+            progress(.init(value.isVerifying || complete ? .verifying : phase, transfer: value, downloadComplete: complete))
         }
         switch phase {
         case .uploading:

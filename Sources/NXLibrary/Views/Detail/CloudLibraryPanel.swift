@@ -140,6 +140,9 @@ struct CloudLibraryPanel: View {
         let interrupted = state.activeItem == item ? self.interrupted : nil
         let interruption = interrupted.flatMap { model.interruption(of: $0.token) }
         let canPause = state.activeItem == item && pausable != nil
+        let cannotPause = state.activeItem == item && model.active.map {
+            $0.request.id == game.id && model.explainsNoPause($0.request.token)
+        } == true
         let personalCopyIsOlder = !live && !state.queued && !indicator.appPublished
             && item.artifact.map(state.personalCopyIsOlder) == true
         let downloadFill = CloudLibraryProgressView.downloadFill(state, item: item)
@@ -212,7 +215,7 @@ struct CloudLibraryPanel: View {
                     .textSelection(.enabled)
                     .help(path)
             }
-            if interrupted?.isUserPaused == true || state.activeItem == item && state.pauseUnavailable || interruption != nil {
+            if interrupted?.isUserPaused == true || cannotPause || interruption != nil {
                 Text(interrupted?.isUserPaused == true ? text("The current file may restart from the beginning.")
                      : interruption?.message(context: localization) ?? text("This transfer cannot be paused."))
                     .seleneFont(.compactCaption)
@@ -311,13 +314,14 @@ struct CloudLibraryPanel: View {
 
     private var controls: [Control] {
         let close: [Control] = showHints ? [] : [.close]
+        if state.action != nil {
+            let primary: [Control] = interrupted != nil ? [.resume] : pausable != nil ? [.pause] : []
+            return primary + visibleItems.compactMap(artifactControl) + close + [.advanced]
+        }
         if model.archive == nil { return close + [.settings] }
         if unavailable != nil { return close }
         let artifacts = visibleItems.compactMap(artifactControl) + (state.previousApp == nil ? [] : [.previousApp])
-        if state.action != nil || state.refreshing {
-            let primary: [Control] = interrupted != nil ? [.resume] : pausable != nil ? [.pause] : []
-            return primary + artifacts + close + [.advanced]
-        }
+        if state.refreshing { return artifacts + close + [.advanced] }
         var buttons = artifacts + close + [.advanced]
         if let failure = state.failure ?? (state.message == nil && state.issue == nil && state.sourcesMessage == nil
                                            ? model.checkFailure : nil), canRecover(failure) {
