@@ -3,7 +3,7 @@ import NXLibraryCore
 import ArcanePorting
 
 struct NextendoClientDialog: View {
-    @ObservedObject var settings: AppSettingsStore
+    @ObservedObject var settings: SettingsEditor
     let onClose: () -> Void
     @State private var draft = ""
     @State private var focus: SeleneConfirmButton = .confirm

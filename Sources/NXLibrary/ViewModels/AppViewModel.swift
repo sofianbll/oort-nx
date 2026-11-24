@@ -544,6 +544,7 @@ final class AppViewModel: ObservableObject {
 
     func reopenSetup() {
         guard !isBuilding, !isUpdatingApp else { return }
+        if router?.requestSettingsDeparture({ [weak self] in self?.reopenSetup() }) == true { return }
         firstRunSetup.goBack()
         showSetupCheck = true
     }

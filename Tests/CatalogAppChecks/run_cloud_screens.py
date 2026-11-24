@@ -136,7 +136,7 @@ import ArcanePorting
         L10n.setContext(.init(language: .french, region: "FR"))
         model.setReferenceFolder("1-arcane-fixture")
         func referenceSettings() -> some View {
-            SettingsCloudLibrarySection(viewModel: vm, model: model, settings: settings, advanced: .constant(false),
+            SettingsCloudLibrarySection(viewModel: vm, model: model, settings: SettingsEditor(settings), advanced: .constant(false),
                 onEdit: {}, onEditLibrary: {}, onEditSources: {}, onActions: { _ in })
                 .environment(\.nxAppLocale, L10n.context)
                 .padding(24).frame(width: 1040)
@@ -558,7 +558,7 @@ extension CloudScreenProbe {
         precondition(!model.sourcesNeedConfirmation)
         model.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: "Games/GameFiles")
         precondition(model.sourcesNeedConfirmation && model.sourceArchive == nil)
-        let sourceSettings = SettingsCloudLibrarySection(viewModel: vm, model: model, settings: settings,
+        let sourceSettings = SettingsCloudLibrarySection(viewModel: vm, model: model, settings: SettingsEditor(settings),
             advanced: .constant(false), onEdit: {}, onEditLibrary: {}, onEditSources: {}, onActions: { _ in })
         try render("settings-sources-confirmation-fr", output, sourceSettings.environment(\.nxAppLocale, fr)
             .padding(24).frame(width: 1040))
@@ -1109,7 +1109,7 @@ DISPLAY_FIXTURE = r'''
         let displayLocale = AppLocale(language: .french, region: "FR")
         L10n.setContext(displayLocale)
         func displaySettings() -> some View {
-            SettingsGamesSection(viewModel: vm, settings: settings, onActions: { _ in })
+            SettingsGamesSection(viewModel: vm, settings: SettingsEditor(settings), onActions: { _ in })
                 .environment(\.nxAppLocale, displayLocale)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(12).frame(height: 200, alignment: .top).clipped()
@@ -1900,7 +1900,7 @@ extension AppViewModel {
                   cloudLibrary.referenceCheck?.incomplete == true else { return false }
         }
         let settings = AppSettingsStore(fileURL: AppData.supportRoot.appendingPathComponent("reference-settings-fixture.json"))
-        let section = SettingsCloudLibrarySection(viewModel: self, model: cloudLibrary, settings: settings, advanced: .constant(false),
+        let section = SettingsCloudLibrarySection(viewModel: self, model: cloudLibrary, settings: SettingsEditor(settings), advanced: .constant(false),
             onEdit: {}, onEditLibrary: {}, onEditSources: {}, onActions: { _ in })
         try CloudScreenProbe.render("reference-incomplete", output, section
             .environment(\.nxAppLocale, .init(language: .french, region: "FR")).padding(24).frame(width: 1040))

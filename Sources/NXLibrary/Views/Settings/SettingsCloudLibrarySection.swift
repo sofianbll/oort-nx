@@ -7,7 +7,7 @@ import SwiftUI
 struct SettingsCloudLibrarySection: View {
     @ObservedObject var viewModel: AppViewModel
     @ObservedObject var model: CloudLibraryModel
-    @ObservedObject var settings: AppSettingsStore
+    @ObservedObject var settings: SettingsEditor
     @Binding var advanced: Bool
     let onEdit: () -> Void
     let onEditLibrary: () -> Void

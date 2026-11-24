@@ -98,7 +98,15 @@ final class AppViewModel {
         AppDelegate.requestGuestQuit = { guestPrompts += 1 }
         let app = NSApplication.shared
         owner.porting.isAdoptingBuildCache = true
+        var afterSettings: (() -> Void)?
+        AppDelegate.requestSettingsQuit = { proceed in
+            afterSettings = proceed
+            return true
+        }
         app.terminate(nil)
+        guard afterSettings != nil, guestPrompts == 0, !cloud.isQuitting, app.quits == 0 else { exit(7) }
+        AppDelegate.requestSettingsQuit = nil
+        afterSettings?() // After Save/Discard, run the original delegate checks again.
         guard guestPrompts == 0, !cloud.isQuitting, app.quits == 0 else { exit(6) }
         owner.porting.isAdoptingBuildCache = false
         app.terminate(nil)

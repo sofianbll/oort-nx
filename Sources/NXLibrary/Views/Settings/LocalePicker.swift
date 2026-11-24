@@ -7,7 +7,7 @@ enum LocalePickerMode { case language, region }
 /// Direct language selection and searchable regional formats share the same input behavior.
 struct LocalePicker: View {
     let mode: LocalePickerMode
-    @ObservedObject var settings: AppSettingsStore
+    @ObservedObject var settings: SettingsEditor
     let canHandleInput: () -> Bool
     let onClose: () -> Void
     @ObservedObject private var localization = AppLocalization.shared

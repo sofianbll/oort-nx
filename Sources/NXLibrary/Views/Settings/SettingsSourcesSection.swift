@@ -5,7 +5,7 @@ import NXLibraryCore
 @MainActor
 struct SettingsSourcesSection: View {
     @ObservedObject var viewModel: AppViewModel
-    @ObservedObject var settings: AppSettingsStore
+    @ObservedObject var settings: SettingsEditor
     @EnvironmentObject private var sources: CatalogSourcesModel
     @Environment(\.nxAppLocale) private var localization
     let onActions: ([SettingsRowAction]) -> Void

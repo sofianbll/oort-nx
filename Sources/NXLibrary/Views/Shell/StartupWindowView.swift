@@ -102,7 +102,7 @@ private final class CloudWindowCloseGuard: NSObject, NSWindowDelegate {
     weak var original: NSWindowDelegate?
 
     func windowShouldClose(_ sender: NSWindow) -> Bool {
-        if AppDelegate.cloudLibrary?.isWorking == true {
+        if AppDelegate.cloudLibrary?.isWorking == true || AppDelegate.settingsStore?.draft?.hasChanges == true {
             NSApp.terminate(nil)
             return false
         }

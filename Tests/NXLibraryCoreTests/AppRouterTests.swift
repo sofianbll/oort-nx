@@ -42,6 +42,59 @@ final class AppRouterTests: XCTestCase {
         XCTAssertEqual(router.route, .library)
     }
 
+    func testSettingsDepartureDoesNotDiscardOrPopHistoryUntilResolved() {
+        let router = AppRouter()
+        var dirty = true
+        router.hasPendingSettings = { dirty }
+        router.openSettings(.look)
+        router.openSettings(.multiplayer)
+        XCTAssertEqual(router.previousRoute, .library)
+        XCTAssertNil(router.settingsDecision)
+
+        router.back()
+        XCTAssertEqual(router.settingsDecision, .leave)
+        XCTAssertEqual(router.route, .settings(.multiplayer))
+        XCTAssertEqual(router.previousRoute, .library)
+        router.finishSettingsDecision(proceed: false)
+        XCTAssertEqual(router.route, .settings(.multiplayer))
+        XCTAssertNil(router.settingsDecision)
+
+        router.openCollection()
+        XCTAssertEqual(router.settingsDecision, .leave)
+        dirty = false
+        router.finishSettingsDecision(proceed: true)
+        XCTAssertEqual(router.route, .collection)
+    }
+
+    func testSettingsMenuAndQuitDeferOneContinuation() {
+        let router = AppRouter()
+        var dirty = true
+        var quitCalls = 0
+        router.hasPendingSettings = { dirty }
+        router.openSettings(.look)
+        router.isMenuPresented = true
+        XCTAssertFalse(router.isMenuPresented)
+        XCTAssertEqual(router.settingsDecision, .leave)
+        XCTAssertTrue(router.requestSettingsDeparture { quitCalls += 1 })
+        dirty = false
+        router.finishSettingsDecision(proceed: true)
+        XCTAssertTrue(router.isMenuPresented)
+        XCTAssertEqual(quitCalls, 0)
+
+        router.closeMenu()
+        dirty = true
+        XCTAssertTrue(router.requestSettingsDeparture { quitCalls += 1 })
+        dirty = false
+        router.finishSettingsDecision(proceed: true)
+        XCTAssertEqual(quitCalls, 1)
+
+        dirty = true
+        router.requestSettingsSave()
+        XCTAssertEqual(router.settingsDecision, .save)
+        router.finishSettingsDecision(proceed: false)
+        XCTAssertEqual(router.route, .settings(.look))
+    }
+
     func testRequestSpotlightSelectIsPending() {
         let router = AppRouter()
         let id = UUID()

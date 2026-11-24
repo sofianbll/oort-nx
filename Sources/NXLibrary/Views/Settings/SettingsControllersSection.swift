@@ -2,7 +2,7 @@ import SwiftUI
 import NXLibraryCore
 
 struct SettingsControllersSection: View {
-    @ObservedObject var settings: AppSettingsStore
+    @ObservedObject var settings: SettingsEditor
     let onActions: ([SettingsRowAction]) -> Void
     let onViewControls: () -> Void
     var onOpenPlayers: (() -> Void)?

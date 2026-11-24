@@ -119,7 +119,7 @@ import ArcanePorting
         await model.scopeTask?.value
         precondition(model.connectionCheck?.failure == .offline && model.archive == nil)
         var actions: [SettingsRowAction] = []
-        let settingsView = SettingsCloudLibrarySection(viewModel: offline, model: model, settings: settings,
+        let settingsView = SettingsCloudLibrarySection(viewModel: offline, model: model, settings: SettingsEditor(settings),
             advanced: .constant(true), onEdit: {}, onEditLibrary: {}, onEditSources: {}, onActions: { actions = $0 })
         settingsView.publishActions()
         scopeOffline = false
@@ -194,13 +194,17 @@ import ArcanePorting
         func makeModel() -> AppViewModel {
             AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: root)))
         }
-        try await checkDriveScope(settings: settings, makeModel: makeModel)
-        if ProcessInfo.processInfo.environment["OORT_SCOPE_ONLY"] == "1" { return }
+        if ProcessInfo.processInfo.environment["OORT_SETTINGS_DRAFT_ONLY"] != "1" {
+            try await checkDriveScope(settings: settings, makeModel: makeModel)
+            if ProcessInfo.processInfo.environment["OORT_SCOPE_ONLY"] == "1" { return }
+        }
         // Unfollow compares the displayed catalog revision with the on-disk revision.
         let repository = CatalogRepository(store: .init(directory: root))
         let catalog = try repository.load()
         let vm = AppViewModel(settingsStore: settings, catalog: catalog, repository: repository)
         vm.applyCatalog(catalog) // This harness disables catalog application in the initializer.
+        try checkDraft(vm: vm, settings: settings, output: output, locale: locale)
+        if ProcessInfo.processInfo.environment["OORT_SETTINGS_DRAFT_ONLY"] == "1" { return }
         let model = vm.cloudLibrary
         model.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: nil)
         let input = Input(viewModel: vm)
@@ -249,7 +253,7 @@ import ArcanePorting
 
         var cloudWrites = 0
         let cloudObserver = model.$preference.dropFirst().sink { _ in cloudWrites += 1 }
-        let cloud = SettingsCloudLibrarySection(viewModel: vm, model: model, settings: settings,
+        let cloud = SettingsCloudLibrarySection(viewModel: vm, model: model, settings: SettingsEditor(settings),
             advanced: .constant(true), onEdit: {}, onEditLibrary: {}, onEditSources: {}, onActions: { _ in })
         try confirm("cloud-off", { cloud.setEnabled(false) }, count: { cloudWrites })
         precondition(!model.preference.enabled && cloudWrites == 1)
@@ -307,7 +311,7 @@ import ArcanePorting
         let upgraded = makeModel()
         let migration = upgraded.cloudLibrary
         let upgradeInput = Input(viewModel: upgraded)
-        let drive = SettingsCloudLibrarySection(viewModel: upgraded, model: migration, settings: settings,
+        let drive = SettingsCloudLibrarySection(viewModel: upgraded, model: migration, settings: SettingsEditor(settings),
             advanced: .constant(false), onEdit: {}, onEditLibrary: {}, onEditSources: {}, onActions: { _ in })
         let saved = migration.preference
         precondition(migration.needsDriveToolChoice && migration.archive == nil)
@@ -406,7 +410,7 @@ import ArcanePorting
         try git("remote", "add", "origin", ".")
         try git("checkout", "--quiet", "--detach", pin)
         var engineActions: [SettingsRowAction] = []
-        let engine = SettingsEngineSection(viewModel: vm, setup: setup, settings: settings, onActions: { engineActions = $0 })
+        let engine = SettingsEngineSection(viewModel: vm, setup: setup, settings: SettingsEditor(settings), onActions: { engineActions = $0 })
         func pressEngine(_ id: String, _ button: Int = 0) {
             engine.publishActions()
             engineActions.first { $0.id == id }!.press(button: button)
@@ -420,12 +424,19 @@ import ArcanePorting
         pickedEngine = nil
         precondition(engineWrites == 1 && setup.nxnativePath == engineFolder.path && vm.pinnedEngineCommit == pin)
         setup.compatibilityReport = .init(ok: false, checks: [])
+        settings.beginDraft(fields: SettingsDraftFields.fields(profiles: nil, languages: vm.availableLanguages))
         var overrideWrites = 0
-        let overrideObserver = setup.$allowUntestedToolchain.dropFirst().sink { _ in overrideWrites += 1 }
-        try confirm("toolchain-on", { pressEngine("override") }, count: { overrideWrites })
+        let overrideObserver = settings.$settings.map(\.toolchainOverride).removeDuplicates().dropFirst()
+            .sink { _ in overrideWrites += 1 }
+        pressEngine("override")
+        precondition(!setup.allowUntestedToolchain && overrideWrites == 0 && settings.editingSettings.toolchainOverride == true)
+        try settings.commitDraft()
         precondition(setup.allowUntestedToolchain && overrideWrites == 1)
-        try confirm("toolchain-off", { pressEngine("override") }, count: { overrideWrites })
+        pressEngine("override")
+        precondition(setup.allowUntestedToolchain && overrideWrites == 1 && settings.editingSettings.toolchainOverride == false)
+        try settings.commitDraft()
         precondition(!setup.allowUntestedToolchain && overrideWrites == 2)
+        settings.endDraft()
 
         func offer(_ commit: String, count: Int) {
             setup.upstreamState = .loaded(.init(repository: "fixture", status: "ahead", baseCommit: pin, upstreamCommit: commit,
@@ -462,35 +473,128 @@ import ArcanePorting
         precondition(switches == 3 && testedHead == pin && makeModel().setup.newestEngineChoice == nil && !setup.allowUntestedToolchain)
 
         var networkActions: [SettingsRowAction] = []
-        let network = SettingsAPISection(viewModel: vm, settings: settings, showsMultiplayer: true,
+        let editor = SettingsEditor(settings)
+        settings.settings.multiplayerAdapter = "oldAdapter"
+        settings.beginDraft(fields: SettingsDraftFields.fields(profiles: nil, languages: vm.availableLanguages))
+        let network = SettingsAPISection(viewModel: vm, settings: editor, showsMultiplayer: true,
             supportsNextendo: true, advanced: .constant(true), onActions: { networkActions = $0 })
         network.publishActions()
-        settings.settings.multiplayerAdapter = "oldAdapter"
         var networkWrites = 0
         let networkObserver = settings.$settings.dropFirst().sink { _ in networkWrites += 1 }
         func pressNetwork(_ id: String) { networkActions.first { $0.id == id }!.press(button: 0) }
-        try confirm("network-vpn", { pressNetwork("multiplayerVPN") }, count: { networkWrites })
-        precondition(networkWrites == 1 && settings.settings.multiplayerVPN == .zeroTier && settings.settings.multiplayerAdapter == nil)
-        try confirm("network-default", { pressNetwork("multiplayerDefault") }, count: { networkWrites })
-        precondition(networkWrites == 2 && settings.settings.multiplayerDefault == .local)
-        try confirm("network-local-mode", { pressNetwork("multiplayerLocalMode") }, count: { networkWrites })
-        precondition(networkWrites == 3 && settings.settings.multiplayerLocalMode == .lan)
-        try confirm("network-adapter", { networkActions.first { $0.id == "multiplayerAdapter" }!.cycle!(1) }, count: { networkWrites })
-        precondition(networkWrites == 4 && settings.settings.multiplayerAdapter == "feth3971")
+        pressNetwork("multiplayerVPN")
+        precondition(editor.settings.multiplayerVPN == .zeroTier && editor.settings.multiplayerAdapter == nil)
+        pressNetwork("multiplayerDefault")
+        pressNetwork("multiplayerLocalMode")
+        networkActions.first { $0.id == "multiplayerAdapter" }!.cycle!(1)
+        precondition(editor.settings.multiplayerDefault == .local && editor.settings.multiplayerLocalMode == .lan
+            && editor.settings.multiplayerAdapter == "feth3971" && vm.settingsNotice == nil && networkWrites == 0)
 
-        let client = NextendoClientDialog(settings: settings, onClose: { closed += 1 }).screenDraft("fixture-nextendo")
+        let client = NextendoClientDialog(settings: editor, onClose: { closed += 1 }).screenDraft("fixture-nextendo")
         try render("nextendo-client", client)
         client.onClose()
-        precondition(closed == 6 && networkWrites == 4 && settings.settings.nextendoClientID == nil)
+        precondition(closed == 6 && networkWrites == 0 && editor.settings.nextendoClientID == nil)
         client.save()
-        precondition(closed == 7 && networkWrites == 5 && settings.settings.nextendoClientID == "fixture-nextendo")
+        precondition(closed == 7 && networkWrites == 0 && editor.settings.nextendoClientID == "fixture-nextendo")
 
         let page = SettingsView(initialSection: .multiplayer, viewModel: vm, settings: settings,
                                 router: AppRouter(), artwork: ArtworkStore())
-        try confirm("network-reset", page.resetSection, count: { networkWrites })
-        precondition(networkWrites == 6 && SettingsReset.reset(.multiplayer, in: settings.settings) == settings.settings
+        page.resetSection()
+        precondition(networkWrites == 0 && SettingsReset.reset(.multiplayer, in: editor.settings) == editor.settings)
+        try settings.commitDraft()
+        precondition(networkWrites == 1 && SettingsReset.reset(.multiplayer, in: settings.settings) == settings.settings
             && settings.settings.nextendoClientID == "fixture-nextendo")
         withExtendedLifetime((cloudObserver, engineObserver, overrideObserver, switchObserver, networkObserver)) {}
-        print("Settings confirmation probe: cancel and single apply checked for cloud, engine and multiplayer.")
+        print("Settings: independent cloud and engine actions; multiplayer writes only once, at Save.")
+    }
+
+    @MainActor private static func checkDraft(vm: AppViewModel, settings: AppSettingsStore,
+                                               output: URL, locale: AppLocale) throws {
+        let backdrop = output.appendingPathComponent("wallpaper-fixture.png")
+        let wallpaper = ImageRenderer(content: LinearGradient(colors: [.mint, .cyan, .orange],
+            startPoint: .topLeading, endPoint: .bottomTrailing).frame(width: 1920, height: 1080))
+        let bitmap = NSBitmapImageRep(cgImage: wallpaper.cgImage!)
+        try bitmap.representation(using: .png, properties: [:])!.write(to: backdrop)
+        settings.settings.wallpaperID = try ThemeStore.shared.importWallpaper(from: backdrop)
+        settings.settings.cloudSaves = .iCloudDrive
+        settings.settings.cloudSavesPickedFolder = AppData.profile.home
+            .appendingPathComponent("Library/Mobile Documents/com~apple~CloudDocs/nxnative Saves").path
+        precondition(CloudSaves.displayPath(settings.settings.cloudSavesPickedFolder) == "iCloud Drive › nxnative Saves")
+        let router = AppRouter(settings: settings)
+        router.hasPendingSettings = { settings.draft?.hasChanges == true }
+        router.openSettings(.cloudSaves)
+        let art = ArtworkStore()
+        let style = SeleneBackdropStyle(palette: ThemeStore.shared.palette,
+            wallpaperURL: ThemeStore.shared.wallpaper(for: settings.settings.wallpaperID)?.url,
+            sizing: .fill, animated: false, brightness: .bright)
+        precondition(style.wallpaperURL != nil)
+        let size = CGSize(width: 1920, height: 1080)
+        let host = NSHostingView(rootView: SettingsView(initialSection: .cloudSaves, viewModel: vm,
+                                                         settings: settings, router: router, artwork: art)
+            .environment(\.nxAppLocale, locale)
+            .environment(\.colorScheme, .dark)
+            .environment(\.seleneButtonNames, .nintendo)
+            .environment(\.seleneReduceMotion, true)
+            .environment(\.seleneBackdropStyle, style)
+            .seleneCanvasRoot())
+        host.frame.size = size
+        let window = NSWindow(contentRect: host.frame, styleMask: [.borderless], backing: .buffered, defer: false)
+        window.contentView = host
+        defer { window.contentView = nil; settings.endDraft() }
+        window.layoutIfNeeded()
+        func settle() {
+            for _ in 0..<8 {
+                RunLoop.main.run(until: Date().addingTimeInterval(0.02))
+                host.layoutSubtreeIfNeeded()
+            }
+        }
+        func capture(_ name: String) throws {
+            settle()
+            precondition(!window.isVisible)
+            let image = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(size.width), pixelsHigh: Int(size.height),
+                bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
+                colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
+            host.cacheDisplay(in: host.bounds, to: image)
+            try image.representation(using: .png, properties: [:])!.write(to: output.appendingPathComponent(name + ".png"))
+        }
+        func send(_ action: GamepadAction) {
+            NotificationCenter.default.post(name: .nxSettingsGamepadAction, object: action)
+            settle()
+        }
+        try capture("01-reglages-sauvegardes")
+        let original = try Data(contentsOf: settings.fileURL)
+        let section = SettingsCloudSavesSection(settings: SettingsEditor(settings), onActions: { _ in })
+        section.stepChoice(1)
+        settings.editingSettings.multiplayerDefault = .local
+        settings.editingSettings.interfaceSounds = false
+        let stillSaved = try Data(contentsOf: settings.fileURL)
+        precondition(stillSaved == original && settings.settings.cloudSaves == .iCloudDrive)
+        send(.tabPrevious)
+        send(.tabNext)
+        precondition(settings.draft?.changes.count == 3, "Moving between sections must keep the draft")
+        send(.confirm)
+        try capture("02-reglages-brouillon")
+        router.back()
+        precondition(router.settingsDecision == .leave && router.route == .settings(.cloudSaves))
+        try capture("03-reglages-demande-enregistrement")
+        send(.confirm) // default = Keep editing
+        precondition(router.settingsDecision == nil && settings.draft?.hasChanges == true && router.route == .settings(.cloudSaves))
+        send(.contextAction) // Y: save without leaving
+        precondition(router.settingsDecision == .save)
+        send(.navigateLeft)
+        send(.navigateLeft)
+        send(.confirm)
+        precondition(router.settingsDecision == nil && settings.draft?.hasChanges == false && router.route == .settings(.cloudSaves))
+        precondition(AppSettingsStore(fileURL: settings.fileURL).settings.multiplayerDefault == .local)
+        settings.editingSettings.multiplayerDefault = .online
+        var quit = false
+        precondition(router.requestSettingsDeparture { quit = true })
+        settle()
+        send(.navigateLeft)
+        send(.confirm) // discard, then resume quit
+        precondition(quit && settings.editingSettings.multiplayerDefault == .local)
+        settings.settings.multiplayerDefault = .offline
+        settings.settings.interfaceSounds = true
+        print("Settings draft: live row, one exit dialog, default Keep editing, Y and verified save, discard before quit.")
     }
 }

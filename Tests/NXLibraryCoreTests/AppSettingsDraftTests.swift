@@ -9,10 +9,10 @@ final class AppSettingsDraftTests: XCTestCase {
         .init("network", \.multiplayerDefault, important: true, describe: { $0.rawValue }),
     ]
 
-    private func withStore(_ run: (AppSettingsStore) throws -> Void) throws {
+    private func withStore(fileManager: FileManager = .default, _ run: (AppSettingsStore) throws -> Void) throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }
-        let store = AppSettingsStore(fileURL: directory.appendingPathComponent("settings.json"))
+        let store = AppSettingsStore(fileURL: directory.appendingPathComponent("settings.json"), fileManager: fileManager)
         XCTAssertTrue(store.save())
         store.beginDraft(fields: fields)
         try run(store)
@@ -89,5 +89,28 @@ final class AppSettingsDraftTests: XCTestCase {
             XCTAssertEqual(try Data(contentsOf: store.fileURL), bytes)
             XCTAssertTrue(store.draft!.hasChanges)
         }
+    }
+
+    func testInterruptionAfterTemporaryWriteKeepsThePreviousCompleteFile() throws {
+        let files = InterruptBeforeReplacement()
+        try withStore(fileManager: files) { store in
+            store.editingSettings.multiplayerDefault = .online
+            store.editingSettings.soundVolume = 0.3
+            let previous = try Data(contentsOf: store.fileURL)
+            files.interrupt = true
+            XCTAssertThrowsError(try store.commitDraft())
+            XCTAssertEqual(try Data(contentsOf: store.fileURL), previous)
+            XCTAssertEqual(AppSettingsStore(fileURL: store.fileURL).settings, AppSettings())
+            XCTAssertTrue(store.draft!.hasChanges)
+        }
+    }
+}
+
+private final class InterruptBeforeReplacement: FileManager, @unchecked Sendable {
+    var interrupt = false
+
+    override func setAttributes(_ attributes: [FileAttributeKey: Any], ofItemAtPath path: String) throws {
+        if interrupt { throw CocoaError(.fileWriteNoPermission) }
+        try super.setAttributes(attributes, ofItemAtPath: path)
     }
 }

@@ -6,7 +6,7 @@ struct SettingsEngineSection: View {
     @ObservedObject var viewModel: AppViewModel
     /// Engine, upstream and Newest engine (`SetupModel`), observed on their own.
     @ObservedObject var setup: SetupModel
-    @ObservedObject var settings: AppSettingsStore
+    @ObservedObject var settings: SettingsEditor
     let onActions: ([SettingsRowAction]) -> Void
 
     @Environment(\.seleneFocusedRowID) private var focusedRowTitle
@@ -115,7 +115,7 @@ struct SettingsEngineSection: View {
                     .labelsHidden()
                     .toggleStyle(SeleneToggleStyle())
                     .disabled(!canChangeOverride)
-                    .accessibilityValue(setup.allowUntestedToolchain ? L10n.text("On") : L10n.text("Off"))
+                    .accessibilityValue(proposedOverride ? L10n.text("On") : L10n.text("Off"))
             }
 
             SeleneButtonRow("Upstream",
@@ -151,7 +151,7 @@ struct SettingsEngineSection: View {
             if !passiveArrival { setup.prepareBuildEnvironmentIfNeeded() }
             publishActions()
         }
-        .onChange(of: setup.allowUntestedToolchain) { publishActions() }
+        .onChange(of: proposedOverride) { publishActions() }
         .onChange(of: setup.compatibilityReport?.ok) { publishActions() }
         .onChange(of: setup.upstreamState) { publishActions() }
         .onChange(of: setup.newestEngineChoice) { publishActions() }
@@ -166,28 +166,24 @@ struct SettingsEngineSection: View {
         else { setup.detectEnvironment() }
     }
 
-    private func confirmOverride(_ enabled: Bool) {
-        guard canChangeOverride, enabled != setup.allowUntestedToolchain else { return }
-        viewModel.confirmSetting(enabled ? "Enable untested toolchain?" : "Return to the tested toolchain?",
-            message: L10n.text(enabled
-                ? "The engine and compiler do not match the certified combination. Builds may fail or show incorrect graphics and will be marked as untested."
-                : "Future builds will require a tested toolchain again, but installed games will stay as they are."),
-            action: enabled ? "Enable" : "Turn off") {
-            guard canChangeOverride, enabled != setup.allowUntestedToolchain else { return }
-            setup.allowUntestedToolchain = enabled
-        }
+    private var proposedOverride: Bool { setup.usesNewestEngine || (settings.settings.toolchainOverride ?? setup.legacyToolchainOverride) }
+
+    private func stageOverride(_ enabled: Bool) {
+        guard canChangeOverride, enabled != proposedOverride else { return }
+        settings.settings.toolchainOverride = settings.store.settings.toolchainOverride == nil
+            && enabled == setup.legacyToolchainOverride ? nil : enabled
     }
 
     private var overrideBinding: Binding<Bool> {
         Binding(
-            get: { setup.allowUntestedToolchain },
-            set: confirmOverride
+            get: { proposedOverride },
+            set: stageOverride
         )
     }
 
     private var canChangeOverride: Bool {
         ToolchainGateCopy.canChangeOverride(certified: setup.compatibilityReport?.ok,
-            overrideOn: setup.allowUntestedToolchain, locked: configurationLocked,
+            overrideOn: proposedOverride, locked: configurationLocked,
             newest: setup.usesNewestEngine)
     }
 
@@ -529,7 +525,7 @@ struct SettingsEngineSection: View {
             },
             .init(id: "override", title: "Untested toolchain override",
                   isEnabled: canChangeOverride) {
-                confirmOverride(!setup.allowUntestedToolchain)
+                stageOverride(!proposedOverride)
             },
             .init(id: "upstream", title: "Upstream") {
                 setup.checkUpstreamChangelog()

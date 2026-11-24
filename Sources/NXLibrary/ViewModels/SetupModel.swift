@@ -63,17 +63,15 @@ final class SetupModel: ObservableObject {
     @Published var compatibilityReport: CompatibilityReport? = nil
     @Published var isCheckingEnvironment = false
     var environmentCheckGeneration = UUID()
-    @Published var allowUntestedToolchain: Bool = false {
-        didSet {
-            AppData.preferences.set(allowUntestedToolchain, forKey: AppViewModel.StorageKeys.allowUntestedToolchain)
-        }
+    var legacyToolchainOverride: Bool {
+        AppData.preferences.bool(forKey: AppViewModel.StorageKeys.allowUntestedToolchain)
+    }
+    var allowUntestedToolchain: Bool {
+        usesNewestEngine || (app.settingsStore?.settings.toolchainOverride ?? legacyToolchainOverride)
     }
 
     init(app: AppViewModel) {
         self.app = app
-        if AppData.preferences.object(forKey: AppViewModel.StorageKeys.allowUntestedToolchain) != nil {
-            allowUntestedToolchain = AppData.preferences.bool(forKey: AppViewModel.StorageKeys.allowUntestedToolchain)
-        }
         if let data = AppData.preferences.data(forKey: AppViewModel.StorageKeys.newestEngineChoice) {
             // Restoring through the setter would refresh versions via app.setup while it is still being initialized.
             _newestEngineChoice = Published(initialValue: try? JSONDecoder().decode(NewestEngineChoice.self, from: data))

@@ -7,7 +7,7 @@ struct SettingsLibrarySection: View {
     @ObservedObject var viewModel: AppViewModel
     /// Game files shows the folder chosen through the porting model, so the row follows its changes.
     @ObservedObject var porting: PortingModel
-    @ObservedObject var settings: AppSettingsStore
+    @ObservedObject var settings: SettingsEditor
     let onActions: ([SettingsRowAction]) -> Void
 
     var body: some View {

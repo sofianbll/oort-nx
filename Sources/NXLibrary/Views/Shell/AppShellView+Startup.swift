@@ -106,6 +106,10 @@ extension AppShellView {
                 settingsNoticeInput(action)
                 return
             }
+            if router.settingsDecision != nil {
+                NotificationCenter.default.post(name: .nxSettingsGamepadAction, object: action)
+                return
+            }
             if showsWelcome, !showsInstallFailure, viewModel.gameToClose == nil, viewModel.gameToRemove == nil,
                !showsUpdateOffer {
                 NotificationCenter.default.post(name: .nxArcaneWelcomeGamepadAction, object: action)

@@ -233,7 +233,7 @@ Prima di togliere dalla coda un invio da riconfermare, Arcane salva il risultato
 
 Se manca rclone, Configure o Turn on presenta origine, dimensione, licenza e scopo, con il focus su Cancel. rclone legge e scrive nel Drive del giocatore, senza inviare nulla a Oort NX. Dopo Download, Stato mostra un solo avanzamento, Cancel e, in caso di errore, Retry. Una libreria che usava la copia integrata mostra una sola proposta all'avvio, poi Continue in Stato; la stessa conferma mostra l'eventuale percorso esplicito dei file del gioco salvato in 0.3.0 e lo lega a un ID solo dopo verifica. Prima del consenso, Arcane non riprende i trasferimenti e rifiuta una copia alternativa che usa una configurazione separata. Turn off conserva configurazione e file e offre il Cestino per la sola copia gestita non scelta separatamente. Disconnect offre lo stesso ritiro dopo aver rimosso il remote locale. Advanced lo rende disponibile a libreria spenta.
 
-**Settings → Setup and engine e Play together.** Newest engine, Update, Back to tested e l'override della toolchain chiedono conferma prima di modificare il checkout o il gate; il pin del bundle è di sola lettura e il selettore della cartella del checkout ha già il suo pulsante esplicito. In Play together le frecce o il pulsante della riga propongono la prossima scelta per VPN, default, modalità locale o adattatore; solo confermare la applica. Il reset del gruppo usa la stessa conferma, mentre l'editor del client ID conserva il suo pulsante Save.
+**Settings → Setup and engine e Play together.** Newest engine, Update e Back to tested chiedono conferma prima di modificare il checkout; il pin del bundle è di sola lettura. L'override manuale della toolchain, il VPN, il default multigiocatore, la modalità locale, l'adattatore e l'ID client pubblico entrano nella bozza comune. Cambiare VPN imposta l'adattatore su Automatic nella bozza. L'editor dell’ID restituisce il valore a Settings senza usarlo per l'accesso prima del salvataggio.
 
 **Settings → Controllers o Game Options → Players.** La lista mostra i posti preparati, fino a otto. Aprire un posto per scegliere un profilo o un ospite, assegnare una manetta con un tasto, scambiarlo con un altro o rimuoverlo. Durante l'assegnazione B sul controller che naviga, Esc o Annulla tornano alla lista; l'attesa finisce dopo 12 secondi e non attiva il menu dietro. Per la fusione il profilo del posto destinatario riceve tutti i controller; il gioco propone altri destinatari solo con un host compatibile. I nomi dei profili valgono per Offline e Local, non sostituiscono il nome Nextendo. Indietro ritorna alle impostazioni o alle opzioni senza avviare il gioco.
 
@@ -310,17 +310,16 @@ In Spotlight, la rotella toglie il focus dalla barra quando porta il focus nella
 
 ```mermaid
 flowchart TD
-    A["Riga in Settings (SettingsCatalog)"] --> B["AppSettings modificato"]
-    H["Pillola di ordinamento o R3 in Spotlight e Collection"] --> B
-    B --> C["AppSettingsStore.save: file temporaneo e sostituzione"]
-    C -->|"errore"| X["Dialogo Selene con Retry"]
-    C --> D["Pubblicazione: le viste si aggiornano"]
-    A --> E["Search e Changed leggono lo stesso catalogo"]
-    F["Reset group (X)"] --> G["SettingsReset.reset: i valori della sezione tornano ai default"]
-    G --> B
+    A["Riga in Settings"] --> B["Bozza: segno e valore precedente"]
+    B --> P["Anteprima per aspetto, suono e lingua"]
+    B --> C["Save (Y) o uscita: un riepilogo"]
+    C -->|"Save"| D["Confronto, sostituzione atomica e lettura di verifica"]
+    D -->|"errore o conflitto"| C
+    C -->|"Scarta"| E["Ripristina le anteprime"]
+    C -->|"Continua"| B
 ```
 
-In Porting → Game folders, X ripristina le preferenze della sezione, senza cambiare le cartelle. Il pulsante Reset nella riga Game apps ripristina solo quella cartella.
+Cambiare sezione non chiude la bozza; Back dalla barra, Menu e Quit la chiudono solo dopo una scelta se è cambiata. Il controller può scorrere il riepilogo. Il reset delle preferenze in `AppSettings` entra nella bozza. In Porting → Game folders, il reset del gruppo non cambia le cartelle. Il pulsante Reset nella riga Game apps ripristina solo quella cartella.
 
 Nel menu rapido, Theme apre prima i colori con anteprima viva; A applica la palette e passa alla selezione dello sfondo. Oort (`oort`) è il default senza preferenza; Arcane (`selene`) conserva il blu classico; le alternative Arcane Crystal e Arcane Flow salvano `arcane-crystal` e `arcane-flow` nello stesso `colorThemeID`. La shell conserva un backdrop persistente; le pagine ne dichiarano stile, pausa e Mods con `SeleneBackdropRequest`, mantenendo artwork e maschere locali. La shell passa la palette completa in `SeleneBackdropStyle`: cambia il valore dell’ambiente e aggiorna sfondo e maschere anche senza spostare la selezione. La superficie usa lo stesso renderer, con orologio e regole di pausa condivisi. Le particelle sono sempre morbide, senza una scelta aggiuntiva. La scelta dello sfondo mantiene il dialogo di destinazione esistente.
 

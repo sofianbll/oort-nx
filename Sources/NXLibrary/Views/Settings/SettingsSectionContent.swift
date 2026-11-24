@@ -6,7 +6,7 @@ struct SettingsSectionContent: View {
     @Environment(\.seleneFocusedButton) private var focusedButton
     let section: SettingsSection
     @ObservedObject var viewModel: AppViewModel
-    @ObservedObject var settings: AppSettingsStore
+    @ObservedObject var settings: SettingsEditor
     @ObservedObject var artwork: ArtworkStore
     let supportsNextendo: Bool
     let activeProfile: LocalProfile?
@@ -38,7 +38,7 @@ struct SettingsSectionContent: View {
                                   onSubmit: onSearchSubmit, fieldRequest: searchFieldRequest, onActions: onActions)
         case .changed:
             if let profiles = viewModel.localProfiles {
-                SettingsChangedSection(settings: settings, viewModel: viewModel, setup: viewModel.setup,
+                SettingsChangedSection(settings: settings.store, viewModel: viewModel, setup: viewModel.setup,
                                        cloudLibrary: viewModel.cloudLibrary, profiles: profiles,
                                        supportsNextendo: supportsNextendo, hasProfileAccount: profileNextendo != nil,
                                        onOpenGroup: onOpenGroup, onActions: onActions)
@@ -106,7 +106,7 @@ struct SettingsSectionContent: View {
         case .games:
             SettingsGamesSection(viewModel: viewModel, settings: settings, onActions: onActions)
         case .cloudSaves:
-            SettingsCloudSavesSection(viewModel: viewModel, settings: settings, onActions: onActions)
+            SettingsCloudSavesSection(settings: settings, onActions: onActions)
         case .cloudLibrary:
             SettingsCloudLibrarySection(viewModel: viewModel, model: viewModel.cloudLibrary, settings: settings, advanced: $cloudAdvanced,
                                         onEdit: onEditCloud, onEditLibrary: onEditCloudLibraryFolder,

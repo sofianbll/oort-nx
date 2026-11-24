@@ -255,8 +255,8 @@ extension AppShellView {
         .environment(\.seleneReduceMotion, reduceMotion)
         .environment(\.seleneBackdropStyle, backdropStyle)
         .environment(\.seleneSharesBackdrop, true)
-        .environment(\.seleneShowButtonHints, settings.settings.showButtonHints)
-        .environment(\.seleneButtonNames, settings.settings.buttonNames)
+        .environment(\.seleneShowButtonHints, settings.presentation.showButtonHints)
+        .environment(\.seleneButtonNames, settings.presentation.buttonNames)
         .environmentObject(updater)
         .environmentObject(sources)
         .onAppear { [sources] in
@@ -388,8 +388,23 @@ extension AppShellView {
         }
     }
 
+    private var settingsPresentation: some View {
+        let preview = settings.presentation
+        let committed = AppLocale(language: settings.settings.appLanguage, region: settings.settings.appRegion)
+        return styled
+            .onChange(of: preview.colorThemeID) { _, id in ThemeStore.shared.apply(id: id) }
+            .onChange(of: AppLocale(language: preview.appLanguage, region: preview.appRegion)) {
+                AppLocalization.shared.configure(preview)
+            }
+            .onChange(of: committed.language) { store.refreshLocalizedMetadata(locale: committed) }
+            .onChange(of: settings.settings.toolchainOverride) { setup.objectWillChange.send() }
+            .onChange(of: router.route) { _, route in
+                if !route.isSettings { settings.endDraft() }
+            }
+    }
+
     var nativeGameCommands: some View {
-        styled
+        settingsPresentation
         .environment(\.locale, localization.context.formatLocale)
         .environment(\.nxAppLocale, localization.context)
         .environment(\.catalogPersonalizations, viewModel.personalizations)
@@ -406,14 +421,12 @@ extension AppShellView {
                 try? await Task.sleep(for: .seconds(180))
             }
         }
-        .onChange(of: settings.settings.appLanguage) { updateLocale() }
         .onReceive(NotificationCenter.default.publisher(for: .nxOpenLocalProfile)) { _ in openProfilePage() }
         .onReceive(NotificationCenter.default.publisher(for: .nxProfileCardsSaveFailed)) { _ in
             viewModel.showSettingsNotice(title: L10n.text("Settings not saved"),
                                          message: L10n.text("Your changes could not be saved. Try again."))
         }
         .onReceive(NotificationCenter.default.publisher(for: .nxToggleProfilePicker)) { _ in toggleProfilePicker() }
-        .onChange(of: settings.settings.appRegion) { updateLocale() }
         .onReceive(NotificationCenter.default.publisher(for: .nxLibraryPlayFocused)) { _ in
             guard !router.isMenuPresented,
                   nativeMenuAvailability.play,

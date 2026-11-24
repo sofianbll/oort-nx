@@ -4,7 +4,7 @@ import NXLibraryCore
 
 struct SettingsLookSection: View {
     @ObservedObject var viewModel: AppViewModel
-    @ObservedObject var settings: AppSettingsStore
+    @ObservedObject var settings: SettingsEditor
     var profileLook = false
     let onActions: ([SettingsRowAction]) -> Void
     @Environment(\.seleneCanvas) private var canvas
@@ -18,7 +18,6 @@ struct SettingsLookSection: View {
         let ids = theme.palettes.map(\.id)
         guard let next = ids.stepped(from: settings.settings.colorThemeID, step) else { return }
         settings.settings.colorThemeID = next
-        theme.apply(id: next)
     }
 
     private var wallpaperTitle: String { theme.wallpaperTitle(for: settings.settings.wallpaperID) }

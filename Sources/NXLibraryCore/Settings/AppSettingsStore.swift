@@ -29,6 +29,8 @@ public final class AppSettingsStore: ObservableObject {
 
     public func endDraft() { draft = nil }
 
+    public func discardDraft() { draft = draft?.restarting(from: settings) }
+
     /// The same rename and read-back cover every changed field. No observer gets unverified values.
     public func commitDraft() throws {
         guard let draft, draft.hasChanges else { return }
@@ -164,9 +166,14 @@ public final class AppSettingsStore: ObservableObject {
         }
         let temp = fileURL.deletingLastPathComponent().appendingPathComponent(".settings-\(UUID()).tmp")
         defer { try? fileManager.removeItem(at: temp) }
-        try data.write(to: temp)
+        try data.write(to: temp, options: .withoutOverwriting)
+        try fileManager.setAttributes([.posixPermissions: 0o600], ofItemAtPath: temp.path)
         guard try readDisk() == expected else { throw AppSettingsDraft.Failure.changedElsewhere }
-        guard rename(temp.path, fileURL.path) == 0 else { throw POSIXError(.init(rawValue: errno) ?? .EIO) }
+        if expected == nil {
+            try fileManager.moveItem(at: temp, to: fileURL)
+        } else {
+            guard rename(temp.path, fileURL.path) == 0 else { throw POSIXError(.init(rawValue: errno) ?? .EIO) }
+        }
         guard try readDisk() == data else { throw AppSettingsDraft.Failure.verification }
         lastDiskBytes = data
     }
