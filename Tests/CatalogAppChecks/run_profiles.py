@@ -1258,6 +1258,8 @@ extension SettingsView {
         precondition(router.settingsRowID == nil && !sources.configuration.isEnabled, "Focus the published Steam row, do not activate it")
         NotificationCenter.default.post(name: .nxSettingsGamepadAction, object: GamepadAction.cancel)
         precondition(router.route == .integrations && router.integrationFocus == .steam && host.window == nil)
+        NotificationCenter.default.post(name: .nxSettingsGamepadAction, object: GamepadAction.confirm)
+        precondition(!sources.configuration.isEnabled, "The dismissed Settings view must not receive Confirm")
         print("Integration → Settings row focus and return checks passed")
     }
 
@@ -1524,7 +1526,7 @@ extension NextendoSettings {
             host = re.sub(r'        let beforeImage = .*?(?=\n    })', "", host, flags=re.S)
             host = re.sub(r'    struct BeforeSortTopBar: View \{.*?\n    }\n', "", host, flags=re.S)
         (app / "ProfileScreenProbe.swift").write_text(host)
-        subprocess.run(["swift", "run", "--package-path", str(package), "ProfileScreenProbe", str(out),
+        subprocess.run(["swift", "run", "--jobs", "2", "--package-path", str(package), "ProfileScreenProbe", str(out),
                         str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"), str(refs)],
                        check=True, env=dict(os.environ, HOME=temp, CFFIXED_USER_HOME=temp))
 

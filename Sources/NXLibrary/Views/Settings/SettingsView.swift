@@ -166,7 +166,7 @@ struct SettingsView: View {
         }
         .onChange(of: router.settingsRowID) { _, _ in focusRequestedSetting() }
         .onReceive(NotificationCenter.default.publisher(for: .nxSettingsGamepadAction)) { note in
-            guard let action = note.object as? GamepadAction else { return }
+            guard router.route == .settings(initialSection), let action = note.object as? GamepadAction else { return }
             handleGamepad(action)
         }
     }
@@ -504,7 +504,7 @@ struct SettingsView: View {
     private func installKeyMonitor() {
         guard keyMonitor == nil else { return }
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
-            guard case .settings = router.route,
+            guard router.route == .settings(initialSection),
                   !viewModel.shellDialogOwnsInput,
                   !viewModel.isWelcomeOpen,
                   !NativeMenuCommands.shared.isTracking,
