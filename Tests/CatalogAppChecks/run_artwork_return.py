@@ -86,7 +86,7 @@ struct Image: View {
     func interpolation(_ value: SwiftUI.Image.Interpolation) -> Self { self }
     var body: some View { Color.clear }
 }
-enum SeleneTheme { static var glassSolid: Color { .gray } }
+enum SeleneTheme { static var glassSolid: Color { .gray }; static var ink: Color { .white } }
 struct Canvas { func u(_ value: CGFloat) -> CGFloat { value } }
 struct CanvasKey: EnvironmentKey { static let defaultValue = Canvas() }
 extension EnvironmentValues {

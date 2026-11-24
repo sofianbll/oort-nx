@@ -71,12 +71,13 @@ import ArcanePorting
             }.frame(width: 460, height: 300)
             let picture = try bitmap(face)
             try save(picture, to: url)
-            // The tiles' own art cache: the row paints these illustrations (its async look-up never runs here).
-            TileArtMemo.store(NSImage(cgImage: picture, size: .init(width: 460, height: 300)),
-                              for: "nxnative|\(game.id)" as NSString)
+            // ImageRenderer never runs the cover's async lookup.
+            CoverArtMemo.shared.setObject(NSImage(cgImage: picture, size: .init(width: 460, height: 300)),
+                                          forKey: CoverArtMemo.key(game.id, revision: ArtworkPicks.shared.revision))
         }
-        TileArtMemo.store(TileArtMemo.shared.object(forKey: "nxnative|\(avatarGames[0].id)" as NSString)!,
-                          for: "nxnative|\(game.id)" as NSString)
+        let artRevision = ArtworkPicks.shared.revision
+        CoverArtMemo.shared.setObject(CoverArtMemo.shared.object(forKey: CoverArtMemo.key(avatarGames[0].id, revision: artRevision))!,
+                                      forKey: CoverArtMemo.key(game.id, revision: artRevision))
         let cachedPortraits = ProfileEditorView.loadAvatars(avatarGames, artwork: art)
         precondition(cachedPortraits.count == avatarGames.count)
         precondition(ProfilePortrait.symbols.count == LocalProfile.avatarCount)
@@ -777,7 +778,7 @@ import ArcanePorting
             let vm = AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: data)))
             vm.localProfiles = profiles
             vm.applyCatalog(.init(games: [catalog]))
-            vm.cloudLibrary.usePlayFixtureArchive()
+            try vm.cloudLibrary.usePlayFixtureArchive(in: data)
             var events: [PlayEvent] = []
             restoringFixture = { game in
                 precondition(vm.cloudLibrary.appInstall?.title == game.titleId)
@@ -787,7 +788,9 @@ import ArcanePorting
                 if result == "profile changed" { precondition(profiles.choose(other.id)) }
             }
             vm.performCloudLibrary(.restore(.app), for: fixture)
-            let transfer = vm.cloudLibrary.active!.task
+            guard let transfer = vm.cloudLibrary.active?.task else {
+                preconditionFailure("Synthetic restore did not start: \(String(describing: vm.cloudLibrary.states[fixture.id]?.issue))")
+            }
             await transfer.value
             restoringFixture = nil
             await vm.cloudLibrary.queueStore.flush()
@@ -1604,10 +1607,16 @@ def main():
         with cloud.open("a") as swift:
             swift.write("""
 extension CloudLibraryModel {
-    func usePlayFixtureArchive() {
-        archive = CloudGameArchive(backend: RcloneStorageBackend(remote: "fixture", root: "Games") { _, _, _ in
+    func usePlayFixtureArchive(in data: URL) throws {
+        let tool = data.appendingPathComponent("rclone-fixture")
+        if !FileManager.default.isExecutableFile(atPath: tool.path) {
+            try Data("#!/bin/sh\\nexit 99\\n".utf8).write(to: tool)
+            try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: tool.path)
+        }
+        let backend = RcloneStorageBackend(remote: "fixture", root: "Games", executable: tool) { _, _, _ in
             .init(status: 0, stdout: "[]", stderr: "")
-        })
+        }
+        installScope(nil, backend: backend)
         hasRestoredQueue = true
     }
 }
@@ -1717,9 +1726,6 @@ extension ProfilePage {
         replace(app / "Views/Spotlight/SeleneArtBackground.swift",
                 r"            SeleneArtLayer\(image: art,[^\n]*\n",
                 "            if let art { Image(nsImage: art).resizable().scaledToFill() }\n")
-        # ImageRenderer never runs the asynchronous cover lookup: use the synthetic game art already loaded by the probe.
-        replace(app / "Views/Components/SwitchBoxArtCover.swift", r"            if let cover \{",
-                r'            if let cover = cover ?? TileArtMemo.shared.object(forKey: "nxnative|\(game.id)" as NSString) {')
         replace(app / "Views/Theme/MoonlightRenderer.swift", r"                if let image \{\n                    Image\(decorative:",
                 "                if let image = engine.snapshot(width: max(w, 1), height: max(h, 1), colors: colors) {\n                    Image(decorative:")
         # ImageRenderer does not rasterize AppKit scroll views or fields. Render their real SwiftUI contents.

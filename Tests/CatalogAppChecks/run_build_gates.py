@@ -86,7 +86,9 @@ move.isCancelling = true
 require(!move.canCancel, "a cancelling move cannot be cancelled again")
 move.isCancelling = false
 move.isVerifying = true
-require(!move.canCancel, "a move in final verification cannot be cancelled")
+require(move.canCancel, "read-only move verification remains cancellable")
+move.isCancelling = true
+require(!move.canCancel, "verification cancellation cannot be requested twice")
 if failures != 0 { exit(1) }
 print("Build gates: engine switch, cancellation: PASS")
 """
