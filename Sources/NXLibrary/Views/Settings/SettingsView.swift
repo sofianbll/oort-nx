@@ -164,6 +164,7 @@ struct SettingsView: View {
             section = value
             focusArea = .sidebar
         }
+        .onChange(of: router.settingsRowID) { _, _ in focusRequestedSetting() }
         .onReceive(NotificationCenter.default.publisher(for: .nxSettingsGamepadAction)) { note in
             guard let action = note.object as? GamepadAction else { return }
             handleGamepad(action)
@@ -315,11 +316,10 @@ struct SettingsView: View {
                 .padding(.bottom, canvas.u(SeleneTokens.Space.settingsInfoClearance))
             }
             .scrollIndicators(.hidden)
-            .onChange(of: rowFocus.index) {
+            .onChange(of: focusArea == .rows ? focusedRow?.rowID : nil) { _, rowID in
                 rowButton = 0
-                guard focusArea == .rows,
-                      rowActions.indices.contains(rowFocus.index) else { return }
-                let id = "selene-row-\(rowActions[rowFocus.index].rowID)"
+                guard let rowID else { return }
+                let id = "selene-row-\(rowID)"
                 withAnimation(reduceMotion ? nil : SeleneTheme.quick) {
                     proxy.scrollTo(id, anchor: .center)
                 }
@@ -362,6 +362,19 @@ struct SettingsView: View {
         rowFocus.move(by: 0, count: rowActions.count)
         if focusedID != focusedRow?.id || focusedButtonCount != focusedRow?.buttonCount { rowButton = 0 }
         if rowActions.isEmpty, focusArea == .rows { focusArea = .sidebar }
+        focusRequestedSetting()
+    }
+
+    private func focusRequestedSetting() {
+        guard router.route == .settings(section), let id = router.settingsRowID,
+              let setting = SettingsCatalog.all.first(where: { $0.id == id && $0.group == section }),
+              let index = rowActions.firstIndex(where: {
+                  $0.id == id || $0.rowID == setting.title || (id == "cloudLibraryService" && $0.id == "cloudRecovery")
+              }) else { return }
+        rowFocus.index = index
+        rowButton = 0
+        focusArea = .rows
+        router.takeSettingsRowFocus()
     }
 
     private func openGroup(_ row: SettingDescriptor) {
@@ -660,7 +673,7 @@ struct SettingsView: View {
         if let window = NSApp.keyWindow, window.firstResponder is NSText {
             window.makeFirstResponder(nil)
             SoundEffectService.shared.play(.focus)
-        } else if router.previousRoute == .profile {
+        } else if router.previousRoute == .profile || router.previousRoute == .integrations {
             router.back()
         } else if focusArea == .rows {
             leaveRows()

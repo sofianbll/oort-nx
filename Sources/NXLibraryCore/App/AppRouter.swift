@@ -8,6 +8,7 @@ public enum AppRoute: Equatable {
     case collection
     case profile
     case profileCollection(ProfilePageCard)
+    case integrations
     case detail(UUID)
     case settings(SettingsSection)
     case addGame
@@ -20,6 +21,10 @@ public enum AppRoute: Equatable {
         if case .profileCollection = self { return true }
         return self == .collection
     }
+}
+
+public enum IntegrationID: CaseIterable, Hashable, Sendable {
+    case switchGames, steam, drive, nextendo, images, saves
 }
 
 /// A full-screen page covers lower UI layers while their shared background stays mounted.
@@ -71,6 +76,9 @@ public final class AppRouter: ObservableObject {
     @Published public var pendingSpotlightMove: String?
     /// A game id waiting for Spotlight to select it (Details' More like this).
     @Published public var pendingSpotlightSelect: UUID?
+    @Published public var integrationBarFocused = false
+    @Published public var integrationFocus: IntegrationID?
+    @Published public private(set) var settingsRowID: String?
 
     private var history: [AppRoute] = []
     private var profileSpotlightKey: String?
@@ -103,6 +111,8 @@ public final class AppRouter: ObservableObject {
         guard route != .gameInbox || menuSelection.gameInboxEnabled else { return }
         isReturningFromBack = false
         history.removeAll()
+        integrationBarFocused = false
+        settingsRowID = nil
         self.route = route
     }
 
@@ -187,6 +197,8 @@ public final class AppRouter: ObservableObject {
     public func navigate(to route: AppRoute) {
         guard route != self.route, route != .gameInbox || menuSelection.gameInboxEnabled else { return }
         isReturningFromBack = false
+        integrationBarFocused = false
+        settingsRowID = nil
         history.append(self.route)
         self.route = route
     }
@@ -205,7 +217,37 @@ public final class AppRouter: ObservableObject {
     }
 
     public func showDetail(_ id: UUID) { navigate(to: .detail(id)) }
-    public func openSettings(_ section: SettingsSection = .startUp) { navigate(to: .settings(section)) }
+    public func openSettings(_ section: SettingsSection = .startUp, rowID: String? = nil) {
+        navigate(to: .settings(section))
+        settingsRowID = rowID
+    }
+    public func takeSettingsRowFocus() { settingsRowID = nil }
+    public func openIntegrations() {
+        guard route == .library || route == .collection else { return }
+        integrationFocus = IntegrationID.allCases.first
+        navigate(to: .integrations)
+    }
+    /// Only directional input or a return from the page can put focus on the home bar.
+    public func stepIntegrationBar(_ step: MenuStep?, profileFocused: inout Bool, hasProfile: Bool) -> Bool {
+        guard route == .library || route == .collection else { return false }
+        if integrationBarFocused {
+            switch step {
+            case .confirm: openIntegrations(); return true
+            case .right where hasProfile:
+                integrationBarFocused = false; profileFocused = true; return true
+            case .down, .back:
+                integrationBarFocused = false; return true
+            case .left, .right, .up: return true
+            default: integrationBarFocused = false; return false
+            }
+        }
+        if (profileFocused && step == .left) || (!hasProfile && step == .up) {
+            profileFocused = false
+            integrationBarFocused = true
+            return true
+        }
+        return false
+    }
     public func openAddGame() { navigate(to: .addGame) }
     public func openGameInbox() { navigate(to: .gameInbox) }
     public func openConsole() { navigate(to: .console) }
@@ -226,6 +268,8 @@ public final class AppRouter: ObservableObject {
     public func showLibrary() {
         isReturningFromBack = false
         history.removeAll()
+        integrationBarFocused = false
+        settingsRowID = nil
         route = .library
     }
 
@@ -235,6 +279,8 @@ public final class AppRouter: ObservableObject {
             return
         }
         isReturningFromBack = true
+        integrationBarFocused = route == .integrations && (previous == .library || previous == .collection)
+        settingsRowID = nil
         route = previous
     }
 

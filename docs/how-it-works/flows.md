@@ -267,6 +267,8 @@ flowchart TD
 
 ## 8. Cambiare un'impostazione
 
+In Spotlight e Collection, la barra Integrations apre il riepilogo. Con tastiera o controller, Su raggiunge il ritratto se presente e Sinistra raggiunge la barra; senza ritratto basta Su. Giù torna ai giochi. Su/Giù nella pagina sceglie una riga; Apri raggiunge le impostazioni esistenti senza premere il controllo. Indietro ripristina la riga e poi la barra, senza cambiare il gioco selezionato.
+
 ```mermaid
 flowchart TD
     A["Riga in Settings (SettingsCatalog)"] --> B["AppSettings modificato"]

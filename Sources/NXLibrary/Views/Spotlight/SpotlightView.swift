@@ -38,6 +38,7 @@ struct SpotlightView: View {
     @Environment(\.seleneCanvas) var canvas
     @Environment(\.seleneReduceMotion) var reduceMotion
     @Environment(\.nxAppLocale) var localization
+    @Environment(\.integrationBar) var integrationBar
 
     @StateObject var art = SeleneHeroArt()
     /// Art the player picks redraws the hero and logo (their task keys carry its revision).
@@ -234,15 +235,17 @@ struct SpotlightView: View {
     }
 
     private func chrome(_ model: Snapshot, state: SpotlightState) -> some View {
-        SeleneHomeChrome(
+        let barFocused = router.integrationBarFocused
+        return SeleneHomeChrome(
             leftHints: state.isLifted || cardMenu != nil || state.focus != .row
                 ? [] : HintItem.homeGlobals(other: "Collection",
                                              onOther: settings.settings.viewButtonSwitches ? { handle(.view) } : nil,
                                              onMenu: { router.isMenuPresented = true },
                                              onSearch: { handle(.search) },
                                              onProfiles: { ProfileFlow.requestPicker() }),
-            rightHints: contextHints(model, state) + (state.focus == .row && !state.isLifted && cardMenu == nil
-                ? [LibrarySortMenu.hint(settings.settings.librarySort, action: openSort)] : []),
+            rightHints: barFocused ? [HintItem(.a, L10n.text("Open")) { handle(.confirm) }]
+                : contextHints(model, state) + (state.focus == .row && !state.isLifted && cardMenu == nil
+                    ? [LibrarySortMenu.hint(settings.settings.librarySort, action: openSort)] : []),
             rightReserve: hintReserve(state),
             hintsHidden: router.overlayHasHints(viewModel) || achievementsScreen != nil,
             hintsHeld: !controlsShown,

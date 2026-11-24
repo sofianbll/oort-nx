@@ -245,6 +245,10 @@ contenere anche i titoli e i messaggi su più righe.
 
 ## Impostazioni
 
+**Integrations.** La barra in Spotlight e Collection e la pagina a schermo intero leggono `IntegrationOverview.rows`, una proiezione dei fatti pubblicati dai proprietari esistenti. Non avviano verifiche, non salvano preferenze e non condizionano Play. La pagina distingue una scansione vuota da una incompleta, una verifica passata da una connessione attuale e una destinazione per i salvataggi da una copia verificata. Le righe descrivono lettura, scrittura e invio; la sezione in arrivo contiene solo testo.
+
+`IntegrationOverview.open` risolve l’ID nell’inventario di Search e Changed (`SettingsCatalog.all`) e chiede ad `AppRouter` di aprire il gruppo, senza azionare il comando. `SettingsView` aspetta le azioni pubblicate per mettere a fuoco la riga. Indietro ripristina la riga in Integrations e poi la barra; gli aggiornamenti di stato non cambiano il focus.
+
 **La barra laterale.** `SettingsSidebarGroup` raggruppa le sezioni: Search e Changed, poi cinque gruppi.
 - **Profile:** Identity, Theme and background, Security, Nextendo e Profile page agiscono sul profilo attivo.
 - **General:** Start-up, Navigation, Spotlight, Sound & music, Look, Controllers, Play together, Online services. `SettingsStartUpSection` fa scorrere le scelte di avvio; `LocalProfileStore` le risolve prima che `AppShellState` applichi l’aspetto del profilo attivo.
