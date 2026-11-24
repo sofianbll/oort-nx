@@ -235,6 +235,7 @@ final class CloudLibraryModel: ObservableObject {
         let failure: CloudLibraryFailure?
         var explicit = false
         var onSources = false
+        var scopeCheck = false
     }
     struct Request {
         var token = UUID()
@@ -595,8 +596,7 @@ final class CloudLibraryModel: ObservableObject {
         let wanted = CloudLibraryPreference.SourcesBinding(current)
         let savedChoice = sourcesBinding
         let sameChoice = wanted?.storage == savedChoice?.storage && wanted?.sources == savedChoice?.sources
-        let savedScope = AppData.preferences.data(forKey: Self.scopeKey)
-            .flatMap { try? JSONDecoder().decode(CloudDriveScope.self, from: $0) }
+        let savedScope = savedDriveScope()
         sourcesNeedConfirmation = (wanted != nil && !sameChoice)
             || (savedScope?.remote == current.remote && savedScope?.library.path == current.root
                 && savedScope?.approvedSources?.path == current.sourcesRoot && savedScope?.sourcesIdentityChanged == true)
@@ -610,7 +610,34 @@ final class CloudLibraryModel: ObservableObject {
             return scope
         }
         installScope(saved, backend: saved.map { raw.scoped($0) })
-        scopeTask = Task { @MainActor [weak self] in
+        scopeTask = driveScopeCheck(current, remote: remote, raw: raw, savedScope: savedScope, reportSuccess: false, explicit: false)
+    }
+
+    private func savedDriveScope() -> CloudDriveScope? {
+        AppData.preferences.data(forKey: Self.scopeKey).flatMap { try? JSONDecoder().decode(CloudDriveScope.self, from: $0) }
+    }
+
+    var canCheckDriveScope: Bool {
+        !hasPendingMove && !needsDriveToolChoice && !isQuitting && preference.remote != nil && resolvedDriveTool != nil
+    }
+
+    @MainActor @discardableResult func checkDriveScope(explicit: Bool = false) -> Task<Void, Never>? {
+        let current = preference
+        guard !hasPendingMove, !needsDriveToolChoice, !isQuitting, let remote = current.remote,
+              let tool = resolvedDriveTool else { return nil }
+        scopeTask?.cancel()
+        let raw = RcloneStorageBackend(remote: remote, root: current.root, executable: tool)
+        scopeTask = driveScopeCheck(current, remote: remote, raw: raw, savedScope: savedDriveScope(),
+                                    reportSuccess: true, explicit: explicit)
+        return scopeTask
+    }
+
+    private func driveScopeCheck(_ current: CloudLibraryPreference, remote: String, raw: RcloneStorageBackend,
+                                 savedScope: CloudDriveScope?, reportSuccess: Bool, explicit: Bool) -> Task<Void, Never> {
+        let wanted = CloudLibraryPreference.SourcesBinding(current)
+        let savedChoice = sourcesBinding
+        let sameChoice = wanted?.storage == savedChoice?.storage && wanted?.sources == savedChoice?.sources
+        return Task { @MainActor [weak self] in
             guard let self else { return }
             do {
                 var scope = try await raw.resolveScope(reference: current.referenceFolder)
@@ -620,7 +647,7 @@ final class CloudLibraryModel: ObservableObject {
                    (savedScope.account != scope.account || savedScope.library.id != scope.library.id) {
                     self.sourcesNeedConfirmation = wanted != nil
                     self.installScope(nil, backend: nil)
-                    self.connectionCheck = .init(date: .now, failure: .scopeChanged)
+                    self.connectionCheck = .init(date: .now, failure: .scopeChanged, explicit: explicit, scopeCheck: true)
                     return
                 }
                 if let wanted, sameChoice, savedChoice?.permits(scope) == true {
@@ -646,13 +673,30 @@ final class CloudLibraryModel: ObservableObject {
                     scope.resolveSources(folder, at: current.sourcesRoot, previous: savedScope)
                     self.sourcesNeedConfirmation = scope.sourcesIdentityChanged == true
                 }
+                let backend = raw.scoped(scope)
+                if reportSuccess {
+                    try await backend.verifyLibraryReadAccess()
+                    try Task.checkCancellation()
+                    guard self.preference == current else { return }
+                }
                 if let data = try? JSONEncoder().encode(scope) { AppData.preferences.set(data, forKey: Self.scopeKey) }
-                guard self.driveScope != scope || self.archive == nil else { return }
-                self.installScope(scope, backend: raw.scoped(scope))
+                if current.enabled, self.driveScope != scope || self.archive == nil {
+                    self.installScope(scope, backend: backend)
+                }
+                let sourceFailure: CloudLibraryFailure? = self.sourcesNeedConfirmation ? .scopeChanged
+                    : (wanted != nil && scope.sources == nil ? .folderMissing : nil)
+                if reportSuccess || scope.sourcesIdentityChanged == true {
+                    self.connectionCheck = .init(date: .now, failure: sourceFailure, explicit: explicit,
+                                                 onSources: sourceFailure != nil, scopeCheck: true)
+                }
             } catch is CancellationError {
             } catch {
                 guard !Task.isCancelled, self.preference == current else { return }
-                self.connectionCheck = .init(date: .now, failure: (error as? CloudLibraryFailure) ?? .unavailable)
+                let failure = (error as? CloudLibraryFailure) ?? .unavailable
+                if [.scopeChanged, .folderMissing, .authentication, .requiresDrive].contains(failure) {
+                    self.installScope(nil, backend: nil)
+                }
+                self.connectionCheck = .init(date: .now, failure: failure, explicit: explicit, scopeCheck: true)
             }
         }
     }
@@ -1029,6 +1073,10 @@ extension AppViewModel {
     }
 
     @MainActor func retryCloudCheck() {
+        if let result = cloudLibrary.connectionCheck, result.scopeCheck, result.failure != nil {
+            cloudLibrary.checkDriveScope(explicit: result.explicit)
+            return
+        }
         cloudLibrary.queuePause = nil
         startNextCloudOperation()
         if cloudLibrary.checkFailedDuringImport {

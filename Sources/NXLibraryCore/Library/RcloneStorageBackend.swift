@@ -109,6 +109,10 @@ public struct RcloneStorageBackend: StorageBackend {
         return backend
     }
 
+    package func verifyLibraryReadAccess() async throws {
+        try await checkDirectory(basePath())
+    }
+
     /// Ends the RC session when the cloud configuration is replaced or the app quits.
     public func stopRemoteControl() { control.stop() }
 
