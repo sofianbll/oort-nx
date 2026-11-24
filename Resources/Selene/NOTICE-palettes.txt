@@ -4,3 +4,4 @@ themes (MIT License, Copyright (c) David Heinemeier Hansson), copied into `tools
 color schemes by their own authors: Catppuccin, Everforest, Flexoki, Gruvbox, Kanagawa, Nord, Rose Pine and Tokyo Night.
 
 Omarchy - MIT License, Copyright (c) David Heinemeier Hansson
+See ../ThirdPartyLicenses/omarchy-LICENSE.txt for the MIT text.

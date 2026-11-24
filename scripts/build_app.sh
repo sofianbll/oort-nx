@@ -81,6 +81,7 @@ test -s "$ICON_BUILD/Assets.car"
 cp "$ICON_BUILD/Assets.car" "$APP/Contents/Resources/"
 [ -f "$ROOT/LICENSE" ] && cp "$ROOT/LICENSE" "$APP/Contents/Resources/LICENSE"
 [ -f "$ROOT/NOTICE" ] && cp "$ROOT/NOTICE" "$APP/Contents/Resources/NOTICE"
+cp -R "$ROOT/Resources/ThirdPartyLicenses" "$APP/Contents/Resources/"
 if [ "${NX_RELEASE:-0}" = "1" ]; then
   RCLONE_VERSION=1.75.2
   RCLONE_SHA256=610ab7d48615135dfc60b763858b11a426a0d3d1160c1bb76fb0ae6011b02edd
@@ -159,6 +160,9 @@ swiftc -I "$ROOT/.build/$CONFIG" "$ROOT/scripts/check_app_profile.swift" \
 "$PROFILE_PROBE/Contents/MacOS/NXLibrary"
 
 python3 "$ROOT/scripts/check_localizations.py" --app "$APP"
+if [ "${NX_RELEASE:-0}" = "1" ]; then
+  python3 "$ROOT/scripts/check_publication.py" --app "$APP"
+fi
 swiftc -I "$ROOT/.build/$CONFIG" "$ROOT/scripts/install_built_app.swift" \
   "$ROOT/.build/$CONFIG/NXLibraryCore.o" "$ROOT/.build/$CONFIG/ArcanePorting.o" -o "$STAGE/install-app"
 "$STAGE/install-app" "$APP" "$DESTINATION"

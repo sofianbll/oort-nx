@@ -2,7 +2,8 @@ Bundled media notices
 =====================
 
 Material Icons (Fonts/MaterialIcons-Regular.ttf)
-  Google's Material Icons, Apache License 2.0. See Fonts/MaterialIcons-LICENSE.txt.
+  Google's Material Icons 1.017, Copyright 2018 Google, Inc. All Rights Reserved.
+  Apache License 2.0. See Fonts/MaterialIcons-LICENSE.txt.
   https://github.com/google/material-design-icons
 
 Sounds (Sounds/navigation.wav, Boot.wav, Success.wav, Key.wav)

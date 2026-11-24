@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **942 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **948 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -63,6 +63,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [AGENTS.md](../../AGENTS.md) | Definisce vincoli per gli agenti, procedura di upgrade del motore e verifiche assegnate all’utente. |
 | [CHANGELOG.md](../../CHANGELOG.md) | Registra le modifiche visibili all'utente per versione. |
 | [LICENSE](../../LICENSE) | Contiene la licenza MIT di Arcane. |
+| [.gitattributes](../../.gitattributes) | Conserva senza conversioni i testi delle licenze di terzi verificati per hash. |
 | [NOTICE](../../NOTICE) | Conserva attribuzioni del motore al pin corrente, di rclone, dei componenti, dei loghi e delle altre risorse riutilizzate. |
 | [Package.swift](../../Package.swift) | Dichiara i target SwiftPM (`NXLibraryCore`, il modulo `ArcanePorting` che dipende dalla base, l'app che li importa entrambi, i test), le loro dipendenze e il deployment macOS minimo. |
 | [README.md](../../README.md) | Presenta Arcane come libreria e launcher Mac, con guide d'uso (anche per la prima connessione cloud), requisiti e crediti. |
@@ -872,7 +873,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/NXLibraryCoreTests/SettingsRowActionTests.swift](../../Tests/NXLibraryCoreTests/SettingsRowActionTests.swift) | Regressioni per giochi omonimi e azioni secondarie della medesima riga. |
 | [Tests/ArcanePortingTests/ScreenshotFallbackTests.swift](../../Tests/ArcanePortingTests/ScreenshotFallbackTests.swift) | Screenshot LaunchBox cercati una volta e conservati, precedenza di quelli propri e dimensione piena della scelta. |
 | [Tests/NXLibraryCoreTests/SteamGridDBArtTests.swift](../../Tests/NXLibraryCoreTests/SteamGridDBArtTests.swift) | Chiave privata, richieste con la chiave solo a SteamGridDB, crediti, anteprime e ricerca da Browse online. |
-| [Tests/PublicationChecks/test_publication.py](../../Tests/PublicationChecks/test_publication.py) | Esegue il controllo reale in repository temporanee: sorgenti consentiti, file vietati, chiavi sintetiche senza esposizione e runtime non corrispondente al lock. |
+| [Tests/PublicationChecks/test_publication.py](../../Tests/PublicationChecks/test_publication.py) | Esegue il controllo in repository temporanee: file vietati, chiavi sintetiche redatte, runtime non conforme e testi o sorgenti mancanti o alterati. |
 | [Tests/PublicationChecks/test_release_target.py](../../Tests/PublicationChecks/test_release_target.py) | Verifica senza rete i controlli e la destinazione unica di tag e release attraverso repository locali e comandi sostitutivi. |
 | [Tests/PublicationChecks/test_update_archive.py](../../Tests/PublicationChecks/test_update_archive.py) | Verifica il controllo ZIP reale con bundle sintetici, symlink, percorsi non sicuri, collisioni Unicode, header incoerenti e dimensioni eccessive. |
 
@@ -1140,7 +1141,8 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [scripts/build_app.sh](../../scripts/build_app.sh) | Compila in staging, anche l’icona in `Assets.car`; prepara plist, runtime, risorse e, in release, rclone verificato; firma e pubblica il bundle con sostituzione atomica. |
 | [scripts/inject_google_client.py](../../scripts/inject_google_client.py) | Scrive la coppia OAuth Google nel plist della build privata solo se completa, senza argomenti con credenziali. |
 | [scripts/install_built_app.swift](../../scripts/install_built_app.swift) | Ingresso CLI che riusa BuildOutputInstaller per firmare, verificare e installare Arcane dopo il packaging. |
-| [scripts/check_publication.py](../../scripts/check_publication.py) | Rifiuta contenuti personali o di gioco versionati e formati di segreto riconoscibili; verifica il runtime rispetto al lock prima del packaging. |
+| [scripts/check_publication.py](../../scripts/check_publication.py) | Rifiuta contenuti personali o di gioco versionati, verifica il runtime rispetto al lock e controlla licenze e sorgenti del bundle di release. |
+| [scripts/bundle-licences.json](../../scripts/bundle-licences.json) | Percorsi e SHA-256 dei testi e dei sorgenti verificati nel bundle di release. |
 | [scripts/build_dmg.sh](../../scripts/build_dmg.sh) | Confeziona un bundle già costruito come `Oort NX.app` nel volume DMG Oort NX. |
 | [scripts/bundle_runtime.sh](../../scripts/bundle_runtime.sh) | Prepara Python e strumenti dalle versioni bloccate, verifica gli hash e firma il runtime incluso. |
 | [scripts/release.sh](../../scripts/release.sh) | Verifica il pin effettivo in un checkout anonimo temporaneo; produce ZIP con radice `NXLibrary.app` e DMG Oort NX. Riprende la pubblicazione solo con tag identici sul commit atteso e release assente. |
@@ -1188,6 +1190,10 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Resources/Brands/SteamLogo.png](../../Resources/Brands/SteamLogo.png) | Logo Steam inverso dalle linee guida Valve, inalterato; attribuzione in `NOTICE`. |
 | [Resources/Brands/BuyMeACoffee.png](../../Resources/Brands/BuyMeACoffee.png) | Icona gialla dal kit ufficiale Buy Me a Coffee per il pulsante di sostegno; attribuzione in `NOTICE`. |
 | [Resources/Selene/NOTICE-palettes.txt](../../Resources/Selene/NOTICE-palettes.txt) | Attribuzioni delle palette incluse con esse. |
+| [Resources/ThirdPartyLicenses/omarchy-LICENSE.txt](../../Resources/ThirdPartyLicenses/omarchy-LICENSE.txt) | Testo MIT di Omarchy per le palette derivate. |
+| [Resources/ThirdPartyLicenses/python-LICENSES.txt](../../Resources/ThirdPartyLicenses/python-LICENSES.txt) | Licenze delle dipendenze native di CPython, Tcl/Tk e delle estensioni. |
+| [Resources/ThirdPartyLicenses/rclone-LICENSES.txt](../../Resources/ThirdPartyLicenses/rclone-LICENSES.txt) | Licenze e avvisi di rclone, delle dipendenze Go incluse e della libreria standard. |
+| [Resources/ThirdPartyLicenses/wheel-NOTICES.txt](../../Resources/ThirdPartyLicenses/wheel-NOTICES.txt) | Avvisi aggiuntivi per il codice incorporato nelle wheel Python. |
 | [Resources/Selene/Sounds/Boot.wav](../../Resources/Selene/Sounds/Boot.wav) | Cue sonoro incluso per l’avvio. |
 | [Resources/Selene/Sounds/Key.wav](../../Resources/Selene/Sounds/Key.wav) | Cue sonoro incluso per la pressione dei tasti. |
 | [Resources/Selene/Sounds/Success.wav](../../Resources/Selene/Sounds/Success.wav) | Cue sonoro incluso per il completamento di un’azione. |

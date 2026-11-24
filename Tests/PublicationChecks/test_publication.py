@@ -95,6 +95,44 @@ class PublicationChecks(unittest.TestCase):
         (runtime / "sources" / "zbic-1.0.1.post1.tar.gz").write_bytes(b"fixture")
         self.assertEqual(self.scan("--runtime", str(runtime)).returncode, 0)
 
+    def test_release_app_requires_every_reviewed_text_and_source(self):
+        app = self.root / "fixture.app"
+        resources = app / "Contents/Resources"
+        runtime = resources / "Runtime"
+        lock = b'{"python":{"version":"3.14.6"},"wheels":[],"brew":[]}'
+        (self.root / "runtime.lock").write_bytes(lock)
+        for path in [runtime / name for name in ["python/bin/python3", "bin/zstd", "bin/glslangValidator"]] + [
+            app / "Contents/Helpers/rclone"
+        ]:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("fixture")
+            path.chmod(0o755)
+        (runtime / "versions.json").write_text(json.dumps(
+            {"python": "3.14.6", "lock": hashlib.sha256(lock).hexdigest()}))
+        contents = {"ThirdPartyLicenses/rclone.txt": b"rclone licence",
+                    "Runtime/licenses/python.txt": b"Python licence",
+                    "Runtime/sources/zbic.tar.gz": b"source archive"}
+        manifest = {name: hashlib.sha256(data).hexdigest() for name, data in contents.items()}
+        (self.root / "scripts").mkdir()
+        (self.root / "scripts/bundle-licences.json").write_text(json.dumps(manifest))
+        for name, data in contents.items():
+            path = resources / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(data)
+        self.assertEqual(self.scan("--app", str(app)).returncode, 0)
+        for name, data in contents.items():
+            with self.subTest(name=name):
+                path = resources / name
+                path.unlink()
+                result = self.scan("--app", str(app))
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("Missing bundle licence or source: " + name, result.stdout)
+                path.write_bytes(b"")
+                result = self.scan("--app", str(app))
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("Changed bundle licence or source: " + name, result.stdout)
+                path.write_bytes(data)
+
 
 if __name__ == "__main__":
     unittest.main()

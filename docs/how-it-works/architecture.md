@@ -1002,7 +1002,9 @@ Nel repository, `.build/` contiene gli output SwiftPM, `work/Runtime` il runtime
 - `build_app.sh` compila e confeziona bundle, risorse, plist e firma ad hoc, poi installa il bundle completo attraverso `BuildOutputInstaller` dopo firma e verifica. Le destinazioni standard sono `Oort NX Dev.app` e `Oort NX.app`. Il suo parametro di destinazione permette di preparare una copia temporanea prima di sostituire quella installata. Nella build di release verifica lo SHA-256 di rclone arm64 sia contro il pin sia contro l'elenco ufficiale, poi firma il binario in `Contents/Helpers` prima di firmare l'app. Se sono forniti entrambi i valori OAuth Google, `inject_google_client.py` li scrive nel plist senza inserirli negli argomenti dei processi.
 - `release.sh` richiede un albero pulito e il runtime pronto, esegue la suite Swift sul pin effettivo in un checkout temporaneo e lancia i controlli `Tests/CatalogAppChecks/run_*.py`. Imposta versione e marker di release e crea ZIP e DMG. Un pin personalizzato è scritto nel bundle prima della firma e nelle note.
 - Con `--publish` autorizzato, l'unico URL di push di `origin` corrisponde al repository pubblico dell'updater, `HEAD` coincide con il suo `main` e il pin è raggiungibile da un ramo pubblico. Lo script verifica tag e assenza della release; riprende solo con tag locale e remoto identici sul commit atteso. Rifiuta le variabili del client Google, anche vuote, e le chiavi nel plist finale. `build_dmg.sh` confeziona un bundle già costruito.
-- Il runtime e i contenuti versionati si verificano con `scripts/check_publication.py`.
+- `scripts/check_publication.py` verifica il runtime e i contenuti versionati.
+  In release confronta anche licenze, avvisi e sorgenti previsti dal manifesto
+  con il bundle in staging e con quello estratto dallo ZIP.
 
 ## Verifica e manutenzione
 

@@ -74,14 +74,42 @@ def check_runtime(root, runtime):
     return []
 
 
+def check_app(root, app):
+    resources = app / "Contents/Resources"
+    issues = check_runtime(root, resources / "Runtime")
+    if not (app / "Contents/Helpers/rclone").is_file():
+        issues.append("Release app is missing rclone.")
+    try:
+        if not resources.resolve().is_relative_to(app.resolve()):
+            return issues + ["Bundle resources point outside the app."]
+        expected = json.loads((root / "scripts/bundle-licences.json").read_text())
+        if not isinstance(expected, dict) or not expected:
+            return issues + ["Bundle licence manifest must not be empty."]
+        for name, digest in expected.items():
+            path = resources / name
+            if path.is_symlink() or not path.resolve().is_relative_to(resources.resolve()):
+                issues.append("Invalid bundle licence path: " + name)
+                continue
+            if not path.is_file():
+                issues.append("Missing bundle licence or source: " + name)
+            elif hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+                issues.append("Changed bundle licence or source: " + name)
+    except (OSError, ValueError, RuntimeError):
+        issues.append("Bundle licence manifest could not be verified.")
+    return issues
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--runtime", type=Path, help="Also verify a bundled runtime against runtime.lock.")
+    parser.add_argument("--app", type=Path, help="Also verify a release app's reviewed licence and source files.")
     args = parser.parse_args()
     root = Path(subprocess.check_output(["git", "rev-parse", "--show-toplevel"]).decode().strip())
     issues = check_files(root)
     if args.runtime:
         issues += check_runtime(root, args.runtime)
+    if args.app:
+        issues += check_app(root, args.app)
     for issue in issues:
         print(issue)
     if not issues:
