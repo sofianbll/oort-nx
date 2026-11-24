@@ -20,7 +20,7 @@ struct SettingsProfileIdentitySection: View {
             }
             let details = [created, L10n.format("%@ played", [LibraryPresentation.duration(time)])]
                 .compactMap { $0 }.joined(separator: " · ")
-            VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
+            OortSettingsGroup {
                 SeleneOptionRow(icon: nil, title: profile.name, about: details, focused: false,
                                 leading: AnyView(ProfilePortrait(profile: profile, size: 60, ring: true)),
                                 titleAccessory: AnyView(SeleneStatusDot(text: L10n.text("Active profile"), color: SeleneTheme.statusOK))) {

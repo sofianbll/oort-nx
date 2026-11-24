@@ -3,6 +3,8 @@ import NXLibraryCore
 
 struct SeleneOptionRow<Trailing: View>: View {
     @Environment(\.seleneCanvas) private var canvas
+    @Environment(\.oortGroupedRow) private var grouped
+    @State private var hovered = false
 
     let icon: MaterialIcon?
     let title: String
@@ -18,6 +20,8 @@ struct SeleneOptionRow<Trailing: View>: View {
     var truncateAboutInMiddle = false
     var aboutFont: SeleneTokens.Text = .text
     var platform: PlatformKind? = nil
+    /// False: the line is data (a path, a state), not an explanation, and stays on the row.
+    var aboutIsHelp = true
     @ViewBuilder var trailing: () -> Trailing
 
     var body: some View {
@@ -39,7 +43,7 @@ struct SeleneOptionRow<Trailing: View>: View {
                     .foregroundColor(destructive ? SeleneTheme.danger : (enabled ? SeleneTheme.ink : SeleneTheme.ink60))
                     titleAccessory
                 }
-                if let about {
+                if let about, !(grouped && aboutIsHelp) {
                     Group {
                         if let aboutPreview {
                             SeleneExpandableText(text: about, preview: aboutPreview, expanded: focused)
@@ -58,21 +62,26 @@ struct SeleneOptionRow<Trailing: View>: View {
             trailing()
         }
         .modifier(SeleneOptionRowSurface(focused: focused))
+        .onHover { hovered = $0 }
+        .preference(key: OortRowHelpKey.self, value: grouped && aboutIsHelp && (focused || hovered) ? about : nil)
+        .accessibilityHint(grouped && aboutIsHelp ? about ?? "" : "")
+        .containerValue(\.oortSettingsRow, true)
     }
 }
 
 /// The option row's shell, also used when progress needs a full-width line below the content.
 struct SeleneOptionRowSurface: ViewModifier {
     @Environment(\.seleneCanvas) private var canvas
+    @Environment(\.oortGroupedRow) private var grouped
     let focused: Bool
 
     func body(content: Content) -> some View {
-        let radius = canvas.u(16)
+        let radius = canvas.u(SeleneTokens.Radius.card)
         content
             .padding(.leading, canvas.u(SeleneTokens.Space.rowLeading))
             .padding(.trailing, canvas.u(SeleneTokens.Space.large))
-            .padding(.vertical, canvas.u(SeleneTokens.Space.control))
-            .background(SeleneTheme.glass, in: RoundedRectangle(cornerRadius: radius, style: .continuous))
+            .padding(.vertical, canvas.u(grouped ? SeleneTokens.Space.line : SeleneTokens.Space.control))
+            .background(grouped ? .clear : SeleneTheme.glass, in: RoundedRectangle(cornerRadius: radius, style: .continuous))
             .seleneRowFocus(focused, radius: radius)
     }
 }

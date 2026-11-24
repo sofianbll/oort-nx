@@ -33,7 +33,7 @@ struct SettingsSpotlightSection: View {
     }
 
     var body: some View {
-        VStack(spacing: canvas.u(8)) {
+        OortSettingsGroup {
             SettingsSubheading(L10n.text("Cards"))
             ForEach(SpotlightCard.allCases.filter { $0 != .inbox }, id: \.self) { card in
                 SeleneToggleRow(card.title, isOn: cardBinding(card))

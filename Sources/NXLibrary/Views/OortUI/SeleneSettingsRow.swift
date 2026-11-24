@@ -89,7 +89,8 @@ struct SeleneRow<Trailing: View>: View {
         SeleneOptionRow(icon: nil, title: verbatimTitle ? title : L10n.text(title, context: localization),
                         about: about.isEmpty ? nil : about, focused: isFocused,
                         titleAccessory: change.map { _ in AnyView(SeleneStatusMark(color: SeleneTheme.glyph, pulses: false)) },
-                        truncateAboutInMiddle: truncateSubtitleInMiddle && change == nil, platform: platform) {
+                        truncateAboutInMiddle: truncateSubtitleInMiddle && change == nil, platform: platform,
+                        aboutIsHelp: !verbatimSubtitle) {
             HStack(spacing: 10) {
                 if let info {
                     SeleneInfoTip(info)

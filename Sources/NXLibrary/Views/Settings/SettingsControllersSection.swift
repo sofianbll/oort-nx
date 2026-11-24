@@ -12,7 +12,7 @@ struct SettingsControllersSection: View {
     private var layout: GamepadLayout { .init(settings.settings) }
 
     var body: some View {
-        VStack(spacing: 9) {
+        OortSettingsGroup {
             SettingsSubheading(L10n.text("Library controls"))
             SeleneRow("Gamepad",
                       subtitle: controller.isGamepadConnected

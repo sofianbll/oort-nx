@@ -32,7 +32,7 @@ struct SettingsSourcesSection: View {
         }
     }
     var body: some View {
-        VStack(spacing: 9) {
+        OortSettingsGroup {
             SeleneButtonRow("Mac apps", id: "macShortcutAdd",
                             subtitle: "Add a shortcut to an app on this Mac. The app stays where it is.",
                             platform: .mac,
@@ -59,12 +59,12 @@ struct SettingsSourcesSection: View {
             }
             if sources.reviewCount > 0 {
                 Text(L10n.count("%lld Steam games need review", sources.reviewCount, context: localization))
-                    .seleneFont(.text).foregroundColor(SeleneTheme.ink60).padding(.vertical, 10)
+                    .seleneFont(.text).foregroundColor(SeleneTheme.ink).padding(.vertical, 10)
             }
             if !review.isEmpty {
                 SettingsSubheading("Review installations")
                 Text(L10n.text("Check these installations in Steam, then refresh this source. Only recognized native Mac games appear in the library.", context: localization))
-                    .seleneFont(.text).foregroundColor(SeleneTheme.ink60).fixedSize(horizontal: false, vertical: true)
+                    .seleneFont(.text).foregroundColor(SeleneTheme.ink).fixedSize(horizontal: false, vertical: true)
                 ForEach(review) { game in
                     SeleneRow(game.name, id: "review-\(game.id)", subtitle: "Needs review", verbatimTitle: true) {
                         Button(L10n.text("Reveal", context: localization)) { reveal(game) }.buttonStyle(.plain).foregroundColor(SeleneTheme.glyph)

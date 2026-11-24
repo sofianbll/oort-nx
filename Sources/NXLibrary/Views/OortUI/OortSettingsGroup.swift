@@ -1,0 +1,90 @@
+import SwiftUI
+import NXLibraryCore
+
+extension ContainerValues {
+    /// A settings row: neighbours share one card. Anything else (a heading, a note, a panel) stands on its own.
+    @Entry var oortSettingsRow = false
+}
+
+extension EnvironmentValues {
+    /// A row inside an `OortSettingsGroup` draws no card and leaves its explanation to the page's help line.
+    @Entry var oortGroupedRow = false
+}
+
+/// The explanation of the row under the pointer or in focus, shown once for the whole page.
+struct OortRowHelpKey: PreferenceKey {
+    static let defaultValue: String? = nil
+    static func reduce(value: inout String?, nextValue: () -> String?) { value = value ?? nextValue() }
+}
+
+/// Settings rows as System Settings groups them: one card per run of rows, separators inside, air between cards.
+struct OortSettingsGroup<Content: View>: View {
+    @ViewBuilder var content: () -> Content
+    @Environment(\.seleneCanvas) private var canvas
+
+    var body: some View {
+        // Set on the content: a subview keeps the environment it was declared in.
+        Group(subviews: content().environment(\.oortGroupedRow, true)) { subviews in
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.large)) {
+                ForEach(runs(subviews)) { run in
+                    if run.isRows { card(run.views) } else { ForEach(run.views) { $0 } }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private struct Run: Identifiable {
+        let id: AnyHashable
+        let isRows: Bool
+        var views: [Subview]
+    }
+
+    private func runs(_ subviews: SubviewsCollection) -> [Run] {
+        subviews.reduce(into: []) { runs, view in
+            let isRow = view.containerValues.oortSettingsRow
+            if isRow, runs.last?.isRows == true {
+                runs[runs.count - 1].views.append(view)
+            } else {
+                runs.append(Run(id: AnyHashable(view.id), isRows: isRow, views: [view]))
+            }
+        }
+    }
+
+    private func card(_ rows: [Subview]) -> some View {
+        VStack(spacing: 0) {
+            ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
+                if index > 0 {
+                    Rectangle().fill(SeleneTheme.ink15)
+                        .frame(height: max(SeleneTokens.Space.thinStroke, canvas.u(SeleneTokens.Space.thinStroke)))
+                        .padding(.leading, canvas.u(SeleneTokens.Space.rowLeading))
+                        .accessibilityHidden(true)
+                }
+                row
+            }
+        }
+        .background(SeleneTheme.glassSolid,
+                    in: RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card), style: .continuous))
+    }
+}
+
+/// One steady line under the rows: what the current row does. Its height never changes, so nothing jumps.
+struct OortSettingsHelp: View {
+    let text: String?
+    @Environment(\.seleneCanvas) private var canvas
+    @Environment(\.seleneReduceMotion) private var reduceMotion
+
+    var body: some View {
+        Text(verbatim: text ?? " ")
+            .seleneFont(.text)
+            .foregroundStyle(SeleneTheme.ink)
+            .lineLimit(2)
+            .frame(maxWidth: .infinity, minHeight: canvas.u(SeleneTokens.Space.actionPillHeight), alignment: .leading)
+            .padding(.horizontal, canvas.u(SeleneTokens.Space.rowLeading))
+            .background(SeleneTheme.glassSolid,
+                        in: RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card), style: .continuous))
+            .opacity(text == nil ? 0 : 1)
+            .animation(Motion.focus(reduceMotion), value: text)
+            .accessibilityHidden(true)
+    }
+}

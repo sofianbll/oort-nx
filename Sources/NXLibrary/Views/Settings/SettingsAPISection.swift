@@ -91,11 +91,11 @@ struct SettingsAPISection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: canvas.u(8)) {
+        OortSettingsGroup {
             if accountOnly {
                 if let profile {
                     Text(L10n.format("Arcane works without an account. These settings only apply to %@.", [profile.name]))
-                        .seleneFont(.text).foregroundStyle(SeleneTheme.ink60)
+                        .seleneFont(.text).foregroundStyle(SeleneTheme.ink)
                     SettingsSubheading("Presence")
                     SeleneToggleRow("Appear online", isOn: preference(\.appearsOnline))
                     SeleneToggleRow("Show current game", subtitle: "Applies the next time you start a game.",

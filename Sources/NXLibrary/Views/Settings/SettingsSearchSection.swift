@@ -19,8 +19,8 @@ struct SettingsSearchSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
-            if !query.isEmpty && results.isEmpty {
-                OortEmptyState(title: L10n.text("No settings match."))
+            if results.isEmpty {
+                OortEmptyState(title: L10n.text(query.isEmpty ? "Find any setting by name or description." : "No settings match."))
             }
             SettingsDescriptorList(rows: results, onOpenGroup: onOpenGroup)
         }

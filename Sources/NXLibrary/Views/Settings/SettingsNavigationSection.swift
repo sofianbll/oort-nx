@@ -16,7 +16,7 @@ struct SettingsNavigationSection: View {
     }
 
     var body: some View {
-        VStack(spacing: canvas.u(8)) {
+        OortSettingsGroup {
             SeleneToggleRow("Button hints",
                             subtitle: "Shows the button prompts along the bottom of the screen.",
                             isOn: $settings.settings.showButtonHints)

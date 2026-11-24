@@ -115,7 +115,7 @@ struct SettingsCloudLibrarySection: View {
     }
 
     var body: some View {
-        VStack(spacing: canvas.u(8)) {
+        OortSettingsGroup {
             SettingsSubheading("Status")
             let provider = connected.flatMap { $0.type == "drive" ? nil : $0.type } ?? text("Google Drive")
             SeleneRow(selection.remote.map { "\(provider) · \($0)" } ?? text("Cloud service"),

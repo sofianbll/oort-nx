@@ -632,8 +632,13 @@ import ArcanePorting
             wallpaperURL: ThemeStore.shared.wallpaper(for: settings.settings.wallpaperID)?.url,
             sizing: .fill, animated: false, brightness: .bright)
         precondition(style.wallpaperURL != nil)
+        let sources = CatalogSourcesModel(
+            repository: CatalogRepository(store: .init(directory: output.appendingPathComponent("catalog-\(suffix)"))),
+            initialConfiguration: .init(integration: .steam)) { _ in }
         let host = NSHostingView(rootView: SettingsView(initialSection: .cloudSaves, viewModel: vm,
                 settings: settings, router: router, artwork: ArtworkStore())
+            .environmentObject(sources)
+            .environmentObject(AppUpdater())
             .environment(\.nxAppLocale, locale)
             .environment(\.colorScheme, .dark)
             .environment(\.seleneButtonNames, .nintendo)
@@ -667,10 +672,7 @@ import ArcanePorting
         send(.tabPrevious)
         send(.confirm)
         try capture("navigation-01-switch")
-        // Folder controls are inline. Start from the last of the three subject links and go up to Engine.
-        for _ in 0..<12 { send(.navigateDown) }
-        send(.navigateUp)
-        send(.navigateUp)
+        // The four subjects are the page; Engine is the first and already in focus.
         send(.confirm)
         try capture("navigation-02-engine")
         send(.cancel)
@@ -678,6 +680,12 @@ import ArcanePorting
         try capture("navigation-03-back")
         send(.cancel)
         precondition(router.settingsDecision == nil)
+        // Every category, for a look at the whole: the sidebar returns to where it was.
+        for index in 0..<SettingsPage.stops.count {
+            send(.tabNext)
+            settle()
+            try capture(String(format: "page-%02d", index))
+        }
         send(.cancel)
         precondition(router.settingsDecision == .leave && settings.draft?.hasChanges == true,
                      "Back must leave the subject, then the rows, then ask about the draft")

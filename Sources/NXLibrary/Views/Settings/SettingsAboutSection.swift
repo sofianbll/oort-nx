@@ -33,7 +33,7 @@ struct SettingsAboutSection: View {
     ]
 
     var body: some View {
-        VStack(spacing: 12) {
+        OortSettingsGroup {
             SelenePanel(AppIdentity.displayName) {
                 Text(L10n.text("A free, open-source game library and launcher for Mac. Play installed games and port compatible Switch titles with nxnative."))
                     .seleneFont(.text)

@@ -481,10 +481,10 @@ struct SettingsView: View {
         let visiblePage = page
         return ScrollViewReader { proxy in
             ScrollView {
-                VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
+                VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.large)) {
                     ForEach(visiblePage.inlineSections) { section in
                         if case .category(let category) = visiblePage, category == .integrations {
-                            OortReadout(text: category.title(for: section, in: localization), preset: .quiet)
+                            OortReadout(text: category.title(for: section, in: localization))
                                 .accessibilityAddTraits(.isHeader)
                         }
                         sectionContent(section, page: visiblePage)
@@ -553,10 +553,12 @@ struct SettingsView: View {
     private func subjectRows(_ category: SettingsCategory) -> some View {
         let visiblePage = page
         let subjects = category.subjects
-        return ForEach(subjects) { subject in
-            OortSettingsLink(id: subject.id, title: category.title(for: subject, in: localization),
-                             subtitle: subject.subtitle, value: subjectValue(subject)) {
-                openSubject(subject)
+        return OortSettingsGroup {
+            ForEach(subjects) { subject in
+                OortSettingsLink(id: subject.id, title: category.title(for: subject, in: localization),
+                                 subtitle: subject.subtitle, value: subjectValue(subject)) {
+                    openSubject(subject)
+                }
             }
         }
         .onAppear {
@@ -573,6 +575,7 @@ struct SettingsView: View {
         switch subject {
         case .profileNextendo: nextendo.accountName ?? L10n.text("No account linked")
         case .engine: seleneShort(setup.currentEngineCommit)
+        case .library: viewModel.libraryFolder?.lastPathComponent
         case .keys: L10n.text(setup.isProdKeysValid ? "Keys imported" : "No prod.keys imported")
         case .games: "\(L10n.text("Fullscreen")) · \(SettingsDraftFields.onOff(editor.settings.gameDefaults.fullscreen))"
         case .portingStorage: viewModel.storageUsage.map { seleneBytes($0.cacheBytes) }
