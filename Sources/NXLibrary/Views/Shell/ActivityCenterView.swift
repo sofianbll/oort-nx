@@ -23,11 +23,13 @@ struct ActivityCenterView: View {
         let porting = viewModel.porting
         let pending = Set(porting.pendingBuilds.entries.map(\.value.id) + cloud.queue.map(\.token)
             + [porting.activeBuildRequest?.id, cloud.active?.request.token, cloud.libraryMove?.id].compactMap { $0 })
-        return ActivityCenterFocus.rows(isBuilding: viewModel.isBuilding || porting.activeBuildRequest != nil,
+        let results = viewModel.activityResults.entries.map(\.id).filter { !pending.contains($0) }
+        let rows = ActivityCenterFocus.rows(isBuilding: viewModel.isBuilding || porting.activeBuildRequest != nil,
             activeBuild: viewModel.portingGameID ?? porting.activeBuildRequest?.gameID,
             queuedBuilds: viewModel.buildQueue, activeCloud: cloud.active?.request.token,
             queuedCloud: cloud.queue.map(\.token), move: cloud.libraryMove?.id,
-            results: viewModel.activityResults.entries.map(\.id).filter { !pending.contains($0) })
+            results: results)
+        return results.count == 1 && results.first == cloud.pendingMove?.id ? rows.filter { $0 != .clearAll } : rows
     }
 
     private var focusInset: EdgeInsets {
@@ -84,7 +86,7 @@ struct ActivityCenterView: View {
         case .result(let id):
             return [
                 result(id)?.canRetry == true ? HintItem(.a, "Retry", action: { onOpen(row) }) : nil,
-                HintItem(.x, "Clear", action: { onCancel(row) })
+                cloudLibrary.pendingMove?.id != id ? HintItem(.x, "Clear", action: { onCancel(row) }) : nil
             ].compactMap { $0 }
         case .clearAll:
             return [HintItem(.a, "Clear all", action: { onOpen(row) })]
@@ -132,7 +134,7 @@ struct ActivityCenterView: View {
                             ActivityRow(title: title(item.job, name: item.name), detail: status.detail,
                                         fraction: nil, status: text(status.key), color: status.color, focused: focused == row,
                                         open: nil, cancel: nil, retry: item.canRetry ? { onOpen(row) } : nil,
-                                        clear: { onCancel(row) })
+                                        clear: cloudLibrary.pendingMove?.id != id ? { onCancel(row) } : nil)
                         }
                     default:
                         let job = liveJob(row)
@@ -143,7 +145,7 @@ struct ActivityCenterView: View {
                         } else { false }
                         let color = cloud ? (indicator?.status ?? .pending).color
                             : (job.active ? SeleneTheme.ink : SeleneTheme.ink60)
-                        let moving: Bool = if case .move = row { cloudLibrary.libraryMove?.isCancelling == false } else { false }
+                        let moving: Bool = if case .move = row { cloudLibrary.libraryMove?.canCancel == true } else { false }
                         ActivityRow(title: job.title, detail: job.detail, fraction: job.fraction,
                                     indeterminate: indicator?.state.transfer()?.gauge(hasCover: false, hasDownloadPill: false) == .bar || moving,
                                     pulses: moving,
@@ -200,7 +202,7 @@ struct ActivityCenterView: View {
         case .move:
             guard let move = cloudLibrary.libraryMove else { return (text("Move library"), nil, nil, true) }
             return (title(.move(move.request), name: move.request.destination),
-                    detail(text(move.isCancelling ? "Cancelling…" : "Moving games…"), move.fraction, nil),
+                    detail(text(move.isVerifying ? "Verifying the move…" : move.isCancelling ? "Cancelling…" : "Moving games…"), move.fraction, nil),
                     move.fraction, true)
         case .result, .clearAll, .close: return ("", nil, nil, false)
         }
