@@ -8,7 +8,7 @@ enum GameOptionsItem: Hashable {
     case game(GameOptionsRow), players
 }
 
-/// Selene's Game options: the current screen dimmed, then a centred column (1040u)
+/// Selene's Game options: an opaque page with a centred column (1040u)
 /// with the game's name and glass rows. Edit details opens its own list and a
 /// removal asks in a Selene dialog. Rows, order and copy come from
 /// `GameOptionsPresentation`; this view only draws them and runs the actions.
@@ -199,8 +199,7 @@ struct GameOptionsView: View {
 
     var body: some View {
         let p = presentation
-        return SeleneOverlay(style: .options, onOutside: back) {
-            // A light shade: the screen behind is blurred (AppShellView), so the options read without darkening it much.
+        return SeleneOverlay(style: .page, onOutside: back) {
             VStack(spacing: 0) {
                 column(p)
                 // Where the screen underneath had its hints (which hide while this is open).
@@ -269,7 +268,7 @@ struct GameOptionsView: View {
                         && viewModel.gameToClose == nil && viewModel.gameWithInstallFailure == nil
                         && viewModel.alertMessage == nil && viewModel.settingsNotice == nil
                 }) { playersOpen = false }
-                .transition(.opacity)
+                .transition(.identity)
                 .zIndex(2)
             }
 
@@ -282,7 +281,7 @@ struct GameOptionsView: View {
             }
         }
         .animation(Motion.overlay(reduceMotion), value: confirm)
-        .animation(Motion.overlay(reduceMotion), value: panelOpen)
+        .animation(playersOpen ? nil : Motion.overlay(reduceMotion), value: panelOpen)
         .onAppear {
             installKeyMonitor()
             multiplayerAdapters = .current()

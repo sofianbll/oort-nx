@@ -104,7 +104,7 @@ struct LocalePicker: View {
             }
             .padding(canvas.u(32))
             .frame(width: canvas.u(800))
-            .background(SeleneTheme.glassSolid)
+            .background(SeleneTheme.glassCard)
             .clipShape(RoundedRectangle(cornerRadius: canvas.u(24)))
             .overlay(RoundedRectangle(cornerRadius: canvas.u(24)).strokeBorder(SeleneTheme.ink15, lineWidth: 1))
         }

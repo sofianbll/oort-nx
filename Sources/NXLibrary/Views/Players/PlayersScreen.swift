@@ -4,6 +4,8 @@ import NXLibraryCore
 /// Shared from the launcher controls and a built game's options. Each entry owns
 /// its existing parent navigation; this screen only owns its own panels and hints.
 struct PlayersScreen: View {
+    static let columns = 4
+
     @ObservedObject var model: PlayersScreenModel
     let onClose: () -> Void
     var orderNotes: [Int: String] = [:]
@@ -17,11 +19,11 @@ struct PlayersScreen: View {
 
     var body: some View {
         let covered = model.pin != nil || model.capturePlayer != nil || model.confirmsReset
-        SeleneOverlay(style: .deep, onOutside: back) {
+        SeleneOverlay(style: .page, onOutside: back) {
             VStack(spacing: 0) {
-                column
-                SeleneHintsBar(left: [HintItem(.b, "Back", action: back)],
-                               right: [HintItem(.navigate, "Move"), HintItem(.a, "Select", action: activate)])
+                stage
+                SeleneHintsBar(left: [HintItem(.b, isEditing ? "Cancel" : "Back", action: back)],
+                               right: commandHints)
             }
             .seleneOverlayOwnership(!covered)
             .opacity(model.capturePlayer != nil || model.pin != nil ? 0.24 : 1)
@@ -46,51 +48,153 @@ struct PlayersScreen: View {
         .onDisappear { model.endCapture() }
     }
 
-    private var column: some View {
-        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small)) {
-            Text(verbatim: heading)
+    private var stage: some View {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.section)) {
+            Text(verbatim: t("Players"))
                 .seleneFont(.screenTitle)
                 .foregroundStyle(SeleneTheme.ink)
                 .accessibilityAddTraits(.isHeader)
-            if model.page == .overview {
-                copy("The profile name is used only offline and in local play. Online, Nextendo keeps its own name.")
-            }
-            if let message = model.message { copy(message) }
-            if model.loading || model.saving { SeleneProgressBar(progress: nil) }
-            ScrollViewReader { proxy in
-                ScrollView {
-                    VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
-                        if model.page == .overview && model.hasIdenticalPads && model.leaseCapture != nil {
-                            copy("These controllers look identical. Choose a player and press a button on the controller to assign it.")
+            copy(model.message ?? (model.loading ? "Loading…" : instruction))
+            if model.readable {
+                modes
+                Grid(horizontalSpacing: canvas.u(SeleneTokens.Space.small), verticalSpacing: canvas.u(SeleneTokens.Space.small)) {
+                    ForEach(0..<(model.places.count / Self.columns), id: \.self) { band in
+                        GridRow {
+                            ForEach(1...Self.columns, id: \.self) { index in
+                                playerCard(band * Self.columns + index)
+                            }
                         }
-                        ForEach(model.rows, id: \.self) { id in row(id) }
                     }
-                    .padding(canvas.u(SeleneTokens.Space.tight))
                 }
-                .scrollIndicators(.hidden)
-                .onChange(of: model.focusedRow) { _, focus in
-                    guard let focus else { return }
-                    withAnimation(reduceMotion ? nil : SeleneTheme.quick) { proxy.scrollTo(focus) }
+                if case .profiles(let number) = model.page {
+                    profileChoices(number)
+                } else if let note = launchNote {
+                    copy(note)
                 }
+            } else if !model.loading {
+                SelenePillButton(title: "Retry", focused: true, scalesOnFocus: false, action: activate)
             }
         }
-        .frame(maxWidth: canvas.u(1040), maxHeight: .infinity, alignment: .topLeading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding(.horizontal, canvas.u(SeleneTokens.Space.chromeGutter))
         .padding(.top, canvas.u(SeleneTokens.Space.stageHeader))
-        .padding(.bottom, canvas.u(SeleneTokens.Space.control))
         .contentShape(Rectangle())
         .onTapGesture {}
     }
 
-    private var heading: String {
-        switch model.page {
-        case .overview: t("Players")
-        case .modes: t("Controller mode")
-        case .player(let number): playerTitle(number)
-        case .profiles: t("Choose a profile")
-        case .swap: t("Swap with…")
-        case .mergeTargets: t("Choose who gets all controllers")
+    private var modes: some View {
+        HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
+            ForEach(PlayerControllerMode.allCases, id: \.self) { mode in
+                Button { model.focus = .mode(mode); model.selectMode(mode) } label: {
+                    SeleneOptionRow(icon: nil, title: modeTitle(mode), about: nil, focused: gridFocus == .mode(mode)) {
+                        if model.plan.mode == mode {
+                            MaterialIconView(.done, size: SeleneTokens.Space.large)
+                                .foregroundStyle(SeleneTheme.glyph)
+                                .accessibilityHidden(true)
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(model.plan.mode == mode ? .isSelected : [])
+                .accessibilityHint(modeDescription(mode))
+                .help(modeDescription(mode))
+                .onHover { if hover.moved($0), !isEditing { model.focus = .mode(mode) } }
+                .disabled(isEditing || model.saving)
+            }
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(t("Controller mode"))
+    }
+
+    private func playerCard(_ number: Int) -> some View {
+        let profile = model.profile(for: number)
+        let populated = model.plan.slot(number) != nil
+        let receivesAllPads = model.plan.mode == .merge && number == model.mergeTarget
+        let mark = receivesAllPads || model.joinedPlayer == number && model.connectedPad(number) != nil
+        let name = profile?.name ?? (populated || receivesAllPads ? t("Guest") : t("Empty place"))
+        let hasPlayer = populated || receivesAllPads
+        let title = hasPlayer
+            ? L10n.format("Player %lld · %@", [number, name], context: localization) : playerTitle(number)
+        let details = hasPlayer ? padDescription(number) : name
+        let row: PlayersScreenModel.Row = isMoving ? .swapWith(number) : .player(number)
+        return Button { chooseCard(number) } label: {
+            SeleneOptionRow(icon: nil, title: title, about: details,
+                            focused: gridFocus == row || profilePlayer == number, leading: portrait(profile),
+                            aboutFont: .panelBody) {
+                if mark {
+                    MaterialIconView(.done, size: SeleneTokens.Space.large)
+                        .foregroundStyle(SeleneTheme.glyph)
+                        .accessibilityHidden(true)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(playerTitle(number))
+        .accessibilityValue(((hasPlayer ? [name] : []) + (receivesAllPads && !model.pads.isEmpty ? model.pads.map(padLabel) : [details]))
+            .joined(separator: ", "))
+        .accessibilityAddTraits(receivesAllPads ? .isSelected : [])
+        .onHover { if hover.moved($0), profilePlayer == nil { model.focus = row } }
+        .disabled(model.saving)
+        .animation(reduceMotion ? nil : SeleneTheme.quick, value: model.joinedPlayer)
+    }
+
+    private func profileChoices(_ number: Int) -> some View {
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
+                    ForEach(model.rows, id: \.self) { row in
+                        if case .profile(let id) = row {
+                            let profile = model.profiles.first { $0.id == id }
+                            Button { model.select(row) } label: {
+                                SeleneOptionRow(icon: profile?.isLocked == true ? .lock : nil,
+                                                title: profile?.name ?? t("Guest"), about: nil, focused: gridFocus == row,
+                                                leading: portrait(profile)) {
+                                    if model.plan.slot(number)?.profileID == id {
+                                        MaterialIconView(.done, size: SeleneTokens.Space.large)
+                                            .foregroundStyle(SeleneTheme.glyph)
+                                            .accessibilityHidden(true)
+                                    }
+                                }
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityAddTraits(model.plan.slot(number)?.profileID == id ? .isSelected : [])
+                            .id(row)
+                            .onHover { if hover.moved($0) { model.focus = row } }
+                        }
+                    }
+                }
+                .padding(canvas.u(SeleneTokens.Space.tight))
+            }
+            .scrollIndicators(.hidden)
+            .onChange(of: gridFocus, initial: true) { _, row in
+                proxy.scrollTo(row)
+            }
+            .accessibilityLabel(t("Choose a profile"))
+            .accessibilityHint(t("The profile name is used only offline and in local play. Online, Nextendo keeps its own name."))
+        }
+    }
+
+    private var instruction: String {
+        if isMoving { return "Choose the destination place." }
+        if profilePlayer != nil { return "Choose a profile for offline or local play." }
+        if model.plan.mode == .merge { return "Every controller plays for the selected profile." }
+        return "Press a button on a free controller to join."
+    }
+
+    private var launchNote: String? {
+        if model.plan.mode == .merge && model.showsGameLimits && !model.supportsExtendedMerge {
+            return "This game's app can only combine controllers on player 1."
+        }
+        if let number = focusedPlayer {
+            switch model.access(for: number) {
+            case .missing: return "Profile not found"
+            case .locked: return "Profile locked"
+            default: break
+            }
+            let notes = [orderNotes[number], profileNotes[number]].compactMap { $0 }.map(t)
+            if !notes.isEmpty { return notes.joined(separator: " · ") }
+        }
+        return modeNote
     }
 
     private func capturePrompt(_ number: Int) -> some View {
@@ -110,57 +214,15 @@ struct PlayersScreen: View {
                 SelenePillButton(title: "Cancel", focused: true, scalesOnFocus: false, action: back)
             }
             .foregroundStyle(SeleneTheme.ink)
-            .modifier(SeleneDialogCard(width: 1040))
+            .modifier(SeleneDialogCard())
         }
         .overlay(alignment: .bottom) {
             SeleneHintsBar(left: [HintItem(.b, "Cancel", action: back)])
         }
     }
 
-    private func row(_ id: PlayersScreenModel.Row) -> some View {
-        let presentation = presentation(id)
-        return Button {
-            model.select(id)
-        } label: {
-            SeleneOptionRow(icon: presentation.icon, title: presentation.title, about: presentation.about,
-                            focused: model.focusedRow == id, destructive: id == .remove,
-                            leading: portrait(presentation)) {
-                if presentation.selected {
-                    MaterialIconView(.done, size: SeleneTokens.Space.large)
-                        .foregroundStyle(SeleneTheme.glyph)
-                        .accessibilityHidden(true)
-                } else if presentation.opens {
-                    HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
-                        if let pad = presentation.pad { padIcon(pad).foregroundStyle(SeleneTheme.rowIcon) }
-                        MaterialIconView(.chevron, size: SeleneTokens.Space.large)
-                            .foregroundStyle(SeleneTheme.ink60)
-                    }
-                    .accessibilityHidden(true)
-                }
-            }
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .disabled(model.saving || model.loading)
-        .accessibilityAddTraits(presentation.selected ? .isSelected : [])
-        .onHover { if hover.moved($0) { model.focus = id } }
-        .id(id)
-    }
-
-    private struct Presentation {
-        var title: String
-        var about: String?
-        var icon: MaterialIcon?
-        var portrait: LocalProfile?
-        var avatar = false
-        var pad: GamepadBrand?
-        var selected = false
-        var opens = false
-    }
-
-    private func portrait(_ presentation: Presentation) -> AnyView? {
-        guard presentation.avatar else { return nil }
-        if let profile = presentation.portrait {
+    private func portrait(_ profile: LocalProfile?) -> AnyView {
+        if let profile {
             return AnyView(ProfilePortrait(profile: profile, size: SeleneTokens.Space.group))
         }
         return AnyView(MaterialIconView(.person, size: SeleneTokens.Space.large)
@@ -169,61 +231,16 @@ struct PlayersScreen: View {
             .accessibilityHidden(true))
     }
 
-    private func presentation(_ row: PlayersScreenModel.Row) -> Presentation {
-        switch row {
-        case .modes:
-            return .init(title: t("Controller mode"), about: joined([modeTitle(model.plan.mode), modeDescription(model.plan.mode),
-                          modeNote.map(t)]), icon: .gamepad, opens: true)
-        case .mode(let mode):
-            return .init(title: modeTitle(mode), about: modeDescription(mode), selected: model.plan.mode == mode)
-        case .player(let number), .swapWith(let number):
-            let profile = model.profile(for: number)
-            let label = L10n.format("Player %lld · %@", [number, profile?.name ?? t("Guest")], context: localization)
-            let note: String?
-            switch model.access(for: number) {
-            case .missing: note = t("Profile not found")
-            case .locked: note = t("Profile locked")
-            default: note = profileNotes[number].map(t)
-            }
-            return .init(title: label, about: joined([padDescription(number), orderNotes[number].map(t), note]),
-                         portrait: profile, avatar: true, pad: padKind(number), opens: row == .player(number))
-        case .add: return .init(title: t("Add player"), icon: .add)
-        case .reset: return .init(title: t("Reset players"), icon: .restore)
-        case .retry: return .init(title: t("Retry"), icon: .sync)
-        case .profiles:
-            let number = if case .player(let number) = model.page { number } else { 0 }
-            let profile = model.profile(for: number)
-            return .init(title: t("Choose a profile"), about: profile?.name ?? t("Guest"),
-                         portrait: profile, avatar: true, opens: true)
-        case .assign: return .init(title: t("Assign controller"), icon: .gamepad, opens: true)
-        case .identify: return .init(title: t("Identify"), icon: .gamepad)
-        case .swap: return .init(title: t("Swap players"), icon: .swap, opens: true)
-        case .remove: return .init(title: t("Remove player"), icon: .delete)
-        case .mergeTarget:
-            let number = model.mergeTarget
-            let limitation = model.showsGameLimits && !model.supportsExtendedMerge
-                ? t("This game's app can only combine controllers on player 1.") : nil
-            return .init(title: t("Choose who gets all controllers"),
-                         about: joined([playerTitle(number), limitation]), icon: .person, opens: true)
-        case .target(let number):
-            let profile = model.profile(for: number)
-            return .init(title: playerTitle(number), about: profile?.name ?? t("Guest"),
-                         portrait: profile, avatar: true, selected: number == model.mergeTarget)
-        case .profile(let id):
-            let profile = model.profiles.first { $0.id == id }
-            let number = if case .profiles(let number) = model.page { number } else { 0 }
-            return .init(title: profile?.name ?? t("Guest"), about: profile?.isLocked == true ? t("Profile locked") : nil,
-                         portrait: profile, avatar: true, selected: model.plan.slot(number)?.profileID == id)
-        }
-    }
-
     private func padDescription(_ number: Int) -> String {
         if model.plan.mode == .merge {
             guard number == model.mergeTarget else { return t("On hold while controllers are combined") }
             if model.pads.isEmpty { return t("No controllers connected") }
-            return model.pads.map(padLabel).joined(separator: "\n")
+            let suffix = model.pads.count > 2
+                ? [L10n.format("+%lld more", [model.pads.count - 2], context: localization)] : []
+            return (model.pads.prefix(2).map(padLabel) + suffix).joined(separator: "\n")
         }
         if let pad = model.connectedPad(number) { return padLabel(pad) }
+        if model.plan.slot(number) == nil { return t("No controller assigned") }
         switch model.resolution.slots[number] {
         case .inactive: return t("On hold while controllers are combined")
         case .needsConfirmation: return t(model.leaseCapture == nil
@@ -239,22 +256,7 @@ struct PlayersScreen: View {
             L10n.format("Battery: %@", [Double($0).formatted(.percent.precision(.fractionLength(0)).locale(localization.formatLocale))],
                         context: localization)
         }
-        return joined([pad.name ?? t("Gamepad"), t("Connected"), battery], separator: " · ") ?? ""
-    }
-
-    private func padKind(_ number: Int) -> GamepadBrand? {
-        if model.plan.mode == .merge { return number == model.mergeTarget ? .generic : nil }
-        return model.connectedPad(number)?.kind ?? (model.plan.slot(number)?.controller == nil ? nil : .generic)
-    }
-
-    @ViewBuilder private func padIcon(_ kind: GamepadBrand) -> some View {
-        switch kind {
-        case .nintendoSwitch:
-            PlatformMark(kind: .switch1)
-        case .xbox: Image(systemName: "logo.xbox").seleneFont(.rowTitle)
-        case .playstation: Image(systemName: "logo.playstation").seleneFont(.rowTitle)
-        case .generic: Image(systemName: "gamecontroller").seleneFont(.rowTitle)
-        }
+        return [pad.name ?? t("Gamepad"), battery ?? t("Connected")].joined(separator: "\n")
     }
 
     private func modeTitle(_ mode: PlayerControllerMode) -> String {
@@ -277,13 +279,9 @@ struct PlayersScreen: View {
     private func playerTitle(_ number: Int) -> String {
         L10n.format("Player %lld", [number], context: localization)
     }
-    private func joined(_ lines: [String?], separator: String = "\n") -> String? {
-        let content = lines.compactMap { $0 }.joined(separator: separator)
-        return content.isEmpty ? nil : content
-    }
     private func copy(_ value: String) -> some View {
         Text(verbatim: t(value))
-            .seleneFont(.caption)
+            .seleneFont(.selectionTitle)
             .foregroundStyle(SeleneTheme.ink75)
             .frame(maxWidth: .infinity, alignment: .leading)
             .fixedSize(horizontal: false, vertical: true)

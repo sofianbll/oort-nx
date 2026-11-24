@@ -220,14 +220,16 @@ diminuire. Rimuovere le occorrenze sostituite con token.
 Il rail di Spotlight e Collection ripunta la molla critica alla nuova selezione;
 con Riduci movimento la posizione e gli interruttori cambiano direttamente.
 
-`SeleneOverlay` fornisce il velo e il clic esterno per menu, ricerca, opzioni,
-profili, conferme e Cloud. La shell applica il blur associato allo stile e
+`SeleneOverlay` fornisce il velo e il clic esterno per menu, ricerca, profili,
+conferme e Cloud. Le Opzioni di gioco (anche Steam), l'editor del nome e Giocatori usano invece
+lo sfondo opaco della palette: nomi e comandi della pagina coperta non si leggono.
+La shell applica il blur associato allo stile e
 nasconde input del puntatore, VoiceOver e suggerimenti dei livelli coperti.
 Router e pannelli continuano a gestire gli stessi comandi e identità di focus;
 `ProfileLayers` decide quale strato dei profili resta attivo.
 `SeleneConfirmDialog` condivide l'ordine dei pulsanti con la navigazione:
 conferma a sinistra, annullamento a destra. Il chiamante conserva il focus
-iniziale sulla scelta sicura. `SeleneDialogCard` mostra i suggerimenti del
+iniziale sulla scelta sicura. `SeleneDialogCard` usa una superficie opaca sopra il velo e mostra i suggerimenti del
 dialogo attivo, anche per le scelte multiple e per l'assistente cloud. A indica
 la selezione del pulsante attivo, anche se è la scelta sicura. Nei dialoghi a
 scelta il testo ha una larghezza definita prima di misurare l'altezza, per
@@ -506,7 +508,8 @@ Resume nello Spotlight o nella scheda Switch resta un comando del monitor: se il
 **Preparazione.**
 - Il flusso Play controlla operazioni sui salvataggi, recuperi e installazioni in attesa.
 - `GameRuntimeConfig` traduce le impostazioni in variabili `DM_*`. `LauncherSettingsReader` legge il contratto `launcher.json` del gioco e decide i controlli supportati, con un ripiego per le app più vecchie.
-- Game Options e Settings → Controllers aprono lo stesso `PlayersScreen`. Il pannello Selene legge e modifica il piano comune tramite `AppViewModel+PlayersScreen` e il writer del lancio. I numeri restano stabili fra aggiunte e rimozioni, salvo scambio esplicito; i profili protetti usano `ProfilePINDialog`. Il pannello non avvia il gioco. Le omissioni del prossimo avvio appaiono accanto alla scelta o al giocatore interessato.
+- Game Options e Settings → Controllers aprono lo stesso `PlayersScreen`. La griglia Selene tiene visibili gli otto posti e le tre modalità; profilo, destinazione dello spostamento e comandi del posto restano sulla stessa pagina. `PlayersScreenModel` legge e salva il piano comune tramite `AppViewModel+PlayersScreen` e il writer del lancio. I numeri restano stabili fra aggiunte e rimozioni, salvo spostamento o scambio esplicito; i profili protetti usano `ProfilePINDialog`. Non si avvia il gioco. Le omissioni del prossimo avvio appaiono per il giocatore o la modalità a fuoco.
+- Su questa pagina, `GameControllerService` può consumare la pressione di un controller libero prima che diventi un comando di menu. La pressione assegna la prima posizione senza controller, non cambia il focus e non sovrascrive una posizione ricordata ma ambigua. Le pressioni ravvicinate aspettano il writer in ordine; un'assegnazione esplicita su una scheda conserva l'acquisizione temporanea da dodici secondi.
 - La fusione indica il giocatore 1 in assenza di una scelta. Il bundle installato deve provare la capacità prima che la UI offra i giocatori da 2 a 8 e prima che `PlayersLaunch` passi quel numero. Un host con la sola fusione storica usa il giocatore 1; i dati degli altri posti non si cancellano.
 - La revisione del catalogo prepara l'ascendenza Git per checkout e commit fuori dal thread principale; il registro prepara le impronte HID in memoria a ogni cambio di connessioni e deduplica le due esposizioni dello stesso dispositivo tramite l'ID di registro. Play non aspetta questi rilevamenti: usa solo le prove già disponibili e l'istantanea corrente. I nomi sono limitati a 32 byte su caratteri interi. L'anteprima non decodifica o esporta ritratti; `LaunchService` trattiene i JPEG fino all'uscita o all'errore di apertura.
 - `NXNativeGameSettings.effectiveLaunchValue` legge un'impostazione dichiarata senza scriverla, nell'ordine del launcher del gioco: ambiente, `env.txt` del titolo, `env.txt` incluso, scelta salvata e default della build.
