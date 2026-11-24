@@ -11,13 +11,16 @@ struct CloudReferenceDialog: View {
     @Environment(\.nxAppLocale) private var localization
 
     private var folder: String? { CloudLibraryPreference.referenceFolderID(draft) }
+    private var buttonFocus: Binding<SeleneConfirmButton> {
+        Binding(get: { folder == nil ? .cancel : focus }, set: { focus = $0 })
+    }
 
     var body: some View {
         ZStack {
             SeleneTheme.scrim45.ignoresSafeArea().contentShape(Rectangle()).onTapGesture(perform: onClose)
             SeleneConfirmDialog(title: text("Reference library"),
-                message: text("Follow a shared Google Drive folder in read-only mode."),
-                confirmTitle: "Save", confirmEnabled: folder != nil, focus: $focus,
+                message: text("You follow this folder in read-only mode. Your library is not shared in return. Readers can download apps, caches and game files that Google Drive lets them see.\n\nWhen sharing, use a dedicated folder without keys or saves."),
+                confirmTitle: "Save", confirmEnabled: folder != nil, focus: buttonFocus,
                 onCancel: onClose, onConfirm: save) {
                 TextField(text("Google Drive folder link or ID"), text: $draft)
                     .textFieldStyle(.plain)
@@ -43,9 +46,9 @@ struct CloudReferenceDialog: View {
         .onReceive(NotificationCenter.default.publisher(for: .nxSettingsGamepadAction)) { note in
             guard let action = note.object as? GamepadAction else { return }
             switch action {
-            case .navigateLeft: focus = .left
+            case .navigateLeft where folder != nil: focus = .left
             case .navigateRight: focus = .right
-            case .confirm: focus == .confirm ? save() : onClose()
+            case .confirm: buttonFocus.wrappedValue == .confirm ? save() : onClose()
             case .cancel: onClose()
             default: break
             }

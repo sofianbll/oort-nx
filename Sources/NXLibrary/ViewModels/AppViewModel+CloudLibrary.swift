@@ -799,7 +799,7 @@ extension AppViewModel {
                 return L10n.format(key, [safeNames.joined(separator: ", ") + (names.count > 8 ? ", …" : "")])
             }
             return [
-                warning("Could not read cloud game records for: %@.", invalidTitles),
+                warning("These games were not added from these cloud copies because their information could not be read: %@.", invalidTitles),
                 warning("Ambiguous cloud game files: %@.", discovery?.ambiguous ?? []),
                 warning("Unreadable cloud game files: %@.", discovery?.unreadable ?? []),
                 unlistedSources ? L10n.text("Could not list cloud game files.") : nil,
