@@ -17,12 +17,10 @@ final class DevelopmentProfileTests: XCTestCase {
     func testBuildIdentityMustSelectExactlyOneMatchingProfile() throws {
         XCTAssertNoThrow(try AppData.validateBuildIdentity(["CFBundleIdentifier": "local.nxlibrary", "NXLibraryRelease": true]))
         XCTAssertNoThrow(try AppData.validateBuildIdentity(["CFBundleIdentifier": "local.nxlibrary.development", "NXLibraryDevelopmentProfile": true]))
-        XCTAssertNoThrow(try AppData.validateBuildIdentity(["CFBundleIdentifier": "local.nxlibrary.development.trial2", "NXLibraryDevelopmentProfile": true]))
         for invalid: [String: Any] in [[:], ["CFBundleIdentifier": "local.nxlibrary.development"],
                                      ["CFBundleIdentifier": "local.nxlibrary", "NXLibraryDevelopmentProfile": true],
                                      ["CFBundleIdentifier": "local.nxlibrary.development", "NXLibraryRelease": true],
-                                     ["CFBundleIdentifier": "local.nxlibrary", "NXLibraryRelease": true, "NXLibraryDevelopmentProfile": true],
-                                     ["CFBundleIdentifier": "local.nxlibrary.development.trial2", "NXLibraryRelease": true]] {
+                                     ["CFBundleIdentifier": "local.nxlibrary", "NXLibraryRelease": true, "NXLibraryDevelopmentProfile": true]] {
             XCTAssertThrowsError(try AppData.validateBuildIdentity(invalid))
         }
     }
@@ -33,49 +31,6 @@ final class DevelopmentProfileTests: XCTestCase {
         XCTAssertNotEqual(dev.cacheRoot, stable.cacheRoot)
         XCTAssertNotEqual(dev.preferencesDomain, stable.preferencesDomain)
         XCTAssertEqual(stable.supportRoot, dev.stableSupportRoot)
-        let trial = AppDataProfile(home: home, isDevelopment: true, isTrial2: true)
-        XCTAssertNotEqual(dev.supportRoot, trial.supportRoot)
-        XCTAssertNotEqual(dev.cacheRoot, trial.cacheRoot)
-        XCTAssertEqual(trial.preferencesDomain, "local.nxlibrary.development.trial2")
-        XCTAssertEqual(stable.supportRoot, trial.stableSupportRoot)
-    }
-    func testTrialSeedCopiesOnlyAllowedDataAndRefusesAnExistingDestination() throws {
-        let (home, _) = try fixture()
-        let profile = AppDataProfile(home: home, isDevelopment: true, isTrial2: true)
-        let allowed = ["library.json": #"{"schemaVersion":1,"games":[]}"#, "profiles.json": "[]", "metadata-picks.json": "{}",
-                       "ratings/wikidata/fixture.json": "{}", "play-sessions.json": "[]", "artwork-picks/own.png": "image",
-                       "integrations/steam/personal/personal.json": "{}", "integrations/steam/personal/assets/pick.png": "image"]
-        let excluded = ["settings.json", "keys/prod.keys", "credentials/igdb.json", "nextendo/token.json",
-                        "cloud-transfer-queue.json", "saves/slot.png", "artwork/foo/saves/slot.png",
-                        "ratings/igdb/token.json", "integrations/steam/personal/assets/unknown.pem"]
-        let source = allowed.merging(Dictionary(uniqueKeysWithValues: excluded.map { ($0, "untouched") })) { first, _ in first }
-        for (name, data) in source { try put(data, name, profile: profile) }
-        let importer = DevelopmentProfileImporter()
-        try importer.seedTrial2(profile: profile)
-        for (name, data) in source {
-            XCTAssertEqual(try String(contentsOf: profile.stableSupportRoot.appendingPathComponent(name), encoding: .utf8), data)
-            let copy = profile.supportRoot.appendingPathComponent(name)
-            if allowed[name] != nil {
-                XCTAssertEqual(try String(contentsOf: copy, encoding: .utf8), data, name)
-            } else {
-                XCTAssertFalse(FileManager.default.fileExists(atPath: copy.path), name)
-            }
-        }
-        XCTAssertThrowsError(try importer.seedTrial2(profile: profile))
-        XCTAssertEqual(try String(contentsOf: profile.supportRoot.appendingPathComponent("play-sessions.json"), encoding: .utf8), "[]")
-        XCTAssertFalse(FileManager.default.fileExists(atPath: profile.supportRoot.appendingPathComponent(".import-preferences.plist").path))
-    }
-
-    func testTrialSeedRefusesSymlinkedAncestor() throws {
-        let (home, _) = try fixture()
-        let profile = AppDataProfile(home: home, isDevelopment: true, isTrial2: true)
-        try put(#"{"schemaVersion":1,"games":[]}"#, "library.json", profile: profile)
-        let other = home.appendingPathComponent("external")
-        try FileManager.default.createDirectory(at: other, withIntermediateDirectories: true)
-        try FileManager.default.createSymbolicLink(at: profile.stableSupportRoot.appendingPathComponent("integrations"),
-                                                   withDestinationURL: other)
-        XCTAssertThrowsError(try DevelopmentProfileImporter().seedTrial2(profile: profile))
-        XCTAssertFalse(FileManager.default.fileExists(atPath: profile.supportRoot.path))
     }
     func testCopiesOnlyLauncherDataAndPreservesSourceAndIdentity() throws {
         let (_, profile) = try fixture()

@@ -32,16 +32,6 @@ public struct DevelopmentProfileImporter {
     }
     private static let files = ["library.json", "library.json.bak", "catalog.json", "catalog.json.bak", "settings.json", "profiles.json", "profiles-active", "play-sessions.json", "play-sessions-totals.json", SessionHistoryState.filename, "metadata-picks.json", "integrations/steam/metadata-picks.json", "app-sizes.json"]
     private static let folders = ["artwork-picks", "integrations/steam/artwork-picks", "artwork", "metadata", "SeleneImports", "app-icons", "mods", "gamebanana"]
-    private static let trialFiles = [
-        "library.json", "library.json.bak", "catalog.json", "catalog.json.bak",
-        "profiles.json", "profiles-active", "play-sessions.json", "play-sessions-totals.json",
-        SessionHistoryState.filename, "metadata-picks.json",
-        "integrations/steam/metadata-picks.json", "integrations/steam/personal/personal.json",
-    ]
-    private static let trialFolders = [
-        "artwork", "artwork-picks", "metadata", "descriptions/wikipedia", "ratings",
-        "integrations/steam/artwork-picks", "integrations/steam/personal/assets", "integrations/steam/enrichment",
-    ]
     private static let marker = ".development-import.json"
     private static let preferenceFile = ".import-preferences.plist"
     private struct ImportState: Codable {
@@ -50,12 +40,11 @@ public struct DevelopmentProfileImporter {
         let hashes: [String: String]
     }
     public func prepare(profile: AppDataProfile, sourcePreferences: () throws -> [String: Any],
-                         savePreferences: ([String: Any]) throws -> Void) throws -> Bool {
+                        savePreferences: ([String: Any]) throws -> Void) throws -> Bool {
         guard profile.isDevelopment else { return false }
         let source = profile.stableSupportRoot, destination = profile.supportRoot
         guard source.resolvingSymlinksInPath() != destination.resolvingSymlinksInPath() else { throw DevelopmentProfileError.invalidConfiguration }
         if try exists(destination) {
-            guard !profile.isTrial2 else { throw DevelopmentProfileError.destinationExists }
             try regularDirectory(destination)
             let marker = destination.appendingPathComponent(Self.marker)
             guard (try? fm.attributesOfItem(atPath: marker.path)[.type] as? FileAttributeType) == .typeRegular else { throw DevelopmentProfileError.destinationExists }
@@ -67,11 +56,7 @@ public struct DevelopmentProfileImporter {
             return true
         }
         if try exists(source) { try regularDirectory(source) }
-        let before = try snapshot(source, trial: profile.isTrial2)
-        if profile.isTrial2 {
-            guard ["catalog.json", "catalog.json.bak", "library.json", "library.json.bak"].contains(where: { before[$0] != nil })
-            else { throw DevelopmentProfileError.invalidData }
-        }
+        let before = try snapshot(source)
         let preferences = try sourcePreferences().filter { Self.ownedPreference($0.key) }
         let preferencesData = try PropertyListSerialization.data(fromPropertyList: preferences, format: .binary, options: 0)
         let parent = destination.deletingLastPathComponent()
@@ -83,12 +68,7 @@ public struct DevelopmentProfileImporter {
             let from = source.appendingPathComponent(relative), to = stage.appendingPathComponent(relative)
             try fm.createDirectory(at: to.deletingLastPathComponent(), withIntermediateDirectories: true)
             guard try fm.attributesOfItem(atPath: from.path)[.type] as? FileAttributeType == .typeRegular else { throw DevelopmentProfileError.sourceChanged }
-            if profile.isTrial2 {
-                // Copy bytes, not ACLs, attributes or resource forks.
-                try Data(contentsOf: from).write(to: to, options: .withoutOverwriting)
-            } else {
-                try fm.copyItem(at: from, to: to)
-            }
+            try fm.copyItem(at: from, to: to)
             guard try digest(to) == before[relative] else { throw DevelopmentProfileError.sourceChanged }
             if relative.hasSuffix(".json") {
                 do { _ = try JSONSerialization.jsonObject(with: Data(contentsOf: to), options: [.fragmentsAllowed]) }
@@ -96,11 +76,9 @@ public struct DevelopmentProfileImporter {
             }
         }
         try validateRequiredData(stage)
-        guard try snapshot(source, trial: profile.isTrial2) == before,
+        guard try snapshot(source) == before,
               NSDictionary(dictionary: try sourcePreferences().filter { Self.ownedPreference($0.key) }).isEqual(to: preferences) else { throw DevelopmentProfileError.sourceChanged }
-        if !profile.isTrial2 {
-            try preferencesData.write(to: stage.appendingPathComponent(Self.preferenceFile), options: .atomic)
-        }
+        try preferencesData.write(to: stage.appendingPathComponent(Self.preferenceFile), options: .atomic)
         // End a copied unfinished session at its last recorded heartbeat, never at the current time.
         func closeOpenSessions(_ sessions: inout [PlaySession]) -> Bool {
             var changed = false
@@ -122,10 +100,6 @@ public struct DevelopmentProfileImporter {
             if closeOpenSessions(&sessions) {
                 try JSONEncoder().encode(sessions).write(to: sessionFile, options: .atomic)
             }
-        }
-        if profile.isTrial2 {
-            try fm.moveItem(at: stage, to: destination)
-            return true
         }
         let state = ImportState(version: 1, ready: false, hashes: try snapshot(stage))
         try JSONEncoder().encode(state).write(to: stage.appendingPathComponent(Self.marker), options: .atomic)
@@ -174,58 +148,25 @@ public struct DevelopmentProfileImporter {
             } catch { throw DevelopmentProfileError.unreadableFile(name) }
         }
     }
-    public func seedTrial2(profile: AppDataProfile) throws {
-        guard profile.isTrial2 else { throw DevelopmentProfileError.invalidConfiguration }
-        _ = try prepare(profile: profile, sourcePreferences: { [:] }, savePreferences: { _ in })
-    }
-
-    private func snapshot(_ root: URL, trial: Bool = false) throws -> [String: String] {
+    private func snapshot(_ root: URL) throws -> [String: String] {
         var result: [String: String] = [:]
-        let folders = trial ? Self.trialFolders : Self.folders
         func visit(_ relative: String, depth: Int) throws {
             guard depth < 32, result.count < 100_000 else { throw DevelopmentProfileError.unsafeFile }
             let url = root.appendingPathComponent(relative)
             let attrs = try fm.attributesOfItem(atPath: url.path)
             switch attrs[.type] as? FileAttributeType {
-            case .typeRegular:
-                if trial && !Self.trialFiles.contains(relative) {
-                    let name = url.lastPathComponent.lowercased()
-                    let suffix = url.pathExtension.lowercased()
-                    guard ["jpg", "jpeg", "webp", "png", "gif", "heic", "icns"].contains(suffix)
-                          || (suffix == "json" && (relative.hasPrefix("metadata/") || relative.hasPrefix("ratings/")
-                              || relative.hasPrefix("descriptions/wikipedia/") || relative.hasPrefix("integrations/steam/enrichment/")))
-                          || (relative.hasPrefix("artwork/") && ["square-source.txt", "square-miss.txt"].contains(name))
-                    else { return }
-                }
-                result[relative] = try digest(url)
+            case .typeRegular: result[relative] = try digest(url)
             case .typeDirectory:
-                for name in try fm.contentsOfDirectory(atPath: url.path).sorted() {
-                    if trial && (name.hasPrefix(".") || Self.notTrialData(name)) { continue }
-                    try visit(relative + "/" + name, depth: depth + 1)
-                }
+                for name in try fm.contentsOfDirectory(atPath: url.path).sorted() { try visit(relative + "/" + name, depth: depth + 1) }
             default: throw DevelopmentProfileError.unsafeFile
             }
         }
-        for name in (trial ? Self.trialFiles : Self.files) + folders {
+        for name in Self.files + Self.folders {
             let url = root.appendingPathComponent(name)
-            if trial {
-                var parent = root
-                for part in name.split(separator: "/").dropLast() {
-                    parent.appendPathComponent(String(part))
-                    if try !exists(parent) { break }
-                    try regularDirectory(parent)
-                }
-            }
             // attributes also detects broken symlinks, which fileExists would silently skip.
             if try exists(url) { try visit(name, depth: 0) }
         }
         return result
-    }
-
-    private static func notTrialData(_ name: String) -> Bool {
-        let words = Set(name.lowercased().split { !$0.isLetter }.map(String.init))
-        return !words.isDisjoint(with: ["key", "keys", "token", "tokens", "secret", "secrets",
-                                       "credentials", "queue", "queues", "rclone", "cloud", "save", "saves"])
     }
     private func exists(_ url: URL) throws -> Bool {
         do { _ = try fm.attributesOfItem(atPath: url.path); return true }

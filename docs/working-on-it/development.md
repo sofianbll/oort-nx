@@ -53,7 +53,6 @@ The managed path is `<profile support>/DriveTools/rclone-<version>/rclone`; only
 
 For a complete Dev trial, prepare that same runtime before building and check Setup in an isolated home. The runtime does not include rclone. The bundler removes Python's upstream build-user path from sysconfig metadata; Python computes the current user's base at runtime.
 
-For trial 2 only, build with `NX_DEV_TRIAL2=1`. This selects `local.nxlibrary.development.trial2` and `NXLibrary-Development-Trial2` for app data and caches. Before its first launch, with both launchers closed, the maintainer can run `bash scripts/seed_trial2.sh` from a checkout with a completed Debug build. It reads the stable catalog, profiles, artwork, picks, metadata, ratings and play history, and publishes a new copy. It never copies preferences, keys, tokens, queues or saves, and refuses an existing destination. The catalog keeps its original game paths; no game apps or game files are copied.
 
 Run it again when the lock changes. `build_app.sh` checks the runtime metadata against the lock before copying it. The lock is a reviewed input, not a request to install whichever package versions happen to be newest.
 

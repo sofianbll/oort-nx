@@ -1234,8 +1234,6 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/PublicationChecks/test_selene_tokens.py](../../Tests/PublicationChecks/test_selene_tokens.py) | Prova argomenti multilinea, valori scalati ed esclusioni. |
 | [scripts/check_metadata_text_layout.swift](../../scripts/check_metadata_text_layout.swift) | Verifica fuori schermo il layout delle descrizioni e la destinazione dello scroll dopo cambi di focus, anche rapidi e con Riduci movimento. |
 | [check_app_profile.swift](../../scripts/check_app_profile.swift) | Prova senza UI di identità, accesso reale alle preferenze e percorsi nel pacchetto prodotto dalla build; non importa né scrive dati. |
-| [seed_trial2.sh](../../scripts/seed_trial2.sh) | Compila e lancia la copia esplicita per l’essai 2 da una build Debug. |
-| [seed_trial2.swift](../../scripts/seed_trial2.swift) | Seleziona il profilo essai 2 e usa l’importatore con i controlli di Porting. |
 
 ## Risorse incluse
 
