@@ -126,7 +126,7 @@ struct GameInboxView: View {
         let preview = entry.destination.map { $0.path.replacingOccurrences(of: GameInboxModel.gamesRoot.path + "/", with: "Switch/Games/") }
         let details = [metadata, preview, entry.issue].compactMap { $0 }.joined(separator: "\n")
         return SeleneOptionRow(icon: .folder, title: entry.source.lastPathComponent, about: details,
-                               focused: focused == target) {
+                               focused: focused == target, aboutFont: preview == nil ? .compactCaption : .body) {
             if entry.issue == nil {
                 pill(entry.duplicate ? L10n.text("Review duplicate") : L10n.text("Sort file"), action: target,
                      enabled: !model.needsGameFilesCorrection)

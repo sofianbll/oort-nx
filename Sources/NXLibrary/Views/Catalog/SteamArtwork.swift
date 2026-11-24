@@ -50,7 +50,11 @@ struct SteamArtwork: View {
                     // No app yet (Steam still installing it): the store art is on its way; a generic controller
                     // under the download mark only looked broken.
                     Color.clear
-                } else { Image(systemName: "gamecontroller.fill").resizable().scaledToFit().padding(canvas.u(30)) }
+                } else {
+                    Image(systemName: "gamecontroller.fill")
+                        .resizable().scaledToFit().padding(canvas.u(30))
+                        .foregroundStyle(SeleneTheme.ink)
+                }
             } else { Color.clear }
         }
         .clipped()
