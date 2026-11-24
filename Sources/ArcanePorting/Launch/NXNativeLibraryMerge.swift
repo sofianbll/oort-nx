@@ -59,8 +59,10 @@ enum NXNativeLibraryMerge {
                         }
                         merged.status = sourcesExist ? .built : .builtSourcesMissing
                     }
-                    merged.toolchain = old.toolchain
-                    merged.lastBuild = old.lastBuild
+                    if !game.isPlayableLocally || merged.url.standardizedFileURL.path == old.url.standardizedFileURL.path {
+                        merged.toolchain = old.toolchain
+                        merged.lastBuild = old.lastBuild
+                    }
                 }
                 games[index] = merged
             } else {

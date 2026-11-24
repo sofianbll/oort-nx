@@ -68861,49 +68861,49 @@
         }
       }
     },
-    "Storage warning: this build needs ~%@ free (twice the selected sources plus 10 GB), but only %@ is available. Free at least %@ before adding it.": {
+    "Storage warning: this build needs ~%@ free (twice the selected sources plus 10 GB), but only %@ is available. Free at least %@ before building.": {
       "comment": "App-owned presentation copy; preserve data identifiers separately.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Storage warning: this build needs ~%@ free (twice the selected sources plus 10 GB), but only %@ is available. Free at least %@ before adding it."
+            "value": "Storage warning: this build needs ~%@ free (twice the selected sources plus 10 GB), but only %@ is available. Free at least %@ before building."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Attenzione allo spazio: questa build richiede circa %@ liberi (il doppio delle sorgenti selezionate più 10 GB), ma sono disponibili solo %@. Libera almeno %@ prima di aggiungerla."
+            "value": "Attenzione allo spazio: questa build richiede circa %@ liberi (il doppio delle sorgenti selezionate più 10 GB), ma sono disponibili solo %@. Libera almeno %@ prima di avviarla."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Attention au stockage : cette compilation nécessite environ %@ libres (deux fois les sources sélectionnées plus 10 Go), mais seuls %@ sont disponibles. Libérez au moins %@ avant de l’ajouter."
+            "value": "Attention au stockage : il faut environ %@ libres pour compiler (deux fois les sources sélectionnées plus 10 Go), mais seulement %@ sont disponibles. Libérez au moins %@ avant de compiler."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Speicherwarnung: Dieser Build benötigt etwa %@ freien Speicher (das Doppelte der ausgewählten Quelldateien plus 10 GB), aber nur %@ sind verfügbar. Gib mindestens %@ frei, bevor du ihn hinzufügst."
+            "value": "Speicherwarnung: Dieser Build benötigt etwa %@ freien Speicher (das Doppelte der ausgewählten Quelldateien plus 10 GB), aber nur %@ sind verfügbar. Gib vor dem Build mindestens %@ frei."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Advertencia de espacio: esta compilación necesita unos %@ libres (el doble de los archivos seleccionados más 10 GB), pero solo hay %@ disponibles. Libera al menos %@ antes de añadirla."
+            "value": "Advertencia de espacio: esta compilación necesita unos %@ libres (el doble de los archivos seleccionados más 10 GB), pero solo hay %@ disponibles. Libera al menos %@ antes de compilar."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aviso de espaço: esta compilação precisa de cerca de %@ livres (o dobro dos arquivos selecionados mais 10 GB), mas só há %@ disponíveis. Libere pelo menos %@ antes de adicioná-la."
+            "value": "Aviso de espaço: esta compilação precisa de cerca de %@ livres (o dobro dos arquivos selecionados mais 10 GB), mas só há %@ disponíveis. Libere pelo menos %@ antes de compilar."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "存储空间警告：此构建需要约 %@ 的可用空间（所选来源的两倍再加 10 GB），但只有 %@ 可用。添加前请至少释放 %@。"
+            "value": "存储空间警告：此构建需要约 %@ 的可用空间（所选来源的两倍再加 10 GB），但只有 %@ 可用。构建前请至少释放 %@。"
           }
         }
       }
@@ -77469,6 +77469,17 @@
         }
       }
     },
+    "The build log could not be written. Porting continues.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "The build log could not be written. Porting continues."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Impossible d’écrire le journal. Le portage continue."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Impossibile scrivere il log. Il porting continua."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Das Build-Protokoll konnte nicht geschrieben werden. Die Portierung läuft weiter."}},
+        "es": {"stringUnit": {"state": "translated", "value": "No se pudo escribir el registro. La compilación continúa."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Não foi possível gravar o log. A compilação continua."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法写入构建日志。移植将继续。"}}
+      }
+    },
     "The build queue could not be saved. Builds may not resume after quitting.": {
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "The build queue could not be saved. Builds may not resume after quitting."}},
@@ -79110,6 +79121,17 @@
             "value": "更新"
           }
         }
+      }
+    },
+    "Two sources have the same name. Rename one or choose a different file.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Two sources have the same name. Rename one or choose a different file."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Deux sources portent le même nom. Renommez-en une ou choisissez un autre fichier."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Due sorgenti hanno lo stesso nome. Rinomina una delle due o scegli un altro file."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Zwei Quelldateien haben denselben Namen. Benenne eine um oder wähle eine andere Datei."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Dos archivos tienen el mismo nombre. Cambia el nombre de uno o elige otro archivo."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Dois arquivos têm o mesmo nome. Renomeie um deles ou escolha outro arquivo."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "两个源文件同名。请重命名其中一个或选择其他文件。"}}
       }
     },
     "Update Arcane: its built-in Python includes zbic from 0.1.3.2. Installing zbic with pip does not reach it.": {
@@ -81084,6 +81106,17 @@
             "value": "视觉风格"
           }
         }
+      }
+    },
+    "Wait for the engine change to finish.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Wait for the engine change to finish."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Attendez la fin du changement de moteur."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Attendi la fine del cambio del motore."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Warte, bis der Engine-Wechsel abgeschlossen ist."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Espera a que termine el cambio de motor."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Aguarde o fim da troca do motor."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "请等待引擎切换完成。"}}
       }
     },
     "Wait for the current build to finish before removing sources.": {

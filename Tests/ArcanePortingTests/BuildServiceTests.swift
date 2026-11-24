@@ -58,6 +58,40 @@ final class BuildServiceTests: XCTestCase {
         XCTAssertTrue(fm.fileExists(atPath: staged.appendingPathComponent("Contents/Info.plist").path))
     }
 
+    func testDoesNotInstallOverAnUnrelatedAppThatAppearsDuringTheBuild() throws {
+        let fm = NoBuildTestTrash()
+        let root = fm.temporaryDirectory.appendingPathComponent("NXOccupied-\(UUID())")
+        defer { try? fm.removeItem(at: root) }
+        try fm.createDirectory(at: root, withIntermediateDirectories: true)
+        let final = root.appendingPathComponent("Game.app")
+        let staged = root.appendingPathComponent("Staging/Game.app")
+        let script = root.appendingPathComponent("engine.sh")
+        try """
+        mkdir -p "$1/Contents" "$2/Contents"
+        printf new > "$1/Contents/Info.plist"
+        printf unrelated > "$2/Contents/Info.plist"
+        """.write(to: script, atomically: true, encoding: .utf8)
+        let finished = expectation(description: "build completes")
+        var result: BuildResult?
+        let service = BuildService(fileManager: fm)
+        service.start(command: BuildCommand(executable: URL(fileURLWithPath: "/bin/sh"),
+            arguments: [script.path, staged.path, final.path], environment: [:], workingDirectory: root),
+            logURL: root.appendingPathComponent("build.log"), tempApp: staged, finalApp: final,
+            eventHandler: { _ in }, completion: { result = $0; finished.fulfill() })
+        wait(for: [finished], timeout: 10)
+        let ready = try XCTUnwrap(result)
+        XCTAssertTrue(ready.installationFailed)
+        XCTAssertEqual(try String(contentsOf: final.appendingPathComponent("Contents/Info.plist"), encoding: .utf8), "unrelated")
+        XCTAssertEqual(try String(contentsOf: staged.appendingPathComponent("Contents/Info.plist"), encoding: .utf8), "new")
+        var game = PortedGame(name: "Game", url: final, platform: .macApp, sizeBytes: 1, modificationDate: Date())
+        let pending = PendingInstall(tempApp: staged, finalApp: final, record: BuildRecord(),
+                                     toolchain: ToolchainInfo(), expectedDestination: try XCTUnwrap(ready.expectedDestination))
+        game.pendingInstall = try JSONDecoder().decode(PendingInstall.self, from: JSONEncoder().encode(pending))
+        XCTAssertThrowsError(try PendingInstaller.install(&game, fileManager: fm))
+        XCTAssertEqual(game.pendingInstall, pending)
+        XCTAssertEqual(try String(contentsOf: final.appendingPathComponent("Contents/Info.plist"), encoding: .utf8), "unrelated")
+    }
+
     func testSplitUTF8EventIsDeliveredWithoutChangingTheRawLog() throws {
         let prefix = #"{"ev":"say","msg":"Caf"#
         let script = #"""
@@ -92,6 +126,54 @@ final class BuildServiceTests: XCTestCase {
         """#)
         XCTAssertTrue(events.contains(.say("Still here")))
         XCTAssertEqual(log.first, 0xff, "The raw log keeps the original bytes")
+    }
+
+    func testLogWriteFailureWarnsOnceAndKeepsEngineEvents() throws {
+        var oldLimit = rlimit()
+        guard getrlimit(RLIMIT_FSIZE, &oldLimit) == 0 else { return XCTFail("getrlimit failed") }
+        var limited = oldLimit
+        limited.rlim_cur = min(oldLimit.rlim_cur, 1024)
+        let oldSignal = signal(SIGXFSZ, SIG_IGN)
+        defer { _ = signal(SIGXFSZ, oldSignal) }
+        guard setrlimit(RLIMIT_FSIZE, &limited) == 0 else { return XCTFail("setrlimit failed") }
+        defer { _ = setrlimit(RLIMIT_FSIZE, &oldLimit) }
+        let (events, log) = try captureOutput(script: #"""
+        printf '{"ev":"say","msg":"%4096s"}\n' 'too big for the log'
+        printf '{"ev":"say","msg":"Still here"}\n'
+        printf '{"ev":"say","msg":"Finished"}\n'
+        exit 1
+        """#)
+        XCTAssertLessThanOrEqual(log.count, 1024)
+        XCTAssertTrue(events.contains(.say("Still here")))
+        XCTAssertTrue(events.contains(.say("Finished")))
+        XCTAssertEqual(events.filter { if case .log = $0 { true } else { false } }.count, 1)
+    }
+
+    func testInstallationPhaseRejectsCancellationBeforePublication() throws {
+        let fm = FileManager.default
+        let root = fm.temporaryDirectory.appendingPathComponent("NXInstallPhase-\(UUID())")
+        defer { try? fm.removeItem(at: root) }
+        try fm.createDirectory(at: root, withIntermediateDirectories: true)
+        let staged = root.appendingPathComponent("Staged.app")
+        let final = root.appendingPathComponent("Game.app")
+        let finished = expectation(description: "installed")
+        let installing = expectation(description: "entered non-cancellable phase")
+        let service = BuildService()
+        service.start(command: BuildCommand(executable: URL(fileURLWithPath: "/bin/sh"),
+            arguments: ["-c", #"mkdir -p "$1/Contents"; touch "$1/Contents/Info.plist""#, "synthetic", staged.path],
+            environment: [:], workingDirectory: root),
+            logURL: root.appendingPathComponent("build.log"), tempApp: staged, finalApp: final,
+            onInstalling: {
+                XCTAssertFalse(service.cancel())
+                XCTAssertFalse(fm.fileExists(atPath: final.path))
+                installing.fulfill()
+            }, eventHandler: { _ in }, completion: {
+                XCTAssertTrue($0.success)
+                XCTAssertFalse($0.cancelled)
+                finished.fulfill()
+            })
+        wait(for: [installing, finished], timeout: 10, enforceOrder: true)
+        XCTAssertTrue(fm.fileExists(atPath: final.path))
     }
 
     private func captureOutput(script: String, firstChunkBytes: Int = 0) throws -> ([BuildEvent], Data) {
@@ -151,7 +233,8 @@ final class BuildServiceTests: XCTestCase {
         game.status = .built
         let pending = PendingInstall(tempApp: try XCTUnwrap(ready.heldApp), finalApp: final,
             record: BuildRecord(startedAt: Date(timeIntervalSince1970: 10), engineCommit: "2716f78"),
-            toolchain: ToolchainInfo(engineCommit: "2716f78"))
+            toolchain: ToolchainInfo(engineCommit: "2716f78"),
+            expectedDestination: ready.expectedDestination)
         PendingInstaller.hold(pending, for: &game)
         XCTAssertThrowsError(try PendingInstaller.install(&game, fileManager: denied))
         XCTAssertEqual(game.pendingInstall, pending)
@@ -422,5 +505,11 @@ private final class DenyInstallDirectory: FileManager, @unchecked Sendable {
     override func isWritableFile(atPath path: String) -> Bool {
         if URL(fileURLWithPath: path).standardizedFileURL == parent { return false }
         return super.isWritableFile(atPath: path)
+    }
+}
+
+private final class NoBuildTestTrash: FileManager, @unchecked Sendable {
+    override func trashItem(at url: URL, resultingItemURL: AutoreleasingUnsafeMutablePointer<NSURL?>?) throws {
+        throw CocoaError(.fileWriteNoPermission)
     }
 }

@@ -219,6 +219,7 @@ final class AppViewModel: ObservableObject {
     @Published var logs: [LogEntry] = []
     /// The existing Selene dialog offers retrying the ready app, or closing it.
     @Published var gameWithInstallFailure: PortedGame? = nil
+    var installFailureDetail = ""
     @Published var installFailureFocus: SeleneConfirmButton = .cancel
 
     var canRetryReadyInstall: Bool {

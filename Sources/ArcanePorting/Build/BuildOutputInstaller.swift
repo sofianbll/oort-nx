@@ -6,9 +6,17 @@ import NXLibraryCore
 public enum BuildOutputInstaller {
     private static let installLock = NSLock()
 
-    private struct Identity: Codable, Equatable {
+    fileprivate struct Identity: Codable, Equatable {
         let device: UInt64
         let inode: UInt64
+    }
+    public struct DestinationExpectation: Codable, Equatable {
+        fileprivate let identity: Identity?
+        static let vacant = Self(identity: nil)
+    }
+
+    public static func expectedDestination(at url: URL, fileManager: FileManager = .default) -> DestinationExpectation {
+        DestinationExpectation(identity: identity(url.standardizedFileURL, fileManager))
     }
     private struct Receipt: Codable {
         var version = 1
@@ -44,13 +52,15 @@ public enum BuildOutputInstaller {
     }
 
     public static func install(tempApp: URL, finalApp: URL,
-                               fileManager: FileManager = .default, requiresExistingParent: Bool = false) throws {
+                               fileManager: FileManager = .default, requiresExistingParent: Bool = false,
+                               expectedDestination: DestinationExpectation? = nil) throws {
         try install(tempApp: tempApp, finalApp: finalApp, fileManager: fileManager,
-                    requiresExistingParent: requiresExistingParent, io: BuildInstallIO())
+                    requiresExistingParent: requiresExistingParent, expectedDestination: expectedDestination, io: BuildInstallIO())
     }
 
     internal static func install(tempApp: URL, finalApp: URL, fileManager: FileManager = .default,
-                                 requiresExistingParent: Bool = false, io: BuildInstallIO) throws {
+                                 requiresExistingParent: Bool = false, expectedDestination: DestinationExpectation? = nil,
+                                 io: BuildInstallIO) throws {
         installLock.lock()
         defer { installLock.unlock() }
         let source = tempApp.standardizedFileURL
@@ -77,7 +87,8 @@ public enum BuildOutputInstaller {
                 guard identity(destination, fileManager) == saved.previous else {
                     throw BuildInstallError.replaceFailed("The destination changed since this installation started.")
                 }
-                if let prepared = saved.prepared {
+                if let prepared = saved.prepared,
+                   expectedDestination == nil || expectedDestination?.identity == saved.previous {
                     let incoming = saved.copied ? copy : source
                     if identity(incoming, fileManager) == prepared {
                         try publish(saved, source: source, destination: destination, copy: copy,
@@ -91,6 +102,12 @@ public enum BuildOutputInstaller {
         try validateApp(source, fileManager)
         guard let sourceID = identity(source, fileManager) else { throw BuildInstallError.invalidApp(tempApp.path) }
         let previous = identity(destination, fileManager)
+        if let expectedDestination, previous != expectedDestination.identity {
+            let reason = expectedDestination == .vacant
+                ? "Move the app at the destination before retrying. This build cannot replace it safely."
+                : "Restore the original app at the destination before retrying. This build cannot replace a different app."
+            throw BuildInstallError.replaceFailed(reason)
+        }
         if previous != nil, !fileManager.fileExists(atPath: destination.appendingPathComponent("Contents/Info.plist").path) {
             throw BuildInstallError.replaceFailed("refusing to replace a non-app item at \(destination.path)")
         }

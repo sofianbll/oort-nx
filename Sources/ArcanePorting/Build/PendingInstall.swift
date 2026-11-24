@@ -8,12 +8,15 @@ public struct PendingInstall: Codable, Equatable {
     public var finalApp: URL
     public var record: BuildRecord
     public var toolchain: ToolchainInfo
+    public var expectedDestination: BuildOutputInstaller.DestinationExpectation?
 
-    public init(tempApp: URL, finalApp: URL, record: BuildRecord, toolchain: ToolchainInfo) {
+    public init(tempApp: URL, finalApp: URL, record: BuildRecord, toolchain: ToolchainInfo,
+                expectedDestination: BuildOutputInstaller.DestinationExpectation? = nil) {
         self.tempApp = tempApp
         self.finalApp = finalApp
         self.record = record
         self.toolchain = toolchain
+        self.expectedDestination = expectedDestination
     }
 
     /// The build's temporary folder, removed once the app is installed.
@@ -77,7 +80,8 @@ public enum PendingInstaller {
             // A completed install can be acknowledged even if staging was
             // cleaned before its new build record reached the library.
             try BuildOutputInstaller.install(tempApp: pending.tempApp, finalApp: pending.finalApp,
-                                             fileManager: fileManager, requiresExistingParent: true)
+                                             fileManager: fileManager, requiresExistingParent: true,
+                                             expectedDestination: pending.expectedDestination ?? .vacant)
         } catch BuildInstallError.invalidApp(let path) where path == pending.tempApp.standardizedFileURL.path
             && !fileManager.fileExists(atPath: pending.tempApp.path) {
             game.pendingInstall = nil

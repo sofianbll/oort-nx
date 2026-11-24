@@ -39,9 +39,11 @@ extension SetupModel {
                              readiness: newestEngineReadiness)
     }
 
-    var canSwitchEngine: Bool {
-        isNxnativeValid && !isSwitchingEngine && !app.isBuilding && !app.isUpdatingApp
+    var canMutateEngine: Bool {
+        !isSwitchingEngine && !app.isBuilding && !app.isCheckingCloudBuild && !app.isUpdatingApp
     }
+
+    var canSwitchEngine: Bool { isNxnativeValid && canMutateEngine }
 
     /// Moves the engine to upstream main and turns the untested-toolchain override on. While the newest engine is
     /// already in use this is Update: the checkout moves to the newer main and the override's origin is kept.

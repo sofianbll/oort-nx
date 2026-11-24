@@ -50,7 +50,8 @@ extension AppShellView {
     func cancelActivityCenterRow(_ row: ActivityCenterFocus.Row, viewModel: AppViewModel) {
         guard ActivityCenterView.rows(viewModel).contains(row) else { return }
         switch row {
-        case .build where viewModel.isBuilding && !viewModel.porting.isCancellingBuild: viewModel.porting.cancelBuild()
+        case .build where viewModel.isBuilding && !viewModel.porting.isCancellingBuild && !viewModel.porting.isInstallingBuild:
+            viewModel.porting.cancelBuild()
         case .queuedBuild(let id): viewModel.porting.cancelQueuedBuild(id)
         case .cloud(let token): viewModel.cancelActiveCloudLibrary(token)
         case .queuedCloud(let token): viewModel.cancelQueuedCloudLibrary(token)

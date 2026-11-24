@@ -92,8 +92,9 @@ final class PendingInstallTests: XCTestCase {
 
     func testInstallReplacesTheAppAndRemovesTheFolder() throws {
         var g = game()
-        let p = pending()
+        var p = pending()
         try makeApp(p.finalApp, version: "1.0.0")
+        p.expectedDestination = BuildOutputInstaller.expectedDestination(at: p.finalApp)
         try makeApp(p.tempApp, version: "1.2.0")
         g.pendingInstall = p
         XCTAssertEqual(try PendingInstaller.install(&g, now: Date(timeIntervalSince1970: 50)), .installed)
@@ -102,6 +103,26 @@ final class PendingInstallTests: XCTestCase {
         XCTAssertNil(g.pendingInstall)
         XCTAssertEqual(g.versionString, "1.2.0")
         XCTAssertEqual(g.lastBuild?.engineCommit, "2716f78")
+    }
+
+    func testLegacyPendingInstallDoesNotReplaceAnUnverifiedApp() throws {
+        let p = pending()
+        let data = try JSONEncoder().encode(p)
+        XCTAssertFalse(String(decoding: data, as: UTF8.self).contains("expectedDestination"))
+        var g = game()
+        g.pendingInstall = try JSONDecoder().decode(PendingInstall.self, from: data)
+        try makeApp(p.tempApp, version: "1.2.0")
+        try makeApp(p.finalApp, version: "9.0.0")
+
+        for _ in 0..<2 {
+            XCTAssertThrowsError(try PendingInstaller.install(&g))
+            XCTAssertEqual(BuildOutputInstaller.version(of: p.finalApp), "9.0.0")
+            XCTAssertEqual(BuildOutputInstaller.version(of: p.tempApp), "1.2.0")
+            XCTAssertEqual(g.pendingInstall, p)
+        }
+        try FileManager.default.moveItem(at: p.finalApp, to: root.appendingPathComponent("Other.app"))
+        XCTAssertEqual(try PendingInstaller.install(&g), .installed)
+        XCTAssertEqual(BuildOutputInstaller.version(of: p.finalApp), "1.2.0")
     }
 
     func testInstallDropsAHeldAppThatIsGone() throws {

@@ -190,6 +190,7 @@ public enum KeyCheck {
     public static func readContainer(_ url: URL) -> Container {
         guard let f = try? FileHandle(forReadingFrom: url) else { return .unsupported }
         defer { try? f.close() }
+        guard let fileSize = try? f.seekToEnd() else { return .unsupported }
         func read(_ offset: UInt64, _ count: Int) -> [UInt8]? {
             guard (try? f.seek(toOffset: offset)) != nil, let d = try? f.read(upToCount: count), d.count == count
             else { return nil }
@@ -202,6 +203,8 @@ public enum KeyCheck {
         guard count > 0, count <= 4096, names <= 1 << 20, let table = read(0x10, count * 0x18 + names)
         else { return .unsupported }
         let dataStart = UInt64(0x10 + count * 0x18 + names)
+        guard dataStart <= fileSize else { return .unsupported }
+        let dataSize = fileSize - dataStart
         var headers: [(header: [UInt8], ncz: Bool)] = []
         for i in 0..<count {
             let e = i * 0x18
@@ -210,10 +213,11 @@ public enum KeyCheck {
             let name = String(decoding: table[nameAt...].prefix { $0 != 0 }, as: UTF8.self).lowercased()
             let ncz = name.hasSuffix(".ncz")
             guard name.hasSuffix(".nca") || ncz, size >= UInt64(headerBytes),
+                  offset <= dataSize, UInt64(headerBytes) <= dataSize - offset,
                   let h = read(dataStart + offset, headerBytes) else { continue }
             headers.append((h, ncz))
         }
-        return .pfs0(headers)
+        return headers.isEmpty ? .unsupported : .pfs0(headers)
     }
 
     // MARK: - The check

@@ -149,6 +149,7 @@ flowchart TD
     B --> C["SourceSelection: titolo e versioni scelte"]
     C --> D["KeyCheck (se le sorgenti sono cifrate)<br/>NUP: identità programma e capacità del checkout"]
     D --> E["Review: GameAppDestination, GameRuntimeConfig.forReview"]
+    E --> ALO["Add to library only: senza la riserva di spazio per compilare"]
     E --> R{"Sorgenti presenti e cache uguale al cloud o locale più recente, se prevista?"}
     R -->|"sorgenti mancanti e disponibili nel cloud"| U["Conferma la dimensione e accoda il download"]
     U -->|"scaricate e verificate"| R
@@ -164,8 +165,8 @@ flowchart TD
     N --> H["BuildCommandBuilder → BuildService<br/>processo dell'engine nxnative"]
     H --> I["BuildEventParser → PortingProgress<br/>tile, percentuale, ETA<br/>prewarm senza conteggio: attività e tempo trascorso"]
     H -->|"errore Nextendo"| X["Messaggio del motore; nessun tentativo offline"]
-    I --> J["BuildOutputInstaller: scambio atomico"]
-    J -->|"gioco aperto o installazione fallita"| K["PendingInstall: Retry più tardi"]
+    I --> J["BuildOutputInstaller: verifica la destinazione fissata prima del motore, poi pubblica atomicamente"]
+    J -->|"gioco aperto o installazione fallita"| K["PendingInstall: conserva il bundle e spiega un conflitto prima di Retry"]
     J --> L["CatalogRepository: BuildRecord, toolchain"]
     L --> M["AppIconWriter (se c'è un'icona scelta) · notifica"]
 ```
@@ -174,9 +175,11 @@ flowchart TD
 
 Durante un porting, B o Esc nasconde il pannello senza annullare il lavoro. Dopo il completamento o l'annullamento, B o Esc torna a Review se c'è una selezione nel wizard; da un Build o Rebuild aperto direttamente senza bozza, torna alla schermata di partenza.
 
+Da Installazione il porting non è più annullabile, anche dal centro attività.
+
 **Menu → Centro attività.** La campanella si apre con un clic o con la selezione del menu (Menu sul controller, ⌘K da tastiera). Mostra l'azione e l'oggetto di ogni compilazione, trasferimento o spostamento cloud. Su/Giù sposta il focus; A, Invio o un clic su una riga di compilazione apre Porting. X, Canc o il pulsante tondo ferma il lavoro selezionato o rimuove la singola richiesta in coda. Nei Risultati, Retry (A/Invio) riaccoda lo stesso lavoro; Clear (X/Canc) rimuove la riga; Clear all (A/Invio) rimuove gli esiti senza annullare i lavori. B o Esc torna alla campanella; un clic fuori chiude tutto il menu. Nessuno dei due ferma i lavori.
 
-Con un porting in corso, Build o Rebuild per un altro gioco accoda la richiesta; ripetere il comando per lo stesso gioco non crea duplicati. In Spotlight e Details la pillola primaria mostra lo stato in coda e diventa Annulla al focus o al passaggio del puntatore; A, Invio o clic rimuove la richiesta senza avviarla. Dalla riga delle copertine in Spotlight, A avvia ancora l'app già installata o porta alle azioni del gioco se manca. Al successo, errore o annullamento del porting attivo parte il primo in attesa e la sua pillola diventa Porting. Un titolo occupato da un trasferimento o da un lease aspetta il rilascio. Al riavvio la compilazione interrotta torna in testa. Se il gioco, i file sorgente o l'app da ricompilare non ci sono più, resta un errore nei Risultati e il lavoro non parte da solo.
+Con un porting in corso, Build o Rebuild per un altro gioco accoda la richiesta; ripetere il comando per lo stesso gioco non crea duplicati. In Spotlight e Details la pillola primaria mostra lo stato in coda e diventa Annulla al focus o al passaggio del puntatore; A, Invio o clic rimuove la richiesta senza avviarla. Dalla riga delle copertine in Spotlight, A avvia ancora l'app già installata o porta alle azioni del gioco se manca. Al successo, errore o annullamento del porting attivo parte il primo in attesa e la sua pillola diventa Porting. Un titolo occupato da un trasferimento o da un lease aspetta il rilascio. Dopo un cambio motore, anche se il clone fallisce, il porting in coda torna al controllo dell'ambiente. Al riavvio la compilazione interrotta torna in testa. Se il gioco, i file sorgente o l'app da ricompilare non ci sono più, resta un errore nei Risultati e il lavoro non parte da solo.
 
 **Details o Spotlight → Cloud library.** Play resta l'azione primaria. In Spotlight la riga sotto i pulsanti indica disponibilità e aggiornamenti. In Details compaiono solo i dettagli del trasferimento attivo o un errore; il riempimento di Download sostituisce la barra quando il totale è noto. Il pulsante tondo fra Options e Preferiti mostra lo stato e apre Cloud library; se disattivato, lo sostituisce il link in fondo quando attivo. Avanzate mostra cache, file del gioco, percorsi e aggiornamento dello stato. Al primo invio si scelgono app e cache di compilazione insieme se la cache esiste; altrimenti Send sulla riga dell'app pubblica l'app sola. Durante un invio completo la riga dell'app mostra «App pubblicata · invio della cache…» non appena l'app è disponibile per gli altri Mac.
 

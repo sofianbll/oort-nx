@@ -37,6 +37,31 @@ final class WorkspaceManagerTests: XCTestCase {
         try? FileManager.default.removeItem(at: root)
     }
 
+    func testStagingRejectsDistinctSourcesWithTheSameNameBeforeChangingExistingLinks() throws {
+        let fm = FileManager.default
+        let root = fm.temporaryDirectory.appendingPathComponent("NXWorkDuplicate-\(UUID())")
+        defer { try? fm.removeItem(at: root) }
+        let baseURL = root.appendingPathComponent("base/Game.nsp")
+        let dlcURL = root.appendingPathComponent("dlc/Game.nsp")
+        for url in [baseURL, dlcURL] {
+            try fm.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try Data([0]).write(to: url)
+        }
+        let base = DetectedSource(id: UUID(), url: baseURL, kind: .base, titleId: 0x0100000000010000,
+                                  version: 0, sizeBytes: 1)
+        let dlc = DetectedSource(id: UUID(), url: dlcURL, kind: .dlc, titleId: 0x0100000000011001,
+                                 version: 0, sizeBytes: 1)
+        let shared = DetectedSource(id: UUID(), url: baseURL, kind: .dlc, titleId: dlc.titleId,
+                                    version: 0, sizeBytes: 1)
+        let manager = WorkspaceManager(root: root.appendingPathComponent("workspaces"))
+        let valid = DetectedGame(baseTitleId: base.titleId, name: "Game", base: base, updates: [], dlcs: [shared])
+        let workspace = try manager.makeWorkspace(for: valid, mode: .staged)
+        XCTAssertEqual(workspace.links.count, 1, "one physical package may contain both items")
+        let invalid = DetectedGame(baseTitleId: base.titleId, name: "Game", base: base, updates: [], dlcs: [dlc])
+        XCTAssertThrowsError(try manager.makeWorkspace(for: invalid, mode: .staged))
+        XCTAssertEqual(try fm.destinationOfSymbolicLink(atPath: XCTUnwrap(workspace.links.first).path), baseURL.path)
+    }
+
     func testFolderModeKeepsFolderAndBuildCache() throws {
         let root = FileManager.default.temporaryDirectory
             .appendingPathComponent("NXWorkFolder-\(UUID().uuidString)")

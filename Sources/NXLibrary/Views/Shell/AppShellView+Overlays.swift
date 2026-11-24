@@ -142,12 +142,10 @@ extension AppShellView {
     }
 
     func installFailureOverlay(_ game: PortedGame) -> some View {
-        let app = game.pendingInstall?.finalApp ?? game.url
-        let currentExists = FileManager.default.fileExists(atPath: app.appendingPathComponent("Contents/Info.plist").path)
         return SeleneOverlay(style: .dialog, onOutside: { viewModel.gameWithInstallFailure = nil }) {
             SeleneConfirmDialog(title: L10n.text("Installation failed"),
                                 message: L10n.format("The new build of %@ has been kept.", [String(describing: game.name)])
-                                    + (currentExists ? L10n.text("\nYour current app is still available.") : L10n.text("\nYou can retry installation.")),
+                                    + "\n" + viewModel.installFailureDetail,
                                 confirmTitle: "Retry", cancelTitle: L10n.text("Close"),
                                 focus: $viewModel.installFailureFocus,
                                 onCancel: { viewModel.gameWithInstallFailure = nil },

@@ -34,6 +34,17 @@ final class KeyStoreTests: XCTestCase {
         XCTAssertThrowsError(try KeyStore(directory: dir.appendingPathComponent("k2")).importKey(from: source))
     }
 
+    func testMalformedHeaderDoesNotReplaceManagedKey() throws {
+        let source = dir.appendingPathComponent("source.keys")
+        let store = KeyStore(directory: dir.appendingPathComponent("managed"))
+        try fakeKeys().write(to: source, atomically: true, encoding: .utf8)
+        try store.importKey(from: source)
+        let before = try Data(contentsOf: store.keyURL)
+        try "header_key = 11\n".write(to: source, atomically: true, encoding: .utf8)
+        XCTAssertThrowsError(try store.importKey(from: source))
+        XCTAssertTrue(try Data(contentsOf: store.keyURL) == before)
+    }
+
     func testValidationRepairsTheManagedCopiesPermissionsWithoutChangingItsBytes() throws {
         let source = dir.appendingPathComponent("source.keys")
         try fakeKeys().write(to: source, atomically: true, encoding: .utf8)

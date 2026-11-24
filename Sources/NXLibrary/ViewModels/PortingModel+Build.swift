@@ -60,6 +60,7 @@ extension PortingModel {
 
     var canStartBuild: Bool {
         !app.isBuilding
+            && !app.setup.isSwitchingEngine
             && !app.isCheckingCloudBuild
             && app.buildQueue.isEmpty
             && !app.cloudLibrary.isChangingConnection
@@ -259,7 +260,7 @@ extension PortingModel {
         if preferLocalCache { request.preferLocalCache = true }
         guard !app.cloudLibrary.isQuitting, activeBuildRequest?.gameID != game.id,
               checkingCloudBuild?.id != game.id, !app.buildQueue.contains(game.id) else { return }
-        if !hasRestoredBuildQueue || app.isBuilding || app.isCheckingCloudBuild || !app.buildQueue.isEmpty ||
+        if !hasRestoredBuildQueue || app.isBuilding || app.isCheckingCloudBuild || app.setup.isSwitchingEngine || !app.buildQueue.isEmpty ||
             (app.cloudLibrary.archive != nil && !app.cloudLibrary.hasRestoredQueue) {
             enqueueBuild(request)
             scheduleNextBuild()
@@ -324,6 +325,7 @@ extension PortingModel {
 
     private func startNextBuild() {
         guard hasRestoredBuildQueue, !app.isBuilding, !app.isCheckingCloudBuild, !app.isScanningLibrary,
+              !app.setup.isSwitchingEngine,
               !app.cloudQuitRequested, !app.cloudLibrary.isQuitting,
               !app.cloudLibrary.isChangingConnection, !app.isCleaningStorage, !app.isUpdatingApp,
               app.settingsNotice == nil,
@@ -460,6 +462,9 @@ extension PortingModel {
 
     private func checkBuildIdle(for game: PortedGame) throws {
         guard !app.isBuilding else { throw NXLibraryError.buildAlreadyRunning }
+        guard !app.setup.isSwitchingEngine else {
+            throw NXLibraryError.environmentBlocked(L10n.text("Wait for the engine change to finish."))
+        }
         guard RunningGameMonitor.runningApplication(for: game) == nil else { throw CloudArchiveError.busy }
         guard !app.cloudLibrary.isChangingConnection,
               !app.cloudLibrary.isWorking || !app.cloudLibrary.conflicts(with: buildScope(for: game)) else {
@@ -489,6 +494,7 @@ extension PortingModel {
         }
         // Snapshot the destination before any build work. Changing folders later cannot redirect this build.
         let finalApp = finalAppURL(for: target)
+        let expectedDestination = BuildOutputInstaller.expectedDestination(at: finalApp)
         let reservedScope = buildScope(for: target)
         if let problem = GameAppDestination.folderProblem(at: finalApp.deletingLastPathComponent()) {
             throw NXLibraryError.environmentBlocked(problem)
@@ -691,6 +697,7 @@ extension PortingModel {
         // The request belongs to an accepted porting, never to startup or Steam-only use.
         NotificationService.shared.requestAuthorization()
         self.isCancellingBuild = false
+        self.isInstallingBuild = false
         self.buildState = .running
         self.buildError = nil
         self.portingFailureReason = nil
@@ -725,9 +732,17 @@ extension PortingModel {
             logURL: logURL,
             tempApp: tempApp,
             finalApp: finalApp,
+            expectedDestination: expectedDestination,
             // Replacing the app under its running game can crash it: the new app waits for the game to quit.
             holdInstall: { RunningGameMonitor.runningApplication(for: target) != nil },
             acquireInstall: { [weak self] in self?.app.acquireSaveInstallLease(for: target) },
+            onInstalling: { [weak self, weak service] in
+                DispatchQueue.main.async {
+                    guard let self, let service, self.buildService === service else { return }
+                    self.stopStageElapsedTimer()
+                    self.isInstallingBuild = true
+                }
+            },
             eventHandler: { [weak self, weak service] event in
                 DispatchQueue.main.async {
                     guard let service, self?.buildService === service else { return }
@@ -736,25 +751,27 @@ extension PortingModel {
             },
             completion: { [weak self, weak service] result in
                 Task { @MainActor in
-                    if let releaseCloudBuild { await releaseCloudBuild() }
-                    guard let service, self?.buildService === service else { return }
-                    self?.finishBuild(result, gameID: target.id,
+                    guard let self, let service, self.buildService === service else {
+                        if let releaseCloudBuild { await releaseCloudBuild() }
+                        return
+                    }
+                    await self.finishBuild(result, gameID: target.id,
                                       finalApp: finalApp, tempDir: tempRoot,
                                       adoptingCache: workDir.flatMap { work in cacheDestination.map { (work, $0) } },
                                       relocatedCache: movingCache,
-                                      nextendoRequested: nextendoRequested, stagedCodeMods: stagedCodeMods)
+                                      nextendoRequested: nextendoRequested, stagedCodeMods: stagedCodeMods,
+                                      releaseCloudBuild: releaseCloudBuild)
                 }
             }
         )
     }
 
     func cancelBuild() {
-        guard app.isBuilding, let buildService else { return }
+        guard app.isBuilding, buildService?.cancel() == true else { return }
         stopStageElapsedTimer()
         self.isCancellingBuild = true
         self.currentStageName = "Cancelling build..."
         app.logs.append(LogEntry(level: .warning, message: L10n.text("Cancelling build...")))
-        buildService.cancel()
     }
 
     func openOutputInFinder() {
