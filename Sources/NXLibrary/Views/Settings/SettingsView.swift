@@ -28,7 +28,12 @@ struct SettingsView: View {
     @State private var requestedRowID: String?
     @State private var returnRowID: String?
     private var page: SettingsPage { navigation.current }
-    private var section: SettingsSection? { page.section }
+    private var section: SettingsSection? {
+        let owner = focusedRow.flatMap { row in
+            page.inlineSections.first { pageActions[$0]?.contains(where: { $0.id == row.id }) == true }
+        }
+        return owner ?? page.inlineSections.first
+    }
     @State private var openedFromIntegrations: Bool
     @State private var showingControls = false
     @State private var showingPlayers = false
@@ -49,6 +54,8 @@ struct SettingsView: View {
     /// The button in focus inside the focused row: 0 its own, 1 a second one (Back to tested beside Update).
     @State private var rowButton = 0
     @State private var rowActions: [SettingsRowAction] = []
+    @State private var pageActions: [SettingsSection: [SettingsRowAction]] = [:]
+    @State private var subjectActions: [SettingsRowAction] = []
     @State private var keyMonitor: Any?
     @State private var decisionFocus = 2
     @State private var decisionError: String?
@@ -73,7 +80,6 @@ struct SettingsView: View {
     /// A palette change redraws the whole screen; selection and focus live here and survive it.
     @ObservedObject private var theme = ThemeStore.shared
     @ObservedObject private var igdb = IGDBSettings.shared
-    @ObservedObject private var controller = GameControllerService.shared
     @ObservedObject private var nextendo: NextendoSettings
     private let hasProfileAccount: Bool
     private let profiles: LocalProfileStore?
@@ -196,7 +202,7 @@ struct SettingsView: View {
         }
         .onChange(of: router.settingsRowID) { _, id in
             guard id != nil else { return }
-            if section != initialSection { changePage(to: SettingsPage.opening(initialSection)) }
+            if !page.inlineSections.contains(initialSection) { changePage(to: SettingsPage.opening(initialSection)) }
             focusRequestedSetting()
         }
         .onChange(of: router.settingsDecision) {
@@ -476,36 +482,14 @@ struct SettingsView: View {
         return ScrollViewReader { proxy in
             ScrollView {
                 VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
-                    if let section = visiblePage.section {
-                    SettingsSectionContent(
-                        section: section,
-                        viewModel: viewModel,
-                        settings: editor,
-                        artwork: artwork,
-                        supportsNextendo: supportsNextendo,
-                        activeProfile: profiles?.active,
-                        profileNextendo: hasProfileAccount ? nextendo : nil,
-                        onEditProfileName: { editingProfileName = true },
-                        onProfilePIN: openPIN,
-                        onRemovePIN: { openPIN(removing: true) },
-                        onViewControls: { showingControls = true },
-                        onOpenPlayers: { showingPlayers = true },
-                        onChooseLanguage: { localePicker = .language },
-                        onChooseRegion: { localePicker = .region },
-                        onOpenConsole: { router.openConsole() },
-                        onOpenGroup: openGroup,
-                        searchQuery: searchQuery,
-                        cloudAdvanced: $cloudAdvanced,
-                        multiplayerAdvanced: $multiplayerAdvanced,
-                        onEditCloud: { cloudAssistant = viewModel.cloudLibrary.preference.remote == nil ? .account : .credentials },
-                        onEditCloudLibraryFolder: { cloudAssistant = .library },
-                        onEditCloudSources: { cloudAssistant = .sources },
-                        onEditCloudReference: { editingCloudReference = true },
-                        onActions: { if page == visiblePage { updateActions($0) } }
-                    )
-                    .environment(\.passiveSettingsArrival, openedFromIntegrations && section == initialSection)
-                    .environment(\.settingsRowChanges, pendingRows)
-                    } else if case let .category(category) = visiblePage {
+                    ForEach(visiblePage.inlineSections) { section in
+                        if case .category(let category) = visiblePage, category == .integrations {
+                            OortReadout(text: category.title(for: section, in: localization), preset: .quiet)
+                                .accessibilityAddTraits(.isHeader)
+                        }
+                        sectionContent(section, page: visiblePage)
+                    }
+                    if case let .category(category) = visiblePage {
                         subjectRows(category)
                     }
                 }
@@ -527,13 +511,48 @@ struct SettingsView: View {
         }
     }
 
+    private func sectionContent(_ section: SettingsSection, page visiblePage: SettingsPage) -> some View {
+        SettingsSectionContent(
+            section: section,
+            viewModel: viewModel,
+            settings: editor,
+            artwork: artwork,
+            supportsNextendo: supportsNextendo,
+            activeProfile: profiles?.active,
+            profileNextendo: hasProfileAccount ? nextendo : nil,
+            onEditProfileName: { editingProfileName = true },
+            onProfilePIN: openPIN,
+            onRemovePIN: { openPIN(removing: true) },
+            onViewControls: { showingControls = true },
+            onOpenPlayers: { showingPlayers = true },
+            onChooseLanguage: { localePicker = .language },
+            onChooseRegion: { localePicker = .region },
+            onOpenConsole: { router.openConsole() },
+            onOpenGroup: openGroup,
+            searchQuery: searchQuery,
+            cloudAdvanced: $cloudAdvanced,
+            multiplayerAdvanced: $multiplayerAdvanced,
+            onEditCloud: { cloudAssistant = viewModel.cloudLibrary.preference.remote == nil ? .account : .credentials },
+            onEditCloudLibraryFolder: { cloudAssistant = .library },
+            onEditCloudSources: { cloudAssistant = .sources },
+            onEditCloudReference: { editingCloudReference = true },
+            onActions: { actions in
+                guard page == visiblePage else { return }
+                pageActions[section] = actions
+                updateActions()
+            }
+        )
+        .environment(\.passiveSettingsArrival, openedFromIntegrations)
+        .environment(\.settingsRowChanges, pendingRows(in: section))
+    }
+
     private var reduceMotion: Bool {
         settings.presentation.reduceMotion || environmentReduceMotion
     }
 
     private func subjectRows(_ category: SettingsCategory) -> some View {
         let visiblePage = page
-        let subjects = category.sections
+        let subjects = category.subjects
         return ForEach(subjects) { subject in
             OortSettingsLink(id: subject.id, title: category.title(for: subject, in: localization),
                              subtitle: subject.subtitle, value: subjectValue(subject)) {
@@ -542,30 +561,21 @@ struct SettingsView: View {
         }
         .onAppear {
             guard page == visiblePage else { return }
-            updateActions(subjects.map { subject in
+            subjectActions = subjects.map { subject in
                 SettingsRowAction(id: subject.id, title: category.title(for: subject, in: localization),
                                   rowID: subject.id) { openSubject(subject) }
-            })
+            }
+            updateActions()
         }
     }
 
     private func subjectValue(_ subject: SettingsSection) -> String? {
         switch subject {
         case .look: SettingsDraftFields.onOff(editor.settings.reduceMotion)
-        case .profileLook: theme.palette.name
-        case .controllers: controller.connectedControllers.first?.name
-        case .navigation: SettingsDraftFields.onOff(editor.settings.showButtonHints)
-        case .profileIdentity: profiles?.active?.name
-        case .profileSecurity: profiles?.active.map { SettingsDraftFields.onOff($0.isLocked) }
         case .profileNextendo: nextendo.accountName ?? L10n.text("No account linked")
         case .engine: seleneShort(setup.currentEngineCommit)
         case .keys: L10n.text(setup.isProdKeysValid ? "Keys imported" : "No prod.keys imported")
-        case .library: (editor.settings.launcherChoices.gameAppsPath ?? viewModel.libraryFolder?.path)
-            .map { URL(fileURLWithPath: $0).lastPathComponent }
         case .games: SettingsDraftFields.onOff(editor.settings.gameDefaults.fullscreen)
-        case .sources: editor.settings.launcherChoices.steamSource.map { SettingsDraftFields.onOff($0.enabled) }
-        case .apiServices: SettingsDraftFields.onOff(igdb.isConfigured || viewModel.hasSteamGridDBKey)
-        case .storage: viewModel.storageUsage.map { seleneBytes($0.libraryBytes + $0.cacheBytes + $0.logsBytes) }
         case .portingStorage: viewModel.storageUsage.map { seleneBytes($0.cacheBytes) }
         default: nil
         }
@@ -577,8 +587,7 @@ struct SettingsView: View {
         changePage(to: next, returnFocus: subject.id)
     }
 
-    private var pendingRows: [String: AppSettingsDraft.Change] {
-        guard let section else { return [:] }
+    private func pendingRows(in section: SettingsSection) -> [String: AppSettingsDraft.Change] {
         var rows: [String: AppSettingsDraft.Change] = [:]
         for change in settings.draft?.changes ?? [] {
             rows[SettingsDraftFields.row(change.id, in: section)] = change
@@ -610,11 +619,11 @@ struct SettingsView: View {
         rowActions.indices.contains(rowFocus.index) ? rowActions[rowFocus.index] : nil
     }
 
-    private func updateActions(_ actions: [SettingsRowAction]) {
+    private func updateActions() {
         // One focus slot per visible row; reset the button when an action appears or disappears.
         let focusedID = focusedRow?.id
         let focusedButtonCount = focusedRow?.buttonCount
-        rowActions = SettingsRowAction.primaryActions(actions)
+        rowActions = SettingsRowAction.primaryActions(page.inlineSections.flatMap { pageActions[$0] ?? [] } + subjectActions)
         if let focusedID, let index = rowActions.firstIndex(where: { $0.id == focusedID }) {
             rowFocus.index = index
         }
@@ -625,9 +634,9 @@ struct SettingsView: View {
     }
 
     private func focusRequestedSetting() {
-        let externalID = section == initialSection ? router.settingsRowID : nil
+        let externalID = page.inlineSections.contains(initialSection) ? router.settingsRowID : nil
         guard let id = requestedRowID ?? externalID else { return }
-        let alias = section.map { SettingsDraftFields.row(id, in: $0) }
+        let alias = (SettingsCatalog.all.first { $0.id == id }?.group ?? section).map { SettingsDraftFields.row(id, in: $0) }
         guard
               let index = rowActions.firstIndex(where: {
                   $0.id == id || $0.rowID == id || (id == "cloudLibraryService" && $0.id == "cloudRecovery")
@@ -651,6 +660,8 @@ struct SettingsView: View {
 
     private func changePage(to next: OortSettingsStack<SettingsPage>, focus: String? = nil, returnFocus: String? = nil) {
         rowActions = []
+        pageActions = [:]
+        subjectActions = []
         rowFocus = FocusIndex()
         rowButton = 0
         requestedRowID = focus

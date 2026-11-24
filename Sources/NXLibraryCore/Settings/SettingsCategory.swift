@@ -42,13 +42,26 @@ public enum SettingsCategory: String, CaseIterable, Identifiable {
         self = category
     }
 
+    public var inlineSections: [SettingsSection] {
+        switch self {
+        case .appearance: [.profileLook]
+        case .account: [.profileIdentity, .profileSecurity]
+        case .switch: [.library]
+        case .storage: [.storage]
+        default: sections
+        }
+    }
+
+    public var subjects: [SettingsSection] { sections.filter { !inlineSections.contains($0) } }
+
     public func title(in context: AppLocale = L10n.context) -> String {
         L10n.text("Settings navigation: \(rawValue)", context: context)
     }
 
     public func title(for section: SettingsSection, in context: AppLocale = L10n.context) -> String {
         switch section {
-        case .look, .engine, .games, .profileSecurity, .sources, .apiServices, .storage:
+        case .look: L10n.text("Advanced", context: context)
+        case .engine, .games, .profileSecurity, .sources, .apiServices, .storage:
             L10n.text("Settings subject: \(section.rawValue)", context: context)
         default:
             section.title(in: context)

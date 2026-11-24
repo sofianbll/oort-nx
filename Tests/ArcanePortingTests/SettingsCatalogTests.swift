@@ -108,6 +108,12 @@ final class SettingsCatalogTests: XCTestCase {
         XCTAssertEqual(SettingsCategory.switch.sections, [.engine, .keys, .library, .games])
         XCTAssertEqual(SettingsCategory.account.sections, [.profileIdentity, .profileSecurity, .profileNextendo])
         XCTAssertEqual(SettingsCategory.integrations.sections, [.sources, .apiServices])
+        XCTAssertEqual(SettingsCategory.switch.inlineSections, [.library])
+        XCTAssertEqual(SettingsCategory.switch.subjects, [.engine, .keys, .games])
+        XCTAssertEqual(SettingsCategory.account.subjects, [.profileNextendo])
+        XCTAssertEqual(SettingsCategory.appearance.subjects, [.look])
+        XCTAssertTrue(SettingsCategory.controllers.subjects.isEmpty)
+        XCTAssertTrue(SettingsCategory.integrations.subjects.isEmpty)
     }
 
     func testSearchFindsBothCurrentAndLegacySectionNames() {

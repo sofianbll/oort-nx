@@ -33,7 +33,7 @@ struct OortSettingsShell<Sidebar: View, Detail: View>: View {
             VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.control)) {
                 HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                     if let onBack {
-                        SelenePillButton(title: "Back", focused: false, action: onBack)
+                        OortButton(title: "Back", preset: .compact, action: onBack)
                     }
                     Text(title)
                         .seleneFont(.heading, .semibold)
@@ -75,14 +75,14 @@ struct OortSettingsSidebar<ID: Hashable, Header: View>: View {
             header()
             ScrollViewReader { proxy in
                 ScrollView {
-                    VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.hairline)) {
+                    VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.seam)) {
                         ForEach(sections.filter { !$0.items.isEmpty }) { section in
                             if let title = section.title {
                                 Text(title)
                                     .seleneFont(.badge, .semibold)
                                     .foregroundStyle(SeleneTheme.ink)
                                     .padding(.leading, canvas.u(SeleneTokens.Space.panel))
-                                    .padding(.top, canvas.u(SeleneTokens.Space.control))
+                                    .padding(.top, canvas.u(SeleneTokens.Space.compact))
                                     .accessibilityAddTraits(.isHeader)
                             }
                             ForEach(section.items) { item in row(item).id(item.id) }
@@ -110,7 +110,7 @@ struct OortSettingsSidebar<ID: Hashable, Header: View>: View {
             }
             .foregroundStyle(lit ? SeleneTheme.onFocus : SeleneTheme.ink)
             .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
-            .padding(.vertical, canvas.u(SeleneTokens.Space.compact))
+            .padding(.vertical, canvas.u(SeleneTokens.Space.tight))
             .background((lit ? SeleneTheme.focus : (isSelected ? SeleneTheme.glass : .clear)),
                         in: RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge)))
             .contentShape(Rectangle())
@@ -153,13 +153,7 @@ struct OortSettingsSearchField: View {
 
     var body: some View {
         TextField(L10n.text("Search settings", context: locale), text: $query)
-            .textFieldStyle(.plain)
-            .seleneFont(.text)
-            .foregroundStyle(SeleneTheme.ink)
-            .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
-            .padding(.vertical, canvas.u(SeleneTokens.Space.small))
-            .background(SeleneTheme.glassSolid, in: Capsule())
-            .overlay { Capsule().strokeBorder(focused ? SeleneTheme.focus : SeleneTheme.ink15) }
+            .modifier(OortField(focused: focused))
             .focused($focused)
             .onChange(of: focused) { _, focused in if focused { onFocus() } }
             .onChange(of: request) { focused = true }

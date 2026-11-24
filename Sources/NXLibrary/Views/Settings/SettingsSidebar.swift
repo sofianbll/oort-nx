@@ -14,16 +14,16 @@ enum SettingsPage: Hashable {
             return .init(section == .changed ? .changed : .search)
         }
         var stack = OortSettingsStack<Self>(.category(category))
-        if category.sections.count > 1 { stack.push(.subject(section)) }
+        if category.subjects.contains(section) { stack.push(.subject(section)) }
         return stack
     }
 
-    var section: SettingsSection? {
+    var inlineSections: [SettingsSection] {
         switch self {
-        case .search: .search
-        case .changed: .changed
-        case .subject(let section): section
-        case .category(let category): category.sections.count == 1 ? category.sections.first : nil
+        case .search: [.search]
+        case .changed: [.changed]
+        case .subject(let section): [section]
+        case .category(let category): category.inlineSections
         }
     }
 
@@ -69,11 +69,10 @@ struct SettingsSidebar: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
             OortSettingsSearchField(query: $query, request: searchFieldRequest, onFocus: onSearchFocus, onSubmit: onSubmit)
-            HStack(spacing: canvas.u(SeleneTokens.Space.hairline)) {
-                SelenePillButton(title: "All", focused: selection == .search) { onSelect(.search) }
-                SelenePillButton(title: "Changed", focused: selection == .changed) { onSelect(.changed) }
-            }
-            .accessibilityElement(children: .contain)
+            OortSegmented(selection: Binding(get: { selection }, set: onSelect),
+                          options: [(.search, L10n.text("All", context: context)),
+                                    (.changed, L10n.text("Changed", context: context))],
+                          focused: isFocused && (selection == .search || selection == .changed) ? selection : nil)
         }
     }
 }

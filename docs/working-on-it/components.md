@@ -6,6 +6,7 @@ I tipi con prefisso `Selene` restano disponibili per la migrazione.
 | Componente | Scopo e uso | Preset / stati | Usare · evitare |
 |---|---|---|---|
 | `OortPage` | Pagina con titolo, scorrimento, ritorno e suggerimenti | `standard` opaco; `legacyBackdrop` solo per preservare pagine precedenti | Passare l'identità del focus · non aggiungere una seconda barra. |
+| `OortSettingsShell`, `OortSettingsSidebar`, `OortSettingsLink` | Barra di categorie e dettaglio con titolo e ritorno | Selezione separata dal focus, secondo livello per argomenti autonomi | Passare il contenuto; non definire lo stile nella schermata. |
 | `OortSection` | Raggruppare righe sotto un titolo | Standard | Usare quando cambia il gruppo · non simulare un titolo con colore e dimensione. |
 | `OortRow` | Aprire una pagina o descrivere una funzione | Navigazione, informazione; focus, stato scritto | Un'azione per riga · non annidare pulsanti. |
 | `SeleneValueRow`, `SeleneCycleRow`, `SeleneToggleRow`, `SeleneButtonRow`, `OortSliderRow` | Mostrare/modificare un valore nelle impostazioni | Valore, scelta, interruttore, azione, cursore | Conservare valore e azione distinti · non attivare al focus. |

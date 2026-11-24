@@ -665,6 +665,10 @@ import ArcanePorting
         send(.tabPrevious)
         send(.confirm)
         try capture("navigation-01-switch")
+        // Folder controls are inline. Start from the last of the three subject links and go up to Engine.
+        for _ in 0..<12 { send(.navigateDown) }
+        send(.navigateUp)
+        send(.navigateUp)
         send(.confirm)
         try capture("navigation-02-engine")
         send(.cancel)

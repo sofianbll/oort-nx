@@ -330,17 +330,6 @@
       ".padding(.vertical,8": 1,
       "opacity:.opacity(0.62": 2
     },
-    "Sources/NXLibrary/Views/Settings/SettingsSearchSection.swift": {
-      ".padding(.bottom,canvas.u(13": 1,
-      ".padding(.leading,canvas.u(26": 1,
-      ".padding(.top,canvas.u(11": 1,
-      ".padding(.trailing,canvas.u(26": 1
-    },
-    "Sources/NXLibrary/Views/Settings/SettingsSidebar.swift": {
-      ".padding(.bottom,canvas.u(26": 1,
-      "color:Color.clear": 1,
-      "opacity:.opacity(0.55": 1
-    },
     "Sources/NXLibrary/Views/Settings/SettingsSourcesSection.swift": {
       ".padding(.vertical,10": 1,
       ".padding(24": 1
@@ -350,9 +339,6 @@
       ".padding(.vertical,4": 1,
       "cornerRadius:7": 1,
       "opacity:.opacity(0.75": 1
-    },
-    "Sources/NXLibrary/Views/Settings/SettingsView.swift": {
-      "opacity:.opacity(0.55": 1
     },
     "Sources/NXLibrary/Views/Setup/ArcaneWelcomeView.swift": {
       ".padding(.horizontal,canvas.u(26": 1,

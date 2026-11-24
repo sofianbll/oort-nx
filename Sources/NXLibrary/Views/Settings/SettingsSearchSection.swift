@@ -20,9 +20,7 @@ struct SettingsSearchSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
             if !query.isEmpty && results.isEmpty {
-                Text(L10n.text("No settings match."))
-                    .seleneFont(.text)
-                    .foregroundColor(SeleneTheme.ink60)
+                OortEmptyState(title: L10n.text("No settings match."))
             }
             SettingsDescriptorList(rows: results, onOpenGroup: onOpenGroup)
         }
@@ -80,9 +78,7 @@ struct SettingsChangedSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
             if rows.isEmpty {
-                Text(L10n.text(query.isEmpty ? "Nothing changed yet." : "No settings match."))
-                    .seleneFont(.text)
-                    .foregroundColor(SeleneTheme.ink60)
+                OortEmptyState(title: L10n.text(query.isEmpty ? "Nothing changed yet." : "No settings match."))
             }
             SettingsDescriptorList(rows: rows, onOpenGroup: onOpenGroup)
         }
