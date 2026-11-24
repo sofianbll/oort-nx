@@ -258,6 +258,7 @@ struct SpotlightRowView: View {
             case .favorites: return (L10n.text("No favorites yet"), L10n.text("Choose the heart on a game to add it to your favorites."))
             case .notPlayed: return (L10n.text("You've started everything"), L10n.text("Every game in your library has been played at least once."))
             case .all: return (L10n.text("No games yet"), L10n.text("Add a game to start your collection."))
+            case .cloud: return (L10n.text("No games only in the cloud"), L10n.text("Cloud-only games appear here."))
             }
         }()
         return VStack(alignment: .leading, spacing: canvas.u(6)) {

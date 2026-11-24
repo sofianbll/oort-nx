@@ -4,6 +4,90 @@ import XCTest
 @testable import ArcanePorting
 
 final class CloudGameSourcesTests: XCTestCase {
+    func testDiscoveryIsScopedAndRejectsUncertainIdentity() async throws {
+        let base = "0100000000001000", flat = "0100000000002000", duplicate = "0100000000003000"
+        let folder = "Lunar Observatory [\(base)]", first = "First [\(duplicate)]", second = "Second [\(duplicate)]"
+        let listings = [
+            "fixture:Games": Self.entries(directories: ["GameFiles", "Switch"]),
+            "fixture:Games/GameFiles": Self.entries(directories: [folder, first, second, "Unreadable", "Ambiguous", "Case", "case", "Archive.app"],
+                                                   files: ["Flat [\(flat)].xci", "Name only.nsp", "../Escape [\(flat)].nsp", "Other [\(flat)][\(base)].nsp"]),
+            "fixture:Games/GameFiles/\(folder)": Self.entries(files: ["Game.nsp", "Update [0100000000001800][v64].nsz"]),
+            "fixture:Games/GameFiles/\(first)": Self.entries(files: ["First.nsp"]),
+            "fixture:Games/GameFiles/\(second)": Self.entries(files: ["Second.nsp"]),
+            "fixture:Games/GameFiles/Ambiguous": Self.entries(files: ["One [\(base)].nsp", "Two [\(flat)].nsp"]),
+        ]
+        let backend = RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in
+            XCTAssertEqual(args.first, "lsjson")
+            XCTAssertTrue(args.contains("--drive-skip-shortcuts"))
+            XCTAssertFalse(args.contains("--hash"))
+            let path = args[1]
+            if path == "fixture:Games/GameFiles/Unreadable" { return .init(status: 1, stdout: "", stderr: "403 forbidden") }
+            let listing = try XCTUnwrap(listings[path], "Unexpected read: \(path)")
+            return .init(status: 0, stdout: listing, stderr: "")
+        }
+        let discovery = try await CloudGameSources(backend: backend, root: "Games/GameFiles").discover()
+        XCTAssertEqual(discovery.games.map(\.titleID), [base, flat])
+        XCTAssertEqual(discovery.games.first?.name, "Lunar Observatory")
+        XCTAssertEqual(discovery.games.first?.files.map(\.kind), [.base, .update])
+        XCTAssertEqual(discovery.ambiguous, ["Ambiguous", "Case", first, "Other [\(flat)][\(base)].nsp", second, "case"].sorted())
+        XCTAssertEqual(discovery.unreadable, ["../Escape [\(flat)].nsp", "Name only.nsp", "Unreadable"])
+
+        for path in ["Other/GameFiles", "GamesPrivate/GameFiles", "Games/../Other", "Games"] {
+            let service = CloudGameSources(backend: backend, root: path)
+            let result = try await service.discover()
+            XCTAssertTrue(result.games.isEmpty)
+        }
+    }
+
+    func testReferenceSourcesOnlyAndCatalogKeepsLocalCopyAndExclusions() async throws {
+        let title = "0100000000004000", other = "0100000000005000", reference = "reference-fixture"
+        let listings = [
+            "fixture:": Self.entries(directories: ["Switch"]),
+            "fixture:Switch": Self.entries(directories: ["Games"]),
+            "fixture:Switch/Games": Self.entries(files: ["Orbit [\(title)].nsp", "Dawn [\(other)].nsp"]),
+        ]
+        let backend = RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in
+            XCTAssertEqual(args.first, "lsjson")
+            XCTAssertTrue(args.contains(reference))
+            XCTAssertFalse(args.contains("--hash"))
+            return .init(status: 0, stdout: try XCTUnwrap(listings[args[1]]), stderr: "")
+        }
+        let scoped = try XCTUnwrap(backend.reference(folderID: reference))
+        let discovery = try await CloudGameSources(backend: scoped, root: "GameFiles", usesDefaultRoot: true).discover()
+        XCTAssertEqual(discovery.games.map(\.titleID), [title, other])
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let repository = CatalogRepository(store: .init(directory: root.appendingPathComponent("catalog")))
+        let catalog = try repository.importCloudGames([], discovered: discovery.games, in: root, sourceRoot: root, referenceFolder: reference)
+        let kept = try XCTUnwrap(catalog.nxnativeGames.first)
+        let absent = try XCTUnwrap(catalog.nxnativeGames.last)
+        XCTAssertTrue(kept.isCloudSourcePlaceholder)
+        XCTAssertEqual(kept.cloudReferenceFolder, reference)
+        XCTAssertEqual(GameResourceState.unavailableReason(for: kept), .sourcesMissing)
+        let files = CloudGameSources.importedFolder(for: kept.id, in: root)
+        XCTAssertEqual(discovery.games[0].availability(for: kept.sources, in: files)?.state, .cloudOnly)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: files.path), "Discovery must not download or create source directories")
+        let downloaded = try XCTUnwrap(kept.sources.first?.url)
+        try FileManager.default.createDirectory(at: downloaded.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try Data([1]).write(to: downloaded)
+        XCTAssertNil(GameResourceState.unavailableReason(for: kept))
+        XCTAssertEqual(discovery.games[0].availability(for: kept.sources, in: files)?.state, .unknown)
+        XCTAssertEqual(try repository.forgetCloudReference(reference).nxnativeGames.map(\.id), [kept.id])
+        XCTAssertTrue(FileManager.default.fileExists(atPath: downloaded.path))
+        let imported = try repository.importCloudGames([], discovered: discovery.games, in: root, sourceRoot: root, referenceFolder: reference)
+        let removable = try XCTUnwrap(imported.nxnativeGames.first { $0.titleId == other })
+        XCTAssertNotEqual(removable.id, absent.id)
+        _ = try repository.removeNXNative(id: removable.id)
+        XCTAssertEqual(try repository.importCloudGames([], discovered: discovery.games, in: root, sourceRoot: root).nxnativeGames.map(\.id), [kept.id])
+    }
+
+    private static func entries(directories: [String] = [], files: [String] = []) -> String {
+        let rows: [[String: Any]] = directories.map { ["Name": $0, "Path": $0, "Size": -1, "IsDir": true] }
+            + files.map { ["Name": $0, "Path": $0, "Size": 1, "IsDir": false] }
+        return String(decoding: try! JSONSerialization.data(withJSONObject: rows), as: UTF8.self)
+    }
+
     func testExplicitSourceUpdateKeepsUnchangedAndPreviousPackages() async throws {
         let f = try Fixture()
         let base = try f.local("Base.nsp", "base")

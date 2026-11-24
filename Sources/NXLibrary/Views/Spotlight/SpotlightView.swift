@@ -142,7 +142,7 @@ struct SpotlightView: View {
     private var rowQuery: LibraryQuery { LibraryQuery(filter: filter, sort: settings.settings.librarySort) }
 
     var rowGames: [CatalogGame] {
-        rowQuery.applyCatalog(to: viewModel.visibleCatalogGames, history: playSessions)
+        viewModel.queryLibrary(rowQuery, history: playSessions)
     }
     var selectedCatalogGame: CatalogGame? {
         guard case .game(let id) = selectedItem else { return nil }
@@ -180,7 +180,7 @@ struct SpotlightView: View {
 
     private func snapshot() -> Snapshot {
         let visible = viewModel.visibleCatalogGames
-        let rowGames = rowQuery.applyCatalog(to: visible, history: playSessions)
+        let rowGames = viewModel.queryLibrary(rowQuery, history: playSessions)
         let items = rowItems(for: rowGames)
         let gamesByID = Dictionary(viewModel.libraryGames.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         let item = viewModel.spotlight.selectedItem(in: items)
@@ -210,11 +210,11 @@ struct SpotlightView: View {
     }
 
     func spotlightPills(_ game: PortedGame) -> PortingPills {
-        viewModel.portingPills(game).detailsPresentation(cloudOnly: downloadsCloudApp(game))
+        viewModel.portingPills(game).detailsPresentation(cloudOnly: downloadItem(game) != nil)
     }
 
-    func downloadsCloudApp(_ game: PortedGame) -> Bool {
-        cloud.downloadsCloudApp(game) && !runningGames.isRunning(game)
+    func downloadItem(_ game: PortedGame) -> CloudLibraryItem? {
+        runningGames.isRunning(game) ? nil : cloud.downloadItem(for: game)
     }
 
     var screenshotCount: Int {
@@ -369,7 +369,9 @@ struct SpotlightView: View {
 
     /// Find a game and the controller.
     private func events(on content: some View) -> some View {
-        content
+        let filteredIDs: Set<UUID> = filter == .cloud ? viewModel.cloudOnlyGameIDs : []
+        return content
+        .onChange(of: filteredIDs) { reconcile() }
         .onReceive(NotificationCenter.default.publisher(for: .nxFindGameSelect)) { note in
             guard let id = note.object as? UUID else { return }
             // Find a game lands on Spotlight; a tab without the game gives way to All games.

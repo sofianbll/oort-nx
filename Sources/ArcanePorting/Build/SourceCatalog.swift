@@ -209,10 +209,14 @@ public final class SourceCatalog {
     }
 
     static func titleIdFromName(_ url: URL) -> UInt64? {
-        guard let value = firstCapture(#"\[([0-9A-Fa-f]{16})\]"#, in: url.lastPathComponent) else {
-            return nil
+        titleIDs(in: url.lastPathComponent).first
+    }
+
+    static func titleIDs(in name: String) -> [UInt64] {
+        let regex = try! NSRegularExpression(pattern: #"\[([0-9A-Fa-f]{16})\]"#)
+        return regex.matches(in: name, range: NSRange(name.startIndex..., in: name)).compactMap {
+            Range($0.range(at: 1), in: name).flatMap { UInt64(name[$0], radix: 16) }
         }
-        return UInt64(value, radix: 16)
     }
 
     static func versionFromName(_ url: URL) -> Int? {

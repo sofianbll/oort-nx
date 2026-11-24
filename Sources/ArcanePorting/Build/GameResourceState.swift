@@ -38,7 +38,7 @@ public enum GameResourceState {
     public static func reconciledStatus(for game: PortedGame, appExists: Bool,
                                         sourcesAvailable: Bool) -> GameStatus {
         guard game.status != .building else { return game.status }
-        if game.cloudImportPending == true { return .appMissing }
+        if game.cloudImportPending == true { return game.isCloudSourcePlaceholder ? game.status : .appMissing }
         guard game.url.pathExtension.lowercased() == "app" else {
             // Older scans could label an unbuilt workspace as a missing app.
             guard game.status == .appMissing else { return game.status }

@@ -20,6 +20,7 @@ public enum LibraryFilter: String, CaseIterable, Identifiable, Equatable {
     case recentlyPlayed = "Recently played"
     case favorites = "Favorites"
     case notPlayed = "Not played yet"
+    case cloud = "Cloud"
 
     public var id: String { rawValue }
 }
@@ -48,9 +49,12 @@ public struct LibraryQuery: Equatable {
         self.sort = sort
     }
 
-    public func applyCatalog(to games: [CatalogGame], history: PlayHistory) -> [CatalogGame] { applyRecords(games, history: history) }
+    public func applyCatalog(to games: [CatalogGame], history: PlayHistory, cloudOnly: Set<UUID> = []) -> [CatalogGame] {
+        applyRecords(games, history: history, cloudOnly: cloudOnly)
+    }
 
-    package func applyRecords<Game: LibraryQueryRecord>(_ games: [Game], history: PlayHistory) -> [Game] {
+    package func applyRecords<Game: LibraryQueryRecord>(_ games: [Game], history: PlayHistory,
+                                                       cloudOnly: Set<UUID> = []) -> [Game] {
         let visible = games.filter { !$0.isHidden }
         let needsHistory = sort == .recent || filter == .recentlyPlayed || filter == .notPlayed
         let dates = needsHistory ? Dictionary(uniqueKeysWithValues: visible.map { ($0.id, history.lastPlayed(for: $0.id)) }) : [:]
@@ -63,6 +67,7 @@ public struct LibraryQuery: Equatable {
         case .recentlyPlayed: filtered = visible.filter { played($0) != nil }
         case .favorites: filtered = visible.filter(\.isFavorite)
         case .notPlayed: filtered = visible.filter { played($0) == nil }
+        case .cloud: filtered = visible.filter { cloudOnly.contains($0.id) }
         }
 
         let query = normalized(searchText)

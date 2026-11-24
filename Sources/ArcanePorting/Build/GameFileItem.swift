@@ -29,7 +29,7 @@ public enum SourceKind: String, Codable, Equatable, Sendable {
     }
 }
 
-public struct GameFileItem: Identifiable, Codable, Equatable {
+public struct GameFileItem: Identifiable, Codable, Equatable, Sendable {
     public var id: UUID
     public var url: URL
     public var name: String

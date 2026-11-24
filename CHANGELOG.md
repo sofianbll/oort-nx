@@ -6,6 +6,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Added
 
+- Import Switch games from game files alone in your own cloud library or a followed reference. Personalize them before downloading, and find them with the **Cloud** filter in Spotlight and Collection.
 - Switch game Details shows the installed app’s engine date and update status. An update icon appears on the cover only when the app is older and its game files are available.
 - The home bar and **Integrations** page show each service’s status and open its settings without activating it.
 - Add local Mac apps as library shortcuts without changing the apps or recording play sessions.
@@ -13,6 +14,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Fixed
 
+- A Drive outage preserves the last known availability of cloud games across launcher restarts without treating it as verified synchronization.
 - A confirmed cloud library move can resume after interruption. It verifies both folders and refuses new archives outside the plan or conflicting copies.
 - Cloud setup recognizes `Switch/Games` inside the chosen library without changing a saved game-files folder.
 - Recent sessions and archived playtime are saved together so a session cannot disappear as it leaves the recent list.

@@ -76,9 +76,9 @@ extension GameDetailView {
             DetailsLink.openCloud(for: game, viewModel: viewModel)
             return
         }
-        if index == 0, pills != .porting, downloadsCloudApp {
+        if index == 0, pills != .porting, downloadItem != nil {
             SoundEffectService.shared.play(.click)
-            viewModel.downloadCloudApp(game)
+            viewModel.downloadCloudGame(game)
             return
         }
         switch pills {

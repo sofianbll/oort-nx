@@ -280,7 +280,8 @@ final class SpotlightLiftTests: XCTestCase {
     func testFilterCyclesForwardAndWraps() {
         XCTAssertEqual(LibraryFilter.all.cycled(), .installed)
         XCTAssertEqual(LibraryFilter.favorites.cycled(), .notPlayed)
-        XCTAssertEqual(LibraryFilter.notPlayed.cycled(), .all)
+        XCTAssertEqual(LibraryFilter.notPlayed.cycled(), .cloud)
+        XCTAssertEqual(LibraryFilter.cloud.cycled(), .all)
     }
 
     func testCollectionRowScrollsPastAnchor() {

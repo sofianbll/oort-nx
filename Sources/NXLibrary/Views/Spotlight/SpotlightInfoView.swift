@@ -25,7 +25,7 @@ struct SpotlightGameInfoView: View {
     @ObservedObject var cloud: CloudLibraryModel
     var showsCloudPill = false
     var cloudCoverVisible = false
-    var downloadsApp = false
+    private var downloadItem: CloudLibraryItem? { isRunning ? nil : cloud.downloadItem(for: game) }
     var downloadEnabled = false
     var canCheckCloudSources = false
     /// "About 8 min left" under the Porting pill.
@@ -58,7 +58,7 @@ struct SpotlightGameInfoView: View {
                         .padding(.leading, canvas.u(4))
                         .padding(.top, canvas.u(20))
                 }
-                if let reason = pillSet.unavailableReason, !downloadsApp {
+                if let reason = pillSet.unavailableReason, downloadItem == nil {
                     Text(reason.title)
                         .seleneFont(19, .semibold)
                         .foregroundColor(SeleneTheme.ink75)
@@ -77,7 +77,7 @@ struct SpotlightGameInfoView: View {
                     .padding(.top, canvas.u(pillSet.isFailed ? 10 : 18))
                 if let state = cloud.states[game.id] {
                     CloudGameStatus(state: state, playable: game.isPlayableLocally || isRunning,
-                        hasCover: cloudCoverVisible, hasDownloadPill: showsDownloadPill && state.activeItem == .app)
+                        hasCover: cloudCoverVisible, hasDownloadPill: showsDownloadPill && state.activeItem == downloadItem)
                         .padding(.leading, canvas.u(SeleneTokens.Space.seam))
                         .padding(.top, canvas.u(SeleneTokens.Space.small))
                 }
@@ -123,10 +123,10 @@ struct SpotlightGameInfoView: View {
                     .seleneFont(15)
                     .foregroundColor(SeleneTheme.ink60)
             }
-        case .unavailable(let reason) where !downloadsApp:
+        case .unavailable(let reason) where downloadItem == nil:
             Text(reason.detail).seleneFont(15).foregroundColor(SeleneTheme.ink60)
         case .normal, .unavailable:
-            if downloadsApp {
+            if downloadItem != nil {
                 EmptyView()
             } else if !canCheckCloudSources && !game.sources.isEmpty && !GameResourceState.sourcesAvailable(for: game) {
                 Text(L10n.text("Game files not found · Rebuild unavailable"))
@@ -160,23 +160,23 @@ struct SpotlightGameInfoView: View {
         return GamePrimaryActions(primaryTitle: primaryTitle,
                            secondaryTitle: isRunning ? "Close Game" : "Options",
                            isFavorite: game.isFavorite, focused: focusedPill,
-                           primaryEnabled: isRunning || (downloadsApp
+                           primaryEnabled: isRunning || (downloadItem != nil
                                ? downloadEnabled && cloud.states[game.id]?.action == nil && cloud.states[game.id]?.refreshing != true
                                : pillSet.unavailableReason == nil),
                            primaryQueued: pillSet == .queued,
                            primaryDownloadFill: showsDownloadPill
-                               ? (cloudCoverVisible ? 0 : CloudLibraryProgressView.downloadFill(state, item: .app) ?? 0) : nil,
+                               ? (cloudCoverVisible ? 0 : downloadItem.flatMap { CloudLibraryProgressView.downloadFill(state, item: $0) } ?? 0) : nil,
                            cloud: showsCloudPill ? CloudLibraryIndicator(state: state) : nil,
                            onAction: onPill, onHover: onHoverPill)
     }
 
     private var showsDownloadPill: Bool {
-        downloadsApp && !isRunning && pillSet != .queued && pillSet != .porting && !pillSet.isFailed
+        downloadItem != nil && pillSet != .queued && pillSet != .porting && !pillSet.isFailed
     }
 
     private var primaryTitle: String {
         if isRunning { return L10n.text("Resume") }
-        if downloadsApp { return "Download" }
+        if let downloadItem { return downloadItem.primaryDownloadTitle }
         if pillSet.unavailableReason != nil { return L10n.text("Unavailable") }
         return game.isPlayableLocally ? L10n.text("Play") : "Build"
     }

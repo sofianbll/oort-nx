@@ -59,7 +59,7 @@ struct CollectionView: View {
     private func games(using query: LibraryQuery) -> [CatalogGame] {
         let games = viewModel.visibleCatalogGames
         guard let card = profileCard else {
-            return query.applyCatalog(to: games, history: playSessions)
+            return viewModel.queryLibrary(query, history: playSessions)
         }
         let now = Date.now
         return card.games(in: games, activity: playSessions.profileActivity(at: now),
@@ -123,6 +123,7 @@ struct CollectionView: View {
         }
         .onChange(of: viewModel.catalogSourceConfigurations) { reconcile() }
         .onChange(of: filter) { reconcile() }
+        .onChange(of: filter == .cloud ? viewModel.cloudOnlyGameIDs : []) { reconcile() }
         .onChange(of: settings.settings.librarySort) { reconcile() }
         .onChange(of: showsEmptyActions) { _, shown in if !shown { importFocused = false } }
         .onChange(of: viewModel.librarySelection.selectedGameID) { selectionChanged() }
@@ -161,6 +162,7 @@ struct CollectionView: View {
 
             if let game {
                 CollectionInfoView(game: game, logo: art.logo(for: game),
+                                   cloudOnly: cloud.downloadItem(for: game) != nil,
                                    presentation: LibraryPresentation(
                                        game: game, metadata: store.storeMetadata[game.id],
                                        totalPlaytime: playSessions.totalDuration(for: game.id),
@@ -257,11 +259,14 @@ struct CollectionView: View {
             guard showsEmptyActions else { return [] }
             return [HintItem(.a, importFocused ? L10n.text("Import existing builds") : L10n.text("Add game"))]
         }
-        if cloud.downloadsCloudApp(game) {
-            return [HintItem(.a, "Download"), HintItem(.x, "Details"), HintItem(.y, "Game options")]
+        if let item = cloud.downloadItem(for: game) {
+            return [HintItem(.a, item.primaryDownloadTitle), HintItem(.x, "Details"), HintItem(.y, "Game options")]
         }
         if game.isPlayableLocally {
             return [HintItem(.a, L10n.text("Play")), HintItem(.x, L10n.text("Details")), HintItem(.y, L10n.text("Game options"))]
+        }
+        if game.isCloudSourcePlaceholder, viewModel.gamesWithFilesHere.contains(game.id) {
+            return [HintItem(.a, "Build"), HintItem(.x, "Details"), HintItem(.y, "Game options")]
         }
         return [HintItem(.a, L10n.text("Details")), HintItem(.y, L10n.text("Game options"))]
     }
@@ -342,6 +347,7 @@ struct CollectionInfoView: View {
 
     let game: PortedGame
     let logo: NSImage?
+    let cloudOnly: Bool
     let presentation: LibraryPresentation
 
     @State private var shown = true
@@ -350,7 +356,7 @@ struct CollectionInfoView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             logoArea
-            if let reason = GameResourceState.unavailableReason(for: game) {
+            if !cloudOnly, let reason = GameResourceState.unavailableReason(for: game) {
                 Text(reason.title)
                     .seleneFont(.panelBody, .semibold)
                     .foregroundColor(SeleneTheme.ink75)
@@ -359,7 +365,7 @@ struct CollectionInfoView: View {
                     .seleneFont(.compactCaption)
                     .foregroundColor(SeleneTheme.ink60)
                     .padding(.top, canvas.u(SeleneTokens.Space.tight))
-            } else if !game.isPlayableLocally, game.status != .building, game.portingFailure == nil {
+            } else if !cloudOnly, !game.isPlayableLocally, game.status != .building, game.portingFailure == nil {
                 Text(L10n.text("Not built yet"))
                     .seleneFont(.body)
                     .foregroundColor(SeleneTheme.ink75)

@@ -14,21 +14,33 @@ extension AppViewModel {
 
     private func restingTileLook(_ game: PortedGame) -> PortingTileLook {
         let state = cloudLibrary.states[game.id]
-        func inCloud(_ item: CloudLibraryItem, expected: Bool) -> Bool? {
+        func inCloud(_ item: CloudLibraryItem) -> Bool? {
             guard cloudLibrary.archive != nil else { return false }
+            guard cloudLibrary.checkFailure == nil, cloudLibrary.referenceCheck?.failure == nil else { return nil }
             switch state?.copy(item) {
             case .cloudOnly: return true
             case .notInCloud: return false
-            default: return expected ? true : cloudLibrary.catalogChecked ? false : nil
+            default: return cloudLibrary.catalogChecked ? false : nil
             }
         }
-        // An imported title is only listed because its app is in the cloud.
         let older = installedVersions[game.id]?.isOlder == true
         let playable = game.isPlayableLocally
-        let filesInCloud = playable ? older && engineUpdateFilesInCloud(for: game) : inCloud(.sources, expected: false)
-        return .resting(playable: playable, appInCloud: inCloud(.app, expected: game.cloudImportPending == true),
+        let pending = cloudLibrary.downloadItem(for: game)
+        let filesInCloud: Bool? = playable ? older && engineUpdateFilesInCloud(for: game)
+            : pending == .sources ? true : inCloud(.sources)
+        return .resting(playable: playable, appInCloud: pending == .app ? true : inCloud(.app),
                         filesHere: gamesWithFilesHere.contains(game.id),
                         filesInCloud: filesInCloud, engineIsOlder: older)
+    }
+
+    var cloudOnlyGameIDs: Set<UUID> {
+        Set(libraryGames.lazy.filter { !self.gamesWithFilesHere.contains($0.id) &&
+            self.cloudLibrary.downloadItem(for: $0) != nil }.map(\.id))
+    }
+
+    func queryLibrary(_ query: LibraryQuery, history: PlayHistory) -> [CatalogGame] {
+        query.applyCatalog(to: visibleCatalogGames, history: history,
+                           cloudOnly: query.filter == .cloud ? cloudOnlyGameIDs : [])
     }
 
     func engineDetail(for game: PortedGame) -> String {

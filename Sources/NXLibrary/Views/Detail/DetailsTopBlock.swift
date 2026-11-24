@@ -60,7 +60,7 @@ struct DetailsTopBlock: View {
                     .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
                     .padding(.top, canvas.u(SeleneTokens.Space.titleGap))
             }
-            if let reason = pillSet.unavailableReason, !downloadsApp {
+            if let reason = pillSet.unavailableReason, downloadItem == nil {
                 Text(reason.title)
                     .seleneFont(.panelBody, .semibold)
                     .foregroundColor(SeleneTheme.ink75)
@@ -75,7 +75,7 @@ struct DetailsTopBlock: View {
                 .padding(.top, canvas.u(pillSet.isFailed ? 10 : 26))
             if let state = cloud.states[game.id], let active = state.activeItem, active != .sources, !state.queued {
                 CloudLibraryProgressView(progress: state.progress,
-                    showsBar: !showsDownloadPill || CloudLibraryProgressView.downloadFill(state, item: .app) == nil)
+                    showsBar: !showsDownloadPill || downloadItem.flatMap { CloudLibraryProgressView.downloadFill(state, item: $0) } == nil)
                     .frame(maxWidth: canvas.u(SeleneTokens.Space.transferMeasure), alignment: .leading)
                     .padding(.top, canvas.u(SeleneTokens.Space.small))
             } else if let issue = cloud.states[game.id]?.issue, issue.item != .sources {
@@ -145,10 +145,10 @@ struct DetailsTopBlock: View {
             if failure == .failed, let reason = game.portingFailureReason {
                 Text(reason.title).seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink60)
             }
-        case .unavailable(let reason) where !downloadsApp:
+        case .unavailable(let reason) where downloadItem == nil:
             Text(reason.detail).seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink60)
         case .normal, .unavailable:
-            if downloadsApp {
+            if downloadItem != nil {
                 EmptyView()
             } else if !canCheckCloudSources && !game.sources.isEmpty && !GameResourceState.sourcesAvailable(for: game) {
                 Text(L10n.text("Game files not found · Rebuild unavailable")).seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink60)
@@ -187,11 +187,11 @@ struct DetailsTopBlock: View {
                 } else {
                     SelenePillButton(title: primaryTitle, minWidth: 200, height: 52,
                                      horizontalPadding: 36, focused: focusedPill == 0,
-                                     enabled: isRunning || (downloadsApp ? downloadEnabled && cloud.states[game.id]?.action == nil
+                                     enabled: isRunning || (downloadItem != nil ? downloadEnabled && cloud.states[game.id]?.action == nil
                                          && cloud.states[game.id]?.refreshing != true
                                          : primaryEnabled && pillSet.unavailableReason == nil),
                                      downloadFill: showsDownloadPill
-                                         ? CloudLibraryProgressView.downloadFill(state, item: .app) ?? 0 : nil,
+                                         ? downloadItem.flatMap { CloudLibraryProgressView.downloadFill(state, item: $0) } ?? 0 : nil,
                                      action: onPrimary)
                 }
             }
@@ -219,17 +219,17 @@ struct DetailsTopBlock: View {
 
     private var primaryTitle: String {
         if isRunning { return L10n.text("Resume") }
-        if downloadsApp { return L10n.text("Download") }
+        if let downloadItem { return L10n.text(downloadItem.primaryDownloadTitle) }
         if pillSet.unavailableReason != nil { return L10n.text("Unavailable") }
         return presentation.canPlay ? L10n.text("Play") : "Build"
     }
 
-    private var downloadsApp: Bool {
-        cloud.downloadsCloudApp(game)
+    private var downloadItem: CloudLibraryItem? {
+        isRunning ? nil : cloud.downloadItem(for: game)
     }
 
     private var showsDownloadPill: Bool {
-        downloadsApp && !isRunning && pillSet != .queued && pillSet != .porting && !pillSet.isFailed
+        downloadItem != nil && pillSet != .queued && pillSet != .porting && !pillSet.isFailed
     }
 
     // MARK: - Stats

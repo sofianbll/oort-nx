@@ -127,7 +127,7 @@ final class AppViewModel: ObservableObject {
     }
     /// Results of the last background scan; tiles never probe app bundles, sources or Git.
     @Published private(set) var installedVersions: [UUID: InstalledEngineVersion] = [:]
-    private(set) var gamesWithFilesHere: Set<UUID> = []
+    var gamesWithFilesHere: Set<UUID> { cloudLibrary.localSourceIDs }
     private var installedVersionsRefresh: Task<Void, Never>?
 
     @discardableResult
@@ -150,7 +150,7 @@ final class AppViewModel: ObservableObject {
             await MainActor.run { [weak self, versions, local] in
                 guard !Task.isCancelled, let self,
                       self.installedVersions != versions || self.gamesWithFilesHere != local else { return }
-                self.gamesWithFilesHere = local
+                self.cloudLibrary.localSourceIDs = local
                 self.installedVersions = versions
             }
         }

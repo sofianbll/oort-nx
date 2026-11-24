@@ -47,6 +47,31 @@ public struct RcloneStorageBackend: StorageBackend {
              control: control, leases: leases, commandOverride: commandOverride, referenceID: referenceID)
     }
 
+    package func descendant(ofRoot path: String) -> String? {
+        let parent = root.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        let prefix = parent.isEmpty ? "" : parent + "/"
+        let child = path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        guard root.hasPrefix("/") == path.hasPrefix("/"), CloudLibraryPreference.safePath(path),
+              child.hasPrefix(prefix), child.count > prefix.count else { return nil }
+        let relative = String(child.dropFirst(prefix.count))
+        return relative.components(separatedBy: "/").contains("") ? nil : relative
+    }
+
+    /// One directory, metadata only. Keep duplicate names and directories so the caller can refuse them.
+    package func directoryEntries(in prefix: String, withHashes: Bool = false) async throws
+        -> [(name: String, isDirectory: Bool, object: StorageObject)] {
+        let directory = try prefix.isEmpty ? basePath() : path(for: .init(prefix))
+        let items = try decode([Item].self, from: await run([
+            "lsjson", directory, "--no-modtime", "--no-mimetype",
+        ] + (withHashes ? ["--hash"] : []), listingFolder: true))
+        if items.isEmpty { try await checkDirectory(try basePath(), prefix: prefix) }
+        return try items.map {
+            guard $0.path == $0.name, let isDirectory = $0.isDirectory else { throw StorageBackendError.invalidResponse }
+            let key = prefix.isEmpty ? $0.name : prefix + "/" + $0.name
+            return ($0.name, isDirectory, .init(key: .init(key), size: $0.size, hashes: $0.hashes ?? [:]))
+        }
+    }
+
     package func reference(folderID: String) -> Self? {
         guard remote != ":local:", CloudLibraryPreference.referenceFolderID(folderID) == folderID else { return nil }
         return Self(remote: remote, root: "", executable: executable, config: config,
@@ -55,11 +80,12 @@ public struct RcloneStorageBackend: StorageBackend {
 
     package func referenceName() async throws -> String? {
         guard let referenceID else { throw StorageBackendError.invalidConfiguration }
-        struct Folder: Decodable { let ID: String?; let Name: String }
-        let folders = try decode([Folder].self, from: await run([
-            "lsjson", basePath(), "--dirs-only", "--no-modtime", "--no-mimetype", "--drive-shared-with-me",
+        struct Folder: Decodable { let ID: String?; let Name: String?; let IsDir: Bool }
+        let folder = try decode(Folder?.self, from: await run([
+            "lsjson", basePath(), "--stat", "--no-modtime", "--no-mimetype",
         ], listingFolder: true))
-        return folders.first { $0.ID == referenceID }?.Name
+        guard let folder, folder.IsDir, folder.ID == nil || folder.ID == referenceID else { return nil }
+        return folder.Name.flatMap { $0.isEmpty ? nil : $0 } ?? referenceID
     }
 
     /// Ends the RC session when the cloud configuration is replaced or the app quits.

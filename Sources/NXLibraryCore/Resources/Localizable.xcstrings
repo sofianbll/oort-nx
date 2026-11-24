@@ -4895,6 +4895,33 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "要使用参考库中的应用替换此 Mac 上的 %@ 吗？原应用将保留。"}}
       }
     },
+    "Ambiguous cloud game files: %@.": {"localizations": {
+      "en": {"stringUnit": {"state": "translated", "value": "Ambiguous cloud game files: %@."}},
+      "it": {"stringUnit": {"state": "translated", "value": "File di gioco ambigui nel cloud: %@."}},
+      "fr": {"stringUnit": {"state": "translated", "value": "Fichiers de jeu ambigus dans le cloud : %@."}},
+      "de": {"stringUnit": {"state": "translated", "value": "Nicht eindeutig zuordenbare Spieldateien in der Cloud: %@."}},
+      "es": {"stringUnit": {"state": "translated", "value": "Archivos de juego ambiguos en la nube: %@."}},
+      "pt-BR": {"stringUnit": {"state": "translated", "value": "Arquivos de jogo ambíguos na nuvem: %@."}},
+      "zh-Hans": {"stringUnit": {"state": "translated", "value": "以下云端游戏文件无法唯一识别：%@。"}}
+    }},
+    "Unreadable cloud game files: %@.": {"localizations": {
+      "en": {"stringUnit": {"state": "translated", "value": "Unreadable cloud game files: %@."}},
+      "it": {"stringUnit": {"state": "translated", "value": "File di gioco illeggibili nel cloud: %@."}},
+      "fr": {"stringUnit": {"state": "translated", "value": "Fichiers de jeu illisibles dans le cloud : %@."}},
+      "de": {"stringUnit": {"state": "translated", "value": "Nicht lesbare Spieldateien in der Cloud: %@."}},
+      "es": {"stringUnit": {"state": "translated", "value": "Archivos de juego ilegibles en la nube: %@."}},
+      "pt-BR": {"stringUnit": {"state": "translated", "value": "Arquivos de jogo ilegíveis na nuvem: %@."}},
+      "zh-Hans": {"stringUnit": {"state": "translated", "value": "以下云端游戏文件无法读取：%@。"}}
+    }},
+    "Could not list cloud game files.": {"localizations": {
+      "en": {"stringUnit": {"state": "translated", "value": "Could not list cloud game files."}},
+      "it": {"stringUnit": {"state": "translated", "value": "Impossibile elencare i file di gioco nel cloud."}},
+      "fr": {"stringUnit": {"state": "translated", "value": "Impossible de lister les fichiers de jeu dans le cloud."}},
+      "de": {"stringUnit": {"state": "translated", "value": "Spieldateien in der Cloud konnten nicht aufgelistet werden."}},
+      "es": {"stringUnit": {"state": "translated", "value": "No se pudieron enumerar los archivos de juego en la nube."}},
+      "pt-BR": {"stringUnit": {"state": "translated", "value": "Não foi possível listar os arquivos de jogo na nuvem."}},
+      "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法列出云端游戏文件。"}}
+    }},
     "Could not read cloud game records for: %@.": {
       "localizations": {
         "de": {"stringUnit": {"state": "translated", "value": "Cloud-Spieleinträge konnten nicht gelesen werden: %@."}},
@@ -50770,6 +50797,24 @@
         }
       }
     },
+    "No games only in the cloud": {"localizations": {
+      "en": {"stringUnit": {"state": "translated", "value": "No games only in the cloud"}},
+      "it": {"stringUnit": {"state": "translated", "value": "Nessun gioco solo nel cloud"}},
+      "fr": {"stringUnit": {"state": "translated", "value": "Aucun jeu uniquement dans le cloud"}},
+      "de": {"stringUnit": {"state": "translated", "value": "Keine Spiele ausschließlich in der Cloud"}},
+      "es": {"stringUnit": {"state": "translated", "value": "No hay juegos solo en la nube"}},
+      "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhum jogo apenas na nuvem"}},
+      "zh-Hans": {"stringUnit": {"state": "translated", "value": "没有仅存于云端的游戏"}}
+    }},
+    "Cloud-only games appear here.": {"localizations": {
+      "en": {"stringUnit": {"state": "translated", "value": "Cloud-only games appear here."}},
+      "it": {"stringUnit": {"state": "translated", "value": "I giochi disponibili solo nel cloud appaiono qui."}},
+      "fr": {"stringUnit": {"state": "translated", "value": "Les jeux disponibles uniquement dans le cloud apparaissent ici."}},
+      "de": {"stringUnit": {"state": "translated", "value": "Spiele, die nur in der Cloud verfügbar sind, erscheinen hier."}},
+      "es": {"stringUnit": {"state": "translated", "value": "Aquí se muestran los juegos disponibles solo en la nube."}},
+      "pt-BR": {"stringUnit": {"state": "translated", "value": "Aqui aparecem os jogos disponíveis apenas na nuvem."}},
+      "zh-Hans": {"stringUnit": {"state": "translated", "value": "仅在云端可用的游戏会显示在这里。"}}
+    }},
     "No games in %@": {
       "comment": "CollectionView.swift",
       "localizations": {
