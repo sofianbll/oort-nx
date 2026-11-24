@@ -18,8 +18,6 @@ extension AppShellView {
         playSessions.profileID = profiles.active?.id == profiles.originalID ? nil : profiles.active?.id
         viewModel.settingsStore = settings
         SoundEffectService.shared.bind(to: settings)
-        // The opening's boot cue, with Spotlight's entrance (Settings → Start-up → Entrance animation).
-        if settings.settings.introAnimation { SoundEffectService.shared.play(.boot) }
         artwork.trimCache()
         viewModel.refreshBoxArtIndex()
         if settings.settings.checkEngineAtLaunch && !AppData.profile.isDevelopment { SetupCheckModel.checkAtLaunch(viewModel: viewModel) }
@@ -47,6 +45,7 @@ extension AppShellView {
         viewModel.installPendingBuilds()
         viewModel.appIcon.syncPendingAppIcons()
         closeGameWatch = runningGames.$runningGameIDs.sink { [weak viewModel] ids in
+            SoundEffectService.shared.setGameRunning(!ids.isEmpty)
             guard let viewModel else { return }
             viewModel.runningGameCount = ids.count
             // A game that quit lets the build that waited for it go in (after this change is published).
@@ -61,6 +60,8 @@ extension AppShellView {
             guard let game = viewModel.gameToClose, !ids.contains(game.id) else { return }
             viewModel.dismissCloseGame()
         }
+        // The entrance cue follows the initial game observation.
+        if settings.settings.introAnimation { SoundEffectService.shared.play(.boot) }
         viewModel.router = router
         updater.blockedReason = { [weak viewModel, weak runningGames] in
             guard let viewModel else { return nil }

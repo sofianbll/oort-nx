@@ -28,7 +28,14 @@ final class SteamPlayCoordinator: ObservableObject {
     nonisolated static let steamBundleID = "com.valvesoftware.steam"
     private static let tick: TimeInterval = 30
 
-    @Published private(set) var states: [UUID: SteamPlayState] = [:]
+    @Published private(set) var states: [UUID: SteamPlayState] = [:] {
+        didSet {
+            let current = hasRunningGame
+            if current != oldValue.values.contains(where: { if case .running = $0.phase { return true }; return false }) {
+                SoundEffectService.shared.setGameRunning(current, steam: true)
+            }
+        }
+    }
     /// Waits past their patience: Steam is back in view and may need the player.
     @Published private(set) var late: Set<UUID> = []
     /// The launch screen of the game whose Play was pressed here; `ready` makes it leave.

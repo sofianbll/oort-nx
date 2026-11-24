@@ -92,6 +92,8 @@ public enum SettingsCatalog {
             "How loud the interface sounds are.") { $0.soundVolume },
         row("quietLaunch", .soundMusic, "Quiet launch screen",
             "Game cues only during launch; movement and selection sounds stay quiet.") { $0.quietLaunch },
+        row("soundPack", .soundMusic, "Sound pack", "Choose the interface sound pack.") { $0.soundPackID },
+        action("importSoundPack", .soundMusic, "Import sound pack", "Choose a folder or .oortsound file."),
         action("importSeleneSounds", .soundMusic, "Import sounds and wallpapers from Selene",
                "Copies optional sounds and wallpapers from a local Selene folder you own."),
 

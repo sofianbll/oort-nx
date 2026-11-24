@@ -74,6 +74,8 @@ Punti fissi:
 
 I titoli importati dal cloud compaiono in Spotlight e Collection. **Download** accoda il ripristino e lo spazio viene verificato durante il trasferimento. Il pulsante tondo in Details apre il pannello Cloud library, da cui si può annullare o riprovare.
 
+**Settings → General → Sound & music.** Il giocatore sceglie il pacchetto e l’evento da ascoltare. Import sound pack legge una cartella o un archivio `.oortsound` e mostra nome, autore, licenza, versione ed eventi. Solo Import conferma la copia, senza attivarla. Remove sposta nel Cestino solo la copia importata; se era attiva, torna Selene. Un pacchetto selezionato illeggibile ripiega su Selene e la sezione spiega il motivo. Reset group mantiene le copie e seleziona Selene.
+
 ## 3. Play di un gioco Switch (nxnative)
 
 ```mermaid

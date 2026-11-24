@@ -30,7 +30,7 @@ final class SettingsCatalogTests: XCTestCase {
         "appLanguage", "appRegion", "startOn", "restoreLastGame", "startInFullscreen", "checkEngineAtLaunch",
         "refreshLibraryAtLaunch", "checkAppUpdatesAtLaunch", "introAnimation", "showProfilePicker", "showButtonHints", "buttonNames",
         "viewButtonSwitches", "spotlightCards", "startingTab", "spotlightOrder", "interfaceSounds", "soundVolume",
-        "quietLaunch", "importSeleneSounds", "colorThemeID", "wallpaperID", "settingsWallpaperID", "backgroundSizing",
+        "quietLaunch", "soundPack", "importSoundPack", "importSeleneSounds", "colorThemeID", "wallpaperID", "settingsWallpaperID", "backgroundSizing",
         "wallpaperBrightness", "animatedBackground", "keepWallpaperOnGames", "backgroundShade", "readableText",
         "showClock", "reduceMotion", "iconAppearance", "boxCovers", "igdb", "steamGridDB", "librarySort", "launchStyle",
         "launchMotion", "launchShade", "surprisePool", "cloudSaves", "cloudSavesPickedFolder", "showsSessionCard",
@@ -176,7 +176,7 @@ final class SettingsCatalogTests: XCTestCase {
         ] + ProfilePageCard.allCases.map { "profile-card-\($0.rawValue)" } + [
         "appLanguage", "appRegion", "startOn", "restoreLastGame", "startInFullscreen", "checkAppUpdatesAtLaunch",
         "introAnimation", "showProfilePicker", "showButtonHints", "buttonNames", "viewButtonSwitches", "spotlightCards", "startingTab",
-        "spotlightOrder", "interfaceSounds", "soundVolume", "quietLaunch", "importSeleneSounds",
+        "spotlightOrder", "interfaceSounds", "soundVolume", "quietLaunch", "soundPack", "importSoundPack", "importSeleneSounds",
         "wallpaperBrightness", "animatedBackground",
         "keepWallpaperOnGames", "backgroundShade", "readableText", "showClock", "reduceMotion", "iconAppearance",
         "controllerStatus", "buttonLayout", "controllerDeadzone", "inGameHomeButton", "multiplayerVPN", "multiplayerDefault",

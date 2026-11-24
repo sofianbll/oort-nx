@@ -124,7 +124,7 @@ struct IntegrationFixtureView: View {
         IntegrationFixtureHome(data: data, router: router)
     }
 
-    @MainActor static func capture(to output: URL) throws {
+    @MainActor static func capture(to output: URL, soundOnly: Bool = false) throws {
         NSApplication.shared.setActivationPolicy(.prohibited)
         SeleneFonts.register()
         try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
@@ -172,6 +172,26 @@ struct IntegrationFixtureView: View {
                     guard let png = bitmap.representation(using: .png, properties: [:]) else { throw CocoaError(.fileWriteUnknown) }
                     try png.write(to: output.appendingPathComponent("\(prefix)-\(suffix).png"))
                 }
+                if soundOnly {
+                    let store = AppSettingsStore()
+                    let library = SoundPackLibrary()
+                    if name == "wide", let pack = try library.load("pollen") {
+                        try captureAlert(SettingsSoundSection.importAlert(pack.manifest, locale: locale),
+                                         to: output.appendingPathComponent("\(prefix)-sound-import.png"))
+                        try captureAlert(SettingsSoundSection.removalAlert(pack.manifest.name, locale: locale),
+                                         to: output.appendingPathComponent("\(prefix)-sound-remove.png"))
+                    }
+                    for (key, suffix) in [("selene", "default"), ("oort", "oort")] {
+                        store.settings.soundPackID = key
+                        try render(ScrollView {
+                            SettingsSoundSection(settings: store, onActions: { _ in }, soundPackLibrary: library)
+                                .padding(canvas.u(24))
+                                .frame(maxWidth: 950)
+                                .frame(maxWidth: .infinity)
+                        }, as: "sound-\(suffix)")
+                    }
+                    continue
+                }
                 router.showLibrary()
                 try render(home(data, router: router), as: "home")
                 router.openIntegrations()
@@ -187,6 +207,22 @@ struct IntegrationFixtureView: View {
                 }
             }
         }
+    }
+
+    @MainActor private static func captureAlert(_ alert: NSAlert, to file: URL) throws {
+        alert.layout()
+        let window = alert.window
+        guard !window.isVisible, let view = window.contentView else { throw CocoaError(.fileWriteUnknown) }
+        window.layoutIfNeeded()
+        view.layoutSubtreeIfNeeded()
+        guard let bitmap = view.bitmapImageRepForCachingDisplay(in: view.bounds) else {
+            throw CocoaError(.fileWriteUnknown)
+        }
+        view.cacheDisplay(in: view.bounds, to: bitmap)
+        guard let png = bitmap.representation(using: .png, properties: [:]) else {
+            throw CocoaError(.fileWriteUnknown)
+        }
+        try png.write(to: file)
     }
 }
 

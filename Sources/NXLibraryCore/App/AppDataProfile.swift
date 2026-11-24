@@ -42,7 +42,8 @@ public enum AppData {
     #if DEBUG
     public static let integrationFixtureHome: URL? = {
         let arguments = ProcessInfo.processInfo.arguments
-        guard arguments.contains("--integration-fixture") || arguments.contains("--render-integration-fixture") else { return nil }
+        guard arguments.contains("--integration-fixture") || arguments.contains("--render-integration-fixture") ||
+                arguments.contains("--render-sound-fixture") else { return nil }
         let home = FileManager.default.temporaryDirectory.appendingPathComponent("oort-integrations-\(UUID())", isDirectory: true)
         try! FileManager.default.createDirectory(at: home, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
         return home

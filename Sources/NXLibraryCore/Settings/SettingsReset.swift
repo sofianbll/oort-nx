@@ -45,6 +45,7 @@ public enum SettingsReset {
         case .soundMusic:
             next.interfaceSounds = defaults.interfaceSounds
             next.soundVolume = defaults.soundVolume
+            next.soundPackID = defaults.soundPackID
             next.quietLaunch = defaults.quietLaunch
         case .profileLook:
             next.colorThemeID = defaults.colorThemeID

@@ -247,8 +247,8 @@ final class AppViewModel: ObservableObject {
     /// The launch screen: shown on Play, `isReady` once the game's window is up (or the probe gave up).
     @Published var launchOverlay: LaunchOverlayState? = nil {
         didSet {
-            SoundEffectService.shared.isQuieted =
-                launchOverlay != nil && (settingsStore?.settings.quietLaunch ?? true)
+            SoundEffectService.shared.setQuietLaunch(
+                launchOverlay != nil && (settingsStore?.settings.quietLaunch ?? true))
         }
     }
     var launchProbeTask: Task<Void, Never>?

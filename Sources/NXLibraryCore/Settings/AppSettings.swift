@@ -228,6 +228,7 @@ public struct AppSettings: Codable, Equatable {
     public var viewButtonSwitches: Bool
     public var interfaceSounds: Bool
     public var soundVolume: Double
+    public var soundPackID: String
     public var quietLaunch: Bool
     /// Nil means the palette's default wallpaper.
     public var wallpaperID: String?
@@ -284,6 +285,7 @@ public struct AppSettings: Codable, Equatable {
                 viewButtonSwitches: Bool = true,
                 interfaceSounds: Bool = true,
                 soundVolume: Double = 0.6,
+                soundPackID: String = "selene",
                 quietLaunch: Bool = true,
                 wallpaperID: String? = nil,
                 backgroundSizing: BackgroundSizing = .fill,
@@ -319,6 +321,7 @@ public struct AppSettings: Codable, Equatable {
         self.viewButtonSwitches = viewButtonSwitches
         self.interfaceSounds = interfaceSounds
         self.soundVolume = soundVolume
+        self.soundPackID = soundPackID
         self.quietLaunch = quietLaunch
         self.wallpaperID = wallpaperID
         self.backgroundSizing = backgroundSizing
@@ -344,7 +347,7 @@ public struct AppSettings: Codable, Equatable {
         case librarySort
         case showsCloudPlayIcon, showsCloudDetailsLink, cloudTileBadges
         case startOn, lastHome
-        case introAnimation, viewButtonSwitches, interfaceSounds, soundVolume, quietLaunch
+        case introAnimation, viewButtonSwitches, interfaceSounds, soundVolume, quietLaunch, soundPackID
         case showProfilePicker, profileStartup
         case wallpaperID, backgroundSizing, animatedBackground, wallpaperBrightness, launchStyle, launchMotion, launchShade
         case notifyPortingEnds, checkAppUpdatesAtLaunch
@@ -398,6 +401,7 @@ public struct AppSettings: Codable, Equatable {
         self.viewButtonSwitches = try container.decodeIfPresent(Bool.self, forKey: .viewButtonSwitches) ?? true
         self.interfaceSounds = try container.decodeIfPresent(Bool.self, forKey: .interfaceSounds) ?? true
         self.soundVolume = try container.decodeIfPresent(Double.self, forKey: .soundVolume) ?? 0.6
+        self.soundPackID = (try? container.decode(String.self, forKey: .soundPackID)) ?? "selene"
         self.quietLaunch = try container.decodeIfPresent(Bool.self, forKey: .quietLaunch) ?? true
         self.wallpaperID = try container.decodeIfPresent(String.self, forKey: .wallpaperID)
         self.backgroundSizing = try container.decodeIfPresent(BackgroundSizing.self, forKey: .backgroundSizing) ?? .fill
@@ -461,6 +465,7 @@ public struct AppSettings: Codable, Equatable {
         try c.encode(viewButtonSwitches, forKey: .viewButtonSwitches)
         try c.encode(interfaceSounds, forKey: .interfaceSounds)
         try c.encode(soundVolume, forKey: .soundVolume)
+        try c.encode(soundPackID, forKey: .soundPackID)
         try c.encode(quietLaunch, forKey: .quietLaunch)
         try c.encodeIfPresent(wallpaperID, forKey: .wallpaperID)
         try c.encode(backgroundSizing, forKey: .backgroundSizing)

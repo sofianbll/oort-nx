@@ -1,0 +1,46 @@
+{
+  "id": "umbra",
+  "name": "Umbra",
+  "author": "Oort",
+  "license": "CC0-1.0",
+  "version": "1.0.0",
+  "format": 1,
+  "events": {
+    "move": [
+      "move.wav"
+    ],
+    "select": [
+      "select.wav"
+    ],
+    "confirm": [
+      "confirm.wav"
+    ],
+    "back": [
+      "back.wav"
+    ],
+    "deny": [
+      "deny.wav"
+    ],
+    "open": [
+      "open.wav"
+    ],
+    "close": [
+      "close.wav"
+    ],
+    "play": [
+      "play.wav"
+    ],
+    "resume": [
+      "resume.wav"
+    ],
+    "success": [
+      "success.wav"
+    ],
+    "notification": [
+      "notification.wav"
+    ],
+    "boot": [
+      "boot.wav"
+    ]
+  }
+}

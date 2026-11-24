@@ -618,7 +618,7 @@ struct SettingsView: View {
             if focusArea == .sidebar {
                 enterSection()
             } else if let row = focusedRow, row.isEnabled {
-                SoundEffectService.shared.play(.click)
+                if row.id != "soundPreview" { SoundEffectService.shared.play(.click) }
                 row.press(button: rowButton)
             }
         case .cancel:
