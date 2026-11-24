@@ -1872,8 +1872,13 @@ extension AppViewModel {
         let title = "0100000000004000"
         for sourceFailure in [true, false] {
             let fixture = RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in
-                if sourceFailure, args[1] == "fixture:", !args.contains("--dirs-only"), !args.contains("--stat") {
-                    return .init(status: 1, stdout: "", stderr: "connection reset")
+                if sourceFailure {
+                    if args[1] == "fixture:" {
+                        return .init(status: 0, stdout: #"[{"Name":"GameFiles","Path":"GameFiles","Size":-1,"IsDir":true}]"#, stderr: "")
+                    }
+                    if args[1] == "fixture:GameFiles" {
+                        return .init(status: 1, stdout: "", stderr: "connection reset")
+                    }
                 }
                 if !sourceFailure {
                     if args[1] == "fixture:" {
