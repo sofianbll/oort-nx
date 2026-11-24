@@ -288,7 +288,7 @@ struct SpotlightRowView: View {
     private func platformFaces(_ current: SpotlightPlatforms.Card, in platforms: SpotlightPlatforms, side: CGFloat) -> some View {
         let index = platforms.cards.firstIndex { $0.integration == current.integration } ?? 0
         // The lettering moves only between the next/previous controls, not underneath them.
-        let track = platformOpen ? side - 2 * canvas.u(SeleneTokens.Space.group) : side
+        let track = platformOpen ? side - 2 * canvas.u(SeleneTokens.Space.section) : side
         return ZStack {
             ForEach(Array(platforms.cards.enumerated()), id: \.element.integration) { indexOfCard, card in
                 VStack(spacing: canvas.u(SeleneTokens.Space.tight)) {
