@@ -61,7 +61,11 @@ import ArcanePorting
         func makeModel() -> AppViewModel {
             AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: root)))
         }
-        let vm = makeModel()
+        // Unfollow compares the displayed catalog revision with the on-disk revision.
+        let repository = CatalogRepository(store: .init(directory: root))
+        let catalog = try repository.load()
+        let vm = AppViewModel(settingsStore: settings, catalog: catalog, repository: repository)
+        vm.applyCatalog(catalog) // This harness disables catalog application in the initializer.
         let model = vm.cloudLibrary
         model.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: nil)
         let input = Input(viewModel: vm)
@@ -125,8 +129,12 @@ import ArcanePorting
         follow.save()
         precondition(closed == 2 && model.preference.referenceFolder == "1-test-reference" && cloudWrites == 3)
         try confirm("reference-unfollow", cloud.unfollow, count: { cloudWrites })
-        for _ in 0..<100 where model.isChangingConnection { try await Task.sleep(for: .milliseconds(5)) }
-        precondition(model.preference.referenceFolder == nil && cloudWrites == 4)
+        let unfollowDeadline = ContinuousClock.now + .seconds(10)
+        while model.isChangingConnection && ContinuousClock.now < unfollowDeadline {
+            try await Task.sleep(for: .milliseconds(15))
+        }
+        precondition(!model.isChangingConnection && model.preference.referenceFolder == nil && cloudWrites == 4,
+                     "Reference unfollow did not finish: \(vm.settingsNotice?.message ?? "no error reported")")
 
         let library = CloudSetupAssistant(viewModel: vm, model: model, entry: .library, onClose: { closed += 1 })
             .screenFolder("Autre bibliothèque")
