@@ -450,7 +450,13 @@ final class CloudGameSourcesTests: XCTestCase {
         XCTAssertNil(status.files.first?.localBytes)
         let required = try await f.service.downloadSize(folderName: f.folder, files: [base, dlc])
         XCTAssertEqual(required, 3)
-        try await f.service.download(folderName: f.folder, files: [base, dlc], progress: nil)
+        await assertError(.sourcesConflict) {
+            try await f.service.download(folderName: f.folder, files: [base, dlc], replacingBefore: nil, replacing: [],
+                                         maxBytes: 2, progress: nil)
+        }
+        XCTAssertFalse(FileManager.default.fileExists(atPath: dlc.path))
+        try await f.service.download(folderName: f.folder, files: [base, dlc], replacingBefore: nil, replacing: [],
+                                     maxBytes: required, progress: nil)
         XCTAssertEqual(try String(contentsOf: base, encoding: .utf8), "keep")
         XCTAssertEqual(try String(contentsOf: dlc, encoding: .utf8), "dlc")
         XCTAssertEqual(Set(try FileManager.default.contentsOfDirectory(atPath: f.localFolder.path)), ["Base.xci", "DLC.xcz"])

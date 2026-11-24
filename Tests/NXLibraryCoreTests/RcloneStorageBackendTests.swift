@@ -46,16 +46,19 @@ final class RcloneStorageBackendTests: XCTestCase {
 
     func testReferenceCommandsUseOnlyTheConfiguredDriveAndExactFolderID() async throws {
         let id = "Reference_ID-1"
-        let scopedFlags = ["--drive-shared-with-me=false", "--drive-starred-only=false", "--drive-skip-shortcuts", "--drive-root-folder-id=\(id)"]
+        let scopedFlags = ["--drive-shared-with-me=false", "--drive-starred-only=false", "--drive-skip-shortcuts",
+                           "--drive-auth-owner-only=false", "--drive-trashed-only=false", "--drive-root-folder-id=\(id)"]
         let empty = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(at: empty, withIntermediateDirectories: false)
         defer { try? FileManager.default.removeItem(at: empty) }
-        let backend = RcloneStorageBackend(remote: "fixture", root: "Games", readsConfiguration: true) { _, args, _ in
+        let backend = RcloneStorageBackend(remote: "fixture", root: "Games", readsConfiguration: true) { _, args, environment in
             if args.first == "listremotes" {
                 XCTAssertEqual(Array(args.prefix(2)), ["listremotes", "--json"])
                 return .init(status: 0, stdout: #"[{"name":"fixture","type":"drive","source":"file"}]"#, stderr: "")
             }
             for flag in scopedFlags { XCTAssertTrue(args.contains(flag), "\(args)") }
+            XCTAssertEqual(environment["RCLONE_CONFIG_FIXTURE_AUTH_OWNER_ONLY"], "false")
+            XCTAssertEqual(environment["RCLONE_CONFIG_FIXTURE_TRASHED_ONLY"], "false")
             XCTAssertFalse(args.contains("--drive-shared-with-me"))
             switch args.first {
             case "lsjson":
@@ -106,6 +109,8 @@ final class RcloneStorageBackendTests: XCTestCase {
         let backend = RcloneStorageBackend(remote: "fixture", root: "Chosen") { _, args, _ in
             XCTAssertEqual(Array(args.prefix(4)), ["lsjson", root, "--no-modtime", "--no-mimetype"])
             XCTAssertTrue(args.contains("--drive-skip-shortcuts"))
+            XCTAssertTrue(args.contains("--drive-auth-owner-only=false"))
+            XCTAssertTrue(args.contains("--drive-trashed-only=false"))
             XCTAssertFalse(args.contains("--hash"))
             XCTAssertFalse(args.contains("--recursive"))
             return .init(status: 1, stdout: "[]", stderr: "connection reset")

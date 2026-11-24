@@ -93367,6 +93367,17 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "此 Mac 和云端硬盘中的文件均不会删除。"}}
       }
     },
+    "Reference offer not verified": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Reference offer not verified"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Offerta della libreria di riferimento non verificata"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Offre de la bibliothèque de référence non vérifiée"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Angebot der Referenzbibliothek nicht geprüft"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Oferta de la biblioteca de referencia sin verificar"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Oferta da biblioteca de referência não verificada"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "参考游戏库提供的内容未经验证"}}
+      }
+    },
     "Source: reference library": {
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Source: reference library"}},

@@ -355,6 +355,43 @@ final class NXNativeCatalogPersistenceTests: XCTestCase {
         }
     }
 
+    func testManifestOnlySourceRefreshAdoptsRenameWithoutReplacingLocalSelection() throws {
+        let repository = CatalogRepository(store: CatalogStore(directory: dir))
+        let title = "0400123400000002", folder = "Orbit [\(title)]"
+        let program = NUPProgramSelection(programID: 0x0400123400000002, applicationID: 0x0400123400000000,
+                                          addOnContentBaseID: 0x0400123400001000)
+        func manifest(_ filename: String, at time: TimeInterval) throws -> CloudGameManifest {
+            let source = GameFileItem(url: URL(fileURLWithPath: "/fixture/\(filename)"), kind: .base, titleId: title,
+                                      sizeBytes: 7, sourceLayout: .container, nupProgram: program)
+            let selection = try XCTUnwrap(CloudGameSources.ArchivedSelection(folder: folder, files: [source], titleID: title))
+            return .init(version: 2, titleID: title, createdAt: Date(timeIntervalSince1970: time), artifacts: [],
+                         gameName: "Orbit", sourceSelection: selection)
+        }
+        let imported = try repository.importCloudGames([manifest("Original.nup", at: 1)], in: dir, sourceRoot: dir)
+        let game = try XCTUnwrap(imported.nxnativeGames.first)
+        _ = try repository.updateNXNative(id: game.id) { $0.isFavorite = true }
+
+        let otherProvider = try repository.importCloudGames([manifest("Reference.nup", at: 2)], in: dir,
+                                                             sourceRoot: dir, referenceFolder: "1FixtureReference")
+        XCTAssertEqual(otherProvider.nxnativeGames.first?.sources, game.sources)
+        let refreshed = try repository.importCloudGames([manifest("Renamed.nup", at: 3)], in: dir, sourceRoot: dir)
+        let updated = try XCTUnwrap(refreshed.nxnativeGames.first)
+        XCTAssertEqual(updated.id, game.id)
+        XCTAssertTrue(updated.isFavorite)
+        XCTAssertEqual(updated.sources.first?.url.lastPathComponent, "Renamed.nup")
+        XCTAssertEqual(updated.sources.first?.nupProgram, program)
+        XCTAssertNil(updated.discoveredCloudSourceDirectory)
+        let unchanged = try repository.importCloudGames([manifest("Renamed.nup", at: 3)], in: dir, sourceRoot: dir)
+        XCTAssertEqual(unchanged.revision, refreshed.revision)
+
+        let local = try XCTUnwrap(updated.sources.first?.url)
+        try FileManager.default.createDirectory(at: local.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try Data([42]).write(to: local)
+        let kept = try repository.importCloudGames([manifest("Next.nup", at: 4)], in: dir, sourceRoot: dir)
+        XCTAssertEqual(kept.nxnativeGames.first?.sources, updated.sources)
+        XCTAssertEqual(try Data(contentsOf: local), Data([42]))
+    }
+
     func testCloudSourceRefreshKeepsEvenAPartlyDownloadedLocalSelection() throws {
         let repository = CatalogRepository(store: CatalogStore(directory: dir))
         let title = "0100000000004000", reference = "1FixtureReference"

@@ -316,7 +316,8 @@ public final class CloudGameSources: @unchecked Sendable {
     }
 
     package func downloadDiscovered(titleID: String, directory: String, files: [GameFileItem], in root: URL,
-                                     verifySources: VerifySources? = nil, progress: Progress?) async throws {
+                                     verifySources: VerifySources? = nil, maxBytes: Int64? = nil,
+                                     progress: Progress?) async throws {
         guard let game = try await discover().games.first(where: { $0.titleID == titleID }),
               game.directory == directory, game.matches(files, in: root) else { throw CloudArchiveError.noRemoteCopy }
         let selection = try Selection(game.directory, files.map(\.url), titleID: titleID)
@@ -335,7 +336,7 @@ public final class CloudGameSources: @unchecked Sendable {
         }
         let expected = Dictionary(grouping: files, by: { $0.url.standardizedFileURL })
         try await download(using: library, pending: downloads(selection, remote: remote, verifyExisting: true),
-                            expected: expected, verifySources: verifySources, progress: progress)
+                            expected: expected, verifySources: verifySources, maxBytes: maxBytes, progress: progress)
     }
 
     public static func importedFolder(for id: UUID, in root: URL = AppData.supportRoot) -> URL {
@@ -456,19 +457,21 @@ public final class CloudGameSources: @unchecked Sendable {
 
     package func download(folderName: String, files: [URL], replacingBefore: Date?, replacing: Set<URL>,
                             expectedSources: [GameFileItem] = [], verifySources: VerifySources? = nil,
-                            progress: Progress?) async throws {
+                            maxBytes: Int64? = nil, progress: Progress?) async throws {
         let selection = try Selection(folderName, files)
         guard let lease = backend.leases.begin(selection.title) else { throw CloudArchiveError.busy }
         defer { backend.leases.end(selection.title, token: lease) }
         let pending = try await downloads(selection, replacingBefore: replacingBefore, replacing: replacing)
         let expected = Dictionary(grouping: expectedSources, by: { $0.url.standardizedFileURL })
-        try await download(using: backend, pending: pending, expected: expected, verifySources: verifySources, progress: progress)
+        try await download(using: backend, pending: pending, expected: expected, verifySources: verifySources,
+                           maxBytes: maxBytes, progress: progress)
     }
 
     private func download(using backend: RcloneStorageBackend, pending: [(URL, StorageObject, Stamp?)],
                            expected: [URL: [GameFileItem]], verifySources: VerifySources?,
-                          progress: Progress?) async throws {
+                          maxBytes: Int64?, progress: Progress?) async throws {
         let bytes = try total(pending.map { $0.1.size })
+        if let maxBytes, bytes > maxBytes { throw CloudArchiveError.sourcesConflict }
         var reservations: [dev_t: Int64] = [:]
         var destinations: [FileIdentity: [URL]] = [:]
         for (destination, item, _) in pending {
