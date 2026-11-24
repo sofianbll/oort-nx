@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **1070 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **1078 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -1254,6 +1254,14 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Resources/Selene/Fonts/MaterialIcons-LICENSE.txt](../../Resources/Selene/Fonts/MaterialIcons-LICENSE.txt) | Licenza del font Material Icons incluso. |
 | [Resources/Selene/NOTICE.txt](../../Resources/Selene/NOTICE.txt) | Attribuzioni delle risorse Selene incluse. |
 | [Resources/Brands/Platforms/LICENSE-Lucide.txt](../../Resources/Brands/Platforms/LICENSE-Lucide.txt) | Licenza ISC e nota Feather MIT. |
+| [Buy Me a Coffee.svg](../../Resources/Brands/Platforms/Marks/Buy%20Me%20a%20Coffee.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
+| [CrossOver.svg](../../Resources/Brands/Platforms/Marks/CrossOver.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
+| [Epic Games.svg](../../Resources/Brands/Platforms/Marks/Epic%20Games.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
+| [GOG.svg](../../Resources/Brands/Platforms/Marks/GOG.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
+| [Google Drive.svg](../../Resources/Brands/Platforms/Marks/Google%20Drive.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
+| [Nintendo Switch 2.svg](../../Resources/Brands/Platforms/Marks/Nintendo%20Switch%202.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
+| [Nintendo Switch.svg](../../Resources/Brands/Platforms/Marks/Nintendo%20Switch.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
+| [Steam.svg](../../Resources/Brands/Platforms/Marks/Steam.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
 | [Resources/Brands/Platforms/NOTICE.txt](../../Resources/Brands/Platforms/NOTICE.txt) | Provenienza e nota sui marchi. |
 | [Resources/Brands/Platforms/arrow-left-right.svg](../../Resources/Brands/Platforms/arrow-left-right.svg) | Simbolo generico CrossOver. |
 | [Resources/Brands/Platforms/boxes.svg](../../Resources/Brands/Platforms/boxes.svg) | Simbolo generico Minecraft. |

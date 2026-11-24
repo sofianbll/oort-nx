@@ -17,7 +17,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Fixed
 
-- Platform labels use a consistent monochrome symbol and name; Switch 2 has its own marker.
+- Platform labels show the monochrome platform mark and name, with a distinct Switch 2 mark and generic fallbacks.
 - Cloud operations check the selected Drive account and folder IDs. Changing either no longer reuses an approved transfer or a separately chosen game-files folder without confirmation.
 - Game-file downloads keep their selected provider. An incomplete cloud check keeps previous results without marking them verified.
 - Confirm changes to the cloud library, engine and multiplayer settings before applying them; appearance, sound and navigation still change immediately.

@@ -1,6 +1,13 @@
-Generic platform symbols, not trademarks or official logos.
+Platform marks in Marks/ identify platforms and do not imply endorsement.
+Nintendo Switch and Nintendo Switch 2: Nintendo Co., Ltd.; symbol extracted from
+the respective Wikimedia Commons logo file (Commons PD-textlogo assessment,
+which does not grant trademark rights). Steam (Valve), Epic Games (Epic Games),
+GOG (GOG), Buy Me a Coffee and Google Drive (Google LLC): Simple Icons revision
+d59bb32d4f94b1aa8c7cef9d264280d35d5f8f97; no per-icon drawing licence listed
+for these marks. CrossOver (CodeWeavers): cropped from its own CrossOver-logo-wht.svg;
+no public drawing licence identified. Per-file source and hash: scripts/bundle-licences.json.
 
-The unmodified SVG source files come from Lucide:
+The unmodified fallback SVG source files come from Lucide:
 https://github.com/lucide-icons/lucide/tree/7981a0798a4f7184296bf42e94b6a8677f3ef2a0/icons
 See LICENSE-Lucide.txt for the ISC licence and the upstream Feather MIT notice.
 The app applies the current foreground colour as an image template.

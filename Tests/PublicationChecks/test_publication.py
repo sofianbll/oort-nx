@@ -55,6 +55,21 @@ class PublicationChecks(unittest.TestCase):
         self.track("README.md", "Source code only.")
         self.assertEqual(self.scan().returncode, 0)
 
+    def test_nintendo_exception_pins_paths_and_bytes_even_if_manifest_is_changed(self):
+        project = SCRIPT.parent.parent
+        name = "Brands/Platforms/Marks/Nintendo Switch 2.svg"
+        original = (project / "Resources" / name).read_text()
+        entry = json.loads((SCRIPT.parent / "bundle-licences.json").read_text())[name]
+        self.track("Resources/" + name, original)
+        self.track("scripts/bundle-licences.json", json.dumps({name: entry}))
+        self.assertEqual(self.scan().returncode, 0)
+        modified = original + "\n"
+        self.track("Resources/" + name, modified)
+        self.assertIn("Unreviewed or changed brand resource", self.scan().stdout)
+        entry["sha256"] = hashlib.sha256(modified.encode()).hexdigest()
+        self.track("scripts/bundle-licences.json", json.dumps({name: entry}))
+        self.assertNotEqual(self.scan().returncode, 0)
+
     def test_runtime_must_match_the_exact_lock(self):
         lock = {"python": {"version": "3.14.6"}, "wheels": [], "brew": []}
         data = json.dumps(lock).encode()

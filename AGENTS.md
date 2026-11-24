@@ -35,7 +35,7 @@ The documentation is how the next session understands the structure. Keep it exa
 ## Non-negotiables
 
 - Use nxnative in place. Never patch `~/nxnative`; upstream re-pins change `AppViewModel.defaultPinnedEngineCommit`. Fork releases can package a tested pin using the [release guide](docs/working-on-it/development.md#publication-perso-sofian).
-- No Nintendo assets, keys, ROMs, or game content in the repository.
+- No Nintendo game assets, keys, ROMs, or game content in the repository. The two reviewed Nintendo Switch platform symbols in `Resources/Brands/Platforms/Marks` are the only Nintendo artwork exception; the publication check pins their hashes.
 - Sources are symlinked, never copied. New builds install to the selected **Game apps** folder (default `~/Applications`); rebuilds replace the existing app atomically in its current location. Changing the folder never moves installed apps.
 - Keys stay mode `0600`; never log key values.
 - The Metal gate blocks new builds unless the toolchain is certified or the explicit untested override is enabled. An override records `toolchainVerified=false`.

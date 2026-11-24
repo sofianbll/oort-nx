@@ -158,8 +158,8 @@ bash scripts/release.sh 0.1.2
 
 The script builds a release-marked app, verifies its version and signature, and produces a ZIP and DMG in `work/release/`. Without `--publish`, it does not push a tag or create a GitHub release. Version `0.1.0` is the first public alpha; use an unused version for later releases.
 
-The generic Lucide platform symbols, original SVGs and notices live in `Resources/Brands/Platforms`.
-The bundle publication check verifies the reviewed hashes and rejects extra brand files.
+Platform SVGs, generic Lucide fallbacks and notices live in `Resources/Brands/Platforms`.
+Publication checks verify reviewed hashes and reject extra brand files. Only the two Switch platform symbols are an exception to the Nintendo artwork rule.
 
 Publishing requires an explicit maintainer decision and the script's `--publish --notes <file>` options. Prepare reviewed notes from [CHANGELOG.md](../../CHANGELOG.md), then date the version when it is actually published. The script adds engine/Xcode requirement metadata to release notes for the updater. Never publish automatically as part of an agent's verification.
 

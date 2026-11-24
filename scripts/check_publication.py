@@ -28,11 +28,36 @@ SECRET_PATTERNS = [
     re.compile(rb"\b(?:gh[pousr]_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{50,})\b"),
     re.compile(rb"(?im)^\s*(?:header_key|master_key_[0-9a-f]{2}|key_area_key_application_[0-9a-f]{2})\s*=\s*[0-9a-f]{32,128}\s*$"),
 ]
+NINTENDO_PLATFORM_MARKS = {
+    "Brands/Platforms/Marks/Nintendo Switch.svg": "cca242aa61d7cdccf1ff8b62f5329994bab7d8af433a7e994e99c63f8071714b",
+    "Brands/Platforms/Marks/Nintendo Switch 2.svg": "ffbd5d9b3eede1c8bb99b7502d10e1fbefa63f0f1d1e99c06e9ab83c2c72b4b7",
+}
+
+
+def brand_digests(manifest):
+    result = {}
+    for name, entry in manifest.items():
+        if name.startswith("Brands/Platforms/Marks/"):
+            if not isinstance(entry, dict) or not all(isinstance(entry.get(key), str) and entry[key]
+                    for key in ("sha256", "source", "drawingLicence", "trademarkOwner", "adaptation")):
+                raise ValueError("Incomplete platform-mark provenance")
+            if "nintendo" in name.lower() and NINTENDO_PLATFORM_MARKS.get(name) != entry["sha256"]:
+                raise ValueError("Unapproved Nintendo mark or digest")
+            result[name] = entry["sha256"]
+        else:
+            result[name] = entry
+    return result
 
 
 def check_files(root):
     names = subprocess.check_output(["git", "ls-files", "-z"], cwd=root).decode().split("\0")
     issues = []
+    resources = root / "Resources"
+    manifest = root / "scripts/bundle-licences.json"
+    try:
+        expected = brand_digests(json.loads(manifest.read_text())) if manifest.is_file() else {}
+    except (OSError, ValueError, AttributeError):
+        return ["Bundle licence manifest could not be verified."]
     for name in filter(None, names):
         relative = Path(name)
         if (relative.parts[0] in PRIVATE_ROOTS
@@ -43,6 +68,14 @@ def check_files(root):
             issues.append("Private or game content path: " + name)
             continue
         file = root / relative
+        if relative.parts[:2] == ("Resources", "Brands"):
+            resource = Path(*relative.parts[1:]).as_posix()
+            if (file.is_symlink() or not file.is_file()
+                    or not file.resolve().is_relative_to(resources.resolve())
+                    or ("nintendo" in resource.lower() and resource not in NINTENDO_PLATFORM_MARKS)
+                    or hashlib.sha256(file.read_bytes()).hexdigest() != expected.get(resource)):
+                issues.append("Unreviewed or changed brand resource: " + name)
+            continue
         if not file.is_file() or file.is_symlink():
             continue
         data = file.read_bytes()
@@ -100,6 +133,7 @@ def check_app(root, app, require_runtime=True):
         expected = json.loads((root / "scripts/bundle-licences.json").read_text())
         if not isinstance(expected, dict) or not expected:
             return issues + ["Bundle licence manifest must not be empty."]
+        expected = brand_digests(expected)
         issues += unexpected_brands(resources, expected)
         expected["NOTICE"] = hashlib.sha256((root / "NOTICE").read_bytes()).hexdigest()
         for name, digest in expected.items():

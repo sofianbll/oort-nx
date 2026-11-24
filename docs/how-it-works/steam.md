@@ -154,7 +154,7 @@ sopra l’ordine salvato con Move, e ci resta fino all’uscita anche a download
 **Pagina.** Gli stessi pezzi Selene dei giochi nxnative (`GameLogoArea`, `GamePrimaryActions`, `SeleneStatsRow`,
 `SeleneHeroArt`), poi screenshot, About, la card Achievements e il pannello Details condiviso (`DetailsPanel`: Developer, Publisher,
 Size on disk, Installed in «Steam · <volume>»; in download solo Developer e Publisher; mai il build ID). `PlatformLabel`
-mostra Steam con un simbolo a disco generico e il nome, senza usare il marchio grafico Valve.
+mostra Steam con il simbolo monocromatico e il nome; il ripiego è un disco generico.
 
 **More like this** sta sotto About e Details. Usa la fascia e il focus condivisi con Switch, con fino a sei titoli correlati della libreria. I titoli Steam hanno precedenza; quando nessuno corrisponde, la fascia usa le corrispondenze Switch. Lo store legge i tratti per il punteggio dalla cache Steam all'apertura, e le scelte personali prevalgono. Doppio clic, Invio o A selezionano il gioco sulla riga di Spotlight.
 
@@ -293,7 +293,7 @@ Sotto `Application Support/NXLibrary` (Dev: `NXLibrary-Development`):
 - Nessuna etichetta «Steam» sulle tile.
 - Pagina: «Your activity» tolta, Achievements in cima alla colonna destra, in un pannello chiaro quasi trasparente
   con contorno sottile.
-- Simbolo generico e nome Steam sotto PLATFORM, nello stesso formato delle altre piattaforme.
+- Simbolo e nome Steam sotto PLATFORM, nello stesso formato delle altre piattaforme.
 - Ore: base di Steam più le sessioni successive.
 - Achievement: Arcane al posto del Platino, cristalli e video dell’Arcane fatti dal maintainer, video a
   1,5×, medaglione al 100% e nel dettaglio, percentuale e barra larga sotto i cristalli, lucchetto sfocato sui segreti.

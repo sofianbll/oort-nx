@@ -122,19 +122,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-No Nintendo games, keys, logos, fonts, sounds, or other Nintendo assets are
-included in this repository. NX Library is not affiliated with, endorsed by,
-or sponsored by Nintendo.
+No Nintendo games, keys, fonts, sounds, or other Nintendo game assets are
+included. Only the two reviewed Nintendo Switch platform symbols are included as
+identifiers. NX Library is not affiliated with, endorsed by, or sponsored by Nintendo.
 
-Steam games are identified by name with a generic disc symbol, not the Steam logo.
+Steam games are identified by name with the Steam symbol.
 ©2026 Valve Corporation. Steam and the Steam logo are trademarks and/or
 registered trademarks of Valve Corporation in the U.S. and/or other countries.
 NX Library is not affiliated with, endorsed by, or sponsored by Valve.
 
-Platform and external-support labels use generic Lucide symbols (ISC, with
-Feather MIT notice), not the providers' trademarks as artwork. The original
-SVGs, their provenance and licence notices ship in Resources/Brands/Platforms.
-Platform and service names remain marks of their respective owners.
+Platform and support symbols are used only as identifiers and do not imply
+endorsement. Nintendo Switch and Nintendo Switch 2 are marks of Nintendo Co., Ltd.;
+Epic Games of Epic Games, Inc.; GOG of GOG sp. z o.o.; CrossOver of CodeWeavers, Inc.;
+Buy Me a Coffee of Buy Me a Coffee; Google Drive of Google LLC. The reviewed
+SVGs and Lucide fallbacks (ISC, with Feather MIT notice) are in
+Resources/Brands/Platforms. Per-file provenance and drawing licence status are in
+scripts/bundle-licences.json.
 
 --------------------------------------------------------------------------------
 Bundled media (Material Icons, Selene sounds and palettes): see

@@ -163,6 +163,14 @@ struct SettingsAboutSection: View {
                     .seleneFont(13)
                     .foregroundColor(SeleneTheme.ink60)
                     .fixedSize(horizontal: false, vertical: true)
+                Text(L10n.text("Platform names and logos identify their respective platforms. They belong to their owners and do not imply affiliation or endorsement."))
+                    .seleneFont(13)
+                    .foregroundColor(SeleneTheme.ink60)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(verbatim: "Nintendo · Valve Corporation · Epic Games · GOG · CodeWeavers · Buy Me a Coffee · Google")
+                    .seleneFont(13)
+                    .foregroundColor(SeleneTheme.ink60)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .onAppear(perform: publishActions)

@@ -74,47 +74,51 @@ struct PlatformMark: View {
     @Environment(\.seleneCanvas) private var canvas
     let kind: PlatformKind
 
-    #if DEBUG
-    // Set only for a local review of separately cleared artwork, never a shipped asset.
-    private static let authorizedMarks: URL? = nil
-    #endif
+    private static let showsBrandMarks = true
 
-    private static let artwork: [PlatformKind: NSImage] = {
+    private static let artwork: [PlatformKind: (image: NSImage, isBrand: Bool)] = {
         let folder = Bundle.main.resourceURL?.appendingPathComponent("Brands/Platforms", isDirectory: true)
-        var images: [PlatformKind: NSImage] = [:]
+        var images: [PlatformKind: (NSImage, Bool)] = [:]
         for kind in PlatformKind.allCases {
-            #if DEBUG
-            if let url = authorizedMarks?.appendingPathComponent("\(kind.rawValue).svg"),
+            if showsBrandMarks, let url = folder?.appendingPathComponent("Marks/\(kind.rawValue).svg"),
                let image = NSImage(contentsOf: url) {
-                images[kind] = image
+                images[kind] = (image, true)
                 continue
             }
-            #endif
             guard let url = folder?.appendingPathComponent("\(kind.asset).svg"),
                   let image = NSImage(contentsOf: url) else { continue }
-            images[kind] = image
+            images[kind] = (image, false)
         }
         return images
     }()
 
     var body: some View {
         let side = canvas.u(SeleneTokens.Space.large)
-        let isSecond = kind == .switch2
-        VStack(spacing: 0) {
+        let mark = Self.artwork[kind]
+        let isSecond = kind == .switch2 && mark?.isBrand != true
+        // Dense, filled marks need less width than the outlined marks in the same box.
+        let scale: CGFloat = if mark?.isBrand == true {
+            switch kind {
+            case .switch1, .steam: 0.78
+            case .epic, .gog, .drive: 0.84
+            default: 1
+            }
+        } else { 1 }
+        return VStack(spacing: 0) {
             Group {
-                if let image = Self.artwork[kind] {
-                    Image(nsImage: image).renderingMode(.template).resizable()
+                if let mark {
+                    Image(nsImage: mark.image).renderingMode(.template).resizable()
                 } else {
                     Image(systemName: kind.fallback).resizable()
                 }
             }
             .scaledToFit()
-            .frame(width: isSecond ? side * 0.75 : side, height: isSecond ? side * 0.60 : side)
+            .frame(width: isSecond ? side * 0.87 : side * scale, height: isSecond ? side * 0.65 : side * scale)
             if isSecond {
                 Text(verbatim: "2")
                     .font(.system(size: side * 0.44, weight: .bold, design: .monospaced))
                     .fixedSize()
-                    .frame(height: side * 0.41)
+                    .frame(height: side * 0.35)
             }
         }
         .frame(width: side, height: side)
