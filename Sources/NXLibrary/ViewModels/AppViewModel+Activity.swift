@@ -12,7 +12,8 @@ extension AppViewModel {
         activityResults.restore(history)
         if cloudLibrary.moveJournalUnreadable {
             showSettingsNotice(title: L10n.text("Move library"),
-                               message: L10n.text("The saved library move cannot be read. Cloud transfers are paused."), cancelTitle: "Close")
+                               message: L10n.format("The saved library move cannot be read or lacks Drive identities. Cloud transfers are paused. Keep this recovery record: %@.",
+                                                    [cloudLibrary.moveJournal.file.path]), cancelTitle: "Close")
         }
         if let pending = cloudLibrary.pendingMove, cloudLibrary.libraryMove == nil,
            !activityResults.entries.contains(where: { $0.id == pending.id && $0.job == .move(pending.request) && $0.canRetry }) {

@@ -85,7 +85,8 @@ final class CloudDriveFoldersTests: XCTestCase {
         let manifestKey = "\(title)/manifests/\(manifest)"
         let artifact = #"{"key":{"value":"\#(key)"},"size":7,"hashes":{"md5":"\#(hash)"}}"#
         let payload = """
-        {"source":"Old","remote":"fixture","games":1,"bytes":7,"entries":[
+        {"source":"Old","remote":"fixture","games":1,"bytes":7,
+        "binding":{"account":"accountA","sourceID":"oldID","destinationID":"newID","destination":"New"},"entries":[
           {"file":\(artifact),"dependencies":[]},
           {"file":{"key":{"value":"\(manifestKey)"},"size":7,"hashes":{"md5":"\(hash)"}},"dependencies":[\(artifact)]}]}
         """
@@ -95,14 +96,20 @@ final class CloudDriveFoldersTests: XCTestCase {
         let restored = try JSONDecoder().decode(LibraryMoveRequest.self, from: saved)
         let drive = CloudDriveFolders(remote: "fixture", executable: URL(fileURLWithPath: "/synthetic/rclone"),
                                       config: URL(fileURLWithPath: "/dev/null")) { _, args, _ in
+            if args[0] == "about" {
+                return .init(status: 0, stdout: "{}", stderr: "'root_folder_id = accountA' - save this in the config to speed up startup")
+            }
             XCTAssertEqual(args[0], "lsjson", "The verified destination copy must not be moved again")
             let listing: String
             switch args[1] {
-            case "fixture:": listing = #"[{"Name":"Old","IsDir":true},{"Name":"New","IsDir":true}]"#
-            case "fixture:New": listing = #"[{"Name":"\#(name)","Path":"\#(key)","IsDir":false}]"#
-            case "fixture:New/\(title)/app":
+            case "fixture:": listing = #"[{"Name":"Old","IsDir":true,"ID":"oldID"},{"Name":"New","IsDir":true,"ID":"newID"}]"#
+            case "fixture,root_folder_id=newID:": listing = """
+                [{"Name":"\(name)","Path":"\(key)","Size":7,"IsDir":false,"Hashes":{"MD5":"\(hash)"}},
+                 {"Name":"\(manifest)","Path":"\(manifestKey)","Size":7,"IsDir":false,"Hashes":{"MD5":"\(hash)"}}]
+                """
+            case "fixture,root_folder_id=newID:\(title)/app":
                 listing = #"[{"Name":"\#(name)","Size":7,"IsDir":false,"Hashes":{"MD5":"\#(hash)"}}]"#
-            case "fixture:New/\(title)/manifests":
+            case "fixture,root_folder_id=newID:\(title)/manifests":
                 listing = #"[{"Name":"\#(manifest)","Size":7,"IsDir":false,"Hashes":{"MD5":"\#(hash)"}}]"#
             default: listing = "[]"
             }
@@ -209,7 +216,7 @@ final class CloudDriveFoldersTests: XCTestCase {
     func testJournalResumesWithRealFilesAfterEachProgressAndLostWriteReply() async throws {
         let cuts = ["progress-0", "reply-0", "progress-1", "reply-1", "progress-2", "reply-2", "progress-3"]
         for cut in cuts {
-            try await withMoveFixture { _, root in
+            try await withFakeDrive { fixture, root in
                 let fm = FileManager.default
                 let title = "0100123456789ABC"
                 let sha = String(repeating: "a", count: 64)
@@ -226,7 +233,6 @@ final class CloudDriveFoldersTests: XCTestCase {
                     let file = old.appendingPathComponent(key)
                     let bytes = Data(key.utf8)
                     try write(bytes, to: file)
-                    if key == keys[1] { try write(bytes, to: new.appendingPathComponent(key)) }
                     objects.append(["key": ["value": key], "size": bytes.count,
                                     "hashes": try CloudArchiveInventory.hashes(at: file)])
                 }
@@ -234,6 +240,7 @@ final class CloudDriveFoldersTests: XCTestCase {
                 try write(Data("unrelated".utf8), to: unrelated)
                 let plan = try JSONDecoder().decode(CloudDriveFolders.MovePlan.self, from: JSONSerialization.data(withJSONObject: [
                     "source": "Old", "remote": "fixture", "games": 1, "bytes": 0,
+                    "binding": ["account": "accountA", "sourceID": "oldID", "destinationID": "newID", "destination": "New"],
                     "entries": objects.enumerated().map { index, object in
                         ["file": object, "dependencies": index == 2 ? Array(objects.prefix(2)) : []]
                     },
@@ -244,38 +251,13 @@ final class CloudDriveFoldersTests: XCTestCase {
                 XCTAssertNil(try journal.load())
                 try journal.begin(pending)
                 XCTAssertThrowsError(try journal.begin(pending), "A second start must not overwrite the plan")
-                let tool = try XCTUnwrap(RcloneStorageBackend.findExecutable())
-                let fixtureConfig = root.appendingPathComponent("empty.conf")
-                try Data().write(to: fixtureConfig)
-                func backend(interrupt: Bool) -> CloudDriveFolders {
-                    CloudDriveFolders(remote: "fixture", executable: tool, config: fixtureConfig) { tool, args, _ in
-                        let path = String(args[1].dropFirst("fixture:".count))
-                        let file = root.appendingPathComponent(path)
-                        switch args[0] {
-                        case "moveto":
-                            let destination = root.appendingPathComponent(String(args[2].dropFirst("fixture:".count)))
-                            try fm.createDirectory(at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
-                            try fm.moveItem(at: file, to: destination)
-                        case "deletefile":
-                            XCTAssertTrue(args.contains("--drive-use-trash=true"))
-                            try fm.moveItem(at: file, to: root.appendingPathComponent("fixture-trash"))
-                        case "lsjson":
-                            var local = args
-                            local[1] = ":local:" + file.path
-                            return try await SystemCommandRunner().runCancellable(tool, local, environment: [:])
-                        default:
-                            XCTFail("Unexpected rclone operation \(args[0])")
-                            throw StorageBackendError.invalidKey
-                        }
-                        let index = try XCTUnwrap(keys.firstIndex(of: String(path.dropFirst("Old/".count))))
-                        if interrupt && cut == "reply-\(index)" {
-                            return .init(status: 1, stdout: "", stderr: "connection reset")
-                        }
-                        return .init(status: 0, stdout: "", stderr: "")
-                    }
+                let lease = try journal.acquire()
+                try withExtendedLifetime(lease) {
+                    XCTAssertThrowsError(try LibraryMoveJournal(in: root).acquire())
                 }
+                fixture.loseReply = cut.hasPrefix("reply-") ? Int(cut.suffix(1)) : nil
                 do {
-                    _ = try await backend(interrupt: true).move(plan, to: "New") { done, _ in
+                    _ = try await fixture.backend.move(plan, to: "New") { done, _ in
                         if cut == "progress-\(done)" { throw CancellationError() }
                     }
                     XCTFail("Expected the injected cut at \(cut)")
@@ -288,16 +270,165 @@ final class CloudDriveFoldersTests: XCTestCase {
                 let reopened = LibraryMoveJournal(in: root)
                 let saved = try XCTUnwrap(reopened.load())
                 XCTAssertEqual(saved, pending)
-                let conflicts = try await backend(interrupt: false).move(saved.request.plan, to: saved.request.destination) { _, _ in }
+                fixture.loseReply = nil
+                let conflicts = try await fixture.backend.move(saved.request.plan, to: saved.request.destination) { _, _ in }
                 XCTAssertEqual(conflicts, [], cut)
                 for key in keys {
                     XCTAssertFalse(fm.fileExists(atPath: old.appendingPathComponent(key).path), cut)
                     XCTAssertEqual(try Data(contentsOf: new.appendingPathComponent(key)), Data(key.utf8), cut)
                 }
                 XCTAssertEqual(try Data(contentsOf: unrelated), Data("unrelated".utf8))
-                try reopened.finish(saved)
+                let sealed = try reopened.markVerified(saved)
+                XCTAssertEqual(try reopened.load(), sealed)
+                try reopened.finish(sealed)
                 XCTAssertNil(try reopened.load())
             }
+        }
+    }
+
+    func testBoundMoveRejectsChangedIdentityAndConcurrentChangesWithoutWritingUnplannedFiles() async throws {
+        for fault in ["account", "source", "destination", "unicode", "late-upload", "late-removal", "duplicate"] {
+            try await withFakeDrive { fixture, root in
+                let title = "0100123456789ABC"
+                let key = "\(title)/app/\(String(repeating: "a", count: 64)).aar"
+                let source = root.appendingPathComponent("Old/\(key)")
+                let destination = root.appendingPathComponent("New/\(key)")
+                let late = root.appendingPathComponent("Old/0100123456789ABD/app/\(String(repeating: "b", count: 64)).aar")
+                let bytes = Data("archive".utf8)
+                try fixture.write(bytes, to: source)
+                let object: [String: Any] = ["key": ["value": key], "size": bytes.count,
+                    "hashes": try CloudArchiveInventory.hashes(at: source)]
+                let plan = try JSONDecoder().decode(CloudDriveFolders.MovePlan.self, from: JSONSerialization.data(withJSONObject: [
+                    "source": fault == "unicode" ? "Café" : "Old", "remote": "fixture", "games": 1, "bytes": bytes.count,
+                    "binding": ["account": "accountA", "sourceID": "oldID", "destinationID": "newID", "destination": "New"],
+                    "entries": [["file": object, "dependencies": []]],
+                ]))
+                let journal = LibraryMoveJournal(in: root)
+                let pending = LibraryMoveJournal.Pending(id: UUID(), request: .init(plan: plan, destination: "New"), sourcesRoot: nil)
+                try journal.begin(pending)
+                if fault == "late-upload" {
+                    let absent = try await fixture.backend.originalSourcesRoot(plan, to: "New")
+                    XCTAssertNil(absent)
+                    try fixture.write(bytes, to: root.appendingPathComponent("Old/GameFiles/game.nsp"))
+                    let present = try await fixture.backend.originalSourcesRoot(plan, to: "New")
+                    XCTAssertEqual(present, "Old/GameFiles")
+                }
+                if fault == "account" { fixture.account = "accountB" }
+                if fault == "source" { fixture.oldID = "replacementOld" }
+                if fault == "destination" { fixture.newID = "replacementNew" }
+                if fault == "unicode" { fixture.matchesDecomposedOnly = true }
+                if fault == "duplicate" { try fixture.write(bytes, to: destination) }
+                do {
+                    let conflicts = try await fixture.backend.move(XCTUnwrap(journal.load()).request.plan, to: "New") { done, total in
+                        if done == total && fault == "late-upload" { try fixture.write(bytes, to: late) }
+                        if done == total && fault == "late-removal" {
+                            try FileManager.default.moveItem(at: destination, to: root.appendingPathComponent("other-mac-copy"))
+                        }
+                    }
+                    XCTAssertEqual(fault, "duplicate")
+                    XCTAssertEqual(conflicts, [key])
+                } catch let failure as CloudDriveFolders.MoveFailure {
+                    switch (fault, failure) {
+                    case ("account", .accountChanged), ("source", .foldersChanged), ("destination", .foldersChanged),
+                         ("unicode", .foldersChanged), ("late-upload", .sourceNotEmpty), ("late-removal", .destinationChanged): break
+                    default: XCTFail("Unexpected refusal \(fault): \(failure)")
+                    }
+                }
+                XCTAssertEqual(try journal.load(), pending)
+                if fault.hasPrefix("late-") {
+                    XCTAssertEqual(fixture.writes, 1)
+                    let preserved = fault == "late-upload" ? late : root.appendingPathComponent("other-mac-copy")
+                    XCTAssertEqual(try Data(contentsOf: preserved), bytes)
+                } else {
+                    XCTAssertEqual(fixture.writes, 0)
+                    XCTAssertEqual(try Data(contentsOf: source), bytes)
+                }
+            }
+        }
+    }
+
+    private func withFakeDrive(_ body: (MoveDriveFixture, URL) async throws -> Void) async throws {
+        let root = FileManager.default.temporaryDirectory.resolvingSymlinksInPath().appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        for name in ["Old", "New"] {
+            try FileManager.default.createDirectory(at: root.appendingPathComponent(name), withIntermediateDirectories: true)
+        }
+        try await body(MoveDriveFixture(root: root), root)
+    }
+
+    /// Stable inode-backed file IDs and actual file moves; never runs an external command or opens a real config.
+    private final class MoveDriveFixture: @unchecked Sendable {
+        let root: URL
+        var account = "accountA", oldID = "oldID", newID = "newID"
+        var matchesDecomposedOnly = false
+        var loseReply: Int?
+        var writes = 0
+        let fm = FileManager.default
+        init(root: URL) { self.root = root }
+
+        var backend: CloudDriveFolders {
+            CloudDriveFolders(remote: "fixture", executable: URL(fileURLWithPath: "/synthetic/rclone"),
+                              config: root.appendingPathComponent("empty.conf"), run: { [self] _, args, _ in try run(args) })
+        }
+
+        func write(_ data: Data, to file: URL) throws {
+            try fm.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try data.write(to: file)
+        }
+
+        func run(_ args: [String]) throws -> CommandResult {
+            func node(_ target: String) throws -> URL {
+                for (prefix, path) in [("fixture,root_folder_id=\(oldID):", "Old"),
+                                       ("fixture,root_folder_id=\(newID):", "New"), ("fixture:", "")] {
+                    if target.hasPrefix(prefix) {
+                        let base = path.isEmpty ? root : root.appendingPathComponent(path)
+                        let relative = String(target.dropFirst(prefix.count))
+                        return relative.isEmpty ? base : base.appendingPathComponent(relative)
+                    }
+                }
+                throw StorageBackendError.invalidKey
+            }
+            func id(_ file: URL, accountRoot: Bool = false) throws -> String {
+                if accountRoot && file.lastPathComponent == "Old" { return oldID }
+                if accountRoot && file.lastPathComponent == "New" { return newID }
+                return "\(try CloudArchiveInventory.node(at: file).st_ino)"
+            }
+            if args[0] == "about" {
+                XCTAssertEqual(args[1], "fixture,root_folder_id=,team_drive=:")
+                return .init(status: 0, stdout: "{}", stderr: "'root_folder_id = \(account)' - save this in the config to speed up startup")
+            }
+            if args[0] == "backend" && args[1] == "moveid" {
+                let source = try node(args[2])
+                let target = try node(args[4])
+                let children = try XCTUnwrap(fm.enumerator(at: source, includingPropertiesForKeys: nil))
+                let object = try XCTUnwrap(children.compactMap { $0 as? URL }.first { (try? id($0)) == args[3] })
+                try fm.createDirectory(at: target.deletingLastPathComponent(), withIntermediateDirectories: true)
+                try fm.moveItem(at: object, to: target)
+                defer { writes += 1 }
+                return writes == loseReply
+                    ? .init(status: 1, stdout: "", stderr: "connection reset")
+                    : .init(status: 0, stdout: "", stderr: "")
+            }
+            XCTAssertEqual(args[0], "lsjson", "No name-based writes are allowed")
+            let parent = try node(args[1])
+            guard fm.fileExists(atPath: parent.path) else { return .init(status: 3, stdout: "", stderr: "") }
+            if matchesDecomposedOnly && parent.path == root.path {
+                // The Drive path no longer has the bytes selected in the assistant.
+                return .init(status: 0, stdout: #"[{"Name":"Café","ID":"oldID","IsDir":true},{"Name":"New","ID":"newID","IsDir":true}]"#, stderr: "")
+            }
+            let files: [URL]
+            if args.contains("--recursive") {
+                files = (fm.enumerator(at: parent, includingPropertiesForKeys: nil)?.allObjects ?? []).compactMap { $0 as? URL }
+            } else { files = try fm.contentsOfDirectory(at: parent, includingPropertiesForKeys: nil) }
+            let items: [[String: Any]] = try files.map { file in
+                let relative = file.resolvingSymlinksInPath().pathComponents
+                    .dropFirst(parent.resolvingSymlinksInPath().pathComponents.count).joined(separator: "/")
+                let status = try CloudArchiveInventory.node(at: file)
+                let directory = status.st_mode & S_IFMT == S_IFDIR
+                return ["Name": file.lastPathComponent, "Path": relative, "IsDir": directory, "ID": try id(file, accountRoot: args[1] == "fixture:"),
+                        "Size": status.st_size, "Hashes": directory ? [:] : try CloudArchiveInventory.hashes(at: file)]
+            }.filter { !args.contains("--max-depth") || ($0["Path"] as! String).split(separator: "/").count <= 3 }
+            return .init(status: 0, stdout: String(decoding: try JSONSerialization.data(withJSONObject: items), as: UTF8.self), stderr: "")
         }
     }
 

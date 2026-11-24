@@ -2206,6 +2206,105 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "仅移动应用和构建缓存的归档。游戏文件保留在原处。"}}
       }
     },
+    "Pause uploads on other Macs. Drive cannot lock both folders; uploads during or after the final check may be missed.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Pause uploads on other Macs. Drive cannot lock both folders; uploads during or after the final check may be missed."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Sospendi gli invii sugli altri Mac. Drive non può bloccare entrambe le cartelle: gli invii durante o dopo l’ultima verifica potrebbero sfuggire."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Mettez en pause les envois des autres Mac. Drive ne peut pas verrouiller les deux dossiers : des envois pendant ou après la dernière vérification peuvent lui échapper."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Pausiere Uploads auf anderen Macs. Drive kann nicht beide Ordner sperren. Uploads während oder nach der letzten Prüfung können unentdeckt bleiben."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Pausa las subidas de otros Mac. Drive no puede bloquear ambas carpetas: las subidas durante o después de la última comprobación podrían pasar inadvertidas."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Pause os envios nos outros Macs. O Drive não pode bloquear as duas pastas; envios durante ou após a última verificação podem passar despercebidos."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "请暂停其他 Mac 上的上传。Drive 无法锁定两个文件夹，最终检查期间或之后的上传可能不会被发现。"}}
+      }
+    },
+    "Verifying the move…": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Verifying the move…"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Verifica dello spostamento…"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Vérification du déplacement…"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Verschiebung wird geprüft…"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Verificando el traslado…"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Verificando a mudança…"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "正在验证移动结果…"}}
+      }
+    },
+    "The account and folders for this move could not be verified. No new files were moved. Keep the recovery record.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "The account and folders for this move could not be verified. No new files were moved. Keep the recovery record."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Impossibile verificare l’account e le cartelle dello spostamento. Conserva il registro di ripristino."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Impossible de vérifier le compte et les dossiers de ce déplacement. Aucun nouveau fichier n’a été déplacé. Conservez le journal de récupération."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Konto und Ordner konnten nicht geprüft werden. Es wurden keine weiteren Dateien verschoben. Behalte das Wiederherstellungsprotokoll."}},
+        "es": {"stringUnit": {"state": "translated", "value": "No se pudieron verificar la cuenta y las carpetas. No se movieron archivos nuevos. Conserva el registro de recuperación."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Não foi possível verificar a conta e as pastas. Nenhum arquivo novo foi movido. Guarde o registro de recuperação."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法验证此次移动的账号和文件夹。未移动新文件。请保留恢复记录。"}}
+      }
+    },
+    "This move belongs to another Drive account. Reconnect the original account before retrying.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "This move belongs to another Drive account. Reconnect the original account before retrying."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Lo spostamento appartiene a un altro account Drive. Ricollega l’account originale prima di riprovare."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ce déplacement est lié à un autre compte Drive. Reconnectez le compte d’origine avant de réessayer."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Diese Verschiebung gehört zu einem anderen Drive-Konto. Verbinde vor dem nächsten Versuch das ursprüngliche Konto."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Este traslado pertenece a otra cuenta de Drive. Vuelve a conectar la cuenta original antes de reintentarlo."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Esta mudança pertence a outra conta do Drive. Reconecte a conta original antes de tentar novamente."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "此次移动属于另一个 Drive 账号。请重新连接原账号后重试。"}}
+      }
+    },
+    "A library folder was replaced, renamed or cannot be read. Restore the original folders at their original paths before retrying.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "A library folder was replaced, renamed or cannot be read. Restore the original folders at their original paths before retrying."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Una cartella della libreria è stata sostituita, rinominata o non è leggibile. Ripristina le cartelle originali nei loro percorsi prima di riprovare."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Un dossier de la bibliothèque a été remplacé, renommé ou est illisible. Remettez les dossiers d’origine à leur emplacement avant de réessayer."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Ein Bibliotheksordner wurde ersetzt, umbenannt oder ist nicht lesbar. Stelle vor dem nächsten Versuch die ursprünglichen Ordner an ihren Pfaden wieder her."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Se sustituyó o renombró una carpeta de la biblioteca, o no se puede leer. Restaura las carpetas originales en sus rutas antes de reintentarlo."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Uma pasta foi substituída, renomeada ou não pode ser lida. Restaure as pastas originais nos caminhos originais antes de tentar novamente."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "资料库文件夹已被替换、重命名或无法读取。请将原文件夹恢复到原路径后重试。"}}
+      }
+    },
+    "Archives still exist in the old folder. Pause uploads from other Macs and reconcile those archives before retrying. The library folder was not switched.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Archives still exist in the old folder. Pause uploads from other Macs and reconcile those archives before retrying. The library folder was not switched."}},
+        "it": {"stringUnit": {"state": "translated", "value": "La vecchia cartella contiene ancora archivi. Sospendi gli invii dagli altri Mac e riconcilia gli archivi prima di riprovare. La cartella della libreria non è cambiata."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Des archives restent dans l’ancien dossier. Mettez en pause les envois des autres Mac et rapprochez les archives avant de réessayer. Le dossier actif n’a pas changé."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Der alte Ordner enthält noch Archive. Pausiere Uploads anderer Macs und gleiche die Archive vor dem nächsten Versuch ab. Der Bibliotheksordner wurde nicht gewechselt."}},
+        "es": {"stringUnit": {"state": "translated", "value": "La carpeta anterior aún contiene archivos. Pausa las subidas de otros Mac y concilia los archivos antes de reintentarlo. La carpeta activa no ha cambiado."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Ainda há arquivos na pasta antiga. Pause os envios de outros Macs e concilie os arquivos antes de tentar novamente. A pasta ativa não mudou."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "旧文件夹中仍有归档。请暂停其他 Mac 的上传，核对这些归档后再重试。资料库文件夹未切换。"}}
+      }
+    },
+    "The destination no longer matches the confirmed archives. Restore the missing or changed files before retrying.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "The destination no longer matches the confirmed archives. Restore the missing or changed files before retrying."}},
+        "it": {"stringUnit": {"state": "translated", "value": "La destinazione non corrisponde più agli archivi confermati. Ripristina i file mancanti o modificati prima di riprovare."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "La destination ne correspond plus aux archives confirmées. Restaurez les fichiers manquants ou modifiés avant de réessayer."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Das Ziel entspricht nicht mehr den bestätigten Archiven. Stelle fehlende oder geänderte Dateien vor dem nächsten Versuch wieder her."}},
+        "es": {"stringUnit": {"state": "translated", "value": "El destino ya no coincide con los archivos confirmados. Restaura los archivos que falten o hayan cambiado antes de reintentarlo."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "O destino não corresponde mais aos arquivos confirmados. Restaure os arquivos ausentes ou alterados antes de tentar novamente."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "目标文件夹与已确认的归档不再一致。请恢复缺失或已更改的文件后重试。"}}
+      }
+    },
+    "Library files conflict. Keep both copies until you have reconciled them, then retry.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Library files conflict. Keep both copies until you have reconciled them, then retry."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Conflitto tra i file della libreria. Conserva entrambe le copie finché non le hai riconciliate, poi riprova."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Des fichiers sont en conflit. Conservez les deux copies le temps de les comparer, puis réessayez."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Bibliotheksdateien stehen in Konflikt. Behalte beide Kopien bis zum Abgleich und versuche es erneut."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Hay conflictos en los archivos de la biblioteca. Conserva ambas copias hasta conciliarlas y vuelve a intentarlo."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Há conflitos nos arquivos da biblioteca. Mantenha as duas cópias até conciliá-las e tente novamente."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "资料库文件存在冲突。请保留两个副本，核对后重试。"}}
+      }
+    },
+    "The saved library move cannot be read or lacks Drive identities. Cloud transfers are paused. Keep this recovery record: %@.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "The saved library move cannot be read or lacks Drive identities. Cloud transfers are paused. Keep this recovery record: %@."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Lo spostamento salvato è illeggibile o privo degli ID Drive. I trasferimenti cloud sono in pausa. Conserva il registro di ripristino: %@."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Le déplacement enregistré est illisible ou ne contient pas les identifiants Drive. Les transferts cloud sont en pause. Conservez ce journal de récupération : %@."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Die gespeicherte Verschiebung ist unlesbar oder enthält keine Drive-IDs. Cloud-Übertragungen sind pausiert. Behalte dieses Wiederherstellungsprotokoll: %@."}},
+        "es": {"stringUnit": {"state": "translated", "value": "El traslado guardado no se puede leer o carece de identificadores de Drive. Las transferencias se han pausado. Conserva este registro: %@."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "A mudança salva não pode ser lida ou não contém os IDs do Drive. As transferências na nuvem estão pausadas. Guarde este registro de recuperação: %@."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法读取已保存的移动记录，或记录缺少 Drive 标识。云端传输已暂停。请保留此恢复记录：%@。"}}
+      }
+    },
     "Game files folder": {
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Game files folder"}},

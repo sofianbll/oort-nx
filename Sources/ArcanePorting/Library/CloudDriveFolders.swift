@@ -24,6 +24,34 @@ public struct CloudDriveFolders: Sendable {
         public let bytes: Int64
         package let remote: String
         fileprivate let entries: [MoveEntry]
+        // Optional for decoding old activity results, never for an actual remote move.
+        fileprivate var binding: MoveBinding?
+    }
+
+    package struct MoveBinding: Equatable, Codable, Sendable {
+        let account: String
+        let sourceID: String
+        let destinationID: String
+        let destination: String
+    }
+
+    package enum MoveFailure: LocalizedError {
+        case missingIdentity, accountChanged, foldersChanged, sourceNotEmpty, destinationChanged
+
+        package var errorDescription: String? {
+            switch self {
+            case .missingIdentity:
+                return L10n.text("The account and folders for this move could not be verified. No new files were moved. Keep the recovery record.")
+            case .accountChanged:
+                return L10n.text("This move belongs to another Drive account. Reconnect the original account before retrying.")
+            case .foldersChanged:
+                return L10n.text("A library folder was replaced, renamed or cannot be read. Restore the original folders at their original paths before retrying.")
+            case .sourceNotEmpty:
+                return L10n.text("Archives still exist in the old folder. Pause uploads from other Macs and reconcile those archives before retrying. The library folder was not switched.")
+            case .destinationChanged:
+                return L10n.text("The destination no longer matches the confirmed archives. Restore the missing or changed files before retrying.")
+            }
+        }
     }
 
     fileprivate struct MoveEntry: Equatable, Codable, Sendable {
@@ -199,8 +227,15 @@ public struct CloudDriveFolders: Sendable {
         return true
     }
 
-    public func movePlan(from source: String) async throws -> MovePlan {
-        try await verifyUniqueFolder(source)
+    public func movePlan(from source: String, to destination: String? = nil) async throws -> MovePlan {
+        let binding: MoveBinding?
+        if let destination, remote != ":local:" {
+            binding = try await moveBinding(from: source, to: destination)
+        } else {
+            guard remote == ":local:" else { throw MoveFailure.missingIdentity }
+            _ = try await folderID(source)
+            binding = nil
+        }
         let items = try await contents(source, recursive: true)
         let paths = Dictionary(grouping: items, by: \.Path)
         let backend = try backend(in: source)
@@ -241,7 +276,10 @@ public struct CloudDriveFolders: Sendable {
             guard !overflow, entry.file.size >= 0 else { throw StorageBackendError.invalidResponse }
             bytes = total
         }
-        return MovePlan(source: source, games: archiveTitles.count, bytes: bytes, remote: remote, entries: entries)
+        let plan = MovePlan(source: source, games: archiveTitles.count, bytes: bytes, remote: remote,
+                            entries: entries, binding: binding)
+        if remote != ":local:", let destination { try await verifyBinding(plan, to: destination) }
+        return plan
     }
 
     /// Run only after confirmation; a skipped key (or manifest with missing dependencies) prevents activation.
@@ -250,20 +288,21 @@ public struct CloudDriveFolders: Sendable {
         guard remote == plan.remote, Self.validMove(plan, to: destination) else {
             throw StorageBackendError.invalidKey
         }
-        try await verifyUniqueFolder(plan.source)
-        try await verifyUniqueFolder(destination)
+        try await verifyBinding(plan, to: destination)
+        let sourceID = plan.binding?.sourceID, destinationID = plan.binding?.destinationID
         let folders = Set(plan.entries.compactMap { Self.treeFolder($0.file.key.value) })
-        func paths(at root: String) async throws -> [String: [Item]] {
-            var result = Dictionary(grouping: try await contents(root, recursive: true), by: \.Path)
+        func paths(at root: String, id: String?) async throws -> [String: [Item]] {
+            var result = Dictionary(grouping: try await contents(root, recursive: true, rootID: id, allowMissing: false), by: \.Path)
             for folder in folders.sorted() {
-                for item in try await contents(Self.joining(root, folder), recursive: true, deep: true) {
+                for item in try await contents(Self.joining(root, folder), recursive: true, deep: true, rootID: id) {
                     result[Self.joining(folder, item.Path), default: []].append(item)
                 }
             }
             return result
         }
-        let sourcePaths = try await paths(at: plan.source)
-        var destinationPaths = try await paths(at: destination)
+        let sourcePaths = try await paths(at: sourceID == nil ? plan.source : "", id: sourceID)
+        let destinationRoot = destinationID == nil ? destination : ""
+        let destinationPaths = try await paths(at: destinationRoot, id: destinationID)
         var conflicts: [String] = []
         var blockedTitles = Set<String>()
         try await progress(0, plan.entries.count)
@@ -272,20 +311,59 @@ public struct CloudDriveFolders: Sendable {
             let path = entry.file.key.value
             let folder = String(path.prefix { $0 != "/" })
             let title = Self.titleID(in: folder) ?? folder
-            if Self.uniquePath(path, in: sourcePaths), Self.uniquePath(path, in: destinationPaths),
-               entry.dependencies.isEmpty || (!blockedTitles.contains(title) && entry.dependencies.allSatisfy({
-                   Self.uniquePath($0.key.value, in: destinationPaths)
-                       && Self.matches($0, destinationPaths[$0.key.value] ?? [])
-               })),
-               let final = try await moveFile(entry.file, from: plan.source, to: destination) {
-                destinationPaths[path] = [final]
-            } else {
+            let dependenciesReady = blockedTitles.contains(title) ? false
+                : try await dependenciesMatch(entry.dependencies, at: destinationRoot, id: destinationID)
+            if !(Self.uniquePath(path, in: sourcePaths) && Self.uniquePath(path, in: destinationPaths)
+                 && dependenciesReady) {
+                conflicts.append(path)
+                blockedTitles.insert(title)
+            } else if try await !moveFile(entry.file, from: plan.source, to: destination,
+                                          binding: plan.binding) {
                 conflicts.append(path)
                 blockedTitles.insert(title)
             }
             try await progress(index + 1, plan.entries.count)
         }
+        guard conflicts.isEmpty else { return conflicts }
+        let actual = try await paths(at: destinationRoot, id: destinationID)
+        let expected = plan.entries.flatMap { [$0.file] + $0.dependencies }
+        guard expected.allSatisfy({
+            Self.uniquePath($0.key.value, in: actual) && Self.matches($0, actual[$0.key.value] ?? [])
+        }) else { throw MoveFailure.destinationChanged }
+        try await verifyBinding(plan, to: destination)
+        try await verifySourceEmpty(sourceID == nil ? plan.source : "", id: sourceID)
+        try await verifyBinding(plan, to: destination)
         return conflicts
+    }
+
+    private func dependenciesMatch(_ dependencies: [StorageObject], at root: String, id: String?) async throws -> Bool {
+        let byParent = Dictionary(grouping: dependencies) { $0.key.value.components(separatedBy: "/").dropLast().joined(separator: "/") }
+        for (parent, files) in byParent {
+            let items = try await contents(Self.joining(root, parent), recursive: false, rootID: id)
+            guard files.allSatisfy({ file in
+                let name = file.key.value.components(separatedBy: "/").last
+                return Self.matches(file, items.filter { $0.Name == name })
+            }) else { return false }
+        }
+        return true
+    }
+
+    private func verifySourceEmpty(_ root: String, id: String?) async throws {
+        let children = try await contents(root, recursive: false, hashes: false, rootID: id, allowMissing: false)
+        let titles = children.filter { $0.IsDir && Self.titleID(in: $0.Name) != nil }
+        guard Set(titles.map(\.Name)).count == titles.count else { throw MoveFailure.foldersChanged }
+        for child in titles {
+            let items = try await contents(Self.joining(root, child.Name), recursive: true, hashes: false,
+                                           deep: true, rootID: id, allowMissing: false)
+            for item in items where !item.IsDir {
+                let key = Self.joining(child.Name, item.Path)
+                let parts = key.components(separatedBy: "/")
+                if Self.treeFolder(key) != nil || (parts.count == 3 && (
+                    (parts[1] == "manifests" && parts[2].hasSuffix(".json")) ||
+                    (CloudArtifactKind(rawValue: parts[1]) != nil && parts[2].hasSuffix(".aar"))
+                )) { throw MoveFailure.sourceNotEmpty }
+            }
+        }
     }
 
     package static func validMove(_ plan: MovePlan, to destination: String) -> Bool {
@@ -293,6 +371,21 @@ public struct CloudDriveFolders: Sendable {
             && [plan.source, destination].allSatisfy { $0.components(separatedBy: "/").allSatisfy(validName) }
             && !plan.entries.isEmpty && plan.entries.allSatisfy(validMoveEntry)
             && Set(plan.entries.map(\.file.key)).count == plan.entries.count
+    }
+
+    package static func isBound(_ plan: MovePlan, to destination: String) -> Bool {
+        guard let binding = plan.binding else { return false }
+        return binding.destination.utf8.elementsEqual(destination.utf8)
+            && [binding.account, binding.sourceID, binding.destinationID].allSatisfy(validID)
+            && binding.sourceID != binding.destinationID
+    }
+
+    package func originalSourcesRoot(_ plan: MovePlan, to destination: String) async throws -> String? {
+        try await verifyBinding(plan, to: destination)
+        let items = try await contents("", recursive: false, hashes: false, rootID: plan.binding?.sourceID, allowMissing: false)
+        let defaults = items.filter { $0.Name == "GameFiles" }
+        guard defaults.count <= 1, defaults.first?.IsDir != false else { throw MoveFailure.foldersChanged }
+        return defaults.isEmpty ? nil : Self.joining(plan.source, "GameFiles")
     }
 
     private static func validMoveEntry(_ entry: MoveEntry) -> Bool {
@@ -337,41 +430,87 @@ public struct CloudDriveFolders: Sendable {
         return parts.prefix(count).joined(separator: "/")
     }
 
-    private func moveFile(_ file: StorageObject, from source: String, to destination: String) async throws -> Item? {
+    private func moveFile(_ file: StorageObject, from source: String, to destination: String,
+                          binding: MoveBinding?) async throws -> Bool {
         let key = file.key.value
         let old = try target(Self.joining(source, key))
-        let new = try target(Self.joining(destination, key))
+        let new = try target(Self.joining(binding == nil ? destination : "", key), rootID: binding?.destinationID)
         let parts = key.components(separatedBy: "/")
         let parent = parts.dropLast().joined(separator: "/")
         let name = parts.last
-        func siblings(_ root: String) async throws -> [Item] {
-            try await contents(Self.joining(root, parent), recursive: false).filter { $0.Name == name }
+        func siblings(_ root: String, id: String?) async throws -> [Item] {
+            try await contents(Self.joining(id == nil ? root : "", parent), recursive: false, rootID: id)
+                .filter { $0.Name == name }
         }
-        let current = try await siblings(source)
-        let existing = try await siblings(destination)
-        if current.isEmpty { return Self.matches(file, existing) ? existing.first : nil }
-        guard Self.matches(file, current) else { return nil }
-        if !existing.isEmpty {
-            guard Self.matches(file, existing),
-                  current[0].ID.map({ $0 != existing[0].ID }) ?? true else { return nil }
-            _ = try await checked(["deletefile", old, "--drive-use-trash=true"])
-        } else if remote == ":local:" {
+        let current = try await siblings(source, id: binding?.sourceID)
+        let existing = try await siblings(destination, id: binding?.destinationID)
+        if current.isEmpty { return Self.matches(file, existing) }
+        // A path-based delete can trash a replacement uploaded after the comparison.
+        guard Self.matches(file, current), existing.isEmpty else { return false }
+        if remote == ":local:" {
             // The local rclone Move uses a replacing rename.
             let path = String(new.dropFirst(remote.count))
             try FileManager.default.createDirectory(at: URL(fileURLWithPath: path).deletingLastPathComponent(),
                                                     withIntermediateDirectories: true)
             try Task.checkCancellation()
             guard renamex_np(String(old.dropFirst(remote.count)), path, UInt32(RENAME_EXCL)) == 0 else {
-                if errno == EEXIST { return nil }
+                if errno == EEXIST { return false }
                 throw CloudArchiveError.installFailed
             }
-        } else {
-            _ = try await checked(["moveto", old, new, "--ignore-existing", "--immutable", "--checksum",
+        } else if let binding, let id = current[0].ID, Self.validID(id) {
+            guard current[0].Name.utf8.elementsEqual(name?.utf8 ?? "".utf8) else { return false }
+            guard try await accountID() == binding.account else { throw MoveFailure.accountChanged }
+            _ = try await checked(["backend", "moveid", try target("", rootID: binding.sourceID), id, new,
+                                   "--drive-server-side-across-configs", "--drive-use-trash=true",
                                    "--disable", "Copy", "--max-transfer", "0"])
+        } else { return false }
+        let final = try await siblings(destination, id: binding?.destinationID)
+        let remaining = try await siblings(source, id: binding?.sourceID)
+        return Self.matches(file, final) && remaining.isEmpty
+            && (binding == nil || final.first?.ID == current[0].ID)
+    }
+
+    private static func validID(_ id: String) -> Bool {
+        id.range(of: #"^[A-Za-z0-9_-]{1,256}\z"#, options: .regularExpression) != nil && id != "root"
+    }
+
+    private func accountID() async throws -> String {
+        guard CloudLibraryPreference.validRemote(remote) else { throw MoveFailure.missingIdentity }
+        // shortcut: rclone 1.75.2 reports the canonical My Drive root in debug output; use a structured ID when available.
+        // Clear remote overrides so a shared folder ID cannot stand in for the account ID.
+        let result = try await checkedResult(["about", "\(remote),root_folder_id=,team_drive=:", "--json", "--log-level", "DEBUG"])
+        let marker = "'root_folder_id = "
+        let suffix = "' - save this in the config to speed up startup"
+        let candidates = result.stderr.split(whereSeparator: \.isNewline).compactMap { line -> String? in
+            guard line.hasSuffix(suffix), let start = line.range(of: marker, options: .backwards)
+            else { return nil }
+            return String(line[start.upperBound..<line.index(line.endIndex, offsetBy: -suffix.count)])
         }
-        let final = try await siblings(destination)
-        let remaining = try await siblings(source)
-        return Self.matches(file, final) && remaining.isEmpty ? final.first : nil
+        guard let id = candidates.first, Set(candidates).count == 1, Self.validID(id) else {
+            throw MoveFailure.missingIdentity
+        }
+        return id
+    }
+
+    private func moveBinding(from source: String, to destination: String) async throws -> MoveBinding {
+        let account = try await accountID()
+        let sourceID = try await folderID(source)
+        let destinationID = try await folderID(destination)
+        guard sourceID != destinationID else { throw MoveFailure.foldersChanged }
+        return .init(account: account, sourceID: sourceID, destinationID: destinationID, destination: destination)
+    }
+
+    private func verifyBinding(_ plan: MovePlan, to destination: String) async throws {
+        if remote == ":local:" {
+            _ = try await folderID(plan.source)
+            _ = try await folderID(destination)
+            return
+        }
+        guard Self.isBound(plan, to: destination), let binding = plan.binding else { throw MoveFailure.missingIdentity }
+        guard try await accountID() == binding.account else { throw MoveFailure.accountChanged }
+        let sourceID = try await folderID(plan.source)
+        let destinationID = try await folderID(destination)
+        guard sourceID == binding.sourceID, destinationID == binding.destinationID else { throw MoveFailure.foldersChanged }
     }
 
     private static func matches(_ file: StorageObject, _ items: [Item]) -> Bool {
@@ -390,24 +529,31 @@ public struct CloudDriveFolders: Sendable {
         return true
     }
 
-    private func verifyUniqueFolder(_ folder: String) async throws {
+    private func folderID(_ folder: String) async throws -> String {
         _ = try target(folder)
         guard !folder.isEmpty else { throw StorageBackendError.invalidKey }
         var parent = ""
+        var id: String?
         for name in folder.components(separatedBy: "/") {
             let matches = try await contents(parent, recursive: false, hashes: false).filter { $0.Name == name }
-            guard matches.count == 1, matches[0].IsDir else { throw StorageBackendError.invalidKey }
-            parent = Self.joining(parent, name)
+            guard matches.count == 1, matches[0].IsDir, matches[0].Name.utf8.elementsEqual(name.utf8)
+            else { throw MoveFailure.foldersChanged }
+            id = matches[0].ID
+            parent = Self.joining(parent, matches[0].Name)
         }
+        if remote == ":local:" { return parent }
+        guard let id, Self.validID(id) else { throw MoveFailure.missingIdentity }
+        return id
     }
 
-    private func contents(_ folder: String, recursive: Bool, hashes: Bool = true, deep: Bool = false) async throws -> [Item] {
+    private func contents(_ folder: String, recursive: Bool, hashes: Bool = true, deep: Bool = false,
+                          rootID: String? = nil, allowMissing: Bool = true) async throws -> [Item] {
         let scope = recursive ? ["--recursive", "--exclude", "/.arcane-upload/**"] + (deep ? [] : ["--max-depth", "3"]) : []
         let hashing = hashes ? ["--hash-type", "MD5"] : []
         do {
-            let output = try await checked(["lsjson", try target(folder), "--no-modtime", "--no-mimetype"] + scope + hashing)
+            let output = try await checked(["lsjson", try target(folder, rootID: rootID), "--no-modtime", "--no-mimetype"] + scope + hashing)
             return try JSONDecoder().decode([Item].self, from: Data(output.utf8))
-        } catch StorageBackendError.notFound { return [] }
+        } catch StorageBackendError.notFound where allowMissing { return [] }
     }
 
     private func backend(in folder: String) throws -> RcloneStorageBackend {
@@ -434,7 +580,7 @@ public struct CloudDriveFolders: Sendable {
         }
     }
 
-    private func target(_ folder: String) throws -> String {
+    private func target(_ folder: String, rootID: String? = nil) throws -> String {
         guard folder.isEmpty || folder.components(separatedBy: "/").allSatisfy(Self.validName) else {
             throw StorageBackendError.invalidKey
         }
@@ -449,10 +595,18 @@ public struct CloudDriveFolders: Sendable {
             return remote + location.path
         }
         guard CloudLibraryPreference.validRemote(remote) else { throw StorageBackendError.invalidConfiguration }
+        if let rootID {
+            guard Self.validID(rootID) else { throw MoveFailure.missingIdentity }
+            return "\(remote),root_folder_id=\(rootID):\(folder)"
+        }
         return "\(remote):\(folder)"
     }
 
     private func checked(_ arguments: [String]) async throws -> String {
+        try await checkedResult(arguments).stdout
+    }
+
+    private func checkedResult(_ arguments: [String]) async throws -> CommandResult {
         let environment = RcloneConfiguration.environment()
         let flags = ["--drive-skip-shortcuts", "--local-links=false", "--copy-links=false",
                      "--retries", "1", "--low-level-retries", "1", "--contimeout", "5s", "--timeout", "10s"]
@@ -466,7 +620,8 @@ public struct CloudDriveFolders: Sendable {
                 throw failure
             }
             guard result.status == 0 else { throw RcloneConfiguration.Failure.test }
-            return result.stdout
+            if result.stderr.contains("search result INCOMPLETE") { throw StorageBackendError.invalidResponse }
+            return result
         } catch is CancellationError {
             throw CancellationError()
         } catch StorageBackendError.notFound {

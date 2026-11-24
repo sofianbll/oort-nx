@@ -59,6 +59,7 @@ struct CloudSetupAssistant: View {
     @State private var moveID: UUID?
     @State private var moveConflicts: [String] = []
     @State private var issue: String?
+    @State private var moveFailure: String?
     @State private var work: (id: UUID, kind: Work, task: Task<Void, Never>)?
     @State private var folderName: String?
     @State private var creation: String?
@@ -147,7 +148,9 @@ struct CloudSetupAssistant: View {
                 let size = movePlan.bytes.formatted(.byteCount(style: .file).locale(localization.formatLocale))
                 SeleneConfirmDialog(title: format(movePlan.games == 1
                     ? "Move %d game (%@) to %@?" : "Move %d games (%@) to %@?", [movePlan.games, size, draft.path]),
-                    message: text("Only app and build cache archives move. Game files stay where they are."), confirmTitle: "Move",
+                    message: text("Only app and build cache archives move. Game files stay where they are.")
+                        + " " + text("Pause uploads on other Macs. Drive cannot lock both folders; uploads during or after the final check may be missed."),
+                    confirmTitle: "Move",
                     focus: Binding(get: { focusedTarget == .confirmMove ? .confirm : .cancel },
                                    set: { focus.select($0 == .confirm ? .confirmMove : .cancel) }),
                     onCancel: cancel, onConfirm: moveGames)
@@ -165,6 +168,10 @@ struct CloudSetupAssistant: View {
                         Text(text(issue)).seleneFont(16).foregroundColor(SeleneTheme.danger)
                             .fixedSize(horizontal: false, vertical: true)
                     }
+                    if let moveFailure {
+                        Text(verbatim: moveFailure).seleneFont(16).foregroundColor(SeleneTheme.danger)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                     if let first = moveConflicts.first {
                         Text(format(moveConflicts.count == 1 ? "%d file has a conflict: %@"
                                     : "%d files have conflicts. First: %@", [moveConflicts.count, first]))
@@ -180,11 +187,11 @@ struct CloudSetupAssistant: View {
                         }
                         pill(.cancel, move != nil ? "Cancel" : draft.step == .verify || folderName != nil
                              || enteredSourcesPath != nil || (selectingSources && entry != .sources) ? "Back" : "Cancel",
-                             enabled: move?.isCancelling != true, action: cancel)
+                             enabled: move?.canCancel != false, action: cancel)
                     }
                 }
                 .modifier(SeleneDialogCard(
-                    cancelHint: move?.isCancelling == true ? nil : HintItem(.b, "Cancel"),
+                    cancelHint: move?.canCancel == false ? nil : HintItem(.b, "Cancel"),
                     confirmHint: focusRows.joined().isEmpty ? nil : HintItem(.a, "Select")))
             }
         }
@@ -198,21 +205,20 @@ struct CloudSetupAssistant: View {
             if let action = note.object as? GamepadAction { handleAssistantInput(action) }
         }
         .onChange(of: focusRows) { _, rows in focus.retainSelection(in: rows) }
-        .onChange(of: model.preference) { _, preference in
-            guard draft.wantsMove, preference.remote == draft.remote, preference.root == draft.path else { return }
-            draft.acceptMove(draft.ticket)
-            guard draft.activation != nil else { return }
-            activated = true
-            onClose()
-        }
         .onChange(of: model.libraryMove?.id) { previous, current in
             guard current == nil, let previous, previous == moveID,
                   let result = viewModel.activityResults.entries.first(where: { $0.id == previous }) else { return }
             switch result.outcome {
-            case .cancelled, .failed:
+            case .cancelled:
                 if model.hasPendingMove { issue = "Move paused. Close this window and choose Retry in Activity." }
                 else if moveConflicts.isEmpty { issue = LibraryMoveActivity.unfinished }
-            case .succeeded: break
+            case .failed(let cause):
+                moveFailure = cause
+            case .succeeded:
+                draft.acceptMove(draft.ticket)
+                guard draft.activation != nil else { return }
+                activated = true
+                onClose()
             }
         }
         .onChange(of: field) { _, target in if let target { focus.select(target) } }
@@ -383,7 +389,7 @@ struct CloudSetupAssistant: View {
             }
             if let move {
                 let status = CloudLibraryStatus.pending
-                SeleneStatusDot(text: text(move.isCancelling ? "Cancelling…" : "Moving games…"),
+                SeleneStatusDot(text: text(move.isVerifying ? "Verifying the move…" : move.isCancelling ? "Cancelling…" : "Moving games…"),
                                 color: status.color, pulses: !move.isCancelling)
                 SeleneProgressBar(progress: move.fraction, color: status.color)
             } else if work != nil { progress("Checking…") }
@@ -606,7 +612,7 @@ struct CloudSetupAssistant: View {
             listing = result
             if checkOld {
                 do {
-                    let plan = try await service.movePlan(from: old)
+                    let plan = try await service.movePlan(from: old, to: path)
                     if !Task.isCancelled && draft.matches(ticket) { movePlan = plan }
                 } catch {
                     if !Task.isCancelled && draft.matches(ticket) { moveUnavailable = true }
@@ -683,7 +689,7 @@ struct CloudSetupAssistant: View {
     private func moveGames() {
         guard confirmingMove, draft.wantsMove, primaryEnabled, let movePlan, let tool,
               replacement == nil else { return }
-        confirmingMove = false; focus.reset(); moveConflicts = []; issue = nil
+        confirmingMove = false; focus.reset(); moveConflicts = []; issue = nil; moveFailure = nil
         moveID = viewModel.startLibraryMove(.init(plan: movePlan, destination: draft.path), executable: tool) {
             moveConflicts = $0
         }
@@ -764,7 +770,7 @@ struct CloudSetupAssistant: View {
         case .verify:
             if work == nil && !draft.verified { rows = [[.retry]] }
         }
-        return rows + [(showsPrimary && primaryEnabled ? [.primary] : []) + (move?.isCancelling == true ? [] : [.cancel])]
+        return rows + [(showsPrimary && primaryEnabled ? [.primary] : []) + (move?.canCancel == false ? [] : [.cancel])]
     }
 
     func perform(_ target: Target) {

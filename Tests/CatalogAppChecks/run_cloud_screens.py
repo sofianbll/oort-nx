@@ -1059,6 +1059,21 @@ extension CloudSetupAssistant {
         view._issue = State(initialValue: "Move paused. Close this window and choose Retry in Activity.")
         return view
     }
+    func screenMoveConflict() -> Self {
+        var view = self
+        view._moveFailure = State(initialValue: CloudDriveFolders.MoveFailure.sourceNotEmpty.localizedDescription)
+        return view
+    }
+    func screenMoveConfirm(_ plan: CloudDriveFolders.MovePlan) -> Self {
+        var view = self
+        var newDraft = CloudSetupAssistantDraft()
+        newDraft.chooseAccount("fixture")
+        newDraft.browse("New Library")
+        view._draft = State(initialValue: newDraft)
+        view._movePlan = State(initialValue: plan)
+        view._confirmingMove = State(initialValue: true)
+        return view
+    }
 }
 ''')
             with activity.open("a") as swift:
@@ -1071,7 +1086,7 @@ extension ActivityCenterView {
 ''')
             host = host.replace("// MOVE_RECOVERY", '''
         let archiveKey = "0100000000001000/app/" + String(repeating: "a", count: 64) + ".aar"
-        let moveData = Data(#"{"source":"Games","remote":"fixture","games":1,"bytes":1,"entries":[{"file":{"key":{"value":"\#(archiveKey)"},"size":1,"hashes":{"md5":"c4ca4238a0b923820dcc509a6f75849b"}},"dependencies":[]}]}"#.utf8)
+        let moveData = Data(#"{"source":"Games","remote":"fixture","games":1,"bytes":1,"binding":{"account":"accountA","sourceID":"gamesID","destinationID":"newID","destination":"New Library"},"entries":[{"file":{"key":{"value":"\#(archiveKey)"},"size":1,"hashes":{"md5":"c4ca4238a0b923820dcc509a6f75849b"}},"dependencies":[]}]}"#.utf8)
         let movePlan = try JSONDecoder().decode(CloudDriveFolders.MovePlan.self, from: moveData)
         let pending = LibraryMoveJournal.Pending(id: UUID(), request: .init(plan: movePlan, destination: "New Library"),
                                                  sourcesRoot: "Games/GameFiles")
@@ -1091,10 +1106,12 @@ extension ActivityCenterView {
                                ("fr", AppLocale(language: .french, region: "FR"))] {
             L10n.setContext(locale)
             vm.recordActivity(pending.id, job: .move(pending.request), name: pending.request.destination,
-                              outcome: .failed(L10n.text(LibraryMoveActivity.unfinished)))
+                              outcome: .failed(CloudDriveFolders.MoveFailure.accountChanged.localizedDescription))
             try render("activity-move-retry-" + name, output, activity.environment(\\.nxAppLocale, locale))
             let paused = CloudSetupAssistant(viewModel: vm, model: model, entry: .library, onClose: {})
             try render("assistant-move-paused-" + name, output, paused.screenPausedMove().environment(\\.nxAppLocale, locale))
+            try render("assistant-move-conflict-" + name, output, paused.screenMoveConflict().environment(\\.nxAppLocale, locale))
+            try render("assistant-move-confirm-" + name, output, paused.screenMoveConfirm(movePlan).environment(\\.nxAppLocale, locale))
         }
 ''')
             (app / "CloudScreenProbe.swift").write_text(host)

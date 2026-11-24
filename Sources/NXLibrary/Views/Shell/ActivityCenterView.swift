@@ -145,7 +145,7 @@ struct ActivityCenterView: View {
                         } else { false }
                         let color = cloud ? (indicator?.status ?? .pending).color
                             : (job.active ? SeleneTheme.ink : SeleneTheme.ink60)
-                        let moving: Bool = if case .move = row { cloudLibrary.libraryMove?.isCancelling == false } else { false }
+                        let moving: Bool = if case .move = row { cloudLibrary.libraryMove?.canCancel == true } else { false }
                         ActivityRow(title: job.title, detail: job.detail, fraction: job.fraction,
                                     indeterminate: indicator?.state.transfer()?.gauge(hasCover: false, hasDownloadPill: false) == .bar || moving,
                                     pulses: moving,
@@ -201,7 +201,7 @@ struct ActivityCenterView: View {
         case .move:
             guard let move = cloudLibrary.libraryMove else { return (text("Move library"), nil, nil, true) }
             return (title(.move(move.request), name: move.request.destination),
-                    detail(text(move.isCancelling ? "Cancelling…" : "Moving games…"), move.fraction, nil),
+                    detail(text(move.isVerifying ? "Verifying the move…" : move.isCancelling ? "Cancelling…" : "Moving games…"), move.fraction, nil),
                     move.fraction, true)
         case .result, .clearAll, .close: return ("", nil, nil, false)
         }
@@ -215,7 +215,7 @@ struct ActivityCenterView: View {
     private func canCancel(_ row: ActivityCenterFocus.Row) -> Bool {
         switch row {
         case .build: return viewModel.isBuilding && row.canCancel(isCancellingBuild: porting.isCancellingBuild)
-        case .move: return cloudLibrary.libraryMove?.isCancelling == false
+        case .move: return cloudLibrary.libraryMove?.canCancel == true
         case .cloud, .queuedCloud: return transferIndicator(row)?.state.transfer()?.canCancel == true
         default: return row.canCancel(isCancellingBuild: porting.isCancellingBuild)
         }
