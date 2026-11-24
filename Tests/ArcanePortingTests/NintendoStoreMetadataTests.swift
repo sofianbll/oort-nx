@@ -237,4 +237,40 @@ final class NintendoStoreMetadataTests: XCTestCase {
         } catch let error as NintendoStoreError { XCTAssertEqual(error, .notFound) }
         XCTAssertEqual(offline.requests.count, 3)
     }
+
+    func testLaunchBoxKeepsADeveloperAndLongTextWithoutReplacingTheLocalizedExcerpt() async throws {
+        let directory = cache()
+        let id = Self.pokopia
+        let overview = "Create a peaceful town and meet new friends as you explore a countryside full of surprises."
+        let graph: [Any] = ["Nintendo Switch 2", ["name": 0], "Fixture 17", 10, overview,
+                            "Studio", ["name": 5], [6],
+                            ["platform": 1, "name": 2, "gameKey": 3, "overview": 4, "gameDevelopers": 7]]
+        let json = String(decoding: try JSONSerialization.data(withJSONObject: graph), as: UTF8.self)
+        let launchBox = DatabaseMetadataService(database: .launchBox, directory: directory, transport: { request in
+            let url = request.url!
+            let html = if url.path.contains("/results/") {
+                "<a href=\"/games/details/10-fixture\"><h3>Fixture 17</h3><p>Nintendo Switch 2</p></a>"
+            } else {
+                "<script id=\"__NUXT_DATA__\">\(json)</script>"
+            }
+            return (Data(html.utf8), HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!)
+        })
+        let client = Client { request in
+            guard request.url?.host == "searching.nintendo-europe.com" else { return (404, Data()) }
+            var doc = Self.doc(id, region: "fr-fr")
+            doc["product_catalog_description_s"] = "Construisez votre village avec vos amis dans ce jeu."
+            return (200, Self.catalog([doc]))
+        }
+        let service = NintendoStoreMetadataService(client: client, cacheDirectory: directory, launchBox: launchBox)
+        let title = PortedGame(name: "Fixture 17", url: URL(fileURLWithPath: "/no-game/Fixture.app"),
+                               platform: .macApp, sizeBytes: 0, modificationDate: .now, titleId: id)
+        let result = try await service.metadata(for: title, locale: fr)
+        XCTAssertEqual(result.excerpt, "Construisez votre village avec vos amis dans ce jeu.")
+        XCTAssertEqual(result.description, overview)
+        XCTAssertEqual(result.descriptionLanguage, "en")
+        XCTAssertEqual(result.origin(for: .description), .launchBox)
+        XCTAssertEqual(result.developers, ["Studio"])
+        XCTAssertEqual(result.origin(for: .developer), .launchBox)
+        XCTAssertEqual(result.publishers, ["European Publisher"])
+    }
 }

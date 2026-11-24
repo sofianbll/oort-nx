@@ -20,7 +20,8 @@ final class StoreMetadataModel: ObservableObject {
     @Published var storeMetadata: [UUID: NintendoStoreMetadata] = [:]
     @Published var storeMetadataLoading: Set<UUID> = []
     @Published var storeMetadataErrors: [UUID: String] = [:]
-    private lazy var storeMetadataService = NintendoStoreMetadataService()
+    private lazy var storeMetadataService = NintendoStoreMetadataService(
+        launchBox: DatabaseMetadataService.shared(.launchBox), gameTDB: app.boxArt)
     private var metadataLocaleGeneration = UUID()
     private var localizedMetadataRefresh: Task<Void, Never>?
     private var cachedMetadataPreload: Task<Void, Never>?

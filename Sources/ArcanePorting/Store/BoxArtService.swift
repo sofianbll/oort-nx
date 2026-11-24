@@ -65,6 +65,12 @@ public actor BoxArtService {
         return Array(picked.prefix(Self.pickerLimit))
     }
 
+    /// Reuses the artwork index without downloading it or proposing a similarly named game.
+    public func exactMetadata(names: [String]) -> GameTDBEntry? {
+        guard let entries = loadEntries() else { return nil }
+        return names.lazy.compactMap { GameTDB.exactMatch(for: $0, in: entries) }.first
+    }
+
     /// Downloads GameTDB's database when the local index is missing or 30 days old;
     /// true when a new index is in place.
     @discardableResult

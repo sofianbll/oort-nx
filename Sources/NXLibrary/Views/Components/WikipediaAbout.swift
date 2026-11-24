@@ -1,3 +1,4 @@
+import ArcanePorting
 import SwiftUI
 import NXLibraryCore
 
@@ -12,7 +13,9 @@ struct WikipediaAboutLookup: Hashable {
     /// the app language has not arrived yet (`descriptionSettled`).
     init?(presentation: GameDetailPresentation, query: CriticRatingQuery?, language: AppLanguage = L10n.context.language) {
         guard let query, presentation.descriptionSettled, presentation.descriptionLanguage != "custom",
-              presentation.descriptionIsExcerpt || WikipediaDescriptions.wanted(description: presentation.description,
+              presentation.descriptionIsExcerpt || presentation.descriptionSource == NintendoMetadataOrigin.launchBox.rawValue
+                || presentation.descriptionSource == NintendoMetadataOrigin.gameTDB.rawValue
+                || WikipediaDescriptions.wanted(description: presentation.description,
                 descriptionLanguage: presentation.descriptionLanguage, language: language) else { return nil }
         self.query = query
         self.language = language

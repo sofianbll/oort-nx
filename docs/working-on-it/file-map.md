@@ -626,7 +626,7 @@ Cartella `Sources/ArcanePorting/Store/`.
 | [Sources/ArcanePorting/Store/MetadataPicks+Porting.swift](../../Sources/ArcanePorting/Store/MetadataPicks+Porting.swift) | Le scelte del giocatore applicate ai metadati dello store Nintendo. |
 | [Sources/ArcanePorting/Store/CriticRatingQuery+Porting.swift](../../Sources/ArcanePorting/Store/CriticRatingQuery+Porting.swift) | La ricerca dei voti per un gioco portato, con la console di Details (Switch o Switch 2). |
 | [Sources/ArcanePorting/Store/NintendoEuropeCatalog.swift](../../Sources/ArcanePorting/Store/NintendoEuropeCatalog.swift) | Decodifica il catalogo Nintendo Europe e seleziona il prodotto base per ID e console. |
-| [Sources/ArcanePorting/Store/NintendoStoreMetadata.swift](../../Sources/ArcanePorting/Store/NintendoStoreMetadata.swift) | Combina Nintendo Europe e Title DB per campo e lingua, con cache leggibili offline e fonti attribuite. |
+| [Sources/ArcanePorting/Store/NintendoStoreMetadata.swift](../../Sources/ArcanePorting/Store/NintendoStoreMetadata.swift) | Combina Nintendo Europe e Title DB per campo e lingua, con ripiego LaunchBox e indice locale GameTDB, cache leggibili offline e fonti attribuite. |
 | [Sources/ArcanePorting/Store/ScreenshotFallback.swift](../../Sources/ArcanePorting/Store/ScreenshotFallback.swift) | Conserva per 30 giorni gli screenshot LaunchBox dei giochi senza screenshot Title DB e li sovrappone ai metadati. |
 
 ## Porting · salvataggi, backup e cloud

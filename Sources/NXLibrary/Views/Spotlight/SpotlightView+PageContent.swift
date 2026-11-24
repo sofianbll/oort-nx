@@ -94,7 +94,7 @@ extension SpotlightView {
             let wikipedia = aboutWikipedia(page)
             let short = !aboutExpanded && page.presentation.descriptionExcerpt != nil
             let source = short ? "Nintendo Europe" : page.presentation.descriptionSource
-            let note = [source.map { L10n.text($0) }, page.presentation.descriptionLanguageNote]
+            let note = [source.map { L10n.text($0) }, short ? nil : page.presentation.descriptionLanguageNote]
                 .compactMap { $0 }.joined(separator: " · ")
             SpotlightDescription(text: wikipedia?.text ?? page.presentation.description,
                                  languageNote: note.isEmpty ? nil : note,

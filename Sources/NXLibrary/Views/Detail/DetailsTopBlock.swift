@@ -290,7 +290,8 @@ struct DetailsTopBlock: View {
                         WikipediaCredit(pageURL: wiki.pageURL)
                     } else {
                         let source = !expanded && excerpt != nil ? "Nintendo Europe" : presentation.descriptionSource
-                        let note = [source.map { L10n.text($0) }, presentation.descriptionLanguageNote]
+                        let language = !expanded && excerpt != nil ? nil : presentation.descriptionLanguageNote
+                        let note = [source.map { L10n.text($0) }, language]
                             .compactMap { $0 }.joined(separator: " · ")
                         if !note.isEmpty {
                             Text(note).seleneFont(.metadata).foregroundColor(SeleneTheme.ink60)

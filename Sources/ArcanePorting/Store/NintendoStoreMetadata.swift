@@ -5,6 +5,8 @@ public enum NintendoMetadataOrigin: String, Codable {
     case europe = "Nintendo Europe"
     case titleDB = "Title DB"
     case europeAndTitleDB = "Nintendo Europe + Title DB"
+    case launchBox = "LaunchBox"
+    case gameTDB = "GameTDB"
     case legacy = "Nintendo store"
     case player = "Your choice"
 }
@@ -181,6 +183,8 @@ public final class NintendoStoreMetadataService: @unchecked Sendable {
     private let client: NintendoStoreHTTPClient
     private let cacheDirectory: URL
     private let fileManager: FileManager
+    private let launchBox: DatabaseMetadataService?
+    private let gameTDB: BoxArtService?
     private let refreshLock = NSLock()
     private var descriptionRetryAfter: [String: Date] = [:]
 
@@ -197,11 +201,15 @@ public final class NintendoStoreMetadataService: @unchecked Sendable {
     public init(
         client: NintendoStoreHTTPClient = URLSessionNintendoStoreClient(),
         cacheDirectory: URL = AppData.supportRoot.appendingPathComponent("metadata"),
-        fileManager: FileManager = .default
+        fileManager: FileManager = .default,
+        launchBox: DatabaseMetadataService? = nil,
+        gameTDB: BoxArtService? = nil
     ) {
         self.client = client
         self.cacheDirectory = cacheDirectory
         self.fileManager = fileManager
+        self.launchBox = launchBox
+        self.gameTDB = gameTDB
     }
 
     public func cached(for titleId: String, locale: AppLocale = AppLocale(language: .english, region: "US")) -> NintendoStoreMetadata? {
@@ -307,7 +315,7 @@ public final class NintendoStoreMetadataService: @unchecked Sendable {
             entry.descriptionLanguage == language && entry.descriptionIsExcerpt != true
                 ? Self.localizedLongText(entry.description, language: locale.language) : nil
         }
-        let shouldGetEnglishNlib = language != "en" && localLong == nil && savedLong == nil && localizedExcerpt == nil
+        let shouldGetEnglishNlib = language != "en" && localLong == nil && savedLong == nil
         let englishNlib = shouldGetEnglishNlib ? await fetchTitleDBLookup(titleId: key, language: "en") : .missing
         try Task.checkCancellation()
         let nlibItem = localNlib.item ?? englishNlib.item
@@ -375,12 +383,51 @@ public final class NintendoStoreMetadataService: @unchecked Sendable {
         let englishLong = Self.localizedLongText(englishNlib.item?.description, language: .english)
         let englishExcerpt = Self.sourceText(english?.product_catalog_description_s)
         let savedEnglish = saved.flatMap { $0.descriptionLanguage == "en" ? Self.sourceText($0.description) : nil }
+        let names = [game.name, english?.title, local?.title, nlibItem?.name].compactMap { $0 }
+        let needsLong = localLong == nil && savedLong == nil && englishLong == nil
+        let database = if metadata.developers.isEmpty || metadata.publishers.isEmpty || metadata.genres.isEmpty
+            || metadata.releaseDate == nil || needsLong {
+            await launchBoxMetadata(for: game, names: names)
+        } else { nil as DatabaseMetadataPreview? }
+        let gameTDBEntry = game.isSwitch2 ? nil : await gameTDB?.exactMetadata(names: names)
+        try Task.checkCancellation()
+
+        if metadata.developers.isEmpty {
+            fill(.developer, database?.values[.developer], gameTDBEntry?.developer) { metadata.developers = [$0] }
+        }
+        if metadata.publishers.isEmpty {
+            fill(.publisher, database?.values[.publisher], gameTDBEntry?.publisher) { metadata.publishers = [$0] }
+        }
+        if metadata.releaseDate == nil {
+            fill(.releaseDate, database?.values[.releaseDate], gameTDBEntry?.releaseDate) { metadata.releaseDate = $0 }
+        }
+        if metadata.genres.isEmpty {
+            fill(.genres, database?.values[.genres], gameTDBEntry?.genres.nonEmpty?.joined(separator: ", ")) {
+                metadata.genres = $0.components(separatedBy: ", ")
+            }
+        }
+        // Keep verified GameTDB tags and older saved tags that the new catalogue does not carry.
+        var available = Set(metadata.genres.map { GameGenre.title($0, context: locale).lowercased() })
+        for genre in (gameTDBEntry?.genres ?? []) + (saved?.genres ?? [])
+            where available.insert(GameGenre.title(genre, context: locale).lowercased()).inserted {
+            metadata.genres.append(genre)
+        }
+
+        func fill(_ field: MetadataField, _ launchBox: String?, _ gameTDB: String?, apply: (String) -> Void) {
+            if let launchBox { metadata.origins?[field.rawValue] = .launchBox; apply(launchBox) }
+            else if let gameTDB { metadata.origins?[field.rawValue] = .gameTDB; apply(gameTDB) }
+        }
+
+        let launchBoxLong = Self.localizedLongText(database?.values[.description], language: .english)
+        let gameTDBLong = Self.localizedLongText(gameTDBEntry?.synopsis, language: .english)
         let descriptions: [(String?, String, NintendoMetadataOrigin, Bool)] = [
             (localLong, language, .titleDB, false),
             (savedLong, language, saved?.origin(for: .description) ?? .legacy, false),
-            (localizedExcerpt, language, .europe, true),
             (englishLong, "en", .titleDB, false),
-            (savedEnglish, "en", saved?.origin(for: .description) ?? .legacy, saved?.descriptionIsExcerpt == true),
+            (saved?.descriptionIsExcerpt == true ? nil : savedEnglish, "en", saved?.origin(for: .description) ?? .legacy, false),
+            (launchBoxLong, "en", .launchBox, false),
+            (gameTDBLong, "en", .gameTDB, false),
+            (localizedExcerpt, language, .europe, true),
             (englishExcerpt, "en", .europe, true)
         ]
         if let (text, language, source, short) = descriptions.first(where: { $0.0 != nil }) {
@@ -398,6 +445,17 @@ public final class NintendoStoreMetadataService: @unchecked Sendable {
             try? cache(metadata, for: key, locale: locale)
         }
         return metadata
+    }
+
+    private func launchBoxMetadata(for game: PortedGame, names: [String]) async -> DatabaseMetadataPreview? {
+        guard let launchBox else { return nil }
+        var seen = Set<String>()
+        for name in names where seen.insert(GameTDB.normalize(name)).inserted {
+            let result = await launchBox.load(CriticRatingQuery(game: game, name: name))
+            if let preview = result.preview { return preview }
+            if result.issue == .unavailable || Task.isCancelled { break }
+        }
+        return nil
     }
 
     private enum Lookup<Item> {
