@@ -267,8 +267,16 @@ struct SettingsCloudLibrarySection: View {
     }
 
     private func setEnabled(_ enabled: Bool) {
-        guard editable else { return }
-        model.configure(remote: selection.remote, root: selection.root, enabled: enabled, sourcesRoot: selection.sourcesRootOverride)
+        let before = selection
+        guard editable, before.remote != nil, enabled != before.enabled else { return }
+        viewModel.confirmSetting(text("Cloud library"),
+            message: text(enabled
+                ? "Oort NX will use the configured cloud library again without moving your files."
+                : "Oort NX will stop using the cloud library without moving your files."),
+            action: enabled ? "Turn on" : "Turn off") {
+            guard editable, selection == before else { return }
+            model.configure(remote: before.remote, root: before.root, enabled: enabled, sourcesRoot: before.sourcesRootOverride)
+        }
     }
 
     private func importGames() {
@@ -276,7 +284,15 @@ struct SettingsCloudLibrarySection: View {
         viewModel.importCloudGames(manually: true)
     }
 
-    private func unfollow() { viewModel.followCloudReference(nil) }
+    private func unfollow() {
+        guard editable, let reference = selection.referenceFolder else { return }
+        viewModel.confirmSetting(text("Reference library"),
+            message: text("Games available only from this reference will leave your library, but no files will be deleted."),
+            action: "Unfollow") {
+            guard editable, selection.referenceFolder == reference else { return }
+            viewModel.followCloudReference(nil)
+        }
+    }
 
     private func recover() {
         guard canRecover, let failure = recoveryFailure else { return }
@@ -352,9 +368,9 @@ struct SettingsCloudLibrarySection: View {
 
     private func confirmDisconnect() {
         guard canTest, let tool, let name = connected?.name else { return }
-        viewModel.showSettingsNotice(title: text("Disconnect cloud service?"),
+        viewModel.confirmSetting(text("Disconnect cloud service?"),
             message: "\(name)\n\n\(text("Removes only the local connection. Cloud files stay where they are."))",
-            actionTitle: "Disconnect", cancelTitle: "Cancel") {
+            action: "Disconnect") {
                 guard canTest, model.preference.remote == name else { return }
                 model.isChangingConnection = true
                 Task { @MainActor in

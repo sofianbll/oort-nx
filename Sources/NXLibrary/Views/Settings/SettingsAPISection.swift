@@ -253,23 +253,47 @@ struct SettingsAPISection: View {
     }
 
     private func stepVPN(_ step: Int) {
-        var value = settings.settings
-        value.multiplayerVPN = vpn.stepped(step)
-        value.multiplayerAdapter = nil
-        settings.settings = value
+        let before = vpn
+        let next = before.stepped(step)
+        guard next != before else { return }
+        viewModel.confirmSetting(text("Private network (VPN)"),
+            message: L10n.format("Local play will use the VPN setting “%@” and reset the adapter to Automatic without changing macOS network settings.",
+                                 [text(next.label)], context: localization), action: "Save") {
+            guard vpn == before else { return }
+            var value = settings.settings
+            value.multiplayerVPN = next
+            value.multiplayerAdapter = nil
+            settings.settings = value
+        }
     }
 
     private func stepDefault(_ step: Int) {
-        settings.settings.multiplayerDefault = settings.settings.multiplayerDefault.stepped(step)
+        let next = settings.settings.multiplayerDefault.stepped(step)
+        confirmNetworkValue("Default for games", \.multiplayerDefault, next, label: text(next.label),
+            message: "The default will change to “%@” for future launches, but each game’s own choice will stay in place.")
     }
 
     private func stepLocalMode(_ step: Int) {
-        settings.settings.multiplayerLocalMode = settings.settings.multiplayerLocalMode.stepped(step)
+        let next = settings.settings.multiplayerLocalMode.stepped(step)
+        confirmNetworkValue("Local network mode", \.multiplayerLocalMode, next, label: text(next.label),
+            message: "Future local games will prefer “%@” without changing macOS network settings.")
     }
 
     private func stepAdapter(_ step: Int) {
         let values: [String?] = [nil] + remotePlayAdapters.interfaceNames.map(Optional.some)
-        settings.settings.multiplayerAdapter = values.stepped(from: settings.settings.multiplayerAdapter, step) ?? nil
+        let next = values.stepped(from: settings.settings.multiplayerAdapter, step) ?? nil
+        confirmNetworkValue("Network adapter", \.multiplayerAdapter, next, label: next ?? text("Automatic"),
+            message: "Future local games will use the adapter setting “%@” without changing macOS network settings.")
+    }
+
+    private func confirmNetworkValue<Value: Equatable>(_ title: String, _ key: WritableKeyPath<AppSettings, Value>,
+                                                       _ next: Value, label: String, message: String) {
+        let before = settings.settings[keyPath: key]
+        guard next != before else { return }
+        viewModel.confirmSetting(text(title), message: L10n.format(message, [label], context: localization), action: "Save") {
+            guard settings.settings[keyPath: key] == before else { return }
+            settings.settings[keyPath: key] = next
+        }
     }
 
     @ViewBuilder private var nextendoRows: some View {

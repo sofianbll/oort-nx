@@ -33,13 +33,15 @@ extension AppShellView {
     // MARK: - Retry a ready build
 
     func settingsNoticeOverlay(_ notice: SettingsNotice) -> some View {
-        SeleneOverlay(style: .dialog, onOutside: { finishSettingsNotice() }) {
+        SeleneOverlay(style: .dialog, onOutside: {
+            if viewModel.settingsNotice?.id == notice.id { finishSettingsNotice() }
+        }) {
             SeleneChoiceDialog(title: notice.title, message: notice.message,
                                choices: notice.choices,
                                focus: $viewModel.settingsNoticeFocus,
                                cancelIndex: notice.choices.count > 1 ? notice.cancelIndex : nil, details: notice.choiceDetails,
-                               onCancel: { finishSettingsNotice() },
-                               onChoose: { finishSettingsNotice(choice: $0) })
+                               onCancel: { if viewModel.settingsNotice?.id == notice.id { finishSettingsNotice() } },
+                               onChoose: { if viewModel.settingsNotice?.id == notice.id { finishSettingsNotice(choice: $0) } })
         }
     }
 
