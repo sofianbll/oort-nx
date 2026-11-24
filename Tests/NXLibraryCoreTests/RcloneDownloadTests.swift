@@ -26,7 +26,11 @@ final class RcloneDownloadTests: XCTestCase {
 
     private struct Fixture {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("rclone-test-\(UUID())", isDirectory: true)
-        var installer: RcloneDownload { .init(supportRoot: root.appendingPathComponent("Support", isDirectory: true)) }
+        var installer: RcloneDownload {
+            let bytes = try! Data(contentsOf: URL(fileURLWithPath: "/usr/bin/true"))
+            return .init(supportRoot: root.appendingPathComponent("Support", isDirectory: true),
+                         expectedSHA256: SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined())
+        }
         var transport: URLSessionConfiguration {
             let configuration = URLSessionConfiguration.ephemeral
             configuration.protocolClasses = [FixtureTransport.self]
@@ -195,5 +199,81 @@ final class RcloneDownloadTests: XCTestCase {
         try files.setAttributes([.posixPermissions: 0o700], ofItemAtPath: candidate.path)
         try Data().write(to: fixture.installer.directory.appendingPathComponent("oort-install"))
         XCTAssertNil(fixture.installer.installedExecutable)
+    }
+
+    func testManagedReceiptCannotAuthorizeADifferentSignedExecutable() throws {
+        let fixture = Fixture()
+        defer { fixture.clean() }
+        let tool = fixture.installer
+        let files = FileManager.default
+        try files.createDirectory(at: tool.directory, withIntermediateDirectories: true)
+        let candidate = tool.directory.appendingPathComponent("rclone")
+        try files.copyItem(at: URL(fileURLWithPath: "/usr/bin/true"), to: candidate)
+        try Data().write(to: tool.directory.appendingPathComponent("oort-install"))
+        XCTAssertEqual(tool.installedExecutable, candidate)
+        let launch = try tool.launchable()
+        try files.removeItem(at: candidate)
+        try files.copyItem(at: URL(fileURLWithPath: "/usr/bin/false"), to: candidate)
+        XCTAssertNil(tool.installedExecutable, "A different signed file passed the managed resolver")
+        XCTAssertThrowsError(try tool.launchable())
+        XCTAssertEqual(try Data(contentsOf: launch.url), try Data(contentsOf: URL(fileURLWithPath: "/usr/bin/true")))
+        XCTAssertEqual(try RcloneDownload.launchable(URL(fileURLWithPath: "/usr/bin/false")).url.path, "/usr/bin/false")
+    }
+
+    func testConcurrentInstallersBothReturnTheVerifiedCopy() async throws {
+        actor Rendezvous {
+            var first: CheckedContinuation<Void, Never>?
+            func meet() async {
+                if let first { first.resume() }
+                else { await withCheckedContinuation { first = $0 } }
+            }
+        }
+        let fixture = Fixture()
+        defer { fixture.clean() }
+        let files = FileManager.default
+        try files.createDirectory(at: fixture.root, withIntermediateDirectories: false)
+        let member = fixture.root.appendingPathComponent("fixture")
+        try files.copyItem(at: URL(fileURLWithPath: "/usr/bin/true"), to: member)
+        let archive = fixture.root.appendingPathComponent("fixture.zip")
+        let zip = try SystemCommandRunner().run(URL(fileURLWithPath: "/usr/bin/zip"),
+            ["-qj", archive.path, member.path], environment: [:], currentDirectory: nil)
+        XCTAssertEqual(zip.status, 0)
+        let release = fixture.release(try Data(contentsOf: archive), executableBytes: try Data(contentsOf: member).count)
+        defer { fixture.dispose(release) }
+        let tool = fixture.installer
+        try files.createDirectory(at: tool.directory.deletingLastPathComponent(), withIntermediateDirectories: true)
+        let ready = Rendezvous()
+        async let first = tool.install(release, transport: fixture.transport) { _ in await ready.meet() }
+        async let second = tool.install(release, transport: fixture.transport) { _ in await ready.meet() }
+        let results = try await [first, second]
+        XCTAssertEqual(results, [tool.installedExecutable, tool.installedExecutable])
+    }
+
+    func testNextDownloadReapsOnlyAbandonedPrivateStaging() async throws {
+        let fixture = Fixture()
+        defer { fixture.clean() }
+        let files = FileManager.default
+        let tool = fixture.installer
+        let parent = tool.directory.deletingLastPathComponent()
+        try files.createDirectory(at: parent, withIntermediateDirectories: true)
+        let stale = parent.appendingPathComponent(".download-\(UUID())", isDirectory: true)
+        let live = parent.appendingPathComponent(".download-\(UUID())", isDirectory: true)
+        let foreign = parent.appendingPathComponent(".download-keep", isDirectory: true)
+        for stage in [stale, live, foreign] {
+            try files.createDirectory(at: stage, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+            try Data([42]).write(to: stage.appendingPathComponent("download.zip"))
+        }
+        let fd = open(live.path, O_RDONLY | O_DIRECTORY | O_CLOEXEC)
+        XCTAssertGreaterThanOrEqual(fd, 0)
+        defer { close(fd) }
+        XCTAssertEqual(flock(fd, LOCK_EX | LOCK_NB), 0)
+        let release = fixture.release(nil)
+        do {
+            _ = try await tool.install(release, transport: fixture.transport, available: { _ in 0 })
+            XCTFail("Installed without space")
+        } catch { XCTAssertEqual(error as? RcloneDownload.Failure, .space) }
+        XCTAssertFalse(files.fileExists(atPath: stale.path))
+        XCTAssertTrue(files.fileExists(atPath: live.path))
+        XCTAssertTrue(files.fileExists(atPath: foreign.path))
     }
 }

@@ -19,7 +19,7 @@ public struct CloudSourcesStatus: Equatable, Sendable {
 
 public final class CloudGameSources: @unchecked Sendable {
     public typealias Progress = @Sendable (StorageProgress) -> Void
-    package typealias VerifySources = @Sendable (URL, [GameFileItem]) throws -> Bool
+    package typealias VerifySources = @Sendable (URL, [GameFileItem]) async throws -> Bool
     package struct DiscoveredGame: Equatable, Sendable {
         package let titleID: String
         package let name: String
@@ -529,7 +529,7 @@ public final class CloudGameSources: @unchecked Sendable {
                     guard let before = try stamp(at: candidate), before.inode == snapshot.inode,
                           before.mtimeSeconds == snapshot.mtimeSeconds, before.mtimeNanos == snapshot.mtimeNanos,
                           before.bytes == snapshot.bytes else { throw CloudArchiveError.localChanged }
-                    guard try verifySources?(inspectable, sources) == true else { throw CloudArchiveError.invalidArchive }
+                    guard try await verifySources?(inspectable, sources) == true else { throw CloudArchiveError.invalidArchive }
                     guard try stamp(at: candidate) == before else { throw CloudArchiveError.localChanged }
                 }
             }
@@ -549,7 +549,8 @@ public final class CloudGameSources: @unchecked Sendable {
         try Task.checkCancellation()
     }
 
-    public func free(folderName: String, files: [URL], confirmed: Bool) async throws -> Int64 {
+    public func free(folderName: String, files: [URL], confirmed: Bool,
+                     beforeMutation: @Sendable () throws -> Void = {}) async throws -> Int64 {
         guard !backend.isReference else { throw StorageBackendError.invalidConfiguration }
         guard confirmed else { throw CloudArchiveError.confirmationRequired }
         let selection = try Selection(folderName, files)
@@ -572,6 +573,7 @@ public final class CloudGameSources: @unchecked Sendable {
             guard item?.md5 == md5, item?.size == snapshot.bytes else { throw CloudArchiveError.sourcesConflict }
             guard try stamp(at: source) == snapshot else { throw CloudArchiveError.localChanged }
             try Task.checkCancellation()
+            try beforeMutation()
             try trash(source)
         }
         try Task.checkCancellation()

@@ -26,6 +26,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// A release copy still called "NX Library.app" takes its current name on its way out
     /// (`AppBundleRename`); a failure is logged and never holds up quitting.
     func applicationWillTerminate(_ notification: Notification) {
+        SystemCommandRunner.stopCloudProcesses()
         Self.settingsStore?.flushPendingSelection()
         let bundle = Bundle.main.bundleURL
         guard let target = AppBundleRename.target(

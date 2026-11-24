@@ -23,6 +23,10 @@ extension AppViewModel {
         hasLoadedActivity = true
         if hasNewResults { persistActivity() }
         porting.restoreBuildQueue(builds)
+        if let pending = cloudLibrary.pendingMove, let approvedTool = pending.toolIdentity,
+           cloudLibrary.resolvedDriveTool.flatMap(RcloneDownload.identity(of:)) == approvedTool {
+            startLibraryMove(pending.request, id: pending.id, verifyOnly: true)
+        }
     }
 
     func recordActivity(_ id: UUID, job: ActivityHistory.Job, name: String?, outcome: ActivityHistory.Outcome) {

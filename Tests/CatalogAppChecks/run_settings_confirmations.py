@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Exercise Settings and render its Selene dialogs in an isolated launcher process."""
+import hashlib
 import os
 import re
 import shutil
@@ -35,6 +36,12 @@ def prepare(package):
             f'public static let profile = AppDataProfile(home: URL(fileURLWithPath: "{home}"), isDevelopment: true)')
     replace(profile, r'public static var preferences: UserDefaults \{ [^\n]+ \}',
             'public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("probe-prefs").path)!')
+    # This copied package approves the signed fixture bytes, never the user's managed rclone.
+    fixture_tool = Path("/usr/bin/true").read_bytes()
+    download = core / "Library/RcloneDownload.swift"
+    replace(download, r'(private static let executableSHA256 = )"[0-9a-f]{64}"',
+            lambda match: match[1] + f'"{hashlib.sha256(fixture_tool).hexdigest()}"')
+    replace(download, r'(executableBytes: )88_766_114\)', lambda match: match[1] + f"{len(fixture_tool)})")
     replace(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
     model = app / "ViewModels/AppViewModel.swift"
     replace(model, r'SteamGridDBKey\(\)\.load\(\) != nil', "false")

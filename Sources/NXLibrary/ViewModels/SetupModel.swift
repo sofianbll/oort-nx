@@ -324,7 +324,7 @@ final class SetupModel: ObservableObject {
     func resolvedDeveloperDir() -> URL { Self.resolveDeveloperDir() }
 
     /// Reads no state of the view model, so it can run off the main thread (it runs `xcode-select`).
-    static func resolveDeveloperDir() -> URL {
+    static func resolveDeveloperDir(runner: CommandRunning = SystemCommandRunner()) -> URL {
         let fm = FileManager.default
         // An explicit DEVELOPER_DIR always wins.
         if let env = ProcessInfo.processInfo.environment["DEVELOPER_DIR"],
@@ -332,7 +332,7 @@ final class SetupModel: ObservableObject {
             return URL(fileURLWithPath: env)
         }
         // Respect xcode-select when it points at a full Xcode, not the CLT.
-        if let selected = try? SystemCommandRunner().run(
+        if let selected = try? runner.run(
             URL(fileURLWithPath: "/usr/bin/xcode-select"), ["-p"],
             environment: nil, currentDirectory: nil
         ), selected.status == 0 {

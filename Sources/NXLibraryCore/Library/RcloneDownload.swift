@@ -7,6 +7,8 @@ import Security
 public struct RcloneDownload: Sendable {
     public static let version = "1.75.2"
     public static let host = "downloads.rclone.org"
+    // SHA-256 of the executable member of the already pinned release ZIP.
+    private static let executableSHA256 = "af0257730173748dc9706ad3c83288bf3a0c5d5e9768fef20235e375e9d835e1"
 
     struct Release: Sendable {
         let url: URL
@@ -37,12 +39,19 @@ public struct RcloneDownload: Sendable {
     }
 
     let directory: URL
+    private let expectedSHA256: String
     private var executable: URL { directory.appendingPathComponent("rclone") }
     private static let receipt = "oort-install"
+    private static let verification = Verification()
 
     public init(supportRoot: URL) {
+        self.init(supportRoot: supportRoot, expectedSHA256: Self.executableSHA256)
+    }
+
+    init(supportRoot: URL, expectedSHA256: String) {
         directory = supportRoot.appendingPathComponent("DriveTools", isDirectory: true)
             .appendingPathComponent("rclone-\(Self.version)", isDirectory: true)
+        self.expectedSHA256 = expectedSHA256
     }
 
     private var parent: URL { directory.deletingLastPathComponent() }
@@ -53,9 +62,113 @@ public struct RcloneDownload: Sendable {
               !Self.isLink(executable), RcloneStorageBackend.isExecutable(executable),
               Self.hasReceipt(in: directory),
               (try? FileManager.default.contentsOfDirectory(atPath: directory.path).sorted()) == [Self.receipt, "rclone"],
-              Self.hasValidSignature(executable)
+              (try? withApprovedFile { _, _ in true }) == true
         else { return nil }
         return executable
+    }
+
+    private final class Verification: @unchecked Sendable {
+        let lock = NSLock()
+        var last: (stamp: String, checksum: String)?
+    }
+
+    private static func stamp(_ fd: Int32) throws -> String {
+        var info = stat()
+        guard fstat(fd, &info) == 0, info.st_mode & S_IFMT == S_IFREG else { throw Failure.integrity }
+        return "\(info.st_dev):\(info.st_ino):\(info.st_size):\(info.st_mtimespec.tv_sec):\(info.st_mtimespec.tv_nsec):\(info.st_ctimespec.tv_sec):\(info.st_ctimespec.tv_nsec)"
+    }
+
+    private static func checksum(_ file: FileHandle) throws -> String {
+        var hash = SHA256()
+        while let bytes = try file.read(upToCount: 256 * 1024), !bytes.isEmpty { hash.update(data: bytes) }
+        return hash.finalize().map { String(format: "%02x", $0) }.joined()
+    }
+
+    private func withApprovedFile<T>(_ use: (FileHandle, String) throws -> T) throws -> T {
+        let fd = open(executable.path, O_RDONLY | O_NOFOLLOW | O_CLOEXEC | O_NONBLOCK)
+        guard fd >= 0 else { throw Failure.integrity }
+        let file = FileHandle(fileDescriptor: fd, closeOnDealloc: true)
+        if expectedSHA256 == Self.executableSHA256, lseek(fd, 0, SEEK_END) != Self.release.executableBytes {
+            throw Failure.integrity
+        }
+        try file.seek(toOffset: 0)
+        let stamp = try Self.stamp(fd)
+        let checksum = try Self.verification.lock.withLock {
+            if let last = Self.verification.last, last.stamp == stamp { return last.checksum }
+            let checksum = try Self.checksum(file)
+            guard try Self.stamp(fd) == stamp else { throw Failure.integrity }
+            Self.verification.last = (stamp, checksum)
+            return checksum
+        }
+        guard checksum == expectedSHA256, try Self.stamp(fd) == stamp else { throw Failure.integrity }
+        return try use(file, stamp)
+    }
+
+    private static func managedCopy(_ tool: URL) -> Self? {
+        let managed = Self(supportRoot: AppData.supportRoot)
+        let path = managed.executable.standardizedFileURL.path
+        if tool.standardizedFileURL.path == path || tool.resolvingSymlinksInPath().path == path { return managed }
+        return nil
+    }
+
+    static func requireApproved(_ tool: URL) throws {
+        if let managed = managedCopy(tool), managed.installedExecutable == nil { throw Failure.integrity }
+    }
+
+    package static func identity(of tool: URL) -> String? {
+        let path = tool.resolvingSymlinksInPath().path
+        guard RcloneStorageBackend.isExecutable(tool), (try? requireApproved(tool)) != nil else { return nil }
+        let fd = open(path, O_RDONLY | O_NOFOLLOW | O_CLOEXEC | O_NONBLOCK)
+        guard fd >= 0 else { return nil }
+        defer { close(fd) }
+        guard let stamp = try? stamp(fd) else { return nil }
+        return SHA256.hash(data: Data("\(tool.standardizedFileURL.path)\n\(path)\n\(stamp)".utf8))
+            .map { String(format: "%02x", $0) }.joined()
+    }
+
+    final class Launchable {
+        let url: URL
+        private let scratch: URL?
+
+        init(_ url: URL, scratch: URL? = nil) { self.url = url; self.scratch = scratch }
+        deinit { if let scratch { try? FileManager.default.removeItem(at: scratch) } }
+    }
+
+    static func launchable(_ tool: URL) throws -> Launchable {
+        guard let managed = managedCopy(tool) else { return Launchable(tool) }
+        return try managed.launchable()
+    }
+
+    func launchable() throws -> Launchable {
+        guard installedExecutable != nil else { throw Failure.integrity }
+        return try withApprovedFile { file, approved in
+            // Spawn the checked inode's private snapshot, never the replaceable installation pathname.
+            var template = FileManager.default.temporaryDirectory.appendingPathComponent("oort-drive-XXXXXX").path.utf8CString
+            guard let scratch = template.withUnsafeMutableBufferPointer({ buffer in
+                mkdtemp(buffer.baseAddress!).map { URL(fileURLWithPath: String(cString: $0), isDirectory: true) }
+            }) else { throw Failure.installation }
+            let launch = Launchable(scratch.appendingPathComponent("rclone"), scratch: scratch)
+            if fclonefileat(file.fileDescriptor, AT_FDCWD, launch.url.path, 0) != 0 {
+                try Data().write(to: launch.url, options: .withoutOverwriting)
+                let output = try FileHandle(forWritingTo: launch.url)
+                defer { try? output.close() }
+                try file.seek(toOffset: 0)
+                while let bytes = try file.read(upToCount: 256 * 1024), !bytes.isEmpty { try output.write(contentsOf: bytes) }
+            }
+            guard try Self.stamp(file.fileDescriptor) == approved else { throw Failure.integrity }
+            guard chmod(launch.url.path, 0o500) == 0 else { throw Failure.installation }
+            return launch
+        }
+    }
+
+    package static func runCancellable(_ tool: URL, _ arguments: [String], environment: [String: String],
+                                       seconds: Double = 60, activity: (@Sendable (String) -> [Int64]?)? = nil,
+                                       onStderr: (@Sendable (String) -> Void)? = nil) async throws -> CommandResult {
+        try Task.checkCancellation()
+        let launch = try launchable(tool)
+        defer { withExtendedLifetime(launch) {} }
+        return try await SystemCommandRunner().runCancellable(launch.url, arguments, environment: environment,
+                                                              seconds: seconds, activity: activity, onStderr: onStderr)
     }
 
     private static func isLink(_ url: URL) -> Bool {
@@ -96,25 +209,32 @@ public struct RcloneDownload: Sendable {
             }
             guard Self.isDirectory(supportRoot) else { throw Failure.installation }
             if !Self.isDirectory(parent) {
-                try files.createDirectory(at: parent, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+                do {
+                    try files.createDirectory(at: parent, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+                } catch where Self.isDirectory(parent) { /* Another installer created it. */ }
             }
             guard Self.isDirectory(parent) else { throw Failure.installation }
+            let (stage, stageLease) = try await makeDownloadStage()
+            defer {
+                try? files.removeItem(at: stage)
+                close(stageLease)
+            }
             if let free = try available(parent), free < release.bytes + release.executableBytes { throw Failure.space }
-            let stage = parent.appendingPathComponent(".download-\(UUID())", isDirectory: true)
-            try files.createDirectory(at: stage, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
-            defer { try? files.removeItem(at: stage) }
             let archive = stage.appendingPathComponent("download.zip")
             try await Self.fetch(release, to: archive, configuration: transport, progress: progress)
             let payload = stage.appendingPathComponent("payload", isDirectory: true)
             try files.createDirectory(at: payload, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
             let candidate = payload.appendingPathComponent("rclone")
-            try Self.extract(release, archive: archive, to: candidate)
-            guard Self.hasValidSignature(candidate) else { throw Failure.integrity }
+            try await Self.extract(release, archive: archive, to: candidate)
+            guard Self.hasValidSignature(candidate),
+                  try Self.checksum(FileHandle(forReadingFrom: candidate)) == expectedSHA256 else { throw Failure.integrity }
             try Data().write(to: payload.appendingPathComponent(Self.receipt), options: .withoutOverwriting)
             try files.setAttributes([.posixPermissions: 0o700], ofItemAtPath: candidate.path)
             try Task.checkCancellation()
             guard renamex_np(payload.path, directory.path, UInt32(RENAME_EXCL)) == 0 else {
-                if errno == ENOSPC { throw Failure.space }
+                let error = errno
+                if error == EEXIST, let installedExecutable { return installedExecutable }
+                if error == ENOSPC { throw Failure.space }
                 throw Failure.installation
             }
             return executable
@@ -125,6 +245,49 @@ public struct RcloneDownload: Sendable {
             if error is URLError { throw Failure.network }
             throw Failure.installation
         }
+    }
+
+    private func makeDownloadStage() async throws -> (URL, Int32) {
+        let parentFD = open(parent.path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
+        guard parentFD >= 0 else { throw Failure.installation }
+        defer { close(parentFD) }
+        let clock = ContinuousClock()
+        let deadline = clock.now + .seconds(2)
+        while flock(parentFD, LOCK_EX | LOCK_NB) != 0 {
+            guard errno == EWOULDBLOCK, clock.now < deadline else { throw Failure.installation }
+            try await Task.sleep(for: .milliseconds(20))
+        }
+        let files = FileManager.default
+        let prefix = ".download-"
+        // The parent lock covers the gap between creating a staging directory and locking that directory.
+        for orphan in (try? files.contentsOfDirectory(atPath: parent.path)) ?? []
+            where orphan.hasPrefix(prefix) && UUID(uuidString: String(orphan.dropFirst(prefix.count))) != nil {
+            let fd = Self.lockStage(parentFD, orphan)
+            guard fd >= 0 else { continue }
+            defer { close(fd) }
+            let url = parent.appendingPathComponent(orphan, isDirectory: true)
+            if let entries = try? files.contentsOfDirectory(atPath: url.path),
+               Set(entries).isSubset(of: ["download.zip", "payload"]) {
+                try? files.removeItem(at: url)
+            }
+        }
+        try Task.checkCancellation()
+        let name = prefix + UUID().uuidString
+        let stage = parent.appendingPathComponent(name, isDirectory: true)
+        try files.createDirectory(at: stage, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+        let fd = Self.lockStage(parentFD, name)
+        guard fd >= 0 else { try? files.removeItem(at: stage); throw Failure.installation }
+        return (stage, fd)
+    }
+
+    private static func lockStage(_ parent: Int32, _ name: String) -> Int32 {
+        let fd = openat(parent, name, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
+        guard fd >= 0 else { return -1 }
+        var info = stat()
+        if fstat(fd, &info) == 0, info.st_uid == geteuid(), info.st_mode & 0o777 == 0o700,
+           flock(fd, LOCK_EX | LOCK_NB) == 0 { return fd }
+        close(fd)
+        return -1
     }
 
     private static func fetch(_ release: Release, to archive: URL, configuration: URLSessionConfiguration,
@@ -173,22 +336,16 @@ public struct RcloneDownload: Sendable {
         await progress(1)
     }
 
-    private static func extract(_ release: Release, archive: URL, to candidate: URL) throws {
+    private static func extract(_ release: Release, archive: URL, to candidate: URL) async throws {
         try Task.checkCancellation()
         try Data().write(to: candidate, options: .withoutOverwriting)
         let output = try FileHandle(forWritingTo: candidate)
         defer { try? output.close() }
         // Only the pinned member of an already verified archive is ever extracted; no archive path becomes a local path.
-        let unzip = Process()
-        unzip.executableURL = URL(fileURLWithPath: "/usr/bin/unzip")
-        unzip.arguments = ["-p", archive.path, release.member]
-        unzip.environment = [:]
-        unzip.standardOutput = output
-        unzip.standardError = FileHandle.nullDevice
-        try unzip.run()
-        unzip.waitUntilExit()
-        guard unzip.terminationStatus == 0 else {
-            if unzip.terminationStatus == 50 { throw Failure.space } // Info-ZIP: disk full.
+        let unzip = try await SystemCommandRunner().runCancellable(URL(fileURLWithPath: "/usr/bin/unzip"),
+            ["-p", archive.path, release.member], environment: [:], output: output)
+        guard unzip.status == 0 else {
+            if unzip.status == 50 { throw Failure.space } // Info-ZIP: disk full.
             throw Failure.integrity
         }
         guard try candidate.resourceValues(forKeys: [.fileSizeKey]).fileSize == release.executableBytes else {

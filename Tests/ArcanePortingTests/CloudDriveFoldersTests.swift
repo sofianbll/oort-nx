@@ -394,6 +394,17 @@ final class CloudDriveFoldersTests: XCTestCase {
                 let saved = try XCTUnwrap(reopened.load())
                 XCTAssertEqual(saved, pending)
                 fixture.loseReply = nil
+                let movesBeforeRecovery = fixture.writes
+                if cut == "reply-2" || cut == "progress-3" {
+                    try await fixture.backend.verifyCompletedMove(saved.request.plan, to: saved.request.destination)
+                } else {
+                    do {
+                        try await fixture.backend.verifyCompletedMove(saved.request.plan, to: saved.request.destination)
+                        XCTFail("Startup reconciliation considered an incomplete move successful: \(cut)")
+                    } catch CloudDriveFolders.MoveFailure.destinationChanged {}
+                }
+                XCTAssertEqual(fixture.writes, movesBeforeRecovery, "Startup reconciliation must not issue any moves")
+                XCTAssertEqual(try reopened.load(), saved)
                 let conflicts = try await fixture.backend.move(saved.request.plan, to: saved.request.destination) { _, _ in }
                 XCTAssertEqual(conflicts, [], cut)
                 for key in keys {

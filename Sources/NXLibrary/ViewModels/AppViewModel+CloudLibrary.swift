@@ -255,10 +255,11 @@ final class CloudLibraryModel: ObservableObject {
         var sourceReference: String?
         var driveScope: CloudDriveScope?
         var rebuildSources: CloudTransferQueue.RebuildSources?
+        var toolIdentity: String?
 
         var entry: CloudTransferQueue.Entry {
             .init(id: id, action: action, token: token, storage: storage, sourceReference: sourceReference,
-                  driveScope: driveScope, rebuildSources: rebuildSources)
+                  driveScope: driveScope, rebuildSources: rebuildSources, toolIdentity: toolIdentity)
         }
     }
 
@@ -434,6 +435,7 @@ final class CloudLibraryModel: ObservableObject {
         toolDownload?.cancel()
         libraryMove?.isCancelling = true
         let move = libraryMoveTask
+        move?.cancel()
         return Task {
             await transfer?.value
             await move?.value
@@ -762,6 +764,9 @@ final class CloudLibraryModel: ObservableObject {
         archive = backend.map { CloudGameArchive(backend: $0) }
     }
 
+    var transferTool: URL? { backend?.transferTool }
+    var transferToolIdentity: String? { transferTool.flatMap(RcloneDownload.identity(of:)) }
+
     func stopRemoteControl() { backend?.stopRemoteControl() }
 
     @MainActor func update(_ id: UUID, _ change: (inout CloudLibraryState) -> Void) {
@@ -772,6 +777,8 @@ final class CloudLibraryModel: ObservableObject {
 }
 
 extension AppViewModel {
+    private struct CloudToolChanged: Error {}
+
     private struct CloudImportListing {
         var manifests: [CloudGameManifest] = []
         var invalidTitles: [String] = []
@@ -1223,9 +1230,10 @@ extension AppViewModel {
             guard !self.cloudLibrary.isQuitting else { return }
             let knownGames = self.libraryGames
             let gameIDs = Set(knownGames.map(\.id))
+            let currentTool = self.cloudLibrary.transferToolIdentity
             let reconfirmations = entries.filter {
                 $0.action.isUpload || (gameIDs.contains($0.id) &&
-                    ($0.storage == nil || $0.driveScope != self.cloudLibrary.driveScope ||
+                    (!$0.permitsTool(currentTool) || $0.storage == nil || $0.driveScope != self.cloudLibrary.driveScope ||
                      $0.storage != self.cloudLibrary.storageScope(for: $0.action)))
             }
             if !reconfirmations.isEmpty {
@@ -1264,7 +1272,7 @@ extension AppViewModel {
                 } ?? CloudWorkScope(game), importDestination: destination,
                              sourceFiles: CloudSourceFiles(game), onSuccess: nil, resumed: true,
                              sourceReference: entry.sourceReference, driveScope: entry.driveScope,
-                             rebuildSources: entry.rebuildSources))
+                             rebuildSources: entry.rebuildSources, toolIdentity: entry.toolIdentity))
             }
             self.startNextCloudOperation()
             await self.cloudLibrary.queueStore.flush()
@@ -1779,7 +1787,8 @@ extension AppViewModel {
     }
 
     @MainActor func retryCloudOperation(_ entry: CloudTransferQueue.Entry, token: UUID) -> Bool {
-        if entry.storage == nil || entry.action.isUpload || entry.driveScope != cloudLibrary.driveScope {
+        if !entry.permitsTool(cloudLibrary.transferToolIdentity) || entry.storage == nil || entry.action.isUpload
+            || entry.driveScope != cloudLibrary.driveScope {
             showSettingsNotice(title: L10n.text("Cloud library"), message: cloudReconfirmationMessage(for: entry))
             if !cloudLibrary.hasRestoredQueue { restoreCloudQueue() }
             else if cloudLibrary.queue.first?.token == token { startNextCloudOperation() }
@@ -1866,6 +1875,7 @@ extension AppViewModel {
             }
         }
         guard sourceReference == nil || sourceReference == cloudLibrary.preference.referenceFolder else { return false }
+        guard let toolIdentity = cloudLibrary.transferToolIdentity else { return false }
         switch (action, retryToken != nil) {
         case (_, true): break // Retry rechecks current copies under the lease, after the FIFO wait.
         case (.upload(let kind), false):
@@ -1892,7 +1902,8 @@ extension AppViewModel {
                                         sourceFiles: files, onSuccess: onSuccess, resumed: retryToken != nil,
                                         appReplacement: appReplacement, sourceReference: sourceReference,
                                         driveScope: cloudLibrary.driveScope,
-                                        rebuildSources: rebuildSources?.offer ?? previousSource?.rebuildSources))
+                                        rebuildSources: rebuildSources?.offer ?? previousSource?.rebuildSources,
+                                        toolIdentity: toolIdentity))
         cloudLibrary.update(game.id) {
             $0.action = action; $0.queued = true; $0.progress = nil; $0.message = nil; $0.issue = nil; $0.refreshing = false
             $0.transferFailure = nil; $0.completedItem = nil; $0.failedTransferID = nil
@@ -1911,7 +1922,7 @@ extension AppViewModel {
         while let request = cloudLibrary.queue.first {
             let id = request.id, action = request.action
             assert(cloudLibrary.states[id]?.action == action && cloudLibrary.states[id]?.queued == true)
-            if request.resumed && action.isUpload {
+            if (request.resumed && action.isUpload) || !request.entry.permitsTool(cloudLibrary.transferToolIdentity) {
                 // The queue stores a destination, not a snapshot of the approved bytes.
                 cloudLibrary.isPublishingReconfirmation = true
                 Task { [weak self] in
@@ -2016,12 +2027,18 @@ extension AppViewModel {
             }
             defer { continuation.finish(); listener.cancel() }
             let progress: CloudGameArchive.Progress = { continuation.yield($0) }
+            let approvedTool = self.cloudLibrary.transferTool
             // Also catch a direct Finder launch, which does not take Arcane's lease.
             let gameClosed: @Sendable () throws -> Void = {
                 if RunningGameMonitor.runningApplication(for: game) != nil { throw CloudArchiveError.busy }
             }
+            let beforeFree: @Sendable () throws -> Void = {
+                guard request.entry.permitsTool(approvedTool.flatMap(RcloneDownload.identity(of:))) else { throw CloudToolChanged() }
+                try gameClosed()
+            }
             do {
                 try Task.checkCancellation()
+                guard request.entry.permitsTool(approvedTool.flatMap(RcloneDownload.identity(of:))) else { throw CloudToolChanged() }
                 let lease = try self.cloudLibrary.moveJournal.acquire()
                 defer { withExtendedLifetime(lease) {} }
                 guard request.driveScope == self.cloudLibrary.driveScope,
@@ -2053,13 +2070,13 @@ extension AppViewModel {
                         try Task.checkCancellation()
                         self.cloudLibrary.update(id) { $0.progress = .init(.verifying, kind: item.artifact) }
                         if let kind = item.artifact {
-                            try await archive.free(kind, for: target, confirmed: true, beforeMutation: gameClosed)
+                            try await archive.free(kind, for: target, confirmed: true, beforeMutation: beforeFree)
                             if kind == .app {
                                 self.applyCatalog(try self.catalogRepository.updateNXNative(id: id) { $0.status = .appMissing })
                             }
                         } else {
                             try await self.runCloudSources(.verifying, request: request, game: game,
-                                                           progress: progress, gameClosed: gameClosed)
+                                                           progress: progress, gameClosed: beforeFree)
                         }
                     }
                 case .uploadSources, .downloadSources:
@@ -2140,6 +2157,11 @@ extension AppViewModel {
                 continuation.finish()
                 await listener.value
                 self.cloudLibrary.update(id) { $0.issue = (action.item(during: $0.progress), L10n.text("Transfer cancelled."), false) }
+            } catch is CloudToolChanged {
+                continuation.finish()
+                await listener.value
+                outcome = .failed(self.cloudReconfirmationMessage(for: request.entry))
+                self.showCloudReconfirmation(request.entry)
             } catch {
                 continuation.finish()
                 await listener.value
@@ -2260,7 +2282,8 @@ extension AppViewModel {
 
     @MainActor private func runCloudSources(_ phase: CloudArchiveProgress.Phase, request: CloudLibraryModel.Request,
                                             game: PortedGame,
-                                            progress: @escaping CloudGameArchive.Progress, gameClosed: () throws -> Void) async throws {
+                                            progress: @escaping CloudGameArchive.Progress,
+                                            gameClosed: @Sendable () throws -> Void) async throws {
         let sources = cloudLibrary.sourceArchive
         try Task.checkCancellation()
         try gameClosed()
@@ -2281,12 +2304,13 @@ extension AppViewModel {
             let engine = URL(fileURLWithPath: setup.nxnativePath)
             let keys = setup.isProdKeysValid ? setup.keyStore.keyURL : nil
             let verify: CloudGameSources.VerifySources = { url, files in
+              try await SystemCommandRunner().withCancellableCommands { runner in
                 let toolchain = EngineToolchain.resolve(runtime: .locate(), repo: engine)
-                let developer = SetupModel.resolveDeveloperDir()
+                let developer = SetupModel.resolveDeveloperDir(runner: runner)
                 if url.pathExtension.lowercased() == "nup" {
                     let capabilities = EngineSourceCapabilities(repo: engine)
                     let program = SourceSelection.programIndex(for: files, titleID: title, nupPrograms: capabilities.nupPrograms)
-                    let nup = try NUPSourceCatalog(repo: engine, toolchain: toolchain, developerDir: developer)
+                    let nup = try NUPSourceCatalog(repo: engine, toolchain: toolchain, developerDir: developer, runner: runner)
                         .scan(nup: url, program: program)
                     return nup.id == title && files.allSatisfy { file in
                         nup.allSources.contains {
@@ -2296,11 +2320,12 @@ extension AppViewModel {
                     }
                 }
                 guard let keys else { return false }
-                let reader = EnginePackageReader(repo: engine, toolchain: toolchain, keys: keys, developerDir: developer)
+                let reader = EnginePackageReader(repo: engine, toolchain: toolchain, keys: keys, developerDir: developer, runner: runner)
                 guard case .contents(let findings) = try reader.contents(of: [(url, false)])[url] else { return false }
                 return files.allSatisfy { file in findings.contains {
                     $0.kind == file.kind && String(format: "%016llX", $0.titleId) == file.titleId?.uppercased()
                 } }
+              }
             }
             if let directory = game.discoveredCloudSourceDirectory, offer?.referenceSelection == nil {
                 guard game.cloudSourcesReferenceFolder == request.sourceReference,
@@ -2360,7 +2385,7 @@ extension AppViewModel {
         case .verifying:
             guard let files = request.sourceFiles, let sources else { throw CloudArchiveError.unsafePath }
             guard canFreeCloudSources(files, for: game) else { throw CloudArchiveError.unsafePath }
-            _ = try await sources.free(folderName: files.folderName, files: files.files, confirmed: true)
+            _ = try await sources.free(folderName: files.folderName, files: files.files, confirmed: true, beforeMutation: gameClosed)
         default:
             assertionFailure("Unexpected game-file transfer phase")
             throw CloudArchiveError.unsafePath

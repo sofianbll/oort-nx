@@ -1052,7 +1052,8 @@ AUDIT_QUEUE = r'''
         monitor.refresh()
         await withCheckedContinuation { done in DispatchQueue.main.async { done.resume() } }
         vm = try await reopen(.init(id: game.id, action: .restore(.cache), token: UUID(),
-                                    storage: vm.cloudLibrary.storageScope(for: .restore(.cache))))
+                                    storage: vm.cloudLibrary.storageScope(for: .restore(.cache)),
+                                    toolIdentity: vm.cloudLibrary.transferToolIdentity!))
         precondition(vm.cloudLibrary.queue.count == 1 && vm.cloudLibrary.active == nil,
                      "Cache transfer must be queued until the game closes")
         RunningGameMonitor.screenRunning.withLock { $0 = nil }

@@ -75,13 +75,15 @@ public final class CloudTransferQueue: Sendable {
         package let sourceReference: String?
         package let driveScope: CloudDriveScope?
         package let rebuildSources: RebuildSources?
+        package let toolIdentity: String?
 
         public init(id: UUID, action: CloudLibraryAction) {
             self.init(id: id, action: action, token: nil, storage: nil)
         }
 
         package init(id: UUID, action: CloudLibraryAction, token: UUID?, storage: String?, sourceReference: String? = nil,
-                     driveScope: CloudDriveScope? = nil, rebuildSources: RebuildSources? = nil) {
+                     driveScope: CloudDriveScope? = nil, rebuildSources: RebuildSources? = nil,
+                     toolIdentity: String? = nil) {
             self.id = id
             self.action = action
             self.token = token
@@ -89,6 +91,11 @@ public final class CloudTransferQueue: Sendable {
             self.sourceReference = sourceReference
             self.driveScope = driveScope
             self.rebuildSources = rebuildSources
+            self.toolIdentity = toolIdentity
+        }
+
+        package func permitsTool(_ current: String?) -> Bool {
+            current != nil && toolIdentity == current
         }
     }
 
