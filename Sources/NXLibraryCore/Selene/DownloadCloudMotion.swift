@@ -1,4 +1,5 @@
 import Foundation
+import OortCore
 
 /// Coordinates and radii are in local tile points; drift time is on the shared clock.
 public enum DownloadCloudMotion {
