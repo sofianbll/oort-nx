@@ -1,6 +1,42 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Nintendo Europe catalogue": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Nintendo Europe catalogue"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Catalogue Nintendo Europe"}},
+      "it": {"stringUnit":{"state":"translated","value":"Catalogo Nintendo Europe"}},
+      "de": {"stringUnit":{"state":"translated","value":"Katalog von Nintendo Europe"}},
+      "es": {"stringUnit":{"state":"translated","value":"Catálogo de Nintendo Europe"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Catálogo da Nintendo Europe"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"Nintendo Europe 游戏目录"}}
+    }},
+    "The app keeps Arcane’s Nintendo Store source. Nintendo Europe supplements missing or untranslated information and artwork. Text and images belong to their respective owners and are never shipped with the app.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"The app keeps Arcane’s Nintendo Store source. Nintendo Europe supplements missing or untranslated information and artwork. Text and images belong to their respective owners and are never shipped with the app."}},
+      "fr": {"stringUnit":{"state":"translated","value":"L’app conserve la source Nintendo Store d’Arcane. Nintendo Europe complète les informations et illustrations manquantes ou non traduites. Les textes et images appartiennent à leurs propriétaires respectifs et ne sont pas fournis avec l’app."}},
+      "it": {"stringUnit":{"state":"translated","value":"L’app conserva la fonte Nintendo Store di Arcane. Nintendo Europe integra le informazioni e le immagini mancanti o non tradotte. Testi e immagini appartengono ai rispettivi titolari e non sono inclusi nell’app."}},
+      "de": {"stringUnit":{"state":"translated","value":"Die App behält Arcanes Nintendo Store als Quelle. Nintendo Europe ergänzt fehlende oder nicht übersetzte Informationen und Bilder. Texte und Bilder gehören den jeweiligen Rechteinhabern und werden nicht mit der App ausgeliefert."}},
+      "es": {"stringUnit":{"state":"translated","value":"La aplicación conserva el Nintendo Store como fuente de Arcane. Nintendo Europe completa la información y las imágenes que faltan o no se han traducido. Los textos y las imágenes pertenecen a sus titulares y no se incluyen en la aplicación."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"O app mantém a fonte Nintendo Store do Arcane. A Nintendo Europe complementa as informações e imagens ausentes ou não traduzidas. Os textos e as imagens pertencem aos respectivos titulares e não vêm com o app."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"应用保留 Arcane 的 Nintendo Store 数据来源，由 Nintendo Europe 补充缺失或未本地化的资料与图片。文字和图片归各自权利人所有，不随应用分发。"}}
+    }},
+    "Game artwork fetched by the player’s app and cached on this Mac, including images from Nintendo Europe.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Game artwork fetched by the player’s app and cached on this Mac, including images from Nintendo Europe."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Illustrations récupérées par l’app du joueur et mises en cache sur ce Mac, y compris les images de Nintendo Europe."}},
+      "it": {"stringUnit":{"state":"translated","value":"Immagini dei giochi recuperate dall’app del giocatore e conservate nella cache di questo Mac, incluse quelle di Nintendo Europe."}},
+      "de": {"stringUnit":{"state":"translated","value":"Von der App abgerufene und auf diesem Mac zwischengespeicherte Spielbilder, darunter Bilder von Nintendo Europe."}},
+      "es": {"stringUnit":{"state":"translated","value":"Imágenes de juegos obtenidas por la aplicación del jugador y guardadas en la caché de este Mac, incluidas las de Nintendo Europe."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Imagens de jogos buscadas pelo app do jogador e guardadas no cache deste Mac, incluindo as da Nintendo Europe."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"由玩家的应用获取并缓存在这台 Mac 上的游戏图片，包括来自 Nintendo Europe 的图片。"}}
+    }},
+    "Age rating": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Age rating"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Classification d’âge"}},
+      "it": {"stringUnit":{"state":"translated","value":"Classificazione per età"}},
+      "de": {"stringUnit":{"state":"translated","value":"Altersfreigabe"}},
+      "es": {"stringUnit":{"state":"translated","value":"Clasificación por edad"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Classificação indicativa"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"年龄分级"}}
+    }},
     "This rclone uses a separate configuration. Choose a copy that uses your existing Drive settings.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"This rclone uses a separate configuration. Choose a copy that uses your existing Drive settings."}}, "fr": {"stringUnit":{"state":"translated","value":"Ce rclone utilise une configuration distincte. Choisissez une copie qui reprend vos réglages Drive actuels."}}, "it": {"stringUnit":{"state":"translated","value":"Questo rclone usa una configurazione separata. Scegli una copia che usi le impostazioni Drive esistenti."}}, "de": {"stringUnit":{"state":"translated","value":"Dieses rclone hat eine eigene Konfiguration. Wähle eine Kopie mit deinen bisherigen Drive-Einstellungen."}}, "es": {"stringUnit":{"state":"translated","value":"Este rclone usa una configuración distinta. Elige una copia que use tus ajustes de Drive actuales."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Este rclone usa uma configuração separada. Escolha uma cópia que use suas configurações atuais do Drive."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"此 rclone 使用独立配置。请选择使用你现有 Drive 设置的副本。"}}
     }},
