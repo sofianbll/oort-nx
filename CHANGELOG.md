@@ -6,6 +6,16 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Added
 
+- Settings open like System Settings: a sidebar of subjects, grouped rows and one help line. Search finds rows by their current and earlier names.
+- Each game has a full settings page, sorted from what its build offers. A short panel beside the game holds the few useful rows; **All settings** opens the page.
+- Spotlight and Collection keep four tabs: All games, Installed, Cloud and Favorites. The others stay one setting away. Sort and filter open in a side panel, and an active filter shows beside the tabs.
+- Controller layouts: a short press of Home opens the control center, a long press the full menu, + the options of the selected item and Y the search. The earlier Arcane layout stays available. When macOS keeps the Home button, Oort NX says so once.
+- Platform cards open as a vertical ribbon with the platform logo alone, press to lock and B to leave.
+- A Players screen assigns up to eight places. Order, names and modes reach the game only when its build supports them.
+- Interface size from 80 to 125 %, in Settings or with Command-plus, Command-minus and Command-0.
+- Change metadata shows sources and the reading pane side by side.
+- Browse your files inside Oort NX. The format words (NSP, XCI, NSZ, XCZ, NUP, keys) are explained where they are asked for.
+- The Dock icon shows the progress of a long operation.
 - A skippable first-run tour for language, controllers, profile, local games, services and appearance. Previously configured libraries see only the 0.4.0 highlights.
 
 - Filter Spotlight by platform from the first tile. Press up or down to browse and close to keep the choice for this profile.
