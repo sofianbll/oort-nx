@@ -611,6 +611,41 @@ AUDIT_QUEUE = r'''
             failures.append("Changed upload destination silently removed the original queue token")
         }
         precondition(!fm.fileExists(atPath: remotePackage.path) && vm.cloudLibrary.active == nil)
+        for file in ["activity-results.json", "cloud-transfer-queue.json"] {
+            for stage in ["before", "after"] {
+                let request = CloudTransferQueue.Entry(id: game.id, action: .uploadSources, token: UUID(), storage: expectedStorage)
+                let failing = try makeModel()
+                failing.cloudLibrary.installScreenSources(backend, root: sources.path)
+                failing.cloudLibrary.queueStore.save([request])
+                await failing.cloudLibrary.queueStore.flush()
+                CloudWriteFault.arm(file, stage)
+                failing.restoreCloudQueue()
+                try await until { !failing.cloudLibrary.isRestoringQueue }
+                await failing.cloudLibrary.queueStore.flush()
+                await failing.activityStore.flush()
+                let hit = CloudWriteFault.disarm()
+                let queue = await failing.cloudLibrary.queueStore.load()
+                let history = await failing.activityStore.load()
+                let leftInQueue = queue.contains(request)
+                let visibleInHistory = history.contains { $0.id == request.token && $0.job == .cloud(request) }
+                if !hit || !(leftInQueue || visibleInHistory)
+                    || (file == "activity-results.json" && !leftInQueue) {
+                    failures.append("Reconfirmation publication: incorrect recovery after \(file) \(stage) write")
+                }
+                let restarted = try makeModel()
+                restarted.cloudLibrary.installScreenSources(backend, root: sources.path)
+                restarted.restoreCloudQueue()
+                try await until { restarted.cloudLibrary.hasRestoredQueue }
+                await restarted.cloudLibrary.queueStore.flush()
+                await restarted.restoreActivity()
+                await restarted.activityStore.flush()
+                let recovered = await restarted.activityStore.load()
+                if recovered.filter({ $0.id == request.token && $0.job == .cloud(request) }).count != 1 {
+                    failures.append("Reconfirmation publication: missing or duplicated token after \(file) \(stage) restart")
+                }
+                precondition(!fm.fileExists(atPath: remotePackage.path))
+            }
+        }
         let interruptedUpload = CloudTransferQueue.Entry(id: game.id, action: .uploadSources, token: UUID(), storage: expectedStorage)
         let replacement = folder.appendingPathComponent("Replacement.nsp")
         try Data("other".utf8).write(to: replacement)
@@ -889,6 +924,32 @@ def main():
             folder.mkdir(parents=True)
             (folder / "Empty.swift").touch()
         app = package / "Sources/NXLibrary"
+        if not before and not baseline:
+            queue_file = package / "Sources/ArcanePorting/Library/ActivityQueueFile.swift"
+            write = 'try JSONEncoder().encode(WriteSnapshot(entries: entries)).write(to: self.file, options: .atomic)'
+            change(queue_file, re.escape(write),
+                   f'try CloudWriteFault.check(self.file, "before")\n        {write}\n'
+                   '        try CloudWriteFault.check(self.file, "after")')
+            with queue_file.open("a") as swift:
+                swift.write(r'''
+import os
+package enum CloudWriteFault {
+    private static let state = OSAllocatedUnfairLock(initialState: (file: "", stage: "", hit: false))
+    package static func arm(_ file: String, _ stage: String) {
+        state.withLock { $0 = (file, stage, false) }
+    }
+    package static func disarm() -> Bool {
+        state.withLock { let hit = $0.hit; $0 = ("", "", false); return hit }
+    }
+    static func check(_ file: URL, _ stage: String) throws {
+        if state.withLock({ value in
+            guard !value.hit, value.file == file.lastPathComponent, value.stage == stage else { return false }
+            value.hit = true
+            return true
+        }) { throw CocoaError(.fileWriteUnknown) }
+    }
+}
+''')
         change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
         change(app / "ViewModels/AppViewModel.swift", r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
         change(app / "ViewModels/AppViewModel.swift", r"        applyCatalog\(catalog\).*?\n    }\n\n    // MARK: - Dynamic",
@@ -1092,7 +1153,8 @@ extension CloudLibraryPanel {
                                          r"(DispatchQueue\.main\.async \{\n.*?\n            \})", startup, re.S)
                     assert callback, "Cannot find the running-game callback"
                     transfer = PLAY_TRANSFER.replace("// QUEUE_MONITOR_CALLBACK", callback[1].replace("viewModel", "vm"))
-                    transfer = transfer.replace("// AUDIT_QUEUE", "do {\n" + AUDIT_QUEUE + "\n        }")
+                    if not baseline:
+                        transfer = transfer.replace("// AUDIT_QUEUE", "do {\n" + AUDIT_QUEUE + "\n        }")
                 host = host.replace("// PLAY_TRANSFER_CHECK", "try await checkPlayDuringTransfer(in: data, output: output)") + transfer
             monitor = app / "Services/RunningGameMonitor.swift"
             change(monitor, r'import AppKit', "import AppKit\nimport os")

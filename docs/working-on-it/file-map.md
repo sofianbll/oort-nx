@@ -445,7 +445,7 @@ Cartella `Sources/ArcanePorting/Library/`.
 | [Sources/ArcanePorting/Library/CloudDriveFolders.swift](../../Sources/ArcanePorting/Library/CloudDriveFolders.swift) | Reconnaît les titres, limite la recherche automatique de sources à la bibliothèque choisie et prépare le déplacement des manifestes et archives v1/v2. |
 | [Sources/ArcanePorting/GameSettings/RemotePlayAdapters.swift](../../Sources/ArcanePorting/GameSettings/RemotePlayAdapters.swift) | Rileva ZeroTier, Tailscale e NetBird da interfacce IPv4 e identità VPN riportata dal sistema; segnala i tunnel ambigui. |
 | [Sources/ArcanePorting/Library/BuildQueue.swift](../../Sources/ArcanePorting/Library/BuildQueue.swift) | FIFO delle compilazioni, richiesta serializzabile con scelta della cache locale, deduplica e controllo delle sorgenti al ripristino. |
-| [Sources/ArcanePorting/Library/ActivityQueueFile.swift](../../Sources/ArcanePorting/Library/ActivityQueueFile.swift) | Lettura tollerante delle voci e scrittura atomica delle code e degli esiti versionati. |
+| [Sources/ArcanePorting/Library/ActivityQueueFile.swift](../../Sources/ArcanePorting/Library/ActivityQueueFile.swift) | Lettura tollerante e scrittura atomica di code ed esiti; la riconferma attende la sincronizzazione del file e della directory. |
 | [Sources/ArcanePorting/Library/ActivityHistory.swift](../../Sources/ArcanePorting/Library/ActivityHistory.swift) | Ultimo esito per richiesta, payload del retry e cancellazione manuale degli esiti. |
 | [Sources/ArcanePorting/Library/GameStorageUsage.swift](../../Sources/ArcanePorting/Library/GameStorageUsage.swift) | Dimensioni per gioco e totali: distingue assenza e indisponibilità, segnala cache condivise e conserva identità stabili per il focus. |
 

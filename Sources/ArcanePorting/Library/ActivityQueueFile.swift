@@ -1,5 +1,6 @@
 import Foundation
 import OSLog
+import Darwin
 
 /// The activity queues and history share the profiled, atomic snapshot format.
 package final class ActivityQueueFile<Entry: Codable & Sendable>: Sendable {
@@ -53,9 +54,7 @@ package final class ActivityQueueFile<Entry: Codable & Sendable>: Sendable {
     package func save(_ entries: [Entry], onFailure: (@Sendable () -> Void)? = nil) {
         io.async {
             do {
-                guard self.canWrite.withLock({ $0 }) else { throw CocoaError(.fileWriteUnknown) }
-                try FileManager.default.createDirectory(at: self.file.deletingLastPathComponent(), withIntermediateDirectories: true)
-                try JSONEncoder().encode(WriteSnapshot(entries: entries)).write(to: self.file, options: .atomic)
+                try self.write(entries)
             } catch {
                 self.log.error("Could not save the activity snapshot")
                 if let onFailure, self.reportedSaveFailure.withLock({ reported in
@@ -64,6 +63,33 @@ package final class ActivityQueueFile<Entry: Codable & Sendable>: Sendable {
                 }) { onFailure() }
             }
         }
+    }
+
+    /// Acknowledge publication only after the replacement and its directory entry are synced.
+    package func saveDurably(_ entries: [Entry]) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            io.async {
+                do {
+                    try self.write(entries)
+                    try Self.synchronize(self.file, flags: O_RDONLY | O_NOFOLLOW)
+                    try Self.synchronize(self.file.deletingLastPathComponent(), flags: O_RDONLY | O_DIRECTORY)
+                    continuation.resume()
+                } catch { continuation.resume(throwing: error) }
+            }
+        }
+    }
+
+    private func write(_ entries: [Entry]) throws {
+        guard canWrite.withLock({ $0 }) else { throw CocoaError(.fileWriteUnknown) }
+        try FileManager.default.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try JSONEncoder().encode(WriteSnapshot(entries: entries)).write(to: self.file, options: .atomic)
+    }
+
+    private static func synchronize(_ url: URL, flags: Int32) throws {
+        let descriptor = open(url.path, flags | O_CLOEXEC)
+        guard descriptor >= 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+        defer { close(descriptor) }
+        guard fsync(descriptor) == 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
     }
 
     package func flush() async {

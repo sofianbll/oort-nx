@@ -277,6 +277,7 @@ final class CloudLibraryModel: ObservableObject {
     var libraryMoveTask: Task<Void, Never>?
     let queueStore = CloudTransferQueue()
     var isRestoringQueue = false
+    var isPublishingReconfirmation = false
     var hasRestoredQueue = false
     private(set) var isQuitting = false
     private(set) var hasQueueWrites = false
@@ -669,31 +670,36 @@ extension AppViewModel {
         cloudLibrary.isRestoringQueue = true
         Task { [weak self] in
             guard let self else { return }
+            defer { self.cloudLibrary.isRestoringQueue = false }
             let entries = await self.cloudLibrary.queueStore.load()
-            self.cloudLibrary.isRestoringQueue = false
+            guard !self.cloudLibrary.isQuitting else { return }
+            let knownGames = self.libraryGames
+            let gameIDs = Set(knownGames.map(\.id))
+            let reconfirmations = entries.filter { $0.action.isUpload || ($0.storage == nil && gameIDs.contains($0.id)) }
+            if !reconfirmations.isEmpty {
+                let rows = reconfirmations.map { entry in
+                    (entry, knownGames.first(where: { $0.id == entry.id })?.name)
+                }
+                guard await self.publishCloudReconfirmations(rows) else { return }
+            }
             guard !self.cloudLibrary.isQuitting else { return }
             guard self.cloudLibrary.archive === archive, !self.isScanningLibrary else {
-                self.restoreCloudQueue()
+                Task { @MainActor in self.restoreCloudQueue() }
                 return
             }
             self.cloudLibrary.hasRestoredQueue = true
             defer { self.checkCloudCatalog(); self.porting.scheduleNextBuild() }
             let games = self.libraryGames
             guard !entries.isEmpty else { return }
-            let restored = CloudTransferQueue.restoring(entries, gameIDs: Set(games.map(\.id)))
+            for entry in reconfirmations { self.showCloudReconfirmation(entry) }
+            let resumable = entries.filter { !$0.action.isUpload && $0.storage != nil }
+            let restored = CloudTransferQueue.restoring(resumable, gameIDs: Set(games.map(\.id)))
             self.objectWillChange.send()
             for entry in restored {
                 let storage = self.cloudLibrary.storageScope(for: entry.action)
                 guard let game = games.first(where: { $0.id == entry.id }),
                       game.titleId.map(SaveLocation.validID) == true else { continue }
-                guard let approvedStorage = entry.storage else {
-                    self.recordCloudReconfirmation(entry, name: game.name)
-                    continue
-                }
-                guard approvedStorage == storage else {
-                    if entry.action.isUpload { self.recordCloudReconfirmation(entry, name: game.name) }
-                    continue
-                }
+                guard let approvedStorage = entry.storage, approvedStorage == storage else { continue }
                 self.cloudLibrary.reads[game.id]?.task.cancel()
                 self.cloudLibrary.reads[game.id] = nil
                 self.cloudLibrary.update(game.id) {
@@ -707,6 +713,7 @@ extension AppViewModel {
                              sourceFiles: CloudSourceFiles(game), onSuccess: nil, resumed: true))
             }
             self.startNextCloudOperation()
+            await self.cloudLibrary.queueStore.flush()
         }
     }
 
@@ -1143,6 +1150,8 @@ extension AppViewModel {
     @MainActor func retryCloudOperation(_ entry: CloudTransferQueue.Entry, token: UUID) -> Bool {
         if entry.storage == nil || entry.action.isUpload {
             showSettingsNotice(title: L10n.text("Cloud library"), message: cloudReconfirmationMessage(for: entry))
+            if !cloudLibrary.hasRestoredQueue { restoreCloudQueue() }
+            else if cloudLibrary.queue.first?.token == token { startNextCloudOperation() }
             return true
         }
         guard entry.storage == cloudLibrary.storageScope(for: entry.action),
@@ -1156,14 +1165,30 @@ extension AppViewModel {
         return [message, L10n.format("Previous destination: %@", [previous])].joined(separator: "\n")
     }
 
-    @MainActor private func recordCloudReconfirmation(_ entry: CloudTransferQueue.Entry, name: String) {
+    @MainActor private func showCloudReconfirmation(_ entry: CloudTransferQueue.Entry) {
         let reason = cloudReconfirmationMessage(for: entry)
         cloudLibrary.update(entry.id) {
             $0.action = nil; $0.queued = false; $0.progress = nil
             $0.issue = (entry.action.item(during: nil), reason, true)
             $0.transferFailure = nil; $0.failedTransferID = nil
         }
-        recordActivity(entry.token ?? UUID(), job: .cloud(entry), name: name, outcome: .failed(reason))
+    }
+
+    @MainActor private func publishCloudReconfirmations(_ rows: [(CloudTransferQueue.Entry, String?)]) async -> Bool {
+        await restoreActivity()
+        for (entry, name) in rows {
+            // A 0.3.0 row without a token is unique per game; keep its identity across interrupted handoffs.
+            activityResults.record(id: entry.token ?? entry.id, job: .cloud(entry), name: name,
+                                   outcome: .failed(cloudReconfirmationMessage(for: entry)))
+        }
+        hasActivityWrites = true
+        do {
+            try await activityStore.saveDurably(activityResults.entries)
+            return true
+        } catch {
+            cloudLibrary.queueFailure = .queueNotSaved
+            return false
+        }
     }
 
     @MainActor @discardableResult
@@ -1171,7 +1196,7 @@ extension AppViewModel {
                                      retryToken: UUID? = nil,
                                      appReplacement: CloudGameArchive.ReferenceAppReplacement? = nil,
                                      onSuccess: (() -> Void)? = nil) -> Bool {
-        guard cloudLibrary.archive != nil, !cloudLibrary.isQuitting,
+        guard cloudLibrary.archive != nil, !cloudLibrary.isQuitting, !cloudLibrary.isPublishingReconfirmation,
               cloudLibrary.hasRestoredQueue,
               let game = libraryGames.first(where: { $0.id == selected.id }),
               CloudWorkScope(game) == CloudWorkScope(selected),
@@ -1221,6 +1246,7 @@ extension AppViewModel {
 
     @MainActor func startNextCloudOperation() {
         guard cloudLibrary.hasRestoredQueue, !cloudLibrary.isQuitting, cloudLibrary.queuePause == nil,
+              !cloudLibrary.isPublishingReconfirmation,
               let archive = cloudLibrary.archive else { return }
         defer { cloudLibrary.persistQueue() }
         guard cloudLibrary.active == nil else { return }
@@ -1229,9 +1255,20 @@ extension AppViewModel {
             assert(cloudLibrary.states[id]?.action == action && cloudLibrary.states[id]?.queued == true)
             if request.resumed && action.isUpload {
                 // The queue stores a destination, not a snapshot of the approved bytes.
-                cloudLibrary.queue.removeFirst()
-                recordCloudReconfirmation(request.entry, name: request.name)
-                continue
+                cloudLibrary.isPublishingReconfirmation = true
+                Task { [weak self] in
+                    guard let self else { return }
+                    let saved = await self.publishCloudReconfirmations([(request.entry, request.name)])
+                    if saved, !self.cloudLibrary.isQuitting, self.cloudLibrary.queue.first?.token == request.token {
+                        self.cloudLibrary.queue.removeFirst()
+                        self.showCloudReconfirmation(request.entry)
+                        self.cloudLibrary.persistQueue()
+                        await self.cloudLibrary.queueStore.flush()
+                    }
+                    self.cloudLibrary.isPublishingReconfirmation = false
+                    if saved { self.startNextCloudOperation() }
+                }
+                return
             }
             guard let game = libraryGames.first(where: { $0.id == id }),
                   (request.importDestination != nil) == (game.cloudImportPending == true && action == .restore(.app)),
@@ -1609,6 +1646,7 @@ extension AppViewModel {
     }
 
     @MainActor func cancelQueuedCloudLibrary(_ token: UUID) {
+        guard !cloudLibrary.isPublishingReconfirmation else { return }
         guard let index = cloudLibrary.queue.firstIndex(where: { $0.token == token }) else { return }
         objectWillChange.send()
         let request = cloudLibrary.queue.remove(at: index)

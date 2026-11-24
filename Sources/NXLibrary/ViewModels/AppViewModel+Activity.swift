@@ -21,7 +21,7 @@ extension AppViewModel {
     }
 
     func clearActivity(_ id: UUID? = nil) {
-        guard hasLoadedActivity else { return }
+        guard hasLoadedActivity, !cloudLibrary.isRestoringQueue, !cloudLibrary.isPublishingReconfirmation else { return }
         activityResults.clear(id)
         persistActivity()
     }
