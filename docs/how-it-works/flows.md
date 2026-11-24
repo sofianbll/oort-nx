@@ -327,9 +327,11 @@ flowchart TD
     B -->|"no (copia Dev o sola lettura)"| X["Solo note di rilascio"]
     B --> C["AppUpdateDownload: dimensione dichiarata, host GitHub"]
     C --> D["validate_update.py: struttura e percorsi"]
-    D --> E["SaveOperationGate: esclusione globale"]
-    E --> F["Controllo di versione, identità e firma"]
-    F --> G["Copia in cartella esclusiva sul volume corrente"]
+    D --> F["Controllo di versione, identità e firma"]
+    F --> E{"Gate e lease di installazione disponibili?"}
+    E -->|"no"| W["Pronto · conserva ZIP"]
+    W -->|"Install"| D
+    E -->|"sì"| G["Copia in cartella esclusiva sul volume corrente"]
     G --> H["Scambio atomico"]
     H --> I["Vecchia app nel Cestino; se fallisce, conservarla nella cartella esclusiva"]
     I --> J["Riavvio allo stesso percorso"]

@@ -92039,6 +92039,9 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "更新已就绪 · 退出游戏时应用"}}
       }
     },
+    "Update ready to install": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Update ready to install"}}, "it": {"stringUnit":{"state":"translated","value":"Aggiornamento pronto da installare"}}, "fr": {"stringUnit":{"state":"translated","value":"Mise à jour prête à installer"}}, "de": {"stringUnit":{"state":"translated","value":"Update zur Installation bereit"}}, "es": {"stringUnit":{"state":"translated","value":"Actualización lista para instalar"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Atualização pronta para instalar"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"更新已准备好安装"}}
+    }},
     "Ready to install": {
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Ready"}},
