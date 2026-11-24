@@ -7,36 +7,41 @@ import ArcanePorting
 
 /// Launching a Switch game: the launch screen, its checks and watching the launch.
 extension AppViewModel {
-    @MainActor func launchGame(_ game: PortedGame, acceptsLocalFallback: Bool = false) {
+    @MainActor func playNXNative(_ target: PlayTarget, profile: PlayProfile, observe: PlayObserver?,
+                                 acceptsLocalFallback: Bool = false) -> PlayResult {
         // One launch at a time: the launch screen covers the library, and input reaching it changes nothing.
-        guard !profileOwnsInput, launchingGameId == nil, launchOverlay == nil else { return }
-        if let title = game.titleId, cloudLibrary.appInstall?.title == title.uppercased() {
+        guard !profile.blocksPlay else { return .refused(.profileLocked) }
+        guard launchingGameId == nil, launchOverlay == nil else { return .refused(.launchInProgress) }
+        guard target.installationAvailability != .unavailable(.sourceDisabled) else { return .refused(.sourceDisabled) }
+        guard let requested = target.game.nxnativeGame else { return .refused(.invalidGame) }
+        if let title = requested.titleId, cloudLibrary.appInstall?.title == title.uppercased() {
             cloudLibrary.playAfterAppInstall = { [weak self] in
-                guard let self, let current = self.libraryGames.first(where: { $0.id == game.id }) else { return }
-                self.launchGame(current, acceptsLocalFallback: acceptsLocalFallback)
+                guard let self, let current = self.libraryGames.first(where: { $0.id == requested.id }) else { return }
+                _ = self.playNXNative(self.playTarget(for: .init(nxnative: current)), profile: self.playProfile,
+                                      observe: nil, acceptsLocalFallback: acceptsLocalFallback)
             }
-            return
+            return .accepted(.pending)
         }
         // A running game is brought forward, never started a second time.
-        if let running = RunningGameMonitor.runningApplication(for: game) {
-            let known = gameSaveLaunches[game.id].flatMap {
+        if let running = RunningGameMonitor.runningApplication(for: requested) {
+            let known = gameSaveLaunches[requested.id].flatMap {
                 $0.pid == running.processIdentifier && $0.date == running.launchDate ? $0 : nil
             }
             guard known?.profile == secondarySaveProfile else {
                 alertMessage = L10n.text("Close the game before managing its saves. Keep it closed until this operation finishes.")
-                return
+                return .refused(.savesUnavailable)
             }
-            if let runningGameMonitor { Task { @MainActor in runningGameMonitor.resume(game) } }
+            if let runningGameMonitor { Task { @MainActor in runningGameMonitor.resume(requested) } }
             else { RunningGameMonitor.activate(running) }
-            return
+            return .accepted(.gameOpened)
         }
-        guard savesPermitPlay(game) else { return }
+        guard savesPermitPlay(requested) else { return .refused(.savesUnavailable) }
         // Installing a waiting build can itself start an icon update: check after installation too.
-        let game = installingPendingBuild(of: game)
+        let game = installingPendingBuild(of: requested)
         // The app is being signed again with a new icon: starting it now could read a half-written bundle.
         guard !appIcon.appIconsInFlight.contains(game.id) else {
             appIcon.waitForAppIconBeforeLaunching(game)
-            return
+            return .accepted(.pending)
         }
         if !FileManager.default.fileExists(atPath: game.url.path),
            game.isPlayableLocally || game.status == .appMissing {
@@ -45,7 +50,7 @@ extension AppViewModel {
             alertMessage = lastError
             updateStoredStatus(.appMissing, for: game)
             SoundEffectService.shared.play(.error)
-            return
+            return .refused(.installationMissing)
         }
         guard game.isPlayableLocally else {
             let reason = GameResourceState.unavailableReason(for: game)
@@ -55,7 +60,7 @@ extension AppViewModel {
             alertMessage = message
             SoundEffectService.shared.play(.error)
             logs.append(LogEntry(level: .error, message: message))
-            return
+            return .refused(.installationMissing)
         }
         guard FileManager.default.fileExists(atPath: game.url.path) else {
             let reason = GameUnavailableReason.appMissing
@@ -64,29 +69,31 @@ extension AppViewModel {
             updateStoredStatus(.appMissing, for: game)
             SoundEffectService.shared.play(.error)
             logs.append(LogEntry(level: .error, message: lastError!))
-            return
+            return .refused(.installationMissing)
         }
         guard let titleId = game.titleId, !titleId.isEmpty else {
             lastError = NXLibraryError.missingTitleId.localizedDescription
             alertMessage = lastError
             SoundEffectService.shared.play(.error)
             logs.append(LogEntry(level: .error, message: lastError!))
-            return
+            return .refused(.invalidGame)
         }
 
         let gameSettings = runtimeSettings.gameSettings(for: game)
         let appSettings = settingsStore?.settings ?? AppSettings()
-        let isGuest = localProfiles?.guest != nil
+        let isGuest = profile.isGuest
         let multiplayer = isGuest ? nil : gameSettings?.multiplayerLaunch(settings: appSettings, adapters: .current())
         if multiplayer?.warning != nil && !acceptsLocalFallback {
             showMultiplayerVPNFallback { [weak self] in
-                self?.launchGame(game, acceptsLocalFallback: true)
+                guard let self else { return }
+                _ = self.playNXNative(self.playTarget(for: .init(nxnative: game)), profile: self.playProfile,
+                                      observe: nil, acceptsLocalFallback: true)
             }
-            return
+            return .refused(.confirmationRequired)
         }
         guard let saveLaunchToken = saveGate.begin(titleID: titleId) else {
             alertMessage = SaveFailure.busy.localizedDescription
-            return
+            return .refused(.savesUnavailable)
         }
         let saveEnvironment: [String: String]
         do {
@@ -97,7 +104,7 @@ extension AppViewModel {
         } catch {
             saveGate.end(titleID: titleId, token: saveLaunchToken)
             alertMessage = error.localizedDescription
-            return
+            return .refused(.savesUnavailable)
         }
         var overlayData = gameOverlayData()
         if let profile = overlayData.snapshot.profile,
@@ -113,7 +120,7 @@ extension AppViewModel {
         let mode = multiplayerEnvironment[NextendoLaunch.networkKey] ?? gameSettings?.effectiveLaunchValue(NextendoLaunch.networkKey)
         if NextendoLaunch.requiresSignIn(setting: setting, mode: mode) {
             let scoped = !usesSharedNextendo
-            let tokenStore = NextendoLaunch.tokenStore(profileID: localProfiles?.active?.id, originalID: localProfiles?.originalID)
+            let tokenStore = NextendoLaunch.tokenStore(profileID: profile.id, originalID: localProfiles?.originalID)
             let profile = localProfiles?.active
             let clientID = settingsStore?.settings.nextendoClientID ?? NextendoLaunch.buildClientID
             Task { @MainActor [weak self] in
@@ -140,10 +147,11 @@ extension AppViewModel {
                         }
                         return true
                     }
-                    self.startGame(game, titleId: titleId, token: saveLaunchToken, gameSettings: gameSettings,
-                                   overlayData: checkedOverlay,
-                                   environment: multiplayerEnvironment.merging(environment) { _, online in online }
-                                       .merging(presence) { _, policy in policy })
+                    let result = self.startGame(game, titleId: titleId, token: saveLaunchToken, gameSettings: gameSettings,
+                                                overlayData: checkedOverlay,
+                                                environment: multiplayerEnvironment.merging(environment) { _, online in online }
+                                                    .merging(presence) { _, policy in policy }, observe: observe)
+                    if case .refused = result { observe?(.result(result)) }
                 } catch {
                     self.playSessionStore?.abandonStart(gameID: game.id)
                     self.saveGate.end(titleID: titleId, token: saveLaunchToken)
@@ -160,12 +168,13 @@ extension AppViewModel {
                     } else {
                         self.showSettingsNotice(title: "Nextendo", message: hint)
                     }
+                    observe?(.result(.refused(.preparationFailed)))
                 }
             }
-            return
+            return .accepted(.pending)
         }
-        startGame(game, titleId: titleId, token: saveLaunchToken, gameSettings: gameSettings,
-                  overlayData: overlayData, environment: multiplayerEnvironment)
+        return startGame(game, titleId: titleId, token: saveLaunchToken, gameSettings: gameSettings,
+                         overlayData: overlayData, environment: multiplayerEnvironment, observe: observe)
     }
 
     func showMultiplayerVPNFallback(_ proceed: @escaping () -> Void) {
@@ -174,9 +183,10 @@ extension AppViewModel {
                            actionTitle: "Play on the local network", cancelTitle: "Cancel", primaryFirst: true, retry: proceed)
     }
 
-    private func startGame(_ game: PortedGame, titleId: String, token saveLaunchToken: UUID,
-                           gameSettings: NXNativeGameSettings?,
-                           overlayData: (snapshot: GameOverlaySnapshot, total: String?), environment: [String: String]) {
+    @MainActor private func startGame(_ game: PortedGame, titleId: String, token saveLaunchToken: UUID,
+                                      gameSettings: NXNativeGameSettings?,
+                                      overlayData: (snapshot: GameOverlaySnapshot, total: String?), environment: [String: String],
+                                      observe: PlayObserver?) -> PlayResult {
         launchOverlay = LaunchOverlayState(game: .nxnative(game))
         SoundEffectService.shared.play(.launch)
 
@@ -198,7 +208,7 @@ extension AppViewModel {
             SoundEffectService.shared.play(.error)
             logs.append(LogEntry(level: .error,
                                  message: L10n.format("Could not write the runtime environment: %@", [String(describing: error.localizedDescription)])))
-            return
+            return .refused(.preparationFailed)
         }
 
         if environment["DM_SAVE"] == nil, let choice = settingsStore?.settings.cloudSaves, let domain = game.effectiveBundleId {
@@ -248,8 +258,9 @@ extension AppViewModel {
                 overrides[GameDisplay.key] = nil
             }
             openGame(game, titleId: titleId, token: saveLaunchToken, environment: overrides,
-                     overlay: overlay, snapshot: overlayData.snapshot)
+                     overlay: overlay, snapshot: overlayData.snapshot, observe: observe)
         }
+        return .accepted(.pending)
     }
 
     @MainActor private func gameOverlayData() -> (snapshot: GameOverlaySnapshot, total: String?) {
@@ -278,13 +289,17 @@ extension AppViewModel {
         return (snapshot, Int(exactly: (total / 60).rounded(.down)) == nil ? nil : LibraryPresentation.duration(total))
     }
 
-    private func openGame(_ game: PortedGame, titleId: String, token saveLaunchToken: UUID,
-                          environment: [String: String], overlay: GameOverlayLaunch, snapshot: GameOverlaySnapshot) {
+    @MainActor private func openGame(_ game: PortedGame, titleId: String, token saveLaunchToken: UUID,
+                                     environment: [String: String], overlay: GameOverlayLaunch, snapshot: GameOverlaySnapshot,
+                                     observe: PlayObserver?) {
         let evaluate = snapshot.profile.flatMap { localAchievementExit(for: game, profile: $0.id, environment: environment) }
+        let onExit: (() -> Void)? = if let observe {
+            { evaluate?(); DispatchQueue.main.async { observe(.exited) } }
+        } else { evaluate }
         launchService.launch(appURL: game.url, environment: environment,
                              homeButton: settingsStore?.settings.inGameHomeButton ?? .auto,
                              overlay: overlay, snapshot: snapshot,
-                             onExit: evaluate) { [weak self] success, error in
+                             onExit: onExit) { [weak self] success, error in
             DispatchQueue.main.async {
                 guard let self else { return }
                 self.saveGate.end(titleID: titleId, token: saveLaunchToken)
@@ -297,10 +312,11 @@ extension AppViewModel {
                     self.lastError = nil
                     self.playSessionStore?.start(for: game)
                     self.logs.append(LogEntry(level: .success, message: L10n.format("Launched game: %@", [String(describing: game.name)])))
-                    self.watchLaunch(of: game)
+                    self.watchLaunch(of: game, observe: observe)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                         if self.launchingGameId == game.id { self.launchingGameId = nil }
                     }
+                    observe?(.result(.accepted(.gameOpened)))
                 } else {
                     self.playSessionStore?.abandonStart(gameID: game.id)
                     let message = error ?? NXLibraryError.launchFailed(game.name).localizedDescription
@@ -310,6 +326,7 @@ extension AppViewModel {
                     self.alertMessage = message
                     SoundEffectService.shared.play(.error)
                     self.logs.append(LogEntry(level: .error, message: message))
+                    observe?(.result(.refused(.openFailed)))
                 }
             }
         }
@@ -374,7 +391,7 @@ extension AppViewModel {
     }
 
     /// Marks the launch screen ready once the game shows a window, or after the probe times out.
-    private func watchLaunch(of game: PortedGame) {
+    @MainActor private func watchLaunch(of game: PortedGame, observe: PlayObserver?) {
         launchProbeTask?.cancel()
         guard let bundleID = game.effectiveBundleId else {
             launchOverlay?.isReady = true
@@ -392,6 +409,7 @@ extension AppViewModel {
                                               message: L10n.format("%@ showed no window within 60 s; launch screen closed.", [String(describing: game.name)])))
                 }
                 self.launchOverlay?.isReady = true
+                if visible { observe?(.ready) }
             }
         }
     }

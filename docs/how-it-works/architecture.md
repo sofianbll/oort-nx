@@ -463,6 +463,10 @@ In Spotlight e Details `PortingPills.queued` sostituisce la sola azione primaria
 
 I percorsi completi sono in [flows.md](flows.md#3-play-di-un-gioco-switch-nxnative) (Switch) e in [steam.md](steam.md) (Steam).
 
+`AppViewModel.play` inoltra i comandi Play a `GamePlay` nel Core. Il target mantiene il record della sua fonte e l'unica installazione utilizzabile, senza trasformare Steam in un gioco portato. Un `PlayConnector` dichiara la disponibilità di un nuovo avvio e riceve il profilo corrente; i connettori macOS (`NXNativePlayConnector` e `SteamPlayCoordinator`) conservano i controlli e gli avvisi del loro percorso. La richiesta in preparazione, la consegna al client e l'apertura osservata del gioco sono distinte. Quando un connettore osserva una finestra o l'uscita, può segnalarla; la chiusura della schermata d'attesa per timeout non significa che il gioco sia pronto.
+
+Resume nello Spotlight o nella scheda Switch resta un comando del monitor: se il processo nel frattempo esce, Resume non avvia una nuova partita. Cancel e Downloads di Steam e la scelta di aprire Details o Build restano azioni distinte da Play.
+
 **Preparazione.**
 - Il flusso Play controlla operazioni sui salvataggi, recuperi e installazioni in attesa.
 - `GameRuntimeConfig` traduce le impostazioni in variabili `DM_*`. `LauncherSettingsReader` legge il contratto `launcher.json` del gioco e decide i controlli supportati, con un ripiego per le app più vecchie.

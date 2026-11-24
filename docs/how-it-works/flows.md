@@ -78,7 +78,8 @@ I titoli importati dal cloud compaiono in Spotlight e Collection. **Download** a
 
 ```mermaid
 flowchart TD
-    A["Play (GamePrimaryActions)"] --> B["AppViewModel.launchGame"]
+    A["Play (libreria, scheda, Opzioni o menu)"] --> S["AppViewModel.play → GamePlay"]
+    S --> B["NXNativePlayConnector → AppViewModel.playNXNative"]
     B --> C{"Possibile ora?"}
     C -->|"operazione sui salvataggi o recupero"| X["Attesa / spiegazione"]
     C -->|"icona in firma"| Y["Dialogo Preparing (IconLaunchWait)"]
@@ -116,7 +117,8 @@ Prima di aprire il bundle, Oort NX risolve lo schermo soltanto se il `dmhost` in
 
 ```mermaid
 flowchart TD
-    A["Play (GamePrimaryActions)"] --> B["SteamPlayCoordinator"]
+    A["Play (libreria, Opzioni o menu)"] --> S["AppViewModel.play → GamePlay"]
+    S --> B["SteamPlayCoordinator"]
     B --> K["LaunchCoverWindow<br/>ripiego entro 1 s se il pannello manca"]
     K --> C["steam://run/AppID al client di Valve"]
     C --> D["SteamPlayState / SteamBackgroundLaunch<br/>attesa del processo del gioco"]

@@ -34,14 +34,9 @@ extension AppShellView {
         SteamPlayCoordinator.shared.setGames(viewModel.catalogGames, sources: viewModel.catalogSourceConfigurations)
         SteamPlayCoordinator.shared.nativeGames = runningGames
         SteamPlayCoordinator.shared.isLaunchScreenShowing = { [weak viewModel] in viewModel?.launchOverlay != nil }
-        SteamPlayCoordinator.shared.profileAllowsPlay = { [weak viewModel] in
-            guard let viewModel, !viewModel.profileOwnsInput else { return false }
-            guard viewModel.localProfiles?.guest == nil else {
-                viewModel.showSettingsNotice(title: L10n.text("Guest"),
-                                             message: L10n.text("Steam saves cannot be isolated for a guest."))
-                return false
-            }
-            return true
+        SteamPlayCoordinator.shared.showGuestNotice = { [weak viewModel] in
+            viewModel?.showSettingsNotice(title: L10n.text("Guest"),
+                                          message: L10n.text("Steam saves cannot be isolated for a guest."))
         }
         SteamPlayCoordinator.shared.start(sessions: playSessions, settings: settings)
         viewModel.installPendingBuilds()

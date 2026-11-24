@@ -588,6 +588,27 @@ import ArcanePorting
             SeleneBackdrop().still(true)
             SteamOptionsView(viewModel: vm, game: steamGame, origin: .spotlight, onClose: {}, onMove: {})
         }, in: out, refs, "none")
+        let nativeGame = CatalogGame(nxnative: game)
+        let player = SteamPlayCoordinator.shared
+        vm.profileOwnsInput = true
+        precondition(vm.play(nativeGame) == .refused(.profileLocked))
+        precondition(vm.play(steamGame) == .refused(.profileLocked) && player.phase(of: steamGame) == .idle)
+        vm.profileOwnsInput = false
+        vm.launchingGameId = UUID()
+        precondition(vm.play(nativeGame) == .refused(.launchInProgress))
+        vm.launchingGameId = nil
+        var guestNotices = 0
+        player.showGuestNotice = { guestNotices += 1 }
+        precondition(profiles.beginGuest(.init(name: "Guest fixture", look: sam.look)))
+        precondition(vm.play(nativeGame) == .refused(.installationMissing), "The temporary guest can request nxnative Play")
+        precondition(vm.play(steamGame) == .refused(.guestUnsupported) && guestNotices == 1)
+        precondition(player.phase(of: steamGame) == .idle)
+        precondition(profiles.choose(sam.id))
+        vm.alertMessage = nil
+        player.showGuestNotice = {}
+        precondition(vm.playRouter.availability(of: vm.playTarget(for: steamGame)) == .unavailable(.launcherMissing))
+        precondition(vm.play(steamGame) == .refused(.launcherMissing) && player.phase(of: steamGame) == .failed(.clientMissing))
+        print("Common Play checks passed: profile ownership, guest, duplicate nxnative and missing Steam")
         vm.applyCatalog(.init(sources: [.init(integration: .nxnative, isEnabled: true)], games: [fixture] + avatarGames))
         let pack = LocalAchievementPack.linksAwakening!
         var progress = LocalAchievementProgress()
@@ -1253,6 +1274,9 @@ def main():
         replace(app / "ViewModels/AppViewModel.swift", r"            updateDockIcon\(\)", "")
         replace(app / "ViewModels/AppViewModel.swift", r"        applyCatalog\(catalog\).*?\n    }\n\n    // MARK: - Dynamic",
                 "    }\n\n    // MARK: - Dynamic")
+        replace(app / "Services/SteamPlayCoordinator.swift", r"static var steamClientURL: URL\? \{.*?\n    \}",
+                "static var steamClientURL: URL? { nil }")
+        replace(app / "Views/Spotlight/SpotlightTopBar.swift", r"Text\(context\.date,", "Text(Date(timeIntervalSince1970: 1_790_000_000),")
         replace(package / "Sources/NXLibraryCore/App/AppDataProfile.swift",
                 r'public static let profile = [^\n]*',
                 f'public static let profile = AppDataProfile(home: URL(fileURLWithPath: "{temp}"), isDevelopment: true)')

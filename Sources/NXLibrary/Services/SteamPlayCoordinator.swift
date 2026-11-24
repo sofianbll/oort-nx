@@ -23,7 +23,7 @@ import NXLibraryCore
 /// open, Arcane comes back to the front (`SteamReturnFocus`, `LibraryWindow`); a game started from Steam
 /// leaves the player in Steam.
 @MainActor
-final class SteamPlayCoordinator: ObservableObject {
+final class SteamPlayCoordinator: ObservableObject, PlayConnector {
     static let shared = SteamPlayCoordinator()
     nonisolated static let steamBundleID = "com.valvesoftware.steam"
     private static let tick: TimeInterval = 30
@@ -42,6 +42,8 @@ final class SteamPlayCoordinator: ObservableObject {
 
     private var games: [CatalogGame] = []
     private var steamEnabled = false
+    let source = CatalogIntegration.steam
+    private var playObservers: [UUID: PlayObserver] = [:]
     private var sessions: PlaySessionStore?
     private var settings: AppSettingsStore?
     /// Background launches in progress, with whether Steam was in view before Play.
@@ -86,7 +88,7 @@ final class SteamPlayCoordinator: ObservableObject {
 
     /// A Steam game's own app is running.
     var hasRunningGame: Bool { states.values.contains { if case .running = $0.phase { return true }; return false } }
-    var profileAllowsPlay: () -> Bool = { true }
+    var showGuestNotice: () -> Void = {}
     static func blocksIdlePresence(_ states: [UUID: SteamPlayState]) -> Bool {
         states.values.contains { switch $0.phase { case .starting, .running: true; default: false } }
     }
@@ -100,6 +102,13 @@ final class SteamPlayCoordinator: ObservableObject {
     /// One available, recognized installation in an enabled source: what Play needs.
     func canPlay(_ game: CatalogGame) -> Bool {
         CatalogGamePresentation(game: game, sourceEnabled: steamEnabled).launchTarget != nil
+    }
+
+    func availability(of target: PlayTarget) -> PlayAvailability {
+        if case .unavailable = target.installationAvailability { return target.installationAvailability }
+        guard steamEnabled else { return .unavailable(.sourceDisabled) }
+        guard canPlay(target.game) else { return .unavailable(.installationMissing) }
+        return Self.steamClientURL == nil ? .unavailable(.launcherMissing) : .available
     }
 
     /// Steam is still installing it: the first pill and A open Steam's Downloads instead of Play.
@@ -126,12 +135,20 @@ final class SteamPlayCoordinator: ObservableObject {
         }
     }
 
-    /// The pill and A press: waiting cancels, anything else plays (or brings a running game forward).
-    func press(_ game: CatalogGame) {
+    /// The pill and A press keep their Downloads and Cancel actions outside the Play contract.
+    func handleNonPlayPress(_ game: CatalogGame) -> Bool {
         // One launch at a time: the launch screen covers the library, and input reaching it changes nothing.
-        guard !isLaunchScreenShowing() else { return }
-        if case .idle = phase(of: game), isDownloading(game) { openDownloads(); return }
-        if case .starting = phase(of: game) { cancel(game) } else { play(game) }
+        guard !isLaunchScreenShowing() else { return true }
+        if case .idle = phase(of: game), isDownloading(game) { openDownloads(); return true }
+        if case .starting = phase(of: game) { cancel(game); return true }
+        return false
+    }
+
+    func play(_ target: PlayTarget, profile: PlayProfile, observe: PlayObserver?) -> PlayResult {
+        guard !isLaunchScreenShowing() else { return .refused(.launchInProgress) }
+        guard !profile.blocksPlay else { return .refused(.profileLocked) }
+        if profile.isGuest { showGuestNotice(); return .refused(.guestUnsupported) }
+        return requestPlay(target, observe: observe)
     }
 
     /// Steam is coming back for the player: the game is late and Steam may be asking for something.
@@ -175,6 +192,7 @@ final class SteamPlayCoordinator: ObservableObject {
         // A later start re-reads the processes: `RunningGameMonitor.start` closes open Steam sessions
         // at their last heartbeat, and a game still running must start a new one, not stay "running".
         states = [:]
+        playObservers = [:]
         canonicalProcesses = [:]
         returnFocus = SteamReturnFocus()
         hideAgain?.cancel(); hideAgain = nil
@@ -209,20 +227,22 @@ final class SteamPlayCoordinator: ObservableObject {
         return handler
     }
 
-    func play(_ game: CatalogGame) {
-        guard profileAllowsPlay() else { return }
+    private func requestPlay(_ target: PlayTarget, observe: PlayObserver?) -> PlayResult {
+        let game = target.game
         // A game that quit since the last notification is not resumed: read the processes first.
         refresh()
         let presentation = CatalogGamePresentation(game: game, sourceEnabled: steamEnabled)
         let client = Self.steamClientURL
         var state = states[game.id] ?? SteamPlayState()
-        let request = state.requestPlay(target: presentation.launchTarget, clientAvailable: client != nil, now: Date())
+        let launchTarget = target.installationAvailability == .available ? presentation.launchTarget : nil
+        let request = state.requestPlay(target: launchTarget, clientAvailable: client != nil, now: Date())
         states[game.id] = state
         switch request {
         case .resume(let pid):
             if let app = NSRunningApplication(processIdentifier: pid) { RunningGameMonitor.activate(app) }
+            return .accepted(.gameOpened)
         case .handOff(let url, let generation):
-            guard let client else { return }
+            guard let client else { return .refused(.launcherMissing) }
             sessions?.expectStart(gameID: game.id)
             returnFocus.playPressed(game.id)
             hideAgain?.cancel(); hideAgain = nil
@@ -231,6 +251,7 @@ final class SteamPlayCoordinator: ObservableObject {
             let configuration = NSWorkspace.OpenConfiguration()
             configuration.activates = false
             let id = game.id
+            playObservers[id] = observe
             let background = settings?.settings.steamInBackground ?? false
             let steam = Self.steamApplication
             // Launch arguments reach only a Steam that this request starts.
@@ -254,8 +275,18 @@ final class SteamPlayCoordinator: ObservableObject {
                     Task { @MainActor in self?.finishHandOff(id, accepted: accepted, generation: generation) }
                 }
             }
-        case .wait, .refuse:
-            break
+            return .accepted(.pending)
+        case .wait:
+            return .refused(.launchInProgress)
+        case .refuse(.unavailable):
+            if case .unavailable(let reason) = target.installationAvailability { return .refused(reason) }
+            return .refused(steamEnabled ? .installationMissing : .sourceDisabled)
+        case .refuse(.clientMissing):
+            return .refused(.launcherMissing)
+        case .refuse(.handoffRejected):
+            return .refused(.handoffRejected)
+        case .refuse(.notStarted):
+            return .refused(.notStarted)
         }
     }
 
@@ -294,15 +325,25 @@ final class SteamPlayCoordinator: ObservableObject {
             handOffDeadline?.cancel(); handOffDeadline = nil
         }
         state.cancel(); states[game.id] = state
-        if !isRunning(game) { returnFocus.playAbandoned(game.id) }
+        if !isRunning(game) {
+            playObservers[game.id] = nil
+            returnFocus.playAbandoned(game.id)
+        }
         followBackground()
     }
 
     private func finishHandOff(_ id: UUID, accepted: Bool, generation: Int) {
         guard var state = states[id], state.generation == generation else { return }
+        let wasWaiting: Bool
+        if case .starting = state.phase { wasWaiting = true } else { wasWaiting = false }
         if !accepted { sessions?.abandonStart(gameID: id) }
         state.handoffFinished(accepted: accepted, generation: generation)
         states[id] = state
+        if wasWaiting {
+            let observe = playObservers[id]
+            if !accepted { playObservers[id] = nil }
+            observe?(.result(accepted ? .accepted(.handedOff) : .refused(.handoffRejected)))
+        }
         refresh()
     }
 
@@ -324,6 +365,7 @@ final class SteamPlayCoordinator: ObservableObject {
         let now = Date()
         var next = states
         var ended: [UUID] = []
+        var playEvents: [(PlayObserver, PlayEvent)] = []
         let followed = Set(games.map(\.id)).union(states.keys)
         for id in followed {
             let game = games.first { $0.id == id }
@@ -331,6 +373,7 @@ final class SteamPlayCoordinator: ObservableObject {
             var state = next[id] ?? SteamPlayState()
             switch state.observe(processes, application: app, now: now) {
             case .started(let pid):
+                if let observe = playObservers[id] { playEvents.append((observe, .result(.accepted(.gameOpened)))) }
                 if let appID = game?.steamGame?.appID {
                     // A game already running when Arcane began watching (a relaunch) keeps its Spotlight place.
                     let launched = NSRunningApplication(processIdentifier: pid)?.launchDate
@@ -340,6 +383,7 @@ final class SteamPlayCoordinator: ObservableObject {
                 // The game may have come forward before its process was seen.
                 if NSWorkspace.shared.frontmostApplication?.processIdentifier == pid { returnFocus.gameCameForward(id) }
             case .ended:
+                if let observe = playObservers.removeValue(forKey: id) { playEvents.append((observe, .exited)) }
                 for session in sessions?.end(gameID: id) ?? [] {
                     guard let game, let sessions,
                           let summary = SessionSummary(session: session, game: game,
@@ -351,6 +395,9 @@ final class SteamPlayCoordinator: ObservableObject {
                 if heartbeat, case .running = state.phase { sessions?.heartbeat(for: id) }
             }
             if case .failed = state.phase {
+                if let observe = playObservers.removeValue(forKey: id) {
+                    playEvents.append((observe, .result(.refused(.notStarted))))
+                }
                 sessions?.abandonStart(gameID: id)
                 returnFocus.playAbandoned(id)
             }
@@ -364,6 +411,7 @@ final class SteamPlayCoordinator: ObservableObject {
         }
         for id in ended { gameEnded(id) }
         followBackground()
+        for (observe, event) in playEvents { observe(event) }
     }
 
     // MARK: - Back to Arcane
@@ -545,6 +593,7 @@ final class SteamPlayCoordinator: ObservableObject {
             }
             self.launchScreen?.ready = true
             self.readiness = nil
+            if visible { self.playObservers[id]?(.ready) }
         }
     }
 

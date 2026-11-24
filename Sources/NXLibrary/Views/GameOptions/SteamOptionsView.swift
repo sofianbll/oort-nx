@@ -175,7 +175,7 @@ struct SteamOptionsView: View {
             guard presentation.canPlay else { SoundEffectService.shared.play(.error); return }
             SoundEffectService.shared.play(.click)
             onClose()
-            SteamPlayCoordinator.shared.press(game)
+            viewModel.pressPlay(game)
         case .editDetails:
             SoundEffectService.shared.play(.click)
             pickedRow = presentation.focusableRows(level: .editDetails, origin: origin).first

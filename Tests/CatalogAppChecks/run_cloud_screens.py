@@ -730,7 +730,7 @@ enum ScreenVPN {
 
 
 def change(file, old, new):
-    text, count = re.subn(old, lambda _: new, file.read_text(), count=1, flags=re.S)
+    text, count = re.subn(old, new if callable(new) else lambda _: new, file.read_text(), count=1, flags=re.S)
     assert count == 1, (file, old)
     file.write_text(text)
 
@@ -945,8 +945,9 @@ extension CloudLibraryPanel {
                    '        screenRunning.withLock { Set([$0].compactMap { $0 }) }')
             change(app / "ViewModels/AppViewModel.swift", r'    let saveGate =',
                    '    var screenPlay: ((PortedGame) -> Void)?\n    let saveGate =')
-            change(app / "ViewModels/AppViewModel+Launch.swift", r'        guard savesPermitPlay\(game\) else \{ return \}',
-                   '        if let screenPlay { screenPlay(game); return }\n        guard savesPermitPlay(game) else { return }')
+            launch = app / "ViewModels/AppViewModel+Launch.swift"
+            change(launch, r'(        guard savesPermitPlay\((game|requested)\) else \{ return( \.refused\(\.savesUnavailable\))? \})',
+                   lambda match: f'        if let screenPlay {{ screenPlay({match[2]}); return{match[3] or ""} }}\n{match[1]}')
         if "onEditLibrary:" in section.read_text():
             host = host.replace("onEdit: {}, onEditSources:", "onEdit: {}, onEditLibrary: {}, onEditSources:")
             host = host.replace("/* ENTRY */", ", entry: .sources")
