@@ -242,6 +242,14 @@ final class StoreMetadataModel: ObservableObject {
     }
 
     func clearMetadataCache() {
+        metadataLocaleGeneration = UUID()
+        cachedMetadataPreload?.cancel()
+        localizedMetadataRefresh?.cancel()
+        languageFetchResume?.cancel()
+        languageFetchQueue.removeAll()
+        languageFetchWaiting.removeAll()
+        storeMetadataLoading.removeAll()
+        storeMetadataErrors.removeAll()
         storeMetadataService.clearCache()
         WikipediaDescriptionService.shared.clearCache()
         storeMetadata.removeAll()

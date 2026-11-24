@@ -132,7 +132,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [Sources/NXLibrary/ViewModels/SetupCheckModel.swift](../../Sources/NXLibrary/ViewModels/SetupCheckModel.swift) | Esegue probe e installazioni del Setup in background, con il pin del bundle, avanzamento e ricontrollo periodico; inoltra alla scheda l'errore di importazione delle chiavi. |
 | [Sources/NXLibrary/ViewModels/SetupModel.swift](../../Sources/NXLibrary/ViewModels/SetupModel.swift) | Tiene il Setup Switch: cartella, validità e commit dell'engine, sorgenti che l'engine sa leggere, controllo Upstream e scelta della cartella; chiavi importate (percorso, validità, riepilogo, importazione, errore e selettore); controllo dell'ambiente, compatibilità, override della toolchain non testata, gate e suo riepilogo, Python e Xcode dell'engine, versioni Metal. Ricarica override, scelta di Newest engine e ultimo controllo Upstream. Raggiunge il coordinatore solo da `app`. |
 | [Sources/NXLibrary/ViewModels/SetupModel+NewestEngine.swift](../../Sources/NXLibrary/ViewModels/SetupModel+NewestEngine.swift) | Usa l’engine upstream più nuovo o torna a quello testato dal suo repository, accende l’override e controlla se main è utilizzabile. |
-| [Sources/NXLibrary/ViewModels/StoreMetadataModel.swift](../../Sources/NXLibrary/ViewModels/StoreMetadataModel.swift) | Tiene i dati dello store Nintendo per gioco nella lingua dell'app: caricamento, coda delle lingue in background, screenshot di ripiego, scelte di Change metadata e cache; le schermate che li mostrano lo osservano. |
+| [Sources/NXLibrary/ViewModels/StoreMetadataModel.swift](../../Sources/NXLibrary/ViewModels/StoreMetadataModel.swift) | Tiene i dati dello store Nintendo, le code per lingua, gli screenshot di ripiego e le scelte di Change metadata; svuotando la cache invalida i risultati in corso. |
 
 ## Modelli dello stato applicativo
 
@@ -1096,7 +1096,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_guest_quit.py](../../Tests/CatalogAppChecks/run_guest_quit.py) | Esegue le regole reali dell’uscita ospite, dell’annullamento e del completamento con esiti di attività sintetici. |
 | [run_profile_collection_game.py](../../Tests/CatalogAppChecks/run_profile_collection_game.py) | Verifica la selezione dei giochi Switch e Steam nel menu nativo della Collection di un profilo. |
 | [run_logo_cancellation.py](../../Tests/CatalogAppChecks/run_logo_cancellation.py) | Verifica il recupero del logo tornando prima che la ricerca annullata finisca, senza rete. |
-| [run_metadata_preload.py](../../Tests/CatalogAppChecks/run_metadata_preload.py) | Verifica che il precaricamento del catalogo legga la cache fuori dal main thread e pubblichi i risultati sul main thread. |
+| [run_metadata_preload.py](../../Tests/CatalogAppChecks/run_metadata_preload.py) | Verifica le letture fuori dal main thread, la pubblicazione sul main thread e lo scarto dei risultati dopo lo svuotamento (EN/FR). |
 | [run_spotlight_notification_select.py](../../Tests/CatalogAppChecks/run_spotlight_notification_select.py) | Verifica la selezione da una notifica, anche chiudendo Add Game mentre è in corso un altro porting. |
 | [run_sort_native_menu.py](../../Tests/CatalogAppChecks/run_sort_native_menu.py) | Verifica disponibilità e consegna di Gioca dal menu nativo con l’ordinamento aperto. |
 | [run_empty_collection_input.py](../../Tests/CatalogAppChecks/run_empty_collection_input.py) | Invia comandi di navigazione alla Collection vuota e verifica Aggiungi gioco e Importa build esistenti. |

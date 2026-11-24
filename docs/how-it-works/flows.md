@@ -325,6 +325,8 @@ In System → About, il riepilogo collega Arcane 0.2.1 di Bium23 al progetto ori
 
 Tornando alla home, le viste delle tessere ricreate leggono subito le immagini decodificate in `TileArtMemo`; i task caricano quelle mancanti e rivalidano i file Steam. La cover della card Mods resta nel `ModStoreHost` posseduto dalla shell ed è rivalidata in background rispetto agli abbinamenti correnti.
 
+In Settings → Storage, svuotare la cache dei metadati scarta anche i risultati di precaricamento già letti ma non ancora mostrati. Una nuova apertura può caricare una descrizione aggiornata.
+
 ## 9. Aggiornare l'app
 
 ```mermaid
