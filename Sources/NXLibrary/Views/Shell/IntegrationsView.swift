@@ -188,8 +188,13 @@ struct IntegrationsView: View {
         VStack(alignment: .leading, spacing: canvas.u(8)) {
             Text(text("Coming later")).seleneFont(.rowTitle, .semibold)
                 .accessibilityAddTraits(.isHeader)
-            Text(verbatim: "Epic · GOG · CrossOver · \(text("Mac apps"))")
-                .seleneFont(.panelBody).foregroundStyle(SeleneTheme.ink75)
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: canvas.u(220)), alignment: .leading)],
+                      alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
+                ForEach(PlatformKind.upcoming, id: \.self) { platform in
+                    PlatformLabel(platform, size: .panelBody, weight: .regular)
+                }
+            }
+            .foregroundStyle(SeleneTheme.ink75)
         }
         .padding(canvas.u(SeleneTokens.Space.titleGap))
     }
@@ -203,8 +208,17 @@ struct IntegrationsView: View {
         }
         return VStack(alignment: .leading, spacing: canvas.u(9)) {
             HStack(alignment: .top, spacing: canvas.u(12)) {
-                Text(text(row.name)).seleneFont(.rowTitle, .semibold)
-                    .accessibilityAddTraits(.isHeader)
+                Group {
+                    switch row.id {
+                    case .switchGames: PlatformLabel(.switch1, title: text(row.name))
+                    case .steam: PlatformLabel(.steam)
+                    case .drive: PlatformLabel(.drive)
+                    case .nextendo: PlatformLabel(.nextendo, title: text(row.name))
+                    case .images: PlatformLabel(.images, title: text(row.name))
+                    case .saves: PlatformLabel(.saves, title: text(row.name))
+                    }
+                }
+                .accessibilityAddTraits(.isHeader)
                 Spacer()
                 SeleneStatusDot(text: text(row.status), color: color, labelColor: SeleneTheme.ink90)
             }

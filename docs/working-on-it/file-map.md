@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **1073 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **1092 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -829,7 +829,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/Components/SeleneHomeChrome.swift](../../Sources/NXLibrary/Views/Components/SeleneHomeChrome.swift) | Rende elementi condivisi della cornice e dei controlli della home Selene; trattiene gli hint durante l’entrata. |
 | [Sources/NXLibrary/Views/Components/SeleneOptionRow.swift](../../Sources/NXLibrary/Views/Components/SeleneOptionRow.swift) | Disegna righe di opzioni con icona, titolo, descrizione con carattere configurabile, focus e contenuto laterale. |
 | [Sources/NXLibrary/Views/Components/SeleneExpandableText.swift](../../Sources/NXLibrary/Views/Components/SeleneExpandableText.swift) | Rivela la descrizione completa animando l'altezza fra due layout di testo stabili; usato solo dalle righe dei metadati. |
-| [Sources/NXLibrary/Views/Components/SelenePillButton.swift](../../Sources/NXLibrary/Views/Components/SelenePillButton.swift) | Disegna il pulsante condiviso, i tasti PIN con testo più grande, lo stile secondario nei dialoghi, la larghezza piena in una colonna e il riempimento mascherato di Download. |
+| [Sources/NXLibrary/Views/Components/SelenePillButton.swift](../../Sources/NXLibrary/Views/Components/SelenePillButton.swift) | Disegna il pulsante condiviso, il contorno come anello pieno, la larghezza piena in una colonna e il riempimento mascherato di Download. |
 | [Sources/NXLibrary/Views/Components/SeleneProgressBar.swift](../../Sources/NXLibrary/Views/Components/SeleneProgressBar.swift) | Barra cloud Selene con colore semantico; segno fermo se il totale è ignoto. |
 | [Sources/NXLibrary/Views/Components/SeleneStepper.swift](../../Sources/NXLibrary/Views/Components/SeleneStepper.swift) | Indicatore di passo e superficie dei campi per l'assistente Selene. |
 | [Sources/NXLibrary/Views/Components/SelenePromptBadge.swift](../../Sources/NXLibrary/Views/Components/SelenePromptBadge.swift) | Rende simbolo o etichetta del controller e della tastiera, compresa la croce direzionale a contrasto. |
@@ -846,8 +846,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/Components/SpotlightTileArtwork.swift](../../Sources/NXLibrary/Views/Components/SpotlightTileArtwork.swift) | Disegna subito l’icona nxnative già decodificata; cache condivisa `TileArtMemo` con fonte e revisione delle scelte, caricamento annullabile e segnale `TileArtPendingKey`. |
 | [Sources/NXLibrary/Views/Components/SwitchBoxArtCover.swift](../../Sources/NXLibrary/Views/Components/SwitchBoxArtCover.swift) | Disegna la copertina Switch dalle immagini in cache o compone il ripiego e fornisce i limiti del titolo. |
 | [Sources/NXLibrary/Views/Components/SteamGridDBKeyDialog.swift](../../Sources/NXLibrary/Views/Components/SteamGridDBKeyDialog.swift) | Popup per incollare e verificare la chiave SteamGridDB da Settings → Look e da Change artwork. |
-| [Sources/NXLibrary/Views/Components/SwitchPlatformIcon.swift](../../Sources/NXLibrary/Views/Components/SwitchPlatformIcon.swift) | Icona vettoriale della console Switch per la riga della piattaforma. |
-| [Sources/NXLibrary/Views/Components/SteamPlatformLogo.swift](../../Sources/NXLibrary/Views/Components/SteamPlatformLogo.swift) | Logo ufficiale Steam per la piattaforma dei giochi Steam: da solo, almeno 50 pixel, spazio libero della manovella. |
+| [Sources/NXLibrary/Views/Components/PlatformLabel.swift](../../Sources/NXLibrary/Views/Components/PlatformLabel.swift) | Etichetta condivisa: simbolo monocromatico, nome e indicatore Switch 2. |
 | [Sources/NXLibrary/Views/Components/GameLogoArea.swift](../../Sources/NXLibrary/Views/Components/GameLogoArea.swift) | Area del logo del gioco con la geometria condivisa da Spotlight e Collection; caricamento e impostazioni restano fuori. |
 | [Sources/NXLibrary/Views/Components/GamePrimaryActions.swift](../../Sources/NXLibrary/Views/Components/GamePrimaryActions.swift) | Azioni principali con avanzamento di Download, Options, pillola Cloud e preferito con bersagli di input stabili. |
 | [Sources/NXLibrary/Views/Components/SessionCard.swift](../../Sources/NXLibrary/Views/Components/SessionCard.swift) | Card di fine sessione e toast degli obiettivi con titolo plurale: aspettano che Arcane sia davanti, compaiono 1,8 s dopo per 8 s e si azzerano al cambio di profilo. |
@@ -1265,8 +1264,28 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Resources/Selene/Fonts/MaterialIcons-Regular.ttf](../../Resources/Selene/Fonts/MaterialIcons-Regular.ttf) | Font dei glifi Material Icons disegnati dalla UI. |
 | [Resources/Selene/Fonts/MaterialIcons-LICENSE.txt](../../Resources/Selene/Fonts/MaterialIcons-LICENSE.txt) | Licenza del font Material Icons incluso. |
 | [Resources/Selene/NOTICE.txt](../../Resources/Selene/NOTICE.txt) | Attribuzioni delle risorse Selene incluse. |
-| [Resources/Brands/SteamLogo.png](../../Resources/Brands/SteamLogo.png) | Logo Steam inverso dalle linee guida Valve, inalterato; attribuzione in `NOTICE`. |
-| [Resources/Brands/BuyMeACoffee.png](../../Resources/Brands/BuyMeACoffee.png) | Icona gialla dal kit ufficiale Buy Me a Coffee per il pulsante di sostegno; attribuzione in `NOTICE`. |
+| [Resources/Brands/Platforms/LICENSE-Lucide.txt](../../Resources/Brands/Platforms/LICENSE-Lucide.txt) | Licenza ISC e nota Feather MIT. |
+| [Buy Me a Coffee.svg](../../Resources/Brands/Platforms/Marks/Buy%20Me%20a%20Coffee.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
+| [CrossOver.svg](../../Resources/Brands/Platforms/Marks/CrossOver.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
+| [Epic Games.svg](../../Resources/Brands/Platforms/Marks/Epic%20Games.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
+| [GOG.svg](../../Resources/Brands/Platforms/Marks/GOG.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
+| [Google Drive.svg](../../Resources/Brands/Platforms/Marks/Google%20Drive.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
+| [Nintendo Switch 2.svg](../../Resources/Brands/Platforms/Marks/Nintendo%20Switch%202.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
+| [Nintendo Switch.svg](../../Resources/Brands/Platforms/Marks/Nintendo%20Switch.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
+| [Steam.svg](../../Resources/Brands/Platforms/Marks/Steam.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
+| [Resources/Brands/Platforms/NOTICE.txt](../../Resources/Brands/Platforms/NOTICE.txt) | Provenienza e nota sui marchi. |
+| [Resources/Brands/Platforms/arrow-left-right.svg](../../Resources/Brands/Platforms/arrow-left-right.svg) | Simbolo generico CrossOver. |
+| [Resources/Brands/Platforms/boxes.svg](../../Resources/Brands/Platforms/boxes.svg) | Simbolo generico Minecraft. |
+| [Resources/Brands/Platforms/cloud.svg](../../Resources/Brands/Platforms/cloud.svg) | Simbolo Lucide per i salvataggi iCloud. |
+| [Resources/Brands/Platforms/image.svg](../../Resources/Brands/Platforms/image.svg) | Simbolo Lucide per immagini e valutazioni. |
+| [Resources/Brands/Platforms/network.svg](../../Resources/Brands/Platforms/network.svg) | Simbolo Lucide per Nextendo. |
+| [Resources/Brands/Platforms/coffee.svg](../../Resources/Brands/Platforms/coffee.svg) | Tazza generica per il collegamento di sostegno. |
+| [Resources/Brands/Platforms/disc-3.svg](../../Resources/Brands/Platforms/disc-3.svg) | Simbolo generico Steam. |
+| [Resources/Brands/Platforms/gamepad-2.svg](../../Resources/Brands/Platforms/gamepad-2.svg) | Simbolo generico Switch e base del segno Switch 2. |
+| [Resources/Brands/Platforms/hard-drive.svg](../../Resources/Brands/Platforms/hard-drive.svg) | Simbolo generico Google Drive. |
+| [Resources/Brands/Platforms/laptop.svg](../../Resources/Brands/Platforms/laptop.svg) | Simbolo generico dei collegamenti alle app Mac. |
+| [Resources/Brands/Platforms/package.svg](../../Resources/Brands/Platforms/package.svg) | Simbolo generico GOG. |
+| [Resources/Brands/Platforms/shield.svg](../../Resources/Brands/Platforms/shield.svg) | Simbolo generico Epic Games. |
 | [Resources/Selene/NOTICE-palettes.txt](../../Resources/Selene/NOTICE-palettes.txt) | Attribuzioni delle palette incluse con esse. |
 | [Resources/ThirdPartyLicenses/omarchy-LICENSE.txt](../../Resources/ThirdPartyLicenses/omarchy-LICENSE.txt) | Testo MIT di Omarchy per le palette derivate. |
 | [Resources/ThirdPartyLicenses/python-LICENSES.txt](../../Resources/ThirdPartyLicenses/python-LICENSES.txt) | Licenze delle dipendenze native di CPython, Tcl/Tk e delle estensioni. |

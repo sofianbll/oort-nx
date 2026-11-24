@@ -193,6 +193,7 @@ struct SetupCardRow: View {
     let detail: String
     var note: String? = nil
     let icon: MaterialIcon
+    var platform: PlatformKind? = nil
     var trailing: Trailing = .chevron
     var height: CGFloat = 112
     let focused: Bool
@@ -203,9 +204,13 @@ struct SetupCardRow: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: canvas.u(22)) {
-                MaterialIconView(icon, size: 30).frame(width: canvas.u(40))
+                if platform == nil { MaterialIconView(icon, size: 30).frame(width: canvas.u(40)) }
                 VStack(alignment: .leading, spacing: canvas.u(5)) {
-                    Text(title).seleneFont(22, .semibold)
+                    if let platform {
+                        PlatformLabel(platform, title: title, size: .selectionTitle)
+                    } else {
+                        Text(title).seleneFont(22, .semibold)
+                    }
                     Text(detail).seleneFont(15).foregroundColor(SeleneTheme.ink75)
                         .lineLimit(2).truncationMode(.middle)
                     if let note {

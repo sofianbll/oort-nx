@@ -77,13 +77,13 @@ struct FoundGamesSetupContent: View {
                     if let steamCount = findings?.steamGameCount {
                         SetupCardRow(title: "Steam",
                                      detail: L10n.count("%lld installed Mac games", steamCount),
-                                     icon: .store, trailing: .toggle(steamOn),
+                                     icon: .store, platform: .steam, trailing: .toggle(steamOn),
                                      focused: focus == .steamToggle,
                                      onHover: { move(.steamToggle) }) { activate(.steamToggle) }
                     } else if findings?.steamReadFailed == true {
                         SetupCardRow(title: "Steam",
                                      detail: L10n.text("Steam couldn't be read completely. Try again or continue and check Settings → Sources later."),
-                                     icon: .store, trailing: .text(L10n.text("Retry")),
+                                     icon: .store, platform: .steam, trailing: .text(L10n.text("Retry")),
                                      focused: focus == .steamToggle,
                                      onHover: { move(.steamToggle) }) { activate(.steamToggle) }
                     }

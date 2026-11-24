@@ -55,6 +55,21 @@ class PublicationChecks(unittest.TestCase):
         self.track("README.md", "Source code only.")
         self.assertEqual(self.scan().returncode, 0)
 
+    def test_nintendo_exception_pins_paths_and_bytes_even_if_manifest_is_changed(self):
+        project = SCRIPT.parent.parent
+        name = "Brands/Platforms/Marks/Nintendo Switch 2.svg"
+        original = (project / "Resources" / name).read_text()
+        entry = json.loads((SCRIPT.parent / "bundle-licences.json").read_text())[name]
+        self.track("Resources/" + name, original)
+        self.track("scripts/bundle-licences.json", json.dumps({name: entry}))
+        self.assertEqual(self.scan().returncode, 0)
+        modified = original + "\n"
+        self.track("Resources/" + name, modified)
+        self.assertIn("Unreviewed or changed brand resource", self.scan().stdout)
+        entry["sha256"] = hashlib.sha256(modified.encode()).hexdigest()
+        self.track("scripts/bundle-licences.json", json.dumps({name: entry}))
+        self.assertNotEqual(self.scan().returncode, 0)
+
     def test_runtime_must_match_the_exact_lock(self):
         lock = {"python": {"version": "3.14.6"}, "wheels": [], "brew": []}
         data = json.dumps(lock).encode()
@@ -109,6 +124,8 @@ class PublicationChecks(unittest.TestCase):
         (runtime / "versions.json").write_text(json.dumps(
             {"python": "3.14.6", "lock": hashlib.sha256(lock).hexdigest()}))
         contents = {"NOTICE": b"main notice", "ThirdPartyLicenses/rclone-LICENSES.txt": b"rclone licence",
+                    "Brands/Platforms/disc-3.svg": b"reviewed symbol",
+                    "Brands/Platforms/NOTICE.txt": b"symbol provenance",
                     "Runtime/licenses/python.txt": b"Python licence",
                     "Runtime/sources/zbic.tar.gz": b"source archive"}
         manifest = {name: hashlib.sha256(data).hexdigest() for name, data in contents.items()}
@@ -121,6 +138,12 @@ class PublicationChecks(unittest.TestCase):
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(data)
         self.assertEqual(self.scan("--app", str(app)).returncode, 0)
+        unreviewed = resources / "Brands/Platforms/extra.svg"
+        unreviewed.write_text("unreviewed symbol")
+        result = self.scan("--app", str(app))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("Unreviewed brand resource: Brands/Platforms/extra.svg", result.stdout)
+        unreviewed.unlink()
         for relative in ("Contents/Helpers/rclone", "Contents/Resources/rclone-v1-osx-arm64.zip",
                          "Contents/MacOS/RCLONE"):
             with self.subTest(relative=relative):
