@@ -734,7 +734,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 
 | File | Responsabilità |
 |---|---|
-| [Sources/NXLibrary/Views/Settings/SettingsView.swift](../../Sources/NXLibrary/Views/Settings/SettingsView.swift) | Coordina sezioni, focus anche da Integrations, reset, Advanced di Play together, assistente cloud e PIN. |
+| [Sources/NXLibrary/Views/Settings/SettingsView.swift](../../Sources/NXLibrary/Views/Settings/SettingsView.swift) | Coordina sezioni, focus da Integrations, reset, Advanced, assistente cloud e PIN; soltanto la route aperta riceve l’input. |
 | [Sources/NXLibrary/Views/Settings/SettingsSidebar.swift](../../Sources/NXLibrary/Views/Settings/SettingsSidebar.swift) | Disegna intestazione e sezioni per gruppo, con icona a due persone per Play together. |
 | [Sources/NXLibrary/Views/Settings/SettingsSectionContent.swift](../../Sources/NXLibrary/Views/Settings/SettingsSectionContent.swift) | Instrada le sezioni, distingue Play together da Online services, passa gli ingressi cloud e mostra le azioni del blocco profilo. Usa un trattino se manca il commit del motore. |
 | [Sources/NXLibrary/Views/Settings/SettingsSearchSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsSearchSection.swift) | Presenta ricerca e Changed, con apertura del gruppo della riga selezionata. |
