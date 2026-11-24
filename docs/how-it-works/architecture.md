@@ -834,6 +834,7 @@ Prove e misure di queste scelte: [docs/history/reviews/2026-11-16-ratings-metada
 
 ## Interfaccia Selene e input
 
+- `StoreMetadataModel` precarica le descrizioni Switch su un task di utilità, dando precedenza al gioco a fuoco. Il main actor integra soltanto voci mancanti e della generazione di lingua corrente.
 - Nella Collection di un profilo, i comandi nativi Gioca e Opzioni usano il record del gioco selezionato senza applicare il filtro della Collection generale.
 - `GameArtLoader` ricorda le ricerche di loghi concluse durante la sessione, anche senza risultati. Una ricerca annullata non impedisce un nuovo tentativo.
 - Solo le tessere e la pillola accanto a Play mostrano `CloudLibraryBadge`, anche durante porting o errore. Nel pannello Cloud e nel centro attività lo stato è testo con `SeleneStatusDot` (7 unità); i pulsanti di invio e download mantengono le icone. `CloudLibraryStatus` condivide i colori di punti e barre: verde sincronizzato, blu solo cloud/in attesa/in corso, arancione da inviare, rosso errore e grigio sconosciuto. L'alone del punto pulsa in Core Animation solo durante il trasferimento, con finestra attiva e senza Riduci movimento.

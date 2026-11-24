@@ -23,6 +23,7 @@ final class StoreMetadataModel: ObservableObject {
     private lazy var storeMetadataService = NintendoStoreMetadataService()
     private var metadataLocaleGeneration = UUID()
     private var localizedMetadataRefresh: Task<Void, Never>?
+    private var cachedMetadataPreload: Task<Void, Never>?
 
     func loadStoreMetadata(for game: PortedGame) {
         Task { @MainActor [weak self] in await self?.fetchStoreMetadata(for: game) }
@@ -64,6 +65,7 @@ final class StoreMetadataModel: ObservableObject {
         metadataLocaleGeneration = UUID()
         let generation = metadataLocaleGeneration
         localizedMetadataRefresh?.cancel()
+        cachedMetadataPreload?.cancel()
         storeMetadataErrors.removeAll()
         storeMetadataLoading.removeAll()
         let games = app.libraryGames
@@ -156,18 +158,33 @@ final class StoreMetadataModel: ObservableObject {
 
     /// Fills metadata from the disk cache without starting a network request, in
     /// another language when the app's is not cached yet (`cachedForDisplay`).
-    /// The library uses this so a previously viewed game paints its title,
-    /// description and hero immediately when selected.
+    /// The library warms the cache without blocking navigation.
     /// A game shown in another language (the language changed while the app was closed) is
     /// queued for the app's language in the background.
-    func preloadCachedStoreMetadata() {
+    @MainActor func preloadCachedStoreMetadata() {
+        cachedMetadataPreload?.cancel()
         let locale = L10n.context
+        let generation = metadataLocaleGeneration
+        let service = storeMetadataService
+        let focused = app.currentFocusedGame?.id
+        var games = app.libraryGames.filter { storeMetadata[$0.id] == nil && $0.titleId?.isEmpty == false }
+        if let index = games.firstIndex(where: { $0.id == focused }) { games.swapAt(0, index) }
+        let candidates = games
+        cachedMetadataPreload = Task.detached(priority: .utility) { [weak self] in
+            let entries = candidates.compactMap { game -> (PortedGame, NintendoStoreMetadata)? in
+                guard !Task.isCancelled, let titleID = game.titleId,
+                      let metadata = service.cachedForDisplay(for: titleID, locale: locale) else { return nil }
+                return (game, metadata)
+            }
+            guard !Task.isCancelled else { return }
+            await self?.applyCachedMetadata(entries, generation: generation, locale: locale)
+        }
+    }
+
+    @MainActor private func applyCachedMetadata(_ entries: [(PortedGame, NintendoStoreMetadata)], generation: UUID, locale: AppLocale) {
+        guard !Task.isCancelled, metadataLocaleGeneration == generation else { return }
         var otherLanguage: [PortedGame] = []
-        for game in app.libraryGames {
-            guard storeMetadata[game.id] == nil,
-                  let titleId = game.titleId,
-                  !titleId.isEmpty,
-                  let metadata = storeMetadataService.cachedForDisplay(for: titleId, locale: locale) else { continue }
+        for (game, metadata) in entries where storeMetadata[game.id] == nil {
             setStoreMetadata(metadata, for: game)
             if !storeMetadataService.isInLanguage(metadata, locale: locale) { otherLanguage.append(game) }
         }
