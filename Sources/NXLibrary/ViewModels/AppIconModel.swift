@@ -24,6 +24,7 @@ final class AppIconModel: ObservableObject {
     /// Finished build logs waiting for their separate icon preparation result.
     var appIconBuildLogs: [UUID: URL] = [:]
     var iconLaunchWait = IconLaunchWait()
+    private var playAfterAppIcon: ((PlayRefusal?) -> Void)?
     /// The last app icon change per game, for Change artwork's status line.
     @Published var appIconProgress: [UUID: AppIconProgress] = [:]
 
@@ -55,14 +56,24 @@ final class AppIconModel: ObservableObject {
     }
 
     /// Keep one cancellable Play request while the app is being signed; signing itself must finish safely.
-    func waitForAppIconBeforeLaunching(_ game: PortedGame) {
+    func waitForAppIconBeforeLaunching(_ game: PortedGame, play: @escaping (PlayRefusal?) -> Void) {
         app.showSettingsNotice(title: L10n.format("Preparing %@", [String(describing: game.name)]),
                            message: L10n.text("Preparing the app icon. The game will start when it is ready. This can take a minute for a large game."),
                            cancelTitle: L10n.text("Cancel"))
         guard let notice = app.settingsNotice else { return }
         iconLaunchWait.begin(gameID: game.id, noticeID: notice.id)
+        playAfterAppIcon = play
         app.launchingGameId = game.id
         SoundEffectService.shared.play(.click)
+    }
+
+    func cancelIconLaunchWait() {
+        guard let gameID = iconLaunchWait.gameID else { return }
+        iconLaunchWait.cancel()
+        let play = playAfterAppIcon
+        playAfterAppIcon = nil
+        if app.launchingGameId == gameID { app.launchingGameId = nil }
+        play?(.notStarted)
     }
 
     @MainActor private func finishIconLaunchWait(for game: PortedGame, rerun: Bool, outcome: Result<Bool, Error>) {
@@ -71,7 +82,9 @@ final class AppIconModel: ObservableObject {
         let succeeded: Bool
         if case .success = outcome { succeeded = true } else { succeeded = false }
         let launchID = iconLaunchWait.finished(gameID: game.id, rerun: false, succeeded: succeeded,
-                                               visibleNoticeID: app.settingsNotice?.id)
+                                                visibleNoticeID: app.settingsNotice?.id)
+        let play = playAfterAppIcon
+        playAfterAppIcon = nil
         if app.launchingGameId == game.id { app.launchingGameId = nil }
         if app.settingsNotice?.id == noticeID {
             app.settingsNotice = nil
@@ -79,10 +92,7 @@ final class AppIconModel: ObservableObject {
                 app.showSettingsNotice(title: L10n.text("Could not prepare the game"), message: error.localizedDescription)
             }
         }
-        if let launchID, let current = app.libraryGames.first(where: { $0.id == launchID }) {
-            // Recheck the current app, saves and running state, as for any Play request.
-            app.launchGame(current)
-        }
+        play?(launchID != nil ? nil : (succeeded ? .notStarted : .preparationFailed))
     }
 
     /// The pop-up's answer: show the player's Icon on the app too, or keep the game's own.

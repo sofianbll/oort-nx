@@ -617,6 +617,7 @@ import ArcanePorting
         print("Common Play checks passed: profile ownership, guest, duplicate nxnative and missing Steam")
         try checkDeferredPlay(vm, profiles: profiles, other: alex, game: game)
         try await checkCloudInstallFailure(game)
+        try checkIconDeferredPlay(vm, profiles: profiles, other: alex, game: game, out: out, refs: refs)
         vm.applyCatalog(.init(sources: [.init(integration: .nxnative, isEnabled: true)], games: [fixture] + avatarGames))
         let pack = LocalAchievementPack.linksAwakening!
         var progress = LocalAchievementProgress()
@@ -752,6 +753,57 @@ import ArcanePorting
                    "Cloud \(cancelled ? "cancellation" : "failure") must refuse original Play, not retry the old app: \(events)")
             precondition(vm.cloudLibrary.appInstall == nil && !vm.saveGate.isBusy(titleID: fixture.titleId!))
         }
+    }
+
+    @MainActor static func checkIconDeferredPlay(_ vm: AppViewModel, profiles: LocalProfileStore, other: LocalProfile,
+                                                game: PortedGame, out: URL, refs: URL) throws {
+        let original = profiles.active!
+        var fixture = game
+        fixture.url = game.url.deletingLastPathComponent().appendingPathComponent("MissingIconFixture.app")
+        fixture.status = .built
+        let catalog = CatalogGame(nxnative: fixture)
+        let language = L10n.context
+        defer {
+            _ = profiles.choose(original.id)
+            vm.applyCatalog(.init()); vm.alertMessage = nil; vm.settingsNotice = nil
+            L10n.setContext(language)
+        }
+        vm.applyCatalog(.init(games: [catalog]))
+        var events: [PlayEvent] = []
+        func request() {
+            events.removeAll()
+            vm.alertMessage = nil
+            vm.appIcon.appIconsInFlight.insert(fixture.id)
+            precondition(vm.play(catalog) { events.append($0) } == .accepted(.pending))
+        }
+        for (name, locale) in [("en", AppLocale(language: .english, region: "US")),
+                               ("fr", .init(language: .french, region: "FR"))] {
+            L10n.setContext(locale)
+            request()
+            let notice = vm.settingsNotice!
+            try render("play-icon-wait-\(name)", SeleneOverlay(style: .dialog) {
+                SeleneChoiceDialog(title: notice.title, message: notice.message, choices: notice.choices,
+                                   focus: .constant(notice.initialFocus), cancelIndex: notice.cancelIndex,
+                                   onCancel: {}, onChoose: { _ in })
+            }.environment(\.nxAppLocale, locale), in: out, refs, "none")
+            vm.appIcon.completePlayFixture(fixture, .success(false))
+            expect(events == [.result(.refused(.installationMissing))],
+                   "Icon signing must deliver the resumed result to the original observer (\(name)): \(events)")
+        }
+        request()
+        precondition(profiles.choose(other.id))
+        vm.appIcon.completePlayFixture(fixture, .success(false))
+        expect(events == [.result(.refused(.profileLocked))] && vm.alertMessage == nil,
+               "Icon signing must refuse a stale profile without trying to play: \(events)")
+        precondition(profiles.choose(original.id))
+        request()
+        vm.appIcon.completePlayFixture(fixture, .failure(CocoaError(.fileWriteUnknown)))
+        expect(events == [.result(.refused(.preparationFailed))], "Failed icon signing must refuse the original Play: \(events)")
+        request()
+        vm.settingsNotice = nil
+        vm.appIcon.completePlayFixture(fixture, .success(false))
+        expect(events == [.result(.refused(.notStarted))] && vm.alertMessage == nil && vm.launchingGameId == nil,
+               "Cancelling the icon notice must refuse Play exactly once: \(events)")
     }
 
     @MainActor static func checkDeferredPlay(_ vm: AppViewModel, profiles: LocalProfileStore,
@@ -1398,6 +1450,15 @@ extension CloudLibraryModel {
         replace(launch, r"        guard let saveLaunchToken =",
                 '        if game.bundleId == "example.oort.cloud-deferred-play" { return .refused(.openFailed) }\n'
                 '        guard let saveLaunchToken =')
+        with (app / "ViewModels/AppIconModel.swift").open("a") as swift:
+            swift.write("""
+extension AppIconModel {
+    @MainActor func completePlayFixture(_ game: PortedGame, _ outcome: Result<Bool, Error>) {
+        appIconsInFlight.remove(game.id)
+        finishIconLaunchWait(for: game, rerun: false, outcome: outcome)
+    }
+}
+""")
         replace(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
         replace(app / "ViewModels/AppViewModel.swift", r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
         replace(app / "ViewModels/AppViewModel.swift", r"            updateDockIcon\(\)", "")

@@ -52,9 +52,8 @@ final class AppViewModel: ObservableObject {
     let localAchievementUnlocks = PassthroughSubject<(profile: UUID, names: [String]), Never>()
     @Published var settingsNotice: SettingsNotice? {
         didSet {
-            if let waitingGame = appIcon.iconLaunchWait.gameID, settingsNotice?.id != appIcon.iconLaunchWait.noticeID {
-                appIcon.iconLaunchWait.cancel()
-                if launchingGameId == waitingGame { launchingGameId = nil }
+            if appIcon.iconLaunchWait.gameID != nil, settingsNotice?.id != appIcon.iconLaunchWait.noticeID {
+                appIcon.cancelIconLaunchWait()
             }
             if settingsNotice == nil { porting.scheduleNextBuild() }
         }

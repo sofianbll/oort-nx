@@ -485,7 +485,7 @@ Resume nello Spotlight o nella scheda Switch resta un comando del monitor: se il
 - `CloudSavesPreferences` applica la preferenza cloud al dominio del gioco prima del lancio. Off rimuove anche all'avvio la preferenza cloud salvata dal launcher del gioco. Gli override avanzati `DM_SAVE_SYNC`, nei file o nell'ambiente, mantengono la precedenza del motore: `SaveLocation.inspect` ne segnala l'origine e blocca le operazioni incompatibili con la sincronizzazione attiva.
 
 **Firma dell'icona in corso.**
-- Play durante la firma dell'icona apre il dialogo Selene **Preparing** con **Cancel**. `IconLaunchWait` lega la richiesta all'identità del gioco e del dialogo; chiudere o sostituire il dialogo revoca la richiesta.
+- Play durante la firma dell'icona apre il dialogo Selene **Preparing** con **Cancel**. `IconLaunchWait` lega la richiesta all'identità del gioco e del dialogo; `AppIconModel` riprende Play con il profilo e l'osservatore iniziali dopo l'ultima firma riuscita. Errore, chiusura o sostituzione del dialogo rifiutano la richiesta.
 - Solo l'ultimo aggiornamento dell'icona riuscito può riprendere Play, che rilegge il gioco corrente e ripete tutti i controlli su salvataggi e app. Un errore non avvia il gioco.
 - Cancel lascia finire la firma, che serve a mantenere valido il bundle. L'attesa usa `launchingGameId` e blocca anche l'aggiornamento del frontend.
 

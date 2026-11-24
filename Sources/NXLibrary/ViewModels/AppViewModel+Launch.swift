@@ -58,7 +58,7 @@ extension AppViewModel {
         let game = installingPendingBuild(of: requested)
         // The app is being signed again with a new icon: starting it now could read a half-written bundle.
         guard !appIcon.appIconsInFlight.contains(game.id) else {
-            appIcon.waitForAppIconBeforeLaunching(game)
+            appIcon.waitForAppIconBeforeLaunching(game, play: resume(acceptsLocalFallback: acceptsLocalFallback))
             return .accepted(.pending)
         }
         if !FileManager.default.fileExists(atPath: game.url.path),
