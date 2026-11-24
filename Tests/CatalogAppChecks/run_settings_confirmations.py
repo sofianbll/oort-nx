@@ -48,7 +48,7 @@ def prepare(package):
 
     settings = app / "Views/Settings"
     cloud = settings / "SettingsCloudLibrarySection.swift"
-    expose(cloud, "setEnabled", "unfollow", "confirmDisconnect", "confirmTrashTool")
+    expose(cloud, "setEnabled", "unfollow", "confirmDisconnect", "confirmTrashTool", "publishActions", "test")
     replace(cloud, r'private var advancedRows:', 'var advancedRows:')
     replace(cloud, r'private var referenceStatus:', 'var referenceStatus:')
     replace(cloud, r'private var tool: URL\?', 'private var tool: URL? = URL(fileURLWithPath: "/fixture/rclone")')
@@ -61,9 +61,10 @@ def prepare(package):
     library_model = app / "ViewModels/AppViewModel+CloudLibrary.swift"
     replace(library_model, r'RcloneStorageBackend\.findExecutable\(\)', 'SettingsConfirmationProbe.availableDriveTool')
     replace(library_model, r'private var scopeTask:', 'private(set) var scopeTask:')
-    replace(library_model,
-            r'RcloneStorageBackend\(remote: remote, root: current.root, executable: tool\)',
-            'SettingsConfirmationProbe.scopeBackend(remote: remote, root: current.root, tool: tool)')
+    for _ in range(2):
+        replace(library_model,
+                r'RcloneStorageBackend\(remote: remote, root: current.root, executable: tool\)',
+                'SettingsConfirmationProbe.scopeBackend(remote: remote, root: current.root, tool: tool)')
     replace(library_model,
             r'RcloneConfiguration\.sharesDefaultConfiguration\(tool\)',
             'RcloneConfiguration.sharesDefaultConfiguration(tool, environment: [:])')

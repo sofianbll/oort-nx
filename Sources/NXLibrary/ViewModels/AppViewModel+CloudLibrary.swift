@@ -214,6 +214,7 @@ final class CloudLibraryModel: ObservableObject {
     @Published private(set) var lastKnown = LastKnown(scope: [])
     var localSourceIDs: Set<UUID> = []
     private var sourcesBinding: CloudLibraryPreference.SourcesBinding?
+    private var pendingLegacySources: CloudLibraryPreference.SourcesBinding?
     @Published private(set) var sourcesNeedConfirmation = false
     private var availabilityScope: [String] {
         [preference.storage ?? "", preference.sourcesRoot, preference.referenceFolder ?? ""] + (driveScope?.availabilityKey ?? [])
@@ -459,7 +460,7 @@ final class CloudLibraryModel: ObservableObject {
         driveToolOfferSeen = defaults.bool(forKey: CloudLibraryPreference.toolOfferKey)
         needsDriveToolChoice = preference.remote != nil
             && !defaults.bool(forKey: CloudLibraryPreference.toolChoiceKey)
-            && chosenExecutable == nil && driveTool.installedExecutable == nil
+            && (legacySourcesCandidate != nil || (chosenExecutable == nil && driveTool.installedExecutable == nil))
         do { pendingMove = try moveJournal.load() }
         catch { moveJournalUnreadable = true }
         rebuildArchive()
@@ -498,7 +499,7 @@ final class CloudLibraryModel: ObservableObject {
                               confirmLibrary: Bool = false, approvedLibrary: CloudDriveScope? = nil) {
         let next = CloudLibraryPreference(storage: "\(remote ?? ""):\(root)", enabled: enabled,
                                           sourcesRoot: sourcesRoot, referenceFolder: preference.referenceFolder)
-        let reselect = confirmLibrary && connectionCheck?.failure == .scopeChanged
+        let reselect = confirmLibrary && connectionCheck?.failure == .scopeChanged && connectionCheck?.onSources != true
         guard next != preference || reload || reselect else { return }
         AppData.preferences.set(next.storage, forKey: CloudLibraryPreference.storageKey)
         AppData.preferences.set(next.enabled, forKey: CloudLibraryPreference.enabledKey)
@@ -523,6 +524,7 @@ final class CloudLibraryModel: ObservableObject {
         guard root.map(CloudLibraryPreference.validSourcesRoot) ?? true,
               root != preference.sourcesRootOverride || sourcesNeedConfirmation else { return }
         AppData.preferences.set(root, forKey: CloudLibraryPreference.sourcesRootKey)
+        pendingLegacySources = nil
         preference = CloudLibraryPreference(storage: preference.storage, enabled: preference.enabled, sourcesRoot: root,
                                             referenceFolder: preference.referenceFolder)
         saveSourcesBinding(CloudLibraryPreference.SourcesBinding(preference))
@@ -556,7 +558,7 @@ final class CloudLibraryModel: ObservableObject {
         guard chosenExecutable != executable, executable.map(canChooseDriveTool) != false else { return }
         AppData.preferences.set(executable?.path, forKey: CloudLibraryPreference.executableKey)
         chosenExecutable = executable
-        if needsDriveToolChoice && executable == nil { rebuildArchive() }
+        if needsDriveToolChoice && (executable == nil || legacySourcesToConfirm != nil) { rebuildArchive() }
         else { acceptDriveTool() }
     }
 
@@ -565,7 +567,17 @@ final class CloudLibraryModel: ObservableObject {
         driveToolOfferSeen = true
     }
 
-    @MainActor func acceptDriveTool() {
+    private var legacySourcesCandidate: CloudLibraryPreference.SourcesBinding? {
+        let defaults = AppData.preferences
+        guard defaults.object(forKey: CloudLibraryPreference.sourcesBindingKey) == nil,
+              defaults.object(forKey: Self.scopeKey) == nil else { return nil }
+        return CloudLibraryPreference.SourcesBinding(preference)
+    }
+
+    var legacySourcesToConfirm: String? { needsDriveToolChoice ? legacySourcesCandidate?.sources : nil }
+
+    @MainActor func acceptDriveTool(confirmLegacySources: Bool = false) {
+        if confirmLegacySources, needsDriveToolChoice { pendingLegacySources = legacySourcesCandidate }
         AppData.preferences.set(true, forKey: CloudLibraryPreference.toolChoiceKey)
         needsDriveToolChoice = false
         driveToolFailure = nil
@@ -597,7 +609,7 @@ final class CloudLibraryModel: ObservableObject {
         let savedChoice = sourcesBinding
         let sameChoice = wanted?.storage == savedChoice?.storage && wanted?.sources == savedChoice?.sources
         let savedScope = savedDriveScope()
-        sourcesNeedConfirmation = (wanted != nil && !sameChoice)
+        sourcesNeedConfirmation = (wanted != nil && !sameChoice && pendingLegacySources != wanted)
             || (savedScope?.remote == current.remote && savedScope?.library.path == current.root
                 && savedScope?.approvedSources?.path == current.sourcesRoot && savedScope?.sourcesIdentityChanged == true)
         guard current.enabled, !hasPendingMove, !needsDriveToolChoice, let remote = current.remote,
@@ -637,6 +649,7 @@ final class CloudLibraryModel: ObservableObject {
         let wanted = CloudLibraryPreference.SourcesBinding(current)
         let savedChoice = sourcesBinding
         let sameChoice = wanted?.storage == savedChoice?.storage && wanted?.sources == savedChoice?.sources
+        let resumesLegacySources = wanted != nil && pendingLegacySources == wanted && savedChoice == nil
         return Task { @MainActor [weak self] in
             guard let self else { return }
             do {
@@ -650,17 +663,28 @@ final class CloudLibraryModel: ObservableObject {
                     self.connectionCheck = .init(date: .now, failure: .scopeChanged, explicit: explicit, scopeCheck: true)
                     return
                 }
-                if let wanted, sameChoice, savedChoice?.permits(scope) == true {
+                var legacySourcesFailure: CloudLibraryFailure?
+                if let wanted, (sameChoice && savedChoice?.permits(scope) == true) || resumesLegacySources {
                     var boundChoice = wanted
                     boundChoice.account = scope.account
                     boundChoice.folderID = scope.library.id
-                    let folder = try await raw.sourceFolder(wanted.sources, in: scope)
+                    var folder = try await raw.sourceFolder(wanted.sources, in: scope)
+                    if resumesLegacySources {
+                        if let found = folder {
+                            do { try await raw.verifyFolderSeparation([found.id], from: scope.reference) }
+                            catch CloudLibraryFailure.referenceOverlap {
+                                folder = nil
+                                legacySourcesFailure = .referenceOverlap
+                            }
+                        } else { legacySourcesFailure = .folderMissing }
+                    }
                     try Task.checkCancellation()
                     guard self.preference == current else { return }
                     scope.resolveSources(folder, at: wanted.sources, previous: savedScope)
                     self.sourcesNeedConfirmation = scope.sourcesIdentityChanged == true
-                    if !self.sourcesNeedConfirmation {
+                    if !self.sourcesNeedConfirmation, !resumesLegacySources || folder != nil {
                         self.saveSourcesBinding(boundChoice)
+                        if resumesLegacySources { self.pendingLegacySources = nil }
                     }
                 } else if wanted != nil {
                     self.sourcesNeedConfirmation = true
@@ -683,9 +707,9 @@ final class CloudLibraryModel: ObservableObject {
                 if current.enabled, self.driveScope != scope || self.archive == nil {
                     self.installScope(scope, backend: backend)
                 }
-                let sourceFailure: CloudLibraryFailure? = self.sourcesNeedConfirmation ? .scopeChanged
-                    : (wanted != nil && scope.sources == nil ? .folderMissing : nil)
-                if reportSuccess || scope.sourcesIdentityChanged == true {
+                let sourceFailure: CloudLibraryFailure? = legacySourcesFailure ?? (self.sourcesNeedConfirmation ? .scopeChanged
+                    : (wanted != nil && scope.sources == nil ? .folderMissing : nil))
+                if reportSuccess || scope.sourcesIdentityChanged == true || legacySourcesFailure != nil {
                     self.connectionCheck = .init(date: .now, failure: sourceFailure, explicit: explicit,
                                                  onSources: sourceFailure != nil, scopeCheck: true)
                 }

@@ -15,6 +15,10 @@ extension AppViewModel {
         guard canStartLibraryMove, settingsNotice == nil else { return }
         let preference = cloud.preference
         let chosen = cloud.chosenExecutable
+        let legacySources = cloud.legacySourcesToConfirm
+        let resumeSources = legacySources.flatMap { folder in
+            preference.storage.map { L10n.format("Oort NX will reconnect “%@” and keep “%@” as its game files folder.", [$0, folder]) }
+        }.map { "\n\n" + $0 } ?? ""
         func stillCurrent() -> Bool {
             canStartLibraryMove && cloud.preference == preference && cloud.chosenExecutable == chosen
         }
@@ -25,11 +29,11 @@ extension AppViewModel {
                 return
             }
             confirmSetting(L10n.text("Cloud library"),
-                message: L10n.text("Use the rclone already on this Mac to reconnect to the same cloud library without moving your files?"),
+                message: L10n.text("Use the rclone already on this Mac to reconnect to the same cloud library without moving your files?") + resumeSources,
                 action: "Use existing rclone") { [weak self] in
                 guard let self, stillCurrent(), cloud.resolvedDriveTool == tool else { return }
                 if fromStartup { self.router?.openSettings(.cloudLibrary) }
-                cloud.acceptDriveTool()
+                cloud.acceptDriveTool(confirmLegacySources: legacySources != nil)
                 ready()
             }
             return
@@ -40,7 +44,7 @@ extension AppViewModel {
                                    [RcloneDownload.version, RcloneDownload.host, size])
         let purpose = L10n.text("rclone is the open-source tool that reads and writes files in your own Google Drive; nothing is sent to Oort NX.")
         confirmSetting(L10n.text("Download rclone"),
-            message: "\(download)\n\n\(purpose)",
+             message: "\(download)\n\n\(purpose)\(resumeSources)",
             action: "Download") { [weak self] in
             guard let self, stillCurrent(), cloud.resolvedDriveTool == nil else { return }
             if fromStartup { self.router?.openSettings(.cloudLibrary) }
@@ -60,7 +64,7 @@ extension AppViewModel {
                     // The install is already atomic. On quit let the next launch pick up the verified tool.
                     guard !Task.isCancelled, !cloud.isQuitting, cloud.preference == preference,
                           cloud.chosenExecutable == chosen else { return }
-                    cloud.acceptDriveTool()
+                    cloud.acceptDriveTool(confirmLegacySources: legacySources != nil)
                     cloud.driveToolProgress = nil
                     cloud.isChangingConnection = false
                     ready()
