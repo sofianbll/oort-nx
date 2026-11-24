@@ -224,8 +224,12 @@ extension View {
     /// transient Core Animation layer does not redraw that art or cover the tile's badge.
     func downloadCloudLook(_ state: CloudLibraryState?, buildLook: PortingTileLook, id: UUID,
                            cornerRadius: CGFloat) -> some View {
-        overlay {
-            DownloadCloudOverlay(state: .init(state, buildLook: buildLook), id: id, cornerRadius: cornerRadius)
+        overlayPreferenceValue(BoxArtTitleBounds.self) { anchor in
+            GeometryReader { proxy in
+                DownloadCloudOverlay(state: .init(state, buildLook: buildLook), id: id,
+                                     cornerRadius: cornerRadius, title: anchor.map { proxy[$0] })
+                    .frame(width: proxy.size.width, height: proxy.size.height)
+            }
         }
     }
 }

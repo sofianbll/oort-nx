@@ -27,7 +27,7 @@ struct SwitchBoxArtCover: View {
 
     var body: some View {
         ZStack {
-            if let cover {
+            if let cover = cover ?? CoverArtMemo.shared.object(forKey: memoKey) {
                 Image(nsImage: cover)
                     .resizable()
                     .interpolation(.high)
@@ -71,6 +71,7 @@ struct SwitchBoxArtCover: View {
                     .multilineTextAlignment(.center)
                     .lineLimit(3)
                     .minimumScaleFactor(0.8)
+                    .anchorPreference(key: BoxArtTitleBounds.self, value: .bounds) { $0 }
                     .padding(.horizontal, width * 0.08)
             }
             .padding(.top, height * 0.04)
@@ -86,9 +87,10 @@ struct SwitchBoxArtCover: View {
     private var titleID: String { personalizations.nxnativeKey(for: game) }
 
     private var coverKey: String { "\(game.id)|\(officialName ?? "")|\(indexVersion)|\(picks.revision)" }
+    private var memoKey: NSString { CoverArtMemo.key(game.id, revision: picks.revision) }
 
     private func loadCover() async {
-        let key = "box|\(game.id)|\(picks.revision)" as NSString
+        let key = memoKey
         if let memo = CoverArtMemo.shared.object(forKey: key) {
             cover = memo
             return
@@ -122,10 +124,18 @@ struct SwitchBoxArtCover: View {
 }
 
 /// Decoded box covers, so a cover that scrolls back into the row paints at once.
-private enum CoverArtMemo {
+enum CoverArtMemo {
+    static func key(_ id: UUID, revision: Int) -> NSString { "box|\(id)|\(revision)" as NSString }
     static let shared: NSCache<NSString, NSImage> = {
         let cache = NSCache<NSString, NSImage>()
         cache.countLimit = 200
         return cache
     }()
+}
+
+struct BoxArtTitleBounds: PreferenceKey {
+    static let defaultValue: Anchor<CGRect>? = nil
+    static func reduce(value: inout Anchor<CGRect>?, nextValue: () -> Anchor<CGRect>?) {
+        value = nextValue() ?? value
+    }
 }
