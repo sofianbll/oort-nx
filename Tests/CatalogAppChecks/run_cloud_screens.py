@@ -159,6 +159,7 @@ import ArcanePorting
                 advanced: .constant(false), onEdit: {}, onEditSources: {}, onActions: { _ in })
             try render("settings-sources-confirmation-fr", output, view.environment(\.nxAppLocale, L10n.context)
                 .padding(24).frame(width: 1040))
+            vm.settingsNotice = nil
             view.requestSourceConfirmationForProbe()
             if let notice = vm.settingsNotice {
                 precondition(notice.choices == ["Keep this folder", "Use default", "Cancel"])
