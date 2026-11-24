@@ -864,7 +864,7 @@ struct TileMark: View {
     var body: some View {
         Group {
             if paused {
-                Image(systemName: "pause.fill").font(.system(size: canvas.u(16), weight: .semibold))
+                Image(systemName: "pause.fill").seleneFont(.caption, .semibold)
             } else {
                 MaterialIconView(icon, size: SeleneTokens.Space.control)
             }

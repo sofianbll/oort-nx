@@ -1601,8 +1601,10 @@ extension CloudSourcesStatus {
             if unified:
                 gallery = gallery.replace("// TRANSFER_TERMINAL", '''$0.completedItem = phase == "ready" ? .app : nil
                 $0.failedTransferID = phase == "failed" ? queuedRequest.token : nil''')
+                cancellable = 'phase == "running"' if "canCancelCloud(" in panel else "live"
                 gallery = gallery.replace("// CHECK_TRANSFER_CONTROLS",
-                    '''panel.checkTransferControls(canCancel: live || phase == "queued", canRetry: phase == "failed")''')
+                    f'''panel.checkTransferControls(canCancel: {cancellable} || phase == "queued",
+                        canRetry: phase == "failed")''')
                 with (app / "Views/Detail/CloudLibraryPanel.swift").open("a") as file:
                     if has_replacement:
                         file.write('''
@@ -1621,7 +1623,8 @@ extension CloudLibraryPanel {
 
     func checkTransferControls(canCancel: Bool, canRetry: Bool) {
         precondition(Set(controls).count == controls.count)
-        precondition(controls.contains(.cancel) == canCancel)
+        precondition(controls.contains(.cancel) == canCancel,
+                     "phase \(String(describing: state.progress?.phase)), action \(String(describing: state.action)), controls \(controls)")
         precondition(controls.contains { if case .retry = $0 { true } else { false } } == canRetry)
         if canRetry { precondition(artifactControl(.app) == nil) }
     }

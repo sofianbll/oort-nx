@@ -477,9 +477,7 @@
     ".seleneFont(14": 5,
     ".seleneFont(15": 3,
     ".seleneFont(16": 3,
-    ".seleneFont(19": 1,
-    "cornerRadius:7": 1,
-    "cornerRadius:canvas.u(9": 1
+    "cornerRadius:7": 1
   },
   "Sources/NXLibrary/Views/Settings/SettingsCloudLibrarySection.swift": {
     ".seleneFont(15": 2
