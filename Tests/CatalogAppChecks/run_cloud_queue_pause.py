@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 """Check the pause snapshot and render its unchanged Activity rows, with no backend."""
-import os
 import shutil
 import subprocess
-import sys
 import tempfile
 from pathlib import Path
 
-from run_cloud_screens import HOST, ROOT, change
+from run_cloud_screens import HOST, ROOT, capture_destination, change, isolate_cloud_init, isolate_startup, isolated_home_env
 
 SCENARIO = r'''
         let store = CloudTransferQueue()
@@ -17,8 +15,12 @@ SCENARIO = r'''
             storage: "fixture:Games", driveScope: scope, toolIdentity: "fixture-tool")
         let next = CloudTransferQueue.Entry(id: UUID(), action: .downloadSources, token: UUID(),
             storage: "fixture:Files", driveScope: scope, toolIdentity: "fixture-tool")
+        let paused = ProcessInfo.processInfo.environment["OORT_QUEUE_PAUSED"] == "1"
         var saved = head
-        // SET_PAUSE
+        saved.isUserPaused = paused
+        let wireEntry = try JSONSerialization.jsonObject(with: JSONEncoder().encode(saved)) as! [String: Any]
+        // An unpaused entry must retain the pre-pause shape.
+        precondition(paused ? wireEntry["userPaused"] as? Bool == true : wireEntry["userPaused"] == nil)
         store.save([saved, next])
         await store.flush()
         let reopened = await CloudTransferQueue().load()
@@ -26,7 +28,10 @@ SCENARIO = r'''
         precondition(entries == [saved, next])
         precondition(entries[0].token == head.token && entries[0].driveScope == scope)
         precondition(entries[0].permitsTool("fixture-tool") && !entries[0].permitsTool("replaced-tool"))
-        // CLEAR_PAUSE
+        var resumed = entries[0]
+        precondition(resumed.isUserPaused == paused && !entries[1].isUserPaused)
+        resumed.isUserPaused = false
+        precondition(resumed == head)
 
         let settings = AppSettingsStore(fileURL: data.appendingPathComponent("settings.json"))
         let vm = AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: data)))
@@ -50,11 +55,9 @@ SCENARIO = r'''
 
 
 def main():
-    output = Path(sys.argv[1]).resolve()
-    home = Path(os.environ["HOME"]).resolve()
-    assert home == Path(os.environ["CFFIXED_USER_HOME"]).resolve()
-    assert os.environ.get("ORIGINAL_HOME") and home != Path(os.environ["ORIGINAL_HOME"]).resolve()
-    with tempfile.TemporaryDirectory(prefix="queue-pause-", dir=home) as temp:
+    output = capture_destination("cloud-queue-pause-captures-")
+    output.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="queue-pause-") as temp:
         package = Path(temp)
         shutil.copyfile(ROOT / "Package.swift", package / "Package.swift")
         shutil.copytree(ROOT / "Sources", package / "Sources")
@@ -65,10 +68,8 @@ def main():
         app = package / "Sources/NXLibrary"
         change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
         change(app / "ViewModels/AppViewModel.swift", r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
-        change(app / "ViewModels/AppViewModel.swift", r"        applyCatalog\(catalog\).*?\n    }\n\n    // MARK: - Dynamic",
-               "    }\n\n    // MARK: - Dynamic")
-        change(app / "ViewModels/AppViewModel+CloudLibrary.swift",
-               r"        let defaults = AppData\.preferences.*?(?=        rebuildArchive\(\))",
+        isolate_startup(app)
+        isolate_cloud_init(app / "ViewModels/AppViewModel+CloudLibrary.swift",
                '        preference = .init(storage: nil, enabled: false, sourcesRoot: nil)\n        chosenExecutable = nil\n')
         # Like run_cloud_screens: ImageRenderer cannot draw the native scrolling container.
         activity = app / "Views/Shell/ActivityCenterView.swift"
@@ -80,35 +81,21 @@ def main():
                'public static let profile = AppDataProfile(home: URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!), isDevelopment: true)')
         change(profile, r"public static var preferences: UserDefaults \{ [^\n]+ \}",
                'public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
-        queue_path = Path("Sources/ArcanePorting/Library/CloudTransferQueue.swift")
-        baseline = subprocess.check_output(["git", "-C", str(ROOT), "show", f"e432ed20:{queue_path}"])
         header = HOST.split("        // SCENARIO")[0]
         render = HOST[HOST.index("    @MainActor static func render<V: View>"):]
         render = render.replace("SeleneCanvas(size: .init(width: 1920, height: 1080))", "SeleneCanvas(size: size)")
-        for phase in ("avant", "apres"):
+        (app / "CloudScreenProbe.swift").write_text(header + SCENARIO + render)
+        for paused, phase in enumerate(("avant", "apres")):
             dest = output / phase
             dest.mkdir(parents=True, exist_ok=True)
             profile_home = package / phase
             profile_home.mkdir()
-            scenario = SCENARIO
-            if phase == "avant":
-                (package / queue_path).write_bytes(baseline)
-                scenario = scenario.replace("var saved = head", "let saved = head")
-            else:
-                shutil.copyfile(ROOT / queue_path, package / queue_path)
-                scenario = scenario.replace("// SET_PAUSE", "saved.isUserPaused = true").replace("// CLEAR_PAUSE", """
-        var resumed = entries[0]
-        precondition(resumed.isUserPaused && !entries[1].isUserPaused)
-        resumed.isUserPaused = false
-        precondition(resumed == head)
-        """)
-            (app / "CloudScreenProbe.swift").write_text(header + scenario + render)
             subprocess.run(["swift", "run", "--jobs", "4", "--package-path", str(package), "NXLibrary", str(dest),
                             str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"),
                             str(ROOT / "Resources/AppIcon-Light.png")], check=True,
-                           env=dict(os.environ, HOME=str(profile_home), CFFIXED_USER_HOME=str(profile_home)))
-    for before in (output / "avant").glob("*.png"):
-        assert before.read_bytes() == (output / "apres" / before.name).read_bytes(), before.name
+                           env=dict(isolated_home_env(profile_home), OORT_QUEUE_PAUSED=str(paused)))
+    for name in ("activite-large-fr.png", "activite-etroite-fr.png"):
+        assert (output / "avant" / name).read_bytes() == (output / "apres" / name).read_bytes(), name
     print("Pause snapshot reopens with its original identity; French Activity screenshots are unchanged.")
 
 

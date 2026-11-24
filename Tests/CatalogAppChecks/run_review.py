@@ -201,6 +201,7 @@ final class Router {
     var isSearchPresented = false
     var isMenuPresented = false
     var sortMenu: Int?
+    var settingsDecision: AppRouter.SettingsDecision?
     var activityCenterFocus: ActivityCenterFocus?
     func openSettings(_ section: SettingsSection) { route = .settings(section) }
 }

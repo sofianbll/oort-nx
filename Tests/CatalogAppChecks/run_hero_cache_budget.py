@@ -28,6 +28,7 @@ final class Cache<Key> {
 }
 final class Loader {
     private let heroes = Cache<NSUUID>()
+    private let heroCatalogURLs = NSCache<NSUUID, NSURL>()
     private let logos = Cache<NSUUID>()
     let steamArt = Cache<NSString>()
     // CONFIG

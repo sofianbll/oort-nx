@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from run_cloud_screens import install_settings_reset_fixture, isolate_startup
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -117,7 +118,7 @@ import SwiftUI
         try render("06-settings-inbox-off", page: folders(app, settings), to: output, locale: locale)
         router.openSettings(.library)
         SettingsView(initialSection: .library, viewModel: app, settings: settings, router: router, artwork: artwork)
-            .pressInboxFixtureReset()
+            .pressScreenFixtureReset()
         precondition(settings.settings.gameInboxEnabled)
         precondition(app.porting.gameFilesFolder?.path == root.path)
         await model.updateAvailability()
@@ -232,7 +233,7 @@ import SwiftUI
             Text(SettingsSection.library.place)
                 .seleneFont(.screen, .semibold)
                 .foregroundStyle(SeleneTheme.ink)
-            SettingsLibrarySection(viewModel: app, porting: app.porting, settings: settings, onActions: { _ in })
+            SettingsLibrarySection(viewModel: app, porting: app.porting, settings: SettingsEditor(settings), onActions: { _ in })
         }
         .frame(width: 820)
         .padding(.top, 38)
@@ -288,10 +289,7 @@ def main():
         model = app / "ViewModels/AppViewModel.swift"
         change(model, "SteamGridDBKey().load() != nil", "false")
         # Omit startup scans, key access and the bundle-only notification service.
-        text = model.read_text()
-        first = text.index("        applyCatalog(catalog)")
-        last = text.index("    }\n\n    // MARK: - Dynamic", first)
-        model.write_text(text[:first] + text[last:])
+        isolate_startup(app)
         change(app / "ViewModels/GameInboxModel.swift", "private(set) var entries:", "var entries:")
         change(app / "ViewModels/SetupCheckModel.swift", "private func apply(", "func apply(")
         setup = app / "Views/Setup/SetupCheckView.swift"
@@ -314,8 +312,7 @@ def main():
         change(app / "Views/Theme/MoonlightRenderer.swift", "                if let image {\n",
                "                if let image = engine.snapshot(width: max(w, 1), height: max(h, 1), colors: colors) {\n")
         change(app / "Views/Shell/MenuOverlayView.swift", "var presented = false", "var presented = true")
-        with (app / "Views/Settings/SettingsView.swift").open("a") as swift:
-            swift.write("\nextension SettingsView {\n    func pressInboxFixtureReset() { handleGamepad(.secondaryAction) }\n}\n")
+        install_settings_reset_fixture(app)
         # Observe the actual directory reader in the copied target, not just the resulting availability.
         change(package / "Sources/ArcanePorting/Library/GameInbox.swift",
                "    public static func files(in folder: URL) throws -> [URL] {\n",

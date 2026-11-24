@@ -37,7 +37,7 @@ extension EnvironmentValues {
     }
 }
 extension View {
-    func seleneFont(_ size: CGFloat) -> some View { font(.system(size: size)) }
+    func seleneFont(_ token: SeleneTokens.Text) -> some View { font(.system(size: token.rawValue)) }
 }
 enum SeleneTheme { static let ink60 = Color.gray }
 enum DetailScroll { static let glide = Animation.spring(response: 0.3, dampingFraction: 1) }

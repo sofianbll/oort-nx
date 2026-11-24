@@ -8,7 +8,7 @@ import tempfile
 from pathlib import Path
 from shutil import copyfile, copytree
 
-from run_cloud_screens import ROOT, HOST, change
+from run_cloud_screens import ROOT, HOST, capture_destination, change, cloud_settings_fixture, isolate_startup
 
 SCENARIO = r'''
         let fr = AppLocale(language: .french, region: "FR")
@@ -48,7 +48,7 @@ SCENARIO = r'''
                 model.referenceCheck = check
                 labels = []
                 try render("reference-\(name)\(suffix)", output, SettingsCloudLibrarySection(
-                    viewModel: vm, model: model, settings: settings, advanced: .constant(false),
+                    viewModel: vm, model: model, settings: /* CLOUD_SETTINGS */ SettingsEditor(settings), advanced: .constant(false),
                     onEdit: {}, onEditLibrary: {}, onEditSources: {}, onActions: { _ in })
                     .environment(\.nxAppLocale, fr).padding(24).frame(width: min(1040, width - 48)), size: size)
                 if !labels.contains(label) { failures.append("\(name)\(suffix): \(labels)") }
@@ -93,7 +93,7 @@ extension CloudLibraryModel {
 
 
 def main():
-    output = Path(sys.argv[1]).resolve()
+    output = capture_destination("cloud-reference-captures-")
     baseline = sys.argv[2] if len(sys.argv) == 3 else None
     output.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="reference-probe-", dir=output.parent) as temp:
@@ -111,8 +111,7 @@ def main():
         app = package / "Sources/NXLibrary"
         change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
         change(app / "ViewModels/AppViewModel.swift", r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
-        change(app / "ViewModels/AppViewModel.swift", r"        applyCatalog\(catalog\).*?\n    }\n\n    // MARK: - Dynamic",
-               "    }\n\n    // MARK: - Dynamic")
+        isolate_startup(app)
         profile = package / "Sources/NXLibraryCore/App/AppDataProfile.swift"
         change(profile, r'public static let profile = [^\n]*',
                'public static let profile = AppDataProfile(home: URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!), isDevelopment: true)')
@@ -140,7 +139,8 @@ def main():
                lambda match: match[1] + f"CloudScreenProbe.measureLabel({match[2]}), color:")
         helper = HOST[HOST.index("    @MainActor static func renderNotice"):].replace(
             "/* NOTICE_LAYOUT */", "cancelIndex: notice.cancelIndex,")
-        (app / "ReferenceProbe.swift").write_text(HOST.split("        // SCENARIO")[0] + SCENARIO + helper)
+        host = HOST.split("        // SCENARIO")[0] + SCENARIO + helper
+        (app / "ReferenceProbe.swift").write_text(cloud_settings_fixture(app, host))
         subprocess.run(["swift", "build", "--jobs", "4", "--package-path", str(package)], check=True)
         home = package / "home"
         (home / "Library" / "Preferences").mkdir(parents=True)

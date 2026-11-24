@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Render cloud and multiplayer views offscreen with synthetic states; never start the launcher."""
 import os
+import pwd
 import re
 import shutil
 import subprocess
@@ -56,7 +57,7 @@ import ArcanePorting
         L10n.setContext(.init(language: .english, region: "US"))
         vm.settingsNotice = nil
         try render("settings", output, SettingsCloudLibrarySection(
-            viewModel: vm, model: model, settings: settings, advanced: .constant(false),
+            viewModel: vm, model: model, settings: /* CLOUD_SETTINGS */ SettingsEditor(settings), advanced: .constant(false),
             onEdit: {}, onEditSources: {}, onActions: { _ in })
             .padding(24).frame(width: 1040))
         // ADVANCED_SETTINGS
@@ -1288,6 +1289,61 @@ def change(file, old, new):
     file.write_text(text)
 
 
+def isolate_startup(app, *, keep_catalog=False):
+    """Stub startup side effects only in a probe's copied app sources."""
+    model = app / "ViewModels/AppViewModel.swift"
+    anchor = r"        setup\.restoreBuildInputs\(automatic: true\b" if keep_catalog else r"        applyCatalog\(catalog\)"
+    change(model, anchor + r".*?\n    }\n\n    // MARK: - Dynamic Dock Icon",
+           "    }\n\n    // MARK: - Dynamic Dock Icon")
+
+
+def capture_destination(prefix):
+    return Path(sys.argv[1] if len(sys.argv) > 1 else tempfile.mkdtemp(prefix=prefix)).resolve()
+
+
+def isolated_home_env(home):
+    home = home.resolve()
+    real_home = Path(pwd.getpwuid(os.getuid()).pw_dir).resolve()
+    assert not home.is_relative_to(real_home)
+    assert not os.environ.get("ORIGINAL_HOME") or not home.is_relative_to(Path(os.environ["ORIGINAL_HOME"]).resolve())
+    return dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home))
+
+
+def isolate_cloud_init(model, fixture):
+    change(model, r"(    init\((?:activation: CloudLibraryActivation\? = nil)?\) \{\n)"
+           r"        let defaults = AppData\.preferences.*?(?=        rebuildArchive\(\))",
+           lambda match: match[1] + fixture)
+
+
+def cloud_settings_fixture(app, host):
+    section = (app / "Views/Settings/SettingsCloudLibrarySection.swift").read_text()
+    settings = "SettingsEditor(settings)" if "var settings: SettingsEditor" in section else "settings"
+    return host.replace("/* CLOUD_SETTINGS */ SettingsEditor(settings)", settings)
+
+
+def install_settings_reset_fixture(app):
+    with (app / "Views/Settings/SettingsView.swift").open("a") as swift:
+        swift.write("""
+extension SettingsView {
+    func pressScreenFixtureReset() {
+        guard section == .library else { handleGamepad(.secondaryAction); return }
+        precondition(settings.draft == nil)
+        settings.beginDraft(fields: SettingsDraftFields.fields(profiles: nil, languages: viewModel.availableLanguages))
+        let originalInbox = settings.settings.gameInboxEnabled
+        let pending = router.hasPendingSettings
+        defer { settings.endDraft(); router.hasPendingSettings = pending }
+        router.hasPendingSettings = { [weak settings] in settings?.draft?.hasChanges == true }
+        handleGamepad(.secondaryAction)
+        precondition(settings.settings.gameInboxEnabled == originalInbox)
+        handleGamepad(.contextAction)
+        precondition(router.settingsDecision == .save)
+        decide(0)
+        precondition(router.settingsDecision == nil, "Reset must save the draft")
+    }
+}
+""")
+
+
 def main():
     # Without a folder, as a release regression, render into a throwaway folder under work/.
     (ROOT / "work").mkdir(exist_ok=True)
@@ -1344,8 +1400,7 @@ package enum CloudWriteFault {
 ''')
         change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
         change(app / "ViewModels/AppViewModel.swift", r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
-        change(app / "ViewModels/AppViewModel.swift", r"        applyCatalog\(catalog\).*?\n    }\n\n    // MARK: - Dynamic",
-               "    }\n\n    // MARK: - Dynamic")
+        isolate_startup(app)
         change(package / "Sources/NXLibraryCore/App/AppDataProfile.swift",
                r'public static let profile = [^\n]*',
                'public static let profile = AppDataProfile(home: URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!), isDevelopment: true)')
@@ -1353,8 +1408,7 @@ package enum CloudWriteFault {
                r'public static var preferences: UserDefaults \{ [^\n]+ \}',
                'public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
         if before or baseline:
-            change(app / "ViewModels/AppViewModel+CloudLibrary.swift",
-                   r'        let defaults = AppData\.preferences.*?(?=        rebuildArchive\(\))',
+            isolate_cloud_init(app / "ViewModels/AppViewModel+CloudLibrary.swift",
                    '        preference = .init(storage: "fixture:Games", enabled: true, sourcesRoot: nil)\n'
                    '        AppData.preferences.set(preference.storage, forKey: CloudLibraryPreference.storageKey)\n'
                    '        AppData.preferences.set(preference.enabled, forKey: CloudLibraryPreference.enabledKey)\n'
@@ -1594,7 +1648,7 @@ extension CloudSourcesStatus {
             has_replacement = "var previousApp:" in (app / "ViewModels/AppViewModel+CloudLibrary.swift").read_text()
             host = host.replace("// ADVANCED_SETTINGS", '''
         try render("settings-advanced", output, SettingsCloudLibrarySection(
-            viewModel: vm, model: model, settings: settings, advanced: .constant(true),
+            viewModel: vm, model: model, settings: /* CLOUD_SETTINGS */ SettingsEditor(settings), advanced: .constant(true),
             onEdit: {}, onEditSources: {}, onActions: { _ in })
             .padding(24).frame(width: 1040), size: .init(width: 1280, height: 1440))
 ''')
@@ -1789,7 +1843,7 @@ extension RemotePlayAdapters {
     }
 }
 ''')
-        (app / "CloudScreenProbe.swift").write_text(host)
+        (app / "CloudScreenProbe.swift").write_text(cloud_settings_fixture(app, host))
         if "func recoverPendingMove()" in (app / "ViewModels/AppViewModel+CloudLibrary.swift").read_text():
             with assistant.open("a") as swift:
                 swift.write('''
@@ -1854,7 +1908,7 @@ extension ActivityCenterView {
             try render("assistant-move-confirm-" + name, output, paused.screenMoveConfirm(movePlan).environment(\\.nxAppLocale, locale))
         }
 ''')
-            (app / "CloudScreenProbe.swift").write_text(host)
+            (app / "CloudScreenProbe.swift").write_text(cloud_settings_fixture(app, host))
         with (app / "ViewModels/AppViewModel+CloudLibrary.swift").open("a") as swift:
             probe = r'''
 import CryptoKit
