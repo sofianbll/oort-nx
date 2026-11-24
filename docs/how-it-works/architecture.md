@@ -540,6 +540,7 @@ Il pannello mostra un `CloudLibraryBadge` con testo per app, cache di compilazio
 - `EngineAncestry.answer` lancia `git merge-base --is-ancestor` in un task staccato, una volta per commit, e tiene la risposta fino alla chiusura di Arcane. Le viste leggono solo `keptAnswer`, che git non lo lancia mai: riga e pannello si aprono dentro un aggiornamento di SwiftUI. La riga di Game options mostra il valore, il pannello le sue righe e Copy diagnostics la riga Cheats dopo la risposta.
 - `CheatFile` riproduce il parsing di codici e metadati del motore. `CheatInstall` decide se un file appartiene alla build, richiede conferma o va rifiutato.
 - `CheatStore` legge e modifica file, metadati, master switch e selezione `.enabled`. `CheatsModel` (`app.cheats`) espone contesto, stato della riga e informazioni per la diagnostica. `CheatsPanel` presenta lista, importazione, conferme e switch. La pagina del gioco legge "Cheats on" all'apertura, al cambio del gioco, alla chiusura di Game options e al ritorno da Finder (`reloadCheats`), non a ogni ridisegno; una lettura nuova annulla quella precedente.
+- Per sostituire un set di cheat, `CheatStore` prepara testo e interruttori, mette da parte il set precedente sullo stesso volume e lo manda al Cestino insieme. Un errore ripristina il set precedente; se anche il ripristino fallisce, conserva la copia e ne indica il percorso.
 - Le modifiche richiedono il gioco chiuso. Il motore legge i file installati al lancio.
 
 ## Mod

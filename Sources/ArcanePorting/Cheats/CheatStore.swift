@@ -181,22 +181,59 @@ public struct CheatStore {
     }
 
     /// Writes `<build ID>.txt` in the flat folder (normalized: no byte order mark). Replacing keeps on the switches
-    /// that were on and keep their key; a new file starts with every cheat off. An old meta / values file of this build
-    /// goes to the Trash, so a downloaded file never wears a compiled file's sections.
+    /// that were on and keep their key; a new file starts with every cheat off. The previous files travel together
+    /// to the Trash after publication. A failed replacement restores the old set or leaves its backup for recovery.
     public func install(_ data: Data, replacing: Bool) throws {
         try allowed()
         let previous = replacing ? state().enabled : []
         let bytes = CheatFile.normalized(data)
         let file = CheatFile.parse(bytes)
-        do { try fm.createDirectory(at: folder, withIntermediateDirectories: true) } catch {
+        let txt = folder.appendingPathComponent("\(buildID).txt")
+        let staged = folder.appendingPathComponent(".installing-\(UUID())")
+        let backup = folder.appendingPathComponent(".previous-\(UUID())")
+        let replacements = [txt, enabledURL]
+        let originals = replacements + ["\(buildID).meta.tsv", "\(buildID).values"].map(folder.appendingPathComponent)
+        var saved: [URL] = []
+        var published: [URL] = []
+        defer { try? fm.removeItem(at: staged) }
+        do {
+            try write(bytes, to: staged.appendingPathComponent(txt.lastPathComponent))
+            try write(enabledText(previous, file: file), to: staged.appendingPathComponent(enabledURL.lastPathComponent))
+            try allowed()
+            for original in originals {
+                let attributes: [FileAttributeKey: Any]
+                do { attributes = try fm.attributesOfItem(atPath: original.path) }
+                catch CocoaError.fileReadNoSuchFile { continue }
+                catch CocoaError.fileNoSuchFile { continue }
+                if replacements.contains(original), attributes[.type] as? FileAttributeType == .typeDirectory {
+                    throw CocoaError(.fileWriteInvalidFileName)
+                }
+                try fm.createDirectory(at: backup, withIntermediateDirectories: true)
+                try fm.moveItem(at: original, to: backup.appendingPathComponent(original.lastPathComponent))
+                saved.append(original)
+            }
+            for destination in replacements {
+                try fm.moveItem(at: staged.appendingPathComponent(destination.lastPathComponent), to: destination)
+                published.append(destination)
+            }
+            if !saved.isEmpty { try trash(backup) }
+        } catch {
+            var rollbackFailed = false
+            for destination in published.reversed() {
+                do { try fm.moveItem(at: destination, to: staged.appendingPathComponent(destination.lastPathComponent)) }
+                catch { rollbackFailed = true }
+            }
+            for original in saved.reversed() {
+                do { try fm.moveItem(at: backup.appendingPathComponent(original.lastPathComponent), to: original) }
+                catch { rollbackFailed = true }
+            }
+            if rollbackFailed {
+                throw CheatStoreError.writeFailed("\(backup.path): \(error.localizedDescription)")
+            }
+            try? fm.removeItem(at: backup)
+            if let error = error as? CheatStoreError { throw error }
             throw CheatStoreError.writeFailed(error.localizedDescription)
         }
-        for stale in ["\(buildID).meta.tsv", "\(buildID).values"].map(folder.appendingPathComponent)
-        where fm.fileExists(atPath: stale.path) {
-            do { try trash(stale) } catch { throw CheatStoreError.writeFailed(error.localizedDescription) }
-        }
-        try write(bytes, to: folder.appendingPathComponent("\(buildID).txt"))
-        try write(enabledText(previous, file: file), to: enabledURL)
     }
 
     /// Only this file's switches are written, one key per line in file order (states_save).

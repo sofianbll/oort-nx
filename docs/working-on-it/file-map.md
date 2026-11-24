@@ -575,7 +575,7 @@ Cartella `Sources/ArcanePorting/Cheats/`.
 | [Sources/ArcanePorting/Cheats/CheatLocator.swift](../../Sources/ArcanePorting/Cheats/CheatLocator.swift) | Risolve build ID, title ID e cartella cheats seguendo i file e l’ambiente del launcher. |
 | [Sources/ArcanePorting/Cheats/CheatStatus.swift](../../Sources/ArcanePorting/Cheats/CheatStatus.swift) | Valuta il supporto del motore tramite ancestry (git in un task staccato, risposta tenuta per l'avvio) e prepara stato della riga e indicatore attivo. |
 | [Sources/ArcanePorting/Cheats/CheatCopy.swift](../../Sources/ArcanePorting/Cheats/CheatCopy.swift) | Centralizza testi di stato, rifiuto, importazione, sostituzione e rimozione dei cheats. |
-| [Sources/ArcanePorting/Cheats/CheatStore.swift](../../Sources/ArcanePorting/Cheats/CheatStore.swift) | Legge e modifica cheats, file enabled, master switch e metadati della build corrente. |
+| [Sources/ArcanePorting/Cheats/CheatStore.swift](../../Sources/ArcanePorting/Cheats/CheatStore.swift) | Legge e modifica cheat, file enabled, master switch e metadati; sostituisce o ripristina l'intero set. |
 
 ## Porting · store Nintendo e copertine
 
@@ -912,7 +912,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/ArcanePortingTests/CheatInstallTests.swift](../../Tests/ArcanePortingTests/CheatInstallTests.swift) | Build ID, title ID, file senza nome, cartelle e decisioni di installazione. |
 | [Tests/ArcanePortingTests/CheatLocatorTests.swift](../../Tests/ArcanePortingTests/CheatLocatorTests.swift) | Identità nel bundle e precedenza dei percorsi cheats e delle variabili del launcher. |
 | [Tests/ArcanePortingTests/CheatStatusTests.swift](../../Tests/ArcanePortingTests/CheatStatusTests.swift) | Ancestry del motore, necessità di rebuild, valore della riga e indicatore attivo. |
-| [Tests/ArcanePortingTests/CheatStoreTests.swift](../../Tests/ArcanePortingTests/CheatStoreTests.swift) | Installazione, enabled, master switch, sostituzione e metadati dei file cheats. |
+| [Tests/ArcanePortingTests/CheatStoreTests.swift](../../Tests/ArcanePortingTests/CheatStoreTests.swift) | Installazione, enabled, master switch, sostituzione e ripristino se il Cestino rifiuta il set. |
 | [Tests/ArcanePortingTests/ModStoreTests.swift](../../Tests/ArcanePortingTests/ModStoreTests.swift) | Overlay (anche dopo errore di scrittura), conflitti, Cestino, riattivazione RomFS e gruppo ExeFS escluso in Online. |
 | [Tests/ArcanePortingTests/ModFolderScannerTests.swift](../../Tests/ArcanePortingTests/ModFolderScannerTests.swift) | Voci della cartella mods, layout `romfs`/Atmosphère, symlink, file relativi e file nascosti. |
 | [Tests/ArcanePortingTests/EnvFileEditorTests.swift](../../Tests/ArcanePortingTests/EnvFileEditorTests.swift) | Modifica di una chiave dell'`env.txt`: commenti, duplicati, CRLF, merge al lancio. |
