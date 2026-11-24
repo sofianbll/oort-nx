@@ -134,7 +134,7 @@ struct SettingsView: View {
         .onDisappear(perform: removeKeyMonitor)
         .onDisappear { igdb.isEditing = false }
         .onDisappear { cloudAssistant = nil; editingCloudReference = false }
-        .onReceive(viewModel.cloudLibrary.$recovery) { action in
+        .onReceive(viewModel.cloudLibrary.$recovery.dropFirst(openedFromIntegrations ? 1 : 0)) { action in
             guard let action, router.route == .settings(.cloudLibrary) else { return }
             switch action {
             case .reconnect: cloudAssistant = .credentials

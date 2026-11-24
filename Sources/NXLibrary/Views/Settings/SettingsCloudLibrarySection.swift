@@ -18,6 +18,7 @@ struct SettingsCloudLibrarySection: View {
     @Environment(\.seleneReduceMotion) private var reduceMotion
     @Environment(\.seleneFocusedRowID) private var focusedRowID
     @Environment(\.seleneFocusedButton) private var focusedButton
+    @Environment(\.passiveSettingsArrival) private var passiveArrival
     @State private var tool: URL?
     @State private var version: String?
     @State private var remotes: [RcloneRemote]?
@@ -27,6 +28,7 @@ struct SettingsCloudLibrarySection: View {
     @State private var testTask: Task<Void, Never>?
 
     private struct Inspection: Equatable {
+        let enabled: Bool
         let chosen: URL?
         let changing: Bool
         let attempt: Int
@@ -154,7 +156,9 @@ struct SettingsCloudLibrarySection: View {
                 .accessibilityValue(text(advanced ? "Expanded" : "Collapsed"))
             if advanced { advancedRows }
         }
-        .task(id: Inspection(chosen: model.chosenExecutable, changing: model.isChangingConnection, attempt: inspection)) {
+        .task(id: Inspection(enabled: !passiveArrival || advanced, chosen: model.chosenExecutable,
+                             changing: model.isChangingConnection, attempt: inspection)) {
+            guard !passiveArrival || advanced else { inspecting = false; return }
             if !model.isChangingConnection { await inspect() }
         }
         .onAppear(perform: publishActions)

@@ -29,6 +29,13 @@ class IntegrationContract(unittest.TestCase):
         self.assertIn('.init("Check status", action: checkNextendo)', api)
         self.assertRegex(api, r"func checkNextendo\(\) \{\s*nextendoRequested = true\s*nextendo.check\(clientID: clientID\)")
 
+    def test_drive_arrival_does_not_run_rclone_or_replay_pending_recovery(self):
+        settings = (VIEWS / "Settings/SettingsView.swift").read_text()
+        cloud = (VIEWS / "Settings/SettingsCloudLibrarySection.swift").read_text()
+        self.assertIn("$recovery.dropFirst(openedFromIntegrations ? 1 : 0)", settings)
+        self.assertRegex(cloud, r"\.task\(id: Inspection\(enabled: !passiveArrival \|\| advanced,")
+        self.assertRegex(cloud, r"guard !passiveArrival \|\| advanced else \{ inspecting = false; return \}")
+
     def test_settings_consumes_confirmation_repeated_from_integrations(self):
         settings = (VIEWS / "Settings/SettingsView.swift").read_text()
         self.assertRegex(settings, r"case 36, 49, 76:\s*if typing \{ return event \}\s*"
