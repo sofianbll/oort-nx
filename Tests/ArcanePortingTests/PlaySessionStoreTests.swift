@@ -14,6 +14,13 @@ final class PlaySessionStoreTests: XCTestCase {
             .appendingPathComponent("NXSessions-\(UUID().uuidString).json")
     }
 
+    override func tearDown() {
+        try? FileManager.default.removeItem(at: store().stateURL)
+        try? FileManager.default.removeItem(at: store().totalsURL)
+        try? FileManager.default.removeItem(at: url)
+        super.tearDown()
+    }
+
     private func game(_ name: String = "Game",
                       titleId: String = "0100000000010000",
                       bundleId: String = "org.nxnative.0100000000010000") -> PortedGame {
@@ -39,6 +46,31 @@ final class PlaySessionStoreTests: XCTestCase {
         XCTAssertTrue(store.start(gameID: UUID(), sourceID: "synthetic"))
         XCTAssertEqual(try Data(contentsOf: url), corrupt)
         XCTAssertNotNil(store.loadError)
+    }
+
+    func testFoldingSessionKeepsItsTimeWhenLegacyTotalsCannotBeWritten() throws {
+        let fm = FileManager.default
+        let totals = store().totalsURL
+        let obstruction = totals.appendingPathExtension("tmp")
+        defer {
+            try? fm.removeItem(at: url)
+            try? fm.removeItem(at: obstruction)
+        }
+        let store = store()
+        let oldest = UUID()
+        let recent = UUID()
+        for index in 0..<PlaySessionStore.maxSessions {
+            let id = index == 0 ? oldest : recent
+            store.start(gameID: id, sourceID: "fixture")
+            now = now.addingTimeInterval(10)
+            store.end(gameID: id)
+        }
+        try fm.createDirectory(at: obstruction, withIntermediateDirectories: false)
+        store.start(gameID: recent, sourceID: "fixture")
+        store.heartbeat(for: recent)
+        let reopened = self.store()
+        XCTAssertEqual(reopened.totalDuration(for: oldest), 10)
+        XCTAssertNotNil(reopened.lastPlayed(for: oldest))
     }
 
     func testUnreadableTotalsBlockAllWritesEvenWhenSessionsAreTrimmed() throws {
@@ -241,15 +273,19 @@ final class PlaySessionStoreTests: XCTestCase {
         XCTAssertEqual(store.totalDuration(for: game.id), 300, accuracy: 0.001)
         XCTAssertEqual(store.lastPlayed(for: game.id), now)
     }
-    /// NX Library 0.1.4 and earlier read this file as a bare array; it must stay one
-    /// so switching between app versions keeps the history.
-    func testSessionsFileStaysReadableByOlderVersions() throws {
+    func testWritesUnifiedStateWithoutChangingLegacyFiles() throws {
+        let legacy = Data("[]".utf8)
+        try legacy.write(to: url)
+        let totals = store().totalsURL
+        try legacy.write(to: totals)
         let store = store()
         let busy = game("Busy")
         for _ in 0..<205 { play(busy, for: 60, in: store) }
-        let data = try Data(contentsOf: url)
-        let decoded = try JSONDecoder().decode([PlaySession].self, from: data)
-        XCTAssertEqual(decoded, store.sessions)
+        XCTAssertEqual(try Data(contentsOf: url), legacy)
+        XCTAssertEqual(try Data(contentsOf: totals), legacy)
+        let reopened = self.store()
+        XCTAssertEqual(reopened.sessions, store.sessions)
+        XCTAssertEqual(reopened.totalDuration(for: busy.id), 205 * 60)
     }
 
     // MARK: - Steam's own playtime as a baseline

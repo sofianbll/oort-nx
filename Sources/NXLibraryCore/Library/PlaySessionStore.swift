@@ -25,13 +25,16 @@ public final class PlaySessionStore: ObservableObject, PlayHistory {
     public let starts = PassthroughSubject<UUID, Never>()
     public private(set) var loadError: String?
 
-    /// Recent sessions, a bare `[PlaySession]` array as in every earlier version,
-    /// so the released app and a development build can share it.
+    /// Legacy recent sessions, read only when no unified state exists.
     public let fileURL: URL
     /// Per-game carried totals, beside `fileURL` (`play-sessions-totals.json`).
     public var totalsURL: URL {
         fileURL.deletingLastPathComponent()
             .appendingPathComponent(fileURL.deletingPathExtension().lastPathComponent + "-totals.json")
+    }
+    var stateURL: URL {
+        fileURL.deletingLastPathComponent()
+            .appendingPathComponent(fileURL.deletingPathExtension().lastPathComponent + "-state.json")
     }
     private let fileManager: FileManager
     private let now: () -> Date
@@ -63,8 +66,8 @@ public final class PlaySessionStore: ObservableObject, PlayHistory {
         let date = now()
         history.append(PlaySession(gameID: gameID, titleID: sourceID, bundleID: bundleID,
                                    startedAt: date, lastHeartbeatAt: date, profileID: owner))
-        let folded = trim()
-        save(totals: folded)
+        trim()
+        save()
         if announces && owner == profileID { starts.send(gameID) }
         return true
     }
@@ -184,14 +187,13 @@ public final class PlaySessionStore: ObservableObject, PlayHistory {
     }
 
     /// Drops the oldest ended sessions beyond `maxCount`, folding each into `carried`.
-    /// Returns whether `carried` changed.
-    private func trim(maxCount: Int = PlaySessionStore.maxSessions) -> Bool {
+    private func trim(maxCount: Int = PlaySessionStore.maxSessions) {
         let excess = history.count - maxCount
-        guard excess > 0 else { return false }
+        guard excess > 0 else { return }
         let dropped = history.filter { !$0.isActive }
             .sorted { $0.startedAt < $1.startedAt }
             .prefix(excess)
-        guard !dropped.isEmpty else { return false }
+        guard !dropped.isEmpty else { return }
         for session in dropped {
             var entry = archive[session.profileID]?[session.gameID] ?? CarriedPlaytime(duration: 0, lastPlayed: session.startedAt)
             entry.duration += session.duration ?? 0
@@ -206,42 +208,38 @@ public final class PlaySessionStore: ObservableObject, PlayHistory {
         }
         let droppedIDs = Set(dropped.map(\.id))
         history.removeAll { droppedIDs.contains($0.id) }
-        return true
     }
 
-    /// Writes the sessions, then (when they changed) the carried totals. A crash in
-    /// between can lose the just-folded sessions' time, never count it twice.
-    private func save(totals: Bool = false) {
+    private func save() {
         guard !historyReadFailed else { return }
         do {
             try fileManager.createDirectory(
                 at: fileURL.deletingLastPathComponent(),
                 withIntermediateDirectories: true
             )
-            try write(JSONEncoder().encode(history), to: fileURL)
-            if totals {
-                let entries = archive.flatMap { profileID, values in
-                    values.map { CarriedEntry(gameID: $0.key, playtime: $0.value, profileID: profileID) }
-                }.sorted { ($0.profileID?.uuidString ?? "", $0.gameID.uuidString) < ($1.profileID?.uuidString ?? "", $1.gameID.uuidString) }
-                try write(JSONEncoder().encode(entries), to: totalsURL)
-            }
+            let entries = archive.flatMap { profileID, values in
+                values.map { CarriedEntry(gameID: $0.key, playtime: $0.value, profileID: profileID) }
+            }.sorted { ($0.profileID?.uuidString ?? "", $0.gameID.uuidString) < ($1.profileID?.uuidString ?? "", $1.gameID.uuidString) }
+            try JSONEncoder().encode(SessionHistoryState(sessions: history, totals: entries))
+                .write(to: stateURL, options: .atomic)
             loadError = nil
         } catch {
             loadError = error.localizedDescription
         }
     }
 
-    private func write(_ data: Data, to url: URL) throws {
-        let temp = url.appendingPathExtension("tmp")
-        try data.write(to: temp, options: .atomic)
-        if fileManager.fileExists(atPath: url.path) {
-            _ = try fileManager.replaceItemAt(url, withItemAt: temp)
-        } else {
-            try fileManager.moveItem(at: temp, to: url)
-        }
-    }
-
     private func load() {
+        do {
+            let state = try JSONDecoder().decode(SessionHistoryState.self, from: Data(contentsOf: stateURL))
+            history = state.sessions
+            loadTotals(state.totals)
+            return
+        } catch CocoaError.fileReadNoSuchFile {
+            // Import the older split files below without changing them.
+        } catch {
+            loadError = error.localizedDescription
+            return
+        }
         do {
             history = try JSONDecoder().decode([PlaySession].self, from: Data(contentsOf: fileURL))
         } catch CocoaError.fileReadNoSuchFile {
@@ -250,14 +248,17 @@ public final class PlaySessionStore: ObservableObject, PlayHistory {
             loadError = error.localizedDescription
         }
         do {
-            let entries = try JSONDecoder().decode([CarriedEntry].self, from: Data(contentsOf: totalsURL))
-            for entry in entries where archive[entry.profileID]?[entry.gameID] == nil {
-                archive[entry.profileID, default: [:]][entry.gameID] = entry.playtime
-            }
+            loadTotals(try JSONDecoder().decode([CarriedEntry].self, from: Data(contentsOf: totalsURL)))
         } catch CocoaError.fileReadNoSuchFile {
             // Nothing was trimmed since carried totals began.
         } catch {
             loadError = error.localizedDescription
+        }
+    }
+
+    private func loadTotals(_ entries: [CarriedEntry]) {
+        for entry in entries where archive[entry.profileID]?[entry.gameID] == nil {
+            archive[entry.profileID, default: [:]][entry.gameID] = entry.playtime
         }
     }
 }
@@ -300,7 +301,13 @@ public struct CarriedPlaytime: Codable, Equatable {
     }
 }
 
-private struct CarriedEntry: Codable {
+struct SessionHistoryState: Codable {
+    static let filename = "play-sessions-state.json"
+    var sessions: [PlaySession]
+    var totals: [CarriedEntry]
+}
+
+struct CarriedEntry: Codable {
     var gameID: UUID
     var playtime: CarriedPlaytime
     var profileID: UUID? = nil
