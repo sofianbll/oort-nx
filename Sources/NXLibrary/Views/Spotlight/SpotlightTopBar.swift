@@ -35,10 +35,10 @@ struct SpotlightTopBar: View {
                 badge(.lb)
                 ForEach(LibraryFilter.tabs(tabs + [filter])) { tab($0) }
                 badge(.rb)
-            }
-            // Beside the tabs, which stay where they are.
-            .overlay(alignment: .trailing) {
-                if played != .any { activeFilter.fixedSize().alignmentGuide(.trailing) { $0[.leading] } }
+                // Beside the tabs, which stay where they are: it takes no width of its own.
+                if played != .any {
+                    activeFilter.fixedSize().frame(width: 0, alignment: .leading)
+                }
             }
             // Selene's order, right to left: the clock, then the profile's avatar just before it.
             HStack(spacing: canvas.u(16)) {

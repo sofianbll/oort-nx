@@ -482,11 +482,7 @@
       "opacity:.opacity(0.45": 1
     },
     "Sources/NXLibrary/Views/Spotlight/SpotlightTopBar.swift": {
-      ".padding(.bottom,canvas.u(117": 1,
-      ".padding(.horizontal,canvas.u(15": 1,
       "animation:withAnimation(.linear": 1,
-      "color:Color.black": 1,
-      "opacity:.opacity(0.24": 1,
       "opacity:.opacity(0.7": 1,
       "opacity:.opacity(0.95": 1
     },
