@@ -279,7 +279,7 @@ def main():
         output.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / "Package.swift", package / "Package.swift")
         shutil.copytree(ROOT / "Sources", package / "Sources")
-        for target in ("NXLibraryCoreTests", "ArcanePortingTests"):
+        for target in ("NXLibraryCoreTests", "ArcanePortingTests", "OortCoreTests"):
             stub = package / "Tests" / target / "Empty.swift"
             stub.parent.mkdir(parents=True)
             stub.touch()

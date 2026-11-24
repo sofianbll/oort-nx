@@ -1,5 +1,5 @@
 import XCTest
-@testable import NXLibraryCore
+@testable import OortCore
 
 final class ControllerInputTests: XCTestCase {
     func testNintendoReportMapsEveryButtonBit() throws {

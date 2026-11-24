@@ -19,7 +19,7 @@ def run_host(host, source_fixture=None, *, save_model=False):
     else:
         products = build / "debug"
         modules = products / "Modules"
-        inputs = [str(p) for target in ("NXLibrary", "NXLibraryCore", "ArcanePorting")
+        inputs = [str(p) for target in ("NXLibrary", "NXLibraryCore", "ArcanePorting", "OortCore")
                   for p in sorted((products / f"{target}.build").glob("*.swift.o"))]
         if not inputs or not (modules / "NXLibrary.swiftmodule").exists():
             raise SystemExit("Run the debug Swift suite first.")

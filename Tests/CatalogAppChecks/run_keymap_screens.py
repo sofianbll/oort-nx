@@ -119,7 +119,7 @@ with tempfile.TemporaryDirectory(prefix="keymap-screens-") as folder:
     ]
     subprocess.run(["xcrun", "swiftc", "-parse-as-library", "-I", BIN, swift,
                     ROOT / "Sources/NXLibrary/Models/GamepadType.swift",
-                    *(VIEWS / p for p in paths), BIN / "NXLibraryCore.o", "-o", binary], check=True)
+                    *(VIEWS / p for p in paths), BIN / "NXLibraryCore.o", BIN / "OortCore.o", "-o", binary], check=True)
     output = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else scratch / "screens"
     subprocess.run([binary, ROOT, output], check=True,
                    env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)))

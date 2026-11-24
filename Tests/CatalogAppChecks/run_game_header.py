@@ -41,5 +41,5 @@ struct SelenePillButton: View {
 '''
 with tempfile.TemporaryDirectory(prefix='game-header-check-') as folder:
  folder=Path(folder);swift=folder/'check.swift';swift.write_text(host);binary=folder/'check'
- subprocess.run(['xcrun','swiftc','-parse-as-library','-I',str(BIN),str(swift),str(BIN/'NXLibraryCore.o'), str(BIN / 'ArcanePorting.o'),'-o',str(binary)],check=True)
+ subprocess.run(['xcrun','swiftc','-parse-as-library','-I',str(BIN),str(swift),str(BIN/'NXLibraryCore.o'), str(BIN / 'ArcanePorting.o'),str(BIN / 'OortCore.o'),'-o',str(binary)],check=True)
  subprocess.run([str(binary)],check=True,env=dict(os.environ,PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)))

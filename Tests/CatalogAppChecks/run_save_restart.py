@@ -2,7 +2,7 @@
 """Crash/restart the real save transaction against generated temporary data only.
 
 Run after Core is ready and built with testing enabled. This script only compiles
-its helper against .build/debug/NXLibraryCore.o; it never builds or opens the app.
+its helper against the debug target objects; it never builds or opens the app.
 """
 from pathlib import Path
 import os
@@ -140,7 +140,8 @@ def main():
         source, binary = scratch / 'main.swift', scratch / 'save-restart'
         source.write_text(HOST)
         subprocess.run(['xcrun', 'swiftc', '-I', str(LIBRARY), str(source),
-                        str(LIBRARY / 'NXLibraryCore.o'), str(LIBRARY / 'ArcanePorting.o'), '-o', str(binary)],
+                        str(LIBRARY / 'NXLibraryCore.o'), str(LIBRARY / 'ArcanePorting.o'),
+                        str(LIBRARY / 'OortCore.o'), '-o', str(binary)],
                        cwd=ROOT, check=True, timeout=60)
         env = dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(LIBRARY))
 

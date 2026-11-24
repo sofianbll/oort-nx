@@ -11,7 +11,9 @@ let package = Package(
         .executable(name: "NXLibrary", targets: ["NXLibrary"]),
     ],
     targets: [
-        .target(name: "NXLibraryCore", path: "Sources/NXLibraryCore", resources: [.process("Resources")]),
+        .target(name: "OortCore"),
+        .target(name: "NXLibraryCore", dependencies: ["OortCore"], path: "Sources/NXLibraryCore",
+                resources: [.process("Resources")]),
         .target(name: "ArcanePorting", dependencies: ["NXLibraryCore"], path: "Sources/ArcanePorting"),
         .executableTarget(
             name: "NXLibrary",
@@ -28,5 +30,6 @@ let package = Package(
             dependencies: ["NXLibraryCore", "ArcanePorting"],
             path: "Tests/ArcanePortingTests"
         ),
+        .testTarget(name: "OortCoreTests", dependencies: ["OortCore"]),
     ]
 )

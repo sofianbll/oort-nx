@@ -194,7 +194,8 @@ extension EnvironmentValues {
                     str(scratch / 'Native.swift'), str(scratch / 'Steam.swift'),
                     str(ROOT / 'Sources/NXLibrary/Views/Spotlight/GameArtLoader.swift'),
                     str(ROOT / 'Sources/NXLibrary/Views/Theme/CatalogPersonalizationsEnvironment.swift'),
-                    str(BIN / 'NXLibraryCore.o'), str(BIN / 'ArcanePorting.o'), '-o', str(executable)], check=True)
+                    str(BIN / 'NXLibraryCore.o'), str(BIN / 'ArcanePorting.o'), str(BIN / 'OortCore.o'),
+                    '-o', str(executable)], check=True)
     view_result = subprocess.run([str(executable), str(scratch)],
                                  env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)))
 
@@ -367,7 +368,8 @@ enum CoverReadGate {
     subprocess.run(['xcrun', 'swiftc', '-parse-as-library', '-I', str(BIN), str(mods),
                     str(controlled_host),
                     str(ROOT / 'Sources/NXLibrary/Models/GamepadType.swift'),
-                    str(BIN / 'NXLibraryCore.o'), str(BIN / 'ArcanePorting.o'), '-o', str(mods_executable)], check=True)
+                    str(BIN / 'NXLibraryCore.o'), str(BIN / 'ArcanePorting.o'), str(BIN / 'OortCore.o'),
+                    '-o', str(mods_executable)], check=True)
     mods_result = subprocess.run([str(mods_executable), str(scratch)],
                                  env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)))
     raise SystemExit(view_result.returncode or mods_result.returncode)

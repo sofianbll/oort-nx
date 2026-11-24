@@ -80,6 +80,6 @@ with tempfile.TemporaryDirectory(prefix="oort-update-wait-") as path:
                                 'URL(fileURLWithPath: CommandLine.arguments[1]).appendingPathComponent("Update")'))
     env = dict(os.environ, HOME=str(scratch), CFFIXED_USER_HOME=str(scratch), PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN))
     subprocess.run(["xcrun", "swiftc", "-j", "1", "-parse-as-library", "-I", str(BIN),
-                    str(main), str(updater), str(BIN / "NXLibraryCore.o"), str(BIN / "ArcanePorting.o"),
+                    str(main), str(updater), str(BIN / "NXLibraryCore.o"), str(BIN / "ArcanePorting.o"), str(BIN / "OortCore.o"),
                     "-o", str(executable)], cwd=ROOT, env=env, check=True)
     subprocess.run([str(executable), str(scratch)], cwd=scratch, env=env, check=True, timeout=30)

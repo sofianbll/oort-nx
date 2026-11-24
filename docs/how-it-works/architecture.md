@@ -39,15 +39,19 @@ Il [README](../../README.md) è la guida d'uso; la [guida di sviluppo](../workin
 
 ## Struttura e dipendenze
 
-[Package.swift](../../Package.swift) dichiara cinque target. La toolchain Swift è quella di Xcode, con deployment minimo macOS 26 (`LSMinimumSystemVersion` 26.0 nell'app). *Perché:* è la versione più vecchia che il maintainer prova, e il porting chiede comunque macOS 26.6 per Xcode 27.2.
+[Package.swift](../../Package.swift) dichiara sette target. La toolchain dell'app è quella di Xcode, con deployment minimo macOS 26 (`LSMinimumSystemVersion` 26.0 nell'app). *Perché:* è la versione più vecchia che il maintainer prova, e il porting chiede comunque macOS 26.6 per Xcode 27.2.
 
 | Target | Compito |
 |---|---|
 | `NXLibrary` | Eseguibile SwiftUI, integrazione AppKit, controller, notifiche, coordinamento e rendering. |
-| `NXLibraryCore` | Modelli, persistenza, parsing, gestione file, contratti del motore, processi e logica delle funzionalità. |
+| `OortCore` | Logica portabile: input, focus, tastiera PIN, particelle, righe e versioni. Solo Swift e Foundation, senza risorse né dipendenze. |
+| `NXLibraryCore` | Modelli, persistenza, gestione file, contratti del motore, processi e logica delle funzionalità. Riesporta `OortCore` per i chiamanti esistenti. |
 | `ArcanePorting` | Il modulo Switch: Setup, build, avvio, impostazioni del gioco, cheat, store Nintendo, salvataggi, mod RomFS e GameBanana, la parte nxnative di catalogo e libreria. Dipende da `NXLibraryCore`. |
 | `NXLibraryCoreTests` | Test XCTest della base, con dati sintetici e dipendenze sostituibili; dipende solo da `NXLibraryCore`, quindi prova che la base compila senza il modulo. |
 | `ArcanePortingTests` | Test XCTest dei file che usano il modulo, anche le regole della base provate attraverso le sue entrate (`SettingsCatalog.all`, `CatalogStore(directory:)`). |
+| `OortCoreTests` | Test della logica portabile; usano `OortCore` senza gli altri moduli dell’app. |
+
+`scripts/check_oort_core.py` controlla manifest e import, anche nei rami condizionali; può preparare un pacchetto Swift minimo per Linux. Il wrapper `ProfileKeypad` in `NXLibraryCore` conserva il PIN locale a quattro cifre; il tipo portabile riceve la lunghezza esplicitamente.
 
 Il Core ha una cartella per area: `App`, `Catalog`, `Library`, `Selene`, `Details`, `Artwork`, `Achievements`, `Mods`, `Settings`, `Steam`. Tutto ciò che è Switch (Setup, build, avvio, impostazioni del gioco, cheat, store Nintendo, salvataggi e i loro backup, mod RomFS e GameBanana, la parte nxnative del catalogo e della libreria, lo spazio delle app portate) è il target `ArcanePorting` (`Sources/ArcanePorting/`), con una sottocartella per parte; dipende da `NXLibraryCore`, e l'app li importa entrambi. *Perché:* la base non importa il modulo, così il compilatore ferma ogni uso di un suo tipo o membro.
 

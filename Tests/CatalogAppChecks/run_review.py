@@ -768,6 +768,7 @@ with tempfile.TemporaryDirectory(prefix='catalog-review-check-') as folder:
                     str(ROOT / 'Sources/NXLibrary/Services/SteamAchievementsStore.swift'),
                     str(ROOT / 'Sources/NXLibrary/Views/Spotlight/GameArtLoader.swift'),
                     str(ROOT / 'Sources/NXLibrary/Models/GamepadType.swift'),
-                    str(BIN / 'NXLibraryCore.o'), str(BIN / 'ArcanePorting.o'), '-o', str(executable)], cwd=ROOT, check=True)
+                    str(BIN / 'NXLibraryCore.o'), str(BIN / 'ArcanePorting.o'), str(BIN / 'OortCore.o'),
+                    '-o', str(executable)], cwd=ROOT, check=True)
     subprocess.run([str(executable), str(scratch)], check=True,
                    env=dict(os.environ, PACKAGE_RESOURCE_BUNDLE_PATH=str(BIN)))

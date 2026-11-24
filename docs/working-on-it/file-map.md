@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **1031 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 24 novembre 2026. Copertura di **1036 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -13,6 +13,7 @@ Le cartelle generate `.build/`, `work/` e `dist/` e i dati personali in Applicat
 - [Coordinamento applicativo](#coordinamento-applicativo)
 - [Modelli dello stato applicativo](#modelli-dello-stato-applicativo)
 - [Integrazione con macOS e servizi applicativi](#integrazione-con-macos-e-servizi-applicativi)
+- [OortCore · logica portabile](#oortcore--logica-portabile)
 - [Core · app: aggiornamento, primo avvio, diagnostica e comandi](#core--app-aggiornamento-primo-avvio-diagnostica-e-comandi)
 - [Core · catalogo comune e fonti](#core--catalogo-comune-e-fonti)
 - [Core · libreria, sessioni e spazio](#core--libreria-sessioni-e-spazio)
@@ -65,7 +66,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [LICENSE](../../LICENSE) | Contiene la licenza MIT di Arcane. |
 | [.gitattributes](../../.gitattributes) | Conserva senza conversioni i testi delle licenze di terzi verificati per hash. |
 | [NOTICE](../../NOTICE) | Conserva attribuzioni del motore al pin corrente, di rclone, dei componenti, dei loghi e delle altre risorse riutilizzate. |
-| [Package.swift](../../Package.swift) | Dichiara i target SwiftPM (`NXLibraryCore`, il modulo `ArcanePorting` che dipende dalla base, l'app che li importa entrambi, i test), le loro dipendenze e il deployment macOS minimo. |
+| [Package.swift](../../Package.swift) | Dichiara `OortCore` portabile, `NXLibraryCore`, il modulo `ArcanePorting`, l’app, i tre target di test e il deployment macOS minimo. |
 | [README.md](../../README.md) | Presenta Arcane come libreria e launcher Mac, con guide d'uso (anche per la prima connessione cloud), requisiti e crediti. |
 | [runtime.lock](../../runtime.lock) | Fissa versioni, download e hash del runtime Python e degli strumenti inclusi nel bundle. |
 | [VERSION](../../VERSION) | Versione in sviluppo usata dal packaging e verificata dalla procedura di release. |
@@ -174,6 +175,21 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [Sources/NXLibrary/Services/SoundEffectService.swift](../../Sources/NXLibrary/Services/SoundEffectService.swift) | Riproduce i cue del pacchetto scelto o di Selene, applica attivazione e volume, interrompe l’audio durante il gioco. |
 | [Sources/NXLibrary/Services/SystemDetector.swift](../../Sources/NXLibrary/Services/SystemDetector.swift) | Individua checkout nxnative, root personale e possibili percorsi delle chiavi. |
 
+## OortCore · logica portabile
+
+Cartella `Sources/OortCore/`, senza risorse né dipendenze.
+
+| File | Responsabilità |
+|---|---|
+| [ControllerInput.swift](../../Sources/OortCore/ControllerInput.swift) | Decodifica report Nintendo, calibra stick, calcola transizioni e decide il ripiego HID. |
+| [FocusIndex.swift](../../Sources/OortCore/FocusIndex.swift) | Mantiene un indice di focus entro i limiti della lista. |
+| [HoldDetector.swift](../../Sources/OortCore/HoldDetector.swift) | Distingue pressione breve, prolungata e annullata. |
+| [LineBuffer.swift](../../Sources/OortCore/LineBuffer.swift) | Ricompone righe parziali separate da `\n` o `\r`. |
+| [MoonlightField.swift](../../Sources/OortCore/MoonlightField.swift) | Genera in modo deterministico i dati delle particelle, senza Metal. |
+| [MoveDirection.swift](../../Sources/OortCore/MoveDirection.swift) | Espone le quattro direzioni del focus. |
+| [ProfileKeypad.swift](../../Sources/OortCore/ProfileKeypad.swift) | Griglia PIN con lunghezza passata dal chiamante e conferma esplicita. |
+| [VersionNumber.swift](../../Sources/OortCore/VersionNumber.swift) | Confronta numeri di versione puntati parte per parte. |
+
 ## Core · app: aggiornamento, primo avvio, diagnostica e comandi
 
 Cartella `Sources/NXLibraryCore/App/`.
@@ -200,8 +216,6 @@ Cartella `Sources/NXLibraryCore/App/`.
 | [Sources/NXLibraryCore/App/AppDataProfile.swift](../../Sources/NXLibraryCore/App/AppDataProfile.swift) | Policy di percorsi, cache e preferenze; prepara il profilo di sviluppo e assegna una radice temporanea alla fixture Debug. |
 | [Sources/NXLibraryCore/App/DevelopmentProfileImporter.swift](../../Sources/NXLibraryCore/App/DevelopmentProfileImporter.swift) | Copia iniziale selettiva, anche della scelta Steam; hash, validazione e ripresa senza modificare la sorgente. Chiude le sessioni della copia all'ultimo heartbeat e conserva i totali. |
 | [Sources/NXLibraryCore/App/DevelopmentOperationStore.swift](../../Sources/NXLibraryCore/App/DevelopmentOperationStore.swift) | Autorizzazioni persistenti per le operazioni richieste nella Dev, distinte da quelle importate. |
-| [Sources/NXLibraryCore/App/VersionNumber.swift](../../Sources/NXLibraryCore/App/VersionNumber.swift) | Confronta numeri di versione puntati parte per parte, per i requisiti della toolchain e l'updater. |
-| [Sources/NXLibraryCore/App/LineBuffer.swift](../../Sources/NXLibraryCore/App/LineBuffer.swift) | Divide un flusso di byte in righe su \n o \r, comprese le righe parziali dei misuratori di avanzamento. |
 | [Sources/NXLibraryCore/App/BuildInstallIO.swift](../../Sources/NXLibraryCore/App/BuildInstallIO.swift) | Confine sostituibile per la pubblicazione atomica di un bundle (stesso volume, rinomina o scambio) e il suo errore; lo usano installazione dei giochi e aggiornamento di Arcane. |
 
 ## Core · catalogo comune e fonti
@@ -248,7 +262,7 @@ Cartella `Sources/NXLibraryCore/Library/`.
 | [Sources/NXLibraryCore/Players/PlayerControllerResolution.swift](../../Sources/NXLibraryCore/Players/PlayerControllerResolution.swift) | Abbina conferme o identità univoche; un modello compatibile è solo un suggerimento. |
 | [Sources/NXLibraryCore/Players/PlayerPlanStore.swift](../../Sources/NXLibraryCore/Players/PlayerPlanStore.swift) | Legge il documento versionato e pubblica atomicamente, conservando campi sconosciuti. |
 | [Sources/NXLibraryCore/Players/PlayerLaunchEnvironment.swift](../../Sources/NXLibraryCore/Players/PlayerLaunchEnvironment.swift) | Calcola le opzioni supportate, rispetta `env.txt` e limita il nickname a offline e locale. |
-| [Sources/NXLibraryCore/Library/ProfileKeypad.swift](../../Sources/NXLibraryCore/Library/ProfileKeypad.swift) | Griglia PIN, focus bidimensionale, cancellazione e conferma esplicita a quattro cifre. |
+| [Sources/NXLibraryCore/Library/ProfileKeypad.swift](../../Sources/NXLibraryCore/Library/ProfileKeypad.swift) | Riesporta `OortCore` e applica la lunghezza del PIN di `LocalProfile` alla tastiera portabile. |
 | [Sources/NXLibraryCore/Library/GameFocus.swift](../../Sources/NXLibraryCore/Library/GameFocus.swift) | Quando un gioco che esce riporta Arcane davanti: solo se era l’app in primo piano e nessun altro gioco della libreria è aperto. |
 | [Sources/NXLibraryCore/Library/SessionSummary.swift](../../Sources/NXLibraryCore/Library/SessionSummary.swift) | Cosa dice la card di fine sessione: gioco, durata di questa sessione e totale scritto come nelle info del gioco; niente card sotto i dieci secondi. |
 | [Sources/NXLibraryCore/Library/RunningAppsTracker.swift](../../Sources/NXLibraryCore/Library/RunningAppsTracker.swift) | Snapshot dei bundle ID delle applicazioni in esecuzione e cosa è partito o finito dall’ultima lettura. |
@@ -281,12 +295,8 @@ Cartella `Sources/NXLibraryCore/Selene/`.
 | [Sources/NXLibraryCore/Selene/SeleneImporter.swift](../../Sources/NXLibraryCore/Selene/SeleneImporter.swift) | Importa suoni e wallpaper dalla cartella Selene dell’utente e risolve cue e fallback. |
 | [Sources/NXLibraryCore/Selene/SoundPack.swift](../../Sources/NXLibraryCore/Selene/SoundPack.swift) | Valida manifesti, archivi e audio, sceglie le varianti e pubblica solo copie locali confermate. |
 | [Sources/NXLibraryCore/Selene/ButtonPrompts.swift](../../Sources/NXLibraryCore/Selene/ButtonPrompts.swift) | Traduce azioni, anche la navigazione in quattro direzioni, in simboli per tastiera e controller Switch, Xbox e PlayStation. |
-| [Sources/NXLibraryCore/Selene/ControllerInput.swift](../../Sources/NXLibraryCore/Selene/ControllerInput.swift) | Decodifica entrambi i report Nintendo, calibra gli stick per formato, calcola transizioni e decide il ripiego HID. |
-| [Sources/NXLibraryCore/Selene/FocusIndex.swift](../../Sources/NXLibraryCore/Selene/FocusIndex.swift) | Mantiene un indice di focus entro i limiti di una lista. |
-| [Sources/NXLibraryCore/Selene/HoldDetector.swift](../../Sources/NXLibraryCore/Selene/HoldDetector.swift) | Distingue pressione breve e prolungata a 500 ms e consente di annullarla senza azione. |
 | [Sources/NXLibraryCore/Selene/MaterialIcon.swift](../../Sources/NXLibraryCore/Selene/MaterialIcon.swift) | Elenca i glifi del font incluso, compresi cancellazione e conferma del PIN. |
 | [Sources/NXLibraryCore/Selene/MenuSelectionModel.swift](../../Sources/NXLibraryCore/Selene/MenuSelectionModel.swift) | Gestisce icone, voci delle schede e pillole Power; salta l'Inbox disattivata e lascia il focus sull'icona alla chiusura. |
-| [Sources/NXLibraryCore/Selene/MoonlightField.swift](../../Sources/NXLibraryCore/Selene/MoonlightField.swift) | Genera in modo deterministico i dati delle particelle per lo sfondo Metal. |
 | [Sources/NXLibraryCore/Selene/MoonlightAppearance.swift](../../Sources/NXLibraryCore/Selene/MoonlightAppearance.swift) | Identità delle superfici classica/Arcane/Flow e campionamento dei colori locali condiviso fra shader e fallback. |
 | [Sources/NXLibraryCore/Selene/ScreenshotViewerState.swift](../../Sources/NXLibraryCore/Selene/ScreenshotViewerState.swift) | Mantiene indice e limiti della navigazione nel visualizzatore screenshot. |
 | [Sources/NXLibraryCore/Selene/SeleneCanvas.swift](../../Sources/NXLibraryCore/Selene/SeleneCanvas.swift) | Calcola scala uniforme, stage centrato e conversione delle unità del canvas 1920×1080. |
@@ -300,7 +310,6 @@ Cartella `Sources/NXLibraryCore/Selene/`.
 | [Sources/NXLibraryCore/Selene/WallpaperCatalog.swift](../../Sources/NXLibraryCore/Selene/WallpaperCatalog.swift) | Elenca wallpaper e video, gruppi, nomi e file delle risorse incluse o importate. |
 | [Sources/NXLibraryCore/Selene/WallpaperPlacement.swift](../../Sources/NXLibraryCore/Selene/WallpaperPlacement.swift) | Decide dove applicare uno sfondo scelto fra schermi principali e Settings. |
 | [Sources/NXLibraryCore/Selene/GridListLayout.swift](../../Sources/NXLibraryCore/Selene/GridListLayout.swift) | Geometria di una lista a colonne di righe uguali: altezza, posizione di ogni riga, linee da disegnare, riga da mostrare e riga in vista più vicina. |
-| [Sources/NXLibraryCore/Selene/MoveDirection.swift](../../Sources/NXLibraryCore/Selene/MoveDirection.swift) | Le quattro direzioni di un movimento del focus. |
 
 ## Core · pagina del gioco
 
@@ -927,7 +936,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/ArcanePortingTests/CloudArchiveListingTests.swift](../../Tests/ArcanePortingTests/CloudArchiveListingTests.swift) | Doppioni Drive con ID distinti, varianti di maiuscole e Unicode, rifiuto prima di Send o lettura e importazione senza falsi assenti. |
 | [Tests/ArcanePortingTests/GameAppDestinationTests.swift](../../Tests/ArcanePortingTests/GameAppDestinationTests.swift) | Installazione e scoperta nella cartella scelta, rebuild dopo il cambio cartella, conflitti di nome, sorgenti protette e cartelle non disponibili o di sola lettura. |
 | [Tests/NXLibraryCoreTests/ButtonPromptsTests.swift](../../Tests/NXLibraryCoreTests/ButtonPromptsTests.swift) | Etichette e simboli per tastiera, controller e scelte esplicite dell’utente. |
-| [Tests/NXLibraryCoreTests/ControllerInputTests.swift](../../Tests/NXLibraryCoreTests/ControllerInputTests.swift) | Report Nintendo sintetici e cambio di formato, calibrazione, transizioni e precedenza di GameController. |
+| [Tests/OortCoreTests/ControllerInputTests.swift](../../Tests/OortCoreTests/ControllerInputTests.swift) | Report Nintendo sintetici, calibrazione, transizioni e precedenza di GameController. |
 | [Tests/ArcanePortingTests/CheatCopyTests.swift](../../Tests/ArcanePortingTests/CheatCopyTests.swift) | Testi di intestazione, rifiuto, conferma e rimozione dei cheats. |
 | [Tests/ArcanePortingTests/CheatFileTests.swift](../../Tests/ArcanePortingTests/CheatFileTests.swift) | Parsing dei codici secondo il motore, sezioni, metadati, nomi duplicati e codici non validi. |
 | [Tests/ArcanePortingTests/CheatInstallTests.swift](../../Tests/ArcanePortingTests/CheatInstallTests.swift) | Build ID, title ID, file senza nome, cartelle e decisioni di installazione. |
@@ -954,16 +963,17 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/ArcanePortingTests/EngineLocationTests.swift](../../Tests/ArcanePortingTests/EngineLocationTests.swift) | Percorso predefinito, cartella scelta e fallback quando scompare. |
 | [Tests/ArcanePortingTests/EngineToolchainTests.swift](../../Tests/ArcanePortingTests/EngineToolchainTests.swift) | Rilevamento del runtime incluso e fallback a Python e strumenti del checkout. |
 | [Tests/ArcanePortingTests/EnvironmentTests.swift](../../Tests/ArcanePortingTests/EnvironmentTests.swift) | Parsing di Metal e controlli dell’ambiente mediante runner sintetico. |
-| [Tests/NXLibraryCoreTests/FocusIndexTests.swift](../../Tests/NXLibraryCoreTests/FocusIndexTests.swift) | Movimento limitato agli elementi della lista e liste vuote. |
+| [Tests/OortCoreTests/FocusIndexTests.swift](../../Tests/OortCoreTests/FocusIndexTests.swift) | Movimento limitato agli elementi della lista e liste vuote. |
 | [Tests/ArcanePortingTests/GameDetailPresentationTests.swift](../../Tests/ArcanePortingTests/GameDetailPresentationTests.swift) | Disponibilità di build e sorgenti e formattazione di metadati e azioni Details. |
 | [Tests/ArcanePortingTests/GameResourceStateTests.swift](../../Tests/ArcanePortingTests/GameResourceStateTests.swift) | App spostata e ripristinata, input assenti, Play senza sorgenti e conservazione di workspace e build attive durante Refresh. |
 | [Tests/ArcanePortingTests/GameOptionsPresentationTests.swift](../../Tests/ArcanePortingTests/GameOptionsPresentationTests.swift) | Ordine, focus e capacità della build, incluse le righe multigiocatore e RomFS. |
 | [Tests/ArcanePortingTests/GameRuntimeConfigTests.swift](../../Tests/ArcanePortingTests/GameRuntimeConfigTests.swift) | Review di giochi nuovi ed esistenti, persistenza con plist temporaneo, lingua del rebuild e conversione DM_* con merge di env.txt. |
 | [Tests/ArcanePortingTests/GameTDBTests.swift](../../Tests/ArcanePortingTests/GameTDBTests.swift) | Database, normalizzazione dei nomi, regioni e matching delle copertine. |
-| [Tests/NXLibraryCoreTests/HoldDetectorTests.swift](../../Tests/NXLibraryCoreTests/HoldDetectorTests.swift) | Soglia temporale e distinzione fra pressione breve e prolungata. |
+| [Tests/OortCoreTests/HoldDetectorTests.swift](../../Tests/OortCoreTests/HoldDetectorTests.swift) | Soglia temporale e distinzione fra pressione breve e prolungata. |
 | [Tests/ArcanePortingTests/ImportServiceTests.swift](../../Tests/ArcanePortingTests/ImportServiceTests.swift) | Identità, firma originale o di ripiego senza cloud, spazio, riparazione, rifiuto di sidecar non sicuri, conflitto, modifica dopo l'anteprima e rollback. |
 | [Tests/NXLibraryCoreTests/CursorIdleTests.swift](../../Tests/NXLibraryCoreTests/CursorIdleTests.swift) | Ritardo del cursore, ripristino e ripartenza dopo interruzione o attività del mouse. |
-| [Tests/ArcanePortingTests/InstallProgressTests.swift](../../Tests/ArcanePortingTests/InstallProgressTests.swift) | Fasi Git, percentuali, byte e ricomposizione delle righe parziali. |
+| [Tests/ArcanePortingTests/InstallProgressTests.swift](../../Tests/ArcanePortingTests/InstallProgressTests.swift) | Fasi Git, percentuali e byte. |
+| [Tests/OortCoreTests/LineBufferTests.swift](../../Tests/OortCoreTests/LineBufferTests.swift) | Ricomposizione delle righe parziali e separatori dei progressi. |
 | [Tests/ArcanePortingTests/KeyCheckTests.swift](../../Tests/ArcanePortingTests/KeyCheckTests.swift) | Cifratura e lettura di intestazioni sintetiche, intervalli troncati e chiavi richieste dalle sorgenti. |
 | [Tests/ArcanePortingTests/KeyStoreTests.swift](../../Tests/ArcanePortingTests/KeyStoreTests.swift) | Importazione e sostituzione atomica, conservazione della copia precedente anche con header malformato, permessi 0600 e riepilogo. |
 | [Tests/ArcanePortingTests/LaunchServiceTests.swift](../../Tests/ArcanePortingTests/LaunchServiceTests.swift) | Processo fittizio, impostazioni runtime e profilo, ambiente ereditato senza segreti, Home e overlay, permessi e pulizia dello snapshot; capacità, ripiego e override dello schermo. |
@@ -975,7 +985,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/ArcanePortingTests/NXNativeCatalogPersistenceTests.swift](../../Tests/ArcanePortingTests/NXNativeCatalogPersistenceTests.swift) | Persistenza e merge nxnative: sorgenti, impostazioni, preferiti, installazioni in attesa, provenienza delle app ritrovate, rifiuto di identità ripetute e ripristino senza sovrascritture. |
 | [Tests/NXLibraryCoreTests/MaterialIconTests.swift](../../Tests/NXLibraryCoreTests/MaterialIconTests.swift) | Integrità dei glifi e del font delle icone. |
 | [Tests/ArcanePortingTests/MetadataPickerTests.swift](../../Tests/ArcanePortingTests/MetadataPickerTests.swift) | Alternative per campo, override persistiti e applicazione ai metadati del gioco. |
-| [Tests/NXLibraryCoreTests/MoonlightFieldTests.swift](../../Tests/NXLibraryCoreTests/MoonlightFieldTests.swift) | Generazione deterministica e limiti dei dati delle particelle. |
+| [Tests/OortCoreTests/MoonlightFieldTests.swift](../../Tests/OortCoreTests/MoonlightFieldTests.swift) | Generazione deterministica e limiti dei dati delle particelle. |
 | [MoonlightAppearanceTests.swift](../../Tests/ArcanePortingTests/MoonlightAppearanceTests.swift) | Ignora la preferenza storica delle particelle senza perdere altri valori; continuità del ciclo e bordi della griglia colori. |
 | [Tests/ArcanePortingTests/MoreArtworkSourcesTests.swift](../../Tests/ArcanePortingTests/MoreArtworkSourcesTests.swift) | Matching dei titoli e risposte delle sorgenti artwork aggiuntive. |
 | [Tests/ArcanePortingTests/MoreLikeThisTests.swift](../../Tests/ArcanePortingTests/MoreLikeThisTests.swift) | Ranking condiviso, precedenza Steam e ripiego Switch, giochi nascosti e metadati incompleti. |
@@ -998,7 +1008,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/NXLibraryCoreTests/PlayerPlanTests.swift](../../Tests/NXLibraryCoreTests/PlayerPlanTests.swift) | Posti, accesso ai profili, identità ambigue e conferme dei controller. |
 | [Tests/NXLibraryCoreTests/PlayerPlanStoreTests.swift](../../Tests/NXLibraryCoreTests/PlayerPlanStoreTests.swift) | Persistenza e conservazione dei campi sconosciuti; rifiuto dei documenti non validi. |
 | [Tests/NXLibraryCoreTests/PlayerLaunchEnvironmentTests.swift](../../Tests/NXLibraryCoreTests/PlayerLaunchEnvironmentTests.swift) | Modalità di lancio, capacità dichiarate, precedenza di `env.txt` e limiti del nickname. |
-| [Tests/NXLibraryCoreTests/ProfileKeypadTests.swift](../../Tests/NXLibraryCoreTests/ProfileKeypadTests.swift) | Bordi in due dimensioni, raggiungibilità dei tasti finali, cancellazione, zero iniziale e invio solo a quattro cifre. |
+| [Tests/OortCoreTests/ProfileKeypadTests.swift](../../Tests/OortCoreTests/ProfileKeypadTests.swift) | Navigazione, cancellazione, zero iniziale e lunghezza del PIN fornita dal chiamante. |
 | [Tests/NXLibraryCoreTests/ProfileLayersTests.swift](../../Tests/NXLibraryCoreTests/ProfileLayersTests.swift) | In ogni stato un solo strato della schermata profilo riceve l’input e mostra i suggerimenti; la procedura guidata sostituisce il selettore. |
 | [Tests/ArcanePortingTests/PortedGameTests.swift](../../Tests/ArcanePortingTests/PortedGameTests.swift) | Modello del gioco, compatibilità dei record, disponibilità dell’app e selezione delle ultime compilazioni riuscite. |
 | [Tests/ArcanePortingTests/PortingFailureReasonTests.swift](../../Tests/ArcanePortingTests/PortingFailureReasonTests.swift) | Classificazione dei fallimenti, distinzione fra avvio di Python e chiavi, e corrispondenza con i messaggi del pin (anche con NX_TEST_ENGINE_REPO). |
@@ -1052,6 +1062,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/NXLibraryCoreTests/ThemePickerTests.swift](../../Tests/NXLibraryCoreTests/ThemePickerTests.swift) | Navigazione della griglia, tab e selezione degli sfondi. |
 | [Tests/ArcanePortingTests/ToolchainGateCopyTests.swift](../../Tests/ArcanePortingTests/ToolchainGateCopyTests.swift) | Testi del gate per Metal certificato, precedente, successivo e altre cause di blocco. |
 | [Tests/ArcanePortingTests/ToolchainRequirementsTests.swift](../../Tests/ArcanePortingTests/ToolchainRequirementsTests.swift) | Versioni minime e identificativi degli asset Metal da scaricare. |
+| [Tests/OortCoreTests/VersionNumberTests.swift](../../Tests/OortCoreTests/VersionNumberTests.swift) | Confronto numerico delle versioni. |
 | [Tests/ArcanePortingTests/UpstreamCheckerTests.swift](../../Tests/ArcanePortingTests/UpstreamCheckerTests.swift) | Changelog HTTP, cache e gestione degli errori del provider. |
 | [Tests/ArcanePortingTests/UpstreamCopyTests.swift](../../Tests/ArcanePortingTests/UpstreamCopyTests.swift) | Testi della riga upstream e adozione dei commit attraverso gli aggiornamenti dell’app. |
 | [Tests/NXLibraryCoreTests/WallpaperBrightnessTests.swift](../../Tests/NXLibraryCoreTests/WallpaperBrightnessTests.swift) | Maschere e livelli di luminosità dello sfondo. |
@@ -1184,6 +1195,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [scripts/import_selene_palettes.py](../../scripts/import_selene_palettes.py) | Converte le palette Selene nel catalogo JSON usato dall’app. |
 | [scripts/check_localizations.py](../../scripts/check_localizations.py) | Verifica copertura, placeholder, plurali e risorse nel bundle installato. |
 | [scripts/check_selene_tokens.py](../../scripts/check_selene_tokens.py) | Blocca nuovi valori letterali di testo, padding e raggi fuori dai token. |
+| [scripts/check_oort_core.py](../../scripts/check_oort_core.py) | Verifica manifest e import del target portabile; può preparare un pacchetto minimo per Linux. |
 | [scripts/selene-token-debt.json](../../scripts/selene-token-debt.json) | Occorrenze letterali preesistenti per file e firma, escluse le misure già migrate ai token; le voci obsolete fanno fallire il controllo. |
 | [Tests/PublicationChecks/test_selene_tokens.py](../../Tests/PublicationChecks/test_selene_tokens.py) | Prova argomenti multilinea, valori scalati ed esclusioni. |
 | [scripts/check_metadata_text_layout.swift](../../scripts/check_metadata_text_layout.swift) | Verifica fuori schermo il layout delle descrizioni e la destinazione dello scroll dopo cambi di focus, anche rapidi e con Riduci movimento. |
