@@ -287,8 +287,9 @@ final class SetupCheckModel: ObservableObject {
     }
 
     private func fetchEngine(_ completion: @escaping (Bool) -> Void) {
-        guard let facts else { completion(false); return }
+        guard let facts, viewModel.setup.canMutateEngine else { completion(false); return }
         if case .checkout(let head, false) = facts.engine, head == facts.newestEngine?.commit {
+            guard viewModel.setup.canSwitchEngine else { completion(false); return }
             backToTestedEngine(completion)
             return
         }
@@ -297,6 +298,7 @@ final class SetupCheckModel: ObservableObject {
         let commands = SetupActions.gitCommands(for: action, folder: facts.engineFolder, pinned: facts.pinnedCommit,
                                                remote: facts.engineRemote)
         guard !commands.isEmpty else { completion(false); return }
+        viewModel.setup.isSwitchingEngine = true
         let chip = action == .clone ? L10n.text("CLONING…") : L10n.text("UPDATING…")
         setOverride(.engine, .working(chip, progress: 0, detail: L10n.text("Connecting to GitHub…")))
         let env = environment
@@ -310,6 +312,7 @@ final class SetupCheckModel: ObservableObject {
                 if result.status != 0 { break }
             }
             DispatchQueue.main.async {
+                self.viewModel.setup.isSwitchingEngine = false
                 self.viewModel.setup.detectEnvironment()
                 self.finish(.engine, result, "nxnative engine", completion)
             }

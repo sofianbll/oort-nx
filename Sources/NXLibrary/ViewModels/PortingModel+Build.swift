@@ -60,6 +60,7 @@ extension PortingModel {
 
     var canStartBuild: Bool {
         !app.isBuilding
+            && !app.setup.isSwitchingEngine
             && !app.isCheckingCloudBuild
             && app.buildQueue.isEmpty
             && !app.cloudLibrary.isChangingConnection
@@ -259,7 +260,7 @@ extension PortingModel {
         if preferLocalCache { request.preferLocalCache = true }
         guard !app.cloudLibrary.isQuitting, activeBuildRequest?.gameID != game.id,
               checkingCloudBuild?.id != game.id, !app.buildQueue.contains(game.id) else { return }
-        if !hasRestoredBuildQueue || app.isBuilding || app.isCheckingCloudBuild || !app.buildQueue.isEmpty ||
+        if !hasRestoredBuildQueue || app.isBuilding || app.isCheckingCloudBuild || app.setup.isSwitchingEngine || !app.buildQueue.isEmpty ||
             (app.cloudLibrary.archive != nil && !app.cloudLibrary.hasRestoredQueue) {
             enqueueBuild(request)
             scheduleNextBuild()
@@ -324,6 +325,7 @@ extension PortingModel {
 
     private func startNextBuild() {
         guard hasRestoredBuildQueue, !app.isBuilding, !app.isCheckingCloudBuild, !app.isScanningLibrary,
+              !app.setup.isSwitchingEngine,
               !app.cloudQuitRequested, !app.cloudLibrary.isQuitting,
               !app.cloudLibrary.isChangingConnection, !app.isCleaningStorage, !app.isUpdatingApp,
               app.settingsNotice == nil,
@@ -460,6 +462,9 @@ extension PortingModel {
 
     private func checkBuildIdle(for game: PortedGame) throws {
         guard !app.isBuilding else { throw NXLibraryError.buildAlreadyRunning }
+        guard !app.setup.isSwitchingEngine else {
+            throw NXLibraryError.environmentBlocked(L10n.text("Wait for the engine change to finish."))
+        }
         guard RunningGameMonitor.runningApplication(for: game) == nil else { throw CloudArchiveError.busy }
         guard !app.cloudLibrary.isChangingConnection,
               !app.cloudLibrary.isWorking || !app.cloudLibrary.conflicts(with: buildScope(for: game)) else {

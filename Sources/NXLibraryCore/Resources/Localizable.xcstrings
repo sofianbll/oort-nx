@@ -81021,6 +81021,17 @@
         }
       }
     },
+    "Wait for the engine change to finish.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Wait for the engine change to finish."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Attendez la fin du changement de moteur."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Attendi la fine del cambio del motore."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Warte, bis der Engine-Wechsel abgeschlossen ist."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Espera a que termine el cambio de motor."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Aguarde o fim da troca do motor."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "请等待引擎切换完成。"}}
+      }
+    },
     "Wait for the current build to finish before removing sources.": {
       "comment": "Source removal safety copy. User paths/names remain verbatim.",
       "localizations": {
