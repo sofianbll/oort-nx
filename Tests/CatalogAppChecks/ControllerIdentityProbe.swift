@@ -38,6 +38,7 @@ private final class FakeSource: ControllerSource {
         hashes()
         gameControllerTwins()
         mixedSourcesAndWake()
+        dualSourceTwins()
         repeatedHardwareID()
         print("Controller identity: hash privacy, twins, deduplication, activity, output routing, sleep and hot plug passed")
     }
@@ -128,7 +129,30 @@ private final class FakeSource: ControllerSource {
         let resumed = service.connectedControllers.first { $0.stableID == "synthetic" }
         precondition(resumed?.stableID == row.stableID && resumed?.id != row.id)
         precondition(!service.identify(row.id))
+        gc.preferredID = nil
+        gc.remove(a)
+        precondition(service.activeControllerName == h.name && hid.selected == h.id)
+        hid.onEvent?(.buttonPressed(h.id))
+        precondition(pulses.last == resumed?.id)
         withExtendedLifetime([os, hardware, otherModel]) {}
+    }
+
+    private static func dualSourceTwins() {
+        let gc = FakeSource(), hid = FakeSource()
+        let objects = (0..<4).map { _ in NSObject() }
+        let pads = objects.enumerated().map { index, object in
+            ControllerIdentity(id: ObjectIdentifier(object), name: "Twin", brand: .playstation,
+                               stableID: index < 2 ? nil : "unique-\(index)")
+        }
+        let service = GameControllerService(gcSource: gc, hidSource: hid)
+        gc.preferredID = pads[0].id
+        for pad in pads.prefix(2) { gc.add(pad) }
+        for pad in pads.suffix(2).reversed() { hid.add(pad, claimed: true) }
+        let rows = service.connectedControllers
+        precondition(rows.count == 2 && Set(rows.compactMap(\.stableID)) == ["unique-2", "unique-3"])
+        precondition(rows[0].id != rows[1].id)
+        precondition(!service.identify(rows[0].id) && gc.identified.isEmpty)
+        withExtendedLifetime(objects) {}
     }
 
     private static func repeatedHardwareID() {
