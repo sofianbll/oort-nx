@@ -1,0 +1,12 @@
+{
+  "categories": [
+    {"id": "general", "title": "General", "settings": ["DM_LANG", "DM_FULLSCREEN", "DM_SCREEN"]},
+    {"id": "picture", "title": "Picture", "settings": ["DM_FPS_TARGET", "DM_RENDER_SCALE", "DM_DYNAMIC_RESOLUTION", "DM_PRESENT_UPSCALE", "DM_UPSCALER", "DM_OPMODE", "DM_SCREEN_ASPECT", "DM_PICTURE_FIT", "DM_ZA_SHADOW_CASCADES"]},
+    {"id": "controls", "title": "Controls", "settings": ["DM_RUMBLE", "DM_RUMBLE_GAIN", "DM_RUMBLE_MIN", "DM_PAD_PRESS_TO_JOIN", "DM_SW2", "DM_TOUCH_HAPTICS", "DM_HOME_MENU", "DM_HOME_QUIT", "DM_OVERLAY_HOME_SWAP", "DM_OVERLAY_MENU_HOLD", "DM_OVERLAY_KEYS"]},
+    {"id": "sound", "title": "Sound", "settings": ["DM_MIC", "DM_MIC_GAIN", "DM_MIC_DEVICE"]},
+    {"id": "multiplayer", "title": "Multiplayer", "settings": ["DM_NETWORK", "DM_NET_VPN", "DM_NETWORK_INTERFACE", "DM_NET_DISCOVERY_PEER", "DM_NEXTENDO_BIRTHDAY", "DM_NEXTENDO_COUNTRY"]},
+    {"id": "performance", "title": "Performance", "settings": ["DM_METAL_HUD", "DM_SHOW_FPS", "DM_FPS_HOLD", "DM_PRESENT_SNAP", "DM_PSO_MTL4", "DM_PSO_PREBUILD", "DM_NVN_ENC_THREAD"]},
+    {"id": "saves", "title": "Saves", "settings": ["DM_SAVE_SYNC"]},
+    {"id": "mods", "title": "Mods", "settings": ["DM_ROMFS_OVERLAY", "DM_CHEATS"]}
+  ]
+}
