@@ -81,6 +81,7 @@ extension CloudLibraryAction {
 
 struct CloudLibraryState {
     var copies: [CloudArtifactKind: CloudArtifactStatus] = [:]
+    var personalAppComparison: PersonalAppReceipt.Comparison?
     // Presence from the remote manifest, not proof that copies match.
     var availability: [CloudArtifactKind: CloudArtifactStatus] = [:]
     var referenceAvailability: [CloudArtifactKind: CloudArtifactStatus] = [:]
@@ -129,7 +130,8 @@ struct CloudLibraryState {
         if let personal = copies[.app] ?? availability[.app], personal.uploadedAt != nil {
             keys.append("Copy in your cloud")
         }
-        if referenceCopies[.app]?.updatesLocal == true { keys.append("Update available") }
+        if case .update = personalAppComparison { keys.append("Update available") }
+        else if referenceCopies[.app]?.updatesLocal == true { keys.append("Update available") }
         return keys
     }
 
@@ -306,10 +308,11 @@ final class CloudLibraryModel: ObservableObject {
     struct SelectionCheck: Equatable {
         let game: PortedGame?
         let referenceCheckedAt: Date?
+        let archive: ObjectIdentifier?
     }
 
     func selectionCheck(for game: PortedGame?) -> SelectionCheck {
-        .init(game: game, referenceCheckedAt: referenceCheck?.date)
+        .init(game: game, referenceCheckedAt: referenceCheck?.date, archive: archive.map(ObjectIdentifier.init))
     }
 
     private func downloadsCloudApp(_ game: PortedGame) -> Bool {
@@ -379,6 +382,7 @@ final class CloudLibraryModel: ObservableObject {
     @Published var libraryMove: LibraryMoveActivity?
     var libraryMoveTask: Task<Void, Never>?
     let moveJournal = LibraryMoveJournal(in: AppData.supportRoot)
+    let personalAppReceipts = PersonalAppReceipt.Store()
     private(set) var pendingMove: LibraryMoveJournal.Pending?
     private(set) var moveJournalUnreadable = false
     var hasPendingMove: Bool { pendingMove != nil || moveJournalUnreadable }
@@ -1302,12 +1306,13 @@ extension AppViewModel {
     }
 
     /// The catalog check is cheap; compare actual local content only for a selected,
-    /// installed game with an app in the followed reference.
+    /// installed game, never for every game in the grid.
     @MainActor func prefetchCloudLibrary(_ game: PortedGame?) async {
         guard let game, showsCloudLibrary(game), !Task.isCancelled else { return }
         checkCloudCatalog()
         guard game.isPlayableLocally, let title = game.titleId?.uppercased(),
-              cloudLibrary.referenceManifests[title]?.artifacts.contains(where: { $0.kind == .app }) == true,
+              cloudLibrary.driveScope != nil ||
+                cloudLibrary.referenceManifests[title]?.artifacts.contains(where: { $0.kind == .app }) == true,
               cloudLibraryGameID != game.id, cloudLibrary.reads[game.id] == nil else { return }
         await refreshCloudLibrary(game, includeSources: false)
     }
@@ -1573,8 +1578,11 @@ extension AppViewModel {
               let titleID = game.titleId, SaveLocation.validID(titleID),
               !Task.isCancelled, cloudLibrary.states[game.id]?.action == nil else { return }
         let id = game.id, token = UUID()
+        let driveScope = cloudLibrary.driveScope
         cloudLibrary.reads[id]?.task.cancel()
-        cloudLibrary.update(id) { $0.refreshing = true; $0.message = nil; $0.failure = nil }
+        cloudLibrary.update(id) {
+            $0.refreshing = true; $0.message = nil; $0.failure = nil; $0.personalAppComparison = nil
+        }
         let read = Task { [weak self] in
             guard let self else { return }
             defer {
@@ -1606,6 +1614,13 @@ extension AppViewModel {
             }
             guard let copies, isCurrent() else { return }
             let own = (try? lookup.get()) ?? nil
+            let appStatus = copies[.app]
+            let store = self.cloudLibrary.personalAppReceipts
+            let compare = Task.detached(priority: .utility) {
+                store.compare(own, for: target, status: appStatus, scope: driveScope)
+            }
+            let personalComparison = await withTaskCancellationHandler { await compare.value } onCancel: { compare.cancel() }
+            guard isCurrent() else { return }
             let referenceLookup: Result<CloudGameManifest?, Error>
             do { referenceLookup = .success(try await self.referenceManifest(titleID: titleID)) }
             catch { referenceLookup = .failure(error) }
@@ -1633,6 +1648,7 @@ extension AppViewModel {
             guard isCurrent() else { return }
             self.cloudLibrary.update(id) {
                 $0.copies = copies
+                $0.personalAppComparison = personalComparison
                 $0.referenceUnverified = referenceUnverified
                 if !referenceUnverified {
                     $0.referenceAvailability = referenceAvailability
@@ -2205,7 +2221,7 @@ extension AppViewModel {
     @MainActor private func recordPersonalApp(_ manifest: CloudGameManifest, for game: CloudArchiveGame,
                                               scope: CloudDriveScope?) async {
         guard let scope else { return }
-        let store = PersonalAppReceipt.Store()
+        let store = cloudLibrary.personalAppReceipts
         do {
             try await Task.detached(priority: .utility) { try store.record(manifest, for: game, scope: scope) }.value
         } catch {

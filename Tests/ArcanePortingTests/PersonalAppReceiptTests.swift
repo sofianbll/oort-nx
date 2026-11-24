@@ -49,14 +49,58 @@ final class PersonalAppReceiptTests: XCTestCase {
         XCTAssertNil(store.receipt(titleID: title, scope: scope()))
     }
 
+    func testOnlyDifferentStrictlyLaterPersonalPublicationCanUpdateUnchangedApp() async throws {
+        let root = try makeRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let profile = root.appendingPathComponent("profile")
+        let app = try makeApp(in: root)
+        let game = CloudArchiveGame(titleID: title, locations: [.app: app])
+        let archive = CloudGameArchive(backend: RcloneStorageBackend(remote: ":local:", root: root.path), trash: { _ in })
+        let store = PersonalAppReceipt.Store(in: profile)
+        let original = "900150983cd24fb0d6963f7d28e17f72"
+        let changed = "4ed9407630eb1000c0f6b63842defa7d"
+        let a = try publication(original, date: firstDate)
+        let b = try publication(changed, date: firstDate.addingTimeInterval(60))
+        func compare(_ manifest: CloudGameManifest, scope: CloudDriveScope?) async throws -> PersonalAppReceipt.Comparison? {
+            let copies = try await archive.copyStatuses(game, manifest: .success(manifest))
+            return store.compare(manifest, for: game, status: copies[.app], scope: scope)
+        }
+
+        let missing = try await compare(b, scope: scope())
+        XCTAssertEqual(missing, .different)
+        try store.record(a, for: game, scope: scope())
+        let candidate = try await compare(b, scope: scope())
+        guard case .update(let offer) = candidate else { return XCTFail("Expected the later personal publication") }
+        XCTAssertEqual(offer.downloadBytes, 3)
+        XCTAssertEqual(offer.destination, app)
+
+        let same = try await compare(publication(original, date: firstDate.addingTimeInterval(60)), scope: scope())
+        XCTAssertEqual(same, .current)
+        for date in [firstDate.addingTimeInterval(-60), firstDate, nil] {
+            let ambiguous = try await compare(publication(changed, date: date), scope: scope())
+            XCTAssertEqual(ambiguous, .different)
+        }
+        let otherAccount = try await compare(b, scope: scope(account: "account-b"))
+        XCTAssertEqual(otherAccount, .different)
+        let reference = try await compare(b, scope: nil)
+        XCTAssertNil(reference)
+        let payload = app.appendingPathComponent("Contents/payload")
+        XCTAssertEqual(try String(contentsOf: payload, encoding: .utf8), "abc")
+        try Data("xyz".utf8).write(to: payload)
+        let diverged = try await compare(b, scope: scope())
+        XCTAssertEqual(diverged, .different)
+        XCTAssertEqual(try String(contentsOf: payload, encoding: .utf8), "xyz")
+        XCTAssertEqual(store.receipt(titleID: title, scope: scope())?.publishedAt, firstDate)
+    }
+
     private func scope(account: String = "account-a", folder: String = "folder-a") -> CloudDriveScope {
         .init(remote: "fixture", account: account, library: .init(path: "Games", id: folder))
     }
 
-    private func publication(_ md5: String, date: Date) throws -> CloudGameManifest {
+    private func publication(_ md5: String, date: Date?) throws -> CloudGameManifest {
         let entries = [CloudArtifactFiles.Entry(path: "Contents/payload", size: 3, md5: md5)]
         let digest = try CloudArtifactFiles.digest(entries)
-        return .init(version: 2, titleID: title, createdAt: date.addingTimeInterval(60), artifacts: [
+        return .init(version: 2, titleID: title, createdAt: (date ?? firstDate).addingTimeInterval(60), artifacts: [
             .init(kind: .app, unpackedSize: 3, entryCount: entries.count, inventorySHA256: digest, engineCommit: nil,
                   shaderChain: nil, options: [:], files: .init(folder: "Fixture [\(title)]/app/\(digest)/Fixture.app",
                                                              entries: entries), publishedAt: date)
