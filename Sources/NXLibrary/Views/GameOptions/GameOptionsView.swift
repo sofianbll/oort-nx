@@ -3,6 +3,11 @@ import AppKit
 import NXLibraryCore
 import ArcanePorting
 
+/// Players is a local launcher action, not an engine setting or game capability.
+enum GameOptionsItem: Hashable {
+    case game(GameOptionsRow), players
+}
+
 /// Selene's Game options: the current screen dimmed, then a centred column (1040u)
 /// with the game's name and glass rows. Edit details opens its own list and a
 /// removal asks in a Selene dialog. Rows, order and copy come from
@@ -66,7 +71,7 @@ struct GameOptionsView: View {
     }
     @State var level: GameOptionsLevel = .main
     /// The focused row by identity; nil means the top row of the level.
-    @State var pickedRow: GameOptionsRow?
+    @State var pickedRow: GameOptionsItem?
     @State var confirm: ConfirmTarget?
     /// Change artwork is open over the list; it takes the input until B closes it.
     @State var artworkOpen = false
@@ -94,12 +99,13 @@ struct GameOptionsView: View {
         modsRevision = UUID()
     }
     @State var moreOpen = false
+    @State var playersOpen = false
     var cheatsValue: String? {
         get { files.cheatsValue }
         nonmutating set { files.cheatsValue = newValue }
     }
     /// A panel over the list has the input.
-    var panelOpen: Bool { artworkOpen || metadataOpen || cheatsOpen || modsOpen || savesOpen || moreOpen }
+    var panelOpen: Bool { artworkOpen || metadataOpen || cheatsOpen || modsOpen || savesOpen || moreOpen || playersOpen }
     @State var confirmFocus: SeleneConfirmButton = .cancel
     /// The row whose explanation is open beside its info button (a click on it, or Y on the focused row).
     @State var infoRow: GameOptionsRow?
@@ -163,8 +169,12 @@ struct GameOptionsView: View {
         )
     }
 
-    var rows: [GameOptionsRow] {
-        presentation.focusableRows(level: level, origin: origin)
+    var rows: [GameOptionsItem] {
+        var rows = presentation.focusableRows(level: level, origin: origin).map(GameOptionsItem.game)
+        if level == .main, let play = rows.firstIndex(of: .game(.play)) {
+            rows.insert(.players, at: play + 1)
+        }
+        return rows
     }
 
     func setGameDisplay(_ choice: String?) {
@@ -176,8 +186,13 @@ struct GameOptionsView: View {
     /// The focused row, re-resolved against the rows of this draw so that rows
     /// appearing above it (a Store page arriving late) do not move the focus.
     var focusedRow: GameOptionsRow? {
-        let rows = self.rows
-        return GameOptionsFocus(row: pickedRow, in: rows).row(in: rows)
+        guard case .game(let row) = focusedItem else { return nil }
+        return row
+    }
+
+    var focusedItem: GameOptionsItem? {
+        let items = rows
+        return pickedRow.flatMap { items.contains($0) ? $0 : nil } ?? items.first
     }
 
     // MARK: - Body
@@ -247,6 +262,17 @@ struct GameOptionsView: View {
                 .zIndex(2)
             }
 
+            if playersOpen {
+                viewModel.playersScreen(game: current, input: .nxGameOptionsGamepadAction, canHandleInput: {
+                    viewModel.gameForSettingsSheet?.id == game.id && !viewModel.shellDialogOwnsInput
+                        && !viewModel.isWelcomeOpen && !viewModel.showSetupCheck
+                        && viewModel.gameToClose == nil && viewModel.gameWithInstallFailure == nil
+                        && viewModel.alertMessage == nil && viewModel.settingsNotice == nil
+                }) { playersOpen = false }
+                .transition(.opacity)
+                .zIndex(2)
+            }
+
             if let target = confirm {
                 confirmOverlay(target)
                     .transition(reduceMotion
@@ -309,7 +335,7 @@ struct GameOptionsView: View {
 final class OptionsScrollBox {
     static let space = "gameOptionsList"
     /// Row frames in the list's content, top-down.
-    var frames: [GameOptionsRow: CGRect] = [:]
+    var frames: [GameOptionsItem: CGRect] = [:]
     weak var window: NSWindow?
     var pointer: CGPoint = .zero
     var settle: DispatchWorkItem?
@@ -329,8 +355,8 @@ final class OptionsScrollBox {
 }
 
 struct OptionRowFrames: PreferenceKey {
-    static var defaultValue: [GameOptionsRow: CGRect] = [:]
-    static func reduce(value: inout [GameOptionsRow: CGRect], nextValue: () -> [GameOptionsRow: CGRect]) {
+    static var defaultValue: [GameOptionsItem: CGRect] = [:]
+    static func reduce(value: inout [GameOptionsItem: CGRect], nextValue: () -> [GameOptionsItem: CGRect]) {
         value.merge(nextValue()) { $1 }
     }
 }

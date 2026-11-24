@@ -39,6 +39,7 @@ public struct PlayerPlanStore: Sendable {
         }
         root["slots"] = .object(slots)
         root["mode"] = .string(plan.mode.rawValue)
+        root["mergePlayer"] = plan.mergePlayer.map { .number(Decimal($0)) }
         root["version"] = .number(1)
 
         let encoder = JSONEncoder()
@@ -81,11 +82,13 @@ public struct PlayerPlanStore: Sendable {
     private struct Document: Decodable {
         let version: Int
         let mode: PlayerControllerMode
+        let mergePlayer: Int?
         let slots: [String: PlayerSlot]
 
         func plan() throws -> PlayerPlan {
             guard version == 1 else { throw InvalidDocument.unsupportedVersion(version) }
             var plan = PlayerPlan(mode: mode)
+            try plan.setMergePlayer(mergePlayer)
             for (key, slot) in slots {
                 guard let number = Int(key), String(number) == key else { throw InvalidDocument.invalidSlotKey(key) }
                 try plan.set(slot, at: number)

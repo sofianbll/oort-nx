@@ -37,7 +37,7 @@ extension PlayerPlan {
     public func resolveControllers(_ connected: [ConnectedPlayerController],
                                    confirmed: [Int: String] = [:]) -> PlayerControllerResolution {
         let observations = Dictionary(grouping: connected, by: \.id)
-        let active = slots.filter { mode != .merge || $0.key == 1 }
+        let active = slots.filter { mode != .merge || $0.key == mergeTarget }
         let liveConfirmations = confirmed.filter { active[$0.key] != nil && observations[$0.value]?.count == 1 }
         let confirmationsPerController = Dictionary(grouping: liveConfirmations.values, by: { $0 })
         var assigned = liveConfirmations.filter { confirmationsPerController[$0.value]?.count == 1 }

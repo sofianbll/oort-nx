@@ -28,6 +28,8 @@ final class PlayerPlanStoreTests: XCTestCase {
                 """.utf8)
             try input.write(to: url)
             var plan = try XCTUnwrap(store.load())
+            XCTAssertEqual(plan.mergeTarget, 1)
+            try plan.setMergePlayer(8)
             var slot = try XCTUnwrap(plan.slot(1))
             slot.profileID = nil
             try plan.set(slot, at: 1)
@@ -36,6 +38,7 @@ final class PlayerPlanStoreTests: XCTestCase {
             let previous = try JSONDecoder().decode(CatalogJSON.self, from: input)
             let result = try JSONDecoder().decode(CatalogJSON.self, from: Data(contentsOf: url))
             XCTAssertEqual(result["futureRoot"], previous["futureRoot"])
+            XCTAssertEqual(try store.load()?.mergePlayer, 8)
             XCTAssertEqual(result["slots"]?["1"]?["futureSlot"], .null)
             XCTAssertNil(result["slots"]?["1"]?["profileID"])
             XCTAssertEqual(result["slots"]?["1"]?["controller"]?["futureController"],
@@ -54,6 +57,7 @@ final class PlayerPlanStoreTests: XCTestCase {
             for text in ["{", #"{"version":2,"mode":"merge","slots":{}}"#,
                          #"{"version":1,"mode":"unknown","slots":{}}"#,
                          #"{"version":1,"mode":"inOrder","slots":{"9":{}}}"#,
+                         #"{"version":1,"mode":"merge","mergePlayer":9,"slots":{}}"#,
                          #"{"version":1,"mode":"inOrder","slots":{"1":{"profileID":"broken"}}}"#] {
                 let bytes = Data(text.utf8)
                 try bytes.write(to: url)

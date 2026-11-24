@@ -5,8 +5,9 @@ struct SettingsControllersSection: View {
     @ObservedObject var settings: AppSettingsStore
     let onActions: ([SettingsRowAction]) -> Void
     let onViewControls: () -> Void
+    var onOpenPlayers: (() -> Void)?
 
-    @ObservedObject private var controller = GameControllerService.shared
+    @ObservedObject var controller = GameControllerService.shared
 
     var body: some View {
         VStack(spacing: 9) {
@@ -49,6 +50,9 @@ struct SettingsControllersSection: View {
             }
 
             SettingsSubheading(L10n.text("In game"))
+            if let onOpenPlayers {
+                SeleneButtonRow("Players", buttonTitle: "Open", action: onOpenPlayers)
+            }
             SeleneCycleRow("Home button in games", subtitle: "Auto uses the game's own setting.",
                            value: settings.settings.inGameHomeButton.title, cycle: stepHomeButton)
         }
@@ -67,8 +71,8 @@ struct SettingsControllersSection: View {
             .value("deadzone", "Stick navigation deadzone") { step in
                 controller.deadzone = min(0.80, max(0.10, controller.deadzone + 0.05 * Float(step)))
             },
-            .value("inGameHomeButton", "Home button in games", cycle: stepHomeButton)
-        ])
+        ] + (onOpenPlayers.map { action in [.init(id: "players", title: "Players", activate: action)] } ?? [])
+          + [.value("inGameHomeButton", "Home button in games", cycle: stepHomeButton)])
     }
 
     private func stepHomeButton(_ step: Int) {

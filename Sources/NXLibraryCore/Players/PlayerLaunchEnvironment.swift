@@ -36,14 +36,19 @@ public enum PlayerLaunchEnvironment {
         if capabilities.nickname, networkMode == .offline || networkMode == .local,
            !envFileKeys.contains(nicknameKey),
            case let .ready(profile)? = plan.slot(1)?.profileAccess(in: profiles, unlockedProfileIDs: unlockedProfileIDs),
-           !profile.name.utf8.contains(0) {
-            var name = ""
-            for character in profile.name {
-                guard name.utf8.count + String(character).utf8.count <= 32 else { break }
-                name.append(character)
-            }
-            if !name.isEmpty { values[nicknameKey] = name }
+           let name = wireName(profile.name) {
+            values[nicknameKey] = name
         }
         return values
+    }
+
+    public static func wireName(_ value: String) -> String? {
+        guard !value.utf8.contains(0) else { return nil }
+        var bytes = 0
+        let name = value.prefix { character in
+            bytes += String(character).utf8.count
+            return bytes <= 32
+        }
+        return name.isEmpty ? nil : String(name)
     }
 }
