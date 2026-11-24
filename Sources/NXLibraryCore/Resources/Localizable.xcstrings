@@ -2284,6 +2284,61 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "你的云端有副本"}}
       }
     },
+    "Copies are different": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Copies are different"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Le copie sono diverse"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Copies différentes"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Kopien unterscheiden sich"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Las copias son diferentes"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "As cópias são diferentes"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "副本不同"}}
+      }
+    },
+    "Update from my cloud": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Update from my cloud"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Aggiorna dal mio cloud"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Mettre à jour depuis mon cloud"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Aus meiner Cloud aktualisieren"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Actualizar desde mi nube"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Atualizar da minha nuvem"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "从我的云端更新"}}
+      }
+    },
+    "Update app": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Update app"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Aggiorna l’app"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Mettre à jour l’app"}},
+        "de": {"stringUnit": {"state": "translated", "value": "App aktualisieren"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Actualizar la app"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Atualizar o app"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "更新应用"}}
+      }
+    },
+    "Download %@ from your cloud and replace %@ on this Mac? The previous app will be kept.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Download %@ from your cloud and replace %@ on this Mac? The previous app will be kept."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Scaricare %1$@ dal cloud personale e sostituire %2$@ su questo Mac? L’app precedente verrà conservata."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Télécharger %1$@ depuis votre cloud et remplacer %2$@ sur ce Mac ? L’app précédente sera conservée."}},
+        "de": {"stringUnit": {"state": "translated", "value": "%1$@ aus Ihrer Cloud laden und %2$@ auf diesem Mac ersetzen? Die bisherige App bleibt erhalten."}},
+        "es": {"stringUnit": {"state": "translated", "value": "¿Descargar %1$@ de su nube y reemplazar %2$@ en este Mac? Se conservará la app anterior."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Baixar %1$@ da sua nuvem e substituir %2$@ neste Mac? O app anterior será mantido."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "要从您的云端下载 %1$@ 并替换这台 Mac 上的 %2$@ 吗？原有应用将保留。"}}
+      }
+    },
+    "The update could not be verified again. The installed app was kept.": {
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "The update could not be verified again. The installed app was kept."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Non è stato possibile verificare di nuovo l’aggiornamento. L’app installata è stata conservata."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "La mise à jour n’a pas pu être vérifiée de nouveau. L’app installée a été conservée."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Das Update konnte nicht erneut geprüft werden. Die installierte App blieb erhalten."}},
+        "es": {"stringUnit": {"state": "translated", "value": "No se pudo verificar de nuevo la actualización. Se conservó la app instalada."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Não foi possível verificar a atualização novamente. O app instalado foi mantido."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法再次验证更新。已保留安装的应用。"}}
+      }
+    },
     "Update available": {
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Update available"}},
