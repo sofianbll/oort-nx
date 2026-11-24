@@ -36,6 +36,11 @@ struct NXLibraryApp: App {
     #if DEBUG
     init() {
         let args = CommandLine.arguments
+        if let index = args.firstIndex(of: "--render-file-picker") {
+            precondition(args.indices.contains(index + 1), "Pass a directory for the file picker PNGs")
+            try! OortFilePickerProbe.capture(to: URL(fileURLWithPath: args[index + 1], isDirectory: true))
+            exit(EXIT_SUCCESS)
+        }
         if let index = args.firstIndex(of: "--render-oort-ui-gallery") {
             precondition(args.indices.contains(index + 1), "Pass a directory for the gallery PNGs")
             try! OortUIGallery.capture(to: URL(fileURLWithPath: args[index + 1], isDirectory: true))

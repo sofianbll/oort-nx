@@ -125,6 +125,7 @@ extension AppShellView {
         }
         GameControllerService.shared.onAction = { [weak viewModel, weak router] action in
             guard let viewModel, let router else { return }
+            if filePicker.handle(action) { return }
             guard !nativeMenus.isTracking, !nativeDialogOwnsInput, viewModel.launchOverlay == nil else { return }
             if action == .profiles || action == .controlCenter || action == .fullMenu {
                 guard launcherIsFrontmost else { return }
@@ -271,12 +272,13 @@ extension AppShellView {
         guard viewModel.showSetupCheck,
               viewModel.firstRunSetup.page == .games else { return }
         let defaults = settings.settings.gameDefaults
-        let picked = usingFolder ? viewModel.porting.selectGameFolder(startingNewGameWith: defaults)
-            : viewModel.porting.selectGameFiles(startingNewGameWith: defaults)
-        guard picked else { return }
-        setupSourceEntryID = UUID()
-        viewModel.completeSetup()
-        router.openAddGame()
+        let proceed = {
+            setupSourceEntryID = UUID()
+            viewModel.completeSetup()
+            router.openAddGame()
+        }
+        if usingFolder { viewModel.porting.selectGameFolder(startingNewGameWith: defaults, onPick: proceed) }
+        else { viewModel.porting.selectGameFiles(startingNewGameWith: defaults, onPick: proceed) }
     }
 
     func openFreshAddGame() {

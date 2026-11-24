@@ -265,7 +265,13 @@ extension AppViewModel {
             alertMessage = L10n.text("This game has no valid title ID.")
             return
         }
-        guard let selected = porting.chooseGameFiles(allowFolder: true), let first = selected.first else { return }
+        porting.chooseGameFiles(allowFolder: true) { [weak self] selected in
+            self?.attachSources(selected, to: game, titleId: titleId)
+        }
+    }
+
+    private func attachSources(_ selected: [URL], to game: PortedGame, titleId: String) {
+        guard canAdoptLocalApp, !porting.isScanningGameFolder, let first = selected.first else { return }
         let isFolder = selected.count == 1 && first.hasDirectoryPath
         guard isFolder || !selected.contains(where: \.hasDirectoryPath) else {
             alertMessage = L10n.text("Choose game files or one folder, not both.")
@@ -329,28 +335,23 @@ extension AppViewModel {
         }
     }
 
-    func selectLibraryFolder(startingAt start: URL? = nil, stage: ((URL) -> Void)? = nil) {
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = false
-        panel.canChooseDirectories = true
-        panel.allowsMultipleSelection = false
-        panel.canCreateDirectories = stage == nil
-        panel.directoryURL = start ?? libraryFolder
-        panel.prompt = "Choose folder"
-        panel.message = GameFoldersCopy.appsPickerMessage
-
-        if panel.runModal() == .OK, let url = panel.url {
+    func selectLibraryFolder(startingAt start: URL? = nil, onPick: (() -> Void)? = nil, stage: ((URL) -> Void)? = nil) {
+        OortFilePickerPresentation.open(.folder, title: L10n.text(GameFoldersCopy.appsTitle),
+            message: GameFoldersCopy.appsPickerMessage, startingAt: start ?? libraryFolder,
+            canCreateDirectories: stage == nil) { [weak self] urls in
+            guard let self, let url = urls.first else { return }
             guard url.standardizedFileURL.path != "/" else {
-                alertMessage = "Choose the folder containing your game apps, rather than a whole disk."
+                self.alertMessage = "Choose the folder containing your game apps, rather than a whole disk."
                 return
             }
             if let stage { stage(url.standardizedFileURL); return }
-            if let settingsStore, settingsStore.settings.launcherChoices.gameAppsPath != nil {
+            if let settingsStore = self.settingsStore, settingsStore.settings.launcherChoices.gameAppsPath != nil {
                 settingsStore.settings.launcherChoices.gameAppsPath = url.path
             } else {
                 AppData.preferences.set(url.path, forKey: StorageKeys.savedLibraryFolder)
             }
-            useGameAppsPath(url.path)
+            self.useGameAppsPath(url.path)
+            onPick?()
         }
     }
 

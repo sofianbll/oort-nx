@@ -193,6 +193,7 @@ struct SetupCardRow: View {
     let detail: String
     var note: String? = nil
     let icon: MaterialIcon
+    var badges: [String] = []
     var platform: PlatformKind? = nil
     var trailing: Trailing = .chevron
     var height: CGFloat = 112
@@ -212,7 +213,9 @@ struct SetupCardRow: View {
                         Text(title).seleneFont(.row, .semibold)
                     }
                     Text(detail).seleneFont(.text).foregroundColor(SeleneTheme.ink75)
-                        .lineLimit(2).truncationMode(.middle)
+                        .lineLimit(badges.isEmpty ? 2 : nil).truncationMode(.middle)
+                        .fixedSize(horizontal: false, vertical: true)
+                    OortFormatBadges(labels: badges)
                     if let note {
                         Text(note).seleneFont(.badge).foregroundColor(SeleneTheme.ink60).padding(.top, canvas.u(1))
                     }
@@ -227,7 +230,9 @@ struct SetupCardRow: View {
             }
             .foregroundColor(SeleneTheme.ink)
             .padding(.horizontal, canvas.u(SeleneTokens.Space.large))
-            .frame(width: canvas.u(960), height: canvas.u(height))
+            .frame(width: canvas.u(960))
+            .frame(minHeight: canvas.u(height))
+            .padding(.vertical, badges.isEmpty ? 0 : canvas.u(SeleneTokens.Space.compact))
             .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTheme.cardRadius), style: .continuous)
                 .fill(SeleneTheme.glassCard))
             .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTheme.cardRadius), style: .continuous)

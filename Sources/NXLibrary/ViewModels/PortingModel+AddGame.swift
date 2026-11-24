@@ -180,30 +180,25 @@ extension PortingModel {
         )
     }
 
-    @discardableResult
     func selectGameFolder(startingNewGameWith defaults: GameRuntimeConfig? = nil, startingAt start: URL? = nil,
-                          stage: ((URL) -> Void)? = nil) -> Bool {
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = false
-        panel.canChooseDirectories = true
-        panel.allowsMultipleSelection = false
-        panel.directoryURL = start ?? selectedGameFolder ?? gameFilesFolder
-        panel.prompt = "Choose folder"
-        panel.message = GameFoldersCopy.sourcesPickerMessage(extractedFolders: app.setup.engineSourceCapabilities.extractedFolders)
-
-        if panel.runModal() == .OK, let url = panel.url {
-            if let stage { stage(url.standardizedFileURL); return true }
-            if let defaults { startNewAddGame(defaults: defaults) }
-            self.selectedGameFolder = url
-            return true
+                          onPick: (() -> Void)? = nil, stage: ((URL) -> Void)? = nil) {
+        OortFilePickerPresentation.open(.folder, title: L10n.text(GameFoldersCopy.sourcesTitle),
+            message: GameFoldersCopy.sourcesPickerMessage(extractedFolders: app.setup.engineSourceCapabilities.extractedFolders),
+            startingAt: start ?? selectedGameFolder ?? gameFilesFolder) { [weak self] urls in
+            guard let self, let url = urls.first else { return }
+            if let stage { stage(url.standardizedFileURL) }
+            else {
+                if let defaults { self.startNewAddGame(defaults: defaults) }
+                self.selectedGameFolder = url
+            }
+            onPick?()
         }
-        return false
     }
 
-    @discardableResult
-    func selectGameFiles(startingNewGameWith defaults: GameRuntimeConfig? = nil) -> Bool {
-        guard let urls = chooseGameFiles() else { return false }
-        return prepareAddGameFiles(urls, defaults: defaults)
+    func selectGameFiles(startingNewGameWith defaults: GameRuntimeConfig? = nil, onPick: (() -> Void)? = nil) {
+        chooseGameFiles { [weak self] urls in
+            if self?.prepareAddGameFiles(urls, defaults: defaults) == true { onPick?() }
+        }
     }
 
     /// Prepare a draft and rescan the selected files; the review still owns Build.
@@ -222,17 +217,10 @@ extension PortingModel {
         return true
     }
 
-    func chooseGameFiles(allowFolder: Bool = false) -> [URL]? {
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = true
-        panel.canChooseDirectories = allowFolder
-        panel.allowsMultipleSelection = true
-        panel.allowedContentTypes = ["nsp", "xci", "nsz", "xcz", "nup"].compactMap { UTType(filenameExtension: $0) }
-        panel.directoryURL = gameFilesFolder
-        panel.prompt = L10n.text("Choose files")
-        panel.message = allowFolder ? L10n.text("Choose game files or one folder.")
-            : L10n.text("Choose NSP, XCI, NSZ or XCZ files, or one Switch 2 NUP file.")
-        return panel.runModal() == .OK ? panel.urls : nil
+    func chooseGameFiles(allowFolder: Bool = false, onPick: @escaping ([URL]) -> Void) {
+        OortFilePickerPresentation.open(.gameFiles(allowFolder: allowFolder), title: L10n.text(GameFoldersCopy.sourcesTitle),
+            message: L10n.text("Choose NSP, XCI, NSZ or XCZ files, or one Switch 2 NUP file."),
+            startingAt: gameFilesFolder, completion: onPick)
     }
 
     func goToWizardStep(_ step: Int) {

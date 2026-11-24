@@ -11,6 +11,7 @@ Come si aggiorna:
 
 | Parte | Stato | Prove ancora da fare |
 |---|---|---|
+| Selettore di Oort e formati nel tour e in Settings | in attesa | In un profilo sintetico, provare A/B/Y, tastiera, mouse e VoiceOver; annullare senza cambiare la bozza, scegliere più file, verificare un permesso negato e usare il selettore di macOS. |
 | Disposizioni Oort e Arcane | in attesa | Su profili di prova verificare tap e mantenimento di Home, + e −, Y, scelta per profilo e tastiera. Su macOS 27 provare Home controllato da Apple, avviso singolo, apertura delle impostazioni e aggiornamento dei suggerimenti. In un gioco di prova confrontare Auto e le scelte esplicite. |
 | Schede Switch · Nintendo Europe | in attesa | Su un profilo separato, passare fra le sette lingue, aprire il link della scheda prodotto e controllare il gioco base, il testo breve/lungo, i crediti e le scelte manuali. Riprovare offline e con una cache precedente; controllare italiano, portoghese brasiliano e cinese semplificato. |
 | Giocatori e profili per il prossimo avvio | in attesa | Con profili di prova, verificare focus, PIN, aggiunta, scambio, rimozione e Reset. Provare controller identici, disconnessione, batteria, luce e vibrazione con manette fisiche. Su copie di prova, confrontare la fusione P1 e P2–P8, le omissioni del vecchio motore, e i nomi Offline/Local e Nextendo. |
