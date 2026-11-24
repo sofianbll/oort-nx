@@ -225,7 +225,7 @@ public final class LocalProfileStore: ObservableObject {
         try manager.createDirectory(at: stage, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
         defer { try? manager.removeItem(at: stage) }
         for name in ["profiles.json", "profiles-active", "settings.json", "catalog.json", "catalog.json.bak",
-                     "library.json", "library.json.bak", "play-sessions.json", "play-sessions-totals.json"] {
+                     "library.json", "library.json.bak", "play-sessions.json", "play-sessions-totals.json", SessionHistoryState.filename] {
             let source = directory.appendingPathComponent(name)
             if manager.fileExists(atPath: source.path) {
                 try manager.copyItem(at: source, to: stage.appendingPathComponent(name))

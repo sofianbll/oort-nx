@@ -138,6 +138,27 @@ final class DevelopmentProfileTests: XCTestCase {
         XCTAssertEqual(copied.first?.duration, 60)
         XCTAssertEqual(try Data(contentsOf: original), data)
     }
+    func testImportClosesOpenSessionInUnifiedHistoryAndKeepsTotals() throws {
+        let (_, profile) = try fixture()
+        let url = profile.stableSupportRoot.appendingPathComponent("play-sessions.json")
+        let game = UUID()
+        var now = Date(timeIntervalSince1970: 100)
+        let stable = PlaySessionStore(fileURL: url, now: { now })
+        for _ in 0..<PlaySessionStore.maxSessions {
+            stable.start(gameID: game, sourceID: "fixture")
+            now.addTimeInterval(10)
+            stable.end(gameID: game)
+        }
+        stable.start(gameID: game, sourceID: "fixture")
+        now.addTimeInterval(20)
+        stable.heartbeat(for: game)
+        let before = try Data(contentsOf: stable.stateURL)
+        _ = try DevelopmentProfileImporter().prepare(profile: profile, sourcePreferences: { [:] }, savePreferences: { _ in })
+        let copied = PlaySessionStore(fileURL: profile.supportRoot.appendingPathComponent(url.lastPathComponent))
+        XCTAssertEqual(copied.sessions.last?.endedAt, now)
+        XCTAssertEqual(copied.totalDuration(for: game), Double(PlaySessionStore.maxSessions * 10 + 20))
+        XCTAssertEqual(try Data(contentsOf: stable.stateURL), before)
+    }
     func testRootsAreFoldersWhetherOrNotTheyExistYet() {
         let home = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         for development in [false, true] {

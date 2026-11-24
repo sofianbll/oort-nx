@@ -30,7 +30,7 @@ public struct DevelopmentProfileImporter {
         fm = fileManager
         self.checks = checks
     }
-    private static let files = ["library.json", "library.json.bak", "catalog.json", "catalog.json.bak", "settings.json", "profiles.json", "profiles-active", "play-sessions.json", "play-sessions-totals.json", "metadata-picks.json", "integrations/steam/metadata-picks.json", "app-sizes.json"]
+    private static let files = ["library.json", "library.json.bak", "catalog.json", "catalog.json.bak", "settings.json", "profiles.json", "profiles-active", "play-sessions.json", "play-sessions-totals.json", SessionHistoryState.filename, "metadata-picks.json", "integrations/steam/metadata-picks.json", "app-sizes.json"]
     private static let folders = ["artwork-picks", "integrations/steam/artwork-picks", "artwork", "metadata", "SeleneImports", "app-icons", "mods", "gamebanana"]
     private static let marker = ".development-import.json"
     private static let preferenceFile = ".import-preferences.plist"
@@ -80,13 +80,24 @@ public struct DevelopmentProfileImporter {
               NSDictionary(dictionary: try sourcePreferences().filter { Self.ownedPreference($0.key) }).isEqual(to: preferences) else { throw DevelopmentProfileError.sourceChanged }
         try preferencesData.write(to: stage.appendingPathComponent(Self.preferenceFile), options: .atomic)
         // End a copied unfinished session at its last recorded heartbeat, never at the current time.
+        func closeOpenSessions(_ sessions: inout [PlaySession]) -> Bool {
+            var changed = false
+            for i in sessions.indices where sessions[i].isActive {
+                sessions[i].endedAt = max(sessions[i].startedAt, sessions[i].lastHeartbeatAt)
+                changed = true
+            }
+            return changed
+        }
+        let stateFile = stage.appendingPathComponent(SessionHistoryState.filename)
         let sessionFile = stage.appendingPathComponent("play-sessions.json")
-        if try exists(sessionFile) {
+        if try exists(stateFile) {
+            var state = try JSONDecoder().decode(SessionHistoryState.self, from: Data(contentsOf: stateFile))
+            if closeOpenSessions(&state.sessions) {
+                try JSONEncoder().encode(state).write(to: stateFile, options: .atomic)
+            }
+        } else if try exists(sessionFile) {
             var sessions = try JSONDecoder().decode([PlaySession].self, from: Data(contentsOf: sessionFile))
-            if sessions.contains(where: \.isActive) {
-                for i in sessions.indices where sessions[i].isActive {
-                    sessions[i].endedAt = max(sessions[i].startedAt, sessions[i].lastHeartbeatAt)
-                }
+            if closeOpenSessions(&sessions) {
                 try JSONEncoder().encode(sessions).write(to: sessionFile, options: .atomic)
             }
         }
@@ -121,7 +132,9 @@ public struct DevelopmentProfileImporter {
         preferenceKeys.contains(key) || key.hasPrefix("NXNative_GameConfig_")
     }
     private func validateRequiredData(_ root: URL) throws {
-        for name in checks.keys.sorted() + ["settings.json", "play-sessions.json"] {
+        let historyName = try exists(root.appendingPathComponent(SessionHistoryState.filename))
+            ? SessionHistoryState.filename : "play-sessions.json"
+        for name in checks.keys.sorted() + ["settings.json", historyName] {
             let file = root.appendingPathComponent(name)
             guard fm.fileExists(atPath: file.path) else { continue }
             let data = try Data(contentsOf: file)
@@ -129,6 +142,7 @@ public struct DevelopmentProfileImporter {
                 if let check = checks[name] { try check(data, root); continue }
                 switch name {
                 case "settings.json": _ = try JSONDecoder().decode(AppSettings.self, from: data)
+                case SessionHistoryState.filename: _ = try JSONDecoder().decode(SessionHistoryState.self, from: data)
                 default: _ = try JSONDecoder().decode([PlaySession].self, from: data)
                 }
             } catch { throw DevelopmentProfileError.unreadableFile(name) }

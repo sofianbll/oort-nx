@@ -173,11 +173,11 @@ final class LocalProfileStoreTests: XCTestCase {
             let file = url.appendingPathComponent("play-sessions.json")
             let game = UUID(), second = UUID(), profile = UUID()
             var now = Date(timeIntervalSinceReferenceDate: 900)
-            let old = PlaySessionStore(fileURL: file, now: { now })
-            XCTAssertTrue(old.start(gameID: game, sourceID: "old"))
+            let legacy = PlaySession(gameID: game, titleID: "old", bundleID: nil, startedAt: now,
+                                     endedAt: now + 70, lastHeartbeatAt: now + 70)
+            let data = try JSONEncoder().encode([legacy])
+            try data.write(to: file)
             now += 70
-            old.end(gameID: game)
-            let data = try Data(contentsOf: file)
             let store = PlaySessionStore(fileURL: file, now: { now })
             XCTAssertEqual(try Data(contentsOf: file), data)
             XCTAssertEqual(store.totalDuration(for: game), 70)
@@ -196,6 +196,7 @@ final class LocalProfileStoreTests: XCTestCase {
             XCTAssertEqual(reopened.totalDuration(for: game), 70)
             reopened.profileID = profile
             XCTAssertEqual(reopened.totalDuration(for: game), 20)
+            XCTAssertEqual(try Data(contentsOf: file), data)
         }
     }
 }
