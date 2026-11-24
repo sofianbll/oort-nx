@@ -103,7 +103,7 @@ import NXLibraryCore
 
     var hasIdenticalPads: Bool {
         let groups = Dictionary(grouping: pads.filter { $0.modelKey != nil }, by: \.modelKey)
-        return groups.values.contains { group in group.count > 1 && group.contains { $0.stableID == nil } }
+        return groups.values.contains { $0.count > 1 }
     }
 
     func updatePads(_ pads: [ConnectedController]) {

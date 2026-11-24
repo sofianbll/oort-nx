@@ -7,7 +7,7 @@ struct SettingsControllersSection: View {
     let onViewControls: () -> Void
     var onOpenPlayers: (() -> Void)?
 
-    @ObservedObject private var controller = GameControllerService.shared
+    @ObservedObject var controller = GameControllerService.shared
 
     var body: some View {
         VStack(spacing: 9) {

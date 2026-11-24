@@ -15,6 +15,12 @@ import SwiftUI
 @testable import NXLibrary
 import NXLibraryCore
 
+final class PlayersFixtureSource: ControllerSource {
+    var onEvent: ((ControllerSourceEvent) -> Void)?
+    func start() {}
+    func stop() {}
+}
+
 @MainActor final class PlayersFixture {
     var plan: PlayerPlan?
     var presses: ((String) -> Void)?
@@ -97,7 +103,8 @@ import NXLibraryCore
                     ("08-ordre", old, [known]), ("09-rejoindre", one, [known]),
                     ("10-fusion", merged, [known, xbox]), ("11-ancien", old, [known]),
                     ("12-fusion-ancien", merged, [known, xbox]), ("13-appuyer", twins, [known, twinA, twinB]),
-                    ("14-cible-fusion", merged, [known, xbox]),
+                    ("14-cible-fusion", merged, [known, xbox]), ("15-reset", four, [known, xbox]),
+                    ("16-actions", four, [known, xbox]),
                 ]
                 for (name, plan, pads) in states {
                     fixture.plan = plan
@@ -118,6 +125,10 @@ import NXLibraryCore
                         precondition(model.capturePlayer == 2)
                     case "14-cible-fusion":
                         model.select(.mergeTarget)
+                    case "15-reset":
+                        model.select(.reset)
+                    case "16-actions":
+                        model.select(.player(1))
                     default: break
                     }
                     let notes = name == "11-ancien" ? [1: oldNote] : [:]
@@ -126,10 +137,13 @@ import NXLibraryCore
                     model.endCapture()
                 }
                 let settings = AppSettingsStore(fileURL: AppData.supportRoot.appendingPathComponent("settings.json"))
+                let controller = GameControllerService(gcSource: PlayersFixtureSource(), hidSource: PlayersFixtureSource())
                 try render(VStack(alignment: .leading) {
                     Text(verbatim: L10n.text("Controllers")).seleneFont(.screenTitle)
-                    SettingsControllersSection(settings: settings, onActions: { _ in }, onViewControls: {}, onOpenPlayers: {})
-                }.padding().frame(maxWidth: 700), name: "\(prefix)-voisin-manettes", size: size, locale: locale)
+                    SettingsControllersSection(settings: settings, onActions: { _ in }, onViewControls: {}, onOpenPlayers: {},
+                                               controller: controller)
+                }.padding().frame(maxWidth: 700).environment(\.seleneMinimumFont, 12),
+                name: "\(prefix)-voisin-manettes", size: size, locale: locale)
             }
         }
     }
@@ -273,7 +287,7 @@ if __name__ == "__main__":
         os.environ["PLAYERS_STAGE"] = str(stage)
         run_host(HOST)
         captures = sorted(stage.glob("*.png"))
-        assert len(captures) == 60, len(captures)
+        assert len(captures) == 68, len(captures)
         if output:
             output.mkdir(parents=True, exist_ok=True)
             for capture in captures:

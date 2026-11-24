@@ -102,12 +102,15 @@ struct PlayersScreen: View {
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                 if model.hasIdenticalPads {
-                    copy("These controllers look identical. Your button press tells them apart.")
+                    Text(verbatim: t("These controllers look identical. Your button press tells them apart."))
+                        .seleneFont(.caption)
+                        .foregroundStyle(SeleneTheme.ink75)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 SelenePillButton(title: "Cancel", focused: false, action: back)
             }
             .foregroundStyle(SeleneTheme.ink)
-            .modifier(SeleneDialogCard(width: nil))
+            .modifier(SeleneDialogCard(width: 1040))
         }
         .overlay(alignment: .bottom) {
             // Every controller button is input for this step, even the usual Back button.
@@ -233,10 +236,10 @@ struct PlayersScreen: View {
     }
 
     private func padSymbol(_ number: Int) -> String? {
-        if model.plan.mode == .merge && number == model.mergeTarget { return "gamecontroller" }
+        if model.plan.mode == .merge { return number == model.mergeTarget ? "gamecontroller" : nil }
         if let pad = model.connectedPad(number) {
             switch pad.kind {
-            case .nintendoSwitch: return "logo.nintendoswitch"
+            case .nintendoSwitch: return "l.joystick.fill"
             case .xbox: return "logo.xbox"
             case .playstation: return "logo.playstation"
             case .generic: return "gamecontroller"
