@@ -60,7 +60,9 @@ struct SettingsCloudLibrarySection: View {
 
     private var referenceStatus: String {
         guard let result = model.referenceCheck else {
-            return text(model.archive == nil ? "The cloud library is turned off." : "Checking…")
+            if !selection.enabled { return text("The cloud library is turned off.") }
+            if model.needsDriveTool || model.connectionCheck?.failure != nil { return text("Connection status unavailable") }
+            return text("Checking…")
         }
         if let failure = result.failure {
             if failure == .folderMissing {

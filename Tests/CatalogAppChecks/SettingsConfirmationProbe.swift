@@ -12,6 +12,7 @@ import ArcanePorting
     static var pin: String?
     static var pickedEngine: URL?
     static var availableDriveTool: URL? = URL(fileURLWithPath: "/fixture/rclone")
+    static var scopeTool: URL?
     static var downloadCalls = 0
     static var finishDownload: CheckedContinuation<Void, Never>?
 
@@ -26,6 +27,22 @@ import ArcanePorting
     static func disconnect(_ tool: URL, _ name: String) throws {
         precondition(tool.path == "/fixture/rclone" && name == "fixture")
         disconnects += 1
+    }
+
+    static func scopeBackend(remote: String, root: String, tool: URL) -> RcloneStorageBackend {
+        scopeTool = tool
+        return RcloneStorageBackend(remote: remote, root: root) { _, args, _ in
+            precondition(args.contains("--drive-shared-with-me=false"))
+            switch args.first {
+            case "about":
+                return .init(status: 0, stdout: "{}", stderr: #"{"msg":"'root_folder_id = Account_ID' - save this in the config"}"#)
+            case "lsjson" where args.contains("--dirs-only"):
+                let directories = #"[{"Name":"Games","ID":"Library_ID","IsDir":true},{"Name":"Autre bibliothèque","ID":"Other_ID","IsDir":true},{"Name":"Autres sources","ID":"ROMs_ID","IsDir":true}]"#
+                let json = args.contains(where: { $0.hasPrefix("--drive-root-folder-id=") }) ? "[]" : directories
+                return .init(status: 0, stdout: json, stderr: "")
+            default: preconditionFailure("Unexpected fixture command: \(args)")
+            }
+        }
     }
 
     struct Input {
@@ -108,6 +125,7 @@ import ArcanePorting
         follow.save()
         precondition(closed == 2 && model.preference.referenceFolder == "1-test-reference" && cloudWrites == 3)
         try confirm("reference-unfollow", cloud.unfollow, count: { cloudWrites })
+        for _ in 0..<100 where model.isChangingConnection { try await Task.sleep(for: .milliseconds(5)) }
         precondition(model.preference.referenceFolder == nil && cloudWrites == 4)
 
         let library = CloudSetupAssistant(viewModel: vm, model: model, entry: .library, onClose: { closed += 1 })
@@ -150,6 +168,7 @@ import ArcanePorting
             advanced: .constant(false), onEdit: {}, onEditLibrary: {}, onEditSources: {}, onActions: { _ in })
         let saved = migration.preference
         precondition(migration.needsDriveToolChoice && migration.archive == nil)
+        precondition(drive.referenceStatus == L10n.text("Connection status unavailable"))
         let portable = root.appendingPathComponent("portable/rclone")
         try FileManager.default.createDirectory(at: portable.deletingLastPathComponent(), withIntermediateDirectories: true)
         try FileManager.default.copyItem(at: URL(fileURLWithPath: "/usr/bin/true"), to: portable)
@@ -184,13 +203,25 @@ import ArcanePorting
         precondition(upgraded.settingsNoticeFocus == upgraded.settingsNotice?.cancelIndex && migration.archive == nil)
         upgradeInput.settingsNoticeInput(.navigateLeft)
         upgradeInput.settingsNoticeInput(.confirm)
+        await migration.scopeTask?.value
         let unchangedQueue = try Data(contentsOf: queue)
         precondition(!migration.needsDriveToolChoice && migration.archive != nil && migration.preference == saved
                      && !migration.hasRestoredQueue && downloadCalls == 1 && unchangedQueue == entries)
         let installed = AppData.supportRoot.appendingPathComponent("DriveTools/rclone-\(RcloneDownload.version)", isDirectory: true)
         try FileManager.default.createDirectory(at: installed, withIntermediateDirectories: true)
-        try FileManager.default.copyItem(at: URL(fileURLWithPath: "/usr/bin/true"), to: installed.appendingPathComponent("rclone"))
+        let managed = installed.appendingPathComponent("rclone")
+        try FileManager.default.copyItem(at: URL(fileURLWithPath: "/usr/bin/true"), to: managed)
         try Data().write(to: installed.appendingPathComponent("oort-install"))
+        migration.setReferenceFolder("1-test-reference")
+        migration.chooseSourcesRoot("Autres sources")
+        await migration.scopeTask?.value
+        precondition(scopeTool == managed && migration.archive != nil && migration.referenceArchive != nil
+                     && migration.driveScope?.reference == "1-test-reference"
+                     && migration.driveScope?.sources?.id == "ROMs_ID" && migration.sourceArchive != nil)
+        migration.configure(remote: "fixture", root: "Autre bibliothèque", enabled: true, sourcesRoot: "Autres sources")
+        await migration.scopeTask?.value
+        precondition(migration.driveScope?.library.id == "Other_ID"
+                     && migration.sourcesNeedConfirmation && migration.sourceArchive == nil)
         migration.configure(remote: "fixture", root: "Games", enabled: false, sourcesRoot: nil)
         precondition(migration.canTrashDriveTool)
         try render("drive-settings", VStack(spacing: 8) { drive.advancedRows }, height: 570)
@@ -200,7 +231,7 @@ import ArcanePorting
         try render("drive-trash", upgradeInput.settingsNoticeOverlay(trash))
         upgradeInput.settingsNoticeInput(.cancel)
         precondition(migration.canTrashDriveTool)
-        migration.chooseExecutable(installed.appendingPathComponent("rclone"))
+        migration.chooseExecutable(managed)
         precondition(!migration.canTrashDriveTool)
 
         let setup = vm.setup

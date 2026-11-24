@@ -50,6 +50,7 @@ def prepare(package):
     cloud = settings / "SettingsCloudLibrarySection.swift"
     expose(cloud, "setEnabled", "unfollow", "confirmDisconnect", "confirmTrashTool")
     replace(cloud, r'private var advancedRows:', 'var advancedRows:')
+    replace(cloud, r'private var referenceStatus:', 'var referenceStatus:')
     replace(cloud, r'private var tool: URL\?', 'private var tool: URL? = URL(fileURLWithPath: "/fixture/rclone")')
     replace(cloud, r'private var remotes: \[RcloneRemote\]\?', 'private var remotes: [RcloneRemote]? = SettingsConfirmationProbe.remotes')
     replace(cloud, r'private var inspecting = true', 'private var inspecting = false')
@@ -57,10 +58,13 @@ def prepare(package):
             'try SettingsConfirmationProbe.disconnect(tool, name)')
     replace(app / "ViewModels/AppViewModel+CloudLibrary.swift",
             r'(cloudLibrary.setReferenceFolder\(folder\)\n)            importCloudGames\(\)', lambda m: m[1])
-    replace(app / "ViewModels/AppViewModel+CloudLibrary.swift",
-            r'var resolvedDriveTool: URL\? \{.*?\n    }',
-            'var resolvedDriveTool: URL? { SettingsConfirmationProbe.availableDriveTool ?? driveTool.installedExecutable }')
-    replace(app / "ViewModels/AppViewModel+CloudLibrary.swift",
+    library_model = app / "ViewModels/AppViewModel+CloudLibrary.swift"
+    replace(library_model, r'RcloneStorageBackend\.findExecutable\(\)', 'SettingsConfirmationProbe.availableDriveTool')
+    replace(library_model, r'private var scopeTask:', 'private(set) var scopeTask:')
+    replace(library_model,
+            r'RcloneStorageBackend\(remote: remote, root: current.root, executable: tool\)',
+            'SettingsConfirmationProbe.scopeBackend(remote: remote, root: current.root, tool: tool)')
+    replace(library_model,
             r'RcloneConfiguration\.sharesDefaultConfiguration\(tool\)',
             'RcloneConfiguration.sharesDefaultConfiguration(tool, environment: [:])')
     replace(app / "ViewModels/AppViewModel+DriveTool.swift",
@@ -166,9 +170,10 @@ def main():
         prepare(package)
         env = {key: value for key, value in os.environ.items() if not key.startswith(("GIT_", "RCLONE_"))}
         env.update(HOME=str(home), CFFIXED_USER_HOME=str(home), RCLONE_CONFIG=str(home / "rclone.conf"),
+                   RCLONE_CONFIG_PASS="fixture-only",
                    GIT_CONFIG_NOSYSTEM="1", GIT_ALLOW_PROTOCOL="file")
         font = ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"
-        subprocess.run(["swift", "run", "-j", "6", "--package-path", temp, "NXLibrary", str(output), str(font)],
+        subprocess.run(["swift", "run", "--jobs", "4", "--package-path", temp, "NXLibrary", str(output), str(font)],
                        env=env, check=True)
 
 

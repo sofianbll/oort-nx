@@ -696,9 +696,9 @@ struct CloudSetupAssistant: View {
 
     private func moveGames() {
         guard confirmingMove, draft.wantsMove, primaryEnabled, let movePlan, let tool,
-              replacement == nil else { return }
+              tool == model.resolvedDriveTool, replacement == nil else { return }
         confirmingMove = false; focus.reset(); moveConflicts = []; issue = nil; moveFailure = nil
-        moveID = viewModel.startLibraryMove(.init(plan: movePlan, destination: draft.path), executable: tool) {
+        moveID = viewModel.startLibraryMove(.init(plan: movePlan, destination: draft.path)) {
             moveConflicts = $0
         }
     }

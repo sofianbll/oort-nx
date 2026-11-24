@@ -14,7 +14,7 @@ struct LibraryMoveActivity {
 
 extension AppViewModel {
     @MainActor @discardableResult
-    func startLibraryMove(_ request: LibraryMoveRequest, id: UUID = UUID(), executable: URL? = nil,
+    func startLibraryMove(_ request: LibraryMoveRequest, id: UUID = UUID(),
                           onConflicts: (([String]) -> Void)? = nil) -> UUID? {
         let cloud = cloudLibrary
         let preference = cloud.preference
@@ -24,7 +24,7 @@ extension AppViewModel {
               CloudDriveFolders.canMove(from: request.plan.source, to: request.destination) else { return nil }
         if let previous = cloud.pendingMove, previous.request != request { return nil }
         let id = cloud.pendingMove?.id ?? id
-        let chosen = executable ?? (cloud.needsDriveToolChoice ? nil : cloud.resolvedDriveTool)
+        let chosen = cloud.needsDriveToolChoice ? nil : cloud.resolvedDriveTool
         cloud.isChangingConnection = true
         cloud.libraryMove = .init(id: id, request: request)
         cloud.libraryMoveTask = Task { [self] in
