@@ -36,7 +36,7 @@ struct AchievementDetail: View {
                     .padding(.top, canvas.u(34))
                 if !row.description.isEmpty {
                     Text(row.description)
-                        .seleneFont(19)
+                        .seleneFont(.panelBody)
                         .foregroundColor(SeleneTheme.ink82)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
@@ -70,13 +70,13 @@ struct AchievementDetail: View {
                             .foregroundColor(SeleneTheme.ink.opacity(0.5))
                     }
                 }
-                .seleneFont(18, .semibold)
+                .seleneFont(.menuCaption, .semibold)
                 .lineLimit(1)
-                .padding(.top, canvas.u(22))
+                .padding(.top, canvas.u(SeleneTokens.Space.titleGap))
             }
             .padding(.horizontal, canvas.u(56))
             .padding(.top, canvas.u(56))
-            .padding(.bottom, canvas.u(48))
+            .padding(.bottom, canvas.u(SeleneTokens.Space.group))
             .frame(width: canvas.u(Self.width))
             .background(shape.fill(SeleneTheme.glassCard))
             .overlay(shape.strokeBorder(SeleneTheme.ink15, lineWidth: max(1, canvas.u(1))))

@@ -49,16 +49,16 @@ struct AddGameRowView: View {
         switch row.kind {
         case .heading:
             Text(row.title.uppercased())
-                .seleneFont(13, .semibold)
+                .seleneFont(.attribution, .semibold)
                 .tracking(1.2)
                 .foregroundColor(SeleneTheme.ink60)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, canvas.u(10))
-                .padding(.top, canvas.u(18))
-                .padding(.bottom, canvas.u(2))
+                .padding(.top, canvas.u(SeleneTokens.Space.control))
+                .padding(.bottom, canvas.u(SeleneTokens.Space.seam))
         case .note:
             Text(row.title)
-                .seleneFont(14)
+                .seleneFont(.metadata)
                 .foregroundColor(SeleneTheme.ink60)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -124,7 +124,7 @@ struct AddGameRowView: View {
         case .field(let text, let placeholder):
             TextField(placeholder, text: text)
                 .textFieldStyle(.plain)
-                .seleneFont(14, .regular, design: .monospaced)
+                .seleneFont(.metadata, .regular, design: .monospaced)
                 .foregroundColor(SeleneTheme.ink)
                 .multilineTextAlignment(.trailing)
                 .focused(editing, equals: row.id)
@@ -140,22 +140,22 @@ struct AddGameRowView: View {
     private var warning: some View {
         HStack(alignment: .top, spacing: canvas.u(12)) {
             Image(systemName: "exclamationmark.triangle.fill")
-                .seleneFont(14)
+                .seleneFont(.metadata)
                 .foregroundColor(SeleneTheme.untested.opacity(0.9))
             VStack(alignment: .leading, spacing: canvas.u(2)) {
                 Text(row.title)
-                    .seleneFont(15, .medium)
+                    .seleneFont(.compactCaption, .medium)
                     .foregroundColor(SeleneTheme.ink)
                 if let about = row.about {
                     Text(about)
-                        .seleneFont(13)
+                        .seleneFont(.attribution)
                         .foregroundColor(SeleneTheme.ink60)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
             Spacer(minLength: 0)
         }
-        .padding(.horizontal, canvas.u(20))
+        .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
         .padding(.vertical, canvas.u(11))
         .background(RoundedRectangle(cornerRadius: canvas.u(13), style: .continuous)
             .fill(SeleneTheme.untested.opacity(0.08)))

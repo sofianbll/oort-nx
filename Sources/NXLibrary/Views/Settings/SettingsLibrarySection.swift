@@ -17,14 +17,14 @@ struct SettingsLibrarySection: View {
                       info: "Choose where to keep your game apps. Put any existing nxnative games (.app) here. Changing folders does not move apps; rebuilds update them where they are.") {
                 HStack(spacing: 10) {
                     Text(viewModel.libraryFolder?.path ?? L10n.text("Not selected"))
-                        .seleneFont(15, .medium)
+                        .seleneFont(.compactCaption, .medium)
                         .foregroundColor(SeleneTheme.ink.opacity(0.62))
                         .lineLimit(1)
                         .truncationMode(.middle)
                         .frame(maxWidth: 320, alignment: .trailing)
                     Button(L10n.text("Change")) { viewModel.selectLibraryFolder() }
                         .buttonStyle(.plain)
-                        .seleneFont(14, .semibold)
+                        .seleneFont(.metadata, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
                     Button(L10n.text("Reset")) {
                         viewModel.libraryFolder = URL(fileURLWithPath: viewModel.defaultInstallPath)
@@ -32,7 +32,7 @@ struct SettingsLibrarySection: View {
                         viewModel.loadLibrary()
                     }
                     .buttonStyle(.plain)
-                    .seleneFont(14, .semibold)
+                    .seleneFont(.metadata, .semibold)
                     .foregroundColor(SeleneTheme.ink60)
                 }
             }
@@ -42,19 +42,19 @@ struct SettingsLibrarySection: View {
                       info: "Existing game apps play without their sources. Reset group keeps this folder. Clear removes the selection, keeping your files.") {
                 HStack(spacing: 10) {
                     Text(porting.gameFilesFolder?.path ?? L10n.text("Not selected · Optional"))
-                        .seleneFont(15, .medium)
+                        .seleneFont(.compactCaption, .medium)
                         .foregroundColor(SeleneTheme.ink.opacity(0.62))
                         .lineLimit(1)
                         .truncationMode(.middle)
                         .frame(maxWidth: 320, alignment: .trailing)
                     Button(L10n.text("Choose")) { porting.selectGameFolder() }
                         .buttonStyle(.plain)
-                        .seleneFont(14, .semibold)
+                        .seleneFont(.metadata, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
                     if porting.gameFilesFolder != nil {
                         Button(L10n.text("Clear")) { porting.selectedGameFolder = nil }
                             .buttonStyle(.plain)
-                            .seleneFont(14, .semibold)
+                            .seleneFont(.metadata, .semibold)
                             .foregroundColor(SeleneTheme.danger)
                     }
                 }
@@ -77,7 +77,7 @@ struct SettingsLibrarySection: View {
                 VStack(alignment: .leading, spacing: 6) {
                     ForEach(viewModel.libraryScanWarnings, id: \.self) { warning in
                         Text(warning)
-                            .seleneFont(14)
+                            .seleneFont(.metadata)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }

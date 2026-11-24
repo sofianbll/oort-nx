@@ -135,7 +135,7 @@ struct CloudLibraryPanel: View {
         return VStack(alignment: .leading, spacing: canvas.u(8)) {
             HStack(spacing: canvas.u(12)) {
                 VStack(alignment: .leading, spacing: canvas.u(5)) {
-                    Text(title).seleneFont(17, .semibold).foregroundColor(SeleneTheme.ink90)
+                    Text(title).seleneFont(.body, .semibold).foregroundColor(SeleneTheme.ink90)
                         .accessibilityAddTraits(.isHeader)
                     SeleneStatusDot(text: downloadBytes.map { statusText + " · " + $0 } ?? reference ?? statusText,
                                     color: indicator.status.color,
@@ -151,12 +151,12 @@ struct CloudLibraryPanel: View {
                     VStack(alignment: .trailing, spacing: canvas.u(4)) {
                         if live, CloudLibraryProgressView.fraction(state.progress) != nil {
                             Text(CloudLibraryProgressView.summary(state.progress, context: localization, showsPhase: false))
-                                .seleneFont(13).monospacedDigit()
+                                .seleneFont(.attribution).monospacedDigit()
                                 .fixedSize(horizontal: false, vertical: true)
                         } else if reference == nil {
-                            if let size { Text(size).seleneFont(15).monospacedDigit() }
+                            if let size { Text(size).seleneFont(.compactCaption).monospacedDigit() }
                             if !indicator.progress, let published {
-                                Text(published).seleneFont(13)
+                                Text(published).seleneFont(.attribution)
                             }
                         }
                     }
@@ -183,7 +183,7 @@ struct CloudLibraryPanel: View {
             }
             if advanced, let path = cloudPath(item) {
                 Text(verbatim: path)
-                    .seleneFont(13)
+                    .seleneFont(.attribution)
                     .foregroundColor(SeleneTheme.ink60)
                     .lineLimit(1)
                     .truncationMode(.middle)
@@ -203,7 +203,7 @@ struct CloudLibraryPanel: View {
                     failureLine(reason == statusText ? nil : reason, failure: state.transferFailure, item: item)
                 }
                 else {
-                    Text(issue.message).seleneFont(15).foregroundColor(SeleneTheme.ink60)
+                    Text(issue.message).seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink60)
                         .multilineTextAlignment(.leading)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -329,7 +329,7 @@ struct CloudLibraryPanel: View {
     private func failureLine(_ message: String?, failure: CloudLibraryFailure?, item: CloudLibraryItem?) -> some View {
         HStack {
             if let message {
-                Text(message).seleneFont(15).foregroundColor(CloudLibraryStatus.failed.color)
+                Text(message).seleneFont(.compactCaption).foregroundColor(CloudLibraryStatus.failed.color)
                     .fixedSize(horizontal: false, vertical: true)
             }
             if let failure, controls.contains(.recover(failure, item)) {
@@ -447,7 +447,7 @@ struct CloudLibraryPanel: View {
                         .onHover { if $0 && selection.allows(item) { freeFocus = .item(item) } }
                     }
                 }
-                .padding(.top, canvas.u(18))
+                .padding(.top, canvas.u(SeleneTokens.Space.control))
             }
         }
     }

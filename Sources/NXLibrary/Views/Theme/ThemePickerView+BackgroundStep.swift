@@ -26,9 +26,9 @@ extension ThemePickerView {
                 } else {
                 VStack(alignment: .leading, spacing: 0) {
                     tabs
-                        .padding(.bottom, canvas.u(18))
+                        .padding(.bottom, canvas.u(SeleneTokens.Space.control))
                     Text(ThemeBackgrounds.group(focused, tab: state.tab))
-                        .seleneFont(13, .semibold)
+                        .seleneFont(.attribution, .semibold)
                         .foregroundColor(SeleneTheme.ink.opacity(0.55))
                         .padding(.leading, canvas.u(10))
                         .padding(.bottom, canvas.u(10))
@@ -61,11 +61,11 @@ extension ThemePickerView {
                                  videoURL: previewVideo, shade: settings.settings.backgroundShade,
                                  animated: settings.settings.animatedBackground)
                     Text(creditLine(focused) ?? " ")
-                        .seleneFont(17)
+                        .seleneFont(.body)
                         .foregroundColor(SeleneTheme.ink75)
                         .lineLimit(1)
-                        .padding(.top, canvas.u(16))
-                        .padding(.leading, canvas.u(4))
+                        .padding(.top, canvas.u(SeleneTokens.Space.medium))
+                        .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
                 }
             }
             .padding(.top, canvas.u(250))
@@ -95,9 +95,9 @@ extension ThemePickerView {
             SelenePromptBadge(button: .lb, height: 26).accessibilityHidden(true)
             ForEach(BackgroundTab.allCases, id: \.self) { tab in
                 Text(tab == .wallpapers ? L10n.text("Wallpapers") : L10n.text("Live"))
-                    .seleneFont(17, .semibold)
+                    .seleneFont(.body, .semibold)
                     .foregroundColor(tab == state.tab ? SeleneTheme.ink : SeleneTheme.ink60)
-                    .padding(.horizontal, canvas.u(20))
+                    .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
                     .padding(.vertical, canvas.u(9))
                     .background(Capsule().fill(tab == state.tab ? SeleneTheme.glassSolid : Color.clear))
                     .contentShape(Capsule())
@@ -106,7 +106,7 @@ extension ThemePickerView {
             }
             SelenePromptBadge(button: .rb, height: 26).accessibilityHidden(true)
         }
-        .padding(.leading, canvas.u(6))
+        .padding(.leading, canvas.u(SeleneTokens.Space.tight))
     }
 
     /// The line under a source's name while browsing it.
@@ -157,7 +157,7 @@ extension ThemePickerView {
     }
 
     private func backgroundTile(_ choice: ThemeBackgroundChoice, focused: Bool, inUse: Bool) -> some View {
-        let shape = RoundedRectangle(cornerRadius: canvas.u(12), style: .continuous)
+        let shape = RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content), style: .continuous)
         return ZStack(alignment: .bottomLeading) {
             Rectangle().fill(SeleneTheme.baseGradient)
             switch choice {
@@ -174,7 +174,7 @@ extension ThemePickerView {
                 SeleneTheme.glassSolid
                 VStack(spacing: canvas.u(6)) {
                     MaterialIconView(.add, size: 34).foregroundColor(SeleneTheme.ink)
-                    Text(state.tab == .live ? L10n.text("Add your video…") : L10n.text("Add your own…")).seleneFont(15).foregroundColor(SeleneTheme.ink90)
+                    Text(state.tab == .live ? L10n.text("Add your video…") : L10n.text("Add your own…")).seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink90)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             case .wallpaper(let id):
@@ -182,7 +182,7 @@ extension ThemePickerView {
                 if state.tab == .live {
                     MaterialIconView(.play, size: 22)
                         .foregroundColor(.white)
-                        .padding(canvas.u(8))
+                        .padding(canvas.u(SeleneTokens.Space.compact))
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                         .shadow(color: .black.opacity(0.6), radius: canvas.u(4))
                 }
@@ -195,7 +195,7 @@ extension ThemePickerView {
                     .foregroundColor(SeleneTheme.glyph)
                     .padding(canvas.u(3))
                     .background(Circle().fill(Color.black.opacity(0.55)))
-                    .padding(canvas.u(8))
+                    .padding(canvas.u(SeleneTokens.Space.compact))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             }
         }
@@ -206,7 +206,7 @@ extension ThemePickerView {
         .modifier(TileFocus(focused: focused, radius: 12, scale: 1.06))
         .padding(.horizontal, canvas.u(11))
         .padding(.top, canvas.u(13))
-        .padding(.bottom, canvas.u(14))
+        .padding(.bottom, canvas.u(SeleneTokens.Space.line))
         .contentShape(Rectangle())
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(label(choice))
@@ -219,19 +219,19 @@ extension ThemePickerView {
             SeleneTheme.glassSolid
             VStack(spacing: canvas.u(6)) {
                 MaterialIconView(.language, size: 30).foregroundColor(SeleneTheme.ink)
-                Text(source.title).seleneFont(18, .semibold).foregroundColor(SeleneTheme.ink)
-                Text(L10n.text("Browse online")).seleneFont(13).foregroundColor(SeleneTheme.ink60)
+                Text(source.title).seleneFont(.menuCaption, .semibold).foregroundColor(SeleneTheme.ink)
+                Text(L10n.text("Browse online")).seleneFont(.attribution).foregroundColor(SeleneTheme.ink60)
             }
         }
     }
 
     private func tileLabel(_ text: String) -> some View {
         Text(text)
-            .seleneFont(15)
+            .seleneFont(.compactCaption)
             .foregroundColor(.white)
             .padding(.horizontal, canvas.u(10))
             .padding(.top, canvas.u(5))
-            .padding(.bottom, canvas.u(6))
+            .padding(.bottom, canvas.u(SeleneTokens.Space.tight))
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.black.opacity(0.6))
     }

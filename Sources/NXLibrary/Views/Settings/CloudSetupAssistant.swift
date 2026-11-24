@@ -166,7 +166,7 @@ struct CloudSetupAssistant: View {
                     onCancel: cancel, onConfirm: moveGames)
             } else {
                 VStack(spacing: canvas.u(18)) {
-                    Text(text("Set up cloud library")).seleneFont(30, .semibold)
+                    Text(text("Set up cloud library")).seleneFont(.panelTitle, .semibold)
                         .foregroundColor(SeleneTheme.ink).accessibilityAddTraits(.isHeader)
                     stepper
                     switch draft.step {
@@ -175,7 +175,7 @@ struct CloudSetupAssistant: View {
                     case .verify: verification
                     }
                     if let issue {
-                        Text(text(issue)).seleneFont(16).foregroundColor(SeleneTheme.danger)
+                        Text(text(issue)).seleneFont(.caption).foregroundColor(SeleneTheme.danger)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     if let moveFailure {
@@ -185,7 +185,7 @@ struct CloudSetupAssistant: View {
                     if let first = moveConflicts.first {
                         Text(format(moveConflicts.count == 1 ? "%d file has a conflict: %@"
                                     : "%d files have conflicts. First: %@", [moveConflicts.count, first]))
-                            .seleneFont(16).foregroundColor(SeleneTheme.danger)
+                            .seleneFont(.caption).foregroundColor(SeleneTheme.danger)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     HStack(spacing: canvas.u(14)) {
@@ -253,7 +253,7 @@ struct CloudSetupAssistant: View {
                 pill(.retry, "Try again", action: inspect)
             } else if !showCredentials {
                 if let existing {
-                    Text(verbatim: "\(text("Google Drive")) · \(existing.name)").seleneFont(19, .semibold)
+                    Text(verbatim: "\(text("Google Drive")) · \(existing.name)").seleneFont(.panelBody, .semibold)
                 }
                 if bundledClient != nil {
                     option(.advanced, text("Advanced")) { advanced.toggle() }
@@ -287,16 +287,16 @@ struct CloudSetupAssistant: View {
                 }
             }
         }
-        .seleneFont(16).foregroundColor(SeleneTheme.ink)
+        .seleneFont(.caption).foregroundColor(SeleneTheme.ink)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var folders: some View {
         VStack(alignment: .leading, spacing: canvas.u(10)) {
             if selectingSources {
-                Text(text("Game files folder")).seleneFont(17, .semibold)
+                Text(text("Game files folder")).seleneFont(.body, .semibold)
                 Text(text("Choose a path on the same cloud service. No files are moved."))
-                    .seleneFont(15).foregroundColor(SeleneTheme.ink75)
+                    .seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink75)
             }
             if enteredSourcesPath != nil {
                 input(.sourcesPath) {
@@ -307,7 +307,7 @@ struct CloudSetupAssistant: View {
                 }
                 if typedSourcesRoot.map(CloudLibraryPreference.validSourcesRoot) != true {
                     Text(text("Enter a folder path such as Games or Archive/Games."))
-                        .seleneFont(15).foregroundColor(SeleneTheme.danger)
+                        .seleneFont(.compactCaption).foregroundColor(SeleneTheme.danger)
                 }
             } else if work?.kind == .discover {
                 progress("Checking…")
@@ -315,7 +315,7 @@ struct CloudSetupAssistant: View {
                 option(.resumeFolder, format(librarySuggestion.games == 1 ? "Resume %@ (%d game)" : "Resume %@ (%d games)",
                        [folderLabel(librarySuggestion.path), librarySuggestion.games]), icon: .folder, enabled: canEdit,
                        wide: true, action: resumeFolder)
-                Text(verbatim: librarySuggestion.path).seleneFont(15).foregroundColor(SeleneTheme.ink75)
+                Text(verbatim: librarySuggestion.path).seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink75)
                 option(.otherFolder, text("Choose another folder"), action: chooseOtherFolder)
             } else if let sourcesSuggestion {
                 option(.resumeFolder, sourcesSuggestion.games.map { games in
@@ -323,10 +323,10 @@ struct CloudSetupAssistant: View {
                            [folderLabel(sourcesSuggestion.path), games])
                 } ?? format("Use folder “%@”", [folderLabel(sourcesSuggestion.path)]), icon: .folder,
                        enabled: canEdit, wide: true, action: resumeFolder)
-                Text(verbatim: sourcesSuggestion.path).seleneFont(15).foregroundColor(SeleneTheme.ink75)
+                Text(verbatim: sourcesSuggestion.path).seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink75)
                 option(.otherFolder, text("Choose another folder"), action: chooseOtherFolder)
             } else if folderName != nil {
-                Text(text("Folder name")).seleneFont(17)
+                Text(text("Folder name")).seleneFont(.body)
                 input(.folderName) {
                     TextField(text("Folder name"), text: Binding(get: { folderName ?? "" }, set: { folderName = $0 }))
                         .focused($field, equals: .folderName).onSubmit(proposeCreation)
@@ -336,7 +336,7 @@ struct CloudSetupAssistant: View {
                     HStack(spacing: canvas.u(5)) {
                         ForEach(breadcrumbs, id: \.self) { path in
                             if !path.isEmpty { MaterialIconView(.chevron, size: 13).accessibilityHidden(true) }
-                            if path == browsingPath { Text(folderLabel(path)).seleneFont(17, .semibold) }
+                            if path == browsingPath { Text(folderLabel(path)).seleneFont(.body, .semibold) }
                             else { option(.breadcrumb(path), folderLabel(path), enabled: folderControlsReady) { browse(path) } }
                         }
                     }
@@ -393,10 +393,10 @@ struct CloudSetupAssistant: View {
 
     private var verification: some View {
         VStack(spacing: canvas.u(10)) {
-            Text(verbatim: "\(draft.remote ?? ""):/\(draft.path)").seleneFont(18).foregroundColor(SeleneTheme.ink)
+            Text(verbatim: "\(draft.remote ?? ""):/\(draft.path)").seleneFont(.menuCaption).foregroundColor(SeleneTheme.ink)
             if onboarding {
                 Text(verbatim: "\(draft.remote ?? ""):/\(sourcesPath)")
-                    .seleneFont(16).foregroundColor(SeleneTheme.ink75)
+                    .seleneFont(.caption).foregroundColor(SeleneTheme.ink75)
             }
             if let move {
                 let status = CloudLibraryStatus.pending
@@ -411,7 +411,7 @@ struct CloudSetupAssistant: View {
 
     private func progress(_ key: String) -> some View {
         VStack(alignment: .leading, spacing: canvas.u(8)) {
-            Text(text(key)).seleneFont(16).foregroundColor(SeleneTheme.ink75)
+            Text(text(key)).seleneFont(.caption).foregroundColor(SeleneTheme.ink75)
             SeleneProgressBar(progress: nil, color: CloudLibraryStatus.pending.color)
         }
     }

@@ -40,7 +40,7 @@ struct SpotlightTopBar: View {
                 if showClock {
                     TimelineView(.everyMinute) { context in
                         Text(context.date, format: .dateTime.hour().minute())
-                            .seleneFont(30)
+                            .seleneFont(.panelTitle)
                             .foregroundColor(SeleneTheme.ink)
                             .monospacedDigit()
                     }

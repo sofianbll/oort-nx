@@ -33,7 +33,7 @@ struct SeleneOptionRow<Trailing: View>: View {
                         if let platform {
                             PlatformLabel(platform, title: title, weight: .medium)
                         } else {
-                            Text(title).seleneFont(21, .medium)
+                            Text(title).seleneFont(.rowTitle, .medium)
                         }
                     }
                     .foregroundColor(destructive ? SeleneTheme.danger : (enabled ? SeleneTheme.ink : SeleneTheme.ink60))
@@ -70,8 +70,8 @@ struct SeleneOptionRowSurface: ViewModifier {
         let radius = canvas.u(16)
         content
             .padding(.leading, canvas.u(26))
-            .padding(.trailing, canvas.u(24))
-            .padding(.vertical, canvas.u(18))
+            .padding(.trailing, canvas.u(SeleneTokens.Space.large))
+            .padding(.vertical, canvas.u(SeleneTokens.Space.control))
             .background(SeleneTheme.glass, in: RoundedRectangle(cornerRadius: radius, style: .continuous))
             .seleneRowFocus(focused, radius: radius)
     }

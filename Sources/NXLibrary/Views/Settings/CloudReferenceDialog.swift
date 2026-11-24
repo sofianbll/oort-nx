@@ -27,15 +27,15 @@ struct CloudReferenceDialog: View {
                     .focused($fieldFocused)
                     .onSubmit(save)
                     .onExitCommand(perform: onClose)
-                    .seleneFont(17)
+                    .seleneFont(.body)
                     .foregroundColor(SeleneTheme.ink)
-                    .padding(canvas.u(16))
-                    .background(RoundedRectangle(cornerRadius: canvas.u(12)).fill(SeleneTheme.glassLight))
-                    .padding(.top, canvas.u(24))
+                    .padding(canvas.u(SeleneTokens.Space.medium))
+                    .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content)).fill(SeleneTheme.glassLight))
+                    .padding(.top, canvas.u(SeleneTokens.Space.large))
                 if !draft.isEmpty, folder == nil {
                     Text(text("Enter a Google Drive folder link or a valid folder ID."))
                         .foregroundColor(SeleneTheme.danger)
-                        .seleneFont(15)
+                        .seleneFont(.compactCaption)
                 }
             }
         }

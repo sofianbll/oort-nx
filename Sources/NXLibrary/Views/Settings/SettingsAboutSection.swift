@@ -36,11 +36,11 @@ struct SettingsAboutSection: View {
         VStack(spacing: 12) {
             SelenePanel(AppIdentity.displayName) {
                 Text(L10n.text("A free, open-source game library and launcher for Mac. Play installed games and port compatible Switch titles with nxnative."))
-                    .seleneFont(16)
+                    .seleneFont(.caption)
                     .foregroundColor(SeleneTheme.ink90)
                     .fixedSize(horizontal: false, vertical: true)
                 Text(L10n.format("Version %@ · Build %@ · Engine %@", [version, buildLabel, seleneShort(viewModel.pinnedEngineCommit)]))
-                    .seleneFont(13, .regular, design: .monospaced)
+                    .seleneFont(.attribution, .regular, design: .monospaced)
                     .foregroundColor(SeleneTheme.ink60)
                 Button(action: openProjectDocs) {
                     HStack(spacing: canvas.u(SeleneTokens.Space.hairline)) {
@@ -55,7 +55,7 @@ struct SettingsAboutSection: View {
                 .seleneRowFocus(focusedRowTitle == "Open project docs")
                 .id("selene-row-Open project docs")
                 Text(L10n.text("Play time is tracked only for launches from Arcane. Not affiliated with Nintendo."))
-                    .seleneFont(13)
+                    .seleneFont(.attribution)
                     .foregroundColor(SeleneTheme.ink60)
                 updateRow
                 Button {
@@ -65,7 +65,7 @@ struct SettingsAboutSection: View {
                         Text(didCopyDiagnostics ? L10n.text("Copied") : L10n.text("Copy diagnostics"))
                         Image(systemName: didCopyDiagnostics ? "checkmark" : "doc.on.doc")
                     }
-                    .seleneFont(14, .semibold)
+                    .seleneFont(.metadata, .semibold)
                     .foregroundColor(SeleneTheme.glyph)
                 }
                 .buttonStyle(.plain)
@@ -86,7 +86,7 @@ struct SettingsAboutSection: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 HStack(spacing: 4) {
                                     Text(credit.name)
-                                        .seleneFont(15, .semibold)
+                                        .seleneFont(.compactCaption, .semibold)
                                         .foregroundColor(SeleneTheme.ink)
                                     Image(systemName: "arrow.up.right")
                                         .seleneFont(11)
@@ -112,7 +112,7 @@ struct SettingsAboutSection: View {
 
             SelenePanel(L10n.text("Visual direction")) {
                 Text(L10n.text("Inspired by Selene (MIT) by Matthew Silva."))
-                    .seleneFont(16, .semibold)
+                    .seleneFont(.caption, .semibold)
                     .foregroundColor(SeleneTheme.ink)
                 Button {
                     if let url = URL(string: "https://github.com/mattxslv/Selene") {
@@ -123,7 +123,7 @@ struct SettingsAboutSection: View {
                         Text("https://github.com/mattxslv/Selene")
                         Image(systemName: "arrow.up.right")
                     }
-                    .seleneFont(14, .semibold)
+                    .seleneFont(.metadata, .semibold)
                     .foregroundColor(SeleneTheme.glyph)
                 }
                 .buttonStyle(.plain)
@@ -131,36 +131,36 @@ struct SettingsAboutSection: View {
                 .seleneRowFocus(focusedRowTitle == "Selene")
                 .id("selene-row-Selene")
                 Text(L10n.text("Selene is a Playnite theme for Windows. No Selene name, logo, wallpaper, avatar or sound is used as Arcane branding; this is a visual adaptation in SwiftUI."))
-                    .seleneFont(13)
+                    .seleneFont(.attribution)
                     .foregroundColor(SeleneTheme.ink60)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
             SelenePanel(L10n.text("Nintendo Store data")) {
                 Text(L10n.text("Descriptions, genres and artwork are fetched from the public Nintendo Store catalog for personal use, cached locally for seven days, and never committed or redistributed."))
-                    .seleneFont(15)
+                    .seleneFont(.compactCaption)
                     .foregroundColor(SeleneTheme.ink90)
                     .fixedSize(horizontal: false, vertical: true)
                 Text(L10n.text("The app ships no keys, ROMs, game art or Nintendo UI assets."))
-                    .seleneFont(13)
+                    .seleneFont(.attribution)
                     .foregroundColor(SeleneTheme.ink60)
             }
 
             SelenePanel(L10n.text("Licenses")) {
                 Text(L10n.text("Arcane is personal software released under the MIT license. nxnative, Ryujinx, SPIR-V Cross, LibHac and the other dependencies retain their own licenses through the engine."))
-                    .seleneFont(15)
+                    .seleneFont(.compactCaption)
                     .foregroundColor(SeleneTheme.ink90)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Text(L10n.text("This app is not affiliated with Nintendo."))
-                    .seleneFont(13, .semibold)
+                    .seleneFont(.attribution, .semibold)
                     .foregroundColor(SeleneTheme.ink60)
                 Text(L10n.text("This app is not affiliated with Valve."))
-                    .seleneFont(13, .semibold)
+                    .seleneFont(.attribution, .semibold)
                     .foregroundColor(SeleneTheme.ink60)
                 // Valve's attribution, in Valve's own wording for each language.
                 Text(L10n.text("©2026 Valve Corporation. Steam and the Steam logo are trademarks and/or registered trademarks of Valve Corporation in the U.S. and/or other countries."))
-                    .seleneFont(13)
+                    .seleneFont(.attribution)
                     .foregroundColor(SeleneTheme.ink60)
                     .fixedSize(horizontal: false, vertical: true)
                 Text(L10n.text("Platform names and logos identify their respective platforms. They belong to their owners and do not imply affiliation or endorsement."))
@@ -192,13 +192,13 @@ struct SettingsAboutSection: View {
                                       size: .panelBody)
                             .foregroundStyle(SeleneTheme.ink)
                         Text(L10n.text("Optional contributions support development and maintenance.", context: localization))
-                            .seleneFont(14)
+                            .seleneFont(.metadata)
                             .foregroundColor(SeleneTheme.ink75)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     Spacer(minLength: canvas.u(8))
                     Image(systemName: "arrow.up.right")
-                        .seleneFont(16, .semibold)
+                        .seleneFont(.caption, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
                         .accessibilityHidden(true)
                 }
@@ -247,14 +247,14 @@ struct SettingsAboutSection: View {
         if updater.state != .hidden {
             HStack(spacing: 14) {
                 Text(updateText)
-                    .seleneFont(14)
+                    .seleneFont(.metadata)
                     .foregroundColor(SeleneTheme.ink90)
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 0)
                 ForEach(updateActions, id: \.title) { action in
                     Button(action.title, action: action.perform)
                         .buttonStyle(.plain)
-                        .seleneFont(14, .semibold)
+                        .seleneFont(.metadata, .semibold)
                         .foregroundColor(action.enabled ? SeleneTheme.glyph : SeleneTheme.ink60)
                         .disabled(!action.enabled)
                         .padding(6)

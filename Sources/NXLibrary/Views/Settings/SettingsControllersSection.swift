@@ -18,11 +18,11 @@ struct SettingsControllersSection: View {
                         : "Connect a controller and press Detect.") {
                 HStack(spacing: 10) {
                     Text(controller.isGamepadConnected ? L10n.text("Connected") : L10n.text("Not connected"))
-                        .seleneFont(13, .semibold)
+                        .seleneFont(.attribution, .semibold)
                         .foregroundColor(controller.isGamepadConnected ? SeleneTheme.success : SeleneTheme.ink60)
                     Button(L10n.text("Detect")) { controller.refreshControllers() }
                         .buttonStyle(.plain)
-                        .seleneFont(14, .semibold)
+                        .seleneFont(.metadata, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
                 }
             }
@@ -43,7 +43,7 @@ struct SettingsControllersSection: View {
                     ), in: 0.10...0.80, step: 0.01)
                     .frame(width: 170)
                     Text(String(format: "%.2f", controller.deadzone))
-                        .seleneFont(13, .semibold, design: .monospaced)
+                        .seleneFont(.attribution, .semibold, design: .monospaced)
                         .foregroundColor(SeleneTheme.glyph)
                         .frame(width: 38, alignment: .trailing)
                 }

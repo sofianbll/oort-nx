@@ -47,22 +47,22 @@ struct LocalePicker: View {
             VStack(alignment: .leading, spacing: canvas.u(16)) {
                 Text(L10n.text(mode == .language ? "Choose app language" : "Regional formats")).seleneFont(32, .semibold).foregroundColor(SeleneTheme.ink)
                 Text(L10n.text(mode == .language ? "Menus, genres and available game descriptions. The games’ own language stays separate." : "Dates, numbers and sizes only. Game descriptions follow the app language."))
-                    .seleneFont(16).foregroundColor(SeleneTheme.ink60)
+                    .seleneFont(.caption).foregroundColor(SeleneTheme.ink60)
                 if mode == .region {
-                    Text(formatPreview).seleneFont(16).foregroundColor(SeleneTheme.ink)
+                    Text(formatPreview).seleneFont(.caption).foregroundColor(SeleneTheme.ink)
                 }
                 if mode == .region {
                 TextField(L10n.text("Find a region"), text: $query)
                     .textFieldStyle(.plain).seleneFont(20).focused($searchFocused)
                     .onSubmit { choose() }
-                    .padding(canvas.u(14)).background(SeleneTheme.glass)
-                    .clipShape(RoundedRectangle(cornerRadius: canvas.u(12)))
+                    .padding(canvas.u(SeleneTokens.Space.line)).background(SeleneTheme.glass)
+                    .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content)))
                 }
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(spacing: canvas.u(5)) {
                             if rows.isEmpty {
-                                Text(L10n.text("No matching regions.")).seleneFont(18).foregroundColor(SeleneTheme.ink60)
+                                Text(L10n.text("No matching regions.")).seleneFont(.menuCaption).foregroundColor(SeleneTheme.ink60)
                             }
                             ForEach(rows.indices, id: \.self) { index in
                                 Button { focus = index; choose() } label: {
@@ -72,10 +72,10 @@ struct LocalePicker: View {
                                         if rows[index].id == selectedID {
                                             MaterialIconView(.check, size: 22)
                                         }
-                                        if mode == .region, rows[index].id != "auto" { Text(rows[index].id).seleneFont(15).foregroundColor(SeleneTheme.ink60) }
+                                        if mode == .region, rows[index].id != "auto" { Text(rows[index].id).seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink60) }
                                     }
                                     .foregroundColor(SeleneTheme.ink)
-                                    .padding(canvas.u(14))
+                                    .padding(canvas.u(SeleneTokens.Space.line))
                                     .background(index == focus ? SeleneTheme.glass : Color.clear)
                                     .seleneRowFocus(index == focus, radius: canvas.u(12))
                                     .contentShape(Rectangle())
@@ -84,7 +84,7 @@ struct LocalePicker: View {
                                 .accessibilityAddTraits(rows[index].id == selectedID ? .isSelected : [])
                             }
                         }
-                        .padding(canvas.u(4))
+                        .padding(canvas.u(SeleneTokens.Space.hairline))
                     }
                     .scrollIndicators(.hidden)
                     .onChange(of: focus) { _, index in
@@ -98,11 +98,11 @@ struct LocalePicker: View {
                 .frame(height: canvas.u(420))
                 HStack {
                     Spacer()
-                    Button(L10n.text("Cancel"), action: onClose).buttonStyle(.plain).seleneFont(19, .semibold)
-                        .foregroundColor(SeleneTheme.glyph).padding(canvas.u(8))
+                    Button(L10n.text("Cancel"), action: onClose).buttonStyle(.plain).seleneFont(.panelBody, .semibold)
+                        .foregroundColor(SeleneTheme.glyph).padding(canvas.u(SeleneTokens.Space.compact))
                 }
             }
-            .padding(canvas.u(32))
+            .padding(canvas.u(SeleneTokens.Space.section))
             .frame(width: canvas.u(800))
             .background(SeleneTheme.glassSolid)
             .clipShape(RoundedRectangle(cornerRadius: canvas.u(24)))

@@ -84,7 +84,7 @@ struct SeleneStatsRow: View {
     }
 
     private func value(_ text: String) -> some View {
-        Text(text).seleneFont(21, .semibold).foregroundColor(SeleneTheme.ink)
+        Text(text).seleneFont(.rowTitle, .semibold).foregroundColor(SeleneTheme.ink)
     }
 
     /// 1u ink25 rule, inset 4 top and bottom.
@@ -92,7 +92,7 @@ struct SeleneStatsRow: View {
         Rectangle()
             .fill(SeleneTheme.ink25)
             .frame(width: max(1, canvas.u(1)))
-            .padding(.vertical, canvas.u(4))
+            .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
             .padding(.horizontal, canvas.u(gap))
     }
 }

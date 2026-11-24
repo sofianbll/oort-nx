@@ -21,9 +21,9 @@ extension ChangeArtworkView {
                 if isCurrent(tile) {
                     MaterialIconView(.check, size: 26)
                         .foregroundColor(SeleneTheme.focus)
-                        .padding(canvas.u(4))
+                        .padding(canvas.u(SeleneTokens.Space.hairline))
                         .background(Circle().fill(SeleneTheme.glassSolid))
-                        .padding(canvas.u(8))
+                        .padding(canvas.u(SeleneTokens.Space.compact))
                 }
             }
             .frame(width: size.width, height: size.height)
@@ -31,10 +31,10 @@ extension ChangeArtworkView {
             .overlay(SeleneTileRing(cornerRadius: canvas.u(18), active: focused).padding(canvas.u(-6)))
             VStack(alignment: .leading, spacing: canvas.u(2)) {
                 Text(caption(tile).title)
-                    .seleneFont(14, .semibold)
+                    .seleneFont(.metadata, .semibold)
                     .foregroundColor(SeleneTheme.ink)
                 Text(caption(tile).detail)
-                    .seleneFont(13)
+                    .seleneFont(.attribution)
                     .foregroundColor(SeleneTheme.ink60)
             }
             .lineLimit(1)

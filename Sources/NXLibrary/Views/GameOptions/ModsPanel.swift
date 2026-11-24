@@ -76,26 +76,26 @@ struct ModsPanel: View {
             VStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(L10n.text("MODS"))
-                        .seleneFont(15, .semibold)
+                        .seleneFont(.compactCaption, .semibold)
                         .foregroundColor(SeleneTheme.ink60)
-                        .padding(.leading, canvas.u(8))
+                        .padding(.leading, canvas.u(SeleneTokens.Space.compact))
                     Text(game.name)
-                        .seleneFont(40)
+                        .seleneFont(.screenTitle)
                         .foregroundColor(SeleneTheme.ink)
                         .lineLimit(1)
-                        .padding(.leading, canvas.u(6))
+                        .padding(.leading, canvas.u(SeleneTokens.Space.tight))
                     Text(ModsCopy.header(on: mods.filter(\.isOn).count, total: mods.count))
-                        .seleneFont(15)
+                        .seleneFont(.compactCaption)
                         .foregroundColor(SeleneTheme.ink60)
-                        .padding(.leading, canvas.u(8))
-                        .padding(.bottom, canvas.u(14))
+                        .padding(.leading, canvas.u(SeleneTokens.Space.compact))
+                        .padding(.bottom, canvas.u(SeleneTokens.Space.line))
                     noticeArea(hasInactiveOnlineMods: !inactiveOnline.isEmpty)
                     list(presentation, inactiveOnline: inactiveOnline)
                 }
                 .frame(width: canvas.u(1040), alignment: .leading)
                 .frame(maxHeight: .infinity, alignment: .top)
                 .padding(.top, canvas.u(90))
-                .padding(.bottom, canvas.u(20))
+                .padding(.bottom, canvas.u(SeleneTokens.Space.panel))
                 .contentShape(Rectangle())
 
                 SeleneHintsBar(left: [HintItem(.b, L10n.text("Back"), action: close)], right: hints,
@@ -144,23 +144,23 @@ struct ModsPanel: View {
             VStack(alignment: .leading, spacing: canvas.u(8)) {
                 ForEach(notices, id: \.self) { notice in
                     Label { Text(notice).fixedSize(horizontal: false, vertical: true) } icon: { MaterialIconView(.info, size: 20) }
-                        .seleneFont(16)
+                        .seleneFont(.caption)
                         .foregroundColor(SeleneTheme.ink75)
                 }
                 ForEach(conflicts, id: \.message) { conflict in
                     Label { Text(conflict.message).fixedSize(horizontal: false, vertical: true) } icon: { MaterialIconView(.swap, size: 20) }
-                        .seleneFont(16)
+                        .seleneFont(.caption)
                         .foregroundColor(SeleneTheme.ink75)
                 }
                 if let message {
                     Text(message)
-                        .seleneFont(16, .medium)
+                        .seleneFont(.caption, .medium)
                         .foregroundColor(SeleneTheme.danger)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
             .padding(.horizontal, canvas.u(10))
-            .padding(.bottom, canvas.u(14))
+            .padding(.bottom, canvas.u(SeleneTokens.Space.line))
         }
     }
 
@@ -191,8 +191,8 @@ struct ModsPanel: View {
                             }
                     }
                 }
-                .padding(.top, canvas.u(6))
-                .padding(.bottom, canvas.u(24))
+                .padding(.top, canvas.u(SeleneTokens.Space.tight))
+                .padding(.bottom, canvas.u(SeleneTokens.Space.large))
                 .animation(reduceMotion ? nil : SeleneTheme.quick, value: mods)
             }
             .scrollIndicators(.hidden)
@@ -206,18 +206,18 @@ struct ModsPanel: View {
     private func sectionHeader(_ title: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: canvas.u(3)) {
             Text(L10n.text(title, context: locale))
-                .seleneFont(17, .semibold)
+                .seleneFont(.body, .semibold)
                 .foregroundColor(ThemeStore.shared.palette.id == SelenePaletteCatalog.classicBlueID ? SeleneTheme.ink75 : SeleneTheme.glyph)
                 .accessibilityAddTraits(.isHeader)
             Text(L10n.text(subtitle, context: locale))
-                .seleneFont(15)
+                .seleneFont(.compactCaption)
                 .foregroundColor(SeleneTheme.ink60)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.leading, canvas.u(26))
-        .padding(.top, canvas.u(16))
-        .padding(.trailing, canvas.u(24))
+        .padding(.top, canvas.u(SeleneTokens.Space.medium))
+        .padding(.trailing, canvas.u(SeleneTokens.Space.large))
     }
 
     private func rowView(_ row: Row, focused: Bool, inactiveOnline: Set<String>) -> some View {

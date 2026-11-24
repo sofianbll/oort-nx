@@ -14,7 +14,7 @@ struct SeleneStatusDot: View {
     var body: some View {
         HStack(spacing: canvas.u(8)) {
             SeleneStatusMark(color: color, pulses: pulses)
-            Text(text).seleneFont(15).foregroundColor(labelColor)
+            Text(text).seleneFont(.compactCaption).foregroundColor(labelColor)
         }
         .fixedSize(horizontal: false, vertical: true)
         .accessibilityElement(children: .ignore)

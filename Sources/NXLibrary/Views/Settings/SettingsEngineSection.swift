@@ -20,21 +20,21 @@ struct SettingsEngineSection: View {
                       subtitle: "The upstream nxnative checkout used for builds. Updates stay manual.") {
                 HStack(spacing: 10) {
                     Text(setup.nxnativePath.isEmpty ? L10n.text("Not selected") : setup.nxnativePath)
-                        .seleneFont(15, .medium)
+                        .seleneFont(.compactCaption, .medium)
                         .foregroundColor(SeleneTheme.ink.opacity(0.62))
                         .lineLimit(1)
                         .truncationMode(.middle)
                         .frame(maxWidth: 300, alignment: .trailing)
                     Button(L10n.text("Change")) { setup.selectNxnativeFolder() }
                         .buttonStyle(.plain)
-                        .seleneFont(14, .semibold)
+                        .seleneFont(.metadata, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
                         .disabled(configurationLocked)
                     Button(L10n.text("Reveal")) {
                         viewModel.revealInFinder(url: URL(fileURLWithPath: setup.nxnativePath))
                     }
                     .buttonStyle(.plain)
-                    .seleneFont(14, .semibold)
+                    .seleneFont(.metadata, .semibold)
                     .foregroundColor(SeleneTheme.ink60)
                     .disabled(!setup.isNxnativeValid)
                 }
@@ -50,19 +50,19 @@ struct SettingsEngineSection: View {
                         .fill(statusColor)
                         .frame(width: 8, height: 8)
                     Text(statusText)
-                        .seleneFont(15, .semibold)
+                        .seleneFont(.compactCaption, .semibold)
                         .foregroundColor(statusColor)
                     Spacer()
                     Button(L10n.text("Re-check"), action: recheck)
                         .buttonStyle(.plain)
-                        .seleneFont(14, .semibold)
+                        .seleneFont(.metadata, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
                         .disabled(configurationLocked)
                 }
 
                 if let message = setup.toolchainGateSummary?.message {
                     Text(message)
-                        .seleneFont(14)
+                        .seleneFont(.metadata)
                         .foregroundColor(statusColor)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -76,7 +76,7 @@ struct SettingsEngineSection: View {
                     HStack(spacing: 8) {
                         ProgressView().controlSize(.small)
                         Text(L10n.text("Running the compatibility check..."))
-                            .seleneFont(15)
+                            .seleneFont(.compactCaption)
                             .foregroundColor(SeleneTheme.ink60)
                     }
                 }
@@ -95,7 +95,7 @@ struct SettingsEngineSection: View {
 
                     if !environment.issues.isEmpty {
                         Text(environment.issues.joined(separator: " · "))
-                            .seleneFont(13, .regular, design: .monospaced)
+                            .seleneFont(.attribution, .regular, design: .monospaced)
                             .foregroundColor(SeleneTheme.untested)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -248,12 +248,12 @@ struct SettingsEngineSection: View {
                         .frame(width: 8, height: 8)
                         .accessibilityHidden(true)
                     Text(L10n.text("In use"))
-                        .seleneFont(14, .semibold)
+                        .seleneFont(.metadata, .semibold)
                         .foregroundColor(SeleneTheme.untested)
                 }
                 if setup.isSwitchingEngine {
                     Text(L10n.text("Switching…"))
-                        .seleneFont(15, .semibold)
+                        .seleneFont(.compactCaption, .semibold)
                         .foregroundColor(SeleneTheme.ink60)
                 } else {
                     let actions = setup.newestEngineActions
@@ -263,7 +263,7 @@ struct SettingsEngineSection: View {
                             && focusedRowTitle == "Newest engine" && focusedButton == index
                         Button(L10n.text(newestTitle(action))) { newestAction(action) }
                             .buttonStyle(.plain)
-                            .seleneFont(15, .semibold)
+                            .seleneFont(.compactCaption, .semibold)
                             .foregroundColor(setup.canSwitchEngine ? SeleneTheme.glyph : SeleneTheme.ink60)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 5)
@@ -367,7 +367,7 @@ struct SettingsEngineSection: View {
                     ForEach(status.commits.prefix(shown)) { commit in
                         HStack(alignment: .top, spacing: 10) {
                             Text(commit.shortSha)
-                                .seleneFont(14, .bold, design: .monospaced)
+                                .seleneFont(.metadata, .bold, design: .monospaced)
                                 .foregroundColor(SeleneTheme.glyph)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
@@ -379,21 +379,21 @@ struct SettingsEngineSection: View {
                                     commitMark(mark)
                                 }
                                 Text(commit.subject)
-                                    .seleneFont(15, .medium)
+                                    .seleneFont(.compactCaption, .medium)
                                     .foregroundColor(SeleneTheme.ink)
                                     .lineLimit(2)
                                     .fixedSize(horizontal: false, vertical: true)
 
                                 HStack(spacing: 6) {
                                     Text(commit.author)
-                                        .seleneFont(13)
+                                        .seleneFont(.attribution)
                                         .foregroundColor(SeleneTheme.ink60)
                                     if !commit.date.isEmpty {
                                         Text("·")
-                                            .seleneFont(13)
+                                            .seleneFont(.attribution)
                                             .foregroundColor(SeleneTheme.ink60.opacity(0.5))
                                         Text(formattedCommitDate(commit.date))
-                                            .seleneFont(13)
+                                            .seleneFont(.attribution)
                                             .foregroundColor(SeleneTheme.ink60)
                                     }
                                 }
@@ -409,14 +409,14 @@ struct SettingsEngineSection: View {
                     if status.commits.count > shown {
                         HStack {
                             Text(L10n.format("+ %@ more commits upstream", [String(describing: status.commits.count - shown)]))
-                                .seleneFont(14, .medium)
+                                .seleneFont(.metadata, .medium)
                                 .foregroundColor(SeleneTheme.ink60)
                             Spacer()
                             Button(L10n.text("View all on GitHub")) {
                                 setup.openUpstreamCompare()
                             }
                             .buttonStyle(.plain)
-                            .seleneFont(14, .semibold)
+                            .seleneFont(.metadata, .semibold)
                             .foregroundColor(SeleneTheme.glyph)
                         }
                         .padding(.top, 4)
@@ -449,15 +449,15 @@ struct SettingsEngineSection: View {
         let look = rowLook(status: status, metal: metal)
         return HStack(alignment: .top, spacing: 8) {
             Image(systemName: look.icon)
-                .seleneFont(15, .bold)
+                .seleneFont(.compactCaption, .bold)
                 .foregroundColor(look.color)
                 .frame(width: 14)
             Text(title)
-                .seleneFont(15, .semibold)
+                .seleneFont(.compactCaption, .semibold)
                 .foregroundColor(SeleneTheme.ink)
                 .frame(width: 96, alignment: .leading)
             Text(detail)
-                .seleneFont(13, .regular, design: .monospaced)
+                .seleneFont(.attribution, .regular, design: .monospaced)
                 .foregroundColor(SeleneTheme.ink60)
                 .lineLimit(2)
                 .textSelection(.enabled)
@@ -487,15 +487,15 @@ struct SettingsEngineSection: View {
     private func buildRow(_ title: String, ok: Bool, detail: String) -> some View {
         HStack(spacing: 8) {
             Image(systemName: ok ? "checkmark.circle.fill" : "xmark.octagon.fill")
-                .seleneFont(13, .bold)
+                .seleneFont(.attribution, .bold)
                 .foregroundColor(ok ? SeleneTheme.success : SeleneTheme.danger)
                 .frame(width: 13)
             Text(title)
-                .seleneFont(14, .semibold)
+                .seleneFont(.metadata, .semibold)
                 .foregroundColor(SeleneTheme.ink.opacity(0.9))
                 .frame(width: 116, alignment: .leading)
             Text(detail)
-                .seleneFont(13, .regular, design: .monospaced)
+                .seleneFont(.attribution, .regular, design: .monospaced)
                 .foregroundColor(SeleneTheme.ink60)
                 .lineLimit(1)
                 .truncationMode(.middle)

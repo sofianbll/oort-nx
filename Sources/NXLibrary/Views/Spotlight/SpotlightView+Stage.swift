@@ -127,7 +127,7 @@ extension SpotlightView {
             // Off the row, the page has risen: there is more above (More like this is the end).
             SpotlightUpHint()
                 .frame(width: canvas.stageSize.width)
-                .padding(.top, canvas.u(24))
+                .padding(.top, canvas.u(SeleneTokens.Space.large))
                 .opacity([.pills, .strip, .about, .actions, .store].contains(state.focus) ? 1 : 0)
                 .animation(.easeInOut(duration: 0.4), value: state.focus)
                 .allowsHitTesting(false)
@@ -191,7 +191,7 @@ extension SpotlightView {
                         // They leave and come back with the pills, not stay while the rest changes.
                         .modifier(SpotlightInfoFollow())
                         .id(game.id)
-                        .padding(.top, canvas.u(20))
+                        .padding(.top, canvas.u(SeleneTokens.Space.panel))
                         .spotlightBlock(.genres)
                 }
 
@@ -227,7 +227,7 @@ extension SpotlightView {
                     SpotlightGenreChips(genres: genres)
                         .modifier(SpotlightInfoFollow())
                         .id(game.id)
-                        .padding(.top, canvas.u(20))
+                        .padding(.top, canvas.u(SeleneTokens.Space.panel))
                         .spotlightBlock(.genres)
                 }
 

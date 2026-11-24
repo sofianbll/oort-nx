@@ -45,13 +45,13 @@ struct SteamGridDBKeyDialog: View {
                             .buttonStyle(.plain)
                             .foregroundColor(SeleneTheme.focus)
                     }
-                    .seleneFont(14)
+                    .seleneFont(.metadata)
                 }
-                .seleneFont(17)
+                .seleneFont(.body)
                 .foregroundColor(SeleneTheme.ink)
-                .padding(canvas.u(16))
-                .background(RoundedRectangle(cornerRadius: canvas.u(12)).fill(SeleneTheme.glassLight))
-                .padding(.top, canvas.u(24))
+                .padding(canvas.u(SeleneTokens.Space.medium))
+                .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content)).fill(SeleneTheme.glassLight))
+                .padding(.top, canvas.u(SeleneTokens.Space.large))
                 .onAppear { fieldFocused = true }
             }
         }

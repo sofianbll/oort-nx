@@ -87,14 +87,14 @@ struct AddGameStepThreeView: View {
                 .clipShape(RoundedRectangle(cornerRadius: canvas.u(18), style: .continuous))
                 .shadow(color: .black.opacity(0.5), radius: canvas.u(12))
                 Text(game.name)
-                    .seleneFont(19, .semibold)
+                    .seleneFont(.panelBody, .semibold)
                     .foregroundColor(SeleneTheme.ink)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
             }
             if let caption {
                 Text(caption)
-                    .seleneFont(15)
+                    .seleneFont(.compactCaption)
                     .foregroundColor(SeleneTheme.ink60)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
@@ -113,7 +113,7 @@ struct AddGameStepThreeView: View {
         VStack(alignment: .leading, spacing: canvas.u(4)) {
             if porting.buildStages.isEmpty && !porting.isInstallingBuild {
                 Text(L10n.text("Starting the porting…"))
-                    .seleneFont(17)
+                    .seleneFont(.body)
                     .foregroundColor(SeleneTheme.ink60)
             }
             ForEach(porting.buildStages) { stage in
@@ -122,11 +122,11 @@ struct AddGameStepThreeView: View {
                         .frame(width: canvas.u(22), height: canvas.u(22))
                     VStack(alignment: .leading, spacing: canvas.u(2)) {
                         Text(BuildStageCopy.title(stage.name))
-                            .seleneFont(17, stage.isRunning ? .semibold : .regular)
+                            .seleneFont(.body, stage.isRunning ? .semibold : .regular)
                             .foregroundColor(stage.isRunning ? SeleneTheme.ink : SeleneTheme.ink75)
                         if stage.isRunning, !porting.currentStepName.isEmpty {
                             Text(porting.currentStepName)
-                                .seleneFont(13, .regular, design: .monospaced)
+                                .seleneFont(.attribution, .regular, design: .monospaced)
                                 .foregroundColor(SeleneTheme.ink60)
                                 .lineLimit(1)
                         }
@@ -134,11 +134,11 @@ struct AddGameStepThreeView: View {
                     Spacer(minLength: canvas.u(12))
                     if let elapsed = stage.elapsedSeconds {
                         Text(PortingETA.elapsed(elapsed))
-                            .seleneFont(14, .regular, design: .monospaced)
+                            .seleneFont(.metadata, .regular, design: .monospaced)
                             .foregroundColor(SeleneTheme.ink60)
                     }
                 }
-                .padding(.horizontal, canvas.u(16))
+                .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
                 .frame(minHeight: canvas.u(46))
                 .background(
                     RoundedRectangle(cornerRadius: SeleneTheme.rowRadius, style: .continuous)
@@ -153,11 +153,11 @@ struct AddGameStepThreeView: View {
     @ViewBuilder private func stageMark(_ stage: BuildStageItem) -> some View {
         if stage.isFailed {
             Image(systemName: "xmark")
-                .seleneFont(14, .bold)
+                .seleneFont(.metadata, .bold)
                 .foregroundColor(PortingPillCopy.softRed)
         } else if stage.hasWarning {
             Image(systemName: "exclamationmark.triangle.fill")
-                .seleneFont(14, .bold)
+                .seleneFont(.metadata, .bold)
                 .foregroundColor(SeleneTheme.untested)
         } else if stage.isRunning {
             ProgressView()
@@ -165,7 +165,7 @@ struct AddGameStepThreeView: View {
                 .tint(SeleneTheme.ink)
         } else {
             Image(systemName: "checkmark")
-                .seleneFont(14, .bold)
+                .seleneFont(.metadata, .bold)
                 .foregroundColor(PortingLogBox.softGreen)
         }
     }
@@ -181,14 +181,14 @@ struct AddGameStepThreeView: View {
         SelenePanel {
             HStack(spacing: 14) {
                 Image(systemName: "checkmark.circle.fill")
-                    .seleneFont(34)
+                    .seleneFont(.dialogTitle)
                     .foregroundColor(SeleneTheme.success)
                 VStack(alignment: .leading, spacing: 4) {
                     Text(heldGameName == nil ? L10n.text("Ready to play") : PendingInstall.title)
-                        .seleneFont(34, .semibold)
+                        .seleneFont(.dialogTitle, .semibold)
                         .foregroundColor(SeleneTheme.ink)
                     Text(path)
-                        .seleneFont(14, .regular, design: .monospaced)
+                        .seleneFont(.metadata, .regular, design: .monospaced)
                         .foregroundColor(SeleneTheme.ink60)
                         .lineLimit(2)
                         .truncationMode(.middle)
@@ -198,16 +198,16 @@ struct AddGameStepThreeView: View {
 
             Text(heldGameName.map(PendingInstall.message(gameName:))
                  ?? L10n.text("The app was installed atomically. Your library now points at the new build."))
-                .seleneFont(14)
+                .seleneFont(.metadata)
                 .foregroundColor(SeleneTheme.ink90)
 
             ForEach(porting.buildStages.filter(\.hasWarning)) { stage in
                 HStack(alignment: .firstTextBaseline, spacing: 10) {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .seleneFont(14)
+                        .seleneFont(.metadata)
                         .foregroundColor(SeleneTheme.untested)
                     Text(BuildWarningCopy.text(stage: stage.name, summary: stage.summary))
-                        .seleneFont(14)
+                        .seleneFont(.metadata)
                         .foregroundColor(SeleneTheme.ink90)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -226,16 +226,16 @@ struct AddGameStepThreeView: View {
                 gameTile(caption: nil)
                 VStack(alignment: .leading, spacing: canvas.u(12)) {
                     Text(error)
-                        .seleneFont(19)
+                        .seleneFont(.panelBody)
                         .foregroundColor(SeleneTheme.ink90)
                         .fixedSize(horizontal: false, vertical: true)
                     Text(viewModel.canRetryReadyInstall ? L10n.text("Your build has been kept. Retry installs it without porting again.")
                          : reason?.next ?? L10n.text("The previous app was left untouched. The log has the failing command and output."))
-                        .seleneFont(17)
+                        .seleneFont(.body)
                         .foregroundColor(SeleneTheme.ink60)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                .padding(.top, canvas.u(8))
+                .padding(.top, canvas.u(SeleneTokens.Space.compact))
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             logTailPanel
@@ -249,14 +249,14 @@ struct AddGameStepThreeView: View {
             SelenePanel {
                 HStack(alignment: .top, spacing: 14) {
                     Image(systemName: "stop.circle.fill")
-                        .seleneFont(34)
+                        .seleneFont(.dialogTitle)
                         .foregroundColor(SeleneTheme.untested)
                     VStack(alignment: .leading, spacing: 5) {
                         Text(L10n.text("Porting cancelled"))
-                            .seleneFont(34, .semibold)
+                            .seleneFont(.dialogTitle, .semibold)
                             .foregroundColor(SeleneTheme.ink)
                         Text(L10n.text("The previous app was left untouched. You can retry or go back to the review step."))
-                            .seleneFont(15)
+                            .seleneFont(.compactCaption)
                             .foregroundColor(SeleneTheme.ink90)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -278,14 +278,14 @@ struct AddGameStepThreeView: View {
         SelenePanel {
             HStack(spacing: 14) {
                 Image(systemName: "hammer.fill")
-                    .seleneFont(34)
+                    .seleneFont(.dialogTitle)
                     .foregroundColor(SeleneTheme.ink60)
                 VStack(alignment: .leading, spacing: 4) {
                     Text(L10n.text("No build is active"))
-                        .seleneFont(19, .semibold)
+                        .seleneFont(.panelBody, .semibold)
                         .foregroundColor(SeleneTheme.ink)
                     Text(L10n.text("Go back to the review step and choose Add & Build to start a build."))
-                        .seleneFont(15)
+                        .seleneFont(.compactCaption)
                         .foregroundColor(SeleneTheme.ink90)
                 }
                 Spacer()
@@ -481,7 +481,7 @@ struct PortingLogBox: View {
                         .seleneFont(12, .bold)
                         .rotationEffect(.degrees(expanded ? 90 : 0))
                     Text(L10n.text("Log"))
-                        .seleneFont(15, .semibold)
+                        .seleneFont(.compactCaption, .semibold)
                     Spacer()
                     if let last = logs.last, !expanded {
                         Text(last.message)
@@ -492,7 +492,7 @@ struct PortingLogBox: View {
                     }
                 }
                 .foregroundColor(SeleneTheme.ink75)
-                .padding(.horizontal, canvas.u(16))
+                .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
                 .frame(height: canvas.u(40))
                 .contentShape(Rectangle())
             }
@@ -528,9 +528,9 @@ struct PortingLogBox: View {
                             .id(entry.id)
                     }
                 }
-                .padding(.horizontal, canvas.u(16))
-                .padding(.top, canvas.u(18))
-                .padding(.bottom, canvas.u(12))
+                .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
+                .padding(.top, canvas.u(SeleneTokens.Space.control))
+                .padding(.bottom, canvas.u(SeleneTokens.Space.small))
             }
             .scrollIndicators(.hidden)
             .mask(

@@ -1,111 +1,53 @@
 {
   "Sources/NXLibrary/Views/AddGame/AddGameRows.swift": {
-    ".padding(.bottom,canvas.u(2": 1,
     ".padding(.horizontal,canvas.u(10": 1,
-    ".padding(.horizontal,canvas.u(20": 1,
     ".padding(.leading,canvas.u(10": 1,
     ".padding(.top,canvas.u(10": 1,
-    ".padding(.top,canvas.u(18": 1,
     ".padding(.vertical,canvas.u(11": 1,
-    ".seleneFont(13": 2,
-    ".seleneFont(14": 3,
-    ".seleneFont(15": 1,
     "cornerRadius:canvas.u(13": 1
   },
   "Sources/NXLibrary/Views/AddGame/AddGameStepThreeView.swift": {
-    ".padding(.bottom,canvas.u(12": 1,
-    ".padding(.horizontal,canvas.u(16": 3,
-    ".padding(.top,canvas.u(18": 1,
-    ".padding(.top,canvas.u(8": 1,
     ".seleneFont(12": 3,
-    ".seleneFont(13": 1,
-    ".seleneFont(14": 8,
-    ".seleneFont(15": 4,
-    ".seleneFont(17": 3,
-    ".seleneFont(19": 3,
-    ".seleneFont(34": 5,
     "cornerRadius:canvas.u(18": 2
   },
   "Sources/NXLibrary/Views/AddGame/AddGameView.swift": {
-    ".padding(.bottom,canvas.u(12": 1,
-    ".padding(.bottom,canvas.u(14": 1,
-    ".padding(.bottom,canvas.u(24": 2,
-    ".padding(.horizontal,canvas.u(18": 1,
-    ".padding(.horizontal,canvas.u(4": 1,
-    ".padding(.leading,canvas.u(6": 1,
-    ".padding(.leading,canvas.u(8": 2,
-    ".padding(.top,canvas.u(4": 1,
     ".padding(.top,canvas.u(40": 1,
-    ".padding(.top,canvas.u(6": 1,
-    ".padding(.top,canvas.u(90": 1,
-    ".seleneFont(15": 3,
-    ".seleneFont(40": 1
-  },
-  "Sources/NXLibrary/Views/Catalog/CatalogSteamInfo.swift": {
-    ".padding(.leading,canvas.u(2": 1,
-    ".padding(.top,canvas.u(18": 1,
-    ".padding(.top,canvas.u(20": 2,
-    ".seleneFont(19": 1
+    ".padding(.top,canvas.u(90": 1
   },
   "Sources/NXLibrary/Views/Catalog/SteamArtwork.swift": {
-    ".padding(canvas.u(16": 1,
     ".padding(canvas.u(30": 1
   },
   "Sources/NXLibrary/Views/Components/AppUpdateDialog.swift": {
     ".padding(.top,16": 1,
-    ".padding(.top,18": 1,
-    ".seleneFont(14": 1
+    ".padding(.top,18": 1
   },
   "Sources/NXLibrary/Views/Components/GameLogoArea.swift": {
     ".seleneFont(56": 2
   },
   "Sources/NXLibrary/Views/Components/IGDBCredentialsDialog.swift": {
-    ".padding(.bottom,canvas.u(6": 1,
-    ".padding(.top,canvas.u(24": 1,
-    ".padding(.top,canvas.u(3": 1,
-    ".padding(canvas.u(16": 1,
-    ".seleneFont(14": 5,
-    "cornerRadius:canvas.u(12": 1
+    ".padding(.top,canvas.u(3": 1
   },
   "Sources/NXLibrary/Views/Components/ScreenshotViewer.swift": {
     ".padding(.bottom,canvas.u(52": 1,
     ".padding(.horizontal,canvas.u(64": 1,
-    ".padding(.vertical,canvas.u(96": 1,
-    ".seleneFont(17": 1
+    ".padding(.vertical,canvas.u(96": 1
   },
   "Sources/NXLibrary/Views/Components/SeleneConfirmDialog.swift": {
     ".font(.system(size:canvas.u(30": 1,
-    ".padding(.bottom,canvas.u(20": 1,
-    ".padding(.leading,canvas.u(2": 1,
     ".padding(.leading,canvas.u(40": 1,
-    ".padding(.top,canvas.u(14": 1,
-    ".padding(.top,canvas.u(20": 1,
     ".padding(.top,canvas.u(34": 2,
     ".padding(.top,canvas.u(40": 1,
-    ".padding(.trailing,canvas.u(40": 1,
-    ".padding(canvas.u(16": 1,
-    ".seleneFont(13": 1,
-    ".seleneFont(15": 3,
-    ".seleneFont(17": 1,
-    ".seleneFont(28": 2,
-    "cornerRadius:canvas.u(14": 1
+    ".padding(.trailing,canvas.u(40": 1
   },
   "Sources/NXLibrary/Views/Components/SeleneHintsBar.swift": {
     ".padding(.horizontal,canvas.u(64": 1,
-    ".padding(.horizontal,canvas.u(8": 1,
-    ".seleneFont(13": 1,
-    ".seleneFont(19": 2,
     "cornerRadius:canvas.u(15": 1
   },
   "Sources/NXLibrary/Views/Components/SeleneOptionRow.swift": {
-    ".padding(.leading,canvas.u(26": 1,
-    ".padding(.trailing,canvas.u(24": 1,
-    ".padding(.vertical,canvas.u(18": 1,
-    ".seleneFont(21": 1
+    ".padding(.leading,canvas.u(26": 1
   },
   "Sources/NXLibrary/Views/Components/SelenePillButton.swift": {
-    ".padding(.leading,canvas.u(-4": 1,
-    ".padding(.top,canvas.u(6": 1
+    ".padding(.leading,canvas.u(-4": 1
   },
   "Sources/NXLibrary/Views/Components/SeleneSettingsRow.swift": {
     ".padding(.horizontal,12": 1,
@@ -114,293 +56,104 @@
     ".padding(16": 1,
     ".padding(2": 1,
     ".padding(3": 1,
-    ".seleneFont(12": 1,
-    ".seleneFont(14": 2,
-    ".seleneFont(15": 3
+    ".seleneFont(12": 1
   },
   "Sources/NXLibrary/Views/Components/SeleneStatsRow.swift": {
-    ".padding(.vertical,canvas.u(4": 1,
-    ".seleneFont(12": 1,
-    ".seleneFont(21": 1
-  },
-  "Sources/NXLibrary/Views/Components/SeleneStatusDot.swift": {
-    ".seleneFont(15": 1
+    ".seleneFont(12": 1
   },
   "Sources/NXLibrary/Views/Components/SeleneStepper.swift": {
-    ".padding(.horizontal,canvas.u(12": 1,
-    ".padding(.vertical,canvas.u(6": 1,
-    ".padding(canvas.u(10": 1,
-    ".seleneFont(15": 1,
-    ".seleneFont(17": 1
+    ".padding(canvas.u(10": 1
   },
   "Sources/NXLibrary/Views/Components/SeleneTileRing.swift": {
     ".padding(canvas.u(1": 1
   },
   "Sources/NXLibrary/Views/Components/SeleneValueChip.swift": {
     ".padding(.bottom,canvas.u(5": 1,
-    ".padding(.top,canvas.u(4": 1,
-    ".seleneFont(17": 1,
     "cornerRadius:canvas.u(17": 1
   },
   "Sources/NXLibrary/Views/Components/SessionCard.swift": {
-    ".padding(.bottom,canvas.u(8": 1,
-    ".padding(.leading,canvas.u(20": 1,
-    ".padding(.top,canvas.u(2": 1,
-    ".padding(.trailing,canvas.u(18": 1,
-    ".padding(.trailing,canvas.u(4": 1,
-    ".seleneFont(15": 2,
-    ".seleneFont(18": 1,
-    ".seleneFont(20": 1,
-    ".seleneFont(22": 1,
-    "cornerRadius:canvas.u(14": 2
-  },
-  "Sources/NXLibrary/Views/Components/SteamGridDBKeyDialog.swift": {
-    ".padding(.top,canvas.u(24": 1,
-    ".padding(canvas.u(16": 1,
-    ".seleneFont(14": 1,
-    ".seleneFont(17": 1,
-    "cornerRadius:canvas.u(12": 1
-  },
-  "Sources/NXLibrary/Views/Components/WikipediaAbout.swift": {
-    ".seleneFont(14": 1
+    ".seleneFont(20": 1
   },
   "Sources/NXLibrary/Views/Console/ConsoleView.swift": {
-    ".padding(.bottom,canvas.u(16": 1,
-    ".padding(.bottom,canvas.u(28": 1,
-    ".padding(.horizontal,canvas.u(16": 1,
-    ".padding(.horizontal,canvas.u(24": 1,
-    ".padding(.horizontal,canvas.u(4": 1,
-    ".padding(.horizontal,canvas.u(6": 1,
-    ".padding(.leading,canvas.u(8": 1,
-    ".padding(.top,canvas.u(14": 1,
     ".padding(.top,canvas.u(90": 1,
-    ".padding(.vertical,canvas.u(16": 1,
     ".padding(.vertical,canvas.u(3": 1,
-    ".seleneFont(12": 1,
-    ".seleneFont(13": 1,
-    ".seleneFont(14": 1,
-    ".seleneFont(15": 10,
-    ".seleneFont(19": 1,
-    ".seleneFont(40": 1
+    ".seleneFont(12": 1
   },
   "Sources/NXLibrary/Views/ControlsView.swift": {
-    ".padding(.bottom,canvas.u(18": 2,
     ".padding(.bottom,canvas.u(40": 1,
-    ".padding(.horizontal,canvas.u(32": 1,
-    ".padding(.top,canvas.u(70": 1,
-    ".seleneFont(15": 1,
-    ".seleneFont(19": 1,
-    ".seleneFont(40": 1
+    ".padding(.top,canvas.u(70": 1
   },
   "Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift": {
-    ".padding(.top,canvas.u(18": 1,
-    ".padding(canvas.u(10": 1,
-    ".seleneFont(13": 3,
-    ".seleneFont(15": 3,
-    ".seleneFont(17": 1
+    ".padding(canvas.u(10": 1
   },
   "Sources/NXLibrary/Views/Detail/CriticRatingValue.swift": {
     ".font(.system(size:canvas.u(13": 1,
-    ".seleneFont(11": 1,
-    ".seleneFont(15": 2
-  },
-  "Sources/NXLibrary/Views/Detail/DetailsAchievementsCard.swift": {
-    ".padding(.horizontal,canvas.u(18": 1,
-    ".padding(.vertical,canvas.u(16": 1,
-    ".seleneFont(14": 1,
-    ".seleneFont(22": 1
+    ".seleneFont(11": 1
   },
   "Sources/NXLibrary/Views/Detail/DetailsBands.swift": {
-    ".padding(.bottom,canvas.u(14": 1,
-    ".padding(.bottom,canvas.u(4": 1,
     ".padding(.horizontal,canvas.u(10": 1,
-    ".padding(.top,canvas.u(14": 1,
-    ".padding(.top,canvas.u(2": 1,
-    ".padding(.vertical,canvas.u(4": 1,
-    ".padding(canvas.u(16": 1,
-    ".seleneFont(13": 1,
-    ".seleneFont(14": 2,
-    ".seleneFont(15": 3,
-    ".seleneFont(16": 1,
-    ".seleneFont(18": 1,
-    ".seleneFont(19": 3,
-    "cornerRadius:canvas.u(14": 1,
     "cornerRadius:canvas.u(21": 1
   },
   "Sources/NXLibrary/Views/Detail/DetailsPanel.swift": {
     ".font(.system(size:canvas.u(14": 1,
-    ".padding(.bottom,canvas.u(14": 1,
     ".padding(.horizontal,canvas.u(10": 1,
-    ".padding(.vertical,canvas.u(9": 2,
-    ".seleneFont(14": 1,
-    ".seleneFont(15": 2
+    ".padding(.vertical,canvas.u(9": 2
   },
   "Sources/NXLibrary/Views/Detail/GameBananaFindPanel.swift": {
-    ".padding(.horizontal,canvas.u(14": 1,
-    ".padding(.horizontal,canvas.u(16": 1,
     ".padding(.vertical,canvas.u(10": 1,
-    ".padding(.vertical,canvas.u(8": 1,
     ".padding(canvas.u(-3": 1,
     ".padding(canvas.u(36": 2,
-    ".seleneFont(14": 1,
-    ".seleneFont(15": 2,
-    ".seleneFont(16": 3,
-    ".seleneFont(18": 2,
     ".seleneFont(32": 2,
-    "cornerRadius:canvas.u(12": 1,
-    "cornerRadius:canvas.u(14": 1,
-    "cornerRadius:canvas.u(22": 2,
     "cornerRadius:canvas.u(8": 1
   },
   "Sources/NXLibrary/Views/Detail/ModDetailPanel.swift": {
     ".padding(.horizontal,canvas.u(-12": 1,
-    ".padding(.horizontal,canvas.u(14": 2,
-    ".padding(.leading,canvas.u(14": 1,
-    ".padding(.top,canvas.u(22": 1,
-    ".padding(.top,canvas.u(6": 2,
-    ".padding(.vertical,canvas.u(6": 1,
     ".padding(canvas.u(-3": 1,
-    ".seleneFont(14": 3,
-    ".seleneFont(15": 4,
-    ".seleneFont(16": 4,
-    ".seleneFont(18": 1,
     ".seleneFont(36": 1,
-    "cornerRadius:canvas.u(10": 1,
-    "cornerRadius:canvas.u(12": 1,
-    "cornerRadius:canvas.u(14": 1,
-    "cornerRadius:canvas.u(16": 1,
     "cornerRadius:canvas.u(24": 1
   },
   "Sources/NXLibrary/Views/GameOptions/ChangeArtworkView+Tiles.swift": {
     ".padding(canvas.u(-6": 1,
-    ".padding(canvas.u(4": 1,
-    ".padding(canvas.u(8": 1,
-    ".seleneFont(13": 1,
-    ".seleneFont(14": 1,
     "cornerRadius:canvas.u(18": 1
   },
   "Sources/NXLibrary/Views/GameOptions/ChangeArtworkView.swift": {
-    ".padding(.bottom,canvas.u(14": 1,
-    ".padding(.bottom,canvas.u(20": 1,
-    ".padding(.horizontal,canvas.u(16": 1,
-    ".padding(.horizontal,canvas.u(20": 1,
     ".padding(.horizontal,canvas.u(8": 1,
     ".padding(.leading,canvas.u(10": 1,
-    ".padding(.leading,canvas.u(2": 1,
-    ".padding(.leading,canvas.u(6": 1,
-    ".padding(.leading,canvas.u(8": 2,
-    ".padding(.top,canvas.u(14": 1,
     ".padding(.top,canvas.u(90": 1,
     ".padding(.vertical,canvas.u(10": 2,
     ".padding(.vertical,canvas.u(9": 1,
-    ".padding(canvas.u(-4": 1,
-    ".seleneFont(15": 1,
-    ".seleneFont(16": 1,
-    ".seleneFont(17": 1,
-    ".seleneFont(18": 1,
-    ".seleneFont(40": 1
+    ".padding(canvas.u(-4": 1
   },
   "Sources/NXLibrary/Views/GameOptions/ChangeMetadataView.swift": {
-    ".padding(.bottom,canvas.u(14": 1,
-    ".padding(.bottom,canvas.u(20": 1,
-    ".padding(.bottom,canvas.u(24": 1,
-    ".padding(.horizontal,canvas.u(20": 1,
     ".padding(.leading,canvas.u(10": 1,
-    ".padding(.leading,canvas.u(2": 1,
-    ".padding(.leading,canvas.u(6": 1,
-    ".padding(.leading,canvas.u(8": 1,
-    ".padding(.top,canvas.u(24": 1,
-    ".padding(.top,canvas.u(6": 1,
     ".padding(.top,canvas.u(90": 1,
     ".padding(.vertical,canvas.u(10": 1,
-    ".padding(.vertical,canvas.u(9": 1,
-    ".padding(canvas.u(16": 1,
-    ".seleneFont(14": 2,
-    ".seleneFont(15": 1,
-    ".seleneFont(17": 2,
-    ".seleneFont(40": 1,
-    "cornerRadius:canvas.u(12": 1
+    ".padding(.vertical,canvas.u(9": 1
   },
   "Sources/NXLibrary/Views/GameOptions/CheatsPanel.swift": {
-    ".padding(.bottom,canvas.u(14": 2,
-    ".padding(.bottom,canvas.u(20": 1,
-    ".padding(.bottom,canvas.u(24": 1,
     ".padding(.horizontal,canvas.u(10": 1,
     ".padding(.leading,canvas.u(10": 1,
-    ".padding(.leading,canvas.u(6": 1,
-    ".padding(.leading,canvas.u(8": 3,
-    ".padding(.top,canvas.u(14": 1,
-    ".padding(.top,canvas.u(4": 1,
-    ".padding(.top,canvas.u(6": 1,
-    ".padding(.top,canvas.u(90": 1,
-    ".padding(canvas.u(24": 1,
-    ".seleneFont(14": 1,
-    ".seleneFont(15": 3,
-    ".seleneFont(16": 2,
-    ".seleneFont(40": 1,
-    "cornerRadius:canvas.u(16": 1
+    ".padding(.top,canvas.u(90": 1
   },
   "Sources/NXLibrary/Views/GameOptions/GameOptionsView+Rows.swift": {
-    ".padding(.bottom,canvas.u(14": 1,
     ".padding(.leading,canvas.u(26": 2,
-    ".padding(.leading,canvas.u(6": 1,
-    ".padding(.leading,canvas.u(8": 1,
     ".padding(.top,canvas.u(90": 1,
-    ".seleneFont(15": 1,
-    ".seleneFont(20": 1,
-    ".seleneFont(40": 1
+    ".seleneFont(20": 1
   },
   "Sources/NXLibrary/Views/GameOptions/ModsPanel.swift": {
-    ".padding(.bottom,canvas.u(14": 2,
-    ".padding(.bottom,canvas.u(20": 1,
-    ".padding(.bottom,canvas.u(24": 1,
     ".padding(.horizontal,canvas.u(10": 1,
     ".padding(.leading,canvas.u(26": 1,
-    ".padding(.leading,canvas.u(6": 1,
-    ".padding(.leading,canvas.u(8": 2,
-    ".padding(.top,canvas.u(16": 1,
-    ".padding(.top,canvas.u(6": 1,
-    ".padding(.top,canvas.u(90": 1,
-    ".padding(.trailing,canvas.u(24": 1,
-    ".seleneFont(15": 3,
-    ".seleneFont(16": 3,
-    ".seleneFont(17": 1,
-    ".seleneFont(40": 1
+    ".padding(.top,canvas.u(90": 1
   },
   "Sources/NXLibrary/Views/GameOptions/MoreSettingsPanel.swift": {
-    ".padding(.bottom,canvas.u(14": 1,
-    ".padding(.bottom,canvas.u(20": 1,
-    ".padding(.bottom,canvas.u(24": 1,
-    ".padding(.leading,canvas.u(6": 1,
-    ".padding(.leading,canvas.u(8": 1,
-    ".padding(.top,canvas.u(6": 1,
-    ".padding(.top,canvas.u(90": 1,
-    ".seleneFont(15": 1,
-    ".seleneFont(40": 1
+    ".padding(.top,canvas.u(90": 1
   },
   "Sources/NXLibrary/Views/GameOptions/SaveImportDetails.swift": {
     ".font(.system(size:canvas.u(22": 1,
-    ".padding(.horizontal,canvas.u(12": 3,
-    ".padding(.top,canvas.u(24": 1,
-    ".padding(.vertical,canvas.u(10": 2,
-    ".seleneFont(13": 1,
-    ".seleneFont(15": 1,
-    ".seleneFont(17": 2,
-    "cornerRadius:canvas.u(10": 1,
-    "cornerRadius:canvas.u(14": 1
+    ".padding(.vertical,canvas.u(10": 2
   },
   "Sources/NXLibrary/Views/GameOptions/SavesPanel.swift": {
-    ".padding(.bottom,canvas.u(14": 1,
-    ".padding(.bottom,canvas.u(20": 1,
-    ".padding(.bottom,canvas.u(24": 1,
-    ".padding(.horizontal,canvas.u(8": 2,
-    ".padding(.leading,canvas.u(6": 1,
-    ".padding(.leading,canvas.u(8": 1,
-    ".padding(.top,canvas.u(6": 2,
-    ".padding(.top,canvas.u(90": 1,
-    ".seleneFont(15": 3,
-    ".seleneFont(17": 1,
-    ".seleneFont(40": 1
+    ".padding(.top,canvas.u(90": 1
   },
   "Sources/NXLibrary/Views/GameOptions/SteamOptionsView.swift": {
     ".padding(.leading,canvas.u(26": 1,
@@ -413,8 +166,7 @@
     ".padding(48": 1
   },
   "Sources/NXLibrary/Views/Launch/LaunchScreenView.swift": {
-    ".padding(.horizontal,canvas.u(120": 1,
-    ".seleneFont(34": 1
+    ".padding(.horizontal,canvas.u(120": 1
   },
   "Sources/NXLibrary/Views/Search/FindGameView.swift": {
     ".padding(.bottom,canvas.u(13": 1,
@@ -422,50 +174,12 @@
     ".padding(.top,canvas.u(11": 1,
     ".padding(.trailing,canvas.u(26": 1
   },
-  "Sources/NXLibrary/Views/Settings/CloudReferenceDialog.swift": {
-    ".padding(.top,canvas.u(24": 1,
-    ".padding(canvas.u(16": 1,
-    ".seleneFont(15": 1,
-    ".seleneFont(17": 1,
-    "cornerRadius:canvas.u(12": 1
-  },
-  "Sources/NXLibrary/Views/Settings/CloudSetupAssistant.swift": {
-    ".seleneFont(15": 4,
-    ".seleneFont(16": 5,
-    ".seleneFont(17": 3,
-    ".seleneFont(18": 1,
-    ".seleneFont(19": 1,
-    ".seleneFont(30": 1
-  },
   "Sources/NXLibrary/Views/Settings/LocalePicker.swift": {
-    ".padding(canvas.u(14": 2,
-    ".padding(canvas.u(32": 1,
-    ".padding(canvas.u(4": 1,
-    ".padding(canvas.u(8": 1,
-    ".seleneFont(15": 1,
-    ".seleneFont(16": 2,
-    ".seleneFont(18": 1,
-    ".seleneFont(19": 1,
     ".seleneFont(20": 2,
     ".seleneFont(32": 1,
-    "cornerRadius:canvas.u(12": 1,
     "cornerRadius:canvas.u(24": 2
   },
-  "Sources/NXLibrary/Views/Settings/NextendoClientDialog.swift": {
-    ".padding(.top,canvas.u(24": 1,
-    ".padding(canvas.u(16": 1,
-    ".seleneFont(15": 1,
-    ".seleneFont(17": 1,
-    "cornerRadius:canvas.u(12": 1
-  },
   "Sources/NXLibrary/Views/Settings/SettingsAPISection.swift": {
-    ".padding(.bottom,canvas.u(8": 1,
-    ".padding(.horizontal,canvas.u(8": 6,
-    ".padding(.vertical,canvas.u(4": 3,
-    ".padding(canvas.u(8": 1,
-    ".seleneFont(13": 1,
-    ".seleneFont(15": 11,
-    ".seleneFont(16": 2,
     "cornerRadius:canvas.u(7": 2
   },
   "Sources/NXLibrary/Views/Settings/SettingsAboutSection.swift": {
@@ -473,18 +187,7 @@
     ".padding(8": 1,
     ".seleneFont(11": 1,
     ".seleneFont(12": 1,
-    ".seleneFont(13": 7,
-    ".seleneFont(14": 5,
-    ".seleneFont(15": 3,
-    ".seleneFont(16": 3,
     "cornerRadius:7": 1
-  },
-  "Sources/NXLibrary/Views/Settings/SettingsCloudLibrarySection.swift": {
-    ".seleneFont(15": 2
-  },
-  "Sources/NXLibrary/Views/Settings/SettingsControllersSection.swift": {
-    ".seleneFont(13": 2,
-    ".seleneFont(14": 1
   },
   "Sources/NXLibrary/Views/Settings/SettingsEngineSection.swift": {
     ".padding(.bottom,2": 1,
@@ -496,46 +199,20 @@
     ".padding(.vertical,5": 1,
     ".seleneFont(11": 1,
     ".seleneFont(12": 1,
-    ".seleneFont(13": 7,
-    ".seleneFont(14": 9,
-    ".seleneFont(15": 8,
     "cornerRadius:4": 1
   },
-  "Sources/NXLibrary/Views/Settings/SettingsGamesSection.swift": {
-    ".seleneFont(13": 1,
-    ".seleneFont(15": 1
-  },
-  "Sources/NXLibrary/Views/Settings/SettingsKeysSection.swift": {
-    ".seleneFont(13": 3,
-    ".seleneFont(14": 2,
-    ".seleneFont(15": 2
-  },
   "Sources/NXLibrary/Views/Settings/SettingsLibraryGamesSection.swift": {
-    ".padding(.leading,canvas.u(26": 1,
-    ".seleneFont(15": 1
+    ".padding(.leading,canvas.u(26": 1
   },
   "Sources/NXLibrary/Views/Settings/SettingsLibrarySection.swift": {
     ".padding(.horizontal,24": 1,
-    ".padding(.vertical,8": 1,
-    ".seleneFont(14": 5,
-    ".seleneFont(15": 2
-  },
-  "Sources/NXLibrary/Views/Settings/SettingsPortingStorageSection.swift": {
-    ".seleneFont(15": 2
+    ".padding(.vertical,8": 1
   },
   "Sources/NXLibrary/Views/Settings/SettingsSearchSection.swift": {
     ".padding(.bottom,canvas.u(13": 1,
-    ".padding(.bottom,canvas.u(8": 1,
     ".padding(.leading,canvas.u(26": 1,
     ".padding(.top,canvas.u(11": 1,
-    ".padding(.trailing,canvas.u(26": 1,
-    ".seleneFont(19": 3,
-    "cornerRadius:canvas.u(22": 2
-  },
-  "Sources/NXLibrary/Views/Settings/SettingsSectionContent.swift": {
-    ".padding(.bottom,canvas.u(4": 1,
-    ".padding(.top,canvas.u(18": 1,
-    ".seleneFont(17": 1
+    ".padding(.trailing,canvas.u(26": 1
   },
   "Sources/NXLibrary/Views/Settings/SettingsSidebar.swift": {
     ".padding(.bottom,canvas.u(26": 1,
@@ -543,26 +220,18 @@
   },
   "Sources/NXLibrary/Views/Settings/SettingsSourcesSection.swift": {
     ".padding(.vertical,10": 1,
-    ".padding(24": 1,
-    ".seleneFont(14": 2,
-    ".seleneFont(15": 1
+    ".padding(24": 1
   },
   "Sources/NXLibrary/Views/Settings/SettingsStorageSection.swift": {
     ".padding(.horizontal,8": 1,
     ".padding(.vertical,4": 1,
-    ".seleneFont(15": 7,
     "cornerRadius:7": 1
   },
   "Sources/NXLibrary/Views/Setup/ArcaneWelcomeView.swift": {
     ".padding(.horizontal,canvas.u(26": 1,
     ".padding(.top,canvas.u(10": 1,
-    ".padding(.top,canvas.u(12": 1,
     ".padding(.top,canvas.u(30": 2,
-    ".padding(.vertical,canvas.u(18": 1,
     ".padding(canvas.u(26": 1,
-    ".seleneFont(16": 1,
-    ".seleneFont(17": 1,
-    ".seleneFont(19": 2,
     ".seleneFont(20": 1,
     ".seleneFont(46": 1,
     "cornerRadius:canvas.u(18": 2
@@ -570,267 +239,125 @@
   "Sources/NXLibrary/Views/Setup/FoundGamesSetupView.swift": {
     ".padding(.top,canvas.u(10": 1,
     ".padding(.top,canvas.u(30": 1,
-    ".padding(.top,canvas.u(32": 1,
-    ".seleneFont(19": 1,
     ".seleneFont(46": 1
   },
   "Sources/NXLibrary/Views/Setup/SetupCheckView.swift": {
-    ".padding(.bottom,canvas.u(18": 1,
     ".padding(.horizontal,canvas.u(10": 1,
-    ".padding(.horizontal,canvas.u(16": 1,
     ".padding(.top,canvas.u(10": 2,
-    ".padding(.top,canvas.u(12": 1,
-    ".padding(.top,canvas.u(20": 1,
-    ".padding(.top,canvas.u(22": 1,
     ".padding(.top,canvas.u(30": 1,
-    ".padding(.top,canvas.u(8": 1,
     ".padding(.vertical,canvas.u(3": 1,
-    ".padding(canvas.u(22": 1,
     ".seleneFont(12": 1,
-    ".seleneFont(13": 1,
-    ".seleneFont(15": 1,
-    ".seleneFont(17": 2,
-    ".seleneFont(18": 1,
-    ".seleneFont(19": 1,
-    ".seleneFont(24": 1,
     ".seleneFont(46": 1
   },
   "Sources/NXLibrary/Views/Setup/YourGamesSetupView.swift": {
-    ".padding(.bottom,canvas.u(18": 1,
-    ".padding(.horizontal,canvas.u(24": 1,
     ".padding(.top,canvas.u(1": 1,
     ".padding(.top,canvas.u(10": 1,
-    ".padding(.top,canvas.u(12": 3,
-    ".padding(.top,canvas.u(18": 1,
     ".padding(.top,canvas.u(30": 1,
-    ".padding(.top,canvas.u(32": 1,
-    ".seleneFont(13": 2,
-    ".seleneFont(14": 1,
-    ".seleneFont(15": 3,
-    ".seleneFont(16": 1,
-    ".seleneFont(19": 1,
-    ".seleneFont(22": 1,
     ".seleneFont(46": 1
   },
   "Sources/NXLibrary/Views/Shell/ActivityCenterView.swift": {
-    ".seleneFont(12": 1,
-    ".seleneFont(15": 1,
-    ".seleneFont(17": 1
+    ".seleneFont(12": 1
   },
   "Sources/NXLibrary/Views/Shell/AppShellView+Layers.swift": {
-    ".padding(.horizontal,canvas.u(16": 1,
-    ".padding(.vertical,canvas.u(9": 1,
-    ".seleneFont(19": 1
+    ".padding(.vertical,canvas.u(9": 1
   },
   "Sources/NXLibrary/Views/Shell/ProfileEditorView.swift": {
     ".padding(.bottom,canvas.u(124": 1,
     ".padding(.bottom,canvas.u(154": 1,
     ".padding(.vertical,canvas.u(9": 1,
     ".padding(canvas.u(5": 1,
-    ".seleneFont(23": 1,
-    "cornerRadius:canvas.u(12": 1
+    ".seleneFont(23": 1
   },
   "Sources/NXLibrary/Views/Shell/ProfilePickerView.swift": {
     ".font(.system(size:canvas.u(65": 1
   },
   "Sources/NXLibrary/Views/Spotlight/AchievementDetail.swift": {
-    ".padding(.bottom,canvas.u(48": 1,
     ".padding(.horizontal,canvas.u(56": 1,
     ".padding(.top,canvas.u(10": 1,
-    ".padding(.top,canvas.u(22": 1,
     ".padding(.top,canvas.u(26": 1,
     ".padding(.top,canvas.u(34": 1,
     ".padding(.top,canvas.u(56": 1,
-    ".seleneFont(18": 1,
-    ".seleneFont(19": 1,
     ".seleneFont(32": 1
   },
   "Sources/NXLibrary/Views/Spotlight/AchievementsScreen.swift": {
-    ".padding(.horizontal,canvas.u(18": 1,
-    ".padding(.horizontal,canvas.u(20": 1,
     ".padding(.top,canvas.u(10": 2,
-    ".padding(.top,canvas.u(16": 1,
-    ".padding(.top,canvas.u(20": 1,
-    ".padding(.top,canvas.u(28": 1,
     ".padding(.top,canvas.u(30": 1,
-    ".padding(.top,canvas.u(4": 2,
-    ".padding(.top,canvas.u(70": 1,
-    ".padding(.vertical,canvas.u(8": 1,
-    ".seleneFont(13": 1,
-    ".seleneFont(14": 1,
-    ".seleneFont(16": 2,
-    ".seleneFont(17": 1,
-    ".seleneFont(18": 1,
-    ".seleneFont(19": 1,
-    ".seleneFont(40": 2,
-    ".seleneFont(44": 1
+    ".padding(.top,canvas.u(70": 1
   },
   "Sources/NXLibrary/Views/Spotlight/SpotlightCardInfoView.swift": {
-    ".padding(.horizontal,canvas.u(20": 1,
-    ".padding(.top,canvas.u(22": 2,
-    ".padding(.top,canvas.u(8": 1,
     ".padding(canvas.u(-6": 1,
-    ".padding(canvas.u(24": 1,
-    ".padding(canvas.u(6": 1,
     ".seleneFont(12": 2,
-    ".seleneFont(15": 1,
-    ".seleneFont(19": 2,
-    ".seleneFont(21": 2,
-    ".seleneFont(28": 2,
-    "cornerRadius:canvas.u(10": 1,
-    "cornerRadius:canvas.u(14": 1,
-    "cornerRadius:canvas.u(20": 2,
     "cornerRadius:canvas.u(4": 1
   },
   "Sources/NXLibrary/Views/Spotlight/SpotlightInfoView.swift": {
-    ".padding(.horizontal,canvas.u(14": 1,
-    ".padding(.leading,canvas.u(2": 2,
-    ".padding(.leading,canvas.u(4": 4,
-    ".padding(.top,canvas.u(12": 1,
-    ".padding(.top,canvas.u(20": 2,
-    ".padding(.top,canvas.u(24": 1,
     ".padding(.top,canvas.u(26": 1,
-    ".padding(.trailing,canvas.u(9": 1,
-    ".seleneFont(14": 1,
-    ".seleneFont(15": 5,
-    ".seleneFont(16": 1,
-    ".seleneFont(17": 1,
-    ".seleneFont(19": 2,
-    "cornerRadius:canvas.u(19": 2
+    ".padding(.trailing,canvas.u(9": 1
   },
   "Sources/NXLibrary/Views/Spotlight/SpotlightPageSections.swift": {
-    ".padding(.bottom,canvas.u(8": 2,
-    ".padding(.horizontal,canvas.u(12": 1,
-    ".padding(.horizontal,canvas.u(14": 1,
-    ".padding(.leading,canvas.u(2": 1,
-    ".padding(.top,canvas.u(12": 1,
-    ".padding(.trailing,canvas.u(8": 1,
-    ".padding(.vertical,canvas.u(4": 1,
-    ".padding(.vertical,canvas.u(5": 1,
-    ".seleneFont(14": 1,
-    ".seleneFont(15": 2,
-    ".seleneFont(17": 1,
-    "cornerRadius:canvas.u(14": 1
+    ".padding(.vertical,canvas.u(5": 1
   },
   "Sources/NXLibrary/Views/Spotlight/SpotlightScreenshotStrip.swift": {
     ".padding(canvas.u(-14": 1,
-    ".padding(canvas.u(-4": 1,
-    ".padding(canvas.u(14": 1,
-    ".seleneFont(18": 1
+    ".padding(canvas.u(-4": 1
   },
   "Sources/NXLibrary/Views/Spotlight/SpotlightTopBar.swift": {
     ".padding(.bottom,canvas.u(117": 1,
-    ".padding(.horizontal,canvas.u(15": 1,
-    ".seleneFont(30": 1
+    ".padding(.horizontal,canvas.u(15": 1
   },
   "Sources/NXLibrary/Views/Spotlight/SpotlightView+PageContent.swift": {
     ".padding(.top,canvas.u(30": 1,
     ".padding(.top,canvas.u(44": 1
   },
   "Sources/NXLibrary/Views/Spotlight/SpotlightView+Stage.swift": {
-    ".padding(.top,canvas.u(10": 2,
-    ".padding(.top,canvas.u(20": 2,
-    ".padding(.top,canvas.u(24": 1
+    ".padding(.top,canvas.u(10": 2
   },
   "Sources/NXLibrary/Views/Store/ModStorePage.swift": {
-    ".padding(.bottom,canvas.u(22": 1,
-    ".padding(.bottom,canvas.u(4": 1,
     ".padding(.horizontal,canvas.u(10": 1,
-    ".padding(.horizontal,canvas.u(22": 1,
     ".padding(.horizontal,canvas.u(56": 1,
     ".padding(.leading,canvas.u(56": 1,
     ".padding(.top,canvas.u(10": 2,
-    ".padding(.top,canvas.u(4": 1,
-    ".padding(.top,canvas.u(8": 1,
-    ".padding(.vertical,canvas.u(4": 1,
     ".padding(canvas.u(-14": 1,
     ".padding(canvas.u(-4": 1,
-    ".padding(canvas.u(14": 1,
-    ".padding(canvas.u(16": 1,
-    ".seleneFont(13": 1,
-    ".seleneFont(14": 2,
-    ".seleneFont(15": 1,
-    ".seleneFont(16": 3,
-    ".seleneFont(18": 3,
-    ".seleneFont(19": 2,
     ".seleneFont(46": 1,
-    "cornerRadius:canvas.u(14": 1,
     "cornerRadius:canvas.u(17": 1,
     "cornerRadius:canvas.u(18": 1,
     "cornerRadius:canvas.u(24": 1
   },
   "Sources/NXLibrary/Views/Theme/OnlineBrowsePanel.swift": {
     ".padding(.bottom,canvas.u(10": 2,
-    ".padding(.bottom,canvas.u(14": 2,
     ".padding(.horizontal,canvas.u(11": 1,
-    ".padding(.horizontal,canvas.u(16": 2,
     ".padding(.horizontal,canvas.u(7": 1,
     ".padding(.leading,canvas.u(10": 2,
     ".padding(.top,canvas.u(13": 1,
     ".padding(.vertical,canvas.u(10": 2,
     ".padding(.vertical,canvas.u(3": 1,
-    ".padding(.vertical,canvas.u(8": 1,
     ".padding(canvas.u(-3": 1,
     ".padding(canvas.u(-4": 1,
     ".padding(canvas.u(5": 1,
     ".padding(canvas.u(7": 2,
     ".seleneFont(12": 1,
-    ".seleneFont(13": 1,
-    ".seleneFont(16": 1,
-    ".seleneFont(18": 1,
-    "cornerRadius:canvas.u(12": 1,
     "cornerRadius:canvas.u(15": 1
   },
   "Sources/NXLibrary/Views/Theme/ThemePickerView+BackgroundStep.swift": {
     ".padding(.bottom,canvas.u(10": 1,
-    ".padding(.bottom,canvas.u(14": 1,
-    ".padding(.bottom,canvas.u(18": 1,
-    ".padding(.bottom,canvas.u(6": 1,
     ".padding(.horizontal,canvas.u(10": 1,
     ".padding(.horizontal,canvas.u(11": 1,
-    ".padding(.horizontal,canvas.u(20": 1,
     ".padding(.leading,canvas.u(10": 1,
-    ".padding(.leading,canvas.u(4": 1,
-    ".padding(.leading,canvas.u(6": 1,
     ".padding(.top,canvas.u(13": 1,
-    ".padding(.top,canvas.u(16": 1,
     ".padding(.top,canvas.u(250": 1,
     ".padding(.top,canvas.u(5": 1,
     ".padding(.vertical,canvas.u(10": 1,
     ".padding(.vertical,canvas.u(9": 1,
-    ".padding(canvas.u(3": 1,
-    ".padding(canvas.u(8": 2,
-    ".seleneFont(13": 2,
-    ".seleneFont(15": 2,
-    ".seleneFont(17": 2,
-    ".seleneFont(18": 1,
-    "cornerRadius:canvas.u(12": 1
+    ".padding(canvas.u(3": 1
   },
   "Sources/NXLibrary/Views/Theme/ThemePickerView+ThemeStep.swift": {
-    ".padding(.bottom,canvas.u(8": 1,
-    ".padding(.horizontal,canvas.u(12": 1,
     ".padding(.horizontal,canvas.u(9": 1,
-    ".padding(.leading,canvas.u(4": 2,
-    ".padding(.top,canvas.u(12": 1,
-    ".padding(.top,canvas.u(18": 1,
     ".padding(.top,canvas.u(290": 1,
-    ".padding(.top,canvas.u(6": 1,
-    ".seleneFont(14": 1,
-    ".seleneFont(22": 1,
-    ".seleneFont(26": 1,
-    "cornerRadius:canvas.u(14": 1,
     "cornerRadius:canvas.u(8": 2
   },
   "Sources/NXLibrary/Views/Theme/ThemePickerView.swift": {
     ".padding(.bottom,canvas.u(124": 1,
     ".padding(.top,canvas.u(110": 1,
-    ".padding(canvas.u(-4": 1,
-    ".seleneFont(21": 1,
-    ".seleneFont(44": 1
-  },
-  "Sources/NXLibrary/Views/Theme/ThemePreview.swift": {
-    ".padding(.leading,canvas.u(2": 1,
-    ".seleneFont(13": 1,
-    "cornerRadius:canvas.u(16": 1
+    ".padding(canvas.u(-4": 1
   }
 }

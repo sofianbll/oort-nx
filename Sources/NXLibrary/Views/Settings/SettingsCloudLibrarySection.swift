@@ -160,7 +160,7 @@ struct SettingsCloudLibrarySection: View {
                          ? CloudLibraryStatus.unknown.color : CloudLibraryStatus.synchronized.color)
                     Button(text("Unfollow"), action: unfollow)
                         .buttonStyle(.plain)
-                        .seleneFont(15, .semibold)
+                        .seleneFont(.compactCaption, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
                         .disabled(!editable)
                         .help(text("Files on this Mac and in Drive stay in place."))
@@ -234,7 +234,7 @@ struct SettingsCloudLibrarySection: View {
             }
 
             if let issue {
-                Text(text(issue.key)).seleneFont(15).foregroundColor(SeleneTheme.danger)
+                Text(text(issue.key)).seleneFont(.compactCaption).foregroundColor(SeleneTheme.danger)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
 

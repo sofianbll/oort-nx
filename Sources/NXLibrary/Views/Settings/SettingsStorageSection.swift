@@ -20,17 +20,17 @@ struct SettingsStorageSection: View {
                         usageRow(L10n.text("Free on game apps volume"), bytes: free, positive: true)
                     } else {
                         Text(L10n.text("Game apps volume unavailable."))
-                            .seleneFont(15).foregroundColor(SeleneTheme.ink60)
+                            .seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink60)
                     }
                     if viewModel.storageSnapshot?.hasUnavailableFiles == true {
                         Text(L10n.text("Some folders are unavailable. Totals include readable files only. Connect their drives or check folder access, then recalculate."))
-                            .seleneFont(15).foregroundColor(SeleneTheme.ink60)
+                            .seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink60)
                     }
                 } else {
                     HStack(spacing: 8) {
                         ProgressView().controlSize(.small)
                         Text(L10n.text("Calculating storage..."))
-                            .seleneFont(15)
+                            .seleneFont(.compactCaption)
                             .foregroundColor(SeleneTheme.ink60)
                     }
                 }
@@ -46,10 +46,10 @@ struct SettingsStorageSection: View {
             if viewModel.isCleaningStorage {
                 HStack(spacing: 8) {
                     ProgressView().controlSize(.small)
-                    Text(L10n.text("Deleting files…")).seleneFont(15).foregroundColor(SeleneTheme.ink60)
+                    Text(L10n.text("Deleting files…")).seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink60)
                 }
             } else if let message = viewModel.storageCleanupMessage {
-                Text(message).seleneFont(15).foregroundColor(SeleneTheme.ink90)
+                Text(message).seleneFont(.compactCaption).foregroundColor(SeleneTheme.ink90)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .accessibilityLabel(message)
             }
@@ -115,11 +115,11 @@ struct SettingsStorageSection: View {
     private func usageRow(_ title: String, bytes: Int64, positive: Bool = false) -> some View {
         HStack {
             Text(L10n.text(title))
-                .seleneFont(15)
+                .seleneFont(.compactCaption)
                 .foregroundColor(SeleneTheme.ink90)
             Spacer()
             Text(seleneBytes(bytes))
-                .seleneFont(15, .semibold, design: .monospaced)
+                .seleneFont(.compactCaption, .semibold, design: .monospaced)
                 .foregroundColor(positive ? SeleneTheme.success : SeleneTheme.ink)
         }
         .padding(.horizontal, 8)

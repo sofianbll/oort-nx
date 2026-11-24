@@ -68,7 +68,7 @@ struct FoundGamesSetupContent: View {
             VStack(spacing: 0) {
                 Text(title).seleneFont(46, .semibold).foregroundColor(SeleneTheme.ink)
                     .multilineTextAlignment(.center)
-                Text(subtitle).seleneFont(19).foregroundColor(SeleneTheme.ink75)
+                Text(subtitle).seleneFont(.panelBody).foregroundColor(SeleneTheme.ink75)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.top, canvas.u(10))
@@ -99,7 +99,7 @@ struct FoundGamesSetupContent: View {
                                  icon: .build, focused: focus == .portingCard,
                                  onHover: { move(.portingCard) }) { activate(.portingCard) }
                 }
-                .padding(.top, canvas.u(32))
+                .padding(.top, canvas.u(SeleneTokens.Space.section))
 
                 SelenePillButton(title: L10n.text("Open library"), minWidth: 220,
                                  focused: focus == .openLibrary) {

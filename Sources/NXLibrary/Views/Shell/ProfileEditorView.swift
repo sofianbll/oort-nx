@@ -320,7 +320,7 @@ struct ProfileEditorView: View {
                                         .padding(canvas.u(SeleneTokens.Space.compact)).background(SeleneTheme.glassSolid)
                                 }
                                 .frame(width: canvas.u(198), height: canvas.u(112))
-                                .clipShape(RoundedRectangle(cornerRadius: canvas.u(12)))
+                                .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content)))
                                 .modifier(TileFocus(focused: index == item, radius: 12, scale: 1.05))
                                 .padding(.vertical, canvas.u(9))
                             }

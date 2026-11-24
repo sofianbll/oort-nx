@@ -26,19 +26,19 @@ struct IGDBCredentialsDialog: View {
                 VStack(alignment: .leading, spacing: canvas.u(14)) {
                     setupSteps
                     VStack(alignment: .leading, spacing: canvas.u(6)) {
-                        Text(L10n.text("Client ID")).seleneFont(14).foregroundColor(SeleneTheme.ink60)
+                        Text(L10n.text("Client ID")).seleneFont(.metadata).foregroundColor(SeleneTheme.ink60)
                         TextField(L10n.text("Client ID"), text: $clientID)
                             .focused($field, equals: .client).onSubmit { field = .secret }
                     }
                     .disabled(checking)
                     VStack(alignment: .leading, spacing: canvas.u(6)) {
-                        Text(L10n.text("Client Secret")).seleneFont(14).foregroundColor(SeleneTheme.ink60)
+                        Text(L10n.text("Client Secret")).seleneFont(.metadata).foregroundColor(SeleneTheme.ink60)
                         SecureField(L10n.text("Client Secret"), text: $secret)
                             .focused($field, equals: .secret).onSubmit(save)
                     }
                     .disabled(checking)
                     if let message {
-                        Text(message).seleneFont(14).foregroundColor(SeleneTheme.danger)
+                        Text(message).seleneFont(.metadata).foregroundColor(SeleneTheme.danger)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     HStack {
@@ -50,14 +50,14 @@ struct IGDBCredentialsDialog: View {
                             NSWorkspace.shared.open(URL(string: "https://api-docs.igdb.com/#account-creation")!)
                         }
                     }
-                    .buttonStyle(.plain).seleneFont(14).foregroundColor(SeleneTheme.focus)
+                    .buttonStyle(.plain).seleneFont(.metadata).foregroundColor(SeleneTheme.focus)
                 }
                 .textFieldStyle(.plain)
                 .font(.system(size: max(13, canvas.u(17)), design: .monospaced))
                 .foregroundColor(SeleneTheme.ink)
-                .padding(canvas.u(16))
-                .background(RoundedRectangle(cornerRadius: canvas.u(12)).fill(SeleneTheme.glassLight))
-                .padding(.top, canvas.u(24))
+                .padding(canvas.u(SeleneTokens.Space.medium))
+                .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content)).fill(SeleneTheme.glassLight))
+                .padding(.top, canvas.u(SeleneTokens.Space.large))
             }
         }
         .onAppear {
@@ -100,10 +100,10 @@ struct IGDBCredentialsDialog: View {
                 .foregroundColor(SeleneTheme.ink60)
                 .padding(.top, canvas.u(3))
         }
-        .seleneFont(14)
+        .seleneFont(.metadata)
         .multilineTextAlignment(.leading)
         .fixedSize(horizontal: false, vertical: true)
-        .padding(.bottom, canvas.u(6))
+        .padding(.bottom, canvas.u(SeleneTokens.Space.tight))
     }
     private var draft: IGDBCredentials? { IGDBCredentials(clientID: clientID, clientSecret: secret) }
     private func close() { task?.cancel(); secret = ""; onClose() }

@@ -72,7 +72,7 @@ struct SettingsGamesSection: View {
                            in: 0.5...1.0, step: 0.05)
                         .frame(width: 170)
                     Text("\(Int((settings.settings.gameDefaults.renderScale * 100).rounded()))%")
-                        .seleneFont(13, .semibold, design: .monospaced)
+                        .seleneFont(.attribution, .semibold, design: .monospaced)
                         .foregroundColor(SeleneTheme.glyph)
                         .frame(width: 36, alignment: .trailing)
                 }
@@ -87,7 +87,7 @@ struct SettingsGamesSection: View {
                       info: "Default haptic feedback multiplier (0: muted, 1: subtle, 2: standard, 3: intense) passed to game builds supporting macOS controller haptics.") {
                 Stepper(value: $settings.settings.gameDefaults.rumbleGain, in: 0...3) {
                     Text("\(settings.settings.gameDefaults.rumbleGain)")
-                        .seleneFont(15, .semibold, design: .monospaced)
+                        .seleneFont(.compactCaption, .semibold, design: .monospaced)
                         .foregroundColor(SeleneTheme.glyph)
                         .frame(width: 20, alignment: .trailing)
                 }

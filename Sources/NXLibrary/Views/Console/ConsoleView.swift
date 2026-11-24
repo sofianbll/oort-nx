@@ -138,31 +138,31 @@ struct ConsoleView: View {
     private func column(_ logs: [LogEntry]) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(L10n.text("CONSOLE"))
-                .seleneFont(15, .semibold)
+                .seleneFont(.compactCaption, .semibold)
                 .tracking(1.2)
                 .foregroundColor(SeleneTheme.ink60)
-                .padding(.leading, canvas.u(8))
+                .padding(.leading, canvas.u(SeleneTokens.Space.compact))
             HStack(alignment: .firstTextBaseline) {
                 Text(L10n.text("Build and launch output"))
-                    .seleneFont(40)
+                    .seleneFont(.screenTitle)
                     .foregroundColor(SeleneTheme.ink)
                     .lineLimit(1)
                 Spacer(minLength: canvas.u(20))
                 Text(countLine(logs))
-                    .seleneFont(15)
+                    .seleneFont(.compactCaption)
                     .monospacedDigit()
                     .foregroundColor(SeleneTheme.ink60)
             }
-            .padding(.horizontal, canvas.u(6))
+            .padding(.horizontal, canvas.u(SeleneTokens.Space.tight))
             controls
-                .padding(.top, canvas.u(14))
-                .padding(.bottom, canvas.u(16))
+                .padding(.top, canvas.u(SeleneTokens.Space.line))
+                .padding(.bottom, canvas.u(SeleneTokens.Space.medium))
             logPanel(logs)
         }
         .frame(width: canvas.u(1240), alignment: .leading)
         .frame(maxHeight: .infinity, alignment: .top)
         .padding(.top, canvas.u(90))
-        .padding(.bottom, canvas.u(28))
+        .padding(.bottom, canvas.u(SeleneTokens.Space.feature))
         // Clicks inside the column are not clicks on the shade.
         .contentShape(Rectangle())
         .onTapGesture {}
@@ -179,7 +179,7 @@ struct ConsoleView: View {
             ForEach(ConsoleFilter.allCases) { item in
                 pill(.filter(item)) {
                     Text(L10n.text(item.title))
-                        .seleneFont(15, filter == item ? .semibold : .regular)
+                        .seleneFont(.compactCaption, filter == item ? .semibold : .regular)
                         .foregroundColor(filter == item ? SeleneTheme.ink : SeleneTheme.ink60)
                 }
                 .background(Capsule().fill(filter == item ? SeleneTheme.glassLight : Color.clear))
@@ -192,13 +192,13 @@ struct ConsoleView: View {
                     if searching {
                         TextField(L10n.text("Search"), text: $searchText)
                             .textFieldStyle(.plain)
-                            .seleneFont(15)
+                            .seleneFont(.compactCaption)
                             .foregroundColor(SeleneTheme.ink)
                             .focused($searchFocused)
                             .onSubmit(endSearch)
                     } else {
                         Text(searchText.isEmpty ? L10n.text("Search") : searchText)
-                            .seleneFont(15)
+                            .seleneFont(.compactCaption)
                             .foregroundColor(searchText.isEmpty ? SeleneTheme.ink60 : SeleneTheme.ink)
                             .lineLimit(1)
                         Spacer(minLength: 0)
@@ -213,38 +213,38 @@ struct ConsoleView: View {
                         .fill(follow ? PortingLogBox.softGreen : SeleneTheme.ink25)
                         .frame(width: canvas.u(7), height: canvas.u(7))
                     Text(L10n.text("Follow"))
-                        .seleneFont(15)
+                        .seleneFont(.compactCaption)
                         .foregroundColor(follow ? SeleneTheme.ink : SeleneTheme.ink60)
                 }
             }
             pill(.copy) {
                 Text(didCopy ? L10n.text("Copied") : L10n.text("Copy log"))
-                    .seleneFont(15)
+                    .seleneFont(.compactCaption)
                     .foregroundColor(SeleneTheme.ink)
             }
             pill(.diagnostics) {
                 Text(didCopyDiagnostics ? L10n.text("Copied") : L10n.text("Copy diagnostics"))
-                    .seleneFont(15)
+                    .seleneFont(.compactCaption)
                     .foregroundColor(SeleneTheme.ink)
             }
             pill(.reveal) {
                 Text(L10n.text("Show in Finder"))
-                    .seleneFont(15)
+                    .seleneFont(.compactCaption)
                     .foregroundColor(SeleneTheme.ink)
             }
             pill(.clear) {
                 Text(L10n.text("Clear"))
-                    .seleneFont(15)
+                    .seleneFont(.compactCaption)
                     .foregroundColor(PortingPillCopy.softRed)
             }
         }
-        .padding(.horizontal, canvas.u(4))
+        .padding(.horizontal, canvas.u(SeleneTokens.Space.hairline))
     }
 
     /// A quiet capsule: no fill of its own, the Selene focus ring when focused.
     private func pill<Label: View>(_ control: ConsoleControl, @ViewBuilder label: () -> Label) -> some View {
         label()
-            .padding(.horizontal, canvas.u(16))
+            .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
             .frame(height: canvas.u(36))
             .contentShape(Capsule())
             .seleneRowFocus(focus == control && !confirmClear, radius: canvas.u(18))
@@ -268,7 +268,7 @@ struct ConsoleView: View {
                         }
                     }
                 }
-                .padding(.vertical, canvas.u(16))
+                .padding(.vertical, canvas.u(SeleneTokens.Space.medium))
             }
             .scrollIndicators(.hidden)
             .mask(
@@ -307,13 +307,13 @@ struct ConsoleView: View {
                 .foregroundColor(SeleneTheme.ink25)
                 .frame(width: canvas.u(64), alignment: .leading)
             Text(entry.message)
-                .seleneFont(13, entry.level == .step ? .medium : .regular, design: .monospaced)
+                .seleneFont(.attribution, entry.level == .step ? .medium : .regular, design: .monospaced)
                 .foregroundColor(color(for: entry.level))
                 .textSelection(.enabled)
                 .fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 0)
         }
-        .padding(.horizontal, canvas.u(24))
+        .padding(.horizontal, canvas.u(SeleneTokens.Space.large))
         .padding(.vertical, canvas.u(3))
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(entry.formattedTimestamp), \(levelName(entry.level)): \(entry.message)")
@@ -324,12 +324,12 @@ struct ConsoleView: View {
             MaterialIconView(.terminal, size: 30)
                 .foregroundColor(SeleneTheme.ink25)
             Text(viewModel.logs.isEmpty ? L10n.text("Nothing yet") : L10n.text("No lines match"))
-                .seleneFont(19, .medium)
+                .seleneFont(.panelBody, .medium)
                 .foregroundColor(SeleneTheme.ink82)
             Text(viewModel.logs.isEmpty
                  ? L10n.text("Portings and launches write here.")
                  : L10n.text("Try another filter or search."))
-                .seleneFont(14)
+                .seleneFont(.metadata)
                 .foregroundColor(SeleneTheme.ink60)
         }
         .frame(maxWidth: .infinity, minHeight: canvas.u(360))

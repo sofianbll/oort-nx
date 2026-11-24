@@ -30,7 +30,7 @@ struct CriticRatingValue: View {
                     .fixedSize()
                     .accessibilityHidden(true)
                     Text(rating.number(locale: localization.formatLocale))
-                        .seleneFont(15, .semibold)
+                        .seleneFont(.compactCaption, .semibold)
                         .foregroundColor(SeleneTheme.ink90)
                         .monospacedDigit()
                         .fixedSize()
@@ -45,7 +45,7 @@ struct CriticRatingValue: View {
                 .accessibilityLabel(provenance(rating))
             } else {
                 Text(result == nil ? L10n.text("Loading…") : L10n.text("Rating unavailable"))
-                    .seleneFont(15)
+                    .seleneFont(.compactCaption)
                     .foregroundColor(SeleneTheme.ink60)
             }
         }

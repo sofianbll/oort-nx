@@ -125,13 +125,13 @@ struct OnlineBrowsePanel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             chips
-                .padding(.bottom, canvas.u(14))
+                .padding(.bottom, canvas.u(SeleneTokens.Space.line))
             if state.category.isSearch {
                 searchField
                     .padding(.bottom, canvas.u(10))
             }
             Text(status)
-                .seleneFont(13, .semibold)
+                .seleneFont(.attribution, .semibold)
                 .foregroundColor(SeleneTheme.ink.opacity(0.55))
                 .padding(.leading, canvas.u(10))
                 .padding(.bottom, canvas.u(10))
@@ -154,10 +154,10 @@ struct OnlineBrowsePanel: View {
                     ForEach(Array(state.categories.enumerated()), id: \.offset) { index, category in
                         let selected = index == state.categoryIndex
                         Text(category.displayTitle)
-                            .seleneFont(16, .semibold)
+                            .seleneFont(.caption, .semibold)
                             .foregroundColor(selected ? SeleneTheme.ink : SeleneTheme.ink60)
-                            .padding(.horizontal, canvas.u(16))
-                            .padding(.vertical, canvas.u(8))
+                            .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
+                            .padding(.vertical, canvas.u(SeleneTokens.Space.compact))
                             .background(Capsule().fill(selected ? SeleneTheme.glassSolid : Color.clear))
                             .overlay(Capsule().strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(2.5))
                                 .padding(canvas.u(-3))
@@ -184,12 +184,12 @@ struct OnlineBrowsePanel: View {
             MaterialIconView(.search, size: 22).foregroundColor(SeleneTheme.ink60)
             TextField("", text: $searchText, prompt: Text(L10n.format("Search %@", [String(describing: state.source.title)])).foregroundColor(SeleneTheme.ink60))
                 .textFieldStyle(.plain)
-                .seleneFont(18)
+                .seleneFont(.menuCaption)
                 .foregroundColor(SeleneTheme.ink)
                 .focused(searchFocused)
                 .onSubmit(onSubmit)
         }
-        .padding(.horizontal, canvas.u(16))
+        .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
         .padding(.vertical, canvas.u(10))
         .background(Capsule().fill(SeleneTheme.glassSolid))
         .frame(width: canvas.u(3 * 226 - 20))
@@ -245,7 +245,7 @@ private struct OnlineTile: View {
     @Environment(\.seleneReduceMotion) private var reduceMotion
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: canvas.u(12), style: .continuous)
+        let shape = RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content), style: .continuous)
         ZStack(alignment: .topLeading) {
             Rectangle().fill(SeleneTheme.baseGradient)
             WallpaperThumb(url: item.thumbnailURL)
@@ -290,7 +290,7 @@ private struct OnlineTile: View {
         .animation(reduceMotion ? nil : SeleneTheme.quick, value: focused)
         .padding(.horizontal, canvas.u(11))
         .padding(.top, canvas.u(13))
-        .padding(.bottom, canvas.u(14))
+        .padding(.bottom, canvas.u(SeleneTokens.Space.line))
         .contentShape(Rectangle())
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(L10n.format("%@, %@ by %@", [String(describing: item.title), String(describing: item.width), String(describing: item.height)]))

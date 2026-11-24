@@ -10,18 +10,18 @@ extension GameOptionsView {
         let focused = focusedRow
         return VStack(alignment: .leading, spacing: 0) {
             Text(L10n.text("GAME OPTIONS"))
-                .seleneFont(15, .semibold)
+                .seleneFont(.compactCaption, .semibold)
                 .foregroundColor(SeleneTheme.ink60)
-                .padding(.leading, canvas.u(8))
+                .padding(.leading, canvas.u(SeleneTokens.Space.compact))
             Text(current.name)
-                .seleneFont(40)
+                .seleneFont(.screenTitle)
                 .foregroundColor(SeleneTheme.ink)
                 .lineLimit(1)
-                .padding(.leading, canvas.u(6))
+                .padding(.leading, canvas.u(SeleneTokens.Space.tight))
             PlatformLabel(current.isSwitch2 ? .switch2 : .switch1, size: .metadata)
                 .foregroundStyle(SeleneTheme.ink75)
                 .padding(.leading, canvas.u(SeleneTokens.Space.tight))
-                .padding(.bottom, canvas.u(14))
+                .padding(.bottom, canvas.u(SeleneTokens.Space.line))
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(spacing: canvas.u(8)) {

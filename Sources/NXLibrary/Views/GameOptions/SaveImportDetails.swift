@@ -14,7 +14,7 @@ struct SaveImportDetails: View {
             ScrollView { content }
         }
         .multilineTextAlignment(.center)
-        .padding(.top, canvas.u(24))
+        .padding(.top, canvas.u(SeleneTokens.Space.large))
     }
 
     private var content: some View {
@@ -24,22 +24,22 @@ struct SaveImportDetails: View {
                 SaveTransferArrow()
                 endpoint("To", folder: destination)
             }
-            .padding(.horizontal, canvas.u(12))
+            .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
             .padding(.vertical, canvas.u(10))
             .frame(maxWidth: .infinity)
-            .background(RoundedRectangle(cornerRadius: canvas.u(14), style: .continuous)
+            .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
                 .fill(SeleneTheme.glassLight))
 
             VStack(spacing: canvas.u(8)) {
                 Text(L10n.text("Your current save is backed up before replacement."))
-                    .seleneFont(17, .medium)
+                    .seleneFont(.body, .medium)
                     .foregroundColor(SeleneTheme.ink)
                 Text(SavePresentation.importWarning)
-                    .seleneFont(15)
+                    .seleneFont(.compactCaption)
                     .foregroundColor(SeleneTheme.ink60)
                     .lineSpacing(canvas.u(3))
             }
-            .padding(.horizontal, canvas.u(12))
+            .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
             .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity)
@@ -49,20 +49,20 @@ struct SaveImportDetails: View {
         let path = (folder.path as NSString).abbreviatingWithTildeInPath
         return VStack(spacing: canvas.u(8)) {
             Text(verbatim: label.uppercased())
-                .seleneFont(13, .semibold)
+                .seleneFont(.attribution, .semibold)
                 .tracking(canvas.u(1.2))
                 .foregroundColor(SeleneTheme.ink60)
             // Give long directory names a natural wrap point after each slash.
             Text(verbatim: path.replacingOccurrences(of: "/", with: "/\u{200B}"))
-                .seleneFont(17)
+                .seleneFont(.body)
                 .lineSpacing(canvas.u(2))
                 .foregroundColor(SeleneTheme.ink)
                 .fixedSize(horizontal: false, vertical: true)
-                .padding(.horizontal, canvas.u(12))
+                .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
                 .padding(.vertical, canvas.u(10))
                 .frame(maxWidth: .infinity)
                 .overlay {
-                    RoundedRectangle(cornerRadius: canvas.u(10), style: .continuous)
+                    RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.row), style: .continuous)
                         .strokeBorder(SeleneTheme.ink15, lineWidth: 1 / displayScale)
                         .allowsHitTesting(false)
                         .accessibilityHidden(true)

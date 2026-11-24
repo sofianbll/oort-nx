@@ -173,7 +173,7 @@ struct WaveDots: View {
                 }
             }
             .frame(height: canvas.u(14), alignment: .bottom)
-            .padding(.top, canvas.u(6))
+            .padding(.top, canvas.u(SeleneTokens.Space.tight))
         }
         .accessibilityHidden(true)
     }

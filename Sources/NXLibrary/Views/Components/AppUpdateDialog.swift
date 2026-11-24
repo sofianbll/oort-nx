@@ -68,7 +68,7 @@ struct AppUpdateDialog: View {
                 if case .checking = updater.state { ProgressView().padding(.top, 16) }
                 if let release = updater.dialogRelease, !release.notes.isEmpty {
                     Text(L10n.format("Release notes · %@", [String(describing: release.version)]))
-                        .seleneFont(14, .semibold)
+                        .seleneFont(.metadata, .semibold)
                         .foregroundColor(SeleneTheme.ink60)
                         .padding(.top, 18)
                     SeleneDialogNotes(detail: release.notes, scrollRequest: updater.notesScroll)

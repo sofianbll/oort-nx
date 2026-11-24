@@ -15,8 +15,8 @@ struct DetailsBandTitle: View {
         Text(L10n.text(text))
             .seleneFont(size, .semibold)
             .foregroundColor(SeleneTheme.ink)
-            .padding(.top, canvas.u(2))
-            .padding(.bottom, canvas.u(14))
+            .padding(.top, canvas.u(SeleneTokens.Space.seam))
+            .padding(.bottom, canvas.u(SeleneTokens.Space.line))
     }
 }
 
@@ -82,7 +82,7 @@ struct DetailsMoreBand: View {
 
     private func tile(_ game: CatalogGame, index: Int, focused: Bool) -> some View {
         let w = canvas.u(Self.width), h = canvas.u(Self.height)
-        let face = RoundedRectangle(cornerRadius: canvas.u(14), style: .continuous)
+        let face = RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
         return ZStack {
             cover(game, width: w, height: h)
                 .clipShape(face)
@@ -174,13 +174,13 @@ struct DetailsModsBand: View {
                 DetailsBandTitle(text: title)
                 if let line = gameBanana.statusLine(context: localization) {
                     Text(line)
-                        .seleneFont(16, .medium)
+                        .seleneFont(.caption, .medium)
                         .foregroundColor(SeleneTheme.ink60)
                 }
                 Spacer(minLength: 0)
                 if gameBanana.phase != .idle {
                     Text(L10n.text("Mod data provided by GameBanana"))
-                        .seleneFont(14)
+                        .seleneFont(.metadata)
                         .foregroundColor(SeleneTheme.ink60)
                 }
             }
@@ -202,7 +202,7 @@ struct DetailsModsBand: View {
             .animation(reduceMotion ? nil : Self.arrival, value: tiles.map(\.id))
             .frame(width: canvas.u(CGFloat(columns) * pitchX - style.gap),
                    height: canvas.u(CGFloat(max(rows, 1)) * pitchY - style.gap), alignment: .topLeading)
-            .padding(.top, canvas.u(14))
+            .padding(.top, canvas.u(SeleneTokens.Space.line))
             .animation(reduceMotion ? nil : SpotlightScreenshotStrip.motion, value: focusedIndex)
         }
     }
@@ -243,11 +243,11 @@ struct DetailsModsBand: View {
                 .foregroundColor(mod.isOn ? SeleneTheme.focus : SeleneTheme.ink60)
             Spacer(minLength: 0)
             Text(mod.folderName)
-                .seleneFont(19, .semibold)
+                .seleneFont(.panelBody, .semibold)
                 .foregroundColor(SeleneTheme.ink)
                 .lineLimit(2)
             Text(Self.state(mod))
-                .seleneFont(15, .medium)
+                .seleneFont(.compactCaption, .medium)
                 .foregroundColor(mod.isOn ? SeleneTheme.ink82 : SeleneTheme.ink60)
         }
     }
@@ -258,10 +258,10 @@ struct DetailsModsBand: View {
                 .foregroundColor(SeleneTheme.ink75)
             Spacer(minLength: 0)
             Text(mods.isEmpty ? L10n.text("Add mods") : L10n.text("Manage mods"))
-                .seleneFont(19, .semibold)
+                .seleneFont(.panelBody, .semibold)
                 .foregroundColor(SeleneTheme.ink)
             Text(mods.isEmpty ? L10n.text("File mods, no rebuild") : mods.count > ModsBandLayout.maxInstalled ? L10n.format("All %@ mods", [String(describing: mods.count)]) : L10n.text("Order, folder, Remove"))
-                .seleneFont(15, .medium)
+                .seleneFont(.compactCaption, .medium)
                 .foregroundColor(SeleneTheme.ink60)
         }
     }
@@ -285,23 +285,23 @@ struct DetailsModsBand: View {
             VStack(alignment: .leading, spacing: canvas.u(2)) {
                 if let chip = chip(for: mod) {
                     Text(chip)
-                        .seleneFont(13, .semibold)
+                        .seleneFont(.attribution, .semibold)
                         .foregroundColor(SeleneTheme.ink)
                         .padding(.horizontal, canvas.u(10))
-                        .padding(.vertical, canvas.u(4))
+                        .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
                         .background(Capsule().fill(SeleneTheme.glassSolid))
-                        .padding(.bottom, canvas.u(4))
+                        .padding(.bottom, canvas.u(SeleneTokens.Space.hairline))
                 }
                 Text(mod.name)
-                    .seleneFont(18, .semibold)
+                    .seleneFont(.menuCaption, .semibold)
                     .foregroundColor(SeleneTheme.ink)
                     .lineLimit(1)
                 Text(L10n.format("by %@", [String(describing: mod.author)]))
-                    .seleneFont(14, .medium)
+                    .seleneFont(.metadata, .medium)
                     .foregroundColor(SeleneTheme.ink75)
                     .lineLimit(1)
             }
-            .padding(canvas.u(16))
+            .padding(canvas.u(SeleneTokens.Space.medium))
         }
     }
 
@@ -334,11 +334,11 @@ struct DetailsModsBand: View {
                 .foregroundColor(SeleneTheme.ink75)
             Spacer(minLength: 0)
             Text(text.title)
-                .seleneFont(19, .semibold)
+                .seleneFont(.panelBody, .semibold)
                 .foregroundColor(SeleneTheme.ink)
                 .lineLimit(2)
             Text(text.about)
-                .seleneFont(15, .medium)
+                .seleneFont(.compactCaption, .medium)
                 .foregroundColor(SeleneTheme.ink60)
                 .lineLimit(1)
         }

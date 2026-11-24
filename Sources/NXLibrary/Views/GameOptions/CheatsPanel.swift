@@ -133,32 +133,32 @@ struct CheatsPanel: View {
             VStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(L10n.text("CHEATS"))
-                        .seleneFont(15, .semibold)
+                        .seleneFont(.compactCaption, .semibold)
                         .foregroundColor(SeleneTheme.ink60)
-                        .padding(.leading, canvas.u(8))
+                        .padding(.leading, canvas.u(SeleneTokens.Space.compact))
                     Text(game.name)
-                        .seleneFont(40)
+                        .seleneFont(.screenTitle)
                         .foregroundColor(SeleneTheme.ink)
                         .lineLimit(1)
-                        .padding(.leading, canvas.u(6))
+                        .padding(.leading, canvas.u(SeleneTokens.Space.tight))
                     Text(CheatCopy.header(version: context?.version ?? game.versionString, buildID: context?.buildID))
-                        .seleneFont(15)
+                        .seleneFont(.compactCaption)
                         .foregroundColor(SeleneTheme.ink60)
-                        .padding(.leading, canvas.u(8))
+                        .padding(.leading, canvas.u(SeleneTokens.Space.compact))
                     Text(CheatCopy.about)
-                        .seleneFont(15)
+                        .seleneFont(.compactCaption)
                         .foregroundColor(SeleneTheme.ink60)
                         .fixedSize(horizontal: false, vertical: true)
-                        .padding(.leading, canvas.u(8))
-                        .padding(.top, canvas.u(4))
-                        .padding(.bottom, canvas.u(14))
+                        .padding(.leading, canvas.u(SeleneTokens.Space.compact))
+                        .padding(.top, canvas.u(SeleneTokens.Space.hairline))
+                        .padding(.bottom, canvas.u(SeleneTokens.Space.line))
                     noticeArea
                     list(lines, rows: rows)
                 }
                 .frame(width: canvas.u(1040), alignment: .leading)
                 .frame(maxHeight: .infinity, alignment: .top)
                 .padding(.top, canvas.u(90))
-                .padding(.bottom, canvas.u(20))
+                .padding(.bottom, canvas.u(SeleneTokens.Space.panel))
                 .contentShape(Rectangle())
 
                 SeleneHintsBar(left: [HintItem(.b, L10n.text("Back"), action: close)], right: [HintItem(.a, L10n.text("Select"))],
@@ -167,9 +167,9 @@ struct CheatsPanel: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .seleneOverlayOwnership(confirm == nil)
             .overlay(
-                RoundedRectangle(cornerRadius: canvas.u(16), style: .continuous)
+                RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card), style: .continuous)
                     .stroke(SeleneTheme.focus, lineWidth: canvas.u(3))
-                    .padding(canvas.u(24))
+                    .padding(canvas.u(SeleneTokens.Space.large))
                     .opacity(dropTargeted ? 1 : 0)
                     .allowsHitTesting(false)
             )
@@ -209,18 +209,18 @@ struct CheatsPanel: View {
                     } icon: {
                         MaterialIconView(.info, size: 20)
                     }
-                    .seleneFont(16)
+                    .seleneFont(.caption)
                     .foregroundColor(SeleneTheme.ink75)
                 }
                 if let message {
                     Text(message)
-                        .seleneFont(16, .medium)
+                        .seleneFont(.caption, .medium)
                         .foregroundColor(SeleneTheme.danger)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
             .padding(.horizontal, canvas.u(10))
-            .padding(.bottom, canvas.u(14))
+            .padding(.bottom, canvas.u(SeleneTokens.Space.line))
         }
     }
 
@@ -232,8 +232,8 @@ struct CheatsPanel: View {
                         lineView(line, rows: rows)
                     }
                 }
-                .padding(.top, canvas.u(6))
-                .padding(.bottom, canvas.u(24))
+                .padding(.top, canvas.u(SeleneTokens.Space.tight))
+                .padding(.bottom, canvas.u(SeleneTokens.Space.large))
             }
             .scrollIndicators(.hidden)
             .onChange(of: focus) { _, index in
@@ -248,10 +248,10 @@ struct CheatsPanel: View {
         switch line {
         case .heading(let title):
             Text(title.uppercased())
-                .seleneFont(14, .semibold)
+                .seleneFont(.metadata, .semibold)
                 .foregroundColor(SeleneTheme.ink60)
                 .padding(.leading, canvas.u(10))
-                .padding(.top, canvas.u(14))
+                .padding(.top, canvas.u(SeleneTokens.Space.line))
         case .text(let title, let about, let chip, let dim):
             SeleneOptionRow(icon: nil, title: title, about: about, focused: false, enabled: !dim) {
                 if let chip { SeleneValueChip(text: chip) }

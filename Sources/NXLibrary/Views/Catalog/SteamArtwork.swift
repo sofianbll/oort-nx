@@ -45,7 +45,7 @@ struct SteamArtwork: View {
                 Image(nsImage: image).resizable().aspectRatio(contentMode: slot == .logo ? .fit : .fill)
             } else if slot == .cover || slot == .icon {
                 if let appIcon = displayedAppIcon {
-                    Image(nsImage: appIcon).resizable().scaledToFit().padding(canvas.u(16))
+                    Image(nsImage: appIcon).resizable().scaledToFit().padding(canvas.u(SeleneTokens.Space.medium))
                 } else if installedApp == nil, slot == .icon {
                     // No app yet (Steam still installing it): the store art is on its way; a generic controller
                     // under the download mark only looked broken.

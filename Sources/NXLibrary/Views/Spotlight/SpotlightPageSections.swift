@@ -55,16 +55,16 @@ struct SpotlightGenreChips: View {
         HStack(spacing: 0) {
             ForEach(Array(genres.prefix(6)), id: \.self) { genre in
                 Text(genre)
-                    .seleneFont(15)
+                    .seleneFont(.compactCaption)
                     .foregroundColor(SeleneTheme.ink90)
-                    .padding(.horizontal, canvas.u(12))
-                    .padding(.vertical, canvas.u(4))
-                    .background(RoundedRectangle(cornerRadius: canvas.u(14), style: .continuous)
+                    .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
+                    .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
+                    .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
                         .fill(SeleneTheme.ink15))
-                    .padding(.trailing, canvas.u(8))
+                    .padding(.trailing, canvas.u(SeleneTokens.Space.compact))
             }
         }
-        .padding(.leading, canvas.u(2))
+        .padding(.leading, canvas.u(SeleneTokens.Space.seam))
         .shadow(color: .black.opacity(0.45), radius: canvas.u(4))
     }
 }
@@ -89,13 +89,13 @@ struct SpotlightDescription: View {
         VStack(alignment: .leading, spacing: 0) {
             DetailsBandTitle(text: L10n.text("About this game"))
             if let wikipediaPage {
-                WikipediaCredit(pageURL: wikipediaPage).padding(.bottom, canvas.u(8))
+                WikipediaCredit(pageURL: wikipediaPage).padding(.bottom, canvas.u(SeleneTokens.Space.compact))
             } else if let languageNote {
-                Text(languageNote).seleneFont(14).foregroundColor(SeleneTheme.ink60)
-                    .padding(.bottom, canvas.u(8))
+                Text(languageNote).seleneFont(.metadata).foregroundColor(SeleneTheme.ink60)
+                    .padding(.bottom, canvas.u(SeleneTokens.Space.compact))
             }
             Text(text.isEmpty ? L10n.text("No description for this game yet.") : (expanded ? text : excerpt.text))
-                .seleneFont(17)
+                .seleneFont(.body)
                 .lineSpacing(canvas.u(3))
                 .foregroundColor(text.isEmpty ? SeleneTheme.ink60 : SeleneTheme.ink90)
                 .fixedSize(horizontal: false, vertical: true)
@@ -103,13 +103,13 @@ struct SpotlightDescription: View {
             if excerpt.truncated {
                 Button(expanded ? L10n.text("Show less") : L10n.text("Read more"), action: onToggle)
                     .buttonStyle(.plain)
-                    .seleneFont(15, .semibold)
+                    .seleneFont(.compactCaption, .semibold)
                     .foregroundColor(SeleneTheme.ink)
-                    .padding(.horizontal, canvas.u(14))
+                    .padding(.horizontal, canvas.u(SeleneTokens.Space.line))
                     .padding(.vertical, canvas.u(5))
                     .background(Capsule().fill(SeleneTheme.ink15))
                     .seleneRowFocus(focused, radius: canvas.u(15))
-                    .padding(.top, canvas.u(12))
+                    .padding(.top, canvas.u(SeleneTokens.Space.small))
             }
         }
         .frame(width: canvas.u(Self.width), alignment: .leading)

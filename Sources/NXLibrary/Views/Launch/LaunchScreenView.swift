@@ -114,7 +114,7 @@ struct LaunchScreenView: View {
 
     private var title: some View {
         Text(game.name)
-            .seleneFont(34, .semibold)
+            .seleneFont(.dialogTitle, .semibold)
             .foregroundColor(.white)
             .multilineTextAlignment(.center)
             .padding(.horizontal, canvas.u(120))
