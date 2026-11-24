@@ -202,9 +202,11 @@ private struct Scan {
                   !components.contains(where: { $0 == ".." || $0 == "." || $0.isEmpty }) else {
                 issue(.unsafePath, at: file, appID: id); return
             }
-            let common = library.appendingPathComponent("steamapps/common").resolvingSymlinksInPath().standardizedFileURL
+            let common = library.appendingPathComponent("steamapps/common").standardizedFileURL
             let install = common.appendingPathComponent(directory).resolvingSymlinksInPath().standardizedFileURL
-            guard NativeMacApplication.isWithin(common, root: library), NativeMacApplication.isWithin(install, root: common), install.path != common.path else {
+            // Catalog paths are validated without reading the disk. A redirected common root cannot be published.
+            guard common.resolvingSymlinksInPath().path == common.path,
+                  NativeMacApplication.isWithin(install, root: common), install.path != common.path else {
                 issue(.unsafePath, at: file, appID: id); return
             }
             let size = try fields.uniqueString(for: "SizeOnDisk").flatMap(Self.nonnegativeSize)

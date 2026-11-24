@@ -48,6 +48,26 @@ final class SteamLibrarySourceTests: XCTestCase {
         XCTAssertFalse(partial.libraries[0].isComplete)
     }
 
+    func testLinkedCommonReportsPartialScanAndLetsOtherLibrariesPublish() throws {
+        let f = try SteamTestFixture.temporary(in: self)
+        let root = try f.library(), linked = try f.library("Linked library")
+        try f.manifest(in: root)
+        try f.manifest(in: linked, id: "20")
+        try f.app(at: "Steam/steamapps/common/First/Game.app")
+        try f.app(at: "Linked library/relocated/First/Game.app")
+        let common = linked.appendingPathComponent("steamapps/common")
+        try FileManager.default.removeItem(at: common)
+        try FileManager.default.createSymbolicLink(at: common, withDestinationURL: linked.appendingPathComponent("relocated"))
+        let index = "libraryfolders { 1 \(SteamTestFixture.quote(linked.path)) }"
+        try Data(index.utf8).write(to: root.appendingPathComponent("steamapps/libraryfolders.vdf"))
+        let document = CatalogDocument(sources: [.init(integration: .steam, isEnabled: true, rootURL: root)])
+        let snapshot = try SteamLibrarySource(root: root).scan()
+        let published = try SteamCatalogReconciler.applying(snapshot, ticket: document.steamScanTicket(), to: document)
+        XCTAssertEqual(published.games.compactMap { $0.steamGame?.appID }, [10])
+        XCTAssertTrue(snapshot.issues.contains { $0.reason == .unsafePath && $0.appID == 20 })
+        XCTAssertFalse(try XCTUnwrap(snapshot.libraries.first { $0.root.path == linked.path }).isComplete)
+    }
+
     func testUnavailableExternalLibraryIsNotASuccessfulEmptyScan() throws {
         let f = try SteamTestFixture.temporary(in: self)
         let root = try f.library(), absent = f.root.appendingPathComponent("disconnected")

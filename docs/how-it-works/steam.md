@@ -79,7 +79,8 @@ successivo. Sette prove sui lettori reali fissano questi esiti.
    annullabile; disattivare, cambiare cartella o chiederne un’altra invalida il risultato precedente.
 2. `SteamLibrarySource` produce uno `SteamLibrarySnapshot`: librerie lette, un’osservazione per manifest, problemi
    trovati. Lo snapshot è completo solo senza problemi; uno parziale non autorizza mai a dimenticare giochi o librerie
-   non visti.
+   non visti. Se `steamapps/common` punta altrove, i manifest interessati segnalano un percorso non supportato:
+   il catalogo accetta comunque le osservazioni valide delle altre librerie.
 3. `SteamCatalogReconciler` fonde lo snapshot nel catalogo: conserva UUID, preferiti, nascosti, scelte personali e le
    installazioni già note. Un gioco non visto diventa «non rilevato» solo con uno snapshot completo.
 4. `CatalogRepository` è l’unico che scrive il catalogo (`CatalogDocument`, revisioni, lock); `CatalogLibraryProjection`
