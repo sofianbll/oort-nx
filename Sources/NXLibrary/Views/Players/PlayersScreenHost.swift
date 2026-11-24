@@ -36,6 +36,9 @@ struct PlayersScreenHost: View {
                 }
             }
             .onReceive(controller.$connectedControllers) { model.updatePads($0) }
+            .onChange(of: covered) { _, isCovered in
+                if isCovered && model.capturePlayer != nil { model.endCapture() }
+            }
             .onReceive(NotificationCenter.default.publisher(for: input)) { event in
                 guard !covered, canHandleInput(), let action = event.object as? GamepadAction else { return }
                 screen.handleController(action)

@@ -60,7 +60,7 @@ struct PlayersScreen: View {
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
-                        if model.page == .overview && model.hasIdenticalPads {
+                        if model.page == .overview && model.hasIdenticalPads && model.leaseCapture != nil {
                             copy("These controllers look identical. Choose a player and press a button on the controller to assign it.")
                         }
                         ForEach(model.rows, id: \.self) { id in row(id) }
@@ -216,7 +216,9 @@ struct PlayersScreen: View {
         if let pad = model.connectedPad(number) { return padLabel(pad) }
         switch model.resolution.slots[number] {
         case .inactive: return t("On hold while controllers are combined")
-        case .needsConfirmation: return t("Press a button to confirm the controller")
+        case .needsConfirmation: return t(model.leaseCapture == nil
+                                         ? "Controller assignment is unavailable right now."
+                                         : "Press a button to confirm the controller")
         case .disconnected: return t("Controller disconnected")
         default: return t("No controller assigned")
         }
