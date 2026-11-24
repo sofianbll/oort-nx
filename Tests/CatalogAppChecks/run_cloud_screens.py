@@ -1219,13 +1219,22 @@ MULTIPLAYER_BEFORE = r'''
 
 def multiplayer_fixture(app, host, before):
     settings_view = app / "Views/Settings/SettingsView.swift"
-    change(settings_view, r'        ScrollViewReader \{ proxy in\n            ScrollView \{\n', '')
-    change(settings_view, r'            }\n            \.scrollIndicators\(\.hidden\).*?(?=\n    }\n\n    private var reduceMotion)', '')
+    if "OortSettingsShell(" in settings_view.read_text():
+        change(settings_view, r'        return ScrollViewReader \{ proxy in\n            ScrollView \{(.*?)\n'
+               r'            }\n            \.scrollIndicators\(\.hidden\).*?\n        }\n    }',
+               lambda m: "        return Group {" + m[1] + "\n        }\n    }")
+        sidebar = app / "Views/OortUI/OortSettingsShell.swift"
+        change(sidebar, r'            ScrollViewReader \{ proxy in\n                ScrollView \{(.*?)\n'
+               r'                }\n                \.scrollIndicators\(\.hidden\).*?\n            }',
+               lambda m: "            Group {" + m[1] + "\n            }")
+    else:
+        change(settings_view, r'        ScrollViewReader \{ proxy in\n            ScrollView \{\n', '')
+        change(settings_view, r'            }\n            \.scrollIndicators\(\.hidden\).*?(?=\n    }\n\n    private var reduceMotion)', '')
+        sidebar = app / "Views/Settings/SettingsSidebar.swift"
+        change(sidebar, r'            ScrollViewReader \{ proxy in.*?(?=\n        }\n    })', '            groups')
+        change(sidebar, r'ForEach\(SettingsSidebarGroup.all\)', 'ForEach(Array(SettingsSidebarGroup.all.prefix(2)))')
     change(settings_view, r'    private var supportsNextendo: Bool \{ [^\n]* \}', '    private var supportsNextendo: Bool { true }')
     change(settings_view, r'        \.background\(SeleneBackdrop\(\)\.environment[^\n]*\n', '')
-    sidebar = app / "Views/Settings/SettingsSidebar.swift"
-    change(sidebar, r'            ScrollViewReader \{ proxy in.*?(?=\n        }\n    })', '            groups')
-    change(sidebar, r'ForEach\(SettingsSidebarGroup.all\)', 'ForEach(Array(SettingsSidebarGroup.all.prefix(2)))')
     nextendo = app / "ViewModels/NextendoSettings.swift"
     change(nextendo, r'    func check\(clientID: String\?\) \{.*?\n    }', '    func check(clientID: String?) {}')
     if not before:

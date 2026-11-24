@@ -691,7 +691,7 @@ import ArcanePorting
         let title = "010000000000F012"
         let envFolder = root.appendingPathComponent("Library/Application Support/nxnative/\(title)")
         let env = envFolder.appendingPathComponent("env.txt")
-        let source = Data("DM_RENDER_SCALE=0.75\nNAVIGATION_FIXTURE_ONLY=read-only\n".utf8)
+        let source = Data("DM_DYNAMIC_RESOLUTION=1\nNAVIGATION_FIXTURE_ONLY=read-only\n".utf8)
         try FileManager.default.createDirectory(at: dm, withIntermediateDirectories: true)
         try FileManager.default.createDirectory(at: envFolder, withIntermediateDirectories: true)
         try source.write(to: env)
@@ -700,14 +700,14 @@ import ArcanePorting
             .write(to: app.appendingPathComponent("Contents/Info.plist"))
         let metadata = """
         {"game":"Navigation Fixture","settings":[
-          {"env":"DM_RENDER_SCALE","kind":"range","section":"Picture","label":"3D render scale","default":"1","min":0.5,"max":1,"step":0.05},
+          {"env":"DM_DYNAMIC_RESOLUTION","kind":"toggle","section":"Picture","label":"Dynamic resolution","default":"0","on":"1","off":"0"},
           {"env":"DM_SOUND_FIXTURE","kind":"toggle","section":"Sound","label":"Fixture effect","default":"0","on":"1","off":"0"}
         ]}
         """
         try Data(metadata.utf8).write(to: dm.appendingPathComponent("launcher.json"))
         let game = PortedGame(name: "Navigation Fixture", url: app, platform: .macApp, sizeBytes: 0,
                               modificationDate: .now, bundleId: "test.oort.navigation", titleId: title)
-        precondition(vm.runtimeSettings.settingsSnapshot(for: game)?.fixed.contains("DM_RENDER_SCALE") == true)
+        precondition(vm.runtimeSettings.settingsSnapshot(for: game)?.fixed.contains("DM_DYNAMIC_RESOLUTION") == true)
         let wallpaper = ThemeStore.shared.wallpaper(for: settings.settings.wallpaperID)?.url
         precondition(wallpaper != nil)
         let style = SeleneBackdropStyle(palette: ThemeStore.shared.palette, wallpaperURL: wallpaper,

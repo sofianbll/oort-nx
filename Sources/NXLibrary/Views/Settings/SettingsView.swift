@@ -542,7 +542,7 @@ struct SettingsView: View {
                 updateActions()
             }
         )
-        .environment(\.passiveSettingsArrival, openedFromIntegrations)
+        .environment(\.passiveSettingsArrival, openedFromIntegrations && section == initialSection)
         .environment(\.settingsRowChanges, pendingRows(in: section))
     }
 
@@ -571,11 +571,10 @@ struct SettingsView: View {
 
     private func subjectValue(_ subject: SettingsSection) -> String? {
         switch subject {
-        case .look: SettingsDraftFields.onOff(editor.settings.reduceMotion)
         case .profileNextendo: nextendo.accountName ?? L10n.text("No account linked")
         case .engine: seleneShort(setup.currentEngineCommit)
         case .keys: L10n.text(setup.isProdKeysValid ? "Keys imported" : "No prod.keys imported")
-        case .games: SettingsDraftFields.onOff(editor.settings.gameDefaults.fullscreen)
+        case .games: "\(L10n.text("Fullscreen")) · \(SettingsDraftFields.onOff(editor.settings.gameDefaults.fullscreen))"
         case .portingStorage: viewModel.storageUsage.map { seleneBytes($0.cacheBytes) }
         default: nil
         }
@@ -621,7 +620,7 @@ struct SettingsView: View {
 
     private func updateActions() {
         // One focus slot per visible row; reset the button when an action appears or disappears.
-        let focusedID = focusedRow?.id
+        let focusedID = focusArea == .rows ? focusedRow?.id : nil
         let focusedButtonCount = focusedRow?.buttonCount
         rowActions = SettingsRowAction.primaryActions(page.inlineSections.flatMap { pageActions[$0] ?? [] } + subjectActions)
         if let focusedID, let index = rowActions.firstIndex(where: { $0.id == focusedID }) {
@@ -683,7 +682,7 @@ struct SettingsView: View {
 
     private func focusSearch() {
         guard page != .search, page != .changed else { return }
-        changePage(to: .init(.search))
+        changePage(to: .init(navigation.root == .changed ? .changed : .search))
     }
 
     /// A or Right on the sidebar. Search opens its field; every other section enters its rows.
@@ -710,6 +709,7 @@ struct SettingsView: View {
     }
 
     private var canResetSection: Bool {
+        if focusArea == .rows, let row = focusedRow, subjectActions.contains(where: { $0.id == row.id }) { return false }
         guard let section else { return false }
         if section == .profileSecurity { return profiles?.active?.isLocked == true && profiles?.guest == nil }
         if section == .profileNextendo { return hasProfileAccount }

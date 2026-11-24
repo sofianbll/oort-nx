@@ -94,6 +94,8 @@ struct OortSettingsSidebar<ID: Hashable, Header: View>: View {
                 .onChange(of: selected) { _, id in proxy.scrollTo(id) }
             }
         }
+        .padding(canvas.u(SeleneTokens.Space.compact))
+        .background(SeleneTheme.glass, in: RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card)))
     }
 
     private func row(_ item: Item) -> some View {

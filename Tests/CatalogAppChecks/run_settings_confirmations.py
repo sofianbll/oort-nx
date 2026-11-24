@@ -155,6 +155,11 @@ extension CloudSetupAssistant {
             '    func prepareBuildEnvironmentIfNeeded() {}')
     replace(app / "Views/GameOptions/SteamOptionsView.swift",
             r'        \.task\(id: game.id\) \{.*?\n        \}', '')
+    fixture_support = 'AppData.profile.home.appendingPathComponent("Library/Application Support/nxnative")'
+    replace(app / "ViewModels/RuntimeSettingsModel.swift", r'NXNativeGameSettings.forGame\(game\)',
+            f'NXNativeGameSettings.forGame(game, store: MemorySavedChoices(), supportDirectory: {fixture_support})')
+    replace(app / "Views/GameOptions/GameOptionsView+Actions.swift", r'NXNativeGameSettings.playerEnvironment\(for: current\)',
+            f'NXNativeGameSettings.playerEnvironment(for: current, supportDirectory: {fixture_support})')
 
     shell = (app / "Views/Shell/AppShellView+Overlays.swift").read_text()
     methods = [re.search(rf'    func {name}\(.*?\n    \}}', shell, re.S)[0] for name in
