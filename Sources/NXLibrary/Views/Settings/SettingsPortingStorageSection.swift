@@ -10,11 +10,11 @@ struct SettingsPortingStorageSection: View {
     var body: some View {
         OortSettingsGroup {
             Text(L10n.text("Largest build caches first. Sizes describe file contents; the space recovered can differ. Shared folders count once in totals."))
-                .seleneFont(.text).foregroundColor(SeleneTheme.ink60)
+                .seleneFont(.text).foregroundColor(SeleneTheme.ink)
                 .frame(maxWidth: .infinity, alignment: .leading)
             if let snapshot = viewModel.storageSnapshot {
                 if snapshot.games.isEmpty {
-                    Text(L10n.text("Add a game to see its storage here.")).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
+                    Text(L10n.text("Add a game to see its storage here.")).seleneFont(.text).foregroundColor(SeleneTheme.ink)
                 }
                 ForEach(snapshot.games) { game in
                     SeleneButtonRow(game.name, id: game.rowID,

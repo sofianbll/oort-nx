@@ -101,7 +101,7 @@ struct SettingsLibrarySection: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
-                .foregroundColor(SeleneTheme.ink60)
+                .foregroundColor(SeleneTheme.ink)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 24)
                 .padding(.vertical, 8)

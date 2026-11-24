@@ -484,7 +484,7 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.large)) {
                     ForEach(visiblePage.inlineSections) { section in
                         if case .category(let category) = visiblePage, category == .integrations {
-                            OortReadout(text: category.title(for: section, in: localization), preset: .quiet)
+                            OortReadout(text: category.title(for: section, in: localization))
                                 .accessibilityAddTraits(.isHeader)
                         }
                         sectionContent(section, page: visiblePage)

@@ -71,7 +71,7 @@ struct SettingsLibraryGamesSection: View {
             if hiddenGames.isEmpty {
                 Text(L10n.text("No hidden game apps. Hide one from its Game options; it comes back here."))
                     .seleneFont(.text)
-                    .foregroundColor(SeleneTheme.ink60)
+                    .foregroundColor(SeleneTheme.ink)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.leading, canvas.u(26))
             } else {

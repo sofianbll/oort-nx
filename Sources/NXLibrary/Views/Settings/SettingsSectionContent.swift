@@ -143,8 +143,8 @@ struct SettingsSubheading: View {
     var body: some View {
         Text(L10n.text(title))
             .seleneFont(.text, .semibold)
-            .foregroundColor(SeleneTheme.glyph)
-            .padding(.top, canvas.u(SeleneTokens.Space.control))
+            .foregroundColor(SeleneTheme.ink)
+            .padding(.top, canvas.u(SeleneTokens.Space.tight))
             .padding(.bottom, canvas.u(SeleneTokens.Space.hairline))
             .frame(maxWidth: .infinity, alignment: .leading)
     }

@@ -68,6 +68,7 @@
     "toast-top": {"$value": {"value": 112, "unit": "px"}},
     "transfer-measure": {"$value": {"value": 700, "unit": "px"}},
     "page-measure": {"$value": {"value": 1300, "unit": "px"}},
+    "settings-measure": {"$value": {"value": 1120, "unit": "px"}},
     "page-minimum-font": {"$value": {"value": 11, "unit": "px"}},
     "pill-width": {"$value": {"value": 180, "unit": "px"}},
     "pill-height": {"$value": {"value": 60, "unit": "px"}},
