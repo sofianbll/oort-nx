@@ -26,8 +26,8 @@ if [[ "${NX_DEV_TRIAL2:-0}" = "1" ]]; then
 fi
 CONFIG="${NX_BUILD_CONFIG:-release}"
 VERSION="${NX_VERSION:-$(tr -d '[:space:]' < "$ROOT/VERSION")}"
-if ! [[ "$VERSION" =~ ^[0-9]+(\.[0-9]+){1,3}$ ]]; then
-  echo "error: NX_VERSION must be dotted numbers, got '$VERSION'" >&2
+if ! [[ "$VERSION" =~ ^[0-9]+(\.[0-9]+){1,3}$ || "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+-(alpha|beta|rc)\.[1-9][0-9]*$ ]]; then
+  echo "error: NX_VERSION must be dotted numbers, or like 0.5.0-beta.1, got '$VERSION'" >&2
   exit 1
 fi
 RELEASE_KEY="  <key>NXLibraryDevelopmentProfile</key><true/>"

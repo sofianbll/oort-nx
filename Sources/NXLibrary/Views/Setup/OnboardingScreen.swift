@@ -128,12 +128,13 @@ struct OnboardingNewsView: View {
     @State private var focus = "continue"
 
     var body: some View {
-        OnboardingScreen(title: L10n.text("What’s new in Oort NX 0.4.0"), detail: "",
+        OnboardingScreen(title: L10n.text("What’s new in Oort NX 0.5.0"), detail: "",
                          rows: [
                             .init("services", L10n.text("Integrations"), L10n.text("Find your optional services in one place."), .link, .none),
                             .init("controllers", L10n.text("Players and controllers"), L10n.text("Assign controllers to players before you start a game."), .gamepad, .none),
-                            .init("palette", L10n.text("Oort palette"), L10n.text("A darker base with warmer accents."), .palette, .none)
-                         ], focus: $focus, primary: ("Open library", { onExit(.openLibrary) }))
+                            .init("palette", L10n.text("Oort palette"), L10n.text("The cloud, its colors and its sounds. Your earlier colors stay under Oort Vesper."), .palette, .none)
+                         ] + (LibraryMove.moved(AppData.supportRoot)
+                              ? [.init("library", L10n.text("Your library"), L10n.text("Copied to Oort NX’s own folder. The earlier one is unchanged."), .folder, .none)] : []), focus: $focus, primary: ("Open library", { onExit(.openLibrary) }))
             .onReceive(NotificationCenter.default.publisher(for: .nxArcaneWelcomeGamepadAction)) { note in
                 guard NSApp.modalWindow == nil, let action = note.object as? GamepadAction else { return }
                 if action == .confirm { onExit(.openLibrary) }

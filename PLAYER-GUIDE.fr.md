@@ -4,7 +4,7 @@
 
 ## Installer
 
-Sur un Mac Apple silicon avec macOS 26 ou plus récent, ouvre le DMG de la [dernière version](https://github.com/sofianbll/oort-nx/releases/latest) et glisse **Oort NX** dans Applications. Cette alpha n’est pas notariée : ouvre-la une fois, puis choisis **Ouvrir quand même** dans **Réglages Système → Confidentialité et sécurité**. Ne désactive pas les protections de macOS. La 0.3.0 se met à jour seule.
+Sur un Mac Apple silicon avec macOS 26 ou plus récent, ouvre le DMG de la [dernière version](https://github.com/sofianbll/oort-nx/releases/latest) et glisse **Oort NX** dans Applications. Cette alpha n’est pas notariée : ouvre-la une fois, puis choisis **Ouvrir quand même** dans **Réglages Système → Confidentialité et sécurité**. Ne désactive pas les protections de macOS. Depuis la 0.3.0, installe ce DMG une fois : ta bibliothèque est copiée et l’ancienne reste intacte.
 
 ## Retrouver et lancer un jeu
 

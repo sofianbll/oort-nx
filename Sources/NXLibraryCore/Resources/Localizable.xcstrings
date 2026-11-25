@@ -393,14 +393,14 @@
       "pt-BR": {"stringUnit":{"state":"translated","value":"Encontre os serviços opcionais em um só lugar."}},
       "zh-Hans": {"stringUnit":{"state":"translated","value":"在一处查看可选服务。"}}
     }},
-    "What’s new in Oort NX 0.4.0": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"What’s new in Oort NX 0.4.0"}},
-      "fr": {"stringUnit":{"state":"translated","value":"Nouveautés d’Oort NX 0.4.0"}},
-      "it": {"stringUnit":{"state":"translated","value":"Novità di Oort NX 0.4.0"}},
-      "de": {"stringUnit":{"state":"translated","value":"Neu in Oort NX 0.4.0"}},
-      "es": {"stringUnit":{"state":"translated","value":"Novedades de Oort NX 0.4.0"}},
-      "pt-BR": {"stringUnit":{"state":"translated","value":"Novidades do Oort NX 0.4.0"}},
-      "zh-Hans": {"stringUnit":{"state":"translated","value":"Oort NX 0.4.0 新功能"}}
+    "What’s new in Oort NX 0.5.0": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"What’s new in Oort NX 0.5.0"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Nouveautés d’Oort NX 0.5.0"}},
+      "it": {"stringUnit":{"state":"translated","value":"Novità di Oort NX 0.5.0"}},
+      "de": {"stringUnit":{"state":"translated","value":"Neu in Oort NX 0.5.0"}},
+      "es": {"stringUnit":{"state":"translated","value":"Novedades de Oort NX 0.5.0"}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Novidades do Oort NX 0.5.0"}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"Oort NX 0.5.0 新功能"}}
     }},
     "Enabled": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Enabled"}},
@@ -1207,6 +1207,15 @@
     }},
     "Descent": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Descent"}}, "fr": {"stringUnit":{"state":"translated","value":"Descente"}}, "it": {"stringUnit":{"state":"translated","value":"Discesa"}}, "de": {"stringUnit":{"state":"translated","value":"Abstieg"}}, "es": {"stringUnit":{"state":"translated","value":"Descenso"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Descida"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"下降"}}
+    }},
+    "The cloud, its colors and its sounds. Your earlier colors stay under Oort Vesper.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"The cloud, its colors and its sounds. Your earlier colors stay under Oort Vesper."}}, "fr": {"stringUnit":{"state":"translated","value":"Le nuage, ses couleurs et ses sons. Tes couleurs d’avant restent sous Oort Vesper."}}, "it": {"stringUnit":{"state":"translated","value":"La nube, i suoi colori e i suoi suoni. I colori di prima restano in Oort Vesper."}}, "de": {"stringUnit":{"state":"translated","value":"Die Wolke, ihre Farben und Klänge. Deine bisherigen Farben bleiben unter Oort Vesper."}}, "es": {"stringUnit":{"state":"translated","value":"La nube, sus colores y sus sonidos. Tus colores anteriores siguen en Oort Vesper."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"A nuvem, suas cores e seus sons. Suas cores anteriores continuam em Oort Vesper."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"全新星云、配色与音效。之前的配色保留为 Oort Vesper。"}}
+    }},
+    "Your library": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Your library"}}, "fr": {"stringUnit":{"state":"translated","value":"Ta bibliothèque"}}, "it": {"stringUnit":{"state":"translated","value":"La tua libreria"}}, "de": {"stringUnit":{"state":"translated","value":"Deine Bibliothek"}}, "es": {"stringUnit":{"state":"translated","value":"Tu biblioteca"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Sua biblioteca"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"你的资料库"}}
+    }},
+    "Copied to Oort NX’s own folder. The earlier one is unchanged.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Copied to Oort NX’s own folder. The earlier one is unchanged."}}, "fr": {"stringUnit":{"state":"translated","value":"Copiée dans le dossier d’Oort NX. L’ancienne n’a pas changé."}}, "it": {"stringUnit":{"state":"translated","value":"Copiata nella cartella di Oort NX. Quella precedente è invariata."}}, "de": {"stringUnit":{"state":"translated","value":"In den eigenen Ordner von Oort NX kopiert. Der frühere ist unverändert."}}, "es": {"stringUnit":{"state":"translated","value":"Copiada en la carpeta de Oort NX. La anterior no ha cambiado."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Copiada para a pasta do Oort NX. A anterior não mudou."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"已复制到 Oort NX 自己的文件夹，之前的文件夹未更改。"}}
     }},
     "Sound pack": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Sound pack"}}, "fr": {"stringUnit":{"state":"translated","value":"Pack de sons"}}, "it": {"stringUnit":{"state":"translated","value":"Pacchetto audio"}}, "de": {"stringUnit":{"state":"translated","value":"Soundpaket"}}, "es": {"stringUnit":{"state":"translated","value":"Paquete de sonido"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Pacote de som"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"声音包"}}

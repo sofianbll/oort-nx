@@ -168,10 +168,10 @@ public enum AppUpdate {
         catch { return false }
     }
 
-    /// "v1.2.3" or "1.2.3" → "1.2.3"; nil when it is not dotted numbers.
+    /// "v1.2.3" or "v1.2.3-beta.1" → the version; nil when it is neither dotted numbers nor one of our pre-releases.
     public static func version(fromTag tag: String) -> String? {
         let version = tag.hasPrefix("v") ? String(tag.dropFirst()) : tag
-        return numbers(version) == nil ? nil : version
+        return parsed(version) == nil ? nil : version
     }
 
     private static func numbers(_ version: String) -> [Int]? {
@@ -181,14 +181,26 @@ public enum AppUpdate {
         return values.contains(where: { $0 == nil || $0! < 0 }) ? nil : values.map { $0! }
     }
 
-    /// Field by field, a missing field counting as 0: "0.10.0" is newer than "0.9.3", "0.2" equals "0.2.0".
+    /// The numbers, then where the version stands: alpha, beta and rc come before the release itself.
+    private static func parsed(_ version: String) -> (numbers: [Int], stage: Int, count: Int)? {
+        guard let dash = version.firstIndex(of: "-") else { return numbers(version).map { ($0, 3, 0) } }
+        let suffix = version[version.index(after: dash)...].split(separator: ".", omittingEmptySubsequences: false)
+        guard let core = numbers(String(version[..<dash])), core.count == 3, suffix.count == 2,
+              let stage = ["alpha", "beta", "rc"].firstIndex(of: String(suffix[0])),
+              suffix[1].allSatisfy({ $0.isASCII && $0.isNumber }), suffix[1].first != "0", let count = Int(suffix[1])
+        else { return nil }
+        return (core, stage, count)
+    }
+
+    /// Semantic order, a missing field counting as 0: "0.10.0" is newer than "0.9.3", "0.2" equals "0.2.0",
+    /// and 0.5.0-alpha.2 < 0.5.0-beta.1 < 0.5.0-beta.10 < 0.5.0.
     public static func isNewer(_ candidate: String, than running: String) -> Bool {
-        guard let a = numbers(candidate), let b = numbers(running) else { return false }
-        for i in 0..<max(a.count, b.count) {
-            let x = i < a.count ? a[i] : 0, y = i < b.count ? b[i] : 0
+        guard let a = parsed(candidate), let b = parsed(running) else { return false }
+        for i in 0..<max(a.numbers.count, b.numbers.count) {
+            let x = i < a.numbers.count ? a.numbers[i] : 0, y = i < b.numbers.count ? b.numbers[i] : 0
             if x != y { return x > y }
         }
-        return false
+        return (a.stage, a.count) > (b.stage, b.count)
     }
 
     // MARK: - When

@@ -2,9 +2,18 @@
 
 User-visible changes to Oort NX and its Arcane base (formerly NX Library) are recorded here. Entries are grouped by release, with the newest first. Engine changes also have their own [upgrade notes](docs/history/engine-upgrades/README.md).
 
-## 0.4.0 — 2026-11-25
+## 0.5.0-beta.1 — 2026-11-25
+
+First public release from Oort NX's own repository. It also carries everything prepared for 0.4.0, which was not published.
 
 ### Added
+
+- The Oort cloud as the default living background, drawn by the graphics card, with new colors. The earlier colors stay under **Oort Vesper**.
+- Keys, switches, sliders, rows, panels, tabs and dialogs share one surface, one press and one halftone.
+- The Oort, Pollen, Umbra and Impulsion voices are made by the app. Notes climb as the focus moves; **Compose**, in Settings → Sound, chooses the sequence and octave or lets you pull eight notes of your own. Selene's sounds stay available.
+- Oort NX has its own identity (`io.github.sofianbll.oortnx`) and folders. The first launch copies an existing library, checks every file and leaves the original unchanged. Sign in to connected services again and grant macOS permissions once. Versions up to 0.3.0 do not update to this one by themselves: install the DMG once.
+- Updates understand alpha, beta and release candidate versions.
+- A styled installer image.
 
 - Settings open like System Settings: a sidebar of subjects, grouped rows and one help line. Search finds rows by their current and earlier names.
 - Each game has a full settings page, sorted from what its build offers. A short panel beside the game holds the few useful rows; **All settings** opens the page.
@@ -16,7 +25,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 - Change metadata shows sources and the reading pane side by side.
 - Browse your files inside Oort NX. The format words (NSP, XCI, NSZ, XCZ, NUP, keys) are explained where they are asked for.
 - The Dock icon shows the progress of a long operation.
-- A skippable first-run tour for language, controllers, profile, local games, services and appearance. Previously configured libraries see only the 0.4.0 highlights.
+- A skippable first-run tour for language, controllers, profile, local games, services and appearance. Previously configured libraries see only the highlights.
 
 - Filter Spotlight by platform from the first tile. Press up or down to browse and close to keep the choice for this profile.
 - Import Switch games from game files alone in your own cloud library or a followed reference. Personalize them before downloading, and find them with the **Cloud** filter in Spotlight and Collection.
@@ -30,7 +39,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 - Switch game Details shows the installed app’s engine date and update status. An update icon appears on the cover only when the app is older and its game files are available.
 - The home bar and **Integrations** page show each service’s status and open its settings without activating it.
 - Add local Mac apps as library shortcuts without changing the apps or recording play sessions.
-- **Sound & music** offers optional built-in and local sound packs. Selene remains the default.
+- **Sound & music** offers built-in and local sound packs, with Selene among them.
 - Drive reuses an existing rclone or asks before downloading it from upstream. The app no longer embeds rclone, and you can trash Oort NX’s own copy without removing your connection or files.
 - Before writing to an existing library, the update warns about returning to 0.3.0 and keeps a verified copy of launcher data. It keeps essential files first and names omissions. If copying fails, you can retry or open the app without a copy for this launch. Games and saves are not copied.
 

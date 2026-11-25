@@ -120,7 +120,7 @@ check_engine_pin() (
   fi
 )
 
-[[ "$VERSION" =~ ^(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*)){2}$ ]] || fail "use MAJOR.MINOR.PATCH, like 0.3.0"
+[[ "$VERSION" =~ ^(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*)){2}(-(alpha|beta|rc)\.[1-9][0-9]*)?$ ]] || fail "use MAJOR.MINOR.PATCH, like 0.3.0 or 0.5.0-beta.1"
 TAG="v$VERSION"
 TAG_REF="refs/tags/$TAG"
 

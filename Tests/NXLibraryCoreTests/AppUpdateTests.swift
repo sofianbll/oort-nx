@@ -53,7 +53,7 @@ final class AppUpdateTests: XCTestCase {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         let version = try String(contentsOf: root.appendingPathComponent("VERSION"), encoding: .utf8)
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        XCTAssertNotNil(version.range(of: #"^(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*)){2}$"#, options: .regularExpression))
+        XCTAssertNotNil(version.range(of: #"^(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*)){2}(-(alpha|beta|rc)\.[1-9][0-9]*)?$"#, options: .regularExpression))
     }
 
     func testVersionCompareIsNumeric() {
@@ -64,6 +64,29 @@ final class AppUpdateTests: XCTestCase {
         XCTAssertEqual(AppUpdate.version(fromTag: "v1.0.0"), "1.0.0")
         XCTAssertEqual(AppUpdate.version(fromTag: "1.2"), "1.2")
         XCTAssertNil(AppUpdate.version(fromTag: "v1.0-beta"))
+        XCTAssertEqual(AppUpdate.version(fromTag: "v0.5.0-beta.1"), "0.5.0-beta.1")
+        for tag in ["v0.5.0-beta", "v0.5.0-beta.0", "v0.5.0-beta.01", "v0.5.0-nightly.1", "v0.5-beta.1", "v0.5.0-beta.1.2", "v0.5.0-", "v0.5.0-beta.x"] {
+            XCTAssertNil(AppUpdate.version(fromTag: tag), tag)
+        }
+    }
+
+    func testPreReleasesComeBeforeTheirRelease() {
+        let order = ["0.3.0", "0.4.9", "0.5.0-alpha.2", "0.5.0-alpha.10", "0.5.0-beta.1", "0.5.0-beta.2", "0.5.0-beta.10", "0.5.0-rc.1", "0.5.0", "0.5.1-alpha.1", "0.5.1"]
+        for (i, older) in order.enumerated() {
+            for (j, newer) in order.enumerated() {
+                XCTAssertEqual(AppUpdate.isNewer(newer, than: older), j > i, "\(older) → \(newer)")
+            }
+        }
+        XCTAssertFalse(AppUpdate.isNewer("0.5.0-nightly.1", than: "0.3.0"))
+    }
+
+    func testABetaIsFoundUnderItsOwnArchiveName() throws {
+        let repo = try XCTUnwrap(AppUpdate.defaultRepository)
+        let json = releaseJSON.replacingOccurrences(of: "0.3.0", with: "0.5.0-beta.2").replacingOccurrences(of: "Bium23/NxLibrary", with: repo)
+        let release = try XCTUnwrap(AppUpdate.parseRelease(Data(json.utf8), repository: repo))
+        XCTAssertEqual(release.zipURL.lastPathComponent, "Oort-NX-0.5.0-beta.2.zip")
+        XCTAssertTrue(AppUpdate.mayInstall(release, runningVersion: "0.5.0-beta.1", installation: .ok))
+        XCTAssertFalse(AppUpdate.mayInstall(release, runningVersion: "0.5.0", installation: .ok))
     }
 
     private let releaseJSON = """
