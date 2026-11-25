@@ -23,6 +23,7 @@ static class Desk {
     [DllImport("user32.dll")] static extern bool GetClientRect(IntPtr w, out Rect r);
     [DllImport("user32.dll")] static extern bool MoveWindow(IntPtr w, int x, int y, int wd, int h, bool paint);
     [DllImport("user32.dll")] static extern bool ShowWindow(IntPtr w, int how);
+    [DllImport("user32.dll")] static extern IntPtr SendMessageW(IntPtr w, uint message, UIntPtr wParam, IntPtr lParam);
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetWindowTextW(IntPtr w, StringBuilder s, int n);
     [DllImport("user32.dll")] static extern void keybd_event(byte k, byte scan, uint flags, UIntPtr x);
     [DllImport("user32.dll")] static extern bool SetProcessDPIAware();
@@ -91,13 +92,22 @@ static class Desk {
             }
             case "front": {
                 IntPtr w = Main_(int.Parse(a[1]));
-                if (IsIconic(w)) ShowWindow(w, 9);
+                // A real Restore command also clears the app's cached minimized state before subsequent F11.
+                if (IsIconic(w)) SendMessageW(w, 0x0112, new UIntPtr(0xF120), IntPtr.Zero);
                 // Windows lets a program take the front after a key of its own (F24: nothing listens to it). What a runner
                 // leaves on its screen steps aside.
                 for (int i = 0; i < 6 && Pid(GetForegroundWindow()) != int.Parse(a[1]); i++) {
                     if (i > 0) {
                         IntPtr f = GetForegroundWindow();
-                        try { Console.WriteLine(Process.GetProcessById(Pid(f)).ProcessName + " keeps the front"); if (Title(f) == "Microsoft account" || Process.GetProcessById(Pid(f)).ProcessName == "SearchHost") { keybd_event(0x1B, 0, 0, UIntPtr.Zero); keybd_event(0x1B, 0, 2, UIntPtr.Zero); Thread.Sleep(200); Process.GetProcessById(Pid(f)).Kill(); Thread.Sleep(600); } } catch { }
+                        try {
+                            var blocker = Process.GetProcessById(Pid(f));
+                            Console.WriteLine(blocker.ProcessName + " keeps the front");
+                            if (blocker.ProcessName == "StartMenuExperienceHost" || blocker.ProcessName == "SearchHost" || Title(f) == "Microsoft account") {
+                                keybd_event(0x1B, 0, 0, UIntPtr.Zero); keybd_event(0x1B, 0, 2, UIntPtr.Zero); Thread.Sleep(200);
+                                if (blocker.ProcessName == "StartMenuExperienceHost") continue;
+                                if (GetForegroundWindow() == f) { blocker.Kill(); Thread.Sleep(600); }
+                            }
+                        } catch { }
                         ShowWindow(f, 6);
                     }
                     keybd_event(0x87, 0, 0, UIntPtr.Zero); keybd_event(0x87, 0, 2, UIntPtr.Zero);

@@ -4,6 +4,8 @@ The same library as on the Mac, for games that already run on these systems: rec
 
 An empty library starts on **Add game**. Choose **A folder of games** for a folder that contains recompiled games, each with its own `recomplauncher.json`. You do not need to add those folders again when updating from alpha.2.
 
+The Windows installer removes the obsolete bundled project list on update. It does not touch the player's library.
+
 | Part | Where | What |
 |---|---|---|
 | Logic | `Sources/OortCompanion`, `Sources/oort-core` (Swift 6) | Library, settings, profiles, manifests, programs' icons and names, Steam's lists, what to ask online, launch plans, sounds. See [PROTOCOL.md](PROTOCOL.md) |

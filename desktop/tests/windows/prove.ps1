@@ -103,7 +103,9 @@ if ($Before) {
   Install $Before
   $old = & $entry
   Check ($old.DisplayVersion -eq '0.1.0-alpha.2') "the published version: $($old.DisplayVersion)"
-  $app = (Get-ChildItem $old.InstallLocation.Trim('"') -Filter *.exe | Where-Object { $_.Name -notin 'oort-core.exe', 'uninstall.exe' }).FullName
+  $oldFolder = $old.InstallLocation.Trim('"')
+  Check (Test-Path (Join-Path $oldFolder 'catalog.json')) 'the old app did install the bundled catalog'
+  $app = (Get-ChildItem $oldFolder -Filter *.exe | Where-Object { $_.Name -notin 'oort-core.exe', 'uninstall.exe' }).FullName
   Drive "$desktop\tests\alpha2.js" @('tag=update-', 'language=fr', 'size=1440x900')
   Quiet
   $kept = @('library.json', 'sessions.json', 'profiles.json', 'settings.json') | ForEach-Object { "$own\$_" }
@@ -112,6 +114,7 @@ if ($Before) {
   Install
   Check (@(& $entry).Count -eq 1) 'one Oort NX in the list'
   Check ((& $entry).DisplayVersion -eq $Version) "updated to $((& $entry).DisplayVersion)"
+  Check (-not (Test-Path (Join-Path $oldFolder 'catalog.json'))) 'the obsolete bundled catalog is gone after update'
   Check (($kept | ForEach-Object { (Get-FileHash $_).Hash }) -join ',' -eq ($digests -join ',')) 'the installer does not touch the library'
   $app = (Get-ChildItem (& $entry).InstallLocation.Trim('"') -Filter *.exe | Where-Object { $_.Name -notin 'oort-core.exe', 'uninstall.exe' }).FullName
   Drive "$desktop\tests\update.js" @('tag=update-', 'language=fr', 'size=1440x900', 'expect=.dialog')

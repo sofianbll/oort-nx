@@ -18,8 +18,26 @@ probe(async P => {
   await goTo('Lunar Observatory'); await P.shot('03-needs-files');
   await P.key('ArrowDown'); P.same(P.id(), 'primary', 'down reaches the keys'); await P.shot('04-key-focus');
   await P.press('right'); P.same(P.id(), 'options', 'options'); await P.press('right'); P.same(P.id(), 'heart', 'heart'); await P.press('a');
-  P.ok(oort.library.games.find(g => g.name === 'Lunar Observatory').favorite, 'favorite kept'); P.same(P.id(), 'heart', 'the focus stays on the heart');
+  const lunar = () => oort.library.games.find(g => g.name === 'Lunar Observatory');
+  await P.until(() => lunar().favorite, 5000, 'favorite kept');
+  P.ok(lunar().favorite, 'favorite kept'); P.same(P.id(), 'heart', 'the focus stays on the heart');
   await P.press('b'); P.ok(document.activeElement.matches('.tile'), 'B comes back to the shelf');
+  if (window.HEADLESS) {
+    const core = window.__TAURI__.core, invoke = core.invoke;
+    let release;
+    const held = new Promise(resolve => { release = resolve; });
+    core.invoke = async (name, args) => {
+      if (name === 'core' && args.method === 'game.favorite') await held;
+      return invoke(name, args);
+    };
+    try {
+      await P.key('ArrowDown'); await P.press('right', 2); P.same(P.id(), 'heart', 'favorite before Back');
+      await P.press('a'); await P.press('b');
+      release();
+      await P.until(() => !lunar().favorite, 5000, 'the delayed change is saved');
+      P.same(P.id(), lunar().id, 'a delayed favorite does not steal focus from the tile');
+    } finally { release(); core.invoke = invoke; }
+  }
   await P.press('x'); await P.until(() => document.querySelector('.detail')); await P.wait(300); await P.shot('05-detail');
   await P.press('b'); await P.until(() => oort.layers.length === 1); P.ok(document.activeElement.matches('.tile'), 'the focus is back on its tile');
   // Grid.

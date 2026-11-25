@@ -217,6 +217,10 @@ addEventListener('click', e => { if (!e.detail && e.isTrusted) S.play('select', 
 addEventListener('mouseover', e => { if (!e.movementX && !e.movementY || hand.now === 'pad') return; const b = e.target.closest('.row,.found .tile,.orb,.pills .key'); if (b && b !== document.activeElement && top()?.el.contains(b) && !b.closest('.holding')) b.focus({ preventScroll: true }); });
 addEventListener('focusin', e => { const layer = top(); if (layer?.el.contains(e.target)) { layer.onfocus && layer.onfocus(e.target); const p = $('.help', layer.el); if (p) p.textContent = e.target.dataset.help || ''; hints(); } });
 /* A right click, a long press, the keyboard's menu key: the options of what is under it. */
+addEventListener('mousedown', e => {
+  // Focusing a tile scrolls the shelf before the context-menu event can name the pressed tile.
+  if (e.button === 2 && e.target.closest('.shelf .tile,.grid .tile')) e.preventDefault();
+});
 addEventListener('contextmenu', e => { if (e.target.closest('input')) return; e.preventDefault(); if (isPage()) top().context?.(e.target); });
 /* The shelf: a wheel or a finger goes from game to game. */
 const turnShelf = d => isPage() && top().slide?.(d), wheel = wheelOf(turnShelf), swipe = swiper(turnShelf, () => top()?.pitch?.() || Infinity);
@@ -349,7 +353,13 @@ const homeLayer = (() => {
     if (x.run) return fill(box, h('h1', { cls: 'hero' }, x.name()), h('p', { cls: 'say' }, t('Games from Steam, any program, or a folder of recompiled games.')));
     if (home === 'collection') return fill(box, h('h1', { cls: 'hero' }, x.name), stats(x));
     const [label, run] = primary(x);
-    fill(box, heading(x), h('div', { cls: 'keys' }, key(label, run, { ic: x.state === 'ready' ? 'play' : null, id: 'primary' }), key(t('Options'), () => openOptions(x.id), { id: 'options' }), key('', async () => { await favorite(x); layer.info(); $('[data-id=heart]', box)?.focus(); }, { ic: x.favorite ? 'favorite' : 'favoriteBorder', cls: 'round', id: 'heart', aria: x.favorite ? t('Remove from favorites') : t('Add to favorites') })), x.state !== 'ready' && h('p', { cls: 'say' }, stateText(x)), stats(x), genres(x));
+    fill(box, heading(x), h('div', { cls: 'keys' }, key(label, run, { ic: x.state === 'ready' ? 'play' : null, id: 'primary' }), key(t('Options'), () => openOptions(x.id), { id: 'options' }), key('', async () => {
+      await favorite(x);
+      if (current()?.id !== x.id) return;
+      const active = document.activeElement, keep = box.contains(active) && active.dataset.id;
+      layer.info();
+      if (keep && layer === top()) $(`[data-id="${keep}"]`, box)?.focus();
+    }, { ic: x.favorite ? 'favorite' : 'favoriteBorder', cls: 'round', id: 'heart', aria: x.favorite ? t('Remove from favorites') : t('Add to favorites') })), x.state !== 'ready' && h('p', { cls: 'say' }, stateText(x)), stats(x), genres(x));
   };
   layer.redraw = () => { el.replaceChildren(...draw()); layer.info(); if (layer === top()) { layer.focus(); settle(); } };
   layer.focus = () => { if (row) row.focus(); else if (grid) { const b = grid.querySelector(`[data-id="${selected}"]`); b && (b.focus({ preventScroll: true }), b.scrollIntoView({ block: 'nearest' })); } else first(layer); };

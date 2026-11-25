@@ -9,11 +9,13 @@ probe(async P => {
   const byId = id => document.querySelector(`.shelf [data-id="${id}"]`);
 
   // WIN-01: the hints follow the last thing used, and a small knock on the mouse does not turn them.
+  const [cx, cy] = [innerWidth * .6, innerHeight * .6];
+  await host('move', cx, cy);
   await P.key('ArrowRight'); await P.key('ArrowRight'); await P.key('ArrowRight'); P.ok(hint().includes('⏎'), 'a key: the keyboard');
   P.pad(); await P.wait(300); await P.button(15); P.ok(hint().includes('View') && !hint().includes('⏎'), 'a button: the controller'); await P.shot('70-pad');
   // WIN-12
   P.same(getComputedStyle(document.activeElement).cursor, 'none', 'the pointer is out of sight');
-  const [cx, cy] = [innerWidth * .6, innerHeight * .6]; await host('move', cx, cy); await P.wait(700); await host('move', cx + 2, cy); await P.wait(100); await host('move', cx + 3, cy + 1); await P.wait(100);
+  await host('move', cx + 2, cy); await P.wait(100); await host('move', cx + 3, cy + 1); await P.wait(100);
   P.same(document.documentElement.dataset.hand, 'pad', 'a knock is not a use');
   await move(cx, cy); P.same(document.documentElement.dataset.hand, 'mouse', 'a real movement is'); P.ok(hint().includes('⏎'), 'a mouse: the keyboard’s names'); P.ok(getComputedStyle(document.activeElement).cursor !== 'none', 'the pointer is back'); await P.shot('71-mouse');
   for (const style of ['playstation', 'automatic']) { await ask('settings.set', { id: 'buttonNames', value: style }); oort.apply((await ask('settings.save')).view); await P.key('ArrowRight'); P.ok(hint().includes('⏎'), style + ' names: the keyboard still shows its own'); }
@@ -26,6 +28,15 @@ probe(async P => {
   await host('click', ...P.at(target)); await P.wait(500); P.same(P.id(), target.dataset.id, 'a click chooses'); P.same(oort.layers.length, 1, 'and does not play');
   // WIN-10: a right click opens the options of the game under it.
   const third = [...document.querySelectorAll('.shelf .tile')].find(b => +b.dataset.i === +document.activeElement.dataset.i + 1), name = oort.library.games.find(g => g.id === third.dataset.id).name;
+  if (window.HEADLESS) {
+    const [x, y] = P.at(third), point = { clientX: x, clientY: y, button: 2, bubbles: true, cancelable: true };
+    // On Windows, native focus can move the shelf between pressing and dispatching the context menu.
+    if (third.dispatchEvent(new MouseEvent('mousedown', point))) third.focus();
+    await P.wait(500);
+    document.elementFromPoint(x, y).dispatchEvent(new MouseEvent('contextmenu', point));
+    await P.until(() => document.querySelector('.shell')); P.same(P.text('.side p'), name, 'right press keeps its game even before the menu event'); await home();
+    target.focus(); await P.wait(500);
+  }
   await host('click', ...P.at(third), 'right'); await P.until(() => document.querySelector('.shell')); P.same(P.text('.side p'), name, 'a right click: the options of that game'); await P.shot('73-right-click'); await home();
   await P.press('x'); await P.until(() => document.querySelector('.detail')); await host('click', cx, cy, 'right'); await P.until(() => document.querySelector('.shell')); P.say('ok a right click on its page too'); await home();
   // WIN-05: a notch of the wheel, a touchpad, a finger.

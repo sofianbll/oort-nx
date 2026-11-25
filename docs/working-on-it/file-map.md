@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 25 novembre 2026. Copertura di **1141 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 26 novembre 2026. Copertura di **1142 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -208,11 +208,12 @@ La [mappa del desktop](../../desktop/README.md) descrive i bersagli di build e l
 
 | File | Responsabilità |
 |---|---|
-| [app.js](../../desktop/ui/app.js) | Finestra desktop e navigazione, con Add game come prima azione a libreria vuota e prima tessera di Spotlight. |
+| [app.js](../../desktop/ui/app.js) | Finestra desktop e navigazione; Add game in testa, clic destro sulla tessera premuta e aggiornamento dei preferiti senza rubare il focus. |
 | [Companion.swift](../../Sources/OortCompanion/Companion.swift) | Protocollo Swift per libreria, cartelle, sessioni e link dichiarati da giochi già aggiunti. |
 | [add.js](../../desktop/tests/add.js) | Focus iniziale, apertura con un controller simulato, aggiunta sintetica e ordine delle tessere. |
 | [alpha2.js](../../desktop/tests/alpha2.js) e [update.js](../../desktop/tests/update.js) | Preparazione della libreria nell'app Windows pubblicata e controllo dopo l'installazione della nuova versione. |
 | [upgrade.py](../../desktop/tests/upgrade.py) | Confronto di cartelle, ID dei giochi, preferiti, sessione sintetica e tema fra il core precedente e quello nuovo. |
+| [hooks.nsh](../../desktop/src-tauri/windows/hooks.nsh) | Rimuove il vecchio catalogo dai file del programma Windows durante l'aggiornamento, senza toccare i dati del giocatore. |
 
 ## Core · app: aggiornamento, primo avvio, diagnostica e comandi
 
