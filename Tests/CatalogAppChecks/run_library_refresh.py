@@ -43,9 +43,64 @@ import SwiftUI
     static func behave(_ behavior: [String: Any]) throws { try drive { $1 = behavior } }
     static func alive() -> Int { lines("pids").compactMap { Int32($0) }.filter { kill($0, 0) == 0 }.count }
 
+    @MainActor static func checkDaemonLifetime() async throws {
+        let ready = fake.appendingPathComponent("daemon-ready")
+        for (name, interrupt) in [("normal close", 0), ("crash", SIGABRT), ("SIGKILL", SIGKILL)] {
+            try? FileManager.default.removeItem(at: ready)
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: CommandLine.arguments[0])
+            process.arguments = ["--daemon-lifetime", "\(interrupt)"]
+            let started = lines("pids").count
+            try process.run()
+            defer {
+                if process.isRunning { _ = kill(process.processIdentifier, SIGKILL) }
+            }
+            for _ in 0..<150 where !FileManager.default.fileExists(atPath: ready.path) && process.isRunning {
+                try await Task.sleep(for: .milliseconds(20))
+            }
+            let daemon = lines("pids").dropFirst(started).last.flatMap { Int32($0) }
+            defer {
+                // Keep a failing test isolated too. Only this subprocess's recorded daemon is eligible.
+                if let daemon, kill(daemon, 0) == 0 { _ = kill(daemon, SIGKILL) }
+            }
+            guard let daemon, FileManager.default.fileExists(atPath: ready.path) else {
+                expect(false, "daemon never ready before \(name), child status: \(process.isRunning ? -1 : process.terminationStatus)")
+                continue
+            }
+            if interrupt != 0 {
+                expect(kill(daemon, 0) == 0 && kill(process.processIdentifier, interrupt) == 0,
+                       "a live daemon was running at \(name)")
+            }
+            for _ in 0..<150 where process.isRunning || kill(daemon, 0) == 0 {
+                try await Task.sleep(for: .milliseconds(20))
+            }
+            expect(!process.isRunning && process.terminationStatus == interrupt && kill(daemon, 0) == -1 && errno == ESRCH,
+                   "the daemon exits after \(name) without another Oort launch")
+        }
+    }
+
     @MainActor static func main() async throws {
         setbuf(stdout, nil)
         assertFixtureHome()
+        if CommandLine.arguments.dropFirst().first == "--daemon-lifetime" {
+            signal(SIGABRT, SIG_DFL)
+            let backend = RcloneStorageBackend(remote: ":local:", root: fake.path, executable: fake.appendingPathComponent("rclone"),
+                                              config: fake.appendingPathComponent("rclone.conf"))
+            guard try await backend.rootDirectories().contains("Photos") else { exit(2) }
+            try Data().write(to: fake.appendingPathComponent("daemon-ready"), options: .atomic)
+            if CommandLine.arguments.last == "0" {
+                backend.stopRemoteControl()
+                exit(0)
+            }
+            while true {
+                try await Task.sleep(for: .seconds(600))
+                withExtendedLifetime(backend) {}
+            }
+        }
+        if ProcessInfo.processInfo.environment["OORT_DAEMON_LIFETIME_ONLY"] == "1" {
+            try await checkDaemonLifetime()
+            exit(failures.isEmpty ? 0 : 3)
+        }
         suppressProbeNotifications()
         let temporary = FileManager.default.temporaryDirectory.path
         func snapshots() -> Set<String> {
@@ -67,6 +122,9 @@ import SwiftUI
         d.set(Data(#"{"remote":"fixture","account":"AccountID","library":{"path":"Games","id":"LibraryID"}}"#.utf8), forKey: "NXLibrary_CloudDriveScope")
         let settings = AppSettingsStore(fileURL: data.appendingPathComponent("settings.json"))
         settings.settings.refreshLibraryAtLaunch = false
+        settings.settings.interfaceSounds = false
+        settings.settings.soundVolume = 0
+        SoundEffectService.shared.bind(to: settings)
         let vm = AppViewModel(settingsStore: settings, catalog: try repository.load(), repository: repository)
         await vm.restoreActivity()
         let cloud = vm.cloudLibrary
@@ -184,6 +242,7 @@ import SwiftUI
         expect(alive() == 0, "no rclone outlives the connection")
         let kept = snapshots().subtracting(earlier)
         expect(kept.isEmpty, "no private configuration stays on disk: \(kept)")
+        try await checkDaemonLifetime()
         exit(failures.isEmpty ? 0 : 3)
     }
 

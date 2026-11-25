@@ -13,6 +13,14 @@ Synthetic data: 16 games (400 files per app), 15 game folders of which one holds
 | 1 / 40 | Warm button → everything up to date | never: 0 requests to the cloud | 1.0 s / 1.1 s · 1 rclone · 8 requests |
 | 40 | Main thread, cold launch | 10.5 s | 0.19 s |
 
-Three causes. Every rclone command first proved the account and each folder with commands of its own: about ten processes for one listing. The library was walked one game and one folder at a time, each record downloaded again, then walked a second time by the catalog check. The button never reached the cloud: the import was refused while the local scan it had just started was running.
+Three costs:
+
+- Each Drive command repeated the account and folder checks. At 40 apps, 1,975 of the 3,945 processes only listed the configured remotes; another 395 ran `about`.
+- Discovery listed folders serially; the catalog check then covered the same ground. At 40 apps the baseline ran 1,495 `lsjson` processes and read 80 records (two per app). The grouped cold run downloaded 40 records; the warm run reused them.
+- The local refresh kept reconciling game icons, with individual saves of the whole catalog on the main thread (0.43 s CPU on the 40-app baseline button run, versus 0.25 s on the warm button run after). A no-change scan now skips its catalog save; icon reconciliation batches pending marks. The old button also never reached Drive: it attempted no refresh, and even a subsequent import is refused while the local scan is running.
+
+At 40 apps, for cold launch the fixture counted 793 → 935 file opens, 36,058 → 9,378 metadata operations and 259 → 771 directory reads in the launcher (not bytes read from disk). For the warm button it counted 760 opens, 7,894 metadata operations and 2 directory reads. These totals include work underway in the host and are not counts of unique files. No general incremental ROM directory scanner or Drive Changes feed is used.
+
+Daemon lifetime: the headless probe observes a running fake daemon before it aborts or kills the owning process. Before the fix the daemon survives both signals; afterwards it exits in every case (normal close, SIGABRT, SIGKILL), within the probe's three-second deadline and without restarting Oort.
 
 Not established: the real Drive, its quotas, another network, a release build, a real library's disks, and an interactive hand. The first picture of the window was not timed, only the model it draws.

@@ -14,8 +14,17 @@ final class RcloneRemoteControl: @unchecked Sendable {
     private static let sweep = Task.detached(priority: .utility) { reapOrphans(in: temporary) }
     private let lock = NSLock()
     private var session: Session?
+    private var launching: RcloneDownload.Launchable?
     private var stopped = false
     private var retryAfter = 0.0
+
+    // Keep the daemon as the group leader, and give the watcher only the pipe's read end.
+    // EOF means the owning app is gone (even after SIGKILL); group 0 cannot select a recycled PID.
+    private static let watchedLaunch = """
+        exec 3<&0
+        (IFS= read -r unused <&3; kill -KILL 0) &
+        exec "$@" </dev/null 3<&-
+        """
 
     private struct Session {
         let process: BoundedChild
@@ -23,6 +32,7 @@ final class RcloneRemoteControl: @unchecked Sendable {
         let flags: [String]
         let directory: URL
         let lease: Int32
+        let owner: FileHandle
         let readyBy: Double
         let log: SearchLog
 
@@ -30,6 +40,7 @@ final class RcloneRemoteControl: @unchecked Sendable {
 
         func stop() {
             process.stop()
+            try? owner.close()
             try? FileManager.default.removeItem(at: directory)
             close(lease)
         }
@@ -66,6 +77,7 @@ final class RcloneRemoteControl: @unchecked Sendable {
             stopped = true
             session?.stop()
             session = nil
+            launching = nil
         }
     }
 
@@ -122,8 +134,12 @@ final class RcloneRemoteControl: @unchecked Sendable {
             if let session, session.process.status == nil, session.executable == executable, session.flags == flags { return session }
             session?.stop()
             session = nil
+            launching = nil
             guard ProcessInfo.processInfo.systemUptime >= retryAfter else { return nil }
-            session = Self.launch(executable: executable, environment: environment, flags: flags)
+            if let (started, launch) = Self.launch(executable: executable, environment: environment, flags: flags) {
+                session = started
+                launching = launch
+            }
             if session == nil { backOff() }
             return session
         }) else { return nil }
@@ -136,6 +152,11 @@ final class RcloneRemoteControl: @unchecked Sendable {
             catch { if sensitive { discard(current) }; throw error }
         }
         let ready = FileManager.default.fileExists(atPath: socket.path)
+        if ready {
+            lock.withLock {
+                if session?.process === current.process { launching = nil }
+            }
+        }
         let result: CommandResult?
         do {
             result = ready ? try await SystemCommandRunner().runCancellable(Self.curl,
@@ -152,6 +173,7 @@ final class RcloneRemoteControl: @unchecked Sendable {
             if (!ready || result?.status == 7 || result?.status == 28), session?.process === current.process {
                 session?.stop()
                 session = nil
+                launching = nil
                 if !ready { backOff() }
             }
         }
@@ -166,12 +188,13 @@ final class RcloneRemoteControl: @unchecked Sendable {
             guard session?.process === current.process else { return }
             session?.stop()
             session = nil
+            launching = nil
         }
     }
 
-    private static func launch(executable: URL, environment: [String: String], flags: [String]) -> Session? {
+    private static func launch(executable: URL, environment: [String: String], flags: [String])
+        -> (Session, RcloneDownload.Launchable)? {
         guard let launch = try? RcloneDownload.launchable(executable) else { return nil }
-        defer { withExtendedLifetime(launch) {} }
         var template = temporary.appendingPathComponent(directoryPrefix + "XXXXXX").path.utf8CString
         guard let directory = template.withUnsafeMutableBufferPointer({ buffer -> URL? in
             guard let path = mkdtemp(buffer.baseAddress!) else { return nil }
@@ -182,14 +205,19 @@ final class RcloneRemoteControl: @unchecked Sendable {
 
         let socket = directory.appendingPathComponent("s")
         let log = SearchLog()
+        let lifetime = Pipe()
+        let owner = lifetime.fileHandleForWriting
         defer { try? log.pipe.fileHandleForWriting.close() }
+        defer { try? lifetime.fileHandleForReading.close() }
         if socket.path.utf8.count < MemoryLayout.size(ofValue: sockaddr_un().sun_path),
-           let process = try? BoundedChild(launch.url, ["rcd", "--rc-addr", "unix://\(socket.path)", "--rc-no-auth"] + flags,
+           fcntl(owner.fileDescriptor, F_SETFD, FD_CLOEXEC) == 0,
+           let process = try? BoundedChild(URL(fileURLWithPath: "/bin/sh"),
+               ["-c", watchedLaunch, "oort-rcd", launch.url.path, "rcd", "--rc-addr", "unix://\(socket.path)", "--rc-no-auth"] + flags,
                // Socket activation would override --rc-addr.
                environment: environment.filter { !["LISTEN_PID", "LISTEN_FDS", "LISTEN_FDNAMES"].contains($0.key) },
-               error: log.pipe.fileHandleForWriting) {
-            return Session(process: process, executable: executable, flags: flags, directory: directory, lease: lease,
-                           readyBy: ProcessInfo.processInfo.systemUptime + 2, log: log)
+               input: lifetime.fileHandleForReading, error: log.pipe.fileHandleForWriting) {
+            return (Session(process: process, executable: executable, flags: flags, directory: directory, lease: lease,
+                            owner: owner, readyBy: ProcessInfo.processInfo.systemUptime + 2, log: log), launch)
         }
         close(lease)
         try? FileManager.default.removeItem(at: directory)
