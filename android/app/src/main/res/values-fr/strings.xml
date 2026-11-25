@@ -39,7 +39,7 @@
     <string name="detail_info">Réglages Android du jeu</string>
     <string name="detail_uninstall">Désinstaller</string>
     <string name="detail_uninstall_note">Sur la page Android du jeu, touchez Désinstaller.</string>
-    <string name="detail_uninstall_warning">Désinstaller un jeu supprime aussi ses sauvegardes. Exportez-les d’abord : menu pause, onglet Jeu, Exporter la sauvegarde.</string>
+    <string name="detail_uninstall_warning">Désinstaller un jeu supprime aussi ses sauvegardes. Exportez-les d’abord : menu pause, onglet Game, Export save.</string>
     <string name="launch_failed">%1$s n’a pas pu démarrer.</string>
     <string name="demo_game">Ceci est une entrée de démonstration.</string>
 
