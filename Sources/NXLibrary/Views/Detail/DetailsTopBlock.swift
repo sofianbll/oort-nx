@@ -179,8 +179,11 @@ struct DetailsTopBlock: View {
             HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 ForEach(Array(PortingPillCopy.failedTitles.enumerated()), id: \.offset) { index, title in
                     SelenePillButton(title: title, minWidth: 200, height: 52, horizontalPadding: 36,
-                                     focused: focusedPill == index) { onPill(index) }
+                                     focused: focusedPill == index,
+                                     tint: PortingPillCopy.deletes(index) ? PortingPillCopy.softRed : nil) { onPill(index) }
                         .seleneHover { onHoverPill(index) }
+                        // What deletes stands apart.
+                        .padding(.leading, PortingPillCopy.deletes(index) ? canvas.u(SeleneTokens.Space.group) : 0)
                 }
             }
         case .normal, .queued, .normalAfterFailure, .unavailable:

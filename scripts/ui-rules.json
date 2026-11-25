@@ -237,64 +237,8 @@
    }
   },
   "button-order": {
-   "Sources/NXLibrary/ViewModels/AppViewModel.swift": {
-    "notice-choices": 1
-   },
-   "Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift": {
-    "cloud-panel-foot": 1,
-    "free-space-walk": 1
-   },
-   "Sources/NXLibrary/Views/GameOptions/SavesPanel.swift": {
-    "cancelIndex copyFrom.count": 1
-   },
-   "Sources/NXLibrary/Views/Launch/DevelopmentStartupView.swift": {
-    "library-unavailable": 1
-   },
-   "Sources/NXLibrary/Views/Launch/DowngradeWarningView.swift": {
-    "downgrade-warning": 1
-   },
-   "Sources/NXLibrary/Views/Launch/LaunchScreenView.swift": {
-    "hint B on the right": 1
-   },
-   "Sources/NXLibrary/Views/OortUI/OortFilePicker.swift": {
-    "file-picker-foot": 1
-   },
-   "Sources/NXLibrary/Views/OortUI/SeleneConfirmDialog.swift": {
-    "confirm-dialog": 1
-   },
-   "Sources/NXLibrary/Views/Search/FindGameView.swift": {
-    "hint B on the right": 1
-   },
    "Sources/NXLibrary/Views/Settings/CloudSetupAssistant.swift": {
     "row pill(.cancel,cancelTitle,enabled:move?.c": 1
-   },
-   "Sources/NXLibrary/Views/Settings/SettingsView.swift": {
-    "cancelIndex 2": 1
-   },
-   "Sources/NXLibrary/Views/Setup/ArcaneWelcomeView.swift": {
-    "hint B on the right": 1,
-    "row Not now": 1
-   },
-   "Sources/NXLibrary/Views/Setup/OnboardingScreen.swift": {
-    "hint B on the right": 1,
-    "row back": 1
-   },
-   "Sources/NXLibrary/Views/Setup/OnboardingView.swift": {
-    "guided-setup-walk": 1
-   },
-   "Sources/NXLibrary/Views/Setup/SetupCheckView.swift": {
-    "hint B on the right": 1
-   },
-   "Sources/NXLibrary/Views/Shell/AppShellView+Profiles.swift": {
-    "cancelIndex 1": 1
-   },
-   "Sources/NXLibrary/Views/Shell/ProfileEditorView.swift": {
-    "cancelIndex 1": 1
-   }
-  },
-  "focus-danger": {
-   "Sources/NXLibrary/ViewModels/GameInboxModel.swift": {
-    "notice \"Sort and move to Trash\"": 1
    }
   },
   "keyboard-path": {
@@ -316,9 +260,6 @@
    },
    "Sources/NXLibrary/Views/Detail/GameDetailView+Input.swift": {
     "Return without keypad Enter": 1
-   },
-   "Sources/NXLibrary/Views/Launch/DevelopmentStartupView.swift": {
-    "shortcut Start without a copy": 1
    },
    "Sources/NXLibrary/Views/Settings/SettingsCloudSavesSection.swift": {
     "help Cloud saves": 1
@@ -1141,14 +1082,16 @@
    "why": "Cancel on the left, the main answer last"
   },
   {
-   "id": "notice-choices",
-   "file": "Sources/NXLibrary/ViewModels/AppViewModel.swift",
-   "scope": "var choices: \\[String\\]",
+   "id": "action-bar",
+   "file": "Sources/NXLibraryCore/Selene/ActionBarOrder.swift",
+   "scope": "enum ActionBarRole",
    "order": [
-    "cancelTitle\\b",
-    "actionTitle\\b"
+    "\\bdestructive\\b",
+    "\\bback\\b",
+    "\\bsecondary\\b",
+    "\\bprimary\\b"
    ],
-   "why": "Cancel first, the main answer last"
+   "why": "what erases apart on the left, the way back, the others, the main answer last"
   },
   {
    "id": "file-picker-foot",
@@ -1163,13 +1106,14 @@
   {
    "id": "cloud-panel-foot",
    "file": "Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift",
-   "scope": "struct CloudLibraryPanel",
+   "scope": "var foot:",
    "order": [
-    "button\\(\\.advanced",
-    "button\\(\\.close",
-    "button\\(\\.upload\\(nil\\)"
+    "\\.free\\b",
+    "\\.close\\b",
+    "\\.advanced\\b",
+    "\\.upload\\(nil\\)"
    ],
-   "why": "Advanced apart, then Close, Send last"
+   "why": "Free up space apart, then Close, Send last"
   },
   {
    "id": "free-space-walk",
@@ -1204,12 +1148,12 @@
   {
    "id": "library-unavailable",
    "file": "Sources/NXLibrary/Views/Launch/DevelopmentStartupView.swift",
-   "scope": "struct DevelopmentStartupView",
+   "scope": "var foot:",
    "order": [
-    "\"Close\"",
-    "\"Open library folder\"",
-    "\"Start without a copy\"",
-    "\"Retry\""
+    "\\.close\\b",
+    "\\.folder\\b",
+    "\\.withoutCopy\\b",
+    "\\.retry\\b"
    ],
    "why": "Close first, Retry last"
   }
