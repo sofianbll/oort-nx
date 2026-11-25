@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 25 novembre 2026. Copertura di **1176 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 25 novembre 2026. Copertura di **1181 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -314,6 +314,7 @@ Cartella `Sources/NXLibraryCore/Selene/`.
 | [Sources/NXLibraryCore/Selene/InputInHand.swift](../../Sources/NXLibraryCore/Selene/InputInHand.swift) | Decide quale dispositivo è in mano (controller, tastiera o puntatore) senza sfarfallii: stick nella zona morta e piccoli spostamenti non contano. |
 | [Sources/NXLibraryCore/Selene/LaunchExit.swift](../../Sources/NXLibraryCore/Selene/LaunchExit.swift) | Dopo quattro secondi dice come uscire dalla schermata di avvio: B o Esc se Oort riceve i tasti, altrimenti il clic. |
 | [Sources/NXLibraryCore/Selene/RailScroll.swift](../../Sources/NXLibraryCore/Selene/RailScroll.swift) | Traduce rotella e due dita in passi della riga: un riquadro per riquadro di corsa, uno per scatto. |
+| [Sources/NXLibraryCore/Selene/OnScreenKeyboard.swift](../../Sources/NXLibraryCore/Selene/OnScreenKeyboard.swift) | Pagine, tasti, maiuscole e spostamento del focus della tastiera a schermo. |
 | [Sources/NXLibraryCore/Selene/MaterialIcon.swift](../../Sources/NXLibraryCore/Selene/MaterialIcon.swift) | Elenca i glifi del font incluso, compresi cancellazione e conferma del PIN. |
 | [Sources/NXLibraryCore/Selene/MenuSelectionModel.swift](../../Sources/NXLibraryCore/Selene/MenuSelectionModel.swift) | Gestisce icone, voci delle schede e pillole Power; salta l'Inbox disattivata e lascia il focus sull'icona alla chiusura. |
 | [Sources/NXLibraryCore/Selene/MoonlightAppearance.swift](../../Sources/NXLibraryCore/Selene/MoonlightAppearance.swift) | Identità delle superfici classica/Arcane/Flow e campionamento dei colori locali condiviso fra shader e fallback. |
@@ -855,6 +856,8 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/OortUI/OortControls.swift](../../Sources/NXLibrary/Views/OortUI/OortControls.swift) | Preset per righe, azioni e stati, e riga con cursore. |
 | [Sources/NXLibrary/Views/OortUI/OortGameTile.swift](../../Sources/NXLibrary/Views/OortUI/OortGameTile.swift) | Tessera con preset Spotlight e Collection, input e accessibilità; l'arte resta al chiamante. |
 | [Sources/NXLibrary/Views/OortUI/OortSecondaryClick.swift](../../Sources/NXLibrary/Views/OortUI/OortSecondaryClick.swift) | Clic destro (o Ctrl-clic) su un riquadro: le stesse opzioni di +; ogni altro evento passa al riquadro. |
+| [Sources/NXLibrary/Views/OortUI/OortKeyboard.swift](../../Sources/NXLibrary/Views/OortUI/OortKeyboard.swift) | Tastiera a schermo unica: si apre sotto ogni campo raggiunto col controller e scrive in quel campo. |
+| [Sources/NXLibrary/Views/OortUI/OortKeyboardProbe.swift](../../Sources/NXLibrary/Views/OortUI/OortKeyboardProbe.swift) | Prova Debug senza finestra: campi reali riempiti con sole azioni del controller. |
 | [Sources/NXLibrary/Views/OortUI/PlayerSlot.swift](../../Sources/NXLibrary/Views/OortUI/PlayerSlot.swift) | Posto giocatore ad altezza stabile con ritratto, stato e valore accessibile. |
 | [DESIGN.md](../../DESIGN.md) | Sistema di design: token, pezzi, regole. |
 | [PRODUCT.md](../../PRODUCT.md) | Per chi è Oort, cosa promette e cosa evita. |
@@ -1003,6 +1006,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/NXLibraryCoreTests/ClickableHintsTests.swift](../../Tests/NXLibraryCoreTests/ClickableHintsTests.swift) | Suggerimenti cliccabili nelle schermate iniziali, nello spostamento e nelle catture. |
 | [Tests/NXLibraryCoreTests/RailScrollTests.swift](../../Tests/NXLibraryCoreTests/RailScrollTests.swift) | Passi, direzione, scatti, pausa e asse della rotella sulle righe. |
 | [Tests/NXLibraryCoreTests/SafeDefaultsTests.swift](../../Tests/NXLibraryCoreTests/SafeDefaultsTests.swift) | Schermate che si aprono da sole: Indietro nel primo avvio e scelta iniziale dell'aggiornamento. |
+| [Tests/NXLibraryCoreTests/OnScreenKeyboardTests.swift](../../Tests/NXLibraryCoreTests/OnScreenKeyboardTests.swift) | Caratteri disponibili, maiuscole, focus e cambio pagina della tastiera a schermo. |
 | [Tests/NXLibraryCoreTests/SettingsResetQuestionTests.swift](../../Tests/NXLibraryCoreTests/SettingsResetQuestionTests.swift) | Domanda prima di ogni ripristino di gruppo e suo testo. |
 | [Tests/OortCoreTests/ControllerInputTests.swift](../../Tests/OortCoreTests/ControllerInputTests.swift) | Report Nintendo sintetici, calibrazione, transizioni e precedenza di GameController. |
 | [Tests/ArcanePortingTests/CheatCopyTests.swift](../../Tests/ArcanePortingTests/CheatCopyTests.swift) | Testi di intestazione, rifiuto, conferma e rimozione dei cheats. |
@@ -1196,6 +1200,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [CatalogPersonalizationTests.swift](../../Tests/ArcanePortingTests/CatalogPersonalizationTests.swift) | Rinomina senza perdita del lookup e isolamento di chiavi uguali tra fonti. |
 | [CatalogBuildRecoveryTests.swift](../../Tests/ArcanePortingTests/CatalogBuildRecoveryTests.swift) | Vecchia build persistita e nuova conservata, sospensione automatica e conferme obsolete. |
 | [run_notices.py](../../Tests/CatalogAppChecks/run_notices.py) | Esegue il modello e i metodi reali degli avvisi e del ponte legacy senza finestre, dopo swift test. |
+| [run_onscreen_keyboard.py](../../Tests/CatalogAppChecks/run_onscreen_keyboard.py) | Avvia la prova della tastiera a schermo su una home isolata. |
 | [run_update_wait.py](../../Tests/CatalogAppChecks/run_update_wait.py) | Bundle di prova: conserva l'aggiornamento verificato mentre un gioco o un lease blocca; riprende dallo ZIP senza rete e rifiuta modifiche. |
 | [run_review.py](../../Tests/CatalogAppChecks/run_review.py) | Verifica senza finestre achievement, loghi, focus, input del centro e di Integrations, badge mod in Online, priorità dei dialoghi e Steam durante Play. |
 | [audit_probe_host.py](../../Tests/CatalogAppChecks/audit_probe_host.py) | Collega sonde headless al binario di debug e le isola con home temporanea e senza rete. |

@@ -110,7 +110,9 @@ struct LocalePicker: View {
         .onReceive(NotificationCenter.default.publisher(for: .nxLocalePickerGamepadAction)) { note in
             guard canHandleInput(), let action = note.object as? GamepadAction else { return }
             switch action {
-            case .navigateUp: move(-1)
+            case .navigateUp:
+                // Above the first region is the search.
+                if mode == .region, focus == 0 { searchFocused = true } else { move(-1) }
             case .navigateDown: move(1)
             case .jumpToStart: move(-10_000)
             case .jumpToEnd: move(10_000)

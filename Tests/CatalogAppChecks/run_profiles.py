@@ -1361,7 +1361,7 @@ extension ProfileEditorView {
         check(existing) {
             press(.confirm)
             let draft = editor!.profile
-            editor!.selectKey(editor!.keys.count - 1) // Done continues editing instead of saving.
+            editor!.press(.done) // Done continues editing instead of saving.
             precondition(editor!.step == .avatar && editor!.profile == draft)
             close()
             precondition(editor!.discardFocus == 1 && cancelled == 1)

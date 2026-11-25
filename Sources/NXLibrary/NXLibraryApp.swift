@@ -43,6 +43,11 @@ struct NXLibraryApp: App {
             try! OortFilePickerProbe.capture(to: URL(fileURLWithPath: args[index + 1], isDirectory: true))
             exit(EXIT_SUCCESS)
         }
+        if let index = args.firstIndex(of: "--render-keyboard") {
+            precondition(args.indices.contains(index + 1), "Pass a directory for the keyboard PNGs")
+            try! OortKeyboardProbe.run(to: URL(fileURLWithPath: args[index + 1], isDirectory: true))
+            exit(EXIT_SUCCESS)
+        }
         if let index = args.firstIndex(of: "--render-oort-ui-gallery") {
             precondition(args.indices.contains(index + 1), "Pass a directory for the gallery PNGs")
             try! OortUIGallery.capture(to: URL(fileURLWithPath: args[index + 1], isDirectory: true))

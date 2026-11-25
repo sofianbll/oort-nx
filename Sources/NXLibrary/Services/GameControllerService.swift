@@ -25,9 +25,8 @@ final class GameControllerService: ObservableObject {
     /// The last thing used, shared by every prompt: a button, a key, a click or a real move of the mouse.
     @Published private(set) var inputInHand = InputInHand()
     /// The controller the prompts name, or none while the keyboard or the mouse leads.
-    var padInHand: ConnectedPad {
-        ConnectedPad(connected: inputInHand.usesController(connected: isGamepadConnected), brand: activeBrand)
-    }
+    var padInHand: ConnectedPad { ConnectedPad(connected: controllerInHand, brand: activeBrand) }
+    var controllerInHand: Bool { inputInHand.usesController(connected: isGamepadConnected) }
     @Published private(set) var menuHoldStartedAt: TimeInterval?
     @Published private(set) var connectedControllers: [ConnectedController] = []
     @Published private(set) var homeAccess: ControllerHomeAccess = .disconnected

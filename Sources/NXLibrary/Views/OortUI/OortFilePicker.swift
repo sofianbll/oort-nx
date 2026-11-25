@@ -274,6 +274,7 @@ import UniformTypeIdentifiers
 
 struct OortFilePicker: View {
     @ObservedObject var model: OortFilePickerModel
+    @ObservedObject private var typing = OortKeyboardPresentation.shared
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.nxAppLocale) private var locale
     @FocusState private var searchFocused: Bool
@@ -323,6 +324,8 @@ struct OortFilePicker: View {
         .foregroundStyle(SeleneTheme.ink)
         .background(SeleneTheme.pageSurface)
         .environment(\.seleneMinimumFont, 12)
+        .environment(\.seleneHintsCovered, typing.isOpen)
+        .overlay { OortKeyboardLayer(inSheet: true) }
         .onAppear {
             model.confirm = activate
             model.close = cancel

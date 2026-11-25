@@ -17,9 +17,9 @@ struct ProfileEditorView: View {
     let onCancel: () -> Void
     let onSave: (LocalProfile) -> Bool
     @State var step: Step = .name
-    @State private var indexes = [10, 0, 0, 0]
+    @State private var indexes = [0, 0, 0, 0]
     @State private var error: String?
-    @State private var shift = false
+    @State private var keyboard = OnScreenKeyboard()
     @State private var customBackground: URL?
     @State private var savedBackgroundID: String?
     @State var cachedPortraits: [CachedAvatar] = []
@@ -33,8 +33,6 @@ struct ProfileEditorView: View {
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.seleneReduceMotion) private var reduceMotion
 
-    private let keys = "1234567890QWERTYUIOPASDFGHJKL'ZXCVBNM-.".map(String.init) + ["Shift", "Space", "Erase", "Done"]
-    private let keyRows = [0..<10, 10..<20, 20..<30, 30..<39, 39..<43]
     private var palettes: [SelenePalette] { theme.palettes.isEmpty ? [theme.palette] : theme.palettes }
     private var wallpapers: [String?] { theme.wallpaperChoices }
     private var customBackgroundSelected: Bool { step == .background && index == wallpapers.count }
@@ -42,7 +40,7 @@ struct ProfileEditorView: View {
     private var columns: Int { [10, 10, 5, 3][step.rawValue] }
     private var presetCount: Int { cachedPortraits.count + ProfilePortrait.symbols.count }
     private var ownAvatar: Int { presetCount + (profile.portrait == nil ? 0 : 1) }
-    private var itemCount: Int { [keys.count, ownAvatar + 1, palettes.count, wallpapers.count + 1][step.rawValue] }
+    private var itemCount: Int { [1, ownAvatar + 1, palettes.count, wallpapers.count + 1][step.rawValue] }
 
     init(profile: LocalProfile, games: [PortedGame], avatarGames: [CatalogGame] = [], artwork: ArtworkStore? = nil,
          isNew: Bool, nameOnly: Bool = false, onCancel: @escaping () -> Void, onSave: @escaping (LocalProfile) -> Bool,
@@ -181,40 +179,11 @@ struct ProfileEditorView: View {
                 .seleneRowFocus(nameFocused, radius: canvas.u(SeleneTokens.Radius.field))
                 .focused($nameFocused)
                 .onSubmit { advance() }
-            VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
-                ForEach(keyRows, id: \.lowerBound) { row in
-                    HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
-                        ForEach(row, id: \.self) { item in
-                            button(item, label: L10n.text(keys[item]), action: { selectKey(item) }) {
-                                keyFace(item)
-                            }
-                        }
-                    }
-                }
-            }
+            OortKeyboard(keyboard: $keyboard, lit: !nameFocused, press: press)
         }
-    }
-
-    private func keyWidth(_ item: Int) -> CGFloat { item < 39 ? 70 : item == 40 ? 308 : 147 }
-
-    private func keyFace(_ item: Int) -> some View {
-        let key = keys[item]
-        return Group {
-            if key == "Erase" { Image(systemName: "delete.left") }
-            else if key == "Shift" { Image(systemName: shift ? "shift.fill" : "shift") }
-            else { Text(L10n.text(key)) }
-        }
-        .seleneFont(item < 39 ? .heading : .text)
-        .frame(width: canvas.u(keyWidth(item)), height: canvas.u(64))
-        .oortPanel(radius: canvas.u(SeleneTokens.Radius.card))
-        .overlay(alignment: .topTrailing) {
-            if item > 39 && (item != 42 || isNew) {
-                SelenePromptBadge(button: item == 40 ? .y : item == 41 ? .x : .menu, height: 22,
-                                  keyboardOverride: item == 42 ? .symbol("return") : nil)
-                    .padding(canvas.u(SeleneTokens.Space.hairline)).accessibilityHidden(true)
-            }
-        }
-        .modifier(TileFocus(focused: index == item && !nameFocused, radius: 16, scale: 1.1))
+        // Its keys are always on screen: the shared keyboard stays away.
+        .onAppear { OortKeyboardPresentation.shared.ownKeys += 1 }
+        .onDisappear { OortKeyboardPresentation.shared.ownKeys -= 1 }
     }
 
     private static let avatarSpacing: CGFloat = 210
@@ -380,17 +349,9 @@ struct ProfileEditorView: View {
         case .navigateLeft, .navigateRight, .navigateUp, .navigateDown:
             let next: Int
             if step == .name {
-                guard let row = keyRows.firstIndex(where: { $0.contains(index) }) else { return }
-                if action == .navigateUp || action == .navigateDown {
-                    let target = row + (action == .navigateUp ? -1 : 1)
-                    guard keyRows.indices.contains(target) else { return }
-                    let x = keyCenter(index, in: keyRows[row])
-                    next = keyRows[target].min { abs(keyCenter($0, in: keyRows[target]) - x)
-                        < abs(keyCenter($1, in: keyRows[target]) - x) } ?? index
-                } else {
-                    next = index + (action == .navigateLeft ? -1 : 1)
-                    guard keyRows[row].contains(next) else { return }
-                }
+                nameFocused = false
+                keyboard.move(action == .navigateUp ? .up : action == .navigateDown ? .down : action == .navigateLeft ? .left : .right)
+                return
             } else if step == .avatar {
                 guard action == .navigateLeft || action == .navigateRight else { return }
                 next = (index + itemCount + (action == .navigateLeft ? -1 : 1)) % itemCount
@@ -405,20 +366,17 @@ struct ProfileEditorView: View {
         case .cancel: back()
         case .menu: advance(saveOnName: !isNew)
         case .menuHold: requestCancel()
-        case .secondaryAction where step == .name: selectKey(keys.count - 2)
-        case .contextAction where step == .name: selectKey(keys.count - 3)
+        case .secondaryAction where step == .name: press(.erase)
+        case .contextAction where step == .name: press(.space)
+        case .tabPrevious where step == .name: keyboard.turnPage(-1)
+        case .tabNext where step == .name: keyboard.turnPage()
         default: break
         }
     }
 
-    private func keyCenter(_ item: Int, in row: Range<Int>) -> CGFloat {
-        let total = row.reduce(CGFloat.zero) { $0 + keyWidth($1) + 9 }
-        return row.prefix(while: { $0 < item }).reduce(-total / 2) { $0 + keyWidth($1) + 9 } + keyWidth(item) / 2
-    }
-
     private func accept() {
         switch step {
-        case .name: selectKey(index)
+        case .name: press(keyboard.focused)
         default: advance()
         }
     }
@@ -498,12 +456,15 @@ struct ProfileEditorView: View {
 
     private func chooseDiscardAction(_ index: Int) { if index == 0 { onCancel() } else { keepEditing() } }
 
-    private func selectKey(_ item: Int) {
-        let key = keys[item]
-        if key == "Done" { advance() }
-        else if key == "Shift" { shift.toggle() }
-        else if key == "Erase" { if !profile.name.isEmpty { profile.name.removeLast() } }
-        else if profile.name.count < 32 { profile.name += key == "Space" ? " " : shift ? key : key.lowercased() }
+    private func press(_ key: OnScreenKeyboard.Key) {
+        switch key {
+        case .done: advance()
+        case .shift: keyboard.toggleShift()
+        case .page: keyboard.turnPage()
+        case .erase: if !profile.name.isEmpty { profile.name.removeLast() }
+        case .text, .space:
+            if profile.name.count < 32, let text = keyboard.text(key) { profile.name += text }
+        }
     }
 
     private struct AvatarCropDraft {
