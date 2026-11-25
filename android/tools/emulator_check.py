@@ -1,0 +1,544 @@
+#!/usr/bin/env python3
+"""Drives the release APK in a running emulator, as a player would: finds the made-up games, starts one and comes back,
+with the finger and with a controller, upright and on its side, on a phone and a tablet, in English and in French, with
+large text. Writes pictures and a report; fails on a missing thing, a crash, or a touch target under 48 dp.
+
+    emulator_check.py --apk oort.apk --games DIR --out DIR
+"""
+import argparse
+import json
+import re
+import subprocess
+import sys
+import time
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+PACKAGE = "io.github.sofianbll.oortnx.alpha"
+ACTIVITY = f"{PACKAGE}/io.github.sofianbll.oortnx.MainActivity"
+RES = Path(__file__).resolve().parents[1] / "app/src/main/res"
+GAMES = ["Le phare de Brume", "Marée haute", "Collines rouges", "Les très longues aventures de la comète perdue"]
+PAD = {"A": "BUTTON_A", "B": "BUTTON_B", "X": "BUTTON_X", "Y": "BUTTON_Y", "L1": "BUTTON_L1", "R1": "BUTTON_R1", "START": "BUTTON_START",
+       "UP": "DPAD_UP", "DOWN": "DPAD_DOWN", "LEFT": "DPAD_LEFT", "RIGHT": "DPAD_RIGHT"}
+
+passed, failed, small = [], [], {}
+out = Path()
+words = {}
+api = 0
+
+
+def adb(*args, binary=False, check=False, timeout=90):
+    done = subprocess.run(["adb", *map(str, args)], capture_output=True, timeout=timeout)
+    if check and done.returncode:
+        raise RuntimeError(f"adb {' '.join(map(str, args))}: {done.stderr.decode(errors='replace')}")
+    return done.stdout if binary else done.stdout.decode(errors="replace")
+
+
+def shell(command, **kw):
+    return adb("shell", command, **kw)
+
+
+def ok(name, good, detail=""):
+    (passed if good else failed).append(name + (f" ({detail})" if detail and not good else ""))
+    print(("ok    " if good else "FAIL  ") + name + (f": {detail}" if detail and not good else ""), flush=True)
+    if not good:
+        shot("FAIL-" + re.sub(r"[^a-z0-9]+", "-", name.lower())[:60])
+    return good
+
+
+def shot(name):
+    (out / f"{name}.png").write_bytes(adb("exec-out", "screencap", "-p", binary=True))
+
+
+class Node:
+    def __init__(self, element):
+        self.text, self.desc, self.package = element.get("text", ""), element.get("content-desc", ""), element.get("package", "")
+        self.said = " ".join(filter(None, [self.text, self.desc]))
+        self.clickable, self.checked, self.selected = (element.get(k) == "true" for k in ("clickable", "checked", "selected"))
+        self.box = [int(n) for n in re.findall(r"-?\d+", element.get("bounds", "[0,0][0,0]"))]
+
+    @property
+    def centre(self):
+        return (self.box[0] + self.box[2]) // 2, (self.box[1] + self.box[3]) // 2
+
+
+def density():
+    return int(re.findall(r"density: (\d+)", shell("wm density"))[-1]) / 160
+
+
+def screen():
+    for _ in range(4):
+        shell("rm -f /sdcard/oort-ui.xml; uiautomator dump /sdcard/oort-ui.xml")
+        text = adb("exec-out", "cat", "/sdcard/oort-ui.xml")
+        if "<hierarchy" in text:
+            break
+        time.sleep(1)
+    else:
+        return []
+    nodes = [Node(e) for e in ET.fromstring(text[text.index("<"):]).iter("node")]
+    size = [max(n.box[2] for n in nodes), max(n.box[3] for n in nodes)]
+    scale = density()
+    for n in nodes:
+        if n.package != PACKAGE or not n.clickable:
+            continue
+        w, h = n.box[2] - n.box[0], n.box[3] - n.box[1]
+        # A line cut by the edge of its scrolling page is not a small target.
+        edge = n.box[0] <= 0 or n.box[2] >= size[0] or n.box[1] <= 90 * scale or n.box[3] >= size[1] - 120 * scale
+        if min(w, h) < 47.5 * scale and not edge:
+            small[n.said or "(no name)"] = f"{w / scale:.0f}x{h / scale:.0f} dp"
+    return nodes
+
+
+def find(text, nodes=None, exact=False):
+    hits = [n for n in (screen() if nodes is None else nodes) if (text == n.text or text == n.desc if exact else text.lower() in n.said.lower())]
+    return hits[0] if hits else None
+
+
+def wait(text, seconds=20, exact=False):
+    end = time.time() + seconds
+    while True:
+        node = find(text, exact=exact)
+        if node or time.time() > end:
+            return node
+        time.sleep(0.5)
+
+
+def see(name, text, **kw):
+    node = wait(text, **kw)
+    ok(name, node is not None, f"no “{text}” on screen")
+    return node
+
+
+def tap(text, exact=False, seconds=15):
+    node = wait(text, seconds, exact)
+    if not node:
+        ok(f"tap “{text}”", False, "not on screen")
+        return False
+    shell("input tap %d %d" % node.centre)
+    time.sleep(0.9)
+    return True
+
+
+def pad(*keys):
+    for key in keys:
+        shell(f"input gamepad keyevent {PAD[key]}")
+        time.sleep(0.45)
+    time.sleep(0.4)
+
+
+def system_back():
+    shell("input keyevent BACK")
+    time.sleep(1)
+
+
+def display():
+    return [int(n) for n in re.findall(r"cur=(\d+)x(\d+)", shell("dumpsys window displays"))[0]]
+
+
+def scroll(down=True):
+    w, h = display()
+    a, b = int(h * 0.7), int(h * 0.3)
+    shell(f"input swipe {w // 2} {a if down else b} {w // 2} {b if down else a} 250")
+    time.sleep(0.8)
+
+
+def front():
+    found = re.findall(r"(?:topResumedActivity|mResumedActivity|ResumedActivity)[=:].*?u0 ([\w.]+)/", shell("dumpsys activity activities"))
+    return found[0] if found else ""
+
+
+def wait_front(package, seconds=15):
+    end = time.time() + seconds
+    while time.time() < end:
+        if front() == package:
+            return True
+        time.sleep(0.4)
+    return False
+
+
+def start():
+    shell(f"am start -W -n {ACTIVITY}")
+    time.sleep(1.5)
+
+
+def fresh():
+    shell(f"am force-stop {PACKAGE}")
+    start()
+
+
+def load_words(lang):
+    folder = "values-fr" if lang == "fr" else "values"
+    words.clear()
+    words.update({s.get("name"): (s.text or "") for s in ET.parse(RES / folder / "strings.xml").getroot().iter("string")})
+
+
+def language(lang):
+    load_words(lang)
+    tag = "fr-FR" if lang == "fr" else "en-US"
+    if api >= 33:
+        shell(f"cmd locale set-app-locales {PACKAGE} --user 0 --locales {tag}")
+    elif shell("getprop persist.sys.locale").strip() not in (tag, "" if lang == "en" else tag):
+        adb("root")
+        time.sleep(3)
+        adb("wait-for-device")
+        shell(f"setprop persist.sys.locale {tag}; stop; sleep 2; start")
+        time.sleep(15)
+        for _ in range(90):
+            if shell("getprop sys.boot_completed").strip() == "1" and "package:" in shell("pm path android") and shell("wm size").strip():
+                break
+            time.sleep(2)
+        time.sleep(20)
+        shell("wm dismiss-keyguard; input keyevent 82")
+    time.sleep(1)
+
+
+def w(name, *args):
+    text = words[name]
+    for i, a in enumerate(args, 1):
+        text = text.replace(f"%{i}$d", str(a)).replace(f"%{i}$s", str(a))
+    return text.replace("\\'", "'")
+
+
+# ---- what is checked ------------------------------------------------------------------------------------------
+
+
+def touch(lang):
+    """Every screen with the finger, on a phone upright."""
+    fresh()
+    see(f"{lang}: the first screen offers Play", w("detail_play"))
+    shot(f"{lang}-01-home")
+    first = next((g for g in GAMES if find(g, exact=False)), None)
+    ok(f"{lang}: a made-up game is on the first screen", first is not None)
+    width, height = display()
+    shell(f"input swipe {int(width * .8)} {int(height * .45)} {int(width * .15)} {int(height * .45)} 220")
+    time.sleep(1.5)
+    shot(f"{lang}-02-home-swiped")
+    nodes = screen()
+    ok(f"{lang}: the swipe chose another game", any(n.selected and n.desc in GAMES and n.desc != first for n in nodes), str([(n.desc, n.selected) for n in nodes if n.desc in GAMES]))
+
+    tap(w("nav_library"), exact=True)
+    time.sleep(0.8)
+    nodes = screen()
+    for game in GAMES:
+        ok(f"{lang}: the library lists {game}", find(game, nodes) is not None)
+    ok(f"{lang}: the library leaves out an app that is not a game", find("Pas un jeu", nodes) is None)
+    shot(f"{lang}-03-library")
+    tap(w("sort"), exact=True)
+    shot(f"{lang}-04-library-sort")
+    tap(w("sort_name"), exact=True)
+    nodes = [n for n in screen() if any(g == n.text or g in n.said for g in GAMES)]
+    order = sorted({next(g for g in GAMES if g in n.said): n.centre for n in nodes}.items(), key=lambda e: (e[1][1] // 100, e[1][0]))
+    ok(f"{lang}: sorted by name", [g for g, _ in order] == sorted(GAMES), str([g for g, _ in order]))
+
+    tap(GAMES[1])
+    see(f"{lang}: the game's page shows its version", "1.2.0")
+    shot(f"{lang}-05-game")
+    ok(f"{lang}: the page says it was never started, or when", find(w("started_never")) is not None or find(w("started_today")) is not None)
+    scroll()
+    scroll()
+    shot(f"{lang}-06-game-bottom")
+    ok(f"{lang}: Play stays on screen at the foot of the page", find(w("detail_play"), exact=True) is not None)
+    tap(w("detail_info"))
+    ok(f"{lang}: Android's page of the game opens", wait_front("com.android.settings"), front())
+    time.sleep(1)
+    system_back()
+    ok(f"{lang}: Back returns from Android's page", wait_front(PACKAGE), front())
+
+    tap(w("detail_play"), exact=True)
+    ok(f"{lang}: the game starts", wait_front("org.nx2a.testmaree"), front())
+    see(f"{lang}: the game shows its text", "FAUX JEU org.nx2a.testmaree")
+    shot(f"{lang}-07-fake-game")
+    system_back()
+    ok(f"{lang}: Back returns from the game to Oort", wait_front(PACKAGE), front())
+    scroll(False)
+    scroll(False)
+    see(f"{lang}: the page now says it was started today", w("started_today"))
+    system_back()
+    see(f"{lang}: Back leaves the page for the library", w("nav_library"))
+    system_back()
+    see(f"{lang}: Back leaves the library for the first screen", w("detail_play"))
+    ok(f"{lang}: the game just started comes first", any(n.selected and n.desc == GAMES[1] for n in screen()))
+
+    tap(w("nav_controllers"), exact=True)
+    see(f"{lang}: controllers", w("controllers_connected"))
+    shot(f"{lang}-08-controllers")
+    tap(w("controllers_test"))
+    see(f"{lang}: the controller in dots", w("controllers_hold"))
+    shot(f"{lang}-09-padtest")
+    system_back()
+
+    tap(w("nav_settings"), exact=True)
+    see(f"{lang}: settings", w("settings_thanks"))
+    shot(f"{lang}-10-settings")
+    tap(w("settings_sound"))
+    see(f"{lang}: the sounds have their own page", w("settings_pack"))
+    before = [n.checked for n in screen() if n.package == PACKAGE and n.clickable and w("settings_sound") in n.said]
+    shot(f"{lang}-11-sounds")
+    tap(w("settings_sound_note"), seconds=3)
+    tap("Umbra")
+    ok(f"{lang}: a sound pack is chosen", any(n.checked or n.selected for n in screen() if "Umbra" in n.said))
+    tap("Oort", exact=True)
+    ok(f"{lang}: the sound switch reads as on", any(before), str(before))
+    system_back()
+    tap(w("settings_cloud"))
+    shot(f"{lang}-12-cloud")
+    system_back()
+    tap(w("settings_which"))
+    see(f"{lang}: which games Oort finds", "org.nx2a")
+    shot(f"{lang}-13-which")
+    system_back()
+    scroll()
+    tap(w("settings_thanks"))
+    see(f"{lang}: credits", "nx2android")
+    shot(f"{lang}-14-thanks")
+    scroll()
+    tap(w("thanks_text_oort"))
+    see(f"{lang}: the MIT text", "Permission is hereby granted")
+    shot(f"{lang}-15-licence")
+    system_back()
+    tap(w("thanks_text_notices"))
+    see(f"{lang}: the notices", "shirai91")
+    system_back()
+    tap(w("thanks_text_apache"))
+    see(f"{lang}: the Apache text", "Version 2.0")
+    system_back()
+
+
+def controller(lang):
+    """The same app with a controller only."""
+    fresh()
+    see(f"{lang}, pad: first screen", w("detail_play"))
+    pad("RIGHT")
+    shot(f"{lang}-20-pad-home")
+    chosen = [n.desc for n in screen() if n.selected and n.desc in GAMES]
+    pad("RIGHT")
+    ok(f"{lang}, pad: right changes the game", [n.desc for n in screen() if n.selected and n.desc in GAMES] != chosen)
+    pad("DOWN", "RIGHT")
+    shot(f"{lang}-21-pad-home-keys")
+    pad("A")
+    see(f"{lang}, pad: A opens the game's page", w("detail_package"))
+    shot(f"{lang}-22-pad-game")
+    pad("DOWN", "DOWN")
+    shot(f"{lang}-23-pad-game-lines")
+    pad("UP", "UP", "B")
+    ok(f"{lang}, pad: B goes back", wait(w("nav_library"), exact=True) is not None and find(w("detail_package")) is None)
+    pad("R1")
+    ok(f"{lang}, pad: R1 opens the library", wait(w("sort"), exact=True) is not None)
+    pad("DOWN", "RIGHT")
+    shot(f"{lang}-24-pad-library")
+    pad("X")
+    pad("A")
+    see(f"{lang}, pad: A opens a game from the library", w("detail_package"))
+    pad("A")
+    ok(f"{lang}, pad: the game starts", any(wait_front(f"org.nx2a.test{g}", 6) for g in ("phare", "maree", "collines", "comete")), front())
+    system_back()
+    ok(f"{lang}, pad: and comes back", wait_front(PACKAGE), front())
+    pad("B", "L1")
+    ok(f"{lang}, pad: L1 goes back to the first screen", wait(w("detail_play"), exact=True) is not None and find(w("sort"), exact=True) is None)
+    pad("Y")
+    see(f"{lang}, pad: Y opens the controllers", w("controllers_connected"))
+    pad("START", "DOWN", "DOWN")
+    see(f"{lang}, pad: START opens the settings", w("settings_thanks"))
+    shot(f"{lang}-25-pad-settings")
+    pad("B")
+
+
+def real_pad():
+    """A virtual controller, seen by Android as a real one: a stick, a hat and buttons held together."""
+    def line(**kw):
+        return (json.dumps(kw) + "\n").encode()
+    axes = {0: (-32768, 32767), 1: (-32768, 32767), 2: (-32768, 32767), 5: (-32768, 32767), 9: (0, 255), 10: (0, 255), 16: (-1, 1), 17: (-1, 1)}
+    register = line(id=1, command="register", name="Oort test pad", vid=1, pid=1, bus="usb",
+                    configuration=[{"type": 100, "data": [1, 3]}, {"type": 101, "data": [304, 305, 307, 308, 310, 311, 312, 313, 314, 315, 316, 317, 318]}, {"type": 103, "data": list(axes)}],
+                    abs_info=[{"code": c, "info": {"value": 0, "minimum": a, "maximum": b, "fuzz": 0, "flat": 0, "resolution": 0}} for c, (a, b) in axes.items()])
+    process = subprocess.Popen(["adb", "shell", "uinput", "-"], stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    def send(*events):
+        process.stdin.write(line(id=1, command="inject", events=[n for e in events for n in (*e, 0, 0, 0)]))
+        process.stdin.flush()
+        time.sleep(0.6)
+
+    process.stdin.write(register + line(id=1, command="delay", duration=1500))
+    process.stdin.flush()
+    time.sleep(4)
+    if "Oort test pad" not in shell("dumpsys input"):
+        print("note  this image does not take a virtual controller: left out", flush=True)
+        process.kill()
+        return
+    fresh()
+    tap(w("nav_controllers"), exact=True)
+    see("virtual controller: listed by name", "Oort test pad")
+    shot("pad-01-connected")
+    tap(w("controllers_test"))
+    send((1, 310, 1), (1, 307, 1), (3, 0, 32767), (3, 1, -20000), (3, 17, -1), (3, 9, 255))
+    shot("pad-02-held")
+    send((1, 310, 0), (1, 307, 0), (3, 0, 0), (3, 1, 0), (3, 17, 0), (3, 9, 0))
+    see("virtual controller: the last button is named", w("controllers_last", "X"))
+    send((1, 305, 1))
+    time.sleep(1.6)
+    send((1, 305, 0))
+    ok("virtual controller: holding B closes the test", find(w("controllers_hold")) is None)
+    send((1, 305, 1))
+    send((1, 305, 0))
+    see("virtual controller: B then goes to the first screen", w("detail_play"))
+    chosen = [n.desc for n in screen() if n.selected and n.desc in GAMES]
+    send((3, 16, 1))
+    send((3, 16, 0))
+    ok("virtual controller: the hat moves", [n.desc for n in screen() if n.selected and n.desc in GAMES] != chosen)
+    chosen = [n.desc for n in screen() if n.selected and n.desc in GAMES]
+    send((3, 0, 32767))
+    send((3, 0, 0))
+    ok("virtual controller: the stick moves", [n.desc for n in screen() if n.selected and n.desc in GAMES] != chosen)
+    send((1, 304, 1))
+    send((1, 304, 0))
+    ok("virtual controller: A plays", any(wait_front(f"org.nx2a.test{g}", 6) for g in ("phare", "maree", "collines", "comete")), front())
+    process.stdin.close()
+    process.kill()
+    time.sleep(1)
+    system_back()
+    wait_front(PACKAGE)
+    ok("the app survives the controller leaving", front() == PACKAGE, front())
+
+
+def rotate(to):
+    shell(f"settings put system accelerometer_rotation 0; settings put system user_rotation {to}")
+    time.sleep(2.5)
+
+
+def tour(prefix, with_pad=False):
+    """Pictures of every section, from where the app is."""
+    fresh()
+    see(f"{prefix}: first screen", w("detail_play"))
+    shot(f"{prefix}-home")
+    if with_pad:
+        pad("RIGHT")
+        shot(f"{prefix}-home-pad")
+        pad("DOWN")
+        shot(f"{prefix}-home-pad-keys")
+        pad("R1", "RIGHT")
+        shot(f"{prefix}-library-pad")
+        pad("A")
+        see(f"{prefix}: page by the controller", w("game_page"))
+        shot(f"{prefix}-game-pad")
+        pad("DOWN", "DOWN")
+        shot(f"{prefix}-game-pad-lines")
+        pad("B", "START")
+        shot(f"{prefix}-settings-pad")
+        fresh()
+        wait(w("detail_play"))
+    tap(w("nav_library"), exact=True)
+    shot(f"{prefix}-library")
+    tap(GAMES[0])
+    see(f"{prefix}: game page", w("game_page"))
+    shot(f"{prefix}-game")
+    system_back()
+    tap(w("nav_controllers"), exact=True)
+    shot(f"{prefix}-controllers")
+    tap(w("controllers_test"))
+    shot(f"{prefix}-padtest")
+    system_back()
+    tap(w("nav_settings"), exact=True)
+    shot(f"{prefix}-settings")
+
+
+def crashes():
+    log = adb("logcat", "-d", "-b", "crash") + adb("logcat", "-d", "-b", "main,system", "-s", "AndroidRuntime:E", "ActivityManager:E")
+    (out / "crash-log.txt").write_text("\n".join(l for l in log.splitlines() if "oortnx" in l or "FATAL" in l or l.lstrip().startswith("at ") or "Exception" in l))
+    ok("no crash of Oort in logcat", f"Process: {PACKAGE}" not in log, "see crash-log.txt")
+    ok("no “not responding” of Oort", f"ANR in {PACKAGE}" not in log)
+
+
+def main():
+    global out, api
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--apk", required=True)
+    parser.add_argument("--games", type=Path, required=True)
+    parser.add_argument("--out", type=Path, required=True)
+    args = parser.parse_args()
+    out = args.out
+    out.mkdir(parents=True, exist_ok=True)
+    api = int(shell("getprop ro.build.version.sdk"))
+    print(f"Android API {api}, {shell('wm size').strip()}, {shell('wm density').strip()}", flush=True)
+    adb("logcat", "-c")
+    adb("install", "-r", args.apk, check=True)
+    asked = re.findall(r"^\s+([\w.]+\.permission\.[\w.]+|[\w.]+DYNAMIC_RECEIVER[\w]*)", shell(f"dumpsys package {PACKAGE}"), re.M)
+    ok("the installed app asks for no Android permission", not [p for p in asked if p.startswith("android.permission")], str(asked))
+    version = re.search(r"versionName=(\S+)", shell(f"dumpsys package {PACKAGE}"))
+    ok("version", version and version.group(1) == "0.1.0-alpha.1", str(version))
+    shell("settings put system font_scale 1.0; settings put secure show_ime_with_hard_keyboard 0; cmd uimode night yes")
+    rotate(0)
+
+    language("en")
+    fresh()
+    see("no game installed: the first screen says so", w("empty_title"))
+    shot("en-00-empty")
+    apks = sorted(args.games.glob("*.apk"))
+    for apk in apks:
+        adb("install", "-r", apk, check=True)
+    start()
+    see("games installed meanwhile are found on return", w("detail_play"))
+    touch("en")
+    controller("en")
+    real_pad()
+
+    language("fr")
+    touch("fr")
+    controller("fr")
+
+    rotate(1)
+    tour("fr-landscape", with_pad=True)
+    rotate(0)
+    shell("cmd uimode night no")
+    tour("fr-light-system")
+    shell("cmd uimode night yes")
+
+    shell("settings put system font_scale 2.0")
+    time.sleep(2)
+    tour("fr-large-text", with_pad=True)
+    rotate(1)
+    tour("fr-large-text-landscape")
+    rotate(0)
+    shell("settings put system font_scale 1.0")
+
+    shell("settings put global animator_duration_scale 0")
+    tour("fr-calm")
+    shell("settings put global animator_duration_scale 1")
+
+    size, dens = shell("wm size"), shell("wm density")
+    for name, value in (("tablet-landscape", "2560x1600"), ("tablet-portrait", "1600x2560")):
+        shell(f"wm size {value}; wm density 320")
+        time.sleep(4)
+        tour(f"fr-{name}", with_pad=name == "tablet-landscape")
+    shell("wm size 720x1280; wm density 320")
+    time.sleep(4)
+    tour("fr-small-phone")
+    shell("wm size reset; wm density reset")
+    time.sleep(4)
+
+    # A game that goes away while its page is open.
+    fresh()
+    tap(w("nav_library"), exact=True)
+    tap(GAMES[0])
+    see("page open before the game is removed", w("game_page"))
+    adb("uninstall", "org.nx2a.testphare")
+    start()
+    time.sleep(1)
+    ok("the page of a removed game closes by itself", find(w("detail_package")) is None and find(GAMES[0]) is None)
+    for apk in apks:
+        adb("uninstall", apk.stem)
+    start()
+    see("every game removed: the app says so", w("empty_title"))
+    shot("fr-99-empty")
+
+    crashes()
+    ok("every touch target is at least 48 dp", not small, str(small))
+    report = {"api": api, "passed": passed, "failed": failed, "small_targets": small, "size": size, "density": dens}
+    (out / "report.json").write_text(json.dumps(report, indent=1, ensure_ascii=False))
+    print(f"{len(passed)} passed, {len(failed)} failed", flush=True)
+    for name in failed:
+        print("  - " + name)
+    sys.exit(1 if failed else 0)
+
+
+if __name__ == "__main__":
+    main()

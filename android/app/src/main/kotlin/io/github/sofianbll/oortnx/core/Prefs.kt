@@ -2,13 +2,14 @@ package io.github.sofianbll.oortnx.core
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.PowerManager
 import android.provider.Settings
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
 /** The launcher's few settings, kept on the device and nowhere else. */
-class Prefs(context: Context) {
+class Prefs(private val context: Context) {
     private val store: SharedPreferences = context.getSharedPreferences("oort", Context.MODE_PRIVATE)
 
     var sound by mutableStateOf(store.getBoolean("sound", true))
@@ -23,13 +24,38 @@ class Prefs(context: Context) {
         private set
 
     // The system switch sets the animator scale to 0 (Settings > Accessibility > Remove animations).
-    private val systemCalm: Boolean =
-        Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
+    private var noAnimations by mutableStateOf(false)
+    private var saving by mutableStateOf(false)
 
-    val calm: Boolean get() = calmChoice ?: systemCalm
+    /** Nothing moves: the player asked for it here, or Android's "remove animations" is on. */
+    val calm: Boolean get() = calmChoice ?: noAnimations
+
+    /** The cloud also rests while Android saves the battery. */
+    val stillCloud: Boolean get() = calm || saving
+
+    /** The library in order of name; else the last started first. */
+    var byName by mutableStateOf(store.getBoolean("byName", false))
+        private set
+
+    /** When each game was last started from here, by package. */
+    var started by mutableStateOf(store.all.filterKeys { it.startsWith(STARTED) }.mapNotNull { (k, v) -> (v as? Long)?.let { k.removePrefix(STARTED) to it } }.toMap())
+        private set
+
+    init { refresh() }
+
+    /** Reads Android's own switches again: they change while the app is behind. */
+    fun refresh() {
+        noAnimations = Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
+        saving = (context.getSystemService(Context.POWER_SERVICE) as? PowerManager)?.isPowerSaveMode == true
+    }
+
+    fun saveByName(on: Boolean) { byName = on; store.edit().putBoolean("byName", on).apply() }
+    fun saveStarted(packageName: String, at: Long) { started = started + (packageName to at); store.edit().putLong(STARTED + packageName, at).apply() }
 
     fun saveSound(on: Boolean) { sound = on; store.edit().putBoolean("sound", on).apply() }
     fun savePack(name: String) { if (name in OortSynth.packs) { pack = name; store.edit().putString("pack", name).apply() } }
     fun saveSwapAB(on: Boolean) { swapAB = on; store.edit().putBoolean("swapAB", on).apply() }
     fun saveCalm(on: Boolean) { calmChoice = on; store.edit().putBoolean("calm", on).apply() }
+
+    private companion object { const val STARTED = "started:" }
 }

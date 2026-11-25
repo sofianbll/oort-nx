@@ -85,6 +85,20 @@ class AndroidProject(unittest.TestCase):
         self.assertTrue((ANDROID / "app/src/main/kotlin" / BASE / "MainActivity.kt").exists())
         self.assertIn('android:name=".MainActivity"', (MAIN / "AndroidManifest.xml").read_text())
 
+    def test_the_licences_in_the_app_are_the_repositorys(self):
+        texts = MAIN / "assets/licences"
+        self.assertEqual((texts / "oort-nx.txt").read_bytes(), (ANDROID.parent / "LICENSE").read_bytes())
+        self.assertEqual((texts / "notices.txt").read_bytes(), (ANDROID / "NOTICE.md").read_bytes())
+        self.assertIn("Version 2.0, January 2004", (texts / "apache-2.0.txt").read_text())
+        named = set(re.findall(r'\w+\("([\w.-]+\.txt)"', (ANDROID / "app/src/main/kotlin" / BASE / "ui/Rows.kt").read_text()))
+        self.assertEqual(named, {p.name for p in texts.iterdir()})
+
+    def test_the_icon_is_the_apps_mark(self):
+        svg = (ANDROID.parent / "Resources/AppIcon.icon/Assets/glyph.svg").read_text()
+        icon = (MAIN / "res/drawable/ic_launcher_foreground.xml").read_text()
+        self.assertEqual(len(re.findall(r"M[-\d.]+,", icon)), svg.count("<circle") + 1)
+        self.assertEqual(icon.upper().count("F4CE8E"), 1)
+
     def test_the_sun_is_gold_in_one_place_in_the_code(self):
         hits = [f.name for f in KOTLIN if "F4CE8E" in f.read_text().upper()]
         self.assertEqual(hits, ["CloudBackdrop.kt"])

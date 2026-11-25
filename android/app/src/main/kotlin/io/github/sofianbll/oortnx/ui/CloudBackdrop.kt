@@ -4,6 +4,8 @@ import android.graphics.Paint
 import android.graphics.RuntimeShader
 import android.os.Build
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import io.github.sofianbll.oortnx.core.CloudKind
 import io.github.sofianbll.oortnx.core.CloudLayout
@@ -25,9 +28,9 @@ import io.github.sofianbll.oortnx.core.CloudPoint
 import io.github.sofianbll.oortnx.core.OortCloud
 import kotlin.math.cos
 import kotlin.math.exp
+import kotlin.math.ln
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -37,39 +40,44 @@ import kotlin.math.sqrt
  * the Sun's glow is an AGSL shader from Android 13, with a radial gradient before.
  *
  * It moves at 30 images a second: the motion is a slow turn, and a launcher is often played for hours on a battery.
- * With [calm] it is one still image.
+ * With [still] it is one image.
  */
 @Composable
-fun CloudBackdrop(calm: Boolean, modifier: Modifier = Modifier) {
+fun CloudBackdrop(still: Boolean, strength: Float, modifier: Modifier = Modifier) {
     val renderer = remember { CloudRenderer(OortCloud.field()) }
     val sun = remember { if (Build.VERSION.SDK_INT >= 33) SunShader() else null }
     var time by remember { mutableFloatStateOf(STILL_TIME) }
 
-    LaunchedEffect(calm) {
-        if (calm) {
-            time = STILL_TIME
-        } else {
-            var last = 0L
-            while (true) {
-                androidx.compose.runtime.withFrameNanos { now ->
-                    if (now - last >= FRAME_NANOS) { last = now; time = now / 1e9f }
-                }
+    LaunchedEffect(still) {
+        if (still) return@LaunchedEffect
+        var last = 0L
+        while (true) {
+            androidx.compose.runtime.withFrameNanos { now ->
+                // The clock stops with the window, so nothing jumps on return.
+                if (last == 0L) last = now
+                if (now - last >= FRAME_NANOS) { time += min((now - last) / 1e9f, 0.1f); last = now }
             }
         }
     }
 
-    Canvas(modifier.fillMaxSize()) {
-        val t = time
-        val layout = CloudLayout.of(size.width, size.height)
-        drawRect(
-            Brush.radialGradient(
-                listOf(OortTokens.Palette.GradientStart, OortTokens.Palette.GradientEnd),
-                center = Offset(size.width * 0.5f, size.height * 0.45f),
-                radius = max(size.width, size.height) * 0.9f,
-            ),
-        )
-        drawIntoCanvas { renderer.draw(it.nativeCanvas, layout, t, OortTokens.Palette.Light) }
-        drawSun(layout, t, sun)
+    Box(modifier.fillMaxSize().background(OortTokens.Palette.Scrim)) {
+        Canvas(Modifier.fillMaxSize()) {
+            drawRect(
+                Brush.radialGradient(
+                    listOf(OortTokens.Palette.GradientStart, OortTokens.Palette.GradientEnd),
+                    center = Offset(size.width, 0f),
+                    radius = max(1f, max(size.width, size.height)),
+                ),
+            )
+        }
+        // Its own layer: a frame redraws the cloud and nothing above it.
+        Canvas(Modifier.fillMaxSize().graphicsLayer { alpha = strength }) {
+            if (size.minDimension < 1f) return@Canvas
+            val t = time
+            val layout = CloudLayout.of(size.width, size.height)
+            drawIntoCanvas { renderer.draw(it.nativeCanvas, layout, t, OortTokens.Palette.Light) }
+            drawSun(layout, t, sun)
+        }
     }
 }
 
@@ -156,7 +164,7 @@ class CloudRenderer(points: List<CloudPoint>) {
     private val normal = FloatArray(n * 3)
     private val kind = IntArray(n)
 
-    private val buckets = Array(LEVELS * SIZES) { FloatArray(n * 2) }
+    private val buckets = Array(LEVELS * SIZES) { FloatArray(256) }
     private val counts = IntArray(LEVELS * SIZES)
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { strokeCap = Paint.Cap.ROUND; style = Paint.Style.STROKE }
 
@@ -193,6 +201,7 @@ class CloudRenderer(points: List<CloudPoint>) {
             val x = layout.centreX + rx * 0.5f * h * perspective
             val y = layout.centreY + ry * 0.5f * h * perspective
 
+            if (x < -4f || y < -4f || x > layout.width + 4f || y > layout.height + 4f) continue
             var lum: Float
             val rad: Float
             if (k == CloudKind.Shell.ordinal) {
@@ -214,18 +223,22 @@ class CloudRenderer(points: List<CloudPoint>) {
                 rad = 0.0022f + 0.0026f * (1f - d * 0.4f) + 0.0016f * max(0f, rz)
             }
             // A slow tide of light leaves the Sun now and then.
-            lum += exp(-((length - tide) * 7f).pow(2)) * 0.16f
+            val wave = (length - tide) * 7f
+            lum += exp(-wave * wave) * 0.16f
             // Quiet where titles and rows sit; nothing shines through the Sun.
             var calm = layout.calm(x, y)
-            val fromSun = sqrt((x - layout.centreX).pow(2) + (y - layout.centreY).pow(2))
+            val dx = x - layout.centreX
+            val dy = y - layout.centreY
+            val fromSun = sqrt(dx * dx + dy * dy)
             calm *= CloudLayout.smoothstep(sunPx * 1.05f, sunPx * 1.6f, fromSun)
             val alpha = min(lum, 1f) * calm * 0.60f
             if (alpha < 0.02f) continue
             val radius = max(rad * 0.64f * 0.5f * h * perspective, 0.55f)
             val level = min(LEVELS - 1, (alpha / 0.6f * LEVELS).toInt())
-            val size = if (radius < 0.9f) 0 else if (radius < 1.6f) 1 else 2
+            val size = (ln(radius / SMALLEST) / STEP + 0.5f).toInt().coerceIn(0, SIZES - 1)
             val b = level * SIZES + size
             val c = counts[b]
+            if (buckets[b].size < c * 2 + 2) buckets[b] = buckets[b].copyOf(buckets[b].size * 2)
             buckets[b][c * 2] = x
             buckets[b][c * 2 + 1] = y
             counts[b] = c + 1
@@ -236,14 +249,16 @@ class CloudRenderer(points: List<CloudPoint>) {
             val b = level * SIZES + size
             if (counts[b] == 0) continue
             paint.color = android.graphics.Color.argb(((level + 0.5f) / LEVELS * 0.6f * 255f).toInt().coerceIn(8, 255), r, g, bl)
-            paint.strokeWidth = SIZE_PX[size]
+            paint.strokeWidth = 2f * SMALLEST * exp(size * STEP)
             canvas.drawPoints(buckets[b], 0, counts[b] * 2, paint)
         }
     }
 
     private companion object {
         const val LEVELS = 8
-        const val SIZES = 3
-        val SIZE_PX = floatArrayOf(1.4f, 2.4f, 3.6f)
+        /** Radii in px, each a third larger than the one before: 0.6 to about 7, for a phone as for a tablet. */
+        const val SIZES = 9
+        const val SMALLEST = 0.6f
+        const val STEP = 0.3f
     }
 }

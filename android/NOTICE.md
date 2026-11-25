@@ -27,17 +27,22 @@ RogelioLB/nxnative-android as the start of the Android port.
 
 - `core/OortCloud.kt`: port of `OortCloudPoint.field()` and of the cloud's vertex shader (`MoonlightShaders.swift`).
 - `core/OortSynth.kt`: port of `OortSynth.swift`; the four sound packs are synthesized, with no audio file.
-- `core/DirectionRepeat.kt`: port of OortCore's `DirectionRepeat`.
+- `core/DirectionRepeat.kt`, `core/PadShape.kt`: ports of OortCore's `DirectionRepeat` and `OortPadShape`.
+- The launcher icon: the mark in `Resources/AppIcon.icon`, converted by `tools/make_icon.py`.
 - `ui/OortTokens.kt`, `res/values/oort_colors.xml`: generated from `design/oort.tokens.json`.
 
-## Libraries (not copied into this repository)
+Oort NX is maintained independently of Arcane by Bium23 (MIT, Copyright (c) 2026 bium), on which it is built.
+
+## Libraries (not copied into this repository; those marked * are inside the APK)
 
 | Library | License |
 |---|---|
-| Kotlin and kotlinx.coroutines (JetBrains) | Apache-2.0 |
-| AndroidX: Activity, Compose (UI, Foundation, Material 3) | Apache-2.0 |
+| Kotlin and kotlinx.coroutines (JetBrains) * | Apache-2.0 |
+| AndroidX: Activity, Compose (UI, Foundation, Material 3) and what they need (Core, Lifecycle, Collection...) * | Apache-2.0 |
 | Android Gradle plugin, Gradle | Apache-2.0 |
 | JUnit 4 (tests only) | EPL-1.0 |
+
+The full Apache-2.0 text, the MIT text of this repository and this file are in the app: Settings, Thanks and licences.
 
 No font is bundled: the app uses the system's.
 

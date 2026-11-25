@@ -1,4 +1,4 @@
-// Versions read on 2026-11-25 from developer.android.com (AGP, Compose BOM, activity), gradle.org and the Kotlin releases. Not built yet.
+// Versions read on 2026-11-25 from developer.android.com (AGP, Compose BOM, activity), gradle.org and the Kotlin releases.
 buildscript {
     repositories {
         google()

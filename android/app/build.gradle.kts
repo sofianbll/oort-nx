@@ -11,11 +11,12 @@ android {
     }
 
     defaultConfig {
-        applicationId = "io.github.sofianbll.oortnx"
+        // The alpha sits beside a later release: the final identifier stays free.
+        applicationId = "io.github.sofianbll.oortnx.alpha"
         minSdk = 29      // nx2android's own minimum (mkapk.py MIN_SDK): a launcher for its games needs no more
         targetSdk = 36
         versionCode = 1
-        versionName = "0.1.0"
+        versionName = "0.1.0-alpha.1"
     }
 
     buildTypes {

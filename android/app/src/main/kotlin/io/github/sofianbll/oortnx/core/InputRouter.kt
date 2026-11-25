@@ -12,7 +12,6 @@ import android.view.MotionEvent
 class InputRouter(
     private val swapAB: () -> Boolean,
     private val sink: (Nav) -> Unit,
-    private val onKey: (Int) -> Unit = {},
 ) {
     private val repeat = DirectionRepeat()
     private var lastMove = 0L
@@ -24,7 +23,6 @@ class InputRouter(
         val dir = PadKeys.dir(nav)
         if (event.action == KeyEvent.ACTION_DOWN) {
             if (event.repeatCount == 0) {
-                onKey(event.keyCode)
                 if (dir == null) sink(nav)
                 else if (repeat.press(dir, PadSource.Pad)) { lastMove = System.nanoTime(); sink(nav) }
             }
@@ -68,7 +66,11 @@ class InputRouter(
     }
 
     /** A pad that goes away must not leave a direction held. */
-    fun reset() = repeat.reset()
+    fun reset() {
+        repeat.reset()
+        hatX = 0
+        hatY = 0
+    }
 
     private companion object {
         const val STICK_DEADZONE = 0.55f

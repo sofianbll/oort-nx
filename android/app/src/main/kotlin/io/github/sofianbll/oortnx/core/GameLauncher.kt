@@ -23,14 +23,12 @@ object GameLauncher {
         return start(context, intent)
     }
 
-    /** Android's own page for the app: storage, permissions, force stop. */
+    /**
+     * Android's own page for the app: storage, permissions, force stop, and Uninstall. Asking Android to uninstall
+     * directly (ACTION_DELETE) needs REQUEST_DELETE_PACKAGES since API 28, and this app asks for no permission.
+     */
     fun appInfo(context: Context, game: Game): Boolean =
         start(context, Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${game.packageName}"))
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-
-    /** Android asks the player to confirm. The game's saves go with the app: the caller says so first. */
-    fun uninstall(context: Context, game: Game): Boolean =
-        start(context, Intent(Intent.ACTION_DELETE, Uri.parse("package:${game.packageName}"))
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 
     private fun start(context: Context, intent: Intent): Boolean = try {

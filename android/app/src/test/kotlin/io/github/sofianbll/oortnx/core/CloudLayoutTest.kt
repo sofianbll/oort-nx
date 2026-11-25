@@ -19,17 +19,24 @@ class CloudLayoutTest {
         assertEquals(1.0f, l.calm(1800f, 500f), 1e-6f)
     }
 
-    @Test fun anUprightWindowPutsTheCloudAboveTheGames() {
-        val l = CloudLayout.of(1080f, 2400f)
-        assertEquals(540f, l.centreX)
-        assertTrue(l.centreY < 2400f * 0.4f)
-        assertTrue(l.radius <= 0.46f * 1080f)
-        assertEquals(1.0f, l.calm(540f, 600f), 1e-6f)
-        assertEquals(0.12f, l.calm(540f, 2300f), 1e-6f)
+    @Test fun anUprightWindowShowsTheCloudFromTheRightAsThePhoneAppDoes() {
+        val l = CloudLayout.of(1000f, 2200f)
+        assertEquals(1500f, l.unit)
+        assertEquals(750f, l.centreY)
+        assertEquals(795f, l.centreX, 1f)
+        assertTrue(l.centreX + l.radius > 1000f) // it runs off the right edge
     }
 
-    @Test fun theSwitchHappensAtTheStatedAspect() {
-        assertEquals(0.5f * 1000f, CloudLayout.of(1000f, 1000f).centreX) // upright layout centres horizontally
-        assertEquals(0.71f * 1200f, CloudLayout.of(1200f, 1000f).centreX, 1e-3f)
+    @Test fun theFootOfAnUprightWindowIsEmpty() {
+        val l = CloudLayout.of(1000f, 2200f)
+        assertEquals(0f, l.calm(900f, 1500f), 1e-6f)
+        assertEquals(1f, l.calm(900f, 900f), 1e-6f)
+    }
+
+    @Test fun theLayoutDoesNotJumpBetweenTheTwoShapes() {
+        val wide = CloudLayout.of(1001f, 1000f)
+        val tall = CloudLayout.of(999f, 1000f)
+        assertEquals(wide.centreX, tall.centreX, 3f)
+        assertEquals(wide.radius, tall.radius, 3f)
     }
 }

@@ -8,7 +8,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -37,7 +41,7 @@ private val OortColors = darkColorScheme(
     onSurface = OortTokens.Palette.Ink,
     surfaceVariant = OortTokens.Primitive.OrbitHigh,
     onSurfaceVariant = OortTokens.Palette.Light,
-    surfaceContainer = OortTokens.Palette.Glass,
+    surfaceContainer = OortTokens.Primitive.OrbitHigh,
     surfaceContainerHigh = OortTokens.Primitive.OrbitHigh,
     surfaceContainerHighest = OortTokens.Primitive.OrbitHigh,
     outline = OortTokens.Palette.Light,
@@ -63,4 +67,14 @@ fun OortTheme(content: @Composable () -> Unit) {
 /** A change that takes the token's duration, or happens at once when the player asked for calm. */
 fun <T> motion(calm: Boolean, ms: Int): AnimationSpec<T> = if (calm) snap() else tween(ms)
 
-val Scrim: Color get() = OortTokens.Palette.Scrim
+/** [top] at [share] over [base]: the charter's panels are the page with a little ink. */
+fun over(base: Color, top: Color, share: Float): Color = top.copy(alpha = share).compositeOver(base)
+
+val Ink2: Color = OortTokens.Palette.Ink.copy(alpha = 0.72f)
+val PanelLow: Color = over(OortTokens.Palette.Glass, OortTokens.Palette.Ink, OortTokens.Effect.SurfaceLow)
+val PanelHigh: Color = over(OortTokens.Palette.Glass, OortTokens.Palette.Ink, OortTokens.Effect.SurfaceHigh)
+val PanelRaised: Color = over(OortTokens.Palette.Glass, OortTokens.Palette.Ink, OortTokens.Effect.SurfaceRaised)
+val Line: Color = OortTokens.Palette.Glyph.copy(alpha = OortTokens.Effect.SurfaceLine)
+val LineStrong: Color = OortTokens.Palette.Glyph.copy(alpha = OortTokens.Effect.SurfaceLineStrong)
+
+fun Modifier.heading(): Modifier = semantics { heading() }
