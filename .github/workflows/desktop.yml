@@ -36,16 +36,16 @@ jobs:
     defaults:
       run:
         shell: pwsh
+    env:
+      PYTHONUTF8: '1'
     steps:
+      - name: The tree as committed
+        run: git config --global core.autocrlf false
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
-      - uses: compnerd/gha-setup-swift@57fe462cd3c7b05ae8fcff79b00719312e305257
-        with:
-          swift-version: swift-6.4.3-release
-          swift-build: 6.4.3-RELEASE
-          build_arch: ${{ matrix.swift_arch }}
-          cache: 'false'
+      - name: Swift
+        run: ./scripts/ci/install_swift.ps1 -Arch ${{ matrix.arch }}
       - uses: compnerd/gha-setup-vsdevenv@f1ba60d553a3216ce1b89abe0201213536bc7557 # v6
         with:
           arch: ${{ matrix.swift_arch }}

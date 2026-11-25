@@ -54,7 +54,7 @@ def main():
                 problems.append(f"{source.relative_to(ROOT)}: Apple or unknown imports: {', '.join(bad)}")
             code = re.sub(r"//[^\n]*", "", text)
             for hit in sorted(set(APPLE_CALLS.findall(code))):
-                if hit not in ("ObservableObject", "@Published") or "Tests/" not in str(source):
+                if hit not in ("ObservableObject", "@Published") or "Tests/" not in source.as_posix():
                     problems.append(f"{source.relative_to(ROOT)}: Apple-only name `{hit}`")
     if problems:
         print("\n".join(problems))
