@@ -17,6 +17,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Fixed
 
+- B on the first page of the setup assistant no longer skips it all; Skip setup stays a button.
 - The rows of games and the screenshots follow two fingers; the wheel moves the Collection.
 - Screenshots: Previous and Next take a click.
 - A click puts a moved tile down; its hints take a click too.
