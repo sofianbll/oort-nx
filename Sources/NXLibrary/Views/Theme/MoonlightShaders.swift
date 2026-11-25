@@ -20,7 +20,7 @@ using namespace metal;
 struct Uniforms {
     float4 size;    // width px, height px, time s, aspect
     float4 accent;  // rgb, overall strength
-    float4 ink;     // rgb, unused
+    float4 ink;     // rgb, Oort cloud blend
     float4 look;    // breath, presence, Flow blend, Arcane surface blend
     float4 tintTop;     // the Mods card's ground: top rgb, amount 0...1
     float4 tintMid;     // rgb at 0.45 of the height
@@ -143,6 +143,12 @@ constant float roadHalf = 0.12;
 constant float roadNarrowing = 0.6;
 constant float roadGlow = 0.055;
 
+// MARK: Oort cloud
+
+constant float cloudRadius = 0.50;   // window heights
+constant float cloudSun = 0.0180;
+float2 cloudCentre(float aspect) { return float2(0.71 * aspect, 0.5); }
+
 // MARK: Noise
 
 float hash21(float2 p) {
@@ -255,6 +261,15 @@ fragment float4 moon_light_fragment(FullOut in [[stage_in]], constant Uniforms &
     float pulse = 0.62 + 0.38 * breath;
     float3 white = mix(accent, float3(1.0), 0.65);
     float3 c = accent * ((beam * 0.75 + pool) * pulse + wash + haze + road) + white * core * 0.3 * pulse;
+    if (u.ink.w > 0.0) {
+        // The Sun, the only gold, and the faint light it gives the cloud.
+        float sun = length(p - cloudCentre(aspect));
+        float3 gold = float3(0.957, 0.808, 0.557);
+        float disc = smoothstep(cloudSun + 1.2 / u.size.y, cloudSun, sun);
+        float3 cloud = gold * (disc * 0.82 + exp(-sun * sun * 90.0) * 0.05 * (0.8 + 0.2 * breath))
+            + accent * exp(-sun * sun * 3.2) * 0.035;
+        c = mix(c, cloud, u.ink.w);
+    }
     c *= u.accent.w;
     // Dither so the dark gradients never band.
     c += (hash21(in.position.xy + fract(t)) - 0.5) / 255.0;
@@ -272,6 +287,72 @@ fragment float4 moon_light_fragment(FullOut in [[stage_in]], constant Uniforms &
     float3 ground = y < 0.45 ? mix(u.tintTop.rgb, u.tintMid.rgb, y / 0.45)
                              : mix(u.tintMid.rgb, u.tintBottom.rgb, (y - 0.45) / 0.55);
     return float4(min(ground * amount + light.rgb, 1.0), amount + light.a * (1.0 - amount)) * u.look.y;
+}
+
+// MARK: Cloud dots
+
+struct CloudPoint { float4 place; float4 normal; };
+struct CloudOut { float4 position [[position]]; float2 local; float radius; float alpha; float3 color; };
+
+vertex CloudOut cloud_dot_vertex(uint vid [[vertex_id]], uint iid [[instance_id]],
+                                 constant CloudPoint *field [[buffer(0)]],
+                                 constant Uniforms &u [[buffer(1)]]) {
+    CloudPoint q = field[iid];
+    float H = u.size.y, W = u.size.x, t = u.size.z, aspect = u.size.w;
+    float3 p = q.place.xyz, n = q.normal.xyz;
+    float kind = q.place.w;
+    if (kind > 1.5) {
+        // Only the disc turns; the cut shell sways.
+        float a = t * 0.045, c = cos(a), s = sin(a);
+        p.xz = float2(p.x * c - p.z * s, p.x * s + p.z * c);
+    }
+    float ya = -0.36 + sin(t * 0.16) * 0.10, xa = 0.30 + sin(t * 0.12) * 0.05;
+    float ca = cos(ya), sa = sin(ya), cb = cos(xa), sb = sin(xa);
+    float3 r = float3(p.x * ca + p.z * sa, p.y, -p.x * sa + p.z * ca);
+    r = float3(r.x, r.y * cb - r.z * sb, r.y * sb + r.z * cb);
+    float3 m = float3(n.x * ca + n.z * sa, n.y, -n.x * sa + n.z * ca);
+    m = float3(m.x, m.y * cb - m.z * sb, m.y * sb + m.z * cb);
+    float perspective = 3.4 / (3.4 - r.z);
+    float2 at = cloudCentre(aspect) + r.xy * cloudRadius * perspective;
+    float lum, rad;
+    if (kind < 0.5) {
+        lum = max(0.0, -dot(m, float3(-0.62, -0.5, 0.6))) * 0.62 + 0.07
+            + 0.2 * max(0.0, 1.0 - length(p) * 0.2 - abs(p.y));
+        rad = 0.0034 + 0.0046 * lum;
+    } else if (kind < 1.5) {
+        float lit = 0.5 + 0.5 * (p.x * 0.86 - p.y * 0.25);
+        lum = 0.35 + 0.65 * lit;
+        rad = 0.0032 + 0.0058 * lit;
+    } else {
+        float d = length(p.xz);
+        lum = 0.16 + 0.5 * max(0.0, 1.0 - d * 0.95) + 0.42 * max(0.0, r.z * 0.9 + 0.12);
+        rad = 0.0022 + 0.0026 * (1.0 - d * 0.4) + 0.0016 * max(0.0, r.z);
+    }
+    // A slow tide of light leaves the Sun now and then.
+    float tide = fract(t / 19.0) * 1.9 - 0.25;
+    float k = exp(-pow((length(p) - tide) * 7.0, 2.0));
+    lum += k * 0.16;
+    // Quiet on the left, where titles and rows sit.
+    float x = at.x / aspect;
+    float calm = mix(0.10, 1.0, smoothstep(0.30, 0.62, x));
+    float radius = max(rad * 0.64 * cloudRadius * H * perspective, 0.55);
+    float2 corner = float2(float(vid & 1), float(vid >> 1)) * 2.0 - 1.0;
+    float extent = radius + 1.0;
+    float2 px = at * H + corner * extent;
+    CloudOut o;
+    o.position = float4(px.x / W * 2.0 - 1.0, 1.0 - px.y / H * 2.0, 0.0, 1.0);
+    o.local = corner * extent;
+    o.radius = radius;
+    // Nothing shines through the Sun.
+    calm *= smoothstep(cloudSun * 1.05, cloudSun * 1.6, length(at - cloudCentre(aspect)));
+    o.alpha = min(lum, 1.0) * calm * 0.60 * u.ink.w * u.accent.w * u.look.y;
+    o.color = u.accent.rgb;
+    return o;
+}
+
+fragment float4 cloud_dot_fragment(CloudOut in [[stage_in]]) {
+    float shape = smoothstep(in.radius + 0.5, in.radius - 0.5, length(in.local));
+    return premultiplied(in.color * in.alpha * shape);
 }
 
 // MARK: Motes

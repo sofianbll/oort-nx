@@ -131,6 +131,7 @@ def palettes(resolved, catalog):
     palette = {"id": "oort", "name": "Oort", "mode": "dark"}
     for role in PALETTE_ROLES:
         palette[swift_name(role)] = resolved[f"color.{role}"][1]
+    palette["moonlight"] = "cloud"
     palette["base"] = {"kind": "radial", "stops": [
         {"color": resolved[f"color.gradient-{stop}"][1],
          "location": float(resolved[f"color.position-{stop}"][1])} for stop in ("start", "end")

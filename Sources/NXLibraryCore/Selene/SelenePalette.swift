@@ -45,7 +45,7 @@ public struct SelenePalette: Codable, Equatable, Identifiable {
         focus: SeleneTokens.Palette.focus, onFocus: SeleneTokens.Palette.onFocus,
         ink: SeleneTokens.Palette.ink, scrim: SeleneTokens.Palette.scrim,
         glass: SeleneTokens.Palette.glass, glyph: SeleneTokens.Palette.glyph,
-        success: SeleneTokens.Palette.success, light: SeleneTokens.Palette.light,
+        success: SeleneTokens.Palette.success, moonlight: MoonlightSurface.cloud.rawValue, light: SeleneTokens.Palette.light,
         base: .init(kind: .radial, stops: [
             .init(color: SeleneTokens.Palette.gradientStart, location: SeleneTokens.Palette.positionStart),
             .init(color: SeleneTokens.Palette.gradientEnd, location: SeleneTokens.Palette.positionEnd)

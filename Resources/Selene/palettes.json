@@ -11,6 +11,7 @@
     "glyph": 11518950,
     "success": 14081770,
     "light": 10004157,
+    "moonlight": "cloud",
     "base": {
       "kind": "radial",
       "stops": [

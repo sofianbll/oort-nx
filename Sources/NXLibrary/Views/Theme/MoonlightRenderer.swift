@@ -26,6 +26,7 @@ struct MoonlightColors: Equatable, Hashable {
     var presence: Float = 1
     var arcane: Float = 0
     var flow: Float = 0
+    var cloud: Float = 0
 
     init(accent: Color, ink: Color, tint: Float = 0, presence: Float = 1,
          surface: MoonlightSurface = .classic) {
@@ -33,8 +34,9 @@ struct MoonlightColors: Equatable, Hashable {
         self.ink = Self.rgb(ink)
         self.tint = tint
         self.presence = presence
-        self.arcane = surface == .classic ? 0 : 1
+        self.arcane = surface == .arcane || surface == .flow ? 1 : 0
         self.flow = surface == .flow ? 1 : 0
+        self.cloud = surface == .cloud ? 1 : 0
     }
 
     /// The Mods card's ground (`SeleneBackdrop.modsGradient` at the base's 0.6 over the black scrim).
@@ -66,6 +68,9 @@ final class MoonlightEngine: @unchecked Sendable {
     private let dots: MTLRenderPipelineState
     private let field: MTLBuffer
     private let count: Int
+    private let cloudDots: MTLRenderPipelineState
+    private let cloud: MTLBuffer
+    private let cloudCount: Int
 
     private init?() {
         guard let device = MTLCreateSystemDefaultDevice(), let queue = device.makeCommandQueue() else { return nil }
@@ -90,6 +95,7 @@ final class MoonlightEngine: @unchecked Sendable {
             }
             light = try pipeline("moon_full_vertex", "moon_light_fragment")
             dots = try pipeline("moon_dot_vertex", "moon_dot_fragment")
+            cloudDots = try pipeline("cloud_dot_vertex", "cloud_dot_fragment")
         } catch {
             NSLog("Arcane: moonlight shaders unavailable: \(error)")
             return nil
@@ -97,6 +103,12 @@ final class MoonlightEngine: @unchecked Sendable {
         guard let buffer = particles.withUnsafeBytes({
             device.makeBuffer(bytes: $0.baseAddress!, length: $0.count, options: .storageModeShared)
         }) else { return nil }
+        let points = OortCloudPoint.field()
+        guard let cloud = points.withUnsafeBytes({
+            device.makeBuffer(bytes: $0.baseAddress!, length: $0.count, options: .storageModeShared)
+        }) else { return nil }
+        self.cloud = cloud
+        cloudCount = points.count
         self.device = device
         self.queue = queue
         self.field = buffer
@@ -108,7 +120,7 @@ final class MoonlightEngine: @unchecked Sendable {
         let w = Float(max(width, 1)), h = Float(max(height, 1))
         return MoonlightUniforms(size: SIMD4(w, h, time, w / h),
                                  accent: SIMD4(colors.accent, 1),
-                                 ink: SIMD4(colors.ink, 0),
+                                 ink: SIMD4(colors.ink, colors.cloud),
                                  look: SIMD4(breath, colors.presence, colors.flow, colors.arcane),
                                  tintTop: SIMD4(MoonlightColors.tintTop, colors.tint),
                                  tintMid: SIMD4(MoonlightColors.tintMid, 0),
@@ -121,6 +133,13 @@ final class MoonlightEngine: @unchecked Sendable {
         encoder.setRenderPipelineState(light)
         encoder.setFragmentBytes(&u, length: MemoryLayout<MoonlightUniforms>.stride, index: 0)
         encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
+        if u.ink.w > 0 {
+            encoder.setRenderPipelineState(cloudDots)
+            encoder.setVertexBuffer(cloud, offset: 0, index: 0)
+            encoder.setVertexBytes(&u, length: MemoryLayout<MoonlightUniforms>.stride, index: 1)
+            encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount: cloudCount)
+            if u.ink.w >= 1 { encoder.endEncoding(); return }
+        }
         encoder.setRenderPipelineState(dots)
         encoder.setVertexBuffer(field, offset: 0, index: 0)
         encoder.setVertexBytes(&u, length: MemoryLayout<MoonlightUniforms>.stride, index: 1)
@@ -363,6 +382,7 @@ final class MoonlightLayerView: NSView {
         c.presence = from.presence + (c.presence - from.presence) * e
         c.arcane = from.arcane + (c.arcane - from.arcane) * e
         c.flow = from.flow + (c.flow - from.flow) * e
+        c.cloud = from.cloud + (c.cloud - from.cloud) * e
         return c
     }
 

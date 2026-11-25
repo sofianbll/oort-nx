@@ -237,7 +237,7 @@ struct MoonlightBackdrop: View {
         squeezed.translateBy(x: size.width * x, y: size.height * y)
         squeezed.scaleBy(x: size.width * rx / radius, y: 1)
         let light: Color
-        if surface != .classic {
+        if surface == .arcane || surface == .flow {
             let rgb = MoonlightChromatics.sample(x: Float(x), y: Float(y), time: MoonlightEngine.stillTime)
             light = Color(.sRGB, red: Double(rgb.x), green: Double(rgb.y), blue: Double(rgb.z), opacity: 1)
         } else { light = accent }
