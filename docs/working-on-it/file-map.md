@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 25 novembre 2026. Il repository versiona **1532 file**, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le singole guide e immagini di `docs/guides/` non hanno una riga propria (le verifica `check_guides.py`); altri 73 file, i pacchetti di suoni e alcuni sorgenti e test recenti, aspettano ancora la loro. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 25 novembre 2026. Il repository versiona **1545 file**, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le singole guide e immagini di `docs/guides/` non hanno una riga propria (le verifica `check_guides.py`); altri 73 file, i pacchetti di suoni e alcuni sorgenti e test recenti, aspettano ancora la loro. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -215,6 +215,7 @@ Cartella `Sources/OortCore/`, senza risorse né dipendenze.
 | [FocusIndex.swift](../../Sources/OortCore/FocusIndex.swift) | Mantiene un indice di focus entro i limiti della lista. |
 | [HoldDetector.swift](../../Sources/OortCore/HoldDetector.swift) | Distingue pressione breve, prolungata e annullata. |
 | [LineBuffer.swift](../../Sources/OortCore/LineBuffer.swift) | Ricompone righe parziali separate da `\n` o `\r`. |
+| [Credits.swift](../../Sources/OortCore/Credits.swift) | Legge `credits.json`: gruppi, ruoli e note legali per sistema e lingua. |
 | [MoonlightField.swift](../../Sources/OortCore/MoonlightField.swift) | Genera i dati delle particelle senza Metal; condivide `SplitMix` nel package per il cue Download. |
 | [MoveDirection.swift](../../Sources/OortCore/MoveDirection.swift) | Espone le quattro direzioni del focus. |
 | [ProfileKeypad.swift](../../Sources/OortCore/ProfileKeypad.swift) | Griglia PIN con lunghezza passata dal chiamante e conferma esplicita. |
@@ -244,6 +245,7 @@ Cartella `Sources/NXLibraryCore/App/`.
 | [Sources/NXLibraryCore/App/ConnectivityWatcher.swift](../../Sources/NXLibraryCore/App/ConnectivityWatcher.swift) | Avvisa sul main thread quando il Mac torna online, perché il giro delle descrizioni riprenda da solo; la prima lettura non conta. |
 | [Sources/NXLibraryCore/App/DisplayNameCache.swift](../../Sources/NXLibraryCore/App/DisplayNameCache.swift) | Nomi visualizzati di cartelle e volumi letti una volta per URL: la pagina si ricostruisce a ogni disegno e un disco esterno in stop bloccherebbe ogni volta. |
 | [Sources/NXLibraryCore/App/AppIdentity.swift](../../Sources/NXLibraryCore/App/AppIdentity.swift) | Distingue Oort NX (nome visibile) da Arcane (identità e User-Agent), con vecchio nome, modulo Porting e pagina del progetto. |
+| [Sources/NXLibraryCore/App/Credits+Bundled.swift](../../Sources/NXLibraryCore/App/Credits+Bundled.swift) | I crediti inclusi nell’app. |
 | [Sources/NXLibraryCore/App/AppDataProfile.swift](../../Sources/NXLibraryCore/App/AppDataProfile.swift) | Policy di percorsi e preferenze; separa release, Dev, essai 2 e fixture Debug. |
 | [Sources/NXLibraryCore/App/DevelopmentProfileImporter.swift](../../Sources/NXLibraryCore/App/DevelopmentProfileImporter.swift) | Copia selettiva senza modificare la sorgente; per l’essai 2 usa un elenco ristretto senza preferenze. Chiude le sessioni copiate all’ultimo heartbeat. |
 | [Sources/NXLibraryCore/App/DowngradeCheckpoint.swift](../../Sources/NXLibraryCore/App/DowngradeCheckpoint.swift) | Copia privata con file essenziali prioritari, SHA-256, gruppi omessi, conferma e rotazione riprendibile senza perdere le due copie precedenti alla pubblicazione. |
@@ -428,6 +430,7 @@ Cartella `Sources/NXLibraryCore/Settings/`. Il catalogo dei testi sta in `Resour
 | [Sources/NXLibraryCore/Settings/SettingsReset.swift](../../Sources/NXLibraryCore/Settings/SettingsReset.swift) | Reset group per sezione, anche Inbox con Game folders, Compilati di recente con Spotlight, Home in gioco e scelte Play together, non l'ID Nextendo né i percorsi delle cartelle di gioco. |
 | [Sources/NXLibraryCore/Settings/AppLocale.swift](../../Sources/NXLibraryCore/Settings/AppLocale.swift) | Sette lingue, risoluzione delle preferenze e regione indipendente; nomi e ricerca delle regioni. |
 | [Sources/NXLibraryCore/Settings/AppLocalization.swift](../../Sources/NXLibraryCore/Settings/AppLocalization.swift) | Contesto osservabile, lookup delle risorse, interpolazioni/plurali e nome Oort NX nei testi resi. |
+| [Sources/NXLibraryCore/Resources/credits.json](../../Sources/NXLibraryCore/Resources/credits.json) | Copia generata di `design/credits.json`. |
 | [Sources/NXLibraryCore/Resources/Localizable.xcstrings](../../Sources/NXLibraryCore/Resources/Localizable.xcstrings) | Testi in sette lingue, inclusi errori di avvio di Python, avvisi del Cestino, recupero degli spostamenti cloud e accessi di Integrations. |
 
 ## Core · Steam
@@ -832,7 +835,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/Settings/SettingsConsoleSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsConsoleSection.swift) | System → Console: apre la console dei log di build e avvio. |
 | [Sources/NXLibrary/Views/Settings/SettingsEngineSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsEngineSection.swift) | Porting → Setup and engine: checkout, pin, gate, conferme per cambio motore e override, runtime, changelog upstream e Setup; l'arrivo da Integrations non avvia controlli né importa chiavi. |
 | [Sources/NXLibrary/Views/Settings/SettingsKeysSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsKeysSection.swift) | Porting → Keys: stato, importazione, sostituzione e rilevamento di prod.keys. |
-| [Sources/NXLibrary/Views/Settings/SettingsAboutSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsAboutSection.swift) | Mostra versione e crediti localizzati, diagnostica, aggiornamenti, pulsante di sostegno volontario e link alla guida online. |
+| [Sources/NXLibrary/Views/Settings/SettingsAboutSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsAboutSection.swift) | Mostra versione, aggiornamenti, guida online, diagnostica, sostegno volontario e i crediti di `design/credits.json` in schede comuni. |
 | [Sources/NXLibrary/Views/Settings/LocalePicker.swift](../../Sources/NXLibrary/Views/Settings/LocalePicker.swift) | Scelta diretta della lingua e ricerca dei formati regionali, con focus tastiera/controller e codici stabili. |
 
 ## UI · Setup, avvio, ricerca e console
@@ -880,6 +883,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/OortUI/OortSetupCard.swift](../../Sources/NXLibrary/Views/OortUI/OortSetupCard.swift) | Scheda di scelta della prima configurazione. |
 | [Sources/NXLibrary/Views/OortUI/OortTabs.swift](../../Sources/NXLibrary/Views/OortUI/OortTabs.swift) | Schede condivise: scelta, focus, conteggio. |
 | [Sources/NXLibrary/Views/OortUI/OortTag.swift](../../Sources/NXLibrary/Views/OortUI/OortTag.swift) | Etichetta breve: genere, versione, stato. |
+| [Sources/NXLibrary/Views/OortUI/OortCreditCard.swift](../../Sources/NXLibrary/Views/OortUI/OortCreditCard.swift) | Scheda di un credito e gruppo di schede, due per riga. |
 | [Tests/NXLibraryCoreTests/PaletteContrastTests.swift](../../Tests/NXLibraryCoreTests/PaletteContrastTests.swift) | Contrasto di testo, focus e simboli in ogni palette. |
 | [Sources/NXLibrary/Views/OortUI/OortUIGallery.swift](../../Sources/NXLibrary/Views/OortUI/OortUIGallery.swift) | Esempi sintetici Debug delle primitive OortUI e catture senza finestre su tre palette. |
 | [Sources/NXLibrary/Views/OortUI/SeleneConfirmDialog.swift](../../Sources/NXLibrary/Views/OortUI/SeleneConfirmDialog.swift) | Card e aiuto condivisi, conferma a sinistra e annullamento a destra, scelte multiple con testo a larghezza definita e note, SeleneSuccessNotice. |
@@ -1071,6 +1075,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/NXLibraryCoreTests/CursorIdleTests.swift](../../Tests/NXLibraryCoreTests/CursorIdleTests.swift) | Ritardo del cursore, ripristino e ripartenza dopo interruzione o attività del mouse. |
 | [Tests/ArcanePortingTests/InstallProgressTests.swift](../../Tests/ArcanePortingTests/InstallProgressTests.swift) | Fasi Git, percentuali e byte. |
 | [Tests/OortCoreTests/LineBufferTests.swift](../../Tests/OortCoreTests/LineBufferTests.swift) | Ricomposizione delle righe parziali e separatori dei progressi. |
+| [Tests/OortCoreTests/CreditsTests.swift](../../Tests/OortCoreTests/CreditsTests.swift) | Autori, gruppi per sistema, lingue e immagini permesse dei crediti. |
 | [Tests/ArcanePortingTests/KeyCheckTests.swift](../../Tests/ArcanePortingTests/KeyCheckTests.swift) | Cifratura e lettura di intestazioni sintetiche, intervalli troncati e chiavi richieste dalle sorgenti. |
 | [Tests/ArcanePortingTests/KeyStoreTests.swift](../../Tests/ArcanePortingTests/KeyStoreTests.swift) | Importazione e sostituzione atomica, conservazione della copia precedente anche con header malformato, permessi 0600 e riepilogo. |
 | [Tests/ArcanePortingTests/LaunchServiceTests.swift](../../Tests/ArcanePortingTests/LaunchServiceTests.swift) | Processo fittizio, impostazioni runtime e profilo, ambiente ereditato senza segreti, Home e overlay, permessi e pulizia dello snapshot; capacità, ripiego e override dello schermo. |
@@ -1229,6 +1234,8 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_review.py](../../Tests/CatalogAppChecks/run_review.py) | Verifica senza finestre achievement, loghi, focus, input del centro e di Integrations, badge mod in Online, priorità dei dialoghi e Steam durante Play. |
 | [audit_probe_host.py](../../Tests/CatalogAppChecks/audit_probe_host.py) | Collega sonde headless al binario di debug e le isola con home temporanea e senza rete. |
 | [run_platform_cards.py](../../Tests/CatalogAppChecks/run_platform_cards.py) | Lancia Spotlight isolato e conserva i PNG e, con ffmpeg, lo scorrimento video. |
+| [run_credits.py](../../Tests/CatalogAppChecks/run_credits.py) | Apre About isolata, conserva i PNG e prova i crediti con il controller. |
+| [CreditsProbe.swift](../../Tests/CatalogAppChecks/CreditsProbe.swift) | Host della prova dei crediti: tre lingue, tutte le schede, righe e pulsanti. |
 | [PlatformCardsProbe.swift](../../Tests/CatalogAppChecks/PlatformCardsProbe.swift) | Verifica input, filtro, chiusura e recupero su tre fonti, una fonte e libreria vuota; rende Spotlight in francese con sfondo chiaro. |
 | [run_steam_disabled_tracking.py](../../Tests/CatalogAppChecks/run_steam_disabled_tracking.py) | Disattiva una fonte Steam sintetica, chiude una sessione già aperta e rifiuta una nuova osservazione. |
 | [run_steam_scoped_playtime.py](../../Tests/CatalogAppChecks/run_steam_scoped_playtime.py) | Aggiorna le ore Steam dopo sessioni Switch secondarie, anche archiviate, e congela dopo una sessione Steam secondaria. |
@@ -1324,14 +1331,17 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [design/oort.tokens.json](../../design/oort.tokens.json) | Fonte DTCG dei token Selene e della palette predefinita Oort. |
 | [design/vocabulary.json](../../design/vocabulary.json) | Vocabolario proposto comune ai sistemi: parole fr/en, stati di un gioco, comandi e chiavi che le traduzioni devono rispettare. |
 | [design/vocabulary-debt.json](../../design/vocabulary-debt.json) | Scarti di traduzione già noti, per sistema; può solo ridursi. |
+| [design/credits.json](../../design/credits.json) | Fonte unica dei crediti: nome, autore, ruolo, licenza, link, sistemi, icona permessa. |
 | [scripts/generate_oort_tokens.py](../../scripts/generate_oort_tokens.py) | Controlla il contrasto e genera Swift e la sola voce Oort del catalogo. |
 | [Tests/PublicationChecks/test_oort_tokens.py](../../Tests/PublicationChecks/test_oort_tokens.py) | Prova generazione stabile, output obsoleti e contrasto insufficiente. |
 | [scripts/check_oort_core.py](../../scripts/check_oort_core.py) | Verifica manifest e import del target portabile; può preparare un pacchetto minimo per Linux. |
+| [scripts/generate_credits.py](../../scripts/generate_credits.py) | Copia i crediti in app, NOTICE e sito; fallisce se manca un credito o una copia differisce. |
 | [scripts/selene-token-debt.json](../../scripts/selene-token-debt.json) | Occorrenze letterali preesistenti per file e firma, escluse le misure già migrate ai token; le voci obsolete fanno fallire il controllo. |
 | [Tests/PublicationChecks/test_selene_tokens.py](../../Tests/PublicationChecks/test_selene_tokens.py) | Prova argomenti multilinea, valori scalati ed esclusioni. |
 | [scripts/check_ui_rules.py](../../scripts/check_ui_rules.py) | Misura menu, profondità, testi senza traduzione, misure e forme locali, nomi di accessibilità e percorsi da tastiera; blocca il nuovo. |
 | [scripts/ui-rules.json](../../scripts/ui-rules.json) | Superfici contate, valori, parti non misurate e debito che può solo diminuire. |
 | [Tests/UIRulesChecks/test_ui_rules.py](../../Tests/UIRulesChecks/test_ui_rules.py) | Prove negative di ogni regola e coerenza fra controllo, criteri e skill. |
+| [Tests/PublicationChecks/test_credits.py](../../Tests/PublicationChecks/test_credits.py) | Prova che una dipendenza senza credito, un NOTICE o un sito diversi falliscono. |
 | [scripts/check_metadata_text_layout.swift](../../scripts/check_metadata_text_layout.swift) | Verifica fuori schermo il layout delle descrizioni e la destinazione dello scroll dopo cambi di focus, anche rapidi e con Riduci movimento. |
 | [check_app_profile.swift](../../scripts/check_app_profile.swift) | Prova senza UI di identità, accesso reale alle preferenze e percorsi nel pacchetto prodotto dalla build; non importa né scrive dati. |
 
@@ -1365,6 +1375,9 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Resources/Selene/Fonts/MaterialIcons-LICENSE.txt](../../Resources/Selene/Fonts/MaterialIcons-LICENSE.txt) | Licenza del font Material Icons incluso. |
 | [Resources/Selene/NOTICE.txt](../../Resources/Selene/NOTICE.txt) | Attribuzioni delle risorse Selene incluse. |
 | [Resources/Brands/Platforms/LICENSE-Lucide.txt](../../Resources/Brands/Platforms/LICENSE-Lucide.txt) | Licenza ISC e nota Feather MIT. |
+| [Resources/Brands/Credits/arcane.png](../../Resources/Brands/Credits/arcane.png) | Icona di Arcane, dal suo deposito MIT, solo per il credito. |
+| [Resources/Brands/Credits/playnite.png](../../Resources/Brands/Credits/playnite.png) | Icona di Playnite, dal suo deposito MIT, solo per il credito. |
+| [Resources/Brands/Credits/selene.png](../../Resources/Brands/Credits/selene.png) | Icona di Selene, dal suo deposito MIT, solo per il credito. |
 | [Buy Me a Coffee.svg](../../Resources/Brands/Platforms/Marks/Buy%20Me%20a%20Coffee.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
 | [CrossOver.svg](../../Resources/Brands/Platforms/Marks/CrossOver.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
 | [Epic Games.svg](../../Resources/Brands/Platforms/Marks/Epic%20Games.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |

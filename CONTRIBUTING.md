@@ -97,7 +97,8 @@ Use synthetic fixtures in tests. Never commit a game, a key, a save, an extracte
 - Keep the notices in [NOTICE](NOTICE) and each licence of the code you reuse.
 - Credit [Arcane by Bium23](https://github.com/Bium23/NxLibrary) for work it contains, and [Selene by Matthew Silva](https://github.com/mattxslv/Selene) for the design system. Credit [Josef Nemec and Playnite](https://github.com/JosefNemec/Playnite) for any picker work taken from Playnite.
 - A licence on code is not permission to use branding or other assets.
-- A new dependency needs a compatible licence, an entry in `NOTICE` and, for the engine runtime, an entry in `runtime.lock`.
+- Every project, service, font or symbol in use has its entry in [design/credits.json](design/credits.json), the only list: run `python3 scripts/generate_credits.py` after editing it.
+- A new dependency needs a compatible licence, an entry in `design/credits.json` and `NOTICE` and, for the engine runtime, an entry in `runtime.lock`.
 
 ### Importing from Arcane
 

@@ -508,9 +508,6 @@
     "canvas.u(7)": 1,
     "canvas.u(8)": 2
    },
-   "Sources/NXLibrary/Views/Settings/SettingsAboutSection.swift": {
-    "canvas.u(8)": 1
-   },
    "Sources/NXLibrary/Views/Settings/SettingsCloudLibrarySection.swift": {
     "height:34": 3,
     "minWidth:96": 3

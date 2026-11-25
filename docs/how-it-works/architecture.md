@@ -352,6 +352,9 @@ contenere anche i titoli e i messaggi su più righe.
 - I nomi delle palette Arcane, Arcane Crystal e Arcane Flow restano invariati perché identificano temi, non l’app. La chiave autonoma del trofeo Arcane mantiene le sue traduzioni.
 - Ogni richiesta di rete si presenta con `AppIdentity.userAgent()`, cioè `Arcane/<versione> (macOS; +https://github.com/Bium23/NxLibrary)`.
 - **Open project docs** in About apre `AppIdentity.documentationPage`, il README online, nel browser predefinito: è la guida per i giocatori e si apre su ogni Mac, senza dipendere da dove sta il codice sorgente.
+- I crediti hanno una sola fonte, `design/credits.json`, perché app, NOTICE e sito dicano le stesse cose. `scripts/generate_credits.py` ne scrive le copie e, con `--check`, fallisce se una dipendenza, un servizio, un font o un simbolo non ha credito.
+- About li mostra con `OortCreditGroup`: il primo gruppo è aperto, gli altri si aprono dalla loro riga. Ogni riga di due schede è una sola tappa del controller; sinistra e destra scelgono la scheda.
+- Un’icona compare solo se la fonte la dichiara permessa, con origine e motivo; altrimenti c’è il segno della categoria.
 
 **Start-up.**
 - Start-up ospita lingua e regione. `LocalePicker` offre la scelta diretta delle lingue e cerca i nomi localizzati delle regioni per codice stabile, con input da tastiera e controller distinto da Settings.
