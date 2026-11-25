@@ -33,4 +33,12 @@ final class VocabularyTests: XCTestCase {
             XCTAssertFalse(text.contains("\"Remove\""), path)
         }
     }
+
+    /// Spotlight is a name, kept in every language; « Accueil » named three things and names none now.
+    func testSpotlightKeepsItsNameAndNothingIsCalledHome() throws {
+        for language in ["fr", "de", "es", "it", "pt-BR"] { XCTAssertEqual(try strings(language)["Spotlight"], "Spotlight", language) }
+        for (key, value) in try strings("fr") where !value.contains("station d’accueil") {
+            XCTAssertNil(value.range(of: "à la une|accueil", options: [.regularExpression, .caseInsensitive]), key)
+        }
+    }
 }

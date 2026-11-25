@@ -10,6 +10,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Changed
 
+- Spotlight keeps its name in every language, and the first steps are no longer called a home.
 - A game started from Oort asks to quit in your language, and unsaved progress has one sentence everywhere.
 - What goes to the Trash says Delete; Remove only takes something off a list.
 - + says Options everywhere in Spotlight and the Collection.

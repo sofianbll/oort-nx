@@ -1904,7 +1904,7 @@
     "Settings navigation: controllers": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Controllers"}},"fr":{"stringUnit":{"state":"translated","value":"Manettes"}},"de":{"stringUnit":{"state":"translated","value":"Controller"}},"es":{"stringUnit":{"state":"translated","value":"Mandos"}},"it":{"stringUnit":{"state":"translated","value":"Controller"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Controles"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"手柄"}}}},
     "Settings navigation: account": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Account"}},"fr":{"stringUnit":{"state":"translated","value":"Compte"}},"de":{"stringUnit":{"state":"translated","value":"Konto"}},"es":{"stringUnit":{"state":"translated","value":"Cuenta"}},"it":{"stringUnit":{"state":"translated","value":"Account"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Conta"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"账号"}}}},
     "Settings navigation: profilePage": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Profile page"}},"fr":{"stringUnit":{"state":"translated","value":"Page de profil"}},"de":{"stringUnit":{"state":"translated","value":"Profilseite"}},"es":{"stringUnit":{"state":"translated","value":"Página del perfil"}},"it":{"stringUnit":{"state":"translated","value":"Pagina del profilo"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Página do perfil"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"个人资料页"}}}},
-    "Settings navigation: home": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Home"}},"fr":{"stringUnit":{"state":"translated","value":"Accueil"}},"de":{"stringUnit":{"state":"translated","value":"Startseite"}},"es":{"stringUnit":{"state":"translated","value":"Inicio"}},"it":{"stringUnit":{"state":"translated","value":"Home"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Início"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"主页"}}}},
+    "Settings navigation: home": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Home"}},"fr":{"stringUnit":{"state":"translated","value":"Spotlight"}},"de":{"stringUnit":{"state":"translated","value":"Startseite"}},"es":{"stringUnit":{"state":"translated","value":"Inicio"}},"it":{"stringUnit":{"state":"translated","value":"Home"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Início"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"主页"}}}},
     "Settings navigation: library": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Library"}},"fr":{"stringUnit":{"state":"translated","value":"Bibliothèque"}},"de":{"stringUnit":{"state":"translated","value":"Bibliothek"}},"es":{"stringUnit":{"state":"translated","value":"Biblioteca"}},"it":{"stringUnit":{"state":"translated","value":"Libreria"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Biblioteca"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"游戏库"}}}},
     "Settings navigation: saves": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Saves"}},"fr":{"stringUnit":{"state":"translated","value":"Sauvegardes"}},"de":{"stringUnit":{"state":"translated","value":"Spielstände"}},"es":{"stringUnit":{"state":"translated","value":"Partidas guardadas"}},"it":{"stringUnit":{"state":"translated","value":"Salvataggi"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Dados salvos"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"存档"}}}},
     "Settings navigation: cloudLibrary": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Cloud library"}},"fr":{"stringUnit":{"state":"translated","value":"Bibliothèque cloud"}},"de":{"stringUnit":{"state":"translated","value":"Cloud-Bibliothek"}},"es":{"stringUnit":{"state":"translated","value":"Biblioteca en la nube"}},"it":{"stringUnit":{"state":"translated","value":"Libreria cloud"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Biblioteca na nuvem"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"云端游戏库"}}}},
@@ -2343,7 +2343,7 @@
     }},
     "Skip setup": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Skip setup"}},
-      "fr": {"stringUnit":{"state":"translated","value":"Passer l’accueil"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Passer les premiers pas"}},
       "it": {"stringUnit":{"state":"translated","value":"Salta la configurazione"}},
       "de": {"stringUnit":{"state":"translated","value":"Einrichtung überspringen"}},
       "es": {"stringUnit":{"state":"translated","value":"Omitir la configuración"}},
@@ -5720,7 +5720,7 @@
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Order of games in Spotlight and Collection."}},
         "it": {"stringUnit": {"state": "translated", "value": "Ordine dei giochi in Spotlight e Collection."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Ordre des jeux dans À la une et la grille."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ordre des jeux dans Spotlight et la grille."}},
         "de": {"stringUnit": {"state": "translated", "value": "Reihenfolge der Spiele in Spotlight und Sammlung."}},
         "es": {"stringUnit": {"state": "translated", "value": "Orden de los juegos en Spotlight y Colección."}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Ordem dos jogos no Spotlight e na Coleção."}},
@@ -20809,7 +20809,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Derrière les menus et l’accueil quand aucun jeu n’est sélectionné."
+            "value": "Derrière les menus et la bibliothèque quand aucun jeu n’est sélectionné."
           }
         },
         "de": {
@@ -23629,7 +23629,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Changer sa position dans À la une"
+            "value": "Changer sa position dans Spotlight"
           }
         },
         "de": {
@@ -23641,13 +23641,13 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cambia su posición en Destacados"
+            "value": "Cambia su posición en Spotlight"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Altere sua posição em Destaques"
+            "value": "Altere sua posição em Spotlight"
           }
         },
         "zh-Hans": {
@@ -23676,7 +23676,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Changer sa position dans À la une."
+            "value": "Changer sa position dans Spotlight."
           }
         },
         "de": {
@@ -23688,13 +23688,13 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cambia su posición en Destacados."
+            "value": "Cambia su posición en Spotlight."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Altere sua posição em Destaques."
+            "value": "Altere sua posição em Spotlight."
           }
         },
         "zh-Hans": {
@@ -32010,7 +32010,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Détails · Lancement · Accueil : fond d’écran"
+            "value": "Détails · Lancement · Bibliothèque : fond d’écran"
           }
         },
         "de": {
@@ -56935,7 +56935,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Activé affiche l’illustration du jeu sélectionné dans À la une et la grille ; Désactivé conserve votre fond d’écran. Détails conserve l’illustration du jeu."
+            "value": "Activé affiche l’illustration du jeu sélectionné dans Spotlight et la grille ; Désactivé conserve votre fond d’écran. Détails conserve l’illustration du jeu."
           }
         },
         "de": {
@@ -56947,13 +56947,13 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Activado muestra las imágenes del juego seleccionado en Destacados y Colección; Desactivado conserva tu fondo. Detalles conserva las imágenes del juego."
+            "value": "Activado muestra las imágenes del juego seleccionado en Spotlight y Colección; Desactivado conserva tu fondo. Detalles conserva las imágenes del juego."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ativado mostra a arte do jogo selecionado em Destaques e Coleção; Desativado mantém seu papel de parede. Detalhes mantém a arte do jogo."
+            "value": "Ativado mostra a arte do jogo selecionado em Spotlight e Coleção; Desativado mantém seu papel de parede. Detalhes mantém a arte do jogo."
           }
         },
         "zh-Hans": {
@@ -59318,7 +59318,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Exclus d’À la une, de la grille, de Surprenez-moi et de la recherche."
+            "value": "Exclus de Spotlight, de la grille, de Surprenez-moi et de la recherche."
           }
         },
         "de": {
@@ -59330,13 +59330,13 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fuera de Destacados, Colección, Sorpréndeme y las búsquedas."
+            "value": "Fuera de Spotlight, Colección, Sorpréndeme y las búsquedas."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fora de Destaques, Coleção, Surpreenda-me e busca."
+            "value": "Fora de Spotlight, Coleção, Surpreenda-me e busca."
           }
         },
         "zh-Hans": {
@@ -61443,7 +61443,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Appuyer sur View alterne entre À la une et la grille ; un appui prolongé ouvre Trouver un jeu."
+            "value": "Appuyer sur View alterne entre Spotlight et la grille ; un appui prolongé ouvre Trouver un jeu."
           }
         },
         "de": {
@@ -61455,13 +61455,13 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pulsar View alterna entre Destacados y Colección; mantenerlo pulsado abre Buscar un juego."
+            "value": "Pulsar View alterna entre Spotlight y Colección; mantenerlo pulsado abre Buscar un juego."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pressionar View alterna entre Destaques e Coleção; mantê-lo pressionado abre Encontrar um jogo."
+            "value": "Pressionar View alterna entre Spotlight e Coleção; mantê-lo pressionado abre Encontrar um jogo."
           }
         },
         "zh-Hans": {
@@ -71448,7 +71448,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "À la une"
+            "value": "Spotlight"
           }
         },
         "de": {
@@ -71460,13 +71460,13 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Destacados"
+            "value": "Spotlight"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Destaques"
+            "value": "Spotlight"
           }
         },
         "zh-Hans": {
@@ -71495,7 +71495,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "À la une et la grille"
+            "value": "Spotlight et la grille"
           }
         },
         "de": {
@@ -71507,13 +71507,13 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Destacados y Colección"
+            "value": "Spotlight y Colección"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Destaques e Coleção"
+            "value": "Spotlight e Coleção"
           }
         },
         "zh-Hans": {
@@ -71542,7 +71542,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "À la une utilise son propre ordre."
+            "value": "Spotlight utilise son propre ordre."
           }
         },
         "de": {
@@ -71554,13 +71554,13 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Destacados usa su propio orden."
+            "value": "Spotlight usa su propio orden."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Destaques usa sua própria ordem."
+            "value": "Spotlight usa sua própria ordem."
           }
         },
         "zh-Hans": {
@@ -76618,7 +76618,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le filtre à l’ouverture d’À la une et de la grille."
+            "value": "Le filtre à l’ouverture de Spotlight et de la grille."
           }
         },
         "de": {
@@ -76630,13 +76630,13 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El filtro con el que se abren Destacados y Colección."
+            "value": "El filtro con el que se abren Spotlight y Colección."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O filtro inicial de Destaques e Coleção."
+            "value": "O filtro inicial de Spotlight e Coleção."
           }
         },
         "zh-Hans": {
@@ -79391,7 +79391,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "L’écran affiché à l’ouverture d’Arcane : À la une, la grille ou le dernier écran utilisé."
+            "value": "L’écran affiché à l’ouverture d’Arcane : Spotlight, la grille ou le dernier écran utilisé."
           }
         },
         "de": {
@@ -79403,13 +79403,13 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "La pantalla que muestra Arcane al abrirse: Destacados, Colección o donde lo dejaste."
+            "value": "La pantalla que muestra Arcane al abrirse: Spotlight, Colección o donde lo dejaste."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "A tela inicial do Arcane: Destaques, Coleção ou onde você parou."
+            "value": "A tela inicial do Arcane: Spotlight, Coleção ou onde você parou."
           }
         },
         "zh-Hans": {
@@ -85164,7 +85164,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "View alterne entre À la une et la grille ; un appui prolongé ouvre Trouver un jeu."
+            "value": "View alterne entre Spotlight et la grille ; un appui prolongé ouvre Trouver un jeu."
           }
         },
         "de": {
@@ -85176,13 +85176,13 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "View alterna entre Destacados y Colección; al mantenerlo pulsado, abre Buscar un juego."
+            "value": "View alterna entre Spotlight y Colección; al mantenerlo pulsado, abre Buscar un juego."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "View alterna entre Destaques e Coleção; mantê-lo pressionado abre Encontrar um jogo."
+            "value": "View alterna entre Spotlight e Coleção; mantê-lo pressionado abre Encontrar um jogo."
           }
         },
         "zh-Hans": {
@@ -86397,7 +86397,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les cartes affichées dans À la une et son affichage initial."
+            "value": "Les cartes affichées dans Spotlight et son affichage initial."
           }
         },
         "de": {
@@ -86409,13 +86409,13 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Las tarjetas que aparecen en Destacados y dónde se abre."
+            "value": "Las tarjetas que aparecen en Spotlight y dónde se abre."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quais cartões aparecem em Destaques e onde a tela abre."
+            "value": "Quais cartões aparecem em Spotlight e onde a tela abre."
           }
         },
         "zh-Hans": {
@@ -86444,7 +86444,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les cartes affichées dans la rangée À la une : Grille, Surprenez-moi, Activité, Mods et Ajouter un jeu."
+            "value": "Les cartes affichées dans la rangée Spotlight : Grille, Surprenez-moi, Activité, Mods et Ajouter un jeu."
           }
         },
         "de": {
@@ -86456,13 +86456,13 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Las tarjetas de la fila de Destacados: Colección, Sorpréndeme, Actividad, Mods y Añadir juego."
+            "value": "Las tarjetas de la fila de Spotlight: Colección, Sorpréndeme, Actividad, Mods y Añadir juego."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quais cartões ficam na fileira de Destaques: Coleção, Surpreenda-me, Atividade, Mods e Adicionar jogo."
+            "value": "Quais cartões ficam na fileira de Spotlight: Coleção, Surpreenda-me, Atividade, Mods e Adicionar jogo."
           }
         },
         "zh-Hans": {
@@ -88241,7 +88241,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Votre ordre personnalisé des jeux et des cartes dans À la une. Réinitialiser remet tout en place."
+            "value": "Votre ordre personnalisé des jeux et des cartes dans Spotlight. Réinitialiser remet tout en place."
           }
         },
         "de": {
@@ -88253,13 +88253,13 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tu propio orden de juegos y tarjetas en Destacados. Restablecer devuelve todo a su sitio."
+            "value": "Tu propio orden de juegos y tarjetas en Spotlight. Restablecer devuelve todo a su sitio."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sua própria ordem de jogos e cartões em Destaques. Redefinir coloca tudo de volta no lugar."
+            "value": "Sua própria ordem de jogos e cartões em Spotlight. Redefinir coloca tudo de volta no lugar."
           }
         },
         "zh-Hans": {
@@ -96326,7 +96326,7 @@
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Home"}},
         "it": {"stringUnit": {"state": "translated", "value": "Home"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Accueil"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Dossier de départ"}},
         "de": {"stringUnit": {"state": "translated", "value": "Startseite"}},
         "es": {"stringUnit": {"state": "translated", "value": "Inicio"}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Início"}},
