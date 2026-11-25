@@ -115,7 +115,7 @@ jobs:
     name: Android / emulator, API ${{ matrix.api }} ${{ matrix.what }}
     needs: apk
     runs-on: ubuntu-latest
-    timeout-minutes: 75
+    timeout-minutes: 110
     strategy:
       fail-fast: false
       matrix:

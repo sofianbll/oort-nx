@@ -27,7 +27,7 @@ A fault is {"on": "list"|"media"|"token", "node": id, "skip": n, "times": n, "do
   partial   set incompleteSearch
   shrink    answer fewer scopes or more (`scope`) on the token endpoint
 """
-import base64, gzip, hashlib, html, json, pathlib, re, sys, threading, time
+import base64, gzip, hashlib, html, json, pathlib, re, socketserver, sys, threading, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlencode, urlsplit
 
@@ -342,11 +342,19 @@ class Handler(BaseHTTPRequestHandler):
     do_PUT = do_PATCH = do_DELETE = refuse
 
 
+class Server(ThreadingHTTPServer):
+    daemon_threads = True
+
+    def server_bind(self):
+        # Not HTTPServer's, which looks up the machine's name and can wait half a minute for it.
+        socketserver.TCPServer.server_bind(self)
+        self.server_name, self.server_port = self.server_address
+
+
 def main():
     with open(sys.argv[1], encoding="utf-8") as file:
         vector = json.load(file)
-    server = ThreadingHTTPServer(("127.0.0.1", int(sys.argv[2]) if len(sys.argv) > 2 else 0), Handler)
-    server.daemon_threads = True
+    server = Server(("127.0.0.1", int(sys.argv[2]) if len(sys.argv) > 2 else 0), Handler)
     server.drive = Drive(vector)
     threading.Thread(target=server.serve_forever, daemon=True).start()
     print(server.server_address[1], flush=True)

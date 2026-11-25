@@ -109,6 +109,13 @@ JAVA = """package org.nx2a.testgame;
 public class Main extends android.app.Activity {
     @Override public void onCreate(android.os.Bundle state) {
         super.onCreate(state);
+        // The check's hand on the clipboard: a busy emulator loses typed keys.
+        String clip = getIntent().getStringExtra("clip");
+        if (clip != null) {
+            ((android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(android.content.ClipData.newPlainText("", clip));
+            getWindow().getDecorView().postDelayed(new Runnable() { @Override public void run() { finish(); } }, 1500);
+            return;
+        }
         android.widget.TextView text = new android.widget.TextView(this);
         text.setText("FAUX JEU " + getPackageName());
         text.setTextSize(22);

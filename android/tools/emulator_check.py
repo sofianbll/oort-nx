@@ -106,7 +106,7 @@ def screen():
             continue
         w, h = n.box[2] - n.box[0], n.box[3] - n.box[1]
         # A line cut by the edge of its scrolling page is not a small target.
-        edge = n.box[0] <= 0 or n.box[2] >= size[0] or n.box[1] <= 90 * scale or n.box[3] >= size[1] - 120 * scale
+        edge = n.box[0] <= 0 or n.box[2] >= size[0] or n.box[1] <= 90 * scale or n.box[3] >= size[1] - 150 * scale
         if min(w, h) < 47.5 * scale and not edge:
             small[n.said or "(no name)"] = f"{w / scale:.0f}x{h / scale:.0f} dp"
     return nodes

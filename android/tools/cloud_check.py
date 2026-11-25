@@ -118,34 +118,27 @@ def home():
 
 
 def to_cloud():
+    time.sleep(2)
     e.tap(w("nav_settings"), exact=True)
     row(w("integrations"))
     e.tap(w("cloud_library"), exact=True)
 
 
 def paste(code):
+    e.shell(f"am start -W -n org.example.decoy/org.nx2a.testgame.Main --es clip '{code}'")
+    time.sleep(4)
+    e.start()
     row(w("cloud_paste"))
-    e.wait(w("cloud_code_field"), 8)
-    node = e.find(w("cloud_code_field"))
+    node = e.wait(w("cloud_code_field"), 10)
     if node:
         e.shell("input tap %d %d" % node.centre)
         time.sleep(1.5)
-    # A busy emulator loses keys that come too fast: what was typed is read back.
-    for size in (40, 12, 5):
-        for start in range(0, len(code), size):
-            e.shell("input text '%s'" % code[start:start + size])
-        time.sleep(1.5)
-        typed = [n.text for n in e.screen() if n.text.strip().startswith(code[:4])]
-        if code in typed:
-            break
-        print("typed:", typed, flush=True)
-        e.shell("input keyevent KEYCODE_MOVE_END; input keyevent --longpress " + " ".join(["KEYCODE_DEL"] * 40))
-        for _ in range(len(code) // 40 + 2):
-            e.shell("input keyevent " + " ".join(["KEYCODE_DEL"] * 40))
+    e.shell("input keyevent KEYCODE_PASTE")
+    time.sleep(1.5)
     if not e.find(w("cloud_use_code"), exact=True):
         e.system_back()  # the keyboard, over the key
     e.tap(w("cloud_use_code"), exact=True)
-    time.sleep(1)
+    time.sleep(1.5)
 
 
 def sign_in(allow, name):
@@ -177,6 +170,10 @@ def join(library):
 
 
 def library_cloud():
+    for _ in range(4):
+        if e.find(w("nav_library"), exact=True):
+            break
+        e.system_back()
     e.tap(w("nav_library"), exact=True)
     e.tap(w("cloud_filter"), exact=True)
 
@@ -279,6 +276,7 @@ def run(files, work, tablet):
     for package in (e.PACKAGE, CLOUD, "org.nx2a.cloudphare", "org.nx2a.cloudmaree"):
         e.adb("uninstall", package)
     e.adb("install", "-r", files / "oort.apk", check=True, timeout=300)
+    e.adb("install", "-r", files / "games/org.example.decoy.apk", check=True, timeout=300)
     e.language("fr")
     e.adb("reverse", f"tcp:{PORT}", f"tcp:{PORT}")
     calm()
@@ -340,7 +338,8 @@ def run(files, work, tablet):
     e.see("Google refuses: said, nothing changed", w("cloud_sign_in_refused"), seconds=20)
     e.shot("cloud-08-refused")
     sign_in(True, "cloud-07-browser")
-    e.see("the folder is found", w("cloud_found"), seconds=40)
+    if not e.see("the folder is found", w("cloud_found"), seconds=40):
+        raise RuntimeError("no library to go on with")
     e.shot("cloud-09-found")
     e.scroll()
     e.shot("cloud-10-settings")
@@ -360,17 +359,18 @@ def run(files, work, tablet):
     # Downloading: progress, pause, the end of the process, resume.
     game("Le phare de Brume")
     e.shot("cloud-13-game")
-    server("/__slow", "400000")
+    server("/__slow", "60000")
     download()
     time.sleep(5)
     e.shot("cloud-14-downloading")
-    e.ok("a notification says so", CLOUD in e.shell("dumpsys notification --noredact | grep -A3 NotificationRecord | head -60"))
+    e.ok("a notification says so", CLOUD in e.shell("dumpsys notification --noredact | grep NotificationRecord"))
     press(w("cloud_pause"), name="pause")
     e.see("paused", w("cloud_paused"), seconds=15)
     e.shot("cloud-15-paused")
     before = media(library.phare["ids"]["data/RomFS/big.bin"])
     time.sleep(3)
     e.ok("paused: nothing is asked", media() == [])
+    server("/__slow", "200000")
     press(w("cloud_resume"), name="resume")
     time.sleep(6)
     e.shell(f"kill -9 $(pidof {CLOUD})")
