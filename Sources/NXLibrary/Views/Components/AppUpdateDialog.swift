@@ -62,7 +62,7 @@ struct AppUpdateDialog: View {
 
     var body: some View {
         SeleneConfirmDialog(title: title, message: message,
-            confirmTitle: primaryTitle, cancelTitle: updater.dialogHasSecondaryButton ? L10n.text("Close") : nil,
+            confirmTitle: primaryTitle, cancelTitle: updater.dialogHasSecondaryButton ? L10n.text(updater.offer == nil ? "Close" : "Later") : nil,
             confirmEnabled: canConfirm,
             focus: $updater.offerFocus, onCancel: updater.later, onConfirm: updater.confirmDialog) {
                 if case .checking = updater.state { ProgressView().padding(.top, SeleneTokens.Space.medium) }

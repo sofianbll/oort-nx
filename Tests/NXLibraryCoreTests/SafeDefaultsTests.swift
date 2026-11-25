@@ -19,4 +19,13 @@ final class SafeDefaultsTests: XCTestCase {
         XCTAssertTrue(view.contains("if page == .welcome { finish() }"), "Which still does")
         XCTAssertTrue(view.contains("backSkips: page == .welcome"))
     }
+
+    /// The offer at launch opens on Later; a check the player asked for keeps its action first.
+    func testAnUpdateOfferedAtLaunchOpensOnLater() throws {
+        let updater = try source("Services/AppUpdater.swift")
+        let offer = try XCTUnwrap(updater.range(of: "if shouldOfferResult, AppUpdate.shouldOffer"))
+        let shown = try XCTUnwrap(updater.range(of: "offer = release", range: offer.upperBound..<updater.endIndex))
+        XCTAssertTrue(updater[offer.lowerBound..<shown.lowerBound].contains("offerFocus = dialogHasSecondaryButton ? .cancel : .confirm"))
+        XCTAssertTrue(updater.contains("if presenting {\n            notesScroll = 0\n            offerFocus = .confirm"))
+    }
 }
