@@ -4,7 +4,7 @@ name: Android
 'on':
   workflow_dispatch:
   push:
-    branches: [alpha/android]
+    branches: [alpha/android, alpha/android-cloud]
 
 permissions:
   contents: read
@@ -14,7 +14,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  APK: Oort-NX-Android-0.1.0-alpha.1-unsigned.apk
+  APK: Oort-NX-Android-0.1.0-alpha.2-unsigned.apk
+  CLOUD: Oort-Cloud-Android-0.1.0-alpha.2-unsigned.apk
 
 jobs:
   checks:
@@ -31,6 +32,7 @@ jobs:
         run: |
           python3 scripts/generate_oort_android_tokens.py --check
           python3 -m unittest discover -s Tests/AndroidChecks
+          python3 Tests/PhoneLibrary/check.py
       - name: The cloud against the Mac's own numbers
         run: python3 -I android/tools/verify_cloud.py
 
@@ -56,7 +58,7 @@ jobs:
       - name: "Debug APK (debug key, installable for a first look)"
         run: gradle -p android assembleDebug
       - name: Release APK
-        run: gradle -p android assembleRelease
+        run: gradle -p android assembleRelease :cloud:assembleCheck
       - name: Unsigned release, aligned, with its checksum
         run: |
           tools="$ANDROID_HOME/build-tools/36.0.0"
@@ -66,15 +68,28 @@ jobs:
           if "$tools/apksigner" verify "dist/$APK" >/dev/null 2>&1; then echo "expected no signature"; exit 1; fi
           "$tools/aapt2" dump badging "dist/$APK" | grep -E "^(package|minSdkVersion|targetSdkVersion|application-label|uses-permission)"
           if "$tools/aapt2" dump permissions "dist/$APK" | grep "uses-permission" | grep -v DYNAMIC_RECEIVER_NOT_EXPORTED; then echo "a permission is asked for"; exit 1; fi
-          cd dist && sha256sum "$APK" | tee "$APK.sha256"
+          # Oort Cloud: its rights are the ones its manifest explains, and the stand-in for Google is not in it.
+          "$tools/zipalign" -P 16 -f 4 android/cloud/build/outputs/apk/release/cloud-release-unsigned.apk "dist/$CLOUD"
+          "$tools/aapt2" dump permissions "dist/$CLOUD" | grep "uses-permission" | sort | tee dist/cloud-permissions.txt
+          diff <(grep -o "android.permission.[A-Z_]*" dist/cloud-permissions.txt | sort -u) <(printf 'android.permission.%s\n' ACCESS_NETWORK_STATE CAMERA FOREGROUND_SERVICE FOREGROUND_SERVICE_DATA_SYNC INTERNET POST_NOTIFICATIONS RECEIVE_BOOT_COMPLETED REQUEST_INSTALL_PACKAGES | sort)
+          rm dist/cloud-permissions.txt
+          mkdir -p "$RUNNER_TEMP/look" && unzip -qo "dist/$CLOUD" -d "$RUNNER_TEMP/look"
+          if grep -rlaE "127\.0\.0\.1:8799|debug\.oort" "$RUNNER_TEMP/look"; then echo "the stand-in for Google is in the app"; exit 1; fi
+          cd dist && for one in "$APK" "$CLOUD"; do sha256sum "$one" | tee "$one.sha256"; done
       - name: The release signed for the emulator only, and the made-up games
         run: |
           tools="$ANDROID_HOME/build-tools/36.0.0"
           mkdir -p emulator
           keytool -genkeypair -keystore "$RUNNER_TEMP/test.jks" -storepass android -alias test -keyalg RSA -validity 2 -dname CN=emulator-test
           "$tools/apksigner" sign --ks "$RUNNER_TEMP/test.jks" --ks-pass pass:android --out emulator/oort.apk "dist/$APK"
-          python3 android/tools/make_test_games.py --out emulator/games --keystore "$RUNNER_TEMP/test.jks" --password android
-          rm -f emulator/*.idsig "$RUNNER_TEMP/test.jks"
+          "$tools/zipalign" -P 16 -f 4 android/cloud/build/outputs/apk/check/cloud-check-unsigned.apk "$RUNNER_TEMP/cloud-check.apk"
+          "$tools/apksigner" sign --ks "$RUNNER_TEMP/test.jks" --ks-pass pass:android --out emulator/cloud.apk "$RUNNER_TEMP/cloud-check.apk"
+          # The same module under another key: Oort NX must not speak to it.
+          keytool -genkeypair -keystore "$RUNNER_TEMP/other.jks" -storepass android -alias other -keyalg RSA -validity 2 -dname CN=another
+          "$tools/apksigner" sign --ks "$RUNNER_TEMP/other.jks" --ks-pass pass:android --out emulator/cloud-other-key.apk "$RUNNER_TEMP/cloud-check.apk"
+          "$tools/apksigner" verify --print-certs emulator/oort.apk | grep -m1 "SHA-256 digest" | grep -oE "[0-9a-f]{64}" > emulator/certificate.txt
+          python3 android/tools/make_test_games.py --cloud emulator/cloud-games --out emulator/games --keystore "$RUNNER_TEMP/test.jks" --password android
+          rm -f emulator/*.idsig "$RUNNER_TEMP/test.jks" "$RUNNER_TEMP/other.jks"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: oort-nx-android-unsigned
@@ -94,9 +109,10 @@ jobs:
           path: |
             android/app/build/outputs/apk/debug/*.apk
             android/app/build/reports/tests/
+            android/cloud/build/reports/tests/
 
   emulator:
-    name: Android / emulator, API ${{ matrix.api }}
+    name: Android / emulator, API ${{ matrix.api }} ${{ matrix.what }}
     needs: apk
     runs-on: ubuntu-latest
     timeout-minutes: 75
@@ -104,9 +120,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { api: 36, target: google_apis }
-          - { api: 34, target: default }
-          - { api: 29, target: default }
+          - { api: 36, target: google_apis, what: screens, profile: pixel_6 }
+          - { api: 34, target: default, what: screens, profile: pixel_6 }
+          - { api: 29, target: default, what: screens, profile: pixel_6 }
+          - { api: 36, target: google_apis, what: cloud, profile: pixel_6 }
+          - { api: 34, target: google_apis, what: cloud, profile: pixel_tablet }
+          - { api: 29, target: google_apis, what: cloud, profile: pixel_6 }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -125,15 +144,15 @@ jobs:
           api-level: ${{ matrix.api }}
           target: ${{ matrix.target }}
           arch: x86_64
-          profile: pixel_6
+          profile: ${{ matrix.profile }}
           cores: 4
           ram-size: 3072M
           disable-animations: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot -camera-back none
-          script: python3 android/tools/emulator_check.py --apk emulator/oort.apk --games emulator/games --out captures
+          script: if [ '${{ matrix.what }}' = cloud ]; then python3 android/tools/cloud_check.py --files emulator --out captures; else python3 android/tools/emulator_check.py --apk emulator/oort.apk --games emulator/games --out captures; fi
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
-          name: captures-api-${{ matrix.api }}
+          name: captures-${{ matrix.what }}-api-${{ matrix.api }}
           retention-days: 30
           path: captures/

@@ -94,6 +94,9 @@ sealed class ShelfError(val code: String, val isTransient: Boolean = false) {
     data class NoSpace(val needed: Long) : ShelfError("noSpace")
     data object LocalFile : ShelfError("localFile")
 
+    /** Nothing is wrong with the game or the device: the download waits and tries again by itself. */
+    val waits: Boolean get() = isTransient || this == Offline || this == NetworkNotAllowed
+
     val isAboutOneGame: Boolean
         get() = when (this) {
             Ambiguous, UnsafeName, InvalidManifest, Unsigned, FilesMissing, WrongSize, WrongDigest, NotFound -> true

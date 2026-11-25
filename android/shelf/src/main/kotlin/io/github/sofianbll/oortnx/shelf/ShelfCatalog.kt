@@ -20,7 +20,8 @@ data class ShelfHidden(val titleID: String, val name: String, val reason: Reason
     }
 }
 
-data class ShelfProblem(val titleID: String, val error: ShelfError)
+/** [name]: from the folder's name; nothing inside it was believed. */
+data class ShelfProblem(val titleID: String, val name: String, val error: ShelfError)
 
 data class ShelfListing(val games: List<ShelfGame>, val hidden: List<ShelfHidden>, val problems: List<ShelfProblem>)
 
@@ -46,9 +47,10 @@ class ShelfCatalog(
         val problems = mutableListOf<ShelfProblem>()
         for ((title, nodes) in folders) {
             stop.check()
+            val label = ShelfNames.displayName((nodes.firstOrNull { it.name != title } ?: nodes[0]).name, title)
             try {
                 if (nodes.any { names[ShelfNames.folded(it.name)] != 1 }) fail(ShelfError.Ambiguous)
-                when (val found = best(title, nodes, device) { problems.add(ShelfProblem(title, it)) }) {
+                when (val found = best(title, nodes, device) { problems.add(ShelfProblem(title, label, it)) }) {
                     is Found.Build -> {
                         val state = when (installed[title]) {
                             null -> ShelfGame.State.AVAILABLE
@@ -58,14 +60,13 @@ class ShelfCatalog(
                         games.add(ShelfGame(found.build, state))
                     }
                     is Found.Hidden -> {
-                        val folder = (nodes.firstOrNull { it.name != title } ?: nodes[0]).name
-                        hidden.add(ShelfHidden(title, found.name ?: ShelfNames.displayName(folder, title), found.reason))
+                        hidden.add(ShelfHidden(title, found.name ?: label, found.reason))
                     }
                     Found.Nothing -> Unit
                 }
             } catch (failure: ShelfException) {
                 if (!failure.error.isAboutOneGame) throw failure
-                problems.add(ShelfProblem(title, failure.error))
+                problems.add(ShelfProblem(title, label, failure.error))
             }
         }
         return ShelfListing(sorted(games, order), hidden, problems)

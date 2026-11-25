@@ -11,7 +11,7 @@ class ShelfConnector(
     val permissions: Set<Permission>,
     internal val open: () -> ShelfSource,
     /** Erases what the connector kept on the device (its credential). */
-    internal val forget: () -> Unit,
+    val forget: () -> Unit,
 ) {
     enum class Permission(val id: String) { NETWORK("network"), READ_LIBRARY("readLibrary"), STORE_BUILDS("storeBuilds") }
 }

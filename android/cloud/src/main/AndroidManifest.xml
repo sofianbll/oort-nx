@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- INTERNET comes from :drive. Every other right is here because one thing the player asks for needs it:
+         the camera to scan the Mac's code, notifications to say a game is ready, the foreground service and the job to go on
+         with the screen off, installing to hand an APK to Android's own confirmation. No storage right: the player chooses a folder. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+
+    <queries>
+        <package android:name="io.github.sofianbll.oortnx.alpha" />
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+    </queries>
+
+    <application
+        android:allowBackup="false"
+        android:hasFragileUserData="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.Cloud">
+        <!-- Both refuse a caller that is not signed as this app is (CloudGuard). -->
+        <provider
+            android:name=".CloudProvider"
+            android:authorities="io.github.sofianbll.oortnx.alpha.cloud"
+            android:exported="true" />
+        <activity
+            android:name=".StepActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTop"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden|navigation|uiMode|density|fontScale|locale" />
+        <activity
+            android:name=".ScanActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Cloud.Scan"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden|navigation|uiMode|density|fontScale|locale" />
+        <service android:name=".CloudService" android:exported="false" android:foregroundServiceType="dataSync" />
+        <service android:name=".CloudJob" android:exported="false" android:permission="android.permission.BIND_JOB_SERVICE" />
+        <receiver android:name=".InstallReceiver" android:exported="false" />
+    </application>
+</manifest>

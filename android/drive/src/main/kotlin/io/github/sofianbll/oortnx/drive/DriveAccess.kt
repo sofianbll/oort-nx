@@ -63,7 +63,7 @@ class DriveInvite(val client: DriveClient, /** Identifier of the library folder.
 }
 
 /** Google's addresses. Nothing else is ever contacted. */
-internal class DriveEndpoints(val authorize: String, val token: String, val files: String) {
+class DriveEndpoints(val authorize: String, val token: String, val files: String) {
     val hosts: List<String> get() = listOf(authorize, token, files).map { URI(it).host }.distinct().sorted()
 
     companion object {
@@ -79,8 +79,8 @@ class DriveSignIn internal constructor(
     internal val redirect: String,
     private val endpoints: DriveEndpoints,
 ) {
-    constructor(client: DriveClient, receiver: DriveReceiver) :
-        this(client, DriveSecret(random()), DriveSecret(random()), receiver.address, DriveEndpoints.google)
+    internal constructor(client: DriveClient, receiver: DriveReceiver, endpoints: DriveEndpoints = DriveEndpoints.google) :
+        this(client, DriveSecret(random()), DriveSecret(random()), receiver.address, endpoints)
 
     val page: String
         get() = endpoints.authorize + "?" + listOf(

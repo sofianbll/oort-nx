@@ -37,6 +37,7 @@ class MainActivity : ComponentActivity() {
         val debuggable = applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
         state = AppState(applicationContext, prefs, sound, demo = debuggable && intent.getBooleanExtra("demo", false),
             versionName = packageManager.getPackageInfo(packageName, 0).versionName ?: "")
+        state.step = { intent -> try { startActivityForResult(intent, 1) } catch (_: android.content.ActivityNotFoundException) { state.startCloud() } }
         router = InputRouter(
             swapAB = { prefs.swapAB },
             sink = { state.onNav(it) },
@@ -65,6 +66,7 @@ class MainActivity : ComponentActivity() {
         state.prefs.refresh()
         state.pads = connectedPads()
         (getSystemService(Context.INPUT_SERVICE) as InputManager).registerInputDeviceListener(padListener, null)
+        state.startCloud()
         state.rescan() // a game may have been installed or removed while another app was in front
     }
 
@@ -72,7 +74,14 @@ class MainActivity : ComponentActivity() {
         (getSystemService(Context.INPUT_SERVICE) as InputManager).unregisterInputDeviceListener(padListener)
         router.reset()
         state.pad.reset()
+        state.stopCloud()
         super.onPause()
+    }
+
+    @Deprecated("The framework's own, enough for one answer")
+    override fun onActivityResult(request: Int, result: Int, data: android.content.Intent?) {
+        @Suppress("DEPRECATION") super.onActivityResult(request, result, data)
+        data?.getStringExtra("code")?.let { state.useCode(it) }
     }
 
     override fun onDestroy() {

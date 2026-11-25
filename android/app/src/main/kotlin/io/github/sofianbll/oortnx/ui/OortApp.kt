@@ -102,6 +102,10 @@ private fun Page(state: AppState, section: Section, page: Route?) {
         Route.Sounds -> ListScreen(state, stringResource(R.string.settings_sound), back)
         Route.Buttons -> ListScreen(state, stringResource(R.string.controllers_buttons), back)
         Route.Cloud -> ListScreen(state, stringResource(R.string.settings_cloud), back)
+        Route.Integrations -> ListScreen(state, stringResource(R.string.integrations), back)
+        Route.CloudLibrary -> { ListScreen(state, stringResource(R.string.cloud_library), back); CodeDialog(state) }
+        Route.CloudOff -> ListScreen(state, stringResource(R.string.cloud_turn_off), back)
+        is Route.CloudPage -> state.cloud?.let { cloud -> cloud.games.firstOrNull { it.title == page.title }?.let { CloudGameScreen(state, cloud, it) } }
         Route.WhichGames -> WhichGamesScreen(state)
         Route.Thanks -> ListScreen(state, stringResource(R.string.settings_thanks), back)
         is Route.Licence -> LicenceScreen(state, page.text)

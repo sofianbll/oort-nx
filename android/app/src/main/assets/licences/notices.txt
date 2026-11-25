@@ -38,6 +38,7 @@ Oort NX is maintained independently of Arcane by Bium23 (MIT, Copyright (c) 2026
 |---|---|
 | Kotlin and kotlinx.coroutines (JetBrains) * | Apache-2.0 |
 | AndroidX: Activity, Compose (UI, Foundation, Material 3) and what they need (Core, Lifecycle, Collection...) * | Apache-2.0 |
+| ZXing core (only in Oort Cloud, to read the Mac's code) * | Apache-2.0 |
 | Android Gradle plugin, Gradle | Apache-2.0 |
 | JUnit 4 (tests only) | EPL-1.0 |
 

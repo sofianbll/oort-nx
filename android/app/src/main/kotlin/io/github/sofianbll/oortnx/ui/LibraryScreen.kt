@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -45,10 +44,14 @@ import io.github.sofianbll.oortnx.core.Game
 /** Every game, the last started first or by name. The covers are as wide as the window allows, never smaller than a thumb. */
 @Composable
 fun LibraryScreen(state: AppState) {
+    state.cloud?.let { if (state.inCloud && it.hasFilter) return CloudLibrary(state, it) }
     val games = state.library
     BoxWithConstraints(Modifier.fillMaxSize()) {
         if (games.isEmpty()) {
-            if (state.scanned) EmptyLibrary(state, Modifier.fillMaxSize().verticalScroll(rememberScrollState()).heightIn(min = maxHeight).padding(28.dp))
+            if (state.scanned) Column(Modifier.fillMaxSize()) {
+                Box(Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) { LibraryFilter(state) }
+                EmptyLibrary(state, Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(28.dp))
+            }
             else Text(stringResource(R.string.library_scanning), Modifier.padding(28.dp), style = MaterialTheme.typography.bodyLarge, color = Ink2)
             return@BoxWithConstraints
         }
@@ -64,6 +67,7 @@ fun LibraryScreen(state: AppState) {
         LaunchedEffect(state.prefs.byName) { if (state.padMode) grid.animateScrollToItem(state.libraryFocus) else grid.scrollToItem(0) }
         Column(Modifier.fillMaxSize().padding(horizontal = 20.dp)) {
             PageTitle(stringResource(R.string.nav_library), null) { SortKey(state) }
+            LibraryFilter(state)
             LazyVerticalGrid(
                 columns = GridCells.Fixed(columns),
                 state = grid,

@@ -1,12 +1,16 @@
 package io.github.sofianbll.oortnx.ui
 
 import android.content.Context
+import android.content.Intent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import io.github.sofianbll.oortnx.R
+import io.github.sofianbll.oortnx.core.CloudClient
+import io.github.sofianbll.oortnx.core.CloudGame
+import io.github.sofianbll.oortnx.core.CloudState
 import io.github.sofianbll.oortnx.core.ConnectedPad
 import io.github.sofianbll.oortnx.core.Covers
 import io.github.sofianbll.oortnx.core.Dir
@@ -75,7 +79,69 @@ class AppState(
     var pads by mutableStateOf<List<ConnectedPad>>(emptyList())
     val pad = PadMonitor()
     var message by mutableStateOf<String?>(null)
-    private var step = 0
+    private var step1 = 0
+
+    // ---- the cloud library, which is another app -----------------------------------------------------------
+
+    var cloud by mutableStateOf<CloudState?>(null)
+        private set
+    private val client = CloudClient(context) { next ->
+        val fresh = next?.games?.filter { it.installed }?.map { it.title }
+        val known = cloud?.games?.filter { it.installed }?.map { it.title }
+        cloud = next
+        if (known != null && fresh != known) rescan()
+    }
+
+    /** Asks Oort Cloud for what only it can do. Set by the activity: Android tells the other app who asks. */
+    var step: (Intent) -> Unit = {}
+    var inCloud by mutableStateOf(false)
+        private set
+    var pasting by mutableStateOf(false)
+    private var codeRefusal by mutableStateOf<Int?>(null)
+
+    fun startCloud() = client.start()
+    fun stopCloud() = client.stop()
+    fun cloudCall(method: String, arg: String? = null) = client.call(method, arg)
+    fun cloudStep(action: String, title: String? = null) = step(CloudClient.step(action, title))
+
+    fun showCloud(on: Boolean) {
+        if (on == inCloud) return
+        inCloud = on
+        libraryFocus = 0
+        sound(SoundEvent.Select)
+    }
+
+    fun openCloudGame(game: CloudGame) {
+        libraryFocus = cloud?.games?.indexOf(game)?.coerceAtLeast(0) ?: 0
+        open(Route.CloudPage(game.title))
+    }
+
+    fun useCode(text: String) {
+        pasting = false
+        client.call("code", text) { result ->
+            codeRefusal = when (result) { "good" -> null; "otherDevice" -> R.string.cloud_code_other; else -> R.string.cloud_code_wrong }
+            sound(if (result == "good") SoundEvent.Confirm else SoundEvent.Deny)
+        }
+    }
+
+    class CloudAction(val label: Int, val glyph: Glyph, val run: () -> Unit)
+
+    /** The one thing a game of the cloud waits for. */
+    fun cloudAction(cloud: CloudState, game: CloudGame): CloudAction {
+        val id = game.title
+        if (cloud.installing == id) return CloudAction(R.string.cloud_installing, Glyph.Wait) {}
+        return when (game.job?.state) {
+            "running", "waiting" -> CloudAction(R.string.cloud_pause, Glyph.Pause) { sound(SoundEvent.Select); cloudCall("pause", id) }
+            "paused" -> CloudAction(R.string.cloud_resume, Glyph.Down) { sound(SoundEvent.Confirm); cloudStep("resume", id) }
+            "failed" -> CloudAction(R.string.cloud_try_again, Glyph.Refresh) { sound(SoundEvent.Confirm); cloudStep("resume", id) }
+            "ready" -> CloudAction(R.string.cloud_install, Glyph.Device) { sound(SoundEvent.Confirm); cloudStep("install", id) }
+            else -> when {
+                game.installed -> CloudAction(R.string.detail_play, Glyph.Play) { game.packageName?.let { game(it) }?.let { play(it) } ?: rescan() }
+                game.here != null -> CloudAction(R.string.cloud_update, Glyph.Up) { sound(SoundEvent.Confirm); cloudStep("download", id) }
+                else -> CloudAction(R.string.cloud_download, Glyph.Down) { sound(SoundEvent.Confirm); cloudStep("download", id) }
+            }
+        }
+    }
 
     fun game(packageName: String): Game? = found.firstOrNull { it.packageName == packageName }
 
@@ -131,7 +197,7 @@ class AppState(
     fun select(game: Game) {
         if (game.packageName == selected?.packageName) return
         selectedPackage = game.packageName
-        sound(SoundEvent.Move, step++)
+        sound(SoundEvent.Move, step1++)
     }
 
     fun openGame(game: Game) {
@@ -194,19 +260,36 @@ class AppState(
         }
     }
 
-    private fun moveHome(target: HomeTarget) { homeTarget = target; sound(SoundEvent.Move, step++) }
+    private fun moveHome(target: HomeTarget) { homeTarget = target; sound(SoundEvent.Move, step1++) }
 
     private fun libraryNav(nav: Nav) {
+        val filter = cloud?.hasFilter == true
+        // Above the first row: the other games.
+        if (nav == Nav.Up && filter && libraryFocus < columns) return showCloud(!inCloud)
+        if (filter && inCloud) return cloudNav(nav)
         val games = library
         if (games.isEmpty()) { if (nav == Nav.Confirm) rescan(); return }
         when (nav) {
             Nav.Up, Nav.Down, Nav.Left, Nav.Right -> {
                 val dir = when (nav) { Nav.Up -> Dir.Up; Nav.Down -> Dir.Down; Nav.Left -> Dir.Left; else -> Dir.Right }
                 val next = gridMove(libraryFocus, games.size, columns, dir)
-                if (next == libraryFocus) sound(SoundEvent.Deny) else { libraryFocus = next; sound(SoundEvent.Move, step++) }
+                if (next == libraryFocus) sound(SoundEvent.Deny) else { libraryFocus = next; sound(SoundEvent.Move, step1++) }
             }
             Nav.Confirm -> games.getOrNull(libraryFocus)?.let { openGame(it) }
             Nav.Options -> sort(!prefs.byName)
+            else -> Unit
+        }
+    }
+
+    private fun cloudNav(nav: Nav) {
+        val games = cloud?.games.orEmpty()
+        when (nav) {
+            Nav.Up, Nav.Down, Nav.Left, Nav.Right -> {
+                val dir = when (nav) { Nav.Up -> Dir.Up; Nav.Down -> Dir.Down; Nav.Left -> Dir.Left; else -> Dir.Right }
+                val next = gridMove(libraryFocus, games.size, columns, dir)
+                if (next == libraryFocus) sound(SoundEvent.Deny) else { libraryFocus = next; sound(SoundEvent.Move, step1++) }
+            }
+            Nav.Confirm -> games.getOrNull(libraryFocus)?.let { openCloudGame(it) } ?: cloudCall("look")
             else -> Unit
         }
     }
@@ -229,7 +312,7 @@ class AppState(
     }
 
     private val pageKey: String get() = route?.key ?: section.name
-    private fun rowIds() = (if (route is Route.GamePage) listOf(PLAY) else emptyList()) +
+    private fun rowIds() = (if (route is Route.GamePage || route is Route.CloudPage) listOf(PLAY) else emptyList()) +
         sections().flatMap { it.rows }.filter { it.kind != Kind.Info }.map { it.id }
 
     private fun listNav(nav: Nav) {
@@ -238,7 +321,7 @@ class AppState(
         when (nav) {
             Nav.Up, Nav.Down -> {
                 val next = ids.indexOf(here) + if (nav == Nav.Down) 1 else -1
-                if (next in ids.indices) { rowFocus = rowFocus + (pageKey to ids[next]); sound(SoundEvent.Move, step++) } else sound(SoundEvent.Deny)
+                if (next in ids.indices) { rowFocus = rowFocus + (pageKey to ids[next]); sound(SoundEvent.Move, step1++) } else sound(SoundEvent.Deny)
             }
             Nav.Left, Nav.Right -> {
                 val kind = sections().flatMap { it.rows }.firstOrNull { it.id == here }?.kind
@@ -253,6 +336,7 @@ class AppState(
     fun press(id: String) {
         val page = route
         if (id == PLAY && page is Route.GamePage) { game(page.packageName)?.let { play(it) }; return }
+        if (id == PLAY && page is Route.CloudPage) { cloud?.let { c -> c.games.firstOrNull { it.title == page.title }?.let { cloudAction(c, it).run() } }; return }
         val row = sections().flatMap { it.rows }.firstOrNull { it.id == id } ?: return
         rowFocus = rowFocus + (pageKey to id)
         when (val kind = row.kind) {
@@ -306,6 +390,17 @@ class AppState(
             RowItem("calm", Label.Res(R.string.settings_calm), note = Label.Res(R.string.settings_calm_note), glyph = Glyph.Cloud,
                 kind = Kind.Toggle(prefs.calm) { prefs.saveCalm(it) }),
         )))
+        Route.Integrations -> listOf(RowSection(footer = Label.Res(R.string.integrations_note), rows = listOf(
+            RowItem("library", Label.Res(R.string.cloud_library), note = Label.Res(R.string.cloud_library_note), glyph = Glyph.Cloud, kind = Kind.Open(Route.CloudLibrary),
+                value = Label.Res(if (cloud == null) R.string.cloud_not_installed else if (cloud?.isOn == true) R.string.cloud_on else R.string.cloud_off)),
+        )))
+        Route.CloudLibrary -> cloudSections()
+        Route.CloudOff -> listOf(RowSection(Label.Res(R.string.cloud_off_title), footer = Label.Res(R.string.cloud_off_note), rows = listOf(
+            RowItem("keep", Label.Res(R.string.cloud_keep), glyph = Glyph.Power, kind = Kind.Press { turnOff(false) }),
+            RowItem("delete", Label.Res(R.string.cloud_delete), glyph = Glyph.Trash, danger = true, kind = Kind.Press { turnOff(true) }),
+            RowItem("no", Label.Res(R.string.cancel), glyph = Glyph.Close, kind = Kind.Press { onBack() }),
+        )))
+        is Route.CloudPage -> cloud?.let { c -> c.games.firstOrNull { it.title == page.title }?.let { cloudGameSections(it) } }.orEmpty()
         Route.Thanks -> thanksSections()
         Route.WhichGames, Route.PadTest, is Route.Licence -> emptyList()
         null -> when (section) {
@@ -313,6 +408,73 @@ class AppState(
             Section.Settings -> settingsSections()
             else -> emptyList()
         }
+    }
+
+    private fun turnOff(deleting: Boolean) {
+        inCloud = false
+        cloudCall("turnOff", if (deleting) "delete" else "keep")
+        onBack()
+    }
+
+    private fun bytes(count: Long) = Label.Raw(android.text.format.Formatter.formatShortFileSize(context, count))
+
+    private fun cloudSections(): List<RowSection> {
+        val c = cloud ?: return listOf(RowSection(rows = listOf(
+            RowItem("missing", Label.Res(R.string.cloud_missing), note = Label.Res(R.string.cloud_missing_note), glyph = Glyph.Cloud))))
+        if (!c.isOn) return listOf(
+            RowSection(Label.Res(R.string.cloud_intro), rows = listOf(
+                RowItem("reads", Label.Res(R.string.cloud_reads), note = Label.Res(R.string.cloud_reads_note), glyph = Glyph.Folder),
+                RowItem("writes", Label.Res(R.string.cloud_writes), note = Label.Res(R.string.cloud_writes_note), glyph = Glyph.Device),
+                RowItem("sends", Label.Res(R.string.cloud_sends), note = Label.Res(R.string.cloud_sends_note, c.hosts.joinToString("\n")), glyph = Glyph.Up),
+                RowItem("asks", Label.Res(R.string.cloud_asks), note = Label.Res(R.string.cloud_asks_note), glyph = Glyph.Key),
+            )),
+            RowSection(footer = Label.Res(R.string.cloud_any_time), rows = listOf(
+                RowItem("on", Label.Res(R.string.cloud_turn_on), glyph = Glyph.Power, kind = Kind.Press { cloudCall("turnOn") }))),
+        )
+        val done = Label.Res(R.string.cloud_done)
+        val steps = buildList {
+            if (c.stage == "code") {
+                add(RowItem("scan", Label.Res(R.string.cloud_scan), note = Label.Res(R.string.cloud_scan_note), glyph = Glyph.Code, kind = Kind.Press { codeRefusal = null; cloudStep("scan") }))
+                add(RowItem("paste", Label.Res(R.string.cloud_paste), note = codeRefusal?.let { Label.Res(it) }, glyph = Glyph.Text, kind = Kind.Press { codeRefusal = null; pasting = true }))
+            } else add(RowItem("code", Label.Res(R.string.cloud_code), value = done, glyph = Glyph.Check))
+            if (c.stage == "signIn") add(RowItem("signin", Label.Res(R.string.cloud_sign_in), glyph = Glyph.Key, kind = Kind.Press { cloudStep("signIn") },
+                note = c.message?.let { Label.Raw(it) } ?: Label.Res(when (c.problem) { null -> R.string.cloud_sign_in_note; "accessDenied" -> R.string.cloud_sign_in_refused; else -> errorWords(c.problem) })))
+            else add(RowItem("access", Label.Res(if (c.stage == "ready") R.string.cloud_signed_in else R.string.cloud_sign_in), value = if (c.stage == "ready") done else null, glyph = if (c.stage == "ready") Glyph.Check else Glyph.Key))
+            add(when {
+                c.looking -> RowItem("folder", Label.Res(R.string.cloud_looking), glyph = Glyph.Folder)
+                c.listed -> RowItem("folder", Label.Res(R.string.cloud_found), value = Label.Res(R.string.cloud_found_count, c.games.size), glyph = Glyph.Check)
+                c.stage == "ready" && c.problem != null -> RowItem("folder", Label.Res(R.string.cloud_not_found), note = Label.Res(errorWords(c.problem)), glyph = Glyph.Info)
+                else -> RowItem("folder", Label.Res(R.string.cloud_folder), glyph = Glyph.Folder)
+            })
+        }
+        if (c.stage == "code") return listOf(RowSection(rows = steps))
+        return listOf(RowSection(rows = steps), RowSection(footer = Label.Res(R.string.cloud_free_note, bytes(c.free)), rows = buildList {
+            if (c.stage == "ready") {
+                add(RowItem("see", Label.Res(R.string.cloud_see), glyph = Glyph.Library, kind = Kind.Press { stacks = stacks - Section.Library; inCloud = true; libraryFocus = 0; goTo(Section.Library) }))
+                add(RowItem("again", Label.Res(R.string.cloud_again), glyph = Glyph.Refresh, kind = Kind.Press { cloudCall("look") }))
+            }
+            add(RowItem("wifi", Label.Res(R.string.cloud_wifi), note = Label.Res(R.string.cloud_wifi_note), glyph = Glyph.Dots, kind = Kind.Toggle(c.wifiOnly) { cloudCall("wifiOnly", if (it) "yes" else "no") }))
+            add(RowItem("used", Label.Res(R.string.cloud_used), value = bytes(c.used), glyph = Glyph.Device))
+            add(RowItem("change", Label.Res(R.string.cloud_change), note = Label.Res(R.string.cloud_change_note), glyph = Glyph.Code, kind = Kind.Press { cloudCall("changeCode") }))
+            add(RowItem("off", Label.Res(R.string.cloud_turn_off), glyph = Glyph.Power, kind = Kind.Open(Route.CloudOff)))
+        }))
+    }
+
+    private fun cloudGameSections(game: CloudGame): List<RowSection> {
+        val here = game.packageName?.let { game(it) }
+        val facts = listOfNotNull(
+            RowItem("version", Label.Res(R.string.detail_version_label), value = Label.Raw(game.version)),
+            game.here?.let { RowItem("here", Label.Res(R.string.cloud_here), value = Label.Raw(it)) },
+            RowItem("size", Label.Res(R.string.cloud_size), value = bytes(game.bytes)),
+            RowItem("free", Label.Res(R.string.cloud_free_here), value = bytes(cloud?.free ?: 0)),
+            RowItem("system", Label.Res(R.string.cloud_system), value = Label.Raw("Android API " + game.system)),
+        )
+        val actions = listOfNotNull(
+            game.job?.let { RowItem("cancel", Label.Res(R.string.cloud_cancel), note = Label.Res(R.string.cloud_cancel_note), glyph = Glyph.Close, danger = true, kind = Kind.Press { cloudCall("cancel", game.title) }) },
+            here?.let { RowItem("page", Label.Res(R.string.game_page), note = Label.Res(R.string.cloud_remove_note), glyph = Glyph.Info, kind = Kind.Open(Route.GamePage(it.packageName))) },
+            if (game.left) RowItem("clean", Label.Res(R.string.cloud_clean), note = Label.Res(R.string.cloud_clean_note), glyph = Glyph.Trash, danger = true, kind = Kind.Press { cloudCall("clean", game.title) }) else null,
+        )
+        return listOf(RowSection(footer = Label.Res(R.string.cloud_signed_note), rows = facts), RowSection(rows = actions)).filter { it.rows.isNotEmpty() }
     }
 
     private fun swapRow() = RowItem("swap", Label.Res(R.string.settings_swap), note = Label.Res(R.string.settings_swap_note), glyph = Glyph.Swap,
@@ -360,6 +522,10 @@ class AppState(
                 value = Label.Res(if (prefs.swapAB) R.string.settings_confirm_b else R.string.settings_confirm_a)),
             RowItem("cloud", Label.Res(R.string.settings_cloud), glyph = Glyph.Cloud, kind = Kind.Open(Route.Cloud),
                 value = Label.Res(if (prefs.calm) R.string.settings_cloud_still else R.string.settings_cloud_moving)),
+        )),
+        RowSection(rows = listOf(
+            RowItem("integrations", Label.Res(R.string.integrations), glyph = Glyph.Cloud, kind = Kind.Open(Route.Integrations),
+                value = if (cloud?.isOn == true) Label.Res(R.string.cloud_library) else null),
         )),
         RowSection(Label.Res(R.string.settings_about), footer = Label.Res(R.string.settings_license), rows = listOf(
             RowItem("version", Label.Res(R.string.detail_version_label), value = Label.Raw(versionName), glyph = Glyph.Info),

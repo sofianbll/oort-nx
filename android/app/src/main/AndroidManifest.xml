@@ -10,6 +10,8 @@
     <!-- Android 11+ hides other apps. The games are listed through their launcher activity, which is how Android
          shows them in its own launcher; Oort keeps those whose package starts with org.nx2a. -->
     <queries>
+        <!-- Oort Cloud, the optional app that holds the network: asked only when it is here and signed with this app's key. -->
+        <package android:name="io.github.sofianbll.oortnx.alpha.cloud" />
         <intent>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />

@@ -82,8 +82,15 @@ GAMES = [
     ("org.example.decoy", "Pas un jeu", "1.0", hills),  # must not be listed
 ]
 
+# Not installed beforehand: what the cloud check downloads, then updates.
+CLOUD = [
+    ("org.nx2a.cloudphare", "Le phare de Brume", "1.0.0", lighthouse, 1, "phare-1"),
+    ("org.nx2a.cloudphare", "Le phare de Brume", "1.1.0", lighthouse, 2, "phare-2"),
+    ("org.nx2a.cloudmaree", "Marée haute", "2.3.0", tide, 1, "maree-1"),
+]
+
 MANIFEST = """<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="{package}" android:versionCode="1" android:versionName="{version}">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="{package}" android:versionCode="{code}" android:versionName="{version}">
     <uses-sdk android:minSdkVersion="29" android:targetSdkVersion="36" />
     <application android:label="{label}" android:icon="@mipmap/icon" android:hasCode="true" android:isGame="true" android:appCategory="game"
         android:theme="@android:style/Theme.Material.NoActionBar">
@@ -124,6 +131,7 @@ ADAPTIVE = """<?xml version="1.0" encoding="utf-8"?>
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--cloud", type=Path, help="where the cloud check's games go")
     parser.add_argument("--keystore", required=True)
     parser.add_argument("--password", required=True)
     args = parser.parse_args()
@@ -142,8 +150,11 @@ def main():
         source.write_text(JAVA)
         run("javac", "--release", "11", "-cp", jar, "-d", work / "classes", source)
         run(tools / "d8", "--min-api", "29", "--lib", jar, "--output", work, *(work / "classes").rglob("*.class"))
-        for package, label, version, picture in GAMES:
-            app = work / package
+        plans = [(*game, 1, None) for game in GAMES] + (CLOUD if args.cloud else [])
+        for package, label, version, picture, code, name in plans:
+            app = work / (name or package)
+            target = (args.cloud if name else args.out) / f"{name or package}.apk"
+            target.parent.mkdir(parents=True, exist_ok=True)
             res = app / "res"
             if picture is comet:
                 for name in ("mipmap-anydpi-v26", "drawable-xxxhdpi", "values"):
@@ -154,14 +165,14 @@ def main():
             else:
                 (res / "mipmap-xxxhdpi").mkdir(parents=True)
                 (res / "mipmap-xxxhdpi/icon.png").write_bytes(png(256, 256, picture))
-            (app / "AndroidManifest.xml").write_text(MANIFEST.format(package=package, version=version, label=label))
+            (app / "AndroidManifest.xml").write_text(MANIFEST.format(package=package, version=version, label=label, code=code))
             run(tools / "aapt2", "compile", "--dir", res, "-o", app / "res.zip")
             run(tools / "aapt2", "link", "-o", app / "raw.apk", "-I", jar, "--manifest", app / "AndroidManifest.xml", app / "res.zip")
             shutil.copy(work / "classes.dex", app / "classes.dex")
             run("zip", "-q", "raw.apk", "classes.dex", cwd=app)
             run(tools / "zipalign", "-f", "4", app / "raw.apk", app / "aligned.apk")
-            run(tools / "apksigner", "sign", "--ks", args.keystore, "--ks-pass", f"pass:{args.password}", "--out", args.out / f"{package}.apk", app / "aligned.apk")
-            (args.out / f"{package}.apk.idsig").unlink(missing_ok=True)
+            run(tools / "apksigner", "sign", "--ks", args.keystore, "--ks-pass", f"pass:{args.password}", "--out", target, app / "aligned.apk")
+            Path(f"{target}.idsig").unlink(missing_ok=True)
             print(f"{package}: {label}")
 
 

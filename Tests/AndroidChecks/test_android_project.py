@@ -104,5 +104,33 @@ class AndroidProject(unittest.TestCase):
         self.assertEqual(hits, ["CloudBackdrop.kt"])
 
 
+class OortCloud(unittest.TestCase):
+    """The optional module, an app of its own."""
+    MODULE = ANDROID / "cloud/src"
+
+    def test_both_languages_have_the_same_strings_and_french_says_tu(self):
+        for root in (self.MODULE / "main/res", MAIN / "res"):
+            english, french = strings(root / "values/strings.xml"), strings(root / "values-fr/strings.xml")
+            self.assertEqual(sorted(english), sorted(french))
+            for name, text in french.items():
+                self.assertNotRegex(text, r"(?i)\b(vous|votre|vos)\b|\b(?!chez|assez)\w+ez\b", name)
+
+    def test_only_the_module_holds_the_network(self):
+        self.assertNotIn("project(", re.sub(r"//.*", "", (ANDROID / "app/build.gradle.kts").read_text()))
+        self.assertIn("android.permission.INTERNET", (ANDROID / "drive/src/main/AndroidManifest.xml").read_text())
+        self.assertNotIn("MANAGE_EXTERNAL_STORAGE", (self.MODULE / "main/AndroidManifest.xml").read_text())
+
+    def test_what_is_published_speaks_to_google_only(self):
+        for kind in ("main", "release"):
+            for f in (self.MODULE / kind).rglob("*.kt"):
+                self.assertNotRegex(f.read_text(), r"127\.0\.0\.1|10\.0\.2\.2|getprop|https?://", f.name)
+
+    def test_every_door_checks_who_asks(self):
+        for name in ("CloudProvider", "StepActivity"):
+            self.assertIn("CloudGuard.allows", next((self.MODULE / "main").rglob(name + ".kt")).read_text())
+        exported = re.findall(r'android:name="(\.\w+)"[^>]*android:exported="true"', (self.MODULE / "main/AndroidManifest.xml").read_text())
+        self.assertEqual(sorted(exported), [".CloudProvider", ".StepActivity"])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -49,6 +49,10 @@ sealed interface Route {
     data object Sounds : Route
     data object Buttons : Route
     data object Cloud : Route
+    data object Integrations : Route
+    data object CloudLibrary : Route
+    data object CloudOff : Route
+    data class CloudPage(val title: String) : Route
     data object WhichGames : Route
     data object Thanks : Route
     data class Licence(val text: LicenceText) : Route

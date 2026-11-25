@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Oort Cloud alpha</string>
+    <string name="channel_now">Downloads</string>
+    <string name="channel_done">Games ready</string>
+    <string name="downloading">Downloading %1$s</string>
+    <string name="ready">%1$s is ready to install</string>
+    <string name="scan_point">Point at the code on your Mac’s screen.</string>
+    <string name="scan_close">Close</string>
+    <string name="scan_refused">The camera is not allowed. You can paste the code in Oort NX instead.</string>
+    <string name="scan_none">No camera here. Paste the code in Oort NX instead.</string>
+    <string name="no_browser">No browser to sign in with on this device.</string>
+    <string name="wait_browser">Waiting for the browser…</string>
+    <string name="stop">Stop</string>
+    <string name="folder_why">Choose a folder for the games’ data: the game and Oort Cloud both read it there. Make one named Oort NX.</string>
+    <string name="unknown_why">Android asks you once to let Oort Cloud install games. Then it confirms each one.</string>
+    <string name="go_on">Continue</string>
+    <string name="cancel">Cancel</string>
+</resources>

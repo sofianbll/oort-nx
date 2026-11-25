@@ -5,7 +5,10 @@ device: a library, a page per game, a controller test and a few settings, driven
 Open source, MIT, local only: it asks Android for **no permission at all** (no network, no storage), collects
 nothing, and contains no game, key or emulator.
 
-**State: alpha, `0.1.0-alpha.1`, checked in the Android emulator, never on a real phone.** Every push to `alpha/android`
+**Oort Cloud** (`cloud/`) is an optional second app: it reads the player's own Google Drive for this launcher, which
+keeps no permission. Off until turned on in Settings, Integrations. See `docs/how-it-works/phone-library.md`.
+
+**State: alpha, `0.1.0-alpha.2`, checked in the Android emulator, never on a real phone.** Every push to `alpha/android`
 builds it, runs the unit tests, then drives the R8 release in emulators with made-up games (`tools/emulator_check.py`):
 see the Android workflow for what passed, and for the pictures. The identifier
 `io.github.sofianbll.oortnx.alpha` is the alpha's own.

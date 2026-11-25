@@ -145,8 +145,21 @@ internal class DriveSource(
 }
 
 /** The optional connector, off until the player turns it on. An app that does not list it cannot reach Google. */
-class DriveConnection internal constructor(invite: DriveInvite, vault: DriveVault, transport: DriveTransport, endpoints: DriveEndpoints, scratch: File) {
-    constructor(invite: DriveInvite, vault: DriveVault, scratch: File) : this(invite, vault, DriveHttp, DriveEndpoints.google, scratch)
+class DriveConnection internal constructor(
+    private val invite: DriveInvite,
+    private val vault: DriveVault,
+    transport: DriveTransport,
+    private val endpoints: DriveEndpoints,
+    scratch: File,
+) {
+    /** [endpoints]: Google's, but in a build made for checks. */
+    constructor(invite: DriveInvite, vault: DriveVault, scratch: File, endpoints: DriveEndpoints = DriveEndpoints.google) :
+        this(invite, vault, DriveHttp, endpoints, scratch)
+
+    fun signIn(receiver: DriveReceiver) = DriveSignIn(invite.client, receiver, endpoints)
+
+    /** Whether this device holds a sign-in. Asks nothing of the network. */
+    val isSignedIn: Boolean get() = vault.read() != null
 
     /** For the sign-in screen. */
     val access = DriveAccess(invite.client, vault, transport, endpoints, scratch)
@@ -158,5 +171,9 @@ class DriveConnection internal constructor(invite: DriveInvite, vault: DriveVaul
 
     companion object {
         const val ID = "google-drive"
+
+        /** The hosts and the permissions, for the screen that asks before any code is known. */
+        val outline = ShelfConnector(ID, DriveEndpoints.google.hosts, ShelfConnector.Permission.entries.toSet(),
+            open = { fail(ShelfError.SourceOff) }, forget = {})
     }
 }
