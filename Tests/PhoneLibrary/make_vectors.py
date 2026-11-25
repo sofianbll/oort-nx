@@ -73,7 +73,8 @@ class Tree:
     def target(self, title, name, platform="ios", stamp=T0, files=None, version="1.0.0", system=None, features=None, host=None,
                architecture="arm64", edit=None, signer=None, sign=True, seal=None, file_edit=None, publish=True, sha=None, package=None):
         files = files if files is not None else (IOS_FILES if platform == "ios" else APK_FILES)
-        bodies = [(path, {"fill": {"seed": seed, "size": size}}) for path, seed, size in files]
+        # (path, seed, size) for invented bytes, (path, body) for a given one.
+        bodies = [(f[0], f[1] if len(f) == 2 else {"fill": {"seed": f[1], "size": f[2]}}) for f in files]
         entries = [{"path": p, "size": len(content(b)), "sha256": hashlib.sha256(content(b)).hexdigest()} for p, b in bodies]
         entries.sort(key=lambda e: e["path"].encode())
         manifest = {"format": "oort-target", "version": 1, "title_id": title, "game_name": name, "game_version": version, "platform": platform,

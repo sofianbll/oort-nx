@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 """A local stand-in for Google Drive v3 and Google's token endpoint, with injected failures. Standard library only.
 
-usage: fake_drive.py <vector.json>     prints the port, serves 127.0.0.1 until its standard input closes
+usage: fake_drive.py <vector.json>           prints the port, serves 127.0.0.1 until its standard input closes
+       fake_drive.py <vector.json> <port>    serves until it is killed: what a simulator or an emulator talks to
 
 It answers the calls a read-only client makes (files.list by parent, files.get with alt=media and Range, token, revoke) and refuses
 every other one, so a client that tried to write would fail. `GET /__log` returns and clears what was asked, without any credential.
+`GET /auth` is a page that plays Google's sign-in: Allow and Refuse go back to the address the app gave. While it serves, a test can
+POST `/__faults` (a JSON list of faults, replacing the others), `/__slow` (bytes per second, 0 for no limit), `/__down` ("1" or "0": every
+connection is dropped), `/__vector` (another vector) and `/__revoke` (no token is good any more). None of these is a Google address.
 
 A vector's `drive` is {"root", "page_size", "nodes": [{id, name, parent, type, text|base64|fill, size_says, sha256_says, ...}]}.
 A fault is {"on": "list"|"media"|"token", "node": id, "skip": n, "times": n, "do": ..., ...}; `do` is one of:
@@ -23,9 +27,9 @@ A fault is {"on": "list"|"media"|"token", "node": id, "skip": n, "times": n, "do
   partial   set incompleteSearch
   shrink    answer fewer scopes or more (`scope`) on the token endpoint
 """
-import base64, gzip, hashlib, json, re, sys, threading
+import base64, gzip, hashlib, html, json, pathlib, re, sys, threading, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import parse_qs, unquote, urlsplit
+from urllib.parse import parse_qs, urlencode, urlsplit
 
 FOLDER = "application/vnd.google-apps.folder"
 TYPES = {"folder": FOLDER, "shortcut": "application/vnd.google-apps.shortcut", "document": "application/vnd.google-apps.document"}
@@ -35,6 +39,8 @@ SCOPE = "https://www.googleapis.com/auth/drive.readonly"
 def content(node):
     if "text" in node:
         return node["text"].encode()
+    if "path" in node:
+        return pathlib.Path(node["path"]).read_bytes()
     if "base64" in node:
         return base64.b64decode(node["base64"])
     if "fill" in node:
@@ -49,16 +55,21 @@ def content(node):
 
 class Drive:
     def __init__(self, vector):
+        self.slow, self.down, self.codes = 0, False, {}
+        self.refresh, self.access, self.issued, self.calls, self.log = set(), set(), 0, 0, []
+        self.lock = threading.Lock()
+        self.load(vector)
+        if self.auth.get("refresh", "good") == "good":
+            self.refresh.add("RT-CANARY-0")
+        self.codes.update(self.auth.get("codes", {}))
+
+    def load(self, vector):
         drive = vector["drive"]
         self.page = drive.get("page_size", 1000)
         self.nodes = {n["id"]: dict(n, data=content(n)) for n in drive["nodes"]}
         self.order = [n["id"] for n in drive["nodes"]]
         self.faults = [dict(f, seen=0) for f in vector.get("faults", [])]
         self.auth = vector.get("auth", {})
-        self.refresh = {"RT-CANARY-0"} if self.auth.get("refresh", "good") == "good" else set()
-        self.access, self.issued, self.calls, self.log = set(), 0, 0, []
-        self.codes = dict(self.auth.get("codes", {}))
-        self.lock = threading.Lock()
 
     def fault(self, on, node=None):
         for f in self.faults:
@@ -95,12 +106,34 @@ class Handler(BaseHTTPRequestHandler):
         pass
 
     def answer(self, status, body=b"", headers=(), length=None):
+        self.out = (status, body, headers, length)
+
+    def handle_one(self, work):
+        """Decides under the lock, writes outside it: a slow file does not hold the other requests."""
+        self.out = None
+        drive = self.server.drive
+        if drive.down and not self.path.startswith("/__"):
+            self.close_connection = True
+            return
+        with drive.lock:
+            work()
+        if self.out is None:
+            return
+        status, body, headers, length = self.out
         self.send_response(status)
         for key, value in headers:
             self.send_header(key, value)
         self.send_header("Content-Length", str(len(body) if length is None else length))
         self.end_headers()
-        self.wfile.write(body)
+        media = urlsplit(self.path).query.find("alt=media") >= 0
+        step = max(1, drive.slow // 10) if drive.slow and media else max(1, len(body))
+        for start in range(0, len(body), step):
+            if drive.down and media:
+                self.close_connection = True
+                return
+            self.wfile.write(body[start:start + step])
+            if drive.slow and media:
+                time.sleep(0.1)
         if length is not None:
             self.close_connection = True
 
@@ -143,8 +176,7 @@ class Handler(BaseHTTPRequestHandler):
         return False
 
     def do_GET(self):
-        with self.server.drive.lock:
-            self.get()
+        self.handle_one(self.get)
 
     def get(self):
         drive, url = self.server.drive, urlsplit(self.path)
@@ -152,6 +184,8 @@ class Handler(BaseHTTPRequestHandler):
         if url.path == "/__log":
             log, drive.log = drive.log, []
             return self.json(200, log)
+        if url.path == "/auth":
+            return self.page(drive, query)
         if url.path == "/drive/v3/files":
             match = re.fullmatch(r"'([A-Za-z0-9_-]+)' in parents and trashed = false", query.get("q", ""))
             if not match:
@@ -185,6 +219,24 @@ class Handler(BaseHTTPRequestHandler):
             return self.media(drive, match.group(1), query)
         self.note(call="other")
         return self.error(404, "notFound")
+
+    def page(self, drive, query):
+        redirect = query.get("redirect_uri", "")
+        good = query.get("response_type") == "code" and query.get("scope") == SCOPE and query.get("code_challenge_method") == "S256" \
+            and query.get("code_challenge") and query.get("state") and "client_secret" not in query \
+            and re.match(r"(com\.googleusercontent\.apps\.[a-z0-9-]+:/oauth2redirect|http://127\.0\.0\.1:\d+/?[a-z0-9]*)\Z", redirect)
+        self.note(call="auth", fields=sorted(query), good=bool(good))
+        if not good:
+            return self.answer(400, b"refused", [("Content-Type", "text/plain")])
+        code = f"CODE-CANARY-{len(drive.codes)}-{drive.issued}"
+        drive.codes[code] = query["code_challenge"]
+        yes = html.escape(redirect + "?" + urlencode({"state": query["state"], "code": code, "scope": SCOPE}))
+        no = html.escape(redirect + "?" + urlencode({"state": query["state"], "error": "access_denied"}))
+        style = "font:22px sans-serif;padding:24px;display:block;margin:24px"
+        return self.answer(200, f"""<!doctype html><meta name=viewport content="width=device-width"><title>Invented sign-in</title>
+<h1 style="{style}">Invented sign-in</h1><p style="{style}">No real account. Read only: {html.escape(query["scope"])}</p>
+<a style="{style};background:#234;color:#fff" href="{yes}">Allow</a><a style="{style}" href="{no}">Refuse</a>""".encode(),
+                           [("Content-Type", "text/html; charset=utf-8")])
 
     def media(self, drive, node_id, query):
         asked = re.fullmatch(r"bytes=(\d+)-(\d+)", self.headers.get("Range", ""))
@@ -225,8 +277,7 @@ class Handler(BaseHTTPRequestHandler):
         return self.answer(206, body, headers)
 
     def do_POST(self):
-        with self.server.drive.lock:
-            self.post()
+        self.handle_one(self.post)
 
     def post(self):
         drive = self.server.drive
@@ -260,6 +311,22 @@ class Handler(BaseHTTPRequestHandler):
             drive.refresh.clear()
             drive.access.clear()
             return self.json(200, {})
+        if self.path == "/__faults":
+            drive.faults = [dict(f, seen=0) for f in json.loads(body)]
+            return self.json(200, {})
+        if self.path == "/__slow":
+            drive.slow = int(body)
+            return self.json(200, {})
+        if self.path == "/__down":
+            drive.down = body == "1"
+            return self.json(200, {})
+        if self.path == "/__vector":
+            drive.load(json.loads(body))
+            return self.json(200, {})
+        if self.path == "/__revoke":
+            drive.refresh.clear()
+            drive.access.clear()
+            return self.json(200, {})
         if self.path == "/__code":  # the test plays the browser: Google remembers the challenge of the page it showed
             drive.codes[form["code"]] = form["challenge"]
             return self.json(200, {})
@@ -267,8 +334,10 @@ class Handler(BaseHTTPRequestHandler):
         return self.error(403, "insufficientFilePermissions")
 
     def refuse(self):
-        self.note(call="write")
-        self.error(403, "insufficientFilePermissions")
+        def work():
+            self.note(call="write")
+            self.error(403, "insufficientFilePermissions")
+        self.handle_one(work)
 
     do_PUT = do_PATCH = do_DELETE = refuse
 
@@ -276,11 +345,13 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     with open(sys.argv[1], encoding="utf-8") as file:
         vector = json.load(file)
-    server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    server = ThreadingHTTPServer(("127.0.0.1", int(sys.argv[2]) if len(sys.argv) > 2 else 0), Handler)
     server.daemon_threads = True
     server.drive = Drive(vector)
     threading.Thread(target=server.serve_forever, daemon=True).start()
     print(server.server_address[1], flush=True)
+    if len(sys.argv) > 2:
+        threading.Event().wait()
     sys.stdin.read()  # ends with the test that started it
 
 
