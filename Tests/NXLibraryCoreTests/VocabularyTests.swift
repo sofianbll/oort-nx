@@ -41,4 +41,13 @@ final class VocabularyTests: XCTestCase {
             XCTAssertNil(value.range(of: "à la une|accueil", options: [.regularExpression, .caseInsensitive]), key)
         }
     }
+
+    /// Making a game's app is « Compiler », never « porter » or « créer l'app Mac ».
+    func testMakingAGamesAppHasOneWord() throws {
+        let other = "\\bportage\\b|\\bport(é|ée|és|ées)\\b(?!\\s+par)|création d[’'](apps?|une app) Mac|création de l[’']app Mac|cré\\w+ (à nouveau )?l[’']app Mac"
+        for (key, value) in try strings("fr") {
+            XCTAssertNil(value.range(of: other, options: [.regularExpression, .caseInsensitive]), "\(key): \(value)")
+        }
+        XCTAssertEqual(try strings("fr")["Porting"], "Compilation")
+    }
 }
