@@ -524,7 +524,7 @@ private struct MenuHoldIndicator: View {
                             }
                         }
                         .frame(width: canvas.u(22), height: canvas.u(22))
-                    Text(L10n.text("Hold: Settings")).seleneFont(.text)
+                    Text(L10n.format("Hold: %@", [L10n.text((controller.holdAction ?? .menuHold).guideTitle)])).seleneFont(.text)
                 }
                 .foregroundStyle(SeleneTheme.ink)
                 .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))

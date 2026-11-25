@@ -29,6 +29,8 @@ final class GameControllerService: ObservableObject {
     var pointerInHand: Bool { inputInHand.device == .pointer }
     var controllerInHand: Bool { inputInHand.usesController(connected: isGamepadConnected) }
     @Published private(set) var menuHoldStartedAt: TimeInterval?
+    /// What the hold will do, for the ring that fills while it lasts.
+    @Published private(set) var holdAction: GamepadAction?
     @Published private(set) var connectedControllers: [ConnectedController] = []
     @Published private(set) var homeAccess: ControllerHomeAccess = .disconnected
     var canOpenHomeSettings: Bool { (gcSource as? GCControllerSource)?.canOpenHomeSettings == true }
@@ -513,10 +515,9 @@ final class GameControllerService: ObservableObject {
         pending.detector.press(at: now)
         holds[button] = pending
         guard let action = binding.hold else { return }
-        if action == .menuHold || action == .fullMenu {
-            settingsHoldButton = button
-            menuHoldStartedAt = now
-        }
+        settingsHoldButton = button
+        holdAction = action
+        menuHoldStartedAt = now
         let timer = Timer(timeInterval: HoldDetector.defaultThreshold, repeats: false) { [weak self] _ in
             guard let self, self.holds[button]?.detector.tick(at: ProcessInfo.processInfo.systemUptime) != nil else { return }
             self.stopHoldTimer(button)
@@ -533,6 +534,7 @@ final class GameControllerService: ObservableObject {
         if settingsHoldButton == button {
             settingsHoldButton = nil
             menuHoldStartedAt = nil
+            holdAction = nil
         }
     }
 
