@@ -42,6 +42,7 @@ class CloudService : Service() {
         val task = CloudEngine.of(this).queue.tasks.firstOrNull { it.state == CloudTask.State.RUNNING }
         val builder = Notification.Builder(this, "now").setSmallIcon(R.drawable.ic_launcher_monochrome).setOngoing(true).setOnlyAlertOnce(true)
             .setContentTitle(task?.let { getString(R.string.downloading, it.build.name) } ?: getString(R.string.app_name)).setContentIntent(CloudEngine.openOort(this))
+        if (android.os.Build.VERSION.SDK_INT >= 31) builder.setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE)
         if (task != null && task.build.bytes > 0) builder.setProgress(1000, (task.received * 1000 / task.build.bytes).toInt(), false)
         return builder.build()
     }

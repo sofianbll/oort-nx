@@ -96,6 +96,9 @@ class AppState(
     var step: (Intent) -> Unit = {}
     var inCloud by mutableStateOf(false)
         private set
+    /** The controller is on the choice above the games. */
+    var onFilter by mutableStateOf(false)
+        private set
     var pasting by mutableStateOf(false)
     private var codeRefusal by mutableStateOf<Int?>(null)
 
@@ -265,7 +268,8 @@ class AppState(
     private fun libraryNav(nav: Nav) {
         val filter = cloud?.hasFilter == true
         // Above the first row: the other games.
-        if (nav == Nav.Up && filter && libraryFocus < columns) return showCloud(!inCloud)
+        if (nav == Nav.Up && filter && !onFilter && libraryFocus < columns) { onFilter = true; return sound(SoundEvent.Move, step1++) }
+        if (onFilter && filter) return filterNav(nav)
         if (filter && inCloud) return cloudNav(nav)
         val games = library
         if (games.isEmpty()) { if (nav == Nav.Confirm) rescan(); return }
@@ -278,6 +282,14 @@ class AppState(
             Nav.Confirm -> games.getOrNull(libraryFocus)?.let { openGame(it) }
             Nav.Options -> sort(!prefs.byName)
             else -> Unit
+        }
+    }
+
+    private fun filterNav(nav: Nav) {
+        when (nav) {
+            Nav.Left, Nav.Right -> if (inCloud == (nav == Nav.Right)) sound(SoundEvent.Deny) else showCloud(nav == Nav.Right)
+            Nav.Down -> { onFilter = false; sound(SoundEvent.Move, step1++) }
+            else -> sound(SoundEvent.Deny)
         }
     }
 
@@ -412,6 +424,7 @@ class AppState(
 
     private fun turnOff(deleting: Boolean) {
         inCloud = false
+        onFilter = false
         cloudCall("turnOff", if (deleting) "delete" else "keep")
         onBack()
     }

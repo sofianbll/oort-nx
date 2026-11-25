@@ -81,12 +81,13 @@ import io.github.sofianbll.oortnx.core.DownloadCloud
 @Composable
 fun LibraryFilter(state: AppState) {
     if (state.cloud?.hasFilter != true) return
-    Row(Modifier.padding(bottom = 8.dp).clip(CircleShape).background(PanelLow).border(1.dp, LineStrong, CircleShape).padding(4.dp).selectableGroup()) {
+    val ring = if (state.padMode && state.onFilter) OortTokens.Palette.Focus else Color.Transparent
+    Row(Modifier.padding(bottom = OortTokens.Space.Compact.dp).border(OortTokens.Space.FocusStroke.dp, ring, CircleShape).padding(OortTokens.Space.Hairline.dp).clip(CircleShape).background(PanelLow).border(OortTokens.Space.ThinStroke.dp, LineStrong, CircleShape).padding(OortTokens.Space.Hairline.dp).selectableGroup()) {
         for ((cloud, label) in listOf(false to R.string.cloud_here, true to R.string.cloud_filter)) {
             val on = state.inCloud == cloud
             Box(
                 Modifier.clip(CircleShape).background(if (on) OortTokens.Palette.Focus else Color.Transparent)
-                    .selectable(on, role = Role.Tab) { state.showCloud(cloud) }.heightIn(min = 48.dp).padding(horizontal = 18.dp),
+                    .selectable(on, role = Role.Tab) { state.showCloud(cloud) }.heightIn(min = OortTokens.Space.Group.dp).padding(horizontal = OortTokens.Space.Control.dp),
                 contentAlignment = Alignment.Center,
             ) { Text(stringResource(label), color = if (on) OortTokens.Palette.OnFocus else OortTokens.Palette.Ink, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold) }
         }
@@ -97,20 +98,20 @@ fun LibraryFilter(state: AppState) {
 @Composable
 fun CloudLibrary(state: AppState, cloud: CloudState) {
     BoxWithConstraints(Modifier.fillMaxSize()) {
-        val columns = (maxWidth / 172.dp).toInt().coerceAtLeast(2)
+        val columns = (maxWidth / OortMeasure.Tile).toInt().coerceAtLeast(2)
         SideEffect { state.columns = columns }
         val grid = rememberLazyGridState()
         LaunchedEffect(state.libraryFocus, state.padMode) { if (state.padMode) grid.animateScrollToItem((state.libraryFocus + 1).coerceAtMost(cloud.games.size)) }
         LaunchedEffect(Unit) { if (!cloud.listed) state.cloudCall("look") }
-        Column(Modifier.fillMaxSize().padding(horizontal = 20.dp)) {
+        Column(Modifier.fillMaxSize().padding(horizontal = OortTokens.Space.Panel.dp)) {
             PageTitle(stringResource(R.string.nav_library), null) { IconKey(Glyph.Refresh, stringResource(R.string.cloud_again)) { state.cloudCall("look") } }
             LibraryFilter(state)
             LazyVerticalGrid(
-                columns = GridCells.Fixed(columns), state = grid, horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(bottom = 24.dp), modifier = Modifier.weight(1f),
+                columns = GridCells.Fixed(columns), state = grid, horizontalArrangement = Arrangement.spacedBy(OortTokens.Space.Compact.dp), verticalArrangement = Arrangement.spacedBy(OortTokens.Space.Medium.dp),
+                contentPadding = PaddingValues(bottom = OortTokens.Space.Large.dp), modifier = Modifier.weight(1f),
             ) {
                 item(span = { GridItemSpan(maxLineSpan) }) { CloudStatus(state, cloud) }
-                itemsIndexed(cloud.games, key = { _, g -> g.title }) { index, game -> CloudTile(state, cloud, game, focused = state.padMode && index == state.libraryFocus) }
+                itemsIndexed(cloud.games, key = { _, g -> g.title }) { index, game -> CloudTile(state, cloud, game, focused = state.padMode && !state.onFilter && index == state.libraryFocus) }
                 if (cloud.others.isNotEmpty()) item(span = { GridItemSpan(maxLineSpan) }) { CloudOthers(cloud) }
             }
             Hints(state, listOf(state.confirmKey to stringResource(R.string.game_page), state.backKey to stringResource(R.string.back)))
@@ -120,7 +121,7 @@ fun CloudLibrary(state: AppState, cloud: CloudState) {
 
 @Composable
 private fun CloudStatus(state: AppState, cloud: CloudState) {
-    Column(Modifier.widthIn(max = 780.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(Modifier.widthIn(max = OortMeasure.List), verticalArrangement = Arrangement.spacedBy(OortTokens.Space.Small.dp)) {
         Text(listOfNotNull(stringResource(R.string.cloud_free, size(cloud.free)), if (cloud.looking) stringResource(R.string.cloud_looking) else null).joinToString("  ·  "),
             style = MaterialTheme.typography.bodyLarge, color = Ink2)
         val (words, key, run) = when {
@@ -129,9 +130,9 @@ private fun CloudStatus(state: AppState, cloud: CloudState) {
             cloud.listed && cloud.games.isEmpty() -> Triple(R.string.cloud_empty, R.string.cloud_again) { state.cloudCall("look") }
             else -> return@Column
         }
-        Column(Modifier.fillMaxWidth().oortPanel(RoundedCornerShape(canvas(OortTokens.Radius.Dialog))).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(Modifier.fillMaxWidth().oortPanel(RoundedCornerShape(canvas(OortTokens.Radius.Dialog))).padding(OortTokens.Space.Medium.dp), verticalArrangement = Arrangement.spacedBy(OortTokens.Space.FieldInset.dp)) {
             Text(stringResource(words), style = MaterialTheme.typography.bodyLarge)
-            OortKey(run, state.prefs.calm, Modifier.widthIn(max = 420.dp), glyph = Glyph.Refresh, label = stringResource(key))
+            OortKey(run, state.prefs.calm, Modifier.widthIn(max = OortMeasure.Key), glyph = Glyph.Refresh, label = stringResource(key))
         }
     }
 }
@@ -142,12 +143,12 @@ private fun CloudTile(state: AppState, cloud: CloudState, game: CloudGame, focus
     val facts = game.version + " · " + size(game.bytes)
     Column(
         Modifier.fillMaxWidth().clickable(remember { MutableInteractionSource() }, indication = null, role = Role.Button, onClickLabel = stringResource(R.string.game_page)) { state.openCloudGame(game) },
-        verticalArrangement = Arrangement.spacedBy(2.dp),
+        verticalArrangement = Arrangement.spacedBy(OortTokens.Space.FocusStroke.dp),
     ) {
         CloudCover(state, cloud, game, focused, Modifier.fillMaxWidth().aspectRatio(1f))
-        Text(game.name, Modifier.padding(horizontal = 6.dp), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
-        Text(facts, Modifier.padding(horizontal = 6.dp), style = MaterialTheme.typography.bodyMedium, color = Ink2)
-        Text(words, Modifier.padding(horizontal = 6.dp), style = MaterialTheme.typography.bodyMedium, color = Ink2)
+        Text(game.name, Modifier.padding(horizontal = OortTokens.Space.Tight.dp), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        Text(facts, Modifier.padding(horizontal = OortTokens.Space.Tight.dp), style = MaterialTheme.typography.bodyMedium, color = Ink2)
+        Text(words, Modifier.padding(horizontal = OortTokens.Space.Tight.dp), style = MaterialTheme.typography.bodyMedium, color = Ink2)
     }
 }
 
@@ -169,28 +170,28 @@ fun CloudCover(state: AppState, cloud: CloudState, game: CloudGame, focused: Boo
     }
     val icon = game.packageName?.let { state.icons[it] }
     val seed = remember(game.title) { game.title.toULongOrNull(16)?.toLong() ?: 0L }
-    Box(modifier.border(2.dp, OortTokens.Palette.Focus.copy(alpha = if (focused) 1f else 0f), RoundedCornerShape(radius + 4.dp)).padding(4.dp)) {
+    Box(modifier.border(OortTokens.Space.FocusStroke.dp, OortTokens.Palette.Focus.copy(alpha = if (focused) 1f else 0f), RoundedCornerShape(radius + OortTokens.Space.Hairline.dp)).padding(OortTokens.Space.Hairline.dp)) {
         val face: @Composable (Float) -> Unit = { alpha ->
             Box(
                 Modifier.fillMaxSize().clip(shape).background(Brush.verticalGradient(listOf(PanelRaised, PanelLow)))
-                    .drawBehind { halftone(1f, OortTokens.Palette.Glyph.copy(alpha = 0.12f * alpha)) }.border(1.dp, Line, shape),
+                    .drawBehind { halftone(1f, OortTokens.Palette.Glyph.copy(alpha = OortTokens.Effect.SurfaceLine * alpha)) }.border(OortTokens.Space.ThinStroke.dp, Line, shape),
                 contentAlignment = Alignment.Center,
             ) {
                 if (icon != null) androidx.compose.foundation.Image(icon, null, Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop, alpha = alpha)
                 else Text(game.name.take(1).uppercase(), Modifier.clearAndSetSemantics { }, color = OortTokens.Palette.Ink.copy(alpha = alpha), style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.SemiBold)
             }
         }
-        face(if (track != null) 0.34f else 1f)
+        face(if (track != null) OortTokens.Effect.PanelVeil else 1f)
         if (track != null) {
             Canvas(Modifier.fillMaxSize().clip(shape)) {
                 val sample = track.sample(now / 1e9)
                 val w = size.width.toDouble()
                 val h = size.height.toDouble()
-                val paint = { drawRect(Brush.verticalGradient(listOf(OortTokens.Palette.Glyph.copy(alpha = 0.34f), OortTokens.Palette.Glyph.copy(alpha = 0.16f)))); halftone(1f, OortTokens.Palette.Glyph.copy(alpha = 0.5f)) }
+                val paint = { drawRect(Brush.verticalGradient(listOf(OortTokens.Palette.Glyph.copy(alpha = OortTokens.Effect.PanelVeil), OortTokens.Palette.Glyph.copy(alpha = OortTokens.Effect.SurfaceLineStrong)))); halftone(1f, OortTokens.Palette.Glyph.copy(alpha = OortTokens.Effect.PanelVeil)) }
                 if (sample.bands.isNotEmpty()) {
                     var bottom = 1.0
                     for (band in sample.bands) {
-                        clipRect(0f, ((1 - band.level) * h).toFloat(), size.width, (bottom * h).toFloat()) { drawRect(OortTokens.Palette.Glyph.copy(alpha = (0.3 * band.opacity).toFloat())); halftone(1f, OortTokens.Palette.Glyph.copy(alpha = (0.5 * band.opacity).toFloat())) }
+                        clipRect(0f, ((1 - band.level) * h).toFloat(), size.width, (bottom * h).toFloat()) { drawRect(OortTokens.Palette.Glyph.copy(alpha = (OortTokens.Effect.SurfaceLineStrong * band.opacity).toFloat())); halftone(1f, OortTokens.Palette.Glyph.copy(alpha = (OortTokens.Effect.PanelVeil * band.opacity).toFloat())) }
                         bottom = 1 - band.level
                     }
                 } else {
@@ -199,12 +200,12 @@ fun CloudCover(state: AppState, cloud: CloudState, game: CloudGame, focused: Boo
                     val full = Path().apply { addPath(curve); lineTo(size.width, size.height); lineTo(0f, size.height); close() }
                     clipPath(full) { paint() }
                     if (sample.surface.activity > 0) {
-                        drawPath(curve, Color.White.copy(alpha = (0.71 * sample.surface.activity).toFloat()), style = Stroke(1.dp.toPx()))
+                        drawPath(curve, OortTokens.Palette.Focus.copy(alpha = DownloadCloud.lineOpacity(sample.surface).toFloat()), style = Stroke(OortTokens.Space.ThinStroke.dp.toPx()))
                         for (dot in DownloadCloud.dots(sample.surface, seed, w, h)) if (dot.opacity > 0) {
                             val at = Offset(dot.x.toFloat(), dot.y.toFloat())
-                            val reach = (dot.radius * 2.4).toFloat()
-                            drawCircle(Brush.radialGradient(listOf((if (dot.accent) OortTokens.Palette.Glyph else OortTokens.Palette.Ink).copy(alpha = (0.45 * dot.opacity).toFloat()), Color.Transparent), at, reach), reach, at)
-                            drawCircle(Color.White.copy(alpha = dot.opacity.toFloat()), dot.radius.toFloat(), at)
+                            val reach = (dot.radius * DownloadCloud.SPRITE_REACH).toFloat()
+                            drawCircle(Brush.radialGradient(listOf((if (dot.accent) OortTokens.Palette.Glyph else OortTokens.Palette.Ink).copy(alpha = (OortTokens.Effect.PanelVeil * dot.opacity).toFloat()), Color.Transparent), at, reach), reach, at)
+                            drawCircle(OortTokens.Palette.Focus.copy(alpha = dot.opacity.toFloat()), dot.radius.toFloat(), at)
                         }
                     }
                 }
@@ -218,18 +219,18 @@ fun CloudCover(state: AppState, cloud: CloudState, game: CloudGame, focused: Boo
             "ready" -> Glyph.Check
             else -> if (game.installed) null else if (game.here != null) Glyph.Up else Glyph.Cloud
         }
-        mark?.let { Box(Modifier.align(Alignment.TopEnd).padding(6.dp).size(26.dp).clip(CircleShape).background(OortTokens.Palette.Scrim.copy(alpha = 0.85f)), contentAlignment = Alignment.Center) { OortGlyph(it, Modifier.size(16.dp), OortTokens.Palette.Ink) } }
+        mark?.let { Box(Modifier.align(Alignment.TopEnd).padding(OortTokens.Space.Tight.dp).size(OortTokens.Space.RowLeading.dp).clip(CircleShape).background(OortTokens.Palette.Scrim.copy(alpha = OortTokens.Effect.SearchVeil)), contentAlignment = Alignment.Center) { OortGlyph(it, Modifier.size(OortTokens.Space.Medium.dp), OortTokens.Palette.Ink) } }
     }
 }
 
 @Composable
 private fun CloudOthers(cloud: CloudState) {
-    Column(Modifier.widthIn(max = 780.dp).padding(top = 12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Column(Modifier.widthIn(max = OortMeasure.List).padding(top = OortTokens.Space.Small.dp), verticalArrangement = Arrangement.spacedBy(OortTokens.Space.FieldInset.dp)) {
         Text(stringResource(R.string.cloud_not_here), Modifier.heading(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         Column(Modifier.fillMaxWidth().oortPanel(RoundedCornerShape(canvas(OortTokens.Radius.Dialog)))) {
             cloud.others.forEachIndexed { index, other ->
-                if (index > 0) Spacer(Modifier.padding(horizontal = 16.dp).fillMaxWidth().height(1.dp).background(Line))
-                Column(Modifier.fillMaxWidth().semantics(mergeDescendants = true) { }.padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                if (index > 0) Spacer(Modifier.padding(horizontal = OortTokens.Space.Medium.dp).fillMaxWidth().height(OortTokens.Space.ThinStroke.dp).background(Line))
+                Column(Modifier.fillMaxWidth().semantics(mergeDescendants = true) { }.padding(horizontal = OortTokens.Space.Medium.dp, vertical = OortTokens.Space.Small.dp), verticalArrangement = Arrangement.spacedBy(OortTokens.Space.FocusStroke.dp)) {
                     Text(other.name, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
                     Text(stringResource(reasonWords(other.reason)), style = MaterialTheme.typography.bodyMedium, color = Ink2)
                 }
@@ -243,11 +244,11 @@ private fun CloudOthers(cloud: CloudState) {
 fun CloudGameScreen(state: AppState, cloud: CloudState, game: CloudGame) {
     val sections = state.sections()
     BoxWithConstraints(Modifier.fillMaxSize()) {
-        val wide = maxWidth > maxHeight && maxWidth >= 600.dp
-        val short = maxHeight < 480.dp
-        val side = if (wide && short) 96.dp else minOf(maxWidth * 0.5f, maxHeight * 0.3f, 300.dp)
+        val wide = maxWidth > maxHeight && maxWidth >= OortMeasure.Wide
+        val short = maxHeight < OortMeasure.Short
+        val side = if (wide && short) OortMeasure.ShortCover else minOf(maxWidth / 2, maxHeight / 3, OortMeasure.Cover)
         val header: @Composable () -> Unit = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(OortTokens.Space.Small.dp)) {
                 CloudCover(state, cloud, game, false, Modifier.size(side))
                 Text(game.name, Modifier.heading(), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
                 val words = cloudWords(cloud, game)
@@ -255,26 +256,26 @@ fun CloudGameScreen(state: AppState, cloud: CloudState, game: CloudGame) {
             }
         }
         if (wide) {
-            Row(Modifier.fillMaxSize().padding(horizontal = 24.dp), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                Column(Modifier.weight(0.42f).widthIn(max = 520.dp).fillMaxHeight()) {
+            Row(Modifier.fillMaxSize().padding(horizontal = OortTokens.Space.Large.dp), horizontalArrangement = Arrangement.spacedBy(OortTokens.Space.Large.dp)) {
+                Column(Modifier.weight(OortMeasure.SideShare).widthIn(max = OortMeasure.Side).fillMaxHeight()) {
                     PageTitle(stringResource(R.string.game_page), { state.onBack() })
                     Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) { header() }
-                    CloudKey(state, cloud, game, Modifier.padding(vertical = 8.dp), 560.dp)
+                    CloudKey(state, cloud, game, Modifier.padding(vertical = OortTokens.Space.Compact.dp), OortMeasure.WideKey)
                 }
-                Column(Modifier.weight(0.58f).fillMaxHeight()) {
-                    Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).widthIn(max = 780.dp).padding(vertical = 24.dp)) { OortList(state, sections) }
+                Column(Modifier.weight(1 - OortMeasure.SideShare).fillMaxHeight()) {
+                    Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).widthIn(max = OortMeasure.List).padding(vertical = OortTokens.Space.Large.dp)) { OortList(state, sections) }
                     PageHints(state)
                 }
             }
         } else {
             Column(Modifier.fillMaxSize()) {
-                PageTitle(stringResource(R.string.game_page), { state.onBack() }, Modifier.padding(horizontal = 20.dp))
-                Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(start = 20.dp, end = 20.dp, bottom = 40.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                PageTitle(stringResource(R.string.game_page), { state.onBack() }, Modifier.padding(horizontal = OortTokens.Space.Panel.dp))
+                Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(start = OortTokens.Space.Panel.dp, end = OortTokens.Space.Panel.dp, bottom = OortTokens.Space.DialogInset.dp), verticalArrangement = Arrangement.spacedBy(OortTokens.Space.Large.dp)) {
                     header()
-                    OortList(state, sections, Modifier.widthIn(max = 780.dp))
+                    OortList(state, sections, Modifier.widthIn(max = OortMeasure.List))
                 }
-                Column(Modifier.fillMaxWidth().background(OortTokens.Palette.Scrim.copy(alpha = 0.9f)).padding(horizontal = 15.dp).padding(bottom = 8.dp)) {
-                    CloudKey(state, cloud, game, Modifier, 790.dp)
+                Column(Modifier.fillMaxWidth().background(OortTokens.Palette.Scrim.copy(alpha = OortTokens.Effect.CloudBadgeOpacity)).padding(horizontal = OortTokens.Space.Medium.dp).padding(bottom = OortTokens.Space.Compact.dp)) {
+                    CloudKey(state, cloud, game, Modifier, OortMeasure.WideKey)
                     PageHints(state)
                 }
             }
@@ -300,7 +301,7 @@ fun CodeDialog(state: AppState) {
         containerColor = PanelRaised,
         title = { Text(stringResource(R.string.cloud_paste)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(OortTokens.Space.Small.dp)) {
                 Text(stringResource(R.string.cloud_paste_note), style = MaterialTheme.typography.bodyMedium, color = Ink2)
                 OutlinedTextField(text, { text = it }, Modifier.fillMaxWidth().semantics { contentDescription = label }, minLines = 3, maxLines = 6,
                     keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.None, autoCorrectEnabled = false, keyboardType = KeyboardType.Password))

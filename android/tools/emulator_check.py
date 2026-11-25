@@ -111,7 +111,8 @@ def screen():
         edge = n.box[0] <= 0 or n.box[2] >= size[0] or n.box[1] <= 90 * scale or n.box[3] >= size[1] - 120 * scale
         edge = edge or any(abs(n.box[1] - p[1]) <= 2 or abs(n.box[3] - p[3]) <= 2 for p in pages)
         if min(w, h) < 47.5 * scale and not edge:
-            small[n.said or "(no name)"] = f"{w / scale:.0f}x{h / scale:.0f} dp"
+            words = " ".join(m.said for m in nodes if m is not n and m.said and n.box[0] <= m.centre[0] <= n.box[2] and n.box[1] <= m.centre[1] <= n.box[3])[:60]
+            small[n.said or words or "(no name)"] = f"{w / scale:.0f}x{h / scale:.0f} dp at {n.box} of {size}, pages {pages}"
     return nodes
 
 

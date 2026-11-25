@@ -77,7 +77,7 @@ fun LibraryScreen(state: AppState) {
                 modifier = Modifier.weight(1f),
             ) {
                 itemsIndexed(games, key = { _, g -> g.packageName }) { index, game ->
-                    GameTile(state, game, state.icons[game.packageName], focused = state.padMode && index == state.libraryFocus)
+                    GameTile(state, game, state.icons[game.packageName], focused = state.padMode && !state.onFilter && index == state.libraryFocus)
                 }
             }
             Hints(state, listOf(

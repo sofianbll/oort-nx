@@ -52,8 +52,9 @@ internal class CloudInstalls(private val context: Context, private val store: Sh
         val file = apk(build)
         val entry = build.entries.first { it.path == build.packagePath }
         if (!file.isFile || digest(file) != entry.sha256) fail(ShelfError.WrongDigest)
-        val info = context.packageManager.getPackageArchiveInfo(file.path, PackageManager.GET_SIGNING_CERTIFICATES) ?: fail(ShelfError.InvalidManifest)
-        val signers = info.signingInfo?.apkContentsSigners.orEmpty().map { ShelfCrypto.sha256().digest(it.toByteArray()).hex() }
+        val info = context.packageManager.getPackageArchiveInfo(file.path, PackageManager.GET_SIGNING_CERTIFICATES or PackageManager.GET_SIGNATURES) ?: fail(ShelfError.InvalidManifest)
+        // Android 10 gives an APK's signer only under its older name.
+        val signers = (info.signingInfo?.apkContentsSigners ?: info.signatures).orEmpty().map { ShelfCrypto.sha256().digest(it.toByteArray()).hex() }
         refusal(build, info.packageName, info.longVersionCode, signers)?.let { fail(it) }
         for (one in data(build)) if (!isDataPath(one.path)) fail(ShelfError.UnsafeName)
     }

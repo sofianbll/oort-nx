@@ -124,6 +124,16 @@ object DownloadCloud {
         return dots
     }
 
+    /** A dot's light reaches this many radii (the Mac's `DownloadCloudSprites.rect`). */
+    const val SPRITE_REACH = 2.8
+
+    /** The front's own line (the Mac's `DownloadCloudFront.lineOpacity`). */
+    fun lineOpacity(surface: Surface): Double {
+        val level = surface.level ?: return 0.0
+        val edge = min(1.0, min(level, 1 - level) * 40)
+        return edge * edge * (3 - 2 * edge) * 0.71 * surface.activity
+    }
+
     private const val SILENCE = 1.4
     private const val WAVE = 2.0
 

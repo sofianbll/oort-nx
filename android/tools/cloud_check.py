@@ -275,7 +275,7 @@ def main():
 
 def run(files, work, tablet):
     library = Library(files, work)
-    e.shell("settings put system screen_off_timeout 1800000; svc power stayon true; logcat -b crash -c; settings put secure immersive_mode_confirmations confirmed")
+    e.shell("settings put system screen_off_timeout 1800000; svc power stayon true; logcat -b crash -c; settings put secure immersive_mode_confirmations confirmed; settings put global hide_error_dialogs 1")
     for flag in ("chrome",):
         e.shell(f"echo '{flag} --disable-fre --no-default-browser-check --no-first-run' > /data/local/tmp/chrome-command-line; am set-debug-app --persistent com.android.chrome")
     for package in (e.PACKAGE, CLOUD, "org.nx2a.cloudphare", "org.nx2a.cloudmaree"):
@@ -529,8 +529,11 @@ def run(files, work, tablet):
     e.fresh()
     e.pad("R1")
     e.pad("UP")
+    e.shot("en-pad-cloud-choice")
+    e.pad("RIGHT", "DOWN")
+    time.sleep(2)
     e.shot("en-pad-cloud-library")
-    e.pad("RIGHT", "A")
+    e.pad("A")
     e.see("a controller opens a game of the cloud", w("cloud_size"), seconds=10)
     e.shot("en-pad-cloud-game")
     e.shell("settings put system user_rotation 0")
