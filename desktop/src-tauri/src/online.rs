@@ -32,7 +32,6 @@ fn agent() -> ureq::Agent {
         .timeout_connect(Some(Duration::from_secs(6)))
         .max_redirects(0)
         .http_status_as_error(false)
-        .user_agent(concat!("OortNX/", env!("CARGO_PKG_VERSION")))
         .tls_config(ureq::tls::TlsConfig::builder().provider(ureq::tls::TlsProvider::NativeTls).root_certs(ureq::tls::RootCerts::PlatformVerifier).build())
         .build()
         .into()
@@ -47,6 +46,18 @@ fn allowed(url: &str) -> bool {
     host.chars().all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '-') && (host == "store.steampowered.com" || host == "www.wikidata.org" || wikipedia || pictures)
 }
 
+/// Who asks: the app's name and version. Wikipedia and Wikidata ask clients where to write to: the project's public page,
+/// as the Mac app says it (AppIdentity.userAgent). Nothing of the player.
+fn identity(url: &str) -> String {
+    let name = concat!("OortNX/", env!("CARGO_PKG_VERSION"));
+    let host = url.strip_prefix("https://").unwrap_or_default().split(['/', '?', '#']).next().unwrap_or_default();
+    if host == "www.wikidata.org" || host.ends_with(".wikipedia.org") {
+        let system = if cfg!(windows) { "Windows" } else if cfg!(target_os = "macos") { "macOS" } else { "Linux" };
+        return format!("{name} ({system}; +https://github.com/sofianbll/oort-nx)");
+    }
+    name.into()
+}
+
 /// The proofs answer from this computer: `OORT_ONLINE=http://127.0.0.1:<port>` and nothing else.
 fn place(url: &str) -> Option<String> {
     let Ok(own) = std::env::var("OORT_ONLINE") else { return Some(url.to_string()) };
@@ -57,7 +68,7 @@ fn place(url: &str) -> Option<String> {
 /// One address: its status and its bytes. No answer, too late or too large is status 0.
 fn read(agent: &ureq::Agent, url: &str, limit: u64) -> (u16, Vec<u8>) {
     let get = || -> Option<(u16, Vec<u8>)> {
-        let mut reply = agent.get(place(url)?).call().ok()?;
+        let mut reply = agent.get(place(url)?).header("User-Agent", identity(url)).call().ok()?;
         let status = reply.status().as_u16();
         let mut bytes = Vec::new();
         reply.body_mut().with_config().limit(limit + 1).reader().read_to_end(&mut bytes).ok()?;
@@ -157,6 +168,17 @@ mod tests {
         }
         for bad in ["http://store.steampowered.com/", "https://store.steampowered.com:444/", "https://store.steampowered.com@x.org/", "https://steamstatic.com.x.org/", "https://127.0.0.1/", "https://xwikipedia.org/", "file:///etc/passwd"] {
             assert!(!allowed(bad), "{bad}");
+        }
+    }
+
+    #[test]
+    fn wikipedia_and_wikidata_are_told_where_to_write_to_and_the_store_is_not() {
+        for wiki in ["https://fr.wikipedia.org/w/api.php?x", "https://www.wikidata.org/w/api.php"] {
+            let says = identity(wiki);
+            assert!(says.starts_with("OortNX/") && says.ends_with("; +https://github.com/sofianbll/oort-nx)"), "{says}");
+        }
+        for other in ["https://store.steampowered.com/api/x", "https://shared.akamai.steamstatic.com/a.jpg", "https://xwikipedia.org/"] {
+            assert_eq!(identity(other), concat!("OortNX/", env!("CARGO_PKG_VERSION")));
         }
     }
 
