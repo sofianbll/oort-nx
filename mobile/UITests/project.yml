@@ -41,6 +41,7 @@ targets:
       - path: ${OORT_MOBILE}/UITests/OortCase.swift
       - path: ${OORT_MOBILE}/UITests/OortUITests.swift
       - path: ${OORT_MOBILE}/UITests/OortTrialTests.swift
+      - path: ${OORT_MOBILE}/UITests/OortLooksTests.swift
       - path: ${OORT_MOBILE}/Capture/CaptureGames.swift
       # The app's own words, to find what they name.
       - path: ${OORT_MOBILE}/Sources/OortMobile/Resources/Localizable.xcstrings

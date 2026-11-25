@@ -115,23 +115,24 @@ final class OortTrialTests: OortCase {
             try fm.removeItem(at: documents.appendingPathComponent("Made"))
         }
         tap(button(say("Add a game")), "Add a game")
-        let place = app.cells.matching(NSPredicate(format: "identifier BEGINSWITH 'Oort NX'")).firstMatch
         let target = app.cells.matching(NSPredicate(format: "label BEGINSWITH %@ OR identifier BEGINSWITH %@", folderName, folderName)).firstMatch
-        if !target.waitForExistence(timeout: 20), !place.exists {
-            let browse = app.buttons.matching(NSPredicate(format: "label IN {'Browse', 'Explorer', 'Parcourir'}")).firstMatch
-            if browse.waitForExistence(timeout: 10) { browse.tap() }
-            let device = app.cells.matching(NSPredicate(format: "label BEGINSWITH 'On My' OR label BEGINSWITH 'Sur mon' OR identifier CONTAINS 'LocalStorage'")).firstMatch
-            if !place.waitForExistence(timeout: 5), device.waitForExistence(timeout: 5) { device.tap() }
-        }
-        for height in [0.25, 0.5, 0.7, 0.25, 0.5] where !target.exists {
-            if place.waitForExistence(timeout: 15), place.isHittable { place.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: height)).tap() }
-            _ = target.waitForExistence(timeout: 8)
+        if !target.waitForExistence(timeout: 8) {
+            // A touch from the test does not open a folder of Files: its search finds the game's by name.
+            let search = app.searchFields.firstMatch
+            appears(search, "the search of Files", 20)
+            search.tap()
+            search.typeText("DmGame")
+            _ = target.waitForExistence(timeout: 15)
         }
         step("06-choisir-le-dossier-du-jeu")
         appears(target, "the game's folder in Files")
         target.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.25)).tap()
+        // A folder is entered, then opened.
+        Thread.sleep(forTimeInterval: 4)
+        step("06c-ouvrir-le-dossier")
         let action = app.buttons["DOCPicker.actionButton"].firstMatch
-        if action.waitForExistence(timeout: 4), action.isEnabled, action.isHittable { action.tap() }
+        let words = app.buttons.matching(NSPredicate(format: "label IN {'Open', 'Ouvrir'}")).firstMatch
+        if action.exists, action.isEnabled, action.isHittable { action.tap() } else if words.exists { words.tap() }
         appears(app.staticTexts[game.name].firstMatch, "the added game", 30)
         step("07-jeu-ajoute")
         // Added without its data: the page says what is missing.
