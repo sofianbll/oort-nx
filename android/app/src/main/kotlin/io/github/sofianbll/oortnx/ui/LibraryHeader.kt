@@ -52,12 +52,14 @@ import io.github.sofianbll.oortnx.R
 @Composable
 fun LibraryHeader(state: AppState) {
     fun lit(key: LibraryKey) = state.padMode && state.libraryKey == key
-    PageTitle(stringResource(R.string.nav_library), null) {
+    // While a controller types, the field and the keys take the title's and the tabs' room: what is found stays in view.
+    if (!state.padKeyboard) PageTitle(stringResource(R.string.nav_library), null) {
         IconKey(Glyph.Search, stringResource(R.string.search), lit(LibraryKey.Search)) { state.search() }
         SortKey(state, lit(LibraryKey.Sort))
     }
     if (state.searching) SearchField(state)
-    FlowRow(Modifier.fillMaxWidth().padding(bottom = canvas(OortTokens.Space.Medium)), horizontalArrangement = Arrangement.spacedBy(canvas(OortTokens.Space.FieldInset)), verticalArrangement = Arrangement.spacedBy(canvas(OortTokens.Space.FieldInset))) {
+    if (state.padKeyboard) PadKeyboard(state)
+    else FlowRow(Modifier.fillMaxWidth().padding(bottom = canvas(OortTokens.Space.Medium)), horizontalArrangement = Arrangement.spacedBy(canvas(OortTokens.Space.FieldInset)), verticalArrangement = Arrangement.spacedBy(canvas(OortTokens.Space.FieldInset))) {
         Tab(stringResource(R.string.tab_all), !state.onlyFavorites, lit(LibraryKey.All)) { state.filter(false) }
         Tab(stringResource(R.string.tab_favorites), state.onlyFavorites, lit(LibraryKey.Favorites)) { state.filter(true) }
     }
@@ -93,13 +95,14 @@ private fun SearchField(state: AppState) {
     val hint = stringResource(R.string.search_field)
     val shape = CircleShape
     Row(
-        Modifier.fillMaxWidth().padding(bottom = canvas(OortTokens.Space.Line)).widthIn(max = Metrics.Measure).clip(shape).background(PanelRaised)
+        Modifier.padding(top = canvas(if (state.padKeyboard) OortTokens.Space.FieldInset else 0f)).fillMaxWidth().padding(bottom = canvas(OortTokens.Space.Line)).widthIn(max = Metrics.Measure).clip(shape).background(PanelRaised)
             .border(BorderStroke(Metrics.Line, if (state.typing) OortTokens.Palette.Focus else LineStrong), shape).padding(start = canvas(OortTokens.Space.RowLeading), end = canvas(OortTokens.Space.Hairline)),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(canvas(OortTokens.Space.FieldInset)),
     ) {
         BasicTextField(
             state.query, { state.type(it) },
-            Modifier.weight(1f).focusRequester(focus).onFocusChanged { state.typing = it.isFocused }.semantics { contentDescription = hint },
+            Modifier.weight(1f).focusRequester(focus).onFocusChanged { state.typing = it.isFocused; if (it.isFocused) state.padKeyboard = false }
+                .semantics { contentDescription = hint },
             singleLine = true,
             textStyle = MaterialTheme.typography.bodyLarge.copy(color = OortTokens.Palette.Ink),
             cursorBrush = SolidColor(OortTokens.Palette.Focus),

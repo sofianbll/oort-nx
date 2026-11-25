@@ -17,6 +17,9 @@
     <string name="key_options">Ctrl O</string>
     <string name="key_tabs">Q E</string>
     <string name="key_sort">F3</string>
+    <string name="key_space">Space</string>
+    <string name="key_erase">Erase</string>
+    <string name="key_done">Done</string>
     <string name="key_enter">Enter</string>
     <string name="key_escape">Esc</string>
     <string name="game_page">Details</string>
