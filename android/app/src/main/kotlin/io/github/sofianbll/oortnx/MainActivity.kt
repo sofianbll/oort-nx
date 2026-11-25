@@ -62,7 +62,11 @@ class MainActivity : ComponentActivity() {
 
     private val padListener = object : InputManager.InputDeviceListener {
         override fun onInputDeviceAdded(deviceId: Int) { readPads() }
-        override fun onInputDeviceRemoved(deviceId: Int) { readPads(); router.reset(); state.pad.reset() }
+        override fun onInputDeviceRemoved(deviceId: Int) {
+            readPads(); router.reset(); state.pad.reset()
+            // The last controller left: its ring and its hints leave with it. A keyboard keeps its own.
+            if (state.pads.isEmpty() && !state.keyboard) state.padMode = false
+        }
         override fun onInputDeviceChanged(deviceId: Int) { readPads() }
     }
 
