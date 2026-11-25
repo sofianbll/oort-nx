@@ -1,6 +1,7 @@
 package io.github.sofianbll.oortnx.ui
 
 import android.content.Context
+import android.view.KeyEvent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -81,6 +82,28 @@ class AppState(
 
     /** The marks of the controller used last: what the hints show. */
     var family by mutableStateOf(PadFamily())
+
+    /** True when the last key came from a keyboard: the hints show its keys. */
+    var keyboard by mutableStateOf(false)
+
+    /** What is written on that key: of the keyboard, else of the controller in hand. */
+    fun keyName(key: HintKey): String = if (keyboard) when (key) {
+        HintKey.Confirm -> context.getString(R.string.key_enter)
+        HintKey.Back -> context.getString(R.string.key_escape)
+        HintKey.Details -> "Ctrl D"
+        HintKey.Controllers -> "Q E"
+        HintKey.Options -> "Ctrl O"
+        HintKey.Tabs -> "Q E"
+        HintKey.Sort -> "F3"
+    } else when (key) {
+        HintKey.Confirm -> family.mark(if (prefs.swapAB) KeyEvent.KEYCODE_BUTTON_B else KeyEvent.KEYCODE_BUTTON_A)
+        HintKey.Back -> family.mark(if (prefs.swapAB) KeyEvent.KEYCODE_BUTTON_A else KeyEvent.KEYCODE_BUTTON_B)
+        HintKey.Details -> family.mark(KeyEvent.KEYCODE_BUTTON_X)
+        HintKey.Controllers -> family.mark(KeyEvent.KEYCODE_BUTTON_Y)
+        HintKey.Options -> family.mark(KeyEvent.KEYCODE_BUTTON_START)
+        HintKey.Tabs -> family.mark(KeyEvent.KEYCODE_BUTTON_L1) + " " + family.mark(KeyEvent.KEYCODE_BUTTON_R1)
+        HintKey.Sort -> family.mark(KeyEvent.KEYCODE_BUTTON_THUMBR)
+    }
     val pad = PadMonitor()
     var message by mutableStateOf<String?>(null)
     private var step = 0
@@ -179,6 +202,7 @@ class AppState(
         if (menuGame != null) {
             when (nav) {
                 Nav.Back, Nav.Options -> onBack()
+                Nav.Forward, Nav.Backward -> step(nav == Nav.Forward)
                 Nav.Up, Nav.Down, Nav.Confirm, Nav.First, Nav.Last -> listNav(nav)
                 else -> sound(SoundEvent.Deny)
             }
@@ -189,6 +213,8 @@ class AppState(
             Nav.Previous -> return cycle(-1)
             Nav.Controllers -> return goTo(Section.Controllers)
             Nav.Options -> { currentGame()?.let { openMenu(it) } ?: goTo(Section.Settings); return }
+            Nav.Settings -> return goTo(Section.Settings)
+            Nav.Forward, Nav.Backward -> return step(nav == Nav.Forward)
             Nav.Back -> { if (!onBack()) sound(SoundEvent.Deny); return }
             else -> Unit
         }
@@ -199,6 +225,21 @@ class AppState(
             section == Section.Home -> homeNav(nav)
             section == Section.Library -> libraryNav(nav)
             else -> listNav(nav)
+        }
+    }
+
+    /** Tab and Shift+Tab: the next and the previous place of what is on screen, round and round, with the same ring. */
+    private fun step(forward: Boolean) {
+        val by = if (forward) 1 else -1
+        val page = route
+        fun <T> next(all: List<T>, here: T): T = all[(all.indexOf(here) + by + all.size) % all.size]
+        when {
+            menuGame == null && (page is Route.Licence || page == Route.WhichGames) -> textNav(if (forward) Nav.Down else Nav.Up)
+            menuGame == null && page == null && section == Section.Home -> if (selected != null) moveHome(next(HomeTarget.entries, homeTarget))
+            menuGame == null && page == null && section == Section.Library -> if (library.isNotEmpty()) {
+                libraryFocus = next(library.indices.toList(), libraryFocus); sound(SoundEvent.Move, step++)
+            }
+            else -> focusedRow()?.let { rowFocus = rowFocus + (pageKey to next(rowIds(), it)); sound(SoundEvent.Move, step++) }
         }
     }
 

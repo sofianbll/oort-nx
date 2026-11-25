@@ -41,6 +41,24 @@ class PadKeysTest {
 
     @Test fun theHomeButtonIsTheSystems() = assertNull(PadKeys.nav(KeyEvent.KEYCODE_BUTTON_MODE, false))
 
+    @Test fun theKeyboardHasTheMacsShortcutsWithControl() {
+        assertEquals(Nav.Details, PadKeys.keyboard(KeyEvent.KEYCODE_D, ctrl = true, shift = false))
+        assertEquals(Nav.Options, PadKeys.keyboard(KeyEvent.KEYCODE_O, ctrl = true, shift = false))
+        assertEquals(Nav.Settings, PadKeys.keyboard(KeyEvent.KEYCODE_COMMA, ctrl = true, shift = false))
+        assertNull(PadKeys.keyboard(KeyEvent.KEYCODE_C, ctrl = true, shift = false))
+        assertNull(PadKeys.keyboard(KeyEvent.KEYCODE_ENTER, ctrl = true, shift = false))
+    }
+
+    @Test fun tabMovesThroughTheSamePlacesAndLettersChangeTab() {
+        assertEquals(Nav.Forward, PadKeys.keyboard(KeyEvent.KEYCODE_TAB, ctrl = false, shift = false))
+        assertEquals(Nav.Backward, PadKeys.keyboard(KeyEvent.KEYCODE_TAB, ctrl = false, shift = true))
+        assertEquals(Nav.Previous, PadKeys.keyboard(KeyEvent.KEYCODE_Q, ctrl = false, shift = false))
+        assertEquals(Nav.Next, PadKeys.keyboard(KeyEvent.KEYCODE_E, ctrl = false, shift = false))
+        assertEquals(Nav.Confirm, PadKeys.keyboard(KeyEvent.KEYCODE_ENTER, ctrl = false, shift = false))
+        assertEquals(Nav.Back, PadKeys.keyboard(KeyEvent.KEYCODE_ESCAPE, ctrl = false, shift = false))
+        assertNull(PadKeys.keyboard(KeyEvent.KEYCODE_A, ctrl = false, shift = false))
+    }
+
     @Test fun directionsRoundTrip() {
         for (d in Dir.entries) assertEquals(d, PadKeys.dir(PadKeys.nav(d)))
     }

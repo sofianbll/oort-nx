@@ -1,5 +1,6 @@
 package io.github.sofianbll.oortnx.ui
 
+import android.view.KeyEvent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -51,7 +52,7 @@ fun PadTestScreen(state: AppState) {
                     style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center,
                 )
                 PadView(pad.held, Modifier.width(wide).oortPanel(RoundedCornerShape(canvas(OortTokens.Radius.Dialog))).padding(20.dp))
-                Text(stringResource(R.string.controllers_hold, state.keyName(HintKey.Confirm), state.keyName(HintKey.Back)), style = MaterialTheme.typography.bodyMedium, color = Ink2, textAlign = TextAlign.Center)
+                Text(stringResource(R.string.controllers_hold, state.family.mark(KeyEvent.KEYCODE_BUTTON_A), state.family.mark(KeyEvent.KEYCODE_BUTTON_B)), style = MaterialTheme.typography.bodyMedium, color = Ink2, textAlign = TextAlign.Center)
             }
         }
     }

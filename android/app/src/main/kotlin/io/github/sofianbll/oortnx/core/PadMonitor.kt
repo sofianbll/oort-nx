@@ -6,6 +6,7 @@ import android.view.MotionEvent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import kotlin.math.abs
 import kotlin.math.hypot
 
 /** What is held on the controller right now, for the screen that shows it. Android names buttons by label: the places here are the Xbox ones. */
@@ -39,6 +40,9 @@ class PadMonitor {
                 key(KeyEvent.KEYCODE_BUTTON_L1), maxOf(key(KeyEvent.KEYCODE_BUTTON_L2), leftTrigger),
                 key(KeyEvent.KEYCODE_BUTTON_R1), maxOf(key(KeyEvent.KEYCODE_BUTTON_R2), rightTrigger),
             )
+
+        /** Something is pushed or held, not a pad at rest sending its axes. */
+        val active: Boolean get() = keys.isNotEmpty() || maxOf(abs(hatX), abs(hatY), abs(leftX), abs(leftY), abs(rightX), abs(rightY), leftTrigger, rightTrigger) > 0.5f
 
         /** The bottom or the right button: held, it closes the screen. */
         val closing: Boolean get() = KeyEvent.KEYCODE_BUTTON_A in keys || KeyEvent.KEYCODE_BUTTON_B in keys

@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.MotionEvent
+import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
@@ -20,6 +21,7 @@ import io.github.sofianbll.oortnx.core.SoundEvent
 import io.github.sofianbll.oortnx.core.SoundPlayer
 import io.github.sofianbll.oortnx.core.connectedPads
 import io.github.sofianbll.oortnx.core.family
+import io.github.sofianbll.oortnx.core.fromKeyboard
 import io.github.sofianbll.oortnx.ui.AppState
 import io.github.sofianbll.oortnx.ui.OortApp
 import io.github.sofianbll.oortnx.ui.OortTheme
@@ -52,6 +54,8 @@ class MainActivity : ComponentActivity() {
                 OortApp(state)
             }
         }
+        // After a touch Android spends the first arrow or Tab on giving the focus to a view: give it one beforehand.
+        findViewById<ViewGroup>(android.R.id.content).getChildAt(0)?.let { it.isFocusableInTouchMode = true; it.requestFocus() }
         // Boots with the Sun's sound, once per start (the same event as the Mac's launch).
         sound.play(SoundEvent.Boot)
     }
@@ -84,15 +88,19 @@ class MainActivity : ComponentActivity() {
 
     // A controller's buttons reach the activity here before any view: the pad drives the whole launcher.
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        val ours = state.pad.key(event)
+        // A keyboard's keys are not a pad's: its arrows would light the dots of a controller nobody holds.
+        val typed = event.fromKeyboard
+        val ours = !typed && state.pad.key(event)
         if (ours) follow(event.device)
         if (ours && testing) { router.reset(); state.padMode = true; return true }
-        return router.key(event) || super.dispatchKeyEvent(event)
+        if (!router.key(event)) return super.dispatchKeyEvent(event)
+        state.keyboard = typed // after the router: what it did is shown with the keys that did it
+        return true
     }
 
     override fun dispatchGenericMotionEvent(event: MotionEvent): Boolean {
         val ours = state.pad.motion(event)
-        if (ours) follow(event.device)
+        if (ours) { follow(event.device); if (state.pad.held.active) state.keyboard = false }
         if (ours && testing) { router.reset(); state.padMode = true; return true }
         return router.motion(event) || super.dispatchGenericMotionEvent(event)
     }

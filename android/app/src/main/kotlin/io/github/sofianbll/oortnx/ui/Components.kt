@@ -1,6 +1,5 @@
 package io.github.sofianbll.oortnx.ui
 
-import android.view.KeyEvent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -166,18 +165,7 @@ fun IconKey(glyph: Glyph, description: String, onClick: () -> Unit) {
 /** What a key shown at the foot of a page does. */
 enum class HintKey { Confirm, Back, Details, Controllers, Options, Tabs, Sort }
 
-/** What is written on that key of the controller in hand. */
-fun AppState.keyName(key: HintKey): String = when (key) {
-    HintKey.Confirm -> family.mark(if (prefs.swapAB) KeyEvent.KEYCODE_BUTTON_B else KeyEvent.KEYCODE_BUTTON_A)
-    HintKey.Back -> family.mark(if (prefs.swapAB) KeyEvent.KEYCODE_BUTTON_A else KeyEvent.KEYCODE_BUTTON_B)
-    HintKey.Details -> family.mark(KeyEvent.KEYCODE_BUTTON_X)
-    HintKey.Controllers -> family.mark(KeyEvent.KEYCODE_BUTTON_Y)
-    HintKey.Options -> family.mark(KeyEvent.KEYCODE_BUTTON_START)
-    HintKey.Tabs -> family.mark(KeyEvent.KEYCODE_BUTTON_L1) + " " + family.mark(KeyEvent.KEYCODE_BUTTON_R1)
-    HintKey.Sort -> family.mark(KeyEvent.KEYCODE_BUTTON_THUMBR)
-}
-
-/** The controller's keys for what can be done here. Touch hides them. */
+/** The keys of the controller or the keyboard for what can be done here. Touch hides them. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Hints(state: AppState, hints: List<Pair<HintKey, Int>>, modifier: Modifier = Modifier) {

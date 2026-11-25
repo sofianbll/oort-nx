@@ -21,8 +21,8 @@ class InputRouter(
     private var triggerRight = false
 
     fun key(event: KeyEvent): Boolean {
-        val code = event.device?.family?.printed(event.keyCode) ?: event.keyCode
-        val nav = PadKeys.nav(code, swapAB()) ?: return false
+        val nav = if (event.fromKeyboard) PadKeys.keyboard(event.keyCode, event.isCtrlPressed, event.isShiftPressed) ?: return false
+            else PadKeys.nav(event.device?.family?.printed(event.keyCode) ?: event.keyCode, swapAB()) ?: return false
         val dir = PadKeys.dir(nav)
         if (event.action == KeyEvent.ACTION_DOWN) {
             if (event.repeatCount == 0) {
