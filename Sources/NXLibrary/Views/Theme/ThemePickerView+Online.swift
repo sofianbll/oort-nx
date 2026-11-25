@@ -28,7 +28,7 @@ extension ThemePickerView {
         case .confirm: accept()
         case .cancel: back()
         case .secondaryAction:
-            if let item = browser.state?.focusedItem { NSWorkspace.shared.open(item.pageURL) }
+            if let item = browser.state?.focusedItem { openWebPage(item.pageURL, viewModel: viewModel) }
         default: break
         }
     }

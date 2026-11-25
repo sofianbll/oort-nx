@@ -232,7 +232,7 @@ struct ChangeArtworkView: View {
     private var rightHints: [HintItem] {
         let move = [HintItem(.lb, L10n.text("Previous")), HintItem(.rb, L10n.text("Next"))]
         guard browsing != nil else { return move + [HintItem(.a, L10n.text("Choose"))] }
-        let page = browseResult?.page.map { url in HintItem(.x, L10n.text("Open page"), action: { NSWorkspace.shared.open(url) }) }
+        let page = browseResult?.page.map { _ in HintItem(.x, L10n.text("Open page"), action: openPage) }
         let accept = focus < 0 ? HintItem(.a, L10n.text("Search"), action: { fieldFocused = true })
                                : HintItem(.a, L10n.text("Choose"), action: chooseFocused)
         return (page.map { [$0] } ?? []) + move + (downloading ? [] : [accept])

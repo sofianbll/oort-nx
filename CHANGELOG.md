@@ -10,6 +10,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Changed
 
+- Opening a web page with a controller asks first and shows the address.
 - Every choice has ‹ › to click in game options and Add game, and says ← →.
 - The pointer hides when a controller is picked up, until it moves.
 - The profile's on-screen keyboard is one shared piece with symbols and accents. It opens in every text field a controller reaches: game search, settings, mods, pictures, keys, friend code.

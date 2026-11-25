@@ -59,4 +59,12 @@ final class ClickableHintsTests: XCTestCase {
             XCTAssertTrue(try Self.source(path).contains("HintItem(.move, \"Change\")"), path)
         }
     }
+
+    func testAPageAsksBeforeLeavingOortFromAController() throws {
+        XCTAssertTrue(try Self.source("OortUI/OortWebPage.swift").contains("guard GameControllerService.shared.controllerInHand else"))
+        for path in ["Theme/ThemePickerView.swift", "Theme/ThemePickerView+Input.swift", "Theme/ThemePickerView+Online.swift",
+                     "GameOptions/ChangeArtworkView+Browse.swift"] {
+            XCTAssertFalse(try Self.source(path).contains("NSWorkspace.shared.open("), path)
+        }
+    }
 }
