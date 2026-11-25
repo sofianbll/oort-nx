@@ -171,7 +171,7 @@ SCENARIO = r'''
             guard let notice = receiver.settingsNotice else {
                 throw CocoaError(.fileReadUnknown, userInfo: [NSDebugDescriptionErrorKey: "Expected an update confirmation"])
             }
-            try require(notice.choices == ["Update app", "Cancel"] && receiver.settingsNoticeFocus == notice.cancelIndex,
+            try require(notice.choices == ["Cancel", "Update app"] && receiver.settingsNoticeFocus == notice.cancelIndex,
                         "Cancel must be the default")
             if capture {
                 for (size, width) in sizes {
@@ -179,7 +179,7 @@ SCENARIO = r'''
                 }
             }
             receiver.settingsNotice = nil
-            notice.runChoice(cancel ? notice.cancelIndex : 0)
+            notice.runChoice(cancel ? notice.cancelIndex : 1)
         }
         try approve(cancel: true, capture: true)
         try require(try model.active == nil && version(app) == "1.0", "Cancel started a replacement")

@@ -162,7 +162,7 @@ import ArcanePorting
               "N13: Cancel changed the ROM selection")
         scopeOffline = true
         upgraded.prepareDriveTool {}
-        input.settingsNoticeInput(.navigateLeft)
+        input.settingsNoticeInput(.navigateRight)
         input.settingsNoticeInput(.confirm)
         await migration.scopeTask?.value
         check(migration.connectionCheck?.failure == .offline && migration.sourceArchive == nil
@@ -242,16 +242,16 @@ import ArcanePorting
             ][name]
             if let frenchLine { precondition(notice.message.contains(frenchLine), notice.message) }
             try render(name, input.settingsNoticeOverlay(notice))
-            input.settingsNoticeInput(.navigateLeft)
-            precondition(vm.settingsNoticeFocus == 0 && count() == before, name)
             input.settingsNoticeInput(.navigateRight)
+            precondition(vm.settingsNoticeFocus == notice.choices.count - 1 && count() == before, name)
+            input.settingsNoticeInput(.navigateLeft)
             input.settingsNoticeInput(.confirm) // A / Return on Cancel
             precondition(vm.settingsNotice == nil && count() == before, name)
             open()
             input.settingsNoticeInput(.cancel) // B / Esc / dismiss
             precondition(vm.settingsNotice == nil && count() == before, name)
             open()
-            input.settingsNoticeInput(.navigateLeft)
+            input.settingsNoticeInput(.navigateRight)
             input.settingsNoticeInput(.confirm)
             input.settingsNoticeInput(.confirm)
             precondition(vm.settingsNotice == nil, name)
@@ -353,7 +353,7 @@ import ArcanePorting
         precondition(reopenedCloud.settingsNotice == nil && reopenedCloud.cloudLibrary.needsDriveToolChoice)
 
         upgraded.prepareDriveTool {}
-        upgradeInput.settingsNoticeInput(.navigateLeft)
+        upgradeInput.settingsNoticeInput(.navigateRight)
         upgradeInput.settingsNoticeInput(.confirm)
         for _ in 0..<100 where finishDownload == nil { await Task.yield() }
         precondition(downloadCalls == 1 && migration.archive == nil && migration.driveToolProgress == 0.42)
@@ -366,7 +366,7 @@ import ArcanePorting
         availableDriveTool = URL(fileURLWithPath: "/fixture/rclone")
         upgraded.prepareDriveTool {}
         precondition(upgraded.settingsNoticeFocus == upgraded.settingsNotice?.cancelIndex && migration.archive == nil)
-        upgradeInput.settingsNoticeInput(.navigateLeft)
+        upgradeInput.settingsNoticeInput(.navigateRight)
         upgradeInput.settingsNoticeInput(.confirm)
         await migration.scopeTask?.value
         let unchangedQueue = try Data(contentsOf: queue)
@@ -604,8 +604,7 @@ import ArcanePorting
         precondition(router.settingsDecision == nil && settings.draft?.hasChanges == true && router.route == .settings(.cloudSaves))
         send(.contextAction) // Y: save without leaving
         precondition(router.settingsDecision == .save)
-        send(.navigateLeft)
-        send(.navigateLeft)
+        send(.navigateRight) // Save, last on the right
         send(.confirm)
         precondition(router.settingsDecision == nil && settings.draft?.hasChanges == false && router.route == .settings(.cloudSaves))
         precondition(AppSettingsStore(fileURL: settings.fileURL).settings.multiplayerDefault == .local)

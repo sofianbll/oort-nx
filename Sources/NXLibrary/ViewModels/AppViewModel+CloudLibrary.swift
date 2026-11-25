@@ -1930,7 +1930,7 @@ extension AppViewModel {
             showSettingsNotice(title: L10n.text("Replace"),
                 message: L10n.format("Replace %@ on this Mac with the app from the reference library? The previous app will be kept.",
                                      [replacement.destination.lastPathComponent]),
-                actionTitle: "Replace", cancelTitle: "Cancel") { [weak self] in
+                actionTitle: "Replace", cancelTitle: "Cancel", destructive: ["Replace"]) { [weak self] in
                 self?.enqueueCloudLibrary(action, for: selected, appReplacement: replacement)
             }
             return

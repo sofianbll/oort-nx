@@ -136,7 +136,7 @@ final class GameInboxModel: ObservableObject {
               requested.allSatisfy({ $0.destination != nil && entries.contains($0) }) else { return }
         let copy = Self.confirmation(for: requested)
         app.showSettingsNotice(title: copy.title, message: copy.message, actionTitle: L10n.text("Sort and move to Trash"),
-                               cancelTitle: L10n.text("Cancel"), primaryFirst: true) { [weak self] in
+                               cancelTitle: L10n.text("Cancel"), destructive: [L10n.text("Sort and move to Trash")]) { [weak self] in
             self?.store(requested)
         }
     }

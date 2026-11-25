@@ -299,7 +299,7 @@ struct ProfileSwitchDialog: View {
     let waiting: Bool
     let onCancel: () -> Void
     let onConfirm: () -> Void
-    @State private var focus = 1
+    @State private var focus = 0
 
     var body: some View {
         let title = endsGuest ? "End guest session?" : startsGuest ? "Play as guest?" : "Switch profile?"
@@ -313,10 +313,10 @@ struct ProfileSwitchDialog: View {
         VStack {
             if waiting {
                 SeleneChoiceDialog(title: title, message: L10n.text(hasSteam ? "Close any Steam games yourself before switching." : "Waiting for the game to close…"),
-                                   choices: ["Cancel"], focus: .constant(0), cancelIndex: 0, onCancel: onCancel) { _ in onCancel() }
+                                   choices: ["Cancel"], focus: .constant(0), onCancel: onCancel) { _ in onCancel() }
             } else {
-                SeleneChoiceDialog(title: title, message: details, choices: [primary, "Cancel"], focus: $focus,
-                                   cancelIndex: 1, onCancel: onCancel) { $0 == 0 ? onConfirm() : onCancel() }
+                SeleneChoiceDialog(title: title, message: details, choices: ["Cancel", primary], focus: $focus,
+                                   cancelIndex: 0, destructive: hasGame || endsGuest ? [1] : [], onCancel: onCancel) { $0 == 1 ? onConfirm() : onCancel() }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -331,7 +331,7 @@ struct ProfileSwitchDialog: View {
         }
     }
 
-    private func accept() { if !waiting && focus == 0 { onConfirm() } else { onCancel() } }
+    private func accept() { if !waiting && focus == 1 { onConfirm() } else { onCancel() } }
 }
 
 struct ProfilePINDialog: View {

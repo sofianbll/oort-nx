@@ -125,13 +125,13 @@ import NXLibraryCore
             guard let self, self.app.playProfile == profile else { return }
             self.app.showSettingsNotice(title: "Remove this tile?",
                                         message: L10n.text("The tile is removed from the library. The app stays where it is."),
-                                        actionTitle: "Remove tile", cancelTitle: "Cancel") { [weak self] in
+                                        actionTitle: "Remove tile", cancelTitle: "Cancel", destructive: ["Remove tile"]) { [weak self] in
                 guard self?.app.playProfile == profile else { return }
                 self?.remove(game.id)
             }
         })
         app.showSettingsNotice(title: "Tile options", message: game.name, actionTitle: "Choose image…",
-                               cancelTitle: "Back", alternatives: [remove], primaryFirst: true) { [weak self] in
+                               cancelTitle: "Back", alternatives: [remove], primaryFirst: true, destructive: [remove.title]) { [weak self] in
             guard let self, self.app.playProfile == profile else { return }
             ChangeArtworkView.chooseArtworkFile(slot: .cover, name: game.name) { [weak self] result in
                 MainActor.assumeIsolated {

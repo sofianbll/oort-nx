@@ -59,7 +59,7 @@ struct SettingsView: View {
     @State private var pageActions: [SettingsSection: [SettingsRowAction]] = [:]
     @State private var subjectActions: [SettingsRowAction] = []
     @State private var keyMonitor: Any?
-    @State private var decisionFocus = 2
+    @State private var decisionFocus = 1
     @State private var decisionError: String?
     @State private var decisionScroll = 0
     @State private var savingPlayers = false
@@ -213,7 +213,7 @@ struct SettingsView: View {
             focusRequestedSetting()
         }
         .onChange(of: router.settingsDecision) {
-            decisionFocus = 2
+            decisionFocus = 1
             decisionError = nil
             decisionScroll = 0
         }
@@ -313,12 +313,12 @@ struct SettingsView: View {
 
     @ViewBuilder var decisionOverlay: some View {
         if let mode = router.settingsDecision, let draft = settings.draft {
-            SeleneOverlay(style: .profileRemoval, onOutside: { decide(2) }) {
+            SeleneOverlay(style: .profileRemoval, onOutside: { decide(1) }) {
                 SeleneChoiceDialog(title: "Unsaved settings",
                     message: decisionError ?? L10n.text("Review what will change before you save."),
-                    choices: ["Save", mode == .leave ? "Leave without saving" : "Discard changes", "Continue editing settings"],
-                    focus: $decisionFocus, cancelIndex: 2, notes: SettingsDraftFields.summary(draft.changes),
-                    notesScrollRequest: decisionScroll, onCancel: { decide(2) }, onChoose: decide)
+                    choices: [mode == .leave ? "Leave without saving" : "Discard changes", "Continue editing settings", "Save"],
+                    focus: $decisionFocus, cancelIndex: 1, destructive: [0], notes: SettingsDraftFields.summary(draft.changes),
+                    notesScrollRequest: decisionScroll, onCancel: { decide(1) }, onChoose: decide)
                     .environment(\.seleneShowButtonHints, true)
             }
         }
@@ -327,7 +327,7 @@ struct SettingsView: View {
     private func decide(_ index: Int) {
         guard router.settingsDecision != nil, !savingPlayers else { return }
         switch index {
-        case 0:
+        case 2:                                         // Save
             if let plan = settings.editingSettings.launcherChoices.players, plan != settings.settings.launcherChoices.players {
                 savingPlayers = true
                 Task { @MainActor in
@@ -346,7 +346,7 @@ struct SettingsView: View {
             } else if applyDraft() {
                 finishDecision(proceed: true)
             }
-        case 1:
+        case 0:                                         // Discard changes
             settings.discardDraft()
             showingPlayers = false
             editor.resetPlayers()
@@ -357,7 +357,7 @@ struct SettingsView: View {
     }
 
     private func finishDecision(proceed: Bool) {
-        decisionFocus = 2
+        decisionFocus = 1
         router.finishSettingsDecision(proceed: proceed)
     }
 
@@ -477,7 +477,7 @@ struct SettingsView: View {
                     .onTapGesture { nextendo.friendToRemove = nil }
                 SeleneConfirmDialog(title: L10n.text("Remove this friend?", context: localization), message: friend.name,
                                     confirmTitle: L10n.text("Remove friend", context: localization),
-                                    cancelTitle: L10n.text("Cancel", context: localization), focus: $nextendoRemovalFocus,
+                                    cancelTitle: L10n.text("Cancel", context: localization), destructive: true, focus: $nextendoRemovalFocus,
                                     onCancel: { nextendo.friendToRemove = nil }, onConfirm: confirmNextendoRemoval)
             }
             .onAppear { nextendoRemovalFocus = .cancel }
@@ -743,7 +743,7 @@ struct SettingsView: View {
         guard let ask = SettingsReset.question(section, title: L10n.text(section.title, context: localization)) else {
             return resetSection(section)
         }
-        viewModel.confirmSetting(ask.title, message: ask.message, action: "Reset") { resetSection(section) }
+        viewModel.confirmSetting(ask.title, message: ask.message, action: "Reset", destructive: true) { resetSection(section) }
     }
 
     /// `SettingsReset` puts the section's `AppSettings` back in one assignment; the preferences
@@ -947,7 +947,7 @@ struct SettingsView: View {
             case .navigateDown:
                 decisionScroll = min(max(0, (settings.draft?.changes.count ?? 1) - 1), decisionScroll + 1)
             case .confirm: decide(decisionFocus)
-            case .cancel: decide(2)
+            case .cancel: decide(1)
             default: break
             }
             return

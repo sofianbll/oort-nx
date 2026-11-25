@@ -126,10 +126,10 @@ struct ProfileEditorView: View {
     }
 
     private var discardDialog: some View {
-        let focus = Binding(get: { discardFocus ?? 1 }, set: { discardFocus = $0 })
+        let focus = Binding(get: { discardFocus ?? 0 }, set: { discardFocus = $0 })
         return SeleneOverlay(style: .profileRemoval, onOutside: keepEditing) {
             SeleneChoiceDialog(title: "Discard changes?", message: L10n.text("Your profile changes won’t be saved."),
-                               choices: ["Discard", "Keep editing"], focus: focus, cancelIndex: 1,
+                               choices: ["Keep editing", "Discard"], focus: focus, cancelIndex: 0, destructive: [1],
                                onCancel: keepEditing, onChoose: chooseDiscardAction)
         }
     }
@@ -444,7 +444,7 @@ struct ProfileEditorView: View {
         guard profile != original || hasCustomBackground else { onCancel(); return }
         resumeNameFocus = nameFocused
         nameFocused = false
-        discardFocus = 1
+        discardFocus = 0
     }
 
     private func keepEditing() {
@@ -454,7 +454,7 @@ struct ProfileEditorView: View {
 
     private func confirmDiscardChoice() { if let discardFocus { chooseDiscardAction(discardFocus) } }
 
-    private func chooseDiscardAction(_ index: Int) { if index == 0 { onCancel() } else { keepEditing() } }
+    private func chooseDiscardAction(_ index: Int) { if index == 1 { onCancel() } else { keepEditing() } }
 
     private func press(_ key: OnScreenKeyboard.Key) {
         switch key {

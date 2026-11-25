@@ -56,7 +56,7 @@ extension ThemePickerView {
                 .onTapGesture { place(.notNow) }
             SeleneChoiceDialog(title: WallpaperPlacement.dialogTitle,
                                message: L10n.format("%@. You can change both wallpapers any time in Settings → Look.", [String(describing: name)]),
-                               choices: WallpaperPlacement.allCases.map(\.title), focus: $placementFocus,
+                               choices: WallpaperPlacement.allCases.map(\.title), focus: $placementFocus, cancelIndex: 0,
                                onCancel: { placing = nil }) { index in
                 place(WallpaperPlacement.allCases[index])
             }
