@@ -45,17 +45,22 @@ Read before you change code:
 
 ## Test before you open a pull request
 
-Run the same checks as CI:
+Start any change with the [oort-change](.agents/skills/oort-change/SKILL.md) list: it picks the [criteria](docs/working-on-it/change-criteria.md) that apply. Then run the same checks as CI:
 
 ~~~sh
 python3 scripts/check_publication.py
 python3 scripts/check_localizations.py
-python3 scripts/check_selene_tokens.py
+python3 scripts/generate_oort_tokens.py --check
+python3 scripts/check_selene_tokens.py --base main
 python3 scripts/check_module_boundaries.py
+python3 scripts/check_ui_rules.py --base main
+python3 scripts/check_vocabulary.py
+python3 scripts/check_guides.py
 python3 -m unittest discover -s Tests/PublicationChecks
 python3 -m unittest discover -s Tests/ModuleChecks
 python3 -m unittest discover -s Tests/SkillChecks
 python3 -m unittest discover -s Tests/CIChecks
+python3 -m unittest discover -s Tests/UIRulesChecks
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test --jobs 6
 ~~~
 
@@ -63,10 +68,17 @@ Durations below come from the GitHub Actions history of 25 November 2026. They a
 
 | Check | Where it runs | Duration seen |
 |---|---|---|
-| Mac: checks and Swift tests | `Mac / tests` job, `xcode-27` | About 22 min (one run) |
+| Mac: checks and Swift tests | `Mac / checks` and `Mac / Swift tests` jobs, `xcode-27` | About 22 min (one run) |
 | Windows and Linux: core and packages | `Desktop` workflow, alpha branch | About 20 min (median of 8) |
 | Android: checks, unit tests, APK | `Android` workflow, alpha branch | About 32 min (median of 7) |
 | iPhone and iPad: tests, simulators | `iPhone and iPad` workflow, alpha branch | About 42 min (median of 6) |
+
+| Script | What it holds | Its tests |
+|---|---|---|
+| `check_module_boundaries.py` | The order of the modules | `Tests/ModuleChecks` |
+| `check_ui_rules.py` | Interface rules a script can measure; the debt in `scripts/ui-rules.json` only shrinks | `Tests/UIRulesChecks` |
+| `check_vocabulary.py` | The same words on every system; the debt in `design/vocabulary-debt.json` only shrinks | `Tests/PublicationChecks` |
+| `check_guides.py` | Player guides and the feature matrix | `Tests/PublicationChecks` |
 
 Passing checks prove the code builds and that the automated rules hold. They do not replace a manual check of the app, a controller or a real game. Say which checks you ran and which manual check is still needed.
 
@@ -120,7 +132,8 @@ Run `python3 scripts/check_localizations.py` after any edit.
 
 ## Pull requests
 
-- Use the [pull request template](.github/PULL_REQUEST_TEMPLATE.md). French or English is fine.
+- Name the branch `feat/`, `fix/`, `docs/` or `chore/` followed by the topic.
+- Use the [pull request template](.github/PULL_REQUEST_TEMPLATE.md), criteria list included. French or English is fine.
 - State the problem, the change, the checks you ran and the manual check that remains.
 - Record a user-visible change under **Unreleased** in [CHANGELOG.md](CHANGELOG.md), focused on the resulting behaviour.
 - The maintainer reviews, decides and merges. Passing checks are not approval to publish or install.

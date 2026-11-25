@@ -7,11 +7,12 @@ A personal macOS SwiftUI front-end for upstream [nxnative](https://github.com/se
 
 These rules apply to work on Sofian's fork. They override the upstream rules below only where explicitly stated. Load `arcane-dev` when available for local checkout and engine procedures; these repository rules apply even without the skill. Keep these blocks out of upstream contributions.
 
-- **Scope.** Get Sofian's decision before implementing a substantial UX redesign. Start a new fork lot from its agreed base in a separate worktree; integrate on the agreed branch. Fork lots and releases may use topic prefixes such as `lot/` and `release/`; use `bium/<topic>` for upstream Arcane contributions. Never name a branch after an agent.
+- **Scope.** Get Sofian's decision before implementing a substantial UX redesign. Start a new fork lot from its agreed base in a separate worktree; integrate on the agreed branch. Name branches as [Branches](#branches) says.
 - **Delegation.** When delegation is authorized, brief every subagent in ponytail mode: smallest complete change, inherit these rules, preserve validated behavior, report concrete checks and limits. The coordinating agent verifies integration and obtains approvals.
 - **Preserve validation.** Before changing a flow, read `docs/working-on-it/validation.md` and protect already validated behavior with regression checks. Change a validated choice only with Sofian's explicit approval. Test passes, rendered evidence, installation and Sofian's manual confirmation are distinct.
 - **UI gate.** Apply the [fork conventions](docs/working-on-it/conventions.md#arcane-perso--regole-del-fork). Inspect a capture of every changed screen, panel and dialog before delivery, using the headless harness and synthetic data. Give Sofian the captures and the manual checks that remain. No computer-use or live app automation; Sofian does interactive checks.
-- **Start** any change with the `oort-change` skill: it picks the visual or the core [criteria](docs/working-on-it/change-criteria.md) and gives the list for the pull request. Check with `python3 scripts/check_ui_rules.py`.
+- **Start** any change with the [`oort-change`](.agents/skills/oort-change/SKILL.md) skill: it picks [`oort-visual-change`](.agents/skills/oort-visual-change/SKILL.md) or [`oort-core-change`](.agents/skills/oort-core-change/SKILL.md) and their [criteria](docs/working-on-it/change-criteria.md), and gives the list for the pull request. Check with `python3 scripts/check_ui_rules.py`.
+- **Other skills.** [`oort-contribute`](.agents/skills/oort-contribute/SKILL.md) prepares a pull request, [`oort-triage`](.agents/skills/oort-triage/SKILL.md) sorts an issue, [`oort-guides`](.agents/skills/oort-guides/SKILL.md) writes a player guide, [`oort-release`](.agents/skills/oort-release/SKILL.md) prepares a release.
 - **Search** the [component inventory](docs/working-on-it/components.md) before changing a screen.
 - **Compose** OortUI components with content, state and named presets.
 - **Style** only inside OortUI; screens never define component styles.
@@ -87,7 +88,7 @@ The only exception is the player's own choice in **Settings → Setup and engine
 
 ## Branches
 
-Name every branch `bium/<topic>` (for example `bium/0.1.4.2`), whoever creates it. Never name a branch after an agent or tool (`codex/`, `claude/`): the work belongs to the maintainer.
+Name a work branch `feat/<topic>`, `fix/<topic>`, `docs/<topic>` or `chore/<topic>`, and a release line `release/<version>`, whoever creates it; see the [branch rules](docs/working-on-it/branch-rules.md). A contribution sent upstream to Arcane keeps Arcane’s own name, `bium/<topic>`. Never name a branch after an agent or tool (`codex/`, `claude/`): the work belongs to the maintainer.
 
 ## Verification
 

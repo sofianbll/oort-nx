@@ -14,12 +14,9 @@ description: Prepare a contribution to Oort NX: pick the right system, run the c
 
 1. Read [CONTRIBUTING.md](../../../CONTRIBUTING.md), [AGENTS.md](../../../AGENTS.md) and the area in [architecture-map](../../../docs/working-on-it/architecture-map.md).
 2. Check for an existing issue with the same symptom. If one exists, link it. Do not duplicate it.
-3. Keep the change to one behaviour. If it touches data, access, the engine or releases, stop and ask the maintainer for the scope first.
-4. Put code in the module the map names. Keep the layer order: `OortCore` < `NXLibraryCore` < `ArcanePorting` < `NXLibrary`.
-5. Run the checks listed in CONTRIBUTING.md, "Test before you open a pull request". Record the results and the exact command. Do not claim a check passed if it did not run.
-6. For a visible change, capture each changed screen with synthetic data only. Remove paths, account names and notifications.
-7. Update the same change: the row in [file-map](../../../docs/working-on-it/file-map.md) for any new file, and an **Unreleased** entry in [CHANGELOG.md](../../../CHANGELOG.md) for a user-visible change.
-8. Write the pull request body with [the template](../../../.github/PULL_REQUEST_TEMPLATE.md). Name the manual check that remains.
+3. Load [oort-change](../oort-change/SKILL.md) and follow it: it sets the scope, places the code, takes the captures and updates the docs with the change.
+4. Run the checks listed in CONTRIBUTING.md, "Test before you open a pull request". Record the results and the exact command. Do not claim a check passed if it did not run.
+5. Write the pull request body with [the template](../../../.github/PULL_REQUEST_TEMPLATE.md). Name the manual check that remains.
 
 ## Proof
 

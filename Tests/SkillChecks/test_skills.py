@@ -31,10 +31,11 @@ class SkillFormatTests(unittest.TestCase):
     def skill_dirs(self):
         return sorted(path for path in SKILLS.iterdir() if path.is_dir())
 
-    def test_there_are_four_public_skills(self):
+    def test_there_are_seven_public_skills(self):
         self.assertEqual(
             [path.name for path in self.skill_dirs()],
-            ["oort-contribute", "oort-guides", "oort-release", "oort-triage"],
+            ["oort-change", "oort-contribute", "oort-core-change", "oort-guides",
+             "oort-release", "oort-triage", "oort-visual-change"],
         )
 
     def test_each_skill_has_matching_frontmatter_and_sections(self):
