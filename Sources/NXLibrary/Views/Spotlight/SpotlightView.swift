@@ -279,9 +279,14 @@ struct SpotlightView: View {
                                     shade: settings.settings.backgroundShade, crossfade: 0.8,
                                     showsArt: !settings.settings.keepWallpaperOnGames, modsTint: modsBackdrop,
                                     reveal: artReveal)
-                // Deeper in the page the art dims so the text reads.
-                // 0.65 keeps white text at 4.5:1 over a white picture.
-                SeleneTheme.artShade.opacity(dimmed ? SeleneTokens.Effect.deepVeil : 0)
+                // 0.65 keeps white text at 4.5:1 over a white picture: where the page's text is, then deeper everywhere.
+                LinearGradient(stops: [
+                    .init(color: SeleneTheme.artShade.opacity(SeleneTokens.Alpha.soft), location: 0),
+                    .init(color: SeleneTheme.artShade.opacity(SeleneTokens.Effect.deepVeil), location: 0.45)
+                ], startPoint: .top, endPoint: .bottom)
+                    .opacity(belowShown ? 1 : 0)
+                    .allowsHitTesting(false)
+                SeleneTheme.artShade.opacity(dimmed ? SeleneTokens.Alpha.half : 0)
                     .allowsHitTesting(false)
             },
             stage: { stage(model, state: state) })

@@ -53,7 +53,8 @@ struct SeleneShades: View {
         let k = 0.3 * shade.scrimMultiplier
         return ZStack {
             Rectangle().fill(LinearGradient(stops: [
-                stop(0.878, k, at: 0), stop(0.5, k, at: 0.5), stop(0.149, k, at: 1)
+                // The words' side is deeper than Selene's: grey words must read over a bright picture.
+                stop(0.878, k * 2, at: 0), stop(0.7, k * 1.6, at: 0.3), stop(0.4, k, at: 0.55), stop(0.149, k, at: 1)
             ], startPoint: .leading, endPoint: .trailing))
             Rectangle().fill(LinearGradient(stops: [
                 stop(0, k, at: 0.4), stop(0.9, k, at: 1)
