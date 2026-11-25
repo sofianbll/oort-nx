@@ -111,6 +111,7 @@ final class PlacesTests: XCTestCase {
         XCTAssertNil(Paths.parent("/"))
         XCTAssertEqual(Paths.rooted("d:"), "d:/")
         XCTAssertEqual(Paths.rooted("/d:"), "/d:")
+        XCTAssertEqual(["C:", "C:/", "C:\\"].map(Paths.real), ["C:/", "C:/", "C:/"])
     }
 
     func testSystemVariablesAreNeverSet() {

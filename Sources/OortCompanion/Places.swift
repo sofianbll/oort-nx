@@ -124,7 +124,11 @@ enum Paths {
         return a.count > b.count && Array(a.prefix(b.count)) == b
     }
 
-    static func real(_ path: String) -> String { rooted(URL(fileURLWithPath: path).resolvingSymlinksInPath().path) }
+    static func real(_ path: String) -> String {
+        // Foundation on Windows does not resolve a drive's own path.
+        if let drive = parts(path).first, isDrive(drive), parts(path).count == 1 { return drive + "/" }
+        return rooted(URL(fileURLWithPath: path).resolvingSymlinksInPath().path)
+    }
 
     /// `C:` alone is whatever folder the program is in on that drive; the drive itself is `C:/`.
     static func rooted(_ path: String) -> String { isDrive(path) ? path + "/" : path }
