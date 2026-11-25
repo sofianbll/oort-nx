@@ -1,4 +1,4 @@
-import CoreGraphics
+import Foundation
 
 /// Selene's 1920x1080 design canvas. Lengths are written in canvas units and
 /// multiplied by `scale`, which follows the smaller window axis.
@@ -8,6 +8,11 @@ public struct SeleneCanvas: Equatable {
     public let size: CGSize
     /// The player's interface size: every unit grows, the window and the 16:9 stage do not.
     public let zoom: CGFloat
+
+    // Written out: CGSize's Equatable comes from CoreGraphics on a Mac, and this file imports only Foundation.
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.size.width == rhs.size.width && lhs.size.height == rhs.size.height && lhs.zoom == rhs.zoom
+    }
 
     public init(size: CGSize, zoom: CGFloat = 1) {
         self.size = CGSize(width: max(size.width, 0), height: max(size.height, 0))

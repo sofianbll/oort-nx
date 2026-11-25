@@ -1,41 +1,19 @@
 import Foundation
 import Darwin
 
-enum InstallationFileReadError: Error { case tooLarge, unsafeFile, sourceChanged, invalidText }
-
-/// Retain only this small identity after parsing, not all source-file contents.
-struct InstallationFileObservation: Equatable, Sendable {
-    let url: URL
-    private let identity: Identity?
-    private let fileType: mode_t
-
-    fileprivate struct Identity: Equatable, Sendable {
-        let device: Int32
-        let inode: UInt64
-        let size: Int64
-        let modifiedSeconds: Int
-        let modifiedNanoseconds: Int
-        let changedSeconds: Int
-        let changedNanoseconds: Int
-
-        init(_ status: stat) {
-            device = status.st_dev
-            inode = status.st_ino
-            size = status.st_size
-            modifiedSeconds = status.st_mtimespec.tv_sec
-            modifiedNanoseconds = status.st_mtimespec.tv_nsec
-            changedSeconds = status.st_ctimespec.tv_sec
-            changedNanoseconds = status.st_ctimespec.tv_nsec
-        }
+// The POSIX half of `InstallationFileObservation`: status words come from stat, so this stays with Darwin.
+extension InstallationFileObservation.Identity {
+    init(_ status: stat) {
+        self.init(device: status.st_dev, inode: status.st_ino, size: status.st_size,
+                  modifiedSeconds: status.st_mtimespec.tv_sec, modifiedNanoseconds: status.st_mtimespec.tv_nsec,
+                  changedSeconds: status.st_ctimespec.tv_sec, changedNanoseconds: status.st_ctimespec.tv_nsec)
     }
+}
 
+extension InstallationFileObservation {
     private init(url: URL, status: stat) {
-        self.url = url
-        identity = Identity(status)
-        fileType = status.st_mode & mode_t(S_IFMT)
+        self.init(url: url, identity: Identity(status), fileType: UInt32(status.st_mode & mode_t(S_IFMT)))
     }
-    private init(absentURL: URL) { url = absentURL; identity = nil; fileType = 0 }
-    var byteCount: Int64 { identity?.size ?? 0 }
 
     static func capture(fileDescriptor: Int32, url: URL, expectedType: mode_t = mode_t(S_IFREG)) throws -> Self {
         var status = stat()
@@ -59,7 +37,7 @@ struct InstallationFileObservation: Equatable, Sendable {
             guard result == -1, errno == ENOENT else { throw InstallationFileReadError.sourceChanged }
             return
         }
-        guard result == 0, current.st_mode & mode_t(S_IFMT) == fileType, Identity(current) == identity else {
+        guard result == 0, UInt32(current.st_mode & mode_t(S_IFMT)) == fileType, Identity(current) == identity else {
             throw InstallationFileReadError.sourceChanged
         }
     }

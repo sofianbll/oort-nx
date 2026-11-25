@@ -2,12 +2,6 @@ import Foundation
 import CryptoKit
 import Darwin
 
-public enum CatalogStoreError: Error, Equatable {
-    case invalidLegacy, invalidCatalog(backupAvailable: Bool), legacyChanged, staleRevision, busy, unsafeDirectory
-    /// Main may already contain the new revision. Reload before deciding whether to retry.
-    case commitUncertain
-}
-
 /// The older library file a source converts into a first catalog: its main file and backup, next to `catalog.json`,
 /// and the conversion. The store keeps the converted bytes' fingerprint and refuses to load once they change.
 public struct CatalogLegacyImport {

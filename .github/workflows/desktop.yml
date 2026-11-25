@@ -1,0 +1,162 @@
+# Oort NX for Windows and Linux: the Swift core, the Tauri window, tests, and packages to try.
+# Runs on the alpha branch or by hand. No secrets, nothing published: the packages stay with the run.
+name: Desktop
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [alpha/windows]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    name: Windows ${{ matrix.arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-2025
+            arch: x64
+            swift_arch: amd64
+            triple: x86_64-pc-windows-msvc
+            component: Microsoft.VisualStudio.Component.VC.Tools.x86.x64
+          - runner: windows-11-arm
+            arch: arm64
+            swift_arch: arm64
+            triple: aarch64-pc-windows-msvc
+            component: Microsoft.VisualStudio.Component.VC.Tools.ARM64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: compnerd/gha-setup-swift@57fe462cd3c7b05ae8fcff79b00719312e305257
+        with:
+          swift-version: swift-6.4.3-release
+          swift-build: 6.4.3-RELEASE
+          build_arch: ${{ matrix.swift_arch }}
+          cache: 'false'
+      - uses: compnerd/gha-setup-vsdevenv@f1ba60d553a3216ce1b89abe0201213536bc7557 # v6
+        with:
+          arch: ${{ matrix.swift_arch }}
+          host_arch: ${{ matrix.swift_arch }}
+          components: ${{ matrix.component }}
+          winsdk: '10.0.26100.0'
+      - name: Rust
+        run: |
+          rustup toolchain install 1.94.1 --profile minimal --component clippy --no-self-update
+          rustup default 1.94.1
+          rustup target add ${{ matrix.triple }}
+      - name: Core, in Swift
+        run: |
+          swift --version
+          python scripts/check_portable_core.py
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          swift build --build-system native --build-tests
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          swift test --build-system native --skip-build
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          swift build --build-system native -c release --product oort-core
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $bin = swift build --build-system native -c release --product oort-core --show-bin-path
+          New-Item -ItemType Directory -Force desktop/src-tauri/binaries, desktop/src-tauri/runtime | Out-Null
+          Copy-Item "$bin/oort-core.exe" "desktop/src-tauri/binaries/oort-core-${{ matrix.triple }}.exe"
+          # The Swift runtime travels with the app.
+          $runtime = Split-Path (where.exe swiftCore.dll | Select-Object -First 1)
+          Copy-Item "$runtime/*.dll" desktop/src-tauri/runtime/
+      - name: The core answers on its own
+        run: |
+          $dir = New-Item -ItemType Directory -Force "$env:RUNNER_TEMP/core"
+          Copy-Item "desktop/src-tauri/binaries/oort-core-${{ matrix.triple }}.exe" "$dir/oort-core.exe"
+          Copy-Item desktop/src-tauri/runtime/*.dll $dir
+          $env:PATH = "$env:SystemRoot\System32"
+          $reply = '{"id":1,"method":"hello"}' | & "$dir/oort-core.exe" --data "$dir/data" --resources desktop/src-tauri --system windows
+          if ($reply -notmatch '"system":"windows"') { Write-Error "unexpected reply: $reply" }
+      - name: Page and generated files
+        run: |
+          python desktop/scripts/generate.py --check
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          node --test desktop/tests/nav.test.mjs
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Host, in Rust
+        working-directory: desktop/src-tauri
+        run: |
+          cargo clippy --locked -- -D warnings
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          cargo test --locked
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Installer
+        working-directory: desktop
+        run: |
+          npm ci
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          '{"bundle":{"resources":{"catalog.json":"catalog.json","../NOTICE":"NOTICE","../licenses-rust.txt":"licenses-rust.txt","runtime/*.dll":"./"}}}' | Set-Content ci.json
+          npx tauri build --target ${{ matrix.triple }} --bundles nsis --config ci.json -- --locked
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: oort-nx-windows-${{ matrix.arch }}
+          path: desktop/src-tauri/target/${{ matrix.triple }}/release/bundle/nsis/*.exe
+          if-no-files-found: error
+          retention-days: 7
+
+  linux:
+    name: Linux x64
+    runs-on: ubuntu-24.04
+    container: swift:6.4.3-bookworm
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Libraries, Rust, Node
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends build-essential curl file patchelf pkg-config python3 xdg-utils nodejs npm \
+            libwebkit2gtk-4.1-dev libudev-dev libssl-dev librsvg2-dev libayatana-appindicator3-dev libdbus-1-dev
+          curl -fsSL https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init -o rustup-init
+          chmod +x rustup-init && ./rustup-init -y --profile minimal --default-toolchain 1.94.1 --component clippy
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+      - name: Core, in Swift
+        run: |
+          python3 scripts/check_portable_core.py
+          swift build --build-tests
+          swift test --skip-build
+          swift build -c release --product oort-core --static-swift-stdlib
+          mkdir -p desktop/src-tauri/binaries
+          cp "$(swift build -c release --product oort-core --static-swift-stdlib --show-bin-path)/oort-core" \
+            desktop/src-tauri/binaries/oort-core-x86_64-unknown-linux-gnu
+          echo '{"id":1,"method":"hello"}' | desktop/src-tauri/binaries/oort-core-x86_64-unknown-linux-gnu \
+            --data /tmp/core --resources desktop/src-tauri --system linux | grep '"system":"linux"'
+      - name: Page, host
+        run: |
+          python3 desktop/scripts/generate.py --check
+          node --test desktop/tests/nav.test.mjs
+          cd desktop/src-tauri
+          cargo clippy --locked -- -D warnings
+          cargo test --locked
+      - name: Packages
+        working-directory: desktop
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: '1'
+        run: |
+          npm ci
+          npx tauri build --bundles deb,appimage -- --locked
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: oort-nx-linux-x64
+          path: |
+            desktop/src-tauri/target/release/bundle/deb/*.deb
+            desktop/src-tauri/target/release/bundle/appimage/*.AppImage
+          if-no-files-found: error
+          retention-days: 7

@@ -24,3 +24,5 @@ This app runs on macOS. **Ryujinx-Nextendo** is the engine target for future Win
 Oort NX builds on [Arcane by Bium23](https://github.com/Bium23/NxLibrary) and the [Selene theme by Matthew Silva](https://github.com/mattxslv/Selene). The artwork picker takes inspiration from [Playnite by Josef Nemec](https://github.com/JosefNemec/Playnite). Thanks to [nxnative](https://github.com/seedds/nxnative) and [Nextendo](https://github.com/eyasbzour/nxnative-online) contributors.
 
 [MIT license](LICENSE) · [Third-party notices](NOTICE) · [Support Bium23](https://buymeacoffee.com/bium)
+
+Oort NX for Windows and Linux is in [desktop](desktop/README.md): its game process tracking comes from Padwake by ddoinn (MIT), and it reads the recomplauncher.json format of the RecompLauncher SDK by Ripalda (MIT).

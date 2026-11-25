@@ -1,0 +1,78 @@
+# Builds and tests the portable core (OortCore + the NXLibraryCore files listed in Package.swift) on Windows and Linux.
+# Prepared for the Windows lot 1 and NOT yet run anywhere: it has never executed. Manual only, no secrets, nothing published.
+# On Windows and Linux Package.swift selects the portable subset by itself (os(Windows) || os(Linux)).
+name: Portable core
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-2025
+            arch: x64
+            swift_arch: amd64
+            host_arch: amd64
+            component: Microsoft.VisualStudio.Component.VC.Tools.x86.x64
+          - runner: windows-11-arm
+            arch: arm64
+            swift_arch: arm64
+            host_arch: arm64
+            component: Microsoft.VisualStudio.Component.VC.Tools.ARM64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: compnerd/gha-setup-swift@57fe462cd3c7b05ae8fcff79b00719312e305257
+        with:
+          swift-version: swift-6.4.3-release
+          swift-build: 6.4.3-RELEASE
+          build_arch: ${{ matrix.swift_arch }}
+          cache: 'false'
+      - uses: compnerd/gha-setup-vsdevenv@f1ba60d553a3216ce1b89abe0201213536bc7557 # v6
+        with:
+          arch: ${{ matrix.swift_arch }}
+          host_arch: ${{ matrix.host_arch }}
+          components: ${{ matrix.component }}
+          winsdk: '10.0.26100.0'
+      - name: Imports and Apple-only calls (script)
+        run: |
+          swift --version
+          python scripts/check_portable_core.py
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Build the portable core
+        run: |
+          swift build --build-system native --build-tests
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Test the portable core
+        run: |
+          swift test --build-system native --skip-build
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+
+  linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    container: swift:6.4.3-bookworm
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Imports and Apple-only calls (script)
+        run: |
+          swift --version
+          python3 scripts/check_portable_core.py
+      - name: Build and test the portable core
+        run: |
+          swift build --build-tests
+          swift test --skip-build

@@ -61,7 +61,12 @@ public struct CatalogRecordKinds: @unchecked Sendable {
     public init(_ types: [any CatalogSourceRecord.Type]) { self.types = types }
 
     /// What the base knows by itself.
+    #if os(macOS) && !OORT_PORTABLE
     public static let base = Self([SteamCatalogGame.self, MacShortcutRecord.self])
+    #else
+    // A shortcut to an app chosen on a Mac is Mac-only: elsewhere it is kept untouched, like any unknown kind.
+    public static let base = Self([SteamCatalogGame.self])
+    #endif
     /// Where a decoder carries the kinds (`JSONDecoder.userInfo`); without them a reader knows `base`.
     public static let userInfoKey = CodingUserInfoKey(rawValue: "arcane.catalogRecordKinds")!
 

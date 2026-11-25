@@ -1,4 +1,4 @@
-import CoreGraphics
+import Foundation
 
 /// A column scrolled inside a window of its own (a mod panel's column: the description, Read more, the files): how
 /// far it is scrolled and how far it can go. The offset never leaves the column's ends.

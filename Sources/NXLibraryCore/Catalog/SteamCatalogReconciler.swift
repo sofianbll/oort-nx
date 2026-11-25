@@ -1,6 +1,5 @@
 import Foundation
 
-public enum CatalogScanError: Error, Equatable { case sourceDisabled, staleScan, wrongSourceRoot, invalidSnapshot }
 
 public struct CatalogScanTicket: Equatable, Sendable {
     public let revision: UUID

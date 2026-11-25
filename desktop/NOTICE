@@ -1,0 +1,76 @@
+Oort NX for Windows and Linux
+
+Part of Oort NX, under the licence and notices at the root of the repository
+(LICENSE, NOTICE): Arcane by Bium23, the Selene interface by Matthew Silva, and
+the components named there. What this folder adds:
+
+--------------------------------------------------------------------------------
+Padwake
+https://github.com/ddoinn/padwake
+src-tauri/src/session_windows.rs is taken from app/src-tauri/src/games/session.rs
+at 91cfdef65abbbfc685814685c32face0fdff6b78, with the changes named at its top.
+
+MIT License
+
+Copyright (c) 2026 ddoinn
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+--------------------------------------------------------------------------------
+RecompLauncher SDK
+https://github.com/elripalda/RecompLauncher-SDK
+The recomplauncher.json format. Its reader here (Sources/OortCompanion) was
+written from the SDK's schema and guide at e6430cab2579e50f953e04c79e25f55234e877b8.
+RecompLauncher itself is GPL-3.0: it was not used, and no line of it is here.
+
+MIT License
+
+Copyright (c) 2026 Ripalda
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+--------------------------------------------------------------------------------
+Inter, by Rasmus Andersson and contributors: SIL Open Font License 1.1, in
+ui/Inter-OFL.txt. Material Icons, by Google: Apache License 2.0, in
+ui/MaterialIcons-LICENSE.txt.
+
+--------------------------------------------------------------------------------
+Rust libraries, linked into the program: their names, versions and licences are
+in licenses-rust.txt, written from Cargo.lock by scripts/licenses.py. Swift and
+its runtime libraries (swift.org): Apache License 2.0 with Runtime Library
+Exception.
+
+No trademark owner named in catalog.json (game and console names, to say what a
+project is for) is affiliated with Oort NX or endorses it.

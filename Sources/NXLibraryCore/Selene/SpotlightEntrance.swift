@@ -1,4 +1,4 @@
-import CoreGraphics
+import Foundation
 
 /// Spotlight's entrance, the app's opening: a breath on the moving moonlight, then the game's background
 /// fades in as when moving between games, only slower, while the tiles fly in from the row's centre and

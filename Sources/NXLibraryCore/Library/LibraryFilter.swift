@@ -154,3 +154,25 @@ extension CatalogGame: LibraryQueryRecord {
     package var librarySearchTerms: [String] { record.librarySearchTerms }
     package var libraryModificationDate: Date? { record.libraryModificationDate }
 }
+
+public extension LibraryFilter {
+    /// The filter `delta` tabs away, clamped to the ends (LB / RB).
+    func shifted(by delta: Int, in tabs: [LibraryFilter] = LibraryFilter.allCases) -> LibraryFilter {
+        guard let index = tabs.firstIndex(of: self) else { return tabs.first ?? .all }
+        return tabs[min(max(index + delta, 0), tabs.count - 1)]
+    }
+
+    /// `AppSettings.startingTab` raw value, falling back to All games.
+    init(startingTab raw: String) {
+        self = LibraryFilter(rawValue: raw) ?? .all
+    }
+}
+
+public extension LibraryFilter {
+    /// The next filter, wrapping from the last back to the first (RS on Collection).
+    func cycled() -> LibraryFilter {
+        let all = LibraryFilter.allCases
+        let index = all.firstIndex(of: self) ?? 0
+        return all[(index + 1) % all.count]
+    }
+}

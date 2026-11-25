@@ -1,4 +1,3 @@
-import Accelerate
 import Foundation
 
 /// The interface sounds of the Oort packs, made here: rounded notes, soft clicks and one small room. No audio file.
@@ -226,11 +225,7 @@ public struct OortSynth: Sendable {
             let length = dry.count
             let sides = [UInt32(5), 11].map { seed -> [Float] in
                 let room = Self.room(seed)
-                var wet = [Float](repeating: 0, count: length)
-                let padded = [Float](repeating: 0, count: room.count - 1) + dry
-                room.withUnsafeBufferPointer { kernel in
-                    vDSP_conv(padded, 1, kernel.baseAddress! + room.count - 1, -1, &wet, 1, vDSP_Length(length), vDSP_Length(room.count))
-                }
+                let wet = Convolution.convolve(dry, room, count: length)
                 return zip(dry, wet).map { tanh(0.55 * ($0 + 0.12 * $1) * 1.4) / 1.4 }
             }
             // Silence at the end is not worth keeping in memory.
@@ -257,10 +252,9 @@ public struct OortSynth: Sendable {
                 return (Float(seed) / Float(UInt32.max) * 2 - 1) * pow(1 - Float(n) / Float(count), 3.2)
             }
             // The level WebAudio gives a convolution: unit energy.
-            var energy: Float = 0
-            vDSP_svesq(room, 1, &energy, vDSP_Length(count))
-            var scale = 1 / max(0.0001, energy.squareRoot())
-            vDSP_vsmul(room, 1, &scale, &room, 1, vDSP_Length(count))
+            let energy = room.reduce(Float(0)) { $0 + $1 * $1 }
+            let scale = 1 / max(0.0001, energy.squareRoot())
+            room = room.map { $0 * scale }
             return room
         }
     }

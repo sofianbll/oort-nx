@@ -1,8 +1,6 @@
 import Foundation
 import Darwin
 
-public enum CatalogRepositoryError: Error, Equatable { case gameNotFound }
-
 /// Typed transactions against one authoritative catalog. No cached second
 /// document and no automatic replay of closures with game-file side effects.
 public struct CatalogRepository {
