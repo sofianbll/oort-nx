@@ -32,10 +32,7 @@ extension SaveFiles {
     }
     static func checkSpace(at directory: URL, bytes: Int64) throws {
         guard bytes >= 0 else { throw SaveFailure.invalidSnapshot }
-        var existing = directory
-        while !exists(existing), existing.path != "/" { existing.deleteLastPathComponent() }
-        if let capacity = try? existing.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey]).volumeAvailableCapacityForImportantUsage,
-           capacity < bytes { throw SaveFailure.io("There is not enough free space for this save operation.") }
+        if let capacity = VolumeSpace.free(at: directory), capacity < bytes { throw SaveFailure.io("There is not enough free space for this save operation.") }
     }
     // macOS can assign provenance, change access labels on rename, and rewrite
     // the quarantine agent on copy. Keep flags, timestamp and event ID exact.

@@ -192,8 +192,6 @@ public final class StorageManager {
 
     private func freeSpace(at url: URL) -> Int64? {
         guard fm.fileExists(atPath: url.path) else { return nil }
-        let values = try? url.resourceValues(
-            forKeys: [.volumeAvailableCapacityForImportantUsageKey])
-        return values?.volumeAvailableCapacityForImportantUsage
+        return VolumeSpace.free(at: url)
     }
 }

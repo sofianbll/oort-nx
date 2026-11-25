@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 25 novembre 2026. Copertura di **1135 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 25 novembre 2026. Copertura di **1165 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -284,6 +284,7 @@ Cartella `Sources/NXLibraryCore/Library/`.
 | [Sources/NXLibraryCore/Library/StorageBackend.swift](../../Sources/NXLibraryCore/Library/StorageBackend.swift) | Contratto oggetti remoti: chiavi e impronte serializzabili, trasferimenti, avanzamento e lease condiviso. |
 | [Sources/NXLibraryCore/Library/CloudLibraryFailure.swift](../../Sources/NXLibraryCore/Library/CloudLibraryFailure.swift) | Cause e recupero cloud: distingue volume locale pieno, quota Drive e rete; non riporta l'output di rclone. |
 | [Sources/NXLibraryCore/Library/RcloneStorageBackend.swift](../../Sources/NXLibraryCore/Library/RcloneStorageBackend.swift) | Usa il binario risolto, verifica ID e nomi originali, rifiuta percorsi ambigui e limita il riferimento all’ID esatto in sola lettura. Prima di scrivere verifica che i due alberi siano disgiunti. |
+| [Sources/NXLibraryCore/Library/VolumeSpace.swift](../../Sources/NXLibraryCore/Library/VolumeSpace.swift) | Spazio libero di un disco: dove macOS risponde 0 per l’uso importante (exFAT, FAT32) vale la cifra semplice. |
 | [Sources/NXLibraryCore/Library/RcloneDownload.swift](../../Sources/NXLibraryCore/Library/RcloneDownload.swift) | Scarica rclone dopo consenso, verifica origine, dimensione, hash e firma, pubblica la copia con ricevuta e avvia lo snapshot dei byte approvati. |
 | [Sources/NXLibraryCore/Library/CloudSetupAssistant.swift](../../Sources/NXLibraryCore/Library/CloudSetupAssistant.swift) | Bozza dell'assistente: passi, selezione, verifica, formato dell'ID client e client Google facoltativo nel plist. |
 | [Sources/NXLibraryCore/Selene/CloudSetupAssistantFocus.swift](../../Sources/NXLibraryCore/Selene/CloudSetupAssistantFocus.swift) | Bersagli per tastiera e controller, inclusi azione e campo del percorso manuale; priorità all'azione principale e a Cancel nelle conferme. |
@@ -850,6 +851,16 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/OortUI/OortControls.swift](../../Sources/NXLibrary/Views/OortUI/OortControls.swift) | Preset per righe, azioni e stati, e riga con cursore. |
 | [Sources/NXLibrary/Views/OortUI/OortGameTile.swift](../../Sources/NXLibrary/Views/OortUI/OortGameTile.swift) | Tessera con preset Spotlight e Collection, input e accessibilità; l'arte resta al chiamante. |
 | [Sources/NXLibrary/Views/OortUI/PlayerSlot.swift](../../Sources/NXLibrary/Views/OortUI/PlayerSlot.swift) | Posto giocatore ad altezza stabile con ritratto, stato e valore accessibile. |
+| [DESIGN.md](../../DESIGN.md) | Sistema di design: token, pezzi, regole. |
+| [PRODUCT.md](../../PRODUCT.md) | Per chi è Oort, cosa promette e cosa evita. |
+| [Sources/NXLibrary/Services/ControllerLive.swift](../../Sources/NXLibrary/Services/ControllerLive.swift) | Stato vivo del controller attivo (tasti tenuti, stick), separato dal servizio per non ridisegnare le altre viste. |
+| [Sources/NXLibrary/Views/OortUI/OortControllerView.swift](../../Sources/NXLibrary/Views/OortUI/OortControllerView.swift) | Controller disegnato a punti, con gli ingressi reali accesi. |
+| [Sources/NXLibrary/Views/OortUI/OortMeter.swift](../../Sources/NXLibrary/Views/OortUI/OortMeter.swift) | Barra di avanzamento, misurata o indeterminata. |
+| [Sources/NXLibrary/Views/OortUI/OortSearchField.swift](../../Sources/NXLibrary/Views/OortUI/OortSearchField.swift) | Campo di ricerca condiviso. |
+| [Sources/NXLibrary/Views/OortUI/OortSetupCard.swift](../../Sources/NXLibrary/Views/OortUI/OortSetupCard.swift) | — |
+| [Sources/NXLibrary/Views/OortUI/OortTabs.swift](../../Sources/NXLibrary/Views/OortUI/OortTabs.swift) | Schede condivise: scelta, focus, conteggio. |
+| [Sources/NXLibrary/Views/OortUI/OortTag.swift](../../Sources/NXLibrary/Views/OortUI/OortTag.swift) | Etichetta breve: genere, versione, stato. |
+| [Tests/NXLibraryCoreTests/PaletteContrastTests.swift](../../Tests/NXLibraryCoreTests/PaletteContrastTests.swift) | Contrasto di testo, focus e simboli in ogni palette. |
 | [Sources/NXLibrary/Views/OortUI/OortUIGallery.swift](../../Sources/NXLibrary/Views/OortUI/OortUIGallery.swift) | Esempi sintetici Debug delle primitive OortUI e catture senza finestre su tre palette. |
 | [Sources/NXLibrary/Views/OortUI/SeleneConfirmDialog.swift](../../Sources/NXLibrary/Views/OortUI/SeleneConfirmDialog.swift) | Card e aiuto condivisi, conferma a sinistra e annullamento a destra, scelte multiple con testo a larghezza definita e note, SeleneSuccessNotice. |
 | [Sources/NXLibrary/Views/Components/AppUpdateDialog.swift](../../Sources/NXLibrary/Views/Components/AppUpdateDialog.swift) | Presenta controllo aggiornamenti, note di release, errori e progresso nel dialogo dell’app. |
@@ -974,6 +985,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/NXLibraryCoreTests/SystemCommandRunnerTests.swift](../../Tests/NXLibraryCoreTests/SystemCommandRunnerTests.swift) | Un comando atteso, sincrono o in streaming, non fa girare il run loop mentre aspetta. |
 | [Tests/NXLibraryCoreTests/CommandRunnerTests.swift](../../Tests/NXLibraryCoreTests/CommandRunnerTests.swift) | Verifica stdout, stderr, attesa senza run loop, annullamento con pipe ereditate, scadenze e progresso reale. |
 | [Tests/NXLibraryCoreTests/RcloneStorageBackendTests.swift](../../Tests/NXLibraryCoreTests/RcloneStorageBackendTests.swift) | Binario, oggetti, impronte, avanzamento e annullamento; prefissi assenti o vuoti; Drive configurato e ID esatto per il riferimento in sola lettura. |
+| [VolumeSpaceTests.swift](../../Tests/NXLibraryCoreTests/VolumeSpaceTests.swift) | Ripiego per lo zero di exFAT, cartella non ancora creata e disco reale facoltativo. |
 | [Tests/NXLibraryCoreTests/RcloneDownloadTests.swift](../../Tests/NXLibraryCoreTests/RcloneDownloadTests.swift) | Trasporto locale e archivi sintetici: rifiuti, annullamento, firma, pubblicazione atomica e protezione delle copie altrui. |
 | [Tests/NXLibraryCoreTests/RcloneConfigurationTests.swift](../../Tests/NXLibraryCoreTests/RcloneConfigurationTests.swift) | Preferenze, comandi OAuth, cifratura e recuperi tipizzati con runner finto; prova stdin su una configurazione rclone temporanea; senza configurazione o portachiavi reali. |
 | [Tests/NXLibraryCoreTests/CloudSetupAssistantTests.swift](../../Tests/NXLibraryCoreTests/CloudSetupAssistantTests.swift) | Bozza, verifica, formato dell'ID client, priorità dell'azione principale e conferme su Cancel. |
