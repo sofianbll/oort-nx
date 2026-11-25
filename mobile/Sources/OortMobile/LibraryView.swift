@@ -11,23 +11,28 @@ struct LibraryScreen: View {
     @State private var width: CGFloat = 0
     @Environment(\.dynamicTypeSize) private var type
     @AppStorage("oort.library.byName") private var byName = false
+    @AppStorage("oort.library.favoritesOnly") private var favoritesOnly = false
+    @AppStorage(OortFavorites.key) private var favorites = ""
 
     /// The largest texts take one cover a line on a phone.
     private var columns: Int { type.isAccessibilitySize ? max(1, Int(width / 260)) : max(2, Int(width / 168)) }
 
     private var games: [GameDetail] {
-        let found = model.details.filter { nav.query.isEmpty || $0.game.title.localizedStandardContains(nav.query) }
+        let marked = OortFavorites.ids(favorites)
+        let found = model.details.filter { (!favoritesOnly || marked.contains($0.id)) && (nav.query.isEmpty || $0.game.title.localizedStandardContains(nav.query)) }
         return byName ? found.sorted { $0.game.title.localizedStandardCompare($1.game.title) == .orderedAscending } : found
     }
 
     /// Searching, sorting and adding, within the controller's reach: the bar's buttons are not.
     private static let actions = ["#search", "#sort", "#add"]
+    private static let tabs = ["#all", "#favorites"]
     private var actionRows: [[String]] { type.isAccessibilitySize ? Self.actions.map { [$0] } : [Self.actions] }
-    private var rows: [[String]] { actionRows + FocusGrid.rows(games.map(\.id), columns: columns) }
+    private var rows: [[String]] { actionRows + [Self.tabs] + FocusGrid.rows(games.map(\.id), columns: columns) }
+    private func isKey(_ id: String) -> Bool { Self.actions.contains(id) || Self.tabs.contains(id) }
     /// What A acts on: the first game until the controller goes elsewhere.
     private var ring: String? {
         guard nav.device != nil, !nav.letters else { return nil }
-        if let current = focus.current, Self.actions.contains(current) || games.contains(where: { $0.id == current }) { return current }
+        if let current = focus.current, isKey(current) || games.contains(where: { $0.id == current }) { return current }
         return games.first?.id ?? Self.actions[0]
     }
 
@@ -39,6 +44,7 @@ struct LibraryScreen: View {
                 ScrollViewReader { scroll in
                     ScrollView {
                         if nav.device != nil { actionKeys }
+                        tabKeys
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: SeleneTokens.Space.medium), count: columns),
                                   spacing: SeleneTokens.Space.large) {
                             ForEach(games) { item in card(item).id(item.id) }
@@ -46,7 +52,12 @@ struct LibraryScreen: View {
                         .padding(.horizontal, SeleneTokens.Space.panel)
                         .padding(.vertical, SeleneTokens.Space.medium)
                         .animation(.snappy, value: byName)
-                        if games.isEmpty { ContentUnavailableView.search(text: nav.query) }
+                        if games.isEmpty {
+                            if nav.query.isEmpty {
+                                ContentUnavailableView(Oort.text("No favorite yet"), systemImage: "heart",
+                                                       description: Text(Oort.text("Mark a game on its page, or with a long press.")))
+                            } else { ContentUnavailableView.search(text: nav.query) }
+                        }
                     }
                     .onChange(of: focus.current) { _, id in withAnimation(.snappy) { scroll.scrollTo(id, anchor: .center) } }
                 }
@@ -74,7 +85,7 @@ struct LibraryScreen: View {
                 if nav.letters { OortLetters(text: nav.query, focused: nav.device == nil ? nil : letter.current ?? OortLetters.rows[0][0]) { type($0) } }
                 OortHints(nav: nav, hints: nav.letters
                     ? [(.activate, Oort.text("Select")), (.details, Oort.text("Delete")), (.back, Oort.text("Done"))]
-                    : [(.activate, Self.actions.contains(ring ?? "") ? Oort.text("Select") : Oort.text("Game page")), (.settings, Oort.text("Options")),
+                    : [(.activate, isKey(ring ?? "") ? Oort.text("Select") : Oort.text("Game page")), (.settings, Oort.text("Options")),
                        (.search, Oort.text("Search")), (.nextTab, Oort.text("Tabs"))])
                     .padding(.horizontal, SeleneTokens.Space.panel)
             }
@@ -105,11 +116,12 @@ struct LibraryScreen: View {
             case "#search": nav.search()
             case "#sort": byName.toggle(); nav.sounds.play(.select)
             case "#add": nav.sounds.play(.open); nav.importing = true
+            case "#all", "#favorites": nav.sounds.play(.select); favoritesOnly = focus.current == "#favorites"
             case let id?: nav.sounds.play(.open); nav.open(.game(id))
             case nil: nav.sounds.play(.deny)
             }
         case .settings, .details:
-            guard let id = focus.current, !Self.actions.contains(id) else { nav.sounds.play(.deny); return true }
+            guard let id = focus.current, !isKey(id) else { nav.sounds.play(.deny); return true }
             nav.sounds.play(.open)
             nav.open(action == .details ? .game(id) : .options(id))
         // B first undoes the search.
@@ -143,6 +155,23 @@ struct LibraryScreen: View {
         case .delete: _ = nav.query.popLast()
         case .done: nav.letters = false
         }
+    }
+
+    /// All the games, or the favorites: the library's two tabs on a phone.
+    private var tabKeys: some View {
+        HStack(spacing: SeleneTokens.Space.small) {
+            ForEach(Self.tabs, id: \.self) { id in
+                let on = favoritesOnly == (id == "#favorites")
+                Button { favoritesOnly = id == "#favorites"; nav.sounds.play(.select) } label: {
+                    Text(id == "#favorites" ? Oort.text("Favorites") : Oort.text("All games")).lineLimit(2).minimumScaleFactor(0.7).frame(maxWidth: .infinity)
+                }
+                .buttonStyle(OortKeyStyle(solid: on, focused: ring == id))
+                .accessibilityAddTraits(on ? .isSelected : [])
+                .id(id)
+            }
+        }
+        .padding(.horizontal, SeleneTokens.Space.panel)
+        .padding(.top, SeleneTokens.Space.compact)
     }
 
     private var actionKeys: some View {

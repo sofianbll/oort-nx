@@ -1,6 +1,42 @@
 {
  "sourceLanguage": "en",
  "strings": {
+    "Mark a game on its page, or with a long press." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Mark a game on its page, or with a long press." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Marque un jeu sur sa page, ou par un appui long." } }
+      }
+    },
+    "No favorite yet" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No favorite yet" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucun favori pour l’instant" } }
+      }
+    },
+    "Remove from Favorites" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remove from Favorites" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Retirer des favoris" } }
+      }
+    },
+    "Add to Favorites" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add to Favorites" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ajouter aux favoris" } }
+      }
+    },
+    "Favorites" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Favorites" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Favoris" } }
+      }
+    },
+    "Favorite" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Favorite" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Favori" } }
+      }
+    },
     "Recent" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Recent" } },

@@ -11,6 +11,7 @@ struct GameScreen: View {
     @State private var picture: PhotosPickerItem?
     @State private var page = UUID()
     @State private var copied = false
+    @AppStorage(OortFavorites.key) private var favorites = ""
     @Environment(\.horizontalSizeClass) private var across
     @Environment(\.verticalSizeClass) private var down
     /// Room for the picture beside the list: iPad, or a phone on its side.
@@ -130,6 +131,8 @@ struct GameScreen: View {
             play.append(OortRow(id: "cheats", title: Oort.text("Cheats"), value: cheats.totalCount == 0 ? "" : Oort.text("\(cheats.enabledCount) on"), symbol: "wand.and.stars",
                                 kind: .open(.cheats(id))))
         }
+        play.append(OortRow(id: "favorite", title: Oort.text("Favorite"), symbol: "heart",
+                            kind: .toggle(OortFavorites.ids(favorites).contains(id)) { _ in favorites = OortFavorites.toggled(id, in: favorites) }))
         var data = [OortRow(id: "data", title: detail.dataSource.isEmpty ? Oort.text("No data") : detail.dataSource, note: detail.dataNote, symbol: "internaldrive"),
                     OortRow(id: "pick", title: Oort.text("Choose a folder in Files"), symbol: "folder", kind: .button { a.onPickGameData(id) })]
         if !detail.dataFromShell {
