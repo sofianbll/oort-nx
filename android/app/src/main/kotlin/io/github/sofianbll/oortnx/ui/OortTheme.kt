@@ -36,6 +36,8 @@ object Metrics {
     val Key = 56.dp
     /** Material's first window class past a phone held upright. */
     val WideWindow = 600.dp
+    /** Below this height the bottom bar leaves room for a key and enlarged controller hints. */
+    val ShortPadKeyboardWindow = 360.dp
     /** The widest a list of lines grows. */
     val Measure = 780.dp
     val Ring = 2.dp

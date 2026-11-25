@@ -66,6 +66,7 @@ fun OortApp(state: AppState) {
         FullScreen(console)
         val route = state.route
         val home = route == null && state.section == Section.Home
+        val barFits = !state.padKeyboard || maxHeight >= Metrics.ShortPadKeyboardWindow
         CloudBackdrop(still = state.prefs.stillCloud, strength = if (home) 1f else 0.5f)
         Scaffold(
             // Under the open menu the page says nothing to a screen reader.
@@ -74,7 +75,7 @@ fun OortApp(state: AppState) {
             contentColor = OortTokens.Palette.Ink,
             contentWindowInsets = WindowInsets.safeDrawing,
             snackbarHost = { SnackbarHost(snackbar) },
-            bottomBar = { if (compact && route == null) SectionBar(state) },
+            bottomBar = { if (compact && route == null && barFits) SectionBar(state) },
         ) { padding ->
             Row(Modifier.padding(padding).consumeWindowInsets(padding).fillMaxSize()) {
                 if (!compact && !(console && home)) SectionRail(state)

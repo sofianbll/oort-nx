@@ -286,10 +286,16 @@ def low_pad_keyboard():
                key is not None and min(key.box[3] - key.box[1], key.box[2] - key.box[0]) >= MIN_PAD_TOUCH_DP,
                str(key and key.box))
             shot(f"pad-keyboard-low-{scale}x-last-row")
-            pad("A")
+            # Android can report minimum touch bounds larger than the visible viewport.
+            if key is not None:
+                x, _ = key.centre
+                y = key.box[1] + MIN_PAD_TOUCH_DP - 4
+                shell(f"input tap {x} {y}")
+                time.sleep(0.8)
             nodes = screen(check_targets=False)
-            ok(f"pad keyboard at {scale}× text: OK closes the keyboard, not the search",
-               find(w("search_field"), nodes) is not None and find("OK", nodes, exact=True) is None)
+            ok(f"pad keyboard at {scale}× text: tapping the bottom of OK closes only the keyboard",
+               key is not None and find(w("search_field"), nodes) is not None
+               and find(w("tab_all"), nodes, exact=True) is not None and find("OK", nodes, exact=True) is None)
     finally:
         shell("settings put system font_scale 1.0; wm size reset; wm density reset")
         time.sleep(4)

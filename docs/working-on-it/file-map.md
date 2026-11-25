@@ -952,6 +952,8 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | `ui/AppState.kt` (Android) | Navigazione, selezione per pacchetto e ripristino della riga attiva. |
 | `ui/LibraryHeader.kt` (Android) | Campo e comandi della libreria; consuma ogni richiesta di focus una sola volta. |
 | `ui/LibraryScreen.kt` (Android) | Libreria e spazio disponibile fra ricerca e suggerimenti. |
+| `ui/OortApp.kt` (Android) | Barra e rail: in una finestra bassa la barra cede spazio alla tastiera della manetta. |
+| `ui/OortTheme.kt` (Android) | Gettoni e misure condivise, compresa la soglia della tastiera in una finestra bassa. |
 | `ui/PadKeyboard.kt` (Android) | Mantiene visibile il tasto selezionato nella finestra disponibile. |
 | `AppStateTest.kt` (Android) | Prove JVM dello stato di libreria, ricerca e focus dopo il riavvio. |
 | `InputRouterTest.kt` (Android) | Prova JVM del rilascio delle direzioni alla perdita di focus. |
