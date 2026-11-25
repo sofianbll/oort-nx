@@ -27,9 +27,9 @@ Keep an existing connection, or **Sign in**. Google gives rclone access to your 
 
 ![The cloud assistant, step 1](../../media/mac/cloud-account.en.webp)
 
-## Choose the folder
+## Choose the folders
 <!-- step folder checked bf0c3410:Sources/NXLibrary/Views/Settings/CloudSetupAssistant.swift bf0c3410:Tests/CatalogAppChecks/run_cloud_screens.py -->
-Oort looks for a library in `Games`, otherwise you give a path. This choice moves nothing.
+Oort reads the folder names under `Games` and proposes your **ROM library** and your **game library**. Each folder says whether it fits; nothing is created or moved without your yes.
 
 ![The cloud assistant, step 2](../../media/mac/cloud-folder.en.webp)
 

@@ -27,9 +27,9 @@ Garde une connexion existante, ou **Se connecter**. Google accorde à rclone l�
 
 ![L’assistant cloud, étape 1](../../media/mac/cloud-account.fr.webp)
 
-## Choisis le dossier
+## Choisis les dossiers
 <!-- step folder checked bf0c3410:Sources/NXLibrary/Views/Settings/CloudSetupAssistant.swift bf0c3410:Tests/CatalogAppChecks/run_cloud_screens.py -->
-Oort cherche une bibliothèque dans `Games`, sinon tu donnes un chemin. Rien n’est déplacé par ce choix.
+Oort lit les noms des dossiers sous `Games` et propose ta **bibliothèque de ROM** et ta **bibliothèque de jeux**. Chaque dossier dit s’il convient ; rien n’est créé ni déplacé sans ton accord.
 
 ![L’assistant cloud, étape 2](../../media/mac/cloud-folder.fr.webp)
 
