@@ -112,11 +112,11 @@ struct SettingsAboutSection: View {
     }
 
     private var language: String { localization.language.rawValue }
-    private var fundingTitle: String { L10n.text("Fund Oort NX", context: localization) }
+    private var fundingTitle: String { L10n.text("Support Sofian on Ko-fi", context: localization) }
 
     private var fundingButton: some View {
         OortCreditCard(mark: Self.fundingMark, name: fundingTitle,
-                       byline: L10n.text("See where every euro goes.", context: localization),
+                       byline: L10n.text("The maker of Oort NX.", context: localization),
                        hint: L10n.text("Opens in your browser", context: localization),
                        focused: focusedRowTitle == Self.fundingRow, action: openFundingPage)
             .id("selene-row-\(Self.fundingRow)")
@@ -271,6 +271,6 @@ struct SettingsAboutSection: View {
     }
 
     private func openFundingPage() {
-        openURL(AppIdentity.fundingPage(for: localization.language))
+        openURL(AppIdentity.koFiPage)
     }
 }

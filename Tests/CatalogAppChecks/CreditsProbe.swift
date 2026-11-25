@@ -104,12 +104,9 @@ import ArcanePorting
             precondition(funding.rowID == "oort-funding" && funding.buttonCount == 1 && funding.isEnabled)
             precondition(openedURLs.isEmpty, "Opening Settings must not open the funding page")
             funding.press(button: 0)
-            let expected = locale.language == .french
-                ? "https://sofianbll.github.io/oort-nx/financer/"
-                : "https://sofianbll.github.io/oort-nx/en/funding/"
-            precondition(openedURLs.map(\.absoluteString) == [expected])
-            if locale.language == .french { precondition(funding.title == "Financer Oort NX") }
-            if locale.language == .english { precondition(funding.title == "Fund Oort NX") }
+            precondition(openedURLs.map(\.absoluteString) == ["https://ko-fi.com/sofianbll"])
+            if locale.language == .french { precondition(funding.title == "Soutenir Sofian sur Ko-fi") }
+            if locale.language == .english { precondition(funding.title == "Support Sofian on Ko-fi") }
             for group in groups.dropFirst() { precondition(actions.contains { $0.rowID == "credits-\(group.id)" }) }
             // Closed, the first group stays in sight and the others are one press away.
             _ = Host(view(SettingsAboutSection(viewModel: app, setup: app.setup) { actions = $0 }, locale), size: CGSize(width: 1120, height: 900))

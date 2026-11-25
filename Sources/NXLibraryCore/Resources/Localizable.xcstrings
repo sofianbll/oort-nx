@@ -5195,27 +5195,27 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "基于 %3$@ 开发的 %1$@ %2$@"}}
       }
     },
-    "Fund Oort NX": {
-      "comment": "Settings › About: opens the project's public funding ledger in the browser.",
+    "Support Sofian on Ko-fi": {
+      "comment": "Settings › About: opens Sofian's Ko-fi page in the browser.",
       "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Fund Oort NX"}},
-        "it": {"stringUnit": {"state": "translated", "value": "Finanzia Oort NX"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Financer Oort NX"}},
-        "de": {"stringUnit": {"state": "translated", "value": "Oort NX finanzieren"}},
-        "es": {"stringUnit": {"state": "translated", "value": "Financiar Oort NX"}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Financiar o Oort NX"}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "资助 Oort NX"}}
+        "en": {"stringUnit": {"state": "translated", "value": "Support Sofian on Ko-fi"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Sostieni Sofian su Ko-fi"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Soutenir Sofian sur Ko-fi"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Sofian auf Ko-fi unterstützen"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Apoyar a Sofian en Ko-fi"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Apoiar Sofian no Ko-fi"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "在 Ko-fi 上支持 Sofian"}}
       }
     },
-    "See where every euro goes.": {
+    "The maker of Oort NX.": {
       "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "See where every euro goes."}},
-        "it": {"stringUnit": {"state": "translated", "value": "Vedi dove va ogni euro."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Vois où va chaque euro."}},
-        "de": {"stringUnit": {"state": "translated", "value": "Sieh, wohin jeder Euro fließt."}},
-        "es": {"stringUnit": {"state": "translated", "value": "Mira adónde va cada euro."}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Veja para onde vai cada euro."}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "看看每一欧元的去向。"}}
+        "en": {"stringUnit": {"state": "translated", "value": "The maker of Oort NX."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Il creatore di Oort NX."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Le créateur d’Oort NX."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Der Entwickler von Oort NX."}},
+        "es": {"stringUnit": {"state": "translated", "value": "El creador de Oort NX."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "O criador do Oort NX."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Oort NX 的创作者。"}}
       }
     },
     "Opens in your browser": {
