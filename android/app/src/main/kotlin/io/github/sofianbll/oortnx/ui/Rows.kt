@@ -58,6 +58,35 @@ sealed interface Route {
 
     /** A name that says which page it is, to keep the focus of each. */
     val key: String get() = toString()
+
+    /** The page as a word Android can keep while the app is away; [routeOf] reads it back. */
+    val saved: String
+        get() = when (this) {
+            is GamePage -> "game:$packageName"
+            is Licence -> "licence:${text.name}"
+            PadTest -> "padtest"
+            Sounds -> "sounds"
+            Buttons -> "buttons"
+            Cloud -> "cloud"
+            WhichGames -> "which"
+            Thanks -> "thanks"
+        }
+}
+
+/** Null for a word this version does not know. */
+fun routeOf(saved: String): Route? {
+    val rest = saved.substringAfter(':', "")
+    return when (saved.substringBefore(':')) {
+        "game" -> Route.GamePage(rest)
+        "licence" -> LicenceText.entries.firstOrNull { it.name == rest }?.let { Route.Licence(it) }
+        "padtest" -> Route.PadTest
+        "sounds" -> Route.Sounds
+        "buttons" -> Route.Buttons
+        "cloud" -> Route.Cloud
+        "which" -> Route.WhichGames
+        "thanks" -> Route.Thanks
+        else -> null
+    }
 }
 
 /** A page of words with nothing to choose: up and down scroll it. */

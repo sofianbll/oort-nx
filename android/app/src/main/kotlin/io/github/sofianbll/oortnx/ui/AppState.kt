@@ -1,6 +1,7 @@
 package io.github.sofianbll.oortnx.ui
 
 import android.content.Context
+import android.os.Bundle
 import android.view.KeyEvent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -34,7 +35,7 @@ import kotlin.concurrent.thread
 /** What the controller is on, in À la une. */
 enum class HomeTarget { Cover, Play, Page, Android }
 
-/** What is on screen and where the focus is. Kept by hand, with no framework: it is small, and the activity is never recreated. */
+/** What is on screen and where the focus is. Kept by hand, with no framework: it is small. */
 class AppState(
     private val context: Context,
     val prefs: Prefs,
@@ -153,6 +154,32 @@ class AppState(
         if (stacks.values.any { it.any(gone) }) stacks = stacks.mapValues { (_, pages) -> pages.takeWhile { !gone(it) } }
         if (menuPackage != null && menuGame == null) menuPackage = null
         scanned = true
+    }
+
+    // ---- what Android keeps while the app is away ----------------------------------------------------------
+
+    /**
+     * Android rebuilds the activity for a few changes (bold text among them) and ends the app when it needs memory:
+     * the place the player was on comes back with it.
+     */
+    fun save(into: Bundle) {
+        into.putString("section", section.name)
+        for ((where, pages) in stacks) into.putStringArray("pages:${where.name}", pages.map { it.saved }.toTypedArray())
+        into.putString("selected", selectedPackage)
+        into.putInt("focus", libraryFocus)
+        into.putBoolean("favorites", onlyFavorites)
+        into.putBoolean("searching", searching)
+        into.putString("query", query)
+    }
+
+    fun restore(from: Bundle) {
+        section = Section.entries.firstOrNull { it.name == from.getString("section") } ?: Section.Home
+        stacks = Section.entries.mapNotNull { where -> from.getStringArray("pages:${where.name}")?.let { saved -> where to saved.mapNotNull(::routeOf) } }.toMap()
+        selectedPackage = from.getString("selected")
+        libraryFocus = from.getInt("focus")
+        onlyFavorites = from.getBoolean("favorites")
+        searching = from.getBoolean("searching")
+        query = from.getString("query").orEmpty()
     }
 
     // ---- moving about -------------------------------------------------------------------------------------

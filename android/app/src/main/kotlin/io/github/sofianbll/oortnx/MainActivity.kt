@@ -41,6 +41,7 @@ class MainActivity : ComponentActivity() {
         val debuggable = applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
         state = AppState(applicationContext, prefs, sound, demo = debuggable && intent.getBooleanExtra("demo", false),
             versionName = packageManager.getPackageInfo(packageName, 0).versionName ?: "")
+        savedInstanceState?.let { state.restore(it) }
         router = InputRouter(
             swapAB = { prefs.swapAB },
             sink = { state.onNav(it) },
@@ -56,8 +57,13 @@ class MainActivity : ComponentActivity() {
         }
         // After a touch Android spends the first arrow or Tab on giving the focus to a view: give it one beforehand.
         findViewById<ViewGroup>(android.R.id.content).getChildAt(0)?.let { it.isFocusableInTouchMode = true; it.requestFocus() }
-        // Boots with the Sun's sound, once per start (the same event as the Mac's launch).
-        sound.play(SoundEvent.Boot)
+        // Boots with the Sun's sound, once per start (the same event as the Mac's launch); not when Android rebuilds the page.
+        if (savedInstanceState == null) sound.play(SoundEvent.Boot)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        state.save(outState)
     }
 
     private val padListener = object : InputManager.InputDeviceListener {
