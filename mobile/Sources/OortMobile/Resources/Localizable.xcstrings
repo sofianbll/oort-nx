@@ -67,9 +67,9 @@
         "fr" : { "stringUnit" : { "state" : "translated", "value" : "Espace" } }
       }
     },
-    "Delete" : {
+    "Erase" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Erase" } },
         "fr" : { "stringUnit" : { "state" : "translated", "value" : "Effacer" } }
       }
     },

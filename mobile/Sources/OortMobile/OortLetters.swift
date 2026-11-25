@@ -41,7 +41,7 @@ struct OortLetters: View {
         switch key {
         case .letter(let letter): Text(String(letter))
         case .space: Image(systemName: "space").accessibilityLabel(Oort.text("Space"))
-        case .delete: Image(systemName: "delete.left").accessibilityLabel(Oort.text("Delete"))
+        case .delete: Image(systemName: "delete.left").accessibilityLabel(Oort.text("Erase"))
         case .done: Text(Oort.text("Done"))
         }
     }

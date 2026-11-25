@@ -84,7 +84,7 @@ struct LibraryScreen: View {
             VStack(spacing: SeleneTokens.Space.compact) {
                 if nav.letters { OortLetters(text: nav.query, focused: nav.device == nil ? nil : letter.current ?? OortLetters.rows[0][0]) { type($0) } }
                 OortHints(nav: nav, hints: nav.letters
-                    ? [(.activate, Oort.text("Select")), (.details, Oort.text("Delete")), (.back, Oort.text("Done"))]
+                    ? [(.activate, Oort.text("Select")), (.details, Oort.text("Erase")), (.back, Oort.text("Done"))]
                     : [(.activate, isKey(ring ?? "") ? Oort.text("Select") : Oort.text("Game page")), (.settings, Oort.text("Options")),
                        (.search, Oort.text("Search")), (.nextTab, Oort.text("Tabs"))])
                     .padding(.horizontal, SeleneTokens.Space.panel)
