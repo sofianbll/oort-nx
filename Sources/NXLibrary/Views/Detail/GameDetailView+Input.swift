@@ -28,7 +28,7 @@ extension GameDetailView {
         case .confirm: activateFocused()
         case .cancel: router.back()
         case .contextAction: openOptions()
-        case .browseSearch: router.isSearchPresented = true
+        case .browseSearch, .search: router.isSearchPresented = true
         case .menu: router.isMenuPresented = true
         case .menuHold: router.openSettings(.startUp)
         default: break

@@ -39,4 +39,9 @@ final class ClickableHintsTests: XCTestCase {
         }
         XCTAssertTrue(try Self.source("OortUI/OortGameTile.swift").contains(".oortSecondaryClick(options)"))
     }
+
+    func testSearchOpensFromAGamesPageToo() throws {
+        XCTAssertTrue(try Self.source("Detail/GameDetailView+Input.swift").contains("case .browseSearch, .search:"))
+        XCTAssertTrue(try Self.source("Shell/AppShellView+Input.swift").contains("isHomeRoute || router.route.isDetail"))
+    }
 }

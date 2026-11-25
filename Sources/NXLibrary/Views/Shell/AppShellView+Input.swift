@@ -214,7 +214,7 @@ extension AppShellView {
                 if typing || !isHomeRoute { return event }
                 action = .view
             case (_, "f", [.command]):              // Cmd+F
-                if typing || (router.route != .library && router.route != .collection) { return event }
+                if typing || !(isHomeRoute || router.route.isDetail) { return event }
                 action = .search
             case (_, ",", [.command]):              // Cmd+,
                 // Same as holding Menu. Consumed, so the menu-bar Settings command does not open Settings a second time.
