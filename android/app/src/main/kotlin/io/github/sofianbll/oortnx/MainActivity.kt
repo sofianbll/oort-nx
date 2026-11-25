@@ -33,6 +33,9 @@ class MainActivity : ComponentActivity() {
     private lateinit var sound: SoundPlayer
     private lateinit var router: InputRouter
 
+    /** Whether the key being handled, or held, comes from a keyboard: the hints show its keys. */
+    private var typed = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT), navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
@@ -44,7 +47,7 @@ class MainActivity : ComponentActivity() {
         savedInstanceState?.let { state.restore(it) }
         router = InputRouter(
             swapAB = { prefs.swapAB },
-            sink = { state.onNav(it) },
+            sink = { state.keyboard = typed; state.onNav(it) },
         )
         setContent {
             OortTheme {
@@ -99,7 +102,7 @@ class MainActivity : ComponentActivity() {
     // A controller's buttons reach the activity here before any view: the pad drives the whole launcher.
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         // A keyboard's keys are not a pad's: its arrows would light the dots of a controller nobody holds.
-        val typed = event.fromKeyboard
+        typed = event.fromKeyboard
         val ours = !typed && state.pad.key(event)
         if (ours) follow(event.device)
         if (ours && testing) { router.reset(); state.padMode = true; return true }
@@ -111,14 +114,12 @@ class MainActivity : ComponentActivity() {
             }
             if (typed && !event.isCtrlPressed && event.keyCode != KeyEvent.KEYCODE_ESCAPE) return super.dispatchKeyEvent(event)
         }
-        if (!router.key(event)) return super.dispatchKeyEvent(event)
-        state.keyboard = typed // after the router: what it did is shown with the keys that did it
-        return true
+        return router.key(event) || super.dispatchKeyEvent(event)
     }
 
     override fun dispatchGenericMotionEvent(event: MotionEvent): Boolean {
         val ours = state.pad.motion(event)
-        if (ours) { follow(event.device); if (state.pad.held.active) state.keyboard = false }
+        if (ours) { follow(event.device); if (state.pad.held.active) { typed = false; state.keyboard = false } }
         if (ours && testing) { router.reset(); state.padMode = true; return true }
         return router.motion(event) || super.dispatchGenericMotionEvent(event)
     }

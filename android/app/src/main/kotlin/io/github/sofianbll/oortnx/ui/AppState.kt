@@ -300,6 +300,9 @@ class AppState(
             }
             return
         }
+        // A controller picked up while the field is typed in: Android's keyboard cannot be steered by it, so the first
+        // press leaves the field for what it found.
+        if (typing && !keyboard && nav != Nav.Back && nav != Nav.Search && nav != Nav.Next && nav != Nav.Previous) return leaveField()
         when (nav) {
             Nav.Next -> return cycle(1)
             Nav.Previous -> return cycle(-1)

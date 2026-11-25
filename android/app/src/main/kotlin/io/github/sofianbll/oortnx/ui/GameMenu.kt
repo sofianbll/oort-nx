@@ -53,7 +53,7 @@ fun GameMenu(state: AppState) {
                 .semantics { paneTitle = options }.padding(horizontal = 8.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Text(game.title, Modifier.padding(horizontal = 12.dp).heading(), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(game.title, Modifier.padding(horizontal = 12.dp).heading(), color = OortTokens.Palette.Ink, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
             Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) { OortList(state, state.sections()) }
             Hints(state, listOf(HintKey.Confirm to R.string.select, HintKey.Back to R.string.close), Modifier.padding(horizontal = 12.dp))
         }

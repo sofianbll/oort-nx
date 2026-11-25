@@ -75,11 +75,13 @@ fun LibraryScreen(state: AppState) {
                 modifier = Modifier.weight(1f),
             ) {
                 itemsIndexed(games, key = { _, g -> g.packageName }) { index, game ->
-                    GameTile(state, game, state.icons[game.packageName], focused = state.padMode && state.libraryKey == null && index == state.libraryFocus)
+                    GameTile(state, game, state.icons[game.packageName], focused = state.padMode && !state.typing && state.libraryKey == null && index == state.libraryFocus)
                 }
             }
             val onCover = state.libraryKey == null && games.isNotEmpty()
-            Hints(state, listOfNotNull(
+            // In the field the keys type: only the way out is left to say.
+            if (state.typing) Hints(state, listOf(HintKey.Back to R.string.close))
+            else Hints(state, listOfNotNull(
                 HintKey.Confirm to if (onCover) R.string.game_page else R.string.select,
                 if (onCover) HintKey.Options to R.string.options else null, HintKey.Search to R.string.search,
                 if (onCover) HintKey.Sort to R.string.sort else null, HintKey.Tabs to R.string.hint_tabs, HintKey.Back to R.string.back,
