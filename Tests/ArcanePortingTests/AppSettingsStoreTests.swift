@@ -319,6 +319,7 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertTrue(s.introAnimation)
         XCTAssertEqual(s.buttonNames, .automatic)
         XCTAssertTrue(s.viewButtonSwitches)
+        XCTAssertTrue(s.showsTips)
         XCTAssertTrue(s.interfaceSounds)
         XCTAssertEqual(s.soundVolume, 0.6)
         XCTAssertTrue(s.quietLaunch)
@@ -334,6 +335,7 @@ final class AppSettingsStoreTests: XCTestCase {
         var settings = AppSettings()
         settings.introAnimation = false
         settings.viewButtonSwitches = false
+        settings.showsTips = false
         settings.interfaceSounds = false
         settings.soundVolume = 0.25
         settings.quietLaunch = false

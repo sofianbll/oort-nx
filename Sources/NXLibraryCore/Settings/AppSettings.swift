@@ -296,6 +296,8 @@ public struct AppSettings: Codable, Equatable, Sendable {
     public var introAnimation: Bool
     public var profileStartup: ProfileStartup
     public var viewButtonSwitches: Bool
+    /// A shortcut told once, when it would help (`Tips`).
+    public var showsTips: Bool
     public var interfaceSounds: Bool
     public var soundVolume: Double
     public var soundPackID: String
@@ -372,6 +374,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
                 introAnimation: Bool = true,
                 profileStartup: ProfileStartup = .ask,
                 viewButtonSwitches: Bool = true,
+                showsTips: Bool = true,
                 interfaceSounds: Bool = true,
                 soundVolume: Double = 0.6,
                 soundPackID: String = "oort",
@@ -408,6 +411,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
         self.introAnimation = introAnimation
         self.profileStartup = profileStartup
         self.viewButtonSwitches = viewButtonSwitches
+        self.showsTips = showsTips
         self.interfaceSounds = interfaceSounds
         self.soundVolume = soundVolume
         self.soundPackID = soundPackID
@@ -437,7 +441,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
         case librarySort
         case showsCloudPlayIcon, showsCloudDetailsLink, cloudTileBadges, tileBadgePosition, platformCardInfo, interfaceZoom
         case startOn, lastHome
-        case introAnimation, viewButtonSwitches, interfaceSounds, soundVolume, quietLaunch, soundPackID, noteFigure, noteOctave, customNotes, placeNotes
+        case introAnimation, viewButtonSwitches, showsTips, interfaceSounds, soundVolume, quietLaunch, soundPackID, noteFigure, noteOctave, customNotes, placeNotes
         case showProfilePicker, profileStartup
         case wallpaperID, backgroundSizing, animatedBackground, wallpaperBrightness, launchStyle, launchMotion, launchShade
         case notifyPortingEnds, checkAppUpdatesAtLaunch
@@ -502,6 +506,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
         self.profileStartup = try container.decodeIfPresent(ProfileStartup.self, forKey: .profileStartup)
             ?? (container.decodeIfPresent(Bool.self, forKey: .showProfilePicker) == false ? .last : .ask)
         self.viewButtonSwitches = try container.decodeIfPresent(Bool.self, forKey: .viewButtonSwitches) ?? true
+        self.showsTips = try container.decodeIfPresent(Bool.self, forKey: .showsTips) ?? true
         self.interfaceSounds = try container.decodeIfPresent(Bool.self, forKey: .interfaceSounds) ?? true
         self.soundVolume = try container.decodeIfPresent(Double.self, forKey: .soundVolume) ?? 0.6
         self.soundPackID = (try? container.decode(String.self, forKey: .soundPackID)) ?? "selene"
@@ -575,6 +580,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
         // Older Arcane copies can still respect the original on/off preference.
         try c.encode(profileStartup != .last, forKey: .showProfilePicker)
         try c.encode(viewButtonSwitches, forKey: .viewButtonSwitches)
+        try c.encode(showsTips, forKey: .showsTips)
         try c.encode(interfaceSounds, forKey: .interfaceSounds)
         try c.encode(soundVolume, forKey: .soundVolume)
         try c.encode(soundPackID, forKey: .soundPackID)

@@ -32,6 +32,7 @@ final class RuntimeSettingsModel {
         guard let settings = gameSettings(for: game) else { return false }
         do {
             try settings.set(env, to: value)
+            app.tips.settingChanged(for: game.id, enabled: app.settingsStore?.settings.showsTips ?? false)
             return true
         } catch {
             settingsNotSaved(game, error)

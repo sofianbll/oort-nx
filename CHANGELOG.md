@@ -11,6 +11,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 - Search shows your four last searches, kept on this Mac per profile, and a row that clears them.
 - X on a changed row in Settings puts back that row alone. The whole group stays one press away.
 - **Copy settings to another game**, in a game's All settings → General: choose the game, see what changes, copy, undo.
+- Two tips, shown once when they would help. **Tips**, in Settings → Controllers, turns them off.
 
 ### Changed
 

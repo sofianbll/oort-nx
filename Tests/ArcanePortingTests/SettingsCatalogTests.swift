@@ -29,7 +29,7 @@ final class SettingsCatalogTests: XCTestCase {
     private static let rowIDs = Set([
         "appLanguage", "appRegion", "startOn", "restoreLastGame", "startInFullscreen", "checkEngineAtLaunch", "onboarding",
         "refreshLibraryAtLaunch", "checkAppUpdatesAtLaunch", "introAnimation", "showProfilePicker", "showButtonHints", "buttonNames",
-        "viewButtonSwitches", "spotlightCards", "libraryTabs", "startingTab", "spotlightOrder", "interfaceSounds", "soundVolume",
+        "showsTips", "viewButtonSwitches", "spotlightCards", "libraryTabs", "startingTab", "spotlightOrder", "interfaceSounds", "soundVolume",
         "quietLaunch", "soundPack", "noteFigure", "noteOctave", "customNotes", "placeNotes", "importSoundPack", "importSeleneSounds", "colorThemeID", "wallpaperID", "settingsWallpaperID", "backgroundSizing",
         "wallpaperBrightness", "animatedBackground", "keepWallpaperOnGames", "backgroundShade", "readableText",
         "showClock", "reduceMotion", "iconAppearance", "boxCovers", "igdb", "steamGridDB", "librarySort", "launchStyle",
@@ -200,7 +200,7 @@ final class SettingsCatalogTests: XCTestCase {
         "backgroundSizing", "profileLock", "appearsOnline", "showsCurrentGame", "nextendo", "nextendoFriends", "nextendoAddFriend",
         ] + ProfilePageCard.allCases.map { "profile-card-\($0.rawValue)" } + [
         "appLanguage", "appRegion", "startOn", "restoreLastGame", "startInFullscreen", "checkAppUpdatesAtLaunch",
-        "introAnimation", "showProfilePicker", "onboarding", "showButtonHints", "buttonNames", "viewButtonSwitches", "spotlightCards", "libraryTabs", "startingTab",
+        "introAnimation", "showProfilePicker", "onboarding", "showButtonHints", "buttonNames", "showsTips", "viewButtonSwitches", "spotlightCards", "libraryTabs", "startingTab",
         "platformCardInfo", "spotlightOrder", "interfaceSounds", "soundVolume", "quietLaunch", "soundPack", "noteFigure", "noteOctave", "customNotes", "placeNotes", "importSoundPack", "importSeleneSounds",
         "wallpaperBrightness", "animatedBackground",
         "keepWallpaperOnGames", "backgroundShade", "readableText", "showClock", "reduceMotion", "iconAppearance",

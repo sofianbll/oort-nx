@@ -31,6 +31,7 @@ import ArcanePorting
 
     static var account: RcloneAccount?
     static var kept: [Bool] = []
+    nonisolated(unsafe) static let choices = MemorySavedChoices()
 
     static func disconnect(_ tool: URL, _ name: String, keepingClient: Bool) throws {
         kept.append(keepingClient)
@@ -208,6 +209,10 @@ import ArcanePorting
         let catalog = try repository.load()
         let vm = AppViewModel(settingsStore: settings, catalog: catalog, repository: repository)
         vm.applyCatalog(catalog) // This harness disables catalog application in the initializer.
+        if ProcessInfo.processInfo.environment["OORT_ATTENTIONS_ONLY"] == "1" {
+            try checkAttentions(vm: vm, settings: settings, output: output, locale: locale)
+            return
+        }
         try checkDraft(vm: vm, settings: settings, output: output, locale: locale)
         try checkNavigation(vm: vm, settings: settings, output: output, locale: locale, size: .init(width: 1440, height: 810), suffix: "fr")
         try checkNavigation(vm: vm, settings: settings, output: output, locale: locale, size: .init(width: 840, height: 810), suffix: "etroit-fr")

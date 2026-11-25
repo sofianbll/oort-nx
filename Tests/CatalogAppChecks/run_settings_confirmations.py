@@ -158,7 +158,7 @@ extension CloudSetupAssistant {
             r'        \.task\(id: game.id\) \{.*?\n        \}', '')
     fixture_support = 'AppData.profile.home.appendingPathComponent("Library/Application Support/nxnative")'
     replace(app / "ViewModels/RuntimeSettingsModel.swift", r'NXNativeGameSettings.forGame\(game\)',
-            f'NXNativeGameSettings.forGame(game, store: MemorySavedChoices(), supportDirectory: {fixture_support})')
+            f'NXNativeGameSettings.forGame(game, store: SettingsConfirmationProbe.choices, supportDirectory: {fixture_support})')
     replace(app / "Views/GameOptions/GameOptionsView+Actions.swift", r'NXNativeGameSettings.playerEnvironment\(for: current\)',
             f'NXNativeGameSettings.playerEnvironment(for: current, supportDirectory: {fixture_support})')
 
@@ -167,6 +167,7 @@ extension CloudSetupAssistant {
                ("settingsNoticeOverlay", "finishSettingsNotice", "presentLegacyNotice", "settingsNoticeInput")]
     probe = app / "SettingsConfirmationProbe.swift"
     shutil.copyfile(Path(__file__).with_name(probe.name), probe)
+    shutil.copyfile(Path(__file__).with_name("AttentionsProbe.swift"), app / "AttentionsProbe.swift")
     append(probe, "\nextension SettingsConfirmationProbe.Input {\n" + "\n".join(methods) + "\n}\n")
 
 

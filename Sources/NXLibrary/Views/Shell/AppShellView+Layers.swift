@@ -231,9 +231,19 @@ extension AppShellView {
                              metadata: store.storeMetadata, artwork: artwork)
         }
         .overlay {
-            UndoNoticeLayer(offers: viewModel.undoOffers, isBlocked: !leavesNoticesRoom,
+            UndoNoticeLayer(offers: viewModel.undoOffers, tips: viewModel.tips,
+                            isBlocked: !leavesNoticesRoom,
                             isBelowCard: sessionCard.shown != nil || !sessionCard.achievementNames.isEmpty,
-                            onUndo: undoLastChange)
+                            onUndo: undoLastChange,
+                            onTurnOffTips: {
+                                settings.settings.showsTips = false
+                                viewModel.tips.dismiss()
+                            })
+            // After the library has settled, never over a screen that covers it.
+            .task(id: [isHomeRoute && leavesNoticesRoom && !viewModel.isGameOptionsOpen && !router.isSearchPresented, viewModel.visibleCatalogGames.count >= Tips.longLibrary]) {
+                guard isHomeRoute, leavesNoticesRoom, !viewModel.isGameOptionsOpen, !router.isSearchPresented, (try? await Task.sleep(for: .seconds(3))) != nil else { return }
+                viewModel.tips.libraryAppeared(games: viewModel.visibleCatalogGames.count, enabled: settings.settings.showsTips)
+            }
         }
         .background { launchCover }
         .overlay {

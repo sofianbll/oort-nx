@@ -35,6 +35,7 @@ public enum SettingsReset {
             next.showButtonHints = defaults.showButtonHints
             next.buttonNames = defaults.buttonNames
             next.viewButtonSwitches = defaults.viewButtonSwitches
+            next.showsTips = defaults.showsTips
         case .controllers:
             next.launcherChoices.gamepadLayout = defaults.launcherChoices.gamepadLayout
             next.inGameHomeButton = defaults.inGameHomeButton

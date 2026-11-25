@@ -27,6 +27,8 @@ struct SettingsNavigationSection: View {
                 settings.settings.buttonNames = settings.settings.buttonNames.stepped(step)
             }
 
+            SeleneToggleRow("Tips", subtitle: "Tells a shortcut once, when it would help.", isOn: $settings.settings.showsTips)
+
             SeleneToggleRow("View button switches screens",
                             subtitle: "View flips between Spotlight and Collection; holding it opens Find a game.",
                             isOn: $settings.settings.viewButtonSwitches)
@@ -42,6 +44,7 @@ struct SettingsNavigationSection: View {
             .value("buttonNames", "Button names") { step in
                 settings.settings.buttonNames = settings.settings.buttonNames.stepped(step)
             },
+            .init(id: "showsTips", title: "Tips") { settings.settings.showsTips.toggle() },
             .init(id: "viewSwitches", title: "View button switches screens") {
                 settings.settings.viewButtonSwitches.toggle()
             }

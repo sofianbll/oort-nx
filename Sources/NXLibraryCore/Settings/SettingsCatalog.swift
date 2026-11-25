@@ -81,6 +81,8 @@ public enum SettingsCatalog {
             "Shows the button prompts along the bottom of the screen.", \.showButtonHints),
         row("buttonNames", .navigation, "Button names",
             "Which letters the prompts use: Nintendo, Xbox or PlayStation. Automatic follows the connected controller.", \.buttonNames),
+        row("showsTips", .navigation, "Tips",
+            "Tells a shortcut once, when it would help.", \.showsTips),
         row("viewButtonSwitches", .navigation, "View button switches screens",
             "Pressing View flips between Spotlight and Collection; holding it opens Find a game.", \.viewButtonSwitches),
 
