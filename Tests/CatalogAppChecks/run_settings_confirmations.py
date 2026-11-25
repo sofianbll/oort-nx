@@ -35,7 +35,7 @@ def prepare(package):
     replace(profile, r'public static let profile = [^\n]*',
             f'public static let profile = AppDataProfile(home: URL(fileURLWithPath: "{home}"), isDevelopment: true)')
     replace(profile, r'public static var preferences: UserDefaults \{ [^\n]+ \}',
-            'public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("probe-prefs").path)!')
+            'nonisolated(unsafe) public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("probe-prefs").path)!')
     # This copied package approves the signed fixture bytes, never the user's managed rclone.
     fixture_tool = Path("/usr/bin/true").read_bytes()
     download = core / "Library/RcloneDownload.swift"

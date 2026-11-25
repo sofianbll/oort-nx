@@ -258,7 +258,7 @@ extension CloudLibraryModel {
         change(profile, r"public static let profile = [^\n]*",
                'public static let profile = AppDataProfile(home: URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!), isDevelopment: true)')
         change(profile, r"public static var preferences: UserDefaults \{ [^\n]+ \}",
-               'public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
+               'nonisolated(unsafe) public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
         activity = app / "Views/Shell/ActivityCenterView.swift"
         change(activity, r"                ScrollViewReader \{ scroll in\n                    ScrollView \{\n", "")
         change(activity, r"                    }\n                    \.padding\(EdgeInsets.*?\.onChange\(of: focused\)[^\n]*\n                }\n", "")

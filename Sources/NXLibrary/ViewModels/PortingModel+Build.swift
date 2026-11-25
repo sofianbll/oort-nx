@@ -725,7 +725,6 @@ extension PortingModel {
         ))
 
         let service = BuildService()
-        let builtGame = target
         buildService = service
         started = true
         service.start(
@@ -735,8 +734,8 @@ extension PortingModel {
             finalApp: finalApp,
             expectedDestination: expectedDestination,
             // Replacing the app under its running game can crash it: the new app waits for the game to quit.
-            holdInstall: { RunningGameMonitor.runningApplication(for: builtGame) != nil },
-            acquireInstall: { [weak self] in try self?.app.requireSaveInstallLease(for: builtGame) },
+            holdInstall: { [target] in RunningGameMonitor.runningApplication(for: target) != nil },
+            acquireInstall: { [weak self, target] in try self?.app.requireSaveInstallLease(for: target) },
             onInstalling: { [weak self, weak service] in
                 DispatchQueue.main.async {
                     guard let self, let service, self.buildService === service else { return }

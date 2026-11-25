@@ -80,7 +80,7 @@ def main():
         change(profile, r"public static let profile = [^\n]*",
                'public static let profile = AppDataProfile(home: URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!), isDevelopment: true)')
         change(profile, r"public static var preferences: UserDefaults \{ [^\n]+ \}",
-               'public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
+               'nonisolated(unsafe) public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
         header = HOST.split("        // SCENARIO")[0]
         render = HOST[HOST.index("    @MainActor static func render<V: View>"):]
         render = render.replace("SeleneCanvas(size: .init(width: 1920, height: 1080))", "SeleneCanvas(size: size)")

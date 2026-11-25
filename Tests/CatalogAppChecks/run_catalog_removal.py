@@ -279,15 +279,16 @@ DOUBLE = r'''
 import Foundation
 import Darwin
 
+/// One probe process at a time drives these switches.
 package enum RemovalFixture {
-    package static var failPublication = false
-    package static var failTrash = 0
-    package static var failRollback = false
-    package static var calls = 0
-    package static var cut = -1
-    private static var count = 0
-    private static var trash: URL!
-    package static var beforeTrash: (() throws -> Void)?
+    nonisolated(unsafe) package static var failPublication = false
+    nonisolated(unsafe) package static var failTrash = 0
+    nonisolated(unsafe) package static var failRollback = false
+    nonisolated(unsafe) package static var calls = 0
+    nonisolated(unsafe) package static var cut = -1
+    nonisolated(unsafe) private static var count = 0
+    nonisolated(unsafe) private static var trash: URL!
+    nonisolated(unsafe) package static var beforeTrash: (() throws -> Void)?
     package static func reset() { failPublication = false; failTrash = 0; failRollback = false; calls = 0; beforeTrash = nil }
     package static func setUpTrash(in folder: URL) throws {
         trash = folder.appendingPathComponent("Fixture Trash")
@@ -345,7 +346,7 @@ with tempfile.TemporaryDirectory(prefix="catalog-removal-") as temp:
         return AppDataProfile(home: URL(fileURLWithPath: "{temp}"), isDevelopment: true)
     }}()''')
     replace(core / "App/AppDataProfile.swift", r"public static var preferences: UserDefaults \{ configuredPreferences\(\) \}",
-            'public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("fixture-prefs").path)!')
+            'nonisolated(unsafe) public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("fixture-prefs").path)!')
     cloud = app / "ViewModels/AppViewModel+CloudLibrary.swift"
     with cloud.open("a") as swift:
         swift.write(UPGRADE_CLOUD)

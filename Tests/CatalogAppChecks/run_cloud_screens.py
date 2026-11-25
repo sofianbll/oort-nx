@@ -1415,7 +1415,7 @@ package enum CloudWriteFault {
                'public static let profile = AppDataProfile(home: URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!), isDevelopment: true)')
         change(package / "Sources/NXLibraryCore/App/AppDataProfile.swift",
                r'public static var preferences: UserDefaults \{ [^\n]+ \}',
-               'public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
+               'nonisolated(unsafe) public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
         if before or baseline:
             isolate_cloud_init(app / "ViewModels/AppViewModel+CloudLibrary.swift",
                    '        preference = .init(storage: "fixture:Games", enabled: true, sourcesRoot: nil)\n'

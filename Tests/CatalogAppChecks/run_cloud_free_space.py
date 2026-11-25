@@ -113,7 +113,7 @@ def main():
         change(profile, r"public static let profile = [^\n]*",
                'public static let profile = AppDataProfile(home: URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!), isDevelopment: true)')
         change(profile, r"public static var preferences: UserDefaults \{ [^\n]+ \}",
-               'public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
+               'nonisolated(unsafe) public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
         isolate_cloud_init(app / "ViewModels/AppViewModel+CloudLibrary.swift",
                '        preference = .init(storage: "fixture:Games", enabled: true, sourcesRoot: nil)\n'
                '        chosenExecutable = nil\n')
