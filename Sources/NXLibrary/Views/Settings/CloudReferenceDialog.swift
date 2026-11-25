@@ -46,6 +46,7 @@ struct CloudReferenceDialog: View {
         .onReceive(NotificationCenter.default.publisher(for: .nxSettingsGamepadAction)) { note in
             guard let action = note.object as? GamepadAction else { return }
             switch action {
+            case .navigateUp: fieldFocused = true
             case .navigateLeft where folder != nil: focus = .left
             case .navigateRight: focus = .right
             case .confirm: buttonFocus.wrappedValue == .confirm ? save() : onClose()

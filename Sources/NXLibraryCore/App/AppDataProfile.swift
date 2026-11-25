@@ -67,7 +67,8 @@ public enum AppData {
         guard arguments.contains("--integration-fixture") || arguments.contains("--render-integration-fixture") ||
                 arguments.contains("--render-sound-fixture") || arguments.contains("--render-onboarding-fixture") ||
                 arguments.contains("--oort-ui-gallery") || arguments.contains("--render-oort-ui-gallery") ||
-                arguments.contains("--render-file-picker") else { return nil }
+                arguments.contains("--render-file-picker") || arguments.contains("--render-command-palette") ||
+                arguments.contains("--render-keyboard") else { return nil }
         let home = FileManager.default.temporaryDirectory.appendingPathComponent("oort-integrations-\(UUID())", isDirectory: true)
         try! FileManager.default.createDirectory(at: home, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
         return home

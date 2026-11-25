@@ -92,6 +92,19 @@ public enum PowerAction: String, CaseIterable, Identifiable, Equatable {
         case .relaunch: return .restartAlt
         }
     }
+
+    /// What the launcher asks before it closes itself; nil for what is easy to come back from.
+    public var confirmation: (title: String, message: String)? {
+        switch self {
+        case .sleep, .hide: return nil
+        case .quit:
+            return (L10n.format("Quit %@?", [AppIdentity.displayName]),
+                    L10n.text("The launcher closes. Running games stay open."))
+        case .relaunch:
+            return (L10n.format("Restart %@?", [AppIdentity.displayName]),
+                    L10n.text("The launcher closes and opens again. Running games stay open."))
+        }
+    }
 }
 
 /// Focus on the control-center row, and on the card or pills open above its icon.
@@ -132,7 +145,7 @@ public struct MenuSelectionModel: Equatable {
         power = all[next]
     }
 
-    /// Opens the Power pills with Quit focused.
+    /// Opens the Power pills with Sleep focused.
     public mutating func openPower() {
         power = .sleep
         isPowerOpen = true

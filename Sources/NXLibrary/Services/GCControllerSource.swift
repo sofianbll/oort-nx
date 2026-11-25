@@ -48,7 +48,9 @@ final class GCControllerSource: ControllerSource {
     var onEvent: ((ControllerSourceEvent) -> Void)?
     private var observers: [NSObjectProtocol] = []
     private var controller: GCController?
-    private var unbind: (() -> Void)?
+    /// Every pad with a full profile is read; the service keeps the input of the one in use.
+    private var unbind: [ObjectIdentifier: () -> Void] = [:]
+    private var homeAccesses: [ObjectIdentifier: ControllerHomeAccess] = [:]
     private var connected: [ObjectIdentifier: GCController] = [:]
     private var unbindActivity: [ObjectIdentifier: () -> Void] = [:]
     private var stopIdentification: [ObjectIdentifier: () -> Void] = [:]
@@ -58,6 +60,15 @@ final class GCControllerSource: ControllerSource {
     var onHomeAccess: ((ControllerHomeAccess) -> Void)?
     private(set) var homeAccess: ControllerHomeAccess = .disconnected {
         didSet { if oldValue != homeAccess { onHomeAccess?(homeAccess) } }
+    }
+    private func readHomeAccess() {
+        homeAccess = controller.map { homeAccesses[ObjectIdentifier($0)] ?? .noHome } ?? .disconnected
+    }
+
+    func prefer(_ id: ObjectIdentifier) {
+        guard let next = connected[id], next !== controller, next.extendedGamepad != nil else { return }
+        controller = next
+        readHomeAccess()
     }
     var canOpenHomeSettings: Bool { controller?.extendedGamepad?.buttonHome != nil && homeSettings != nil }
 
@@ -95,8 +106,9 @@ final class GCControllerSource: ControllerSource {
         generation += 1
         observers.forEach(NotificationCenter.default.removeObserver)
         observers.removeAll()
-        unbind?()
-        unbind = nil
+        for cleanup in unbind.values { cleanup() }
+        unbind.removeAll()
+        homeAccesses.removeAll()
         controller = nil
         homeAccess = .disconnected
         for cleanup in unbindActivity.values { cleanup() }
@@ -110,23 +122,18 @@ final class GCControllerSource: ControllerSource {
         guard !observers.isEmpty else { return }
         // A controller without an extended profile can't drive the launcher.
         let controllers = GCController.controllers().filter { !$0.isSnapshot }
-        let next = controllers.first { $0.extendedGamepad != nil }
-        let previous = controller
+        let usable = controllers.filter { $0.extendedGamepad != nil }
+        let next = usable.first { $0 === controller } ?? usable.first
         let current = Set(controllers.map(ObjectIdentifier.init))
         let removed = connected.keys.filter { !current.contains($0) }
         for id in removed {
+            unbind.removeValue(forKey: id)?()
+            homeAccesses.removeValue(forKey: id)
             unbindActivity.removeValue(forKey: id)?()
             stopIdentification.removeValue(forKey: id)?()
             connected.removeValue(forKey: id)
         }
-        if previous !== next {
-            if let previous { unbindActivity.removeValue(forKey: ObjectIdentifier(previous))?() }
-            if let next { unbindActivity.removeValue(forKey: ObjectIdentifier(next))?() }
-            unbind?()
-            unbind = nil
-            controller = next
-            homeAccess = next == nil ? .disconnected : .noHome
-        }
+        controller = next
         // Publish a replacement first so the service doesn't briefly fall back to HID.
         let ordered = (next.map { [$0] } ?? []) + controllers.filter { $0 !== next }
         for item in ordered {
@@ -135,10 +142,10 @@ final class GCControllerSource: ControllerSource {
             let brand = Self.brand(vendor: item.vendorName ?? "", category: item.productCategory)
             let pad = item.extendedGamepad
             var symbols: [PromptButton: String] = [:]
-            if item === next, let pad {
+            if let pad {
                 let face = Self.faceButtons(pad, nintendo: brand == .nintendoSwitch)
                 let view = Self.viewButton(pad, brand: brand)
-                if unbind == nil { bind(item, pad: pad, face: face, view: view) }
+                if unbind[id] == nil { bind(item, pad: pad, face: face, view: view) }
                 symbols = Self.symbols(pad, face: face, view: view)
             } else if unbindActivity[id] == nil {
                 bindActivity(item, excluding: [])
@@ -146,6 +153,7 @@ final class GCControllerSource: ControllerSource {
             onEvent?(.connected(ControllerIdentity(id: id, name: item.vendorName, brand: brand, symbols: symbols,
                                                   supportsNavigation: pad != nil)))
         }
+        readHomeAccess()
         for id in removed { onEvent?(.disconnected(id)) }
     }
 
@@ -229,7 +237,7 @@ final class GCControllerSource: ControllerSource {
             // GameController defaults to the main queue; also honor the source contract
             // if the handler queue has been changed.
             let deliver = { [weak self, weak controller] in
-                guard let self, let controller, self.generation == generation, self.controller === controller else { return }
+                guard let self, let controller, self.generation == generation, self.connected[id] === controller else { return }
                 self.onEvent?(.input(id, input))
             }
             if Thread.isMainThread { deliver() } else { DispatchQueue.main.async(execute: deliver) }
@@ -247,11 +255,12 @@ final class GCControllerSource: ControllerSource {
             buttons.append((home, .home))
             let previous = home.preferredSystemGestureState
             let refreshHome = { [weak self] in
-                home.preferredSystemGestureState = NSApp.isActive && self?.homeAccess == .launcher ? .disabled : previous
+                home.preferredSystemGestureState = NSApp.isActive && self?.homeAccesses[id] == .launcher ? .disabled : previous
             }
             let stopHome = observeControllerHome(homeSettings, hasHome: true) { [weak self, weak controller] state in
-                guard let self, let controller, self.controller === controller else { return }
-                self.homeAccess = state
+                guard let self, let controller, self.connected[id] === controller else { return }
+                self.homeAccesses[id] = state
+                self.readHomeAccess()
                 refreshHome()
             }
             let homeObservers = [
@@ -273,13 +282,13 @@ final class GCControllerSource: ControllerSource {
         for (button, _) in systemGestures { button.preferredSystemGestureState = .disabled }
         for (button, control) in buttons {
             button.pressedChangedHandler = { [weak self] _, _, pressed in
-                if control != .home || self?.homeAccess == .launcher { emit(.button(control, pressed)) }
+                if control != .home || self?.homeAccesses[id] == .launcher { emit(.button(control, pressed)) }
             }
         }
         pad.leftThumbstick.valueChangedHandler = { _, x, y in emit(.leftStick(SIMD2(x, y))) }
         pad.rightThumbstick.valueChangedHandler = { _, x, y in emit(.rightStick(SIMD2(x, y))) }
         bindActivity(controller, excluding: Set(buttons.map { ObjectIdentifier($0.0) }))
-        unbind = {
+        unbind[id] = {
             unbindHome?()
             for (button, _) in buttons { button.pressedChangedHandler = nil }
             for (button, state) in systemGestures { button.preferredSystemGestureState = state }

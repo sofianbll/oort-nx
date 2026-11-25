@@ -1,0 +1,57 @@
+name: Bug on Linux
+description: A reproducible problem in the Oort NX Linux alpha. Français ou English.
+title: "[Bug][Linux] "
+labels: ["bug", "linux"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Security problem or leak: report it [privately](https://github.com/sofianbll/oort-nx/security/advisories/new), not here.
+        Do not attach keys, games, saves, personal information or raw logs.
+  - type: input
+    id: version
+    attributes:
+      label: Oort NX version, distribution and desktop / Version, distribution et bureau
+      placeholder: "0.1.0-alpha.1 · Ubuntu 24.04 · GNOME · AppImage"
+    validations:
+      required: true
+  - type: dropdown
+    id: package
+    attributes:
+      label: Package used / Paquet utilisé
+      options:
+        - AppImage
+        - .deb
+        - Built from source / Compilé soi-même
+    validations:
+      required: true
+  - type: dropdown
+    id: source
+    attributes:
+      label: Source / Source
+      options:
+        - Oort NX
+        - nxnative
+        - Nextendo
+        - Steam
+        - Unknown / Inconnue
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce / Étapes pour reproduire
+      description: The fewest steps, with synthetic data.
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behaviour / Comportement attendu et observé
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Reviewed diagnostics / Diagnostic relu
+      description: Only the failing step and the error message, if relevant. No full report or personal paths.

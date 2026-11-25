@@ -53,6 +53,6 @@ extension ChangeArtworkView {
     func openPage() {
         guard browsing != nil, let page = browseResult?.page else { return }
         SoundEffectService.shared.play(.click)
-        NSWorkspace.shared.open(page)
+        openWebPage(page, viewModel: viewModel)
     }
 }

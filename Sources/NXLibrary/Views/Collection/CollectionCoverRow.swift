@@ -27,6 +27,7 @@ struct CollectionCoverRow: View {
     var badgePosition: TileBadgePosition = .topRight
     let onSelect: (CatalogGame) -> Void
     let onActivate: (CatalogGame) -> Void
+    var onOptions: (CatalogGame) -> Void = { _ in }
 
     /// The first cover lines up with Spotlight's 80 margin (Selene's list had 14).
     private static let startInset: CGFloat = 80
@@ -69,7 +70,7 @@ struct CollectionCoverRow: View {
         let face = RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content), style: .continuous)
         let cloudState = game.nxnativeGame.flatMap(cloud.stateForTile)
         return OortGameTile(title: game.name, selected: selected, preset: .collection,
-                            select: { onSelect(game) }, activate: { onActivate(game) }) {
+                            select: { onSelect(game) }, activate: { onActivate(game) }, options: { onOptions(game) }) {
             Group {
                 if let native = game.nxnativeGame {
                     SwitchBoxArtCover(game: native, width: w, height: h, officialName: officialName(native),

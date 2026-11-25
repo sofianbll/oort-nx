@@ -44,4 +44,19 @@ final class CursorIdleTests: XCTestCase {
         XCTAssertFalse(cursor.update(now: 500, eligible: false))
         XCTAssertFalse(cursor.update(now: 501, eligible: true))
     }
+
+    func testAControllerHidesThePointerUntilItMovesInAWindowToo() {
+        var cursor = CursorIdleState()
+        XCTAssertFalse(cursor.update(now: 0, eligible: true, fullscreen: false))
+        XCTAssertFalse(cursor.update(now: 60, eligible: true, fullscreen: false), "A still pointer stays in a window")
+        cursor.controllerUsed()
+        XCTAssertTrue(cursor.update(now: 60.1, eligible: true, fullscreen: false))
+        _ = cursor.observePointer(at: .zero, now: 61)
+        XCTAssertTrue(cursor.update(now: 61, eligible: true, fullscreen: false))
+        XCTAssertTrue(cursor.observePointer(at: CGPoint(x: 4, y: 0), now: 62))
+        XCTAssertFalse(cursor.update(now: 62, eligible: true, fullscreen: false))
+        cursor.controllerUsed()
+        XCTAssertFalse(cursor.update(now: 63, eligible: false), "Another window or a menu shows it")
+        XCTAssertFalse(cursor.update(now: 64, eligible: true, fullscreen: false))
+    }
 }

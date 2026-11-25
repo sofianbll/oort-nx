@@ -38,6 +38,6 @@ struct GamePrimaryActions: View {
         }
     }
     private func pill<V: View>(_ index: Int, _ view: V) -> some View {
-        view.frame(height: canvas.u(60)).onHover { if $0 { onHover(index) } }
+        view.frame(height: canvas.u(60)).seleneHover { onHover(index) }
     }
 }

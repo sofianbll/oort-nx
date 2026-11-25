@@ -55,7 +55,7 @@ public enum CheatCopy {
     }
 
     public static func removal(build: String) -> (title: String, message: String, confirm: String) {
-        ("Remove cheats?", L10n.format("The cheat files for build %@ go to the Trash.", [String(describing: build)]), "Remove")
+        ("Delete cheats?", L10n.format("The cheat files for build %@ go to the Trash.", [String(describing: build)]), "Delete")
     }
 
     /// A switch's name: an on / off pair shows its base name ("Moon Jump"), every other entry its key.

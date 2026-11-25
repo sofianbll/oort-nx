@@ -91,11 +91,13 @@ struct SettingsSourcesSection: View {
         .onChange(of: viewModel.catalogGames) { publishActions() }
     }
     private func chooseFolder() {
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = false; panel.canChooseDirectories = true; panel.allowsMultipleSelection = false
-        panel.directoryURL = root
-        panel.message = L10n.text("Choose the Steam folder containing steamapps.", context: localization)
-        guard panel.runModal() == .OK, let chosen = panel.url else { return }
+        OortFilePickerPresentation.open(.folder, title: L10n.text("Steam folder", context: localization),
+                                        message: L10n.text("Choose the Steam folder containing steamapps.", context: localization),
+                                        startingAt: root) { urls in
+            if let chosen = urls.first { use(chosen) }
+        }
+    }
+    private func use(_ chosen: URL) {
         let root = chosen.resolvingSymlinksInPath().standardizedFileURL
         let apps = root.appendingPathComponent("steamapps").resolvingSymlinksInPath().standardizedFileURL
         var directory: ObjCBool = false

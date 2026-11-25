@@ -44,6 +44,7 @@ struct NextendoClientDialog: View {
         .onReceive(NotificationCenter.default.publisher(for: .nxSettingsGamepadAction)) { note in
             guard let action = note.object as? GamepadAction else { return }
             switch action {
+            case .navigateUp: fieldFocused = true
             case .navigateLeft: focus = .left
             case .navigateRight: focus = .right
             case .confirm: focus == .confirm ? save() : onClose()

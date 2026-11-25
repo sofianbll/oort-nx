@@ -110,17 +110,17 @@ struct ThemePickerView: View {
                 guard transfer.itemID == nil else { return [] }
                 if let item = browse.focusedItem {
                     let have = theme.wallpapers.contains { $0.id == OnlineDownload.wallpaperID(for: item) }
-                    return [HintItem(.x, L10n.text("Open page"), action: { NSWorkspace.shared.open(item.pageURL) }),
+                    return [HintItem(.x, L10n.text("Open page"), action: { openWebPage(item.pageURL, viewModel: viewModel) }),
                             HintItem(.a, have ? L10n.text("Done") : L10n.text("Download"), action: accept)]
                 }
                 return browse.category.isSearch ? [HintItem(.a, L10n.text("Search"), action: accept)] : []
             }
             var hints: [HintItem] = []
             if case .wallpaper(let id) = focusedBackground, let credit = theme.credits[id] {
-                hints.append(HintItem(.x, L10n.text("Open page"), action: { NSWorkspace.shared.open(credit.pageURL) }))
+                hints.append(HintItem(.x, L10n.text("Open page"), action: { openWebPage(credit.pageURL, viewModel: viewModel) }))
             }
             if case .wallpaper(let id) = focusedBackground, ThemeStore.isRemovable(id) {
-                hints.append(HintItem(.y, L10n.text("Remove"), action: removeFocused))
+                hints.append(HintItem(.y, L10n.text("Delete"), action: removeFocused))
             }
             let verb: String
             switch focusedBackground {

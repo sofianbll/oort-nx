@@ -24,6 +24,7 @@ final class Router {
     var isMenuPresented = false
     var isScreenshotViewerOpen = false
     var isSearchPresented = false
+    var isPalettePresented = false
     var activityCenterFocus: Int?
 }
 struct Game {
@@ -51,7 +52,7 @@ final class AppViewModel {
 }
 struct Settings { let settings = Values(); struct Values { let librarySort = 1 } }
 struct NativeMenuAvailability {
-    let general, addMacApp, play, details, options, catalogRecovery: Bool
+    let general, palette, addMacApp, play, details, options, catalogRecovery: Bool
 }
 struct SteamPlayCoordinator {
     static let shared = Self()
@@ -65,6 +66,7 @@ final class Shell {
     var profileFlow: Int?
     var isCloseGameOpen = false
     var nativeDialogOwnsInput = false
+    var paletteAvailable = true
     var isHomeRoute = true
     // AVAILABILITY
     func receivePlay() {

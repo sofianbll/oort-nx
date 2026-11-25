@@ -7,6 +7,7 @@ Each folder answers one question. Start from the [project README](../README.md) 
 | [how-it-works/](how-it-works/) | How does the app work today? | You want to understand an area before touching it. |
 | [working-on-it/](working-on-it/) | How do I build, change and check it? | You are about to write code, run checks or release. |
 | [history/](history/) | Why is it like this, and what was measured? | You need the evidence behind a past decision. Never needed to understand the present. |
+| [guides/](guides/README.md) | How does a player install and use it, on each system? | You change what a player sees, or release a version. |
 | [media/](media/) | How should screenshots be prepared? | You need to make a publishable illustration. |
 
 The guides in `how-it-works/` and `working-on-it/` are in Italian, except `development.md`.
@@ -28,9 +29,12 @@ The guides in `how-it-works/` and `working-on-it/` are in Italian, except `devel
 | [development.md](working-on-it/development.md) | Prerequisites, builds, tests, CI and releases. |
 | [perso-release-notes.md](working-on-it/perso-release-notes.md) | French release-notes template for the fork. |
 | [conventions.md](working-on-it/conventions.md) | Where new code goes and the recipe for each kind of change. |
+| [change-criteria.md](working-on-it/change-criteria.md) | The criteria of a visual or a core change, with check, source and reason. |
 | [components.md](working-on-it/components.md) | Shared Selene components, presets and states. |
 | [file-map.md](working-on-it/file-map.md) | One line per file of the project. |
 | [validation.md](working-on-it/validation.md) | What the maintainer has tried in the app, and what still waits. |
+| [architecture-map.md](working-on-it/architecture-map.md) | The five systems, the allowed imports between Swift modules, and where new code goes. |
+| [branch-rules.md](working-on-it/branch-rules.md) | Proposed rules for branches, tags and required checks. Not applied on GitHub. |
 
 ## history/
 

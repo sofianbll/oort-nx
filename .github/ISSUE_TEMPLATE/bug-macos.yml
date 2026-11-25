@@ -1,0 +1,48 @@
+name: Bug on macOS
+description: A reproducible problem in Oort NX on a Mac. Français ou English.
+title: "[Bug][macOS] "
+labels: ["bug", "macos"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Security problem or leak: report it [privately](https://github.com/sofianbll/oort-nx/security/advisories/new), not here.
+        Do not attach keys, games, saves, personal information or raw logs.
+        Français : décrivez le problème en quelques étapes. English: describe the problem in a few steps.
+  - type: input
+    id: version
+    attributes:
+      label: Oort NX and macOS versions / Versions d'Oort NX et de macOS
+      placeholder: "0.5.0-beta.3 · macOS 27.2"
+    validations:
+      required: true
+  - type: dropdown
+    id: source
+    attributes:
+      label: Source / Source
+      options:
+        - Oort NX
+        - nxnative
+        - Nextendo
+        - Steam
+        - Unknown / Inconnue
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce / Étapes pour reproduire
+      description: The fewest steps, with synthetic data.
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behaviour / Comportement attendu et observé
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Reviewed diagnostics / Diagnostic relu
+      description: Only the failing step and the error code, if relevant. No full report, paths, commands or screenshots of personal data.

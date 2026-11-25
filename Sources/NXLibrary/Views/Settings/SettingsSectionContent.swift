@@ -92,7 +92,9 @@ struct SettingsSectionContent: View {
         case .spotlight:
             SettingsSpotlightSection(settings: settings, onActions: onActions)
         case .soundMusic:
-            SettingsSoundSection(settings: settings, onActions: onActions)
+            SettingsSoundSection(settings: settings, onActions: onActions) { question, apply in
+                viewModel.confirmSetting(question.title, message: question.message, action: question.action, apply: apply)
+            }
         case .look:
             SettingsLookSection(viewModel: viewModel, settings: settings, onActions: onActions)
         case .apiServices:

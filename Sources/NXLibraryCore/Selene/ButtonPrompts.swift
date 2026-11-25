@@ -22,22 +22,20 @@ public enum KeyCap: Equatable {
 }
 
 public enum ButtonPrompts {
-    /// Automatic names with no controller connected show the keyboard keys instead.
-    public static func usesKeyboard(style: ButtonNameStyle, connected: ConnectedPad) -> Bool {
-        style == .automatic && connected == .none
+    /// With no controller in hand the prompts are keys; a chosen style only names a controller's buttons.
+    public static func usesKeyboard(_ inHand: ConnectedPad) -> Bool {
+        inHand == .none
     }
 
     /// A left hint on a screen's bar: the ⌘F keycap shows only on the keyboard (a controller reaches search
-    /// by holding View), and a controller-only hint never shows there. "Active" is `!usesKeyboard`: a
-    /// connected controller or a chosen button style, so the bar and the badges agree.
-    public static func showsHint(_ button: PromptButton?, controllerOnly: Bool, style: ButtonNameStyle,
-                                 connected: ConnectedPad) -> Bool {
-        usesKeyboard(style: style, connected: connected) ? !controllerOnly : button != .search
+    /// by holding View), and a controller-only hint never shows there.
+    public static func showsHint(_ button: PromptButton?, controllerOnly: Bool, inHand: ConnectedPad) -> Bool {
+        usesKeyboard(inHand) ? !controllerOnly : button != .search
     }
 
     /// The key the screens' key monitors take for each prompt: Return confirms,
     /// Esc goes back, X and Y, Q/E for filters, Home/End for the triggers,
-    /// F3 for sort, V for View and ⌘K for Menu.
+    /// F3 for sort, V for View and ⇧⌘K for Menu (⌘K is the command palette).
     public static func keyboardKey(_ button: PromptButton) -> KeyCap {
         switch button {
         case .a: return .symbol("return")
@@ -51,7 +49,7 @@ public enum ButtonPrompts {
         case .lt: return .text(L10n.text("home"))
         case .rt: return .text(L10n.text("end"))
         case .view: return .text("V")
-        case .menu: return .text("⌘K")
+        case .menu: return .text(PaletteAction.controlCenter.shortcut ?? "")
         case .home: return .text("⇧⌘P")
         case .move: return .text("← →")
         case .vertical: return .text("↑ ↓")

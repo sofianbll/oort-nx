@@ -8,29 +8,30 @@ struct SettingsAboutSection: View {
     @ObservedObject var setup: SetupModel
     @EnvironmentObject private var updater: AppUpdater
     @Environment(\.seleneFocusedRowID) private var focusedRowTitle
+    @Environment(\.seleneFocusedButton) private var focusedButton
+    @Environment(\.seleneReduceMotion) private var reduceMotion
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.nxAppLocale) private var localization
     let onActions: ([SettingsRowAction]) -> Void
 
     @State private var didCopyDiagnostics = false
     private static let supportTitle = "Support Arcane"
+    private static let docsRow = "Open project docs"
+    private static let diagnosticsRow = "Copy diagnostics"
+    private static let noticeRow = "credits-notice"
 
-    private let credits: [(name: String, role: String, url: String)] = [
-        ("seedds", L10n.text("nxnative engine, NVN/Metal host and ARM64 rewriter"), "https://github.com/seedds/nxnative"),
-        ("d2r-mobile", L10n.text("Foundational native execution architecture"), "https://github.com/jhaizhou-ops/d2r-mobile"),
-        ("Ryujinx Team", L10n.text("Maxwell shader translator and SPIR-V generator"), "https://github.com/Ryujinx/Ryujinx"),
-        ("Atmosphère NX", L10n.text("Mesosphère kernel synchronization semantics"), "https://github.com/Atmosphere-NX/Atmosphere"),
-        ("LibHac", L10n.text("NSP reading and PFS/HFS layered filesystem"), "https://github.com/Thealexbarney/LibHac"),
-        ("Khronos Group", L10n.text("SPIRV-Cross Metal Shading Language compiler"), "https://github.com/KhronosGroup/SPIRV-Cross"),
-        ("GameTDB", L10n.text("Switch box covers"), "https://www.gametdb.com"),
-        ("Title DB", L10n.text("Game names, icons and banners"), "https://github.com/blawar/titledb"),
-        ("LaunchBox Games Database", L10n.text("Community metadata and game artwork"), "https://gamesdb.launchbox-app.com"),
-        ("TheGamesDB", L10n.text("Community metadata and game artwork"), "https://thegamesdb.net"),
-        ("SteamGridDB", L10n.text("Community covers, backgrounds, logos and icons, with your API key"), "https://www.steamgriddb.com"),
-        ("IGDB", L10n.text("Critic scores with your own credentials"), "https://www.igdb.com"),
-        ("Wikipedia", L10n.text("Game introductions in your language (CC BY-SA)"), "https://www.wikipedia.org"),
-        ("NX2Apple", L10n.text("Key check, failure explanations and diagnostics, adapted (MIT)"), "https://github.com/LNPANDY/NX2Apple")
-    ]
+    /// Categories whose cards are shown; the first is always open.
+    @State private var opened: Set<String>
+
+    private let credits = Credits.bundled
+    private let groups = Credits.bundled?.groups(for: .mac) ?? []
+
+    init(viewModel: AppViewModel, setup: SetupModel, opened: Set<String> = [], onActions: @escaping ([SettingsRowAction]) -> Void) {
+        self.viewModel = viewModel
+        self.setup = setup
+        self.onActions = onActions
+        _opened = State(initialValue: opened)
+    }
 
     var body: some View {
         OortSettingsGroup {
@@ -42,142 +43,50 @@ struct SettingsAboutSection: View {
                 Text(L10n.format("Version %@ · Build %@ · Engine %@", [version, buildLabel, seleneShort(viewModel.pinnedEngineCommit)]))
                     .seleneFont(.badge, .regular, design: .monospaced)
                     .foregroundColor(SeleneTheme.ink60)
-                Button(action: openProjectDocs) {
-                    HStack(spacing: canvas.u(SeleneTokens.Space.hairline)) {
-                        Text(L10n.format("Based on %@ %@, by %@", [AppIdentity.name, "0.2.1", "Bium23"], context: localization))
-                        Image(systemName: "arrow.up.right").accessibilityHidden(true)
-                    }
-                    .seleneFont(.text, .semibold)
-                    .foregroundColor(SeleneTheme.glyph)
-                }
-                .buttonStyle(OortPressStyle())
-                .padding(canvas.u(SeleneTokens.Space.tight))
-                .seleneRowFocus(focusedRowTitle == "Open project docs")
-                .id("selene-row-Open project docs")
+                Text(L10n.format("Based on %@ %@, by %@", [AppIdentity.name, "0.2.1", "Bium23"], context: localization))
+                    .seleneFont(.text)
+                    .foregroundColor(SeleneTheme.ink90)
                 Text(L10n.text("Play time is tracked only for launches from Arcane. Not affiliated with Nintendo."))
                     .seleneFont(.badge)
                     .foregroundColor(SeleneTheme.ink60)
                 updateRow
-                Button {
-                    copyDiagnostics()
-                } label: {
-                    HStack(spacing: SeleneTokens.Space.hairline) {
-                        Text(didCopyDiagnostics ? L10n.text("Copied") : L10n.text("Copy diagnostics"))
-                        Image(systemName: didCopyDiagnostics ? "checkmark" : "doc.on.doc")
-                    }
-                    .seleneFont(.text, .semibold)
-                    .foregroundColor(SeleneTheme.glyph)
-                }
-                .buttonStyle(OortPressStyle())
-                .padding(SeleneTokens.Space.tight)
-                .seleneRowFocus(focusedRowTitle == "Copy diagnostics")
-                .id("selene-row-Copy diagnostics")
-                .accessibilityHint(L10n.text("A report for an issue: versions, setup and the last porting. No keys."))
             }
+
+            OortSettingsLink(id: Self.docsRow, title: L10n.text("Open project docs"), action: openProjectDocs)
+            OortSettingsLink(id: Self.diagnosticsRow, title: L10n.text(didCopyDiagnostics ? "Copied" : "Copy diagnostics"),
+                             subtitle: L10n.text("A report for an issue: versions, setup and the last porting. No keys."),
+                             action: copyDiagnostics)
 
             supportButton
 
-            SelenePanel(L10n.text("Credits")) {
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: SeleneTokens.Space.compact) {
-                    ForEach(credits, id: \.name) { credit in
-                        Button {
-                            if let url = URL(string: credit.url) { NSWorkspace.shared.open(url) }
-                        } label: {
-                            VStack(alignment: .leading, spacing: SeleneTokens.Space.seam) {
-                                HStack(spacing: SeleneTokens.Space.hairline) {
-                                    Text(credit.name)
-                                        .seleneFont(.text, .semibold)
-                                        .foregroundColor(SeleneTheme.ink)
-                                    Image(systemName: "arrow.up.right")
-                                        .seleneFont(.badge)
-                                        .foregroundColor(SeleneTheme.ink60)
-                                }
-                                Text(credit.role)
-                                    .seleneFont(.badge)
-                                    .foregroundColor(SeleneTheme.ink60)
-                                    .lineLimit(2)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(SeleneTokens.Space.compact)
-                            .background(SeleneTheme.glass.opacity(SeleneTokens.Alpha.strong))
-                            .clipShape(RoundedRectangle(cornerRadius: SeleneTokens.Radius.cover, style: .continuous))
-                        }
-                        .buttonStyle(OortPressStyle())
-                        .seleneRowFocus(focusedRowTitle == credit.name, radius: 7)
-                        .id("selene-row-\(credit.name)")
-                        .accessibilityLabel("\(credit.name), \(credit.role)")
+            if let credits {
+                ForEach(groups) { group in
+                    if group.id == groups.first?.id {
+                        SettingsSubheading(Credits.words(group.category.title, in: language))
+                            .accessibilityAddTraits(.isHeader)
+                    } else {
+                        OortSettingsLink(id: "credits-\(group.id)", title: Credits.words(group.category.title, in: language),
+                                         value: "\(group.credits.count)", expanded: shows(group)) { toggle(group.id) }
+                    }
+                    if shows(group) {
+                        OortCreditGroup(group: group, credits: credits, focusedCard: focusedCard(in: group), open: open)
                     }
                 }
-            }
 
-            SelenePanel(L10n.text("Visual direction")) {
-                Text(L10n.text("Inspired by Selene (MIT) by Matthew Silva."))
-                    .seleneFont(.text, .semibold)
-                    .foregroundColor(SeleneTheme.ink)
-                Button {
-                    if let url = URL(string: "https://github.com/mattxslv/Selene") {
-                        NSWorkspace.shared.open(url)
+                SelenePanel(Credits.words(credits.labels["legal"] ?? [:], in: language)) {
+                    ForEach(credits.statements(for: .mac, in: language), id: \.self) { statement in
+                        Text(verbatim: statement)
+                            .seleneFont(.badge)
+                            .foregroundColor(SeleneTheme.ink75)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
-                } label: {
-                    HStack(spacing: SeleneTokens.Space.hairline) {
-                        Text("https://github.com/mattxslv/Selene")
-                        Image(systemName: "arrow.up.right")
-                    }
-                    .seleneFont(.text, .semibold)
-                    .foregroundColor(SeleneTheme.glyph)
                 }
-                .buttonStyle(OortPressStyle())
-                .padding(SeleneTokens.Space.tight)
-                .seleneRowFocus(focusedRowTitle == "Selene")
-                .id("selene-row-Selene")
-                Text(L10n.text("Selene is a Playnite theme for Windows. No Selene name, logo, wallpaper, avatar or sound is used as Arcane branding; this is a visual adaptation in SwiftUI."))
-                    .seleneFont(.badge)
-                    .foregroundColor(SeleneTheme.ink60)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            SelenePanel(L10n.text("Nintendo Europe catalogue")) {
-                Text(L10n.text("The app keeps Arcane’s Nintendo Store source. Nintendo Europe supplements missing or untranslated information and artwork. Text and images belong to their respective owners and are never shipped with the app."))
-                    .seleneFont(.text)
-                    .foregroundColor(SeleneTheme.ink90)
-                    .fixedSize(horizontal: false, vertical: true)
-                Text(verbatim: "searching.nintendo-europe.com")
-                    .seleneFont(.badge)
-                    .foregroundColor(SeleneTheme.ink60)
-                Text(L10n.text("The app ships no keys, ROMs, game art or Nintendo UI assets."))
-                    .seleneFont(.badge)
-                    .foregroundColor(SeleneTheme.ink60)
-            }
-
-            SelenePanel(L10n.text("Licenses")) {
-                Text(L10n.text("Arcane is personal software released under the MIT license. nxnative, Ryujinx, SPIR-V Cross, LibHac and the other dependencies retain their own licenses through the engine."))
-                    .seleneFont(.text)
-                    .foregroundColor(SeleneTheme.ink90)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                Text(L10n.text("This app is not affiliated with Nintendo."))
-                    .seleneFont(.badge, .semibold)
-                    .foregroundColor(SeleneTheme.ink60)
-                Text(L10n.text("This app is not affiliated with Valve."))
-                    .seleneFont(.badge, .semibold)
-                    .foregroundColor(SeleneTheme.ink60)
-                // Valve's attribution, in Valve's own wording for each language.
-                Text(L10n.text("©2026 Valve Corporation. Steam and the Steam logo are trademarks and/or registered trademarks of Valve Corporation in the U.S. and/or other countries."))
-                    .seleneFont(.badge)
-                    .foregroundColor(SeleneTheme.ink60)
-                    .fixedSize(horizontal: false, vertical: true)
-                Text(L10n.text("Platform names and logos identify their respective platforms. They belong to their owners and do not imply affiliation or endorsement."))
-                    .seleneFont(.text)
-                    .foregroundColor(SeleneTheme.ink60)
-                    .fixedSize(horizontal: false, vertical: true)
-                Text(verbatim: "Nintendo · Valve Corporation · Epic Games · GOG · CodeWeavers · Buy Me a Coffee · Google")
-                    .seleneFont(.text)
-                    .foregroundColor(SeleneTheme.ink60)
-                    .fixedSize(horizontal: false, vertical: true)
+                OortSettingsLink(id: Self.noticeRow, title: credits.label("notice", in: language), action: openNotice)
             }
         }
         .onAppear(perform: publishActions)
         .onChange(of: updater.state) { publishActions() }
+        .onChange(of: opened) { publishActions() }
         .onChange(of: viewModel.isBuilding) { publishActions() }
         .onChange(of: viewModel.isCleaningStorage) { publishActions() }
         .onChange(of: viewModel.hasActiveSaveOperations) { publishActions() }
@@ -186,30 +95,36 @@ struct SettingsAboutSection: View {
     }
 
     private var supportButton: some View {
-        Button(action: openSupportPage) {
-            SelenePanel {
-                HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
-                    VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.hairline)) {
-                        PlatformLabel(.support,
-                                      title: L10n.format("Support %@ on Buy Me a Coffee", ["Bium23"], context: localization), preset: .summary)
-                            .foregroundStyle(SeleneTheme.ink)
-                        Text(L10n.text("Optional contributions support development and maintenance.", context: localization))
-                            .seleneFont(.text)
-                            .foregroundColor(SeleneTheme.ink75)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    Spacer(minLength: canvas.u(8))
-                    Image(systemName: "arrow.up.right")
-                        .seleneFont(.text, .semibold)
-                        .foregroundColor(SeleneTheme.glyph)
-                        .accessibilityHidden(true)
-                }
-            }
-            .contentShape(RoundedRectangle(cornerRadius: SeleneTheme.cardRadius, style: .continuous))
+        OortCreditCard(mark: .platform(.support),
+                       name: L10n.format("Support %@ on Buy Me a Coffee", ["Bium23"], context: localization),
+                       byline: L10n.text("Optional contributions support development and maintenance.", context: localization),
+                       focused: focusedRowTitle == Self.supportTitle, action: openSupportPage)
+            .id("selene-row-\(Self.supportTitle)")
+    }
+
+    private var language: String { localization.language.rawValue }
+
+    private func shows(_ group: Credits.Group) -> Bool { group.id == groups.first?.id || opened.contains(group.id) }
+
+    private func toggle(_ id: String) {
+        withAnimation(Motion.focus(reduceMotion)) { opened.formSymmetricDifference([id]) }
+    }
+
+    private func focusedCard(in group: Credits.Group) -> String? {
+        guard let line = OortCreditGroup.lines(group).first(where: { $0.id == focusedRowTitle }) else { return nil }
+        return line.credits[min(focusedButton, line.credits.count - 1)].id
+    }
+
+    private func open(_ credit: Credits.Credit) { NSWorkspace.shared.open(credit.url) }
+
+    /// The notices as shipped, read in the Mac's own text editor; their public copy when the app has none (a test).
+    private func openNotice() {
+        let editor = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.TextEdit")
+        if let notice = Bundle.main.url(forResource: "NOTICE", withExtension: nil), let editor {
+            NSWorkspace.shared.open([notice], withApplicationAt: editor, configuration: NSWorkspace.OpenConfiguration())
+        } else if let url = URL(string: AppIdentity.projectPage + "/blob/main/NOTICE") {
+            NSWorkspace.shared.open(url)
         }
-        .buttonStyle(OortPressStyle())
-        .seleneRowFocus(focusedRowTitle == Self.supportTitle, radius: SeleneTheme.cardRadius)
-        .id("selene-row-\(Self.supportTitle)")
     }
 
     private func copyDiagnostics() {
@@ -219,21 +134,28 @@ struct SettingsAboutSection: View {
     }
 
     private func publishActions() {
-        var actions: [SettingsRowAction] = [.init(id: "docs", title: "Open project docs", activate: openProjectDocs)]
-        actions += updateActions.map { action in
+        var actions = updateActions.map { action in
             SettingsRowAction(id: "update-\(action.title)", title: action.title,
                               isEnabled: action.enabled, activate: action.perform)
         }
-        actions.append(.init(id: "diagnostics", title: "Copy diagnostics", activate: copyDiagnostics))
+        actions.append(.init(id: "docs", title: "Open project docs", rowID: Self.docsRow, activate: openProjectDocs))
+        actions.append(.init(id: "diagnostics", title: "Copy diagnostics", rowID: Self.diagnosticsRow, activate: copyDiagnostics))
         actions.append(.init(id: "support", title: Self.supportTitle, activate: openSupportPage))
-        actions += credits.map { credit in
-            SettingsRowAction(id: "credit-\(credit.name)", title: credit.name) {
-                if let url = URL(string: credit.url) { NSWorkspace.shared.open(url) }
+        for group in groups {
+            if group.id != groups.first?.id {
+                actions.append(.init(id: "credits-\(group.id)", title: Credits.words(group.category.title, in: language),
+                                     rowID: "credits-\(group.id)") { toggle(group.id) })
+            }
+            guard shows(group) else { continue }
+            actions += OortCreditGroup.lines(group).map { line in
+                let opens = line.credits.map { credit in { open(credit) } }
+                return SettingsRowAction(id: line.id, title: line.credits[0].name, rowID: line.id,
+                                         additionalButtons: Array(opens.dropFirst()), activate: opens[0])
             }
         }
-        actions.append(.init(id: "selene", title: "Selene") {
-            NSWorkspace.shared.open(URL(string: "https://github.com/mattxslv/Selene")!)
-        })
+        if credits != nil {
+            actions.append(.init(id: "notice", title: "NOTICE", rowID: Self.noticeRow, activate: openNotice))
+        }
         onActions(actions)
     }
 
@@ -254,13 +176,8 @@ struct SettingsAboutSection: View {
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 0)
                 ForEach(updateActions, id: \.title) { action in
-                    Button(action.title, action: action.perform)
-                        .buttonStyle(OortPressStyle())
-                        .seleneFont(.text, .semibold)
-                        .foregroundColor(action.enabled ? SeleneTheme.glyph : SeleneTheme.ink60)
-                        .disabled(!action.enabled)
-                        .padding(SeleneTokens.Space.tight)
-                        .seleneRowFocus(focusedRowTitle == action.title)
+                    OortButton(title: action.title, focused: focusedRowTitle == action.title,
+                               state: action.enabled ? .ready : .blocked, preset: .compact, action: action.perform)
                         .id("selene-row-\(action.title)")
                 }
             }

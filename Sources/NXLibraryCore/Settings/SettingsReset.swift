@@ -16,6 +16,18 @@ public enum SettingsReset {
         }
     }
 
+    /// Asked before Reset group, on Cancel; nil where removing the code asks for the code itself.
+    public static func question(_ section: SettingsSection, title: String) -> (title: String, message: String)? {
+        let message: String
+        switch section {
+        case .profileSecurity: return nil
+        case .profileIdentity: message = "The name, avatar and picture of this profile are replaced now."
+        case .profileNextendo, .profileCards: message = "The change is made now."
+        default: message = "Its settings go back to their defaults. Save to keep the change."
+        }
+        return (L10n.format("Reset %@?", [title]), L10n.text(message))
+    }
+
     /// `settings` with the base's values of the section back at their defaults; everything else unchanged.
     /// Porting adds New games (`SettingsReset+Porting.swift`).
     public static func resetShared(_ section: SettingsSection, in settings: AppSettings) -> AppSettings {

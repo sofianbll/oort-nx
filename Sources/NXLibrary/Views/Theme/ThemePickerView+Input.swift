@@ -51,7 +51,7 @@ extension ThemePickerView {
         case .contextAction: removeFocused()
         case .secondaryAction:
             if case .wallpaper(let id) = focusedBackground, let credit = theme.credits[id] {
-                NSWorkspace.shared.open(credit.pageURL)
+                openWebPage(credit.pageURL, viewModel: viewModel)
             }
         case .tabPrevious: stepTab(-1)
         case .tabNext: stepTab(1)

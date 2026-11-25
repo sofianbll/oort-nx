@@ -1,0 +1,47 @@
+name: Bug on Windows
+description: A reproducible problem in the Oort NX Windows alpha. Français ou English.
+title: "[Bug][Windows] "
+labels: ["bug", "windows"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Security problem or leak: report it [privately](https://github.com/sofianbll/oort-nx/security/advisories/new), not here.
+        Do not attach keys, games, saves, personal information or raw logs.
+  - type: input
+    id: version
+    attributes:
+      label: Oort NX version and Windows build / Version d'Oort NX et build de Windows
+      placeholder: "0.1.0-alpha.1 · Windows 11 build 26100 · x64"
+    validations:
+      required: true
+  - type: dropdown
+    id: source
+    attributes:
+      label: Source / Source
+      options:
+        - Oort NX
+        - nxnative
+        - Nextendo
+        - Steam
+        - Unknown / Inconnue
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce / Étapes pour reproduire
+      description: The fewest steps, with synthetic data.
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behaviour / Comportement attendu et observé
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Reviewed diagnostics / Diagnostic relu
+      description: Only the failing step and the error code, if relevant. No full report or personal paths.

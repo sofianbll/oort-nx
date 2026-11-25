@@ -173,14 +173,14 @@ struct DetailsTopBlock: View {
         case .porting:
             SelenePillButton(title: L10n.text("Porting"), minWidth: 200, height: 52, horizontalPadding: 36,
                              focused: focusedPill == 0, waveDots: true) { onPill(0) }
-                .onHover { if $0 { onHoverPill(0) } }
+                .seleneHover { onHoverPill(0) }
                 .accessibilityLabel(L10n.text("Porting, show progress"))
         case .failed:
             HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 ForEach(Array(PortingPillCopy.failedTitles.enumerated()), id: \.offset) { index, title in
                     SelenePillButton(title: title, minWidth: 200, height: 52, horizontalPadding: 36,
                                      focused: focusedPill == index) { onPill(index) }
-                        .onHover { if $0 { onHoverPill(index) } }
+                        .seleneHover { onHoverPill(index) }
                 }
             }
         case .normal, .queued, .normalAfterFailure, .unavailable:
@@ -213,17 +213,17 @@ struct DetailsTopBlock: View {
                                      action: onPrimary)
                 }
             }
-            .onHover { if $0 && downloadStatus == nil { onHoverPill(0) } }
+            .seleneHover { if downloadStatus == nil { onHoverPill(0) } }
             SelenePillButton(title: isRunning ? "Close Game" : "Options", minWidth: 200, height: 52,
                              horizontalPadding: 36, focused: focusedPill == 1,
                              action: onSecondary)
-                .onHover { if $0 { onHoverPill(1) } }
+                .seleneHover { onHoverPill(1) }
             if showsCloudPill { cloudPill }
             let favorite = pillSet.count - 1 + (showsCloudPill ? 1 : 0)
             SelenePillButton(title: nil, icon: game.isFavorite ? .favorite : .favoriteBorder,
                              iconSize: 20, minWidth: 52, height: 52, horizontalPadding: 0,
                              focused: focusedPill == favorite, action: onFavorite)
-                .onHover { if $0 { onHoverPill(favorite) } }
+                .seleneHover { onHoverPill(favorite) }
                 .accessibilityLabel(game.isFavorite ? L10n.text("Remove from favorites") : L10n.text("Add to favorites"))
         }
     }
@@ -232,7 +232,7 @@ struct DetailsTopBlock: View {
         let index = pillSet.detailsCloudIndex
         let indicator = CloudLibraryIndicator(state: cloud.states[game.id] ?? CloudLibraryState())
         return CloudLibraryPill(indicator: indicator, focused: focusedPill == index, showsTransferDot: false) { onPill(index) }
-            .onHover { if $0 { onHoverPill(index) } }
+            .seleneHover { onHoverPill(index) }
     }
 
     private var primaryTitle: String {

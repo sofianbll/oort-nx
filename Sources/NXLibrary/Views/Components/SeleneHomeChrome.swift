@@ -27,6 +27,7 @@ struct SeleneHomeChrome<Backdrop: View, Stage: View>: View {
     var hintsHidden = false
     /// Spotlight's entrance holds them until everything else has landed; the change brings its own fade.
     var hintsHeld = false
+    var press: ((GamepadAction) -> Void)? = nil
     @ViewBuilder var backdrop: () -> Backdrop
     @ViewBuilder var stage: () -> Stage
 
@@ -41,7 +42,7 @@ struct SeleneHomeChrome<Backdrop: View, Stage: View>: View {
                 Spacer(minLength: 0)
                 SeleneHintsBar(left: leftHints, right: rightHints,
                                bottom: SeleneBottomScrim.hintsBottom, leftInset: 18,
-                               rightReserve: rightReserve)
+                               rightReserve: rightReserve, press: press)
             }
             .seleneOverlaidHints(hintsHidden)
             .opacity(hintsHeld ? 0 : 1)
@@ -102,7 +103,7 @@ extension AppRouter {
     /// so the screen's step aside instead of showing through.
     @MainActor
     func overlayHasHints(_ viewModel: AppViewModel) -> Bool {
-        isMenuPresented || isSearchPresented || viewModel.isGameOptionsOpen || viewModel.profileOwnsInput || route.isOverlay
+        isMenuPresented || isSearchPresented || isPalettePresented || viewModel.isGameOptionsOpen || viewModel.profileOwnsInput || route.isOverlay
     }
 }
 

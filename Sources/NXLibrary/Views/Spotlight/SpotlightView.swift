@@ -59,6 +59,7 @@ struct SpotlightView: View {
     @State var hadGames = false
     /// The card Y menu: which card and the focused row.
     @State var cardMenu: CardMenuState?
+    @State var rail = RailScroll()
     /// The open screenshot viewer (the game's titleID, its urls and the paging state).
     @State var viewer: ViewerContext?
     /// The open Achievements screen's selection; the game is the selected Steam game.
@@ -271,6 +272,7 @@ struct SpotlightView: View {
             hintsHidden: router.overlayHasHints(viewModel) || router.sortMenu != nil || achievementsScreen != nil
                 || (model.selectedCatalogGame?.macShortcut != nil && viewModel.settingsNotice != nil),
             hintsHeld: !controlsShown,
+            press: { handle($0) },
             backdrop: {
                 // On a card no art; on the Mods card the moonlight glides to gold (and stays gold until the next
                 // game's art has arrived, so leaving the card is one change, not gold → blue → art).

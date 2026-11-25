@@ -64,7 +64,7 @@ import SwiftUI
         let deadline = ContinuousClock.now + .seconds(5)
         while model.busy, ContinuousClock.now < deadline { try await Task.sleep(for: .milliseconds(10)) }
         precondition(model.entries.count == files.count && model.entries.allSatisfy {
-            $0.needsKeys && $0.destination == nil && $0.issue == "Clés manquantes : importez-les pour identifier ce fichier"
+            $0.needsKeys && $0.destination == nil && $0.issue == "Clés manquantes : importe-les pour identifier ce fichier"
         })
         try render("07-inbox-missing-keys", page: view.page, to: output, locale: locale)
         let inputs = GameInbox.inputs(files)

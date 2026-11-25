@@ -36,6 +36,8 @@ struct SettingsView: View {
     }
     @State private var openedFromIntegrations: Bool
     @State private var showingControls = false
+    /// Opens the controls guide instead of focusing a row (`AppRouter.openSettings`).
+    static let controlsGuideRowID = "controlsGuide"
     @State private var showingPlayers = false
     @State private var cloudAssistant: CloudSetupAssistant.Entry?
     @State private var editingCloudReference = false
@@ -142,6 +144,7 @@ struct SettingsView: View {
     private var observedLayout: some View {
         layout
         .onAppear {
+            if let id = router.settingsRowID { showAdvanced(for: id) }
             if settings.draft == nil {
                 let legacy = setup.legacyToolchainOverride
                 originalToolchainOverride = legacy
@@ -201,8 +204,12 @@ struct SettingsView: View {
             showingPlayers = false
         }
         .onChange(of: router.settingsRowID) { _, id in
-            guard id != nil else { return }
+            guard let id else { return }
+            showingControls = false
+            showingPlayers = false
+            localePicker = nil
             if !page.inlineSections.contains(initialSection) { changePage(to: SettingsPage.opening(initialSection)) }
+            showAdvanced(for: id)
             focusRequestedSetting()
         }
         .onChange(of: router.settingsDecision) {
@@ -603,7 +610,7 @@ struct SettingsView: View {
         var hints = [HintItem(.lb, "Previous") { moveSection(by: -1) },
                      HintItem(.rb, "Next") { moveSection(by: 1) }]
         if canResetSection {
-            hints.append(HintItem(.x, L10n.text("Reset group")) { resetSection() })
+            hints.append(HintItem(.x, L10n.text("Reset group")) { askToReset() })
         }
         if hasPendingChanges {
             hints.append(HintItem(.y, "Save", keyboard: .text("Y")) { router.requestSettingsSave() })
@@ -639,6 +646,11 @@ struct SettingsView: View {
     private func focusRequestedSetting() {
         let externalID = page.inlineSections.contains(initialSection) ? router.settingsRowID : nil
         guard let id = requestedRowID ?? externalID else { return }
+        if externalID == Self.controlsGuideRowID {
+            showingControls = true
+            router.takeSettingsRowFocus()
+            return
+        }
         let alias = (SettingsCatalog.all.first { $0.id == id }?.group ?? section).map { SettingsDraftFields.row(id, in: $0) }
         guard
               let index = rowActions.firstIndex(where: {
@@ -656,9 +668,14 @@ struct SettingsView: View {
         var next = navigation
         next.push(.subject(row.group))
         changePage(to: next, focus: row.id, returnFocus: row.id)
-        cloudAdvanced = SettingsCatalog.opensCloudAdvanced(row.id)
-        multiplayerAdvanced = ["multiplayerLocalMode", "multiplayerAdapter", "nextendoClientID"].contains(row.id)
+        showAdvanced(for: row.id)
         SoundEffectService.shared.play(.click)
+    }
+
+    /// A row folded under Advanced shows when it is the one asked for.
+    private func showAdvanced(for id: String) {
+        cloudAdvanced = SettingsCatalog.opensCloudAdvanced(id)
+        multiplayerAdvanced = ["multiplayerLocalMode", "multiplayerAdapter", "nextendoClientID"].contains(id)
     }
 
     private func changePage(to next: OortSettingsStack<SettingsPage>, focus: String? = nil, returnFocus: String? = nil) {
@@ -720,10 +737,18 @@ struct SettingsView: View {
         return SettingsReset.canReset(section)
     }
 
+    /// X resets nothing by itself: it opens a sheet everywhere else, so a press out of habit must be taken back.
+    private func askToReset() {
+        guard canResetSection, let section else { return }
+        guard let ask = SettingsReset.question(section, title: L10n.text(section.title, context: localization)) else {
+            return resetSection(section)
+        }
+        viewModel.confirmSetting(ask.title, message: ask.message, action: "Reset") { resetSection(section) }
+    }
+
     /// `SettingsReset` puts the section's `AppSettings` back in one assignment; the preferences
     /// kept outside it are reset here.
-    private func resetSection() {
-        guard canResetSection, let section else { return }
+    private func resetSection(_ section: SettingsSection) {
         switch section {
         case .look:
             let unset = settings.settings.launcherChoices.dockIconAppearance == nil
@@ -974,7 +999,7 @@ struct SettingsView: View {
         case .cancel:
             handleBack()
         case .secondaryAction:
-            resetSection()
+            askToReset()
         case .contextAction:
             router.requestSettingsSave()
         case .menu:

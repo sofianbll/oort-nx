@@ -16,7 +16,7 @@ extension SpotlightView {
     var viewerOverlay: some View {
         if let viewer {
             ScreenshotViewer(titleID: viewer.titleID, urls: viewer.urls, state: viewer.state,
-                             artwork: artwork, onClose: closeViewer)
+                             artwork: artwork, onClose: closeViewer, onAction: handleViewer)
                 .transition(.opacity)
         }
     }
@@ -103,6 +103,13 @@ extension SpotlightView {
                         guard !state.isLifted, platformPicker == nil || item == .platform else { return }
                         mutate { $0.select(item) }
                         activate(item)
+                    },
+                    onOptions: { item in
+                        guard platformPicker == nil, !state.isLifted else { return }
+                        profileFocused = false
+                        router.integrationBarFocused = false
+                        mutate { $0.select(item) }
+                        handle(.contextAction)
                     }
                 )
                 .offset(y: canvas.u(130))
@@ -142,6 +149,16 @@ extension SpotlightView {
                 .animation(SeleneTheme.ease(SeleneTokens.Motion.detailArt), value: state.focus)
                 .allowsHitTesting(false)
 
+            if state.isLifted {
+                // A click anywhere puts the tile down; the layer also keeps the second click of a double from playing.
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture { handle(.confirm) }
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityHidden(true)
+                    .frame(width: canvas.stageSize.width, height: canvas.size.height)
+                    .zIndex(4)
+            }
             if let menu = cardMenu {
                 ZStack {
                     SeleneTheme.artShade.opacity(SeleneTokens.Alpha.half)

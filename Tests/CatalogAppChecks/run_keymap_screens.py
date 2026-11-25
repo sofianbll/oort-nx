@@ -24,6 +24,9 @@ final class GameControllerService: ObservableObject {
     static let shared = GameControllerService()
     var isGamepadConnected = true
     var activeBrand = GamepadBrand.generic
+    var usesController = true
+    var pointerInHand: Bool { !usesController }
+    var padInHand: ConnectedPad { ConnectedPad(connected: isGamepadConnected && usesController, brand: activeBrand) }
     var buttonSymbols: [PromptButton: String] = [:]
 }
 final class ThemeStore {
@@ -95,7 +98,7 @@ final class ThemeStore {
                 let hints = HintItem.homeGlobals(other: "Spotlight", onOther: {}, onMenu: {}, onSearch: {},
                                                 onProfiles: {}, layout: layout, hasHome: hasHome)
                 let options = HintItem.browsingOptions(layout, "Options", hasHome: hasHome)
-                let visible = SeleneHintsBar(left: hints).visibleLeft(style: .nintendo, connected: .nintendo) + [options]
+                let visible = SeleneHintsBar(left: hints).visibleLeft(inHand: .nintendo) + [options]
                 let buttons = visible.compactMap(\.button)
                 precondition(Set(buttons).count == buttons.count)
                 let rows = layout.guide(hasHome: hasHome)
@@ -120,27 +123,44 @@ final class ThemeStore {
         }
         for (name, brand): (String?, GamepadBrand?) in [
             ("xbox", .xbox), ("switch", .nintendoSwitch), ("ps5", .playstation), ("keyboard", nil),
-            (nil, .generic),
+            ("xbox-then-keyboard", .xbox), (nil, .generic),
         ] {
             GameControllerService.shared.activeBrand = brand ?? .generic
             GameControllerService.shared.isGamepadConnected = brand != nil
+            GameControllerService.shared.usesController = name != "xbox-then-keyboard"
             let left = HintItem.homeGlobals(other: "Spotlight", onOther: {}, onMenu: {}, onSearch: {}, onProfiles: {})
             let right = [HintItem(.a, "Play"), HintItem(.x, "Details"), HintItem(.y, "Game options"),
                          HintItem(.rs, "Sort", hold: "Recent")]
             let bar = SeleneHintsBar(left: left, right: right)
-            let active = ConnectedPad(connected: brand != nil, brand: brand ?? .generic)
-            precondition(bar.visibleLeft(style: .automatic, connected: active).map(\.button)
-                         == (brand == nil ? [.view, .menu, .search, .home] : [.view, .menu, .home]))
-            // A chosen button style is a controller too, even with none connected: no ⌘F keycap beside View.
-            precondition(bar.visibleLeft(style: .xbox, connected: .none).map(\.button) == [.view, .menu, .home])
-            let buttons = (bar.visibleLeft(style: .automatic, connected: active) + right).compactMap(\.button)
+            let active = GameControllerService.shared.padInHand
+            precondition(bar.visibleLeft(inHand: active).map(\.button)
+                         == (active == .none ? [.view, .menu, .search, .home] : [.view, .menu, .home]))
+            // A chosen button style names a controller's buttons: the keyboard keeps its keys whatever the style.
+            precondition(bar.visibleLeft(inHand: .none).map(\.button) == [.view, .menu, .search, .home])
+            // Every hint the screen can press takes a click: its own action first, else its button's.
+            var pressed: [GamepadAction] = []
+            let clickable = SeleneHintsBar(left: left, right: right, press: { pressed.append($0) })
+            for hint in right { clickable.clickAction(hint)?() }
+            precondition(pressed == [.confirm, .secondaryAction, .contextAction, .rightStickPress])
+            precondition(left.allSatisfy { clickable.clickAction($0) != nil })
+            precondition(clickable.clickAction(HintItem(.move, "Move")) == nil)
+            let options = HintItem.browsingOptions(.oort, "Card options", hasHome: true)
+            precondition(options.action == nil && options.button == .menu)
+            clickable.clickAction(options)?()
+            precondition(pressed.last == .contextAction, "The + of the Oort layout opens the card's options")
+            precondition(SeleneHintsBar(right: right).clickAction(right[0]) == nil)
+            let back = HintItem(.b, "Back") {}
+            precondition(SeleneHintsBar.mouseBack(left: [], right: right + [back], pointer: true)?.label == "Back")
+            precondition(SeleneHintsBar.mouseBack(left: [back], right: right, pointer: false) == nil)
+            precondition(SeleneHintsBar.mouseBack(left: [], right: right, pointer: true) == nil)
+            let buttons = (bar.visibleLeft(inHand: active) + right).compactMap(\.button)
             precondition(Set(buttons).count == buttons.count)
             precondition(ButtonPrompts.keyboardKey(.rs) == .text("F3"))
             precondition(left.first?.hold == "Hold: Search")
             let withoutSwitch = HintItem.homeGlobals(other: "Spotlight", onOther: nil, onMenu: {}, onSearch: {}, onProfiles: {})
             let alternateBar = SeleneHintsBar(left: withoutSwitch)
-            precondition(alternateBar.visibleLeft(style: .automatic, connected: active).map(\.button)
-                         == (brand == nil ? [.menu, .search, .home] : [.view, .menu, .home]))
+            precondition(alternateBar.visibleLeft(inHand: active).map(\.button)
+                         == (active == .none ? [.menu, .search, .home] : [.view, .menu, .home]))
             for style: ButtonNameStyle in [.xbox, .nintendo, .playstation] {
                 precondition(ButtonPrompts.symbol(.home, style: style, connected: .none)
                     .flatMap(SelenePromptBadge.filled) != nil, "Missing Home glyph for \(style)")
@@ -149,7 +169,7 @@ final class ThemeStore {
             // Every controller token must render a glyph or a labeled keycap.
             for style in ButtonNameStyle.allCases {
                 for button in PromptButton.allCases {
-                    if button == .search || ButtonPrompts.usesKeyboard(style: style, connected: pad) {
+                    if button == .search || ButtonPrompts.usesKeyboard(pad) {
                         switch ButtonPrompts.keyboardKey(button) {
                         case .symbol(let symbol):
                             precondition(NSImage(systemSymbolName: symbol, accessibilityDescription: nil) != nil)
@@ -179,7 +199,28 @@ final class ThemeStore {
             else { fatalError("Could not render \(name)") }
             try png.write(to: output.appendingPathComponent("\(name).png"))
         }
-        print("Verified both binding tables, browsing hints and every hint token; rendered four Selene help bars.")
+        // A right click reaches the options layer; a left click goes through it to the tile.
+        _ = NSApplication.shared.setActivationPolicy(.prohibited)
+        var opened = 0
+        let tile = NSHostingView(rootView: Rectangle().frame(width: 100, height: 100).oortSecondaryClick { opened += 1 }
+            .environment(\.oortLivePointer, true))
+        tile.frame = NSRect(x: 0, y: 0, width: 100, height: 100)
+        let window = NSWindow(contentRect: tile.frame, styleMask: .borderless, backing: .buffered, defer: true)
+        window.contentView = tile
+        tile.layoutSubtreeIfNeeded()
+        for (type, flags, expected) in [(NSEvent.EventType.leftMouseDown, NSEvent.ModifierFlags(), 0),
+                                        (.rightMouseDown, [], 1), (.leftMouseDown, .control, 2)] {
+            let event = NSEvent.mouseEvent(with: type, location: NSPoint(x: 50, y: 50), modifierFlags: flags, timestamp: 0,
+                                           windowNumber: window.windowNumber, context: nil, eventNumber: 0, clickCount: 1, pressure: 1)!
+            NSApp.postEvent(event, atStart: true)
+            let current = NSApp.nextEvent(matching: [.leftMouseDown, .rightMouseDown], until: Date().addingTimeInterval(1),
+                                          inMode: .default, dequeue: true)!
+            if let hit = tile.hitTest(NSPoint(x: 50, y: 50)) as? SecondaryClickView {
+                if type == .rightMouseDown { hit.rightMouseDown(with: current) } else { hit.mouseDown(with: current) }
+            }
+            precondition(opened == expected, "\(type) opened \(opened)")
+        }
+        print("Verified both binding tables, browsing hints and every hint token; rendered five Selene help bars.")
     }
 }
 '''
@@ -193,7 +234,7 @@ with tempfile.TemporaryDirectory(prefix="keymap-screens-") as folder:
         "Theme/AppLocaleEnvironment.swift", "Theme/SeleneCanvasEnvironment.swift",
         "Theme/SeleneFonts.swift", "Theme/SeleneTheme.swift",
         "Components/SeleneBottomScrim.swift", "Components/SeleneHomeChrome.swift",
-        "OortUI/SeleneHintsBar.swift", "OortUI/SelenePromptBadge.swift",
+        "OortUI/SeleneHintsBar.swift", "OortUI/SelenePromptBadge.swift", "OortUI/OortSecondaryClick.swift",
     ]
     subprocess.run(["xcrun", "swiftc", "-parse-as-library", "-I", BIN, swift,
                     ROOT / "Sources/NXLibrary/Models/GamepadType.swift",

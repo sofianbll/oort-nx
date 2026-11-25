@@ -120,7 +120,7 @@ If you download a ported `.app` folder through Google Drive in your browser, unz
 
 Scroll down for screenshots, the game description and **More like this** when matching titles are in your library. Steam games can show playtime and an **Achievements** card with rarity, unlocked items and crystal tiers. Completing every achievement reveals the animated Arcane tier.
 
-Use **Find a game** for search, **Game Options** for title-specific actions, and the menu for themes, Settings and running-game controls. In **Game Options**, choose **All settings** for the game’s full settings page. Hidden ported apps can be restored under **Settings → Library → Hidden game apps**.
+Use **Find a game** for search, **Search everywhere** (`⌘K`) to reach any game, setting or action by name, **Game Options** for title-specific actions, and the menu for themes, Settings and running-game controls. In **Game Options**, choose **All settings** for the game’s full settings page. Hidden ported apps can be restored under **Settings → Library → Hidden game apps**.
 
 When you quit a game, Arcane comes back to the front, unless you had moved to another app or another game is still open. A **session card** in the top right shows how long you played this time and in total; sessions under 10 seconds show none. Turn it off in **Settings → Library → Session card**.
 
@@ -247,7 +247,8 @@ In fullscreen, the pointer hides after three seconds without movement. Moving th
 | Navigate | Arrow keys | D-pad / left stick |
 | Select | Return / Space | Confirm button |
 | Back | Escape | Back button |
-| Control center | `⌘K` | Tap Menu / `+` / Options |
+| Search everywhere | `⌘K` | Y in Find a game |
+| Control center | `⇧⌘K` | Tap Menu / `+` / Options |
 | Settings | `⌘,` | Hold Menu / `+` / Options for 0.5 s |
 | Find a game | `⌘F` | Hold View / `−` / touchpad click for 0.5 s |
 | Switch library view | `V` | View / `−` / touchpad click |

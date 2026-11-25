@@ -164,11 +164,14 @@ final class SavePanelModel: ObservableObject {
     }
     func chooseImport(slot: SaveSlot) {
         guard canMutate, acquire(activity: .importSave) else { return }
-        let panel = NSOpenPanel()
-        panel.title = "Import a save for \(game.name)"
-        panel.message = "Choose a Ryujinx game folder, an exported save, or a dated backup."
-        panel.prompt = "Preview"; panel.canChooseFiles = false; panel.canChooseDirectories = true; panel.allowsMultipleSelection = false
-        guard panel.runModal() == .OK, let source = panel.url else { release(); return }
+        // The lease is held while the player looks for the folder, and given back when they leave.
+        OortFilePickerPresentation.open(.folder, title: L10n.format("Import a save for %@", [game.name]),
+                                        message: L10n.text("Choose a Ryujinx game folder, an exported save, or a dated backup."),
+                                        cancelled: { [weak self] in self?.release() }) { [weak self] urls in
+            if let self, let source = urls.first { self.previewImport(source, slot: slot) } else { self?.release() }
+        }
+    }
+    private func previewImport(_ source: URL, slot: SaveSlot) {
         viewModel.saveQueue.async {
             do {
                 guard RunningGameMonitor.runningApplication(for: self.game) == nil else { throw SaveFailure.running }

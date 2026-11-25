@@ -313,7 +313,9 @@ extension AppViewModel {
         let onExit: (@Sendable () -> Void)? = if let observe {
             { evaluate?(); DispatchQueue.main.async { observe(.exited) } }
         } else { evaluate }
-        launchService.launch(appURL: game.url, environment: environment,
+        // The player's own value in env.txt, if any, is already in `environment` and stays.
+        let spoken = environment.merging([LaunchService.quitTextKey: LaunchService.quitText(gameName: game.name)]) { own, _ in own }
+        launchService.launch(appURL: game.url, environment: spoken,
                              homeButton: settingsStore.map { store in
                                  GamepadLayout(store.settings).gameHome(store.settings.inGameHomeButton)
                              } ?? .auto,

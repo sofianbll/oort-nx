@@ -343,7 +343,7 @@ import ArcanePorting
         upgraded.offerDriveUpgrade()
         let consent = upgraded.settingsNotice!
         precondition(upgraded.settingsNoticeFocus == consent.cancelIndex && consent.message.contains("licence MIT")
-                     && consent.message.contains(RcloneDownload.host) && consent.message.contains("votre propre Google Drive")
+                     && consent.message.contains(RcloneDownload.host) && consent.message.contains("ton propre Google Drive")
                      && consent.message.contains("rien n’est envoyé à Oort NX") && downloadCalls == 0)
         try render("drive-download", upgradeInput.settingsNoticeOverlay(consent))
         upgradeInput.settingsNoticeInput(.confirm)
@@ -521,7 +521,7 @@ import ArcanePorting
 
         let page = SettingsView(initialSection: .multiplayer, viewModel: vm, settings: settings,
                                 router: AppRouter(), artwork: ArtworkStore())
-        page.resetSection()
+        page.resetSection(.multiplayer)
         precondition(networkWrites == 0 && SettingsReset.reset(.multiplayer, in: editor.settings) == editor.settings)
         try settings.commitDraft()
         precondition(networkWrites == 1 && SettingsReset.reset(.multiplayer, in: settings.settings) == settings.settings

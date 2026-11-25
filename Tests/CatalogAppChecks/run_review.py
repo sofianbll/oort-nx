@@ -115,7 +115,8 @@ struct SpotlightPageModel { var links = [1]; var more: [Int] = [] }
     var gameToRemove: Int?
     var cloudLibraryGameID: UUID?
     var cloudQuitRequested = false
-    var launchOverlay: Int?
+    struct Launch { var offersExit = false }
+    var launchOverlay: Launch?
     var isBuilding = false
     var catalogBuildRecoveries: [Int] = []
     var currentFocusedCatalogGame: CatalogGame?
@@ -200,6 +201,7 @@ final class Router {
     var route = AppRoute.library
     var isScreenshotViewerOpen = false
     var isSearchPresented = false
+    var isPalettePresented = false
     var isThemePickerOpen = false
     var isMenuPresented = false
     var sortMenu: Int?
@@ -273,6 +275,10 @@ extension GamepadAction {
         return result == .tap ? binding.tap : binding.hold
     }
 }
+final class OortKeyboardPresentation {
+    @MainActor static let shared = OortKeyboardPresentation()
+    func handle(_ action: GamepadAction) -> Bool { false }
+}
 struct ClosedFilePicker { func handle(_ action: GamepadAction) -> Bool { false } }
 @MainActor final class InputRecorder { var actions: [GamepadAction] = [] }
 // ACTUAL_ACTION_NAMES
@@ -337,6 +343,8 @@ func withAnimation(_ animation: Int?, _ update: () -> Void) { update() }
     func cloudQuitInput(_ action: GamepadAction) { dialogActions.append(action) }
     func postProfileAction(_ action: GamepadAction) { dialogActions.append(action) }
     func menuInput(_ action: GamepadAction) { dialogActions.append(action) }
+    func paletteInput(_ action: GamepadAction) { dialogActions.append(action) }
+    var paletteAvailable: Bool { true }
     func openProfile(_ page: ProfileFlow.Page, fromMenu: Bool) {
         profileFlow = ProfileFlow(page: page, returnsToMenu: fromMenu)
         viewModel.profileOwnsInput = true
@@ -452,10 +460,10 @@ func withAnimation(_ animation: Int?, _ update: () -> Void) { update() }
         require(handoff.late.contains(pending) && !steam.isHidden,
                 "A stalled launch must still show Steam after the wait")
         let overlays: [(MenuHost, Bool) -> Void] = [
-            { $0.router.isSearchPresented = $1 }, { $0.router.isScreenshotViewerOpen = $1 },
+            { $0.router.isSearchPresented = $1 }, { $0.router.isPalettePresented = $1 }, { $0.router.isScreenshotViewerOpen = $1 },
             { $0.viewModel.isGameOptionsOpen = $1 }, { $0.router.isMenuPresented = $1 },
             { $0.viewModel.showSetupCheck = $1 },
-            { $0.isCloseGameOpen = $1 }, { $0.viewModel.launchOverlay = $1 ? 1 : nil }
+            { $0.isCloseGameOpen = $1 }, { $0.viewModel.launchOverlay = $1 ? .init() : nil }
         ]
         for (index, overlay) in overlays.enumerated() {
             overlay(menu, true)
@@ -469,6 +477,25 @@ func withAnimation(_ animation: Int?, _ update: () -> Void) { update() }
 
         let input = MenuHost()
         input.connectController()
+        do {
+            // The launch screen: only B leaves it, only once it has said so, and nothing reaches what is under it.
+            final class Count { var exits = 0, others = 0 }
+            let count = Count()
+            let exits = NotificationCenter.default.addObserver(forName: .nxLaunchScreenExit, object: nil, queue: nil) { _ in count.exits += 1 }
+            let others = NotificationCenter.default.addObserver(forName: .nxSpotlightGamepadAction, object: nil, queue: nil) { _ in count.others += 1 }
+            input.router.route = .library
+            input.viewModel.launchOverlay = .init()
+            GameControllerService.shared.onAction?(.cancel)
+            require(count.exits == 0, "The first seconds belong to the game")
+            input.viewModel.launchOverlay?.offersExit = true
+            for action in [GamepadAction.confirm, .navigateLeft, .menu, .secondaryAction] { GameControllerService.shared.onAction?(action) }
+            require(count.exits == 0 && !input.router.isMenuPresented, "Only B leaves the launch screen")
+            GameControllerService.shared.onAction?(.cancel)
+            require(count.exits == 1 && count.others == 0, "B must leave the launch screen and nothing else")
+            input.viewModel.launchOverlay = nil
+            NotificationCenter.default.removeObserver(exits)
+            NotificationCenter.default.removeObserver(others)
+        }
         let presses: [ControllerButton: GamepadAction] = [
             .up: .navigateUp, .down: .navigateDown, .left: .navigateLeft, .right: .navigateRight,
             .a: .confirm, .b: .cancel, .x: .secondaryAction, .y: .contextAction,
@@ -574,6 +601,15 @@ func withAnimation(_ animation: Int?, _ update: () -> Void) { update() }
         require(input.router.route == .library && !input.router.isMenuPresented && received.actions.isEmpty,
                 "Search owns input, including Menu and View")
         input.router.isSearchPresented = false
+        input.router.isPalettePresented = true
+        for action: GamepadAction in [.navigateDown, .confirm, .contextAction, .menu, .menuHold, .view, .controlCenter] {
+            GameControllerService.shared.onAction?(action)
+        }
+        require(input.router.route == .library && !input.router.isMenuPresented && received.actions.isEmpty
+                    && input.dialogActions == [.navigateDown, .confirm, .contextAction, .menu, .menuHold, .view, .controlCenter],
+                "The palette owns every press")
+        input.dialogActions = []
+        input.router.isPalettePresented = false
         input.viewModel.isGameOptionsOpen = true
         for action: GamepadAction in [.menu, .menuHold] { GameControllerService.shared.onAction?(action) }
         require(input.router.route == .library && !input.router.isMenuPresented && received.actions.isEmpty,

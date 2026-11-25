@@ -265,7 +265,7 @@ struct SpotlightCardMenu: View {
                     .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
                         .fill(focused ? SeleneTheme.focus.opacity(SeleneTokens.Alpha.near) : Color.clear))
                     .contentShape(Rectangle())
-                    .onHover { if $0 { onFocus(index) } }
+                    .seleneHover { onFocus(index) }
                     .onTapGesture { onFocus(index); onChoose(index) }
                 }
             }

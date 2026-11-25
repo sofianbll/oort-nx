@@ -1,5 +1,4 @@
 import SwiftUI
-import UniformTypeIdentifiers
 import NXLibraryCore
 
 struct SettingsProfileIdentitySection: View {
@@ -9,7 +8,6 @@ struct SettingsProfileIdentitySection: View {
     let onActions: ([SettingsRowAction]) -> Void
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.seleneFocusedRowID) private var focusedRow
-    @State private var choosingImage = false
 
     var body: some View {
         if let profile = profiles.active {
@@ -40,24 +38,26 @@ struct SettingsProfileIdentitySection: View {
                 }
                 .id("selene-row-Avatar")
                 SeleneRow("Personal image", subtitle: "PNG, JPEG or animated GIF, up to 4 MB.") {
-                    button("Choose an image…") { choosingImage = true }
+                    button("Choose an image…") { chooseImage() }
                     if profile.portrait != nil { button("Remove image", action: removeImage) }
                 }
             }
             .onAppear(perform: publishActions)
             .onChange(of: profile.portrait != nil) { publishActions() }
-            .fileImporter(isPresented: $choosingImage, allowedContentTypes: [.png, .jpeg, .gif]) { result in
-                guard case let .success(url) = result else { return }
-                let access = url.startAccessingSecurityScopedResource()
-                defer { if access { url.stopAccessingSecurityScopedResource() } }
-                guard profiles.active?.id == profile.id else { return }
-                guard let bytes = ProfileAvatar.render(url, crop: .init()) else {
-                    viewModel.showSettingsNotice(title: L10n.text("Settings not saved"),
-                                                 message: L10n.text("Choose a valid image."))
-                    return
-                }
-                update { $0.portrait = bytes }
+        }
+    }
+
+    private func chooseImage() {
+        guard let id = profiles.active?.id else { return }
+        OortFilePickerPresentation.open(.files(["png", "jpg", "jpeg", "gif"]), title: L10n.text("Personal image"),
+                                        message: L10n.text("PNG, JPEG or animated GIF, up to 4 MB.")) { urls in
+            guard let url = urls.first, profiles.active?.id == id else { return }
+            guard let bytes = ProfileAvatar.render(url, crop: .init()) else {
+                viewModel.showSettingsNotice(title: L10n.text("Settings not saved"),
+                                             message: L10n.text("Choose a valid image."))
+                return
             }
+            update { $0.portrait = bytes }
         }
     }
 
@@ -93,7 +93,7 @@ struct SettingsProfileIdentitySection: View {
             .value("profileAvatar", "Avatar", cycle: cycleAvatar),
             .init(id: "profilePortrait", title: "Personal image", rowID: "Personal image",
                   secondary: profiles.active?.portrait == nil ? nil : ("Remove image", removeImage)) {
-                choosingImage = true
+                chooseImage()
             },
         ])
     }

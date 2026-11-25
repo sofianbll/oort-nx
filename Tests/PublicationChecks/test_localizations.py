@@ -41,6 +41,31 @@ class LocalizationChecks(unittest.TestCase):
             self.assertEqual(len(errors), 1)
             self.assertIn('View.swift:1', errors[0])
 
+    def test_french_formal_address_is_rejected(self):
+        module = self.module()
+        with tempfile.TemporaryDirectory() as root:
+            path = Path(root) / 'Localizable.xcstrings'
+            translations = {language: {'stringUnit': {'state': 'translated', 'value': 'Game'}}
+                            for language in module.LANGUAGES}
+            catalog = {'sourceLanguage': 'en', 'strings': {'Game': {'localizations': translations}}, 'version': '1.0'}
+            translations['fr']['stringUnit']['value'] = 'Il y a assez de jeux chez toi.'
+            path.write_text(json.dumps(catalog))
+            self.assertEqual(module.check_catalog(path), [])
+            for formal in ('Vous jouez.', 'Votre jeu', 'Vos jeux', 'Le vôtre', 'Choisissez un jeu', 'Faites glisser', 'Réessayez.'):
+                translations['fr']['stringUnit']['value'] = formal
+                path.write_text(json.dumps(catalog))
+                errors = module.check_catalog(path)
+                self.assertTrue(errors and 'tu' in errors[0], formal)
+            translations['fr'] = {'variations': {'plural': {
+                'one': {'stringUnit': {'state': 'translated', 'value': 'Un jeu'}},
+                'other': {'stringUnit': {'state': 'translated', 'value': 'Vos jeux'}}}}}
+            path.write_text(json.dumps(catalog))
+            self.assertEqual(len(module.check_catalog(path)), 1)
+            pack = Path(root) / 'achievements-test.json'
+            pack.write_text(json.dumps({'achievements': [{'id': 'a', 'title': {'fr': 'Coquillage'},
+                                                          'description': {'fr': 'Trouvez un coquillage.'}}]}))
+            self.assertEqual(len(module.check_achievements(Path(root))), 1)
+
     def test_empty_or_incomplete_bundle_is_rejected(self):
         module = self.module()
         with tempfile.TemporaryDirectory() as root:
