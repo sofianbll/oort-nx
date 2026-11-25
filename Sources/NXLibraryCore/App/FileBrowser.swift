@@ -7,13 +7,42 @@ public enum FileBrowser {
 
     public enum Choice: Equatable, Sendable {
         case folder, gameFiles(allowFolder: Bool), keys
+        /// Files with these extensions (empty: any file). `folder` also takes the folder shown.
+        case files([String], folder: Bool = false, multiple: Bool = false)
+        /// Mac apps: their packages are listed as files.
+        case apps
+        /// A command-line tool, which package managers install as a link.
+        case tool
 
-        public var allowsFolder: Bool { self == .folder || self == .gameFiles(allowFolder: true) }
+        public static let images = Choice.files(["png", "jpg", "jpeg", "heic", "heif", "webp", "gif", "tif", "tiff", "bmp", "avif"])
+
+        public var allowsFolder: Bool {
+            switch self {
+            case .folder: return true
+            case .gameFiles(let folder), .files(_, let folder, _): return folder
+            case .keys, .apps, .tool: return false
+            }
+        }
+        public var allowsMultiple: Bool {
+            switch self {
+            case .gameFiles: return true
+            case .files(_, _, let multiple): return multiple
+            case .folder, .keys, .apps, .tool: return false
+            }
+        }
+        /// A chosen URL is what was asked for: a file by its name, a folder only where one is taken.
+        public func accepts(_ url: URL) -> Bool {
+            if accepts(url.lastPathComponent) { return true }
+            return url.hasDirectoryPath && allowsFolder
+        }
         public func accepts(_ name: String) -> Bool {
             switch self {
             case .folder: return false
             case .keys: return name.lowercased() == "prod.keys"
             case .gameFiles: return FileBrowser.gameExtensions.contains((name as NSString).pathExtension.lowercased())
+            case .files(let extensions, _, _): return extensions.isEmpty || extensions.contains((name as NSString).pathExtension.lowercased())
+            case .apps: return (name as NSString).pathExtension.lowercased() == "app"
+            case .tool: return true
             }
         }
     }
@@ -92,10 +121,16 @@ public enum FileBrowser {
                     return Entry(url: folder.appendingPathComponent(name, isDirectory: true),
                                  isFolder: true, isHidden: false, size: nil)
                 }
-                guard !name.hasPrefix("._"), let values = try? url.resourceValues(forKeys: keys),
-                      values.isSymbolicLink != true else { return nil }
+                guard !name.hasPrefix("._"), let values = try? url.resourceValues(forKeys: keys) else { return nil }
+                if values.isSymbolicLink == true {
+                    // Only a tool's link is listed, and only when it leads to a file; nothing is opened.
+                    guard choice == .tool,
+                          (try? url.resolvingSymlinksInPath().resourceValues(forKeys: [.isRegularFileKey]).isRegularFile) == true else { return nil }
+                    return Entry(url: url, isFolder: false, isHidden: name.hasPrefix("."), size: nil)
+                }
                 let directory = values.isDirectory == true && values.isPackage != true
-                guard directory || (values.isRegularFile == true && choice.accepts(name)) else { return nil }
+                let package = choice == .apps && values.isPackage == true
+                guard directory || ((values.isRegularFile == true || package) && choice.accepts(name)) else { return nil }
                 return Entry(url: url, isFolder: directory, isHidden: values.isHidden == true || name.hasPrefix("."),
                              size: directory ? nil : values.fileSize)
             }.sorted {

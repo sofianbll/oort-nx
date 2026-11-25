@@ -444,9 +444,10 @@ struct ProfileEditorView: View {
         case .background:
             if customBackgroundSelected {
                 guard let customBackground else {
-                    let picker = NSOpenPanel()
-                    picker.allowedContentTypes = [.png, .jpeg, .heic, .webP]
-                    if picker.runModal() == .OK { self.customBackground = picker.url }
+                    OortFilePickerPresentation.open(.files(["png", "jpg", "jpeg", "heic", "webp"]), title: L10n.text("Add a picture"),
+                                                    message: L10n.text("Choose a picture for your background. Arcane keeps its own copy.")) {
+                        if step == .background { self.customBackground = $0.first }
+                    }
                     return
                 }
                 do {
@@ -513,9 +514,13 @@ struct ProfileEditorView: View {
 
     private func importAvatar() {
         guard cropDraft == nil else { return }
-        let picker = NSOpenPanel()
-        picker.allowedContentTypes = [.image]
-        guard picker.runModal() == .OK, let url = picker.url else { return }
+        OortFilePickerPresentation.open(.images, title: L10n.text("Your own picture"),
+                                        message: L10n.text("PNG, JPEG, HEIC, WebP or GIF.")) { urls in
+            if let url = urls.first, step == .avatar { crop(url) }
+        }
+    }
+
+    private func crop(_ url: URL) {
         guard let source = ProfileAvatar.source(url), let image = ProfileAvatar.thumbnail(source) else {
             error = "Couldn't add the picture"
             return

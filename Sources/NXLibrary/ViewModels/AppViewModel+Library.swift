@@ -49,12 +49,11 @@ extension AppViewModel {
 
     func chooseLocalApp() {
         guard canAdoptLocalApp else { return }
-        let panel = NSOpenPanel()
-        panel.canChooseDirectories = false
-        panel.allowedContentTypes = [.applicationBundle]
-        panel.resolvesAliases = false
-        panel.prompt = L10n.text("Add ported app")
-        if panel.runModal() == .OK, let url = panel.url { adoptLocalApp(url) }
+        OortFilePickerPresentation.open(.apps, title: L10n.text("Add ported app"),
+                                        message: L10n.text("Choose a game app built with nxnative."),
+                                        startingAt: gameAppsFolder) { [weak self] urls in
+            if let url = urls.first { self?.adoptLocalApp(url) }
+        }
     }
 
     private func adoptLocalApp(_ url: URL) {
