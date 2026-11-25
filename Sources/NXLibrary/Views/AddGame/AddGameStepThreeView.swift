@@ -58,7 +58,7 @@ struct AddGameStepThreeView: View {
     // MARK: - Building
 
     private var buildingView: some View {
-        VStack(alignment: .leading, spacing: canvas.u(24)) {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.large)) {
             HStack(alignment: .top, spacing: canvas.u(36)) {
                 gameTile(caption: porting.isInstallingBuild ? L10n.text("Installing…") :
                     viewModel.portingETAText ?? BuildStageCopy.title(porting.currentStageName))
@@ -71,7 +71,7 @@ struct AddGameStepThreeView: View {
     /// The game being ported, as its tile looks on the home, with a caption (the time left).
     @ViewBuilder private func gameTile(caption: String?) -> some View {
         let side = canvas.u(220)
-        VStack(spacing: canvas.u(14)) {
+        VStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
             if let game = portingGame {
                 Group {
                     if let artwork {
@@ -82,10 +82,10 @@ struct AddGameStepThreeView: View {
                             .aspectRatio(contentMode: .fill)
                     }
                 }
-                .portingLook(viewModel.portingTileLook(game), cornerRadius: canvas.u(18))
+                .portingLook(viewModel.portingTileLook(game), cornerRadius: canvas.u(SeleneTokens.Radius.modal))
                 .frame(width: side, height: side)
-                .clipShape(RoundedRectangle(cornerRadius: canvas.u(18), style: .continuous))
-                .shadow(color: .black.opacity(0.5), radius: canvas.u(12))
+                .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.modal), style: .continuous))
+                .oortShadow(.tile)
                 Text(game.name)
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink)
@@ -110,17 +110,17 @@ struct AddGameStepThreeView: View {
 
     /// Compact stage rows: check, spinner or cross, the name and the time it took.
     private var stageList: some View {
-        VStack(alignment: .leading, spacing: canvas.u(4)) {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.hairline)) {
             if porting.buildStages.isEmpty && !porting.isInstallingBuild {
                 Text(L10n.text("Starting the porting…"))
                     .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
             }
             ForEach(porting.buildStages) { stage in
-                HStack(spacing: canvas.u(12)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                     stageMark(stage)
                         .frame(width: canvas.u(22), height: canvas.u(22))
-                    VStack(alignment: .leading, spacing: canvas.u(2)) {
+                    VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.seam)) {
                         Text(BuildStageCopy.title(stage.name))
                             .seleneFont(.text, stage.isRunning ? .semibold : .regular)
                             .foregroundColor(stage.isRunning ? SeleneTheme.ink : SeleneTheme.ink75)
@@ -221,10 +221,10 @@ struct AddGameStepThreeView: View {
     /// carries the reason's title.
     private func failureView(error: String) -> some View {
         let reason = porting.portingFailureReason
-        return VStack(alignment: .leading, spacing: canvas.u(24)) {
+        return VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.large)) {
             HStack(alignment: .top, spacing: canvas.u(36)) {
                 gameTile(caption: nil)
-                VStack(alignment: .leading, spacing: canvas.u(12)) {
+                VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small)) {
                     Text(error)
                         .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink90)
@@ -476,7 +476,7 @@ struct PortingLogBox: View {
             Button {
                 withAnimation(reduceMotion ? nil : SeleneTheme.quick) { expanded.toggle() }
             } label: {
-                HStack(spacing: canvas.u(8)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                     Image(systemName: "chevron.right")
                         .seleneFont(.badge, .bold)
                         .rotationEffect(.degrees(expanded ? 90 : 0))
@@ -518,7 +518,7 @@ struct PortingLogBox: View {
         let recent = Array(logs.suffix(Self.shown))
         return ScrollViewReader { proxy in
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: canvas.u(3)) {
+                LazyVStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.hairline)) {
                     ForEach(recent) { entry in
                         Text(entry.message)
                             .seleneFont(.text, .regular, design: .monospaced)

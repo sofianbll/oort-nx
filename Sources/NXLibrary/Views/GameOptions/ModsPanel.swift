@@ -131,7 +131,7 @@ struct ModsPanel: View {
             + (running ? [ModsCopy.running(gameName: game.name)] : [])
             + (needsRebuild ? [L10n.text("Rebuild to apply code mod changes.", context: locale)] : [])
         if !notices.isEmpty || message != nil || !conflicts.isEmpty {
-            VStack(alignment: .leading, spacing: canvas.u(8)) {
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
                 ForEach(notices, id: \.self) { notice in
                     Label { Text(notice).fixedSize(horizontal: false, vertical: true) } icon: { MaterialIconView(.info, size: 20) }
                         .seleneFont(.text)
@@ -149,7 +149,7 @@ struct ModsPanel: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
-            .padding(.horizontal, canvas.u(10))
+            .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
             .padding(.bottom, canvas.u(SeleneTokens.Space.line))
         }
     }
@@ -158,7 +158,7 @@ struct ModsPanel: View {
         let rows = presentation.rows
         return ScrollViewReader { proxy in
             ScrollView {
-                VStack(alignment: .leading, spacing: canvas.u(8)) {
+                VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
                     if mods.isEmpty {
                         SeleneOptionRow(icon: nil, title: L10n.text("No mods yet"), about: ModsCopy.empty, focused: false, enabled: false) {}
                     }
@@ -195,7 +195,7 @@ struct ModsPanel: View {
     }
 
     private func sectionHeader(_ title: String, subtitle: String) -> some View {
-        VStack(alignment: .leading, spacing: canvas.u(3)) {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.hairline)) {
             Text(L10n.text(title, context: locale))
                 .seleneFont(.text, .semibold)
                 .foregroundColor(ThemeStore.shared.palette.id == SelenePaletteCatalog.classicBlueID ? SeleneTheme.ink75 : SeleneTheme.glyph)
@@ -206,7 +206,7 @@ struct ModsPanel: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.leading, canvas.u(26))
+        .padding(.leading, canvas.u(SeleneTokens.Space.large))
         .padding(.top, canvas.u(SeleneTokens.Space.medium))
         .padding(.trailing, canvas.u(SeleneTokens.Space.large))
     }

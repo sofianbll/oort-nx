@@ -134,7 +134,7 @@ struct ThemePickerView: View {
     }
 
     private var dots: some View {
-        HStack(spacing: canvas.u(10)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
             ForEach(0..<2, id: \.self) { index in
                 Circle()
                     .fill(SeleneTheme.ink.opacity((index == 0) == (state.step == .theme) ? 1 : 0.3))
@@ -144,9 +144,9 @@ struct ThemePickerView: View {
     }
 
     func header(_ title: String, _ sub: String) -> some View {
-        VStack(spacing: canvas.u(10)) {
+        VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
             Text(title).seleneFont(.screen).foregroundColor(SeleneTheme.ink)
-            Text(sub).seleneFont(.row).foregroundColor(SeleneTheme.ink.opacity(0.7))
+            Text(sub).seleneFont(.row).foregroundColor(SeleneTheme.ink75)
         }
         .multilineTextAlignment(.center)
         .padding(.top, canvas.u(110))
@@ -180,7 +180,7 @@ struct TileFocus: ViewModifier {
         content
             .overlay(
                 RoundedRectangle(cornerRadius: canvas.u(radius + 3), style: .continuous)
-                    .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(3))
+                    .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
                     .padding(canvas.u(-4))
                     .opacity(focused ? 1 : 0))
             .scaleEffect(focused && !reduceMotion ? scale : 1)
@@ -224,7 +224,7 @@ struct WallpaperThumb: View {
                 }
                 guard let decoded, !Task.isCancelled else { return }
                 Self.cache.setObject(decoded, forKey: url as NSURL)
-                withAnimation(.easeOut(duration: 0.25)) { image = decoded }
+                withAnimation(SeleneTheme.arrival) { image = decoded }
             }
     }
 }

@@ -87,7 +87,7 @@ struct GameInboxView: View {
             .background(SeleneTheme.glassLight, in: RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card)))
             .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card))
                 .strokeBorder(dropTarget ? SeleneTheme.focus : SeleneTheme.ink25,
-                              style: StrokeStyle(lineWidth: canvas.u(2), dash: [canvas.u(8), canvas.u(6)])))
+                              style: StrokeStyle(lineWidth: canvas.u(SeleneTokens.Space.focusStroke), dash: [canvas.u(8), canvas.u(6)])))
             .dropDestination(for: URL.self) { urls, _ in model.accept(urls) } isTargeted: { dropTarget = $0 }
             if model.busy {
                 Text(L10n.text("Checking files…")).seleneFont(.text).foregroundStyle(SeleneTheme.ink82)

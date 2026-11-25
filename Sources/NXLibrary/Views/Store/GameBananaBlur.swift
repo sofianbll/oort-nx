@@ -76,7 +76,7 @@ struct GameBananaBlurView: View {
                 return
             }
             guard let loaded = await GameBananaBlur.image(for: url, radius: radius), !Task.isCancelled else { return }
-            withAnimation(.easeOut(duration: 0.3)) { image = loaded }
+            withAnimation(SeleneTheme.arrival) { image = loaded }
         }
     }
 }

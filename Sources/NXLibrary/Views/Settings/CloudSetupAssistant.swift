@@ -167,7 +167,7 @@ struct CloudSetupAssistant: View {
                                    set: { focus.select($0 == .confirm ? .confirmMove : .cancel) }),
                     onCancel: cancel, onConfirm: moveGames)
             } else {
-                VStack(spacing: canvas.u(18)) {
+                VStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                     Text(text("Set up cloud library")).seleneFont(.heading, .semibold)
                         .foregroundColor(SeleneTheme.ink).accessibilityAddTraits(.isHeader)
                     stepper
@@ -190,7 +190,7 @@ struct CloudSetupAssistant: View {
                             .seleneFont(.text).foregroundColor(SeleneTheme.danger)
                             .fixedSize(horizontal: false, vertical: true)
                     }
-                    HStack(spacing: canvas.u(14)) {
+                    HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                         if folderName != nil {
                             pill(.create, "Continue", enabled: folderName.map(CloudDriveFolders.validName) == true,
                                  action: proposeCreation)
@@ -240,7 +240,7 @@ struct CloudSetupAssistant: View {
     }
 
     private var account: some View {
-        VStack(alignment: .leading, spacing: canvas.u(10)) {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small)) {
             if let version { SeleneStatusDot(text: format("rclone detected · %@", [version]), color: SeleneTheme.statusOK) }
             if tool != nil, remotes != nil, work == nil {
                 Text(text("New connections request full Google Drive access. Google does not limit that permission to the folders you choose here."))
@@ -269,7 +269,7 @@ struct CloudSetupAssistant: View {
             } else {
                 Text(text("Use a Google OAuth client for a desktop app."))
                     .fixedSize(horizontal: false, vertical: true)
-                HStack(spacing: canvas.u(12)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                     option(.console, text("Google Console")) { openConsole() }
                     option(.guide, text("Setup guide")) { openGuide() }
                 }
@@ -294,7 +294,7 @@ struct CloudSetupAssistant: View {
     }
 
     private var folders: some View {
-        VStack(alignment: .leading, spacing: canvas.u(10)) {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small)) {
             if selectingSources {
                 Text(text("Game files folder")).seleneFont(.text, .semibold)
                 Text(text("Choose a path on the same cloud service. No files are moved."))
@@ -335,7 +335,7 @@ struct CloudSetupAssistant: View {
                 }
             } else {
                 ScrollView(.horizontal) {
-                    HStack(spacing: canvas.u(5)) {
+                    HStack(spacing: canvas.u(SeleneTokens.Space.hairline)) {
                         ForEach(breadcrumbs, id: \.self) { path in
                             if !path.isEmpty { MaterialIconView(.chevron, size: 13).accessibilityHidden(true) }
                             if path == browsingPath { Text(folderLabel(path)).seleneFont(.text, .semibold) }
@@ -346,7 +346,7 @@ struct CloudSetupAssistant: View {
                 if listing != nil {
                     ScrollViewReader { proxy in
                         ScrollView {
-                            LazyVStack(spacing: canvas.u(5)) {
+                            LazyVStack(spacing: canvas.u(SeleneTokens.Space.hairline)) {
                                 ForEach(folderNames, id: \.self) { name in
                                     option(.folder(name), name, icon: .folder, enabled: folderControlsReady, wide: true) {
                                         browse(CloudDriveFolders.joining(browsingPath, name))
@@ -394,7 +394,7 @@ struct CloudSetupAssistant: View {
     }
 
     private var verification: some View {
-        VStack(spacing: canvas.u(10)) {
+        VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
             Text(verbatim: "\(draft.remote ?? ""):/\(draft.path)").seleneFont(.text).foregroundColor(SeleneTheme.ink)
             if onboarding {
                 Text(verbatim: "\(draft.remote ?? ""):/\(sourcesPath)")
@@ -412,7 +412,7 @@ struct CloudSetupAssistant: View {
     }
 
     private func progress(_ key: String) -> some View {
-        VStack(alignment: .leading, spacing: canvas.u(8)) {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
             Text(text(key)).seleneFont(.text).foregroundColor(SeleneTheme.ink75)
             SeleneProgressBar(progress: nil, color: CloudLibraryStatus.pending.color)
         }

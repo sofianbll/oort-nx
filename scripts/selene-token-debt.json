@@ -1,42 +1,32 @@
 {
-  "version": 2,
+  "version": 3,
   "files": {
     "Sources/NXLibrary/Views/AddGame/AddGameRows.swift": {
-      ".padding(.horizontal,canvas.u(10": 1,
-      ".padding(.leading,canvas.u(10": 1,
-      ".padding(.top,canvas.u(10": 1,
-      ".padding(.vertical,canvas.u(11": 1,
-      "cornerRadius:canvas.u(13": 1,
       "opacity:.opacity(0.08": 1,
       "opacity:.opacity(0.9": 1
     },
     "Sources/NXLibrary/Views/AddGame/AddGameStepThreeView.swift": {
-      "color:.shadow(color:.black": 1,
       "color:0xA8DDB5": 1,
       "color:Color.black": 1,
       "color:Color.clear": 1,
-      "cornerRadius:canvas.u(18": 2,
-      "opacity:.opacity(0.5": 1,
-      "opacity:.opacity(0.85": 1
+      "opacity:.opacity(0.85": 1,
+      "spacing:10": 1,
+      "spacing:14": 3,
+      "spacing:18": 1,
+      "spacing:4": 2,
+      "spacing:5": 1,
+      "spacing:canvas.u(36": 2
     },
     "Sources/NXLibrary/Views/AddGame/AddGameView.swift": {
       ".padding(.top,canvas.u(40": 1,
       ".padding(.top,canvas.u(90": 1,
       "color:Color.black": 1
     },
-    "Sources/NXLibrary/Views/Catalog/CatalogSteamInfo.swift": {
-      "animation:withAnimation(.easeOut": 1
-    },
     "Sources/NXLibrary/Views/Catalog/SteamArtwork.swift": {
-      ".padding(canvas.u(30": 1,
       "color:Color.clear": 2
     },
     "Sources/NXLibrary/Views/Collection/CollectionCoverRow.swift": {
       "component:structCollectionCoverRow:View": 1
-    },
-    "Sources/NXLibrary/Views/Collection/CollectionView.swift": {
-      "color:.shadow(color:.black": 3,
-      "opacity:.opacity(0.45": 3
     },
     "Sources/NXLibrary/Views/Components/AppUpdateDialog.swift": {
       ".padding(.top,16": 1,
@@ -44,7 +34,6 @@
       "component:structAppUpdateDialog:View": 1
     },
     "Sources/NXLibrary/Views/Components/DownloadCloudOverlay.swift": {
-      "color:.shadow(color:.black": 1,
       "color:0xF4CE8E": 2,
       "color:0xF9FCFF": 1,
       "color:0xFFF3DC": 1,
@@ -53,16 +42,9 @@
       "color:Color.clear": 1,
       "color:NSColor(white:": 1,
       "color:NSColor.black": 2,
-      "color:NSColor.white": 2,
-      "opacity:.opacity(0.55": 1
-    },
-    "Sources/NXLibrary/Views/Components/GameLogoArea.swift": {
-      "color:.shadow(color:.black": 4,
-      "opacity:.opacity(0.35": 2,
-      "opacity:.opacity(0.45": 2
+      "color:NSColor.white": 2
     },
     "Sources/NXLibrary/Views/Components/IGDBCredentialsDialog.swift": {
-      ".padding(.top,canvas.u(3": 1,
       "component:structIGDBCredentialsDialog:View": 1
     },
     "Sources/NXLibrary/Views/Components/PortingArtLook.swift": {
@@ -106,30 +88,19 @@
       "opacity:.opacity(0.50": 1
     },
     "Sources/NXLibrary/Views/Components/SeleneStatsRow.swift": {
-      "color:.shadow(color:.black": 1,
-      "component:structSeleneStatsRow:View": 1,
-      "opacity:.opacity(0.45": 1
+      "component:structSeleneStatsRow:View": 1
     },
     "Sources/NXLibrary/Views/Components/SeleneSwitch.swift": {
       "opacity:.opacity(0.13": 1
     },
     "Sources/NXLibrary/Views/Components/SessionCard.swift": {
-      "animation:withAnimation(.easeOut": 2,
-      "color:.shadow(color:.black": 3,
       "opacity:.opacity(0.12": 1,
-      "opacity:.opacity(0.42": 1,
-      "opacity:.opacity(0.45": 3,
-      "opacity:.opacity(0.6": 2,
-      "opacity:.opacity(0.62": 1
-    },
-    "Sources/NXLibrary/Views/Components/SpotlightTileArtwork.swift": {
-      "animation:withAnimation(.easeInOut": 1
+      "opacity:.opacity(0.42": 1
     },
     "Sources/NXLibrary/Views/Components/SteamGridDBKeyDialog.swift": {
       "component:structSteamGridDBKeyDialog:View": 1
     },
     "Sources/NXLibrary/Views/Components/SwitchBoxArtCover.swift": {
-      "animation:withAnimation(.easeInOut": 1,
       "color:.foregroundStyle(.white": 1,
       "color:.shadow(color:.black": 1,
       "opacity:.opacity(0.05": 1,
@@ -143,7 +114,6 @@
     },
     "Sources/NXLibrary/Views/Console/ConsoleView.swift": {
       ".padding(.top,canvas.u(90": 1,
-      ".padding(.vertical,canvas.u(3": 1,
       "color:0xF0D29A": 1,
       "color:Color.black": 1,
       "color:Color.clear": 1
@@ -157,9 +127,6 @@
       "color:.shadow(color:.black": 1,
       "opacity:.opacity(0.55": 1,
       "opacity:.opacity(0.9": 1
-    },
-    "Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift": {
-      ".padding(canvas.u(10": 1
     },
     "Sources/NXLibrary/Views/Detail/CloudPersonalAppUpdateRow.swift": {
       "component:structCloudPersonalAppUpdateRow:View": 1
@@ -175,31 +142,15 @@
       "opacity:.opacity(0": 2
     },
     "Sources/NXLibrary/Views/Detail/DetailsBands.swift": {
-      ".padding(.horizontal,canvas.u(10": 1,
-      "animation:withAnimation(.easeOut": 1,
-      "color:.shadow(color:.black": 1,
-      "cornerRadius:canvas.u(21": 1,
-      "opacity:.opacity(0.55": 1,
       "opacity:.opacity(0.78": 1
     },
     "Sources/NXLibrary/Views/Detail/DetailsPanel.swift": {
-      ".font(.system(size:canvas.u(14": 1,
-      ".padding(.horizontal,canvas.u(10": 1,
-      ".padding(.vertical,canvas.u(9": 2,
-      "opacity:.opacity(0.55": 1,
-      "opacity:.opacity(0.92": 1
-    },
-    "Sources/NXLibrary/Views/Detail/DetailsTopBlock.swift": {
-      "color:.shadow(color:.black": 2,
-      "opacity:.opacity(0.35": 1,
-      "opacity:.opacity(0.45": 1
+      ".font(.system(size:canvas.u(14": 1
     },
     "Sources/NXLibrary/Views/Detail/GameBananaFindPanel.swift": {
-      ".padding(.vertical,canvas.u(10": 1,
       ".padding(canvas.u(-3": 1,
       ".padding(canvas.u(36": 2,
-      "color:Color.clear": 1,
-      "cornerRadius:canvas.u(8": 1
+      "color:Color.clear": 1
     },
     "Sources/NXLibrary/Views/Detail/GameDetailView.swift": {
       "color:Color.black": 1,
@@ -208,47 +159,32 @@
     "Sources/NXLibrary/Views/Detail/ModDetailPanel.swift": {
       ".padding(.horizontal,canvas.u(-12": 1,
       ".padding(canvas.u(-3": 1,
-      "animation:.animation(.easeOut": 3,
       "color:Color.black": 3,
       "color:Color.clear": 8,
-      "cornerRadius:canvas.u(24": 1
+      "spacing:canvas.u(36": 1
     },
     "Sources/NXLibrary/Views/GameOptions/ChangeArtworkView+Tiles.swift": {
-      ".padding(canvas.u(-6": 1,
-      "cornerRadius:canvas.u(18": 1
+      ".padding(canvas.u(-6": 1
     },
     "Sources/NXLibrary/Views/GameOptions/ChangeArtworkView.swift": {
       ".padding(.horizontal,canvas.u(8": 1,
-      ".padding(.leading,canvas.u(10": 1,
       ".padding(.top,canvas.u(90": 1,
-      ".padding(.vertical,canvas.u(10": 2,
-      ".padding(.vertical,canvas.u(9": 1,
       ".padding(canvas.u(-4": 1,
       "color:Color.clear": 1
     },
-    "Sources/NXLibrary/Views/GameOptions/CheatsPanel.swift": {
-      ".padding(.horizontal,canvas.u(10": 1,
-      ".padding(.leading,canvas.u(10": 1
-    },
     "Sources/NXLibrary/Views/GameOptions/GameOptionsView+Rows.swift": {
-      ".padding(.leading,canvas.u(26": 2,
       ".padding(.top,canvas.u(90": 1,
       "color:Color.clear": 3
-    },
-    "Sources/NXLibrary/Views/GameOptions/ModsPanel.swift": {
-      ".padding(.horizontal,canvas.u(10": 1,
-      ".padding(.leading,canvas.u(26": 1
     },
     "Sources/NXLibrary/Views/GameOptions/MoreSettingsPanel.swift": {
       ".padding(.top,canvas.u(90": 1
     },
     "Sources/NXLibrary/Views/GameOptions/SaveImportDetails.swift": {
       ".font(.system(size:canvas.u(22": 1,
-      ".padding(.vertical,canvas.u(10": 2,
+      "lineWidth:1": 1,
       "opacity:.opacity(0.80": 1
     },
     "Sources/NXLibrary/Views/GameOptions/SteamOptionsView.swift": {
-      ".padding(.leading,canvas.u(26": 1,
       ".padding(.top,canvas.u(90": 1
     },
     "Sources/NXLibrary/Views/Launch/DevelopmentStartupView.swift": {
@@ -257,7 +193,9 @@
       ".font(.system(size:28": 1,
       ".padding(48": 1,
       "color:.foregroundColor(.white": 1,
-      "color:Color(red:": 1
+      "color:Color(red:": 1,
+      "spacing:20": 1,
+      "spacing:24": 1
     },
     "Sources/NXLibrary/Views/Launch/LaunchMotion.swift": {
       "color:NSColor.black": 1
@@ -265,35 +203,78 @@
     "Sources/NXLibrary/Views/Launch/LaunchScreenView.swift": {
       ".padding(.horizontal,canvas.u(120": 1,
       "animation:withAnimation(.easeIn": 1,
-      "animation:withAnimation(.easeOut": 3,
+      "animation:withAnimation(.easeOut": 1,
       "color:.foregroundColor(.white": 1,
       "color:Color.black": 3
     },
+    "Sources/NXLibrary/Views/OortUI/SeleneConfirmDialog.swift": {
+      "spacing:canvas.u(10": 1,
+      "spacing:canvas.u(16": 1,
+      "spacing:canvas.u(18": 1,
+      "spacing:canvas.u(22": 1,
+      "spacing:canvas.u(6": 1,
+      "spacing:canvas.u(7": 1,
+      "spacing:canvas.u(8": 1
+    },
+    "Sources/NXLibrary/Views/OortUI/SeleneHintsBar.swift": {
+      "spacing:canvas.u(22": 3,
+      "spacing:canvas.u(8": 1
+    },
+    "Sources/NXLibrary/Views/OortUI/SeleneOptionRow.swift": {
+      "spacing:canvas.u(18": 1,
+      "spacing:canvas.u(3": 1,
+      "spacing:canvas.u(8": 1
+    },
+    "Sources/NXLibrary/Views/OortUI/SelenePillButton.swift": {
+      "spacing:canvas.u(10": 1,
+      "spacing:canvas.u(4": 1
+    },
+    "Sources/NXLibrary/Views/OortUI/SeleneSettingsRow.swift": {
+      "lineWidth:1": 2,
+      "spacing:10": 2,
+      "spacing:12": 1,
+      "spacing:3": 1,
+      "spacing:6": 2,
+      "spacing:canvas.u(6": 1
+    },
+    "Sources/NXLibrary/Views/OortUI/SeleneStatusDot.swift": {
+      "spacing:canvas.u(8": 1
+    },
+    "Sources/NXLibrary/Views/OortUI/SeleneStepper.swift": {
+      "spacing:canvas.u(10": 1
+    },
+    "Sources/NXLibrary/Views/OortUI/SeleneTileRing.swift": {
+      "lineWidth:canvas.u(3": 1,
+      "lineWidth:canvas.u(4": 1
+    },
     "Sources/NXLibrary/Views/Search/FindGameView.swift": {
-      ".padding(.bottom,canvas.u(13": 1,
-      ".padding(.leading,canvas.u(26": 1,
-      ".padding(.top,canvas.u(11": 1,
-      ".padding(.trailing,canvas.u(26": 1
+      "spacing:canvas.u(40": 1
     },
     "Sources/NXLibrary/Views/Settings/CloudReferenceDialog.swift": {
       "component:structCloudReferenceDialog:View": 1
     },
     "Sources/NXLibrary/Views/Settings/LocalePicker.swift": {
       "color:Color.clear": 1,
-      "cornerRadius:canvas.u(24": 2
+      "lineWidth:1": 1
     },
     "Sources/NXLibrary/Views/Settings/NextendoClientDialog.swift": {
       "component:structNextendoClientDialog:View": 1
     },
     "Sources/NXLibrary/Views/Settings/SettingsAPISection.swift": {
-      "cornerRadius:canvas.u(7": 2,
       "opacity:.opacity(0.75": 1
     },
     "Sources/NXLibrary/Views/Settings/SettingsAboutSection.swift": {
       ".padding(6": 3,
       ".padding(8": 1,
       "cornerRadius:7": 1,
-      "opacity:.opacity(0.75": 1
+      "opacity:.opacity(0.75": 1,
+      "spacing:14": 1,
+      "spacing:2": 1,
+      "spacing:4": 3,
+      "spacing:8": 1
+    },
+    "Sources/NXLibrary/Views/Settings/SettingsControllersSection.swift": {
+      "spacing:10": 2
     },
     "Sources/NXLibrary/Views/Settings/SettingsEngineSection.swift": {
       ".padding(.bottom,2": 1,
@@ -304,19 +285,27 @@
       ".padding(.vertical,2": 2,
       ".padding(.vertical,5": 1,
       "cornerRadius:4": 1,
+      "lineWidth:2": 1,
       "opacity:.opacity(0.12": 1,
       "opacity:.opacity(0.16": 1,
       "opacity:.opacity(0.5": 1,
-      "opacity:.opacity(0.62": 1,
-      "opacity:.opacity(0.9": 1
+      "spacing:10": 4,
+      "spacing:2": 1,
+      "spacing:6": 1,
+      "spacing:8": 4
     },
-    "Sources/NXLibrary/Views/Settings/SettingsLibraryGamesSection.swift": {
-      ".padding(.leading,canvas.u(26": 1
+    "Sources/NXLibrary/Views/Settings/SettingsGamesSection.swift": {
+      "spacing:10": 1
+    },
+    "Sources/NXLibrary/Views/Settings/SettingsKeysSection.swift": {
+      "spacing:14": 1,
+      "spacing:8": 1
     },
     "Sources/NXLibrary/Views/Settings/SettingsLibrarySection.swift": {
       ".padding(.horizontal,24": 1,
       ".padding(.vertical,8": 1,
-      "opacity:.opacity(0.62": 2
+      "spacing:10": 2,
+      "spacing:6": 1
     },
     "Sources/NXLibrary/Views/Settings/SettingsSourcesSection.swift": {
       ".padding(.vertical,10": 1,
@@ -326,44 +315,27 @@
       ".padding(.horizontal,8": 1,
       ".padding(.vertical,4": 1,
       "cornerRadius:7": 1,
-      "opacity:.opacity(0.75": 1
+      "opacity:.opacity(0.75": 1,
+      "spacing:8": 2
     },
     "Sources/NXLibrary/Views/Setup/ArcaneWelcomeView.swift": {
-      ".padding(.horizontal,canvas.u(26": 1,
-      ".padding(.top,canvas.u(10": 1,
-      ".padding(.top,canvas.u(30": 2,
-      ".padding(canvas.u(26": 1,
-      "cornerRadius:canvas.u(18": 2,
       "opacity:.opacity(0.75": 2
-    },
-    "Sources/NXLibrary/Views/Setup/FoundGamesSetupView.swift": {
-      ".padding(.top,canvas.u(10": 1,
-      ".padding(.top,canvas.u(30": 1
     },
     "Sources/NXLibrary/Views/Setup/SetupCheckView+Input.swift": {
       "animation:withAnimation(.linear": 1
     },
     "Sources/NXLibrary/Views/Setup/SetupCheckView.swift": {
-      ".padding(.horizontal,canvas.u(10": 1,
-      ".padding(.top,canvas.u(10": 2,
-      ".padding(.top,canvas.u(30": 1,
-      ".padding(.vertical,canvas.u(3": 1,
       "animation:withAnimation(.easeInOut": 2,
       "opacity:.opacity(0.14": 1,
       "shadow:.shadow(color:focused?SeleneTheme.focusGlow:.clear,radius:canvas.u(18))": 1
     },
     "Sources/NXLibrary/Views/Setup/YourGamesSetupView.swift": {
       ".padding(.top,canvas.u(1": 1,
-      ".padding(.top,canvas.u(10": 1,
-      ".padding(.top,canvas.u(30": 1,
       "component:structSetupCardRow:View": 1,
       "shadow:.shadow(color:focused?SeleneTheme.focusGlow:.clear,radius:canvas.u(16))": 1
     },
     "Sources/NXLibrary/Views/Shell/ActivityCenterView.swift": {
       "component:structActivityRow:View": 1
-    },
-    "Sources/NXLibrary/Views/Shell/AppShellView+Layers.swift": {
-      ".padding(.vertical,canvas.u(9": 1
     },
     "Sources/NXLibrary/Views/Shell/AppShellView+Profiles.swift": {
       "animation:withAnimation(.linear": 1,
@@ -377,7 +349,11 @@
     "Sources/NXLibrary/Views/Shell/IntegrationFixtureView.swift": {
       "color:.foregroundStyle(.secondary": 1,
       "font:.font(.title": 1,
-      "opacity:.opacity(0.6": 1
+      "opacity:.opacity(0.6": 1,
+      "spacing:12": 1
+    },
+    "Sources/NXLibrary/Views/Shell/IntegrationsView.swift": {
+      "lineWidth:1": 1
     },
     "Sources/NXLibrary/Views/Shell/MenuOverlayView.swift": {
       "component:structMenuCard:View": 1
@@ -385,10 +361,10 @@
     "Sources/NXLibrary/Views/Shell/ProfileEditorView.swift": {
       ".padding(.bottom,canvas.u(124": 1,
       ".padding(.bottom,canvas.u(154": 1,
-      ".padding(.vertical,canvas.u(9": 1,
-      ".padding(canvas.u(5": 1,
       "opacity:.opacity(0.10": 1,
-      "opacity:.opacity(0.45": 1
+      "opacity:.opacity(0.45": 1,
+      "spacing:canvas.u(40": 1,
+      "spacing:canvas.u(60": 1
     },
     "Sources/NXLibrary/Views/Shell/ProfilePage.swift": {
       "color:Color.clear": 2,
@@ -409,101 +385,74 @@
       "color:0x8D4831": 1,
       "opacity:.opacity(0.14": 1,
       "opacity:.opacity(0.8": 1,
-      "shadow:.shadow(color:accent.opacity(0.8),radius:canvas.u(11))": 1
+      "shadow:.shadow(color:accent.opacity(0.8),radius:canvas.u(11))": 1,
+      "spacing:canvas.u(56": 1,
+      "spacing:canvas.u(60": 1
     },
     "Sources/NXLibrary/Views/Spotlight/AchievementDetail.swift": {
       ".padding(.horizontal,canvas.u(56": 1,
-      ".padding(.top,canvas.u(10": 1,
-      ".padding(.top,canvas.u(26": 1,
-      ".padding(.top,canvas.u(34": 1,
       ".padding(.top,canvas.u(56": 1,
-      "color:.shadow(color:.black": 2,
       "color:Color.black": 1,
-      "opacity:.opacity(0.45": 1,
-      "opacity:.opacity(0.5": 1,
-      "opacity:.opacity(0.55": 2
+      "opacity:.opacity(0.55": 1
     },
     "Sources/NXLibrary/Views/Spotlight/AchievementsScreen.swift": {
-      ".padding(.top,canvas.u(10": 2,
-      ".padding(.top,canvas.u(30": 1,
       ".padding(.top,canvas.u(70": 1,
-      "color:.shadow(color:.black": 1,
       "color:Color.black": 1,
       "color:Color.clear": 2,
       "component:structAchievementsScreenRow:View": 1,
       "opacity:.opacity(0": 2,
-      "opacity:.opacity(0.4": 1,
-      "opacity:.opacity(0.45": 2,
+      "opacity:.opacity(0.45": 1,
       "opacity:.opacity(0.5": 1,
       "opacity:.opacity(0.7": 1,
       "opacity:.opacity(0.8": 1
     },
-    "Sources/NXLibrary/Views/Spotlight/SeleneHeroArt.swift": {
-      "animation:withAnimation(.easeOut": 1
-    },
     "Sources/NXLibrary/Views/Spotlight/SpotlightCardInfoView.swift": {
       ".padding(canvas.u(-6": 1,
-      "color:.shadow(color:.black": 1,
       "color:Color.clear": 1,
       "cornerRadius:canvas.u(4": 1,
-      "opacity:.opacity(0.45": 1,
       "opacity:.opacity(0.8": 1,
-      "opacity:.opacity(0.95": 1
+      "opacity:.opacity(0.95": 1,
+      "spacing:canvas.u(44": 1
     },
     "Sources/NXLibrary/Views/Spotlight/SpotlightInfoView.swift": {
-      ".padding(.top,canvas.u(26": 1,
-      ".padding(.trailing,canvas.u(9": 1,
       "color:0xF2A0A0": 1,
       "opacity:.opacity(0.45": 1
     },
     "Sources/NXLibrary/Views/Spotlight/SpotlightPageSections.swift": {
-      ".padding(.vertical,canvas.u(5": 1,
-      "color:.shadow(color:.black": 4,
       "color:Color.clear": 1,
-      "opacity:.opacity(0.4": 2,
-      "opacity:.opacity(0.45": 4
+      "opacity:.opacity(0.45": 2
     },
     "Sources/NXLibrary/Views/Spotlight/SpotlightRowView.swift": {
       "animation:.animation(.easeOut": 1,
-      "animation:withAnimation(.easeOut": 1,
-      "color:.shadow(color:.black": 2,
+      "color:.shadow(color:.black": 1,
       "color:Color.black": 1,
       "opacity:.opacity(0.35": 1,
-      "opacity:.opacity(0.45": 1,
       "opacity:.opacity(0.55": 1,
       "opacity:.opacity(0.85": 1
     },
     "Sources/NXLibrary/Views/Spotlight/SpotlightScreenshotStrip.swift": {
       ".padding(canvas.u(-14": 1,
       ".padding(canvas.u(-4": 1,
-      "animation:withAnimation(.easeOut": 1,
-      "color:.shadow(color:.black": 1,
-      "color:Color.clear": 1,
-      "opacity:.opacity(0.45": 1
+      "color:Color.clear": 1
     },
     "Sources/NXLibrary/Views/Spotlight/SpotlightTopBar.swift": {
       "animation:withAnimation(.linear": 1,
-      "opacity:.opacity(0.7": 1,
       "opacity:.opacity(0.95": 1
     },
     "Sources/NXLibrary/Views/Spotlight/SpotlightView+Entrance.swift": {
       "animation:withAnimation(.easeOut": 1
     },
-    "Sources/NXLibrary/Views/Spotlight/SpotlightView+Input.swift": {
-      "animation:withAnimation(.easeOut": 1
-    },
     "Sources/NXLibrary/Views/Spotlight/SpotlightView+PageContent.swift": {
-      ".padding(.top,canvas.u(30": 1,
       ".padding(.top,canvas.u(44": 1,
       "color:Color.black": 1,
       "opacity:.opacity(0": 1,
-      "opacity:.opacity(0.35": 1
+      "opacity:.opacity(0.35": 1,
+      "spacing:canvas.u(40": 1
     },
     "Sources/NXLibrary/Views/Spotlight/SpotlightView+PageLayout.swift": {
       "animation:withAnimation(.easeInOut": 6
     },
     "Sources/NXLibrary/Views/Spotlight/SpotlightView+Stage.swift": {
-      ".padding(.top,canvas.u(10": 2,
       "animation:.animation(.easeInOut": 1,
       "color:Color.black": 1,
       "opacity:.opacity(0.45": 1
@@ -514,52 +463,33 @@
     "Sources/NXLibrary/Views/Spotlight/TierCrystal.swift": {
       "color:Color.clear": 1
     },
-    "Sources/NXLibrary/Views/Store/GameBananaBlur.swift": {
-      "animation:withAnimation(.easeOut": 1
-    },
     "Sources/NXLibrary/Views/Store/ModStorePage.swift": {
-      ".padding(.horizontal,canvas.u(10": 1,
       ".padding(.horizontal,canvas.u(56": 1,
       ".padding(.leading,canvas.u(56": 1,
-      ".padding(.top,canvas.u(10": 2,
       ".padding(canvas.u(-14": 1,
       ".padding(canvas.u(-4": 1,
       "animation:.animation(.easeInOut": 1,
-      "color:.shadow(color:.black": 1,
       "color:Color.black": 1,
       "color:Color.clear": 1,
       "component:structModStoreRow:View": 1,
-      "cornerRadius:canvas.u(17": 1,
-      "cornerRadius:canvas.u(18": 1,
-      "cornerRadius:canvas.u(24": 1,
       "opacity:.opacity(0.15": 1,
       "opacity:.opacity(0.35": 1,
-      "opacity:.opacity(0.45": 2,
+      "opacity:.opacity(0.45": 1,
       "opacity:.opacity(0.78": 1,
       "opacity:.opacity(0.82": 1
     },
     "Sources/NXLibrary/Views/Theme/OnlineBrowsePanel.swift": {
-      ".padding(.bottom,canvas.u(10": 2,
-      ".padding(.horizontal,canvas.u(11": 1,
-      ".padding(.horizontal,canvas.u(7": 1,
-      ".padding(.leading,canvas.u(10": 2,
-      ".padding(.top,canvas.u(13": 1,
-      ".padding(.vertical,canvas.u(10": 2,
-      ".padding(.vertical,canvas.u(3": 1,
       ".padding(canvas.u(-3": 1,
       ".padding(canvas.u(-4": 1,
-      ".padding(canvas.u(5": 1,
-      ".padding(canvas.u(7": 2,
       "color:.foregroundColor(.white": 2,
-      "color:.shadow(color:.black": 1,
       "color:Color.black": 2,
       "color:Color.clear": 1,
       "color:Color.white": 1,
-      "cornerRadius:canvas.u(15": 1,
+      "lineWidth:1": 1,
+      "lineWidth:canvas.u(4": 2,
       "opacity:.opacity(0.25": 1,
       "opacity:.opacity(0.45": 1,
-      "opacity:.opacity(0.55": 1,
-      "opacity:.opacity(0.6": 2
+      "opacity:.opacity(0.6": 1
     },
     "Sources/NXLibrary/Views/Theme/SeleneBackdrop.swift": {
       "color:0x05080F": 1,
@@ -592,51 +522,36 @@
       "opacity:.opacity(0.90": 1
     },
     "Sources/NXLibrary/Views/Theme/ThemePickerView+BackgroundStep.swift": {
-      ".padding(.bottom,canvas.u(10": 1,
-      ".padding(.horizontal,canvas.u(10": 1,
-      ".padding(.horizontal,canvas.u(11": 1,
-      ".padding(.leading,canvas.u(10": 1,
-      ".padding(.top,canvas.u(13": 1,
       ".padding(.top,canvas.u(250": 1,
-      ".padding(.top,canvas.u(5": 1,
-      ".padding(.vertical,canvas.u(10": 1,
-      ".padding(.vertical,canvas.u(9": 1,
-      ".padding(canvas.u(3": 1,
       "color:.foregroundColor(.white": 2,
-      "color:.shadow(color:.black": 1,
       "color:Color.black": 2,
       "color:Color.clear": 1,
-      "opacity:.opacity(0.55": 2,
-      "opacity:.opacity(0.6": 2
+      "opacity:.opacity(0.55": 1,
+      "opacity:.opacity(0.6": 1
     },
     "Sources/NXLibrary/Views/Theme/ThemePickerView+ThemeStep.swift": {
-      ".padding(.horizontal,canvas.u(9": 1,
       ".padding(.top,canvas.u(290": 1,
       "color:Color.black": 1,
       "color:Color.white": 1,
-      "cornerRadius:canvas.u(8": 2,
+      "lineWidth:1": 3,
       "opacity:.opacity(0": 1,
       "opacity:.opacity(0.25": 1,
       "opacity:.opacity(0.33": 1,
       "opacity:.opacity(0.4": 1,
-      "opacity:.opacity(0.9": 1
+      "opacity:.opacity(0.9": 1,
+      "spacing:canvas.u(60": 1
     },
     "Sources/NXLibrary/Views/Theme/ThemePickerView.swift": {
       ".padding(.bottom,canvas.u(124": 1,
       ".padding(.top,canvas.u(110": 1,
       ".padding(canvas.u(-4": 1,
-      "animation:withAnimation(.easeOut": 1,
       "color:Color.black": 1,
       "color:Color.clear": 1,
-      "opacity:.opacity(0.3": 1,
-      "opacity:.opacity(0.7": 1
+      "opacity:.opacity(0.3": 1
     },
     "Sources/NXLibrary/Views/Theme/ThemePreview.swift": {
-      "animation:.animation(.easeOut": 3,
-      "color:.shadow(color:.black": 1,
+      "lineWidth:1": 2,
       "opacity:.opacity(0.22": 1,
-      "opacity:.opacity(0.5": 1,
-      "opacity:.opacity(0.55": 1,
       "opacity:.opacity(0.6": 2
     }
   }

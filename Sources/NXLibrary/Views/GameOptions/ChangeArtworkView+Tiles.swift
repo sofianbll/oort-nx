@@ -12,7 +12,7 @@ extension ChangeArtworkView {
         let size = CGSize(width: canvas.u(tileSize.width), height: canvas.u(tileSize.height))
         let radius = canvas.u(12)
         let face = RoundedRectangle(cornerRadius: radius, style: .continuous)
-        return VStack(alignment: .leading, spacing: canvas.u(8)) {
+        return VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
             ZStack(alignment: .topTrailing) {
                 face.fill(SeleneTheme.glass)
                 preview(tile, size: size)
@@ -28,8 +28,8 @@ extension ChangeArtworkView {
             }
             .frame(width: size.width, height: size.height)
             // The ring sits 6 outside the tile, centred on it.
-            .overlay(SeleneTileRing(cornerRadius: canvas.u(18), active: focused).padding(canvas.u(-6)))
-            VStack(alignment: .leading, spacing: canvas.u(2)) {
+            .overlay(SeleneTileRing(cornerRadius: canvas.u(SeleneTokens.Radius.modal), active: focused).padding(canvas.u(-6)))
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.seam)) {
                 Text(caption(tile).title)
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink)
@@ -41,7 +41,7 @@ extension ChangeArtworkView {
             .frame(width: size.width, alignment: .leading)
         }
         .scaleEffect(focused ? 1.04 : 1)
-        .animation(reduceMotion ? nil : .easeOut(duration: 0.15), value: focused)
+        .animation(reduceMotion ? nil : SeleneTheme.quick, value: focused)
         .contentShape(Rectangle())
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(caption(tile).title), \(caption(tile).detail)")

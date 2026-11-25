@@ -37,7 +37,7 @@ struct YourGamesSetupView: View {
                 SetupStepIndicator(page: .games).padding(.bottom, canvas.u(SeleneTokens.Space.control))
                 Text(title).seleneFont(.screen, .semibold).foregroundColor(SeleneTheme.ink)
                 Text(subtitle).seleneFont(.text).foregroundColor(SeleneTheme.ink75)
-                    .padding(.top, canvas.u(10))
+                    .padding(.top, canvas.u(SeleneTokens.Space.small))
 
                 row(.apps, title: GameFoldersCopy.appsTitle,
                     detail: GameFoldersCopy.appsContents + "\n" + (viewModel.gameAppsFolder.path as NSString).abbreviatingWithTildeInPath,
@@ -73,14 +73,14 @@ struct YourGamesSetupView: View {
                         .padding(.top, canvas.u(SeleneTokens.Space.small))
                 }
 
-                HStack(spacing: canvas.u(22)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.large)) {
                     SelenePillButton(title: L10n.text("Back"), focused: focus == .back) { activate(.back) }
                         .onHover { if $0 { move(to: .back) } }
                     SelenePillButton(title: libraryState == .ready ? L10n.text("Open library") : L10n.text("Skip for now"),
                                      minWidth: 220, focused: focus == .finish) { activate(.finish) }
                         .onHover { if $0 { move(to: .finish) } }
                 }
-                .padding(.top, canvas.u(30))
+                .padding(.top, canvas.u(SeleneTokens.Space.section))
             }
             .frame(width: canvas.u(960))
             .offset(y: canvas.u(-20))
@@ -162,7 +162,7 @@ struct SetupStepIndicator: View {
     let page: FirstRunSetup.Page
 
     var body: some View {
-        HStack(spacing: canvas.u(14)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
             step(1, L10n.text("Get ready", context: localization), active: page == .requirements)
             Capsule().fill(SeleneTheme.ink15).frame(width: canvas.u(38), height: canvas.u(1))
             step(2, L10n.text("Your games", context: localization), active: page == .games)
@@ -173,7 +173,7 @@ struct SetupStepIndicator: View {
     }
 
     private func step(_ number: Int, _ title: String, active: Bool) -> some View {
-        HStack(spacing: canvas.u(8)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
             Text(String(number)).seleneFont(.badge, .semibold)
                 .foregroundColor(active ? SeleneTheme.onFocus : SeleneTheme.ink60)
                 .frame(width: canvas.u(24), height: canvas.u(24))
@@ -204,9 +204,9 @@ struct SetupCardRow: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: canvas.u(22)) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.large)) {
                 if platform == nil { MaterialIconView(icon, size: 30).frame(width: canvas.u(40)) }
-                VStack(alignment: .leading, spacing: canvas.u(5)) {
+                VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.hairline)) {
                     if let platform {
                         PlatformLabel(platform, title: title, preset: .setup)
                     } else {

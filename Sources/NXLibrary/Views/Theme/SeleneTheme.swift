@@ -69,6 +69,8 @@ enum SeleneTheme {
     static func cubicOut(_ duration: Double) -> Animation {
         .timingCurve(0.215, 0.61, 0.355, 1, duration: duration)
     }
+    /// An image or a message that has just arrived.
+    static let arrival = Animation.easeOut(duration: SeleneTokens.Motion.transfer)
     static let art = Animation.easeOut(duration: 0.42)
     static let menu = Animation.spring(response: 0.26, dampingFraction: 0.88)
     static let expand = Animation.spring(response: 0.42, dampingFraction: 0.86)
@@ -122,7 +124,7 @@ private struct SeleneRowFocusModifier: ViewModifier {
         content
             .overlay {
                 RoundedRectangle(cornerRadius: radius, style: .continuous)
-                    .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(2))
+                    .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.focusStroke))
                     .opacity(focused ? 1 : 0)
             }
             .animation(Motion.focus(reduceMotion), value: focused)

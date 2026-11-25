@@ -44,7 +44,7 @@ struct LocalePicker: View {
         let rows = choices
         ZStack {
             SeleneTheme.scrim65.ignoresSafeArea().onTapGesture(perform: onClose)
-            VStack(alignment: .leading, spacing: canvas.u(16)) {
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.medium)) {
                 Text(L10n.text(mode == .language ? "Choose app language" : "Regional formats")).seleneFont(.screen, .semibold).foregroundColor(SeleneTheme.ink)
                 Text(L10n.text(mode == .language ? "Menus, genres and available game descriptions. The games’ own language stays separate." : "Dates, numbers and sizes only. Game descriptions follow the app language."))
                     .seleneFont(.text).foregroundColor(SeleneTheme.ink60)
@@ -60,7 +60,7 @@ struct LocalePicker: View {
                 }
                 ScrollViewReader { proxy in
                     ScrollView {
-                        LazyVStack(spacing: canvas.u(5)) {
+                        LazyVStack(spacing: canvas.u(SeleneTokens.Space.hairline)) {
                             if rows.isEmpty {
                                 Text(L10n.text("No matching regions.")).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
                             }
@@ -105,8 +105,8 @@ struct LocalePicker: View {
             .padding(canvas.u(SeleneTokens.Space.section))
             .frame(width: canvas.u(800))
             .background(SeleneTheme.glassCard)
-            .clipShape(RoundedRectangle(cornerRadius: canvas.u(24)))
-            .overlay(RoundedRectangle(cornerRadius: canvas.u(24)).strokeBorder(SeleneTheme.ink15, lineWidth: 1))
+            .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.field)))
+            .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.field)).strokeBorder(SeleneTheme.ink15, lineWidth: 1))
         }
         .onChange(of: query) { focus = 0 }
         .onAppear(perform: installKeys)

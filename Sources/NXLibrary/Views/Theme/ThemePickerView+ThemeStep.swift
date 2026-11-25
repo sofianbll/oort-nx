@@ -46,7 +46,7 @@ struct ThemePaletteSwatch: View {
         let background = Color(hex: palette.base.stops.first?.color ?? palette.glass)
         let readingShade = palette.mode == .light ? Color(hex: palette.scrim) : background
         let shape = RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
-        return VStack(spacing: canvas.u(8)) {
+        return VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
             ZStack {
                 background
                 if let url = WallpaperCatalog.resolve(nil, themeID: palette.id, in: theme.wallpapers)?.url {
@@ -77,7 +77,7 @@ struct ThemePaletteSwatch: View {
                 .lineLimit(1)
                 .frame(maxWidth: canvas.u(140))
         }
-        .padding(.horizontal, canvas.u(9))
+        .padding(.horizontal, canvas.u(SeleneTokens.Space.compact))
         .padding(.top, canvas.u(SeleneTokens.Space.tight))
         .padding(.bottom, canvas.u(SeleneTokens.Space.compact))
         .contentShape(Rectangle())
@@ -96,11 +96,11 @@ extension ThemePickerView {
         where !colors.contains(color) {
             colors.append(color)
         }
-        return HStack(spacing: canvas.u(8)) {
+        return HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
             ForEach(Array(colors.enumerated()), id: \.offset) { _, color in
-                RoundedRectangle(cornerRadius: canvas.u(8), style: .continuous)
+                RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.row), style: .continuous)
                     .fill(Color(hex: color))
-                    .overlay(RoundedRectangle(cornerRadius: canvas.u(8), style: .continuous)
+                    .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.row), style: .continuous)
                         .strokeBorder(SeleneTheme.ink25, lineWidth: 1))
                     .frame(width: canvas.u(46), height: canvas.u(26))
             }

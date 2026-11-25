@@ -199,7 +199,7 @@ extension SpotlightView {
         // They arrive after the logo, not before it.
         .seleneReveal(delay: 0.6)
         .id(id)
-        .padding(.top, canvas.u(30))
+        .padding(.top, canvas.u(SeleneTokens.Space.section))
         .spotlightBlock(.strip)
     }
 

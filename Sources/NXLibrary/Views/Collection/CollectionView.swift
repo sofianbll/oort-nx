@@ -269,7 +269,7 @@ struct CollectionView: View {
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: canvas.u(1080))
-                .shadow(color: .black.opacity(0.45), radius: canvas.u(6))
+                .oortShadow(.text)
         } else if viewModel.isScanningLibrary {
             EmptyView()
         } else if profileCard != nil {
@@ -280,14 +280,14 @@ struct CollectionView: View {
             Text(L10n.format("No games in %@", [L10n.text(filter.rawValue)]))
                 .seleneFont(.screen)
                 .foregroundColor(SeleneTheme.ink)
-                .shadow(color: .black.opacity(0.45), radius: canvas.u(6))
+                .oortShadow(.text)
                 .allowsHitTesting(false)
         } else {
-            VStack(spacing: canvas.u(14)) {
+            VStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 Text(L10n.text("Add your first game")).seleneFont(.screen).foregroundColor(SeleneTheme.ink)
                 Text(L10n.text("Choose game files or find your existing apps."))
                     .seleneFont(.text).foregroundColor(SeleneTheme.ink60)
-                HStack(spacing: canvas.u(14)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                     SelenePillButton(title: L10n.text("Add game"), focused: !profileFocused && !importFocused) { router.openAddGame() }
                     SelenePillButton(title: L10n.text("Import existing builds"), minWidth: 0, focused: !profileFocused && importFocused) {
                         viewModel.importExistingBuilds()
@@ -295,7 +295,7 @@ struct CollectionView: View {
                 }
                 .padding(.top, canvas.u(SeleneTokens.Space.control))
             }
-            .shadow(color: .black.opacity(0.45), radius: canvas.u(6))
+            .oortShadow(.text)
         }
     }
 

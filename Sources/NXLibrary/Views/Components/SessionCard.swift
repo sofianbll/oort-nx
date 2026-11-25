@@ -109,7 +109,7 @@ struct AchievementUnlockToast: View {
         .background(Color(hex: ThemeStore.shared.palette.glass, opacity: 0.96),
                     in: RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge)))
         .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge)).strokeBorder(SeleneTheme.ink15))
-        .shadow(color: .black.opacity(0.45), radius: canvas.u(SeleneTokens.Radius.anchoredCard))
+        .oortShadow(.floating)
         .accessibilityElement(children: .combine)
     }
 }
@@ -142,11 +142,11 @@ struct SessionCardView: View {
                                                  .init(color: .black, location: 0.85)],
                                          startPoint: .leading, endPoint: .trailing))
             }
-            HStack(spacing: canvas.u(16)) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(L10n.text("Session ended"))
                         .seleneFont(.text)
-                        .foregroundColor(SeleneTheme.ink.opacity(0.62))
+                        .foregroundColor(SeleneTheme.ink75)
                     Text(summary.gameName)
                         .seleneFont(.row, .semibold)
                         .foregroundColor(SeleneTheme.ink)
@@ -154,11 +154,11 @@ struct SessionCardView: View {
                         .truncationMode(.tail)
                         .padding(.top, canvas.u(SeleneTokens.Space.seam))
                         .padding(.bottom, canvas.u(SeleneTokens.Space.compact))
-                    HStack(alignment: .lastTextBaseline, spacing: canvas.u(12)) {
+                    HStack(alignment: .lastTextBaseline, spacing: canvas.u(SeleneTokens.Space.small)) {
                         figure(summary.thisSession, L10n.text("this session"))
                         Text("·")
                             .seleneFont(.text)
-                            .foregroundColor(SeleneTheme.ink.opacity(0.45))
+                            .foregroundColor(SeleneTheme.ink75)
                         figure(summary.total, L10n.text("total"))
                     }
                 }
@@ -169,7 +169,7 @@ struct SessionCardView: View {
                         .interpolation(.high)
                         .aspectRatio(contentMode: .fit)
                         .frame(maxWidth: canvas.u(170), maxHeight: canvas.u(88))
-                        .shadow(color: .black.opacity(0.6), radius: canvas.u(5))
+                        .oortShadow(.text)
                         .padding(.trailing, canvas.u(SeleneTokens.Space.hairline))
                 }
             }
@@ -183,7 +183,7 @@ struct SessionCardView: View {
         .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
             .strokeBorder(SeleneTheme.ink.opacity(0.12), lineWidth: max(1, canvas.u(1))))
-        .shadow(color: .black.opacity(0.45), radius: canvas.u(18))
+        .oortShadow(.floating)
         .environment(\.seleneMinimumFont, 12)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(L10n.format("Session ended, %@: %@ this session, %@ total", [String(describing: summary.gameName), String(describing: summary.thisSession.replacingOccurrences(of: "<1m", with: L10n.text("under a minute"))), String(describing: summary.total.replacingOccurrences(of: "<1m", with: L10n.text("under a minute")))]))
@@ -191,13 +191,13 @@ struct SessionCardView: View {
     }
 
     private func figure(_ value: String, _ label: String) -> some View {
-        HStack(alignment: .lastTextBaseline, spacing: canvas.u(7)) {
+        HStack(alignment: .lastTextBaseline, spacing: canvas.u(SeleneTokens.Space.compact)) {
             Text(value)
                 .seleneFont(.row, .semibold)
                 .foregroundColor(SeleneTheme.ink)
             Text(L10n.text(label))
                 .seleneFont(.text)
-                .foregroundColor(SeleneTheme.ink.opacity(0.6))
+                .foregroundColor(SeleneTheme.ink75)
         }
         .lineLimit(1)
         .fixedSize()
@@ -211,11 +211,11 @@ struct SessionCardView: View {
         logo = GameArtLoader.shared.cachedLogo(for: game)
         if hero == nil {
             let loaded = await GameArtLoader.shared.hero(for: game, metadata: metadata, artwork: artwork, personalizations: personalizations)
-            withAnimation(.easeOut(duration: 0.3)) { hero = loaded }
+            withAnimation(SeleneTheme.arrival) { hero = loaded }
         }
         if logo == nil {
             let loaded = await GameArtLoader.shared.logo(for: game, metadata: metadata, artwork: artwork, personalizations: personalizations)
-            withAnimation(.easeOut(duration: 0.3)) { logo = loaded }
+            withAnimation(SeleneTheme.arrival) { logo = loaded }
         }
     }
 }

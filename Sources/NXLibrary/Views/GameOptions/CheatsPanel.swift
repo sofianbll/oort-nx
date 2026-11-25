@@ -158,7 +158,7 @@ struct CheatsPanel: View {
             .seleneOverlayOwnership(confirm == nil)
             .overlay(
                 RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card), style: .continuous)
-                    .stroke(SeleneTheme.focus, lineWidth: canvas.u(3))
+                    .stroke(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
                     .padding(canvas.u(SeleneTokens.Space.large))
                     .opacity(dropTargeted ? 1 : 0)
                     .allowsHitTesting(false)
@@ -192,7 +192,7 @@ struct CheatsPanel: View {
     @ViewBuilder private var noticeArea: some View {
         let notices = self.notices
         if !notices.isEmpty || message != nil {
-            VStack(alignment: .leading, spacing: canvas.u(8)) {
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
                 ForEach(notices, id: \.self) { notice in
                     Label {
                         Text(notice).fixedSize(horizontal: false, vertical: true)
@@ -209,7 +209,7 @@ struct CheatsPanel: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
-            .padding(.horizontal, canvas.u(10))
+            .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
             .padding(.bottom, canvas.u(SeleneTokens.Space.line))
         }
     }
@@ -217,7 +217,7 @@ struct CheatsPanel: View {
     private func list(_ lines: [Line], rows: [Row]) -> some View {
         ScrollViewReader { proxy in
             ScrollView {
-                VStack(alignment: .leading, spacing: canvas.u(8)) {
+                VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
                     ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
                         lineView(line, rows: rows)
                     }
@@ -240,7 +240,7 @@ struct CheatsPanel: View {
             Text(title.uppercased())
                 .seleneFont(.text, .semibold)
                 .foregroundColor(SeleneTheme.ink60)
-                .padding(.leading, canvas.u(10))
+                .padding(.leading, canvas.u(SeleneTokens.Space.small))
                 .padding(.top, canvas.u(SeleneTokens.Space.line))
         case .text(let title, let about, let chip, let dim):
             SeleneOptionRow(icon: nil, title: title, about: about, focused: false, enabled: !dim) {

@@ -56,11 +56,11 @@ struct SeleneStatsRow: View {
             }
         }
         .fixedSize()
-        .shadow(color: .black.opacity(0.45), radius: canvas.u(4))
+        .oortShadow(.text)
     }
 
     private func stat(_ item: SeleneStat) -> some View {
-        VStack(alignment: .leading, spacing: canvas.u(2)) {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.seam)) {
             // Line boxes of Selene's Segoe UI 12 / 21 (16 and 28), so the strip lands 34 below.
             Text(L10n.text(item.label))
                 .seleneFont(.badge, .semibold)

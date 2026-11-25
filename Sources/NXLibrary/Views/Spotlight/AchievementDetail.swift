@@ -33,22 +33,22 @@ struct AchievementDetail: View {
                     .multilineTextAlignment(.center)
                     .lineLimit(3)
                     .fixedSize(horizontal: false, vertical: true)
-                    .padding(.top, canvas.u(34))
+                    .padding(.top, canvas.u(SeleneTokens.Space.section))
                 if !row.description.isEmpty {
                     Text(row.description)
                         .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink82)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
-                        .padding(.top, canvas.u(10))
+                        .padding(.top, canvas.u(SeleneTokens.Space.small))
                 }
                 Rectangle()
                     .fill(SeleneTheme.ink15)
                     .frame(width: canvas.u(80), height: max(1, canvas.u(1)))
-                    .padding(.top, canvas.u(26))
-                VStack(spacing: canvas.u(10)) {
+                    .padding(.top, canvas.u(SeleneTokens.Space.large))
+                VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                     if let tier = row.tier, let percent = row.percent {
-                        HStack(spacing: canvas.u(10)) {
+                        HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                             Text(tier.displayName())
                                 .foregroundColor(SeleneTheme.ink)
                             Text("·").foregroundColor(SeleneTheme.ink60)
@@ -67,7 +67,7 @@ struct AchievementDetail: View {
                         .foregroundColor(SeleneTheme.ink82)
                     } else {
                         Text(L10n.text("Not unlocked"))
-                            .foregroundColor(SeleneTheme.ink.opacity(0.5))
+                            .foregroundColor(SeleneTheme.ink75)
                     }
                 }
                 .seleneFont(.text, .semibold)
@@ -80,7 +80,7 @@ struct AchievementDetail: View {
             .frame(width: canvas.u(Self.width))
             .background(shape.fill(SeleneTheme.glassCard))
             .overlay(shape.strokeBorder(SeleneTheme.ink15, lineWidth: max(1, canvas.u(1))))
-            .shadow(color: .black.opacity(0.45), radius: canvas.u(30), y: canvas.u(10))
+            .oortShadow(.floating)
             // A click on the card stays on the card.
             .contentShape(shape)
             .onTapGesture {}
@@ -96,7 +96,7 @@ struct AchievementDetail: View {
             .overlay(alignment: .bottomTrailing) {
                 if let tier = row.tier {
                     TierCrystal(tier: tier, size: Self.badge, dimmed: !unlocked)
-                        .shadow(color: .black.opacity(0.55), radius: canvas.u(8), y: canvas.u(3))
+                        .oortShadow(.tile)
                         .offset(x: canvas.u(Self.badge * 0.35), y: canvas.u(Self.badge * 0.3))
                 }
             }

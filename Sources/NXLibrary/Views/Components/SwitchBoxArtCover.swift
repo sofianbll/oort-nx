@@ -122,7 +122,7 @@ struct SwitchBoxArtCover: View {
         }
         guard !Task.isCancelled else { return }
         CoverArtMemo.shared.setObject(image, forKey: key)
-        withAnimation(.easeInOut(duration: 0.2)) { cover = image }
+        withAnimation(SeleneTheme.arrival) { cover = image }
     }
 
     /// The banner and Title DB icon for the composed cover (both cached on disk).

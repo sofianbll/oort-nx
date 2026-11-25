@@ -120,7 +120,7 @@ struct ActivityCenterView: View {
     @ViewBuilder private func section(_ key: String, empty: String? = nil, rows: [ActivityCenterFocus.Row],
                          focused: ActivityCenterFocus.Row) -> some View {
         if !rows.isEmpty || empty != nil {
-            VStack(alignment: .leading, spacing: canvas.u(8)) {
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
                 Text(text(key)).seleneFont(.badge, .bold).tracking(canvas.u(1.4))
                     .textCase(.uppercase).foregroundColor(SeleneTheme.ink60)
                     .accessibilityAddTraits(.isHeader)
@@ -136,7 +136,7 @@ struct ActivityCenterView: View {
     }
 
     private func rowList(_ rows: [ActivityCenterFocus.Row], focused: ActivityCenterFocus.Row) -> some View {
-        LazyVStack(alignment: .leading, spacing: canvas.u(8)) {
+        LazyVStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
             ForEach(rows, id: \.self) { row in
                 Group {
                     switch row {
@@ -316,8 +316,8 @@ private struct ActivityRow: View {
     let clear: (() -> Void)?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: canvas.u(8)) {
-            HStack(spacing: canvas.u(18)) {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 Group {
                     if let open {
                         Button(action: open) { content }.buttonStyle(.plain)
@@ -355,7 +355,7 @@ private struct ActivityRow: View {
     }
 
     private var content: some View {
-        VStack(alignment: .leading, spacing: canvas.u(3)) {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.hairline)) {
             Text(title).seleneFont(.text, .semibold).lineLimit(1)
             if let detail, detail != status {
                 Text(detail).seleneFont(.text).foregroundColor(SeleneTheme.ink60).lineLimit(2)

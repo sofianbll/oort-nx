@@ -188,8 +188,8 @@ struct SettingsAboutSection: View {
     private var supportButton: some View {
         Button(action: openSupportPage) {
             SelenePanel {
-                HStack(spacing: canvas.u(14)) {
-                    VStack(alignment: .leading, spacing: canvas.u(4)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
+                    VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.hairline)) {
                         PlatformLabel(.support,
                                       title: L10n.format("Support %@ on Buy Me a Coffee", ["Bium23"], context: localization), preset: .summary)
                             .foregroundStyle(SeleneTheme.ink)

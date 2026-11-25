@@ -53,7 +53,7 @@ struct AddGameRowView: View {
                 .tracking(1.2)
                 .foregroundColor(SeleneTheme.ink60)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.leading, canvas.u(10))
+                .padding(.leading, canvas.u(SeleneTokens.Space.small))
                 .padding(.top, canvas.u(SeleneTokens.Space.control))
                 .padding(.bottom, canvas.u(SeleneTokens.Space.seam))
         case .note:
@@ -62,8 +62,8 @@ struct AddGameRowView: View {
                 .foregroundColor(SeleneTheme.ink60)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, canvas.u(10))
-                .padding(.top, canvas.u(10))
+                .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
+                .padding(.top, canvas.u(SeleneTokens.Space.small))
         case .warning:
             warning
         default:
@@ -80,7 +80,7 @@ struct AddGameRowView: View {
                     .foregroundColor(iconColor)
                     .frame(width: canvas.u(row.compact ? 22 : 26))
             }
-            VStack(alignment: .leading, spacing: canvas.u(2)) {
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.seam)) {
                 Text(row.title)
                     .seleneFont(row.compact ? 16 : 19, .medium)
                     .foregroundColor(ink)
@@ -138,11 +138,11 @@ struct AddGameRowView: View {
     }
 
     private var warning: some View {
-        HStack(alignment: .top, spacing: canvas.u(12)) {
+        HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.small)) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .seleneFont(.text)
                 .foregroundColor(SeleneTheme.untested.opacity(0.9))
-            VStack(alignment: .leading, spacing: canvas.u(2)) {
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.seam)) {
                 Text(row.title)
                     .seleneFont(.text, .medium)
                     .foregroundColor(SeleneTheme.ink)
@@ -156,8 +156,8 @@ struct AddGameRowView: View {
             Spacer(minLength: 0)
         }
         .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
-        .padding(.vertical, canvas.u(11))
-        .background(RoundedRectangle(cornerRadius: canvas.u(13), style: .continuous)
+        .padding(.vertical, canvas.u(SeleneTokens.Space.small))
+        .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content), style: .continuous)
             .fill(SeleneTheme.untested.opacity(0.08)))
         .seleneRowFocus(focused, radius: canvas.u(13))
     }

@@ -17,7 +17,7 @@ struct GameBananaFindPanel: View {
                 .ignoresSafeArea()
                 .contentShape(Rectangle())
                 .onTapGesture { close() }
-            VStack(alignment: .leading, spacing: canvas.u(14)) {
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.medium)) {
                 Text(L10n.text("GAMEBANANA"))
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink60)
@@ -38,7 +38,7 @@ struct GameBananaFindPanel: View {
                 } else if model.searched && model.results.isEmpty {
                     Text(L10n.text("No games found. Try another name.")).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
                 }
-                VStack(alignment: .leading, spacing: canvas.u(8)) {
+                VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
                     ForEach(Array(model.results.enumerated()), id: \.element.id) { index, game in
                         row(index: index, title: game.name, icon: game.iconURL)
                     }
@@ -57,11 +57,11 @@ struct GameBananaFindPanel: View {
 
     private func row(index: Int, title: String, icon: URL?) -> some View {
         let focused = model.focus == index && !model.editing
-        return HStack(spacing: canvas.u(14)) {
+        return HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
             if let icon {
                 GameBananaImageView(url: icon, maxPixelSize: 128)
                     .frame(width: canvas.u(40), height: canvas.u(40))
-                    .clipShape(RoundedRectangle(cornerRadius: canvas.u(8), style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.row), style: .continuous))
             } else {
                 MaterialIconView(.close, size: 22).foregroundColor(SeleneTheme.ink60)
                     .frame(width: canvas.u(40), height: canvas.u(40))
@@ -77,7 +77,7 @@ struct GameBananaFindPanel: View {
         .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content), style: .continuous)
             .fill(focused ? SeleneTheme.glass : Color.clear))
         .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
-            .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(2.5))
+            .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
             .padding(canvas.u(-3))
             .opacity(focused ? 1 : 0))
         .contentShape(Rectangle())
@@ -105,7 +105,7 @@ struct GameBananaModSearchPanel: View {
     var body: some View {
         ZStack {
             SeleneTheme.scrim65.ignoresSafeArea().contentShape(Rectangle()).onTapGesture(perform: close)
-            VStack(alignment: .leading, spacing: canvas.u(14)) {
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.medium)) {
                 Text(L10n.text("GAMEBANANA", context: localization))
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink60)
@@ -119,7 +119,7 @@ struct GameBananaModSearchPanel: View {
                 if let status {
                     Text(status).seleneFont(.text).foregroundColor(SeleneTheme.ink75)
                 }
-                HStack(spacing: canvas.u(18)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                     SelenePillButton(title: "Cancel", focused: false, action: close)
                     SelenePillButton(title: "Search", focused: false, enabled: band.canSubmitModSearch, action: submit)
                         .disabled(!band.canSubmitModSearch)
@@ -164,7 +164,7 @@ private struct GameBananaSearchField: View {
     @Environment(\.seleneCanvas) private var canvas
 
     var body: some View {
-        HStack(spacing: canvas.u(10)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
             MaterialIconView(.search, size: 22).foregroundColor(SeleneTheme.ink60)
                 .accessibilityHidden(true)
             TextField("", text: $query, prompt: Text(prompt).foregroundColor(SeleneTheme.ink60))
@@ -177,8 +177,8 @@ private struct GameBananaSearchField: View {
                 .accessibilityLabel(prompt)
         }
         .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
-        .padding(.vertical, canvas.u(10))
+        .padding(.vertical, canvas.u(SeleneTokens.Space.small))
         .background(Capsule().fill(SeleneTheme.glassSolid))
-        .overlay(Capsule().strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(2.5)).opacity(focused ? 1 : 0))
+        .overlay(Capsule().strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke)).opacity(focused ? 1 : 0))
     }
 }

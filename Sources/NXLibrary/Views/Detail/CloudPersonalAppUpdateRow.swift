@@ -18,7 +18,7 @@ struct CloudPersonalAppUpdateRow: View {
     var body: some View {
         switch comparison {
         case .update(let offer):
-            VStack(alignment: .leading, spacing: canvas.u(8)) {
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
                 if keepsStatus { status }
                 let bytes = offer.downloadBytes.formatted(.byteCount(style: .file).locale(locale.formatLocale))
                 SeleneStatusDot(text: L10n.text("Update available", context: locale) + " · " + bytes,

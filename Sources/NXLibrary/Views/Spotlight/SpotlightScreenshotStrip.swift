@@ -52,7 +52,7 @@ struct SpotlightScreenshotStrip: View {
                 Text(L10n.text("No screenshots for this game"))
                     .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
-                    .shadow(color: .black.opacity(0.45), radius: canvas.u(4))
+                    .oortShadow(.text)
             }
         } else {
             HStack(spacing: canvas.u(style.gap)) {
@@ -122,7 +122,7 @@ private struct ScreenshotTile: View {
         .drawingGroup()
         .overlay(
             RoundedRectangle(cornerRadius: canvas.u(style.radius + 3), style: .continuous)
-                .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(3))
+                .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
                 .padding(canvas.u(-4))
                 .opacity(focused ? 1 : 0)
         )
@@ -135,7 +135,7 @@ private struct ScreenshotTile: View {
             guard let file = await artwork.screenshot(titleID: titleID, index: index, remoteURL: url),
                   let decoded = await GameArtLoader.decode(at: file, maxPixelSize: 1000),
                   !Task.isCancelled else { return }
-            withAnimation(.easeOut(duration: 0.25)) { image = decoded }
+            withAnimation(SeleneTheme.arrival) { image = decoded }
         }
     }
 }

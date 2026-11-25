@@ -91,6 +91,6 @@ final class SeleneHeroArt: ObservableObject {
         let loaded = await GameArtLoader.shared.logo(
             for: game, metadata: metadata, artwork: artwork, personalizations: personalizations)
         guard loaded != nil, !Task.isCancelled else { return }
-        withAnimation(.easeOut(duration: 0.3)) { logoTick += 1 }
+        withAnimation(SeleneTheme.arrival) { logoTick += 1 }
     }
 }

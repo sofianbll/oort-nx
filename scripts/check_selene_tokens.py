@@ -15,12 +15,15 @@ BASELINE = ROOT / "scripts/selene-token-debt.json"
 TOKENS = {"Sources/NXLibraryCore/Selene/SeleneTokens.swift"}
 VIEWS = "Sources/NXLibrary/Views/"
 LIBRARY = VIEWS + "OortUI/"
-VERSION = 2
+VERSION = 3
+ADDED_IN_3 = ("spacing:", "lineWidth:")
 NUMBER = r"[+-]?(?:\d[\d_]*(?:\.[\d_]+)?|\.\d+)(?:[eE][+-]?\d+)?\b"
 CALL = re.compile(
     r"(?P<font>\.font\s*\(\s*\.system\s*\(\s*size\s*:\s*|\.seleneFont\s*\(\s*)"
     r"|(?P<padding>\.padding\s*\(\s*(?:\.[a-zA-Z]\w*\s*,\s*)?)"
     r"|(?P<radius>\bcornerRadius\s*(?:\(|:)\s*)"
+    r"|(?P<spacing>\bspacing\s*:\s*)"
+    r"|(?P<stroke>\blineWidth\s*:\s*)"
 )
 VALUE = re.compile(rf"(?:\bcanvas\s*\.\s*u\s*\(\s*)?({NUMBER})")
 NON_CODE = re.compile(
@@ -48,7 +51,8 @@ STYLE = re.compile(
 def numeric(code):
     for call in CALL.finditer(code):
         value = VALUE.match(code, call.end())
-        if value:
+        # Zero spacing is the absence of a gap, not a style.
+        if value and not (call.lastgroup == "spacing" and float(value[1].replace("_", "")) == 0):
             signature = re.sub(r"\s+", "", call[0] + value[0])
             yield signature, code.count("\n", 0, call.start()) + 1
 
@@ -91,6 +95,18 @@ def counts(found):
 def base_allowances(base, tracked):
     if tracked.get("version") == VERSION:
         return tracked["files"]
+    if tracked.get("version") == 2:
+        # Bootstrap only the numeric categories added in 3, from actual source at the base revision.
+        archived = subprocess.check_output(["git", "archive", base, "Sources"], cwd=ROOT)
+        with tarfile.open(fileobj=io.BytesIO(archived)) as archive:
+            added = counts({
+                item.name: [match for match in literals(archive.extractfile(item).read().decode())
+                            if match[0].startswith(ADDED_IN_3)]
+                for item in archive.getmembers()
+                if item.isfile() and item.name.endswith(".swift") and item.name not in TOKENS
+            })
+        files = tracked["files"]
+        return {path: files.get(path, {}) | added.get(path, {}) for path in files.keys() | added.keys()}
     # Bootstrap only newly checked style categories from actual source at the base revision.
     # The original numeric allowances are never recalculated from source.
     archived = subprocess.check_output(["git", "archive", base, VIEWS], cwd=ROOT)

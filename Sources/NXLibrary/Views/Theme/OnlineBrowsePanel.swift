@@ -128,13 +128,13 @@ struct OnlineBrowsePanel: View {
                 .padding(.bottom, canvas.u(SeleneTokens.Space.line))
             if state.category.isSearch {
                 searchField
-                    .padding(.bottom, canvas.u(10))
+                    .padding(.bottom, canvas.u(SeleneTokens.Space.small))
             }
             Text(status)
                 .seleneFont(.text, .semibold)
-                .foregroundColor(SeleneTheme.ink.opacity(0.55))
-                .padding(.leading, canvas.u(10))
-                .padding(.bottom, canvas.u(10))
+                .foregroundColor(SeleneTheme.ink75)
+                .padding(.leading, canvas.u(SeleneTokens.Space.small))
+                .padding(.bottom, canvas.u(SeleneTokens.Space.small))
             grid
         }
     }
@@ -150,7 +150,7 @@ struct OnlineBrowsePanel: View {
     private var chips: some View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal) {
-                HStack(spacing: canvas.u(6)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                     ForEach(Array(state.categories.enumerated()), id: \.offset) { index, category in
                         let selected = index == state.categoryIndex
                         Text(category.displayTitle)
@@ -159,7 +159,7 @@ struct OnlineBrowsePanel: View {
                             .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
                             .padding(.vertical, canvas.u(SeleneTokens.Space.compact))
                             .background(Capsule().fill(selected ? SeleneTheme.glassSolid : Color.clear))
-                            .overlay(Capsule().strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(2.5))
+                            .overlay(Capsule().strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
                                 .padding(canvas.u(-3))
                                 .opacity(selected && state.focus == .chips ? 1 : 0))
                             .contentShape(Capsule())
@@ -168,7 +168,7 @@ struct OnlineBrowsePanel: View {
                             .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
                     }
                 }
-                .padding(canvas.u(5))
+                .padding(canvas.u(SeleneTokens.Space.hairline))
             }
             .scrollIndicators(.hidden)
             .frame(width: canvas.u(3 * 226))
@@ -180,7 +180,7 @@ struct OnlineBrowsePanel: View {
     }
 
     private var searchField: some View {
-        HStack(spacing: canvas.u(10)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
             MaterialIconView(.search, size: 22).foregroundColor(SeleneTheme.ink60)
             TextField("", text: $searchText, prompt: Text(L10n.format("Search %@", [String(describing: state.source.title)])).foregroundColor(SeleneTheme.ink60))
                 .textFieldStyle(.plain)
@@ -190,10 +190,10 @@ struct OnlineBrowsePanel: View {
                 .onSubmit(onSubmit)
         }
         .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
-        .padding(.vertical, canvas.u(10))
+        .padding(.vertical, canvas.u(SeleneTokens.Space.small))
         .background(Capsule().fill(SeleneTheme.glassSolid))
         .frame(width: canvas.u(3 * 226 - 20))
-        .padding(.leading, canvas.u(10))
+        .padding(.leading, canvas.u(SeleneTokens.Space.small))
     }
 
     private var grid: some View {
@@ -215,7 +215,7 @@ struct OnlineBrowsePanel: View {
                         }
                     }
                 }
-                .padding(.vertical, canvas.u(10))
+                .padding(.vertical, canvas.u(SeleneTokens.Space.small))
             }
             .scrollIndicators(.hidden)
             .frame(width: canvas.u(3 * 226), height: canvas.u(height))
@@ -249,20 +249,20 @@ private struct OnlineTile: View {
         ZStack(alignment: .topLeading) {
             Rectangle().fill(SeleneTheme.baseGradient)
             WallpaperThumb(url: item.thumbnailURL)
-            HStack(spacing: canvas.u(4)) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.hairline)) {
                 if item.kind == .video { MaterialIconView(.play, size: 13) }
                 Text(ResolutionBadge.label(width: item.width, height: item.height)).seleneFont(.badge, .semibold)
             }
             .foregroundColor(.white)
-            .padding(.horizontal, canvas.u(7))
-            .padding(.vertical, canvas.u(3))
+            .padding(.horizontal, canvas.u(SeleneTokens.Space.compact))
+            .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
             .background(Capsule().fill(Color.black.opacity(0.6)))
-            .padding(canvas.u(7))
+            .padding(canvas.u(SeleneTokens.Space.compact))
             if downloaded {
                 MaterialIconView(.check, size: 20)
                     .foregroundColor(.white)
-                    .shadow(color: .black.opacity(0.6), radius: canvas.u(4))
-                    .padding(canvas.u(7))
+                    .oortShadow(.text)
+                    .padding(canvas.u(SeleneTokens.Space.compact))
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
             if let progress {
@@ -282,14 +282,14 @@ private struct OnlineTile: View {
         .clipShape(shape)
         .overlay(shape.strokeBorder(SeleneTheme.ink15, lineWidth: 1))
         .overlay(
-            RoundedRectangle(cornerRadius: canvas.u(15), style: .continuous)
-                .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(3))
+            RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card), style: .continuous)
+                .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
                 .padding(canvas.u(-4))
                 .opacity(focused ? 1 : 0))
         .scaleEffect(focused && !reduceMotion ? 1.06 : 1)
         .animation(reduceMotion ? nil : SeleneTheme.quick, value: focused)
-        .padding(.horizontal, canvas.u(11))
-        .padding(.top, canvas.u(13))
+        .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
+        .padding(.top, canvas.u(SeleneTokens.Space.small))
         .padding(.bottom, canvas.u(SeleneTokens.Space.line))
         .contentShape(Rectangle())
         .accessibilityElement(children: .ignore)

@@ -28,10 +28,10 @@ struct ThemePreview: View {
         let w = canvas.u(width)
         let h = w * 9 / 16
         let shape = RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card), style: .continuous)
-        return VStack(alignment: .leading, spacing: canvas.u(10)) {
+        return VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small)) {
             Text(L10n.text("PREVIEW"))
                 .seleneFont(.badge, .semibold)
-                .foregroundColor(SeleneTheme.ink.opacity(0.55))
+                .foregroundColor(SeleneTheme.ink75)
                 .padding(.leading, canvas.u(SeleneTokens.Space.seam))
             ZStack(alignment: .topLeading) {
                 // The home's own layers (SeleneBackdrop): scrim, base gradient at 0.6, the wallpaper.
@@ -45,7 +45,7 @@ struct ThemePreview: View {
                             .id(videoURL)
                             .mask(style.brightness.mask)
                             .opacity(videoReady ? 1 : 0)
-                            .animation(.easeOut(duration: 0.3), value: videoReady)
+                            .animation(SeleneTheme.arrival, value: videoReady)
                             .onDisappear { videoReady = false }
                     }
                 } else {
@@ -60,9 +60,9 @@ struct ThemePreview: View {
             .frame(width: w, height: h)
             .clipShape(shape)
             .overlay(shape.strokeBorder(SeleneTheme.ink25, lineWidth: 1))
-            .shadow(color: .black.opacity(0.5), radius: canvas.u(20))
-            .animation(.easeOut(duration: 0.25), value: palette.id)
-            .animation(.easeOut(duration: 0.25), value: wallpaperURL)
+            .oortShadow(.floating)
+            .animation(SeleneTheme.arrival, value: palette.id)
+            .animation(SeleneTheme.arrival, value: wallpaperURL)
         }
         .task(id: games.map(\.id)) {
             art = games.prefix(6).map { GameIconProvider.squareArt(for: $0) ?? GameIconProvider.icon(for: $0) }

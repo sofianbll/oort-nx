@@ -324,7 +324,7 @@ struct SpotlightRowView: View {
         titleTask = Task { @MainActor in
             if delay > 0 { try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000)) }
             guard !Task.isCancelled else { return }
-            withAnimation(.easeOut(duration: 0.2)) { titleVisible = true }
+            withAnimation(SeleneTheme.arrival) { titleVisible = true }
         }
     }
 
@@ -340,7 +340,7 @@ struct SpotlightRowView: View {
             case .cloud: return (L10n.text("No games only in the cloud"), L10n.text("Cloud-only games appear here."))
             }
         }()
-        return VStack(alignment: .leading, spacing: canvas.u(6)) {
+        return VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
             Text(title).seleneFont(.row, .medium).foregroundColor(SeleneTheme.ink90)
             if !hint.isEmpty {
                 Text(hint).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
@@ -417,7 +417,7 @@ struct ModsCardCover: View {
             }
             MaterialIconView(.puzzle, size: 60)
                 .foregroundColor(SeleneTheme.ink)
-                .shadow(color: .black.opacity(0.45), radius: canvas.u(8))
+                .oortShadow(.text)
         }
         .frame(width: side, height: side)
         .animation(.easeOut(duration: 0.4), value: urls)

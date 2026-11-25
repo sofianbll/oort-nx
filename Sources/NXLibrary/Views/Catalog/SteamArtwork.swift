@@ -52,7 +52,7 @@ struct SteamArtwork: View {
                     Color.clear
                 } else {
                     Image(systemName: "gamecontroller.fill")
-                        .resizable().scaledToFit().padding(canvas.u(30))
+                        .resizable().scaledToFit().padding(canvas.u(SeleneTokens.Space.section))
                         .foregroundStyle(SeleneTheme.ink)
                 }
             } else { Color.clear }

@@ -65,7 +65,7 @@ struct SpotlightGenreChips: View {
             }
         }
         .padding(.leading, canvas.u(SeleneTokens.Space.seam))
-        .shadow(color: .black.opacity(0.45), radius: canvas.u(4))
+        .oortShadow(.text)
     }
 }
 
@@ -89,7 +89,7 @@ struct SpotlightDescription: View {
         VStack(alignment: .leading, spacing: 0) {
             DetailsBandTitle(text: L10n.text("About this game"))
             if languageNote != nil || wikipediaPage != nil {
-                HStack(spacing: canvas.u(12)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                     if let languageNote {
                         Text(languageNote).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
                     }
@@ -109,14 +109,14 @@ struct SpotlightDescription: View {
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink)
                     .padding(.horizontal, canvas.u(SeleneTokens.Space.line))
-                    .padding(.vertical, canvas.u(5))
+                    .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
                     .background(Capsule().fill(SeleneTheme.ink15))
                     .seleneRowFocus(focused, radius: canvas.u(15))
                     .padding(.top, canvas.u(SeleneTokens.Space.small))
             }
         }
         .frame(width: canvas.u(Self.width), alignment: .leading)
-        .shadow(color: .black.opacity(0.45), radius: canvas.u(4))
+        .oortShadow(.text)
     }
 
     /// The cut that reaches at least `columnHeight` (the column beside it, title
@@ -148,7 +148,7 @@ struct SpotlightRightHint: View {
         .stroke(SeleneTheme.ink.opacity(0.45),
                 style: StrokeStyle(lineWidth: max(1, canvas.u(2)), lineCap: .round, lineJoin: .round))
         .frame(width: canvas.u(7), height: canvas.u(22))
-        .shadow(color: .black.opacity(0.4), radius: canvas.u(3))
+        .oortShadow(.text)
         .accessibilityHidden(true)
     }
 }
@@ -166,7 +166,7 @@ struct SpotlightUpHint: View {
         .stroke(SeleneTheme.ink.opacity(0.45),
                 style: StrokeStyle(lineWidth: max(1, canvas.u(2)), lineCap: .round, lineJoin: .round))
         .frame(width: canvas.u(28), height: canvas.u(9))
-        .shadow(color: .black.opacity(0.4), radius: canvas.u(3))
+        .oortShadow(.text)
         .accessibilityHidden(true)
     }
 }

@@ -45,8 +45,8 @@ struct SetupCheckView: View {
                 Text(L10n.text("You don’t need these tools to play a game that’s already built."))
                     .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink75)
-                    .padding(.top, canvas.u(10))
-                grid.padding(.top, canvas.u(30))
+                    .padding(.top, canvas.u(SeleneTokens.Space.small))
+                grid.padding(.top, canvas.u(SeleneTokens.Space.section))
                 panel.padding(.top, canvas.u(SeleneTokens.Space.titleGap))
                 buttons.padding(.top, canvas.u(SeleneTokens.Space.panel))
             }
@@ -125,7 +125,7 @@ struct SetupCheckView: View {
                 .lineLimit(1)
                 .padding(.top, canvas.u(SeleneTokens.Space.compact))
             StatusChip(item: item, popping: popping.contains(item.id))
-                .padding(.top, canvas.u(10))
+                .padding(.top, canvas.u(SeleneTokens.Space.small))
             if let error = item.inlineError {
                 Text(verbatim: error)
                     .seleneFont(.text)
@@ -184,12 +184,12 @@ struct SetupCheckView: View {
 
     private var panel: some View {
         let story = panelStory
-        return HStack(alignment: .top, spacing: canvas.u(22)) {
+        return HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.large)) {
             MaterialIconView(story.icon, size: 34)
                 .foregroundColor(story.tone)
                 .frame(width: canvas.u(40))
-            VStack(alignment: .leading, spacing: canvas.u(6)) {
-                HStack(spacing: canvas.u(12)) {
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                     Text(L10n.text(story.title)).seleneFont(.heading, .semibold).foregroundColor(SeleneTheme.ink)
                     Text(story.state.uppercased())
                         .seleneFont(.badge, .bold)
@@ -290,8 +290,8 @@ private struct StatusChip: View {
             .seleneFont(.badge, .bold)
             .foregroundColor(tone)
             .lineLimit(1)
-            .padding(.horizontal, canvas.u(10))
-            .padding(.vertical, canvas.u(3))
+            .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
+            .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
             .background(Capsule().fill(tone.opacity(0.14)))
             .frame(maxWidth: canvas.u(200))
             .scaleEffect(popping && !reduceMotion ? 1.18 : 1)

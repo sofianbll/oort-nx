@@ -63,9 +63,9 @@ struct ModStorePage: View {
 
     /// Where the store stands, then GameBanana's credit.
     private var footer: some View {
-        VStack(alignment: .leading, spacing: canvas.u(10)) {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small)) {
             if let line = statusLine {
-                HStack(spacing: canvas.u(12)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                     if catalog.refreshing { ProgressView().controlSize(.small).tint(SeleneTheme.ink60) }
                     Text(line).seleneFont(.text, .medium).foregroundColor(SeleneTheme.ink75)
                 }
@@ -105,11 +105,11 @@ struct ModStoreSortBar: View {
     let onPick: (Int) -> Void
 
     var body: some View {
-        HStack(spacing: canvas.u(14)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
             ForEach(Array(ModStoreSort.allCases.enumerated()), id: \.element) { index, choice in
                 let chosen = choice == sort
                 let focused = focusedIndex == index
-                HStack(alignment: .firstTextBaseline, spacing: canvas.u(10)) {
+                HStack(alignment: .firstTextBaseline, spacing: canvas.u(SeleneTokens.Space.small)) {
                     MaterialIconView(choice.icon, size: 22).iconOnCaps(of: 18, .semibold)
                     Text(choice.title).seleneFont(.text, .semibold)
                 }
@@ -117,7 +117,7 @@ struct ModStoreSortBar: View {
                 .padding(.horizontal, canvas.u(SeleneTokens.Space.titleGap))
                 .frame(height: canvas.u(52))
                 .background(Capsule().fill(chosen ? SeleneTheme.focus : SeleneTheme.glass))
-                .overlay(Capsule().inset(by: canvas.u(-4)).strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(3))
+                .overlay(Capsule().inset(by: canvas.u(-4)).strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
                     .opacity(focused ? 1 : 0))
                 .scaleEffect(focused ? 1.04 : 1)
                 .animation(reduceMotion ? nil : SpotlightScreenshotStrip.motion, value: focused)
@@ -129,7 +129,7 @@ struct ModStoreSortBar: View {
                 .accessibilityAddTraits(chosen ? [.isButton, .isSelected] : .isButton)
             }
         }
-        .padding(.top, canvas.u(10))
+        .padding(.top, canvas.u(SeleneTokens.Space.small))
     }
 }
 
@@ -149,7 +149,7 @@ struct ModStoreFeatured<Chip: View>: View {
 
     var body: some View {
         let entry = entries.indices.contains(index) ? entries[index] : entries.first
-        let shape = RoundedRectangle(cornerRadius: canvas.u(24), style: .continuous)
+        let shape = RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.field), style: .continuous)
         return ZStack {
             if let entry {
                 slide(entry)
@@ -159,7 +159,7 @@ struct ModStoreFeatured<Chip: View>: View {
         }
         .frame(width: canvas.u(1700), height: canvas.u(420))
         .clipShape(shape)
-        .overlay(shape.inset(by: canvas.u(-5)).strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(3))
+        .overlay(shape.inset(by: canvas.u(-5)).strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
             .opacity(focused ? 1 : 0))
         .scaleEffect(focused ? 1.01 : 1)
         .animation(reduceMotion ? nil : .easeOut(duration: 0.35), value: entry?.id)
@@ -180,8 +180,8 @@ struct ModStoreFeatured<Chip: View>: View {
                 .frame(width: canvas.u(1700), height: canvas.u(420))
             LinearGradient(colors: [.black.opacity(0.78), .black.opacity(0.45), .black.opacity(0.15)],
                            startPoint: .leading, endPoint: .trailing)
-            HStack(alignment: .center, spacing: canvas.u(48)) {
-                VStack(alignment: .leading, spacing: canvas.u(12)) {
+            HStack(alignment: .center, spacing: canvas.u(SeleneTokens.Space.group)) {
+                VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small)) {
                     Text(L10n.format("FEATURED · %@", [String(describing: entry.gameName.uppercased())]))
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.ink75)
@@ -194,27 +194,27 @@ struct ModStoreFeatured<Chip: View>: View {
                     Text(L10n.format("by %@", [String(describing: entry.mod.author)]))
                         .seleneFont(.text, .medium)
                         .foregroundColor(SeleneTheme.ink82)
-                    HStack(spacing: canvas.u(22)) {
+                    HStack(spacing: canvas.u(SeleneTokens.Space.large)) {
                         stat(.thumbUp, "\(entry.mod.likes)")
                         stat(.download, "\(entry.mod.downloads)")
                         Text(entry.category.title).seleneFont(.text, .medium).foregroundColor(SeleneTheme.ink75)
                     }
                     .padding(.top, canvas.u(SeleneTokens.Space.hairline))
-                    HStack(spacing: canvas.u(14)) {
+                    HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                         chip(entry)
-                        HStack(spacing: canvas.u(8)) {
+                        HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                             SelenePromptBadge(button: .a)
                             Text(L10n.text("View")).seleneFont(.text).foregroundColor(SeleneTheme.ink90)
                         }
                     }
-                    .padding(.top, canvas.u(10))
+                    .padding(.top, canvas.u(SeleneTokens.Space.small))
                 }
                 .frame(width: canvas.u(860), alignment: .leading)
                 Spacer(minLength: 0)
                 GameBananaImageView(url: art, maxPixelSize: 700)
                     .frame(width: canvas.u(620), height: canvas.u(349))
-                    .clipShape(RoundedRectangle(cornerRadius: canvas.u(18), style: .continuous))
-                    .shadow(color: .black.opacity(0.45), radius: canvas.u(18), y: canvas.u(8))
+                    .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.modal), style: .continuous))
+                    .oortShadow(.floating)
             }
             .padding(.horizontal, canvas.u(56))
             dots
@@ -225,7 +225,7 @@ struct ModStoreFeatured<Chip: View>: View {
     private var dots: some View {
         VStack {
             Spacer(minLength: 0)
-            HStack(spacing: canvas.u(8)) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                 ForEach(entries.indices, id: \.self) { i in
                     Capsule()
                         .fill(i == index ? SeleneTheme.ink : SeleneTheme.ink25)
@@ -239,7 +239,7 @@ struct ModStoreFeatured<Chip: View>: View {
     }
 
     private func stat(_ icon: MaterialIcon, _ value: String) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: canvas.u(6)) {
+        HStack(alignment: .firstTextBaseline, spacing: canvas.u(SeleneTokens.Space.compact)) {
             MaterialIconView(icon, size: 18).iconOnCaps(of: 16, .semibold)
             Text(value).seleneFont(.text, .semibold)
         }
@@ -271,7 +271,7 @@ struct ModStoreRow: View {
         let scroll = ModStoreLayout.rowScroll(index: focusedIndex ?? scrollIndex)
         let more = ModStoreLayout.moreToTheRight(count: section.entries.count, index: focusedIndex ?? scrollIndex)
         return VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .firstTextBaseline, spacing: canvas.u(14)) {
+            HStack(alignment: .firstTextBaseline, spacing: canvas.u(SeleneTokens.Space.medium)) {
                 if case .category(let category) = section.kind {
                     MaterialIconView(category.icon, size: 25).foregroundColor(SeleneTheme.ink75)
                         .iconOnCaps(of: Self.titleSize, .semibold)
@@ -324,7 +324,7 @@ struct ModStoreTile: View {
             shape.fill(SeleneTheme.glassSolid)
             GameBananaImageView(url: entry.mod.images.first ?? entry.mod.thumbnailURL, maxPixelSize: 700)
             LinearGradient(colors: [.clear, .black.opacity(0.82)], startPoint: .center, endPoint: .bottom)
-            VStack(alignment: .leading, spacing: canvas.u(2)) {
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.seam)) {
                 chip.padding(.bottom, canvas.u(SeleneTokens.Space.hairline))
                 Text(entry.mod.name)
                     .seleneFont(.text, .semibold)
@@ -341,8 +341,8 @@ struct ModStoreTile: View {
         .clipShape(shape)
         // Rasterised once and moved as one layer as the row slides.
         .drawingGroup()
-        .overlay(RoundedRectangle(cornerRadius: canvas.u(17), style: .continuous)
-            .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(3))
+        .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card), style: .continuous)
+            .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
             .padding(canvas.u(-4))
             .opacity(focused ? 1 : 0))
         .scaleEffect(focused ? 1.05 : 1)
@@ -369,7 +369,7 @@ struct ModStoreChip: View {
             Text(text)
                 .seleneFont(.text, .semibold)
                 .foregroundColor(SeleneTheme.ink)
-                .padding(.horizontal, canvas.u(10))
+                .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
                 .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
                 .background(Capsule().fill(SeleneTheme.glassSolid))
         }

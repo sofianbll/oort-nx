@@ -510,13 +510,13 @@ private struct MenuHoldIndicator: View {
             TimelineView(.animation(paused: reduceMotion)) { _ in
                 let elapsed = ProcessInfo.processInfo.systemUptime - start
                 let progress = min(1, max(0, elapsed / HoldDetector.defaultThreshold))
-                HStack(spacing: canvas.u(10)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                     Circle()
-                        .stroke(SeleneTheme.ink25, lineWidth: canvas.u(3))
+                        .stroke(SeleneTheme.ink25, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
                         .overlay {
                             if !reduceMotion {
                                 Circle().trim(from: 0, to: progress)
-                                    .stroke(SeleneTheme.focus, style: StrokeStyle(lineWidth: canvas.u(3), lineCap: .round))
+                                    .stroke(SeleneTheme.focus, style: StrokeStyle(lineWidth: canvas.u(SeleneTokens.Space.strongStroke), lineCap: .round))
                                     .rotationEffect(.degrees(-90))
                             }
                         }
@@ -525,7 +525,7 @@ private struct MenuHoldIndicator: View {
                 }
                 .foregroundStyle(SeleneTheme.ink)
                 .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
-                .padding(.vertical, canvas.u(9))
+                .padding(.vertical, canvas.u(SeleneTokens.Space.compact))
                 .background(SeleneTheme.glassCard, in: Capsule())
                 .padding(.bottom, canvas.u(SeleneBottomScrim.hintsBottom + 50))
             }

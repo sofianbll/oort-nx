@@ -59,7 +59,7 @@ struct ModDetailPanel: View {
                 column
             }
             .padding(canvas.u(Self.padding))
-            .background(RoundedRectangle(cornerRadius: canvas.u(24), style: .continuous).fill(SeleneTheme.glassSolid))
+            .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.field), style: .continuous).fill(SeleneTheme.glassSolid))
             .frame(maxHeight: canvas.u(Self.panelHeight))
         }
         .animation(reduceMotion ? nil : SeleneTheme.quick, value: expanded)
@@ -96,8 +96,8 @@ struct ModDetailPanel: View {
                     edge(fade, toward: .bottom, shown: !state.atBottom)
                 }
                 .padding(.horizontal, canvas.u(-12))
-                .animation(.easeOut(duration: 0.2), value: state.atTop)
-                .animation(.easeOut(duration: 0.2), value: state.atBottom)
+                .animation(SeleneTheme.arrival, value: state.atTop)
+                .animation(SeleneTheme.arrival, value: state.atBottom)
             )
             .overlay(alignment: .topTrailing) { indicator(window: window, state: state) }
             .onPreferenceChange(ContentHeightKey.self) { height in
@@ -112,7 +112,7 @@ struct ModDetailPanel: View {
 
     private var content: some View {
         let rows = Self.rows(for: mod)
-        return VStack(alignment: .leading, spacing: canvas.u(12)) {
+        return VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small)) {
             Group {
                 Text(L10n.text("GAMEBANANA MOD"))
                     .seleneFont(.text, .semibold)
@@ -139,13 +139,13 @@ struct ModDetailPanel: View {
             .allowsHitTesting(false)
             if !mod.description.isEmpty {
                 // Read more sits under the text it opens, apart from the files.
-                VStack(alignment: .leading, spacing: canvas.u(4)) {
+                VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.hairline)) {
                     description
                     if let index = rows.firstIndex(of: .readMore) { rowButton(.readMore, at: index) }
                 }
                 .padding(.top, canvas.u(SeleneTokens.Space.tight))
             }
-            VStack(alignment: .leading, spacing: canvas.u(8)) {
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
                 Text(mod.files.count == 1 ? L10n.text("FILE") : L10n.text("FILES"))
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink60)
@@ -251,18 +251,18 @@ struct ModDetailPanel: View {
             .frame(width: canvas.u(4), height: bar)
             .offset(x: canvas.u(16), y: state.reach > 0 ? travel * state.offset / state.reach : 0)
             .opacity(state.canScroll ? 1 : 0)
-            .animation(.easeOut(duration: 0.2), value: state.canScroll)
+            .animation(SeleneTheme.arrival, value: state.canScroll)
             .allowsHitTesting(false)
     }
 
     private var gallery: some View {
         let images = Array(mod.images.prefix(4))
-        return VStack(alignment: .leading, spacing: canvas.u(12)) {
+        return VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small)) {
             GameBananaImageView(url: images.first ?? mod.thumbnailURL, maxPixelSize: 1200)
                 .frame(width: canvas.u(560), height: canvas.u(315))
                 .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card), style: .continuous))
             if images.count > 1 {
-                HStack(spacing: canvas.u(12)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                     ForEach(images.dropFirst(), id: \.self) { url in
                         GameBananaImageView(url: url, maxPixelSize: 500)
                             .frame(width: canvas.u(178), height: canvas.u(100))
@@ -274,7 +274,7 @@ struct ModDetailPanel: View {
     }
 
     private var authorLine: some View {
-        HStack(spacing: canvas.u(10)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
             if let avatar = mod.avatarURL {
                 GameBananaImageView(url: avatar, maxPixelSize: 96)
                     .frame(width: canvas.u(28), height: canvas.u(28))
@@ -360,12 +360,12 @@ struct ModDetailPanel: View {
 
     private func rowView(_ row: Row, focused: Bool) -> some View {
         let text = describe(row)
-        return VStack(alignment: .leading, spacing: canvas.u(6)) {
-            HStack(spacing: canvas.u(14)) {
+        return VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 MaterialIconView(text.icon, size: 22)
                     .foregroundColor(SeleneTheme.ink75)
                     .rotationEffect(.degrees(text.iconTurn))
-                VStack(alignment: .leading, spacing: canvas.u(2)) {
+                VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.seam)) {
                     Text(text.title)
                         .seleneFont(text.compact ? 16 : 17, .medium)
                         .foregroundColor(text.compact ? SeleneTheme.ink82 : SeleneTheme.ink)
@@ -399,7 +399,7 @@ struct ModDetailPanel: View {
         .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content), style: .continuous)
             .fill(focused ? SeleneTheme.glass : Color.clear))
         .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
-            .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(2.5))
+            .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
             .padding(canvas.u(-3))
             .opacity(focused ? 1 : 0))
         .accessibilityElement(children: .ignore)

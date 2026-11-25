@@ -41,7 +41,7 @@ struct SpotlightTopBar: View {
                 }
             }
             // Selene's order, right to left: the clock, then the profile's avatar just before it.
-            HStack(spacing: canvas.u(16)) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 Spacer()
                 if let profile { profileButton(profile) }
                 if showClock {
@@ -82,7 +82,7 @@ struct SpotlightTopBar: View {
         let on = item == filter
         return Text(L10n.text(item.rawValue))
             .seleneFont(.text, on ? .semibold : .regular)
-            .foregroundColor(on ? SeleneTheme.onFocus : SeleneTheme.ink.opacity(0.7))
+            .foregroundColor(on ? SeleneTheme.onFocus : SeleneTheme.ink75)
             .padding(EdgeInsets(top: canvas.u(5), leading: canvas.u(18),
                                 bottom: canvas.u(7), trailing: canvas.u(20)))
             .background(
@@ -146,7 +146,7 @@ private struct OnlineDot: View {
         if nextendo.presenceShared == true {
             Circle().fill(SeleneTheme.statusOK)
                 .frame(width: canvas.u(12), height: canvas.u(12))
-                .overlay(Circle().strokeBorder(SeleneTheme.scrim, lineWidth: canvas.u(2)))
+                .overlay(Circle().strokeBorder(SeleneTheme.scrim, lineWidth: canvas.u(SeleneTokens.Space.focusStroke)))
                 .accessibilityHidden(true)
         }
     }

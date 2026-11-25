@@ -41,7 +41,7 @@ struct SettingsLibrarySection: View {
                 HStack(spacing: 10) {
                     Text(appsPath ?? L10n.text("Not selected"))
                         .seleneFont(.text, .medium)
-                        .foregroundColor(SeleneTheme.ink.opacity(0.62))
+                        .foregroundColor(SeleneTheme.ink75)
                         .lineLimit(1)
                         .truncationMode(.middle)
                         .frame(maxWidth: 320, alignment: .trailing)
@@ -65,7 +65,7 @@ struct SettingsLibrarySection: View {
                 HStack(spacing: 10) {
                     Text(sourcesPath ?? L10n.text("Not selected · Optional"))
                         .seleneFont(.text, .medium)
-                        .foregroundColor(SeleneTheme.ink.opacity(0.62))
+                        .foregroundColor(SeleneTheme.ink75)
                         .lineLimit(1)
                         .truncationMode(.middle)
                         .frame(maxWidth: 320, alignment: .trailing)

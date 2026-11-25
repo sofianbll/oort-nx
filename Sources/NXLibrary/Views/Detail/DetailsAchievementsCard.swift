@@ -39,15 +39,15 @@ struct DetailsAchievementsCard: View {
         let shape = RoundedRectangle(cornerRadius: canvas.u(Self.radius), style: .continuous)
         VStack(alignment: .leading, spacing: 0) {
             DetailsBandTitle(text: L10n.text("Achievements"))
-            VStack(alignment: .leading, spacing: canvas.u(16)) {
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.medium)) {
                 if appID == 0 {
                     Text(L10n.text("Arcane · local"))
                         .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink60)
                 }
-                HStack(alignment: .center, spacing: canvas.u(16)) {
+                HStack(alignment: .center, spacing: canvas.u(SeleneTokens.Space.medium)) {
                     if let tier = summary.bestTier { crystal(tier) }
-                    VStack(alignment: .leading, spacing: canvas.u(4)) {
+                    VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.hairline)) {
                         headline
                         ZStack(alignment: .leading) {
                             Text(complete ? L10n.text("All achievements")
