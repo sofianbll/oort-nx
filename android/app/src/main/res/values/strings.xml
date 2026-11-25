@@ -17,7 +17,7 @@
     <string name="library_count">%1$d on this device</string>
     <string name="library_scanning">Looking for games…</string>
     <string name="empty_title">No game found</string>
-    <string name="empty_body">Oort lists the games that nx2android installed on this device: apps whose package starts with org.nx2a. Port your own games on a computer with nx2android, then install them here. Oort contains no game, no key and no emulator.</string>
+    <string name="empty_body">Oort lists the games that nx2android installed on this device: apps whose package starts with org.nx2a. Build your own games on a computer with nx2android, then install them here. Oort contains no game, no key and no emulator.</string>
     <string name="empty_rescan">Look again</string>
     <string name="which_limits">Android keeps each game’s files from every other app. Oort can list a game, start it and open its Android page; its settings and its saves stay in the game’s own pause menu.</string>
 
