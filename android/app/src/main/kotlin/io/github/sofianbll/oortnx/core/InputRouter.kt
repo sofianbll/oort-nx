@@ -12,6 +12,7 @@ import android.view.MotionEvent
 class InputRouter(
     private val swapAB: () -> Boolean,
     private val sink: (Nav) -> Unit,
+    private val clearHeld: () -> Unit,
 ) {
     private val repeat = DirectionRepeat()
     private var lastMove = 0L
@@ -64,8 +65,14 @@ class InputRouter(
         return held && value > TRIGGER_RELEASED
     }
 
-    private fun stick(x: Float, y: Float, source: PadSource) {
+    internal fun stick(x: Float, y: Float, source: PadSource) {
         repeat.stick(x, y, STICK_DEADZONE, source)?.let { lastMove = System.nanoTime(); sink(PadKeys.nav(it)) }
+    }
+
+    fun windowFocusChanged(hasFocus: Boolean) {
+        if (hasFocus) return
+        reset()
+        clearHeld()
     }
 
     /** Call about every 20 ms: the next step of a held direction, when its turn has come. */

@@ -48,6 +48,7 @@ class MainActivity : ComponentActivity() {
         router = InputRouter(
             swapAB = { prefs.swapAB },
             sink = { state.keyboard = typed; state.onNav(it) },
+            clearHeld = state.pad::reset,
         )
         setContent {
             OortTheme {
@@ -92,6 +93,11 @@ class MainActivity : ComponentActivity() {
         router.reset()
         state.pad.reset()
         super.onPause()
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (::router.isInitialized) router.windowFocusChanged(hasFocus)
     }
 
     override fun onDestroy() {
