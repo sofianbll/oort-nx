@@ -226,9 +226,7 @@ struct MenuCard: View {
                                  minWidth: line.width,
                                  fillsWidth: true,
                                  focused: line.focused, action: line.choose)
-                .onHover { hovering in
-                    if hovering { line.focus() }
-                }
+                .seleneHover(line.focus)
                 .accessibilityLabel(line.title)
             }
         }

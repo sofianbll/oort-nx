@@ -1,5 +1,14 @@
 import Foundation
 
+/// Where the pointer was when a key or a controller was last used. A view that slides under it while it stays there
+/// is not a hover: a redraw never moves the selection. Read and written on the main thread only.
+public enum PointerAnchor {
+    nonisolated(unsafe) public static var location: CGPoint?
+
+    /// A hover at `now` is the player's: not where the pointer already was, nor where a press left it.
+    public static func isMove(to now: CGPoint, from previous: CGPoint) -> Bool { now != previous && now != location }
+}
+
 /// What the player last used: it decides whether the prompts name controller buttons or keys.
 /// Only a deliberate act counts, so prompts never flicker: a stick inside its dead zone, a nudged table or the
 /// small hover macOS reports under a still pointer changes nothing.

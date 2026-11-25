@@ -17,6 +17,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Fixed
 
+- A view that redraws or scrolls under a still pointer no longer takes the focus.
 - An update offered at launch opens on Later.
 - B on the first page of the setup assistant no longer skips it all; Skip setup stays a button.
 - The rows of games and the screenshots follow two fingers; the wheel moves the Collection.

@@ -105,7 +105,7 @@ struct FoundGamesSetupContent: View {
                                  focused: focus == .openLibrary) {
                     activate(.openLibrary)
                 }
-                .onHover { if $0 { move(.openLibrary) } }
+                .seleneHover { move(.openLibrary) }
                 .padding(.top, canvas.u(SeleneTokens.Space.section))
             }
             .frame(width: canvas.u(960))

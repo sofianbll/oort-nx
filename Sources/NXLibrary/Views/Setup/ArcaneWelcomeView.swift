@@ -50,7 +50,7 @@ struct ArcaneWelcomeView: View {
 
                 SelenePillButton(title: L10n.text("Open library"), minWidth: 220,
                                  focused: focus == .openLibrary) { activate(.openLibrary) }
-                    .onHover { if $0 { move(to: .openLibrary) } }
+                    .seleneHover { move(to: .openLibrary) }
                     .padding(.top, canvas.u(SeleneTokens.Space.section))
             }
             .frame(width: canvas.u(900))
@@ -110,11 +110,11 @@ struct ArcaneWelcomeView: View {
             }
             Spacer(minLength: 0)
             SelenePillButton(title: L10n.text("Add"), minWidth: 120, height: 50, focused: focus == .add) { activate(.add) }
-                .onHover { if $0 { move(to: .add) } }
+                .seleneHover { move(to: .add) }
             SelenePillButton(title: L10n.text("Not now"), minWidth: 120, height: 50, focused: focus == .notNow) {
                 activate(.notNow)
             }
-            .onHover { if $0 { move(to: .notNow) } }
+            .seleneHover { move(to: .notNow) }
         }
         .padding(.horizontal, canvas.u(SeleneTokens.Space.large))
         .padding(.vertical, canvas.u(SeleneTokens.Space.control))

@@ -381,14 +381,14 @@ struct CloudLibraryPanel: View {
     private func button(_ control: Control, _ key: String) -> some View {
         SelenePillButton(title: key, minWidth: 96, height: 36, horizontalPadding: 14,
                          focused: (focus ?? controls.first) == control, action: { choose(control) })
-            .onHover { if $0 { focus = control } }
+            .seleneHover { focus = control }
     }
 
     private func artifactButton(_ control: Control, _ key: String, icon: MaterialIcon) -> some View {
         SelenePillButton.roundIcon(icon) { choose(control) }
             .help(text(key))
             .accessibilityLabel(text(key))
-            .onHover { if $0 { focus = control } }
+            .seleneHover { focus = control }
     }
 
     private func downloadButton(_ control: Control?, fill: Double, ready: Bool = false) -> some View {
@@ -397,7 +397,7 @@ struct CloudLibraryPanel: View {
             if let control { choose(control) }
         }
         .accessibilityHidden(control == nil)
-        .onHover { if $0, let control { focus = control } }
+        .seleneHover { if let control { focus = control } }
     }
 
     private func handle(_ action: GamepadAction) {
@@ -482,7 +482,7 @@ struct CloudLibraryPanel: View {
                                 .accessibilityLabel(text(item.title))
                         }
                         .environment(\.seleneFocusedRowID, freeFocus == .item(item) ? item.title : nil)
-                        .onHover { if $0 && selection.allows(item) { freeFocus = .item(item) } }
+                        .seleneHover { if selection.allows(item) { freeFocus = .item(item) } }
                     }
                 }
                 .padding(.top, canvas.u(SeleneTokens.Space.control))

@@ -48,4 +48,31 @@ final class InputInHandTests: XCTestCase {
             XCTAssertEqual(hand.device, .controller)
         }
     }
+
+    func testAViewThatSlidesUnderAStillPointerIsNotHovered() {
+        defer { PointerAnchor.location = nil }
+        let still = CGPoint(x: 40, y: 40)
+        XCTAssertFalse(PointerAnchor.isMove(to: still, from: still))
+        XCTAssertTrue(PointerAnchor.isMove(to: still, from: .zero))
+        PointerAnchor.location = still
+        XCTAssertFalse(PointerAnchor.isMove(to: still, from: .zero), "A key scrolled the view under the pointer")
+        XCTAssertTrue(PointerAnchor.isMove(to: CGPoint(x: 41, y: 40), from: .zero))
+    }
+
+    /// A hover that takes the focus goes through `seleneHover` or `SeleneHoverFocus`; a bare `onHover` only lights.
+    func testNoScreenTakesTheFocusFromABareHover() throws {
+        let views = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("Sources/NXLibrary/Views")
+        let files = FileManager.default.enumerator(at: views, includingPropertiesForKeys: nil)!.compactMap { $0 as? URL }
+            .filter { $0.pathExtension == "swift" }
+        var bare: [String] = []
+        for file in files {
+            let text = try String(contentsOf: file, encoding: .utf8)
+            for piece in text.components(separatedBy: ".onHover {").dropFirst() {
+                let use = piece.prefix(160).components(separatedBy: "\n        }").first ?? ""
+                if !use.contains("hover.moved(") && !use.hasPrefix(" hovered = $0") { bare.append("\(file.lastPathComponent): \(use.prefix(60))") }
+            }
+        }
+        XCTAssertEqual(bare, [])
+    }
 }

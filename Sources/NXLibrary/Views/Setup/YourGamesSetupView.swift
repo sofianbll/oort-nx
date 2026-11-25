@@ -63,7 +63,7 @@ struct YourGamesSetupView: View {
                                  focused: focus == .folder, enabled: folderProblem == nil) {
                     activate(.folder)
                 }
-                .onHover { if $0 { move(to: .folder) } }
+                .seleneHover { move(to: .folder) }
                 .padding(.top, canvas.u(SeleneTokens.Space.control))
 
                 if let folderProblem {
@@ -75,10 +75,10 @@ struct YourGamesSetupView: View {
 
                 HStack(spacing: canvas.u(SeleneTokens.Space.large)) {
                     SelenePillButton(title: L10n.text("Back"), focused: focus == .back) { activate(.back) }
-                        .onHover { if $0 { move(to: .back) } }
+                        .seleneHover { move(to: .back) }
                     SelenePillButton(title: libraryState == .ready ? L10n.text("Open library") : L10n.text("Skip for now"),
                                      minWidth: 220, focused: focus == .finish) { activate(.finish) }
-                        .onHover { if $0 { move(to: .finish) } }
+                        .seleneHover { move(to: .finish) }
                 }
                 .padding(.top, canvas.u(SeleneTokens.Space.section))
             }

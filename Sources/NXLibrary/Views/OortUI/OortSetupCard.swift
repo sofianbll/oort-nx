@@ -63,7 +63,7 @@ struct SetupCardRow: View {
         .buttonStyle(OortPressStyle())
         .oortPadPress(focused)
         .disabled(!enabled)
-        .onHover { if $0 { onHover() } }
+        .seleneHover { onHover() }
         .animation(reduceMotion ? nil : SeleneTheme.focusIn, value: focused)
     }
 }

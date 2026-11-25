@@ -144,7 +144,9 @@ final class GameControllerService: ObservableObject {
 
     func handUsed(_ event: NSEvent) {
         switch event.type {
-        case .keyDown: useHand { $0.keyPressed() }
+        case .keyDown:
+            PointerAnchor.location = NSEvent.mouseLocation
+            useHand { $0.keyPressed() }
         case .mouseMoved:
             let distance = hypot(event.deltaX, event.deltaY)
             useHand { $0.pointerMoved(by: distance, at: event.timestamp) }
@@ -516,6 +518,7 @@ final class GameControllerService: ObservableObject {
 
     private func triggerAction(_ action: GamepadAction) {
         useHand { $0.controllerUsed(at: ProcessInfo.processInfo.systemUptime) }
+        if preferences != nil { PointerAnchor.location = NSEvent.mouseLocation }
         let generation = inputGeneration
         DispatchQueue.main.async { [weak self] in
             guard let self, self.isAppActive, self.inputGeneration == generation else { return }
