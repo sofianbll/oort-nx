@@ -60,6 +60,12 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | File | Responsabilità |
 |---|---|
 | [.github/FUNDING.yml](../../.github/FUNDING.yml) | Collega il pulsante Sponsor del repository alla pagina Buy Me a Coffee di Arcane. |
+| [README.fr.md](../../README.fr.md) | Presentazione in francese. |
+| [PLAYER-GUIDE.md](../../PLAYER-GUIDE.md) | Guida all’uso in inglese. |
+| [PLAYER-GUIDE.fr.md](../../PLAYER-GUIDE.fr.md) | Guida rapida in francese. |
+| [.github/ISSUE_TEMPLATE/config.yml](../../.github/ISSUE_TEMPLATE/config.yml) | Instrada le segnalazioni di sicurezza al canale privato. |
+| [.github/ISSUE_TEMPLATE/feature.yml](../../.github/ISSUE_TEMPLATE/feature.yml) | Raccoglie idee e richieste. |
+| [.github/PULL_REQUEST_TEMPLATE.md](../../.github/PULL_REQUEST_TEMPLATE.md) | Raccoglie perimetro e verifiche. |
 | [.gitignore](../../.gitignore) | Esclude output di build, bundle, cache, work e file personali dell’IDE dal versionamento. |
 | [AGENTS.md](../../AGENTS.md) | Definisce vincoli per gli agenti, procedura di upgrade del motore e verifiche assegnate all’utente. |
 | [CHANGELOG.md](../../CHANGELOG.md) | Registra le modifiche visibili all'utente per versione. |

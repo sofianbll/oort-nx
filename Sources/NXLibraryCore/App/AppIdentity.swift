@@ -1,6 +1,6 @@
 import Foundation
 
-/// The display brand and upstream identity. The public project page
+/// The display brand and the fork's identity. The public project page
 /// is the contact Wikidata asks clients for; no personal data goes in it.
 public enum AppIdentity {
     public static let name = "Arcane"
@@ -9,7 +9,7 @@ public enum AppIdentity {
     public static let formerName = "NX Library"
     /// The module that ports games to the Mac. A name, like the app's, so it is never translated.
     public static let portingName = "Porting"
-    public static let projectPage = "https://github.com/Bium23/NxLibrary"
+    public static let projectPage = "https://github.com/sofianbll/oort-nx"
     /// The player guide: the README online, so it opens on every Mac and survives a move of the source folder.
     public static let documentationPage = URL(string: projectPage + "#readme")!
 
