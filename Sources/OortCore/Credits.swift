@@ -31,7 +31,6 @@ public struct Credits: Decodable, Sendable {
         /// A glyph of its own, else its category's.
         public let glyph: String?
         public let systems: [String]
-        public let featured: Bool?
         /// Nil when its picture may not be shown: the category's glyph stands in.
         public let icon: Icon?
         public let includes: [String]?
@@ -52,6 +51,10 @@ public struct Credits: Decodable, Sendable {
         public var id: String { category.id }
     }
 
+    /// The cards every system shows first, in this order, whatever it uses of them.
+    public let base: [String]
+    /// The most columns a grid of cards has.
+    public let columns: Int
     public let labels: [String: Words]
     public let categories: [Category]
     public let roles: [String: Words]
@@ -62,10 +65,21 @@ public struct Credits: Decodable, Sendable {
         self = try JSONDecoder().decode(Credits.self, from: Data(contentsOf: url))
     }
 
-    /// What one system shows, in the order of the file; an empty category is left out.
+    public var baseGroup: Group? {
+        let own = base.compactMap { id in credits.first { $0.id == id } }
+        return own.first.flatMap { first in categories.first { $0.id == first.category } }.map { Group(category: $0, credits: own) }
+    }
+
+    /// How many columns a group takes where `fitting` fit: a full grid, else a list. Only what fills the widest grid is ever a grid.
+    public func columns(for count: Int, fitting: Int) -> Int {
+        let fitting = min(max(fitting, 1), columns)
+        return count % columns == 0 && count % fitting == 0 ? fitting : 1
+    }
+
+    /// Every other credit one system shows, in the order of the file; an empty category is left out.
     public func groups(for system: System) -> [Group] {
         categories.compactMap { category in
-            let own = credits.filter { $0.category == category.id && $0.systems.contains(system.rawValue) }
+            let own = credits.filter { $0.category == category.id && $0.systems.contains(system.rawValue) && !base.contains($0.id) }
             return own.isEmpty ? nil : Group(category: category, credits: own)
         }
     }

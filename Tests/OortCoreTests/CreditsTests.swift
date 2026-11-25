@@ -17,22 +17,38 @@ final class CreditsTests: XCTestCase {
             XCTAssertEqual(credit.author, author)
             XCTAssertEqual(credit.license, "MIT")
             XCTAssertEqual(credit.url.absoluteString, "https://github.com/" + page)
-            XCTAssertEqual(credit.featured, true)
+            XCTAssertTrue(credits.base.contains(credit.id))
         }
         for system in [Credits.System.mac, .windows, .linux, .ios, .android] {
-            let names = credits.groups(for: system).flatMap(\.credits).map(\.name)
-            XCTAssertTrue(Set(["Arcane", "Selene", "nxnative"]).isSubset(of: names), system.rawValue)
+            XCTAssertTrue(Set(credits.groups(for: system).flatMap(\.credits).map(\.id)).isDisjoint(with: credits.base), system.rawValue)
             XCTAssertFalse(credits.statements(for: system, in: "fr").isEmpty)
         }
     }
 
     func testGroupsShowEachCreditOnceAndOnlyWhereItBelongs() throws {
         let credits = try credits()
-        let mac = credits.groups(for: .mac).flatMap(\.credits)
+        let base = try XCTUnwrap(credits.baseGroup)
+        XCTAssertEqual(base.credits.map(\.name), ["Arcane", "Selene", "Playnite", "nxnative", "NX2Apple", "Nextendo"])
+        XCTAssertEqual(base.id, "base")
+        let mac = base.credits + credits.groups(for: .mac).flatMap(\.credits)
         XCTAssertEqual(mac.count, Set(mac.map(\.id)).count)
         XCTAssertEqual(mac.count, credits.credits.filter { $0.systems.contains("mac") }.count)
         XCTAssertFalse(mac.contains { $0.id == "padwake" })
-        XCTAssertEqual(credits.groups(for: .mac).first?.id, "base")
+        XCTAssertFalse(credits.groups(for: .mac).contains { $0.id == "base" })
+    }
+
+    func testAGridIsFullOrItIsAList() throws {
+        let credits = try credits()
+        XCTAssertEqual([3, 2, 1].map { credits.columns(for: credits.base.count, fitting: $0) }, [3, 2, 1])
+        for count in 1...30 {
+            for fitting in 0...4 {
+                let columns = credits.columns(for: count, fitting: fitting)
+                XCTAssertTrue((1...credits.columns).contains(columns))
+                XCTAssertEqual(count % columns, 0, "\(count) cards in \(columns) columns")
+            }
+        }
+        XCTAssertEqual(credits.columns(for: 21, fitting: 2), 1)
+        XCTAssertEqual(credits.columns(for: 16, fitting: 3), 1)
     }
 
     func testWordsFollowTheLanguageThenEnglish() throws {

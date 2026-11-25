@@ -19,7 +19,7 @@ import ArcanePorting
             let locale = AppLocale(language: language, region: region)
             L10n.setContext(locale)
             let model = try Model(root.appendingPathComponent(language.rawValue, isDirectory: true))
-            for (name, size) in [("page", CGSize(width: 1440, height: 1500)), ("720", CGSize(width: 1280, height: 720))] {
+            for (name, size) in [("page", CGSize(width: 1440, height: 1500)), ("720", CGSize(width: 1280, height: 720)), ("1440", CGSize(width: 1440, height: 900))] {
                 let host = model.settings(locale, size: size)
                 try host.save("about-\(language.rawValue)-\(name)", to: output)
             }
@@ -79,24 +79,37 @@ import ArcanePorting
                         .environment(\.seleneFocusedButton, button)
                 }, locale)
             }
-            let long = Host(section("credit-playnite", 1), size: CGSize(width: 1120, height: 4600))
+            let long = Host(section("credit-arcane", 1), size: CGSize(width: 1120, height: 4600))
             try long.save("credits-\(locale.language.rawValue)-tous", to: output)
 
             // One stop per line of cards, and every card of every group within reach of left and right.
-            let lines = groups.flatMap(OortCreditGroup.lines)
+            let base = credits.baseGroup!
+            precondition(base.credits.map(\.id) == credits.base)
+            let shown = [base] + groups
+            let fits = actions.first { $0.rowID == "credit-arcane" }!.buttonCount
+            precondition(fits == credits.columns, "\(fits) columns where three fit")
+            let lines = shown.flatMap { OortCreditGroup.lines($0, credits, fitting: fits) }
+            // A full grid or a list: no line is ever short.
+            for group in shown { precondition(Set(OortCreditGroup.lines(group, credits, fitting: fits).map(\.credits.count)).count == 1, group.id) }
             for line in lines {
                 let action = actions.first { $0.rowID == line.id }!
                 precondition(action.buttonCount == line.credits.count, line.id)
             }
-            precondition(lines.flatMap(\.credits).count == credits.credits.filter { $0.systems.contains("mac") }.count)
+            precondition(lines.flatMap(\.credits).count == credits.credits.filter { $0.systems.contains("mac") || credits.base.contains($0.id) }.count)
             precondition(Set(actions.map(\.id)).count == actions.count, "Two rows share an identity")
             for row in ["Open project docs", "Copy diagnostics", "Support Arcane", "credits-notice"] {
                 precondition(actions.contains { $0.rowID == row }, "\(row) is out of the controller's reach")
             }
-            for group in groups.dropFirst() { precondition(actions.contains { $0.rowID == "credits-\(group.id)" }) }
-            // Closed, the first group stays in sight and the others are one press away.
+            for group in groups { precondition(actions.contains { $0.rowID == "credits-\(group.id)" }) }
+            // Closed, the six cards stay in sight and the others are one press away.
             _ = Host(view(SettingsAboutSection(viewModel: app, setup: app.setup) { actions = $0 }, locale), size: CGSize(width: 1120, height: 900))
             precondition(actions.contains { $0.rowID == "credit-arcane" } && !actions.contains { $0.rowID == "credit-gametdb" })
+            // Where three cards are too narrow, two by three and never a hole.
+            let narrow = Host(view(ScrollView {
+                SettingsAboutSection(viewModel: app, setup: app.setup) { actions = $0 }.frame(width: 600)
+            }, locale), size: CGSize(width: 1440, height: 1400))
+            precondition(actions.first { $0.rowID == "credit-arcane" }!.buttonCount == credits.columns - 1, "Two columns where three do not fit")
+            try narrow.save("about-\(locale.language.rawValue)-etroit", to: output)
             let words = credits.legal.filter { $0.systems.contains("mac") }
             precondition(words.count == credits.statements(for: .mac, in: locale.language.rawValue).count && words.count >= 7)
             precondition(credits.statements(for: .mac, in: "fr").contains { $0.contains("Nintendo") })

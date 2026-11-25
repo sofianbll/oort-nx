@@ -13,7 +13,7 @@ SPEC.loader.exec_module(GEN)
 
 class OortTokenTests(unittest.TestCase):
     def copy(self, root):
-        for relative in (GEN.SOURCE, GEN.SWIFT, GEN.PALETTES):
+        for relative in (GEN.SOURCE, GEN.SWIFT, GEN.CSS, GEN.PALETTES):
             target = root / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / relative, target)
@@ -23,7 +23,7 @@ class OortTokenTests(unittest.TestCase):
             root = Path(temp)
             self.copy(root)
             GEN.generate(root, check=False)
-            for relative in (GEN.SWIFT, GEN.PALETTES):
+            for relative in (GEN.SWIFT, GEN.CSS, GEN.PALETTES):
                 path = root / relative
                 self.assertEqual(path.read_bytes(), (ROOT / relative).read_bytes())
                 original = path.read_text()
@@ -43,8 +43,15 @@ class OortTokenTests(unittest.TestCase):
             path.write_text(json.dumps(data))
             with self.assertRaisesRegex(ValueError, "Contrast ink / glass: 1.00:1 < 4.5:1"):
                 GEN.generate(root, check=False)
-            for output in (GEN.SWIFT, GEN.PALETTES):
+            for output in (GEN.SWIFT, GEN.CSS, GEN.PALETTES):
                 self.assertEqual((root / output).read_bytes(), (ROOT / output).read_bytes())
+
+    def test_the_css_holds_the_same_values(self):
+        resolved = GEN.tokens(json.loads((ROOT / GEN.SOURCE).read_text()))
+        text = GEN.css(resolved)
+        for line in ("--space-medium: calc(16 * var(--u));", "--radius-card: calc(16 * var(--u));", "--text-text: calc(19 * var(--u));",
+                     "--motion-move: 280ms;", "--alpha-muted: 0.6;", "--art-sun: #F4CE8E;", "--effect-panel-blur-points: 10px;"):
+            self.assertIn(line, text)
 
     def test_legacy_palettes_remain_untouched(self):
         source = json.loads((ROOT / GEN.SOURCE).read_text())

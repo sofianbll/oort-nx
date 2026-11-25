@@ -354,7 +354,9 @@ contenere anche i titoli e i messaggi su più righe.
 - Ogni richiesta di rete si presenta con `AppIdentity.userAgent()`, cioè `Arcane/<versione> (macOS; +https://github.com/Bium23/NxLibrary)`.
 - **Open project docs** in About apre `AppIdentity.documentationPage`, il README online, nel browser predefinito: è la guida per i giocatori e si apre su ogni Mac, senza dipendere da dove sta il codice sorgente.
 - I crediti hanno una sola fonte, `design/credits.json`, perché app, NOTICE e sito dicano le stesse cose. `scripts/generate_credits.py` ne scrive le copie e, con `--check`, fallisce se una dipendenza, un servizio, un font o un simbolo non ha credito.
-- About li mostra con `OortCreditGroup`: il primo gruppo è aperto, gli altri si aprono dalla loro riga. Ogni riga di due schede è una sola tappa del controller; sinistra e destra scelgono la scheda.
+- Ogni app e il sito mostrano prima le stesse sei schede (`base`, nello stesso ordine), poi « Tutti i crediti » per gruppi. `Credits.columns` decide: una griglia piena di tre colonne (due se manca posto), altrimenti una lista; tutte le schede di una griglia hanno la stessa altezza.
+- About li mostra con `OortCreditGroup`: i gruppi si aprono dalla loro riga. Ogni riga di schede è una sola tappa del controller; sinistra e destra scelgono la scheda.
+- Sito e Windows/Linux usano `design/credits.css` con le variabili di `design/oort-tokens.css`. Il controllo rifiuta un valore scritto a mano in queste regole e nelle viste delle schede.
 - Un’icona compare solo se la fonte la dichiara permessa, con origine e motivo; altrimenti c’è il segno della categoria.
 
 **Start-up.**

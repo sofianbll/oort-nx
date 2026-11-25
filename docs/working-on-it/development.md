@@ -123,7 +123,7 @@ codesign --verify --deep --strict "$HOME/Applications/Oort NX Dev.app"
 ~~~
 
 Edit `design/oort.tokens.json`, then run `python3 scripts/generate_oort_tokens.py`
-and commit both generated outputs. The generator checks contrast on opaque
+and commit the three generated outputs (Swift, CSS, palettes). The generator checks contrast on opaque
 default Oort surfaces, not artwork or other palettes. The 26 px distance
 reference is rendered glyph height at 1080p, not a 26-point SwiftUI font.
 

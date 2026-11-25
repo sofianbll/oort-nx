@@ -224,6 +224,8 @@ Built on
 - nxnative, by seedds. The engine for Switch games. MIT. In the engine, which is downloaded separately (Mac, Windows, Linux, iPhone and iPad, Android, site). https://github.com/seedds/nxnative
 - NX2Apple, by LNPANDY. Key check, diagnostics and updates, adapted; game library and start on iPhone. MIT. Code adapted (Mac, iPhone and iPad, site). https://github.com/LNPANDY/NX2Apple
 - Nextendo, by eyasbzour. Optional online play. MIT. Service, off until used (Mac, site). https://github.com/eyasbzour/nxnative-online
+
+Other projects
 - nxnative_Launcher, by rennan101. The first interface the app started from. MIT. Code adapted (Mac). https://github.com/sofianbll/oort-nx/blob/main/NOTICE
 - LumaNX, by Xc1Ym. Method for bundling the build tools, followed. MIT. Reference, no code in the app (Mac). https://github.com/Xc1Ym/LumaNX
 - LASRecomp, by Peiikai. Save format facts, for achievements. MIT. Reference, no code in the app (Mac). https://github.com/peiikai/LASRecomp

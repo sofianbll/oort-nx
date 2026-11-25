@@ -20,10 +20,12 @@ struct SettingsAboutSection: View {
     private static let diagnosticsRow = "Copy diagnostics"
     private static let noticeRow = "credits-notice"
 
-    /// Categories whose cards are shown; the first is always open.
+    /// Categories whose cards are shown; the six cards above them always are.
     @State private var opened: Set<String>
+    @State private var fitting = Credits.bundled?.columns ?? 1
 
     private let credits = Credits.bundled
+    private let base = Credits.bundled?.baseGroup
     private let groups = Credits.bundled?.groups(for: .mac) ?? []
 
     init(viewModel: AppViewModel, setup: SetupModel, opened: Set<String> = [], onActions: @escaping ([SettingsRowAction]) -> Void) {
@@ -60,17 +62,17 @@ struct SettingsAboutSection: View {
             supportButton
 
             if let credits {
+                if let base {
+                    SettingsSubheading(Credits.words(base.category.title, in: language))
+                        .accessibilityAddTraits(.isHeader)
+                    cards(base, credits)
+                }
+                SettingsSubheading(credits.label("all", in: language))
+                    .accessibilityAddTraits(.isHeader)
                 ForEach(groups) { group in
-                    if group.id == groups.first?.id {
-                        SettingsSubheading(Credits.words(group.category.title, in: language))
-                            .accessibilityAddTraits(.isHeader)
-                    } else {
-                        OortSettingsLink(id: "credits-\(group.id)", title: Credits.words(group.category.title, in: language),
-                                         value: "\(group.credits.count)", expanded: shows(group)) { toggle(group.id) }
-                    }
-                    if shows(group) {
-                        OortCreditGroup(group: group, credits: credits, focusedCard: focusedCard(in: group), open: open)
-                    }
+                    OortSettingsLink(id: "credits-\(group.id)", title: Credits.words(group.category.title, in: language),
+                                     value: "\(group.credits.count)", expanded: shows(group)) { toggle(group.id) }
+                    if shows(group) { cards(group, credits) }
                 }
 
                 SelenePanel(Credits.words(credits.labels["legal"] ?? [:], in: language)) {
@@ -84,7 +86,9 @@ struct SettingsAboutSection: View {
                 OortSettingsLink(id: Self.noticeRow, title: credits.label("notice", in: language), action: openNotice)
             }
         }
+        .onGeometryChange(for: Int.self) { [canvas] page in OortCreditGroup.fitting(page.size.width, canvas: canvas) } action: { fitting = $0 }
         .onAppear(perform: publishActions)
+        .onChange(of: fitting) { publishActions() }
         .onChange(of: updater.state) { publishActions() }
         .onChange(of: opened) { publishActions() }
         .onChange(of: viewModel.isBuilding) { publishActions() }
@@ -104,14 +108,18 @@ struct SettingsAboutSection: View {
 
     private var language: String { localization.language.rawValue }
 
-    private func shows(_ group: Credits.Group) -> Bool { group.id == groups.first?.id || opened.contains(group.id) }
+    private func cards(_ group: Credits.Group, _ credits: Credits) -> some View {
+        OortCreditGroup(group: group, credits: credits, fitting: fitting, focusedCard: focusedCard(in: group), open: open)
+    }
+
+    private func shows(_ group: Credits.Group) -> Bool { opened.contains(group.id) }
 
     private func toggle(_ id: String) {
         withAnimation(Motion.focus(reduceMotion)) { opened.formSymmetricDifference([id]) }
     }
 
     private func focusedCard(in group: Credits.Group) -> String? {
-        guard let line = OortCreditGroup.lines(group).first(where: { $0.id == focusedRowTitle }) else { return nil }
+        guard let credits, let line = OortCreditGroup.lines(group, credits, fitting: fitting).first(where: { $0.id == focusedRowTitle }) else { return nil }
         return line.credits[min(focusedButton, line.credits.count - 1)].id
     }
 
@@ -141,22 +149,25 @@ struct SettingsAboutSection: View {
         actions.append(.init(id: "docs", title: "Open project docs", rowID: Self.docsRow, activate: openProjectDocs))
         actions.append(.init(id: "diagnostics", title: "Copy diagnostics", rowID: Self.diagnosticsRow, activate: copyDiagnostics))
         actions.append(.init(id: "support", title: Self.supportTitle, activate: openSupportPage))
+        if let base { actions += cardActions(base) }
         for group in groups {
-            if group.id != groups.first?.id {
-                actions.append(.init(id: "credits-\(group.id)", title: Credits.words(group.category.title, in: language),
-                                     rowID: "credits-\(group.id)") { toggle(group.id) })
-            }
-            guard shows(group) else { continue }
-            actions += OortCreditGroup.lines(group).map { line in
-                let opens = line.credits.map { credit in { open(credit) } }
-                return SettingsRowAction(id: line.id, title: line.credits[0].name, rowID: line.id,
-                                         additionalButtons: Array(opens.dropFirst()), activate: opens[0])
-            }
+            actions.append(.init(id: "credits-\(group.id)", title: Credits.words(group.category.title, in: language),
+                                 rowID: "credits-\(group.id)") { toggle(group.id) })
+            if shows(group) { actions += cardActions(group) }
         }
         if credits != nil {
             actions.append(.init(id: "notice", title: "NOTICE", rowID: Self.noticeRow, activate: openNotice))
         }
         onActions(actions)
+    }
+
+    private func cardActions(_ group: Credits.Group) -> [SettingsRowAction] {
+        guard let credits else { return [] }
+        return OortCreditGroup.lines(group, credits, fitting: fitting).map { line in
+            let opens = line.credits.map { credit in { open(credit) } }
+            return SettingsRowAction(id: line.id, title: line.credits[0].name, rowID: line.id,
+                                     additionalButtons: Array(opens.dropFirst()), activate: opens[0])
+        }
     }
 
     // MARK: - Updates

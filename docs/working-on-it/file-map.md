@@ -897,7 +897,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/OortUI/OortSetupCard.swift](../../Sources/NXLibrary/Views/OortUI/OortSetupCard.swift) | Scheda di scelta della prima configurazione. |
 | [Sources/NXLibrary/Views/OortUI/OortTabs.swift](../../Sources/NXLibrary/Views/OortUI/OortTabs.swift) | Schede condivise: scelta, focus, conteggio. |
 | [Sources/NXLibrary/Views/OortUI/OortTag.swift](../../Sources/NXLibrary/Views/OortUI/OortTag.swift) | Etichetta breve: genere, versione, stato. |
-| [Sources/NXLibrary/Views/OortUI/OortCreditCard.swift](../../Sources/NXLibrary/Views/OortUI/OortCreditCard.swift) | Scheda di un credito e gruppo di schede, due per riga. |
+| [Sources/NXLibrary/Views/OortUI/OortCreditCard.swift](../../Sources/NXLibrary/Views/OortUI/OortCreditCard.swift) | Scheda di un credito e gruppo di schede: griglia piena, di altezza uguale, o lista. |
 | [Tests/NXLibraryCoreTests/PaletteContrastTests.swift](../../Tests/NXLibraryCoreTests/PaletteContrastTests.swift) | Contrasto di testo, focus e simboli in ogni palette. |
 | [Sources/NXLibrary/Views/OortUI/OortUIGallery.swift](../../Sources/NXLibrary/Views/OortUI/OortUIGallery.swift) | Esempi sintetici Debug delle primitive OortUI e catture senza finestre su tre palette. |
 | [Sources/NXLibrary/Views/OortUI/SeleneConfirmDialog.swift](../../Sources/NXLibrary/Views/OortUI/SeleneConfirmDialog.swift) | Card e aiuto condivisi, conferma a sinistra e annullamento a destra, scelte multiple con testo a larghezza definita e note, SeleneSuccessNotice. |
@@ -1357,7 +1357,9 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [design/oort.tokens.json](../../design/oort.tokens.json) | Fonte DTCG dei token Selene e della palette predefinita Oort. |
 | [design/vocabulary.json](../../design/vocabulary.json) | Vocabolario proposto comune ai sistemi: parole fr/en, stati di un gioco, comandi e chiavi che le traduzioni devono rispettare. |
 | [design/vocabulary-debt.json](../../design/vocabulary-debt.json) | Scarti di traduzione già noti, per sistema; può solo ridursi. |
-| [design/credits.json](../../design/credits.json) | Fonte unica dei crediti: nome, autore, ruolo, licenza, link, sistemi, icona permessa. |
+| [design/credits.json](../../design/credits.json) | Fonte unica dei crediti: nome, autore, ruolo, licenza, link, sistemi, icona permessa; ordine delle sei schede di base. |
+| [design/credits.css](../../design/credits.css) | Schede dei crediti per sito e Windows/Linux, solo con variabili generate. |
+| [design/oort-tokens.css](../../design/oort-tokens.css) | Copia CSS generata di `design/oort.tokens.json`. |
 | [scripts/generate_oort_tokens.py](../../scripts/generate_oort_tokens.py) | Controlla il contrasto e genera Swift e la sola voce Oort del catalogo. |
 | [Tests/PublicationChecks/test_oort_tokens.py](../../Tests/PublicationChecks/test_oort_tokens.py) | Prova generazione stabile, output obsoleti e contrasto insufficiente. |
 | [scripts/check_oort_core.py](../../scripts/check_oort_core.py) | Verifica manifest e import del target portabile; può preparare un pacchetto minimo per Linux. |

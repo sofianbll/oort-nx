@@ -45,7 +45,7 @@ components:
 
 # Oort NX design system
 
-`design/oort.tokens.json` is the only source of values. `scripts/generate_oort_tokens.py` writes the Swift; `scripts/check_selene_tokens.py` refuses a literal colour, opacity, size, space, radius, stroke, shadow or animation in a screen. The allowance list is empty and stays empty.
+`design/oort.tokens.json` is the only source of values. `scripts/generate_oort_tokens.py` writes the Swift and the CSS; `scripts/check_selene_tokens.py` refuses a literal colour, opacity, size, space, radius, stroke, shadow or animation in a screen. The allowance list is empty and stays empty.
 
 ## Overview
 
