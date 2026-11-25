@@ -194,14 +194,15 @@ struct ChangeArtworkView: View {
         .overlay {
             if askAppIcon {
                 ZStack {
-                    SeleneTheme.scrim45.ignoresSafeArea()
-                    SeleneConfirmDialog(title: L10n.text("Where should the icon appear?"),
-                                        message: appIconMessage,
-                                        confirmTitle: L10n.text("Use on the Mac"),
-                                        cancelTitle: L10n.text("Only here"),
-                                        focus: $appIconFocus,
-                                        onCancel: { answerAppIcon(false) },
-                                        onConfirm: { answerAppIcon(true) })
+                    SeleneTheme.scrim45.ignoresSafeArea().contentShape(Rectangle()).onTapGesture(perform: dismissAppIcon)
+                    // Two answers; Back closes the question without either.
+                    SeleneChoiceDialog(title: "Where should the icon appear?",
+                                       message: appIconMessage,
+                                       choices: ["Only here", "Use on the Mac"],
+                                       focus: Binding(get: { appIconFocus == .confirm ? 1 : 0 },
+                                                      set: { appIconFocus = $0 == 1 ? .confirm : .cancel }),
+                                       backTitle: "Close", onCancel: dismissAppIcon,
+                                       onChoose: { answerAppIcon($0 == 1) })
                 }
                 .transition(.opacity)
             }

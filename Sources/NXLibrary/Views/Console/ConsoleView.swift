@@ -117,7 +117,7 @@ struct ConsoleView: View {
                                         message: L10n.text("The log file on disk is kept; only the lines shown here go."),
                                         confirmTitle: "Clear",
                                         cancelTitle: L10n.text("Keep"),
-                                        focus: $confirmFocus,
+                                        destructive: true, focus: $confirmFocus,
                                         onCancel: dismissClear,
                                         onConfirm: clear)
                 }

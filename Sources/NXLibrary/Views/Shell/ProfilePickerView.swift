@@ -123,7 +123,7 @@ struct ProfilePickerView: View {
                     SeleneConfirmDialog(title: L10n.format("Delete %@?", [removing.name]),
                                         message: L10n.text("This profile will lose its favorites and play time."),
                                         confirmTitle: L10n.text("Delete"), cancelTitle: L10n.text("Keep"),
-                                        warningIcon: true, focus: $removalFocus,
+                                        warningIcon: true, destructive: true, focus: $removalFocus,
                                         onCancel: { self.removing = nil }, onConfirm: remove)
                 }
             }

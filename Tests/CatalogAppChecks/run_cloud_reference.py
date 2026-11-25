@@ -132,8 +132,8 @@ def main():
                        "        copy._draft = State(initialValue: draft)\n"
                        "        return copy\n"
                        "    }\n}\n")
-        change(app / "Views/OortUI/SeleneConfirmDialog.swift", r'focused: highlightsPills && focus == button,',
-               r'focused: CloudScreenProbe.measure(label, highlightsPills && focus == button, enabled),')
+        change(app / "Views/OortUI/OortActionBar.swift", r'focused: focused == action\.id,',
+               r'focused: CloudScreenProbe.measure(action.title, focused == action.id, action.enabled),')
         change(app / "Views/Settings/SettingsCloudLibrarySection.swift",
                r'(SeleneRow\(model.referenceCheck.*?SeleneStatusDot\(text: )(.*?), color:',
                lambda match: match[1] + f"CloudScreenProbe.measureLabel({match[2]}), color:")

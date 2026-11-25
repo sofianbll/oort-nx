@@ -41,7 +41,7 @@ struct PlayersScreen: View {
             if model.confirmsReset {
                 SeleneOverlay(style: .dialog, onOutside: back) {
                     SeleneConfirmDialog(title: "Reset players?", message: t("This clears the player profiles and controller assignments."),
-                                        confirmTitle: "Reset", focus: $model.resetFocus, onCancel: back, onConfirm: model.reset)
+                                        confirmTitle: "Reset", destructive: true, focus: $model.resetFocus, onCancel: back, onConfirm: model.reset)
                 }
             }
         }

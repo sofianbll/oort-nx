@@ -73,7 +73,7 @@ struct AddGameView: View {
                                         message: L10n.text("The files on disk are not changed."),
                                         confirmTitle: L10n.text("Discard"),
                                         cancelTitle: L10n.text("Keep editing"),
-                                        focus: $confirmFocus,
+                                        destructive: true, focus: $confirmFocus,
                                         onCancel: dismissDiscard,
                                         onConfirm: discardAndClose)
                 }

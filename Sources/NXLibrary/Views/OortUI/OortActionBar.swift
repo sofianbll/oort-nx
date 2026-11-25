@@ -9,44 +9,86 @@ struct OortActionBar: View {
         var arguments: [String] = []
         let role: ActionBarRole
         var enabled = true
+        /// The way forward erases or replaces something: it keeps its place and takes the danger colour.
+        var danger = false
+        /// One line under the key.
+        var detail: String? = nil
         let perform: () -> Void
     }
 
     let actions: [Action]
     let focused: AnyHashable?
+    var preset: OortButton.Preset = .action
+    /// Apart from edge to edge, or side by side in the middle of a full page.
+    var spread = true
+    /// One key a line: the way forward on top, what erases then the way back at the bottom.
+    var stacked = false
     let onFocus: (AnyHashable) -> Void
     @Environment(\.seleneCanvas) private var canvas
 
     var body: some View {
         let sorted = ActionBarOrder.sorted(actions, role: \.role)
-        let leading = sorted.filter(\.role.isLeading), trailing = sorted.filter { !$0.role.isLeading }
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
-                ForEach(leading) { key($0) }
-                Spacer(minLength: canvas.u(SeleneTokens.Space.group))
-                ForEach(trailing) { key($0) }
-            }
-            // Too narrow for one line: the way back keeps the left, the way forward keeps the right, one line each.
-            VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
-                HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
-                    Spacer(minLength: 0)
-                    ForEach(trailing) { key($0) }
+        Group {
+            if stacked {
+                VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
+                    ForEach(ActionBarOrder.stacked(actions, role: \.role)) { key($0, fills: true) }
                 }
-                HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
-                    ForEach(leading) { key($0) }
-                    Spacer(minLength: 0)
-                }
+            } else {
+                row(sorted)
             }
         }
         .accessibilityElement(children: .contain)
     }
 
-    private func key(_ action: Action) -> some View {
-        OortButton(title: action.title, arguments: action.arguments, focused: focused == action.id,
-                   state: action.enabled ? .ready : .blocked, tone: action.role == .destructive ? .destructive : .normal,
-                   action: action.perform)
-            .disabled(!action.enabled)
-            .seleneHover { if action.enabled { onFocus(action.id) } }
+    private func row(_ sorted: [Action]) -> some View {
+        let trailing = sorted.filter { !$0.role.isLeading }
+        return ViewThatFits(in: .horizontal) {
+            HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.medium)) {
+                leadingKeys(sorted)
+                if spread { Spacer(minLength: canvas.u(SeleneTokens.Space.group)) }
+                ForEach(trailing) { key($0) }
+            }
+            // Too narrow for one line: the way back keeps the left, the way forward keeps the right, one line each.
+            VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
+                HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.medium)) {
+                    Spacer(minLength: 0)
+                    ForEach(trailing) { key($0) }
+                }
+                HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.medium)) {
+                    leadingKeys(sorted)
+                    Spacer(minLength: 0)
+                }
+            }
+        }
+    }
+
+    /// What erases is first, with a wide gap before the way back.
+    private func leadingKeys(_ sorted: [Action]) -> some View {
+        HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.group)) {
+            ForEach(sorted.filter { $0.role == .destructive }) { key($0) }
+            HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.medium)) {
+                ForEach(sorted.filter { $0.role == .back }) { key($0) }
+            }
+        }
+    }
+
+    private func key(_ action: Action, fills: Bool = false) -> some View {
+        VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
+            OortButton(title: action.title, arguments: action.arguments, focused: focused == action.id,
+                       state: action.enabled ? .ready : .blocked, preset: preset, fillsWidth: fills,
+                       tone: action.role == .destructive || action.danger ? .destructive : .normal,
+                       action: action.perform)
+                .disabled(!action.enabled)
+                .accessibilityHint(action.detail ?? "")
+                .seleneHover { if action.enabled { onFocus(action.id) } }
+            if let detail = action.detail {
+                Text(detail).seleneFont(.text).foregroundStyle(SeleneTheme.ink60)
+                    .multilineTextAlignment(.center)
+                    .frame(idealWidth: canvas.u(SeleneTokens.Space.pillWidth), maxWidth: fills ? nil : canvas.u(SeleneTokens.Space.keyDetailMeasure))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityHidden(true)
+            }
+        }
     }
 }
 

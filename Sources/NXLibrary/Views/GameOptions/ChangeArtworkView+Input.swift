@@ -63,6 +63,13 @@ extension ChangeArtworkView {
         choose(tiles[focus])
     }
 
+    /// Back dismisses the location question. A newly chosen image still follows the saved scope.
+    func dismissAppIcon() {
+        askAppIcon = false
+        if !editingIconLocation, let macApp { appIcon.appIconPickChanged(for: macApp, removed: false) }
+        SoundEffectService.shared.play(.focus)
+    }
+
     func handleGamepad(_ action: GamepadAction) {
         // The key dialog reads the controller itself.
         if viewModel.isEditingSteamGridDBKey { return }
@@ -75,11 +82,7 @@ extension ChangeArtworkView {
                     SoundEffectService.shared.play(.focus)
                 }
             case .confirm: answerAppIcon(appIconFocus == .confirm)
-            case .cancel:
-                askAppIcon = false
-                // Back dismisses the location question. A newly chosen image still follows the saved scope.
-                if !editingIconLocation, let macApp { appIcon.appIconPickChanged(for: macApp, removed: false) }
-                SoundEffectService.shared.play(.focus)
+            case .cancel: dismissAppIcon()
             default: break
             }
             return

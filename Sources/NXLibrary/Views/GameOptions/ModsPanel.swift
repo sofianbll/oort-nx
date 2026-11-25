@@ -262,7 +262,7 @@ struct ModsPanel: View {
                 .onTapGesture { dismissConfirm() }
             SeleneConfirmDialog(title: L10n.format("Move %@ to the Trash?", [String(describing: name)]),
                                 message: L10n.text("The game stops loading it. You can put it back from the Trash."),
-                                confirmTitle: L10n.text("Move to Trash"), focus: $confirmFocus,
+                                confirmTitle: L10n.text("Move to Trash"), destructive: true, focus: $confirmFocus,
                                 onCancel: dismissConfirm, onConfirm: runRemove)
         }
     }

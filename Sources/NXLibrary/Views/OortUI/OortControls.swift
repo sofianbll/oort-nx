@@ -87,11 +87,13 @@ struct OortButton: View {
     var focused = false
     var state: State = .ready
     var preset: Preset = .action
+    var fillsWidth = false
     var tone: Tone = .normal
     let action: () -> Void
 
     var body: some View {
         SelenePillButton(title: title, titleArguments: arguments, minWidth: preset == .action ? SeleneTokens.Space.pillWidth : 0,
+                         fillsWidth: fillsWidth,
                          height: preset == .compact ? SeleneTokens.Space.compactPillHeight
                              : preset == .card ? SeleneTokens.Space.actionPillHeight : SeleneTokens.Space.pillHeight,
                          titleSize: preset == .compact ? .text : .row,
