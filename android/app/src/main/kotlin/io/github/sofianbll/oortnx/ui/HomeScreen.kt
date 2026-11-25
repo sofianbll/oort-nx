@@ -32,6 +32,11 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -205,7 +210,14 @@ private fun Rail(state: AppState, games: List<Game>, game: Game, tile: Dp, gutte
         val seen = list.layoutInfo.visibleItemsInfo.firstOrNull { it.index == here }
         if (seen == null || seen.offset < 0 || seen.offset + seen.size > list.layoutInfo.viewportEndOffset) list.animateScrollToItem(here)
     }
-    LazyRow(state = list, horizontalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(horizontal = gutter - 4.dp)) {
+    val more = list.canScrollForward
+    LazyRow(
+        // The last cover fades where the row goes on.
+        Modifier.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }.drawWithContent {
+            drawContent()
+            if (more) drawRect(Brush.horizontalGradient(listOf(Color.Black, Color.Transparent), startX = size.width - 56.dp.toPx(), endX = size.width), blendMode = BlendMode.DstIn)
+        },
+        state = list, horizontalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(horizontal = gutter - 4.dp)) {
         itemsIndexed(games, key = { _, g -> g.packageName }) { _, item ->
             val selected = item.packageName == game.packageName
             GameCover(

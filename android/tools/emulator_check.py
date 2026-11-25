@@ -73,6 +73,16 @@ def is_on(text, nodes):
     return None
 
 
+def chosen(nodes=None):
+    """The game chosen on the first screen: its name is inside the cover, which carries the state."""
+    nodes = screen() if nodes is None else nodes
+    for said in (n for n in nodes if n.desc in GAMES):
+        x, y = said.centre
+        if any(n.selected and n.package == PACKAGE and n.box[0] <= x <= n.box[2] and n.box[1] <= y <= n.box[3] for n in nodes):
+            return said.desc
+    return None
+
+
 def density():
     return int(re.findall(r"density: (\d+)", shell("wm density"))[-1]) / 160
 
@@ -218,14 +228,14 @@ def touch(lang):
     fresh()
     see(f"{lang}: the first screen offers Play", w("detail_play"))
     shot(f"{lang}-01-home")
-    first = next((g for g in GAMES if find(g, exact=False)), None)
+    first = chosen()
     ok(f"{lang}: a made-up game is on the first screen", first is not None)
     width, height = display()
     shell(f"input swipe {int(width * .8)} {int(height * .45)} {int(width * .15)} {int(height * .45)} 220")
     time.sleep(1.5)
     shot(f"{lang}-02-home-swiped")
-    nodes = screen()
-    ok(f"{lang}: the swipe chose another game", any(n.selected and n.desc in GAMES and n.desc != first for n in nodes), str([(n.desc, n.selected) for n in nodes if n.desc in GAMES]))
+    then = chosen()
+    ok(f"{lang}: the swipe chose another game", then not in (None, first), f"{first}, then {then}")
 
     tap(w("nav_library"), exact=True)
     time.sleep(0.8)
@@ -251,8 +261,10 @@ def touch(lang):
     ok(f"{lang}: Play stays on screen at the foot of the page", find(w("detail_play"), exact=True) is not None)
     tap(w("detail_info"))
     ok(f"{lang}: Android's page of the game opens", wait_front("com.android.settings"), front())
-    time.sleep(1)
+    time.sleep(2)
     system_back()
+    if not wait_front(PACKAGE, 4):
+        system_back()  # a first start of Android's settings can be slow enough to miss the key
     ok(f"{lang}: Back returns from Android's page", wait_front(PACKAGE), front())
 
     tap(w("detail_play"), exact=True)
@@ -268,7 +280,7 @@ def touch(lang):
     see(f"{lang}: Back leaves the page for the library", w("nav_library"))
     system_back()
     see(f"{lang}: Back leaves the library for the first screen", w("detail_play"))
-    ok(f"{lang}: the game just started comes first", any(n.selected and n.desc == GAMES[1] for n in screen()))
+    ok(f"{lang}: the game just started comes first", chosen() == GAMES[1], str(chosen()))
 
     tap(w("nav_controllers"), exact=True)
     see(f"{lang}: controllers", w("controllers_connected"))
@@ -326,9 +338,9 @@ def controller(lang):
     see(f"{lang}, pad: first screen", w("detail_play"))
     pad("RIGHT")
     shot(f"{lang}-20-pad-home")
-    chosen = [n.desc for n in screen() if n.selected and n.desc in GAMES]
+    before = chosen()
     pad("RIGHT")
-    ok(f"{lang}, pad: right changes the game", [n.desc for n in screen() if n.selected and n.desc in GAMES] != chosen)
+    ok(f"{lang}, pad: right changes the game", chosen() not in (None, before))
     pad("DOWN", "RIGHT")
     shot(f"{lang}-21-pad-home-keys")
     pad("A")
@@ -402,14 +414,14 @@ def real_pad():
     send((1, 305, 1))
     send((1, 305, 0))
     see("virtual controller: B then goes to the first screen", w("detail_play"))
-    chosen = [n.desc for n in screen() if n.selected and n.desc in GAMES]
+    before = chosen()
     send((3, 16, 1))
     send((3, 16, 0))
-    ok("virtual controller: the hat moves", [n.desc for n in screen() if n.selected and n.desc in GAMES] != chosen)
-    chosen = [n.desc for n in screen() if n.selected and n.desc in GAMES]
+    ok("virtual controller: the hat moves", chosen() not in (None, before))
+    before = chosen()
     send((3, 0, 32767))
     send((3, 0, 0))
-    ok("virtual controller: the stick moves", [n.desc for n in screen() if n.selected and n.desc in GAMES] != chosen)
+    ok("virtual controller: the stick moves", chosen() not in (None, before))
     send((1, 304, 1))
     send((1, 304, 0))
     ok("virtual controller: A plays", any(wait_front(f"org.nx2a.test{g}", 6) for g in ("phare", "maree", "collines", "comete")), front())
@@ -424,6 +436,11 @@ def real_pad():
 def rotate(to):
     shell(f"settings put system accelerometer_rotation 0; settings put system user_rotation {to}")
     time.sleep(2.5)
+    if (display()[0] > display()[1]) != (to == 1):
+        shell(f"wm set-user-rotation lock {to}; wm user-rotation lock {to}")
+        time.sleep(2.5)
+    w_, h_ = display()
+    ok(f"the screen is {'on its side' if to else 'upright'}", (w_ > h_) == (to == 1), f"{w_}x{h_}")
 
 
 def tour(prefix, with_pad=False):

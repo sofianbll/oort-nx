@@ -4,10 +4,15 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ripple.RippleAlpha
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RippleConfiguration
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
@@ -59,9 +64,16 @@ private val OortShapes = Shapes(
     extraLarge = RoundedCornerShape(canvas(OortTokens.Radius.Dialog)),
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
+private val QuietRipple = RippleConfiguration(rippleAlpha = RippleAlpha(draggedAlpha = 0.16f, focusedAlpha = 0f, hoveredAlpha = 0.08f, pressedAlpha = 0.1f))
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OortTheme(content: @Composable () -> Unit) {
-    MaterialTheme(colorScheme = OortColors, shapes = OortShapes, content = content)
+    MaterialTheme(colorScheme = OortColors, shapes = OortShapes) {
+        // The controller's ring is the app's own: Android's focus tint would light a second place.
+        CompositionLocalProvider(LocalRippleConfiguration provides QuietRipple, content = content)
+    }
 }
 
 /** A change that takes the token's duration, or happens at once when the player asked for calm. */

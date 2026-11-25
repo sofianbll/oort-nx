@@ -57,12 +57,18 @@ fun WhichGamesScreen(state: AppState) {
     }
 }
 
+/** The lines of a paragraph run together, so it wraps at the window's width; lists, tables and headings keep theirs. */
+private fun flow(paragraph: String): String {
+    val lines = paragraph.lines().map { it.trim() }
+    return if (lines.any { it.startsWith("|") || it.startsWith("- ") || it.startsWith("#") || it.startsWith("```") }) lines.joinToString("\n") else lines.joinToString(" ")
+}
+
 /** A licence as it is written, from the app's own files. */
 @Composable
 fun LicenceScreen(state: AppState, licence: LicenceText) {
     val context = LocalContext.current
     val paragraphs = remember(licence) {
-        context.assets.open("licences/${licence.file}").bufferedReader().use { it.readText() }.trim().split(Regex("\n\\s*\n"))
+        context.assets.open("licences/${licence.file}").bufferedReader().use { it.readText() }.trim().split(Regex("\n\\s*\n")).map(::flow)
     }
     val list = rememberLazyListState()
     var seen by remember { mutableIntStateOf(state.textSteps) }
