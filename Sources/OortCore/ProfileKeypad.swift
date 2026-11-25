@@ -1,6 +1,6 @@
 /// The profile PIN's grid, focus and pending digits, independent of the input device.
 public struct ProfileKeypad {
-    public enum Key: Hashable {
+    public enum Key: Hashable, Sendable {
         case digit(Int), erase, validate
     }
 

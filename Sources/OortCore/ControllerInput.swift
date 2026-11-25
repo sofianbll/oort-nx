@@ -1,6 +1,6 @@
 import Foundation
 
-public enum ControllerButton: CaseIterable, Hashable {
+public enum ControllerButton: CaseIterable, Hashable, Sendable {
     case up, down, left, right
     case a, b, x, y, l, r, zl, zr, menu, view, l3, r3, home, capture
 }

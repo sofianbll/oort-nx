@@ -13,15 +13,16 @@ CONDITIONAL = re.compile(r"^[ \t]*#(?:if|elseif|else|endif)\b[^\n]*", re.MULTILI
 IMPORT = re.compile(r'^\s*\(import_decl .*? module="([^"]+)"', re.MULTILINE)
 ALLOWED = {"Foundation", "Swift"}
 
-LINUX_MANIFEST = """// swift-tools-version: 5.9
+LINUX_MANIFEST = """// swift-tools-version: 6.0
 import PackageDescription
 
 let package = Package(
     name: "OortCoreChecks",
     targets: [
-        .target(name: "OortCore"),
+        .target(name: "OortCore", swiftSettings: [.swiftLanguageMode(.v6)]),
         .testTarget(name: "OortCoreTests", dependencies: ["OortCore"]),
-    ]
+    ],
+    swiftLanguageModes: [.v5]
 )
 """
 
@@ -54,8 +55,9 @@ def main():
     core = next((target for target in manifest["targets"] if target["name"] == "OortCore"), None)
     if (core is None or core["type"] != "regular"
             or core.get("path") not in (None, "Sources/OortCore")
-            or any(core.get(key) for key in ("dependencies", "resources", "settings", "sources", "exclude"))):
-        raise SystemExit("OortCore must have no dependencies, resources or custom build settings.")
+            or any(core.get(key) for key in ("dependencies", "resources", "sources", "exclude"))
+            or [setting["kind"] for setting in core.get("settings", [])] != [{"swiftLanguageMode": {"_0": "6"}}]):
+        raise SystemExit("OortCore must have no dependencies or resources, and only the Swift 6 language mode as a setting.")
 
     source_dir = ROOT / "Sources/OortCore"
     sources = sorted(source_dir.rglob("*.swift"))

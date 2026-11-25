@@ -1,4 +1,4 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.0
 import PackageDescription
 
 let package = Package(
@@ -11,7 +11,7 @@ let package = Package(
         .executable(name: "NXLibrary", targets: ["NXLibrary"]),
     ],
     targets: [
-        .target(name: "OortCore"),
+        .target(name: "OortCore", swiftSettings: [.swiftLanguageMode(.v6)]),
         .target(name: "NXLibraryCore", dependencies: ["OortCore"], path: "Sources/NXLibraryCore",
                 resources: [.process("Resources")]),
         .target(name: "ArcanePorting", dependencies: ["NXLibraryCore"], path: "Sources/ArcanePorting"),
@@ -31,5 +31,6 @@ let package = Package(
             path: "Tests/ArcanePortingTests"
         ),
         .testTarget(name: "OortCoreTests", dependencies: ["OortCore"]),
-    ]
+    ],
+    swiftLanguageModes: [.v5]
 )
