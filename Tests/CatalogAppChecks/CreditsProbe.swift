@@ -71,13 +71,17 @@ import ArcanePorting
             let groups = credits.groups(for: .mac)
             let every = Set(groups.map(\.id))
             var actions: [SettingsRowAction] = []
+            var openedURLs: [URL] = []
             let section = { (row: String?, button: Int) in
                 view(ScrollView {
                     SettingsAboutSection(viewModel: app, setup: app.setup, opened: every) { actions = $0 }
                         .padding(24)
                         .environment(\.seleneFocusedRowID, row)
                         .environment(\.seleneFocusedButton, button)
-                }, locale)
+                }.environment(\.openURL, OpenURLAction { url in
+                    openedURLs.append(url)
+                    return .handled
+                }), locale)
             }
             let long = Host(section("credit-playnite", 1), size: CGSize(width: 1120, height: 4600))
             try long.save("credits-\(locale.language.rawValue)-tous", to: output)
@@ -93,6 +97,17 @@ import ArcanePorting
             for row in ["Open project docs", "Copy diagnostics", "Support Arcane", "credits-notice"] {
                 precondition(actions.contains { $0.rowID == row }, "\(row) is out of the controller's reach")
             }
+            let support = actions.firstIndex { $0.id == "support" }!
+            let funding = actions[support + 1]
+            precondition(funding.rowID == "oort-funding" && funding.buttonCount == 1 && funding.isEnabled)
+            precondition(openedURLs.isEmpty, "Opening Settings must not open the funding page")
+            funding.press(button: 0)
+            let expected = locale.language == .french
+                ? "https://sofianbll.github.io/oort-nx/financer/"
+                : "https://sofianbll.github.io/oort-nx/en/funding/"
+            precondition(openedURLs.map(\.absoluteString) == [expected])
+            if locale.language == .french { precondition(funding.title == "Financer Oort NX") }
+            if locale.language == .english { precondition(funding.title == "Fund Oort NX") }
             for group in groups.dropFirst() { precondition(actions.contains { $0.rowID == "credits-\(group.id)" }) }
             // Closed, the first group stays in sight and the others are one press away.
             _ = Host(view(SettingsAboutSection(viewModel: app, setup: app.setup) { actions = $0 }, locale), size: CGSize(width: 1120, height: 900))

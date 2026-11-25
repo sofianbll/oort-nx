@@ -70,6 +70,7 @@
     {"id": "action.hide", "en": "Hide", "fr": "Masquer", "icon": "hidden", "keys": {"mac": ["Hide"]}},
     {"id": "action.restart", "en": "Restart app", "fr": "Redémarrer l’app", "icon": "restartAlt", "keys": {"mac": ["Restart app"]}},
     {"id": "action.quit", "en": "Quit", "fr": "Quitter", "icon": "power", "keys": {"mac": ["Quit"], "ios": ["Quit"]}},
+    {"id": "action.fund_oort", "en": "Fund Oort NX", "fr": "Financer Oort NX", "icon": "link", "keys": {"mac": ["Fund Oort NX"]}},
     {"id": "screen.menu", "en": "Menu", "fr": "Menu", "icon": "tune", "keys": {"mac": ["Menu"]}},
     {"id": "screen.home", "en": "Featured", "fr": "À la une", "icon": "star", "keys": {"mac": ["Spotlight", "Settings navigation: home"], "desktop": ["Spotlight"], "android": [{"key": "nav_home"}], "ios": ["Home"]}},
     {"id": "screen.grid", "en": "Grid", "fr": "Grille", "icon": "collections", "keys": {"mac": ["Collection"], "desktop": ["Collection"]}},

@@ -12,10 +12,12 @@ struct SettingsAboutSection: View {
     @Environment(\.seleneReduceMotion) private var reduceMotion
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.nxAppLocale) private var localization
+    @Environment(\.openURL) private var openURL
     let onActions: ([SettingsRowAction]) -> Void
 
     @State private var didCopyDiagnostics = false
     private static let supportTitle = "Support Arcane"
+    private static let fundingRow = "oort-funding"
     private static let docsRow = "Open project docs"
     private static let diagnosticsRow = "Copy diagnostics"
     private static let noticeRow = "credits-notice"
@@ -58,6 +60,10 @@ struct SettingsAboutSection: View {
                              action: copyDiagnostics)
 
             supportButton
+            OortSettingsLink(id: Self.fundingRow, title: fundingTitle,
+                             subtitle: L10n.text("See where each euro goes. Nothing is reserved for donors.", context: localization),
+                             external: true, action: openFundingPage)
+                .accessibilityHint(L10n.text("Opens in your browser", context: localization))
 
             if let credits {
                 ForEach(groups) { group in
@@ -85,6 +91,7 @@ struct SettingsAboutSection: View {
             }
         }
         .onAppear(perform: publishActions)
+        .onChange(of: localization.language) { publishActions() }
         .onChange(of: updater.state) { publishActions() }
         .onChange(of: opened) { publishActions() }
         .onChange(of: viewModel.isBuilding) { publishActions() }
@@ -103,6 +110,7 @@ struct SettingsAboutSection: View {
     }
 
     private var language: String { localization.language.rawValue }
+    private var fundingTitle: String { L10n.text("Fund Oort NX", context: localization) }
 
     private func shows(_ group: Credits.Group) -> Bool { group.id == groups.first?.id || opened.contains(group.id) }
 
@@ -141,6 +149,7 @@ struct SettingsAboutSection: View {
         actions.append(.init(id: "docs", title: "Open project docs", rowID: Self.docsRow, activate: openProjectDocs))
         actions.append(.init(id: "diagnostics", title: "Copy diagnostics", rowID: Self.diagnosticsRow, activate: copyDiagnostics))
         actions.append(.init(id: "support", title: Self.supportTitle, activate: openSupportPage))
+        actions.append(.init(id: Self.fundingRow, title: fundingTitle, rowID: Self.fundingRow, activate: openFundingPage))
         for group in groups {
             if group.id != groups.first?.id {
                 actions.append(.init(id: "credits-\(group.id)", title: Credits.words(group.category.title, in: language),
@@ -249,5 +258,9 @@ struct SettingsAboutSection: View {
 
     private func openProjectDocs() {
         NSWorkspace.shared.open(AppIdentity.documentationPage)
+    }
+
+    private func openFundingPage() {
+        openURL(AppIdentity.fundingPage(for: localization.language))
     }
 }

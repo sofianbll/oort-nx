@@ -141,16 +141,25 @@ struct OortSettingsLink: View {
     var value: String? = nil
     /// Set for a row that opens its content below it instead of another page.
     var expanded: Bool? = nil
+    /// An external destination uses an outward arrow and keeps its localized description visible.
+    var external = false
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            SeleneRow(title, id: id, subtitle: subtitle, verbatimTitle: true) {
+            SeleneRow(title, id: id, subtitle: subtitle, verbatimTitle: true, verbatimSubtitle: external) {
                 if let value { SeleneValueChip(text: value) }
-                MaterialIconView(.chevron, size: SeleneTokens.Space.large)
-                    .rotationEffect(.degrees(expanded == true ? 90 : 0))
-                    .foregroundStyle(SeleneTheme.ink60)
-                    .accessibilityHidden(true)
+                if external {
+                    Image(systemName: "arrow.up.right")
+                        .seleneFont(.text)
+                        .foregroundStyle(SeleneTheme.ink60)
+                        .accessibilityHidden(true)
+                } else {
+                    MaterialIconView(.chevron, size: SeleneTokens.Space.large)
+                        .rotationEffect(.degrees(expanded == true ? 90 : 0))
+                        .foregroundStyle(SeleneTheme.ink60)
+                        .accessibilityHidden(true)
+                }
             }
             .contentShape(Rectangle())
         }

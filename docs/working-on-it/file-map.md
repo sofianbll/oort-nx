@@ -248,7 +248,7 @@ Cartella `Sources/NXLibraryCore/App/`.
 | [Sources/NXLibraryCore/App/BoundedDownload.swift](../../Sources/NXLibraryCore/App/BoundedDownload.swift) | Lettura HTTP limitata a blocchi e senza redirect, condivisa fra base e modulo per i provider, Steam e Nextendo. |
 | [Sources/NXLibraryCore/App/ConnectivityWatcher.swift](../../Sources/NXLibraryCore/App/ConnectivityWatcher.swift) | Avvisa sul main thread quando il Mac torna online, perché il giro delle descrizioni riprenda da solo; la prima lettura non conta. |
 | [Sources/NXLibraryCore/App/DisplayNameCache.swift](../../Sources/NXLibraryCore/App/DisplayNameCache.swift) | Nomi visualizzati di cartelle e volumi letti una volta per URL: la pagina si ricostruisce a ogni disegno e un disco esterno in stop bloccherebbe ogni volta. |
-| [Sources/NXLibraryCore/App/AppIdentity.swift](../../Sources/NXLibraryCore/App/AppIdentity.swift) | Distingue Oort NX (nome visibile) da Arcane (identità e User-Agent), con vecchio nome, modulo Porting e pagina del progetto. |
+| [Sources/NXLibraryCore/App/AppIdentity.swift](../../Sources/NXLibraryCore/App/AppIdentity.swift) | Distingue Oort NX (nome visibile) da Arcane (identità e User-Agent), con vecchio nome, modulo Porting e pagine del progetto e del finanziamento. |
 | [Sources/NXLibraryCore/App/Credits+Bundled.swift](../../Sources/NXLibraryCore/App/Credits+Bundled.swift) | I crediti inclusi nell’app. |
 | [Sources/NXLibraryCore/App/AppDataProfile.swift](../../Sources/NXLibraryCore/App/AppDataProfile.swift) | Policy di percorsi e preferenze; separa release, Dev, essai 2 e fixture Debug. |
 | [Sources/NXLibraryCore/App/LibraryPaths.swift](../../Sources/NXLibraryCore/App/LibraryPaths.swift) | Elenca i file della libreria che contengono percorsi, li porta dalla vecchia cartella alla nuova in JSON e preferenze senza toccare il resto, e trova i collegamenti morti dei workspace. |
@@ -826,7 +826,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 |---|---|
 | [Sources/NXLibrary/Views/Settings/SettingsView.swift](../../Sources/NXLibrary/Views/Settings/SettingsView.swift) | Coordina sezioni, bozza, riepilogo di salvataggio e input, arrivo passivo da Integrations e sottopannelli. |
 | [Sources/NXLibrary/Views/OortUI/ControllerShape.swift](../../Sources/NXLibrary/Views/OortUI/ControllerShape.swift) | Sagoma e posti dei tasti di ogni tipo di controller. |
-| [Sources/NXLibrary/Views/OortUI/OortSettingsShell.swift](../../Sources/NXLibrary/Views/OortUI/OortSettingsShell.swift) | Layout riusabile: barra, titolo, pila di pagine, ritorno, collegamenti e campo di ricerca. |
+| [Sources/NXLibrary/Views/OortUI/OortSettingsShell.swift](../../Sources/NXLibrary/Views/OortUI/OortSettingsShell.swift) | Layout riusabile: barra, titolo, pila di pagine, ritorno, collegamenti interni o esterni e campo di ricerca. |
 | [Sources/NXLibrary/Views/Settings/SettingsDraftFields.swift](../../Sources/NXLibrary/Views/Settings/SettingsDraftFields.swift) | Elenca le chiavi di Settings, distingue anteprima e applicazione differita e descrive i cambi in ordine di importanza. |
 | [Sources/NXLibrary/Views/Settings/SettingsSidebar.swift](../../Sources/NXLibrary/Views/Settings/SettingsSidebar.swift) | Associa le pagine alle rubriche, al campo di ricerca e ai filtri; mantiene i collegamenti diretti alle sezioni. |
 | [Sources/NXLibrary/Views/Settings/SettingsSectionContent.swift](../../Sources/NXLibrary/Views/Settings/SettingsSectionContent.swift) | Instrada le sezioni, distingue Play together da Online services, passa gli ingressi cloud e mostra le azioni del blocco profilo. Usa un trattino se manca il commit del motore. |
@@ -847,7 +847,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/Settings/SettingsConsoleSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsConsoleSection.swift) | System → Console: apre la console dei log di build e avvio. |
 | [Sources/NXLibrary/Views/Settings/SettingsEngineSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsEngineSection.swift) | Porting → Setup and engine: checkout, pin, gate, conferme per cambio motore e override, runtime, changelog upstream e Setup; l'arrivo da Integrations non avvia controlli né importa chiavi. |
 | [Sources/NXLibrary/Views/Settings/SettingsKeysSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsKeysSection.swift) | Porting → Keys: stato, importazione, sostituzione e rilevamento di prod.keys. |
-| [Sources/NXLibrary/Views/Settings/SettingsAboutSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsAboutSection.swift) | Mostra versione, aggiornamenti, guida online, diagnostica, sostegno volontario e i crediti di `design/credits.json` in schede comuni. |
+| [Sources/NXLibrary/Views/Settings/SettingsAboutSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsAboutSection.swift) | Mostra versione, aggiornamenti, guida online, diagnostica, collegamenti distinti al sostegno di Bium23 e al finanziamento di Oort NX, e crediti di `design/credits.json`. |
 | [Sources/NXLibrary/Views/Settings/LocalePicker.swift](../../Sources/NXLibrary/Views/Settings/LocalePicker.swift) | Scelta diretta della lingua e ricerca dei formati regionali, con focus tastiera/controller e codici stabili. |
 
 ## UI · Setup, avvio, ricerca e console
@@ -1268,7 +1268,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [audit_probe_host.py](../../Tests/CatalogAppChecks/audit_probe_host.py) | Collega sonde headless al binario di debug e le isola con home temporanea e senza rete. |
 | [run_platform_cards.py](../../Tests/CatalogAppChecks/run_platform_cards.py) | Lancia Spotlight isolato e conserva i PNG e, con ffmpeg, lo scorrimento video. |
 | [run_credits.py](../../Tests/CatalogAppChecks/run_credits.py) | Apre About isolata, conserva i PNG e prova i crediti con il controller. |
-| [CreditsProbe.swift](../../Tests/CatalogAppChecks/CreditsProbe.swift) | Host della prova dei crediti: tre lingue, tutte le schede, righe e pulsanti. |
+| [CreditsProbe.swift](../../Tests/CatalogAppChecks/CreditsProbe.swift) | Host della prova di About: tre lingue, tutte le schede, ordine delle righe e destinazione localizzata del finanziamento con browser simulato. |
 | [PlatformCardsProbe.swift](../../Tests/CatalogAppChecks/PlatformCardsProbe.swift) | Verifica input, filtro, chiusura e recupero su tre fonti, una fonte e libreria vuota; rende Spotlight in francese con sfondo chiaro. |
 | [run_steam_disabled_tracking.py](../../Tests/CatalogAppChecks/run_steam_disabled_tracking.py) | Disattiva una fonte Steam sintetica, chiude una sessione già aperta e rifiuta una nuova osservazione. |
 | [run_steam_scoped_playtime.py](../../Tests/CatalogAppChecks/run_steam_scoped_playtime.py) | Aggiorna le ore Steam dopo sessioni Switch secondarie, anche archiviate, e congela dopo una sessione Steam secondaria. |
