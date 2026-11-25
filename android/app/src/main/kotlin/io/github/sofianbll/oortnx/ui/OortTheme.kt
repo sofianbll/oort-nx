@@ -28,6 +28,24 @@ import androidx.compose.ui.unit.dp
  */
 fun canvas(units: Float): Dp = (units * 0.75f).dp
 
+/** The sizes Android adds to the charter's tokens: its touch target and window class, and the app's strokes. */
+object Metrics {
+    /** Android's smallest touch target. */
+    val Touch = 48.dp
+    /** The height of the app's keys and fields. */
+    val Key = 56.dp
+    /** Material's first window class past a phone held upright. */
+    val WideWindow = 600.dp
+    /** The widest a list of lines grows. */
+    val Measure = 780.dp
+    val Ring = 2.dp
+    val Line = 1.dp
+    /** The room two lines of hints take on the first screen. */
+    val Hints = 76.dp
+    /** A pointer lights half of what a controller does: it points, it does not choose. */
+    const val Hover = 0.5f
+}
+
 /** The charter's palette as Material roles. Dark only: Oort has one night. No dynamic color: the charter is the identity. */
 private val OortColors = darkColorScheme(
     primary = OortTokens.Palette.Focus,

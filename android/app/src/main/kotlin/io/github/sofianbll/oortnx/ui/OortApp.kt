@@ -60,7 +60,7 @@ fun OortApp(state: AppState) {
         state.message?.let { snackbar.showSnackbar(it); state.message = null }
     }
     BoxWithConstraints(Modifier.fillMaxSize().background(OortTokens.Palette.Scrim)) {
-        val compact = maxWidth < 600.dp
+        val compact = maxWidth < Metrics.WideWindow
         // A phone on its side with a controller is a console: no system bar, and À la une takes the rail's place too.
         val console = state.padMode && maxWidth > maxHeight && maxHeight < 500.dp
         FullScreen(console)

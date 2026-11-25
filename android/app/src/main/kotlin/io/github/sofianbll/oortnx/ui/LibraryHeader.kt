@@ -45,7 +45,6 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.unit.dp
 import io.github.sofianbll.oortnx.R
 
 /** The library's name, its search and sort keys, and its two tabs: every game, or the favourites. */
@@ -58,7 +57,7 @@ fun LibraryHeader(state: AppState) {
         SortKey(state, lit(LibraryKey.Sort))
     }
     if (state.searching) SearchField(state)
-    FlowRow(Modifier.fillMaxWidth().padding(bottom = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    FlowRow(Modifier.fillMaxWidth().padding(bottom = canvas(OortTokens.Space.Medium)), horizontalArrangement = Arrangement.spacedBy(canvas(OortTokens.Space.FieldInset)), verticalArrangement = Arrangement.spacedBy(canvas(OortTokens.Space.FieldInset))) {
         Tab(stringResource(R.string.tab_all), !state.onlyFavorites, lit(LibraryKey.All)) { state.filter(false) }
         Tab(stringResource(R.string.tab_favorites), state.onlyFavorites, lit(LibraryKey.Favorites)) { state.filter(true) }
     }
@@ -67,9 +66,9 @@ fun LibraryHeader(state: AppState) {
 @Composable
 private fun Tab(label: String, on: Boolean, focused: Boolean, onClick: () -> Unit) {
     Box(
-        Modifier.border(2.dp, if (focused) OortTokens.Palette.Focus else Color.Transparent, CircleShape).padding(4.dp).clip(CircleShape)
+        Modifier.border(Metrics.Ring, if (focused) OortTokens.Palette.Focus else Color.Transparent, CircleShape).padding(canvas(OortTokens.Space.Hairline)).clip(CircleShape)
             .background(if (on) OortTokens.Palette.Focus else PanelRaised).selectable(on, role = Role.Tab, onClick = onClick)
-            .defaultMinSize(minHeight = 48.dp).padding(horizontal = 18.dp, vertical = 8.dp),
+            .defaultMinSize(minHeight = Metrics.Touch).padding(horizontal = canvas(OortTokens.Space.Large), vertical = canvas(OortTokens.Space.FieldInset)),
         contentAlignment = Alignment.Center,
     ) { Text(label, color = if (on) OortTokens.Palette.OnFocus else OortTokens.Palette.Ink, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold) }
 }
@@ -94,9 +93,9 @@ private fun SearchField(state: AppState) {
     val hint = stringResource(R.string.search_field)
     val shape = CircleShape
     Row(
-        Modifier.fillMaxWidth().padding(bottom = 10.dp).widthIn(max = 780.dp).clip(shape).background(PanelRaised)
-            .border(BorderStroke(1.dp, if (state.typing) OortTokens.Palette.Focus else LineStrong), shape).padding(start = 20.dp, end = 4.dp),
-        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp),
+        Modifier.fillMaxWidth().padding(bottom = canvas(OortTokens.Space.Line)).widthIn(max = Metrics.Measure).clip(shape).background(PanelRaised)
+            .border(BorderStroke(Metrics.Line, if (state.typing) OortTokens.Palette.Focus else LineStrong), shape).padding(start = canvas(OortTokens.Space.RowLeading), end = canvas(OortTokens.Space.Hairline)),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(canvas(OortTokens.Space.FieldInset)),
     ) {
         BasicTextField(
             state.query, { state.type(it) },
@@ -107,7 +106,7 @@ private fun SearchField(state: AppState) {
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = { state.leaveField() }),
             decorationBox = { field ->
-                Box(Modifier.defaultMinSize(minHeight = 56.dp), contentAlignment = Alignment.CenterStart) {
+                Box(Modifier.defaultMinSize(minHeight = Metrics.Key), contentAlignment = Alignment.CenterStart) {
                     if (state.query.isEmpty()) Text(hint, style = MaterialTheme.typography.bodyLarge, color = Ink2)
                     field()
                 }
@@ -122,7 +121,7 @@ private fun SortKey(state: AppState, focused: Boolean) {
     var open by remember { mutableStateOf(false) }
     Box {
         IconKey(Glyph.Sort, stringResource(R.string.sort), focused) { open = true }
-        DropdownMenu(open, { open = false }, containerColor = PanelRaised, border = BorderStroke(1.dp, LineStrong)) {
+        DropdownMenu(open, { open = false }, containerColor = PanelRaised, border = BorderStroke(Metrics.Line, LineStrong)) {
             for ((byName, label) in listOf(false to R.string.sort_last, true to R.string.sort_name)) {
                 DropdownMenuItem(
                     text = { Text(stringResource(label), style = MaterialTheme.typography.bodyLarge) },

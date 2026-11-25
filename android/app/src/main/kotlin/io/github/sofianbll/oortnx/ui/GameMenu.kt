@@ -28,7 +28,6 @@ import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import io.github.sofianbll.oortnx.R
 
 /**
@@ -42,20 +41,20 @@ fun GameMenu(state: AppState) {
     val options = stringResource(R.string.options)
     BoxWithConstraints(Modifier.fillMaxSize()) {
         // A touch beside the panel closes it.
-        Box(Modifier.fillMaxSize().background(OortTokens.Palette.Scrim.copy(alpha = 0.78f))
+        Box(Modifier.fillMaxSize().background(OortTokens.Palette.Scrim.copy(alpha = OortTokens.Effect.MenuVeil))
             .clickable(interactionSource = null, indication = null) { state.onBack() }.semantics { contentDescription = close })
-        val wide = maxWidth >= 600.dp
+        val wide = maxWidth >= Metrics.WideWindow
         val shape = RoundedCornerShape(canvas(OortTokens.Radius.Dialog))
         Column(
-            Modifier.align(if (wide) Alignment.Center else Alignment.BottomCenter).safeDrawingPadding().padding(12.dp).widthIn(max = 480.dp).fillMaxWidth()
-                .clip(shape).background(OortTokens.Palette.Glass).border(1.dp, LineStrong, shape)
+            Modifier.align(if (wide) Alignment.Center else Alignment.BottomCenter).safeDrawingPadding().padding(canvas(OortTokens.Space.Medium)).widthIn(max = canvas(OortTokens.Space.SidePanel)).fillMaxWidth()
+                .clip(shape).background(OortTokens.Palette.Glass).border(Metrics.Line, LineStrong, shape)
                 .pointerInput(Unit) { } // a touch on the panel is not a touch beside it
-                .semantics { paneTitle = options }.padding(horizontal = 8.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+                .semantics { paneTitle = options }.padding(horizontal = canvas(OortTokens.Space.FieldInset), vertical = canvas(OortTokens.Space.Medium)),
+            verticalArrangement = Arrangement.spacedBy(canvas(OortTokens.Space.FieldInset)),
         ) {
-            Text(game.title, Modifier.padding(horizontal = 12.dp).heading(), color = OortTokens.Palette.Ink, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(game.title, Modifier.padding(horizontal = canvas(OortTokens.Space.Medium)).heading(), color = OortTokens.Palette.Ink, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
             Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) { OortList(state, state.sections()) }
-            Hints(state, listOf(HintKey.Confirm to R.string.select, HintKey.Back to R.string.close), Modifier.padding(horizontal = 12.dp))
+            Hints(state, listOf(HintKey.Confirm to R.string.select, HintKey.Back to R.string.close), Modifier.padding(horizontal = canvas(OortTokens.Space.Medium)))
         }
     }
 }

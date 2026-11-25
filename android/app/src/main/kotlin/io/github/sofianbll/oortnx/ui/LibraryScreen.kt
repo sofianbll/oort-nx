@@ -94,9 +94,9 @@ fun LibraryScreen(state: AppState) {
 @Composable
 private fun NothingHere(state: AppState, modifier: Modifier = Modifier) {
     val searched = state.query.isNotBlank()
-    Column(modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 8.dp, vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Column(modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = canvas(OortTokens.Space.FieldInset), vertical = canvas(OortTokens.Space.TitleGap)), verticalArrangement = Arrangement.spacedBy(canvas(OortTokens.Space.Line))) {
         Text(stringResource(if (searched) R.string.search_none else R.string.favorites_empty), Modifier.heading(), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-        if (!searched) Text(stringResource(R.string.favorites_how), Modifier.widthIn(max = 520.dp), style = MaterialTheme.typography.bodyLarge, color = Ink2)
+        if (!searched) Text(stringResource(R.string.favorites_how), Modifier.widthIn(max = canvas(OortTokens.Space.TransferMeasure)), style = MaterialTheme.typography.bodyLarge, color = Ink2)
     }
 }
 
@@ -116,8 +116,8 @@ private fun GameTile(state: AppState, game: Game, icon: ImageBitmap?, focused: B
             GameCover(game, icon, focused, state.prefs.calm, Modifier.fillMaxWidth().aspectRatio(1f), hovered = hovered)
             if (state.favorite(game)) {
                 val said = stringResource(R.string.favorite)
-                Box(Modifier.align(Alignment.TopEnd).padding(10.dp).size(28.dp).background(OortTokens.Palette.Scrim.copy(alpha = 0.75f), CircleShape)
-                    .semantics { contentDescription = said }, contentAlignment = Alignment.Center) { OortGlyph(Glyph.Heart, Modifier.size(18.dp), tint = OortTokens.Palette.Ink) }
+                Box(Modifier.align(Alignment.TopEnd).padding(canvas(OortTokens.Space.Line)).size(canvas(OortTokens.Space.PillInset)).background(OortTokens.Palette.Scrim.copy(alpha = OortTokens.Effect.DeepVeil), CircleShape)
+                    .semantics { contentDescription = said }, contentAlignment = Alignment.Center) { OortGlyph(Glyph.Heart, Modifier.size(canvas(OortTokens.Space.Large)), tint = OortTokens.Palette.Ink) }
             }
         }
         Text(game.title, Modifier.padding(horizontal = 6.dp), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, minLines = 2, maxLines = 2, overflow = TextOverflow.Ellipsis)

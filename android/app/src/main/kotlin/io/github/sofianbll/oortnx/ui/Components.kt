@@ -84,7 +84,7 @@ fun OortKey(
     val source = remember { MutableInteractionSource() }
     val pressed by source.collectIsPressedAsState()
     val hovered by source.collectIsHoveredAsState()
-    val rise by animateFloatAsState(if (focused || pressed) 1f else if (hovered) 0.6f else 0f, motion(calm, OortTokens.Motion.SlowMs), label = "dots")
+    val rise by animateFloatAsState(if (focused || pressed) 1f else if (hovered) Metrics.Hover else 0f, motion(calm, OortTokens.Motion.SlowMs), label = "dots")
     val sink by animateFloatAsState(if (pressed && !calm) OortTokens.Effect.PressScale else 1f, motion(calm, OortTokens.Motion.PressMs), label = "press")
     val shape: Shape = if (round) CircleShape else RoundedCornerShape(canvas(OortTokens.Radius.Dialog))
     val fill = if (solid) listOf(OortTokens.Palette.Focus, over(OortTokens.Palette.Focus, OortTokens.Palette.Glyph, OortTokens.Effect.SurfaceLineStrong)) else listOf(PanelRaised, PanelLow)
@@ -122,7 +122,7 @@ fun Modifier.oortPanel(shape: Shape): Modifier = clip(shape).background(Brush.ve
 fun GameCover(game: Game, icon: ImageBitmap?, focused: Boolean, calm: Boolean, modifier: Modifier = Modifier, radius: Dp = canvas(OortTokens.Radius.Modal), hovered: Boolean = false) {
     val shape = RoundedCornerShape(radius)
     // The mouse lights a fainter ring than the controller: it points, it does not choose.
-    val ring by animateFloatAsState(if (focused) 1f else if (hovered) 0.5f else 0f, motion(calm, if (focused) OortTokens.Motion.FocusInMs else OortTokens.Motion.FocusOutMs), label = "ring")
+    val ring by animateFloatAsState(if (focused) 1f else if (hovered) Metrics.Hover else 0f, motion(calm, if (focused) OortTokens.Motion.FocusInMs else OortTokens.Motion.FocusOutMs), label = "ring")
     Box(modifier.border(2.dp, OortTokens.Palette.Focus.copy(alpha = ring), RoundedCornerShape(radius + 4.dp)).padding(4.dp)) {
         if (icon != null) {
             Image(icon, contentDescription = null, modifier = Modifier.fillMaxSize().clip(shape), contentScale = ContentScale.Crop)
@@ -160,7 +160,7 @@ fun PageTitle(title: String, onBack: (() -> Unit)?, modifier: Modifier = Modifie
 @Composable
 fun IconKey(glyph: Glyph, description: String, focused: Boolean = false, onClick: () -> Unit) {
     Box(
-        Modifier.size(48.dp).clip(CircleShape).background(PanelRaised).border(2.dp, if (focused) OortTokens.Palette.Focus else Color.Transparent, CircleShape)
+        Modifier.size(Metrics.Touch).clip(CircleShape).background(PanelRaised).border(Metrics.Ring, if (focused) OortTokens.Palette.Focus else Color.Transparent, CircleShape)
             .clickable(role = Role.Button, onClick = onClick).semantics { contentDescription = description },
         contentAlignment = Alignment.Center,
     ) { OortGlyph(glyph, tint = OortTokens.Palette.Ink, modifier = Modifier.size(22.dp)) }
@@ -176,7 +176,7 @@ fun Hints(state: AppState, hints: List<Pair<HintKey, Int>>, modifier: Modifier =
     if (!state.padMode) return
     FlowRow(
         modifier.fillMaxWidth().padding(vertical = 8.dp).clearAndSetSemantics { },
-        horizontalArrangement = Arrangement.spacedBy(20.dp, Alignment.End), verticalArrangement = Arrangement.spacedBy(6.dp), maxLines = 2,
+        horizontalArrangement = Arrangement.spacedBy(canvas(OortTokens.Space.RowLeading), Alignment.End), verticalArrangement = Arrangement.spacedBy(canvas(OortTokens.Space.Compact)), maxLines = 2,
     ) {
         for ((key, label) in hints) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {

@@ -60,8 +60,8 @@ class InputRouter(
 
     /** One event per pull; true while the trigger is held down. */
     private fun trigger(value: Float, held: Boolean, nav: Nav): Boolean {
-        if (!held && value > 0.6f) { sink(nav); return true }
-        return held && value > 0.3f
+        if (!held && value > TRIGGER_PULLED) { sink(nav); return true }
+        return held && value > TRIGGER_RELEASED
     }
 
     private fun stick(x: Float, y: Float, source: PadSource) {
@@ -88,5 +88,8 @@ class InputRouter(
 
     private companion object {
         const val STICK_DEADZONE = 0.55f
+        // Two thresholds, so a trigger resting near one does not chatter.
+        const val TRIGGER_PULLED = 0.6f
+        const val TRIGGER_RELEASED = 0.3f
     }
 }

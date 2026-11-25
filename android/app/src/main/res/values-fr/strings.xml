@@ -12,6 +12,11 @@
     <string name="hint_tabs">Onglets</string>
     <string name="options">Options</string>
     <string name="close">Fermer</string>
+    <string name="key_details">Ctrl D</string>
+    <string name="key_search">Ctrl F</string>
+    <string name="key_options">Ctrl O</string>
+    <string name="key_tabs">Q E</string>
+    <string name="key_sort">F3</string>
     <string name="key_enter">Entrée</string>
     <string name="key_escape">Échap</string>
     <string name="game_page">Détails</string>

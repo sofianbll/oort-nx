@@ -11,6 +11,12 @@ import kotlin.math.hypot
 
 /** What is held on the controller right now, for the screen that shows it. Android names buttons by label: the places here are the Xbox ones. */
 class PadMonitor {
+    private companion object {
+        val DPAD = setOf(KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT)
+        /** How far an axis must go to count as a hand on the pad. */
+        const val ACTIVE = 0.5f
+    }
+
     data class Held(
         val keys: Set<Int> = emptySet(),
         val hatX: Float = 0f, val hatY: Float = 0f,
@@ -42,7 +48,7 @@ class PadMonitor {
             )
 
         /** Something is pushed or held, not a pad at rest sending its axes. */
-        val active: Boolean get() = keys.isNotEmpty() || maxOf(abs(hatX), abs(hatY), abs(leftX), abs(leftY), abs(rightX), abs(rightY), leftTrigger, rightTrigger) > 0.5f
+        val active: Boolean get() = keys.isNotEmpty() || maxOf(abs(hatX), abs(hatY), abs(leftX), abs(leftY), abs(rightX), abs(rightY), leftTrigger, rightTrigger) > ACTIVE
 
         /** The bottom or the right button: held, it closes the screen. */
         val closing: Boolean get() = KeyEvent.KEYCODE_BUTTON_A in keys || KeyEvent.KEYCODE_BUTTON_B in keys
@@ -84,8 +90,4 @@ class PadMonitor {
     }
 
     fun reset() { held = Held() }
-
-    private companion object {
-        val DPAD = setOf(KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT)
-    }
 }

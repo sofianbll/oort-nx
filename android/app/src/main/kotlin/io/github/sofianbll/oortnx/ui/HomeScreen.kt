@@ -66,7 +66,7 @@ fun HomeScreen(state: AppState) {
                 EmptyLibrary(state, Modifier.fillMaxSize().verticalScroll(rememberScrollState()).heightIn(min = maxHeight).padding(28.dp))
             }
             // A narrow window has no room for a cover beside the keys, even when it is wider than tall (split screen).
-            maxHeight > maxWidth || maxWidth < 600.dp -> Upright(state, games, game, maxWidth, maxHeight)
+            maxHeight > maxWidth || maxWidth < Metrics.WideWindow -> Upright(state, games, game, maxWidth, maxHeight)
             else -> Wide(state, games, game, maxWidth, maxHeight)
         }
     }
@@ -78,7 +78,7 @@ private val MARGIN = 28.dp
 private fun Upright(state: AppState, games: List<Game>, game: Game, width: Dp, height: Dp) {
     // The next cover shows its edge: that is how the swipe is learnt.
     // It gives way on a short screen or with large text: Play stays in view.
-    val text = (200 + 105 * LocalDensity.current.fontScale).dp + if (state.padMode) 76.dp else 0.dp // two lines of hints
+    val text = (200 + 105 * LocalDensity.current.fontScale).dp + if (state.padMode) Metrics.Hints else 0.dp
     val side = minOf(width - 100.dp, height * 0.56f, height - text).coerceAtLeast(130.dp)
     Column(Modifier.fillMaxSize().padding(bottom = 16.dp)) {
         Above(Modifier.weight(1f)) { room ->

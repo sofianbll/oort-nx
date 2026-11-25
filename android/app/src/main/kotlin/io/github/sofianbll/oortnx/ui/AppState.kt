@@ -116,11 +116,11 @@ class AppState(
     fun keyName(key: HintKey): String = if (keyboard) when (key) {
         HintKey.Confirm -> context.getString(R.string.key_enter)
         HintKey.Back -> context.getString(R.string.key_escape)
-        HintKey.Details -> "Ctrl D"
-        HintKey.Search -> "Ctrl F"
-        HintKey.Options -> "Ctrl O"
-        HintKey.Tabs -> "Q E"
-        HintKey.Sort -> "F3"
+        HintKey.Details -> context.getString(R.string.key_details)
+        HintKey.Search -> context.getString(R.string.key_search)
+        HintKey.Options -> context.getString(R.string.key_options)
+        HintKey.Tabs -> context.getString(R.string.key_tabs)
+        HintKey.Sort -> context.getString(R.string.key_sort)
     } else when (key) {
         HintKey.Confirm -> family.mark(if (prefs.swapAB) KeyEvent.KEYCODE_BUTTON_B else KeyEvent.KEYCODE_BUTTON_A)
         HintKey.Back -> family.mark(if (prefs.swapAB) KeyEvent.KEYCODE_BUTTON_A else KeyEvent.KEYCODE_BUTTON_B)
