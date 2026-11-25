@@ -7,7 +7,7 @@ static GCVirtualController *g_pad;
 
 static NSString *element(NSString *name) {
     return @{@"a": GCInputButtonA, @"b": GCInputButtonB, @"x": GCInputButtonX, @"y": GCInputButtonY,
-             @"l": GCInputLeftShoulder, @"r": GCInputRightShoulder}[name];
+             @"l": GCInputLeftShoulder, @"r": GCInputRightShoulder, @"plus": GCInputButtonMenu}[name];
 }
 
 static void set(NSString *name, BOOL down) {
@@ -25,7 +25,7 @@ static void heard(CFNotificationCenterRef c, void *observer, CFNotificationName 
         if ([command isEqualToString:@"connect"]) {
             GCVirtualControllerConfiguration *configuration = [GCVirtualControllerConfiguration new];
             configuration.elements = [NSSet setWithArray:@[GCInputButtonA, GCInputButtonB, GCInputButtonX, GCInputButtonY,
-                                                           GCInputLeftShoulder, GCInputRightShoulder, GCInputDirectionPad]];
+                                                           GCInputLeftShoulder, GCInputRightShoulder, GCInputDirectionPad, GCInputButtonMenu]];
             // Not drawn: the screen stays the app's.
             configuration.hidden = YES;
             g_pad = [GCVirtualController virtualControllerWithConfiguration:configuration];
@@ -47,7 +47,7 @@ static void heard(CFNotificationCenterRef c, void *observer, CFNotificationName 
 __attribute__((constructor)) static void listen(void) {
     NSMutableArray *names = [@[@"connect", @"disconnect"] mutableCopy];
     for (NSString *how in @[@"press", @"hold", @"release"])
-        for (NSString *what in @[@"a", @"b", @"x", @"y", @"l", @"r", @"up", @"down", @"left", @"right"])
+        for (NSString *what in @[@"a", @"b", @"x", @"y", @"l", @"r", @"plus", @"up", @"down", @"left", @"right"])
             [names addObject:[NSString stringWithFormat:@"%@.%@", how, what]];
     for (NSString *one in names)
         CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, heard,

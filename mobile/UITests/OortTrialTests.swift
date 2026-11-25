@@ -547,6 +547,47 @@ final class OortTrialTests: OortCase {
         step("88-manette-jeu-supprime")
     }
 
+    /// X opens a game's page and + its options; a favorite is marked, kept in its tab, and seen on its picture.
+    func test16DetailsOptionsAndFavorites() throws {
+        app.launchEnvironment = ["DYLD_INSERT_LIBRARIES": try inserted("FakePad")]
+        try start(.invented)
+        appears(button(say("Game page")), "the home screen", 20)
+        send("connect", 3)
+        press("right")
+        press("x")
+        shows("Version")
+        step("150-manette-x-details")
+        press("b")
+        press("plus")
+        appears(app.switches.firstMatch, "+ opens the options")
+        step("151-manette-plus-options")
+        press("b")
+        appears(button(say("Game page")), "home")
+        tab("Library")
+        appears(app.buttons[first].firstMatch, "the library")
+        step("152-bibliotheque-onglets")
+        tap(button(say("Favorites")), "the favorites")
+        shows("No favorite yet")
+        step("153-aucun-favori")
+        tap(button(say("All games")), "all the games")
+        tap(app.buttons[first].firstMatch, first)
+        let favorite = app.switches.matching(NSPredicate(format: "label BEGINSWITH %@", say("Favorite"))).firstMatch
+        reach(favorite)
+        favorite.tap()
+        eventually("the game is marked") { favorite.value as? String == "1" }
+        step("154-fiche-favori")
+        back()
+        tap(button(say("Favorites")), "the favorites")
+        eventually("only the favorite is listed") { app.buttons[first].exists && !app.buttons[second].exists }
+        step("155-onglet-favoris")
+        app.buttons[first].firstMatch.press(forDuration: 1.3)
+        appears(button(say("Remove from Favorites")), "the menu of a favorite")
+        step("156-menu-favori")
+        button(say("Remove from Favorites")).tap()
+        shows("No favorite yet")
+        tap(button(say("All games")), "all the games")
+    }
+
     /// Searching, sorting and adding with the controller alone.
     func test14ControllerInTheLibrary() throws {
         app.launchEnvironment = ["DYLD_INSERT_LIBRARIES": try inserted("FakePad")]
@@ -562,7 +603,7 @@ final class OortTrialTests: OortCase {
         press("a")
         shows("Version")
         press("b")
-        press("up")
+        press("up", 2)
         press("a")
         step("131-manette-lettres")
         // M, A, R on the letters.
@@ -575,7 +616,7 @@ final class OortTrialTests: OortCase {
         press("b")
         press("b")
         eventually("B clears the search") { app.buttons[first].exists }
-        press("up", 3)
+        press("up", 5)
         press("right")
         press("a")
         step("133-manette-tri")
