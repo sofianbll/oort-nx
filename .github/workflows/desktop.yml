@@ -202,6 +202,12 @@ jobs:
           python3 scripts/licenses.py --texts src-tauri/runtime/THIRD-PARTY-RUST.txt x86_64-unknown-linux-gnu
           echo '{"bundle":{"resources":{"runtime/THIRD-PARTY-RUST.txt":"licenses/THIRD-PARTY-RUST.txt"}}}' > ci.json
           npx tauri build --bundles deb,appimage --config ci.json -- --locked
+          # What the AppImage took from this system decides which licences go with it: made, read, made again.
+          (cd /tmp && chmod +x "$OLDPWD"/src-tauri/target/release/bundle/appimage/*.AppImage && env -u APPIMAGE_EXTRACT_AND_RUN "$OLDPWD"/src-tauri/target/release/bundle/appimage/*.AppImage --appimage-extract > /dev/null)
+          python3 scripts/licenses_linux.py /tmp/squashfs-root src-tauri/runtime/THIRD-PARTY-LINUX.txt
+          rm -rf /tmp/squashfs-root
+          echo '{"bundle":{"resources":{"runtime/THIRD-PARTY-RUST.txt":"licenses/THIRD-PARTY-RUST.txt","runtime/THIRD-PARTY-LINUX.txt":"licenses/THIRD-PARTY-LINUX.txt"}}}' > ci.json
+          npx tauri build --bundles appimage --config ci.json -- --locked
           version=$(python3 -c "import json; print(json.load(open('src-tauri/tauri.conf.json'))['version'])")
           cp src-tauri/target/release/bundle/deb/*.deb "dist/Oort-NX-Linux-$version-x64.deb"
           cp src-tauri/target/release/bundle/appimage/*.AppImage "dist/Oort-NX-Linux-$version-x64.AppImage"
@@ -210,7 +216,9 @@ jobs:
         working-directory: desktop
         run: |
           cp dist/*.AppImage /tmp/oort.AppImage && cd /tmp && chmod +x oort.AppImage && ./oort.AppImage --appimage-extract > /dev/null
-          ls squashfs-root/usr/lib | head -200; ls squashfs-root/usr/share/doc 2>/dev/null | head -200
+          cd "$GITHUB_WORKSPACE/desktop" && python3 scripts/licenses_linux.py /tmp/squashfs-root /tmp/again.txt
+          cmp /tmp/again.txt "/tmp/squashfs-root/usr/lib/Oort NX/licenses/THIRD-PARTY-LINUX.txt"
+          grep -h '; source: ' /tmp/again.txt | cut -d' ' -f1,2
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: oort-nx-linux-x64
@@ -243,7 +251,7 @@ jobs:
           path: proof
           retention-days: 30
 
-  # The packages that passed, under one roof with their digests.
+  # The packages under one roof with their digests. Windows on ARM may be there without its proof: see its job.
   packages:
     name: Packages and SHA256SUMS
     needs: [windows-proof, linux-proof]

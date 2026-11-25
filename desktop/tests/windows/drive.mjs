@@ -80,7 +80,7 @@ for (let i = 0; ; i++) {
 }
 console.log('ready by itself');
 if (o.size) { desk('size', child.pid, ...o.size.split('x')); await wait(400); }
-try { desk('front', child.pid); } catch { console.log('Windows kept another window in front'); }
+try { const said = desk('front', child.pid); if (said) console.log(said); } catch (e) { console.log(String(e.stdout || '').trim()); console.log('Windows kept another window in front'); }
 console.log('window', JSON.stringify(commands.state()));
 const first = `window.OUT=${JSON.stringify(slash(out))};window.RUN=${JSON.stringify(slash(o.run || ''))};window.TAG=${JSON.stringify(o.tag || '')};window.SYSTEM='windows';\n`;
 await send('Page.addScriptToEvaluateOnNewDocument', { source: first + readFileSync(path.join(here, '..', 'lib.js'), 'utf8') + readFileSync(script, 'utf8') });

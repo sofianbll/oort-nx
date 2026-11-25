@@ -24,7 +24,7 @@ OORT_PORTABLE=1 swift test --filter OortCompanionTests
 | `tests/windows/prove.ps1` | Silent install, the installed app driven through WebView2's debugging port (`drive.mjs`: the scripts of `desktop/tests`, `windows.js`), the real window and keys (`Desk.cs`), games made of `FakeGame.cs`, a second install, uninstall |
 | `tests/linux/prove.sh` | The .deb and the AppImage on a virtual screen, real keys, a followed game |
 | `scripts/runtime_windows.py` | The libraries that travel with the core, and a check that none is missing |
-| `scripts/licenses.py --texts` | The Rust libraries' licence texts, made for each package |
+| `scripts/licenses.py --texts`, `scripts/licenses_linux.py` | Licence texts of the Rust libraries of each package, and of the Debian libraries an AppImage carries |
 
 `desktop/tests/*.js` also walk the real window on a Mac (debug build) with invented games made by `desktop/scripts/fixtures.py`: `OORT_RUN=<folder> OORT_APP=<binary> desktop/tests/run.sh walk.js <pictures> 1440x900`.
 

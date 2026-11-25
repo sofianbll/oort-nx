@@ -95,7 +95,11 @@ static class Desk {
                 // Windows lets a program take the front after a key of its own (F24: nothing listens to it). What a runner
                 // leaves on its screen steps aside.
                 for (int i = 0; i < 6 && Pid(GetForegroundWindow()) != int.Parse(a[1]); i++) {
-                    if (i > 0) ShowWindow(GetForegroundWindow(), 6);
+                    if (i > 0) {
+                        IntPtr f = GetForegroundWindow();
+                        try { Console.WriteLine(Process.GetProcessById(Pid(f)).ProcessName + " keeps the front"); if (Title(f) == "Microsoft account") Process.GetProcessById(Pid(f)).Kill(); } catch { }
+                        ShowWindow(f, 6);
+                    }
                     keybd_event(0x87, 0, 0, UIntPtr.Zero); keybd_event(0x87, 0, 2, UIntPtr.Zero);
                     SetForegroundWindow(w); Thread.Sleep(300);
                 }

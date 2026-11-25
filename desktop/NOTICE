@@ -85,9 +85,9 @@ where WebView2 is missing, the installer fetches Microsoft's own installer.
 The Windows installer is made with NSIS (https://nsis.sourceforge.io, zlib/libpng).
 
 On Linux the window is WebKitGTK's. The .deb uses the system's; the AppImage carries
-it, with GTK and the libraries they need, unchanged from Debian 12: LGPL and other
-licences, in usr/share/doc of the AppImage; sources: https://sources.debian.org and
-https://snapshot.debian.org.
+it, with GTK, GStreamer and the libraries they need, as separate files unchanged from
+Debian 12 (LGPL, GPL and other licences): licenses/THIRD-PARTY-LINUX.txt of the
+AppImage names each, with its licence and where the source of that version is.
 
 No trademark owner named in catalog.json (game and console names, to say what a
 project is for) is affiliated with Oort NX or endorses it.
