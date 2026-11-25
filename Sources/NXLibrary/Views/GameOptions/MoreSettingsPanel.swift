@@ -43,7 +43,7 @@ struct MoreSettingsPanel: View {
                 .frame(width: canvas.u(1040), alignment: .leading)
                 .frame(maxHeight: .infinity, alignment: .top)
                 .padding(.top, canvas.u(SeleneTokens.Space.pageTop)).padding(.bottom, canvas.u(SeleneTokens.Space.panel))
-                SeleneHintsBar(left: [HintItem(.b, L10n.text("Back"), action: onClose)], right: [HintItem(.a, L10n.text("Select"))],
+                SeleneHintsBar(left: [HintItem(.b, L10n.text("Back"), action: onClose)], right: hints,
                                bottom: SeleneBottomScrim.hintsBottom, leftInset: 18)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -56,6 +56,11 @@ struct MoreSettingsPanel: View {
         .onReceive(NotificationCenter.default.publisher(for: .nxGameOptionsGamepadAction)) { note in
             if let action = note.object as? GamepadAction { handle(action) }
         }
+    }
+
+    private var hints: [HintItem] {
+        let steps = rows.indices.contains(focus) && rows[focus].kind != "toggle" && !isFixed(rows[focus])
+        return (steps ? [HintItem(.move, "Change")] : []) + [HintItem(.a, L10n.text("Select"))]
     }
 
     private var list: some View {
@@ -101,8 +106,13 @@ struct MoreSettingsPanel: View {
                                enabled: !isFixed(setting)) {
             if setting.kind == "toggle" {
                 SeleneSwitch(isOn: .constant(current == setting.on)).allowsHitTesting(false)
-            } else {
+            } else if isFixed(setting) {
                 SeleneValueChip(text: label)
+            } else {
+                SeleneCycleValue(title: L10n.text(setting.label), value: label) { step in
+                    focus = rows.firstIndex { $0.env == setting.env } ?? focus
+                    change(setting, by: step)
+                }
             }
         }
         .accessibilityElement(children: .ignore)

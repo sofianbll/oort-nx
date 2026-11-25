@@ -49,4 +49,14 @@ final class ClickableHintsTests: XCTestCase {
         XCTAssertTrue(try Self.source("Shell/MenuOverlayView.swift").contains("HintItem(.b, submenuOpen ? \"Back\" : \"Close\")"))
         XCTAssertTrue(try Self.source("Shell/AppShellView.swift").contains("if router.isMenuPresented { router.closeMenu() } else"))
     }
+
+    func testAChoiceStepsBothWaysWithAClickAndSaysSo() throws {
+        XCTAssertTrue(try Self.source("GameOptions/GameOptionsView+Rows.swift").contains("} else if stepsBothWays(row) {"))
+        for path in ["GameOptions/MoreSettingsPanel.swift", "AddGame/AddGameRows.swift"] {
+            XCTAssertTrue(try Self.source(path).contains("SeleneCycleValue("), path)
+        }
+        for path in ["GameOptions/GameOptionsView+Rows.swift", "GameOptions/MoreSettingsPanel.swift"] {
+            XCTAssertTrue(try Self.source(path).contains("HintItem(.move, \"Change\")"), path)
+        }
+    }
 }
