@@ -16,6 +16,11 @@ Rules (docs/working-on-it/change-criteria.md gives the source and the reason of 
   pointer-only       a view that takes clicks but knows no focus: no keyboard or controller path in sight
   pad-only           a hint shown for the controller only
   motion             a repeating animation in a file that never reads Reduce motion
+  button-order       a way back after another button, the B hint on the right, or a known row out of its order
+  focus-danger       a question that starts on an answer that deletes, quits, replaces or trashes
+  keyboard-path      a click with no key: a Settings button or help no row presses, a link inside a dialog,
+                     Return without the keypad's Enter, a declared action whose key is gone
+  mouse-path         an action a hint alone offers: gone with the hints off, with no other place for the mouse
 
 It reads text. It proves neither the look, nor a real focus order, nor what VoiceOver says. A dynamic list
 (user content, a wallpaper service) is listed under "unmeasured" with its reason, never counted as passing.
@@ -66,6 +71,14 @@ VISIBLE = re.compile(r"(?:\b(?:Text|Button|Label|Toggle|Section|TextField|Secure
 KEYED = re.compile(r"(?:\b(?:title|label|message|placeholder|subtitle|detail|about|heading|confirmTitle|cancelTitle|hold|help|info)"
                    r"\s*:\s*|\bHintItem\(\s*(?:\.\w+|nil)\s*,\s*|\bchoices\s*:\s*\[[^\]]*)$")
 LOOKUP = re.compile(r"(?:\bL10n\.(?:text|format|count)|(?<![.\w])(?:text|t))\(\s*$")
+# The answers that leave things as they are: they come first, on the side of the B hint.
+BACK = {"Cancel", "Back", "Not now", "Later", "Keep", "Keep editing", "Keep it", "Stay", "Close", "Continue editing settings"}
+BACK_CASE = re.compile(r"\(\s*\.(?:cancel|back|notNow)\b|\bid\s*:\s*\"(?:back|cancel)\"|\bactivate\(\.(?:back|notNow)\)")
+DANGER = re.compile(r"\b(?:Delete|Remove|Trash|Quit|Reset|Replace|Discard|Clear|Erase|Free up)\b")
+KEY = re.compile(r"(?<![\w.])(?:Button|OortButton|SelenePillButton|pill|button|option)\s*(?=[({])")
+SECTION = re.compile(r"Views/Settings/Settings\w*Section\.swift$")
+# Buttons that a hint announces and a pointer has no direct target for by nature.
+SECOND = {"x", "y", "menu", "rs", "lt", "rt", "lb", "rb", "view", "home", "search"}
 IDENTIFIER = re.compile(r"[a-z0-9_.\-]+$|[\w\-]+(?:\.[\w\-]+)+$|[A-Z][a-z]+[A-Z]\w*$|[A-Z_0-9]+$")
 
 
@@ -515,6 +528,229 @@ def label_of(label):
     return (re.findall(r"\(\s*\.?(\w+)", label) or ["?"])[0]
 
 
+def call_end(source, index):
+    """The end of a call that starts with a bracket at `index`, trailing closures included."""
+    while (opening := re.compile(r"\s*(?:label\s*:\s*|\w+\s*:\s*(?=\{))?([({])").match(source.code, index)):
+        index = source.close(opening.start(1))
+    return index
+
+
+def keys_in(source, start, end):
+    """The buttons of a range, outermost only, as (start, end)."""
+    found, upto = [], start
+    for match in KEY.finditer(source.code, start, end):
+        if match.start() < upto or re.search(r"\bfunc\s+$", source.code[max(0, match.start() - 8):match.start()]): continue
+        upto = call_end(source, match.end())
+        found.append((match.start(), upto))
+    return found
+
+
+def literals(source, start, end):
+    return [value for at, _, value, _ in source.strings if start <= at < end]
+
+
+def is_back(source, start, end):
+    # The title is the first thing a button says: what its action does comes after.
+    brace = source.code.find("{", start, end)
+    head = brace if brace >= 0 else end
+    titles = literals(source, start, head)
+    return bool(titles and titles[0] in BACK) or bool(BACK_CASE.search(source.text[start:end]))
+
+
+def check_order(tree, rules, found):
+    for relative in tree.files("Sources/NXLibrary"):
+        source = tree.source(relative)
+        for match in re.finditer(r"(?<![.\w])(?:HStack|ViewThatFits)\b\s*(?=[({])", source.code):
+            opening = match.end()
+            if source.code[opening] == "(":
+                opening = source.close(opening)
+                brace = re.compile(r"\s*\{").match(source.code, opening)
+                if not brace: continue
+                opening = brace.end() - 1
+            row = keys_in(source, opening, source.close(opening))
+            if len(row) < 2: continue
+            backs = [is_back(source, *one) for one in row]
+            for index, back in enumerate(backs):
+                if back and not all(backs[:index]):
+                    words = literals(source, *row[index])[:1] or [re.sub(r"\s+", "", source.text[slice(*row[index])])[:40]]
+                    found.add("button-order", relative, f"row {words[0]}", f"the way back ({words[0]}) comes after another button",
+                              source.line(row[index][0]))
+        for match in re.finditer(r"\bSeleneChoiceDialog\s*\(", source.code):
+            call = source.code[match.end() - 1:source.close(match.end() - 1)]
+            index = re.search(r"\bcancelIndex\s*:\s*([^,)\n]+)", call)
+            if index and (re.fullmatch(r"[1-9]\d*", index[1].strip()) or index[1].strip().endswith(".count")):
+                found.add("button-order", relative, f"cancelIndex {index[1].strip()}",
+                          f"cancelIndex {index[1].strip()}: Cancel is the first choice", source.line(match.start()))
+    # The hint bar sets the sides the keys follow: B on the left, A last on the right.
+    for relative in tree.files("Sources/NXLibrary"):
+        source = tree.source(relative)
+        for match in re.finditer(r"\bSeleneHintsBar\s*\(", source.code):
+            end = source.close(match.end() - 1)
+            for at in re.finditer(r"\bright\s*:", source.code[match.start():end]):
+                start, depth = match.start() + at.end(), 0
+                stop = start
+                while stop < end - 1 and (depth or source.code[stop] != ","):
+                    depth += (source.code[stop] in "([{") - (source.code[stop] in ")]}")
+                    stop += 1
+                buttons = re.findall(r"\bHintItem\(\s*\.(\w+)", source.code[start:stop])
+                if "b" in buttons:
+                    found.add("button-order", relative, "hint B on the right", "the B hint belongs on the left", source.line(start))
+    for row in rules.get("button_rows", []):
+        relative = row["file"]
+        if not (tree.root / relative).is_file():
+            found.add("button-order", "scripts/ui-rules.json", f"gone:{row['id']}", f"{row['id']}: {relative} is not there any more")
+            continue
+        source = tree.source(relative)
+        body = source.body(row["scope"])
+        places = [re.compile(token).search(source.text, *body) if body else None for token in row["order"]]
+        if any(place is None for place in places):
+            found.add("button-order", "scripts/ui-rules.json", f"gone:{row['id']}", f"{row['id']}: a button of this row is not found any more")
+        elif [place.start() for place in places] != sorted(place.start() for place in places):
+            found.add("button-order", relative, row["id"], f"{row['id']}: expected {row['why']}", source.line(places[0].start()))
+
+
+def check_focus(tree, rules, found):
+    files = tree.files("Sources/NXLibrary")
+    everything = "\n".join(tree.source(relative).code for relative in files)
+    for relative in files:
+        source = tree.source(relative)
+        for match in re.finditer(r"\bshowSettingsNotice\s*\(", source.code):
+            end = source.close(match.end() - 1)
+            call = source.text[match.start():end]
+            if not re.search(r"\bprimaryFirst\s*:\s*true", source.code[match.start():end]): continue
+            title = re.search(r"\bactionTitle\s*:\s*(?:L10n\.text\(\s*)?(\"(?:[^\"\\]|\\.)*\"|[\w.]+)", call)
+            title = title[1] if title else '"Retry"'
+            if title.startswith('"'):
+                if DANGER.search(title):
+                    found.add("focus-danger", relative, f"notice {title}", f"the notice starts on {title}", source.line(match.start()))
+            elif f"{relative}::{title}" not in rules.get("safe_focus", {}):
+                found.add("focus-danger", relative, f"notice {title}", f"the notice starts on {title}: say in safe_focus why it is safe",
+                          source.line(match.start()))
+        for match in re.finditer(r"\bSeleneConfirmDialog\s*\(", source.code):
+            end = call_end(source, match.end() - 1)
+            call = source.text[match.start():end]
+            confirm = re.search(r"\bconfirmTitle\s*:\s*(?:L10n\.(?:text|format)\(\s*)?\"([^\"]*)\"", call)
+            bound = re.search(r"\bfocus\s*:\s*\$(?:\w+\.)*(\w+)", call)
+            if not bound or not (confirm and DANGER.search(confirm[1]) or re.search(r"\bis lost|will be lost|will lose", call)): continue
+            if re.search(rf"\b{bound[1]}\b(?:\s*:\s*SeleneConfirmButton)?\s*=\s*\.confirm\b(?!\s*:)", everything):
+                found.add("focus-danger", relative, f"confirm {bound[1]}", f"{bound[1]} can start on a dangerous answer", source.line(match.start()))
+        for match in re.finditer(r"\bSeleneChoiceDialog\s*\(", source.code):
+            end = source.close(match.end() - 1)
+            listed = re.search(r"\bchoices\s*:\s*(\[)", source.code[match.start():end])
+            bound = re.search(r"\bfocus\s*:\s*\$?(\w+)\b", source.code[match.start():end])
+            if not listed or not bound: continue
+            at = match.start() + listed.start(1)
+            choices = elements(source.text[at:at + bracket_end(source.code[at:])])
+            start = re.search(rf"\bvar\s+{bound[1]}\s*=\s*(\d+)|\b{bound[1]}\w*\s*\?\?\s*(\d+)", source.code)
+            if not start: continue
+            first = int(start[1] or start[2])
+            if first < len(choices) and DANGER.search(choices[first]):
+                found.add("focus-danger", relative, f"choice {bound[1]}", f"the dialog starts on {choices[first].strip()}", source.line(match.start()))
+
+
+def check_keyboard(tree, rules, found):
+    component = tree.root / (LIBRARY + "SeleneSettingsRow.swift")
+    helps_by_click = component.is_file() and re.search(r"\bSeleneInfoTip\(\s*info\s*\)", tree.source(LIBRARY + "SeleneSettingsRow.swift").code)
+    for relative in tree.files("Sources/NXLibrary"):
+        if relative.startswith(LIBRARY): continue
+        source = tree.source(relative)
+        if SECTION.search(relative):
+            published, ranges = "", []
+            for match in re.finditer(r"\bfunc\s+(?:publishActions|friendActionRow)\b|\bvar\s+(?:updateActions|accountButtons)\b|\bonActions\s*(?=\()|\bfunc\s+(?:requestButtons|removeButton|recentButton)\b", source.code):
+                opening = re.compile(r"[({]").search(source.code, match.end())
+                if opening and source.code[opening.start()] == "(" and not match[0].startswith("onActions"):
+                    opening = re.compile(r"\{").search(source.code, source.close(opening.start()))
+                if not opening: continue
+                ranges.append((match.start(), source.close(opening.start())))
+                published += source.code[slice(*ranges[-1])]
+            for match in re.finditer(r"(?<![\w.])(?:Button|OortButton|SelenePillButton|SeleneButtonRow)\s*(?=[({])", source.code):
+                if any(a <= match.start() < b for a, b in ranges): continue
+                end = call_end(source, match.end())
+                call = source.code[match.start():end]
+                named = re.findall(r"\b(?:action|activate)\s*:\s*(?:\w+\.)*([a-z]\w*)\b", call)
+                brace = call.rfind("}")
+                if brace == len(call) - 1:
+                    depth, at = 0, brace
+                    while at >= 0:
+                        depth += (call[at] == "}") - (call[at] == "{")
+                        if depth == 0: break
+                        at -= 1
+                    inside = call[at:]
+                    named += [name for name in re.findall(r"(?<![\w$])([a-z]\w*)\s*(?=[({]|\.toggle\b)", inside)
+                              if name not in ("text", "if", "else", "guard", "switch", "action", "format")]
+                    named += re.findall(r"(?<![\w.])([a-z]\w*)\s*=(?!=)", inside)
+                # A helper that only passes its own `action` on is judged where it is called.
+                if not set(named) - {"action", "perform"} or any(re.search(rf"\b{name}\b", published) for name in named): continue
+                words = literals(source, match.start(), end)[:1]
+                label = words[0] if words else named[0]
+                found.add("keyboard-path", relative, f"button {label}", f"no Settings row presses {label}", source.line(match.start()))
+            if helps_by_click:
+                for match in re.finditer(r"\b(?:SeleneRow|Selene\w+Row|SelenePanel)\s*\(", source.code):
+                    call = source.code[match.start():source.close(match.end() - 1)]
+                    if re.search(r"\binfo\s*:\s*(?!nil\b)", call):
+                        # The row's title, or what names it.
+                        title = " ".join(elements(source.text[match.end() - 1:match.start() + len(call)])[0].split()).strip('"')[:40]
+                        found.add("keyboard-path", relative, f"help {title}", f"the help of {title} opens by click only",
+                                  source.line(match.start()))
+        for match in re.finditer(r"\bcase\s+((?:\d+\s*(?:where\s+!?\w+)?\s*,\s*)*\d+(?:\s+where\s+!?\w+)?)\s*:(?!\s*break\b)", source.code):
+            keys = re.findall(r"\b\d+\b", match[1])
+            if "36" in keys and "76" not in keys:
+                found.add("keyboard-path", relative, "Return without keypad Enter", "Return works and the keypad's Enter does not",
+                          source.line(match.start()))
+        for match in re.finditer(r"\bSeleneConfirmDialog\s*\(", source.code):
+            after = source.close(match.end() - 1)
+            if not (detail := re.compile(r"\s*\{").match(source.code, after)): continue
+            for start, end in keys_in(source, detail.end() - 1, source.close(detail.end() - 1)):
+                words = literals(source, start, end)[:1] or ["button"]
+                found.add("keyboard-path", relative, f"dialog {words[0]}", f"{words[0]} is inside a dialog whose keys walk two answers only",
+                          source.line(start))
+        if relative.startswith(VIEWS) and ".keyboardShortcut" in source.code and not re.search(r"GamepadAction|onKeyPress|keyDown", source.code):
+            for match in re.finditer(r"(?<![\w.])Button\s*(?=[({])", source.code):
+                end = call_end(source, match.end())
+                if "keyboardShortcut" not in source.code[end:chain_end(source, end)]:
+                    words = literals(source, match.start(), end)[:1] or ["button"]
+                    found.add("keyboard-path", relative, f"shortcut {words[0]}", f"{words[0]} has no shortcut among buttons that do",
+                              source.line(match.start()))
+    for action in rules.get("action_paths", []):
+        (click_file, click), (key_file, key) = action["click"], action["key"]
+        if not all((tree.root / path).is_file() for path in (click_file, key_file)) or not re.search(click, tree.source(click_file).text):
+            found.add("keyboard-path", "scripts/ui-rules.json", f"gone:{action['id']}", f"{action['id']}: not in the sources any more")
+        elif not re.search(key, tree.source(key_file).code):
+            found.add("keyboard-path", click_file, action["id"], f"{action['id']}: {action['why']}")
+
+
+def check_mouse(tree, rules, found):
+    declared, seen = rules.get("mouse_paths", {}), set()
+    files = tree.files("Sources/NXLibrary")
+    # A bar that presses its hints' buttons, by view: View.swift and View+Part.swift are one.
+    view = lambda relative: Path(relative).stem.split("+")[0]
+    pressing = {view(relative) for relative in files if re.search(r"\b(?:SeleneHintsBar|SeleneHomeChrome)\s*\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\bpress\s*:",
+                                                                  tree.source(relative).code)}
+    for relative in files:
+        source = tree.source(relative)
+        for match in re.finditer(r"\bHintItem\s*\(", source.code):
+            end = source.close(match.end() - 1)
+            arguments = elements(source.text[match.end() - 1:end])
+            if len(arguments) < 2: continue
+            button = re.match(r"\s*\.(\w+)\s*$", arguments[0])
+            name = button[1] if button else re.sub(r"\s+", "", arguments[0])
+            if name in ("a", "b", "navigate", "move", "vertical"): continue
+            label = " ".join(arguments[1].split())
+            words = re.findall(r'"((?:[^"\\]|\\.)*)"', label)
+            signature = f"{name} {words[0] if words else label[:40]}"
+            clicks = bool(re.search(r"\baction\s*:", source.code[match.start():end])) or bool(re.compile(r"\s*\{").match(source.code, end))
+            if signature in declared.get(relative, {}):
+                seen.add((relative, signature))
+            elif clicks:
+                found.add("mouse-path", relative, signature, f"{signature}: only the hint offers it to the mouse", source.line(match.start()))
+            elif name in SECOND and view(relative) not in pressing:
+                found.add("mouse-path", relative, signature, f"{signature}: the hint cannot be clicked", source.line(match.start()))
+    for relative, paths in declared.items():
+        for signature in paths:
+            if (relative, signature) not in seen:
+                found.add("mouse-path", "scripts/ui-rules.json", f"gone:{relative} {signature}", f"{signature} is declared and not in {relative}")
+
+
 def scan(root, rules):
     tree, found, notes = Tree(root), Findings(), []
     check_menus(tree, rules, found, notes)
@@ -522,15 +758,27 @@ def scan(root, rules):
     check_texts(tree, rules, found)
     check_styles(tree, found)
     check_access(tree, rules, found)
+    check_order(tree, rules, found)
+    check_focus(tree, rules, found)
+    check_keyboard(tree, rules, found)
+    check_mouse(tree, rules, found)
     return found, notes
+
+
+def judged(script):
+    """The rules a version of this script explains in its header."""
+    header = script.split('"""')[1] if '"""' in script else ""
+    return set(re.findall(r"^  ([a-z0-9-]+)  +\S", header, re.MULTILINE))
 
 
 def flat(allowed):
     return Counter({(rule, path, sig): count for rule, paths in allowed.items() for path, sigs in paths.items() for sig, count in sigs.items()})
 
 
-def grown(current, original):
-    return flat(current) - flat(original)
+def grown(current, original, rules=None):
+    """New debt. A rule the base did not judge yet (`rules`) declares what is there, once."""
+    extra = flat(current) - flat(original)
+    return Counter({key: count for key, count in extra.items() if rules is None or key[0] in rules})
 
 
 def main():
@@ -559,7 +807,9 @@ def main():
         shown = subprocess.run(["git", "show", f"{args.base}:scripts/ui-rules.json"], cwd=ROOT, capture_output=True, text=True)
         if shown.returncode == 0:
             before = json.loads(shown.stdout)
-            for (rule, path, signature), count in sorted(grown(rules["allowed"], before["allowed"]).items()):
+            script = subprocess.run(["git", "show", f"{args.base}:scripts/check_ui_rules.py"], cwd=ROOT, capture_output=True, text=True)
+            known = judged(script.stdout) if script.returncode == 0 else None
+            for (rule, path, signature), count in sorted(grown(rules["allowed"], before["allowed"], known).items()):
                 print(f"{path}: {rule} debt grows by {count} for {signature}", file=sys.stderr)
                 failed = True
     remaining = Counter(allowed)
