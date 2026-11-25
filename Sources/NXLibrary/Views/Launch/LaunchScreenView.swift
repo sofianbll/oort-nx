@@ -6,6 +6,8 @@ import NXLibraryCore
 struct LaunchOverlayState: Equatable {
     let game: PlayedGame
     var isReady = false
+    /// B and Esc close the screen; it says so since `LaunchExit.offerDelay`.
+    var offersExit = false
 
     init(game: PlayedGame, isReady: Bool = false) {
         self.game = game
@@ -34,6 +36,7 @@ struct LaunchScreenView: View {
     @State private var appearedAt: CFTimeInterval = 0
     @State private var blackout = false
     @State private var leaving = false
+    @State private var exit = LaunchExit.Offer.none
 
     private var game: PlayedGame { state.game }
 
@@ -59,6 +62,7 @@ struct LaunchScreenView: View {
                 art
             }
             centrePiece
+            exitHint
             SeleneTheme.artShade.opacity(blackout ? 1 : 0)
         }
         .ignoresSafeArea()
@@ -67,6 +71,14 @@ struct LaunchScreenView: View {
         .onTapGesture { finish() }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(L10n.format("Starting %@", [String(describing: game.name)]))
+        .accessibilityAction(named: Text(L10n.text("Close"))) { finish() }
+        .onReceive(NotificationCenter.default.publisher(for: .nxLaunchScreenExit)) { _ in finish() }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in offerExit() }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didResignActiveNotification)) { _ in offerExit() }
+        .task(id: game.id) {
+            try? await Task.sleep(nanoseconds: UInt64((LaunchExit.offerDelay + 0.1) * 1_000_000_000))
+            if !Task.isCancelled { offerExit() }
+        }
         .onAppear(perform: appear)
         .onChange(of: state.isReady) { _, ready in
             if ready { finish() }
@@ -110,6 +122,23 @@ struct LaunchScreenView: View {
         case .minimal:
             title
         }
+    }
+
+    /// Selene's hints bar, like every screen's, over the art once the wait is long.
+    @ViewBuilder private var exitHint: some View {
+        if exit != .none {
+            SeleneHintsBar(right: [exit == .button ? HintItem(.b, "Close", action: finish)
+                                                   : HintItem(nil, "Click to close", action: finish)])
+                .frame(maxHeight: .infinity, alignment: .bottom)
+                .transition(.opacity)
+        }
+    }
+
+    private func offerExit() {
+        let next = LaunchExit.offer(elapsed: CACurrentMediaTime() - appearedAt, appActive: NSApp.isActive)
+        guard next != exit, viewModel.launchOverlay?.game.id == game.id else { return }
+        viewModel.launchOverlay?.offersExit = next != .none
+        withAnimation(SeleneTheme.arrival) { exit = next }
     }
 
     private var title: some View {

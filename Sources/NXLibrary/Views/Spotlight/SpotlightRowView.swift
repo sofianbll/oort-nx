@@ -42,6 +42,7 @@ struct SpotlightRowView: View {
     var onPlatformPick: (SpotlightPlatforms.Card) -> Void = { _ in }
     let onSelect: (SpotlightItem) -> Void
     let onActivate: (SpotlightItem) -> Void
+    var onOptions: (SpotlightItem) -> Void = { _ in }
 
     @State private var titleVisible = false
     @State private var titleTask: Task<Void, Never>?
@@ -195,7 +196,7 @@ struct SpotlightRowView: View {
                 .overlay { platformActions(platform, selected: selected) }
             } else {
                 OortGameTile(title: title(of: item), selected: selected, preset: .spotlight,
-                             select: { onSelect(item) }, activate: { onActivate(item) }) {
+                             select: { onSelect(item) }, activate: { onActivate(item) }, options: { onOptions(item) }) {
                     face(item, selected: selected, cloudState: cloudState)
                 }
             }

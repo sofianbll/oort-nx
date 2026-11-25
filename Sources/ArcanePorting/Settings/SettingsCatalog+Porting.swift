@@ -22,7 +22,8 @@ extension SettingsCatalog {
          "cloudLibraryTool", "cloudLibraryTest", "cloudLibraryDisconnect"].contains(id)
     }
 
-    private static func visible(supportsNextendo: Bool, hasProfileAccount: Bool, cloudConfigured: Bool) -> [SettingDescriptor] {
+    /// The rows a player can reach now.
+    public static func visible(supportsNextendo: Bool, hasProfileAccount: Bool, cloudConfigured: Bool) -> [SettingDescriptor] {
         all.filter { row in
             if row.id == "nextendoClientID" && !supportsNextendo { return false }
             if row.group == .profileNextendo && !hasProfileAccount { return false }

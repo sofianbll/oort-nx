@@ -141,6 +141,6 @@ struct GameInboxView: View {
             run(action)
         }
         .id(action)
-        .onHover { if $0 && enabled && !model.busy { focused = action } }
+        .seleneHover { if enabled && !model.busy { focused = action } }
     }
 }

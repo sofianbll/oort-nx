@@ -70,7 +70,8 @@ struct TipNotice: View {
 
 /// Its place: the session card's corner, below that card when both are there.
 struct UndoNoticeLayer: View {
-    static let hold: Duration = .seconds(8)
+    /// As long as the session card.
+    static let hold = Duration.nanoseconds(SessionCardPresenter.hold)
 
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.seleneReduceMotion) private var reduceMotion
@@ -110,7 +111,7 @@ struct UndoNoticeLayer: View {
                     }
             }
         }
-        .padding(.top, canvas.u(SeleneTokens.Space.toastTop) * (isBelowCard ? 2.4 : 1))
+        .padding(.top, canvas.u(isBelowCard ? SeleneTokens.Space.toastTop * 2 + SeleneTokens.Space.panel : SeleneTokens.Space.toastTop))
         .padding(.trailing, canvas.u(SeleneTokens.Space.feature))
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
         .animation(Motion.toast(reduceMotion), value: shown)

@@ -21,6 +21,10 @@ Queste regole integrano le ricette qui sotto. Sono criteri per il lavoro sul for
 - **Movimento e stato.** Usa `seleneReduceMotion` (app e sistema) per togliere il moto decorativo, i loop e gli spostamenti non necessari; lascia leggibili focus e progresso. Le transizioni non bloccano le azioni e si interrompono al ritorno. Niente doppia barra di progresso per la stessa operazione; distingui attesa, lavoro, esito ed errore. Nel Cloud mantieni il lessico coerente: Invia, Scarica, Libera (Cestino); un messaggio con un'azione utile per ogni causa. Per gli stati convalidati (punti, badge, focus, colori) consulta `validation.md`.
 - **Prova di consegna.** Rendi le viste reali fuori schermo con i probe `Tests/CatalogAppChecks/run_*.py` e fixture sintetiche; ispeziona personalmente i PNG di ogni schermata, pannello e dialogo toccati. Confronta prima/dopo dove cambia una vista esistente e verifica gli stati rilevanti: focus, sovrapposizioni, finestra piccola, testi lunghi, movimento ridotto ed errori. Per Cloud/porting copri anche offline, annullamento, spazio/quota, profilo assente, Switch 2 e operazioni concorrenti quando pertinenti. Indica i percorsi delle prove e cosa resta da provare con manetta fisica, mouse, tastiera e VoiceOver. I probe non sostituiscono la prova interattiva di Sofian.
 
+### Rami
+
+- **Nome.** `feat/`, `fix/`, `docs/` o `chore/` seguito dal tema; `release/` per una linea di versione. Mai il nome di un agente o di uno strumento. Un contributo inviato ad Arcane segue il nome di Arcane, `bium/<tema>`. Regole proposte per GitHub: [branch-rules.md](branch-rules.md).
+
 ### Dati, rete e distribuzione
 
 - **Cestino sempre.** Nel fork questa regola prevale sulle eccezioni di eliminazione della sezione 5: ogni rimozione di file o cartelle passa dal Cestino locale o remoto, anche per cache e pulizie di build. Se il Cestino non è disponibile, conserva i dati e segnala il problema. Libera solo dopo verifica della copia di recupero nella propria libreria. Installa e verifica il sostituto prima di ritirare la vecchia app o cache; annullamento o errore lasciano recuperabile la copia valida.
@@ -93,7 +97,7 @@ Esempi: `AchievementsScreen` con `AchievementsScreenModel` (schermata intera), `
   - i loop continui (anelli, bagliori, sfondi) girano in Core Animation o Metal, mai con timer SwiftUI a 30 fps;
   - Riduci movimento si legge da `seleneReduceMotion` e ferma tutto ciò che si muove da solo.
 - **Suoni:** `SoundEffectService` con i cue Selene esistenti.
-- **Testi:** frasi brevi e semplici, nelle sei lingue (sezione 7).
+- **Testi:** frasi brevi e semplici, nelle sette lingue (sezione 7).
 
 ## 4. Un'impostazione
 
@@ -134,7 +138,9 @@ Esempi: `BoundedDownload`, `GameBananaClient`, `IGDBClient`, `SteamMetadataServi
 - Le identità restano in inglese e non si traducono: rawValue salvati, rowID, variabili `DM_*`, eventi dell'engine.
 - I nomi dei simboli SF (`systemImage`, `systemName`, `systemSymbolName`) sono letterali e non passano da `L10n`: tradotti non trovano il simbolo. `check_localizations.py` lo verifica sui sorgenti.
 - Le viste leggono la lingua da `nxAppLocale`, così un cambio di lingua non ricrea stato o focus.
-- Controllo: `scripts/check_localizations.py`, che verifica copertura, segnaposto e plurali.
+- Parole comuni ai sistemi: `design/vocabulary.json` (proposta, non ancora approvata) le fissa in fr e en; `scripts/check_vocabulary.py` rifiuta uno scarto nuovo e chiede di togliere dal registro quelli risolti (`--prune`). Il job `Mac / checks` della CI lo esegue.
+- In francese l'interfaccia dà del « tu », come il sito, Windows e i telefoni. `check_localizations.py` rifiuta « vous », « votre », « vos », « faites », « dites », « êtes » e le parole in « -ez » nel catalogo e nei pacchetti di obiettivi; `FRENCH_FORMAL_EXCEPTIONS` elenca le sole parole che non si rivolgono a nessuno.
+- Controllo: `scripts/check_localizations.py`, che verifica copertura, segnaposto, plurali e il « tu » francese.
 
 ## 8. Lavoro in background e stato
 

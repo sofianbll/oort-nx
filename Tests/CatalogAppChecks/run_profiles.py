@@ -1361,7 +1361,7 @@ extension ProfileEditorView {
         check(existing) {
             press(.confirm)
             let draft = editor!.profile
-            editor!.selectKey(editor!.keys.count - 1) // Done continues editing instead of saving.
+            editor!.press(.done) // Done continues editing instead of saving.
             precondition(editor!.step == .avatar && editor!.profile == draft)
             close()
             precondition(editor!.discardFocus == 1 && cancelled == 1)
@@ -1651,7 +1651,7 @@ extension AppIconModel {
         replace(app / "Views/Theme/ThemeStore.swift", r"static let shared = ThemeStore\(\)",
                 f'static let shared = ThemeStore(palettesURL: URL(fileURLWithPath: "{ROOT}/Resources/Selene/palettes.json"))')
         replace(app / "Views/Search/FindGameView.swift",
-                r'TextField\(L10n.text\("Find a game"\), text: \$query\).*?\.onSubmit \{ pick\(results.first\) \}',
+                r'TextField\(L10n.text\("Find a game"\), text: \$query\).*?\.onSubmit \{ typed\(\) \}',
                 'Text(query.isEmpty ? L10n.text("Find a game") : query).seleneFont(19)'
                 '.foregroundColor(SeleneTheme.ink).frame(maxWidth: .infinity, alignment: .leading)')
         replace(app / "Views/Search/FindGameView.swift", r'var query = ""', 'var query = "Observatory"')

@@ -442,13 +442,13 @@ struct CloudSetupAssistant: View {
             }
             .fixedSize(horizontal: !wide, vertical: true)
         }
-        .buttonStyle(OortPressStyle()).disabled(!enabled).onHover { if $0 && enabled { focus.select(target) } }
+        .buttonStyle(OortPressStyle()).disabled(!enabled).seleneHover { if enabled { focus.select(target) } }
     }
 
     private func pill(_ target: Target, _ key: String, enabled: Bool = true, action: @escaping () -> Void) -> some View {
         SelenePillButton(title: key, minWidth: 115, height: 48, horizontalPadding: 17,
                          focused: focusedTarget == target, enabled: enabled, action: action)
-            .disabled(!enabled).onHover { if $0 && enabled { focus.select(target) } }
+            .disabled(!enabled).seleneHover { if enabled { focus.select(target) } }
     }
 
     private func folderLabel(_ path: String) -> String { path.split(separator: "/").last.map(String.init) ?? text("My Drive") }

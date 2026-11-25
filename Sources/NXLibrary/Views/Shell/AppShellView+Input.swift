@@ -99,6 +99,12 @@ extension AppShellView {
                 return event
             }
             let mods = event.modifierFlags.intersection([.command, .control, .option, .shift])
+            // The launch screen is drawn over everything: only Esc reaches it, and nothing acts under it.
+            if viewModel.launchOverlay != nil {
+                guard mods.isEmpty else { return event }
+                if event.keyCode == 53 { GameControllerService.shared.onAction?(.cancel) }
+                return nil
+            }
             if viewModel.cloudQuitRequested {
                 guard mods.isEmpty else { return event }
                 cloudQuitKey(event.keyCode)
@@ -156,6 +162,7 @@ extension AppShellView {
                 if !event.isARepeat { GameControllerService.shared.onAction?(.profiles) }
                 return nil
             }
+            if router.isPalettePresented, !isCloseGameOpen { return paletteKey(event) }
             if viewModel.profileOwnsInput || (router.route == .profile && !router.isMenuPresented
                 && !viewModel.isGameOptionsOpen && !nativeDialogOwnsInput),
                !showsWelcome, !viewModel.showSetupCheck, !isCloseGameOpen {
@@ -209,7 +216,7 @@ extension AppShellView {
                 if typing || !isHomeRoute { return event }
                 action = .view
             case (_, "f", [.command]):              // Cmd+F
-                if typing || (router.route != .library && router.route != .collection) { return event }
+                if typing || !(isHomeRoute || router.route.isDetail) { return event }
                 action = .search
             case (_, "z", [.command]):              // Cmd+Z; a text field keeps its own
                 if typing || !canUndoLastChange { return event }
@@ -345,9 +352,14 @@ extension AppShellView {
     }
 
     func runPower(_ action: PowerAction) {
+        guard let ask = action.confirmation else { return performPower(action) }
+        router.closeMenu()
+        viewModel.confirmSetting(ask.title, message: ask.message, action: action.title) { performPower(action) }
+    }
+
+    private func performPower(_ action: PowerAction) {
         switch action {
         case .quit:
-            router.closeMenu()
             NSApplication.shared.terminate(nil)
         case .sleep:
             router.closeMenu()

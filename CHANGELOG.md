@@ -6,10 +6,11 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Added
 
+- **⌘K** opens a search over everything: start a game or open its options, go to a setting, run an action. It shows recent and suggested choices before you type, forgives accents and small typing mistakes, and works offline. With a controller, press Y in **Find a game**.
 - Each kind of controller has its own drawing: Xbox, PlayStation, Switch Pro, Joy-Con pair and single Joy-Con. Controls links every button to what it does, in the library and in a game, for the connected controller or another one.
 - **Undo**: removing a favorite, hiding a game, removing a Mac app tile, restoring a game's default settings or clearing searches shows a notice with Undo. ⌘Z does the same; Activity keeps the last one for the controller.
 - Search shows your four last searches, kept on this Mac per profile, and a row that clears them.
-- X on a changed row in Settings puts back that row alone. The whole group stays one press away.
+- X on a changed row in Settings puts back that row alone, with Undo. The group still asks first.
 - **Copy settings to another game**, in a game's All settings → General: choose the game, see what changes, copy, undo.
 - Two tips, shown once when they would help. **Tips**, in Settings → Controllers, turns them off.
 
@@ -18,7 +19,38 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 - **Disconnect** (Cloud library) says what is erased and can keep the Google ID and secret: reconnecting does not ask for them again.
 - Removing a Mac app tile no longer asks first: Undo puts it back.
 - Error messages read on their own say what to do, and empty screens say what fills them. An error that is in the log offers **Open log**.
+- The control center opens with **⇧⌘K**; ⌘K is now the search.
+- In French, making a game’s app is always “compiler”.
+- A game started from Oort asks to quit in your language, and unsaved progress has one sentence everywhere.
+- What goes to the Trash says Delete; Remove only takes something off a list.
+- + says Options everywhere in Spotlight and the Collection.
+- The ring that fills while a button is held also says Search and Control center.
+- Opening a web page with a controller asks first and shows the address.
+- Every choice has ‹ › to click in game options and Add game, and says ← →.
+- The pointer hides when a controller is picked up, until it moves.
+- The profile's on-screen keyboard is one shared piece with symbols and accents. It opens in every text field a controller reaches: game search, settings, mods, pictures, keys, friend code.
+- Reset group asks first in Settings, on Cancel, and says when the change is immediate.
+- A right click on a game or a card opens its options, like +.
+- Quit and Restart ask first in the control center, on Cancel.
+- Prompts name what was used last: a controller's buttons after a press, the Mac keys after a key, a click or a real move of the mouse. A small nudge changes nothing.
 - The control center keeps five icons with Power in the middle. Players joins the Profile card.
+- French addresses the player with « tu » everywhere, as the site, Windows and the phones do.
+
+### Fixed
+
+- In the control center, B says Back inside a card, and ⌘K closes what it opened.
+- ⌘F, and holding − in the Arcane layout, search from a game’s page too.
+- With button hints off, the mouse keeps Back on screens that have no other way out.
+- Every choice of a file, folder, app or picture opens Oort’s own picker, and sound packs ask in Oort’s dialogs: a controller reaches them all.
+- With several controllers, the one last pressed drives the menus and names the buttons.
+- A view that redraws or scrolls under a still pointer no longer takes the focus.
+- An update offered at launch opens on Later.
+- B on the first page of the setup assistant no longer skips it all; Skip setup stays a button.
+- The rows of games and the screenshots follow two fingers; the wheel moves the Collection.
+- Screenshots: Previous and Next take a click.
+- A click puts a moved tile down; its hints take a click too.
+- Every hint of the Spotlight page and the Collection takes a click: card options, Details, Options.
+- The launch screen can be left with B or Esc after four seconds, and says so; keys no longer act on the screen under it.
 
 ## 0.5.0-beta.3 — 2026-11-25
 

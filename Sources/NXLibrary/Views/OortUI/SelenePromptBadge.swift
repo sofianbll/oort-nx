@@ -3,9 +3,8 @@ import AppKit
 import NXLibraryCore
 
 /// One controller button as a prompt, everywhere prompts show: Apple's glyph for
-/// the connected controller (SF Symbols, filled, ink on the scrim colour) or,
-/// with no controller and Automatic names, the Mac key that does the same thing
-/// as a keycap. `height` is in Selene units: 30 in the hints, 26 in the top bar.
+/// the controller in hand (SF Symbols, filled, ink on the scrim colour) or, when the
+/// keyboard or the mouse was used last, the Mac key that does the same thing as a keycap. `height` is in Selene units: 30 in the hints, 26 in the top bar.
 struct SelenePromptBadge: View {
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.seleneButtonNames) private var style
@@ -15,12 +14,10 @@ struct SelenePromptBadge: View {
     var height: CGFloat = 30
     var keyboardOverride: KeyCap? = nil
 
-    private var pad: ConnectedPad {
-        ConnectedPad(connected: controller.isGamepadConnected, brand: controller.activeBrand)
-    }
+    private var pad: ConnectedPad { controller.padInHand }
 
     var body: some View {
-        if button == .search || ButtonPrompts.usesKeyboard(style: style, connected: pad) {
+        if button == .search || ButtonPrompts.usesKeyboard(pad) {
             keycap(keyboardOverride ?? ButtonPrompts.keyboardKey(button))
         } else if button == .navigate {
             badgeImage("dpad")

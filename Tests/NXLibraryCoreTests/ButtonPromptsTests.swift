@@ -10,6 +10,12 @@ final class ButtonPromptsTests: XCTestCase {
         XCTAssertEqual(ButtonPrompts.label(.lb, style: .automatic, connected: .other), "LB")
     }
 
+    func testTheControlCenterKeepsAKeyOfItsOwnBesideThePalette() {
+        XCTAssertEqual(ButtonPrompts.keyboardKey(.menu), .text("⇧⌘K"))
+        XCTAssertEqual(PaletteAction.controlCenter.shortcut, "⇧⌘K")
+        XCTAssertEqual(PaletteAction.paletteShortcut, "⌘K")
+    }
+
     func testExplicitStyleOverridesPad() {
         XCTAssertEqual(ButtonPrompts.label(.lb, style: .xbox, connected: .nintendo), "LB")
         XCTAssertEqual(ButtonPrompts.label(.menu, style: .playstation, connected: .xbox), "Options")
@@ -123,9 +129,8 @@ final class ButtonPromptsTests: XCTestCase {
     }
 
     func testNoControllerShowsKeyboardKeys() {
-        XCTAssertTrue(ButtonPrompts.usesKeyboard(style: .automatic, connected: .none))
-        XCTAssertFalse(ButtonPrompts.usesKeyboard(style: .automatic, connected: .other))
-        XCTAssertFalse(ButtonPrompts.usesKeyboard(style: .xbox, connected: .none))
+        XCTAssertTrue(ButtonPrompts.usesKeyboard(.none))
+        for pad: ConnectedPad in [.nintendo, .xbox, .playstation, .other] { XCTAssertFalse(ButtonPrompts.usesKeyboard(pad)) }
         XCTAssertEqual(ButtonPrompts.keyboardKey(.a), .symbol("return"))
         XCTAssertEqual(ButtonPrompts.keyboardKey(.b), .text("esc"))
         XCTAssertEqual(ButtonPrompts.keyboardKey(.view), .text("V"))
@@ -152,16 +157,14 @@ final class ButtonPromptsTests: XCTestCase {
 
     func testNoKeyboardKeyShowsWhileAControllerIsActive() {
         let pads: [ConnectedPad] = [.nintendo, .xbox, .playstation, .other, .none]
-        for style in ButtonNameStyle.allCases {
-            for pad in pads {
-                let active = !ButtonPrompts.usesKeyboard(style: style, connected: pad)
-                for controllerOnly in [false, true] {
-                    // ⌘F is the keyboard's search: a controller holds View for it instead.
-                    XCTAssertEqual(ButtonPrompts.showsHint(.search, controllerOnly: controllerOnly, style: style, connected: pad),
-                                   !active && !controllerOnly, "\(style) \(pad)")
-                    XCTAssertEqual(ButtonPrompts.showsHint(.view, controllerOnly: controllerOnly, style: style, connected: pad),
-                                   active || !controllerOnly, "\(style) \(pad)")
-                }
+        for pad in pads {
+            let active = !ButtonPrompts.usesKeyboard(pad)
+            for controllerOnly in [false, true] {
+                // ⌘F is the keyboard's search: a controller holds View for it instead.
+                XCTAssertEqual(ButtonPrompts.showsHint(.search, controllerOnly: controllerOnly, inHand: pad),
+                               !active && !controllerOnly, "\(pad)")
+                XCTAssertEqual(ButtonPrompts.showsHint(.view, controllerOnly: controllerOnly, inHand: pad),
+                               active || !controllerOnly, "\(pad)")
             }
         }
     }

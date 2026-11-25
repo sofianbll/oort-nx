@@ -20,7 +20,8 @@ extension CloudSetupAssistant {
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
             guard let window = event.window, window.attachedSheet == nil, !window.isSheet,
                   NSApp.modalWindow == nil, !NativeMenuCommands.shared.isTracking,
-                  viewModel.router?.isMenuPresented != true, !viewModel.cloudQuitRequested,
+                  viewModel.router?.isMenuPresented != true, viewModel.router?.isPalettePresented != true,
+                  !viewModel.cloudQuitRequested,
                   event.modifierFlags.intersection([.command, .control, .option, .shift]).isEmpty else { return event }
             let typing = window.firstResponder is NSText
             let action: GamepadAction

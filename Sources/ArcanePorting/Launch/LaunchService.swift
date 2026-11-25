@@ -124,6 +124,15 @@ public final class LaunchService {
     /// Set for every game Arcane starts: Game options are its settings window, so the engine's own
     /// (dm/mac/launcher.c: DM_LAUNCHER=0) does not show; the game takes Arcane's settings and starts.
     public static let launchEnvironment = ["DM_LAUNCHER": "0"]
+    /// The game's own quit question, in the player's language (docs/frontends.md, DM_HOME_QUIT_TEXT): the hold, the
+    /// title, the note, quit and cancel, then this fork's Resume and Return; the last line, the game's title, stays its own.
+    public static let quitTextKey = "DM_HOME_QUIT_TEXT"
+    public static func quitText(gameName: String) -> String {
+        [L10n.text("Keep holding to quit"), L10n.format("Quit %@?", [gameName]), L10n.text("Unsaved progress will be lost."),
+         L10n.text("Quit"), L10n.text("Cancel"), L10n.text("Resume"), L10n.format("Return to %@", [AppIdentity.displayName])]
+            .map { $0.components(separatedBy: .newlines).joined(separator: " ") }
+            .joined(separator: "\n")
+    }
     static let overlayHomeSwapKey = "DM_OVERLAY_HOME_SWAP"
 
     public func launch(appURL: URL, environment: [String: String] = [:],

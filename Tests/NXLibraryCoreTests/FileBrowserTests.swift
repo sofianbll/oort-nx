@@ -49,6 +49,52 @@ final class FileBrowserTests: XCTestCase {
         await assertFailure(.link, at: protected)
     }
 
+    func testPicturesAppsToolsAndFoldersOfFiles() async throws {
+        let fm = FileManager.default
+        let root = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try fm.createDirectory(at: root.appendingPathComponent("Folder"), withIntermediateDirectories: true)
+        defer { try? fm.removeItem(at: root) }
+        let app = root.appendingPathComponent("Real.app/Contents/MacOS")
+        try fm.createDirectory(at: app, withIntermediateDirectories: true)
+        for file in ["cover.PNG", "photo.heic", "notes.txt", "tool"] { try Data([0]).write(to: root.appendingPathComponent(file)) }
+        try fm.createSymbolicLink(at: root.appendingPathComponent("linked"), withDestinationURL: root.appendingPathComponent("tool"))
+        try fm.createSymbolicLink(at: root.appendingPathComponent("linkedFolder"), withDestinationURL: root.appendingPathComponent("Folder"))
+        func names(_ choice: FileBrowser.Choice) async throws -> [String] {
+            try await FileBrowser.list(root, choice: choice).filter { !$0.isFolder }.map(\.name)
+        }
+        var found = try await names(.images)
+        XCTAssertEqual(found, ["cover.PNG", "photo.heic"])
+        found = try await names(.files(["txt"], folder: true, multiple: true))
+        XCTAssertEqual(found, ["notes.txt"])
+        found = try await names(.apps)
+        XCTAssertEqual(found, ["Real.app"])
+        found = try await names(.tool)
+        XCTAssertTrue(found.contains("tool") && found.contains("linked") && !found.contains("linkedFolder"))
+        let package = URL(fileURLWithPath: "/Applications/Real.app", isDirectory: true)
+        XCTAssertTrue(FileBrowser.Choice.apps.accepts(package))
+        XCTAssertFalse(FileBrowser.Choice.images.accepts(package))
+        XCTAssertFalse(FileBrowser.Choice.apps.allowsFolder)
+        XCTAssertTrue(FileBrowser.Choice.files(["txt"], folder: true).allowsFolder)
+        XCTAssertTrue(FileBrowser.Choice.files(["txt"], multiple: true).allowsMultiple)
+        XCTAssertFalse(FileBrowser.Choice.images.allowsMultiple)
+    }
+
+    /// Every native window drops the controller: the app opens its own picker and its own questions everywhere.
+    func testNoScreenOpensAMacFileWindowOrAlert() throws {
+        let app = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("Sources/NXLibrary")
+        let files = FileManager.default.enumerator(at: app, includingPropertiesForKeys: nil)!.compactMap { $0 as? URL }
+            .filter { $0.pathExtension == "swift" && $0.lastPathComponent != "OortFilePicker.swift" }
+        var native: [String] = []
+        for file in files {
+            let text = try String(contentsOf: file, encoding: .utf8)
+            for name in ["NSOpenPanel(", "NSSavePanel(", "NSAlert(", ".fileImporter("] where text.contains(name) {
+                native.append("\(file.lastPathComponent): \(name)")
+            }
+        }
+        XCTAssertEqual(native, [])
+    }
+
     func testLargeListing() async throws {
         let fm = FileManager.default
         let root = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)

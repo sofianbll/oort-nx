@@ -3,6 +3,7 @@ import SwiftUI
 
 struct NativeMenuAvailability {
     var general = false
+    var palette = false
     var addMacApp = false
     var play = false
     var details = false

@@ -32,7 +32,8 @@ Su macOS 27, se Apple mantiene Home, Oort non lo intercetta. Un avviso compare u
 | Cerca | LS | LS | L3 | ⌘F |
 | Cambia vista | View | − | Clic del touchpad | V |
 | Annulla l’ultimo gesto reversibile | Centro attività, A | Centro attività, A | Centro attività, ✕ | ⌘Z |
-| Pulsante Menu | ≡ | + | Options | ⌘K / ⌘, |
+| Pulsante Menu | ≡ | + | Options | ⇧⌘K / ⌘, |
+| Cerca ovunque | Y in Cerca | Y in Cerca | △ in Cerca | ⌘K |
 | Cerca | View per 0,5 s | − per 0,5 s | Clic del touchpad per 0,5 s | ⌘F |
 | Pulsante Home | Guida Xbox | Home | PS | ⇧⌘P (Profili) |
 
@@ -42,9 +43,10 @@ Su macOS 27, se Apple mantiene Home, Oort non lo intercetta. Un avviso compare u
 | Collection | View passa a Spotlight. B torna indietro quando c'è un livello da chiudere; non cambia la vista iniziale. X apre Details su un gioco giocabile o scaricabile. |
 | Details | B torna da dove arriva; X e View non fanno nulla. Con Oort il comando Cerca apre la ricerca della libreria. |
 | Settings / Add Game / Console | B chiude o torna al livello precedente. Menu apre il centro se nessun dialogo blocca l'input. |
+| Cerca ovunque (⌘K) | Il campo tiene sempre le lettere. Su/Giù o croce spostano la riga; Tab/⇧Tab o LB/RB passano al gruppo; Inizio/Fine o LT/RT vanno agli estremi. Invio o A esegue; ⌘Invio, Y o + apre Opzioni di un gioco. Esc o B esce da «Vedi tutto», poi chiude; ⌘K chiude. I comandi della barra dei menu restano attivi. Non si apre sopra una domanda, il Setup, la scelta del profilo, le opzioni di un gioco, il visore di immagini o un avvio. |
 | Centro di controllo | LB/RB scorrono le icone o passano al pannello adiacente, fermandosi alle estremità. Settings richiede conferma. A seleziona; B chiude un pannello o il centro. Con Oort Home chiude il centro. |
 | Settings | LB/RB cambiano sezione; non prendono le lettere da un campo di testo. |
-| Settings, riga modificata | X (o ⌫) riporta quella sola riga al valore iniziale; su una riga già iniziale o dalla barra laterale X ripristina il gruppo. |
+| Settings, riga modificata | X (o ⌫) riporta quella sola riga al valore iniziale, con Undo; su una riga già iniziale o dalla barra laterale X chiede se ripristinare il gruppo. |
 | Pagina profilo e Obiettivi | LB/RB spostano il focus nel profilo e nella raccolta della scheda. In Obiettivi cambiano filtro, o scorrono gli elementi nel dettaglio aperto. |
 | Selettore profili | A sceglie, Menu aggiunge, Y modifica; B (o Home con Arcane) chiude la sovrapposizione e torna al focus precedente. |
 | Editor profilo | B torna al passo precedente o esce dal primo. Dal nome Menu corto salva un profilo esistente o prosegue per un profilo nuovo. |

@@ -183,10 +183,14 @@ struct IntegrationFixtureView: View {
                     let store = AppSettingsStore()
                     let library = SoundPackLibrary()
                     if name == "wide", let pack = try library.load("pollen") {
-                        try captureAlert(SettingsSoundSection.importAlert(pack.manifest, locale: locale),
-                                         to: output.appendingPathComponent("\(prefix)-sound-import.png"))
-                        try captureAlert(SettingsSoundSection.removalAlert(pack.manifest.name, locale: locale),
-                                         to: output.appendingPathComponent("\(prefix)-sound-remove.png"))
+                        for (question, suffix) in [(SettingsSoundSection.importQuestion(pack.manifest, locale: locale), "import"),
+                                                   (SettingsSoundSection.removalQuestion(pack.manifest.name, locale: locale), "remove")] {
+                            try render(SeleneOverlay(style: .dialog) {
+                                SeleneChoiceDialog(title: question.title, message: question.message,
+                                                   choices: [question.action, "Cancel"], focus: .constant(1), cancelIndex: 1,
+                                                   onCancel: {}, onChoose: { _ in })
+                            }, as: "sound-\(suffix)")
+                        }
                     }
                     for (key, suffix) in [("selene", "default"), ("oort", "oort")] {
                         store.settings.soundPackID = key
@@ -221,7 +225,7 @@ struct IntegrationFixtureView: View {
         }
     }
 
-    @MainActor private static func fixtureOnboardingState() throws
+    @MainActor static func fixtureOnboardingState() throws
         -> (AppViewModel, AppSettingsStore, LocalProfileStore, CatalogSourcesModel) {
         precondition(AppData.integrationFixtureHome != nil)
         let home = AppData.profile.home
@@ -270,22 +274,6 @@ struct IntegrationFixtureView: View {
         guard let bitmap = host.bitmapImageRepForCachingDisplay(in: host.bounds) else { throw CocoaError(.fileWriteUnknown) }
         host.cacheDisplay(in: host.bounds, to: bitmap)
         guard let png = bitmap.representation(using: .png, properties: [:]) else { throw CocoaError(.fileWriteUnknown) }
-        try png.write(to: file)
-    }
-
-    @MainActor private static func captureAlert(_ alert: NSAlert, to file: URL) throws {
-        alert.layout()
-        let window = alert.window
-        guard !window.isVisible, let view = window.contentView else { throw CocoaError(.fileWriteUnknown) }
-        window.layoutIfNeeded()
-        view.layoutSubtreeIfNeeded()
-        guard let bitmap = view.bitmapImageRepForCachingDisplay(in: view.bounds) else {
-            throw CocoaError(.fileWriteUnknown)
-        }
-        view.cacheDisplay(in: view.bounds, to: bitmap)
-        guard let png = bitmap.representation(using: .png, properties: [:]) else {
-            throw CocoaError(.fileWriteUnknown)
-        }
         try png.write(to: file)
     }
 }

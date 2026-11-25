@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 25 novembre 2026. Copertura di **1176 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 25 novembre 2026. Il repository versiona **1581 file**, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le singole guide e immagini di `docs/guides/` non hanno una riga propria (le verifica `check_guides.py`); altri 73 file, i pacchetti di suoni e alcuni sorgenti e test recenti, aspettano ancora la loro. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -47,6 +47,7 @@ Le cartelle generate `.build/`, `work/` e `dist/` e i dati personali in Applicat
 - [UI · temi, rendering e sfondi](#ui--temi-rendering-e-sfondi)
 - [UI · fonti, Steam e libreria mista](#ui--fonti-steam-e-libreria-mista)
 - [UI · achievement](#ui--achievement)
+- [Contributi, skill e controlli di architettura](#contributi-skill-e-controlli-di-architettura)
 - [Test e fixture](#test-e-fixture)
 - [Script di sviluppo e packaging](#script-di-sviluppo-e-packaging)
 - [Risorse incluse](#risorse-incluse)
@@ -55,7 +56,7 @@ Le cartelle generate `.build/`, `work/` e `dist/` e i dati personali in Applicat
 
 ## Progetto e configurazione
 
-La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECURITY.md](../../SECURITY.md), [la CI](../../.github/workflows/ci.yml) e [il modello di segnalazione](../../.github/ISSUE_TEMPLATE/bug_report.yml). Descrivono come segnalare problemi e suggerimenti, le verifiche del maintainer, il canale per le vulnerabilità e i controlli automatici.
+La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECURITY.md](../../SECURITY.md), [il codice di condotta](../../CODE_OF_CONDUCT.md), [la CI](../../.github/workflows/ci.yml) e [i modelli di segnalazione](../../.github/ISSUE_TEMPLATE/). Descrivono come segnalare problemi e suggerimenti, le verifiche del maintainer, il canale per le vulnerabilità e i controlli automatici.
 
 | File | Responsabilità |
 |---|---|
@@ -65,9 +66,27 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [PLAYER-GUIDE.fr.md](../../PLAYER-GUIDE.fr.md) | Guida rapida in francese. |
 | [.github/ISSUE_TEMPLATE/config.yml](../../.github/ISSUE_TEMPLATE/config.yml) | Instrada le segnalazioni di sicurezza al canale privato. |
 | [.github/ISSUE_TEMPLATE/feature.yml](../../.github/ISSUE_TEMPLATE/feature.yml) | Raccoglie idee e richieste. |
-| [.github/PULL_REQUEST_TEMPLATE.md](../../.github/PULL_REQUEST_TEMPLATE.md) | Raccoglie perimetro e verifiche. |
+| [.github/PULL_REQUEST_TEMPLATE.md](../../.github/PULL_REQUEST_TEMPLATE.md) | Raccoglie perimetro e verifiche, in francese e in inglese. |
+| [.github/ISSUE_TEMPLATE/bug-macos.yml](../../.github/ISSUE_TEMPLATE/bug-macos.yml) | Modulo di segnalazione per macOS. |
+| [.github/ISSUE_TEMPLATE/bug-windows.yml](../../.github/ISSUE_TEMPLATE/bug-windows.yml) | Modulo di segnalazione per Windows. |
+| [.github/ISSUE_TEMPLATE/bug-linux.yml](../../.github/ISSUE_TEMPLATE/bug-linux.yml) | Modulo di segnalazione per Linux. |
+| [.github/ISSUE_TEMPLATE/bug-android.yml](../../.github/ISSUE_TEMPLATE/bug-android.yml) | Modulo di segnalazione per Android. |
+| [.github/ISSUE_TEMPLATE/bug-iphone-ipad.yml](../../.github/ISSUE_TEMPLATE/bug-iphone-ipad.yml) | Modulo di segnalazione per iPhone e iPad. |
+| [.github/ISSUE_TEMPLATE/game.yml](../../.github/ISSUE_TEMPLATE/game.yml) | Modulo di compatibilità per un gioco, senza file di gioco né chiavi. |
+| [.github/ISSUE_TEMPLATE/controller.yml](../../.github/ISSUE_TEMPLATE/controller.yml) | Modulo per manette e comandi. |
+| [.github/CODEOWNERS](../../.github/CODEOWNERS) | Designa il maintainer come revisore delle aree sensibili: dati, accesso, release, pacchetto, motore. |
+| [.github/dependabot.yml](../../.github/dependabot.yml) | Controlla ogni settimana azioni, Swift e (sui rami alpha) Cargo, npm e Gradle; apre solo pull request. |
+| [.github/LABELS.md](../../.github/LABELS.md) | Propone le etichette da creare; nessuna è stata applicata su GitHub. |
+| [.github/workflows/ci.yml](../../.github/workflows/ci.yml) | Flusso unico: controlli Mac sempre; Swift, desktop, iPhone e iPad, Android solo se cambiano i loro percorsi. |
+| [CODE_OF_CONDUCT.md](../../CODE_OF_CONDUCT.md) | Regole di condotta brevi e segnalazione privata al maintainer. |
 | [.gitignore](../../.gitignore) | Esclude output di build, bundle, cache, work e file personali dell’IDE dal versionamento. |
 | [AGENTS.md](../../AGENTS.md) | Definisce vincoli per gli agenti, procedura di upgrade del motore e verifiche assegnate all’utente. |
+| [.agents/skills/oort-change/SKILL.md](../../.agents/skills/oort-change/SKILL.md) | Scelta fra modifica visiva e di logica, e lista per la pull request. |
+| [.agents/skills/oort-change/evals/cases.md](../../.agents/skills/oort-change/evals/cases.md) | Tre casi di valutazione della skill. |
+| [.agents/skills/oort-visual-change/SKILL.md](../../.agents/skills/oort-visual-change/SKILL.md) | Passi e prove per ciò che il giocatore vede, sente o preme. |
+| [.agents/skills/oort-visual-change/evals/cases.md](../../.agents/skills/oort-visual-change/evals/cases.md) | Tre casi di valutazione della skill. |
+| [.agents/skills/oort-core-change/SKILL.md](../../.agents/skills/oort-core-change/SKILL.md) | Passi e prove per contratti, dati, rete, concorrenza e motore. |
+| [.agents/skills/oort-core-change/evals/cases.md](../../.agents/skills/oort-core-change/evals/cases.md) | Tre casi di valutazione della skill. |
 | [CHANGELOG.md](../../CHANGELOG.md) | Registra le modifiche visibili all'utente per versione. |
 | [LICENSE](../../LICENSE) | Contiene la licenza MIT di Arcane. |
 | [.gitattributes](../../.gitattributes) | Conserva senza conversioni i testi delle licenze di terzi verificati per hash. |
@@ -91,6 +110,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [Sources/NXLibrary/Views/Shell/AppShellView+Profiles.swift](../../Sources/NXLibrary/Views/Shell/AppShellView+Profiles.swift) | Home, cambio dopo la chiusura dei giochi, conferme dell’ospite, rinnovo della presenza e dialogo PIN Selene condiviso con tastiera, manetta e mouse. |
 | [Sources/NXLibrary/Views/Shell/AppShellView+Overlays.swift](../../Sources/NXLibrary/Views/Shell/AppShellView+Overlays.swift) | Dialoghi e avvisi della shell: cloud, impostazioni, benvenuto, installazione fallita, Close Game, rimozione e aggiornamento. Passa l'indice di Annulla al dialogo condiviso. |
 | [Sources/NXLibrary/Views/Shell/AppShellView+Input.swift](../../Sources/NXLibrary/Views/Shell/AppShellView+Input.swift) | Equivalenti da tastiera dei gesti del controller, inclusi Inbox e Integrations, azioni del menu e del centro attività. |
+| [Sources/NXLibrary/Views/Shell/AppShellView+Palette.swift](../../Sources/NXLibrary/Views/Shell/AppShellView+Palette.swift) | Cerca ovunque: quando si apre, le sue righe e l'azione esistente che ognuna esegue. |
 | [Sources/NXLibrary/Views/Shell/IntegrationsView.swift](../../Sources/NXLibrary/Views/Shell/IntegrationsView.swift) | Barra, riepilogo Giochi e Servizi, schede dei dati e collegamenti alle impostazioni esistenti. |
 | [Sources/NXLibrary/Views/Shell/IntegrationsView+Input.swift](../../Sources/NXLibrary/Views/Shell/IntegrationsView+Input.swift) | Traduce tastiera e controller per barra e pagina; mentre la barra ha il focus non inoltra i comandi delle tessere. |
 | [Sources/NXLibrary/Views/Shell/IntegrationFixtureView.swift](../../Sources/NXLibrary/Views/Shell/IntegrationFixtureView.swift) | Anteprima Debug isolata e PNG delle viste condivise con stati sintetici, senza avviare i servizi o rendere visibile una finestra per le catture. |
@@ -135,6 +155,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [Sources/NXLibrary/ViewModels/AppViewModel+Saves.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Saves.swift) | Risolve contesto e identità se il profilo è leggibile, coordina i lease con motivo di rifiuto e recupera i journal del profilo selezionato. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+SteamGridDB.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+SteamGridDB.swift) | Verifica, salva e rimuove la chiave SteamGridDB dell’utente senza registrarne il valore. |
 | [Sources/NXLibrary/ViewModels/AppIconModel.swift](../../Sources/NXLibrary/ViewModels/AppIconModel.swift) | Applica o ripristina l’icona senza toccare giochi in esecuzione o in build. Conserva la richiesta Play legata al dialogo durante la firma; Change artwork ne osserva l’avanzamento. |
+| [CommandPalette.swift](../../Sources/NXLibrary/ViewModels/CommandPalette.swift) | Stato di Cerca ovunque aperta: voci, gruppi, riga in focus, tasti e pulsanti. |
 | [Sources/NXLibrary/ViewModels/CheatsModel.swift](../../Sources/NXLibrary/ViewModels/CheatsModel.swift) | Adatta Core e bundle installato al pannello Cheats, alla riga di stato, alla pagina del gioco e alla diagnostica; chiede a git l'engine dell'app con `prepare(for:)`; raggiunge il coordinatore solo da `app`. |
 | [Sources/NXLibrary/ViewModels/GameInboxModel.swift](../../Sources/NXLibrary/ViewModels/GameInboxModel.swift) | Cartella configurabile, lettura con nxnative solo se l’Inbox è attiva e le chiavi sono valide, avviso Game files; verifica del catalogo e Cestino nello stesso turno del main actor. |
 | [Sources/NXLibrary/ViewModels/PortingModel.swift](../../Sources/NXLibrary/ViewModels/PortingModel.swift) | Stato di Add Game e del porting: bozza, selezione delle sorgenti e spazio richiesto, chiavi, passo del wizard, stato della build mostrato ed esito. Il lavoro sta nelle estensioni qui sotto; raggiunge il coordinatore solo da `app`. |
@@ -196,8 +217,10 @@ Cartella `Sources/OortCore/`, senza risorse né dipendenze.
 | [FocusIndex.swift](../../Sources/OortCore/FocusIndex.swift) | Mantiene un indice di focus entro i limiti della lista. |
 | [HoldDetector.swift](../../Sources/OortCore/HoldDetector.swift) | Distingue pressione breve, prolungata e annullata. |
 | [LineBuffer.swift](../../Sources/OortCore/LineBuffer.swift) | Ricompone righe parziali separate da `\n` o `\r`. |
+| [Credits.swift](../../Sources/OortCore/Credits.swift) | Legge `credits.json`: gruppi, ruoli e note legali per sistema e lingua. |
 | [MoonlightField.swift](../../Sources/OortCore/MoonlightField.swift) | Genera i dati delle particelle senza Metal; condivide `SplitMix` nel package per il cue Download. |
 | [MoveDirection.swift](../../Sources/OortCore/MoveDirection.swift) | Espone le quattro direzioni del focus. |
+| [Palette.swift](../../Sources/OortCore/Palette.swift) | Cerca ovunque: confronto tollerante, gruppi, «Vedi tutto», focus e recenti. |
 | [ProfileKeypad.swift](../../Sources/OortCore/ProfileKeypad.swift) | Griglia PIN con lunghezza passata dal chiamante e conferma esplicita. |
 | [VersionNumber.swift](../../Sources/OortCore/VersionNumber.swift) | Confronta numeri di versione puntati parte per parte. |
 
@@ -216,6 +239,7 @@ Cartella `Sources/NXLibraryCore/App/`.
 | [Sources/NXLibraryCore/App/FirstRunFindings.swift](../../Sources/NXLibraryCore/App/FirstRunFindings.swift) | Conta giochi Steam senza modifiche, e le app del modulo con il conteggio che riceve; distingue lettura incompleta da assenza e permette nuove letture annullabili. |
 | [Sources/NXLibraryCore/App/ArcaneWelcome.swift](../../Sources/NXLibraryCore/App/ArcaneWelcome.swift) | Decide quando compare il benvenuto in Arcane, l'offerta di Steam, il focus e come ogni uscita lo segna visto. |
 | [Sources/NXLibraryCore/App/ReleaseNotesLayout.swift](../../Sources/NXLibraryCore/App/ReleaseNotesLayout.swift) | Divide le note di release in titoli, voci e testo, una riga per volta, per il dialogo degli aggiornamenti. |
+| [PaletteAction.swift](../../Sources/NXLibraryCore/App/PaletteAction.swift) | Azioni di Cerca ovunque in cinque sezioni, scorciatoie e recenti per profilo. |
 | [Sources/NXLibraryCore/App/BoundedCommand.swift](../../Sources/NXLibraryCore/App/BoundedCommand.swift) | Avvia gruppi isolati per i comandi cloud, legge e scrive pipe non bloccanti, delimita inattività e vita dei figli. |
 | [Sources/NXLibraryCore/App/CommandRunner.swift](../../Sources/NXLibraryCore/App/CommandRunner.swift) | Comandi sincroni o streaming senza run loop; per il cloud inoltra input e annullamento all'esecutore con scadenza. |
 | [Sources/NXLibraryCore/App/DiagnosticsReport.swift](../../Sources/NXLibraryCore/App/DiagnosticsReport.swift) | Genera il rapporto diagnostico e rimuove percorso home e valori riconosciuti come chiavi. |
@@ -227,6 +251,7 @@ Cartella `Sources/NXLibraryCore/App/`.
 | [Sources/NXLibraryCore/App/ConnectivityWatcher.swift](../../Sources/NXLibraryCore/App/ConnectivityWatcher.swift) | Avvisa sul main thread quando il Mac torna online, perché il giro delle descrizioni riprenda da solo; la prima lettura non conta. |
 | [Sources/NXLibraryCore/App/DisplayNameCache.swift](../../Sources/NXLibraryCore/App/DisplayNameCache.swift) | Nomi visualizzati di cartelle e volumi letti una volta per URL: la pagina si ricostruisce a ogni disegno e un disco esterno in stop bloccherebbe ogni volta. |
 | [Sources/NXLibraryCore/App/AppIdentity.swift](../../Sources/NXLibraryCore/App/AppIdentity.swift) | Distingue Oort NX (nome visibile) da Arcane (identità e User-Agent), con vecchio nome, modulo Porting e pagina del progetto. |
+| [Sources/NXLibraryCore/App/Credits+Bundled.swift](../../Sources/NXLibraryCore/App/Credits+Bundled.swift) | I crediti inclusi nell’app. |
 | [Sources/NXLibraryCore/App/AppDataProfile.swift](../../Sources/NXLibraryCore/App/AppDataProfile.swift) | Policy di percorsi e preferenze; separa release, Dev, essai 2 e fixture Debug. |
 | [Sources/NXLibraryCore/App/DevelopmentProfileImporter.swift](../../Sources/NXLibraryCore/App/DevelopmentProfileImporter.swift) | Copia selettiva senza modificare la sorgente; per l’essai 2 usa un elenco ristretto senza preferenze. Chiude le sessioni copiate all’ultimo heartbeat. |
 | [Sources/NXLibraryCore/App/DowngradeCheckpoint.swift](../../Sources/NXLibraryCore/App/DowngradeCheckpoint.swift) | Copia privata con file essenziali prioritari, SHA-256, gruppi omessi, conferma e rotazione riprendibile senza perdere le due copie precedenti alla pubblicazione. |
@@ -314,6 +339,10 @@ Cartella `Sources/NXLibraryCore/Selene/`.
 | [Sources/NXLibraryCore/Selene/SeleneImporter.swift](../../Sources/NXLibraryCore/Selene/SeleneImporter.swift) | Importa suoni e wallpaper dalla cartella Selene dell’utente e risolve cue e fallback. |
 | [Sources/NXLibraryCore/Selene/SoundPack.swift](../../Sources/NXLibraryCore/Selene/SoundPack.swift) | Valida manifesti, archivi e audio, sceglie le varianti e pubblica solo copie locali confermate. |
 | [Sources/NXLibraryCore/Selene/ButtonPrompts.swift](../../Sources/NXLibraryCore/Selene/ButtonPrompts.swift) | Traduce azioni e direzioni, incluse Su/Giù, in simboli per tastiera e controller Switch, Xbox e PlayStation. |
+| [Sources/NXLibraryCore/Selene/InputInHand.swift](../../Sources/NXLibraryCore/Selene/InputInHand.swift) | Decide quale dispositivo è in mano (controller, tastiera o puntatore) senza sfarfallii: stick nella zona morta e piccoli spostamenti non contano. |
+| [Sources/NXLibraryCore/Selene/LaunchExit.swift](../../Sources/NXLibraryCore/Selene/LaunchExit.swift) | Dopo quattro secondi dice come uscire dalla schermata di avvio: B o Esc se Oort riceve i tasti, altrimenti il clic. |
+| [Sources/NXLibraryCore/Selene/RailScroll.swift](../../Sources/NXLibraryCore/Selene/RailScroll.swift) | Traduce rotella e due dita in passi della riga: un riquadro per riquadro di corsa, uno per scatto. |
+| [Sources/NXLibraryCore/Selene/OnScreenKeyboard.swift](../../Sources/NXLibraryCore/Selene/OnScreenKeyboard.swift) | Pagine, tasti, maiuscole e spostamento del focus della tastiera a schermo. |
 | [Sources/NXLibraryCore/Selene/MaterialIcon.swift](../../Sources/NXLibraryCore/Selene/MaterialIcon.swift) | Elenca i glifi del font incluso, compresi cancellazione e conferma del PIN. |
 | [Sources/NXLibraryCore/Selene/MenuSelectionModel.swift](../../Sources/NXLibraryCore/Selene/MenuSelectionModel.swift) | Gestisce icone, voci delle schede e pillole Power; salta l'Inbox disattivata e lascia il focus sull'icona alla chiusura. |
 | [Sources/NXLibraryCore/Selene/MoonlightAppearance.swift](../../Sources/NXLibraryCore/Selene/MoonlightAppearance.swift) | Identità delle superfici classica/Arcane/Flow e campionamento dei colori locali condiviso fra shader e fallback. |
@@ -412,6 +441,7 @@ Cartella `Sources/NXLibraryCore/Settings/`. Il catalogo dei testi sta in `Resour
 | [Sources/NXLibraryCore/Settings/SettingsReset.swift](../../Sources/NXLibraryCore/Settings/SettingsReset.swift) | Reset group per sezione, anche Inbox con Game folders, Compilati di recente con Spotlight, Home in gioco e scelte Play together, non l'ID Nextendo né i percorsi delle cartelle di gioco. |
 | [Sources/NXLibraryCore/Settings/AppLocale.swift](../../Sources/NXLibraryCore/Settings/AppLocale.swift) | Sette lingue, risoluzione delle preferenze e regione indipendente; nomi e ricerca delle regioni. |
 | [Sources/NXLibraryCore/Settings/AppLocalization.swift](../../Sources/NXLibraryCore/Settings/AppLocalization.swift) | Contesto osservabile, lookup delle risorse, interpolazioni/plurali e nome Oort NX nei testi resi. |
+| [Sources/NXLibraryCore/Resources/credits.json](../../Sources/NXLibraryCore/Resources/credits.json) | Copia generata di `design/credits.json`. |
 | [Sources/NXLibraryCore/Resources/Localizable.xcstrings](../../Sources/NXLibraryCore/Resources/Localizable.xcstrings) | Testi in sette lingue, inclusi errori di avvio di Python, avvisi del Cestino, recupero degli spostamenti cloud e accessi di Integrations. |
 
 ## Core · Steam
@@ -818,7 +848,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/Settings/SettingsConsoleSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsConsoleSection.swift) | System → Console: apre la console dei log di build e avvio. |
 | [Sources/NXLibrary/Views/Settings/SettingsEngineSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsEngineSection.swift) | Porting → Setup and engine: checkout, pin, gate, conferme per cambio motore e override, runtime, changelog upstream e Setup; l'arrivo da Integrations non avvia controlli né importa chiavi. |
 | [Sources/NXLibrary/Views/Settings/SettingsKeysSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsKeysSection.swift) | Porting → Keys: stato, importazione, sostituzione e rilevamento di prod.keys. |
-| [Sources/NXLibrary/Views/Settings/SettingsAboutSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsAboutSection.swift) | Mostra versione e crediti localizzati, diagnostica, aggiornamenti, pulsante di sostegno volontario e link alla guida online. |
+| [Sources/NXLibrary/Views/Settings/SettingsAboutSection.swift](../../Sources/NXLibrary/Views/Settings/SettingsAboutSection.swift) | Mostra versione, aggiornamenti, guida online, diagnostica, sostegno volontario e i crediti di `design/credits.json` in schede comuni. |
 | [Sources/NXLibrary/Views/Settings/LocalePicker.swift](../../Sources/NXLibrary/Views/Settings/LocalePicker.swift) | Scelta diretta della lingua e ricerca dei formati regionali, con focus tastiera/controller e codici stabili. |
 
 ## UI · Setup, avvio, ricerca e console
@@ -838,6 +868,8 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/Launch/LaunchMotion.swift](../../Sources/NXLibrary/Views/Launch/LaunchMotion.swift) | Movimento della schermata di lancio in Core Animation: artwork che si avvicina e logo del gioco che sale una volta. Con Riduci movimento resta la dissolvenza del logo. |
 | [Sources/NXLibrary/Views/Launch/LaunchCoverWindow.swift](../../Sources/NXLibrary/Views/Launch/LaunchCoverWindow.swift) | Ordina la finestra d’attesa sopra ogni app e Space e avvisa il coordinatore dopo aver inviato il pannello al server delle finestre. |
 | [Sources/NXLibrary/Views/Search/FindGameView.swift](../../Sources/NXLibrary/Views/Search/FindGameView.swift) | Presenta ricerca nella libreria e risultati navigabili e inoltra il gioco scelto alla home. |
+| [CommandPaletteView.swift](../../Sources/NXLibrary/Views/Search/CommandPaletteView.swift) | Cerca ovunque: campo, gruppi, righe con scorciatoia, annunci VoiceOver e ritorno del focus. |
+| [CommandPaletteProbe.swift](../../Sources/NXLibrary/Views/Search/CommandPaletteProbe.swift) | Controllo Debug di tasti e pulsanti e catture di ogni stato, senza finestra e con voci sintetiche. |
 | [Sources/NXLibrary/Views/Console/ConsoleView.swift](../../Sources/NXLibrary/Views/Console/ConsoleView.swift) | Mostra log e stato corrente e offre copia di log e diagnostica. |
 | [Sources/NXLibrary/Views/ControlsView.swift](../../Sources/NXLibrary/Views/ControlsView.swift) | Guida Selene separata fra Library e In game; stato controller, rilevamento e scorrimento delle righe con tastiera/controller. |
 
@@ -856,6 +888,10 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [OortFilePickerProbe.swift](../../Sources/NXLibrary/Views/OortUI/OortFilePickerProbe.swift) | Catture Debug larghe e strette in francese, con cartelle sintetiche. |
 | [Sources/NXLibrary/Views/OortUI/OortControls.swift](../../Sources/NXLibrary/Views/OortUI/OortControls.swift) | Preset per righe, azioni e stati, e riga con cursore. |
 | [Sources/NXLibrary/Views/OortUI/OortGameTile.swift](../../Sources/NXLibrary/Views/OortUI/OortGameTile.swift) | Tessera con preset Spotlight e Collection, input e accessibilità; l'arte resta al chiamante. |
+| [Sources/NXLibrary/Views/OortUI/OortSecondaryClick.swift](../../Sources/NXLibrary/Views/OortUI/OortSecondaryClick.swift) | Clic destro (o Ctrl-clic) su un riquadro: le stesse opzioni di +; ogni altro evento passa al riquadro. |
+| [Sources/NXLibrary/Views/OortUI/OortWebPage.swift](../../Sources/NXLibrary/Views/OortUI/OortWebPage.swift) | Apre una pagina nel browser; dal controller chiede prima, perché nulla riporta a Oort. |
+| [Sources/NXLibrary/Views/OortUI/OortKeyboard.swift](../../Sources/NXLibrary/Views/OortUI/OortKeyboard.swift) | Tastiera a schermo unica: si apre sotto ogni campo raggiunto col controller e scrive in quel campo. |
+| [Sources/NXLibrary/Views/OortUI/OortKeyboardProbe.swift](../../Sources/NXLibrary/Views/OortUI/OortKeyboardProbe.swift) | Prova Debug senza finestra: campi reali riempiti con sole azioni del controller. |
 | [Sources/NXLibrary/Views/OortUI/PlayerSlot.swift](../../Sources/NXLibrary/Views/OortUI/PlayerSlot.swift) | Posto giocatore ad altezza stabile con ritratto, stato e valore accessibile. |
 | [DESIGN.md](../../DESIGN.md) | Sistema di design: token, pezzi, regole. |
 | [PRODUCT.md](../../PRODUCT.md) | Per chi è Oort, cosa promette e cosa evita. |
@@ -866,6 +902,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/OortUI/OortSetupCard.swift](../../Sources/NXLibrary/Views/OortUI/OortSetupCard.swift) | Scheda di scelta della prima configurazione. |
 | [Sources/NXLibrary/Views/OortUI/OortTabs.swift](../../Sources/NXLibrary/Views/OortUI/OortTabs.swift) | Schede condivise: scelta, focus, conteggio. |
 | [Sources/NXLibrary/Views/OortUI/OortTag.swift](../../Sources/NXLibrary/Views/OortUI/OortTag.swift) | Etichetta breve: genere, versione, stato. |
+| [Sources/NXLibrary/Views/OortUI/OortCreditCard.swift](../../Sources/NXLibrary/Views/OortUI/OortCreditCard.swift) | Scheda di un credito e gruppo di schede, due per riga. |
 | [Tests/NXLibraryCoreTests/PaletteContrastTests.swift](../../Tests/NXLibraryCoreTests/PaletteContrastTests.swift) | Contrasto di testo, focus e simboli in ogni palette. |
 | [Sources/NXLibrary/Views/OortUI/OortUIGallery.swift](../../Sources/NXLibrary/Views/OortUI/OortUIGallery.swift) | Esempi sintetici Debug delle primitive OortUI e catture senza finestre su tre palette. |
 | [Sources/NXLibrary/Views/OortUI/SeleneConfirmDialog.swift](../../Sources/NXLibrary/Views/OortUI/SeleneConfirmDialog.swift) | Card e aiuto condivisi, conferma a sinistra e annullamento a destra, scelte multiple con testo a larghezza definita e note, SeleneSuccessNotice. |
@@ -875,13 +912,12 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/OortUI/SeleneOptionRow.swift](../../Sources/NXLibrary/Views/OortUI/SeleneOptionRow.swift) | Disegna righe di opzioni con icona, titolo, descrizione con carattere configurabile, focus e contenuto laterale. |
 | [Sources/NXLibrary/Views/Components/SeleneExpandableText.swift](../../Sources/NXLibrary/Views/Components/SeleneExpandableText.swift) | Rivela la descrizione completa animando l'altezza fra due layout di testo stabili; usato solo dalle righe dei metadati. |
 | [Sources/NXLibrary/Views/OortUI/SelenePillButton.swift](../../Sources/NXLibrary/Views/OortUI/SelenePillButton.swift) | Disegna il pulsante condiviso, il contorno come anello pieno, la larghezza piena in una colonna e il riempimento mascherato di Download. |
-| [Sources/NXLibrary/Views/Components/SeleneProgressBar.swift](../../Sources/NXLibrary/Views/Components/SeleneProgressBar.swift) | Barra cloud Selene con colore semantico; segno fermo se il totale è ignoto. |
 | [Sources/NXLibrary/Views/OortUI/SeleneStepper.swift](../../Sources/NXLibrary/Views/OortUI/SeleneStepper.swift) | Indicatore di passo e superficie dei campi per l'assistente Selene. |
 | [Sources/NXLibrary/Views/OortUI/SelenePromptBadge.swift](../../Sources/NXLibrary/Views/OortUI/SelenePromptBadge.swift) | Rende simbolo o etichetta del controller e della tastiera, compresa la croce direzionale a contrasto. |
 | [Sources/NXLibrary/Views/Components/GlideGroup.swift](../../Sources/NXLibrary/Views/Components/GlideGroup.swift) | Usa `geometryGroup` per spostare un blocco come un pezzo unico. `RailCamera` limita la posizione interpolata dei rail Spotlight e Collection alla lunghezza corrente. |
 | [Sources/NXLibrary/Views/Components/SeleneReveal.swift](../../Sources/NXLibrary/Views/Components/SeleneReveal.swift) | Applica l’animazione di comparsa Selene rispettando la preferenza Riduci movimento. |
 | [Sources/NXLibrary/Views/OortUI/SeleneSettingsRow.swift](../../Sources/NXLibrary/Views/OortUI/SeleneSettingsRow.swift) | Righe delle impostazioni e ciclo di valore condiviso da Settings e Game Options. |
-| [Sources/NXLibrary/Views/Components/SeleneStatsRow.swift](../../Sources/NXLibrary/Views/Components/SeleneStatsRow.swift) | Disegna le statistiche compatte del gioco nella libreria. |
+| [Sources/NXLibrary/Views/OortUI/SeleneStatsRow.swift](../../Sources/NXLibrary/Views/OortUI/SeleneStatsRow.swift) | Disegna le statistiche compatte del gioco nella libreria. |
 | [Sources/NXLibrary/Views/Components/SeleneSwitch.swift](../../Sources/NXLibrary/Views/Components/SeleneSwitch.swift) | Disegna lo switch coerente con il tema. |
 | [Sources/NXLibrary/Views/OortUI/SeleneTileRing.swift](../../Sources/NXLibrary/Views/OortUI/SeleneTileRing.swift) | Ring e riflesso della tile selezionata; con Reduce motion il ring fermo disegnato da SwiftUI. |
 | [Sources/NXLibrary/Views/Components/TileMotionLayers.swift](../../Sources/NXLibrary/Views/Components/TileMotionLayers.swift) | Ring e riflesso come layer Core Animation in loop: nessun ridisegno dell'app tra un frame e l'altro. |
@@ -953,6 +989,26 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [AchievementsScreenModel.swift](../../Sources/NXLibrary/ViewModels/AchievementsScreenModel.swift) | Selezione, filtro e scroll di Achievements; LB/RB cambiano filtro o scorrono i dettagli aperti. Dopo la rotella la prima freccia riporta il focus in vista. |
 | [ListScroll.swift](../../Sources/NXLibrary/ViewModels/ListScroll.swift) | Offset di una lista (`TextScroll`) con la planata del pannello delle mod: rotella, trackpad e frecce muovono lo stesso valore. |
 
+## Contributi, skill e controlli di architettura
+
+| File | Responsabilità |
+|---|---|
+| [scripts/ci_changed_areas.py](../../scripts/ci_changed_areas.py) | Decide quali aree della CI girano secondo i percorsi modificati; una cartella assente lascia l’area spenta. |
+| [scripts/check_module_boundaries.py](../../scripts/check_module_boundaries.py) | Verifica l’ordine dei moduli, Foundation soltanto in OortCore e la lista di base degli import d’interfaccia nel core. |
+| [Tests/CIChecks/test_changed_areas.py](../../Tests/CIChecks/test_changed_areas.py) | Verifica quali aree si accendono per documentazione, core, workflow e cartelle mancanti. |
+| [Tests/ModuleChecks/test_module_boundaries.py](../../Tests/ModuleChecks/test_module_boundaries.py) | Verifica i confini dei moduli con fixture sintetiche e sul repository. |
+| [Tests/SkillChecks/test_skills.py](../../Tests/SkillChecks/test_skills.py) | Verifica formato, tre casi per skill, link e assenza di percorsi personali nelle skill pubbliche. |
+| [docs/working-on-it/architecture-map.md](architecture-map.md) | Carta dei cinque sistemi, livelli d’import e dove mettere il codice. |
+| [docs/working-on-it/branch-rules.md](branch-rules.md) | Regole proposte per rami, tag e controlli richiesti; nessuna applicata su GitHub. |
+| [.agents/skills/oort-contribute/SKILL.md](../../.agents/skills/oort-contribute/SKILL.md) | Prepara un contributo: sistema, controlli, dati privati, bozza di pull request. |
+| [.agents/skills/oort-contribute/evals/cases.md](../../.agents/skills/oort-contribute/evals/cases.md) | Tre casi di valutazione di oort-contribute. |
+| [.agents/skills/oort-triage/SKILL.md](../../.agents/skills/oort-triage/SKILL.md) | Propone tipo, sistema, fonte, priorità e informazioni mancanti; non applica nulla. |
+| [.agents/skills/oort-triage/evals/cases.md](../../.agents/skills/oort-triage/evals/cases.md) | Tre casi di valutazione di oort-triage. |
+| [.agents/skills/oort-release/SKILL.md](../../.agents/skills/oort-release/SKILL.md) | Prepara una release senza pubblicarla: stato pulito, controlli, note, somme SHA-256. |
+| [.agents/skills/oort-release/evals/cases.md](../../.agents/skills/oort-release/evals/cases.md) | Tre casi di valutazione di oort-release. |
+| [.agents/skills/oort-guides/SKILL.md](../../.agents/skills/oort-guides/SKILL.md) | Scrive o corregge una guida in tempo presente, verificata sul codice. |
+| [.agents/skills/oort-guides/evals/cases.md](../../.agents/skills/oort-guides/evals/cases.md) | Tre casi di valutazione di oort-guides. |
+
 ## Test e fixture
 
 | File | Responsabilità aggiuntiva |
@@ -1003,6 +1059,14 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/ArcanePortingTests/CloudArchiveListingTests.swift](../../Tests/ArcanePortingTests/CloudArchiveListingTests.swift) | Doppioni Drive con ID distinti, varianti di maiuscole e Unicode, rifiuto prima di Send o lettura e importazione senza falsi assenti. |
 | [Tests/ArcanePortingTests/GameAppDestinationTests.swift](../../Tests/ArcanePortingTests/GameAppDestinationTests.swift) | Installazione e scoperta nella cartella scelta, rebuild dopo il cambio cartella, conflitti di nome, sorgenti protette e cartelle non disponibili o di sola lettura. |
 | [Tests/NXLibraryCoreTests/ButtonPromptsTests.swift](../../Tests/NXLibraryCoreTests/ButtonPromptsTests.swift) | Etichette e simboli per tastiera, controller e scelte esplicite dell’utente. |
+| [Tests/NXLibraryCoreTests/InputInHandTests.swift](../../Tests/NXLibraryCoreTests/InputInHandTests.swift) | Ultimo dispositivo usato, urti del mouse, movimento reale e attesa dopo un tasto. |
+| [Tests/NXLibraryCoreTests/LaunchExitTests.swift](../../Tests/NXLibraryCoreTests/LaunchExitTests.swift) | Attesa, azione accettata e precedenza della schermata di avvio. |
+| [Tests/NXLibraryCoreTests/ClickableHintsTests.swift](../../Tests/NXLibraryCoreTests/ClickableHintsTests.swift) | Suggerimenti cliccabili nelle schermate iniziali, nello spostamento e nelle catture. |
+| [Tests/NXLibraryCoreTests/RailScrollTests.swift](../../Tests/NXLibraryCoreTests/RailScrollTests.swift) | Passi, direzione, scatti, pausa e asse della rotella sulle righe. |
+| [Tests/NXLibraryCoreTests/SafeDefaultsTests.swift](../../Tests/NXLibraryCoreTests/SafeDefaultsTests.swift) | Schermate che si aprono da sole: Indietro nel primo avvio e scelta iniziale dell'aggiornamento. |
+| [Tests/NXLibraryCoreTests/VocabularyTests.swift](../../Tests/NXLibraryCoreTests/VocabularyTests.swift) | Parole del contratto: Rimuovi e Elimina, Spotlight, compilazione. |
+| [Tests/NXLibraryCoreTests/OnScreenKeyboardTests.swift](../../Tests/NXLibraryCoreTests/OnScreenKeyboardTests.swift) | Caratteri disponibili, maiuscole, focus e cambio pagina della tastiera a schermo. |
+| [Tests/NXLibraryCoreTests/SettingsResetQuestionTests.swift](../../Tests/NXLibraryCoreTests/SettingsResetQuestionTests.swift) | Domanda prima di ogni ripristino di gruppo e suo testo. |
 | [Tests/OortCoreTests/ControllerInputTests.swift](../../Tests/OortCoreTests/ControllerInputTests.swift) | Report Nintendo sintetici, calibrazione, transizioni e precedenza di GameController. |
 | [Tests/ArcanePortingTests/CheatCopyTests.swift](../../Tests/ArcanePortingTests/CheatCopyTests.swift) | Testi di intestazione, rifiuto, conferma e rimozione dei cheats. |
 | [Tests/ArcanePortingTests/CheatFileTests.swift](../../Tests/ArcanePortingTests/CheatFileTests.swift) | Parsing dei codici secondo il motore, sezioni, metadati, nomi duplicati e codici non validi. |
@@ -1042,11 +1106,12 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/NXLibraryCoreTests/CursorIdleTests.swift](../../Tests/NXLibraryCoreTests/CursorIdleTests.swift) | Ritardo del cursore, ripristino e ripartenza dopo interruzione o attività del mouse. |
 | [Tests/ArcanePortingTests/InstallProgressTests.swift](../../Tests/ArcanePortingTests/InstallProgressTests.swift) | Fasi Git, percentuali e byte. |
 | [Tests/OortCoreTests/LineBufferTests.swift](../../Tests/OortCoreTests/LineBufferTests.swift) | Ricomposizione delle righe parziali e separatori dei progressi. |
+| [Tests/OortCoreTests/CreditsTests.swift](../../Tests/OortCoreTests/CreditsTests.swift) | Autori, gruppi per sistema, lingue e immagini permesse dei crediti. |
 | [Tests/ArcanePortingTests/KeyCheckTests.swift](../../Tests/ArcanePortingTests/KeyCheckTests.swift) | Cifratura e lettura di intestazioni sintetiche, intervalli troncati e chiavi richieste dalle sorgenti. |
 | [Tests/ArcanePortingTests/KeyStoreTests.swift](../../Tests/ArcanePortingTests/KeyStoreTests.swift) | Importazione e sostituzione atomica, conservazione della copia precedente anche con header malformato, permessi 0600 e riepilogo. |
 | [Tests/ArcanePortingTests/LaunchServiceTests.swift](../../Tests/ArcanePortingTests/LaunchServiceTests.swift) | Processo fittizio, impostazioni runtime e profilo, ambiente ereditato senza segreti, Home e overlay, permessi e pulizia dello snapshot; capacità, ripiego e override dello schermo. |
+| [Tests/ArcanePortingTests/HomeQuitTextTests.swift](../../Tests/ArcanePortingTests/HomeQuitTextTests.swift) | Domanda di uscita del gioco nella lingua del giocatore, riga per riga. |
 | [PlayersLaunchTests.swift](../../Tests/ArcanePortingTests/PlayersLaunchTests.swift) | Bundle sintetici per prove motore, precedenze, fusione P1/P2–P8, ordine e profili di gioco. |
-| [PlayerPlanStoreTests.swift](../../Tests/NXLibraryCoreTests/PlayerPlanStoreTests.swift) | Retrocompatibilità, rifiuto di documento corrotto e conservazione dei campi sconosciuti scrivendo un piano di prova. |
 | [Tests/ArcanePortingTests/HomeMenuTests.swift](../../Tests/ArcanePortingTests/HomeMenuTests.swift) | Capacità e ambiente del bundle, stati e segnale al solo figlio sintetico. |
 | [Tests/ArcanePortingTests/LauncherSettingsTests.swift](../../Tests/ArcanePortingTests/LauncherSettingsTests.swift) | Metadati launcher.json e fallback dei controlli per build precedenti. |
 | [Tests/NXLibraryCoreTests/LaunchBoxArtTests.swift](../../Tests/NXLibraryCoreTests/LaunchBoxArtTests.swift) | Risultati di ricerca, scelta della voce Switch/Switch 2, payload Nuxt con file pieni e screenshot. |
@@ -1080,6 +1145,8 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/NXLibraryCoreTests/PlayerPlanStoreTests.swift](../../Tests/NXLibraryCoreTests/PlayerPlanStoreTests.swift) | Persistenza e conservazione dei campi sconosciuti; rifiuto dei documenti non validi. |
 | [Tests/NXLibraryCoreTests/PlayerLaunchEnvironmentTests.swift](../../Tests/NXLibraryCoreTests/PlayerLaunchEnvironmentTests.swift) | Modalità di lancio, capacità dichiarate, precedenza di `env.txt` e limiti del nickname. |
 | [Tests/OortCoreTests/ProfileKeypadTests.swift](../../Tests/OortCoreTests/ProfileKeypadTests.swift) | Navigazione, cancellazione, zero iniziale e lunghezza del PIN fornita dal chiamante. |
+| [Tests/OortCoreTests/PaletteTests.swift](../../Tests/OortCoreTests/PaletteTests.swift) | Accenti, errori, ordine, gruppi, focus e recenti di Cerca ovunque. |
+| [Tests/NXLibraryCoreTests/PaletteActionTests.swift](../../Tests/NXLibraryCoreTests/PaletteActionTests.swift) | Sezioni, scorciatoie, traduzioni e recenti per profilo di Cerca ovunque. |
 | [Tests/NXLibraryCoreTests/ProfileLayersTests.swift](../../Tests/NXLibraryCoreTests/ProfileLayersTests.swift) | In ogni stato un solo strato della schermata profilo riceve l’input e mostra i suggerimenti; la procedura guidata sostituisce il selettore. |
 | [Tests/ArcanePortingTests/PortedGameTests.swift](../../Tests/ArcanePortingTests/PortedGameTests.swift) | Modello del gioco, compatibilità dei record, disponibilità dell’app e selezione delle ultime compilazioni riuscite. |
 | [Tests/ArcanePortingTests/PortingFailureReasonTests.swift](../../Tests/ArcanePortingTests/PortingFailureReasonTests.swift) | Classificazione dei fallimenti, distinzione fra avvio di Python e chiavi, e corrispondenza con i messaggi del pin (anche con NX_TEST_ENGINE_REPO). |
@@ -1156,7 +1223,9 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/NXLibraryCoreTests/SpotlightRowGeometryTests.swift](../../Tests/NXLibraryCoreTests/SpotlightRowGeometryTests.swift) | Posto a schermo = camera più posto nella riga, tessere che restano ferme durante lo scorrimento, distanze costanti e quattro tessere di riserva ai bordi. |
 | [Tests/NXLibraryCoreTests/TileMotionTests.swift](../../Tests/NXLibraryCoreTests/TileMotionTests.swift) | Curve di bagliore, ring e riflesso; continuità a 60 Hz tra raffiche, pausa, verifica, riavvio e movimento ridotto. |
 | [Tests/ArcanePortingTests/AppLocaleTests.swift](../../Tests/ArcanePortingTests/AppLocaleTests.swift) | Preferenze, formati, traduzioni e nome Oort NX senza cambiare trofeo, argomenti o User-Agent. |
+| [Tests/PublicationChecks/test_check_guides.py](../../Tests/PublicationChecks/test_check_guides.py) | Le guide pubblicate passano; ogni regola rifiuta il suo errore. |
 | [Tests/PublicationChecks/test_localizations.py](../../Tests/PublicationChecks/test_localizations.py) | Rifiuto di cataloghi incompleti e bundle senza risorse. |
+| [Tests/PublicationChecks/test_vocabulary.py](../../Tests/PublicationChecks/test_vocabulary.py) | Prova le regole del vocabolario, il registro che può solo ridursi e le fonti lette per sistema. |
 | [DevelopmentProfileTests.swift](../../Tests/ArcanePortingTests/DevelopmentProfileTests.swift) | Identità separate, copie e filtro dell’essai 2, sorgente intatta, symlink, sovrascrittura, sessioni e totali. |
 | [DevelopmentProfileEffectTests.swift](../../Tests/ArcanePortingTests/DevelopmentProfileEffectTests.swift) | Isolamento Dev, staging e richieste esplicite. Verifica anche che la riconciliazione delle mod conservi record e overlay dopo un errore di lettura. |
 | [test_profile_boundaries.py](../../Tests/PublicationChecks/test_profile_boundaries.py) | Guardia contro percorsi/defaults del launcher non centralizzati. |
@@ -1195,10 +1264,13 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [CatalogPersonalizationTests.swift](../../Tests/ArcanePortingTests/CatalogPersonalizationTests.swift) | Rinomina senza perdita del lookup e isolamento di chiavi uguali tra fonti. |
 | [CatalogBuildRecoveryTests.swift](../../Tests/ArcanePortingTests/CatalogBuildRecoveryTests.swift) | Vecchia build persistita e nuova conservata, sospensione automatica e conferme obsolete. |
 | [run_notices.py](../../Tests/CatalogAppChecks/run_notices.py) | Esegue il modello e i metodi reali degli avvisi e del ponte legacy senza finestre, dopo swift test. |
+| [run_onscreen_keyboard.py](../../Tests/CatalogAppChecks/run_onscreen_keyboard.py) | Avvia la prova della tastiera a schermo su una home isolata. |
 | [run_update_wait.py](../../Tests/CatalogAppChecks/run_update_wait.py) | Bundle di prova: conserva l'aggiornamento verificato mentre un gioco o un lease blocca; riprende dallo ZIP senza rete e rifiuta modifiche. |
 | [run_review.py](../../Tests/CatalogAppChecks/run_review.py) | Verifica senza finestre achievement, loghi, focus, input del centro e di Integrations, badge mod in Online, priorità dei dialoghi e Steam durante Play. |
 | [audit_probe_host.py](../../Tests/CatalogAppChecks/audit_probe_host.py) | Collega sonde headless al binario di debug e le isola con home temporanea e senza rete. |
 | [run_platform_cards.py](../../Tests/CatalogAppChecks/run_platform_cards.py) | Lancia Spotlight isolato e conserva i PNG e, con ffmpeg, lo scorrimento video. |
+| [run_credits.py](../../Tests/CatalogAppChecks/run_credits.py) | Apre About isolata, conserva i PNG e prova i crediti con il controller. |
+| [CreditsProbe.swift](../../Tests/CatalogAppChecks/CreditsProbe.swift) | Host della prova dei crediti: tre lingue, tutte le schede, righe e pulsanti. |
 | [PlatformCardsProbe.swift](../../Tests/CatalogAppChecks/PlatformCardsProbe.swift) | Verifica input, filtro, chiusura e recupero su tre fonti, una fonte e libreria vuota; rende Spotlight in francese con sfondo chiaro. |
 | [run_steam_disabled_tracking.py](../../Tests/CatalogAppChecks/run_steam_disabled_tracking.py) | Disattiva una fonte Steam sintetica, chiude una sessione già aperta e rifiuta una nuova osservazione. |
 | [run_steam_scoped_playtime.py](../../Tests/CatalogAppChecks/run_steam_scoped_playtime.py) | Aggiorna le ore Steam dopo sessioni Switch secondarie, anche archiviate, e congela dopo una sessione Steam secondaria. |
@@ -1274,6 +1346,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [scripts/inject_google_client.py](../../scripts/inject_google_client.py) | Scrive la coppia OAuth Google nel plist della build privata solo se completa, senza argomenti con credenziali. |
 | [scripts/install_built_app.swift](../../scripts/install_built_app.swift) | Ingresso CLI che riusa BuildOutputInstaller per firmare, verificare e installare Arcane dopo il packaging. |
 | [scripts/check_publication.py](../../scripts/check_publication.py) | Rifiuta contenuti personali o di gioco versionati e rclone nel bundle; verifica runtime, licenze, avvisi e sorgenti. |
+| [scripts/check_guides.py](../../scripts/check_guides.py) | Verifica le guide dei giocatori e la matrice: FR = EN, immagini, link, versioni, sistemi e prove; può scrivere il JSON del sito. |
 | [scripts/bundle-licences.json](../../scripts/bundle-licences.json) | Percorsi e SHA-256 dei testi e dei sorgenti verificati nel bundle di release. |
 | [scripts/build_dmg.sh](../../scripts/build_dmg.sh) | Confeziona `Oort NX.app` in un DMG compresso, con veste Oort o ripiego semplice; verifica il contenuto su un montaggio invisibile in sola lettura. |
 | [scripts/style_dmg.py](../../scripts/style_dmg.py) | Genera la trama e scrive layout Finder, TIFF Retina e icona alla radice del volume. |
@@ -1287,14 +1360,24 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [scripts/brand_icons.py](../../scripts/brand_icons.py) | Genera le varianti a trama e a particelle, con i loro progetti Icon Composer. |
 | [scripts/import_selene_palettes.py](../../scripts/import_selene_palettes.py) | Converte le palette Selene nel catalogo JSON usato dall’app. |
 | [scripts/check_localizations.py](../../scripts/check_localizations.py) | Verifica copertura, placeholder, plurali e risorse nel bundle installato. |
+| [scripts/check_vocabulary.py](../../scripts/check_vocabulary.py) | Confronta le traduzioni di Mac, desktop, Android, iOS e sito con il vocabolario, da cartelle o ref Git. |
+| [scripts/check_localizations.py](../../scripts/check_localizations.py) | Verifica copertura, placeholder, plurali, il « tu » francese e risorse nel bundle installato. |
 | [scripts/extract_downgrade_checkpoint.py](../../scripts/extract_downgrade_checkpoint.py) | Verifica le impronte della copia di compatibilità e la estrae in una cartella privata nuova; non modifica i dati attivi. |
 | [scripts/check_selene_tokens.py](../../scripts/check_selene_tokens.py) | Blocca misure e stili letterali e nuovi componenti duplicati. |
 | [design/oort.tokens.json](../../design/oort.tokens.json) | Fonte DTCG dei token Selene e della palette predefinita Oort. |
+| [design/vocabulary.json](../../design/vocabulary.json) | Vocabolario proposto comune ai sistemi: parole fr/en, stati di un gioco, comandi e chiavi che le traduzioni devono rispettare. |
+| [design/vocabulary-debt.json](../../design/vocabulary-debt.json) | Scarti di traduzione già noti, per sistema; può solo ridursi. |
+| [design/credits.json](../../design/credits.json) | Fonte unica dei crediti: nome, autore, ruolo, licenza, link, sistemi, icona permessa. |
 | [scripts/generate_oort_tokens.py](../../scripts/generate_oort_tokens.py) | Controlla il contrasto e genera Swift e la sola voce Oort del catalogo. |
 | [Tests/PublicationChecks/test_oort_tokens.py](../../Tests/PublicationChecks/test_oort_tokens.py) | Prova generazione stabile, output obsoleti e contrasto insufficiente. |
 | [scripts/check_oort_core.py](../../scripts/check_oort_core.py) | Verifica manifest e import del target portabile; può preparare un pacchetto minimo per Linux. |
+| [scripts/generate_credits.py](../../scripts/generate_credits.py) | Copia i crediti in app, NOTICE e sito; fallisce se manca un credito o una copia differisce. |
 | [scripts/selene-token-debt.json](../../scripts/selene-token-debt.json) | Occorrenze letterali preesistenti per file e firma, escluse le misure già migrate ai token; le voci obsolete fanno fallire il controllo. |
 | [Tests/PublicationChecks/test_selene_tokens.py](../../Tests/PublicationChecks/test_selene_tokens.py) | Prova argomenti multilinea, valori scalati ed esclusioni. |
+| [scripts/check_ui_rules.py](../../scripts/check_ui_rules.py) | Misura menu, profondità, testi senza traduzione, misure e forme locali, nomi di accessibilità e percorsi da tastiera; blocca il nuovo. |
+| [scripts/ui-rules.json](../../scripts/ui-rules.json) | Superfici contate, valori, parti non misurate e debito che può solo diminuire. |
+| [Tests/UIRulesChecks/test_ui_rules.py](../../Tests/UIRulesChecks/test_ui_rules.py) | Prove negative di ogni regola e coerenza fra controllo, criteri e skill. |
+| [Tests/PublicationChecks/test_credits.py](../../Tests/PublicationChecks/test_credits.py) | Prova che una dipendenza senza credito, un NOTICE o un sito diversi falliscono. |
 | [scripts/check_metadata_text_layout.swift](../../scripts/check_metadata_text_layout.swift) | Verifica fuori schermo il layout delle descrizioni e la destinazione dello scroll dopo cambi di focus, anche rapidi e con Riduci movimento. |
 | [check_app_profile.swift](../../scripts/check_app_profile.swift) | Prova senza UI di identità, accesso reale alle preferenze e percorsi nel pacchetto prodotto dalla build; non importa né scrive dati. |
 
@@ -1328,6 +1411,9 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Resources/Selene/Fonts/MaterialIcons-LICENSE.txt](../../Resources/Selene/Fonts/MaterialIcons-LICENSE.txt) | Licenza del font Material Icons incluso. |
 | [Resources/Selene/NOTICE.txt](../../Resources/Selene/NOTICE.txt) | Attribuzioni delle risorse Selene incluse. |
 | [Resources/Brands/Platforms/LICENSE-Lucide.txt](../../Resources/Brands/Platforms/LICENSE-Lucide.txt) | Licenza ISC e nota Feather MIT. |
+| [Resources/Brands/Credits/arcane.png](../../Resources/Brands/Credits/arcane.png) | Icona di Arcane, dal suo deposito MIT, solo per il credito. |
+| [Resources/Brands/Credits/playnite.png](../../Resources/Brands/Credits/playnite.png) | Icona di Playnite, dal suo deposito MIT, solo per il credito. |
+| [Resources/Brands/Credits/selene.png](../../Resources/Brands/Credits/selene.png) | Icona di Selene, dal suo deposito MIT, solo per il credito. |
 | [Buy Me a Coffee.svg](../../Resources/Brands/Platforms/Marks/Buy%20Me%20a%20Coffee.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
 | [CrossOver.svg](../../Resources/Brands/Platforms/Marks/CrossOver.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
 | [Epic Games.svg](../../Resources/Brands/Platforms/Marks/Epic%20Games.svg) | Simbolo piattaforma revisionato; fonte e impronta nel manifesto licenze. |
@@ -1367,6 +1453,8 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 
 | File | Responsabilità |
 |---|---|
+| [docs/guides/README.md](../guides/README.md) | Formato delle guide per sistema in `docs/guides/<fr\|en>/<sistema>/`, immagini in `docs/guides/media/` e passi dopo una release. Le singole guide e immagini non hanno una riga propria: le verifica `check_guides.py`. |
+| [docs/features.json](../features.json) | Matrice delle funzioni per sistema, con versione e prova. |
 | [docs/media/README.md](../media/README.md) | Registra i media del README e la loro posizione. |
 | [docs/media/spotlight.webp](../media/spotlight.webp) | Presenta Spotlight e la libreria nell'apertura del README. |
 | [docs/media/game-details.webp](../media/game-details.webp) | Mostra dettagli, attività e informazioni di build di un gioco. |
@@ -1398,6 +1486,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [docs/how-it-works/achievements.md](../how-it-works/achievements.md) | Obiettivi locali, lettura a fine sessione e come aggiungere un gioco. |
 | [docs/working-on-it/conventions.md](conventions.md) | Dove va il codice; ricette per fonti, interfaccia Selene e conferme, impostazioni, dati, rete, testi, test e documentazione. |
 | [docs/working-on-it/components.md](components.md) | Inventario OortUI: componenti, preset, stati e regole d'uso. |
+| [docs/working-on-it/change-criteria.md](change-criteria.md) | Criteri verificabili per ogni modifica visiva o di logica, con fonte e motivo; conflitti risolti e aperti. |
 | [docs/working-on-it/development.md](development.md) | Documenta prerequisiti, runtime, build, debug, verifiche, CI e release, compreso l'ID Nextendo pubblico della release personale. |
 | [docs/working-on-it/perso-release-notes.md](perso-release-notes.md) | Modello francese delle note di release del fork: versione, pin, giochi da ricompilare e novità. |
 | [docs/working-on-it/file-map.md](file-map.md) | Catalogo corrente delle responsabilità di tutti i file versionati, suddiviso per area. |

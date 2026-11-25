@@ -1335,19 +1335,30 @@ def install_settings_reset_fixture(app):
         swift.write("""
 extension SettingsView {
     func pressScreenFixtureReset() {
-        guard section == .library else { handleGamepad(.secondaryAction); return }
+        guard section == .library else { pressReset(); return }
         precondition(settings.draft == nil)
         settings.beginDraft(fields: SettingsDraftFields.fields(profiles: nil, languages: viewModel.availableLanguages))
         let originalInbox = settings.settings.gameInboxEnabled
         let pending = router.hasPendingSettings
         defer { settings.endDraft(); router.hasPendingSettings = pending }
         router.hasPendingSettings = { [weak settings] in settings?.draft?.hasChanges == true }
-        handleGamepad(.secondaryAction)
+        pressReset()
         precondition(settings.settings.gameInboxEnabled == originalInbox)
         handleGamepad(.contextAction)
         precondition(router.settingsDecision == .save)
         decide(0)
         precondition(router.settingsDecision == nil, "Reset must save the draft")
+    }
+    /// X only asks, on Cancel; leaving changes nothing and Reset runs from the question.
+    private func pressReset() {
+        viewModel.settingsNotice = nil // An unanswered one would own the input.
+        let before = settings.editingSettings
+        handleGamepad(.secondaryAction)
+        guard let notice = viewModel.settingsNotice else { return precondition(section == .profileSecurity, "Reset must ask") }
+        precondition(notice.choices.count == 2 && notice.initialFocus == notice.cancelIndex)
+        precondition(settings.editingSettings == before, "Nothing changes before the answer")
+        viewModel.settingsNotice = nil
+        notice.runChoice(0)
     }
 }
 """)

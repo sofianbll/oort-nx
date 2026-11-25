@@ -29,7 +29,7 @@ def run_host(host, source_fixture=None, *, save_model=False, capture=None):
         (scratch / "Library/Preferences").mkdir(parents=True)
         shutil.copytree(products / "NXLibrary_NXLibraryCore.bundle", scratch / "NXLibrary_NXLibraryCore.bundle")
         if capture is not None:
-            shutil.copytree(ROOT / "Resources/Brands/Platforms", scratch / "Brands/Platforms")
+            shutil.copytree(ROOT / "Resources/Brands", scratch / "Brands")
             shutil.copytree(ROOT / "Resources/Selene/Fonts", scratch / "Selene/Fonts")
         home_check = r'''
 func assertFixtureHome() {

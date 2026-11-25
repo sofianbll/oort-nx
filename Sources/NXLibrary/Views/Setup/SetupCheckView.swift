@@ -158,7 +158,7 @@ struct SetupCheckView: View {
         .offset(y: risen || reduceMotion ? 0 : canvas.u(24))
         .animation(reduceMotion ? nil : SeleneTheme.standard.delay(0.14 + Double(index) * 0.045), value: risen)
         .contentShape(Rectangle())
-        .onHover { if $0 { move(to: .card(index)) } }
+        .seleneHover { move(to: .card(index)) }
         .onTapGesture { move(to: .card(index)); activate() }
     }
 
@@ -249,7 +249,7 @@ struct SetupCheckView: View {
         SelenePillButton(title: "Continue", focused: focus == .carryOn) {
             move(to: .carryOn); activate()
         }
-        .onHover { if $0 { move(to: .carryOn) } }
+        .seleneHover { move(to: .carryOn) }
     }
 }
 

@@ -30,6 +30,7 @@ struct CollectionView: View {
     /// Steam Play phases drive the A hint.
     @ObservedObject var steamPlayer = SteamPlayCoordinator.shared
     @State var keyMonitor: Any?
+    @State var rail = RailScroll()
     @State var profileFocused = false
     @State var importFocused = false
     @Environment(\.profilePortrait) var profile
@@ -108,6 +109,7 @@ struct CollectionView: View {
                 : [HintItem(.lb, "Previous") { handle(.tabPrevious) }, HintItem(.rb, "Next") { handle(.tabNext) }]),
             hintsHidden: router.overlayHasHints(viewModel) || router.sortMenu != nil
                 || (selectedCatalogGame?.macShortcut != nil && viewModel.settingsNotice != nil),
+            press: { handle($0) },
             backdrop: {
                 SeleneArtBackground(image: art.image, imageKey: art.key,
                                     shade: settings.settings.backgroundShade,
@@ -235,7 +237,13 @@ struct CollectionView: View {
                     showsCloudBadges: settings.settings.cloudTileBadges.showsOnCollection,
                     badgePosition: settings.settings.tileBadgePosition,
                     onSelect: { select($0.id) },
-                    onActivate: { record in select(record.id); activateCatalog(record) })
+                    onActivate: { record in select(record.id); activateCatalog(record) },
+                    onOptions: { record in
+                        profileFocused = false
+                        router.integrationBarFocused = false
+                        select(record.id)
+                        handle(.contextAction)
+                    })
                     .offset(y: canvas.u(576))
             }
         }
@@ -313,26 +321,26 @@ struct CollectionView: View {
         }
         if let steam = record, steam.integration == .steam {
             return SteamPlayCoordinator.shared.hint(for: steam)
-                + [options("Game options")]
+                + [options("Options")]
         }
         if let record, record.macShortcut != nil {
             return [HintItem(.a, "Open") { self.activateCatalog(record) }]
-                + (viewModel.macShortcuts.canEdit ? [options("Tile options") { self.viewModel.macShortcuts.showTileOptions(record) }] : [])
+                + (viewModel.macShortcuts.canEdit ? [options("Options") { self.viewModel.macShortcuts.showTileOptions(record) }] : [])
         }
         guard let game else {
             guard showsEmptyActions else { return [] }
             return [HintItem(.a, importFocused ? L10n.text("Import existing builds") : L10n.text("Add game"))]
         }
         if let item = cloud.downloadItem(for: game) {
-            return [HintItem(.a, item.primaryDownloadTitle), HintItem(.x, "Details"), options("Game options")]
+            return [HintItem(.a, item.primaryDownloadTitle), HintItem(.x, "Details"), options("Options")]
         }
         if game.isPlayableLocally {
-            return [HintItem(.a, L10n.text("Play")), HintItem(.x, L10n.text("Details")), options("Game options")]
+            return [HintItem(.a, L10n.text("Play")), HintItem(.x, L10n.text("Details")), options("Options")]
         }
         if game.isCloudSourcePlaceholder, viewModel.gamesWithFilesHere.contains(game.id) {
-            return [HintItem(.a, "Build"), HintItem(.x, "Details"), options("Game options")]
+            return [HintItem(.a, "Build"), HintItem(.x, "Details"), options("Options")]
         }
-        return [HintItem(.a, L10n.text("Details")), options("Game options")]
+        return [HintItem(.a, L10n.text("Details")), options("Options")]
     }
 
     // MARK: - Selection

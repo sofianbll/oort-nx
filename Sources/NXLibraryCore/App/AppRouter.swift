@@ -17,6 +17,7 @@ public enum AppRoute: Equatable {
 
     /// Drawn over the screen it was opened from, which stays behind, blurred.
     public var isOverlay: Bool { self == .addGame || self == .console }
+    public var isDetail: Bool { if case .detail = self { true } else { false } }
     public var isCollection: Bool {
         if case .profileCollection = self { return true }
         return self == .collection
@@ -67,7 +68,9 @@ public enum MenuOutcome: Equatable {
 }
 
 public final class AppRouter: ObservableObject {
-    @Published public private(set) var route: AppRoute = .library
+    @Published public private(set) var route: AppRoute = .library {
+        didSet { leavePalette() }
+    }
     @Published public private(set) var isReturningFromBack = false
     @Published private var menuPresented = false
     public var isMenuPresented: Bool {
@@ -76,9 +79,21 @@ public final class AppRouter: ObservableObject {
             if newValue, !menuPresented,
                requestSettingsDeparture({ [weak self] in self?.isMenuPresented = true }) { return }
             menuPresented = newValue
+            if newValue { leavePalette() }
         }
     }
-    @Published public var isSearchPresented = false
+    @Published public var isSearchPresented = false {
+        didSet { if isSearchPresented { leavePalette() } }
+    }
+    /// The command palette stands alone: it closes the menu and the search, and leaves with whatever it opens.
+    @Published public var isPalettePresented = false {
+        didSet {
+            guard isPalettePresented else { return }
+            closeMenu()
+            isSearchPresented = false
+            sortMenu = nil
+        }
+    }
     @Published package var sortMenu: LibraryMenuItem?
     /// True while the full-screen screenshot viewer is open; the shell ignores its global shortcuts.
     @Published public var isScreenshotViewerOpen = false
@@ -131,6 +146,10 @@ public final class AppRouter: ObservableObject {
     }
 
     private var history: [AppRoute] = []
+
+    private func leavePalette() {
+        if isPalettePresented { isPalettePresented = false }
+    }
     private var profileSpotlightKey: String?
     private var inboxSetting: AnyCancellable?
 

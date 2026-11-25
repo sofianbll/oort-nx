@@ -36,6 +36,8 @@ struct SettingsView: View {
     }
     @State private var openedFromIntegrations: Bool
     @State private var showingControls = false
+    /// Opens the controls guide instead of focusing a row (`AppRouter.openSettings`).
+    static let controlsGuideRowID = "controlsGuide"
     @State private var showingPlayers = false
     @State private var cloudAssistant: CloudSetupAssistant.Entry?
     @State private var editingCloudReference = false
@@ -54,6 +56,7 @@ struct SettingsView: View {
     /// The button in focus inside the focused row: 0 its own, 1 a second one (Back to tested beside Update).
     @State private var rowButton = 0
     @State private var rowActions: [SettingsRowAction] = []
+    @State private var rowUndo: UndoOffers.Offer.ID?
     @State private var pageActions: [SettingsSection: [SettingsRowAction]] = [:]
     @State private var subjectActions: [SettingsRowAction] = []
     @State private var keyMonitor: Any?
@@ -142,6 +145,7 @@ struct SettingsView: View {
     private var observedLayout: some View {
         layout
         .onAppear {
+            if let id = router.settingsRowID { showAdvanced(for: id) }
             if settings.draft == nil {
                 let legacy = setup.legacyToolchainOverride
                 originalToolchainOverride = legacy
@@ -200,9 +204,14 @@ struct SettingsView: View {
             changePage(to: SettingsPage.opening(value))
             showingPlayers = false
         }
+        .onDisappear(perform: dropRowUndo)
         .onChange(of: router.settingsRowID) { _, id in
-            guard id != nil else { return }
+            guard let id else { return }
+            showingControls = false
+            showingPlayers = false
+            localePicker = nil
             if !page.inlineSections.contains(initialSection) { changePage(to: SettingsPage.opening(initialSection)) }
+            showAdvanced(for: id)
             focusRequestedSetting()
         }
         .onChange(of: router.settingsDecision) {
@@ -605,7 +614,7 @@ struct SettingsView: View {
         if resettableRow != nil {
             hints.append(HintItem(.x, L10n.text("Reset this setting")) { reset() })
         } else if canResetSection {
-            hints.append(HintItem(.x, L10n.text("Reset group")) { reset() })
+            hints.append(HintItem(.x, L10n.text("Reset group")) { askToReset() })
         }
         if hasPendingChanges {
             hints.append(HintItem(.y, "Save", keyboard: .text("Y")) { router.requestSettingsSave() })
@@ -641,6 +650,11 @@ struct SettingsView: View {
     private func focusRequestedSetting() {
         let externalID = page.inlineSections.contains(initialSection) ? router.settingsRowID : nil
         guard let id = requestedRowID ?? externalID else { return }
+        if externalID == Self.controlsGuideRowID {
+            showingControls = true
+            router.takeSettingsRowFocus()
+            return
+        }
         let alias = (SettingsCatalog.all.first { $0.id == id }?.group ?? section).map { SettingsDraftFields.row(id, in: $0) }
         guard
               let index = rowActions.firstIndex(where: {
@@ -658,9 +672,14 @@ struct SettingsView: View {
         var next = navigation
         next.push(.subject(row.group))
         changePage(to: next, focus: row.id, returnFocus: row.id)
-        cloudAdvanced = SettingsCatalog.opensCloudAdvanced(row.id)
-        multiplayerAdvanced = ["multiplayerLocalMode", "multiplayerAdapter", "nextendoClientID"].contains(row.id)
+        showAdvanced(for: row.id)
         SoundEffectService.shared.play(.click)
+    }
+
+    /// A row folded under Advanced shows when it is the one asked for.
+    private func showAdvanced(for id: String) {
+        cloudAdvanced = SettingsCatalog.opensCloudAdvanced(id)
+        multiplayerAdvanced = ["multiplayerLocalMode", "multiplayerAdapter", "nextendoClientID"].contains(id)
     }
 
     private func changePage(to next: OortSettingsStack<SettingsPage>, focus: String? = nil, returnFocus: String? = nil) {
@@ -731,22 +750,38 @@ struct SettingsView: View {
         else { return nil }
         switch setting.id {
         case "iconAppearance": return SettingsLookSection.iconMode(editor.settings.launcherChoices.dockIconAppearance ?? AppViewModel.legacyDockIcon) == .auto ? nil : setting
-        case "controllerDeadzone": return abs(editedDeadzone - 0.35) > 0.001 ? setting : nil
+        case "controllerDeadzone": return abs(editedDeadzone - Self.defaultDeadzone) > 0.001 ? setting : nil
         default: return setting.reset != nil && setting.isChanged(editor.settings) ? setting : nil
         }
     }
 
+    /// The draft it belongs to is gone with the screen.
+    private func dropRowUndo() {
+        if let rowUndo, viewModel.undoOffers.offer?.id == rowUndo { viewModel.undoOffers.drop() }
+    }
+
+    private static let defaultDeadzone = 0.35
     private var editedDeadzone: Double {
         editor.settings.launcherChoices.controllerDeadzone ?? GameControllerService.shared.legacyDeadzone
     }
 
     private func reset() {
-        guard let setting = resettableRow else { resetSection(); return }
+        guard let setting = resettableRow else { askToReset(); return }
+        let before = editor.settings
         switch setting.id {
         case "iconAppearance": resetDockIcon()
         case "controllerDeadzone": resetDeadzone()
         default: setting.reset?(&editor.settings)
         }
+        // A press out of habit is taken back in one gesture, as long as this draft is open.
+        viewModel.undoOffers.offer(L10n.format("%@ is back to its default", [L10n.text(setting.title, context: localization)])) {
+            switch setting.id {
+            case "iconAppearance": editor.settings.launcherChoices.dockIconAppearance = before.launcherChoices.dockIconAppearance
+            case "controllerDeadzone": editor.settings.launcherChoices.controllerDeadzone = before.launcherChoices.controllerDeadzone
+            default: setting.copy?(before, &editor.settings)
+            }
+        }
+        rowUndo = viewModel.undoOffers.offer?.id
         SoundEffectService.shared.play(.focus)
     }
 
@@ -758,14 +793,22 @@ struct SettingsView: View {
 
     private func resetDeadzone() {
         let unset = settings.settings.launcherChoices.controllerDeadzone == nil
-        editor.settings.launcherChoices.controllerDeadzone = unset && GameControllerService.shared.legacyDeadzone == 0.35
-            ? nil : 0.35
+        editor.settings.launcherChoices.controllerDeadzone = unset && GameControllerService.shared.legacyDeadzone == Self.defaultDeadzone
+            ? nil : Self.defaultDeadzone
+    }
+
+    /// X resets no group by itself: it opens a sheet everywhere else, so a press out of habit must be taken back.
+    private func askToReset() {
+        guard canResetSection, let section else { return }
+        guard let ask = SettingsReset.question(section, title: L10n.text(section.title, context: localization)) else {
+            return resetSection(section)
+        }
+        viewModel.confirmSetting(ask.title, message: ask.message, action: "Reset") { resetSection(section) }
     }
 
     /// `SettingsReset` puts the section's `AppSettings` back in one assignment; the preferences
     /// kept outside it are reset here.
-    private func resetSection() {
-        guard canResetSection, let section else { return }
+    private func resetSection(_ section: SettingsSection) {
         switch section {
         case .look: resetDockIcon()
         case .profileIdentity:

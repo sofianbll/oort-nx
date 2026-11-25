@@ -139,6 +139,8 @@ struct OortSettingsLink: View {
     let title: String
     var subtitle: String? = nil
     var value: String? = nil
+    /// Set for a row that opens its content below it instead of another page.
+    var expanded: Bool? = nil
     let action: () -> Void
 
     var body: some View {
@@ -146,6 +148,7 @@ struct OortSettingsLink: View {
             SeleneRow(title, id: id, subtitle: subtitle, verbatimTitle: true) {
                 if let value { SeleneValueChip(text: value) }
                 MaterialIconView(.chevron, size: SeleneTokens.Space.large)
+                    .rotationEffect(.degrees(expanded == true ? 90 : 0))
                     .foregroundStyle(SeleneTheme.ink60)
                     .accessibilityHidden(true)
             }

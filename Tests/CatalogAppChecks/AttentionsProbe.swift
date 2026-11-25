@@ -127,6 +127,18 @@ extension SettingsConfirmationProbe {
             vm.gameForSettingsSheet = nil
             for env in ["DM_RUMBLE": "1", "DM_DYNAMIC_RESOLUTION": "0"] { vm.runtimeSettings.setGameSetting(env.key, to: env.value, for: one) }
 
+            vm.gameForSettingsSheet = one
+            try withHost(GameOptionsView(viewModel: vm, game: one, origin: .details, onClose: {}, onShowBuild: {}, onMove: {}), locale) { settle, capture in
+                func send(_ action: GamepadAction) { NotificationCenter.default.post(name: .nxGameOptionsGamepadAction, object: action); settle() }
+                for _ in 0..<12 { send(.navigateDown) }
+                send(.confirm)
+                send(.confirm)
+                for _ in 0..<12 { send(.navigateDown) }
+                try capture("options-general-\(tag)")
+            }
+            vm.gameForSettingsSheet = nil
+            vm.settingsNotice = nil // The earlier panel, kept alive by AppKit, answered too.
+
             // One row back alone, in the draft.
             settings.beginDraft(fields: SettingsDraftFields.fields(profiles: nil, languages: vm.availableLanguages, cloudEnabled: true))
             let editor = SettingsEditor(settings)
@@ -148,7 +160,14 @@ extension SettingsConfirmationProbe {
                 precondition(settings.editingSettings.showsTips && !settings.editingSettings.viewButtonSwitches,
                              "X puts back the focused row alone: \(settings.editingSettings.showsTips) \(settings.editingSettings.viewButtonSwitches)")
                 try capture("reglages-remis-\(tag)")
+                precondition(vm.undoOffers.perform() && !settings.editingSettings.showsTips, "Undo puts the row back")
+                settle()
                 send(.secondaryAction)
+                send(.secondaryAction)
+                let group = vm.settingsNotice!
+                precondition(!settings.editingSettings.viewButtonSwitches, "The group asks first")
+                vm.settingsNotice = nil
+                group.runChoice(0)
                 precondition(settings.editingSettings.viewButtonSwitches, "The group stays one press away")
             }
             settings.endDraft()

@@ -4,12 +4,15 @@ import SwiftUI
 extension Notification.Name {
     static let nxLibraryPlayFocused = Notification.Name("NXLibraryPlayFocused")
     static let nxLibraryCheckAppUpdates = Notification.Name("NXLibraryCheckAppUpdates")
+    /// The object is the words already typed elsewhere, if any.
+    static let nxLibraryOpenPalette = Notification.Name("NXLibraryOpenPalette")
     static let nxLibraryOpenMenu = Notification.Name("NXLibraryOpenMenu")
     static let nxSettingsGamepadAction = Notification.Name("NXSettingsGamepadAction")
     static let nxSettingsDecisionInput = Notification.Name("NXSettingsDecisionInput")
     static let nxLocalePickerGamepadAction = Notification.Name("NXLocalePickerGamepadAction")
     static let nxAddGameGamepadAction = Notification.Name("NXAddGameGamepadAction")
     static let nxConsoleGamepadAction = Notification.Name("NXConsoleGamepadAction")
+    static let nxLaunchScreenExit = Notification.Name("NXLaunchScreenExit")
     static let nxDetailGamepadAction = Notification.Name("NXDetailGamepadAction")
     static let nxSpotlightGamepadAction = Notification.Name("NXSpotlightGamepadAction")
     static let nxCollectionGamepadAction = Notification.Name("NXCollectionGamepadAction")
@@ -42,6 +45,16 @@ struct NXLibraryApp: App {
         if let index = args.firstIndex(of: "--render-file-picker") {
             precondition(args.indices.contains(index + 1), "Pass a directory for the file picker PNGs")
             try! OortFilePickerProbe.capture(to: URL(fileURLWithPath: args[index + 1], isDirectory: true))
+            exit(EXIT_SUCCESS)
+        }
+        if let index = args.firstIndex(of: "--render-command-palette") {
+            precondition(args.indices.contains(index + 1), "Pass a directory for the palette PNGs")
+            try! CommandPaletteProbe.capture(to: URL(fileURLWithPath: args[index + 1], isDirectory: true))
+            exit(0)
+        }
+        if let index = args.firstIndex(of: "--render-keyboard") {
+            precondition(args.indices.contains(index + 1), "Pass a directory for the keyboard PNGs")
+            try! OortKeyboardProbe.run(to: URL(fileURLWithPath: args[index + 1], isDirectory: true))
             exit(EXIT_SUCCESS)
         }
         if let index = args.firstIndex(of: "--render-oort-ui-gallery") {
@@ -125,10 +138,15 @@ struct NXLibraryApp: App {
                     }
                     .keyboardShortcut(KeyEquivalent(Character(key)), modifiers: [.command])
                 }
+                Button(L10n.text("Search everywhere")) {
+                    NativeMenuCommands.shared.post(.nxLibraryOpenPalette)
+                }
+                .keyboardShortcut("k", modifiers: [.command])
+                .disabled(availability?.palette != true)
                 Button(L10n.text("Menu")) {
                     NativeMenuCommands.shared.post(.nxLibraryOpenMenu)
                 }
-                .keyboardShortcut("k", modifiers: [.command])
+                .keyboardShortcut("k", modifiers: [.command, .shift])
                 .disabled(availability?.general != true)
             }
         }

@@ -23,7 +23,7 @@ extension AppShellView {
         GameControllerService.shared.useDeadzone(settings.settings.launcherChoices.controllerDeadzone)
         GameControllerService.shared.layout = GamepadLayout(settings.settings)
         GameControllerService.shared.isBrowsing = { [weak router, weak viewModel] in
-            guard let router, let viewModel, !router.isThemePickerOpen, !router.isSearchPresented,
+            guard let router, let viewModel, !OortKeyboardPresentation.shared.isOpen, !router.isThemePickerOpen, !router.isSearchPresented, !router.isPalettePresented,
                   !router.isScreenshotViewerOpen, !viewModel.isGameOptionsOpen, !viewModel.profileOwnsInput,
                   viewModel.cloudLibraryGameID == nil, !viewModel.showSetupCheck else { return false }
             switch router.route {
@@ -129,8 +129,15 @@ extension AppShellView {
         GameControllerService.shared.onAction = { [weak viewModel, weak router] action in
             guard let viewModel, let router else { return }
             if action == .confirm { OortPulse.press.send() }
+            if OortKeyboardPresentation.shared.handle(action) { return }
             if filePicker.handle(action) { return }
-            guard !nativeMenus.isTracking, !nativeDialogOwnsInput, viewModel.launchOverlay == nil else { return }
+            guard !nativeMenus.isTracking, !nativeDialogOwnsInput else { return }
+            if let launch = viewModel.launchOverlay {
+                if launch.offersExit, action == .cancel {
+                    NotificationCenter.default.post(name: .nxLaunchScreenExit, object: nil)
+                }
+                return
+            }
             if action == .profiles || action == .controlCenter || action == .fullMenu {
                 guard launcherIsFrontmost else { return }
             }
@@ -183,6 +190,10 @@ extension AppShellView {
             if viewModel.profileOwnsInput {
                 if action == .profiles { toggleProfilePicker() }
                 else { postProfileAction(action) }
+                return
+            }
+            if router.isPalettePresented, action != .profiles {
+                paletteInput(action)
                 return
             }
             if action == .controlCenter || action == .fullMenu {
@@ -286,6 +297,7 @@ extension AppShellView {
     }
 
     func openFreshAddGame() {
+        router.isPalettePresented = false
         if router.route == .addGame, !viewModel.isBuilding {
             viewModel.porting.startNewAddGame(defaults: settings.settings.gameDefaults)
         } else {

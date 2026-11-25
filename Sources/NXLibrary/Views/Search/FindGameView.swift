@@ -9,6 +9,7 @@ extension Notification.Name {
 }
 
 /// Find a game (View hold or ⌘F): a pill field over a glass scrim, square results as you type.
+/// Y or ⌘K takes the words typed to the command palette.
 struct FindGameView: View {
     @ObservedObject var router: AppRouter
     @ObservedObject var viewModel: AppViewModel
@@ -57,6 +58,7 @@ struct FindGameView: View {
             VStack {
                 Spacer()
                 SeleneHintsBar(right: [
+                    HintItem(.y, "Search everywhere", keyboard: .text(PaletteAction.paletteShortcut)) { searchEverywhere() },
                     HintItem(.b, L10n.text("Close")) { close() },
                     HintItem(.a, L10n.text("Select"))
                 ], bottom: SeleneBottomScrim.hintsBottom)
@@ -80,7 +82,7 @@ struct FindGameView: View {
         OortSearchField(query: $query, lit: focused == nil) {
             TextField(L10n.text("Find a game"), text: $query)
                 .focused($fieldFocused)
-                .onSubmit { if !showsRecents { pick(results.first) } }
+                .onSubmit { typed() }
         }
         .frame(width: canvas.u(SeleneTokens.Space.transferMeasure))
     }
@@ -193,7 +195,9 @@ struct FindGameView: View {
                 move(to: 0)
             }
         case .navigateUp:
-            if let index = focused {
+            if focused == nil {
+                fieldFocused = true
+            } else if let index = focused {
                 if index >= columns {
                     move(to: index - columns)
                 } else {
@@ -216,12 +220,27 @@ struct FindGameView: View {
                 return
             }
             let games = results
+            // Nothing found, or nothing typed yet: A writes.
+            guard !games.isEmpty else { return fieldFocused = true }
             pick(focused.flatMap { games.indices.contains($0) ? games[$0] : nil } ?? games.first)
         case .cancel:
             close()
+        case .contextAction:
+            searchEverywhere()
         default:
             break
         }
+    }
+
+    private func searchEverywhere() {
+        NotificationCenter.default.post(name: .nxLibraryOpenPalette, object: query)
+    }
+
+    /// Return starts the first result; from the on-screen keyboard the player still picks among them.
+    private func typed() {
+        guard GameControllerService.shared.controllerInHand else { return pick(results.first) }
+        fieldFocused = false
+        if itemCount > 0 { move(to: 0) }
     }
 
     private func move(to index: Int) {
@@ -255,6 +274,11 @@ struct FindGameView: View {
                   !viewModel.shellDialogOwnsInput, !viewModel.isWelcomeOpen,
                   viewModel.alertMessage == nil, viewModel.settingsNotice == nil else { return event }
             let typing = fieldFocused
+            if event.modifierFlags.intersection([.command, .control, .option, .shift]) == [.command],
+               event.charactersIgnoringModifiers?.lowercased() == "k" {
+                if !event.isARepeat { searchEverywhere() }
+                return nil
+            }
             switch event.keyCode {
             case 53:                                   // Esc
                 handle(.cancel)

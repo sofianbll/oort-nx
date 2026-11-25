@@ -10,6 +10,7 @@ struct OortGameTile<Artwork: View>: View {
     let preset: Preset
     let select: () -> Void
     let activate: () -> Void
+    var options: (() -> Void)? = nil
     @ViewBuilder let artwork: () -> Artwork
 
     var body: some View {
@@ -40,5 +41,6 @@ struct OortGameTile<Artwork: View>: View {
         .accessibilityLabel(title)
         .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
         .accessibilityAction { activate() }
+        .oortSecondaryClick(options)
     }
 }

@@ -523,6 +523,7 @@ struct ChangeMetadataView: View {
     private func handleGamepad(_ action: GamepadAction) {
         if editing {
             switch action {
+            case .navigateUp: editorHasFocus = true
             case .navigateLeft: editorFocus = .left
             case .navigateRight: editorFocus = .right
             case .confirm: if editorFocus == .confirm { saveDraft() } else { editing = false }

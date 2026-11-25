@@ -449,6 +449,8 @@ final class SettingsCatalogTests: XCTestCase {
         try XCTUnwrap(SettingsCatalog.all.first { $0.id == "reduceMotion" }?.reset)(&one)
         XCTAssertEqual(Set(SettingsCatalog.changed(in: one).map(\.id)), before.subtracting(["reduceMotion"]))
         XCTAssertEqual(one.soundVolume, 0.1)
+        try XCTUnwrap(SettingsCatalog.all.first { $0.id == "reduceMotion" }?.copy)(changed, &one)
+        XCTAssertEqual(Set(SettingsCatalog.changed(in: one).map(\.id)), before)
         for row in SettingsCatalog.all { row.reset?(&one) }
         XCTAssertEqual(SettingsCatalog.changed(in: one).map(\.id), [])
         // An action keeps no value to put back.

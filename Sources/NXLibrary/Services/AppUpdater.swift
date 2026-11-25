@@ -141,7 +141,8 @@ final class AppUpdater: ObservableObject {
                 let laterVersion = defaults.string(forKey: Keys.laterVersion)
                 let laterAt = defaults.object(forKey: Keys.laterAt) as? Date
                 if shouldOfferResult, AppUpdate.shouldOffer(release.version, laterVersion: laterVersion, laterAt: laterAt, now: Date()) {
-                    offerFocus = .confirm
+                    // It opens by itself: a press meant for Play only closes it.
+                    offerFocus = dialogHasSecondaryButton ? .cancel : .confirm
                     notesScroll = 0
                     offer = release
                 }

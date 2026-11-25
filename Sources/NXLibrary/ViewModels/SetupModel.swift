@@ -124,15 +124,10 @@ final class SetupModel: ObservableObject {
 
     func selectNxnativeFolder(startingAt start: URL? = nil, stage: ((URL) -> Void)? = nil) {
         guard !app.isBuilding, !app.isUpdatingApp else { return }
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = false
-        panel.canChooseDirectories = true
-        panel.allowsMultipleSelection = false
-        panel.directoryURL = start
-        panel.prompt = "Select nxnative Folder"
-        panel.message = "Choose the directory containing the nxnative scripts and tools."
-
-        if panel.runModal() == .OK, let url = panel.url {
+        OortFilePickerPresentation.open(.folder, title: L10n.text("nxnative folder"),
+                                        message: L10n.text("Choose the directory containing the nxnative scripts and tools."),
+                                        startingAt: start) { [weak self] urls in
+            guard let self, let url = urls.first, !app.isBuilding, !app.isUpdatingApp else { return }
             guard EngineLocation.isEngine(url) else {
                 app.alertMessage = L10n.format("%@ is not the nxnative engine folder. Choose the folder that contains scripts and dm.", [url.path])
                 SoundEffectService.shared.play(.error)

@@ -1,3 +1,4 @@
+import AppKit
 import Combine
 import Foundation
 import NXLibraryCore
@@ -43,7 +44,98 @@ private final class FakeSource: ControllerSource {
         ambiguousPairStaysUnpaired(twinOnHID: true)
         repeatedHardwareID()
         exclusiveAssignment()
+        promptsFollowTheHand()
+        lastPressedLeads()
         print("Controller identity: hash privacy, pairing, sticky ambiguity, activity, output routing, sleep and hot plug passed")
+    }
+
+    /// Two pads on the sofa: the one pressed drives the menus and names the buttons, without losing that press.
+    private static func lastPressedLeads() {
+        let gc = FakeSource(), hid = FakeSource()
+        let objects = (0..<3).map { _ in NSObject() }
+        let first = ControllerIdentity(id: ObjectIdentifier(objects[0]), name: "First", brand: .xbox)
+        let second = ControllerIdentity(id: ObjectIdentifier(objects[1]), name: "Second", brand: .playstation,
+                                        symbols: [.a: "xmark.circle"])
+        let raw = ControllerIdentity(id: ObjectIdentifier(objects[2]), name: "Raw", brand: .nintendoSwitch)
+        gc.preferredID = first.id
+        gc.add(first)
+        gc.add(second)
+        let service = GameControllerService(gcSource: gc, hidSource: hid)
+        var actions: [GamepadAction] = []
+        service.onAction = { actions.append($0) }
+        func drain() { RunLoop.main.run(until: Date().addingTimeInterval(0.03)) }
+        func press(_ pad: ControllerIdentity) {
+            gc.onEvent?(.input(pad.id, .button(.a, true)))
+            gc.onEvent?(.input(pad.id, .button(.a, false)))
+            drain()
+        }
+        precondition(service.activeBrand == .xbox)
+        for step in 0..<40 { gc.onEvent?(.input(second.id, .leftStick(SIMD2(step.isMultiple(of: 2) ? 0.5 : -0.3, 0.2)))) }
+        drain()
+        precondition(service.activeBrand == .xbox && actions.isEmpty, "A pad lying on the sofa takes nothing")
+        press(second)
+        precondition(service.activeBrand == .playstation && actions == [.confirm], "The press that wakes it counts")
+        precondition(service.activeControllerName == "Second" && service.buttonSymbols[.a] == "xmark.circle")
+        service.refreshControllers()
+        precondition(service.activeBrand == .playstation, "A refresh keeps the pad in use")
+        press(first)
+        precondition(service.activeBrand == .xbox && actions == [.confirm, .confirm])
+        hid.add(raw)
+        RunLoop.main.run(until: Date().addingTimeInterval(2.2))
+        service.refreshControllers()
+        precondition(service.activeBrand == .xbox)
+        hid.onEvent?(.buttonPressed(raw.id))
+        precondition(service.activeBrand == .nintendoSwitch && hid.selected == raw.id)
+        hid.onEvent?(.input(raw.id, .button(.b, true)))
+        drain()
+        precondition(actions.last == .cancel)
+        press(second)
+        precondition(service.activeBrand == .playstation && hid.selected == nil)
+        gc.preferredID = first.id
+        gc.remove(second)
+        precondition(service.activeBrand == .xbox, "Unplugged, the other one leads")
+        withExtendedLifetime(objects) {}
+    }
+
+    /// The prompts name the controller only while it is the last thing used, and never flicker.
+    private static func promptsFollowTheHand() {
+        let gc = FakeSource(), hid = FakeSource()
+        let object = NSObject()
+        let pad = ControllerIdentity(id: ObjectIdentifier(object), name: "Pad", brand: .playstation)
+        let service = GameControllerService(gcSource: gc, hidSource: hid)
+        precondition(service.padInHand == .none)
+        gc.preferredID = pad.id
+        gc.add(pad)
+        precondition(service.padInHand == .playstation)
+        func key() -> NSEvent {
+            .keyEvent(with: .keyDown, location: .zero, modifierFlags: [], timestamp: 0, windowNumber: 0, context: nil,
+                      characters: "v", charactersIgnoringModifiers: "v", isARepeat: false, keyCode: 9)!
+        }
+        func mouse(_ type: NSEvent.EventType) -> NSEvent {
+            .mouseEvent(with: type, location: .zero, modifierFlags: [], timestamp: 0, windowNumber: 0, context: nil,
+                        eventNumber: 0, clickCount: 1, pressure: 1)!
+        }
+        func press(_ input: ControllerInputChange) { gc.onEvent?(.input(pad.id, input)) }
+        service.handUsed(key())
+        precondition(service.padInHand == .none)
+        var changes = 0
+        let subscription = service.$inputInHand.dropFirst().sink { _ in changes += 1 }
+        defer { subscription.cancel() }
+        for step in 0..<60 { press(.leftStick(SIMD2(step.isMultiple(of: 2) ? 0.2 : -0.2, 0.1))) }
+        precondition(service.padInHand == .none && changes == 0, "A drifting stick is no hand")
+        press(.button(.a, true))
+        precondition(service.padInHand == .playstation && changes == 1)
+        press(.button(.a, false))
+        for _ in 0..<60 { service.handUsed(mouse(.mouseMoved)) }
+        precondition(service.padInHand == .playstation && changes == 1, "A still pointer's events are no hand")
+        service.handUsed(mouse(.leftMouseDown))
+        precondition(service.padInHand == .none && changes == 2)
+        press(.leftStick(SIMD2(1, 0)))
+        precondition(service.padInHand == .playstation)
+        gc.preferredID = nil
+        gc.remove(pad)
+        precondition(service.padInHand == .none)
+        withExtendedLifetime(object) {}
     }
 
     private static func exclusiveAssignment() {
@@ -191,7 +283,13 @@ private final class FakeSource: ControllerSource {
         precondition(service.connectedControllers.count == 2 && hid.observed == [h.id, different.id])
 
         gc.onEvent?(.input(a.id, .button(.menu, true)))
-        precondition(service.menuHoldStartedAt != nil)
+        precondition(service.menuHoldStartedAt != nil && service.holdAction == .menuHold)
+        gc.onEvent?(.input(a.id, .button(.view, true)))
+        precondition(service.holdAction == .search, "The ring names the hold under the thumb")
+        gc.onEvent?(.input(a.id, .button(.view, false)))
+        precondition(service.holdAction == nil && service.menuHoldStartedAt == nil)
+        gc.onEvent?(.input(a.id, .button(.menu, false)))
+        gc.onEvent?(.input(a.id, .button(.menu, true)))
         service.suspendControllers()
         precondition(service.connectedControllers.isEmpty && !service.isGamepadConnected && service.menuHoldStartedAt == nil)
         hid.onEvent?(.buttonPressed(h.id))

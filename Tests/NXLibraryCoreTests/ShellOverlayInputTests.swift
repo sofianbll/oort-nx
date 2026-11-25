@@ -24,6 +24,40 @@ final class ShellOverlayInputTests: XCTestCase {
     }
 }
 
+/// The command palette takes every key while it is open: the screens' monitors yield through `shellDialogOwnsInput`,
+/// the assistant (which has no such test) asks the router.
+final class PaletteInputTests: XCTestCase {
+    private func source(_ path: String) throws -> String {
+        try String(contentsOf: URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+            .deletingLastPathComponent().appendingPathComponent("Sources/NXLibrary/\(path)"), encoding: .utf8)
+    }
+
+    func testScreensYieldToThePalette() throws {
+        let model = try source("ViewModels/AppViewModel.swift")
+        let line = try XCTUnwrap(model.components(separatedBy: "\n").first { $0.contains("var shellDialogOwnsInput") })
+        XCTAssertTrue(line.contains("router?.isPalettePresented == true"))
+        XCTAssertTrue(try source("Views/Settings/CloudSetupAssistant+Input.swift").contains("viewModel.router?.isPalettePresented != true"))
+    }
+
+    func testOnlyThePaletteAnswersToCommandK() throws {
+        let app = try source("NXLibraryApp.swift")
+        XCTAssertEqual(app.components(separatedBy: ".keyboardShortcut(\"k\", modifiers: [.command])").count, 2)
+        XCTAssertTrue(app.contains(".keyboardShortcut(\"k\", modifiers: [.command, .shift])"))
+    }
+
+    func testShellDialogsComeBeforeThePaletteAndThePaletteBeforeTheScreens() throws {
+        let startup = try source("Views/Shell/AppShellView+Startup.swift")
+        let palette = try XCTUnwrap(startup.range(of: "if router.isPalettePresented"))
+        for dialog in ["cloudQuitInput(action)", "settingsNoticeInput(action)", "removeGameInput(action)", "updateOfferInput(action)"] {
+            XCTAssertLessThan(try XCTUnwrap(startup.range(of: dialog)).lowerBound, palette.lowerBound, dialog)
+        }
+        for screen in ["menuInput(action)", "nxFindGameGamepadAction", "switch router.route"] {
+            let range = try XCTUnwrap(startup.range(of: screen, range: palette.upperBound..<startup.endIndex))
+            XCTAssertGreaterThan(range.lowerBound, palette.lowerBound, screen)
+        }
+    }
+}
+
 /// The screens under the control center or the profile screen step aside from their hints: the shell marks each
 /// full-page layer (screen, Add game, console) covered, and every `SeleneHintsBar` honours the mark.
 final class ShellOverlayHintsTests: XCTestCase {
@@ -45,6 +79,7 @@ final class ShellOverlayHintsTests: XCTestCase {
             XCTAssertTrue(layer.contains(".seleneOverlayOwnership("), start)
             XCTAssertTrue(layer.contains("!router.isMenuPresented"), start)
             XCTAssertTrue(layer.contains("profileFlow == nil"), start)
+            XCTAssertTrue(layer.contains("!router.isPalettePresented"), start)
         }
         let overlay = try source("Components/SeleneOverlay.swift")
         XCTAssertTrue(overlay.contains(".transformEnvironment(\\.seleneHintsCovered) { $0 = $0 || !ownsInput }"))

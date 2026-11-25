@@ -27,7 +27,7 @@ extension GameOptionsView {
             let info = presentation.info(.removeSources) ?? ""
             return (L10n.text("Remove sources and build cache?"),
                     info + "\n\n" + viewModel.sourceRemovalSummary(for: current),
-                    "Remove")
+                    "Delete")
         }
     }
 

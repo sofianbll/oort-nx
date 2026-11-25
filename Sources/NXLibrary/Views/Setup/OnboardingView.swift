@@ -51,7 +51,8 @@ struct OnboardingView: View {
         OnboardingScreen(title: L10n.text(title), detail: L10n.text(detail),
                          progress: "\(step) / \(FirstRunSetup.Page.tour.count)",
                          rows: rows, message: error ?? status, focus: $focus,
-                         primary: (nextTitle, advance), secondary: page == .welcome ? ("Skip setup", finish) : ("Back", back))
+                         primary: (nextTitle, advance), secondary: page == .welcome ? ("Skip setup", finish) : ("Back", back),
+                         backSkips: page == .welcome)
             .task(id: scanID) {
                 guard page == .localGames else { return }
                 await scan()
@@ -109,9 +110,9 @@ struct OnboardingView: View {
         if !viewModel.moveOnboarding(1) { finish() }
     }
 
+    /// On the first page there is nothing to go back to: only the Skip setup button leaves the assistant.
     private func back() {
-        SoundEffectService.shared.play(.back)
-        if !viewModel.moveOnboarding(-1) { finish() }
+        if viewModel.moveOnboarding(-1) { SoundEffectService.shared.play(.back) }
     }
 
     private var status: String? {

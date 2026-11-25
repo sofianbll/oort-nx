@@ -1,0 +1,952 @@
+{
+ "version": 1,
+ "surfaces": [
+  {
+   "id": "control-center",
+   "count": "enum:MenuAction"
+  },
+  {
+   "id": "control-center cards",
+   "count": "arrays:MenuAction.entries",
+   "parent": "control-center"
+  },
+  {
+   "id": "power",
+   "count": "enum:PowerAction",
+   "parent": "control-center"
+  },
+  {
+   "id": "library-tabs",
+   "count": "array:LibraryFilter.defaultTabs"
+  },
+  {
+   "id": "sort",
+   "count": "enum:LibrarySort"
+  },
+  {
+   "id": "played",
+   "count": "enum:LibraryPlayed"
+  },
+  {
+   "id": "home-cards",
+   "count": "enum:SpotlightCard"
+  },
+  {
+   "id": "settings",
+   "count": "groups:SettingsCategory.groups"
+  },
+  {
+   "id": "settings subjects",
+   "count": "arrays:SettingsCategory.sections",
+   "parent": "settings"
+  },
+  {
+   "id": "game-quick-panel",
+   "count": "rows:GameOptionsPresentation.quickRows/GameOptionsRow",
+   "alternatives": [
+    [
+     "fps60",
+     "frameRate"
+    ],
+    [
+     "renderScale",
+     "metalFX"
+    ]
+   ],
+   "added": [
+    "players",
+    "allSettings"
+   ]
+  },
+  {
+   "id": "game-settings",
+   "count": "enum:GameSettingsCategory",
+   "parent": "game-quick-panel"
+  },
+  {
+   "id": "saves-actions",
+   "count": "enum:SavesPanel.Row",
+   "parent": "game-settings"
+  },
+  {
+   "id": "artwork-slots",
+   "count": "enum:ArtworkSlot",
+   "parent": "game-settings"
+  },
+  {
+   "id": "artwork-sources",
+   "count": "enum:ArtworkBrowseSource",
+   "parent": "artwork-slots"
+  },
+  {
+   "id": "metadata-fields",
+   "count": "enum:MetadataField",
+   "parent": "game-settings"
+  },
+  {
+   "id": "metadata-sources",
+   "count": "enum:ChangeMetadataView.Source",
+   "parent": "metadata-fields"
+  },
+  {
+   "id": "steam-options",
+   "count": "rows:CatalogGameOptions.commonRows/GameOptionsRow",
+   "added": [
+    "allSettings"
+   ]
+  },
+  {
+   "id": "edit-details",
+   "count": "rows:SteamOptionsPresentation.entries/GameOptionsRow/editDetails",
+   "parent": "steam-options"
+  },
+  {
+   "id": "achievement-filters",
+   "count": "enum:AchievementFilter"
+  },
+  {
+   "id": "controller-kinds",
+   "count": "enum:ControllerShape.Family",
+   "parent": "settings"
+  },
+  {
+   "id": "console-filters",
+   "count": "enum:ConsoleFilter",
+   "parent": "settings"
+  },
+  {
+   "id": "mod-store-sort",
+   "count": "enum:ModStoreSort"
+  },
+  {
+   "id": "theme-backgrounds",
+   "count": "enum:BackgroundTab",
+   "parent": "control-center"
+  },
+  {
+   "id": "wallpaper-placement",
+   "count": "enum:WallpaperPlacement"
+  },
+  {
+   "id": "player-modes",
+   "count": "enum:PlayerControllerMode"
+  },
+  {
+   "id": "profile-editor-steps",
+   "count": "enum:ProfileEditorView.Step"
+  },
+  {
+   "id": "menu-bar Game",
+   "count": "commands:Game"
+  },
+  {
+   "id": "ios-tabs",
+   "count": "enum:OortTab",
+   "system": "ios"
+  },
+  {
+   "id": "android-bar",
+   "count": "kotlin-enum:android/app/src/main/kotlin/io/github/sofianbll/oortnx/ui/Rows.kt#Section",
+   "system": "android"
+  }
+ ],
+ "openers": [
+  {
+   "type": "GameOptionsRow",
+   "member": "opensSubmenu",
+   "opens": {
+    "editDetails": "edit-details",
+    "changeArtwork": "artwork-slots",
+    "changeMetadata": "metadata-fields",
+    "cheats": "player content",
+    "mods": "player content",
+    "openSaves": "saves-actions",
+    "moreSettings": "engine settings, a list the build decides",
+    "allSettings": "game-settings"
+   }
+  }
+ ],
+ "values": {
+  "AppLanguage": "the seven languages, a list of values",
+  "LibraryFilter": "the tabs a player may add; the default set is library-tabs",
+  "SettingsCategory": "drawn through SettingsCategory.groups",
+  "CloudLibraryItem": "three boxes to tick for one game",
+  "LibraryArtworkRole": "roles of one picture, not choices",
+  "AchievementTier": "four counts, not choices",
+  "Figure": "values of the sound composer",
+  "Place": "values of the sound composer",
+  "SoundPackEvent": "one sample per sound, values",
+  "GamepadLayout": "values of one row",
+  "PaletteAction": "searched; the palette shows five of a group, then See all"
+ },
+ "english": [
+  "Category: Application Integration. Client Type: Confidential.",
+  "Create → Manage → New Secret.",
+  "NSP · XCI · NSZ · XCZ",
+  "Selene",
+  "Oort",
+  "Oort NX"
+ ],
+ "keyboard_paths": {
+  "Sources/NXLibrary/Views/Components/SeleneHomeChrome.swift": {
+   "hints": 3,
+   "keys": "⌘F for search, ⌘K for the control center"
+  },
+  "Sources/NXLibrary/Views/Shell/MenuOverlayView.swift": {
+   "hints": 2,
+   "keys": "Esc closes, ⌘, opens Settings"
+  },
+  "Sources/NXLibrary/Views/Detail/GameDetailView.swift": {
+   "hints": 1,
+   "keys": "⌘K for the control center; search has none, so it stays in the debt"
+  }
+ },
+ "unmeasured": {
+  "Sources/NXLibrary/Views/Spotlight/SpotlightTopBar.swift::OortTabs": "The player's own tabs: four by default (library-tabs), six possible.",
+  "Sources/NXLibrary/Views/Theme/OnlineBrowsePanel.swift::OortTabs": "Categories come from the wallpaper service.",
+  "Sources/NXLibrary/Views/GameOptions/GameSettingsScreen.swift::OortSettingsSidebar": "Drawn from GameSettingsCategory (game-settings).",
+  "Sources/NXLibrary/Views/GameOptions/ChangeMetadataView.swift::OortSettingsSidebar": "Drawn from MetadataField (metadata-fields).",
+  "Sources/NXLibrary/Views/Settings/SettingsGamesSection.swift::Picker": "The languages an engine offers, a list of values.",
+  "Integrations page": "Seven rows in two groups, three game sources and four services: counted by hand on bf0c3410.",
+  "View menu": "Four commands added to the system's own menu: counted by hand on bf0c3410.",
+  "desktop/": "The Windows and Linux page draws the lists OortCore sends; only their Swift source is counted."
+ },
+ "allowed": {
+  "a11y-tap": {
+   "Sources/NXLibrary/Views/AddGame/AddGameView.swift": {
+    "onTapGesture {click(row)}": 1
+   },
+   "Sources/NXLibrary/Views/Setup/SetupCheckView.swift": {
+    "onTapGesture {move(to:.card(index));activate()}": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/AchievementsScreen.swift": {
+    "onTapGesture {onFocus(index)}": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/SpotlightCardInfoView.swift": {
+    "onTapGesture {onTopGame(index)}": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/SpotlightScreenshotStrip.swift": {
+    "onTapGesture {onActivate(index)}": 1,
+    "onTapGesture {onSelect(index)}": 1
+   }
+  },
+  "measure": {
+   "Sources/NXLibrary/Views/AddGame/AddGameRows.swift": {
+    "canvas.u(13)": 1,
+    "canvas.u(14)": 1,
+    "canvas.u(320)": 1
+   },
+   "Sources/NXLibrary/Views/AddGame/AddGameStepThreeView.swift": {
+    "canvas.u(12)": 1,
+    "canvas.u(22)": 2,
+    "canvas.u(220)": 2,
+    "canvas.u(240)": 1,
+    "canvas.u(36)": 1,
+    "canvas.u(40)": 1,
+    "canvas.u(46)": 1
+   },
+   "Sources/NXLibrary/Views/AddGame/AddGameView.swift": {
+    "canvas.u(10)": 1,
+    "canvas.u(1040)": 1,
+    "canvas.u(28)": 1,
+    "canvas.u(34)": 1,
+    "canvas.u(4)": 2
+   },
+   "Sources/NXLibrary/Views/Catalog/CatalogNativeArtwork.swift": {
+    "varcornerRadius:CGFloat=12": 1
+   },
+   "Sources/NXLibrary/Views/Catalog/CatalogSteamInfo.swift": {
+    "canvas.u(900)": 1
+   },
+   "Sources/NXLibrary/Views/Collection/CollectionCoverRow.swift": {
+    "letstartInset:CGFloat=80": 1
+   },
+   "Sources/NXLibrary/Views/Collection/CollectionView.swift": {
+    "canvas.u(1080)": 1,
+    "canvas.u(110)": 3,
+    "canvas.u(1100)": 3,
+    "canvas.u(576)": 1,
+    "canvas.u(80)": 3,
+    "canvas.u(980)": 1,
+    "duration:0.3": 1,
+    "letslideDistance:CGFloat=-24": 1
+   },
+   "Sources/NXLibrary/Views/Components/GameLogoArea.swift": {
+    "canvas.u(195)": 1,
+    "canvas.u(220)": 1,
+    "canvas.u(240)": 2,
+    "canvas.u(250)": 1,
+    "canvas.u(700)": 2,
+    "canvas.u(900)": 1
+   },
+   "Sources/NXLibrary/Views/Components/GamePrimaryActions.swift": {
+    "canvas.u(60)": 1,
+    "height:52": 3,
+    "minWidth:52": 1
+   },
+   "Sources/NXLibrary/Views/Components/IGDBCredentialsDialog.swift": {
+    "canvas.u(17)": 1,
+    "canvas.u(18)": 1
+   },
+   "Sources/NXLibrary/Views/Components/PortingArtLook.swift": {
+    "letdownloadMarkLift:CGFloat=0.055": 1,
+    "letdownloadMarkSize:CGFloat=0.18": 1,
+    "letdownloadWordDrop:CGFloat=0.1": 1
+   },
+   "Sources/NXLibrary/Views/Components/SeleneBottomScrim.swift": {
+    "canvas.u(260)": 1,
+    "lethintsBottom:CGFloat=32": 1
+   },
+   "Sources/NXLibrary/Views/Components/SeleneHomeChrome.swift": {
+    "canvas.u(12)": 1
+   },
+   "Sources/NXLibrary/Views/Components/SeleneReveal.swift": {
+    "varrise:CGFloat=16": 1
+   },
+   "Sources/NXLibrary/Views/Components/SeleneSwitch.swift": {
+    "canvas.u(24)": 2,
+    "canvas.u(30)": 1,
+    "canvas.u(56)": 1
+   },
+   "Sources/NXLibrary/Views/Components/SessionCard.swift": {
+    "canvas.u(1)": 1,
+    "canvas.u(128)": 3,
+    "canvas.u(170)": 1,
+    "canvas.u(40)": 2,
+    "canvas.u(640)": 4,
+    "canvas.u(88)": 1
+   },
+   "Sources/NXLibrary/Views/Components/SteamGridDBKeyDialog.swift": {
+    "canvas.u(17)": 1
+   },
+   "Sources/NXLibrary/Views/Console/ConsoleView.swift": {
+    "canvas.u(1240)": 1,
+    "canvas.u(14)": 2,
+    "canvas.u(18)": 2,
+    "canvas.u(20)": 2,
+    "canvas.u(200)": 1,
+    "canvas.u(36)": 1,
+    "canvas.u(360)": 1,
+    "canvas.u(64)": 1,
+    "canvas.u(7)": 2
+   },
+   "Sources/NXLibrary/Views/ControlsView.swift": {
+    "canvas.u(1120)": 1
+   },
+   "Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift": {
+    "canvas.u(44)": 2,
+    "height:36": 1,
+    "height:44": 1,
+    "height:52": 1,
+    "height:6": 1,
+    "minWidth:52": 1,
+    "minWidth:96": 1,
+    "width:920": 1
+   },
+   "Sources/NXLibrary/Views/Detail/CloudPersonalAppUpdateRow.swift": {
+    "height:22": 1,
+    "height:40": 1
+   },
+   "Sources/NXLibrary/Views/Detail/DetailsAchievementsCard.swift": {
+    "canvas.u(1)": 1,
+    "canvas.u(5)": 2,
+    "canvas.u(76)": 2,
+    "duration:0.45": 1,
+    "height:5": 1
+   },
+   "Sources/NXLibrary/Views/Detail/DetailsBackground.swift": {
+    "canvas.u(34)": 1,
+    "letartWidth:CGFloat=0.72": 1
+   },
+   "Sources/NXLibrary/Views/Detail/DetailsBands.swift": {
+    "canvas.u(14)": 2,
+    "canvas.u(1700)": 1,
+    "canvas.u(18)": 1,
+    "duration:0.3": 1,
+    "letgap:CGFloat=22": 1,
+    "letheight:CGFloat=280": 1,
+    "letringOutset:CGFloat=4": 1,
+    "letwidth:CGFloat=173": 1,
+    "varsize:CGFloat=21": 1
+   },
+   "Sources/NXLibrary/Views/Detail/DetailsPanel.swift": {
+    "canvas.u(1)": 2,
+    "canvas.u(18)": 1,
+    "canvas.u(182)": 1,
+    "canvas.u(32)": 1,
+    "canvas.u(7)": 1,
+    "letcellWidth:CGFloat=168": 1,
+    "letcolumnGap:CGFloat=40": 1,
+    "letnarrowWidth:CGFloat=520": 1,
+    "letwideWidth:CGFloat=1100": 1
+   },
+   "Sources/NXLibrary/Views/Detail/DetailsTopBlock.swift": {
+    "canvas.u(1034)": 1,
+    "canvas.u(1060)": 3,
+    "canvas.u(130)": 2,
+    "canvas.u(200)": 3,
+    "canvas.u(3)": 1,
+    "canvas.u(52)": 1,
+    "canvas.u(700)": 1,
+    "canvas.u(760)": 1,
+    "height:52": 6,
+    "minWidth:200": 6,
+    "minWidth:52": 1
+   },
+   "Sources/NXLibrary/Views/Detail/GameBananaFindPanel.swift": {
+    "canvas.u(40)": 4,
+    "canvas.u(820)": 2
+   },
+   "Sources/NXLibrary/Views/Detail/GameDetailView+Input.swift": {
+    "canvas.u(48)": 1
+   },
+   "Sources/NXLibrary/Views/Detail/GameDetailView.swift": {
+    "canvas.u(110)": 5,
+    "canvas.u(16)": 1,
+    "canvas.u(1700)": 1,
+    "canvas.u(740)": 1,
+    "canvas.u(96)": 1,
+    "canvas.u(970)": 1,
+    "letmodsBandTop:CGFloat=1200": 1
+   },
+   "Sources/NXLibrary/Views/Detail/ModDetailPanel.swift": {
+    "canvas.u(100)": 1,
+    "canvas.u(16)": 1,
+    "canvas.u(178)": 1,
+    "canvas.u(28)": 2,
+    "canvas.u(315)": 1,
+    "canvas.u(36)": 1,
+    "canvas.u(4)": 1,
+    "canvas.u(40)": 2,
+    "canvas.u(560)": 1,
+    "letcollapsedLines:CGFloat=8": 1,
+    "letcolumnWidth:CGFloat=700": 1,
+    "letpadding:CGFloat=40": 1,
+    "letpanelHeight:CGFloat=980": 1
+   },
+   "Sources/NXLibrary/Views/GameOptions/ChangeArtworkView+Tiles.swift": {
+    "canvas.u(12)": 1,
+    "canvas.u(18)": 1
+   },
+   "Sources/NXLibrary/Views/GameOptions/ChangeArtworkView.swift": {
+    "canvas.u(1240)": 1,
+    "canvas.u(22)": 1,
+    "canvas.u(560)": 1,
+    "height:180": 1,
+    "height:198": 1,
+    "letringRoom:CGFloat=30": 1,
+    "width:160": 1,
+    "width:180": 1,
+    "width:352": 1
+   },
+   "Sources/NXLibrary/Views/GameOptions/ChangeMetadataView.swift": {
+    "canvas.u(200)": 1,
+    "canvas.u(420)": 1
+   },
+   "Sources/NXLibrary/Views/GameOptions/GameOptionsView+Rows.swift": {
+    "canvas.u(1040)": 1,
+    "canvas.u(24)": 1,
+    "canvas.u(680)": 1,
+    "canvas.u(8)": 1,
+    "canvas.u(96)": 1
+   },
+   "Sources/NXLibrary/Views/GameOptions/ModsPanel.swift": {
+    "canvas.u(8)": 1
+   },
+   "Sources/NXLibrary/Views/GameOptions/MoreSettingsPanel.swift": {
+    "canvas.u(1040)": 1,
+    "canvas.u(680)": 1
+   },
+   "Sources/NXLibrary/Views/GameOptions/SaveImportDetails.swift": {
+    "canvas.u(2)": 1,
+    "canvas.u(28)": 1,
+    "canvas.u(3)": 1
+   },
+   "Sources/NXLibrary/Views/GameOptions/SavesPanel.swift": {
+    "canvas.u(20)": 2,
+    "canvas.u(24)": 1
+   },
+   "Sources/NXLibrary/Views/GameOptions/SteamOptionsView.swift": {
+    "canvas.u(1040)": 1
+   },
+   "Sources/NXLibrary/Views/Launch/DowngradeWarningView.swift": {
+    "canvas.u(880)": 1
+   },
+   "Sources/NXLibrary/Views/Launch/LaunchMotion.swift": {
+    "letartFrom:CGFloat=1.04": 1,
+    "letartTo:CGFloat=1.12": 1,
+    "letriseDistance:CGFloat=30": 1
+   },
+   "Sources/NXLibrary/Views/Launch/LaunchScreenView.swift": {
+    "canvas.u(18)": 2,
+    "canvas.u(410)": 1,
+    "canvas.u(960)": 1
+   },
+   "Sources/NXLibrary/Views/Players/PlayersScreen.swift": {
+    "width:320": 1
+   },
+   "Sources/NXLibrary/Views/Porting/GameInboxView.swift": {
+    "canvas.u(1270)": 1,
+    "canvas.u(6)": 1,
+    "canvas.u(8)": 1
+   },
+   "Sources/NXLibrary/Views/Search/FindGameView.swift": {
+    "canvas.u(160)": 5
+   },
+   "Sources/NXLibrary/Views/Settings/CloudSetupAssistant.swift": {
+    "height:48": 1,
+    "minWidth:115": 1
+   },
+   "Sources/NXLibrary/Views/Settings/LocalePicker.swift": {
+    "canvas.u(12)": 1,
+    "canvas.u(420)": 1,
+    "canvas.u(800)": 1
+   },
+   "Sources/NXLibrary/Views/Settings/SettingsAPISection.swift": {
+    "canvas.u(195)": 1,
+    "canvas.u(200)": 1,
+    "canvas.u(340)": 2,
+    "canvas.u(7)": 1,
+    "canvas.u(8)": 2
+   },
+   "Sources/NXLibrary/Views/Settings/SettingsCloudLibrarySection.swift": {
+    "height:34": 3,
+    "minWidth:96": 3
+   },
+   "Sources/NXLibrary/Views/Settings/SettingsControllersSection.swift": {
+    "width:360": 1
+   },
+   "Sources/NXLibrary/Views/Settings/SettingsEngineSection.swift": {
+    "height:8": 2,
+    "maxWidth:300": 1,
+    "width:116": 1,
+    "width:13": 1,
+    "width:14": 1,
+    "width:8": 2,
+    "width:96": 1
+   },
+   "Sources/NXLibrary/Views/Settings/SettingsGamesSection.swift": {
+    "width:170": 1,
+    "width:180": 1,
+    "width:20": 1,
+    "width:36": 1
+   },
+   "Sources/NXLibrary/Views/Settings/SettingsLibrarySection.swift": {
+    "maxWidth:320": 2
+   },
+   "Sources/NXLibrary/Views/Setup/ArcaneWelcomeView.swift": {
+    "canvas.u(-20)": 1,
+    "canvas.u(900)": 1,
+    "height:50": 2,
+    "minWidth:120": 2,
+    "minWidth:220": 1
+   },
+   "Sources/NXLibrary/Views/Setup/FoundGamesSetupView.swift": {
+    "canvas.u(-20)": 1,
+    "canvas.u(960)": 1,
+    "height:84": 1,
+    "minWidth:220": 1
+   },
+   "Sources/NXLibrary/Views/Setup/SetupCheckView.swift": {
+    "canvas.u(-20)": 1,
+    "canvas.u(156)": 1,
+    "canvas.u(176)": 1,
+    "canvas.u(200)": 1,
+    "canvas.u(24)": 1,
+    "canvas.u(30)": 1,
+    "canvas.u(40)": 1,
+    "canvas.u(5)": 1,
+    "canvas.u(960)": 1,
+    "height:140": 1,
+    "letgap:CGFloat=18": 1,
+    "width:240": 1
+   },
+   "Sources/NXLibrary/Views/Setup/YourGamesSetupView.swift": {
+    "canvas.u(-20)": 1,
+    "canvas.u(1)": 1,
+    "canvas.u(24)": 2,
+    "canvas.u(38)": 1,
+    "canvas.u(960)": 1,
+    "height:44": 1,
+    "minWidth:220": 1
+   },
+   "Sources/NXLibrary/Views/Shell/ActivityCenterView.swift": {
+    "canvas.u(12)": 2,
+    "canvas.u(24)": 2,
+    "canvas.u(44)": 1,
+    "canvas.u(620)": 1,
+    "height:44": 3,
+    "width:920": 1
+   },
+   "Sources/NXLibrary/Views/Shell/AppShellView+Layers.swift": {
+    "canvas.u(22)": 2,
+    "minHeight:700": 1,
+    "minWidth:1100": 1
+   },
+   "Sources/NXLibrary/Views/Shell/IntegrationsView.swift": {
+    "canvas.u(385)": 1
+   },
+   "Sources/NXLibrary/Views/Shell/MenuOverlayView.swift": {
+    "canvas.u(24)": 1,
+    "canvas.u(6)": 1,
+    "canvas.u(9)": 2,
+    "letcellWidth:CGFloat=96": 1,
+    "letdotSize:CGFloat=70": 1,
+    "letfocusedScale:CGFloat=1.1": 1,
+    "leticonSize:CGFloat=34": 1,
+    "letlabelBand:CGFloat=26": 1,
+    "letpillsGap:CGFloat=14": 1,
+    "letringWidth:CGFloat=3": 1,
+    "letrowBottom:CGFloat=70": 1,
+    "width:240": 1,
+    "width:320": 1
+   },
+   "Sources/NXLibrary/Views/Shell/ProfileAvatar.swift": {
+    "varx:CGFloat=0.5": 1,
+    "vary:CGFloat=0.5": 1,
+    "varzoom:CGFloat=1": 1
+   },
+   "Sources/NXLibrary/Views/Shell/ProfileEditorView.swift": {
+    "canvas.u(112)": 1,
+    "canvas.u(176)": 2,
+    "canvas.u(198)": 1,
+    "canvas.u(230)": 1,
+    "canvas.u(240)": 2,
+    "canvas.u(530)": 1,
+    "canvas.u(560)": 1,
+    "canvas.u(68)": 1,
+    "canvas.u(8)": 2,
+    "letavatarSpacing:CGFloat=210": 1,
+    "width:150": 1,
+    "width:220": 1
+   },
+   "Sources/NXLibrary/Views/Shell/ProfilePickerView.swift": {
+    "canvas.u(170)": 3,
+    "canvas.u(9)": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/AchievementDetail.swift": {
+    "canvas.u(1)": 1,
+    "canvas.u(80)": 1,
+    "letbadge:CGFloat=64": 1,
+    "leticon:CGFloat=200": 1,
+    "letwidth:CGFloat=720": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/AchievementsScreen.swift": {
+    "canvas.u(1)": 1,
+    "canvas.u(128)": 2,
+    "canvas.u(130)": 1,
+    "canvas.u(16)": 1,
+    "canvas.u(240)": 1,
+    "canvas.u(30)": 1,
+    "canvas.u(36)": 1,
+    "canvas.u(40)": 1,
+    "canvas.u(520)": 1,
+    "height:22": 1,
+    "height:4": 1,
+    "letbottomFade:CGFloat=110": 1,
+    "letfourTrophies:CGFloat=4": 1,
+    "letlistWidth:CGFloat=1700": 1,
+    "letring:CGFloat=6": 1,
+    "letrowHeight:CGFloat=96": 1,
+    "letrowSpacing:CGFloat=16": 1,
+    "letside:CGFloat=110": 1,
+    "lettopFade:CGFloat=40": 1,
+    "lettrophy:CGFloat=64": 1,
+    "lettrophySpacing:CGFloat=26": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/ArcaneOrbVideo.swift": {
+    "letgrow:CGFloat=1.06": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/SpotlightCardInfoView.swift": {
+    "canvas.u(1)": 2,
+    "canvas.u(22)": 1,
+    "canvas.u(36)": 1,
+    "canvas.u(560)": 1,
+    "canvas.u(68)": 1,
+    "canvas.u(80)": 1,
+    "canvas.u(900)": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/SpotlightInfoView.swift": {
+    "canvas.u(1)": 1,
+    "canvas.u(12)": 1,
+    "canvas.u(18)": 2,
+    "canvas.u(20)": 2,
+    "canvas.u(6)": 1,
+    "canvas.u(60)": 1,
+    "canvas.u(7)": 1,
+    "canvas.u(9)": 2,
+    "canvas.u(900)": 1,
+    "duration:0.4": 1,
+    "duration:0.45": 1,
+    "height:52": 2,
+    "letlogoSlideDistance:CGFloat=-30": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/SpotlightPageSections.swift": {
+    "canvas.u(11)": 1,
+    "canvas.u(14)": 1,
+    "canvas.u(15)": 1,
+    "canvas.u(16)": 1,
+    "canvas.u(17)": 1,
+    "canvas.u(2)": 2,
+    "canvas.u(21)": 1,
+    "canvas.u(22)": 2,
+    "canvas.u(28)": 2,
+    "canvas.u(3)": 2,
+    "canvas.u(7)": 2,
+    "canvas.u(9)": 3,
+    "letwidth:CGFloat=1100": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/SpotlightRowView.swift": {
+    "canvas.u(1)": 6,
+    "canvas.u(160)": 1,
+    "canvas.u(260)": 1,
+    "canvas.u(380)": 1,
+    "canvas.u(420)": 1,
+    "canvas.u(5)": 1,
+    "canvas.u(9)": 1,
+    "delay:0.23": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/SpotlightScreenshotStrip.swift": {
+    "letclipWidth:CGFloat=1788": 1,
+    "varfocusScale:CGFloat=1.03": 1,
+    "vargap:CGFloat=22": 1,
+    "varradius:CGFloat=14": 1,
+    "vartileHeight:CGFloat=252": 1,
+    "vartileWidth:CGFloat=448": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/SpotlightTopBar.swift": {
+    "canvas.u(110)": 1,
+    "canvas.u(12)": 2,
+    "canvas.u(2)": 2,
+    "height:26": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/SpotlightView+Entrance.swift": {
+    "varouterScale:CGFloat=1": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/SpotlightView+Input.swift": {
+    "canvas.u(48)": 4,
+    "canvas.u(90)": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/SpotlightView+Mods.swift": {
+    "canvas.u(150)": 1,
+    "canvas.u(420)": 1,
+    "canvas.u(90)": 1,
+    "duration:0.55": 1,
+    "letstoreGap:CGFloat=56": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/SpotlightView+PageContent.swift": {
+    "canvas.u(16)": 1,
+    "canvas.u(1700)": 1,
+    "delay:0.6": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/SpotlightView+PageLayout.swift": {
+    "canvas.u(150)": 2,
+    "canvas.u(420)": 1,
+    "canvas.u(44)": 1,
+    "letmoreGap:CGFloat=72": 1,
+    "letpageTravel:CGFloat=324": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/SpotlightView+Stage.swift": {
+    "canvas.u(1)": 1,
+    "canvas.u(130)": 1,
+    "canvas.u(420)": 1,
+    "canvas.u(80)": 1
+   },
+   "Sources/NXLibrary/Views/Store/GameBananaBlur.swift": {
+    "letbannerRadius:CGFloat=8": 1
+   },
+   "Sources/NXLibrary/Views/Store/ModStorePage.swift": {
+    "canvas.u(1700)": 4,
+    "canvas.u(349)": 1,
+    "canvas.u(40)": 1,
+    "canvas.u(420)": 2,
+    "canvas.u(620)": 1,
+    "canvas.u(8)": 1,
+    "canvas.u(860)": 1,
+    "duration:0.35": 1,
+    "lettitleSize:CGFloat=24": 1
+   }
+  },
+  "menu-depth": {
+   "scripts/ui-rules.json": {
+    "artwork-slots": 1,
+    "artwork-sources": 2,
+    "metadata-fields": 1,
+    "metadata-sources": 2,
+    "saves-actions": 1
+   }
+  },
+  "menu-size": {
+   "Sources/NXLibrary/Views/GameOptions/GameSettingsScreen.swift": {
+    "game-settings": 7
+   },
+   "Sources/NXLibrary/Views/GameOptions/SavesPanel.swift": {
+    "saves-actions": 2
+   },
+   "Sources/NXLibraryCore/Catalog/CatalogGameOptions.swift": {
+    "steam-options": 2
+   },
+   "Sources/NXLibraryCore/Details/GameOptionsPresentation.swift": {
+    "game-quick-panel": 4
+   },
+   "Sources/NXLibraryCore/Selene/SpotlightRow.swift": {
+    "home-cards": 1
+   }
+  },
+  "pad-only": {
+   "Sources/NXLibrary/Views/Detail/GameDetailView.swift": {
+    "controllerOnly": 1
+   }
+  },
+  "pointer-only": {
+   "Sources/NXLibrary/Views/AddGame/AddGameStepThreeView.swift": {
+    "PortingLogBox": 1
+   },
+   "Sources/NXLibrary/Views/Components/WikipediaAbout.swift": {
+    "WikipediaCredit": 1
+   }
+  },
+  "shape": {
+   "Sources/NXLibrary/Views/AddGame/AddGameRows.swift": {
+    "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.content),style:.continuous).fill": 1,
+    "RoundedRectangle(cornerRadius:radius,style:.continuous).fill": 1
+   },
+   "Sources/NXLibrary/Views/AddGame/AddGameStepThreeView.swift": {
+    "RoundedRectangle(cornerRadius:SeleneTheme.rowRadius,style:.continuous).fill": 1
+   },
+   "Sources/NXLibrary/Views/AddGame/AddGameView.swift": {
+    "Capsule().fill": 1,
+    "Circle().fill": 1
+   },
+   "Sources/NXLibrary/Views/Components/DownloadCloudOverlay.swift": {
+    "RoundedRectangle(cornerRadius:radius,style:.continuous).fill": 1
+   },
+   "Sources/NXLibrary/Views/Components/PortingArtLook.swift": {
+    "Capsule().fill": 3,
+    "Rectangle().fill": 2
+   },
+   "Sources/NXLibrary/Views/Components/SeleneSwitch.swift": {
+    "Capsule().fill": 1,
+    "Circle().fill": 2
+   },
+   "Sources/NXLibrary/Views/Components/SessionCard.swift": {
+    "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.badge)).strokeBorder": 1,
+    "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.badge),style:.continuous).strokeBorder": 1
+   },
+   "Sources/NXLibrary/Views/Components/TileMotionLayers.swift": {
+    "RoundedRectangle(cornerRadius:style.cornerRadius,style:.continuous).strokeBorder": 1
+   },
+   "Sources/NXLibrary/Views/Console/ConsoleView.swift": {
+    "Capsule().fill": 1,
+    "Circle().fill": 1
+   },
+   "Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift": {
+    "Circle().fill": 1
+   },
+   "Sources/NXLibrary/Views/Detail/DetailsBackground.swift": {
+    "Rectangle().fill": 3
+   },
+   "Sources/NXLibrary/Views/Detail/DetailsPanel.swift": {
+    "Rectangle().fill": 2
+   },
+   "Sources/NXLibrary/Views/Detail/GameBananaFindPanel.swift": {
+    "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.content),style:.continuous).fill": 1
+   },
+   "Sources/NXLibrary/Views/Detail/ModDetailPanel.swift": {
+    "Capsule().fill": 1,
+    "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.content),style:.continuous).fill": 1
+   },
+   "Sources/NXLibrary/Views/GameOptions/ChangeArtworkView+Tiles.swift": {
+    "Circle().fill": 1
+   },
+   "Sources/NXLibrary/Views/GameOptions/CheatsPanel.swift": {
+    "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.card),style:.continuous).stroke": 1
+   },
+   "Sources/NXLibrary/Views/GameOptions/SaveImportDetails.swift": {
+    "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.row),style:.continuous).strokeBorder": 1
+   },
+   "Sources/NXLibrary/Views/Porting/GameInboxView.swift": {
+    "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.card)).strokeBorder": 1
+   },
+   "Sources/NXLibrary/Views/Settings/SettingsAPISection.swift": {
+    "Capsule().strokeBorder": 1,
+    "Circle().fill": 1,
+    "Circle().strokeBorder": 1
+   },
+   "Sources/NXLibrary/Views/Settings/SettingsEngineSection.swift": {
+    "Capsule().strokeBorder": 1,
+    "Circle().fill": 2
+   },
+   "Sources/NXLibrary/Views/Setup/SetupCheckView.swift": {
+    "RoundedRectangle(cornerRadius:canvas.u(SeleneTheme.cardRadius),style:.continuous).strokeBorder": 1
+   },
+   "Sources/NXLibrary/Views/Setup/YourGamesSetupView.swift": {
+    "Capsule().fill": 1,
+    "Circle().fill": 1
+   },
+   "Sources/NXLibrary/Views/Shell/AppShellView+Layers.swift": {
+    "Circle().stroke": 1
+   },
+   "Sources/NXLibrary/Views/Shell/MenuOverlayView.swift": {
+    "Circle().fill": 2,
+    "Circle().strokeBorder": 1
+   },
+   "Sources/NXLibrary/Views/Shell/ProfileEditorView.swift": {
+    "Circle().fill": 2,
+    "Rectangle().fill": 1
+   },
+   "Sources/NXLibrary/Views/Shell/ProfilePage.swift": {
+    "Circle().strokeBorder": 1,
+    "Rectangle().fill": 1,
+    "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.cover)).fill": 1,
+    "RoundedRectangle(cornerRadius:radius).strokeBorder": 2
+   },
+   "Sources/NXLibrary/Views/Shell/ProfilePickerView.swift": {
+    "Circle().fill": 2,
+    "Circle().strokeBorder": 3
+   },
+   "Sources/NXLibrary/Views/Spotlight/AchievementDetail.swift": {
+    "Rectangle().fill": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/AchievementsScreen.swift": {
+    "Rectangle().fill": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/SeleneArtBackground.swift": {
+    "Rectangle().fill": 3
+   },
+   "Sources/NXLibrary/Views/Spotlight/SpotlightCardInfoView.swift": {
+    "Rectangle().fill": 1,
+    "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.badge),style:.continuous).fill": 1,
+    "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.cover),style:.continuous).fill": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/SpotlightInfoView.swift": {
+    "Circle().fill": 2,
+    "Rectangle().fill": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/SpotlightRowView.swift": {
+    "RoundedRectangle(cornerRadius:canvas.u(SeleneTokens.Radius.badge),style:.continuous).fill": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/SpotlightTopBar.swift": {
+    "Circle().fill": 1,
+    "Circle().strokeBorder": 1
+   },
+   "Sources/NXLibrary/Views/Store/ModStorePage.swift": {
+    "Capsule().fill": 1
+   }
+  },
+  "untranslated": {
+   "Sources/ArcanePorting/Library/CloudGameArchive.swift": {
+    "Send both the app and the build cache to create a complete cloud copy.": 1
+   },
+   "Sources/NXLibrary/NXLibraryApp.swift": {
+    "Game": 1
+   },
+   "Sources/NXLibrary/ViewModels/AppViewModel+CloudLibrary.swift": {
+    "Could not save the personal app receipt.": 1
+   },
+   "Sources/NXLibrary/ViewModels/SetupModel.swift": {
+    "Choose your prod.keys file. It stays on this Mac.": 1
+   }
+  }
+ }
+}

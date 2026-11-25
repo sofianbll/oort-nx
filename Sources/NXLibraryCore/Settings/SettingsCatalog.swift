@@ -8,18 +8,23 @@ public struct SettingDescriptor: Identifiable, Sendable {
     public let title: String
     public let about: String
     public let isChanged: @Sendable (AppSettings) -> Bool
-    /// Puts this row alone back at its default; nil for an action, or a value kept outside `AppSettings`.
-    public let reset: (@Sendable (inout AppSettings) -> Void)?
+    /// Copies this row alone from other settings; nil for an action, or a value kept outside `AppSettings`.
+    public let copy: (@Sendable (AppSettings, inout AppSettings) -> Void)?
+    /// Puts this row alone back at its default.
+    public var reset: ((inout AppSettings) -> Void)? {
+        guard let copy else { return nil }
+        return { settings in copy(SettingsCatalog.defaults, &settings) }
+    }
 
     public init(id: String, group: SettingsSection, title: String, about: String,
                 isChanged: @escaping @Sendable (AppSettings) -> Bool = { _ in false },
-                reset: (@Sendable (inout AppSettings) -> Void)? = nil) {
+                copy: (@Sendable (AppSettings, inout AppSettings) -> Void)? = nil) {
         self.id = id
         self.group = group
         self.title = title
         self.about = about
         self.isChanged = isChanged
-        self.reset = reset
+        self.copy = copy
     }
 }
 
@@ -34,7 +39,7 @@ public enum SettingsCatalog {
                                       _ value: WritableKeyPath<AppSettings, Value> & Sendable) -> SettingDescriptor {
         SettingDescriptor(id: id, group: group, title: title, about: about,
                           isChanged: { $0[keyPath: value] != defaults[keyPath: value] },
-                          reset: { $0[keyPath: value] = defaults[keyPath: value] })
+                          copy: { $1[keyPath: value] = $0[keyPath: value] })
     }
 
     package static func action(_ id: String, _ group: SettingsSection, _ title: String,

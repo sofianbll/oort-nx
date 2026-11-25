@@ -52,10 +52,24 @@ struct SeleneHoverFocus {
 
     mutating func moved(_ hovering: Bool) -> Bool {
         let now = NSEvent.mouseLocation
-        guard hovering, now != pointer else { return false }
+        guard hovering, PointerAnchor.isMove(to: now, from: pointer) else { return false }
         pointer = now
         return true
     }
+}
+
+private struct SeleneHover: ViewModifier {
+    @State private var hover = SeleneHoverFocus()
+    let reached: () -> Void
+
+    func body(content: Content) -> some View {
+        content.onHover { if hover.moved($0) { reached() } }
+    }
+}
+
+extension View {
+    /// The pointer really came here: the one way a hover takes the focus.
+    func seleneHover(_ reached: @escaping () -> Void) -> some View { modifier(SeleneHover(reached: reached)) }
 }
 
 /// Selene's Ui.Shake: a short side-to-side for rejected input.
