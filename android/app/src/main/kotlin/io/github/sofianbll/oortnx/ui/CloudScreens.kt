@@ -86,8 +86,9 @@ fun LibraryFilter(state: AppState) {
         for ((cloud, label) in listOf(false to R.string.cloud_here, true to R.string.cloud_filter)) {
             val on = state.inCloud == cloud
             Box(
-                Modifier.clip(CircleShape).background(if (on) OortTokens.Palette.Focus else Color.Transparent)
-                    .selectable(on, role = Role.Tab) { state.showCloud(cloud) }.heightIn(min = OortTokens.Space.Group.dp).padding(horizontal = OortTokens.Space.Control.dp),
+                // The whole height is the target, its round corners included.
+                Modifier.selectable(on, remember { MutableInteractionSource() }, indication = null, role = Role.Tab) { state.showCloud(cloud) }
+                    .clip(CircleShape).background(if (on) OortTokens.Palette.Focus else Color.Transparent).heightIn(min = OortTokens.Space.Group.dp).padding(horizontal = OortTokens.Space.Control.dp),
                 contentAlignment = Alignment.Center,
             ) { Text(stringResource(label), color = if (on) OortTokens.Palette.OnFocus else OortTokens.Palette.Ink, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold) }
         }

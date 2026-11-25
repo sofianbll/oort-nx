@@ -528,6 +528,7 @@ def run(files, work, tablet):
     e.shot("en-landscape-cloud-game")
     e.fresh()
     e.pad("R1")
+    e.wait(w("cloud_filter"), 20, exact=True)  # Oort Cloud has answered
     e.pad("UP")
     e.shot("en-pad-cloud-choice")
     e.pad("RIGHT", "DOWN")
