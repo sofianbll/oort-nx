@@ -10,6 +10,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Changed
 
+- **Disconnect** (Cloud library) says what is erased and can keep the Google ID and secret: reconnecting does not ask for them again.
 - The control center keeps five icons with Power in the middle. Players joins the Profile card.
 
 ## 0.5.0-beta.3 — 2026-11-25

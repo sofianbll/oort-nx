@@ -36,6 +36,7 @@ struct CloudSetupAssistant: View {
     @State private var tool: URL?
     @State private var version: String?
     @State private var remotes: [RcloneRemote]?
+    @State private var kept: RcloneAccount?
     @State private var advanced = false
     @State private var editingCredentials = false
     @State private var client = ""
@@ -84,12 +85,19 @@ struct CloudSetupAssistant: View {
         return "Cancel"
     }
     private var existing: RcloneRemote? {
-        let selected = remotes?.first { $0.type == "drive" && $0.name == model.preference.remote }
-        return selected ?? (entry == .credentials ? nil : remotes?.first { $0.type == "drive" })
+        let drives = remotes?.filter { $0.type == "drive" }
+        let selected = drives?.first { $0.name == model.preference.remote } ?? drives?.first { $0.name == model.keptConnection }
+        return selected ?? (entry == .credentials ? nil : drives?.first)
     }
+    /// Signed out with its Google ID and secret kept: signing in asks for neither.
+    private var reusesClient: Bool { existing != nil && kept?.keepsClient == true && !editingCredentials }
+    /// Signed in, or not known to be signed out.
+    private var keepsAccount: Bool { existing != nil && kept?.isSignedIn != false }
     private var canEdit: Bool { viewModel.canConfigureCloudLibrary }
     private let bundledClient = CloudGoogleClient.bundled
-    private var showCredentials: Bool { remotes != nil && (editingCredentials || (existing == nil && bundledClient == nil)) }
+    private var showCredentials: Bool {
+        remotes != nil && (editingCredentials || (!keepsAccount && !reusesClient && bundledClient == nil))
+    }
     private var validID: Bool { CloudSetupAssistantDraft.validGoogleClientID(client) }
     private var folderReady: Bool { listing != nil && draft.candidate != nil }
     private var folderControlsReady: Bool { work?.kind != .create && canEdit }
@@ -120,7 +128,7 @@ struct CloudSetupAssistant: View {
     private var primaryTitle: String {
         if entry == .sources { return "Save" }
         switch draft.step {
-        case .account: return showCredentials || existing == nil ? "Sign in" : "Keep this account"
+        case .account: return showCredentials || !keepsAccount ? "Sign in" : "Keep this account"
         case .folder: return selectingSources ? "Continue" : "Use this folder"
         case .verify: return "Activate"
         }
@@ -131,7 +139,7 @@ struct CloudSetupAssistant: View {
         switch draft.step {
         case .account:
             return work == nil && remotes != nil && (showCredentials
-                ? validID && RcloneConfiguration.validCredential(secret) : existing != nil || bundledClient != nil)
+                ? validID && RcloneConfiguration.validCredential(secret) : keepsAccount || reusesClient || bundledClient != nil)
         case .folder:
             guard work?.kind != .discover, librarySuggestion == nil, sourcesSuggestion == nil else { return false }
             if selectingSources {
@@ -256,6 +264,9 @@ struct CloudSetupAssistant: View {
             } else if !showCredentials {
                 if let existing {
                     Text(verbatim: "\(text("Google Drive")) · \(existing.name)").seleneFont(.text, .semibold)
+                    if reusesClient {
+                        SeleneStatusDot(text: text("The Google ID and secret kept on this Mac will be used."), color: SeleneTheme.statusOK)
+                    }
                 }
                 if bundledClient != nil {
                     option(.advanced, text("Advanced")) { advanced.toggle() }
@@ -465,7 +476,7 @@ struct CloudSetupAssistant: View {
 
     private func inspect() {
         let found = model.resolvedDriveTool
-        tool = nil; version = nil; remotes = nil
+        tool = nil; version = nil; remotes = nil; kept = nil
         start(.inspect) {
             try Task.checkCancellation()
             guard let found, RcloneStorageBackend.isExecutable(found) else { return }
@@ -476,6 +487,13 @@ struct CloudSetupAssistant: View {
             version = detected.replacingOccurrences(of: "rclone ", with: "", options: .anchored)
             let listed = try await config.remotes()
             try Task.checkCancellation()
+            // Only a connection Oort NX signed out is asked about; any other account is offered as before.
+            if let name = model.keptConnection, model.preference.remote == nil,
+               listed.contains(where: { $0.name == name && $0.type == "drive" }) {
+                let found = try? await config.account(name)
+                try Task.checkCancellation()
+                kept = found
+            }
             remotes = listed
             if entry == .library { browse(draft.path) }
             if entry == .sources { discoverSources() }
@@ -592,14 +610,14 @@ struct CloudSetupAssistant: View {
         guard let tool else { return }
         let id = showCredentials ? client : bundledClient?.id ?? ""
         let password = showCredentials ? secret : bundledClient?.secret ?? ""
+        let chosen: (id: String, secret: String)? = reusesClient ? nil : (id, password)
         let target = existing?.name
         field = nil; secret = ""; focus.reset()
         model.isChangingConnection = true
         start(.connect) {
             defer { model.isChangingConnection = false }
             if let target {
-                let staged = try await CloudDriveCredentialChange.prepare(remote: target, executable: tool,
-                                                                          clientID: id, secret: password)
+                let staged = try await CloudDriveCredentialChange.prepare(remote: target, executable: tool, client: chosen)
                 try Task.checkCancellation()
                 replacement = staged
                 selectAccount(target)
@@ -723,6 +741,7 @@ struct CloudSetupAssistant: View {
         do {
             let replaced = replacement != nil
             try replacement?.apply()
+            if preference.remote == model.keptConnection { model.keptConnection = nil }
             let sources = onboarding ? selectedSourcesOverride : model.preference.sourcesRootOverride
             model.configure(remote: preference.remote, root: preference.root, enabled: true, sourcesRoot: sources,
                             reload: replaced, confirmLibrary: true)
@@ -782,7 +801,7 @@ struct CloudSetupAssistant: View {
         guard primaryEnabled else { return }
         switch draft.step {
         case .account:
-            if !showCredentials, let existing { selectAccount(existing.name) }
+            if !showCredentials, keepsAccount, let existing { selectAccount(existing.name) }
             else { connect() }
         case .folder:
             if selectingSources { useSources() }

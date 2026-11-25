@@ -174,6 +174,56 @@ final class RcloneConfigurationTests: XCTestCase {
         XCTAssertEqual(count, 2)
     }
 
+    func testDisconnectCanKeepTheGoogleClientAndNeverHandlesItsValues() async throws {
+        let kept = "[gdrive]\ntype = drive\nclient_id = XXX\nclient_secret = XXX\ntoken = \n### Double check the config\n"
+        let fixture = Fixture([.ok(), .ok(kept)])
+        try await fixture.client.disconnect("gdrive", keepingClient: true)
+        let commands = await fixture.recorder.commands
+        XCTAssertEqual(commands.map { Array($0.prefix { !$0.hasPrefix("--ask") }) }, [
+            ["config", "update", "gdrive", "token=", "--non-interactive", "--no-output"], ["config", "redacted", "gdrive"],
+        ])
+
+        // Nothing is called disconnected while a sign-in remains, or kept when the client is gone.
+        for left in ["client_id = XXX\nclient_secret = XXX\ntoken = XXX\n", "token = \n", ""] {
+            let failed = Fixture([.ok(), .ok("[gdrive]\n" + left)])
+            do {
+                try await failed.client.disconnect("gdrive", keepingClient: true)
+                XCTFail("The connection is not in the requested state")
+            } catch { XCTAssertEqual(error as? RcloneConfiguration.Failure, .disconnect) }
+        }
+        do {
+            try await Fixture([]).client.disconnect("gdrive:", keepingClient: true)
+            XCTFail("An invalid name reaches no process")
+        } catch { XCTAssertEqual(error as? RcloneConfiguration.Failure, .disconnect) }
+    }
+
+    func testAnAccountSaysWhatRcloneKeepsWithoutItsValues() async throws {
+        func account(_ lines: String) async throws -> RcloneAccount {
+            try await Fixture([.ok("[gdrive]\ntype = drive\n" + lines)]).client.account("gdrive")
+        }
+        let signedIn = try await account("client_id = XXX\nclient_secret = XXX\ntoken = XXX\n")
+        XCTAssertEqual(signedIn, RcloneAccount(hasClient: true, isSignedIn: true))
+        let shared = try await account("token = XXX\n")
+        XCTAssertEqual(shared, RcloneAccount(hasClient: false, isSignedIn: true))
+        let half = try await account("client_id = XXX\nclient_secret =\n")
+        XCTAssertEqual(half, RcloneAccount(hasClient: false, isSignedIn: false))
+        XCTAssertFalse(String(describing: signedIn).contains("XXX"))
+        do {
+            _ = try await Fixture([.init(status: 1, stdout: "fake-secret", stderr: "fake-secret")]).client.account("gdrive")
+            XCTFail("An unreadable configuration is not an answer")
+        } catch {
+            XCTAssertEqual(error as? RcloneConfiguration.Failure, .configuration)
+            XCTAssertFalse(error.localizedDescription.contains("fake-"))
+        }
+    }
+
+    func testSigningInAgainSendsNoClientWhenRcloneKeptIt() {
+        XCTAssertEqual(RcloneConfiguration.signInParameters(client: nil, replacing: true),
+                       ["config_is_local": "true", "config_refresh_token": "true"])
+        XCTAssertEqual(RcloneConfiguration.signInParameters(client: ("id", "secret"), replacing: false),
+                       ["client_id": "id", "client_secret": "secret", "config_is_local": "true", "scope": "drive"])
+    }
+
     func testCloudConnectionFailuresHaveDistinctRecoveryWithoutLeakingOutput() async {
         let samples: [(Int32, String, CloudLibraryFailure, CloudLibraryFailure.Action)] = [
             (1, #"{"msg":"Failed to create file system: lookup www.googleapis.com: no such host"}"#, .offline, .retry),
@@ -217,7 +267,7 @@ final class RcloneConfigurationTests: XCTestCase {
             return RcloneConfiguration(executable: URL(fileURLWithPath: "/fake/rclone"), config: config,
                 run: { _, args, _ in await recorder.run(args) },
                 ensurePassword: { await recorder.recordPassword() },
-                authorize: { _, _, _, name, _, _, replacing in
+                authorize: { _, _, _, name, _, replacing in
                     let result = await recorder.run(["AUTHORIZE", name])
                     guard result.status == 0, !replacing else { throw RcloneConfiguration.Failure.connect }
                 })

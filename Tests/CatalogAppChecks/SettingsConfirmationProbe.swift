@@ -29,7 +29,11 @@ import ArcanePorting
         throw RcloneDownload.Failure.network
     }
 
-    static func disconnect(_ tool: URL, _ name: String) throws {
+    static var account: RcloneAccount?
+    static var kept: [Bool] = []
+
+    static func disconnect(_ tool: URL, _ name: String, keepingClient: Bool) throws {
+        kept.append(keepingClient)
         precondition(tool.path == "/fixture/rclone" && name == "fixture")
         disconnects += 1
     }
@@ -313,6 +317,42 @@ import ArcanePorting
         try confirm("cloud-disconnect", cloud.confirmDisconnect, count: { disconnects })
         for _ in 0..<20 where model.isChangingConnection { await Task.yield() }
         precondition(disconnects == 1 && model.preference.remote == nil && cloudWrites == 7)
+        precondition(kept == [false] && model.keptConnection == nil)
+
+        // The client is there: what is erased is written, and keeping the ID and secret comes first.
+        func section() -> SettingsCloudLibrarySection {
+            SettingsCloudLibrarySection(viewModel: vm, model: model, settings: SettingsEditor(settings),
+                advanced: .constant(true), onEdit: {}, onEditLibrary: {}, onEditSources: {}, onActions: { _ in })
+        }
+        func settle() async { for _ in 0..<20 where model.isChangingConnection { await Task.yield() } }
+        account = RcloneAccount(hasClient: true, isSignedIn: true)
+        model.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: nil)
+        section().confirmDisconnect()
+        let question = vm.settingsNotice!
+        precondition(question.choices == ["Disconnect and keep the ID and secret", "Erase everything", "Cancel"]
+                     && vm.settingsNoticeFocus == 0)
+        precondition(question.choiceDetails["Disconnect and keep the ID and secret"]?.contains("Seule la connexion Google") == true
+                     && question.choiceDetails["Erase everything"]?.contains("l’ID et le secret") == true)
+        try render("cloud-disconnect-choice", input.settingsNoticeOverlay(question))
+        input.settingsNoticeInput(.cancel)
+        precondition(kept == [false] && model.preference.remote == "fixture")
+        section().confirmDisconnect()
+        input.settingsNoticeInput(.confirm)
+        await settle()
+        precondition(kept == [false, true] && model.preference.remote == nil && model.keptConnection == "fixture")
+        account = RcloneAccount(hasClient: true, isSignedIn: false)
+        try render("cloud-kept-client", section().advancedRows.frame(width: 1060).padding(40), height: 700)
+        try confirm("cloud-erase-kept", section().confirmEraseKept, count: { kept.count })
+        await settle()
+        precondition(kept == [false, true, false] && model.keptConnection == nil)
+        account = RcloneAccount(hasClient: true, isSignedIn: true)
+        model.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: nil)
+        section().confirmDisconnect()
+        input.settingsNoticeInput(.navigateRight)
+        input.settingsNoticeInput(.confirm)
+        await settle()
+        precondition(kept.last == false && model.preference.remote == nil && model.keptConnection == nil)
+        account = nil
 
         // Upgrade from the embedded helper: do not touch the preference or retry automatically after Cancel.
         AppData.preferences.set("fixture:Games", forKey: CloudLibraryPreference.storageKey)

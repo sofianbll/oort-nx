@@ -750,11 +750,13 @@ public final class CloudDriveCredentialChange: Sendable {
 
     deinit { try? FileManager.default.removeItem(at: config.deletingLastPathComponent()) }
 
-    public static func prepare(remote: String, executable: URL, clientID: String,
-                               secret: String) async throws -> CloudDriveCredentialChange {
-        let id = clientID.trimmingCharacters(in: .whitespacesAndNewlines)
-        let password = secret.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard CloudSetupAssistantDraft.validGoogleClientID(id), RcloneConfiguration.validCredential(password),
+    /// Without a client, the account signs in again with the one rclone kept.
+    public static func prepare(remote: String, executable: URL,
+                               client: (id: String, secret: String)?) async throws -> CloudDriveCredentialChange {
+        let client = client.map { (id: $0.id.trimmingCharacters(in: .whitespacesAndNewlines),
+                                   secret: $0.secret.trimmingCharacters(in: .whitespacesAndNewlines)) }
+        guard client.map({ CloudSetupAssistantDraft.validGoogleClientID($0.id)
+                           && RcloneConfiguration.validCredential($0.secret) }) ?? true,
               CloudLibraryPreference.validRemote(remote) else { throw RcloneConfiguration.Failure.connect }
         let environment = RcloneConfiguration.environment()
         @Sendable func run(_ args: [String], config: URL? = nil) async throws -> String {
@@ -778,7 +780,7 @@ public final class CloudDriveCredentialChange: Sendable {
         _ = try await run(["config", "encryption", "check"], config: staged.config)
         try Task.checkCancellation()
         try await RcloneConfiguration.authorizeDrive(executable: executable, config: staged.config,
-            environment: environment, name: remote, clientID: id, secret: password, replacing: true)
+            environment: environment, name: remote, client: client, replacing: true)
         return staged
     }
 

@@ -55,14 +55,15 @@ def prepare(package):
 
     settings = app / "Views/Settings"
     cloud = settings / "SettingsCloudLibrarySection.swift"
-    expose(cloud, "setEnabled", "unfollow", "confirmDisconnect", "confirmTrashTool", "publishActions", "test")
+    expose(cloud, "setEnabled", "unfollow", "confirmDisconnect", "confirmEraseKept", "confirmTrashTool", "publishActions", "test")
     replace(cloud, r'private var advancedRows:', 'var advancedRows:')
     replace(cloud, r'private var referenceStatus:', 'var referenceStatus:')
     replace(cloud, r'private var tool: URL\?', 'private var tool: URL? = URL(fileURLWithPath: "/fixture/rclone")')
     replace(cloud, r'private var remotes: \[RcloneRemote\]\?', 'private var remotes: [RcloneRemote]? = SettingsConfirmationProbe.remotes')
     replace(cloud, r'private var inspecting = true', 'private var inspecting = false')
-    replace(cloud, r'try await RcloneConfiguration\(executable: tool\)\.disconnect\(name\)',
-            'try SettingsConfirmationProbe.disconnect(tool, name)')
+    replace(cloud, r'try await RcloneConfiguration\(executable: tool\)\.disconnect\(name, keepingClient: keepingClient\)',
+            'try SettingsConfirmationProbe.disconnect(tool, name, keepingClient: keepingClient)')
+    replace(cloud, r'private var account: RcloneAccount\?', 'private var account: RcloneAccount? = SettingsConfirmationProbe.account')
     replace(app / "ViewModels/AppViewModel+CloudLibrary.swift",
             r'(cloudLibrary.setReferenceFolder\(folder\)\n)            importCloudGames\(\)', lambda m: m[1])
     library_model = app / "ViewModels/AppViewModel+CloudLibrary.swift"
