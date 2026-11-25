@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -78,18 +79,28 @@ private fun Upright(state: AppState, games: List<Game>, game: Game, width: Dp, h
     // It gives way on a short screen or with large text: Play stays in view.
     val text = (200 + 105 * LocalDensity.current.fontScale).dp + if (state.padMode) 76.dp else 0.dp // two lines of hints
     val side = minOf(width - 100.dp, height * 0.56f, height - text).coerceAtLeast(130.dp)
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).heightIn(min = height).padding(vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Bottom),
-    ) {
-        Covers(state, games, game, side, width)
-        Places(games.size, games.indexOf(game), Modifier.align(Alignment.CenterHorizontally))
-        Heading(state, game, Modifier.padding(horizontal = MARGIN))
-        Column(Modifier.padding(horizontal = MARGIN - 5.dp).widthIn(max = 560.dp)) {
+    Column(Modifier.fillMaxSize().padding(bottom = 16.dp)) {
+        Above(Modifier.weight(1f)) { room ->
+            Column(
+                Modifier.fillMaxSize().verticalScroll(rememberScrollState()).heightIn(min = room).padding(top = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Bottom),
+            ) {
+                Covers(state, games, game, side, width)
+                Places(games.size, games.indexOf(game), Modifier.align(Alignment.CenterHorizontally))
+                Heading(state, game, Modifier.padding(horizontal = MARGIN))
+            }
+        }
+        Column(Modifier.padding(start = MARGIN - 5.dp, end = MARGIN - 5.dp, top = 20.dp).widthIn(max = 560.dp)) {
             Keys(state, game, Modifier.fillMaxWidth())
             HomeHints(state)
         }
     }
+}
+
+/** What stands above the keys scrolls in the room they leave: in a low window (split screen) Play never leaves the screen. */
+@Composable
+private fun Above(modifier: Modifier, content: @Composable (room: Dp) -> Unit) {
+    BoxWithConstraints(modifier.fillMaxWidth()) { content(maxHeight) }
 }
 
 /** A phone on its side, a tablet: the games along the top, the chosen cover as tall as the window allows. */
@@ -99,13 +110,15 @@ private fun Wide(state: AppState, games: List<Game>, game: Game, width: Dp, heig
     val gutter = if (large) 48.dp else 24.dp
     val side = minOf(height * 0.74f, width * 0.38f)
     Row(Modifier.fillMaxSize().padding(end = gutter), horizontalArrangement = Arrangement.spacedBy(gutter), verticalAlignment = Alignment.CenterVertically) {
-        Column(
-            Modifier.weight(1f).verticalScroll(rememberScrollState()).heightIn(min = height).padding(vertical = if (large) 48.dp else 8.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Rail(state, games, game, if (large) 124.dp else 84.dp, gutter)
-            Column(Modifier.padding(start = gutter, top = 12.dp), verticalArrangement = Arrangement.spacedBy(if (large) 24.dp else 12.dp)) {
-                Heading(state, game)
+        val gap = if (large) 24.dp else 12.dp
+        Column(Modifier.weight(1f).fillMaxHeight().padding(vertical = if (large) 48.dp else 8.dp)) {
+            Above(Modifier.weight(1f)) { room ->
+                Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).heightIn(min = room), verticalArrangement = Arrangement.SpaceBetween) {
+                    Rail(state, games, game, if (large) 124.dp else 84.dp, gutter)
+                    Heading(state, game, Modifier.padding(start = gutter, top = 12.dp))
+                }
+            }
+            Column(Modifier.padding(start = gutter, top = gap), verticalArrangement = Arrangement.spacedBy(gap)) {
                 Keys(state, game, Modifier.widthIn(max = 460.dp).fillMaxWidth())
                 HomeHints(state)
             }
