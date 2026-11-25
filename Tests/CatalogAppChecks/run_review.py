@@ -314,6 +314,8 @@ func withAnimation(_ animation: Int?, _ update: () -> Void) { update() }
     let viewModel = ViewModel()
     let nativeMenus = NativeMenus()
     var isCloseGameOpen = false
+    var canUndoLastChange = false
+    func undoLastChange() {}
     var showsWelcome = false
     var profileFlow: ProfileFlow?
     var launcherIsFrontmost = true

@@ -51,7 +51,7 @@ final class AppViewModel {
 }
 struct Settings { let settings = Values(); struct Values { let librarySort = 1 } }
 struct NativeMenuAvailability {
-    let general, addMacApp, play, details, options, catalogRecovery: Bool
+    let general, addMacApp, play, details, options, catalogRecovery, undo: Bool
 }
 struct SteamPlayCoordinator {
     static let shared = Self()
@@ -64,6 +64,7 @@ final class Shell {
     var showsWelcome = false
     var profileFlow: Int?
     var isCloseGameOpen = false
+    var canUndoLastChange = false
     var nativeDialogOwnsInput = false
     var isHomeRoute = true
     // AVAILABILITY

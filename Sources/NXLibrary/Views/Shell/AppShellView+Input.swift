@@ -40,6 +40,7 @@ extension AppShellView {
         switch row {
         case .result(let id): viewModel.retryActivity(id)
         case .cloud, .queuedCloud: viewModel.activateCloudActivityRow(row)
+        case .undo: if viewModel.undoOffers.perform() { SoundEffectService.shared.play(.click) }
         case .clearAll: viewModel.clearActivity()
         default:
             guard row.opensPorting else { return }
@@ -210,6 +211,10 @@ extension AppShellView {
             case (_, "f", [.command]):              // Cmd+F
                 if typing || (router.route != .library && router.route != .collection) { return event }
                 action = .search
+            case (_, "z", [.command]):              // Cmd+Z; a text field keeps its own
+                if typing || !canUndoLastChange { return event }
+                if !event.isARepeat { undoLastChange() }
+                return nil
             case (_, ",", [.command]):              // Cmd+,
                 // Same as holding Menu. Consumed, so the menu-bar Settings command does not open Settings a second time.
                 action = .menuHold
@@ -225,6 +230,20 @@ extension AppShellView {
             if let action, !event.isARepeat { GameControllerService.shared.onAction?(action) }
             return nil
         }
+    }
+
+    /// The last reversible gesture can be undone here: no dialog, launch, Setup or text field comes first.
+    var canUndoLastChange: Bool { viewModel.undoOffers.offer != nil && leavesNoticesRoom }
+
+    /// Nothing that comes first is open.
+    var leavesNoticesRoom: Bool {
+        !router.isMenuPresented && !isCloseGameOpen && !viewModel.showSetupCheck && !showsWelcome
+            && viewModel.launchOverlay == nil && !nativeDialogOwnsInput && !viewModel.profileOwnsInput
+    }
+
+    func undoLastChange() {
+        guard canUndoLastChange, viewModel.undoOffers.perform() else { return }
+        SoundEffectService.shared.play(.click)
     }
 
     func removeGestureKeyMonitor() {

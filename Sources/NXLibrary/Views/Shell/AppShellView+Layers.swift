@@ -230,6 +230,11 @@ extension AppShellView {
             SessionCardLayer(presenter: sessionCard, game: playedGame,
                              metadata: store.storeMetadata, artwork: artwork)
         }
+        .overlay {
+            UndoNoticeLayer(offers: viewModel.undoOffers, isBlocked: !leavesNoticesRoom,
+                            isBelowCard: sessionCard.shown != nil || !sessionCard.achievementNames.isEmpty,
+                            onUndo: undoLastChange)
+        }
         .background { launchCover }
         .overlay {
             if viewModel.cloudQuitRequested { cloudQuitOverlay() }
@@ -332,7 +337,7 @@ extension AppShellView {
         .onReceive(viewModel.localAchievementUnlocks) { unlocks in
             if profiles.active?.id == unlocks.profile { sessionCard.unlocked(unlocks.names) }
         }
-        .onChange(of: profiles.active?.id) { sessionCard.profileDidChange() }
+        .onChange(of: profiles.active?.id) { sessionCard.profileDidChange(); viewModel.undoOffers.drop() }
         .onReceive(runningGames.$pausedGameIDs) { ids in
             // A game can reach Home before the launch cover has faded, especially across Spaces.
             if let launch = viewModel.launchOverlay, ids.contains(launch.game.id) { viewModel.dismissLaunchOverlay() }
@@ -461,6 +466,7 @@ extension AppShellView {
                                          message: L10n.text("Your changes could not be saved. Try again."))
         }
         .onReceive(NotificationCenter.default.publisher(for: .nxToggleProfilePicker)) { _ in toggleProfilePicker() }
+        .onReceive(NotificationCenter.default.publisher(for: .nxLibraryUndoChange)) { _ in undoLastChange() }
         .onReceive(NotificationCenter.default.publisher(for: .nxLibraryPlayFocused)) { _ in
             guard !router.isMenuPresented,
                   nativeMenuAvailability.play,

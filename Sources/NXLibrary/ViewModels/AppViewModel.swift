@@ -63,6 +63,8 @@ final class AppViewModel: ObservableObject {
         }
     }
     @Published var settingsNoticeFocus = 0
+    /// The last reversible gesture, for its notice, ⌘Z and Activity.
+    let undoOffers = UndoOffers()
     /// A SteamGridDB API key is saved (Settings → Online services → SteamGridDB), so Change artwork searches it.
     @Published var hasSteamGridDBKey = SteamGridDBKey().load() != nil
     @Published var isEditingSteamGridDBKey = false

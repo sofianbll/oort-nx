@@ -161,7 +161,8 @@ struct AppShellView: View {
             play: game?.isPlayableLocally == true || steam.map(SteamPlayCoordinator.shared.canPlay) == true || shortcut != nil,
             details: isHomeRoute && focused != nil && shortcut == nil && (steam == nil || router.route == .library),
             options: game != nil || steam != nil,
-            catalogRecovery: general && !viewModel.isBuilding && !viewModel.catalogBuildRecoveries.isEmpty)
+            catalogRecovery: general && !viewModel.isBuilding && !viewModel.catalogBuildRecoveries.isEmpty,
+            undo: canUndoLastChange)
     }
 
     /// A game the session card or the launch screen names: a library build, else a Steam game of the catalog.

@@ -28,7 +28,7 @@ struct ActivityCenterView: View {
             activeBuild: viewModel.portingGameID ?? porting.activeBuildRequest?.gameID,
             queuedBuilds: viewModel.buildQueue, activeCloud: cloud.active?.request.token,
             queuedCloud: cloud.queue.map(\.token), move: cloud.libraryMove?.id,
-            results: results)
+            results: results, undo: viewModel.undoOffers.offer != nil)
         return results.count == 1 && results.first == cloud.pendingMove?.id ? rows.filter { $0 != .clearAll } : rows
     }
 
@@ -87,7 +87,7 @@ struct ActivityCenterView: View {
                 switch $0 { case .cloud, .queuedCloud, .move: return true; default: return false }
             }, focused: focused)
             section("Results", rows: rows.filter {
-                switch $0 { case .result, .clearAll: return true; default: return false }
+                switch $0 { case .undo, .result, .clearAll: return true; default: return false }
             }, focused: focused)
         }
     }
@@ -99,6 +99,8 @@ struct ActivityCenterView: View {
                 result(id)?.canRetry == true ? HintItem(.a, "Retry", action: { onOpen(row) }) : nil,
                 cloudLibrary.pendingMove?.id != id ? HintItem(.x, "Clear", action: { onCancel(row) }) : nil
             ].compactMap { $0 }
+        case .undo:
+            return [HintItem(.a, "Undo", action: { onOpen(row) })]
         case .clearAll:
             return [HintItem(.a, "Clear all", action: { onOpen(row) })]
         default: break
@@ -144,6 +146,12 @@ struct ActivityCenterView: View {
                         SelenePillButton(title: "Clear all", minWidth: 0, height: 44, horizontalPadding: 16,
                                          focused: focused == row) { onOpen(row) }
                             .frame(maxWidth: .infinity, alignment: .trailing)
+                    case .undo:
+                        if let offer = viewModel.undoOffers.offer {
+                            ActivityRow(title: offer.message, detail: nil, fraction: nil, status: text("Succeeded"),
+                                        color: CloudLibraryStatus.synchronized.color, focused: focused == row,
+                                        open: nil, cancel: nil, retry: { onOpen(row) }, retryTitle: "Undo", clear: nil)
+                        }
                     case .result(let id):
                         if let item = result(id) {
                             let status = status(item.outcome, job: item.job)
@@ -220,7 +228,7 @@ struct ActivityCenterView: View {
             return (title(.move(move.request), name: move.request.destination),
                     detail(text(move.isVerifying ? "Verifying the move…" : move.isCancelling ? "Cancelling…" : "Moving games…"), move.fraction, nil),
                     move.fraction, true)
-        case .result, .clearAll, .close: return ("", nil, nil, false)
+        case .undo, .result, .clearAll, .close: return ("", nil, nil, false)
         }
     }
 

@@ -57,6 +57,23 @@ final class RuntimeSettingsModel {
         }
     }
 
+    /// Puts this game's choices back exactly as they are now, whatever changes them next.
+    func wayBack(for game: PortedGame) -> () -> Void {
+        let saved = gameSettings(for: game)?.savedChoices()
+        let config = saved == nil ? GameRuntimeConfig.load(for: game) : nil
+        let key = game.titleId?.uppercased()
+        let display = key.flatMap { app.settingsStore?.settings.gameDisplayOverrides[$0] }
+        return { [weak self] in
+            guard let self, self.app.libraryGames.contains(where: { $0.id == game.id }) else { return }
+            if let saved {
+                do { try self.gameSettings(for: game)?.restore(saved) }
+                catch { self.settingsNotSaved(game, error); return }
+            } else if let config { self.saveRuntimeConfig(config, for: game) }
+            if let key { self.app.settingsStore?.settings.gameDisplayOverrides[key] = display }
+            NotificationCenter.default.post(name: .nxGameSettingsRestored, object: game.id)
+        }
+    }
+
     private func settingsNotSaved(_ game: PortedGame, _ error: Error) {
         app.logs.append(LogEntry(level: .error, message: L10n.format("Could not save settings for %@: %@", [String(describing: game.name), String(describing: error.localizedDescription)])))
         app.showSettingsNotice(title: L10n.text("Options not saved"), message: L10n.text("Your game options could not be saved. Try again."))

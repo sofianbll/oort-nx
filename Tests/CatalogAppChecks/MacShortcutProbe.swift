@@ -163,12 +163,12 @@ extension ProfileScreenProbe {
             let options = vm.settingsNotice!
             try shot("options", dialog(options))
             vm.settingsNotice = nil
-            options.runChoice(options.choices.firstIndex(of: "Remove tile…"))
-            let remove = vm.settingsNotice!
-            precondition(remove.initialFocus == remove.cancelIndex)
-            try shot("remove", dialog(remove))
-            remove.runChoice(remove.cancelIndex)
-            vm.settingsNotice = nil
+            precondition(options.initialFocus == 0 && options.choices.contains("Remove tile"))
+            options.runChoice(options.choices.firstIndex(of: "Remove tile"))
+            precondition(vm.visibleCatalogGames.isEmpty && vm.settingsNotice == nil)
+            let offer = vm.undoOffers.offer!
+            try shot("removed", UndoNotice(message: offer.message, onUndo: {}))
+            precondition(vm.undoOffers.perform() && vm.visibleCatalogGames.map(\.id) == [game.id])
         }
 
         let personalImage = data.appendingPathComponent("manual.png")
@@ -208,11 +208,8 @@ extension ProfileScreenProbe {
         vm.macShortcuts.showTileOptions(sameTile)
         let options = vm.settingsNotice!
         vm.settingsNotice = nil
-        options.runChoice(options.choices.firstIndex(of: "Remove tile…"))
-        let remove = vm.settingsNotice!
-        vm.settingsNotice = nil
-        remove.runChoice(0)
-        precondition(vm.visibleCatalogGames.isEmpty)
+        options.runChoice(options.choices.firstIndex(of: "Remove tile"))
+        precondition(vm.visibleCatalogGames.isEmpty && vm.settingsNotice == nil)
         let unchanged = try paths.map { try Data(contentsOf: moved.appendingPathComponent($0)) }
         precondition(unchanged == originalBytes)
         print("Mac shortcut checks passed: selection, controller, profile refusals, relink, local art, real handoff, no session and unchanged bundle")

@@ -108,6 +108,20 @@ final class NXNativeGameSettingsTests: XCTestCase {
                                                    preferences: f.preferences))
     }
 
+    func testRestoringPutsBackExactlyWhatWasSaved() throws {
+        let f = try fixture(vpn: true)
+        let s = try settings(f)
+        try s.set("DM_RUMBLE", to: "0")
+        try s.setMultiplayerMode(.local)
+        let before = s.savedChoices(), raw = f.store.values
+        try s.resetAll()
+        try s.set("DM_FULLSCREEN", to: "1")
+        XCTAssertNotEqual(f.store.values, raw)
+        try s.restore(before)
+        XCTAssertEqual(f.store.values, raw)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: f.envURL.path))
+    }
+
     func testLegacyBuildHasNoAdapter() throws {
         let f = try fixture(dmSettings: false, env: oldEnv)
         XCTAssertNil(NXNativeGameSettings.forGame(f.game, store: f.store, supportDirectory: f.support,
