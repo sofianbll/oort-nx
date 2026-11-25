@@ -46,7 +46,7 @@ struct GameScreen: View {
     @ViewBuilder private func layout(_ detail: GameDetail) -> some View {
         if beside {
             HStack(spacing: 0) {
-                ScrollView { header(detail, key: down != .compact).padding(.horizontal, SeleneTokens.Space.panel) }
+                ScrollView { header(detail, key: down != .compact).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, SeleneTokens.Space.panel) }
                     .scrollBounceBehavior(.basedOnSize)
                     // A phone on its side is short: the one action stays above the tab bar.
                     .safeAreaInset(edge: .bottom, spacing: 0) {
