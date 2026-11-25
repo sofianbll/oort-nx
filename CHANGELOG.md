@@ -36,6 +36,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 - An interrupted removal and a waiting build that belongs to the previous library stay with that version; the new library opens without replaying them.
 - An explicitly selected rclone link keeps working when its package manager upgrades the executable.
 - ⌘K leaves Settings dialogs in charge. Refreshing the games keeps the same palette row selected, or clears the selection if that row is gone.
+- Mac pre-releases check a wider release list so newer releases for other systems do not hide Mac updates.
 - In the control center, B says Back inside a card, and ⌘K closes what it opened.
 - ⌘F, and holding − in the Arcane layout, search from a game’s page too.
 - With button hints off, the mouse keeps Back on screens that have no other way out.

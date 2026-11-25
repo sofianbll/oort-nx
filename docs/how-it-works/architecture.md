@@ -1072,6 +1072,7 @@ Nel repository, `.build/` contiene gli output SwiftPM, `work/Runtime` il runtime
 
 **Download e verifica.**
 - `AppUpdater` interroga `sofianbll/NxLibrary` senza autenticazione, seguendo il normale reindirizzamento GitHub. Le regole di versione, requisiti, digest, identità del bundle e installazione sono in `AppUpdate`.
+- Una prerelease consulta una pagina di 100 versioni perché il repository è condiviso; `AppUpdate` ignora le versioni degli altri sistemi e mantiene il limite JSON di 1 MiB. Una versione stabile usa ancora `releases/latest`.
 - Lo zip resta `NXLibrary-<versione>.zip`. Il suo percorso accetta il nome esatto `sofianbll/NxLibrary` o il successore esplicito `sofianbll/oort-nx`; non accetta altri proprietari né varianti di maiuscole. La vecchia 0.2.1.20261129 non conosce il successore.
 - `AppUpdateDownload` limita il trasferimento alla dimensione dichiarata e agli host HTTPS di GitHub.
 - `validate_update.py` verifica struttura e percorsi, poi estrae contando i dati davvero decompressi tramite il Python incluso. Prima della sostituzione si controllano versione, marker, identificativo e firma del bundle.

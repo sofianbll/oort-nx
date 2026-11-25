@@ -95,6 +95,17 @@ final class AppUpdateTests: XCTestCase {
         }
         XCTAssertEqual(try newest([entry("0.5.0-beta.2"), entry("0.5.0-beta.10"), entry("0.5.0-beta.1")]), "0.5.0-beta.10")
         XCTAssertEqual(try newest([entry("0.5.0-beta.2"), entry("0.5.0"), entry("0.6.0", draft: true), ["tag_name": "v9.9.9"]]), "0.5.0")
+        let others = try (1...12).map { number in
+            let system = ["windows", "android", "ios"][number % 3]
+            var release = try XCTUnwrap(entry("9.0.\(number)") as? [String: Any])
+            release["tag_name"] = "\(system)-v9.0.\(number)"
+            return release
+        }
+        let url = try XCTUnwrap(AppUpdate.releasesURL(repository: repo, runningVersion: "0.5.0-beta.1"))
+        let pageSize = try XCTUnwrap(url.query()?.split(separator: "&").first { $0.hasPrefix("per_page=") }
+            .flatMap { Int($0.dropFirst("per_page=".count)) })
+        let page = Array((others.map { $0 as Any } + [try entry("0.5.0-beta.2")]).prefix(pageSize))
+        XCTAssertEqual(try newest(page), "0.5.0-beta.2")
         XCTAssertNil(try newest([]))
         XCTAssertEqual(AppUpdate.parseReleases(try JSONSerialization.data(withJSONObject: entry("0.5.0")), repository: repo)?.version, "0.5.0")
     }
