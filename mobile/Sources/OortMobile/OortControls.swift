@@ -68,7 +68,7 @@ struct OortSlider: View {
             .animation(reduceMotion ? nil : .snappy(duration: 0.18), value: dragging)
         }
         .frame(height: 44)
-        .sensoryFeedback(.selection, trigger: value)
+        .sensoryFeedback(.selection, trigger: value) { _, _ in !OortSounds.trialMuted }
         .accessibilityElement()
         .accessibilityLabel(title)
         .accessibilityValue(text)

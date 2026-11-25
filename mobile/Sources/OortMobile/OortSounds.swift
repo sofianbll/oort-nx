@@ -8,6 +8,14 @@ import UIKit
 @MainActor @Observable public final class OortSounds {
     public static let packs = ["oort", "pollen", "umbra", "impulsion"]
     private static let onKey = "oort.sounds", packKey = "oort.soundPack", hapticsKey = "oort.haptics"
+    // The UI-test bundle must stay silent even when a test turns the setting on or launches from a shortcut.
+    static let trialMuted: Bool = {
+        #if targetEnvironment(simulator)
+        Bundle.main.object(forInfoDictionaryKey: "OortTrialMute") as? Bool == true
+        #else
+        false
+        #endif
+    }()
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private var players: [String: AVAudioPlayer] = [:]
     @ObservationIgnored private var step = 0
@@ -21,8 +29,8 @@ import UIKit
 
     public init(defaults: UserDefaults) {
         self.defaults = defaults
-        haptics = defaults.object(forKey: Self.hapticsKey) as? Bool ?? true
-        isOn = defaults.object(forKey: Self.onKey) as? Bool ?? true
+        haptics = !Self.trialMuted && (defaults.object(forKey: Self.hapticsKey) as? Bool ?? true)
+        isOn = !Self.trialMuted && (defaults.object(forKey: Self.onKey) as? Bool ?? true)
         pack = defaults.string(forKey: Self.packKey).flatMap { Self.packs.contains($0) ? $0 : nil } ?? "oort"
     }
 
@@ -41,6 +49,7 @@ import UIKit
     }
 
     public func play(_ event: SoundPackEvent) {
+        guard !Self.trialMuted else { return }
         touch(event)
         guard isOn else { return }
         let now = Date()

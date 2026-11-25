@@ -4,6 +4,10 @@ include:
   - path: ${OORT_MOBILE}/App/project.yml
     relativePaths: false
 targets:
+  OortNX:
+    info:
+      properties:
+        OortTrialMute: true
   DmGame:
     type: framework
     platform: iOS

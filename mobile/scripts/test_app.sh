@@ -8,6 +8,8 @@ export OORT_MOBILE=$(cd "$(dirname "$0")/.." && pwd)
 work=${1:?the work folder} out=${2:?the results folder} device=${3:?a device} os=${4:?an iOS version} lang=${5:?fr or en} look=${6:?dark or light} still=${7:-} only=${8:-}
 mkdir -p "$work" "$out/shots"; work=$(cd "$work" && pwd); out=$(cd "$out" && pwd)
 xcodegen generate -q --spec "$OORT_MOBILE/UITests/project.yml" --project "$work" --project-root "$work"
+[ "$(plutil -extract OortTrialMute raw -expect bool "$work/Gen/Info.plist")" = true ] ||
+  { echo "Refusing to launch the app without its UI-test mute setting." >&2; exit 1; }
 udid=$(xcrun simctl list devices available -j | python3 -c '
 import json, sys
 name, version = sys.argv[1:]
