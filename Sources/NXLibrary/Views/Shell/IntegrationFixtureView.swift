@@ -188,7 +188,7 @@ struct IntegrationFixtureView: View {
                         try captureAlert(SettingsSoundSection.removalAlert(pack.manifest.name, locale: locale),
                                          to: output.appendingPathComponent("\(prefix)-sound-remove.png"))
                     }
-                    for (key, suffix) in [("selene", "default"), ("oort", "oort")] {
+                    for (key, suffix) in [("selene", "default"), ("oort", "oort"), ("frost", "frost"), ("mist", "mist"), ("nucleus", "nucleus")] {
                         store.settings.soundPackID = key
                         try render(ScrollView {
                             SettingsSoundSection(settings: SettingsEditor(store), onActions: { _ in }, soundPackLibrary: library)
