@@ -114,8 +114,11 @@ class OortCase: XCTestCase {
     func tab(_ key: String) {
         let label = say(key)
         let bar = app.tabBars.buttons[label].firstMatch
-        // A scrolled list folds the tab bar into one button: a pull down brings it back.
-        for _ in 0..<4 where !(bar.exists && bar.isHittable) && !(button(label).exists && button(label).isHittable) { app.swipeDown(velocity: .fast) }
+        // A scrolled list folds the tab bar into the one button of the tab in hand: a touch unfolds it.
+        if !(bar.exists && bar.isHittable), app.tabBars.buttons.count == 1 {
+            app.tabBars.buttons.firstMatch.tap()
+            Thread.sleep(forTimeInterval: 1)
+        }
         tap(bar.waitForExistence(timeout: 5) ? bar : button(label), "the tab \(label)")
     }
 

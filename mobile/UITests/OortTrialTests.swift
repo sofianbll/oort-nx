@@ -725,6 +725,21 @@ final class OortTrialTests: OortCase {
         step("104-clavier-recherche")
     }
 
+    /// On a phone on its side, Back really goes back: the whole app's controller handling once took the bar's touches.
+    func test17BackOnItsSide() throws {
+        let back = app.navigationBars.buttons["BackButton"]
+        for (from, open) in [("home", "Options"), ("home", "Game page"), ("library", "")] {
+            try start(.invented)
+            XCUIDevice.shared.orientation = .landscapeLeft
+            if from == "library" { tab("Library"); tap(app.buttons[first].firstMatch, first) } else { tap(button(say(open)), open) }
+            appears(back, "the page's Back, \(from) \(open)")
+            Thread.sleep(forTimeInterval: 1.5)
+            step("170-paysage-retour-\(from)\(open.isEmpty ? "" : "-" + open.prefix(4).lowercased())")
+            back.tap()
+            eventually("Back goes back, \(from) \(open)") { !back.exists }
+        }
+    }
+
     // MARK: Reopening, and no network
 
     func test11Reopening() throws {

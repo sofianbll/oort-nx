@@ -178,8 +178,7 @@ private struct TouchEndsPad: ViewModifier {
     let nav: OortNav
     func body(content: Content) -> some View {
         #if os(iOS)
-        // The controller drives Oort's own focus, not the system's: a press never counts twice.
-        content.handlesGameControllerEvents(matching: .gamepad).gesture(AnyTouch { if nav.device != nil { nav.device = nil } })
+        content.gesture(AnyTouch { if nav.device != nil { nav.device = nil } })
         #else
         content
         #endif

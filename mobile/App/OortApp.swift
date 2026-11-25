@@ -1,6 +1,7 @@
 // Adapted from NX2Apple frontend-ios/Shell/App/ShellApp.swift at a79d397 (MIT, Copyright (c) 2026 seedds, jhaizhou, LNPANDY and NX2Apple contributors).
 // Oort NX's screens and sounds replace its library. The memory purge, which makes iOS close other apps, runs only when a game's
 // settings name DM_MEM_PURGE_MB. Nothing is signed on the device.
+import GameController
 import OortMobile
 import ShellHost
 import ShellModel
@@ -108,6 +109,11 @@ private func withCStrings<R>(_ strings: [String], _ body: (UnsafePointer<UnsafeP
         let host = UIHostingController(rootView: OortRootView(model: model, sounds: OortSounds(defaults: model.shellSettings.defaults), importRoot: hotRoot,
                                                               checkSigner: { OortSigning.refusal($0) }))
         host.view.backgroundColor = .black
+        // The controller drives Oort NX's own focus, not the system's: a press never counts twice. Set on the view, not in
+        // SwiftUI: handlesGameControllerEvents over the whole app took the navigation bar's touches on a phone on its side.
+        let controllers = GCEventInteraction()
+        controllers.handledEventTypes = .gamepad
+        host.view.addInteraction(controllers)
         return host
     }
 
