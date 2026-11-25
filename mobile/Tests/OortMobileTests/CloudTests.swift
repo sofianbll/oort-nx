@@ -5,7 +5,7 @@ import Testing
 @testable import OortMobile
 
 /// Installing, updating and forgetting a build of the cloud; the queue that survives the app.
-struct CloudTests {
+@MainActor struct CloudTests {
     private let root = FileManager.default.temporaryDirectory.appendingPathComponent("oort-cloud-\(UUID().uuidString)")
     private let id = "0100000000010000"
     private var games: URL { root.appendingPathComponent("Documents/games/\(id)") }

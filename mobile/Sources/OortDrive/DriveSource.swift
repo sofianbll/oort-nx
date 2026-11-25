@@ -93,7 +93,14 @@ public struct DriveSource: ShelfSource {
         var request = URLRequest(url: parts.url!)
         request.setValue("bytes=\(range.lowerBound)-\(range.upperBound - 1)", forHTTPHeaderField: "Range")
         // A manifest or a small file is not worth a background task.
-        try await send(request, through: range.count > 256 << 10 ? large : transport, limit: Int64(range.count), accepts: [206], check: { reply in
+        let isLarge = range.count > 256 << 10
+        do { try await fetch(request, range, size, destination, through: isLarge ? large : transport) }
+        // The system left it waiting: once more, in this process.
+        catch ShelfError.interrupted where isLarge { try await fetch(request, range, size, destination, through: transport) }
+    }
+
+    private func fetch(_ request: URLRequest, _ range: Range<Int64>, _ size: Int64, _ destination: URL, through: any DriveTransport) async throws {
+        try await send(request, through: through, limit: Int64(range.count), accepts: [206], check: { reply in
             guard let value = reply.header("Content-Range"),
                   let match = value.wholeMatch(of: /bytes (\d{1,18})-(\d{1,18})\/(\d{1,18})/) else { throw ShelfError.badResponse }
             guard Int64(match.3) == size else { throw ShelfError.wrongSize }

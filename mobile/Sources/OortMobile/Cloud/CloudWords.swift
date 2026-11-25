@@ -3,7 +3,7 @@ import OortCore
 
 /// The cloud library in the player's words. No address, no identifier, no code of a service.
 enum CloudWords {
-    static func size(_ bytes: Int64) -> String { ByteCountFormatStyle(style: .file, allowedUnits: [.mb, .gb]).format(bytes) }
+    static func size(_ bytes: Int64) -> String { ByteCountFormatStyle(style: .file, allowedUnits: [.kb, .mb, .gb], spellsOutZero: false).format(bytes) }
 
     static func share(_ received: Int64, _ total: Int64) -> String {
         let percent = total > 0 ? Int(Double(received) / Double(total) * 100) : 0

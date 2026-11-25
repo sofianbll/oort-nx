@@ -136,6 +136,8 @@ struct CloudTile: View {
         if let artwork { artwork.view } else {
             ZStack {
                 LinearGradient(colors: [Oort.panelRaised, Oort.panelLow], startPoint: .top, endPoint: .bottom)
+                // While it comes, what is here is lit: there is no picture to show it.
+                if level != nil { Oort.cloud.opacity(0.35) }
                 OortDots(rise: 1, color: Oort.glyph.opacity(0.12))
                 Text(String(game.build.name.prefix(1))).font(.system(size: side * 0.4, weight: .semibold)).foregroundStyle(Oort.ink)
             }

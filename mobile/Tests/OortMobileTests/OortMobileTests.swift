@@ -4,7 +4,7 @@ import ShellModel
 import Testing
 @testable import OortMobile
 
-@MainActor struct OortMobileTests {
+@MainActor @Suite(.serialized) struct OortMobileTests {
     private let root = FileManager.default.temporaryDirectory.appendingPathComponent("oort-mobile-\(UUID().uuidString)")
     private var installed: URL { root.appendingPathComponent("Documents/Frameworks") }
 

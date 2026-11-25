@@ -16,6 +16,7 @@ struct CloudLibrary: View {
     var body: some View {
         ScrollViewReader { scroll in
             ScrollView {
+                CloudFilter(nav: nav)
                 VStack(alignment: .leading, spacing: SeleneTokens.Space.large) {
                     status
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: SeleneTokens.Space.medium, alignment: .top), count: columns), spacing: SeleneTokens.Space.large) {

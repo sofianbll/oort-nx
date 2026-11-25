@@ -16,7 +16,7 @@ struct LibraryScreen: View {
     private var columns: Int { type.isAccessibilitySize ? max(1, Int(width / 260)) : max(2, Int(width / 168)) }
 
     private var inCloud: Bool { nav.cloudShown && hasCloud }
-    private var hasCloud: Bool { nav.cloud?.stage == .ready || nav.cloud?.stage == .signIn }
+    private var hasCloud: Bool { nav.hasCloud }
     private var cloudGames: [CloudModel.Game] {
         (nav.cloud?.cloudGames ?? []).filter { query.isEmpty || $0.build.name.localizedStandardContains(query) }
     }
@@ -32,10 +32,14 @@ struct LibraryScreen: View {
                 CloudLibrary(cloud: cloud, model: model, nav: nav, query: query, columns: columns, focus: focus)
                     .searchable(text: $query, prompt: Oort.text("Search your games"))
             } else if model.details.isEmpty {
-                EmptyLibrary(model: model, nav: nav)
+                VStack(spacing: 0) {
+                    CloudFilter(nav: nav)
+                    EmptyLibrary(model: model, nav: nav)
+                }
             } else {
                 ScrollViewReader { scroll in
                     ScrollView {
+                        CloudFilter(nav: nav)
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: SeleneTokens.Space.medium), count: columns),
                                   spacing: SeleneTokens.Space.large) {
                             ForEach(games) { item in card(item).id(item.id) }
@@ -53,29 +57,16 @@ struct LibraryScreen: View {
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
         .background { OortBackdrop(strength: 0.5) }
         .navigationTitle(Oort.text("Library"))
-        .safeAreaInset(edge: .top, spacing: 0) {
-            if hasCloud {
-                Picker(Oort.text("Which games"), selection: $nav.cloudShown) {
-                    Text(Oort.text("On this device")).tag(false)
-                    Text(Oort.text("Cloud")).tag(true)
-                }
-                .pickerStyle(.segmented)
-                .frame(maxWidth: 420)
-                .padding(.horizontal, SeleneTokens.Space.panel)
-                .padding(.vertical, SeleneTokens.Space.compact)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-        }
         .onChange(of: nav.cloudShown) { focus = FocusGrid() }
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
+            if !inCloud { ToolbarItem(placement: .primaryAction) {
                 Menu(Oort.text("Sort"), systemImage: "arrow.up.arrow.down") {
                     Picker(Oort.text("Sort"), selection: $byName) {
                         Text(Oort.text("Last played")).tag(false)
                         Text(Oort.text("Name")).tag(true)
                     }
                 }
-            }
+            } }
             ToolbarItem(placement: .primaryAction) {
                 Button(Oort.text("Add a game"), systemImage: "plus") { nav.importing = true }
             }
@@ -128,5 +119,23 @@ struct LibraryScreen: View {
         .accessibilityLabel(item.game.title)
         .accessibilityValue(OortGameAction(item, model: model, nav: nav).line)
         .contextMenu { GameMenu(id: item.id, nav: nav) }
+    }
+}
+
+/// This device's games, or the cloud's: only when the module is on and has a code. It goes with the page.
+struct CloudFilter: View {
+    @Bindable var nav: OortNav
+    var body: some View {
+        if nav.hasCloud {
+            Picker(Oort.text("Which games"), selection: $nav.cloudShown) {
+                Text(Oort.text("On this device")).tag(false)
+                Text(Oort.text("Cloud")).tag(true)
+            }
+            .pickerStyle(.segmented)
+            .frame(maxWidth: 420)
+            .padding(.horizontal, SeleneTokens.Space.panel)
+            .padding(.vertical, SeleneTokens.Space.compact)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
     }
 }

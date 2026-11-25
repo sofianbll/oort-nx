@@ -150,7 +150,12 @@ final class OortCloudTests: OortScreens {
         defer { auditing = false }
         try look(screen)
     }
-    private func press(_ key: String) { tap(line(say(key)), say(key)) }
+    private func press(_ key: String) {
+        let target = line(say(key))
+        // A long list makes its lines as they come near.
+        if !target.waitForExistence(timeout: 10) { for _ in 0..<14 where !target.exists { app.swipeUp(velocity: .slow) } }
+        tap(target, say(key))
+    }
 
     private func toCloud() {
         tab("Settings")
@@ -196,7 +201,7 @@ final class OortCloudTests: OortScreens {
     }
     private func dismissNotice() {
         let allow = springboard.alerts.buttons.matching(NSPredicate(format: "label IN {'Allow', 'Autoriser'}")).firstMatch
-        if allow.waitForExistence(timeout: 4) { allow.tap() }
+        if allow.waitForExistence(timeout: 10) { allow.tap() }
     }
     private func files(_ path: String) throws -> Set<String> {
         let root = try home().appendingPathComponent(path)
@@ -368,6 +373,7 @@ final class OortCloudTests: OortScreens {
         shows("Google has reached its download limit for now. Try again tomorrow.", 60)
         shot("81-quota")
         fault("")
+        app.swipeUp()
         press("Cancel the download")
         until(20, "cancelled") { line(say("Download")).exists }
         XCTAssertTrue(try files("Library/Application Support/Cloud/builds/.incoming").isEmpty, "a cancelled download leaves nothing")
@@ -379,6 +385,7 @@ final class OortCloudTests: OortScreens {
         let room = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS %@", Self.lang == "fr" ? "Pas assez de place" : "Not enough room")).firstMatch
         XCTAssertTrue(room.waitForExistence(timeout: 30), "no room is said")
         shot("82-no-room")
+        app.swipeUp()
         press("Cancel the download")
         // Mobile data.
         app.terminate()

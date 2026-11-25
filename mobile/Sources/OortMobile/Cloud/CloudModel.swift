@@ -332,6 +332,8 @@ import UserNotifications
     func refreshDevice() {
         let installer = installer
         installed = installer.installed()
+        // Room was made since: it goes on by itself.
+        for job in queue.jobs where job.state == .failed && job.reason == "noSpace" && (freeSpace ?? 0) >= (job.needed ?? .max) { queue.set(job.id, .waiting) }
         // A build that is gone from the device is no longer ready.
         for job in queue.jobs where job.state == .ready && !installer.isDownloaded(job.build) { queue.remove(job.id) }
         publish()

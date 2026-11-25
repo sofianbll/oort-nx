@@ -1,7 +1,7 @@
 # The phone library
 
-How a phone reads the library folder the Mac keeps, whatever holds it. Reading and downloading only: no screen uses it yet, and neither
-app contains the Drive connector.
+How a phone reads the library folder the Mac keeps, whatever holds it, and installs what it finds. It is optional, off until the player
+turns it on, and only ever reads that folder.
 
 ## Parts
 
@@ -85,7 +85,26 @@ marked out of the backup; on Android the store goes in `noBackupFilesDir`. Trans
 An older build signed by the same Mac can be put back by someone who can write in the folder. The signature of the framework itself (same
 Apple team) and of the APK (same signer) are checked by the system when it is loaded or installed.
 
+## In the apps
+
+| | iPhone and iPad | Android |
+|---|---|---|
+| Where it lives | `mobile/Sources/OortMobile/Cloud` names no service; `mobile/App/CloudDrive.swift` alone joins Drive to it | `android/cloud`, an app of its own (Oort Cloud): Oort NX keeps no Android permission and draws what the module says |
+| Between the two | a neutral `CloudModule` | a content provider and one activity that answer only Oort NX, signed with the same key, and Oort NX speaks only to a module signed with its own |
+| In the background | a background `URLSession`; an answer that comes after the app was ended waits in an inbox under the hash of what was asked, and is checked as if it had just come | a `dataSync` foreground service started by the player; a persisted job resumes after a restart or when the network allowed is back |
+| Queue | `queue.json`, one at a time, in the order asked; what was running waits again | the same |
+| Installed to | the framework goes where the app already loads games, after its SHA-256 and its signer are checked again; `data/…` goes to `Documents/games/<title>`; a receipt says which files are the build's own | Android's own confirmation, after the package, its version and its signer are compared with the signed manifest; `data/…` goes to `<chosen folder>/<title>/…` through the system's folder picker (no storage permission) |
+| Never touched | any name that starts with `save`, and Drive | the same, and the game's own files, which Android closes to everyone |
+
+On Android a game reads data outside its own folder only if its APK was made to look there: nx2android reads that address from
+`Android/data/<package>/files/env.txt`, which no other app can write. A build whose data is not inside its APK therefore needs an APK made
+for the shared folder, or a computer once.
+
+Turning it off erases the sign-in and stops everything; the player keeps or deletes what was downloaded. Installed games stay.
+
 ## Checks
 
 `python3 Tests/PhoneLibrary/check.py`, `swift test` in `mobile/`, `gradle -p android testDebugUnitTest`. Both run every file of
-`Tests/PhoneLibrary/vectors/` against `fake_drive.py`. `make_vectors.py` rewrites them; `mac/` is what Oort 0.5.0-beta.3 wrote.
+`Tests/PhoneLibrary/vectors/` against `fake_drive.py`. The same stand-in, served on a port, is what the simulators and the emulators talk
+to (`mobile/UITests/OortCloudTests.swift`, `android/tools/cloud_check.py`); its address is compiled only in those test builds, and the checks
+of the published packages look for it. `make_vectors.py` rewrites them; `mac/` is what Oort 0.5.0-beta.3 wrote.

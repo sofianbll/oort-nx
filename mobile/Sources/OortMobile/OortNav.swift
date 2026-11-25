@@ -20,6 +20,7 @@ enum OortRoute: Hashable {
     var cloud: CloudModel?
     /// The library shows the cloud's games rather than this device's.
     var cloudShown = false
+    var hasCloud: Bool { cloud?.stage == .ready || cloud?.stage == .signIn }
     private var screens: [UUID] = []
     @ObservationIgnored private var seen = 0
     @ObservationIgnored let sounds: OortSounds

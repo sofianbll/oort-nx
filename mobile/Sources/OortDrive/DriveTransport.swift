@@ -25,7 +25,6 @@ public final class DriveSession: NSObject, DriveTransport, URLSessionDownloadDel
         let limit: Int64
         let done: CheckedContinuation<DriveReply, any Error>
         var failure: (any Error)?
-        var reply: DriveReply?
     }
     private struct Kept: Codable { let status: Int, headers: [String: String] }
     /// What a task is for, in the name the system gives back after a relaunch.
@@ -37,6 +36,7 @@ public final class DriveSession: NSObject, DriveTransport, URLSessionDownloadDel
     private let inbox: URL?
     private let allowsMeteredNetwork: @Sendable () -> Bool
     private let received: @Sendable (Int64) -> Void
+    private var moved = 0
     private var eventsDone: (@Sendable () -> Void)?
     private lazy var session = URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
 
@@ -86,6 +86,10 @@ public final class DriveSession: NSObject, DriveTransport, URLSessionDownloadDel
         if let inbox { try? FileManager.default.removeItem(at: inbox) }
     }
 
+    /// How many ticks of five seconds without a byte, while the app runs, before a background task is given up for a foreground one: the
+    /// system's downloader can leave a task of an earlier run waiting for ever.
+    static let patience = 4
+
     func send(_ request: URLRequest, to file: URL, limit: Int64) async throws -> DriveReply {
         let request = limited(request)
         let key = inbox == nil ? "" : Self.key(request)
@@ -115,7 +119,21 @@ public final class DriveSession: NSObject, DriveTransport, URLSessionDownloadDel
     }
 
     private func follow(_ task: URLSessionTask, file: URL, limit: Int64, key: String) async throws -> DriveReply {
-        try await withTaskCancellationHandler {
+        let watch = inbox == nil ? nil : Task { [weak self, weak task] in
+            var seen = -1, still = 0
+            while !Task.isCancelled, still < Self.patience {
+                try await Task.sleep(for: .seconds(5))
+                guard let self else { return }
+                let now = lock.withLock { moved }
+                still = now == seen ? still + 1 : 0
+                seen = now
+            }
+            guard !Task.isCancelled, let self, let task else { return }
+            fail(task, ShelfError.interrupted)
+            task.cancel()
+        }
+        defer { watch?.cancel() }
+        return try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { done in
                 lock.withLock { jobs[task.taskIdentifier] = Job(file: file, limit: limit, done: done) }
                 // It may have ended between being seen and being followed.
@@ -168,6 +186,7 @@ public final class DriveSession: NSObject, DriveTransport, URLSessionDownloadDel
 
     public func urlSession(_ session: URLSession, downloadTask task: URLSessionDownloadTask, didWriteData: Int64, totalBytesWritten: Int64,
                            totalBytesExpectedToWrite: Int64) {
+        lock.withLock { moved += 1 }
         received(totalBytesWritten)
         guard let limit = lock.withLock({ jobs[task.taskIdentifier]?.limit }) ?? label(task)?.limit, totalBytesWritten > limit else { return }
         fail(task, ShelfError.badResponse)
