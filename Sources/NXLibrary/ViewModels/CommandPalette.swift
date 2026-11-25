@@ -17,6 +17,7 @@ final class CommandPalette: ObservableObject {
     private var recents: [String] = []
     private var suggestions: [String] = []
     private var symbols: [String: Symbol] = [:]
+    private var returnFocus: PaletteRow?
     var onChoose: (_ item: PaletteItem, _ secondary: Bool) -> Void = { _, _ in }
     var onClose: () -> Void = {}
 
@@ -34,19 +35,23 @@ final class CommandPalette: ObservableObject {
         self.symbols = symbols
         self.recents = recents
         self.suggestions = suggestions
+        returnFocus = nil
         state = PaletteState(query: query)
         refresh()
     }
 
     /// The library changed under an open palette: the same words, the new games.
     func update(items: [PaletteItem], symbols: [String: Symbol]) {
+        let previous = focusedRow
         self.items = items
         self.symbols = symbols
         refresh()
+        restoreFocus(previous)
     }
 
     func type(_ query: String) {
         guard query != state.query else { return }
+        returnFocus = nil
         state.setQuery(query)
         refresh()
     }
@@ -101,6 +106,7 @@ final class CommandPalette: ObservableObject {
             onChoose(item, false)
         case .seeAll(let kind, _):
             SoundEffectService.shared.play(.click)
+            returnFocus = focusedRow
             state.open(kind)
             refresh()
         case nil: break
@@ -116,7 +122,21 @@ final class CommandPalette: ObservableObject {
     /// Esc and B: out of See all, then out of the palette.
     func back() {
         SoundEffectService.shared.play(.back)
-        if state.back() { refresh() } else { onClose() }
+        if state.back() {
+            refresh()
+            if let returnFocus { restoreFocus(returnFocus) }
+            returnFocus = nil
+        } else { onClose() }
+    }
+
+    private func restoreFocus(_ previous: PaletteRow?) {
+        state.focus = rows.firstIndex { row in
+            switch (previous, row) {
+            case (.item(let old)?, .item(let new)): old.id == new.id
+            case (.seeAll(let old, _)?, .seeAll(let new, _)): old == new
+            default: false
+            }
+        } ?? -1
     }
 
     private func refresh() {
