@@ -22,6 +22,7 @@ probe(async P => {
   // Not in front: the controller belongs to the game.
   // Smoothness: frames while the shelf moves, then while the cloud turns alone.
   const frames = async (ms, work) => { const d = []; let last = performance.now(), run = true; const f = t => { d.push(t - last); last = t; if (run) requestAnimationFrame(f); }; requestAnimationFrame(f); const until = performance.now() + ms; while (performance.now() < until) await work(); run = false; d.shift(); d.sort((x, y) => x - y); return { frames: d.length, fps: Math.round(1000 * d.length / d.reduce((x, y) => x + y, 0)), p50: +d[d.length >> 1].toFixed(1), p95: +d[Math.floor(d.length * .95)].toFixed(1), worst: +d.at(-1).toFixed(1), over50: d.filter(x => x > 50).length }; };
+  P.say('SMOOTH motion reduced by the system:', matchMedia('(prefers-reduced-motion:reduce)').matches);
   await P.press('lt'); const c0 = { ...oort.cloud }, idle = await frames(3000, () => P.wait(100)); const c1 = { ...oort.cloud };
   P.say('SMOOTH cloud alone', idle, 'drawing', { perFrame: +((c1.spent - c0.spent) / Math.max(1, c1.frames - c0.frames)).toFixed(2) + ' ms', perSecond: Math.round((c1.frames - c0.frames) / 3) });
   let n = 0; const shelf = await frames(4000, async () => { oort.act(n++ < 24 ? 'right' : 'left'); if (n > 46) n = 0; await P.wait(110); }); P.say('SMOOTH shelf', shelf); P.ok(shelf.p95 < 34, 'the shelf: 95 % of frames under 34 ms');

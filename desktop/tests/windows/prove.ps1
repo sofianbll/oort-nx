@@ -22,6 +22,10 @@ $refs = '/r:System.Windows.Forms.dll', '/r:System.Drawing.dll'
 $run = "$env:RUNNER_TEMP\oort-run"
 & $python "$desktop\scripts\fixtures.py" $run --windows "$tools\FakeGame.exe"; if ($LASTEXITCODE) { throw 'fixtures' }
 
+# The runner's own welcome window, where there is one, is not part of a player's screen.
+foreach ($p in Get-Process | Where-Object MainWindowTitle) { Write-Host "open window: $($p.ProcessName), $($p.MainWindowTitle.Split('\')[0])" }
+Get-Process | Where-Object MainWindowTitle -eq 'Microsoft account' | Stop-Process -Force -ErrorAction SilentlyContinue
+
 Write-Host "Windows $([Environment]::OSVersion.Version), $((Get-CimInstance Win32_OperatingSystem).Caption)"
 foreach ($key in 'HKLM:\SOFTWARE\WOW6432Node', 'HKLM:\SOFTWARE', 'HKCU:\Software') {
   $webview = Get-ItemProperty "$key\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}" -ErrorAction SilentlyContinue

@@ -71,6 +71,14 @@ socket.onmessage = async e => {
   send('Runtime.evaluate', { expression: `window.hostReply(${id},${JSON.stringify(result)})` }).catch(() => {});
 };
 await send('Runtime.enable'); await send('Page.enable'); await send('Runtime.addBinding', { name: 'oortHost' });
+// The app's own first load ends before its page is loaded again with the script.
+for (let i = 0; ; i++) {
+  const ready = await send('Runtime.evaluate', { expression: 'location.origin + " " + document.documentElement.dataset.ready' }).then(r => r.result.value).catch(() => '');
+  if (ready === 'http://tauri.localhost 1') break;
+  if (i > 120) fail('the app did not get ready: ' + ready);
+  await wait(250);
+}
+console.log('ready by itself');
 if (o.size) { desk('size', child.pid, ...o.size.split('x')); await wait(400); }
 try { desk('front', child.pid); } catch { console.log('Windows kept another window in front'); }
 console.log('window', JSON.stringify(commands.state()));
