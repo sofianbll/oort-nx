@@ -153,7 +153,8 @@ extension AppShellView {
                             cloudLibrary: viewModel.cloudLibrary,
                             activeProfile: profiles.active,
                             hasBuildActivity: viewModel.isBuilding || viewModel.isCheckingCloudBuild
-                                || !viewModel.buildQueue.isEmpty || !viewModel.activityResults.entries.isEmpty,
+                                || !viewModel.buildQueue.isEmpty || !viewModel.activityResults.entries.isEmpty
+                                || viewModel.libraryRefresh.current?.isRunning == true,
                             onSelect: { runMenuAction($0) },
                             onSelectPower: { runPower($0) },
                             onSelectEntry: { runMenuEntry($0) },
@@ -237,7 +238,7 @@ extension AppShellView {
         })
         .focusedSceneValue(\.nxMenuAvailability, nativeMenuAvailability)
         .overlay {
-            SessionCardLayer(presenter: sessionCard, game: playedGame,
+            SessionCardLayer(presenter: sessionCard, refresh: viewModel.libraryRefresh, game: playedGame,
                              metadata: store.storeMetadata, artwork: artwork)
         }
         .background { launchCover }
@@ -275,6 +276,7 @@ extension AppShellView {
         .environmentObject(updater)
         .environmentObject(sources)
         .onAppear { [sources] in
+            viewModel.libraryRefresh.sources = sources
             steamWatcher.onChange = { [weak sources] in sources?.steamFilesChanged() }
             sources.startIfEnabled()
         }

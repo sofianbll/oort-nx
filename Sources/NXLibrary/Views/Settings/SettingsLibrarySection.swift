@@ -86,14 +86,13 @@ struct SettingsLibrarySection: View {
                             subtitle: "Check the Inbox for Switch files to sort.",
                             isOn: $settings.settings.gameInboxEnabled)
 
-            SeleneButtonRow("Scan game apps",
+            SeleneButtonRow("Library refresh",
                             subtitle: viewModel.isScanningLibrary
                                 ? "Scanning game apps…" : "Find existing nxnative builds and refresh the library.",
                             info: "Checks Game apps and its subfolders. Existing library entries are kept; no apps are moved. Source files are optional for Play.",
-                            buttonTitle: "Scan") {
-                viewModel.importExistingBuilds()
+                            buttonTitle: "Refresh") {
+                viewModel.refreshIncludingExistingBuilds()
             }
-            .disabled(viewModel.isScanningLibrary)
 
             if !viewModel.libraryScanWarnings.isEmpty {
                 VStack(alignment: .leading, spacing: SeleneTokens.Space.tight) {
@@ -138,8 +137,8 @@ struct SettingsLibrarySection: View {
             .init(id: "gameInboxEnabled", title: "Sort incoming files") {
                 settings.settings.gameInboxEnabled.toggle()
             },
-            .init(id: "refresh", title: "Scan game apps", isEnabled: !viewModel.isScanningLibrary) {
-                viewModel.importExistingBuilds()
+            .init(id: "refresh", title: "Library refresh") {
+                viewModel.refreshIncludingExistingBuilds()
             },
             .init(id: "refreshAtLaunch", title: "Refresh library at launch") {
                 settings.settings.refreshLibraryAtLaunch.toggle()

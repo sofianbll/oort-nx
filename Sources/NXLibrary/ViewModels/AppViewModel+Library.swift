@@ -161,8 +161,8 @@ extension AppViewModel {
     }
 
     // MARK: - Library
-    func refreshLibrary() {
-        loadLibrary()
+    @MainActor func refreshLibrary() {
+        libraryRefresh.start()
     }
 
     func loadLibrary() {
@@ -251,9 +251,23 @@ extension AppViewModel {
     }
 
     func importExistingBuilds() {
+        if includeExistingBuilds() { loadLibrary() }
+    }
+
+    /// The Settings refresh: also takes back the builds left out during setup.
+    @MainActor func refreshIncludingExistingBuilds() {
+        if includeExistingBuilds() { refreshLibrary() }
+    }
+
+    private func includeExistingBuilds() -> Bool {
         AppData.preferences.removeObject(forKey: StorageKeys.onboardingExclusions)
-        do { applyCatalog(try catalogRepository.configureSource(.nxnative, enabled: true, root: nil)); loadLibrary() }
-        catch { reportCatalogFailure(error) }
+        do {
+            applyCatalog(try catalogRepository.configureSource(.nxnative, enabled: true, root: nil))
+            return true
+        } catch {
+            reportCatalogFailure(error)
+            return false
+        }
     }
 
     /// Attach source files to an already-imported app. The app URL, version and

@@ -68,7 +68,7 @@ extension SettingsCatalog {
         action("libraryFolder", .library, GameFoldersCopy.appsTitle, "Choose where to find existing nxnative game apps and install new builds."),
         row("gameInboxEnabled", .library, "Sort incoming files",
             "Check the Inbox for Switch files to sort.") { $0.gameInboxEnabled },
-        action("libraryRefresh", .library, "Scan game apps", "Find existing nxnative builds and refresh the library."),
+        action("libraryRefresh", .library, "Library refresh", "Find existing nxnative builds and refresh the library."),
         row("notifyPortingEnds", .library, "Notify when a porting ends",
             "A notification when a porting finishes while Arcane is in the background.") { $0.notifyPortingEnds },
 
