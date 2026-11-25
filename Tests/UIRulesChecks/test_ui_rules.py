@@ -228,6 +228,198 @@ class Debt(unittest.TestCase):
         self.assertEqual(found.counts(), REAL["allowed"])
 
 
+class ButtonOrder(Case):
+    def row(self, first, second):
+        self.write(f"struct S: View {{ var body: some View {{ HStack {{ {first}\n {second} }} }} }}")
+        return [item[2] for item in self.found("button-order")]
+
+    def test_a_way_back_after_the_main_button_is_refused(self):
+        main = 'SelenePillButton(title: "Done", focused: true) { save() }'
+        back = 'SelenePillButton(title: "Cancel", focused: false) { close() }'
+        self.assertEqual(self.row(main, back), ["row Cancel"])
+        self.assertEqual(self.row(back, main), [])
+
+    def test_a_way_back_named_by_its_focus_is_seen(self):
+        self.assertEqual(len(self.row("pill(.primary, title, action: save)", "pill(.cancel, other, action: close)")), 1)
+        self.assertEqual(self.row("pill(.cancel, other, action: close)", "pill(.primary, title, action: save)"), [])
+
+    def test_a_dialog_with_cancel_last_is_refused(self):
+        dialog = 'struct S: View { var body: some View { SeleneChoiceDialog(title: t, choices: [a, b], focus: $f, cancelIndex: %s) } }'
+        for index in ("1", "list.count"):
+            self.write(dialog % index)
+            self.assertEqual(len(self.found("button-order")), 1, index)
+        self.write(dialog % "0")
+        self.assertEqual(self.found("button-order"), [])
+
+    def test_the_back_hint_on_the_right_is_refused(self):
+        bar = "struct S: View {{ var body: some View {{ SeleneHintsBar({0}, bottom: 0) }} }}"
+        self.write(bar.format('right: [HintItem(.a, "Select"), HintItem(.b, "Back")]'))
+        self.assertEqual([item[2] for item in self.found("button-order")], ["hint B on the right"])
+        self.write(bar.format('left: [HintItem(.b, "Back")], right: [HintItem(.a, "Select")]'))
+        self.assertEqual(self.found("button-order"), [])
+
+    def test_a_known_row_out_of_order_or_gone_is_refused(self):
+        rules = {"button_rows": [{"id": "piece", "file": VIEW, "scope": "enum Side", "order": [r"= Self\.cancel", r"= Self\.confirm"], "why": "x"}]}
+        self.write("enum Side { case cancel, confirm\n static let left = Self.confirm\n static let right = Self.cancel }")
+        self.assertEqual([item[2] for item in self.found("button-order", **rules)], ["piece"])
+        self.write("enum Side { case cancel, confirm\n static let left = Self.cancel\n static let right = Self.confirm }")
+        self.assertEqual(self.found("button-order", **rules), [])
+        self.write("enum Side { case cancel }")
+        self.assertEqual([item[2] for item in self.found("button-order", **rules)], ["gone:piece"])
+
+
+class FocusDanger(Case):
+    def notice(self, title, first, **rules):
+        self.write(f'func ask() {{ app.showSettingsNotice(title: t, message: m, actionTitle: {title}, primaryFirst: {first}) {{ go() }} }}')
+        return self.found("focus-danger", **rules)
+
+    def test_a_notice_that_starts_on_the_trash_is_refused(self):
+        self.assertEqual(len(self.notice('L10n.text("Move to Trash")', "true")), 1)
+        self.assertEqual(self.notice('L10n.text("Move to Trash")', "false"), [])
+        self.assertEqual(self.notice('"Download"', "true"), [])
+
+    def test_a_computed_answer_in_focus_needs_a_reason(self):
+        self.assertEqual(len(self.notice("title", "true")), 1)
+        self.assertEqual(self.notice("title", "true", safe_focus={f"{VIEW}::title": "removes nothing"}), [])
+
+    def test_a_confirmation_that_starts_on_delete_is_refused(self):
+        view = ('struct S: View {{ @State var focus: SeleneConfirmButton = .{0}\n var body: some View {{ '
+                'SeleneConfirmDialog(title: t, message: m, confirmTitle: "Delete", focus: $focus, onCancel: a, onConfirm: b) }} }}')
+        self.write(view.format("confirm"))
+        self.assertEqual(len(self.found("focus-danger")), 1)
+        self.write(view.format("cancel"))
+        self.assertEqual(self.found("focus-danger"), [])
+
+    def test_a_loss_said_in_the_message_counts(self):
+        self.write('struct S: View { @State var focus: SeleneConfirmButton = .confirm\n var body: some View { '
+                   'SeleneConfirmDialog(title: t, message: L10n.text("Unsaved progress will be lost."), confirmTitle: "Close", focus: $focus) } }')
+        self.assertEqual(len(self.found("focus-danger")), 1)
+
+    def test_a_choice_that_starts_on_discard_is_refused(self):
+        view = ('struct S: View {{ @State var focus = {0}\n var body: some View {{ '
+                'SeleneChoiceDialog(title: t, choices: ["Keep editing", "Discard"], focus: $focus, cancelIndex: 0) }} }}')
+        self.write(view.format(1))
+        self.assertEqual(len(self.found("focus-danger")), 1)
+        self.write(view.format(0))
+        self.assertEqual(self.found("focus-danger"), [])
+
+
+class KeyboardPath(Case):
+    SECTION = "Sources/NXLibrary/Views/Settings/SettingsSampleSection.swift"
+
+    def section(self, rows):
+        self.write('struct S: View { var body: some View { Button("Change", action: change)\n '
+                   'Button("Reveal") { model.reveal(url: path) } }\n '
+                   f'private func publishActions() {{ onActions([{rows}]) }} }}', self.SECTION)
+        return [item[2] for item in self.found("keyboard-path")]
+
+    def test_a_settings_button_no_row_presses_is_refused(self):
+        self.assertEqual(self.section('.init(id: "a", activate: change)'), ["button Reveal"])
+        self.assertEqual(self.section('.init(id: "a", secondary: ("Reveal", { model.reveal(url: path) }), activate: change)'), [])
+
+    def test_a_row_help_opened_by_click_only_is_refused(self):
+        component = ui.LIBRARY + "SeleneSettingsRow.swift"
+        self.write('struct S: View { var body: some View { SeleneRow("Engine", info: "Why") { x } } }', self.SECTION)
+        self.write("struct SeleneRow: View { var body: some View { SeleneInfoTip(info) } }", component)
+        self.assertEqual([item[2] for item in self.found("keyboard-path")], ["help Engine"])
+        self.write("struct SeleneRow: View { var body: some View { SeleneInfoTip(info, isShowing: shown) } }", component)
+        self.assertEqual(self.found("keyboard-path"), [])
+
+    def test_return_without_the_keypad_enter_is_refused(self):
+        self.write("func key(_ code: Int) { switch code { case 36, 49: confirm()\n default: break } }")
+        self.assertEqual(len(self.found("keyboard-path")), 1)
+        self.write("func key(_ code: Int) { switch code { case 36, 76, 49: confirm()\n case 36, 125: break\n default: break } }")
+        self.assertEqual(self.found("keyboard-path"), [])
+
+    def test_a_link_inside_a_dialog_is_refused(self):
+        dialog = "struct S: View {{ var body: some View {{ SeleneConfirmDialog(title: t, onCancel: a, onConfirm: b) {{ {0} }} }} }}"
+        self.write(dialog.format('Button("Get a key") { open() }'))
+        self.assertEqual([item[2] for item in self.found("keyboard-path")], ["dialog Get a key"])
+        self.write(dialog.format("Text(note)"))
+        self.assertEqual(self.found("keyboard-path"), [])
+
+    def test_a_button_without_a_shortcut_among_shortcuts_is_refused(self):
+        view = 'struct S: View {{ var body: some View {{ Button("Close") {{ a() }}.keyboardShortcut(.cancelAction)\n Button("Start") {{ b() }}{0} }} }}'
+        self.write(view.format(""))
+        self.assertEqual([item[2] for item in self.found("keyboard-path")], ["shortcut Start"])
+        self.write(view.format('.keyboardShortcut("s")'))
+        self.assertEqual(self.found("keyboard-path"), [])
+
+    def test_a_declared_action_whose_key_is_gone_is_refused(self):
+        keys = "Sources/NXLibrary/Views/Screen/Sample+Input.swift"
+        rules = {"action_paths": [{"id": "more", "click": [VIEW, "Read more"], "key": [keys, r"expanded\.toggle"], "why": "x"}]}
+        self.write('struct S { let a = "Read more" }')
+        self.write("extension S { func handle() { move() } }", keys)
+        self.assertEqual([item[2] for item in self.found("keyboard-path", **rules)], ["more"])
+        self.write("extension S { func handle() { expanded.toggle() } }", keys)
+        self.assertEqual(self.found("keyboard-path", **rules), [])
+
+
+class MousePath(Case):
+    def hints(self, hint, extra="", **rules):
+        self.write(f"struct S: View {{ var body: some View {{ SeleneHintsBar(left: [{hint}]{extra}) }} }}")
+        return [item[2] for item in self.found("mouse-path", **rules)]
+
+    def test_an_action_only_a_hint_offers_is_refused_until_its_other_place_is_named(self):
+        hint = 'HintItem(.x, "Delete", action: remove)'
+        self.assertEqual(self.hints(hint), ["x Delete"])
+        self.assertEqual(self.hints(hint, mouse_paths={VIEW: {"x Delete": "the row's button"}}), [])
+
+    def test_a_hint_nobody_can_click_is_refused_and_a_pressing_bar_is_not(self):
+        self.assertEqual(self.hints('HintItem(.rs, "Sort")'), ["rs Sort"])
+        self.assertEqual(self.hints('HintItem(.rs, "Sort")', extra=", press: handle"), [])
+        self.assertEqual(self.hints('HintItem(.a, "Select")'), [])
+
+    def test_a_declared_place_whose_hint_is_gone_is_refused(self):
+        self.assertEqual(len(self.hints('HintItem(.a, "Select")', mouse_paths={VIEW: {"x Delete": "a button"}})), 1)
+
+
+class Debt(unittest.TestCase):
+    def test_a_new_rule_declares_its_debt_once_and_a_known_one_cannot_grow(self):
+        before = {"measure": {"a": {"x": 1}}}
+        now = {"measure": {"a": {"x": 2}}, "mouse-path": {"a": {"y": 1}}}
+        known = ui.judged('''"""Rules\n\n  measure            a literal size\n"""\n''')
+        self.assertEqual(known, {"measure"})
+        self.assertEqual(dict(ui.grown(now, before, known)), {("measure", "a", "x"): 1})
+        self.assertEqual(len(ui.grown(now, before)), 2)
+
+
+class RealButtons(Case):
+    """The app's own files: today's gaps are all declared, and each rule sees one more."""
+
+    def copy(self, relative, old=None, new=None):
+        text = (ROOT / relative).read_text(encoding="utf-8")
+        if old:
+            self.assertIn(old, text)
+            text = text.replace(old, new, 1)
+        self.write(text, relative)
+
+    def signatures(self, check):
+        found = ui.Findings()
+        check(ui.Tree(self.root), {**REAL, "button_rows": [], "action_paths": [], "mouse_paths": {}}, found)
+        return [item[2] for item in found.items]
+
+    def test_swapping_cancel_after_search_in_the_mod_search(self):
+        panel = "Sources/NXLibrary/Views/Detail/GameBananaFindPanel.swift"
+        self.copy(panel)
+        self.assertEqual(self.signatures(ui.check_order), [])
+        self.copy(panel, 'SelenePillButton(title: "Cancel", focused: false, action: close)\n',
+                  'SelenePillButton(title: "Go", focused: false, action: close)\n SelenePillButton(title: "Cancel", focused: false, action: close)\n')
+        self.assertEqual(self.signatures(ui.check_order), ["row Cancel"])
+
+    def test_a_trash_confirmation_that_starts_on_the_answer(self):
+        panel = "Sources/NXLibrary/Views/GameOptions/ModsPanel.swift"
+        self.copy(panel, "var confirmFocus: SeleneConfirmButton = .cancel", "var confirmFocus: SeleneConfirmButton = .confirm")
+        self.assertEqual(self.signatures(ui.check_focus), ["confirm confirmFocus"])
+
+    def test_a_key_row_removed_from_the_engine_settings(self):
+        section = "Sources/NXLibrary/Views/Settings/SettingsEngineSection.swift"
+        self.copy(section)
+        before = self.signatures(ui.check_keyboard)
+        self.copy(section, 'isEnabled: !configurationLocked, activate: recheck)', 'isEnabled: !configurationLocked, activate: {})')
+        self.assertEqual(len(self.signatures(ui.check_keyboard)), len(before) + 1)
+
+
 class Skills(unittest.TestCase):
     """The three skills, the criteria and the checks name each other, so none can drift alone."""
     FOLDER = ROOT / ".agents/skills"

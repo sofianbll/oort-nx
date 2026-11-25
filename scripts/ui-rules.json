@@ -206,6 +206,8 @@
   }
  },
  "unmeasured": {
+  "button-order": "rows built from data (SettingsNotice alternatives, cloud and activity rows) beyond the declared ones; vertical lists",
+  "keyboard-path": "screens outside Settings beyond the declared actions: only the manual matrix and probes cover them",
   "Sources/NXLibrary/Views/Spotlight/SpotlightTopBar.swift::OortTabs": "The player's own tabs: four by default (library-tabs), six possible.",
   "Sources/NXLibrary/Views/Theme/OnlineBrowsePanel.swift::OortTabs": "Categories come from the wallpaper service.",
   "Sources/NXLibrary/Views/GameOptions/GameSettingsScreen.swift::OortSettingsSidebar": "Drawn from GameSettingsCategory (game-settings).",
@@ -232,6 +234,142 @@
    "Sources/NXLibrary/Views/Spotlight/SpotlightScreenshotStrip.swift": {
     "onTapGesture {onActivate(index)}": 1,
     "onTapGesture {onSelect(index)}": 1
+   }
+  },
+  "button-order": {
+   "Sources/NXLibrary/ViewModels/AppViewModel.swift": {
+    "notice-choices": 1
+   },
+   "Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift": {
+    "cloud-panel-foot": 1,
+    "free-space-walk": 1
+   },
+   "Sources/NXLibrary/Views/GameOptions/SavesPanel.swift": {
+    "cancelIndex copyFrom.count": 1
+   },
+   "Sources/NXLibrary/Views/Launch/DevelopmentStartupView.swift": {
+    "library-unavailable": 1
+   },
+   "Sources/NXLibrary/Views/Launch/DowngradeWarningView.swift": {
+    "downgrade-warning": 1
+   },
+   "Sources/NXLibrary/Views/Launch/LaunchScreenView.swift": {
+    "hint B on the right": 1
+   },
+   "Sources/NXLibrary/Views/OortUI/OortFilePicker.swift": {
+    "file-picker-foot": 1
+   },
+   "Sources/NXLibrary/Views/OortUI/SeleneConfirmDialog.swift": {
+    "confirm-dialog": 1
+   },
+   "Sources/NXLibrary/Views/Search/FindGameView.swift": {
+    "hint B on the right": 1
+   },
+   "Sources/NXLibrary/Views/Settings/CloudSetupAssistant.swift": {
+    "row pill(.cancel,cancelTitle,enabled:move?.c": 1
+   },
+   "Sources/NXLibrary/Views/Settings/SettingsView.swift": {
+    "cancelIndex 2": 1
+   },
+   "Sources/NXLibrary/Views/Setup/ArcaneWelcomeView.swift": {
+    "hint B on the right": 1,
+    "row Not now": 1
+   },
+   "Sources/NXLibrary/Views/Setup/OnboardingScreen.swift": {
+    "hint B on the right": 1,
+    "row back": 1
+   },
+   "Sources/NXLibrary/Views/Setup/OnboardingView.swift": {
+    "guided-setup-walk": 1
+   },
+   "Sources/NXLibrary/Views/Setup/SetupCheckView.swift": {
+    "hint B on the right": 1
+   },
+   "Sources/NXLibrary/Views/Shell/AppShellView+Profiles.swift": {
+    "cancelIndex 1": 1
+   },
+   "Sources/NXLibrary/Views/Shell/ProfileEditorView.swift": {
+    "cancelIndex 1": 1
+   }
+  },
+  "focus-danger": {
+   "Sources/NXLibrary/ViewModels/GameInboxModel.swift": {
+    "notice \"Sort and move to Trash\"": 1
+   }
+  },
+  "keyboard-path": {
+   "Sources/NXLibrary/ViewModels/ModsBandHost.swift": {
+    "Return without keypad Enter": 1
+   },
+   "Sources/NXLibrary/Views/Components/IGDBCredentialsDialog.swift": {
+    "dialog Developer portal": 1,
+    "dialog Setup guide": 1
+   },
+   "Sources/NXLibrary/Views/Components/SteamGridDBKeyDialog.swift": {
+    "dialog Get a key": 1
+   },
+   "Sources/NXLibrary/Views/Components/WikipediaAbout.swift": {
+    "details-wikipedia": 1
+   },
+   "Sources/NXLibrary/Views/Detail/DetailsTopBlock.swift": {
+    "details-read-more": 1
+   },
+   "Sources/NXLibrary/Views/Detail/GameDetailView+Input.swift": {
+    "Return without keypad Enter": 1
+   },
+   "Sources/NXLibrary/Views/Launch/DevelopmentStartupView.swift": {
+    "shortcut Start without a copy": 1
+   },
+   "Sources/NXLibrary/Views/Settings/SettingsCloudSavesSection.swift": {
+    "help Cloud saves": 1
+   },
+   "Sources/NXLibrary/Views/Settings/SettingsEngineSection.swift": {
+    "button Reveal": 1,
+    "help Check engine at launch": 1,
+    "help L10n.text(\"Compatibility\")": 1,
+    "help Newest engine": 1,
+    "help Untested toolchain override": 1
+   },
+   "Sources/NXLibrary/Views/Settings/SettingsGamesSection.swift": {
+    "help 60 FPS": 1,
+    "help Docked mode": 1,
+    "help Game language": 1,
+    "help Metal HUD": 1,
+    "help MetalFX upscaling": 1,
+    "help Render scale": 1,
+    "help Rumble strength": 1
+   },
+   "Sources/NXLibrary/Views/Settings/SettingsKeysSection.swift": {
+    "button Detect Ryujinx...": 1,
+    "help GameFoldersCopy.keysTitle": 1
+   },
+   "Sources/NXLibrary/Views/Settings/SettingsLibraryGamesSection.swift": {
+    "help Session card": 1
+   },
+   "Sources/NXLibrary/Views/Settings/SettingsLibrarySection.swift": {
+    "button Clear": 1,
+    "button Reset": 1,
+    "help GameFoldersCopy.appsTitle": 1,
+    "help GameFoldersCopy.sourcesTitle": 1,
+    "help Scan game apps": 1
+   },
+   "Sources/NXLibrary/Views/Settings/SettingsLookSection.swift": {
+    "help Game backgrounds": 1,
+    "help Wallpaper brightness": 1,
+    "help Wallpaper sizing": 1
+   },
+   "Sources/NXLibrary/Views/Settings/SettingsPortingStorageSection.swift": {
+    "help Build caches": 1
+   },
+   "Sources/NXLibrary/Views/Settings/SettingsSoundSection.swift": {
+    "help Quiet launch screen": 1
+   },
+   "Sources/NXLibrary/Views/Settings/SettingsSourcesSection.swift": {
+    "help Keep Steam in the background": 1,
+    "help Steam": 1
+   },
+   "Sources/NXLibrary/Views/Settings/SettingsStorageSection.swift": {
+    "help Artwork cache": 1
    }
   },
   "measure": {
@@ -797,6 +935,44 @@
     "home-cards": 1
    }
   },
+  "mouse-path": {
+   "Sources/NXLibrary/Views/GameOptions/ChangeArtworkView.swift": {
+    "x Open page": 1
+   },
+   "Sources/NXLibrary/Views/GameOptions/ModsPanel.swift": {
+    "y Delete": 1
+   },
+   "Sources/NXLibrary/Views/Players/PlayersScreen+Input.swift": {
+    "rs title": 1,
+    "rt Give all controllers": 1,
+    "x Move": 1,
+    "x Reset players": 1,
+    "y Free this place": 1
+   },
+   "Sources/NXLibrary/Views/Search/CommandPaletteView.swift": {
+    "y secondary": 1
+   },
+   "Sources/NXLibrary/Views/Settings/SettingsView.swift": {
+    "x Reset group": 1
+   },
+   "Sources/NXLibrary/Views/Shell/ProfilePickerView.swift": {
+    "x Delete": 1,
+    "y Edit profile": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/AchievementsScreen.swift": {
+    "y Self.title(state.order)": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/SpotlightTopBar.swift": {
+    "rs Sort and filter": 1
+   },
+   "Sources/NXLibrary/Views/Spotlight/SpotlightView+Hints.swift": {
+    "x Hide builds": 1
+   },
+   "Sources/NXLibrary/Views/Theme/ThemePickerView.swift": {
+    "x Open page": 2,
+    "y Delete": 1
+   }
+  },
   "pad-only": {
    "Sources/NXLibrary/Views/Detail/GameDetailView.swift": {
     "controllerOnly": 1
@@ -951,6 +1127,203 @@
    "Sources/NXLibrary/ViewModels/SetupModel.swift": {
     "Choose your prod.keys file. It stays on this Mac.": 1
    }
+  }
+ },
+ "button_rows": [
+  {
+   "id": "confirm-dialog",
+   "file": "Sources/NXLibrary/Views/OortUI/SeleneConfirmDialog.swift",
+   "scope": "enum SeleneConfirmButton",
+   "order": [
+    "= Self\\.cancel",
+    "= Self\\.confirm"
+   ],
+   "why": "Cancel on the left, the main answer last"
+  },
+  {
+   "id": "notice-choices",
+   "file": "Sources/NXLibrary/ViewModels/AppViewModel.swift",
+   "scope": "var choices: \\[String\\]",
+   "order": [
+    "cancelTitle\\b",
+    "actionTitle\\b"
+   ],
+   "why": "Cancel first, the main answer last"
+  },
+  {
+   "id": "file-picker-foot",
+   "file": "Sources/NXLibrary/Views/OortUI/OortFilePicker.swift",
+   "scope": "var actions:",
+   "order": [
+    "\"Cancel\"",
+    "\"Choose this folder\""
+   ],
+   "why": "Cancel before the button that chooses"
+  },
+  {
+   "id": "cloud-panel-foot",
+   "file": "Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift",
+   "scope": "struct CloudLibraryPanel",
+   "order": [
+    "button\\(\\.advanced",
+    "button\\(\\.close",
+    "button\\(\\.upload\\(nil\\)"
+   ],
+   "why": "Advanced apart, then Close, Send last"
+  },
+  {
+   "id": "free-space-walk",
+   "file": "Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift",
+   "scope": "func handleFree",
+   "order": [
+    "\\[\\.cancel\\]",
+    "\\[\\.confirm\\]"
+   ],
+   "why": "the arrows walk Cancel then the main answer, as drawn"
+  },
+  {
+   "id": "guided-setup-walk",
+   "file": "Sources/NXLibrary/Views/Setup/OnboardingView.swift",
+   "scope": "func move\\(_",
+   "order": [
+    "\"back\"",
+    "\"continue\""
+   ],
+   "why": "the arrows walk Back then Continue, as drawn"
+  },
+  {
+   "id": "downgrade-warning",
+   "file": "Sources/NXLibrary/Views/Launch/DowngradeWarningView.swift",
+   "scope": "var choices:",
+   "order": [
+    "\\.quit",
+    "\\.proceed"
+   ],
+   "why": "Quit on the left, Continue last"
+  },
+  {
+   "id": "library-unavailable",
+   "file": "Sources/NXLibrary/Views/Launch/DevelopmentStartupView.swift",
+   "scope": "struct DevelopmentStartupView",
+   "order": [
+    "\"Close\"",
+    "\"Open library folder\"",
+    "\"Start without a copy\"",
+    "\"Retry\""
+   ],
+   "why": "Close first, Retry last"
+  }
+ ],
+ "safe_focus": {
+  "Sources/NXLibrary/ViewModels/AppViewModel+CloudLibrary.swift::download": "downloads the cloud cache and keeps this Mac's cache as a backup",
+  "Sources/NXLibrary/ViewModels/AppViewModel+CloudLibrary.swift::without": "rebuilds without the cloud cache; removes nothing"
+ },
+ "action_paths": [
+  {
+   "id": "details-read-more",
+   "click": [
+    "Sources/NXLibrary/Views/Detail/DetailsTopBlock.swift",
+    "\"Show less\""
+   ],
+   "key": [
+    "Sources/NXLibrary/Views/Detail/GameDetailView+Input.swift",
+    "expanded\\.toggle|expanded\\s*=[^=]"
+   ],
+   "why": "Read more has no key on Details"
+  },
+  {
+   "id": "details-wikipedia",
+   "click": [
+    "Sources/NXLibrary/Views/Components/WikipediaAbout.swift",
+    "\"From Wikipedia, CC BY-SA\\.\""
+   ],
+   "key": [
+    "Sources/NXLibrary/Views/Detail/GameDetailView+Input.swift",
+    "[wW]ikipedia"
+   ],
+   "why": "the Wikipedia credit link has no key"
+  }
+ ],
+ "mouse_paths": {
+  "Sources/NXLibrary/Views/Collection/CollectionView.swift": {
+   "lb Previous": "the tabs are clickable",
+   "rb Next": "the tabs are clickable"
+  },
+  "Sources/NXLibrary/Views/Components/SeleneHomeChrome.swift": {
+   "menu.prompt Menu": "the macOS menu bar › Menu (⇧⌘K)",
+   "menu Menu": "the macOS menu bar › Menu (⇧⌘K)",
+   "center.prompt Control center": "the macOS menu bar › Menu (⇧⌘K)",
+   "fallback.prompt Hold: Control center": "the macOS menu bar › Menu (⇧⌘K)",
+   "search Search": "the macOS menu bar › Search everywhere (⌘K)",
+   "search.prompt Search": "the macOS menu bar › Search everywhere (⌘K)",
+   "layout.tap(.view)?.prompt Hold: Search": "the macOS menu bar › Search everywhere (⌘K), where Change view is too",
+   "layout.tap(.profiles)?.prompt??.home Profiles": "the portrait in the top bar",
+   "binding?.prompt label": "a right click on the tile, or the macOS menu bar › Game Options (⌘O)"
+  },
+  "Sources/NXLibrary/Views/ControlsView.swift": {
+   "lb Library": "the segments are clickable",
+   "rb In game": "the segments are clickable",
+   "x Other controller": "the controller segments are clickable"
+  },
+  "Sources/NXLibrary/Views/Detail/GameDetailView.swift": {
+   "search.prompt Search": "the macOS menu bar › Search everywhere (⌘K)",
+   "center.prompt Control center": "the macOS menu bar › Menu (⇧⌘K)"
+  },
+  "Sources/NXLibrary/Views/GameOptions/ChangeArtworkView.swift": {
+   "lb Previous": "the tabs are clickable",
+   "rb Next": "the tabs are clickable"
+  },
+  "Sources/NXLibrary/Views/GameOptions/ChangeMetadataView.swift": {
+   "lb Previous": "the field list is clickable",
+   "rb Next": "the field list is clickable",
+   "rt Read more": "the wheel scrolls the text"
+  },
+  "Sources/NXLibrary/Views/GameOptions/GameOptionsView+Rows.swift": {
+   "y Hide info": "the row's help button"
+  },
+  "Sources/NXLibrary/Views/Launch/LaunchScreenView.swift": {
+   "nil Click to close": "a click anywhere"
+  },
+  "Sources/NXLibrary/Views/Search/FindGameView.swift": {
+   "y Search everywhere": "the macOS menu bar › Search everywhere (⌘K)"
+  },
+  "Sources/NXLibrary/Views/Settings/SettingsView.swift": {
+   "lb Previous": "the sidebar is clickable",
+   "rb Next": "the sidebar is clickable",
+   "y Save": "the hints stay shown while changes wait"
+  },
+  "Sources/NXLibrary/Views/Shell/ActivityCenterView.swift": {
+   "lb Previous": "the control center icons are clickable",
+   "rb Next": "the control center icons are clickable",
+   "x Clear": "the row's Clear button",
+   "x Cancel": "the row's round Cancel button"
+  },
+  "Sources/NXLibrary/Views/Shell/AppShellView+Profiles.swift": {
+   "x Erase": "the keypad key",
+   "menu Validate": "the keypad key",
+   "y Touch ID": "the Touch ID button"
+  },
+  "Sources/NXLibrary/Views/Shell/MenuOverlayView.swift": {
+   "center.prompt Close": "a click outside",
+   "fallback.prompt Hold: Close": "a click outside",
+   "lb Previous": "the icons are clickable",
+   "rb Next": "the icons are clickable"
+  },
+  "Sources/NXLibrary/Views/Shell/ProfileEditorView.swift": {
+   "menu menuLabel": "a click on a tile, or the keyboard's Done key",
+   "nil Cancel": "Back, which stays shown with the hints off"
+  },
+  "Sources/NXLibrary/Views/Shell/ProfilePage.swift": {
+   "lb Previous": "a click on the card",
+   "rb Next": "a click on the card",
+   "y Edit profile": "the Edit profile pill"
+  },
+  "Sources/NXLibrary/Views/Spotlight/AchievementsScreen.swift": {
+   "lb Previous": "the shoulder buttons",
+   "rb Next": "the shoulder buttons"
+  },
+  "Sources/NXLibrary/Views/Shell/ProfilePickerView.swift": {
+   "menu Add": "the Add tile"
   }
  }
 }
