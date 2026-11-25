@@ -503,14 +503,7 @@ struct PortingLogBox: View {
                     .transition(.opacity)
             }
         }
-        .background(
-            RoundedRectangle(cornerRadius: SeleneTheme.cardRadius, style: .continuous)
-                .fill(SeleneTheme.glassLight)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: SeleneTheme.cardRadius, style: .continuous)
-                .strokeBorder(SeleneTheme.ink15, lineWidth: max(1, canvas.u(1)))
-        )
+        .oortPanel(radius: SeleneTheme.cardRadius)
         .clipShape(RoundedRectangle(cornerRadius: SeleneTheme.cardRadius, style: .continuous))
     }
 

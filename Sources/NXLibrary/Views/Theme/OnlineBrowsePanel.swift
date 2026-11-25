@@ -252,11 +252,7 @@ private struct OnlineTile: View {
         .frame(width: canvas.u(204), height: canvas.u(115))
         .clipShape(shape)
         .overlay(shape.strokeBorder(SeleneTheme.ink15, lineWidth: SeleneTokens.Space.thinStroke))
-        .overlay(
-            RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card), style: .continuous)
-                .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
-                .padding(canvas.u(-SeleneTokens.Space.hairline))
-                .opacity(focused ? 1 : 0))
+        .oortRing(focused, radius: canvas.u(SeleneTokens.Radius.card), gap: canvas.u(SeleneTokens.Space.hairline))
         .scaleEffect(focused && !reduceMotion ? 1.06 : 1)
         .animation(reduceMotion ? nil : SeleneTheme.quick, value: focused)
         .padding(.horizontal, canvas.u(SeleneTokens.Space.small))

@@ -198,9 +198,7 @@ struct SpotlightCardInfoView: View {
                                     artwork: artwork)
             .clipShape(shape)
             .overlay(shape.strokeBorder(SeleneTheme.ink15, lineWidth: max(1, canvas.u(1))))
-            .overlay(shape.inset(by: canvas.u(-4))
-                .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
-                .opacity(focused ? 1 : 0))
+            .oortRing(focused, radius: canvas.u(SeleneTokens.Radius.row), gap: canvas.u(SeleneTokens.Space.hairline))
             .scaleEffect(focused && !reduceMotion ? 1.06 : 1)
             .animation(reduceMotion ? nil : SeleneTheme.quick, value: focused)
     }

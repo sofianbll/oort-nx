@@ -354,12 +354,7 @@ struct DetailsModsBand: View {
         }
         .frame(width: w, height: h)
         .drawingGroup()
-        .overlay(
-            RoundedRectangle(cornerRadius: canvas.u(style.radius + 3), style: .continuous)
-                .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
-                .padding(canvas.u(-Self.ringOutset))
-                .opacity(focused ? 1 : 0)
-        )
+        .oortRing(focused, radius: canvas.u(style.radius), gap: canvas.u(Self.ringOutset))
         .scaleEffect(focused ? style.focusScale : 1)
         // The grown tile and its ring draw over the neighbours in the grid.
         .zIndex(focused ? 1 : 0)

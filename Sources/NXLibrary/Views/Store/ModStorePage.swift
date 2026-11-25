@@ -138,8 +138,7 @@ struct ModStoreFeatured<Chip: View>: View {
         }
         .frame(width: canvas.u(1700), height: canvas.u(420))
         .clipShape(shape)
-        .overlay(shape.inset(by: canvas.u(-5)).strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
-            .opacity(focused ? 1 : 0))
+        .oortRing(focused, radius: canvas.u(SeleneTokens.Radius.field), gap: canvas.u(SeleneTokens.Space.hairline))
         .scaleEffect(focused ? 1.01 : 1)
         .animation(reduceMotion ? nil : .easeOut(duration: 0.35), value: entry?.id)
         .animation(reduceMotion ? nil : SpotlightScreenshotStrip.motion, value: focused)
@@ -320,10 +319,7 @@ struct ModStoreTile: View {
         .clipShape(shape)
         // Rasterised once and moved as one layer as the row slides.
         .drawingGroup()
-        .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card), style: .continuous)
-            .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
-            .padding(canvas.u(-SeleneTokens.Space.hairline))
-            .opacity(focused ? 1 : 0))
+        .oortRing(focused, radius: canvas.u(SeleneTokens.Radius.card), gap: canvas.u(SeleneTokens.Space.hairline))
         .scaleEffect(focused ? 1.05 : 1)
         .zIndex(focused ? 1 : 0)
         .animation(reduceMotion ? nil : SpotlightScreenshotStrip.motion, value: focused)

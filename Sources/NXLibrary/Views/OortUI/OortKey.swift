@@ -198,6 +198,30 @@ struct OortWellSurface: ViewModifier {
     }
 }
 
+/// The one focus ring of a picture: gold, concentric, with a dark edge so it reads on a light one too.
+struct OortRingFocus: ViewModifier {
+    @Environment(\.seleneCanvas) private var canvas
+    let on: Bool
+    let radius: CGFloat
+    let gap: CGFloat
+
+    func body(content: Content) -> some View {
+        let width = canvas.u(SeleneTokens.Space.strongStroke), edge = max(1, canvas.u(SeleneTokens.Space.thinStroke))
+        content.overlay {
+            ZStack {
+                RoundedRectangle(cornerRadius: radius + gap + edge, style: .continuous)
+                    .strokeBorder(SeleneTheme.scrim.opacity(SeleneTokens.Alpha.half), lineWidth: width + edge)
+                    .padding(-gap - edge)
+                RoundedRectangle(cornerRadius: radius + gap, style: .continuous)
+                    .strokeBorder(SeleneTheme.focus, lineWidth: width)
+                    .padding(-gap)
+            }
+            .opacity(on ? 1 : 0)
+            .allowsHitTesting(false)
+        }
+    }
+}
+
 private struct OortFloat: ViewModifier {
     @Environment(\.seleneCanvas) private var canvas
     let on: Bool
@@ -210,6 +234,10 @@ private struct OortFloat: ViewModifier {
 }
 
 extension View {
+    /// `radius` and `gap` are in points, already scaled by the caller.
+    func oortRing(_ on: Bool, radius: CGFloat, gap: CGFloat) -> some View {
+        modifier(OortRingFocus(on: on, radius: radius, gap: gap))
+    }
     func oortWell(radius: CGFloat) -> some View { modifier(OortWellSurface(radius: radius)) }
     func oortPanel(radius: CGFloat, raised: Bool = false, floats: Bool = false) -> some View {
         modifier(OortPanelSurface(radius: radius, raised: raised, floats: floats))

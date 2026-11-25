@@ -178,11 +178,7 @@ struct TileFocus: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .overlay(
-                RoundedRectangle(cornerRadius: canvas.u(radius + 3), style: .continuous)
-                    .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
-                    .padding(canvas.u(-SeleneTokens.Space.hairline))
-                    .opacity(focused ? 1 : 0))
+            .oortRing(focused, radius: canvas.u(radius), gap: canvas.u(SeleneTokens.Space.hairline))
             .scaleEffect(focused && !reduceMotion ? scale : 1)
             .animation(reduceMotion ? nil : SeleneTheme.quick, value: focused)
     }

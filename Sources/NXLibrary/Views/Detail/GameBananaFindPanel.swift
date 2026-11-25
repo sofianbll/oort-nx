@@ -76,10 +76,7 @@ struct GameBananaFindPanel: View {
         .padding(.vertical, canvas.u(SeleneTokens.Space.compact))
         .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content), style: .continuous)
             .fill(focused ? SeleneTheme.glass : Color.clear))
-        .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
-            .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
-            .padding(canvas.u(-SeleneTokens.Space.segmentInset))
-            .opacity(focused ? 1 : 0))
+        .seleneRowFocus(focused, radius: canvas.u(SeleneTokens.Radius.content))
         .contentShape(Rectangle())
         .onTapGesture {
             SoundEffectService.shared.play(.click)

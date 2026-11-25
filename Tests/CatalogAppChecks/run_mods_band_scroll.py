@@ -34,6 +34,7 @@ enum SeleneTheme {
     static let ink = Color.white
     static let ink60 = Color.gray, ink75 = Color.gray, ink82 = Color.gray, artShade = Color.black, artInk = Color.white
 }
+extension View { func oortRing(_ on: Bool, radius: CGFloat, gap: CGFloat) -> some View { overlay(RoundedRectangle(cornerRadius: radius + gap).strokeBorder(Color.red, lineWidth: on ? 3 : 0).padding(-gap)) } }
 enum SpotlightScreenshotStrip {
     static let motion = Animation.easeOut(duration: 0.25)
 ''' + excerpt('Spotlight/SpotlightScreenshotStrip.swift', '    struct Style:', '    @Environment') + r'''
