@@ -160,6 +160,15 @@ import UniformTypeIdentifiers
     var confirm: (() -> Void)?
     var close: (() -> Void)?
     var canSelectMultiple: Bool { choice.allowsMultiple }
+    /// X adds the focused file to the choice.
+    var canPickSeveral: Bool {
+        canSelectMultiple && column == .files && visible.indices.contains(index) && !visible[index].isFolder
+    }
+    /// B leaves the search, then climbs, then closes: the hint says which.
+    var backLabel: String {
+        if search { return "Back" }
+        return FileBrowser.parent(of: folder, home: home) == nil ? "Close" : "Up one folder"
+    }
     var visible: [FileBrowser.Entry] { FileBrowser.visible(entries, query: query, showHidden: showHidden) }
 
     init(home: URL, choice: FileBrowser.Choice, start: URL?, recent: [URL] = []) {
@@ -241,7 +250,7 @@ import UniformTypeIdentifiers
             column = .files
             index = 0
         case .secondaryAction:
-            if canSelectMultiple, column == .files, visible.indices.contains(index), !visible[index].isFolder {
+            if canPickSeveral {
                 multiple = true
                 toggle(visible[index].url)
             }
@@ -306,8 +315,8 @@ struct OortFilePicker: View {
                 HStack { actionButtons }
                 VStack(alignment: .leading) { actionButtons }
             }
-            SeleneHintsBar(left: [HintItem(.b, L10n.text("Back")), HintItem(.y, L10n.text("Search"), keyboard: .text("⌘F"))],
-                           right: [HintItem(.a, L10n.text("Select"))], bottom: 0, leftInset: 0)
+            SeleneHintsBar(left: [HintItem(.b, model.backLabel), HintItem(.y, "Search", keyboard: .text("⌘F"))],
+                           right: hints, bottom: 0, leftInset: 0, press: model.input)
         }
         .padding(canvas.u(SeleneTokens.Space.section))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -324,6 +333,11 @@ struct OortFilePicker: View {
         .onReceive(NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didUnmountNotification)) { _ in
             model.enter(model.folder)
         }
+    }
+
+    private var hints: [HintItem] {
+        [HintItem(.move, "Change column")] + (model.canPickSeveral ? [HintItem(.x, "Select multiple files")] : [])
+            + [HintItem(.a, "Select")]
     }
 
     private var displayPath: String {

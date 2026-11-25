@@ -38,6 +38,11 @@ enum OortFilePickerProbe {
         model.input(.navigateDown)
         model.input(.navigateDown)
         precondition(model.visible[model.index].name == "Course cosmique.xci")
+        precondition(model.canPickSeveral && model.backLabel == "Up one folder")
+        let top = OortFilePickerModel(home: home, choice: .images, start: home)
+        precondition(top.backLabel == "Close" && !top.canPickSeveral)
+        top.input(.search)
+        precondition(top.backLabel == "Back")
 
         try fm.createDirectory(at: output, withIntermediateDirectories: true)
         for (name, size) in [("grand", CGSize(width: 1440, height: 900)), ("etroit", CGSize(width: 900, height: 660))] {
