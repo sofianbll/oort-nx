@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 25 novembre 2026. Copertura di **1166 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 25 novembre 2026. Il repository versiona **1532 file**, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le singole guide e immagini di `docs/guides/` non hanno una riga propria (le verifica `check_guides.py`); altri 73 file, i pacchetti di suoni e alcuni sorgenti e test recenti, aspettano ancora la loro. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -75,7 +75,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [.github/ISSUE_TEMPLATE/game.yml](../../.github/ISSUE_TEMPLATE/game.yml) | Modulo di compatibilità per un gioco, senza file di gioco né chiavi. |
 | [.github/ISSUE_TEMPLATE/controller.yml](../../.github/ISSUE_TEMPLATE/controller.yml) | Modulo per manette e comandi. |
 | [.github/CODEOWNERS](../../.github/CODEOWNERS) | Designa il maintainer come revisore delle aree sensibili: dati, accesso, release, pacchetto, motore. |
-| [.github/dependabot.yml](../../.github/dependabot.yml) | Controlla ogni settimana azioni, Swift e (sui rami alpha) Cargo e Gradle; apre solo pull request. |
+| [.github/dependabot.yml](../../.github/dependabot.yml) | Controlla ogni settimana azioni, Swift e (sui rami alpha) Cargo, npm e Gradle; apre solo pull request. |
 | [.github/LABELS.md](../../.github/LABELS.md) | Propone le etichette da creare; nessuna è stata applicata su GitHub. |
 | [.github/workflows/ci.yml](../../.github/workflows/ci.yml) | Flusso unico: controlli Mac sempre; Swift, desktop, iPhone e iPad, Android solo se cambiano i loro percorsi. |
 | [CODE_OF_CONDUCT.md](../../CODE_OF_CONDUCT.md) | Regole di condotta brevi e segnalazione privata al maintainer. |
@@ -889,13 +889,12 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/OortUI/SeleneOptionRow.swift](../../Sources/NXLibrary/Views/OortUI/SeleneOptionRow.swift) | Disegna righe di opzioni con icona, titolo, descrizione con carattere configurabile, focus e contenuto laterale. |
 | [Sources/NXLibrary/Views/Components/SeleneExpandableText.swift](../../Sources/NXLibrary/Views/Components/SeleneExpandableText.swift) | Rivela la descrizione completa animando l'altezza fra due layout di testo stabili; usato solo dalle righe dei metadati. |
 | [Sources/NXLibrary/Views/OortUI/SelenePillButton.swift](../../Sources/NXLibrary/Views/OortUI/SelenePillButton.swift) | Disegna il pulsante condiviso, il contorno come anello pieno, la larghezza piena in una colonna e il riempimento mascherato di Download. |
-| [Sources/NXLibrary/Views/Components/SeleneProgressBar.swift](../../Sources/NXLibrary/Views/Components/SeleneProgressBar.swift) | Barra cloud Selene con colore semantico; segno fermo se il totale è ignoto. |
 | [Sources/NXLibrary/Views/OortUI/SeleneStepper.swift](../../Sources/NXLibrary/Views/OortUI/SeleneStepper.swift) | Indicatore di passo e superficie dei campi per l'assistente Selene. |
 | [Sources/NXLibrary/Views/OortUI/SelenePromptBadge.swift](../../Sources/NXLibrary/Views/OortUI/SelenePromptBadge.swift) | Rende simbolo o etichetta del controller e della tastiera, compresa la croce direzionale a contrasto. |
 | [Sources/NXLibrary/Views/Components/GlideGroup.swift](../../Sources/NXLibrary/Views/Components/GlideGroup.swift) | Usa `geometryGroup` per spostare un blocco come un pezzo unico. `RailCamera` limita la posizione interpolata dei rail Spotlight e Collection alla lunghezza corrente. |
 | [Sources/NXLibrary/Views/Components/SeleneReveal.swift](../../Sources/NXLibrary/Views/Components/SeleneReveal.swift) | Applica l’animazione di comparsa Selene rispettando la preferenza Riduci movimento. |
 | [Sources/NXLibrary/Views/OortUI/SeleneSettingsRow.swift](../../Sources/NXLibrary/Views/OortUI/SeleneSettingsRow.swift) | Righe delle impostazioni e ciclo di valore condiviso da Settings e Game Options. |
-| [Sources/NXLibrary/Views/Components/SeleneStatsRow.swift](../../Sources/NXLibrary/Views/Components/SeleneStatsRow.swift) | Disegna le statistiche compatte del gioco nella libreria. |
+| [Sources/NXLibrary/Views/OortUI/SeleneStatsRow.swift](../../Sources/NXLibrary/Views/OortUI/SeleneStatsRow.swift) | Disegna le statistiche compatte del gioco nella libreria. |
 | [Sources/NXLibrary/Views/Components/SeleneSwitch.swift](../../Sources/NXLibrary/Views/Components/SeleneSwitch.swift) | Disegna lo switch coerente con il tema. |
 | [Sources/NXLibrary/Views/OortUI/SeleneTileRing.swift](../../Sources/NXLibrary/Views/OortUI/SeleneTileRing.swift) | Ring e riflesso della tile selezionata; con Reduce motion il ring fermo disegnato da SwiftUI. |
 | [Sources/NXLibrary/Views/Components/TileMotionLayers.swift](../../Sources/NXLibrary/Views/Components/TileMotionLayers.swift) | Ring e riflesso come layer Core Animation in loop: nessun ridisegno dell'app tra un frame e l'altro. |
@@ -1076,7 +1075,6 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/ArcanePortingTests/KeyStoreTests.swift](../../Tests/ArcanePortingTests/KeyStoreTests.swift) | Importazione e sostituzione atomica, conservazione della copia precedente anche con header malformato, permessi 0600 e riepilogo. |
 | [Tests/ArcanePortingTests/LaunchServiceTests.swift](../../Tests/ArcanePortingTests/LaunchServiceTests.swift) | Processo fittizio, impostazioni runtime e profilo, ambiente ereditato senza segreti, Home e overlay, permessi e pulizia dello snapshot; capacità, ripiego e override dello schermo. |
 | [PlayersLaunchTests.swift](../../Tests/ArcanePortingTests/PlayersLaunchTests.swift) | Bundle sintetici per prove motore, precedenze, fusione P1/P2–P8, ordine e profili di gioco. |
-| [PlayerPlanStoreTests.swift](../../Tests/NXLibraryCoreTests/PlayerPlanStoreTests.swift) | Retrocompatibilità, rifiuto di documento corrotto e conservazione dei campi sconosciuti scrivendo un piano di prova. |
 | [Tests/ArcanePortingTests/HomeMenuTests.swift](../../Tests/ArcanePortingTests/HomeMenuTests.swift) | Capacità e ambiente del bundle, stati e segnale al solo figlio sintetico. |
 | [Tests/ArcanePortingTests/LauncherSettingsTests.swift](../../Tests/ArcanePortingTests/LauncherSettingsTests.swift) | Metadati launcher.json e fallback dei controlli per build precedenti. |
 | [Tests/NXLibraryCoreTests/LaunchBoxArtTests.swift](../../Tests/NXLibraryCoreTests/LaunchBoxArtTests.swift) | Risultati di ricerca, scelta della voce Switch/Switch 2, payload Nuxt con file pieni e screenshot. |

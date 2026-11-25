@@ -115,6 +115,8 @@ One list, for every change to Oort NX. G applies to all, V to anything a player 
 | HIG: no own copy of a system setting; Oort has Reduce motion | Either one is enough to turn it on (V15) | The console player may not know the system's. |
 | HIG: no motion on frequent acts; Oort's ring glides | The glide, short and interruptible (V14) | Decision, 25 Nov 2026. |
 | A gold focus ring was proposed; gold is the Sun's | White ring with a dark edge (V12, V20) | Charter. |
+| `bium/` branches asked for every change, `feat/` and `fix/` in the branch rules | `feat/`, `fix/`, `docs/`, `chore/`; `bium/` only for a contribution to Arcane | One naming for every change, chosen on 25 Nov 2026. |
+| Six languages in the conventions, seven in the catalog | Seven (V28) | The catalog is what ships. |
 
 ## Conflicts that wait for the maintainer
 
@@ -127,5 +129,3 @@ Until then a change keeps what is there, and says so.
 | Text at three metres | [Xbox guideline 101](https://learn.microsoft.com/en-us/gaming/accessibility/xbox-accessibility-guidelines/101) asks for 26 px at 1080p; the roles are 16, 19 and 22. Text to 200 % is not built. |
 | Typeface | [DESIGN.md](../../DESIGN.md) says Inter; the app draws the system font. |
 | Session card | It leaves after eight seconds, against V23. |
-| Branch names | [AGENTS.md](../../AGENTS.md) asks for `bium/`, and for topic prefixes in the fork block. |
-| Number of languages | [conventions](conventions.md) §3 says six, the catalog has seven. |
