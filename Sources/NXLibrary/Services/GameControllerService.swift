@@ -100,6 +100,12 @@ final class GameControllerService: ObservableObject {
     private var settingsHoldButton: ControllerButton?
 
     private convenience init() {
+        #if DEBUG
+        if AppData.integrationFixtureHome != nil || ProcessInfo.processInfo.environment["OORT_HEADLESS_INPUT"] == "1" {
+            self.init(gcSource: EmptyControllerSource(), hidSource: EmptyControllerSource())
+            return
+        }
+        #endif
         self.init(gcSource: GCControllerSource(), hidSource: HIDControllerSource(), preferences: AppData.preferences)
     }
 
@@ -580,3 +586,12 @@ final class GameControllerService: ObservableObject {
         }
     }
 }
+
+#if DEBUG
+/// Headless captures never touch the Mac's controller inventory or Home overrides.
+private final class EmptyControllerSource: ControllerSource {
+    var onEvent: ((ControllerSourceEvent) -> Void)?
+    func start() {}
+    func stop() {}
+}
+#endif
