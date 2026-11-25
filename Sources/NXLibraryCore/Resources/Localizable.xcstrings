@@ -1,6 +1,846 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "One answer looks wrong. Oort proposes the right folder.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "One answer looks wrong. Oort proposes the right folder."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Una risposta sembra sbagliata. Oort propone la cartella giusta."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Une réponse semble fausse. Oort propose le bon dossier."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Eine Antwort scheint falsch. Oort schlägt den richtigen Ordner vor."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Una respuesta parece incorrecta. Oort propone la carpeta adecuada."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Uma resposta parece errada. O Oort propõe a pasta certa."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "有一个回答似乎不对。Oort 建议使用正确的文件夹。"}}
+      }
+    },
+    "Choose what is missing, or continue.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Choose what is missing, or continue."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Scegli ciò che manca, oppure continua."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Choisis ce qui manque, ou continue."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Wähle, was fehlt, oder mach weiter."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Elige lo que falta o continúa."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Escolha o que falta ou continue."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "选择缺少的部分，或继续。"}}
+      }
+    },
+    "Not connected yet": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Not connected yet"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Non ancora collegato"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Pas encore connecté"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Noch nicht verbunden"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Aún sin conectar"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Ainda não conectado"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "尚未连接"}}
+      }
+    },
+    "Google ID": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Google ID"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Identificativo Google"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Identifiant Google"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Google-Kennung"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Identificador de Google"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Identificador do Google"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Google 标识"}}
+      }
+    },
+    "Google secret": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Google secret"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Segreto Google"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Secret Google"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Google-Schlüssel"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Secreto de Google"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Segredo do Google"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Google 密钥"}}
+      }
+    },
+    "On Google’s site it is called a client. Its type is “desktop app”.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "On Google’s site it is called a client. Its type is “desktop app”."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Sul sito di Google si chiama client. Il tipo è «app desktop»."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Sur le site de Google, il s’appelle « client ». Son type : application de bureau."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Auf der Google-Seite heißt sie „Client“. Typ: Desktop-App."}},
+        "es": {"stringUnit": {"state": "translated", "value": "En el sitio de Google se llama «cliente». Tipo: aplicación de escritorio."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "No site do Google, ele se chama “cliente”. Tipo: app para computador."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "在 Google 网站上它叫“客户端”，类型为“桌面应用”。"}}
+      }
+    },
+    "Preparing the connection…": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Preparing the connection…"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Preparazione della connessione…"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Préparation de la connexion…"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Verbindung wird vorbereitet…"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Preparando la conexión…"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Preparando a conexão…"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "正在准备连接…"}}
+      }
+    },
+    "The connection to Drive is not ready on this Mac yet.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "The connection to Drive is not ready on this Mac yet."}},
+        "it": {"stringUnit": {"state": "translated", "value": "La connessione a Drive non è ancora pronta su questo Mac."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "La connexion à Drive n’est pas encore prête sur ce Mac."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Die Verbindung zu Drive ist auf diesem Mac noch nicht bereit."}},
+        "es": {"stringUnit": {"state": "translated", "value": "La conexión con Drive aún no está lista en este Mac."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "A conexão com o Drive ainda não está pronta neste Mac."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "这台 Mac 上的云端硬盘连接尚未就绪。"}}
+      }
+    },
+    "Confirm your ROM folder": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Confirm your ROM folder"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Conferma la cartella delle tue ROM"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Confirme le dossier de tes ROM"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Bestätige deinen ROM-Ordner"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Confirma la carpeta de tus ROM"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Confirme a pasta das suas ROMs"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "确认你的 ROM 文件夹"}}
+      }
+    },
+    "Are your ROMs in “%@”?": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Are your ROMs in “%@”?"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Le tue ROM sono in “%@”?"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Tes ROM sont dans « %@ » ?"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Sind deine ROMs in „%@“?"}},
+        "es": {"stringUnit": {"state": "translated", "value": "¿Tus ROM están en «%@»?"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Suas ROMs estão em “%@”?"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "你的 ROM 在“%@”中吗？"}}
+      }
+    },
+    "Are your ROMs in “%@”, or in your compiled games folder?": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Are your ROMs in “%@”, or in your compiled games folder?"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Le tue ROM sono in “%@” o nella cartella dei giochi compilati?"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Tes ROM sont dans « %@ », ou dans le dossier de tes jeux compilés ?"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Sind deine ROMs in „%@“ oder im Ordner deiner kompilierten Spiele?"}},
+        "es": {"stringUnit": {"state": "translated", "value": "¿Tus ROM están en «%@» o en la carpeta de tus juegos compilados?"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Suas ROMs estão em “%@” ou na pasta dos seus jogos compilados?"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "你的 ROM 在“%@”中，还是在已编译游戏的文件夹中？"}}
+      }
+    },
+    "Your account": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Your account"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Il tuo account"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ton compte"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Dein Konto"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Tu cuenta"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Sua conta"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "你的账户"}}
+      }
+    },
+    "Your folders": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Your folders"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Le tue cartelle"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Tes dossiers"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Deine Ordner"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Tus carpetas"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Suas pastas"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "你的文件夹"}}
+      }
+    },
+    "On this Mac": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "On this Mac"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Su questo Mac"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Sur ce Mac"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Auf diesem Mac"}},
+        "es": {"stringUnit": {"state": "translated", "value": "En este Mac"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Neste Mac"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "这台 Mac"}}
+      }
+    },
+    "You need a Google client ID. Oort helps you add it.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "You need a Google ID. Oort helps you add it."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Ti serve un identificativo Google. Oort ti aiuta ad aggiungerlo."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Il te faut un identifiant Google. Oort te guide pour l’ajouter."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Du brauchst eine Google-Kennung. Oort hilft dir beim Hinzufügen."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Necesitas un identificador de Google. Oort te ayuda a añadirlo."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Você precisa de um identificador do Google. O Oort ajuda a adicioná-lo."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "你需要一个 Google 标识。Oort 会引导你添加。"}}
+      }
+    },
+    "Change this": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Change"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Cambia"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Changer"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Ändern"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Cambiar"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Trocar"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "更改"}}
+      }
+    },
+    "Compiled games": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Compiled games"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Giochi compilati"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Jeux compilés"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Kompilierte Spiele"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Juegos compilados"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Jogos compilados"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "已编译的游戏"}}
+      }
+    },
+    "What Oort uploads and downloads.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "What Oort uploads and downloads."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Ciò che Oort carica e scarica."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ce qu’Oort dépose et télécharge."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Was Oort hochlädt und herunterlädt."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Lo que Oort sube y descarga."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "O que o Oort envia e baixa."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Oort 上传和下载的内容。"}}
+      }
+    },
+    "Your ROMs": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Your ROMs"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Le tue ROM"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Tes ROM"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Deine ROMs"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Tus ROM"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Suas ROMs"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "你的 ROM"}}
+      }
+    },
+    "The files you bring. Oort never changes them.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "The files you bring. Oort never changes them."}},
+        "it": {"stringUnit": {"state": "translated", "value": "I file che porti tu. Oort non li modifica mai."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Les fichiers que tu apportes. Oort ne les modifie jamais."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Deine eigenen Dateien. Oort ändert sie nie."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Los archivos que aportas. Oort nunca los modifica."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Os arquivos que você traz. O Oort nunca os altera."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "你自己的文件。Oort 绝不会修改它们。"}}
+      }
+    },
+    "Connect your account first.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Connect your account first"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Collega prima il tuo account"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Connecte ton compte d’abord"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Verbinde zuerst dein Konto"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Conecta primero tu cuenta"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Conecte sua conta primeiro"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "请先连接你的账户"}}
+      }
+    },
+    "In your compiled games folder": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "In your compiled games folder"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nella cartella dei giochi compilati"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Dans le dossier de tes jeux compilés"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Im Ordner deiner kompilierten Spiele"}},
+        "es": {"stringUnit": {"state": "translated", "value": "En la carpeta de tus juegos compilados"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Na pasta dos seus jogos compilados"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "在已编译游戏的文件夹中"}}
+      }
+    },
+    "Tool, test and reference library": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Tool, test and reference library"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Strumento, prova e libreria di riferimento"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Outil, test et bibliothèque de référence"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Werkzeug, Test und Referenzbibliothek"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Herramienta, prueba y biblioteca de referencia"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Ferramenta, teste e biblioteca de referência"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "工具、测试和参考库"}}
+      }
+    },
+    "It’s ready": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "It’s ready"}},
+        "it": {"stringUnit": {"state": "translated", "value": "È pronto"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "C’est prêt"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Fertig"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Todo listo"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Está pronto"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "准备就绪"}}
+      }
+    },
+    "Connect your Google Drive": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Connect your Google Drive"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Collega il tuo Google Drive"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Connecte ton Google Drive"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Verbinde dein Google Drive"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Conecta tu Google Drive"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Conecte seu Google Drive"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "连接你的 Google Drive"}}
+      }
+    },
+    "Google grants access to your whole Drive, but Oort only writes to the two folders you choose.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Google grants access to your whole Drive, but Oort only writes to the two folders you choose."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Google dà accesso a tutto il tuo Drive, ma Oort scrive solo nelle due cartelle che scegli."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Google donne accès à tout ton Drive, mais Oort n’écrit que dans les deux dossiers que tu choisis."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Google gibt Zugriff auf dein ganzes Drive, aber Oort schreibt nur in die zwei Ordner, die du wählst."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Google da acceso a todo tu Drive, pero Oort solo escribe en las dos carpetas que eliges."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "O Google dá acesso a todo o seu Drive, mas o Oort só grava nas duas pastas que você escolher."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Google 会授予对整个云端硬盘的访问权限，但 Oort 只会写入你选择的两个文件夹。"}}
+      }
+    },
+    "Your current account": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Your current account"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Il tuo account attuale"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ton compte actuel"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Dein aktuelles Konto"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Tu cuenta actual"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Sua conta atual"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "当前账户"}}
+      }
+    },
+    "Connected on this Mac": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Connected on this Mac"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Collegato su questo Mac"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Connecté sur ce Mac"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Auf diesem Mac verbunden"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Conectada en este Mac"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Conectada neste Mac"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "已在这台 Mac 上连接"}}
+      }
+    },
+    "Or use another client ID": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Or use another ID"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Oppure usa un altro identificativo"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ou utilise un autre identifiant"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Oder verwende eine andere Kennung"}},
+        "es": {"stringUnit": {"state": "translated", "value": "O usa otro identificador"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Ou use outro identificador"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "或使用其他标识"}}
+      }
+    },
+    "I have a client ID": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "I have an ID"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Ho un identificativo"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "J’ai un identifiant"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Ich habe eine Kennung"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Tengo un identificador"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Tenho um identificador"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "我已有标识"}}
+      }
+    },
+    "Paste the ID and its secret.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Paste the ID and its secret."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Incolla l’identificativo e il suo segreto."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Colle l’identifiant et son secret."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Füge die Kennung und ihren Schlüssel ein."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Pega el identificador y su secreto."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Cole o identificador e o segredo."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "粘贴标识及其密钥。"}}
+      }
+    },
+    "Help me create one": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Help me create it"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Aiutami a crearlo"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aide-moi à le créer"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Hilf mir, sie anzulegen"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Ayúdame a crearlo"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Ajude-me a criá-lo"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "帮我创建"}}
+      }
+    },
+    "Five short steps on Google’s site, then paste.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Five short steps on Google’s site, then paste."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Cinque brevi passi sul sito di Google, poi incolla."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Cinq pas courts sur le site de Google, puis tu colles."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Fünf kurze Schritte auf der Google-Seite, dann einfügen."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Cinco pasos cortos en el sitio de Google y luego pegas."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Cinco passos curtos no site do Google, depois é só colar."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "在 Google 网站上完成五个简短步骤，然后粘贴。"}}
+      }
+    },
+    "Create a project": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Create a project"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Crea un progetto"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Crée un projet"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Lege ein Projekt an"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Crea un proyecto"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Crie um projeto"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "创建项目"}}
+      }
+    },
+    "Turn on the Google Drive API": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Turn on Google Drive for this project"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Attiva Google Drive per questo progetto"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Active Google Drive pour ce projet"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Aktiviere Google Drive für dieses Projekt"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Activa Google Drive para este proyecto"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Ative o Google Drive para este projeto"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "为此项目启用 Google Drive"}}
+      }
+    },
+    "Fill in the consent screen. Audience: external": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Fill in the consent screen. Audience: external"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Compila la schermata di consenso. Pubblico: esterno"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Remplis l’écran d’accord. Audience : externe"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Fülle den Zustimmungsbildschirm aus. Zielgruppe: extern"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Rellena la pantalla de consentimiento. Público: externo"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Preencha a tela de consentimento. Público: externo"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "填写同意屏幕。受众：外部"}}
+      }
+    },
+    "Publish the app, or Google signs you out after 7 days": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Publish the app, or Google signs you out after 7 days"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Pubblica l’app, altrimenti Google ti scollega dopo 7 giorni"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Publie l’app, sinon Google te déconnecte après 7 jours"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Veröffentliche die App, sonst meldet Google dich nach 7 Tagen ab"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Publica la app; si no, Google cierra tu sesión a los 7 días"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Publique o app, ou o Google desconecta você após 7 dias"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "发布应用，否则 Google 会在 7 天后让你退出登录"}}
+      }
+    },
+    "Create the client. Type: desktop app": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Create the ID. Type: desktop app"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Crea l’identificativo. Tipo: app desktop"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Crée l’identifiant. Type : application de bureau"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Erstelle die Kennung. Typ: Desktop-App"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Crea el identificador. Tipo: aplicación de escritorio"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Crie o identificador. Tipo: app para computador"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "创建标识。类型：桌面应用"}}
+      }
+    },
+    "Opens in your browser.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Opens in your browser."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Si apre nel browser."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "S’ouvre dans ton navigateur."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Öffnet sich in deinem Browser."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Se abre en tu navegador."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Abre no seu navegador."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "将在浏览器中打开。"}}
+      }
+    },
+    "Finish in your browser, then come back here.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Finish in your browser, then come back here."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Completa nel browser, poi torna qui."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Termine dans ton navigateur, puis reviens ici."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Schließe es im Browser ab und komm dann zurück."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Termina en tu navegador y vuelve aquí."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Conclua no navegador e volte aqui."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "请在浏览器中完成，然后回到这里。"}}
+      }
+    },
+    "Paste the secret again, without line breaks.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Paste the secret again, without line breaks."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Incolla di nuovo il segreto, senza andare a capo."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Colle à nouveau le secret, sans retour à la ligne."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Füge den Schlüssel erneut ein, ohne Zeilenumbruch."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Pega de nuevo el secreto, sin saltos de línea."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Cole o segredo de novo, sem quebras de linha."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "请重新粘贴密钥，不要换行。"}}
+      }
+    },
+    "The connection tool is missing. Choose or download it in Settings → Cloud library → Advanced.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "The connection tool is missing. Find it in Settings → Cloud library → Advanced."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Manca lo strumento di connessione. Lo trovi in Impostazioni → Libreria cloud → Avanzate."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Il manque l’outil de connexion. Choisis-le dans Réglages → Bibliothèque cloud → Avancé."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Das Verbindungswerkzeug fehlt. Wähle es unter Einstellungen → Cloud-Bibliothek → Erweitert."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Falta la herramienta de conexión. Elígela en Ajustes → Biblioteca en la nube → Avanzado."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Falta a ferramenta de conexão. Escolha em Ajustes → Biblioteca na nuvem → Avançado."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "缺少连接工具。请在“设置”→“云端资料库”→“高级”中选择。"}}
+      }
+    },
+    "Where are your ROMs?": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Where are your ROMs?"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Dove sono le tue ROM?"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Où sont tes ROM ?"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Wo sind deine ROMs?"}},
+        "es": {"stringUnit": {"state": "translated", "value": "¿Dónde están tus ROM?"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Onde estão suas ROMs?"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "你的 ROM 在哪里？"}}
+      }
+    },
+    "The folder with your .nsp, .xci or .nup game files. Oort never touches it.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "The folder with your .nsp, .xci or .nup game files. Oort never touches it."}},
+        "it": {"stringUnit": {"state": "translated", "value": "La cartella con i tuoi file di gioco .nsp, .xci, .nup. Oort non la tocca mai."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Le dossier qui contient tes fichiers de jeu .nsp, .xci, .nup. Oort n’y touche jamais."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Der Ordner mit deinen Spieldateien (.nsp, .xci, .nup). Oort rührt ihn nie an."}},
+        "es": {"stringUnit": {"state": "translated", "value": "La carpeta con tus archivos de juego .nsp, .xci, .nup. Oort nunca la toca."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "A pasta com seus arquivos de jogo .nsp, .xci, .nup. O Oort nunca mexe nela."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "存放 .nsp、.xci、.nup 游戏文件的文件夹。Oort 绝不会动它。"}}
+      }
+    },
+    "Where should your compiled games go?": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Where should your compiled games go?"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Dove mettere i tuoi giochi compilati?"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Où ranger tes jeux compilés ?"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Wohin mit deinen kompilierten Spielen?"}},
+        "es": {"stringUnit": {"state": "translated", "value": "¿Dónde guardar tus juegos compilados?"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Onde guardar seus jogos compilados?"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "已编译的游戏放在哪里？"}}
+      }
+    },
+    "Oort puts its apps there. An empty folder is fine.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Oort puts its apps there. An empty folder is fine."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Oort ci mette le sue app. Va bene una cartella vuota."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Oort y dépose ses apps. Un dossier vide convient."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Oort legt dort seine Apps ab. Ein leerer Ordner passt."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Oort deja ahí sus apps. Vale una carpeta vacía."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "O Oort coloca seus apps ali. Uma pasta vazia serve."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Oort 会把应用放在这里。空文件夹即可。"}}
+      }
+    },
+    "Oort is looking in your Drive…": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Oort is looking in your Drive…"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Oort sta cercando nel tuo Drive…"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Oort regarde dans ton Drive…"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Oort sucht in deinem Drive…"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Oort está mirando en tu Drive…"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "O Oort está olhando seu Drive…"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Oort 正在查看你的云端硬盘…"}}
+      }
+    },
+    "Oort found these. If they are right, continue.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Oort found these. If they are right, continue."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Oort ha trovato queste. Se vanno bene, continua."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Oort a trouvé ceci. Si c’est bon, continue."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Das hat Oort gefunden. Wenn es stimmt, mach weiter."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Oort ha encontrado esto. Si es correcto, continúa."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "O Oort encontrou isto. Se estiver certo, continue."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Oort 找到了这些。如果正确，请继续。"}}
+      }
+    },
+    "No folder chosen yet": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "No folder chosen yet"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nessuna cartella scelta"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aucun dossier choisi"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Noch kein Ordner gewählt"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Ninguna carpeta elegida"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhuma pasta escolhida"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "尚未选择文件夹"}}
+      }
+    },
+    "No ROM found. Choose the folder, or continue without: you can add it later.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "No ROM found. Choose the folder, or continue without: you can add it later."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nessuna ROM trovata. Scegli la cartella o continua senza: potrai aggiungerla dopo."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aucune ROM trouvée. Choisis le dossier, ou continue sans : tu pourras l’ajouter plus tard."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Keine ROM gefunden. Wähle den Ordner oder mach ohne weiter: Du kannst ihn später hinzufügen."}},
+        "es": {"stringUnit": {"state": "translated", "value": "No se encontró ninguna ROM. Elige la carpeta o sigue sin ella: podrás añadirla después."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhuma ROM encontrada. Escolha a pasta ou continue sem ela: dá para adicionar depois."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "未找到 ROM。请选择文件夹，或先跳过：以后可以再添加。"}}
+      }
+    },
+    "Choose a folder for Oort.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Choose a folder for Oort."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Scegli una cartella per Oort."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Choisis un dossier pour Oort."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Wähle einen Ordner für Oort."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Elige una carpeta para Oort."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Escolha uma pasta para o Oort."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "请为 Oort 选择一个文件夹。"}}
+      }
+    },
+    "Oort will create this folder when you continue.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Oort will create this folder when you continue."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Oort creerà questa cartella quando continui."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Oort créera ce dossier quand tu continueras."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Oort legt diesen Ordner an, wenn du weitermachst."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Oort creará esta carpeta cuando continúes."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "O Oort criará esta pasta quando você continuar."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "继续后，Oort 会创建此文件夹。"}}
+      }
+    },
+    "Chosen by you": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Chosen by you"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Scelta da te"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Choisi par toi"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Von dir gewählt"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Elegida por ti"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Escolhida por você"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "由你选择"}}
+      }
+    },
+    "In use now": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "In use now"}},
+        "it": {"stringUnit": {"state": "translated", "value": "In uso ora"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Utilisé en ce moment"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Wird gerade verwendet"}},
+        "es": {"stringUnit": {"state": "translated", "value": "En uso ahora"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Em uso agora"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "正在使用"}}
+      }
+    },
+    "Found on your Drive": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Found on your Drive"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Trovata nel tuo Drive"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Trouvé sur ton Drive"}},
+        "de": {"stringUnit": {"state": "translated", "value": "In deinem Drive gefunden"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Encontrada en tu Drive"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Encontrada no seu Drive"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "在云端硬盘中找到"}}
+      }
+    },
+    "Empty for now: your compiled games will go there.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Empty for now: your compiled games will go there."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Vuota per ora: i tuoi giochi compilati andranno qui."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Vide pour l’instant : tes jeux compilés iront là."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Noch leer: Deine kompilierten Spiele kommen hierher."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Vacía por ahora: tus juegos compilados irán ahí."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Vazia por enquanto: seus jogos compilados irão para lá."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "目前为空：已编译的游戏会放在这里。"}}
+      }
+    },
+    "Kept from last time. No game in it yet.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Kept from last time. No game in it yet."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Conservata dall’ultima volta. Ancora nessun gioco."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Gardé de la dernière fois. Pas encore de jeu dedans."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Vom letzten Mal behalten. Noch kein Spiel darin."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Guardada de la última vez. Aún sin juegos."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Mantida da última vez. Ainda sem jogos."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "沿用上次的选择。里面还没有游戏。"}}
+      }
+    },
+    "Swap the two folders": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Swap the two folders"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Scambia le due cartelle"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Inverser les deux dossiers"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Beide Ordner tauschen"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Intercambiar las dos carpetas"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Trocar as duas pastas"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "交换两个文件夹"}}
+      }
+    },
+    "These are the games Oort compiled, not your ROMs.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "These are the games Oort compiled, not your ROMs."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Questi sono i giochi compilati da Oort, non le tue ROM."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ce sont les jeux compilés par Oort, pas tes ROM."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Das sind die von Oort kompilierten Spiele, nicht deine ROMs."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Son los juegos compilados por Oort, no tus ROM."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Estes são os jogos compilados pelo Oort, não suas ROMs."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "这些是 Oort 编译的游戏，不是你的 ROM。"}}
+      }
+    },
+    "These are your ROMs. Oort needs another folder for its apps.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "These are your ROMs. Oort needs another folder for its apps."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Queste sono le tue ROM. A Oort serve un’altra cartella per le sue app."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ce sont tes ROM. Oort a besoin d’un autre dossier pour ses apps."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Das sind deine ROMs. Oort braucht einen anderen Ordner für seine Apps."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Son tus ROM. Oort necesita otra carpeta para sus apps."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Estas são suas ROMs. O Oort precisa de outra pasta para os apps."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "这些是你的 ROM。Oort 需要另一个文件夹来存放应用。"}}
+      }
+    },
+    "This is one game’s folder. The right one is just above it.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "This is one game’s folder. The right one is just above it."}},
+        "it": {"stringUnit": {"state": "translated", "value": "È la cartella di un solo gioco. Quella giusta è appena sopra."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "C’est le dossier d’un seul jeu. Le bon est juste au-dessus."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Das ist der Ordner eines einzelnen Spiels. Der richtige liegt direkt darüber."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Es la carpeta de un solo juego. La correcta está justo encima."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Esta é a pasta de um só jogo. A certa fica logo acima."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "这是单个游戏的文件夹。正确的文件夹在它的上一级。"}}
+      }
+    },
+    "The games are further in, in “%@”.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "The games are further in, in “%@”."}},
+        "it": {"stringUnit": {"state": "translated", "value": "I giochi sono più dentro, in “%@”."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Les jeux sont plus loin, dans « %@ »."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Die Spiele liegen weiter innen, in „%@“."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Los juegos están más adentro, en «%@»."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Os jogos estão mais adiante, em “%@”."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "游戏在更里面的“%@”中。"}}
+      }
+    },
+    "No game in this folder.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "No game in this folder."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nessun gioco in questa cartella."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aucun jeu dans ce dossier."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Kein Spiel in diesem Ordner."}},
+        "es": {"stringUnit": {"state": "translated", "value": "No hay juegos en esta carpeta."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhum jogo nesta pasta."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "此文件夹中没有游戏。"}}
+      }
+    },
+    "Both answers are the same folder. Oort needs two.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Both answers are the same folder. Oort needs two."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Le due risposte indicano la stessa cartella. A Oort ne servono due."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Les deux réponses désignent le même dossier. Oort en a besoin de deux."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Beide Antworten nennen denselben Ordner. Oort braucht zwei."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Las dos respuestas son la misma carpeta. Oort necesita dos."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "As duas respostas são a mesma pasta. O Oort precisa de duas."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "两个回答是同一个文件夹。Oort 需要两个。"}}
+      }
+    },
+    "Compiled by Oort": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Compiled by Oort"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Compilati da Oort"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Jeux compilés par Oort"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Von Oort kompiliert"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Compilados por Oort"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Compilados pelo Oort"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "由 Oort 编译"}}
+      }
+    },
+    "One game’s folder": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "One game’s folder"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Cartella di un solo gioco"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Dossier d’un seul jeu"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Ordner eines einzelnen Spiels"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Carpeta de un solo juego"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Pasta de um só jogo"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "单个游戏的文件夹"}}
+      }
+    },
+    "Games further in": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Games further in"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Giochi più dentro"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Des jeux plus loin"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Spiele weiter innen"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Juegos más adentro"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Jogos mais adiante"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "更里面有游戏"}}
+      }
+    },
+    "No game here": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "No game here"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nessun gioco qui"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aucun jeu ici"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Kein Spiel hier"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Ningún juego aquí"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhum jogo aqui"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "这里没有游戏"}}
+      }
+    },
+    "Step %d of %d: %@": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Step %d of %d: %@"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Passo %d di %d: %@"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Étape %d sur %d : %@"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Schritt %d von %d: %@"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Paso %d de %d: %@"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Etapa %d de %d: %@"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "第 %d 步，共 %d 步：%@"}}
+      }
+    },
+    "%lld games found: %@": {
+      "comment": "Cloud library: the games seen in a folder, by name.",
+      "localizations": {
+        "en": {"variations": {"plural": {"one": {"stringUnit": {"state": "translated", "value": "%lld game found: %@"}}, "other": {"stringUnit": {"state": "translated", "value": "%lld games found: %@"}}}}},
+        "it": {"variations": {"plural": {"one": {"stringUnit": {"state": "translated", "value": "%lld gioco trovato: %@"}}, "other": {"stringUnit": {"state": "translated", "value": "%lld giochi trovati: %@"}}}}},
+        "fr": {"variations": {"plural": {"one": {"stringUnit": {"state": "translated", "value": "%lld jeu trouvé : %@"}}, "other": {"stringUnit": {"state": "translated", "value": "%lld jeux trouvés : %@"}}}}},
+        "de": {"variations": {"plural": {"one": {"stringUnit": {"state": "translated", "value": "%lld Spiel gefunden: %@"}}, "other": {"stringUnit": {"state": "translated", "value": "%lld Spiele gefunden: %@"}}}}},
+        "es": {"variations": {"plural": {"one": {"stringUnit": {"state": "translated", "value": "%lld juego encontrado: %@"}}, "other": {"stringUnit": {"state": "translated", "value": "%lld juegos encontrados: %@"}}}}},
+        "pt-BR": {"variations": {"plural": {"one": {"stringUnit": {"state": "translated", "value": "%lld jogo encontrado: %@"}}, "other": {"stringUnit": {"state": "translated", "value": "%lld jogos encontrados: %@"}}}}},
+        "zh-Hans": {"variations": {"plural": {"one": {"stringUnit": {"state": "translated", "value": "找到 %lld 个游戏：%@"}}, "other": {"stringUnit": {"state": "translated", "value": "找到 %lld 个游戏：%@"}}}}}
+      }
+    },
     "Quit %@?": {
       "comment": "PowerAction",
       "localizations": {
@@ -7212,17 +8052,6 @@
         "es": {"stringUnit": {"state": "translated", "value": "Verificar"}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Verificar"}},
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "验证"}}
-      }
-    },
-    "Step %d of 3: %@": {
-      "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Step %d of 3: %@"}},
-        "it": {"stringUnit": {"state": "translated", "value": "Passaggio %d di 3: %@"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Étape %d sur 3 : %@"}},
-        "de": {"stringUnit": {"state": "translated", "value": "Schritt %d von 3: %@"}},
-        "es": {"stringUnit": {"state": "translated", "value": "Paso %d de 3: %@"}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Etapa %d de 3: %@"}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "第 %d 步（共 3 步）：%@"}}
       }
     },
     "rclone detected · %@": {

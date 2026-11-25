@@ -203,6 +203,72 @@ public struct CloudDriveFolders: Sendable {
         return try await CloudGameArchive(backend: backend).latestManifests().count
     }
 
+    /// Both folders from one listing, and the account read beside it: neither waits for the other.
+    public func discoverFolders(kept: CloudKeptFolders?) async throws -> CloudFolderDiscovery {
+        async let identified = kept?.account == nil ? nil : try? accountID()
+        async let listed = discoveryEntries(CloudFolderDiscovery.searchRoot, depth: CloudFolderDiscovery.depth)
+        // A folder chosen outside Games is read on its own.
+        let outside = Set([kept?.library, kept?.sources].compactMap { $0 }).filter {
+            $0 != CloudFolderDiscovery.searchRoot && !$0.hasPrefix(CloudFolderDiscovery.searchRoot + "/")
+        }
+        var entries = try await withThrowingTaskGroup(of: [CloudFolderDiscovery.Entry].self) { group in
+            for path in outside {
+                group.addTask { try await [.init(path: path, isDirectory: true)] + discoveryEntries(path, depth: 3, whenMissing: nil) }
+            }
+            var found: [CloudFolderDiscovery.Entry] = []
+            do { for try await part in group { found += part } }
+            // The folder itself is gone: it must not be proposed.
+            catch StorageBackendError.notFound {}
+            return found
+        }
+        entries += try await listed
+        let account = await identified
+        try Task.checkCancellation()
+        return try CloudFolderDiscovery(entries: entries, kept: kept?.applying(to: account))
+    }
+
+    private func discoveryEntries(_ folder: String, depth: Int, whenMissing: [CloudFolderDiscovery.Entry]? = []) async throws
+        -> [CloudFolderDiscovery.Entry] {
+        do {
+            let output = try await checked(["lsjson", try target(folder), "--recursive", "--max-depth", "\(depth)",
+                "--no-modtime", "--no-mimetype", "--exclude", "/**/{app,cache,*.app}/**", "--exclude", "/.arcane-upload/**"])
+            guard let items = try? JSONDecoder().decode([Item].self, from: Data(output.utf8)) else {
+                throw StorageBackendError.invalidResponse
+            }
+            return items.map { .init(path: Self.joining(folder, $0.Path), isDirectory: $0.IsDir) }
+        } catch StorageBackendError.notFound {
+            guard let whenMissing else { throw StorageBackendError.notFound }
+            return whenMissing
+        }
+    }
+
+    /// Makes each missing folder of `path` in turn, inside the one the player saw. Every step keeps `create`'s checks.
+    package func createPath(_ path: String, below existing: String, shown: CloudDriveScope.CreationParent) async throws {
+        var parent = existing
+        var seen = shown
+        let prefix = existing.isEmpty ? "" : existing + "/"
+        guard path.hasPrefix(prefix), CloudLibraryPreference.validRoot(path) else { throw StorageBackendError.invalidKey }
+        for name in path.dropFirst(prefix.count).components(separatedBy: "/") {
+            try await create(name, in: parent, shown: seen)
+            parent = Self.joining(parent, name)
+            guard parent != path else { return }
+            guard let next = try await creationParent(parent), next.account == shown.account else { throw CloudLibraryFailure.scopeChanged }
+            seen = next
+        }
+    }
+
+    /// The deepest folder of `path` that is there, for a creation the player will be asked to confirm.
+    package func deepestParent(of path: String) async throws -> (path: String, parent: CloudDriveScope.CreationParent) {
+        var parts = path.components(separatedBy: "/").dropLast()
+        while true {
+            let folder = parts.joined(separator: "/")
+            do {
+                guard let parent = try await creationParent(folder) else { throw MoveFailure.missingIdentity }
+                return (folder, parent)
+            } catch CloudLibraryFailure.folderMissing where !parts.isEmpty { parts = parts.dropLast() }
+        }
+    }
+
     public func discoverLibrary() async throws -> Library? {
         try await Self.discoverLibrary(directories: {
             try await list($0, ticket: UUID()).names

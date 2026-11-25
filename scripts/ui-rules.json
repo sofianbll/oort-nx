@@ -493,10 +493,6 @@
    "Sources/NXLibrary/Views/Search/FindGameView.swift": {
     "canvas.u(160)": 5
    },
-   "Sources/NXLibrary/Views/Settings/CloudSetupAssistant.swift": {
-    "height:48": 1,
-    "minWidth:115": 1
-   },
    "Sources/NXLibrary/Views/Settings/LocalePicker.swift": {
     "canvas.u(12)": 1,
     "canvas.u(420)": 1,

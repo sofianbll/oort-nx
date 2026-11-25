@@ -1,9 +1,13 @@
 public struct CloudSetupAssistantFocus {
+    /// The two folders a player gives to Oort.
+    public enum Folder: Hashable, Sendable { case library, sources }
+
     public enum Target: Hashable {
-        case console, guide, client, secret, advanced, changeCredentials, retry
-        case breadcrumb(String), folder(String), newFolder, folderName
-        case resumeFolder, otherFolder
-        case enterSourcesPath, sourcesPath
+        case step(Int)
+        case haveClient, helpCreate, link(Int), guide, client, secret, retry
+        case change(Folder), accept(Folder)
+        case breadcrumb(String), folder(String), newFolder, folderName, refresh
+        case enterPath, typedPath
         case moveGames, confirmMove, cancel, primary, create
     }
 
@@ -14,26 +18,37 @@ public struct CloudSetupAssistantFocus {
     public init() {}
     public mutating func reset() { selection = nil }
     public mutating func select(_ target: Target) { selection = target }
-    public mutating func retainSelection(in rows: [[Target]]) {
-        if let selection, !rows.contains(where: { $0.contains(selection) }) { reset() }
+    public mutating func retainSelection(in rows: [[Target]], rail: [Target] = []) {
+        if let selection, !rail.contains(selection), !rows.contains(where: { $0.contains(selection) }) { reset() }
     }
 
-    public func current(in rows: [[Target]]) -> Target {
+    /// `rail` is the column of steps on the left: Left enters it, Right leaves it.
+    public func current(in rows: [[Target]], rail: [Target] = []) -> Target {
         let targets = rows.flatMap { $0 }
-        if let selection, targets.contains(selection) { return selection }
+        if let selection, targets.contains(selection) || rail.contains(selection) { return selection }
         if targets.contains(.primary) { return .primary }
         if targets.contains(.cancel) { return .cancel }
         return targets.first ?? .cancel
     }
 
-    public mutating func move(_ direction: Direction, in rows: [[Target]]) {
+    public mutating func move(_ direction: Direction, in rows: [[Target]], rail: [Target] = []) {
         let rows = rows.filter { !$0.isEmpty }
-        let target = current(in: rows)
+        let target = current(in: rows, rail: rail)
+        if let step = rail.firstIndex(of: target) {
+            switch direction {
+            case .up: selection = rail[max(0, step - 1)]
+            case .down: selection = rail[min(rail.count - 1, step + 1)]
+            case .right: selection = rows.first?.first
+            case .left: break
+            }
+            return
+        }
         guard let row = rows.firstIndex(where: { $0.contains(target) }),
               let column = rows[row].firstIndex(of: target) else { return }
         switch direction {
         case .left:
             if column > 0 { selection = rows[row][column - 1] }
+            else if let step = rail.last { selection = step }
         case .right:
             if column + 1 < rows[row].count { selection = rows[row][column + 1] }
         case .up:

@@ -79,13 +79,15 @@ struct OortButton: View {
     enum State { case ready, blocked, busy }
 
     let title: String
+    /// The parts of the title that are not words of Oort: a folder's own name is never translated.
+    var arguments: [String] = []
     var focused = false
     var state: State = .ready
     var preset: Preset = .action
     let action: () -> Void
 
     var body: some View {
-        SelenePillButton(title: title, minWidth: preset == .compact ? 0 : SeleneTokens.Space.pillWidth,
+        SelenePillButton(title: title, titleArguments: arguments, minWidth: preset == .compact ? 0 : SeleneTokens.Space.pillWidth,
                          height: preset == .compact ? SeleneTokens.Space.compactPillHeight : SeleneTokens.Space.pillHeight,
                          titleSize: preset == .compact ? .text : .row,
                          horizontalPadding: preset == .compact ? SeleneTokens.Space.medium : SeleneTokens.Space.pillInset,

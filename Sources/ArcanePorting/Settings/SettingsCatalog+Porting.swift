@@ -18,8 +18,7 @@ extension SettingsCatalog {
     }
 
     public static func opensCloudAdvanced(_ id: String) -> Bool {
-        ["cloudLibraryAdvanced", "cloudLibraryFolder", "cloudSourcesRoot", "cloudLibraryConnect",
-         "cloudLibraryTool", "cloudLibraryTest", "cloudLibraryDisconnect"].contains(id)
+        ["cloudLibraryAdvanced", "cloudLibraryTool", "cloudLibraryTest", "cloudReferenceFolder"].contains(id)
     }
 
     /// The rows a player can reach now.
@@ -30,8 +29,10 @@ extension SettingsCatalog {
             guard row.group == .cloudLibrary else { return true }
             switch row.id {
             case "cloudLibrarySetup": return !cloudConfigured
-            case "cloudLibraryAdvanced", "cloudLibraryTool", "showsCloudPlayIcon", "showsCloudDetailsLink", "cloudTileBadges": return true
-            default: return cloudConfigured
+            case "cloudLibraryConnect", "cloudLibraryService", "cloudLibraryDisconnect", "cloudLibraryTest", "cloudReferenceFolder":
+                return cloudConfigured
+            // The folders and this Mac's choices are on the page before the account is connected.
+            default: return true
             }
         }
     }
@@ -100,21 +101,21 @@ extension SettingsCatalog {
         row("cloudSavesPickedFolder", .cloudSaves, "Cloud saves folder",
             "The chosen folder for save sync; choosing a folder enables it.") { $0.cloudSavesPickedFolder },
         action("cloudLibrarySetup", .cloudLibrary, "Configure cloud library", "Connect Google Drive."),
+        action("cloudLibraryConnect", .cloudLibrary, "Change Google credentials", "Sign in with your own Google OAuth client in your browser."),
+        action("cloudLibraryService", .cloudLibrary, "Cloud service", "Last connection test and recovery for Google Drive."),
+        action("cloudLibraryDisconnect", .cloudLibrary, "Disconnect", "Removes only the local connection. Cloud files stay where they are."),
+        action("cloudLibraryFolder", .cloudLibrary, "Compiled games", "What Oort uploads and downloads."),
+        action("cloudSourcesRoot", .cloudLibrary, "Your ROMs", "The files you bring. Oort never changes them."),
         action("cloudLibraryEnabled", .cloudLibrary, "Enable cloud library",
                "Cloud storage for ported apps and build caches, separate from saves."),
-        action("cloudLibraryService", .cloudLibrary, "Cloud service", "Last connection test and recovery for Google Drive."),
-        action("cloudLibraryFolder", .cloudLibrary, "Library folder", "Folder for game apps and build caches."),
-        action("cloudSourcesRoot", .cloudLibrary, "Game files folder", "Choose a path on the same cloud service. No files are moved."),
-        action("cloudReferenceFolder", .cloudLibrary, "Reference library", "Follow a shared Google Drive folder in read-only mode."),
         action("cloudLibraryImport", .cloudLibrary, "Import games from the cloud", "Add missing games without downloading their apps."),
         row("showsCloudPlayIcon", .cloudLibrary, "Icon next to Play", "Show the cloud icon by the play button.") { $0.showsCloudPlayIcon },
         row("showsCloudDetailsLink", .cloudLibrary, "Link in Details", "Show the cloud library link in Details.") { $0.showsCloudDetailsLink },
         row("cloudTileBadges", .cloudLibrary, "Tile badges", "Show cloud status on game covers.") { $0.cloudTileBadges },
-        action("cloudLibraryAdvanced", .cloudLibrary, "Folders and connection tools", "Advanced"),
-        action("cloudLibraryConnect", .cloudLibrary, "Change Google credentials", "Sign in with your own Google OAuth client in your browser."),
+        action("cloudLibraryAdvanced", .cloudLibrary, "Tool, test and reference library", "Advanced"),
         action("cloudLibraryTool", .cloudLibrary, "Cloud tool", "Choose the executable or use the detected one."),
         action("cloudLibraryTest", .cloudLibrary, "Test connection", "Lists the cloud folder without changing its files."),
-        action("cloudLibraryDisconnect", .cloudLibrary, "Disconnect", "Removes only the local connection. Cloud files stay where they are."),
+        action("cloudReferenceFolder", .cloudLibrary, "Reference library", "Follow a shared Google Drive folder in read-only mode."),
 
         // Porting storage
         action("buildCaches", .portingStorage, "Build caches", "Move one game's build cache or all build caches to the Trash after confirmation; rebuilds may take longer."),
