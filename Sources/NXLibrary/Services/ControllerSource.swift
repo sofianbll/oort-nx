@@ -55,6 +55,8 @@ protocol ControllerSource: AnyObject {
     func stop()
     func refresh()
     var preferredID: ObjectIdentifier? { get }
+    /// Pads the source reads at once: the one that takes over, and only that, is announced here.
+    func prefer(_ id: ObjectIdentifier)
     @discardableResult func select(_ id: ObjectIdentifier?) -> Bool
     func observe(_ ids: Set<ObjectIdentifier>)
     func status(_ id: ObjectIdentifier) -> ControllerStatus
@@ -64,6 +66,7 @@ protocol ControllerSource: AnyObject {
 extension ControllerSource {
     func refresh() {}
     var preferredID: ObjectIdentifier? { nil }
+    func prefer(_ id: ObjectIdentifier) {}
     func select(_ id: ObjectIdentifier?) -> Bool { false }
     func observe(_ ids: Set<ObjectIdentifier>) {}
     func status(_ id: ObjectIdentifier) -> ControllerStatus { .init() }

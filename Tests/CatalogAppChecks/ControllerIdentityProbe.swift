@@ -45,7 +45,56 @@ private final class FakeSource: ControllerSource {
         repeatedHardwareID()
         exclusiveAssignment()
         promptsFollowTheHand()
+        lastPressedLeads()
         print("Controller identity: hash privacy, pairing, sticky ambiguity, activity, output routing, sleep and hot plug passed")
+    }
+
+    /// Two pads on the sofa: the one pressed drives the menus and names the buttons, without losing that press.
+    private static func lastPressedLeads() {
+        let gc = FakeSource(), hid = FakeSource()
+        let objects = (0..<3).map { _ in NSObject() }
+        let first = ControllerIdentity(id: ObjectIdentifier(objects[0]), name: "First", brand: .xbox)
+        let second = ControllerIdentity(id: ObjectIdentifier(objects[1]), name: "Second", brand: .playstation,
+                                        symbols: [.a: "xmark.circle"])
+        let raw = ControllerIdentity(id: ObjectIdentifier(objects[2]), name: "Raw", brand: .nintendoSwitch)
+        gc.preferredID = first.id
+        gc.add(first)
+        gc.add(second)
+        let service = GameControllerService(gcSource: gc, hidSource: hid)
+        var actions: [GamepadAction] = []
+        service.onAction = { actions.append($0) }
+        func drain() { RunLoop.main.run(until: Date().addingTimeInterval(0.03)) }
+        func press(_ pad: ControllerIdentity) {
+            gc.onEvent?(.input(pad.id, .button(.a, true)))
+            gc.onEvent?(.input(pad.id, .button(.a, false)))
+            drain()
+        }
+        precondition(service.activeBrand == .xbox)
+        for step in 0..<40 { gc.onEvent?(.input(second.id, .leftStick(SIMD2(step.isMultiple(of: 2) ? 0.5 : -0.3, 0.2)))) }
+        drain()
+        precondition(service.activeBrand == .xbox && actions.isEmpty, "A pad lying on the sofa takes nothing")
+        press(second)
+        precondition(service.activeBrand == .playstation && actions == [.confirm], "The press that wakes it counts")
+        precondition(service.activeControllerName == "Second" && service.buttonSymbols[.a] == "xmark.circle")
+        service.refreshControllers()
+        precondition(service.activeBrand == .playstation, "A refresh keeps the pad in use")
+        press(first)
+        precondition(service.activeBrand == .xbox && actions == [.confirm, .confirm])
+        hid.add(raw)
+        RunLoop.main.run(until: Date().addingTimeInterval(2.2))
+        service.refreshControllers()
+        precondition(service.activeBrand == .xbox)
+        hid.onEvent?(.buttonPressed(raw.id))
+        precondition(service.activeBrand == .nintendoSwitch && hid.selected == raw.id)
+        hid.onEvent?(.input(raw.id, .button(.b, true)))
+        drain()
+        precondition(actions.last == .cancel)
+        press(second)
+        precondition(service.activeBrand == .playstation && hid.selected == nil)
+        gc.preferredID = first.id
+        gc.remove(second)
+        precondition(service.activeBrand == .xbox, "Unplugged, the other one leads")
+        withExtendedLifetime(objects) {}
     }
 
     /// The prompts name the controller only while it is the last thing used, and never flicker.
