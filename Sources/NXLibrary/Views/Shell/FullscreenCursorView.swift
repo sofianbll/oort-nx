@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import SwiftUI
 import NXLibraryCore
 
@@ -18,6 +19,7 @@ final class CursorWindowView: NSView {
     private weak var observedWindow: NSWindow?
     private var previousMouseMovedEvents = false
     private var menuTracking = false
+    private var hand: AnyCancellable?
 
     override func hitTest(_ point: NSPoint) -> NSView? { nil }
 
@@ -57,6 +59,12 @@ final class CursorWindowView: NSView {
                 }
             })
         }
+        hand = GameControllerService.shared.$inputInHand.map(\.device).removeDuplicates().sink { [weak self] device in
+            guard let self, device == .controller else { return }
+            self.state.controllerUsed()
+            // The tick applies it: the window must still be the one in use.
+            DispatchQueue.main.async { [weak self] in self?.tick() }
+        }
         let timer = Timer(timeInterval: 0.25, repeats: true) { [weak self] _ in self?.tick() }
         self.timer = timer
         RunLoop.main.add(timer, forMode: .common)
@@ -69,6 +77,7 @@ final class CursorWindowView: NSView {
         eventMonitor = nil
         observers.forEach(NotificationCenter.default.removeObserver)
         observers = []
+        hand = nil
         menuTracking = false
         observedWindow?.acceptsMouseMovedEvents = previousMouseMovedEvents
         observedWindow = nil
@@ -89,11 +98,12 @@ final class CursorWindowView: NSView {
         if let window, let content = window.contentView {
             let pointer = content.convert(window.mouseLocationOutsideOfEventStream, from: nil)
             eligible = NSApp.isActive && window.isKeyWindow && window.isVisible
-                && window.styleMask.contains(.fullScreen) && window.attachedSheet == nil
+                && window.attachedSheet == nil
                 && NSApp.modalWindow == nil
                 && content.bounds.contains(pointer)
         }
-        apply(hidden: state.update(now: ProcessInfo.processInfo.systemUptime, eligible: eligible))
+        apply(hidden: state.update(now: ProcessInfo.processInfo.systemUptime, eligible: eligible,
+                                   fullscreen: window?.styleMask.contains(.fullScreen) == true))
     }
 
     private func observePointerMovement() {

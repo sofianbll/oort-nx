@@ -12,10 +12,11 @@ import UniformTypeIdentifiers
     private var recent: [URL] = []
 
     nonisolated static func open(_ choice: FileBrowser.Choice, title: String, message: String, startingAt start: URL? = nil,
-                                 canCreateDirectories: Bool = false, completion: @escaping ([URL]) -> Void) {
+                                 canCreateDirectories: Bool = false, cancelled: @escaping () -> Void = {},
+                                 completion: @escaping ([URL]) -> Void) {
         Task { @MainActor in
             shared.open(choice, title: title, message: message, startingAt: start,
-                        canCreateDirectories: canCreateDirectories, completion: completion)
+                        canCreateDirectories: canCreateDirectories, cancelled: cancelled, completion: completion)
         }
     }
 
@@ -26,8 +27,8 @@ import UniformTypeIdentifiers
     }
 
     private func open(_ choice: FileBrowser.Choice, title: String, message: String, startingAt start: URL? = nil,
-                      canCreateDirectories: Bool = false, completion: @escaping ([URL]) -> Void) {
-        guard !isOpen, let window = NSApp.keyWindow ?? NSApp.mainWindow, window.attachedSheet == nil else { return }
+                      canCreateDirectories: Bool = false, cancelled: @escaping () -> Void, completion: @escaping ([URL]) -> Void) {
+        guard !isOpen, let window = NSApp.keyWindow ?? NSApp.mainWindow, window.attachedSheet == nil else { return cancelled() }
         let home = AppData.profile.home
         let panel = NSPanel()
         panel.styleMask = [.titled, .fullSizeContentView]
@@ -40,7 +41,7 @@ import UniformTypeIdentifiers
         var picked: [URL] = []
         let finish: ([URL]) -> Void = { urls in
             if let first = urls.first {
-                let folder = first.hasDirectoryPath ? first : first.deletingLastPathComponent()
+                let folder = first.hasDirectoryPath && !choice.accepts(first.lastPathComponent) ? first : first.deletingLastPathComponent()
                 self.recent = Array(([folder] + self.recent.filter { $0.path != folder.path }).prefix(5))
             }
             picked = urls
@@ -77,34 +78,41 @@ import UniformTypeIdentifiers
             panel.orderOut(nil)
             if result == .continue {
                 self.nativeFallback(choice, title: title, message: message, folder: model.ready ? model.folder : home,
-                                    canCreateDirectories: canCreateDirectories, window: window, completion: completion)
+                                    canCreateDirectories: canCreateDirectories, window: window, cancelled: cancelled, completion: completion)
             } else if !picked.isEmpty {
                 completion(picked)
+            } else {
+                cancelled()
             }
         }
     }
 
     private func nativeFallback(_ choice: FileBrowser.Choice, title: String, message: String, folder: URL,
-                                canCreateDirectories: Bool, window: NSWindow, completion: @escaping ([URL]) -> Void) {
+                                canCreateDirectories: Bool, window: NSWindow, cancelled: @escaping () -> Void,
+                                completion: @escaping ([URL]) -> Void) {
         let panel = NSOpenPanel()
         panel.canChooseDirectories = choice.allowsFolder
         panel.canChooseFiles = choice != .folder
         panel.canCreateDirectories = canCreateDirectories
         panel.resolvesAliases = false
-        if case .gameFiles = choice {
-            panel.allowsMultipleSelection = true
-            panel.allowedContentTypes = FileBrowser.gameExtensions.compactMap { UTType(filenameExtension: $0) }
+        panel.allowsMultipleSelection = choice.allowsMultiple
+        switch choice {
+        case .gameFiles: panel.allowedContentTypes = FileBrowser.gameExtensions.compactMap { UTType(filenameExtension: $0) }
+        case .files(let extensions, let folder, _):
+            panel.allowedContentTypes = extensions.compactMap { UTType(filenameExtension: $0) } + (folder ? [.folder] : [])
+        case .apps: panel.allowedContentTypes = [.applicationBundle]
+        case .folder, .keys, .tool: break
         }
         panel.directoryURL = folder
         panel.prompt = L10n.text("Choose")
         panel.title = title
         panel.message = message
         panel.beginSheetModal(for: window) { result in
-            guard result == .OK else { return }
+            guard result == .OK else { return cancelled() }
             let urls = panel.urls
-            guard !urls.isEmpty, urls.allSatisfy({ $0.hasDirectoryPath ? choice.allowsFolder : choice.accepts($0.lastPathComponent) }) else {
+            guard !urls.isEmpty, urls.allSatisfy(choice.accepts) else {
                 self.open(choice, title: title, message: message, startingAt: folder,
-                          canCreateDirectories: canCreateDirectories, completion: completion)
+                          canCreateDirectories: canCreateDirectories, cancelled: cancelled, completion: completion)
                 return
             }
             completion(urls)
@@ -151,7 +159,16 @@ import UniformTypeIdentifiers
     private var load: Task<Void, Never>?
     var confirm: (() -> Void)?
     var close: (() -> Void)?
-    var canSelectMultiple: Bool { if case .gameFiles = choice { return true }; return false }
+    var canSelectMultiple: Bool { choice.allowsMultiple }
+    /// X adds the focused file to the choice.
+    var canPickSeveral: Bool {
+        canSelectMultiple && column == .files && visible.indices.contains(index) && !visible[index].isFolder
+    }
+    /// B leaves the search, then climbs, then closes: the hint says which.
+    var backLabel: String {
+        if search { return "Back" }
+        return FileBrowser.parent(of: folder, home: home) == nil ? "Close" : "Up one folder"
+    }
     var visible: [FileBrowser.Entry] { FileBrowser.visible(entries, query: query, showHidden: showHidden) }
 
     init(home: URL, choice: FileBrowser.Choice, start: URL?, recent: [URL] = []) {
@@ -233,7 +250,7 @@ import UniformTypeIdentifiers
             column = .files
             index = 0
         case .secondaryAction:
-            if canSelectMultiple, column == .files, visible.indices.contains(index), !visible[index].isFolder {
+            if canPickSeveral {
                 multiple = true
                 toggle(visible[index].url)
             }
@@ -257,6 +274,7 @@ import UniformTypeIdentifiers
 
 struct OortFilePicker: View {
     @ObservedObject var model: OortFilePickerModel
+    @ObservedObject private var typing = OortKeyboardPresentation.shared
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.nxAppLocale) private var locale
     @FocusState private var searchFocused: Bool
@@ -298,14 +316,16 @@ struct OortFilePicker: View {
                 HStack { actionButtons }
                 VStack(alignment: .leading) { actionButtons }
             }
-            SeleneHintsBar(left: [HintItem(.b, L10n.text("Back")), HintItem(.y, L10n.text("Search"), keyboard: .text("⌘F"))],
-                           right: [HintItem(.a, L10n.text("Select"))], bottom: 0, leftInset: 0)
+            SeleneHintsBar(left: [HintItem(.b, model.backLabel), HintItem(.y, "Search", keyboard: .text("⌘F"))],
+                           right: hints, bottom: 0, leftInset: 0, press: model.input)
         }
         .padding(canvas.u(SeleneTokens.Space.section))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .foregroundStyle(SeleneTheme.ink)
         .background(SeleneTheme.pageSurface)
         .environment(\.seleneMinimumFont, 12)
+        .environment(\.seleneHintsCovered, typing.isOpen)
+        .overlay { OortKeyboardLayer(inSheet: true) }
         .onAppear {
             model.confirm = activate
             model.close = cancel
@@ -316,6 +336,11 @@ struct OortFilePicker: View {
         .onReceive(NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didUnmountNotification)) { _ in
             model.enter(model.folder)
         }
+    }
+
+    private var hints: [HintItem] {
+        [HintItem(.move, "Change column")] + (model.canPickSeveral ? [HintItem(.x, "Select multiple files")] : [])
+            + [HintItem(.a, "Select")]
     }
 
     private var displayPath: String {
@@ -456,7 +481,9 @@ struct OortFilePicker: View {
         case "nup": L10n.text("Switch 2 game package")
         case "xci", "xcz": L10n.text("Switch cartridge file")
         case "keys": L10n.text("Switch keys")
-        default: L10n.text("Switch game or update")
+        case let name where FileBrowser.gameExtensions.contains(name): L10n.text("Switch game or update")
+        case "": L10n.text("File")
+        case let name: name.uppercased()
         }
     }
 

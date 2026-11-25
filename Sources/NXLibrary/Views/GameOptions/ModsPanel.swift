@@ -121,7 +121,7 @@ struct ModsPanel: View {
 
     private var hints: [HintItem] {
         guard let mod = focusedMod else { return [HintItem(.a, L10n.text("Select"))] }
-        var items = [HintItem(.move, "Move"), HintItem(.y, L10n.text("Remove"), action: askRemove)]
+        var items = [HintItem(.move, "Move"), HintItem(.y, L10n.text("Delete"), action: askRemove)]
         items.append(HintItem(.a, !mod.isMod ? L10n.text("Select") : mod.isOn ? L10n.text("Turn off") : L10n.text("Turn on")))
         return items
     }
@@ -325,13 +325,14 @@ struct ModsPanel: View {
             SoundEffectService.shared.play(.error)
             return
         }
-        let panel = NSOpenPanel()
-        panel.title = L10n.text("Import code mod")
-        panel.prompt = L10n.text("Add")
-        panel.canChooseFiles = false
-        panel.canChooseDirectories = true
-        guard panel.runModal() == .OK, let folder = panel.url else { return }
+        OortFilePickerPresentation.open(.folder, title: L10n.text("Import code mod"),
+                                        message: L10n.text("Choose the mod’s folder.")) { urls in
+            if let folder = urls.first { importCodeMod(folder, into: store) }
+        }
+    }
 
+    private func importCodeMod(_ folder: URL, into store: ModStore) {
+        guard store.isWritable, !importing else { return }
         importing = true
         Task { @MainActor in
             let outcome = Task.detached(priority: .userInitiated) { () -> String? in

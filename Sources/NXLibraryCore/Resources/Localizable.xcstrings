@@ -1,6 +1,1604 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Quit %@?": {
+      "comment": "PowerAction",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quit %@?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quitter %@ ?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ beenden?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Salir de %@?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uscire da %@?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sair de %@?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出 %@？"
+          }
+        }
+      }
+    },
+    "Restart %@?": {
+      "comment": "PowerAction",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restart %@?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redémarrer %@ ?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ neu starten?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Reiniciar %@?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riavviare %@?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reiniciar %@?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新启动 %@？"
+          }
+        }
+      }
+    },
+    "The launcher closes. Running games stay open.": {
+      "comment": "PowerAction",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The launcher closes. Running games stay open."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le lanceur se ferme. Les jeux en cours restent ouverts."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Launcher wird geschlossen. Laufende Spiele bleiben offen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El lanzador se cierra. Los juegos en curso siguen abiertos."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il launcher si chiude. I giochi in corso restano aperti."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O launcher fecha. Os jogos em execução continuam abertos."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启动器将关闭。正在运行的游戏保持打开。"
+          }
+        }
+      }
+    },
+    "The launcher closes and opens again. Running games stay open.": {
+      "comment": "PowerAction",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The launcher closes and opens again. Running games stay open."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le lanceur se ferme puis se rouvre. Les jeux en cours restent ouverts."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Launcher wird geschlossen und wieder geöffnet. Laufende Spiele bleiben offen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El lanzador se cierra y se vuelve a abrir. Los juegos en curso siguen abiertos."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il launcher si chiude e si riapre. I giochi in corso restano aperti."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O launcher fecha e abre de novo. Os jogos em execução continuam abertos."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启动器将关闭并重新打开。正在运行的游戏保持打开。"
+          }
+        }
+      }
+    },
+    "Click to close": {
+      "comment": "LaunchScreenView",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click to close"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clique pour fermer"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zum Schließen klicken"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haz clic para cerrar"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fai clic per chiudere"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clique para fechar"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点击关闭"
+          }
+        }
+      }
+    },
+    "Reset %@?": {
+      "comment": "SettingsReset",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset %@?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réinitialiser « %@ » ?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ zurücksetzen?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Restablecer «%@»?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ripristinare «%@»?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redefinir “%@”?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重置“%@”？"
+          }
+        }
+      }
+    },
+    "The name, avatar and picture of this profile are replaced now.": {
+      "comment": "SettingsReset",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The name, avatar and picture of this profile are replaced now."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le nom, l’avatar et la photo de ce profil sont remplacés tout de suite."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name, Avatar und Bild dieses Profils werden sofort ersetzt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El nombre, el avatar y la foto de este perfil se sustituyen ahora."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nome, avatar e foto di questo profilo vengono sostituiti subito."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O nome, o avatar e a foto deste perfil são substituídos agora."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此个人资料的名称、头像和照片将立即被替换。"
+          }
+        }
+      }
+    },
+    "The change is made now.": {
+      "comment": "SettingsReset",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The change is made now."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le changement est fait tout de suite."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Änderung erfolgt sofort."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El cambio se hace ahora."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La modifica avviene subito."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A alteração é feita agora."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更改将立即生效。"
+          }
+        }
+      }
+    },
+    "Its settings go back to their defaults. Save to keep the change.": {
+      "comment": "SettingsReset",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Its settings go back to their defaults. Save to keep the change."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ses réglages reviennent à leur valeur de départ. Enregistre pour garder le changement."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Einstellungen kehren zu ihren Standardwerten zurück. Zum Übernehmen sichern."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sus ajustes vuelven a sus valores iniciales. Guarda para conservar el cambio."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le impostazioni tornano ai valori iniziali. Salva per mantenere la modifica."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As definições voltam aos valores iniciais. Salve para manter a alteração."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置将恢复为默认值。保存后更改才会保留。"
+          }
+        }
+      }
+    },
+    "Import a save for %@": {
+      "comment": "SavePanelModel",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import a save for %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importer une sauvegarde pour %@"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spielstand für %@ importieren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importar una partida para %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importa un salvataggio per %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importar um save para %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "为 %@ 导入存档"
+          }
+        }
+      }
+    },
+    "Choose a Ryujinx game folder, an exported save, or a dated backup.": {
+      "comment": "SavePanelModel",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a Ryujinx game folder, an exported save, or a dated backup."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisis un dossier de jeu Ryujinx, une sauvegarde exportée ou une copie datée."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle einen Ryujinx-Spielordner, einen exportierten Spielstand oder eine datierte Sicherung."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige una carpeta de juego de Ryujinx, una partida exportada o una copia fechada."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scegli una cartella di gioco Ryujinx, un salvataggio esportato o una copia datata."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha uma pasta de jogo do Ryujinx, um save exportado ou uma cópia datada."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择 Ryujinx 游戏文件夹、已导出的存档或带日期的备份。"
+          }
+        }
+      }
+    },
+    "nxnative folder": {
+      "comment": "SetupModel",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nxnative folder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dossier nxnative"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nxnative-Ordner"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carpeta de nxnative"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cartella nxnative"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasta do nxnative"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nxnative 文件夹"
+          }
+        }
+      }
+    },
+    "Choose the directory containing the nxnative scripts and tools.": {
+      "comment": "SetupModel",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose the directory containing the nxnative scripts and tools."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisis le dossier qui contient les scripts et les outils de nxnative."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle den Ordner mit den nxnative-Skripten und -Werkzeugen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige la carpeta que contiene los scripts y las herramientas de nxnative."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scegli la cartella che contiene gli script e gli strumenti di nxnative."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha a pasta com os scripts e as ferramentas do nxnative."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择包含 nxnative 脚本和工具的文件夹。"
+          }
+        }
+      }
+    },
+    "Choose a game app built with nxnative.": {
+      "comment": "AppViewModel",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a game app built with nxnative."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisis une app de jeu compilée avec nxnative."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle eine mit nxnative erstellte Spiele-App."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige una app de juego compilada con nxnative."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scegli un’app di gioco compilata con nxnative."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha um app de jogo compilado com o nxnative."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择用 nxnative 编译的游戏 App。"
+          }
+        }
+      }
+    },
+    "Ryujinx folder": {
+      "comment": "AppViewModel",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ryujinx folder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dossier Ryujinx"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ryujinx-Ordner"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carpeta de Ryujinx"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cartella Ryujinx"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasta do Ryujinx"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ryujinx 文件夹"
+          }
+        }
+      }
+    },
+    "Select your Ryujinx folder to automatically locate prod.keys.": {
+      "comment": "AppViewModel",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select your Ryujinx folder to automatically locate prod.keys."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisis ton dossier Ryujinx pour retrouver prod.keys automatiquement."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle deinen Ryujinx-Ordner, um prod.keys automatisch zu finden."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige tu carpeta de Ryujinx para encontrar prod.keys automáticamente."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scegli la cartella Ryujinx per trovare prod.keys automaticamente."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha a sua pasta do Ryujinx para localizar o prod.keys automaticamente."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择你的 Ryujinx 文件夹以自动查找 prod.keys。"
+          }
+        }
+      }
+    },
+    "Add a video": {
+      "comment": "ThemePickerView",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a video"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter une vidéo"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Video hinzufügen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir un vídeo"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi un video"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adicionar um vídeo"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加视频"
+          }
+        }
+      }
+    },
+    "Choose the mod’s folder.": {
+      "comment": "ModsPanel",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose the mod’s folder."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisis le dossier du mod."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle den Ordner der Mod."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige la carpeta del mod."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scegli la cartella della mod."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha a pasta do mod."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择模组的文件夹。"
+          }
+        }
+      }
+    },
+    "Choose cheat files (TXT), or the folder that holds them.": {
+      "comment": "CheatsPanel",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose cheat files (TXT), or the folder that holds them."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisis des fichiers de codes (TXT), ou le dossier qui les contient."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle Cheat-Dateien (TXT) oder den Ordner, der sie enthält."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige archivos de trucos (TXT) o la carpeta que los contiene."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scegli file di trucchi (TXT) o la cartella che li contiene."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha arquivos de trapaças (TXT) ou a pasta que os contém."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择金手指文件（TXT）或其所在文件夹。"
+          }
+        }
+      }
+    },
+    "Selene folder": {
+      "comment": "SettingsSoundSection",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selene folder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dossier Selene"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selene-Ordner"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carpeta de Selene"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cartella Selene"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasta do Selene"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selene 文件夹"
+          }
+        }
+      }
+    },
+    "File": {
+      "comment": "OortFilePicker",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fichier"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datei"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archivo"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arquivo"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "文件"
+          }
+        }
+      }
+    },
+    "PNG, JPEG, HEIC, WebP or GIF.": {
+      "comment": "ProfileEditorView",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PNG, JPEG, HEIC, WebP or GIF."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PNG, JPEG, HEIC, WebP ou GIF."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PNG, JPEG, HEIC, WebP oder GIF."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PNG, JPEG, HEIC, WebP o GIF."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PNG, JPEG, HEIC, WebP o GIF."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PNG, JPEG, HEIC, WebP ou GIF."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PNG、JPEG、HEIC、WebP 或 GIF。"
+          }
+        }
+      }
+    },
+    "Change column": {
+      "comment": "OortFilePicker",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change column"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changer de colonne"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spalte wechseln"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiar de columna"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambia colonna"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mudar de coluna"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "切换栏"
+          }
+        }
+      }
+    },
+    "Keyboard": {
+      "comment": "OortKeyboard",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keyboard"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clavier"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tastatur"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teclado"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tastiera"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teclado"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "键盘"
+          }
+        }
+      }
+    },
+    "Letters": {
+      "comment": "OortKeyboard",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Letters"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lettres"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buchstaben"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Letras"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lettere"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Letras"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "字母"
+          }
+        }
+      }
+    },
+    "Symbols": {
+      "comment": "OortKeyboard",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Symbols"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Symboles"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Symbole"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Símbolos"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Simboli"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Símbolos"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "符号"
+          }
+        }
+      }
+    },
+    "Accents": {
+      "comment": "OortKeyboard",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accents"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accents"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Akzente"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acentos"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accenti"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acentos"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重音字母"
+          }
+        }
+      }
+    },
+    "Open this page in the browser?": {
+      "comment": "openWebPage",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open this page in the browser?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir cette page dans le navigateur ?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Seite im Browser öffnen?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Abrir esta página en el navegador?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aprire questa pagina nel browser?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir esta página no navegador?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在浏览器中打开此页面？"
+          }
+        }
+      }
+    },
+    "Delete cheats?": {
+      "comment": "CheatCopy",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete cheats?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer les codes de triche ?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cheats löschen?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Eliminar los trucos?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminare i trucchi?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apagar as trapaças?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除金手指？"
+          }
+        }
+      }
+    },
+    "Delete sound pack": {
+      "comment": "SettingsSoundSection",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete sound pack"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer le pack de sons"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Soundpaket löschen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar paquete de sonido"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elimina pacchetto audio"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apagar pacote de som"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除声音包"
+          }
+        }
+      }
+    },
+    "Delete sound pack?": {
+      "comment": "SettingsSoundSection",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete sound pack?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer le pack de sons ?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Soundpaket löschen?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Eliminar el paquete de sonido?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminare il pacchetto audio?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apagar pacote de som?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除声音包？"
+          }
+        }
+      }
+    },
+    "Unsaved progress will be lost.": {
+      "comment": "HomeQuitText",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unsaved progress will be lost."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La progression non enregistrée sera perdue."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht gespeicherter Fortschritt geht verloren."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se perderá el progreso sin guardar."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I progressi non salvati andranno persi."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O progresso não salvo será perdido."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未保存的进度将会丢失。"
+          }
+        }
+      }
+    },
+    "Keep holding to quit": {
+      "comment": "HomeQuitText",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep holding to quit"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintiens pour quitter"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zum Beenden gedrückt halten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén pulsado para salir"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni premuto per uscire"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue segurando para sair"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按住以退出"
+          }
+        }
+      }
+    },
+    "Return to %@": {
+      "comment": "HomeQuitText",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Return to %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revenir à %@"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zurück zu %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volver a %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Torna a %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voltar ao %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返回 %@"
+          }
+        }
+      }
+    },
     "Actions": {
       "localizations": {
         "en": {
@@ -944,7 +2542,7 @@
       "en": {"stringUnit":{"state":"translated","value":"This changes the build compatibility gate. Existing apps are not changed."}}, "fr": {"stringUnit":{"state":"translated","value":"Change les conditions des prochaines compilations, sans modifier les apps installées."}}, "it": {"stringUnit":{"state":"translated","value":"Cambia i requisiti delle prossime compilazioni, senza modificare le app installate."}}, "de": {"stringUnit":{"state":"translated","value":"Ändert die Voraussetzungen für künftige Builds. Installierte Apps bleiben unverändert."}}, "es": {"stringUnit":{"state":"translated","value":"Cambia los requisitos de las próximas compilaciones. No modifica las apps instaladas."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Muda os requisitos das próximas compilações. Os apps instalados não mudam."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"更改后续构建的兼容性要求，不会修改已安装的应用。"}}
     }},
     "This applies to all ported games at their next launch. No saves are deleted.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"This applies to all ported games at their next launch. No saves are deleted."}}, "fr": {"stringUnit":{"state":"translated","value":"Tous les jeux portés, au prochain lancement. Aucune sauvegarde n’est supprimée."}}, "it": {"stringUnit":{"state":"translated","value":"Vale per tutti i giochi portati al prossimo avvio. Nessun salvataggio viene eliminato."}}, "de": {"stringUnit":{"state":"translated","value":"Gilt für alle portierten Spiele beim nächsten Start. Keine Spielstände werden gelöscht."}}, "es": {"stringUnit":{"state":"translated","value":"Se aplica a todos los juegos portados en su próximo inicio. No se borran partidas guardadas."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Vale para todos os jogos portados na próxima vez que abrirem. Nenhum progresso salvo é apagado."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"所有移植游戏将在下次启动时应用此设置。不会删除存档。"}}
+      "en": {"stringUnit":{"state":"translated","value":"This applies to all ported games at their next launch. No saves are deleted."}}, "fr": {"stringUnit":{"state":"translated","value":"Tous les jeux compilés, au prochain lancement. Aucune sauvegarde n’est supprimée."}}, "it": {"stringUnit":{"state":"translated","value":"Vale per tutti i giochi portati al prossimo avvio. Nessun salvataggio viene eliminato."}}, "de": {"stringUnit":{"state":"translated","value":"Gilt für alle portierten Spiele beim nächsten Start. Keine Spielstände werden gelöscht."}}, "es": {"stringUnit":{"state":"translated","value":"Se aplica a todos los juegos portados en su próximo inicio. No se borran partidas guardadas."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Vale para todos os jogos portados na próxima vez que abrirem. Nenhum progresso salvo é apagado."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"所有移植游戏将在下次启动时应用此设置。不会删除存档。"}}
     }},
     "Local play uses this VPN. macOS network settings stay unchanged.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Local play uses this VPN. macOS network settings stay unchanged."}}, "fr": {"stringUnit":{"state":"translated","value":"Le jeu local utilise ce VPN. Le réseau macOS reste inchangé."}}, "it": {"stringUnit":{"state":"translated","value":"Il gioco locale usa questa VPN. Le impostazioni di rete di macOS non cambiano."}}, "de": {"stringUnit":{"state":"translated","value":"Lokales Spielen nutzt dieses VPN. Die macOS-Netzwerkeinstellungen bleiben unverändert."}}, "es": {"stringUnit":{"state":"translated","value":"El juego local usa esta VPN. Los ajustes de red de macOS no cambian."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"O jogo local usa esta VPN. A rede do macOS não muda."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"本地联机使用此 VPN。macOS 网络设置保持不变。"}}
@@ -1323,7 +2921,7 @@
     }},
     "Skip setup": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Skip setup"}},
-      "fr": {"stringUnit":{"state":"translated","value":"Passer l’accueil"}},
+      "fr": {"stringUnit":{"state":"translated","value":"Passer les premiers pas"}},
       "it": {"stringUnit":{"state":"translated","value":"Salta la configurazione"}},
       "de": {"stringUnit":{"state":"translated","value":"Einrichtung überspringen"}},
       "es": {"stringUnit":{"state":"translated","value":"Omitir la configuración"}},
@@ -3338,7 +4936,7 @@
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Choose how your ported games connect to other players."}},
         "it": {"stringUnit": {"state": "translated", "value": "Scegli come connettere i giochi portati agli altri giocatori."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Choisis comment tes jeux portés se connectent aux autres joueurs."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Choisis comment tes jeux compilés se connectent aux autres joueurs."}},
         "de": {"stringUnit": {"state": "translated", "value": "Wähle, wie sich portierte Spiele mit anderen Spielern verbinden."}},
         "es": {"stringUnit": {"state": "translated", "value": "Elige cómo se conectan tus juegos portados con otros jugadores."}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Escolha como seus jogos portados se conectam a outros jogadores."}},
@@ -3582,7 +5180,7 @@
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Screen used to open ported games."}},
         "it": {"stringUnit": {"state": "translated", "value": "Schermo su cui si aprono i giochi convertiti."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Écran sur lequel lancer les jeux portés."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Écran sur lequel lancer les jeux compilés."}},
         "de": {"stringUnit": {"state": "translated", "value": "Bildschirm, auf dem portierte Spiele geöffnet werden."}},
         "es": {"stringUnit": {"state": "translated", "value": "Pantalla en la que se abren los juegos portados."}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Tela em que os jogos portados são abertos."}},
@@ -4071,7 +5669,7 @@
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Add ported app"}},
         "it": {"stringUnit": {"state": "translated", "value": "Aggiungi app già convertita"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Ajouter une app déjà portée"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ajouter une app déjà compilée"}},
         "de": {"stringUnit": {"state": "translated", "value": "Portierte App hinzufügen"}},
         "es": {"stringUnit": {"state": "translated", "value": "Añadir app portada"}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Adicionar app portado"}},
@@ -6401,7 +7999,7 @@
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Folder for game apps and build caches."}},
         "it": {"stringUnit": {"state": "translated", "value": "Cartella per le app dei giochi e le cache di compilazione."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Dossier où sont stockés les jeux portés et leurs caches de compilation."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Dossier où sont stockés les jeux compilés et leurs caches de compilation."}},
         "de": {"stringUnit": {"state": "translated", "value": "Ordner für Spiel-Apps und Build-Caches."}},
         "es": {"stringUnit": {"state": "translated", "value": "Carpeta para las apps de juegos y las cachés de compilación."}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Pasta para os apps dos jogos e os caches de compilação."}},
@@ -8056,7 +9654,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Une bibliothèque et un lanceur de jeux gratuits et open source pour Mac. Lance tes jeux installés et porte les titres Switch compatibles avec nxnative."
+            "value": "Une bibliothèque et un lanceur de jeux gratuits et open source pour Mac. Lance tes jeux installés et compile les titres Switch compatibles avec nxnative."
           }
         },
         "it": {
@@ -16215,7 +17813,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Après la création de l’app Mac"
+            "value": "Après la compilation"
           }
         },
         "de": {
@@ -19798,7 +21396,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Derrière les menus et l’accueil quand aucun jeu n’est sélectionné."
+            "value": "Derrière les menus et la bibliothèque quand aucun jeu n’est sélectionné."
           }
         },
         "de": {
@@ -22148,7 +23746,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Annuler la création de l’app Mac"
+            "value": "Annuler la compilation"
           }
         },
         "de": {
@@ -22712,7 +24310,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Modifie les clés une fois la création de l’app Mac terminée."
+            "value": "Modifie les clés une fois la compilation terminée."
           }
         },
         "de": {
@@ -30999,7 +32597,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Détails · Lancement · Accueil : fond d’écran"
+            "value": "Détails · Lancement · Bibliothèque : fond d’écran"
           }
         },
         "de": {
@@ -31600,7 +33198,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abandonner"
+            "value": "Quitter sans enregistrer"
           }
         },
         "de": {
@@ -32457,7 +34055,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Extrais ou télécharge à nouveau le jeu, ou crée l’app Mac quand même avec les fichiers endommagés tels qu’ils sont lus."
+            "value": "Extrais ou télécharge à nouveau le jeu, ou compile quand même avec les fichiers endommagés tels qu’ils sont lus."
           }
         },
         "de": {
@@ -42467,7 +44065,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dans Options du jeu, règle Langue sur Par défaut du jeu ou sur l’une des langues du jeu, puis recrée l’app Mac."
+            "value": "Dans Options du jeu, règle Langue sur Par défaut du jeu ou sur l’une des langues du jeu, puis recompile."
           }
         },
         "de": {
@@ -59680,7 +61278,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Créer l’app Mac d’un autre jeu"
+            "value": "Compiler un autre jeu"
           }
         },
         "de": {
@@ -59727,7 +61325,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Créer l’app Mac quand même"
+            "value": "Compiler quand même"
           }
         },
         "de": {
@@ -59774,7 +61372,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Crée l’app Mac quand même pour exclure les shaders défectueux, ou attends une mise à jour du moteur."
+            "value": "Compile quand même pour exclure les shaders défectueux, ou attends une mise à jour du moteur."
           }
         },
         "de": {
@@ -59821,7 +61419,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Créer l’app Mac plus tard"
+            "value": "Compiler plus tard"
           }
         },
         "de": {
@@ -59868,7 +61466,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Création d’apps Mac"
+            "value": "Compilation"
           }
         },
         "de": {
@@ -59915,7 +61513,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Création de l’app Mac annulée"
+            "value": "Compilation annulée"
           }
         },
         "de": {
@@ -59962,7 +61560,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Échec de la création de l’app Mac"
+            "value": "Échec de la compilation"
           }
         },
         "de": {
@@ -60009,7 +61607,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Création de l’app Mac en cours"
+            "value": "Compilation en cours"
           }
         },
         "de": {
@@ -60056,7 +61654,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Création de l’app Mac, afficher la progression"
+            "value": "Compilation, afficher la progression"
           }
         },
         "de": {
@@ -62497,7 +64095,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Réinstalle Arcane pour que la création de l’app Mac utilise son propre Python arm64."
+            "value": "Réinstalle Arcane pour que la compilation utilise son propre Python arm64."
           }
         },
         "de": {
@@ -62685,7 +64283,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Supprimer"
+            "value": "Retirer"
           }
         },
         "de": {
@@ -62697,7 +64295,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Eliminar"
+            "value": "Quitar"
           }
         },
         "pt-BR": {
@@ -70954,7 +72552,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Démarrage de la création de l’app Mac…"
+            "value": "Démarrage de la compilation…"
           }
         },
         "de": {
@@ -74855,7 +76453,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le disque s’est rempli pendant la création de l’app Mac."
+            "value": "Le disque s’est rempli pendant la compilation."
           }
         },
         "de": {
@@ -76735,7 +78333,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "La dernière création de l’app Mac a échoué"
+            "value": "La dernière compilation a échoué"
           }
         },
         "de": {
@@ -77440,7 +79038,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "La nouvelle compilation de %@, en attente de la fermeture du jeu, a disparu. Crée à nouveau l’app Mac."
+            "value": "La nouvelle compilation de %@, en attente de la fermeture du jeu, a disparu. Compile-la de nouveau."
           }
         },
         "de": {
@@ -78051,7 +79649,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "La création de l’app Mac peut s’interrompre, ou le jeu peut ne pas démarrer."
+            "value": "La compilation peut s’interrompre, ou le jeu peut ne pas démarrer."
           }
         },
         "de": {
@@ -78098,7 +79696,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "La création de l’app Mac nécessite au moins %@ Go libres sur le volume de travail."
+            "value": "La compilation nécessite au moins %@ Go libres sur le volume de travail."
           }
         },
         "de": {
@@ -78145,7 +79743,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "La création de l’app Mac a lancé un Python Intel ; ses outils se sont donc exécutés sous Rosetta."
+            "value": "La compilation a lancé un Python Intel ; ses outils se sont donc exécutés sous Rosetta."
           }
         },
         "de": {
@@ -78192,7 +79790,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "La création de l’app Mac s’est arrêtée"
+            "value": "La compilation s’est arrêtée"
           }
         },
         "de": {
@@ -86185,7 +87783,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Xcode n’est pas prêt ; la création de l’app Mac le nécessite."
+            "value": "Xcode n’est pas prêt ; la compilation le nécessite."
           }
         },
         "de": {
@@ -93473,7 +95071,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Création d’apps Mac"
+            "value": "Compilation"
           }
         },
         "de": {
@@ -93929,7 +95527,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Valeurs par défaut copiées dans chaque nouveau jeu porté."
+            "value": "Valeurs par défaut copiées dans chaque nouveau jeu compilé."
           }
         },
         "de": {
@@ -93977,7 +95575,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Synchronisation des sauvegardes des jeux portés : désactivée, iCloud Drive ou un dossier."
+            "value": "Synchronisation des sauvegardes des jeux compilés : désactivée, iCloud Drive ou un dossier."
           }
         },
         "de": {
@@ -94073,7 +95671,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nouveaux jeux : vibration de la manette par défaut pour les nouveaux jeux portés."
+            "value": "Nouveaux jeux : vibration de la manette par défaut pour les nouveaux jeux compilés."
           }
         },
         "de": {
@@ -94121,7 +95719,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nouveaux jeux : intensité de vibration par défaut pour les nouveaux jeux portés."
+            "value": "Nouveaux jeux : intensité de vibration par défaut pour les nouveaux jeux compilés."
           }
         },
         "de": {
@@ -94169,7 +95767,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vibration dans les nouveaux jeux portés"
+            "value": "Vibration dans les nouveaux jeux compilés"
           }
         },
         "de": {
@@ -94451,7 +96049,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Déjà portés : %@"
+            "value": "Déjà compilés : %@"
           }
         },
         "de": {
@@ -95362,7 +96960,7 @@
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Home"}},
         "it": {"stringUnit": {"state": "translated", "value": "Home"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Accueil"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Dossier de départ"}},
         "de": {"stringUnit": {"state": "translated", "value": "Startseite"}},
         "es": {"stringUnit": {"state": "translated", "value": "Inicio"}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Início"}},

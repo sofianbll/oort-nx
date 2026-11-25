@@ -614,10 +614,8 @@
     "canvas.u(240)": 2,
     "canvas.u(530)": 1,
     "canvas.u(560)": 1,
-    "canvas.u(64)": 1,
     "canvas.u(68)": 1,
     "canvas.u(8)": 2,
-    "height:22": 1,
     "letavatarSpacing:CGFloat=210": 1,
     "width:150": 1,
     "width:220": 1

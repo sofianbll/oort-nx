@@ -40,6 +40,8 @@ struct OnboardingScreen: View {
     @Binding var focus: String
     let primary: (String, () -> Void)
     var secondary: (String, () -> Void)? = nil
+    /// The second button leaves for good: it stays a button, and B is neither announced nor taken.
+    var backSkips = false
     @State private var hover = SeleneHoverFocus()
 
     var body: some View {
@@ -89,7 +91,7 @@ struct OnboardingScreen: View {
             }
             VStack {
                 Spacer(minLength: 0)
-                SeleneHintsBar(right: secondary == nil
+                SeleneHintsBar(right: secondary == nil || backSkips
                     ? [HintItem(.a, L10n.text("Select"))]
                     : [HintItem(.a, L10n.text("Select")), HintItem(.b, L10n.text(secondary?.0 ?? "Back"))],
                     bottom: SeleneBottomScrim.hintsBottom, leftInset: SeleneTokens.Space.control)

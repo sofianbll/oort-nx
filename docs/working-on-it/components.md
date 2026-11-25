@@ -12,6 +12,7 @@ I tipi con prefisso `Selene` restano disponibili per la migrazione.
 | `SeleneValueRow`, `SeleneCycleRow`, `SeleneToggleRow`, `SeleneButtonRow`, `OortSliderRow` | Mostrare/modificare un valore nelle impostazioni | Valore, scelta, interruttore, azione, cursore | Conservare valore e azione distinti · non attivare al focus. |
 | `OortCard` (`SelenePanel`) | Superficie condivisa per informazioni o controlli correlati | Titolo e info facoltativi | Comporre righe · non annidare schede per creare margini. |
 | `OortGameTile` | Tessera con arte fornita dal chiamante | `spotlight`, `collection`; selezionata o no | Separare selezione da attivazione · non aggiungere un secondo anello. |
+| `oortSecondaryClick` | Clic destro o Ctrl-clic: le opzioni del pezzo | Azione o nessuna | Raddoppia un comando già visibile · mai l'unica via. |
 | `OortButton` | Azione isolata nella pillola Selene | `action`, `compact`; pronto, bloccato, in corso, focus | Dare un verbo al titolo · non attivare un lavoro già in corso. |
 | `SeleneConfirmDialog`, `SeleneChoiceDialog`, `SeleneSuccessNotice` | Conferma, scelta o messaggio | Conferma, lista di scelte, messaggio | Azione primaria a sinistra, focus iniziale sicuro · nascondere l'aiuto sottostante. |
 | `SeleneValueChip`, `OortStatus` | Valore breve o stato scritto | Testo/simbolo; neutro, in corso, attenzione, pronto | Scrivere lo stato · non affidarlo a colore o animazione. |
@@ -23,6 +24,7 @@ I tipi con prefisso `Selene` restano disponibili per la migrazione.
 | `OortPlayerSlot` | Una posizione di gioco, con ritratto e controller | Vuota o occupata; focus, selezione, indicatore | Conservare l'altezza e il nome accessibile · non ridimensionare la griglia al cambio di controller. |
 | `OortSegmented` | Scelta esclusiva e immediata | `compact`, `modeBar`; scelta e focus distinti | Muovere il focus senza cambiare modalità · attivare solo su conferma. |
 | `OortSearchField` | Cercare in una pagina o in una lista | `page`, `list`; focus, testo da cancellare | Un campo per schermata · non disegnare un'altra lente. |
+| `OortKeyboard`, `OortKeyboardLayer` | Scrivere col controller in qualunque campo di testo | Lettere, simboli, accenti; maiuscole; campo segreto | Nessun codice nel campo: usare un `TextField` con `focused` · non disegnare altri tasti. |
 | `OortTabs` | Passare tra viste sorelle | Scelta, focus, conteggio, simbolo | La scelta resta piena, il focus è un anello · non usarle per un'azione. |
 | `OortTag` | Un fatto breve | `quiet`, `panel`, `art`; tono con la sua parola | Mai un pulsante · mai il colore da solo. |
 | `OortMeter` | Avanzamento | Misurato o indeterminato | Accompagnarlo con il testo dello stato. |

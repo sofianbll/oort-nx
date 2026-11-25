@@ -146,8 +146,8 @@ extension CloudSetupAssistant {
 }
 """)
     setup = app / "ViewModels/SetupModel.swift"
-    replace(setup, r'(func selectNxnativeFolder\([^\n]*\) \{\n        guard [^\n]*\n)        let panel = NSOpenPanel\(\).*?'
-            r'        if panel.runModal\(\) == \.OK, let url = panel.url \{',
+    replace(setup, r'(func selectNxnativeFolder\([^\n]*\) \{\n        guard [^\n]*\n)        OortFilePickerPresentation\.open\(.*?'
+            r'            guard let self, let url = urls\.first, !app\.isBuilding, !app\.isUpdatingApp else \{ return \}',
             lambda m: m[1] + '        if let url = SettingsConfirmationProbe.pickedEngine {')
     replace(setup, r'    func refreshCompatibility\(\) \{.*?(?=\n    func |\n\})',
             '    func refreshCompatibility() {}\n')  # The probe switches commits but never evaluates the Mac toolchain.

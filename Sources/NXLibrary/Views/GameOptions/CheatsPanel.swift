@@ -402,15 +402,9 @@ struct CheatsPanel: View {
     }
 
     private func addFromOpenPanel() {
-        let panel = NSOpenPanel()
-        panel.title = L10n.format("Add cheats for %@", [String(describing: game.name)])
-        panel.prompt = L10n.text("Add")
-        panel.canChooseFiles = true
-        panel.canChooseDirectories = true
-        panel.allowsMultipleSelection = true
-        panel.allowedContentTypes = [.plainText, .folder]
-        guard panel.runModal() == .OK else { return }
-        add(panel.urls)
+        OortFilePickerPresentation.open(.files(["txt"], folder: true, multiple: true),
+                                        title: L10n.format("Add cheats for %@", [String(describing: game.name)]),
+                                        message: L10n.text("Choose cheat files (TXT), or the folder that holds them."), completion: add)
     }
 
     private func drop(_ providers: [NSItemProvider]) -> Bool {

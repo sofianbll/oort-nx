@@ -227,8 +227,9 @@ extension GameOptionsView {
     /// Y opens the focused row's explanation, when it has one.
     func rightHints(_ p: GameOptionsPresentation) -> [HintItem] {
         if confirm == nil, focusedRow == .rebuild, checkingRebuild { return [HintItem(.a, L10n.text("Cancel"))] }
-        guard confirm == nil, let row = focusedRow, p.info(row) != nil else { return [HintItem(.a, L10n.text("Select"))] }
-        return [HintItem(.y, infoRow == row ? L10n.text("Hide info") : L10n.text("Info")), HintItem(.a, L10n.text("Select"))]
+        let steps = confirm == nil && focusedRow.map(stepsBothWays) == true ? [HintItem(.move, "Change")] : []
+        guard confirm == nil, let row = focusedRow, p.info(row) != nil else { return steps + [HintItem(.a, L10n.text("Select"))] }
+        return steps + [HintItem(.y, infoRow == row ? L10n.text("Hide info") : L10n.text("Info")), HintItem(.a, L10n.text("Select"))]
     }
 
     /// Y: the focused row's explanation, open or closed.
@@ -251,7 +252,7 @@ extension GameOptionsView {
         if row.isToggle {
             // The row takes the click; the switch only shows the state.
             SeleneSwitch(isOn: .constant(toggleValue(row))).allowsHitTesting(false)
-        } else if (row == .multiplayer && !presentation.isFixed(row)) || (row == .gameDisplay && canChooseGameDisplay) {
+        } else if stepsBothWays(row) {
             SeleneCycleValue(title: row.title, value: choiceText(row)) { adjust(row, by: $0) }
         } else if row.isChoice {
             SeleneValueChip(text: choiceText(row))
@@ -269,6 +270,11 @@ extension GameOptionsView {
         } else {
             EmptyView()
         }
+    }
+
+    /// A value with more than one way to go: ‹ › take a click, ← → the keys.
+    private func stepsBothWays(_ row: GameOptionsRow) -> Bool {
+        row.isChoice && !presentation.isFixed(row) && (row != .gameDisplay || canChooseGameDisplay)
     }
 
     private func toggleValue(_ row: GameOptionsRow) -> Bool {

@@ -610,7 +610,7 @@ struct SettingsView: View {
         var hints = [HintItem(.lb, "Previous") { moveSection(by: -1) },
                      HintItem(.rb, "Next") { moveSection(by: 1) }]
         if canResetSection {
-            hints.append(HintItem(.x, L10n.text("Reset group")) { resetSection() })
+            hints.append(HintItem(.x, L10n.text("Reset group")) { askToReset() })
         }
         if hasPendingChanges {
             hints.append(HintItem(.y, "Save", keyboard: .text("Y")) { router.requestSettingsSave() })
@@ -737,10 +737,18 @@ struct SettingsView: View {
         return SettingsReset.canReset(section)
     }
 
+    /// X resets nothing by itself: it opens a sheet everywhere else, so a press out of habit must be taken back.
+    private func askToReset() {
+        guard canResetSection, let section else { return }
+        guard let ask = SettingsReset.question(section, title: L10n.text(section.title, context: localization)) else {
+            return resetSection(section)
+        }
+        viewModel.confirmSetting(ask.title, message: ask.message, action: "Reset") { resetSection(section) }
+    }
+
     /// `SettingsReset` puts the section's `AppSettings` back in one assignment; the preferences
     /// kept outside it are reset here.
-    private func resetSection() {
-        guard canResetSection, let section else { return }
+    private func resetSection(_ section: SettingsSection) {
         switch section {
         case .look:
             let unset = settings.settings.launcherChoices.dockIconAppearance == nil
@@ -991,7 +999,7 @@ struct SettingsView: View {
         case .cancel:
             handleBack()
         case .secondaryAction:
-            resetSection()
+            askToReset()
         case .contextAction:
             router.requestSettingsSave()
         case .menu:

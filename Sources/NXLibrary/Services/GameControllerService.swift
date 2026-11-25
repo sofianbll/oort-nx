@@ -22,7 +22,15 @@ final class GameControllerService: ObservableObject {
     @Published var activeBrand: GamepadBrand = .generic
     /// Reported glyphs (including system remapping); the brand supplies missing glyphs.
     @Published var buttonSymbols: [PromptButton: String] = [:]
+    /// The last thing used, shared by every prompt: a button, a key, a click or a real move of the mouse.
+    @Published private(set) var inputInHand = InputInHand()
+    /// The controller the prompts name, or none while the keyboard or the mouse leads.
+    var padInHand: ConnectedPad { ConnectedPad(connected: controllerInHand, brand: activeBrand) }
+    var pointerInHand: Bool { inputInHand.device == .pointer }
+    var controllerInHand: Bool { inputInHand.usesController(connected: isGamepadConnected) }
     @Published private(set) var menuHoldStartedAt: TimeInterval?
+    /// What the hold will do, for the ring that fills while it lasts.
+    @Published private(set) var holdAction: GamepadAction?
     @Published private(set) var connectedControllers: [ConnectedController] = []
     @Published private(set) var homeAccess: ControllerHomeAccess = .disconnected
     var canOpenHomeSettings: Bool { (gcSource as? GCControllerSource)?.canOpenHomeSettings == true }
@@ -55,7 +63,13 @@ final class GameControllerService: ObservableObject {
     private let gcSource: ControllerSource
     private let hidSource: ControllerSource
     private let preferences: UserDefaults?
-    private var gcPad: ControllerIdentity?
+    private var gcPads: [ObjectIdentifier: ControllerIdentity] = [:]
+    /// The pad last pressed leads; until one is, the first that macOS lists.
+    private var lastUsed: ObjectIdentifier?
+    private var gcPad: ControllerIdentity? {
+        if let lastUsed, let pad = gcPads[lastUsed] { return pad }
+        return gcSource.preferredID.flatMap { gcPads[$0] }
+    }
     private var roster = ControllerRoster()
     private var visibleControllers: [ControllerRoster.Entry] = []
     private var sleeping = false
@@ -66,9 +80,13 @@ final class GameControllerService: ObservableObject {
         var admission: ControllerArbitration.HID
     }
     private var hidPads: [HIDPad] = []
+    private var eligibleHID: [ControllerIdentity] = []
     private var fallbackTimer: Timer?
     private var activePad: ControllerIdentity?
     private var inputGeneration = 0
+    private var handMonitor: Any?
+    /// Tracked apart so that a moving pointer publishes only when the hand really changes.
+    private var hand = InputInHand()
 
     private struct PendingHold {
         let binding: GamepadLayout.Binding
@@ -102,6 +120,7 @@ final class GameControllerService: ObservableObject {
             let workspace = NSWorkspace.shared.notificationCenter
             observe(workspace, NSWorkspace.willSleepNotification) { $0.suspendControllers() }
             observe(workspace, NSWorkspace.didWakeNotification) { $0.resumeControllers() }
+            watchHand()
         }
         gcSource.onEvent = { [weak self] in self?.handle($0, fromHID: false) }
         (gcSource as? GCControllerSource)?.onHomeAccess = { [weak self] access in
@@ -122,7 +141,38 @@ final class GameControllerService: ObservableObject {
         observers.append((center, token))
     }
 
+    /// Installed before any screen's monitor, so it sees the events they keep for themselves; it keeps none.
+    private func watchHand() {
+        let events: NSEvent.EventTypeMask = [.keyDown, .leftMouseDown, .rightMouseDown, .otherMouseDown, .scrollWheel,
+                                             .mouseMoved]
+        handMonitor = NSEvent.addLocalMonitorForEvents(matching: events) { [weak self] event in
+            self?.handUsed(event)
+            return event
+        }
+    }
+
+    func handUsed(_ event: NSEvent) {
+        switch event.type {
+        case .keyDown:
+            PointerAnchor.location = NSEvent.mouseLocation
+            useHand { $0.keyPressed() }
+        case .mouseMoved:
+            let distance = hypot(event.deltaX, event.deltaY)
+            useHand { $0.pointerMoved(by: distance, at: event.timestamp) }
+        case .scrollWheel:
+            // Momentum keeps arriving after the fingers have left.
+            if event.momentumPhase.isEmpty, event.scrollingDeltaX != 0 || event.scrollingDeltaY != 0 { useHand { $0.pointerUsed() } }
+        default: useHand { $0.pointerUsed() }
+        }
+    }
+
+    private func useHand(_ change: (inout InputInHand) -> Void) {
+        change(&hand)
+        if hand.device != inputInHand.device { inputInHand = hand }
+    }
+
     deinit {
+        if let handMonitor { NSEvent.removeMonitor(handMonitor) }
         for (center, token) in observers { center.removeObserver(token) }
         statusTimer?.invalidate()
         fallbackTimer?.invalidate()
@@ -174,7 +224,8 @@ final class GameControllerService: ObservableObject {
         sleeping = true
         finishAssignment(event: .cancelled)
         roster.suspend()
-        gcPad = nil
+        gcPads.removeAll()
+        lastUsed = nil
         hidPads.removeAll()
         selectController()
         resetInput()
@@ -209,15 +260,16 @@ final class GameControllerService: ObservableObject {
                                           admission: .init(name: identity.name, claimedByGC: claimedByGC,
                                                            connectedAt: ProcessInfo.processInfo.systemUptime)))
                 }
-            } else if gcSource.preferredID == identity.id {
-                gcPad = identity
+            } else if identity.supportsNavigation {
+                gcPads[identity.id] = identity
             }
         case let .disconnected(id):
             roster.disconnect(id)
+            if lastUsed == id { lastUsed = nil }
             if fromHID {
                 hidPads.removeAll { $0.identity.id == id }
-            } else if gcPad?.id == id {
-                gcPad = nil
+            } else {
+                gcPads.removeValue(forKey: id)
             }
         case let .input(id, input):
             if let waiting = assignment {
@@ -235,6 +287,7 @@ final class GameControllerService: ObservableObject {
                 if consumePlayerJoining(id, fromHID: false) { return }
             }
             if fromHID, joiningHID == id { return }
+            if activePad?.id != id, !fromHID, Self.takesOver(input) { takeOver(id) }
             if activePad?.id == id { handleInput(input) }
             return
         case let .buttonPressed(id):
@@ -245,12 +298,30 @@ final class GameControllerService: ObservableObject {
                     // HID sends mapped changes synchronously after the raw press in the same report.
                     joiningHID = id
                     DispatchQueue.main.async { [weak self] in self?.joiningHID = nil }
+                } else if fromHID, activePad?.id != id, eligibleHID.contains(where: { $0.id == id }) {
+                    // Its mapped changes start with the next report: this press only wakes it.
+                    takeOver(id)
                 }
             }
             return
         }
         selectController()
         updateRoster()
+    }
+
+    /// A press, or a stick pushed right over: a second pad lying on the sofa never takes the menus.
+    private static func takesOver(_ input: ControllerInputChange) -> Bool {
+        switch input {
+        case let .button(_, pressed): pressed
+        case let .leftStick(stick), let .rightStick(stick): (stick * stick).sum() >= 0.64
+        }
+    }
+
+    private func takeOver(_ id: ObjectIdentifier) {
+        guard isAppActive else { return }
+        lastUsed = id
+        gcSource.prefer(id)
+        selectController()
     }
 
     private func queueAssignment(_ id: ObjectIdentifier, fromHID: Bool) {
@@ -312,7 +383,7 @@ final class GameControllerService: ObservableObject {
         fallbackTimer?.invalidate()
         fallbackTimer = nil
         let now = ProcessInfo.processInfo.systemUptime
-        let gcNames = gcPad?.name.map { [$0] } ?? []
+        let gcNames = gcPads.values.compactMap(\.name)
         var eligible: [ControllerIdentity] = []
         var deadline: TimeInterval?
         for index in hidPads.indices {
@@ -322,6 +393,8 @@ final class GameControllerService: ObservableObject {
             case let .wait(until): deadline = min(deadline ?? until, until)
             }
         }
+        eligibleHID = eligible
+        if let pad = eligible.first(where: { $0.id == lastUsed }), hidSource.select(pad.id) { return setActive(pad) }
         switch ControllerArbitration.preferred(hasGameController: gcPad != nil, hasHID: !eligible.isEmpty) {
         case .gameController:
             hidSource.select(nil)
@@ -442,10 +515,9 @@ final class GameControllerService: ObservableObject {
         pending.detector.press(at: now)
         holds[button] = pending
         guard let action = binding.hold else { return }
-        if action == .menuHold || action == .fullMenu {
-            settingsHoldButton = button
-            menuHoldStartedAt = now
-        }
+        settingsHoldButton = button
+        holdAction = action
+        menuHoldStartedAt = now
         let timer = Timer(timeInterval: HoldDetector.defaultThreshold, repeats: false) { [weak self] _ in
             guard let self, self.holds[button]?.detector.tick(at: ProcessInfo.processInfo.systemUptime) != nil else { return }
             self.stopHoldTimer(button)
@@ -462,6 +534,7 @@ final class GameControllerService: ObservableObject {
         if settingsHoldButton == button {
             settingsHoldButton = nil
             menuHoldStartedAt = nil
+            holdAction = nil
         }
     }
 
@@ -476,6 +549,8 @@ final class GameControllerService: ObservableObject {
     }
 
     private func triggerAction(_ action: GamepadAction) {
+        useHand { $0.controllerUsed(at: ProcessInfo.processInfo.systemUptime) }
+        if preferences != nil { PointerAnchor.location = NSEvent.mouseLocation }
         let generation = inputGeneration
         DispatchQueue.main.async { [weak self] in
             guard let self, self.isAppActive, self.inputGeneration == generation else { return }

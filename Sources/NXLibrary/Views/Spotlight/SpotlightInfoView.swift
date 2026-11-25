@@ -187,7 +187,7 @@ struct SpotlightGameInfoView: View {
     private func pill<V: View>(_ index: Int, _ view: V) -> some View {
         view
             .frame(height: canvas.u(60))
-            .onHover { if $0 { onHoverPill(index) } }
+            .seleneHover { onHoverPill(index) }
     }
 
     private var nowPlaying: some View {

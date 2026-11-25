@@ -212,25 +212,7 @@
   "voice|ios|ShellModel:Your games will appear here when they are included in this app."
  ],
  "mac": [
-  "avoid:creation-app|mac|Port another game",
-  "avoid:creation-app|mac|Port anyway",
-  "avoid:creation-app|mac|Port later",
-  "avoid:creation-app|mac|Porting",
-  "avoid:creation-app|mac|Settings group: Porting",
-  "avoid:portage|mac|Add ported app",
-  "avoid:portage|mac|Already ported: %@",
-  "avoid:portage|mac|Choose how your ported games connect to other players.",
-  "avoid:portage|mac|Defaults copied into each new ported game.",
-  "avoid:portage|mac|Folder for game apps and build caches.",
-  "avoid:portage|mac|New games: default controller vibration for new ported games.",
-  "avoid:portage|mac|New games: default vibration strength for new ported games.",
-  "avoid:portage|mac|Save sync for ported games: Off, iCloud Drive or a folder.",
-  "avoid:portage|mac|Screen used to open ported games.",
-  "avoid:portage|mac|This applies to all ported games at their next launch. No saves are deleted.",
-  "avoid:portage|mac|Vibration in new ported games",
-  "term|mac|Remove",
-  "term|mac|Settings navigation: home",
-  "term|mac|Skip setup"
+  "term|mac|Settings navigation: home"
  ],
  "site": []
 }

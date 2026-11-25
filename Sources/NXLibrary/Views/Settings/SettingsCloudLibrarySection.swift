@@ -426,12 +426,15 @@ struct SettingsCloudLibrarySection: View {
 
     private func chooseTool() {
         guard editable else { return }
-        let panel = NSOpenPanel()
-        panel.canChooseDirectories = false
-        panel.allowsMultipleSelection = false
-        panel.directoryURL = tool?.deletingLastPathComponent()
-        panel.message = text("Choose the rclone executable or use the detected one.")
-        guard panel.runModal() == .OK, let chosen = panel.url, editable else { return }
+        OortFilePickerPresentation.open(.tool, title: "rclone", message: text("Choose the rclone executable or use the detected one."),
+                                        startingAt: tool?.deletingLastPathComponent()) { urls in
+            // A package manager installs the tool as a link: the file it leads to is the one kept.
+            if let chosen = urls.first { use(chosen.resolvingSymlinksInPath()) }
+        }
+    }
+
+    private func use(_ chosen: URL) {
+        guard editable else { return }
         guard RcloneStorageBackend.isExecutable(chosen) else { issue = .tool; return }
         guard model.canChooseDriveTool(chosen) else { issue = .portableConfiguration; return }
         model.chooseExecutable(chosen)

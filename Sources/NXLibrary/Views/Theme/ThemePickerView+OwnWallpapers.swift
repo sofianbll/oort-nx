@@ -5,19 +5,19 @@ import NXLibraryCore
 
 /// The player's own wallpapers: adding one from a file and removing it after a confirmation.
 extension ThemePickerView {
-    /// A plain macOS open panel: picking a file needs the pointer anyway.
     func addOwn() {
         let live = state.tab == .live
-        let panel = NSOpenPanel()
-        panel.message = live
-            ? L10n.text("Choose a video for your live background (MP4, MOV or M4V). Arcane keeps its own copy and plays it muted.")
-            : L10n.text("Choose a picture for your background. Arcane keeps its own copy.")
-        panel.allowedContentTypes = live
-            ? WallpaperCatalog.videoExtensions.compactMap { UTType(filenameExtension: $0) }
-            : [.image]
-        panel.allowsMultipleSelection = false
         errorTitle = live ? L10n.text("Couldn't add the video") : L10n.text("Couldn't add the picture")
-        guard panel.runModal() == .OK, let url = panel.url else { return }
+        OortFilePickerPresentation.open(live ? .files(Array(WallpaperCatalog.videoExtensions)) : .images,
+                                        title: live ? L10n.text("Add a video") : L10n.text("Add a picture"),
+                                        message: live
+                                            ? L10n.text("Choose a video for your live background (MP4, MOV or M4V). Arcane keeps its own copy and plays it muted.")
+                                            : L10n.text("Choose a picture for your background. Arcane keeps its own copy.")) { urls in
+            if let url = urls.first { addOwn(url) }
+        }
+    }
+
+    private func addOwn(_ url: URL) {
         do {
             let id = try theme.importWallpaper(from: url)
             state.backgroundIndex = backgrounds.firstIndex(of: .wallpaper(id)) ?? state.backgroundIndex
@@ -84,7 +84,7 @@ extension ThemePickerView {
                 .ignoresSafeArea()
                 .contentShape(Rectangle())
                 .onTapGesture { keepIt() }
-            SeleneConfirmDialog(title: removalTitle, message: message, confirmTitle: "Remove",
+            SeleneConfirmDialog(title: removalTitle, message: message, confirmTitle: "Delete",
                                 cancelTitle: L10n.text("Keep it"), focus: $removalFocus,
                                 onCancel: keepIt, onConfirm: confirmRemoval)
         }

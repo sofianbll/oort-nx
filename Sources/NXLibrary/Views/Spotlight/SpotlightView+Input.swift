@@ -256,7 +256,7 @@ extension SpotlightView {
         SoundEffectService.shared.play(.focus)
     }
 
-    private func handleViewer(_ action: GamepadAction) {
+    func handleViewer(_ action: GamepadAction) {
         guard var context = viewer else { return }
         switch ScreenshotViewer.handle(action, state: &context.state) {
         case .moved:
@@ -521,6 +521,7 @@ extension SpotlightView {
             }
             if event.type == .scrollWheel {
                 if platformPicker != nil { return nil }
+                if scrollRail(with: event) { return nil }
                 // The Achievements screen's list takes the wheel on its own offset, like a mod panel's
                 // description: a notch glides, a trackpad follows the fingers; the page beneath stays.
                 if let screen = achievementsScreen {
@@ -586,6 +587,19 @@ extension SpotlightView {
     }
 
     // MARK: - Wheel and trackpad
+
+    /// Sideways: the row or the screenshots move with the fingers. A moved tile is carried along.
+    private func scrollRail(with event: NSEvent) -> Bool {
+        let onRow = viewModel.spotlight.focus == .row && achievementsScreen == nil && cardMenu == nil
+            && !modsHost.isPanelOpen && !storeHost.isPanelOpen && router.sortMenu == nil
+            && !profileFocused && !router.integrationBarFocused
+        guard viewer != nil || onRow,
+              let delta = RailScroll.delta(x: event.scrollingDeltaX, y: event.scrollingDeltaY, verticalToo: false) else { return false }
+        let steps = rail.steps(delta, precise: event.hasPreciseScrollingDeltas, began: event.phase == .began,
+                               pitch: canvas.u(viewer == nil ? SpotlightRowGeometry.pitch : RailScroll.page), at: event.timestamp)
+        for _ in 0..<abs(steps) { handle(steps < 0 ? .navigateLeft : .navigateRight) }
+        return true
+    }
 
     /// The wheel or trackpad. Between the row and the page it never stops
     /// halfway: the first scroll down from the row runs the same glide as Down,

@@ -115,7 +115,8 @@ struct SpotlightPageModel { var links = [1]; var more: [Int] = [] }
     var gameToRemove: Int?
     var cloudLibraryGameID: UUID?
     var cloudQuitRequested = false
-    var launchOverlay: Int?
+    struct Launch { var offersExit = false }
+    var launchOverlay: Launch?
     var isBuilding = false
     var catalogBuildRecoveries: [Int] = []
     var currentFocusedCatalogGame: CatalogGame?
@@ -273,6 +274,10 @@ extension GamepadAction {
         guard let binding = GamepadLayout.arcane.binding(button, browsing: false), binding.release else { return nil }
         return result == .tap ? binding.tap : binding.hold
     }
+}
+final class OortKeyboardPresentation {
+    @MainActor static let shared = OortKeyboardPresentation()
+    func handle(_ action: GamepadAction) -> Bool { false }
 }
 struct ClosedFilePicker { func handle(_ action: GamepadAction) -> Bool { false } }
 @MainActor final class InputRecorder { var actions: [GamepadAction] = [] }
@@ -458,7 +463,7 @@ func withAnimation(_ animation: Int?, _ update: () -> Void) { update() }
             { $0.router.isSearchPresented = $1 }, { $0.router.isPalettePresented = $1 }, { $0.router.isScreenshotViewerOpen = $1 },
             { $0.viewModel.isGameOptionsOpen = $1 }, { $0.router.isMenuPresented = $1 },
             { $0.viewModel.showSetupCheck = $1 },
-            { $0.isCloseGameOpen = $1 }, { $0.viewModel.launchOverlay = $1 ? 1 : nil }
+            { $0.isCloseGameOpen = $1 }, { $0.viewModel.launchOverlay = $1 ? .init() : nil }
         ]
         for (index, overlay) in overlays.enumerated() {
             overlay(menu, true)
@@ -472,6 +477,25 @@ func withAnimation(_ animation: Int?, _ update: () -> Void) { update() }
 
         let input = MenuHost()
         input.connectController()
+        do {
+            // The launch screen: only B leaves it, only once it has said so, and nothing reaches what is under it.
+            final class Count { var exits = 0, others = 0 }
+            let count = Count()
+            let exits = NotificationCenter.default.addObserver(forName: .nxLaunchScreenExit, object: nil, queue: nil) { _ in count.exits += 1 }
+            let others = NotificationCenter.default.addObserver(forName: .nxSpotlightGamepadAction, object: nil, queue: nil) { _ in count.others += 1 }
+            input.router.route = .library
+            input.viewModel.launchOverlay = .init()
+            GameControllerService.shared.onAction?(.cancel)
+            require(count.exits == 0, "The first seconds belong to the game")
+            input.viewModel.launchOverlay?.offersExit = true
+            for action in [GamepadAction.confirm, .navigateLeft, .menu, .secondaryAction] { GameControllerService.shared.onAction?(action) }
+            require(count.exits == 0 && !input.router.isMenuPresented, "Only B leaves the launch screen")
+            GameControllerService.shared.onAction?(.cancel)
+            require(count.exits == 1 && count.others == 0, "B must leave the launch screen and nothing else")
+            input.viewModel.launchOverlay = nil
+            NotificationCenter.default.removeObserver(exits)
+            NotificationCenter.default.removeObserver(others)
+        }
         let presses: [ControllerButton: GamepadAction] = [
             .up: .navigateUp, .down: .navigateDown, .left: .navigateLeft, .right: .navigateRight,
             .a: .confirm, .b: .cancel, .x: .secondaryAction, .y: .contextAction,

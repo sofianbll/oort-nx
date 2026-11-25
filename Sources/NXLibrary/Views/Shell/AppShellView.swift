@@ -7,6 +7,7 @@ import ArcanePorting
 struct AppShellView: View {
     @ObservedObject var gamepad = GameControllerService.shared
     @ObservedObject var filePicker = OortFilePickerPresentation.shared
+    @ObservedObject var keyboard = OortKeyboardPresentation.shared
     @StateObject var viewModel: AppViewModel
     /// The Setup (`SetupModel`): the update offer names the Xcode a release needs.
     @ObservedObject var setup: SetupModel
@@ -181,6 +182,8 @@ struct AppShellView: View {
                 .seleneCanvasRoot()
                 .environment(\.locale, localization.context.formatLocale)
                 .environment(\.nxAppLocale, localization.context)
+                .environment(\.seleneShowButtonHints, settings.settings.showButtonHints)
+                .environment(\.seleneButtonNames, settings.settings.buttonNames)
         }
         .frame(width: 0, height: 0)
         .accessibilityHidden(true)
@@ -234,7 +237,7 @@ struct AppShellView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .nxLibraryOpenMenu)) { _ in
             guard nativeMenuAvailability.general else { return }
-            router.isMenuPresented = true
+            if router.isMenuPresented { router.closeMenu() } else { router.isMenuPresented = true }
         }
         .onReceive(NotificationCenter.default.publisher(for: .nxLibraryOpenPalette)) { note in
             togglePalette(query: note.object as? String ?? "")

@@ -15,6 +15,8 @@ struct ScreenshotViewer: View {
     let state: ScreenshotViewerState
     let artwork: ArtworkStore
     let onClose: () -> Void
+    /// The hints' clicks: the host routes them like the buttons they name.
+    let onAction: (GamepadAction) -> Void
 
     @State private var images: [Int: NSImage] = [:]
     /// The index on screen: stays on the last ready image until the new one lands.
@@ -63,8 +65,8 @@ struct ScreenshotViewer: View {
             VStack(spacing: 0) {
                 Spacer(minLength: 0)
                 SeleneHintsBar(left: [HintItem(.b, L10n.text("Back"))],
-                               right: [HintItem(.lb, "‹"), HintItem(.rb, "›")],
-                               bottom: SeleneBottomScrim.hintsBottom, leftInset: 18)
+                               right: [HintItem(.lb, "Previous"), HintItem(.rb, "Next")],
+                               bottom: SeleneBottomScrim.hintsBottom, leftInset: 18, press: onAction)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

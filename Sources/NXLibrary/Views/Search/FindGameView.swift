@@ -70,7 +70,7 @@ struct FindGameView: View {
         OortSearchField(query: $query, lit: focused == nil) {
             TextField(L10n.text("Find a game"), text: $query)
                 .focused($fieldFocused)
-                .onSubmit { pick(results.first) }
+                .onSubmit { typed() }
         }
         .frame(width: canvas.u(SeleneTokens.Space.transferMeasure))
     }
@@ -136,7 +136,9 @@ struct FindGameView: View {
                 move(to: 0)
             }
         case .navigateUp:
-            if let index = focused {
+            if focused == nil {
+                fieldFocused = true
+            } else if let index = focused {
                 if index >= Self.columns {
                     move(to: index - Self.columns)
                 } else {
@@ -154,6 +156,8 @@ struct FindGameView: View {
             if let index = focused, index + 1 < count { move(to: index + 1) }
         case .confirm:
             let games = results
+            // Nothing found, or nothing typed yet: A writes.
+            guard !games.isEmpty else { return fieldFocused = true }
             pick(focused.flatMap { games.indices.contains($0) ? games[$0] : nil } ?? games.first)
         case .cancel:
             close()
@@ -166,6 +170,13 @@ struct FindGameView: View {
 
     private func searchEverywhere() {
         NotificationCenter.default.post(name: .nxLibraryOpenPalette, object: query)
+    }
+
+    /// Return starts the first result; from the on-screen keyboard the player still picks among them.
+    private func typed() {
+        guard GameControllerService.shared.controllerInHand else { return pick(results.first) }
+        fieldFocused = false
+        if !results.isEmpty { move(to: 0) }
     }
 
     private func move(to index: Int) {

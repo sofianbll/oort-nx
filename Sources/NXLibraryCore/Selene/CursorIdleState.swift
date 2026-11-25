@@ -4,20 +4,26 @@ import Foundation
 public struct CursorIdleState {
     public private(set) var isHidden = false
     private var idleSince: TimeInterval?
+    /// A controller was picked up: the pointer stays away until it moves, in a window too.
+    private var heldByController = false
     private var lastPointerPosition: CGPoint?
     public init() {}
-    public mutating func update(now: TimeInterval, eligible: Bool) -> Bool {
+    /// `fullscreen` is where an idle pointer hides by itself.
+    public mutating func update(now: TimeInterval, eligible: Bool, fullscreen: Bool = true) -> Bool {
         guard eligible else {
             idleSince = nil
+            heldByController = false
             isHidden = false
             return false
         }
-        if idleSince == nil { idleSince = now }
-        isHidden = now - (idleSince ?? now) >= 3
+        if idleSince == nil || !fullscreen { idleSince = now }
+        isHidden = heldByController || now - (idleSince ?? now) >= 3
         return isHidden
     }
+    public mutating func controllerUsed() { heldByController = true }
     public mutating func mouseActivity(now: TimeInterval) {
         idleSince = now
+        heldByController = false
         isHidden = false
     }
 

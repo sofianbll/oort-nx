@@ -16,6 +16,7 @@ extension View { func seleneFont(_ token: SeleneTokens.Text, _ weight: Font.Weig
 enum SeleneTheme { static let ink = Color.white }
 enum OortShadow { case text }
 extension View { func oortShadow(_ role: OortShadow) -> some View { self } }
+extension View { func seleneHover(_ reached: @escaping () -> Void) -> some View { onHover { if $0 { reached() } } } }
 struct CloudLibraryIndicator {}
 struct CloudLibraryPill: View { let indicator: CloudLibraryIndicator; let focused: Bool; let action: () -> Void; var body: some View { Color.clear } }
 struct SelenePillButton: View {

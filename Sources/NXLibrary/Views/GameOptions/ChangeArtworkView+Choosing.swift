@@ -86,23 +86,22 @@ extension ChangeArtworkView {
     }
 
     private func chooseFile() {
-        do {
-            if let data = try Self.chooseArtworkFile(slot: slot, name: subject.name) { save(data) }
-        } catch {
-            message = error.localizedDescription
-            SoundEffectService.shared.play(.error)
+        let slot = slot
+        Self.chooseArtworkFile(slot: slot, name: subject.name) { result in
+            guard slot == self.slot else { return }
+            do { save(try result.get()) } catch {
+                message = error.localizedDescription
+                SoundEffectService.shared.play(.error)
+            }
         }
     }
 
-    @MainActor static func chooseArtworkFile(slot: ArtworkSlot, name: String) throws -> Data? {
-        let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.png, .jpeg, .heic, .webP, .image]
-        panel.allowsMultipleSelection = false
-        panel.canChooseDirectories = false
-        panel.message = L10n.format("Choose a %@ for %@.", [slot.title.lowercased(), name])
-        guard panel.runModal() == .OK, let url = panel.url else { return nil }
-        guard let data = try? Data(contentsOf: url) else { throw ArtworkFileReadError.unreadable }
-        return data
+    @MainActor static func chooseArtworkFile(slot: ArtworkSlot, name: String, completion: @escaping (Result<Data, Error>) -> Void) {
+        OortFilePickerPresentation.open(.images, title: slot.title,
+                                        message: L10n.format("Choose a %@ for %@.", [slot.title.lowercased(), name])) { urls in
+            guard let url = urls.first else { return }
+            completion(Result { try Data(contentsOf: url) }.mapError { _ in ArtworkFileReadError.unreadable })
+        }
     }
 
     private enum ArtworkFileReadError: LocalizedError {

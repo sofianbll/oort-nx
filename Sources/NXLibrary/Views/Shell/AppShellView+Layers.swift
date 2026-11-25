@@ -244,6 +244,7 @@ extension AppShellView {
         .overlay {
             if viewModel.cloudQuitRequested { cloudQuitOverlay() }
         }
+        .overlay { OortKeyboardLayer() }
         .modifier(SoundCueHooks(router: router, viewModel: viewModel))
         // Inside the canvas root so the sheet inherits the window's canvas units.
         .seleneCanvasRoot(zoom: CGFloat(settings.presentation.interfaceZoom))
@@ -267,9 +268,10 @@ extension AppShellView {
         .environment(\.seleneReduceMotion, reduceMotion)
         .environment(\.seleneBackdropStyle, backdropStyle)
         .environment(\.seleneSharesBackdrop, true)
+        .environment(\.oortLivePointer, true)
         .environment(\.seleneShowButtonHints, settings.presentation.showButtonHints)
         .environment(\.seleneButtonNames, settings.presentation.buttonNames)
-        .environment(\.seleneHintsCovered, filePicker.isOpen)
+        .environment(\.seleneHintsCovered, filePicker.isOpen || keyboard.isOpen)
         .environmentObject(updater)
         .environmentObject(sources)
         .onAppear { [sources] in
@@ -280,6 +282,7 @@ extension AppShellView {
         .preferredColorScheme(.dark)
         .frame(minWidth: 1100, minHeight: 700)
         .onAppear(perform: startRuntime)
+        .onAppear { keyboard.start() }
         .background { profilePresenceTask }
         .onReceive(SteamPlayCoordinator.shared.$states.map { SteamPlayCoordinator.blocksIdlePresence($0) }
             .removeDuplicates()) { steamBlocksIdlePresence = $0 }
@@ -533,7 +536,7 @@ private struct MenuHoldIndicator: View {
                             }
                         }
                         .frame(width: canvas.u(22), height: canvas.u(22))
-                    Text(L10n.text("Hold: Settings")).seleneFont(.text)
+                    Text(L10n.format("Hold: %@", [L10n.text((controller.holdAction ?? .menuHold).guideTitle)])).seleneFont(.text)
                 }
                 .foregroundStyle(SeleneTheme.ink)
                 .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))

@@ -12,8 +12,37 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 ### Changed
 
 - The control center opens with **⇧⌘K**; ⌘K is now the search.
+- In French, making a game’s app is always “compiler”.
+- A game started from Oort asks to quit in your language, and unsaved progress has one sentence everywhere.
+- What goes to the Trash says Delete; Remove only takes something off a list.
+- + says Options everywhere in Spotlight and the Collection.
+- The ring that fills while a button is held also says Search and Control center.
+- Opening a web page with a controller asks first and shows the address.
+- Every choice has ‹ › to click in game options and Add game, and says ← →.
+- The pointer hides when a controller is picked up, until it moves.
+- The profile's on-screen keyboard is one shared piece with symbols and accents. It opens in every text field a controller reaches: game search, settings, mods, pictures, keys, friend code.
+- Reset group asks first in Settings, on Cancel, and says when the change is immediate.
+- A right click on a game or a card opens its options, like +.
+- Quit and Restart ask first in the control center, on Cancel.
+- Prompts name what was used last: a controller's buttons after a press, the Mac keys after a key, a click or a real move of the mouse. A small nudge changes nothing.
 - The control center keeps five icons with Power in the middle. Players joins the Profile card.
 - French addresses the player with « tu » everywhere, as the site, Windows and the phones do.
+
+### Fixed
+
+- In the control center, B says Back inside a card, and ⌘K closes what it opened.
+- ⌘F, and holding − in the Arcane layout, search from a game’s page too.
+- With button hints off, the mouse keeps Back on screens that have no other way out.
+- Every choice of a file, folder, app or picture opens Oort’s own picker, and sound packs ask in Oort’s dialogs: a controller reaches them all.
+- With several controllers, the one last pressed drives the menus and names the buttons.
+- A view that redraws or scrolls under a still pointer no longer takes the focus.
+- An update offered at launch opens on Later.
+- B on the first page of the setup assistant no longer skips it all; Skip setup stays a button.
+- The rows of games and the screenshots follow two fingers; the wheel moves the Collection.
+- Screenshots: Previous and Next take a click.
+- A click puts a moved tile down; its hints take a click too.
+- Every hint of the Spotlight page and the Collection takes a click: card options, Details, Options.
+- The launch screen can be left with B or Esc after four seconds, and says so; keys no longer act on the screen under it.
 
 ## 0.5.0-beta.3 — 2026-11-25
 

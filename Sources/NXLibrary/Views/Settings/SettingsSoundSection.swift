@@ -21,12 +21,22 @@ struct SettingsSoundSection: View {
     @State private var place: OortSynth.Place?
     @State private var playTicket = UUID()
     let soundPackLibrary: SoundPackLibrary
+    /// The app's own question, on Cancel.
+    let ask: (Question, @escaping () -> Void) -> Void
+
+    struct Question {
+        let title: String
+        let message: String
+        let action: String
+    }
 
     init(settings: SettingsEditor, onActions: @escaping ([SettingsRowAction]) -> Void,
-         soundPackLibrary: SoundPackLibrary = SoundPackLibrary()) {
+         soundPackLibrary: SoundPackLibrary = SoundPackLibrary(),
+         ask: @escaping (Question, @escaping () -> Void) -> Void = { _, _ in }) {
         self.settings = settings
         self.onActions = onActions
         self.soundPackLibrary = soundPackLibrary
+        self.ask = ask
     }
 
     private func stepVolume(_ step: Int) {
@@ -65,9 +75,9 @@ struct SettingsSoundSection: View {
                 SeleneCycleRow("Installed pack", subtitle: "Choose an imported pack to remove.",
                                value: customPacks.first(where: { $0.key == removalKey })?.name ?? customPacks[0].name,
                                verbatimValue: true, cycle: stepRemoval)
-                SeleneButtonRow("Remove sound pack",
+                SeleneButtonRow("Delete sound pack",
                                 subtitle: "Moves only the installed copy to the Trash.",
-                                buttonTitle: "Remove", action: removePack)
+                                buttonTitle: "Delete", action: removePack)
             }
 
             if OortSynth(pack: settings.settings.soundPackID) != nil {
@@ -137,7 +147,7 @@ struct SettingsSoundSection: View {
                              activate: importPack))
         if !customPacks.isEmpty {
             actions.append(.value("soundPackToRemove", "Installed pack", cycle: stepRemoval))
-            actions.append(.init(id: "removeSoundPack", title: "Remove sound pack", activate: removePack))
+            actions.append(.init(id: "removeSoundPack", title: "Delete sound pack", activate: removePack))
         }
         actions.append(.init(id: "importSelene", title: "Import sounds and wallpapers from Selene") {
             importFromSelene()
@@ -295,14 +305,14 @@ struct SettingsSoundSection: View {
 
     private func importPack() {
         guard !importingPack else { return }
-        let panel = NSOpenPanel()
-        panel.canChooseDirectories = true
-        panel.canChooseFiles = true
-        panel.allowsMultipleSelection = false
-        panel.allowedContentTypes = [.folder, UTType(filenameExtension: "oortsound") ?? .data]
-        panel.prompt = L10n.text("Choose", context: localization)
-        panel.message = L10n.text("Choose a folder or .oortsound file.", context: localization)
-        guard panel.runModal() == .OK, let url = panel.url else { return }
+        OortFilePickerPresentation.open(.files(["oortsound"], folder: true), title: L10n.text("Import sound pack", context: localization),
+                                        message: L10n.text("Choose a folder or .oortsound file.", context: localization)) { urls in
+            if let url = urls.first { importPack(url) }
+        }
+    }
+
+    private func importPack(_ url: URL) {
+        guard !importingPack else { return }
         let ticket = UUID()
         importTicket = ticket
         importingPack = true
@@ -310,15 +320,7 @@ struct SettingsSoundSection: View {
             do {
                 let pack = try await Task.detached(priority: .userInitiated) { try SoundPack.read(url) }.value
                 guard importTicket == ticket else { return }
-                let manifest = pack.manifest
-                let alert = Self.importAlert(manifest, locale: localization)
-                if alert.runModal() == .alertFirstButtonReturn {
-                    try soundPackLibrary.install(pack)
-                    packChoices = soundPackLibrary.choices()
-                    removalKey = customPacks.first(where: { $0.key == "custom.\(manifest.id)" })?.key
-                        ?? customPacks.first?.key ?? ""
-                    packNote = L10n.text("Sound pack imported. Choose it to use it.", context: localization)
-                }
+                ask(Self.importQuestion(pack.manifest, locale: localization)) { install(pack) }
             } catch {
                 guard importTicket == ticket else { return }
                 packNote = L10n.text("Could not import the sound pack.", context: localization) + " " + error.localizedDescription
@@ -327,12 +329,22 @@ struct SettingsSoundSection: View {
         }
     }
 
-    @MainActor static func importAlert(_ manifest: SoundPackManifest, locale: AppLocale) -> NSAlert {
-        let alert = NSAlert()
-        alert.messageText = L10n.text("Import sound pack?", context: locale)
+    private func install(_ pack: SoundPack) {
+        do {
+            try soundPackLibrary.install(pack)
+            packChoices = soundPackLibrary.choices()
+            removalKey = customPacks.first(where: { $0.key == "custom.\(pack.manifest.id)" })?.key
+                ?? customPacks.first?.key ?? ""
+            packNote = L10n.text("Sound pack imported. Choose it to use it.", context: localization)
+        } catch {
+            packNote = L10n.text("Could not import the sound pack.", context: localization) + " " + error.localizedDescription
+        }
+    }
+
+    static func importQuestion(_ manifest: SoundPackManifest, locale: AppLocale) -> Question {
         let events = SoundPackEvent.allCases.filter { manifest.events[$0.rawValue] != nil }
             .map { L10n.text(eventTitle($0), context: locale) }.joined(separator: ", ")
-        alert.informativeText = [
+        let facts = [
             L10n.format("Name: %@", [manifest.name], context: locale),
             L10n.format("Author: %@", [manifest.author], context: locale),
             L10n.format("Licence: %@", [manifest.license], context: locale),
@@ -341,17 +353,17 @@ struct SettingsSoundSection: View {
             L10n.text("Import only sounds you have the right to use.", context: locale),
             L10n.text("The pack will not be selected automatically.", context: locale)
         ].joined(separator: "\n")
-        alert.addButton(withTitle: L10n.text("Import", context: locale)).keyEquivalent = ""
-        alert.addButton(withTitle: L10n.text("Cancel", context: locale)).keyEquivalent = "\r"
-        return alert
+        return Question(title: L10n.text("Import sound pack?", context: locale), message: facts, action: "Import")
     }
 
     private func removePack() {
         let key = removalKey
         guard key.hasPrefix("custom.") else { return }
         let name = customPacks.first(where: { $0.key == key })?.name ?? key
-        let alert = Self.removalAlert(name, locale: localization)
-        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        ask(Self.removalQuestion(name, locale: localization)) { remove(key) }
+    }
+
+    private func remove(_ key: String) {
         do {
             try soundPackLibrary.remove(key)
             if settings.settings.soundPackID == key { settings.settings.soundPackID = "selene" }
@@ -364,25 +376,20 @@ struct SettingsSoundSection: View {
         }
     }
 
-    @MainActor static func removalAlert(_ name: String, locale: AppLocale) -> NSAlert {
-        let alert = NSAlert()
-        alert.messageText = L10n.text("Remove sound pack?", context: locale)
-        alert.informativeText = L10n.format("Only the installed copy of %@ moves to the Trash. If active, Selene will be selected.", [name], context: locale)
-        let remove = alert.addButton(withTitle: L10n.text("Remove", context: locale))
-        remove.keyEquivalent = ""
-        let cancel = alert.addButton(withTitle: L10n.text("Cancel", context: locale))
-        cancel.keyEquivalent = "\r"
-        return alert
+    static func removalQuestion(_ name: String, locale: AppLocale) -> Question {
+        Question(title: L10n.text("Delete sound pack?", context: locale),
+                 message: L10n.format("Only the installed copy of %@ moves to the Trash. If active, Selene will be selected.", [name], context: locale),
+                 action: "Delete")
     }
 
     private func importFromSelene() {
-        let panel = NSOpenPanel()
-        panel.canChooseDirectories = true
-        panel.canChooseFiles = false
-        panel.allowsMultipleSelection = false
-        panel.prompt = L10n.text("Import")
-        panel.message = L10n.text("Choose your Selene folder (the one that contains theme/theme.yaml).")
-        guard panel.runModal() == .OK, let url = panel.url else { return }
+        OortFilePickerPresentation.open(.folder, title: L10n.text("Selene folder"),
+                                        message: L10n.text("Choose your Selene folder (the one that contains theme/theme.yaml).")) { urls in
+            if let url = urls.first { importSelene(url) }
+        }
+    }
+
+    private func importSelene(_ url: URL) {
         do {
             let report = try SeleneImporter().importFrom(seleneRoot: url)
             SoundEffectService.shared.reloadSounds()

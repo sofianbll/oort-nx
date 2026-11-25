@@ -238,14 +238,9 @@ extension AppViewModel {
 
     func selectRyujinxFolder() {
         guard !isBuilding, !isUpdatingApp else { return }
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = false
-        panel.canChooseDirectories = true
-        panel.allowsMultipleSelection = false
-        panel.prompt = "Select Ryujinx Folder"
-        panel.message = "Select your Ryujinx folder to automatically locate prod.keys."
-
-        if panel.runModal() == .OK, let url = panel.url {
+        OortFilePickerPresentation.open(.folder, title: L10n.text("Ryujinx folder"),
+                                        message: L10n.text("Select your Ryujinx folder to automatically locate prod.keys.")) { [weak self] urls in
+            guard let self, let url = urls.first, !isBuilding, !isUpdatingApp else { return }
             setup.detectEnvironment(customRyujinxDir: url.path)
         }
     }

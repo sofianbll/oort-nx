@@ -69,17 +69,15 @@ import NXLibraryCore
     func chooseApp(relinking shortcut: MacShortcutRecord? = nil) {
         guard canEdit else { return }
         let profile = app.playProfile
-        let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.applicationBundle]
-        panel.canChooseDirectories = false
-        panel.allowsMultipleSelection = false
-        panel.treatsFilePackagesAsDirectories = false
-        panel.directoryURL = URL(fileURLWithPath: "/Applications", isDirectory: true)
-        panel.prompt = L10n.text(shortcut == nil ? "Add" : "Choose")
-        panel.message = L10n.text(shortcut == nil ? "Choose an app to add a tile. The app stays where it is."
-                                                  : "Choose the original app at its new location.")
-        guard panel.runModal() == .OK, let url = panel.url, profile == app.playProfile else { return }
-        if let shortcut { relink(shortcut.id, at: url) } else { add(at: url) }
+        OortFilePickerPresentation.open(.apps, title: L10n.text("Mac apps"),
+                                        message: L10n.text(shortcut == nil ? "Choose an app to add a tile. The app stays where it is."
+                                                                           : "Choose the original app at its new location."),
+                                        startingAt: URL(fileURLWithPath: "/Applications", isDirectory: true)) { [weak self] urls in
+            MainActor.assumeIsolated {
+                guard let self, let url = urls.first, profile == self.app.playProfile else { return }
+                if let shortcut { self.relink(shortcut.id, at: url) } else { self.add(at: url) }
+            }
+        }
     }
 
     func acceptDrop(_ urls: [URL]) -> Bool {
@@ -135,13 +133,14 @@ import NXLibraryCore
         app.showSettingsNotice(title: "Tile options", message: game.name, actionTitle: "Choose image…",
                                cancelTitle: "Back", alternatives: [remove], primaryFirst: true) { [weak self] in
             guard let self, self.app.playProfile == profile else { return }
-            do {
-                guard let data = try ChangeArtworkView.chooseArtworkFile(slot: .cover, name: game.name),
-                      self.app.playProfile == profile,
-                      self.app.catalogGames.contains(where: { $0.id == game.id }) else { return }
-                try picks.save(data, titleID: key, slot: .cover)
-            } catch {
-                self.app.showSettingsNotice(title: "Mac app shortcut", message: error.localizedDescription)
+            ChangeArtworkView.chooseArtworkFile(slot: .cover, name: game.name) { [weak self] result in
+                MainActor.assumeIsolated {
+                    guard let self, self.app.playProfile == profile,
+                          self.app.catalogGames.contains(where: { $0.id == game.id }) else { return }
+                    do { try picks.save(try result.get(), titleID: key, slot: .cover) } catch {
+                        self.app.showSettingsNotice(title: "Mac app shortcut", message: error.localizedDescription)
+                    }
+                }
             }
         }
     }

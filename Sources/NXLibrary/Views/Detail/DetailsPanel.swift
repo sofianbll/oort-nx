@@ -237,7 +237,7 @@ struct SeleneActionGrid: View {
                 .seleneRowFocus(focusedRow == index, radius: radius)
         }
         .buttonStyle(OortPressStyle())
-        .onHover { if $0 { onHoverRow(index) } }
+        .seleneHover { onHoverRow(index) }
         .accessibilityLabel(row.title)
     }
 }

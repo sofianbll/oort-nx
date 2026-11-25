@@ -12,6 +12,7 @@ extension Notification.Name {
     static let nxLocalePickerGamepadAction = Notification.Name("NXLocalePickerGamepadAction")
     static let nxAddGameGamepadAction = Notification.Name("NXAddGameGamepadAction")
     static let nxConsoleGamepadAction = Notification.Name("NXConsoleGamepadAction")
+    static let nxLaunchScreenExit = Notification.Name("NXLaunchScreenExit")
     static let nxDetailGamepadAction = Notification.Name("NXDetailGamepadAction")
     static let nxSpotlightGamepadAction = Notification.Name("NXSpotlightGamepadAction")
     static let nxCollectionGamepadAction = Notification.Name("NXCollectionGamepadAction")
@@ -47,6 +48,11 @@ struct NXLibraryApp: App {
         if let index = args.firstIndex(of: "--render-command-palette") {
             precondition(args.indices.contains(index + 1), "Pass a directory for the palette PNGs")
             try! CommandPaletteProbe.capture(to: URL(fileURLWithPath: args[index + 1], isDirectory: true))
+            exit(0)
+        }
+        if let index = args.firstIndex(of: "--render-keyboard") {
+            precondition(args.indices.contains(index + 1), "Pass a directory for the keyboard PNGs")
+            try! OortKeyboardProbe.run(to: URL(fileURLWithPath: args[index + 1], isDirectory: true))
             exit(EXIT_SUCCESS)
         }
         if let index = args.firstIndex(of: "--render-oort-ui-gallery") {

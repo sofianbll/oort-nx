@@ -118,8 +118,12 @@ struct AddGameRowView: View {
             SeleneSwitch(isOn: isOn)
                 .scaleEffect(0.85)
                 .allowsHitTesting(false)
-        case .choice(let values, let index, _):
-            SeleneValueChip(text: values.indices.contains(index) ? values[index] : "—")
+        case .choice(let values, let index, let select):
+            SeleneCycleValue(title: row.title, value: values.indices.contains(index) ? values[index] : "—") { step in
+                guard !values.isEmpty else { return }
+                select((index + step % values.count + values.count) % values.count)
+                SoundEffectService.shared.play(.key)
+            }
         case .field(let text, let placeholder):
             TextField(placeholder, text: text)
                 .textFieldStyle(.plain)

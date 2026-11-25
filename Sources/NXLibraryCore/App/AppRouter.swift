@@ -17,6 +17,7 @@ public enum AppRoute: Equatable {
 
     /// Drawn over the screen it was opened from, which stays behind, blurred.
     public var isOverlay: Bool { self == .addGame || self == .console }
+    public var isDetail: Bool { if case .detail = self { true } else { false } }
     public var isCollection: Bool {
         if case .profileCollection = self { return true }
         return self == .collection

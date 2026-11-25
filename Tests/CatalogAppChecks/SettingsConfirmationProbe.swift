@@ -521,7 +521,7 @@ import ArcanePorting
 
         let page = SettingsView(initialSection: .multiplayer, viewModel: vm, settings: settings,
                                 router: AppRouter(), artwork: ArtworkStore())
-        page.resetSection()
+        page.resetSection(.multiplayer)
         precondition(networkWrites == 0 && SettingsReset.reset(.multiplayer, in: editor.settings) == editor.settings)
         try settings.commitDraft()
         precondition(networkWrites == 1 && SettingsReset.reset(.multiplayer, in: settings.settings) == settings.settings
