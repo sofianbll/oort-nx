@@ -214,6 +214,7 @@ La [mappa del desktop](../../desktop/README.md) descrive i bersagli di build e l
 | [alpha2.js](../../desktop/tests/alpha2.js) e [update.js](../../desktop/tests/update.js) | Preparazione della libreria nell'app Windows pubblicata e controllo dopo l'installazione della nuova versione. |
 | [upgrade.py](../../desktop/tests/upgrade.py) | Confronto di cartelle, ID dei giochi, preferiti, sessione sintetica e tema fra il core precedente e quello nuovo. |
 | [hooks.nsh](../../desktop/src-tauri/windows/hooks.nsh) | Rimuove il vecchio catalogo dai file del programma Windows durante l'aggiornamento, senza toccare i dati del giocatore. |
+| [lib.rs](../../desktop/src-tauri/src/lib.rs) | Host Tauri; su Windows riallinea lo stato della finestra prima del passaggio a schermo intero. |
 
 ## Core · app: aggiornamento, primo avvio, diagnostica e comandi
 

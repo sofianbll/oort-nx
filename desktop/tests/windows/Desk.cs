@@ -23,7 +23,7 @@ static class Desk {
     [DllImport("user32.dll")] static extern bool GetClientRect(IntPtr w, out Rect r);
     [DllImport("user32.dll")] static extern bool MoveWindow(IntPtr w, int x, int y, int wd, int h, bool paint);
     [DllImport("user32.dll")] static extern bool ShowWindow(IntPtr w, int how);
-    [DllImport("user32.dll")] static extern IntPtr SendMessageW(IntPtr w, uint message, UIntPtr wParam, IntPtr lParam);
+    [DllImport("user32.dll")] static extern int GetWindowLongW(IntPtr w, int index);
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetWindowTextW(IntPtr w, StringBuilder s, int n);
     [DllImport("user32.dll")] static extern void keybd_event(byte k, byte scan, uint flags, UIntPtr x);
     [DllImport("user32.dll")] static extern bool SetProcessDPIAware();
@@ -79,7 +79,8 @@ static class Desk {
                 IntPtr w = Main_(pid), f = GetForegroundWindow();
                 Rect r = new Rect(), c = new Rect();
                 if (w != IntPtr.Zero) { GetWindowRect(w, out r); GetClientRect(w, out c); }
-                Console.WriteLine("{\"window\":" + (w != IntPtr.Zero ? "true" : "false") + ",\"minimized\":" + (IsIconic(w) ? "true" : "false") + ",\"front\":" + (Pid(f) == pid ? "true" : "false")
+                bool decorated = (GetWindowLongW(w, -16) & 0x00C00000) == 0x00C00000; // GWL_STYLE, WS_CAPTION
+                Console.WriteLine("{\"window\":" + (w != IntPtr.Zero ? "true" : "false") + ",\"minimized\":" + (IsIconic(w) ? "true" : "false") + ",\"front\":" + (Pid(f) == pid ? "true" : "false") + ",\"decorated\":" + (decorated ? "true" : "false")
                     + ",\"frontTitle\":\"" + Title(f).Replace("\\", "").Replace("\"", "") + "\",\"title\":\"" + Title(w) + "\",\"width\":" + c.r + ",\"height\":" + c.b + "}");
                 return 0;
             }
@@ -92,8 +93,8 @@ static class Desk {
             }
             case "front": {
                 IntPtr w = Main_(int.Parse(a[1]));
-                // A real Restore command also clears the app's cached minimized state before subsequent F11.
-                if (IsIconic(w)) SendMessageW(w, 0x0112, new UIntPtr(0xF120), IntPtr.Zero);
+                // Restore from outside the app, without clearing its cached state via WM_SYSCOMMAND.
+                if (IsIconic(w)) ShowWindow(w, 9);
                 // Windows lets a program take the front after a key of its own (F24: nothing listens to it). What a runner
                 // leaves on its screen steps aside.
                 for (int i = 0; i < 6 && Pid(GetForegroundWindow()) != int.Parse(a[1]); i++) {

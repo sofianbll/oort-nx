@@ -14,8 +14,16 @@ probe(async P => {
   // Back with the mouse, in the installed app: from a row to the list, then out.
   await P.settings(); await P.press('right'); const hint = () => P.at([...document.querySelectorAll('#hints .hint')].find(x => /Retour|Back/.test(x.textContent))); await host('click', ...hint()); await P.wait(300); P.ok(document.activeElement.closest('.side'), 'Back, with the mouse, goes to the list'); await host('click', ...hint()); await P.until(() => oort.layers.length === 1, 3000, 'Back again leaves Settings'); P.say('ok Back, with the mouse, leaves Settings');
   await P.press('lt'); await P.press('right', 4); await host('key', 0x4D); await P.until(() => document.querySelector('.shell'), 3000, 'M opens the options of the chosen game'); await host('key', 0x1B); await P.until(() => oort.layers.length === 1, 3000, 'Esc closes them');
-  P.same(await inv('abilities'), ['fullscreen', 'hide', 'restart', 'quit'], 'what Power can do on Windows'); await inv('hide'); await P.until(async () => (await host('state')).minimized, 5000, 'Hide'); await host('front'); await P.until(async () => { const w = await host('state'); return !w.minimized && w.front; }, 5000, 'and back in front'); P.say('ok Hide, and back');
-  await host('key', 0x7A); await P.wait(1200); P.ok(innerHeight >= screen.height - 2, `F11 fills the screen: ${innerWidth}x${innerHeight} of ${screen.width}x${screen.height}`); await host('desktop', '40-fullscreen'); await host('key', 0x7A); await P.wait(800); P.ok(innerHeight < screen.height - 2, 'and back');
+  P.same(await inv('abilities'), ['fullscreen', 'hide', 'restart', 'quit'], 'what Power can do on Windows');
+  await host('key', 0x48); await P.until(() => document.querySelector('.menu'), 3000, 'H opens the menu for Hide');
+  await P.press('a'); await P.press('down'); P.same(P.id(), 'hide', 'Power offers Hide'); await P.press('a');
+  await P.until(async () => (await host('state')).minimized, 5000, 'Hide'); await host('front');
+  await P.until(async () => { const w = await host('state'); return !w.minimized && w.front; }, 5000, 'and back in front'); P.say('ok Hide, and back');
+  P.same((await host('state')).decorated, true, 'after Hide, the restored window still has its title bar');
+  await host('key', 0x7A); await P.wait(1200); P.ok(innerHeight >= screen.height - 2, `F11 fills the screen: ${innerWidth}x${innerHeight} of ${screen.width}x${screen.height}`);
+  P.same((await host('state')).decorated, false, 'F11 removes the title bar after Hide and restore');
+  await host('desktop', '40-fullscreen'); await host('key', 0x7A); await P.wait(800); P.ok(innerHeight < screen.height - 2, 'and back');
+  P.same((await host('state')).decorated, true, 'leaving fullscreen restores the title bar');
 
   // The window steps aside for the game's own, and comes back in front when it ends.
   const lantern = find('Winter Lantern'); await P.press('lt'); for (let i = oort.library.games.indexOf(lantern) + 1; i > 0; i--) { oort.act('right'); await P.wait(25); } P.same(P.id(), lantern.id, 'on Winter Lantern');

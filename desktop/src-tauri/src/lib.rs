@@ -333,6 +333,11 @@ fn open(target: &str) -> Result<(), String> {
 
 #[tauri::command]
 fn set_fullscreen(window: tauri::WebviewWindow, on: bool) -> Result<(), String> {
+    // Windows can restore the window without Tao seeing SC_RESTORE. Refresh its minimized flag before changing styles.
+    #[cfg(target_os = "windows")]
+    if on {
+        window.unminimize().map_err(|e| e.to_string())?;
+    }
     window.set_fullscreen(on).map_err(|e| e.to_string())
 }
 
