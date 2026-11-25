@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 25 novembre 2026. Copertura di **1165 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 25 novembre 2026. Copertura di **1188 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -47,6 +47,7 @@ Le cartelle generate `.build/`, `work/` e `dist/` e i dati personali in Applicat
 - [UI · temi, rendering e sfondi](#ui--temi-rendering-e-sfondi)
 - [UI · fonti, Steam e libreria mista](#ui--fonti-steam-e-libreria-mista)
 - [UI · achievement](#ui--achievement)
+- [Contributi, skill e controlli di architettura](#contributi-skill-e-controlli-di-architettura)
 - [Test e fixture](#test-e-fixture)
 - [Script di sviluppo e packaging](#script-di-sviluppo-e-packaging)
 - [Risorse incluse](#risorse-incluse)
@@ -55,7 +56,7 @@ Le cartelle generate `.build/`, `work/` e `dist/` e i dati personali in Applicat
 
 ## Progetto e configurazione
 
-La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECURITY.md](../../SECURITY.md), [la CI](../../.github/workflows/ci.yml) e [il modello di segnalazione](../../.github/ISSUE_TEMPLATE/bug_report.yml). Descrivono come segnalare problemi e suggerimenti, le verifiche del maintainer, il canale per le vulnerabilità e i controlli automatici.
+La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECURITY.md](../../SECURITY.md), [il codice di condotta](../../CODE_OF_CONDUCT.md), [la CI](../../.github/workflows/ci.yml) e [i modelli di segnalazione](../../.github/ISSUE_TEMPLATE/). Descrivono come segnalare problemi e suggerimenti, le verifiche del maintainer, il canale per le vulnerabilità e i controlli automatici.
 
 | File | Responsabilità |
 |---|---|
@@ -65,7 +66,19 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [PLAYER-GUIDE.fr.md](../../PLAYER-GUIDE.fr.md) | Guida rapida in francese. |
 | [.github/ISSUE_TEMPLATE/config.yml](../../.github/ISSUE_TEMPLATE/config.yml) | Instrada le segnalazioni di sicurezza al canale privato. |
 | [.github/ISSUE_TEMPLATE/feature.yml](../../.github/ISSUE_TEMPLATE/feature.yml) | Raccoglie idee e richieste. |
-| [.github/PULL_REQUEST_TEMPLATE.md](../../.github/PULL_REQUEST_TEMPLATE.md) | Raccoglie perimetro e verifiche. |
+| [.github/PULL_REQUEST_TEMPLATE.md](../../.github/PULL_REQUEST_TEMPLATE.md) | Raccoglie perimetro e verifiche, in francese e in inglese. |
+| [.github/ISSUE_TEMPLATE/bug-macos.yml](../../.github/ISSUE_TEMPLATE/bug-macos.yml) | Modulo di segnalazione per macOS. |
+| [.github/ISSUE_TEMPLATE/bug-windows.yml](../../.github/ISSUE_TEMPLATE/bug-windows.yml) | Modulo di segnalazione per Windows. |
+| [.github/ISSUE_TEMPLATE/bug-linux.yml](../../.github/ISSUE_TEMPLATE/bug-linux.yml) | Modulo di segnalazione per Linux. |
+| [.github/ISSUE_TEMPLATE/bug-android.yml](../../.github/ISSUE_TEMPLATE/bug-android.yml) | Modulo di segnalazione per Android. |
+| [.github/ISSUE_TEMPLATE/bug-iphone-ipad.yml](../../.github/ISSUE_TEMPLATE/bug-iphone-ipad.yml) | Modulo di segnalazione per iPhone e iPad. |
+| [.github/ISSUE_TEMPLATE/game.yml](../../.github/ISSUE_TEMPLATE/game.yml) | Modulo di compatibilità per un gioco, senza file di gioco né chiavi. |
+| [.github/ISSUE_TEMPLATE/controller.yml](../../.github/ISSUE_TEMPLATE/controller.yml) | Modulo per manette e comandi. |
+| [.github/CODEOWNERS](../../.github/CODEOWNERS) | Designa il maintainer come revisore delle aree sensibili: dati, accesso, release, pacchetto, motore. |
+| [.github/dependabot.yml](../../.github/dependabot.yml) | Controlla ogni settimana azioni, Swift e (sui rami alpha) Cargo e Gradle; apre solo pull request. |
+| [.github/LABELS.md](../../.github/LABELS.md) | Propone le etichette da creare; nessuna è stata applicata su GitHub. |
+| [.github/workflows/ci.yml](../../.github/workflows/ci.yml) | Flusso unico: controlli Mac sempre; Swift, desktop, iPhone e iPad, Android solo se cambiano i loro percorsi. |
+| [CODE_OF_CONDUCT.md](../../CODE_OF_CONDUCT.md) | Regole di condotta brevi e segnalazione privata al maintainer. |
 | [.gitignore](../../.gitignore) | Esclude output di build, bundle, cache, work e file personali dell’IDE dal versionamento. |
 | [AGENTS.md](../../AGENTS.md) | Definisce vincoli per gli agenti, procedura di upgrade del motore e verifiche assegnate all’utente. |
 | [CHANGELOG.md](../../CHANGELOG.md) | Registra le modifiche visibili all'utente per versione. |
@@ -945,6 +958,26 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [TierCrystal.swift](../../Sources/NXLibrary/Views/Spotlight/TierCrystal.swift) | Il cristallo di una tier dalle risorse del Core, decodificato una volta; non ancora ottenuto, tenue con una traccia del suo colore, così oro, argento e bronzo restano distinguibili. |
 | [AchievementsScreenModel.swift](../../Sources/NXLibrary/ViewModels/AchievementsScreenModel.swift) | Selezione, filtro e scroll di Achievements; LB/RB cambiano filtro o scorrono i dettagli aperti. Dopo la rotella la prima freccia riporta il focus in vista. |
 | [ListScroll.swift](../../Sources/NXLibrary/ViewModels/ListScroll.swift) | Offset di una lista (`TextScroll`) con la planata del pannello delle mod: rotella, trackpad e frecce muovono lo stesso valore. |
+
+## Contributi, skill e controlli di architettura
+
+| File | Responsabilità |
+|---|---|
+| [scripts/ci_changed_areas.py](../../scripts/ci_changed_areas.py) | Decide quali aree della CI girano secondo i percorsi modificati; una cartella assente lascia l’area spenta. |
+| [scripts/check_module_boundaries.py](../../scripts/check_module_boundaries.py) | Verifica l’ordine dei moduli, Foundation soltanto in OortCore e la lista di base degli import d’interfaccia nel core. |
+| [Tests/CIChecks/test_changed_areas.py](../../Tests/CIChecks/test_changed_areas.py) | Verifica quali aree si accendono per documentazione, core, workflow e cartelle mancanti. |
+| [Tests/ModuleChecks/test_module_boundaries.py](../../Tests/ModuleChecks/test_module_boundaries.py) | Verifica i confini dei moduli con fixture sintetiche e sul repository. |
+| [Tests/SkillChecks/test_skills.py](../../Tests/SkillChecks/test_skills.py) | Verifica formato, tre casi per skill, link e assenza di percorsi personali nelle skill pubbliche. |
+| [docs/working-on-it/architecture-map.md](architecture-map.md) | Carta dei cinque sistemi, livelli d’import e dove mettere il codice. |
+| [docs/working-on-it/branch-rules.md](branch-rules.md) | Regole proposte per rami, tag e controlli richiesti; nessuna applicata su GitHub. |
+| [.agents/skills/oort-contribute/SKILL.md](../../.agents/skills/oort-contribute/SKILL.md) | Prepara un contributo: sistema, controlli, dati privati, bozza di pull request. |
+| [.agents/skills/oort-contribute/evals/cases.md](../../.agents/skills/oort-contribute/evals/cases.md) | Tre casi di valutazione di oort-contribute. |
+| [.agents/skills/oort-triage/SKILL.md](../../.agents/skills/oort-triage/SKILL.md) | Propone tipo, sistema, fonte, priorità e informazioni mancanti; non applica nulla. |
+| [.agents/skills/oort-triage/evals/cases.md](../../.agents/skills/oort-triage/evals/cases.md) | Tre casi di valutazione di oort-triage. |
+| [.agents/skills/oort-release/SKILL.md](../../.agents/skills/oort-release/SKILL.md) | Prepara una release senza pubblicarla: stato pulito, controlli, note, somme SHA-256. |
+| [.agents/skills/oort-release/evals/cases.md](../../.agents/skills/oort-release/evals/cases.md) | Tre casi di valutazione di oort-release. |
+| [.agents/skills/oort-guides/SKILL.md](../../.agents/skills/oort-guides/SKILL.md) | Scrive o corregge una guida in tempo presente, verificata sul codice. |
+| [.agents/skills/oort-guides/evals/cases.md](../../.agents/skills/oort-guides/evals/cases.md) | Tre casi di valutazione di oort-guides. |
 
 ## Test e fixture
 
