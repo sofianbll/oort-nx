@@ -9,7 +9,7 @@ final class SetupCheckTests: XCTestCase {
         input.keysOptional = true
         let optional = SetupCheck.items(from: input).first { $0.id == .keys }
         XCTAssertEqual(optional?.state, .ready)
-        XCTAssertEqual(optional?.chip, "OPTIONAL")
+        XCTAssertEqual(optional?.chip, "Optional")
         input.keysOptional = false
         XCTAssertEqual(SetupCheck.items(from: input).first { $0.id == .keys }?.state, .missing)
     }
@@ -53,15 +53,15 @@ final class SetupCheckTests: XCTestCase {
 
     func testXcode() {
         XCTAssertEqual(item(.xcode) { $0.xcodeStatus = nil }.state, .missing)
-        XCTAssertEqual(item(.xcode) { $0.xcodeStatus = nil }.chip, "NOT INSTALLED")
+        XCTAssertEqual(item(.xcode) { $0.xcodeStatus = nil }.chip, "Not installed")
         XCTAssertEqual(item(.xcode) { $0.xcodeStatus = nil }.actionTitle, "Get Xcode")
         XCTAssertEqual(item(.xcode) { $0.xcodeStatus = 69 }.state, .needsYou)
-        XCTAssertEqual(item(.xcode) { $0.xcodeStatus = 69 }.chip, "OPEN XCODE ONCE")
-        XCTAssertEqual(item(.xcode).chip, "✓ READY")
+        XCTAssertEqual(item(.xcode) { $0.xcodeStatus = 69 }.chip, "Open Xcode once")
+        XCTAssertEqual(item(.xcode).chip, "✓ Ready")
 
         let old = item(.xcode) { $0.xcodeVersion = "26.4" }
         XCTAssertEqual(old.state, .needsYou)
-        XCTAssertEqual(old.chip, "UPDATE XCODE")
+        XCTAssertEqual(old.chip, "Update Xcode")
         XCTAssertEqual(old.actionTitle, "Open App Store")
         XCTAssertTrue(old.detail.contains("27.2"))
         XCTAssertEqual(item(.xcode) { $0.xcodeVersion = "27.2" }.state, .ready)
@@ -70,17 +70,17 @@ final class SetupCheckTests: XCTestCase {
     func testMetal() {
         let missing = item(.metal) { $0.metalVersion = nil }
         XCTAssertEqual(missing.state, .missing)
-        XCTAssertEqual(missing.chip, "NOT INSTALLED")
+        XCTAssertEqual(missing.chip, "Not installed")
         XCTAssertEqual(missing.actionTitle, "Install")
 
         let other = item(.metal) { $0.metalVersion = "32023.917" }
         XCTAssertEqual(other.state, .warning)
-        XCTAssertEqual(other.chip, "NOT CERTIFIED")
+        XCTAssertEqual(other.chip, "Not certified")
         XCTAssertEqual(other.actionTitle, "Install 32023.921")
 
         let unknown = item(.metal) { $0.metalVersion = "32023.921"; $0.certifiedMetal = "32024.5" }
         XCTAssertEqual(unknown.state, .warning)
-        XCTAssertEqual(unknown.chip, "WAITING FOR ENGINE")
+        XCTAssertEqual(unknown.chip, "Waiting for engine")
         XCTAssertNil(unknown.actionTitle)
         XCTAssertTrue(unknown.detail.contains("still play"))
 
@@ -100,7 +100,7 @@ final class SetupCheckTests: XCTestCase {
     func testEngine() {
         let missing = item(.engine) { $0.engine = .missing }
         XCTAssertEqual(missing.state, .missing)
-        XCTAssertEqual(missing.chip, "NOT INSTALLED")
+        XCTAssertEqual(missing.chip, "Not installed")
         XCTAssertEqual(missing.actionTitle, "Clone")
 
         XCTAssertEqual(item(.engine).state, .ready)
@@ -109,34 +109,34 @@ final class SetupCheckTests: XCTestCase {
         for behind in [true, nil] as [Bool?] {
             let update = item(.engine) { $0.engine = .checkout(head: "ee369f0", dirty: false); $0.engineBehind = behind }
             XCTAssertEqual(update.state, .warning, "still reopens Setup; updating is explicit")
-            XCTAssertEqual(update.chip, "UPDATE READY")
+            XCTAssertEqual(update.chip, "Update ready")
             XCTAssertEqual(update.actionTitle, "Update")
             XCTAssertEqual(update.detail, "This version of Oort NX uses nxnative af616f5; the engine here is at ee369f0. Update downloads it and switches to it. Games you built keep playing.")
         }
         // A checkout ahead of the pin (or on another branch) is moved back, said as such.
         let ahead = item(.engine) { $0.engine = .checkout(head: "ee369f0", dirty: false); $0.engineBehind = false }
         XCTAssertEqual(ahead.state, .warning)
-        XCTAssertEqual(ahead.chip, "OTHER VERSION")
+        XCTAssertEqual(ahead.chip, "Other version")
         XCTAssertEqual(ahead.actionTitle, "Switch")
         XCTAssertEqual(ahead.detail, "The engine here is at ee369f0, not the af616f5 this version of Oort NX is tested with. Switch moves it to af616f5. Games you built keep playing.")
 
         let dirty = item(.engine) { $0.engine = .checkout(head: "ee369f0", dirty: true) }
         XCTAssertEqual(dirty.state, .warning)
-        XCTAssertEqual(dirty.chip, "LOCAL CHANGES")
+        XCTAssertEqual(dirty.chip, "Local changes")
         XCTAssertNil(dirty.actionTitle)
         XCTAssertTrue(dirty.detail.contains(folder.path))
 
         let notRepo = item(.engine) { $0.engine = .notACheckout }
         XCTAssertEqual(notRepo.state, .warning)
-        XCTAssertEqual(notRepo.chip, "NOT A CHECKOUT")
+        XCTAssertEqual(notRepo.chip, "Not a checkout")
         XCTAssertNil(notRepo.actionTitle)
     }
 
     func testRuntime() {
-        XCTAssertEqual(item(.runtime).chip, "✓ INCLUDED")
+        XCTAssertEqual(item(.runtime).chip, "✓ Included")
         let broken = item(.runtime) { $0.runtimeProblem = "capstone 6" }
         XCTAssertEqual(broken.state, .failed)
-        XCTAssertEqual(broken.chip, "REINSTALL APP")
+        XCTAssertEqual(broken.chip, "Reinstall app")
         XCTAssertNil(broken.actionTitle)
         XCTAssertTrue(broken.detail.contains("capstone 6"))
     }
@@ -147,11 +147,11 @@ final class SetupCheckTests: XCTestCase {
             $0.runtimeProblem = "Python or its modules (capstone 5, lz4, fontTools, zbic, nsz) did not start"
         }
         XCTAssertEqual(missing.state, .failed)
-        XCTAssertEqual(missing.chip, "NOT INCLUDED")
+        XCTAssertEqual(missing.chip, "Not included")
         XCTAssertEqual(missing.about, "This build does not include Python and tools.")
         XCTAssertFalse(missing.detail.contains("DMG"))
         XCTAssertNil(missing.actionTitle)
-        XCTAssertEqual(item(.runtime) { $0.runtimeIsBundled = false }.chip, "✓ READY")
+        XCTAssertEqual(item(.runtime) { $0.runtimeIsBundled = false }.chip, "✓ Ready")
     }
 
     func testDivergedPersonalEngineNamesTheConfiguredRepositoryAndPin() {
@@ -170,12 +170,12 @@ final class SetupCheckTests: XCTestCase {
     func testKeys() {
         let ready = item(.keys)
         XCTAssertEqual(ready.state, .ready)
-        XCTAssertEqual(ready.chip, "✓ IMPORTED")
+        XCTAssertEqual(ready.chip, "✓ Imported")
         XCTAssertTrue(ready.detail.contains("3"), ready.detail)
 
         let missing = item(.keys) { $0.keys = nil }
         XCTAssertEqual(missing.state, .missing)
-        XCTAssertEqual(missing.chip, "NOT IMPORTED")
+        XCTAssertEqual(missing.chip, "Not imported")
         XCTAssertEqual(missing.actionTitle, "Choose file")
 
         let invalid = item(.keys) { $0.keys = nil; $0.keysError = "The keys file has no header_key." }
@@ -186,10 +186,10 @@ final class SetupCheckTests: XCTestCase {
     func testLibrary() {
         let missing = item(.library) { $0.libraryReadable = nil }
         XCTAssertEqual(missing.state, .missing)
-        XCTAssertEqual(missing.chip, "NOT CHOSEN")
+        XCTAssertEqual(missing.chip, "Not chosen")
         XCTAssertEqual(missing.actionTitle, "Choose folder")
         XCTAssertEqual(item(.library) { $0.libraryReadable = false }.state, .warning)
-        XCTAssertEqual(item(.library) { $0.libraryReadable = false }.chip, "NOT READABLE")
+        XCTAssertEqual(item(.library) { $0.libraryReadable = false }.chip, "Not readable")
         XCTAssertEqual(item(.library).state, .ready)
     }
 

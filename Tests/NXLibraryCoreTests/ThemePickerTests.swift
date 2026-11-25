@@ -130,8 +130,8 @@ final class ThemePickerTests: XCTestCase {
         XCTAssertEqual(ThemeBackgrounds.list(.live, themeID: "gruvbox", wallpapers: withVideos, current: "custom/rain"),
                        [.online(.motionbgs), .online(.steam), .add, .wallpaper("custom/rain"), .none,
                         .wallpaper("live/steam-123")], "the video in use leads the second row too")
-        XCTAssertEqual(ThemeBackgrounds.group(.online(.motionbgs), tab: .live), "ONLINE · MOTIONBGS")
-        XCTAssertEqual(ThemeBackgrounds.group(.online(.steam), tab: .live), "ONLINE · STEAM")
+        XCTAssertEqual(ThemeBackgrounds.group(.online(.motionbgs), tab: .live), "Online · MotionBGs")
+        XCTAssertEqual(ThemeBackgrounds.group(.online(.steam), tab: .live), "Online · Steam")
     }
 
     func testLiveGroupLabels() {
