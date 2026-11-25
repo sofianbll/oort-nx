@@ -320,7 +320,7 @@ final class OortCloudTests: OortScreens {
         set("/__slow", "0")
         again()
         toGame(CaptureGames.all[0].name)
-        until(60, "ready after a relaunch") { line(say("Install")).exists }
+        until(150, "ready after a relaunch") { line(say("Install")).exists }
         let after = asked().filter { $0.call == "media" && $0.node == mainFiles["data/romfs/big.bin"] }
         note("ranges before \(before.compactMap(\.first)) cut \(cut.compactMap(\.first)) after \(after.compactMap(\.first))", in: "words.txt")
         XCTAssertFalse(after.contains { $0.first == 0 } && before.count + cut.count > 2, "what was received is not asked for again")

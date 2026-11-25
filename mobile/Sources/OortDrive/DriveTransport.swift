@@ -12,6 +12,12 @@ struct DriveReply: Sendable {
 protocol DriveTransport: Sendable {
     /// Puts the answer's body in `file`, a new file, and stops as soon as it passes `limit` bytes.
     func send(_ request: URLRequest, to file: URL, limit: Int64) async throws -> DriveReply
+    /// It left a request waiting a moment ago: another way is better for now.
+    var rests: Bool { get }
+}
+
+extension DriveTransport {
+    var rests: Bool { false }
 }
 
 /// Download tasks with a delegate and nothing else: the only shape a background session accepts, so a foreground session takes the same path.
@@ -37,6 +43,7 @@ public final class DriveSession: NSObject, DriveTransport, URLSessionDownloadDel
     private let allowsMeteredNetwork: @Sendable () -> Bool
     private let received: @Sendable (Int64) -> Void
     private var moved = 0
+    private var restsUntil = Date.distantPast
     private var eventsDone: (@Sendable () -> Void)?
     private lazy var session = URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
 
@@ -89,6 +96,8 @@ public final class DriveSession: NSObject, DriveTransport, URLSessionDownloadDel
     /// How many ticks of five seconds without a byte, while the app runs, before a background task is given up for a foreground one: the
     /// system's downloader can leave a task of an earlier run waiting for ever.
     static let patience = 4
+    static let rest: TimeInterval = 600
+    var rests: Bool { lock.withLock { restsUntil } > Date() }
 
     func send(_ request: URLRequest, to file: URL, limit: Int64) async throws -> DriveReply {
         let request = limited(request)
@@ -129,6 +138,7 @@ public final class DriveSession: NSObject, DriveTransport, URLSessionDownloadDel
                 seen = now
             }
             guard !Task.isCancelled, let self, let task else { return }
+            lock.withLock { restsUntil = Date(timeIntervalSinceNow: Self.rest) }
             fail(task, ShelfError.interrupted)
             task.cancel()
         }
