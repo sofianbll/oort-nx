@@ -21,6 +21,7 @@ ALPHA_VERSION = "0.1.0-alpha.2"
 ALPHA_VERSION_CODE = "2"
 PAD_TEST_WINDOW = (500, 300)
 MIN_PAD_TOUCH_DP = 48
+PAD_TAP_EDGE_INSET_DP = 4
 RES = Path(__file__).resolve().parents[1] / "app/src/main/res"
 GAMES = ["Le phare de Brume", "Marée haute", "Collines rouges", "Les très longues aventures de la comète perdue"]
 PAD = {"A": "BUTTON_A", "B": "BUTTON_B", "X": "BUTTON_X", "Y": "BUTTON_Y", "L1": "BUTTON_L1", "R1": "BUTTON_R1", "START": "BUTTON_START",
@@ -289,13 +290,13 @@ def low_pad_keyboard():
             # Android can report minimum touch bounds larger than the visible viewport.
             if key is not None:
                 x, _ = key.centre
-                y = key.box[1] + MIN_PAD_TOUCH_DP - 4
+                y = key.box[1] + MIN_PAD_TOUCH_DP - PAD_TAP_EDGE_INSET_DP
                 shell(f"input tap {x} {y}")
                 time.sleep(0.8)
             nodes = screen(check_targets=False)
             ok(f"pad keyboard at {scale}× text: tapping the bottom of OK closes only the keyboard",
                key is not None and find(w("search_field"), nodes) is not None
-               and find(w("tab_all"), nodes, exact=True) is not None and find("OK", nodes, exact=True) is None)
+               and find(w("sort"), nodes, exact=True) is not None and find("OK", nodes, exact=True) is None)
     finally:
         shell("settings put system font_scale 1.0; wm size reset; wm density reset")
         time.sleep(4)
