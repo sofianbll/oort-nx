@@ -239,13 +239,14 @@ final class CompanionTests: XCTestCase {
         XCTAssertEqual(code(c, "game.input", merged(id, ["input": "dlc", "path": .string(copy)])), "input-twice")
 
         let plan = try ask(c, "launch.plan", id)
-        let real = Paths.real(copy)
+        let real = system(Paths.real(copy))
         XCTAssertEqual(plan["args"].strings, ["--iso", real], "the file that was not picked is left out whole")
-        XCTAssertTrue(plan["program"]?.stringValue?.hasSuffix("/run") == true)
+        XCTAssertTrue(plan["program"]?.stringValue?.hasSuffix(system("/One/run")) == true)
+        XCTAssertEqual(plan["env"]?["ONE_DATA"]?.stringValue, system(folder + "/recompdata"))
         XCTAssertNil(plan["env"]?["PATH"])
         XCTAssertEqual(plan["env"]?["RECOMPLAUNCHER"], "1")
         let written = try String(contentsOfFile: folder + "/one.toml", encoding: .utf8)
-        for line in ["scale = 2", "vsync = true", "mode = \"oort\"", "disc = \"\(real)\""] { XCTAssertTrue(written.contains(line), line) }
+        for line in ["scale = 2", "vsync = true", "mode = \"oort\"", "disc = \"\(real.replacingOccurrences(of: "\\", with: "\\\\"))\""] { XCTAssertTrue(written.contains(line), line) }
 
         // Changes: one in the file, two on the command line.
         var page = try ask(c, "game.setting", merged(id, ["setting": "scale", "value": 0]))
@@ -330,7 +331,7 @@ final class CompanionTests: XCTestCase {
         XCTAssertEqual(code(c, "programs.add", ["program": .string(program), "args": #"--fullscreen --name "two words" ''"#, "target": .string(rom)]), "program-known")
         let id = try only(c)
         XCTAssertEqual(try ask(c, "game", id)["name"], "A game")
-        XCTAssertEqual(try ask(c, "launch.plan", id)["args"].strings, ["--fullscreen", "--name", "two words", "", Paths.real(rom)])
+        XCTAssertEqual(try ask(c, "launch.plan", id)["args"].strings, ["--fullscreen", "--name", "two words", "", system(Paths.real(rom))])
         XCTAssertNil(try ask(c, "launch.plan", id)["env"]?["RECOMPLAUNCHER"], "an ordinary program gets nothing of the format")
     }
 
@@ -438,6 +439,15 @@ final class CompanionTests: XCTestCase {
         XCTAssertEqual(code(c, "sound", ["event": "move", "pack": "nope"]), "sound")
         XCTAssertEqual(try ask(c, "prompts")["nintendo"]?["menu"], "+")
     }
+}
+
+/// A path as a program on this system is given one.
+private func system(_ path: String) -> String {
+    #if os(Windows)
+    return path.replacingOccurrences(of: "/", with: "\\")
+    #else
+    return path
+    #endif
 }
 
 private func scratch(_ name: String) -> String {

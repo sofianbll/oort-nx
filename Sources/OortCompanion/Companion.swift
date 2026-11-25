@@ -146,7 +146,7 @@ public final class Companion {
          "lastHome": .string(settings.startOn == .last ? settings.lastHome.rawValue : settings.startOn.rawValue)]
     }
 
-    public static let version = "0.1.0"
+    public static let version = "0.1.0-alpha.1"
 
     /// The settings the window applies, with what is being tried and not saved yet.
     private func view() -> CatalogJSON {

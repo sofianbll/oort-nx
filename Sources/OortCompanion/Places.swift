@@ -13,21 +13,23 @@ struct Places: Sendable {
     var data: String { Paths.join(install, "recompdata") }
 
     /// Fills a path, an argument or a value, once: what a placeholder gives is never filled again.
-    /// nil when it names a file that was not picked, so the whole text is left out.
-    func fill(_ text: String) throws -> String? {
+    /// nil when it names a file that was not picked, so the whole text is left out. `native` is for what a program is
+    /// given: the paths put in take the system's own form, the manifest's own text stays as written.
+    func fill(_ text: String, native: Bool = false) throws -> String? {
         var out = "", rest = Substring(text)
+        func path(_ value: String) -> String { native ? Paths.native(value) : value }
         while let open = rest.firstIndex(of: "{") {
             out += rest[..<open]
             rest = rest[open...]
             guard let close = rest.firstIndex(of: "}") else { break }
             let name = rest[rest.index(after: open)..<close]
             switch name {
-            case "install": out += install
-            case "data": out += data
-            case "documents": out += documents
-            case "local": out += local
-            case "config": out += config
-            case "home": out += home
+            case "install": out += path(install)
+            case "data": out += path(data)
+            case "documents": out += path(documents)
+            case "local": out += path(local)
+            case "config": out += path(config)
+            case "home": out += path(home)
             case "pad": out += pad
             default:
                 guard name == "game" || name.hasPrefix("input:") else {
@@ -36,15 +38,16 @@ struct Places: Sendable {
                 }
                 let id = name == "game" ? "game" : String(name.dropFirst("input:".count))
                 guard inputs.contains(id) else { throw Manifest.Failure(code: "unknown-input") }
-                guard let path = picked[id] else { return nil }
-                out += path
+                guard let file = picked[id] else { return nil }
+                out += path(file)
             }
             rest = rest[rest.index(after: close)...]
         }
         return out + rest
     }
 
-    func fill(_ list: [String]) throws -> [String] { try list.compactMap { try fill($0) } }
+    /// Arguments, as a program gets them.
+    func fill(_ list: [String]) throws -> [String] { try list.compactMap { try fill($0, native: true) } }
 
     /// The first place whose `if` exists, else the first without one.
     func place(_ places: [Manifest.Place]) throws -> String? {

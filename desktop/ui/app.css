@@ -71,6 +71,7 @@ button,input{font:inherit;color:inherit;letter-spacing:inherit}button{background
 .tabs{position:relative;display:flex;padding:var(--space-hairline);border-radius:99px}.tabs button{position:relative;z-index:1;padding:calc(5*var(--u)) calc(20*var(--u)) calc(7*var(--u));min-height:30px;margin:0 var(--space-seam);border-radius:99px;font-size:var(--s-text);color:var(--quiet);transition:color var(--t-quick);white-space:nowrap}.tabs [aria-selected=true]{color:var(--on-focus);font-weight:600}
 .tabs .pill{position:absolute;left:0;top:var(--space-hairline);bottom:var(--space-hairline);border-radius:99px;background:linear-gradient(var(--key),color-mix(in srgb,var(--key),var(--glyph) 22%));transition:transform var(--t-slow) var(--out),width var(--t-slow) var(--out)}
 .clock{position:absolute;right:var(--edge);font-size:var(--s-heading);color:var(--on-base)}
+.padname{position:absolute;left:var(--edge);display:flex;align-items:center;gap:var(--space-compact);max-width:calc(380*var(--u));font-size:var(--s-text);color:var(--on-base-quiet)}.padname>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .badge{display:inline-grid;place-items:center;min-width:max(22px,calc(30*var(--u)));height:max(22px,calc(30*var(--u)));padding:0 calc(8*var(--u));border-radius:max(11px,var(--radius-hint));font-size:max(11px,calc(13*var(--u)));font-weight:700;color:var(--scrim);background:var(--ink)}
 .top .badge{margin:0 var(--space-compact);height:max(20px,calc(26*var(--u)));border-radius:max(6px,calc(9*var(--u)))}
 [data-mode=light]:not(.art) .badge{color:var(--ink);background:var(--scrim)}
@@ -87,7 +88,7 @@ button,input{font:inherit;color:inherit;letter-spacing:inherit}button{background
 .info{position:absolute;left:calc(80*var(--u));top:calc(420*var(--u));right:calc(80*var(--u));max-width:calc(1100*var(--u));display:grid;justify-items:start;gap:var(--space-feature)}
 .info>*{animation:rise var(--t-slow) var(--out) backwards}@keyframes rise{from{opacity:0;transform:translateX(calc(-24*var(--u)))}}[data-still] .info>*{animation:come var(--t-fade)}
 .hero{font-size:var(--s-hero);font-weight:600;line-height:1.05;letter-spacing:-.02em;text-wrap:balance;max-width:100%;overflow-wrap:anywhere}.logo{max-height:calc(150*var(--u));max-width:calc(620*var(--u));object-fit:contain;object-position:0 100%}
-.art .hero,.art .stats,.art .shelf .name,.art .top .clock,.art #hints,.art .say{text-shadow:0 1px calc(10*var(--u)) rgb(0 0 0/.7)}
+.art .hero,.art .stats,.art .shelf .name,.art .top .clock,.art .padname,.art #hints,.art .say{text-shadow:0 1px calc(10*var(--u)) rgb(0 0 0/.7)}
 .keys{display:flex;flex-wrap:wrap;gap:var(--space-medium)}
 .stats{display:flex;flex-wrap:wrap;gap:var(--space-small) 0}.stats>div{padding:0 calc(26*var(--u));border-left:1px solid color-mix(in srgb,var(--on-base) 25%,transparent)}.stats>div:first-child{padding-left:0;border:0}
 .stats dt{font-size:var(--s-badge);color:var(--on-base-quiet)}.stats dd{margin:0;font-size:var(--s-row);font-weight:600}
@@ -136,5 +137,5 @@ button,input{font:inherit;color:inherit;letter-spacing:inherit}button{background
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 
 /* Small windows: the row of tiles and the panels keep their place, the side list goes above. */
-@media(max-width:760px){.shell{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}.side{flex-direction:row;flex-wrap:nowrap;overflow-x:auto;padding:4px}.side h3,.side p{display:none}.side button{flex:none;white-space:nowrap}.draft p{display:none}.row>.value{max-width:60%}.top{justify-content:flex-start}.clock{display:none}.tabs{overflow-x:auto;scrollbar-width:none}.gridinfo{flex-wrap:wrap}}
+@media(max-width:760px){.shell{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}.side{flex-direction:row;flex-wrap:nowrap;overflow-x:auto;padding:4px}.side h3,.side p{display:none}.side button{flex:none;white-space:nowrap}.draft p{display:none}.row>.value{max-width:60%}.top{justify-content:flex-start}.clock{display:none}.padname{left:auto;right:var(--edge)}.padname>span{display:none}.tabs{overflow-x:auto;scrollbar-width:none}.gridinfo{flex-wrap:wrap}}
 @media(prefers-contrast:more){:root{--line:var(--quiet);--line-2:var(--quiet)}}

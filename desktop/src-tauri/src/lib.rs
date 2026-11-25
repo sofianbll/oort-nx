@@ -40,6 +40,8 @@ struct Host {
     core: Companion,
     data: PathBuf,
     playing: Mutex<Playing>,
+    /// Names of the controllers plugged in, as the system gives them.
+    pads: Mutex<Vec<String>>,
 }
 
 impl Host {
@@ -220,6 +222,17 @@ fn set_fullscreen(window: tauri::WebviewWindow, on: bool) -> Result<(), String> 
 }
 
 #[tauri::command]
+fn pads(host: State<'_, Arc<Host>>) -> Vec<String> {
+    host.pads.lock().unwrap_or_else(|e| e.into_inner()).clone()
+}
+
+fn named(app: &AppHandle, names: Vec<String>) {
+    let host = app.state::<Arc<Host>>();
+    *host.pads.lock().unwrap_or_else(|e| e.into_inner()) = names.clone();
+    let _ = app.emit("pads", names);
+}
+
+#[tauri::command]
 fn quit(app: AppHandle) {
     app.exit(0);
 }
@@ -277,7 +290,7 @@ fn setup(app: &AppHandle) -> Result<Arc<Host>, Box<dyn std::error::Error>> {
             args.extend([name.to_string(), value]);
         }
     }
-    Ok(Arc::new(Host { core: Companion::new(program, args), data, playing: Mutex::default() }))
+    Ok(Arc::new(Host { core: Companion::new(program, args), data, playing: Mutex::default(), pads: Mutex::default() }))
 }
 
 fn languages() -> String {
@@ -295,7 +308,7 @@ fn environment_language() -> Option<String> {
 pub fn run() {
     let app = tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            core, launch, close_game, prepare, open_link, open_folder, set_fullscreen, quit,
+            core, launch, close_game, prepare, open_link, open_folder, set_fullscreen, pads, quit,
             #[cfg(all(debug_assertions, target_os = "macos"))]
             probe::shot,
             #[cfg(all(debug_assertions, target_os = "macos"))]
@@ -329,13 +342,20 @@ pub fn run() {
             }
             // WebKitGTK has no Gamepad API; elsewhere the page reads the controller itself.
             if cfg!(target_os = "linux") || std::env::var_os("OORT_PAD").is_some() {
-                pad::run(move |state| {
-                    let focused = handle.get_webview_window("main").is_some_and(|w| w.is_focused().unwrap_or(false));
-                    if focused {
-                        let _ = handle.emit("pad", state);
-                    }
-                });
+                let names = handle.clone();
+                pad::run(
+                    move |state| {
+                        let focused = handle.get_webview_window("main").is_some_and(|w| w.is_focused().unwrap_or(false));
+                        if focused {
+                            let _ = handle.emit("pad", state);
+                        }
+                    },
+                    move |list| named(&names, list),
+                );
+                return Ok(());
             }
+            #[cfg(windows)]
+            pad::watch(move |list| named(&handle, list));
             Ok(())
         })
         .build(tauri::generate_context!());

@@ -139,7 +139,7 @@ struct Launcher {
     /// The names games written for this format read, whoever starts them.
     private func environment(_ own: [String: String]) throws -> [String: String] {
         var env: [String: String] = [:]
-        for (name, value) in own where Places.mayName(name) { env[name] = try places.fill(value) }
+        for (name, value) in own where Places.mayName(name) { env[name] = try places.fill(value, native: true) }
         env["RECOMPLAUNCHER"] = "1"
         env["RECOMPLAUNCHER_PAD"] = places.pad
         env["RECOMPLAUNCHER_DATA"] = Paths.native(places.data)

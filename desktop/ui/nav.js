@@ -28,6 +28,9 @@ export const repeater = (fire, first = 340, next = 110) => { let held = null, at
 const nintendo = /057e|nintendo|switch|joy-?con|pro controller/i, sony = /054c|dualsense|dualshock|playstation|wireless controller/i;
 export const brand = name => /xbox|045e/i.test(name) ? 'xbox' : nintendo.test(name) ? 'nintendo' : sony.test(name) ? 'playstation' : 'xbox';
 
+/* What a player calls it: Chromium adds how it reads the controller. */
+export const padName = id => id.replace(/\s*\((?:[^()]*(?:STANDARD GAMEPAD|Vendor:|XInput)[^()]*)\)/gi, '').trim();
+
 const hat = v => { if (v === undefined || v > 1.05 || v < -1.05) return {}; const n = Math.round((v + 1) * 3.5); return { up: n === 7 || n < 2, right: n > 0 && n < 4, down: n > 2 && n < 6, left: n > 4 && n < 8 }; };
 export const readPad = g => {
   const N = nintendo.test(g.id), B = i => !!g.buttons[i] && (g.buttons[i].pressed || g.buttons[i].value > .5), std = g.mapping === 'standard', h = std ? { up: B(12), down: B(13), left: B(14), right: B(15) } : hat(g.axes[9]);

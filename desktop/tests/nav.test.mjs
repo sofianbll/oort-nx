@@ -3,8 +3,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 globalThis.matchMedia = () => ({ matches: false, addEventListener() {} });
-const { nearest, repeater, brand, readPad } = await import('../ui/nav.js');
-const { STRINGS } = await import('../ui/gen/strings.js');
+const { nearest, repeater, brand, readPad, padName } = await import('../ui/nav.js');
+const { STRINGS, GAME_WORDS } = await import('../ui/gen/strings.js');
+const { gameWord } = await import('../ui/words.js');
 const box = (left, top, width = 100, height = 40) => ({ getBoundingClientRect: () => ({ left, top, width, height, right: left + width, bottom: top + height }) });
 
 test('the nearest element is the one a hand expects', () => {
@@ -60,4 +61,17 @@ test('the page loads nothing from outside and holds no colour of its own', () =>
   const css = readFileSync(new URL('app.css', ui), 'utf8');
   const literal = [...css.matchAll(/#[0-9a-f]{3,8}\b/gi)].map(m => m[0].toLowerCase()).filter(c => !['#000', '#fff'].includes(c) && !/^#(cloud|art|hints|card)/.test(c) && !'#layers'.startsWith(c));
   assert.deepEqual(literal.filter(c => !['#ca', '#card'].includes(c)), []);
+});
+test('a controller is named as a player would', () => {
+  assert.equal(padName('Xbox 360 Controller (XInput STANDARD GAMEPAD)'), 'Xbox 360 Controller');
+  assert.equal(padName('Pro Controller (STANDARD GAMEPAD Vendor: 057e Product: 2009)'), 'Pro Controller');
+  assert.equal(padName('Pad (left hand) (Vendor: 1234 Product: 5678)'), 'Pad (left hand)');
+});
+test('names games give their settings read in French when they are known', () => {
+  const fr = text => gameWord(GAME_WORDS.fr, text);
+  assert.equal(fr('Picture'), 'Image');
+  for (const same of ['V-Sync', 'VSync', 'v-sync', 'Vertical Sync']) assert.equal(fr(same), 'Synchronisation verticale', same);
+  assert.equal(fr('Coin magnet'), 'Coin magnet', 'an unknown name stays');
+  assert.equal(fr('constructor'), 'constructor');
+  assert.equal(gameWord(GAME_WORDS.en, 'Picture'), 'Picture');
 });

@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Oort NX",
-  "version": "0.1.0",
+  "version": "0.1.0-alpha.1",
   "identifier": "io.github.sofianbll.oort-nx.desktop",
   "build": { "frontendDist": "../ui" },
   "app": {
@@ -27,7 +27,24 @@
     "targets": ["nsis", "appimage", "deb"],
     "icon": ["icons/icon.png", "icons/icon.ico"],
     "externalBin": ["binaries/oort-core"],
-    "resources": { "catalog.json": "catalog.json", "../NOTICE": "NOTICE", "../licenses-rust.txt": "licenses-rust.txt" },
+    "resources": {
+      "catalog.json": "catalog.json",
+      "../NOTICE": "NOTICE",
+      "../../LICENSE": "LICENSE.txt",
+      "../../NOTICE": "licenses/Oort-NX-NOTICE.txt",
+      "../licenses-rust.txt": "licenses/licenses-rust.txt",
+      "../licenses/Swift-LICENSE.txt": "licenses/Swift-LICENSE.txt",
+      "../licenses/ICU-LICENSE.txt": "licenses/ICU-LICENSE.txt",
+      "../licenses/WebView2-SDK-LICENSE.txt": "licenses/WebView2-SDK-LICENSE.txt",
+      "../ui/Inter-OFL.txt": "licenses/Inter-OFL.txt",
+      "../ui/MaterialIcons-LICENSE.txt": "licenses/MaterialIcons-LICENSE.txt"
+    },
+    "shortDescription": "A library for the games you already have",
+    "longDescription": "Oort NX keeps the games rebuilt for this computer in one library, made for a controller. It brings no game and sends nothing.",
+    "category": "Game",
+    "license": "MIT",
+    "homepage": "https://github.com/sofianbll/oort-nx",
+    "publisher": "Oort NX",
     "copyright": "MIT. See NOTICE."
   }
 }

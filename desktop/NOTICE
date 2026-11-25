@@ -67,10 +67,27 @@ ui/Inter-OFL.txt. Material Icons, by Google: Apache License 2.0, in
 ui/MaterialIcons-LICENSE.txt.
 
 --------------------------------------------------------------------------------
-Rust libraries, linked into the program: their names, versions and licences are
-in licenses-rust.txt, written from Cargo.lock by scripts/licenses.py. Swift and
-its runtime libraries (swift.org): Apache License 2.0 with Runtime Library
-Exception.
+Rust libraries, linked into the program: names, versions and licences are in
+licenses/licenses-rust.txt, written from Cargo.lock by scripts/licenses.py; their
+texts and where their source is, in licenses/THIRD-PARTY-RUST.txt of each package.
+
+Swift and its runtime libraries (https://swift.org, 6.4.3: the standard library,
+Foundation, Dispatch), beside the program on Windows and inside oort-core on Linux:
+Apache License 2.0 with Runtime Library Exception, in licenses/Swift-LICENSE.txt.
+Foundation includes ICU, by Unicode, Inc. and others: licenses/ICU-LICENSE.txt.
+
+Microsoft Visual C++ runtime libraries, beside the program on Windows, unchanged:
+distributable code of Microsoft Visual Studio, under its licence terms.
+
+WebView2, on Windows, is Microsoft's and is not part of this package: the loader
+linked into the program is from the WebView2 SDK (licenses/WebView2-SDK-LICENSE.txt);
+where WebView2 is missing, the installer fetches Microsoft's own installer.
+The Windows installer is made with NSIS (https://nsis.sourceforge.io, zlib/libpng).
+
+On Linux the window is WebKitGTK's. The .deb uses the system's; the AppImage carries
+it, with GTK and the libraries they need, unchanged from Debian 12: LGPL and other
+licences, in usr/share/doc of the AppImage; sources: https://sources.debian.org and
+https://snapshot.debian.org.
 
 No trademark owner named in catalog.json (game and console names, to say what a
 project is for) is affiliated with Oort NX or endorses it.

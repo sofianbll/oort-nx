@@ -1,4 +1,6 @@
-//! The controller where the page cannot read one (WebKitGTK has no Gamepad API): gilrs, sent in the same shape.
+//! Which controllers are plugged in, and their state where the page cannot read one (WebKitGTK has no Gamepad API):
+//! gilrs, sent in the same shape. WebView2 reads a controller itself, but only after a button is pressed, so on Windows
+//! the names come from the system.
 
 use gilrs::{Axis, Button, Event, EventType, Gilrs};
 use serde_json::{json, Value};
@@ -19,12 +21,44 @@ fn snapshot(name: &str, pressed: impl Fn(Button) -> bool, value: impl Fn(Axis) -
     json!({ "name": name, "b": buttons, "ax": axes.map(|v| (v * 100.0).round() / 100.0) })
 }
 
-/// Reads until the app ends; `send` gets the state after each change, or null when the controller leaves.
-pub fn run(send: impl Fn(Value) + Send + 'static) {
+/// How soon a controller just plugged in is named.
+#[cfg(windows)]
+const LOOK: Duration = Duration::from_secs(2);
+
+/// Windows' own list of controllers, looked at now and then: its names, nothing of what is pressed.
+#[cfg(windows)]
+pub fn watch(named: impl Fn(Vec<String>) + Send + 'static) {
+    std::thread::spawn(move || {
+        let mut before = Vec::new();
+        loop {
+            let now = plugged_in().unwrap_or_default();
+            if now != before {
+                named(now.clone());
+                before = now;
+            }
+            std::thread::sleep(LOOK);
+        }
+    });
+}
+
+#[cfg(windows)]
+fn plugged_in() -> windows::core::Result<Vec<String>> {
+    let list = windows::Gaming::Input::RawGameController::RawGameControllers()?;
+    (0..list.Size()?).map(|i| Ok(list.GetAt(i)?.DisplayName()?.to_string())).collect()
+}
+
+/// Reads until the app ends; `send` gets the state after each change, or null when the controller leaves, and `named`
+/// the controllers plugged in.
+pub fn run(send: impl Fn(Value) + Send + 'static, named: impl Fn(Vec<String>) + Send + 'static) {
     std::thread::spawn(move || {
         let Ok(mut gilrs) = Gilrs::new() else { return };
+        let names = |gilrs: &Gilrs| gilrs.gamepads().map(|(_, pad)| pad.name().to_string()).collect::<Vec<_>>();
+        named(names(&gilrs));
         loop {
             let Some(Event { id, event, .. }) = gilrs.next_event_blocking(Some(Duration::from_millis(500))) else { continue };
+            if matches!(event, EventType::Connected | EventType::Disconnected) {
+                named(names(&gilrs));
+            }
             if matches!(event, EventType::Disconnected) {
                 send(Value::Null);
                 continue;

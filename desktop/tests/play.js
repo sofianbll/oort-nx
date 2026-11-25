@@ -16,9 +16,7 @@ probe(async P => {
   await refused(inv('open_link', { url: 'file:///etc/hosts' }), 'link', 'never a file');
   // Choosing the copy by hand, through the app's own picker.
   await goTo('Lunar Observatory'); await P.press('x'); await P.until(() => document.querySelector('[data-id=input-game]'));
-  await P.press('a'); P.same(P.id(), 'input-game', 'A leads to the file to choose'); await P.press('a'); await P.until(() => document.querySelector('.sheet [data-id=up]'));
-  await P.press('b'); await P.until(() => [...document.querySelectorAll('.sheet .row')].some(r => r.textContent.includes('copies')));
-  [...document.querySelectorAll('.sheet .row')].find(r => r.textContent.includes('copies')).click(); await P.until(() => [...document.querySelectorAll('.sheet .row')].some(r => r.textContent.includes('lunar.iso')));
+  await P.press('a'); P.same(P.id(), 'input-game', 'A leads to the file to choose'); await P.press('a'); await P.browse(RUN + '/copies'); await P.until(() => P.rows().some(r => r.textContent.includes('lunar.iso')));
   P.ok(![...document.querySelectorAll('.sheet .row')].some(r => r.textContent.includes('.rom')), 'only the kind of file the game takes'); await P.shot('20-file');
   [...document.querySelectorAll('.sheet .row')].find(r => r.textContent.includes('lunar.iso')).click();
   await P.until(async () => document.querySelector('.detail [data-id=primary]')?.textContent.includes(document.documentElement.lang === 'fr' ? 'Jouer' : 'Play')); await P.shot('21-ready');
@@ -48,7 +46,7 @@ probe(async P => {
   await P.until(async () => (await ask('game', { id: tidal.id })).state === 'ready', 12000, 'ready'); await P.wait(400); await P.shot('28-set-up');
   while (oort.layers.length > 1) await P.press('b');
   // Any program, with its arguments.
-  await ask('programs.add', { program: RUN + '/emulator', args: '--fullscreen "two words"', target: RUN + '/copies/Sunken City.rom' }); dispatchEvent(new Event('focus')); await P.until(() => find('Sunken City')); ends.length = 0;
+  await ask('programs.add', { program: P.program(RUN + '/emulator'), args: '--fullscreen "two words"', target: RUN + '/copies/Sunken City.rom' }); dispatchEvent(new Event('focus')); await P.until(() => find('Sunken City')); ends.length = 0;
   await inv('launch', { id: find('Sunken City').id, fullscreen: true }); await P.until(() => ends.length, 10000); P.ok(ends[0].seconds >= 1, 'a program is followed too');
   await refused(inv('launch', { id: find('Glass Forest').id, fullscreen: false }), 'unsupported-placing', 'what is not done is refused');
   await refused(inv('launch', { id: find('Damaged').id, fullscreen: false }), 'manifest-json', 'a broken manifest does not start');

@@ -1,9 +1,10 @@
 /* Oort NX for Windows and Linux: the screens. What the app knows and decides is in oort-core; this file draws it. */
-import { STRINGS } from './gen/strings.js';
+import { STRINGS, GAME_WORDS } from './gen/strings.js';
 import { ICONS, PALETTES } from './gen/names.js';
 import { cloud as makeCloud } from './cloud.js';
 import { sounds as makeSounds } from './sound.js';
-import { still, focusable, nearest, controller } from './nav.js';
+import { still, focusable, nearest, controller, padName } from './nav.js';
+import { gameWord } from './words.js';
 
 const T = window.__TAURI__, root = document.documentElement, $ = (s, r = document) => r.querySelector(s);
 const invoke = (name, args) => T.core.invoke(name, args);
@@ -18,6 +19,8 @@ export const t = (key, ...args) => {
   if (typeof s === 'object') s = s[new Intl.PluralRules(language).select(args[0])] ?? s.other;
   return s.replace(/%(?:\d+\$)?(?:lld|@|d)/g, () => args.shift() ?? '').replace(/ {2,}/g, ' ');
 };
+/* A name a game's manifest gives one of its settings: in the player's language when it is a known one, else as it is. */
+const word = text => gameWord(GAME_WORDS[language], text);
 const duration = s => {
   if (s < 60) return s > 0 ? t('Under a minute') : '—';
   const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60);
@@ -107,7 +110,7 @@ const settle = () => {
 const again = (layer, draw) => { const keep = layer.el.contains(document.activeElement) ? document.activeElement.dataset.id : layer.keep, at = [...layer.el.querySelectorAll('.list,.detail,.scroll,.side')].map(e => e.scrollTop); fill(layer.el, draw()); [...layer.el.querySelectorAll('.list,.detail,.scroll,.side')].forEach((e, i) => { e.scrollTop = at[i] || 0; }); layer.keep = keep; if (layer === top()) restore(layer); hints(); };
 
 /* ---------- Hints: the buttons in hand, and only what works now ---------- */
-let pad = null, prompts = {}, keysInHand = true;
+let pad = null, plugged = [], prompts = {}, keysInHand = true, version = '';
 const keyCaps = { a: '⏎', b: 'Esc', x: 'X', y: 'Y', lb: 'Q', rb: 'E', lt: 'Home', rt: 'End', ls: 'Ctrl F', rs: 'F3', view: 'V', menu: 'M', home: 'H' };
 const badgeText = b => V.buttonNames === 'automatic' ? (pad ? prompts[pad.brand]?.[b] : keyCaps[b]) : prompts[V.buttonNames]?.[b];
 const badge = b => h('span', { cls: 'badge', 'aria-hidden': 'true' }, badgeText(b) || b.toUpperCase());
@@ -118,6 +121,14 @@ const hints = () => {
   bar.replaceChildren(...[left, right].map(list => h('div', {}, list.filter(Boolean).map(([b, label, run, sub]) => h(run ? 'button' : 'span', { cls: 'hint', tabindex: run ? '-1' : null, onclick: run }, badge(b), h('span', {}, label, sub && h('small', {}, sub)))))));
   document.querySelectorAll('[data-badge]').forEach(e => { e.textContent = badgeText(e.dataset.badge) || ''; });
 };
+
+/* The controller in hand, else the ones plugged in: WebView2 sees a controller only once a button was pressed. */
+const padText = () => {
+  const one = plugged.length === 1 || !pad ? plugged[0] : padName(pad.name) || plugged[0];
+  return one ? one + (plugged.length > 1 ? ` +${plugged.length - 1}` : '') : t('No controllers connected');
+};
+const padLabel = () => h('span', { cls: 'padname', role: 'status', 'aria-label': padText() }, icon('gamepad'), h('span', {}, padText()));
+const padChanged = () => document.querySelectorAll('.padname').forEach(e => { e.replaceWith(padLabel()); });
 
 /* ---------- Moving and pressing ---------- */
 const go = e => { e.focus({ preventScroll: true }); e.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: root.hasAttribute('data-still') ? 'instant' : 'smooth' }); S.move(e); };
@@ -162,7 +173,7 @@ addEventListener('contextmenu', e => e.preventDefault());
 const padding = controller({
   act: name => { keysInHand = false; if (['a'].includes(name)) S.play('select', document.activeElement); act(name); },
   hold: name => name === 'view' && act('ls'),
-  found: p => { pad = p; S.warm(); if (p) ask('pad', { kind: p.brand }).catch(() => {}); hints(); top()?.padChanged?.(); },
+  found: p => { pad = p; S.warm(); if (p) ask('pad', { kind: p.brand }).catch(() => {}); hints(); padChanged(); top()?.padChanged?.(); },
   scroll: dy => { const e = top()?.el.querySelector('.list,.detail,.scroll,.found'); if (e) e.scrollTop += dy; },
 });
 let full = false;
@@ -183,7 +194,7 @@ const remember = p => ask('settings.remember', p).catch(() => {});
 const topBar = () => {
   const bar = h('div', { cls: 'tabs panel', role: 'tablist', 'aria-label': t('Library') }, h('span', { cls: 'pill' }), TABS.map(x => h('button', { role: 'tab', tabindex: '-1', 'aria-selected': x === tab, onclick: () => setTab(x) }, t(x))));
   requestAnimationFrame(() => pill(bar));
-  return h('div', { cls: 'top' }, h('span', { cls: 'badge', 'data-badge': 'lb', 'aria-hidden': 'true' }), bar, h('span', { cls: 'badge', 'data-badge': 'rb', 'aria-hidden': 'true' }), V.clock && h('time', { cls: 'clock num' }, clockText()));
+  return h('div', { cls: 'top' }, padLabel(), h('span', { cls: 'badge', 'data-badge': 'lb', 'aria-hidden': 'true' }), bar, h('span', { cls: 'badge', 'data-badge': 'rb', 'aria-hidden': 'true' }), V.clock && h('time', { cls: 'clock num' }, clockText()));
 };
 const pill = bar => { const on = $('[aria-selected=true]', bar), p = $('.pill', bar); if (on && p) { p.style.width = on.offsetWidth + 'px'; p.style.transform = `translateX(${on.offsetLeft}px)`; } };
 const clockText = () => new Intl.DateTimeFormat(language, { hour: '2-digit', minute: '2-digit' }).format(new Date());
@@ -312,13 +323,13 @@ const openOptions = async id => {
       row(t('Favorite'), h('span', { cls: 'sw' }), async () => { await favorite(d); refresh(); }, { id: 'fav', role: 'switch', checked: !!d.favorite }),
       row(t('Files and setup'), icon('chevron'), () => openDetail(id, 'inputs'), { id: 'files' }),
       row(t('Open folder'), icon('folder'), () => invoke('open_folder', { id, name: null }), { id: 'open', sub: d.folder }),
-      ...(d.actions || []).map(a => row(a.label, icon('folder'), () => invoke('open_folder', { id, name: a.open }).catch(e => deny(null, because(e))), { id: 'do-' + a.id, help: a.help })),
+      ...(d.actions || []).map(a => row(word(a.label), icon('folder'), () => invoke('open_folder', { id, name: a.open }).catch(e => deny(null, because(e))), { id: 'do-' + a.id, help: a.help })),
       d.program && row(t('Remove from the library'), '', () => confirm(t('Remove %@?', d.name), t('The program and the game’s file stay where they are.'), t('Remove'), async () => { await ask('programs.remove', { key: d.program.key }); await reload(); while (layers.length > 1) pop(); homeLayer.redraw(); }), { id: 'remove', cls: 'danger' }),
     ].filter(Boolean) }];
-    const list = d.settings || [], names = [...new Set(list.map(s => s.advanced ? t('Advanced') : s.group || t('Game settings')))];
-    for (const name of names) out.push({ title: name, ic: 'tune', rows: list.filter(s => (s.advanced ? t('Advanced') : s.group || t('Game settings')) === name).map(s => s.kind === 'elsewhere' ? row(s.label, t('In the game’s own menu'), null, { id: 's-' + s.id, off: true, help: s.help })
-      : s.kind === 'slider' ? stepper(s.label, s.value, s, v => set(s, v), { id: 's-' + s.id, help: s.help, text: s.text, off: !s.enabled })
-      : chooser(s.label, s.choices.map((c, i) => [i, c]), s.value, v => set(s, v), { id: 's-' + s.id, help: s.help, text: s.text, off: !s.enabled })) });
+    const groupOf = s => s.advanced ? t('Advanced') : s.group ? word(s.group) : t('Game settings'), list = d.settings || [], names = [...new Set(list.map(groupOf))];
+    for (const name of names) out.push({ title: name, ic: 'tune', rows: list.filter(s => groupOf(s) === name).map(s => s.kind === 'elsewhere' ? row(word(s.label), t('In the game’s own menu'), null, { id: 's-' + s.id, off: true, help: s.help })
+      : s.kind === 'slider' ? stepper(word(s.label), s.value, s, v => set(s, v), { id: 's-' + s.id, help: s.help, text: s.text, off: !s.enabled })
+      : chooser(word(s.label), s.choices.map((c, i) => [i, word(c)]), s.value, v => set(s, v), { id: 's-' + s.id, help: s.help, text: s.text, off: !s.enabled })) });
     return out;
   };
   const set = (s, value) => ask('game.setting', { id, setting: s.id, value }).then(n => { d = n; refresh(n); }).catch(e => deny(document.activeElement, because(e)));
@@ -386,7 +397,7 @@ const openSettings = async (start = 'general') => {
     home: () => [h('div', {}, h('h2', {}, t('Game folders')), h('div', { cls: 'rows' }, folders.folders.map(f => row(f.path, [f.found ? t('%lld games', f.games) : t('Not found'), dot(f.found ? 'ok' : 'bad')], () => confirm(t('Remove this folder?'), t('%@ leaves the library. Nothing is deleted from the disk.', f.path), t('Remove'), async () => { folders = await ask('folders.remove', { path: f.key }); await reload(); again(layer, draw); }), { id: 'f' + f.key, ic: 'folder', help: t('Select to remove it from the library.') })), row(t('Add a folder'), icon('add'), () => pickFolder(async () => { folders = await ask('folders'); again(layer, draw); }), { id: 'addfolder' }), row(t('Look again'), t('%lld games', L.total), async () => { await reload(true); folders = await ask('folders'); again(layer, draw); }, { id: 'rescan', ic: 'sync', help: t('Reads the game folders again.') })))],
     account: () => [h('div', { cls: 'rows' }, people.list.map(p => row(p.name, [p.locked && icon('lock'), p.id === people.active && icon('done')], () => p.id === people.active ? type(t('Name'), p.name, async name => { people = await ask('profiles.rename', { profile: p.id, name }); again(layer, draw); }) : choose(p), { id: 'p' + p.id, ic: 'person', help: p.id === people.active ? t('Select to rename it.') : t('Select to play as this profile.') })), row(t('New profile'), icon('add'), () => type(t('Name'), '', async name => { people = await ask('profiles.add', { name }); again(layer, draw); }), { id: 'newp' }))],
     integrations: () => [h('div', { cls: 'rows' }, row(t('Recompilations'), [t('%lld games', L.games.filter(g => g.kind !== 'program').length), icon('chevron')], () => openCatalog(), { id: 'recomp', ic: 'store', sub: t('Reads the recomplauncher.json of each game in your folders. Writes only the settings files games declare. Sends nothing.') }), row(t('Programs'), [String(folders.programs.length), icon('chevron')], () => openProgram(), { id: 'prog', ic: 'terminal', sub: t('Any program with its arguments, an emulator with a game for example. Sends nothing.') }))],
-    about: () => [h('div', {}, h('div', { cls: 'rows' }, row(t('Version'), '0.1.0', null, { id: 'version' }), row(t('Open project docs'), icon('link'), () => link('https://github.com/sofianbll/oort-nx'), { id: 'docs' }))), h('div', {}, h('h2', {}, t('Credits')), h('div', { cls: 'rows' }, [['RecompLauncher SDK', t('The recomplauncher.json format, by Ripalda (MIT)'), 'https://github.com/elripalda/RecompLauncher-SDK'], ['Padwake', t('Following a game’s processes on Windows, by ddoinn (MIT)'), 'https://github.com/ddoinn/padwake'], ['Arcane, Selene', t('The app and the interface Oort NX comes from, by Bium23 and Matthew Silva (MIT)'), 'https://github.com/sofianbll/oort-nx']].map(([a, b, url]) => row(a, icon('link'), () => link(url), { id: a, sub: b })))), h('p', { cls: 'say' }, t('Everything stays on this computer: no account, no telemetry, no data sent.'))],
+    about: () => [h('div', {}, h('div', { cls: 'rows' }, row(t('Version'), version, null, { id: 'version' }), row(t('Open project docs'), icon('link'), () => link('https://github.com/sofianbll/oort-nx'), { id: 'docs' }))), h('div', {}, h('h2', {}, t('Credits')), h('div', { cls: 'rows' }, [['RecompLauncher SDK', t('The recomplauncher.json format, by Ripalda (MIT)'), 'https://github.com/elripalda/RecompLauncher-SDK'], ['Padwake', t('Following a game’s processes on Windows, by ddoinn (MIT)'), 'https://github.com/ddoinn/padwake'], ['Arcane, Selene', t('The app and the interface Oort NX comes from, by Bium23 and Matthew Silva (MIT)'), 'https://github.com/sofianbll/oort-nx']].map(([a, b, url]) => row(a, icon('link'), () => link(url), { id: a, sub: b })))), h('p', { cls: 'say' }, t('Everything stays on this computer: no account, no telemetry, no data sent.'))],
   };
   const choose = async p => { const go_ = async pin => { people = await ask('profiles.select', { profile: p.id, pin }); await take(ask('settings'), false); await reload(); again(layer, draw); }; if (p.locked) type(t('Use four digits.'), '', go_, true); else go_().catch(e => deny(document.activeElement, because(e))); };
   const draw = () => {
@@ -528,12 +539,12 @@ const prepared = async p => {
 export const oort = { act, ask, apply, layers, sounds: S, cloud: C, get view() { return V; }, get library() { return L; }, pad: s => padding.feed(s), fullscreen: setFullscreen };
 const start = async () => {
   const hello = await ask('hello', { languages: [...navigator.languages] });
-  prompts = await ask('prompts'); TABS = hello.tabs; full = hello.view.fullscreen; home = hello.lastHome === 'collection' ? 'collection' : 'spotlight';
+  prompts = await ask('prompts'); plugged = await invoke('pads'); version = hello.version; TABS = hello.tabs; full = hello.view.fullscreen; home = hello.lastHome === 'collection' ? 'collection' : 'spotlight';
   apply(hello.view); tab = TABS.includes(hello.view.startingTab) ? hello.view.startingTab : TABS[0];
   if (hello.view.restore && hello.lastGame) selected = hello.lastGame;
   await reload();
   homeLayer.el.classList.add('layer'); layers.push(homeLayer); host.append(homeLayer.el); homeLayer.redraw();
-  T.event.listen('session', e => ended(e.payload)); T.event.listen('prepare', e => prepared(e.payload)); T.event.listen('pad', e => padding.feed(e.payload));
+  T.event.listen('session', e => ended(e.payload)); T.event.listen('prepare', e => prepared(e.payload)); T.event.listen('pad', e => padding.feed(e.payload)); T.event.listen('pads', e => { plugged = e.payload; padChanged(); });
   // Games unzipped while Oort was behind show on return.
   addEventListener('focus', async () => { if (playing || layers.length > 1) return; const before = JSON.stringify(L.games.map(g => [g.id, g.state])); await reload(true); if (JSON.stringify(L.games.map(g => [g.id, g.state])) !== before) homeLayer.redraw(); });
   S.warm(); S.play('boot');

@@ -32,6 +32,7 @@ jobs:
             triple: aarch64-pc-windows-msvc
             component: Microsoft.VisualStudio.Component.VC.Tools.ARM64
     runs-on: ${{ matrix.runner }}
+    continue-on-error: ${{ matrix.arch == 'arm64' }}
     timeout-minutes: 90
     defaults:
       run:
@@ -71,9 +72,11 @@ jobs:
           $bin = swift build --build-system native -c release --product oort-core --show-bin-path
           New-Item -ItemType Directory -Force desktop/src-tauri/binaries, desktop/src-tauri/runtime | Out-Null
           Copy-Item "$bin/oort-core.exe" "desktop/src-tauri/binaries/oort-core-${{ matrix.triple }}.exe"
-          # The Swift runtime travels with the app.
-          $runtime = Split-Path (where.exe swiftCore.dll | Select-Object -First 1)
-          Copy-Item "$runtime/*.dll" desktop/src-tauri/runtime/
+          # What the core needs and Windows does not have travels with the app: Swift's runtime, Visual C++'s.
+          $swift = Split-Path (where.exe swiftCore.dll | Select-Object -First 1)
+          $visual = (Get-ChildItem "$env:VCToolsRedistDir/${{ matrix.arch }}" -Directory -Filter 'Microsoft.VC*.CRT' | Select-Object -First 1).FullName
+          python desktop/scripts/runtime_windows.py copy "$bin/oort-core.exe" desktop/src-tauri/runtime --from $swift $visual
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: The core answers on its own
         run: |
           $dir = New-Item -ItemType Directory -Force "$env:RUNNER_TEMP/core"
@@ -100,15 +103,58 @@ jobs:
         run: |
           npm ci
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          '{"bundle":{"resources":{"catalog.json":"catalog.json","../NOTICE":"NOTICE","../licenses-rust.txt":"licenses-rust.txt","runtime/*.dll":"./"}}}' | Set-Content ci.json
+          python scripts/licenses.py --texts src-tauri/runtime/THIRD-PARTY-RUST.txt ${{ matrix.triple }}
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          '{"bundle":{"resources":{"runtime/THIRD-PARTY-RUST.txt":"licenses/THIRD-PARTY-RUST.txt","runtime/*.dll":"./"}}}' | Set-Content ci.json
           npx tauri build --target ${{ matrix.triple }} --bundles nsis --config ci.json -- --locked
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $version = (Get-Content src-tauri/tauri.conf.json | ConvertFrom-Json).version
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item "src-tauri/target/${{ matrix.triple }}/release/bundle/nsis/*-setup.exe" "dist/Oort-NX-Windows-$version-${{ matrix.arch }}-setup.exe"
+          Get-ChildItem dist | Get-FileHash | Format-List Hash, Path
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: oort-nx-windows-${{ matrix.arch }}
-          path: desktop/src-tauri/target/${{ matrix.triple }}/release/bundle/nsis/*.exe
+          path: desktop/dist/*.exe
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 30
+
+  # Another machine, without the tools the app was made with.
+  windows-proof:
+    name: Windows ${{ matrix.arch }}, installed
+    needs: windows
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { runner: windows-2025, arch: x64 }
+          - { runner: windows-11-arm, arch: arm64 }
+    runs-on: ${{ matrix.runner }}
+    continue-on-error: ${{ matrix.arch == 'arm64' }}
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: oort-nx-windows-${{ matrix.arch }}
+          path: package
+      - name: Install, play, uninstall
+        run: |
+          $version = (Get-Content desktop/src-tauri/tauri.conf.json | ConvertFrom-Json).version
+          ./desktop/tests/windows/prove.ps1 -Installer (Get-ChildItem package/*-setup.exe).FullName -Out proof -Version $version
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: proof-windows-${{ matrix.arch }}
+          path: proof
+          retention-days: 30
 
   linux:
     name: Linux x64
@@ -151,12 +197,66 @@ jobs:
           APPIMAGE_EXTRACT_AND_RUN: '1'
         run: |
           npm ci
-          npx tauri build --bundles deb,appimage -- --locked
+          mkdir -p src-tauri/runtime dist
+          python3 scripts/licenses.py --texts src-tauri/runtime/THIRD-PARTY-RUST.txt x86_64-unknown-linux-gnu
+          echo '{"bundle":{"resources":{"runtime/THIRD-PARTY-RUST.txt":"licenses/THIRD-PARTY-RUST.txt"}}}' > ci.json
+          npx tauri build --bundles deb,appimage --config ci.json -- --locked
+          version=$(python3 -c "import json; print(json.load(open('src-tauri/tauri.conf.json'))['version'])")
+          cp src-tauri/target/release/bundle/deb/*.deb "dist/Oort-NX-Linux-$version-x64.deb"
+          cp src-tauri/target/release/bundle/appimage/*.AppImage "dist/Oort-NX-Linux-$version-x64.AppImage"
+          sha256sum dist/*
+      - name: What the AppImage carries, and its licences
+        working-directory: desktop
+        run: |
+          cp dist/*.AppImage /tmp/oort.AppImage && cd /tmp && chmod +x oort.AppImage && ./oort.AppImage --appimage-extract > /dev/null
+          ls squashfs-root/usr/lib | head -200; ls squashfs-root/usr/share/doc 2>/dev/null | head -200
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: oort-nx-linux-x64
-          path: |
-            desktop/src-tauri/target/release/bundle/deb/*.deb
-            desktop/src-tauri/target/release/bundle/appimage/*.AppImage
+          path: desktop/dist/*
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 30
+
+  linux-proof:
+    name: Linux x64, installed
+    needs: linux
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: oort-nx-linux-x64
+          path: package
+      - name: Open, play
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends xvfb xdotool imagemagick openbox dbus-x11 x11-utils
+          desktop/tests/linux/prove.sh package/*.deb package/*.AppImage proof
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: proof-linux-x64
+          path: proof
+          retention-days: 30
+
+  # The packages that passed, under one roof with their digests.
+  packages:
+    name: Packages and SHA256SUMS
+    needs: [windows-proof, linux-proof]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: oort-nx-*
+          path: packages
+          merge-multiple: true
+      - run: cd packages && sha256sum Oort-NX-* | tee SHA256SUMS
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: packages
+          path: packages
+          retention-days: 30
