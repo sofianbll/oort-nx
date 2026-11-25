@@ -17,7 +17,7 @@ Ogni flusso segue un'azione dall'input all'effetto, nominando i tipi che se ne o
 
 ```mermaid
 flowchart TD
-    A["NXLibraryApp (@main)"] --> B["DevelopmentStartupView<br/>AppData.prepare: profilo release o Dev"]
+    A["NXLibraryApp (@main)"] --> B["DevelopmentStartupView<br/>AppData.prepare: profilo release o Dev<br/>release: copia della vecchia cartella, poi riparazione unica dei percorsi"]
     B --> C["AppSettingsStore · lingua (AppLocalization)<br/>LaunchReveal: finestra pronta, poi fullscreen"]
     C --> D["CatalogStore legge catalog.json<br/>(conversione da library.json se serve)"]
     D -->|"archivio danneggiato"| R["Recupero esplicito: Retry / ripristino backup"]
@@ -39,6 +39,7 @@ flowchart TD
 Punti fissi:
 - Gli store si costruiscono una volta sola, prima della shell.
 - Un archivio illeggibile non diventa mai una libreria vuota.
+- La riparazione dei percorsi non ferma l'avvio: se non può scrivere, riprova al successivo.
 - La Dev scrive solo nel proprio profilo. Al primo avvio offre una copia selettiva della libreria stabile, senza intervenire sulla sorgente.
 - Il tour riprende al passo salvato. L'elenco locale non installa nulla; i servizi si configurano separatamente. Gli strumenti Switch si preparano solo attraverso il controllo dei requisiti, ciascuno con una conferma.
 - La scelta Steam del primo Setup resta salvata anche alla chiusura; lettura e attivazione usano la cartella scelta nella fonte. La scansione non sceglie Steam e Open library conserva la fonte in assenza di scelta. Una lettura incompleta offre Retry, senza dichiarare la libreria vuota.

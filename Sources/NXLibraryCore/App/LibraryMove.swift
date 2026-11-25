@@ -3,8 +3,9 @@ import Darwin
 import Foundation
 
 /// Oort NX used to keep its data in Arcane's folder, under Arcane's identifier. The first launch under its own
-/// identifier copies that folder into Oort NX's, checks every file, then uses the copy. The original is only read:
-/// an interrupted or refused copy changes nothing, and Oort NX 0.3.0 still opens it.
+/// identifier copies that folder into Oort NX's, checks every file, moves the paths the copy names (`LibraryPaths`),
+/// then uses it. The original is only read: an interrupted or refused copy changes nothing, and Oort NX 0.3.0 still
+/// opens it.
 public struct LibraryMove {
     public enum Failure: Error, LocalizedError, Equatable {
         case unsafeFile, sourceChanged, interrupted, preferencesUnavailable
@@ -93,7 +94,18 @@ public struct LibraryMove {
               try snapshot(stage) == before.mapValues({ if case .link(let target) = $0 { return .link(rebased(target)) } else { return $0 } }),
               NSDictionary(dictionary: carried(try preferences())).isEqual(to: values)
         else { throw Failure.sourceChanged }
-        try PropertyListSerialization.data(fromPropertyList: values, format: .binary, options: 0)
+        // A path follows the copy. What was not copied (logs, scratch) keeps naming the only file there is.
+        let paths = LibraryPaths(old: source, new: destination) { relative in
+            (try? kind(source.appendingPathComponent(relative))) == nil || (try? kind(stage.appendingPathComponent(relative))) != nil
+        }
+        let removalPending = try kind(stage.appendingPathComponent(LibraryPaths.removalJournal)) != nil
+        for name in LibraryPaths.files where !(removalPending && name.hasPrefix("catalog.")) {
+            let file = stage.appendingPathComponent(name)
+            if let data = try LibraryPaths.read(file), let moved = paths.rewritten(json: data) {
+                try LibraryPaths.replace(file, with: moved)
+            }
+        }
+        try PropertyListSerialization.data(fromPropertyList: values.mapValues { paths.rebased(value: $0) }, format: .binary, options: 0)
             .write(to: stage.appendingPathComponent(Self.preferenceFile), options: .atomic)
         let state = State(ready: false, files: before.count)
         try JSONEncoder().encode(state).write(to: stage.appendingPathComponent(Self.marker), options: .atomic)
@@ -128,12 +140,11 @@ public struct LibraryMove {
 
     private func carried(_ values: [String: Any]) -> [String: Any] {
         values.filter { !Self.skippedPreferences.contains($0.key) && !$0.key.hasPrefix("com.apple.") }
-            .mapValues { ($0 as? String).map(rebased) ?? $0 }
     }
 
-    /// A path inside the old folder becomes the same path inside the new one.
-    private func rebased(_ path: String) -> String {
-        path == source.path || path.hasPrefix(source.path + "/") ? destination.path + path.dropFirst(source.path.count) : path
+    /// A link into the old folder leads to the same place in the new one.
+    private func rebased(_ target: String) -> String {
+        LibraryPaths(old: source, new: destination) { _ in true }.rebased(target)
     }
 
     private func snapshot(_ root: URL) throws -> [String: Entry] {

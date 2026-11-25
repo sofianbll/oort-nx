@@ -30,6 +30,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Fixed
 
+- A library copied from the folder of Oort NX 0.3.0 now names its own folder: games, settings and queues no longer point at the old one. A library copied earlier is repaired once, after keeping its files; the old folder is not changed.
 - In the control center, B says Back inside a card, and ⌘K closes what it opened.
 - ⌘F, and holding − in the Arcane layout, search from a game’s page too.
 - With button hints off, the mouse keeps Back on screens that have no other way out.

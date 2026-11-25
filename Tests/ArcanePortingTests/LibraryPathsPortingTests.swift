@@ -1,0 +1,55 @@
+import XCTest
+import NXLibraryCore
+@testable import ArcanePorting
+
+/// The records the app really writes, through the app's own store and checks, with synthetic games.
+final class LibraryPathsPortingTests: XCTestCase {
+    private let fm = FileManager.default
+
+    func testAnAlreadyCopiedCatalogLoadsWithItsPathsInTheNewFolder() async throws {
+        let home = fm.temporaryDirectory.appendingPathComponent("paths-porting-\(UUID())", isDirectory: true)
+        defer { try? fm.removeItem(at: home) }
+        let profile = AppDataProfile(home: home, isDevelopment: false)
+        let old = profile.legacySupportRoot, new = profile.supportRoot
+        let ids = (1...4).map { String(format: "010000000000%04X", $0) }
+        for root in [old, new] {
+            for id in ids { try fm.createDirectory(at: root.appendingPathComponent("workspaces/\(id)/\(id)_build"), withIntermediateDirectories: true) }
+        }
+        let games = ids.map { id -> PortedGame in
+            let workspace = old.appendingPathComponent("workspaces/\(id)", isDirectory: true)
+            var game = PortedGame(name: "Synthetic \(id)", url: workspace, platform: .macApp, sizeBytes: 1,
+                                  modificationDate: Date(timeIntervalSince1970: 1.25), titleId: id)
+            game.workspacePath = workspace.path
+            game.buildCachePath = workspace.appendingPathComponent("\(id)_build").path
+            game.sources = [GameFileItem(url: workspace.appendingPathComponent("base.nsp"), kind: .base, sizeBytes: 1)]
+            game.lastBuild = BuildRecord(logPath: old.appendingPathComponent("Logs/\(id).log").path, outputPath: "/Applications/Synthetic.app")
+            return game
+        }
+        let store = CatalogStore(directory: new)
+        var document = try store.loadOrMigrate()
+        document.games = games.map(CatalogGame.init(nxnative:))
+        document = try store.save(document, expectedRevision: document.revision)
+        // Queues as the app writes them, naming a source in the old folder.
+        let queue = ActivityQueueFile<BuildRequest>(file: new.appendingPathComponent("build-queue.json"))
+        try await queue.saveDurably([BuildRequest(gameID: games[0].id, name: "Synthetic")])
+        try Data(#"{"version":1,"ready":true,"files":1}"#.utf8).write(to: new.appendingPathComponent(".moved-library.json"))
+
+        XCTAssertTrue(try LibraryPathRepair(from: old, to: new).prepare(checks: DevelopmentProfileImporter.portingChecks,
+                                                                         preferences: { [:] }, savePreferences: { _ in XCTFail() }))
+
+        let repaired = try store.loadOrMigrate()
+        XCTAssertEqual(repaired.revision, document.revision)
+        for (game, original) in zip(repaired.games.compactMap(\.nxnativeGame), games) {
+            let workspace = new.appendingPathComponent("workspaces/\(original.titleId!)", isDirectory: true)
+            var expected = original
+            expected.url = workspace
+            expected.workspacePath = workspace.path
+            expected.buildCachePath = workspace.appendingPathComponent("\(original.titleId!)_build").path
+            // Neither the source file nor the log was copied: they keep their only name.
+            XCTAssertEqual(game, expected)
+        }
+        XCTAssertEqual(repaired.games.count, 4)
+        let waiting = await queue.load()
+        XCTAssertEqual(waiting.count, 1)
+    }
+}
