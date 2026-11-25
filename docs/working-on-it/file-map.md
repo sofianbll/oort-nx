@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 25 novembre 2026. Il repository versiona **1545 file**, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le singole guide e immagini di `docs/guides/` non hanno una riga propria (le verifica `check_guides.py`); altri 73 file, i pacchetti di suoni e alcuni sorgenti e test recenti, aspettano ancora la loro. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 25 novembre 2026. Il repository versiona **1553 file**, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le singole guide e immagini di `docs/guides/` non hanno una riga propria (le verifica `check_guides.py`); altri 73 file, i pacchetti di suoni e alcuni sorgenti e test recenti, aspettano ancora la loro. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -110,6 +110,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [Sources/NXLibrary/Views/Shell/AppShellView+Profiles.swift](../../Sources/NXLibrary/Views/Shell/AppShellView+Profiles.swift) | Home, cambio dopo la chiusura dei giochi, conferme dell’ospite, rinnovo della presenza e dialogo PIN Selene condiviso con tastiera, manetta e mouse. |
 | [Sources/NXLibrary/Views/Shell/AppShellView+Overlays.swift](../../Sources/NXLibrary/Views/Shell/AppShellView+Overlays.swift) | Dialoghi e avvisi della shell: cloud, impostazioni, benvenuto, installazione fallita, Close Game, rimozione e aggiornamento. Passa l'indice di Annulla al dialogo condiviso. |
 | [Sources/NXLibrary/Views/Shell/AppShellView+Input.swift](../../Sources/NXLibrary/Views/Shell/AppShellView+Input.swift) | Equivalenti da tastiera dei gesti del controller, inclusi Inbox e Integrations, azioni del menu e del centro attività. |
+| [Sources/NXLibrary/Views/Shell/AppShellView+Palette.swift](../../Sources/NXLibrary/Views/Shell/AppShellView+Palette.swift) | Cerca ovunque: quando si apre, le sue righe e l'azione esistente che ognuna esegue. |
 | [Sources/NXLibrary/Views/Shell/IntegrationsView.swift](../../Sources/NXLibrary/Views/Shell/IntegrationsView.swift) | Barra, riepilogo Giochi e Servizi, schede dei dati e collegamenti alle impostazioni esistenti. |
 | [Sources/NXLibrary/Views/Shell/IntegrationsView+Input.swift](../../Sources/NXLibrary/Views/Shell/IntegrationsView+Input.swift) | Traduce tastiera e controller per barra e pagina; mentre la barra ha il focus non inoltra i comandi delle tessere. |
 | [Sources/NXLibrary/Views/Shell/IntegrationFixtureView.swift](../../Sources/NXLibrary/Views/Shell/IntegrationFixtureView.swift) | Anteprima Debug isolata e PNG delle viste condivise con stati sintetici, senza avviare i servizi o rendere visibile una finestra per le catture. |
@@ -154,6 +155,7 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [Sources/NXLibrary/ViewModels/AppViewModel+Saves.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+Saves.swift) | Risolve contesto e identità se il profilo è leggibile, coordina i lease con motivo di rifiuto e recupera i journal del profilo selezionato. |
 | [Sources/NXLibrary/ViewModels/AppViewModel+SteamGridDB.swift](../../Sources/NXLibrary/ViewModels/AppViewModel+SteamGridDB.swift) | Verifica, salva e rimuove la chiave SteamGridDB dell’utente senza registrarne il valore. |
 | [Sources/NXLibrary/ViewModels/AppIconModel.swift](../../Sources/NXLibrary/ViewModels/AppIconModel.swift) | Applica o ripristina l’icona senza toccare giochi in esecuzione o in build. Conserva la richiesta Play legata al dialogo durante la firma; Change artwork ne osserva l’avanzamento. |
+| [CommandPalette.swift](../../Sources/NXLibrary/ViewModels/CommandPalette.swift) | Stato di Cerca ovunque aperta: voci, gruppi, riga in focus, tasti e pulsanti. |
 | [Sources/NXLibrary/ViewModels/CheatsModel.swift](../../Sources/NXLibrary/ViewModels/CheatsModel.swift) | Adatta Core e bundle installato al pannello Cheats, alla riga di stato, alla pagina del gioco e alla diagnostica; chiede a git l'engine dell'app con `prepare(for:)`; raggiunge il coordinatore solo da `app`. |
 | [Sources/NXLibrary/ViewModels/GameInboxModel.swift](../../Sources/NXLibrary/ViewModels/GameInboxModel.swift) | Cartella configurabile, lettura con nxnative solo se l’Inbox è attiva e le chiavi sono valide, avviso Game files; verifica del catalogo e Cestino nello stesso turno del main actor. |
 | [Sources/NXLibrary/ViewModels/PortingModel.swift](../../Sources/NXLibrary/ViewModels/PortingModel.swift) | Stato di Add Game e del porting: bozza, selezione delle sorgenti e spazio richiesto, chiavi, passo del wizard, stato della build mostrato ed esito. Il lavoro sta nelle estensioni qui sotto; raggiunge il coordinatore solo da `app`. |
@@ -218,6 +220,7 @@ Cartella `Sources/OortCore/`, senza risorse né dipendenze.
 | [Credits.swift](../../Sources/OortCore/Credits.swift) | Legge `credits.json`: gruppi, ruoli e note legali per sistema e lingua. |
 | [MoonlightField.swift](../../Sources/OortCore/MoonlightField.swift) | Genera i dati delle particelle senza Metal; condivide `SplitMix` nel package per il cue Download. |
 | [MoveDirection.swift](../../Sources/OortCore/MoveDirection.swift) | Espone le quattro direzioni del focus. |
+| [Palette.swift](../../Sources/OortCore/Palette.swift) | Cerca ovunque: confronto tollerante, gruppi, «Vedi tutto», focus e recenti. |
 | [ProfileKeypad.swift](../../Sources/OortCore/ProfileKeypad.swift) | Griglia PIN con lunghezza passata dal chiamante e conferma esplicita. |
 | [VersionNumber.swift](../../Sources/OortCore/VersionNumber.swift) | Confronta numeri di versione puntati parte per parte. |
 
@@ -234,6 +237,7 @@ Cartella `Sources/NXLibraryCore/App/`.
 | [Sources/NXLibraryCore/App/FirstRunFindings.swift](../../Sources/NXLibraryCore/App/FirstRunFindings.swift) | Conta giochi Steam senza modifiche, e le app del modulo con il conteggio che riceve; distingue lettura incompleta da assenza e permette nuove letture annullabili. |
 | [Sources/NXLibraryCore/App/ArcaneWelcome.swift](../../Sources/NXLibraryCore/App/ArcaneWelcome.swift) | Decide quando compare il benvenuto in Arcane, l'offerta di Steam, il focus e come ogni uscita lo segna visto. |
 | [Sources/NXLibraryCore/App/ReleaseNotesLayout.swift](../../Sources/NXLibraryCore/App/ReleaseNotesLayout.swift) | Divide le note di release in titoli, voci e testo, una riga per volta, per il dialogo degli aggiornamenti. |
+| [PaletteAction.swift](../../Sources/NXLibraryCore/App/PaletteAction.swift) | Azioni di Cerca ovunque in cinque sezioni, scorciatoie e recenti per profilo. |
 | [Sources/NXLibraryCore/App/BoundedCommand.swift](../../Sources/NXLibraryCore/App/BoundedCommand.swift) | Avvia gruppi isolati per i comandi cloud, legge e scrive pipe non bloccanti, delimita inattività e vita dei figli. |
 | [Sources/NXLibraryCore/App/CommandRunner.swift](../../Sources/NXLibraryCore/App/CommandRunner.swift) | Comandi sincroni o streaming senza run loop; per il cloud inoltra input e annullamento all'esecutore con scadenza. |
 | [Sources/NXLibraryCore/App/DiagnosticsReport.swift](../../Sources/NXLibraryCore/App/DiagnosticsReport.swift) | Genera il rapporto diagnostico e rimuove percorso home e valori riconosciuti come chiavi. |
@@ -855,6 +859,8 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/Launch/LaunchMotion.swift](../../Sources/NXLibrary/Views/Launch/LaunchMotion.swift) | Movimento della schermata di lancio in Core Animation: artwork che si avvicina e logo del gioco che sale una volta. Con Riduci movimento resta la dissolvenza del logo. |
 | [Sources/NXLibrary/Views/Launch/LaunchCoverWindow.swift](../../Sources/NXLibrary/Views/Launch/LaunchCoverWindow.swift) | Ordina la finestra d’attesa sopra ogni app e Space e avvisa il coordinatore dopo aver inviato il pannello al server delle finestre. |
 | [Sources/NXLibrary/Views/Search/FindGameView.swift](../../Sources/NXLibrary/Views/Search/FindGameView.swift) | Presenta ricerca nella libreria e risultati navigabili e inoltra il gioco scelto alla home. |
+| [CommandPaletteView.swift](../../Sources/NXLibrary/Views/Search/CommandPaletteView.swift) | Cerca ovunque: campo, gruppi, righe con scorciatoia, annunci VoiceOver e ritorno del focus. |
+| [CommandPaletteProbe.swift](../../Sources/NXLibrary/Views/Search/CommandPaletteProbe.swift) | Controllo Debug di tasti e pulsanti e catture di ogni stato, senza finestra e con voci sintetiche. |
 | [Sources/NXLibrary/Views/Console/ConsoleView.swift](../../Sources/NXLibrary/Views/Console/ConsoleView.swift) | Mostra log e stato corrente e offre copia di log e diagnostica. |
 | [Sources/NXLibrary/Views/ControlsView.swift](../../Sources/NXLibrary/Views/ControlsView.swift) | Guida Selene separata fra Library e In game; stato controller, rilevamento e scorrimento delle righe con tastiera/controller. |
 
@@ -1113,6 +1119,8 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/NXLibraryCoreTests/PlayerPlanStoreTests.swift](../../Tests/NXLibraryCoreTests/PlayerPlanStoreTests.swift) | Persistenza e conservazione dei campi sconosciuti; rifiuto dei documenti non validi. |
 | [Tests/NXLibraryCoreTests/PlayerLaunchEnvironmentTests.swift](../../Tests/NXLibraryCoreTests/PlayerLaunchEnvironmentTests.swift) | Modalità di lancio, capacità dichiarate, precedenza di `env.txt` e limiti del nickname. |
 | [Tests/OortCoreTests/ProfileKeypadTests.swift](../../Tests/OortCoreTests/ProfileKeypadTests.swift) | Navigazione, cancellazione, zero iniziale e lunghezza del PIN fornita dal chiamante. |
+| [Tests/OortCoreTests/PaletteTests.swift](../../Tests/OortCoreTests/PaletteTests.swift) | Accenti, errori, ordine, gruppi, focus e recenti di Cerca ovunque. |
+| [Tests/NXLibraryCoreTests/PaletteActionTests.swift](../../Tests/NXLibraryCoreTests/PaletteActionTests.swift) | Sezioni, scorciatoie, traduzioni e recenti per profilo di Cerca ovunque. |
 | [Tests/NXLibraryCoreTests/ProfileLayersTests.swift](../../Tests/NXLibraryCoreTests/ProfileLayersTests.swift) | In ogni stato un solo strato della schermata profilo riceve l’input e mostra i suggerimenti; la procedura guidata sostituisce il selettore. |
 | [Tests/ArcanePortingTests/PortedGameTests.swift](../../Tests/ArcanePortingTests/PortedGameTests.swift) | Modello del gioco, compatibilità dei record, disponibilità dell’app e selezione delle ultime compilazioni riuscite. |
 | [Tests/ArcanePortingTests/PortingFailureReasonTests.swift](../../Tests/ArcanePortingTests/PortingFailureReasonTests.swift) | Classificazione dei fallimenti, distinzione fra avvio di Python e chiavi, e corrispondenza con i messaggi del pin (anche con NX_TEST_ENGINE_REPO). |

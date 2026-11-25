@@ -19,7 +19,8 @@ extension AppShellView {
                 // Keep artwork/tiles drawn and warm, as during Spotlight's entrance, while the full page covers them.
                 .opacity(fullScreenCover ? 0.001 : 1)
                 .seleneOverlayOwnership(!fullScreenCover && !router.route.isOverlay && !viewModel.isGameOptionsOpen
-                                        && !isCloseGameOpen && !router.isMenuPresented && !router.isSearchPresented && profileFlow == nil)
+                                        && !isCloseGameOpen && !router.isMenuPresented && !router.isSearchPresented
+                                        && !router.isPalettePresented && profileFlow == nil)
             if router.route == .addGame {
                 AddGameView(viewModel: viewModel,
                             router: router,
@@ -27,7 +28,8 @@ extension AppShellView {
                             showsHints: settings.settings.showButtonHints,
                             reviewSelectionID: setupSourceEntryID)
                     .opacity(opacityBelowCover(0.8))
-                    .seleneOverlayOwnership(!currentBackdropCover.covers(0.8) && !router.isMenuPresented && profileFlow == nil && !isCloseGameOpen)
+                    .seleneOverlayOwnership(!currentBackdropCover.covers(0.8) && !router.isMenuPresented && !router.isPalettePresented
+                                            && profileFlow == nil && !isCloseGameOpen)
                     .transition(overlayTransition)
                     .zIndex(0.8)
             }
@@ -35,7 +37,8 @@ extension AppShellView {
                 ConsoleView(viewModel: viewModel, router: router,
                             showsHints: settings.settings.showButtonHints)
                     .opacity(opacityBelowCover(0.8))
-                    .seleneOverlayOwnership(!currentBackdropCover.covers(0.8) && !router.isMenuPresented && profileFlow == nil && !isCloseGameOpen)
+                    .seleneOverlayOwnership(!currentBackdropCover.covers(0.8) && !router.isMenuPresented && !router.isPalettePresented
+                                            && profileFlow == nil && !isCloseGameOpen)
                     .transition(overlayTransition)
                     .zIndex(0.8)
             }
@@ -46,6 +49,13 @@ extension AppShellView {
                     .seleneOverlayOwnership(!currentBackdropCover.covers(0.5) && !router.isMenuPresented && profileFlow == nil && !isCloseGameOpen)
                     .transition(.opacity)
                     .zIndex(0.5)
+            }
+            if router.isPalettePresented {
+                CommandPaletteView(palette: palette)
+                    .opacity(opacityBelowCover(Self.paletteLayer))
+                    .seleneOverlayOwnership(!currentBackdropCover.covers(Self.paletteLayer) && profileFlow == nil && !isCloseGameOpen)
+                    .transition(.opacity)
+                    .zIndex(Self.paletteLayer)
             }
             if viewModel.showSetupCheck {
                 Group {
@@ -202,7 +212,7 @@ extension AppShellView {
             }
             if profileFlow == nil && !isCloseGameOpen && !nativeDialogOwnsInput && !nativeMenus.isTracking
                 && !viewModel.showSetupCheck && !showsWelcome && viewModel.launchOverlay == nil
-                && !viewModel.isGameOptionsOpen && !router.isSearchPresented
+                && !viewModel.isGameOptionsOpen && !router.isSearchPresented && !router.isPalettePresented
                 && !router.isScreenshotViewerOpen && router.activityCenterFocus == nil
                 && !router.isThemePickerOpen {
                 switch router.route {
@@ -244,6 +254,7 @@ extension AppShellView {
         .animation(Motion.screen(reduceMotion), value: router.isThemePickerOpen)
         .animation(Motion.overlay(reduceMotion), value: profileFlow != nil)
         .animation(Motion.overlay(reduceMotion), value: router.isSearchPresented)
+        .animation(Motion.overlay(reduceMotion), value: router.isPalettePresented)
         .animation(Motion.screen(reduceMotion), value: viewModel.showSetupCheck)
         .animation(Motion.screen(reduceMotion), value: viewModel.firstRunSetup.page)
         .animation(Motion.screen(reduceMotion), value: router.route == .addGame)
@@ -305,6 +316,7 @@ extension AppShellView {
             removeGestureKeyMonitor()
         }
         .onChange(of: viewModel.catalogSnapshot.revision) {
+            updatePalette()
             let games = viewModel.catalogSnapshot.games
             runningGames.setGames(viewModel.catalogSnapshot.nxnativeGames)
             SteamPlayCoordinator.shared.setGames(games, sources: viewModel.catalogSourceConfigurations)

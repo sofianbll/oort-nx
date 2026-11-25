@@ -200,6 +200,7 @@ final class Router {
     var route = AppRoute.library
     var isScreenshotViewerOpen = false
     var isSearchPresented = false
+    var isPalettePresented = false
     var isThemePickerOpen = false
     var isMenuPresented = false
     var sortMenu: Int?
@@ -337,6 +338,8 @@ func withAnimation(_ animation: Int?, _ update: () -> Void) { update() }
     func cloudQuitInput(_ action: GamepadAction) { dialogActions.append(action) }
     func postProfileAction(_ action: GamepadAction) { dialogActions.append(action) }
     func menuInput(_ action: GamepadAction) { dialogActions.append(action) }
+    func paletteInput(_ action: GamepadAction) { dialogActions.append(action) }
+    var paletteAvailable: Bool { true }
     func openProfile(_ page: ProfileFlow.Page, fromMenu: Bool) {
         profileFlow = ProfileFlow(page: page, returnsToMenu: fromMenu)
         viewModel.profileOwnsInput = true
@@ -452,7 +455,7 @@ func withAnimation(_ animation: Int?, _ update: () -> Void) { update() }
         require(handoff.late.contains(pending) && !steam.isHidden,
                 "A stalled launch must still show Steam after the wait")
         let overlays: [(MenuHost, Bool) -> Void] = [
-            { $0.router.isSearchPresented = $1 }, { $0.router.isScreenshotViewerOpen = $1 },
+            { $0.router.isSearchPresented = $1 }, { $0.router.isPalettePresented = $1 }, { $0.router.isScreenshotViewerOpen = $1 },
             { $0.viewModel.isGameOptionsOpen = $1 }, { $0.router.isMenuPresented = $1 },
             { $0.viewModel.showSetupCheck = $1 },
             { $0.isCloseGameOpen = $1 }, { $0.viewModel.launchOverlay = $1 ? 1 : nil }
@@ -574,6 +577,15 @@ func withAnimation(_ animation: Int?, _ update: () -> Void) { update() }
         require(input.router.route == .library && !input.router.isMenuPresented && received.actions.isEmpty,
                 "Search owns input, including Menu and View")
         input.router.isSearchPresented = false
+        input.router.isPalettePresented = true
+        for action: GamepadAction in [.navigateDown, .confirm, .contextAction, .menu, .menuHold, .view, .controlCenter] {
+            GameControllerService.shared.onAction?(action)
+        }
+        require(input.router.route == .library && !input.router.isMenuPresented && received.actions.isEmpty
+                    && input.dialogActions == [.navigateDown, .confirm, .contextAction, .menu, .menuHold, .view, .controlCenter],
+                "The palette owns every press")
+        input.dialogActions = []
+        input.router.isPalettePresented = false
         input.viewModel.isGameOptionsOpen = true
         for action: GamepadAction in [.menu, .menuHold] { GameControllerService.shared.onAction?(action) }
         require(input.router.route == .library && !input.router.isMenuPresented && received.actions.isEmpty,

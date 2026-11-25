@@ -176,7 +176,8 @@
   "Figure": "values of the sound composer",
   "Place": "values of the sound composer",
   "SoundPackEvent": "one sample per sound, values",
-  "GamepadLayout": "values of one row"
+  "GamepadLayout": "values of one row",
+  "PaletteAction": "searched; the palette shows five of a group, then See all"
  },
  "english": [
   "Category: Application Integration. Client Type: Confidential.",

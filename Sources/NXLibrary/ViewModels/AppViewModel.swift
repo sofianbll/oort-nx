@@ -122,7 +122,7 @@ final class AppViewModel: ObservableObject {
     /// The shell's update dialog owns input; screens leave the keyboard to it.
     var appUpdateDialogOwnsInput = false
     @Published var profileOwnsInput = false
-    var shellDialogOwnsInput: Bool { appUpdateDialogOwnsInput || cloudQuitRequested || profileOwnsInput }
+    var shellDialogOwnsInput: Bool { appUpdateDialogOwnsInput || cloudQuitRequested || profileOwnsInput || router?.isPalettePresented == true }
     /// "Welcome to Arcane" is on screen, until its fade has ended: screens' own keyboard monitors let Return and
     /// the arrows go to it, and Spotlight holds its entrance until it has gone.
     @Published var isWelcomeOpen = false

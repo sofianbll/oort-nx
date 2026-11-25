@@ -221,7 +221,7 @@ struct IntegrationFixtureView: View {
         }
     }
 
-    @MainActor private static func fixtureOnboardingState() throws
+    @MainActor static func fixtureOnboardingState() throws
         -> (AppViewModel, AppSettingsStore, LocalProfileStore, CatalogSourcesModel) {
         precondition(AppData.integrationFixtureHome != nil)
         let home = AppData.profile.home

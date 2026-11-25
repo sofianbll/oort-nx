@@ -37,7 +37,7 @@ public enum ButtonPrompts {
 
     /// The key the screens' key monitors take for each prompt: Return confirms,
     /// Esc goes back, X and Y, Q/E for filters, Home/End for the triggers,
-    /// F3 for sort, V for View and ⌘K for Menu.
+    /// F3 for sort, V for View and ⇧⌘K for Menu (⌘K is the command palette).
     public static func keyboardKey(_ button: PromptButton) -> KeyCap {
         switch button {
         case .a: return .symbol("return")
@@ -51,7 +51,7 @@ public enum ButtonPrompts {
         case .lt: return .text(L10n.text("home"))
         case .rt: return .text(L10n.text("end"))
         case .view: return .text("V")
-        case .menu: return .text("⌘K")
+        case .menu: return .text(PaletteAction.controlCenter.shortcut ?? "")
         case .home: return .text("⇧⌘P")
         case .move: return .text("← →")
         case .vertical: return .text("↑ ↓")

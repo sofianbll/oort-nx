@@ -116,6 +116,7 @@ extension AppShellView {
         guard let active = profiles.active, profileFlow == nil, viewModel.launchOverlay == nil,
               !viewModel.showSetupCheck, !showsWelcome, !isCloseGameOpen else { return }
         guard !router.requestSettingsDeparture({ openProfile(page, fromMenu: fromMenu) }) else { return }
+        router.isPalettePresented = false
         viewModel.profileOwnsInput = true
         profileFlow = ProfileFlow(page: page, selected: active.id, returnsToMenu: fromMenu)
     }

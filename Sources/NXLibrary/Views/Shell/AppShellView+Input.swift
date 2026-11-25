@@ -155,6 +155,7 @@ extension AppShellView {
                 if !event.isARepeat { GameControllerService.shared.onAction?(.profiles) }
                 return nil
             }
+            if router.isPalettePresented, !isCloseGameOpen { return paletteKey(event) }
             if viewModel.profileOwnsInput || (router.route == .profile && !router.isMenuPresented
                 && !viewModel.isGameOptionsOpen && !nativeDialogOwnsInput),
                !showsWelcome, !viewModel.showSetupCheck, !isCloseGameOpen {

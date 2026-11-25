@@ -10,6 +10,12 @@ final class ButtonPromptsTests: XCTestCase {
         XCTAssertEqual(ButtonPrompts.label(.lb, style: .automatic, connected: .other), "LB")
     }
 
+    func testTheControlCenterKeepsAKeyOfItsOwnBesideThePalette() {
+        XCTAssertEqual(ButtonPrompts.keyboardKey(.menu), .text("⇧⌘K"))
+        XCTAssertEqual(PaletteAction.controlCenter.shortcut, "⇧⌘K")
+        XCTAssertEqual(PaletteAction.paletteShortcut, "⌘K")
+    }
+
     func testExplicitStyleOverridesPad() {
         XCTAssertEqual(ButtonPrompts.label(.lb, style: .xbox, connected: .nintendo), "LB")
         XCTAssertEqual(ButtonPrompts.label(.menu, style: .playstation, connected: .xbox), "Options")
