@@ -145,7 +145,7 @@ final class OortUITests: OortCase {
         XCTAssertNotEqual(was, sounds.value as? String, "the switch changes")
         sounds.tap()
         for _ in 0..<4 { app.swipeUp() }
-        shows("0.1.0-alpha.1")
+        shows("0.1.0-alpha.2")
         try look(a + "23-settings-end")
         tap(row("Thanks and licences"), "the credits")
         shows("NX2Apple")

@@ -6,9 +6,9 @@ import struct
 import sys
 import zipfile
 
-VERSION = "0.1.0-alpha.1"
+VERSION = "0.1.0-alpha.2"
 EXPECTED = {"CFBundleIdentifier": "io.github.sofianbll.oortnx.mobile", "CFBundleName": "Oort NX", "CFBundleDisplayName": "Oort NX",
-            "CFBundleExecutable": "Oort NX", "CFBundlePackageType": "APPL", "CFBundleShortVersionString": "0.1.0", "CFBundleVersion": "1",
+            "CFBundleExecutable": "Oort NX", "CFBundlePackageType": "APPL", "CFBundleShortVersionString": "0.1.0", "CFBundleVersion": "2",
             "OortVersion": VERSION, "MinimumOSVersion": "26.0", "UIDeviceFamily": [1, 2], "CFBundleSupportedPlatforms": ["iPhoneOS"]}
 CODE_SIGNATURE, SEGMENT_64, BUILD_VERSION = 0x1D, 0x19, 0x32
 
