@@ -24,6 +24,8 @@ final class GameControllerService: ObservableObject {
     static let shared = GameControllerService()
     var isGamepadConnected = true
     var activeBrand = GamepadBrand.generic
+    var usesController = true
+    var padInHand: ConnectedPad { ConnectedPad(connected: isGamepadConnected && usesController, brand: activeBrand) }
     var buttonSymbols: [PromptButton: String] = [:]
 }
 final class ThemeStore {
@@ -95,7 +97,7 @@ final class ThemeStore {
                 let hints = HintItem.homeGlobals(other: "Spotlight", onOther: {}, onMenu: {}, onSearch: {},
                                                 onProfiles: {}, layout: layout, hasHome: hasHome)
                 let options = HintItem.browsingOptions(layout, "Options", hasHome: hasHome)
-                let visible = SeleneHintsBar(left: hints).visibleLeft(style: .nintendo, connected: .nintendo) + [options]
+                let visible = SeleneHintsBar(left: hints).visibleLeft(inHand: .nintendo) + [options]
                 let buttons = visible.compactMap(\.button)
                 precondition(Set(buttons).count == buttons.count)
                 let rows = layout.guide(hasHome: hasHome)
@@ -120,27 +122,28 @@ final class ThemeStore {
         }
         for (name, brand): (String?, GamepadBrand?) in [
             ("xbox", .xbox), ("switch", .nintendoSwitch), ("ps5", .playstation), ("keyboard", nil),
-            (nil, .generic),
+            ("xbox-then-keyboard", .xbox), (nil, .generic),
         ] {
             GameControllerService.shared.activeBrand = brand ?? .generic
             GameControllerService.shared.isGamepadConnected = brand != nil
+            GameControllerService.shared.usesController = name != "xbox-then-keyboard"
             let left = HintItem.homeGlobals(other: "Spotlight", onOther: {}, onMenu: {}, onSearch: {}, onProfiles: {})
             let right = [HintItem(.a, "Play"), HintItem(.x, "Details"), HintItem(.y, "Game options"),
                          HintItem(.rs, "Sort", hold: "Recent")]
             let bar = SeleneHintsBar(left: left, right: right)
-            let active = ConnectedPad(connected: brand != nil, brand: brand ?? .generic)
-            precondition(bar.visibleLeft(style: .automatic, connected: active).map(\.button)
-                         == (brand == nil ? [.view, .menu, .search, .home] : [.view, .menu, .home]))
-            // A chosen button style is a controller too, even with none connected: no ⌘F keycap beside View.
-            precondition(bar.visibleLeft(style: .xbox, connected: .none).map(\.button) == [.view, .menu, .home])
-            let buttons = (bar.visibleLeft(style: .automatic, connected: active) + right).compactMap(\.button)
+            let active = GameControllerService.shared.padInHand
+            precondition(bar.visibleLeft(inHand: active).map(\.button)
+                         == (active == .none ? [.view, .menu, .search, .home] : [.view, .menu, .home]))
+            // A chosen button style names a controller's buttons: the keyboard keeps its keys whatever the style.
+            precondition(bar.visibleLeft(inHand: .none).map(\.button) == [.view, .menu, .search, .home])
+            let buttons = (bar.visibleLeft(inHand: active) + right).compactMap(\.button)
             precondition(Set(buttons).count == buttons.count)
             precondition(ButtonPrompts.keyboardKey(.rs) == .text("F3"))
             precondition(left.first?.hold == "Hold: Search")
             let withoutSwitch = HintItem.homeGlobals(other: "Spotlight", onOther: nil, onMenu: {}, onSearch: {}, onProfiles: {})
             let alternateBar = SeleneHintsBar(left: withoutSwitch)
-            precondition(alternateBar.visibleLeft(style: .automatic, connected: active).map(\.button)
-                         == (brand == nil ? [.menu, .search, .home] : [.view, .menu, .home]))
+            precondition(alternateBar.visibleLeft(inHand: active).map(\.button)
+                         == (active == .none ? [.menu, .search, .home] : [.view, .menu, .home]))
             for style: ButtonNameStyle in [.xbox, .nintendo, .playstation] {
                 precondition(ButtonPrompts.symbol(.home, style: style, connected: .none)
                     .flatMap(SelenePromptBadge.filled) != nil, "Missing Home glyph for \(style)")
@@ -149,7 +152,7 @@ final class ThemeStore {
             // Every controller token must render a glyph or a labeled keycap.
             for style in ButtonNameStyle.allCases {
                 for button in PromptButton.allCases {
-                    if button == .search || ButtonPrompts.usesKeyboard(style: style, connected: pad) {
+                    if button == .search || ButtonPrompts.usesKeyboard(pad) {
                         switch ButtonPrompts.keyboardKey(button) {
                         case .symbol(let symbol):
                             precondition(NSImage(systemSymbolName: symbol, accessibilityDescription: nil) != nil)
@@ -179,7 +182,7 @@ final class ThemeStore {
             else { fatalError("Could not render \(name)") }
             try png.write(to: output.appendingPathComponent("\(name).png"))
         }
-        print("Verified both binding tables, browsing hints and every hint token; rendered four Selene help bars.")
+        print("Verified both binding tables, browsing hints and every hint token; rendered five Selene help bars.")
     }
 }
 '''

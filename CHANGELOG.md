@@ -10,6 +10,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Changed
 
+- Prompts name what was used last: a controller's buttons after a press, the Mac keys after a key, a click or a real move of the mouse. A small nudge changes nothing.
 - The control center keeps five icons with Power in the middle. Players joins the Profile card.
 
 ## 0.5.0-beta.3 — 2026-11-25

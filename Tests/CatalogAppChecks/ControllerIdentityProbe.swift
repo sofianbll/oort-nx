@@ -1,3 +1,4 @@
+import AppKit
 import Combine
 import Foundation
 import NXLibraryCore
@@ -43,7 +44,49 @@ private final class FakeSource: ControllerSource {
         ambiguousPairStaysUnpaired(twinOnHID: true)
         repeatedHardwareID()
         exclusiveAssignment()
+        promptsFollowTheHand()
         print("Controller identity: hash privacy, pairing, sticky ambiguity, activity, output routing, sleep and hot plug passed")
+    }
+
+    /// The prompts name the controller only while it is the last thing used, and never flicker.
+    private static func promptsFollowTheHand() {
+        let gc = FakeSource(), hid = FakeSource()
+        let object = NSObject()
+        let pad = ControllerIdentity(id: ObjectIdentifier(object), name: "Pad", brand: .playstation)
+        let service = GameControllerService(gcSource: gc, hidSource: hid)
+        precondition(service.padInHand == .none)
+        gc.preferredID = pad.id
+        gc.add(pad)
+        precondition(service.padInHand == .playstation)
+        func key() -> NSEvent {
+            .keyEvent(with: .keyDown, location: .zero, modifierFlags: [], timestamp: 0, windowNumber: 0, context: nil,
+                      characters: "v", charactersIgnoringModifiers: "v", isARepeat: false, keyCode: 9)!
+        }
+        func mouse(_ type: NSEvent.EventType) -> NSEvent {
+            .mouseEvent(with: type, location: .zero, modifierFlags: [], timestamp: 0, windowNumber: 0, context: nil,
+                        eventNumber: 0, clickCount: 1, pressure: 1)!
+        }
+        func press(_ input: ControllerInputChange) { gc.onEvent?(.input(pad.id, input)) }
+        service.handUsed(key())
+        precondition(service.padInHand == .none)
+        var changes = 0
+        let subscription = service.$inputInHand.dropFirst().sink { _ in changes += 1 }
+        defer { subscription.cancel() }
+        for step in 0..<60 { press(.leftStick(SIMD2(step.isMultiple(of: 2) ? 0.2 : -0.2, 0.1))) }
+        precondition(service.padInHand == .none && changes == 0, "A drifting stick is no hand")
+        press(.button(.a, true))
+        precondition(service.padInHand == .playstation && changes == 1)
+        press(.button(.a, false))
+        for _ in 0..<60 { service.handUsed(mouse(.mouseMoved)) }
+        precondition(service.padInHand == .playstation && changes == 1, "A still pointer's events are no hand")
+        service.handUsed(mouse(.leftMouseDown))
+        precondition(service.padInHand == .none && changes == 2)
+        press(.leftStick(SIMD2(1, 0)))
+        precondition(service.padInHand == .playstation)
+        gc.preferredID = nil
+        gc.remove(pad)
+        precondition(service.padInHand == .none)
+        withExtendedLifetime(object) {}
     }
 
     private static func exclusiveAssignment() {

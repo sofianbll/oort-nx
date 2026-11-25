@@ -22,6 +22,12 @@ final class GameControllerService: ObservableObject {
     @Published var activeBrand: GamepadBrand = .generic
     /// Reported glyphs (including system remapping); the brand supplies missing glyphs.
     @Published var buttonSymbols: [PromptButton: String] = [:]
+    /// The last thing used, shared by every prompt: a button, a key, a click or a real move of the mouse.
+    @Published private(set) var inputInHand = InputInHand()
+    /// The controller the prompts name, or none while the keyboard or the mouse leads.
+    var padInHand: ConnectedPad {
+        ConnectedPad(connected: inputInHand.usesController(connected: isGamepadConnected), brand: activeBrand)
+    }
     @Published private(set) var menuHoldStartedAt: TimeInterval?
     @Published private(set) var connectedControllers: [ConnectedController] = []
     @Published private(set) var homeAccess: ControllerHomeAccess = .disconnected
@@ -69,6 +75,9 @@ final class GameControllerService: ObservableObject {
     private var fallbackTimer: Timer?
     private var activePad: ControllerIdentity?
     private var inputGeneration = 0
+    private var handMonitor: Any?
+    /// Tracked apart so that a moving pointer publishes only when the hand really changes.
+    private var hand = InputInHand()
 
     private struct PendingHold {
         let binding: GamepadLayout.Binding
@@ -102,6 +111,7 @@ final class GameControllerService: ObservableObject {
             let workspace = NSWorkspace.shared.notificationCenter
             observe(workspace, NSWorkspace.willSleepNotification) { $0.suspendControllers() }
             observe(workspace, NSWorkspace.didWakeNotification) { $0.resumeControllers() }
+            watchHand()
         }
         gcSource.onEvent = { [weak self] in self?.handle($0, fromHID: false) }
         (gcSource as? GCControllerSource)?.onHomeAccess = { [weak self] access in
@@ -122,7 +132,36 @@ final class GameControllerService: ObservableObject {
         observers.append((center, token))
     }
 
+    /// Installed before any screen's monitor, so it sees the events they keep for themselves; it keeps none.
+    private func watchHand() {
+        let events: NSEvent.EventTypeMask = [.keyDown, .leftMouseDown, .rightMouseDown, .otherMouseDown, .scrollWheel,
+                                             .mouseMoved]
+        handMonitor = NSEvent.addLocalMonitorForEvents(matching: events) { [weak self] event in
+            self?.handUsed(event)
+            return event
+        }
+    }
+
+    func handUsed(_ event: NSEvent) {
+        switch event.type {
+        case .keyDown: useHand { $0.keyPressed() }
+        case .mouseMoved:
+            let distance = hypot(event.deltaX, event.deltaY)
+            useHand { $0.pointerMoved(by: distance, at: event.timestamp) }
+        case .scrollWheel:
+            // Momentum keeps arriving after the fingers have left.
+            if event.momentumPhase.isEmpty, event.scrollingDeltaX != 0 || event.scrollingDeltaY != 0 { useHand { $0.pointerUsed() } }
+        default: useHand { $0.pointerUsed() }
+        }
+    }
+
+    private func useHand(_ change: (inout InputInHand) -> Void) {
+        change(&hand)
+        if hand.device != inputInHand.device { inputInHand = hand }
+    }
+
     deinit {
+        if let handMonitor { NSEvent.removeMonitor(handMonitor) }
         for (center, token) in observers { center.removeObserver(token) }
         statusTimer?.invalidate()
         fallbackTimer?.invalidate()
@@ -476,6 +515,7 @@ final class GameControllerService: ObservableObject {
     }
 
     private func triggerAction(_ action: GamepadAction) {
+        useHand { $0.controllerUsed(at: ProcessInfo.processInfo.systemUptime) }
         let generation = inputGeneration
         DispatchQueue.main.async { [weak self] in
             guard let self, self.isAppActive, self.inputGeneration == generation else { return }

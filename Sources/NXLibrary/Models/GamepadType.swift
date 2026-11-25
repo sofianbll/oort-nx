@@ -202,3 +202,15 @@ extension GamepadAction {
         }
     }
 }
+
+extension ConnectedPad {
+    init(connected: Bool, brand: GamepadBrand) {
+        guard connected else { self = .none; return }
+        switch brand {
+        case .nintendoSwitch: self = .nintendo
+        case .xbox: self = .xbox
+        case .playstation: self = .playstation
+        case .generic: self = .other
+        }
+    }
+}

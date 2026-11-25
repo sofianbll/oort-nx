@@ -22,17 +22,15 @@ public enum KeyCap: Equatable {
 }
 
 public enum ButtonPrompts {
-    /// Automatic names with no controller connected show the keyboard keys instead.
-    public static func usesKeyboard(style: ButtonNameStyle, connected: ConnectedPad) -> Bool {
-        style == .automatic && connected == .none
+    /// With no controller in hand the prompts are keys; a chosen style only names a controller's buttons.
+    public static func usesKeyboard(_ inHand: ConnectedPad) -> Bool {
+        inHand == .none
     }
 
     /// A left hint on a screen's bar: the ⌘F keycap shows only on the keyboard (a controller reaches search
-    /// by holding View), and a controller-only hint never shows there. "Active" is `!usesKeyboard`: a
-    /// connected controller or a chosen button style, so the bar and the badges agree.
-    public static func showsHint(_ button: PromptButton?, controllerOnly: Bool, style: ButtonNameStyle,
-                                 connected: ConnectedPad) -> Bool {
-        usesKeyboard(style: style, connected: connected) ? !controllerOnly : button != .search
+    /// by holding View), and a controller-only hint never shows there.
+    public static func showsHint(_ button: PromptButton?, controllerOnly: Bool, inHand: ConnectedPad) -> Bool {
+        usesKeyboard(inHand) ? !controllerOnly : button != .search
     }
 
     /// The key the screens' key monitors take for each prompt: Return confirms,

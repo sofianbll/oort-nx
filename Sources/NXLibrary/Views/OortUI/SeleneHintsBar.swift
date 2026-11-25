@@ -25,22 +25,9 @@ struct HintItem: Identifiable {
     }
 }
 
-extension ConnectedPad {
-    init(connected: Bool, brand: GamepadBrand) {
-        guard connected else { self = .none; return }
-        switch brand {
-        case .nintendoSwitch: self = .nintendo
-        case .xbox: self = .xbox
-        case .playstation: self = .playstation
-        case .generic: self = .other
-        }
-    }
-}
-
 struct SeleneHintsBar: View {
     @Environment(\.nxAppLocale) private var localization
     @Environment(\.seleneCanvas) private var canvas
-    @Environment(\.seleneButtonNames) private var style
     @Environment(\.seleneShowButtonHints) private var showHints
     @Environment(\.seleneHintsCovered) private var covered
     @ObservedObject private var controller = GameControllerService.shared
@@ -60,7 +47,7 @@ struct SeleneHintsBar: View {
         if showHints {
             HStack(alignment: .bottom, spacing: canvas.u(SeleneTokens.Space.titleGap)) {
                 HStack(spacing: canvas.u(SeleneTokens.Space.titleGap)) {
-                    ForEach(visibleLeft(style: style, connected: pad)) { item($0) }
+                    ForEach(visibleLeft(inHand: pad)) { item($0) }
                 }
                     .padding(.leading, canvas.u(leftInset))
                 Spacer(minLength: canvas.u(22))
@@ -83,14 +70,12 @@ struct SeleneHintsBar: View {
         }
     }
 
-    private var pad: ConnectedPad {
-        ConnectedPad(connected: controller.isGamepadConnected, brand: controller.activeBrand)
-    }
+    private var pad: ConnectedPad { controller.padInHand }
 
-    func visibleLeft(style: ButtonNameStyle, connected: ConnectedPad) -> [HintItem] {
+    func visibleLeft(inHand: ConnectedPad) -> [HintItem] {
         left.filter {
-            (!$0.keyboardOnly || ButtonPrompts.usesKeyboard(style: style, connected: connected))
-                && ButtonPrompts.showsHint($0.button, controllerOnly: $0.controllerOnly, style: style, connected: connected)
+            (!$0.keyboardOnly || ButtonPrompts.usesKeyboard(inHand))
+                && ButtonPrompts.showsHint($0.button, controllerOnly: $0.controllerOnly, inHand: inHand)
         }
     }
 
@@ -130,7 +115,7 @@ struct SeleneHintsBar: View {
                         .seleneFont(.text)
                         .foregroundColor(SeleneTheme.ink90)
                 }
-                if let hold = item.hold, !ButtonPrompts.usesKeyboard(style: style, connected: pad) || item.button == .rs {
+                if let hold = item.hold, !ButtonPrompts.usesKeyboard(pad) || item.button == .rs {
                     Text(item.button == .rs ? hold : L10n.text(hold, context: localization))
                         .seleneFont(.badge).foregroundColor(SeleneTheme.ink60)
                 }
