@@ -30,12 +30,15 @@ public enum DiagnosticsReport {
         public var cheats: (buildID: String, filePresent: Bool, total: Int, on: Int, broken: Int, masterOn: Bool, safeMode: Bool)? = nil
         public var lastCommand: [String] = []
         public var log: [String] = []
+        /// Links in the library's workspaces that lead nowhere, relative to it.
+        public var deadWorkspaceLinks: [String] = []
         public var home = NSHomeDirectory()
 
         public init() {}
     }
 
     static let logLines = 50
+    static let deadLinks = 20
 
     public static func markdown(_ i: Inputs) -> String {
         func value(_ s: String?) -> String { s.map { $0.isEmpty ? "—" : $0 } ?? "—" }
@@ -72,6 +75,12 @@ public enum DiagnosticsReport {
                           "build \(c.buildID), file \(yes(c.filePresent)), \(c.total) cheats, \(c.on) on, "
                               + "\(c.broken) not supported, master \(c.masterOn ? "on" : "off"), safe mode \(yes(c.safeMode))"
                       } ?? "—"), ""]
+        }
+        if !i.deadWorkspaceLinks.isEmpty {
+            lines += ["## Library", "- Workspace links that lead nowhere (kept): \(i.deadWorkspaceLinks.count)"]
+            lines += i.deadWorkspaceLinks.prefix(deadLinks).map { "  - \($0)" }
+            if i.deadWorkspaceLinks.count > deadLinks { lines.append("  - … and \(i.deadWorkspaceLinks.count - deadLinks) more") }
+            lines.append("")
         }
         lines += ["## Last porting",
                   "```",

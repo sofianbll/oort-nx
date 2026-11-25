@@ -13,6 +13,8 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 - X on a changed row in Settings puts back that row alone, with Undo. The group still asks first.
 - **Copy settings to another game**, in a game's All settings → General: choose the game, see what changes, copy, undo.
 - Two tips, shown once when they would help. **Tips**, in Settings → Controllers, turns them off.
+- Three more sound packs made by the app, in Settings → Sound: **Frost** (lively and crisp), **Mist** (wide and soft) and **Nucleus** (low and clean). They play the notes of the Oort voices, follow **Compose** and are set to the measured loudness of **Oort**. The default does not change.
+- **Sound pack** now steps through **Oort**, **Frost**, **Mist**, **Nucleus** and **Other**. Selene, Pollen, Umbra, Impulsion and imported packs are chosen on the **Other pack** row shown under Other. Nothing is removed, and a pack already chosen stays chosen.
 
 ### Changed
 
@@ -38,6 +40,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Fixed
 
+- A library copied from the folder of Oort NX 0.3.0 now names its own folder: games, settings and queues no longer point at the old one. A library copied earlier is repaired once, after keeping its files; the old folder is not changed.
 - In the control center, B says Back inside a card, and ⌘K closes what it opened.
 - ⌘F, and holding − in the Arcane layout, search from a game’s page too.
 - With button hints off, the mouse keeps Back on screens that have no other way out.

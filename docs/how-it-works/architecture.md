@@ -1006,11 +1006,19 @@ Prove e misure di queste scelte: [docs/history/reviews/2026-11-16-ratings-metada
 - `ButtonPrompts` esclude i segnaposto fatti solo di forme, comprese varianti come `capsule.portrait.fill`, e usa in quel caso i simboli della marca riconosciuta; conserva i glifi significativi come `circle.circle` e `square.circle`. Il clic dello stick destro usa il glifo della famiglia (RSB su Xbox, R3 su PlayStation e Switch), mai il disco "R" di Apple, che si confonde con il tasto dorsale R; un pad che riporta quel disco riceve il glifo della famiglia.
 - I modelli di focus rendono verificabile la navigazione.
 - `SoundEffectService` mantiene volume, attivazione e riproduzione sulla coda audio. Selene resta la scelta predefinita e il ripiego dei cue compatibili. Un gioco osservato interrompe i suoni; un pacchetto scelto può suonare il ritorno dopo la fine dell’ultima partita, solo in primo piano. L’ambiente si ascolta nell’anteprima, senza riproduzione automatica.
-- `SoundPack` valida cartelle e archivi `.oortsound` come soli dati: manifesta gli eventi supportati, limita byte, durata e livello ed esamina i WAV mono prima di usarli. `SoundPackLibrary` legge quattro pacchetti originali inclusi e conserva le copie dell’utente in `Application Support/NXLibrary/SoundPacks` (radice `AppData`); la preferenza si salva in `AppSettings.soundPackID`.
+- `SoundPack` valida cartelle e archivi `.oortsound` come soli dati: manifesta gli eventi supportati, limita byte, durata e livello ed esamina i WAV mono prima di usarli. `SoundPackLibrary` legge quattro pacchetti originali inclusi, offre i tre ambienti calcolati dall’app (Frost, Mist e Nucleus: un nome senza file) e conserva le copie dell’utente in `Application Support/NXLibrary/SoundPacks` (radice `AppData`); la preferenza si salva in `AppSettings.soundPackID`. `SoundPackRow` divide la scelta in al massimo cinque voci: le quattro nominate e Other, che raccoglie ogni altro pacchetto senza cambiarne l’id salvato.
+- `OortSynth` calcola i suoni delle voci Oort alla prima richiesta; `SoundEffectService` li conserva in memoria. I tre ambienti (`OortAmbiance.swift`) usano le stesse note e gli stessi tempi con timbro, clic e stanza propri. La stanza ha 1.600 echi al secondo invece di una convoluzione densa, per rispondere in pochi millisecondi, e il livello è portato a quello misurato della voce `oort` per lo stesso evento (400 ms più forti, pesatura K di ITU-R BS.1770), con picco entro −6 dBFS. *Perché:* cambiare ambiente non deve cambiare il volume. Non esiste un ciclo di attesa.
 
 ## Dati su disco
 
 I percorsi sono relativi alla home. `Application Support/NXLibrary` è `~/Library/Application Support/NXLibrary`; la Dev usa la radice del suo profilo (`AppData`).
+
+**Passaggio a `Application Support/Oort NX`.** Il primo avvio della release copia la vecchia cartella (`LibraryMove`) e la lascia intatta, così Oort NX 0.3.0 la apre ancora.
+
+- `LibraryPaths` porta nella copia i percorsi, semplici o `file:`, di catalogo, impostazioni, profili, giocatori, sessioni, code e preferenze, anche dentro liste, dizionari e dati JSON. Cambia solo le stringhe interessate.
+- Restano sulla vecchia cartella i file che la copia non porta (log, `Temp`). `library.json` (il catalogo ne conserva l'impronta), il registro dello spostamento cloud e il registro di rimozione non si riscrivono.
+- `LibraryPathRepair` ripara una volta le librerie copiate dalla 0.5.0: sposta un percorso solo se l'equivalente esiste nella nuova cartella, oppure se è un workspace o una cache (sotto `workspaces/`) assente da entrambe. Prima conserva file e preferenze in `path-repair-backup/`, poi scrive `.repaired-paths.json`. Un catalogo in uso, un'altra copia aperta, una rimozione in sospeso, un file danneggiato o un'interruzione la rinviano all'avvio successivo, senza fermare l'app. *Perché:* i vecchi percorsi si aprono ancora, quindi aspettare non perde nulla.
+- I collegamenti dei workspace che non portano a nulla restano dove sono; **Copy diagnostics** li elenca.
 
 | Percorso | Contenuto e proprietario |
 |---|---|

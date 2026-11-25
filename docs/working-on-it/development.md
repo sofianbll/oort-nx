@@ -90,8 +90,9 @@ Selene views to PNG in French and English, at 1440 and 780 points wide, without
 opening a window.
 
 `--render-sound-fixture /absolute/output` usa la stessa radice temporanea e
-rende la sezione reale Sound & music nelle due lingue e larghezze, con Selene
-e Oort selezionati, senza eseguire l’avvio normale o riprodurre audio.
+rende la pagina Sound reale nelle due lingue e larghezze, con la riga del
+pacchetto in focus: le quattro voci, due pacchetti sotto Other (uno importato e
+fittizio), senza eseguire l’avvio normale o riprodurre audio.
 
 `--oort-ui-gallery` opens a Debug-only component gallery, with no game catalog
 or service. Pass `--render-oort-ui-gallery /absolute/output` to render it

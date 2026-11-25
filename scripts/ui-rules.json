@@ -41,6 +41,10 @@
    "parent": "settings"
   },
   {
+   "id": "sound-pack-row",
+   "count": "array:SoundPackRow.values"
+  },
+  {
    "id": "game-quick-panel",
    "count": "rows:GameOptionsPresentation.quickRows/GameOptionsRow",
    "alternatives": [

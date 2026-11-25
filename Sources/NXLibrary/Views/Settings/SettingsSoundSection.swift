@@ -12,6 +12,8 @@ struct SettingsSoundSection: View {
     @State private var packNote: String?
     @State private var packChoices: [(key: String, name: String)] = [("selene", "Selene")]
     @State private var removalKey = ""
+    /// The pack last chosen under Other, given back when the row returns there.
+    @State private var otherKey = "selene"
     @State private var event = SoundPackEvent.move
     @State private var providedEvents: Set<String> = []
     @State private var importingPack = false
@@ -61,8 +63,12 @@ struct SettingsSoundSection: View {
 
             SettingsSubheading(L10n.text("Sound packs", context: localization))
             SeleneCycleRow("Sound pack", subtitle: packNote ?? "Choose the interface sound pack.",
-                           value: packChoices.first(where: { $0.key == settings.settings.soundPackID })?.name ?? "Selene",
+                           value: isOtherPack ? L10n.text("Other", context: localization) : packName,
                            verbatimValue: true, cycle: stepPack)
+            if isOtherPack {
+                SeleneCycleRow("Other pack", subtitle: packNote ?? "The earlier packs and those you imported.",
+                               value: packName, verbatimValue: true, cycle: stepOtherPack)
+            }
 
             SeleneCycleRow("Sound to preview", value: Self.eventTitle(event), cycle: stepEvent)
             SeleneButtonRow("Preview sound", subtitle: hasSample ? nil : "No sound for this event.", buttonTitle: "Listen") { previewSound() }
@@ -134,6 +140,7 @@ struct SettingsSoundSection: View {
             }
         ]
         actions.append(.value("soundPack", "Sound pack", cycle: stepPack))
+        if isOtherPack { actions.append(.value("soundPackOther", "Other pack", cycle: stepOtherPack)) }
         actions.append(.value("soundPreviewEvent", "Sound to preview", cycle: stepEvent))
         actions.append(.init(id: "soundPreview", title: "Preview sound", isEnabled: canPreview, activate: previewSound))
         if OortSynth(pack: settings.settings.soundPackID) != nil {
@@ -268,6 +275,7 @@ struct SettingsSoundSection: View {
     private func refreshSelection() {
         providedEvents = []
         let key = settings.settings.soundPackID
+        if isOtherPack { otherKey = key }
         guard key != "selene" else { return }
         do {
             guard packChoices.contains(where: { $0.key == key }),
@@ -281,6 +289,9 @@ struct SettingsSoundSection: View {
         }
     }
 
+    private var isOtherPack: Bool { SoundPackRow.value(for: settings.settings.soundPackID) == SoundPackRow.other }
+    private var packName: String { packChoices.first(where: { $0.key == settings.settings.soundPackID })?.name ?? "Selene" }
+
     private var customPacks: [(key: String, name: String)] {
         packChoices.filter { $0.key.hasPrefix("custom.") }
     }
@@ -290,8 +301,16 @@ struct SettingsSoundSection: View {
     }
 
     private func stepPack(_ step: Int) {
-        let keys = packChoices.map(\.key)
-        guard let next = keys.stepped(from: settings.settings.soundPackID, step) else { return }
+        let remembered = packChoices.contains(where: { $0.key == otherKey }) ? otherKey : "selene"
+        selectPack(SoundPackRow.step(from: settings.settings.soundPackID, step, other: remembered))
+    }
+
+    private func stepOtherPack(_ step: Int) {
+        let keys = SoundPackRow.others(packChoices).map(\.key)
+        if let next = keys.stepped(from: settings.settings.soundPackID, step) { selectPack(next) }
+    }
+
+    private func selectPack(_ next: String) {
         do {
             if next != "selene", try soundPackLibrary.load(next) == nil {
                 throw CocoaError(.fileNoSuchFile)
