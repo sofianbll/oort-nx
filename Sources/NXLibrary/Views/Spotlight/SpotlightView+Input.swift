@@ -559,7 +559,7 @@ extension SpotlightView {
                 case 53: handle(.cancel)
                 case 12: handle(.tabPrevious)
                 case 14: handle(.tabNext)
-                case 36, 49, 125, 126, 7, 9, 16, 99: break
+                case 36, 76, 49, 125, 126, 7, 9, 16, 99, 1: break
                 default: return event
                 }
                 return nil
@@ -578,7 +578,7 @@ extension SpotlightView {
             case 16: action = .contextAction    // Y
             case 12: action = .tabPrevious      // Q
             case 14: action = .tabNext          // E
-            case 99: action = .rightStickPress  // F3: keyboard equivalent of the existing sort action
+            case 1, 99: action = .rightStickPress  // S, or F3 where Mission Control leaves it
             default: return event
             }
             handle(action)

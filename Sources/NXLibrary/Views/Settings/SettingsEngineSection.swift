@@ -36,13 +36,13 @@ struct SettingsEngineSection: View {
                         .buttonStyle(OortPressStyle())
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
+                        .seleneKeyRing(focusedRowTitle == "Engine repository" && focusedButton == 0 && setup.isNxnativeValid)
                         .disabled(configurationLocked)
-                    Button(L10n.text("Reveal")) {
-                        viewModel.revealInFinder(url: URL(fileURLWithPath: setup.nxnativePath))
-                    }
+                    Button(L10n.text("Reveal"), action: revealEngine)
                     .buttonStyle(OortPressStyle())
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink60)
+                    .seleneKeyRing(focusedRowTitle == "Engine repository" && focusedButton == 1)
                     .disabled(!setup.isNxnativeValid)
                 }
             }
@@ -51,7 +51,7 @@ struct SettingsEngineSection: View {
             SeleneValueRow("Current commit", value: seleneShort(setup.currentEngineCommit))
 
             SelenePanel(L10n.text("Compatibility"),
-                        info: L10n.text("Audits the local engine commit, working tree cleanliness, installed Metal compiler, and required CLI flags against the certified toolchain lock.")) {
+                        info: L10n.text("Audits the local engine commit, working tree cleanliness, installed Metal compiler, and required CLI flags against the certified toolchain lock."), infoRow: "Compatibility") {
                 HStack(spacing: SeleneTokens.Space.compact) {
                     Circle()
                         .fill(statusColor)
@@ -167,6 +167,8 @@ struct SettingsEngineSection: View {
         .onChange(of: viewModel.isBuilding) { publishActions() }
         .onChange(of: viewModel.isUpdatingApp) { publishActions() }
     }
+
+    private func revealEngine() { viewModel.revealInFinder(url: URL(fileURLWithPath: setup.nxnativePath)) }
 
     private func recheck() {
         if passiveArrival { setup.refreshCompatibility() }
@@ -512,7 +514,8 @@ struct SettingsEngineSection: View {
 
     private func publishActions() {
         var actions: [SettingsRowAction] = [
-            .init(id: "repo", title: "Engine repository", isEnabled: !configurationLocked) {
+            .init(id: "repo", title: "Engine repository", isEnabled: !configurationLocked,
+                  secondary: setup.isNxnativeValid ? ("Reveal", revealEngine) : nil) {
                 chooseEnginePath()
             },
             .init(id: "recheck", title: "Compatibility", isEnabled: !configurationLocked, activate: recheck),

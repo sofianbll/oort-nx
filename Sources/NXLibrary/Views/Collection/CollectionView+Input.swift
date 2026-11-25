@@ -152,7 +152,7 @@ extension CollectionView {
             case 16: action = .contextAction    // Y
             case 12: action = .tabPrevious      // Q
             case 14: action = .tabNext          // E
-            case 99: action = .rightStickPress  // F3: keyboard equivalent of the existing sort action
+            case 1, 99: action = .rightStickPress  // S, or F3 where Mission Control leaves it
             default: return event
             }
             handle(action)

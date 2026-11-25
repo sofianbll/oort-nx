@@ -4,6 +4,8 @@ import NXLibraryCore
 import ArcanePorting
 
 struct SettingsLibrarySection: View {
+    @Environment(\.seleneFocusedRowID) private var focusedRowID
+    @Environment(\.seleneFocusedButton) private var focusedButton
     @ObservedObject var viewModel: AppViewModel
     /// Game files shows the folder chosen through the porting model, so the row follows its changes.
     @ObservedObject var porting: PortingModel
@@ -49,12 +51,12 @@ struct SettingsLibrarySection: View {
                         .buttonStyle(OortPressStyle())
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
-                    Button(L10n.text("Reset")) {
-                        stageAppsPath(viewModel.defaultGameAppsPath)
-                    }
+                        .seleneKeyRing(focusedRowID == GameFoldersCopy.appsTitle && focusedButton == 0)
+                    Button(L10n.text("Reset"), action: resetAppsPath)
                     .buttonStyle(OortPressStyle())
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink60)
+                    .seleneKeyRing(focusedRowID == GameFoldersCopy.appsTitle && focusedButton == 1)
                 }
             }
 
@@ -73,11 +75,13 @@ struct SettingsLibrarySection: View {
                         .buttonStyle(OortPressStyle())
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
+                        .seleneKeyRing(focusedRowID == GameFoldersCopy.sourcesTitle && focusedButton == 0 && sourcesPath != nil)
                     if sourcesPath != nil {
-                        Button(L10n.text("Clear")) { stageSourcesPath(nil) }
+                        Button(L10n.text("Clear"), action: clearSourcesPath)
                             .buttonStyle(OortPressStyle())
                             .seleneFont(.text, .semibold)
                             .foregroundColor(SeleneTheme.danger)
+                            .seleneKeyRing(focusedRowID == GameFoldersCopy.sourcesTitle && focusedButton == 1)
                     }
                 }
             }
@@ -125,14 +129,19 @@ struct SettingsLibrarySection: View {
         }
         .onAppear(perform: publishActions)
         .onChange(of: viewModel.isScanningLibrary) { publishActions() }
+        .onChange(of: sourcesPath) { publishActions() }
     }
+
+    private func resetAppsPath() { stageAppsPath(viewModel.defaultGameAppsPath) }
+    private func clearSourcesPath() { stageSourcesPath(nil) }
 
     private func publishActions() {
         onActions([
-            .init(id: "appsChange", title: GameFoldersCopy.appsTitle) {
+            .init(id: "appsChange", title: GameFoldersCopy.appsTitle, secondary: ("Reset", resetAppsPath)) {
                 chooseAppsPath()
             },
-            .init(id: "romChoose", title: GameFoldersCopy.sourcesTitle) {
+            .init(id: "romChoose", title: GameFoldersCopy.sourcesTitle,
+                  secondary: sourcesPath == nil ? nil : ("Clear", clearSourcesPath)) {
                 chooseSourcesPath()
             },
             .init(id: "gameInboxEnabled", title: "Sort incoming files") {

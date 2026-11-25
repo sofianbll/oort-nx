@@ -10,12 +10,13 @@ struct SettingsKeysSection: View {
     let onActions: ([SettingsRowAction]) -> Void
 
     @Environment(\.seleneFocusedRowID) private var focusedRowTitle
+    @Environment(\.seleneFocusedButton) private var focusedButton
     private var configurationLocked: Bool { viewModel.isBuilding || viewModel.isUpdatingApp }
 
     var body: some View {
         OortSettingsGroup {
             SelenePanel(GameFoldersCopy.keysTitle,
-                        info: L10n.text("Nintendo Switch cryptographic keys required to decrypt game packages (NSP/XCI). Arcane stores a private copy with mode 0600 permissions; key values are never displayed or logged.")) {
+                        info: L10n.text("Nintendo Switch cryptographic keys required to decrypt game packages (NSP/XCI). Arcane stores a private copy with mode 0600 permissions; key values are never displayed or logged."), infoRow: "prod.keys") {
                 OortReadout(text: GameFoldersCopy.keysContents)
                 OortFormatBadges(labels: GameFoldersCopy.keyBadges)
                 HStack(spacing: SeleneTokens.Space.compact) {
@@ -47,11 +48,13 @@ struct SettingsKeysSection: View {
                     .buttonStyle(OortPressStyle())
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.glyph)
+                    .seleneKeyRing(focusedRowTitle == "prod.keys" && focusedButton == 0)
                     .disabled(configurationLocked)
                     Button(L10n.text("Detect Ryujinx...")) { viewModel.selectRyujinxFolder() }
                         .buttonStyle(OortPressStyle())
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
+                        .seleneKeyRing(focusedRowTitle == "prod.keys" && focusedButton == 1)
                         .disabled(configurationLocked)
                     Spacer()
                 }
@@ -69,7 +72,8 @@ struct SettingsKeysSection: View {
 
     private func publishActions() {
         onActions([
-            .init(id: "keys", title: "prod.keys", isEnabled: !configurationLocked) {
+            .init(id: "keys", title: "prod.keys", isEnabled: !configurationLocked,
+                  secondary: ("Detect Ryujinx...", { viewModel.selectRyujinxFolder() })) {
                 setup.selectProdKeysFile()
             }
         ])

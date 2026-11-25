@@ -56,6 +56,9 @@ struct SettingsView: View {
     /// The button in focus inside the focused row: 0 its own, 1 a second one (Back to tested beside Update).
     @State private var rowButton = 0
     @State private var rowActions: [SettingsRowAction] = []
+    /// The help that is open, and the focused row's when it has one (`I`).
+    @State private var openHelp: String?
+    @State private var focusedHelp: String?
     @State private var pageActions: [SettingsSection: [SettingsRowAction]] = [:]
     @State private var subjectActions: [SettingsRowAction] = []
     @State private var keyMonitor: Any?
@@ -499,16 +502,24 @@ struct SettingsView: View {
                     if case let .category(category) = visiblePage {
                         subjectRows(category)
                     }
+                    if resettable {
+                        OortSettingsGroup {
+                            SeleneButtonRow(Self.resetRow, buttonTitle: "Reset", action: askToReset)
+                        }
+                    }
                 }
                 .id(visiblePage)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .environment(\.seleneFocusedRowID, focusArea == .rows ? focusedRow?.rowID : nil)
                 .environment(\.seleneFocusedButton, rowButton)
+                .environment(\.seleneOpenHelp, $openHelp)
+                .onPreferenceChange(SeleneFocusedHelpKey.self) { row in MainActor.assumeIsolated { focusedHelp = row } }
                 .padding(.bottom, canvas.u(SeleneTokens.Space.settingsInfoClearance))
             }
             .scrollIndicators(.hidden)
             .onChange(of: focusArea == .rows ? focusedRow?.rowID : nil) { _, rowID in
                 rowButton = 0
+                openHelp = nil
                 guard let rowID else { return }
                 let id = "selene-row-\(rowID)"
                 withAnimation(reduceMotion ? nil : SeleneTheme.quick) {
@@ -612,6 +623,11 @@ struct SettingsView: View {
         if canResetSection {
             hints.append(HintItem(.x, L10n.text("Reset group")) { askToReset() })
         }
+        if focusedHelp != nil {
+            var help = HintItem(.navigate, openHelp == nil ? "Information" : "Close", keyboard: .text("I"), action: toggleHelp)
+            help.keyboardOnly = true
+            hints.append(help)
+        }
         if hasPendingChanges {
             hints.append(HintItem(.y, "Save", keyboard: .text("Y")) { router.requestSettingsSave() })
         }
@@ -625,6 +641,12 @@ struct SettingsView: View {
         return hints
     }
 
+    private func toggleHelp() {
+        guard let focusedHelp else { return }
+        openHelp = openHelp == nil ? focusedHelp : nil
+        SoundEffectService.shared.play(.focus)
+    }
+
     private var focusedRow: SettingsRowAction? {
         rowActions.indices.contains(rowFocus.index) ? rowActions[rowFocus.index] : nil
     }
@@ -633,7 +655,9 @@ struct SettingsView: View {
         // One focus slot per visible row; reset the button when an action appears or disappears.
         let focusedID = focusArea == .rows ? focusedRow?.id : nil
         let focusedButtonCount = focusedRow?.buttonCount
-        rowActions = SettingsRowAction.primaryActions(page.inlineSections.flatMap { pageActions[$0] ?? [] } + subjectActions)
+        let reset = resettable ? [SettingsRowAction(id: "resetGroup", title: Self.resetRow, activate: askToReset)] : []
+        let actions = page.inlineSections.flatMap { pageActions[$0] ?? [] } + subjectActions
+        rowActions = SettingsRowAction.primaryActions(actions.isEmpty ? [] : actions + reset)
         if let focusedID, let index = rowActions.firstIndex(where: { $0.id == focusedID }) {
             rowFocus.index = index
         }
@@ -729,8 +753,15 @@ struct SettingsView: View {
         SoundEffectService.shared.play(.focus)
     }
 
+    private static let resetRow = "Reset group"
+
     private var canResetSection: Bool {
         if focusArea == .rows, let row = focusedRow, subjectActions.contains(where: { $0.id == row.id }) { return false }
+        return resettable
+    }
+
+    /// The page's group has something to reset: its last row does it, as X does.
+    private var resettable: Bool {
         guard let section else { return false }
         if section == .profileSecurity { return profiles?.active?.isLocked == true && profiles?.guest == nil }
         if section == .profileNextendo { return hasProfileAccount }
@@ -922,6 +953,10 @@ struct SettingsView: View {
             case 7:                                     // X
                 if typing { return event }
                 action = .secondaryAction
+            case 34:                                    // I: the focused row's help
+                if typing || focusedHelp == nil { return event }
+                if !event.isARepeat { toggleHelp() }
+                return nil
             case 16:                                    // Y
                 if typing || !hasPendingChanges { return event }
                 action = .contextAction
@@ -1049,6 +1084,9 @@ struct SettingsView: View {
     private func handleBack() {
         if let window = NSApp.keyWindow, window.firstResponder is NSText {
             window.makeFirstResponder(nil)
+            SoundEffectService.shared.play(.focus)
+        } else if openHelp != nil {
+            openHelp = nil
             SoundEffectService.shared.play(.focus)
         } else if navigation.canGoBack {
             var next = navigation

@@ -28,7 +28,7 @@ Su macOS 27, se Apple mantiene Home, Oort non lo intercetta. Un avviso compare u
 | Dettagli | X | X | □ | X |
 | Precedente / Successivo | LB / RB | L / R | L1 / R1 | Q / E |
 | Estremità | LT / RT | ZL / ZR | L2 / R2 | Inizio / Fine |
-| Ordinamento | RS | RS | R3 | F3 |
+| Ordinamento | RS | RS | R3 | S (o F3) |
 | Cerca | LS | LS | L3 | ⌘F |
 | Cambia vista | View | − | Clic del touchpad | V |
 | Pulsante Menu | ≡ | + | Options | ⇧⌘K / ⌘, |

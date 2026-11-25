@@ -24,6 +24,7 @@ struct DetailsTopBlock: View {
     let primaryEnabled: Bool
     /// Description expanded by "Read more" (the page passes wheel scrolling through meanwhile).
     @Binding var expanded: Bool
+    var readMoreFocused = false
     /// Wikipedia's introduction for a short or foreign-language store text (`WikipediaAbout`).
     var wikipedia: WikipediaDescription? = nil
     let onPrimary: () -> Void
@@ -42,6 +43,10 @@ struct DetailsTopBlock: View {
 
     /// Longer than this, the description gets a "Read more" (five lines hold about 520 characters at this width).
     static let readMoreThreshold = 520
+
+    static func readsMore(_ about: GameAboutDescription) -> Bool {
+        about.text.count > readMoreThreshold || about.preview != nil
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -379,11 +384,12 @@ struct DetailsTopBlock: View {
                     if !showingPreview, let page = about.wikipediaPage {
                         WikipediaCredit(pageURL: page)
                     }
-                    if about.text.count > Self.readMoreThreshold || about.preview != nil {
+                    if Self.readsMore(about) {
                         Button(expanded ? L10n.text("Show less") : L10n.text("Read more")) { expanded.toggle() }
                             .buttonStyle(OortPressStyle())
                             .seleneFont(.text, .semibold)
                             .foregroundColor(SeleneTheme.glyph)
+                            .seleneKeyRing(readMoreFocused)
                     }
                 }
                 if expanded {

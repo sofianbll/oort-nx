@@ -41,9 +41,7 @@ struct SteamGridDBKeyDialog: View {
                             .foregroundColor(message == nil ? SeleneTheme.ink60 : SeleneTheme.danger)
                             .fixedSize(horizontal: false, vertical: true)
                         Spacer(minLength: 0)
-                        Button(L10n.text("Get a key")) { NSWorkspace.shared.open(SteamGridDBArt.keyPage) }
-                            .buttonStyle(OortPressStyle())
-                            .foregroundColor(SeleneTheme.focus)
+                        OortLink(title: "Get a key") { NSWorkspace.shared.open(SteamGridDBArt.keyPage) }
                     }
                     .seleneFont(.text)
                 }

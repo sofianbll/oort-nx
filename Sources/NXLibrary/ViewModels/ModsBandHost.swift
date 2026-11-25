@@ -210,7 +210,7 @@ final class ModsBandHost: ObservableObject {
         switch keyCode {
         case 125: return .navigateDown
         case 126: return .navigateUp
-        case 36, 49: return .confirm
+        case 36, 76, 49: return .confirm
         case 53: return .cancel
         default: return nil
         }
