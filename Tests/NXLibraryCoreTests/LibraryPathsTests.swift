@@ -172,7 +172,7 @@ final class LibraryPathsTests: XCTestCase {
         let repaired = try values("catalog.json", in: new)
         XCTAssertEqual(repaired["url"] as? String, moved.absoluteString)
         XCTAssertEqual(repaired["workspacePath"] as? String, moved.path)
-        XCTAssertEqual(repaired["buildCachePath"] as? String, old.path + "/workspaces/0100AAAA/0100AAAA_build")
+        XCTAssertEqual(repaired["buildCachePath"] as? String, moved.path + "/0100AAAA_build")
         XCTAssertEqual(repaired["logPath"] as? String, old.path + "/Logs/0100AAAA.log")
         XCTAssertEqual(try values("catalog.json.bak", in: new)["url"] as? String, moved.absoluteString)
         XCTAssertEqual(try fm.attributesOfItem(atPath: new.appendingPathComponent("settings.json").path)[.posixPermissions] as? Int, 0o600)
@@ -189,6 +189,25 @@ final class LibraryPathsTests: XCTestCase {
         try put("{\"url\":\"\(old.path)\"}", "catalog.json", in: new)
         XCTAssertFalse(try repair())
         XCTAssertEqual(try values("catalog.json", in: new)["url"] as? String, old.path)
+    }
+
+    func testAWorkspaceOrCacheInNeitherFolderMovesToo() throws {
+        let never = old.path + "/workspaces/0100BBBB", onlyOld = old.path + "/workspaces/0100CCCC"
+        try copiedByAnEarlierVersion(["workspacePath": never, "buildCachePath": never + "/0100BBBB_build",
+            "url": URL(fileURLWithPath: never, isDirectory: true).absoluteString,
+            "onlyOld": onlyOld, "logPath": old.path + "/Logs/gone.log", "elsewhere": old.path + "/never/copied"])
+        try put("synthetic", "workspaces/0100CCCC/game.txt", in: old)
+        XCTAssertTrue(try repair())
+        let repaired = try XCTUnwrap(values("catalog.json", in: new) as? [String: String])
+        let expected = new.path + "/workspaces/0100BBBB"
+        XCTAssertEqual(repaired["workspacePath"], expected)
+        XCTAssertEqual(repaired["buildCachePath"], expected + "/0100BBBB_build")
+        XCTAssertEqual(repaired["url"], URL(fileURLWithPath: expected, isDirectory: true).absoluteString)
+        // What only the old folder holds, logs and anything outside the workspaces keep their name.
+        XCTAssertEqual(repaired["onlyOld"], onlyOld)
+        XCTAssertEqual(repaired["logPath"], old.path + "/Logs/gone.log")
+        XCTAssertEqual(repaired["elsewhere"], old.path + "/never/copied")
+        XCTAssertFalse(fm.fileExists(atPath: expected), "nothing is made on disk")
     }
 
     func testTheOldFolderMayBeGone() throws {

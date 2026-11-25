@@ -2,8 +2,9 @@ import Darwin
 import Foundation
 
 /// A library copied by Oort NX 0.5.0 still names files in the old folder. Once, at launch, each of those paths that
-/// also exists in the new folder moves there. Every changed file and preference is first kept in `path-repair-backup`,
-/// nothing is removed, and the old folder is never opened for writing.
+/// also exists in the new folder moves there, as does a workspace or cache path that is in neither folder. Every
+/// changed file and preference is first kept in `path-repair-backup`, nothing is removed, and the old folder is never
+/// opened for writing.
 public struct LibraryPathRepair {
     public enum Failure: Error, Equatable { case removalPending, unsafeBackup }
 
@@ -21,7 +22,14 @@ public struct LibraryPathRepair {
     init(from old: URL, to new: URL, replace: @escaping (URL, Data) throws -> Void) {
         paths = LibraryPaths(old: old, new: new) { relative in
             // Follows links: a dead one is not an equivalent.
-            FileManager.default.fileExists(atPath: new.appendingPathComponent(relative).path)
+            if FileManager.default.fileExists(atPath: new.appendingPathComponent(relative).path) { return true }
+            // A workspace or cache in neither folder has nothing to lose, and the next porting makes it in the new one.
+            // A dead link is there, and so is anything that cannot be read.
+            func absent(_ root: URL) -> Bool {
+                var status = stat()
+                return lstat(root.appendingPathComponent(relative).path, &status) != 0 && errno == ENOENT
+            }
+            return relative.hasPrefix("workspaces/") && absent(old) && absent(new)
         }
         self.replace = replace
     }

@@ -12,8 +12,9 @@ final class LibraryPathsPortingTests: XCTestCase {
         let profile = AppDataProfile(home: home, isDevelopment: false)
         let old = profile.legacySupportRoot, new = profile.supportRoot
         let ids = (1...4).map { String(format: "010000000000%04X", $0) }
+        // No cache was ever made, and the last game has no workspace on disk either.
         for root in [old, new] {
-            for id in ids { try fm.createDirectory(at: root.appendingPathComponent("workspaces/\(id)/\(id)_build"), withIntermediateDirectories: true) }
+            for id in ids.dropLast() { try fm.createDirectory(at: root.appendingPathComponent("workspaces/\(id)"), withIntermediateDirectories: true) }
         }
         let games = ids.map { id -> PortedGame in
             let workspace = old.appendingPathComponent("workspaces/\(id)", isDirectory: true)
@@ -45,7 +46,8 @@ final class LibraryPathsPortingTests: XCTestCase {
             expected.url = workspace
             expected.workspacePath = workspace.path
             expected.buildCachePath = workspace.appendingPathComponent("\(original.titleId!)_build").path
-            // Neither the source file nor the log was copied: they keep their only name.
+            expected.sources[0].url = workspace.appendingPathComponent("base.nsp")
+            // Logs stay in the old folder.
             XCTAssertEqual(game, expected)
         }
         XCTAssertEqual(repaired.games.count, 4)
