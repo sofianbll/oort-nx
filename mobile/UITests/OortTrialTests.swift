@@ -130,7 +130,14 @@ final class OortTrialTests: OortCase {
         if !target.waitForExistence(timeout: 8) {
             // A touch from the test does not open a folder of Files: its search finds the game's by name.
             let search = app.searchFields.firstMatch
-            appears(search, "the search of Files", 20)
+            if !search.exists {
+                let reveal = app.navigationBars["FullDocumentManagerViewControllerNavigationBar"].buttons[say("Search")].firstMatch
+                if reveal.isHittable { reveal.tap() }
+            }
+            guard search.waitForExistence(timeout: 20) else {
+                step("06-echec-recherche-fichiers")
+                return XCTFail("The search field of Files is missing")
+            }
             search.tap()
             search.typeText(folderName)
             _ = target.waitForExistence(timeout: 20)
