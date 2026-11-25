@@ -66,7 +66,7 @@ fun GameScreen(state: AppState, game: Game) {
                 }
                 // The one action stays under the thumb however far the list goes.
                 Column(Modifier.fillMaxWidth().background(OortTokens.Palette.Scrim.copy(alpha = 0.9f)).padding(horizontal = 15.dp).padding(bottom = 8.dp)) {
-                    PlayKey(state, game)
+                    PlayKey(state, game, max = 790.dp)
                     PageHints(state)
                 }
             }
@@ -82,9 +82,9 @@ private fun Header(state: AppState, game: Game, side: Dp) {
 }
 
 @Composable
-private fun PlayKey(state: AppState, game: Game, modifier: Modifier = Modifier) {
+private fun PlayKey(state: AppState, game: Game, modifier: Modifier = Modifier, max: Dp = 560.dp) {
     OortKey(
-        { state.play(game) }, state.prefs.calm, modifier.widthIn(max = 560.dp).fillMaxWidth(), solid = true,
+        { state.play(game) }, state.prefs.calm, modifier.widthIn(max = max).fillMaxWidth(), solid = true,
         focused = state.padMode && state.focusedRow() == AppState.PLAY, glyph = Glyph.Play, label = stringResource(R.string.detail_play),
     )
 }

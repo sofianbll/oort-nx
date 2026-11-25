@@ -55,11 +55,22 @@ class Node:
         self.text, self.desc, self.package = element.get("text", ""), element.get("content-desc", ""), element.get("package", "")
         self.said = " ".join(filter(None, [self.text, self.desc]))
         self.clickable, self.checked, self.selected = (element.get(k) == "true" for k in ("clickable", "checked", "selected"))
+        self.checkable = element.get("checkable") == "true"
         self.box = [int(n) for n in re.findall(r"-?\d+", element.get("bounds", "[0,0][0,0]"))]
 
     @property
     def centre(self):
         return (self.box[0] + self.box[2]) // 2, (self.box[1] + self.box[3]) // 2
+
+
+def is_on(text, nodes):
+    """Whether the line that says [text] is checked: its words are inside the line, which carries the state."""
+    for said in (n for n in nodes if n.text == text):
+        x, y = said.centre
+        for n in nodes:
+            if n.checkable and n.box[0] <= x <= n.box[2] and n.box[1] <= y <= n.box[3]:
+                return n.checked
+    return None
 
 
 def density():
@@ -272,13 +283,18 @@ def touch(lang):
     shot(f"{lang}-10-settings")
     tap(w("settings_sound"))
     see(f"{lang}: the sounds have their own page", w("settings_pack"))
-    before = [n.checked for n in screen() if n.package == PACKAGE and n.clickable and w("settings_sound") in n.said]
     shot(f"{lang}-11-sounds")
-    tap(w("settings_sound_note"), seconds=3)
-    tap("Umbra")
-    ok(f"{lang}: a sound pack is chosen", any(n.checked or n.selected for n in screen() if "Umbra" in n.said))
+    tap("Umbra", exact=True)
+    nodes = screen()
+    ok(f"{lang}: a sound pack is chosen, and only one", is_on("Umbra", nodes) is True and is_on("Oort", nodes) is False)
     tap("Oort", exact=True)
-    ok(f"{lang}: the sound switch reads as on", any(before), str(before))
+    ok(f"{lang}: the sound switch reads as on", is_on(w("settings_sound"), screen()) is True or len([n for n in screen() if n.checkable and n.checked]) == 2)
+    x, y = [n for n in screen() if n.checkable][0].centre
+    shell(f"input tap {x} {y}")
+    time.sleep(0.8)
+    ok(f"{lang}: the sound switch turns off", len([n for n in screen() if n.checkable and n.checked]) == 1)
+    shell(f"input tap {x} {y}")
+    time.sleep(0.8)
     system_back()
     tap(w("settings_cloud"))
     shot(f"{lang}-12-cloud")
@@ -292,14 +308,14 @@ def touch(lang):
     see(f"{lang}: credits", "nx2android")
     shot(f"{lang}-14-thanks")
     scroll()
-    tap(w("thanks_text_oort"))
+    tap(w("thanks_text_oort"), exact=True)
     see(f"{lang}: the MIT text", "Permission is hereby granted")
     shot(f"{lang}-15-licence")
     system_back()
-    tap(w("thanks_text_notices"))
+    tap(w("thanks_text_notices"), exact=True)
     see(f"{lang}: the notices", "shirai91")
     system_back()
-    tap(w("thanks_text_apache"))
+    tap(w("thanks_text_apache"), exact=True)
     see(f"{lang}: the Apache text", "Version 2.0")
     system_back()
 
@@ -337,6 +353,11 @@ def controller(lang):
     ok(f"{lang}, pad: L1 goes back to the first screen", wait(w("detail_play"), exact=True) is not None and find(w("sort"), exact=True) is None)
     pad("Y")
     see(f"{lang}, pad: Y opens the controllers", w("controllers_connected"))
+    tap(w("settings_swap"), exact=True)
+    pad("A")
+    ok(f"{lang}, pad: A and B swapped, A goes back", wait(w("detail_play"), exact=True) is not None)
+    pad("Y")
+    tap(w("settings_swap"), exact=True)
     pad("START", "DOWN", "DOWN")
     see(f"{lang}, pad: START opens the settings", w("settings_thanks"))
     shot(f"{lang}-25-pad-settings")
@@ -428,6 +449,8 @@ def tour(prefix, with_pad=False):
         wait(w("detail_play"))
     tap(w("nav_library"), exact=True)
     shot(f"{prefix}-library")
+    if not find(GAMES[0]):
+        scroll()
     tap(GAMES[0])
     see(f"{prefix}: game page", w("game_page"))
     shot(f"{prefix}-game")
@@ -465,13 +488,17 @@ def main():
     ok("the installed app asks for no Android permission", not [p for p in asked if p.startswith("android.permission")], str(asked))
     version = re.search(r"versionName=(\S+)", shell(f"dumpsys package {PACKAGE}"))
     ok("version", version and version.group(1) == "0.1.0-alpha.1", str(version))
-    shell("settings put system font_scale 1.0; settings put secure show_ime_with_hard_keyboard 0; cmd uimode night yes")
+    shell("settings put system font_scale 1.0; settings put secure show_ime_with_hard_keyboard 0; settings put secure immersive_mode_confirmations confirmed; cmd uimode night yes")
     rotate(0)
 
     language("en")
     fresh()
     see("no game installed: the first screen says so", w("empty_title"))
     shot("en-00-empty")
+    shell(f"am start -a android.settings.APPLICATION_DETAILS_SETTINGS -d package:{PACKAGE}")
+    see("Android shows the app under its name", "Oort NX alpha")
+    shot("en-00-icon")
+    start()
     apks = sorted(args.games.glob("*.apk"))
     for apk in apks:
         adb("install", "-r", apk, check=True)

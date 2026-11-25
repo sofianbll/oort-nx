@@ -169,7 +169,7 @@ fun Hints(state: AppState, hints: List<Pair<String, String>>, modifier: Modifier
     if (!state.padMode) return
     FlowRow(
         modifier.fillMaxWidth().padding(vertical = 8.dp).clearAndSetSemantics { },
-        horizontalArrangement = Arrangement.spacedBy(20.dp, Alignment.End), verticalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(20.dp, Alignment.End), maxLines = 1,
     ) {
         for ((key, label) in hints) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {

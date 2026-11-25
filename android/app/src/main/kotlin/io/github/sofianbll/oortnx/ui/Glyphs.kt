@@ -18,10 +18,10 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /** Line glyphs have [path], on a 24-unit grid with one stroke; the four places of the app are drawn in the charter's dots. */
-enum class Glyph(val path: String? = null, val filled: Boolean = false) {
+enum class Glyph(val path: String? = null, val filled: Boolean = false, val stroke: Float = 1.8f) {
     Home, Library, Controllers, Settings,
     Play("M7.5 5.2v13.6a.8.8 0 0 0 1.2.7l10.6-6.8a.8.8 0 0 0 0-1.4L8.7 4.5a.8.8 0 0 0-1.2.7z", filled = true),
-    Info("M12 11v6.5M12 6.8v.1"),
+    Info("M12 11.2v7M12 6v.1", stroke = 3f),
     Sliders("M3 7h9M18 7h3M3 17h3M12 17h9M15 7m-3 0a3 3 0 1 0 6 0a3 3 0 1 0-6 0M9 17m-3 0a3 3 0 1 0 6 0a3 3 0 1 0-6 0"),
     Device("M8 2.5h8a2 2 0 0 1 2 2v15a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-15a2 2 0 0 1 2-2zM11 18.2h2"),
     Trash("M4 6.5h16M9.5 6.5v-2a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v2M6 6.5l.9 13a1.5 1.5 0 0 0 1.5 1.4h7.2a1.5 1.5 0 0 0 1.5-1.4l.9-13M10 11v6M14 11v6"),
@@ -56,7 +56,7 @@ fun OortGlyph(glyph: Glyph, modifier: Modifier = Modifier, tint: Color = LocalCo
             withTransform({ scale(u, u, Offset.Zero) }) {
                 val shape = PathParser().parsePathString(path).toPath()
                 if (glyph.filled) drawPath(shape, tint)
-                else drawPath(shape, tint, style = Stroke(width = 1.8f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+                else drawPath(shape, tint, style = Stroke(width = glyph.stroke, cap = StrokeCap.Round, join = StrokeJoin.Round))
             }
             return@Canvas
         }

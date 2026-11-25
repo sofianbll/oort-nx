@@ -1,5 +1,6 @@
 package io.github.sofianbll.oortnx.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -87,7 +88,7 @@ private fun SortKey(state: AppState) {
     var open by remember { mutableStateOf(false) }
     Box {
         IconKey(Glyph.Sort, stringResource(R.string.sort)) { open = true }
-        DropdownMenu(open, { open = false }) {
+        DropdownMenu(open, { open = false }, containerColor = PanelRaised, border = BorderStroke(1.dp, LineStrong)) {
             for ((byName, label) in listOf(false to R.string.sort_last, true to R.string.sort_name)) {
                 DropdownMenuItem(
                     text = { Text(stringResource(label), style = MaterialTheme.typography.bodyLarge) },

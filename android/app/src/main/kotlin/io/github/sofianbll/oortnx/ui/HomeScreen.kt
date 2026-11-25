@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -67,7 +68,9 @@ private val MARGIN = 28.dp
 @Composable
 private fun Upright(state: AppState, games: List<Game>, game: Game, width: Dp, height: Dp) {
     // The next cover shows its edge: that is how the swipe is learnt.
-    val side = minOf(width - 100.dp, height * 0.5f)
+    // It gives way on a short screen or with large text: Play stays in view.
+    val text = (200 + 105 * LocalDensity.current.fontScale).dp + if (state.padMode) 44.dp else 0.dp
+    val side = minOf(width - 100.dp, height * 0.56f, height - text).coerceAtLeast(130.dp)
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).heightIn(min = height).padding(vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Bottom),
@@ -82,30 +85,25 @@ private fun Upright(state: AppState, games: List<Game>, game: Game, width: Dp, h
     }
 }
 
-/** A phone on its side, a tablet: the games along the top, the chosen cover beside its name. */
+/** A phone on its side, a tablet: the games along the top, the chosen cover as tall as the window allows. */
 @Composable
 private fun Wide(state: AppState, games: List<Game>, game: Game, width: Dp, height: Dp) {
     val large = height >= 600.dp
     val gutter = if (large) 48.dp else 24.dp
-    val tile = if (large) 124.dp else 84.dp
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).heightIn(min = height).padding(vertical = if (large) 32.dp else 8.dp),
-        verticalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Rail(state, games, game, tile, gutter)
-        Row(
-            Modifier.fillMaxWidth().padding(horizontal = gutter, vertical = if (large) 32.dp else 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(gutter),
-            verticalAlignment = Alignment.CenterVertically,
+    val side = minOf(height * 0.74f, width * 0.38f)
+    Row(Modifier.fillMaxSize().padding(end = gutter), horizontalArrangement = Arrangement.spacedBy(gutter), verticalAlignment = Alignment.CenterVertically) {
+        Column(
+            Modifier.weight(1f).verticalScroll(rememberScrollState()).heightIn(min = height).padding(vertical = if (large) 48.dp else 8.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(if (large) 24.dp else 12.dp)) {
+            Rail(state, games, game, if (large) 124.dp else 84.dp, gutter)
+            Column(Modifier.padding(start = gutter, top = 12.dp), verticalArrangement = Arrangement.spacedBy(if (large) 24.dp else 12.dp)) {
                 Heading(state, game)
                 Keys(state, game, Modifier.widthIn(max = 460.dp).fillMaxWidth())
+                HomeHints(state)
             }
-            val side = minOf(height * if (large) 0.5f else 0.52f, width * 0.36f)
-            GameCover(game, state.icons[game.packageName], focused = false, calm = state.prefs.calm, modifier = Modifier.size(side))
         }
-        HomeHints(state, Modifier.padding(horizontal = gutter))
+        GameCover(game, state.icons[game.packageName], focused = false, calm = state.prefs.calm, modifier = Modifier.size(side), radius = canvas(OortTokens.Radius.Dialog))
     }
 }
 
@@ -116,8 +114,8 @@ private fun HomeHints(state: AppState, modifier: Modifier = Modifier) {
         HomeTarget.Page -> stringResource(R.string.game_page)
         HomeTarget.Android -> stringResource(R.string.detail_info)
     }
-    Hints(state, listOf(
-        state.confirmKey to first, "X" to stringResource(R.string.game_page),
+    Hints(state, listOfNotNull(
+        state.confirmKey to first, if (state.homeTarget == HomeTarget.Page) null else "X" to stringResource(R.string.game_page),
         "Y" to stringResource(R.string.nav_controllers), "R1" to stringResource(R.string.nav_library),
     ), modifier)
 }
@@ -179,7 +177,7 @@ private fun Covers(state: AppState, games: List<Game>, game: Game, side: Dp, wid
                     if (!calm) { scaleX = 1f - 0.1f * off; scaleY = scaleX }
                     alpha = 1f - 0.45f * off
                 }
-                .clickable(remember { MutableInteractionSource() }, indication = null, role = Role.Button, onClickLabel = if (selected) opens else null) {
+                .clickable(remember { MutableInteractionSource() }, indication = null, role = Role.Tab, onClickLabel = if (selected) opens else null) {
                     if (selected) state.openGame(item) else state.select(item)
                 }
                 .semantics { contentDescription = item.title; this.selected = selected },
@@ -216,7 +214,7 @@ private fun Rail(state: AppState, games: List<Game>, game: Game, tile: Dp, gutte
                 calm = state.prefs.calm,
                 radius = canvas(OortTokens.Radius.Card),
                 modifier = Modifier.size(tile)
-                    .clickable(remember { MutableInteractionSource() }, indication = null, role = Role.Button) { if (selected) state.openGame(item) else state.select(item) }
+                    .clickable(remember { MutableInteractionSource() }, indication = null, role = Role.Tab) { if (selected) state.openGame(item) else state.select(item) }
                     .semantics { contentDescription = item.title; this.selected = selected },
             )
         }
