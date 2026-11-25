@@ -481,6 +481,8 @@ def main(argv=None):
         for name, text in (("Sources/NXLibraryCore/Resources/credits.json", compact(data)), ("mobile/Sources/OortMobile/Resources/credits.json", compact(data)),
                            ("android/app/src/main/assets/credits.json", compact(data)), ("desktop/ui/gen/credits.js", desktop_script(data)),
                            ("desktop/ui/gen/credits.css", sheet(data).decode())):
+            if name.endswith(".css") and not CARDS.is_file():
+                continue  # Mobile has no CSS source; Mac and desktop check the shared sheet.
             copy = subprocess.run(["git", "show", f"{ref}:{name}"], cwd=ROOT, capture_output=True)
             if copy.returncode == 0 and copy.stdout != text.encode():
                 issues.append(f"{ref}: {name} is not what design/credits.json says")
