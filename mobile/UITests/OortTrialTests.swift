@@ -129,15 +129,14 @@ final class OortTrialTests: OortCase {
         target.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.25)).tap()
         // A folder is entered, then opened.
         Thread.sleep(forTimeInterval: 4)
-        step("06c-ouvrir-le-dossier")
+        step("07-ouvrir-le-dossier")
         let action = app.buttons["DOCPicker.actionButton"].firstMatch
         let words = app.buttons.matching(NSPredicate(format: "label IN {'Open', 'Ouvrir'}")).firstMatch
         if action.exists, action.isEnabled, action.isHittable { action.tap() } else if words.exists { words.tap() }
         appears(app.staticTexts[game.name].firstMatch, "the added game", 30)
-        step("07-jeu-ajoute")
-        // Added without its data: the page says what is missing.
+        step("08-jeu-ajoute")
         tap(button(say("Game page")), "the game page")
-        step("08-jeu-ajoute-sans-donnees")
+        step("09-fiche-du-jeu-ajoute")
     }
 
     // MARK: Every screen
