@@ -100,7 +100,11 @@ fn belongs(program: &str, line: &[String], folder: &Path, app: u32) -> bool {
     inside(program)
         || line.iter().any(|w| w == "SteamLaunch") && line.iter().any(|w| *w == format!("AppId={app}"))
         || line.first().is_some_and(|w| inside(w))
+        // A script of the game's own, run by its interpreter.
+        || INTERPRETERS.iter().any(|i| program.rsplit('/').next().is_some_and(|p| p.starts_with(i))) && line.get(1).is_some_and(|w| inside(w))
 }
+
+const INTERPRETERS: [&str; 4] = ["sh", "bash", "dash", "python"];
 
 #[cfg(target_os = "linux")]
 fn all_processes() -> Vec<(i32, String, Vec<String>)> {
@@ -200,6 +204,7 @@ mod tests {
         assert!(belongs("/usr/bin/reaper", &words("reaper SteamLaunch AppId=9 -- x"), folder, 9));
         assert!(!belongs("/usr/bin/reaper", &words("reaper SteamLaunch AppId=99 -- x"), folder, 9));
         assert!(!belongs("/home/a/Steam/steamapps/common/Drift II/drift", &words("drift"), folder, 9));
+        assert!(belongs("/usr/bin/dash", &words("/bin/sh /home/a/Steam/steamapps/common/Drift/run.sh"), folder, 9));
         assert!(!belongs("/usr/bin/less", &words("less /home/a/Steam/steamapps/common/Drift/readme"), folder, 9));
         assert!(Tracked::of_folder("/".into(), 9).is_err());
     }

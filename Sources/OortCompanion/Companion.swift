@@ -37,10 +37,12 @@ public final class Companion {
     var steamFolder: String?
     var steamGames: [SteamGame] = []
     var steamCounts = SteamShelf.Found()
+    var steamKnown = SteamShelf.Known()
     var lookup: (id: UUID, lookup: OnlineLookup)?
     var pickedNow = false
     /// Changes with any picture, so the page never shows an old one.
     var artStamp: Int
+    var pictures: (stamp: Int, games: [UUID: Library.Art]) = (0, [:])
     /// Programs whose icon is still to read: the first look at a large library is done in parts.
     var unread = 0
     let now: () -> Date
@@ -189,8 +191,10 @@ public final class Companion {
     var history: History { History(sessions, profile: profiles.active) }
 
     func scan() {
+        // A cover put in a game's folder shows at the next look.
+        pictures.games = [:]
         if choices.steam == true, let root = SteamShelf.root(named: steamFolder, home: setup.home, system: setup.system) {
-            steamCounts = SteamShelf(root: root).scan()
+            steamCounts = SteamShelf(root: root).scan(&steamKnown)
             steamGames = steamCounts.games
         } else { (steamGames, steamCounts) = ([], SteamShelf.Found()) }
         func look() { games = Library.scan(shelf, favorites: profile?.favorites ?? [], steam: steamGames, names: found.compactMapValues(\.name)) }

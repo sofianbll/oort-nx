@@ -123,6 +123,8 @@ final class ProgramFileTests: XCTestCase {
         XCTAssertEqual(file.name, "Harbour")
         XCTAssertNil(file.publisher)
         XCTAssertNil(file.icon)
+        put(folder + "/c.exe", FakeProgram.make(resources: [(16, 1, FakeProgram.version([("ProductVersion", "0.0.0.0"), ("FileVersion", "2.1")]))]))
+        XCTAssertEqual(ProgramFile(folder + "/c.exe")?.version, "2.1")
     }
 
     func testADamagedProgramNeverStopsTheApp() {

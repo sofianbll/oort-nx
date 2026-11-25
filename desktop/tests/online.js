@@ -5,7 +5,7 @@ probe(async P => {
   await ask('folders.add', { path: RUN + '/games' }); await ask('programs.add', { program: P.program(RUN + '/programs/lb_x64'), name: 'Lamp Keeper' }); dispatchEvent(new Event('focus')); await P.until(() => oort.library.games.length > 20); await P.wait(1500);
   const bay = find('Lamp Keeper'); P.ok(bay.mark && !bay.cover, 'the program has its own icon'); P.same(oort.library.games.some(g => g.look), false, 'nothing is looked for');
   await refused(inv('online_search', { id: bay.id, text: 'Lamp Keeper' }), 'online-off', 'off means off'); await refused(ask('online.start', { id: bay.id }), 'method', 'the page cannot start one'); await refused(ask('online.answer', { status: 200, text: '{}' }), 'method', 'nor answer one');
-  const sent = async () => ((await P.host('read', RUN + '/online-log.txt')) || '').split('\n').filter(Boolean).map(l => JSON.parse(l));
+  const sent = async () => ((await P.host('read', RUN + '/online-log.txt')) || '').split('\n').map(l => l.trim()).filter(Boolean).map(l => JSON.parse(l));
   if (window.oortHost) P.same((await sent()).length, 0, 'not one question went out');
   const goTo = async name => { await P.wait(500); const i = oort.library.games.indexOf(find(name)) + 2; await P.press('lt'); for (let k = 0; k < i; k++) { oort.act('right'); await P.wait(20); } await P.wait(500); };
   await goTo('Lamp Keeper'); await P.shot('80-icon'); await P.press('view'); await P.wait(400); document.querySelector(`.grid [data-id="${bay.id}"]`).focus(); await P.wait(300); await P.shot('81-icon-cover'); await P.press('view');

@@ -17,7 +17,8 @@ import OortCompanion
                 languages: (options["languages"] ?? "").split(separator: ",").map(String.init)))
             while let line = readLine(strippingNewline: true) {
                 if line.isEmpty { continue }
-                FileHandle.standardOutput.write(Data((companion.answer(line) + "\n").utf8))
+                // The window may be gone before the answer.
+                guard (try? FileHandle.standardOutput.write(contentsOf: Data((companion.answer(line) + "\n").utf8))) != nil else { return }
             }
         } catch {
             FileHandle.standardError.write(Data("oort-core: \(error.localizedDescription)\n".utf8))

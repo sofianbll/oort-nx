@@ -149,7 +149,14 @@ extension Companion {
         return out
     }
 
-    func art(_ game: Game) -> Library.Art { Library.Art(of: game, data: setup.data, mark: found[game.key]?.icon) }
+    /// Kept until something about pictures changes: looking on the disk for each game, each time, is slow.
+    func art(_ game: Game) -> Library.Art {
+        if pictures.stamp != artStamp { pictures = (artStamp, [:]) }
+        if let known = pictures.games[game.id] { return known }
+        let art = Library.Art(of: game, data: setup.data, mark: found[game.key]?.icon)
+        pictures.games[game.id] = art
+        return art
+    }
 
     /// A picture the player chose, copied into the app's own folder; without a path, theirs is put away.
     private func setPicture(_ p: CatalogJSON) throws -> CatalogJSON {

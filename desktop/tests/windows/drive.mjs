@@ -1,7 +1,7 @@
 /* Drives the installed app, unchanged: the scripts of desktop/tests run in its page through the debugging port of
    WebView2. Node 22, no package. usage: drive.mjs <app.exe> <script.js> <pictures> key=value…
    keys: run (folder of fixtures.py), data (OORT_DATA), tag, size (WxH), language, desk (Desk.exe),
-   online (where the invented services answer) */
+   online (where the invented services answer), expect (what the first start shows, as a selector) */
 import { spawn, execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
@@ -81,6 +81,13 @@ for (let i = 0; ; i++) {
   await wait(250);
 }
 console.log('ready by itself');
+// What the very first start shows, before the page is loaded again.
+if (o.expect) {
+  await wait(1500);
+  const there = await send('Runtime.evaluate', { expression: `!!document.querySelector(${JSON.stringify(o.expect)})` }).then(r => r.result.value);
+  await picture('0-first-start').catch(() => {});
+  if (there) console.log('ok the first start shows ' + o.expect); else { console.log('FAIL the first start does not show ' + o.expect); failures++; }
+}
 if (o.size) { desk('size', child.pid, ...o.size.split('x')); await wait(400); }
 try { const said = desk('front', child.pid); if (said) console.log(said); } catch (e) { console.log(String(e.stdout || '').trim()); console.log('Windows kept another window in front'); }
 console.log('window', JSON.stringify(commands.state()));

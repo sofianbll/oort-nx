@@ -114,7 +114,7 @@ if ($Before) {
   Check ((& $entry).DisplayVersion -eq $Version) "updated to $((& $entry).DisplayVersion)"
   Check (($kept | ForEach-Object { (Get-FileHash $_).Hash }) -join ',' -eq ($digests -join ',')) 'the installer does not touch the library'
   $app = (Get-ChildItem (& $entry).InstallLocation.Trim('"') -Filter *.exe | Where-Object { $_.Name -notin 'oort-core.exe', 'uninstall.exe' }).FullName
-  Drive "$desktop\tests\update.js" @('tag=update-', 'language=fr', 'size=1440x900')
+  Drive "$desktop\tests\update.js" @('tag=update-', 'language=fr', 'size=1440x900', 'expect=.dialog')
   Steam $false
   Quiet
   Uninstall (& $entry).InstallLocation.Trim('"')

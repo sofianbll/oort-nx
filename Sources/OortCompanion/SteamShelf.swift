@@ -85,7 +85,15 @@ struct SteamShelf {
         return State(id: id, name: name, folder: parts.joined(separator: "/"), flags: fields.firstString(for: "StateFlags").flatMap(UInt64.init))
     }
 
+    /// appinfo.vdf can be large: read again only when it changed.
+    struct Known { var stamp = "", wanted = Set<UInt32>(), infos: [UInt32: AppInfo.Info] = [:] }
+
     func scan() -> Found {
+        var known = Known()
+        return scan(&known)
+    }
+
+    func scan(_ known: inout Known) -> Found {
         var found = Found(), seen = Set<UInt32>(), all: [SteamGame] = []
         found.libraries = libraries()
         for library in found.libraries {
@@ -100,7 +108,10 @@ struct SteamShelf {
                 all.append(SteamGame(appID: state.id, name: state.name, folder: folder, manifest: path))
             }
         }
-        let infos = AppInfo.read(Paths.join(root, "appcache/appinfo.vdf"), wanted: seen)
+        let file = Paths.join(root, "appcache/appinfo.vdf"), attributes = try? FileManager.default.attributesOfItem(atPath: file)
+        let stamp = "\(file)|\((attributes?[.modificationDate] as? Date)?.timeIntervalSince1970 ?? 0)|\((attributes?[.size] as? NSNumber)?.intValue ?? 0)"
+        if known.stamp != stamp || known.wanted != seen { known = Known(stamp: stamp, wanted: seen, infos: AppInfo.read(file, wanted: seen)) }
+        let infos = known.infos
         let cache = Paths.join(root, "appcache/librarycache"), cached = Set(Library.names(cache))
         for var game in all {
             let info = infos[game.appID]

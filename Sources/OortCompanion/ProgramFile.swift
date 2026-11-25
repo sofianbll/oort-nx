@@ -20,7 +20,7 @@ struct ProgramFile {
         about = word("FileDescription").flatMap { Self.isGeneric($0) ? nil : $0 }
         name = word("ProductName").flatMap { Self.isGeneric($0) ? nil : $0 } ?? about
         publisher = word("CompanyName").flatMap { Self.isGeneric($0) ? nil : $0 }
-        version = word("ProductVersion") ?? word("FileVersion")
+        version = [word("ProductVersion"), word("FileVersion")].compactMap(\.self).first { $0.contains { $0.isNumber && $0 != "0" } }
         icon = exe.icon()
     }
 
