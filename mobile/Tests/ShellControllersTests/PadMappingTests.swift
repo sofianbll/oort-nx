@@ -7,7 +7,7 @@ final class PadMappingTests: XCTestCase {
     func testButtonsMapLikeTheMacConsole() {
         XCTAssertEqual(PadMapper.action(for: .a), .activate)
         XCTAssertEqual(PadMapper.action(for: .b), .back)
-        XCTAssertEqual(PadMapper.action(for: .x), .settings)
+        XCTAssertEqual(PadMapper.action(for: .x), .details)
         XCTAssertEqual(PadMapper.action(for: .menu), .settings)
         XCTAssertEqual(PadMapper.action(for: .y), .search)
         XCTAssertEqual(PadMapper.action(for: .leftShoulder), .previousTab)

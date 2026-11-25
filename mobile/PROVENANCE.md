@@ -16,7 +16,7 @@ No view of NX2Apple's is here: the screens are Oort NX's (`Sources/OortMobile`).
 | `App/ShellShortcuts.swift` | `frontend-ios/Shell/App/ShellShortcuts.swift` | `98d6ce470959` | Names and addresses are Oort NX's. |
 | `App/ShellSnap.h` | `frontend-ios/Shell/App/ShellSnap.h` | `cc28ad9d0bd1` | As is. |
 | `Sources/ShellControllers/GamepadAdapter.swift` | `frontend-ios/Sources/ShellControllers/GamepadAdapter.swift` | `df68d1817510` | As is. |
-| `Sources/ShellControllers/PadMapping.swift` | `frontend-ios/Sources/ShellControllers/PadMapping.swift` | `ed2a89fd9bca` | L and R change the tab. Y searches the games. |
+| `Sources/ShellControllers/PadMapping.swift` | `frontend-ios/Sources/ShellControllers/PadMapping.swift` | `ed2a89fd9bca` | L and R change the tab. Y searches the games. X opens the game's page; the options stay on Menu (+). |
 | `Sources/ShellHost/BackupExclusion.swift` | `frontend-ios/Sources/ShellHost/BackupExclusion.swift` | `e17a7023aaa6` | As is. |
 | `Sources/ShellHost/BookmarkStore.swift` | `frontend-ios/Sources/ShellHost/BookmarkStore.swift` | `5215443094cd` | As is. |
 | `Sources/ShellHost/CheatFilePicker.swift` | `frontend-ios/Sources/ShellHost/CheatFilePicker.swift` | `82f6dabe836a` | As is. |
@@ -58,11 +58,11 @@ No view of NX2Apple's is here: the screens are Oort NX's (`Sources/OortMobile`).
 | `Sources/ShellModel/ShellArtwork.swift` | `frontend-ios/Sources/ShellUI/ShellArtwork.swift` | `dc239b70c97d` | Read by Oort NX's screens. |
 | `Sources/ShellModel/ShellCheatsModels.swift` | `frontend-ios/Sources/ShellUI/ShellCheatsModels.swift` | `ca5cea910b8f` | As is. |
 | `Sources/ShellModel/ShellFormat.swift` | `frontend-ios/Sources/ShellUI/ShellFormat.swift` | `ebbe2d2066c2` | As is. |
-| `Sources/ShellModel/ShellInputs.swift` | `frontend-ios/Sources/ShellUI/ShellInputs.swift` | `1f344404fded` | Signing a game on the device with the player's own certificate is left out. L and R change the tab. Y searches the games. |
+| `Sources/ShellModel/ShellInputs.swift` | `frontend-ios/Sources/ShellUI/ShellInputs.swift` | `1f344404fded` | Signing a game on the device with the player's own certificate is left out. L and R change the tab. Y searches the games. X opens the game's page; the options stay on Menu (+). |
 | `Sources/ShellModel/ShellSettingsStore.swift` | `frontend-ios/Sources/ShellUI/ShellSettingsStore.swift` | `3d9eeabbd8ea` | As is. |
 | `Sources/ShellModel/TouchLayout.swift` | `frontend-ios/Sources/ShellUI/TouchLayout.swift` | `3a8fe3068d3e` | As is. |
 | `Sources/ShellModel/TouchPadGeometry.swift` | `frontend-ios/Sources/ShellUI/TouchPadGeometry.swift` | `b8fb992ab439` | As is. |
-| `Tests/ShellControllersTests/PadMappingTests.swift` | `frontend-ios/Tests/ShellControllersTests/PadMappingTests.swift` | `df62d8733b51` | L and R change the tab. Y searches the games. |
+| `Tests/ShellControllersTests/PadMappingTests.swift` | `frontend-ios/Tests/ShellControllersTests/PadMappingTests.swift` | `df62d8733b51` | L and R change the tab. X opens the game's page; the options stay on Menu (+). Y searches the games. |
 | `Tests/ShellHostTests/BackupExclusionTests.swift` | `frontend-ios/Tests/ShellHostTests/BackupExclusionTests.swift` | `6335459607b6` | As is. |
 | `Tests/ShellHostTests/BookmarkStoreTests.swift` | `frontend-ios/Tests/ShellHostTests/BookmarkStoreTests.swift` | `eb3e6799eba7` | As is. |
 | `Tests/ShellHostTests/CatalogueStateTests.swift` | `frontend-ios/Tests/ShellHostTests/CatalogueStateTests.swift` | `37b8e36b274d` | As is. |

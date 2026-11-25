@@ -165,7 +165,7 @@ struct OortHints: View {
 
     static func symbol(_ action: ShellInput.Action, _ device: InputDevice) -> String {
         if case .keyboard = device {
-            return switch action { case .activate: "return"; case .back: "escape"; case .settings: "o.square"; case .search: "y.square"; default: "keyboard" }
+            return switch action { case .activate: "return"; case .back: "escape"; case .details: "x.square"; case .settings: "o.square"; case .search: "y.square"; default: "keyboard" }
         }
         let playStation = device == .controller(.playStation)
         // The options are on + (Menu, Options): the button that opens them on every system.
@@ -174,6 +174,7 @@ struct OortHints: View {
         case .activate: playStation ? "xmark.circle.fill" : "a.circle.fill"
         case .back: playStation ? "circle.circle.fill" : "b.circle.fill"
         case .settings: menu
+        case .details: playStation ? "square.circle.fill" : "x.circle.fill"
         case .search: playStation ? "triangle.circle.fill" : "y.circle.fill"
         case .previousTab: "l.rectangle.roundedbottom.fill"
         case .nextTab: "r.rectangle.roundedbottom.fill"

@@ -73,7 +73,7 @@ struct LibraryScreen: View {
             VStack(spacing: SeleneTokens.Space.compact) {
                 if nav.letters { OortLetters(text: nav.query, focused: nav.device == nil ? nil : letter.current ?? OortLetters.rows[0][0]) { type($0) } }
                 OortHints(nav: nav, hints: nav.letters
-                    ? [(.activate, Oort.text("Select")), (.settings, Oort.text("Delete")), (.back, Oort.text("Done"))]
+                    ? [(.activate, Oort.text("Select")), (.details, Oort.text("Delete")), (.back, Oort.text("Done"))]
                     : [(.activate, Self.actions.contains(ring ?? "") ? Oort.text("Select") : Oort.text("Game page")), (.settings, Oort.text("Options")),
                        (.search, Oort.text("Search")), (.nextTab, Oort.text("Tabs"))])
                     .padding(.horizontal, SeleneTokens.Space.panel)
@@ -92,7 +92,7 @@ struct LibraryScreen: View {
         }
         if nav.letters { return spell(action) }
         switch action {
-        case .up, .down, .left, .right, .activate, .settings:
+        case .up, .down, .left, .right, .activate, .settings, .details:
             if focus.current != ring { focus.set(ring) }
             if nav.revealing { nav.sounds.play(.move); return true }
         default: break
@@ -108,10 +108,10 @@ struct LibraryScreen: View {
             case let id?: nav.sounds.play(.open); nav.open(.game(id))
             case nil: nav.sounds.play(.deny)
             }
-        case .settings:
+        case .settings, .details:
             guard let id = focus.current, !Self.actions.contains(id) else { nav.sounds.play(.deny); return true }
             nav.sounds.play(.open)
-            nav.open(.options(id))
+            nav.open(action == .details ? .game(id) : .options(id))
         // B first undoes the search.
         case .back:
             guard !nav.query.isEmpty else { return false }
@@ -128,7 +128,7 @@ struct LibraryScreen: View {
         switch action {
         case .up, .down, .left, .right: nav.sounds.play(letter.move(direction(action), in: OortLetters.rows) ? .move : .deny)
         case .activate: if let key = letter.current { type(key) }
-        case .settings: type(.delete)
+        case .details, .settings: type(.delete)
         case .back, .search: nav.letters = false; nav.sounds.play(.back)
         default: break
         }

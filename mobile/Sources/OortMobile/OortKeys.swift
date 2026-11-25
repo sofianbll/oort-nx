@@ -5,7 +5,7 @@ import ShellModel
 import SwiftUI
 
 #if os(iOS)
-/// A hardware keyboard's arrows, Return, Escape, O (options), Y or ⌘F (search) and comma (settings). It is not a text field,
+/// A hardware keyboard's arrows, Return, Escape, X (details), O (options), Y or ⌘F (search) and comma (settings). It is not a text field,
 /// so no on-screen keyboard comes up, and it stands aside while one is typed in or something is presented over the app.
 struct OortKeys: UIViewRepresentable {
     /// Where the player is: a change gives the responder another chance to take the keys.
@@ -22,7 +22,7 @@ struct OortKeys: UIViewRepresentable {
         private static let actions: [(String, ShellInput.Action)] = [
             (UIKeyCommand.inputLeftArrow, .left), (UIKeyCommand.inputRightArrow, .right),
             (UIKeyCommand.inputUpArrow, .up), (UIKeyCommand.inputDownArrow, .down),
-            ("\r", .activate), (UIKeyCommand.inputEscape, .back), ("o", .settings), ("y", .search), (",", .shellSettings),
+            ("\r", .activate), (UIKeyCommand.inputEscape, .back), ("x", .details), ("o", .settings), ("y", .search), (",", .shellSettings),
         ]
         private var observers: [NSObjectProtocol] = []
 

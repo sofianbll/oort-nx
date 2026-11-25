@@ -122,6 +122,7 @@ EDITS.append(("LauncherProfile", "    public var id: String { env }\n", """    p
 """, SHARED))
 TABS = "L and R change the tab."
 SEARCH = "Y searches the games."
+PAGE = "X opens the game's page; the options stay on Menu (+)."
 QUIET = "Nothing is read while a game runs; a hardware keyboard sends the same actions."
 EDITS += [
     ("ShellArtwork", "    let image: CGImage\n", "    public let image: CGImage\n", "Read by Oort NX's screens."),
@@ -132,8 +133,11 @@ EDITS += [
     ("TestSupport", "                               openURL: open, fetchBannerData: fetchBannerData,\n                               fetchBannerOutcome: fetchBannerOutcome,\n                               fetchStoreResponse: fetchStoreResponse, now: now,\n                               sideloadCertBacking: InMemoryCertBacking())",
      "                               openURL: open, now: now)", NET + " " + SIGN),
     ("ShellInputs", "controllers, shellSettings, previousTab, nextTab }", "controllers, shellSettings, previousTab, nextTab, search }", SEARCH),
+    ("ShellInputs", "previousTab, nextTab, search }", "previousTab, nextTab, search, details }", PAGE),
     ("PadMapping", "        case .y: .controllers\n", "        case .y: .search\n", SEARCH),
-    ("PadMapping", "Y opens Controllers, Options", "Y searches the games, Options", SEARCH),
+    ("PadMapping", "X and Menu open the game's settings, Y opens Controllers, Options", "X opens the game's page, Menu (+) its options, Y searches the games, Options", PAGE),
+    ("PadMapping", "        case .x, .menu: .settings\n", "        case .x: .details\n        case .menu: .settings\n", PAGE),
+    ("PadMappingTests", "        XCTAssertEqual(PadMapper.action(for: .x), .settings)\n", "        XCTAssertEqual(PadMapper.action(for: .x), .details)\n", PAGE),
     ("PadMappingTests", "XCTAssertEqual(PadMapper.action(for: .y), .controllers)", "XCTAssertEqual(PadMapper.action(for: .y), .search)", SEARCH),
     ("ShellHostModel", "            guard let self, !self.launchingGame else { return }\n            self.input.append(action, device: device)\n",
      "            guard let self, !self.launchingGame, !self.gameIsRunning else { return }\n            self.input.append(action, device: device)\n", QUIET),

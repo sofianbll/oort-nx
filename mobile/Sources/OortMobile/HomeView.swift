@@ -102,6 +102,7 @@ struct HomeView: View {
                     if action.enabled { action.run() }
                 }
             case .settings: openOptions()
+            case .details: openInfo()
             default: return false
             }
             return true
@@ -274,7 +275,7 @@ struct HomeView: View {
     private var hints: some View {
         let main = detail.map { OortGameAction($0, model: model, nav: nav).label } ?? ""
         let verb = ring == .info ? Oort.text("Game page") : ring == .options ? Oort.text("Options") : main
-        return OortHints(nav: nav, hints: [(.activate, verb), (.settings, Oort.text("Options")), (.search, Oort.text("Search")), (.nextTab, Oort.text("Tabs"))])
+        return OortHints(nav: nav, hints: [(.activate, verb), (.details, Oort.text("Game page")), (.settings, Oort.text("Options")), (.search, Oort.text("Search")), (.nextTab, Oort.text("Tabs"))])
     }
 
     private func rail(tile: CGFloat, gutter: CGFloat = SeleneTokens.Space.large) -> some View {
