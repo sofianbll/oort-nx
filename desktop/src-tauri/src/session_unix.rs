@@ -42,7 +42,7 @@ impl Tracked {
     }
 
     fn alive(&self) -> bool {
-        unsafe { libc::kill(-self.group, 0) == 0 }
+        unsafe { libc::kill(-self.group, 0) == 0 && !only_dead(self.group) }
     }
 
     pub fn exit_code(&self) -> Option<i64> {
@@ -60,6 +60,37 @@ impl Tracked {
             unsafe { libc::kill(-self.group, libc::SIGKILL) };
         }
     }
+}
+
+/// Processes that ended but that nobody has collected still answer a signal: where the system's first process leaves
+/// them (a container, some sandboxes), a session would never end.
+#[cfg(target_os = "linux")]
+fn only_dead(group: i32) -> bool {
+    let Ok(all) = std::fs::read_dir("/proc") else { return false };
+    let mut seen = false;
+    for entry in all.flatten().filter(|e| e.file_name().to_string_lossy().bytes().all(|b| b.is_ascii_digit())) {
+        let Some((state, of)) = std::fs::read_to_string(entry.path().join("stat")).ok().as_deref().and_then(state_and_group) else { continue };
+        if of == group {
+            if !matches!(state, 'Z' | 'X') {
+                return false;
+            }
+            seen = true;
+        }
+    }
+    seen
+}
+
+#[cfg(not(target_os = "linux"))]
+fn only_dead(_group: i32) -> bool {
+    false
+}
+
+/// `pid (name) state parent group …`, whatever the name holds.
+#[cfg(any(target_os = "linux", test))]
+fn state_and_group(stat: &str) -> Option<(char, i32)> {
+    let mut after = stat[stat.rfind(')')? + 1..].split_whitespace();
+    let state = after.next()?.chars().next()?;
+    Some((state, after.nth(1)?.parse().ok()?))
 }
 
 #[cfg(test)]
@@ -90,6 +121,13 @@ mod tests {
             waiter.join().unwrap();
             assert!(t0.elapsed() < Duration::from_secs(4), "{script}");
         }
+    }
+
+    #[test]
+    fn a_state_is_read_whatever_the_name() {
+        assert_eq!(state_and_group("12 (a) b (c) Z 1 77 12 0"), Some(('Z', 77)));
+        assert_eq!(state_and_group("12 (sh) S 1 12 12 0"), Some(('S', 12)));
+        assert_eq!(state_and_group("nothing"), None);
     }
 
     #[test]

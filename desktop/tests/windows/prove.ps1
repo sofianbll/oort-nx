@@ -69,7 +69,7 @@ function Drive([string]$script, [string[]]$pairs) {
 $own = "$env:LOCALAPPDATA\io.github.sofianbll.oort-nx.desktop"
 Check (-not (Test-Path "$own\library.json")) 'nothing of an earlier install'
 Drive "$desktop\tests\first.js" @('tag=first-', 'language=fr')
-Check (Test-Path "$own\library.json") 'the library is kept in the user’s folder'
+Check (Test-Path "$own\library.json") 'the library is kept in the folder of this user'
 
 # --- Which files the running app loads
 $env:WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS = $null
@@ -82,7 +82,7 @@ if ($core) {
   $modules = $core.Modules | Where-Object { $_.FileName -notlike "$env:SystemRoot\*" -and $_.ModuleName -ne 'oort-core.exe' }
   $modules | ForEach-Object { Write-Host "loaded $($_.ModuleName)" }
   Check (@($modules | Where-Object { -not $_.FileName.StartsWith($folder, 'OrdinalIgnoreCase') }).Count -eq 0) 'the core loads its libraries from its own folder'
-  Check (@($modules | Where-Object ModuleName -eq 'swiftCore.dll').Count -eq 1) 'Swift’s runtime is the one installed with the app'
+  Check (@($modules | Where-Object ModuleName -eq 'swiftCore.dll').Count -eq 1) 'the Swift runtime is the one installed with the app'
 }
 & "$tools\Desk.exe" shot "$Out\pictures\start-menu-start.png"
 & "$tools\Desk.exe" state $started.Id
@@ -111,12 +111,12 @@ $before = (Get-ChildItem $run -Recurse -File).Count
 $p = Start-Process -FilePath "$folder\uninstall.exe" -ArgumentList '/S' -PassThru -Wait
 Check ($p.ExitCode -eq 0) "silent uninstall: exit $($p.ExitCode)"
 for ($i = 0; $i -lt 60 -and ((Test-Path $folder) -or (& $entry)); $i++) { Start-Sleep 1 }
-Check (-not (Test-Path $folder)) 'the program’s folder is gone'
+Check (-not (Test-Path $folder)) 'the folder of the program is gone'
 if (Test-Path $folder) { Get-ChildItem $folder -Recurse | ForEach-Object { Write-Host "left: $($_.FullName.Substring($folder.Length))" } }
 Check ($null -eq (& $entry)) 'it is out of the list of installed apps'
 $shortcuts = Get-ChildItem "$env:APPDATA\Microsoft\Windows\Start Menu", "$env:USERPROFILE\Desktop" -Recurse -Filter 'Oort NX*.lnk' -ErrorAction SilentlyContinue
 Check (@($shortcuts).Count -eq 0) 'no shortcut is left'
-Check (Test-Path "$own\library.json") 'the player’s library is left'
+Check (Test-Path "$own\library.json") 'the library of the player is left'
 Check ((Get-ChildItem $run -Recurse -File).Count -eq $before) 'the games are untouched'
 Write-Host "`n$script:failures failures"
 if ($script:failures) { exit 1 }
