@@ -119,7 +119,7 @@ class RealMenus(Case):
         return [item[2] for item in found.items if item[0] == "menu-size"]
 
     def test_a_sixth_icon_in_the_control_center(self):
-        self.mutate("Sources/NXLibraryCore/Selene/MenuSelectionModel.swift", "activityCenter, settings, power", "activityCenter, settings, power, extra")
+        self.mutate("Sources/NXLibraryCore/Selene/MenuSelectionModel.swift", "power, activityCenter, settings", "power, activityCenter, settings, extra")
         self.assertIn("control-center", self.sizes())
 
     def test_a_sixth_default_tab(self):

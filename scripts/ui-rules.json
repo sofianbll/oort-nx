@@ -105,6 +105,11 @@
    "count": "enum:AchievementFilter"
   },
   {
+   "id": "controller-kinds",
+   "count": "enum:ControllerShape.Kind",
+   "parent": "settings"
+  },
+  {
    "id": "console-filters",
    "count": "enum:ConsoleFilter",
    "parent": "settings"
@@ -781,6 +786,9 @@
    },
    "Sources/NXLibrary/Views/GameOptions/SavesPanel.swift": {
     "saves-actions": 2
+   },
+   "Sources/NXLibrary/Views/OortUI/ControllerShape.swift": {
+    "controller-kinds": 1
    },
    "Sources/NXLibraryCore/Catalog/CatalogGameOptions.swift": {
     "steam-options": 2
