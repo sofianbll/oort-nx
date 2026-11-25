@@ -1,0 +1,124 @@
+{
+ "name": "unicode-paths",
+ "why": "Accents, quotes and other alphabets hash the same on both sides.",
+ "key": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEuCYbzj+hCPfVJXszSyFBks4GDILoKraVHTOG8dS0I0Oec9MjusQS81Mk1eqLShe35jHQxM10Ii5dT+Z3zdFn9A==",
+ "drive": {
+  "root": "ROOT",
+  "page_size": 1000,
+  "nodes": [
+   {
+    "id": "ROOT",
+    "name": "Games",
+    "parent": null,
+    "type": "folder"
+   },
+   {
+    "id": "d-1",
+    "name": "Beta [0100000000020000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-2",
+    "name": "targets",
+    "parent": "d-1",
+    "type": "folder"
+   },
+   {
+    "id": "d-3",
+    "name": "ios",
+    "parent": "d-2",
+    "type": "folder"
+   },
+   {
+    "id": "f-4",
+    "name": "0001790000000000-cb8895a4bdb4073fd10453ae94d93a4a2fe5540ae6ddf73f1a37208d94ad2d75.json",
+    "parent": "d-3",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"Game.framework/Caf\u00e9 \\\"1\\\".bin\", \"sha256\": \"643ef1ae55f27a1e7dbf943b017f2c9a260fa8fc6a779a467fd9cb40191f69ef\", \"size\": 20}, {\"path\": \"Game.framework/Game\", \"sha256\": \"023667a78962f999f91d41c73b39c64f9fe963772e436b54f8fb346143365f2c\", \"size\": 10}, {\"path\": \"Game.framework/\u65e5\u672c\", \"sha256\": \"320eb7f71bd1072fe447796323e6cc97c2bc44a63c4d5503fa3fe8e60e8cc6c3\", \"size\": 30}], \"entry_count\": 3, \"format\": \"oort-target\", \"game_name\": \"Beta\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"35555b75c9d534112d97a03937183757b09da67915fec5c939ad8c27ea8ff529\", \"package\": {\"path\": \"Game.framework\"}, \"platform\": \"ios\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 1, \"os\": \"26.0\"}, \"title_id\": \"0100000000020000\", \"unpacked_size\": 60, \"version\": 1}"
+   },
+   {
+    "id": "f-5",
+    "name": "0001790000000000-cb8895a4bdb4073fd10453ae94d93a4a2fe5540ae6ddf73f1a37208d94ad2d75.sig",
+    "parent": "d-3",
+    "base64": "MEUCIEl6ij24dDl+nXUQiS1J8begjsjmVDR0bj2tHl16DdyvAiEAn7tkJCwBWfvnq5D16sFmrb0GejA7CX5NZWsc68myRfo="
+   },
+   {
+    "id": "d-6",
+    "name": "35555b75c9d534112d97a03937183757b09da67915fec5c939ad8c27ea8ff529",
+    "parent": "d-3",
+    "type": "folder"
+   },
+   {
+    "id": "d-7",
+    "name": "Game.framework",
+    "parent": "d-6",
+    "type": "folder"
+   },
+   {
+    "id": "f-8",
+    "name": "Game",
+    "parent": "d-7",
+    "fill": {
+     "seed": "x",
+     "size": 10
+    }
+   },
+   {
+    "id": "f-9",
+    "name": "Caf\u00e9 \"1\".bin",
+    "parent": "d-7",
+    "fill": {
+     "seed": "y",
+     "size": 20
+    }
+   },
+   {
+    "id": "f-10",
+    "name": "\u65e5\u672c",
+    "parent": "d-7",
+    "fill": {
+     "seed": "z",
+     "size": 30
+    }
+   }
+  ]
+ },
+ "faults": [],
+ "auth": {},
+ "client": {
+  "device": {
+   "platform": "ios",
+   "system": "26.1",
+   "architecture": "arm64",
+   "features": [
+    "apple7",
+    "apple8",
+    "apple9",
+    "bc"
+   ],
+   "host": 1
+  },
+  "free": 1000000000000,
+  "metered": false,
+  "allow_metered": false,
+  "chunk": 1024,
+  "reserve": 0,
+  "network": "up",
+  "on": true
+ },
+ "steps": [
+  {
+   "do": "download",
+   "title": "0100000000020000",
+   "expect": {
+    "files": {
+     "Game.framework/Caf\u00e9 \"1\".bin": "643ef1ae55f27a1e7dbf943b017f2c9a260fa8fc6a779a467fd9cb40191f69ef",
+     "Game.framework/Game": "023667a78962f999f91d41c73b39c64f9fe963772e436b54f8fb346143365f2c",
+     "Game.framework/\u65e5\u672c": "320eb7f71bd1072fe447796323e6cc97c2bc44a63c4d5503fa3fe8e60e8cc6c3"
+    },
+    "visible": true,
+    "waiting": false
+   }
+  }
+ ]
+}

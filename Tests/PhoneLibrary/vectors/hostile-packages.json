@@ -1,0 +1,253 @@
+{
+ "name": "hostile-packages",
+ "why": "An APK that does not say who signs it.",
+ "key": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEuCYbzj+hCPfVJXszSyFBks4GDILoKraVHTOG8dS0I0Oec9MjusQS81Mk1eqLShe35jHQxM10Ii5dT+Z3zdFn9A==",
+ "drive": {
+  "root": "ROOT",
+  "page_size": 1000,
+  "nodes": [
+   {
+    "id": "ROOT",
+    "name": "Games",
+    "parent": null,
+    "type": "folder"
+   },
+   {
+    "id": "d-1",
+    "name": "Bad 0 [0100000000100000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-2",
+    "name": "targets",
+    "parent": "d-1",
+    "type": "folder"
+   },
+   {
+    "id": "d-3",
+    "name": "android",
+    "parent": "d-2",
+    "type": "folder"
+   },
+   {
+    "id": "f-4",
+    "name": "0001790000000000-9e2e67277f99d502a848ec45045d87d9bc9d72aa2a3f5f0d6a5d1a7ec70858a8.json",
+    "parent": "d-3",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"data/romfs.bin\", \"sha256\": \"e5ae681ce432b55ed3a1d5f373e583c55c625b84f7b23c12b72a27ac4d196eb6\", \"size\": 2048}, {\"path\": \"game.apk\", \"sha256\": \"46a6cc3caf34dc9dbed3a5bc9552d8718e746dcefe19030c0f5d2eea76fa5b35\", \"size\": 3000}], \"entry_count\": 2, \"format\": \"oort-target\", \"game_name\": \"Bad 0\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"ca219fc60f094965ac91ca098cd9341704a0e527a17038aead6d2d3ebb285929\", \"package\": {\"certificate_sha256\": \"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\", \"id\": \"org\", \"path\": \"game.apk\", \"version_code\": 1}, \"platform\": \"android\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 0, \"os\": \"29\"}, \"title_id\": \"0100000000100000\", \"unpacked_size\": 5048, \"version\": 1}"
+   },
+   {
+    "id": "f-5",
+    "name": "0001790000000000-9e2e67277f99d502a848ec45045d87d9bc9d72aa2a3f5f0d6a5d1a7ec70858a8.sig",
+    "parent": "d-3",
+    "base64": "MEUCIFqByEFWtPjP4YlQ5liIt+VS2187BCFo/iQC6ZK4H1WJAiEAjvs4EYfYAEz0oN1b4Yez/v9T/v/ngVP7EmD5qrrPz0U="
+   },
+   {
+    "id": "d-6",
+    "name": "Bad 1 [0100000000110000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-7",
+    "name": "targets",
+    "parent": "d-6",
+    "type": "folder"
+   },
+   {
+    "id": "d-8",
+    "name": "android",
+    "parent": "d-7",
+    "type": "folder"
+   },
+   {
+    "id": "f-9",
+    "name": "0001790000000000-b29d680af4bffd799e43fef43226eff0c0165d2d45cdec8f879fd074f0db13e2.json",
+    "parent": "d-8",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"data/romfs.bin\", \"sha256\": \"e5ae681ce432b55ed3a1d5f373e583c55c625b84f7b23c12b72a27ac4d196eb6\", \"size\": 2048}, {\"path\": \"game.apk\", \"sha256\": \"46a6cc3caf34dc9dbed3a5bc9552d8718e746dcefe19030c0f5d2eea76fa5b35\", \"size\": 3000}], \"entry_count\": 2, \"format\": \"oort-target\", \"game_name\": \"Bad 1\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"ca219fc60f094965ac91ca098cd9341704a0e527a17038aead6d2d3ebb285929\", \"package\": {\"certificate_sha256\": \"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\", \"id\": \"org.x;rm\", \"path\": \"game.apk\", \"version_code\": 1}, \"platform\": \"android\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 0, \"os\": \"29\"}, \"title_id\": \"0100000000110000\", \"unpacked_size\": 5048, \"version\": 1}"
+   },
+   {
+    "id": "f-10",
+    "name": "0001790000000000-b29d680af4bffd799e43fef43226eff0c0165d2d45cdec8f879fd074f0db13e2.sig",
+    "parent": "d-8",
+    "base64": "MEUCIHJOmdZpVMGm9Bz2yVqYXsk5rVFEKLjj3HevwrWEYr9cAiEAyFS/Vtjys3jl2pLHpfw7UB21ULncD/jZZnS49l+sL0k="
+   },
+   {
+    "id": "d-11",
+    "name": "Bad 2 [0100000000120000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-12",
+    "name": "targets",
+    "parent": "d-11",
+    "type": "folder"
+   },
+   {
+    "id": "d-13",
+    "name": "android",
+    "parent": "d-12",
+    "type": "folder"
+   },
+   {
+    "id": "f-14",
+    "name": "0001790000000000-d0dffdc745cbe39fd4b692d4d1e153d28a9740341c82bf9a480a58b04a18d501.json",
+    "parent": "d-13",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"data/romfs.bin\", \"sha256\": \"e5ae681ce432b55ed3a1d5f373e583c55c625b84f7b23c12b72a27ac4d196eb6\", \"size\": 2048}, {\"path\": \"game.apk\", \"sha256\": \"46a6cc3caf34dc9dbed3a5bc9552d8718e746dcefe19030c0f5d2eea76fa5b35\", \"size\": 3000}], \"entry_count\": 2, \"format\": \"oort-target\", \"game_name\": \"Bad 2\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"ca219fc60f094965ac91ca098cd9341704a0e527a17038aead6d2d3ebb285929\", \"package\": {\"certificate_sha256\": \"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\", \"id\": \"org.example.game\", \"path\": \"game.apk\", \"version_code\": 0}, \"platform\": \"android\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 0, \"os\": \"29\"}, \"title_id\": \"0100000000120000\", \"unpacked_size\": 5048, \"version\": 1}"
+   },
+   {
+    "id": "f-15",
+    "name": "0001790000000000-d0dffdc745cbe39fd4b692d4d1e153d28a9740341c82bf9a480a58b04a18d501.sig",
+    "parent": "d-13",
+    "base64": "MEQCIHIiM6TjA3F+wkLprSRvXzTUgz2XHew5y9Mao24Md0P0AiBOuzqPdk8KwuZcfpQQ8Jx/d2hP6Zn6YW7OZw1M5pvS+w=="
+   },
+   {
+    "id": "d-16",
+    "name": "Bad 3 [0100000000130000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-17",
+    "name": "targets",
+    "parent": "d-16",
+    "type": "folder"
+   },
+   {
+    "id": "d-18",
+    "name": "android",
+    "parent": "d-17",
+    "type": "folder"
+   },
+   {
+    "id": "f-19",
+    "name": "0001790000000000-a0818c8584ebaeaced484128e107b82544d409e0b2edd27a0e924453cbf8cd66.json",
+    "parent": "d-18",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"data/romfs.bin\", \"sha256\": \"e5ae681ce432b55ed3a1d5f373e583c55c625b84f7b23c12b72a27ac4d196eb6\", \"size\": 2048}, {\"path\": \"game.apk\", \"sha256\": \"46a6cc3caf34dc9dbed3a5bc9552d8718e746dcefe19030c0f5d2eea76fa5b35\", \"size\": 3000}], \"entry_count\": 2, \"format\": \"oort-target\", \"game_name\": \"Bad 3\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"ca219fc60f094965ac91ca098cd9341704a0e527a17038aead6d2d3ebb285929\", \"package\": {\"certificate_sha256\": \"ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\", \"id\": \"org.example.game\", \"path\": \"game.apk\", \"version_code\": 1}, \"platform\": \"android\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 0, \"os\": \"29\"}, \"title_id\": \"0100000000130000\", \"unpacked_size\": 5048, \"version\": 1}"
+   },
+   {
+    "id": "f-20",
+    "name": "0001790000000000-a0818c8584ebaeaced484128e107b82544d409e0b2edd27a0e924453cbf8cd66.sig",
+    "parent": "d-18",
+    "base64": "MEQCIB9BefDpWSHGnDwSDwRzcxa9bXsSNzfU5Ed1sLZ0WzguAiB4VXH4/Z+QxetuWEsNxoJbiA2oE1gA+FZXZbD5N0AKpw=="
+   },
+   {
+    "id": "d-21",
+    "name": "Bad 4 [0100000000140000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-22",
+    "name": "targets",
+    "parent": "d-21",
+    "type": "folder"
+   },
+   {
+    "id": "d-23",
+    "name": "android",
+    "parent": "d-22",
+    "type": "folder"
+   },
+   {
+    "id": "f-24",
+    "name": "0001790000000000-3a828ed66b4c6722afe831d9b61c32974b4f1831e3ece5c8038ae9d98135f087.json",
+    "parent": "d-23",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"data/romfs.bin\", \"sha256\": \"e5ae681ce432b55ed3a1d5f373e583c55c625b84f7b23c12b72a27ac4d196eb6\", \"size\": 2048}, {\"path\": \"game.apk\", \"sha256\": \"46a6cc3caf34dc9dbed3a5bc9552d8718e746dcefe19030c0f5d2eea76fa5b35\", \"size\": 3000}], \"entry_count\": 2, \"format\": \"oort-target\", \"game_name\": \"Bad 4\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"ca219fc60f094965ac91ca098cd9341704a0e527a17038aead6d2d3ebb285929\", \"package\": {\"certificate_sha256\": null, \"id\": \"org.example.game\", \"path\": \"game.apk\", \"version_code\": 1}, \"platform\": \"android\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 0, \"os\": \"29\"}, \"title_id\": \"0100000000140000\", \"unpacked_size\": 5048, \"version\": 1}"
+   },
+   {
+    "id": "f-25",
+    "name": "0001790000000000-3a828ed66b4c6722afe831d9b61c32974b4f1831e3ece5c8038ae9d98135f087.sig",
+    "parent": "d-23",
+    "base64": "MEUCIGESP7uJWqCPzceZAjGTzDoqwPEV7SK/l9kje4LG4tC4AiEA1zIL6+rChQ+1BB+1cjTWAlVKAvFLj2mKK4hYlAQ464A="
+   },
+   {
+    "id": "d-26",
+    "name": "Bad 5 [0100000000150000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-27",
+    "name": "targets",
+    "parent": "d-26",
+    "type": "folder"
+   },
+   {
+    "id": "d-28",
+    "name": "android",
+    "parent": "d-27",
+    "type": "folder"
+   },
+   {
+    "id": "f-29",
+    "name": "0001790000000000-d86de7003d3585e117e081134e9a3290256dd2fdfd4a4766c9f0c54278ad5bfc.json",
+    "parent": "d-28",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"data/romfs.bin\", \"sha256\": \"e5ae681ce432b55ed3a1d5f373e583c55c625b84f7b23c12b72a27ac4d196eb6\", \"size\": 2048}, {\"path\": \"game.apk\", \"sha256\": \"46a6cc3caf34dc9dbed3a5bc9552d8718e746dcefe19030c0f5d2eea76fa5b35\", \"size\": 3000}], \"entry_count\": 2, \"format\": \"oort-target\", \"game_name\": \"Bad 5\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"ca219fc60f094965ac91ca098cd9341704a0e527a17038aead6d2d3ebb285929\", \"package\": {\"certificate_sha256\": \"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\", \"id\": \"org.example.game\", \"path\": \"x/game.apk\", \"version_code\": 1}, \"platform\": \"android\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 0, \"os\": \"29\"}, \"title_id\": \"0100000000150000\", \"unpacked_size\": 5048, \"version\": 1}"
+   },
+   {
+    "id": "f-30",
+    "name": "0001790000000000-d86de7003d3585e117e081134e9a3290256dd2fdfd4a4766c9f0c54278ad5bfc.sig",
+    "parent": "d-28",
+    "base64": "MEUCIQDaVJwVrdK1fwX/F1X5DC9EaBS6yOgWOK50sacsSFnNSQIgCYG3fkb42xVOyYNAgIS8D2ScVHF2MBVHPz0gbIB3HPg="
+   }
+  ]
+ },
+ "faults": [],
+ "auth": {},
+ "client": {
+  "device": {
+   "platform": "android",
+   "system": "34",
+   "architecture": "arm64",
+   "features": [
+    "bc",
+    "vulkan1.1"
+   ],
+   "host": 0
+  },
+  "free": 1000000000000,
+  "metered": false,
+  "allow_metered": false,
+  "chunk": 1024,
+  "reserve": 0,
+  "network": "up",
+  "on": true
+ },
+ "steps": [
+  {
+   "do": "list",
+   "expect": {
+    "games": [],
+    "hidden": [],
+    "problems": [
+     [
+      "0100000000100000",
+      "invalidManifest"
+     ],
+     [
+      "0100000000110000",
+      "invalidManifest"
+     ],
+     [
+      "0100000000120000",
+      "invalidManifest"
+     ],
+     [
+      "0100000000130000",
+      "invalidManifest"
+     ],
+     [
+      "0100000000140000",
+      "invalidManifest"
+     ],
+     [
+      "0100000000150000",
+      "invalidManifest"
+     ]
+    ]
+   }
+  }
+ ]
+}

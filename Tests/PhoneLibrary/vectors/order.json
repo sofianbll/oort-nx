@@ -1,0 +1,359 @@
+{
+ "name": "order",
+ "why": "By name without accents or case, newest first, largest first; ties by name then identifier.",
+ "key": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEuCYbzj+hCPfVJXszSyFBks4GDILoKraVHTOG8dS0I0Oec9MjusQS81Mk1eqLShe35jHQxM10Ii5dT+Z3zdFn9A==",
+ "drive": {
+  "root": "ROOT",
+  "page_size": 1000,
+  "nodes": [
+   {
+    "id": "ROOT",
+    "name": "Games",
+    "parent": null,
+    "type": "folder"
+   },
+   {
+    "id": "d-1",
+    "name": "\u00c9cume [0100000000010000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-2",
+    "name": "targets",
+    "parent": "d-1",
+    "type": "folder"
+   },
+   {
+    "id": "d-3",
+    "name": "ios",
+    "parent": "d-2",
+    "type": "folder"
+   },
+   {
+    "id": "f-4",
+    "name": "0001790000000003-8e70b50665fc71b58536d9d98220e9ecccdbbd6899f9237dff005ae04852f223.json",
+    "parent": "d-3",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"Game.framework/Game\", \"sha256\": \"86a5f699117df1ef1d12ed95c87a7af3fffe42392b093a2257097c09b3e8b11f\", \"size\": 100}], \"entry_count\": 1, \"format\": \"oort-target\", \"game_name\": \"\u00c9cume\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"32c9ba44c8598f56026b8e3be962caea7ae99d51dcc1f7090fc448d895b221f9\", \"package\": {\"path\": \"Game.framework\"}, \"platform\": \"ios\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 1, \"os\": \"26.0\"}, \"title_id\": \"0100000000010000\", \"unpacked_size\": 100, \"version\": 1}"
+   },
+   {
+    "id": "f-5",
+    "name": "0001790000000003-8e70b50665fc71b58536d9d98220e9ecccdbbd6899f9237dff005ae04852f223.sig",
+    "parent": "d-3",
+    "base64": "MEUCIQCbQuAVVrcvJKPybJa+ZWAU0DYHWMmET4XcGXuUk7A8ogIgcuj/8m1gN0GOIYb7uTifgMyPuu79/oscOS39WpOxWD0="
+   },
+   {
+    "id": "d-6",
+    "name": "32c9ba44c8598f56026b8e3be962caea7ae99d51dcc1f7090fc448d895b221f9",
+    "parent": "d-3",
+    "type": "folder"
+   },
+   {
+    "id": "d-7",
+    "name": "Game.framework",
+    "parent": "d-6",
+    "type": "folder"
+   },
+   {
+    "id": "f-8",
+    "name": "Game",
+    "parent": "d-7",
+    "fill": {
+     "seed": "0100000000010000",
+     "size": 100
+    }
+   },
+   {
+    "id": "d-9",
+    "name": "zeste [0100000000020000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-10",
+    "name": "targets",
+    "parent": "d-9",
+    "type": "folder"
+   },
+   {
+    "id": "d-11",
+    "name": "ios",
+    "parent": "d-10",
+    "type": "folder"
+   },
+   {
+    "id": "f-12",
+    "name": "0001790000000001-5de306835686893293e79caef205fd8ec739b098a2f261e2a7262977acd8ffc1.json",
+    "parent": "d-11",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"Game.framework/Game\", \"sha256\": \"bdee961de2814fb9a5d81d59c7651296ee14d22774d8f52f4005a4ed91b0b137\", \"size\": 300}], \"entry_count\": 1, \"format\": \"oort-target\", \"game_name\": \"zeste\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"8f0086c8d3c82fc6910d4bbf1ee427b4f933f4e886dfe69771dfa63ae9f6ea10\", \"package\": {\"path\": \"Game.framework\"}, \"platform\": \"ios\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 1, \"os\": \"26.0\"}, \"title_id\": \"0100000000020000\", \"unpacked_size\": 300, \"version\": 1}"
+   },
+   {
+    "id": "f-13",
+    "name": "0001790000000001-5de306835686893293e79caef205fd8ec739b098a2f261e2a7262977acd8ffc1.sig",
+    "parent": "d-11",
+    "base64": "MEUCIQC4eHWZASTjzsLwtfI3j04rxSaLAbWYEsHZFXnrUwyurAIgG9YOABloLepypHMR7WbmFhoOQOyYv6Ztf0iVXpUWLlM="
+   },
+   {
+    "id": "d-14",
+    "name": "8f0086c8d3c82fc6910d4bbf1ee427b4f933f4e886dfe69771dfa63ae9f6ea10",
+    "parent": "d-11",
+    "type": "folder"
+   },
+   {
+    "id": "d-15",
+    "name": "Game.framework",
+    "parent": "d-14",
+    "type": "folder"
+   },
+   {
+    "id": "f-16",
+    "name": "Game",
+    "parent": "d-15",
+    "fill": {
+     "seed": "0100000000020000",
+     "size": 300
+    }
+   },
+   {
+    "id": "d-17",
+    "name": "Ecrin [0100000000030000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-18",
+    "name": "targets",
+    "parent": "d-17",
+    "type": "folder"
+   },
+   {
+    "id": "d-19",
+    "name": "ios",
+    "parent": "d-18",
+    "type": "folder"
+   },
+   {
+    "id": "f-20",
+    "name": "0001790000000002-adcbb9317de27ef0e59466cbc1700bacd94c5a4aae8905d1c3fbc6d201c59976.json",
+    "parent": "d-19",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"Game.framework/Game\", \"sha256\": \"a3f31667705f3e2a8dbd75b935f13d4d8b62b42054595a1581926ec318daa6dc\", \"size\": 200}], \"entry_count\": 1, \"format\": \"oort-target\", \"game_name\": \"Ecrin\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"86b57dd65cee8111783b4f1b1037e9a2e0abee46d7720869287d0c25f4b8d83f\", \"package\": {\"path\": \"Game.framework\"}, \"platform\": \"ios\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 1, \"os\": \"26.0\"}, \"title_id\": \"0100000000030000\", \"unpacked_size\": 200, \"version\": 1}"
+   },
+   {
+    "id": "f-21",
+    "name": "0001790000000002-adcbb9317de27ef0e59466cbc1700bacd94c5a4aae8905d1c3fbc6d201c59976.sig",
+    "parent": "d-19",
+    "base64": "MEUCIHcRlTiDsA5Hcjr7Z12RFhZdRr9/W1vklUIsvXF0bbkvAiEAuI1e0VGFVKAu1FGklh+Ft9TuYF+MtQw86PgzWNmlADo="
+   },
+   {
+    "id": "d-22",
+    "name": "86b57dd65cee8111783b4f1b1037e9a2e0abee46d7720869287d0c25f4b8d83f",
+    "parent": "d-19",
+    "type": "folder"
+   },
+   {
+    "id": "d-23",
+    "name": "Game.framework",
+    "parent": "d-22",
+    "type": "folder"
+   },
+   {
+    "id": "f-24",
+    "name": "Game",
+    "parent": "d-23",
+    "fill": {
+     "seed": "0100000000030000",
+     "size": 200
+    }
+   },
+   {
+    "id": "d-25",
+    "name": "Zeste [0100000000040000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-26",
+    "name": "targets",
+    "parent": "d-25",
+    "type": "folder"
+   },
+   {
+    "id": "d-27",
+    "name": "ios",
+    "parent": "d-26",
+    "type": "folder"
+   },
+   {
+    "id": "f-28",
+    "name": "0001790000000004-8041878a89441ed281673bf3500045c2089985a7163448597b419f9feb081702.json",
+    "parent": "d-27",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"Game.framework/Game\", \"sha256\": \"ff7eb53902f9d74f29b5175662a928c96bc281288babc01a8a3707cf6bf5b56c\", \"size\": 100}], \"entry_count\": 1, \"format\": \"oort-target\", \"game_name\": \"Zeste\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"a3b0e268f101eebaabf4b84771b5f7ac1f485998676cf1733d1254ffdd356428\", \"package\": {\"path\": \"Game.framework\"}, \"platform\": \"ios\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 1, \"os\": \"26.0\"}, \"title_id\": \"0100000000040000\", \"unpacked_size\": 100, \"version\": 1}"
+   },
+   {
+    "id": "f-29",
+    "name": "0001790000000004-8041878a89441ed281673bf3500045c2089985a7163448597b419f9feb081702.sig",
+    "parent": "d-27",
+    "base64": "MEYCIQCe/n2jHIVxnDtAswB2tRaT7Vk6orXD39r48GAMi0lKawIhAOOgenn+f+IpEpchyNhk7nbsdSlxxAuAvOHRdP+JHzBL"
+   },
+   {
+    "id": "d-30",
+    "name": "a3b0e268f101eebaabf4b84771b5f7ac1f485998676cf1733d1254ffdd356428",
+    "parent": "d-27",
+    "type": "folder"
+   },
+   {
+    "id": "d-31",
+    "name": "Game.framework",
+    "parent": "d-30",
+    "type": "folder"
+   },
+   {
+    "id": "f-32",
+    "name": "Game",
+    "parent": "d-31",
+    "fill": {
+     "seed": "0100000000040000",
+     "size": 100
+    }
+   }
+  ]
+ },
+ "faults": [],
+ "auth": {},
+ "client": {
+  "device": {
+   "platform": "ios",
+   "system": "26.1",
+   "architecture": "arm64",
+   "features": [
+    "apple7",
+    "apple8",
+    "apple9",
+    "bc"
+   ],
+   "host": 1
+  },
+  "free": 1000000000000,
+  "metered": false,
+  "allow_metered": false,
+  "chunk": 1024,
+  "reserve": 0,
+  "network": "up",
+  "on": true
+ },
+ "steps": [
+  {
+   "do": "list",
+   "expect": {
+    "games": [
+     {
+      "title": "0100000000030000",
+      "name": "Ecrin",
+      "version": "1.0.0",
+      "digest": "86b57dd65cee8111783b4f1b1037e9a2e0abee46d7720869287d0c25f4b8d83f",
+      "state": "available"
+     },
+     {
+      "title": "0100000000010000",
+      "name": "\u00c9cume",
+      "version": "1.0.0",
+      "digest": "32c9ba44c8598f56026b8e3be962caea7ae99d51dcc1f7090fc448d895b221f9",
+      "state": "available"
+     },
+     {
+      "title": "0100000000020000",
+      "name": "zeste",
+      "version": "1.0.0",
+      "digest": "8f0086c8d3c82fc6910d4bbf1ee427b4f933f4e886dfe69771dfa63ae9f6ea10",
+      "state": "available"
+     },
+     {
+      "title": "0100000000040000",
+      "name": "Zeste",
+      "version": "1.0.0",
+      "digest": "a3b0e268f101eebaabf4b84771b5f7ac1f485998676cf1733d1254ffdd356428",
+      "state": "available"
+     }
+    ],
+    "hidden": [],
+    "problems": []
+   }
+  },
+  {
+   "do": "list",
+   "expect": {
+    "games": [
+     {
+      "title": "0100000000040000",
+      "name": "Zeste",
+      "version": "1.0.0",
+      "digest": "a3b0e268f101eebaabf4b84771b5f7ac1f485998676cf1733d1254ffdd356428",
+      "state": "available"
+     },
+     {
+      "title": "0100000000010000",
+      "name": "\u00c9cume",
+      "version": "1.0.0",
+      "digest": "32c9ba44c8598f56026b8e3be962caea7ae99d51dcc1f7090fc448d895b221f9",
+      "state": "available"
+     },
+     {
+      "title": "0100000000030000",
+      "name": "Ecrin",
+      "version": "1.0.0",
+      "digest": "86b57dd65cee8111783b4f1b1037e9a2e0abee46d7720869287d0c25f4b8d83f",
+      "state": "available"
+     },
+     {
+      "title": "0100000000020000",
+      "name": "zeste",
+      "version": "1.0.0",
+      "digest": "8f0086c8d3c82fc6910d4bbf1ee427b4f933f4e886dfe69771dfa63ae9f6ea10",
+      "state": "available"
+     }
+    ],
+    "hidden": [],
+    "problems": []
+   },
+   "order": "newest"
+  },
+  {
+   "do": "list",
+   "expect": {
+    "games": [
+     {
+      "title": "0100000000020000",
+      "name": "zeste",
+      "version": "1.0.0",
+      "digest": "8f0086c8d3c82fc6910d4bbf1ee427b4f933f4e886dfe69771dfa63ae9f6ea10",
+      "state": "available"
+     },
+     {
+      "title": "0100000000030000",
+      "name": "Ecrin",
+      "version": "1.0.0",
+      "digest": "86b57dd65cee8111783b4f1b1037e9a2e0abee46d7720869287d0c25f4b8d83f",
+      "state": "available"
+     },
+     {
+      "title": "0100000000010000",
+      "name": "\u00c9cume",
+      "version": "1.0.0",
+      "digest": "32c9ba44c8598f56026b8e3be962caea7ae99d51dcc1f7090fc448d895b221f9",
+      "state": "available"
+     },
+     {
+      "title": "0100000000040000",
+      "name": "Zeste",
+      "version": "1.0.0",
+      "digest": "a3b0e268f101eebaabf4b84771b5f7ac1f485998676cf1733d1254ffdd356428",
+      "state": "available"
+     }
+    ],
+    "hidden": [],
+    "problems": []
+   },
+   "order": "size"
+  }
+ ]
+}

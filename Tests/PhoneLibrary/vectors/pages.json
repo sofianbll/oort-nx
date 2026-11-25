@@ -1,0 +1,536 @@
+{
+ "name": "pages",
+ "why": "Every page of every folder is read, in lists and in downloads.",
+ "key": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEuCYbzj+hCPfVJXszSyFBks4GDILoKraVHTOG8dS0I0Oec9MjusQS81Mk1eqLShe35jHQxM10Ii5dT+Z3zdFn9A==",
+ "drive": {
+  "root": "ROOT",
+  "page_size": 2,
+  "nodes": [
+   {
+    "id": "ROOT",
+    "name": "Games",
+    "parent": null,
+    "type": "folder"
+   },
+   {
+    "id": "d-1",
+    "name": "Alpha [0100000000010000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-2",
+    "name": "targets",
+    "parent": "d-1",
+    "type": "folder"
+   },
+   {
+    "id": "d-3",
+    "name": "ios",
+    "parent": "d-2",
+    "type": "folder"
+   },
+   {
+    "id": "f-4",
+    "name": "0001790000000000-d3c9b892f4be07a7620fac132afe44be9b7a76a2381dd581e4c3a339b2eece01.json",
+    "parent": "d-3",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"Game.framework/a\", \"sha256\": \"df0279436b76ca11681cc0d4cb8ce16ec4d85c7087afb9d49cad4cfc6ddb2487\", \"size\": 10}, {\"path\": \"Game.framework/b\", \"sha256\": \"08f0f3c1a5b4593e983a000c55d648223e06555cbf4e2c93031723da08354c56\", \"size\": 10}, {\"path\": \"Game.framework/c\", \"sha256\": \"53cc418561c122e4080e9489486685ec8e0e1336e4f31a228fb76720a56841bd\", \"size\": 10}, {\"path\": \"Game.framework/d\", \"sha256\": \"841847becd5e9d34df179fce0988bc858fac538e218dae7358d8e3305a832ed3\", \"size\": 10}, {\"path\": \"Game.framework/e\", \"sha256\": \"477916f641fa01349cf73d2fff936e14e766e58667564164a4bc5d969116b4ba\", \"size\": 10}], \"entry_count\": 5, \"format\": \"oort-target\", \"game_name\": \"Alpha\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"436c3308b2e1da63a1d21806af961b99490a14596de6f51959f6d3df2e3b19f3\", \"package\": {\"path\": \"Game.framework\"}, \"platform\": \"ios\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 1, \"os\": \"26.0\"}, \"title_id\": \"0100000000010000\", \"unpacked_size\": 50, \"version\": 1}"
+   },
+   {
+    "id": "f-5",
+    "name": "0001790000000000-d3c9b892f4be07a7620fac132afe44be9b7a76a2381dd581e4c3a339b2eece01.sig",
+    "parent": "d-3",
+    "base64": "MEUCIFIysgvR+UBqs/0zfAd6uf2aVz/dmkSPQ2TDB+1v4o0YAiEA0TfCmC+pptmVHXa9XP+yFTBUTxwefdUazRN6I2gyixM="
+   },
+   {
+    "id": "d-6",
+    "name": "436c3308b2e1da63a1d21806af961b99490a14596de6f51959f6d3df2e3b19f3",
+    "parent": "d-3",
+    "type": "folder"
+   },
+   {
+    "id": "d-7",
+    "name": "Game.framework",
+    "parent": "d-6",
+    "type": "folder"
+   },
+   {
+    "id": "f-8",
+    "name": "a",
+    "parent": "d-7",
+    "fill": {
+     "seed": "a",
+     "size": 10
+    }
+   },
+   {
+    "id": "f-9",
+    "name": "b",
+    "parent": "d-7",
+    "fill": {
+     "seed": "b",
+     "size": 10
+    }
+   },
+   {
+    "id": "f-10",
+    "name": "c",
+    "parent": "d-7",
+    "fill": {
+     "seed": "c",
+     "size": 10
+    }
+   },
+   {
+    "id": "f-11",
+    "name": "d",
+    "parent": "d-7",
+    "fill": {
+     "seed": "d",
+     "size": 10
+    }
+   },
+   {
+    "id": "f-12",
+    "name": "e",
+    "parent": "d-7",
+    "fill": {
+     "seed": "e",
+     "size": 10
+    }
+   },
+   {
+    "id": "d-13",
+    "name": "Beta [0100000000020000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-14",
+    "name": "targets",
+    "parent": "d-13",
+    "type": "folder"
+   },
+   {
+    "id": "d-15",
+    "name": "ios",
+    "parent": "d-14",
+    "type": "folder"
+   },
+   {
+    "id": "f-16",
+    "name": "0001790000000000-4feef35b89a49ccffb5bf3f8c0319b835c8e439796eacecdeb3c23bd444c474a.json",
+    "parent": "d-15",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"Game.framework/a\", \"sha256\": \"df0279436b76ca11681cc0d4cb8ce16ec4d85c7087afb9d49cad4cfc6ddb2487\", \"size\": 10}, {\"path\": \"Game.framework/b\", \"sha256\": \"08f0f3c1a5b4593e983a000c55d648223e06555cbf4e2c93031723da08354c56\", \"size\": 10}, {\"path\": \"Game.framework/c\", \"sha256\": \"53cc418561c122e4080e9489486685ec8e0e1336e4f31a228fb76720a56841bd\", \"size\": 10}, {\"path\": \"Game.framework/d\", \"sha256\": \"841847becd5e9d34df179fce0988bc858fac538e218dae7358d8e3305a832ed3\", \"size\": 10}, {\"path\": \"Game.framework/e\", \"sha256\": \"477916f641fa01349cf73d2fff936e14e766e58667564164a4bc5d969116b4ba\", \"size\": 10}], \"entry_count\": 5, \"format\": \"oort-target\", \"game_name\": \"Beta\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"436c3308b2e1da63a1d21806af961b99490a14596de6f51959f6d3df2e3b19f3\", \"package\": {\"path\": \"Game.framework\"}, \"platform\": \"ios\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 1, \"os\": \"26.0\"}, \"title_id\": \"0100000000020000\", \"unpacked_size\": 50, \"version\": 1}"
+   },
+   {
+    "id": "f-17",
+    "name": "0001790000000000-4feef35b89a49ccffb5bf3f8c0319b835c8e439796eacecdeb3c23bd444c474a.sig",
+    "parent": "d-15",
+    "base64": "MEUCIQDnreHOLopT9DqSzm8puPYCMhPSMrTZSmSWri5Zy8ihfQIgVWCO96r0f/U3FZIlOm16igptYLfoBxBhslZfPEGdyR8="
+   },
+   {
+    "id": "d-18",
+    "name": "436c3308b2e1da63a1d21806af961b99490a14596de6f51959f6d3df2e3b19f3",
+    "parent": "d-15",
+    "type": "folder"
+   },
+   {
+    "id": "d-19",
+    "name": "Game.framework",
+    "parent": "d-18",
+    "type": "folder"
+   },
+   {
+    "id": "f-20",
+    "name": "a",
+    "parent": "d-19",
+    "fill": {
+     "seed": "a",
+     "size": 10
+    }
+   },
+   {
+    "id": "f-21",
+    "name": "b",
+    "parent": "d-19",
+    "fill": {
+     "seed": "b",
+     "size": 10
+    }
+   },
+   {
+    "id": "f-22",
+    "name": "c",
+    "parent": "d-19",
+    "fill": {
+     "seed": "c",
+     "size": 10
+    }
+   },
+   {
+    "id": "f-23",
+    "name": "d",
+    "parent": "d-19",
+    "fill": {
+     "seed": "d",
+     "size": 10
+    }
+   },
+   {
+    "id": "f-24",
+    "name": "e",
+    "parent": "d-19",
+    "fill": {
+     "seed": "e",
+     "size": 10
+    }
+   },
+   {
+    "id": "d-25",
+    "name": "Gamma [0100000000030000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-26",
+    "name": "targets",
+    "parent": "d-25",
+    "type": "folder"
+   },
+   {
+    "id": "d-27",
+    "name": "ios",
+    "parent": "d-26",
+    "type": "folder"
+   },
+   {
+    "id": "f-28",
+    "name": "0001790000000000-dfb6d48f9d6badab43e3af2472781d96c5d85236dcdc299415be86f31bc2a4b3.json",
+    "parent": "d-27",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"Game.framework/a\", \"sha256\": \"df0279436b76ca11681cc0d4cb8ce16ec4d85c7087afb9d49cad4cfc6ddb2487\", \"size\": 10}, {\"path\": \"Game.framework/b\", \"sha256\": \"08f0f3c1a5b4593e983a000c55d648223e06555cbf4e2c93031723da08354c56\", \"size\": 10}, {\"path\": \"Game.framework/c\", \"sha256\": \"53cc418561c122e4080e9489486685ec8e0e1336e4f31a228fb76720a56841bd\", \"size\": 10}, {\"path\": \"Game.framework/d\", \"sha256\": \"841847becd5e9d34df179fce0988bc858fac538e218dae7358d8e3305a832ed3\", \"size\": 10}, {\"path\": \"Game.framework/e\", \"sha256\": \"477916f641fa01349cf73d2fff936e14e766e58667564164a4bc5d969116b4ba\", \"size\": 10}], \"entry_count\": 5, \"format\": \"oort-target\", \"game_name\": \"Gamma\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"436c3308b2e1da63a1d21806af961b99490a14596de6f51959f6d3df2e3b19f3\", \"package\": {\"path\": \"Game.framework\"}, \"platform\": \"ios\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 1, \"os\": \"26.0\"}, \"title_id\": \"0100000000030000\", \"unpacked_size\": 50, \"version\": 1}"
+   },
+   {
+    "id": "f-29",
+    "name": "0001790000000000-dfb6d48f9d6badab43e3af2472781d96c5d85236dcdc299415be86f31bc2a4b3.sig",
+    "parent": "d-27",
+    "base64": "MEQCIEDQx0GQJfU3NUb7DQfWxn/tBjGTi1mCJxBNX68BL6CVAiBXFsFn756hUztXNmCMP22bqz2htY4D5vp0Czt7O/JfIQ=="
+   },
+   {
+    "id": "d-30",
+    "name": "436c3308b2e1da63a1d21806af961b99490a14596de6f51959f6d3df2e3b19f3",
+    "parent": "d-27",
+    "type": "folder"
+   },
+   {
+    "id": "d-31",
+    "name": "Game.framework",
+    "parent": "d-30",
+    "type": "folder"
+   },
+   {
+    "id": "f-32",
+    "name": "a",
+    "parent": "d-31",
+    "fill": {
+     "seed": "a",
+     "size": 10
+    }
+   },
+   {
+    "id": "f-33",
+    "name": "b",
+    "parent": "d-31",
+    "fill": {
+     "seed": "b",
+     "size": 10
+    }
+   },
+   {
+    "id": "f-34",
+    "name": "c",
+    "parent": "d-31",
+    "fill": {
+     "seed": "c",
+     "size": 10
+    }
+   },
+   {
+    "id": "f-35",
+    "name": "d",
+    "parent": "d-31",
+    "fill": {
+     "seed": "d",
+     "size": 10
+    }
+   },
+   {
+    "id": "f-36",
+    "name": "e",
+    "parent": "d-31",
+    "fill": {
+     "seed": "e",
+     "size": 10
+    }
+   },
+   {
+    "id": "d-37",
+    "name": "Delta [0100000000040000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-38",
+    "name": "targets",
+    "parent": "d-37",
+    "type": "folder"
+   },
+   {
+    "id": "d-39",
+    "name": "ios",
+    "parent": "d-38",
+    "type": "folder"
+   },
+   {
+    "id": "f-40",
+    "name": "0001790000000000-1764319059dd31f14a287e704b3ccc398ef0bde9c759145854306b815086b3df.json",
+    "parent": "d-39",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"Game.framework/a\", \"sha256\": \"df0279436b76ca11681cc0d4cb8ce16ec4d85c7087afb9d49cad4cfc6ddb2487\", \"size\": 10}, {\"path\": \"Game.framework/b\", \"sha256\": \"08f0f3c1a5b4593e983a000c55d648223e06555cbf4e2c93031723da08354c56\", \"size\": 10}, {\"path\": \"Game.framework/c\", \"sha256\": \"53cc418561c122e4080e9489486685ec8e0e1336e4f31a228fb76720a56841bd\", \"size\": 10}, {\"path\": \"Game.framework/d\", \"sha256\": \"841847becd5e9d34df179fce0988bc858fac538e218dae7358d8e3305a832ed3\", \"size\": 10}, {\"path\": \"Game.framework/e\", \"sha256\": \"477916f641fa01349cf73d2fff936e14e766e58667564164a4bc5d969116b4ba\", \"size\": 10}], \"entry_count\": 5, \"format\": \"oort-target\", \"game_name\": \"Delta\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"436c3308b2e1da63a1d21806af961b99490a14596de6f51959f6d3df2e3b19f3\", \"package\": {\"path\": \"Game.framework\"}, \"platform\": \"ios\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 1, \"os\": \"26.0\"}, \"title_id\": \"0100000000040000\", \"unpacked_size\": 50, \"version\": 1}"
+   },
+   {
+    "id": "f-41",
+    "name": "0001790000000000-1764319059dd31f14a287e704b3ccc398ef0bde9c759145854306b815086b3df.sig",
+    "parent": "d-39",
+    "base64": "MEYCIQCMhU+ilx/66JO/L/Tz2mILRgdRLLoa7P0PUQ1RDfnYbgIhAM6HYU1PTHz/DOLBCjR7UnB81RMrrONWxfaslWnf7P9M"
+   },
+   {
+    "id": "d-42",
+    "name": "436c3308b2e1da63a1d21806af961b99490a14596de6f51959f6d3df2e3b19f3",
+    "parent": "d-39",
+    "type": "folder"
+   },
+   {
+    "id": "d-43",
+    "name": "Game.framework",
+    "parent": "d-42",
+    "type": "folder"
+   },
+   {
+    "id": "f-44",
+    "name": "a",
+    "parent": "d-43",
+    "fill": {
+     "seed": "a",
+     "size": 10
+    }
+   },
+   {
+    "id": "f-45",
+    "name": "b",
+    "parent": "d-43",
+    "fill": {
+     "seed": "b",
+     "size": 10
+    }
+   },
+   {
+    "id": "f-46",
+    "name": "c",
+    "parent": "d-43",
+    "fill": {
+     "seed": "c",
+     "size": 10
+    }
+   },
+   {
+    "id": "f-47",
+    "name": "d",
+    "parent": "d-43",
+    "fill": {
+     "seed": "d",
+     "size": 10
+    }
+   },
+   {
+    "id": "f-48",
+    "name": "e",
+    "parent": "d-43",
+    "fill": {
+     "seed": "e",
+     "size": 10
+    }
+   },
+   {
+    "id": "d-49",
+    "name": "Epsilon [0100000000050000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-50",
+    "name": "targets",
+    "parent": "d-49",
+    "type": "folder"
+   },
+   {
+    "id": "d-51",
+    "name": "ios",
+    "parent": "d-50",
+    "type": "folder"
+   },
+   {
+    "id": "f-52",
+    "name": "0001790000000000-44f4134aaa75e875afd8fb3cf65c30d2fe52e6cb8a28538bacf99092d281a70d.json",
+    "parent": "d-51",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"Game.framework/a\", \"sha256\": \"df0279436b76ca11681cc0d4cb8ce16ec4d85c7087afb9d49cad4cfc6ddb2487\", \"size\": 10}, {\"path\": \"Game.framework/b\", \"sha256\": \"08f0f3c1a5b4593e983a000c55d648223e06555cbf4e2c93031723da08354c56\", \"size\": 10}, {\"path\": \"Game.framework/c\", \"sha256\": \"53cc418561c122e4080e9489486685ec8e0e1336e4f31a228fb76720a56841bd\", \"size\": 10}, {\"path\": \"Game.framework/d\", \"sha256\": \"841847becd5e9d34df179fce0988bc858fac538e218dae7358d8e3305a832ed3\", \"size\": 10}, {\"path\": \"Game.framework/e\", \"sha256\": \"477916f641fa01349cf73d2fff936e14e766e58667564164a4bc5d969116b4ba\", \"size\": 10}], \"entry_count\": 5, \"format\": \"oort-target\", \"game_name\": \"Epsilon\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"436c3308b2e1da63a1d21806af961b99490a14596de6f51959f6d3df2e3b19f3\", \"package\": {\"path\": \"Game.framework\"}, \"platform\": \"ios\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 1, \"os\": \"26.0\"}, \"title_id\": \"0100000000050000\", \"unpacked_size\": 50, \"version\": 1}"
+   },
+   {
+    "id": "f-53",
+    "name": "0001790000000000-44f4134aaa75e875afd8fb3cf65c30d2fe52e6cb8a28538bacf99092d281a70d.sig",
+    "parent": "d-51",
+    "base64": "MEQCIFMyh1T2FTcu07tOfqnvuoGext5Bh5kTfNk4uMtJwKgvAiB1RMHvfoYYtRzLEkTzXa1KXDjdCwuFcdTglChhpJYolg=="
+   },
+   {
+    "id": "d-54",
+    "name": "436c3308b2e1da63a1d21806af961b99490a14596de6f51959f6d3df2e3b19f3",
+    "parent": "d-51",
+    "type": "folder"
+   },
+   {
+    "id": "d-55",
+    "name": "Game.framework",
+    "parent": "d-54",
+    "type": "folder"
+   },
+   {
+    "id": "f-56",
+    "name": "a",
+    "parent": "d-55",
+    "fill": {
+     "seed": "a",
+     "size": 10
+    }
+   },
+   {
+    "id": "f-57",
+    "name": "b",
+    "parent": "d-55",
+    "fill": {
+     "seed": "b",
+     "size": 10
+    }
+   },
+   {
+    "id": "f-58",
+    "name": "c",
+    "parent": "d-55",
+    "fill": {
+     "seed": "c",
+     "size": 10
+    }
+   },
+   {
+    "id": "f-59",
+    "name": "d",
+    "parent": "d-55",
+    "fill": {
+     "seed": "d",
+     "size": 10
+    }
+   },
+   {
+    "id": "f-60",
+    "name": "e",
+    "parent": "d-55",
+    "fill": {
+     "seed": "e",
+     "size": 10
+    }
+   }
+  ]
+ },
+ "faults": [],
+ "auth": {},
+ "client": {
+  "device": {
+   "platform": "ios",
+   "system": "26.1",
+   "architecture": "arm64",
+   "features": [
+    "apple7",
+    "apple8",
+    "apple9",
+    "bc"
+   ],
+   "host": 1
+  },
+  "free": 1000000000000,
+  "metered": false,
+  "allow_metered": false,
+  "chunk": 1024,
+  "reserve": 0,
+  "network": "up",
+  "on": true
+ },
+ "steps": [
+  {
+   "do": "list",
+   "expect": {
+    "games": [
+     {
+      "title": "0100000000010000",
+      "name": "Alpha",
+      "version": "1.0.0",
+      "digest": "436c3308b2e1da63a1d21806af961b99490a14596de6f51959f6d3df2e3b19f3",
+      "state": "available"
+     },
+     {
+      "title": "0100000000020000",
+      "name": "Beta",
+      "version": "1.0.0",
+      "digest": "436c3308b2e1da63a1d21806af961b99490a14596de6f51959f6d3df2e3b19f3",
+      "state": "available"
+     },
+     {
+      "title": "0100000000040000",
+      "name": "Delta",
+      "version": "1.0.0",
+      "digest": "436c3308b2e1da63a1d21806af961b99490a14596de6f51959f6d3df2e3b19f3",
+      "state": "available"
+     },
+     {
+      "title": "0100000000050000",
+      "name": "Epsilon",
+      "version": "1.0.0",
+      "digest": "436c3308b2e1da63a1d21806af961b99490a14596de6f51959f6d3df2e3b19f3",
+      "state": "available"
+     },
+     {
+      "title": "0100000000030000",
+      "name": "Gamma",
+      "version": "1.0.0",
+      "digest": "436c3308b2e1da63a1d21806af961b99490a14596de6f51959f6d3df2e3b19f3",
+      "state": "available"
+     }
+    ],
+    "hidden": [],
+    "problems": []
+   }
+  },
+  {
+   "do": "download",
+   "title": "0100000000010000",
+   "expect": {
+    "files": {
+     "Game.framework/a": "df0279436b76ca11681cc0d4cb8ce16ec4d85c7087afb9d49cad4cfc6ddb2487",
+     "Game.framework/b": "08f0f3c1a5b4593e983a000c55d648223e06555cbf4e2c93031723da08354c56",
+     "Game.framework/c": "53cc418561c122e4080e9489486685ec8e0e1336e4f31a228fb76720a56841bd",
+     "Game.framework/d": "841847becd5e9d34df179fce0988bc858fac538e218dae7358d8e3305a832ed3",
+     "Game.framework/e": "477916f641fa01349cf73d2fff936e14e766e58667564164a4bc5d969116b4ba"
+    },
+    "visible": true,
+    "waiting": false
+   }
+  }
+ ]
+}

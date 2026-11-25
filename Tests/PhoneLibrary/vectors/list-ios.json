@@ -1,0 +1,267 @@
+{
+ "name": "list-ios",
+ "why": "An iPhone shows the iPhone build, names the rest, and ignores what is not a game folder.",
+ "key": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEuCYbzj+hCPfVJXszSyFBks4GDILoKraVHTOG8dS0I0Oec9MjusQS81Mk1eqLShe35jHQxM10Ii5dT+Z3zdFn9A==",
+ "drive": {
+  "root": "ROOT",
+  "page_size": 1000,
+  "nodes": [
+   {
+    "id": "ROOT",
+    "name": "Games",
+    "parent": null,
+    "type": "folder"
+   },
+   {
+    "id": "d-1",
+    "name": "Alpha [0100000000010000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-2",
+    "name": "manifests",
+    "parent": "d-1",
+    "type": "folder"
+   },
+   {
+    "id": "f-3",
+    "name": "0001790000000000-5b94a340698abba750c133e4262f14149cc941f0c5b4c1f9741f66bed145d7b0.json",
+    "parent": "d-2",
+    "text": "{\"artifacts\": [], \"version\": 2}"
+   },
+   {
+    "id": "d-4",
+    "name": "Beta [0100000000020000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-5",
+    "name": "targets",
+    "parent": "d-4",
+    "type": "folder"
+   },
+   {
+    "id": "d-6",
+    "name": "ios",
+    "parent": "d-5",
+    "type": "folder"
+   },
+   {
+    "id": "f-7",
+    "name": "0001790000000000-ce14652e9e7c2ff5b5e58c3d23780ef378f9f4f5915a97db9f9633d8b548a20e.json",
+    "parent": "d-6",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"Game.framework/Game\", \"sha256\": \"5782527e5b3851c80db4040ac418b7743e2b6e236fdb9c570bb667c632c3eeea\", \"size\": 2500}, {\"path\": \"Game.framework/empty\", \"sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\", \"size\": 0}, {\"path\": \"Game.framework/game.manifest.json\", \"sha256\": \"ca36bd114446d745822abd37fa39d74291556887aefb3ca8336b63208328d13e\", \"size\": 300}, {\"path\": \"data/romfs.img\", \"sha256\": \"af5d71ec3c83e5dbbf49a006f74c19ba98a63da0c72abbdbacd196bd70bc2b04\", \"size\": 4096}], \"entry_count\": 4, \"format\": \"oort-target\", \"game_name\": \"Beta\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"4ee7d180ff0ecc0caf40872dfe3c8766da6e8262ef7f2e14d5e915ad7fa9d79d\", \"package\": {\"path\": \"Game.framework\"}, \"platform\": \"ios\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 1, \"os\": \"26.0\"}, \"title_id\": \"0100000000020000\", \"unpacked_size\": 6896, \"version\": 1}"
+   },
+   {
+    "id": "f-8",
+    "name": "0001790000000000-ce14652e9e7c2ff5b5e58c3d23780ef378f9f4f5915a97db9f9633d8b548a20e.sig",
+    "parent": "d-6",
+    "base64": "MEUCIQD6IsGOfI3lSN4rTVMWU4ieDjsxHjYAm3eBrZuLwS2R7QIgREk7MyGxHBma/ndrHbw4LRu7QtOCf61XtKRipAyxP0Y="
+   },
+   {
+    "id": "d-9",
+    "name": "4ee7d180ff0ecc0caf40872dfe3c8766da6e8262ef7f2e14d5e915ad7fa9d79d",
+    "parent": "d-6",
+    "type": "folder"
+   },
+   {
+    "id": "d-10",
+    "name": "Game.framework",
+    "parent": "d-9",
+    "type": "folder"
+   },
+   {
+    "id": "f-11",
+    "name": "Game",
+    "parent": "d-10",
+    "fill": {
+     "seed": "ios-exe",
+     "size": 2500
+    }
+   },
+   {
+    "id": "f-12",
+    "name": "game.manifest.json",
+    "parent": "d-10",
+    "fill": {
+     "seed": "ios-man",
+     "size": 300
+    }
+   },
+   {
+    "id": "f-13",
+    "name": "empty",
+    "parent": "d-10",
+    "fill": {
+     "seed": "ios-empty",
+     "size": 0
+    }
+   },
+   {
+    "id": "d-14",
+    "name": "data",
+    "parent": "d-9",
+    "type": "folder"
+   },
+   {
+    "id": "f-15",
+    "name": "romfs.img",
+    "parent": "d-14",
+    "fill": {
+     "seed": "ios-data",
+     "size": 4096
+    }
+   },
+   {
+    "id": "d-16",
+    "name": "manifests",
+    "parent": "d-4",
+    "type": "folder"
+   },
+   {
+    "id": "f-17",
+    "name": "0001790000000000-5b94a340698abba750c133e4262f14149cc941f0c5b4c1f9741f66bed145d7b0.json",
+    "parent": "d-16",
+    "text": "{\"artifacts\": [], \"version\": 2}"
+   },
+   {
+    "id": "d-18",
+    "name": "Gamma [0100000000030000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-19",
+    "name": "targets",
+    "parent": "d-18",
+    "type": "folder"
+   },
+   {
+    "id": "d-20",
+    "name": "android",
+    "parent": "d-19",
+    "type": "folder"
+   },
+   {
+    "id": "f-21",
+    "name": "0001790000000000-820fbd48a44693b42605fc10c5e2ab9fe97f1e35daa44a16f1baf83620430cf6.json",
+    "parent": "d-20",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"data/romfs.bin\", \"sha256\": \"e5ae681ce432b55ed3a1d5f373e583c55c625b84f7b23c12b72a27ac4d196eb6\", \"size\": 2048}, {\"path\": \"game.apk\", \"sha256\": \"46a6cc3caf34dc9dbed3a5bc9552d8718e746dcefe19030c0f5d2eea76fa5b35\", \"size\": 3000}], \"entry_count\": 2, \"format\": \"oort-target\", \"game_name\": \"Gamma\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"ca219fc60f094965ac91ca098cd9341704a0e527a17038aead6d2d3ebb285929\", \"package\": {\"certificate_sha256\": \"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\", \"id\": \"org.example.game\", \"path\": \"game.apk\", \"version_code\": 1}, \"platform\": \"android\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 0, \"os\": \"29\"}, \"title_id\": \"0100000000030000\", \"unpacked_size\": 5048, \"version\": 1}"
+   },
+   {
+    "id": "f-22",
+    "name": "0001790000000000-820fbd48a44693b42605fc10c5e2ab9fe97f1e35daa44a16f1baf83620430cf6.sig",
+    "parent": "d-20",
+    "base64": "MEYCIQC3NsfdQwOY3b1M6tP+HEUjCM5c4FRGl9h8e+x/ZoAYbwIhAPDMnwfT4MX4mt/7jwvz+XwpiiHQg/vWX7zcZaMPQTxZ"
+   },
+   {
+    "id": "d-23",
+    "name": "ca219fc60f094965ac91ca098cd9341704a0e527a17038aead6d2d3ebb285929",
+    "parent": "d-20",
+    "type": "folder"
+   },
+   {
+    "id": "f-24",
+    "name": "game.apk",
+    "parent": "d-23",
+    "fill": {
+     "seed": "apk",
+     "size": 3000
+    }
+   },
+   {
+    "id": "d-25",
+    "name": "data",
+    "parent": "d-23",
+    "type": "folder"
+   },
+   {
+    "id": "f-26",
+    "name": "romfs.bin",
+    "parent": "d-25",
+    "fill": {
+     "seed": "apk-data",
+     "size": 2048
+    }
+   },
+   {
+    "id": "d-27",
+    "name": "GameFiles",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-28",
+    "name": "Switch",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "f-29",
+    "name": "notes.txt",
+    "parent": "ROOT",
+    "text": "not a game"
+   },
+   {
+    "id": "d-30",
+    "name": "Delta [0100000000040000",
+    "parent": "ROOT",
+    "type": "folder"
+   }
+  ]
+ },
+ "faults": [],
+ "auth": {},
+ "client": {
+  "device": {
+   "platform": "ios",
+   "system": "26.1",
+   "architecture": "arm64",
+   "features": [
+    "apple7",
+    "apple8",
+    "apple9",
+    "bc"
+   ],
+   "host": 1
+  },
+  "free": 1000000000000,
+  "metered": false,
+  "allow_metered": false,
+  "chunk": 1024,
+  "reserve": 0,
+  "network": "up",
+  "on": true
+ },
+ "steps": [
+  {
+   "do": "list",
+   "expect": {
+    "games": [
+     {
+      "title": "0100000000020000",
+      "name": "Beta",
+      "version": "1.0.0",
+      "digest": "4ee7d180ff0ecc0caf40872dfe3c8766da6e8262ef7f2e14d5e915ad7fa9d79d",
+      "state": "available"
+     }
+    ],
+    "hidden": [
+     [
+      "0100000000010000",
+      "Alpha",
+      "notPrepared"
+     ],
+     [
+      "0100000000030000",
+      "Gamma",
+      "notPrepared"
+     ]
+    ],
+    "problems": []
+   }
+  }
+ ]
+}

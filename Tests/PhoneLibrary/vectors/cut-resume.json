@@ -1,0 +1,227 @@
+{
+ "name": "cut-resume",
+ "why": "Given up, then resumed where it stopped.",
+ "key": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEuCYbzj+hCPfVJXszSyFBks4GDILoKraVHTOG8dS0I0Oec9MjusQS81Mk1eqLShe35jHQxM10Ii5dT+Z3zdFn9A==",
+ "drive": {
+  "root": "ROOT",
+  "page_size": 1000,
+  "nodes": [
+   {
+    "id": "ROOT",
+    "name": "Games",
+    "parent": null,
+    "type": "folder"
+   },
+   {
+    "id": "d-1",
+    "name": "Beta [0100000000020000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-2",
+    "name": "targets",
+    "parent": "d-1",
+    "type": "folder"
+   },
+   {
+    "id": "d-3",
+    "name": "ios",
+    "parent": "d-2",
+    "type": "folder"
+   },
+   {
+    "id": "f-4",
+    "name": "0001790000000000-ce14652e9e7c2ff5b5e58c3d23780ef378f9f4f5915a97db9f9633d8b548a20e.json",
+    "parent": "d-3",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"Game.framework/Game\", \"sha256\": \"5782527e5b3851c80db4040ac418b7743e2b6e236fdb9c570bb667c632c3eeea\", \"size\": 2500}, {\"path\": \"Game.framework/empty\", \"sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\", \"size\": 0}, {\"path\": \"Game.framework/game.manifest.json\", \"sha256\": \"ca36bd114446d745822abd37fa39d74291556887aefb3ca8336b63208328d13e\", \"size\": 300}, {\"path\": \"data/romfs.img\", \"sha256\": \"af5d71ec3c83e5dbbf49a006f74c19ba98a63da0c72abbdbacd196bd70bc2b04\", \"size\": 4096}], \"entry_count\": 4, \"format\": \"oort-target\", \"game_name\": \"Beta\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"4ee7d180ff0ecc0caf40872dfe3c8766da6e8262ef7f2e14d5e915ad7fa9d79d\", \"package\": {\"path\": \"Game.framework\"}, \"platform\": \"ios\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 1, \"os\": \"26.0\"}, \"title_id\": \"0100000000020000\", \"unpacked_size\": 6896, \"version\": 1}"
+   },
+   {
+    "id": "f-5",
+    "name": "0001790000000000-ce14652e9e7c2ff5b5e58c3d23780ef378f9f4f5915a97db9f9633d8b548a20e.sig",
+    "parent": "d-3",
+    "base64": "MEQCIF/luNhmMQIVu3bUu08DCCAPD/gFcjJS+LdSCrLPVvbzAiBhj958F9FULjnZdlOlV3NFXVtm4r3YHEmKMYswUWKjDA=="
+   },
+   {
+    "id": "d-6",
+    "name": "4ee7d180ff0ecc0caf40872dfe3c8766da6e8262ef7f2e14d5e915ad7fa9d79d",
+    "parent": "d-3",
+    "type": "folder"
+   },
+   {
+    "id": "d-7",
+    "name": "Game.framework",
+    "parent": "d-6",
+    "type": "folder"
+   },
+   {
+    "id": "f-8",
+    "name": "Game",
+    "parent": "d-7",
+    "fill": {
+     "seed": "ios-exe",
+     "size": 2500
+    }
+   },
+   {
+    "id": "f-9",
+    "name": "game.manifest.json",
+    "parent": "d-7",
+    "fill": {
+     "seed": "ios-man",
+     "size": 300
+    }
+   },
+   {
+    "id": "f-10",
+    "name": "empty",
+    "parent": "d-7",
+    "fill": {
+     "seed": "ios-empty",
+     "size": 0
+    }
+   },
+   {
+    "id": "d-11",
+    "name": "data",
+    "parent": "d-6",
+    "type": "folder"
+   },
+   {
+    "id": "f-12",
+    "name": "romfs.img",
+    "parent": "d-11",
+    "fill": {
+     "seed": "ios-data",
+     "size": 4096
+    }
+   }
+  ]
+ },
+ "faults": [
+  {
+   "on": "media",
+   "node": "f-12",
+   "skip": 1,
+   "times": 4,
+   "do": "cut",
+   "bytes": 100
+  }
+ ],
+ "auth": {},
+ "client": {
+  "device": {
+   "platform": "ios",
+   "system": "26.1",
+   "architecture": "arm64",
+   "features": [
+    "apple7",
+    "apple8",
+    "apple9",
+    "bc"
+   ],
+   "host": 1
+  },
+  "free": 1000000000000,
+  "metered": false,
+  "allow_metered": false,
+  "chunk": 1024,
+  "reserve": 0,
+  "network": "up",
+  "on": true
+ },
+ "steps": [
+  {
+   "do": "download",
+   "title": "0100000000020000",
+   "expect": {
+    "error": "interrupted",
+    "visible": false,
+    "waiting": true
+   },
+   "media": [
+    [
+     "f-8",
+     0,
+     1023
+    ],
+    [
+     "f-8",
+     1024,
+     2047
+    ],
+    [
+     "f-8",
+     2048,
+     2499
+    ],
+    [
+     "f-9",
+     0,
+     299
+    ],
+    [
+     "f-12",
+     0,
+     1023
+    ],
+    [
+     "f-12",
+     1024,
+     2047
+    ],
+    [
+     "f-12",
+     1024,
+     2047
+    ],
+    [
+     "f-12",
+     1024,
+     2047
+    ],
+    [
+     "f-12",
+     1024,
+     2047
+    ]
+   ],
+   "waits": [
+    1,
+    2,
+    4
+   ]
+  },
+  {
+   "do": "download",
+   "title": "0100000000020000",
+   "expect": {
+    "files": {
+     "Game.framework/Game": "5782527e5b3851c80db4040ac418b7743e2b6e236fdb9c570bb667c632c3eeea",
+     "Game.framework/empty": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "Game.framework/game.manifest.json": "ca36bd114446d745822abd37fa39d74291556887aefb3ca8336b63208328d13e",
+     "data/romfs.img": "af5d71ec3c83e5dbbf49a006f74c19ba98a63da0c72abbdbacd196bd70bc2b04"
+    },
+    "visible": true,
+    "waiting": false
+   },
+   "media": [
+    [
+     "f-12",
+     1024,
+     2047
+    ],
+    [
+     "f-12",
+     2048,
+     3071
+    ],
+    [
+     "f-12",
+     3072,
+     4095
+    ]
+   ]
+  }
+ ]
+}

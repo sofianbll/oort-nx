@@ -1,0 +1,137 @@
+[
+ {
+  "path": ".arcane-upload",
+  "type": "folder"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]",
+  "type": "folder"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]/app",
+  "type": "folder"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]/app/8b9ac08d56966dc5d8d2a2d5c627752f9ae47b9a95066ec0285731fc7e993d94",
+  "type": "folder"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]/app/8b9ac08d56966dc5d8d2a2d5c627752f9ae47b9a95066ec0285731fc7e993d94/Fixture.app",
+  "type": "folder"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]/app/8b9ac08d56966dc5d8d2a2d5c627752f9ae47b9a95066ec0285731fc7e993d94/Fixture.app/Contents",
+  "type": "folder"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]/app/8b9ac08d56966dc5d8d2a2d5c627752f9ae47b9a95066ec0285731fc7e993d94/Fixture.app/Contents/Info.plist",
+  "type": "file",
+  "size": 537,
+  "md5": "a93ddd4c626a31a12e1e543639625bb2",
+  "sha256": "ac7e6372f858bfd6d0f8ddc7c4c0ef98a5522d25357f9413bb4c6e240af911a9"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]/app/8b9ac08d56966dc5d8d2a2d5c627752f9ae47b9a95066ec0285731fc7e993d94/Fixture.app/Contents/MacOS",
+  "type": "folder"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]/app/8b9ac08d56966dc5d8d2a2d5c627752f9ae47b9a95066ec0285731fc7e993d94/Fixture.app/Contents/MacOS/Fixture",
+  "type": "file",
+  "size": 82400,
+  "md5": "7e0de30fe64262f17689bdcf58a5d71c",
+  "sha256": "5566ec60c07a4e02e88d16229eee141e90a5d81ecf32d0facc1b8bd5f287a4e1"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]/app/8b9ac08d56966dc5d8d2a2d5c627752f9ae47b9a95066ec0285731fc7e993d94/Fixture.app/Contents/Resources",
+  "type": "folder"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]/app/8b9ac08d56966dc5d8d2a2d5c627752f9ae47b9a95066ec0285731fc7e993d94/Fixture.app/Contents/Resources/empty",
+  "type": "file",
+  "size": 0,
+  "md5": "d41d8cd98f00b204e9800998ecf8427e",
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]/app/8b9ac08d56966dc5d8d2a2d5c627752f9ae47b9a95066ec0285731fc7e993d94/Fixture.app/Contents/Resources/link.rclonelink",
+  "type": "file",
+  "size": 5,
+  "md5": "a2e4822a98337283e39f7b60acf85ec9",
+  "sha256": "2e1cfa82b035c26cbbbdae632cea070514eb8b773f616aaeaf668e2f0be8f10d"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]/app/8b9ac08d56966dc5d8d2a2d5c627752f9ae47b9a95066ec0285731fc7e993d94/Fixture.app/Contents/Resources/msl",
+  "type": "folder"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]/app/8b9ac08d56966dc5d8d2a2d5c627752f9ae47b9a95066ec0285731fc7e993d94/Fixture.app/Contents/Resources/msl/b-1234567890ab.img",
+  "type": "file",
+  "size": 3,
+  "md5": "5289df737df57326fcdd22597afb1fac",
+  "sha256": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]/app/8b9ac08d56966dc5d8d2a2d5c627752f9ae47b9a95066ec0285731fc7e993d94/Fixture.app/Contents/_CodeSignature",
+  "type": "folder"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]/app/8b9ac08d56966dc5d8d2a2d5c627752f9ae47b9a95066ec0285731fc7e993d94/Fixture.app/Contents/_CodeSignature/CodeResources",
+  "type": "file",
+  "size": 2777,
+  "md5": "093454269ee6d8d5f89af28f7e2744ef",
+  "sha256": "a77b5c5068432c7f04f9e920354782c105a9f8c169ac6f6d35389c6d1b80f969"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]/cache",
+  "type": "folder"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]/cache/679f5e62c8d93ae7ab630796b119a08a9ce89e2c0ad0fa810aaf282dd98b8f32",
+  "type": "folder"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]/cache/679f5e62c8d93ae7ab630796b119a08a9ce89e2c0ad0fa810aaf282dd98b8f32/nested",
+  "type": "folder"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]/cache/679f5e62c8d93ae7ab630796b119a08a9ce89e2c0ad0fa810aaf282dd98b8f32/nested/link.rclonelink",
+  "type": "file",
+  "size": 10,
+  "md5": "d25e0e4dd09ecc5ccb7d9a666979b7a1",
+  "sha256": "29a3e102b363432541d6379aa7ccb420c50add0890f45d78788a804805bfedcb"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]/cache/679f5e62c8d93ae7ab630796b119a08a9ce89e2c0ad0fa810aaf282dd98b8f32/nested/one",
+  "type": "file",
+  "size": 4,
+  "md5": "08d6c05a21512a79a1dfeb9d2a8f262f",
+  "sha256": "9f64a747e1b97f131fabb6b447296c9b6f0201e79fb3c5356e6c77e89b6a806a"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]/cache/679f5e62c8d93ae7ab630796b119a08a9ce89e2c0ad0fa810aaf282dd98b8f32/run.key",
+  "type": "file",
+  "size": 10,
+  "md5": "a529b61d2e75f461fb8264e36102875d",
+  "sha256": "1140fd10dd063daee602a0880f996b25fefc9c62917a7090520026ca4bc8ed23"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]/manifests",
+  "type": "folder"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]/manifests/0001795600283143-e6ca79a9d57570e12cee9242e4f78941372cd826f6974937dab814c34f1c98ad.json",
+  "type": "file",
+  "size": 1163,
+  "md5": "2c9966af8d51ee56ca5e81f1b21e7028",
+  "sha256": "e6ca79a9d57570e12cee9242e4f78941372cd826f6974937dab814c34f1c98ad",
+  "text": "{\"artifacts\":[{\"engine_commit\":\"72d43ff6\",\"entry_count\":6,\"files\":{\"entries\":[{\"md5\":\"a93ddd4c626a31a12e1e543639625bb2\",\"path\":\"Contents\\/Info.plist\",\"size\":537},{\"md5\":\"7e0de30fe64262f17689bdcf58a5d71c\",\"path\":\"Contents\\/MacOS\\/Fixture\",\"size\":82400},{\"md5\":\"d41d8cd98f00b204e9800998ecf8427e\",\"path\":\"Contents\\/Resources\\/empty\",\"size\":0},{\"md5\":\"a2e4822a98337283e39f7b60acf85ec9\",\"path\":\"Contents\\/Resources\\/link.rclonelink\",\"size\":5},{\"md5\":\"5289df737df57326fcdd22597afb1fac\",\"path\":\"Contents\\/Resources\\/msl\\/b-1234567890ab.img\",\"size\":3},{\"md5\":\"093454269ee6d8d5f89af28f7e2744ef\",\"path\":\"Contents\\/_CodeSignature\\/CodeResources\",\"size\":2777}],\"folder\":\"Fixture [0100E65002BB8000]\\/app\\/8b9ac08d56966dc5d8d2a2d5c627752f9ae47b9a95066ec0285731fc7e993d94\\/Fixture.app\"},\"inventory_sha256\":\"8b9ac08d56966dc5d8d2a2d5c627752f9ae47b9a95066ec0285731fc7e993d94\",\"kind\":\"app\",\"options\":{\"CFBundleShortVersionString\":\"1.2\"},\"published_at\":\"2026-11-25T09:51:23Z\",\"revision\":1795600283143,\"shader_chain\":\"1234567890ab\",\"unpacked_size\":85722}],\"bundle_name\":\"Fixture.app\",\"created_at\":\"2026-11-25T09:51:23Z\",\"game_name\":\"Fixture\",\"title_id\":\"0100E65002BB8000\",\"version\":2}"
+ },
+ {
+  "path": "Fixture [0100E65002BB8000]/manifests/0001795600284189-90cf82caef3ca24192886e9db9bb6bdc9408738a4a499cb46bf74095cd2fb0f1.json",
+  "type": "file",
+  "size": 1739,
+  "md5": "fc44e34228822154af96e185579b4313",
+  "sha256": "90cf82caef3ca24192886e9db9bb6bdc9408738a4a499cb46bf74095cd2fb0f1",
+  "text": "{\"artifacts\":[{\"engine_commit\":\"72d43ff6\",\"entry_count\":6,\"files\":{\"entries\":[{\"md5\":\"a93ddd4c626a31a12e1e543639625bb2\",\"path\":\"Contents\\/Info.plist\",\"size\":537},{\"md5\":\"7e0de30fe64262f17689bdcf58a5d71c\",\"path\":\"Contents\\/MacOS\\/Fixture\",\"size\":82400},{\"md5\":\"d41d8cd98f00b204e9800998ecf8427e\",\"path\":\"Contents\\/Resources\\/empty\",\"size\":0},{\"md5\":\"a2e4822a98337283e39f7b60acf85ec9\",\"path\":\"Contents\\/Resources\\/link.rclonelink\",\"size\":5},{\"md5\":\"5289df737df57326fcdd22597afb1fac\",\"path\":\"Contents\\/Resources\\/msl\\/b-1234567890ab.img\",\"size\":3},{\"md5\":\"093454269ee6d8d5f89af28f7e2744ef\",\"path\":\"Contents\\/_CodeSignature\\/CodeResources\",\"size\":2777}],\"folder\":\"Fixture [0100E65002BB8000]\\/app\\/8b9ac08d56966dc5d8d2a2d5c627752f9ae47b9a95066ec0285731fc7e993d94\\/Fixture.app\"},\"inventory_sha256\":\"8b9ac08d56966dc5d8d2a2d5c627752f9ae47b9a95066ec0285731fc7e993d94\",\"kind\":\"app\",\"options\":{\"CFBundleShortVersionString\":\"1.2\"},\"published_at\":\"2026-11-25T09:51:23Z\",\"revision\":1795600283143,\"shader_chain\":\"1234567890ab\",\"unpacked_size\":85722},{\"entry_count\":3,\"files\":{\"entries\":[{\"md5\":\"d25e0e4dd09ecc5ccb7d9a666979b7a1\",\"path\":\"nested\\/link.rclonelink\",\"size\":10},{\"md5\":\"08d6c05a21512a79a1dfeb9d2a8f262f\",\"path\":\"nested\\/one\",\"size\":4},{\"md5\":\"a529b61d2e75f461fb8264e36102875d\",\"path\":\"run.key\",\"size\":10}],\"folder\":\"Fixture [0100E65002BB8000]\\/cache\\/679f5e62c8d93ae7ab630796b119a08a9ce89e2c0ad0fa810aaf282dd98b8f32\"},\"inventory_sha256\":\"679f5e62c8d93ae7ab630796b119a08a9ce89e2c0ad0fa810aaf282dd98b8f32\",\"kind\":\"cache\",\"options\":{},\"published_at\":\"2026-11-25T09:51:24Z\",\"revision\":1795600284189,\"unpacked_size\":24}],\"bundle_name\":\"Fixture.app\",\"created_at\":\"2026-11-25T09:51:24Z\",\"game_name\":\"Fixture\",\"title_id\":\"0100E65002BB8000\",\"version\":2}"
+ }
+]
