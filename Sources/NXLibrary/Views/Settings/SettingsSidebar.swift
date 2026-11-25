@@ -7,7 +7,7 @@ enum SettingsPage: Hashable {
     case subject(SettingsSection)
     case search, changed
 
-    static let stops: [Self] = [.search, .changed] + SettingsCategory.allCases.map(Self.category)
+    static let stops: [Self] = [.search] + SettingsCategory.allCases.map(Self.category) + [.changed]
 
     static func opening(_ section: SettingsSection) -> OortSettingsStack<Self> {
         guard let category = SettingsCategory(section: section) else {
@@ -35,7 +35,8 @@ enum SettingsPage: Hashable {
                 return category.sections.count == 1 ? category.title(in: context) : category.title(for: section, in: context)
             }
             return section.title(in: context)
-        case .search, .changed: return L10n.text("Search", context: context)
+        case .search: return L10n.text("Search", context: context)
+        case .changed: return L10n.text("Changed settings", context: context)
         }
     }
 }
@@ -49,30 +50,21 @@ struct SettingsSidebar: View {
     let onSearchFocus: () -> Void
     let onSubmit: () -> Void
     @Environment(\.nxAppLocale) private var context
-    @Environment(\.seleneCanvas) private var canvas
 
     typealias Sidebar = OortSettingsSidebar<SettingsPage, AnyView>
 
     var body: some View {
-        Sidebar(sections: SettingsCategory.groups.map { group in
+        Sidebar(sections: SettingsCategory.groups.enumerated().map { index, group in
             .init(title: group.heading.map { L10n.text($0, context: context) },
                   items: group.categories.compactMap { category in
                 category.sections.first.map {
                     .init(id: .category(category), title: category.title(in: context), icon: $0.icon)
                 }
-            })
+            } + (index == SettingsCategory.groups.count - 1
+                 ? [.init(id: .changed, title: SettingsPage.changed.title(in: context), icon: SettingsSection.changed.icon)] : []))
         }, selected: selection, focused: isFocused, onSelect: onSelect) {
-            AnyView(header)
-        }
-    }
-
-    private var header: some View {
-        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
-            OortSettingsSearchField(query: $query, request: searchFieldRequest, onFocus: onSearchFocus, onSubmit: onSubmit)
-            OortSegmented(selection: Binding(get: { selection }, set: onSelect),
-                          options: [(.search, L10n.text("All", context: context)),
-                                    (.changed, L10n.text("Changed", context: context))],
-                          focused: isFocused && (selection == .search || selection == .changed) ? selection : nil)
+            AnyView(OortSettingsSearchField(query: $query, request: searchFieldRequest, selected: isFocused && selection == .search,
+                                            onFocus: onSearchFocus, onSubmit: onSubmit))
         }
     }
 }

@@ -86,7 +86,7 @@ struct Image: View {
     func interpolation(_ value: SwiftUI.Image.Interpolation) -> Self { self }
     var body: some View { Color.clear }
 }
-enum SeleneTheme { static var glassSolid: Color { .gray }; static var ink: Color { .white } }
+enum SeleneTheme { static let arrival = Animation.easeOut(duration: 0.18); static var glassSolid: Color { .gray }; static var ink: Color { .white } }
 struct DownloadCloudTileStyle {}
 struct DownloadCloudArtRevision { let images: [NSImage?] }
 struct DownloadCloudArt<Art: View>: View {

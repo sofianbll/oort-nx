@@ -77,7 +77,7 @@ struct OortSettingsSidebar<ID: Hashable, Header: View>: View {
     @Namespace private var pill
 
     var body: some View {
-        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.medium)) {
             header()
             ScrollViewReader { proxy in
                 ScrollView {
@@ -100,8 +100,8 @@ struct OortSettingsSidebar<ID: Hashable, Header: View>: View {
                 .onChange(of: selected) { _, id in proxy.scrollTo(id) }
             }
         }
-        .padding(canvas.u(SeleneTokens.Space.compact))
-        .oortPanel(radius: canvas.u(SeleneTokens.Radius.card))
+        .padding(canvas.u(SeleneTokens.Space.small))
+        .oortPanel(radius: canvas.u(SeleneTokens.Radius.field))
         .animation(Motion.focus(reduceMotion), value: selected)
     }
 
@@ -157,9 +157,11 @@ struct OortSettingsLink: View {
     }
 }
 
+/// The search field heads the list and follows its grid: same icon column, same text column, same corners.
 struct OortSettingsSearchField: View {
     @Binding var query: String
     let request: Int
+    var selected = false
     let onFocus: () -> Void
     let onSubmit: () -> Void
     @FocusState private var focused: Bool
@@ -167,15 +169,40 @@ struct OortSettingsSearchField: View {
     @Environment(\.nxAppLocale) private var locale
 
     var body: some View {
-        TextField(L10n.text("Search settings", context: locale), text: $query)
-            .modifier(OortField(focused: focused))
-            .focused($focused)
-            .onChange(of: focused) { _, focused in if focused { onFocus() } }
-            .onChange(of: request) { focused = true }
-            .onSubmit {
-                focused = false
-                onSubmit()
+        let shape = RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
+        let lit = focused || selected
+        HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
+            MaterialIconView(.search, size: SeleneTokens.Space.large)
+                .foregroundStyle(lit ? SeleneTheme.ink : SeleneTheme.ink60)
+                .accessibilityHidden(true)
+            TextField(L10n.text("Search settings", context: locale), text: $query)
+                .textFieldStyle(.plain)
+                .seleneFont(.row, .medium)
+                .foregroundStyle(SeleneTheme.ink)
+                .focused($focused)
+            if !query.isEmpty {
+                Button { query = "" } label: {
+                    MaterialIconView(.close, size: SeleneTokens.Space.panel)
+                        .foregroundStyle(SeleneTheme.ink60)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(OortPressStyle())
+                .accessibilityLabel(L10n.text("Clear search", context: locale))
             }
+        }
+        .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
+        .padding(.vertical, canvas.u(SeleneTokens.Space.small))
+        .background(shape.fill(SeleneTheme.scrim45))
+        .overlay(shape.strokeBorder(lit ? SeleneTheme.focus : SeleneTheme.ink15,
+                                    lineWidth: max(1, canvas.u(lit ? SeleneTokens.Space.focusStroke : SeleneTokens.Space.thinStroke))))
+        .contentShape(shape)
+        .onTapGesture { focused = true }
+        .onChange(of: focused) { _, focused in if focused { onFocus() } }
+        .onChange(of: request) { focused = true }
+        .onSubmit {
+            focused = false
+            onSubmit()
+        }
     }
 }
 

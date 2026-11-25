@@ -9,7 +9,7 @@
 ## Commencer
 
 - **Apple silicon · macOS 26 ou plus récent.** Steam et certains jeux peuvent demander une version plus récente.
-- **Télécharge** le DMG dans [Versions](https://github.com/sofianbll/oort-nx/releases/latest) et glisse Oort NX dans Applications. L’app n’est pas notariée : ouvre-la une fois, puis choisis **Ouvrir quand même** dans **Réglages Système → Confidentialité et sécurité**. Tu viens de la 0.3.0 ? Installe ce DMG une fois : ta bibliothèque est copiée et l’ancienne reste intacte.
+- **Télécharge** le DMG dans [Versions](https://github.com/sofianbll/oort-nx/releases) et glisse Oort NX dans Applications. L’app n’est pas notariée : ouvre-la une fois, puis choisis **Ouvrir quand même** dans **Réglages Système → Confidentialité et sécurité**. Tu viens de la 0.3.0 ? Installe ce DMG une fois : ta bibliothèque est copiée et l’ancienne reste intacte.
 - **Bêta.** Les numéros suivent le versionnage sémantique. Ni vrai transfert Drive ni vrai jeu n’ont été essayés avec cette version.
 - **Tu veux compiler un jeu ?** Ouvre **Réglages → Switch → Moteur**. Il te faut des fichiers compatibles que tu as le droit d’utiliser, nxnative et les versions de Xcode et de Metal qu’il demande. Aucun jeu, clé ou firmware n’est fourni. Tu n’as pas besoin des outils de compilation pour jouer à une app de jeu déjà installée.
 

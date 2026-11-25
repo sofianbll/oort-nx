@@ -145,6 +145,24 @@ public enum AppUpdate {
                        requirements: requirements)
     }
 
+    /// GitHub's `releases/latest` leaves pre-releases out, so a copy running one reads the list instead.
+    public static func releasesURL(repository: String, runningVersion: String) -> URL? {
+        let preRelease = parsed(runningVersion).map { $0.stage < 3 } ?? false
+        return URL(string: "https://api.github.com/repos/\(repository)/releases" + (preRelease ? "?per_page=10" : "/latest"))
+    }
+
+    /// The answer to `releasesURL`: one release, or a list whose newest usable one counts.
+    public static func parseReleases(_ json: Data, repository: String) -> Release? {
+        guard json.count <= 1024 * 1024 else { return nil }
+        guard let list = try? JSONSerialization.jsonObject(with: json) as? [[String: Any]] else {
+            return parseRelease(json, repository: repository)
+        }
+        return list.filter { $0["draft"] as? Bool != true }
+            .compactMap { try? JSONSerialization.data(withJSONObject: $0) }
+            .compactMap { parseRelease($0, repository: repository) }
+            .reduce(nil) { best, next in best.map { isNewer(next.version, than: $0.version) } == false ? best : next }
+    }
+
     /// GitHub's release redirect stays within its HTTPS download infrastructure.
     public static func trustedDownloadURL(_ url: URL) -> Bool {
         url.scheme?.lowercased() == "https" && url.user == nil && url.password == nil

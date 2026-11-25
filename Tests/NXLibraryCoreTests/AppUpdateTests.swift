@@ -80,6 +80,25 @@ final class AppUpdateTests: XCTestCase {
         XCTAssertFalse(AppUpdate.isNewer("0.5.0-nightly.1", than: "0.3.0"))
     }
 
+    func testABetaReadsTheListAndAReleaseOnlyTheLatest() throws {
+        let repo = try XCTUnwrap(AppUpdate.defaultRepository)
+        XCTAssertEqual(AppUpdate.releasesURL(repository: repo, runningVersion: "0.5.0")?.path, "/repos/\(repo)/releases/latest")
+        XCTAssertEqual(AppUpdate.releasesURL(repository: repo, runningVersion: "0.5.0-beta.1")?.path, "/repos/\(repo)/releases")
+        func entry(_ version: String, draft: Bool = false) throws -> Any {
+            let text = releaseJSON.replacingOccurrences(of: "0.3.0", with: version).replacingOccurrences(of: "Bium23/NxLibrary", with: repo)
+            var object = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(text.utf8)) as? [String: Any])
+            object["draft"] = draft
+            return object
+        }
+        func newest(_ entries: [Any]) throws -> String? {
+            AppUpdate.parseReleases(try JSONSerialization.data(withJSONObject: entries), repository: repo)?.version
+        }
+        XCTAssertEqual(try newest([entry("0.5.0-beta.2"), entry("0.5.0-beta.10"), entry("0.5.0-beta.1")]), "0.5.0-beta.10")
+        XCTAssertEqual(try newest([entry("0.5.0-beta.2"), entry("0.5.0"), entry("0.6.0", draft: true), ["tag_name": "v9.9.9"]]), "0.5.0")
+        XCTAssertNil(try newest([]))
+        XCTAssertEqual(AppUpdate.parseReleases(try JSONSerialization.data(withJSONObject: entry("0.5.0")), repository: repo)?.version, "0.5.0")
+    }
+
     func testABetaIsFoundUnderItsOwnArchiveName() throws {
         let repo = try XCTUnwrap(AppUpdate.defaultRepository)
         let json = releaseJSON.replacingOccurrences(of: "0.3.0", with: "0.5.0-beta.2").replacingOccurrences(of: "Bium23/NxLibrary", with: repo)

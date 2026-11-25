@@ -15,6 +15,9 @@ final class SeleneHeroArt: ObservableObject {
     @Published private(set) var key = "none"
     @Published private(set) var logoTick = 0
 
+    /// Whether the art in hand is this game's.
+    func shows(_ id: UUID) -> Bool { image != nil && HeroArtKey.belongs(key, to: id) }
+
     func heroTaskKey(_ game: PortedGame?, metadata: NintendoStoreMetadata?) -> String {
         guard let game else { return "none" }
         let remote = metadata?.headerImageURL ?? metadata?.imageURL
@@ -46,7 +49,7 @@ final class SeleneHeroArt: ObservableObject {
             return
         }
         // A new catalogue URL can arrive after the playable page has already shown its local fallback.
-        let loadedFor = heroTaskKey(game, metadata: metadata) + "|"
+        let loadedFor = HeroArtKey.make(game.id, heroTaskKey(game, metadata: metadata))
         if key.hasPrefix(loadedFor) { return }
         try? await Task.sleep(nanoseconds: settle)
         guard !Task.isCancelled else { return }
@@ -70,7 +73,7 @@ final class SeleneHeroArt: ObservableObject {
                        settle: UInt64 = 150_000_000) async {
         guard let game, game.integration == .steam else { return }
         let picks = SteamPersonalizations.shared.artwork
-        let loadedFor = "\(game.id.uuidString)|s\(picks.revision)|"
+        let loadedFor = HeroArtKey.make(game.id, "s\(picks.revision)")
         if key.hasPrefix(loadedFor) { return }
         try? await Task.sleep(nanoseconds: settle)
         guard !Task.isCancelled else { return }

@@ -244,7 +244,7 @@ Validate installation from the published DMG and replacement of an installed rel
 4. Publish B through `scripts/release.sh`, then open the installed A. Automatic checks run at most once per 24 hours; use **Settings → About → Check now** for an immediate check. The manual check exposes availability in About; the launch popup is a separate check after the interval.
 5. Update from inside A. Verify B reopens, reports its version and retains the library, favourite, preference, keys, backups and game progress. Test the automatic launch offer separately. Record actual results; compilation does not establish that this interactive flow worked.
 
-The updater reads `releases/latest`, which excludes draft and prerelease entries. Keep both A's DMG and ZIP when preparing B: `release.sh` replaces its local `work/release` output. Do not alter the Mac's clock to exercise the interval.
+The updater reads `releases/latest`, which excludes draft and prerelease entries. A copy running a pre-release reads the release list instead, so a beta finds the next beta. Keep both A's DMG and ZIP when preparing B: `release.sh` replaces its local `work/release` output. Do not alter the Mac's clock to exercise the interval.
 
 These are distribution decisions. Do not bypass the dirty-tree check, change the engine pin or weaken the Metal gate to make packaging succeed.
 

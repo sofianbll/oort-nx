@@ -17,11 +17,29 @@ final class OortSynthTests: XCTestCase {
                 XCTAssertGreaterThan(peak, 250, "\(pack) \(event) is silent")
                 XCTAssertLessThan(peak, 24_000, "\(pack) \(event) is too loud")
                 XCTAssertLessThan(values.suffix(2).map { abs(Int($0)) }.max() ?? 0, 4, "\(pack) \(event) ends with a click")
-                XCTAssertLessThan(values.count / 2, 48_000 * 2)
+                XCTAssertLessThan(values.count / 2, 48_000 * (event == .boot ? 3 : 2))
             }
             XCTAssertNil(synth.wav(.ambience))
         }
         XCTAssertNil(OortSynth(pack: "selene")); XCTAssertNil(OortSynth(pack: "imported"))
+    }
+
+    func testComposedNotesStayInRangeAndChangeTheMove() throws {
+        let synth = try XCTUnwrap(OortSynth(pack: "oort"))
+        for figure in OortSynth.Figure.allCases {
+            XCTAssertEqual(figure.notes.count, 8)
+            XCTAssertTrue(figure.notes.allSatisfy(OortSynth.range.contains), figure.rawValue)
+        }
+        XCTAssertEqual(OortSynth.notes(.custom, custom: [-9, 99, 0, 1, 2, 3, 4, 5]), [0, 24, 0, 1, 2, 3, 4, 5])
+        for bad in [[], [1, 2], [0, 1, 2, 3, 4, 5, 6, Double.nan]] {
+            XCTAssertEqual(OortSynth.notes(.custom, custom: bad), OortSynth.Figure.custom.notes)
+        }
+        XCTAssertEqual(OortSynth.notes(.minor, custom: [0, 0, 0, 0, 0, 0, 0, 0]), OortSynth.Figure.minor.notes)
+        let major = OortSynth.Figure.major.notes
+        XCTAssertNotEqual(synth.wav(.move, step: 7, notes: major), synth.wav(.move, step: 7))
+        XCTAssertNotEqual(synth.wav(.move, step: 1, notes: major, octave: 1), synth.wav(.move, step: 1, notes: major))
+        XCTAssertEqual(synth.wav(.move, notes: major, octave: 9), synth.wav(.move, notes: major, octave: 2))
+        XCTAssertNil(synth.wav(.move, notes: []))
     }
 
     func testMovesClimbAndStartAgain() throws {

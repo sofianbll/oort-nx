@@ -718,6 +718,21 @@ import ArcanePorting
         precondition(vm.runtimeSettings.settingsSnapshot(for: game)?.fixed.contains("DM_DYNAMIC_RESOLUTION") == true)
         let wallpaper = ThemeStore.shared.wallpaper(for: settings.settings.wallpaperID)?.url
         precondition(wallpaper != nil)
+        // Spotlight shows a Switch game's art only when it recognises it as that game's.
+        try NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 32, pixelsHigh: 18, bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true,
+                             isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
+            .representation(using: .png, properties: [:])!
+            .write(to: app.appendingPathComponent("Contents/Resources/hero.png"))
+        let art = SeleneHeroArt()
+        var loaded = false
+        Task { @MainActor in
+            await art.loadHero(game: game, current: { game.id }, metadata: nil, artwork: ArtworkStore(),
+                               personalizations: .empty, settle: 0, keepsWithoutGame: true)
+            loaded = true
+        }
+        let deadline = Date().addingTimeInterval(20)
+        while !loaded, Date() < deadline { RunLoop.main.run(until: Date().addingTimeInterval(0.02)) }
+        precondition(art.image != nil && art.shows(game.id) && !art.shows(UUID()), "Art loaded under \(art.key) is not recognised")
         let style = SeleneBackdropStyle(palette: ThemeStore.shared.palette, wallpaperURL: wallpaper,
                                        sizing: .fill, animated: false, brightness: .bright)
         func withHost<V: View>(_ view: V, size: CGSize, locale: AppLocale,

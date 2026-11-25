@@ -359,7 +359,7 @@ extension SpotlightView {
     func shownArt(_ model: Snapshot) -> NSImage? {
         let id = model.selectedGame?.id ?? model.selectedCatalogGame.flatMap { $0.integration == .steam ? $0.id : nil }
         guard let id, let image = art.image else { return nil }
-        return art.key.hasPrefix(id.uuidString)
+        return art.shows(id)
             || artRule.keepsOtherArt(selection: viewModel.spotlight.selectedKey, isGame: true) ? image : nil
     }
 
@@ -368,7 +368,7 @@ extension SpotlightView {
         if selectedItem == .card(.mods) {
             modsBackdrop = true
         } else if let game = selectedGame {
-            if art.key.hasPrefix(game.id.uuidString) { modsBackdrop = false }
+            if art.shows(game.id) { modsBackdrop = false }
         } else {
             modsBackdrop = false
         }

@@ -111,7 +111,7 @@ final class AppUpdater: ObservableObject {
 
     private func check(offering: Bool) {
         guard let repository,
-              let url = URL(string: "https://api.github.com/repos/\(repository)/releases/latest") else { return }
+              let url = AppUpdate.releasesURL(repository: repository, runningVersion: runningVersion) else { return }
         state = .checking
         offer = nil
         shouldOfferResult = offering
@@ -127,7 +127,7 @@ final class AppUpdater: ObservableObject {
                     lastRelease = nil; offer = nil; state = .upToDate; return
                 }
                 guard status == 200 else { state = .failed("GitHub answered \(status); try again later."); return }
-                guard let release = AppUpdate.parseRelease(data, repository: repository) else {
+                guard let release = AppUpdate.parseReleases(data, repository: repository) else {
                     state = .failed("The update could not be verified. Try again later.")
                     return
                 }

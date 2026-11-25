@@ -20,7 +20,7 @@ Game files, keys and firmware are not provided. See [Legal and third-party notic
 
 ### Project status
 
-Get the latest version from [Releases](https://github.com/sofianbll/oort-nx/releases/latest), or [build this version from source](#building-from-source).
+Get the latest version from [Releases](https://github.com/sofianbll/oort-nx/releases), or [build this version from source](#building-from-source).
 
 Send Oort NX bugs to this fork's maintainer, not to Bium23. Use [Contributing](CONTRIBUTING.md) for the reporting routes. Report a bug upstream only if you can reproduce it in unmodified Arcane.
 
@@ -62,7 +62,7 @@ Build options, runtime dependencies, debug builds and release packaging are docu
 
 ### Installing a packaged release
 
-1. Download the DMG from [Releases](https://github.com/sofianbll/oort-nx/releases/latest).
+1. Download the DMG from [Releases](https://github.com/sofianbll/oort-nx/releases).
 2. Open it and drag **Oort NX** to Applications.
 3. Open Oort NX, choose which detected sources to use, and select **Open library**.
 
