@@ -1925,6 +1925,12 @@ public struct ShellHostConfig: Sendable {
 
     public func stopControllers() { adapter.stop() }
 
+    /// A key of a hardware keyboard: the same actions as a controller's, with the keyboard's own hints.
+    public func keyPressed(_ action: ShellInput.Action) {
+        guard !launchingGame else { return }
+        input.append(action, device: .keyboard)
+    }
+
     /// True on iOS 27+ when a controller is connected and Home Button Override has not yet been deferred to the app.
     public var canOpenHomeButtonSettings: Bool {
         #if os(iOS)

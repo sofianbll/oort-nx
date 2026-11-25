@@ -38,6 +38,9 @@ public struct OortRootView: View {
         // The iPad's sidebar fills its chosen line with the tint, under white words.
         .tint(sidebar ? Oort.chosen : Oort.focus)
         .preferredColorScheme(.dark)
+        #if os(iOS)
+        .background { OortKeys(place: [nav.tab.rawValue] + (nav.paths[nav.tab] ?? []).map { "\($0)" }) { model.keyPressed($0) } }
+        #endif
         .modifier(TouchEndsPad(nav: nav))
         .transformEnvironment(\.oortStill) { $0 = $0 || model.launchingGame }
         .overlay {

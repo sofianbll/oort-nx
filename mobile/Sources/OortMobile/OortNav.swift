@@ -92,6 +92,8 @@ struct OortHints: View {
     let hints: [(action: ShellInput.Action, label: String)]
     var body: some View {
         if let device = nav.device {
+            // A keyboard has no key for L and R.
+            let hints = device == .keyboard ? hints.filter { $0.action != .nextTab && $0.action != .previousTab } : hints
             ViewThatFits(in: .horizontal) {
                 row(device, hints)
                 row(device, Array(hints.prefix(2)))
@@ -117,7 +119,7 @@ struct OortHints: View {
 
     static func symbol(_ action: ShellInput.Action, _ device: InputDevice) -> String {
         if case .keyboard = device {
-            return switch action { case .activate: "return"; case .back: "escape"; default: "keyboard" }
+            return switch action { case .activate: "return"; case .back: "escape"; case .settings: "o.square"; case .controllers: "y.square"; default: "keyboard" }
         }
         let playStation = device == .controller(.playStation)
         return switch action {
