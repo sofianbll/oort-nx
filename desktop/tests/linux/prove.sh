@@ -59,6 +59,7 @@ PY
   xdotool windowclose "$window" 2>/dev/null; sleep 3
   kill $pid 2>/dev/null; wait $pid 2>/dev/null; pkill -x oort-desktop 2>/dev/null; sleep 1
   ! pgrep -x oort-core > /dev/null; check $? "$name: nothing is left running"
+  ! grep -q 'GStreamer element .* not found' "$out/$name.txt"; check $? "$name: what plays the sounds is there"
   grep -v '^$' "$out/$name.txt" | tail -15
 }
 try deb $app

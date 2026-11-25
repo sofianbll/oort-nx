@@ -30,7 +30,12 @@ for (let i = 0; i < 120 && !target; i++) {
   await wait(250);
   target = await fetch(`http://127.0.0.1:${port}/json/list`).then(r => r.json()).then(l => l.find(t => t.type === 'page')).catch(() => null);
 }
-if (!target) fail('no page to talk to');
+if (!target) {
+  const ps = c => { try { return execFileSync('powershell', ['-NoProfile', '-Command', c], { encoding: 'utf8' }); } catch (e) { return String(e.message); } };
+  console.log(ps("Get-CimInstance Win32_Process -Filter \"Name='msedgewebview2.exe'\" | Where-Object { $_.CommandLine -match 'oort' -and $_.CommandLine -notmatch '--type=' } | ForEach-Object { $_.CommandLine }"));
+  console.log(ps('Get-NetTCPConnection -State Listen | Where-Object LocalPort -eq 9333 | Format-Table -AutoSize'), await fetch(`http://127.0.0.1:${port}/json/list`).then(r => r.text()).catch(e => String(e.cause || e)));
+  fail('no page to talk to');
+}
 console.log('page', target.url);
 const socket = new WebSocket(target.webSocketDebuggerUrl);
 await new Promise((r, e) => { socket.onopen = r; socket.onerror = e; });

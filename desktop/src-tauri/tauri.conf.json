@@ -45,6 +45,10 @@
     "license": "MIT",
     "homepage": "https://github.com/sofianbll/oort-nx",
     "publisher": "Oort NX",
+    "linux": {
+      "deb": { "depends": ["gstreamer1.0-plugins-base", "gstreamer1.0-plugins-good"] },
+      "appimage": { "bundleMediaFramework": true }
+    },
     "copyright": "MIT. See NOTICE."
   }
 }

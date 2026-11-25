@@ -59,10 +59,33 @@ $reply = '{"id":1,"method":"hello"}' | & "$folder\oort-core.exe" --data "$env:RU
 Check ("$reply" -match '"system":"windows"') 'the installed core answers'
 $env:PATH = $path
 
+# WebView2 takes the debugging port from its own policy, for this program only; nothing of the app is changed. The
+# variable of the same name is not read for a program run as administrator, as the runner's are.
+$policies = 'HKLM:\Software\Policies\Microsoft\Edge\WebView2\AdditionalBrowserArguments', 'HKCU:\Software\Policies\Microsoft\Edge\WebView2\AdditionalBrowserArguments'
+function Debugging([bool]$on) {
+  foreach ($policy in $policies) {
+    if ($on) {
+      New-Item $policy -Force | Out-Null
+      New-ItemProperty $policy -Name (Split-Path -Leaf $app) -Value '--remote-debugging-port=9333 --remote-allow-origins=*' -Force | Out-Null
+    } elseif (Test-Path $policy) { Remove-Item $policy -Recurse }
+  }
+}
+function Quiet {
+  # One WebView2 at a time uses the folder of the app.
+  for ($i = 0; $i -lt 40 -and (Get-Process msedgewebview2 -ErrorAction SilentlyContinue | Where-Object { $_.Path }); $i++) {
+    $ours = Get-CimInstance Win32_Process -Filter "Name='msedgewebview2.exe'" | Where-Object { $_.CommandLine -match 'oort-nx' }
+    if (-not $ours) { return }
+    Start-Sleep -Milliseconds 500
+  }
+}
+
 function Drive([string]$script, [string[]]$pairs) {
   Write-Host "`n--- $script $pairs"
+  Quiet; Debugging $true
   & $node "$here\drive.mjs" $app $script "$Out\pictures" "run=$run" "desk=$tools\Desk.exe" @pairs
-  Check ($LASTEXITCODE -eq 0) "$(Split-Path -Leaf $script) $pairs"
+  $code = $LASTEXITCODE
+  Check ($code -eq 0) "$(Split-Path -Leaf $script) $pairs"
+  Debugging $false
 }
 
 # --- A first start, with the app's own folder
@@ -72,7 +95,7 @@ Drive "$desktop\tests\first.js" @('tag=first-', 'language=fr')
 Check (Test-Path "$own\library.json") 'the library is kept in the folder of this user'
 
 # --- Which files the running app loads
-$env:WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS = $null
+Quiet
 $env:PATH = "$env:SystemRoot\System32;$env:SystemRoot"
 $started = Start-Process $app -PassThru
 Start-Sleep 6
