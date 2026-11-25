@@ -5,6 +5,7 @@ import android.content.pm.ApplicationInfo
 import android.graphics.Color
 import android.hardware.input.InputManager
 import android.os.Bundle
+import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.MotionEvent
 import androidx.activity.ComponentActivity
@@ -18,6 +19,7 @@ import io.github.sofianbll.oortnx.core.Prefs
 import io.github.sofianbll.oortnx.core.SoundEvent
 import io.github.sofianbll.oortnx.core.SoundPlayer
 import io.github.sofianbll.oortnx.core.connectedPads
+import io.github.sofianbll.oortnx.core.family
 import io.github.sofianbll.oortnx.ui.AppState
 import io.github.sofianbll.oortnx.ui.OortApp
 import io.github.sofianbll.oortnx.ui.OortTheme
@@ -55,15 +57,15 @@ class MainActivity : ComponentActivity() {
     }
 
     private val padListener = object : InputManager.InputDeviceListener {
-        override fun onInputDeviceAdded(deviceId: Int) { state.pads = connectedPads() }
-        override fun onInputDeviceRemoved(deviceId: Int) { state.pads = connectedPads(); router.reset(); state.pad.reset() }
-        override fun onInputDeviceChanged(deviceId: Int) { state.pads = connectedPads() }
+        override fun onInputDeviceAdded(deviceId: Int) { readPads() }
+        override fun onInputDeviceRemoved(deviceId: Int) { readPads(); router.reset(); state.pad.reset() }
+        override fun onInputDeviceChanged(deviceId: Int) { readPads() }
     }
 
     override fun onResume() {
         super.onResume()
         state.prefs.refresh()
-        state.pads = connectedPads()
+        readPads()
         (getSystemService(Context.INPUT_SERVICE) as InputManager).registerInputDeviceListener(padListener, null)
         state.rescan() // a game may have been installed or removed while another app was in front
     }
@@ -83,14 +85,25 @@ class MainActivity : ComponentActivity() {
     // A controller's buttons reach the activity here before any view: the pad drives the whole launcher.
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         val ours = state.pad.key(event)
+        if (ours) follow(event.device)
         if (ours && testing) { router.reset(); state.padMode = true; return true }
         return router.key(event) || super.dispatchKeyEvent(event)
     }
 
     override fun dispatchGenericMotionEvent(event: MotionEvent): Boolean {
         val ours = state.pad.motion(event)
+        if (ours) follow(event.device)
         if (ours && testing) { router.reset(); state.padMode = true; return true }
         return router.motion(event) || super.dispatchGenericMotionEvent(event)
+    }
+
+    /** The hints take the marks of the controller that was just used. */
+    private fun follow(device: InputDevice?) { device?.let { state.family = it.family } }
+
+    private fun readPads() {
+        state.pads = connectedPads()
+        // Before any button, the only controller there is gives its marks.
+        state.pads.singleOrNull()?.let { state.family = it.family }
     }
 
     /** The screen where every button is tried takes them all. */

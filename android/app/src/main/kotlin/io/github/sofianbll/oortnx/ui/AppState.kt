@@ -17,6 +17,7 @@ import io.github.sofianbll.oortnx.core.LastStart
 import io.github.sofianbll.oortnx.core.Nav
 import io.github.sofianbll.oortnx.core.Nx2Android
 import io.github.sofianbll.oortnx.core.OortSynth
+import io.github.sofianbll.oortnx.core.PadFamily
 import io.github.sofianbll.oortnx.core.PadMonitor
 import io.github.sofianbll.oortnx.core.Prefs
 import io.github.sofianbll.oortnx.core.SoundEvent
@@ -77,6 +78,9 @@ class AppState(
     var textSteps by mutableIntStateOf(0)
         private set
     var pads by mutableStateOf<List<ConnectedPad>>(emptyList())
+
+    /** The marks of the controller used last: what the hints show. */
+    var family by mutableStateOf(PadFamily())
     val pad = PadMonitor()
     var message by mutableStateOf<String?>(null)
     private var step = 0
@@ -412,7 +416,7 @@ class AppState(
             RowItem("sounds", Label.Res(R.string.settings_sound), glyph = Glyph.Sound, kind = Kind.Open(Route.Sounds),
                 value = if (prefs.sound) Label.Raw(packName(prefs.pack)) else Label.Res(R.string.off)),
             RowItem("buttons", Label.Res(R.string.controllers_buttons), glyph = Glyph.Swap, kind = Kind.Open(Route.Buttons),
-                value = Label.Res(if (prefs.swapAB) R.string.settings_confirm_b else R.string.settings_confirm_a)),
+                value = Label.Res(R.string.settings_confirms, keyName(HintKey.Confirm))),
             RowItem("cloud", Label.Res(R.string.settings_cloud), glyph = Glyph.Cloud, kind = Kind.Open(Route.Cloud),
                 value = Label.Res(if (prefs.calm) R.string.settings_cloud_still else R.string.settings_cloud_moving)),
         )),

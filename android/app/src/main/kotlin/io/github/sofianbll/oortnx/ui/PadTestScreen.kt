@@ -47,11 +47,11 @@ fun PadTestScreen(state: AppState) {
             val wide = minOf(maxWidth, 560.dp, (maxHeight - 120.dp).coerceAtLeast(150.dp) / 0.72f)
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    pad.lastKey?.let { stringResource(R.string.controllers_last, it) } ?: stringResource(R.string.controllers_press),
+                    pad.lastKey?.let { stringResource(R.string.controllers_last, state.family.mark(state.family.printed(it))) } ?: stringResource(R.string.controllers_press),
                     style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center,
                 )
                 PadView(pad.held, Modifier.width(wide).oortPanel(RoundedCornerShape(canvas(OortTokens.Radius.Dialog))).padding(20.dp))
-                Text(stringResource(R.string.controllers_hold), style = MaterialTheme.typography.bodyMedium, color = Ink2, textAlign = TextAlign.Center)
+                Text(stringResource(R.string.controllers_hold, state.keyName(HintKey.Confirm), state.keyName(HintKey.Back)), style = MaterialTheme.typography.bodyMedium, color = Ink2, textAlign = TextAlign.Center)
             }
         }
     }

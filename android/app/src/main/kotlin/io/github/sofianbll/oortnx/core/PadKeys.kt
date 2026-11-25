@@ -6,8 +6,8 @@ import android.view.KeyEvent
 enum class Nav { Up, Down, Left, Right, Confirm, Back, Previous, Next, Details, Controllers, Options, Sort, First, Last }
 
 /**
- * Android reports a pad's buttons by label: BUTTON_A is the south button on an Xbox layout, and is what Android's own
- * apps use to confirm. A player who wants the Switch layout (east button confirms) swaps A and B in the settings.
+ * What a key does. The codes are those of the letters printed on the pad ([PadFamily.printed]): A confirms and B goes
+ * back, wherever the maker put them. A player whose pad Android does not know can swap the two in the settings.
  */
 object PadKeys {
     fun nav(keyCode: Int, swapAB: Boolean): Nav? = when (keyCode) {

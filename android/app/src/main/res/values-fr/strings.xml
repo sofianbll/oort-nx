@@ -53,9 +53,9 @@
     <string name="controllers_test">Essayer les boutons</string>
     <string name="controllers_press">Appuie sur un bouton</string>
     <string name="controllers_last">Dernier bouton : %1$s</string>
-    <string name="controllers_hold">Maintiens A ou B pour fermer.</string>
+    <string name="controllers_hold">Maintiens %1$s ou %2$s pour fermer.</string>
     <string name="controllers_buttons">Boutons</string>
-    <string name="controllers_layout">Android nomme les boutons par leur étiquette : A valide et B revient. Active ce réglage si ta manette a la disposition Switch.</string>
+    <string name="controllers_layout">Valider et revenir suivent les lettres imprimées sur la manette : A et B, ou ✕ et ○ sur PlayStation. Active ce réglage pour les échanger.</string>
 
     <string name="settings_games">Jeux</string>
     <string name="settings_which">Les jeux qu’Oort trouve</string>
@@ -64,9 +64,8 @@
     <string name="settings_sound_note">Fabriqués sur l’appareil, sans fichier audio.</string>
     <string name="settings_pack">Pack de sons</string>
     <string name="settings_swap">Inverser A et B</string>
-    <string name="settings_swap_note">Pour une manette à la disposition Switch.</string>
-    <string name="settings_confirm_a">A valide</string>
-    <string name="settings_confirm_b">B valide</string>
+    <string name="settings_swap_note">Pour une manette à la disposition Switch qu’Android ne reconnaît pas.</string>
+    <string name="settings_confirms">%1$s valide</string>
     <string name="settings_cloud">Nuage</string>
     <string name="settings_cloud_moving">Animé</string>
     <string name="settings_cloud_still">Immobile</string>

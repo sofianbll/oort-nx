@@ -49,8 +49,8 @@ class PadMonitor {
     var held by mutableStateOf(Held())
         private set
 
-    /** The last button pressed, as Android names it. */
-    var lastKey by mutableStateOf<String?>(null)
+    /** The last button pressed, as Android names it (its place on an Xbox pad). */
+    var lastKey by mutableStateOf<Int?>(null)
         private set
 
     /** True when the key is a controller's: the caller may keep it from the rest of the app. */
@@ -59,7 +59,7 @@ class PadMonitor {
         if (!KeyEvent.isGamepadButton(code) && code !in DPAD) return false
         if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0) {
             held = held.copy(keys = held.keys + code)
-            lastKey = KeyEvent.keyCodeToString(code).removePrefix("KEYCODE_").removePrefix("BUTTON_")
+            lastKey = code
         } else if (event.action == KeyEvent.ACTION_UP) {
             held = held.copy(keys = held.keys - code)
         }

@@ -53,9 +53,9 @@
     <string name="controllers_test">Try the buttons</string>
     <string name="controllers_press">Press a button</string>
     <string name="controllers_last">Last button: %1$s</string>
-    <string name="controllers_hold">Hold A or B to close.</string>
+    <string name="controllers_hold">Hold %1$s or %2$s to close.</string>
     <string name="controllers_buttons">Buttons</string>
-    <string name="controllers_layout">Android names buttons by label: A confirms and B goes back. Turn this on if your controller has the Switch layout.</string>
+    <string name="controllers_layout">Confirm and back follow the letters printed on the controller: A and B, or ✕ and ○ on PlayStation. Turn this on to swap them.</string>
 
     <string name="settings_games">Games</string>
     <string name="settings_which">Which games Oort finds</string>
@@ -64,9 +64,8 @@
     <string name="settings_sound_note">Made on the device, with no audio file.</string>
     <string name="settings_pack">Sound pack</string>
     <string name="settings_swap">Swap A and B</string>
-    <string name="settings_swap_note">For a controller with the Switch layout.</string>
-    <string name="settings_confirm_a">A confirms</string>
-    <string name="settings_confirm_b">B confirms</string>
+    <string name="settings_swap_note">For a controller Android does not recognise, with the Switch layout.</string>
+    <string name="settings_confirms">%1$s confirms</string>
     <string name="settings_cloud">Cloud</string>
     <string name="settings_cloud_moving">Moving</string>
     <string name="settings_cloud_still">Still</string>
