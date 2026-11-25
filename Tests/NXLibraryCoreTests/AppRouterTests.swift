@@ -2,6 +2,26 @@ import XCTest
 @testable import NXLibraryCore
 
 final class AppRouterTests: XCTestCase {
+    func testSettingsDecisionOwnsInputInsteadOfThePalette() {
+        let router = AppRouter()
+        router.openSettings(.look)
+        router.hasPendingSettings = { true }
+        router.requestSettingsSave()
+        router.isPalettePresented = true
+        XCTAssertFalse(router.isPalettePresented)
+        XCTAssertEqual(router.settingsDecision, .save)
+        router.finishSettingsDecision(proceed: false)
+        router.isPalettePresented = true
+        XCTAssertTrue(router.isPalettePresented)
+        router.settingsOverlayOwnsInput = true
+        XCTAssertFalse(router.isPalettePresented)
+        router.isPalettePresented = true
+        XCTAssertFalse(router.isPalettePresented)
+        router.settingsOverlayOwnsInput = false
+        router.isPalettePresented = true
+        XCTAssertTrue(router.isPalettePresented)
+    }
+
     func testFullScreenBackdropCoverFollowsTheVisibleLayerPriority() {
         XCTAssertEqual(ShellBackdropCover.resolve(setup: true, welcome: true, themePicker: true), .setup)
         XCTAssertEqual(ShellBackdropCover.resolve(setup: false, welcome: true, themePicker: true), .welcome)

@@ -51,6 +51,11 @@ struct SettingsView: View {
     @State private var firstPIN: String?
     @State private var editingProfileName = false
     private var profileDialogOpen: Bool { editingProfileName || pinProfileID != nil }
+    private var overlayOwnsInput: Bool {
+        showingControls || showingPlayers || localePicker != nil || showingCloudAssistant
+            || viewModel.isEditingSteamGridDBKey || igdb.isEditing || profileDialogOpen
+            || nextendo.isEditingClient || nextendo.friendToRemove != nil
+    }
     @State private var focusArea: SettingsFocusArea = .sidebar
     @State private var rowFocus = FocusIndex()
     /// The button in focus inside the focused row: 0 its own, 1 a second one (Back to tested beside Update).
@@ -133,9 +138,7 @@ struct SettingsView: View {
             SeleneHintsBar(left: [HintItem(.b, L10n.text("Back")) { handleBack() }], right: commandHints)
                 // Save remains visible even while previewing a change that hides the hints.
                 .environment(\.seleneShowButtonHints, hasPendingChanges || settings.presentation.showButtonHints)
-                .seleneOverlaidHints(showingControls || showingPlayers || localePicker != nil || showingCloudAssistant
-                    || viewModel.isEditingSteamGridDBKey || igdb.isEditing
-                    || profileDialogOpen || nextendo.isEditingClient || nextendo.friendToRemove != nil)
+                .seleneOverlaidHints(overlayOwnsInput)
         }
         .id(theme.palette.id)
         .background(SeleneBackdrop().environment(\.seleneBackdropStyle, settingsBackdropStyle))
@@ -307,6 +310,14 @@ struct SettingsView: View {
         .seleneOverlayOwnership(router.settingsDecision == nil)
         .overlay { decisionOverlay }
         .environment(\.seleneMinimumFont, 12)
+        .onChange(of: overlayOwnsInput, initial: true) { _, active in
+            reportOverlayInput(active)
+        }
+    }
+
+    private func reportOverlayInput(_ active: Bool) {
+        guard router.route == .settings(initialSection), router.settingsOverlayOwnsInput != active else { return }
+        router.settingsOverlayOwnsInput = active
     }
 
     private var hasPendingChanges: Bool { settings.draft?.hasChanges == true }

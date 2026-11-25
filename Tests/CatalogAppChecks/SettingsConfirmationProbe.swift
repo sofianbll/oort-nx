@@ -231,6 +231,14 @@ import ArcanePorting
         let catalog = try repository.load()
         let vm = AppViewModel(settingsStore: settings, catalog: catalog, repository: repository)
         vm.applyCatalog(catalog) // This harness disables catalog application in the initializer.
+        let router = AppRouter()
+        router.openSettings(.look)
+        let dialogHost = SettingsView(initialSection: .look, viewModel: vm, settings: settings, router: router, artwork: ArtworkStore())
+        for (cloud, pin) in [(true, false), (false, true), (false, false)] {
+            dialogHost.screenReportDialog(cloud: cloud, pin: pin)
+            router.isPalettePresented = true
+            precondition(router.isPalettePresented == !(cloud || pin), "Settings dialogs own the palette input")
+        }
         try checkDraft(vm: vm, settings: settings, output: output, locale: locale)
         try checkNavigation(vm: vm, settings: settings, output: output, locale: locale, size: .init(width: 1440, height: 810), suffix: "fr")
         try checkNavigation(vm: vm, settings: settings, output: output, locale: locale, size: .init(width: 840, height: 810), suffix: "etroit-fr")
@@ -256,6 +264,15 @@ import ArcanePorting
             let png = NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:])!
             try png.write(to: output.appendingPathComponent("confirm-\(name)-\(context?.language.rawValue ?? "fr").png"))
         }
+
+        for language in [locale, AppLocale(language: .english, region: "US")] {
+            L10n.setContext(language)
+            vm.alertMessage = DevelopmentStartup.libraryMoveNotice(removal: true, pendingBuild: true)
+            input.presentLegacyNotice()
+            try render("previous-library", input.settingsNoticeOverlay(vm.settingsNotice!), context: language)
+            input.settingsNoticeInput(.cancel)
+        }
+        L10n.setContext(locale)
 
         func confirm(_ name: String, _ open: () -> Void, count: () -> Int) throws {
             let before = count()
@@ -292,15 +309,6 @@ import ArcanePorting
         cloud.setEnabled(false)
         precondition(model.preference.enabled && cloudWrites == 0 && settings.editingSettings.launcherChoices.cloudActivation?.enabled == false)
         try settings.commitDraft()
-        for language in [locale, AppLocale(language: .english, region: "US")] {
-            L10n.setContext(language)
-            vm.alertMessage = DevelopmentStartup.libraryMoveNotice(removal: true, pendingBuild: true)
-            input.presentLegacyNotice()
-            try render("previous-library", input.settingsNoticeOverlay(vm.settingsNotice!), context: language)
-            input.settingsNoticeInput(.cancel)
-        }
-        L10n.setContext(locale)
-
         model.useSettingsActivation(settings.settings.launcherChoices.cloudActivation)
         precondition(!model.preference.enabled && cloudWrites == 1)
         cloud.setEnabled(true)

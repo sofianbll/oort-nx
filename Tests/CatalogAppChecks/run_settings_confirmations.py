@@ -86,6 +86,16 @@ def prepare(package):
     for name in ("SettingsAPISection", "SettingsEngineSection"):
         expose(settings / f"{name}.swift", "publishActions")
     expose(settings / "SettingsView.swift", "resetSection")
+    append(settings / "SettingsView.swift", """
+extension SettingsView {
+    func screenReportDialog(cloud: Bool, pin: Bool) {
+        var view = self
+        view._cloudAssistant = State(initialValue: cloud ? .credentials : nil)
+        view._pinProfileID = State(initialValue: pin ? UUID() : nil)
+        view.reportOverlayInput(view.overlayOwnsInput)
+    }
+}
+""")
     replace(settings / "SettingsAPISection.swift", r'@State var remotePlayAdapters = RemotePlayAdapters\(\)',
             '@State var remotePlayAdapters = RemotePlayAdapters.screenFixture')
     append(porting / "GameSettings/RemotePlayAdapters.swift", """

@@ -12,7 +12,7 @@ extension AppShellView {
     var paletteAvailable: Bool {
         !viewModel.showSetupCheck && !showsWelcome && profileFlow == nil && !isCloseGameOpen
             && !router.isScreenshotViewerOpen && !viewModel.isGameOptionsOpen && viewModel.launchOverlay == nil
-            && !filePicker.isOpen && !nativeDialogOwnsInput
+            && !filePicker.isOpen && !nativeDialogOwnsInput && !showsSettingsNotice && !router.settingsOwnsInput
     }
 
     func togglePalette(query: String = "") {

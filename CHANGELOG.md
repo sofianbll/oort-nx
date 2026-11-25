@@ -35,6 +35,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 - A library copied from the folder of Oort NX 0.3.0 now names its own folder: games, settings and queues no longer point at the old one. A library copied earlier is repaired once, after keeping its files; the old folder is not changed.
 - An interrupted removal and a waiting build that belongs to the previous library stay with that version; the new library opens without replaying them.
 - An explicitly selected rclone link keeps working when its package manager upgrades the executable.
+- ⌘K leaves Settings dialogs in charge. Refreshing the games keeps the same palette row selected, or clears the selection if that row is gone.
 - In the control center, B says Back inside a card, and ⌘K closes what it opened.
 - ⌘F, and holding − in the Arcane layout, search from a game’s page too.
 - With button hints off, the mouse keeps Back on screens that have no other way out.
