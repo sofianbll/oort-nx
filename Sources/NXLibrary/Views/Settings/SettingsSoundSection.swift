@@ -138,6 +138,7 @@ struct SettingsSoundSection: View {
 
     private var hasSample: Bool {
         let id = settings.settings.soundPackID
+        if OortSynth(pack: id) != nil { return event != .ambience }
         if id == "selene" { return event.legacyCue != nil }
         if providedEvents.contains(event.rawValue) { return true }
         if event == .boot || (id == "oort" && event == .move) { return false }

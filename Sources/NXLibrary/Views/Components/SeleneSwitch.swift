@@ -17,7 +17,7 @@ struct SeleneSwitch: View {
             Capsule()
                 .fill(SeleneTheme.panelRaised)
                 .overlay {
-                    OortDots(rise: isOn ? 1 : 0, color: SeleneTheme.ink)
+                    OortDots(rise: isOn ? 1 : 0, color: SeleneTheme.glyph)
                         .animation(Motion.dots(reduced), value: isOn)
                         .clipShape(Capsule())
                 }
@@ -28,6 +28,7 @@ struct SeleneSwitch: View {
                         .fill(LinearGradient(colors: [SeleneTheme.focus, SeleneTheme.focus.mix(with: SeleneTheme.glyph, by: SeleneTokens.Effect.surfaceLineStrong)],
                                              startPoint: .top, endPoint: .bottom))
                         .frame(width: canvas.u(24), height: canvas.u(24))
+                        .background { Circle().fill(SeleneTheme.panelRaised).padding(-canvas.u(SeleneTokens.Space.segmentInset)) }
                         .padding(canvas.u(SeleneTokens.Space.segmentInset))
                 }
         }
