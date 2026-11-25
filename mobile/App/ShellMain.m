@@ -641,6 +641,10 @@ static UIInterfaceOrientationMask shell_orientations(UITraitCollection *traits) 
     (void)application; (void)options;
     return [ShellLibrary handleOpenURL:url];
 }
+- (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))done {
+    (void)application;
+    [ShellLibrary handleBackgroundSession:identifier completion:done];
+}
 @end
 
 @interface SceneDelegate : UIResponder <UIWindowSceneDelegate>

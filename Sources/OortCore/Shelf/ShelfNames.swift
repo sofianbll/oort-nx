@@ -58,7 +58,7 @@ public enum ShelfNames {
         }
     }
 
-    static func isHex(_ text: String, count: Int) -> Bool {
+    public static func isHex(_ text: String, count: Int) -> Bool {
         text.utf8.count == count && text.utf8.allSatisfy { (48...57).contains($0) || (97...102).contains($0) }
     }
 

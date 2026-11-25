@@ -106,9 +106,15 @@ private func withCStrings<R>(_ strings: [String], _ body: (UnsafePointer<UnsafeP
         pendingOpenURL = nil
         if let url { _ = model.handleDeepLink(url) }
         let host = UIHostingController(rootView: OortRootView(model: model, sounds: OortSounds(defaults: model.shellSettings.defaults), importRoot: hotRoot,
+                                                              cloud: CloudDrive.model,
                                                               checkSigner: { OortSigning.refusal($0) }))
         host.view.backgroundColor = .black
         return host
+    }
+
+    @MainActor @objc(handleBackgroundSession:completion:) static func handleBackgroundSession(_ identifier: String, completion: @escaping @Sendable () -> Void) {
+        guard identifier == CloudDrive.session else { return completion() }
+        CloudDrive.reconnect(completion)
     }
 
     @MainActor @objc(handleOpenURL:) static func handleOpenURL(_ url: URL) -> Bool {

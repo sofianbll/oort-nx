@@ -15,9 +15,18 @@ print(next(d["udid"] for d in json.load(sys.stdin)["devices"][runtime] if d["nam
 xcrun simctl bootstatus "$udid" -b
 xcrun simctl ui "$udid" appearance "$look"
 xcrun simctl spawn "$udid" defaults write com.apple.Accessibility ReduceMotionEnabled -bool "$([ "$still" = still ] && echo YES || echo NO)"
-tests=(); for one in ${only//,/ }; do tests+=("-only-testing:OortUITests/OortUITests/$one"); done
+tests=(); for one in ${only//,/ }; do tests+=("-only-testing:OortUITests/$one"); done
+# The stand-in for Google Drive, on this machine only.
+port=8799
+echo '{"drive": {"root": "ROOT", "nodes": []}}' > "$work/empty.json"
+python3 -I -B "$OORT_MOBILE/../Tests/PhoneLibrary/fake_drive.py" "$work/empty.json" $port > "$out/stand-in.txt" 2>&1 &
+standin=$!
+# Every connection the app opens while its tests run, seen by this machine: none may leave it.
+(while sleep 1; do for pid in $(pgrep -f 'Oort NX.app/Oort NX' || true); do lsof -nP -i -a -p "$pid" 2>/dev/null | tail -n +2 || true; done; done >> "$out/connections.txt") &
+watcher=$!
+trap 'kill $standin $watcher 2>/dev/null || true' EXIT
 status=0
-TEST_RUNNER_OORT_OUT="$out/shots" TEST_RUNNER_OORT_LANG="$lang" TEST_RUNNER_OORT_STILL="$still" \
+TEST_RUNNER_OORT_OUT="$out/shots" TEST_RUNNER_OORT_LANG="$lang" TEST_RUNNER_OORT_STILL="$still" TEST_RUNNER_OORT_PORT=$port \
   xcodebuild test -project "$work/OortNXTests.xcodeproj" -scheme OortUITests -destination "platform=iOS Simulator,id=$udid" \
   -derivedDataPath "$work/dd-tests" -resultBundlePath "$work/tests-$lang-$look.xcresult" -parallel-testing-enabled NO \
   ONLY_ACTIVE_ARCH=YES CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual ${tests[@]+"${tests[@]}"} > "$out/xcodebuild.txt" 2>&1 || status=$?
@@ -26,10 +35,13 @@ grep -E "error:|Test Case .*(passed|failed)|Executed |TEST (FAILED|SUCCEEDED)" "
 xcrun simctl spawn "$udid" log show --last 90m --style compact --predicate 'process == "Oort NX" AND NOT subsystem CONTAINS "xctest"' 2>/dev/null | gzip > "$out/app-log.gz" || true
 # A test that did not run, or kept no picture, proves nothing.
 passed=$(grep -cE "Test Case .* passed \(" "$out/xcodebuild.txt" || true)
-wanted=$([ ${#tests[@]} -gt 0 ] && echo ${#tests[@]} || grep -c "func test" "$OORT_MOBILE/UITests/OortUITests.swift")
+case "$only" in ""|*/*|*,*) wanted=$([ -n "$only" ] && echo ${#tests[@]} || cat "$OORT_MOBILE"/UITests/*.swift | grep -c "func test") ;;
+  *) wanted=$(grep -c "func test" "$OORT_MOBILE/UITests/$only.swift") ;; esac
 [ "$passed" -eq "$wanted" ] || { echo "$passed tests passed of $wanted"; status=1; }
 [ -n "$(ls "$out/shots")" ] || { echo "no picture was kept"; status=1; }
 # A crash of the app, whatever the tests say.
 crashes=$(find "$HOME/Library/Logs/DiagnosticReports" "$HOME/Library/Developer/CoreSimulator/Devices/$udid/data/Library/Logs" -name 'Oort NX*.ips' 2>/dev/null || true)
 if [ -n "$crashes" ]; then echo "The app crashed:"; echo "$crashes"; mkdir -p "$out/crashes"; echo "$crashes" | while read -r one; do cp "$one" "$out/crashes/"; done; status=1; fi
+if grep -v '127.0.0.1' "$out/connections.txt" | grep -q .; then echo "The app opened a connection that leaves this machine:"; sort -u "$out/connections.txt" | head; status=1; fi
+echo "connections seen: $(wc -l < "$out/connections.txt")"
 exit "$status"

@@ -15,6 +15,8 @@ enum Oort {
     static let light = hex(SeleneTokens.Palette.light)
     static let ok = hex(SeleneTokens.Color.statusOK)
     static let cloud = hex(SeleneTokens.Color.statusCloud)
+    /// The Sun's, and nothing else's.
+    static let sun = hex(SeleneTokens.Art.sun)
     static let danger = hex(SeleneTokens.Color.danger)
     static let warning = hex(SeleneTokens.Color.untested)
     static let panelLow = page.mix(with: ink, by: SeleneTokens.Effect.surfaceLow)

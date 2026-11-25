@@ -15,6 +15,12 @@ struct LibraryScreen: View {
     /// The largest texts take one cover a line on a phone.
     private var columns: Int { type.isAccessibilitySize ? max(1, Int(width / 260)) : max(2, Int(width / 168)) }
 
+    private var inCloud: Bool { nav.cloudShown && hasCloud }
+    private var hasCloud: Bool { nav.cloud?.stage == .ready || nav.cloud?.stage == .signIn }
+    private var cloudGames: [CloudModel.Game] {
+        (nav.cloud?.cloudGames ?? []).filter { query.isEmpty || $0.build.name.localizedStandardContains(query) }
+    }
+
     private var games: [GameDetail] {
         let found = model.details.filter { query.isEmpty || $0.game.title.localizedStandardContains(query) }
         return byName ? found.sorted { $0.game.title.localizedStandardCompare($1.game.title) == .orderedAscending } : found
@@ -22,7 +28,10 @@ struct LibraryScreen: View {
 
     var body: some View {
         Group {
-            if model.details.isEmpty {
+            if inCloud, let cloud = nav.cloud {
+                CloudLibrary(cloud: cloud, model: model, nav: nav, query: query, columns: columns, focus: focus)
+                    .searchable(text: $query, prompt: Oort.text("Search your games"))
+            } else if model.details.isEmpty {
                 EmptyLibrary(model: model, nav: nav)
             } else {
                 ScrollViewReader { scroll in
@@ -44,6 +53,20 @@ struct LibraryScreen: View {
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
         .background { OortBackdrop(strength: 0.5) }
         .navigationTitle(Oort.text("Library"))
+        .safeAreaInset(edge: .top, spacing: 0) {
+            if hasCloud {
+                Picker(Oort.text("Which games"), selection: $nav.cloudShown) {
+                    Text(Oort.text("On this device")).tag(false)
+                    Text(Oort.text("Cloud")).tag(true)
+                }
+                .pickerStyle(.segmented)
+                .frame(maxWidth: 420)
+                .padding(.horizontal, SeleneTokens.Space.panel)
+                .padding(.vertical, SeleneTokens.Space.compact)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .onChange(of: nav.cloudShown) { focus = FocusGrid() }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu(Oort.text("Sort"), systemImage: "arrow.up.arrow.down") {
@@ -63,14 +86,18 @@ struct LibraryScreen: View {
         }
         .oortInput(model, nav) { action in
             switch action {
+            case .up where hasCloud && (focus.current == nil || top.contains(focus.current!)):
+                // Above the first row: the other games.
+                nav.cloudShown.toggle()
+                nav.sounds.play(.select)
             case .up, .down, .left, .right:
-                nav.sounds.play(focus.move(direction(action), in: FocusGrid.rows(games.map(\.id), columns: columns)) ? .move : .deny)
+                nav.sounds.play(focus.move(direction(action), in: FocusGrid.rows(ids, columns: columns)) ? .move : .deny)
             case .activate:
                 guard let id = focus.current else { return true }
                 nav.sounds.play(.open)
-                nav.open(.game(id))
+                nav.open(inCloud ? .cloudGame(id) : .game(id))
             case .settings:
-                guard let id = focus.current else { return false }
+                guard let id = focus.current, !inCloud else { return false }
                 nav.sounds.play(.open)
                 nav.open(.options(id))
             default: return false
@@ -78,6 +105,9 @@ struct LibraryScreen: View {
             return true
         }
     }
+
+    private var ids: [String] { inCloud ? cloudGames.map(\.id) : games.map(\.id) }
+    private var top: [String] { Array(ids.prefix(columns)) }
 
     private func card(_ item: GameDetail) -> some View {
         let focused = nav.device != nil && focus.current == item.id

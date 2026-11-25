@@ -100,6 +100,14 @@ EDITS = [
         ("GameManifest", "func isVersion", "public func isVersion"), ("GameManifest", "    var minOSVersion", "    public var minOSVersion"),
         ("GameManifest", "func describe", "public func describe"), ("GameManifest", ".label", ".words"), ("LauncherProfile", ".label", ".words"))),
 ]
+EDITS.append(("ShellMain", "    return [ShellLibrary handleOpenURL:url];\n}\n@end\n", """    return [ShellLibrary handleOpenURL:url];
+}
+- (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))done {
+    (void)application;
+    [ShellLibrary handleBackgroundSession:identifier completion:done];
+}
+@end
+""", "What the system downloaded for the app is passed on."))
 EDITS.append(("LauncherProfile", "    public var id: String { env }\n", """    public var id: String { env }
     /// A row made outside a `launcher.json` (the languages found in a game's own files).
     public init(env: String, kind: String, section: String?, label: String, note: String, def: String, needs: String?, level: String?,
@@ -232,12 +240,13 @@ def main(checkout):
 
 [NX2Apple](https://github.com/LNPANDY/NX2Apple) at `{commit}`, {CREDIT}. The licence text is in the root `NOTICE`.
 `mobile/scripts/import_nx2apple.py <checkout>` writes these files and this list. The SHA-256 is the original file's.
-No view of NX2Apple's is here: the screens are Oort NX's (`Sources/OortMobile`).
+No view of NX2Apple's is here: the screens are Oort NX's (`Sources/OortMobile`). French says "tu" (`scripts/french_tu.py`).
 
 | File | From | SHA-256 | Change |
 |---|---|---|---|
 {table}
 """)
+    subprocess.run([sys.executable, HERE / "scripts/french_tu.py"], check=True)
     print(f"{len(rows)} files from NX2Apple {commit}")
 
 

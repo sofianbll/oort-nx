@@ -3,7 +3,7 @@ import CryptoKit
 import Foundation
 import OortCore
 import Testing
-@testable import OortDrive
+@_spi(Checks) @testable import OortDrive
 
 @Suite(.serialized) struct DriveAccessTests {
     let signer = P256.Signing.PrivateKey().publicKey.derRepresentation.base64EncodedString()
@@ -138,7 +138,44 @@ import Testing
         let configuration = URLSessionConfiguration.ephemeral
         _ = DriveSession(configuration: configuration)
         #expect(configuration.urlCache == nil && configuration.httpCookieStorage == nil && configuration.urlCredentialStorage == nil)
-        #expect(!configuration.allowsCellularAccess && !configuration.allowsExpensiveNetworkAccess)
+    }
+
+    @Test func mobileDataIsAskedForEachRequestAndOnlyWhenAllowed() {
+        for allowed in [false, true] {
+            let request = DriveSession(allowsMeteredNetwork: allowed).limited(URLRequest(url: URL(string: "http://127.0.0.1/")!))
+            #expect(request.allowsCellularAccess == allowed && request.allowsExpensiveNetworkAccess == allowed)
+        }
+    }
+
+    /// What came while the app was gone waits under what was asked, is taken once, and never names a credential.
+    @Test func anAnswerKeptForAnEndedAppIsTakenOnce() async throws {
+        let vector = FakeDrive.folder.appendingPathComponent("vectors/large-file.json"), drive = try FakeDrive(vector)
+        let work = try temporaryFolder()
+        defer { try? FileManager.default.removeItem(at: work) }
+        let inbox = work.appendingPathComponent("inbox")
+        func session() -> DriveSession { DriveSession(configuration: .ephemeral, inbox: inbox, allowsMeteredNetwork: { true }) }
+        var request = URLRequest(url: drive.endpoints().files.appendingPathComponent("f-1"))
+        request.setValue("bytes=0-99", forHTTPHeaderField: "Range")
+        request.setValue("Bearer AT-CANARY", forHTTPHeaderField: "Authorization")
+        let body = work.appendingPathComponent("body")
+        try Data("kept".utf8).write(to: body)
+        session().keep(body, DriveReply(status: 206, headers: ["content-range": "bytes 0-99/100"]), request: request, limit: 100)
+        for file in files(under: inbox) {
+            #expect(try Data(contentsOf: file).range(of: Data("CANARY".utf8)) == nil)
+            #expect(!file.lastPathComponent.contains("f-1"))
+        }
+        let out = work.appendingPathComponent("out")
+        let reply = try await session().send(request, to: out, limit: 100)
+        #expect(reply.status == 206 && reply.header("Content-Range") == "bytes 0-99/100")
+        #expect(try String(contentsOf: out, encoding: .utf8) == "kept")
+        #expect(files(under: inbox).isEmpty)
+        #expect(try drive.log().isEmpty, "nothing was asked again")
+        // Too long, or refused: not kept.
+        try Data("far too long".utf8).write(to: body)
+        session().keep(body, DriveReply(status: 206, headers: [:]), request: request, limit: 3)
+        try Data("no".utf8).write(to: body)
+        session().keep(body, DriveReply(status: 403, headers: [:]), request: request, limit: 100)
+        #expect(files(under: inbox).isEmpty)
     }
 }
 #endif

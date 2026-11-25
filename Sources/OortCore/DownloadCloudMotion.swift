@@ -1,5 +1,4 @@
 import Foundation
-import OortCore
 
 /// Coordinates and radii are in local tile points; drift time is on the shared clock.
 public enum DownloadCloudMotion {
@@ -221,6 +220,11 @@ public enum DownloadCloudMotion {
         public let radius: Double
         public let opacity: Double
         public let kind: Kind
+
+        // The portable core sees CGPoint without its own comparison.
+        public static func == (a: Self, b: Self) -> Bool {
+            a.center.x == b.center.x && a.center.y == b.center.y && a.radius == b.radius && a.opacity == b.opacity && a.kind == b.kind
+        }
     }
 
     public struct Frame {

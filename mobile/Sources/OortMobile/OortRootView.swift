@@ -13,8 +13,11 @@ public struct OortRootView: View {
     private let checkSigner: @Sendable (URL) -> String?
 
     /// `importRoot` is `Documents/Frameworks`; nil leaves adding a game out. `checkSigner` says why a game cannot run here.
-    public init(model: ShellHostModel, sounds: OortSounds, importRoot: URL?, checkSigner: @escaping @Sendable (URL) -> String? = { _ in nil }) {
-        self.init(model: model, nav: OortNav(sounds: sounds), importRoot: importRoot, checkSigner: checkSigner)
+    public init(model: ShellHostModel, sounds: OortSounds, importRoot: URL?, cloud: CloudModel? = nil, checkSigner: @escaping @Sendable (URL) -> String? = { _ in nil }) {
+        let nav = OortNav(sounds: sounds)
+        nav.cloud = cloud
+        cloud?.reload = { [weak model] in model?.reload() }
+        self.init(model: model, nav: nav, importRoot: importRoot, checkSigner: checkSigner)
     }
 
     init(model: ShellHostModel, nav: OortNav, importRoot: URL?, checkSigner: @escaping @Sendable (URL) -> String? = { _ in nil }) {
@@ -83,6 +86,10 @@ public struct OortRootView: View {
                 case .activity: ActivityScreen(model: model, nav: nav)
                 case .credits: CreditsScreen(model: model, nav: nav)
                 case .notices: NoticesScreen(model: model, nav: nav)
+                case .integrations: IntegrationsScreen(model: model, nav: nav)
+                case .cloud: if let cloud = nav.cloud { CloudScreen(cloud: cloud, model: model, nav: nav) }
+                case .cloudOff: if let cloud = nav.cloud { CloudOffScreen(cloud: cloud, model: model, nav: nav) }
+                case .cloudGame(let id): if let cloud = nav.cloud { CloudGameScreen(id: id, cloud: cloud, model: model, nav: nav) }
                 }
             }
         }

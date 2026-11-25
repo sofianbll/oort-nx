@@ -86,6 +86,7 @@ struct GameScreen: View {
     private func remove(saves: Bool) {
         _ = nav.back()
         model.actions.onDeleteGame(id, saves)
+        nav.cloud?.removed(id)
     }
 
     private func header(_ detail: GameDetail, key: Bool) -> some View {

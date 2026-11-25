@@ -43,6 +43,11 @@ struct SettingsScreen: View {
                 OortRow(id: "activity", title: Oort.text("Play time"), value: model.activityLog.totalSeconds > 0 ? model.activityLog.totalTime : "", symbol: "chart.bar.xaxis", kind: .open(.activity)),
             ]),
             OortSection(id: "folders", title: Oort.text("Data and saves"), footer: Oort.text("Oort NX sends nothing and has no account. Saves leave this device only if you choose a folder."), rows: folders),
+        ] + (nav.cloud == nil ? [] : [
+            OortSection(id: "integrations", rows: [
+                OortRow(id: "integrations", title: Oort.text("Integrations"), value: nav.cloud?.isOn == true ? Oort.text("Cloud library") : "", symbol: "puzzlepiece.extension", kind: .open(.integrations)),
+            ]),
+        ]) + [
             OortSection(id: "ingame", title: Oort.text("In every game"), footer: Oort.text("A game's own options win."), rows: [
                 toggle("fps", Oort.text("Show the frame rate"), "gauge.with.dots.needle.67percent", store.showFPS ?? false, store.storeShowFPS),
                 toggle("hud", Oort.text("Show the graphics details"), "chart.xyaxis.line", store.performanceHUD ?? false, store.storePerformanceHUD),

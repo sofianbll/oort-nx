@@ -2,8 +2,9 @@ import Foundation
 
 /// A build of one game for one kind of device, as `targets/<platform>/<stamp>-<sha256>.json` describes it beside the Mac's archive.
 /// The Mac's own app stays in its own manifests (`ShelfMacBuild`).
-public struct ShelfBuild: Equatable, Sendable {
-    public struct Entry: Equatable, Sendable {
+/// Codable for the queue on the device only: what comes from a source goes through `read`, which checks it.
+public struct ShelfBuild: Equatable, Sendable, Codable {
+    public struct Entry: Equatable, Sendable, Codable {
         public let path: String
         public let size: Int64
         public let sha256: String
@@ -43,7 +44,7 @@ public struct ShelfBuild: Equatable, Sendable {
     public internal(set) var folder: String?
 }
 
-public enum ShelfPlatform: String, CaseIterable, Sendable {
+public enum ShelfPlatform: String, CaseIterable, Sendable, Codable {
     case ios, android
 }
 

@@ -2,7 +2,7 @@
 
 [NX2Apple](https://github.com/LNPANDY/NX2Apple) at `a79d397`, MIT, Copyright (c) 2026 seedds, jhaizhou, LNPANDY and NX2Apple contributors. The licence text is in the root `NOTICE`.
 `mobile/scripts/import_nx2apple.py <checkout>` writes these files and this list. The SHA-256 is the original file's.
-No view of NX2Apple's is here: the screens are Oort NX's (`Sources/OortMobile`).
+No view of NX2Apple's is here: the screens are Oort NX's (`Sources/OortMobile`). French says "tu" (`scripts/french_tu.py`).
 
 | File | From | SHA-256 | Change |
 |---|---|---|---|
@@ -11,7 +11,7 @@ No view of NX2Apple's is here: the screens are Oort NX's (`Sources/OortMobile`).
 | `App/SegSnap.h` | `frontend-ios/Shell/App/SegSnap.h` | `eb3f4acda36d` | As is. |
 | `App/ShellEngine.h` | `frontend-ios/Shell/App/ShellEngine.h` | `e5eec8b920be` | As is. |
 | `App/ShellGlue.h` | `frontend-ios/Shell/App/ShellGlue.h` | `da062b187f34` | As is. |
-| `App/ShellMain.m` | `frontend-ios/Shell/App/ShellMain.m` | `86fc860d069d` | The Swift module is OortNX. Names and addresses are Oort NX's. |
+| `App/ShellMain.m` | `frontend-ios/Shell/App/ShellMain.m` | `86fc860d069d` | The Swift module is OortNX. What the system downloaded for the app is passed on. Names and addresses are Oort NX's. |
 | `App/ShellOrientation.h` | `frontend-ios/Shell/App/ShellOrientation.h` | `ac51f23fdcec` | As is. |
 | `App/ShellShortcuts.swift` | `frontend-ios/Shell/App/ShellShortcuts.swift` | `98d6ce470959` | Names and addresses are Oort NX's. |
 | `App/ShellSnap.h` | `frontend-ios/Shell/App/ShellSnap.h` | `cc28ad9d0bd1` | As is. |

@@ -12,6 +12,9 @@ public struct ShelfConnector: Sendable {
     let open: @Sendable () async throws -> any ShelfSource
     let forget: @Sendable () async throws -> Void
 
+    /// Erases the credential and leaves the choice as it is.
+    public func forgetAll() async throws { try await forget() }
+
     /// `forget` erases what the connector kept on the device (its credential).
     public init(id: String, hosts: [String], permissions: Set<Permission>, open: @escaping @Sendable () async throws -> any ShelfSource,
                 forget: @escaping @Sendable () async throws -> Void) {

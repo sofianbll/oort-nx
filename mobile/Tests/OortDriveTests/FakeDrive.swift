@@ -1,7 +1,7 @@
 import CryptoKit
 import Foundation
 import OortCore
-@testable import OortDrive
+@_spi(Checks) @testable import OortDrive
 
 /// `Tests/PhoneLibrary/fake_drive.py`, one process per test, on 127.0.0.1.
 final class FakeDrive {

@@ -7,13 +7,17 @@ public struct DriveSource: ShelfSource {
     public let root: String
     let access: DriveAccess
     let transport: any DriveTransport
+    /// What large ranges go through; the same as `transport` unless the app downloads in the background.
+    let large: any DriveTransport
     let endpoints: DriveEndpoints
     let scratch: URL
 
     static let listLimit: Int64 = 8 << 20
     static let maximumPages = 200
 
-    init(root: String, access: DriveAccess, transport: any DriveTransport, endpoints: DriveEndpoints = .google, scratch: URL) {
+    init(root: String, access: DriveAccess, transport: any DriveTransport, large: (any DriveTransport)? = nil, endpoints: DriveEndpoints = .google,
+         scratch: URL) {
+        self.large = large ?? transport
         self.root = root
         self.access = access
         self.transport = transport
@@ -88,7 +92,8 @@ public struct DriveSource: ShelfSource {
         parts.queryItems = [.init(name: "alt", value: "media"), .init(name: "supportsAllDrives", value: "true")]
         var request = URLRequest(url: parts.url!)
         request.setValue("bytes=\(range.lowerBound)-\(range.upperBound - 1)", forHTTPHeaderField: "Range")
-        try await send(request, limit: Int64(range.count), accepts: [206], check: { reply in
+        // A manifest or a small file is not worth a background task.
+        try await send(request, through: range.count > 256 << 10 ? large : transport, limit: Int64(range.count), accepts: [206], check: { reply in
             guard let value = reply.header("Content-Range"),
                   let match = value.wholeMatch(of: /bytes (\d{1,18})-(\d{1,18})\/(\d{1,18})/) else { throw ShelfError.badResponse }
             guard Int64(match.3) == size else { throw ShelfError.wrongSize }
@@ -101,7 +106,7 @@ public struct DriveSource: ShelfSource {
     }
 
     @discardableResult
-    private func send<T: Sendable>(_ request: URLRequest, limit: Int64, accepts: Set<Int>, special: (Int) -> (any Error)? = { _ in nil },
+    private func send<T: Sendable>(_ request: URLRequest, through: (any DriveTransport)? = nil, limit: Int64, accepts: Set<Int>, special: (Int) -> (any Error)? = { _ in nil },
                                    check: (DriveReply) throws -> Void = { _ in }, read: (URL) throws -> T) async throws -> T {
         try FileManager.default.createDirectory(at: scratch, withIntermediateDirectories: true)
         var refused: DriveSecret?
@@ -113,7 +118,7 @@ public struct DriveSource: ShelfSource {
             let body = scratch.appendingPathComponent(UUID().uuidString)
             defer { try? FileManager.default.removeItem(at: body) }
             // An error body may be longer than the range.
-            let reply = try await transport.send(request, to: body, limit: max(limit, 64 * 1024))
+            let reply = try await (through ?? transport).send(request, to: body, limit: max(limit, 64 * 1024))
             if reply.status == 401, refused == nil {
                 refused = token
                 continue
@@ -180,17 +185,38 @@ public struct DriveConnection: Sendable {
     public let connector: ShelfConnector
     /// For the sign-in screen.
     public let access: DriveAccess
+    let client: DriveClient
+    let vault: any DriveVault
+    let endpoints: DriveEndpoints
 
-    public init(invite: DriveInvite, scratch: URL, allowsMeteredNetwork: Bool) {
-        self.init(invite: invite, vault: DriveKeychain(account: invite.client.id),
-                  transport: DriveSession(allowsMeteredNetwork: allowsMeteredNetwork), endpoints: .google, scratch: scratch)
+    /// `background`: the session that goes on while the app is suspended, and the folder where an answer waits for a process that was ended.
+    public init(invite: DriveInvite, scratch: URL, background: DriveSession, allowsMeteredNetwork: @escaping @Sendable () -> Bool) {
+        self.init(invite: invite, vault: DriveKeychain(account: invite.client.id), transport: DriveSession(allowsMeteredNetwork: allowsMeteredNetwork),
+                  large: background, endpoints: .google, scratch: scratch)
     }
 
-    init(invite: DriveInvite, vault: any DriveVault, transport: any DriveTransport, endpoints: DriveEndpoints, scratch: URL) {
+    @_spi(Checks) public init(invite: DriveInvite, scratch: URL, background: DriveSession, allowsMeteredNetwork: @escaping @Sendable () -> Bool,
+                              endpoints: DriveEndpoints) {
+        self.init(invite: invite, vault: DriveKeychain(account: invite.client.id), transport: DriveSession(allowsMeteredNetwork: allowsMeteredNetwork),
+                  large: background, endpoints: endpoints, scratch: scratch)
+    }
+
+    /// The hosts and the permissions, for the screen that asks before any code is known.
+    public static var outline: ShelfConnector {
+        ShelfConnector(id: id, hosts: DriveEndpoints.google.hosts, permissions: [.network, .readLibrary, .storeBuilds],
+                       open: { throw ShelfError.sourceOff }, forget: {})
+    }
+
+    public func signIn() -> DriveSignIn { DriveSignIn(client: client, endpoints: endpoints) }
+    /// Whether this device holds a sign-in. Asks nothing of the network.
+    public var isSignedIn: Bool { (try? vault.read()) != nil }
+
+    init(invite: DriveInvite, vault: any DriveVault, transport: any DriveTransport, large: (any DriveTransport)? = nil, endpoints: DriveEndpoints, scratch: URL) {
+        (client, self.vault, self.endpoints) = (invite.client, vault, endpoints)
         let access = DriveAccess(client: invite.client, vault: vault, transport: transport, endpoints: endpoints, scratch: scratch)
         self.access = access
         connector = ShelfConnector(id: Self.id, hosts: endpoints.hosts, permissions: [.network, .readLibrary, .storeBuilds],
-                                   open: { DriveSource(root: invite.folder, access: access, transport: transport, endpoints: endpoints, scratch: scratch) },
+                                   open: { DriveSource(root: invite.folder, access: access, transport: transport, large: large, endpoints: endpoints, scratch: scratch) },
                                    forget: { try await access.forget() })
     }
 }

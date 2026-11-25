@@ -6,10 +6,12 @@ import struct
 import sys
 import zipfile
 
-VERSION = "0.1.0-alpha.1"
+VERSION = "0.1.0-alpha.2"
 EXPECTED = {"CFBundleIdentifier": "io.github.sofianbll.oortnx.mobile", "CFBundleName": "Oort NX", "CFBundleDisplayName": "Oort NX",
-            "CFBundleExecutable": "Oort NX", "CFBundlePackageType": "APPL", "CFBundleShortVersionString": "0.1.0", "CFBundleVersion": "1",
+            "CFBundleExecutable": "Oort NX", "CFBundlePackageType": "APPL", "CFBundleShortVersionString": "0.1.0", "CFBundleVersion": "2",
             "OortVersion": VERSION, "MinimumOSVersion": "26.0", "UIDeviceFamily": [1, 2], "CFBundleSupportedPlatforms": ["iPhoneOS"]}
+# Google, only once the player turns the cloud library on; GitHub, when they ask for the app's page.
+HOSTS = {"accounts.google.com", "oauth2.googleapis.com", "www.googleapis.com", "github.com"}
 CODE_SIGNATURE, SEGMENT_64, BUILD_VERSION = 0x1D, 0x19, 0x32
 
 
@@ -66,7 +68,12 @@ def main(path):
             issues.append("NX2Apple is not credited.")
         if not ipa.getinfo(app + "Oort NX").external_attr >> 16 & 0o111:
             issues.append("The code cannot run.")
-        issues += check_code(ipa.read(app + "Oort NX"))
+        code = ipa.read(app + "Oort NX")
+        issues += check_code(code)
+        if b"127.0.0.1" in code or b"OortFake" in code:
+            issues.append("The stand-in for Google is in the app.")
+        hosts = {h.decode() for h in re.findall(rb"https://([a-z0-9.-]+)", code)}
+        issues += ["An unexpected host: " + h for h in sorted(hosts - HOSTS)]
         extensions = [n for n in inside if n.startswith(("PlugIns/", "Extensions/", "Watch/"))]
         print(f"{path}: {len(names)} files, {sum(i.file_size for i in ipa.infolist()) >> 10} KB unpacked, arm64, iOS {info['MinimumOSVersion']} or later, "
               f"{1 + len(extensions)} App ID, unsigned")

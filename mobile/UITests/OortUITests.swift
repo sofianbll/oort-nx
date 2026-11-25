@@ -2,14 +2,14 @@
 // OORT_OUT (a folder), OORT_LANG (fr or en) and OORT_STILL come from scripts/test_app.sh.
 import XCTest
 
-final class OortUITests: XCTestCase {
-    private static let env = ProcessInfo.processInfo.environment
-    private static let lang = env["OORT_LANG"] ?? "fr"
-    private static let out = URL(fileURLWithPath: env["OORT_OUT"] ?? NSTemporaryDirectory())
-    private static let bundle = Bundle(for: OortUITests.self)
-    private static let marker = "oort_invented_marker"
-    private let app = XCUIApplication()
-    private var pad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
+class OortScreens: XCTestCase {
+    static let env = ProcessInfo.processInfo.environment
+    static let lang = env["OORT_LANG"] ?? "fr"
+    static let out = URL(fileURLWithPath: env["OORT_OUT"] ?? NSTemporaryDirectory())
+    static let bundle = Bundle(for: OortUITests.self)
+    static let marker = "oort_invented_marker"
+    let app = XCUIApplication()
+    var pad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
 
     override func setUpWithError() throws {
         continueAfterFailure = true
@@ -24,13 +24,13 @@ final class OortUITests: XCTestCase {
     // MARK: Helpers
 
     /// The app's words in the language under test.
-    private func say(_ key: String) -> String {
+    func say(_ key: String) -> String {
         let words = Self.bundle.path(forResource: Self.lang, ofType: "lproj").flatMap(Bundle.init(path:)) ?? Self.bundle
         return words.localizedString(forKey: key, value: key, table: nil)
     }
 
     /// The app's own folder: the simulator's apps sit side by side. The first start makes it.
-    private func home() throws -> URL {
+    func home() throws -> URL {
         if let found = folder() { return found }
         app.launch()
         app.terminate()
@@ -41,7 +41,7 @@ final class OortUITests: XCTestCase {
     }
     private struct NoFolder: Error { let seen: String }
 
-    private func folder() -> URL? {
+    func folder() -> URL? {
         let all = URL(fileURLWithPath: NSHomeDirectory()).deletingLastPathComponent()
         return (try? FileManager.default.contentsOfDirectory(at: all, includingPropertiesForKeys: nil))?.first { one in
             let data = try? Data(contentsOf: one.appendingPathComponent(".com.apple.mobile_container_manager.metadata.plist"))
@@ -52,9 +52,9 @@ final class OortUITests: XCTestCase {
         }
     }
 
-    private enum Games { case none, invented }
+    enum Games { case none, invented }
 
-    private func start(_ games: Games, _ more: [String] = [], prepare: (URL) throws -> Void = { _ in }) throws {
+    func start(_ games: Games, _ more: [String] = [], prepare: (URL) throws -> Void = { _ in }) throws {
         app.terminate()
         let fm = FileManager.default, data = try home(), documents = data.appendingPathComponent("Documents")
         try? fm.createDirectory(at: documents, withIntermediateDirectories: true)
@@ -73,13 +73,13 @@ final class OortUITests: XCTestCase {
         XCTAssertTrue(app.wait(for: .runningForeground, timeout: 60))
     }
 
-    private func shot(_ name: String) {
+    func shot(_ name: String) {
         Thread.sleep(forTimeInterval: 0.9)
         let file = "\(Self.lang)-\(pad ? "ipad" : "iphone")-\(name).png"
         try? XCUIScreen.main.screenshot().pngRepresentation.write(to: Self.out.appendingPathComponent(file))
     }
 
-    private func note(_ text: String, in file: String) {
+    func note(_ text: String, in file: String) {
         let url = Self.out.appendingPathComponent(file)
         let old = (try? String(contentsOf: url, encoding: .utf8)) ?? ""
         try? (old + text + "\n").write(to: url, atomically: true, encoding: .utf8)
@@ -87,8 +87,8 @@ final class OortUITests: XCTestCase {
 
     /// Everything the system's audit finds, written down with what was on the screen then. What has one answer fails the test;
     /// contrast, text size and clipping are read beside the pictures (the audit also reports words that only wrap or sit on the tab bar).
-    private var auditing = false
-    private func look(_ screen: String) throws {
+    var auditing = false
+    func look(_ screen: String) throws {
         shot(screen)
         guard auditing else { return }
         let answered: XCUIAccessibilityAuditType = [.hitRegion, .sufficientElementDescription, .elementDetection, .trait]
@@ -113,12 +113,12 @@ final class OortUITests: XCTestCase {
         }
     }
 
-    private func button(_ label: String) -> XCUIElement { app.buttons[label].firstMatch }
+    func button(_ label: String) -> XCUIElement { app.buttons[label].firstMatch }
 
     /// A row reads its value after its name.
-    private func row(_ key: String) -> XCUIElement { app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", say(key))).firstMatch }
+    func row(_ key: String) -> XCUIElement { app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", say(key))).firstMatch }
 
-    private func tap(_ element: XCUIElement, _ what: String, file: StaticString = #filePath, line: UInt = #line) {
+    func tap(_ element: XCUIElement, _ what: String, file: StaticString = #filePath, line: UInt = #line) {
         guard element.waitForExistence(timeout: 15) else {
             note("\(name) missing \(what)\n\(app.debugDescription)", in: "missing.txt")
             return XCTFail("\(what) is not on the screen", file: file, line: line)
@@ -127,18 +127,18 @@ final class OortUITests: XCTestCase {
         element.tap()
     }
 
-    private func tab(_ key: String) {
+    func tab(_ key: String) {
         let label = say(key)
         let bar = app.tabBars.buttons[label].firstMatch
         tap(bar.waitForExistence(timeout: 5) ? bar : button(label), "the tab \(label)")
     }
 
-    private func back() {
+    func back() {
         let bar = app.navigationBars.buttons.element(boundBy: 0)
         tap(bar, "Back")
     }
 
-    private func shows(_ key: String, _ seconds: TimeInterval = 15, file: StaticString = #filePath, line: UInt = #line) {
+    func shows(_ key: String, _ seconds: TimeInterval = 15, file: StaticString = #filePath, line: UInt = #line) {
         let text = say(key)
         let found = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS %@", text)).firstMatch
         if !found.waitForExistence(timeout: seconds) {
@@ -146,9 +146,9 @@ final class OortUITests: XCTestCase {
             XCTFail("“\(text)” is not shown", file: file, line: line)
         }
     }
+}
 
-    // MARK: Tests
-
+final class OortUITests: OortScreens {
     func test01EmptyLibrary() throws {
         try start(.none)
         XCTAssertEqual(UIAccessibility.isReduceMotionEnabled, Self.env["OORT_STILL"] == "still", "Reduce Motion is as asked")
@@ -262,7 +262,7 @@ final class OortUITests: XCTestCase {
         XCTAssertNotEqual(was, sounds.value as? String, "the switch changes")
         sounds.tap()
         for _ in 0..<4 { app.swipeUp() }
-        shows("0.1.0-alpha.1")
+        shows("0.1.0-alpha.2")
         try look(a + "23-settings-end")
         tap(row("Thanks and licences"), "the credits")
         shows("NX2Apple")

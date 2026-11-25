@@ -46,11 +46,16 @@ public struct DriveInvite: Equatable, Sendable {
 }
 
 /// Google's addresses. Nothing else is ever contacted.
-struct DriveEndpoints: Sendable {
+@_spi(Checks) public struct DriveEndpoints: Sendable {
     let authorize: URL
     let token: URL
     let revoke: URL
     let files: URL
+
+    /// Another service than Google, for checks: an app that ships never names one.
+    @_spi(Checks) public init(authorize: URL, token: URL, revoke: URL, files: URL) {
+        (self.authorize, self.token, self.revoke, self.files) = (authorize, token, revoke, files)
+    }
 
     static let google = Self(authorize: URL(string: "https://accounts.google.com/o/oauth2/v2/auth")!,
                              token: URL(string: "https://oauth2.googleapis.com/token")!,
@@ -73,7 +78,11 @@ public struct DriveSignIn: Sendable {
 
     /// One per sign-in. Both values come from the system's random generator.
     public init(client: DriveClient) {
-        self.init(client: client, verifier: Self.random(), state: Self.random(), redirect: client.redirect, endpoints: .google)
+        self.init(client: client, endpoints: .google)
+    }
+
+    init(client: DriveClient, endpoints: DriveEndpoints) {
+        self.init(client: client, verifier: Self.random(), state: Self.random(), redirect: client.redirect, endpoints: endpoints)
     }
 
     init(client: DriveClient, verifier: String, state: String, redirect: String, endpoints: DriveEndpoints) {

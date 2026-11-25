@@ -1,6 +1,12 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "NSCameraUsageDescription" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Scans the code your Mac shows, to find your games." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Scanne le code que ton Mac affiche, pour trouver tes jeux." } }
+      }
+    },
     "NSPhotoLibraryAddUsageDescription" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Saves a game's icon to Photos, so you can put it on the Home Screen." } },

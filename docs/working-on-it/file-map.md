@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 25 novembre 2026. Copertura di **1182 file** versionati (più quelli ripresi da NX2Apple, elencati in [mobile/PROVENANCE.md](../../mobile/PROVENANCE.md)), compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 25 novembre 2026. Copertura di **1196 file** versionati (più quelli ripresi da NX2Apple, elencati in [mobile/PROVENANCE.md](../../mobile/PROVENANCE.md)), compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -255,6 +255,19 @@ Cartella `mobile/`, un pacchetto SwiftPM a parte che riusa `OortCore` e `OortSyn
 | [OortMobile/SettingsScreens.swift](../../mobile/Sources/OortMobile/SettingsScreens.swift) | Regolaggi, tempo di gioco e licenze. |
 | [OortMobile/OortCaptureEntry.swift](../../mobile/Sources/OortMobile/OortCaptureEntry.swift) | Apre uno schermo preciso per le catture. |
 | [OortMobile/Exports.swift](../../mobile/Sources/OortMobile/Exports.swift) | Riesporta `OortCore`. |
+| [OortMobile/Cloud/CloudModule.swift](../../mobile/Sources/OortMobile/Cloud/CloudModule.swift) | Ciò con cui l’app è costruita: connettore neutro, accesso e scelte del giocatore. |
+| [OortMobile/Cloud/CloudModel.swift](../../mobile/Sources/OortMobile/Cloud/CloudModel.swift) | Biblioteca cloud: attivazione, elenco, coda, installazione e spegnimento. |
+| [OortMobile/Cloud/CloudInstall.swift](../../mobile/Sources/OortMobile/Cloud/CloudInstall.swift) | Mette il framework e i dati al loro posto, senza toccare i salvataggi. |
+| [OortMobile/Cloud/CloudNetwork.swift](../../mobile/Sources/OortMobile/Cloud/CloudNetwork.swift) | Stato della rete secondo il sistema, senza inviare nulla. |
+| [OortMobile/Cloud/CloudScreens.swift](../../mobile/Sources/OortMobile/Cloud/CloudScreens.swift) | Integrazioni, attivazione, spegnimento e scheda di un gioco cloud. |
+| [OortMobile/Cloud/CloudLibrary.swift](../../mobile/Sources/OortMobile/Cloud/CloudLibrary.swift) | Filtro Cloud: ciò che funziona qui e perché il resto no. |
+| [OortMobile/Cloud/CloudDownloadArt.swift](../../mobile/Sources/OortMobile/Cloud/CloudDownloadArt.swift) | Tessera che si riempie con la nuvola del Mac. |
+| [OortMobile/Cloud/CloudWords.swift](../../mobile/Sources/OortMobile/Cloud/CloudWords.swift) | Stati, motivi ed errori in parole semplici. |
+| [OortMobile/Cloud/CodeScanner.swift](../../mobile/Sources/OortMobile/Cloud/CodeScanner.swift) | Fotocamera per il codice del Mac, solo mentre è aperta. |
+| [App/CloudDrive.swift](../../mobile/App/CloudDrive.swift) | Collega Google Drive all’app; senza questo file l’app non ha codice di rete. |
+| [scripts/french_tu.py](../../mobile/scripts/french_tu.py) | Porta il francese al «tu» nei cataloghi. |
+| [CloudTests.swift](../../mobile/Tests/OortMobileTests/CloudTests.swift) | Installazione, aggiornamento, rifiuti, salvataggi e coda. |
+| [UITests/OortCloudTests.swift](../../mobile/UITests/OortCloudTests.swift) | Percorso cloud nel simulatore contro il finto Drive locale. |
 | [OortMobileTests.swift](../../mobile/Tests/OortMobileTests/OortMobileTests.swift) | Importazione, righe, navigazione con manetta, testi francesi e Sole unico. |
 
 ## Core · app: aggiornamento, primo avvio, diagnostica e comandi
@@ -356,7 +369,7 @@ Cartella `Sources/NXLibraryCore/Selene/`.
 |---|---|
 | [Sources/NXLibraryCore/Selene/BackdropArt.swift](../../Sources/NXLibraryCore/Selene/BackdropArt.swift) | Regola che tiene l’arte del gioco precedente sullo sfondo Spotlight (`BackdropArtRule`) dissolvenza di un layer calcolata sull’orologio (`OpacityFade`) e livelli ormai coperti da togliere (`ArtStack`). |
 | [Sources/NXLibraryCore/Selene/TileMotion.swift](../../Sources/NXLibraryCore/Selene/TileMotion.swift) | Curve e campioni dei loop di ring, bagliore e riflesso della tile selezionata, sull'orologio condiviso. |
-| [Sources/NXLibraryCore/Selene/DownloadCloudMotion.swift](../../Sources/NXLibraryCore/Selene/DownloadCloudMotion.swift) | Traiettoria smorzata del download, onda calma, assestamento, glifo Oort e bande a dissolvenza. |
+| [Sources/OortCore/DownloadCloudMotion.swift](../../Sources/OortCore/DownloadCloudMotion.swift) | Traiettoria smorzata del download, onda calma, assestamento, glifo Oort e bande a dissolvenza. |
 | [Sources/NXLibraryCore/Selene/Motion.swift](../../Sources/NXLibraryCore/Selene/Motion.swift) | Curve di focus, rail, schermate, overlay, carte ancorate, toast e progressi con varianti di movimento ridotto. |
 | [Sources/NXLibraryCore/Selene/SeleneOverlayStyle.swift](../../Sources/NXLibraryCore/Selene/SeleneOverlayStyle.swift) | Associa ogni overlay ai ruoli di velo e sfocatura. |
 | [Tests/NXLibraryCoreTests/Selene/MotionTests.swift](../../Tests/NXLibraryCoreTests/Selene/MotionTests.swift) | Verifica che in movimento ridotto restino solo i fonduti previsti. |

@@ -2,7 +2,7 @@
 import Foundation
 import OortCore
 import Testing
-@testable import OortDrive
+@_spi(Checks) @testable import OortDrive
 
 /// The cases of `Tests/PhoneLibrary/vectors`, which the Android module answers too.
 @Suite(.serialized) struct VectorTests {

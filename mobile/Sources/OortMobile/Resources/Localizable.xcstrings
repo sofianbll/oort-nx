@@ -1,54 +1,134 @@
 {
  "sourceLanguage": "en",
  "strings": {
-    "This game's code could not be loaded. Build it again on your Mac, then add it again." : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "This game's code could not be loaded. Build it again on your Mac, then add it again." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Le code de ce jeu n’a pas pu être chargé. Recompilez-le sur votre Mac, puis ajoutez-le à nouveau." } }
-      }
+  "This game's code could not be loaded. Build it again on your Mac, then add it again.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "This game's code could not be loaded. Build it again on your Mac, then add it again."
+     }
     },
-    "This is an early version: Oort NX for Mac does not build games for iPhone and iPad yet." : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "This is an early version: Oort NX for Mac does not build games for iPhone and iPad yet." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "C’est une première version : Oort NX pour Mac ne compile pas encore de jeu pour iPhone et iPad." } }
-      }
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Le code de ce jeu n’a pas pu être chargé. Recompile-le sur ton Mac, puis ajoute-le à nouveau."
+     }
+    }
+   }
+  },
+  "This is an early version: Oort NX for Mac does not build games for iPhone and iPad yet.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "This is an early version: Oort NX for Mac does not build games for iPhone and iPad yet."
+     }
     },
-    "Matthew Silva, MIT. The theme Oort NX's look and sounds grew from." : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Matthew Silva, MIT. The theme Oort NX's look and sounds grew from." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Matthew Silva, MIT. Le thème dont viennent l’allure et les sons d’Oort NX." } }
-      }
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "C’est une première version : Oort NX pour Mac ne compile pas encore de jeu pour iPhone et iPad."
+     }
+    }
+   }
+  },
+  "Matthew Silva, MIT. The theme Oort NX's look and sounds grew from.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Matthew Silva, MIT. The theme Oort NX's look and sounds grew from."
+     }
     },
-    "Every notice, in full" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Every notice, in full" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Toutes les mentions, en entier" } }
-      }
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Matthew Silva, MIT. Le thème dont viennent l’allure et les sons d’Oort NX."
+     }
+    }
+   }
+  },
+  "Every notice, in full": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Every notice, in full"
+     }
     },
-    "Sort" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sort" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Trier" } }
-      }
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Toutes les mentions, en entier"
+     }
+    }
+   }
+  },
+  "Sort": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Sort"
+     }
     },
-    "Name" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Name" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Nom" } }
-      }
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Trier"
+     }
+    }
+   }
+  },
+  "Name": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Name"
+     }
     },
-    "Vibrations" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Vibrations" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vibrations" } }
-      }
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Nom"
+     }
+    }
+   }
+  },
+  "Vibrations": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Vibrations"
+     }
     },
-    "Sounds and touch" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sounds and touch" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Sons et vibrations" } }
-      }
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Vibrations"
+     }
+    }
+   }
+  },
+  "Sounds and touch": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Sounds and touch"
+     }
     },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Sons et vibrations"
+     }
+    }
+   }
+  },
   "%@ of %@ put together. The game opens when it is done.": {
    "localizations": {
     "en": {
@@ -124,7 +204,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Un dossier qui finit par .framework, fait par Oort NX sur votre Mac."
+      "value": "Un dossier qui finit par .framework, fait par Oort NX sur ton Mac."
      }
     }
    }
@@ -332,7 +412,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Compilez un jeu avec Oort NX sur votre Mac, puis ajoutez son dossier ici ou envoyez-le par câble. Vos jeux, sauvegardes et réglages restent sur cet appareil."
+      "value": "Compile un jeu avec Oort NX sur ton Mac, puis ajoute son dossier ici ou envoie-le par câble. Tes jeux, sauvegardes et réglages restent sur cet appareil."
      }
     }
    }
@@ -444,7 +524,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Les triches changent le jeu pendant la partie. Gardez une copie de votre sauvegarde."
+      "value": "Les triches changent le jeu pendant la partie. Garde une copie de ta sauvegarde."
      }
     }
    }
@@ -716,7 +796,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Suivre un dossier que vous choisissez"
+      "value": "Suivre un dossier que tu choisis"
      }
     }
    }
@@ -988,7 +1068,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Réinstallez-la depuis votre Mac avec le même compte. Vos jeux et sauvegardes restent."
+      "value": "Réinstalle-la depuis ton Mac avec le même compte. Tes jeux et sauvegardes restent."
      }
     }
    }
@@ -1020,7 +1100,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Ses données sont supprimées de cet appareil. Vous pouvez les renvoyer depuis votre Mac ; une sauvegarde supprimée ne revient pas."
+      "value": "Ses données sont supprimées de cet appareil. Tu peux les renvoyer depuis ton Mac ; une sauvegarde supprimée ne revient pas."
      }
     }
    }
@@ -1292,7 +1372,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Rien n’est envoyé sans un dossier que vous choisissez."
+      "value": "Rien n’est envoyé sans un dossier que tu choisis."
      }
     }
    }
@@ -1340,7 +1420,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Oort NX n’envoie rien et n’a pas de compte. Les sauvegardes ne quittent cet appareil que si vous choisissez un dossier."
+      "value": "Oort NX n’envoie rien et n’a pas de compte. Les sauvegardes ne quittent cet appareil que si tu choisis un dossier."
      }
     }
    }
@@ -1388,7 +1468,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Associez-en une dans Réglages, Bluetooth. Le tactile marche partout en attendant."
+      "value": "Associes-en une dans Réglages, Bluetooth. Le tactile marche partout en attendant."
      }
     }
    }
@@ -1484,7 +1564,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Appuyez sur un bouton"
+      "value": "Appuie sur un bouton"
      }
     }
    }
@@ -1596,7 +1676,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Chercher dans vos jeux"
+      "value": "Chercher dans tes jeux"
      }
     }
    }
@@ -2028,7 +2108,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Ce jeu pointe vers des fichiers hors de son dossier. Recompilez-le sur votre Mac."
+      "value": "Ce jeu pointe vers des fichiers hors de son dossier. Recompile-le sur ton Mac."
      }
     }
    }
@@ -2108,7 +2188,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Ce n’est pas un jeu fait pour Oort NX. Choisissez un dossier qui finit par .framework."
+      "value": "Ce n’est pas un jeu fait pour Oort NX. Choisis un dossier qui finit par .framework."
      }
     }
    }
@@ -2300,7 +2380,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Quelle sauvegarde voulez-vous ?"
+      "value": "Quelle sauvegarde veux-tu ?"
      }
     }
    }
@@ -2349,6 +2429,1630 @@
      "stringUnit": {
       "state": "translated",
       "value": "seedds, MIT. Le moteur dans chaque jeu."
+     }
+    }
+   }
+  },
+  "%@ free": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "%@ free"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "%@ libres"
+     }
+    }
+   }
+  },
+  "%@ free on this device.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "%@ free on this device."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "%@ libres sur cet appareil."
+     }
+    }
+   }
+  },
+  "%lld games for this device": {
+   "localizations": {
+    "en": {
+     "variations": {
+      "plural": {
+       "one": {
+        "stringUnit": {
+         "state": "translated",
+         "value": "%lld game for this device"
+        }
+       },
+       "other": {
+        "stringUnit": {
+         "state": "translated",
+         "value": "%lld games for this device"
+        }
+       }
+      }
+     }
+    },
+    "fr": {
+     "variations": {
+      "plural": {
+       "one": {
+        "stringUnit": {
+         "state": "translated",
+         "value": "%lld jeu pour cet appareil"
+        }
+       },
+       "other": {
+        "stringUnit": {
+         "state": "translated",
+         "value": "%lld jeux pour cet appareil"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "%lld%% · %@ of %@": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "%lld%% · %@ of %@"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "%lld %% · %@ sur %@"
+     }
+    }
+   }
+  },
+  "Cancel the download": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Cancel the download"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Annuler le téléchargement"
+     }
+    }
+   }
+  },
+  "Change the code": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Change the code"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Changer de code"
+     }
+    }
+   }
+  },
+  "Cloud": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Cloud"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Cloud"
+     }
+    }
+   }
+  },
+  "Cloud library": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Cloud library"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Bibliothèque cloud"
+     }
+    }
+   }
+  },
+  "Code from your Mac": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Code from your Mac"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Code de ton Mac"
+     }
+    }
+   }
+  },
+  "Damaged on Google Drive. Send it again from your Mac.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Damaged on Google Drive. Send it again from your Mac."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Abîmé sur Google Drive. Renvoie-le depuis ton Mac."
+     }
+    }
+   }
+  },
+  "Delete the downloads": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Delete the downloads"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Supprimer les téléchargements"
+     }
+    }
+   }
+  },
+  "Done": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Done"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Fait"
+     }
+    }
+   }
+  },
+  "Download": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Download"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Télécharger"
+     }
+    }
+   }
+  },
+  "Downloaded. Ready to install.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Downloaded. Ready to install."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Téléchargé. Prêt à installer."
+     }
+    }
+   }
+  },
+  "Downloads not installed yet": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Downloads not installed yet"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Téléchargements pas encore installés"
+     }
+    }
+   }
+  },
+  "Erases only what this download received.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Erases only what this download received."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Efface seulement ce que ce téléchargement a reçu."
+     }
+    }
+   }
+  },
+  "Erases the sign-in of this one first.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Erases the sign-in of this one first."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Efface d’abord la connexion de celui-ci."
+     }
+    }
+   }
+  },
+  "Folder found": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Folder found"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Dossier trouvé"
+     }
+    }
+   }
+  },
+  "Folder not found": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Folder not found"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Dossier introuvable"
+     }
+    }
+   }
+  },
+  "Folder on Google Drive": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Folder on Google Drive"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Dossier sur Google Drive"
+     }
+    }
+   }
+  },
+  "Free on this device": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Free on this device"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Libre sur cet appareil"
+     }
+    }
+   }
+  },
+  "Games already installed stay. Your saves are never touched.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Games already installed stay. Your saves are never touched."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Les jeux déjà installés restent. Tes sauvegardes ne sont jamais touchées."
+     }
+    }
+   }
+  },
+  "Google asks you to sign in again.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Google asks you to sign in again."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Google demande de te reconnecter."
+     }
+    }
+   }
+  },
+  "Google did not give access. Nothing was changed.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Google did not give access. Nothing was changed."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Google n’a pas donné l’accès. Rien n’a changé."
+     }
+    }
+   }
+  },
+  "Google does not answer well. It tries again by itself.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Google does not answer well. It tries again by itself."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Google répond mal. Ça réessaiera tout seul."
+     }
+    }
+   }
+  },
+  "Google has reached its download limit for now. Try again tomorrow.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Google has reached its download limit for now. Try again tomorrow."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Google a atteint sa limite de téléchargement. Réessaie demain."
+     }
+    }
+   }
+  },
+  "Google refused access to this folder.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Google refused access to this folder."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Google refuse l’accès à ce dossier."
+     }
+    }
+   }
+  },
+  "Google sent an answer Oort NX does not accept.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Google sent an answer Oort NX does not accept."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Google a envoyé une réponse qu’Oort NX n’accepte pas."
+     }
+    }
+   }
+  },
+  "In the system's browser. Oort NX never sees your password.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "In the system's browser. Oort NX never sees your password."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Dans le navigateur du système. Oort NX ne voit jamais ton mot de passe."
+     }
+    }
+   }
+  },
+  "Install": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Install"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Installer"
+     }
+    }
+   }
+  },
+  "Installed": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Installed"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Installé"
+     }
+    }
+   }
+  },
+  "Installing…": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Installing…"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Installation…"
+     }
+    }
+   }
+  },
+  "Integrations": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Integrations"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Intégrations"
+     }
+    }
+   }
+  },
+  "It asks for": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "It asks for"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Elle demande"
+     }
+    }
+   }
+  },
+  "It reads": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "It reads"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Elle lit"
+     }
+    }
+   }
+  },
+  "It sends": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "It sends"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Elle envoie"
+     }
+    }
+   }
+  },
+  "It writes": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "It writes"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Elle écrit"
+     }
+    }
+   }
+  },
+  "Keep the downloads": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Keep the downloads"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Garder les téléchargements"
+     }
+    }
+   }
+  },
+  "Look again": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Look again"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Chercher à nouveau"
+     }
+    }
+   }
+  },
+  "Looking for your games…": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Looking for your games…"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Recherche de tes jeux…"
+     }
+    }
+   }
+  },
+  "Mobile data is never used while this is on.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Mobile data is never used while this is on."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Les données mobiles ne servent jamais tant que c’est activé."
+     }
+    }
+   }
+  },
+  "Needs a newer system.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Needs a newer system."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Demande un système plus récent."
+     }
+    }
+   }
+  },
+  "Needs another version of Oort NX.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Needs another version of Oort NX."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Demande une autre version d’Oort NX."
+     }
+    }
+   }
+  },
+  "No camera here": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "No camera here"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Pas de caméra ici"
+     }
+    }
+   }
+  },
+  "No game for this device in your folder yet. Prepare one on your Mac.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "No game for this device in your folder yet. Prepare one on your Mac."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Aucun jeu pour cet appareil dans ton dossier. Prépares-en un sur ton Mac."
+     }
+    }
+   }
+  },
+  "Not enough room: %@ needed, %@ free.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Not enough room: %@ needed, %@ free."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Pas assez de place : il faut %@, il reste %@."
+     }
+    }
+   }
+  },
+  "Not for this device": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Not for this device"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Pas pour cet appareil"
+     }
+    }
+   }
+  },
+  "Not prepared for this device yet. Prepare it on your Mac.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Not prepared for this device yet. Prepare it on your Mac."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Pas encore préparé pour cet appareil. Prépare-le sur ton Mac."
+     }
+    }
+   }
+  },
+  "Not signed by your Mac: left out.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Not signed by your Mac: left out."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Pas signé par ton Mac : laissé de côté."
+     }
+    }
+   }
+  },
+  "Nothing on Google Drive. On this device, the games you download.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Nothing on Google Drive. On this device, the games you download."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Rien sur Google Drive. Sur cet appareil, les jeux que tu télécharges."
+     }
+    }
+   }
+  },
+  "Off": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Off"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Coupée"
+     }
+    }
+   }
+  },
+  "On": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "On"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Activée"
+     }
+    }
+   }
+  },
+  "On Google Drive": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "On Google Drive"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Sur Google Drive"
+     }
+    }
+   }
+  },
+  "On your Mac: Settings, Integrations, Code for a phone, Copy the code.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "On your Mac: Settings, Integrations, Code for a phone, Copy the code."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Sur ton Mac : Réglages, Intégrations, Code pour le téléphone, Copier le code."
+     }
+    }
+   }
+  },
+  "On your Mac: Settings, Integrations, Code for a phone.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "On your Mac: Settings, Integrations, Code for a phone."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Sur ton Mac : Réglages, Intégrations, Code pour le téléphone."
+     }
+    }
+   }
+  },
+  "Open Settings": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Open Settings"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Ouvrir Réglages"
+     }
+    }
+   }
+  },
+  "Optional. Oort NX works without any of them, and nothing is contacted while they are off.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Optional. Oort NX works without any of them, and nothing is contacted while they are off."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Facultatives. Oort NX marche sans elles, et rien n’est contacté tant qu’elles sont coupées."
+     }
+    }
+   }
+  },
+  "Paste the code": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Paste the code"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Coller le code"
+     }
+    }
+   }
+  },
+  "Paste the code instead.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Paste the code instead."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Colle plutôt le code."
+     }
+    }
+   }
+  },
+  "Pause": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Pause"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Pause"
+     }
+    }
+   }
+  },
+  "Paused": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Paused"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "En pause"
+     }
+    }
+   }
+  },
+  "Point at the code on your Mac's screen.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Point at the code on your Mac's screen."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Vise le code sur l’écran de ton Mac."
+     }
+    }
+   }
+  },
+  "Ready to install": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Ready to install"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Prêt à installer"
+     }
+    }
+   }
+  },
+  "Remove it from this device there. Its saves and Google Drive stay.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Remove it from this device there. Its saves and Google Drive stay."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "C’est là qu’on le supprime de cet appareil. Ses sauvegardes et Google Drive restent."
+     }
+    }
+   }
+  },
+  "Requests to Google, with your account. Nothing to Oort NX: no account, no statistics.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Requests to Google, with your account. Nothing to Oort NX: no account, no statistics."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Des demandes à Google, avec ton compte. Rien à Oort NX : ni compte, ni statistiques."
+     }
+    }
+   }
+  },
+  "Resume": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Resume"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Reprendre"
+     }
+    }
+   }
+  },
+  "Scan your Mac's code": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Scan your Mac's code"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Scanner le code du Mac"
+     }
+    }
+   }
+  },
+  "See the games": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "See the games"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Voir les jeux"
+     }
+    }
+   }
+  },
+  "Sign in again": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Sign in again"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Se reconnecter"
+     }
+    }
+   }
+  },
+  "Sign in with Google": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Sign in with Google"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Se connecter à Google"
+     }
+    }
+   }
+  },
+  "Signed by your Mac. Each file is checked before it is installed.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Signed by your Mac. Each file is checked before it is installed."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Signé par ton Mac. Chaque fichier est vérifié avant l’installation."
+     }
+    }
+   }
+  },
+  "Signed in with Google": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Signed in with Google"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Connecté à Google"
+     }
+    }
+   }
+  },
+  "System needed": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "System needed"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Système demandé"
+     }
+    }
+   }
+  },
+  "The camera is not allowed": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "The camera is not allowed"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "La caméra n’est pas autorisée"
+     }
+    }
+   }
+  },
+  "The camera, to scan your Mac's code, and notifications, to say a game is ready. Each one when it is needed, and you can refuse.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "The camera, to scan your Mac's code, and notifications, to say a game is ready. Each one when it is needed, and you can refuse."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "La caméra, pour scanner le code du Mac, et les notifications, pour dire qu’un jeu est prêt. Chacune au moment où elle sert, et tu peux refuser."
+     }
+    }
+   }
+  },
+  "The file received is not the one your Mac sent. Nothing was installed.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "The file received is not the one your Mac sent. Nothing was installed."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Le fichier reçu n’est pas celui de ton Mac. Rien n’a été installé."
+     }
+    }
+   }
+  },
+  "The folder your Mac keeps on your Google Drive. Google's permission covers your whole Drive; Oort NX opens only this folder.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "The folder your Mac keeps on your Google Drive. Google's permission covers your whole Drive; Oort NX opens only this folder."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Le dossier que ton Mac tient sur ton Google Drive. L’accord de Google couvre tout ton Drive ; Oort NX n’ouvre que ce dossier."
+     }
+    }
+   }
+  },
+  "The games your Mac prepared for this device, read from your own Google Drive.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "The games your Mac prepared for this device, read from your own Google Drive."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Les jeux que ton Mac a préparés pour cet appareil, lus dans ton propre Google Drive."
+     }
+    }
+   }
+  },
+  "The games your Mac prepared, from your own Google Drive.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "The games your Mac prepared, from your own Google Drive."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Les jeux préparés par ton Mac, depuis ton propre Google Drive."
+     }
+    }
+   }
+  },
+  "The sign-in is erased from this device. Your Google Drive and your saves stay as they are. To withdraw Google's permission too, remove Oort from your Google account's connections.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "The sign-in is erased from this device. Your Google Drive and your saves stay as they are. To withdraw Google's permission too, remove Oort from your Google account's connections."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "La connexion est effacée de cet appareil. Ton Google Drive et tes sauvegardes restent tels quels. Pour retirer aussi l’accord de Google, enlève Oort des connexions de ton compte Google."
+     }
+    }
+   }
+  },
+  "This code is for an Android device.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "This code is for an Android device."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Ce code est pour un appareil Android."
+     }
+    }
+   }
+  },
+  "This device could not write the file.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "This device could not write the file."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Cet appareil n’a pas pu écrire le fichier."
+     }
+    }
+   }
+  },
+  "This device's graphics cannot run it.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "This device's graphics cannot run it."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "La puce graphique de cet appareil ne peut pas le lancer."
+     }
+    }
+   }
+  },
+  "This folder is no longer on Google Drive.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "This folder is no longer on Google Drive."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Ce dossier n’est plus sur Google Drive."
+     }
+    }
+   }
+  },
+  "This is not a code from Oort NX on your Mac.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "This is not a code from Oort NX on your Mac."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Ce n’est pas un code d’Oort NX sur ton Mac."
+     }
+    }
+   }
+  },
+  "Try again": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Try again"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Réessayer"
+     }
+    }
+   }
+  },
+  "Turn off": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Turn off"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Éteindre"
+     }
+    }
+   }
+  },
+  "Turn on": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Turn on"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Activer"
+     }
+    }
+   }
+  },
+  "Turn the cloud library off?": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Turn the cloud library off?"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Éteindre la bibliothèque cloud ?"
+     }
+    }
+   }
+  },
+  "Update": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Update"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Mettre à jour"
+     }
+    }
+   }
+  },
+  "Use this code": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Use this code"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Utiliser ce code"
+     }
+    }
+   }
+  },
+  "Waiting": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Waiting"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "En attente"
+     }
+    }
+   }
+  },
+  "Waiting for Wi-Fi.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Waiting for Wi-Fi."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "En attente du Wi-Fi."
+     }
+    }
+   }
+  },
+  "Which games": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Which games"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Quels jeux"
+     }
+    }
+   }
+  },
+  "Wi-Fi only": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Wi-Fi only"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Wi-Fi seulement"
+     }
+    }
+   }
+  },
+  "You are offline. It resumes by itself.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "You are offline. It resumes by itself."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Tu es hors ligne. Ça reprendra tout seul."
+     }
+    }
+   }
+  },
+  "You can paste the code instead, or allow the camera in Settings.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "You can paste the code instead, or allow the camera in Settings."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Tu peux coller le code, ou autoriser la caméra dans Réglages."
+     }
+    }
+   }
+  },
+  "You can turn it off at any time.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "You can turn it off at any time."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Tu peux l’éteindre à tout moment."
+     }
+    }
+   }
+  },
+  "Your Mac has not finished sending it.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Your Mac has not finished sending it."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Ton Mac n’a pas fini de l’envoyer."
+     }
+    }
+   }
+  },
+  "Your Mac's code": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Your Mac's code"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Le code du Mac"
      }
     }
    }

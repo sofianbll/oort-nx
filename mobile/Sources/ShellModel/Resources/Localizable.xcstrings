@@ -1688,7 +1688,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Ajoutez Oort NX dans Remplacement du bouton d’accueil."
+      "value": "Ajoute Oort NX dans Remplacement du bouton d’accueil."
      }
     },
     "it": {
@@ -2200,7 +2200,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Autorisez l’accès aux photos dans Réglages pour enregistrer l’icône, ou copiez l’URL ci-dessous."
+      "value": "Autorise l’accès aux photos dans Réglages pour enregistrer l’icône, ou copie l’URL ci-dessous."
      }
     },
     "it": {
@@ -3288,7 +3288,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "La sauvegarde cloud et celle de cet appareil pour %@ ont toutes deux changé depuis la dernière synchronisation. Celle que vous ne choisissez pas est conservée dans save-backups."
+      "value": "La sauvegarde cloud et celle de cet appareil pour %@ ont toutes deux changé depuis la dernière synchronisation. Celle que tu ne choisis pas est conservée dans save-backups."
      }
     },
     "it": {
@@ -3736,7 +3736,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Recompilez ce jeu sur votre Mac et installez-le sur cet appareil. L’app Mac vérifie chaque fichier pendant la compilation, la nouvelle copie est donc complète."
+      "value": "Recompile ce jeu sur ton Mac et installe-le sur cet appareil. L’app Mac vérifie chaque fichier pendant la compilation, la nouvelle copie est donc complète."
      }
     },
     "it": {
@@ -4056,7 +4056,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Par défaut sur iOS, maintenir le bouton d’accueil de la manette ouvre l’app Jeux d’Apple. Pour l’utiliser dans Oort NX, accédez à Réglages > Général > Manette de jeu > Remplacement du bouton d’accueil, puis ajoutez Oort NX."
+      "value": "Par défaut sur iOS, maintenir le bouton d’accueil de la manette ouvre l’app Jeux d’Apple. Pour l’utiliser dans Oort NX, accède à Réglages > Général > Manette de jeu > Remplacement du bouton d’accueil, puis ajoute Oort NX."
      }
     },
     "it": {
@@ -5016,7 +5016,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Choisissez une commande"
+      "value": "Choisis une commande"
      }
     },
     "it": {
@@ -5208,7 +5208,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Choisissez le même dossier iCloud Drive que sur votre Mac."
+      "value": "Choisis le même dossier iCloud Drive que sur ton Mac."
      }
     },
     "it": {
@@ -5272,7 +5272,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Choisissez les données de ce jeu pour pouvoir y jouer."
+      "value": "Choisis les données de ce jeu pour pouvoir y jouer."
      }
     },
     "it": {
@@ -5784,7 +5784,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Connectez une manette dans les réglages Bluetooth. Les commandes tactiles sont toujours disponibles dans la bibliothèque."
+      "value": "Connecte une manette dans les réglages Bluetooth. Les commandes tactiles sont toujours disponibles dans la bibliothèque."
      }
     },
     "it": {
@@ -7256,7 +7256,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Supprime les données du jeu sur cet appareil. Vous choisissez si ses sauvegardes partent aussi."
+      "value": "Supprime les données du jeu sur cet appareil. Tu choisis si ses sauvegardes partent aussi."
      }
     },
     "it": {
@@ -7768,7 +7768,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Touchez deux fois pour sélectionner"
+      "value": "Touche deux fois pour sélectionner"
      }
     },
     "it": {
@@ -7832,7 +7832,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Double la fréquence Bluetooth des manettes et réduit la latence audio en plein écran. Laissez désactivé si la fréquence d’images chute après quelques minutes sur votre Mac (macOS peut maintenir le GPU à basse fréquence)."
+      "value": "Double la fréquence Bluetooth des manettes et réduit la latence audio en plein écran. Laisse désactivé si la fréquence d’images chute après quelques minutes sur ton Mac (macOS peut maintenir le GPU à basse fréquence)."
      }
     },
     "it": {
@@ -8024,7 +8024,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Faites glisser une commande pour la déplacer. Touchez-en une pour la choisir, puis déplacez-la pas à pas avec les flèches. Si une commande en couvrait une autre ou sortait de l’écran, elle revient. Pour tous les jeux."
+      "value": "Fais glisser une commande pour la déplacer. Touches-en une pour la choisir, puis déplace-la pas à pas avec les flèches. Si une commande en couvrait une autre ou sortait de l’écran, elle revient. Pour tous les jeux."
      }
     },
     "it": {
@@ -8088,7 +8088,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Faites glisser à nouveau pour déplacer la commande, ou utilisez les flèches pour avancer par étapes."
+      "value": "Fais glisser à nouveau pour déplacer la commande, ou utilise les flèches pour avancer par étapes."
      }
     },
     "it": {
@@ -8152,7 +8152,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Faites glisser et pincez pour cadrer en 16:9. Touchez deux fois pour réinitialiser."
+      "value": "Fais glisser et pince pour cadrer en 16:9. Touche deux fois pour réinitialiser."
      }
     },
     "it": {
@@ -8344,7 +8344,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Modifiez les commandes ici, puis enregistrez."
+      "value": "Modifie les commandes ici, puis enregistre."
      }
     },
     "it": {
@@ -8536,7 +8536,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Saisissez le mot de passe du certificat"
+      "value": "Saisis le mot de passe du certificat"
      }
     },
     "it": {
@@ -8600,7 +8600,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Saisissez le mot de passe de %@. Laissez ce champ vide si le certificat n'a pas de mot de passe."
+      "value": "Saisis le mot de passe de %@. Laisse ce champ vide si le certificat n'a pas de mot de passe."
      }
     },
     "it": {
@@ -10840,7 +10840,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Les jeux cherchent leurs données ici. Placez un romfs.img par jeu dans n’importe quel dossier à l’intérieur. Chaque jeu est reconnu par le fichier lui-même, les noms des dossiers n’ont donc pas d’importance. Chaque jeu peut aussi avoir son propre dossier."
+      "value": "Les jeux cherchent leurs données ici. Place un romfs.img par jeu dans n’importe quel dossier à l’intérieur. Chaque jeu est reconnu par le fichier lui-même, les noms des dossiers n’ont donc pas d’importance. Chaque jeu peut aussi avoir son propre dossier."
      }
     },
     "it": {
@@ -10968,7 +10968,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Les jeux utilisant ce dossier partagé ne trouveront plus leurs données tant que vous n’en choisirez pas un autre. Vos fichiers sur l’appareil ne sont pas supprimés."
+      "value": "Les jeux utilisant ce dossier partagé ne trouveront plus leurs données tant que tu n’en choisiras pas un autre. Tes fichiers sur l’appareil ne sont pas supprimés."
      }
     },
     "it": {
@@ -11032,7 +11032,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Les jeux sans dossier propre sauvegardent ici. Choisissez le même dossier iCloud Drive que sur votre Mac."
+      "value": "Les jeux sans dossier propre sauvegardent ici. Choisis le même dossier iCloud Drive que sur ton Mac."
      }
     },
     "it": {
@@ -12696,7 +12696,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Dans Raccourcis, recherchez Oort NX et choisissez l’action Launch Game."
+      "value": "Dans Raccourcis, recherche Oort NX et choisis l’action Launch Game."
      }
     },
     "it": {
@@ -12888,7 +12888,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Dans la carte Launch Game, touchez Choisir à côté de Game puis sélectionnez ce jeu."
+      "value": "Dans la carte Launch Game, touche Choisir à côté de Game puis sélectionne ce jeu."
      }
     },
     "it": {
@@ -13016,7 +13016,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Installez une version plus récente de cette app pour jouer à ce jeu."
+      "value": "Installe une version plus récente de cette app pour jouer à ce jeu."
      }
     },
     "it": {
@@ -13592,7 +13592,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Garde les étapes affichées au-dessus de Raccourcis. Utilisez retour ou avance dans la fenêtre pour changer d’étape."
+      "value": "Garde les étapes affichées au-dessus de Raccourcis. Utilise retour ou avance dans la fenêtre pour changer d’étape."
      }
     },
     "it": {
@@ -14808,7 +14808,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Permet au jeu de baisser sa résolution sous charge. Désactivez pour garder la pleine résolution du mode choisi."
+      "value": "Permet au jeu de baisser sa résolution sous charge. Désactive pour garder la pleine résolution du mode choisi."
      }
     },
     "it": {
@@ -16152,7 +16152,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Déplacez-la avec la croix. A ou B la pose."
+      "value": "Déplace-la avec la croix. A ou B la pose."
      }
     },
     "it": {
@@ -16344,7 +16344,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Placez chaque commande là où vos pouces la veulent."
+      "value": "Place chaque commande là où tes pouces la veulent."
      }
     },
     "it": {
@@ -20120,7 +20120,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Appuyez sur un bouton d’une manette"
+      "value": "Appuie sur un bouton d’une manette"
      }
     },
     "it": {
@@ -20696,7 +20696,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Renouvelez bientôt cette app sur votre ordinateur ou votre outil de signature. Vos sauvegardes et données de jeu restent intactes."
+      "value": "Renouvelle bientôt cette app sur ton ordinateur ou ton outil de signature. Tes sauvegardes et données de jeu restent intactes."
      }
     },
     "it": {
@@ -21208,7 +21208,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Remplace la sauvegarde actuelle de cet appareil par la copie du %@. Votre sauvegarde actuelle est d’abord sauvegardée."
+      "value": "Remplace la sauvegarde actuelle de cet appareil par la copie du %@. Ta sauvegarde actuelle est d’abord sauvegardée."
      }
     },
     "it": {
@@ -22872,7 +22872,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Les sauvegardes restent, sauf si vous choisissez de les supprimer aussi."
+      "value": "Les sauvegardes restent, sauf si tu choisis de les supprimer aussi."
      }
     },
     "it": {
@@ -23000,7 +23000,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Chaque bouton s’allume quand vous appuyez dessus."
+      "value": "Chaque bouton s’allume quand tu appuies dessus."
      }
     },
     "it": {
@@ -23064,7 +23064,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Consultez le temps de jeu, les parties et les jours actifs de vos jeux."
+      "value": "Consulte le temps de jeu, les parties et les jours actifs de tes jeux."
      }
     },
     "it": {
@@ -23576,7 +23576,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Partagez ce fichier .txt vers votre ordinateur et lancez une intégration rapide pour débloquer les codes d'instructions sur iPhone."
+      "value": "Partage ce fichier .txt vers ton ordinateur et lance une intégration rapide pour débloquer les codes d'instructions sur iPhone."
      }
     },
     "it": {
@@ -24600,7 +24600,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Lancez un jeu pour suivre ici le temps de jeu, les parties et les jours actifs."
+      "value": "Lance un jeu pour suivre ici le temps de jeu, les parties et les jours actifs."
      }
     },
     "it": {
@@ -24984,7 +24984,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "En jeu, changez avec le bouton en haut au centre. Le 3D ajoute la croix, L3 et R3."
+      "value": "En jeu, change avec le bouton en haut au centre. Le 3D ajoute la croix, L3 et R3."
      }
     },
     "it": {
@@ -25240,7 +25240,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Touchez Importer .txt ci-dessus pour charger %@.txt depuis Fichiers. Les codes mémoire marchent aussitôt sur iPhone et les codes d'instructions après une intégration sur ordinateur."
+      "value": "Touche Importer .txt ci-dessus pour charger %@.txt depuis Fichiers. Les codes mémoire marchent aussitôt sur iPhone et les codes d'instructions après une intégration sur ordinateur."
      }
     },
     "it": {
@@ -25304,7 +25304,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Touchez Importer .txt ci-dessus pour charger un fichier de codes Atmosphere depuis Fichiers."
+      "value": "Touche Importer .txt ci-dessus pour charger un fichier de codes Atmosphere depuis Fichiers."
      }
     },
     "it": {
@@ -25368,7 +25368,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Touchez Launch Game en haut, choisissez Renommer et collez le titre du jeu copié."
+      "value": "Touche Launch Game en haut, choisis Renommer et colle le titre du jeu copié."
      }
     },
     "it": {
@@ -25432,7 +25432,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Touchez un bouton pour changer ce qu’il envoie."
+      "value": "Touche un bouton pour changer ce qu’il envoie."
      }
     },
     "it": {
@@ -25496,7 +25496,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Touchez une commande dans l’image."
+      "value": "Touche une commande dans l’image."
      }
     },
     "it": {
@@ -25560,7 +25560,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Touchez retour ou avance pour changer d’étape"
+      "value": "Touche retour ou avance pour changer d’étape"
      }
     },
     "it": {
@@ -25624,7 +25624,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Touchez ci-dessous pour enregistrer la jaquette dans Photos et copier le titre du jeu."
+      "value": "Touche ci-dessous pour enregistrer la jaquette dans Photos et copier le titre du jeu."
      }
     },
     "it": {
@@ -25688,7 +25688,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Touchez le bouton Partager en bas puis choisissez Sur l’écran d’accueil."
+      "value": "Touche le bouton Partager en bas puis choisis Sur l’écran d’accueil."
      }
     },
     "it": {
@@ -25752,7 +25752,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Touchez l’icône, choisissez Choisir une photo, sélectionnez la jaquette enregistrée puis touchez Ajouter."
+      "value": "Touche l’icône, choisis Choisir une photo, sélectionne la jaquette enregistrée puis touche Ajouter."
      }
     },
     "it": {
@@ -25944,7 +25944,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "La sauvegarde cloud de %@ n’a pas pu être lue pour le moment. Vous pouvez jouer avec la sauvegarde de cet appareil sans écraser le fichier cloud."
+      "value": "La sauvegarde cloud de %@ n’a pas pu être lue pour le moment. Tu peux jouer avec la sauvegarde de cet appareil sans écraser le fichier cloud."
      }
     },
     "it": {
@@ -26136,7 +26136,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Les données du jeu sur cet appareil sont supprimées et le jeu quitte la liste. Un dossier que vous avez choisi vous-même n’est pas touché. Envoyez à nouveau les données du jeu depuis votre Mac pour le retrouver."
+      "value": "Les données du jeu sur cet appareil sont supprimées et le jeu quitte la liste. Un dossier que tu as choisi toi-même n’est pas touché. Envoie à nouveau les données du jeu depuis ton Mac pour le retrouver."
      }
     },
     "it": {
@@ -26520,7 +26520,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Ce jeu nécessite une version plus récente de cette app. Mettez-la à jour avec l’app Mac sur votre Mac, puis réinstallez-la sur cet appareil."
+      "value": "Ce jeu nécessite une version plus récente de cette app. Mets-la à jour avec l’app Mac sur ton Mac, puis réinstalle-la sur cet appareil."
      }
     },
     "it": {
@@ -26584,7 +26584,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Impossible d’ouvrir cette image. Choisissez une autre photo."
+      "value": "Impossible d’ouvrir cette image. Choisis une autre photo."
      }
     },
     "it": {
@@ -27160,7 +27160,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Transférez des jeux depuis Oort NX sur votre Mac ou PC, ou choisissez un dossier de données dans Réglages."
+      "value": "Transfère des jeux depuis Oort NX sur ton Mac ou PC, ou choisis un dossier de données dans Réglages."
      }
     },
     "it": {
@@ -27736,7 +27736,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Les frameworks de jeu non signés ne seront plus signés automatiquement au lancement tant que vous n’aurez pas importé un autre certificat .p12."
+      "value": "Les frameworks de jeu non signés ne seront plus signés automatiquement au lancement tant que tu n’auras pas importé un autre certificat .p12."
      }
     },
     "it": {
@@ -28952,7 +28952,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Lorsque Oort NX est installé via SideStore, AltStore ou un autre outil de sideload avec un profil de développement, importez ici le même certificat .p12 que celui utilisé pour signer l'app afin que les frameworks dans Frameworks soient signés à l'identique au lancement. Les certificats de distribution ou différents ne peuvent pas charger depuis Frameworks et nécessitent une réinstallation depuis votre ordinateur. Les installations directes depuis Xcode sur Mac n'en ont pas besoin."
+      "value": "Lorsque Oort NX est installé via SideStore, AltStore ou un autre outil de sideload avec un profil de développement, importe ici le même certificat .p12 que celui utilisé pour signer l'app afin que les frameworks dans Frameworks soient signés à l'identique au lancement. Les certificats de distribution ou différents ne peuvent pas charger depuis Frameworks et nécessitent une réinstallation depuis ton ordinateur. Les installations directes depuis Xcode sur Mac n'en ont pas besoin."
      }
     },
     "it": {
@@ -29080,7 +29080,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Quelle sauvegarde voulez-vous utiliser ?"
+      "value": "Quelle sauvegarde veux-tu utiliser ?"
      }
     },
     "it": {
@@ -29208,7 +29208,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Vos modifications seront perdues."
+      "value": "Tes modifications seront perdues."
      }
     },
     "it": {
@@ -29272,7 +29272,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Vos jeux"
+      "value": "Tes jeux"
      }
     },
     "it": {
@@ -29336,7 +29336,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Vos jeux apparaîtront ici dès qu’ils seront inclus dans cette app."
+      "value": "Tes jeux apparaîtront ici dès qu’ils seront inclus dans cette app."
      }
     },
     "it": {

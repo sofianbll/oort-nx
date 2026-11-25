@@ -10,7 +10,7 @@ let package = Package(
     products: [
         .library(name: "OortMobile", targets: ["OortMobile"]),
         .library(name: "ShellHost", targets: ["ShellHost"]),
-        // The optional Google Drive connector. No app target depends on it yet, so the app still holds no network code.
+        // The optional Google Drive connector. Only the app's CloudDrive.swift names it; the screens know no service.
         .library(name: "OortDrive", targets: ["OortDrive"]),
     ],
     dependencies: [.package(name: "NXLibrary", path: "..")],

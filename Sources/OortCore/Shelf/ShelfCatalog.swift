@@ -21,6 +21,8 @@ public struct ShelfHidden: Equatable, Sendable {
 
 public struct ShelfProblem: Equatable, Sendable {
     public let titleID: String
+    /// From the folder's name: nothing inside it was believed.
+    public let name: String
     public let error: ShelfError
 }
 
@@ -65,20 +67,20 @@ public struct ShelfCatalog: Sendable {
         var games: [ShelfGame] = [], hidden: [ShelfHidden] = [], problems: [ShelfProblem] = []
         for (title, nodes) in folders.sorted(by: { $0.key < $1.key }) {
             try Task.checkCancellation()
+            let label = ShelfNames.displayName((nodes.first { $0.name != title } ?? nodes[0]).name, titleID: title)
             do {
                 guard nodes.allSatisfy({ names[ShelfNames.folded($0.name)]?.count == 1 }) else { throw ShelfError.ambiguous }
-                let found = try await best(title, in: nodes, for: device) { problems.append(.init(titleID: title, error: $0)) }
+                let found = try await best(title, in: nodes, for: device) { problems.append(.init(titleID: title, name: label, error: $0)) }
                 switch found {
                 case .build(let build):
                     let state: ShelfGame.State = installed[title].map { $0 == build.digest ? .installed : .update } ?? .available
                     games.append(.init(build: build, state: state))
                 case .hidden(let reason, let name):
-                    let label = name ?? ShelfNames.displayName((nodes.first { $0.name != title } ?? nodes[0]).name, titleID: title)
-                    hidden.append(.init(titleID: title, name: label, reason: reason))
+                    hidden.append(.init(titleID: title, name: name ?? label, reason: reason))
                 case .nothing: break
                 }
             } catch let error as ShelfError where Self.isAboutOneGame(error) {
-                problems.append(.init(titleID: title, error: error))
+                problems.append(.init(titleID: title, name: label, error: error))
             }
         }
         return .init(games: Self.sorted(games, by: order), hidden: hidden, problems: problems)

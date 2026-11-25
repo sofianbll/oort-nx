@@ -4,6 +4,13 @@ include:
   - path: ${OORT_MOBILE}/App/project.yml
     relativePaths: false
 targets:
+  OortNX:
+    settings:
+      # A stand-in for Google on this machine, for these checks only.
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) OORT_FAKE_DRIVE
+    info:
+      properties:
+        NSAppTransportSecurity: {NSAllowsLocalNetworking: true}
   DmGame:
     type: framework
     platform: iOS
@@ -19,6 +26,7 @@ targets:
     platform: iOS
     sources:
       - path: ${OORT_MOBILE}/UITests/OortUITests.swift
+      - path: ${OORT_MOBILE}/UITests/OortCloudTests.swift
       - path: ${OORT_MOBILE}/Capture/CaptureGames.swift
       # The app's own words, to find what they name.
       - path: ${OORT_MOBILE}/Sources/OortMobile/Resources/Localizable.xcstrings

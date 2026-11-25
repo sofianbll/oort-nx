@@ -6,7 +6,7 @@ import SwiftUI
 enum OortTab: String, CaseIterable, Hashable { case home, library, controllers, settings }
 
 enum OortRoute: Hashable {
-    case game(String), options(String), cheats(String), mapping(String?), padTest, activity, credits, notices
+    case game(String), options(String), cheats(String), mapping(String?), padTest, activity, credits, notices, integrations, cloud, cloudOff, cloudGame(String)
 }
 
 /// Which screen is open, which one the controller drives, and whether the player is on it now.
@@ -16,6 +16,10 @@ enum OortRoute: Hashable {
     var selected: String?
     var device: InputDevice?
     var importing = false
+    /// The optional cloud library, when the app was built with it.
+    var cloud: CloudModel?
+    /// The library shows the cloud's games rather than this device's.
+    var cloudShown = false
     private var screens: [UUID] = []
     @ObservationIgnored private var seen = 0
     @ObservationIgnored let sounds: OortSounds
@@ -23,6 +27,11 @@ enum OortRoute: Hashable {
     init(tab: OortTab = .home, route: [OortRoute] = [], selected: String? = nil, sounds: OortSounds) {
         (self.tab, self.selected, self.sounds) = (tab, selected, sounds)
         paths[tab] = route
+    }
+
+    func showCloud() {
+        paths[.library] = []
+        (cloudShown, tab) = (true, .library)
     }
 
     func open(_ route: OortRoute) { paths[tab, default: []].append(route) }

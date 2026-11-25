@@ -3,7 +3,7 @@ name: iPhone and iPad
 # Runs on the alpha branch or by hand. Nothing is signed or published.
 'on':
   push:
-    branches: [alpha/ios]
+    branches: [alpha/ios, alpha/ios-cloud]
   workflow_dispatch:
 
 permissions:
@@ -33,6 +33,10 @@ jobs:
           python3 scripts/generate_oort_tokens.py --check
           python3 scripts/check_selene_tokens.py
           python3 scripts/check_oort_core.py
+      - name: The phone library's boundaries, and tu everywhere
+        run: |
+          python3 Tests/PhoneLibrary/check.py
+          python3 mobile/scripts/french_tu.py --check
       - name: Mobile tests
         run: |
           home="$(mktemp -d "$RUNNER_TEMP/oort-home.XXXXXX")"
@@ -61,10 +65,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: iphone-fr-dark, device: iPhone 18 Pro, lang: fr, look: dark, still: '', only: '' }
-          - { name: iphone-en-light-still, device: iPhone 18 Pro, lang: en, look: light, still: still, only: '' }
-          - { name: ipad-fr-dark, device: iPad Pro 11-inch (M5), lang: fr, look: dark, still: '', only: '' }
-          - { name: ipad-en-light-still, device: iPad Pro 11-inch (M5), lang: en, look: light, still: still, only: '' }
+          - { name: iphone-fr-dark, device: iPhone 18 Pro, lang: fr, look: dark, still: '', only: OortUITests }
+          - { name: iphone-en-light-still, device: iPhone 18 Pro, lang: en, look: light, still: still, only: OortUITests }
+          - { name: ipad-fr-dark, device: iPad Pro 11-inch (M5), lang: fr, look: dark, still: '', only: OortUITests }
+          - { name: ipad-en-light-still, device: iPad Pro 11-inch (M5), lang: en, look: light, still: still, only: OortUITests }
+          - { name: cloud-iphone-fr, device: iPhone 18 Pro, lang: fr, look: dark, still: '', only: OortCloudTests }
+          - { name: cloud-iphone-en-still, device: iPhone 18 Pro, lang: en, look: light, still: still, only: OortCloudTests }
+          - { name: cloud-ipad-fr, device: iPad Pro 11-inch (M5), lang: fr, look: dark, still: '', only: OortCloudTests }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
