@@ -64,7 +64,7 @@
     "Your saves stay on this device and in the folder. They no longer follow each other." : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Your saves stay on this device and in the folder. They no longer follow each other." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vos sauvegardes restent sur cet appareil et dans le dossier. Elles ne se suivent plus." } }
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Tes sauvegardes restent sur cet appareil et dans le dossier. Elles ne se suivent plus." } }
       }
     },
     "Back to the buttons as printed?" : {
@@ -76,13 +76,13 @@
     "Your changes to these buttons are lost." : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Your changes to these buttons are lost." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vos changements sur ces boutons sont perdus." } }
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Tes changements sur ces boutons sont perdus." } }
       }
     },
     "This game's code could not be loaded. Build it again on your Mac, then add it again." : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "This game's code could not be loaded. Build it again on your Mac, then add it again." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Le code de ce jeu n’a pas pu être chargé. Recompilez-le sur votre Mac, puis ajoutez-le à nouveau." } }
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Le code de ce jeu n’a pas pu être chargé. Recompile-le sur ton Mac, puis ajoute-le à nouveau." } }
       }
     },
     "This is an early version: Oort NX for Mac does not build games for iPhone and iPad yet." : {
@@ -202,7 +202,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Un dossier qui finit par .framework, fait par Oort NX sur votre Mac."
+      "value": "Un dossier qui finit par .framework, fait par Oort NX sur ton Mac."
      }
     }
    }
@@ -410,7 +410,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Compilez un jeu avec Oort NX sur votre Mac, puis ajoutez son dossier ici ou envoyez-le par câble. Vos jeux, sauvegardes et réglages restent sur cet appareil."
+      "value": "Compile un jeu avec Oort NX sur ton Mac, puis ajoute son dossier ici ou envoie-le par câble. Tes jeux, sauvegardes et réglages restent sur cet appareil."
      }
     }
    }
@@ -522,7 +522,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Les triches changent le jeu pendant la partie. Gardez une copie de votre sauvegarde."
+      "value": "Les triches changent le jeu pendant la partie. Garde une copie de ta sauvegarde."
      }
     }
    }
@@ -794,7 +794,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Suivre un dossier que vous choisissez"
+      "value": "Suivre un dossier que tu choisis"
      }
     }
    }
@@ -954,7 +954,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Maintenez le bouton du bas ou de droite pour fermer."
+      "value": "Maintiens le bouton du bas ou de droite pour fermer."
      }
     }
    }
@@ -1066,7 +1066,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Réinstallez-la depuis votre Mac avec le même compte. Vos jeux et sauvegardes restent."
+      "value": "Réinstalle-la depuis ton Mac avec le même compte. Tes jeux et sauvegardes restent."
      }
     }
    }
@@ -1098,7 +1098,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Ses données sont supprimées de cet appareil. Vous pouvez les renvoyer depuis votre Mac ; une sauvegarde supprimée ne revient pas."
+      "value": "Ses données sont supprimées de cet appareil. Tu peux les renvoyer depuis ton Mac ; une sauvegarde supprimée ne revient pas."
      }
     }
    }
@@ -1370,7 +1370,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Rien n’est envoyé sans un dossier que vous choisissez."
+      "value": "Rien n’est envoyé sans un dossier que tu choisis."
      }
     }
    }
@@ -1418,7 +1418,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Oort NX n’envoie rien et n’a pas de compte. Les sauvegardes ne quittent cet appareil que si vous choisissez un dossier."
+      "value": "Oort NX n’envoie rien et n’a pas de compte. Les sauvegardes ne quittent cet appareil que si tu choisis un dossier."
      }
     }
    }
@@ -1466,7 +1466,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Associez-en une dans Réglages, Bluetooth. Le tactile marche partout en attendant."
+      "value": "Associes-en une dans Réglages, Bluetooth. Le tactile marche partout en attendant."
      }
     }
    }
@@ -1562,7 +1562,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Appuyez sur un bouton"
+      "value": "Appuie sur un bouton"
      }
     }
    }
@@ -1674,7 +1674,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Chercher dans vos jeux"
+      "value": "Chercher dans tes jeux"
      }
     }
    }
@@ -2106,7 +2106,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Ce jeu pointe vers des fichiers hors de son dossier. Recompilez-le sur votre Mac."
+      "value": "Ce jeu pointe vers des fichiers hors de son dossier. Recompile-le sur ton Mac."
      }
     }
    }
@@ -2186,7 +2186,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Ce n’est pas un jeu fait pour Oort NX. Choisissez un dossier qui finit par .framework."
+      "value": "Ce n’est pas un jeu fait pour Oort NX. Choisis un dossier qui finit par .framework."
      }
     }
    }
@@ -2378,7 +2378,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Quelle sauvegarde voulez-vous ?"
+      "value": "Quelle sauvegarde veux-tu ?"
      }
     }
    }

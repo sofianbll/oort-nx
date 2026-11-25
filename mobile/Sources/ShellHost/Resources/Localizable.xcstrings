@@ -792,7 +792,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "%@ n’est pas dans le dossier de ce jeu. Réinstallez le jeu."
+      "value": "%@ n’est pas dans le dossier de ce jeu. Réinstalle le jeu."
      }
     },
     "it": {
@@ -1432,7 +1432,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Choisissez le dossier contenant romfs.img (ou le dossier d’identifiant du jeu) sur cet appareil, un disque externe ou iCloud Drive."
+      "value": "Choisis le dossier contenant romfs.img (ou le dossier d’identifiant du jeu) sur cet appareil, un disque externe ou iCloud Drive."
      }
     },
     "it": {
@@ -1688,7 +1688,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Impossible de charger le framework du jeu car le certificat de signature ne correspond pas à cette application. Réinstallez l'application depuis votre ordinateur."
+      "value": "Impossible de charger le framework du jeu car le certificat de signature ne correspond pas à cette application. Réinstalle l'application depuis ton ordinateur."
      }
     },
     "it": {
@@ -2136,7 +2136,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Les données de jeu de %@ dans « %@ » n’ont pas encore été téléchargées depuis iCloud Drive. Téléchargez-les d’abord dans Fichiers, puis réessayez."
+      "value": "Les données de jeu de %@ dans « %@ » n’ont pas encore été téléchargées depuis iCloud Drive. Télécharge-les d’abord dans Fichiers, puis réessaie."
      }
     },
     "it": {
@@ -2200,7 +2200,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Les données de jeu de %@ se trouvent dans le sous-dossier « %@ ». Choisissez directement ce dossier interne pour que le jeu puisse lire ses fichiers."
+      "value": "Les données de jeu de %@ se trouvent dans le sous-dossier « %@ ». Choisis directement ce dossier interne pour que le jeu puisse lire ses fichiers."
      }
     },
     "it": {
@@ -2392,7 +2392,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Jeu en pause. Reconnectez votre manette ou touchez Reprendre pour continuer en mode tactile."
+      "value": "Jeu en pause. Reconnecte ta manette ou touche Reprendre pour continuer en mode tactile."
      }
     },
     "it": {
@@ -2456,7 +2456,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Maintenez {-} et {+} pour quitter"
+      "value": "Maintiens {-} et {+} pour quitter"
      }
     },
     "it": {
@@ -2584,7 +2584,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Maintenez pour quitter"
+      "value": "Maintiens pour quitter"
      }
     },
     "it": {
@@ -3096,7 +3096,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Aucune donnée de jeu installé n'a été trouvée dans « %@ ». Choisissez un dossier contenant le fichier romfs.img d'un jeu."
+      "value": "Aucune donnée de jeu installé n'a été trouvée dans « %@ ». Choisis un dossier contenant le fichier romfs.img d'un jeu."
      }
     },
     "it": {
@@ -4056,7 +4056,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Renommez le fichier avec l'ID de build à 16 caractères (.txt) puis réessayez."
+      "value": "Renomme le fichier avec l'ID de build à 16 caractères (.txt) puis réessaie."
      }
     },
     "it": {
@@ -4120,7 +4120,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "La sauvegarde de secours du %@ a été restaurée. Votre sauvegarde précédente a d’abord été mise de côté."
+      "value": "La sauvegarde de secours du %@ a été restaurée. Ta sauvegarde précédente a d’abord été mise de côté."
      }
     },
     "it": {
@@ -4248,7 +4248,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Stick droit : glissez ici"
+      "value": "Stick droit : glisse ici"
      }
     },
     "it": {
@@ -4568,7 +4568,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Les fichiers de shaders (msl) de ce jeu sont incomplets ou en cours de transfert. Attendez la fin du transfert ou renvoyez les données du jeu depuis Oort NX."
+      "value": "Les fichiers de shaders (msl) de ce jeu sont incomplets ou en cours de transfert. Attends la fin du transfert ou renvoie les données du jeu depuis Oort NX."
      }
     },
     "it": {
@@ -4632,7 +4632,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Les fichiers de shaders (msl) de ce jeu sont absents de son dossier de données. Renvoyez ou recopiez les données du jeu depuis Oort NX."
+      "value": "Les fichiers de shaders (msl) de ce jeu sont absents de son dossier de données. Renvoie ou recopie les données du jeu depuis Oort NX."
      }
     },
     "it": {
@@ -4696,7 +4696,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Les fichiers de shaders de ces données de jeu (%@) ne correspondent pas à la version de cette app (%@). Envoyez ou recopiez des données de jeu mises à jour depuis Oort NX."
+      "value": "Les fichiers de shaders de ces données de jeu (%@) ne correspondent pas à la version de cette app (%@). Envoie ou recopie des données de jeu mises à jour depuis Oort NX."
      }
     },
     "it": {
@@ -4760,7 +4760,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Les fichiers de shaders de ces données de jeu ne correspondent pas à la version de cette app. Envoyez ou recopiez des données de jeu mises à jour depuis Oort NX."
+      "value": "Les fichiers de shaders de ces données de jeu ne correspondent pas à la version de cette app. Envoie ou recopie des données de jeu mises à jour depuis Oort NX."
      }
     },
     "it": {
@@ -5016,7 +5016,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Ce dossier n’a pas pu être mémorisé. Essayez-en un autre."
+      "value": "Ce dossier n’a pas pu être mémorisé. Essaie-en un autre."
      }
     },
     "it": {
@@ -5208,7 +5208,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Cet emplacement n’a pas pu être mémorisé. Essayez-en un autre."
+      "value": "Cet emplacement n’a pas pu être mémorisé. Essaie-en un autre."
      }
     },
     "it": {
@@ -5656,7 +5656,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Le sélecteur de fichiers n'a pas pu s'ouvrir ici. Ouvrez l'app directement et réessayez."
+      "value": "Le sélecteur de fichiers n'a pas pu s'ouvrir ici. Ouvre l'app directement et réessaie."
      }
     },
     "it": {
@@ -5784,7 +5784,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Le sélecteur de dossier n’a pas pu s’ouvrir ici. Ouvrez l’app seule et réessayez."
+      "value": "Le sélecteur de dossier n’a pas pu s’ouvrir ici. Ouvre l’app seule et réessaie."
      }
     },
     "it": {
@@ -5848,7 +5848,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Le dossier choisi auparavant n’est plus lisible. Choisissez-le à nouveau."
+      "value": "Le dossier choisi auparavant n’est plus lisible. Choisis-le à nouveau."
      }
     },
     "it": {
@@ -6296,7 +6296,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Le code du jeu manque dans cette app. Recompilez-le et réinstallez-le."
+      "value": "Le code du jeu manque dans cette app. Recompile-le et réinstalle-le."
      }
     },
     "it": {
@@ -6360,7 +6360,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "L'exécutable du framework du jeu n'a pas pu être lu. Réinstallez le jeu depuis Oort NX."
+      "value": "L'exécutable du framework du jeu n'a pas pu être lu. Réinstalle le jeu depuis Oort NX."
      }
     },
     "it": {
@@ -6616,7 +6616,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "L’emplacement choisi auparavant n’est plus lisible (l’app a été signée autrement). Choisissez-le à nouveau."
+      "value": "L’emplacement choisi auparavant n’est plus lisible (l’app a été signée autrement). Choisis-le à nouveau."
      }
     },
     "it": {
@@ -7512,7 +7512,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "La signature de cette application ne permet pas de charger des jeux depuis Documents/Frameworks. Réinstallez l'application depuis Oort NX sur votre ordinateur."
+      "value": "La signature de cette application ne permet pas de charger des jeux depuis Documents/Frameworks. Réinstalle l'application depuis Oort NX sur ton ordinateur."
      }
     },
     "it": {
@@ -7640,7 +7640,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Le dossier de cette app ne contient pas encore de données pour ce jeu. Copiez-les dans games/%@ du dossier de cette app, dans Fichiers."
+      "value": "Le dossier de cette app ne contient pas encore de données pour ce jeu. Copie-les dans games/%@ du dossier de cette app, dans Fichiers."
      }
     },
     "it": {
@@ -7896,7 +7896,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Ce jeu a été compilé pour une autre version de cette app. Mettez l’app à jour ou recompilez le jeu dans le lanceur sur votre Mac."
+      "value": "Ce jeu a été compilé pour une autre version de cette app. Mets l’app à jour ou recompile le jeu dans le lanceur sur ton Mac."
      }
     },
     "it": {
@@ -7960,7 +7960,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Ce jeu a été mis à jour pendant que l’app était ouverte. Fermez puis rouvrez l’app pour charger la nouvelle version."
+      "value": "Ce jeu a été mis à jour pendant que l’app était ouverte. Ferme puis rouvre l’app pour charger la nouvelle version."
      }
     },
     "it": {
@@ -8024,7 +8024,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Les fichiers de ce jeu sont endommagés. Recompilez le jeu dans le lanceur sur votre Mac."
+      "value": "Les fichiers de ce jeu sont endommagés. Recompile le jeu dans le lanceur sur ton Mac."
      }
     },
     "it": {
@@ -8152,7 +8152,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Le framework de ce jeu dans Documents/Frameworks n'est pas signé. Réinstallez-le avec la même équipe de signature depuis Oort NX ou importez votre certificat .p12 de sideload dans Réglages pour le signer automatiquement sur cet appareil."
+      "value": "Le framework de ce jeu dans Documents/Frameworks n'est pas signé. Réinstalle-le avec la même équipe de signature depuis Oort NX ou importe ton certificat .p12 de sideload dans Réglages pour le signer automatiquement sur cet appareil."
      }
     },
     "it": {
@@ -8216,7 +8216,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Le framework de ce jeu est signé pour %@, alors que cette app est signée pour l'équipe %@. Réinstallez-le avec la même équipe de signature depuis Oort NX ou importez votre certificat .p12 de sideload dans Réglages pour le signer automatiquement sur cet appareil."
+      "value": "Le framework de ce jeu est signé pour %@, alors que cette app est signée pour l'équipe %@. Réinstalle-le avec la même équipe de signature depuis Oort NX ou importe ton certificat .p12 de sideload dans Réglages pour le signer automatiquement sur cet appareil."
      }
     },
     "it": {
@@ -8280,7 +8280,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Le manifeste de ce jeu est endommagé. Recompilez le jeu dans le lanceur sur votre Mac."
+      "value": "Le manifeste de ce jeu est endommagé. Recompile le jeu dans le lanceur sur ton Mac."
      }
     },
     "it": {
@@ -8344,7 +8344,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Le manifeste de ce jeu manque. Recompilez le jeu dans le lanceur sur votre Mac."
+      "value": "Le manifeste de ce jeu manque. Recompile le jeu dans le lanceur sur ton Mac."
      }
     },
     "it": {
@@ -8408,7 +8408,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "La liste des réglages de ce jeu est endommagée. Recompilez le jeu dans le lanceur sur votre Mac."
+      "value": "La liste des réglages de ce jeu est endommagée. Recompile le jeu dans le lanceur sur ton Mac."
      }
     },
     "it": {
@@ -8472,7 +8472,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "La liste des réglages de ce jeu manque. Recompilez le jeu dans le lanceur sur votre Mac."
+      "value": "La liste des réglages de ce jeu manque. Recompile le jeu dans le lanceur sur ton Mac."
      }
     },
     "it": {
@@ -8600,7 +8600,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "La progression non enregistrée sera perdue. Vous reviendrez à vos jeux."
+      "value": "La progression non enregistrée sera perdue. Tu reviendras à tes jeux."
      }
     },
     "it": {
@@ -8920,7 +8920,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "iOS a refusé la signature de code du framework de ce jeu. Réinstallez-le avec la même équipe de signature depuis Oort NX ou importez votre certificat .p12 de sideload dans Réglages pour le signer automatiquement sur cet appareil."
+      "value": "iOS a refusé la signature de code du framework de ce jeu. Réinstalle-le avec la même équipe de signature depuis Oort NX ou importe ton certificat .p12 de sideload dans Réglages pour le signer automatiquement sur cet appareil."
      }
     },
     "it": {
@@ -9240,7 +9240,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "« %@ » contient des fichiers .nxpart non assemblés. Les dossiers externes ne peuvent pas lire directement des parties découpées. Copiez-les dans games/%@ du dossier de cette app dans Fichiers pour les assembler automatiquement, ou utilisez un fichier romfs.img complet."
+      "value": "« %@ » contient des fichiers .nxpart non assemblés. Les dossiers externes ne peuvent pas lire directement des parties découpées. Copie-les dans games/%@ du dossier de cette app dans Fichiers pour les assembler automatiquement, ou utilise un fichier romfs.img complet."
      }
     },
     "it": {

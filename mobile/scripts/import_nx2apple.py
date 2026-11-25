@@ -255,12 +255,13 @@ def main(checkout):
 
 [NX2Apple](https://github.com/LNPANDY/NX2Apple) at `{commit}`, {CREDIT}. The licence text is in the root `NOTICE`.
 `mobile/scripts/import_nx2apple.py <checkout>` writes these files and this list. The SHA-256 is the original file's.
-No view of NX2Apple's is here: the screens are Oort NX's (`Sources/OortMobile`).
+No view of NX2Apple's is here: the screens are Oort NX's (`Sources/OortMobile`). French says "tu" (`scripts/french_tu.py`).
 
 | File | From | SHA-256 | Change |
 |---|---|---|---|
 {table}
 """)
+    subprocess.run([sys.executable, HERE / "scripts/french_tu.py"], check=True)
     print(f"{len(rows)} files from NX2Apple {commit}")
 
 
