@@ -408,6 +408,36 @@ final class OwnCompanionTests: XCTestCase {
         XCTAssertEqual(try ask(try companion(), "guide")["news"], false)
     }
 
+    func testWhatIsNewIsSaidOnceForEachVersion() throws {
+        // As alpha.2 left it.
+        put(root + "/data/choices.json", #"{"guideDone":true,"newsSeen":true}"#)
+        let c = try companion()
+        XCTAssertEqual(try ask(c, "guide")["news"], true, "the buttons changed since")
+        _ = try ask(c, "guide", ["seen": true])
+        XCTAssertEqual(try ask(c, "guide")["news"], false)
+        XCTAssertEqual(try ask(try companion(), "guide")["news"], false)
+    }
+
+    func testInstalledIsWhatCanBePlayedNow() throws {
+        put(root + "/games/ready/recomplauncher.json", #"{"format":1,"name":"Ready","start":{"program":["run"]}}"#)
+        put(root + "/games/ready/run", "#!/bin/sh")
+        put(root + "/games/needs/recomplauncher.json", #"{"format":1,"name":"Needs","start":{"program":["run"]},"inputs":[{"id":"game","label":"Copy","formats":[{"type":"file","extensions":["iso"]}]}]}"#)
+        put(root + "/games/broken/recomplauncher.json", "no")
+        let c = try companion()
+        _ = try ask(c, "folders.add", ["path": .string(root + "/games")])
+        XCTAssertEqual(try ask(c, "hello")["tabs"].items.compactMap { $0.stringValue }, ["All games", "Installed", "Favorites", "Recently played", "Not played yet"])
+        let states = try ask(c, "library", ["tab": "All games"])["games"].items.compactMap { $0["state"]?.stringValue }
+        XCTAssertEqual(Set(states), ["ready", "inputs", "broken"])
+        XCTAssertEqual(try ask(c, "library", ["tab": "Installed"])["games"].items.map { $0["state"] }, ["ready"])
+    }
+
+    func testPlayStationNamesSayWhatTheButtonReadHere() throws {
+        let names = try ask(try companion(), "prompts")
+        XCTAssertEqual(names["playstation"]?["view"], "Create", "the touchpad is not the button this app reads")
+        XCTAssertEqual(names["nintendo"]?["view"], "−")
+        XCTAssertEqual(names["xbox"]?["view"], "View")
+    }
+
     func testAChosenPictureIsCopiedAndPutAway() throws {
         exe(root + "/a.exe", "Drift")
         put(root + "/mine.png", Picture.png(60, 90, [UInt8](repeating: 1, count: 60 * 90 * 4)))

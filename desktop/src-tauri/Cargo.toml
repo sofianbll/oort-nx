@@ -1,6 +1,6 @@
 [package]
 name = "oort-desktop"
-version = "0.1.0-alpha.2"
+version = "0.1.0-alpha.3"
 description = "Oort NX for Windows and Linux"
 edition = "2021"
 license = "MIT"

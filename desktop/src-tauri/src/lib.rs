@@ -293,7 +293,7 @@ fn online_pick(host: State<'_, Arc<Host>>, id: String, choice: Value) -> Result<
 fn open_link(host: State<'_, Arc<Host>>, url: String) -> Result<(), String> {
     let listed = host.core.ask("catalog", json!({}))?;
     let page = |v: &Value| v["repo"].as_str().map(|r| format!("https://github.com/{r}"));
-    let own = ["https://github.com/sofianbll/oort-nx", "https://github.com/elripalda/RecompLauncher-SDK", "https://github.com/ddoinn/padwake"];
+    let own = ["https://github.com/sofianbll/oort-nx", "https://github.com/sofianbll/oort-nx/releases", "https://github.com/elripalda/RecompLauncher-SDK", "https://github.com/ddoinn/padwake"];
     let known = own.contains(&url.as_str()) || listed.as_array().into_iter().flatten().any(|p| page(p).as_deref() == Some(&url));
     if !known && !host.core.ask("game.link", json!({ "url": url })).is_ok_and(|v| v == json!(true)) {
         return Err("link".into());
@@ -343,6 +343,41 @@ fn named(app: &AppHandle, names: Vec<String>) {
 #[tauri::command]
 fn quit(app: AppHandle) {
     app.exit(0);
+}
+
+/// What the Power card may offer, in its order. Steam Deck's own game mode keeps every window full screen and in front:
+/// there is nothing to change.
+fn abilities_of(game_mode: bool) -> Vec<&'static str> {
+    if game_mode { vec!["restart", "quit"] } else { vec!["fullscreen", "hide", "restart", "quit"] }
+}
+
+#[tauri::command]
+fn abilities() -> Vec<&'static str> {
+    let set = |name| std::env::var_os(name).is_some_and(|v| !v.is_empty());
+    abilities_of(set("GAMESCOPE_WAYLAND_DISPLAY") || std::env::var("XDG_CURRENT_DESKTOP").is_ok_and(|v| v.eq_ignore_ascii_case("gamescope")))
+}
+
+#[tauri::command]
+fn hide(window: tauri::WebviewWindow) -> Result<(), String> {
+    window.minimize().map_err(|e| e.to_string())
+}
+
+/// Never while a game runs or gets ready: its play time is being counted, its setup would stop halfway.
+#[tauri::command]
+fn restart(app: AppHandle, host: State<'_, Arc<Host>>) -> Result<(), String> {
+    let busy = { let now = host.playing(); now.game.is_some() || now.preparing.is_some() };
+    if busy {
+        return Err("already-playing".into());
+    }
+    app.restart()
+}
+
+/// The folder of what games printed, the last launch of each.
+#[tauri::command(async)]
+fn open_logs(host: State<'_, Arc<Host>>) -> Result<(), String> {
+    let folder = host.data.join("logs");
+    std::fs::create_dir_all(&folder).map_err(|e| e.to_string())?;
+    open(&folder.to_string_lossy())
 }
 
 /// `/<game id>/<kind>`: only a picture the core names for that game, and only if it is one.
@@ -416,7 +451,7 @@ fn environment_language() -> Option<String> {
 pub fn run() {
     let app = tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            core, launch, close_game, prepare, open_link, open_folder, set_fullscreen, pads, quit, online_look, online_search, online_pick,
+            core, launch, close_game, prepare, open_link, open_folder, set_fullscreen, pads, quit, abilities, hide, restart, open_logs, online_look, online_search, online_pick,
             #[cfg(all(debug_assertions, target_os = "macos"))]
             probe::shot,
             #[cfg(all(debug_assertions, target_os = "macos"))]
@@ -481,6 +516,14 @@ pub fn run() {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn power_offers_what_this_system_does_and_quit_is_last() {
+        for game_mode in [false, true] {
+            assert_eq!(abilities_of(game_mode).last(), Some(&"quit"));
+        }
+        assert!(!abilities_of(true).contains(&"fullscreen"));
+    }
 
     #[test]
     fn only_pictures_are_served() {

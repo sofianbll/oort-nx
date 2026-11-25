@@ -51,13 +51,13 @@ extension Companion {
     func guide() -> CatalogJSON {
         let isNew = choices.guideDone != true
         return ["open": .bool(isNew), "page": .string(choices.guide.flatMap { Self.guidePages.contains($0) ? $0 : nil } ?? Self.guidePages[0]),
-                "pages": .list(Self.guidePages), "news": .bool(!isNew && choices.newsSeen != true)]
+                "pages": .list(Self.guidePages), "news": .bool(!isNew && choices.newsFor != Companion.version)]
     }
 
     private func setGuide(_ p: CatalogJSON) throws -> CatalogJSON {
         if let page = p["page"]?.stringValue, Self.guidePages.contains(page) { choices.guide = page }
-        if p["done"]?.boolValue == true { (choices.guideDone, choices.guide, choices.newsSeen) = (true, nil, true) }
-        if p["seen"]?.boolValue == true { (choices.guideDone, choices.newsSeen) = (true, true) }
+        if p["done"]?.boolValue == true { (choices.guideDone, choices.guide, choices.newsFor) = (true, nil, Companion.version) }
+        if p["seen"]?.boolValue == true { (choices.guideDone, choices.newsFor) = (true, Companion.version) }
         try store.write("choices", choices)
         return guide()
     }

@@ -80,8 +80,8 @@ struct SettingRow {
         (.moonlit, "Moonlit"), (.wave, "Wave"), (.descent, "Descent"),
     ]
 
-    /// The tabs a library without a cloud has.
-    static let tabs: [LibraryFilter] = [.all, .recentlyPlayed, .favorites, .notPlayed]
+    /// The tabs a library without a cloud has, five at most.
+    static let tabs: [LibraryFilter] = [.all, .installed, .favorites, .recentlyPlayed, .notPlayed]
 
     /// Categories with something on this system, in the Mac app's order and groups.
     static let categories: [SettingsCategory] = [.general, .appearance, .sound, .controllers, .account, .home, .library, .integrations, .about]

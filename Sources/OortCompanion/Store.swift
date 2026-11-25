@@ -75,8 +75,8 @@ struct Choices: Codable, Equatable {
     var online: Bool?
     var guide: String?
     var guideDone: Bool?
-    /// The short word about what is new was shown.
-    var newsSeen: Bool?
+    /// The version whose short word about what is new was shown.
+    var newsFor: String?
 }
 
 struct GameState: Codable, Equatable {

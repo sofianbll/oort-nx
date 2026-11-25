@@ -172,7 +172,7 @@ public final class Companion {
          "lastHome": .string(settings.startOn == .last ? settings.lastHome.rawValue : settings.startOn.rawValue)]
     }
 
-    public static let version = "0.1.0-alpha.2"
+    public static let version = "0.1.0-alpha.3"
 
     /// The settings the window applies, with what is being tried and not saved yet.
     private func view() -> CatalogJSON {
@@ -208,7 +208,9 @@ public final class Companion {
         let history = history
         let sort = p["sort"]?.stringValue.flatMap(LibrarySort.init) ?? settings.librarySort
         let query = LibraryQuery(filter: LibraryFilter(startingTab: p["tab"]?.stringValue ?? ""), searchText: p["search"]?.stringValue ?? "", sort: sort)
-        return ["games": .array(query.applyRecords(games, history: history).map { summary($0, history) }), "total": .number(games.count),
+        // Installed is what can be played now, as elsewhere in Oort: a game that waits for a file or its setup is not.
+        let shown = query.filter == .installed ? games.filter { state($0) == "ready" } : games
+        return ["games": .array(query.applyRecords(shown, history: history).map { summary($0, history) }), "total": .number(games.count),
                 "folders": .number(shelf.folders.count), "more": .bool(unread > 0), "online": .bool(choices.online == true)]
     }
 
@@ -223,24 +225,30 @@ public final class Companion {
             "art": .number(artStamp), "look": .bool(wantsLook(game)),
             "year": .text(records[game.id]?.year), "genres": .list(records[game.id]?.genres ?? []),
         ]
+        out["state"] = .string(state(game))
         switch game.source {
         case .recompilation(let m, _):
             out["kind"] = "recompilation"
             out["project"] = .text(m.name ?? m.repo)
-            let launcher = launcher(game)
-            out["state"] = .string(!m.unsupported.isEmpty ? "unsupported" : !launcher.missing.isEmpty ? "inputs" : launcher.needsPrepare ? "prepare" : "ready")
-        case .program:
-            out["kind"] = "program"
-            out["state"] = "ready"
-        case .steam:
-            out["kind"] = "steam"
-            out["state"] = "ready"
+        case .program: out["kind"] = "program"
+        case .steam: out["kind"] = "steam"
         case .broken(let code):
             out["kind"] = "recompilation"
-            out["state"] = "broken"
             out["reason"] = .string(code)
         }
         return .object(out)
+    }
+
+    /// Where a game stands: what its button does.
+    private func state(_ game: Game) -> String {
+        switch game.source {
+        case .program, .steam: return "ready"
+        case .broken: return "broken"
+        case .recompilation(let m, _):
+            if !m.unsupported.isEmpty { return "unsupported" }
+            let launcher = launcher(game)
+            return !launcher.missing.isEmpty ? "inputs" : launcher.needsPrepare ? "prepare" : "ready"
+        }
     }
 
     func launcher(_ game: Game) -> Launcher {
@@ -617,7 +625,13 @@ public final class Companion {
         func table(_ style: ButtonNameStyle, _ pad: ConnectedPad) -> CatalogJSON {
             .object(Dictionary(uniqueKeysWithValues: PromptButton.allCases.map { ($0.rawValue, .string(ButtonPrompts.label($0, style: style, connected: pad))) }))
         }
-        return ["nintendo": table(.nintendo, .nintendo), "xbox": table(.xbox, .xbox), "playstation": table(.playstation, .playstation)]
+        // On a Mac, View is a PlayStation controller's touchpad. Here it is its Create button (the touchpad works too).
+        var playstation = table(.playstation, .playstation)
+        if case .object(var names) = playstation {
+            names["view"] = "Create"
+            playstation = .object(names)
+        }
+        return ["nintendo": table(.nintendo, .nintendo), "xbox": table(.xbox, .xbox), "playstation": playstation]
     }
 }
 
