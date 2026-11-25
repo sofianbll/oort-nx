@@ -15,8 +15,8 @@ android {
         applicationId = "io.github.sofianbll.oortnx.alpha"
         minSdk = 29      // nx2android's own minimum (mkapk.py MIN_SDK): a launcher for its games needs no more
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0-alpha.1"
+        versionCode = 2
+        versionName = "0.1.0-alpha.2"
     }
 
     buildTypes {

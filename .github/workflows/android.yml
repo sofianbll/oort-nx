@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  APK: Oort-NX-Android-0.1.0-alpha.1-unsigned.apk
+  APK: Oort-NX-Android-0.1.0-alpha.2-unsigned.apk
 
 jobs:
   checks:

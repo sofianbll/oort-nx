@@ -85,6 +85,22 @@ class AndroidProject(unittest.TestCase):
         self.assertTrue((ANDROID / "app/src/main/kotlin" / BASE / "MainActivity.kt").exists())
         self.assertIn('android:name=".MainActivity"', (MAIN / "AndroidManifest.xml").read_text())
 
+    def test_alpha_2_build_workflow_and_readme_agree(self):
+        version = "0.1.0-alpha.2"
+        build = (ANDROID / "app/build.gradle.kts").read_text()
+        workflow = (ANDROID.parent / ".github/workflows/android.yml").read_text()
+        with self.subTest("APK metadata"):
+            self.assertRegex(build, r"(?m)^\s*versionCode = 2\s*$")
+            self.assertIn(f'versionName = "{version}"', build)
+        with self.subTest("APK filename"):
+            self.assertIn(f"APK: Oort-NX-Android-{version}-unsigned.apk", workflow)
+        with self.subTest("emulator check"):
+            emulator = (ANDROID / "tools/emulator_check.py").read_text()
+            self.assertIn(f'ALPHA_VERSION = "{version}"', emulator)
+            self.assertIn('ALPHA_VERSION_CODE = "2"', emulator)
+        with self.subTest("README"):
+            self.assertIn(f"`{version}`", (ANDROID / "README.md").read_text())
+
     def test_the_licences_in_the_app_are_the_repositorys(self):
         texts = MAIN / "assets/licences"
         self.assertEqual((texts / "oort-nx.txt").read_bytes(), (ANDROID.parent / "LICENSE").read_bytes())

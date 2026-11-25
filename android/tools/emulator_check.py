@@ -17,6 +17,8 @@ from pathlib import Path
 
 PACKAGE = "io.github.sofianbll.oortnx.alpha"
 ACTIVITY = f"{PACKAGE}/io.github.sofianbll.oortnx.MainActivity"
+ALPHA_VERSION = "0.1.0-alpha.2"
+ALPHA_VERSION_CODE = "2"
 RES = Path(__file__).resolve().parents[1] / "app/src/main/res"
 GAMES = ["Le phare de Brume", "Marée haute", "Collines rouges", "Les très longues aventures de la comète perdue"]
 PAD = {"A": "BUTTON_A", "B": "BUTTON_B", "X": "BUTTON_X", "Y": "BUTTON_Y", "L1": "BUTTON_L1", "R1": "BUTTON_R1", "START": "BUTTON_START",
@@ -616,10 +618,13 @@ def main():
     print(f"Android API {api}, {shell('wm size').strip()}, {shell('wm density').strip()}", flush=True)
     adb("logcat", "-c")
     adb("install", "-r", args.apk, check=True)
-    asked = re.findall(r"^\s+([\w.]+\.permission\.[\w.]+|[\w.]+DYNAMIC_RECEIVER[\w]*)", shell(f"dumpsys package {PACKAGE}"), re.M)
+    installed = shell(f"dumpsys package {PACKAGE}")
+    asked = re.findall(r"^\s+([\w.]+\.permission\.[\w.]+|[\w.]+DYNAMIC_RECEIVER[\w]*)", installed, re.M)
     ok("the installed app asks for no Android permission", not [p for p in asked if p.startswith("android.permission")], str(asked))
-    version = re.search(r"versionName=(\S+)", shell(f"dumpsys package {PACKAGE}"))
-    ok("version", version and version.group(1) == "0.1.0-alpha.1", str(version))
+    name = re.search(r"versionName=(\S+)", installed)
+    code = re.search(r"versionCode=(\d+)", installed)
+    ok("version name and code", name and code and (name[1], code[1]) == (ALPHA_VERSION, ALPHA_VERSION_CODE),
+       f"name={name and name[1]}, code={code and code[1]}")
     shell("settings put system font_scale 1.0; settings put secure show_ime_with_hard_keyboard 0; settings put secure immersive_mode_confirmations confirmed; cmd uimode night yes")
     rotate(0)
 

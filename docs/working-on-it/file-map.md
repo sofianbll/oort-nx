@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 25 novembre 2026. Copertura di **1135 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 25 novembre 2026. Copertura di **1233 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -47,6 +47,7 @@ Le cartelle generate `.build/`, `work/` e `dist/` e i dati personali in Applicat
 - [UI · temi, rendering e sfondi](#ui--temi-rendering-e-sfondi)
 - [UI · fonti, Steam e libreria mista](#ui--fonti-steam-e-libreria-mista)
 - [UI · achievement](#ui--achievement)
+- [Android](#android)
 - [Test e fixture](#test-e-fixture)
 - [Script di sviluppo e packaging](#script-di-sviluppo-e-packaging)
 - [Risorse incluse](#risorse-incluse)
@@ -934,6 +935,16 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [TierCrystal.swift](../../Sources/NXLibrary/Views/Spotlight/TierCrystal.swift) | Il cristallo di una tier dalle risorse del Core, decodificato una volta; non ancora ottenuto, tenue con una traccia del suo colore, così oro, argento e bronzo restano distinguibili. |
 | [AchievementsScreenModel.swift](../../Sources/NXLibrary/ViewModels/AchievementsScreenModel.swift) | Selezione, filtro e scroll di Achievements; LB/RB cambiano filtro o scorrono i dettagli aperti. Dopo la rotella la prima freccia riporta il focus in vista. |
 | [ListScroll.swift](../../Sources/NXLibrary/ViewModels/ListScroll.swift) | Offset di una lista (`TextScroll`) con la planata del pannello delle mod: rotella, trackpad e frecce muovono lo stesso valore. |
+
+## Android
+
+| File | Responsabilità |
+|---|---|
+| `android/README.md` | Versione in preparazione, comportamento e prove della variante Android. |
+| `android/app/build.gradle.kts` | Identità, versione, dipendenze e build R8 dell'APK. |
+| `.github/workflows/android.yml` | Controlli senza SDK, build e prove con APK sintetici; nessuna pubblicazione. |
+| `android/tools/emulator_check.py` | Prove in emulatore sul pacchetto R8, inclusi versione e permessi effettivi. |
+| `Tests/AndroidChecks/test_android_project.py` | Coerenza di versione, testi, risorse e permessi senza SDK. |
 
 ## Test e fixture
 
