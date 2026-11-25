@@ -76,6 +76,12 @@ class AppState(
     var libraryKey by mutableStateOf<LibraryKey?>(null)
         private set
 
+    /** The keys a controller types with, shown when the search is asked from one: Android's keyboard cannot be steered by it. */
+    var padKeyboard by mutableStateOf(false)
+    var padKey by mutableIntStateOf(0)
+        private set
+    var padKeyColumns by mutableIntStateOf(7)
+
     /** True while the search field has the focus: the keys typed there are its own. */
     var typing by mutableStateOf(false)
 
@@ -190,6 +196,7 @@ class AppState(
     /** The bar and the rail. The section already open goes back to its first page. */
     fun goTo(next: Section) {
         libraryKey = null
+        padKeyboard = false
         if (next == section && route == null) return
         if (next == section) stacks = stacks - section
         section = next
@@ -266,13 +273,51 @@ class AppState(
         libraryKey = null
         searching = true
         libraryFocus = 0
-        fieldAsked++
+        padKeyboard = padMode && !keyboard
+        padKey = 0
+        if (padKeyboard) fieldLeft++ else fieldAsked++
         sound(SoundEvent.Open)
+    }
+
+    /** A key of the controller's keyboard, pressed by the controller or by a finger. */
+    fun pressKey(index: Int) {
+        padKey = index
+        when (val key = PAD_KEYS.getOrNull(index)) {
+            null -> return
+            KEY_OK -> return endPadKeyboard()
+            KEY_ERASE -> type(query.dropLast(1))
+            KEY_SPACE -> if (query.isNotEmpty() && !query.endsWith(' ')) type("$query ")
+            else -> type(query + key.lowercase())
+        }
+        sound(SoundEvent.Select)
+    }
+
+    private fun endPadKeyboard() {
+        padKeyboard = false
+        libraryKey = if (library.isEmpty()) LibraryKey.Search else null
+        libraryFocus = 0
+        sound(SoundEvent.Confirm)
+    }
+
+    private fun padKeyNav(nav: Nav) {
+        when (nav) {
+            Nav.Up, Nav.Down, Nav.Left, Nav.Right -> {
+                val dir = when (nav) { Nav.Up -> Dir.Up; Nav.Down -> Dir.Down; Nav.Left -> Dir.Left; else -> Dir.Right }
+                val next = gridMove(padKey, PAD_KEYS.size, padKeyColumns, dir)
+                if (next == padKey) sound(SoundEvent.Deny) else { padKey = next; sound(SoundEvent.Move, step++) }
+            }
+            Nav.Forward, Nav.Backward -> { padKey = (padKey + (if (nav == Nav.Forward) 1 else -1) + PAD_KEYS.size) % PAD_KEYS.size; sound(SoundEvent.Move, step++) }
+            Nav.Confirm -> pressKey(padKey)
+            Nav.Details -> { val here = padKey; pressKey(PAD_KEYS.indexOf(KEY_ERASE)); padKey = here }
+            Nav.Search -> { val here = padKey; pressKey(PAD_KEYS.indexOf(KEY_SPACE)); padKey = here }
+            Nav.Options, Nav.Back -> endPadKeyboard()
+            else -> sound(SoundEvent.Deny)
+        }
     }
 
     fun type(text: String) { query = text; libraryFocus = 0 }
 
-    fun closeSearch() { searching = false; query = ""; typing = false; libraryFocus = 0 }
+    fun closeSearch() { searching = false; query = ""; typing = false; padKeyboard = false; libraryFocus = 0 }
 
     /** From the field to what it found: the keyboard leaves, the first cover takes the ring. */
     fun leaveField() {
@@ -303,6 +348,8 @@ class AppState(
             }
             return
         }
+        val inLibrary = route == null && section == Section.Library
+        if (padKeyboard && inLibrary && nav != Nav.Next && nav != Nav.Previous && nav != Nav.Settings) return padKeyNav(nav)
         // A controller picked up while the field is typed in: Android's keyboard cannot be steered by it, so the first
         // press leaves the field for what it found.
         if (typing && !keyboard && nav != Nav.Back && nav != Nav.Search && nav != Nav.Next && nav != Nav.Previous) return leaveField()
@@ -630,6 +677,13 @@ class AppState(
     companion object {
         /** The play key of a game's page, which is not a line of its list. */
         const val PLAY = "play"
+
+        const val KEY_SPACE = "␣"
+        const val KEY_ERASE = "⌫"
+        const val KEY_OK = "OK"
+
+        /** Letters then digits then the three keys: 39, three rows of 13 in a wide window. */
+        val PAD_KEYS = ('A'..'Z').map { it.toString() } + ('0'..'9').map { it.toString() } + listOf(KEY_SPACE, KEY_ERASE, KEY_OK)
         private const val MENU = "menu"
 
         private val DEMO_GAMES = List(7) { i ->
