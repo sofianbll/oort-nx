@@ -42,6 +42,9 @@ class RowSection(val title: Label? = null, val footer: Label? = null, val rows: 
 
 enum class Section { Home, Library, Controllers, Settings }
 
+/** The keys above the library's covers, in their order. */
+enum class LibraryKey { All, Favorites, Search, Sort }
+
 /** A page opened over a section. */
 sealed interface Route {
     data class GamePage(val packageName: String) : Route

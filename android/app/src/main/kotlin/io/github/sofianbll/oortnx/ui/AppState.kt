@@ -25,6 +25,7 @@ import io.github.sofianbll.oortnx.core.SoundEvent
 import io.github.sofianbll.oortnx.core.SoundPlayer
 import io.github.sofianbll.oortnx.core.gridMove
 import io.github.sofianbll.oortnx.core.lastStartedFirst
+import io.github.sofianbll.oortnx.core.matches
 import java.text.DateFormat
 import java.time.ZoneId
 import java.util.Date
@@ -57,7 +58,28 @@ class AppState(
 
     /** The last started first: À la une. */
     val recent: List<Game> get() = lastStartedFirst(found, prefs.started)
-    val library: List<Game> get() = if (prefs.byName) found else recent
+    /** What the library shows: every game or the favourites, in the chosen order, narrowed by the search. */
+    val library: List<Game> get() = (if (prefs.byName) found else recent)
+        .filter { (!onlyFavorites || it.packageName in prefs.favorites) && matches(it.title, query) }
+    var onlyFavorites by mutableStateOf(false)
+        private set
+    var searching by mutableStateOf(false)
+        private set
+    var query by mutableStateOf("")
+        private set
+
+    /** The key above the covers that the controller or the keyboard is on; null while it is on a cover. */
+    var libraryKey by mutableStateOf<LibraryKey?>(null)
+        private set
+
+    /** True while the search field has the focus: the keys typed there are its own. */
+    var typing by mutableStateOf(false)
+
+    /** Each change asks the search field to take the focus, or to give it back. */
+    var fieldAsked by mutableIntStateOf(0)
+        private set
+    var fieldLeft by mutableIntStateOf(0)
+        private set
     val count: Int get() = found.size
 
     /** True once a pad or a keyboard moved the focus; a touch puts it back to false. */
@@ -91,7 +113,7 @@ class AppState(
         HintKey.Confirm -> context.getString(R.string.key_enter)
         HintKey.Back -> context.getString(R.string.key_escape)
         HintKey.Details -> "Ctrl D"
-        HintKey.Controllers -> "Q E"
+        HintKey.Search -> "Ctrl F"
         HintKey.Options -> "Ctrl O"
         HintKey.Tabs -> "Q E"
         HintKey.Sort -> "F3"
@@ -99,7 +121,7 @@ class AppState(
         HintKey.Confirm -> family.mark(if (prefs.swapAB) KeyEvent.KEYCODE_BUTTON_B else KeyEvent.KEYCODE_BUTTON_A)
         HintKey.Back -> family.mark(if (prefs.swapAB) KeyEvent.KEYCODE_BUTTON_A else KeyEvent.KEYCODE_BUTTON_B)
         HintKey.Details -> family.mark(KeyEvent.KEYCODE_BUTTON_X)
-        HintKey.Controllers -> family.mark(KeyEvent.KEYCODE_BUTTON_Y)
+        HintKey.Search -> family.mark(KeyEvent.KEYCODE_BUTTON_Y)
         HintKey.Options -> family.mark(KeyEvent.KEYCODE_BUTTON_START)
         HintKey.Tabs -> family.mark(KeyEvent.KEYCODE_BUTTON_L1) + " " + family.mark(KeyEvent.KEYCODE_BUTTON_R1)
         HintKey.Sort -> family.mark(KeyEvent.KEYCODE_BUTTON_THUMBR)
@@ -125,7 +147,7 @@ class AppState(
     private fun take(games: List<Game>, pictures: Map<String, ImageBitmap>) {
         found = games
         icons = pictures
-        libraryFocus = libraryFocus.coerceIn(0, (games.size - 1).coerceAtLeast(0))
+        libraryFocus = libraryFocus.coerceIn(0, (library.size - 1).coerceAtLeast(0))
         // The page of a game that went away closes by itself.
         val gone = { r: Route -> r is Route.GamePage && games.none { it.packageName == r.packageName } }
         if (stacks.values.any { it.any(gone) }) stacks = stacks.mapValues { (_, pages) -> pages.takeWhile { !gone(it) } }
@@ -137,6 +159,7 @@ class AppState(
 
     /** The bar and the rail. The section already open goes back to its first page. */
     fun goTo(next: Section) {
+        libraryKey = null
         if (next == section && route == null) return
         if (next == section) stacks = stacks - section
         section = next
@@ -153,6 +176,7 @@ class AppState(
     fun onBack(): Boolean {
         if (!canGoBack) return false
         if (menuGame != null) { closeMenu(); sound(SoundEvent.Back); return true }
+        if (searchOnScreen) { closeSearch(); sound(SoundEvent.Back); return true }
         if (route != null) stacks = stacks + (section to stacks[section].orEmpty().dropLast(1))
         else section = Section.Home
         sound(SoundEvent.Back)
@@ -160,6 +184,7 @@ class AppState(
     }
 
     val canGoBack: Boolean get() = menuGame != null || route != null || section != Section.Home
+    private val searchOnScreen: Boolean get() = searching && route == null && section == Section.Library
 
     fun select(game: Game) {
         if (game.packageName == selected?.packageName) return
@@ -189,10 +214,50 @@ class AppState(
         is Route.GamePage -> game(page.packageName)
         null -> when (section) {
             Section.Home -> selected
-            Section.Library -> library.getOrNull(libraryFocus)
+            Section.Library -> if (libraryKey == null) library.getOrNull(libraryFocus) else null
             else -> null
         }
         else -> null
+    }
+
+    // ---- the library's search and favourites ------------------------------------------------------------------
+
+    fun filter(favoritesOnly: Boolean) {
+        if (favoritesOnly == onlyFavorites) return
+        onlyFavorites = favoritesOnly
+        libraryFocus = 0
+        sound(SoundEvent.Select)
+    }
+
+    /** Y, Ctrl+F or the magnifier: the library, with the field ready to type in. */
+    fun search() {
+        stacks = stacks - Section.Library
+        section = Section.Library
+        libraryKey = null
+        searching = true
+        libraryFocus = 0
+        fieldAsked++
+        sound(SoundEvent.Open)
+    }
+
+    fun type(text: String) { query = text; libraryFocus = 0 }
+
+    fun closeSearch() { searching = false; query = ""; typing = false; libraryFocus = 0 }
+
+    /** From the field to what it found: the keyboard leaves, the first cover takes the ring. */
+    fun leaveField() {
+        fieldLeft++
+        typing = false
+        libraryKey = if (library.isEmpty()) LibraryKey.Search else null
+        libraryFocus = 0
+    }
+
+    fun toggleFavorite(game: Game, say: Boolean = true) {
+        val here = library.getOrNull(libraryFocus)
+        prefs.saveFavorite(game.packageName, game.packageName !in prefs.favorites)
+        // The ring stays on its game; one that left the favourites leaves it to its neighbour.
+        libraryFocus = library.indexOf(here).takeIf { it >= 0 } ?: libraryFocus.coerceIn(0, (library.size - 1).coerceAtLeast(0))
+        if (say) sound(SoundEvent.Select)
     }
 
     // ---- what a button does -------------------------------------------------------------------------------
@@ -211,7 +276,7 @@ class AppState(
         when (nav) {
             Nav.Next -> return cycle(1)
             Nav.Previous -> return cycle(-1)
-            Nav.Controllers -> return goTo(Section.Controllers)
+            Nav.Search -> return search()
             Nav.Options -> { currentGame()?.let { openMenu(it) } ?: goTo(Section.Settings); return }
             Nav.Settings -> return goTo(Section.Settings)
             Nav.Forward, Nav.Backward -> return step(nav == Nav.Forward)
@@ -236,8 +301,15 @@ class AppState(
         when {
             menuGame == null && page.isText -> textNav(if (forward) Nav.Down else Nav.Up)
             menuGame == null && page == null && section == Section.Home -> if (selected != null) moveHome(next(HomeTarget.entries, homeTarget))
-            menuGame == null && page == null && section == Section.Library -> if (library.isNotEmpty()) {
-                libraryFocus = next(library.indices.toList(), libraryFocus); sound(SoundEvent.Move, step++)
+            menuGame == null && page == null && section == Section.Library -> {
+                // The keys above the covers, then the covers.
+                val keys = LibraryKey.entries
+                val places = keys.size + library.size
+                val here = libraryKey?.ordinal ?: (keys.size + libraryFocus.coerceIn(0, (library.size - 1).coerceAtLeast(0)))
+                val to = (here + by + places) % places
+                libraryKey = keys.getOrNull(to)
+                if (libraryKey == null) libraryFocus = to - keys.size
+                sound(SoundEvent.Move, step++)
             }
             else -> focusedRow()?.let { rowFocus = rowFocus + (pageKey to next(rowIds(), it)); sound(SoundEvent.Move, step++) }
         }
@@ -280,10 +352,12 @@ class AppState(
 
     private fun libraryNav(nav: Nav) {
         val games = library
-        if (games.isEmpty()) { if (nav == Nav.Confirm) rescan(); return }
+        val key = libraryKey ?: if (games.isEmpty()) emptyKey() else null
+        if (key != null) return keyNav(nav, key)
         when (nav) {
             Nav.Up, Nav.Down, Nav.Left, Nav.Right -> {
                 val dir = when (nav) { Nav.Up -> Dir.Up; Nav.Down -> Dir.Down; Nav.Left -> Dir.Left; else -> Dir.Right }
+                if (nav == Nav.Up && libraryFocus < columns) { libraryKey = emptyKey(); sound(SoundEvent.Move, step++); return }
                 val next = gridMove(libraryFocus, games.size, columns, dir)
                 if (next == libraryFocus) sound(SoundEvent.Deny) else { libraryFocus = next; sound(SoundEvent.Move, step++) }
             }
@@ -291,6 +365,26 @@ class AppState(
             Nav.Sort -> sort(!prefs.byName)
             Nav.First, Nav.Last -> { libraryFocus = if (nav == Nav.First) 0 else games.lastIndex; sound(SoundEvent.Move, step++) }
             else -> Unit
+        }
+    }
+
+    /** The key the ring goes to when it leaves the covers: the tab in view. */
+    private fun emptyKey() = if (onlyFavorites) LibraryKey.Favorites else LibraryKey.All
+
+    private fun keyNav(nav: Nav, key: LibraryKey) {
+        libraryKey = key
+        when (nav) {
+            Nav.Left, Nav.Right -> LibraryKey.entries.getOrNull(key.ordinal + if (nav == Nav.Right) 1 else -1)
+                ?.let { libraryKey = it; sound(SoundEvent.Move, step++) } ?: sound(SoundEvent.Deny)
+            Nav.Down -> if (library.isNotEmpty()) { libraryKey = null; sound(SoundEvent.Move, step++) } else sound(SoundEvent.Deny)
+            Nav.Confirm -> when (key) {
+                LibraryKey.All -> filter(false)
+                LibraryKey.Favorites -> filter(true)
+                LibraryKey.Search -> search()
+                LibraryKey.Sort -> sort(!prefs.byName)
+            }
+            Nav.Sort -> sort(!prefs.byName)
+            else -> sound(SoundEvent.Deny)
         }
     }
 
@@ -410,10 +504,13 @@ class AppState(
         return listOf(RowSection(footer = Label.Res(R.string.detail_uninstall_warning), rows = listOfNotNull(
             row("menu-play", R.string.detail_play, Glyph.Play) { play(game) },
             if (page is Route.GamePage && page.packageName == game.packageName) null else row("menu-details", R.string.game_page, Glyph.Info) { openGame(game) },
+            favorite(game).let { on -> row("menu-favorite", if (on) R.string.favorite_remove else R.string.favorite_add, Glyph.Heart) { toggleFavorite(game) } },
             row("menu-android", R.string.detail_info, Glyph.Device) { androidPage(game) },
             row("menu-uninstall", R.string.detail_uninstall, Glyph.Trash, Label.Res(R.string.detail_uninstall_note), danger = true) { androidPage(game) },
         )))
     }
+
+    fun favorite(game: Game): Boolean = game.packageName in prefs.favorites
 
     private fun swapRow() = RowItem("swap", Label.Res(R.string.settings_swap), note = Label.Res(R.string.settings_swap_note), glyph = Glyph.Swap,
         kind = Kind.Toggle(prefs.swapAB) { prefs.saveSwapAB(it) })
@@ -430,6 +527,7 @@ class AppState(
                 RowItem("pause", Label.Res(R.string.detail_pause_title), note = Label.Res(R.string.detail_pause_menu), glyph = Glyph.Sliders),
             )),
             RowSection(Label.Res(R.string.detail_on_device), footer = Label.Res(R.string.detail_uninstall_warning), rows = listOf(
+                RowItem("favorite", Label.Res(R.string.favorite), glyph = Glyph.Heart, kind = Kind.Toggle(favorite(game)) { toggleFavorite(game, say = false) }),
                 RowItem("android", Label.Res(R.string.detail_info), glyph = Glyph.Device, kind = Kind.Press { androidPage(game) }),
                 RowItem("uninstall", Label.Res(R.string.detail_uninstall), note = Label.Res(R.string.detail_uninstall_note), glyph = Glyph.Trash, danger = true,
                     kind = Kind.Press { androidPage(game) }),

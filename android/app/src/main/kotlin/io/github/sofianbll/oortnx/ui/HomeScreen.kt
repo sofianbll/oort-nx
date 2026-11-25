@@ -123,7 +123,7 @@ private fun HomeHints(state: AppState, modifier: Modifier = Modifier) {
     }
     Hints(state, listOfNotNull(
         HintKey.Confirm to first, if (state.homeTarget == HomeTarget.Page) null else HintKey.Details to R.string.game_page,
-        HintKey.Options to R.string.options, HintKey.Controllers to R.string.nav_controllers, HintKey.Tabs to R.string.hint_tabs,
+        HintKey.Options to R.string.options, HintKey.Search to R.string.search, HintKey.Tabs to R.string.hint_tabs,
     ), modifier)
 }
 

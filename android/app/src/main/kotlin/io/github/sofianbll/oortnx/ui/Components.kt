@@ -151,22 +151,23 @@ fun StateLine(text: String, modifier: Modifier = Modifier) {
 @Composable
 fun PageTitle(title: String, onBack: (() -> Unit)?, modifier: Modifier = Modifier, actions: @Composable () -> Unit = {}) {
     Row(modifier.fillMaxWidth().padding(top = 8.dp, bottom = 8.dp).sizeIn(minHeight = 56.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        if (onBack != null) IconKey(Glyph.Back, stringResource(R.string.back), onBack)
+        if (onBack != null) IconKey(Glyph.Back, stringResource(R.string.back), onClick = onBack)
         Text(title, Modifier.weight(1f).heading(), style = if (onBack == null) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
         actions()
     }
 }
 
 @Composable
-fun IconKey(glyph: Glyph, description: String, onClick: () -> Unit) {
+fun IconKey(glyph: Glyph, description: String, focused: Boolean = false, onClick: () -> Unit) {
     Box(
-        Modifier.size(48.dp).clip(CircleShape).background(PanelRaised).clickable(role = Role.Button, onClick = onClick).semantics { contentDescription = description },
+        Modifier.size(48.dp).clip(CircleShape).background(PanelRaised).border(2.dp, if (focused) OortTokens.Palette.Focus else Color.Transparent, CircleShape)
+            .clickable(role = Role.Button, onClick = onClick).semantics { contentDescription = description },
         contentAlignment = Alignment.Center,
     ) { OortGlyph(glyph, tint = OortTokens.Palette.Ink, modifier = Modifier.size(22.dp)) }
 }
 
 /** What a key shown at the foot of a page does. */
-enum class HintKey { Confirm, Back, Details, Controllers, Options, Tabs, Sort }
+enum class HintKey { Confirm, Back, Details, Search, Options, Tabs, Sort }
 
 /** The keys of the controller or the keyboard for what can be done here. Touch hides them. */
 @OptIn(ExperimentalLayoutApi::class)

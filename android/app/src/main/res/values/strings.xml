@@ -16,6 +16,16 @@
     <string name="key_escape">Esc</string>
     <string name="game_page">Details</string>
 
+    <string name="search">Search</string>
+    <string name="search_field">Search for a game</string>
+    <string name="tab_all">All games</string>
+    <string name="tab_favorites">Favorites</string>
+    <string name="favorite">Favorite</string>
+    <string name="favorite_add">Add to favorites</string>
+    <string name="favorite_remove">Remove from favorites</string>
+    <string name="favorites_empty">No favorites yet</string>
+    <string name="favorites_how">Add one from a game’s options: a long press, a right click or the Options button.</string>
+    <string name="search_none">No games match.</string>
     <string name="sort">Sort</string>
     <string name="sort_last">Recent</string>
     <string name="sort_name">Name</string>

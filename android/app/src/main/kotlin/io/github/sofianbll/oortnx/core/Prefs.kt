@@ -37,6 +37,10 @@ class Prefs(private val context: Context) {
     var byName by mutableStateOf(store.getBoolean("byName", false))
         private set
 
+    /** The favourites, by package. */
+    var favorites by mutableStateOf(store.getStringSet("favorites", emptySet()).orEmpty().toSet())
+        private set
+
     /** When each game was last started from here, by package. */
     var started by mutableStateOf(store.all.filterKeys { it.startsWith(STARTED) }.mapNotNull { (k, v) -> (v as? Long)?.let { k.removePrefix(STARTED) to it } }.toMap())
         private set
@@ -52,6 +56,10 @@ class Prefs(private val context: Context) {
     fun saveByName(on: Boolean) { byName = on; store.edit().putBoolean("byName", on).apply() }
     fun saveStarted(packageName: String, at: Long) { started = started + (packageName to at); store.edit().putLong(STARTED + packageName, at).apply() }
 
+    fun saveFavorite(packageName: String, on: Boolean) {
+        favorites = if (on) favorites + packageName else favorites - packageName
+        store.edit().putStringSet("favorites", favorites).apply()
+    }
     fun saveSound(on: Boolean) { sound = on; store.edit().putBoolean("sound", on).apply() }
     fun savePack(name: String) { if (name in OortSynth.packs) { pack = name; store.edit().putString("pack", name).apply() } }
     fun saveSwapAB(on: Boolean) { swapAB = on; store.edit().putBoolean("swapAB", on).apply() }

@@ -31,7 +31,7 @@ class PadKeysTest {
 
     @Test fun theOtherButtonsHaveTheMacsPlaces() {
         assertEquals(Nav.Details, PadKeys.nav(KeyEvent.KEYCODE_BUTTON_X, false))
-        assertEquals(Nav.Controllers, PadKeys.nav(KeyEvent.KEYCODE_BUTTON_Y, false))
+        assertEquals(Nav.Search, PadKeys.nav(KeyEvent.KEYCODE_BUTTON_Y, false))
         assertEquals(Nav.Options, PadKeys.nav(KeyEvent.KEYCODE_BUTTON_START, false))
         assertEquals(Nav.Options, PadKeys.nav(KeyEvent.KEYCODE_MENU, false))
         assertEquals(Nav.Sort, PadKeys.nav(KeyEvent.KEYCODE_BUTTON_THUMBR, false))
@@ -43,6 +43,7 @@ class PadKeysTest {
 
     @Test fun theKeyboardHasTheMacsShortcutsWithControl() {
         assertEquals(Nav.Details, PadKeys.keyboard(KeyEvent.KEYCODE_D, ctrl = true, shift = false))
+        assertEquals(Nav.Search, PadKeys.keyboard(KeyEvent.KEYCODE_F, ctrl = true, shift = false))
         assertEquals(Nav.Options, PadKeys.keyboard(KeyEvent.KEYCODE_O, ctrl = true, shift = false))
         assertEquals(Nav.Settings, PadKeys.keyboard(KeyEvent.KEYCODE_COMMA, ctrl = true, shift = false))
         assertNull(PadKeys.keyboard(KeyEvent.KEYCODE_C, ctrl = true, shift = false))

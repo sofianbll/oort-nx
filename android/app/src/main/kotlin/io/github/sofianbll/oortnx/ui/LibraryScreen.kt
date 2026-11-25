@@ -1,6 +1,5 @@
 package io.github.sofianbll.oortnx.ui
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -20,22 +19,23 @@ import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -48,7 +48,7 @@ import io.github.sofianbll.oortnx.core.Game
 fun LibraryScreen(state: AppState) {
     val games = state.library
     BoxWithConstraints(Modifier.fillMaxSize()) {
-        if (games.isEmpty()) {
+        if (state.count == 0) {
             if (state.scanned) EmptyLibrary(state, Modifier.fillMaxSize().verticalScroll(rememberScrollState()).heightIn(min = maxHeight).padding(28.dp))
             else Text(stringResource(R.string.library_scanning), Modifier.padding(28.dp), style = MaterialTheme.typography.bodyLarge, color = Ink2)
             return@BoxWithConstraints
@@ -57,15 +57,16 @@ fun LibraryScreen(state: AppState) {
         SideEffect { state.columns = columns }
         val grid = rememberLazyGridState()
         LaunchedEffect(state.libraryFocus, state.padMode) {
-            if (!state.padMode) return@LaunchedEffect
+            if (!state.padMode || games.isEmpty()) return@LaunchedEffect
             val info = grid.layoutInfo
             val seen = info.visibleItemsInfo.firstOrNull { it.index == state.libraryFocus }
             if (seen == null || seen.offset.y < 0 || seen.offset.y + seen.size.height > info.viewportEndOffset) grid.animateScrollToItem(state.libraryFocus)
         }
-        LaunchedEffect(state.prefs.byName) { if (state.padMode) grid.animateScrollToItem(state.libraryFocus) else grid.scrollToItem(0) }
+        LaunchedEffect(state.prefs.byName, state.onlyFavorites, state.query) { if (state.padMode) grid.animateScrollToItem(state.libraryFocus) else grid.scrollToItem(0) }
         Column(Modifier.fillMaxSize().padding(horizontal = 20.dp)) {
-            PageTitle(stringResource(R.string.nav_library), null) { SortKey(state) }
-            LazyVerticalGrid(
+            LibraryHeader(state)
+            if (games.isEmpty()) NothingHere(state, Modifier.weight(1f))
+            else LazyVerticalGrid(
                 columns = GridCells.Fixed(columns),
                 state = grid,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -74,32 +75,26 @@ fun LibraryScreen(state: AppState) {
                 modifier = Modifier.weight(1f),
             ) {
                 itemsIndexed(games, key = { _, g -> g.packageName }) { index, game ->
-                    GameTile(state, game, state.icons[game.packageName], focused = state.padMode && index == state.libraryFocus)
+                    GameTile(state, game, state.icons[game.packageName], focused = state.padMode && state.libraryKey == null && index == state.libraryFocus)
                 }
             }
-            Hints(state, listOf(
-                HintKey.Confirm to R.string.game_page, HintKey.Options to R.string.options, HintKey.Sort to R.string.sort,
-                HintKey.Tabs to R.string.hint_tabs, HintKey.Back to R.string.back,
+            val onCover = state.libraryKey == null && games.isNotEmpty()
+            Hints(state, listOfNotNull(
+                HintKey.Confirm to if (onCover) R.string.game_page else R.string.select,
+                if (onCover) HintKey.Options to R.string.options else null, HintKey.Search to R.string.search,
+                if (onCover) HintKey.Sort to R.string.sort else null, HintKey.Tabs to R.string.hint_tabs, HintKey.Back to R.string.back,
             ))
         }
     }
 }
 
+/** No cover to show: the search found nothing, or there is no favourite yet. */
 @Composable
-private fun SortKey(state: AppState) {
-    var open by remember { mutableStateOf(false) }
-    Box {
-        IconKey(Glyph.Sort, stringResource(R.string.sort)) { open = true }
-        DropdownMenu(open, { open = false }, containerColor = PanelRaised, border = BorderStroke(1.dp, LineStrong)) {
-            for ((byName, label) in listOf(false to R.string.sort_last, true to R.string.sort_name)) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(label), style = MaterialTheme.typography.bodyLarge) },
-                    onClick = { open = false; state.sort(byName) },
-                    trailingIcon = { if (state.prefs.byName == byName) OortGlyph(Glyph.Check) },
-                    modifier = Modifier.semantics { selected = state.prefs.byName == byName },
-                )
-            }
-        }
+private fun NothingHere(state: AppState, modifier: Modifier = Modifier) {
+    val searched = state.query.isNotBlank()
+    Column(modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 8.dp, vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text(stringResource(if (searched) R.string.search_none else R.string.favorites_empty), Modifier.heading(), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        if (!searched) Text(stringResource(R.string.favorites_how), Modifier.widthIn(max = 520.dp), style = MaterialTheme.typography.bodyLarge, color = Ink2)
     }
 }
 
@@ -115,7 +110,14 @@ private fun GameTile(state: AppState, game: Game, icon: ImageBitmap?, focused: B
                 onLongClickLabel = stringResource(R.string.options), onLongClick = { state.openMenu(game) }) { state.openGame(game) },
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        GameCover(game, icon, focused, state.prefs.calm, Modifier.fillMaxWidth().aspectRatio(1f), hovered = hovered)
+        Box {
+            GameCover(game, icon, focused, state.prefs.calm, Modifier.fillMaxWidth().aspectRatio(1f), hovered = hovered)
+            if (state.favorite(game)) {
+                val said = stringResource(R.string.favorite)
+                Box(Modifier.align(Alignment.TopEnd).padding(10.dp).size(28.dp).background(OortTokens.Palette.Scrim.copy(alpha = 0.75f), CircleShape)
+                    .semantics { contentDescription = said }, contentAlignment = Alignment.Center) { OortGlyph(Glyph.Heart, Modifier.size(18.dp), tint = OortTokens.Palette.Ink) }
+            }
+        }
         Text(game.title, Modifier.padding(horizontal = 6.dp), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, minLines = 2, maxLines = 2, overflow = TextOverflow.Ellipsis)
     }
 }

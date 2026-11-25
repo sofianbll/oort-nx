@@ -18,14 +18,14 @@ gradle -p android testDebugUnitTest assembleDebug assembleRelease   # no Gradle 
 
 - **Featured.** The last games started from Oort, the chosen one large, Play under the thumb; on its side, a row of covers.
 - **Library.** Lists the apps whose package starts with `org.nx2a.` (nx2android's convention), with their own icon as a
-  cover, the last started first or by name. Re-reads the list each time it comes to the front.
+  cover, the last started first or by name; every game or the favourites, and a search that ignores case and accents. Re-reads the list each time it comes to the front.
 - **Game page.** Play, its version and package, and Android's own page for the game (storage, Uninstall; the page
   says first that the game's saves go with it).
 - **Controllers.** The pads Android sees, as they come and go, swap A and B (Switch layout), and a screen where every
   button lights on a controller drawn in dots.
 - **Settings**, two levels: games, sounds and sound pack, buttons, calm cloud, credits and full licences.
 - **Pad first.** D-pad, hat axis and both sticks move the focus with the same repeat as the Mac (`DirectionRepeat`);
-  The Mac's places: A confirms, B goes back, X opens the game's page, Y opens the controllers, + (Start, Menu,
+  The Mac's places: A confirms, B goes back, X opens the game's page, Y searches the library, + (Start, Menu,
   Options) the chosen game's options (the settings where no game is chosen), the right stick's click sorts, L1 and R1
   change tab, L2 and R2 jump to the first and last line; Home stays Android's. A long press on a game opens the same
   options. On a phone on its side, a controller takes the whole screen. The system Back gesture works everywhere.

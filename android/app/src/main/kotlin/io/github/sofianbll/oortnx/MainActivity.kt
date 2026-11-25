@@ -97,6 +97,14 @@ class MainActivity : ComponentActivity() {
         val ours = !typed && state.pad.key(event)
         if (ours) follow(event.device)
         if (ours && testing) { router.reset(); state.padMode = true; return true }
+        // In the search field the letters and the arrows are the text's; Escape closes it and Down goes to what it found.
+        if (state.typing) {
+            if (event.keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+                if (event.action == KeyEvent.ACTION_DOWN) { state.keyboard = typed; state.padMode = true; state.leaveField() }
+                return true
+            }
+            if (typed && !event.isCtrlPressed && event.keyCode != KeyEvent.KEYCODE_ESCAPE) return super.dispatchKeyEvent(event)
+        }
         if (!router.key(event)) return super.dispatchKeyEvent(event)
         state.keyboard = typed // after the router: what it did is shown with the keys that did it
         return true
