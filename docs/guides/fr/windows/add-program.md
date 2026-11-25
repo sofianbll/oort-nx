@@ -3,26 +3,26 @@ title: Ajouter un programme ou un émulateur
 system: windows
 topic: add-program
 order: 3
-version: 0.1.0-alpha.1
+version: 0.1.0-alpha.2
 minutes: 3
-tried: Essayé sur une machine neuve de GitHub avec des jeux inventés, et par un joueur sur son PC (un jeu lancé, le 25 novembre 2026).
-captures: add, add-program, add-program
+tried: Essayé sur une machine neuve de GitHub, avec des jeux inventés, un faux Steam et de faux services. Un joueur a lancé un jeu sur son PC avec l’alpha.1, pas encore avec celle-ci.
+captures: add, program-filled, program-icon
 ---
 
 ## Ouvre Ajouter un jeu
-<!-- step add checked cc9db84a:desktop/ui/app.js -->
+<!-- step add checked f18e2119:desktop/ui/app.js -->
 Choisis la tuile **+**, puis **Un programme**.
 
 ![La page Ajouter un jeu](../../media/windows/add.fr.webp)
 
 ## Choisis le fichier
-<!-- step program code cc9db84a:desktop/ui/app.js cc9db84a:Sources/OortCompanion/Launch.swift -->
+<!-- step program checked f18e2119:desktop/tests/guide.js f18e2119:Sources/OortCompanion/ProgramFile.swift -->
 **Programme** est le fichier .exe du jeu ou de l’émulateur. Pour un émulateur, **Fichier du jeu** est le jeu qu’il doit ouvrir.
 
-![La page Ajouter un programme](../../media/windows/add-program.fr.webp)
+![Un programme inventé, son nom proposé](../../media/windows/program-filled.fr.webp)
 
 ## Ajoute-le
-<!-- step finish code cc9db84a:desktop/ui/app.js cc9db84a:Sources/OortCompanion/Companion.swift -->
-Donne-lui un nom si tu veux, puis **Ajouter à la bibliothèque**. Dans cette version, il n’a ni icône ni jaquette : son nom s’affiche sur la tuile.
+<!-- step finish checked f18e2119:desktop/tests/guide.js f18e2119:Sources/OortCompanion/Companion+Own.swift -->
+Son nom et son icône arrivent seuls, lus dans son fichier. Change le nom si tu veux, puis **Ajouter à la bibliothèque**.
 
-![La page Ajouter un programme](../../media/windows/add-program.fr.webp)
+![Le programme inventé dans la bibliothèque, avec son icône](../../media/windows/program-icon.fr.webp)

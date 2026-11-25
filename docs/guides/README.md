@@ -18,14 +18,14 @@ title: Installer
 system: windows
 topic: install
 order: 1
-version: 0.1.0-alpha.1
+version: 0.1.0-alpha.2
 minutes: 5
 tried: One sentence: what was tried, and what was not.
 captures: first-empty, missing:smartscreen
 ---
 
 ## Step title
-<!-- step open checked cc9db84a:desktop/tests/windows/prove.ps1 -->
+<!-- step open checked f18e2119:desktop/tests/windows/prove.ps1 -->
 One to three short sentences. In French, say “tu”. The app's own words are in bold.
 
 ![What the picture shows](../../media/windows/first-empty.fr.webp)
@@ -48,7 +48,7 @@ Invented games only: no real cover, name, account, key or personal path. WebP, a
 | Pictures | From |
 |---|---|
 | `mac/` | The probes of `Tests/CatalogAppChecks` at `bf0c3410`, in a throwaway home. In the copies that drew them, the probe's test gradient was replaced by the app's own night colours, and the tour and the save question were drawn a second time in English. `dmg` is a Finder picture of an earlier trial of the same window. |
-| `windows/`, `linux/` | The proofs of `desktop/tests` at `cc9db84a`. Linux steps without a picture of their own use the Windows one, and say so. |
+| `windows/`, `linux/` | The proofs of `desktop/tests` at `f18e2119`. Linux steps without a picture of their own use the Windows one, and say so. |
 | `android/` | `android/tools/emulator_check.py` at `1aaff5c0`, Android 16. |
 | `ios/` | `mobile/UITests` at `e3cd6df1`, simulator. |
 

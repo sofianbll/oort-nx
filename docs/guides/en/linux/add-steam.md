@@ -1,16 +1,34 @@
 ---
-title: Add a Steam game
+title: Add your Steam games
 system: linux
 topic: add-steam
 order: 5
-version: 0.1.0-alpha.1
-minutes: 1
-tried: Tried on a fresh GitHub machine (Ubuntu 24.04) with invented games. Never on a player’s computer.
-captures: settings-integrations
+version: 0.1.0-alpha.2
+minutes: 2
+tried: Tried on a fresh GitHub machine (Ubuntu 24.04), with invented games and an invented Steam. Never on a player’s computer.
+captures: setup-games, steam-shelf, steam-waiting, steam-back
 ---
 
-## Not in this version
-<!-- step not-yet code cc9db84a:desktop/README.md cc9db84a:desktop/ui/app.js -->
-Alpha.1 does not read your Steam library. You can add a game’s program by hand, but Oort does not go through Steam; that way was not tried.
+## Turn Steam on
+<!-- step on checked f18e2119:desktop/ui/app.js f18e2119:desktop/tests/linux/prove.sh f18e2119:Sources/OortCompanion/SteamShelf.swift -->
+In the guided setup, the **+** tile or **Settings › Integrations › Steam**. Oort reads the installed games, on every drive, and writes nothing in Steam.
 
-![Settings › Integrations (captured on Windows)](../../media/windows/settings-integrations.en.webp)
+![Steam, with five invented games (captured on Windows)](../../media/windows/setup-games.en.webp)
+
+## Find them
+<!-- step shelf checked f18e2119:desktop/ui/app.js f18e2119:desktop/tests/linux/prove.sh -->
+Their pictures are the ones Steam already keeps on your computer. Tools and soundtracks are left out; a game must be fully downloaded.
+
+![An invented Steam game in the library (picture in French)](../../media/linux/steam-shelf.fr.webp)
+
+## Play
+<!-- step play checked f18e2119:desktop/ui/app.js f18e2119:desktop/tests/linux/prove.sh f18e2119:desktop/src-tauri/src/steam.rs -->
+**Play** asks Steam for the game, and Steam starts it. If it updates it first, Oort waits; **Cancel** stops waiting.
+
+![Waiting for Steam to start the game (picture in French) (captured on Windows)](../../media/windows/steam-waiting.fr.webp)
+
+## Come back
+<!-- step back checked f18e2119:desktop/ui/app.js f18e2119:desktop/tests/linux/prove.sh -->
+Quit the game: Oort comes back and counts the time. Checked with an invented Steam, never with the real one, nor with Proton.
+
+![Oort after the game (picture in French)](../../media/linux/steam-back.fr.webp)

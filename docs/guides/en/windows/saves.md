@@ -2,21 +2,21 @@
 title: Saves
 system: windows
 topic: saves
-order: 9
-version: 0.1.0-alpha.1
+order: 10
+version: 0.1.0-alpha.2
 minutes: 2
-tried: Tried on a fresh GitHub machine with invented games, and by one player on their PC (one game started, 25 November 2026).
+tried: Tried on a fresh GitHub machine, with invented games, an invented Steam and invented services. A player started a game on their PC with alpha.1, not yet with this one.
 captures: game-page, game-options
 ---
 
 ## They stay with the game
-<!-- step where code cc9db84a:Sources/OortCompanion/Places.swift cc9db84a:Sources/OortCompanion/Companion.swift -->
+<!-- step where code f18e2119:Sources/OortCompanion/Places.swift f18e2119:Sources/OortCompanion/Companion.swift -->
 Oort reads, copies and moves no save. They are where the game keeps them.
 
 ![An invented game’s page](../../media/windows/game-page.en.webp)
 
 ## Make your copy
-<!-- step copy code cc9db84a:desktop/ui/app.js cc9db84a:desktop/src-tauri/src/lib.rs -->
+<!-- step copy code f18e2119:desktop/ui/app.js f18e2119:desktop/src-tauri/src/lib.rs -->
 **Options › Open folder** opens the game’s folder. Copy its saves yourself; some games keep them elsewhere.
 
 ![An invented game’s options](../../media/windows/game-options.en.webp)

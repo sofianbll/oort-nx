@@ -3,26 +3,26 @@ title: Add a program or an emulator
 system: linux
 topic: add-program
 order: 3
-version: 0.1.0-alpha.1
+version: 0.1.0-alpha.2
 minutes: 3
-tried: Tried on a fresh GitHub machine (Ubuntu 24.04) with invented games. Never on a player’s computer.
-captures: add, add-program, add-program
+tried: Tried on a fresh GitHub machine (Ubuntu 24.04), with invented games and an invented Steam. Never on a player’s computer.
+captures: add, program-filled, program-icon
 ---
 
 ## Open Add game
-<!-- step add checked cc9db84a:desktop/ui/app.js -->
+<!-- step add checked f18e2119:desktop/ui/app.js -->
 Choose the **+** tile, then **A program**.
 
 ![The Add game page (captured on Windows)](../../media/windows/add.en.webp)
 
 ## Choose the file
-<!-- step program code cc9db84a:desktop/ui/app.js cc9db84a:Sources/OortCompanion/Launch.swift -->
-**Program** is the file to start of the game or the emulator. For an emulator, **Game file** is the game it must open.
+<!-- step program code f18e2119:desktop/ui/app.js f18e2119:Sources/OortCompanion/ProgramFile.swift -->
+**Program** is the file to start, or its menu entry. For an emulator, **Game file** is the game it must open.
 
-![The Add a program page (captured on Windows)](../../media/windows/add-program.en.webp)
+![An invented program, its name offered (captured on Windows)](../../media/windows/program-filled.en.webp)
 
 ## Add it
-<!-- step finish code cc9db84a:desktop/ui/app.js cc9db84a:Sources/OortCompanion/Companion.swift -->
-Give it a name if you like, then **Add to the library**. In this version it has no icon or cover: its name shows on the tile.
+<!-- step finish code f18e2119:desktop/ui/app.js f18e2119:Sources/OortCompanion/Companion+Own.swift -->
+Its name and icon come by themselves, read in its file. Change the name if you like, then **Add to the library**.
 
-![The Add a program page (captured on Windows)](../../media/windows/add-program.en.webp)
+![The invented program in the library, with its icon (captured on Windows)](../../media/windows/program-icon.en.webp)

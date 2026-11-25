@@ -60,7 +60,7 @@ class CheckGuidesTests(unittest.TestCase):
         self.refuses("does not exist")
 
     def test_an_old_version(self):
-        self.edit("version: 0.1.0-alpha.1", "version: 0.0.9")
+        self.edit(next(x for x in self.page.read_text().splitlines() if x.startswith("version: ")), "version: 0.0.9")
         self.refuses("check the guide again")
 
     def test_a_promise(self):
@@ -77,7 +77,7 @@ class CheckGuidesTests(unittest.TestCase):
         self.refuses("https only")
 
     def test_a_step_without_proof(self):
-        self.edit("<!-- step play played", "<!-- step play tested")
+        self.edit("<!-- step play checked", "<!-- step play tested")
         self.refuses("is not one of")
 
     def test_a_feature_forgets_a_system_or_its_proof(self):
