@@ -44,4 +44,9 @@ final class ClickableHintsTests: XCTestCase {
         XCTAssertTrue(try Self.source("Detail/GameDetailView+Input.swift").contains("case .browseSearch, .search:"))
         XCTAssertTrue(try Self.source("Shell/AppShellView+Input.swift").contains("isHomeRoute || router.route.isDetail"))
     }
+
+    func testTheControlCenterSaysWhatBackDoesAndItsShortcutCloses() throws {
+        XCTAssertTrue(try Self.source("Shell/MenuOverlayView.swift").contains("HintItem(.b, submenuOpen ? \"Back\" : \"Close\")"))
+        XCTAssertTrue(try Self.source("Shell/AppShellView.swift").contains("if router.isMenuPresented { router.closeMenu() } else"))
+    }
 }

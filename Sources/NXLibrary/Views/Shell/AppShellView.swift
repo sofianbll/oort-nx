@@ -236,7 +236,7 @@ struct AppShellView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .nxLibraryOpenMenu)) { _ in
             guard nativeMenuAvailability.general else { return }
-            router.isMenuPresented = true
+            if router.isMenuPresented { router.closeMenu() } else { router.isMenuPresented = true }
         }
         .onReceive(NotificationCenter.default.publisher(for: .nxLibraryOpenSettings)) { _ in
             guard profileFlow == nil, !isCloseGameOpen, !router.isScreenshotViewerOpen, !viewModel.isGameOptionsOpen else { return }

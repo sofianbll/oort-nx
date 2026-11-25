@@ -72,14 +72,16 @@ struct MenuOverlayView: View {
                            right: [HintItem(.lb, "Previous") { onTab(-1) },
                                    HintItem(.rb, "Next") { onTab(1) },
                                    HintItem(.a, L10n.text("Select"))],
-                           bottom: SeleneBottomScrim.hintsBottom, leftInset: 18)
+                           bottom: SeleneBottomScrim.hintsBottom, leftInset: 18,
+                           press: { if $0 == .cancel { router.menuStep(.back) } })
         }
         .animation(Motion.anchoredCard(reduceMotion), value: submenuOpen)
         .onAppear { presented = true }
     }
 
     private var backHints: [HintItem] {
-        let back = HintItem(.b, "Close")
+        // B closes the card first, then the control center.
+        let back = HintItem(.b, submenuOpen ? "Back" : "Close")
         if hasHome, let center = gamepadLayout.tap(.controlCenter) {
             var hint = HintItem(center.prompt, "Close", hold: "Hold: Settings", action: router.closeMenu)
             hint.controllerOnly = true

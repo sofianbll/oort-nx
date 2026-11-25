@@ -20,6 +20,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Fixed
 
+- In the control center, B says Back inside a card, and ⌘K closes what it opened.
 - ⌘F, and holding − in the Arcane layout, search from a game’s page too.
 - With button hints off, the mouse keeps Back on screens that have no other way out.
 - Every choice of a file, folder, app or picture opens Oort’s own picker, and sound packs ask in Oort’s dialogs: a controller reaches them all.
