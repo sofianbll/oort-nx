@@ -65,7 +65,8 @@ fun HomeScreen(state: AppState) {
             game == null -> if (state.scanned) {
                 EmptyLibrary(state, Modifier.fillMaxSize().verticalScroll(rememberScrollState()).heightIn(min = maxHeight).padding(28.dp))
             }
-            maxHeight > maxWidth -> Upright(state, games, game, maxWidth, maxHeight)
+            // A narrow window has no room for a cover beside the keys, even when it is wider than tall (split screen).
+            maxHeight > maxWidth || maxWidth < 600.dp -> Upright(state, games, game, maxWidth, maxHeight)
             else -> Wide(state, games, game, maxWidth, maxHeight)
         }
     }
