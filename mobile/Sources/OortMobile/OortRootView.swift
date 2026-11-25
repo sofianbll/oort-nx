@@ -8,6 +8,7 @@ import UniformTypeIdentifiers
 public struct OortRootView: View {
     @Bindable private var model: ShellHostModel
     @State private var nav: OortNav
+    @State private var sidebar = false
     private let importRoot: URL?
     private let checkSigner: @Sendable (URL) -> String?
 
@@ -34,7 +35,8 @@ public struct OortRootView: View {
         .tabBarMinimizeBehavior(.onScrollDown)
         #endif
         .tabViewStyle(.sidebarAdaptable)
-        .tint(Oort.focus)
+        // The iPad's sidebar fills its chosen line with the tint, under white words.
+        .tint(sidebar ? Oort.chosen : Oort.focus)
         .preferredColorScheme(.dark)
         .modifier(TouchEndsPad(nav: nav))
         .transformEnvironment(\.oortStill) { $0 = $0 || model.launchingGame }
@@ -84,7 +86,20 @@ public struct OortRootView: View {
                 }
             }
         }
+        .tint(Oort.focus)
+        .background { SidebarSeen(sidebar: $sidebar) }
     }
+}
+
+/// Where the tabs are: along the top, the bottom, or in the sidebar.
+private struct SidebarSeen: View {
+    @Binding var sidebar: Bool
+    #if os(iOS)
+    @Environment(\.tabBarPlacement) private var place
+    var body: some View { Color.clear.onChange(of: place, initial: true) { sidebar = place == .sidebar }.accessibilityHidden(true) }
+    #else
+    var body: some View { Color.clear }
+    #endif
 }
 
 /// Night, the cloud and the game's name while it starts.

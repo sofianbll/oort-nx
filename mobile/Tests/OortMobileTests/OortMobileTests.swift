@@ -94,6 +94,20 @@ import Testing
         #expect(nav.tab == .home)
     }
 
+    @Test func aLoadFailureNamesTheSignatureOnlyWhenTheSystemDoes() {
+        let damaged = OortLaunchWords.why("The game's code could not be loaded: dlopen(DmGame, 0x0005): tried: 'DmGame' (not a mach-o file)")
+        let signed = OortLaunchWords.why("The game's code could not be loaded: dlopen(DmGame, 0x0005): code signature not valid for use in process")
+        #expect(damaged == Oort.text("This game's code could not be loaded. Build it again on your Mac, then add it again."))
+        #expect(signed != damaged)
+        #expect(OortLaunchWords.why("A game is already running.") == localizeEngineLaunchError("A game is already running."))
+    }
+
+    @Test func aNoticeRunsOnAndKeepsItsLists() {
+        let long = String(repeating: "word ", count: 12).trimmingCharacters(in: .whitespaces)
+        #expect(NoticesScreen.flow(long + "\n  of it\n- one") == long + " of it\n- one")
+        #expect(NoticesScreen.flow("Copyright (c) A\nCopyright (c) B") == "Copyright (c) A\nCopyright (c) B")
+    }
+
     @Test func everyTextHasItsFrench() throws {
         let url = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
             .appendingPathComponent("Sources/OortMobile")

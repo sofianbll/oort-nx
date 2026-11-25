@@ -1958,7 +1958,7 @@ public struct ShellHostConfig: Sendable {
     }
 
     static func info(for c: ConnectedController) -> ControllerInfo {
-        ControllerInfo(id: c.id, name: c.name, player: hostText("Player \(c.player)"), batteryPercent: c.batteryPercent, charging: c.charging)
+        ControllerInfo(id: c.id, name: c.name, player: hostText("Player \(String(c.player))"), batteryPercent: c.batteryPercent, charging: c.charging)
     }
 }
 

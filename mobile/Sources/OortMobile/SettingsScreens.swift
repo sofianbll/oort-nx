@@ -152,7 +152,17 @@ struct NoticesScreen: View {
         ["LICENSE", "NOTICE", "NOTICE.txt"].compactMap { bundle.url(forResource: $0, withExtension: nil) }
             .compactMap { try? String(contentsOf: $0, encoding: .utf8) }
             .flatMap { $0.components(separatedBy: "\n\n") }
-            .map { $0.trimmingCharacters(in: CharacterSet(charactersIn: "-=").union(.whitespacesAndNewlines)) }
+            .map { flow($0).trimmingCharacters(in: CharacterSet(charactersIn: "-=").union(.whitespacesAndNewlines)) }
             .filter { !$0.isEmpty }
+    }
+
+    /// The files cut their lines for a terminal: a full line runs into the next, unless that one starts a list or an address.
+    static func flow(_ paragraph: String) -> String {
+        paragraph.components(separatedBy: "\n").reduce(into: "") { text, line in
+            let next = line.trimmingCharacters(in: .whitespaces), last = text.components(separatedBy: "\n").last ?? ""
+            if text.isEmpty { text = next }
+            else if last.count > 55, !next.hasPrefix("- "), !next.hasPrefix("http") { text += " " + next }
+            else { text += "\n" + next }
+        }
     }
 }

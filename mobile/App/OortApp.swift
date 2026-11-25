@@ -40,7 +40,7 @@ struct EngineGameLauncher: GameLauncher {
         }
         if let failure {
             ShellRuntimeBridge.cheatFuseSession.abortBeforeRun()
-            throw Failure.engine(localizeEngineLaunchError(String(cString: failure)))
+            throw Failure.engine(OortLaunchWords.why(String(cString: failure)))
         }
         dm_shell_present_game()
     }

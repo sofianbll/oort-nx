@@ -48,6 +48,7 @@ struct HomeView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.horizontalSizeClass) private var across
     @Environment(\.verticalSizeClass) private var down
+    @Environment(\.dynamicTypeSize) private var type
     /// A phone upright, or a narrow window on iPad.
     private var tall: Bool { across == .compact && down != .compact }
 
@@ -115,7 +116,7 @@ struct HomeView: View {
         let portrait = tall
         if portrait {
             // The next cover shows its edge: that is how the swipe is learnt.
-            let side = min(size.width - 2 * Self.peek, size.height * 0.47)
+            let side = max(0, min(size.width - 2 * Self.peek, size.height * (type.isAccessibilitySize ? 0.3 : 0.47)))
             ScrollView {
                 VStack(alignment: .leading, spacing: SeleneTokens.Space.large) {
                     Spacer(minLength: 0)
@@ -185,7 +186,7 @@ struct HomeView: View {
             .scrollTargetLayout()
             .padding(.vertical, SeleneTokens.Space.compact)
         }
-        .contentMargins(.horizontal, (width - side) / 2, for: .scrollContent)
+        .contentMargins(.horizontal, max(0, (width - side) / 2), for: .scrollContent)
         .scrollTargetBehavior(.viewAligned)
         .scrollIndicators(.hidden)
         .scrollClipDisabled()
@@ -240,20 +241,25 @@ struct HomeView: View {
     private func keys(_ detail: GameDetail, wide: Bool) -> some View {
         let action = OortGameAction(detail, model: model, nav: nav)
         let pad = nav.device != nil
-        return HStack(spacing: SeleneTokens.Space.small) {
+        // The largest texts put the main key on a line of its own.
+        let layout = type.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: SeleneTokens.Space.small))
+                                              : AnyLayout(HStackLayout(spacing: SeleneTokens.Space.small))
+        return layout {
             Button(action: action.run) {
-                Label(action.label, systemImage: action.symbol).lineLimit(1).minimumScaleFactor(0.8)
+                Label(action.label, systemImage: action.symbol).lineLimit(type.isAccessibilitySize ? 2 : 1).minimumScaleFactor(0.8)
                     .frame(maxWidth: wide ? .infinity : nil)
             }
             .buttonStyle(OortKeyStyle(solid: true, focused: pad && focus.current == .play))
             .disabled(!action.enabled)
             .accessibilityHint(action.line)
-            Button(action: openInfo) { Image(systemName: "info") }
-                .buttonStyle(OortKeyStyle(focused: pad && focus.current == .info, round: true))
-                .accessibilityLabel(Oort.text("Game page"))
-            Button(action: openOptions) { Image(systemName: "slider.horizontal.3") }
-                .buttonStyle(OortKeyStyle(focused: pad && focus.current == .options, round: true))
-                .accessibilityLabel(Oort.text("Options"))
+            HStack(spacing: SeleneTokens.Space.small) {
+                Button(action: openInfo) { Image(systemName: "info") }
+                    .buttonStyle(OortKeyStyle(focused: pad && focus.current == .info, round: true))
+                    .accessibilityLabel(Oort.text("Game page"))
+                Button(action: openOptions) { Image(systemName: "slider.horizontal.3") }
+                    .buttonStyle(OortKeyStyle(focused: pad && focus.current == .options, round: true))
+                    .accessibilityLabel(Oort.text("Options"))
+            }
         }
     }
 
@@ -358,7 +364,7 @@ struct OortTile: View {
         .clipShape(shape)
         .overlay(alignment: .topTrailing) {
             if let symbol = OortStateDot.symbol(game.state) {
-                Image(systemName: symbol).font(.caption.weight(.bold)).foregroundStyle(Oort.ink)
+                Image(systemName: symbol).font(.caption.weight(.bold)).dynamicTypeSize(...DynamicTypeSize.xLarge).foregroundStyle(Oort.ink)
                     .frame(width: 24, height: 24).background(Oort.night.opacity(0.85), in: .circle).padding(5)
             }
         }
@@ -373,6 +379,7 @@ struct OortTile: View {
 /// Colour and shape say the state; the words beside it say it too.
 struct OortStateDot: View {
     let state: GameState
+    @ScaledMetric(relativeTo: .subheadline) private var side = 9
     var body: some View {
         Group {
             switch state {
@@ -382,7 +389,7 @@ struct OortStateDot: View {
             default: Circle().strokeBorder(Oort.warning, lineWidth: 2)
             }
         }
-        .frame(width: 9, height: 9)
+        .frame(width: side, height: side)
         .accessibilityHidden(true)
     }
 
@@ -402,20 +409,21 @@ struct EmptyLibrary: View {
     let model: ShellHostModel
     let nav: OortNav
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: SeleneTokens.Space.large) {
-                Text(Oort.text("No game here yet")).font(.largeTitle.bold()).foregroundStyle(Oort.ink).accessibilityAddTraits(.isHeader)
-                Text(Oort.text("Build a game with Oort NX on your Mac, then add its folder here or send it with a cable. Your games, saves and settings stay on this device."))
-                    .foregroundStyle(Oort.ink2).frame(maxWidth: 420, alignment: .leading)
-                Text(Oort.text("This is an early version: Oort NX for Mac does not build games for iPhone and iPad yet."))
-                    .foregroundStyle(Oort.ink2).frame(maxWidth: 420, alignment: .leading)
-                Button { nav.importing = true } label: { Label(Oort.text("Add a game"), systemImage: "plus") }
-                    .buttonStyle(OortKeyStyle(solid: true, focused: nav.device != nil))
+        GeometryReader { geometry in
+            ScrollView {
+                VStack(alignment: .leading, spacing: SeleneTokens.Space.large) {
+                    Text(Oort.text("No game here yet")).font(.largeTitle.bold()).foregroundStyle(Oort.ink).accessibilityAddTraits(.isHeader)
+                    Text(Oort.text("Build a game with Oort NX on your Mac, then add its folder here or send it with a cable. Your games, saves and settings stay on this device."))
+                        .foregroundStyle(Oort.ink2).frame(maxWidth: 420, alignment: .leading)
+                    Text(Oort.text("This is an early version: Oort NX for Mac does not build games for iPhone and iPad yet."))
+                        .foregroundStyle(Oort.ink2).frame(maxWidth: 420, alignment: .leading)
+                    Button { nav.importing = true } label: { Label(Oort.text("Add a game"), systemImage: "plus") }
+                        .buttonStyle(OortKeyStyle(solid: true, focused: nav.device != nil))
+                }
+                .padding(SeleneTokens.Space.section)
+                .frame(maxWidth: .infinity, minHeight: geometry.size.height, alignment: .bottomLeading)
             }
-            .padding(SeleneTokens.Space.section)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .containerRelativeFrame(.vertical, alignment: .bottom)
+            .scrollBounceBehavior(.basedOnSize)
         }
-        .scrollBounceBehavior(.basedOnSize)
     }
 }
