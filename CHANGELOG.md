@@ -10,6 +10,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Changed
 
+- Reset group asks first in Settings, on Cancel, and says when the change is immediate.
 - Quit and Restart ask first in the control center, on Cancel.
 - Prompts name what was used last: a controller's buttons after a press, the Mac keys after a key, a click or a real move of the mouse. A small nudge changes nothing.
 - The control center keeps five icons with Power in the middle. Players joins the Profile card.

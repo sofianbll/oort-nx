@@ -1,6 +1,194 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Its settings go back to their defaults. Save to keep the change.": {
+      "comment": "SettingsReset",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Its settings go back to their defaults. Save to keep the change."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ses réglages reviennent à leur valeur de départ. Enregistre pour garder le changement."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Einstellungen kehren zu ihren Standardwerten zurück. Zum Übernehmen sichern."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sus ajustes vuelven a sus valores iniciales. Guarda para conservar el cambio."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le impostazioni tornano ai valori iniziali. Salva per mantenere la modifica."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As definições voltam aos valores iniciais. Salve para manter a alteração."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置将恢复为默认值。保存后更改才会保留。"
+          }
+        }
+      }
+    },
+    "The change is made now.": {
+      "comment": "SettingsReset",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The change is made now."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le changement est fait tout de suite."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Änderung erfolgt sofort."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El cambio se hace ahora."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La modifica avviene subito."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A alteração é feita agora."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更改将立即生效。"
+          }
+        }
+      }
+    },
+    "The name, avatar and picture of this profile are replaced now.": {
+      "comment": "SettingsReset",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The name, avatar and picture of this profile are replaced now."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le nom, l’avatar et la photo de ce profil sont remplacés tout de suite."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name, Avatar und Bild dieses Profils werden sofort ersetzt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El nombre, el avatar y la foto de este perfil se sustituyen ahora."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nome, avatar e foto di questo profilo vengono sostituiti subito."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O nome, o avatar e a foto deste perfil são substituídos agora."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此个人资料的名称、头像和照片将立即被替换。"
+          }
+        }
+      }
+    },
+    "Reset %@?": {
+      "comment": "SettingsReset",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset %@?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réinitialiser « %@ » ?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ zurücksetzen?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Restablecer «%@»?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ripristinare «%@»?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redefinir “%@”?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重置“%@”？"
+          }
+        }
+      }
+    },
     "Click to close": {
       "comment": "LaunchScreenView",
       "localizations": {
