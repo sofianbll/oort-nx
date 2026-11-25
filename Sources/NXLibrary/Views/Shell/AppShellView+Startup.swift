@@ -31,6 +31,9 @@ extension AppShellView {
             default: return false
             }
         }
+        SoundEffectService.shared.isBrowsing = { [weak router] in
+            router?.isMenuPresented != true && GameControllerService.shared.isBrowsing()
+        }
         SoundEffectService.shared.bind(to: settings)
         artwork.trimCache()
         if viewModel.setupCompleted { viewModel.refreshBoxArtIndex() }
@@ -125,6 +128,7 @@ extension AppShellView {
         }
         GameControllerService.shared.onAction = { [weak viewModel, weak router] action in
             guard let viewModel, let router else { return }
+            if action == .confirm { OortPulse.press.send() }
             if filePicker.handle(action) { return }
             guard !nativeMenus.isTracking, !nativeDialogOwnsInput, viewModel.launchOverlay == nil else { return }
             if action == .profiles || action == .controlCenter || action == .fullMenu {

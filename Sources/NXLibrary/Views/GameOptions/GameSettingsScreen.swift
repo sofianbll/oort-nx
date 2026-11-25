@@ -180,6 +180,9 @@ struct GameSettingsScreen<Pane: View>: View {
         case .navigateRight:
             if inDetail, row?.fixed == false { row?.cycle?(1) }
             else if !inDetail { enterDetail() }
+        case .jumpToStart, .jumpToEnd:
+            if inDetail { focus.move(by: action == .jumpToStart ? -rows.count : rows.count, count: rows.count) }
+            else if let next = action == .jumpToStart ? categories.first : categories.last { select(next) }
         case .tabPrevious, .tabNext:
             if let next = categories.stepped(from: current, action == .tabPrevious ? -1 : 1) { select(next) }
         case .confirm:

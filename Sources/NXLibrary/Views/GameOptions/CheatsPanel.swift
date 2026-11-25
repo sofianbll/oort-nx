@@ -534,6 +534,8 @@ struct CheatsPanel: View {
         switch action {
         case .navigateUp: move(by: -1)
         case .navigateDown: move(by: 1)
+        case .jumpToStart: move(by: -10_000)
+        case .jumpToEnd: move(by: 10_000)
         case .confirm: activateFocused()
         case .cancel: close()
         default: break

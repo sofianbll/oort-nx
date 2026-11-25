@@ -42,6 +42,8 @@ extension ThemePickerView {
         switch action {
         case .navigateUp: move(.up)
         case .navigateDown: move(.down)
+        case .jumpToStart: jump(toEnd: false)
+        case .jumpToEnd: jump(toEnd: true)
         case .navigateLeft: move(.left)
         case .navigateRight: move(.right)
         case .confirm: accept()
@@ -55,6 +57,14 @@ extension ThemePickerView {
         case .tabNext: stepTab(1)
         default: break
         }
+    }
+
+    private func jump(toEnd: Bool) {
+        let theme = state.step == .theme, count = theme ? palettes.count : backgrounds.count
+        let next = toEnd ? count - 1 : 0, current = theme ? state.themeIndex : state.backgroundIndex
+        guard count > 0, next != current else { return }
+        if theme { state.themeIndex = next } else { state.backgroundIndex = next }
+        SoundEffectService.shared.play(.focus)
     }
 
     private func move(_ direction: GridDirection) {

@@ -412,6 +412,8 @@ struct AddGameView: View {
         switch action {
         case .navigateUp: move(by: -1)
         case .navigateDown: move(by: 1)
+        case .jumpToStart: move(by: -10_000)
+        case .jumpToEnd: move(by: 10_000)
         case .navigateLeft: horizontal(by: -1)
         case .navigateRight: horizontal(by: 1)
         case .confirm:

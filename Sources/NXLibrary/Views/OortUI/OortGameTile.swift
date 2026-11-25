@@ -23,11 +23,14 @@ struct OortGameTile<Artwork: View>: View {
             } else {
                 artwork().padding(canvas.u(SeleneTokens.Space.badge))
             }
-            SeleneTileRing(cornerRadius: canvas.u(cover ? SeleneTokens.Radius.collectionFocus
-                                                 : SeleneTokens.Radius.spotlightFocus), active: selected)
-                .frame(width: width + ringBleed, height: height + ringBleed)
+            // Spotlight's row draws one ring that glides from tile to tile.
+            if cover {
+                SeleneTileRing(cornerRadius: canvas.u(SeleneTokens.Radius.collectionFocus), active: selected)
+                    .frame(width: width + ringBleed, height: height + ringBleed)
+            }
         }
         .frame(width: width, height: height, alignment: cover ? .center : .topLeading)
+        .oortPadPress(selected)
         .scaleEffect(cover && selected ? CollectionRow.selectedScale : 1)
         .contentShape(Rectangle())
         // A click selects immediately; it does not wait to disambiguate a double click.

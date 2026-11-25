@@ -48,8 +48,12 @@ final class SoundEffectService {
     private var step = 0
     private var previewing = 0
     private var sequence: [AVAudioPlayer] = []
-    private var notes = OortSynth.Figure.rise.notes
-    private var octave = 0
+    private var melodies: [OortSynth.Place: OortSynth.Melody] = [:]
+    /// Where the focus is, read on the main thread as a move plays.
+    @MainActor var isBrowsing: () -> Bool = { false }
+    /// The ribbon and the Players screen say so while they are open.
+    @MainActor var openPlace: OortSynth.Place?
+    @MainActor private var place: OortSynth.Place { openPlace ?? (isBrowsing() ? .games : .lists) }
     private var lastStep = Date.distantPast
     private var lastMove = Date.distantPast
     private let library = SoundPackLibrary()
@@ -64,13 +68,13 @@ final class SoundEffectService {
     func bind(to store: AppSettingsStore) {
         cancellable = store.$settings.combineLatest(store.$draft)
             .map { committed, draft in draft?.displayed(over: committed, previewsOnly: true) ?? committed }
-            .map { ($0.interfaceSounds, $0.soundVolume, $0.soundPackID, OortSynth.notes($0.noteFigure, custom: $0.customNotes), $0.noteOctave) }
+            .map { ($0.interfaceSounds, $0.soundVolume, $0.soundPackID, OortSynth.Place.allCases.map($0.melody)) }
             .removeDuplicates { $0 == $1 }
-            .sink { enabled, volume, id, notes, octave in
+            .sink { enabled, volume, id, melodies in
                 self.audio.async {
-                    if notes != self.notes || octave != self.octave {
-                        self.notes = notes
-                        self.octave = octave
+                    let melodies = Dictionary(uniqueKeysWithValues: zip(OortSynth.Place.allCases, melodies))
+                    if melodies != self.melodies {
+                        self.melodies = melodies
                         self.synthesised = self.synthesised.filter { !$0.key.contains(".move.") }
                     }
                     self.enabled = enabled
@@ -159,7 +163,8 @@ final class SoundEffectService {
         case .key: event = .confirm
         case .boot: event = .boot
         }
-        audio.async { self.playOnQueue(event, legacy: cue) }
+        let place = event == .move && Thread.isMainThread ? MainActor.assumeIsolated { self.place } : .lists
+        audio.async { self.playOnQueue(event, legacy: cue, place: place) }
     }
 
     func play(_ event: SoundPackEvent, legacy cue: SoundCue) {
@@ -188,7 +193,7 @@ final class SoundEffectService {
         audio.async { self.playOnQueue(event, legacy: event.legacyCue, preview: true) }
     }
 
-    private func playOnQueue(_ event: SoundPackEvent?, legacy cue: SoundCue? = nil, preview: Bool = false) {
+    private func playOnQueue(_ event: SoundPackEvent?, legacy cue: SoundCue? = nil, preview: Bool = false, place: OortSynth.Place = .lists) {
         guard enabled, gain > 0, !isPlayingGame, foreground || (pack == nil && !preview) else { return }
         guard !quieted || cue == .gameStarting || cue == .gameReady else { return }
         if event == .move && !preview {
@@ -200,12 +205,13 @@ final class SoundEffectService {
         let chosen: AVAudioPlayer?
         if let synth = OortSynth(pack: selected) {
             guard let event else { return }
-            let step = event == .move && !preview ? nextStep() : 0
-            let key = "\(selected).\(event.rawValue).\(step)"
+            let melody = melodies[place] ?? .init()
+            let step = event == .move && !preview ? nextStep(melody.notes.count) : 0
+            let key = "\(selected).\(event.rawValue).\(step)" + (event == .move ? ".\(place.rawValue)" : "")
             if let player = synthesised[key] {
                 chosen = player
             } else {
-                chosen = synth.wav(event, step: step, notes: notes, octave: octave).flatMap { try? AVAudioPlayer(data: $0) }
+                chosen = synth.wav(event, step: step, notes: melody.notes, octave: melody.octave).flatMap { try? AVAudioPlayer(data: $0) }
                 synthesised[key] = chosen
             }
             if event != .move, let current, current !== chosen { current.stop() }
@@ -238,11 +244,11 @@ final class SoundEffectService {
     }
 
     /// Notes climb while the focus keeps moving, and start again after a rest.
-    private func nextStep() -> Int {
+    private func nextStep(_ count: Int) -> Int {
         let now = Date()
         step = now.timeIntervalSince(lastStep) < 0.9 ? step + 1 : 0
         lastStep = now
-        return step % max(1, notes.count)
+        return step % max(1, count)
     }
 
     private func stopPlayers() {

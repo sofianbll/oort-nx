@@ -89,6 +89,8 @@ extension GameOptionsView {
         switch action {
         case .navigateUp: navigate(by: -1)
         case .navigateDown: navigate(by: 1)
+        case .jumpToStart: navigate(by: -10_000)
+        case .jumpToEnd: navigate(by: 10_000)
         case .navigateLeft: horizontal(by: -1)
         case .navigateRight: horizontal(by: 1)
         case .confirm: activateFocused()

@@ -37,6 +37,29 @@ public struct OortSynth: Sendable {
         }
     }
 
+    /// Where the focus moves. Each place may have its own sequence; the others follow the common one.
+    public enum Place: String, CaseIterable, Codable, Sendable { case games, ribbon, players, lists }
+
+    public struct Melody: Codable, Equatable, Sendable {
+        public var figure: Figure
+        public var octave: Int
+        public var custom: [Double]
+
+        public init(figure: Figure = .rise, octave: Int = 0, custom: [Double] = []) {
+            self.figure = figure
+            self.octave = min(OortSynth.octaves.upperBound, max(OortSynth.octaves.lowerBound, octave))
+            self.custom = custom
+        }
+
+        public init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            self.init(figure: (try? c.decode(Figure.self, forKey: .figure)) ?? .rise, octave: (try? c.decode(Int.self, forKey: .octave)) ?? 0,
+                      custom: (try? c.decode([Double].self, forKey: .custom)) ?? [])
+        }
+
+        public var notes: [Double] { OortSynth.notes(figure, custom: custom) }
+    }
+
     public static let octaves = -2...2
     public static let range = 0.0...24.0
     /// Eight notes inside the range, or the figure's own when the stored ones are not usable.

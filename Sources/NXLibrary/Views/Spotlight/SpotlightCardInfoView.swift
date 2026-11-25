@@ -274,9 +274,7 @@ struct SpotlightCardMenu: View {
         }
         .padding(canvas.u(SeleneTokens.Space.large))
         .frame(width: canvas.u(560))
-        .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.modal), style: .continuous).fill(SeleneTheme.glassSolid))
-        .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.modal), style: .continuous)
-            .strokeBorder(SeleneTheme.ink25, lineWidth: max(1, canvas.u(1))))
+        .oortPanel(radius: canvas.u(SeleneTokens.Radius.modal), floats: true)
         .accessibilityElement(children: .contain)
     }
 }

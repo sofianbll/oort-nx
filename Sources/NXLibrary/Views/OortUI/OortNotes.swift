@@ -18,6 +18,17 @@ extension OortSynth.Figure {
     }
 }
 
+extension OortSynth.Place {
+    var title: String {
+        switch self {
+        case .games: "Games"
+        case .ribbon: "Ribbon"
+        case .players: "Players"
+        case .lists: "Lists"
+        }
+    }
+}
+
 /// Eight columns of dots, one per note. Pull a column to change its note; it plays as it moves.
 struct OortNotes: View {
     @Environment(\.seleneCanvas) private var canvas

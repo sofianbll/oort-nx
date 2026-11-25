@@ -132,6 +132,9 @@ struct MoreSettingsPanel: View {
             if focus > 0 { focus -= 1; SoundEffectService.shared.play(.focus) }
         case .navigateDown:
             if focus < rows.count - 1 { focus += 1; SoundEffectService.shared.play(.focus) }
+        case .jumpToStart, .jumpToEnd:
+            let next = action == .jumpToStart ? 0 : max(0, rows.count - 1)
+            if next != focus { focus = next; SoundEffectService.shared.play(.focus) }
         case .navigateLeft, .navigateRight:
             // Left/Right change values; a switch changes with A.
             guard rows.indices.contains(focus), rows[focus].kind != "toggle" else { return }

@@ -303,6 +303,21 @@ public struct AppSettings: Codable, Equatable {
     public var noteFigure = OortSynth.Figure.rise
     public var noteOctave = 0
     public var customNotes: [Double] = []
+    /// A place's own melody (`OortSynth.Place`), where it differs from the one above.
+    public var placeNotes: [String: OortSynth.Melody] = [:]
+
+    public func melody(_ place: OortSynth.Place?) -> OortSynth.Melody {
+        place.flatMap { placeNotes[$0.rawValue] } ?? .init(figure: noteFigure, octave: noteOctave, custom: customNotes)
+    }
+
+    /// nil: the melody every place follows.
+    public mutating func setMelody(_ melody: OortSynth.Melody, for place: OortSynth.Place?) {
+        if let place { placeNotes[place.rawValue] = melody } else {
+            noteFigure = melody.figure
+            noteOctave = melody.octave
+            customNotes = melody.custom
+        }
+    }
     public var quietLaunch: Bool
     /// Nil means the palette's default wallpaper.
     public var wallpaperID: String?
@@ -422,7 +437,7 @@ public struct AppSettings: Codable, Equatable {
         case librarySort
         case showsCloudPlayIcon, showsCloudDetailsLink, cloudTileBadges, tileBadgePosition, platformCardInfo, interfaceZoom
         case startOn, lastHome
-        case introAnimation, viewButtonSwitches, interfaceSounds, soundVolume, quietLaunch, soundPackID, noteFigure, noteOctave, customNotes
+        case introAnimation, viewButtonSwitches, interfaceSounds, soundVolume, quietLaunch, soundPackID, noteFigure, noteOctave, customNotes, placeNotes
         case showProfilePicker, profileStartup
         case wallpaperID, backgroundSizing, animatedBackground, wallpaperBrightness, launchStyle, launchMotion, launchShade
         case notifyPortingEnds, checkAppUpdatesAtLaunch
@@ -493,6 +508,7 @@ public struct AppSettings: Codable, Equatable {
         self.noteFigure = (try? container.decode(OortSynth.Figure.self, forKey: .noteFigure)) ?? .rise
         self.noteOctave = min(2, max(-2, (try? container.decode(Int.self, forKey: .noteOctave)) ?? 0))
         self.customNotes = (try? container.decode([Double].self, forKey: .customNotes)) ?? []
+        self.placeNotes = (try? container.decode([String: OortSynth.Melody].self, forKey: .placeNotes)) ?? [:]
         self.quietLaunch = try container.decodeIfPresent(Bool.self, forKey: .quietLaunch) ?? true
         self.wallpaperID = try container.decodeIfPresent(String.self, forKey: .wallpaperID)
         self.backgroundSizing = try container.decodeIfPresent(BackgroundSizing.self, forKey: .backgroundSizing) ?? .fill
@@ -565,6 +581,7 @@ public struct AppSettings: Codable, Equatable {
         try c.encode(noteFigure, forKey: .noteFigure)
         try c.encode(noteOctave, forKey: .noteOctave)
         try c.encode(customNotes, forKey: .customNotes)
+        try c.encode(placeNotes, forKey: .placeNotes)
         try c.encode(quietLaunch, forKey: .quietLaunch)
         try c.encodeIfPresent(wallpaperID, forKey: .wallpaperID)
         try c.encode(backgroundSizing, forKey: .backgroundSizing)

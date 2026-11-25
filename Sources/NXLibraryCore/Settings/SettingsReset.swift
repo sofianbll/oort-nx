@@ -52,6 +52,7 @@ public enum SettingsReset {
             next.noteFigure = defaults.noteFigure
             next.noteOctave = defaults.noteOctave
             next.customNotes = defaults.customNotes
+            next.placeNotes = defaults.placeNotes
             next.quietLaunch = defaults.quietLaunch
         case .profileLook:
             next.interfaceZoom = defaults.interfaceZoom

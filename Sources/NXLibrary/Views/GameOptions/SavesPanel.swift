@@ -286,6 +286,8 @@ struct SavesPanel: View {
         switch action {
         case .navigateUp: focus = max(0, focus - 1)
         case .navigateDown: focus = min(max(0, rows.count - 1), focus + 1)
+        case .jumpToStart: focus = 0
+        case .jumpToEnd: focus = max(0, rows.count - 1)
         case .navigateLeft, .navigateRight:
             if rows.indices.contains(focus), rows[focus] == .target { activate(.target) }
         case .confirm: if rows.indices.contains(focus) { activate(rows[focus]) }

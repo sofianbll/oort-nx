@@ -51,7 +51,7 @@ struct GameBananaFindPanel: View {
             }
             .padding(canvas.u(36))
             .frame(width: canvas.u(820), alignment: .leading)
-            .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.field), style: .continuous).fill(SeleneTheme.glassSolid))
+            .oortPanel(radius: canvas.u(SeleneTokens.Radius.field), floats: true)
         }
     }
 
@@ -127,7 +127,7 @@ struct GameBananaModSearchPanel: View {
             }
             .padding(canvas.u(36))
             .frame(width: canvas.u(820), alignment: .leading)
-            .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.field), style: .continuous).fill(SeleneTheme.glassSolid))
+            .oortPanel(radius: canvas.u(SeleneTokens.Radius.field), floats: true)
         }
         .onAppear { fieldFocused = true }
     }

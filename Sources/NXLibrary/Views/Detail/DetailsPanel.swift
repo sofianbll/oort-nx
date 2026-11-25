@@ -232,12 +232,11 @@ struct SeleneActionGrid: View {
                 .minimumScaleFactor(0.8)
                 .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
                 .frame(width: canvas.u(Self.cellWidth), height: canvas.u(32))
-                .background(shape.fill(SeleneTheme.glass))
-                .overlay(shape.strokeBorder(SeleneTheme.ink15, lineWidth: max(1, canvas.u(1))))
+                .oortPanel(radius: radius)
                 .contentShape(shape)
                 .seleneRowFocus(focusedRow == index, radius: radius)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(OortPressStyle())
         .onHover { if $0 { onHoverRow(index) } }
         .accessibilityLabel(row.title)
     }

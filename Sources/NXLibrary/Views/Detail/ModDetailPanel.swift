@@ -59,7 +59,7 @@ struct ModDetailPanel: View {
                 column
             }
             .padding(canvas.u(Self.padding))
-            .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.field), style: .continuous).fill(SeleneTheme.glassSolid))
+            .oortPanel(radius: canvas.u(SeleneTokens.Radius.field), floats: true)
             .frame(maxHeight: canvas.u(Self.panelHeight))
         }
         .animation(reduceMotion ? nil : SeleneTheme.quick, value: expanded)

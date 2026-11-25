@@ -418,6 +418,7 @@ struct SpotlightView: View {
     private func tasks(_ model: Snapshot, on content: some View) -> some View {
         content
         .task(id: model.platformCursor.map(\.integration)) { await settlePlatformPreview(model.platformCursor) }
+        .onChange(of: platformPicker != nil) { _, open in SoundEffectService.shared.openPlace = open ? .ribbon : nil }
         .onChange(of: playSessions.sessions.count) { reconcile() }
         .onChange(of: playSessions.profileID) { reconcile() }
         .task(id: art.heroTaskKey(model.selectedGame, metadata: model.selectedGame.flatMap { store.storeMetadata[$0.id] })) { await loadHero(model.selectedGame) }

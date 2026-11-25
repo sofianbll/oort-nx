@@ -582,6 +582,8 @@ struct ConsoleView: View {
         case .navigateRight: move(by: 1)
         case .navigateUp: scroll(by: -1)
         case .navigateDown: scroll(by: 1)
+        case .jumpToStart: scroll(by: -10_000)
+        case .jumpToEnd: scroll(by: 10_000)
         case .confirm: activate(focus)
         case .cancel: leave()
         case .menu: router.isMenuPresented = true

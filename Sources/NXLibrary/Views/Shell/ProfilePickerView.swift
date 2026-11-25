@@ -202,7 +202,8 @@ struct ProfilePickerView: View {
                     if let profile {
                         ProfilePortrait(profile: profile, size: 170)
                     } else {
-                        Circle().fill(SeleneTheme.glassLight)
+                        // Opaque: the Sun never shows through a key.
+                        Circle().fill(SeleneTheme.panelRaised)
                             .overlay(Circle().strokeBorder(SeleneTheme.ink15, lineWidth: canvas.u(SeleneTokens.Space.thinStroke)))
                             .overlay { Image(systemName: "plus").font(.system(size: canvas.u(65), weight: .ultraLight))
                                 .foregroundStyle(isFocused ? SeleneTheme.ink : SeleneTheme.ink60) }

@@ -214,6 +214,8 @@ import UniformTypeIdentifiers
         switch action {
         case .navigateUp: index = max(0, index - 1)
         case .navigateDown: index += 1
+        case .jumpToStart: index = 0
+        case .jumpToEnd: index = 100_000
         case .navigateLeft, .tabPrevious:
             column = Column(rawValue: (column.rawValue + 2) % 3) ?? .files
             index = 0

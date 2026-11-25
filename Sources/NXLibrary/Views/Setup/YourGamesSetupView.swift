@@ -212,9 +212,11 @@ struct SetupCardRow: View {
                     } else {
                         Text(title).seleneFont(.row, .semibold)
                     }
-                    Text(detail).seleneFont(.text).foregroundColor(SeleneTheme.ink75)
-                        .lineLimit(badges.isEmpty ? 2 : nil).truncationMode(.middle)
-                        .fixedSize(horizontal: false, vertical: true)
+                    if !detail.isEmpty {
+                        Text(detail).seleneFont(.text).foregroundColor(SeleneTheme.ink75)
+                            .lineLimit(badges.isEmpty ? 2 : nil).truncationMode(.middle)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                     OortFormatBadges(labels: badges)
                     if let note {
                         Text(note).seleneFont(.badge).foregroundColor(SeleneTheme.ink60).padding(.top, canvas.u(1))
@@ -233,15 +235,15 @@ struct SetupCardRow: View {
             .frame(width: canvas.u(960))
             .frame(minHeight: canvas.u(height))
             .padding(.vertical, badges.isEmpty ? 0 : canvas.u(SeleneTokens.Space.compact))
-            .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTheme.cardRadius), style: .continuous)
-                .fill(SeleneTheme.glassCard))
+            .oortPanel(radius: canvas.u(SeleneTheme.cardRadius))
             .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTheme.cardRadius), style: .continuous)
-                .strokeBorder(focused ? SeleneTheme.focus : SeleneTheme.ink15, lineWidth: canvas.u(focused ? 2 : 1)))
+                .strokeBorder(focused ? SeleneTheme.focus : .clear, lineWidth: canvas.u(SeleneTokens.Space.focusStroke)))
             .shadow(color: focused ? SeleneTheme.focusGlow : .clear, radius: canvas.u(16))
             .opacity(enabled ? 1 : 0.45)
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(OortPressStyle())
+        .oortPadPress(focused)
         .disabled(!enabled)
         .onHover { if $0 { onHover() } }
         .animation(reduceMotion ? nil : SeleneTheme.focusIn, value: focused)

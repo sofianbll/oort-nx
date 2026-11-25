@@ -1220,6 +1220,27 @@
     "Changed settings": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Changed settings"}}, "fr": {"stringUnit":{"state":"translated","value":"Réglages modifiés"}}, "it": {"stringUnit":{"state":"translated","value":"Impostazioni modificate"}}, "de": {"stringUnit":{"state":"translated","value":"Geänderte Einstellungen"}}, "es": {"stringUnit":{"state":"translated","value":"Ajustes modificados"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Ajustes alterados"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"已更改的设置"}}
     }},
+    "Place": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Place"}}, "fr": {"stringUnit":{"state":"translated","value":"Endroit"}}, "it": {"stringUnit":{"state":"translated","value":"Dove"}}, "de": {"stringUnit":{"state":"translated","value":"Ort"}}, "es": {"stringUnit":{"state":"translated","value":"Lugar"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Lugar"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"位置"}}
+    }},
+    "Where this sequence is heard. A place without its own follows Everywhere.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Where this sequence is heard. A place without its own follows Everywhere."}}, "fr": {"stringUnit":{"state":"translated","value":"Où cette suite s’entend. Un endroit sans la sienne suit Partout."}}, "it": {"stringUnit":{"state":"translated","value":"Dove si sente questa sequenza. Un luogo senza la propria segue Ovunque."}}, "de": {"stringUnit":{"state":"translated","value":"Wo diese Folge zu hören ist. Ein Ort ohne eigene folgt Überall."}}, "es": {"stringUnit":{"state":"translated","value":"Dónde se oye esta secuencia. Un lugar sin la suya sigue En todas partes."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Onde esta sequência é ouvida. Um lugar sem a sua segue Em todo lugar."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"此序列的播放位置。没有自己序列的位置跟随“所有位置”。"}}
+    }},
+    "Everywhere": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Everywhere"}}, "fr": {"stringUnit":{"state":"translated","value":"Partout"}}, "it": {"stringUnit":{"state":"translated","value":"Ovunque"}}, "de": {"stringUnit":{"state":"translated","value":"Überall"}}, "es": {"stringUnit":{"state":"translated","value":"En todas partes"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Em todo lugar"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"所有位置"}}
+    }},
+    "Ribbon": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Ribbon"}}, "fr": {"stringUnit":{"state":"translated","value":"Ruban"}}, "it": {"stringUnit":{"state":"translated","value":"Nastro"}}, "de": {"stringUnit":{"state":"translated","value":"Band"}}, "es": {"stringUnit":{"state":"translated","value":"Cinta"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Faixa"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"平台带"}}
+    }},
+    "Lists": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Lists"}}, "fr": {"stringUnit":{"state":"translated","value":"Listes"}}, "it": {"stringUnit":{"state":"translated","value":"Elenchi"}}, "de": {"stringUnit":{"state":"translated","value":"Listen"}}, "es": {"stringUnit":{"state":"translated","value":"Listas"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Listas"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"列表"}}
+    }},
+    "Follow Everywhere": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Follow Everywhere"}}, "fr": {"stringUnit":{"state":"translated","value":"Suivre Partout"}}, "it": {"stringUnit":{"state":"translated","value":"Segui Ovunque"}}, "de": {"stringUnit":{"state":"translated","value":"Überall folgen"}}, "es": {"stringUnit":{"state":"translated","value":"Seguir En todas partes"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Seguir Em todo lugar"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"跟随所有位置"}}
+    }},
+    "Removes this place’s own sequence.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Removes this place’s own sequence."}}, "fr": {"stringUnit":{"state":"translated","value":"Retire la suite propre à cet endroit."}}, "it": {"stringUnit":{"state":"translated","value":"Rimuove la sequenza di questo luogo."}}, "de": {"stringUnit":{"state":"translated","value":"Entfernt die eigene Folge dieses Orts."}}, "es": {"stringUnit":{"state":"translated","value":"Quita la secuencia propia de este lugar."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Remove a sequência própria deste lugar."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"移除此位置自己的序列。"}}
+    }},
     "Sound pack": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Sound pack"}}, "fr": {"stringUnit":{"state":"translated","value":"Pack de sons"}}, "it": {"stringUnit":{"state":"translated","value":"Pacchetto audio"}}, "de": {"stringUnit":{"state":"translated","value":"Soundpaket"}}, "es": {"stringUnit":{"state":"translated","value":"Paquete de sonido"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Pacote de som"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"声音包"}}
     }},

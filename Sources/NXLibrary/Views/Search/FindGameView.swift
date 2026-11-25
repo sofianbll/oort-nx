@@ -154,6 +154,10 @@ struct FindGameView: View {
                     fieldFocused = true
                 }
             }
+        case .jumpToStart, .jumpToEnd:
+            guard count > 0 else { break }
+            fieldFocused = false
+            move(to: action == .jumpToStart ? 0 : count - 1)
         case .navigateLeft:
             if let index = focused, index > 0 { move(to: index - 1) }
         case .navigateRight:

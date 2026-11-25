@@ -122,6 +122,7 @@ struct SelenePillButton: View {
         } else {
             Button(action: action) { capsule }
                 .buttonStyle(OortPressStyle())
+                .oortPadPress(focused)
         }
     }
 }

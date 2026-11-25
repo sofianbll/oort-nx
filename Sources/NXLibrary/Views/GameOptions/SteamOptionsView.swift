@@ -285,6 +285,8 @@ struct SteamOptionsView: View {
         switch action {
         case .navigateUp: moveFocus(by: -1)
         case .navigateDown: moveFocus(by: 1)
+        case .jumpToStart: moveFocus(by: -10_000)
+        case .jumpToEnd: moveFocus(by: 10_000)
         case .confirm: if let row = focusedRow { perform(row) }
         case .cancel: back()
         default: break

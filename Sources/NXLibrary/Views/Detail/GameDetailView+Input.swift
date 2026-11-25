@@ -18,6 +18,13 @@ extension GameDetailView {
         case .navigateRight: moved = moveFocus { $0.right(in: $1) }
         case .navigateUp: moved = moveFocus { $0.up(in: $1) }
         case .navigateDown: moved = moveFocus { $0.down(in: $1) }
+        case .jumpToStart, .jumpToEnd:
+            // The top or the foot of the page, one band after another.
+            let up = action == .jumpToStart
+            for _ in 0..<64 {
+                guard moveFocus({ up ? $0.up(in: $1) : $0.down(in: $1) }) else { break }
+                moved = true
+            }
         case .confirm: activateFocused()
         case .cancel: router.back()
         case .contextAction: openOptions()

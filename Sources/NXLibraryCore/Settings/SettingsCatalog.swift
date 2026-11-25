@@ -101,6 +101,7 @@ public enum SettingsCatalog {
         row("noteFigure", .soundMusic, "Note sequence", "The notes you hear as you move. The Oort voices play it from start to end.") { $0.noteFigure },
         row("noteOctave", .soundMusic, "Octave", "Plays the note sequence lower or higher.") { $0.noteOctave },
         row("customNotes", .soundMusic, "Your notes", "Eight notes of your own.") { $0.customNotes },
+        row("placeNotes", .soundMusic, "Place", "Where this sequence is heard. A place without its own follows Everywhere.") { $0.placeNotes },
         action("importSoundPack", .soundMusic, "Import sound pack", "Choose a folder or .oortsound file."),
         action("importSeleneSounds", .soundMusic, "Import sounds and wallpapers from Selene",
                "Copies optional sounds and wallpapers from a local Selene folder you own."),

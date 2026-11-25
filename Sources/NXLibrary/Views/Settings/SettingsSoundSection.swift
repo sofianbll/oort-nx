@@ -17,6 +17,8 @@ struct SettingsSoundSection: View {
     @State private var importingPack = false
     @State private var importTicket = UUID()
     @State private var playing: Int?
+    /// nil: everywhere.
+    @State private var place: OortSynth.Place?
     @State private var playTicket = UUID()
     let soundPackLibrary: SoundPackLibrary
 
@@ -70,13 +72,18 @@ struct SettingsSoundSection: View {
 
             if OortSynth(pack: settings.settings.soundPackID) != nil {
                 SettingsSubheading(L10n.text("Compose", context: localization))
+                SeleneCycleRow("Place", subtitle: "Where this sequence is heard. A place without its own follows Everywhere.",
+                               value: place?.title ?? "Everywhere", cycle: stepPlace)
                 SeleneCycleRow("Note sequence", subtitle: "The notes you hear as you move. The Oort voices play it from start to end.",
-                               value: settings.settings.noteFigure.title, cycle: stepFigure)
+                               value: melody.figure.title, cycle: stepFigure)
                 SeleneCycleRow("Octave", subtitle: "Plays the note sequence lower or higher.",
-                               value: settings.settings.noteOctave > 0 ? "+\(settings.settings.noteOctave)" : "\(settings.settings.noteOctave)",
+                               value: melody.octave > 0 ? "+\(melody.octave)" : "\(melody.octave)",
                                verbatimValue: true, cycle: stepOctave)
                 SeleneButtonRow("Listen to the sequence", buttonTitle: "Listen", action: playNotes)
-                OortNotes(notes: notes, playing: playing, change: setNote)
+                if ownMelody {
+                    SeleneButtonRow("Follow Everywhere", subtitle: "Removes this place’s own sequence.", buttonTitle: "Follow", action: followEverywhere)
+                }
+                OortNotes(notes: melody.notes, playing: playing, change: setNote)
             }
 
             SettingsSubheading(L10n.text("Theme assets"))
@@ -120,9 +127,11 @@ struct SettingsSoundSection: View {
         actions.append(.value("soundPreviewEvent", "Sound to preview", cycle: stepEvent))
         actions.append(.init(id: "soundPreview", title: "Preview sound", isEnabled: canPreview, activate: previewSound))
         if OortSynth(pack: settings.settings.soundPackID) != nil {
+            actions.append(.value("placeNotes", "Place", cycle: stepPlace))
             actions.append(.value("noteFigure", "Note sequence", cycle: stepFigure))
             actions.append(.value("noteOctave", "Octave", cycle: stepOctave))
             actions.append(.init(id: "noteListen", title: "Listen to the sequence", activate: playNotes))
+            if ownMelody { actions.append(.init(id: "noteFollow", title: "Follow Everywhere", activate: followEverywhere)) }
         }
         actions.append(.init(id: "importSoundPack", title: "Import sound pack", isEnabled: !importingPack,
                              activate: importPack))
@@ -136,40 +145,62 @@ struct SettingsSoundSection: View {
         onActions(actions)
     }
 
-    private var notes: [Double] { OortSynth.notes(settings.settings.noteFigure, custom: settings.settings.customNotes) }
+    private var melody: OortSynth.Melody { settings.settings.melody(place) }
+    private var ownMelody: Bool { place.map { settings.settings.placeNotes[$0.rawValue] != nil } ?? false }
 
-    private func stepFigure(_ step: Int) {
-        let all = OortSynth.Figure.allCases
-        guard let index = all.firstIndex(of: settings.settings.noteFigure) else { return }
-        settings.settings.noteFigure = all[(index + step + all.count) % all.count]
+    private func change(_ edit: (inout OortSynth.Melody) -> Void) {
+        var next = melody
+        edit(&next)
+        guard next != melody else { return }
+        settings.settings.setMelody(next, for: place)
+        publishActions()
+    }
+
+    private func stepPlace(_ step: Int) {
+        let all: [OortSynth.Place?] = [nil] + OortSynth.Place.allCases
+        guard let index = all.firstIndex(of: place) else { return }
+        place = all[(index + step + all.count) % all.count]
         publishActions()
         playNotes()
     }
 
-    private func stepOctave(_ step: Int) {
-        settings.settings.noteOctave = min(OortSynth.octaves.upperBound, max(OortSynth.octaves.lowerBound, settings.settings.noteOctave + step))
+    private func followEverywhere() {
+        guard let place else { return }
+        settings.settings.placeNotes[place.rawValue] = nil
         publishActions()
+        playNotes()
+    }
+
+    private func stepFigure(_ step: Int) {
+        let all = OortSynth.Figure.allCases
+        change { melody in
+            guard let index = all.firstIndex(of: melody.figure) else { return }
+            melody.figure = all[(index + step + all.count) % all.count]
+        }
+        playNotes()
+    }
+
+    private func stepOctave(_ step: Int) {
+        change { $0.octave = min(OortSynth.octaves.upperBound, max(OortSynth.octaves.lowerBound, $0.octave + step)) }
         playNotes()
     }
 
     /// Pulling a note makes the sequence the player's own, starting from the one on screen.
     private func setNote(_ index: Int, _ value: Double) {
         let value = min(OortSynth.range.upperBound, max(OortSynth.range.lowerBound, value))
-        var next = notes.map { $0.rounded() }
-        guard next[index] != value || settings.settings.noteFigure != .custom else { return }
+        var next = melody.notes.map { $0.rounded() }
+        guard next[index] != value || melody.figure != .custom else { return }
         next[index] = value
-        settings.settings.customNotes = next
-        settings.settings.noteFigure = .custom
-        publishActions()
-        SoundEffectService.shared.previewNotes([value], octave: settings.settings.noteOctave, pack: settings.settings.soundPackID)
+        change { $0.custom = next; $0.figure = .custom }
+        SoundEffectService.shared.previewNotes([value], octave: melody.octave, pack: settings.settings.soundPackID)
     }
 
     private func playNotes() {
         let ticket = UUID()
         playTicket = ticket
-        SoundEffectService.shared.previewNotes(notes, octave: settings.settings.noteOctave, pack: settings.settings.soundPackID)
+        SoundEffectService.shared.previewNotes(melody.notes, octave: melody.octave, pack: settings.settings.soundPackID)
         Task { @MainActor in
-            for index in 0..<notes.count {
+            for index in 0..<melody.notes.count {
                 guard playTicket == ticket else { return }
                 playing = index
                 try? await Task.sleep(for: .milliseconds(135))

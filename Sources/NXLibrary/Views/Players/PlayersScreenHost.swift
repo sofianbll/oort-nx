@@ -30,6 +30,8 @@ struct PlayersScreenHost: View {
                                    saveSettingsDraft: hasSettingsDraft ? saveSettingsDraft : nil)
         screen
             .task { await model.load() }
+            .onAppear { SoundEffectService.shared.openPlace = .players }
+            .onDisappear { SoundEffectService.shared.openPlace = nil }
             .task(id: model.saving) {
                 guard !model.saving, let readNotes else { return }
                 let result = await readNotes()

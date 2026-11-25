@@ -1,3 +1,4 @@
+import Combine
 import SwiftUI
 import NXLibraryCore
 
@@ -130,6 +131,33 @@ struct OortPressed<Content: View>: View {
             .offset(y: sinks ? canvas.u(SeleneTokens.Effect.pressDepth) : 0)
             .opacity(down && reduceMotion ? SeleneTokens.Effect.searchVeil : 1)
             .animation(Motion.press(reduceMotion, down: down), value: down)
+    }
+}
+
+/// A press that comes from the controller or the keyboard, for whatever holds the focus.
+enum OortPulse {
+    static let press = PassthroughSubject<Void, Never>()
+}
+
+extension View {
+    /// Sinks for a moment when A is pressed while this holds the focus.
+    func oortPadPress(_ focused: Bool) -> some View { modifier(OortPadPress(focused: focused)) }
+}
+
+private struct OortPadPress: ViewModifier {
+    let focused: Bool
+    @State private var down = false
+
+    func body(content: Content) -> some View {
+        OortPressed(down: down && focused) { content }
+            .onReceive(OortPulse.press) {
+                guard focused else { return }
+                down = true
+                Task { @MainActor in
+                    try? await Task.sleep(for: .milliseconds(110))
+                    down = false
+                }
+            }
     }
 }
 

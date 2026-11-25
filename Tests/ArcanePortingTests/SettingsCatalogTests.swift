@@ -30,7 +30,7 @@ final class SettingsCatalogTests: XCTestCase {
         "appLanguage", "appRegion", "startOn", "restoreLastGame", "startInFullscreen", "checkEngineAtLaunch", "onboarding",
         "refreshLibraryAtLaunch", "checkAppUpdatesAtLaunch", "introAnimation", "showProfilePicker", "showButtonHints", "buttonNames",
         "viewButtonSwitches", "spotlightCards", "libraryTabs", "startingTab", "spotlightOrder", "interfaceSounds", "soundVolume",
-        "quietLaunch", "soundPack", "noteFigure", "noteOctave", "customNotes", "importSoundPack", "importSeleneSounds", "colorThemeID", "wallpaperID", "settingsWallpaperID", "backgroundSizing",
+        "quietLaunch", "soundPack", "noteFigure", "noteOctave", "customNotes", "placeNotes", "importSoundPack", "importSeleneSounds", "colorThemeID", "wallpaperID", "settingsWallpaperID", "backgroundSizing",
         "wallpaperBrightness", "animatedBackground", "keepWallpaperOnGames", "backgroundShade", "readableText",
         "showClock", "reduceMotion", "iconAppearance", "boxCovers", "igdb", "steamGridDB", "librarySort", "launchStyle",
         "launchMotion", "launchShade", "tileBadgePosition", "surprisePool", "cloudSaves", "cloudSavesPickedFolder", "showsSessionCard",
@@ -201,7 +201,7 @@ final class SettingsCatalogTests: XCTestCase {
         ] + ProfilePageCard.allCases.map { "profile-card-\($0.rawValue)" } + [
         "appLanguage", "appRegion", "startOn", "restoreLastGame", "startInFullscreen", "checkAppUpdatesAtLaunch",
         "introAnimation", "showProfilePicker", "onboarding", "showButtonHints", "buttonNames", "viewButtonSwitches", "spotlightCards", "libraryTabs", "startingTab",
-        "platformCardInfo", "spotlightOrder", "interfaceSounds", "soundVolume", "quietLaunch", "soundPack", "noteFigure", "noteOctave", "customNotes", "importSoundPack", "importSeleneSounds",
+        "platformCardInfo", "spotlightOrder", "interfaceSounds", "soundVolume", "quietLaunch", "soundPack", "noteFigure", "noteOctave", "customNotes", "placeNotes", "importSoundPack", "importSeleneSounds",
         "wallpaperBrightness", "animatedBackground",
         "keepWallpaperOnGames", "backgroundShade", "readableText", "showClock", "reduceMotion", "iconAppearance",
         "controllerStatus", "buttonLayout", "controllerLayout", "controllerDeadzone", "inGameHomeButton", "multiplayerVPN", "multiplayerDefault",

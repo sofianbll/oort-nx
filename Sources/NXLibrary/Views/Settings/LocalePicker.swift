@@ -114,6 +114,8 @@ struct LocalePicker: View {
             switch action {
             case .navigateUp: move(-1)
             case .navigateDown: move(1)
+            case .jumpToStart: move(-10_000)
+            case .jumpToEnd: move(10_000)
             case .confirm: choose()
             case .cancel: onClose()
             default: break

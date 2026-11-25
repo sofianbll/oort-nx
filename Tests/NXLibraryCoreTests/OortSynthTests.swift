@@ -42,6 +42,27 @@ final class OortSynthTests: XCTestCase {
         XCTAssertNil(synth.wav(.move, notes: []))
     }
 
+    func testAPlaceFollowsEverywhereUntilItHasItsOwnMelody() throws {
+        var settings = AppSettings()
+        settings.noteFigure = .minor
+        XCTAssertEqual(settings.melody(.games), settings.melody(nil))
+        settings.setMelody(.init(figure: .custom, octave: 9, custom: [0, 1, 2, 3, 4, 5, 6, 7]), for: .ribbon)
+        XCTAssertEqual(settings.melody(.ribbon).octave, 2)
+        XCTAssertEqual(settings.melody(.ribbon).notes, [0, 1, 2, 3, 4, 5, 6, 7])
+        XCTAssertEqual(settings.melody(.lists).figure, .minor)
+        settings.setMelody(.init(figure: .wave, octave: -1), for: nil)
+        XCTAssertEqual(settings.melody(.players).figure, .wave)
+        let saved = try JSONDecoder().decode(AppSettings.self, from: JSONEncoder().encode(settings))
+        XCTAssertEqual(saved.melody(.ribbon), settings.melody(.ribbon))
+        XCTAssertEqual(saved.melody(.games), .init(figure: .wave, octave: -1))
+        // Settings from 0.5.0-beta.1 have no places; a damaged one is not worth losing the rest for.
+        let old = try JSONDecoder().decode(AppSettings.self, from: Data(#"{"noteFigure":"dream","noteOctave":1}"#.utf8))
+        XCTAssertEqual(old.melody(.games), .init(figure: .dream, octave: 1))
+        let odd = try JSONDecoder().decode(AppSettings.self, from: Data(#"{"noteFigure":"dream","placeNotes":{"games":{"figure":"zzz","octave":"x"}}}"#.utf8))
+        XCTAssertEqual(odd.noteFigure, .dream)
+        XCTAssertEqual(odd.melody(.games), .init())
+    }
+
     func testMovesClimbAndStartAgain() throws {
         let synth = try XCTUnwrap(OortSynth(pack: "oort"))
         func crossings(_ step: Int) throws -> Int {

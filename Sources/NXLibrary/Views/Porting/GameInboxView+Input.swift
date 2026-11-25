@@ -30,6 +30,8 @@ extension GameInboxView {
         switch action {
         case .navigateUp, .navigateLeft: focused = targets[max(0, index - 1)]
         case .navigateDown, .navigateRight: focused = targets[min(targets.count - 1, index + 1)]
+        case .jumpToStart: focused = targets[0]
+        case .jumpToEnd: focused = targets[targets.count - 1]
         case .confirm: run(focused)
         default: break
         }

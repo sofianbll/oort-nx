@@ -91,5 +91,6 @@ struct SeleneOptionRowSurface: ViewModifier {
                 }
             }
             .seleneRowFocus(focused, radius: radius)
+            .oortPadPress(focused)
     }
 }

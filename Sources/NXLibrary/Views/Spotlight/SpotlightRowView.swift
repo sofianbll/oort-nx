@@ -84,6 +84,15 @@ struct SpotlightRowView: View {
                     .transition(.identity)
             }
             if let selected {
+                // The one ring: it travels with the selection, over the tiles it passes.
+                SeleneTileRing(cornerRadius: canvas.u(SeleneTokens.Radius.spotlightFocus), active: true)
+                    .frame(width: canvas.u(Self.host), height: canvas.u(Self.host))
+                    .modifier(RingGlide(position: position, rise: liftedKey != nil ? 3 - 12 : 3, unit: canvas.u(1)))
+                    .opacity(entrance == .landed ? 1 : 0)
+                    .animation(reduceMotion ? nil : SeleneTheme.arrival, value: entrance)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+                    .zIndex(10.5)
                 let item = items[selected]
                 Text(title(of: item))
                     .seleneFont(.row)
@@ -179,12 +188,8 @@ struct SpotlightRowView: View {
         let cloudState = native.flatMap(cloud.stateForTile)
         return Group {
             if item == .platform, let platform, let platforms {
-                ZStack(alignment: .topLeading) {
-                    face(item, selected: selected, cloudState: cloudState)
-                        .padding(canvas.u(SeleneTokens.Space.badge))
-                    SeleneTileRing(cornerRadius: canvas.u(SeleneTokens.Radius.spotlightFocus), active: selected)
-                        .frame(width: canvas.u(Self.host), height: canvas.u(Self.host))
-                }
+                face(item, selected: selected, cloudState: cloudState)
+                    .padding(canvas.u(SeleneTokens.Space.badge))
                 .frame(width: canvas.u(Self.host), height: canvas.u(Self.host), alignment: .topLeading)
                 .contentShape(Rectangle())
                 .overlay { platformActions(platform, selected: selected) }
@@ -228,8 +233,7 @@ struct SpotlightRowView: View {
                             .clipShape(face)
                             .overlay(face.strokeBorder(SeleneTheme.ink15, lineWidth: max(1, canvas.u(1))))
                     case .card(let card):
-                        face.fill(SeleneTheme.glass)
-                            .overlay(face.strokeBorder(SeleneTheme.ink15, lineWidth: max(1, canvas.u(1))))
+                        OortKeyFace(kind: .quiet, radius: canvas.u(SeleneTokens.Radius.content), lit: selected, outlined: false)
                             .overlay(MaterialIconView(card.icon, size: 60).foregroundColor(SeleneTheme.ink))
                     }
                 }
@@ -389,6 +393,24 @@ private struct TileGlide: GeometryEffect {
         // The 1u is the item's start margin.
         let x = (SpotlightRowGeometry.place(of: index, at: position) + 1) * unit
         return ProjectionTransform(CGAffineTransform(a: scale, b: 0, c: 0, d: scale, tx: x, ty: rise * unit))
+    }
+}
+
+/// The ring at the selection's own place and size, on the tiles' glide.
+private struct RingGlide: GeometryEffect {
+    var position: CGFloat
+    var rise: CGFloat
+    let unit: CGFloat
+
+    var animatableData: AnimatablePair<CGFloat, CGFloat> {
+        get { AnimatablePair(position, rise) }
+        set { (position, rise) = (newValue.first, newValue.second) }
+    }
+
+    func effectValue(size: CGSize) -> ProjectionTransform {
+        let x = (SpotlightRowGeometry.place(of: position, at: position) + 1) * unit
+        return ProjectionTransform(CGAffineTransform(a: SpotlightRowGeometry.grow, b: 0, c: 0, d: SpotlightRowGeometry.grow,
+                                                     tx: x, ty: rise * unit))
     }
 }
 

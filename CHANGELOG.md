@@ -2,6 +2,23 @@
 
 User-visible changes to Oort NX and its Arcane base (formerly NX Library) are recorded here. Entries are grouped by release, with the newest first. Engine changes also have their own [upgrade notes](docs/history/engine-upgrades/README.md).
 
+## 0.5.0-beta.2 — 2026-11-25
+
+### Added
+
+- **Compose** can give Games, the platform ribbon, Players and Lists their own sequence. A place without one follows Everywhere.
+- ZL and ZR reach the top and the end in game options, Details, search, mods, cheats, saves, themes, file picker and lists.
+- A sinks the focused button, row or tile, as a click does.
+
+### Changed
+
+- One focus ring glides from game to game on the home screen.
+- Setup cards, Details links and dialogs use the shared surface; the Sun no longer shows through the Add profile button.
+
+### Fixed
+
+- Setup rows without a description are centered.
+
 ## 0.5.0-beta.1 — 2026-11-25
 
 First public release from Oort NX's own repository. It also carries everything prepared for 0.4.0, which was not published.

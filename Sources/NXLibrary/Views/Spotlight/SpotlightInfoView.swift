@@ -200,9 +200,7 @@ struct SpotlightGameInfoView: View {
             Text(L10n.text("Continue where you left off")).seleneFont(.text).foregroundColor(SeleneTheme.ink90)
         }
         .padding(EdgeInsets(top: canvas.u(6), leading: canvas.u(12), bottom: canvas.u(7), trailing: canvas.u(18)))
-        .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.spotlightFocus), style: .continuous).fill(SeleneTheme.glassLight))
-        .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.spotlightFocus), style: .continuous)
-            .strokeBorder(SeleneTheme.ink25, lineWidth: max(1, canvas.u(1))))
+        .oortPanel(radius: canvas.u(SeleneTokens.Radius.spotlightFocus))
     }
 
     /// The pills and stats' fade after a change (the genres below come in with them, `SpotlightInfoFollow`).
