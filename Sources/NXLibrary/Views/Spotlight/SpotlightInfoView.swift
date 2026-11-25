@@ -116,7 +116,7 @@ struct SpotlightGameInfoView: View {
                     .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(OortPressStyle())
         case .failed(let failure):
             if failure == .failed, let reason = game.portingFailureReason {
                 Text(reason.title)

@@ -206,7 +206,7 @@ struct ConsoleView: View {
                 }
                 .frame(width: canvas.u(200), alignment: .leading)
             }
-            .background(Capsule().fill(SeleneTheme.glassLight))
+            .oortWell(radius: canvas.u(SeleneTokens.Radius.field))
             pill(.follow) {
                 HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                     Circle()
@@ -281,7 +281,7 @@ struct ConsoleView: View {
                 }
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(RoundedRectangle(cornerRadius: radius, style: .continuous).fill(SeleneTheme.glassLight))
+            .oortWell(radius: radius)
             .onAppear { scrollToEnd(proxy, animated: false) }
             .onChange(of: viewModel.logs.count) {
                 if follow { scrollToEnd(proxy, animated: false) }

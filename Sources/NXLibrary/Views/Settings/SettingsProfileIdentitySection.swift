@@ -63,7 +63,7 @@ struct SettingsProfileIdentitySection: View {
 
     private func button(_ title: String, action: @escaping () -> Void) -> some View {
         Button(L10n.text(title), action: action)
-            .buttonStyle(.plain).seleneFont(.text, .semibold).foregroundStyle(SeleneTheme.glyph)
+            .buttonStyle(OortPressStyle()).seleneFont(.text, .semibold).foregroundStyle(SeleneTheme.glyph)
     }
 
     private func preset(_ profile: LocalProfile) -> LocalProfile {

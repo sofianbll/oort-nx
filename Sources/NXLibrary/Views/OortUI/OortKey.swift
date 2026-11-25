@@ -185,6 +185,19 @@ struct OortPanelSurface: ViewModifier {
     }
 }
 
+/// A recess for what is typed or read: the ground shows through, under a hairline.
+struct OortWellSurface: ViewModifier {
+    @Environment(\.seleneCanvas) private var canvas
+    let radius: CGFloat
+
+    func body(content: Content) -> some View {
+        let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
+        content
+            .background(shape.fill(SeleneTheme.scrim45))
+            .overlay(shape.strokeBorder(SeleneTheme.ink15, lineWidth: max(1, canvas.u(SeleneTokens.Space.thinStroke))).allowsHitTesting(false))
+    }
+}
+
 private struct OortFloat: ViewModifier {
     @Environment(\.seleneCanvas) private var canvas
     let on: Bool
@@ -197,6 +210,7 @@ private struct OortFloat: ViewModifier {
 }
 
 extension View {
+    func oortWell(radius: CGFloat) -> some View { modifier(OortWellSurface(radius: radius)) }
     func oortPanel(radius: CGFloat, raised: Bool = false, floats: Bool = false) -> some View {
         modifier(OortPanelSurface(radius: radius, raised: raised, floats: floats))
     }

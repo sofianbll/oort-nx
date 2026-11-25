@@ -71,7 +71,7 @@ struct SettingsSourcesSection: View {
                     .seleneFont(.text).foregroundColor(SeleneTheme.ink).fixedSize(horizontal: false, vertical: true)
                 ForEach(review) { game in
                     SeleneRow(game.name, id: "review-\(game.id)", subtitle: "Needs review", verbatimTitle: true) {
-                        Button(L10n.text("Reveal", context: localization)) { reveal(game) }.buttonStyle(.plain).foregroundColor(SeleneTheme.glyph)
+                        Button(L10n.text("Reveal", context: localization)) { reveal(game) }.buttonStyle(OortPressStyle()).foregroundColor(SeleneTheme.glyph)
                     }
                 }
             }
@@ -80,7 +80,7 @@ struct SettingsSourcesSection: View {
                 ForEach(hidden) { game in
                     SeleneRow(game.name, id: "hidden-\(game.id)", subtitle: "Hidden from the library", verbatimTitle: true) {
                         Button(L10n.text("Show", context: localization)) { viewModel.setCatalogHidden(false, game: game) }
-                            .buttonStyle(.plain).foregroundColor(SeleneTheme.glyph)
+                            .buttonStyle(OortPressStyle()).foregroundColor(SeleneTheme.glyph)
                     }
                 }
             }

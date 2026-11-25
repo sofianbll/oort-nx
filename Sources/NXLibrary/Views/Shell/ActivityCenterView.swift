@@ -320,7 +320,7 @@ private struct ActivityRow: View {
             HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 Group {
                     if let open {
-                        Button(action: open) { content }.buttonStyle(.plain)
+                        Button(action: open) { content }.buttonStyle(OortPressStyle())
                             .accessibilityHint(L10n.text("Open porting", context: localization))
                     } else {
                         content

@@ -46,13 +46,13 @@ struct SettingsLibrarySection: View {
                         .truncationMode(.middle)
                         .frame(maxWidth: 320, alignment: .trailing)
                     Button(L10n.text("Change"), action: chooseAppsPath)
-                        .buttonStyle(.plain)
+                        .buttonStyle(OortPressStyle())
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
                     Button(L10n.text("Reset")) {
                         stageAppsPath(viewModel.defaultGameAppsPath)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(OortPressStyle())
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink60)
                 }
@@ -70,12 +70,12 @@ struct SettingsLibrarySection: View {
                         .truncationMode(.middle)
                         .frame(maxWidth: 320, alignment: .trailing)
                     Button(L10n.text("Choose"), action: chooseSourcesPath)
-                        .buttonStyle(.plain)
+                        .buttonStyle(OortPressStyle())
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
                     if sourcesPath != nil {
                         Button(L10n.text("Clear")) { stageSourcesPath(nil) }
-                            .buttonStyle(.plain)
+                            .buttonStyle(OortPressStyle())
                             .seleneFont(.text, .semibold)
                             .foregroundColor(SeleneTheme.danger)
                     }

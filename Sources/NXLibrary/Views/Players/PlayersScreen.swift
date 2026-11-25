@@ -137,7 +137,7 @@ struct PlayersScreen: View {
                                     }
                                 }
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(OortPressStyle())
                             .accessibilityAddTraits(model.plan.slot(number)?.profileID == id ? .isSelected : [])
                             .id(row)
                             .onHover { if hover.moved($0) { model.focus = row } }

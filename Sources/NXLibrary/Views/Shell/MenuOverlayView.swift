@@ -161,7 +161,7 @@ struct MenuOverlayView: View {
             .frame(width: canvas.u(cellWidth))
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(OortPressStyle())
         .onHover { hovering in
             if hover.moved(hovering), !submenuOpen { router.menuSelection.selected = action }
         }

@@ -78,7 +78,7 @@ struct LocalePicker: View {
                                     .seleneRowFocus(index == focus, radius: canvas.u(12))
                                     .contentShape(Rectangle())
                                 }
-                                .buttonStyle(.plain).id(index)
+                                .buttonStyle(OortPressStyle()).id(index)
                                 .accessibilityAddTraits(rows[index].id == selectedID ? .isSelected : [])
                             }
                         }
@@ -96,7 +96,7 @@ struct LocalePicker: View {
                 .frame(height: canvas.u(420))
                 HStack {
                     Spacer()
-                    Button(L10n.text("Cancel"), action: onClose).buttonStyle(.plain).seleneFont(.text, .semibold)
+                    Button(L10n.text("Cancel"), action: onClose).buttonStyle(OortPressStyle()).seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.glyph).padding(canvas.u(SeleneTokens.Space.compact))
                 }
             }

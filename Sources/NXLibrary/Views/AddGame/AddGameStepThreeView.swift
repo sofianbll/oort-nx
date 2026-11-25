@@ -496,7 +496,7 @@ struct PortingLogBox: View {
                 .frame(height: canvas.u(40))
                 .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
+            .buttonStyle(OortPressStyle())
             if expanded {
                 lines
                     .frame(height: canvas.u(220))

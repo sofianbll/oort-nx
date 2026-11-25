@@ -308,7 +308,7 @@ struct SpotlightRowView: View {
         Button { onActivate(.platform) } label: {
             Spacer().frame(maxWidth: .infinity, maxHeight: .infinity).contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(OortPressStyle())
         .accessibilityLabel(platformName(card))
         .accessibilityValue(platformCount(card))
         .accessibilityHint(L10n.text(platformOpen ? "Select" : "Open", context: locale))

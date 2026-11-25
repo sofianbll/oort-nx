@@ -526,7 +526,7 @@ private struct MenuHoldIndicator: View {
                 .foregroundStyle(SeleneTheme.ink)
                 .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
                 .padding(.vertical, canvas.u(SeleneTokens.Space.compact))
-                .background(SeleneTheme.glassCard, in: Capsule())
+                .oortPanel(radius: canvas.u(SeleneTokens.Radius.field), floats: true)
                 .padding(.bottom, canvas.u(SeleneBottomScrim.hintsBottom + 50))
             }
             .allowsHitTesting(false)

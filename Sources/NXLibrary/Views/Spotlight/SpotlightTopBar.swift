@@ -68,7 +68,7 @@ struct SpotlightTopBar: View {
                 }
                 .modifier(TileFocus(focused: profileFocused, radius: 22, scale: 1.1))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(OortPressStyle())
         .accessibilityLabel(profile.name)
         .accessibilityHint(L10n.text("Open profile", context: locale))
         .accessibilityAddTraits(profileFocused ? .isSelected : [])
@@ -149,7 +149,7 @@ struct LibrarySortMenu: View {
                 if chosen { MaterialIconView(.check, size: 24).foregroundStyle(SeleneTheme.ink) }
             }
         }
-        .buttonStyle(.plain)
+        .buttonStyle(OortPressStyle())
         .containerValue(\.oortSettingsRow, true)
         .accessibilityAddTraits(chosen ? [.isButton, .isSelected] : .isButton)
     }

@@ -32,7 +32,7 @@ struct OortField: ViewModifier {
         content.textFieldStyle(.plain).seleneFont(.text)
             .foregroundColor(SeleneTheme.ink)
             .padding(canvas.u(SeleneTokens.Space.fieldInset))
-            .background(SeleneTheme.glassLight, in: RoundedRectangle(cornerRadius: radius))
+            .oortWell(radius: radius)
             .seleneRowFocus(focused, radius: radius)
     }
 }

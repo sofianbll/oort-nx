@@ -33,14 +33,14 @@ struct SettingsEngineSection: View {
                         .truncationMode(.middle)
                         .frame(maxWidth: 300, alignment: .trailing)
                     Button(L10n.text("Change"), action: chooseEnginePath)
-                        .buttonStyle(.plain)
+                        .buttonStyle(OortPressStyle())
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
                         .disabled(configurationLocked)
                     Button(L10n.text("Reveal")) {
                         viewModel.revealInFinder(url: URL(fileURLWithPath: setup.nxnativePath))
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(OortPressStyle())
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink60)
                     .disabled(!setup.isNxnativeValid)
@@ -61,7 +61,7 @@ struct SettingsEngineSection: View {
                         .foregroundColor(statusColor)
                     Spacer()
                     Button(L10n.text("Re-check"), action: recheck)
-                        .buttonStyle(.plain)
+                        .buttonStyle(OortPressStyle())
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
                         .disabled(configurationLocked)
@@ -265,7 +265,7 @@ struct SettingsEngineSection: View {
                         let focused = actions.count > 1 && setup.canSwitchEngine
                             && focusedRowTitle == "Newest engine" && focusedButton == index
                         Button(L10n.text(newestTitle(action))) { newestAction(action) }
-                            .buttonStyle(.plain)
+                            .buttonStyle(OortPressStyle())
                             .seleneFont(.text, .semibold)
                             .foregroundColor(setup.canSwitchEngine ? SeleneTheme.glyph : SeleneTheme.ink60)
                             .padding(.horizontal, SeleneTokens.Space.gap)
@@ -406,7 +406,7 @@ struct SettingsEngineSection: View {
                             Button(L10n.text("View all on GitHub")) {
                                 setup.openUpstreamCompare()
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(OortPressStyle())
                             .seleneFont(.text, .semibold)
                             .foregroundColor(SeleneTheme.glyph)
                         }

@@ -264,8 +264,7 @@ struct ProfilePage: View {
                 .seleneFont(.row, .medium)
                 .padding(.horizontal, canvas.u(SeleneTokens.Space.feature))
                 .frame(minHeight: canvas.u(SeleneTokens.Space.actionPillHeight))
-                .background(SeleneTheme.ink15, in: Capsule())
-                .overlay { Capsule().strokeBorder(SeleneTheme.ink25) }
+                .oortPanel(radius: canvas.u(SeleneTokens.Space.actionPillHeight / 2), raised: true)
         }
     }
 
@@ -360,7 +359,7 @@ struct ProfilePage: View {
                         Label(LibraryPresentation.duration(activity.duration), systemImage: "clock")
                             .seleneFont(.text, .semibold)
                             .padding(canvas.u(SeleneTokens.Space.compact))
-                            .background(SeleneTheme.glassSolid, in: Capsule())
+                            .oortPanel(radius: canvas.u(SeleneTokens.Radius.hint), raised: true)
                             .padding(canvas.u(SeleneTokens.Space.small))
                     }
                 }
@@ -407,7 +406,7 @@ struct ProfilePage: View {
             }
         }
         .padding(gap)
-        .background(SeleneTheme.glass, in: RoundedRectangle(cornerRadius: radius))
+        .oortPanel(radius: radius)
     }
 
     @ViewBuilder private func achievements(_ data: PageData, columns count: Int, tileWidth: CGFloat) -> some View {
@@ -485,8 +484,7 @@ struct ProfilePage: View {
             .padding(gap)
             .frame(maxWidth: .infinity, minHeight: canvas.u(SeleneTokens.Space.stageGutter + SeleneTokens.Space.section),
                    alignment: .topLeading)
-            .background(SeleneTheme.glass, in: RoundedRectangle(cornerRadius: radius))
-            .overlay { RoundedRectangle(cornerRadius: radius).strokeBorder(SeleneTheme.ink15) }
+            .oortPanel(radius: radius)
     }
 
     private func friendText(_ friend: NextendoAccountSnapshot.Friend) -> String {
@@ -596,7 +594,7 @@ struct ProfilePage: View {
         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small), content: content)
             .padding(canvas.u(SeleneTokens.Space.panel))
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(SeleneTheme.glass, in: RoundedRectangle(cornerRadius: radius))
+            .oortPanel(radius: radius)
     }
 
     private func button<Content: View>(_ id: Focus, data: PageData, radius: CGFloat, showsRowRing: Bool = true,
@@ -607,7 +605,7 @@ struct ProfilePage: View {
         } label: {
             content().contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(OortPressStyle())
         .seleneRowFocus(showsRowRing && focus == id, radius: radius)
         .modifier(FocusTarget(id: id))
     }

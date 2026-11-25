@@ -177,8 +177,7 @@ struct ProfileEditorView: View {
                 .seleneFont(.heading)
                 .padding(.horizontal, canvas.u(SeleneTokens.Space.feature))
                 .frame(width: canvas.u(560), height: canvas.u(68))
-                .background(Capsule().fill(SeleneTheme.ink.opacity(SeleneTokens.Alpha.faint)))
-                .overlay(Capsule().strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.focusStroke)))
+                .oortWell(radius: canvas.u(SeleneTokens.Radius.field))
                 .focused($nameFocused)
                 .onSubmit { advance() }
             VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
@@ -206,8 +205,7 @@ struct ProfileEditorView: View {
         }
         .seleneFont(item < 39 ? .heading : .text)
         .frame(width: canvas.u(keyWidth(item)), height: canvas.u(64))
-        .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card)).fill(SeleneTheme.glass))
-        .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card)).strokeBorder(SeleneTheme.ink15, lineWidth: canvas.u(SeleneTokens.Space.thinStroke)))
+        .oortPanel(radius: canvas.u(SeleneTokens.Radius.card))
         .overlay(alignment: .topTrailing) {
             if item > 39 && (item != 42 || isNew) {
                 SelenePromptBadge(button: item == 40 ? .y : item == 41 ? .x : .menu, height: 22,
@@ -360,7 +358,7 @@ struct ProfileEditorView: View {
             indexes[step.rawValue] = item
             action()
         } label: { face() }
-        .buttonStyle(.plain)
+        .buttonStyle(OortPressStyle())
         .accessibilityLabel(label)
         .accessibilityAddTraits(index == item ? .isSelected : [])
     }

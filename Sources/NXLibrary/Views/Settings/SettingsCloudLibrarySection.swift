@@ -163,7 +163,7 @@ struct SettingsCloudLibrarySection: View {
                          ? CloudLibraryStatus.pending.color : model.referenceCheck?.count == 0 || model.referenceCheck?.incomplete == true
                          ? CloudLibraryStatus.unknown.color : CloudLibraryStatus.synchronized.color)
                     Button(text("Unfollow"), action: unfollow)
-                        .buttonStyle(.plain)
+                        .buttonStyle(OortPressStyle())
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
                         .disabled(!editable)

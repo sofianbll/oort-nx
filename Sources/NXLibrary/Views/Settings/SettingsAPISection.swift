@@ -75,7 +75,7 @@ struct SettingsAPISection: View {
                             .foregroundColor(SeleneTheme.ink60).disabled(igdb.isRemoving)
                     }
                 }
-                .buttonStyle(.plain).seleneFont(.text, .semibold)
+                .buttonStyle(OortPressStyle()).seleneFont(.text, .semibold)
             }
 
             SettingsSubheading(L10n.text("Artwork"))
@@ -188,7 +188,7 @@ struct SettingsAPISection: View {
             SeleneRow(vpn.label, id: "multiplayerVPNStatus", subtitle: vpnSubtitle) {
                 SeleneStatusDot(text: vpnStatus, color: vpnColor)
                 Button(text(vpnActionTitle), action: openVPN)
-                    .buttonStyle(.plain)
+                    .buttonStyle(OortPressStyle())
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.glyph)
             }
@@ -324,7 +324,7 @@ struct SettingsAPISection: View {
                 .truncationMode(.middle)
                 .frame(maxWidth: canvas.u(200))
             Button(text("Edit")) { nextendo.isEditingClient = true }
-                .buttonStyle(.plain)
+                .buttonStyle(OortPressStyle())
                 .seleneFont(.text, .semibold)
                 .foregroundColor(SeleneTheme.glyph)
                 .disabled(nextendo.isBusy)
@@ -490,7 +490,7 @@ struct SettingsAPISection: View {
                 .foregroundColor(SeleneTheme.ink)
                 .padding(canvas.u(SeleneTokens.Space.compact))
                 .frame(maxWidth: canvas.u(195))
-                .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.cover)).fill(SeleneTheme.glassLight))
+                .oortWell(radius: canvas.u(SeleneTokens.Radius.cover))
                 .seleneRowFocus(friendCodeFocused || (focusedRow == addRowID && focusedButton == 0), radius: canvas.u(7))
             action(.init("Add", action: sendFriendCode), row: addRowID, index: 1)
         }
@@ -590,7 +590,7 @@ struct SettingsAPISection: View {
             .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(OortPressStyle())
         .overlay {
             if outline && focusedRow == row && focusedButton == index {
                 Capsule().strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.focusStroke)).allowsHitTesting(false)

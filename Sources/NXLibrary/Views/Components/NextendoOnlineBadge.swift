@@ -18,7 +18,7 @@ struct NextendoOnlineBadge: View {
                             labelColor: SeleneTheme.ink)
                 .padding(.horizontal, canvas.u(compact ? 7 : 10))
                 .padding(.vertical, canvas.u(compact ? 4 : 5))
-                .background(Capsule().fill(SeleneTheme.glassCard))
+                .oortPanel(radius: canvas.u(SeleneTokens.Radius.hint))
                 .allowsHitTesting(false)
         }
     }

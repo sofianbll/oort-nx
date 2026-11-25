@@ -338,7 +338,7 @@ struct AchievementsScreen: View {
                 .frame(minWidth: canvas.u(30), minHeight: canvas.u(36))
                 .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(OortPressStyle())
         .accessibilityLabel(label)
     }
 

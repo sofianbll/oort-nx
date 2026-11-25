@@ -23,7 +23,7 @@ struct SettingsControllersSection: View {
                         .seleneFont(.badge, .semibold)
                         .foregroundColor(controller.isGamepadConnected ? SeleneTheme.success : SeleneTheme.ink60)
                     Button(L10n.text("Detect")) { controller.refreshControllers() }
-                        .buttonStyle(.plain)
+                        .buttonStyle(OortPressStyle())
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
                 }

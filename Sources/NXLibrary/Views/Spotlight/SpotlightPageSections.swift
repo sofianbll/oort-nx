@@ -99,12 +99,12 @@ struct SpotlightDescription: View {
                 .multilineTextAlignment(.leading)
             if excerpt.truncated {
                 Button(expanded ? L10n.text("Show less") : L10n.text("Read more"), action: onToggle)
-                    .buttonStyle(.plain)
+                    .buttonStyle(OortPressStyle())
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink)
                     .padding(.horizontal, canvas.u(SeleneTokens.Space.line))
                     .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
-                    .background(Capsule().fill(SeleneTheme.ink15))
+                    .oortPanel(radius: canvas.u(SeleneTokens.Radius.hint), raised: true)
                     .seleneRowFocus(focused, radius: canvas.u(15))
                     .padding(.top, canvas.u(SeleneTokens.Space.small))
             }

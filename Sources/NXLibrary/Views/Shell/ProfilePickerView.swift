@@ -222,7 +222,7 @@ struct ProfilePickerView: View {
                     .frame(width: canvas.u(170))
             }
         }
-        .buttonStyle(.plain)
+        .buttonStyle(OortPressStyle())
         .onHover { if hover.moved($0) { selected = profile?.id } }
         .accessibilityLabel(title)
         .accessibilityAddTraits(isFocused ? .isSelected : [])

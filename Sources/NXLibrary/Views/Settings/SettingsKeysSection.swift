@@ -44,12 +44,12 @@ struct SettingsKeysSection: View {
                     Button(setup.isProdKeysValid ? L10n.text("Replace Key...") : L10n.text("Import Key...")) {
                         setup.selectProdKeysFile()
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(OortPressStyle())
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.glyph)
                     .disabled(configurationLocked)
                     Button(L10n.text("Detect Ryujinx...")) { viewModel.selectRyujinxFolder() }
-                        .buttonStyle(.plain)
+                        .buttonStyle(OortPressStyle())
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
                         .disabled(configurationLocked)

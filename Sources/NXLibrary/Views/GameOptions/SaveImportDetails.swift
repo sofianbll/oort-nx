@@ -27,8 +27,7 @@ struct SaveImportDetails: View {
             .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
             .padding(.vertical, canvas.u(SeleneTokens.Space.small))
             .frame(maxWidth: .infinity)
-            .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
-                .fill(SeleneTheme.glassLight))
+            .oortWell(radius: canvas.u(SeleneTokens.Radius.badge))
 
             VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                 Text(L10n.text("Your current save is backed up before replacement."))

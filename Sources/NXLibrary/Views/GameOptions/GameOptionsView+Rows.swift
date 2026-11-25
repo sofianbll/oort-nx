@@ -99,8 +99,7 @@ extension GameOptionsView {
             .padding(.top, canvas.u(SeleneTokens.Space.control))
             .padding(.trailing, canvas.u(SeleneTokens.Space.large))
             .padding(.bottom, canvas.u(SeleneTokens.Space.control))
-            .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card), style: .continuous)
-                .fill(SeleneTheme.glass))
+            .oortPanel(radius: canvas.u(SeleneTokens.Radius.card))
         case .gap:
             // Stack spacing is 8u on each side, so 8u here makes the 24u gap before a danger zone.
             Color.clear.frame(height: canvas.u(8))
@@ -179,7 +178,7 @@ extension GameOptionsView {
             }
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(OortPressStyle())
         .containerValue(\.oortSettingsRow, true)
         .background(GeometryReader { geometry in
             Color.clear.preference(key: OptionRowFrames.self,

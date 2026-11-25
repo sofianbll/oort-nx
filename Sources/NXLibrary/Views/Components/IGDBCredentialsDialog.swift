@@ -50,13 +50,13 @@ struct IGDBCredentialsDialog: View {
                             NSWorkspace.shared.open(URL(string: "https://api-docs.igdb.com/#account-creation")!)
                         }
                     }
-                    .buttonStyle(.plain).seleneFont(.text).foregroundColor(SeleneTheme.focus)
+                    .buttonStyle(OortPressStyle()).seleneFont(.text).foregroundColor(SeleneTheme.focus)
                 }
                 .textFieldStyle(.plain)
                 .font(.system(size: max(13, canvas.u(17)), design: .monospaced))
                 .foregroundColor(SeleneTheme.ink)
                 .padding(canvas.u(SeleneTokens.Space.medium))
-                .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content)).fill(SeleneTheme.glassLight))
+                .oortWell(radius: canvas.u(SeleneTokens.Radius.content))
                 .padding(.top, canvas.u(SeleneTokens.Space.large))
             }
         }

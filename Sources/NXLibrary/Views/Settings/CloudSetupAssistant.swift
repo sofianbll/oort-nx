@@ -431,7 +431,7 @@ struct CloudSetupAssistant: View {
             }
             .fixedSize(horizontal: !wide, vertical: true)
         }
-        .buttonStyle(.plain).disabled(!enabled).onHover { if $0 && enabled { focus.select(target) } }
+        .buttonStyle(OortPressStyle()).disabled(!enabled).onHover { if $0 && enabled { focus.select(target) } }
     }
 
     private func pill(_ target: Target, _ key: String, enabled: Bool = true, action: @escaping () -> Void) -> some View {

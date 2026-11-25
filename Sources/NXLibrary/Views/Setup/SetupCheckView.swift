@@ -147,8 +147,7 @@ struct SetupCheckView: View {
         .padding(.top, canvas.u(item.inlineError == nil ? 20 : SeleneTokens.Space.tight))
         .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
         .frame(width: canvas.u(Self.cardSize.width), height: canvas.u(Self.cardSize.height))
-        .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTheme.cardRadius), style: .continuous)
-            .fill(SeleneTheme.glassCard))
+        .oortPanel(radius: canvas.u(SeleneTheme.cardRadius))
         .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTheme.cardRadius), style: .continuous)
             .strokeBorder(focused ? SeleneTheme.focus : SeleneTheme.ink15,
                           lineWidth: canvas.u(focused ? 3 : 1)))
@@ -213,8 +212,7 @@ struct SetupCheckView: View {
         }
         .padding(canvas.u(SeleneTokens.Space.titleGap))
         .frame(width: canvas.u(960), height: canvas.u(156), alignment: .topLeading)
-        .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTheme.cardRadius), style: .continuous)
-            .fill(SeleneTheme.glass))
+        .oortPanel(radius: canvas.u(SeleneTheme.cardRadius))
         .clipped()
     }
 

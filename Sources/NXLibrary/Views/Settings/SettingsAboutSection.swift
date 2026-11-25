@@ -50,7 +50,7 @@ struct SettingsAboutSection: View {
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.glyph)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(OortPressStyle())
                 .padding(canvas.u(SeleneTokens.Space.tight))
                 .seleneRowFocus(focusedRowTitle == "Open project docs")
                 .id("selene-row-Open project docs")
@@ -68,7 +68,7 @@ struct SettingsAboutSection: View {
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.glyph)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(OortPressStyle())
                 .padding(SeleneTokens.Space.tight)
                 .seleneRowFocus(focusedRowTitle == "Copy diagnostics")
                 .id("selene-row-Copy diagnostics")
@@ -102,7 +102,7 @@ struct SettingsAboutSection: View {
                             .background(SeleneTheme.glass.opacity(SeleneTokens.Alpha.strong))
                             .clipShape(RoundedRectangle(cornerRadius: SeleneTokens.Radius.cover, style: .continuous))
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(OortPressStyle())
                         .seleneRowFocus(focusedRowTitle == credit.name, radius: 7)
                         .id("selene-row-\(credit.name)")
                         .accessibilityLabel("\(credit.name), \(credit.role)")
@@ -126,7 +126,7 @@ struct SettingsAboutSection: View {
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.glyph)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(OortPressStyle())
                 .padding(SeleneTokens.Space.tight)
                 .seleneRowFocus(focusedRowTitle == "Selene")
                 .id("selene-row-Selene")
@@ -207,7 +207,7 @@ struct SettingsAboutSection: View {
             }
             .contentShape(RoundedRectangle(cornerRadius: SeleneTheme.cardRadius, style: .continuous))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(OortPressStyle())
         .seleneRowFocus(focusedRowTitle == Self.supportTitle, radius: SeleneTheme.cardRadius)
         .id("selene-row-\(Self.supportTitle)")
     }
@@ -255,7 +255,7 @@ struct SettingsAboutSection: View {
                 Spacer(minLength: 0)
                 ForEach(updateActions, id: \.title) { action in
                     Button(action.title, action: action.perform)
-                        .buttonStyle(.plain)
+                        .buttonStyle(OortPressStyle())
                         .seleneFont(.text, .semibold)
                         .foregroundColor(action.enabled ? SeleneTheme.glyph : SeleneTheme.ink60)
                         .disabled(!action.enabled)

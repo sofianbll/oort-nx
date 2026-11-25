@@ -75,7 +75,7 @@ struct ControlsView: View {
                             about: controller.isGamepadConnected ? controller.activeControllerName : L10n.text("Not connected"),
                             focused: focus == 0) {
                             Button(L10n.text("Detect")) { controller.refreshControllers() }
-                                .buttonStyle(.plain)
+                                .buttonStyle(OortPressStyle())
                                 .seleneFont(.text, .semibold)
                                 .foregroundColor(SeleneTheme.glyph)
                         }
