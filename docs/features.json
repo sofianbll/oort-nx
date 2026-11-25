@@ -1,0 +1,648 @@
+{
+ "checked": "2026-11-25",
+ "states": {
+  "yes": {"fr": "oui", "en": "yes"},
+  "partly": {"fr": "en partie", "en": "partly"},
+  "not-yet": {"fr": "pas encore", "en": "not yet"},
+  "na": {"fr": "sans objet", "en": "not applicable"}
+ },
+ "tried": {
+  "played": {"fr": "fait par une personne", "en": "done by a person"},
+  "checked": {"fr": "vérifié avec des jeux inventés", "en": "checked with invented games"},
+  "code": {"fr": "lu dans le code, pas essayé", "en": "read in the code, not tried"},
+  "elsewhere": {"fr": "documentation d’un autre projet, pas essayé", "en": "another project’s documentation, not tried"}
+ },
+ "systems": {
+  "mac": {
+   "name": {"fr": "Mac", "en": "Mac"},
+   "version": "0.5.0-beta.3",
+   "commit": "bf0c3410",
+   "needs": {"fr": "macOS 26, puce Apple", "en": "macOS 26, Apple silicon"},
+   "release": "https://github.com/sofianbll/oort-nx/releases/tag/v0.5.0-beta.3"
+  },
+  "windows": {
+   "name": {"fr": "Windows", "en": "Windows"},
+   "version": "0.1.0-alpha.1",
+   "commit": "cc9db84a",
+   "needs": {"fr": "Windows 10 ou 11, 64 bits", "en": "Windows 10 or 11, 64-bit"},
+   "release": "https://github.com/sofianbll/oort-nx/releases/tag/windows-v0.1.0-alpha.1"
+  },
+  "linux": {
+   "name": {"fr": "Linux", "en": "Linux"},
+   "version": "0.1.0-alpha.1",
+   "commit": "cc9db84a",
+   "needs": {"fr": "Ubuntu 24.04 ; autres non essayés", "en": "Ubuntu 24.04; others not tried"},
+   "release": "https://github.com/sofianbll/oort-nx/releases/tag/windows-v0.1.0-alpha.1"
+  },
+  "android": {
+   "name": {"fr": "Android", "en": "Android"},
+   "version": "0.1.0-alpha.1",
+   "commit": "1aaff5c0",
+   "needs": {"fr": "Android 10 ou plus", "en": "Android 10 or later"},
+   "release": "https://github.com/sofianbll/oort-nx/releases/tag/android-v0.1.0-alpha.1"
+  },
+  "ios": {
+   "name": {"fr": "iPhone et iPad", "en": "iPhone and iPad"},
+   "version": "0.1.0-alpha.1",
+   "commit": "e3cd6df1",
+   "needs": {"fr": "iOS ou iPadOS 26 ou plus", "en": "iOS or iPadOS 26 or later"},
+   "release": "https://github.com/sofianbll/oort-nx/releases/tag/ios-v0.1.0-alpha.1"
+  }
+ },
+ "groups": {
+  "library": {"fr": "La bibliothèque", "en": "The library"},
+  "add": {"fr": "Ajouter des jeux", "en": "Adding games"},
+  "play": {"fr": "Jouer", "en": "Playing"},
+  "controls": {"fr": "Manette, clavier, toucher", "en": "Controller, keyboard, touch"},
+  "look": {"fr": "Apparence et sons", "en": "Look and sound"},
+  "saves": {"fr": "Sauvegardes et cloud", "en": "Saves and cloud"},
+  "system": {"fr": "L’app elle-même", "en": "The app itself"}
+ },
+ "features": [
+  {
+   "id": "library",
+   "group": "library",
+   "name": {"fr": "Une seule bibliothèque", "en": "One library"},
+   "text": {"fr": "Tes jeux réunis, quel que soit leur type.", "en": "Your games together, whatever their kind."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "checked", "proof": [ "bf0c3410:Tests/CatalogAppChecks/run_profiles.py" ] },
+    "windows": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "played", "proof": [ "cc9db84a:desktop/ui/app.js", "cc9db84a:desktop/tests/windows/prove.ps1" ] },
+    "linux": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/tests/linux/prove.sh" ] },
+    "android": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "1aaff5c0:android/tools/emulator_check.py" ] },
+    "ios": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "e3cd6df1:mobile/UITests/OortUITests.swift" ] }
+   }
+  },
+  {
+   "id": "search",
+   "group": "library",
+   "name": {"fr": "Recherche", "en": "Search"},
+   "text": {"fr": "Retrouver un jeu par son nom.", "en": "Find a game by its name."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "checked", "proof": [ "bf0c3410:Tests/CatalogAppChecks/run_profiles.py" ] },
+    "windows": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/tests/walk.js" ] },
+    "linux": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/tests/walk.js" ] },
+    "android": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "1aaff5c0:android/README.md", "https://github.com/sofianbll/oort-nx/releases/tag/android-v0.1.0-alpha.1" ] },
+    "ios": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "e3cd6df1:mobile/UITests/OortUITests.swift" ] }
+   }
+  },
+  {
+   "id": "sort",
+   "group": "library",
+   "name": {"fr": "Tri", "en": "Sort"},
+   "text": {"fr": "Ranger par dernière partie ou par nom.", "en": "Order by last played or by name."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "checked", "proof": [ "bf0c3410:Tests/CatalogAppChecks/run_profiles.py" ] },
+    "windows": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/tests/walk.js" ] },
+    "linux": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/tests/walk.js" ] },
+    "android": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "1aaff5c0:android/tools/emulator_check.py" ] },
+    "ios": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "e3cd6df1:mobile/UITests/OortUITests.swift" ] }
+   }
+  },
+  {
+   "id": "favorites",
+   "group": "library",
+   "name": {"fr": "Favoris", "en": "Favourites"},
+   "text": {"fr": "Marquer les jeux que tu préfères.", "en": "Mark the games you like best."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "checked", "proof": [ "bf0c3410:Tests/CatalogAppChecks/run_profiles.py" ] },
+    "windows": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/ui/app.js", "cc9db84a:Sources/OortCompanion/Companion.swift" ] },
+    "linux": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/ui/app.js", "cc9db84a:Sources/OortCompanion/Companion.swift" ] },
+    "android": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "1aaff5c0:android/README.md" ] },
+    "ios": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "e3cd6df1:mobile/Sources/OortMobile/GameScreens.swift" ] }
+   }
+  },
+  {
+   "id": "play-time",
+   "group": "library",
+   "name": {"fr": "Temps de jeu", "en": "Play time"},
+   "text": {"fr": "Compté sur l’appareil, jamais envoyé.", "en": "Counted on the device, never sent."},
+   "systems": {
+    "mac": { "state": "partly", "version": "0.5.0-beta.3", "tried": "checked", "note": {"fr": "Pas pour les raccourcis d’apps Mac", "en": "Not for Mac app shortcuts"}, "proof": [ "bf0c3410:Tests/CatalogAppChecks/run_steam_scoped_playtime.py", "bf0c3410:PLAYER-GUIDE.md" ] },
+    "windows": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/tests/windows/prove.ps1", "cc9db84a:desktop/tests/play.js" ] },
+    "linux": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/tests/linux/prove.sh" ] },
+    "android": { "state": "partly", "version": "0.1.0-alpha.1", "tried": "checked", "note": {"fr": "Le jour du lancement seulement", "en": "Only the day it was started"}, "proof": [ "1aaff5c0:android/app/src/main/kotlin/io/github/sofianbll/oortnx/core/LastStart.kt" ] },
+    "ios": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "e3cd6df1:mobile/UITests/OortUITests.swift", "e3cd6df1:mobile/Sources/ShellHost/PlayHistoryStore.swift" ] }
+   }
+  },
+  {
+   "id": "profiles",
+   "group": "library",
+   "name": {"fr": "Profils", "en": "Profiles"},
+   "text": {"fr": "Un profil par personne, sur l’appareil.", "en": "One profile per person, on the device."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "checked", "proof": [ "bf0c3410:Tests/CatalogAppChecks/run_profiles.py" ] },
+    "windows": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:Sources/OortCompanion/Companion.swift", "cc9db84a:desktop/tests/walk.js" ] },
+    "linux": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:Sources/OortCompanion/Companion.swift", "cc9db84a:desktop/tests/walk.js" ] },
+    "android": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "1aaff5c0:android/README.md" ] },
+    "ios": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "e3cd6df1:mobile/Sources/OortMobile/SettingsScreens.swift" ] }
+   }
+  },
+  {
+   "id": "online-info",
+   "group": "library",
+   "name": {"fr": "Images et informations en ligne", "en": "Pictures and information online"},
+   "text": {"fr": "Jaquettes, descriptions, notes.", "en": "Covers, descriptions, scores."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "code", "proof": [ "bf0c3410:PLAYER-GUIDE.md", "bf0c3410:docs/how-it-works/architecture.md" ] },
+    "windows": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/README.md" ] },
+    "linux": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/README.md" ] },
+    "android": { "state": "not-yet", "version": "0.1.0-alpha.1", "note": {"fr": "L’icône du jeu sert de jaquette", "en": "The game’s icon is its cover"}, "proof": [ "1aaff5c0:android/README.md" ] },
+    "ios": { "state": "not-yet", "version": "0.1.0-alpha.1", "note": {"fr": "L’image vient du jeu", "en": "The picture comes from the game"}, "proof": [ "e3cd6df1:mobile/PROVENANCE.md" ] }
+   }
+  },
+  {
+   "id": "own-cover",
+   "group": "library",
+   "name": {"fr": "Ta propre image", "en": "Your own picture"},
+   "text": {"fr": "Choisir l’image d’un jeu.", "en": "Choose a game’s picture."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "checked", "proof": [ "bf0c3410:Tests/CatalogAppChecks/run_artwork_return.py" ] },
+    "windows": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/ui/app.js" ] },
+    "linux": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/ui/app.js" ] },
+    "android": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "1aaff5c0:android/README.md" ] },
+    "ios": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "code", "proof": [ "e3cd6df1:mobile/Sources/OortMobile/GameScreens.swift" ] }
+   }
+  },
+  {
+   "id": "switch-build",
+   "group": "add",
+   "name": {"fr": "Compiler un jeu Switch", "en": "Build a Switch game"},
+   "text": {"fr": "Fabriquer une app à partir de tes propres fichiers.", "en": "Make an app from your own files."},
+   "systems": {
+    "mac": { "state": "partly", "version": "0.5.0-beta.3", "tried": "code", "note": {"fr": "Demande Xcode ; aucun vrai jeu compilé avec cette version", "en": "Needs Xcode; no real game built with this version"}, "proof": [ "bf0c3410:Sources/NXLibrary/Views/AddGame/AddGameView.swift", "bf0c3410:Tests/CatalogAppChecks/run_build_gates.py" ] },
+    "windows": { "state": "na", "version": "0.1.0-alpha.1" },
+    "linux": { "state": "na", "version": "0.1.0-alpha.1" },
+    "android": { "state": "na", "version": "0.1.0-alpha.1" },
+    "ios": { "state": "not-yet", "version": "0.1.0-alpha.1", "note": {"fr": "Oort sur Mac n’en fabrique pas pour iPhone", "en": "Oort for Mac makes none for iPhone"}, "proof": [ "e3cd6df1:mobile/Sources/OortMobile/Resources/Localizable.xcstrings" ] }
+   }
+  },
+  {
+   "id": "ported-app",
+   "group": "add",
+   "name": {"fr": "Jeu déjà compilé (.app)", "en": "Game already built (.app)"},
+   "text": {"fr": "Le retrouver et le lancer sans le recompiler.", "en": "Find it and start it without building again."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "checked", "proof": [ "bf0c3410:Tests/CatalogAppChecks/run_cloud_screens.py", "bf0c3410:PLAYER-GUIDE.md" ] },
+    "windows": { "state": "na", "version": "0.1.0-alpha.1" },
+    "linux": { "state": "na", "version": "0.1.0-alpha.1" },
+    "android": { "state": "na", "version": "0.1.0-alpha.1" },
+    "ios": { "state": "na", "version": "0.1.0-alpha.1" }
+   }
+  },
+  {
+   "id": "steam",
+   "group": "add",
+   "name": {"fr": "Jeux Steam", "en": "Steam games"},
+   "text": {"fr": "Ceux qui sont installés, lancés par Steam.", "en": "The installed ones, started by Steam."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "checked", "note": {"fr": "Vérifié avec un faux Steam", "en": "Checked with a fake Steam"}, "proof": [ "bf0c3410:Tests/CatalogAppChecks/run_profiles.py", "bf0c3410:docs/how-it-works/steam.md" ] },
+    "windows": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/README.md" ] },
+    "linux": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/README.md" ] },
+    "android": { "state": "na", "version": "0.1.0-alpha.1" },
+    "ios": { "state": "na", "version": "0.1.0-alpha.1" }
+   }
+  },
+  {
+   "id": "mac-app",
+   "group": "add",
+   "name": {"fr": "App Mac", "en": "Mac app"},
+   "text": {"fr": "N’importe quelle app, en raccourci.", "en": "Any app, as a shortcut."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "checked", "proof": [ "bf0c3410:Tests/CatalogAppChecks/MacShortcutProbe.swift" ] },
+    "windows": { "state": "na", "version": "0.1.0-alpha.1" },
+    "linux": { "state": "na", "version": "0.1.0-alpha.1" },
+    "android": { "state": "na", "version": "0.1.0-alpha.1" },
+    "ios": { "state": "na", "version": "0.1.0-alpha.1" }
+   }
+  },
+  {
+   "id": "program",
+   "group": "add",
+   "name": {"fr": "Programme ou émulateur", "en": "Program or emulator"},
+   "text": {"fr": "Avec ses arguments et le jeu à ouvrir.", "en": "With its arguments and the game to open."},
+   "systems": {
+    "mac": { "state": "not-yet", "version": "0.5.0-beta.3", "note": {"fr": "Une app Mac s’ajoute en raccourci, sans argument", "en": "A Mac app is added as a shortcut, without arguments"}, "proof": [ "bf0c3410:PLAYER-GUIDE.md" ] },
+    "windows": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "code", "proof": [ "cc9db84a:desktop/ui/app.js", "cc9db84a:Sources/OortCompanion/Launch.swift" ] },
+    "linux": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "code", "proof": [ "cc9db84a:desktop/ui/app.js", "cc9db84a:Sources/OortCompanion/Launch.swift" ] },
+    "android": { "state": "na", "version": "0.1.0-alpha.1" },
+    "ios": { "state": "na", "version": "0.1.0-alpha.1" }
+   }
+  },
+  {
+   "id": "recompilation",
+   "group": "add",
+   "name": {"fr": "Recompilation", "en": "Recompilation"},
+   "text": {"fr": "Un jeu livré avec un recomplauncher.json.", "en": "A game that comes with a recomplauncher.json."},
+   "systems": {
+    "mac": { "state": "not-yet", "version": "0.5.0-beta.3", "proof": [ "bf0c3410:PLAYER-GUIDE.md" ] },
+    "windows": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "note": {"fr": "Copier ou extraire ses fichiers reste à faire dans le projet", "en": "Copying or unpacking its files is done in the project"}, "proof": [ "cc9db84a:desktop/tests/play.js", "cc9db84a:Sources/OortCompanion/Manifest.swift" ] },
+    "linux": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "note": {"fr": "Copier ou extraire ses fichiers reste à faire dans le projet", "en": "Copying or unpacking its files is done in the project"}, "proof": [ "cc9db84a:desktop/tests/linux/prove.sh", "cc9db84a:Sources/OortCompanion/Manifest.swift" ] },
+    "android": { "state": "na", "version": "0.1.0-alpha.1" },
+    "ios": { "state": "na", "version": "0.1.0-alpha.1" }
+   }
+  },
+  {
+   "id": "nx2android",
+   "group": "add",
+   "name": {"fr": "Jeu nx2android", "en": "nx2android game"},
+   "text": {"fr": "Trouver les jeux déjà installés.", "en": "Find the games already installed."},
+   "systems": {
+    "mac": { "state": "na", "version": "0.5.0-beta.3" },
+    "windows": { "state": "na", "version": "0.1.0-alpha.1" },
+    "linux": { "state": "na", "version": "0.1.0-alpha.1" },
+    "android": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "note": {"fr": "Jeux inventés seulement", "en": "Invented games only"}, "proof": [ "1aaff5c0:android/tools/emulator_check.py", "1aaff5c0:android/app/src/main/kotlin/io/github/sofianbll/oortnx/core/GameScanner.kt" ] },
+    "ios": { "state": "na", "version": "0.1.0-alpha.1" }
+   }
+  },
+  {
+   "id": "ios-framework",
+   "group": "add",
+   "name": {"fr": "Jeu iPhone (.framework)", "en": "iPhone game (.framework)"},
+   "text": {"fr": "Ajouter un jeu depuis Fichiers.", "en": "Add a game from Files."},
+   "systems": {
+    "mac": { "state": "na", "version": "0.5.0-beta.3" },
+    "windows": { "state": "na", "version": "0.1.0-alpha.1" },
+    "linux": { "state": "na", "version": "0.1.0-alpha.1" },
+    "android": { "state": "na", "version": "0.1.0-alpha.1" },
+    "ios": { "state": "partly", "version": "0.1.0-alpha.1", "tried": "checked", "note": {"fr": "Aucun outil d’Oort n’en fabrique ; jeux inventés seulement", "en": "No Oort tool makes one; invented games only"}, "proof": [ "e3cd6df1:mobile/UITests/OortUITests.swift", "e3cd6df1:mobile/Sources/OortMobile/FrameworkImport.swift" ] }
+   }
+  },
+  {
+   "id": "browser",
+   "group": "add",
+   "name": {"fr": "Choisir un fichier à la manette", "en": "Choose a file with a controller"},
+   "text": {"fr": "Sans quitter Oort.", "en": "Without leaving Oort."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "checked", "proof": [ "bf0c3410:Sources/NXLibrary/Views/OortUI/OortFilePickerProbe.swift" ] },
+    "windows": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/tests/walk.js", "cc9db84a:desktop/ui/app.js" ] },
+    "linux": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/tests/walk.js", "cc9db84a:desktop/ui/app.js" ] },
+    "android": { "state": "na", "version": "0.1.0-alpha.1" },
+    "ios": { "state": "not-yet", "version": "0.1.0-alpha.1", "note": {"fr": "Fichiers, d’Apple, s’ouvre", "en": "Apple’s Files opens"}, "proof": [ "e3cd6df1:mobile/Sources/OortMobile/OortRootView.swift" ] }
+   }
+  },
+  {
+   "id": "start-back",
+   "group": "play",
+   "name": {"fr": "Lancer et revenir", "en": "Start and come back"},
+   "text": {"fr": "Oort revient devant à la fin du jeu.", "en": "Oort comes back in front when the game ends."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "code", "proof": [ "bf0c3410:docs/how-it-works/flows.md", "bf0c3410:PLAYER-GUIDE.md" ] },
+    "windows": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/tests/windows/prove.ps1", "cc9db84a:desktop/src-tauri/src/lib.rs" ] },
+    "linux": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/tests/linux/prove.sh" ] },
+    "android": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "1aaff5c0:android/tools/emulator_check.py" ] },
+    "ios": { "state": "partly", "version": "0.1.0-alpha.1", "tried": "checked", "note": {"fr": "Jeu inventé seulement", "en": "Invented game only"}, "proof": [ "e3cd6df1:mobile/UITests/OortUITests.swift" ] }
+   }
+  },
+  {
+   "id": "session-card",
+   "group": "play",
+   "name": {"fr": "Fiche de session", "en": "Session card"},
+   "text": {"fr": "Le temps de la partie, à la sortie.", "en": "How long you played, on the way out."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "checked", "proof": [ "bf0c3410:Tests/CatalogAppChecks/run_profiles.py" ] },
+    "windows": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/tests/play.js" ] },
+    "linux": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/tests/linux/prove.sh" ] },
+    "android": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "1aaff5c0:android/README.md" ] },
+    "ios": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "e3cd6df1:mobile/Sources/OortMobile/SettingsScreens.swift" ] }
+   }
+  },
+  {
+   "id": "crash",
+   "group": "play",
+   "name": {"fr": "Plantage expliqué", "en": "Crash explained"},
+   "text": {"fr": "Le dernier message du jeu, quand il s’arrête.", "en": "The game’s last message, when it stops."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "code", "proof": [ "bf0c3410:docs/how-it-works/flows.md" ] },
+    "windows": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/tests/play.js", "cc9db84a:desktop/src-tauri/src/lib.rs" ] },
+    "linux": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/tests/play.js", "cc9db84a:desktop/src-tauri/src/lib.rs" ] },
+    "android": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "1aaff5c0:android/README.md" ] },
+    "ios": { "state": "partly", "version": "0.1.0-alpha.1", "tried": "code", "note": {"fr": "Le journal du jeu se lit sur sa fiche", "en": "The game’s log is on its page"}, "proof": [ "e3cd6df1:mobile/Sources/OortMobile/GameScreens.swift" ] }
+   }
+  },
+  {
+   "id": "players",
+   "group": "play",
+   "name": {"fr": "Joueurs", "en": "Players"},
+   "text": {"fr": "Dire qui tient quelle manette.", "en": "Say who holds which controller."},
+   "systems": {
+    "mac": { "state": "partly", "version": "0.5.0-beta.3", "tried": "checked", "note": {"fr": "Selon la version compilée du jeu", "en": "Depends on the game’s build"}, "proof": [ "bf0c3410:Tests/CatalogAppChecks/run_players_screen.py" ] },
+    "windows": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/ui/app.js" ] },
+    "linux": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/ui/app.js" ] },
+    "android": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "1aaff5c0:android/README.md" ] },
+    "ios": { "state": "partly", "version": "0.1.0-alpha.1", "tried": "code", "note": {"fr": "Toutes les manettes en joueur 1", "en": "All controllers as player 1"}, "proof": [ "e3cd6df1:mobile/Sources/OortMobile/ControllersScreen.swift" ] }
+   }
+  },
+  {
+   "id": "online-play",
+   "group": "play",
+   "name": {"fr": "Jouer en ligne ou en local", "en": "Play online or locally"},
+   "text": {"fr": "Nextendo, réseau local ou VPN.", "en": "Nextendo, local network or VPN."},
+   "systems": {
+    "mac": { "state": "partly", "version": "0.5.0-beta.3", "tried": "code", "note": {"fr": "Selon la version compilée ; pas essayé avec cette version", "en": "Depends on the build; not tried with this version"}, "proof": [ "bf0c3410:PLAYER-GUIDE.md", "bf0c3410:docs/how-it-works/architecture.md" ] },
+    "windows": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/README.md" ] },
+    "linux": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/README.md" ] },
+    "android": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "1aaff5c0:android/README.md" ] },
+    "ios": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "e3cd6df1:mobile/Sources/OortMobile/SettingsScreens.swift" ] }
+   }
+  },
+  {
+   "id": "mods",
+   "group": "play",
+   "name": {"fr": "Mods", "en": "Mods"},
+   "text": {"fr": "Chercher, installer, retirer.", "en": "Search, install, remove."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "code", "proof": [ "bf0c3410:Tests/CatalogAppChecks/run_mods_band_scroll.py", "bf0c3410:PLAYER-GUIDE.md" ] },
+    "windows": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/README.md", "https://github.com/sofianbll/oort-nx/releases/tag/windows-v0.1.0-alpha.1" ] },
+    "linux": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/README.md", "https://github.com/sofianbll/oort-nx/releases/tag/windows-v0.1.0-alpha.1" ] },
+    "android": { "state": "na", "version": "0.1.0-alpha.1" },
+    "ios": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "e3cd6df1:mobile/Sources/OortMobile/GameScreens.swift" ] }
+   }
+  },
+  {
+   "id": "cheats",
+   "group": "play",
+   "name": {"fr": "Triches", "en": "Cheats"},
+   "text": {"fr": "Un fichier à toi, pour la bonne version du jeu.", "en": "A file of yours, for the right game version."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "code", "proof": [ "bf0c3410:Sources/NXLibrary/Views/GameOptions/CheatsPanel.swift" ] },
+    "windows": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/ui/app.js" ] },
+    "linux": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/ui/app.js" ] },
+    "android": { "state": "na", "version": "0.1.0-alpha.1" },
+    "ios": { "state": "partly", "version": "0.1.0-alpha.1", "tried": "code", "note": {"fr": "Pas essayé dans un vrai jeu", "en": "Not tried in a real game"}, "proof": [ "e3cd6df1:mobile/Sources/OortMobile/GameScreens.swift" ] }
+   }
+  },
+  {
+   "id": "achievements",
+   "group": "play",
+   "name": {"fr": "Succès", "en": "Achievements"},
+   "text": {"fr": "Voir ce que tu as débloqué.", "en": "See what you unlocked."},
+   "systems": {
+    "mac": { "state": "partly", "version": "0.5.0-beta.3", "tried": "checked", "note": {"fr": "Steam, et quelques jeux Switch", "en": "Steam, and a few Switch games"}, "proof": [ "bf0c3410:Tests/CatalogAppChecks/run_profiles.py", "bf0c3410:docs/how-it-works/achievements.md" ] },
+    "windows": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/ui/app.js" ] },
+    "linux": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/ui/app.js" ] },
+    "android": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "1aaff5c0:android/README.md" ] },
+    "ios": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "e3cd6df1:mobile/Sources/OortMobile/GameScreens.swift" ] }
+   }
+  },
+  {
+   "id": "controller",
+   "group": "controls",
+   "name": {"fr": "Tout à la manette", "en": "Everything with a controller"},
+   "text": {"fr": "Xbox, PlayStation, Switch.", "en": "Xbox, PlayStation, Switch."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "checked", "note": {"fr": "Pas essayé avec une vraie manette", "en": "Not tried with a real controller"}, "proof": [ "bf0c3410:Tests/CatalogAppChecks/run_keymap_screens.py" ] },
+    "windows": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "note": {"fr": "Pas essayé avec une vraie manette", "en": "Not tried with a real controller"}, "proof": [ "cc9db84a:desktop/tests/pad.js" ] },
+    "linux": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "note": {"fr": "Pas essayé avec une vraie manette", "en": "Not tried with a real controller"}, "proof": [ "cc9db84a:desktop/tests/pad.js" ] },
+    "android": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "note": {"fr": "Pas essayé avec une vraie manette", "en": "Not tried with a real controller"}, "proof": [ "1aaff5c0:android/tools/emulator_check.py" ] },
+    "ios": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "note": {"fr": "Pas essayé avec une vraie manette", "en": "Not tried with a real controller"}, "proof": [ "e3cd6df1:mobile/UITests/OortUITests.swift" ] }
+   }
+  },
+  {
+   "id": "keyboard",
+   "group": "controls",
+   "name": {"fr": "Tout au clavier", "en": "Everything with a keyboard"},
+   "text": {"fr": "Sans souris ni manette.", "en": "Without mouse or controller."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "checked", "proof": [ "bf0c3410:docs/how-it-works/keymap.md", "bf0c3410:Tests/CatalogAppChecks/run_keymap_screens.py" ] },
+    "windows": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/tests/walk.js" ] },
+    "linux": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/tests/walk.js" ] },
+    "android": { "state": "partly", "version": "0.1.0-alpha.1", "tried": "code", "note": {"fr": "Flèches, Entrée, Échap", "en": "Arrows, Enter, Escape"}, "proof": [ "1aaff5c0:android/app/src/main/kotlin/io/github/sofianbll/oortnx/core/PadKeys.kt" ] },
+    "ios": { "state": "partly", "version": "0.1.0-alpha.1", "tried": "code", "note": {"fr": "Pas essayé en vrai", "en": "Not tried for real"}, "proof": [ "e3cd6df1:mobile/Sources/OortMobile/OortNav.swift" ] }
+   }
+  },
+  {
+   "id": "touch",
+   "group": "controls",
+   "name": {"fr": "Tout au doigt", "en": "Everything by touch"},
+   "text": {"fr": "Un écran tactile suffit.", "en": "A touch screen is enough."},
+   "systems": {
+    "mac": { "state": "na", "version": "0.5.0-beta.3" },
+    "windows": { "state": "na", "version": "0.1.0-alpha.1" },
+    "linux": { "state": "na", "version": "0.1.0-alpha.1" },
+    "android": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "1aaff5c0:android/tools/emulator_check.py" ] },
+    "ios": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "e3cd6df1:mobile/UITests/OortUITests.swift" ] }
+   }
+  },
+  {
+   "id": "dots",
+   "group": "controls",
+   "name": {"fr": "La manette en points", "en": "The controller in dots"},
+   "text": {"fr": "Elle allume ce que tu presses.", "en": "It lights what you press."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "checked", "proof": [ "bf0c3410:Tests/CatalogAppChecks/run_controller_identity.py" ] },
+    "windows": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/ui/app.js" ] },
+    "linux": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/ui/app.js" ] },
+    "android": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "1aaff5c0:android/tools/emulator_check.py" ] },
+    "ios": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "e3cd6df1:mobile/UITests/OortUITests.swift" ] }
+   }
+  },
+  {
+   "id": "remap",
+   "group": "controls",
+   "name": {"fr": "Changer les boutons", "en": "Change the buttons"},
+   "text": {"fr": "Dans le lanceur ou dans le jeu.", "en": "In the launcher or in the game."},
+   "systems": {
+    "mac": { "state": "partly", "version": "0.5.0-beta.3", "tried": "code", "note": {"fr": "Deux dispositions du lanceur ; touches en jeu selon la version compilée", "en": "Two launcher layouts; game keys depend on the build"}, "proof": [ "bf0c3410:docs/how-it-works/keymap.md", "bf0c3410:PLAYER-GUIDE.md" ] },
+    "windows": { "state": "not-yet", "version": "0.1.0-alpha.1", "note": {"fr": "Dans le jeu", "en": "In the game"}, "proof": [ "cc9db84a:desktop/README.md", "https://github.com/sofianbll/oort-nx/releases/tag/windows-v0.1.0-alpha.1" ] },
+    "linux": { "state": "not-yet", "version": "0.1.0-alpha.1", "note": {"fr": "Dans le jeu", "en": "In the game"}, "proof": [ "cc9db84a:desktop/README.md", "https://github.com/sofianbll/oort-nx/releases/tag/windows-v0.1.0-alpha.1" ] },
+    "android": { "state": "partly", "version": "0.1.0-alpha.1", "tried": "checked", "note": {"fr": "Inverser A et B", "en": "Swap A and B"}, "proof": [ "1aaff5c0:android/app/src/main/kotlin/io/github/sofianbll/oortnx/core/PadKeys.kt" ] },
+    "ios": { "state": "partly", "version": "0.1.0-alpha.1", "tried": "checked", "note": {"fr": "Pas essayé dans un vrai jeu", "en": "Not tried in a real game"}, "proof": [ "e3cd6df1:mobile/Sources/OortMobile/ControllersScreen.swift", "e3cd6df1:mobile/Tests/ShellControllersTests/PadMappingTests.swift" ] }
+   }
+  },
+  {
+   "id": "home-button",
+   "group": "controls",
+   "name": {"fr": "Bouton Home en jeu", "en": "Home button in a game"},
+   "text": {"fr": "Revenir à Oort sans quitter le jeu.", "en": "Back to Oort without quitting the game."},
+   "systems": {
+    "mac": { "state": "partly", "version": "0.5.0-beta.3", "tried": "code", "note": {"fr": "Jeux compilés récents ; macOS peut garder Home", "en": "Recently built games; macOS may keep Home"}, "proof": [ "bf0c3410:docs/how-it-works/flows.md", "bf0c3410:docs/how-it-works/keymap.md" ] },
+    "windows": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "https://github.com/sofianbll/oort-nx/releases/tag/windows-v0.1.0-alpha.1", "cc9db84a:desktop/README.md" ] },
+    "linux": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "https://github.com/sofianbll/oort-nx/releases/tag/windows-v0.1.0-alpha.1", "cc9db84a:desktop/README.md" ] },
+    "android": { "state": "na", "version": "0.1.0-alpha.1" },
+    "ios": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "e3cd6df1:mobile/Sources/OortMobile/Resources/Localizable.xcstrings", "https://github.com/sofianbll/oort-nx/releases/tag/ios-v0.1.0-alpha.1" ] }
+   }
+  },
+  {
+   "id": "themes",
+   "group": "look",
+   "name": {"fr": "Thèmes de couleurs", "en": "Colour themes"},
+   "text": {"fr": "Choisir les couleurs.", "en": "Choose the colours."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "checked", "proof": [ "bf0c3410:Tests/CatalogAppChecks/run_theme.py" ] },
+    "windows": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/tests/look.js" ] },
+    "linux": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/tests/look.js" ] },
+    "android": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "1aaff5c0:android/README.md" ] },
+    "ios": { "state": "not-yet", "version": "0.1.0-alpha.1", "note": {"fr": "Toujours sombre", "en": "Always dark"}, "proof": [ "https://github.com/sofianbll/oort-nx/releases/tag/ios-v0.1.0-alpha.1" ] }
+   }
+  },
+  {
+   "id": "size",
+   "group": "look",
+   "name": {"fr": "Taille de l’interface", "en": "Interface size"},
+   "text": {"fr": "Plus grand ou plus petit.", "en": "Larger or smaller."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "checked", "proof": [ "bf0c3410:Tests/CatalogAppChecks/run_settings_confirmations.py" ] },
+    "windows": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/tests/look.js" ] },
+    "linux": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/tests/look.js" ] },
+    "android": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "note": {"fr": "Suit la taille du texte d’Android", "en": "Follows Android’s text size"}, "proof": [ "1aaff5c0:android/tools/emulator_check.py" ] },
+    "ios": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "note": {"fr": "Suit la taille du texte d’iOS", "en": "Follows iOS’s text size"}, "proof": [ "e3cd6df1:mobile/UITests/OortUITests.swift" ] }
+   }
+  },
+  {
+   "id": "sounds",
+   "group": "look",
+   "name": {"fr": "Sons de l’interface", "en": "Interface sounds"},
+   "text": {"fr": "Fabriqués par l’app, à couper si tu veux.", "en": "Made by the app, off if you like."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "code", "proof": [ "bf0c3410:Sources/NXLibraryCore/Settings/SettingsCatalog.swift", "bf0c3410:docs/how-it-works/architecture.md" ] },
+    "windows": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "code", "note": {"fr": "Pas écoutés", "en": "Not listened to"}, "proof": [ "cc9db84a:Sources/OortCompanion/SettingRows.swift", "cc9db84a:desktop/ui/sound.js" ] },
+    "linux": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "code", "note": {"fr": "Pas écoutés", "en": "Not listened to"}, "proof": [ "cc9db84a:Sources/OortCompanion/SettingRows.swift", "cc9db84a:desktop/ui/sound.js" ] },
+    "android": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "note": {"fr": "Pas écoutés", "en": "Not listened to"}, "proof": [ "1aaff5c0:android/app/src/main/kotlin/io/github/sofianbll/oortnx/core/OortSynth.kt", "1aaff5c0:android/app/src/test/kotlin/io/github/sofianbll/oortnx/core/OortSynthTest.kt" ] },
+    "ios": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "code", "note": {"fr": "Pas écoutés", "en": "Not listened to"}, "proof": [ "e3cd6df1:mobile/Sources/OortMobile/OortSounds.swift" ] }
+   }
+  },
+  {
+   "id": "wallpapers",
+   "group": "look",
+   "name": {"fr": "Fonds d’écran", "en": "Wallpapers"},
+   "text": {"fr": "Tes images, derrière la bibliothèque.", "en": "Your pictures, behind the library."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "checked", "proof": [ "bf0c3410:Tests/CatalogAppChecks/run_settings_confirmations.py" ] },
+    "windows": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "https://github.com/sofianbll/oort-nx/releases/tag/windows-v0.1.0-alpha.1", "cc9db84a:desktop/ui/app.js" ] },
+    "linux": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "https://github.com/sofianbll/oort-nx/releases/tag/windows-v0.1.0-alpha.1", "cc9db84a:desktop/ui/app.js" ] },
+    "android": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "1aaff5c0:android/README.md" ] },
+    "ios": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "e3cd6df1:mobile/Sources/OortMobile/SettingsScreens.swift" ] }
+   }
+  },
+  {
+   "id": "calm",
+   "group": "look",
+   "name": {"fr": "Moins de mouvement", "en": "Less movement"},
+   "text": {"fr": "Tout peut rester immobile.", "en": "Everything can stay still."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "checked", "proof": [ "bf0c3410:Tests/CatalogAppChecks/run_settings_confirmations.py" ] },
+    "windows": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/tests/look.js" ] },
+    "linux": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "cc9db84a:desktop/tests/look.js" ] },
+    "android": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "1aaff5c0:android/tools/emulator_check.py" ] },
+    "ios": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "e3cd6df1:mobile/UITests/OortUITests.swift" ] }
+   }
+  },
+  {
+   "id": "languages",
+   "group": "look",
+   "name": {"fr": "Langues", "en": "Languages"},
+   "text": {"fr": "L’app dans ta langue.", "en": "The app in your language."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "checked", "note": {"fr": "Sept langues", "en": "Seven languages"}, "proof": [ "bf0c3410:Sources/NXLibraryCore/Resources/Localizable.xcstrings", "bf0c3410:scripts/check_localizations.py" ] },
+    "windows": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "note": {"fr": "Français et anglais", "en": "French and English"}, "proof": [ "cc9db84a:Sources/OortCompanion/SettingRows.swift" ] },
+    "linux": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "note": {"fr": "Français et anglais", "en": "French and English"}, "proof": [ "cc9db84a:Sources/OortCompanion/SettingRows.swift" ] },
+    "android": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "note": {"fr": "Français et anglais", "en": "French and English"}, "proof": [ "1aaff5c0:android/tools/emulator_check.py" ] },
+    "ios": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "note": {"fr": "Français et anglais", "en": "French and English"}, "proof": [ "e3cd6df1:mobile/UITests/OortUITests.swift" ] }
+   }
+  },
+  {
+   "id": "backup",
+   "group": "saves",
+   "name": {"fr": "Copier ses sauvegardes", "en": "Back up saves"},
+   "text": {"fr": "Une copie datée, que tu peux restaurer.", "en": "A dated copy you can restore."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "checked", "note": {"fr": "Jeux Switch compilés", "en": "Built Switch games"}, "proof": [ "bf0c3410:Tests/CatalogAppChecks/run_save_restart.py", "bf0c3410:Sources/NXLibrary/Views/GameOptions/SavesPanel.swift" ] },
+    "windows": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/README.md" ] },
+    "linux": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/README.md" ] },
+    "android": { "state": "na", "version": "0.1.0-alpha.1" },
+    "ios": { "state": "partly", "version": "0.1.0-alpha.1", "tried": "code", "note": {"fr": "Copie par Fichiers ; pas essayé en vrai", "en": "Copy through Files; not tried for real"}, "proof": [ "e3cd6df1:mobile/Sources/OortMobile/GameScreens.swift" ] }
+   }
+  },
+  {
+   "id": "sync",
+   "group": "saves",
+   "name": {"fr": "Synchroniser ses sauvegardes", "en": "Sync saves"},
+   "text": {"fr": "Par iCloud Drive ou un dossier choisi.", "en": "Through iCloud Drive or a chosen folder."},
+   "systems": {
+    "mac": { "state": "partly", "version": "0.5.0-beta.3", "tried": "code", "note": {"fr": "Jeux Switch compilés ; pas essayé avec cette version", "en": "Built Switch games; not tried with this version"}, "proof": [ "bf0c3410:Sources/NXLibrary/Views/Settings/SettingsCloudSavesSection.swift", "bf0c3410:PLAYER-GUIDE.md" ] },
+    "windows": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/README.md" ] },
+    "linux": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/README.md" ] },
+    "android": { "state": "na", "version": "0.1.0-alpha.1" },
+    "ios": { "state": "partly", "version": "0.1.0-alpha.1", "tried": "code", "note": {"fr": "Pas essayé en vrai", "en": "Not tried for real"}, "proof": [ "e3cd6df1:mobile/Sources/ShellHost/CloudSaveSyncCheck.swift" ] }
+   }
+  },
+  {
+   "id": "cloud",
+   "group": "saves",
+   "name": {"fr": "Bibliothèque cloud", "en": "Cloud library"},
+   "text": {"fr": "Tes jeux compilés dans ton Google Drive.", "en": "Your built games in your Google Drive."},
+   "systems": {
+    "mac": { "state": "partly", "version": "0.5.0-beta.3", "tried": "checked", "note": {"fr": "Google Drive seulement ; jamais essayée avec un vrai Drive", "en": "Google Drive only; never tried with a real Drive"}, "proof": [ "bf0c3410:Tests/CatalogAppChecks/run_cloud_screens.py", "bf0c3410:Sources/NXLibraryCore/Library/RcloneConfiguration.swift" ] },
+    "windows": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/README.md" ] },
+    "linux": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/README.md" ] },
+    "android": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "1aaff5c0:android/README.md", "https://github.com/sofianbll/oort-nx/releases/tag/android-v0.1.0-alpha.1" ] },
+    "ios": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "e3cd6df1:mobile/Sources/OortMobile/SettingsScreens.swift" ] }
+   }
+  },
+  {
+   "id": "tour",
+   "group": "system",
+   "name": {"fr": "Accueil guidé", "en": "Guided start"},
+   "text": {"fr": "Quelques étapes, à passer si tu veux.", "en": "A few steps, to skip if you like."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "checked", "proof": [ "bf0c3410:Tests/CatalogAppChecks/run_onboarding.py" ] },
+    "windows": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/ui/app.js" ] },
+    "linux": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/ui/app.js" ] },
+    "android": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "1aaff5c0:android/README.md" ] },
+    "ios": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "e3cd6df1:mobile/Sources/OortMobile/OortRootView.swift" ] }
+   }
+  },
+  {
+   "id": "updates",
+   "group": "system",
+   "name": {"fr": "Mises à jour depuis l’app", "en": "Updates from the app"},
+   "text": {"fr": "Chercher et installer la suivante.", "en": "Find and install the next one."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "code", "proof": [ "bf0c3410:docs/how-it-works/flows.md", "bf0c3410:Tests/CatalogAppChecks/run_update_wait.py" ] },
+    "windows": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/README.md", "https://github.com/sofianbll/oort-nx/releases/tag/windows-v0.1.0-alpha.1" ] },
+    "linux": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "cc9db84a:desktop/README.md", "https://github.com/sofianbll/oort-nx/releases/tag/windows-v0.1.0-alpha.1" ] },
+    "android": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "1aaff5c0:android/app/src/main/AndroidManifest.xml" ] },
+    "ios": { "state": "not-yet", "version": "0.1.0-alpha.1", "proof": [ "e3cd6df1:mobile/PROVENANCE.md" ] }
+   }
+  },
+  {
+   "id": "signed",
+   "group": "system",
+   "name": {"fr": "Installation sans avertissement", "en": "Install without a warning"},
+   "text": {"fr": "Signée et reconnue par le système.", "en": "Signed and known to the system."},
+   "systems": {
+    "mac": { "state": "not-yet", "version": "0.5.0-beta.3", "note": {"fr": "Pas notariée par Apple", "en": "Not notarised by Apple"}, "proof": [ "bf0c3410:README.md" ] },
+    "windows": { "state": "not-yet", "version": "0.1.0-alpha.1", "note": {"fr": "SmartScreen prévient", "en": "SmartScreen warns"}, "proof": [ "https://github.com/sofianbll/oort-nx/releases/tag/windows-v0.1.0-alpha.1" ] },
+    "linux": { "state": "na", "version": "0.1.0-alpha.1" },
+    "android": { "state": "not-yet", "version": "0.1.0-alpha.1", "note": {"fr": "Clé provisoire, hors du Play Store", "en": "Provisional key, outside the Play Store"}, "proof": [ "1aaff5c0:android/README.md" ] },
+    "ios": { "state": "not-yet", "version": "0.1.0-alpha.1", "note": {"fr": "Tu la signes toi-même", "en": "You sign it yourself"}, "proof": [ "https://github.com/sofianbll/oort-nx/releases/tag/ios-v0.1.0-alpha.1" ] }
+   }
+  },
+  {
+   "id": "private",
+   "group": "system",
+   "name": {"fr": "Aucune donnée collectée", "en": "No data collected"},
+   "text": {"fr": "Ni compte obligatoire, ni mesure.", "en": "No required account, no measurement."},
+   "systems": {
+    "mac": { "state": "yes", "version": "0.5.0-beta.3", "tried": "code", "note": {"fr": "Cherche images et versions en ligne", "en": "Looks up pictures and versions online"}, "proof": [ "bf0c3410:PRODUCT.md", "bf0c3410:docs/how-it-works/architecture.md" ] },
+    "windows": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "code", "proof": [ "cc9db84a:desktop/README.md", "cc9db84a:desktop/src-tauri/tauri.conf.json" ] },
+    "linux": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "code", "proof": [ "cc9db84a:desktop/README.md", "cc9db84a:desktop/src-tauri/tauri.conf.json" ] },
+    "android": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "1aaff5c0:android/app/src/main/AndroidManifest.xml", "1aaff5c0:android/tools/emulator_check.py" ] },
+    "ios": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "code", "proof": [ "e3cd6df1:mobile/PROVENANCE.md" ] }
+   }
+  },
+  {
+   "id": "offline",
+   "group": "system",
+   "name": {"fr": "Aucune connexion", "en": "No connection at all"},
+   "text": {"fr": "L’app n’envoie rien sur le réseau.", "en": "The app sends nothing on the network."},
+   "systems": {
+    "mac": { "state": "not-yet", "version": "0.5.0-beta.3", "note": {"fr": "Images, informations et mises à jour passent par le réseau", "en": "Pictures, information and updates use the network"}, "proof": [ "bf0c3410:docs/how-it-works/architecture.md", "bf0c3410:PLAYER-GUIDE.md" ] },
+    "windows": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "code", "proof": [ "cc9db84a:desktop/README.md" ] },
+    "linux": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "code", "proof": [ "cc9db84a:desktop/README.md" ] },
+    "android": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "checked", "proof": [ "1aaff5c0:android/app/src/main/AndroidManifest.xml", "1aaff5c0:android/tools/emulator_check.py" ] },
+    "ios": { "state": "yes", "version": "0.1.0-alpha.1", "tried": "code", "proof": [ "e3cd6df1:mobile/PROVENANCE.md" ] }
+   }
+  }
+ ]
+}

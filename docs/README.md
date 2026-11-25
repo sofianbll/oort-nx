@@ -7,6 +7,7 @@ Each folder answers one question. Start from the [project README](../README.md) 
 | [how-it-works/](how-it-works/) | How does the app work today? | You want to understand an area before touching it. |
 | [working-on-it/](working-on-it/) | How do I build, change and check it? | You are about to write code, run checks or release. |
 | [history/](history/) | Why is it like this, and what was measured? | You need the evidence behind a past decision. Never needed to understand the present. |
+| [guides/](guides/README.md) | How does a player install and use it, on each system? | You change what a player sees, or release a version. |
 | [media/](media/) | How should screenshots be prepared? | You need to make a publishable illustration. |
 
 The guides in `how-it-works/` and `working-on-it/` are in Italian, except `development.md`.
