@@ -9,6 +9,10 @@ enum SeleneConfirmButton: Hashable {
     static let left = Self.cancel
     static let right = Self.confirm
     static let ordered = [left, right]
+
+    static func onSide(left: Bool, destructive: Bool) -> Self {
+        left == destructive ? .confirm : .cancel
+    }
 }
 
 /// Selene's confirmation card (its dialogs: a 640u card, centred title and text,
@@ -25,7 +29,7 @@ struct SeleneConfirmDialog<Detail: View>: View {
     var confirmEnabled = true
     var highlightsPills = true
     var warningIcon = false
-    /// The answer deletes, replaces or ends something: it takes the danger colour.
+    /// The answer deletes, replaces or ends something: it stands apart on the far left.
     var destructive = false
     @Binding var focus: SeleneConfirmButton
     let onCancel: () -> Void
@@ -68,7 +72,7 @@ struct SeleneConfirmDialog<Detail: View>: View {
         SeleneConfirmButton.ordered.compactMap { button in
             button == .cancel
                 ? cancelTitle.map { .init(id: button, title: $0, role: .back, perform: onCancel) }
-                : .init(id: button, title: confirmTitle, role: .primary, enabled: confirmEnabled, danger: destructive, perform: onConfirm)
+                : .init(id: button, title: confirmTitle, role: destructive ? .destructive : .primary, enabled: confirmEnabled, perform: onConfirm)
         }
     }
 }
@@ -286,8 +290,8 @@ struct SeleneChoiceDialog: View {
         choices.enumerated().map { index, choice in
             let last = index == choices.count - 1
             let role: ActionBarRole = choices.count == 1 ? .primary : index == cancelIndex ? .back
-                : list ? .secondary : last ? .primary : destructive.contains(index) ? .destructive : .secondary
-            return .init(id: index, title: choice, role: role, danger: destructive.contains(index), detail: details[choice]) { onChoose(index) }
+                : destructive.contains(index) ? .destructive : list ? .secondary : last ? .primary : .secondary
+            return .init(id: index, title: choice, role: role, detail: details[choice]) { onChoose(index) }
         }
     }
 }

@@ -133,7 +133,7 @@ struct SettingsView: View {
             } detail: {
                 content
             }
-            SeleneHintsBar(left: [HintItem(.b, L10n.text("Back")) { handleBack() }], right: commandHints)
+            SeleneHintsBar(left: [HintItem(.b, L10n.text("Back")) { handleBack() }] + helpHint, right: commandHints)
                 // Save remains visible even while previewing a change that hides the hints.
                 .environment(\.seleneShowButtonHints, hasPendingChanges || settings.presentation.showButtonHints)
                 .seleneOverlaidHints(showingControls || showingPlayers || localePicker != nil || showingCloudAssistant
@@ -623,11 +623,6 @@ struct SettingsView: View {
         if canResetSection {
             hints.append(HintItem(.x, L10n.text("Reset group")) { askToReset() })
         }
-        if focusedHelp != nil {
-            var help = HintItem(.navigate, openHelp == nil ? "Information" : "Close", keyboard: .text("I"), action: toggleHelp)
-            help.keyboardOnly = true
-            hints.append(help)
-        }
         if hasPendingChanges {
             hints.append(HintItem(.y, "Save", keyboard: .text("Y")) { router.requestSettingsSave() })
         }
@@ -639,6 +634,13 @@ struct SettingsView: View {
             hints.append(HintItem(.a, L10n.text("Select")))
         }
         return hints
+    }
+
+    private var helpHint: [HintItem] {
+        guard focusedHelp != nil else { return [] }
+        var help = HintItem(.navigate, openHelp == nil ? "Information" : "Close", keyboard: .text("I"), action: toggleHelp)
+        help.keyboardOnly = true
+        return [help]
     }
 
     private func toggleHelp() {
@@ -999,8 +1001,8 @@ struct SettingsView: View {
         if viewModel.isEditingSteamGridDBKey || igdb.isEditing || nextendo.isEditingClient || showingCloudAssistant { return }
         if nextendo.friendToRemove != nil {
             switch action {
-            case .navigateLeft: nextendoRemovalFocus = .left
-            case .navigateRight: nextendoRemovalFocus = .right
+            case .navigateLeft, .navigateRight:
+                nextendoRemovalFocus = .onSide(left: action == .navigateLeft, destructive: true)
             case .confirm where nextendoRemovalFocus == .confirm: confirmNextendoRemoval()
             case .confirm, .cancel: nextendo.friendToRemove = nil
             default: break

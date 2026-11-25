@@ -26,10 +26,11 @@ public enum ActionBarOrder {
     /// The roles of a question's keys from the answers in the order they are offered, the main one first.
     public static func question<Item>(main: Item?, others: [Item], back: Item, erases: (Item) -> Bool) -> [(item: Item, role: ActionBarRole)] {
         var keys = [(item: Item, role: ActionBarRole)]()
-        // Without a main answer, the first other one leads; alone, an answer that erases is still the question's own.
+        // The first answer that does not erase leads, even when the nominal main answer erases.
         let answers = (main.map { [$0] } ?? []) + others
+        let primary = answers.firstIndex { !erases($0) }
         for (index, answer) in answers.enumerated().reversed() {
-            keys.append((answer, index == 0 ? .primary : erases(answer) ? .destructive : .secondary))
+            keys.append((answer, erases(answer) ? .destructive : index == primary ? .primary : .secondary))
         }
         keys.append((back, answers.isEmpty ? .primary : .back))
         return sorted(keys) { $0.role }
@@ -38,7 +39,7 @@ public enum ActionBarOrder {
     /// What Return and A press when the player has not moved: the way forward, or the way back when going forward erases
     /// or moves things.
     public static func initial<Item>(_ items: [Item], safe: Bool = false, role: (Item) -> ActionBarRole) -> Item? {
-        let order: [ActionBarRole] = safe ? [.back, .secondary, .primary, .destructive] : [.primary, .secondary, .back, .destructive]
+        let order: [ActionBarRole] = safe ? [.back, .secondary, .primary] : [.primary, .secondary, .back]
         for wanted in order { if let item = items.first(where: { role($0) == wanted }) { return item } }
         return nil
     }

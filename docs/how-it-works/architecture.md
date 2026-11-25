@@ -239,8 +239,9 @@ La shell applica il blur associato allo stile e
 nasconde input del puntatore, VoiceOver e suggerimenti dei livelli coperti.
 Router e pannelli continuano a gestire gli stessi comandi e identità di focus;
 `ProfileLayers` decide quale strato dei profili resta attivo.
-`SeleneConfirmDialog` condivide l'ordine dei pulsanti con la navigazione:
-conferma a sinistra, annullamento a destra. Il chiamante conserva il focus
+`SeleneConfirmDialog` condivide l'ordine della `OortActionBar` con la navigazione:
+indietro prima, azione principale per ultima a destra, distruttivo separato
+all'estrema sinistra. Il chiamante conserva il focus
 iniziale sulla scelta sicura. `SeleneDialogCard` usa una superficie opaca sopra il velo e mostra i suggerimenti del
 dialogo attivo, anche per le scelte multiple e per l'assistente cloud. A indica
 la selezione del pulsante attivo, anche se è la scelta sicura. Nei dialoghi a

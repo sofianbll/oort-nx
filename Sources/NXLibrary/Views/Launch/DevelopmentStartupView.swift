@@ -246,7 +246,6 @@ struct LibraryUnavailableView: View {
     let startWithoutCopy: () -> Void
     let retry: () -> Void
     @Environment(\.seleneCanvas) private var canvas
-    @ObservedObject private var theme = ThemeStore.shared
     @StateObject private var controller = ControllerInput()
     @State private var focus = Key.retry
     @FocusState private var acceptsKeys: Bool
@@ -283,7 +282,8 @@ struct LibraryUnavailableView: View {
             SeleneHintsBar(left: [HintItem(.b, "Close") { perform(.close) }],
                            right: [HintItem(.a, "Select") { perform(focus) }])
         }
-        .background(SeleneTheme.baseGradient(for: theme.palette))
+        // Recovery keeps a fixed background even when the player's palette couldn't be read.
+        .background(SeleneTheme.baseGradient(for: .fallback))
         .environment(\.nxAppLocale, context)
         .focusable()
         .focused($acceptsKeys)

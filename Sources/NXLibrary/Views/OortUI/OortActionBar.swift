@@ -9,8 +9,6 @@ struct OortActionBar: View {
         var arguments: [String] = []
         let role: ActionBarRole
         var enabled = true
-        /// The way forward erases or replaces something: it keeps its place and takes the danger colour.
-        var danger = false
         /// One line under the key.
         var detail: String? = nil
         let perform: () -> Void
@@ -76,7 +74,7 @@ struct OortActionBar: View {
         VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
             OortButton(title: action.title, arguments: action.arguments, focused: focused == action.id,
                        state: action.enabled ? .ready : .blocked, preset: preset, fillsWidth: fills,
-                       tone: action.role == .destructive || action.danger ? .destructive : .normal,
+                       tone: action.role == .destructive ? .destructive : .normal,
                        action: action.perform)
                 .disabled(!action.enabled)
                 .accessibilityHint(action.detail ?? "")

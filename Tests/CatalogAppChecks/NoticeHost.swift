@@ -60,7 +60,7 @@ try require(selected == ["retry"], "The right choice should retry")
 selected.removeAll()
 let erase = SettingsNotice(title: "Delete?", message: "", retry: { selected.append("delete") }, actionTitle: "Delete", cancelTitle: "Cancel",
     alternatives: [("Archive", { selected.append("archive") })], primaryFirst: true, destructive: ["Delete"])
-try require(erase.choices == ["Cancel", "Archive", "Delete"] && erase.initialFocus == 0, "A question never opens on what deletes")
+try require(erase.choices == ["Delete", "Cancel", "Archive"] && erase.initialFocus == 1, "A question never opens on what deletes")
 let options = SettingsNotice(title: "Tile", message: "", retry: {}, actionTitle: "Choose", cancelTitle: "Back",
     alternatives: [("Remove", { selected.append("remove") })], primaryFirst: true, destructive: ["Remove"])
 try require(options.choices == ["Remove", "Back", "Choose"] && options.initialFocus == 2 && options.destructiveIndexes == [0],

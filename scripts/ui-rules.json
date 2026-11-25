@@ -1010,10 +1010,10 @@
    "file": "Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift",
    "scope": "func handleFree",
    "order": [
-    "\\[\\.cancel\\]",
-    "\\[\\.confirm\\]"
+    "\\[\\.confirm\\]",
+    "\\[\\.cancel\\]"
    ],
-   "why": "the arrows walk Cancel then the main answer, as drawn"
+   "why": "the arrows walk Free up space then Cancel, as drawn"
   },
   {
    "id": "guided-setup-walk",

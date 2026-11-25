@@ -53,6 +53,7 @@ struct SteamGridDBKeyDialog: View {
                 .onAppear { fieldFocused = true }
             }
         }
+        .onExitCommand { close(saved: false) }
         .onReceive(NotificationCenter.default.publisher(for: gamepad)) { note in
             guard let action = note.object as? GamepadAction else { return }
             switch action {

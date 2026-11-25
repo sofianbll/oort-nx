@@ -299,7 +299,7 @@ struct ProfileSwitchDialog: View {
     let waiting: Bool
     let onCancel: () -> Void
     let onConfirm: () -> Void
-    @State private var focus = 0
+    @State private var focus = SeleneConfirmButton.cancel
 
     var body: some View {
         let title = endsGuest ? "End guest session?" : startsGuest ? "Play as guest?" : "Switch profile?"
@@ -315,15 +315,16 @@ struct ProfileSwitchDialog: View {
                 SeleneChoiceDialog(title: title, message: L10n.text(hasSteam ? "Close any Steam games yourself before switching." : "Waiting for the game to close…"),
                                    choices: ["Cancel"], focus: .constant(0), onCancel: onCancel) { _ in onCancel() }
             } else {
-                SeleneChoiceDialog(title: title, message: details, choices: ["Cancel", primary], focus: $focus,
-                                   cancelIndex: 0, destructive: hasGame || endsGuest ? [1] : [], onCancel: onCancel) { $0 == 1 ? onConfirm() : onCancel() }
+                SeleneConfirmDialog(title: title, message: details, confirmTitle: primary,
+                                    destructive: hasGame || endsGuest, focus: $focus,
+                                    onCancel: onCancel, onConfirm: onConfirm)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onReceive(NotificationCenter.default.publisher(for: .nxProfileInput)) { note in
             switch note.object as? GamepadAction {
-            case .navigateLeft: focus = 0
-            case .navigateRight: focus = 1
+            case .navigateLeft: focus = .onSide(left: true, destructive: hasGame || endsGuest)
+            case .navigateRight: focus = .onSide(left: false, destructive: hasGame || endsGuest)
             case .confirm: accept()
             case .cancel: onCancel()
             default: break
@@ -331,7 +332,7 @@ struct ProfileSwitchDialog: View {
         }
     }
 
-    private func accept() { if !waiting && focus == 1 { onConfirm() } else { onCancel() } }
+    private func accept() { if !waiting && focus == .confirm { onConfirm() } else { onCancel() } }
 }
 
 struct ProfilePINDialog: View {

@@ -242,16 +242,18 @@ import ArcanePorting
             ][name]
             if let frenchLine { precondition(notice.message.contains(frenchLine), notice.message) }
             try render(name, input.settingsNoticeOverlay(notice))
-            input.settingsNoticeInput(.navigateRight)
-            precondition(vm.settingsNoticeFocus == notice.choices.count - 1 && count() == before, name)
-            input.settingsNoticeInput(.navigateLeft)
+            let action: GamepadAction = notice.cancelIndex == 0 ? .navigateRight : .navigateLeft
+            let back: GamepadAction = notice.cancelIndex == 0 ? .navigateLeft : .navigateRight
+            input.settingsNoticeInput(action)
+            precondition(vm.settingsNoticeFocus != notice.cancelIndex && count() == before, name)
+            input.settingsNoticeInput(back)
             input.settingsNoticeInput(.confirm) // A / Return on Cancel
             precondition(vm.settingsNotice == nil && count() == before, name)
             open()
             input.settingsNoticeInput(.cancel) // B / Esc / dismiss
             precondition(vm.settingsNotice == nil && count() == before, name)
             open()
-            input.settingsNoticeInput(.navigateRight)
+            input.settingsNoticeInput(action)
             input.settingsNoticeInput(.confirm)
             input.settingsNoticeInput(.confirm)
             precondition(vm.settingsNotice == nil, name)
