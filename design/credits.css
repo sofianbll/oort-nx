@@ -1,41 +1,40 @@
 /* The credit cards and their grids, for the site and the Windows and Linux app.
    Sizes, spaces, radii, strokes, text and times: oort-tokens.css, generated from design/oort.tokens.json.
    Colours: the --credit-* of the page that uses them. scripts/generate_credits.py --check refuses a value written here. */
-.credits{display:grid;grid-auto-rows:1fr;gap:var(--space-small);margin:0;padding:0;list-style:none;grid-template-columns:minmax(0,1fr)}
+.credits{display:grid;gap:var(--space-small);margin:0;padding:0;list-style:none;grid-template-columns:minmax(0,1fr)}
 .credits>li{display:grid;min-width:0}
-/* As many columns as fit, up to --credit-columns. The six cards fill three, two or one. */
-.credits.fill{--credit-third:calc((100% - (var(--credit-columns) - 1)*var(--space-small))/var(--credit-columns));grid-template-columns:repeat(auto-fill,minmax(max(min(100%,var(--space-credit-card)),var(--credit-third)),1fr))}
-/* A multiple of three that two columns would leave with a hole: three columns, else a list. */
-.credits.fill-odd{--credit-full:calc(var(--credit-columns)*var(--space-credit-card) + (var(--credit-columns) - 1)*var(--space-small));grid-template-columns:repeat(auto-fill,minmax(clamp(var(--credit-third),(var(--credit-full) - 100%)*var(--credit-switch),100%),1fr))}
-.credit{--mx:0;--my:0;position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;gap:var(--space-small);padding:var(--space-medium);border-radius:var(--radius-card);color:var(--credit-quiet);font-size:var(--text-badge);line-height:normal;text-align:start;text-decoration:none;background:var(--credit-surface);box-shadow:inset 0 var(--space-thin-stroke) 0 var(--credit-shine),0 0 0 var(--space-thin-stroke) var(--credit-line);overflow:hidden;isolation:isolate;transition:transform var(--motion-quick),box-shadow var(--motion-move)}
+/* The six cards: as many full columns as fit, up to --credit-columns, and one height. Every other group is a list. */
+.credits.fill{grid-auto-rows:1fr;--credit-third:calc((100% - (var(--credit-columns) - 1)*var(--space-small))/var(--credit-columns));grid-template-columns:repeat(auto-fill,minmax(max(min(100%,var(--credit-card,var(--space-credit-card))),var(--credit-third)),1fr))}
+.credit{--mx:0;--my:0;position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;gap:var(--space-small);padding:var(--space-medium);border-radius:var(--radius-card);color:var(--credit-quiet);font-size:var(--credit-small,var(--text-badge));line-height:normal;text-align:start;text-decoration:none;background:var(--credit-surface);box-shadow:inset 0 var(--space-thin-stroke) 0 var(--credit-shine),0 0 0 var(--space-thin-stroke) var(--credit-line);overflow:hidden;isolation:isolate;transition:transform var(--motion-quick),box-shadow var(--motion-move)}
 .credit::before{content:"";position:absolute;inset:0;z-index:-1;opacity:0;background:radial-gradient(circle,var(--credit-dot) var(--space-thin-stroke),transparent var(--space-seam)) 0 0/var(--effect-dot-pitch) var(--effect-dot-pitch);mask:radial-gradient(var(--space-slider-measure) circle at var(--mx) var(--my),currentColor,transparent);transition:opacity var(--motion-slow)}
 .credit:hover{box-shadow:inset 0 var(--space-thin-stroke) 0 var(--credit-shine),0 0 0 var(--space-thin-stroke) var(--credit-line-strong)}
 .credit:hover::before,.credit:focus-visible::before{opacity:var(--alpha-muted)}
 .credit:active{transform:translateY(var(--effect-press-depth)) scale(var(--effect-press-scale));transition-duration:var(--motion-press)}
 .credit>img,.credit>i{display:grid;place-items:center;width:var(--space-group);height:var(--space-group);border-radius:var(--radius-content);object-fit:contain}
 .credit>i{color:var(--credit-ink);background:var(--credit-raise)}
-.credit>i svg{width:var(--space-large);height:var(--space-large)}
+.credit>i svg{width:var(--space-large);height:var(--space-large)}.credit>i .icon{font-size:var(--space-large)}
 .credit>span{display:grid;gap:var(--space-seam);min-width:0;overflow-wrap:anywhere}
 /* The arrow stands beside the name; the rest has the whole width. */
-.credit strong{padding-inline-end:var(--space-control);color:var(--credit-ink);font-size:var(--text-text);font-weight:var(--weight-semibold)}
+.credit strong{padding-inline-end:var(--space-control);color:var(--credit-ink);font-size:var(--credit-name,var(--text-text));font-weight:var(--weight-semibold)}
 .credit .role{margin-top:var(--space-hairline);color:var(--credit-text)}
-.credit>svg{position:absolute;inset-block-start:var(--space-medium);inset-inline-end:var(--space-medium);width:var(--space-control);height:var(--space-control);opacity:var(--alpha-muted);transition:opacity var(--motion-move)}
-.credit:hover>svg{opacity:1}
+.credit>svg,.credit>.out{position:absolute;inset-block-start:var(--space-medium);inset-inline-end:var(--space-medium);width:var(--space-control);height:var(--space-control);opacity:var(--alpha-muted);transition:opacity var(--motion-move)}.credit>.out{font-size:var(--space-control)}
+.credit:hover>svg,.credit:hover>.out{opacity:1}
 /* All credits: one full-width row per group, joined until one opens. */
 .credit-groups{display:grid}
-.credit-row{display:flex;align-items:center;gap:var(--space-medium);min-height:var(--space-pill-height);padding:var(--space-small) var(--space-panel);color:var(--credit-ink);font-size:var(--text-text);font-weight:var(--weight-medium);text-decoration:none;background:var(--credit-panel);box-shadow:0 0 0 var(--space-thin-stroke) var(--credit-line);cursor:pointer;list-style:none;transition:background var(--motion-quick)}
+.credit-row{display:flex;align-items:center;gap:var(--space-medium);min-height:var(--space-pill-height);padding:var(--space-small) var(--space-panel);color:var(--credit-ink);font-size:var(--credit-name,var(--text-text));font-weight:var(--weight-medium);text-decoration:none;background:var(--credit-panel);box-shadow:0 0 0 var(--space-thin-stroke) var(--credit-line);cursor:pointer;list-style:none;transition:background var(--motion-quick)}
 .credit-row::-webkit-details-marker{display:none}
 .credit-row:hover{background:var(--credit-raise)}
 .credit-row>span:first-child{flex:1;min-width:0;overflow-wrap:anywhere}
-.credit-row>.count{padding:var(--space-seam) var(--space-small);border-radius:var(--radius-badge);font-size:var(--text-badge);font-weight:var(--weight-semibold);font-variant-numeric:tabular-nums;background:var(--credit-raise)}
-.credit-row>svg{flex:none;width:var(--space-control);height:var(--space-control);opacity:var(--alpha-muted);transition:transform var(--motion-move)}
-.credit-groups>:first-child>.credit-row,.credit-groups>.credit-row:first-child,.credit-groups>[open]+details>.credit-row{border-start-start-radius:var(--radius-card);border-start-end-radius:var(--radius-card)}
-.credit-groups>:last-child>.credit-row,.credit-groups>.credit-row:last-child,.credit-groups>[open]>.credit-row,.credit-groups>details:has(+[open])>.credit-row{border-end-start-radius:var(--radius-card);border-end-end-radius:var(--radius-card)}
+.credit-row>.count{padding:var(--space-seam) var(--space-small);border-radius:var(--radius-badge);font-size:var(--credit-small,var(--text-badge));font-weight:var(--weight-semibold);font-variant-numeric:tabular-nums;background:var(--credit-raise)}
+.credit-row>svg,.credit-row>.icon{flex:none;width:var(--space-control);height:var(--space-control);opacity:var(--alpha-muted);transition:transform var(--motion-move)}
+.credit-row>.icon{font-size:var(--space-control)}
+.credit-groups>:first-child>.credit-row,.credit-groups>.credit-row:first-child,.credit-groups>[open]+*>.credit-row{border-start-start-radius:var(--radius-card);border-start-end-radius:var(--radius-card)}
+.credit-groups>:last-child>.credit-row,.credit-groups>.credit-row:last-child,.credit-groups>[open]>.credit-row,.credit-groups>:has(+[open])>.credit-row{border-end-start-radius:var(--radius-card);border-end-end-radius:var(--radius-card)}
 .credit-groups>[open]>.credit-row{border-radius:var(--radius-card)}
-.credit-groups>[open]>.credit-row>svg{transform:rotate(90deg)}
+.credit-groups>[open]>.credit-row>svg,.credit-groups>[open]>.credit-row>.icon{transform:rotate(90deg)}
 .credit-groups>[open]>.credits{margin-top:var(--space-small)}
 .credit-groups>[open]:not(:last-child){margin-bottom:var(--space-large)}
-.credit-groups>details+[open]{margin-top:var(--space-large)}
+.credit-groups>*+[open]{margin-top:var(--space-large)}
 .credit-groups>[open]+[open]{margin-top:0}
 @media(hover:none){.credit:hover::before{opacity:0}.credit:active::before{opacity:var(--alpha-muted)}}
 @media(prefers-reduced-motion:reduce){.credit,.credit *,.credit::before,.credit-row,.credit-row *{transition-duration:var(--motion-reduced-fade)}.credit:active{transform:none}}

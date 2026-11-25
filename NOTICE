@@ -222,10 +222,10 @@ Built on
 - Selene, by Matthew Silva. The theme its interface, palettes and first sounds come from. MIT. Code adapted (Mac, Windows, Linux, iPhone and iPad, Android, site). https://github.com/mattxslv/Selene
 - Playnite, by Josef Nemec. Inspired the artwork picker; no code taken. MIT. Reference, no code in the app (Mac, site). https://github.com/JosefNemec/Playnite
 - nxnative, by seedds. The engine for Switch games. MIT. In the engine, which is downloaded separately (Mac, Windows, Linux, iPhone and iPad, Android, site). https://github.com/seedds/nxnative
-- NX2Apple, by LNPANDY. Key check, diagnostics and updates, adapted; game library and start on iPhone. MIT. Code adapted (Mac, iPhone and iPad, site). https://github.com/LNPANDY/NX2Apple
+- NX2Apple, by LNPANDY. Adapted diagnostics; games on iPhone. MIT. Code adapted (Mac, iPhone and iPad, site). https://github.com/LNPANDY/NX2Apple
 - Nextendo, by eyasbzour. Optional online play. MIT. Service, off until used (Mac, site). https://github.com/eyasbzour/nxnative-online
 
-Other projects
+Projects
 - nxnative_Launcher, by rennan101. The first interface the app started from. MIT. Code adapted (Mac). https://github.com/sofianbll/oort-nx/blob/main/NOTICE
 - LumaNX, by Xc1Ym. Method for bundling the build tools, followed. MIT. Reference, no code in the app (Mac). https://github.com/Xc1Ym/LumaNX
 - LASRecomp, by Peiikai. Save format facts, for achievements. MIT. Reference, no code in the app (Mac). https://github.com/peiikai/LASRecomp
@@ -234,7 +234,7 @@ Other projects
 - nx2android, by shirai91. Makes the Android games Oort NX starts; no code included. MIT. Reference, no code in the app (Android). https://github.com/shirai91/nx2android
 - DroidPlay Core, by enjoyerofslop. Reference for an Android launcher; no code included. MIT. Reference, no code in the app (Android). https://github.com/enjoyerofslop/droidplay-core
 
-In the game engine
+Engine
 - d2r-mobile, by jhaizhou. Where native execution began. MIT. In the engine, which is downloaded separately (Mac, iPhone and iPad, Android). https://github.com/jhaizhou-ops/d2r-mobile
 - Ryujinx, by Ryujinx Team. Maxwell shader translator and SPIR-V generator. MIT. In the engine, which is downloaded separately (Mac, iPhone and iPad, Android). https://github.com/seedds/nxnative/tree/main/dm/third_party/ryujinx
 - .NET, by .NET Foundation. Part of the shader translator and file reader. MIT. In the engine, which is downloaded separately (Mac, iPhone and iPad, Android). https://github.com/dotnet/runtime
@@ -257,7 +257,7 @@ In the game engine
 - OpenSSL, by The OpenSSL Project. Cryptography. Apache-2.0. In the engine, which is downloaded separately (Mac, iPhone and iPad). https://www.openssl.org
 - FLIP, by NVIDIA. Compares images in the engine’s checks. BSD-3-Clause. In the engine, which is downloaded separately (Mac). https://github.com/NVlabs/flip
 
-Build tools in the app
+Tools
 - CPython, by Python Software Foundation. Runs the engine’s build tools. PSF-2.0. In the app (Mac). https://www.python.org
   Includes bzip2, libffi, Expat, mpdecimal, libuuid, OpenSSL, SQLite, liblzma, zstd, Tcl/Tk, Itcl, Thread, LibTomMath, zlib.
 - python-build-standalone, by Astral. Runs the engine’s build tools. MPL-2.0. Used to make the app (Mac). https://github.com/astral-sh/python-build-standalone
@@ -278,8 +278,6 @@ Build tools in the app
 - XZ Utils (liblzma), by The Tukaani Project. Compression. 0BSD. In the app (Mac). https://github.com/tukaani-project/xz
 - glslang, by Khronos Group. Compiles shaders to SPIR-V. BSD-3-Clause. In the app (Mac). https://github.com/KhronosGroup/glslang
 - SPIRV-Tools, by Khronos Group. Checks and optimizes SPIR-V. Apache-2.0. In the app (Mac). https://github.com/KhronosGroup/SPIRV-Tools
-
-Libraries of the app
 - Swift, by Apple and the Swift project. Programming language and its standard library. Apache-2.0 WITH Swift-exception. In the app (Windows, Linux). https://swift.org
 - ICU, by Unicode, Inc.. Text in every language. Unicode-3.0. In the app (Windows, Linux). https://icu.unicode.org
 - Rust, by The Rust Project. Programming language and its standard library. MIT OR Apache-2.0. In the app (Windows, Linux). https://www.rust-lang.org
@@ -289,6 +287,7 @@ Libraries of the app
 - ureq, by Martin Algesten, Jacob Hoffman-Andrews. Web requests. MIT OR Apache-2.0. In the app (Windows, Linux). https://github.com/algesten/ureq
 - windows-rs, by Microsoft. Access to the system. MIT OR Apache-2.0. In the app (Windows). https://github.com/microsoft/windows-rs
 - libc, by The Rust Project. Access to the system. MIT OR Apache-2.0. In the app (Linux). https://github.com/rust-lang/libc
+- objc2, by Mads Marquart. Used to make the app; not inside it. MIT. Used to make the app (Windows, Linux). https://github.com/madsmtm/objc2
 - Rust libraries, by Their authors. Every other Rust library in the app, listed with its licence. MIT AND Apache-2.0 AND MPL-2.0 AND Unicode-3.0. In the app (Windows, Linux). https://github.com/sofianbll/oort-nx/blob/alpha/windows/desktop/licenses-rust.txt
 - WebView2, by Microsoft. Shows the window’s content. LicenseRef-Microsoft-WebView2. In the app (Windows). https://developer.microsoft.com/microsoft-edge/webview2/
 - Visual C++ runtime, by Microsoft. C++ runtime. LicenseRef-Microsoft-Visual-Studio. In the app (Windows). https://learn.microsoft.com/cpp/windows/latest-supported-vc-redist
@@ -296,8 +295,13 @@ Libraries of the app
 - WebKitGTK, by WebKitGTK team. Shows the window’s content. LGPL-2.1-or-later. Reference, no code in the app (Linux). https://webkitgtk.org
 - Kotlin, by JetBrains. Programming language and its standard library. Apache-2.0. In the app (Android). https://kotlinlang.org
 - AndroidX and Jetpack Compose, by The Android Open Source Project. Interface toolkit. Apache-2.0. In the app (Android). https://developer.android.com/jetpack
+- XcodeGen, by Yonas Kolb. Used to make the app; not inside it. MIT. Used to make the app (iPhone and iPad). https://github.com/yonaskolb/XcodeGen
+- dmgbuild, by Alastair Houghton. Used to make the app; not inside it. MIT. Used to make the app (Mac). https://github.com/dmgbuild/dmgbuild
+- Tauri CLI, by Tauri Programme. Used to make the app; not inside it. Apache-2.0 OR MIT. Used to make the app (Windows, Linux). https://tauri.app
+- Gradle and the Android Gradle plugin, by Gradle, Google. Used to make the app; not inside it. Apache-2.0. Used to make the app (Android). https://gradle.org
+- JUnit 4, by JUnit. Used to make the app; not inside it. EPL-1.0. Used to make the app (Android). https://junit.org/junit4/
 
-Icons, fonts, colours and sounds
+Icons and sounds
 - Material Icons, by Google. Interface icons. Apache-2.0. In the app (Mac, Windows, Linux). https://github.com/google/material-design-icons
 - Lucide, by Lucide Icons and Contributors, Feather by Cole Bemis. Interface icons. ISC AND MIT. In the app (Mac). https://github.com/lucide-icons/lucide
 - Simple Icons, by Simple Icons contributors. Symbols that identify platforms. CC0-1.0. In the app (Mac). https://github.com/simple-icons/simple-icons
@@ -317,7 +321,7 @@ Icons, fonts, colours and sounds
 - Oort, Pollen, Umbra, Impulsion, by Oort NX. Four packs of synthesized sounds. CC0-1.0. In the app (Mac, Windows, Linux, iPhone and iPad, Android, site). https://creativecommons.org/publicdomain/zero/1.0/
 - SOHO Solar Sounds, by A. Kosovichev, Stanford, ESA/NASA. Measured vibrations of the Sun, the starting point of its sound; no recording included. No licence stated. Reference, no code in the app (Mac, Windows, Linux, iPhone and iPad, Android, site). https://solar-center.stanford.edu/singing/index.html
 
-Services you can turn on
+Services
 - GameTDB, by GameTDB. Switch box covers. No licence stated. Service, off until used (Mac). https://www.gametdb.com
 - Title DB, by blawar. Game names, icons and banners. MIT. Service, off until used (Mac). https://github.com/blawar/titledb
 - nlib, by nlib. Game names, icons and banners. No licence stated. Service, off until used (Mac). https://api.nlib.cc
@@ -345,12 +349,4 @@ Services you can turn on
 - NetBird, by NetBird. Private network for playing together, if you use it. No licence stated. Service, off until used (Mac). https://netbird.io
 - GitHub, by GitHub. Source code and updates. No licence stated. Service, off until used (Mac, site). https://github.com
 - Buy Me a Coffee, by Buy Me a Coffee. Optional contributions to Arcane’s author. No licence stated. Service, off until used (Mac). https://buymeacoffee.com/bium
-
-Tools that make the app
-- objc2, by Mads Marquart. Used to make the app; not inside it. MIT. Used to make the app (Windows, Linux). https://github.com/madsmtm/objc2
-- XcodeGen, by Yonas Kolb. Used to make the app; not inside it. MIT. Used to make the app (iPhone and iPad). https://github.com/yonaskolb/XcodeGen
-- dmgbuild, by Alastair Houghton. Used to make the app; not inside it. MIT. Used to make the app (Mac). https://github.com/dmgbuild/dmgbuild
-- Tauri CLI, by Tauri Programme. Used to make the app; not inside it. Apache-2.0 OR MIT. Used to make the app (Windows, Linux). https://tauri.app
-- Gradle and the Android Gradle plugin, by Gradle, Google. Used to make the app; not inside it. Apache-2.0. Used to make the app (Android). https://gradle.org
-- JUnit 4, by JUnit. Used to make the app; not inside it. EPL-1.0. Used to make the app (Android). https://junit.org/junit4/
 ----- END GENERATED CREDITS -----

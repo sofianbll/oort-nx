@@ -54,7 +54,7 @@ class CreditsTests(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("NOTICE is not what design/credits.json says", text)
         for name in credits.copies(data):
-            self.assertTrue("credit" in name and name.endswith(".png") or f"{name} is not what" in text, name)
+            self.assertTrue("credit" in name and name.endswith((".png", "credits.css")) or f"{name} is not what" in text, name)
 
     def test_a_legal_text_taken_out_of_the_notice_fails(self):
         notice = credits.read(ROOT / "NOTICE")
@@ -89,7 +89,7 @@ class CreditsTests(unittest.TestCase):
             self.assertIn(message, run(data)[1])
         data = copy.deepcopy(self.data)
         data["base"].reverse()
-        self.assertIn("credits.json is not what design/credits.json says", run(data)[1])
+        self.assertIn("is not what design/credits.json says", run(data)[1])
 
     def test_every_app_is_given_the_six_cards(self):
         for system in ("mac", "windows", "ios", "android"):
@@ -100,8 +100,8 @@ class CreditsTests(unittest.TestCase):
     def test_a_value_written_by_hand_is_refused(self):
         css = credits.read(credits.CARDS)
         view, screen = credits.CARD_VIEWS[0], credits.CARD_SCREENS[0]
-        swift, about = credits.read(ROOT / view), credits.read(ROOT / screen)
-        self.assertEqual(credits.style([("credits.css", css)], [(view, swift)], [(screen, about)]), [])
+        swift, about = credits.read(ROOT / view), "struct SettingsAboutSection {}\n"
+        self.assertEqual(credits.style([("credits.css", css)], *credits.sources()), [])
         for rule, value in (("padding:18px 20px", "18px"), ("gap:clamp(14px,1.5vw,24px)", "1.5vw"), ("border-radius:1.5rem", "1.5rem"),
                             ("color:#fff", "#fff"), ("background:rgb(0 0 0/.3)", "rgb("), ("transition:opacity .28s", ".28s"),
                             ("opacity:.55", ".55"), ("font-weight:580", "580"), ("grid-template-columns:repeat(4,1fr)", "4")):

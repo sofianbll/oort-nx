@@ -82,34 +82,40 @@ struct OortCreditCard: View {
     }
 }
 
-/// Cards of one height, in full columns or in a list. The same rule as the site and the other apps: `Credits.columns`.
+/// Full columns of cards of one height, or a list where each has its own. The same rule as the site and the other apps: `Credits.columns`.
 struct OortCreditGrid: Layout {
     let columns: Int
     let spacing: CGFloat
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         let width = proposal.width ?? subviews.map { $0.sizeThatFits(.unspecified).width }.max() ?? 0
-        let lines = CGFloat((subviews.count + columns - 1) / columns)
-        return CGSize(width: width, height: lines * height(subviews, in: width) + max(lines - 1, 0) * spacing)
+        let heights = heights(subviews, in: width)
+        return CGSize(width: width, height: heights.reduce(0, +) + CGFloat(max(heights.count - 1, 0)) * spacing)
     }
 
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        let size = CGSize(width: column(in: bounds.width), height: height(subviews, in: bounds.width))
-        for (index, subview) in subviews.enumerated() {
-            let (line, place) = index.quotientAndRemainder(dividingBy: columns)
-            subview.place(at: CGPoint(x: bounds.minX + CGFloat(place) * (size.width + spacing),
-                                      y: bounds.minY + CGFloat(line) * (size.height + spacing)), proposal: ProposedViewSize(size))
+        let width = column(in: bounds.width)
+        var y = bounds.minY
+        for (line, height) in heights(subviews, in: bounds.width).enumerated() {
+            for place in 0..<columns where line * columns + place < subviews.count {
+                subviews[line * columns + place].place(at: CGPoint(x: bounds.minX + CGFloat(place) * (width + spacing), y: y),
+                                                       proposal: ProposedViewSize(width: width, height: height))
+            }
+            y += height + spacing
         }
     }
 
     private func column(in width: CGFloat) -> CGFloat { max((width - CGFloat(columns - 1) * spacing) / CGFloat(columns), 0) }
 
-    private func height(_ subviews: Subviews, in width: CGFloat) -> CGFloat {
-        subviews.map { $0.sizeThatFits(ProposedViewSize(width: column(in: width), height: nil)).height }.max() ?? 0
+    /// One height per line; the lines of a grid share theirs.
+    private func heights(_ subviews: Subviews, in width: CGFloat) -> [CGFloat] {
+        let cards = subviews.map { $0.sizeThatFits(ProposedViewSize(width: column(in: width), height: nil)).height }
+        guard columns > 1 else { return cards }
+        return Array(repeating: cards.max() ?? 0, count: (cards.count + columns - 1) / columns)
     }
 }
 
-/// One category of credits, as a full grid or a list. `focusedCard` is the card under the controller.
+/// One category of credits: the six cards as a full grid, the others as a list. `focusedCard` is the card under the controller.
 struct OortCreditGroup: View {
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.nxAppLocale) private var locale
@@ -122,7 +128,7 @@ struct OortCreditGroup: View {
 
     var body: some View {
         let lines = Self.lines(group, credits, fitting: fitting)
-        OortCreditGrid(columns: credits.columns(for: group.credits.count, fitting: fitting), spacing: canvas.u(SeleneTokens.Space.small)) {
+        OortCreditGrid(columns: credits.columns(for: group, fitting: fitting), spacing: canvas.u(SeleneTokens.Space.small)) {
             ForEach(group.credits) { credit in
                 // The line's first card is where the page scrolls to.
                 if let line = lines.first(where: { $0.credits[0].id == credit.id }) {
@@ -154,7 +160,7 @@ struct OortCreditGroup: View {
     }
 
     static func lines(_ group: Credits.Group, _ credits: Credits, fitting: Int) -> [Line] {
-        let columns = credits.columns(for: group.credits.count, fitting: fitting)
+        let columns = credits.columns(for: group, fitting: fitting)
         return stride(from: 0, to: group.credits.count, by: columns).map { start in
             let row = Array(group.credits[start..<min(start + columns, group.credits.count)])
             return Line(id: "credit-" + row[0].id, credits: row)

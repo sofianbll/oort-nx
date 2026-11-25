@@ -70,10 +70,11 @@ public struct Credits: Decodable, Sendable {
         return own.first.flatMap { first in categories.first { $0.id == first.category } }.map { Group(category: $0, credits: own) }
     }
 
-    /// How many columns a group takes where `fitting` fit: a full grid, else a list. Only what fills the widest grid is ever a grid.
-    public func columns(for count: Int, fitting: Int) -> Int {
+    /// How many columns a group takes where `fitting` fit: the six cards fill a grid, every other group is a list.
+    public func columns(for group: Group, fitting: Int) -> Int {
+        guard group.credits.map(\.id) == base else { return 1 }
         let fitting = min(max(fitting, 1), columns)
-        return count % columns == 0 && count % fitting == 0 ? fitting : 1
+        return base.count % fitting == 0 ? fitting : 1
     }
 
     /// Every other credit one system shows, in the order of the file; an empty category is left out.

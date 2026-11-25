@@ -50,7 +50,7 @@ class OortTokenTests(unittest.TestCase):
         resolved = GEN.tokens(json.loads((ROOT / GEN.SOURCE).read_text()))
         text = GEN.css(resolved)
         for line in ("--space-medium: calc(16 * var(--u));", "--radius-card: calc(16 * var(--u));", "--text-text: calc(19 * var(--u));",
-                     "--motion-move: 280ms;", "--alpha-muted: 0.6;", "--art-sun: #F4CE8E;", "--effect-panel-blur-points: 10px;"):
+                     "--motion-move: 280ms;", "--alpha-muted: 0.6;", "--status-danger: #FF6B6B;", "--effect-panel-blur-points: 10px;"):
             self.assertIn(line, text)
 
     def test_legacy_palettes_remain_untouched(self):

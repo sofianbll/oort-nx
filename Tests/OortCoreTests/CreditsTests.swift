@@ -37,18 +37,19 @@ final class CreditsTests: XCTestCase {
         XCTAssertFalse(credits.groups(for: .mac).contains { $0.id == "base" })
     }
 
-    func testAGridIsFullOrItIsAList() throws {
+    func testTheSixAreAGridAndEveryOtherGroupAList() throws {
         let credits = try credits()
-        XCTAssertEqual([3, 2, 1].map { credits.columns(for: credits.base.count, fitting: $0) }, [3, 2, 1])
-        for count in 1...30 {
-            for fitting in 0...4 {
-                let columns = credits.columns(for: count, fitting: fitting)
-                XCTAssertTrue((1...credits.columns).contains(columns))
-                XCTAssertEqual(count % columns, 0, "\(count) cards in \(columns) columns")
+        let base = try XCTUnwrap(credits.baseGroup)
+        XCTAssertEqual([0, 1, 2, 3, 4].map { credits.columns(for: base, fitting: $0) }, [1, 1, 2, 3, 3])
+        XCTAssertEqual(credits.categories.map(\.id), ["base", "projects", "engine", "tools", "design", "services"])
+        for system in [Credits.System.mac, .windows, .linux, .ios, .android, .site] {
+            let groups = credits.groups(for: system)
+            XCTAssertEqual(groups.map(\.id), credits.categories.map(\.id).filter { id in groups.contains { $0.id == id } }, system.rawValue)
+            for group in groups {
+                XCTAssertFalse(group.credits.isEmpty)
+                XCTAssertEqual(credits.columns(for: group, fitting: 3), 1)
             }
         }
-        XCTAssertEqual(credits.columns(for: 21, fitting: 2), 1)
-        XCTAssertEqual(credits.columns(for: 16, fitting: 3), 1)
     }
 
     func testWordsFollowTheLanguageThenEnglish() throws {

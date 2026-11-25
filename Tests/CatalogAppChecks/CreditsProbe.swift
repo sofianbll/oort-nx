@@ -89,8 +89,10 @@ import ArcanePorting
             let fits = actions.first { $0.rowID == "credit-arcane" }!.buttonCount
             precondition(fits == credits.columns, "\(fits) columns where three fit")
             let lines = shown.flatMap { OortCreditGroup.lines($0, credits, fitting: fits) }
-            // A full grid or a list: no line is ever short.
-            for group in shown { precondition(Set(OortCreditGroup.lines(group, credits, fitting: fits).map(\.credits.count)).count == 1, group.id) }
+            // The six fill their grid; every other group is a list.
+            for group in shown {
+                precondition(OortCreditGroup.lines(group, credits, fitting: fits).allSatisfy { $0.credits.count == (group.id == base.id ? fits : 1) }, group.id)
+            }
             for line in lines {
                 let action = actions.first { $0.rowID == line.id }!
                 precondition(action.buttonCount == line.credits.count, line.id)
