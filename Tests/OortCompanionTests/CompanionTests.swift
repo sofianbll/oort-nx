@@ -101,6 +101,18 @@ final class PlacesTests: XCTestCase {
         #endif
     }
 
+    func testTheFolderAboveStopsAtTheTop() {
+        XCTAssertEqual(Paths.parent("C:/Games/One"), "C:/Games")
+        XCTAssertEqual(Paths.parent("C:/Games"), "C:/")
+        XCTAssertNil(Paths.parent("C:/"))
+        XCTAssertNil(Paths.parent("C:"))
+        XCTAssertEqual(Paths.parent("/a/b"), "/a")
+        XCTAssertEqual(Paths.parent("/a"), "/")
+        XCTAssertNil(Paths.parent("/"))
+        XCTAssertEqual(Paths.rooted("d:"), "d:/")
+        XCTAssertEqual(Paths.rooted("/d:"), "/d:")
+    }
+
     func testSystemVariablesAreNeverSet() {
         for name in ["MYRECOMP_DATA", "SDL_VIDEODRIVER", "_x"] { XCTAssertTrue(Places.mayName(name), name) }
         for name in ["PATH", "Path", "LD_PRELOAD", "DYLD_INSERT_LIBRARIES", "RECOMPLAUNCHER_DATA", "1A", "A-B", "", "TEMP", "É"] {
@@ -429,6 +441,38 @@ final class CompanionTests: XCTestCase {
         XCTAssertEqual(try ask(c, "files", ["path": .string(root + "/games"), "folders": true])["entries"].items.count, 1)
         XCTAssertEqual(code(c, "files", ["path": .string(root + "/none")]), "folder-missing")
     }
+
+    func testPicturesAreTheGamesOwn() throws {
+        let folder = try install("Art", #"{"format":1,"start":{"program":["run"]}}"#)
+        try FileManager.default.createDirectory(atPath: folder + "/art", withIntermediateDirectories: true)
+        for name in ["boxart.jpg", "art/hero.webp", "icon.txt"] { FileManager.default.createFile(atPath: folder + "/" + name, contents: Data()) }
+        let c = try companion()
+        _ = try ask(c, "folders.add", ["path": .string(root + "/games")])
+        let game = try ask(c, "library")["games"].items[0]
+        XCTAssertEqual([game["cover"], game["icon"], game["hero"], game["logo"]], [true, false, true, false])
+        let id: CatalogJSON = ["id": game["id"] ?? .null, "kind": "cover"]
+        XCTAssertEqual(try ask(c, "game.art", id).stringValue, system(folder + "/boxart.jpg"))
+        XCTAssertEqual(try ask(c, "game.art", ["id": game["id"] ?? .null, "kind": "../x"]), .null)
+        #if !os(Windows)
+        FileManager.default.createFile(atPath: root + "/outside.png", contents: Data())
+        try FileManager.default.createSymbolicLink(atPath: folder + "/logo.png", withDestinationPath: root + "/outside.png")
+        XCTAssertEqual(try ask(c, "game.art", ["id": game["id"] ?? .null, "kind": "logo"]), .null, "a link out of the folder is not the game's picture")
+        #endif
+    }
+
+    #if os(Windows)
+    func testTheFilePickerGoesFromDrivesToFoldersAndBack() throws {
+        let c = try Companion(.init(data: root + "/data", resources: root, system: "windows"))
+        let drives = try ask(c, "files")
+        XCTAssertEqual(drives["parent"], .null)
+        let drive = try XCTUnwrap(drives["entries"].items.first { $0["path"]?.stringValue?.lowercased() == String(root.prefix(3)).lowercased() })
+        let top = try ask(c, "files", ["path": drive["path"] ?? .null])
+        XCTAssertEqual(top["parent"], "", "above a drive, the drives")
+        let name = try XCTUnwrap(Paths.parts(root).dropFirst().first)
+        let folder = try XCTUnwrap(top["entries"].items.first { $0["name"]?.stringValue?.lowercased() == name.lowercased() })
+        XCTAssertEqual(try ask(c, "files", ["path": folder["path"] ?? .null])["parent"], top["path"])
+    }
+    #endif
 
     func testSoundsAreMadeHere() throws {
         let c = try companion()

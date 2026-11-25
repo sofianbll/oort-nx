@@ -6,6 +6,7 @@ probe(async P => {
   dispatchEvent(new Event('focus')); await P.until(() => oort.library.games.length > 20);
   const ends = []; await window.__TAURI__.event.listen('session', e => ends.push(e.payload));
   P.same((await host('state')).title, 'Oort NX', 'the window is the app’s');
+  P.same([await host('front'), (await host('state')).front], [true, true], 'it is in front');
   P.same(await P.wait(200).then(() => document.hasFocus()), true, 'the page has the keyboard');
   // Keys as Windows sends them.
   await P.press('lt'); const at = P.id(); await host('key', 0x27); await P.wait(400); P.ok(P.id() !== at, 'a real right arrow moves');

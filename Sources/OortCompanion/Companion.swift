@@ -90,7 +90,7 @@ public final class Companion {
         case "game.setting": return try setGameSetting(p)
         case "game.option": return try setOption(p)
         case "game.art":
-            return .text(Library.art(p["kind"]?.stringValue ?? "", of: try game(p), own: Paths.join(setup.data, "art")).map(Paths.native))
+            return .text(Library.Art(of: try game(p), own: Paths.join(setup.data, "art")).path(p["kind"]?.stringValue ?? "").map(Paths.native))
         case "game.folder": return .string(Paths.native(try folder(try game(p), p["name"]?.stringValue)))
         case "game.link":
             let url = p["url"]?.stringValue ?? ""
@@ -177,13 +177,13 @@ public final class Companion {
     }
 
     private func summary(_ game: Game, _ history: History) -> CatalogJSON {
-        let own = Paths.join(setup.data, "art")
+        let art = Library.Art(of: game, own: Paths.join(setup.data, "art"))
         var out: [String: CatalogJSON] = [
             "id": .string(game.id.uuidString), "name": .string(game.name), "favorite": .bool(game.isFavorite),
             "seconds": .number(history.totalDuration(for: game.id).rounded()),
             "last": history.lastPlayed(for: game.id).map { .number($0.timeIntervalSince1970.rounded()) } ?? .null,
-            "cover": .bool(Library.art("cover", of: game, own: own) != nil), "icon": .bool(Library.art("icon", of: game, own: own) != nil),
-            "hero": .bool(Library.art("hero", of: game, own: own) != nil), "logo": .bool(Library.art("logo", of: game, own: own) != nil),
+            "cover": .bool(art.path("cover") != nil), "icon": .bool(art.path("icon") != nil),
+            "hero": .bool(art.path("hero") != nil), "logo": .bool(art.path("logo") != nil),
         ]
         switch game.source {
         case .recompilation(let m, _):
@@ -541,19 +541,15 @@ public final class Companion {
         if path.isEmpty { path = setup.home.isEmpty ? "/" : setup.home }
         path = Paths.real(path)
         guard isFolder(path) else { throw Manifest.Failure(code: "folder-missing") }
-        guard FileManager.default.isReadableFile(atPath: path) else { throw Manifest.Failure(code: "folder-closed") }
+        guard let names = try? Library.read(path) else { throw Manifest.Failure(code: "folder-closed") }
         let wanted = Set(p["extensions"].strings.map { $0.lowercased() }), onlyFolders = p["folders"]?.boolValue ?? false
-        let entries = Library.names(path).filter { !$0.hasPrefix(".") }.prefix(4000).compactMap { name -> CatalogJSON? in
+        let entries = names.filter { !$0.hasPrefix(".") }.prefix(4000).compactMap { name -> CatalogJSON? in
             let full = Paths.join(path, name), folder = isFolder(full)
             if !folder, onlyFolders || (!wanted.isEmpty && !wanted.contains((name as NSString).pathExtension.lowercased())) { return nil }
             return ["name": .string(name), "path": .string(full), "folder": .bool(folder)]
         }
-        let parent = (path as NSString).deletingLastPathComponent
-        #if os(Windows)
-        let up: CatalogJSON = parent == path || parent.hasSuffix(":") ? "" : .string(parent)
-        #else
-        let up: CatalogJSON = parent == path || parent.isEmpty ? .null : .string(parent)
-        #endif
+        // Above a drive is the list of drives.
+        let up: CatalogJSON = Paths.parent(path).map(CatalogJSON.string) ?? (setup.system == "windows" ? "" : .null)
         return ["path": .string(path), "shown": .string(Paths.native(path)), "parent": up, "entries": .array(Array(entries)),
                 "games": .number(Library.scan(Shelf(folders: [path]), favorites: []).count)]
     }

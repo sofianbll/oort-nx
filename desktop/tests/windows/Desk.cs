@@ -91,10 +91,15 @@ static class Desk {
             }
             case "front": {
                 IntPtr w = Main_(int.Parse(a[1]));
-                // Windows lets a program take the front after a key press of its own.
-                keybd_event(0x12, 0, 0, UIntPtr.Zero); keybd_event(0x12, 0, 2, UIntPtr.Zero);
                 if (IsIconic(w)) ShowWindow(w, 9);
-                return SetForegroundWindow(w) ? 0 : 1;
+                // Windows lets a program take the front after a key of its own (F24: nothing listens to it). What a runner
+                // leaves on its screen steps aside.
+                for (int i = 0; i < 6 && Pid(GetForegroundWindow()) != int.Parse(a[1]); i++) {
+                    if (i > 0) ShowWindow(GetForegroundWindow(), 6);
+                    keybd_event(0x87, 0, 0, UIntPtr.Zero); keybd_event(0x87, 0, 2, UIntPtr.Zero);
+                    SetForegroundWindow(w); Thread.Sleep(300);
+                }
+                return Pid(GetForegroundWindow()) == int.Parse(a[1]) ? 0 : 1;
             }
             case "key": {
                 byte k = byte.Parse(a[1]);

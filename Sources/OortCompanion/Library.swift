@@ -78,26 +78,36 @@ enum Library {
         }
     }
 
-    static func names(_ folder: String) -> [String] {
-        ((try? FileManager.default.contentsOfDirectory(atPath: folder)) ?? []).sorted { $0.localizedStandardCompare($1) == .orderedAscending }
+    static func names(_ folder: String) -> [String] { (try? read(folder)) ?? [] }
+
+    static func read(_ folder: String) throws -> [String] {
+        try FileManager.default.contentsOfDirectory(atPath: folder).sorted { $0.localizedStandardCompare($1) == .orderedAscending }
     }
 
-    /// The game's own pictures: beside its program, or in the app's folder under the game's identity.
-    static func art(_ kind: String, of game: Game, own: String) -> String? {
-        let names: [String: [String]] = ["cover": ["cover", "box", "boxart"], "icon": ["icon", "square", "cover"],
-                                         "hero": ["hero", "background", "banner"], "logo": ["logo"]]
-        guard let names = names[kind] else { return nil }
-        var folders = [Paths.join(own, game.id.uuidString.lowercased())]
-        if case .program = game.source {} else { folders += [game.folder, Paths.join(game.folder, "art")] }
-        for folder in folders {
-            for name in names {
-                for ext in ["png", "jpg", "jpeg", "webp"] {
-                    let path = Paths.join(folder, name + "." + ext)
-                    if FileManager.default.fileExists(atPath: path), Paths.isInside(Paths.real(path), Paths.real(folder)) { return path }
+    /// The game's own pictures: beside its program, or in the app's folder under the game's identity. Each folder is
+    /// read once: asking the disk for every name it could have is slow where files are scanned as they are opened.
+    struct Art {
+        private static let names: [String: [String]] = ["cover": ["cover", "box", "boxart"], "icon": ["icon", "square", "cover"],
+                                                        "hero": ["hero", "background", "banner"], "logo": ["logo"]]
+        private let folders: [(path: String, files: Set<String>)]
+
+        init(of game: Game, own: String) {
+            var folders = [Paths.join(own, game.id.uuidString.lowercased())]
+            if case .program = game.source {} else { folders += [game.folder, Paths.join(game.folder, "art")] }
+            self.folders = folders.map { ($0, Set((try? FileManager.default.contentsOfDirectory(atPath: $0)) ?? [])) }
+        }
+
+        func path(_ kind: String) -> String? {
+            for (folder, files) in folders where !files.isEmpty {
+                for name in Self.names[kind] ?? [] {
+                    for ext in ["png", "jpg", "jpeg", "webp"] where files.contains(name + "." + ext) {
+                        let path = Paths.join(folder, name + "." + ext)
+                        if Paths.isInside(Paths.real(path), Paths.real(folder)) { return path }
+                    }
                 }
             }
+            return nil
         }
-        return nil
     }
 }
 

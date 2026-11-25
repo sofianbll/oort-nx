@@ -28,7 +28,7 @@ let target;
 for (let i = 0; i < 120 && !target; i++) {
   if (gone !== null) fail('the app left with ' + gone);
   await wait(250);
-  target = await fetch(`http://127.0.0.1:${port}/json/list`).then(r => r.json()).then(l => l.find(t => t.type === 'page')).catch(() => null);
+  target = await fetch(`http://127.0.0.1:${port}/json/list`).then(r => r.json()).then(l => l.find(t => t.type === 'page' && t.url.startsWith('http://tauri.localhost'))).catch(() => null);
 }
 if (!target) {
   const ps = c => { try { return execFileSync('powershell', ['-NoProfile', '-Command', c], { encoding: 'utf8' }); } catch (e) { return String(e.message); } };

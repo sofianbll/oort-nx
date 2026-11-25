@@ -124,7 +124,22 @@ enum Paths {
         return a.count > b.count && Array(a.prefix(b.count)) == b
     }
 
-    static func real(_ path: String) -> String { URL(fileURLWithPath: path).resolvingSymlinksInPath().path }
+    static func real(_ path: String) -> String { rooted(URL(fileURLWithPath: path).resolvingSymlinksInPath().path) }
+
+    /// `C:` alone is whatever folder the program is in on that drive; the drive itself is `C:/`.
+    static func rooted(_ path: String) -> String { isDrive(path) ? path + "/" : path }
+
+    private static func isDrive(_ path: String) -> Bool {
+        let units = Array(path.utf8)
+        return units.count == 2 && units[1] == 58 && ((65...90).contains(units[0]) || (97...122).contains(units[0]))
+    }
+
+    /// The folder above; nil at the top (`/`, a drive).
+    static func parent(_ path: String) -> String? {
+        let trimmed = path.count > 1 && path.hasSuffix("/") ? String(path.dropLast()) : path
+        guard !isDrive(trimmed), let slash = trimmed.lastIndex(of: "/"), trimmed != "/" else { return nil }
+        return slash == trimmed.startIndex ? "/" : rooted(String(trimmed[..<slash]))
+    }
 
     /// The form a program on this system expects.
     static func native(_ path: String) -> String {
