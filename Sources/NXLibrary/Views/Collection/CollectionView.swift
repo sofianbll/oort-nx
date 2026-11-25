@@ -108,6 +108,7 @@ struct CollectionView: View {
                 : [HintItem(.lb, "Previous") { handle(.tabPrevious) }, HintItem(.rb, "Next") { handle(.tabNext) }]),
             hintsHidden: router.overlayHasHints(viewModel) || router.sortMenu != nil
                 || (selectedCatalogGame?.macShortcut != nil && viewModel.settingsNotice != nil),
+            press: { handle($0) },
             backdrop: {
                 SeleneArtBackground(image: art.image, imageKey: art.key,
                                     shade: settings.settings.backgroundShade,
