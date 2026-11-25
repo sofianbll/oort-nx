@@ -63,11 +63,11 @@ struct SettingsAboutSection: View {
 
             if let credits {
                 if let base {
-                    SettingsSubheading(Credits.words(base.category.title, in: language))
+                    SettingsSubheading(Credits.words(base.category.title, in: language), overBackdrop: true)
                         .accessibilityAddTraits(.isHeader)
                     cards(base, credits)
                 }
-                SettingsSubheading(credits.label("all", in: language))
+                SettingsSubheading(credits.label("all", in: language), overBackdrop: true)
                     .accessibilityAddTraits(.isHeader)
                 ForEach(groups) { group in
                     OortSettingsLink(id: "credits-\(group.id)", title: Credits.words(group.category.title, in: language),

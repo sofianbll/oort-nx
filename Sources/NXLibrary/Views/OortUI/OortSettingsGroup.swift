@@ -11,6 +11,35 @@ extension EnvironmentValues {
     @Entry var oortGroupedRow = false
 }
 
+/// A settings heading; on light backdrops, use Selene's reading shade under the ink.
+struct SettingsSubheading: View {
+    @Environment(\.seleneCanvas) private var canvas
+    let title: String
+    let overBackdrop: Bool
+
+    init(_ title: String, overBackdrop: Bool = false) {
+        self.title = title
+        self.overBackdrop = overBackdrop
+    }
+
+    var body: some View {
+        Text(L10n.text(title))
+            .seleneFont(.text, .semibold)
+            .foregroundColor(SeleneTheme.ink)
+            .background {
+                if overBackdrop && ThemeStore.shared.palette.mode == .light {
+                    RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.row))
+                        .fill(SeleneTheme.scrim)
+                        .padding(.horizontal, -canvas.u(SeleneTokens.Space.small))
+                        .padding(.vertical, -canvas.u(SeleneTokens.Space.hairline))
+                }
+            }
+            .padding(.top, canvas.u(SeleneTokens.Space.tight))
+            .padding(.bottom, canvas.u(SeleneTokens.Space.hairline))
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
 /// The explanation of the row under the pointer or in focus, shown once for the whole page.
 struct OortRowHelpKey: PreferenceKey {
     static let defaultValue: String? = nil

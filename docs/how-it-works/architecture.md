@@ -356,6 +356,7 @@ contenere anche i titoli e i messaggi su più righe.
 - I crediti hanno una sola fonte, `design/credits.json`, perché app, NOTICE e sito dicano le stesse cose. `scripts/generate_credits.py` ne scrive le copie e, con `--check`, fallisce se una dipendenza, un servizio, un font o un simbolo non ha credito.
 - Ogni app e il sito mostrano prima le stesse sei schede (`base`, nello stesso ordine), poi « Tutti i crediti » in cinque gruppi, sempre liste. `Credits.columns` decide: le sei in una griglia piena di tre colonne (due se manca posto), alla stessa altezza; gli altri gruppi una colonna. Un gruppo vuoto non appare.
 - About li mostra con `OortCreditGroup`: i gruppi si aprono dalla loro riga. Ogni riga di schede è una sola tappa del controller; sinistra e destra scelgono la scheda.
+- Nelle palette chiare, `SettingsSubheading` mette lo `scrim` sotto il testo dei due titoli dei crediti, senza cambiare la disposizione delle schede.
 - Sito e Windows/Linux usano `design/credits.css` con le variabili di `design/oort-tokens.css`. Il controllo rifiuta un valore scritto a mano in queste regole e nelle viste delle schede.
 - Un’icona compare solo se la fonte la dichiara permessa, con origine e motivo; altrimenti c’è il segno della categoria.
 
