@@ -54,6 +54,7 @@ extension AppViewModel {
                       failure ?? (game.lastBuild != nil ? "succeeded" : nil))
             i.cheats = cheats.cheatDiagnostics(for: game)
         }
+        i.deadWorkspaceLinks = LibraryPaths.deadWorkspaceLinks(in: core)
         i.lastCommand = porting.lastPortingCommand
         let logURL = buildLogURL ?? (lastBuildGameID.flatMap { id in libraryGames.first { $0.id == id } }
             .flatMap { logURL(for: $0) })

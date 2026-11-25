@@ -1,4 +1,5 @@
 import Foundation
+import os
 
 /// Immutable location policy. The build declares its profile; filenames and branch names do not select it.
 public struct AppDataProfile: Sendable {
@@ -87,6 +88,19 @@ public enum AppData {
             throw DevelopmentProfileError.invalidConfiguration
         }
     }
+    /// The copy of the old folder, then the repair of a copy made before it moved its paths.
+    static func adoptLegacyLibrary(_ profile: AppDataProfile, checks: [String: DevelopmentProfileImporter.Check],
+                                   legacyPreferences: () throws -> [String: Any], preferences: () throws -> [String: Any],
+                                   savePreferences: ([String: Any]) throws -> Void) throws {
+        let old = profile.legacySupportRoot, new = profile.supportRoot
+        _ = try LibraryMove(from: old, to: new).prepare(preferences: legacyPreferences, savePreferences: savePreferences)
+        // Never holds the launch: the old paths still open, and a locked or unreadable file is tried again next time.
+        do { try LibraryPathRepair(from: old, to: new).prepare(checks: checks, preferences: preferences, savePreferences: savePreferences) }
+        catch {
+            Logger(subsystem: AppDataProfile.identifier, category: "Startup")
+                .error("Library path repair waits: \(String(describing: error), privacy: .private)")
+        }
+    }
     /// `checks` validate the module's own files in the copy (Porting: `prepare()`).
     public static func prepare(checks: [String: DevelopmentProfileImporter.Check],
                                contents: DevelopmentProfileImporter.Contents = .legacy,
@@ -95,12 +109,14 @@ public enum AppData {
         try validateBuildIdentity(Bundle.main.infoDictionary ?? [:])
         if !profile.isDevelopment {
             let defaults = preferences
-            _ = try LibraryMove(from: profile.legacySupportRoot, to: profile.supportRoot).prepare {
+            try adoptLegacyLibrary(profile, checks: checks, legacyPreferences: {
                 UserDefaults.standard.persistentDomain(forName: AppDataProfile.legacyIdentifier) ?? [:]
-            } savePreferences: { values in
+            }, preferences: {
+                UserDefaults.standard.persistentDomain(forName: profile.preferencesDomain) ?? [:]
+            }, savePreferences: { values in
                 for (key, value) in values { defaults.set(value, forKey: key) }
                 guard CFPreferencesAppSynchronize(profile.preferencesDomain as CFString) else { throw LibraryMove.Failure.preferencesUnavailable }
-            }
+            })
         }
         // The trial's stable data copy is explicit; opening it never runs the legacy import.
         guard profile.isDevelopment, !profile.isTrial2 else { return }

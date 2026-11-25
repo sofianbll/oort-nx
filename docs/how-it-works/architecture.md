@@ -1011,6 +1011,13 @@ Prove e misure di queste scelte: [docs/history/reviews/2026-11-16-ratings-metada
 
 I percorsi sono relativi alla home. `Application Support/NXLibrary` è `~/Library/Application Support/NXLibrary`; la Dev usa la radice del suo profilo (`AppData`).
 
+**Passaggio a `Application Support/Oort NX`.** Il primo avvio della release copia la vecchia cartella (`LibraryMove`) e la lascia intatta, così Oort NX 0.3.0 la apre ancora.
+
+- `LibraryPaths` porta nella copia i percorsi, semplici o `file:`, di catalogo, impostazioni, profili, giocatori, sessioni, code e preferenze, anche dentro liste, dizionari e dati JSON. Cambia solo le stringhe interessate.
+- Restano sulla vecchia cartella i file che la copia non porta (log, `Temp`). `library.json` (il catalogo ne conserva l'impronta), il registro dello spostamento cloud e il registro di rimozione non si riscrivono.
+- `LibraryPathRepair` ripara una volta le librerie copiate dalla 0.5.0: sposta un percorso solo se l'equivalente esiste nella nuova cartella, oppure se è un workspace o una cache (sotto `workspaces/`) assente da entrambe. Prima conserva file e preferenze in `path-repair-backup/`, poi scrive `.repaired-paths.json`. Un catalogo in uso, un'altra copia aperta, una rimozione in sospeso, un file danneggiato o un'interruzione la rinviano all'avvio successivo, senza fermare l'app. *Perché:* i vecchi percorsi si aprono ancora, quindi aspettare non perde nulla.
+- I collegamenti dei workspace che non portano a nulla restano dove sono; **Copy diagnostics** li elenca.
+
 | Percorso | Contenuto e proprietario |
 |---|---|
 | `Application Support/NXLibrary/library.json` e `.bak` | Input del formato precedente, conservati intatti dopo la conversione da `CatalogStore`. |
