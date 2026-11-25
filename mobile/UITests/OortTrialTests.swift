@@ -123,9 +123,9 @@ final class OortTrialTests: OortCase {
             let device = app.cells.matching(NSPredicate(format: "label BEGINSWITH 'On My' OR label BEGINSWITH 'Sur mon' OR identifier CONTAINS 'LocalStorage'")).firstMatch
             if !place.waitForExistence(timeout: 5), device.waitForExistence(timeout: 5) { device.tap() }
         }
-        for _ in 0..<4 where !target.exists {
-            if place.waitForExistence(timeout: 15), place.isHittable { place.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.25)).tap() }
-            _ = target.waitForExistence(timeout: 12)
+        for height in [0.25, 0.5, 0.7, 0.25, 0.5] where !target.exists {
+            if place.waitForExistence(timeout: 15), place.isHittable { place.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: height)).tap() }
+            _ = target.waitForExistence(timeout: 8)
         }
         step("06-choisir-le-dossier-du-jeu")
         appears(target, "the game's folder in Files")
@@ -321,13 +321,17 @@ final class OortTrialTests: OortCase {
         app.swipeUp()
         step("62-paysage-fiche-bas")
         back()
-        tap(button(say("Options")), "Options")
+        tap(button(say("Game page")), "the game page")
+        // Brought above the tab bar, which floats over the list on a phone on its side.
+        open("Options")
+        appears(app.switches.firstMatch, "the options")
         step("63-paysage-options")
         // Turning on a page keeps it.
         XCUIDevice.shared.orientation = .portrait
-        shows("Back to the tested settings", 1)
+        appears(app.switches.firstMatch, "the options, upright")
         step("64-options-redressees")
         XCUIDevice.shared.orientation = .landscapeLeft
+        back()
         back()
         tab("Library")
         step("65-paysage-bibliotheque")
@@ -353,7 +357,11 @@ final class OortTrialTests: OortCase {
         step("72-grand-texte-fiche-suite")
         open("Remove from this device")
         step("73-grand-texte-confirmation")
-        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.05)).tap()
+        // The way out is at the bottom of the question, however large its words.
+        let out = button(say("Cancel"))
+        for _ in 0..<6 where !(out.exists && out.isHittable) { app.swipeUp() }
+        step("73-grand-texte-confirmation-fin")
+        tap(out, "Cancel")
         Thread.sleep(forTimeInterval: 1)
         for _ in 0..<8 { app.swipeDown(velocity: .fast) }
         back()
@@ -558,9 +566,9 @@ final class OortTrialTests: OortCase {
         press("a")
         step("131-manette-lettres")
         // M, A, R on the letters.
-        press("down"); press("right", 5); press("a")
-        press("up"); press("left", 5); press("a")
-        press("down", 2); press("right", 3); press("a")
+        press("down"); press("left", 6); press("right", 5); press("a")
+        press("up"); press("left", 6); press("a")
+        press("down", 2); press("left", 6); press("right", 3); press("a")
         eventually("the search leaves one game") { app.buttons[second].exists && !app.buttons[first].exists }
         step("132-manette-recherche")
         press("x")
@@ -585,8 +593,6 @@ final class OortTrialTests: OortCase {
         // Y from anywhere searches.
         tab("Home")
         press("y")
-        press("y")
-        press("a")
         eventually("Y opened the letters in the library") { app.buttons[say("Done")].exists }
         step("136-manette-y-recherche")
     }
@@ -637,37 +643,45 @@ final class OortTrialTests: OortCase {
         eventually("B closes the log") { row("Game log").isHittable }
     }
 
+    /// XCUITest sends Return as a line feed ("\r" reaches no one), and never sends Escape: Back is tapped.
     func test10Keyboard() throws {
         try start(.invented)
         appears(button(say("Game page")), "the home screen", 20)
-        func key(_ key: XCUIKeyboardKey, _ times: Int = 1) { for _ in 0..<times { app.typeKey(key, modifierFlags: []); Thread.sleep(forTimeInterval: 0.6) } }
+        func key(_ key: String, _ times: Int = 1) { for _ in 0..<times { app.typeKey(key, modifierFlags: []); Thread.sleep(forTimeInterval: 0.6) } }
+        func arrow(_ arrow: XCUIKeyboardKey, _ times: Int = 1) { key(arrow.rawValue, times) }
+        let onPage = app.navigationBars.buttons["BackButton"]
         let at = chosenGame
-        key(.rightArrow)
+        arrow(.rightArrow)
         eventually("the right arrow moves to the next game") { chosenGame != at }
         step("100-clavier-accueil")
-        key(.downArrow)
-        key(.leftArrow, 2)
-        key(.rightArrow)
-        key(.return)
-        shows("Version")
-        step("101-clavier-fiche")
-        key(.escape)
-        appears(button(say("Game page")), "home after Escape")
-        app.typeKey(",", modifierFlags: [])
+        arrow(.downArrow)
+        arrow(.leftArrow, 2)
+        arrow(.rightArrow)
+        XCTAssertFalse(onPage.exists, "still home")
+        step("101-clavier-fiche-choisie")
+        key("\n")
+        appears(onPage, "Return opens the game page")
+        step("102-clavier-fiche")
+        back()
+        key("o")
+        appears(app.switches.firstMatch, "O opens the options")
+        back()
+        key(",")
         shows("Data and saves")
-        key(.downArrow)
-        step("102-clavier-reglages")
-        key(.escape)
-        appears(button(say("Game page")), "home after Escape")
+        arrow(.downArrow)
+        key("\n")
+        shows("Days played")
+        step("103-clavier-temps-de-jeu")
+        back()
         // Y opens the library's search, and what is typed there stays typing.
-        app.typeKey("y", modifierFlags: [])
+        key("y")
         let search = app.searchFields.firstMatch
         appears(search, "the search field")
         Thread.sleep(forTimeInterval: 1)
         app.typeText("oy,")
         eventually("the letters go to the field") { (search.value as? String)?.contains("oy,") == true }
         XCTAssertTrue(app.searchFields.firstMatch.exists, "still in the library")
-        step("103-clavier-recherche")
+        step("104-clavier-recherche")
     }
 
     // MARK: Reopening, and no network
@@ -750,7 +764,7 @@ final class OortTrialTests: OortCase {
         step("123-hors-ligne-licences")
         let said = (try? String(contentsOf: log, encoding: .utf8)) ?? ""
         let probe = said.components(separatedBy: "PROBE end").first ?? ""
-        let after = said.dropFirst(probe.count).components(separatedBy: "\n").filter { $0.hasPrefix("blocked") }
+        let after = said.dropFirst(probe.count).components(separatedBy: "\n").filter { $0.hasPrefix("blocked") }   // refused, or a connection merely seen ("blocked?")
         XCTAssertEqual(after, [], "the app asked for the network")
         XCTAssertEqual(app.state, .runningForeground)
     }

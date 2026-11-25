@@ -16,8 +16,8 @@ enum OortRoute: Hashable {
     var selected: String?
     var device: InputDevice?
     var importing = false
-    /// The photo picker of a game's page.
-    var picking = false
+    /// The page whose photo picker is open: a game's page can be open in two tabs.
+    var picking: UUID?
     /// A screen's own question, shown over the app.
     var question: OortQuestion?
     /// What the library searches, in the system's field (`typing`) or with Oort NX's letters for a controller.

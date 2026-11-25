@@ -46,7 +46,7 @@ public struct OortRootView: View {
         .onAppear {
             nav.cover = { [nav] in
                 if nav.importing { return { nav.importing = false } }
-                if nav.picking { return { nav.picking = false } }
+                if nav.picking != nil { return { nav.picking = nil } }
                 #if os(iOS)
                 return OortOverlay.close()
                 #else

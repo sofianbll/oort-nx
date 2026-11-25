@@ -58,12 +58,12 @@ static int cut_getaddrinfo(const char *host, const char *port, const struct addr
     return EAI_NONAME;
 }
 
-static void cut_nw_connection_start(nw_connection_t connection) {
+// Network.framework's connections are written down, then left to the refusals above: ending one here would break CFNetwork.
+static void seen_nw_connection_start(nw_connection_t connection) {
     nw_endpoint_t end = nw_connection_copy_endpoint(connection);
     const char *host = end ? nw_endpoint_get_hostname(end) : NULL;
-    if (host && (!strcmp(host, "localhost") || !strcmp(host, "127.0.0.1") || !strcmp(host, "::1"))) { nw_connection_start(connection); return; }
-    say([NSString stringWithFormat:@"blocked nw_connection %s", host ?: "?"]);
-    nw_connection_cancel(connection);
+    if (!host || (strcmp(host, "localhost") && strcmp(host, "127.0.0.1") && strcmp(host, "::1")))
+        say([NSString stringWithFormat:@"blocked? nw_connection %s", host ?: "?"]);
     nw_connection_start(connection);
 }
 
@@ -73,7 +73,7 @@ CUT(cut_connect, connect)
 CUT(cut_connectx, connectx)
 CUT(cut_sendto, sendto)
 CUT(cut_getaddrinfo, getaddrinfo)
-CUT(cut_nw_connection_start, nw_connection_start)
+CUT(seen_nw_connection_start, nw_connection_start)
 
 __attribute__((constructor)) static void probe(void) {
     say(@"cut loaded");

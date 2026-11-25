@@ -149,7 +149,15 @@ struct LibraryScreen: View {
         let layout = type.isAccessibilitySize ? AnyLayout(VStackLayout(spacing: SeleneTokens.Space.small))
                                               : AnyLayout(HStackLayout(spacing: SeleneTokens.Space.small))
         func key(_ id: String, _ title: String, _ symbol: String, _ run: @escaping () -> Void) -> some View {
-            Button(action: run) { Label(title, systemImage: symbol).lineLimit(2).minimumScaleFactor(0.7).frame(maxWidth: .infinity) }
+            Button(action: run) {
+                // The sign stands over its word: three keys stay whole on the narrowest phone.
+                VStack(spacing: SeleneTokens.Space.seam) {
+                    Image(systemName: symbol)
+                    Text(title).font(.caption.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.7)
+                }
+                .padding(.vertical, SeleneTokens.Space.tight)
+                .frame(maxWidth: .infinity)
+            }
                 .buttonStyle(OortKeyStyle(focused: ring == id))
                 .accessibilityAddTraits(ring == id ? .isSelected : [])
                 .id(id)

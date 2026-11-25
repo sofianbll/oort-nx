@@ -9,6 +9,7 @@ struct GameScreen: View {
     let model: ShellHostModel
     @Bindable var nav: OortNav
     @State private var picture: PhotosPickerItem?
+    @State private var page = UUID()
     @State private var copied = false
     @Environment(\.horizontalSizeClass) private var across
     @Environment(\.verticalSizeClass) private var down
@@ -23,7 +24,8 @@ struct GameScreen: View {
                 #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
                 #endif
-                .photosPicker(isPresented: $nav.picking, selection: $picture, matching: .images)
+                .photosPicker(isPresented: Binding(get: { nav.picking == page }, set: { if !$0, nav.picking == page { nav.picking = nil } }),
+                              selection: $picture, matching: .images)
                 .onChange(of: picture) { _, item in
                     Task {
                         guard let data = try? await item?.loadTransferable(type: Data.self), let cover = OortCover.banner(from: data) else { return }
@@ -149,7 +151,7 @@ struct GameScreen: View {
             saves.append(OortRow(id: "restore", title: Oort.text("Bring back the last copy"), note: backup, symbol: "clock.arrow.circlepath",
                                  kind: .button { a.onRestoreSaveBackup(id) }))
         }
-        var look = [OortRow(id: "cover", title: Oort.text("Choose its picture"), symbol: "photo", kind: .button { nav.picking = true })]
+        var look = [OortRow(id: "cover", title: Oort.text("Choose its picture"), symbol: "photo", kind: .button { nav.picking = page })]
         if detail.game.hasCustomCover {
             look.append(OortRow(id: "coveroff", title: Oort.text("Back to the game's own picture"), symbol: "arrow.uturn.backward", kind: .button { a.onResetCustomCover?(id) }))
         }
