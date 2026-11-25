@@ -49,12 +49,18 @@ extension PlayersScreen {
             return [HintItem(.navigate, "Move"), HintItem(.a, "Select", action: activate)]
         }
         guard let number = focusedPlayer else {
-            var hints = [HintItem(.navigate, "Move")]
-            if model.rows.contains(.reset) {
-                hints.append(HintItem(.x, "Reset players") { model.select(.reset) })
-            }
-            return hints + [HintItem(.a, "Select", action: activate)]
+            return [HintItem(.navigate, "Move")] + resetHints + [HintItem(.a, "Select", action: activate)]
         }
+        return placeHints(number) + [HintItem(.a, "Profile", action: activate)]
+    }
+
+    var resetHints: [HintItem] {
+        model.rows.contains(.reset) ? [HintItem(.x, "Reset players") { model.select(.reset) }] : []
+    }
+
+    /// What a place can do, under the grid, on a right click and in the hints.
+    func placeHints(_ number: Int) -> [HintItem] {
+        guard model.readable, !isEditing else { return [] }
         var hints: [HintItem] = []
         if model.plan.slot(number) != nil {
             hints.append(HintItem(.x, "Move") { beginMove(number) })
@@ -66,7 +72,7 @@ extension PlayersScreen {
         if canSetMergeTarget(number) {
             hints.append(HintItem(.rt, "Give all controllers") { model.chooseMergeTarget(number) })
         }
-        return hints + [HintItem(.a, "Profile", action: activate)]
+        return hints
     }
 
     func back() {
@@ -224,7 +230,7 @@ extension PlayersScreen {
         case 53: action = .cancel
         case 7: action = .secondaryAction
         case 16: action = .contextAction
-        case 99: action = .rightStickPress
+        case 1, 99: action = .rightStickPress  // S, or F3 where Mission Control leaves it
         case 119: action = .jumpToEnd
         default: return event
         }

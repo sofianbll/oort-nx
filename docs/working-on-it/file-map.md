@@ -888,6 +888,8 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [OortFilePickerProbe.swift](../../Sources/NXLibrary/Views/OortUI/OortFilePickerProbe.swift) | Catture Debug larghe e strette in francese, con cartelle sintetiche. |
 | [Sources/NXLibrary/Views/OortUI/OortActionBar.swift](../../Sources/NXLibrary/Views/OortUI/OortActionBar.swift) | Piede comune di pannelli e domande: ritorno a sinistra, principale ultima a destra, distruttivo staccato; due righe se manca spazio. |
 | [Sources/NXLibrary/Views/OortUI/OortControls.swift](../../Sources/NXLibrary/Views/OortUI/OortControls.swift) | Preset per righe, azioni e stati, e riga con cursore. |
+| [Sources/NXLibrary/Views/OortUI/OortItemActions.swift](../../Sources/NXLibrary/Views/OortUI/OortItemActions.swift) | Azioni che l'indizio annuncia, anche sullo schermo e nel clic destro, dagli stessi HintItem. |
+| [Sources/NXLibrary/Views/OortUI/OortLink.swift](../../Sources/NXLibrary/Views/OortUI/OortLink.swift) | Collegamento tra i campi di un dialogo: clic, oppure Tab e Invio. |
 | [Sources/NXLibrary/Views/OortUI/OortGameTile.swift](../../Sources/NXLibrary/Views/OortUI/OortGameTile.swift) | Tessera con preset Spotlight e Collection, input e accessibilità; l'arte resta al chiamante. |
 | [Sources/NXLibrary/Views/OortUI/OortSecondaryClick.swift](../../Sources/NXLibrary/Views/OortUI/OortSecondaryClick.swift) | Clic destro (o Ctrl-clic) su un riquadro: le stesse opzioni di +; ogni altro evento passa al riquadro. |
 | [Sources/NXLibrary/Views/OortUI/OortWebPage.swift](../../Sources/NXLibrary/Views/OortUI/OortWebPage.swift) | Apre una pagina nel browser; dal controller chiede prima, perché nulla riporta a Oort. |

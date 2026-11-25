@@ -67,6 +67,13 @@ struct PlayersScreen: View {
                         }
                     }
                 }
+                if !isEditing {
+                    HStack(spacing: canvas.u(SeleneTokens.Space.group)) {
+                        if let number = focusedPlayer { OortItemActions(hints: placeHints(number)) }
+                        OortItemActions(hints: resetHints, deletes: [.x])
+                    }
+                    .frame(height: canvas.u(SeleneTokens.Space.compactPillHeight))
+                }
                 if case .profiles(let number) = model.page {
                     profileChoices(number)
                 } else if let note = launchNote {
@@ -114,6 +121,7 @@ struct PlayersScreen: View {
                           selected: receivesAllPads, marked: mark, action: { chooseCard(number) }) {
             portrait(profile)
         }
+        .oortItemMenu(placeHints(number))
         .onHover { if hover.moved($0), profilePlayer == nil { model.focus = row } }
         .disabled(model.saving)
         .animation(reduceMotion ? nil : SeleneTheme.quick, value: model.joinedPlayer)

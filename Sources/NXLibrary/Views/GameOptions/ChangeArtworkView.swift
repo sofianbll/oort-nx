@@ -155,7 +155,11 @@ struct ChangeArtworkView: View {
                         searchField
                             .padding(.top, canvas.u(SeleneTokens.Space.line))
                     }
-                    status
+                    HStack {
+                        status
+                        Spacer(minLength: 0)
+                        OortItemActions(hints: pageHint.map { [$0] } ?? [])
+                    }
                     grid
                 }
                 .frame(width: canvas.u(1240), alignment: .leading)
@@ -230,10 +234,15 @@ struct ChangeArtworkView: View {
         askAppIcon = true
     }
 
+    /// The source's own page, in the hints and above the grid.
+    var pageHint: HintItem? {
+        browsing == nil ? nil : browseResult?.page.map { _ in HintItem(.x, L10n.text("Open page"), action: openPage) }
+    }
+
     private var rightHints: [HintItem] {
         let move = [HintItem(.lb, L10n.text("Previous")), HintItem(.rb, L10n.text("Next"))]
         guard browsing != nil else { return move + [HintItem(.a, L10n.text("Choose"))] }
-        let page = browseResult?.page.map { _ in HintItem(.x, L10n.text("Open page"), action: openPage) }
+        let page = pageHint
         let accept = focus < 0 ? HintItem(.a, L10n.text("Search"), action: { fieldFocused = true })
                                : HintItem(.a, L10n.text("Choose"), action: chooseFocused)
         return (page.map { [$0] } ?? []) + move + (downloading ? [] : [accept])

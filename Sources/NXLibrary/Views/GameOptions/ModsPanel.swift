@@ -222,6 +222,10 @@ struct ModsPanel: View {
         return SeleneOptionRow(icon: text.icon, title: text.title, about: text.about, focused: focused,
                                enabled: text.enabled) {
             if let inactiveBadge { SeleneValueChip(text: inactiveBadge) }
+            if case .mod(let name) = row {
+                SelenePillButton.roundIcon(.delete) { askRemove(name) }
+                    .accessibilityHidden(true)
+            }
             if let isOn = text.isOn {
                 SeleneSwitch(isOn: .constant(isOn)).allowsHitTesting(false)
             }
@@ -230,6 +234,21 @@ struct ModsPanel: View {
         .accessibilityLabel([text.title, inactiveBadge, text.about].compactMap { $0 }.joined(separator: ". "))
         .accessibilityValue(text.isOn.map { $0 ? L10n.text("On") : L10n.text("Off") } ?? "")
         .accessibilityAddTraits(.isButton)
+        .accessibilityActions {
+            if case .mod(let name) = row { Button(L10n.text("Delete", context: locale)) { askRemove(name) } }
+        }
+        .oortItemMenu(deleteHint(row), deletes: [.y])
+    }
+
+    private func deleteHint(_ row: Row) -> [HintItem] {
+        guard case .mod(let name) = row else { return [] }
+        return [HintItem(.y, "Delete") { askRemove(name) }]
+    }
+
+    /// The bin on a row asks for that row, wherever the focus was.
+    private func askRemove(_ name: String) {
+        if let index = presentation.rows.firstIndex(of: .mod(name)) { focus.index = index }
+        askRemove()
     }
 
     private func describe(_ row: Row) -> (icon: MaterialIcon?, title: String, about: String?, isOn: Bool?, enabled: Bool) {
@@ -462,7 +481,7 @@ struct ModsPanel: View {
             case 123: action = .navigateLeft
             case 124: action = .navigateRight
             case 36, 76, 49: action = .confirm
-            case 51, 117: action = .contextAction
+            case 16, 51, 117: action = .contextAction   // Y, as the hint says, or Delete
             case 53: action = .cancel
             default: return event
             }

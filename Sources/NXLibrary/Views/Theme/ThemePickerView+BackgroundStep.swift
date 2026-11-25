@@ -66,6 +66,8 @@ extension ThemePickerView {
                         .lineLimit(1)
                         .padding(.top, canvas.u(SeleneTokens.Space.medium))
                         .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
+                    OortItemActions(hints: rightHints, deletes: [.y])
+                        .padding(.top, canvas.u(SeleneTokens.Space.medium))
                 }
             }
             .padding(.top, canvas.u(SeleneTokens.Space.stageDrop))

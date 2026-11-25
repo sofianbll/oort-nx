@@ -127,6 +127,7 @@ struct CommandPaletteView: View {
             .containerValue(\.oortSettingsRow, true)
             .id(index)
             .onHover { if hover.moved($0) { palette.focus(index) } }
+            .oortItemMenu(secondaryHint(row, at: index))
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(name(row, in: group))
             .accessibilityValue(value(row))
@@ -139,6 +140,11 @@ struct CommandPaletteView: View {
                     }
                 }
             }
+    }
+
+    private func secondaryHint(_ row: PaletteRow, at index: Int) -> [HintItem] {
+        guard case .item(let item) = row, let secondary = item.secondary else { return [] }
+        return [HintItem(.y, secondary) { palette.focus(index); palette.chooseSecondary() }]
     }
 
     @ViewBuilder private func label(_ row: PaletteRow, in group: PaletteGroup, focused: Bool) -> some View {

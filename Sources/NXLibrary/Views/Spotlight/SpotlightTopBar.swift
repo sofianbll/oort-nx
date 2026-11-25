@@ -15,7 +15,8 @@ struct SpotlightTopBar: View {
     let sort: LibrarySort
     var tabs = LibraryFilter.defaultTabs
     var played = LibraryPlayed.any
-    var onFilters: () -> Void = {}
+    /// Opens Sort and filter; its button is always there, the hint is not.
+    var onFilters: (() -> Void)?
     var showClock: Bool = true
     var profileFocused = false
     /// The profile's Nextendo account: its presence dot shows while the profile is visible online.
@@ -35,8 +36,8 @@ struct SpotlightTopBar: View {
                          selected: filter, select: onSelect)
                 badge(.rb)
                 // Beside the tabs, which stay where they are: it takes no width of its own.
-                if played != .any {
-                    activeFilter.fixedSize().frame(width: 0, alignment: .leading)
+                if let onFilters {
+                    activeFilter(onFilters).fixedSize().frame(width: 0, alignment: .leading)
                 }
             }
             // Selene's order, right to left: the clock, then the profile's avatar just before it.
@@ -77,11 +78,13 @@ struct SpotlightTopBar: View {
     static func openProfile() { NotificationCenter.default.post(name: .nxOpenLocalProfile, object: nil) }
 
     /// Says why games are missing, and opens the panel that brings them back.
-    private var activeFilter: some View {
-        Button(action: onFilters) {
+    private func activeFilter(_ open: @escaping () -> Void) -> some View {
+        Button(action: open) {
             HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                 MaterialIconView(.tune, size: 20)
-                Text(L10n.text(played.rawValue, context: locale)).seleneFont(.text, .medium)
+                if played != .any {
+                    Text(L10n.text(played.rawValue, context: locale)).seleneFont(.text, .medium)
+                }
             }
             .foregroundStyle(SeleneTheme.ink)
             .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))

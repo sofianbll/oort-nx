@@ -21,6 +21,8 @@ struct SpotlightCardInfoView: View {
     let onTopGame: (Int) -> Void
     /// Nil hides the section; an empty history has its own visible state.
     var recentBuilds: [(game: PortedGame, date: Date)]? = nil
+    /// The card's own actions, beside their hints.
+    var actions: [HintItem] = []
     /// The Mods card: working mods found so far and the games they are for.
     var modCounts: (mods: Int, games: Int, looking: Bool)? = nil
 
@@ -132,6 +134,7 @@ struct SpotlightCardInfoView: View {
                     .padding(canvas.u(-SeleneTokens.Space.tight))
                 }
             }
+            OortItemActions(hints: actions)
             if let recentBuilds {
                 VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
                     activityHeading("Recently built")
