@@ -24,6 +24,11 @@ sleep 2; openbox > /dev/null 2>&1 & sleep 1
 shot() { import -window root "$out/$1.png"; colors=$(identify -format %k "$out/$1.png"); [ "$colors" -gt 200 ]; check $? "$1: $colors colours on screen"; }
 keys() { for k in "$@"; do xdotool key "$k"; sleep 0.4; done; sleep 0.8; }
 
+# The lightest point at the top, in percent, where the home has its tabs. The clock and the controller are outside.
+top() { import -window root png:- | convert png:- -gravity North -crop 700x70+0+25 +repage -format '%[fx:round(100*maxima)]' info:-; }
+# The first hint, where the page draws it (app.css): in from the left, up from the bottom, by the canvas unit.
+back() { local WIDTH HEIGHT; eval "$(xdotool getwindowgeometry --shell "$1" | grep -E '^(WIDTH|HEIGHT)=')"; xdotool mousemove --window "$1" $(python3 -c "u=min($WIDTH/1920,$HEIGHT/1080); print(round(82*u+60), round($HEIGHT-28*u-11))") click 1; sleep 1.2; }
+
 try() { # name, program
   local name=$1; shift
   local data="$run/data-$name"; setup "$data"
@@ -36,6 +41,10 @@ try() { # name, program
   shot "$name-home"
   keys ctrl+comma; shot "$name-settings"; keys Escape
   keys h; shot "$name-menu"; keys Escape
+  # Back with the mouse: from a row to the list, then out. The tabs of the home are white at the top, Settings' page is dark.
+  keys ctrl+comma Right; check "$([ "$(top)" -lt 40 ]; echo $?)" "$name: Settings are open"
+  back "$window"; check "$([ "$(top)" -lt 40 ]; echo $?)" "$name: Back, with the mouse, goes to the list"
+  back "$window"; shot "$name-mouse-back"; check "$([ "$(top)" -gt 80 ]; echo $?)" "$name: Back again leaves Settings"
   # Broken Compass, then Harbour: the shelf by name starts with Projects and Add game.
   local at; at=$(python3 - "$data" "$run" <<'PY'
 import json, subprocess, sys
@@ -47,6 +56,8 @@ PY
   keys x; shot "$name-page"; keys Escape
   xdotool key Return; sleep 1; shot "$name-launch"; sleep 8
   xdotool search --onlyvisible --name '^Oort NX$' > /dev/null; check $? "$name: the window is back after the game"
+  xprop -id "$(xdotool search --name '^Oort NX$' | head -1)" WM_STATE | grep -q Normal; check $? "$name: it is not minimized"
+  echo "in front: $(xdotool getactivewindow getwindowname 2>/dev/null)"
   shot "$name-back"
   python3 - "$data" <<'PY'
 import datetime, json, sys

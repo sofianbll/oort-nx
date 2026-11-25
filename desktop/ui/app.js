@@ -203,10 +203,14 @@ addEventListener('keydown', e => {
   if (others[e.key] && !(typing && others[e.key] !== 'b' && e.key !== 'F3')) { e.preventDefault(); return act(others[e.key]); }
   if (!typing && !e.repeat && letters[e.key.toLowerCase()]) { e.preventDefault(); act(letters[e.key.toLowerCase()]); }
 });
+/* From a finger lifted to its click, in milliseconds. */
+const PRESS = 120;
 /* The game chosen when a press began: a click chooses, a click on the chosen game opens it. */
 let chosen = null;
-addEventListener('pointerdown', e => { chosen = selected; hand.down(e); const b = e.target.closest('button'); if (b) S.play('select', b); }, true);
-addEventListener('pointermove', e => hand.move(e), { passive: true });
+addEventListener('pointerdown', e => { chosen = selected; const b = e.target.closest('button'); if (b) S.play('select', b); }, true);
+addEventListener('pointermove', e => { if (!e.buttons) hand.move(e); }, { passive: true });
+/* What is drawn for a mouse or a finger is drawn once the press is over: what is pressed stays where it is. */
+for (const kind of ['pointerup', 'pointercancel']) addEventListener(kind, e => hand.lifted(e, f => setTimeout(f, e.pointerType === 'touch' ? PRESS : 0)), true);
 addEventListener('click', e => { if (!e.detail && e.isTrusted) S.play('select', document.activeElement); }, true);
 /* Rows follow the pointer. The shelf, the grid and the list of pages do not: they only show it, so nothing slides under it
    and the line marked is the page shown. */

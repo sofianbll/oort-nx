@@ -4,11 +4,13 @@
 const REACH = 12, PAUSE = 500;
 export const handOf = changed => {
   let moved = 0, at = -PAUSE;
-  const to = next => { moved = 0; if (next !== hand.now) { hand.now = next; changed(next); } };
+  const to = next => { moved = 0; hand.uses++; if (next !== hand.now) { hand.now = next; changed(next); } };
   const hand = {
-    now: 'keys',
+    now: 'keys', uses: 0,
     keys: () => to('keys'), pad: () => to('pad'),
     down: e => to(e.pointerType === 'touch' ? 'touch' : 'mouse'),
+    /* A press, told once it is over; what came since has the last word. */
+    lifted: (e, later) => { const uses = hand.uses; later(() => { if (hand.uses === uses) hand.down(e); }); },
     move: e => {
       if (e.pointerType !== 'mouse') return;
       if (e.timeStamp - at > PAUSE) moved = 0;

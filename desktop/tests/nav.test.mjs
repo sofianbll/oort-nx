@@ -83,6 +83,8 @@ test('the last thing used is the one in hand, and a small knock is not', () => {
   assert.equal(hand.now, 'mouse');
   hand.move({ pointerType: 'mouse', movementX: 0, movementY: 0, timeStamp: 4000 }); hand.keys(); assert.equal(hand.now, 'keys');
   hand.down({ pointerType: 'touch' }); assert.equal(hand.now, 'touch'); hand.down({ pointerType: 'mouse' }); assert.equal(hand.now, 'mouse');
+  let later; hand.keys(); hand.lifted({ pointerType: 'touch' }, f => { later = f; }); assert.equal(hand.now, 'keys', 'a press changes nothing while it lasts'); later(); assert.equal(hand.now, 'touch');
+  hand.lifted({ pointerType: 'mouse' }, f => { later = f; }); hand.pad(); later(); assert.equal(hand.now, 'pad', 'what came since has the last word');
 });
 test('a notch of a wheel is one game, a touchpad adds up', () => {
   const out = [], wheel = stepper(d => out.push(d));
