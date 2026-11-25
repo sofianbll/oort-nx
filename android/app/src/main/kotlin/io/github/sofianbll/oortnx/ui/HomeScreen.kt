@@ -3,6 +3,7 @@ package io.github.sofianbll.oortnx.ui
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -26,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
@@ -171,8 +173,11 @@ private fun Covers(state: AppState, games: List<Game>, game: Game, side: Dp, wid
         val selected = item.packageName == game.packageName
         val opens = stringResource(R.string.game_page)
         val options = stringResource(R.string.options)
+        val source = remember { MutableInteractionSource() }
+        val hovered by source.collectIsHoveredAsState()
         GameCover(
             item, state.icons[item.packageName],
+            hovered = hovered,
             focused = selected && state.padMode && state.homeTarget == HomeTarget.Cover,
             calm = calm,
             radius = canvas(OortTokens.Radius.Dialog),
@@ -183,7 +188,8 @@ private fun Covers(state: AppState, games: List<Game>, game: Game, side: Dp, wid
                     if (!calm) { scaleX = 1f - 0.1f * off; scaleY = scaleX }
                     alpha = 1f - 0.45f * off
                 }
-                .combinedClickable(remember { MutableInteractionSource() }, indication = null, role = Role.Tab, onClickLabel = if (selected) opens else null,
+                .onRightClick { state.openMenu(item) }
+                .combinedClickable(source, indication = null, role = Role.Tab, onClickLabel = if (selected) opens else null,
                     onLongClickLabel = options, onLongClick = { state.openMenu(item) }) {
                     if (selected) state.openGame(item) else state.select(item)
                 }
@@ -223,13 +229,17 @@ private fun Rail(state: AppState, games: List<Game>, game: Game, tile: Dp, gutte
         itemsIndexed(games, key = { _, g -> g.packageName }) { _, item ->
             val selected = item.packageName == game.packageName
             val options = stringResource(R.string.options)
+            val source = remember { MutableInteractionSource() }
+            val hovered by source.collectIsHoveredAsState()
             GameCover(
                 item, state.icons[item.packageName],
+                hovered = hovered,
                 focused = selected && (!state.padMode || state.homeTarget == HomeTarget.Cover),
                 calm = state.prefs.calm,
                 radius = canvas(OortTokens.Radius.Card),
                 modifier = Modifier.size(tile)
-                    .combinedClickable(remember { MutableInteractionSource() }, indication = null, role = Role.Tab,
+                    .onRightClick { state.openMenu(item) }
+                    .combinedClickable(source, indication = null, role = Role.Tab,
                         onLongClickLabel = options, onLongClick = { state.openMenu(item) }) { if (selected) state.openGame(item) else state.select(item) }
                     .semantics { contentDescription = item.title; this.selected = selected },
             )

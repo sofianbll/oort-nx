@@ -3,6 +3,7 @@ package io.github.sofianbll.oortnx.ui
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -104,14 +105,17 @@ private fun SortKey(state: AppState) {
 
 @Composable
 private fun GameTile(state: AppState, game: Game, icon: ImageBitmap?, focused: Boolean) {
+    val source = remember { MutableInteractionSource() }
+    val hovered by source.collectIsHoveredAsState()
     Column(
         Modifier
             .fillMaxWidth()
-            .combinedClickable(remember { MutableInteractionSource() }, indication = null, role = Role.Button, onClickLabel = stringResource(R.string.game_page),
+            .onRightClick { state.openMenu(game) }
+            .combinedClickable(source, indication = null, role = Role.Button, onClickLabel = stringResource(R.string.game_page),
                 onLongClickLabel = stringResource(R.string.options), onLongClick = { state.openMenu(game) }) { state.openGame(game) },
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        GameCover(game, icon, focused, state.prefs.calm, Modifier.fillMaxWidth().aspectRatio(1f))
+        GameCover(game, icon, focused, state.prefs.calm, Modifier.fillMaxWidth().aspectRatio(1f), hovered = hovered)
         Text(game.title, Modifier.padding(horizontal = 6.dp), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, minLines = 2, maxLines = 2, overflow = TextOverflow.Ellipsis)
     }
 }

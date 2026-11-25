@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -82,7 +83,8 @@ fun OortKey(
 ) {
     val source = remember { MutableInteractionSource() }
     val pressed by source.collectIsPressedAsState()
-    val rise by animateFloatAsState(if (focused || pressed) 1f else 0f, motion(calm, OortTokens.Motion.SlowMs), label = "dots")
+    val hovered by source.collectIsHoveredAsState()
+    val rise by animateFloatAsState(if (focused || pressed) 1f else if (hovered) 0.6f else 0f, motion(calm, OortTokens.Motion.SlowMs), label = "dots")
     val sink by animateFloatAsState(if (pressed && !calm) OortTokens.Effect.PressScale else 1f, motion(calm, OortTokens.Motion.PressMs), label = "press")
     val shape: Shape = if (round) CircleShape else RoundedCornerShape(canvas(OortTokens.Radius.Dialog))
     val fill = if (solid) listOf(OortTokens.Palette.Focus, over(OortTokens.Palette.Focus, OortTokens.Palette.Glyph, OortTokens.Effect.SurfaceLineStrong)) else listOf(PanelRaised, PanelLow)
@@ -117,9 +119,10 @@ fun Modifier.oortPanel(shape: Shape): Modifier = clip(shape).background(Brush.ve
 
 /** A game's cover: its icon, or its letter on the halftone. */
 @Composable
-fun GameCover(game: Game, icon: ImageBitmap?, focused: Boolean, calm: Boolean, modifier: Modifier = Modifier, radius: Dp = canvas(OortTokens.Radius.Modal)) {
+fun GameCover(game: Game, icon: ImageBitmap?, focused: Boolean, calm: Boolean, modifier: Modifier = Modifier, radius: Dp = canvas(OortTokens.Radius.Modal), hovered: Boolean = false) {
     val shape = RoundedCornerShape(radius)
-    val ring by animateFloatAsState(if (focused) 1f else 0f, motion(calm, if (focused) OortTokens.Motion.FocusInMs else OortTokens.Motion.FocusOutMs), label = "ring")
+    // The mouse lights a fainter ring than the controller: it points, it does not choose.
+    val ring by animateFloatAsState(if (focused) 1f else if (hovered) 0.5f else 0f, motion(calm, if (focused) OortTokens.Motion.FocusInMs else OortTokens.Motion.FocusOutMs), label = "ring")
     Box(modifier.border(2.dp, OortTokens.Palette.Focus.copy(alpha = ring), RoundedCornerShape(radius + 4.dp)).padding(4.dp)) {
         if (icon != null) {
             Image(icon, contentDescription = null, modifier = Modifier.fillMaxSize().clip(shape), contentScale = ContentScale.Crop)
