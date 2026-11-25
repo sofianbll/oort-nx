@@ -295,6 +295,7 @@ Tools
 - WebKitGTK, by WebKitGTK team. Shows the window’s content. LGPL-2.1-or-later. Reference, no code in the app (Linux). https://webkitgtk.org
 - Kotlin, by JetBrains. Programming language and its standard library. Apache-2.0. In the app (Android). https://kotlinlang.org
 - AndroidX and Jetpack Compose, by The Android Open Source Project. Interface toolkit. Apache-2.0. In the app (Android). https://developer.android.com/jetpack
+- JNA, by java-native-access. Access to the system. Apache-2.0. In the app (Android). https://github.com/java-native-access/jna/tree/5.19.1
 - XcodeGen, by Yonas Kolb. Used to make the app; not inside it. MIT. Used to make the app (iPhone and iPad). https://github.com/yonaskolb/XcodeGen
 - dmgbuild, by Alastair Houghton. Used to make the app; not inside it. MIT. Used to make the app (Mac). https://github.com/dmgbuild/dmgbuild
 - Tauri CLI, by Tauri Programme. Used to make the app; not inside it. Apache-2.0 OR MIT. Used to make the app (Windows, Linux). https://tauri.app
