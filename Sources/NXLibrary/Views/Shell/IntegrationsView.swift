@@ -114,7 +114,7 @@ struct IntegrationBar: View {
             .padding(.vertical, canvas.u(SeleneTokens.Space.compact))
             .foregroundStyle(focused ? SeleneTheme.onFocus : SeleneTheme.ink)
             .background(focused ? SeleneTheme.focus : SeleneTheme.glassSolid, in: Capsule())
-            .overlay(Capsule().strokeBorder(SeleneTheme.ink15, lineWidth: 1))
+            .overlay(Capsule().strokeBorder(SeleneTheme.ink15, lineWidth: SeleneTokens.Space.thinStroke))
             .frame(maxWidth: canvas.u(385), alignment: .leading)
         }
         .buttonStyle(.plain)

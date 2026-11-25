@@ -94,7 +94,7 @@ struct ArcaneWelcomeView: View {
         }
         .padding(canvas.u(SeleneTokens.Space.large))
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(SeleneTheme.glass.opacity(0.75))
+        .background(SeleneTheme.glass.opacity(SeleneTokens.Alpha.strong))
         .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.modal), style: .continuous))
     }
 
@@ -118,7 +118,7 @@ struct ArcaneWelcomeView: View {
         }
         .padding(.horizontal, canvas.u(SeleneTokens.Space.large))
         .padding(.vertical, canvas.u(SeleneTokens.Space.control))
-        .background(SeleneTheme.glass.opacity(0.75))
+        .background(SeleneTheme.glass.opacity(SeleneTokens.Alpha.strong))
         .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.modal), style: .continuous))
     }
 }

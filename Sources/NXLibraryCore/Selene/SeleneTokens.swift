@@ -58,6 +58,14 @@ public enum SeleneTokens {
         public static let rowLeading: CGFloat = 26
         public static let fieldInset: CGFloat = 10
         public static let chipBottom: CGFloat = 5
+        public static let gap: CGFloat = 10
+        public static let pageTop: CGFloat = 90
+        public static let pageTopCompact: CGFloat = 70
+        public static let pageFoot: CGFloat = 124
+        public static let pageFootDeep: CGFloat = 154
+        public static let stageDrop: CGFloat = 250
+        public static let stageDropDeep: CGFloat = 290
+        public static let ringStroke: CGFloat = 4
         public static let playerSlotContent: CGFloat = 126
     }
 
@@ -82,6 +90,53 @@ public enum SeleneTokens {
         public static let statusOK: UInt32 = 0x3DDC84
         public static let statusCloud: UInt32 = 0x9CCBFF
         public static let untested: UInt32 = 0xE8B65C
+    }
+
+    public enum Alpha {
+        public static let trace: Double = 0.05
+        public static let faint: Double = 0.08
+        public static let soft: Double = 0.15
+        public static let line: Double = 0.22
+        public static let mist: Double = 0.3
+        public static let shade: Double = 0.38
+        public static let half: Double = 0.45
+        public static let veil: Double = 0.55
+        public static let muted: Double = 0.6
+        public static let strong: Double = 0.75
+        public static let heavy: Double = 0.85
+        public static let near: Double = 0.92
+    }
+
+    public enum Art {
+        public static let shade: UInt32 = 0x000000
+        public static let ink: UInt32 = 0xFFFFFF
+        public static let grey: UInt32 = 0x808080
+        public static let sun: UInt32 = 0xF4CE8E
+        public static let sunCore: UInt32 = 0xFFF7E3
+        public static let sunRay: UInt32 = 0xFFF3DC
+        public static let starCore: UInt32 = 0xF9FCFF
+        public static let mods: UInt32 = 0xFFC94A
+        public static let modsHigh: UInt32 = 0x8A5A0E
+        public static let modsMid: UInt32 = 0x3A2508
+        public static let modsLow: UInt32 = 0x05080F
+        public static let softRed: UInt32 = 0xF2A0A0
+        public static let softGreen: UInt32 = 0xA8DDB5
+        public static let pastel1: UInt32 = 0xF4CFDA
+        public static let pastel2: UInt32 = 0xF6E0C8
+        public static let pastel3: UInt32 = 0xF3EECB
+        public static let pastel4: UInt32 = 0xD3EBDD
+        public static let pastel5: UInt32 = 0xD8E6F2
+        public static let pastel6: UInt32 = 0xE2DAF2
+        public static let portrait1: UInt32 = 0x254A71
+        public static let portrait2: UInt32 = 0x373C75
+        public static let portrait3: UInt32 = 0x6D355D
+        public static let portrait4: UInt32 = 0x713F38
+        public static let portrait5: UInt32 = 0x255B4C
+        public static let portrait6: UInt32 = 0x315772
+        public static let portrait7: UInt32 = 0x48612D
+        public static let portrait8: UInt32 = 0x745A25
+        public static let portrait9: UInt32 = 0x8D4831
+        public static let portrait10: UInt32 = 0x2E5771
     }
 
     public enum Effect {
@@ -111,6 +166,13 @@ public enum SeleneTokens {
 
     public enum Motion {
         public static let transfer: Double = 0.25
+        public static let shake: Double = 0.3
+        public static let pageIn: Double = 0.7
+        public static let pageOut: Double = 0.45
+        public static let pageDim: Double = 0.8
+        public static let pageLate: Double = 0.9
+        public static let pulse: Double = 0.65
+        public static let art: Double = 0.42
         public static let focusIn: Double = 0.18
         public static let focusOut: Double = 0.2
         public static let screen: Double = 0.32

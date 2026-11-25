@@ -13,7 +13,7 @@ PALETTES = Path("Resources/Selene/palettes.json")
 PALETTE_ROLES = ("focus", "on-focus", "ink", "scrim", "glass", "glyph", "success", "light")
 GROUPS = {
     "text": "Text", "space": "Space", "radius": "Radius", "status": "Color",
-    "effect": "Effect", "motion": "Motion", "distance": "Distance", "color": "Palette",
+    "alpha": "Alpha", "art": "Art", "effect": "Effect", "motion": "Motion", "distance": "Distance", "color": "Palette",
 }
 NAME = re.compile(r"[a-z]+(?:-[a-z0-9]+)*")
 

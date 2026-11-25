@@ -160,7 +160,7 @@ struct ChangeArtworkView: View {
                 }
                 .frame(width: canvas.u(1240), alignment: .leading)
                 .frame(maxHeight: .infinity, alignment: .top)
-                .padding(.top, canvas.u(90))
+                .padding(.top, canvas.u(SeleneTokens.Space.pageTop))
                 .padding(.bottom, canvas.u(SeleneTokens.Space.panel))
                 .contentShape(Rectangle())
 
@@ -272,7 +272,7 @@ struct ChangeArtworkView: View {
         .padding(.vertical, canvas.u(SeleneTokens.Space.small))
         .background(Capsule().fill(SeleneTheme.glassSolid))
         .overlay(Capsule().strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
-            .padding(canvas.u(-4))
+            .padding(canvas.u(-SeleneTokens.Space.hairline))
             .opacity(focus < 0 ? 1 : 0))
         .frame(width: canvas.u(560))
         .padding(.leading, canvas.u(SeleneTokens.Space.compact))
@@ -364,7 +364,7 @@ struct ChangeArtworkView: View {
             }
             .scrollIndicators(.hidden)
             // The room reaches past the column, so the tiles still line up with the title.
-            .padding(.horizontal, canvas.u(8 - Self.ringRoom))
+            .padding(.horizontal, canvas.u(SeleneTokens.Space.compact - Self.ringRoom))
             .padding(.top, canvas.u(-Self.ringRoom / 2))
             .onChange(of: focus) { _, index in
                 guard index >= 0 else { return }

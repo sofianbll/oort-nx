@@ -58,13 +58,13 @@ struct SeleneHintsBar: View {
 
     var body: some View {
         if showHints {
-            HStack(alignment: .bottom, spacing: canvas.u(22)) {
-                HStack(spacing: canvas.u(22)) {
+            HStack(alignment: .bottom, spacing: canvas.u(SeleneTokens.Space.titleGap)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.titleGap)) {
                     ForEach(visibleLeft(style: style, connected: pad)) { item($0) }
                 }
                     .padding(.leading, canvas.u(leftInset))
                 Spacer(minLength: canvas.u(22))
-                HStack(spacing: canvas.u(22)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.titleGap)) {
                     ForEach(Array(rightSlots.enumerated()), id: \.offset) { slot in
                         if let hint = slot.element {
                             item(hint, reserve: reserve(slot.offset))
@@ -78,7 +78,7 @@ struct SeleneHintsBar: View {
             .padding(.bottom, canvas.u(bottom))
             .frame(maxWidth: .infinity)
             // A soft shadow lifts the prompts off whatever art is behind them.
-            .shadow(color: .black.opacity(0.5), radius: canvas.u(6), y: canvas.u(1))
+            .shadow(color: SeleneTheme.artShade.opacity(SeleneTokens.Alpha.half), radius: canvas.u(6), y: canvas.u(1))
             .seleneOverlaidHints(covered)
         }
     }
@@ -113,7 +113,7 @@ struct SeleneHintsBar: View {
     }
 
     private func content(_ item: HintItem, reserve: [String] = []) -> some View {
-        HStack(spacing: canvas.u(8)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
             if let button = item.button {
                 SelenePromptBadge(button: button, keyboardOverride: item.keyboard)
             } else if let glyph = item.glyph {
@@ -136,6 +136,6 @@ struct SeleneHintsBar: View {
                 }
             }
         }
-        .shadow(color: .black.opacity(0.55), radius: canvas.u(4), y: canvas.u(1))
+        .shadow(color: SeleneTheme.artShade.opacity(SeleneTokens.Alpha.veil), radius: canvas.u(4), y: canvas.u(1))
     }
 }

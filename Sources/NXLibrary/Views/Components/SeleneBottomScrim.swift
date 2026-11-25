@@ -16,9 +16,9 @@ struct SeleneBottomScrim: View {
         VStack(spacing: 0) {
             Spacer(minLength: 0)
             LinearGradient(stops: [
-                .init(color: .black.opacity(0), location: 0),
-                .init(color: .black.opacity(0.24), location: 0.45),
-                .init(color: .black.opacity(0.50), location: 1)
+                .init(color: SeleneTheme.artShade.opacity(0), location: 0),
+                .init(color: SeleneTheme.artShade.opacity(SeleneTokens.Alpha.line), location: 0.45),
+                .init(color: SeleneTheme.artShade.opacity(SeleneTokens.Alpha.half), location: 1)
             ], startPoint: .top, endPoint: .bottom)
             .frame(height: canvas.u(260))
         }

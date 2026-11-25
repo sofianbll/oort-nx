@@ -145,7 +145,7 @@ struct SpotlightRightHint: View {
             path.addLine(to: CGPoint(x: canvas.u(7), y: canvas.u(11)))
             path.addLine(to: CGPoint(x: 0, y: canvas.u(22)))
         }
-        .stroke(SeleneTheme.ink.opacity(0.45),
+        .stroke(SeleneTheme.ink.opacity(SeleneTokens.Alpha.half),
                 style: StrokeStyle(lineWidth: max(1, canvas.u(2)), lineCap: .round, lineJoin: .round))
         .frame(width: canvas.u(7), height: canvas.u(22))
         .oortShadow(.text)
@@ -163,7 +163,7 @@ struct SpotlightUpHint: View {
             path.addLine(to: CGPoint(x: canvas.u(14), y: 0))
             path.addLine(to: CGPoint(x: canvas.u(28), y: canvas.u(9)))
         }
-        .stroke(SeleneTheme.ink.opacity(0.45),
+        .stroke(SeleneTheme.ink.opacity(SeleneTokens.Alpha.half),
                 style: StrokeStyle(lineWidth: max(1, canvas.u(2)), lineCap: .round, lineJoin: .round))
         .frame(width: canvas.u(28), height: canvas.u(9))
         .oortShadow(.text)

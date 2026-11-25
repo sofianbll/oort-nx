@@ -769,7 +769,7 @@ private struct NextendoFriendLine<Trailing: View>: View {
         }
         .padding(.horizontal, canvas.u(SeleneTokens.Space.compact))
         .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
-        .background(SeleneTheme.glass.opacity(0.75))
+        .background(SeleneTheme.glass.opacity(SeleneTokens.Alpha.strong))
         .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.cover), style: .continuous))
     }
 

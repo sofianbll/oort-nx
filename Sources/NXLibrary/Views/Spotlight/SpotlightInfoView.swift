@@ -256,7 +256,7 @@ private struct NowPlayingDot: View {
                     let eased = 1 - pow(1 - p, 3)
                     Circle().fill(SeleneTheme.success)
                         .scaleEffect(0.5 + 0.5 * eased)
-                        .opacity(0.45 * (1 - p))
+                        .opacity(SeleneTokens.Alpha.half * (1 - p))
                 }
             }
             Circle().fill(SeleneTheme.success)
@@ -269,7 +269,7 @@ private struct NowPlayingDot: View {
 enum PortingPillCopy {
     static let failedTitles = ["Try again", "Open log", "Delete"]
     /// Soft, never alarm red.
-    static let softRed = Color(hex: 0xF2A0A0)
+    static let softRed = Color(hex: SeleneTokens.Art.softRed)
 
     static func lastFailure(_ failure: PortingFailure, reason: PortingFailureReason? = nil) -> String {
         if failure == .cancelled { return L10n.text("Last porting cancelled · Open log") }

@@ -69,7 +69,7 @@ struct SelenePillButton: View {
         // A key with an icon alone stays round.
         let radius = title == nil ? canvas.u(height) / 2 : min(canvas.u(height) / 2, canvas.u(SeleneTokens.Radius.card))
         let solid = downloadFill == nil && focused && enabled && tint == nil && fillsOnFocus
-        let label = HStack(spacing: canvas.u(10)) {
+        let label = HStack(spacing: canvas.u(SeleneTokens.Space.gap)) {
             accessory
             if let icon {
                 MaterialIconView(icon, size: iconSize)
@@ -104,8 +104,8 @@ struct SelenePillButton: View {
                                     outlined: focused, tint: tint))
             .overlay {
                 if let downloadFill {
-                    RoundedRectangle(cornerRadius: radius, style: .continuous).fill(.white)
-                        .overlay { label.foregroundColor(.black) }
+                    RoundedRectangle(cornerRadius: radius, style: .continuous).fill(SeleneTheme.artInk)
+                        .overlay { label.foregroundColor(SeleneTheme.artShade) }
                         // One moving edge clips both the white fill and the black glyphs.
                         .mask { DownloadFillMask(fraction: downloadFill) }
                         .animation(Motion.transfer(reduceMotion), value: downloadFill)
@@ -160,13 +160,13 @@ struct WaveDots: View {
     var body: some View {
         TimelineView(.animation(minimumInterval: 1.0 / 30, paused: reduceMotion)) { context in
             let time = context.date.timeIntervalSinceReferenceDate
-            HStack(alignment: .bottom, spacing: canvas.u(4)) {
+            HStack(alignment: .bottom, spacing: canvas.u(SeleneTokens.Space.hairline)) {
                 ForEach(0..<3, id: \.self) { index in
                     let wave = reduceMotion ? 0 : max(0, sin((time / 1.1) * 2 * .pi - Double(index) * 0.9))
                     Circle()
                         .frame(width: canvas.u(5), height: canvas.u(5))
                         .offset(y: canvas.u(-5) * wave)
-                        .opacity(0.55 + 0.45 * wave)
+                        .opacity(SeleneTokens.Alpha.veil + 0.45 * wave)
                 }
             }
             .frame(height: canvas.u(14), alignment: .bottom)

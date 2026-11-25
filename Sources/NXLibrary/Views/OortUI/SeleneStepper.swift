@@ -8,7 +8,7 @@ struct SeleneStepper: View {
     let active: Int
 
     var body: some View {
-        HStack(spacing: canvas.u(10)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.gap)) {
             ForEach(labels.indices, id: \.self) { index in
                 if index > 0 {
                     Capsule().fill(SeleneTheme.ink15).frame(width: canvas.u(22), height: canvas.u(1))

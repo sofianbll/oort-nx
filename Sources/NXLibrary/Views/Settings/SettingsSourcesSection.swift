@@ -59,11 +59,11 @@ struct SettingsSourcesSection: View {
                             isOn: $settings.settings.steamInBackground)
             if let error = sources.errorMessage {
                 Text(error).seleneFont(.text).foregroundColor(SeleneTheme.danger)
-                    .fixedSize(horizontal: false, vertical: true).frame(maxWidth: .infinity, alignment: .leading).padding(24)
+                    .fixedSize(horizontal: false, vertical: true).frame(maxWidth: .infinity, alignment: .leading).padding(SeleneTokens.Space.large)
             }
             if sources.reviewCount > 0 {
                 Text(L10n.count("%lld Steam games need review", sources.reviewCount, context: localization))
-                    .seleneFont(.text).foregroundColor(SeleneTheme.ink).padding(.vertical, 10)
+                    .seleneFont(.text).foregroundColor(SeleneTheme.ink).padding(.vertical, SeleneTokens.Space.gap)
             }
             if !review.isEmpty {
                 SettingsSubheading("Review installations")

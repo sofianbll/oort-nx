@@ -87,8 +87,8 @@ struct ControlsView: View {
                         }
                     }
                     .padding(.horizontal, canvas.u(SeleneTokens.Space.section))
-                    .padding(.top, canvas.u(70))
-                    .padding(.bottom, canvas.u(40))
+                    .padding(.top, canvas.u(SeleneTokens.Space.pageTopCompact))
+                    .padding(.bottom, canvas.u(SeleneTokens.Space.dialogInset))
                     .frame(maxWidth: max(700, canvas.u(1120)), alignment: .leading)
                     .frame(maxWidth: .infinity)
                 }

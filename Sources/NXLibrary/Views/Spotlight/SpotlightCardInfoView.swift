@@ -115,7 +115,7 @@ struct SpotlightCardInfoView: View {
 
     private var activityDetail: some View {
         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.control)) {
-            HStack(alignment: .bottom, spacing: canvas.u(44)) {
+            HStack(alignment: .bottom, spacing: canvas.u(SeleneTokens.Space.group)) {
                 stat(L10n.text("THIS WEEK"), Self.duration(activity.thisWeek))
                 bars
             }
@@ -129,7 +129,7 @@ struct SpotlightCardInfoView: View {
                         }
                     }
                     .padding(canvas.u(SeleneTokens.Space.tight))
-                    .padding(canvas.u(-6))
+                    .padding(canvas.u(-SeleneTokens.Space.tight))
                 }
             }
             if let recentBuilds {
@@ -181,7 +181,7 @@ struct SpotlightCardInfoView: View {
             ForEach(0..<7, id: \.self) { day in
                 let value = day < activity.perDay.count ? activity.perDay[day] : 0
                 VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
-                    RoundedRectangle(cornerRadius: canvas.u(4), style: .continuous)
+                    RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.cover), style: .continuous)
                         .fill(value > 0 ? SeleneTheme.focus : SeleneTheme.ink15)
                         .frame(width: canvas.u(22), height: canvas.u(value > 0 ? max(6, 56 * value / peak) : 4))
                     Text(days[day]).seleneFont(.badge, .semibold).foregroundColor(SeleneTheme.ink60)
@@ -257,7 +257,7 @@ struct SpotlightCardMenu: View {
                         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.seam)) {
                             Text(row.title).seleneFont(.row, .semibold)
                             Text(row.subtitle).seleneFont(.text)
-                                .foregroundColor(focused ? SeleneTheme.onFocus.opacity(0.8) : SeleneTheme.ink60)
+                                .foregroundColor(focused ? SeleneTheme.onFocus.opacity(SeleneTokens.Alpha.heavy) : SeleneTheme.ink60)
                         }
                         Spacer(minLength: 0)
                     }
@@ -265,7 +265,7 @@ struct SpotlightCardMenu: View {
                     .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
                     .frame(height: canvas.u(68))
                     .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
-                        .fill(focused ? SeleneTheme.focus.opacity(0.95) : Color.clear))
+                        .fill(focused ? SeleneTheme.focus.opacity(SeleneTokens.Alpha.near) : Color.clear))
                     .contentShape(Rectangle())
                     .onHover { if $0 { onFocus(index) } }
                     .onTapGesture { onFocus(index); onChoose(index) }

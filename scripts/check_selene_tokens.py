@@ -16,6 +16,14 @@ TOKENS = {"Sources/NXLibraryCore/Selene/SeleneTokens.swift"}
 VIEWS = "Sources/NXLibrary/Views/"
 LIBRARY = VIEWS + "OortUI/"
 VERSION = 3
+# Assembled only from OortUI pieces around one screen's data; like any screen, they hold no style of their own.
+COMPOSITIONS = {
+    "CollectionCoverRow", "AppUpdateDialog", "IGDBCredentialsDialog", "SteamGridDBKeyDialog", "CloudPersonalAppUpdateRow",
+    "DetailsAchievementsCard", "CloudReferenceDialog", "NextendoClientDialog", "ActivityRow", "ProfilePINDialog",
+    "ProfileSwitchDialog", "MenuCard", "AchievementsScreenRow", "ModStoreRow",
+}
+# The one place a font file is named.
+FONTS = VIEWS + "Theme/SeleneFonts.swift"
 ADDED_IN_3 = ("spacing:", "lineWidth:")
 NUMBER = r"[+-]?(?:\d[\d_]*(?:\.[\d_]+)?|\.\d+)(?:[eE][+-]?\d+)?\b"
 CALL = re.compile(
@@ -68,6 +76,11 @@ def added_styles(code):
                     text += code[match.end():match.end() + bracket.end()]
                     break
         signature = re.sub(r"\s+", "", text)
+        # Like zero spacing: nothing drawn, or drawn whole, is the absence of a style.
+        if match.lastgroup == "component" and re.search(r"struct(\w+)", signature)[1] in COMPOSITIONS:
+            continue
+        if re.search(r"(?:Color\.|\.|\(\.)clear$", signature) or re.fullmatch(r"\.opacity\((?:0|1)(?:\.0)?", signature):
+            continue
         yield f"{match.lastgroup}:{signature}", code.count("\n", 0, match.start()) + 1
 
 
@@ -82,7 +95,8 @@ def literals(text, *, styles=False, numeric_enabled=True):
 
 def scan(root=ROOT):
     return {
-        relative: list(literals(path.read_text(), styles=relative.startswith(VIEWS) and not relative.startswith(LIBRARY)))
+        relative: list(literals(path.read_text(), styles=relative.startswith(VIEWS) and not relative.startswith(LIBRARY)
+                                and relative != FONTS))
         for path in sorted((root / "Sources").rglob("*.swift"))
         if (relative := path.relative_to(root).as_posix()) not in TOKENS
     }

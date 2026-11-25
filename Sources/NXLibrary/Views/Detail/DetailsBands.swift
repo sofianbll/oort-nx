@@ -281,7 +281,7 @@ struct DetailsModsBand: View {
     private func availableFace(_ mod: AvailableMod) -> some View {
         ZStack(alignment: .bottomLeading) {
             GameBananaImageView(url: mod.thumbnailURL, maxPixelSize: Self.thumbnailPixels)
-            LinearGradient(colors: [.clear, .black.opacity(0.78)], startPoint: .center, endPoint: .bottom)
+            LinearGradient(colors: [.clear, SeleneTheme.artShade.opacity(SeleneTokens.Alpha.strong)], startPoint: .center, endPoint: .bottom)
             VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.seam)) {
                 if let chip = chip(for: mod) {
                     Text(chip)

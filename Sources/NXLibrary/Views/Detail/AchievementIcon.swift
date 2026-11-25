@@ -57,8 +57,8 @@ struct AchievementIcon: View {
         .overlay {
             if secret {
                 MaterialIconView(.lock, size: max(16, size * 0.36))
-                    .foregroundColor(.white.opacity(0.9))
-                    .shadow(color: .black.opacity(0.55), radius: canvas.u(size * 0.05))
+                    .foregroundColor(SeleneTheme.artInk.opacity(SeleneTokens.Alpha.near))
+                    .oortArtShadow(canvas.u(size * 0.05))
             }
         }
         .accessibilityHidden(true)

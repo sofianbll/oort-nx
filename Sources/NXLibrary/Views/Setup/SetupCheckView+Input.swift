@@ -101,6 +101,6 @@ extension SetupCheckView {
 
     func shake() {
         SoundEffectService.shared.play(.error)
-        withAnimation(.linear(duration: 0.3)) { shakes += 1 }
+        withAnimation(SeleneTheme.shake) { shakes += 1 }
     }
 }

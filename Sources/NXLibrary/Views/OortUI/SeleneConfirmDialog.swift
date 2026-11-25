@@ -38,7 +38,7 @@ struct SeleneConfirmDialog<Detail: View>: View {
                     .seleneFont(.heading)
                     .foregroundStyle(SeleneTheme.danger)
                     .frame(width: canvas.u(68), height: canvas.u(68))
-                    .background(Circle().fill(SeleneTheme.danger.opacity(0.16)))
+                    .background(Circle().fill(SeleneTheme.danger.opacity(SeleneTokens.Alpha.soft)))
                     .padding(.bottom, canvas.u(SeleneTokens.Space.panel))
                     .accessibilityHidden(true)
             }
@@ -54,7 +54,7 @@ struct SeleneConfirmDialog<Detail: View>: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, canvas.u(SeleneTokens.Space.line))
             detailContent()
-            HStack(spacing: canvas.u(22)) {
+            HStack(spacing: canvas.u(SeleneTokens.Space.titleGap)) {
                 ForEach(SeleneConfirmButton.ordered, id: \.self) { button in
                     if let label = button == .confirm ? confirmTitle : cancelTitle {
                         let enabled = button == .cancel || confirmEnabled
@@ -95,7 +95,7 @@ struct SeleneDialogNotes: View {
         if let detail, !detail.isEmpty {
             ScrollViewReader { proxy in
                 ScrollView {
-                    LazyVStack(alignment: .leading, spacing: canvas.u(7)) {
+                    LazyVStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.badge)) {
                         ForEach(Array(ReleaseNotesLayout.lines(detail).enumerated()), id: \.offset) { index, line in
                             noteLine(line, first: index == 0).id(index)
                         }
@@ -128,7 +128,7 @@ struct SeleneDialogNotes: View {
                 .padding(.top, first ? 0 : canvas.u(10))
                 .accessibilityAddTraits(.isHeader)
         case .item:
-            HStack(alignment: .firstTextBaseline, spacing: canvas.u(10)) {
+            HStack(alignment: .firstTextBaseline, spacing: canvas.u(SeleneTokens.Space.gap)) {
                 Circle()
                     .fill(SeleneTheme.glyph)
                     .frame(width: canvas.u(5), height: canvas.u(5))
@@ -166,12 +166,12 @@ struct SeleneSuccessNotice: View {
     var message: String? = nil
 
     var body: some View {
-        HStack(spacing: canvas.u(16)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
             Image(systemName: "checkmark.circle")
                 .font(.system(size: canvas.u(SeleneTokens.Text.heading.rawValue), weight: .light))
                 .foregroundColor(SeleneTheme.ink75)
                 .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: canvas.u(6)) {
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.tight)) {
                 Text(L10n.text(title))
                     .seleneFont(.heading, .semibold)
                     .foregroundColor(SeleneTheme.ink)
@@ -213,7 +213,7 @@ struct SeleneDialogCard: ViewModifier {
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.dialog), style: .continuous))
-            .shadow(color: .black.opacity(SeleneTokens.Effect.dialogShadowOpacity),
+            .shadow(color: SeleneTheme.artShade.opacity(SeleneTokens.Effect.dialogShadowOpacity),
                     radius: canvas.u(SeleneTokens.Effect.dialogShadowRadius))
             .environment(\.seleneMinimumFont, 12)
     }
@@ -252,9 +252,9 @@ struct SeleneChoiceDialog: View {
                 .padding(.top, canvas.u(SeleneTokens.Space.line))
             SeleneDialogNotes(detail: notes, scrollRequest: notesScrollRequest, plainText: true)
                 .frame(width: textWidth)
-            HStack(alignment: .top, spacing: canvas.u(18)) {
+            HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.control)) {
                 ForEach(Array(choices.enumerated()), id: \.offset) { index, choice in
-                    VStack(spacing: canvas.u(8)) {
+                    VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                         SelenePillButton(title: choice, minWidth: 0, horizontalPadding: 24, focused: focus == index,
                                          fillsOnFocus: index != cancelIndex, scalesOnFocus: false) { onChoose(index) }
                             .onHover { if hover.moved($0) { focus = index } }

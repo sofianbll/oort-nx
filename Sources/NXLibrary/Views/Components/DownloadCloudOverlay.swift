@@ -210,7 +210,7 @@ struct DownloadCloudOverlay: View {
                                 let top = 1 - band.level
                                 let rect = CGRect(x: 0, y: top * size.height, width: size.width,
                                                   height: (bottom - top) * size.height)
-                                context.fill(Path(rect), with: .color(.white.opacity(band.opacity)))
+                                context.fill(Path(rect), with: .color(SeleneTheme.artInk.opacity(band.opacity)))
                                 bottom = top
                             }
                         }
@@ -400,8 +400,8 @@ struct DownloadCloudSprites {
     init(_ colors: DownloadCloudColors) {
         ink = Self.sprite(halo: Self.luminous(colors.ink))
         accent = Self.sprite(halo: Self.luminous(colors.accent))
-        sun = Self.sprite(halo: 0xF4CE8E, warm: true)
-        star = Self.sprite(halo: 0xF4CE8E, warm: true, rays: true)
+        sun = Self.sprite(halo: SeleneTokens.Art.sun, warm: true)
+        star = Self.sprite(halo: SeleneTokens.Art.sun, warm: true, rays: true)
     }
 
     func image(_ mote: DownloadCloudMotion.Mote) -> CGImage {
@@ -441,8 +441,8 @@ struct DownloadCloudSprites {
 
     private static func sprite(halo: UInt32, warm: Bool = false, rays: Bool = false) -> CGImage {
         raster(64) { cg, size in
-            let core: UInt32 = warm ? 0xFFF7E3 : 0xF9FCFF
-            radial(cg, size, rgb: [0xFFFFFF, core, halo, halo], alpha: [1, 1, warm ? 0.30 : 0.23, 0],
+            let core: UInt32 = warm ? SeleneTokens.Art.sunCore : SeleneTokens.Art.starCore
+            radial(cg, size, rgb: [SeleneTokens.Art.ink, core, halo, halo], alpha: [1, 1, warm ? 0.30 : 0.23, 0],
                    locations: warm ? [0, 0.22, 0.49, 1] : [0, 0.37, 0.61, 1])
             guard rays else { return }
             let m = size / 2
@@ -452,7 +452,7 @@ struct DownloadCloudSprites {
                 cg.addLines(between: [CGPoint(x: m - reach, y: m), CGPoint(x: m, y: m - 1.65),
                                       CGPoint(x: m + reach, y: m), CGPoint(x: m, y: m + 1.65)])
                 cg.closePath()
-                cg.setFillColor(color(0xFFF3DC, 0.86))
+                cg.setFillColor(color(SeleneTokens.Art.sunRay, 0.86))
                 cg.fillPath()
                 cg.translateBy(x: m, y: m)
                 cg.rotate(by: .pi / 2)
@@ -693,7 +693,7 @@ final class DownloadCloudLayerView: TileMotionLayerView {
             var below = 0.0
             for level in levels {
                 let band = CALayer()
-                band.backgroundColor = NSColor.white.cgColor
+                band.backgroundColor = SeleneTheme.nsArtInk.cgColor
                 band.frame = CGRect(x: 0, y: (1 - level) * size.height, width: size.width,
                                     height: (level - below) * size.height)
                 fillMask.addSublayer(band)
@@ -716,7 +716,7 @@ final class DownloadCloudLayerView: TileMotionLayerView {
                 fades.frame = rect
                 fades.startPoint = CGPoint(x: 0, y: 0.5)
                 fades.endPoint = CGPoint(x: 1, y: 0.5)
-                fades.colors = DownloadCloudFront.fade.map { NSColor(white: 1, alpha: $0).cgColor }
+                fades.colors = DownloadCloudFront.fade.map { SeleneTheme.nsArtInk.withAlphaComponent($0).cgColor }
                 fades.locations = DownloadCloudFront.stops.map { NSNumber(value: Double($0)) }
                 let strokes = CALayer()
                 strokes.frame = rect
@@ -737,11 +737,11 @@ final class DownloadCloudLayerView: TileMotionLayerView {
                     animate(layer, [keyframes("path", curves), keyframes("opacity", opacity)])
                 }
                 for band in DownloadCloudFront.bands {
-                    stroke(DownloadCloudFront.shadeOffset, band.width, NSColor.black.cgColor,
+                    stroke(DownloadCloudFront.shadeOffset, band.width, SeleneTheme.nsArtShade.cgColor,
                            surfaces.map { band.alpha * DownloadCloudFront.shadeOpacity($0) })
                 }
-                stroke(0, 1.55, NSColor.black.cgColor, surfaces.map { DownloadCloudFront.lineOpacity($0) * 0.28 })
-                stroke(0, 0.9, NSColor.white.cgColor, surfaces.map(DownloadCloudFront.lineOpacity))
+                stroke(0, 1.55, SeleneTheme.nsArtShade.cgColor, surfaces.map { DownloadCloudFront.lineOpacity($0) * 0.28 })
+                stroke(0, 0.9, SeleneTheme.nsArtInk.cgColor, surfaces.map(DownloadCloudFront.lineOpacity))
             }
         }
         if input.reduced { fillMask.opacity = 1 }

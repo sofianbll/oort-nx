@@ -171,19 +171,19 @@ extension SpotlightView {
             return
         }
         if onRow == stripFull {
-            withAnimation(.easeInOut(duration: onRow ? 0.7 : 0.9)) { stripFull = !onRow }
+            withAnimation(SeleneTheme.ease(onRow ? SeleneTokens.Motion.pageIn : SeleneTokens.Motion.pageLate)) { stripFull = !onRow }
         }
         if onRow == !rowShown {
             if onRow {
-                withAnimation(.easeInOut(duration: 0.45)) { belowShown = false }
-                withAnimation(.easeInOut(duration: 0.7).delay(0.3)) { rowShown = true }
+                withAnimation(SeleneTheme.ease(SeleneTokens.Motion.pageOut)) { belowShown = false }
+                withAnimation(SeleneTheme.ease(SeleneTokens.Motion.pageIn).delay(SeleneTokens.Motion.shake)) { rowShown = true }
             } else {
-                withAnimation(.easeInOut(duration: 0.55)) { rowShown = false }
-                withAnimation(.easeInOut(duration: 0.8).delay(0.25)) { belowShown = true }
+                withAnimation(SeleneTheme.ease(SeleneTokens.Motion.slow)) { rowShown = false }
+                withAnimation(SeleneTheme.ease(SeleneTokens.Motion.pageDim).delay(SeleneTokens.Motion.transfer)) { belowShown = true }
             }
         }
         if deep != dimmed {
-            withAnimation(.easeInOut(duration: 0.8)) { dimmed = deep }
+            withAnimation(SeleneTheme.ease(SeleneTokens.Motion.pageDim)) { dimmed = deep }
         }
     }
 

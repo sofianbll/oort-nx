@@ -32,14 +32,14 @@ struct PortingArtLook: ViewModifier {
                             .blendMode(.saturation)
                     } else {
                         Rectangle()
-                            .fill(Color(white: 0.5))
+                            .fill(Color(hex: SeleneTokens.Art.grey))
                             .frame(height: geo.size.height * (1 - fill))
                             .blendMode(.saturation)
                     }
                 }
                 .compositingGroup()
                 .saturation(isSoftened ? 0.35 : 1)
-                .overlay(Color.black.opacity(look == .missing ? 0.45 : isSoftened ? 0.28 : 0))
+                .overlay(SeleneTheme.artShade.opacity(look == .missing ? 0.45 : isSoftened ? 0.28 : 0))
                 .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
                 if case .filling = look, fill > 0, fill < 1 {
                     edge(width: geo.size.width, side: side)
@@ -98,7 +98,7 @@ struct PortingArtLook: ViewModifier {
     }
 
     private func transferShade(height: CGFloat, side: CGFloat) -> some View {
-        let grey = Color(white: 0.5)
+        let grey = Color(hex: SeleneTokens.Art.grey)
         let feather = side * 0.12
         // Keep exact grey and colour at the endpoints without snapping the gradient off.
         let half = feather / 2
@@ -107,9 +107,9 @@ struct PortingArtLook: ViewModifier {
             grey.frame(height: height)
             LinearGradient(stops: [
                 .init(color: grey, location: 0),
-                .init(color: grey.opacity(0.85), location: 0.25),
-                .init(color: grey.opacity(0.50), location: 0.50),
-                .init(color: grey.opacity(0.15), location: 0.75),
+                .init(color: grey.opacity(SeleneTokens.Alpha.heavy), location: 0.25),
+                .init(color: grey.opacity(SeleneTokens.Alpha.half), location: 0.50),
+                .init(color: grey.opacity(SeleneTokens.Alpha.soft), location: 0.75),
                 .init(color: grey.opacity(0), location: 1),
             ], startPoint: .top, endPoint: .bottom)
             .frame(height: feather)
@@ -121,9 +121,9 @@ struct PortingArtLook: ViewModifier {
 
     private func edge(width: CGFloat, side: CGFloat) -> some View {
         Rectangle()
-            .fill(Color.white.opacity(0.85))
+            .fill(SeleneTheme.artInk.opacity(SeleneTokens.Alpha.heavy))
             .frame(width: width, height: max(1, side * 0.008))
-            .shadow(color: Color.white.opacity(0.7), radius: side * 0.025)
+            .oortArtShadow(side * 0.025, strength: SeleneTokens.Alpha.strong, color: SeleneTheme.artInk)
             .allowsHitTesting(false)
     }
 
@@ -155,15 +155,15 @@ struct PortingArtLook: ViewModifier {
         let width = side * 0.62
         let fraction = count > 0 ? min(max(Double(step) / Double(count), 0), 1) : 0
         return ZStack {
-            Color.black.opacity(0.28)
+            SeleneTheme.artShade.opacity(SeleneTokens.Alpha.mist)
             VStack(spacing: side * 0.035) {
                 Text(count > 0 ? "\(step)/\(count)" : "…")
                     .font(.system(size: side * 0.085, weight: .semibold, design: .rounded))
                     .monospacedDigit()
-                    .foregroundColor(.white.opacity(0.92))
+                    .foregroundColor(SeleneTheme.artInk.opacity(SeleneTokens.Alpha.near))
                 ZStack(alignment: .leading) {
-                    Capsule().fill(Color.white.opacity(0.22))
-                    Capsule().fill(Color.white.opacity(0.88))
+                    Capsule().fill(SeleneTheme.artInk.opacity(SeleneTokens.Alpha.line))
+                    Capsule().fill(SeleneTheme.artInk.opacity(SeleneTokens.Alpha.heavy))
                         .frame(width: width * fraction)
                 }
                 .frame(width: width, height: max(1.5, side * 0.014))
@@ -171,11 +171,11 @@ struct PortingArtLook: ViewModifier {
                 VStack(spacing: side * 0.008) {
                     Text(title)
                         .font(.system(size: side * 0.06, weight: .medium))
-                        .foregroundColor(.white.opacity(0.85))
+                        .foregroundColor(SeleneTheme.artInk.opacity(SeleneTokens.Alpha.heavy))
                     if !detail.isEmpty {
                         Text(detail)
                             .font(.system(size: side * 0.05))
-                            .foregroundColor(.white.opacity(0.6))
+                            .foregroundColor(SeleneTheme.artInk.opacity(SeleneTokens.Alpha.muted))
                     }
                 }
                 .lineLimit(1)
@@ -183,7 +183,7 @@ struct PortingArtLook: ViewModifier {
                 .frame(width: side * 0.84)
                 .animation(Motion.buildArt(reduceMotion, .label), value: title)
             }
-            .shadow(color: .black.opacity(0.45), radius: side * 0.02)
+            .oortArtShadow(side * 0.02, strength: SeleneTokens.Alpha.half)
         }
     }
 
@@ -192,7 +192,7 @@ struct PortingArtLook: ViewModifier {
     private func downloading(side: CGFloat) -> some View {
         ZStack {
             // A soft shade, as under the porting steps, so the white reads on light art too.
-            Color.black.opacity(0.32)
+            SeleneTheme.artShade.opacity(SeleneTokens.Alpha.mist)
             downloadMark(side: side)
         }
     }
@@ -207,15 +207,15 @@ struct PortingArtLook: ViewModifier {
     private func downloadMark(side: CGFloat) -> some View {
         Text(L10n.text("Downloading"))
             .font(.system(size: side * 0.06, weight: .medium))
-            .foregroundColor(.white.opacity(0.85))
+            .foregroundColor(SeleneTheme.artInk.opacity(SeleneTokens.Alpha.heavy))
             .lineLimit(1)
             .frame(width: side * 0.84)
-            .shadow(color: .black.opacity(0.55), radius: side * 0.04)
+            .oortArtShadow(side * 0.04)
             .offset(y: side * Self.downloadWordDrop)
     }
 
     /// Soft pastels, never vivid; the blue kept faint: pink, peach, butter, mint, mist, lavender.
-    private static let pastels: [Color] = [0xF4CFDA, 0xF6E0C8, 0xF3EECB, 0xD3EBDD, 0xD8E6F2, 0xE2DAF2]
+    private static let pastels: [Color] = [SeleneTokens.Art.pastel1, SeleneTokens.Art.pastel2, SeleneTokens.Art.pastel3, SeleneTokens.Art.pastel4, SeleneTokens.Art.pastel5, SeleneTokens.Art.pastel6]
         .map { Color(hex: $0) }
 
     /// The percentage, small and centred: solid white with a faint pastel sheen
@@ -224,21 +224,21 @@ struct PortingArtLook: ViewModifier {
         let text = Text("\(Int((value * 100).rounded(.down)))%")
             .font(.system(size: side * 0.115, weight: .semibold, design: .rounded))
             .monospacedDigit()
-        let stops = [Color.white] + Self.pastels + [Color.white]
+        let stops = [SeleneTheme.artInk] + Self.pastels + [SeleneTheme.artInk]
         let shift = CGFloat(phase) * 3 - 1.5
         return text
-            .foregroundColor(.white)
+            .foregroundColor(SeleneTheme.artInk)
             .overlay(
                 LinearGradient(colors: stops,
                                startPoint: UnitPoint(x: -0.5 + shift, y: 0.3),
                                endPoint: UnitPoint(x: 1.5 + shift, y: 0.7))
                     .mask(text)
-                    .opacity(0.55)
+                    .opacity(SeleneTokens.Alpha.veil)
             )
             .padding(.horizontal, side * 0.05)
             .padding(.vertical, side * 0.02)
-            .background(Capsule().fill(Color.black.opacity(0.32)))
-            .shadow(color: .black.opacity(0.35), radius: side * 0.03)
+            .background(Capsule().fill(SeleneTheme.artShade.opacity(SeleneTokens.Alpha.mist)))
+            .oortArtShadow(side * 0.03, strength: SeleneTokens.Alpha.shade)
     }
 }
 

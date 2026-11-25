@@ -59,7 +59,7 @@ struct AddGameStepThreeView: View {
 
     private var buildingView: some View {
         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.large)) {
-            HStack(alignment: .top, spacing: canvas.u(36)) {
+            HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.pillInset)) {
                 gameTile(caption: porting.isInstallingBuild ? L10n.text("Installing…") :
                     viewModel.portingETAText ?? BuildStageCopy.title(porting.currentStageName))
                 stageList
@@ -179,11 +179,11 @@ struct AddGameStepThreeView: View {
 
     private func successView(path: String) -> some View {
         SelenePanel {
-            HStack(spacing: 14) {
+            HStack(spacing: SeleneTokens.Space.line) {
                 Image(systemName: "checkmark.circle.fill")
                     .seleneFont(.screen)
                     .foregroundColor(SeleneTheme.success)
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: SeleneTokens.Space.hairline) {
                     Text(heldGameName == nil ? L10n.text("Ready to play") : PendingInstall.title)
                         .seleneFont(.screen, .semibold)
                         .foregroundColor(SeleneTheme.ink)
@@ -202,7 +202,7 @@ struct AddGameStepThreeView: View {
                 .foregroundColor(SeleneTheme.ink90)
 
             ForEach(porting.buildStages.filter(\.hasWarning)) { stage in
-                HStack(alignment: .firstTextBaseline, spacing: 10) {
+                HStack(alignment: .firstTextBaseline, spacing: SeleneTokens.Space.gap) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .seleneFont(.text)
                         .foregroundColor(SeleneTheme.untested)
@@ -222,7 +222,7 @@ struct AddGameStepThreeView: View {
     private func failureView(error: String) -> some View {
         let reason = porting.portingFailureReason
         return VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.large)) {
-            HStack(alignment: .top, spacing: canvas.u(36)) {
+            HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.pillInset)) {
                 gameTile(caption: nil)
                 VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small)) {
                     Text(error)
@@ -245,13 +245,13 @@ struct AddGameStepThreeView: View {
     // MARK: - Cancelled
 
     private var cancelledView: some View {
-        VStack(spacing: 18) {
+        VStack(spacing: SeleneTokens.Space.control) {
             SelenePanel {
-                HStack(alignment: .top, spacing: 14) {
+                HStack(alignment: .top, spacing: SeleneTokens.Space.line) {
                     Image(systemName: "stop.circle.fill")
                         .seleneFont(.screen)
                         .foregroundColor(SeleneTheme.untested)
-                    VStack(alignment: .leading, spacing: 5) {
+                    VStack(alignment: .leading, spacing: SeleneTokens.Space.chipBottom) {
                         Text(L10n.text("Porting cancelled"))
                             .seleneFont(.screen, .semibold)
                             .foregroundColor(SeleneTheme.ink)
@@ -276,11 +276,11 @@ struct AddGameStepThreeView: View {
 
     private var idleView: some View {
         SelenePanel {
-            HStack(spacing: 14) {
+            HStack(spacing: SeleneTokens.Space.line) {
                 Image(systemName: "hammer.fill")
                     .seleneFont(.screen)
                     .foregroundColor(SeleneTheme.ink60)
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: SeleneTokens.Space.hairline) {
                     Text(L10n.text("No build is active"))
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.ink)
@@ -467,7 +467,7 @@ struct PortingLogBox: View {
     let logs: [LogEntry]
     @Binding var expanded: Bool
 
-    static let softGreen = Color(hex: 0xA8DDB5)
+    static let softGreen = Color(hex: SeleneTokens.Art.softGreen)
     /// The newest lines only: a long porting writes thousands.
     private static let shown = 400
 
@@ -537,7 +537,7 @@ struct PortingLogBox: View {
                 VStack(spacing: 0) {
                     LinearGradient(colors: [.clear, .black], startPoint: .top, endPoint: .bottom)
                         .frame(height: canvas.u(36))
-                    Color.black
+                    SeleneTheme.artShade
                 }
             )
             .onAppear { if let last = recent.last { proxy.scrollTo(last.id, anchor: .bottom) } }
@@ -552,7 +552,7 @@ struct PortingLogBox: View {
         switch level {
         case .error: return PortingPillCopy.softRed
         case .success: return Self.softGreen
-        case .warning: return SeleneTheme.untested.opacity(0.85)
+        case .warning: return SeleneTheme.untested.opacity(SeleneTokens.Alpha.heavy)
         case .info, .step: return SeleneTheme.ink60
         }
     }

@@ -152,7 +152,7 @@ struct SetupCheckView: View {
         .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTheme.cardRadius), style: .continuous)
             .strokeBorder(focused ? SeleneTheme.focus : SeleneTheme.ink15,
                           lineWidth: canvas.u(focused ? 3 : 1)))
-        .shadow(color: focused ? SeleneTheme.focusGlow : .clear, radius: canvas.u(18))
+        .oortGlow(focused)
         .scaleEffect(focused && !reduceMotion ? 1.06 : 1)
         .animation(reduceMotion ? nil : SeleneTheme.focusIn, value: focused)
         .opacity(risen ? 1 : 0)
@@ -292,7 +292,7 @@ private struct StatusChip: View {
             .lineLimit(1)
             .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
             .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
-            .background(Capsule().fill(tone.opacity(0.14)))
+            .background(Capsule().fill(tone.opacity(SeleneTokens.Alpha.soft)))
             .frame(maxWidth: canvas.u(200))
             .scaleEffect(popping && !reduceMotion ? 1.18 : 1)
             .animation(reduceMotion ? nil : SeleneTheme.quick, value: popping)
@@ -303,7 +303,7 @@ private struct StatusChip: View {
 
     private func breathe() {
         guard item.state == .working, !reduceMotion else { dim = false; return }
-        withAnimation(.easeInOut(duration: 0.65).repeatForever(autoreverses: true)) { dim = true }
+        withAnimation(SeleneTheme.ease(SeleneTokens.Motion.pulse).repeatForever(autoreverses: true)) { dim = true }
     }
 }
 
@@ -330,7 +330,7 @@ private struct SetupProgressBar: View {
                         .offset(x: reduceMotion ? geo.size.width * 0.34 : (sweep ? geo.size.width * 0.68 : 0))
                         .onAppear {
                             guard !reduceMotion else { return }
-                            withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) { sweep = true }
+                            withAnimation(SeleneTheme.ease(SeleneTokens.Motion.pageLate).repeatForever(autoreverses: true)) { sweep = true }
                         }
                 }
             }

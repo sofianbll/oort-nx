@@ -63,7 +63,7 @@ struct SaveImportDetails: View {
                 .frame(maxWidth: .infinity)
                 .overlay {
                     RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.row), style: .continuous)
-                        .strokeBorder(SeleneTheme.ink15, lineWidth: 1 / displayScale)
+                        .strokeBorder(SeleneTheme.ink15, lineWidth: SeleneTokens.Space.thinStroke / displayScale)
                         .allowsHitTesting(false)
                         .accessibilityHidden(true)
                 }
@@ -98,7 +98,7 @@ private struct SaveTransferArrow: View {
 
     private var glyph: some View {
         Image(systemName: "arrow.down")
-            .font(.system(size: canvas.u(22), weight: .light))
+            .seleneFont(.row, .light)
             .scaleEffect(x: 1, y: 1.22)
             .frame(height: canvas.u(28))
     }
@@ -107,7 +107,7 @@ private struct SaveTransferArrow: View {
         let centre = TileMotion.shineCentre(at: elapsed)
         let radius = TileMotion.shineHalfWidth
         return glyph.foregroundStyle(LinearGradient(
-            colors: [SeleneTheme.ink60, SeleneTheme.ink.opacity(0.80), SeleneTheme.ink60],
+            colors: [SeleneTheme.ink60, SeleneTheme.ink.opacity(SeleneTokens.Alpha.heavy), SeleneTheme.ink60],
             startPoint: UnitPoint(x: 0.5, y: centre - radius),
             endPoint: UnitPoint(x: 0.5, y: centre + radius)))
     }

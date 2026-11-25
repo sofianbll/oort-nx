@@ -148,7 +148,7 @@ struct AddGameView: View {
                     VStack(spacing: 0) {
                         LinearGradient(colors: [.clear, .black], startPoint: .top, endPoint: .bottom)
                             .frame(height: canvas.u(10))
-                        Color.black
+                        SeleneTheme.artShade
                         LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
                             .frame(height: canvas.u(28))
                     }
@@ -163,7 +163,7 @@ struct AddGameView: View {
         }
         .frame(width: canvas.u(1040), alignment: .leading)
         .frame(maxHeight: .infinity, alignment: .top)
-        .padding(.top, canvas.u(90))
+        .padding(.top, canvas.u(SeleneTokens.Space.pageTop))
         .padding(.bottom, canvas.u(SeleneTokens.Space.large))
         .overlay(alignment: .top) {
             if dropTargeted {
@@ -173,7 +173,7 @@ struct AddGameView: View {
                     .padding(.horizontal, canvas.u(SeleneTokens.Space.control))
                     .frame(height: canvas.u(34))
                     .background(Capsule().fill(SeleneTheme.focus))
-                    .padding(.top, canvas.u(40))
+                    .padding(.top, canvas.u(SeleneTokens.Space.dialogInset))
                     .transition(.opacity)
             }
         }

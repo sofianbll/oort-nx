@@ -35,7 +35,7 @@ struct ScreenshotViewer: View {
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.92)
+            SeleneTheme.artShade.opacity(SeleneTokens.Alpha.near)
                 .contentShape(Rectangle())
                 .onTapGesture(perform: onClose)
 
@@ -46,8 +46,8 @@ struct ScreenshotViewer: View {
                     .aspectRatio(contentMode: .fit)
                     .contentShape(Rectangle())
                     .onTapGesture {} // A click on the image keeps it open.
-                    .padding(.horizontal, canvas.u(64))
-                    .padding(.vertical, canvas.u(96))
+                    .padding(.horizontal, canvas.u(SeleneTokens.Space.chromeGutter))
+                    .padding(.vertical, canvas.u(SeleneTokens.Space.settingsHintsClearance))
                     .id(shown)
                     .transition(.opacity)
             }
@@ -57,7 +57,7 @@ struct ScreenshotViewer: View {
                 Text(state.label)
                     .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
-                    .padding(.bottom, canvas.u(52))
+                    .padding(.bottom, canvas.u(SeleneTokens.Space.group))
                     .allowsHitTesting(false)
             }
             VStack(spacing: 0) {

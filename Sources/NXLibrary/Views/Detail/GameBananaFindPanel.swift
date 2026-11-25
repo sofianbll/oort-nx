@@ -49,7 +49,7 @@ struct GameBananaFindPanel: View {
                     .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink60)
             }
-            .padding(canvas.u(36))
+            .padding(canvas.u(SeleneTokens.Space.pillInset))
             .frame(width: canvas.u(820), alignment: .leading)
             .oortPanel(radius: canvas.u(SeleneTokens.Radius.field), floats: true)
         }
@@ -78,7 +78,7 @@ struct GameBananaFindPanel: View {
             .fill(focused ? SeleneTheme.glass : Color.clear))
         .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
             .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
-            .padding(canvas.u(-3))
+            .padding(canvas.u(-SeleneTokens.Space.segmentInset))
             .opacity(focused ? 1 : 0))
         .contentShape(Rectangle())
         .onTapGesture {
@@ -125,7 +125,7 @@ struct GameBananaModSearchPanel: View {
                         .disabled(!band.canSubmitModSearch)
                 }
             }
-            .padding(canvas.u(36))
+            .padding(canvas.u(SeleneTokens.Space.pillInset))
             .frame(width: canvas.u(820), alignment: .leading)
             .oortPanel(radius: canvas.u(SeleneTokens.Radius.field), floats: true)
         }

@@ -67,7 +67,7 @@ struct SettingsGamesSection: View {
             SeleneRow("Render scale",
                       subtitle: "Internal resolution",
                       info: "Scales the internal 3D rendering buffer relative to native target (50% to 100%). Lowering this reduces GPU heat on battery; UI remains full resolution.") {
-                HStack(spacing: 10) {
+                HStack(spacing: SeleneTokens.Space.gap) {
                     Slider(value: $settings.settings.gameDefaults.renderScale,
                            in: 0.5...1.0, step: 0.05)
                         .frame(width: 170)

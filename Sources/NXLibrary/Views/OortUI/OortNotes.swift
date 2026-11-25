@@ -80,7 +80,7 @@ struct OortNotes: View {
                     let x = size.width / 2 + CGFloat(step) * pitch + (row % 2 == 0 ? pitch / 2 : 0) - pitch / 4
                     let radius = pitch * (0.14 + 0.16 * share + (lit ? 0.14 : 0))
                     context.fill(Path(ellipseIn: CGRect(x: x - radius, y: y - radius, width: radius * 2, height: radius * 2)),
-                                 with: .color(SeleneTheme.glyph.opacity(0.22 + 0.45 * share + (lit ? 0.33 : 0))))
+                                 with: .color(SeleneTheme.glyph.opacity(SeleneTokens.Alpha.line + 0.45 * share + (lit ? 0.33 : 0))))
                 }
                 y -= pitch
                 row += 1

@@ -160,7 +160,7 @@ struct OnlineBrowsePanel: View {
                             .padding(.vertical, canvas.u(SeleneTokens.Space.compact))
                             .background(Capsule().fill(selected ? SeleneTheme.glassSolid : Color.clear))
                             .overlay(Capsule().strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
-                                .padding(canvas.u(-3))
+                                .padding(canvas.u(-SeleneTokens.Space.segmentInset))
                                 .opacity(selected && state.focus == .chips ? 1 : 0))
                             .contentShape(Capsule())
                             .onTapGesture { onChip(index) }
@@ -253,24 +253,24 @@ private struct OnlineTile: View {
                 if item.kind == .video { MaterialIconView(.play, size: 13) }
                 Text(ResolutionBadge.label(width: item.width, height: item.height)).seleneFont(.badge, .semibold)
             }
-            .foregroundColor(.white)
+            .foregroundColor(SeleneTheme.artInk)
             .padding(.horizontal, canvas.u(SeleneTokens.Space.compact))
             .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
-            .background(Capsule().fill(Color.black.opacity(0.6)))
+            .background(Capsule().fill(SeleneTheme.artShade.opacity(SeleneTokens.Alpha.muted)))
             .padding(canvas.u(SeleneTokens.Space.compact))
             if downloaded {
                 MaterialIconView(.check, size: 20)
-                    .foregroundColor(.white)
+                    .foregroundColor(SeleneTheme.artInk)
                     .oortShadow(.text)
                     .padding(canvas.u(SeleneTokens.Space.compact))
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
             if let progress {
-                Color.black.opacity(0.45)
+                SeleneTheme.artShade.opacity(SeleneTokens.Alpha.half)
                 ZStack {
-                    Circle().stroke(Color.white.opacity(0.25), lineWidth: canvas.u(4))
+                    Circle().stroke(SeleneTheme.artInk.opacity(SeleneTokens.Alpha.line), lineWidth: canvas.u(SeleneTokens.Space.ringStroke))
                     Circle().trim(from: 0, to: max(0.02, progress))
-                        .stroke(SeleneTheme.focus, style: StrokeStyle(lineWidth: canvas.u(4), lineCap: .round))
+                        .stroke(SeleneTheme.focus, style: StrokeStyle(lineWidth: canvas.u(SeleneTokens.Space.ringStroke), lineCap: .round))
                         .rotationEffect(.degrees(-90))
                         .animation(reduceMotion ? nil : .linear(duration: 0.15), value: progress)
                 }
@@ -280,11 +280,11 @@ private struct OnlineTile: View {
         }
         .frame(width: canvas.u(204), height: canvas.u(115))
         .clipShape(shape)
-        .overlay(shape.strokeBorder(SeleneTheme.ink15, lineWidth: 1))
+        .overlay(shape.strokeBorder(SeleneTheme.ink15, lineWidth: SeleneTokens.Space.thinStroke))
         .overlay(
             RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card), style: .continuous)
                 .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
-                .padding(canvas.u(-4))
+                .padding(canvas.u(-SeleneTokens.Space.hairline))
                 .opacity(focused ? 1 : 0))
         .scaleEffect(focused && !reduceMotion ? 1.06 : 1)
         .animation(reduceMotion ? nil : SeleneTheme.quick, value: focused)

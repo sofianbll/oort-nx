@@ -61,7 +61,7 @@ struct SettingsAboutSection: View {
                 Button {
                     copyDiagnostics()
                 } label: {
-                    HStack(spacing: 4) {
+                    HStack(spacing: SeleneTokens.Space.hairline) {
                         Text(didCopyDiagnostics ? L10n.text("Copied") : L10n.text("Copy diagnostics"))
                         Image(systemName: didCopyDiagnostics ? "checkmark" : "doc.on.doc")
                     }
@@ -69,7 +69,7 @@ struct SettingsAboutSection: View {
                     .foregroundColor(SeleneTheme.glyph)
                 }
                 .buttonStyle(.plain)
-                .padding(6)
+                .padding(SeleneTokens.Space.tight)
                 .seleneRowFocus(focusedRowTitle == "Copy diagnostics")
                 .id("selene-row-Copy diagnostics")
                 .accessibilityHint(L10n.text("A report for an issue: versions, setup and the last porting. No keys."))
@@ -78,13 +78,13 @@ struct SettingsAboutSection: View {
             supportButton
 
             SelenePanel(L10n.text("Credits")) {
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: SeleneTokens.Space.compact) {
                     ForEach(credits, id: \.name) { credit in
                         Button {
                             if let url = URL(string: credit.url) { NSWorkspace.shared.open(url) }
                         } label: {
-                            VStack(alignment: .leading, spacing: 2) {
-                                HStack(spacing: 4) {
+                            VStack(alignment: .leading, spacing: SeleneTokens.Space.seam) {
+                                HStack(spacing: SeleneTokens.Space.hairline) {
                                     Text(credit.name)
                                         .seleneFont(.text, .semibold)
                                         .foregroundColor(SeleneTheme.ink)
@@ -98,9 +98,9 @@ struct SettingsAboutSection: View {
                                     .lineLimit(2)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(8)
-                            .background(SeleneTheme.glass.opacity(0.75))
-                            .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                            .padding(SeleneTokens.Space.compact)
+                            .background(SeleneTheme.glass.opacity(SeleneTokens.Alpha.strong))
+                            .clipShape(RoundedRectangle(cornerRadius: SeleneTokens.Radius.cover, style: .continuous))
                         }
                         .buttonStyle(.plain)
                         .seleneRowFocus(focusedRowTitle == credit.name, radius: 7)
@@ -119,7 +119,7 @@ struct SettingsAboutSection: View {
                         NSWorkspace.shared.open(url)
                     }
                 } label: {
-                    HStack(spacing: 4) {
+                    HStack(spacing: SeleneTokens.Space.hairline) {
                         Text("https://github.com/mattxslv/Selene")
                         Image(systemName: "arrow.up.right")
                     }
@@ -127,7 +127,7 @@ struct SettingsAboutSection: View {
                     .foregroundColor(SeleneTheme.glyph)
                 }
                 .buttonStyle(.plain)
-                .padding(6)
+                .padding(SeleneTokens.Space.tight)
                 .seleneRowFocus(focusedRowTitle == "Selene")
                 .id("selene-row-Selene")
                 Text(L10n.text("Selene is a Playnite theme for Windows. No Selene name, logo, wallpaper, avatar or sound is used as Arcane branding; this is a visual adaptation in SwiftUI."))
@@ -247,7 +247,7 @@ struct SettingsAboutSection: View {
 
     @ViewBuilder private var updateRow: some View {
         if updater.state != .hidden {
-            HStack(spacing: 14) {
+            HStack(spacing: SeleneTokens.Space.line) {
                 Text(updateText)
                     .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink90)
@@ -259,7 +259,7 @@ struct SettingsAboutSection: View {
                         .seleneFont(.text, .semibold)
                         .foregroundColor(action.enabled ? SeleneTheme.glyph : SeleneTheme.ink60)
                         .disabled(!action.enabled)
-                        .padding(6)
+                        .padding(SeleneTokens.Space.tight)
                         .seleneRowFocus(focusedRowTitle == action.title)
                         .id("selene-row-\(action.title)")
                 }

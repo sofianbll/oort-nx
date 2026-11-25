@@ -71,7 +71,7 @@ final class LaunchLogoLayerView: TileMotionLayerView {
         logo.contentsGravity = .resizeAspect
         logo.contents = image
         // Selene's shadow: black at 55%, no offset.
-        logo.shadowColor = NSColor.black.cgColor
+        logo.shadowColor = SeleneTheme.nsArtShade.cgColor
         logo.shadowOpacity = 0.55
         logo.shadowOffset = .zero
         root.addSublayer(logo)

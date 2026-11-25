@@ -74,7 +74,7 @@ struct SpotlightScreenshotStrip: View {
             .offset(x: -canvas.u(scroll))
             .frame(width: canvas.u(Self.clipWidth), alignment: .leading)
             .clipped()
-            .padding(canvas.u(-14))
+            .padding(canvas.u(-SeleneTokens.Space.line))
             .animation(reduceMotion ? nil : Self.motion, value: focusedIndex ?? scrollIndex)
         }
     }
@@ -123,7 +123,7 @@ private struct ScreenshotTile: View {
         .overlay(
             RoundedRectangle(cornerRadius: canvas.u(style.radius + 3), style: .continuous)
                 .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
-                .padding(canvas.u(-4))
+                .padding(canvas.u(-SeleneTokens.Space.hairline))
                 .opacity(focused ? 1 : 0)
         )
         .scaleEffect(focused ? style.focusScale : 1)

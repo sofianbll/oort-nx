@@ -366,7 +366,7 @@ private struct TilePicture: ViewModifier {
     func body(content: Content) -> some View {
         // One shadow for a whole tile; the ribbon's cards cast their own.
         Group { if whole { content.drawingGroup() } else { content } }
-            .shadow(color: .black.opacity(0.55), radius: whole ? shadow : 0)
+            .oortArtShadow(whole ? shadow : 0)
     }
 }
 
@@ -428,12 +428,12 @@ struct ModsCardCover: View {
 
     var body: some View {
         ZStack {
-            LinearGradient(colors: [SeleneTheme.focus.opacity(0.85), SeleneTheme.glassSolid],
+            LinearGradient(colors: [SeleneTheme.focus.opacity(SeleneTokens.Alpha.heavy), SeleneTheme.glassSolid],
                            startPoint: .topLeading, endPoint: .bottomTrailing)
             if !urls.isEmpty {
                 mosaic
                     .blur(radius: canvas.u(5), opaque: true)
-                    .overlay(Color.black.opacity(0.35))
+                    .overlay(SeleneTheme.artShade.opacity(SeleneTokens.Alpha.shade))
                     .id(urls)
                     .transition(.opacity)
             }
@@ -442,7 +442,7 @@ struct ModsCardCover: View {
                 .oortShadow(.text)
         }
         .frame(width: side, height: side)
-        .animation(.easeOut(duration: 0.4), value: urls)
+        .animation(SeleneTheme.settle(SeleneTokens.Motion.detailArt), value: urls)
         .drawingGroup()
     }
 

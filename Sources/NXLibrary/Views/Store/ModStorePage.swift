@@ -175,10 +175,10 @@ struct ModStoreFeatured<Chip: View>: View {
         let art = entry.mod.images.first ?? entry.mod.thumbnailURL
         return ZStack(alignment: .leading) {
             // The art, blurred once off the main thread and kept, as the banner's ground: no blur runs per frame.
-            Color.black.opacity(0.35)
+            SeleneTheme.artShade.opacity(SeleneTokens.Alpha.shade)
             GameBananaBlurView(url: art)
                 .frame(width: canvas.u(1700), height: canvas.u(420))
-            LinearGradient(colors: [.black.opacity(0.78), .black.opacity(0.45), .black.opacity(0.15)],
+            LinearGradient(colors: [SeleneTheme.artShade.opacity(SeleneTokens.Alpha.strong), SeleneTheme.artShade.opacity(SeleneTokens.Alpha.half), SeleneTheme.artShade.opacity(SeleneTokens.Alpha.soft)],
                            startPoint: .leading, endPoint: .trailing)
             HStack(alignment: .center, spacing: canvas.u(SeleneTokens.Space.group)) {
                 VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small)) {
@@ -216,7 +216,7 @@ struct ModStoreFeatured<Chip: View>: View {
                     .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.modal), style: .continuous))
                     .oortShadow(.floating)
             }
-            .padding(.horizontal, canvas.u(56))
+            .padding(.horizontal, canvas.u(SeleneTokens.Space.chromeGutter))
             dots
         }
         .drawingGroup()
@@ -233,7 +233,7 @@ struct ModStoreFeatured<Chip: View>: View {
                 }
             }
             .padding(.bottom, canvas.u(SeleneTokens.Space.titleGap))
-            .padding(.leading, canvas.u(56))
+            .padding(.leading, canvas.u(SeleneTokens.Space.chromeGutter))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -293,14 +293,14 @@ struct ModStoreRow: View {
             .offset(x: -canvas.u(scroll))
             .frame(width: canvas.u(ModStoreLayout.clipWidth), alignment: .leading)
             .clipped()
-            .padding(canvas.u(-14))
+            .padding(canvas.u(-SeleneTokens.Space.line))
             .animation(reduceMotion ? nil : SpotlightScreenshotStrip.motion, value: focusedIndex ?? scrollIndex)
             // Past the clip's right edge, in the margin: more tiles that way.
             .overlay(alignment: .trailing) {
                 SpotlightRightHint()
                     .offset(x: canvas.u(40))
                     .opacity(more ? 1 : 0)
-                    .animation(.easeInOut(duration: 0.4), value: more)
+                    .animation(SeleneTheme.ease(SeleneTokens.Motion.detailArt), value: more)
                     .allowsHitTesting(false)
             }
         }
@@ -323,7 +323,7 @@ struct ModStoreTile: View {
         return ZStack(alignment: .bottomLeading) {
             shape.fill(SeleneTheme.glassSolid)
             GameBananaImageView(url: entry.mod.images.first ?? entry.mod.thumbnailURL, maxPixelSize: 700)
-            LinearGradient(colors: [.clear, .black.opacity(0.82)], startPoint: .center, endPoint: .bottom)
+            LinearGradient(colors: [.clear, SeleneTheme.artShade.opacity(SeleneTokens.Alpha.heavy)], startPoint: .center, endPoint: .bottom)
             VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.seam)) {
                 chip.padding(.bottom, canvas.u(SeleneTokens.Space.hairline))
                 Text(entry.mod.name)
@@ -343,7 +343,7 @@ struct ModStoreTile: View {
         .drawingGroup()
         .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card), style: .continuous)
             .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
-            .padding(canvas.u(-4))
+            .padding(canvas.u(-SeleneTokens.Space.hairline))
             .opacity(focused ? 1 : 0))
         .scaleEffect(focused ? 1.05 : 1)
         .zIndex(focused ? 1 : 0)

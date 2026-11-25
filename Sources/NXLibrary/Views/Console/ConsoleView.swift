@@ -161,7 +161,7 @@ struct ConsoleView: View {
         }
         .frame(width: canvas.u(1240), alignment: .leading)
         .frame(maxHeight: .infinity, alignment: .top)
-        .padding(.top, canvas.u(90))
+        .padding(.top, canvas.u(SeleneTokens.Space.pageTop))
         .padding(.bottom, canvas.u(SeleneTokens.Space.feature))
         // Clicks inside the column are not clicks on the shade.
         .contentShape(Rectangle())
@@ -275,7 +275,7 @@ struct ConsoleView: View {
                 VStack(spacing: 0) {
                     LinearGradient(colors: [.clear, .black], startPoint: .top, endPoint: .bottom)
                         .frame(height: canvas.u(14))
-                    Color.black
+                    SeleneTheme.artShade
                     LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
                         .frame(height: canvas.u(14))
                 }
@@ -351,7 +351,7 @@ struct ConsoleView: View {
         case .info: return SeleneTheme.ink75
         case .step: return SeleneTheme.ink
         case .success: return PortingLogBox.softGreen
-        case .warning: return Color(hex: 0xF0D29A)
+        case .warning: return SeleneTheme.untested
         case .error: return PortingPillCopy.softRed
         }
     }

@@ -18,7 +18,7 @@ struct SettingsControllersSection: View {
                       subtitle: controller.isGamepadConnected
                         ? controller.activeControllerName
                         : "Connect a controller and press Detect.") {
-                HStack(spacing: 10) {
+                HStack(spacing: SeleneTokens.Space.gap) {
                     Text(controller.isGamepadConnected ? L10n.text("Connected") : L10n.text("Not connected"))
                         .seleneFont(.badge, .semibold)
                         .foregroundColor(controller.isGamepadConnected ? SeleneTheme.success : SeleneTheme.ink60)
@@ -50,7 +50,7 @@ struct SettingsControllersSection: View {
             SeleneRow("Stick navigation deadzone",
                       subtitle: "Library navigation",
                       info: "Adjusts minimum thumbstick deflection needed to trigger menu navigation. Increase if your analog stick has slight drift causing unintended scrolling.") {
-                HStack(spacing: 10) {
+                HStack(spacing: SeleneTokens.Space.gap) {
                     Slider(value: Binding(
                         get: { draftDeadzone },
                         set: setDeadzone

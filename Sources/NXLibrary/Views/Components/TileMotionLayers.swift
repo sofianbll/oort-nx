@@ -130,14 +130,14 @@ final class TileRingLayerView: TileMotionLayerView {
         super.init()
         glow.opacity = 0.35
         ringShape.fillColor = nil
-        ringShape.strokeColor = NSColor.black.cgColor
+        ringShape.strokeColor = SeleneTheme.nsArtShade.cgColor
         ring.mask = ringShape
         ring.locations = [0, 0.25, 0.5, 0.75, 1]
         let axis = TileMotion.ringAxis(at: 0)
         ring.startPoint = Self.gradientPoint(axis.start)
         ring.endPoint = Self.gradientPoint(axis.end)
         hair.fillColor = nil
-        hair.strokeColor = NSColor.white.withAlphaComponent(0.18).cgColor
+        hair.strokeColor = SeleneTheme.nsArtInk.withAlphaComponent(0.18).cgColor
         root.addSublayer(glow)
         root.addSublayer(ring)
         root.addSublayer(hair)
@@ -237,12 +237,12 @@ final class TileShineLayerView: TileMotionLayerView {
         self.cornerRadius = cornerRadius
         super.init()
         // Selene's glint (Main.xaml Shine): a thin core at 0.18 white with faint 0.04 shoulders.
-        band.colors = [0, 0.04, 0.18, 0.04, 0].map { NSColor.white.withAlphaComponent($0).cgColor }
+        band.colors = [0, 0.04, 0.18, 0.04, 0].map { SeleneTheme.nsArtInk.withAlphaComponent($0).cgColor }
         band.locations = [0, 0.3, 0.5, 0.7, 1]
         let axis = TileMotion.shineAxis(at: 0)
         band.startPoint = Self.gradientPoint(axis.start)
         band.endPoint = Self.gradientPoint(axis.end)
-        shape.fillColor = NSColor.black.cgColor
+        shape.fillColor = SeleneTheme.nsArtShade.cgColor
         band.mask = shape
         root.addSublayer(band)
     }
@@ -306,7 +306,7 @@ final class DownloadMarkLayerView: TileMotionLayerView {
         self.still = still
         super.init()
         // The shadow the lock and the word wear, so the white reads on light art too.
-        mark.shadowColor = NSColor.black.cgColor
+        mark.shadowColor = SeleneTheme.nsArtShade.cgColor
         mark.shadowOpacity = 0.45
         mark.shadowOffset = .zero
         root.addSublayer(mark)
@@ -345,7 +345,7 @@ final class DownloadMarkLayerView: TileMotionLayerView {
     private static func symbol(size: CGFloat) -> NSImage? {
         guard size > 0 else { return nil }
         let config = NSImage.SymbolConfiguration(pointSize: size, weight: .light)
-            .applying(.init(paletteColors: [NSColor.white.withAlphaComponent(0.92)]))
+            .applying(.init(paletteColors: [SeleneTheme.nsArtInk.withAlphaComponent(0.92)]))
         return NSImage(systemSymbolName: "arrow.down.circle", accessibilityDescription: nil)?
             .withSymbolConfiguration(config)
     }

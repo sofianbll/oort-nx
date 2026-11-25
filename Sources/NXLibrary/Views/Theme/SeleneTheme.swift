@@ -7,12 +7,12 @@ enum SeleneTheme {
     static var focus: Color { Color(hex: palette.focus) }
     static var onFocus: Color { Color(hex: palette.onFocus) }
     static var ink: Color { Color(hex: palette.ink) }
-    static var ink90: Color { ink.opacity(0.90) }
-    static var ink82: Color { ink.opacity(0.82) }
-    static var ink75: Color { ink.opacity(0.75) }
-    static var ink60: Color { ink.opacity(0.60) }
-    static var ink25: Color { ink.opacity(0.25) }
-    static var ink15: Color { ink.opacity(0.15) }
+    static var ink90: Color { ink.opacity(SeleneTokens.Alpha.near) }
+    static var ink82: Color { ink.opacity(SeleneTokens.Alpha.heavy) }
+    static var ink75: Color { ink.opacity(SeleneTokens.Alpha.strong) }
+    static var ink60: Color { ink.opacity(SeleneTokens.Alpha.muted) }
+    static var ink25: Color { ink.opacity(SeleneTokens.Alpha.line) }
+    static var ink15: Color { ink.opacity(SeleneTokens.Alpha.soft) }
     static var scrim: Color { Color(hex: palette.scrim) }
     static var scrim65: Color { scrim.opacity(SeleneTokens.Effect.deepVeil) }
     static var scrim45: Color { scrim.opacity(SeleneTokens.Effect.panelVeil) }
@@ -42,8 +42,14 @@ enum SeleneTheme {
     static var line: Color { glyph.opacity(SeleneTokens.Effect.surfaceLine) }
     static var lineStrong: Color { glyph.opacity(SeleneTokens.Effect.surfaceLineStrong) }
     static var shine: Color { ink.opacity(SeleneTokens.Effect.surfaceShine) }
-    static var focusGlow: Color { focus.opacity(0.35) }
-    static var focusGlowStrong: Color { focus.opacity(0.55) }
+    /// On artwork, whatever the palette: the shade under text and the ink over it.
+    static let artShade = Color(hex: SeleneTokens.Art.shade)
+    static let artInk = Color(hex: SeleneTokens.Art.ink)
+    static let nsArtShade = NSColor(artShade)
+    static let nsArtInk = NSColor(artInk)
+    static let sun = Color(hex: SeleneTokens.Art.sun)
+    static var focusGlow: Color { focus.opacity(SeleneTokens.Alpha.shade) }
+    static var focusGlowStrong: Color { focus.opacity(SeleneTokens.Alpha.veil) }
 
     static var baseGradient: AnyShapeStyle { baseGradient(for: palette) }
 
@@ -79,41 +85,45 @@ enum SeleneTheme {
     }
     /// An image or a message that has just arrived.
     static let arrival = Animation.easeOut(duration: SeleneTokens.Motion.transfer)
-    static let art = Animation.easeOut(duration: 0.42)
+    static let art = Animation.easeOut(duration: SeleneTokens.Motion.art)
+    static func ease(_ duration: Double) -> Animation { .easeInOut(duration: duration) }
+    /// A refused entry shakes at an even pace.
+    static let shake = Animation.linear(duration: SeleneTokens.Motion.shake)
+    static func settle(_ duration: Double) -> Animation { .easeOut(duration: duration) }
     static let menu = Animation.spring(response: 0.26, dampingFraction: 0.88)
     static let expand = Animation.spring(response: 0.42, dampingFraction: 0.86)
 
     static let heroLeftScrim = LinearGradient(
         stops: [
-            .init(color: .black.opacity(0.48), location: 0.00),
-            .init(color: .black.opacity(0.38), location: 0.22),
-            .init(color: .black.opacity(0.22), location: 0.44),
-            .init(color: .black.opacity(0.08), location: 0.62),
+            .init(color: SeleneTheme.artShade.opacity(SeleneTokens.Alpha.half), location: 0.00),
+            .init(color: SeleneTheme.artShade.opacity(SeleneTokens.Alpha.shade), location: 0.22),
+            .init(color: SeleneTheme.artShade.opacity(SeleneTokens.Alpha.line), location: 0.44),
+            .init(color: SeleneTheme.artShade.opacity(SeleneTokens.Alpha.faint), location: 0.62),
             .init(color: .clear, location: 0.78)
         ],
         startPoint: .leading, endPoint: .trailing
     )
     static let heroBottomScrim = LinearGradient(
         stops: [
-            .init(color: .black.opacity(0.86), location: 0.00),
-            .init(color: .black.opacity(0.60), location: 0.14),
-            .init(color: .black.opacity(0.24), location: 0.28),
+            .init(color: SeleneTheme.artShade.opacity(SeleneTokens.Alpha.heavy), location: 0.00),
+            .init(color: SeleneTheme.artShade.opacity(SeleneTokens.Alpha.muted), location: 0.14),
+            .init(color: SeleneTheme.artShade.opacity(SeleneTokens.Alpha.line), location: 0.28),
             .init(color: .clear, location: 0.45)
         ],
         startPoint: .bottom, endPoint: .top
     )
     static let topScrim = LinearGradient(
         stops: [
-            .init(color: .black.opacity(0.45), location: 0.00),
-            .init(color: .black.opacity(0.20), location: 0.08),
+            .init(color: SeleneTheme.artShade.opacity(SeleneTokens.Alpha.half), location: 0.00),
+            .init(color: SeleneTheme.artShade.opacity(SeleneTokens.Alpha.line), location: 0.08),
             .init(color: .clear, location: 0.16)
         ],
         startPoint: .top, endPoint: .bottom
     )
     static let heroAmbientVignette = RadialGradient(
         colors: [
-            .black.opacity(0.42),
-            .black.opacity(0.20),
+            SeleneTheme.artShade.opacity(SeleneTokens.Alpha.half),
+            SeleneTheme.artShade.opacity(SeleneTokens.Alpha.line),
             .clear
         ],
         center: .topLeading,

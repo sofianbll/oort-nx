@@ -247,7 +247,7 @@ struct ProfilePage: View {
                 Text(LibraryPresentation.duration(played.duration)).seleneFont(.row)
             }
             .multilineTextAlignment(.trailing)
-            .shadow(color: SeleneTheme.scrim, radius: canvas.u(SeleneTokens.Space.compact))
+            .oortArtShadow(canvas.u(SeleneTokens.Space.compact), strength: 1, color: SeleneTheme.scrim)
         }
     }
 

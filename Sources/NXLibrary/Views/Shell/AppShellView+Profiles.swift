@@ -448,7 +448,7 @@ struct ProfilePINDialog: View {
             error = onPIN(pin)
             if error != nil {
                 keypad.focus(.digit(1))
-                if !reduceMotion { withAnimation(.linear(duration: 0.3)) { shakes += 1 } }
+                if !reduceMotion { withAnimation(SeleneTheme.shake) { shakes += 1 } }
             }
         } else if keypad.count != previousCount {
             error = nil

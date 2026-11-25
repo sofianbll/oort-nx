@@ -37,7 +37,7 @@ private struct SeleneSharesBackdropKey: EnvironmentKey {
 extension WallpaperBrightness {
     /// A left-to-right mask carrying the setting's opacity, for a wallpaper or a video.
     var mask: LinearGradient {
-        LinearGradient(stops: stops.map { .init(color: .black.opacity($0.opacity), location: $0.location) },
+        LinearGradient(stops: stops.map { .init(color: SeleneTheme.artShade.opacity($0.opacity), location: $0.location) },
                        startPoint: .leading, endPoint: .trailing)
     }
 }
@@ -88,11 +88,11 @@ struct SeleneBackdrop: View {
     var modsTint = false
 
     /// The Mods card's colours, whatever the palette.
-    static let modsAccent = Color(hex: 0xFFC94A)
+    static let modsAccent = Color(hex: SeleneTokens.Art.mods)
     static let modsGradient = LinearGradient(stops: [
-        .init(color: Color(hex: 0x8A5A0E), location: 0),
-        .init(color: Color(hex: 0x3A2508), location: 0.45),
-        .init(color: Color(hex: 0x05080F), location: 1)
+        .init(color: Color(hex: SeleneTokens.Art.modsHigh), location: 0),
+        .init(color: Color(hex: SeleneTokens.Art.modsMid), location: 0.45),
+        .init(color: Color(hex: SeleneTokens.Art.modsLow), location: 1)
     ], startPoint: .top, endPoint: .bottom)
     /// The tint's glide, the same length as the moonlight's colour glide.
     static let tintGlide = Animation.easeInOut(duration: 1.2)

@@ -42,7 +42,7 @@ struct MoreSettingsPanel: View {
                 }
                 .frame(width: canvas.u(1040), alignment: .leading)
                 .frame(maxHeight: .infinity, alignment: .top)
-                .padding(.top, canvas.u(90)).padding(.bottom, canvas.u(SeleneTokens.Space.panel))
+                .padding(.top, canvas.u(SeleneTokens.Space.pageTop)).padding(.bottom, canvas.u(SeleneTokens.Space.panel))
                 SeleneHintsBar(left: [HintItem(.b, L10n.text("Back"), action: onClose)], right: [HintItem(.a, L10n.text("Select"))],
                                bottom: SeleneBottomScrim.hintsBottom, leftInset: 18)
             }

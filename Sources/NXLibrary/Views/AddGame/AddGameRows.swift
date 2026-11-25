@@ -141,7 +141,7 @@ struct AddGameRowView: View {
         HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.small)) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .seleneFont(.text)
-                .foregroundColor(SeleneTheme.untested.opacity(0.9))
+                .foregroundColor(SeleneTheme.untested.opacity(SeleneTokens.Alpha.near))
             VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.seam)) {
                 Text(row.title)
                     .seleneFont(.text, .medium)
@@ -158,7 +158,7 @@ struct AddGameRowView: View {
         .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
         .padding(.vertical, canvas.u(SeleneTokens.Space.small))
         .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content), style: .continuous)
-            .fill(SeleneTheme.untested.opacity(0.08)))
+            .fill(SeleneTheme.untested.opacity(SeleneTokens.Alpha.faint)))
         .seleneRowFocus(focused, radius: canvas.u(13))
     }
 }

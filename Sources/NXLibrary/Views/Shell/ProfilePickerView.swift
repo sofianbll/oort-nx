@@ -17,8 +17,8 @@ struct ProfilePortrait: View {
                           "mountain.2.fill", "cloud.fill", "heart.fill", "star.fill", "gamecontroller.fill",
                           "circle.lefthalf.filled", "triangle.fill", "diamond.fill", "hexagon.fill",
                           "circle.hexagongrid.fill", "swirl.circle.fill", "sparkles", "person.crop.circle"]
-    private static let colors: [UInt32] = [0x254A71, 0x373C75, 0x6D355D, 0x713F38, 0x255B4C,
-                                           0x315772, 0x48612D, 0x745A25, 0x8D4831, 0x2E5771]
+    private static let colors: [UInt32] = [SeleneTokens.Art.portrait1, SeleneTokens.Art.portrait2, SeleneTokens.Art.portrait3, SeleneTokens.Art.portrait4, SeleneTokens.Art.portrait5,
+                                           SeleneTokens.Art.portrait6, SeleneTokens.Art.portrait7, SeleneTokens.Art.portrait8, SeleneTokens.Art.portrait9, SeleneTokens.Art.portrait10]
 
     var accent: Color { Color(hex: SelenePaletteCatalog.resolve(profile.look.theme, in: theme.palettes).glyph) }
 
@@ -34,12 +34,12 @@ struct ProfilePortrait: View {
             } else {
                 Image(systemName: Self.symbols[index])
                     .font(.system(size: canvas.u(size * 0.43), weight: .medium))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(SeleneTheme.artInk)
             }
         }
         .frame(width: canvas.u(size), height: canvas.u(size))
         .clipShape(Circle())
-        .overlay(Circle().strokeBorder(ring ? accent : .white.opacity(0.14), lineWidth: canvas.u(ring ? 2 : 1)))
+        .overlay(Circle().strokeBorder(ring ? accent : SeleneTheme.artInk.opacity(SeleneTokens.Alpha.soft), lineWidth: canvas.u(ring ? 2 : 1)))
         .accessibilityHidden(true)
     }
 }
@@ -134,11 +134,11 @@ struct ProfilePickerView: View {
         let haloInset = canvas.u(SeleneTokens.Space.group)
         let extraHeight = haloInset - canvas.u(SeleneTokens.Space.control)
         return GeometryReader { geometry in
-            VStack(spacing: canvas.u(60)) {
+            VStack(spacing: canvas.u(SeleneTokens.Space.settingsInfoClearance)) {
                 Text(L10n.text("Who's playing?")).seleneFont(.screen).accessibilityAddTraits(.isHeader)
                 ScrollViewReader { scroll in
                     ScrollView(.horizontal) {
-                        HStack(spacing: canvas.u(56)) {
+                        HStack(spacing: canvas.u(SeleneTokens.Space.chromeGutter)) {
                             ForEach(profiles.profiles) { profile in
                                 tile(profile)
                             }
@@ -205,7 +205,7 @@ struct ProfilePickerView: View {
                         // Opaque: the Sun never shows through a key.
                         Circle().fill(SeleneTheme.panelRaised)
                             .overlay(Circle().strokeBorder(SeleneTheme.ink15, lineWidth: canvas.u(SeleneTokens.Space.thinStroke)))
-                            .overlay { Image(systemName: "plus").font(.system(size: canvas.u(65), weight: .ultraLight))
+                            .overlay { MaterialIconView(.add, size: SeleneTokens.Space.chromeGutter)
                                 .foregroundStyle(isFocused ? SeleneTheme.ink : SeleneTheme.ink60) }
                             .frame(width: canvas.u(170), height: canvas.u(170))
                     }
@@ -213,7 +213,7 @@ struct ProfilePickerView: View {
                 .overlay {
                     if isFocused {
                         Circle().strokeBorder(accent, lineWidth: canvas.u(SeleneTokens.Space.strongStroke)).padding(-canvas.u(9))
-                            .shadow(color: accent.opacity(0.8), radius: canvas.u(11))
+                            .oortGlow(true, color: accent.opacity(SeleneTokens.Alpha.heavy))
                     }
                 }
                 .scaleEffect(isFocused && !reduceMotion ? 1.1 : 1)

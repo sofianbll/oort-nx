@@ -26,16 +26,16 @@ struct SeleneInfoTip: View {
         } label: {
             Image(systemName: "info.circle")
                 .seleneFont(.text, .semibold)
-                .foregroundColor(isShowing.wrappedValue ? SeleneTheme.glyph : SeleneTheme.ink60.opacity(0.85))
+                .foregroundColor(isShowing.wrappedValue ? SeleneTheme.glyph : SeleneTheme.ink60.opacity(SeleneTokens.Alpha.heavy))
                 .padding(SeleneTokens.Space.seam)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .popover(isPresented: isShowing, arrowEdge: .trailing) {
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: SeleneTokens.Space.tight) {
             Text(L10n.text(text, context: localization))
                     .seleneFont(.text)
-                    .foregroundColor(SeleneTheme.ink.opacity(0.96))
+                    .foregroundColor(SeleneTheme.ink.opacity(SeleneTokens.Alpha.near))
                     .lineSpacing(2.5)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -93,7 +93,7 @@ struct SeleneRow<Trailing: View>: View {
                         titleAccessory: change.map { _ in AnyView(SeleneStatusMark(color: SeleneTheme.glyph, pulses: false)) },
                         truncateAboutInMiddle: truncateSubtitleInMiddle && change == nil, platform: platform,
                         aboutIsHelp: !verbatimSubtitle, formatBadges: formatBadges) {
-            HStack(spacing: 10) {
+            HStack(spacing: SeleneTokens.Space.gap) {
                 if let info {
                     SeleneInfoTip(info)
                 }
@@ -155,7 +155,7 @@ struct SeleneValueRow: View {
 
     var body: some View {
         SeleneRow(title, subtitle: subtitle, info: info) {
-            HStack(spacing: 10) {
+            HStack(spacing: SeleneTokens.Space.gap) {
                 SeleneValueChip(text: value)
                 if let actionTitle, let action {
                     Button(L10n.text(actionTitle), action: action)
@@ -221,7 +221,7 @@ struct OortSegmented<Value: Hashable>: View {
     var onFocus: (Value) -> Void = { _ in }
 
     var body: some View {
-        HStack(spacing: 3) {
+        HStack(spacing: SeleneTokens.Space.segmentInset) {
             ForEach(options.indices, id: \.self) { index in
                 let option = options[index]
                 let selected = selection == option.0
@@ -232,7 +232,7 @@ struct OortSegmented<Value: Hashable>: View {
                     Text(option.1)
                         .seleneFont(preset == .compact ? .text : .row, .semibold)
                         .foregroundColor(selected ? (preset == .compact ? SeleneTheme.scrim : SeleneTheme.onFocus)
-                                         : (preset == .compact ? SeleneTheme.ink.opacity(0.5) : SeleneTheme.ink75))
+                                         : (preset == .compact ? SeleneTheme.ink.opacity(SeleneTokens.Alpha.half) : SeleneTheme.ink75))
                         .padding(.horizontal, SeleneTokens.Space.small)
                         .padding(.vertical, SeleneTokens.Space.tight)
                         .background {
@@ -275,9 +275,9 @@ struct OortCard<Content: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: SeleneTokens.Space.small) {
             if let title {
-                HStack(spacing: 6) {
+                HStack(spacing: SeleneTokens.Space.tight) {
                     Text(L10n.text(title, context: localization))
                         .seleneFont(.badge, .bold)
                         .tracking(1.4)
@@ -295,7 +295,7 @@ struct OortCard<Content: View>: View {
         .background(SeleneTheme.glassSolid)
         .overlay(
             RoundedRectangle(cornerRadius: SeleneTheme.cardRadius, style: .continuous)
-                .strokeBorder(SeleneTheme.ink15, lineWidth: 1)
+                .strokeBorder(SeleneTheme.ink15, lineWidth: SeleneTokens.Space.thinStroke)
         )
         .clipShape(RoundedRectangle(cornerRadius: SeleneTheme.cardRadius, style: .continuous))
     }
@@ -339,7 +339,7 @@ struct SeleneCycleValue: View {
     let cycle: (Int) -> Void
 
     var body: some View {
-        HStack(spacing: canvas.u(6)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.tight)) {
             arrow(.chevronLeft, -1)
             SeleneValueChip(text: value)
             arrow(.chevron, 1)

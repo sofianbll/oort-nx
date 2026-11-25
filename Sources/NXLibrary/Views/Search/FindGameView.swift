@@ -36,7 +36,7 @@ struct FindGameView: View {
 
     var body: some View {
         SeleneOverlay(style: .search, alignment: .top, onOutside: close) {
-            VStack(spacing: canvas.u(40)) {
+            VStack(spacing: canvas.u(SeleneTokens.Space.dialogInset)) {
                 field
                 grid
                 Spacer(minLength: 0)
