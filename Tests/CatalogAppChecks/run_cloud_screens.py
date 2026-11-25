@@ -1346,8 +1346,8 @@ extension SettingsView {
         precondition(settings.settings.gameInboxEnabled == originalInbox)
         handleGamepad(.contextAction)
         precondition(router.settingsDecision == .save)
-        handleGamepad(.navigateRight)
-        handleGamepad(.confirm)
+        // This view is not mounted: its @State focus cannot be moved by a synthetic key.
+        decide(2) // Save, the rightmost answer.
         precondition(router.settingsDecision == nil, "Reset must save the draft")
     }
     /// X only asks, on Cancel; leaving changes nothing and Reset runs from the question.
