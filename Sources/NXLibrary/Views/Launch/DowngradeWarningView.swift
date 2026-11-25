@@ -18,11 +18,11 @@ struct DowngradeWarningView: View {
     @Environment(\.seleneCanvas) private var canvas
     @ObservedObject private var theme = ThemeStore.shared
     @StateObject private var controller = ControllerInput()
-    @State private var index = 0
+    @State private var index = 2
     @FocusState private var acceptsKeys: Bool
 
     private var failed: Bool { notice.canContinueWithoutCopy }
-    private var choices: [Choice] { failed ? [.retry, .proceed, .quit] : [.proceed, .folder, .quit] }
+    private var choices: [Choice] { failed ? [.quit, .proceed, .retry] : [.quit, .folder, .proceed] }
     private var omissions: [DowngradeCheckpoint.Omission] {
         if case let .copy(omissions) = notice { return omissions }
         return []
@@ -39,14 +39,11 @@ struct DowngradeWarningView: View {
             Text(risk)
                 .seleneFont(.text)
                 .foregroundStyle(SeleneTheme.ink75)
-            HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
-                ForEach(choices.indices, id: \.self) { position in
-                    let choice = choices[position]
-                    SelenePillButton(title: label(choice), minWidth: 0, height: SeleneTokens.Space.actionPillHeight,
-                                     titleSize: .text, horizontalPadding: SeleneTokens.Space.large, focused: index == position,
-                                     scalesOnFocus: false) { perform(choice) }
-                        .accessibilityAddTraits(index == position ? .isSelected : [])
-                }
+            OortActionBar(actions: choices.enumerated().map { position, choice in
+                .init(id: position, title: label(choice),
+                      role: choice == .quit ? .back : position == choices.count - 1 ? .primary : .secondary) { perform(choice) }
+            }, focused: index, preset: .card) { id in
+                if let position = id.base as? Int { index = position }
             }
         }
         .multilineTextAlignment(.center)
@@ -133,7 +130,7 @@ struct DowngradeWarningView: View {
 
     private func perform(_ choice: Choice) {
         switch choice {
-        case .retry: index = 0; retry()
+        case .retry: index = choices.count - 1; retry()
         case .proceed: proceed()
         case .folder: NSWorkspace.shared.open(AppData.supportRoot)
         case .quit: NSApplication.shared.terminate(nil)

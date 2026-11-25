@@ -80,9 +80,9 @@ struct OnboardingScreen: View {
                         .multilineTextAlignment(.center)
                         .accessibilityAddTraits(.updatesFrequently)
                 }
-                HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
-                    pill(primary, id: "continue")
-                    if let secondary { pill(secondary, id: "back") }
+                OortActionBar(actions: (secondary.map { [key($0, id: "back", role: .back)] } ?? []) + [key(primary, id: "continue", role: .primary)],
+                              focused: focus, spread: false) { id in
+                    if let id = id.base as? String { focus = id }
                 }
             }
             .padding(.horizontal, canvas.u(SeleneTokens.Space.chromeGutter))
@@ -91,9 +91,8 @@ struct OnboardingScreen: View {
             }
             VStack {
                 Spacer(minLength: 0)
-                SeleneHintsBar(right: secondary == nil || backSkips
-                    ? [HintItem(.a, L10n.text("Select"))]
-                    : [HintItem(.a, L10n.text("Select")), HintItem(.b, L10n.text(secondary?.0 ?? "Back"))],
+                SeleneHintsBar(left: secondary.flatMap { backSkips ? nil : [HintItem(.b, $0.0, action: $0.1)] } ?? [],
+                    right: [HintItem(.a, L10n.text("Select"))],
                     bottom: SeleneBottomScrim.hintsBottom, leftInset: SeleneTokens.Space.control)
             }
         }
@@ -119,9 +118,8 @@ struct OnboardingScreen: View {
         .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
     }
 
-    private func pill(_ item: (String, () -> Void), id: String) -> some View {
-        SelenePillButton(title: item.0, focused: focus == id, action: item.1)
-            .onHover { if hover.moved($0) { focus = id } }
+    private func key(_ item: (String, () -> Void), id: String, role: ActionBarRole) -> OortActionBar.Action {
+        .init(id: id, title: item.0, role: role, perform: item.1)
     }
 }
 
@@ -184,8 +182,8 @@ struct OnboardingCopyOffer: View {
 
     private func input(_ action: GamepadAction) {
         switch action {
-        case .navigateLeft: focus = .confirm
-        case .navigateRight: focus = .cancel
+        case .navigateLeft: focus = .left
+        case .navigateRight: focus = .right
         case .cancel: choose(false)
         case .confirm: choose(focus == .confirm)
         default: break

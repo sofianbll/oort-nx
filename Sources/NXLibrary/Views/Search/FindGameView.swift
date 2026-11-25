@@ -46,9 +46,8 @@ struct FindGameView: View {
             .padding(.horizontal, canvas.u(SeleneTokens.Space.stageGutter))
             VStack {
                 Spacer()
-                SeleneHintsBar(right: [
+                SeleneHintsBar(left: [HintItem(.b, L10n.text("Close")) { close() }], right: [
                     HintItem(.y, "Search everywhere", keyboard: .text(PaletteAction.paletteShortcut)) { searchEverywhere() },
-                    HintItem(.b, L10n.text("Close")) { close() },
                     HintItem(.a, L10n.text("Select"))
                 ], bottom: SeleneBottomScrim.hintsBottom)
             }

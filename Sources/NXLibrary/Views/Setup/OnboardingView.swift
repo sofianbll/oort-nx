@@ -73,16 +73,23 @@ struct OnboardingView: View {
     }
 
     private func move(_ delta: Int) {
-        let targets = rows.filter { $0.action != nil }.map(\.id) + ["continue", "back"]
-        guard let index = targets.firstIndex(of: focus), targets.indices.contains(index + delta) else { return }
-        focus = targets[index + delta]
+        // The foot is one line, Back then Continue: from the rows, Down reaches Continue.
+        let foot = ["back", "continue"]
+        let targets = rows.filter { $0.action != nil }.map(\.id)
+        let next: String?
+        if foot.contains(focus) { next = delta < 0 ? targets.last : nil }
+        else if let index = targets.firstIndex(of: focus) {
+            next = targets.indices.contains(index + delta) ? targets[index + delta] : delta > 0 ? foot.last : nil
+        } else { next = nil }
+        guard let next else { return }
+        focus = next
         SoundEffectService.shared.play(.focus)
     }
 
     private func horizontal(_ delta: Int) {
         if let row = rows.first(where: { $0.id == focus }), let cycle = row.cycle { cycle(delta) }
-        else if delta < 0, focus == "back" { focus = "continue" }
-        else if delta > 0, focus == "continue" { focus = "back" }
+        else if delta > 0, focus == "back" { focus = "continue" }
+        else if delta < 0, focus == "continue" { focus = "back" }
     }
 
     private func activate() {

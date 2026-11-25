@@ -55,7 +55,7 @@ struct SetupCheckView: View {
             .offset(y: canvas.u(-20))
             VStack {
                 Spacer(minLength: 0)
-                SeleneHintsBar(right: [HintItem(.a, L10n.text("Select")), HintItem(.b, L10n.text("Back"))],
+                SeleneHintsBar(left: [HintItem(.b, L10n.text("Back"))], right: [HintItem(.a, L10n.text("Select"))],
                                bottom: SeleneBottomScrim.hintsBottom, leftInset: 18)
             }.seleneOverlayOwnership(pendingTool == nil)
             if let pendingTool {

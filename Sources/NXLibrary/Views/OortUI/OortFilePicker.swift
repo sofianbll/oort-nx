@@ -160,6 +160,8 @@ import UniformTypeIdentifiers
     var confirm: (() -> Void)?
     var close: (() -> Void)?
     var canSelectMultiple: Bool { choice.allowsMultiple }
+    /// The keys of the foot; the last one chooses, so the column opens on it.
+    private var actionCount: Int { 3 + (canSelectMultiple ? 1 : 0) + (choice.allowsFolder ? 1 : 0) + (problem == .denied ? 1 : 0) }
     /// X adds the focused file to the choice.
     var canPickSeveral: Bool {
         canSelectMultiple && column == .files && visible.indices.contains(index) && !visible[index].isFolder
@@ -235,10 +237,10 @@ import UniformTypeIdentifiers
         case .jumpToEnd: index = 100_000
         case .navigateLeft, .tabPrevious:
             column = Column(rawValue: (column.rawValue + 2) % 3) ?? .files
-            index = 0
+            index = column == .actions ? actionCount - 1 : 0
         case .navigateRight, .tabNext:
             column = Column(rawValue: (column.rawValue + 1) % 3) ?? .files
-            index = 0
+            index = column == .actions ? actionCount - 1 : 0
         case .confirm: confirm?()
         case .cancel:
             if search { search = false; query = "" }
@@ -259,7 +261,7 @@ import UniformTypeIdentifiers
         let limit = switch column {
         case .places: places.count
         case .files: visible.count
-        case .actions: 3 + (canSelectMultiple ? 1 : 0) + (choice.allowsFolder ? 1 : 0) + (problem == .denied ? 1 : 0)
+        case .actions: actionCount
         }
         if index >= limit { index = max(0, limit - 1) }
     }
@@ -312,9 +314,12 @@ struct OortFilePicker: View {
                 Divider()
                 files
             }
-            ViewThatFits(in: .horizontal) {
-                HStack { actionButtons }
-                VStack(alignment: .leading) { actionButtons }
+            OortActionBar(actions: actions.enumerated().map { index, action in
+                .init(id: index, title: action.title, role: action.role, enabled: action.enabled, perform: action.perform)
+            }, focused: model.column == .actions ? AnyHashable(model.index) : nil, preset: .compact) { id in
+                guard let index = id.base as? Int else { return }
+                model.column = .actions
+                model.index = index
             }
             SeleneHintsBar(left: [HintItem(.b, model.backLabel), HintItem(.y, "Search", keyboard: .text("⌘F"))],
                            right: hints, bottom: 0, leftInset: 0, press: model.input)
@@ -406,40 +411,33 @@ struct OortFilePicker: View {
         .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
-    private var actions: [(title: String, enabled: Bool, perform: () -> Void)] {
-        var actions: [(String, Bool, () -> Void)] = []
-        if model.choice.allowsFolder {
-            actions.append((L10n.text("Choose this folder"), model.ready && model.selected.isEmpty, { choose([model.folder]) }))
-        }
-        if model.canSelectMultiple {
-            actions.append((model.multiple && !model.selected.isEmpty
-                            ? L10n.format("Choose %lld files", [model.selected.count]) : L10n.text("Select multiple files"),
-                            model.ready, {
-                if !model.selected.isEmpty { choose(model.selected) }
-                else { model.multiple.toggle() }
-            }))
-        }
+    /// As drawn: Cancel on the left, the tools, then the key that chooses, last.
+    private var actions: [(title: String, role: ActionBarRole, enabled: Bool, perform: () -> Void)] {
+        var actions: [(String, ActionBarRole, Bool, () -> Void)] = [(L10n.text("Cancel"), .back, true, cancel)]
+        actions.append((L10n.text("Open in Finder…"), .secondary, true, finder))
+        actions.append((model.showHidden ? L10n.text("Hide hidden files") : L10n.text("Show hidden files"), .secondary, true, {
+            model.showHidden.toggle()
+            model.index = model.column == .actions ? model.index : 0
+        }))
         if model.problem == .denied {
-            actions.append((L10n.text("Open System Settings"), true, {
+            actions.append((L10n.text("Open System Settings"), .secondary, true, {
                 if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_FilesAndFolders") {
                     NSWorkspace.shared.open(url)
                 }
             }))
         }
-        actions.append((model.showHidden ? L10n.text("Hide hidden files") : L10n.text("Show hidden files"), true, {
-            model.showHidden.toggle()
-            model.index = model.column == .actions ? model.index : 0
-        }))
-        actions.append((L10n.text("Cancel"), true, cancel))
-        actions.append((L10n.text("Open in Finder…"), true, finder))
-        return actions
-    }
-
-    @ViewBuilder private var actionButtons: some View {
-        ForEach(Array(actions.enumerated()), id: \.offset) { index, action in
-            OortButton(title: action.title, focused: focused(.actions, index), state: action.enabled ? .ready : .blocked,
-                       preset: .compact, action: action.perform)
+        let picksSeveral = model.multiple && !model.selected.isEmpty
+        if model.canSelectMultiple && !picksSeveral {
+            actions.append((L10n.text("Select multiple files"), .secondary, model.ready, { model.multiple.toggle() }))
         }
+        if model.choice.allowsFolder {
+            actions.append((L10n.text("Choose this folder"), picksSeveral ? .secondary : .primary,
+                            model.ready && model.selected.isEmpty, { choose([model.folder]) }))
+        }
+        if picksSeveral {
+            actions.append((L10n.format("Choose %lld files", [model.selected.count]), .primary, model.ready, { choose(model.selected) }))
+        }
+        return actions
     }
 
     private func focused(_ column: OortFilePickerModel.Column, _ index: Int) -> Bool {

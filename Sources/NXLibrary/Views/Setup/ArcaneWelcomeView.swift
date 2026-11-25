@@ -59,7 +59,7 @@ struct ArcaneWelcomeView: View {
 
             VStack {
                 Spacer(minLength: 0)
-                SeleneHintsBar(right: [HintItem(.a, L10n.text("Select")), HintItem(.b, L10n.text("Close"))],
+                SeleneHintsBar(left: [HintItem(.b, L10n.text("Close"))], right: [HintItem(.a, L10n.text("Select"))],
                                bottom: SeleneBottomScrim.hintsBottom, leftInset: 18)
             }
         }
@@ -109,12 +109,12 @@ struct ArcaneWelcomeView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             Spacer(minLength: 0)
-            SelenePillButton(title: L10n.text("Add"), minWidth: 120, height: 50, focused: focus == .add) { activate(.add) }
-                .seleneHover { move(to: .add) }
             SelenePillButton(title: L10n.text("Not now"), minWidth: 120, height: 50, focused: focus == .notNow) {
                 activate(.notNow)
             }
             .seleneHover { move(to: .notNow) }
+            SelenePillButton(title: L10n.text("Add"), minWidth: 120, height: 50, focused: focus == .add) { activate(.add) }
+                .seleneHover { move(to: .add) }
         }
         .padding(.horizontal, canvas.u(SeleneTokens.Space.large))
         .padding(.vertical, canvas.u(SeleneTokens.Space.control))
