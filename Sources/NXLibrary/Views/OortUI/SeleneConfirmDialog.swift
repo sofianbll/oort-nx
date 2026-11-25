@@ -121,9 +121,8 @@ struct SeleneDialogNotes: View {
     private func noteLine(_ line: ReleaseNotesLayout.Line, first: Bool) -> some View {
         switch line.kind {
         case .heading:
-            Text(line.text.uppercased())
+            Text(line.text)
                 .seleneFont(.badge, .semibold)
-                .tracking(1.2)
                 .foregroundColor(SeleneTheme.ink60)
                 .padding(.top, first ? 0 : canvas.u(10))
                 .accessibilityAddTraits(.isHeader)

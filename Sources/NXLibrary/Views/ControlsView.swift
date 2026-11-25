@@ -71,6 +71,9 @@ struct ControlsView: View {
                             .padding(.bottom, canvas.u(SeleneTokens.Space.control))
                         SeleneSegmented(selection: $inGame, options: [(false, "Library"), (true, "In game")])
                             .padding(.bottom, canvas.u(SeleneTokens.Space.control))
+                        OortControllerView(brand: controller.activeBrand)
+                            .frame(maxWidth: .infinity)
+                            .opacity(controller.isGamepadConnected ? 1 : SeleneTokens.Alpha.half)
                         SeleneOptionRow(icon: .gamepad, title: L10n.text("Controller"),
                             about: controller.isGamepadConnected ? controller.activeControllerName : L10n.text("Not connected"),
                             focused: focus == 0) {

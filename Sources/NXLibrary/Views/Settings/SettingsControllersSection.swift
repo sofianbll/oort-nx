@@ -13,6 +13,9 @@ struct SettingsControllersSection: View {
 
     var body: some View {
         OortSettingsGroup {
+            OortControllerView(brand: controller.activeBrand, width: 360)
+                .frame(maxWidth: .infinity)
+                .opacity(controller.isGamepadConnected ? 1 : SeleneTokens.Alpha.half)
             SettingsSubheading(L10n.text("Library controls"))
             SeleneRow("Gamepad",
                       subtitle: controller.isGamepadConnected
@@ -47,21 +50,9 @@ struct SettingsControllersSection: View {
                 onViewControls()
             }
 
-            SeleneRow("Stick navigation deadzone",
-                      subtitle: "Library navigation",
-                      info: "Adjusts minimum thumbstick deflection needed to trigger menu navigation. Increase if your analog stick has slight drift causing unintended scrolling.") {
-                HStack(spacing: SeleneTokens.Space.gap) {
-                    Slider(value: Binding(
-                        get: { draftDeadzone },
-                        set: setDeadzone
-                    ), in: 0.10...0.80, step: 0.01)
-                    .frame(width: 170)
-                    Text(String(format: "%.2f", draftDeadzone))
-                        .seleneFont(.badge, .semibold, design: .monospaced)
-                        .foregroundColor(SeleneTheme.glyph)
-                        .frame(width: 38, alignment: .trailing)
-                }
-            }
+            OortSliderRow(title: "Stick navigation deadzone", subtitle: "Raise it if a stick drifts and moves on its own.",
+                          value: Binding(get: { draftDeadzone }, set: setDeadzone), range: 0.10...0.80, step: 0.01,
+                          displayValue: draftDeadzone.formatted(.number.precision(.fractionLength(2)).locale(L10n.context.formatLocale)))
 
             SettingsSubheading(L10n.text("In game"))
             if let onOpenPlayers {

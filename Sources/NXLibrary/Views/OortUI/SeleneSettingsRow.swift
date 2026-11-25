@@ -264,6 +264,7 @@ typealias SeleneSegmented = OortSegmented
 
 struct OortCard<Content: View>: View {
     @Environment(\.nxAppLocale) private var localization
+    @Environment(\.seleneCanvas) private var canvas
     let title: String?
     let info: String?
     @ViewBuilder var content: () -> Content
@@ -275,14 +276,13 @@ struct OortCard<Content: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: SeleneTokens.Space.small) {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.medium)) {
             if let title {
-                HStack(spacing: SeleneTokens.Space.tight) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                     Text(L10n.text(title, context: localization))
-                        .seleneFont(.badge, .bold)
-                        .tracking(1.4)
-                        .textCase(.uppercase)
-                        .foregroundColor(SeleneTheme.ink60)
+                        .seleneFont(.text, .semibold)
+                        .foregroundColor(SeleneTheme.ink75)
+                        .accessibilityAddTraits(.isHeader)
                     if let info {
                         SeleneInfoTip(info)
                     }
@@ -290,14 +290,9 @@ struct OortCard<Content: View>: View {
             }
             content()
         }
-        .padding(SeleneTokens.Space.medium)
+        .padding(canvas.u(SeleneTokens.Space.large))
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(SeleneTheme.glassSolid)
-        .overlay(
-            RoundedRectangle(cornerRadius: SeleneTheme.cardRadius, style: .continuous)
-                .strokeBorder(SeleneTheme.ink15, lineWidth: SeleneTokens.Space.thinStroke)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: SeleneTheme.cardRadius, style: .continuous))
+        .oortPanel(radius: canvas.u(SeleneTheme.cardRadius))
     }
 }
 

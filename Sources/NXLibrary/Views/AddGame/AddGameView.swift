@@ -109,7 +109,6 @@ struct AddGameView: View {
         VStack(alignment: .leading, spacing: 0) {
             Text(L10n.text("ADD A GAME"))
                 .seleneFont(.text, .semibold)
-                .tracking(1.2)
                 .foregroundColor(SeleneTheme.ink60)
                 .padding(.leading, canvas.u(SeleneTokens.Space.compact))
             Text(stepTitle)

@@ -4,7 +4,7 @@ import SwiftUI
 import NXLibraryCore
 
 struct OortUIGallery: View {
-    enum Sheet: String, CaseIterable { case rows, states, dialogs, page, keys }
+    enum Sheet: String, CaseIterable { case rows, states, dialogs, page, keys, pieces }
 
     private static let palettes = ["oort", "catppuccin-latte", "vantablack", "oort-vesper"]
     @State private var palette = SelenePaletteCatalog.defaultID
@@ -145,6 +145,26 @@ private struct GallerySpecimen: View {
                                        choices: ["Open", "Cancel"], focus: $choice, cancelIndex: 1, onCancel: {}) { _ in }
                 }
                 SeleneSuccessNotice(title: "Done", message: text("Last Drive check succeeded"))
+            case .pieces:
+                OortCard("Pieces") {
+                    OortTabs(items: [.init(id: 0, title: text("All games"), count: 24), .init(id: 1, title: text("Installed")),
+                                     .init(id: 2, title: text("Favorites"), icon: .favorite)], selected: 0, focused: 1) { _ in }
+                    HStack {
+                        OortTag(text: "Action")
+                        OortTag(text: "1.2.0", preset: .panel, monospaced: true)
+                        OortTag(text: "4K", icon: .play, preset: .art)
+                        OortTag(text: text("New"), tone: SeleneTheme.untested)
+                        OortTag(text: text("In use"), tone: SeleneTheme.success)
+                    }
+                    OortMeter(share: 0.4)
+                    OortMeter(share: nil)
+                    OortSearchField(query: $query, lit: true) { TextField(text("Find a game"), text: $query) }
+                    OortSearchField(query: .constant("Lunar"), lit: false, preset: .list) { TextField(text("Find a game"), text: .constant("Lunar")) }
+                }
+                HStack {
+                    OortControllerView(live: .sample, brand: .nintendoSwitch, width: 360)
+                    OortNotes(notes: OortSynth.Figure.wave.notes, playing: 3) { _, _ in }
+                }
             case .page:
                 OortSection(title: text("Integrations")) {
                     OortEmptyState(title: text("No incoming files"))

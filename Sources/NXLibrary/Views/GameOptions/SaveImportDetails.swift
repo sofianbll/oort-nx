@@ -47,9 +47,8 @@ struct SaveImportDetails: View {
     private func endpoint(_ label: String, folder: URL) -> some View {
         let path = (folder.path as NSString).abbreviatingWithTildeInPath
         return VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
-            Text(verbatim: label.uppercased())
+            Text(verbatim: label)
                 .seleneFont(.badge, .semibold)
-                .tracking(canvas.u(1.2))
                 .foregroundColor(SeleneTheme.ink60)
             // Give long directory names a natural wrap point after each slash.
             Text(verbatim: path.replacingOccurrences(of: "/", with: "/\u{200B}"))

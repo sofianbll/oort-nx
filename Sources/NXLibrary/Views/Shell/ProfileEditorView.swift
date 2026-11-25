@@ -178,6 +178,7 @@ struct ProfileEditorView: View {
                 .padding(.horizontal, canvas.u(SeleneTokens.Space.feature))
                 .frame(width: canvas.u(560), height: canvas.u(68))
                 .oortWell(radius: canvas.u(SeleneTokens.Radius.field))
+                .seleneRowFocus(nameFocused, radius: canvas.u(SeleneTokens.Radius.field))
                 .focused($nameFocused)
                 .onSubmit { advance() }
             VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {

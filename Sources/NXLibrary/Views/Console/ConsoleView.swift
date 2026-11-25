@@ -139,7 +139,6 @@ struct ConsoleView: View {
         VStack(alignment: .leading, spacing: 0) {
             Text(L10n.text("CONSOLE"))
                 .seleneFont(.text, .semibold)
-                .tracking(1.2)
                 .foregroundColor(SeleneTheme.ink60)
                 .padding(.leading, canvas.u(SeleneTokens.Space.compact))
             HStack(alignment: .firstTextBaseline) {

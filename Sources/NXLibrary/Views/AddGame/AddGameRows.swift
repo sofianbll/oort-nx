@@ -48,9 +48,8 @@ struct AddGameRowView: View {
     var body: some View {
         switch row.kind {
         case .heading:
-            Text(row.title.uppercased())
+            Text(row.title)
                 .seleneFont(.badge, .semibold)
-                .tracking(1.2)
                 .foregroundColor(SeleneTheme.ink60)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, canvas.u(SeleneTokens.Space.small))

@@ -190,7 +190,7 @@ struct SetupCheckView: View {
             VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
                 HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                     Text(L10n.text(story.title)).seleneFont(.heading, .semibold).foregroundColor(SeleneTheme.ink)
-                    Text(story.state.uppercased())
+                    Text(story.state)
                         .seleneFont(.badge, .bold)
                         .foregroundColor(story.tone)
                 }

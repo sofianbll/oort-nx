@@ -30,7 +30,7 @@ struct OortTag: View {
         if let tone { return tone.opacity(SeleneTokens.Alpha.soft) }
         return switch preset {
         case .quiet: SeleneTheme.ink15
-        case .panel: SeleneTheme.panelRaised
+        case .panel: SeleneTheme.scrim45
         case .art: SeleneTheme.artShade.opacity(SeleneTokens.Alpha.muted)
         }
     }

@@ -13,7 +13,7 @@ struct OortCardRibbon<ID: Hashable, Face: View>: View {
     let press: Int
     let side: CGFloat
     let onPick: (Int) -> Void
-    @ViewBuilder var face: (ID) -> Face
+    @ViewBuilder var face: (ID, Bool) -> Face
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.seleneReduceMotion) private var reduceMotion
 
@@ -24,7 +24,7 @@ struct OortCardRibbon<ID: Hashable, Face: View>: View {
         ZStack(alignment: .top) {
             ForEach(Array(ids.enumerated()), id: \.element) { index, id in
                 let step = index - cursor
-                face(id)
+                face(id, step == 0)
                     .frame(width: side, height: side)
                     .overlay { if step == 0 { lock } }
                     .contentShape(Rectangle())

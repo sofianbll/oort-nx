@@ -357,6 +357,7 @@ final class GameControllerService: ObservableObject {
 
     private func handleInput(_ input: ControllerInputChange) {
         guard isAppActive else { return }
+        MainActor.assumeIsolated { ControllerLive.shared.receive(input) }
         switch input {
         case let .leftStick(stick): move(repeats.stick(stick, deadzone: deadzone, from: .leftStick))
         case let .rightStick(stick): move(repeats.stick(stick, deadzone: deadzone, from: .rightStick))
@@ -462,6 +463,7 @@ final class GameControllerService: ObservableObject {
         repeats.reset()
         repeatTimer?.invalidate()
         repeatTimer = nil
+        Task { @MainActor in ControllerLive.shared.reset() }
     }
 
     private func triggerAction(_ action: GamepadAction) {

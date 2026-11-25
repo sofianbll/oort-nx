@@ -277,7 +277,7 @@ struct ProfilePage: View {
     }
 
     private func metadata(_ text: String) -> some View {
-        Text(text).textCase(.uppercase).seleneFont(.text, .medium).foregroundStyle(SeleneTheme.ink75)
+        Text(text).seleneFont(.text, .medium).foregroundStyle(SeleneTheme.ink75)
     }
 
     @ViewBuilder private func sections(_ data: PageData, width: CGFloat) -> some View {

@@ -181,6 +181,7 @@ struct PlayersScreen: View {
     private func capturePrompt(_ number: Int) -> some View {
         SeleneOverlay(style: .dialog, onOutside: back) {
             VStack(spacing: canvas.u(SeleneTokens.Space.control)) {
+                OortControllerView(brand: GameControllerService.shared.activeBrand, width: 320)
                 Label(L10n.format("Press a button on the controller for player %lld", [number], context: localization),
                       systemImage: "gamecontroller")
                     .seleneFont(.screen, .semibold)

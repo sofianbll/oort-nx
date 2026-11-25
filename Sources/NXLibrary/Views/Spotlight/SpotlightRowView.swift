@@ -288,13 +288,11 @@ struct SpotlightRowView: View {
     }
 
     private func platformRibbon(_ current: SpotlightPlatforms.Card, in platforms: SpotlightPlatforms, side: CGFloat) -> some View {
-        let face = RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content), style: .continuous)
         let cursor = platforms.cards.firstIndex { $0.integration == current.integration } ?? 0
         return OortCardRibbon(ids: platforms.cards.map(\.integration), cursor: cursor, open: platformOpen,
                               locked: current.integration != nil, press: platformPress, side: side,
-                              onPick: { onPlatformPick(platforms.cards[$0]) }) { id in
-            face.fill(SeleneTheme.glassSolid)
-                .overlay(face.strokeBorder(SeleneTheme.ink15, lineWidth: max(1, canvas.u(1))))
+                              onPick: { onPlatformPick(platforms.cards[$0]) }) { id, here in
+            OortKeyFace(kind: .quiet, radius: canvas.u(SeleneTokens.Radius.content), lit: here && platformOpen, outlined: false)
                 .overlay {
                     PlatformMark(kind: platformKind(platforms.card(for: id)), size: SeleneTokens.Space.group + SeleneTokens.Space.small)
                         .foregroundStyle(SeleneTheme.ink)
