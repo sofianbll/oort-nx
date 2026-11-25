@@ -1,6 +1,43 @@
 import XCTest
 @testable import NXLibraryCore
 
+final class RecentSearchesTests: XCTestCase {
+    private func defaults() throws -> UserDefaults {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("recent-\(UUID())")
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        addTeardownBlock { try? FileManager.default.removeItem(at: root) }
+        return try XCTUnwrap(UserDefaults(suiteName: root.appendingPathComponent("prefs").path))
+    }
+
+    func testTheNewestComesFirstOnceAndFourAreKept() throws {
+        let recent = RecentSearches(defaults: try defaults(), profile: UUID())
+        for query in ["zelda", " Pokémon ", "mario", "kirby", "POKEMON", "", "   ", String(repeating: "x", count: 65)] {
+            recent.record(query)
+        }
+        XCTAssertEqual(recent.list, ["POKEMON", "kirby", "mario", "zelda"])
+        recent.record("donkey")
+        XCTAssertEqual(recent.list, ["donkey", "POKEMON", "kirby", "mario"])
+    }
+
+    func testEachProfileSeesAndErasesOnlyItsOwn() throws {
+        let store = try defaults(), one = UUID(), two = UUID()
+        RecentSearches(defaults: store, profile: one).record("mario")
+        RecentSearches(defaults: store, profile: two).record("zelda")
+        XCTAssertEqual(RecentSearches(defaults: store, profile: one).list, ["mario"])
+        RecentSearches(defaults: store, profile: one).clear()
+        XCTAssertEqual(RecentSearches(defaults: store, profile: one).list, [])
+        XCTAssertEqual(RecentSearches(defaults: store, profile: two).list, ["zelda"])
+        RecentSearches(defaults: store, profile: two).clear()
+        XCTAssertNil(store.object(forKey: RecentSearches.storageKey))
+    }
+
+    func testUnreadableContentIsAnEmptyList() throws {
+        let store = try defaults()
+        store.set("broken", forKey: RecentSearches.storageKey)
+        XCTAssertEqual(RecentSearches(defaults: store, profile: nil).list, [])
+    }
+}
+
 final class NextStepCopyTests: XCTestCase {
     func testEveryEmptyTabSaysWhatFillsItInEveryLanguage() {
         for filter in LibraryFilter.allCases {

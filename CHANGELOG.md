@@ -7,7 +7,8 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 ### Added
 
 - Each kind of controller has its own drawing: Xbox, PlayStation, Switch Pro, Joy-Con pair and single Joy-Con. Controls links every button to what it does, in the library and in a game, for the connected controller or another one.
-- **Undo**: removing a favorite, hiding a game, removing a Mac app tile, or restoring a game's default settings shows a notice with Undo. ⌘Z does the same; Activity keeps the last one for the controller.
+- **Undo**: removing a favorite, hiding a game, removing a Mac app tile, restoring a game's default settings or clearing searches shows a notice with Undo. ⌘Z does the same; Activity keeps the last one for the controller.
+- Search shows your four last searches, kept on this Mac per profile, and a row that clears them.
 
 ### Changed
 
