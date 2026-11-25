@@ -184,10 +184,10 @@ struct CloudGameScreen: View {
                 ScrollView { header(game).padding(.horizontal, SeleneTokens.Space.panel) }
                     .scrollBounceBehavior(.basedOnSize)
                     .safeAreaInset(edge: .bottom, spacing: 0) { key(game).padding(.horizontal, SeleneTokens.Space.panel).padding(.vertical, SeleneTokens.Space.compact) }
-                    .containerRelativeFrame(.horizontal) { width, _ in min(width * 0.42, 520) }
+                    .containerRelativeFrame(.horizontal) { width, _ in min(width * Oort.Measure.sideShare, Oort.Measure.side) }
                 OortList(model: model, nav: nav, title: "", sections: sections(game), backdrop: false) { EmptyView() }
             }
-            .background { OortBackdrop(strength: 0.5) }
+            .background { OortBackdrop(strength: Oort.Measure.backdrop) }
             .navigationTitle(game.build.name)
         } else {
             OortList(model: model, nav: nav, title: game.build.name, sections: sections(game)) { header(game) }
@@ -196,14 +196,14 @@ struct CloudGameScreen: View {
                         .padding(.horizontal, SeleneTokens.Space.panel)
                         .padding(.top, SeleneTokens.Space.large)
                         .padding(.bottom, SeleneTokens.Space.compact)
-                        .background { LinearGradient(colors: [.clear, Oort.night.opacity(0.92)], startPoint: .top, endPoint: .center).ignoresSafeArea() }
+                        .background { LinearGradient(colors: [.clear, Oort.night.opacity(Oort.Measure.foot)], startPoint: .top, endPoint: .center).ignoresSafeArea() }
                 }
         }
     }
 
     private func header(_ game: CloudModel.Game) -> some View {
         VStack(alignment: .leading, spacing: SeleneTokens.Space.medium) {
-            CloudTile(game: game, cloud: cloud, artwork: CloudArt.of(id, model), side: down == .compact ? 96 : 168)
+            CloudTile(game: game, cloud: cloud, artwork: CloudArt.of(id, model), side: down == .compact ? Oort.Measure.coverShort : Oort.Measure.cover)
             Text(game.build.name).font(.title.bold()).foregroundStyle(Oort.ink).accessibilityAddTraits(.isHeader)
             Text(CloudWords.state(game, cloud)).font(.subheadline).monospacedDigit().foregroundStyle(Oort.ink2)
                 .accessibilityAddTraits(game.job?.state == .running ? .updatesFrequently : [])

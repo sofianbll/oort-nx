@@ -22,7 +22,7 @@ struct CodeScannerSheet: View {
                         .ignoresSafeArea()
                         .overlay(alignment: .bottom) {
                             Text(Oort.text("Point at the code on your Mac's screen.")).foregroundStyle(Oort.ink)
-                                .padding(SeleneTokens.Space.medium).background(Oort.night.opacity(0.85), in: .capsule).padding(SeleneTokens.Space.section)
+                                .padding(SeleneTokens.Space.medium).background(Oort.night.opacity(SeleneTokens.Effect.searchVeil), in: .capsule).padding(SeleneTokens.Space.section)
                         }
                         .accessibilityLabel(Oort.text("Point at the code on your Mac's screen."))
                 case .refused:

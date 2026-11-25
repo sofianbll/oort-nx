@@ -340,6 +340,42 @@ struct OortPicture: View {
     }
 }
 
+/// The mark in a tile's corner: what is under way, or what is missing.
+struct OortTileBadge: View {
+    let symbol: String
+    var body: some View {
+        Image(systemName: symbol).font(.caption.weight(.bold)).dynamicTypeSize(...DynamicTypeSize.xLarge).foregroundStyle(Oort.ink)
+            .frame(width: SeleneTokens.Space.large, height: SeleneTokens.Space.large).background(Oort.night.opacity(0.85), in: .circle).padding(SeleneTokens.Space.chipBottom)
+    }
+}
+
+/// A game without a picture: its letter on the halftone. `lit`: the part of it that is here.
+struct OortLetter: View {
+    let title: String
+    let side: CGFloat
+    var lit = false
+    var body: some View {
+        ZStack {
+            LinearGradient(colors: [Oort.panelRaised, Oort.panelLow], startPoint: .top, endPoint: .bottom)
+            if lit { Oort.cloud.opacity(SeleneTokens.Effect.panelVeil) }
+            OortDots(rise: 1, color: Oort.glyph.opacity(0.12))
+            Text(String(title.prefix(1))).font(.system(size: side * 0.4, weight: .semibold)).foregroundStyle(Oort.ink)
+        }
+    }
+}
+
+/// What every tile stands on: its ring under the controller, and its shadow.
+struct OortTileChrome: ViewModifier {
+    let shape: RoundedRectangle
+    let ring: Bool
+    func body(content: Content) -> some View {
+        content
+            .overlay { shape.inset(by: -SeleneTokens.Space.hairline).strokeBorder(Oort.focus, lineWidth: SeleneTokens.Space.focusStroke).opacity(ring ? 1 : 0) }
+            .shadow(color: Oort.night.opacity(0.5), radius: 8, y: 3)
+            .contentShape(shape)
+    }
+}
+
 /// A game in the rail or the grid: its icon, or its letters on the halftone.
 struct OortTile: View {
     let game: GameTile
@@ -353,26 +389,17 @@ struct OortTile: View {
             if let art = game.icon ?? game.banner {
                 OortPicture(artwork: art)
             } else {
-                ZStack {
-                    LinearGradient(colors: [Oort.panelRaised, Oort.panelLow], startPoint: .top, endPoint: .bottom)
-                    OortDots(rise: 1, color: Oort.glyph.opacity(0.12))
-                    Text(String(game.title.prefix(1))).font(.system(size: side * 0.4, weight: .semibold)).foregroundStyle(Oort.ink)
-                }
+                OortLetter(title: game.title, side: side)
             }
         }
         .frame(width: side, height: side)
         .clipShape(shape)
         .overlay(alignment: .topTrailing) {
             if let symbol = OortStateDot.symbol(game.state) {
-                Image(systemName: symbol).font(.caption.weight(.bold)).dynamicTypeSize(...DynamicTypeSize.xLarge).foregroundStyle(Oort.ink)
-                    .frame(width: 24, height: 24).background(Oort.night.opacity(0.85), in: .circle).padding(5)
+                OortTileBadge(symbol: symbol)
             }
         }
-        .overlay {
-            shape.inset(by: -4).strokeBorder(Oort.focus, lineWidth: SeleneTokens.Space.focusStroke).opacity(selected || focused ? 1 : 0)
-        }
-        .shadow(color: Oort.night.opacity(0.5), radius: 8, y: 3)
-        .contentShape(shape)
+        .modifier(OortTileChrome(shape: shape, ring: selected || focused))
     }
 }
 

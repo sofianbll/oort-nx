@@ -134,7 +134,10 @@ import UserNotifications
             stage = .ready
             await look()
             pump()
-        } catch let error as ShelfError { problem = error } catch { problem = nil }
+        } catch let error as ShelfError { problem = error } catch {
+            // The browser closed by the player is no failure; a keychain that refuses is.
+            problem = error is CancellationError || (error as NSError).domain.contains("WebAuthenticationSession") ? nil : .localFile
+        }
     }
 
     // MARK: Listing

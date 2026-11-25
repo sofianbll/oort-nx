@@ -139,7 +139,7 @@ struct NoticesScreen: View {
             .font(.footnote)
             .foregroundStyle(Oort.ink)
             .textSelection(.enabled)
-            .frame(maxWidth: 780, alignment: .leading)
+            .frame(maxWidth: Oort.Measure.list, alignment: .leading)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(SeleneTokens.Space.panel)
         }

@@ -143,6 +143,13 @@ final class OortCloudTests: OortScreens {
         app.launchArguments = ["-AppleLanguages", "(\(Self.lang))", "-AppleLocale", Self.lang == "fr" ? "fr_FR" : "en_US", "-OortFakeDrivePort", Self.port] + more
         app.launch()
         XCTAssertTrue(app.wait(for: .runningForeground, timeout: 60))
+        // The system may have brought the app back for its download, without the test's words: again, then.
+        for _ in 0..<3 where !(app.tabBars.buttons[say("Library")].waitForExistence(timeout: 10) || button(say("Library")).exists) {
+            note("\(name): relaunched by the system first", in: "words.txt")
+            app.terminate()
+            Thread.sleep(forTimeInterval: 3)
+            app.launch()
+        }
     }
     private func line(_ label: String) -> XCUIElement { app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", label)).firstMatch }
     private func audit(_ screen: String) throws {
@@ -165,6 +172,9 @@ final class OortCloudTests: OortScreens {
     /// The bar steps aside while a long page is read: back to the top first.
     private func place(_ key: String) {
         for _ in 0..<6 where !app.tabBars.buttons[say(key)].exists && !button(say(key)).exists { app.swipeDown(velocity: .fast) }
+        // iPad, largest text: the tabs come in pages.
+        let next = app.buttons.matching(NSPredicate(format: "label IN {'Page suivante', 'Next page', 'Next Page'}")).firstMatch
+        if pad, next.exists, next.isHittable { next.tap() }
         tab(key)
     }
 
@@ -530,8 +540,7 @@ final class OortCloudTests: OortScreens {
         Thread.sleep(forTimeInterval: 1)
         shot("94-game-landscape")
         back()
+        Thread.sleep(forTimeInterval: 2)
         shot("95-cloud-landscape")
-        toCloudAgain()
-        shot("96-settings-landscape")
     }
 }

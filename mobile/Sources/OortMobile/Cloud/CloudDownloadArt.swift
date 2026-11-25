@@ -44,11 +44,11 @@ struct CloudDownloadArt<Art: View>: View {
 
     private func picture(_ scene: DownloadCloudMotion.Scene, _ sample: DownloadCloudMotion.Sample) -> some View {
         ZStack {
-            art.saturation(0).opacity(0.34)
+            art.saturation(0).opacity(SeleneTokens.Effect.panelVeil)
             art.mask { Canvas { context, size in fill(sample, size, &context) } }
             Canvas { context, size in
                 if sample.surface.activity > 0 {
-                    context.stroke(CloudFront.path(sample.surface, size), with: .color(.white.opacity(0.71 * sample.surface.activity)), lineWidth: 1)
+                    context.stroke(CloudFront.path(sample.surface, size), with: .color(Oort.focus.opacity(CloudFront.lineOpacity(sample.surface))), lineWidth: 1)
                     dots(DownloadCloudMotion.frame(.drift(sample.surface.level), seed: seed, at: sample.surface.phase, size: size, surface: sample.surface), &context)
                 }
                 if let time = sample.celebration {
@@ -56,16 +56,15 @@ struct CloudDownloadArt<Art: View>: View {
                 }
             }
         }
-        .opacity(sample.celebration == nil ? 1 : max(sample.opacity, 0.999))
         .accessibilityHidden(true)
     }
 
     private func fill(_ sample: DownloadCloudMotion.Sample, _ size: CGSize, _ context: inout GraphicsContext) {
-        guard !sample.bands.isEmpty else { return context.fill(CloudFront.path(sample.surface, size, fill: true), with: .color(.white)) }
+        guard !sample.bands.isEmpty else { return context.fill(CloudFront.path(sample.surface, size, fill: true), with: .color(Oort.focus)) }
         var bottom = 1.0
         for band in sample.bands {
             let top = 1 - band.level
-            context.fill(Path(CGRect(x: 0, y: top * size.height, width: size.width, height: (bottom - top) * size.height)), with: .color(.white.opacity(band.opacity)))
+            context.fill(Path(CGRect(x: 0, y: top * size.height, width: size.width, height: (bottom - top) * size.height)), with: .color(Oort.focus.opacity(band.opacity)))
             bottom = top
         }
     }
@@ -74,18 +73,27 @@ struct CloudDownloadArt<Art: View>: View {
         for mote in frame.dots where mote.opacity > 0 {
             let sun = mote.kind == .sun || mote.kind == .star
             let halo = sun ? Oort.sun : mote.kind == .ink ? Oort.ink : Oort.glyph
-            let reach = mote.radius * 2.4
+            let reach = mote.radius * CloudFront.spriteReach
             let rect = CGRect(x: mote.center.x - reach, y: mote.center.y - reach, width: reach * 2, height: reach * 2)
-            context.fill(Path(ellipseIn: rect), with: .radialGradient(Gradient(colors: [halo.opacity(0.45 * mote.opacity), .clear]), center: mote.center, startRadius: 0, endRadius: reach))
+            context.fill(Path(ellipseIn: rect), with: .radialGradient(Gradient(colors: [halo.opacity(SeleneTokens.Effect.panelVeil * mote.opacity), .clear]), center: mote.center, startRadius: 0, endRadius: reach))
             let core = mote.radius
             context.fill(Path(ellipseIn: CGRect(x: mote.center.x - core, y: mote.center.y - core, width: core * 2, height: core * 2)),
-                         with: .color((sun ? Oort.sun : .white).opacity(mote.opacity)))
+                         with: .color((sun ? Oort.sun : Oort.focus).opacity(mote.opacity)))
         }
     }
 }
 
 /// The Mac's front (`DownloadCloudFront`): the same curve through the same seventeen points.
 enum CloudFront {
+    /// A dot's light reaches this many radii (`DownloadCloudSprites.rect`).
+    static let spriteReach = 2.8
+
+    static func lineOpacity(_ surface: DownloadCloudMotion.Surface) -> Double {
+        guard let level = surface.level else { return 0 }
+        let edge = min(1, min(level, 1 - level) * 40)
+        return edge * edge * (3 - 2 * edge) * 0.71 * surface.activity
+    }
+
     static func path(_ surface: DownloadCloudMotion.Surface, _ size: CGSize, fill: Bool = false) -> Path {
         let dx = size.width / 16
         func y(_ x: Double) -> Double { surface.y(at: x, in: size) }
@@ -123,24 +131,16 @@ struct CloudTile: View {
             .clipShape(shape)
             .overlay(alignment: .topTrailing) {
                 if let symbol {
-                    Image(systemName: symbol).font(.caption.weight(.bold)).dynamicTypeSize(...DynamicTypeSize.xLarge).foregroundStyle(Oort.ink)
-                        .frame(width: 24, height: 24).background(Oort.night.opacity(0.85), in: .circle).padding(5)
+                    OortTileBadge(symbol: symbol)
                 }
             }
-            .overlay { shape.inset(by: -4).strokeBorder(Oort.focus, lineWidth: SeleneTokens.Space.focusStroke).opacity(focused ? 1 : 0) }
-            .shadow(color: Oort.night.opacity(0.5), radius: 8, y: 3)
-            .contentShape(shape)
+            .modifier(OortTileChrome(shape: shape, ring: focused))
     }
 
     @ViewBuilder private var face: some View {
         if let artwork { artwork.view } else {
-            ZStack {
-                LinearGradient(colors: [Oort.panelRaised, Oort.panelLow], startPoint: .top, endPoint: .bottom)
-                // While it comes, what is here is lit: there is no picture to show it.
-                if level != nil { Oort.cloud.opacity(0.35) }
-                OortDots(rise: 1, color: Oort.glyph.opacity(0.12))
-                Text(String(game.build.name.prefix(1))).font(.system(size: side * 0.4, weight: .semibold)).foregroundStyle(Oort.ink)
-            }
+            // While it comes, what is here is lit: there is no picture to show it.
+            OortLetter(title: game.build.name, side: side, lit: level != nil)
         }
     }
 

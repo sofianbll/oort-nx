@@ -8,6 +8,8 @@ struct LibraryScreen: View {
     @Bindable var nav: OortNav
     @State private var query = ""
     @State private var focus = FocusGrid<String>()
+    /// The controller is on the choice above the games.
+    @State private var onFilter = false
     @State private var width: CGFloat = 0
     @Environment(\.dynamicTypeSize) private var type
     @AppStorage("oort.library.byName") private var byName = false
@@ -29,17 +31,17 @@ struct LibraryScreen: View {
     var body: some View {
         Group {
             if inCloud, let cloud = nav.cloud {
-                CloudLibrary(cloud: cloud, model: model, nav: nav, query: query, columns: columns, focus: focus)
+                CloudLibrary(cloud: cloud, model: model, nav: nav, query: query, columns: columns, focus: focus, onFilter: onFilter)
                     .searchable(text: $query, prompt: Oort.text("Search your games"))
             } else if model.details.isEmpty {
                 VStack(spacing: 0) {
-                    CloudFilter(nav: nav)
+                    CloudFilter(nav: nav, focused: onFilter)
                     EmptyLibrary(model: model, nav: nav)
                 }
             } else {
                 ScrollViewReader { scroll in
                     ScrollView {
-                        CloudFilter(nav: nav)
+                        CloudFilter(nav: nav, focused: onFilter)
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: SeleneTokens.Space.medium), count: columns),
                                   spacing: SeleneTokens.Space.large) {
                             ForEach(games) { item in card(item).id(item.id) }
@@ -58,6 +60,7 @@ struct LibraryScreen: View {
         .background { OortBackdrop(strength: 0.5) }
         .navigationTitle(Oort.text("Library"))
         .onChange(of: nav.cloudShown) { focus = FocusGrid() }
+        .onChange(of: nav.hasCloud) { if !nav.hasCloud { onFilter = false } }
         .toolbar {
             if !inCloud { ToolbarItem(placement: .primaryAction) {
                 Menu(Oort.text("Sort"), systemImage: "arrow.up.arrow.down") {
@@ -77,10 +80,17 @@ struct LibraryScreen: View {
         }
         .oortInput(model, nav) { action in
             switch action {
-            case .up where hasCloud && (focus.current == nil || top.contains(focus.current!)):
-                // Above the first row: the other games.
-                nav.cloudShown.toggle()
-                nav.sounds.play(.select)
+            case .left where onFilter, .right where onFilter:
+                let cloud = action == .right
+                nav.sounds.play(nav.cloudShown == cloud ? .deny : .select)
+                nav.cloudShown = cloud
+            case .down where onFilter:
+                onFilter = false
+                nav.sounds.play(focus.move(direction(action), in: FocusGrid.rows(ids, columns: columns)) ? .move : .deny)
+            case .up where onFilter: nav.sounds.play(.deny)
+            case .up where hasCloud && focus.current.map(top.contains) != false:
+                (onFilter, focus) = (true, FocusGrid())
+                nav.sounds.play(.move)
             case .up, .down, .left, .right:
                 nav.sounds.play(focus.move(direction(action), in: FocusGrid.rows(ids, columns: columns)) ? .move : .deny)
             case .activate:
@@ -125,6 +135,7 @@ struct LibraryScreen: View {
 /// This device's games, or the cloud's: only when the module is on and has a code. It goes with the page.
 struct CloudFilter: View {
     @Bindable var nav: OortNav
+    var focused = false
     var body: some View {
         if nav.hasCloud {
             Picker(Oort.text("Which games"), selection: $nav.cloudShown) {
@@ -132,7 +143,11 @@ struct CloudFilter: View {
                 Text(Oort.text("Cloud")).tag(true)
             }
             .pickerStyle(.segmented)
-            .frame(maxWidth: 420)
+            .overlay {
+                Capsule().inset(by: -SeleneTokens.Space.hairline).strokeBorder(Oort.focus, lineWidth: SeleneTokens.Space.focusStroke)
+                    .opacity(focused && nav.device != nil ? 1 : 0)
+            }
+            .frame(maxWidth: Oort.Measure.switcher)
             .padding(.horizontal, SeleneTokens.Space.panel)
             .padding(.vertical, SeleneTokens.Space.compact)
             .frame(maxWidth: .infinity, alignment: .leading)

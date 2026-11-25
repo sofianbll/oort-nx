@@ -31,6 +31,20 @@ enum Oort {
                        center: .topTrailing, startRadius: 0, endRadius: 900)
     }
     static let tile = SeleneTokens.Radius.card
+    /// The page's measures, the same on every screen.
+    enum Measure {
+        /// Lines of a list stay readable and the cloud keeps the right.
+        static let list: CGFloat = 780
+        /// The picture's side of a page in two: its share, and no more than this.
+        static let sideShare: CGFloat = 0.42
+        static let side: CGFloat = 520
+        static let switcher: CGFloat = 420
+        static let cover: CGFloat = 168
+        static let coverShort: CGFloat = 96
+        /// The cloud behind a page that is read.
+        static let backdrop = 0.5
+        static let foot = 0.92
+    }
     static let key = SeleneTokens.Radius.field
 
     /// The version the player reads: the app's number, with its stage.

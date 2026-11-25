@@ -118,7 +118,7 @@ struct OortList<Header: View>: View {
             #endif
             .scrollContentBackground(.hidden)
             // On a wide screen the lines stay readable and the cloud keeps the right.
-            .frame(maxWidth: 780)
+            .frame(maxWidth: Oort.Measure.list)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background { if backdrop { OortBackdrop(strength: 0.5) } }
             .modifier(OortTitle(title: title))

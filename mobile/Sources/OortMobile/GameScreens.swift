@@ -54,10 +54,10 @@ struct GameScreen: View {
                             playKey(detail).padding(.horizontal, SeleneTokens.Space.panel).padding(.vertical, SeleneTokens.Space.compact)
                         }
                     }
-                    .containerRelativeFrame(.horizontal) { width, _ in min(width * 0.42, 520) }
+                    .containerRelativeFrame(.horizontal) { width, _ in min(width * Oort.Measure.sideShare, Oort.Measure.side) }
                 OortList(model: model, nav: nav, title: "", sections: sections(detail), backdrop: false) { EmptyView() }
             }
-            .background { OortBackdrop(strength: 0.5) }
+            .background { OortBackdrop(strength: Oort.Measure.backdrop) }
             .navigationTitle(detail.game.title)
         } else {
             OortList(model: model, nav: nav, title: detail.game.title, sections: sections(detail)) { header(detail, key: false) }
@@ -68,7 +68,7 @@ struct GameScreen: View {
                             .padding(.horizontal, SeleneTokens.Space.panel)
                             .padding(.top, SeleneTokens.Space.large)
                             .padding(.bottom, SeleneTokens.Space.compact)
-                            .background { LinearGradient(colors: [.clear, Oort.night.opacity(0.92)], startPoint: .top, endPoint: .center).ignoresSafeArea() }
+                            .background { LinearGradient(colors: [.clear, Oort.night.opacity(Oort.Measure.foot)], startPoint: .top, endPoint: .center).ignoresSafeArea() }
                     }
                 }
         }

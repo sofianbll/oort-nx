@@ -10,13 +10,14 @@ struct CloudLibrary: View {
     let query: String
     let columns: Int
     let focus: FocusGrid<String>
+    let onFilter: Bool
 
     private func matches(_ name: String) -> Bool { query.isEmpty || name.localizedStandardContains(query) }
 
     var body: some View {
         ScrollViewReader { scroll in
             ScrollView {
-                CloudFilter(nav: nav)
+                CloudFilter(nav: nav, focused: onFilter)
                 VStack(alignment: .leading, spacing: SeleneTokens.Space.large) {
                     status
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: SeleneTokens.Space.medium, alignment: .top), count: columns), spacing: SeleneTokens.Space.large) {
