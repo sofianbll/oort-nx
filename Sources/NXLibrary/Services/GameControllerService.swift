@@ -26,6 +26,7 @@ final class GameControllerService: ObservableObject {
     @Published private(set) var inputInHand = InputInHand()
     /// The controller the prompts name, or none while the keyboard or the mouse leads.
     var padInHand: ConnectedPad { ConnectedPad(connected: controllerInHand, brand: activeBrand) }
+    var pointerInHand: Bool { inputInHand.device == .pointer }
     var controllerInHand: Bool { inputInHand.usesController(connected: isGamepadConnected) }
     @Published private(set) var menuHoldStartedAt: TimeInterval?
     @Published private(set) var connectedControllers: [ConnectedController] = []

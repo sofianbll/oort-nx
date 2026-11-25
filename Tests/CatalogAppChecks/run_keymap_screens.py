@@ -25,6 +25,7 @@ final class GameControllerService: ObservableObject {
     var isGamepadConnected = true
     var activeBrand = GamepadBrand.generic
     var usesController = true
+    var pointerInHand: Bool { !usesController }
     var padInHand: ConnectedPad { ConnectedPad(connected: isGamepadConnected && usesController, brand: activeBrand) }
     var buttonSymbols: [PromptButton: String] = [:]
 }
@@ -148,6 +149,10 @@ final class ThemeStore {
             clickable.clickAction(options)?()
             precondition(pressed.last == .contextAction, "The + of the Oort layout opens the card's options")
             precondition(SeleneHintsBar(right: right).clickAction(right[0]) == nil)
+            let back = HintItem(.b, "Back") {}
+            precondition(SeleneHintsBar.mouseBack(left: [], right: right + [back], pointer: true)?.label == "Back")
+            precondition(SeleneHintsBar.mouseBack(left: [back], right: right, pointer: false) == nil)
+            precondition(SeleneHintsBar.mouseBack(left: [], right: right, pointer: true) == nil)
             let buttons = (bar.visibleLeft(inHand: active) + right).compactMap(\.button)
             precondition(Set(buttons).count == buttons.count)
             precondition(ButtonPrompts.keyboardKey(.rs) == .text("F3"))

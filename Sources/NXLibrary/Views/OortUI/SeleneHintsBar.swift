@@ -45,8 +45,20 @@ struct SeleneHintsBar: View {
     /// A click on a hint without an action of its own does what its button does on this screen.
     var press: ((GamepadAction) -> Void)? = nil
 
+    /// With the hints off, the mouse keeps its way back: nothing else on these screens does it.
+    static func mouseBack(left: [HintItem], right: [HintItem], pointer: Bool) -> HintItem? {
+        pointer ? (left + right).first { $0.button == .b } : nil
+    }
+
     var body: some View {
-        if showHints {
+        if !showHints, let back = Self.mouseBack(left: left, right: right, pointer: controller.pointerInHand),
+           clickAction(back) != nil {
+            item(back)
+                .padding(.leading, canvas.u(SeleneTokens.Space.chromeGutter + leftInset))
+                .padding(.bottom, canvas.u(bottom))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .seleneOverlaidHints(covered)
+        } else if showHints {
             HStack(alignment: .bottom, spacing: canvas.u(SeleneTokens.Space.titleGap)) {
                 HStack(spacing: canvas.u(SeleneTokens.Space.titleGap)) {
                     ForEach(visibleLeft(inHand: pad)) { item($0) }

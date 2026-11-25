@@ -20,6 +20,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Fixed
 
+- With button hints off, the mouse keeps Back on screens that have no other way out.
 - Every choice of a file, folder, app or picture opens Oort’s own picker, and sound packs ask in Oort’s dialogs: a controller reaches them all.
 - With several controllers, the one last pressed drives the menus and names the buttons.
 - A view that redraws or scrolls under a still pointer no longer takes the focus.
