@@ -436,4 +436,22 @@ final class SettingsCatalogTests: XCTestCase {
             }
         }
     }
+
+    func testOneRowGoesBackAloneAndEveryRowTogetherGivesTheDefaults() throws {
+        var changed = AppSettings()
+        changed.soundVolume = 0.1
+        changed.reduceMotion = true
+        changed.showClock.toggle()
+        changed.gameDefaults.enable60FPS.toggle()
+        let before = Set(SettingsCatalog.changed(in: changed).map(\.id))
+        XCTAssertTrue(before.isSuperset(of: ["soundVolume", "reduceMotion", "showClock"]))
+        var one = changed
+        try XCTUnwrap(SettingsCatalog.all.first { $0.id == "reduceMotion" }?.reset)(&one)
+        XCTAssertEqual(Set(SettingsCatalog.changed(in: one).map(\.id)), before.subtracting(["reduceMotion"]))
+        XCTAssertEqual(one.soundVolume, 0.1)
+        for row in SettingsCatalog.all { row.reset?(&one) }
+        XCTAssertEqual(SettingsCatalog.changed(in: one).map(\.id), [])
+        // An action keeps no value to put back.
+        XCTAssertNil(SettingsCatalog.all.first { $0.id == "onboarding" }?.reset)
+    }
 }

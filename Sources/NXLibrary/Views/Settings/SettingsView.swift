@@ -602,8 +602,10 @@ struct SettingsView: View {
     private var commandHints: [HintItem] {
         var hints = [HintItem(.lb, "Previous") { moveSection(by: -1) },
                      HintItem(.rb, "Next") { moveSection(by: 1) }]
-        if canResetSection {
-            hints.append(HintItem(.x, L10n.text("Reset group")) { resetSection() })
+        if resettableRow != nil {
+            hints.append(HintItem(.x, L10n.text("Reset this setting")) { reset() })
+        } else if canResetSection {
+            hints.append(HintItem(.x, L10n.text("Reset group")) { reset() })
         }
         if hasPendingChanges {
             hints.append(HintItem(.y, "Save", keyboard: .text("Y")) { router.requestSettingsSave() })
@@ -720,15 +722,52 @@ struct SettingsView: View {
         return SettingsReset.canReset(section)
     }
 
+    /// The focused row's own setting, when it differs from its default. From the sidebar, or on a row already at its
+    /// default, X resets the group as before.
+    private var resettableRow: SettingDescriptor? {
+        guard focusArea == .rows, let row = focusedRow, row.isEnabled,
+              let setting = SettingsCatalog.all.first(where: { $0.id == row.id })
+                ?? SettingsCatalog.all.first(where: { page.inlineSections.contains($0.group) && [row.rowID, row.title].contains($0.title) })
+        else { return nil }
+        switch setting.id {
+        case "iconAppearance": return SettingsLookSection.iconMode(editor.settings.launcherChoices.dockIconAppearance ?? AppViewModel.legacyDockIcon) == .auto ? nil : setting
+        case "controllerDeadzone": return abs(editedDeadzone - 0.35) > 0.001 ? setting : nil
+        default: return setting.reset != nil && setting.isChanged(editor.settings) ? setting : nil
+        }
+    }
+
+    private var editedDeadzone: Double {
+        editor.settings.launcherChoices.controllerDeadzone ?? GameControllerService.shared.legacyDeadzone
+    }
+
+    private func reset() {
+        guard let setting = resettableRow else { resetSection(); return }
+        switch setting.id {
+        case "iconAppearance": resetDockIcon()
+        case "controllerDeadzone": resetDeadzone()
+        default: setting.reset?(&editor.settings)
+        }
+        SoundEffectService.shared.play(.focus)
+    }
+
+    private func resetDockIcon() {
+        let unset = settings.settings.launcherChoices.dockIconAppearance == nil
+        editor.settings.launcherChoices.dockIconAppearance = unset && SettingsLookSection.iconMode(AppViewModel.legacyDockIcon) == .auto
+            ? nil : AppIconAppearanceMode.auto.rawValue
+    }
+
+    private func resetDeadzone() {
+        let unset = settings.settings.launcherChoices.controllerDeadzone == nil
+        editor.settings.launcherChoices.controllerDeadzone = unset && GameControllerService.shared.legacyDeadzone == 0.35
+            ? nil : 0.35
+    }
+
     /// `SettingsReset` puts the section's `AppSettings` back in one assignment; the preferences
     /// kept outside it are reset here.
     private func resetSection() {
         guard canResetSection, let section else { return }
         switch section {
-        case .look:
-            let unset = settings.settings.launcherChoices.dockIconAppearance == nil
-            editor.settings.launcherChoices.dockIconAppearance = unset && SettingsLookSection.iconMode(AppViewModel.legacyDockIcon) == .auto
-                ? nil : AppIconAppearanceMode.auto.rawValue
+        case .look: resetDockIcon()
         case .profileIdentity:
             if let profiles, var profile = profiles.active {
                 profile.name = profile.defaultName
@@ -749,10 +788,7 @@ struct SettingsView: View {
                 profile.pageCards = nil
                 saveProfileSetting(profile, in: profiles, notifying: viewModel)
             }
-        case .controllers:
-            let unset = settings.settings.launcherChoices.controllerDeadzone == nil
-            editor.settings.launcherChoices.controllerDeadzone = unset && GameControllerService.shared.legacyDeadzone == 0.35
-                ? nil : 0.35
+        case .controllers: resetDeadzone()
         default:
             break
         }
@@ -974,7 +1010,7 @@ struct SettingsView: View {
         case .cancel:
             handleBack()
         case .secondaryAction:
-            resetSection()
+            reset()
         case .contextAction:
             router.requestSettingsSave()
         case .menu:
