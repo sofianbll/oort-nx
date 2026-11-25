@@ -3612,6 +3612,12 @@
     "Sound pack": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Sound pack"}}, "fr": {"stringUnit":{"state":"translated","value":"Pack de sons"}}, "it": {"stringUnit":{"state":"translated","value":"Pacchetto audio"}}, "de": {"stringUnit":{"state":"translated","value":"Soundpaket"}}, "es": {"stringUnit":{"state":"translated","value":"Paquete de sonido"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Pacote de som"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"声音包"}}
     }},
+    "Other pack": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Other pack"}}, "fr": {"stringUnit":{"state":"translated","value":"Autre pack"}}, "it": {"stringUnit":{"state":"translated","value":"Altro pacchetto"}}, "de": {"stringUnit":{"state":"translated","value":"Anderes Paket"}}, "es": {"stringUnit":{"state":"translated","value":"Otro paquete"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Outro pacote"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"其他声音包"}}
+    }},
+    "The earlier packs and those you imported.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"The earlier packs and those you imported."}}, "fr": {"stringUnit":{"state":"translated","value":"Les anciens packs et ceux que tu as importés."}}, "it": {"stringUnit":{"state":"translated","value":"I pacchetti precedenti e quelli che hai importato."}}, "de": {"stringUnit":{"state":"translated","value":"Die früheren Pakete und deine importierten."}}, "es": {"stringUnit":{"state":"translated","value":"Los paquetes anteriores y los que has importado."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Os pacotes anteriores e os que você importou."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"早期声音包和你导入的声音包。"}}
+    }},
     "Choose the interface sound pack.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Choose the interface sound pack."}}, "fr": {"stringUnit":{"state":"translated","value":"Choisis les sons de l’interface."}}, "it": {"stringUnit":{"state":"translated","value":"Scegli i suoni dell’interfaccia."}}, "de": {"stringUnit":{"state":"translated","value":"Sounds der Oberfläche wählen."}}, "es": {"stringUnit":{"state":"translated","value":"Elige los sonidos de la interfaz."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Escolha os sons da interface."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"选择界面声音。"}}
     }},

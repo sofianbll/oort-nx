@@ -8,8 +8,8 @@ final class OortAmbianceTests: XCTestCase {
 
     func testThreeMoodsAreOfferedByNameAndNoneIsChosenForThePlayer() throws {
         let library = SoundPackLibrary(root: URL(fileURLWithPath: "/private/tmp/oort-no-packs"), bundled: nil)
-        XCTAssertEqual(library.choices().map(\.key), ["selene"] + moods)
-        XCTAssertEqual(library.choices().map(\.name), ["Selene", "Frost", "Mist", "Nucleus"])
+        XCTAssertEqual(library.choices().map(\.key), moods + ["selene"])
+        XCTAssertEqual(library.choices().map(\.name), ["Frost", "Mist", "Nucleus", "Selene"])
         for mood in moods {
             let pack = try XCTUnwrap(library.load(mood), mood)
             XCTAssertEqual(pack.manifest.id, mood)

@@ -16,7 +16,7 @@ Sur un Mac Apple silicon avec macOS 26 ou plus récent, ouvre le DMG de la [dern
 
 ## Intégrations
 
-**Intégrations** affiche l’état des services et ouvre leurs réglages sans les activer. Les packs de sons sont facultatifs. Dans **Réglages → Son**, **Pack de sons** propose aussi trois ambiances fabriquées par l’app : Givre (vive et claquante), Brume (ample et douce) et Noyau (grave et nette). La bibliothèque cloud peut afficher les jeux qui n’ont que des fichiers source en ligne, sans les télécharger à l’ajout.
+**Intégrations** affiche l’état des services et ouvre leurs réglages sans les activer. Les packs de sons sont facultatifs. Dans **Réglages → Son**, **Pack de sons** propose Oort, trois ambiances fabriquées par l’app, Givre (vive et claquante), Brume (ample et douce) et Noyau (grave et nette), puis **Autres**. Sous Autres, la ligne **Autre pack** réunit Selene, Pollen, Umbra, Impulsion et les packs que tu as importés. La bibliothèque cloud peut afficher les jeux qui n’ont que des fichiers source en ligne, sans les télécharger à l’ajout.
 
 ## Compiler ou reconstruire un jeu
 
