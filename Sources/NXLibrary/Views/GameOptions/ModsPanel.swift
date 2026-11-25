@@ -171,15 +171,21 @@ struct ModsPanel: View {
                         if row == presentation.codeRows.first {
                             sectionHeader("Code mods", subtitle: "Rebuild the game after making changes. Turning off all code mods or re-enabling the entire built set needs no rebuild. Inactive online (Nextendo).")
                         }
-                        rowView(row, focused: embedding?.active.wrappedValue != false && index == focus.index,
-                                inactiveOnline: inactiveOnline)
-                            .padding(.top, row == .openFolder ? canvas.u(8) : 0)
-                            .id(row)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                focus.index = index
-                                activate(row)
+                        HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
+                            rowView(row, focused: embedding?.active.wrappedValue != false && index == focus.index,
+                                    inactiveOnline: inactiveOnline)
+                                .contentShape(Rectangle())
+                                .onTapGesture {
+                                    focus.index = index
+                                    activate(row)
+                                }
+                            if case .mod(let name) = row {
+                                SelenePillButton.roundIcon(.delete, enabled: !running && !importing) { askRemove(name) }
+                                    .accessibilityLabel(L10n.text("Delete", context: locale) + ": " + name)
                             }
+                        }
+                        .padding(.top, row == .openFolder ? canvas.u(8) : 0)
+                        .id(row)
                     }
                 }
                 .padding(.top, canvas.u(SeleneTokens.Space.tight))
@@ -222,10 +228,6 @@ struct ModsPanel: View {
         return SeleneOptionRow(icon: text.icon, title: text.title, about: text.about, focused: focused,
                                enabled: text.enabled) {
             if let inactiveBadge { SeleneValueChip(text: inactiveBadge) }
-            if case .mod(let name) = row {
-                SelenePillButton.roundIcon(.delete) { askRemove(name) }
-                    .accessibilityHidden(true)
-            }
             if let isOn = text.isOn {
                 SeleneSwitch(isOn: .constant(isOn)).allowsHitTesting(false)
             }
@@ -234,9 +236,6 @@ struct ModsPanel: View {
         .accessibilityLabel([text.title, inactiveBadge, text.about].compactMap { $0 }.joined(separator: ". "))
         .accessibilityValue(text.isOn.map { $0 ? L10n.text("On") : L10n.text("Off") } ?? "")
         .accessibilityAddTraits(.isButton)
-        .accessibilityActions {
-            if case .mod(let name) = row { Button(L10n.text("Delete", context: locale)) { askRemove(name) } }
-        }
         .oortItemMenu(deleteHint(row), deletes: [.y])
     }
 
@@ -247,7 +246,8 @@ struct ModsPanel: View {
 
     /// The bin on a row asks for that row, wherever the focus was.
     private func askRemove(_ name: String) {
-        if let index = presentation.rows.firstIndex(of: .mod(name)) { focus.index = index }
+        guard let index = presentation.rows.firstIndex(of: .mod(name)) else { return }
+        focus.index = index
         askRemove()
     }
 
@@ -442,8 +442,8 @@ struct ModsPanel: View {
         guard embedding?.active.wrappedValue != false else { return }
         if confirmRemove != nil {
             switch action {
-            case .navigateLeft: moveConfirmFocus(.left)
-            case .navigateRight: moveConfirmFocus(.right)
+            case .navigateLeft: moveConfirmFocus(.confirm)
+            case .navigateRight: moveConfirmFocus(.cancel)
             case .confirm: confirmFocus == .confirm ? runRemove() : dismissConfirm()
             case .cancel: dismissConfirm()
             default: break

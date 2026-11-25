@@ -211,7 +211,7 @@ extension ProfileScreenProbe {
         options.runChoice(options.choices.firstIndex(of: "Remove tile…"))
         let remove = vm.settingsNotice!
         vm.settingsNotice = nil
-        remove.runChoice(1)
+        remove.runChoice(0)
         precondition(vm.visibleCatalogGames.isEmpty)
         let unchanged = try paths.map { try Data(contentsOf: moved.appendingPathComponent($0)) }
         precondition(unchanged == originalBytes)

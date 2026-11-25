@@ -56,9 +56,11 @@ extension SpotlightView {
         let ids = belowShown ? MoreLikeThis.pick(for: game, in: visible, fallbackToOtherSources: true,
                                                 traits: { relatedTraits(for: $0, language: language) }) : []
         let byID = Dictionary(visible.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+        let query = game.steamGame.map { CriticRatingQuery(name: $0.name, platform: .mac, steamAppID: $0.appID) }
         return SpotlightPageModel(presentation: presentation, facts: facts,
                                   links: DetailsLink.links(app: app, store: presentation.storeURL,
-                                                           hltb: presentation.hltbURL, viewModel: viewModel),
+                                                           hltb: presentation.hltbURL, wikipedia: wikipediaLink(presentation, query: query),
+                                                           viewModel: viewModel),
                                   more: ids.compactMap { byID[$0] }, buildBlocked: false)
     }
 
@@ -75,14 +77,21 @@ extension SpotlightView {
         let facts = DetailsFacts.switchGame(game, metadata: store.storeMetadata[game.id],
                                             folderName: DetailsLink.folderName(of: game.url),
                                             engine: viewModel.engineDetail(for: game))
+        let query = CriticRatingQuery(game: game, name: store.storeMetadata[game.id]?.name)
         let links = DetailsLink.links(app: game.url, store: presentation.storeURL, hltb: presentation.hltbURL,
-                                      viewModel: viewModel,
+                                      wikipedia: wikipediaLink(presentation, query: query), viewModel: viewModel,
                                       cloudGame: cloudManagementPlacement(game) == .detailsLink ? game : nil)
         let ids = MoreLikeThis.pick(for: game, in: library,
                                     metadata: { store.storeMetadata[$0] }, limit: 6)
         let byID = Dictionary(library.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         return SpotlightPageModel(presentation: presentation, facts: facts, links: links,
                                   more: ids.compactMap { byID[$0].map(CatalogGame.init(nxnative:)) }, buildBlocked: blocked)
+    }
+
+    private func wikipediaLink(_ presentation: GameDetailPresentation, query: CriticRatingQuery?) -> URL? {
+        guard let article = wikipediaAbout?.matching(.init(presentation: presentation, query: query)) else { return nil }
+        let about = presentation.aboutDescription(wikipedia: article, language: localization.language)
+        return about.preview == nil || aboutExpanded ? about.wikipediaPage : nil
     }
 
     /// About this game with the column beside it (a Steam game's achievements, then the source's panel):

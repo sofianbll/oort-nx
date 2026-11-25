@@ -155,7 +155,7 @@ final class ThemeStore {
             precondition(SeleneHintsBar.mouseBack(left: [], right: right, pointer: true) == nil)
             let buttons = (bar.visibleLeft(inHand: active) + right).compactMap(\.button)
             precondition(Set(buttons).count == buttons.count)
-            precondition(ButtonPrompts.keyboardKey(.rs) == .text("F3"))
+            precondition(ButtonPrompts.keyboardKey(.rs) == .text("S"))
             precondition(left.first?.hold == "Hold: Search")
             let withoutSwitch = HintItem.homeGlobals(other: "Spotlight", onOther: nil, onMenu: {}, onSearch: {}, onProfiles: {})
             let alternateBar = SeleneHintsBar(left: withoutSwitch)

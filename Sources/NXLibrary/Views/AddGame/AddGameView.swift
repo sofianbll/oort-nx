@@ -385,7 +385,7 @@ struct AddGameView: View {
         if confirmDiscard {
             switch action {
             case .navigateLeft, .navigateRight:
-                let next: SeleneConfirmButton = action == .navigateLeft ? .left : .right
+                let next: SeleneConfirmButton = action == .navigateLeft ? .confirm : .cancel
                 if confirmFocus != next {
                     confirmFocus = next
                     SoundEffectService.shared.play(.focus)

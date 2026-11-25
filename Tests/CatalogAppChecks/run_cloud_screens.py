@@ -910,7 +910,7 @@ extension CloudScreenProbe {
         L10n.setContext(fr)
         vm.performCloudLibrary(.restore(.app), for: selected)
         guard let refusal = vm.settingsNotice else { preconditionFailure("Download must ask before replacing") }
-        precondition(refusal.choices == ["Cancel", "Replace"] && vm.settingsNoticeFocus == refusal.cancelIndex)
+        precondition(refusal.choices == ["Replace", "Cancel"] && vm.settingsNoticeFocus == refusal.cancelIndex)
         try renderNotice("reference-replacement-confirmation", output, refusal, width: 1280)
         vm.settingsNotice = nil
         refusal.runChoice(refusal.cancelIndex)
@@ -919,7 +919,7 @@ extension CloudScreenProbe {
         vm.performCloudLibrary(.restore(.app), for: selected)
         let approved = vm.settingsNotice!
         vm.settingsNotice = nil
-        approved.runChoice(1)
+        approved.runChoice(0)
         precondition(vm.cloudLibrary.active?.request.sourceReference == "1-fixture",
                      "The confirmed replacement must retain its reference provider")
         try await until { vm.cloudLibrary.states[game.id]?.progress?.phase == .readyToInstall }
@@ -1346,7 +1346,8 @@ extension SettingsView {
         precondition(settings.settings.gameInboxEnabled == originalInbox)
         handleGamepad(.contextAction)
         precondition(router.settingsDecision == .save)
-        decide(0)
+        handleGamepad(.navigateRight)
+        handleGamepad(.confirm)
         precondition(router.settingsDecision == nil, "Reset must save the draft")
     }
     /// X only asks, on Cancel; leaving changes nothing and Reset runs from the question.
@@ -1358,7 +1359,7 @@ extension SettingsView {
         precondition(notice.choices.count == 2 && notice.initialFocus == notice.cancelIndex)
         precondition(settings.editingSettings == before, "Nothing changes before the answer")
         viewModel.settingsNotice = nil
-        notice.runChoice(1)
+        notice.runChoice(notice.destructiveIndexes.first!)
     }
 }
 """)

@@ -518,7 +518,7 @@ struct CloudLibraryPanel: View {
 
     private func handleFree(_ action: GamepadAction, selection: CloudFreeSelection) {
         let choices = CloudLibraryItem.allCases.filter(selection.allows).map(FreeControl.item)
-            + [.cancel] + (selection.selected.isEmpty ? [] : [.confirm])
+            + (selection.selected.isEmpty ? [] : [.confirm]) + [.cancel]
         switch action {
         case .cancel: freeSelection = nil
         case .confirm:
