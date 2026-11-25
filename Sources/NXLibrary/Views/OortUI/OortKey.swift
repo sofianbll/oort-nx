@@ -164,6 +164,7 @@ private struct OortPadPress: ViewModifier {
 /// The one panel: a surface lit from above, a hairline, a soft shadow when it floats.
 struct OortPanelSurface: ViewModifier {
     @Environment(\.seleneCanvas) private var canvas
+    @Environment(\.colorSchemeContrast) private var contrast
     let radius: CGFloat
     var raised = false
     var floats = false
@@ -177,7 +178,8 @@ struct OortPanelSurface: ViewModifier {
                                           startPoint: .top, endPoint: .bottom))
                     .overlay {
                         OortRing(radius: radius, width: max(1, canvas.u(SeleneTokens.Space.thinStroke)))
-                            .fill(LinearGradient(colors: [SeleneTheme.lineStrong, SeleneTheme.line],
+                            .fill(LinearGradient(colors: contrast == .increased ? [SeleneTheme.ink60, SeleneTheme.ink60]
+                                                 : [SeleneTheme.lineStrong, SeleneTheme.line],
                                                  startPoint: .top, endPoint: .bottom), style: FillStyle(eoFill: true))
                     }
                     .modifier(OortFloat(on: floats))
@@ -188,13 +190,14 @@ struct OortPanelSurface: ViewModifier {
 /// A recess for what is typed or read: the ground shows through, under a hairline.
 struct OortWellSurface: ViewModifier {
     @Environment(\.seleneCanvas) private var canvas
+    @Environment(\.colorSchemeContrast) private var contrast
     let radius: CGFloat
 
     func body(content: Content) -> some View {
         let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
         content
             .background(shape.fill(SeleneTheme.scrim45))
-            .overlay(shape.strokeBorder(SeleneTheme.ink15, lineWidth: max(1, canvas.u(SeleneTokens.Space.thinStroke))).allowsHitTesting(false))
+            .overlay(shape.strokeBorder(contrast == .increased ? SeleneTheme.ink60 : SeleneTheme.ink15, lineWidth: max(1, canvas.u(SeleneTokens.Space.thinStroke))).allowsHitTesting(false))
     }
 }
 

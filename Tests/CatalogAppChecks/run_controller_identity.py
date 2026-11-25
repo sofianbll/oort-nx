@@ -8,7 +8,7 @@ import tempfile
 root = Path(__file__).resolve().parents[2]
 products = Path(subprocess.check_output(["swift", "build", "--jobs", "4", "--show-bin-path"], cwd=root, text=True).strip())
 services = root / "Sources/NXLibrary/Services"
-files = ["ControllerSource", "ControllerHardwareID", "ControllerRoster", "GameControllerService",
+files = ["ControllerSource", "ControllerHardwareID", "ControllerRoster", "ControllerLive", "GameControllerService",
          "GCControllerSource", "HIDControllerSource"]
 archive = products / "libNXLibraryCore.a"
 if archive.is_file():
