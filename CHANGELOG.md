@@ -10,6 +10,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Changed
 
+- The pointer hides when a controller is picked up, until it moves.
 - The profile's on-screen keyboard is one shared piece with symbols and accents. It opens in every text field a controller reaches: game search, settings, mods, pictures, keys, friend code.
 - Reset group asks first in Settings, on Cancel, and says when the change is immediate.
 - A right click on a game or a card opens its options, like +.
