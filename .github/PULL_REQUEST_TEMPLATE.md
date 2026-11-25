@@ -14,3 +14,4 @@
 
 - [ ] No games, keys, saves, credentials, personal details or raw logs. / Aucun jeu, clé, sauvegarde, identifiant, donnée personnelle ni journal brut.
 - [ ] Docs, file map and CHANGELOG updated if needed. / Docs, carte des fichiers et CHANGELOG mis à jour si besoin.
+- [ ] For a fix: a test fails before the change and passes after it. / Pour un correctif : un test échoue avant le changement et passe après.
