@@ -210,6 +210,7 @@ import ArcanePorting
         let vm = AppViewModel(settingsStore: settings, catalog: catalog, repository: repository)
         vm.applyCatalog(catalog) // This harness disables catalog application in the initializer.
         if ProcessInfo.processInfo.environment["OORT_ATTENTIONS_ONLY"] == "1" {
+            try await checkNoticeHold()
             try checkAttentions(vm: vm, settings: settings, output: output, locale: locale)
             return
         }
@@ -240,6 +241,9 @@ import ArcanePorting
         }
 
         func confirm(_ name: String, _ open: () -> Void, count: () -> Int) throws {
+            // Cancel on the left in the dialogs that follow the agreed order, on the right in the others.
+            func toAction() { input.settingsNoticeInput(vm.settingsNotice!.cancelFirst ? .navigateRight : .navigateLeft) }
+            func toCancel() { input.settingsNoticeInput(vm.settingsNotice!.cancelFirst ? .navigateLeft : .navigateRight) }
             let before = count()
             open()
             let notice = vm.settingsNotice!
@@ -251,16 +255,16 @@ import ArcanePorting
             ][name]
             if let frenchLine { precondition(notice.message.contains(frenchLine), notice.message) }
             try render(name, input.settingsNoticeOverlay(notice))
-            input.settingsNoticeInput(.navigateLeft)
-            precondition(vm.settingsNoticeFocus == 0 && count() == before, name)
-            input.settingsNoticeInput(.navigateRight)
+            toAction()
+            precondition(vm.settingsNoticeFocus != notice.cancelIndex && count() == before, name)
+            toCancel()
             input.settingsNoticeInput(.confirm) // A / Return on Cancel
             precondition(vm.settingsNotice == nil && count() == before, name)
             open()
             input.settingsNoticeInput(.cancel) // B / Esc / dismiss
             precondition(vm.settingsNotice == nil && count() == before, name)
             open()
-            input.settingsNoticeInput(.navigateLeft)
+            toAction()
             input.settingsNoticeInput(.confirm)
             input.settingsNoticeInput(.confirm)
             precondition(vm.settingsNotice == nil, name)
@@ -334,8 +338,8 @@ import ArcanePorting
         model.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: nil)
         section().confirmDisconnect()
         let question = vm.settingsNotice!
-        precondition(question.choices == ["Disconnect and keep the ID and secret", "Erase everything", "Cancel"]
-                     && vm.settingsNoticeFocus == 0)
+        precondition(question.choices == ["Cancel", "Erase everything", "Disconnect and keep the ID and secret"]
+                     && vm.settingsNoticeFocus == 2)
         precondition(question.choiceDetails["Disconnect and keep the ID and secret"]?.contains("Seule la connexion Google") == true
                      && question.choiceDetails["Erase everything"]?.contains("l’ID et le secret") == true)
         try render("cloud-disconnect-choice", input.settingsNoticeOverlay(question))
@@ -353,7 +357,7 @@ import ArcanePorting
         account = RcloneAccount(hasClient: true, isSignedIn: true)
         model.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: nil)
         section().confirmDisconnect()
-        input.settingsNoticeInput(.navigateRight)
+        input.settingsNoticeInput(.navigateLeft)
         input.settingsNoticeInput(.confirm)
         await settle()
         precondition(kept.last == false && model.preference.remote == nil && model.keptConnection == nil)

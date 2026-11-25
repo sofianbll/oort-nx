@@ -165,6 +165,12 @@ extension CloudSetupAssistant {
     shell = (app / "Views/Shell/AppShellView+Overlays.swift").read_text()
     methods = [re.search(rf'    func {name}\(.*?\n    \}}', shell, re.S)[0] for name in
                ("settingsNoticeOverlay", "finishSettingsNotice", "presentLegacyNotice", "settingsNoticeInput")]
+    shell_input = (app / "Views/Shell/AppShellView+Input.swift").read_text()
+    methods += [re.search(rf'    func {name}\(.*?\n    \}}', shell_input, re.S)[0] for name in ("chooseNotice", "noticeInput")]
+    service = app / "Services/GameControllerService.swift"
+    replace(service, r'private func handleInput\(', 'func handleInput(')
+    replace(service, r'guard isAppActive else \{ return \}\n        onLive', 'onLive')
+    replace(service, r'guard let self, self\.isAppActive, self\.inputGeneration', 'guard let self, self.inputGeneration')
     probe = app / "SettingsConfirmationProbe.swift"
     shutil.copyfile(Path(__file__).with_name(probe.name), probe)
     shutil.copyfile(Path(__file__).with_name("AttentionsProbe.swift"), app / "AttentionsProbe.swift")

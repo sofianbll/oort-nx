@@ -100,6 +100,7 @@ enum GamepadAction: Hashable {
     case jumpToStart       // Left trigger
     case jumpToEnd         // Right trigger
     case rightStickPress   // R3
+    case notice            // X held, while a notice shows
 
 }
 
@@ -163,6 +164,11 @@ enum GamepadLayout: String, CaseIterable {
         bindings(browsing: browsing).first { $0.button == button }
     }
 
+    /// X held reaches the keys of a notice, only while one shows: X alone keeps its role, on release.
+    static func noticeBinding(over row: Binding) -> Binding {
+        row.button == .x && row.hold == nil ? .init(.x, row.prompt, row.tap, .notice) : row
+    }
+
     func tap(_ action: GamepadAction) -> Binding? {
         bindings(browsing: true).first { $0.tap == action }
     }
@@ -196,6 +202,7 @@ extension GamepadAction {
         case .view: "Change view"
         case .search, .browseSearch: "Search"
         case .profiles: "Profiles"
+        case .notice: "Choose the notice"
         case .jumpToStart: "First"
         case .jumpToEnd: "Last"
         case .rightStickPress: "Sort"

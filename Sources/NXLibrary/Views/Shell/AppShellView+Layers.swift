@@ -240,15 +240,14 @@ extension AppShellView {
             SessionCardLayer(presenter: sessionCard, game: playedGame,
                              metadata: store.storeMetadata, artwork: artwork)
         }
+        .seleneOverlayOwnership(!viewModel.noticeFocus.isActive)
         .overlay {
             UndoNoticeLayer(offers: viewModel.undoOffers, tips: viewModel.tips,
                             isBlocked: !leavesNoticesRoom,
                             isBelowCard: sessionCard.shown != nil || !sessionCard.achievementNames.isEmpty,
+                            focus: $viewModel.noticeFocus,
                             onUndo: undoLastChange,
-                            onTurnOffTips: {
-                                settings.settings.showsTips = false
-                                viewModel.tips.dismiss()
-                            })
+                            onTurnOffTips: turnOffTips)
             // After the library has settled, never over a screen that covers it.
             .task(id: [isHomeRoute && leavesNoticesRoom && !viewModel.isGameOptionsOpen && !router.isSearchPresented, viewModel.visibleCatalogGames.count >= Tips.longLibrary]) {
                 guard isHomeRoute, leavesNoticesRoom, !viewModel.isGameOptionsOpen, !router.isSearchPresented, (try? await Task.sleep(for: .seconds(3))) != nil else { return }

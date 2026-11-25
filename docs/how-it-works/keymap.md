@@ -31,6 +31,7 @@ Su macOS 27, se Apple mantiene Home, Oort non lo intercetta. Un avviso compare u
 | Ordinamento | RS | RS | R3 | F3 |
 | Cerca | LS | LS | L3 | ⌘F |
 | Cambia vista | View | − | Clic del touchpad | V |
+| Sceglie l’avviso a schermo (Undo, suggerimento) | X per 0,5 s | X per 0,5 s | □ per 0,5 s | Tab |
 | Annulla l’ultimo gesto reversibile | Centro attività, A | Centro attività, A | Centro attività, ✕ | ⌘Z |
 | Pulsante Menu | ≡ | + | Options | ⇧⌘K / ⌘, |
 | Cerca ovunque | Y in Cerca | Y in Cerca | △ in Cerca | ⌘K |

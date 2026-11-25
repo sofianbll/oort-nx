@@ -169,7 +169,7 @@ struct OortKeyboard: View {
         case .tabNext, .jumpToEnd: keyboard.turnPage()
         case .search, .rightStickPress: press(.shift)
         case .cancel: leave()
-        case .view, .profiles, .controlCenter, .fullMenu: break
+        case .view, .profiles, .controlCenter, .fullMenu, .notice: break
         }
         return true
     }

@@ -178,6 +178,7 @@ public enum SeleneTokens {
         public static let screen: Double = 0.32
         public static let reducedFade: Double = 0.12
         public static let toast: Double = 0.25
+        public static let notice: Double = 15.0
         public static let rowMessage: Double = 0.3
         public static let detailArt: Double = 0.4
         public static let viewer: Double = 0.2

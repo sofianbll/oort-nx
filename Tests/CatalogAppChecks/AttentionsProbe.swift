@@ -69,10 +69,42 @@ extension SettingsConfirmationProbe {
             precondition(vm.libraryGames.first { $0.id == one.id }?.isHidden == true)
             for light in [false, true] {
                 try withHost(UndoNoticeLayer(offers: vm.undoOffers, tips: vm.tips, isBlocked: false, isBelowCard: false,
-                                             onUndo: {}, onTurnOffTips: {}), locale, light: light) { _, capture in
+                                             focus: .constant(NoticeFocus()), onUndo: {}, onTurnOffTips: {}), locale, light: light) { _, capture in
                     try capture("avis-\(light ? "clair-" : "")\(tag)")
                 }
             }
+            // Chosen: lit, its own hints, nothing done until A, and B gives the screen back.
+            let chooser = Input(viewModel: vm)
+            vm.undoOffers.offer(L10n.text("Recent searches cleared")) {}
+            chooser.noticeInput(.confirm)
+            precondition(vm.undoOffers.offer != nil, "Nothing acts before it is chosen")
+            // A pad in hand for the next pictures, whatever this Mac has connected.
+            GameControllerService.shared.isGamepadConnected = true
+            GameControllerService.shared.handleInput(.button(.r3, true))
+            chooser.chooseNotice()
+            precondition(vm.noticeFocus.index == 0 && vm.shellDialogOwnsInput, "The screen leaves the keys")
+            try withHost(UndoNoticeLayer(offers: vm.undoOffers, tips: vm.tips, isBlocked: false, isBelowCard: false,
+                                         focus: .constant(vm.noticeFocus), onUndo: {}, onTurnOffTips: {}), locale) { _, capture in
+                try capture("avis-choisi-\(tag)")
+            }
+            try withHost(UndoNoticeLayer(offers: vm.undoOffers, tips: vm.tips, isBlocked: false, isBelowCard: false,
+                                         focus: .constant(NoticeFocus()), onUndo: {}, onTurnOffTips: {}), locale) { _, capture in
+                try capture("avis-manette-\(tag)")
+            }
+            chooser.noticeInput(.cancel)
+            precondition(!vm.noticeFocus.isActive && !vm.shellDialogOwnsInput && vm.undoOffers.offer != nil)
+            chooser.chooseNotice()
+            chooser.noticeInput(.confirm)
+            precondition(vm.undoOffers.offer == nil && !vm.noticeFocus.isActive)
+            var chosenTip = NoticeFocus()
+            chosenTip.enter(keys: 2)
+            chosenTip.move(by: 1)
+            try withHost(TipNotice(tip: .search, onClose: {}, onTurnOff: {}), locale) { _, capture in try capture("astuce-manette-\(tag)") }
+            try withHost(TipNotice(tip: .search, focus: chosenTip.index, onClose: {}, onTurnOff: {}), locale) { _, capture in
+                try capture("astuce-choisie-\(tag)")
+            }
+            vm.toggleHidden(one)
+            vm.toggleHidden(one)
             var focus = ActivityCenterFocus()
             focus.selected = ActivityCenterView.rows(vm).first
             precondition(focus.selected == .undo)
@@ -120,7 +152,7 @@ extension SettingsConfirmationProbe {
                 precondition(vm.settingsNotice != nil && vm.runtimeSettings.settingsSnapshot(for: two)?.value("DM_RUMBLE") == "1")
             }
             try withHost(input.settingsNoticeOverlay(vm.settingsNotice!), locale) { _, capture in try capture("copie-apercu-\(tag)") }
-            input.settingsNoticeInput(.navigateLeft)
+            input.settingsNoticeInput(.navigateRight)
             input.settingsNoticeInput(.confirm)
             precondition(vm.runtimeSettings.settingsSnapshot(for: two)?.value("DM_RUMBLE") == "0")
             precondition(vm.undoOffers.perform() && vm.runtimeSettings.settingsSnapshot(for: two)?.value("DM_RUMBLE") == "1")
@@ -175,4 +207,44 @@ extension SettingsConfirmationProbe {
         L10n.setContext(locale)
         print("Attentions: undo, recent searches, one row back, copy and its way back passed.")
     }
+
+    /// X held reaches the notice; X alone keeps its role, also when the notice leaves before the release.
+    @MainActor static func checkNoticeHold() async throws {
+        for layout in GamepadLayout.allCases {
+            for browsing in [false, true] {
+                for row in layout.bindings(browsing: browsing) {
+                    let over = GamepadLayout.noticeBinding(over: row)
+                    precondition(over.tap == row.tap && over.hold == (row.button == .x ? .notice : row.hold), "\(layout) \(row.button)")
+                }
+            }
+        }
+        let service = GameControllerService.shared
+        let before = (service.onAction, service.showsNotice, service.onPadUse)
+        defer { (service.onAction, service.showsNotice, service.onPadUse) = before }
+        var actions: [GamepadAction] = [], shows = true
+        service.onAction = { actions.append($0) }
+        service.onPadUse = nil
+        service.showsNotice = { shows }
+        // The service answers on the next turn of the main queue, which a nested run loop does not drain.
+        func wait(_ milliseconds: Int) async throws { try await Task.sleep(for: .milliseconds(milliseconds)) }
+        func x(_ pressed: Bool) async throws { service.handleInput(.button(.x, pressed)); try await wait(50) }
+        try await x(true); try await x(false)
+        precondition(actions == [.secondaryAction], "Tap: \(actions)")
+        actions = []
+        try await x(true); try await wait(700); try await x(false)
+        precondition(actions == [.notice], "Hold: \(actions)")
+        actions = []
+        try await x(true); shows = false; try await x(false)
+        precondition(actions == [.secondaryAction], "The notice left first: \(actions)")
+        actions = []
+        try await x(true)
+        precondition(actions == [.secondaryAction], "Without a notice X acts at once: \(actions)")
+        try await x(false)
+        print("Notice gesture: X tapped, held, outlived and without a notice passed.")
+    }
+}
+
+extension SettingsConfirmationProbe.Input {
+    /// The shell's own keys, without the screens it asks about.
+    @MainActor var noticeKeys: [() -> Void] { viewModel.undoOffers.offer == nil ? [] : [{ viewModel.undoOffers.perform() }] }
 }

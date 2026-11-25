@@ -18,17 +18,26 @@ struct SettingsNotice: Identifiable {
     var primaryFirst = false
     var choiceDetails: [String: String] = [:]
     var duringSetup = false
-    var initialFocus: Int { primaryFirst && retry != nil ? 0 : cancelIndex }
-    var cancelIndex: Int { choices.count - 1 }
+    /// The order agreed for every dialog: Cancel on the left, the main action on the right.
+    /// One flag, so the shared dialog piece replaces it in one place.
+    var cancelFirst = false
+    var initialFocus: Int {
+        if cancelFirst { return primaryFirst && retry != nil ? choices.count - 1 : cancelIndex }
+        return primaryFirst && retry != nil ? 0 : cancelIndex
+    }
+    var cancelIndex: Int { cancelFirst ? 0 : choices.count - 1 }
+    private var actions: [(title: String, run: () -> Void)] {
+        let main = retry.map { [(title: actionTitle, run: $0)] } ?? []
+        return cancelFirst ? alternatives + main : main + alternatives
+    }
     var choices: [String] {
-        let actions = (retry == nil ? [] : [actionTitle]) + alternatives.map(\.title)
-        return actions + [cancelTitle]
+        cancelFirst ? [cancelTitle] + actions.map(\.title) : actions.map(\.title) + [cancelTitle]
     }
 
     func runChoice(_ index: Int?) {
         guard let index, index != cancelIndex else { return }
-        let actions = (retry.map { [$0] } ?? []) + alternatives.map(\.run)
-        if actions.indices.contains(index) { actions[index]() }
+        let position = cancelFirst ? index - 1 : index
+        if actions.indices.contains(position) { actions[position].run() }
     }
 }
 
@@ -66,6 +75,8 @@ final class AppViewModel: ObservableObject {
     /// The last reversible gesture, for its notice, ⌘Z and Activity.
     let undoOffers = UndoOffers()
     let tips = Tips(defaults: AppData.preferences)
+    /// The keys of the notice on screen, while they were asked for.
+    @Published var noticeFocus = NoticeFocus()
     /// A SteamGridDB API key is saved (Settings → Online services → SteamGridDB), so Change artwork searches it.
     @Published var hasSteamGridDBKey = SteamGridDBKey().load() != nil
     @Published var isEditingSteamGridDBKey = false
@@ -77,26 +88,28 @@ final class AppViewModel: ObservableObject {
 
     func showSettingsNotice(title: String, message: String, actionTitle: String = "Retry",
                             cancelTitle: String = "Back", alternatives: [(title: String, run: () -> Void)] = [],
-                            primaryFirst: Bool = false, choiceDetails: [String: String] = [:], duringSetup: Bool = false,
+                            primaryFirst: Bool = false, cancelFirst: Bool = false, choiceDetails: [String: String] = [:], duringSetup: Bool = false,
                             retry: (() -> Void)? = nil) {
         let notice = SettingsNotice(title: title, message: message, retry: retry,
                                     actionTitle: actionTitle, cancelTitle: cancelTitle, alternatives: alternatives,
-                                    primaryFirst: primaryFirst, choiceDetails: choiceDetails, duringSetup: duringSetup)
+                                    primaryFirst: primaryFirst, choiceDetails: choiceDetails, duringSetup: duringSetup,
+                                    cancelFirst: cancelFirst)
         settingsNoticeFocus = notice.initialFocus
         settingsNotice = notice
     }
 
     /// Settings keep their current value until a choice other than Cancel is activated.
     func confirmSetting(_ title: String, message: String,
-                        choices: [(title: String, run: () -> Void)], details: [String: String] = [:], duringSetup: Bool = false) {
+                        choices: [(title: String, run: () -> Void)], details: [String: String] = [:], duringSetup: Bool = false,
+                        cancelFirst: Bool = false) {
         guard settingsNotice == nil else { return }
         showSettingsNotice(title: title, message: message, cancelTitle: "Cancel",
-                           alternatives: choices, choiceDetails: details, duringSetup: duringSetup)
+                           alternatives: choices, cancelFirst: cancelFirst, choiceDetails: details, duringSetup: duringSetup)
     }
 
     func confirmSetting(_ title: String, message: String, action: String, duringSetup: Bool = false,
-                        apply: @escaping () -> Void) {
-        confirmSetting(title, message: message, choices: [(action, apply)], duringSetup: duringSetup)
+                        cancelFirst: Bool = false, apply: @escaping () -> Void) {
+        confirmSetting(title, message: message, choices: [(action, apply)], duringSetup: duringSetup, cancelFirst: cancelFirst)
     }
 
     // MARK: - Storage Keys for Persistence
@@ -125,7 +138,8 @@ final class AppViewModel: ObservableObject {
     /// The shell's update dialog owns input; screens leave the keyboard to it.
     var appUpdateDialogOwnsInput = false
     @Published var profileOwnsInput = false
-    var shellDialogOwnsInput: Bool { appUpdateDialogOwnsInput || cloudQuitRequested || profileOwnsInput || router?.isPalettePresented == true || launchOverlay != nil }
+    var shellDialogOwnsInput: Bool { appUpdateDialogOwnsInput || cloudQuitRequested || profileOwnsInput || router?.isPalettePresented == true
+        || noticeFocus.isActive || launchOverlay != nil }
     /// "Welcome to Arcane" is on screen, until its fade has ended: screens' own keyboard monitors let Return and
     /// the arrows go to it, and Spotlight holds its entrance until it has gone.
     @Published var isWelcomeOpen = false

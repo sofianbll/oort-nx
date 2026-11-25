@@ -44,3 +44,21 @@ import XCTest
                        [.build(nil), .undo, .result(result), .clearAll])
     }
 }
+
+final class NoticeFocusTests: XCTestCase {
+    func testTheKeysAreReachedOnRequestAndLetGo() {
+        var focus = NoticeFocus()
+        focus.move(by: 1)
+        XCTAssertFalse(focus.isActive, "Moving never takes the focus")
+        focus.enter(keys: 2)
+        XCTAssertEqual(focus.index, 0)
+        for _ in 0..<3 { focus.move(by: 1) }
+        XCTAssertEqual(focus.index, 1)
+        for _ in 0..<3 { focus.move(by: -1) }
+        XCTAssertEqual(focus.index, 0)
+        focus.leave()
+        XCTAssertEqual(focus, NoticeFocus())
+        focus.enter(keys: 0)
+        XCTAssertFalse(focus.isActive)
+    }
+}

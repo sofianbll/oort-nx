@@ -299,7 +299,7 @@ struct SavesPanel: View {
         guard keyMonitor == nil else { return }
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
             guard embedding?.active.wrappedValue != false, viewModel.gameForSettingsSheet?.id == game.id, let window = event.window,
-                  !viewModel.cloudQuitRequested,
+                  !viewModel.cloudQuitRequested, !viewModel.noticeFocus.isActive,
                   viewModel.gameWithInstallFailure == nil, viewModel.settingsNotice == nil,
                   !window.isSheet, window.attachedSheet == nil, NSApp.modalWindow == nil,
                   !(window.firstResponder is NSText), event.modifierFlags.intersection([.command, .control, .option]).isEmpty else { return event }

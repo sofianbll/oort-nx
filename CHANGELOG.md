@@ -8,7 +8,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 - **⌘K** opens a search over everything: start a game or open its options, go to a setting, run an action. It shows recent and suggested choices before you type, forgives accents and small typing mistakes, and works offline. With a controller, press Y in **Find a game**.
 - Each kind of controller has its own drawing: Xbox, PlayStation, Switch Pro, Joy-Con pair and single Joy-Con. Controls links every button to what it does, in the library and in a game, for the connected controller or another one.
-- **Undo**: removing a favorite, hiding a game, removing a Mac app tile, restoring a game's default settings or clearing searches shows a notice with Undo. ⌘Z does the same; Activity keeps the last one for the controller.
+- **Undo**: removing a favorite, hiding a game, removing a Mac app tile, restoring a game's default settings or clearing searches shows a notice with Undo. ⌘Z does the same; Activity keeps the last one. Hold X, or press Tab, to choose the notice or a tip without losing your place; it stays 15 seconds, and as long as it is chosen.
 - Search shows your four last searches, kept on this Mac per profile, and a row that clears them.
 - X on a changed row in Settings puts back that row alone, with Undo. The group still asks first.
 - **Copy settings to another game**, in a game's All settings → General: choose the game, see what changes, copy, undo.

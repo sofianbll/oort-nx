@@ -513,13 +513,13 @@ struct SettingsCloudLibrarySection: View {
         guard account?.hasClient == true else {
             viewModel.confirmSetting(text("Disconnect cloud service?"),
                 message: "\(name)\n\n\(text("Removes only the local connection. Cloud files stay where they are."))",
-                action: "Disconnect", apply: erase)
+                action: "Disconnect", cancelFirst: true, apply: erase)
             return
         }
         viewModel.showSettingsNotice(title: text("Disconnect cloud service?"),
             message: "\(name)\n\n\(text("Cloud files stay where they are."))",
             actionTitle: "Disconnect and keep the ID and secret", cancelTitle: "Cancel",
-            alternatives: [("Erase everything", erase)], primaryFirst: true, choiceDetails: [
+            alternatives: [("Erase everything", erase)], primaryFirst: true, cancelFirst: true, choiceDetails: [
                 "Disconnect and keep the ID and secret": text("Only the Google sign-in is erased. You reconnect without entering them again."),
                 "Erase everything": text("The Google sign-in, the ID and the secret are erased. You enter them again to reconnect."),
             ]) { disconnect(name, keepingClient: true) }
@@ -537,7 +537,7 @@ struct SettingsCloudLibrarySection: View {
     private func confirmEraseKept() {
         guard canEraseKept, let name = keptConnection else { return }
         viewModel.confirmSetting(text("Erase the Google ID and secret?"),
-            message: text("You will enter them again to reconnect. Cloud files stay where they are."), action: "Erase") {
+            message: text("You will enter them again to reconnect. Cloud files stay where they are."), action: "Erase", cancelFirst: true) {
                 guard canEraseKept, keptConnection == name else { return }
                 changeConnection {
                     try await removeConnection(name, keepingClient: false)

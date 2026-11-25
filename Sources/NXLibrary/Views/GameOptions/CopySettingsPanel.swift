@@ -94,7 +94,7 @@ struct CopySettingsPanel: View {
         SoundEffectService.shared.play(.click)
         let target = targets[index]
         viewModel.showSettingsNotice(title: L10n.format("Copy settings to %@?", [target.game.name]),
-                                     message: CopySettingsPanel.summary(target.copy), actionTitle: "Copy", cancelTitle: "Cancel") {
+                                     message: CopySettingsPanel.summary(target.copy), actionTitle: "Copy", cancelTitle: "Cancel", cancelFirst: true) {
             guard viewModel.runtimeSettings.copySettings(from: game, to: target.game) else { return }
             onClose()
         }
@@ -128,7 +128,7 @@ struct CopySettingsPanel: View {
         guard keyMonitor == nil else { return }
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
             guard viewModel.gameForSettingsSheet?.id == game.id, let window = event.window,
-                  !viewModel.cloudQuitRequested,
+                  !viewModel.cloudQuitRequested, !viewModel.noticeFocus.isActive,
                   viewModel.gameWithInstallFailure == nil, viewModel.settingsNotice == nil,
                   !window.isSheet, window.attachedSheet == nil, NSApp.modalWindow == nil,
                   !(window.firstResponder is NSText),
