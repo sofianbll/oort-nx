@@ -79,6 +79,9 @@
  "A program": {
   "fr": "Un programme"
  },
+ "Accents and signs": {
+  "fr": "Accents et signes"
+ },
  "Add a folder": {
   "fr": "Ajouter un dossier"
  },
@@ -98,7 +101,7 @@
   "fr": "Ajoute les jeux que Steam a installés sur cet ordinateur. Les fichiers de Steam ne changent pas."
  },
  "All set": {
-  "fr": "C’est prêt"
+  "fr": "Tout est prêt"
  },
  "Another cover, or another game if this is not the right one.": {
   "fr": "Une autre jaquette, ou un autre jeu si ce n’est pas le bon."
@@ -117,6 +120,12 @@
  },
  "Arguments": {
   "fr": "Arguments"
+ },
+ "Changes you did not save are lost.": {
+  "fr": "Les changements non enregistrés seront perdus."
+ },
+ "Choose a game": {
+  "fr": "Choisir un jeu"
  },
  "Choose an image": {
   "fr": "Choisir une image"
@@ -151,6 +160,12 @@
  "Choose your own pictures, or turn on game information online.": {
   "fr": "Choisis tes images, ou active les informations en ligne."
  },
+ "Click, or touch it": {
+  "fr": "Un clic, ou touche-le"
+ },
+ "Close this first, then drop it again.": {
+  "fr": "Ferme d’abord ceci, puis dépose-le à nouveau."
+ },
  "Controller": {
   "fr": "Manette"
  },
@@ -165,6 +180,9 @@
  },
  "Delete what was found online?": {
   "fr": "Supprimer ce qui a été trouvé en ligne ?"
+ },
+ "Double-click, or touch it again": {
+  "fr": "Double-clic, ou touche-le encore"
  },
  "Early": {
   "fr": "Au début"
@@ -214,6 +232,9 @@
  "Games from Steam, any program, or a folder of recompiled games.": {
   "fr": "Les jeux de Steam, n’importe quel programme, ou un dossier de jeux recompilés."
  },
+ "Get ready": {
+  "fr": "Préparer"
+ },
  "Get ready again": {
   "fr": "Préparer à nouveau"
  },
@@ -224,7 +245,10 @@
   "fr": "Préparation en cours…"
  },
  "Guided setup": {
-  "fr": "Accueil guidé"
+  "fr": "Premiers pas"
+ },
+ "In the game": {
+  "fr": "Dans le jeu"
  },
  "In the game’s own menu": {
   "fr": "Dans le menu du jeu"
@@ -244,6 +268,9 @@
  "Kept where it is. Only its path is remembered.": {
   "fr": "Reste où il est. Seul son chemin est retenu."
  },
+ "Keyboard": {
+  "fr": "Clavier"
+ },
  "Kind": {
   "fr": "Type"
  },
@@ -253,14 +280,23 @@
  "Last played": {
   "fr": "Dernière partie"
  },
+ "Leave full screen": {
+  "fr": "Quitter le plein écran"
+ },
+ "Letters": {
+  "fr": "Lettres"
+ },
  "Look again": {
-  "fr": "Relire"
+  "fr": "Actualiser la bibliothèque"
  },
  "Look for game information online?": {
   "fr": "Chercher les informations des jeux en ligne ?"
  },
  "Looking…": {
   "fr": "Recherche…"
+ },
+ "Mouse and touch": {
+  "fr": "Souris et doigt"
  },
  "Name to look for": {
   "fr": "Nom à chercher"
@@ -270,6 +306,9 @@
  },
  "New profile": {
   "fr": "Nouveau profil"
+ },
+ "Next or previous game": {
+  "fr": "Jeu suivant ou précédent"
  },
  "No": {
   "fr": "Non"
@@ -290,7 +329,7 @@
   "fr": "Aucune"
  },
  "None of these": {
-  "fr": "Aucun de ceux-là"
+  "fr": "Aucun de ces jeux"
  },
  "Not found": {
   "fr": "Introuvable"
@@ -324,6 +363,9 @@
  },
  "Open the page this comes from": {
   "fr": "Ouvrir la page d’où cela vient"
+ },
+ "Opens the page of versions in your browser. Oort NX does not look by itself.": {
+  "fr": "Ouvre la page des versions dans ton navigateur. Oort NX ne cherche rien tout seul."
  },
  "Optional": {
   "fr": "Facultatif"
@@ -370,6 +412,12 @@
  "Put quotes around an argument with spaces.": {
   "fr": "Mets des guillemets autour d’un argument qui contient des espaces."
  },
+ "Quit Oort NX": {
+  "fr": "Quitter Oort NX"
+ },
+ "Quit Oort NX?": {
+  "fr": "Quitter Oort NX ?"
+ },
  "Read: %@": {
   "fr": "Lire : %@"
  },
@@ -388,6 +436,9 @@
  "Recompilations": {
   "fr": "Recompilations"
  },
+ "Remove": {
+  "fr": "Retirer"
+ },
  "Remove from the library": {
   "fr": "Retirer de la bibliothèque"
  },
@@ -395,7 +446,7 @@
   "fr": "Retirer ce dossier ?"
  },
  "Reopen the guided setup without resetting your library.": {
-  "fr": "Rouvre l’accueil guidé sans réinitialiser ta bibliothèque."
+  "fr": "Rouvre les premiers pas sans réinitialiser ta bibliothèque."
  },
  "Required": {
   "en": "Required.",
@@ -404,8 +455,20 @@
  "Research": {
   "fr": "Recherche"
  },
+ "Restart Oort NX?": {
+  "fr": "Redémarrer Oort NX ?"
+ },
+ "Right click, or keep a finger on it": {
+  "fr": "Clic droit, ou garde le doigt dessus"
+ },
+ "Right now. F11 does the same.": {
+  "fr": "Tout de suite. F11 fait pareil."
+ },
  "Save your changes?": {
   "fr": "Enregistrer tes changements ?"
+ },
+ "Saves and mods": {
+  "fr": "Sauvegardes et mods"
  },
  "Select to play as this profile.": {
   "fr": "Sélectionne pour jouer avec ce profil."
@@ -418,6 +481,9 @@
  },
  "Shading behind library text, over game artwork or your wallpaper.": {
   "fr": "Assombrissement derrière le texte de la bibliothèque, sur les illustrations des jeux ou ton fond d’écran."
+ },
+ "Skip setup": {
+  "fr": "Passer les premiers pas"
  },
  "Some of this project’s setup is done in the project itself.": {
   "fr": "Une partie de l’installation se fait dans le projet."
@@ -448,6 +514,9 @@
  },
  "Steam was not found on this computer. It is looked for again each time.": {
   "fr": "Steam n’a pas été trouvé sur cet ordinateur. Il sera cherché à nouveau à chaque fois."
+ },
+ "The + button (Menu, Options) now opens the options of the chosen game, and Home or + held opens the new menu: your library, Settings, full screen, Quit. With a mouse: the wheel, and a right click for the options.": {
+  "fr": "Le bouton + (Menu, Options) ouvre maintenant les options du jeu choisi. Home, ou + maintenu, ouvre le nouveau menu : ta bibliothèque, les réglages, le plein écran, quitter. À la souris : la molette, et le clic droit pour les options."
  },
  "The + tile adds games. Settings has these steps again, under General.": {
   "fr": "La tuile + ajoute des jeux. Ces étapes sont aussi dans Réglages, Général."
@@ -539,8 +608,20 @@
  "Waiting": {
   "fr": "En attente"
  },
+ "What each button does": {
+  "fr": "Ce que fait chaque bouton"
+ },
+ "What each button, key and gesture does.": {
+  "fr": "Ce que fait chaque bouton, chaque touche et chaque geste."
+ },
+ "What games said the last time they ran.": {
+  "fr": "Ce que les jeux ont écrit la dernière fois."
+ },
  "What’s new in Oort NX": {
   "fr": "Nouveautés d’Oort NX"
+ },
+ "Wheel, or swipe": {
+  "fr": "Molette, ou glisse le doigt"
  },
  "When you close a game, a card shows how long you played this time and in total.": {
   "fr": "Quand tu fermes un jeu, une fiche indique le temps joué pendant cette session et au total."
@@ -559,6 +640,9 @@
  },
  "Your controller": {
   "fr": "Ta manette"
+ },
+ "Your library and your settings are kept.": {
+  "fr": "Ta bibliothèque et tes réglages restent."
  },
  "Your own order of games and cards on Spotlight. Reset puts everything back in place.": {
   "fr": "Ton ordre personnalisé des jeux et des cartes dans À la une. Réinitialiser remet tout en place."

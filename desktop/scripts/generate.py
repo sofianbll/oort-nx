@@ -91,8 +91,14 @@ def used():
         for quote, text in re.findall(r"\bt\(\s*(['\"])((?:(?!\1)[^\\]|\\.)+)\1", file.read_text(encoding="utf-8")):
             keys.append(text.replace("\\'", "'"))
     core = ROOT / "Sources/NXLibraryCore"
-    for path in ("Settings/SettingsCatalog.swift", "Settings/SettingsSection.swift", "Library/LibraryFilter.swift"):
-        keys += literals(core / path)
+    for path in ("Settings/SettingsSection.swift", "Library/LibraryFilter.swift"):
+        # Names only: what a section is about belongs to the Mac app's own screens.
+        keys += [k for k in literals(core / path) if not k.startswith("Settings group: ") and not k.endswith(".")]
+    # Of the Mac app's settings, only the rows this app has.
+    rows = set(re.findall(r'\b(?:choice|toggle|slider|row)\("(\w+)"', (ROOT / "Sources/OortCompanion/SettingRows.swift").read_text(encoding="utf-8")))
+    for row, title, about in re.findall(r'\b(?:row|action)\("(\w+)",\s*\.\w+,\s*"((?:[^"\\]|\\.)*)",\s*"((?:[^"\\]|\\.)*)"', (core / "Settings/SettingsCatalog.swift").read_text(encoding="utf-8")):
+        if row in rows:
+            keys += [title, about]
     keys += literals(ROOT / "Sources/OortCompanion/SettingRows.swift")
     keys += [f"Settings navigation: {c}" for c in ("general", "appearance", "sound", "controllers", "account", "home", "library", "integrations", "about")]
     keys += ["Settings navigation: Games", "Settings navigation: Profile"]
