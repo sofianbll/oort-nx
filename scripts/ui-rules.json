@@ -237,9 +237,6 @@
    }
   },
   "button-order": {
-   "Sources/NXLibrary/ViewModels/AppViewModel.swift": {
-    "notice-choices": 1
-   },
    "Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift": {
     "cloud-panel-foot": 1,
     "free-space-walk": 1
@@ -1141,14 +1138,15 @@
    "why": "Cancel on the left, the main answer last"
   },
   {
-   "id": "notice-choices",
-   "file": "Sources/NXLibrary/ViewModels/AppViewModel.swift",
-   "scope": "var choices: \\[String\\]",
+   "id": "shared-action-bar",
+   "file": "Sources/NXLibrary/Views/OortUI/OortActionBar.swift",
+   "scope": "var body: some View",
    "order": [
-    "cancelTitle\\b",
-    "actionTitle\\b"
+    "ForEach\\(destructive\\)",
+    "ForEach\\(leading\\)",
+    "ForEach\\(trailing\\)"
    ],
-   "why": "Cancel first, the main answer last"
+   "why": "the destructive row is separate, then Back on the left and the main action on the right"
   },
   {
    "id": "file-picker-foot",
