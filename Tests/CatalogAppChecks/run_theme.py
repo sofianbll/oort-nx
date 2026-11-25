@@ -136,7 +136,8 @@ final class BackdropViewModel {
         let palettes = SelenePaletteCatalog.pickerOrder(try SelenePaletteCatalog.load(from:
             URL(fileURLWithPath: "Resources/Selene/palettes.json")))
         precondition(palettes[0].name == "Oort" && palettes[0].id == "oort")
-        precondition(palettes[0].surface == .classic && SelenePalette.fallback.surface == .classic)
+        precondition(palettes[0].surface == .cloud && palettes.first { $0.id == "oort-vesper" }?.surface == .classic
+                     && SelenePalette.fallback.surface == .cloud)
         precondition(palettes.first { $0.id == "arcane-crystal" }?.surface == .arcane)
         precondition(palettes.first { $0.id == "arcane-flow" }?.surface == .flow)
         let backdropTheme = BackdropTheme(palettes)

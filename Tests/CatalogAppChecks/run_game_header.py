@@ -14,6 +14,8 @@ private struct CanvasKey: EnvironmentKey { static let defaultValue = HeaderCanva
 extension EnvironmentValues { var seleneCanvas: HeaderCanvas { get { self[CanvasKey.self] } set { self[CanvasKey.self] = newValue } } }
 extension View { func seleneFont(_ token: SeleneTokens.Text, _ weight: Font.Weight = .regular) -> some View { font(.system(size: token.rawValue, weight: weight)) } }
 enum SeleneTheme { static let ink = Color.white }
+enum OortShadow { case text }
+extension View { func oortShadow(_ role: OortShadow) -> some View { self } }
 struct CloudLibraryIndicator {}
 struct CloudLibraryPill: View { let indicator: CloudLibraryIndicator; let focused: Bool; let action: () -> Void; var body: some View { Color.clear } }
 struct SelenePillButton: View {

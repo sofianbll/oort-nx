@@ -480,7 +480,8 @@ func withAnimation(_ animation: Int?, _ update: () -> Void) { update() }
         let held: [ControllerButton: (GamepadAction, GamepadAction?)] = [
             .menu: (.menu, .menuHold), .view: (.view, .search), .home: (.profiles, nil)
         ]
-        var actions = ControllerButton.allCases.compactMap(GamepadAction.onPress)
+        // L3 is the one shortcut to a command that has its own gesture (Search).
+        var actions = ControllerButton.allCases.filter { $0 != .l3 }.compactMap(GamepadAction.onPress)
         for button in ControllerButton.allCases {
             require(GamepadAction.holdAction(button, .tap) == held[button]?.0
                     && GamepadAction.holdAction(button, .hold) == held[button]?.1, "Unexpected hold binding for \(button)")
