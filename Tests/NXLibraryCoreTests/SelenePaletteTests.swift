@@ -8,9 +8,9 @@ final class SelenePaletteTests: XCTestCase {
             .appendingPathComponent("Resources/Selene/palettes.json")
     }
 
-    func testLoadsAll26Palettes() throws {
+    func testLoadsAll27Palettes() throws {
         let all = try SelenePaletteCatalog.load(from: paletteURL)
-        XCTAssertEqual(all.count, 26)
+        XCTAssertEqual(all.count, 27)
         let ids = Set(all.map(\.id))
         XCTAssertTrue(ids.isSuperset(of: ["oort", "selene", "white", "catppuccin-latte"]))
     }
@@ -23,7 +23,7 @@ final class SelenePaletteTests: XCTestCase {
         let rest = ordered.dropFirst().map(\.name)
         XCTAssertEqual(rest, rest.sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending })
         XCTAssertEqual(Array(rest.prefix(4)), ["Arcane", "Arcane Crystal", "Arcane Flow", "Catppuccin"])
-        XCTAssertEqual(ordered.count, 26)
+        XCTAssertEqual(ordered.count, 27)
     }
 
     func testOortPaletteValuesMatchTheBuiltInFallback() throws {
@@ -33,23 +33,28 @@ final class SelenePaletteTests: XCTestCase {
         XCTAssertEqual(p.name, "Oort")
         XCTAssertEqual(p.mode, .dark)
         XCTAssertEqual(p.focus, 0xFFFFFF)
-        XCTAssertEqual(p.onFocus, 0x000000)
+        XCTAssertEqual(p.onFocus, 0x05070B)
         XCTAssertEqual(p.ink, 0xFFFFFF)
-        XCTAssertEqual(p.scrim, 0x000000)
-        XCTAssertEqual(p.glass, 0x0B0B0B)
-        XCTAssertEqual(p.glyph, 0xFFC799)
-        XCTAssertEqual(p.success, 0x99FFE4)
-        XCTAssertEqual(p.surface, .classic)
+        XCTAssertEqual(p.scrim, 0x05070B)
+        XCTAssertEqual(p.glass, 0x0C0F15)
+        XCTAssertEqual(p.glyph, 0xAFC3E6)
+        XCTAssertEqual(p.success, 0xD6DEEA)
+        XCTAssertEqual(p.surface, .cloud)
         XCTAssertEqual(p.base.kind, .radial)
-        XCTAssertEqual(p.base.stops, [.init(color: 0x121212, location: 0), .init(color: 0x000000, location: 1)])
+        XCTAssertEqual(p.base.stops, [.init(color: 0x11151D, location: 0), .init(color: 0x05070B, location: 1)])
     }
 
     /// The background light follows the accent, unless a palette keeps it apart.
     func testBackgroundLightFollowsTheAccentUnlessSet() throws {
         let all = try SelenePaletteCatalog.load(from: paletteURL)
         let vantablack = SelenePaletteCatalog.resolve("vantablack", in: all)
-        XCTAssertEqual(SelenePaletteCatalog.resolve("oort", in: all).backgroundLight, vantablack.glyph)
-        for palette in all where palette.id != "oort" { XCTAssertEqual(palette.backgroundLight, palette.glyph, palette.id) }
+        XCTAssertEqual(SelenePaletteCatalog.resolve("oort", in: all).backgroundLight, 0x98A6BD)
+        // Oort's colours up to 0.4.0, still offered.
+        let vesper = SelenePaletteCatalog.resolve("oort-vesper", in: all)
+        XCTAssertEqual(vesper.backgroundLight, vantablack.glyph)
+        XCTAssertEqual([vesper.glass, vesper.glyph, vesper.success], [0x0B0B0B, 0xFFC799, 0x99FFE4])
+        XCTAssertEqual(vesper.surface, .classic)
+        for palette in all where !["oort", "oort-vesper"].contains(palette.id) { XCTAssertEqual(palette.backgroundLight, palette.glyph, palette.id) }
     }
 
     func testSelenePaletteValues() throws {

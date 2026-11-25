@@ -69,7 +69,7 @@ final class AppUpdateTests: XCTestCase {
     private let releaseJSON = """
     {"tag_name": "v0.3.0", "body": "Fixes.", "assets": [
       {"name": "notes.txt", "browser_download_url": "https://example.com/notes.txt", "digest": null},
-      {"name": "NXLibrary-0.3.0.zip", "browser_download_url": "https://github.com/Bium23/NxLibrary/releases/download/v0.3.0/NXLibrary-0.3.0.zip", "size": 1024,
+      {"name": "Oort-NX-0.3.0.zip", "browser_download_url": "https://github.com/Bium23/NxLibrary/releases/download/v0.3.0/Oort-NX-0.3.0.zip", "size": 1024,
        "digest": "sha256:\(String(repeating: "a", count: 64))"}
     ]}
     """
@@ -79,7 +79,7 @@ final class AppUpdateTests: XCTestCase {
         XCTAssertEqual(release.tag, "v0.3.0")
         XCTAssertEqual(release.version, "0.3.0")
         XCTAssertEqual(release.notes, "Fixes.")
-        XCTAssertEqual(release.zipURL.lastPathComponent, "NXLibrary-0.3.0.zip")
+        XCTAssertEqual(release.zipURL.lastPathComponent, "Oort-NX-0.3.0.zip")
         XCTAssertEqual(release.digest, "sha256:" + String(repeating: "a", count: 64))
     }
 
@@ -99,7 +99,7 @@ final class AppUpdateTests: XCTestCase {
         let repo = try XCTUnwrap(AppUpdate.defaultRepository)
         let json = releaseJSON.replacingOccurrences(of: "Bium23/NxLibrary", with: repo)
         let release = try XCTUnwrap(AppUpdate.parseRelease(Data(json.utf8), repository: repo))
-        XCTAssertEqual(release.zipURL.lastPathComponent, "NXLibrary-0.3.0.zip")
+        XCTAssertEqual(release.zipURL.lastPathComponent, "Oort-NX-0.3.0.zip")
         XCTAssertTrue(AppUpdate.mayInstall(release, runningVersion: "0.2.1.20261129", installation: .ok))
         XCTAssertFalse(AppUpdate.isNewer("0.2.1.20261129", than: release.version))
         XCTAssertEqual(AppUpdate.versionLabel(["CFBundleShortVersionString": release.version, AppUpdate.releaseMarker: true]), "0.3.0")
@@ -133,17 +133,17 @@ final class AppUpdateTests: XCTestCase {
 
     func testRejectsDownloadFromAnotherRepositoryOrHost() throws {
         for url in [
-            "http://github.com/Bium23/NxLibrary/releases/download/v0.3.0/NXLibrary-0.3.0.zip",
-            "https://github.com/other/project/releases/download/v0.3.0/NXLibrary-0.3.0.zip",
-            "https://github.com.evil.example/Bium23/NxLibrary/releases/download/v0.3.0/NXLibrary-0.3.0.zip",
-            "https://user:password@github.com/Bium23/NxLibrary/releases/download/v0.3.0/NXLibrary-0.3.0.zip",
-            "https://github.com/Bium23/NxLibrary/releases/download/v0.2.0/NXLibrary-0.3.0.zip"
+            "http://github.com/Bium23/NxLibrary/releases/download/v0.3.0/Oort-NX-0.3.0.zip",
+            "https://github.com/other/project/releases/download/v0.3.0/Oort-NX-0.3.0.zip",
+            "https://github.com.evil.example/Bium23/NxLibrary/releases/download/v0.3.0/Oort-NX-0.3.0.zip",
+            "https://user:password@github.com/Bium23/NxLibrary/releases/download/v0.3.0/Oort-NX-0.3.0.zip",
+            "https://github.com/Bium23/NxLibrary/releases/download/v0.2.0/Oort-NX-0.3.0.zip"
         ] {
             XCTAssertNil(AppUpdate.parseRelease(try changingAsset { $0["browser_download_url"] = url }), url)
         }
     }
 
-    private let successorURL = "https://github.com/Bium23/Arcane/releases/download/v0.3.0/NXLibrary-0.3.0.zip"
+    private let successorURL = "https://github.com/Bium23/Arcane/releases/download/v0.3.0/Oort-NX-0.3.0.zip"
 
     func testSuccessorRepositoryAssetIsAccepted() throws {
         let json = try changingAsset { $0["browser_download_url"] = successorURL }
@@ -163,28 +163,31 @@ final class AppUpdateTests: XCTestCase {
         XCTAssertNil(AppUpdate.parseRelease(renamed, repository: fork))
         XCTAssertNil(AppUpdate.parseRelease(Data(releaseJSON.utf8), repository: fork))
         let wrongCase = try changingAsset {
-            $0["browser_download_url"] = "https://github.com/Bium23/arcane/releases/download/v0.3.0/NXLibrary-0.3.0.zip"
+            $0["browser_download_url"] = "https://github.com/Bium23/arcane/releases/download/v0.3.0/Oort-NX-0.3.0.zip"
         }
         XCTAssertNil(AppUpdate.parseRelease(wrongCase, successor: "Bium23/Arcane"),
                      "the path must match GitHub's spelling exactly")
     }
 
-    func testForkReleaseAcceptsOnlyTheTwoExactRepositorySpellings() throws {
+    func testForkReleaseAcceptsOnlyItsExactRepository() throws {
         let fork = try XCTUnwrap(AppUpdate.defaultRepository)
-        let successor = try XCTUnwrap(AppUpdate.successorRepository)
-        XCTAssertEqual(successor, "sofianbll/NxLibrary")
-        for (assetRepository, accepted) in [(fork, true), (successor, true),
+        XCTAssertNil(AppUpdate.successorRepository)
+        for (assetRepository, accepted) in [(fork, true), ("sofianbll/NxLibrary", false),
                                             ("SomeoneElse/oort-nx", false), ("sofianbll/Oort-NX", false),
                                             ("Sofianbll/oort-nx", false), ("sofianbll/nxlibrary", false)] {
             let data = try changingAsset {
-                $0["browser_download_url"] = "https://github.com/\(assetRepository)/releases/download/v0.3.0/NXLibrary-0.3.0.zip"
+                $0["browser_download_url"] = "https://github.com/\(assetRepository)/releases/download/v0.3.0/Oort-NX-0.3.0.zip"
             }
             XCTAssertEqual(AppUpdate.parseRelease(data, repository: fork) != nil, accepted, assetRepository)
-            if assetRepository == successor {
-                // The 0.2.1.20261129 updater has no successor fallback.
-                XCTAssertNil(AppUpdate.parseRelease(data, repository: fork, successor: nil))
-            }
         }
+    }
+
+    func testArcaneNamedArchiveIsNotOurs() throws {
+        let data = try changingAsset {
+            $0["name"] = "NXLibrary-0.3.0.zip"
+            $0["browser_download_url"] = "https://github.com/Bium23/NxLibrary/releases/download/v0.3.0/NXLibrary-0.3.0.zip"
+        }
+        XCTAssertNil(AppUpdate.parseRelease(data))
     }
 
     func testDownloadBudgetAndGitHubRedirectBoundary() {

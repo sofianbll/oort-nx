@@ -190,7 +190,7 @@ echo "Requires: Xcode $MIN_XCODE, nxnative ${ENGINE:0:7}"
 
 OUT="$ROOT/work/release"
 if [ "$PRIVATE" = "1" ]; then OUT="$ROOT/work/release-private"; fi
-# Keep the legacy archive root for installed updaters; the DMG has the display name.
+# The archive, the app inside it and the DMG carry the display name.
 APP="$OUT/Oort NX.app"
 ZIP="$OUT/Oort-NX-$VERSION.zip"
 rm -rf "$OUT"

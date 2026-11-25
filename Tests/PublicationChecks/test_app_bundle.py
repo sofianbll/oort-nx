@@ -51,7 +51,7 @@ class AppBundleInfo(unittest.TestCase):
         }
         resolve_release_repository "$1"
         """
-        for canonical, accepted in [("sofianbll/NxLibrary", True), ("sofianbll/oort-nx", True),
+        for canonical, accepted in [("sofianbll/NxLibrary", False), ("sofianbll/oort-nx", True),
                                     ("someone/oort-nx", False), ("sofianbll/Oort-NX", False), ("", False)]:
             with self.subTest(canonical=canonical):
                 result = subprocess.run(["/bin/bash", "-c", probe, "probe", str(source)],

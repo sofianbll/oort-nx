@@ -72,7 +72,7 @@ final class SoundPackTests: XCTestCase {
         selected.soundPackID = "custom.fixture"
         let reopened = try JSONDecoder().decode(AppSettings.self, from: JSONEncoder().encode(selected))
         XCTAssertEqual(reopened.soundPackID, "custom.fixture")
-        XCTAssertEqual(SettingsReset.resetShared(.soundMusic, in: reopened).soundPackID, "selene")
+        XCTAssertEqual(SettingsReset.resetShared(.soundMusic, in: reopened).soundPackID, "oort")
     }
 
     func testBundledOriginalsValidateWithoutChangingTheDefault() throws {

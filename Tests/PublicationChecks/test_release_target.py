@@ -44,7 +44,7 @@ class ReleaseTarget(unittest.TestCase):
         self.write("scripts/check_publication.py", "")
         self.write("scripts/check_localizations.py", "")
         self.write("scripts/build_dmg.sh", '''printf '%s\\n' "$@" > "$FIXTURES/dmg-args"
-mkdir -p dist; touch dist/NXLibrary.dmg
+mkdir -p dist; touch "dist/Oort NX.dmg"
 ''')
         self.write("scripts/build_app.sh", '''python3 - "$1" <<'PY'
 from pathlib import Path
@@ -180,8 +180,8 @@ esac
             )
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual((self.root / "dmg-args").read_text().splitlines(),
-                             (["--plain"] if flags else []) + [str(self.app.resolve() / "work/release/NXLibrary.app")])
-            self.assertTrue((self.app / "work/release/NXLibrary-0.3.1.dmg").is_file())
+                             (["--plain"] if flags else []) + [str(self.app.resolve() / "work/release/Oort NX.app")])
+            self.assertTrue((self.app / "work/release/Oort-NX-0.3.1.dmg").is_file())
         self.assertFalse((self.root / "released").exists())
 
     def assert_blocked(self, expected, **options):

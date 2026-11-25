@@ -99,7 +99,7 @@ def validate(path, destination=None):
         for name in paths:
             if any(unicodedata.normalize("NFD", str(parent)).casefold() in links for parent in name.parents):
                 raise ValueError("Entry below symlink")
-        required = {"nxlibrary.app/contents/info.plist", "nxlibrary.app/contents/macos/nxlibrary"}
+        required = {"oort nx.app/contents/info.plist", "oort nx.app/contents/macos/oort nx"}
         if not required.issubset(names):
             raise ValueError("Incomplete app")
         if destination is not None:

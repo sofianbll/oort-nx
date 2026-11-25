@@ -179,7 +179,7 @@ python3 -m venv "$dmg_env"
 export OORT_DMG_PYTHON="$dmg_env/bin/python"
 ```
 
-[ds_store](https://github.com/dmgbuild/ds_store) and [mac_alias](https://github.com/dmgbuild/mac_alias) (both MIT) are not included in the app or installer. The DMG step works offline after setup and needs Xcode's Swift and SetFile. `diskutil image create from` drops the canonical spelling `.DS_Store` when copying a folder on macOS 27; the builder stages it as `.ds_store` and verifies its contents at the canonical path on the case-insensitive APFS volume.
+[dmgbuild](https://github.com/dmgbuild/dmgbuild), [ds_store](https://github.com/dmgbuild/ds_store) and [mac_alias](https://github.com/dmgbuild/mac_alias) (both MIT) are not included in the app or installer. The DMG step works offline after setup and needs Xcode's Swift and SetFile. `diskutil image create from` drops the canonical spelling `.DS_Store` when copying a folder on macOS 27; the builder stages it as `.ds_store` and verifies its contents at the canonical path on the case-insensitive APFS volume.
 
 For example, to prepare a later release locally:
 

@@ -20,13 +20,13 @@ enum AppDelegate { @MainActor static var relaunchScheduled = false }
     @MainActor static func main() async throws {
         let scratch = URL(fileURLWithPath: CommandLine.arguments[1], isDirectory: true)
         let folder = scratch.appendingPathComponent("Update")
-        let staged = folder.appendingPathComponent("unpacked/NXLibrary.app")
-        let zip = folder.appendingPathComponent("NXLibrary-9.0.0.zip")
+        let staged = folder.appendingPathComponent("unpacked/Oort NX.app")
+        let zip = folder.appendingPathComponent("Oort-NX-9.0.0.zip")
         try FileManager.default.createDirectory(at: staged, withIntermediateDirectories: true)
         try Data("verified fixture".utf8).write(to: zip)
         let release = AppUpdate.parseRelease(Data("""
-        {"tag_name":"v9.0.0","assets":[{"name":"NXLibrary-9.0.0.zip","size":16,
-          "browser_download_url":"https://github.com/Bium23/NxLibrary/releases/download/v9.0.0/NXLibrary-9.0.0.zip",
+        {"tag_name":"v9.0.0","assets":[{"name":"Oort-NX-9.0.0.zip","size":16,
+          "browser_download_url":"https://github.com/Bium23/NxLibrary/releases/download/v9.0.0/Oort-NX-9.0.0.zip",
           "digest":"sha256:0000000000000000000000000000000000000000000000000000000000000000"}]}
         """.utf8))!
         let updater = AppUpdater()
