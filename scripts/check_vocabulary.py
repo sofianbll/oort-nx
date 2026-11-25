@@ -204,7 +204,7 @@ def invalid(vocabulary):
         errors += [f"{entry.get('id')}: uses the avoided word {rule['id']}" for rule in vocabulary["avoid"]["fr"]
                    if re.search(rule["pattern"], french, re.IGNORECASE)]
         errors += [f"{entry.get('id')}: unknown system {system!r}" for system in entry.get("keys", {}) if system not in SYSTEMS]
-    used = [state.get("action") for state in vocabulary["states"]] + vocabulary.get("menu", [])
+    used = [state.get("action") for state in vocabulary["states"]] + vocabulary.get("menu", []) + vocabulary.get("power", [])
     used += [control.get("action") for control in vocabulary.get("controls", {}).get("browsing", [])]
     errors += [f"unknown term {i!r}" for i in sorted({i for i in used if i and i not in terms})]
     return errors

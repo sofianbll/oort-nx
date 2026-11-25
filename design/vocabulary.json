@@ -41,7 +41,8 @@
       {"role": "system", "pad": "Home, or + held", "keyboard": "Mac ⌘K, desktop Ctrl+K", "mouse": "menu button", "touch": "Settings tab", "action": "screen.menu"}
     ]
   },
-  "menu": ["screen.profile", "screen.theme", "screen.players", "screen.library", "screen.power", "screen.settings", "action.refresh_library", "screen.fullscreen", "screen.activity"],
+  "menu": ["screen.profile", "screen.library", "screen.power", "screen.activity", "screen.settings"],
+  "power": ["action.sleep", "action.hide", "action.restart", "action.quit"],
   "terms": [
     {"id": "action.play", "en": "Play", "fr": "Jouer", "icon": "play", "keys": {"mac": ["Play"], "desktop": ["Play"], "android": ["detail_play"], "ios": ["Play"]}},
     {"id": "action.resume", "en": "Resume", "fr": "Reprendre", "icon": "play", "keys": {"mac": ["Resume"]}},
@@ -65,6 +66,9 @@
     {"id": "action.remove", "en": "Remove", "fr": "Retirer", "icon": "close", "meaning": "Leaves the library; nothing is deleted.", "keys": {"mac": ["Remove"], "desktop": ["Remove"]}},
     {"id": "action.delete", "en": "Delete", "fr": "Supprimer", "icon": "delete", "meaning": "Deletes or moves to the Trash.", "keys": {"mac": ["Delete"], "desktop": ["Delete"]}},
     {"id": "action.refresh_library", "en": "Refresh library", "fr": "Actualiser la bibliothèque", "icon": "sync", "keys": {"mac": ["Library refresh"], "desktop": ["Look again"], "android": ["empty_rescan"]}},
+    {"id": "action.sleep", "en": "Sleep", "fr": "Mettre en veille", "icon": "bedtime", "keys": {}},
+    {"id": "action.hide", "en": "Hide", "fr": "Masquer", "icon": "hidden", "keys": {"mac": ["Hide"]}},
+    {"id": "action.restart", "en": "Restart app", "fr": "Redémarrer l’app", "icon": "restartAlt", "keys": {"mac": ["Restart app"]}},
     {"id": "action.quit", "en": "Quit", "fr": "Quitter", "icon": "power", "keys": {"mac": ["Quit"], "ios": ["Quit"]}},
     {"id": "screen.menu", "en": "Menu", "fr": "Menu", "icon": "tune", "keys": {"mac": ["Menu"]}},
     {"id": "screen.home", "en": "Featured", "fr": "À la une", "icon": "star", "keys": {"mac": ["Spotlight", "Settings navigation: home"], "desktop": ["Spotlight"], "android": [{"key": "nav_home"}], "ios": ["Home"]}},
@@ -73,10 +77,7 @@
     {"id": "screen.controllers", "en": "Controllers", "fr": "Manettes", "icon": "gamepad", "keys": {"mac": ["Controllers"], "android": ["nav_controllers"], "ios": ["Controllers"]}},
     {"id": "screen.settings", "en": "Settings", "fr": "Réglages", "icon": "settings", "keys": {"mac": ["Settings"], "desktop": ["Settings"], "android": ["nav_settings"], "ios": ["Settings"]}},
     {"id": "screen.profile", "en": "Profile", "fr": "Profil", "icon": "person", "keys": {"mac": ["Profile"]}},
-    {"id": "screen.theme", "en": "Theme", "fr": "Thème", "icon": "palette", "keys": {"mac": ["Theme"]}},
-    {"id": "screen.players", "en": "Players", "fr": "Joueurs", "icon": "gamepad", "keys": {"mac": ["Players"]}},
     {"id": "screen.power", "en": "Power", "fr": "Alimentation", "icon": "power", "keys": {"mac": ["Power"]}},
-    {"id": "screen.fullscreen", "en": "Fullscreen", "fr": "Plein écran", "icon": "monitor", "keys": {"mac": ["Fullscreen"]}},
     {"id": "screen.activity", "en": "Activity center", "fr": "Centre d’activité", "icon": "notifications", "keys": {"mac": ["Activity center"]}},
     {"id": "tab.all", "en": "All games", "fr": "Tous les jeux", "icon": "collections", "keys": {"mac": ["All games"], "desktop": ["All games"], "ios": ["All games"]}},
     {"id": "tab.installed", "en": "Installed", "fr": "Installés", "icon": "play", "keys": {"mac": ["Installed"]}},
