@@ -63,6 +63,14 @@ final class SoundEffectService {
 
     private init() {}
 
+    private let muteProbe: Bool = {
+        #if DEBUG
+        ProcessInfo.processInfo.environment["OORT_HEADLESS_INPUT"] == "1"
+        #else
+        false
+        #endif
+    }()
+
     /// Follows the settings store from now on.
     @MainActor
     func bind(to store: AppSettingsStore) {
@@ -173,6 +181,7 @@ final class SoundEffectService {
 
     /// Plays a sequence from start to end, as Settings offers it.
     func previewNotes(_ notes: [Double], octave: Int, pack: String) {
+        guard !muteProbe else { return }
         audio.async {
             guard self.enabled, self.gain > 0, !self.isPlayingGame, let synth = OortSynth(pack: pack) else { return }
             self.previewing += 1
@@ -194,7 +203,7 @@ final class SoundEffectService {
     }
 
     private func playOnQueue(_ event: SoundPackEvent?, legacy cue: SoundCue? = nil, preview: Bool = false, place: OortSynth.Place = .lists) {
-        guard enabled, gain > 0, !isPlayingGame, foreground || (pack == nil && !preview) else { return }
+        guard !muteProbe, enabled, gain > 0, !isPlayingGame, foreground || (pack == nil && !preview) else { return }
         guard !quieted || cue == .gameStarting || cue == .gameReady else { return }
         if event == .move && !preview {
             // A held stick repeats faster than the cue is worth hearing.
