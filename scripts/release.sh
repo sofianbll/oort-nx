@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# scripts/release.sh <version> [--engine-repo <url> --engine-commit <sha>] [--publish --notes <file>]
+# scripts/release.sh <version> [--plain-dmg] [--engine-repo <url> --engine-commit <sha>] [--publish --notes <file>]
 #
 # Builds a release copy of NX Library (version in its plist, NXLibraryRelease marker, bundled
 # runtime), verifies its signature and zips it as work/release/NXLibrary-<version>.zip, the asset
@@ -11,18 +11,20 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-usage() { echo "usage: scripts/release.sh <version> [--engine-repo <url> --engine-commit <sha>] [--publish --notes <file>]" >&2; exit 2; }
+usage() { echo "usage: scripts/release.sh <version> [--plain-dmg] [--engine-repo <url> --engine-commit <sha>] [--publish --notes <file>]" >&2; exit 2; }
 
 VERSION="${1:-}"
 [ -n "$VERSION" ] || usage
 shift
 PUBLISH=0
+PLAIN_DMG=0
 NOTES=""
 ENGINE_REPO=""
 ENGINE_COMMIT=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --publish) PUBLISH=1 ;;
+    --plain-dmg) PLAIN_DMG=1 ;;
     --notes) [ $# -ge 2 ] && [ -n "$2" ] || usage; NOTES="$2"; shift ;;
     --engine-repo) [ $# -ge 2 ] && [ -n "$2" ] || usage; ENGINE_REPO="$2"; shift ;;
     --engine-commit) [ $# -ge 2 ] && [ -n "$2" ] || usage; ENGINE_COMMIT="$2"; shift ;;
@@ -235,7 +237,11 @@ rm -rf "$OUT/.update-check"
 echo "Zip: $ZIP"
 echo "SHA-256: $(shasum -a 256 "$ZIP" | cut -d' ' -f1)"
 DMG="$OUT/NXLibrary-$VERSION.dmg"
-bash "$ROOT/scripts/build_dmg.sh" "$APP"
+if [ "$PLAIN_DMG" = 1 ]; then
+  bash "$ROOT/scripts/build_dmg.sh" --plain "$APP"
+else
+  bash "$ROOT/scripts/build_dmg.sh" "$APP"
+fi
 mv "$ROOT/dist/NXLibrary.dmg" "$DMG"
 echo "DMG: $DMG"
 

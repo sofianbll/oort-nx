@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 24 novembre 2026. Copertura di **1131 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 25 novembre 2026. Copertura di **1135 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -938,7 +938,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/ArcanePortingTests/ScreenshotFallbackTests.swift](../../Tests/ArcanePortingTests/ScreenshotFallbackTests.swift) | Screenshot LaunchBox cercati una volta e conservati, precedenza di quelli propri e dimensione piena della scelta. |
 | [Tests/NXLibraryCoreTests/SteamGridDBArtTests.swift](../../Tests/NXLibraryCoreTests/SteamGridDBArtTests.swift) | Chiave privata, richieste con la chiave solo a SteamGridDB, crediti, anteprime e ricerca da Browse online. |
 | [Tests/PublicationChecks/test_publication.py](../../Tests/PublicationChecks/test_publication.py) | Esegue il controllo in repository temporanee: file vietati, chiavi sintetiche redatte, runtime non conforme e testi o sorgenti mancanti o alterati. |
-| [Tests/PublicationChecks/test_release_target.py](../../Tests/PublicationChecks/test_release_target.py) | Verifica senza rete i controlli e la destinazione unica di tag e release attraverso repository locali e comandi sostitutivi. |
+| [Tests/PublicationChecks/test_release_target.py](../../Tests/PublicationChecks/test_release_target.py) | Verifica senza rete i controlli, la destinazione unica di tag e release e il ripiego DMG mantenendo il nome dell'asset, attraverso repository locali e comandi sostitutivi. |
 | [Tests/PublicationChecks/test_update_archive.py](../../Tests/PublicationChecks/test_update_archive.py) | Verifica il controllo ZIP reale con bundle sintetici, symlink, percorsi non sicuri, collisioni Unicode, header incoerenti e dimensioni eccessive. |
 
 | File | Responsabilità |
@@ -1246,7 +1246,10 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [scripts/install_built_app.swift](../../scripts/install_built_app.swift) | Ingresso CLI che riusa BuildOutputInstaller per firmare, verificare e installare Arcane dopo il packaging. |
 | [scripts/check_publication.py](../../scripts/check_publication.py) | Rifiuta contenuti personali o di gioco versionati e rclone nel bundle; verifica runtime, licenze, avvisi e sorgenti. |
 | [scripts/bundle-licences.json](../../scripts/bundle-licences.json) | Percorsi e SHA-256 dei testi e dei sorgenti verificati nel bundle di release. |
-| [scripts/build_dmg.sh](../../scripts/build_dmg.sh) | Confeziona un bundle già costruito come `Oort NX.app` nel volume DMG Oort NX. |
+| [scripts/build_dmg.sh](../../scripts/build_dmg.sh) | Confeziona `Oort NX.app` in un DMG compresso, con veste Oort o ripiego semplice; verifica il contenuto su un montaggio invisibile in sola lettura. |
+| [scripts/style_dmg.py](../../scripts/style_dmg.py) | Genera la trama e scrive layout Finder, TIFF Retina e icona alla radice del volume. |
+| [scripts/make_dmg_background.swift](../../scripts/make_dmg_background.swift) | Disegna il fondo Oort del DMG a 1× e 2×. |
+| [scripts/dmg-requirements.txt](../../scripts/dmg-requirements.txt) | Versioni e SHA-256 dei tool Python usati solo per confezionare il DMG. |
 | [scripts/bundle_runtime.sh](../../scripts/bundle_runtime.sh) | Prepara e firma il runtime dalle versioni bloccate, verifica hash e avvio, scarta il percorso home del costruttore Python. |
 | [scripts/release.sh](../../scripts/release.sh) | Verifica il pin effettivo in un checkout anonimo temporaneo; produce ZIP con radice `NXLibrary.app` e DMG Oort NX. Riprende la pubblicazione solo con tag identici sul commit atteso e release assente. |
 | [scripts/validate_update.py](../../scripts/validate_update.py) | Verifica struttura, percorsi e limiti degli archivi prima dell'estrazione, sia nel bundle sia durante il packaging delle release. |

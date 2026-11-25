@@ -11,6 +11,7 @@ Ogni flusso segue un'azione dall'input all'effetto, nominando i tipi che se ne o
 - [7. Installare una mod](#7-installare-una-mod)
 - [8. Cambiare un'impostazione](#8-cambiare-unimpostazione)
 - [9. Aggiornare l'app](#9-aggiornare-lapp)
+- [10. Preparare il DMG](#10-preparare-il-dmg)
 
 ## 1. Avvio dell'app
 
@@ -398,3 +399,7 @@ flowchart TD
 Alla chiusura successiva, una copia release che si chiama ancora `NX Library.app` diventa `Oort NX.app` se la destinazione è libera; una copia `Arcane.app` resta al suo percorso (`AppBundleRename`, chiamato da `AppDelegate.applicationWillTerminate`). Non succede se un riavvio è in programma, perché l'aiuto che riapre l'app usa il percorso attuale.
 
 Dopo il riavvio, Setup confronta l'engine locale con il pin della nuova app. Se la release specifica un repository, Clone, Update e Switch usano quello. Install all può clonare in una cartella mancante, ma per cambiare un checkout esistente bisogna scegliere la sua scheda e confermare il percorso e la versione. Un checkout modificato resta intatto. I giochi già compilati non vengono ricompilati dalla procedura.
+
+## 10. Preparare il DMG
+
+`release.sh` passa il bundle firmato a `build_dmg.sh`, che copia `Oort NX.app` senza risorse Finder e aggiunge il collegamento ad Applicazioni. Senza il ripiego esplicito `--plain-dmg`, aggiunge il layout, lo sfondo e l'icona al volume, non all'app. Crea il DMG UDZO, lo monta senza Finder in sola lettura, verifica firma e contenuto e lo smonta. Solo dopo questi controlli `release.sh` conserva il file come `NXLibrary-<version>.dmg`. Lo ZIP usato dall'updater è indipendente da questo layout.
