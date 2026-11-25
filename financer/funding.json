@@ -1,0 +1,117 @@
+{
+ "version": 1,
+ "devise": "EUR",
+ "maj": "2026-11-25",
+ "ouvert": false,
+ "lien": "",
+ "exemple": false,
+ "annees_max": 2,
+ "briques": [
+  {
+   "id": "domaine",
+   "nom": {
+    "fr": "Le nom de domaine",
+    "en": "The domain name"
+   },
+   "pour": {
+    "fr": "Une adresse à Oort, qui reste si l’hébergeur change.",
+    "en": "An address of its own, kept if the host changes."
+   },
+   "cout": 1299,
+   "periode": "an",
+   "source": "https://porkbun.com/tld/org",
+   "verifie": "2026-11-25",
+   "note": {
+    "fr": "Une adresse en .org, prix relevé le 25 novembre 2026 : 11,84 $ par an, converti au taux BCE du jour, TVA comprise.",
+    "en": "A .org address, price read on November 25, 2026: $11.84 a year, at that day’s ECB rate, VAT included."
+   }
+  },
+  {
+   "id": "apple",
+   "nom": {
+    "fr": "La licence Apple",
+    "en": "The Apple license"
+   },
+   "pour": {
+    "fr": "Signer Oort pour que macOS l’ouvre sans refuser.",
+    "en": "Sign Oort so macOS opens it without refusing."
+   },
+   "cout": 9899,
+   "periode": "an",
+   "source": "https://apps.apple.com/fr/app/apple-developer/id640199958",
+   "verifie": "2026-11-25",
+   "note": {
+    "fr": "Prix affiché sur l’App Store français. Elle ne promet ni l’App Store ni TestFlight.",
+    "en": "Price shown on the French App Store. It promises neither the App Store nor TestFlight."
+   }
+  }
+ ],
+ "plus_tard": [
+  {
+   "id": "windows",
+   "nom": {
+    "fr": "Signer la version Windows",
+    "en": "Sign the Windows release"
+   },
+   "prix": {
+    "fr": "49 € par an",
+    "en": "€49 a year"
+   },
+   "pourquoi": {
+    "fr": "Certum, offre pour le code ouvert. D’abord demander à SignPath Foundation, qui signe gratuitement les projets qu’elle accepte.",
+    "en": "Certum, open source offer. First ask SignPath Foundation, which signs the projects it accepts for free."
+   },
+   "source": "https://shop.certum.eu/buy-a-code-signing-certyficate"
+  },
+  {
+   "id": "android",
+   "nom": {
+    "fr": "Google Play",
+    "en": "Google Play"
+   },
+   "prix": {
+    "fr": "25 $, une fois",
+    "en": "$25, once"
+   },
+   "pourquoi": {
+    "fr": "Pas nécessaire : l’APK s’installe sans. Il faudrait aussi douze testeurs pendant quatorze jours.",
+    "en": "Not needed: the APK installs without it. It would also take twelve testers for fourteen days."
+   },
+   "source": "https://support.google.com/googleplay/android-developer/answer/6112435"
+  },
+  {
+   "id": "essais",
+   "nom": {
+    "fr": "Du matériel d’essai",
+    "en": "Test hardware"
+   },
+   "prix": {
+    "fr": "Pas encore chiffré",
+    "en": "Not priced yet"
+   },
+   "pourquoi": {
+    "fr": "Un PC Windows, un téléphone Android, des manettes. Rien ne sera demandé sans modèle et prix exacts.",
+    "en": "A Windows PC, an Android phone, controllers. Nothing will be asked for without an exact model and price."
+   },
+   "source": ""
+  },
+  {
+   "id": "site",
+   "nom": {
+    "fr": "Le site et la fabrication",
+    "en": "The site and the builds"
+   },
+   "prix": {
+    "fr": "0 €",
+    "en": "€0"
+   },
+   "pourquoi": {
+    "fr": "GitHub les offre aux dépôts publics.",
+    "en": "GitHub gives them to public repositories."
+   },
+   "source": "https://docs.github.com/en/billing/concepts/product-billing/github-actions"
+  }
+ ],
+ "recus": [],
+ "depenses": []
+}
