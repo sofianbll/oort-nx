@@ -146,9 +146,14 @@ final class GameControllerService: ObservableObject {
         let events: NSEvent.EventTypeMask = [.keyDown, .leftMouseDown, .rightMouseDown, .otherMouseDown, .scrollWheel,
                                              .mouseMoved]
         handMonitor = NSEvent.addLocalMonitorForEvents(matching: events) { [weak self] event in
-            self?.handUsed(event)
-            return event
+            guard let self else { return event }
+            return self.monitorHand(event)
         }
+    }
+
+    func monitorHand(_ event: NSEvent) -> NSEvent? {
+        handUsed(event)
+        return event
     }
 
     func handUsed(_ event: NSEvent) {

@@ -6,6 +6,7 @@ import SwiftUI
 /// The field keeps the keyboard; the row in focus is what Return or A runs.
 struct CommandPaletteView: View {
     @ObservedObject var palette: CommandPalette
+    var postAnnouncement: (String) -> Void = { AccessibilityNotification.Announcement($0).post() }
 
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.nxAppLocale) private var locale
@@ -208,7 +209,7 @@ struct CommandPaletteView: View {
         guard !palette.state.query.isEmpty else { return }
         let found = palette.total == 0 ? text("Nothing matches. Try another word.")
             : L10n.count("%lld results", palette.total, context: locale)
-        AccessibilityNotification.Announcement([found, palette.focusedItem?.title].compactMap { $0 }.joined(separator: ". ")).post()
+        postAnnouncement([found, palette.focusedItem?.title].compactMap { $0 }.joined(separator: ". "))
     }
 }
 

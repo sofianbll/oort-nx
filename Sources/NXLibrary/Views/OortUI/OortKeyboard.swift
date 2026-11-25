@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import SwiftUI
 import NXLibraryCore
 
@@ -105,6 +106,10 @@ struct OortKeyboard: View {
     private weak var finished: AnyObject?
     private var watch: NSKeyValueObservation?
     private var observers: [NSObjectProtocol] = []
+
+    func watchHand(_ hand: CurrentValueSubject<Bool, Never>) {
+        controllerInHand = { hand.value }
+    }
 
     func start() {
         guard observers.isEmpty else { return }
