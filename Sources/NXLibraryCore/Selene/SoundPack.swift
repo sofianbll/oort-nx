@@ -51,6 +51,12 @@ public struct SoundPack: Sendable {
     public let manifest: SoundPackManifest
     fileprivate let files: [String: Data]
 
+    /// A house mood: the app makes its sounds, so it carries a name and no file.
+    fileprivate static func mood(_ id: String, name: String) -> SoundPack {
+        SoundPack(manifest: SoundPackManifest(id: id, name: L10n.text(name), author: "Oort", license: "MIT",
+                                              version: "1.0.0", format: 1, events: [:]), files: [:])
+    }
+
     public func audio(for event: SoundPackEvent) -> Data? {
         manifest.events[event.rawValue]?.randomElement().flatMap { files[$0] }
     }
@@ -197,6 +203,30 @@ public struct SoundPack: Sendable {
     }
 }
 
+/// The Sound pack row: four voices by name, then Other, which holds every pack that is not one of them.
+public enum SoundPackRow {
+    public static let values = ["oort", "frost", "mist", "nucleus", "other"]
+    public static let other = "other"
+
+    /// What the row shows for a chosen pack. The choice itself keeps its saved id.
+    public static func value(for key: String) -> String {
+        key != other && values.contains(key) ? key : other
+    }
+
+    /// The pack one step along the row. Other gives back `remembered`, the pack last chosen there.
+    public static func step(from key: String, _ delta: Int, other remembered: String) -> String {
+        let index = values.firstIndex(of: value(for: key)) ?? 0
+        let next = values[((index + delta) % values.count + values.count) % values.count]
+        guard next == other else { return next }
+        return value(for: remembered) == other ? remembered : "selene"
+    }
+
+    /// The packs under Other, in the library's order.
+    public static func others(_ choices: [(key: String, name: String)]) -> [(key: String, name: String)] {
+        choices.filter { value(for: $0.key) == other }
+    }
+}
+
 public struct SoundPackLibrary: Sendable {
     private static let builtIn = ["oort", "pollen", "umbra", "impulsion"]
     private static let importLimit = 12
@@ -209,16 +239,20 @@ public struct SoundPackLibrary: Sendable {
         self.bundled = bundled
     }
 
+    /// Every pack that can be chosen: the row's voices, then those under Other.
     public func choices() -> [(key: String, name: String)] {
-        let originals = Self.builtIn.compactMap { key -> (String, String)? in
+        let keys = SoundPackRow.values.filter { $0 != SoundPackRow.other } + ["selene"]
+            + Self.builtIn.filter { SoundPackRow.value(for: $0) == SoundPackRow.other }
+        let included = keys.compactMap { key -> (key: String, name: String)? in
+            if key == "selene" { return (key, "Selene") }
             guard let value = try? load(key) else { return nil }
             return (key, value.manifest.name)
         }
         let customs = customIDs().prefix(Self.importLimit).map { id in
             let key = "custom." + id
-            return (key, (try? load(key))?.manifest.name ?? id)
+            return (key: key, name: (try? load(key))?.manifest.name ?? id)
         }
-        return [("selene", "Selene")] + originals + customs
+        return included + customs
     }
 
     private func customIDs() -> [String] {
@@ -231,6 +265,7 @@ public struct SoundPackLibrary: Sendable {
 
     public func load(_ key: String) throws -> SoundPack? {
         if key == "selene" { return nil }
+        if let mood = OortSynth.ambiances.first(where: { $0.id == key }) { return .mood(mood.id, name: mood.name) }
         let id: String, source: URL
         if key.hasPrefix("custom.") {
             id = String(key.dropFirst(7))

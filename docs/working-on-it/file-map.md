@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 25 novembre 2026. Il repository versiona **1575 file**, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le singole guide e immagini di `docs/guides/` non hanno una riga propria (le verifica `check_guides.py`); altri 73 file, i pacchetti di suoni e alcuni sorgenti e test recenti, aspettano ancora la loro. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 25 novembre 2026. Il repository versiona **1577 file**, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le singole guide e immagini di `docs/guides/` non hanno una riga propria (le verifica `check_guides.py`); altri 73 file, i pacchetti di suoni e alcuni sorgenti e test recenti, aspettano ancora la loro. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -336,7 +336,9 @@ Cartella `Sources/NXLibraryCore/Selene/`.
 | [Sources/NXLibraryCore/Selene/CursorIdleState.swift](../../Sources/NXLibraryCore/Selene/CursorIdleState.swift) | Politica del ritardo di visibilità del puntatore e reset su mouse o perdita di eleggibilità. |
 | [Sources/NXLibraryCore/Selene/OnlineBackgrounds.swift](../../Sources/NXLibraryCore/Selene/OnlineBackgrounds.swift) | Modella sorgenti e risultati e interpreta le risposte dei provider di sfondi fissi e video. |
 | [Sources/NXLibraryCore/Selene/SeleneImporter.swift](../../Sources/NXLibraryCore/Selene/SeleneImporter.swift) | Importa suoni e wallpaper dalla cartella Selene dell’utente e risolve cue e fallback. |
-| [Sources/NXLibraryCore/Selene/SoundPack.swift](../../Sources/NXLibraryCore/Selene/SoundPack.swift) | Valida manifesti, archivi e audio, sceglie le varianti e pubblica solo copie locali confermate. |
+| [Sources/NXLibraryCore/Selene/SoundPack.swift](../../Sources/NXLibraryCore/Selene/SoundPack.swift) | Valida manifesti, archivi e audio, sceglie le varianti, pubblica solo copie locali confermate e divide le scelte fra le voci della riga e Other. |
+| [Sources/NXLibraryCore/Selene/OortSynth.swift](../../Sources/NXLibraryCore/Selene/OortSynth.swift) | Calcola i suoni delle voci Oort: note, clic, stanza, Sole e sequenze di Compose. |
+| [Sources/NXLibraryCore/Selene/OortAmbiance.swift](../../Sources/NXLibraryCore/Selene/OortAmbiance.swift) | Timbri e stanza degli ambienti Frost, Mist e Nucleus e livello allineato alla voce Oort. |
 | [Sources/NXLibraryCore/Selene/ButtonPrompts.swift](../../Sources/NXLibraryCore/Selene/ButtonPrompts.swift) | Traduce azioni e direzioni, incluse Su/Giù, in simboli per tastiera e controller Switch, Xbox e PlayStation. |
 | [Sources/NXLibraryCore/Selene/InputInHand.swift](../../Sources/NXLibraryCore/Selene/InputInHand.swift) | Decide quale dispositivo è in mano (controller, tastiera o puntatore) senza sfarfallii: stick nella zona morta e piccoli spostamenti non contano. |
 | [Sources/NXLibraryCore/Selene/LaunchExit.swift](../../Sources/NXLibraryCore/Selene/LaunchExit.swift) | Dopo quattro secondi dice come uscire dalla schermata di avvio: B o Esc se Oort riceve i tasti, altrimenti il clic. |
@@ -1232,6 +1234,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [SteamPlaytimeSyncTests.swift](../../Tests/NXLibraryCoreTests/SteamPlaytimeSyncTests.swift) | Letture con o senza account, file illeggibili, file invariato, regole di pubblicazione e coda delle letture. |
 | [NativeMacApplicationTests.swift](../../Tests/NXLibraryCoreTests/NativeMacApplicationTests.swift) | Fixture native, classificazione, traversal/link, metadata non regolari e header invalidi. |
 | [SoundPackTests.swift](../../Tests/NXLibraryCoreTests/SoundPackTests.swift) | Verifica manifesti, ZIP, limiti, link, copia controllata, eventi mancanti e persistenza della scelta. |
+| [OortAmbianceTests.swift](../../Tests/NXLibraryCoreTests/OortAmbianceTests.swift) | Copertura degli eventi, nomi nelle sette lingue, livello e picco, assenza di clic, carattere dei tre ambienti e note di Compose. |
 | [SteamLibrarySourceTests.swift](../../Tests/NXLibraryCoreTests/SteamLibrarySourceTests.swift) | Più fonti, dischi assenti, identità, manifest/path con campi duplicati o di tipo errato, file cambiati, limiti e assenza di scritture. |
 | [SteamDiscoveryConsistencyTests.swift](../../Tests/NXLibraryCoreTests/SteamDiscoveryConsistencyTests.swift) | Mutazioni reali di inventario e app durante scan, indice inizialmente assente, budget e propagazione dell'annullamento. |
 | [SteamTestSupport.swift](../../Tests/NXLibraryCoreTests/SteamTestSupport.swift) | Genera solo metadati e header sintetici nelle directory temporanee dei test. |

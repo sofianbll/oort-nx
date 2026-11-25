@@ -80,12 +80,60 @@ final class SoundPackTests: XCTestCase {
             .deletingLastPathComponent().deletingLastPathComponent()
         try withFolder { root in
             let library = SoundPackLibrary(root: root, bundled: sources.appendingPathComponent("Resources/SoundPacks"))
-            XCTAssertEqual(library.choices().map(\.name), ["Selene", "Oort", "Pollen", "Umbra", "Impulsion"])
+            XCTAssertEqual(library.choices().map(\.name), ["Oort", "Frost", "Mist", "Nucleus", "Selene", "Pollen", "Umbra", "Impulsion"])
             let oort = try XCTUnwrap(library.load("oort"))
             XCTAssertNil(oort.audio(for: .move))
             XCTAssertNil(oort.audio(for: .boot))
             XCTAssertEqual(oort.audio(for: .resume)?.count, 44 + 7_680)
         }
+    }
+
+    func testTheRowOffersFourVoicesAndOtherInFiveEntries() throws {
+        XCTAssertEqual(SoundPackRow.values, ["oort", "frost", "mist", "nucleus", "other"])
+        for voice in ["oort", "frost", "mist", "nucleus"] { XCTAssertEqual(SoundPackRow.value(for: voice), voice) }
+        let resources = try XCTUnwrap(L10n.resources())
+        let french = AppLocale(language: .french, region: "FR")
+        XCTAssertEqual(L10n.text("Other", context: french, bundle: resources), "Autres")
+        XCTAssertEqual(L10n.text("Other pack", context: french, bundle: resources), "Autre pack")
+        for language in AppLanguage.allCases where language != .english && language != .automatic {
+            let locale = AppLocale(language: language, region: "US")
+            for key in ["Other pack", "The earlier packs and those you imported."] {
+                XCTAssertNotEqual(L10n.text(key, context: locale, bundle: resources), key, "\(language)")
+            }
+        }
+    }
+
+    func testEarlierAndImportedChoicesStayActiveUnderOther() throws {
+        let sources = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+            .deletingLastPathComponent().deletingLastPathComponent()
+        try withFolder { root in
+            let incoming = root.appendingPathComponent("incoming")
+            try FileManager.default.createDirectory(at: incoming, withIntermediateDirectories: false)
+            try metadata.write(to: incoming.appendingPathComponent("manifest.json"))
+            try wave.write(to: incoming.appendingPathComponent("tone.wav"))
+            let library = SoundPackLibrary(root: root.appendingPathComponent("installed"),
+                                           bundled: sources.appendingPathComponent("Resources/SoundPacks"))
+            try library.install(SoundPack.read(incoming))
+            let others = SoundPackRow.others(library.choices())
+            XCTAssertEqual(others.map(\.key), ["selene", "pollen", "umbra", "impulsion", "custom.fixture"])
+            for key in others.map(\.key) {
+                XCTAssertEqual(SoundPackRow.value(for: key), "other", key)
+                if key != "selene" { XCTAssertNotNil(try library.load(key), key) }
+                var chosen = AppSettings()
+                chosen.soundPackID = key
+                XCTAssertEqual(try JSONDecoder().decode(AppSettings.self, from: JSONEncoder().encode(chosen)).soundPackID, key)
+            }
+        }
+    }
+
+    func testSteppingTheRowComesBackToThePackLastHeardUnderOther() {
+        XCTAssertEqual(SoundPackRow.step(from: "oort", 1, other: "pollen"), "frost")
+        XCTAssertEqual(SoundPackRow.step(from: "nucleus", 1, other: "pollen"), "pollen")
+        XCTAssertEqual(SoundPackRow.step(from: "oort", -1, other: "custom.fixture"), "custom.fixture")
+        XCTAssertEqual(SoundPackRow.step(from: "umbra", 1, other: "umbra"), "oort")
+        XCTAssertEqual(SoundPackRow.step(from: "custom.fixture", -1, other: "custom.fixture"), "nucleus")
+        // A remembered voice is no pack of Other: Selene, which is always there, stands in.
+        XCTAssertEqual(SoundPackRow.step(from: "nucleus", 1, other: "mist"), "selene")
     }
 
     private let metadata = Data(#"{"format":1,"id":"fixture","name":"Fixture","author":"Tests","license":"CC0-1.0","version":"1.0.0","events":{"select":["tone.wav"]}}"#.utf8)

@@ -192,13 +192,26 @@ struct IntegrationFixtureView: View {
                             }, as: "sound-\(suffix)")
                         }
                     }
-                    for (key, suffix) in [("selene", "default"), ("oort", "oort")] {
+                    // A pack of the player's own, made up here, so Other has one to hold.
+                    if !library.choices().contains(where: { $0.key == "custom.lagon" }) {
+                        try library.install(fixtureSoundPack())
+                    }
+                    if name == "wide", language == .french { try probeSoundPackRow(library, canvas: canvas) }
+                    let page = SettingsPage.category(.sound)
+                    for (key, suffix, row) in [("selene", "default", "Sound pack"), ("oort", "oort", "Sound pack"),
+                                               ("frost", "frost", "Sound pack"), ("mist", "mist", "Sound pack"),
+                                               ("nucleus", "nucleus", "Sound pack"), ("pollen", "pollen", "Sound pack"),
+                                               ("custom.lagon", "imported", "Other pack")] {
                         store.settings.soundPackID = key
-                        try render(ScrollView {
-                            SettingsSoundSection(settings: SettingsEditor(store), onActions: { _ in }, soundPackLibrary: library)
-                                .padding(canvas.u(SeleneTokens.Space.large))
-                                .frame(maxWidth: 950)
-                                .frame(maxWidth: .infinity)
+                        try render(OortSettingsShell(title: page.title(in: locale), onBack: nil) {
+                            SettingsSidebar(selection: page, isFocused: false, query: .constant(""), searchFieldRequest: 0,
+                                            onSelect: { _ in }, onSearchFocus: {}, onSubmit: {})
+                        } detail: {
+                            ScrollView {
+                                SettingsSoundSection(settings: SettingsEditor(store), onActions: { _ in }, soundPackLibrary: library)
+                                    .environment(\.seleneFocusedRowID, row)
+                            }
+                            .scrollIndicators(.hidden)
                         }, as: "sound-\(suffix)")
                     }
                     continue
@@ -223,6 +236,67 @@ struct IntegrationFixtureView: View {
                 }
             }
         }
+    }
+
+    /// Drives the pack rows through the actions Left and Right use, from a controller or the keyboard. Nothing plays.
+    @MainActor private static func probeSoundPackRow(_ library: SoundPackLibrary, canvas: SeleneCanvas) throws {
+        let store = AppSettingsStore()
+        let saved = store.settings.soundPackID
+        // As on the page: changes go to a draft until the player saves, so the captures keep their settings.
+        store.beginDraft(fields: [.init("interfaceSounds", \.interfaceSounds) { "\($0)" },
+                                  .init("soundPack", \.soundPackID, previews: true) { $0 }])
+        store.editingSettings.interfaceSounds = false
+        store.editingSettings.soundPackID = "pollen"
+        var actions: [SettingsRowAction] = []
+        let host = NSHostingView(rootView: SettingsSoundSection(settings: SettingsEditor(store),
+                                                               onActions: { actions = $0 }, soundPackLibrary: library)
+            .environment(\.seleneCanvas, canvas))
+        host.frame = CGRect(x: 0, y: 0, width: canvas.size.width, height: canvas.size.height)
+        let window = NSWindow(contentRect: host.frame, styleMask: [.borderless], backing: .buffered, defer: false)
+        window.contentView = host
+        defer { window.contentView = nil }
+        func settle() {
+            for _ in 0..<10 {
+                RunLoop.main.run(until: Date().addingTimeInterval(0.02))
+                host.layoutSubtreeIfNeeded()
+            }
+        }
+        var steps = 0
+        func press(_ id: String, _ delta: Int, expect key: String) {
+            guard let cycle = actions.first(where: { $0.id == id })?.cycle else { preconditionFailure("no \(id) row") }
+            cycle(delta)
+            settle()
+            steps += 1
+            let chosen = store.editingSettings.soundPackID
+            precondition(chosen == key, "\(id) \(delta): \(chosen), not \(key)")
+            let ids = actions.map(\.id)
+            let other = SoundPackRow.value(for: key) == SoundPackRow.other
+            precondition(ids.contains("soundPackOther") == other, "Other pack row for \(key)")
+            if other { precondition(ids.firstIndex(of: "soundPackOther") == ids.firstIndex(of: "soundPack").map { $0 + 1 }) }
+        }
+        window.layoutIfNeeded()
+        settle()
+        precondition(store.editingSettings.soundPackID == "pollen" && actions.contains { $0.id == "soundPackOther" })
+        press("soundPack", 1, expect: "oort")
+        press("soundPack", -1, expect: "pollen")
+        for key in ["umbra", "impulsion", "custom.lagon", "selene", "pollen", "selene"] {
+            press("soundPackOther", key == "selene" && store.editingSettings.soundPackID == "pollen" ? -1 : 1, expect: key)
+        }
+        for key in ["nucleus", "mist", "frost", "oort", "selene"] { press("soundPack", -1, expect: key) }
+        precondition(!window.isVisible && store.settings.soundPackID == saved, "nothing saved without Save")
+        print("Sound pack row probe: \(steps) steps passed")
+    }
+
+    private static func fixtureSoundPack() throws -> SoundPack {
+        let folder = AppData.profile.home.appendingPathComponent("lagon", isDirectory: true)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        let manifest = #"{"format":1,"id":"lagon","name":"Lagon","author":"Fixture","license":"CC0-1.0","version":"1.0.0","events":{"select":["tone.wav"]}}"#
+        // 10 ms of silence: 24 kHz, 16-bit mono.
+        let wave = Data([82, 73, 70, 70, 4, 2, 0, 0, 87, 65, 86, 69, 102, 109, 116, 32, 16, 0, 0, 0, 1, 0, 1, 0,
+                         192, 93, 0, 0, 128, 187, 0, 0, 2, 0, 16, 0, 100, 97, 116, 97, 224, 1, 0, 0]) + Data(repeating: 0, count: 480)
+        try Data(manifest.utf8).write(to: folder.appendingPathComponent("manifest.json"))
+        try wave.write(to: folder.appendingPathComponent("tone.wav"))
+        return try SoundPack.read(folder)
     }
 
     @MainActor static func fixtureOnboardingState() throws

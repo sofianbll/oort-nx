@@ -8,6 +8,8 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 - **⌘K** opens a search over everything: start a game or open its options, go to a setting, run an action. It shows recent and suggested choices before you type, forgives accents and small typing mistakes, and works offline. With a controller, press Y in **Find a game**.
 - Each kind of controller has its own drawing: Xbox, PlayStation, Switch Pro, Joy-Con pair and single Joy-Con. Controls links every button to what it does, in the library and in a game, for the connected controller or another one.
+- Three more sound packs made by the app, in Settings → Sound: **Frost** (lively and crisp), **Mist** (wide and soft) and **Nucleus** (low and clean). They play the notes of the Oort voices, follow **Compose** and are set to the measured loudness of **Oort**. The default does not change.
+- **Sound pack** now steps through **Oort**, **Frost**, **Mist**, **Nucleus** and **Other**. Selene, Pollen, Umbra, Impulsion and imported packs are chosen on the **Other pack** row shown under Other. Nothing is removed, and a pack already chosen stays chosen.
 
 ### Changed
 

@@ -3612,6 +3612,12 @@
     "Sound pack": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Sound pack"}}, "fr": {"stringUnit":{"state":"translated","value":"Pack de sons"}}, "it": {"stringUnit":{"state":"translated","value":"Pacchetto audio"}}, "de": {"stringUnit":{"state":"translated","value":"Soundpaket"}}, "es": {"stringUnit":{"state":"translated","value":"Paquete de sonido"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Pacote de som"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"声音包"}}
     }},
+    "Other pack": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Other pack"}}, "fr": {"stringUnit":{"state":"translated","value":"Autre pack"}}, "it": {"stringUnit":{"state":"translated","value":"Altro pacchetto"}}, "de": {"stringUnit":{"state":"translated","value":"Anderes Paket"}}, "es": {"stringUnit":{"state":"translated","value":"Otro paquete"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Outro pacote"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"其他声音包"}}
+    }},
+    "The earlier packs and those you imported.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"The earlier packs and those you imported."}}, "fr": {"stringUnit":{"state":"translated","value":"Les anciens packs et ceux que tu as importés."}}, "it": {"stringUnit":{"state":"translated","value":"I pacchetti precedenti e quelli che hai importato."}}, "de": {"stringUnit":{"state":"translated","value":"Die früheren Pakete und deine importierten."}}, "es": {"stringUnit":{"state":"translated","value":"Los paquetes anteriores y los que has importado."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Os pacotes anteriores e os que você importou."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"早期声音包和你导入的声音包。"}}
+    }},
     "Choose the interface sound pack.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Choose the interface sound pack."}}, "fr": {"stringUnit":{"state":"translated","value":"Choisis les sons de l’interface."}}, "it": {"stringUnit":{"state":"translated","value":"Scegli i suoni dell’interfaccia."}}, "de": {"stringUnit":{"state":"translated","value":"Sounds der Oberfläche wählen."}}, "es": {"stringUnit":{"state":"translated","value":"Elige los sonidos de la interfaz."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Escolha os sons da interface."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"选择界面声音。"}}
     }},
@@ -3651,6 +3657,42 @@
     "Ambience": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Ambience"}}, "fr": {"stringUnit":{"state":"translated","value":"Ambiance"}}, "it": {"stringUnit":{"state":"translated","value":"Atmosfera"}}, "de": {"stringUnit":{"state":"translated","value":"Atmosphäre"}}, "es": {"stringUnit":{"state":"translated","value":"Ambiente"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Ambiente"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"氛围"}}
     }},
+    "Frost": {
+      "comment": "Sound pack made by the app",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Frost"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Brina"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Givre"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Raureif"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Escarcha"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Geada"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "霜晶"}}
+      }
+    },
+    "Mist": {
+      "comment": "Sound pack made by the app",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Mist"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Foschia"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Brume"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Nebel"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Bruma"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Neblina"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "薄雾"}}
+      }
+    },
+    "Nucleus": {
+      "comment": "Sound pack made by the app",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Nucleus"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nucleo"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Noyau"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Kern"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Núcleo"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Núcleo"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "彗核"}}
+      }
+    },
     "The selected sound pack is unavailable. Selene is in use.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"The selected sound pack is unavailable. Selene is in use."}}, "fr": {"stringUnit":{"state":"translated","value":"Le pack choisi est indisponible. Selene est utilisé."}}, "it": {"stringUnit":{"state":"translated","value":"Il pacchetto scelto non è disponibile. Si usa Selene."}}, "de": {"stringUnit":{"state":"translated","value":"Das gewählte Soundpaket ist nicht verfügbar. Selene wird verwendet."}}, "es": {"stringUnit":{"state":"translated","value":"El paquete elegido no está disponible. Se usa Selene."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"O pacote escolhido não está disponível. Selene está em uso."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"所选声音包不可用，正在使用 Selene。"}}
     }},
