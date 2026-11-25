@@ -116,7 +116,10 @@ extension AppShellView {
     func presentLegacyNotice() {
         guard viewModel.settingsNotice == nil, let message = viewModel.alertMessage else { return }
         viewModel.alertMessage = nil
-        viewModel.showSettingsNotice(title: AppIdentity.displayName, message: message)
+        // The message is also in the log only when there is more to read there.
+        let logged = viewModel.logs.last { $0.level == .error }?.message == message
+        viewModel.showSettingsNotice(title: AppIdentity.displayName, message: message, actionTitle: "Open log",
+                                     retry: logged ? { [viewModel] in viewModel.router?.openSettings(.console) } : nil)
     }
 
     func presentCloudNotice() {

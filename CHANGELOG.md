@@ -13,6 +13,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 - **Disconnect** (Cloud library) says what is erased and can keep the Google ID and secret: reconnecting does not ask for them again.
 - Removing a Mac app tile no longer asks first: Undo puts it back.
+- Error messages read on their own say what to do. An error that is in the log offers **Open log**.
 - The control center keeps five icons with Power in the middle. Players joins the Profile card.
 
 ## 0.5.0-beta.3 — 2026-11-25

@@ -113,11 +113,11 @@ extension AppViewModel {
         let location = try? defaultSaveLocation(for: game)
         if let location, SaveTransaction.needsRecovery(location: location) {
             recoverSavesAtStartup()
-            alertMessage = "This game's save needs recovery. Wait for recovery to finish, then press Play again. Backups are in \(saveBackupRoot.path)."
+            alertMessage = L10n.format("This game’s save needs recovery. Wait for recovery to finish, then press Play again. Backups are in %@.", [saveBackupRoot.path])
             return false
         }
         if saveGate.isBusy(titleID: tid, recoveryLocation: location) {
-            alertMessage = "This game's saves are being managed or need recovery. Finish that operation before Play."
+            alertMessage = L10n.text("This game’s saves are being managed or need recovery. Finish that operation, then press Play.")
             return false
         }
         return true

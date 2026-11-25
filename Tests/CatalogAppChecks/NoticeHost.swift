@@ -10,6 +10,7 @@ final class AppViewModel {
     var alertMessage: String?
     var settingsNotice: SettingsNotice?
     var isBuilding = false
+    var router: AppRouter?
     init(_ repository: CatalogRepository) { catalogRepository = repository }
     func reportLibrarySaveFailure(_ error: Error) { alertMessage = error.localizedDescription }
     func showSettingsNotice(title: String, message: String, actionTitle: String = "Retry", cancelTitle: String = "Back", retry: (() -> Void)? = nil) {
