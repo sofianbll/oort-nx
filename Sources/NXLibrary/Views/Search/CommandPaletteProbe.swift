@@ -94,11 +94,12 @@ enum CommandPaletteProbe {
         L10n.setContext(french)
         checkInput(french)
         print("palette input: ok")
-        GameControllerService.shared.isGamepadConnected = false
 
         func draw(_ name: String, _ locale: AppLocale, size: CGSize = CGSize(width: 1440, height: 900), zoom: CGFloat = 1,
-                  names: ButtonNameStyle = .automatic, white: Bool = false, palette: CommandPalette) throws {
-            let view = CommandPaletteView(palette: palette)
+                  names: ButtonNameStyle = .automatic, white: Bool = false, _ content: some View) throws {
+            // A pad plugged into this Mac must not choose the prompts.
+            GameControllerService.shared.isGamepadConnected = false
+            let view = content
                 .frame(width: size.width, height: size.height)
                 .background { if white { Rectangle().fill(SeleneTheme.artInk) } else { Rectangle().fill(SeleneTheme.baseGradient) } }
                 .environment(\.seleneCanvas, SeleneCanvas(size: size, zoom: zoom))
@@ -110,6 +111,11 @@ enum CommandPaletteProbe {
                 .preferredColorScheme(.dark)
             try IntegrationFixtureView.captureWindow(NSHostingView(rootView: view), size: size,
                                                      to: output.appendingPathComponent(name + ".png"))
+        }
+
+        func draw(_ name: String, _ locale: AppLocale, size: CGSize = CGSize(width: 1440, height: 900), zoom: CGFloat = 1,
+                  names: ButtonNameStyle = .automatic, white: Bool = false, palette: CommandPalette) throws {
+            try draw(name, locale, size: size, zoom: zoom, names: names, white: white, CommandPaletteView(palette: palette))
         }
 
         for look in ["oort", "catppuccin-latte"] {
@@ -137,6 +143,13 @@ enum CommandPaletteProbe {
         try draw("oort-fr-fault", french, palette: model(french, query: "observatroy"))
         try draw("oort-fr-pad", french, names: .xbox, palette: model(french))
         try draw("oort-fr-white", french, white: true, palette: model(french, query: "son"))
+        // The two other places that name the palette.
+        let (app, _, _, _) = try IntegrationFixtureView.fixtureOnboardingState()
+        for (suffix, names) in [("keys", ButtonNameStyle.automatic), ("pad", .xbox)] {
+            try draw("oort-fr-find-\(suffix)", french, names: names,
+                     FindGameView(router: AppRouter(), viewModel: app, playSessions: PlaySessionStore(), artwork: ArtworkStore()))
+        }
+        try draw("oort-fr-controls", french, size: CGSize(width: 1440, height: 1900), ControlsView(layout: .oort, canHandleInput: { true }) {})
         let german = AppLocale(language: .german, region: "DE")
         L10n.setContext(german)
         for zoom in [0.8, 1.25] as [CGFloat] {
