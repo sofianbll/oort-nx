@@ -100,6 +100,8 @@ import Testing
                     for path in paths(under: visible) { seen[path] = try sha256(visible.appendingPathComponent(path)) }
                     #expect(seen == wanted, label)
                     #expect(try visible.resourceValues(forKeys: [.isExcludedFromBackupKey]).isExcludedFromBackup == true, label)
+                    // The flag is asked for on the build itself, not only on a folder above it.
+                    if protected.value.contains(where: { $0.hasSuffix(".incoming") }) { #expect(protected.value.contains { $0.hasSuffix("/tree") }, label) }
                 case "discard": try store.discard(known[title!]!)
                 case "turn_off": try await connectors.turnOff(DriveConnection.id)
                 case "credential": break
