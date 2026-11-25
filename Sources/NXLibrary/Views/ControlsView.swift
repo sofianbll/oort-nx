@@ -17,7 +17,7 @@ struct ControlsView: View {
     @State private var inGame = false
     @State private var focus = 0
     /// The kind shown: the connected one until another is picked.
-    @State private var picked: ControllerShape.Kind?
+    @State private var picked: ControllerShape.Family?
     @State private var keyMonitor: Any?
 
     init(layout: GamepadLayout = .arcane, canHandleInput: @escaping () -> Bool, onClose: @escaping () -> Void) {
@@ -30,9 +30,11 @@ struct ControlsView: View {
         .init(brand: controller.activeBrand, name: controller.activeControllerName)
     }
 
+    private var shownKind: ControllerShape.Kind { picked?.kind(connected: connectedKind) ?? connectedKind }
+
     /// What each button of the shown controller does, by its place on it.
     private var entries: [OortControllerMap.Entry] {
-        let kind = picked ?? connectedKind, shape = ControllerShape.of(kind)
+        let kind = shownKind, shape = ControllerShape.of(kind)
         if inGame {
             // The engine's keys (front_mac.m, key_bit), by the Switch button each one is.
             let keys: [(ControllerButton, String, String)] = [
@@ -57,8 +59,8 @@ struct ControlsView: View {
     }
 
     private func nextKind() {
-        let all = ControllerShape.Kind.allCases
-        picked = all[(all.firstIndex(of: picked ?? connectedKind)! + 1) % all.count]
+        let all = ControllerShape.Family.allCases
+        picked = all[(all.firstIndex(of: .init(shownKind))! + 1) % all.count]
     }
 
     private var rows: [(String, String)] {
@@ -108,9 +110,9 @@ struct ControlsView: View {
                             .padding(.bottom, canvas.u(SeleneTokens.Space.control))
                         SeleneSegmented(selection: $inGame, options: [(false, "Library"), (true, "In game")])
                             .padding(.bottom, canvas.u(SeleneTokens.Space.control))
-                        SeleneSegmented(selection: Binding(get: { picked ?? connectedKind }, set: { picked = $0 }),
-                                        options: ControllerShape.Kind.allCases.map { ($0, $0.title) })
-                        OortControllerMap(kind: picked ?? connectedKind, entries: entries)
+                        SeleneSegmented(selection: Binding(get: { .init(shownKind) }, set: { picked = $0 }),
+                                        options: ControllerShape.Family.allCases.map { ($0, $0.kind(connected: connectedKind).title) })
+                        OortControllerMap(kind: shownKind, entries: entries)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, canvas.u(SeleneTokens.Space.section))
                         SeleneOptionRow(icon: .gamepad, title: L10n.text("Controller"),

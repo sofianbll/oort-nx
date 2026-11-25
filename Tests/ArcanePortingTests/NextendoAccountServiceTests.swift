@@ -260,11 +260,11 @@ final class NextendoAccountServiceTests: XCTestCase {
     }
 
     func testAccountCheckIdentifiesUnauthorizedFriends() async throws {
-        try await assertAccountCheckIdentifiesFailure(.success(401), "Session expirée : reconnectez-vous")
+        try await assertAccountCheckIdentifiesFailure(.success(401), "Session expirée : reconnecte-toi")
     }
 
     func testAccountCheckIdentifiesForbiddenFriends() async throws {
-        try await assertAccountCheckIdentifiesFailure(.success(403), "Session expirée : reconnectez-vous")
+        try await assertAccountCheckIdentifiesFailure(.success(403), "Session expirée : reconnecte-toi")
     }
 
     func testAccountCheckIdentifiesOfflineTransport() async throws {

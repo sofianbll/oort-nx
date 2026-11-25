@@ -22,7 +22,7 @@ copy = (
 )
 assert f'L10n.text("{copy}")' in dialog, "Quit must not promise that uploads resume automatically"
 catalog = json.loads((ROOT / "Sources/NXLibraryCore/Resources/Localizable.xcstrings").read_text())["strings"]
-expected = {"en": "confirm uploads again", "fr": "confirmez à nouveau les envois", "it": "conferma di nuovo gli invii",
+expected = {"en": "confirm uploads again", "fr": "confirme à nouveau les envois", "it": "conferma di nuovo gli invii",
             "de": "Uploads erneut", "es": "vuelve a confirmar las subidas",
             "pt-BR": "confirme os envios novamente", "zh-Hans": "重新确认上传"}
 assert set(catalog[copy]["localizations"]) == set(expected)

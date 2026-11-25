@@ -3,15 +3,15 @@ import Vision
 
 func checkNextStepOCR(_ output: URL) throws {
     let cases: [(String, [String], [String])] = [
-        ("online-app", ["app dans votre cloud", "telecharger l'app", "temps de jeu", "derniere partie", "plateforme", "aucune description"], []),
+        ("online-app", ["app dans ton cloud", "telecharger l'app", "temps de jeu", "derniere partie", "plateforme", "aucune description"], []),
         ("offline-local", ["app sur ce mac", "jouer"], ["telecharger"]),
-        ("offline-app", ["dernier emplacement connu", "app dans votre cloud"], []),
-        ("reference-files", ["bibliotheque de reference", "telecharger les fichiers du jeu", "compilez apres le telechargement"], []),
+        ("offline-app", ["dernier emplacement connu", "app dans ton cloud"], []),
+        ("reference-files", ["bibliotheque de reference", "telecharger les fichiers du jeu", "compile apres le telechargement"], []),
         ("local-files", ["fichiers du jeu sur ce mac", "compiler"], []),
-        ("engine-blocked", ["verifiez le moteur avant de compiler"], []),
-        ("offline-cache", ["cloud indisponible"], ["telecharger", "jouer", "localisez"]),
-        ("cache-only", ["localisez vos fichiers"], ["telecharger", "jouer"]),
-        ("unchecked", ["cloud non verifie"], ["telecharger", "localisez"]),
+        ("engine-blocked", ["verifie le moteur avant de compiler"], []),
+        ("offline-cache", ["cloud indisponible"], ["telecharger", "jouer", "localise"]),
+        ("cache-only", ["localise tes fichiers"], ["telecharger", "jouer"]),
+        ("unchecked", ["cloud non verifie"], ["telecharger", "localise"]),
         ("running", ["telechargement de l'app", "42"], ["telecharger"]),
         ("verifying", ["verification de l'app"], ["telecharger"]),
         ("waiting", ["en attente de la fermeture du jeu"], ["telecharger"]),

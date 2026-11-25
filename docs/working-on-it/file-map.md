@@ -1318,6 +1318,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [scripts/import_selene_palettes.py](../../scripts/import_selene_palettes.py) | Converte le palette Selene nel catalogo JSON usato dall’app. |
 | [scripts/check_localizations.py](../../scripts/check_localizations.py) | Verifica copertura, placeholder, plurali e risorse nel bundle installato. |
 | [scripts/check_vocabulary.py](../../scripts/check_vocabulary.py) | Confronta le traduzioni di Mac, desktop, Android, iOS e sito con il vocabolario, da cartelle o ref Git. |
+| [scripts/check_localizations.py](../../scripts/check_localizations.py) | Verifica copertura, placeholder, plurali, il « tu » francese e risorse nel bundle installato. |
 | [scripts/extract_downgrade_checkpoint.py](../../scripts/extract_downgrade_checkpoint.py) | Verifica le impronte della copia di compatibilità e la estrae in una cartella privata nuova; non modifica i dati attivi. |
 | [scripts/check_selene_tokens.py](../../scripts/check_selene_tokens.py) | Blocca misure e stili letterali e nuovi componenti duplicati. |
 | [design/oort.tokens.json](../../design/oort.tokens.json) | Fonte DTCG dei token Selene e della palette predefinita Oort. |

@@ -11,6 +11,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 ### Changed
 
 - The control center keeps five icons with Power in the middle. Players joins the Profile card.
+- French addresses the player with « tu » everywhere, as the site, Windows and the phones do.
 
 ## 0.5.0-beta.3 — 2026-11-25
 

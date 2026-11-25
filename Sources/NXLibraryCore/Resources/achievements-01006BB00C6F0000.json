@@ -7,35 +7,35 @@
     {
       "id": "shells-1",
       "title": {"en":"From the shore","it":"Dalla riva","fr":"Au bord de l’eau","de":"Am Ufer","es":"A la orilla","pt-BR":"À beira-mar","zh-Hans":"海滨初遇"},
-      "description": {"en":"Find 1 Secret Seashell.","it":"Trova 1 conchiglia segreta.","fr":"Trouvez 1 coquillage secret.","de":"Finde 1 Zaubermuschel.","es":"Encuentra 1 caracola secreta.","pt-BR":"Encontre 1 concha secreta.","zh-Hans":"找到 1 个秘密贝壳。"},
+      "description": {"en":"Find 1 Secret Seashell.","it":"Trova 1 conchiglia segreta.","fr":"Trouve 1 coquillage secret.","de":"Finde 1 Zaubermuschel.","es":"Encuentra 1 caracola secreta.","pt-BR":"Encontre 1 concha secreta.","zh-Hans":"找到 1 个秘密贝壳。"},
       "icon": "water.waves",
       "rule": {"metric":"seashells","op":"gte","threshold":1}
     },
     {
       "id": "shells-10",
       "title": {"en":"Shell seeker","it":"Cercatore di conchiglie","fr":"Chasse aux coquillages","de":"Muschelsuche","es":"Tras las caracolas","pt-BR":"Caça às conchas","zh-Hans":"贝壳寻宝"},
-      "description": {"en":"Find 10 Secret Seashells.","it":"Trova 10 conchiglie segrete.","fr":"Trouvez 10 coquillages secrets.","de":"Finde 10 Zaubermuscheln.","es":"Encuentra 10 caracolas secretas.","pt-BR":"Encontre 10 conchas secretas.","zh-Hans":"找到 10 个秘密贝壳。"},
+      "description": {"en":"Find 10 Secret Seashells.","it":"Trova 10 conchiglie segrete.","fr":"Trouve 10 coquillages secrets.","de":"Finde 10 Zaubermuscheln.","es":"Encuentra 10 caracolas secretas.","pt-BR":"Encontre 10 conchas secretas.","zh-Hans":"找到 10 个秘密贝壳。"},
       "icon": "water.waves",
       "rule": {"metric":"seashells","op":"gte","threshold":10}
     },
     {
       "id": "shells-30",
       "title": {"en":"The island’s secrets","it":"I segreti dell’isola","fr":"Les secrets de l’île","de":"Die Geheimnisse der Insel","es":"Los secretos de la isla","pt-BR":"Os segredos da ilha","zh-Hans":"岛屿的秘密"},
-      "description": {"en":"Find 30 Secret Seashells.","it":"Trova 30 conchiglie segrete.","fr":"Trouvez 30 coquillages secrets.","de":"Finde 30 Zaubermuscheln.","es":"Encuentra 30 caracolas secretas.","pt-BR":"Encontre 30 conchas secretas.","zh-Hans":"找到 30 个秘密贝壳。"},
+      "description": {"en":"Find 30 Secret Seashells.","it":"Trova 30 conchiglie segrete.","fr":"Trouve 30 coquillages secrets.","de":"Finde 30 Zaubermuscheln.","es":"Encuentra 30 caracolas secretas.","pt-BR":"Encontre 30 conchas secretas.","zh-Hans":"找到 30 个秘密贝壳。"},
       "icon": "water.waves",
       "rule": {"metric":"seashells","op":"gte","threshold":30}
     },
     {
       "id": "hearts-4",
       "title": {"en":"A whole heart","it":"Un cuore intero","fr":"Un cœur entier","de":"Ein ganzes Herz","es":"Un corazón entero","pt-BR":"Um coração inteiro","zh-Hans":"完整的心"},
-      "description": {"en":"Find 4 Pieces of Heart.","it":"Trova 4 frammenti di cuore.","fr":"Trouvez 4 fragments de cœur.","de":"Finde 4 Herzteile.","es":"Encuentra 4 piezas de corazón.","pt-BR":"Encontre 4 pedaços de coração.","zh-Hans":"找到 4 个心之碎片。"},
+      "description": {"en":"Find 4 Pieces of Heart.","it":"Trova 4 frammenti di cuore.","fr":"Trouve 4 fragments de cœur.","de":"Finde 4 Herzteile.","es":"Encuentra 4 piezas de corazón.","pt-BR":"Encontre 4 pedaços de coração.","zh-Hans":"找到 4 个心之碎片。"},
       "icon": "heart.fill",
       "rule": {"metric":"heartPieces","op":"gte","threshold":4}
     },
     {
       "id": "hearts-12",
       "title": {"en":"Strong heart","it":"Cuore forte","fr":"Cœur vaillant","de":"Ein starkes Herz","es":"Corazón valiente","pt-BR":"Coração valente","zh-Hans":"勇敢的心"},
-      "description": {"en":"Find 12 Pieces of Heart.","it":"Trova 12 frammenti di cuore.","fr":"Trouvez 12 fragments de cœur.","de":"Finde 12 Herzteile.","es":"Encuentra 12 piezas de corazón.","pt-BR":"Encontre 12 pedaços de coração.","zh-Hans":"找到 12 个心之碎片。"},
+      "description": {"en":"Find 12 Pieces of Heart.","it":"Trova 12 frammenti di cuore.","fr":"Trouve 12 fragments de cœur.","de":"Finde 12 Herzteile.","es":"Encuentra 12 piezas de corazón.","pt-BR":"Encontre 12 pedaços de coração.","zh-Hans":"找到 12 个心之碎片。"},
       "icon": "heart.fill",
       "rule": {"metric":"heartPieces","op":"gte","threshold":12}
     }

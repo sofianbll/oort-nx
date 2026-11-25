@@ -138,8 +138,9 @@ Esempi: `BoundedDownload`, `GameBananaClient`, `IGDBClient`, `SteamMetadataServi
 - Le identità restano in inglese e non si traducono: rawValue salvati, rowID, variabili `DM_*`, eventi dell'engine.
 - I nomi dei simboli SF (`systemImage`, `systemName`, `systemSymbolName`) sono letterali e non passano da `L10n`: tradotti non trovano il simbolo. `check_localizations.py` lo verifica sui sorgenti.
 - Le viste leggono la lingua da `nxAppLocale`, così un cambio di lingua non ricrea stato o focus.
-- Controllo: `scripts/check_localizations.py`, che verifica copertura, segnaposto e plurali.
 - Parole comuni ai sistemi: `design/vocabulary.json` (proposta, non ancora approvata) le fissa in fr e en; `scripts/check_vocabulary.py` rifiuta uno scarto nuovo e chiede di togliere dal registro quelli risolti (`--prune`). Il job `Mac / checks` della CI lo esegue.
+- In francese l'interfaccia dà del « tu », come il sito, Windows e i telefoni. `check_localizations.py` rifiuta « vous », « votre », « vos », « faites », « dites », « êtes » e le parole in « -ez » nel catalogo e nei pacchetti di obiettivi; `FRENCH_FORMAL_EXCEPTIONS` elenca le sole parole che non si rivolgono a nessuno.
+- Controllo: `scripts/check_localizations.py`, che verifica copertura, segnaposto, plurali e il « tu » francese.
 
 ## 8. Lavoro in background e stato
 

@@ -45,6 +45,32 @@ struct ControllerShape {
         }
     }
 
+    /// What a player chooses to see: five, so a single Joy-Con is one choice, on the side that is connected.
+    enum Family: String, CaseIterable {
+        case xbox, playstation, switchPro, joyCon, singleJoyCon
+
+        init(_ kind: Kind) {
+            switch kind {
+            case .xbox: self = .xbox
+            case .playstation: self = .playstation
+            case .switchPro: self = .switchPro
+            case .joyConPair: self = .joyCon
+            case .joyConLeft, .joyConRight: self = .singleJoyCon
+            }
+        }
+
+        func kind(connected: Kind) -> Kind {
+            if Self(connected) == self { return connected }
+            switch self {
+            case .xbox: return .xbox
+            case .playstation: return .playstation
+            case .switchPro: return .switchPro
+            case .joyCon: return .joyConPair
+            case .singleJoyCon: return .joyConRight
+            }
+        }
+    }
+
     /// What a button is drawn as.
     enum Figure: Equatable { case face(String), stick, cross, small(String), pill, square, pad }
 
