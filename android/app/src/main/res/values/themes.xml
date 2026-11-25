@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Compose draws everything; the window behind it is the night of the charter, so a cold start never flashes white. -->
+    <style name="Theme.Oort" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/oort_night</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+</resources>

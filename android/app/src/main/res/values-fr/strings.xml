@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Oort NX</string>
+
+    <string name="nav_library">Bibliothèque</string>
+    <string name="nav_controllers">Manettes</string>
+    <string name="nav_settings">Réglages</string>
+
+    <string name="library_title">Jeux</string>
+    <string name="library_count">%1$d sur cet appareil</string>
+    <string name="library_hint">Valider ouvre un jeu, L1 et R1 changent de section</string>
+    <string name="library_scanning">Recherche des jeux…</string>
+    <string name="empty_title">Aucun jeu trouvé</string>
+    <string name="empty_body">Oort liste les jeux qu’nx2android a installés sur cet appareil : des applications dont le paquet commence par org.nx2a. Portez vos propres jeux sur un ordinateur avec nx2android, puis installez-les ici. Oort ne contient ni jeu, ni clé, ni émulateur.</string>
+    <string name="empty_rescan">Chercher à nouveau</string>
+
+    <string name="detail_play">Jouer</string>
+    <string name="detail_info">Réglages Android du jeu</string>
+    <string name="detail_uninstall">Désinstaller</string>
+    <string name="detail_version">Version %1$s</string>
+    <string name="detail_pause_menu">Les réglages du jeu lui-même (manette, fréquence d’images, audio, sauvegardes) sont dans son menu pause : le geste Retour, ou le bouton Menu de la manette.</string>
+    <string name="detail_uninstall_warning">Désinstaller un jeu supprime aussi ses sauvegardes. Exportez-les d’abord : menu pause, onglet Jeu, Exporter la sauvegarde.</string>
+    <string name="launch_failed">%1$s n’a pas pu démarrer.</string>
+    <string name="demo_game">Ceci est une entrée de démonstration.</string>
+
+    <string name="controllers_title">Manettes</string>
+    <string name="controllers_none">Aucune manette connectée. Associez-en une en Bluetooth, ou branchez-la.</string>
+    <string name="controllers_ids">fabricant %1$s, produit %2$s</string>
+    <string name="controllers_last">Dernier bouton : %1$s</string>
+    <string name="controllers_layout">Android nomme les boutons par leur étiquette : A valide et B revient. Si votre manette a la disposition Switch, activez « Inverser A et B » dans les réglages.</string>
+
+    <string name="settings_title">Réglages</string>
+    <string name="settings_sound">Sons</string>
+    <string name="settings_sound_note">Fabriqués sur l’appareil, sans fichier audio.</string>
+    <string name="settings_pack">Pack de sons</string>
+    <string name="settings_swap">Inverser A et B</string>
+    <string name="settings_swap_note">Pour une manette à la disposition Switch.</string>
+    <string name="settings_calm">Nuage calme</string>
+    <string name="settings_calm_note">Un nuage immobile. Il suit « Supprimer les animations » d’Android tant que vous n’avez pas choisi.</string>
+    <string name="settings_about">À propos</string>
+    <string name="settings_version">Oort NX pour Android %1$s</string>
+    <string name="settings_license">Licence MIT. Local uniquement : cette application ne demande aucun accès réseau à Android et ne collecte rien.</string>
+    <string name="settings_credits">Lance les jeux faits par nx2android (shirai91, MIT), le portage Android de nxnative (seedds, MIT). Le nuage et les sons viennent d’Oort NX pour Mac. Voir NOTICE pour tous les crédits.</string>
+</resources>
