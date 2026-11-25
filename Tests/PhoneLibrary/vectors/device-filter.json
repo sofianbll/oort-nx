@@ -1,0 +1,592 @@
+{
+ "name": "device-filter",
+ "why": "System, graphics, launcher and processor each hide a build; the newest one that runs is kept.",
+ "key": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEHY3rEfn7qhFRPZq2EPgQGgfZHdvW9bJV8ug7pHrnPsGUybmK3Di/OIb/cgesDSd6wDEHwpXJcEYPu6DVHJZJlQ==",
+ "drive": {
+  "root": "ROOT",
+  "page_size": 1000,
+  "nodes": [
+   {
+    "id": "ROOT",
+    "name": "Games",
+    "parent": null,
+    "type": "folder"
+   },
+   {
+    "id": "d-1",
+    "name": "Alpha [0100000000010000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-2",
+    "name": "targets",
+    "parent": "d-1",
+    "type": "folder"
+   },
+   {
+    "id": "d-3",
+    "name": "ios",
+    "parent": "d-2",
+    "type": "folder"
+   },
+   {
+    "id": "f-4",
+    "name": "0001790000000000-5a06d6cee38aa5af470c2d2a27ad85ebcf96a90a7bb5c3955b0924f2a45803d2.json",
+    "parent": "d-3",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"Game.framework/Game\", \"sha256\": \"5782527e5b3851c80db4040ac418b7743e2b6e236fdb9c570bb667c632c3eeea\", \"size\": 2500}, {\"path\": \"Game.framework/empty\", \"sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\", \"size\": 0}, {\"path\": \"Game.framework/game.manifest.json\", \"sha256\": \"ca36bd114446d745822abd37fa39d74291556887aefb3ca8336b63208328d13e\", \"size\": 300}, {\"path\": \"data/romfs.img\", \"sha256\": \"af5d71ec3c83e5dbbf49a006f74c19ba98a63da0c72abbdbacd196bd70bc2b04\", \"size\": 4096}], \"entry_count\": 4, \"format\": \"oort-target\", \"game_name\": \"Alpha\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"4ee7d180ff0ecc0caf40872dfe3c8766da6e8262ef7f2e14d5e915ad7fa9d79d\", \"package\": {\"path\": \"Game.framework\"}, \"platform\": \"ios\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 1, \"os\": \"27.0\"}, \"title_id\": \"0100000000010000\", \"unpacked_size\": 6896, \"version\": 1}"
+   },
+   {
+    "id": "f-5",
+    "name": "0001790000000000-5a06d6cee38aa5af470c2d2a27ad85ebcf96a90a7bb5c3955b0924f2a45803d2.sig",
+    "parent": "d-3",
+    "base64": "MEQCIGYSG1zRBQnYEdIcZ8kx23Epdk29iASn9bTHj+YOAjUZAiAEC3WsxO04pgwpkFvZDnPaoF1fFa3SKrAi8OYgG9cRFA=="
+   },
+   {
+    "id": "d-6",
+    "name": "4ee7d180ff0ecc0caf40872dfe3c8766da6e8262ef7f2e14d5e915ad7fa9d79d",
+    "parent": "d-3",
+    "type": "folder"
+   },
+   {
+    "id": "d-7",
+    "name": "Game.framework",
+    "parent": "d-6",
+    "type": "folder"
+   },
+   {
+    "id": "f-8",
+    "name": "Game",
+    "parent": "d-7",
+    "fill": {
+     "seed": "ios-exe",
+     "size": 2500
+    }
+   },
+   {
+    "id": "f-9",
+    "name": "game.manifest.json",
+    "parent": "d-7",
+    "fill": {
+     "seed": "ios-man",
+     "size": 300
+    }
+   },
+   {
+    "id": "f-10",
+    "name": "empty",
+    "parent": "d-7",
+    "fill": {
+     "seed": "ios-empty",
+     "size": 0
+    }
+   },
+   {
+    "id": "d-11",
+    "name": "data",
+    "parent": "d-6",
+    "type": "folder"
+   },
+   {
+    "id": "f-12",
+    "name": "romfs.img",
+    "parent": "d-11",
+    "fill": {
+     "seed": "ios-data",
+     "size": 4096
+    }
+   },
+   {
+    "id": "d-13",
+    "name": "Beta [0100000000020000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-14",
+    "name": "targets",
+    "parent": "d-13",
+    "type": "folder"
+   },
+   {
+    "id": "d-15",
+    "name": "ios",
+    "parent": "d-14",
+    "type": "folder"
+   },
+   {
+    "id": "f-16",
+    "name": "0001790000000000-5db003cf1151a03eb9cc03e40a4196d151d6cee6f61a53bfb515699c6cc591bd.json",
+    "parent": "d-15",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"Game.framework/Game\", \"sha256\": \"5782527e5b3851c80db4040ac418b7743e2b6e236fdb9c570bb667c632c3eeea\", \"size\": 2500}, {\"path\": \"Game.framework/empty\", \"sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\", \"size\": 0}, {\"path\": \"Game.framework/game.manifest.json\", \"sha256\": \"ca36bd114446d745822abd37fa39d74291556887aefb3ca8336b63208328d13e\", \"size\": 300}, {\"path\": \"data/romfs.img\", \"sha256\": \"af5d71ec3c83e5dbbf49a006f74c19ba98a63da0c72abbdbacd196bd70bc2b04\", \"size\": 4096}], \"entry_count\": 4, \"format\": \"oort-target\", \"game_name\": \"Beta\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"4ee7d180ff0ecc0caf40872dfe3c8766da6e8262ef7f2e14d5e915ad7fa9d79d\", \"package\": {\"path\": \"Game.framework\"}, \"platform\": \"ios\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\", \"apple10\"], \"host\": 1, \"os\": \"26.0\"}, \"title_id\": \"0100000000020000\", \"unpacked_size\": 6896, \"version\": 1}"
+   },
+   {
+    "id": "f-17",
+    "name": "0001790000000000-5db003cf1151a03eb9cc03e40a4196d151d6cee6f61a53bfb515699c6cc591bd.sig",
+    "parent": "d-15",
+    "base64": "MEUCIQCnDoRdqUdDoKQGDekUJ+sNjNlqThsk0pKqmibsqYRBBwIgIlp5oq4HZc6PIlepC6LqTnPEoZh5qvcGkjgW7F+DalA="
+   },
+   {
+    "id": "d-18",
+    "name": "4ee7d180ff0ecc0caf40872dfe3c8766da6e8262ef7f2e14d5e915ad7fa9d79d",
+    "parent": "d-15",
+    "type": "folder"
+   },
+   {
+    "id": "d-19",
+    "name": "Game.framework",
+    "parent": "d-18",
+    "type": "folder"
+   },
+   {
+    "id": "f-20",
+    "name": "Game",
+    "parent": "d-19",
+    "fill": {
+     "seed": "ios-exe",
+     "size": 2500
+    }
+   },
+   {
+    "id": "f-21",
+    "name": "game.manifest.json",
+    "parent": "d-19",
+    "fill": {
+     "seed": "ios-man",
+     "size": 300
+    }
+   },
+   {
+    "id": "f-22",
+    "name": "empty",
+    "parent": "d-19",
+    "fill": {
+     "seed": "ios-empty",
+     "size": 0
+    }
+   },
+   {
+    "id": "d-23",
+    "name": "data",
+    "parent": "d-18",
+    "type": "folder"
+   },
+   {
+    "id": "f-24",
+    "name": "romfs.img",
+    "parent": "d-23",
+    "fill": {
+     "seed": "ios-data",
+     "size": 4096
+    }
+   },
+   {
+    "id": "d-25",
+    "name": "Gamma [0100000000030000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-26",
+    "name": "targets",
+    "parent": "d-25",
+    "type": "folder"
+   },
+   {
+    "id": "d-27",
+    "name": "ios",
+    "parent": "d-26",
+    "type": "folder"
+   },
+   {
+    "id": "f-28",
+    "name": "0001790000000000-b1b73af2ff1a11c3ef0dd04b0f756cb32318801c37a270358530b96711fc2200.json",
+    "parent": "d-27",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"Game.framework/Game\", \"sha256\": \"5782527e5b3851c80db4040ac418b7743e2b6e236fdb9c570bb667c632c3eeea\", \"size\": 2500}, {\"path\": \"Game.framework/empty\", \"sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\", \"size\": 0}, {\"path\": \"Game.framework/game.manifest.json\", \"sha256\": \"ca36bd114446d745822abd37fa39d74291556887aefb3ca8336b63208328d13e\", \"size\": 300}, {\"path\": \"data/romfs.img\", \"sha256\": \"af5d71ec3c83e5dbbf49a006f74c19ba98a63da0c72abbdbacd196bd70bc2b04\", \"size\": 4096}], \"entry_count\": 4, \"format\": \"oort-target\", \"game_name\": \"Gamma\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"4ee7d180ff0ecc0caf40872dfe3c8766da6e8262ef7f2e14d5e915ad7fa9d79d\", \"package\": {\"path\": \"Game.framework\"}, \"platform\": \"ios\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 2, \"os\": \"26.0\"}, \"title_id\": \"0100000000030000\", \"unpacked_size\": 6896, \"version\": 1}"
+   },
+   {
+    "id": "f-29",
+    "name": "0001790000000000-b1b73af2ff1a11c3ef0dd04b0f756cb32318801c37a270358530b96711fc2200.sig",
+    "parent": "d-27",
+    "base64": "MEQCIDu0tsoVVGufRh+7SFye3UguHR4/5eUQ1HvPKYC5/mD9AiAiUYn53CP5ZTp0I8gSALL5MZ3xpWc71zCVXwuHqMwqHg=="
+   },
+   {
+    "id": "d-30",
+    "name": "4ee7d180ff0ecc0caf40872dfe3c8766da6e8262ef7f2e14d5e915ad7fa9d79d",
+    "parent": "d-27",
+    "type": "folder"
+   },
+   {
+    "id": "d-31",
+    "name": "Game.framework",
+    "parent": "d-30",
+    "type": "folder"
+   },
+   {
+    "id": "f-32",
+    "name": "Game",
+    "parent": "d-31",
+    "fill": {
+     "seed": "ios-exe",
+     "size": 2500
+    }
+   },
+   {
+    "id": "f-33",
+    "name": "game.manifest.json",
+    "parent": "d-31",
+    "fill": {
+     "seed": "ios-man",
+     "size": 300
+    }
+   },
+   {
+    "id": "f-34",
+    "name": "empty",
+    "parent": "d-31",
+    "fill": {
+     "seed": "ios-empty",
+     "size": 0
+    }
+   },
+   {
+    "id": "d-35",
+    "name": "data",
+    "parent": "d-30",
+    "type": "folder"
+   },
+   {
+    "id": "f-36",
+    "name": "romfs.img",
+    "parent": "d-35",
+    "fill": {
+     "seed": "ios-data",
+     "size": 4096
+    }
+   },
+   {
+    "id": "d-37",
+    "name": "Delta [0100000000040000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-38",
+    "name": "targets",
+    "parent": "d-37",
+    "type": "folder"
+   },
+   {
+    "id": "d-39",
+    "name": "ios",
+    "parent": "d-38",
+    "type": "folder"
+   },
+   {
+    "id": "f-40",
+    "name": "0001790000000000-4682340fb89702fd15da6e74a0fd90a2829b8216bd33a4ca3d6d2cbaf4cc7200.json",
+    "parent": "d-39",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"Game.framework/Game\", \"sha256\": \"5782527e5b3851c80db4040ac418b7743e2b6e236fdb9c570bb667c632c3eeea\", \"size\": 2500}, {\"path\": \"Game.framework/empty\", \"sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\", \"size\": 0}, {\"path\": \"Game.framework/game.manifest.json\", \"sha256\": \"ca36bd114446d745822abd37fa39d74291556887aefb3ca8336b63208328d13e\", \"size\": 300}, {\"path\": \"data/romfs.img\", \"sha256\": \"af5d71ec3c83e5dbbf49a006f74c19ba98a63da0c72abbdbacd196bd70bc2b04\", \"size\": 4096}], \"entry_count\": 4, \"format\": \"oort-target\", \"game_name\": \"Delta\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"4ee7d180ff0ecc0caf40872dfe3c8766da6e8262ef7f2e14d5e915ad7fa9d79d\", \"package\": {\"path\": \"Game.framework\"}, \"platform\": \"ios\", \"requires\": {\"arch\": \"x86_64\", \"features\": [\"bc\"], \"host\": 1, \"os\": \"26.0\"}, \"title_id\": \"0100000000040000\", \"unpacked_size\": 6896, \"version\": 1}"
+   },
+   {
+    "id": "f-41",
+    "name": "0001790000000000-4682340fb89702fd15da6e74a0fd90a2829b8216bd33a4ca3d6d2cbaf4cc7200.sig",
+    "parent": "d-39",
+    "base64": "MEYCIQDrdro+ibI+cVLpri5LDBdAeVfZIH6V6Pl20L7bra+Y6AIhAMV5UnkrNAvMCAr/eRkLfZHg8WBevHLJzBsGLIliGlmb"
+   },
+   {
+    "id": "d-42",
+    "name": "4ee7d180ff0ecc0caf40872dfe3c8766da6e8262ef7f2e14d5e915ad7fa9d79d",
+    "parent": "d-39",
+    "type": "folder"
+   },
+   {
+    "id": "d-43",
+    "name": "Game.framework",
+    "parent": "d-42",
+    "type": "folder"
+   },
+   {
+    "id": "f-44",
+    "name": "Game",
+    "parent": "d-43",
+    "fill": {
+     "seed": "ios-exe",
+     "size": 2500
+    }
+   },
+   {
+    "id": "f-45",
+    "name": "game.manifest.json",
+    "parent": "d-43",
+    "fill": {
+     "seed": "ios-man",
+     "size": 300
+    }
+   },
+   {
+    "id": "f-46",
+    "name": "empty",
+    "parent": "d-43",
+    "fill": {
+     "seed": "ios-empty",
+     "size": 0
+    }
+   },
+   {
+    "id": "d-47",
+    "name": "data",
+    "parent": "d-42",
+    "type": "folder"
+   },
+   {
+    "id": "f-48",
+    "name": "romfs.img",
+    "parent": "d-47",
+    "fill": {
+     "seed": "ios-data",
+     "size": 4096
+    }
+   },
+   {
+    "id": "d-49",
+    "name": "Epsilon [0100000000050000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-50",
+    "name": "targets",
+    "parent": "d-49",
+    "type": "folder"
+   },
+   {
+    "id": "d-51",
+    "name": "ios",
+    "parent": "d-50",
+    "type": "folder"
+   },
+   {
+    "id": "f-52",
+    "name": "0001790000000002-e9a3840be9b39ab4dde1986b4a1b9cdc307aab36d2342fd63a170db74629dbd1.json",
+    "parent": "d-51",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"Game.framework/Game\", \"sha256\": \"5782527e5b3851c80db4040ac418b7743e2b6e236fdb9c570bb667c632c3eeea\", \"size\": 2500}, {\"path\": \"Game.framework/empty\", \"sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\", \"size\": 0}, {\"path\": \"Game.framework/game.manifest.json\", \"sha256\": \"ca36bd114446d745822abd37fa39d74291556887aefb3ca8336b63208328d13e\", \"size\": 300}, {\"path\": \"data/romfs.img\", \"sha256\": \"af5d71ec3c83e5dbbf49a006f74c19ba98a63da0c72abbdbacd196bd70bc2b04\", \"size\": 4096}], \"entry_count\": 4, \"format\": \"oort-target\", \"game_name\": \"Epsilon\", \"game_version\": \"2.0.0\", \"inventory_sha256\": \"4ee7d180ff0ecc0caf40872dfe3c8766da6e8262ef7f2e14d5e915ad7fa9d79d\", \"package\": {\"path\": \"Game.framework\"}, \"platform\": \"ios\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 1, \"os\": \"27.0\"}, \"title_id\": \"0100000000050000\", \"unpacked_size\": 6896, \"version\": 1}"
+   },
+   {
+    "id": "f-53",
+    "name": "0001790000000002-e9a3840be9b39ab4dde1986b4a1b9cdc307aab36d2342fd63a170db74629dbd1.sig",
+    "parent": "d-51",
+    "base64": "MEUCIQDoWt48WctHltHuLCG+Gvag/l7YPUjEMtwn4h12v2KJqgIgLAFoFmOE0qlNWd83EYyJnHdX8POud1kkJ0hhBToIwPU="
+   },
+   {
+    "id": "d-54",
+    "name": "4ee7d180ff0ecc0caf40872dfe3c8766da6e8262ef7f2e14d5e915ad7fa9d79d",
+    "parent": "d-51",
+    "type": "folder"
+   },
+   {
+    "id": "d-55",
+    "name": "Game.framework",
+    "parent": "d-54",
+    "type": "folder"
+   },
+   {
+    "id": "f-56",
+    "name": "Game",
+    "parent": "d-55",
+    "fill": {
+     "seed": "ios-exe",
+     "size": 2500
+    }
+   },
+   {
+    "id": "f-57",
+    "name": "game.manifest.json",
+    "parent": "d-55",
+    "fill": {
+     "seed": "ios-man",
+     "size": 300
+    }
+   },
+   {
+    "id": "f-58",
+    "name": "empty",
+    "parent": "d-55",
+    "fill": {
+     "seed": "ios-empty",
+     "size": 0
+    }
+   },
+   {
+    "id": "d-59",
+    "name": "data",
+    "parent": "d-54",
+    "type": "folder"
+   },
+   {
+    "id": "f-60",
+    "name": "romfs.img",
+    "parent": "d-59",
+    "fill": {
+     "seed": "ios-data",
+     "size": 4096
+    }
+   },
+   {
+    "id": "f-61",
+    "name": "0001790000000001-980a570affbe130d2f67c45a162b7c6f345deb7ddb641129a58191ba0d5eda43.json",
+    "parent": "d-51",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"Game.framework/Game\", \"sha256\": \"5782527e5b3851c80db4040ac418b7743e2b6e236fdb9c570bb667c632c3eeea\", \"size\": 2500}, {\"path\": \"Game.framework/empty\", \"sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\", \"size\": 0}, {\"path\": \"Game.framework/game.manifest.json\", \"sha256\": \"ca36bd114446d745822abd37fa39d74291556887aefb3ca8336b63208328d13e\", \"size\": 300}], \"entry_count\": 3, \"format\": \"oort-target\", \"game_name\": \"Epsilon\", \"game_version\": \"1.5.0\", \"inventory_sha256\": \"326fd370268104ad81b72beed81caab4bc005d5743e86d778f8cf2864f8eb3a4\", \"package\": {\"path\": \"Game.framework\"}, \"platform\": \"ios\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 1, \"os\": \"26.0\"}, \"title_id\": \"0100000000050000\", \"unpacked_size\": 2800, \"version\": 1}"
+   },
+   {
+    "id": "f-62",
+    "name": "0001790000000001-980a570affbe130d2f67c45a162b7c6f345deb7ddb641129a58191ba0d5eda43.sig",
+    "parent": "d-51",
+    "base64": "MEQCIAT3C+HHDbJzNlyXNsyNiwMBXFalpn2Vuvk2JtltUesvAiB93dbEbvN/MEahCTvc8EKAc53b37ny1ti5yEJbipulcQ=="
+   },
+   {
+    "id": "d-63",
+    "name": "326fd370268104ad81b72beed81caab4bc005d5743e86d778f8cf2864f8eb3a4",
+    "parent": "d-51",
+    "type": "folder"
+   },
+   {
+    "id": "d-64",
+    "name": "Game.framework",
+    "parent": "d-63",
+    "type": "folder"
+   },
+   {
+    "id": "f-65",
+    "name": "Game",
+    "parent": "d-64",
+    "fill": {
+     "seed": "ios-exe",
+     "size": 2500
+    }
+   },
+   {
+    "id": "f-66",
+    "name": "game.manifest.json",
+    "parent": "d-64",
+    "fill": {
+     "seed": "ios-man",
+     "size": 300
+    }
+   },
+   {
+    "id": "f-67",
+    "name": "empty",
+    "parent": "d-64",
+    "fill": {
+     "seed": "ios-empty",
+     "size": 0
+    }
+   },
+   {
+    "id": "f-68",
+    "name": "0001790000000000-24783b2610bd5bdc0d414db630730180ef9688939523f925a68de5b5620faf90.json",
+    "parent": "d-51",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"Game.framework/Game\", \"sha256\": \"5782527e5b3851c80db4040ac418b7743e2b6e236fdb9c570bb667c632c3eeea\", \"size\": 2500}, {\"path\": \"Game.framework/game.manifest.json\", \"sha256\": \"ca36bd114446d745822abd37fa39d74291556887aefb3ca8336b63208328d13e\", \"size\": 300}], \"entry_count\": 2, \"format\": \"oort-target\", \"game_name\": \"Epsilon\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"aefdd64422254896155a0665a6d559c642bd838ef413a334ff449bdad78940f4\", \"package\": {\"path\": \"Game.framework\"}, \"platform\": \"ios\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 1, \"os\": \"26.0\"}, \"title_id\": \"0100000000050000\", \"unpacked_size\": 2800, \"version\": 1}"
+   },
+   {
+    "id": "f-69",
+    "name": "0001790000000000-24783b2610bd5bdc0d414db630730180ef9688939523f925a68de5b5620faf90.sig",
+    "parent": "d-51",
+    "base64": "MEQCIEp9KnXE8jWOJvJWayo4YWZ3RHsrKnSe3wi0kR8IqEzhAiBvHaQncj71DM4JxqBiU3lmvm2CODS+O9BE9aI8d3ZUgw=="
+   },
+   {
+    "id": "d-70",
+    "name": "aefdd64422254896155a0665a6d559c642bd838ef413a334ff449bdad78940f4",
+    "parent": "d-51",
+    "type": "folder"
+   },
+   {
+    "id": "d-71",
+    "name": "Game.framework",
+    "parent": "d-70",
+    "type": "folder"
+   },
+   {
+    "id": "f-72",
+    "name": "Game",
+    "parent": "d-71",
+    "fill": {
+     "seed": "ios-exe",
+     "size": 2500
+    }
+   },
+   {
+    "id": "f-73",
+    "name": "game.manifest.json",
+    "parent": "d-71",
+    "fill": {
+     "seed": "ios-man",
+     "size": 300
+    }
+   }
+  ]
+ },
+ "faults": [],
+ "auth": {},
+ "client": {
+  "device": {
+   "platform": "ios",
+   "system": "26.1",
+   "architecture": "arm64",
+   "features": [
+    "apple7",
+    "apple8",
+    "apple9",
+    "bc"
+   ],
+   "host": 1
+  },
+  "free": 1000000000000,
+  "metered": false,
+  "allow_metered": false,
+  "chunk": 1024,
+  "reserve": 0,
+  "network": "up",
+  "on": true
+ },
+ "steps": [
+  {
+   "do": "list",
+   "expect": {
+    "games": [
+     {
+      "title": "0100000000050000",
+      "name": "Epsilon",
+      "version": "1.5.0",
+      "digest": "326fd370268104ad81b72beed81caab4bc005d5743e86d778f8cf2864f8eb3a4",
+      "state": "available"
+     }
+    ],
+    "hidden": [
+     [
+      "0100000000010000",
+      "Alpha",
+      "system"
+     ],
+     [
+      "0100000000020000",
+      "Beta",
+      "graphics"
+     ],
+     [
+      "0100000000030000",
+      "Gamma",
+      "launcher"
+     ],
+     [
+      "0100000000040000",
+      "Delta",
+      "notPrepared"
+     ]
+    ],
+    "problems": []
+   }
+  }
+ ]
+}

@@ -1,0 +1,112 @@
+{
+ "name": "pages-refused",
+ "why": "Twice is an error, not a shorter list.",
+ "key": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEHY3rEfn7qhFRPZq2EPgQGgfZHdvW9bJV8ug7pHrnPsGUybmK3Di/OIb/cgesDSd6wDEHwpXJcEYPu6DVHJZJlQ==",
+ "drive": {
+  "root": "ROOT",
+  "page_size": 2,
+  "nodes": [
+   {
+    "id": "ROOT",
+    "name": "Games",
+    "parent": null,
+    "type": "folder"
+   },
+   {
+    "id": "d-1",
+    "name": "Alpha [0100000000010000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-2",
+    "name": "manifests",
+    "parent": "d-1",
+    "type": "folder"
+   },
+   {
+    "id": "f-3",
+    "name": "0001790000000000-5b94a340698abba750c133e4262f14149cc941f0c5b4c1f9741f66bed145d7b0.json",
+    "parent": "d-2",
+    "text": "{\"artifacts\": [], \"version\": 2}"
+   },
+   {
+    "id": "d-4",
+    "name": "Beta [0100000000020000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-5",
+    "name": "manifests",
+    "parent": "d-4",
+    "type": "folder"
+   },
+   {
+    "id": "f-6",
+    "name": "0001790000000000-5b94a340698abba750c133e4262f14149cc941f0c5b4c1f9741f66bed145d7b0.json",
+    "parent": "d-5",
+    "text": "{\"artifacts\": [], \"version\": 2}"
+   },
+   {
+    "id": "d-7",
+    "name": "Gamma [0100000000030000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-8",
+    "name": "manifests",
+    "parent": "d-7",
+    "type": "folder"
+   },
+   {
+    "id": "f-9",
+    "name": "0001790000000000-5b94a340698abba750c133e4262f14149cc941f0c5b4c1f9741f66bed145d7b0.json",
+    "parent": "d-8",
+    "text": "{\"artifacts\": [], \"version\": 2}"
+   }
+  ]
+ },
+ "faults": [
+  {
+   "on": "list",
+   "node": "ROOT",
+   "skip": 1,
+   "times": 9,
+   "do": "status",
+   "status": 400,
+   "reason": "invalid"
+  }
+ ],
+ "auth": {},
+ "client": {
+  "device": {
+   "platform": "ios",
+   "system": "26.1",
+   "architecture": "arm64",
+   "features": [
+    "apple7",
+    "apple8",
+    "apple9",
+    "bc"
+   ],
+   "host": 1
+  },
+  "free": 1000000000000,
+  "metered": false,
+  "allow_metered": false,
+  "chunk": 1024,
+  "reserve": 0,
+  "network": "up",
+  "on": true
+ },
+ "steps": [
+  {
+   "do": "list",
+   "expect": {
+    "error": "badResponse"
+   }
+  }
+ ]
+}

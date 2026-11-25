@@ -10,6 +10,8 @@ let package = Package(
     products: [
         .library(name: "OortMobile", targets: ["OortMobile"]),
         .library(name: "ShellHost", targets: ["ShellHost"]),
+        // The optional Google Drive connector. No app target depends on it yet, so the app still holds no network code.
+        .library(name: "OortDrive", targets: ["OortDrive"]),
     ],
     dependencies: [.package(name: "NXLibrary", path: "..")],
     targets: [
@@ -19,6 +21,8 @@ let package = Package(
         .target(name: "OortMobile", dependencies: ["ShellModel", "ShellControllers", "ShellHost",
                                                    .product(name: "OortCore", package: "NXLibrary")],
                 resources: [.process("Resources")]),
+        .target(name: "OortDrive", dependencies: [.product(name: "OortCore", package: "NXLibrary")]),
+        .testTarget(name: "OortDriveTests", dependencies: ["OortDrive", .product(name: "OortCore", package: "NXLibrary")]),
         .testTarget(name: "ShellHostTests", dependencies: ["ShellHost", "ShellModel", "ShellControllers"], resources: [.copy("Fixtures")]),
         .testTarget(name: "ShellControllersTests", dependencies: ["ShellControllers", "ShellModel"]),
         .testTarget(name: "OortMobileTests", dependencies: ["OortMobile", "ShellHost", "ShellModel"]),

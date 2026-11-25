@@ -1,0 +1,87 @@
+{
+ "name": "manifest-huge",
+ "why": "A manifest too large to hold is not downloaded.",
+ "key": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEHY3rEfn7qhFRPZq2EPgQGgfZHdvW9bJV8ug7pHrnPsGUybmK3Di/OIb/cgesDSd6wDEHwpXJcEYPu6DVHJZJlQ==",
+ "drive": {
+  "root": "ROOT",
+  "page_size": 1000,
+  "nodes": [
+   {
+    "id": "ROOT",
+    "name": "Games",
+    "parent": null,
+    "type": "folder"
+   },
+   {
+    "id": "d-1",
+    "name": "Beta [0100000000020000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-2",
+    "name": "targets",
+    "parent": "d-1",
+    "type": "folder"
+   },
+   {
+    "id": "d-3",
+    "name": "ios",
+    "parent": "d-2",
+    "type": "folder"
+   },
+   {
+    "id": "f-4",
+    "name": "0001790000000000-0000000000000000000000000000000000000000000000000000000000000000.json",
+    "parent": "d-3",
+    "text": "{}",
+    "size_says": 17825792
+   },
+   {
+    "id": "f-5",
+    "name": "0001790000000000-0000000000000000000000000000000000000000000000000000000000000000.sig",
+    "parent": "d-3",
+    "text": "x"
+   }
+  ]
+ },
+ "faults": [],
+ "auth": {},
+ "client": {
+  "device": {
+   "platform": "ios",
+   "system": "26.1",
+   "architecture": "arm64",
+   "features": [
+    "apple7",
+    "apple8",
+    "apple9",
+    "bc"
+   ],
+   "host": 1
+  },
+  "free": 1000000000000,
+  "metered": false,
+  "allow_metered": false,
+  "chunk": 1024,
+  "reserve": 0,
+  "network": "up",
+  "on": true
+ },
+ "steps": [
+  {
+   "do": "list",
+   "expect": {
+    "games": [],
+    "hidden": [],
+    "problems": [
+     [
+      "0100000000020000",
+      "invalidManifest"
+     ]
+    ]
+   },
+   "calls": 4
+  }
+ ]
+}

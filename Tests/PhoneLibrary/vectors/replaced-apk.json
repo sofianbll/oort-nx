@@ -1,0 +1,110 @@
+{
+ "name": "replaced-apk",
+ "why": "A replaced APK.",
+ "key": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEHY3rEfn7qhFRPZq2EPgQGgfZHdvW9bJV8ug7pHrnPsGUybmK3Di/OIb/cgesDSd6wDEHwpXJcEYPu6DVHJZJlQ==",
+ "drive": {
+  "root": "ROOT",
+  "page_size": 1000,
+  "nodes": [
+   {
+    "id": "ROOT",
+    "name": "Games",
+    "parent": null,
+    "type": "folder"
+   },
+   {
+    "id": "d-1",
+    "name": "Gamma [0100000000030000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-2",
+    "name": "targets",
+    "parent": "d-1",
+    "type": "folder"
+   },
+   {
+    "id": "d-3",
+    "name": "android",
+    "parent": "d-2",
+    "type": "folder"
+   },
+   {
+    "id": "f-4",
+    "name": "0001790000000000-820fbd48a44693b42605fc10c5e2ab9fe97f1e35daa44a16f1baf83620430cf6.json",
+    "parent": "d-3",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"data/romfs.bin\", \"sha256\": \"e5ae681ce432b55ed3a1d5f373e583c55c625b84f7b23c12b72a27ac4d196eb6\", \"size\": 2048}, {\"path\": \"game.apk\", \"sha256\": \"46a6cc3caf34dc9dbed3a5bc9552d8718e746dcefe19030c0f5d2eea76fa5b35\", \"size\": 3000}], \"entry_count\": 2, \"format\": \"oort-target\", \"game_name\": \"Gamma\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"ca219fc60f094965ac91ca098cd9341704a0e527a17038aead6d2d3ebb285929\", \"package\": {\"certificate_sha256\": \"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\", \"id\": \"org.example.game\", \"path\": \"game.apk\", \"version_code\": 1}, \"platform\": \"android\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 0, \"os\": \"29\"}, \"title_id\": \"0100000000030000\", \"unpacked_size\": 5048, \"version\": 1}"
+   },
+   {
+    "id": "f-5",
+    "name": "0001790000000000-820fbd48a44693b42605fc10c5e2ab9fe97f1e35daa44a16f1baf83620430cf6.sig",
+    "parent": "d-3",
+    "base64": "MEUCIQDoJ+d6ZfniR3gJWdzfuMatLXX9Mx4tMSsIloj5+FmDPgIgWnJkvDjinRL5Pp/ZkMN74AGgFIfVckB3EVSbREZGRxU="
+   },
+   {
+    "id": "d-6",
+    "name": "ca219fc60f094965ac91ca098cd9341704a0e527a17038aead6d2d3ebb285929",
+    "parent": "d-3",
+    "type": "folder"
+   },
+   {
+    "id": "f-7",
+    "name": "game.apk",
+    "parent": "d-6",
+    "fill": {
+     "seed": "evil",
+     "size": 3000
+    }
+   },
+   {
+    "id": "d-8",
+    "name": "data",
+    "parent": "d-6",
+    "type": "folder"
+   },
+   {
+    "id": "f-9",
+    "name": "romfs.bin",
+    "parent": "d-8",
+    "fill": {
+     "seed": "apk-data",
+     "size": 2048
+    }
+   }
+  ]
+ },
+ "faults": [],
+ "auth": {},
+ "client": {
+  "device": {
+   "platform": "android",
+   "system": "34",
+   "architecture": "arm64",
+   "features": [
+    "bc",
+    "vulkan1.1"
+   ],
+   "host": 0
+  },
+  "free": 1000000000000,
+  "metered": false,
+  "allow_metered": false,
+  "chunk": 1024,
+  "reserve": 0,
+  "network": "up",
+  "on": true
+ },
+ "steps": [
+  {
+   "do": "download",
+   "title": "0100000000030000",
+   "expect": {
+    "error": "wrongDigest",
+    "visible": false,
+    "waiting": false
+   },
+   "media": []
+  }
+ ]
+}
