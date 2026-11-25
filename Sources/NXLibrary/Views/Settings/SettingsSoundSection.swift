@@ -147,7 +147,7 @@ struct SettingsSoundSection: View {
                              activate: importPack))
         if !customPacks.isEmpty {
             actions.append(.value("soundPackToRemove", "Installed pack", cycle: stepRemoval))
-            actions.append(.init(id: "removeSoundPack", title: "Remove sound pack", activate: removePack))
+            actions.append(.init(id: "removeSoundPack", title: "Delete sound pack", activate: removePack))
         }
         actions.append(.init(id: "importSelene", title: "Import sounds and wallpapers from Selene") {
             importFromSelene()

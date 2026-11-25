@@ -304,7 +304,7 @@ struct ProfileSwitchDialog: View {
         let title = endsGuest ? "End guest session?" : startsGuest ? "Play as guest?" : "Switch profile?"
         let primary = hasGame ? "Close Game" : "Continue"
         let details = [
-            hasGame ? "Unsaved progress will be lost when the game closes." : nil,
+            hasGame ? "Unsaved progress will be lost." : nil,
             hasSteam ? "Close any Steam games yourself before switching." : nil,
             startsGuest ? "Guests play Switch games offline with separate saves. A future guest cannot resume this session." : nil,
             endsGuest ? "The guest cannot resume this session. Its saves are kept separately on this Mac." : nil

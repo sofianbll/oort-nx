@@ -181,7 +181,7 @@ extension AppShellView {
     func closeGameOverlay(_ game: PortedGame) -> some View {
         SeleneOverlay(style: .dialog, onOutside: { viewModel.dismissCloseGame() }) {
             SeleneConfirmDialog(title: L10n.format("Close %@?", [String(describing: game.name)]),
-                                message: L10n.text("Unsaved progress in the game will be lost."),
+                                message: L10n.text("Unsaved progress will be lost."),
                                 confirmTitle: "Close",
                                 focus: $viewModel.closeGameFocus,
                                 onCancel: { viewModel.dismissCloseGame() },

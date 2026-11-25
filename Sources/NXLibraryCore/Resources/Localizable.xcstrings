@@ -1,6 +1,147 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Return to %@": {
+      "comment": "HomeQuitText",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Return to %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revenir à %@"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zurück zu %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volver a %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Torna a %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voltar ao %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返回 %@"
+          }
+        }
+      }
+    },
+    "Keep holding to quit": {
+      "comment": "HomeQuitText",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep holding to quit"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintiens pour quitter"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zum Beenden gedrückt halten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén pulsado para salir"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni premuto per uscire"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue segurando para sair"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按住以退出"
+          }
+        }
+      }
+    },
+    "Unsaved progress will be lost.": {
+      "comment": "HomeQuitText",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unsaved progress will be lost."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La progression non enregistrée sera perdue."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht gespeicherter Fortschritt geht verloren."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se perderá el progreso sin guardar."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I progressi non salvati andranno persi."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O progresso não salvo será perdido."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未保存的进度将会丢失。"
+          }
+        }
+      }
+    },
     "Delete sound pack?": {
       "comment": "SettingsSoundSection",
       "localizations": {
@@ -2911,9 +3052,6 @@
     "Choose an imported pack to remove.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Choose an imported pack to remove."}}, "fr": {"stringUnit":{"state":"translated","value":"Choisissez un pack importé à retirer."}}, "it": {"stringUnit":{"state":"translated","value":"Scegli un pacchetto importato da rimuovere."}}, "de": {"stringUnit":{"state":"translated","value":"Importiertes Paket zum Entfernen wählen."}}, "es": {"stringUnit":{"state":"translated","value":"Elige un paquete importado para quitarlo."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Escolha um pacote importado para remover."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"选择要移除的已导入声音包。"}}
     }},
-    "Remove sound pack": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"Remove sound pack"}}, "fr": {"stringUnit":{"state":"translated","value":"Retirer le pack de sons"}}, "it": {"stringUnit":{"state":"translated","value":"Rimuovi pacchetto audio"}}, "de": {"stringUnit":{"state":"translated","value":"Soundpaket entfernen"}}, "es": {"stringUnit":{"state":"translated","value":"Quitar paquete de sonido"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Remover pacote de som"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"移除声音包"}}
-    }},
     "Moves only the installed copy to the Trash.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Moves only the installed copy to the Trash."}}, "fr": {"stringUnit":{"state":"translated","value":"Place uniquement la copie installée dans la Corbeille."}}, "it": {"stringUnit":{"state":"translated","value":"Sposta solo la copia installata nel Cestino."}}, "de": {"stringUnit":{"state":"translated","value":"Verschiebt nur die installierte Kopie in den Papierkorb."}}, "es": {"stringUnit":{"state":"translated","value":"Mueve solo la copia instalada a la Papelera."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Move apenas a cópia instalada para o Lixo."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"仅将已安装的副本移到废纸篓。"}}
     }},
@@ -2964,9 +3102,6 @@
     }},
     "Could not import the sound pack.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Could not import the sound pack."}}, "fr": {"stringUnit":{"state":"translated","value":"Impossible d’importer le pack de sons."}}, "it": {"stringUnit":{"state":"translated","value":"Impossibile importare il pacchetto audio."}}, "de": {"stringUnit":{"state":"translated","value":"Das Soundpaket konnte nicht importiert werden."}}, "es": {"stringUnit":{"state":"translated","value":"No se pudo importar el paquete de sonido."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Não foi possível importar o pacote de som."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"无法导入声音包。"}}
-    }},
-    "Remove sound pack?": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"Remove sound pack?"}}, "fr": {"stringUnit":{"state":"translated","value":"Retirer le pack de sons ?"}}, "it": {"stringUnit":{"state":"translated","value":"Rimuovere il pacchetto audio?"}}, "de": {"stringUnit":{"state":"translated","value":"Soundpaket entfernen?"}}, "es": {"stringUnit":{"state":"translated","value":"¿Quitar el paquete de sonido?"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Remover pacote de som?"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"移除声音包？"}}
     }},
     "Only the installed copy of %@ moves to the Trash. If active, Selene will be selected.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Only the installed copy of %@ moves to the Trash. If active, Selene will be selected."}}, "fr": {"stringUnit":{"state":"translated","value":"Seule la copie installée de %@ sera placée dans la Corbeille. Si elle est active, Selene sera choisi."}}, "it": {"stringUnit":{"state":"translated","value":"Solo la copia installata di %@ va nel Cestino. Se attiva, sarà scelto Selene."}}, "de": {"stringUnit":{"state":"translated","value":"Nur die installierte Kopie von %@ kommt in den Papierkorb. Falls aktiv, wird Selene gewählt."}}, "es": {"stringUnit":{"state":"translated","value":"Solo la copia instalada de %@ irá a la Papelera. Si está activa, se elegirá Selene."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Apenas a cópia instalada de %@ vai para o Lixo. Se estiver ativa, Selene será selecionado."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"仅将 %@ 的已安装副本移到废纸篓。如果正在使用，将改用 Selene。"}}
@@ -3687,9 +3822,6 @@
     }},
     "Switch profile?": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Switch profile?"}}, "it": {"stringUnit":{"state":"translated","value":"Cambiare profilo?"}}, "fr": {"stringUnit":{"state":"translated","value":"Changer de profil ?"}}, "de": {"stringUnit":{"state":"translated","value":"Profil wechseln?"}}, "es": {"stringUnit":{"state":"translated","value":"¿Cambiar de perfil?"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Trocar de perfil?"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"切换个人资料？"}}
-    }},
-    "Unsaved progress will be lost when the game closes.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"Unsaved progress will be lost when the game closes."}}, "it": {"stringUnit":{"state":"translated","value":"I progressi non salvati andranno persi alla chiusura del gioco."}}, "fr": {"stringUnit":{"state":"translated","value":"La progression non enregistrée sera perdue à la fermeture du jeu."}}, "de": {"stringUnit":{"state":"translated","value":"Ungespeicherter Fortschritt geht beim Schließen des Spiels verloren."}}, "es": {"stringUnit":{"state":"translated","value":"Se perderá el progreso no guardado al cerrar el juego."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"O progresso não salvo será perdido ao fechar o jogo."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"关闭游戏后，未保存的进度将丢失。"}}
     }},
     "Close any Steam games yourself before switching.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Close any Steam games yourself before switching."}}, "it": {"stringUnit":{"state":"translated","value":"Chiudi i giochi Steam prima di cambiare profilo."}}, "fr": {"stringUnit":{"state":"translated","value":"Fermez vous-même les jeux Steam avant de changer de profil."}}, "de": {"stringUnit":{"state":"translated","value":"Schließe laufende Steam-Spiele vor dem Wechsel selbst."}}, "es": {"stringUnit":{"state":"translated","value":"Cierra los juegos de Steam antes de cambiar de perfil."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Feche os jogos do Steam antes de trocar de perfil."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"切换前请手动关闭 Steam 游戏。"}}
@@ -83166,53 +83298,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "解锁于 %@"
-          }
-        }
-      }
-    },
-    "Unsaved progress in the game will be lost.": {
-      "comment": "AppShellView.swift",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Unsaved progress in the game will be lost."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "I progressi non salvati nel gioco andranno persi."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La progression non sauvegardée dans le jeu sera perdue."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nicht gespeicherter Spielfortschritt geht verloren."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Se perderá el progreso del juego que no hayas guardado."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O progresso não salvo no jogo será perdido."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "游戏中未保存的进度将会丢失。"
           }
         }
       }
