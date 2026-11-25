@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "status": "proposed",
+  "languages": ["en", "fr"],
+  "voice": {
+    "fr": {"address": "tu", "why": ".scratch/oort/identite.md, design/BRIEF.md and the public site already say « tu »."}
+  },
+  "avoid": {
+    "fr": [
+      {"id": "portage", "pattern": "\\bportage\\b|\\bport(é|ée|és|ées)\\b(?!\\s+par)", "use": "compiler, compilé (decision of 24 November: the button is « Compiler »)"},
+      {"id": "creation-app", "pattern": "création d[’']apps? Mac|créer l[’']app Mac", "use": "compilation, compiler"},
+      {"id": "gamepad", "pattern": "\\bgamepad\\b", "use": "manette"}
+    ]
+  },
+  "homonyms": [
+    "android|settings_cloud", "android|controllers_connected",
+    "ios|OortMobile:Connected", "ios|OortMobile:Changed", "ios|ShellModel:Changed",
+    "ios|OortMobile:Never played", "ios|ShellModel:Unknown"
+  ],
+  "states": [
+    {"id": "found", "en": "Missing files", "fr": "Fichiers manquants", "icon": "folder", "tone": "warning", "action": "action.choose_files", "meaning": "Oort knows the game; something it needs is not chosen or not found."},
+    {"id": "ready", "en": "Ready to prepare", "fr": "À préparer", "icon": "build", "tone": "info", "action": "action.compile", "meaning": "Everything is there; the game cannot be played yet."},
+    {"id": "preparing", "en": "Preparing", "fr": "En préparation", "icon": "sync", "tone": "info", "action": "action.cancel", "meaning": "A build, a download, a setup step or an assembly is running."},
+    {"id": "installed", "en": "Installed", "fr": "Installé", "icon": "play", "tone": "success", "action": "action.play", "meaning": "Playable on this device."},
+    {"id": "playing", "en": "Playing", "fr": "En jeu", "icon": "gamepad", "tone": "success", "action": "action.resume", "meaning": "The game was observed running."},
+    {"id": "cloud", "en": "In the cloud", "fr": "Dans le cloud", "icon": "cloudDownload", "tone": "info", "action": "action.download", "meaning": "Not on this device; can be downloaded."},
+    {"id": "failed", "en": "Needs attention", "fr": "À vérifier", "icon": "info", "tone": "danger", "action": "action.details", "meaning": "The last step failed or the game is broken; the page says why."}
+  ],
+  "controls": {
+    "_about": "Decided on 24 November (.scratch/oort/ux/MANETTE.md). Data for the contract; the check does not read the controller code yet.",
+    "browsing": [
+      {"role": "confirm", "pad": "A", "keyboard": "Return", "mouse": "double-click", "touch": "tap the chosen game", "action": "action.select"},
+      {"role": "back", "pad": "B", "keyboard": "Escape", "mouse": "Back button on screen", "touch": "system back gesture", "action": "action.back"},
+      {"role": "details", "pad": "X", "keyboard": "X, Mac ⌘D, desktop Ctrl+D", "mouse": "Details button", "touch": "tap the chosen game", "action": "action.details"},
+      {"role": "search", "pad": "Y", "keyboard": "Mac ⌘F, desktop Ctrl+F", "mouse": "search field", "touch": "search field", "action": "action.search"},
+      {"role": "options", "pad": "+", "keyboard": "Mac ⌘O, desktop Ctrl+O", "mouse": "Options button, right click", "touch": "long press", "action": "action.options"},
+      {"role": "view", "pad": "−", "keyboard": "V", "mouse": "view button", "touch": "tabs", "action": "action.change_view"},
+      {"role": "tabs", "pad": "L / R", "keyboard": "Q / E", "mouse": "tabs", "touch": "tabs", "action": null},
+      {"role": "ends", "pad": "ZL / ZR", "keyboard": "Home / End", "mouse": "scroll", "touch": "scroll", "action": null},
+      {"role": "sort", "pad": "right stick click", "keyboard": "F3", "mouse": "sort button", "touch": "sort button", "action": "action.sort"},
+      {"role": "system", "pad": "Home, or + held", "keyboard": "Mac ⌘K, desktop Ctrl+K", "mouse": "menu button", "touch": "Settings tab", "action": "screen.menu"}
+    ]
+  },
+  "menu": ["screen.profile", "screen.theme", "screen.players", "screen.library", "screen.power", "screen.settings", "action.refresh_library", "screen.fullscreen", "screen.activity"],
+  "terms": [
+    {"id": "action.play", "en": "Play", "fr": "Jouer", "icon": "play", "keys": {"mac": ["Play"], "desktop": ["Play"], "android": ["detail_play"], "ios": ["Play"]}},
+    {"id": "action.resume", "en": "Resume", "fr": "Reprendre", "icon": "play", "keys": {"mac": ["Resume"]}},
+    {"id": "action.close_game", "en": "Close Game", "fr": "Fermer le jeu", "icon": "close", "keys": {"mac": ["Close Game"], "desktop": ["Close Game"]}},
+    {"id": "action.compile", "en": "Build", "fr": "Compiler", "icon": "build", "keys": {"mac": ["Build"]}},
+    {"id": "action.rebuild", "en": "Rebuild", "fr": "Recompiler", "icon": "build", "keys": {"mac": ["Rebuild"]}},
+    {"id": "action.prepare", "en": "Get ready", "fr": "Préparer", "icon": "build", "keys": {"desktop": ["Get ready"]}},
+    {"id": "action.choose_files", "en": "Choose files", "fr": "Choisir des fichiers", "icon": "folder", "keys": {"desktop": ["Choose files"]}},
+    {"id": "action.download", "en": "Download", "fr": "Télécharger", "icon": "cloudDownload", "keys": {"mac": ["Download"]}},
+    {"id": "action.add_game", "en": "Add game", "fr": "Ajouter un jeu", "icon": "add", "keys": {"mac": ["Add Game", "Add game"], "desktop": ["Add game"], "ios": ["Add a game"]}},
+    {"id": "action.details", "en": "Details", "fr": "Détails", "icon": "info", "keys": {"mac": ["Details"], "desktop": ["Details"], "android": ["game_page"], "ios": ["Game page"]}},
+    {"id": "action.options", "en": "Options", "fr": "Options", "icon": "tune", "keys": {"mac": ["Options"], "desktop": ["Options"], "ios": ["Options"]}},
+    {"id": "action.search", "en": "Search", "fr": "Rechercher", "icon": "search", "keys": {"mac": ["Search"], "desktop": ["Search"]}},
+    {"id": "action.sort", "en": "Sort", "fr": "Trier", "icon": "tune", "keys": {"mac": ["Sort"], "desktop": ["Sort"], "android": ["sort"], "ios": ["Sort"]}},
+    {"id": "action.change_view", "en": "Change view", "fr": "Changer de vue", "icon": "collections", "keys": {"mac": ["Change view"]}},
+    {"id": "action.select", "en": "Select", "fr": "Sélectionner", "icon": "done", "keys": {"mac": ["Select"], "desktop": ["Select"], "android": ["select"], "ios": ["Select"]}},
+    {"id": "action.back", "en": "Back", "fr": "Retour", "icon": "chevron", "keys": {"mac": ["Back"], "desktop": ["Back"], "android": ["back"], "ios": ["Back"]}},
+    {"id": "action.cancel", "en": "Cancel", "fr": "Annuler", "icon": "close", "keys": {"mac": ["Cancel"], "desktop": ["Cancel"], "ios": ["Cancel"]}},
+    {"id": "action.close", "en": "Close", "fr": "Fermer", "icon": "close", "keys": {"mac": ["Close"], "desktop": ["Close"], "ios": ["Close"]}},
+    {"id": "action.save", "en": "Save", "fr": "Enregistrer", "icon": "done", "keys": {"mac": ["Save"], "desktop": ["Save"]}},
+    {"id": "action.remove", "en": "Remove", "fr": "Retirer", "icon": "close", "meaning": "Leaves the library; nothing is deleted.", "keys": {"mac": ["Remove"], "desktop": ["Remove"]}},
+    {"id": "action.delete", "en": "Delete", "fr": "Supprimer", "icon": "delete", "meaning": "Deletes or moves to the Trash.", "keys": {"mac": ["Delete"], "desktop": ["Delete"]}},
+    {"id": "action.refresh_library", "en": "Refresh library", "fr": "Actualiser la bibliothèque", "icon": "sync", "keys": {"mac": ["Library refresh"], "desktop": ["Look again"], "android": ["empty_rescan"]}},
+    {"id": "action.quit", "en": "Quit", "fr": "Quitter", "icon": "power", "keys": {"mac": ["Quit"], "ios": ["Quit"]}},
+    {"id": "screen.menu", "en": "Menu", "fr": "Menu", "icon": "tune", "keys": {"mac": ["Menu"]}},
+    {"id": "screen.home", "en": "Featured", "fr": "À la une", "icon": "star", "keys": {"mac": ["Spotlight", "Settings navigation: home"], "desktop": ["Spotlight"], "android": [{"key": "nav_home"}], "ios": ["Home"]}},
+    {"id": "screen.grid", "en": "Grid", "fr": "Grille", "icon": "collections", "keys": {"mac": ["Collection"], "desktop": ["Collection"]}},
+    {"id": "screen.library", "en": "Library", "fr": "Bibliothèque", "icon": "collections", "keys": {"mac": ["Library"], "desktop": ["Library"], "android": ["nav_library"], "ios": ["Library"]}},
+    {"id": "screen.controllers", "en": "Controllers", "fr": "Manettes", "icon": "gamepad", "keys": {"mac": ["Controllers"], "android": ["nav_controllers"], "ios": ["Controllers"]}},
+    {"id": "screen.settings", "en": "Settings", "fr": "Réglages", "icon": "settings", "keys": {"mac": ["Settings"], "desktop": ["Settings"], "android": ["nav_settings"], "ios": ["Settings"]}},
+    {"id": "screen.profile", "en": "Profile", "fr": "Profil", "icon": "person", "keys": {"mac": ["Profile"]}},
+    {"id": "screen.theme", "en": "Theme", "fr": "Thème", "icon": "palette", "keys": {"mac": ["Theme"]}},
+    {"id": "screen.players", "en": "Players", "fr": "Joueurs", "icon": "gamepad", "keys": {"mac": ["Players"]}},
+    {"id": "screen.power", "en": "Power", "fr": "Alimentation", "icon": "power", "keys": {"mac": ["Power"]}},
+    {"id": "screen.fullscreen", "en": "Fullscreen", "fr": "Plein écran", "icon": "monitor", "keys": {"mac": ["Fullscreen"]}},
+    {"id": "screen.activity", "en": "Activity center", "fr": "Centre d’activité", "icon": "notifications", "keys": {"mac": ["Activity center"]}},
+    {"id": "tab.all", "en": "All games", "fr": "Tous les jeux", "icon": "collections", "keys": {"mac": ["All games"], "desktop": ["All games"], "ios": ["All games"]}},
+    {"id": "tab.installed", "en": "Installed", "fr": "Installés", "icon": "play", "keys": {"mac": ["Installed"]}},
+    {"id": "tab.favorites", "en": "Favorites", "fr": "Favoris", "icon": "favorite", "keys": {"mac": ["Favorites"], "desktop": ["Favorites"]}},
+    {"id": "sort.recent", "en": "Recent", "fr": "Récents", "icon": "timeline", "keys": {"mac": ["Sort: Recent"], "desktop": ["Sort: Recent"], "android": [{"key": "sort_last", "en": "Recent"}]}},
+    {"id": "fact.last_played", "en": "Last played", "fr": "Dernière partie", "icon": "timeline", "keys": {"desktop": ["Last played"], "ios": ["Last played"]}},
+    {"id": "fact.playtime", "en": "Playtime", "fr": "Temps de jeu", "icon": "timeline", "keys": {"mac": ["Playtime"], "desktop": ["Playtime"], "ios": ["Play time"]}},
+    {"id": "noun.saves", "en": "Saves", "fr": "Sauvegardes", "icon": "save", "keys": {"mac": ["Saves"], "ios": ["Saves"]}},
+    {"id": "noun.mods", "en": "Mods", "fr": "Mods", "icon": "puzzle", "keys": {"mac": ["Mods"]}},
+    {"id": "noun.cheats", "en": "Cheats", "fr": "Codes de triche", "icon": "casino", "keys": {"mac": ["Cheats"], "ios": ["Cheats"]}},
+    {"id": "noun.keys", "en": "Keys", "fr": "Clés", "icon": "key", "keys": {"mac": ["Keys"]}},
+    {"id": "noun.engine", "en": "Engine", "fr": "Moteur", "icon": "settings", "keys": {"mac": ["Engine"]}},
+    {"id": "noun.sound_pack", "en": "Sound pack", "fr": "Pack de sons", "icon": "volume", "keys": {"mac": ["Sound pack"], "android": ["settings_pack"], "ios": ["Voice"]}},
+    {"id": "noun.credits", "en": "Credits", "fr": "Crédits", "icon": "info", "keys": {"mac": ["Credits"], "desktop": ["Credits"], "android": ["settings_thanks"], "ios": ["Thanks and licences"]}},
+    {"id": "setup.name", "en": "Guided setup", "fr": "Premiers pas", "icon": "checklist", "keys": {"desktop": ["Guided setup"]}},
+    {"id": "setup.skip", "en": "Skip setup", "fr": "Passer les premiers pas", "icon": "chevron", "keys": {"mac": ["Skip setup"], "desktop": ["Skip setup"]}},
+    {"id": "message.no_controller", "en": "No controller connected", "fr": "Aucune manette connectée", "icon": "gamepad", "keys": {"mac": ["No Gamepad Connected"], "desktop": ["No controllers connected"], "android": ["controllers_none_title"], "ios": ["No controller connected"]}},
+    {"id": "message.starting", "en": "Starting…", "fr": "Démarrage…", "icon": "sync", "keys": {"ios": ["Starting…"]}},
+    {"id": "message.did_not_start", "en": "%@ did not start", "fr": "%@ n’a pas démarré", "icon": "info", "keys": {"desktop": ["%@ did not start"], "android": [{"key": "launch_failed", "en": "%1$s did not start.", "fr": "%1$s n’a pas démarré."}]}}
+  ]
+}

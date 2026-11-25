@@ -135,6 +135,7 @@ Esempi: `BoundedDownload`, `GameBananaClient`, `IGDBClient`, `SteamMetadataServi
 - I nomi dei simboli SF (`systemImage`, `systemName`, `systemSymbolName`) sono letterali e non passano da `L10n`: tradotti non trovano il simbolo. `check_localizations.py` lo verifica sui sorgenti.
 - Le viste leggono la lingua da `nxAppLocale`, così un cambio di lingua non ricrea stato o focus.
 - Controllo: `scripts/check_localizations.py`, che verifica copertura, segnaposto e plurali.
+- Parole comuni ai sistemi: `design/vocabulary.json` (proposta, non ancora approvata) le fissa in fr e en; `scripts/check_vocabulary.py` rifiuta uno scarto nuovo e chiede di togliere dal registro quelli risolti (`--prune`). Il controllo non è ancora nella CI.
 
 ## 8. Lavoro in background e stato
 
