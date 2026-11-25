@@ -19,10 +19,10 @@ struct OortActionBar: View {
 
     var body: some View {
         let sorted = ActionBarOrder.sorted(actions, role: \.role)
-        let leading = sorted.filter(\.role.isLeading), trailing = sorted.filter { !$0.role.isLeading }
+        let trailing = sorted.filter { !$0.role.isLeading }
         ViewThatFits(in: .horizontal) {
             HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
-                ForEach(leading) { key($0) }
+                leadingKeys(sorted)
                 Spacer(minLength: canvas.u(SeleneTokens.Space.group))
                 ForEach(trailing) { key($0) }
             }
@@ -33,12 +33,19 @@ struct OortActionBar: View {
                     ForEach(trailing) { key($0) }
                 }
                 HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
-                    ForEach(leading) { key($0) }
+                    leadingKeys(sorted)
                     Spacer(minLength: 0)
                 }
             }
         }
         .accessibilityElement(children: .contain)
+    }
+
+    private func leadingKeys(_ sorted: [Action]) -> some View {
+        HStack(spacing: canvas.u(SeleneTokens.Space.group)) {
+            ForEach(sorted.filter { $0.role == .destructive }) { key($0) }
+            ForEach(sorted.filter { $0.role == .back }) { key($0) }
+        }
     }
 
     private func key(_ action: Action) -> some View {

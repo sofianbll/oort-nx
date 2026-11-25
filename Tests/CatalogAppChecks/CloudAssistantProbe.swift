@@ -108,7 +108,8 @@ import ArcanePorting
                 try picture("pret", assistant(.credentials).screenReady(found, verified: true))
                 try picture("pret-verification", assistant(.credentials).screenReady(found, verified: false, working: true))
                 let move = assistant(.library).screenMove(try plan())
-                precondition(move.focusRows == [[.cancel, .confirmMove]] && move.focusedTarget == .cancel, "Moving games is never the lit key")
+                precondition(move.focusRows == [[.confirmMove, .cancel]] && move.focusedTarget == .cancel,
+                             "Moving games stands apart on the left; Cancel is lit")
                 try picture("deplacer", move)
                 precondition(assistant(.sources).browsing == .sources && assistant(.sources).focusRail.isEmpty, "Change opens the browser at once")
                 precondition(assistant(.library).browsing == .library)
@@ -204,6 +205,8 @@ import ArcanePorting
             precondition(x[0] < x[1] && x[2] < x[3], "Order in \(width): \(x)")
             precondition(x[1] < x[3], "Back is left of the way forward")
             let forward = frames[AnyHashable("Forward")]!, erase = frames[AnyHashable("Erase")]!
+            let back = frames[AnyHashable("Back")]!
+            precondition(back.minX - erase.maxX >= SeleneTokens.Space.group - 1, "The destructive key stands apart")
             precondition(abs(forward.maxX - (width - 16)) < 4 && abs(erase.minX - 16) < 4, "The ends are used: \(forward) \(erase)")
             host.close()
         }

@@ -244,7 +244,7 @@ struct CloudSetupAssistant: View {
             return [key(.cancel, "Cancel", .back)] + (library == nil ? [] : [key(.keep, "Continue without", .secondary)])
                 + [key(.create, "Create", .primary)]
         }
-        if confirmingMove { return [key(.cancel, "Cancel", .back), key(.confirmMove, "Move", .primary)] }
+        if confirmingMove { return [key(.confirmMove, "Move", .destructive), key(.cancel, "Cancel", .back)] }
         if let doubt {
             let keep = doubt.advice.reason == .sameFolder ? [] : [key(.keep, "Keep this folder", .secondary)]
             let better = doubt.advice.swaps ? [key(.swap, "Swap the two folders", .primary)]
