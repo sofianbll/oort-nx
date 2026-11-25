@@ -139,6 +139,7 @@ EDITS += [
     ("ShellHostModel", "            if let hotRoot, isHotExternal {", "            if isHotExternal {", SIGN),
     ("ShellHostModel", "saveIconAndOpenShortcuts(for id: String, showFloatingGuide: Bool = true)", "saveIconAndOpenShortcuts(for id: String)", PIP),
     ("ShellHostModel", "        stopHomeScreenFloatingGuide()\n", "", PIP),
+    ("ShellHostModel", 'hostText("Player \\(c.player)")', 'hostText("Player \\(String(c.player))")', "A controller's player number is said in the player's language."),
 ]
 # The catalogue has no launcher, engine or update address of NX2Apple's.
 BRAND = [("dev.nx2apple.shell", "io.github.sofianbll.oortnx.mobile"), ("nx2apple", "oortnx"), ("NX2APPLE", "OORTNX"),

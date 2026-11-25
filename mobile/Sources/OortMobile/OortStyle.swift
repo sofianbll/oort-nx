@@ -20,6 +20,7 @@ enum Oort {
     static let panelLow = page.mix(with: ink, by: SeleneTokens.Effect.surfaceLow)
     static let panelHigh = page.mix(with: ink, by: SeleneTokens.Effect.surfaceHigh)
     static let panelRaised = page.mix(with: ink, by: SeleneTokens.Effect.surfaceRaised)
+    static let chosen = page.mix(with: glyph, by: SeleneTokens.Effect.surfaceLineStrong + 0.12)
     static let line = glyph.opacity(SeleneTokens.Effect.surfaceLine)
     static let lineStrong = glyph.opacity(SeleneTokens.Effect.surfaceLineStrong)
     static var gradient: RadialGradient {
@@ -85,6 +86,8 @@ struct OortKeyStyle: ButtonStyle {
         configuration.label
             .labelStyle(OortKeyLabel())
             .font(.headline)
+            // A round key is as wide as it is tall: its sign stops growing with it.
+            .dynamicTypeSize(round ? ...DynamicTypeSize.xxxLarge : ...DynamicTypeSize.accessibility5)
             .foregroundStyle(tint ?? (solid ? Oort.onFocus : Oort.ink))
             .padding(.horizontal, round ? 0 : SeleneTokens.Space.large)
             .frame(minWidth: 50, minHeight: 50)

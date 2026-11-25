@@ -1,6 +1,12 @@
 {
  "sourceLanguage": "en",
  "strings": {
+    "This game's code could not be loaded. Build it again on your Mac, then add it again." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "This game's code could not be loaded. Build it again on your Mac, then add it again." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Le code de ce jeu n’a pas pu être chargé. Recompilez-le sur votre Mac, puis ajoutez-le à nouveau." } }
+      }
+    },
     "This is an early version: Oort NX for Mac does not build games for iPhone and iPad yet." : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "This is an early version: Oort NX for Mac does not build games for iPhone and iPad yet." } },

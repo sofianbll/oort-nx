@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 25 novembre 2026. Copertura di **1170 file** versionati (più quelli ripresi da NX2Apple, elencati in [mobile/PROVENANCE.md](../../mobile/PROVENANCE.md)), compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 25 novembre 2026. Copertura di **1182 file** versionati (più quelli ripresi da NX2Apple, elencati in [mobile/PROVENANCE.md](../../mobile/PROVENANCE.md)), compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -221,11 +221,21 @@ Cartella `mobile/`, un pacchetto SwiftPM a parte che riusa `OortCore` e `OortSyn
 | [import_nx2apple.py](../../mobile/scripts/import_nx2apple.py) | Riprende i file, applica i tagli e scrive PROVENANCE; si ferma se un taglio non si trova. |
 | [build_app.sh](../../mobile/scripts/build_app.sh) | Compila l’app senza firma per iphoneos e per il simulatore. |
 | [capture.sh](../../mobile/scripts/capture.sh) | Disegna gli schermi in PNG con Mac Catalyst, senza simulatore. |
+| [test_app.sh](../../mobile/scripts/test_app.sh) | Prova l’app su un simulatore e tiene immagini, rapporto di accessibilità e log. |
+| [get_xcodegen.sh](../../mobile/scripts/get_xcodegen.sh) | Scarica XcodeGen alla versione fissata e ne verifica l’impronta. |
+| [package_ipa.sh](../../mobile/scripts/package_ipa.sh) | Impacchetta l’app per iPhone e iPad senza firma. |
+| [check_ipa.py](../../mobile/scripts/check_ipa.py) | Verifica l’IPA: chiavi, niente firma né giochi, spazio per firmare. |
+| [mobile.yml](../../.github/workflows/mobile.yml) | Test, build e prove su simulatore dell’alfa; niente è firmato o pubblicato. |
+| [App/InfoPlist.xcstrings](../../mobile/App/InfoPlist.xcstrings) | Testi del sistema in inglese e francese. |
 | [App/OortApp.swift](../../mobile/App/OortApp.swift) | Avvio reale di un gioco, controllo della firma e radice dell’app. |
 | [App/OortNX-Bridging-Header.h](../../mobile/App/OortNX-Bridging-Header.h) | Espone la colla C a Swift. |
 | [App/project.yml](../../mobile/App/project.yml) | Progetto Xcode dell’app. |
-| [Capture/CaptureApp.swift](../../mobile/Capture/CaptureApp.swift) | Giochi inventati e copertine disegnate per le catture. |
+| [Capture/CaptureApp.swift](../../mobile/Capture/CaptureApp.swift) | Disegna ogni schermo in PNG. |
+| [Capture/CaptureGames.swift](../../mobile/Capture/CaptureGames.swift) | Giochi inventati e copertine disegnate, per le catture e i test. |
 | [Capture/project.yml](../../mobile/Capture/project.yml) | Progetto Xcode delle catture. |
+| [UITests/OortUITests.swift](../../mobile/UITests/OortUITests.swift) | Apre ogni schermo su un simulatore, lo fotografa e lo verifica. |
+| [UITests/FakeGame/FakeGame.m](../../mobile/UITests/FakeGame/FakeGame.m) | Gioco inventato che parte e torna alla libreria, senza motore. |
+| [UITests/project.yml](../../mobile/UITests/project.yml) | Progetto Xcode dell’app con i suoi test. |
 | [ShellModel/ShellStrings.swift](../../mobile/Sources/ShellModel/ShellStrings.swift) | Ricerca dei testi di NX2Apple, senza i suoi stili. |
 | [ShellModel/PadMappingRows.swift](../../mobile/Sources/ShellModel/PadMappingRows.swift) | Righe della mappatura, senza le sue viste. |
 | [ShellHost/SharedProblem.swift](../../mobile/Sources/ShellHost/SharedProblem.swift) | Riesporta `OortCore` e traduce i problemi. |
@@ -236,6 +246,7 @@ Cartella `mobile/`, un pacchetto SwiftPM a parte che riusa `OortCore` e `OortSyn
 | [OortMobile/OortCloudView.swift](../../mobile/Sources/OortMobile/OortCloudView.swift) | La nuvola con i punti e gli shader del Mac, ferma quando serve. |
 | [OortMobile/OortSounds.swift](../../mobile/Sources/OortMobile/OortSounds.swift) | Suoni di `OortSynth` e preferenze. |
 | [OortMobile/OortSynth.swift](../../mobile/Sources/OortMobile/OortSynth.swift) | Collegamento a `NXLibraryCore/Selene/OortSynth.swift`. |
+| [OortMobile/LaunchWords.swift](../../mobile/Sources/OortMobile/LaunchWords.swift) | Dice perché un gioco non parte; la firma solo se lo dice il sistema. |
 | [OortMobile/FrameworkImport.swift](../../mobile/Sources/OortMobile/FrameworkImport.swift) | Controlla e copia un gioco in un solo passo. |
 | [OortMobile/HomeView.swift](../../mobile/Sources/OortMobile/HomeView.swift) | À la une, tessere, stati e libreria vuota. |
 | [OortMobile/LibraryView.swift](../../mobile/Sources/OortMobile/LibraryView.swift) | Griglia e ricerca. |

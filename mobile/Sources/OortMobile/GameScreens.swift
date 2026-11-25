@@ -46,8 +46,14 @@ struct GameScreen: View {
     @ViewBuilder private func layout(_ detail: GameDetail) -> some View {
         if beside {
             HStack(spacing: 0) {
-                ScrollView { header(detail, key: true).padding(.horizontal, SeleneTokens.Space.panel) }
+                ScrollView { header(detail, key: down != .compact).padding(.horizontal, SeleneTokens.Space.panel) }
                     .scrollBounceBehavior(.basedOnSize)
+                    // A phone on its side is short: the one action stays above the tab bar.
+                    .safeAreaInset(edge: .bottom, spacing: 0) {
+                        if down == .compact, !isBroken(detail) {
+                            playKey(detail).padding(.horizontal, SeleneTokens.Space.panel).padding(.vertical, SeleneTokens.Space.compact)
+                        }
+                    }
                     .containerRelativeFrame(.horizontal) { width, _ in min(width * 0.42, 520) }
                 OortList(model: model, nav: nav, title: "", sections: sections(detail), backdrop: false) { EmptyView() }
             }
@@ -87,6 +93,7 @@ struct GameScreen: View {
         return VStack(alignment: .leading, spacing: SeleneTokens.Space.medium) {
             if let banner = detail.game.banner {
                 OortPicture(artwork: banner).aspectRatio(16 / 9, contentMode: .fit)
+                    .frame(maxHeight: down == .compact ? 110 : nil, alignment: .leading)
                     .clipShape(RoundedRectangle(cornerRadius: Oort.tile, style: .continuous))
             }
             Text(detail.game.title).font(.title.bold()).foregroundStyle(Oort.ink).accessibilityAddTraits(.isHeader)

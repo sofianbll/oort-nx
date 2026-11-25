@@ -8,8 +8,12 @@ struct LibraryScreen: View {
     @Bindable var nav: OortNav
     @State private var query = ""
     @State private var focus = FocusGrid<String>()
-    @State private var columns = 2
+    @State private var width: CGFloat = 0
+    @Environment(\.dynamicTypeSize) private var type
     @AppStorage("oort.library.byName") private var byName = false
+
+    /// The largest texts take one cover a line on a phone.
+    private var columns: Int { type.isAccessibilitySize ? max(1, Int(width / 260)) : max(2, Int(width / 168)) }
 
     private var games: [GameDetail] {
         let found = model.details.filter { query.isEmpty || $0.game.title.localizedStandardContains(query) }
@@ -37,7 +41,7 @@ struct LibraryScreen: View {
                 .searchable(text: $query, prompt: Oort.text("Search your games"))
             }
         }
-        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { columns = max(2, Int($0 / 168)) }
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
         .background { OortBackdrop(strength: 0.5) }
         .navigationTitle(Oort.text("Library"))
         .toolbar {

@@ -50,6 +50,11 @@ struct OortRow: Identifiable {
         while digits < 4, abs((step * pow(10, Double(digits))).rounded() - step * pow(10, Double(digits))) > 1e-6 { digits += 1 }
         return String(format: "%.\(max(digits, 1))f", locale: Locale(identifier: "en_US_POSIX"), value)
     }
+
+    /// The same number as the player writes it.
+    static func shown(_ value: Double, step: Double) -> String {
+        number(value, step: step).replacingOccurrences(of: ".", with: Locale.current.decimalSeparator ?? ".")
+    }
 }
 
 struct OortSection: Identifiable {
@@ -185,10 +190,12 @@ private struct OortRowView: View {
     let open: (OortRoute) -> Void
     let pressed: () -> Void
     @Environment(\.dynamicTypeSize) private var type
+    @ScaledMetric(relativeTo: .body) private var symbolWidth = 26
 
     var body: some View {
         control
             .disabled(!row.enabled)
+            .padding(.vertical, SeleneTokens.Space.tight)
             .frame(minHeight: 44)
             .accessibilityAddTraits(focused ? .isSelected : [])
     }
@@ -221,9 +228,10 @@ private struct OortRowView: View {
         case .range(let bounds, let step, let unit, let value, let set):
             let number = Double(value) ?? bounds.lowerBound
             VStack(alignment: .leading, spacing: SeleneTokens.Space.tight) {
-                HStack { label; Spacer(); Text(OortRow.number(number, step: step) + unit).foregroundStyle(Oort.ink2).monospacedDigit() }
+                HStack { label; Spacer(); Text(OortRow.shown(number, step: step) + unit).foregroundStyle(Oort.ink2).monospacedDigit() }
+                    .accessibilityHidden(true)
                 OortSlider(value: Binding(get: { number }, set: { set(OortRow.number($0, step: step)) }), bounds: bounds, step: step, title: row.title,
-                           text: OortRow.number(number, step: step) + unit)
+                           text: OortRow.shown(number, step: step) + unit)
             }
         }
     }
@@ -244,7 +252,7 @@ private struct OortRowView: View {
     private var label: some View {
         HStack(alignment: .firstTextBaseline, spacing: SeleneTokens.Space.small) {
             if let symbol = row.symbol {
-                Image(systemName: symbol).foregroundStyle(row.tint ?? Oort.glyph).frame(width: 26).accessibilityHidden(true)
+                Image(systemName: symbol).foregroundStyle(row.tint ?? Oort.glyph).frame(width: symbolWidth).accessibilityHidden(true)
             }
             VStack(alignment: .leading, spacing: SeleneTokens.Space.seam) {
                 HStack(spacing: SeleneTokens.Space.tight) {

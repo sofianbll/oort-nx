@@ -8,6 +8,7 @@ import UniformTypeIdentifiers
 public struct OortRootView: View {
     @Bindable private var model: ShellHostModel
     @State private var nav: OortNav
+    @Environment(\.horizontalSizeClass) private var across
     private let importRoot: URL?
     private let checkSigner: @Sendable (URL) -> String?
 
@@ -34,7 +35,8 @@ public struct OortRootView: View {
         .tabBarMinimizeBehavior(.onScrollDown)
         #endif
         .tabViewStyle(.sidebarAdaptable)
-        .tint(Oort.focus)
+        // The iPad's sidebar fills its chosen line with the tint, under white words.
+        .tint(across == .regular ? Oort.chosen : Oort.focus)
         .preferredColorScheme(.dark)
         .modifier(TouchEndsPad(nav: nav))
         .transformEnvironment(\.oortStill) { $0 = $0 || model.launchingGame }
@@ -84,6 +86,7 @@ public struct OortRootView: View {
                 }
             }
         }
+        .tint(Oort.focus)
     }
 }
 

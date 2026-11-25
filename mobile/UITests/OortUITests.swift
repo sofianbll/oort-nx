@@ -73,7 +73,6 @@ final class OortUITests: XCTestCase {
         XCTAssertTrue(app.wait(for: .runningForeground, timeout: 60))
     }
 
-    private var picture = 0
     private func shot(_ name: String) {
         Thread.sleep(forTimeInterval: 0.9)
         let file = "\(Self.lang)-\(pad ? "ipad" : "iphone")-\(name).png"
@@ -86,17 +85,25 @@ final class OortUITests: XCTestCase {
         try? (old + text + "\n").write(to: url, atomically: true, encoding: .utf8)
     }
 
-    /// Everything the system's audit finds, written down. What Oort NX answers for fails the test.
-    private func audit(_ screen: String) throws {
+    /// Everything the system's audit finds, written down with what was on the screen then. What has one answer fails the test;
+    /// contrast, text size and clipping are read beside the pictures (the audit also reports words that only wrap or sit on the tab bar).
+    private var auditing = false
+    private func look(_ screen: String) throws {
+        shot(screen)
+        guard auditing else { return }
+        let answered: XCUIAccessibilityAuditType = [.hitRegion, .sufficientElementDescription, .elementDetection, .trait]
         try app.performAccessibilityAudit { issue in
             let element = issue.element
-            let frame = element.map { "\($0.frame)" } ?? "-"
-            self.note("\(Self.lang)-\(self.pad ? "ipad" : "iphone") \(screen) | \(issue.auditType.rawValue) \(issue.compactDescription) | \(element?.label.prefix(60) ?? "-") | \(frame)", in: "audit.txt")
-            return true
+            let line = "\(Self.lang)-\(self.pad ? "ipad" : "iphone")-\(screen) | \(issue.auditType.rawValue) \(issue.compactDescription) | \(element?.label.prefix(60).replacingOccurrences(of: "\n", with: " ") ?? "-") | \(element.map { "\($0.frame)" } ?? "-")"
+            self.note(line, in: "audit.txt")
+            return !answered.contains(issue.auditType)
         }
     }
 
     private func button(_ label: String) -> XCUIElement { app.buttons[label].firstMatch }
+
+    /// A row reads its value after its name.
+    private func row(_ key: String) -> XCUIElement { app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", say(key))).firstMatch }
 
     private func tap(_ element: XCUIElement, _ what: String, file: StaticString = #filePath, line: UInt = #line) {
         guard element.waitForExistence(timeout: 15) else {
@@ -134,20 +141,40 @@ final class OortUITests: XCTestCase {
         XCTAssertEqual(UIAccessibility.isReduceMotionEnabled, Self.env["OORT_STILL"] == "still", "Reduce Motion is as asked")
         shows("No game here yet")
         shot("01-empty-home")
-        try audit("empty-home")
         tab("Library")
         shows("No game here yet")
         shot("02-empty-library")
-        try audit("empty-library")
     }
 
-    func test02Tour() throws {
+    func test02Tour() throws { try tour() }
+
+    func test03ControllersAndSettings() throws { try settings() }
+
+    /// The same screens under the system's accessibility audit, which changes the text size as it goes.
+    func test10AuditOfTheEmptyLibrary() throws {
+        auditing = true
+        try start(.none)
+        shows("No game here yet")
+        try look("a01-empty-home")
+    }
+    func test11AuditOfTheTour() throws { auditing = true; try tour() }
+    func test12AuditOfTheSettings() throws { auditing = true; try settings() }
+    func test13AuditOnItsSide() throws {
+        auditing = true
         try start(.invented)
-        let first = app.staticTexts[CaptureGames.all.map(\.name).sorted { $0.localizedStandardCompare($1) == .orderedAscending }[0]].firstMatch
-        XCTAssertTrue(first.waitForExistence(timeout: 20), "the games are listed")
-        shot("10-home")
-        try audit("home")
-        if !pad {
+        XCTAssertTrue(button(say("Options")).waitForExistence(timeout: 20))
+        XCUIDevice.shared.orientation = .landscapeLeft
+        try look("a30-home-landscape")
+        tap(button(say("Game page")), "the game page")
+        try look("a31-game-landscape")
+    }
+
+    private func tour() throws {
+        let a = auditing ? "a" : ""
+        try start(.invented)
+        XCTAssertTrue(button(say("Game page")).waitForExistence(timeout: 20), "a game is shown")
+        try look(a + "10-home")
+        if !pad, !auditing {
             let before = app.staticTexts.allElementsBoundByIndex.map(\.label)
             app.swipeLeft()
             shot("11-home-swiped")
@@ -157,47 +184,63 @@ final class OortUITests: XCTestCase {
         }
         tap(button(say("Game page")), "the game page")
         shows("Game data")
-        shot("12-game")
-        try audit("game")
-        app.swipeUp()
-        shot("13-game-more")
-        app.swipeDown(velocity: .fast)
+        try look(a + "12-game")
+        if !auditing {
+            app.swipeUp()
+            shot("13-game-more")
+            app.swipeDown(velocity: .fast)
+        }
         back()
         tap(button(say("Options")), "Options")
-        shot("14-options")
-        try audit("options")
+        try look(a + "14-options")
         back()
         tab("Library")
-        shot("15-library")
-        try audit("library")
+        XCTAssertTrue(app.buttons[CaptureGames.all[0].name].firstMatch.waitForExistence(timeout: 15))
+        try look(a + "15-library")
+        if auditing { return }
+        // A narrow iPad puts the bar's buttons in one menu.
+        if !button(say("Sort")).waitForExistence(timeout: 3) {
+            tap(app.navigationBars.buttons.matching(NSPredicate(format: "label IN {'More', 'Plus', 'Autres', 'Autre', 'Suite'} OR identifier CONTAINS 'verflow'")).firstMatch, "the bar's menu")
+        }
         tap(button(say("Sort")), "Sort")
         shot("16-sort")
         tap(button(say("Name")), "by name")
+        Thread.sleep(forTimeInterval: 1)
         shot("17-library-by-name")
+        func x(_ name: String) -> CGPoint { app.buttons[name].firstMatch.frame.origin }
+        XCTAssertLessThan(x("Aimant").y * 10_000 + x("Aimant").x, x("Collines rouges").y * 10_000 + x("Collines rouges").x, "by name")
         let search = app.searchFields.firstMatch
-        if !search.waitForExistence(timeout: 3) { app.swipeDown() }
-        if search.waitForExistence(timeout: 5) {
-            search.tap()
-            search.typeText("zzz")
-            shot("18-search-none")
-        } else { XCTFail("no search field") }
-        tap(button(say("Sort")).exists ? button(say("Sort")) : app.buttons.firstMatch, "leaving the search")
+        if !search.waitForExistence(timeout: 2) {
+            let glass = app.navigationBars.buttons.matching(NSPredicate(format: "label IN {'Search', 'Rechercher', 'Recherche'}")).firstMatch
+            if glass.waitForExistence(timeout: 2) { glass.tap() } else { app.swipeDown() }
+        }
+        XCTAssertTrue(search.waitForExistence(timeout: 5), "the search field")
+        search.tap()
+        search.typeText("zzz")
+        shot("18-search-none")
     }
 
-    func test03ControllersAndSettings() throws {
+    private func settings() throws {
+        let a = auditing ? "a" : ""
         try start(.invented)
         tab("Controllers")
-        shows("No controller connected")
-        shot("20-controllers")
-        try audit("controllers")
-        tap(button(say("What each button sends")), "the buttons")
-        shot("21-mapping")
-        try audit("mapping")
+        shows("Touch controls")
+        // The simulator may lend the Mac's keyboard as a controller; with none the row says so.
+        if app.staticTexts["Gamepad"].exists || !row("Try the buttons").isEnabled { note("controllers: \(app.staticTexts.allElementsBoundByIndex.prefix(8).map(\.label))", in: "words.txt") }
+        try look(a + "20-controllers")
+        tap(row("What each button sends"), "the buttons")
+        shows("Back to the buttons as printed", 5)
+        try look(a + "21-mapping")
         back()
+        if !auditing, row("Try the buttons").isEnabled {
+            tap(row("Try the buttons"), "the pad test")
+            shows("Hold the bottom or right button to close.")
+            shot("26-pad-test")
+            back()
+        }
         tab("Settings")
         shows("Data and saves")
-        shot("22-settings")
-        try audit("settings")
+        try look(a + "22-settings")
         let sounds = app.switches[say("Sounds")].firstMatch
         for _ in 0..<6 where !(sounds.exists && sounds.isHittable) { app.swipeUp(velocity: .slow) }
         XCTAssertTrue(sounds.exists, "the sounds switch")
@@ -207,17 +250,14 @@ final class OortUITests: XCTestCase {
         sounds.tap()
         for _ in 0..<4 { app.swipeUp() }
         shows("0.1.0-alpha.1")
-        shot("23-settings-end")
-        try audit("settings-end")
-        tap(button(say("Thanks and licences")), "the credits")
+        try look(a + "23-settings-end")
+        tap(row("Thanks and licences"), "the credits")
         shows("NX2Apple")
         shows("Selene")
-        shot("24-credits")
-        try audit("credits")
-        tap(button(say("Every notice, in full")), "the notices")
+        try look(a + "24-credits")
+        tap(row("Every notice, in full"), "the notices")
         shows("Permission is hereby granted")
-        shot("25-notices")
-        try audit("notices")
+        try look(a + "25-notices")
     }
 
     func test04Landscape() throws {
@@ -225,10 +265,8 @@ final class OortUITests: XCTestCase {
         XCTAssertTrue(button(say("Options")).waitForExistence(timeout: 20))
         XCUIDevice.shared.orientation = .landscapeLeft
         shot("30-home-landscape")
-        try audit("home-landscape")
         tap(button(say("Game page")), "the game page")
         shot("31-game-landscape")
-        try audit("game-landscape")
         back()
         tap(button(say("Options")), "Options")
         shot("32-options-landscape")
@@ -249,7 +287,6 @@ final class OortUITests: XCTestCase {
         shot("40-home-large")
         app.swipeUp()
         shot("41-home-large-end")
-        try audit("home-large")
         tap(button(say("Game page")), "the game page")
         shot("42-game-large")
         app.swipeUp()
@@ -265,7 +302,6 @@ final class OortUITests: XCTestCase {
         shot("46-controllers-large")
         tab("Settings")
         shot("47-settings-large")
-        try audit("settings-large")
         XCUIDevice.shared.orientation = .landscapeLeft
         tab("Home")
         shot("48-home-large-landscape")
@@ -313,24 +349,22 @@ final class OortUITests: XCTestCase {
             try Data("nothing".utf8).write(to: folder.appendingPathComponent("readme.txt"))
         }
         tap(button(say("Add a game")), "Add a game")
-        Thread.sleep(forTimeInterval: 4)
-        shot("53-picker")
-        note(app.debugDescription, in: "picker.txt")
-        let target = app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH 'Not a game'")).firstMatch
-        if !target.waitForExistence(timeout: 5) {
+        let place = app.cells.matching(NSPredicate(format: "identifier BEGINSWITH 'Oort NX'")).firstMatch
+        let target = app.cells.matching(NSPredicate(format: "label BEGINSWITH 'Not a game' OR identifier BEGINSWITH 'Not a game'")).firstMatch
+        if !target.waitForExistence(timeout: 20), !place.exists {
             let browse = app.buttons.matching(NSPredicate(format: "label IN {'Browse', 'Explorer', 'Parcourir'}")).firstMatch
-            if browse.waitForExistence(timeout: 5) { browse.tap(); if browse.exists, browse.isHittable { browse.tap() } }
-            let device = app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH 'On My' OR label BEGINSWITH 'Sur mon'")).firstMatch
-            if device.waitForExistence(timeout: 5), device.isHittable { device.tap() }
-            let folder = app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH 'Oort NX'")).firstMatch
-            if folder.waitForExistence(timeout: 5), folder.isHittable { folder.tap() }
+            if browse.waitForExistence(timeout: 10) { browse.tap() }
+            let device = app.cells.matching(NSPredicate(format: "label BEGINSWITH 'On My' OR label BEGINSWITH 'Sur mon' OR identifier CONTAINS 'LocalStorage'")).firstMatch
+            if !place.waitForExistence(timeout: 5), device.waitForExistence(timeout: 5) { device.tap() }
         }
+        if !target.exists, place.waitForExistence(timeout: 20) { place.tap() }
         Thread.sleep(forTimeInterval: 2)
         shot("54-picker-folder")
         note(app.debugDescription, in: "picker.txt")
-        guard target.waitForExistence(timeout: 10) else { return XCTFail("the folder is not in the picker") }
+        guard target.waitForExistence(timeout: 15) else { return XCTFail("the folder is not in the picker") }
         target.tap()
-        let open = app.buttons.matching(NSPredicate(format: "label IN {'Open', 'Ouvrir'}")).firstMatch
+        Thread.sleep(forTimeInterval: 1)
+        let open = app.buttons["DOCPicker.actionButton"].firstMatch
         if open.waitForExistence(timeout: 5), open.isEnabled, open.isHittable { open.tap() }
         shows("This is not a game built for Oort NX. Pick a folder that ends in .framework.")
         shot("55-import-refused")
