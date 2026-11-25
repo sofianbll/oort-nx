@@ -330,13 +330,29 @@ final class OortTrialTests: OortCase {
         step("60-paysage-accueil")
         tap(button(say("Game page")), "the game page")
         step("61-paysage-fiche")
-        app.swipeUp()
+        let list = app.collectionViews.firstMatch
+        let options = list.buttons[say("Options")].firstMatch
+        let bar = app.tabBars.firstMatch
+        let navigation = app.navigationBars.firstMatch
+        func reachable() -> Bool {
+            guard options.exists, options.isHittable else { return false }
+            let frame = options.frame
+            let bottom = bar.exists && bar.frame.midY > list.frame.midY ? bar.frame.minY : list.frame.maxY
+            return frame.minY >= navigation.frame.maxY && frame.maxY <= bottom
+        }
+        // A swipe on the whole app can move the cover, not the list beside it.
+        let start = list.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.66))
+        let end = list.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4))
+        for _ in 0..<4 where !reachable() {
+            start.press(forDuration: 0.1, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 0.2)
+        }
         step("62-paysage-fiche-bas")
-        back()
-        tap(button(say("Game page")), "the game page")
-        // Brought above the tab bar, which floats over the list on a phone on its side.
-        open("Options")
-        appears(app.switches.firstMatch, "the options")
+        guard reachable() else { return XCTFail("Options is not fully clear of the bars after scrolling its own list") }
+        options.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        guard app.switches.firstMatch.waitForExistence(timeout: 8) else {
+            step("63-echec-toucher-options")
+            return XCTFail("A touch on the visible Options row did not open the options")
+        }
         step("63-paysage-options")
         // Turning on a page keeps it.
         XCUIDevice.shared.orientation = .portrait
@@ -417,6 +433,70 @@ final class OortTrialTests: OortCase {
     }
 
     private func press(_ button: String, _ times: Int = 1) { for _ in 0..<times { send("press.\(button)") } }
+
+    func test18ControllerOptionsOnItsSide() throws {
+        app.launchEnvironment = ["DYLD_INSERT_LIBRARIES": try inserted("FakePad")]
+        try start(.invented)
+        appears(button(say("Game page")), "the home screen", 20)
+        XCUIDevice.shared.orientation = .landscapeLeft
+        send("connect", 3)
+        press("right")
+        press("x")
+        shows("Version")
+        let options = app.collectionViews.firstMatch.buttons[say("Options")].firstMatch
+        for _ in 0..<3 where !(options.exists && options.isSelected) { press("down") }
+        step("170-paysage-manette-option-ciblee")
+        guard options.exists, options.isSelected else { return XCTFail("The controller did not select the Options row") }
+        press("a")
+        appears(app.switches.firstMatch, "A opens the selected Options row")
+        step("171-paysage-manette-options")
+        press("b")
+        shows("Version")
+    }
+
+    func test19OneLibraryActionPerInput() throws {
+        app.launchEnvironment = ["DYLD_INSERT_LIBRARIES": try inserted("FakePad")]
+        try start(.invented)
+        let top = app.navigationBars.firstMatch
+        let title = top.staticTexts[say("Library")].firstMatch
+        let sort = top.buttons[say("Sort")].firstMatch
+        let add = top.buttons[say("Add a game")].firstMatch
+        let rowAdd = button(say("Add"))
+        let rowSearch = button(say("Search"))
+        let tabs = button(say("All games"))
+        let modes: [(UIDeviceOrientation, String)] = [(.portrait, ""), (.landscapeLeft, "-paysage")]
+        func count(_ keys: [String]) -> Int {
+            app.buttons.matching(NSPredicate(format: "label IN %@", keys.map(say))).count
+        }
+        for (orientation, suffix) in modes {
+            XCUIDevice.shared.orientation = orientation
+            tab("Library")
+            appears(add, "the top add button in touch mode")
+            step("180-bibliotheque-toucher\(suffix)")
+            let titleBefore = title.exists ? title.frame : top.frame
+            XCTAssertTrue(sort.isHittable && add.isHittable, "touch can reach the two top buttons")
+            XCTAssertFalse(rowAdd.exists, "touch does not duplicate Add")
+            send("connect", 3)
+            press("a")
+            appears(rowAdd, "the controller action row")
+            step("181-bibliotheque-manette\(suffix)")
+            XCTAssertFalse(sort.exists || add.exists, "the two top buttons leave the accessibility tree")
+            XCTAssertEqual(count(["Add", "Add a game"]), 1, "one Add action")
+            XCTAssertEqual(count(["Sort", "Recent", "Name"]), 1, "one Sort action")
+            XCTAssertTrue(rowSearch.exists, "the controller has a Search action")
+            XCTAssertEqual(count(["Search"]) + app.searchFields.count, 1, "one Search action")
+            XCTAssertEqual(title.exists ? title.frame : top.frame, titleBefore, "the title stays in place")
+            tap(tabs, "a touch on the library")
+            step("182-bibliotheque-retour-toucher\(suffix)")
+            XCTAssertTrue(sort.isHittable && add.isHittable && !rowAdd.exists, "touch restores the top buttons without duplicates")
+            press("a")
+            appears(rowAdd, "the action row returns on the next press")
+            send("disconnect", 3)
+            step("183-bibliotheque-manette-debranchee\(suffix)")
+            XCTAssertTrue(sort.isHittable && add.isHittable && !rowAdd.exists, "disconnect restores the top buttons without a touch")
+            if suffix.isEmpty { tab("Home") }
+        }
+    }
 
     func test09Controller() throws {
         app.launchEnvironment = ["DYLD_INSERT_LIBRARIES": try inserted("FakePad")]
