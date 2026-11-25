@@ -348,7 +348,7 @@ private struct ActivityRow: View {
             }
             .frame(minHeight: canvas.u(44))
             if indeterminate || fraction.map({ $0 > 0 }) == true {
-                SeleneProgressBar(progress: fraction, color: progressColor)
+                OortMeter(share: fraction, fill: progressColor)
             }
         }
         .modifier(SeleneOptionRowSurface(focused: focused))

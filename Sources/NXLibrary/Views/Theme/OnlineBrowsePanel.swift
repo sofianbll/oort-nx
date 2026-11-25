@@ -150,25 +150,9 @@ struct OnlineBrowsePanel: View {
     private var chips: some View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal) {
-                HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
-                    ForEach(Array(state.categories.enumerated()), id: \.offset) { index, category in
-                        let selected = index == state.categoryIndex
-                        Text(category.displayTitle)
-                            .seleneFont(.text, .semibold)
-                            .foregroundColor(selected ? SeleneTheme.ink : SeleneTheme.ink60)
-                            .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
-                            .padding(.vertical, canvas.u(SeleneTokens.Space.compact))
-                            .background(Capsule().fill(selected ? SeleneTheme.glassSolid : Color.clear))
-                            .overlay(Capsule().strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
-                                .padding(canvas.u(-SeleneTokens.Space.segmentInset))
-                                .opacity(selected && state.focus == .chips ? 1 : 0))
-                            .contentShape(Capsule())
-                            .onTapGesture { onChip(index) }
-                            .id(index)
-                            .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
-                    }
-                }
-                .padding(canvas.u(SeleneTokens.Space.hairline))
+                OortTabs(items: state.categories.enumerated().map { .init(id: $0.offset, title: $0.element.displayTitle) },
+                         selected: state.categoryIndex, focused: state.focus == .chips ? state.categoryIndex : nil, select: onChip)
+                    .padding(canvas.u(SeleneTokens.Space.hairline))
             }
             .scrollIndicators(.hidden)
             .frame(width: canvas.u(3 * 226))
@@ -180,18 +164,11 @@ struct OnlineBrowsePanel: View {
     }
 
     private var searchField: some View {
-        HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
-            MaterialIconView(.search, size: 22).foregroundColor(SeleneTheme.ink60)
+        OortSearchField(query: $searchText, lit: searchFocused.wrappedValue) {
             TextField("", text: $searchText, prompt: Text(L10n.format("Search %@", [String(describing: state.source.title)])).foregroundColor(SeleneTheme.ink60))
-                .textFieldStyle(.plain)
-                .seleneFont(.text)
-                .foregroundColor(SeleneTheme.ink)
                 .focused(searchFocused)
                 .onSubmit(onSubmit)
         }
-        .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
-        .padding(.vertical, canvas.u(SeleneTokens.Space.small))
-        .background(Capsule().fill(SeleneTheme.glassSolid))
         .frame(width: canvas.u(3 * 226 - 20))
         .padding(.leading, canvas.u(SeleneTokens.Space.small))
     }
@@ -249,14 +226,8 @@ private struct OnlineTile: View {
         ZStack(alignment: .topLeading) {
             Rectangle().fill(SeleneTheme.baseGradient)
             WallpaperThumb(url: item.thumbnailURL)
-            HStack(spacing: canvas.u(SeleneTokens.Space.hairline)) {
-                if item.kind == .video { MaterialIconView(.play, size: 13) }
-                Text(ResolutionBadge.label(width: item.width, height: item.height)).seleneFont(.badge, .semibold)
-            }
-            .foregroundColor(SeleneTheme.artInk)
-            .padding(.horizontal, canvas.u(SeleneTokens.Space.compact))
-            .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
-            .background(Capsule().fill(SeleneTheme.artShade.opacity(SeleneTokens.Alpha.muted)))
+            OortTag(text: ResolutionBadge.label(width: item.width, height: item.height),
+                    icon: item.kind == .video ? .play : nil, preset: .art)
             .padding(canvas.u(SeleneTokens.Space.compact))
             if downloaded {
                 MaterialIconView(.check, size: 20)

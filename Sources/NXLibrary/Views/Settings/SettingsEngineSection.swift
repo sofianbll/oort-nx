@@ -350,13 +350,7 @@ struct SettingsEngineSection: View {
     /// In use (green) on the commit the newest engine is at, New (orange) on the commits above it.
     private func commitMark(_ mark: UpstreamCommitMark) -> some View {
         let color = mark == .inUse ? SeleneTheme.success : SeleneTheme.untested
-        return Text(mark == .inUse ? "In use" : L10n.text("New"))
-            .seleneFont(.badge, .bold)
-            .foregroundColor(color)
-            .padding(.horizontal, SeleneTokens.Space.badge)
-            .padding(.vertical, SeleneTokens.Space.seam)
-            .background(color.opacity(SeleneTokens.Alpha.soft))
-            .clipShape(Capsule())
+        return OortTag(text: mark == .inUse ? L10n.text("In use") : L10n.text("New"), tone: color)
             .padding(.bottom, SeleneTokens.Space.seam)
     }
 
@@ -369,13 +363,7 @@ struct SettingsEngineSection: View {
                 VStack(alignment: .leading, spacing: SeleneTokens.Space.gap) {
                     ForEach(status.commits.prefix(shown)) { commit in
                         HStack(alignment: .top, spacing: SeleneTokens.Space.gap) {
-                            Text(commit.shortSha)
-                                .seleneFont(.text, .bold, design: .monospaced)
-                                .foregroundColor(SeleneTheme.glyph)
-                                .padding(.horizontal, SeleneTokens.Space.tight)
-                                .padding(.vertical, SeleneTokens.Space.seam)
-                                .background(SeleneTheme.glyph.opacity(SeleneTokens.Alpha.soft))
-                                .clipShape(RoundedRectangle(cornerRadius: SeleneTokens.Radius.cover, style: .continuous))
+                            OortTag(text: commit.shortSha, tone: SeleneTheme.glyph, monospaced: true)
 
                             VStack(alignment: .leading, spacing: SeleneTokens.Space.seam) {
                                 if let mark = marks[commit.sha] {

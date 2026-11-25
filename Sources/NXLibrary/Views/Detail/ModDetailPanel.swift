@@ -376,12 +376,7 @@ struct ModDetailPanel: View {
                 }
                 Spacer(minLength: 0)
                 if let action = text.action {
-                    Text(action)
-                        .seleneFont(.text, .semibold)
-                        .foregroundColor(text.enabled ? SeleneTheme.ink : SeleneTheme.ink60)
-                        .padding(.horizontal, canvas.u(SeleneTokens.Space.line))
-                        .padding(.vertical, canvas.u(SeleneTokens.Space.tight))
-                        .background(Capsule().fill(text.enabled ? SeleneTheme.glass : Color.clear))
+                    OortTag(text: action, preset: .panel).opacity(text.enabled ? 1 : SeleneTokens.Alpha.muted)
                 }
             }
             if let progress = text.progress {

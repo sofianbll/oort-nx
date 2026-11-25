@@ -239,41 +239,19 @@ struct ChangeArtworkView: View {
     }
 
     private var tabs: some View {
-        HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
-            ForEach(ArtworkSlot.allCases, id: \.self) { tab in
-                Text(tab.title)
-                    .seleneFont(.text, .semibold)
-                    .foregroundColor(tab == slot ? SeleneTheme.ink : SeleneTheme.ink60)
-                    .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
-                    .padding(.vertical, canvas.u(SeleneTokens.Space.compact))
-                    .background(Capsule().fill(tab == slot ? SeleneTheme.glassSolid : Color.clear))
-                    .contentShape(Capsule())
-                    .onTapGesture { select(tab) }
-                    .accessibilityAddTraits(tab == slot ? [.isButton, .isSelected] : .isButton)
-            }
-        }
+        OortTabs(items: ArtworkSlot.allCases.map { .init(id: $0, title: $0.title) }, selected: slot, select: select)
         .padding(.leading, canvas.u(SeleneTokens.Space.seam))
     }
 
     /// The source's search, prefilled with the game's name; Return searches.
     private var searchField: some View {
-        HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
-            MaterialIconView(.search, size: 22).foregroundColor(SeleneTheme.ink60)
+        OortSearchField(query: $browseDraft, lit: focus < 0) {
             TextField("", text: $browseDraft,
                       prompt: Text(L10n.format("Search %@", [String(describing: browsing?.title ?? "")])).foregroundColor(SeleneTheme.ink60))
-                .textFieldStyle(.plain)
-                .seleneFont(.text)
-                .foregroundColor(SeleneTheme.ink)
                 .focused($fieldFocused)
                 .onSubmit(submitSearch)
                 .onExitCommand { fieldFocused = false }
         }
-        .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
-        .padding(.vertical, canvas.u(SeleneTokens.Space.small))
-        .background(Capsule().fill(SeleneTheme.glassSolid))
-        .overlay(Capsule().strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
-            .padding(canvas.u(-SeleneTokens.Space.hairline))
-            .opacity(focus < 0 ? 1 : 0))
         .frame(width: canvas.u(560))
         .padding(.leading, canvas.u(SeleneTokens.Space.compact))
         .onChange(of: fieldFocused) { _, focused in if focused { focus = -1 } }

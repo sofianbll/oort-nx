@@ -65,24 +65,12 @@ struct FindGameView: View {
     }
 
     private var field: some View {
-        HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
-            MaterialIconView(.search, size: 24)
-                .foregroundColor(SeleneTheme.ink60)
+        OortSearchField(query: $query, lit: focused == nil) {
             TextField(L10n.text("Find a game"), text: $query)
-                .textFieldStyle(.plain)
-                .seleneFont(.text)
-                .foregroundColor(SeleneTheme.ink)
                 .focused($fieldFocused)
                 .onSubmit { pick(results.first) }
         }
-        .padding(.leading, canvas.u(SeleneTokens.Space.large))
-        .padding(.top, canvas.u(SeleneTokens.Space.small))
-        .padding(.trailing, canvas.u(SeleneTokens.Space.large))
-        .padding(.bottom, canvas.u(SeleneTokens.Space.small))
-        .frame(width: canvas.u(720))
-        .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.field), style: .continuous).fill(SeleneTheme.glass))
-        .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.field), style: .continuous)
-            .strokeBorder(focused == nil ? SeleneTheme.focus : SeleneTheme.ink15, lineWidth: max(1, canvas.u(2))))
+        .frame(width: canvas.u(SeleneTokens.Space.transferMeasure))
     }
 
     @ViewBuilder private var grid: some View {

@@ -284,12 +284,7 @@ struct DetailsModsBand: View {
             LinearGradient(colors: [.clear, SeleneTheme.artShade.opacity(SeleneTokens.Alpha.strong)], startPoint: .center, endPoint: .bottom)
             VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.seam)) {
                 if let chip = chip(for: mod) {
-                    Text(chip)
-                        .seleneFont(.badge, .semibold)
-                        .foregroundColor(SeleneTheme.ink)
-                        .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
-                        .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
-                        .background(Capsule().fill(SeleneTheme.glassSolid))
+                    OortTag(text: chip, preset: .panel)
                         .padding(.bottom, canvas.u(SeleneTokens.Space.hairline))
                 }
                 Text(mod.name)

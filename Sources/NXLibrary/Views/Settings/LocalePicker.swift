@@ -52,11 +52,9 @@ struct LocalePicker: View {
                     Text(formatPreview).seleneFont(.text).foregroundColor(SeleneTheme.ink)
                 }
                 if mode == .region {
-                TextField(L10n.text("Find a region"), text: $query)
-                    .textFieldStyle(.plain).seleneFont(.row).focused($searchFocused)
-                    .onSubmit { choose() }
-                    .padding(canvas.u(SeleneTokens.Space.line)).background(SeleneTheme.glass)
-                    .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content)))
+                OortSearchField(query: $query, lit: searchFocused, preset: .list) {
+                    TextField(L10n.text("Find a region"), text: $query).focused($searchFocused).onSubmit { choose() }
+                }
                 }
                 ScrollViewReader { proxy in
                     ScrollView {

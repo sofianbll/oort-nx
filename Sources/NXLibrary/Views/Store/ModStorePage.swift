@@ -105,30 +105,9 @@ struct ModStoreSortBar: View {
     let onPick: (Int) -> Void
 
     var body: some View {
-        HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
-            ForEach(Array(ModStoreSort.allCases.enumerated()), id: \.element) { index, choice in
-                let chosen = choice == sort
-                let focused = focusedIndex == index
-                HStack(alignment: .firstTextBaseline, spacing: canvas.u(SeleneTokens.Space.small)) {
-                    MaterialIconView(choice.icon, size: 22).iconOnCaps(of: 18, .semibold)
-                    Text(choice.title).seleneFont(.text, .semibold)
-                }
-                .foregroundColor(chosen ? SeleneTheme.onFocus : SeleneTheme.ink)
-                .padding(.horizontal, canvas.u(SeleneTokens.Space.titleGap))
-                .frame(height: canvas.u(52))
-                .background(Capsule().fill(chosen ? SeleneTheme.focus : SeleneTheme.glass))
-                .overlay(Capsule().inset(by: canvas.u(-4)).strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
-                    .opacity(focused ? 1 : 0))
-                .scaleEffect(focused ? 1.04 : 1)
-                .animation(reduceMotion ? nil : SpotlightScreenshotStrip.motion, value: focused)
-                .animation(reduceMotion ? nil : SpotlightScreenshotStrip.motion, value: chosen)
-                .contentShape(Capsule())
-                .onTapGesture { onPick(index) }
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel(L10n.format("Sort by %@", [String(describing: choice.title)]))
-                .accessibilityAddTraits(chosen ? [.isButton, .isSelected] : .isButton)
-            }
-        }
+        OortTabs(items: ModStoreSort.allCases.enumerated().map { .init(id: $0.offset, title: $0.element.title, icon: $0.element.icon) },
+                 selected: ModStoreSort.allCases.firstIndex(of: sort), focused: focusedIndex,
+                 label: { L10n.format("Sort by %@", [$0.title]) }, select: onPick)
         .padding(.top, canvas.u(SeleneTokens.Space.small))
     }
 }
@@ -366,12 +345,7 @@ struct ModStoreChip: View {
 
     var body: some View {
         if let text = host.chip(for: entry) {
-            Text(text)
-                .seleneFont(.text, .semibold)
-                .foregroundColor(SeleneTheme.ink)
-                .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
-                .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
-                .background(Capsule().fill(SeleneTheme.glassSolid))
+            OortTag(text: text, preset: .panel)
         }
     }
 }

@@ -124,6 +124,8 @@ final class TileRingLayerView: TileMotionLayerView {
     private let ring = CAGradientLayer()
     private let ringShape = CAShapeLayer()
     private let hair = CAShapeLayer()
+    /// A dark edge outside the ring, so it reads on a light cover too.
+    private let edge = CAShapeLayer()
 
     init(style: Style) {
         self.style = style
@@ -138,7 +140,10 @@ final class TileRingLayerView: TileMotionLayerView {
         ring.endPoint = Self.gradientPoint(axis.end)
         hair.fillColor = nil
         hair.strokeColor = SeleneTheme.nsArtInk.withAlphaComponent(0.18).cgColor
+        edge.fillColor = nil
+        edge.strokeColor = SeleneTheme.nsArtShade.withAlphaComponent(SeleneTokens.Alpha.veil).cgColor
         root.addSublayer(glow)
+        root.addSublayer(edge)
         root.addSublayer(ring)
         root.addSublayer(hair)
         applyColours()
@@ -167,6 +172,13 @@ final class TileRingLayerView: TileMotionLayerView {
         ringShape.contentsScale = scale
         ringShape.lineWidth = style.ringLine
         ringShape.path = corner.inset(by: style.ringLine / 2).path(in: local).cgPath
+
+        let edgeLine = max(style.hairline, style.ringLine / 2)
+        edge.frame = tile
+        edge.contentsScale = scale
+        edge.lineWidth = edgeLine
+        edge.path = RoundedRectangle(cornerRadius: style.cornerRadius + edgeLine / 2, style: .continuous)
+            .path(in: local.insetBy(dx: -edgeLine / 2, dy: -edgeLine / 2)).cgPath
 
         hair.frame = tile
         hair.contentsScale = scale

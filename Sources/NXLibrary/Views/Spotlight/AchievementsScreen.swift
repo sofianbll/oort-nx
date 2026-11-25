@@ -192,7 +192,7 @@ struct AchievementsScreen: View {
                 .foregroundColor(SeleneTheme.ink)
                 .lineLimit(1)
             // As wide as the trophies above, the width `TrophyColumn` gives the gauge.
-            AchievementProgressBar(fraction: fraction, height: 4, track: SeleneTheme.ink25)
+            OortMeter(share: fraction, height: 4, track: SeleneTheme.ink25)
                 .frame(maxWidth: .infinity)
                 .padding(.top, canvas.u(SeleneTokens.Space.hairline))
             // A long language wraps under the trophies rather than overflowing them.
@@ -324,23 +324,8 @@ struct AchievementsScreen: View {
         HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
             shoulder(.lb, L10n.text("Previous"), step: -1)
                 .opacity(state.isDetailOpen ? 0 : 1)
-            ForEach(AchievementFilter.allCases, id: \.self) { filter in
-                let selected = filter == state.filter
-                let count = summary.rows(filter).count
-                Button { onFilter(filter) } label: {
-                    let number = Text("  \(count)").foregroundColor(selected ? SeleneTheme.onFocus.opacity(SeleneTokens.Alpha.strong) : SeleneTheme.ink60)
-                    Text("\(Text(Self.title(filter)))\(number)")
-                        .seleneFont(.text, .semibold)
-                        .monospacedDigit()
-                        .foregroundColor(selected ? SeleneTheme.onFocus : SeleneTheme.ink90)
-                        .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
-                        .padding(.vertical, canvas.u(SeleneTokens.Space.compact))
-                        .background(Capsule().fill(selected ? SeleneTheme.focus : SeleneTheme.ink15))
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("\(Self.title(filter)), \(count)")
-                .accessibilityAddTraits(selected ? .isSelected : [])
-            }
+            OortTabs(items: AchievementFilter.allCases.map { .init(id: $0, title: Self.title($0), count: summary.rows($0).count) },
+                     selected: state.filter, label: { "\($0.title), \($0.count ?? 0)" }, select: onFilter)
             shoulder(.rb, L10n.text("Next"), step: 1)
                 .opacity(state.isDetailOpen ? 0 : 1)
         }

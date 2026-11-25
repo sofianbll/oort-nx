@@ -136,7 +136,7 @@ extension GameOptionsView {
                         ) : nil) {
             HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                 if checking {
-                    SeleneProgressBar(progress: nil).frame(width: canvas.u(96))
+                    OortMeter(share: nil).frame(width: canvas.u(96))
                     Text(L10n.text("Cancel")).seleneFont(.text).foregroundColor(SeleneTheme.ink75)
                 } else if let info = p.info(row) {
                     SeleneInfoTip(info, isShowing: Binding(

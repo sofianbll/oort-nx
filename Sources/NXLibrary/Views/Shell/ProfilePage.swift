@@ -449,7 +449,7 @@ struct ProfilePage: View {
             }
             .monospacedDigit()
             .accessibilityElement(children: .combine)
-            AchievementProgressBar(fraction: Double(unlocked) / Double(total), height: SeleneTokens.Space.compact,
+            OortMeter(share: Double(unlocked) / Double(total), height: SeleneTokens.Space.compact,
                                    track: SeleneTheme.ink25, fill: SeleneTheme.statusCloud)
         }
     }

@@ -164,21 +164,12 @@ private struct GameBananaSearchField: View {
     @Environment(\.seleneCanvas) private var canvas
 
     var body: some View {
-        HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
-            MaterialIconView(.search, size: 22).foregroundColor(SeleneTheme.ink60)
-                .accessibilityHidden(true)
+        OortSearchField(query: $query, lit: focused) {
             TextField("", text: $query, prompt: Text(prompt).foregroundColor(SeleneTheme.ink60))
-                .textFieldStyle(.plain)
-                .seleneFont(.text)
-                .foregroundColor(SeleneTheme.ink)
                 .focused($focused)
                 .onSubmit(onSubmit)
                 .onExitCommand(perform: onClose)
                 .accessibilityLabel(prompt)
         }
-        .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
-        .padding(.vertical, canvas.u(SeleneTokens.Space.small))
-        .background(Capsule().fill(SeleneTheme.glassSolid))
-        .overlay(Capsule().strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke)).opacity(focused ? 1 : 0))
     }
 }

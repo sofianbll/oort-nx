@@ -54,13 +54,7 @@ struct SpotlightGenreChips: View {
     var body: some View {
         HStack(spacing: 0) {
             ForEach(Array(genres.prefix(6)), id: \.self) { genre in
-                Text(genre)
-                    .seleneFont(.text)
-                    .foregroundColor(SeleneTheme.ink90)
-                    .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
-                    .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
-                    .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
-                        .fill(SeleneTheme.ink15))
+                OortTag(text: genre)
                     .padding(.trailing, canvas.u(SeleneTokens.Space.compact))
             }
         }

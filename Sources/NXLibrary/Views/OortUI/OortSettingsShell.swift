@@ -123,7 +123,7 @@ struct OortSettingsSidebar<ID: Hashable, Header: View>: View {
             .background {
                 // One pill glides from row to row.
                 if isSelected {
-                    OortKeyFace(kind: lit ? .solid : .quiet, radius: canvas.u(SeleneTokens.Radius.badge), lit: lit, outlined: false)
+                    OortKeyFace(kind: lit ? .solid : .quiet, radius: canvas.u(SeleneTokens.Radius.field - SeleneTokens.Space.small), lit: lit, outlined: false)
                         .matchedGeometryEffect(id: "selection", in: pill)
                 }
             }
@@ -165,37 +165,12 @@ struct OortSettingsSearchField: View {
     let onFocus: () -> Void
     let onSubmit: () -> Void
     @FocusState private var focused: Bool
-    @Environment(\.seleneCanvas) private var canvas
     @Environment(\.nxAppLocale) private var locale
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
-        let lit = focused || selected
-        HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
-            MaterialIconView(.search, size: SeleneTokens.Space.large)
-                .foregroundStyle(lit ? SeleneTheme.ink : SeleneTheme.ink60)
-                .accessibilityHidden(true)
-            TextField(L10n.text("Search settings", context: locale), text: $query)
-                .textFieldStyle(.plain)
-                .seleneFont(.row, .medium)
-                .foregroundStyle(SeleneTheme.ink)
-                .focused($focused)
-            if !query.isEmpty {
-                Button { query = "" } label: {
-                    MaterialIconView(.close, size: SeleneTokens.Space.panel)
-                        .foregroundStyle(SeleneTheme.ink60)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(OortPressStyle())
-                .accessibilityLabel(L10n.text("Clear search", context: locale))
-            }
+        OortSearchField(query: $query, lit: focused || selected, preset: .list) {
+            TextField(L10n.text("Search settings", context: locale), text: $query).focused($focused)
         }
-        .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
-        .padding(.vertical, canvas.u(SeleneTokens.Space.small))
-        .background(shape.fill(SeleneTheme.scrim45))
-        .overlay(shape.strokeBorder(lit ? SeleneTheme.focus : SeleneTheme.ink15,
-                                    lineWidth: max(1, canvas.u(lit ? SeleneTokens.Space.focusStroke : SeleneTokens.Space.thinStroke))))
-        .contentShape(shape)
         .onTapGesture { focused = true }
         .onChange(of: focused) { _, focused in if focused { onFocus() } }
         .onChange(of: request) { focused = true }

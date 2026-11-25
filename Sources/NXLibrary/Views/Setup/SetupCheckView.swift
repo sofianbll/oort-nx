@@ -137,7 +137,7 @@ struct SetupCheckView: View {
                     .help(error)
             }
             if item.state == .working {
-                SetupProgressBar(progress: item.progress)
+                OortMeter(share: item.progress, height: nil, fill: SeleneTheme.glyph)
                     .frame(width: canvas.u(176), height: canvas.u(5))
                     .padding(.top, canvas.u(SeleneTokens.Space.small))
                     .transition(.opacity)
@@ -286,13 +286,7 @@ private struct StatusChip: View {
 
     var body: some View {
         let tone = Self.tone(item)
-        Text(item.chip)
-            .seleneFont(.badge, .bold)
-            .foregroundColor(tone)
-            .lineLimit(1)
-            .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
-            .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
-            .background(Capsule().fill(tone.opacity(SeleneTokens.Alpha.soft)))
+        OortTag(text: item.chip, tone: tone)
             .frame(maxWidth: canvas.u(200))
             .scaleEffect(popping && !reduceMotion ? 1.18 : 1)
             .animation(reduceMotion ? nil : SeleneTheme.quick, value: popping)
@@ -309,32 +303,3 @@ private struct StatusChip: View {
 
 /// A working card's bar: it fills with the progress the install reports, and
 /// sweeps when there is no number yet (or holds still with Reduce Motion).
-private struct SetupProgressBar: View {
-    @Environment(\.seleneReduceMotion) private var reduceMotion
-    let progress: Double?
-    @State private var sweep = false
-
-    var body: some View {
-        GeometryReader { geo in
-            ZStack(alignment: .leading) {
-                Capsule().fill(SeleneTheme.ink15)
-                if let progress {
-                    Capsule()
-                        .fill(SeleneTheme.glyph)
-                        .frame(width: max(geo.size.height, geo.size.width * min(1, max(0, progress))))
-                        .animation(SeleneTheme.standard, value: progress)
-                } else {
-                    Capsule()
-                        .fill(SeleneTheme.glyph.opacity(reduceMotion ? 0.6 : 1))
-                        .frame(width: geo.size.width * 0.32)
-                        .offset(x: reduceMotion ? geo.size.width * 0.34 : (sweep ? geo.size.width * 0.68 : 0))
-                        .onAppear {
-                            guard !reduceMotion else { return }
-                            withAnimation(SeleneTheme.ease(SeleneTokens.Motion.pageLate).repeatForever(autoreverses: true)) { sweep = true }
-                        }
-                }
-            }
-            .clipShape(Capsule())
-        }
-    }
-}

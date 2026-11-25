@@ -62,6 +62,9 @@ struct SeleneTileRing: View {
                     startPoint: UnitPoint(x: 0.5 - dx, y: 0.5 - dy),
                     endPoint: UnitPoint(x: 0.5 + dx, y: 0.5 + dy)),
                 lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
+            RoundedRectangle(cornerRadius: cornerRadius + canvas.u(SeleneTokens.Space.thinStroke), style: .continuous)
+                .strokeBorder(SeleneTheme.artShade.opacity(SeleneTokens.Alpha.veil), lineWidth: canvas.u(SeleneTokens.Space.focusStroke))
+                .padding(-canvas.u(SeleneTokens.Space.focusStroke))
             shape.strokeBorder(SeleneTheme.artInk.opacity(SeleneTokens.Alpha.soft), lineWidth: max(0.5, canvas.u(1)))
                 .padding(canvas.u(SeleneTokens.Space.thinStroke))
         }

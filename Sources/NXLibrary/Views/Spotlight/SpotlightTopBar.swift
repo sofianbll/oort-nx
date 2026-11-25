@@ -22,7 +22,6 @@ struct SpotlightTopBar: View {
     var nextendo: NextendoSettings? = nil
     var onSelect: (LibraryFilter) -> Void = { _ in }
 
-    @Namespace private var pill
 
     var body: some View {
         ZStack {
@@ -32,10 +31,8 @@ struct SpotlightTopBar: View {
             }
             HStack(spacing: 0) {
                 badge(.lb)
-                HStack(spacing: 0) { ForEach(LibraryFilter.tabs(tabs + [filter])) { tab($0) } }
-                    .padding(canvas.u(SeleneTokens.Space.hairline))
-                    .oortPanel(radius: canvas.u(SeleneTokens.Radius.hint) * 2)
-                    .animation(reduceMotion ? nil : Motion.dots(false), value: filter)
+                OortTabs(items: LibraryFilter.tabs(tabs + [filter]).map { .init(id: $0, title: L10n.text($0.rawValue)) },
+                         selected: filter, select: onSelect)
                 badge(.rb)
                 // Beside the tabs, which stay where they are: it takes no width of its own.
                 if played != .any {
@@ -78,26 +75,6 @@ struct SpotlightTopBar: View {
     }
 
     static func openProfile() { NotificationCenter.default.post(name: .nxOpenLocalProfile, object: nil) }
-
-    private func tab(_ item: LibraryFilter) -> some View {
-        let on = item == filter
-        return Text(L10n.text(item.rawValue))
-            .seleneFont(.text, on ? .semibold : .regular)
-            .foregroundColor(on ? SeleneTheme.onFocus : SeleneTheme.ink75)
-            .padding(EdgeInsets(top: canvas.u(5), leading: canvas.u(18),
-                                bottom: canvas.u(7), trailing: canvas.u(20)))
-            .background {
-                if on {
-                    Capsule().fill(LinearGradient(colors: [SeleneTheme.focus, SeleneTheme.focus.mix(with: SeleneTheme.glyph, by: SeleneTokens.Effect.surfaceLineStrong)],
-                                                  startPoint: .top, endPoint: .bottom))
-                        .matchedGeometryEffect(id: "tab", in: pill)
-                }
-            }
-            .padding(.horizontal, canvas.u(SeleneTokens.Space.seam))
-            .contentShape(Rectangle())
-            .onTapGesture { onSelect(item) }
-            .accessibilityAddTraits(on ? [.isButton, .isSelected] : .isButton)
-    }
 
     /// Says why games are missing, and opens the panel that brings them back.
     private var activeFilter: some View {

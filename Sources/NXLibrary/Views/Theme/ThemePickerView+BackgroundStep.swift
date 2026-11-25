@@ -93,17 +93,8 @@ extension ThemePickerView {
     var tabs: some View {
         HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
             SelenePromptBadge(button: .lb, height: 26).accessibilityHidden(true)
-            ForEach(BackgroundTab.allCases, id: \.self) { tab in
-                Text(tab == .wallpapers ? L10n.text("Wallpapers") : L10n.text("Live"))
-                    .seleneFont(.text, .semibold)
-                    .foregroundColor(tab == state.tab ? SeleneTheme.ink : SeleneTheme.ink60)
-                    .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
-                    .padding(.vertical, canvas.u(SeleneTokens.Space.compact))
-                    .background(Capsule().fill(tab == state.tab ? SeleneTheme.glassSolid : Color.clear))
-                    .contentShape(Capsule())
-                    .onTapGesture { switchTab(to: tab) }
-                    .accessibilityAddTraits(tab == state.tab ? [.isButton, .isSelected] : .isButton)
-            }
+            OortTabs(items: BackgroundTab.allCases.map { .init(id: $0, title: $0 == .wallpapers ? L10n.text("Wallpapers") : L10n.text("Live")) },
+                     selected: state.tab, select: switchTab(to:))
             SelenePromptBadge(button: .rb, height: 26).accessibilityHidden(true)
         }
         .padding(.leading, canvas.u(SeleneTokens.Space.tight))
