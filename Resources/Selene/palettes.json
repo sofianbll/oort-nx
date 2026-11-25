@@ -651,5 +651,31 @@
       ]
     },
     "moonlight": "arcane"
+  },
+  {
+    "id": "orbite",
+    "name": "Orbite",
+    "mode": "dark",
+    "focus": 16777215,
+    "onFocus": 329483,
+    "ink": 16777215,
+    "scrim": 329483,
+    "glass": 790293,
+    "glyph": 11518950,
+    "success": 14081770,
+    "light": 10004157,
+    "base": {
+      "kind": "radial",
+      "stops": [
+        {
+          "color": 1119517,
+          "location": 0.0
+        },
+        {
+          "color": 329483,
+          "location": 1.0
+        }
+      ]
+    }
   }
 ]

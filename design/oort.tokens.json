@@ -126,7 +126,17 @@
     "profile-removal-veil": {"$type": "number", "$value": 0.72},
     "band-blur": {"$type": "dimension", "$value": {"value": 12, "unit": "px"}},
     "band-opacity": {"$type": "number", "$value": 0.55},
-    "cloud-badge-opacity": {"$type": "number", "$value": 0.94}
+    "cloud-badge-opacity": {"$type": "number", "$value": 0.94},
+    "dot-pitch": {"$description": "Grid of the halftone that rises under a focused key.", "$type": "dimension", "$value": {"value": 7, "unit": "px"}},
+    "dot-radius": {"$type": "dimension", "$value": {"value": 2.9, "unit": "px"}},
+    "press-depth": {"$type": "dimension", "$value": {"value": 2, "unit": "px"}},
+    "press-scale": {"$type": "number", "$value": 0.975},
+    "surface-low": {"$description": "Ink mixed into the page for a panel's lower edge.", "$type": "number", "$value": 0.045},
+    "surface-high": {"$type": "number", "$value": 0.075},
+    "surface-raised": {"$type": "number", "$value": 0.115},
+    "surface-line": {"$type": "number", "$value": 0.11},
+    "surface-line-strong": {"$type": "number", "$value": 0.22},
+    "surface-shine": {"$type": "number", "$value": 0.07}
   },
   "motion": {
     "$type": "duration",
@@ -138,7 +148,11 @@
     "toast": {"$value": {"value": 250, "unit": "ms"}},
     "row-message": {"$value": {"value": 300, "unit": "ms"}},
     "detail-art": {"$value": {"value": 400, "unit": "ms"}},
-    "viewer": {"$value": {"value": 200, "unit": "ms"}}
+    "viewer": {"$value": {"value": 200, "unit": "ms"}},
+    "press": {"$description": "A key going down.", "$value": {"value": 60, "unit": "ms"}},
+    "quick": {"$value": {"value": 140, "unit": "ms"}},
+    "move": {"$value": {"value": 280, "unit": "ms"}},
+    "slow": {"$value": {"value": 520, "unit": "ms"}}
   },
   "distance": {
     "$type": "dimension",

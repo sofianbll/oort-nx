@@ -52,11 +52,11 @@ struct SelenePillButton: View {
                 .accessibilityLabel(L10n.text("Cancel queued build", context: localization))
                 .accessibilityValue(L10n.text("Queued", context: localization))
         } else if let keyboardFocus {
-            pill.focusable(interactions: .activate)
+            pill.onHover { hovered = $0 }.focusable(interactions: .activate)
                 .focusEffectDisabled()
                 .focused(keyboardFocus)
         } else {
-            pill
+            pill.onHover { hovered = $0 }
         }
     }
 
@@ -66,6 +66,8 @@ struct SelenePillButton: View {
         let tint = !queuedBuild || cancelling ? self.tint : nil
         let title = cancelling ? "Cancel" : self.title
         let icon = cancelling ? MaterialIcon.close : self.icon
+        // A key with an icon alone stays round.
+        let radius = title == nil ? canvas.u(height) / 2 : min(canvas.u(height) / 2, canvas.u(SeleneTokens.Radius.card))
         let solid = downloadFill == nil && focused && enabled && tint == nil && fillsOnFocus
         let label = HStack(spacing: canvas.u(10)) {
             accessory
@@ -97,10 +99,12 @@ struct SelenePillButton: View {
         let capsule = label
             .foregroundColor(downloadFill != nil ? .white : solid ? SeleneTheme.onFocus
                              : (enabled ? tint ?? SeleneTheme.ink : SeleneTheme.ink60))
-            .background(Capsule().fill(solid ? SeleneTheme.focus : SeleneTheme.glass))
+            .background(OortKeyFace(kind: solid ? .solid : .quiet, radius: radius,
+                                    lit: enabled && downloadFill == nil && (focused || hovered),
+                                    outlined: focused, tint: tint))
             .overlay {
                 if let downloadFill {
-                    Capsule().fill(.white)
+                    RoundedRectangle(cornerRadius: radius, style: .continuous).fill(.white)
                         .overlay { label.foregroundColor(.black) }
                         // One moving edge clips both the white fill and the black glyphs.
                         .mask { DownloadFillMask(fraction: downloadFill) }
@@ -109,23 +113,15 @@ struct SelenePillButton: View {
                         .accessibilityHidden(true)
                 }
             }
-            .overlay {
-                if !solid {
-                    PillOutline(width: max(1, canvas.u(focused ? 2 : 1)))
-                        .fill(focused ? tint ?? SeleneTheme.focus : SeleneTheme.ink15, style: FillStyle(eoFill: true))
-                        .allowsHitTesting(false)
-                }
-            }
-            .shadow(color: solid ? SeleneTheme.focus.opacity(0.4) : .clear, radius: canvas.u(22))
             .scaleEffect(scalesOnFocus && focused && !reduceMotion ? 1.06 : 1)
             // Focus eases across pills; the colour change is a fade, so it stays under reduce motion.
             .animation(SeleneTheme.cubicOut(0.26), value: focused)
-            .contentShape(Capsule())
+            .contentShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
         if passive {
             capsule
         } else {
             Button(action: action) { capsule }
-                .buttonStyle(.plain)
+                .buttonStyle(OortPressStyle())
         }
     }
 }

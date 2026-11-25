@@ -4,9 +4,9 @@ import SwiftUI
 import NXLibraryCore
 
 struct OortUIGallery: View {
-    enum Sheet: String, CaseIterable { case rows, states, dialogs, page }
+    enum Sheet: String, CaseIterable { case rows, states, dialogs, page, keys }
 
-    private static let palettes = ["oort", "catppuccin-latte", "vantablack"]
+    private static let palettes = ["oort", "catppuccin-latte", "vantablack", "orbite"]
     @State private var palette = SelenePaletteCatalog.defaultID
     @State private var french = true
     @State private var sheet = Sheet.rows
@@ -41,7 +41,7 @@ struct OortUIGallery: View {
             .environment(\.seleneButtonNames, .xbox)
             .environment(\.seleneReduceMotion, true)
             .environment(\.seleneSharesBackdrop, true)
-            .background(OortGalleryWallpaper())
+            .background { if sheet == .keys { Rectangle().fill(SeleneTheme.baseGradient) } else { OortGalleryWallpaper() } }
     }
 
     @MainActor static func capture(to output: URL) throws {
@@ -122,6 +122,20 @@ private struct GallerySpecimen: View {
                                  select: {}, activate: {}) { sampleArt(.steam) }
                     OortGameTile(title: "Lunar Observatory", selected: true, preset: .collection,
                                  select: {}, activate: {}) { sampleArt(.mac) }
+                }
+            case .keys:
+                OortCard("Keys") {
+                    ForEach([false, true], id: \.self) { focused in
+                        HStack(spacing: canvas.u(SeleneTokens.Space.large)) {
+                            SelenePillButton(title: "Play", icon: .play, focused: focused) {}
+                            OortPressed(down: true) { SelenePillButton(title: "Play", icon: .play, focused: focused) {} }
+                            SelenePillButton(title: "Open", focused: focused, enabled: false) {}
+                            OortButton(title: "Open", focused: focused, preset: .compact) {}
+                            SelenePillButton.roundIcon(.close, focused: focused) {}
+                            SelenePillButton.buildQueue(focused: focused) {}
+                            SelenePillButton(title: "Download", focused: focused, downloadFill: 0.4) {}
+                        }
+                    }
                 }
             case .dialogs:
                 HStack(alignment: .top) {

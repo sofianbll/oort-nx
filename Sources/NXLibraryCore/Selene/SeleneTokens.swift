@@ -97,6 +97,16 @@ public enum SeleneTokens {
         public static let bandBlur: CGFloat = 12
         public static let bandOpacity: Double = 0.55
         public static let cloudBadgeOpacity: Double = 0.94
+        public static let dotPitch: CGFloat = 7
+        public static let dotRadius: CGFloat = 2.9
+        public static let pressDepth: CGFloat = 2
+        public static let pressScale: Double = 0.975
+        public static let surfaceLow: Double = 0.045
+        public static let surfaceHigh: Double = 0.075
+        public static let surfaceRaised: Double = 0.115
+        public static let surfaceLine: Double = 0.11
+        public static let surfaceLineStrong: Double = 0.22
+        public static let surfaceShine: Double = 0.07
     }
 
     public enum Motion {
@@ -109,6 +119,10 @@ public enum SeleneTokens {
         public static let rowMessage: Double = 0.3
         public static let detailArt: Double = 0.4
         public static let viewer: Double = 0.2
+        public static let press: Double = 0.06
+        public static let quick: Double = 0.14
+        public static let move: Double = 0.28
+        public static let slow: Double = 0.52
     }
 
     public enum Distance {

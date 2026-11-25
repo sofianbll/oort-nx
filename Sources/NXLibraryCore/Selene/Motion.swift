@@ -23,6 +23,17 @@ public enum Motion {
         reduced ? nil : entering ? focusIn : focusOut
     }
 
+    /// A key goes down at once and comes back with a small overshoot. Nothing moves under Reduce motion.
+    public static func press(_ reduced: Bool, down: Bool) -> Animation? {
+        reduced ? nil : down ? .linear(duration: Timing.press)
+            : .timingCurve(0.3, 1.6, 0.5, 1, duration: Timing.move)
+    }
+
+    /// The halftone rising under a focused key.
+    public static func dots(_ reduced: Bool) -> Animation? {
+        reduced ? nil : .timingCurve(0.22, 1, 0.36, 1, duration: Timing.slow)
+    }
+
     public enum Rail { case spotlight, collection }
 
     public static func rail(_ reduced: Bool, _ rail: Rail) -> Animation? {

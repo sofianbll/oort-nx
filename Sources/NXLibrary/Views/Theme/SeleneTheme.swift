@@ -34,6 +34,14 @@ enum SeleneTheme {
     static let statusOK = Color(hex: SeleneTokens.Color.statusOK)
     static let statusCloud = Color(hex: SeleneTokens.Color.statusCloud)
     static let untested = Color(hex: SeleneTokens.Color.untested)
+    // Surfaces come from the palette's page and ink, so every palette gets its own.
+    private static func surface(_ ink: Double) -> Color { pageSurface.mix(with: self.ink, by: ink) }
+    static var panelLow: Color { surface(SeleneTokens.Effect.surfaceLow) }
+    static var panelHigh: Color { surface(SeleneTokens.Effect.surfaceHigh) }
+    static var panelRaised: Color { surface(SeleneTokens.Effect.surfaceRaised) }
+    static var line: Color { glyph.opacity(SeleneTokens.Effect.surfaceLine) }
+    static var lineStrong: Color { glyph.opacity(SeleneTokens.Effect.surfaceLineStrong) }
+    static var shine: Color { ink.opacity(SeleneTokens.Effect.surfaceShine) }
     static var focusGlow: Color { focus.opacity(0.35) }
     static var focusGlowStrong: Color { focus.opacity(0.55) }
 
