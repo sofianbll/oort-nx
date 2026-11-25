@@ -380,9 +380,9 @@ internal class CloudEngine private constructor(private val context: Context) : S
 
     private fun tell(name: String) {
         val notices = context.getSystemService(NotificationManager::class.java)
-        notices.createNotificationChannel(NotificationChannel("done", context.getString(R.string.channel_done), NotificationManager.IMPORTANCE_DEFAULT))
+        notices.createNotificationChannel(NotificationChannel("done", CloudWords.of(context).getString(R.string.channel_done), NotificationManager.IMPORTANCE_DEFAULT))
         notices.notify(name.hashCode(), Notification.Builder(context, "done").setSmallIcon(R.drawable.ic_launcher_monochrome)
-            .setContentTitle(context.getString(R.string.ready, name)).setAutoCancel(true)
+            .setContentTitle(CloudWords.of(context).getString(R.string.ready, name)).setAutoCancel(true)
             .setContentIntent(openOort(context)).build())
     }
 

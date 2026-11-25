@@ -295,7 +295,7 @@ def touch(lang):
     system_back()
 
     tap(w("nav_settings"), exact=True)
-    see(f"{lang}: settings", w("settings_thanks"))
+    see(f"{lang}: settings", w("settings_games"))
     shot(f"{lang}-10-settings")
     tap(w("settings_sound"))
     see(f"{lang}: the sounds have their own page", w("settings_pack"))
@@ -321,6 +321,8 @@ def touch(lang):
     shot(f"{lang}-13-which")
     system_back()
     scroll()
+    if not find(w("settings_thanks")):
+        scroll()
     tap(w("settings_thanks"))
     see(f"{lang}: credits", "nx2android")
     shot(f"{lang}-14-thanks")
@@ -376,7 +378,7 @@ def controller(lang):
     pad("Y")
     tap(w("settings_swap"), exact=True)
     pad("START", "DOWN", "DOWN")
-    see(f"{lang}, pad: START opens the settings", w("settings_thanks"))
+    see(f"{lang}, pad: START opens the settings", w("settings_games"))
     shot(f"{lang}-25-pad-settings")
     pad("B")
 
@@ -532,7 +534,7 @@ def main():
     asked = re.findall(r"^\s+([\w.]+\.permission\.[\w.]+|[\w.]+DYNAMIC_RECEIVER[\w]*)", shell(f"dumpsys package {PACKAGE}"), re.M)
     ok("the installed app asks for no Android permission", not [p for p in asked if p.startswith("android.permission")], str(asked))
     version = re.search(r"versionName=(\S+)", shell(f"dumpsys package {PACKAGE}"))
-    ok("version", version and version.group(1) == "0.1.0-alpha.1", str(version))
+    ok("version", version and version.group(1) == "0.1.0-alpha.2", str(version))
     shell("settings put system font_scale 1.0; settings put secure show_ime_with_hard_keyboard 0; settings put secure immersive_mode_confirmations confirmed; cmd uimode night yes")
     rotate(0)
 

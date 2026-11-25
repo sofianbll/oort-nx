@@ -130,13 +130,21 @@ def paste(code):
     if node:
         e.shell("input tap %d %d" % node.centre)
         time.sleep(1.5)
-    for start in range(0, len(code), 80):
-        e.shell("input text '%s'" % code[start:start + 80])
-    time.sleep(1)
-    e.shell("input keyevent KEYCODE_ESCAPE") if e.find(w("cloud_use_code")) is None else None
-    if not e.tap(w("cloud_use_code"), exact=True, seconds=4):
-        e.system_back()
-        e.tap(w("cloud_use_code"), exact=True)
+    # A busy emulator loses keys that come too fast: what was typed is read back.
+    for size in (40, 12, 5):
+        for start in range(0, len(code), size):
+            e.shell("input text '%s'" % code[start:start + size])
+        time.sleep(1.5)
+        typed = [n.text for n in e.screen() if n.text.strip().startswith(code[:4])]
+        if code in typed:
+            break
+        print("typed:", typed, flush=True)
+        e.shell("input keyevent KEYCODE_MOVE_END; input keyevent --longpress " + " ".join(["KEYCODE_DEL"] * 40))
+        for _ in range(len(code) // 40 + 2):
+            e.shell("input keyevent " + " ".join(["KEYCODE_DEL"] * 40))
+    if not e.find(w("cloud_use_code"), exact=True):
+        e.system_back()  # the keyboard, over the key
+    e.tap(w("cloud_use_code"), exact=True)
     time.sleep(1)
 
 

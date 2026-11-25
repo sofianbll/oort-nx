@@ -34,6 +34,8 @@ class CloudService : Service() {
         super.onDestroy()
     }
 
+    override fun attachBaseContext(base: Context) = super.attachBaseContext(CloudWords.of(base))
+
     private fun notice(): Notification {
         val notices = getSystemService(NotificationManager::class.java)
         notices.createNotificationChannel(NotificationChannel("now", getString(R.string.channel_now), NotificationManager.IMPORTANCE_LOW))

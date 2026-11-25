@@ -15,6 +15,7 @@ class CloudProvider : ContentProvider() {
     override fun call(method: String, arg: String?, extras: Bundle?): Bundle {
         // Android vouches for the caller's name; the signature says it is ours.
         if (!CloudGuard.allows(context!!, callingPackage)) throw SecurityException("not Oort NX")
+        CloudWords.save(context!!, extras?.getString("language"))
         val answer = Bundle()
         when (method) {
             "state" -> Unit

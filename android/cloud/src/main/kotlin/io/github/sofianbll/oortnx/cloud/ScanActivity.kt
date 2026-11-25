@@ -3,6 +3,7 @@ package io.github.sofianbll.oortnx.cloud
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -39,6 +40,8 @@ class ScanActivity : Activity() {
     private lateinit var words: TextView
     private var camera: CameraDevice? = null
     private var reader: ImageReader? = null
+
+    override fun attachBaseContext(base: Context) = super.attachBaseContext(CloudWords.of(base))
 
     override fun onCreate(saved: Bundle?) {
         super.onCreate(saved)

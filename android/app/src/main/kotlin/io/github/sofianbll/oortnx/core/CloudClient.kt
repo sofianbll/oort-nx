@@ -77,7 +77,7 @@ class CloudClient(private val context: Context, private val changed: (CloudState
     private fun ask(method: String, arg: String?): String? {
         if (!isHere) { main.post { changed(null) }; return null }
         val answer: Bundle = try {
-            context.contentResolver.call(URI, method, arg, null) ?: return null
+            context.contentResolver.call(URI, method, arg, Bundle().apply { putString("language", context.resources.configuration.locales[0].toLanguageTag()) }) ?: return null
         } catch (_: RuntimeException) {
             return null
         }

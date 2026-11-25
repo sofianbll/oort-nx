@@ -31,6 +31,8 @@ class StepActivity : Activity() {
     private var browser: ShelfStop? = null
     private var asked = false
 
+    override fun attachBaseContext(base: Context) = super.attachBaseContext(CloudWords.of(base))
+
     override fun onCreate(saved: Bundle?) {
         super.onCreate(saved)
         // startActivityForResult names the caller, and Android vouches for it.

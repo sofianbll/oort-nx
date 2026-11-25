@@ -514,6 +514,8 @@ class AppState(
         RowSection(Label.Res(R.string.settings_games), rows = listOf(
             RowItem("rescan", Label.Res(R.string.empty_rescan), glyph = Glyph.Refresh, kind = Kind.Press { rescan(say = true) }, value = Label.Res(R.string.library_count, count)),
             RowItem("which", Label.Res(R.string.settings_which), glyph = Glyph.Info, kind = Kind.Open(Route.WhichGames)),
+            RowItem("integrations", Label.Res(R.string.integrations), glyph = Glyph.Cloud, kind = Kind.Open(Route.Integrations),
+                value = if (cloud?.isOn == true) Label.Res(R.string.cloud_library) else null),
         )),
         RowSection(Label.Res(R.string.settings_feel), rows = listOf(
             RowItem("sounds", Label.Res(R.string.settings_sound), glyph = Glyph.Sound, kind = Kind.Open(Route.Sounds),
@@ -522,10 +524,6 @@ class AppState(
                 value = Label.Res(if (prefs.swapAB) R.string.settings_confirm_b else R.string.settings_confirm_a)),
             RowItem("cloud", Label.Res(R.string.settings_cloud), glyph = Glyph.Cloud, kind = Kind.Open(Route.Cloud),
                 value = Label.Res(if (prefs.calm) R.string.settings_cloud_still else R.string.settings_cloud_moving)),
-        )),
-        RowSection(rows = listOf(
-            RowItem("integrations", Label.Res(R.string.integrations), glyph = Glyph.Cloud, kind = Kind.Open(Route.Integrations),
-                value = if (cloud?.isOn == true) Label.Res(R.string.cloud_library) else null),
         )),
         RowSection(Label.Res(R.string.settings_about), footer = Label.Res(R.string.settings_license), rows = listOf(
             RowItem("version", Label.Res(R.string.detail_version_label), value = Label.Raw(versionName), glyph = Glyph.Info),
