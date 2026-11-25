@@ -46,6 +46,10 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 - A click puts a moved tile down; its hints take a click too.
 - Every hint of the Spotlight page and the Collection takes a click: card options, Details, Options.
 - The launch screen can be left with B or Esc after four seconds, and says so; keys no longer act on the screen under it.
+- Cancelling a restart from the command palette leaves no restart pending.
+- The on-screen keyboard follows the device in use without leaving the field. Physical keys still navigate and run palette results, and VoiceOver names the selected result and its action.
+- A second HID controller can take over when its fallback delay expires. Back in a launcher window, the next controller input hides the pointer again.
+- Held Return and Space cannot confirm twice; held arrows still move the selection.
 
 ## 0.5.0-beta.3 — 2026-11-25
 

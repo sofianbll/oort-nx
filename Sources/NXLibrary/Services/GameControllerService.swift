@@ -1,5 +1,6 @@
 import Foundation
 import AppKit
+import Carbon.HIToolbox
 import Combine
 import NXLibraryCore
 
@@ -37,6 +38,8 @@ final class GameControllerService: ObservableObject {
     func openHomeSettings() { (gcSource as? GCControllerSource)?.openHomeSettings() }
     private let buttonPresses = PassthroughSubject<String, Never>()
     var controllerButtonPresses: AnyPublisher<String, Never> { buttonPresses.eraseToAnyPublisher() }
+    private let activity = PassthroughSubject<Void, Never>()
+    var controllerActivity: AnyPublisher<Void, Never> { activity.eraseToAnyPublisher() }
 
     var onAction: ((GamepadAction) -> Void)?
     var onPadUse: (() -> Bool)?
@@ -153,7 +156,17 @@ final class GameControllerService: ObservableObject {
 
     func monitorHand(_ event: NSEvent) -> NSEvent? {
         handUsed(event)
-        return event
+        guard event.type == .keyDown, event.isARepeat else { return event }
+        let responder = event.window?.firstResponder
+        switch Int(event.keyCode) {
+        case kVK_Return, kVK_ANSI_KeypadEnter:
+            // Return is ordinary text only in a multiline editor.
+            return (responder as? NSTextView)?.isFieldEditor == false ? event : nil
+        case kVK_Space:
+            return responder is NSText ? event : nil
+        default:
+            return event
+        }
     }
 
     func handUsed(_ event: NSEvent) {
@@ -399,6 +412,13 @@ final class GameControllerService: ObservableObject {
             }
         }
         eligibleHID = eligible
+        if let deadline {
+            let timer = Timer(timeInterval: max(0, deadline - now), repeats: false) { [weak self] _ in
+                self?.refreshControllers()
+            }
+            RunLoop.main.add(timer, forMode: .common)
+            fallbackTimer = timer
+        }
         if let pad = eligible.first(where: { $0.id == lastUsed }), hidSource.select(pad.id) { return setActive(pad) }
         switch ControllerArbitration.preferred(hasGameController: gcPad != nil, hasHID: !eligible.isEmpty) {
         case .gameController:
@@ -411,13 +431,6 @@ final class GameControllerService: ObservableObject {
         case .wait, nil:
             hidSource.select(nil)
             setActive(nil)
-        }
-        if activePad == nil, let deadline {
-            let timer = Timer(timeInterval: max(0, deadline - now), repeats: false) { [weak self] _ in
-                self?.refreshControllers()
-            }
-            RunLoop.main.add(timer, forMode: .common)
-            fallbackTimer = timer
         }
     }
 
@@ -458,6 +471,7 @@ final class GameControllerService: ObservableObject {
                 }
                 return
             }
+            if pressed { activity.send(()) }
             guard let binding = layout.binding(button, browsing: isBrowsing()) else { return }
             if binding.release {
                 handleHold(binding, pressed: pressed)
@@ -480,7 +494,10 @@ final class GameControllerService: ObservableObject {
 
     /// Moves now when a direction is new, then keeps moving while something is held.
     private func move(_ direction: ControllerDirection?) {
-        if let direction { triggerAction(Self.action(direction)) }
+        if let direction {
+            activity.send(())
+            triggerAction(Self.action(direction))
+        }
         guard repeats.current != nil else {
             repeatTimer?.invalidate()
             repeatTimer = nil

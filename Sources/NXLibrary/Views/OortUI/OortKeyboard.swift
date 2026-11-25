@@ -100,15 +100,26 @@ struct OortKeyboard: View {
     @Published var keyboard = OnScreenKeyboard()
     /// Screens that draw their own keys (the profile's name).
     var ownKeys = 0
-    var controllerInHand: () -> Bool = { GameControllerService.shared.controllerInHand }
+    private var controllerInHand = false
+    private weak var window: NSWindow?
     private weak var field: NSTextView?
     /// The field Done was pressed in: macOS selects it again at once, which is not the player coming back.
     private weak var finished: AnyObject?
     private var watch: NSKeyValueObservation?
+    private var handWatch: AnyCancellable?
     private var observers: [NSObjectProtocol] = []
 
-    func watchHand(_ hand: CurrentValueSubject<Bool, Never>) {
-        controllerInHand = { hand.value }
+    func watchHand(_ hand: some Publisher<Bool, Never>) {
+        handWatch = hand.removeDuplicates().sink { [weak self] controller in
+            guard let self else { return }
+            self.controllerInHand = controller
+            if !controller {
+                self.finished = nil
+                self.close()
+            } else if let window = self.window {
+                self.responderChanged(in: window)
+            }
+        }
     }
 
     func start() {
@@ -122,10 +133,15 @@ struct OortKeyboard: View {
                 MainActor.assumeIsolated { self?.read() }
             },
         ]
+        let controller = GameControllerService.shared
+        watchHand(controller.$inputInHand.combineLatest(controller.$isGamepadConnected)
+            .map { $0.usesController(connected: $1) })
         follow(NSApp.keyWindow)
     }
 
     func follow(_ window: NSWindow?) {
+        self.window = window
+        if window == nil { close() }
         watch = window?.observe(\.firstResponder, options: [.initial]) { [weak self] window, _ in
             // Focus settles after the responder changes hands: look once it has.
             DispatchQueue.main.async { MainActor.assumeIsolated { self?.responderChanged(in: window) } }
@@ -133,8 +149,9 @@ struct OortKeyboard: View {
     }
 
     private func responderChanged(in window: NSWindow) {
+        guard self.window === window else { return }
         guard let next = window.firstResponder as? NSTextView, next.isEditable else { return close() }
-        guard ownKeys == 0, controllerInHand() else { return }
+        guard ownKeys == 0, controllerInHand else { return close() }
         if let finished, owner(next) === finished { return }
         if !isOpen || field !== next { keyboard = OnScreenKeyboard() }
         field = next

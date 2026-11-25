@@ -71,8 +71,7 @@ final class CursorWindowView: NSView {
     }
 
     static func controllerActivity(_ controller: GameControllerService) -> AnyPublisher<Void, Never> {
-        controller.$inputInHand.map(\.device).removeDuplicates().filter { $0 == .controller }
-            .map { _ in () }.eraseToAnyPublisher()
+        controller.controllerActivity
     }
 
     func stop() {

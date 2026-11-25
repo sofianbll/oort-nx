@@ -37,7 +37,9 @@ struct CommandPaletteView: View {
             fieldFocused = true
         }
         .onDisappear { returnResponder.giveBack() }
-        .onChange(of: palette.total) { announce() }
+        .onChange(of: AnnouncementSelection(total: palette.total, row: palette.focusedRow)) { previous, next in
+            announce(next, includeCount: previous.total != next.total)
+        }
     }
 
     private var hints: [HintItem] {
@@ -204,12 +206,25 @@ struct CommandPaletteView: View {
 
     private func number(_ count: Int) -> String { count.formatted(.number.locale(locale.formatLocale)) }
 
-    /// The focus stays in the field: VoiceOver hears what the words found.
-    private func announce() {
-        guard !palette.state.query.isEmpty else { return }
-        let found = palette.total == 0 ? text("Nothing matches. Try another word.")
-            : L10n.count("%lld results", palette.total, context: locale)
-        postAnnouncement([found, palette.focusedItem?.title].compactMap { $0 }.joined(separator: ". "))
+    private struct AnnouncementSelection: Equatable {
+        let total: Int
+        let row: PaletteRow?
+    }
+
+    /// Focus stays in the field: announce the selected row and its existing action.
+    private func announce(_ selection: AnnouncementSelection, includeCount: Bool) {
+        var words: [String] = []
+        if includeCount, !palette.state.query.isEmpty {
+            words.append(selection.total == 0 ? text("Nothing matches. Try another word.")
+                : L10n.count("%lld results", selection.total, context: locale))
+        }
+        if let row = selection.row, let group = starts.last(where: { $0.index <= palette.state.focus })?.group {
+            let title = name(row, in: group)
+            let action = text(palette.focusedItem?.primary ?? (palette.focusedItem == nil ? "See all" : "Open"))
+            words.append(title)
+            if action != title { words.append(action) }
+        }
+        if !words.isEmpty { postAnnouncement(words.joined(separator: ". ")) }
     }
 }
 
