@@ -72,7 +72,7 @@ One list, for every change to Oort NX. G applies to all, V to anything a player 
 | V30 | It holds in German and French, at 80 and 125 %, in a small window; nothing is cut without another way to read it. | Captures | [PRODUCT.md](../../PRODUCT.md); [Xbox guideline 101](https://learn.microsoft.com/en-us/gaming/accessibility/xbox-accessibility-guidelines/101) | Long words break layouts. |
 | V31 | Only the six text roles. 4.5:1 for text, 3:1 for shapes and focus, in every palette. | Palette tests, look | [DESIGN.md](../../DESIGN.md); [WCAG 2.2](https://www.w3.org/TR/WCAG22/) | Read from a sofa, in any palette. |
 | V32 | A state is a word or a shape, never colour or sound alone. | Capture in grey | [PRODUCT.md](../../PRODUCT.md); [HIG Accessibility](https://developer.apple.com/design/human-interface-guidelines/accessibility) | Not everyone sees or hears it. |
-| V33 | VoiceOver gets a name, a role and a value; decoration is hidden; the layer below a dialog is silent. | `rule:a11y-label`, `rule:a11y-tap`, try | [HIG VoiceOver](https://developer.apple.com/design/human-interface-guidelines/voiceover) | A picture has no words of its own. |
+| V33 | VoiceOver gets a name, a role and a value; decoration is hidden; a change is announced; the layer below a dialog is silent. | `rule:a11y-label`, `rule:a11y-tap`, try | [HIG VoiceOver](https://developer.apple.com/design/human-interface-guidelines/voiceover) | A picture has no words of its own. |
 | V34 | Each changed screen, panel and dialog was captured before and after, with focus, in French and English, and every image opened. | Captures in the pull request | [AGENTS.md](../../AGENTS.md), UI gate | A build does not prove a look. |
 
 ## Core
