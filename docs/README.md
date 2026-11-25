@@ -31,6 +31,8 @@ The guides in `how-it-works/` and `working-on-it/` are in Italian, except `devel
 | [components.md](working-on-it/components.md) | Shared Selene components, presets and states. |
 | [file-map.md](working-on-it/file-map.md) | One line per file of the project. |
 | [validation.md](working-on-it/validation.md) | What the maintainer has tried in the app, and what still waits. |
+| [architecture-map.md](working-on-it/architecture-map.md) | The five systems, the allowed imports between Swift modules, and where new code goes. |
+| [branch-rules.md](working-on-it/branch-rules.md) | Proposed rules for branches, tags and required checks. Not applied on GitHub. |
 
 ## history/
 

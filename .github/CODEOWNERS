@@ -1,0 +1,19 @@
+# The maintainer reviews every change; see CONTRIBUTING.md.
+# Listed here so that review is requested for sensitive areas.
+
+*                                   @sofianbll
+
+# Data, access, engine and releases need an explicit look.
+/.github/                           @sofianbll
+/scripts/release.sh                 @sofianbll
+/scripts/build_app.sh               @sofianbll
+/scripts/check_publication.py       @sofianbll
+/Sources/ArcanePorting/Saves/       @sofianbll
+/Sources/ArcanePorting/Library/     @sofianbll
+/Sources/ArcanePorting/Setup/       @sofianbll
+/Sources/ArcanePorting/Build/       @sofianbll
+/Package.swift                      @sofianbll
+/runtime.lock                       @sofianbll
+/NOTICE                             @sofianbll
+/LICENSE                            @sofianbll
+/SECURITY.md                        @sofianbll

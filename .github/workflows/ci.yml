@@ -1,10 +1,14 @@
 name: Checks
 
+# One workflow for every system. Areas run only when their paths change (scripts/ci_changed_areas.py);
+# a pull request labelled `ci:full`, and every push to main, also runs the proof jobs (installed packages,
+# emulator, simulators). Nothing here has secrets, signs or publishes.
 'on':
   push:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -14,9 +18,48 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  mac:
-    name: Mac / tests
-    # GitHub-hosted public preview; do not register a self-hosted runner.
+  areas:
+    name: Changed areas
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      swift: ${{ steps.decide.outputs.swift }}
+      desktop: ${{ steps.decide.outputs.desktop }}
+      mobile: ${{ steps.decide.outputs.mobile }}
+      android: ${{ steps.decide.outputs.android }}
+      full: ${{ steps.decide.outputs.full }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - id: decide
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          HAS_FULL_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'ci:full') }}
+        run: |
+          if [ "$EVENT" = pull_request ]; then
+            changed=$(git diff --name-only "$BASE" "$HEAD_SHA")
+            flags=""
+          elif [ "$EVENT" = push ] && [ "$BASE" != 0000000000000000000000000000000000000000 ]; then
+            changed=$(git diff --name-only "$BASE" "$GITHUB_SHA")
+            flags=""
+          else
+            changed=""
+            flags="--all"
+          fi
+          printf '%s\n' "$changed" | python3 scripts/ci_changed_areas.py --root . $flags >> "$GITHUB_OUTPUT"
+          if [ "$EVENT" != pull_request ] || [ "$HAS_FULL_LABEL" = true ]; then
+            echo "full=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "full=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  # Always runs: publication, translations, tokens, module boundaries and the Python checks.
+  checks:
+    name: Mac / checks
     runs-on: xcode-27
     timeout-minutes: 25
     env:
@@ -33,11 +76,29 @@ jobs:
           python3 scripts/check_localizations.py
           python3 scripts/generate_oort_tokens.py --check
           python3 scripts/check_selene_tokens.py
-      - name: Publication check regressions
-        run: python3 -m unittest discover -s Tests/PublicationChecks
+          python3 scripts/check_module_boundaries.py
+      - name: Python checks
+        run: |
+          python3 -m unittest discover -s Tests/PublicationChecks
+          python3 -m unittest discover -s Tests/ModuleChecks
+          python3 -m unittest discover -s Tests/SkillChecks
+          python3 -m unittest discover -s Tests/CIChecks
       - name: Selene baseline can only shrink
         if: github.event_name == 'pull_request'
         run: python3 scripts/check_selene_tokens.py --base HEAD^1
+
+  swift:
+    name: Mac / Swift tests
+    needs: areas
+    if: needs.areas.outputs.swift == 'true'
+    runs-on: xcode-27
+    timeout-minutes: 25
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Swift tests
         run: |
           home="$(mktemp -d "$RUNNER_TEMP/oort-home.XXXXXX")"
@@ -49,3 +110,438 @@ jobs:
           done
       - name: Release compilation
         run: swift build -c release --product NXLibrary
+
+  # Windows and Linux: the portable core, the Tauri host and the packages. Alpha branch layout.
+  windows:
+    name: Windows ${{ matrix.arch }}
+    needs: areas
+    if: needs.areas.outputs.desktop == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-2025
+            arch: x64
+            swift_arch: amd64
+            triple: x86_64-pc-windows-msvc
+            component: Microsoft.VisualStudio.Component.VC.Tools.x86.x64
+          - runner: windows-11-arm
+            arch: arm64
+            swift_arch: arm64
+            triple: aarch64-pc-windows-msvc
+            component: Microsoft.VisualStudio.Component.VC.Tools.ARM64
+    runs-on: ${{ matrix.runner }}
+    continue-on-error: ${{ matrix.arch == 'arm64' }}
+    timeout-minutes: 90
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      PYTHONUTF8: '1'
+    steps:
+      - name: The tree as committed
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Swift
+        run: ./scripts/ci/install_swift.ps1 -Arch ${{ matrix.arch }}
+      - uses: compnerd/gha-setup-vsdevenv@f1ba60d553a3216ce1b89abe0201213536bc7557 # v6
+        with:
+          arch: ${{ matrix.swift_arch }}
+          host_arch: ${{ matrix.swift_arch }}
+          components: ${{ matrix.component }}
+          winsdk: '10.0.26100.0'
+      - name: Rust
+        run: |
+          rustup toolchain install 1.94.1 --profile minimal --component clippy --no-self-update
+          rustup default 1.94.1
+          rustup target add ${{ matrix.triple }}
+      - name: Core, in Swift
+        run: |
+          swift --version
+          python scripts/check_portable_core.py
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          swift build --build-system native --build-tests
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          swift test --build-system native --skip-build
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          swift build --build-system native -c release --product oort-core
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $bin = swift build --build-system native -c release --product oort-core --show-bin-path
+          New-Item -ItemType Directory -Force desktop/src-tauri/binaries, desktop/src-tauri/runtime | Out-Null
+          Copy-Item "$bin/oort-core.exe" "desktop/src-tauri/binaries/oort-core-${{ matrix.triple }}.exe"
+          # What the core needs and Windows does not have travels with the app: Swift's runtime, Visual C++'s.
+          $swift = Split-Path (where.exe swiftCore.dll | Select-Object -First 1)
+          $visual = (Get-ChildItem "$env:VCToolsRedistDir/${{ matrix.arch }}" -Directory -Filter 'Microsoft.VC*.CRT' | Select-Object -First 1).FullName
+          python desktop/scripts/runtime_windows.py copy "$bin/oort-core.exe" desktop/src-tauri/runtime --from $swift $visual
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Page and generated files
+        run: |
+          python desktop/scripts/generate.py --check
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          node --test desktop/tests/nav.test.mjs
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Host, in Rust
+        working-directory: desktop/src-tauri
+        run: |
+          cargo clippy --locked -- -D warnings
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          cargo test --locked
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Installer
+        working-directory: desktop
+        run: |
+          npm ci
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          python scripts/licenses.py --texts src-tauri/runtime/THIRD-PARTY-RUST.txt ${{ matrix.triple }}
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          '{"bundle":{"resources":{"runtime/THIRD-PARTY-RUST.txt":"licenses/THIRD-PARTY-RUST.txt","runtime/*.dll":"./"}}}' | Set-Content ci.json
+          npx tauri build --target ${{ matrix.triple }} --bundles nsis --config ci.json -- --locked
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $version = (Get-Content src-tauri/tauri.conf.json | ConvertFrom-Json).version
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item "src-tauri/target/${{ matrix.triple }}/release/bundle/nsis/*-setup.exe" "dist/Oort-NX-Windows-$version-${{ matrix.arch }}-setup.exe"
+          Get-ChildItem dist | Get-FileHash | Format-List Hash, Path
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: oort-nx-windows-${{ matrix.arch }}
+          path: desktop/dist/*.exe
+          if-no-files-found: error
+          retention-days: 30
+
+  linux:
+    name: Linux x64
+    needs: areas
+    if: needs.areas.outputs.desktop == 'true'
+    runs-on: ubuntu-24.04
+    container: swift:6.4.3-bookworm
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Libraries, Rust, Node
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends build-essential curl file patchelf pkg-config python3 xdg-utils nodejs npm \
+            libwebkit2gtk-4.1-dev libudev-dev libssl-dev librsvg2-dev libayatana-appindicator3-dev libdbus-1-dev \
+            gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-tools
+          curl -fsSL https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init -o rustup-init
+          chmod +x rustup-init && ./rustup-init -y --profile minimal --default-toolchain 1.94.1 --component clippy
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+      - name: Core, in Swift
+        run: |
+          python3 scripts/check_portable_core.py
+          swift build --build-tests
+          swift test --skip-build
+          swift build -c release --product oort-core --static-swift-stdlib
+          mkdir -p desktop/src-tauri/binaries
+          cp "$(swift build -c release --product oort-core --static-swift-stdlib --show-bin-path)/oort-core" \
+            desktop/src-tauri/binaries/oort-core-x86_64-unknown-linux-gnu
+          echo '{"id":1,"method":"hello"}' | desktop/src-tauri/binaries/oort-core-x86_64-unknown-linux-gnu \
+            --data /tmp/core --resources desktop/src-tauri --system linux | grep '"system":"linux"'
+      - name: Page, host
+        run: |
+          python3 desktop/scripts/generate.py --check
+          node --test desktop/tests/nav.test.mjs
+          cd desktop/src-tauri
+          cargo clippy --locked -- -D warnings
+          cargo test --locked
+      - name: Packages
+        working-directory: desktop
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: '1'
+        run: |
+          npm ci
+          mkdir -p src-tauri/runtime dist
+          python3 scripts/licenses.py --texts src-tauri/runtime/THIRD-PARTY-RUST.txt x86_64-unknown-linux-gnu
+          echo '{"bundle":{"resources":{"runtime/THIRD-PARTY-RUST.txt":"licenses/THIRD-PARTY-RUST.txt"}}}' > ci.json
+          npx tauri build --bundles deb,appimage --config ci.json -- --locked
+          # What the AppImage took from this system decides which licences go with it: made, read, made again.
+          (cd /tmp && chmod +x "$OLDPWD"/src-tauri/target/release/bundle/appimage/*.AppImage && env -u APPIMAGE_EXTRACT_AND_RUN "$OLDPWD"/src-tauri/target/release/bundle/appimage/*.AppImage --appimage-extract > /dev/null)
+          python3 scripts/licenses_linux.py /tmp/squashfs-root src-tauri/runtime/THIRD-PARTY-LINUX.txt
+          rm -rf /tmp/squashfs-root
+          echo '{"bundle":{"resources":{"runtime/THIRD-PARTY-RUST.txt":"licenses/THIRD-PARTY-RUST.txt","runtime/THIRD-PARTY-LINUX.txt":"licenses/THIRD-PARTY-LINUX.txt"}}}' > ci.json
+          npx tauri build --bundles appimage --config ci.json -- --locked
+          version=$(python3 -c "import json; print(json.load(open('src-tauri/tauri.conf.json'))['version'])")
+          cp src-tauri/target/release/bundle/deb/*.deb "dist/Oort-NX-Linux-$version-x64.deb"
+          cp src-tauri/target/release/bundle/appimage/*.AppImage "dist/Oort-NX-Linux-$version-x64.AppImage"
+          sha256sum dist/*
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: oort-nx-linux-x64
+          path: desktop/dist/*
+          if-no-files-found: error
+          retention-days: 30
+
+  # Proof jobs: install the packages on a clean machine. Only with ci:full, a push to main or a manual run.
+  windows-proof:
+    name: Windows ${{ matrix.arch }}, installed
+    needs: [areas, windows]
+    if: needs.areas.outputs.full == 'true' && needs.areas.outputs.desktop == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { runner: windows-2025, arch: x64 }
+          - { runner: windows-11-arm, arch: arm64 }
+    runs-on: ${{ matrix.runner }}
+    continue-on-error: ${{ matrix.arch == 'arm64' }}
+    timeout-minutes: 75
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: oort-nx-windows-${{ matrix.arch }}
+          path: package
+      # The version players have, as published, by its digest.
+      - name: The published alpha.1
+        if: matrix.arch == 'x64'
+        run: |
+          curl.exe -fsSL --retry 3 -o before-setup.exe https://github.com/sofianbll/oort-nx/releases/download/windows-v0.1.0-alpha.1/Oort-NX-Windows-0.1.0-alpha.1-x64-setup.exe
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          if ((Get-FileHash before-setup.exe).Hash -ne '5c18776d321721c83181eed7aa330352f244db083a35c55fae01b8d278ede91f') { Write-Error 'not the published file' }
+      - name: Install, play, uninstall
+        run: |
+          $before = if (Test-Path before-setup.exe) { (Get-Item before-setup.exe).FullName } else { '' }
+          $version = (Get-Content desktop/src-tauri/tauri.conf.json | ConvertFrom-Json).version
+          ./desktop/tests/windows/prove.ps1 -Installer (Get-ChildItem package/*-setup.exe).FullName -Out proof -Version $version -Before $before
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: proof-windows-${{ matrix.arch }}
+          path: proof
+          retention-days: 30
+
+  linux-proof:
+    name: Linux x64, installed
+    needs: [areas, linux]
+    if: needs.areas.outputs.full == 'true' && needs.areas.outputs.desktop == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: oort-nx-linux-x64
+          path: package
+      - name: Open, play
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends xvfb xdotool imagemagick openbox dbus-x11 x11-utils
+          desktop/tests/linux/prove.sh package/*.deb package/*.AppImage proof
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: proof-linux-x64
+          path: proof
+          retention-days: 30
+
+  # iPhone and iPad. Alpha branch layout.
+  mobile:
+    name: iPhone and iPad / tests and unsigned IPA
+    needs: areas
+    if: needs.areas.outputs.mobile == 'true'
+    runs-on: xcode-27
+    timeout-minutes: 45
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Publication inputs
+        run: |
+          xcodebuild -version
+          python3 scripts/check_publication.py
+          python3 scripts/check_localizations.py
+          python3 scripts/generate_oort_tokens.py --check
+          python3 scripts/check_selene_tokens.py
+          python3 scripts/check_oort_core.py
+      - name: Mobile tests
+        run: |
+          home="$(mktemp -d "$RUNNER_TEMP/oort-home.XXXXXX")"
+          HOME="$home" CFFIXED_USER_HOME="$home" swift test --package-path mobile --scratch-path "$RUNNER_TEMP/mobile"
+      - name: OortCore tests
+        run: |
+          home="$(mktemp -d "$RUNNER_TEMP/oort-home.XXXXXX")"
+          HOME="$home" CFFIXED_USER_HOME="$home" swift test --scratch-path "$RUNNER_TEMP/core" --filter OortCoreTests
+      - name: Device and simulator builds
+        run: |
+          PATH="$(mobile/scripts/get_xcodegen.sh "$RUNNER_TEMP/xcodegen"):$PATH"
+          mobile/scripts/build_app.sh "$RUNNER_TEMP/app" iphoneos iphonesimulator
+      - name: Unsigned IPA
+        run: mobile/scripts/package_ipa.sh "$RUNNER_TEMP/app" "$RUNNER_TEMP/ipa"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: unsigned-ipa
+          path: ${{ runner.temp }}/ipa
+          if-no-files-found: error
+
+  simulator:
+    name: ${{ matrix.name }}
+    needs: [areas, mobile]
+    if: needs.areas.outputs.full == 'true' && needs.areas.outputs.mobile == 'true'
+    runs-on: xcode-27
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: iphone-fr-dark, device: iPhone 18 Pro, lang: fr, look: dark, still: '', only: '' }
+          - { name: iphone-en-light-still, device: iPhone 18 Pro, lang: en, look: light, still: still, only: '' }
+          - { name: ipad-fr-dark, device: iPad Pro 11-inch (M5), lang: fr, look: dark, still: '', only: '' }
+          - { name: ipad-en-light-still, device: iPad Pro 11-inch (M5), lang: en, look: light, still: still, only: '' }
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: The app on a simulator
+        run: |
+          xcrun simctl list devices available
+          PATH="$(mobile/scripts/get_xcodegen.sh "$RUNNER_TEMP/xcodegen"):$PATH"
+          mobile/scripts/test_app.sh "$RUNNER_TEMP/app" "$RUNNER_TEMP/out" "${{ matrix.device }}" 27.2 ${{ matrix.lang }} ${{ matrix.look }} "${{ matrix.still }}" "${{ matrix.only }}"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: simulator-${{ matrix.name }}
+          path: ${{ runner.temp }}/out
+
+  # Android. Alpha branch layout. Checks that need no SDK run first.
+  android-checks:
+    name: Android / checks that need no SDK
+    needs: areas
+    if: needs.areas.outputs.android == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Nothing private in what is published
+        run: python3 scripts/check_publication.py
+      - name: Tokens, resources, licences, bracket balance, no network permission
+        run: |
+          python3 scripts/generate_oort_android_tokens.py --check
+          python3 -m unittest discover -s Tests/AndroidChecks
+      - name: The cloud against the Mac's own numbers
+        run: python3 -I android/tools/verify_cloud.py
+
+  android-apk:
+    name: Android / unit tests and APK
+    needs: android-checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      APK: Oort-NX-Android-0.1.0-alpha.1-unsigned.apk
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: '21'
+      # The runner image carries the Android SDK (platforms 36 and 37.1, build-tools 36.0.0) and accepted licences.
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+        with:
+          gradle-version: '9.9.2'
+      - name: Unit tests (the cloud, the sounds and the pad against the Mac's output)
+        run: gradle -p android testDebugUnitTest
+      - name: Debug APK (debug key, installable for a first look)
+        run: gradle -p android assembleDebug
+      - name: Release APK
+        run: gradle -p android assembleRelease
+      - name: Unsigned release, aligned, with its checksum
+        run: |
+          tools="$ANDROID_HOME/build-tools/36.0.0"
+          mkdir -p dist
+          "$tools/zipalign" -P 16 -f 4 android/app/build/outputs/apk/release/app-release-unsigned.apk "dist/$APK"
+          "$tools/zipalign" -c -P 16 4 "dist/$APK"
+          if "$tools/apksigner" verify "dist/$APK" >/dev/null 2>&1; then echo "expected no signature"; exit 1; fi
+          "$tools/aapt2" dump badging "dist/$APK" | grep -E "^(package|minSdkVersion|targetSdkVersion|application-label|uses-permission)"
+          if "$tools/aapt2" dump permissions "dist/$APK" | grep "uses-permission" | grep -v DYNAMIC_RECEIVER_NOT_EXPORTED; then echo "a permission is asked for"; exit 1; fi
+          cd dist && sha256sum "$APK" | tee "$APK.sha256"
+      - name: The release signed for the emulator only, and the made-up games
+        run: |
+          tools="$ANDROID_HOME/build-tools/36.0.0"
+          mkdir -p emulator
+          keytool -genkeypair -keystore "$RUNNER_TEMP/test.jks" -storepass android -alias test -keyalg RSA -validity 2 -dname CN=emulator-test
+          "$tools/apksigner" sign --ks "$RUNNER_TEMP/test.jks" --ks-pass pass:android --out emulator/oort.apk "dist/$APK"
+          python3 android/tools/make_test_games.py --out emulator/games --keystore "$RUNNER_TEMP/test.jks" --password android
+          rm -f emulator/*.idsig "$RUNNER_TEMP/test.jks"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: oort-nx-android-unsigned
+          if-no-files-found: error
+          path: dist/
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: emulator-apks
+          if-no-files-found: error
+          retention-days: 7
+          path: emulator/
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: oort-nx-android-debug-and-tests
+          retention-days: 14
+          path: |
+            android/app/build/outputs/apk/debug/*.apk
+            android/app/build/reports/tests/
+
+  android-emulator:
+    name: Android / emulator, API ${{ matrix.api }}
+    needs: [areas, android-apk]
+    if: needs.areas.outputs.full == 'true' && needs.areas.outputs.android == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { api: 36, target: google_apis }
+          - { api: 34, target: default }
+          - { api: 29, target: default }
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: emulator-apks
+          path: emulator
+      - name: KVM for the emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: ReactiveCircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: ${{ matrix.api }}
+          target: ${{ matrix.target }}
+          arch: x86_64
+          profile: pixel_6
+          cores: 4
+          ram-size: 3072M
+          disable-animations: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot -camera-back none
+          script: python3 android/tools/emulator_check.py --apk emulator/oort.apk --games emulator/games --out captures
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: captures-api-${{ matrix.api }}
+          retention-days: 30
+          path: captures/
