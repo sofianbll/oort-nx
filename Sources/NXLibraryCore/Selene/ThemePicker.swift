@@ -166,15 +166,15 @@ public enum ThemeBackgrounds {
     /// The label over the grid for the focused tile.
     public static func group(_ choice: ThemeBackgroundChoice, tab: BackgroundTab = .wallpapers) -> String {
         switch choice {
-        case .theme: return "THEME"
-        case .none: return tab == .live ? "THEME" : "NO WALLPAPER"
-        case .add: return "YOUR OWN"
-        case .online(let source): return "ONLINE · \(source.title.uppercased())"
+        case .theme: return "Theme"
+        case .none: return tab == .live ? "Theme" : "No wallpaper"
+        case .add: return "Your own"
+        case .online(let source): return "Online · \(source.title)"
         case .wallpaper(let id):
             let theme = id.split(separator: "/").first.map(String.init) ?? ""
-            if theme == WallpaperCatalog.custom { return "YOUR OWN" }
-            if theme == WallpaperCatalog.online || theme == WallpaperCatalog.live { return "DOWNLOADED" }
-            return theme.split(separator: "-").joined(separator: " ").uppercased()
+            if theme == WallpaperCatalog.custom { return "Your own" }
+            if theme == WallpaperCatalog.online || theme == WallpaperCatalog.live { return "Downloaded" }
+            return theme.split(separator: "-").map { $0.prefix(1).uppercased() + $0.dropFirst() }.joined(separator: " ")
         }
     }
 }

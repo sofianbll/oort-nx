@@ -183,22 +183,22 @@ struct AddGameView: View {
 
     private var stepTitle: String {
         switch porting.buildWizardStep {
-        case 1: return "Choose a game"
+        case 1: return L10n.text("Choose a game")
         case 2: return porting.selectedGame?.name ?? L10n.text("Review")
         default:
             if !viewModel.isBuilding, porting.buildError != nil, let reason = porting.portingFailureReason {
                 return reason.title
             }
             let id = viewModel.currentBuildGameID ?? viewModel.lastBuildGameID
-            return viewModel.libraryGames.first { $0.id == id }?.name ?? "Porting"
+            return viewModel.libraryGames.first { $0.id == id }?.name ?? L10n.text("Build")
         }
     }
 
-    /// "Choose · Review · Porting", the current step in full ink.
+    /// "Choose · Review · Build", the current step in full ink.
     private var stepLine: some View {
         let step = porting.buildWizardStep
         return HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
-            ForEach(Array(["Choose", L10n.text("Review"), "Porting"].enumerated()), id: \.offset) { index, title in
+            ForEach(Array([L10n.text("Choose"), L10n.text("Review"), L10n.text("Build")].enumerated()), id: \.offset) { index, title in
                 if index > 0 {
                     Circle().fill(SeleneTheme.ink25).frame(width: canvas.u(4), height: canvas.u(4))
                 }

@@ -27,7 +27,7 @@ extension ThemePickerView {
                 VStack(alignment: .leading, spacing: 0) {
                     tabs
                         .padding(.bottom, canvas.u(SeleneTokens.Space.control))
-                    Text(ThemeBackgrounds.group(focused, tab: state.tab))
+                    Text(L10n.text(ThemeBackgrounds.group(focused, tab: state.tab)))
                         .seleneFont(.badge, .semibold)
                         .foregroundColor(SeleneTheme.ink75)
                         .padding(.leading, canvas.u(SeleneTokens.Space.small))
