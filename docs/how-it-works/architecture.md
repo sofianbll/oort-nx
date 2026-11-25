@@ -512,6 +512,8 @@ La verifica e la copia della cache prodotta girano fuori dal thread dell'interfa
 
 I percorsi completi sono in [flows.md](flows.md#3-play-di-un-gioco-switch-nxnative) (Switch) e in [steam.md](steam.md) (Steam).
 
+Quando la schermata di avvio è inattiva e offre la chiusura, `LaunchScreenView` lascia visibile il pulsante di chiusura con il mouse anche senza suggerimenti; Oort non riceve i tasti in quel momento.
+
 `AppViewModel.play` inoltra i comandi Play a `GamePlay` nel Core. Il target mantiene il record della sua fonte e l'unica installazione utilizzabile, senza trasformare Steam in un gioco portato. Un `PlayConnector` dichiara la disponibilità di un nuovo avvio e riceve il profilo corrente; i connettori macOS (`NXNativePlayConnector` e `SteamPlayCoordinator`) conservano i controlli e gli avvisi del loro percorso. La richiesta in preparazione, la consegna al client e l'apertura osservata del gioco sono distinte. Quando un connettore osserva una finestra o l'uscita, può segnalarla; la chiusura della schermata d'attesa per timeout non significa che il gioco sia pronto.
 
 Una ripresa nxnative dopo lo scambio cloud o la conferma VPN rilegge il gioco per UUID ma conserva il profilo e l'osservatore della richiesta. Un profilo diverso o bloccato annulla la ripresa.

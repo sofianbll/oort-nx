@@ -142,6 +142,8 @@ flowchart TD
 
 Arcane legge le domande dal log di Steam. Durante `ShowInterstitials` l'attesa prosegue e il client può aprire le sue finestre dietro la schermata. Arcane non scrive mai i file di Steam e non apre l'app del gioco direttamente. Dettagli in [steam.md](steam.md).
 
+Se Oort perde il primo piano, la schermata d'attesa offre il clic per chiudere anche con i suggerimenti spenti, dopo il ritardo già previsto da `LaunchExit`. Vale anche per gli avvii Switch.
+
 Nella pagina Spotlight di un titolo Steam, Giù porta anche a **More like this** quando la fascia è presente. Invio, A o doppio clic selezionano la copertina sulla riga della libreria. Se il filtro la esclude, la libreria passa a **All games** come per Switch.
 
 ## 5. Costruire un gioco Switch (Add Game)
