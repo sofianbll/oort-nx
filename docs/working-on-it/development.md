@@ -217,7 +217,7 @@ Oort NX utilise son propre `MAJOR.MINOR.PATCH` : **PATCH** pour les correctifs s
 
    Pour la publication perso, passer `DM_NEXTENDO_CLIENT_ID="$YOUR_PUBLIC_NEXTENDO_CLIENT_ID"` aux deux commandes : le build inscrit cet identifiant public dans `DMNextendoClientID` dans le plist de l’app. Ne pas fournir de secret Nextendo. Le script refuse un SHA qui n'est pas accessible depuis une branche du dépôt. Sans les deux options moteur, la build conserve le dépôt et le pin amont.
 
-3. Après validation et accord de publication, placer le commit de release sur `main` dans le dépôt public et refaire la même build avec les notes approuvées. Le script résout le nom public depuis `sofianbll/NxLibrary` et accepte uniquement ce nom ou `sofianbll/oort-nx`. L’envoi d’`origin` doit viser ce même dépôt pour le tag `vX.Y.Z` et la release. Publier le pont en conservant le nom actuel : la 0.2.1.20261129 ne saura pas mettre à jour depuis le nouveau nom. Les notes peuvent rester hors du dépôt ; le script y ajoute le dépôt et le SHA embarqués et les métadonnées Xcode/moteur.
+3. Après validation et accord de publication, placer le commit de release sur `main` dans le dépôt public et refaire la même build avec les notes approuvées. Depuis 0.4.0, le script vise `sofianbll/oort-nx`. L’envoi d’`origin` doit viser ce même dépôt pour le tag `vX.Y.Z` et la release. Pour 0.4.0 seulement, publier ensuite les mêmes fichiers et le même tag dans `sofianbll/NxLibrary` : les copies jusqu’à 0.3.0 y cherchent leur mise à jour. Les notes peuvent rester hors du dépôt ; le script y ajoute le dépôt et le SHA embarqués et les métadonnées Xcode/moteur.
 
    ~~~sh
    DM_NEXTENDO_CLIENT_ID="$YOUR_PUBLIC_NEXTENDO_CLIENT_ID" bash scripts/release.sh 0.3.0 \
