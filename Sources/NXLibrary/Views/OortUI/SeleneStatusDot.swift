@@ -12,7 +12,7 @@ struct SeleneStatusDot: View {
     var pulses = false
 
     var body: some View {
-        HStack(spacing: canvas.u(8)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
             SeleneStatusMark(color: color, pulses: pulses)
             Text(text).seleneFont(.text).foregroundColor(labelColor)
         }

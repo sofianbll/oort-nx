@@ -21,7 +21,7 @@ struct AchievementDetail: View {
         let unlocked = row.unlockedAt != nil
         let shape = RoundedRectangle(cornerRadius: canvas.u(SeleneTheme.modalRadius), style: .continuous)
         ZStack {
-            Color.black.opacity(0.55)
+            SeleneTheme.artShade.opacity(SeleneTokens.Alpha.veil)
                 .ignoresSafeArea()
                 .contentShape(Rectangle())
                 .onTapGesture(perform: onClose)
@@ -74,8 +74,8 @@ struct AchievementDetail: View {
                 .lineLimit(1)
                 .padding(.top, canvas.u(SeleneTokens.Space.titleGap))
             }
-            .padding(.horizontal, canvas.u(56))
-            .padding(.top, canvas.u(56))
+            .padding(.horizontal, canvas.u(SeleneTokens.Space.chromeGutter))
+            .padding(.top, canvas.u(SeleneTokens.Space.chromeGutter))
             .padding(.bottom, canvas.u(SeleneTokens.Space.group))
             .frame(width: canvas.u(Self.width))
             .oortPanel(radius: canvas.u(SeleneTokens.Radius.modal), floats: true)

@@ -203,15 +203,15 @@ struct DevelopmentStartupView: View {
                     }
                 }).seleneCanvasRoot()
             } else if let failure = startup.failure {
-                VStack(spacing: 20) {
+                VStack(spacing: SeleneTokens.Space.panel) {
                     if startup.working { ProgressView().controlSize(.large) }
                     Text(L10n.text("Library unavailable", context: context))
-                        .font(.system(size: 28, weight: .semibold))
+                        .font(.system(size: SeleneTokens.Text.heading.rawValue, weight: .semibold))
                     Text(failure)
-                        .font(.system(size: 17)).multilineTextAlignment(.center)
+                        .font(.system(size: SeleneTokens.Text.badge.rawValue)).multilineTextAlignment(.center)
                     if startup.legacyConflict != nil {
                         Text(L10n.text("Keep the games and sources in Arcane. The older app's changes will be archived separately, without merging the libraries.", context: context))
-                            .font(.system(size: 15)).multilineTextAlignment(.center)
+                            .font(.system(size: SeleneTokens.Text.badge.rawValue)).multilineTextAlignment(.center)
                         Button(L10n.text("Keep Arcane's library", context: context)) {
                             Task { await startup.keepCurrentLibrary() }
                         }.keyboardShortcut("k", modifiers: [.command, .shift])
@@ -223,7 +223,7 @@ struct DevelopmentStartupView: View {
                         }.keyboardShortcut("r", modifiers: [.command, .shift])
                             .disabled(startup.working)
                     }
-                    HStack(spacing: 24) {
+                    HStack(spacing: SeleneTokens.Space.large) {
                         Button(L10n.text("Close", context: context)) { NSApplication.shared.terminate(nil) }
                             .keyboardShortcut(.cancelAction)
                         Button(L10n.text("Open library folder", context: context)) { NSWorkspace.shared.open(AppData.supportRoot) }
@@ -237,9 +237,9 @@ struct DevelopmentStartupView: View {
                         }
                     }.disabled(startup.working)
                 }
-                .foregroundColor(.white)
-                .padding(48).frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color(red: 0.08, green: 0.09, blue: 0.12))
+                .foregroundColor(SeleneTheme.artInk)
+                .padding(SeleneTokens.Space.group).frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(hex: SeleneTokens.Palette.glass))
                 .onAppear { LaunchReveal.show() }
             } else if startup.showCopyProgress {
                 DowngradeCopyProgress(context: context).seleneCanvasRoot()

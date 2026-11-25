@@ -36,7 +36,7 @@ struct ThemePreview: View {
             ZStack(alignment: .topLeading) {
                 // The home's own layers (SeleneBackdrop): scrim, base gradient at 0.6, the wallpaper.
                 Color(hex: palette.scrim)
-                Rectangle().fill(SeleneTheme.baseGradient(for: palette)).opacity(0.6)
+                Rectangle().fill(SeleneTheme.baseGradient(for: palette)).opacity(SeleneTokens.Alpha.muted)
                 if let wallpaperURL {
                     WallpaperThumb(url: wallpaperURL).mask(style.brightness.mask)
                     if let videoURL {
@@ -59,7 +59,7 @@ struct ThemePreview: View {
             }
             .frame(width: w, height: h)
             .clipShape(shape)
-            .overlay(shape.strokeBorder(SeleneTheme.ink25, lineWidth: 1))
+            .overlay(shape.strokeBorder(SeleneTheme.ink25, lineWidth: SeleneTokens.Space.thinStroke))
             .oortShadow(.floating)
             .animation(SeleneTheme.arrival, value: palette.id)
             .animation(SeleneTheme.arrival, value: wallpaperURL)
@@ -78,7 +78,7 @@ struct ThemePreview: View {
         return VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: w * 0.02) {
                 Text(L10n.text("Spotlight")).foregroundColor(ink)
-                Text(L10n.text("Collection")).foregroundColor(ink.opacity(0.6))
+                Text(L10n.text("Collection")).foregroundColor(ink.opacity(SeleneTokens.Alpha.muted))
             }
             .font(.system(size: w * 0.018, weight: .semibold))
             HStack(spacing: w * 0.016) {
@@ -117,7 +117,7 @@ struct ThemePreview: View {
                     .padding(.horizontal, w * 0.032)
                     .padding(.vertical, w * 0.01)
                     .background(Capsule().fill(glass))
-                    .overlay(Capsule().strokeBorder(ink.opacity(0.22), lineWidth: 1))
+                    .overlay(Capsule().strokeBorder(ink.opacity(SeleneTokens.Alpha.line), lineWidth: SeleneTokens.Space.thinStroke))
             }
             .font(.system(size: w * 0.02, weight: .semibold))
             .padding(.top, h * 0.04)

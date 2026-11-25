@@ -44,11 +44,12 @@ Il [README](../../README.md) è la guida d'uso; la [guida di sviluppo](../workin
 | Target | Compito |
 |---|---|
 | `NXLibrary` | Eseguibile SwiftUI, integrazione AppKit, controller, notifiche, coordinamento e rendering. |
-| `OortCore` | Logica portabile: input, focus, tastiera PIN, particelle, righe e versioni. Solo Swift e Foundation, senza risorse né dipendenze. |
+| `OortCore` | Logica portabile: input, focus, tastiera PIN, particelle, nuvola e suoi shader, token, manifesto e regolaggi di un gioco, righe e versioni. Solo Swift e Foundation, senza risorse né dipendenze. |
 | `NXLibraryCore` | Modelli, persistenza, gestione file, contratti del motore, processi e logica delle funzionalità. Riesporta `OortCore` per i chiamanti esistenti. |
 | `ArcanePorting` | Il modulo Switch: Setup, build, avvio, impostazioni del gioco, cheat, store Nintendo, salvataggi, mod RomFS e GameBanana, la parte nxnative di catalogo e libreria. Dipende da `NXLibraryCore`. |
 | `NXLibraryCoreTests` | Test XCTest della base, con dati sintetici e dipendenze sostituibili; dipende solo da `NXLibraryCore`, quindi prova che la base compila senza il modulo. |
 | `ArcanePortingTests` | Test XCTest dei file che usano il modulo, anche le regole della base provate attraverso le sue entrate (`SettingsCatalog.all`, `CatalogStore(directory:)`). |
+| `mobile/` | Pacchetto e app per iPhone e iPad: `ShellHost` (da NX2Apple) legge e avvia i giochi, `OortMobile` li mostra. Nessuna richiesta di rete. |
 | `OortCoreTests` | Test della logica portabile; usano `OortCore` senza gli altri moduli dell’app. |
 
 `scripts/check_oort_core.py` controlla manifest e import, anche nei rami condizionali; può preparare un pacchetto Swift minimo per Linux. Il wrapper `ProfileKeypad` in `NXLibraryCore` conserva il PIN locale a quattro cifre; il tipo portabile riceve la lunghezza esplicitamente.

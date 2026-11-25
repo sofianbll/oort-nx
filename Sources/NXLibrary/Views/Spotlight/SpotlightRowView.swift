@@ -288,13 +288,11 @@ struct SpotlightRowView: View {
     }
 
     private func platformRibbon(_ current: SpotlightPlatforms.Card, in platforms: SpotlightPlatforms, side: CGFloat) -> some View {
-        let face = RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content), style: .continuous)
         let cursor = platforms.cards.firstIndex { $0.integration == current.integration } ?? 0
         return OortCardRibbon(ids: platforms.cards.map(\.integration), cursor: cursor, open: platformOpen,
                               locked: current.integration != nil, press: platformPress, side: side,
-                              onPick: { onPlatformPick(platforms.cards[$0]) }) { id in
-            face.fill(SeleneTheme.glassSolid)
-                .overlay(face.strokeBorder(SeleneTheme.ink15, lineWidth: max(1, canvas.u(1))))
+                              onPick: { onPlatformPick(platforms.cards[$0]) }) { id, here in
+            OortKeyFace(kind: .quiet, radius: canvas.u(SeleneTokens.Radius.content), lit: here && platformOpen, outlined: false)
                 .overlay {
                     PlatformMark(kind: platformKind(platforms.card(for: id)), size: SeleneTokens.Space.group + SeleneTokens.Space.small)
                         .foregroundStyle(SeleneTheme.ink)
@@ -308,7 +306,7 @@ struct SpotlightRowView: View {
         Button { onActivate(.platform) } label: {
             Spacer().frame(maxWidth: .infinity, maxHeight: .infinity).contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(OortPressStyle())
         .accessibilityLabel(platformName(card))
         .accessibilityValue(platformCount(card))
         .accessibilityHint(L10n.text(platformOpen ? "Select" : "Open", context: locale))
@@ -366,7 +364,7 @@ private struct TilePicture: ViewModifier {
     func body(content: Content) -> some View {
         // One shadow for a whole tile; the ribbon's cards cast their own.
         Group { if whole { content.drawingGroup() } else { content } }
-            .shadow(color: .black.opacity(0.55), radius: whole ? shadow : 0)
+            .oortArtShadow(whole ? shadow : 0)
     }
 }
 
@@ -428,12 +426,12 @@ struct ModsCardCover: View {
 
     var body: some View {
         ZStack {
-            LinearGradient(colors: [SeleneTheme.focus.opacity(0.85), SeleneTheme.glassSolid],
+            LinearGradient(colors: [SeleneTheme.focus.opacity(SeleneTokens.Alpha.heavy), SeleneTheme.glassSolid],
                            startPoint: .topLeading, endPoint: .bottomTrailing)
             if !urls.isEmpty {
                 mosaic
                     .blur(radius: canvas.u(5), opaque: true)
-                    .overlay(Color.black.opacity(0.35))
+                    .overlay(SeleneTheme.artShade.opacity(SeleneTokens.Alpha.shade))
                     .id(urls)
                     .transition(.opacity)
             }
@@ -442,7 +440,7 @@ struct ModsCardCover: View {
                 .oortShadow(.text)
         }
         .frame(width: side, height: side)
-        .animation(.easeOut(duration: 0.4), value: urls)
+        .animation(SeleneTheme.settle(SeleneTokens.Motion.detailArt), value: urls)
         .drawingGroup()
     }
 

@@ -141,34 +141,18 @@ struct OnlineBrowsePanel: View {
 
     private var status: String {
         let source = state.source.title
-        if failed { return L10n.format("%@ IS UNAVAILABLE RIGHT NOW", [String(describing: source.uppercased())]) }
+        if failed { return L10n.format("%@ IS UNAVAILABLE RIGHT NOW", [String(describing: source)]) }
         if state.category.isSearch && state.query.isEmpty { return L10n.text("TYPE WHAT YOU'RE LOOKING FOR, THEN RETURN") }
-        if state.items.isEmpty { return loading ? L10n.format("LOOKING ON %@…", [String(describing: source.uppercased())]) : L10n.text("NOTHING FOUND") }
-        return L10n.format("ONLINE · %@ · %@", [String(describing: source.uppercased()), String(describing: state.category.displayTitle.uppercased())])
+        if state.items.isEmpty { return loading ? L10n.format("LOOKING ON %@…", [String(describing: source)]) : L10n.text("NOTHING FOUND") }
+        return L10n.format("ONLINE · %@ · %@", [String(describing: source), String(describing: state.category.displayTitle)])
     }
 
     private var chips: some View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal) {
-                HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
-                    ForEach(Array(state.categories.enumerated()), id: \.offset) { index, category in
-                        let selected = index == state.categoryIndex
-                        Text(category.displayTitle)
-                            .seleneFont(.text, .semibold)
-                            .foregroundColor(selected ? SeleneTheme.ink : SeleneTheme.ink60)
-                            .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
-                            .padding(.vertical, canvas.u(SeleneTokens.Space.compact))
-                            .background(Capsule().fill(selected ? SeleneTheme.glassSolid : Color.clear))
-                            .overlay(Capsule().strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
-                                .padding(canvas.u(-3))
-                                .opacity(selected && state.focus == .chips ? 1 : 0))
-                            .contentShape(Capsule())
-                            .onTapGesture { onChip(index) }
-                            .id(index)
-                            .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
-                    }
-                }
-                .padding(canvas.u(SeleneTokens.Space.hairline))
+                OortTabs(items: state.categories.enumerated().map { .init(id: $0.offset, title: $0.element.displayTitle) },
+                         selected: state.categoryIndex, focused: state.focus == .chips ? state.categoryIndex : nil, select: onChip)
+                    .padding(canvas.u(SeleneTokens.Space.hairline))
             }
             .scrollIndicators(.hidden)
             .frame(width: canvas.u(3 * 226))
@@ -180,18 +164,11 @@ struct OnlineBrowsePanel: View {
     }
 
     private var searchField: some View {
-        HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
-            MaterialIconView(.search, size: 22).foregroundColor(SeleneTheme.ink60)
+        OortSearchField(query: $searchText, lit: searchFocused.wrappedValue) {
             TextField("", text: $searchText, prompt: Text(L10n.format("Search %@", [String(describing: state.source.title)])).foregroundColor(SeleneTheme.ink60))
-                .textFieldStyle(.plain)
-                .seleneFont(.text)
-                .foregroundColor(SeleneTheme.ink)
                 .focused(searchFocused)
                 .onSubmit(onSubmit)
         }
-        .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
-        .padding(.vertical, canvas.u(SeleneTokens.Space.small))
-        .background(Capsule().fill(SeleneTheme.glassSolid))
         .frame(width: canvas.u(3 * 226 - 20))
         .padding(.leading, canvas.u(SeleneTokens.Space.small))
     }
@@ -249,28 +226,22 @@ private struct OnlineTile: View {
         ZStack(alignment: .topLeading) {
             Rectangle().fill(SeleneTheme.baseGradient)
             WallpaperThumb(url: item.thumbnailURL)
-            HStack(spacing: canvas.u(SeleneTokens.Space.hairline)) {
-                if item.kind == .video { MaterialIconView(.play, size: 13) }
-                Text(ResolutionBadge.label(width: item.width, height: item.height)).seleneFont(.badge, .semibold)
-            }
-            .foregroundColor(.white)
-            .padding(.horizontal, canvas.u(SeleneTokens.Space.compact))
-            .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
-            .background(Capsule().fill(Color.black.opacity(0.6)))
+            OortTag(text: ResolutionBadge.label(width: item.width, height: item.height),
+                    icon: item.kind == .video ? .play : nil, preset: .art)
             .padding(canvas.u(SeleneTokens.Space.compact))
             if downloaded {
                 MaterialIconView(.check, size: 20)
-                    .foregroundColor(.white)
+                    .foregroundColor(SeleneTheme.artInk)
                     .oortShadow(.text)
                     .padding(canvas.u(SeleneTokens.Space.compact))
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
             if let progress {
-                Color.black.opacity(0.45)
+                SeleneTheme.artShade.opacity(SeleneTokens.Alpha.half)
                 ZStack {
-                    Circle().stroke(Color.white.opacity(0.25), lineWidth: canvas.u(4))
+                    Circle().stroke(SeleneTheme.artInk.opacity(SeleneTokens.Alpha.line), lineWidth: canvas.u(SeleneTokens.Space.ringStroke))
                     Circle().trim(from: 0, to: max(0.02, progress))
-                        .stroke(SeleneTheme.focus, style: StrokeStyle(lineWidth: canvas.u(4), lineCap: .round))
+                        .stroke(SeleneTheme.focus, style: StrokeStyle(lineWidth: canvas.u(SeleneTokens.Space.ringStroke), lineCap: .round))
                         .rotationEffect(.degrees(-90))
                         .animation(reduceMotion ? nil : .linear(duration: 0.15), value: progress)
                 }
@@ -280,12 +251,8 @@ private struct OnlineTile: View {
         }
         .frame(width: canvas.u(204), height: canvas.u(115))
         .clipShape(shape)
-        .overlay(shape.strokeBorder(SeleneTheme.ink15, lineWidth: 1))
-        .overlay(
-            RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card), style: .continuous)
-                .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
-                .padding(canvas.u(-4))
-                .opacity(focused ? 1 : 0))
+        .overlay(shape.strokeBorder(SeleneTheme.ink15, lineWidth: SeleneTokens.Space.thinStroke))
+        .oortRing(focused, radius: canvas.u(SeleneTokens.Radius.card), gap: canvas.u(SeleneTokens.Space.hairline))
         .scaleEffect(focused && !reduceMotion ? 1.06 : 1)
         .animation(reduceMotion ? nil : SeleneTheme.quick, value: focused)
         .padding(.horizontal, canvas.u(SeleneTokens.Space.small))

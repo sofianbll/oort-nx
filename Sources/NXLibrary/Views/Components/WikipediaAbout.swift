@@ -58,7 +58,7 @@ struct WikipediaCredit: View {
             .seleneFont(.text)
             .foregroundColor(SeleneTheme.ink60)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(OortPressStyle())
         .help(pageURL.absoluteString)
     }
 }

@@ -17,10 +17,10 @@ For a source build, see the [development guide](docs/working-on-it/development.m
 
 ## Platform support
 
-This app runs on macOS. **Ryujinx-Nextendo** is the engine target for future Windows work; there is no Windows build or compatibility claim. Nextendo on Mac is unchanged and remains optional.
+This app runs on macOS. **Ryujinx-Nextendo** is the engine target for future Windows work; there is no Windows build or compatibility claim. Nextendo on Mac is unchanged and remains optional. The iPhone and iPad sources are in `mobile/`; no build is published.
 
 ## Credits
 
-Oort NX builds on [Arcane by Bium23](https://github.com/Bium23/NxLibrary) and the [Selene theme by Matthew Silva](https://github.com/mattxslv/Selene). The artwork picker takes inspiration from [Playnite by Josef Nemec](https://github.com/JosefNemec/Playnite). Thanks to [nxnative](https://github.com/seedds/nxnative) and [Nextendo](https://github.com/eyasbzour/nxnative-online) contributors.
+Oort NX builds on [Arcane by Bium23](https://github.com/Bium23/NxLibrary) and the [Selene theme by Matthew Silva](https://github.com/mattxslv/Selene). The artwork picker takes inspiration from [Playnite by Josef Nemec](https://github.com/JosefNemec/Playnite). The iPhone and iPad app's host layer comes from [NX2Apple by LNPANDY](https://github.com/LNPANDY/NX2Apple) (MIT). Thanks to [nxnative](https://github.com/seedds/nxnative) and [Nextendo](https://github.com/eyasbzour/nxnative-online) contributors.
 
 [MIT license](LICENSE) · [Third-party notices](NOTICE) · [Support Bium23](https://buymeacoffee.com/bium)

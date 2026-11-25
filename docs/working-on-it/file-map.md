@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 25 novembre 2026. Copertura di **1135 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 25 novembre 2026. Copertura di **1170 file** versionati (più quelli ripresi da NX2Apple, elencati in [mobile/PROVENANCE.md](../../mobile/PROVENANCE.md)), compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -14,6 +14,7 @@ Le cartelle generate `.build/`, `work/` e `dist/` e i dati personali in Applicat
 - [Modelli dello stato applicativo](#modelli-dello-stato-applicativo)
 - [Integrazione con macOS e servizi applicativi](#integrazione-con-macos-e-servizi-applicativi)
 - [OortCore · logica portabile](#oortcore--logica-portabile)
+- [Mobile · iPhone e iPad](#mobile--iphone-e-ipad)
 - [Core · app: aggiornamento, primo avvio, diagnostica e comandi](#core--app-aggiornamento-primo-avvio-diagnostica-e-comandi)
 - [Core · catalogo comune e fonti](#core--catalogo-comune-e-fonti)
 - [Core · libreria, sessioni e spazio](#core--libreria-sessioni-e-spazio)
@@ -193,13 +194,57 @@ Cartella `Sources/OortCore/`, senza risorse né dipendenze.
 | File | Responsabilità |
 |---|---|
 | [ControllerInput.swift](../../Sources/OortCore/ControllerInput.swift) | Decodifica report Nintendo, calibra stick, calcola transizioni e decide il ripiego HID. |
+| [FocusGrid.swift](../../Sources/OortCore/FocusGrid.swift) | Focus a righe con posto ricordato e griglie tagliate in linee intere. |
+| [GameManifest.swift](../../Sources/OortCore/GameManifest.swift) | Legge e controlla `game.manifest.json`, comune a ogni sistema (da NX2Apple). |
+| [GameProblem.swift](../../Sources/OortCore/GameProblem.swift) | Cause per cui un gioco non parte, con parole inglesi da tradurre nell’app. |
+| [LauncherProfile.swift](../../Sources/OortCore/LauncherProfile.swift) | Legge e controlla `launcher.json`, la lista dei regolaggi di un gioco (da NX2Apple). |
 | [FocusIndex.swift](../../Sources/OortCore/FocusIndex.swift) | Mantiene un indice di focus entro i limiti della lista. |
 | [HoldDetector.swift](../../Sources/OortCore/HoldDetector.swift) | Distingue pressione breve, prolungata e annullata. |
 | [LineBuffer.swift](../../Sources/OortCore/LineBuffer.swift) | Ricompone righe parziali separate da `\n` o `\r`. |
 | [MoonlightField.swift](../../Sources/OortCore/MoonlightField.swift) | Genera i dati delle particelle senza Metal; condivide `SplitMix` nel package per il cue Download. |
 | [MoveDirection.swift](../../Sources/OortCore/MoveDirection.swift) | Espone le quattro direzioni del focus. |
 | [ProfileKeypad.swift](../../Sources/OortCore/ProfileKeypad.swift) | Griglia PIN con lunghezza passata dal chiamante e conferma esplicita. |
+| [MoonlightAppearance.swift](../../Sources/OortCore/MoonlightAppearance.swift) | Identità delle superfici classica/Arcane/Flow e campionamento dei colori locali condiviso fra shader e fallback. |
+| [MoonlightShaders.swift](../../Sources/OortCore/MoonlightShaders.swift) | Contiene gli shader Metal del Moonlight, superfici analitiche Arcane/Flow, filamenti sottili antialias piegati da onde viaggianti e particelle morbide, compilati a runtime. |
+| [SeleneTokens.swift](../../Sources/OortCore/SeleneTokens.swift) | Ruoli Selene generati: testo, spazi, raggi, effetti, colore, durata e riferimento di distanza. |
+| [SoundPackEvent.swift](../../Sources/OortCore/SoundPackEvent.swift) | Elenca gli eventi dei suoni di interfaccia, comuni a Mac e iOS. |
 | [VersionNumber.swift](../../Sources/OortCore/VersionNumber.swift) | Confronta numeri di versione puntati parte per parte. |
+
+## Mobile · iPhone e iPad
+
+Cartella `mobile/`, un pacchetto SwiftPM a parte che riusa `OortCore` e `OortSynth`. I file ripresi da NX2Apple (`Sources/ShellModel`, `Sources/ShellControllers`, `Sources/ShellHost`, la colla C di `App/` e i loro test) sono in [PROVENANCE.md](../../mobile/PROVENANCE.md).
+
+| File | Responsabilità |
+|---|---|
+| [Package.swift](../../mobile/Package.swift) | Dichiara i moduli mobili e i loro test, anche su Mac. |
+| [PROVENANCE.md](../../mobile/PROVENANCE.md) | Ogni file ripreso: origine, impronta e tagli. Generato. |
+| [import_nx2apple.py](../../mobile/scripts/import_nx2apple.py) | Riprende i file, applica i tagli e scrive PROVENANCE; si ferma se un taglio non si trova. |
+| [build_app.sh](../../mobile/scripts/build_app.sh) | Compila l’app senza firma per iphoneos e per il simulatore. |
+| [capture.sh](../../mobile/scripts/capture.sh) | Disegna gli schermi in PNG con Mac Catalyst, senza simulatore. |
+| [App/OortApp.swift](../../mobile/App/OortApp.swift) | Avvio reale di un gioco, controllo della firma e radice dell’app. |
+| [App/OortNX-Bridging-Header.h](../../mobile/App/OortNX-Bridging-Header.h) | Espone la colla C a Swift. |
+| [App/project.yml](../../mobile/App/project.yml) | Progetto Xcode dell’app. |
+| [Capture/CaptureApp.swift](../../mobile/Capture/CaptureApp.swift) | Giochi inventati e copertine disegnate per le catture. |
+| [Capture/project.yml](../../mobile/Capture/project.yml) | Progetto Xcode delle catture. |
+| [ShellModel/ShellStrings.swift](../../mobile/Sources/ShellModel/ShellStrings.swift) | Ricerca dei testi di NX2Apple, senza i suoi stili. |
+| [ShellModel/PadMappingRows.swift](../../mobile/Sources/ShellModel/PadMappingRows.swift) | Righe della mappatura, senza le sue viste. |
+| [ShellHost/SharedProblem.swift](../../mobile/Sources/ShellHost/SharedProblem.swift) | Riesporta `OortCore` e traduce i problemi. |
+| [OortMobile/OortRootView.swift](../../mobile/Sources/OortMobile/OortRootView.swift) | Quattro schede, domande dell’host e aggiunta di un gioco. |
+| [OortMobile/OortNav.swift](../../mobile/Sources/OortMobile/OortNav.swift) | Scheda, percorso, schermo che legge la manetta e aiuti. |
+| [OortMobile/OortList.swift](../../mobile/Sources/OortMobile/OortList.swift) | L’unica lista: righe, controlli di sistema e focus. |
+| [OortMobile/OortStyle.swift](../../mobile/Sources/OortMobile/OortStyle.swift) | Colori dai token, trama, tasto e pannello. |
+| [OortMobile/OortCloudView.swift](../../mobile/Sources/OortMobile/OortCloudView.swift) | La nuvola con i punti e gli shader del Mac, ferma quando serve. |
+| [OortMobile/OortSounds.swift](../../mobile/Sources/OortMobile/OortSounds.swift) | Suoni di `OortSynth` e preferenze. |
+| [OortMobile/OortSynth.swift](../../mobile/Sources/OortMobile/OortSynth.swift) | Collegamento a `NXLibraryCore/Selene/OortSynth.swift`. |
+| [OortMobile/FrameworkImport.swift](../../mobile/Sources/OortMobile/FrameworkImport.swift) | Controlla e copia un gioco in un solo passo. |
+| [OortMobile/HomeView.swift](../../mobile/Sources/OortMobile/HomeView.swift) | À la une, tessere, stati e libreria vuota. |
+| [OortMobile/LibraryView.swift](../../mobile/Sources/OortMobile/LibraryView.swift) | Griglia e ricerca. |
+| [OortMobile/GameScreens.swift](../../mobile/Sources/OortMobile/GameScreens.swift) | Scheda del gioco, opzioni e trucchi. |
+| [OortMobile/ControllersScreen.swift](../../mobile/Sources/OortMobile/ControllersScreen.swift) | Manette, mappatura, prova e comandi tattili. |
+| [OortMobile/SettingsScreens.swift](../../mobile/Sources/OortMobile/SettingsScreens.swift) | Regolaggi, tempo di gioco e licenze. |
+| [OortMobile/OortCaptureEntry.swift](../../mobile/Sources/OortMobile/OortCaptureEntry.swift) | Apre uno schermo preciso per le catture. |
+| [OortMobile/Exports.swift](../../mobile/Sources/OortMobile/Exports.swift) | Riesporta `OortCore`. |
+| [OortMobileTests.swift](../../mobile/Tests/OortMobileTests/OortMobileTests.swift) | Importazione, righe, navigazione con manetta, testi francesi e Sole unico. |
 
 ## Core · app: aggiornamento, primo avvio, diagnostica e comandi
 
@@ -284,6 +329,7 @@ Cartella `Sources/NXLibraryCore/Library/`.
 | [Sources/NXLibraryCore/Library/StorageBackend.swift](../../Sources/NXLibraryCore/Library/StorageBackend.swift) | Contratto oggetti remoti: chiavi e impronte serializzabili, trasferimenti, avanzamento e lease condiviso. |
 | [Sources/NXLibraryCore/Library/CloudLibraryFailure.swift](../../Sources/NXLibraryCore/Library/CloudLibraryFailure.swift) | Cause e recupero cloud: distingue volume locale pieno, quota Drive e rete; non riporta l'output di rclone. |
 | [Sources/NXLibraryCore/Library/RcloneStorageBackend.swift](../../Sources/NXLibraryCore/Library/RcloneStorageBackend.swift) | Usa il binario risolto, verifica ID e nomi originali, rifiuta percorsi ambigui e limita il riferimento all’ID esatto in sola lettura. Prima di scrivere verifica che i due alberi siano disgiunti. |
+| [Sources/NXLibraryCore/Library/VolumeSpace.swift](../../Sources/NXLibraryCore/Library/VolumeSpace.swift) | Spazio libero di un disco: dove macOS risponde 0 per l’uso importante (exFAT, FAT32) vale la cifra semplice. |
 | [Sources/NXLibraryCore/Library/RcloneDownload.swift](../../Sources/NXLibraryCore/Library/RcloneDownload.swift) | Scarica rclone dopo consenso, verifica origine, dimensione, hash e firma, pubblica la copia con ricevuta e avvia lo snapshot dei byte approvati. |
 | [Sources/NXLibraryCore/Library/CloudSetupAssistant.swift](../../Sources/NXLibraryCore/Library/CloudSetupAssistant.swift) | Bozza dell'assistente: passi, selezione, verifica, formato dell'ID client e client Google facoltativo nel plist. |
 | [Sources/NXLibraryCore/Selene/CloudSetupAssistantFocus.swift](../../Sources/NXLibraryCore/Selene/CloudSetupAssistantFocus.swift) | Bersagli per tastiera e controller, inclusi azione e campo del percorso manuale; priorità all'azione principale e a Cancel nelle conferme. |
@@ -301,7 +347,6 @@ Cartella `Sources/NXLibraryCore/Selene/`.
 | [Sources/NXLibraryCore/Selene/TileMotion.swift](../../Sources/NXLibraryCore/Selene/TileMotion.swift) | Curve e campioni dei loop di ring, bagliore e riflesso della tile selezionata, sull'orologio condiviso. |
 | [Sources/NXLibraryCore/Selene/DownloadCloudMotion.swift](../../Sources/NXLibraryCore/Selene/DownloadCloudMotion.swift) | Traiettoria smorzata del download, onda calma, assestamento, glifo Oort e bande a dissolvenza. |
 | [Sources/NXLibraryCore/Selene/Motion.swift](../../Sources/NXLibraryCore/Selene/Motion.swift) | Curve di focus, rail, schermate, overlay, carte ancorate, toast e progressi con varianti di movimento ridotto. |
-| [Sources/NXLibraryCore/Selene/SeleneTokens.swift](../../Sources/NXLibraryCore/Selene/SeleneTokens.swift) | Ruoli Selene generati: testo, spazi, raggi, effetti, colore, durata e riferimento di distanza. |
 | [Sources/NXLibraryCore/Selene/SeleneOverlayStyle.swift](../../Sources/NXLibraryCore/Selene/SeleneOverlayStyle.swift) | Associa ogni overlay ai ruoli di velo e sfocatura. |
 | [Tests/NXLibraryCoreTests/Selene/MotionTests.swift](../../Tests/NXLibraryCoreTests/Selene/MotionTests.swift) | Verifica che in movimento ridotto restino solo i fonduti previsti. |
 | [Sources/NXLibraryCore/Selene/TextScroll.swift](../../Sources/NXLibraryCore/Selene/TextScroll.swift) | Scorrimento della colonna del pannello della mod: altezza della descrizione dopo Read more, limiti, riga a fuoco mostrata intera e passo Su/Giù che legge prima della riga seguente. |
@@ -312,7 +357,6 @@ Cartella `Sources/NXLibraryCore/Selene/`.
 | [Sources/NXLibraryCore/Selene/ButtonPrompts.swift](../../Sources/NXLibraryCore/Selene/ButtonPrompts.swift) | Traduce azioni e direzioni, incluse Su/Giù, in simboli per tastiera e controller Switch, Xbox e PlayStation. |
 | [Sources/NXLibraryCore/Selene/MaterialIcon.swift](../../Sources/NXLibraryCore/Selene/MaterialIcon.swift) | Elenca i glifi del font incluso, compresi cancellazione e conferma del PIN. |
 | [Sources/NXLibraryCore/Selene/MenuSelectionModel.swift](../../Sources/NXLibraryCore/Selene/MenuSelectionModel.swift) | Gestisce icone, voci delle schede e pillole Power; salta l'Inbox disattivata e lascia il focus sull'icona alla chiusura. |
-| [Sources/NXLibraryCore/Selene/MoonlightAppearance.swift](../../Sources/NXLibraryCore/Selene/MoonlightAppearance.swift) | Identità delle superfici classica/Arcane/Flow e campionamento dei colori locali condiviso fra shader e fallback. |
 | [Sources/NXLibraryCore/Selene/ScreenshotViewerState.swift](../../Sources/NXLibraryCore/Selene/ScreenshotViewerState.swift) | Mantiene indice e limiti della navigazione nel visualizzatore screenshot. |
 | [Sources/NXLibraryCore/Selene/SeleneCanvas.swift](../../Sources/NXLibraryCore/Selene/SeleneCanvas.swift) | Calcola scala uniforme, stage centrato e conversione delle unità del canvas 1920×1080. |
 | [Sources/NXLibraryCore/Selene/SelenePalette.swift](../../Sources/NXLibraryCore/Selene/SelenePalette.swift) | Decodifica palette e metadato moonlight; ordina Oort per prima, la usa come fallback e distingue l’ID del blu classico. |
@@ -850,6 +894,16 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/OortUI/OortControls.swift](../../Sources/NXLibrary/Views/OortUI/OortControls.swift) | Preset per righe, azioni e stati, e riga con cursore. |
 | [Sources/NXLibrary/Views/OortUI/OortGameTile.swift](../../Sources/NXLibrary/Views/OortUI/OortGameTile.swift) | Tessera con preset Spotlight e Collection, input e accessibilità; l'arte resta al chiamante. |
 | [Sources/NXLibrary/Views/OortUI/PlayerSlot.swift](../../Sources/NXLibrary/Views/OortUI/PlayerSlot.swift) | Posto giocatore ad altezza stabile con ritratto, stato e valore accessibile. |
+| [DESIGN.md](../../DESIGN.md) | Sistema di design: token, pezzi, regole. |
+| [PRODUCT.md](../../PRODUCT.md) | Per chi è Oort, cosa promette e cosa evita. |
+| [Sources/NXLibrary/Services/ControllerLive.swift](../../Sources/NXLibrary/Services/ControllerLive.swift) | Stato vivo del controller attivo (tasti tenuti, stick), separato dal servizio per non ridisegnare le altre viste. |
+| [Sources/NXLibrary/Views/OortUI/OortControllerView.swift](../../Sources/NXLibrary/Views/OortUI/OortControllerView.swift) | Controller disegnato a punti, con gli ingressi reali accesi. |
+| [Sources/NXLibrary/Views/OortUI/OortMeter.swift](../../Sources/NXLibrary/Views/OortUI/OortMeter.swift) | Barra di avanzamento, misurata o indeterminata. |
+| [Sources/NXLibrary/Views/OortUI/OortSearchField.swift](../../Sources/NXLibrary/Views/OortUI/OortSearchField.swift) | Campo di ricerca condiviso. |
+| [Sources/NXLibrary/Views/OortUI/OortSetupCard.swift](../../Sources/NXLibrary/Views/OortUI/OortSetupCard.swift) | Scheda di scelta della prima configurazione. |
+| [Sources/NXLibrary/Views/OortUI/OortTabs.swift](../../Sources/NXLibrary/Views/OortUI/OortTabs.swift) | Schede condivise: scelta, focus, conteggio. |
+| [Sources/NXLibrary/Views/OortUI/OortTag.swift](../../Sources/NXLibrary/Views/OortUI/OortTag.swift) | Etichetta breve: genere, versione, stato. |
+| [Tests/NXLibraryCoreTests/PaletteContrastTests.swift](../../Tests/NXLibraryCoreTests/PaletteContrastTests.swift) | Contrasto di testo, focus e simboli in ogni palette. |
 | [Sources/NXLibrary/Views/OortUI/OortUIGallery.swift](../../Sources/NXLibrary/Views/OortUI/OortUIGallery.swift) | Esempi sintetici Debug delle primitive OortUI e catture senza finestre su tre palette. |
 | [Sources/NXLibrary/Views/OortUI/SeleneConfirmDialog.swift](../../Sources/NXLibrary/Views/OortUI/SeleneConfirmDialog.swift) | Card e aiuto condivisi, conferma a sinistra e annullamento a destra, scelte multiple con testo a larghezza definita e note, SeleneSuccessNotice. |
 | [Sources/NXLibrary/Views/Components/AppUpdateDialog.swift](../../Sources/NXLibrary/Views/Components/AppUpdateDialog.swift) | Presenta controllo aggiornamenti, note di release, errori e progresso nel dialogo dell’app. |
@@ -889,7 +943,6 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/Theme/SeleneCanvasEnvironment.swift](../../Sources/NXLibrary/Views/Theme/SeleneCanvasEnvironment.swift) | Pubblica il canvas, scala unità e font e applica le sfumature sui bordi orizzontali richiesti. |
 | [Sources/NXLibrary/Views/Theme/SeleneBackdrop.swift](../../Sources/NXLibrary/Views/Theme/SeleneBackdrop.swift) | Nella shell dichiara la richiesta di sfondo condiviso, fuori dalla shell disegna; consuma lo snapshot completo della palette e compone gradiente, wallpaper e Moonlight a particelle morbide; conserva le immagini decodificate e il fallback statico. |
 | [Sources/NXLibrary/Views/Theme/MoonlightRenderer.swift](../../Sources/NXLibrary/Views/Theme/MoonlightRenderer.swift) | Gestisce Metal, il `CAMetalDisplayLink` e il rendering live/statico. Disegna solo il link, anche il frame fermo, e il primo drawable presentato sblocca `LaunchReveal`; nella Dev registra creazione e prima presentazione. |
-| [Sources/NXLibrary/Views/Theme/MoonlightShaders.swift](../../Sources/NXLibrary/Views/Theme/MoonlightShaders.swift) | Contiene gli shader Metal del Moonlight, superfici analitiche Arcane/Flow, filamenti sottili antialias piegati da onde viaggianti e particelle morbide, compilati a runtime. |
 | [Sources/NXLibrary/Views/Theme/LiveBackdrop.swift](../../Sources/NXLibrary/Views/Theme/LiveBackdrop.swift) | Integra video AVFoundation in loop e adatta riproduzione e frame alla visibilità della finestra. |
 | [Sources/NXLibrary/Views/Theme/OnlineBrowsePanel.swift](../../Sources/NXLibrary/Views/Theme/OnlineBrowsePanel.swift) | Mantiene stato di ricerca e download e presenta griglia e miniature degli sfondi online. |
 | [Sources/NXLibrary/Views/Theme/ThemePickerView.swift](../../Sources/NXLibrary/Views/Theme/ThemePickerView.swift) | Presenta i colori con anteprima viva nel primo passo; sfondi, provider e destinazione nel passo successivo. Il file tiene stato, `body`, transizioni, intestazione, griglia, `TileFocus` e `WallpaperThumb`; il resto sta nelle estensioni qui sotto. |
@@ -974,6 +1027,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/NXLibraryCoreTests/SystemCommandRunnerTests.swift](../../Tests/NXLibraryCoreTests/SystemCommandRunnerTests.swift) | Un comando atteso, sincrono o in streaming, non fa girare il run loop mentre aspetta. |
 | [Tests/NXLibraryCoreTests/CommandRunnerTests.swift](../../Tests/NXLibraryCoreTests/CommandRunnerTests.swift) | Verifica stdout, stderr, attesa senza run loop, annullamento con pipe ereditate, scadenze e progresso reale. |
 | [Tests/NXLibraryCoreTests/RcloneStorageBackendTests.swift](../../Tests/NXLibraryCoreTests/RcloneStorageBackendTests.swift) | Binario, oggetti, impronte, avanzamento e annullamento; prefissi assenti o vuoti; Drive configurato e ID esatto per il riferimento in sola lettura. |
+| [VolumeSpaceTests.swift](../../Tests/NXLibraryCoreTests/VolumeSpaceTests.swift) | Ripiego per lo zero di exFAT, cartella non ancora creata e disco reale facoltativo. |
 | [Tests/NXLibraryCoreTests/RcloneDownloadTests.swift](../../Tests/NXLibraryCoreTests/RcloneDownloadTests.swift) | Trasporto locale e archivi sintetici: rifiuti, annullamento, firma, pubblicazione atomica e protezione delle copie altrui. |
 | [Tests/NXLibraryCoreTests/RcloneConfigurationTests.swift](../../Tests/NXLibraryCoreTests/RcloneConfigurationTests.swift) | Preferenze, comandi OAuth, cifratura e recuperi tipizzati con runner finto; prova stdin su una configurazione rclone temporanea; senza configurazione o portachiavi reali. |
 | [Tests/NXLibraryCoreTests/CloudSetupAssistantTests.swift](../../Tests/NXLibraryCoreTests/CloudSetupAssistantTests.swift) | Bozza, verifica, formato dell'ID client, priorità dell'azione principale e conferme su Cancel. |

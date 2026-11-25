@@ -113,11 +113,10 @@ struct IntegrationBar: View {
             .padding(.horizontal, canvas.u(SeleneTokens.Space.control))
             .padding(.vertical, canvas.u(SeleneTokens.Space.compact))
             .foregroundStyle(focused ? SeleneTheme.onFocus : SeleneTheme.ink)
-            .background(focused ? SeleneTheme.focus : SeleneTheme.glassSolid, in: Capsule())
-            .overlay(Capsule().strokeBorder(SeleneTheme.ink15, lineWidth: 1))
+            .background(OortKeyFace(kind: focused ? .solid : .quiet, radius: canvas.u(SeleneTokens.Radius.field), lit: focused, outlined: false))
             .frame(maxWidth: canvas.u(385), alignment: .leading)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(OortPressStyle())
         .accessibilityLabel(L10n.text("Integrations", context: locale))
         .accessibilityValue(summary.map {
             "\(L10n.text($0.name, context: locale)): \(L10n.text($0.status, context: locale))"

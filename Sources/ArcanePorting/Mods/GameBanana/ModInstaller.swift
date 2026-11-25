@@ -66,12 +66,7 @@ public struct ModInstaller {
 
     /// Free space on the volume of `url` (or its nearest existing parent), for important use.
     public static func availableCapacity(_ url: URL) -> Int64? {
-        var probe = url
-        while !FileManager.default.fileExists(atPath: probe.path), probe.pathComponents.count > 1 {
-            probe.deleteLastPathComponent()
-        }
-        return (try? probe.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey]))?
-            .volumeAvailableCapacityForImportantUsage
+        VolumeSpace.free(at: url)
     }
 
     /// Size first, then the MD5 GameBanana publishes (any case).

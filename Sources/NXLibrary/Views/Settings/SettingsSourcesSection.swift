@@ -59,11 +59,11 @@ struct SettingsSourcesSection: View {
                             isOn: $settings.settings.steamInBackground)
             if let error = sources.errorMessage {
                 Text(error).seleneFont(.text).foregroundColor(SeleneTheme.danger)
-                    .fixedSize(horizontal: false, vertical: true).frame(maxWidth: .infinity, alignment: .leading).padding(24)
+                    .fixedSize(horizontal: false, vertical: true).frame(maxWidth: .infinity, alignment: .leading).padding(SeleneTokens.Space.large)
             }
             if sources.reviewCount > 0 {
                 Text(L10n.count("%lld Steam games need review", sources.reviewCount, context: localization))
-                    .seleneFont(.text).foregroundColor(SeleneTheme.ink).padding(.vertical, 10)
+                    .seleneFont(.text).foregroundColor(SeleneTheme.ink).padding(.vertical, SeleneTokens.Space.gap)
             }
             if !review.isEmpty {
                 SettingsSubheading("Review installations")
@@ -71,7 +71,7 @@ struct SettingsSourcesSection: View {
                     .seleneFont(.text).foregroundColor(SeleneTheme.ink).fixedSize(horizontal: false, vertical: true)
                 ForEach(review) { game in
                     SeleneRow(game.name, id: "review-\(game.id)", subtitle: "Needs review", verbatimTitle: true) {
-                        Button(L10n.text("Reveal", context: localization)) { reveal(game) }.buttonStyle(.plain).foregroundColor(SeleneTheme.glyph)
+                        Button(L10n.text("Reveal", context: localization)) { reveal(game) }.buttonStyle(OortPressStyle()).foregroundColor(SeleneTheme.glyph)
                     }
                 }
             }
@@ -80,7 +80,7 @@ struct SettingsSourcesSection: View {
                 ForEach(hidden) { game in
                     SeleneRow(game.name, id: "hidden-\(game.id)", subtitle: "Hidden from the library", verbatimTitle: true) {
                         Button(L10n.text("Show", context: localization)) { viewModel.setCatalogHidden(false, game: game) }
-                            .buttonStyle(.plain).foregroundColor(SeleneTheme.glyph)
+                            .buttonStyle(OortPressStyle()).foregroundColor(SeleneTheme.glyph)
                     }
                 }
             }

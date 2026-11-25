@@ -355,8 +355,18 @@ final class GameControllerService: ObservableObject {
         buttonSymbols = pad?.symbols ?? [:]
     }
 
+    /// Sources report on the main thread; a late one waits its turn rather than stopping the app.
+    private func onLive(_ change: @escaping @MainActor (ControllerLive) -> Void) {
+        if Thread.isMainThread {
+            MainActor.assumeIsolated { change(.shared) }
+        } else {
+            DispatchQueue.main.async { change(.shared) }
+        }
+    }
+
     private func handleInput(_ input: ControllerInputChange) {
         guard isAppActive else { return }
+        onLive { $0.receive(input) }
         switch input {
         case let .leftStick(stick): move(repeats.stick(stick, deadzone: deadzone, from: .leftStick))
         case let .rightStick(stick): move(repeats.stick(stick, deadzone: deadzone, from: .rightStick))
@@ -462,6 +472,7 @@ final class GameControllerService: ObservableObject {
         repeats.reset()
         repeatTimer?.invalidate()
         repeatTimer = nil
+        onLive { $0.reset() }
     }
 
     private func triggerAction(_ action: GamepadAction) {

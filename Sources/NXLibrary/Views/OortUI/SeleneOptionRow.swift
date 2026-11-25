@@ -26,14 +26,14 @@ struct SeleneOptionRow<Trailing: View>: View {
     @ViewBuilder var trailing: () -> Trailing
 
     var body: some View {
-        HStack(spacing: canvas.u(18)) {
+        HStack(spacing: canvas.u(SeleneTokens.Space.control)) {
             leading
             if let icon {
                 MaterialIconView(icon, size: 24)
                     .foregroundColor(destructive ? SeleneTheme.danger : (enabled ? SeleneTheme.rowIcon : SeleneTheme.ink60))
             }
-            VStack(alignment: .leading, spacing: canvas.u(3)) {
-                HStack(spacing: canvas.u(8)) {
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.segmentInset)) {
+                HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                     Group {
                         if let platform {
                             PlatformLabel(platform, title: title, preset: .row)

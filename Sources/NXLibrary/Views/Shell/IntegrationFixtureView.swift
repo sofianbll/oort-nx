@@ -53,10 +53,10 @@ struct IntegrationFixtureView: View {
                     switch router.route {
                     case .integrations: IntegrationsView(overview: data, router: router)
                     case .settings(let section):
-                        VStack(spacing: 12) {
-                            Text(L10n.text(section.title, context: locale)).font(.title)
+                        VStack(spacing: SeleneTokens.Space.small) {
+                            Text(L10n.text(section.title, context: locale)).seleneFont(.heading)
                             Text(L10n.text(SettingsCatalog.all.first { $0.id == router.settingsRowID }?.title ?? "", context: locale))
-                            Text("Fixture · no settings or service is opened").foregroundStyle(.secondary)
+                            Text("Fixture · no settings or service is opened").foregroundStyle(SeleneTheme.ink60)
                             Button(L10n.text("Back", context: locale), action: router.back)
                         }.frame(maxWidth: .infinity, maxHeight: .infinity).background(SeleneBackdrop(still: true))
                     default: Self.home(data, router: router)
@@ -151,7 +151,7 @@ struct IntegrationFixtureView: View {
                                     LinearGradient(colors: [.yellow, .white, .cyan], startPoint: .topLeading, endPoint: .bottomTrailing)
                                 } else {
                                     Color(hex: palette.scrim)
-                                    Rectangle().fill(SeleneTheme.baseGradient(for: palette)).opacity(0.6)
+                                    Rectangle().fill(SeleneTheme.baseGradient(for: palette)).opacity(SeleneTokens.Alpha.muted)
                                     MoonlightBackdrop(accent: SeleneTheme.glyph, ink: SeleneTheme.ink,
                                                       moving: false, asImage: true, surface: palette.surface)
                                 }

@@ -39,7 +39,8 @@ extension EnvironmentValues {
 extension View {
     func seleneFont(_ token: SeleneTokens.Text) -> some View { font(.system(size: token.rawValue)) }
 }
-enum SeleneTheme { static let ink60 = Color.gray; static let arrival = Animation.easeOut(duration: 0.18) }
+extension View { func oortRing(_ on: Bool, radius: CGFloat, gap: CGFloat) -> some View { overlay(RoundedRectangle(cornerRadius: radius + gap).strokeBorder(Color.red, lineWidth: on ? 3 : 0).padding(-gap)) } }
+enum SeleneTheme { static let ink60 = Color.gray; static let artShade = Color.black; static let artInk = Color.white; static let ink25 = Color.gray; static let arrival = Animation.easeOut(duration: 0.18) }
 enum DetailScroll { static let glide = Animation.spring(response: 0.3, dampingFraction: 1) }
 enum AchievementsScreen {
     static let rowHeight: CGFloat = 96, rowSpacing: CGFloat = 16, ring: CGFloat = 6

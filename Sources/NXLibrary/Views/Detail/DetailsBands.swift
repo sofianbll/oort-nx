@@ -281,15 +281,10 @@ struct DetailsModsBand: View {
     private func availableFace(_ mod: AvailableMod) -> some View {
         ZStack(alignment: .bottomLeading) {
             GameBananaImageView(url: mod.thumbnailURL, maxPixelSize: Self.thumbnailPixels)
-            LinearGradient(colors: [.clear, .black.opacity(0.78)], startPoint: .center, endPoint: .bottom)
+            LinearGradient(colors: [.clear, SeleneTheme.artShade.opacity(SeleneTokens.Alpha.strong)], startPoint: .center, endPoint: .bottom)
             VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.seam)) {
                 if let chip = chip(for: mod) {
-                    Text(chip)
-                        .seleneFont(.badge, .semibold)
-                        .foregroundColor(SeleneTheme.ink)
-                        .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
-                        .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
-                        .background(Capsule().fill(SeleneTheme.glassSolid))
+                    OortTag(text: chip, preset: .panel)
                         .padding(.bottom, canvas.u(SeleneTokens.Space.hairline))
                 }
                 Text(mod.name)
@@ -359,12 +354,7 @@ struct DetailsModsBand: View {
         }
         .frame(width: w, height: h)
         .drawingGroup()
-        .overlay(
-            RoundedRectangle(cornerRadius: canvas.u(style.radius + 3), style: .continuous)
-                .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
-                .padding(canvas.u(-Self.ringOutset))
-                .opacity(focused ? 1 : 0)
-        )
+        .oortRing(focused, radius: canvas.u(style.radius), gap: canvas.u(Self.ringOutset))
         .scaleEffect(focused ? style.focusScale : 1)
         // The grown tile and its ring draw over the neighbours in the grid.
         .zIndex(focused ? 1 : 0)

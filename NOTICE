@@ -102,7 +102,10 @@ Adapted: the key check (Sources/ArcanePorting/Setup/KeyCheck.swift), the
 engine failure-message table (PortingFailureReason.swift) and the diagnostics
 report idea (DiagnosticsReport.swift) and the self-update rules (AppUpdate.swift).
 Also references for dependency detection, HID controller discovery (HIDControllerSource.swift)
-and the Home-menu background-pause protocol (HomeMenu.swift; NX2Apple patch 0035).
+and the Home-menu background-pause protocol (HomeMenu.swift; NX2Apple patch 0035),
+and the mobile app's host layer: the library of installed games, settings, saves,
+cheats, controllers and game start (listed file by file in mobile/PROVENANCE.md).
+OortCore holds its game manifest and settings list. Screens are Oort NX's own.
 
 MIT License
 

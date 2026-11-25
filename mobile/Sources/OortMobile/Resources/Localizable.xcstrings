@@ -1,0 +1,2334 @@
+{
+ "sourceLanguage": "en",
+ "strings": {
+    "Sort" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sort" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Trier" } }
+      }
+    },
+    "Name" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Name" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Nom" } }
+      }
+    },
+    "Vibrations" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Vibrations" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vibrations" } }
+      }
+    },
+    "Sounds and touch" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sounds and touch" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Sons et vibrations" } }
+      }
+    },
+  "%@ of %@ put together. The game opens when it is done.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "%@ of %@ put together. The game opens when it is done."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "%1$@ sur %2$@ assemblés. Le jeu s’ouvre ensuite."
+     }
+    }
+   }
+  },
+  "%lld on": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "%lld on"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "%lld actives"
+     }
+    }
+   }
+  },
+  "2D games": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "2D games"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Jeux 2D"
+     }
+    }
+   }
+  },
+  "3D games": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "3D games"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Jeux 3D"
+     }
+    }
+   }
+  },
+  "A folder that ends in .framework, made by Oort NX on your Mac.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "A folder that ends in .framework, made by Oort NX on your Mac."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Un dossier qui finit par .framework, fait par Oort NX sur votre Mac."
+     }
+    }
+   }
+  },
+  "A game's own options win.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "A game's own options win."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Les options d’un jeu passent avant."
+     }
+    }
+   }
+  },
+  "Add a cheat file": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Add a cheat file"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Ajouter un fichier de triches"
+     }
+    }
+   }
+  },
+  "Add a game": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Add a game"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Ajouter un jeu"
+     }
+    }
+   }
+  },
+  "Add-on content": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Add-on content"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Contenu additionnel"
+     }
+    }
+   }
+  },
+  "All controllers are player 1": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "All controllers are player 1"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Toutes les manettes sont le joueur 1"
+     }
+    }
+   }
+  },
+  "All games": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "All games"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Tous les jeux"
+     }
+    }
+   }
+  },
+  "As printed": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "As printed"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Comme gravés"
+     }
+    }
+   }
+  },
+  "Back": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Back"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Retour"
+     }
+    }
+   }
+  },
+  "Back to the buttons as printed": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Back to the buttons as printed"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Revenir aux boutons gravés"
+     }
+    }
+   }
+  },
+  "Back to the game's own picture": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Back to the game's own picture"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Revenir à l’image du jeu"
+     }
+    }
+   }
+  },
+  "Back to the tested settings": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Back to the tested settings"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Revenir aux réglages testés"
+     }
+    }
+   }
+  },
+  "Bring back the last copy": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Bring back the last copy"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Reprendre la dernière copie"
+     }
+    }
+   }
+  },
+  "Build a game with Oort NX on your Mac, then add its folder here or send it with a cable. Your games, saves and settings stay on this device.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Build a game with Oort NX on your Mac, then add its folder here or send it with a cable. Your games, saves and settings stay on this device."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Compilez un jeu avec Oort NX sur votre Mac, puis ajoutez son dossier ici ou envoyez-le par câble. Vos jeux, sauvegardes et réglages restent sur cet appareil."
+     }
+    }
+   }
+  },
+  "Buttons": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Buttons"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Boutons"
+     }
+    }
+   }
+  },
+  "Buttons are named as on a Switch controller, by where they are.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Buttons are named as on a Switch controller, by where they are."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Les boutons portent le nom d’une manette Switch, selon leur place."
+     }
+    }
+   }
+  },
+  "Buttons for this game": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Buttons for this game"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Boutons de ce jeu"
+     }
+    }
+   }
+  },
+  "Cancel": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Cancel"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Annuler"
+     }
+    }
+   }
+  },
+  "Changed": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Changed"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Modifié"
+     }
+    }
+   }
+  },
+  "Cheats": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Cheats"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Triches"
+     }
+    }
+   }
+  },
+  "Cheats change the game while it runs. Keep a copy of your save.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Cheats change the game while it runs. Keep a copy of your save."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Les triches changent le jeu pendant la partie. Gardez une copie de votre sauvegarde."
+     }
+    }
+   }
+  },
+  "Cheats were turned off after a crash": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Cheats were turned off after a crash"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Triches coupées après un plantage"
+     }
+    }
+   }
+  },
+  "Choose a folder in Files": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Choose a folder in Files"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Choisir un dossier dans Fichiers"
+     }
+    }
+   }
+  },
+  "Choose its data": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Choose its data"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Choisir ses données"
+     }
+    }
+   }
+  },
+  "Choose its picture": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Choose its picture"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Choisir son image"
+     }
+    }
+   }
+  },
+  "Close": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Close"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Fermer"
+     }
+    }
+   }
+  },
+  "Codes": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Codes"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Codes"
+     }
+    }
+   }
+  },
+  "Connected": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Connected"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Connectées"
+     }
+    }
+   }
+  },
+  "Controllers": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Controllers"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Manettes"
+     }
+    }
+   }
+  },
+  "Copy the link that starts this game": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Copy the link that starts this game"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Copier le lien qui lance ce jeu"
+     }
+    }
+   }
+  },
+  "Counted on this device only.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Counted on this device only."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Compté sur cet appareil seulement."
+     }
+    }
+   }
+  },
+  "Data and saves": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Data and saves"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Données et sauvegardes"
+     }
+    }
+   }
+  },
+  "Days played": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Days played"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Jours joués"
+     }
+    }
+   }
+  },
+  "Details": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Details"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Détails"
+     }
+    }
+   }
+  },
+  "Folder for every game's data": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Folder for every game's data"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Dossier des données de tous les jeux"
+     }
+    }
+   }
+  },
+  "Folder the saves follow": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Folder the saves follow"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Dossier suivi par les sauvegardes"
+     }
+    }
+   }
+  },
+  "Folder: %@ %@": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Folder: %@ %@"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Dossier : %1$@ %2$@"
+     }
+    }
+   }
+  },
+  "Follow a folder you choose": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Follow a folder you choose"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Suivre un dossier que vous choisissez"
+     }
+    }
+   }
+  },
+  "For Shortcuts and the Home Screen.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "For Shortcuts and the Home Screen."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Pour Raccourcis et l’écran d’accueil."
+     }
+    }
+   }
+  },
+  "For every game. A game can have its own on its page.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "For every game. A game can have its own on its page."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Pour tous les jeux. Un jeu peut avoir les siens sur sa fiche."
+     }
+    }
+   }
+  },
+  "Free software under the MIT licence. Built on Arcane by Bium23.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Free software under the MIT licence. Built on Arcane by Bium23."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Logiciel libre sous licence MIT. Construit sur Arcane de Bium23."
+     }
+    }
+   }
+  },
+  "Further in": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Further in"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Plus vers le centre"
+     }
+    }
+   }
+  },
+  "Game data": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Game data"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Données du jeu"
+     }
+    }
+   }
+  },
+  "Game log": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Game log"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Journal du jeu"
+     }
+    }
+   }
+  },
+  "Game page": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Game page"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Fiche du jeu"
+     }
+    }
+   }
+  },
+  "Games": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Games"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Jeux"
+     }
+    }
+   }
+  },
+  "Higher": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Higher"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Plus haut"
+     }
+    }
+   }
+  },
+  "Hold the bottom or right button to close.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Hold the bottom or right button to close."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Maintenez le bouton du bas ou de droite pour fermer."
+     }
+    }
+   }
+  },
+  "Home": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Home"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "À la une"
+     }
+    }
+   }
+  },
+  "Home button, in iOS Settings": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Home button, in iOS Settings"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Bouton Home, dans Réglages iOS"
+     }
+    }
+   }
+  },
+  "If something is wrong": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "If something is wrong"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "En cas de problème"
+     }
+    }
+   }
+  },
+  "In Files: On My iPhone or iPad, Oort NX, games, %@, save.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "In Files: On My iPhone or iPad, Oort NX, games, %@, save."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Dans Fichiers : Sur mon iPhone ou iPad, Oort NX, games, %@, save."
+     }
+    }
+   }
+  },
+  "In every game": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "In every game"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Dans tous les jeux"
+     }
+    }
+   }
+  },
+  "In the corner": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "In the corner"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Dans le coin"
+     }
+    }
+   }
+  },
+  "Install it again from your Mac with the same account. Your games and saves stay.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Install it again from your Mac with the same account. Your games and saves stay."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Réinstallez-la depuis votre Mac avec le même compte. Vos jeux et sauvegardes restent."
+     }
+    }
+   }
+  },
+  "Interface sounds": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Interface sounds"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Sons de l’interface"
+     }
+    }
+   }
+  },
+  "Its data is deleted from this device. You can send it again from your Mac; a deleted save cannot come back.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Its data is deleted from this device. You can send it again from your Mac; a deleted save cannot come back."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Ses données sont supprimées de cet appareil. Vous pouvez les renvoyer depuis votre Mac ; une sauvegarde supprimée ne revient pas."
+     }
+    }
+   }
+  },
+  "Keep my music playing": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Keep my music playing"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Garder ma musique"
+     }
+    }
+   }
+  },
+  "LNPANDY and contributors, MIT. The library of installed games, their settings, saves, cheats and controllers, and the way a game starts.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "LNPANDY and contributors, MIT. The library of installed games, their settings, saves, cheats and controllers, and the way a game starts."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "LNPANDY et contributeurs, MIT. La bibliothèque des jeux installés, leurs réglages, sauvegardes, triches et manettes, et le lancement d’un jeu."
+     }
+    }
+   }
+  },
+  "Large": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Large"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Grande"
+     }
+    }
+   }
+  },
+  "Last played": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Last played"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Dernière partie"
+     }
+    }
+   }
+  },
+  "Left stick": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Left stick"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Stick gauche"
+     }
+    }
+   }
+  },
+  "Library": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Library"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Bibliothèque"
+     }
+    }
+   }
+  },
+  "Licence": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Licence"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Licence"
+     }
+    }
+   }
+  },
+  "Link copied": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Link copied"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Lien copié"
+     }
+    }
+   }
+  },
+  "Made for": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Made for"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Faits pour"
+     }
+    }
+   }
+  },
+  "Make a Home Screen icon": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Make a Home Screen icon"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Créer une icône d’écran d’accueil"
+     }
+    }
+   }
+  },
+  "Medium": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Medium"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Moyenne"
+     }
+    }
+   }
+  },
+  "Never played": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Never played"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Jamais lancé"
+     }
+    }
+   }
+  },
+  "No controller connected": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "No controller connected"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Aucune manette connectée"
+     }
+    }
+   }
+  },
+  "No data": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "No data"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Aucune donnée"
+     }
+    }
+   }
+  },
+  "No game here yet": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "No game here yet"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Aucun jeu ici pour l’instant"
+     }
+    }
+   }
+  },
+  "None": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "None"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Aucun"
+     }
+    }
+   }
+  },
+  "Nothing is sent anywhere unless you choose a folder.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Nothing is sent anywhere unless you choose a folder."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Rien n’est envoyé sans un dossier que vous choisissez."
+     }
+    }
+   }
+  },
+  "OK": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "OK"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "OK"
+     }
+    }
+   }
+  },
+  "On this device": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "On this device"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Sur cet appareil"
+     }
+    }
+   }
+  },
+  "Oort NX sends nothing and has no account. Saves leave this device only if you choose a folder.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Oort NX sends nothing and has no account. Saves leave this device only if you choose a folder."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Oort NX n’envoie rien et n’a pas de compte. Les sauvegardes ne quittent cet appareil que si vous choisissez un dossier."
+     }
+    }
+   }
+  },
+  "Opens the game page": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Opens the game page"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Ouvre la fiche du jeu"
+     }
+    }
+   }
+  },
+  "Options": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Options"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Options"
+     }
+    }
+   }
+  },
+  "Pair one in Settings, Bluetooth. Touch works everywhere meanwhile.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Pair one in Settings, Bluetooth. Touch works everywhere meanwhile."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Associez-en une dans Réglages, Bluetooth. Le tactile marche partout en attendant."
+     }
+    }
+   }
+  },
+  "Picture and shortcut": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Picture and shortcut"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Image et raccourci"
+     }
+    }
+   }
+  },
+  "Play": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Play"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Jouer"
+     }
+    }
+   }
+  },
+  "Play time": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Play time"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Temps de jeu"
+     }
+    }
+   }
+  },
+  "Play without the folder": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Play without the folder"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Jouer sans le dossier"
+     }
+    }
+   }
+  },
+  "Preparing %lld%%": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Preparing %lld%%"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Préparation %lld %%"
+     }
+    }
+   }
+  },
+  "Press a button": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Press a button"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Appuyez sur un bouton"
+     }
+    }
+   }
+  },
+  "Remove %@ from this device?": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Remove %@ from this device?"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Retirer %@ de cet appareil ?"
+     }
+    }
+   }
+  },
+  "Remove from this device": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Remove from this device"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Retirer de cet appareil"
+     }
+    }
+   }
+  },
+  "Remove the game and its saves": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Remove the game and its saves"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Retirer le jeu et ses sauvegardes"
+     }
+    }
+   }
+  },
+  "Remove the game, keep its saves": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Remove the game, keep its saves"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Retirer le jeu, garder ses sauvegardes"
+     }
+    }
+   }
+  },
+  "Saves": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Saves"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Sauvegardes"
+     }
+    }
+   }
+  },
+  "Saves the icon to Photos and opens Shortcuts.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Saves the icon to Photos and opens Shortcuts."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Enregistre l’icône dans Photos et ouvre Raccourcis."
+     }
+    }
+   }
+  },
+  "Search your games": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Search your games"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Chercher dans vos jeux"
+     }
+    }
+   }
+  },
+  "See the problem": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "See the problem"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Voir le problème"
+     }
+    }
+   }
+  },
+  "Select": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Select"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Choisir"
+     }
+    }
+   }
+  },
+  "Set in env.txt": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Set in env.txt"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Fixé dans env.txt"
+     }
+    }
+   }
+  },
+  "Settings": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Settings"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Réglages"
+     }
+    }
+   }
+  },
+  "Show the frame rate": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Show the frame rate"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Afficher les images par seconde"
+     }
+    }
+   }
+  },
+  "Show the graphics details": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Show the graphics details"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Afficher les détails graphiques"
+     }
+    }
+   }
+  },
+  "Shown over a game when no controller is connected.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Shown over a game when no controller is connected."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Affichées sur le jeu quand aucune manette n’est connectée."
+     }
+    }
+   }
+  },
+  "Size": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Size"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Taille"
+     }
+    }
+   }
+  },
+  "Small": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Small"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Petite"
+     }
+    }
+   }
+  },
+  "Sounds": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Sounds"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Sons"
+     }
+    }
+   }
+  },
+  "Starting…": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Starting…"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Lancement…"
+     }
+    }
+   }
+  },
+  "Stop following the folder": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Stop following the folder"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Ne plus suivre le dossier"
+     }
+    }
+   }
+  },
+  "Thanks and licences": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Thanks and licences"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Remerciements et licences"
+     }
+    }
+   }
+  },
+  "The app's own": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "The app's own"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Celui de l’app"
+     }
+    }
+   }
+  },
+  "The app's signature ends in %lld h": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "The app's signature ends in %lld h"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "La signature de l’app finit dans %lld h"
+     }
+    }
+   }
+  },
+  "The app's signature ends soon": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "The app's signature ends soon"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "La signature de l’app finit bientôt"
+     }
+    }
+   }
+  },
+  "The app's signature has expired": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "The app's signature has expired"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "La signature de l’app a expiré"
+     }
+    }
+   }
+  },
+  "The folder's": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "The folder's"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Celle du dossier"
+     }
+    }
+   }
+  },
+  "The game could not be copied. Nothing was changed.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "The game could not be copied. Nothing was changed."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Le jeu n’a pas pu être copié. Rien n’a changé."
+     }
+    }
+   }
+  },
+  "The game's data is not on this device yet.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "The game's data is not on this device yet."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Les données du jeu ne sont pas encore sur cet appareil."
+     }
+    }
+   }
+  },
+  "The game's data is older than the game.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "The game's data is older than the game."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Les données du jeu sont à mettre à jour."
+     }
+    }
+   }
+  },
+  "There is not enough free space on this device.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "There is not enough free space on this device."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Il n’y a pas assez de place sur cet appareil."
+     }
+    }
+   }
+  },
+  "This code cannot be read": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "This code cannot be read"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Ce code est illisible"
+     }
+    }
+   }
+  },
+  "This device's": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "This device's"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Celle de cet appareil"
+     }
+    }
+   }
+  },
+  "This device: %@": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "This device: %@"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Cet appareil : %@"
+     }
+    }
+   }
+  },
+  "This file is for another version of the game": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "This file is for another version of the game"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Ce fichier vise une autre version du jeu"
+     }
+    }
+   }
+  },
+  "This game has links to files outside its folder. Build it again on your Mac.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "This game has links to files outside its folder. Build it again on your Mac."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Ce jeu pointe vers des fichiers hors de son dossier. Recompilez-le sur votre Mac."
+     }
+    }
+   }
+  },
+  "This game has no log yet. It writes one when it runs.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "This game has no log yet. It writes one when it runs."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Ce jeu n’a pas encore de journal. Il en écrit un quand il tourne."
+     }
+    }
+   }
+  },
+  "This game has no options": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "This game has no options"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Ce jeu n’a pas d’option"
+     }
+    }
+   }
+  },
+  "This game is no longer here": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "This game is no longer here"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Ce jeu n’est plus ici"
+     }
+    }
+   }
+  },
+  "This game was built for a newer Oort NX.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "This game was built for a newer Oort NX."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Ce jeu demande un Oort NX plus récent."
+     }
+    }
+   }
+  },
+  "This is not a game built for Oort NX. Pick a folder that ends in .framework.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "This is not a game built for Oort NX. Pick a folder that ends in .framework."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Ce n’est pas un jeu fait pour Oort NX. Choisissez un dossier qui finit par .framework."
+     }
+    }
+   }
+  },
+  "Times played": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Times played"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Parties"
+     }
+    }
+   }
+  },
+  "Touch controls": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Touch controls"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Commandes tactiles"
+     }
+    }
+   }
+  },
+  "Try the buttons": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Try the buttons"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Essayer les boutons"
+     }
+    }
+   }
+  },
+  "Update Oort NX": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Update Oort NX"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Mettre à jour Oort NX"
+     }
+    }
+   }
+  },
+  "Use cheats in this game": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Use cheats in this game"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Activer les triches dans ce jeu"
+     }
+    }
+   }
+  },
+  "Use it anyway": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Use it anyway"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "L’utiliser quand même"
+     }
+    }
+   }
+  },
+  "Use the app's own folder": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Use the app's own folder"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Revenir au dossier de l’app"
+     }
+    }
+   }
+  },
+  "Version": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Version"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Version"
+     }
+    }
+   }
+  },
+  "Version %@": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Version %@"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Version %@"
+     }
+    }
+   }
+  },
+  "Voice": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Voice"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Voix"
+     }
+    }
+   }
+  },
+  "What each button sends": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "What each button sends"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Ce qu’envoie chaque bouton"
+     }
+    }
+   }
+  },
+  "Which save do you want?": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Which save do you want?"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Quelle sauvegarde voulez-vous ?"
+     }
+    }
+   }
+  },
+  "With the work of": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "With the work of"
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "Avec le travail de"
+     }
+    }
+   }
+  },
+  "jhaizhou, MIT. Where nxnative began.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "jhaizhou, MIT. Where nxnative began."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "jhaizhou, MIT. Le point de départ de nxnative."
+     }
+    }
+   }
+  },
+  "seedds, MIT. The engine inside each game.": {
+   "localizations": {
+    "en": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "seedds, MIT. The engine inside each game."
+     }
+    },
+    "fr": {
+     "stringUnit": {
+      "state": "translated",
+      "value": "seedds, MIT. Le moteur dans chaque jeu."
+     }
+    }
+   }
+  }
+ },
+ "version": "1.0"
+}

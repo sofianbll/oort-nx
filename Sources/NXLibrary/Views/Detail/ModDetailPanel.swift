@@ -54,7 +54,7 @@ struct ModDetailPanel: View {
                 .ignoresSafeArea()
                 .contentShape(Rectangle())
                 .onTapGesture { onClose() }
-            HStack(alignment: .top, spacing: canvas.u(36)) {
+            HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.pillInset)) {
                 gallery
                 column
             }
@@ -92,10 +92,10 @@ struct ModDetailPanel: View {
             .mask(
                 VStack(spacing: 0) {
                     edge(fade, toward: .top, shown: !state.atTop)
-                    Color.black
+                    SeleneTheme.artShade
                     edge(fade, toward: .bottom, shown: !state.atBottom)
                 }
-                .padding(.horizontal, canvas.u(-12))
+                .padding(.horizontal, canvas.u(-SeleneTokens.Space.small))
                 .animation(SeleneTheme.arrival, value: state.atTop)
                 .animation(SeleneTheme.arrival, value: state.atBottom)
             )
@@ -210,7 +210,7 @@ struct ModDetailPanel: View {
             // Collapsed, the text fades out where it is cut.
             .mask(
                 VStack(spacing: 0) {
-                    Color.black
+                    SeleneTheme.artShade
                     edge(min(canvas.u(40), height / 4), toward: .bottom, shown: cut)
                 }
             )
@@ -235,7 +235,7 @@ struct ModDetailPanel: View {
         ZStack {
             LinearGradient(colors: [.clear, .black], startPoint: side == .top ? .top : .bottom,
                            endPoint: side == .top ? .bottom : .top)
-            Color.black.opacity(shown ? 0 : 1)
+            SeleneTheme.artShade.opacity(shown ? 0 : 1)
         }
         .frame(height: height)
     }
@@ -376,12 +376,7 @@ struct ModDetailPanel: View {
                 }
                 Spacer(minLength: 0)
                 if let action = text.action {
-                    Text(action)
-                        .seleneFont(.text, .semibold)
-                        .foregroundColor(text.enabled ? SeleneTheme.ink : SeleneTheme.ink60)
-                        .padding(.horizontal, canvas.u(SeleneTokens.Space.line))
-                        .padding(.vertical, canvas.u(SeleneTokens.Space.tight))
-                        .background(Capsule().fill(text.enabled ? SeleneTheme.glass : Color.clear))
+                    OortTag(text: action, preset: .panel).opacity(text.enabled ? 1 : SeleneTokens.Alpha.muted)
                 }
             }
             if let progress = text.progress {
@@ -398,10 +393,7 @@ struct ModDetailPanel: View {
         .padding(.vertical, canvas.u(text.compact ? 6 : 10))
         .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content), style: .continuous)
             .fill(focused ? SeleneTheme.glass : Color.clear))
-        .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
-            .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
-            .padding(canvas.u(-3))
-            .opacity(focused ? 1 : 0))
+        .seleneRowFocus(focused, radius: canvas.u(SeleneTokens.Radius.content))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel([text.title, text.detail, text.action, text.message].compactMap { $0 }.joined(separator: ", "))
         .accessibilityAddTraits(.isButton)

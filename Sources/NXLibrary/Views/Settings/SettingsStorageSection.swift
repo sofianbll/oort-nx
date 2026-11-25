@@ -27,7 +27,7 @@ struct SettingsStorageSection: View {
                             .seleneFont(.text).foregroundColor(SeleneTheme.ink60)
                     }
                 } else {
-                    HStack(spacing: 8) {
+                    HStack(spacing: SeleneTokens.Space.compact) {
                         ProgressView().controlSize(.small)
                         Text(L10n.text("Calculating storage..."))
                             .seleneFont(.text)
@@ -44,7 +44,7 @@ struct SettingsStorageSection: View {
             .disabled(viewModel.isCalculatingStorage || viewModel.isCleaningStorage)
 
             if viewModel.isCleaningStorage {
-                HStack(spacing: 8) {
+                HStack(spacing: SeleneTokens.Space.compact) {
                     ProgressView().controlSize(.small)
                     Text(L10n.text("Deleting files…")).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
                 }
@@ -122,10 +122,10 @@ struct SettingsStorageSection: View {
                 .seleneFont(.text, .semibold, design: .monospaced)
                 .foregroundColor(positive ? SeleneTheme.success : SeleneTheme.ink)
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(SeleneTheme.glass.opacity(0.75))
-        .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+        .padding(.horizontal, SeleneTokens.Space.compact)
+        .padding(.vertical, SeleneTokens.Space.hairline)
+        .background(SeleneTheme.glass.opacity(SeleneTokens.Alpha.strong))
+        .clipShape(RoundedRectangle(cornerRadius: SeleneTokens.Radius.cover, style: .continuous))
     }
 
     private func publishActions() {

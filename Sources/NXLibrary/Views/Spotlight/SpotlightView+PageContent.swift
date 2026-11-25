@@ -105,7 +105,7 @@ extension SpotlightView {
                     wikipediaAbout = WikipediaAbout(lookup: lookup, description: found)
                 }
             Spacer(minLength: 0)
-            VStack(alignment: .leading, spacing: canvas.u(40)) {
+            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.dialogInset)) {
                 if let summary = selectedAchievements {
                     DetailsAchievementsCard(summary: summary, appID: selectedCatalogGame?.steamGame?.appID ?? 0,
                                             focused: state.focus == .achievements,
@@ -120,7 +120,7 @@ extension SpotlightView {
             .spotlightBlock(.column)
         }
         .frame(width: canvas.u(1700), alignment: .topLeading)
-        .padding(.top, canvas.u(44))
+        .padding(.top, canvas.u(SeleneTokens.Space.group))
         .spotlightBlock(.description)
     }
 
@@ -190,10 +190,10 @@ extension SpotlightView {
             LinearGradient(stops: [
                 .init(color: .black, location: 0),
                 .init(color: .black, location: 0.3),
-                .init(color: .black.opacity(0.35), location: 0.62),
-                .init(color: .black.opacity(0), location: 0.86)
+                .init(color: SeleneTheme.artShade.opacity(SeleneTokens.Alpha.shade), location: 0.62),
+                .init(color: SeleneTheme.artShade.opacity(0), location: 0.86)
             ], startPoint: .top, endPoint: .bottom)
-            Color.black.opacity(stripFull ? 1 : 0)
+            SeleneTheme.artShade.opacity(stripFull ? 1 : 0)
         }
         .padding(-canvas.u(16)))
         // They arrive after the logo, not before it.

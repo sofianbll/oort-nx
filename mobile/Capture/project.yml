@@ -1,0 +1,34 @@
+name: OortCapture
+options:
+  deploymentTarget:
+    iOS: "26.0"
+packages:
+  OortMobile:
+    path: ${OORT_MOBILE}
+targets:
+  OortCapture:
+    type: application
+    platform: iOS
+    sources:
+      - path: ${OORT_MOBILE}/Capture/CaptureApp.swift
+      - path: ${OORT_MOBILE}/Tests/ShellHostTests/TestDefaults.swift
+    dependencies:
+      - package: OortMobile
+        products: [OortMobile, ShellHost]
+    info:
+      path: Gen/Info.plist
+      properties:
+        UILaunchScreen: {}
+        LSUIElement: true
+        CFBundleLocalizations: [en, fr]
+        UIApplicationSceneManifest: {UIApplicationSupportsMultipleScenes: false}
+        UIUserInterfaceStyle: Dark
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: io.github.sofianbll.oortnx.capture
+      SUPPORTS_MACCATALYST: YES
+      TARGETED_DEVICE_FAMILY: "1,2,6"
+      SWIFT_VERSION: "5.0"
+      MARKETING_VERSION: "0"
+      CURRENT_PROJECT_VERSION: "0"
+      CODE_SIGN_IDENTITY: "-"
+      CODE_SIGN_STYLE: Manual

@@ -237,7 +237,7 @@ struct CheatsPanel: View {
     private func lineView(_ line: Line, rows: [Row]) -> some View {
         switch line {
         case .heading(let title):
-            Text(title.uppercased())
+            Text(title)
                 .seleneFont(.text, .semibold)
                 .foregroundColor(SeleneTheme.ink60)
                 .padding(.leading, canvas.u(SeleneTokens.Space.small))

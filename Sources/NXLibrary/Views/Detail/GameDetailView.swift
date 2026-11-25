@@ -278,7 +278,7 @@ struct GameDetailView: View {
 
     private var pageMask: some View {
         VStack(spacing: 0) {
-            Color.black
+            SeleneTheme.artShade
             LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
                 .frame(height: canvas.u(16))
             Color.clear.frame(height: canvas.u(SeleneBottomScrim.contentClearance))

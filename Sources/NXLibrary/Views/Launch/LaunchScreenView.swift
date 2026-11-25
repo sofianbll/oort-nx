@@ -54,12 +54,12 @@ struct LaunchScreenView: View {
 
     var body: some View {
         ZStack {
-            Color.black
+            SeleneTheme.artShade
             if showsArt {
                 art
             }
             centrePiece
-            Color.black.opacity(blackout ? 1 : 0)
+            SeleneTheme.artShade.opacity(blackout ? 1 : 0)
         }
         .ignoresSafeArea()
         .opacity(shown && !leaving ? 1 : 0)
@@ -86,7 +86,7 @@ struct LaunchScreenView: View {
                     .frame(width: geo.size.width, height: geo.size.height)
                     .transition(.opacity)
             }
-            Color.black.opacity(shadeOpacity)
+            SeleneTheme.artShade.opacity(shadeOpacity)
         }
     }
 
@@ -115,9 +115,9 @@ struct LaunchScreenView: View {
     private var title: some View {
         Text(game.name)
             .seleneFont(.screen, .semibold)
-            .foregroundColor(.white)
+            .foregroundColor(SeleneTheme.artInk)
             .multilineTextAlignment(.center)
-            .padding(.horizontal, canvas.u(120))
+            .padding(.horizontal, canvas.u(SeleneTokens.Space.stageGutter))
     }
 
     private func appear() {
@@ -125,13 +125,13 @@ struct LaunchScreenView: View {
         appearedAt = CACurrentMediaTime()
         hero = GameArtLoader.shared.cachedHero(for: game)
         logo = GameArtLoader.shared.cachedLogo(for: game)
-        withAnimation(.easeOut(duration: LaunchMotion.screenFade)) { shown = true }
+        withAnimation(SeleneTheme.settle(LaunchMotion.screenFade)) { shown = true }
         if state.isReady { finish() }
     }
 
     private func finish() {
         guard !leaving, !blackout else { return }
-        withAnimation(.easeIn(duration: 0.3)) { blackout = true }
+        withAnimation(SeleneTheme.ease(SeleneTokens.Motion.shake)) { blackout = true }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             withAnimation(SeleneTheme.arrival) { leaving = true }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {

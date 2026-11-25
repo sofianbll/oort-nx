@@ -54,13 +54,7 @@ struct SpotlightGenreChips: View {
     var body: some View {
         HStack(spacing: 0) {
             ForEach(Array(genres.prefix(6)), id: \.self) { genre in
-                Text(genre)
-                    .seleneFont(.text)
-                    .foregroundColor(SeleneTheme.ink90)
-                    .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
-                    .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
-                    .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
-                        .fill(SeleneTheme.ink15))
+                OortTag(text: genre)
                     .padding(.trailing, canvas.u(SeleneTokens.Space.compact))
             }
         }
@@ -105,12 +99,12 @@ struct SpotlightDescription: View {
                 .multilineTextAlignment(.leading)
             if excerpt.truncated {
                 Button(expanded ? L10n.text("Show less") : L10n.text("Read more"), action: onToggle)
-                    .buttonStyle(.plain)
+                    .buttonStyle(OortPressStyle())
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink)
                     .padding(.horizontal, canvas.u(SeleneTokens.Space.line))
                     .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
-                    .background(Capsule().fill(SeleneTheme.ink15))
+                    .oortPanel(radius: canvas.u(SeleneTokens.Radius.hint), raised: true)
                     .seleneRowFocus(focused, radius: canvas.u(15))
                     .padding(.top, canvas.u(SeleneTokens.Space.small))
             }
@@ -145,7 +139,7 @@ struct SpotlightRightHint: View {
             path.addLine(to: CGPoint(x: canvas.u(7), y: canvas.u(11)))
             path.addLine(to: CGPoint(x: 0, y: canvas.u(22)))
         }
-        .stroke(SeleneTheme.ink.opacity(0.45),
+        .stroke(SeleneTheme.ink.opacity(SeleneTokens.Alpha.half),
                 style: StrokeStyle(lineWidth: max(1, canvas.u(2)), lineCap: .round, lineJoin: .round))
         .frame(width: canvas.u(7), height: canvas.u(22))
         .oortShadow(.text)
@@ -163,7 +157,7 @@ struct SpotlightUpHint: View {
             path.addLine(to: CGPoint(x: canvas.u(14), y: 0))
             path.addLine(to: CGPoint(x: canvas.u(28), y: canvas.u(9)))
         }
-        .stroke(SeleneTheme.ink.opacity(0.45),
+        .stroke(SeleneTheme.ink.opacity(SeleneTokens.Alpha.half),
                 style: StrokeStyle(lineWidth: max(1, canvas.u(2)), lineCap: .round, lineJoin: .round))
         .frame(width: canvas.u(28), height: canvas.u(9))
         .oortShadow(.text)

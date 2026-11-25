@@ -139,7 +139,6 @@ struct ConsoleView: View {
         VStack(alignment: .leading, spacing: 0) {
             Text(L10n.text("CONSOLE"))
                 .seleneFont(.text, .semibold)
-                .tracking(1.2)
                 .foregroundColor(SeleneTheme.ink60)
                 .padding(.leading, canvas.u(SeleneTokens.Space.compact))
             HStack(alignment: .firstTextBaseline) {
@@ -161,7 +160,7 @@ struct ConsoleView: View {
         }
         .frame(width: canvas.u(1240), alignment: .leading)
         .frame(maxHeight: .infinity, alignment: .top)
-        .padding(.top, canvas.u(90))
+        .padding(.top, canvas.u(SeleneTokens.Space.pageTop))
         .padding(.bottom, canvas.u(SeleneTokens.Space.feature))
         // Clicks inside the column are not clicks on the shade.
         .contentShape(Rectangle())
@@ -206,7 +205,7 @@ struct ConsoleView: View {
                 }
                 .frame(width: canvas.u(200), alignment: .leading)
             }
-            .background(Capsule().fill(SeleneTheme.glassLight))
+            .oortWell(radius: canvas.u(SeleneTokens.Radius.field))
             pill(.follow) {
                 HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
                     Circle()
@@ -275,13 +274,13 @@ struct ConsoleView: View {
                 VStack(spacing: 0) {
                     LinearGradient(colors: [.clear, .black], startPoint: .top, endPoint: .bottom)
                         .frame(height: canvas.u(14))
-                    Color.black
+                    SeleneTheme.artShade
                     LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
                         .frame(height: canvas.u(14))
                 }
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(RoundedRectangle(cornerRadius: radius, style: .continuous).fill(SeleneTheme.glassLight))
+            .oortWell(radius: radius)
             .onAppear { scrollToEnd(proxy, animated: false) }
             .onChange(of: viewModel.logs.count) {
                 if follow { scrollToEnd(proxy, animated: false) }
@@ -351,7 +350,7 @@ struct ConsoleView: View {
         case .info: return SeleneTheme.ink75
         case .step: return SeleneTheme.ink
         case .success: return PortingLogBox.softGreen
-        case .warning: return Color(hex: 0xF0D29A)
+        case .warning: return SeleneTheme.untested
         case .error: return PortingPillCopy.softRed
         }
     }

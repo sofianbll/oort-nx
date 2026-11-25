@@ -64,7 +64,7 @@ struct SeleneStatsRow: View {
             // Line boxes of Selene's Segoe UI 12 / 21 (16 and 28), so the strip lands 34 below.
             Text(L10n.text(item.label))
                 .seleneFont(.badge, .semibold)
-                .foregroundColor(SeleneTheme.ink60)
+                .foregroundColor(SeleneTheme.ink82)
                 .frame(height: canvas.u(16), alignment: .leading)
             Group {
                 switch item.value {

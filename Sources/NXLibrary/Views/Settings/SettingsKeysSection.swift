@@ -18,7 +18,7 @@ struct SettingsKeysSection: View {
                         info: L10n.text("Nintendo Switch cryptographic keys required to decrypt game packages (NSP/XCI). Arcane stores a private copy with mode 0600 permissions; key values are never displayed or logged.")) {
                 OortReadout(text: GameFoldersCopy.keysContents)
                 OortFormatBadges(labels: GameFoldersCopy.keyBadges)
-                HStack(spacing: 8) {
+                HStack(spacing: SeleneTokens.Space.compact) {
                     Image(systemName: setup.isProdKeysValid ? "checkmark.circle.fill" : "xmark.octagon.fill")
                         .seleneFont(.text, .bold)
                         .foregroundColor(setup.isProdKeysValid ? SeleneTheme.success : SeleneTheme.danger)
@@ -40,16 +40,16 @@ struct SettingsKeysSection: View {
                         .foregroundColor(SeleneTheme.success)
                 }
 
-                HStack(spacing: 14) {
+                HStack(spacing: SeleneTokens.Space.line) {
                     Button(setup.isProdKeysValid ? L10n.text("Replace Key...") : L10n.text("Import Key...")) {
                         setup.selectProdKeysFile()
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(OortPressStyle())
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.glyph)
                     .disabled(configurationLocked)
                     Button(L10n.text("Detect Ryujinx...")) { viewModel.selectRyujinxFolder() }
-                        .buttonStyle(.plain)
+                        .buttonStyle(OortPressStyle())
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
                         .disabled(configurationLocked)

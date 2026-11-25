@@ -68,7 +68,7 @@ struct DetailsAchievementsCard: View {
                     icons
                 }
                 if !complete {
-                    AchievementProgressBar(fraction: summary.total > 0 ? Double(summary.unlocked) / Double(summary.total) : 0,
+                    OortMeter(share: summary.total > 0 ? Double(summary.unlocked) / Double(summary.total) : 0,
                                            height: 5, track: SeleneTheme.ink25)
                 }
             }
@@ -151,27 +151,5 @@ extension DetailsAchievementsCard {
                     .zIndex(-abs(side))
             }
         }
-    }
-}
-
-/// A thin completion bar in the focus colour on a faint track.
-struct AchievementProgressBar: View {
-    @Environment(\.seleneCanvas) private var canvas
-    let fraction: Double
-    /// Canvas units: the page's open block uses a finer bar than the screen.
-    var height: CGFloat = 6
-    var track: Color = SeleneTheme.ink15
-    var fill: Color = SeleneTheme.focus
-
-    var body: some View {
-        GeometryReader { proxy in
-            ZStack(alignment: .leading) {
-                Capsule().fill(track)
-                Capsule().fill(fill)
-                    .frame(width: proxy.size.width * min(max(fraction, 0), 1))
-            }
-        }
-        .frame(height: canvas.u(height))
-        .accessibilityHidden(true)
     }
 }

@@ -124,7 +124,7 @@ struct SettingsCloudLibrarySection: View {
             }
             if let progress = model.driveToolProgress {
                 SeleneButtonRow("Downloading rclone…", id: "driveToolProgress", buttonTitle: "Cancel", action: cancelTool)
-                SeleneProgressBar(progress: progress, color: CloudLibraryStatus.pending.color)
+                OortMeter(share: progress, fill: CloudLibraryStatus.pending.color)
             } else if showToolRecovery {
                 SeleneButtonRow(model.driveToolFailure?.messageKey ?? "Drive is waiting for rclone.", id: "driveToolRecovery",
                                 buttonTitle: model.driveToolFailure == nil ? "Continue" : "Retry", action: recoverTool)
@@ -163,7 +163,7 @@ struct SettingsCloudLibrarySection: View {
                          ? CloudLibraryStatus.pending.color : model.referenceCheck?.count == 0 || model.referenceCheck?.incomplete == true
                          ? CloudLibraryStatus.unknown.color : CloudLibraryStatus.synchronized.color)
                     Button(text("Unfollow"), action: unfollow)
-                        .buttonStyle(.plain)
+                        .buttonStyle(OortPressStyle())
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
                         .disabled(!editable)
@@ -175,7 +175,7 @@ struct SettingsCloudLibrarySection: View {
             SeleneButtonRow("Import games from the cloud", id: "cloudLibraryImport",
                             subtitle: model.importTask == nil ? nil : "Checking…", buttonTitle: "Import", action: importGames)
                 .disabled(!canImport)
-            if model.importTask != nil { SeleneProgressBar(progress: nil, color: CloudLibraryStatus.pending.color) }
+            if model.importTask != nil { OortMeter(share: nil, fill: CloudLibraryStatus.pending.color) }
 
             SettingsSubheading("Appearance")
             SeleneToggleRow("Icon next to Play", isOn: $settings.settings.showsCloudPlayIcon)

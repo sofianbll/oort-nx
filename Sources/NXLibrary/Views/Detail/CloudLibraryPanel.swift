@@ -222,7 +222,7 @@ struct CloudLibraryPanel: View {
                     .foregroundColor(SeleneTheme.ink75).fixedSize(horizontal: false, vertical: true)
             } else if live {
                 if state.transfer(for: item)?.gauge(hasCover: false, hasDownloadPill: downloading) == .bar {
-                    SeleneProgressBar(progress: CloudTransferPresentation.fraction(state.progress), color: indicator.status.color)
+                    OortMeter(share: CloudTransferPresentation.fraction(state.progress), fill: indicator.status.color)
                 }
             } else if let issue = state.issue, issue.item == item {
                 if issue.failed {
@@ -563,7 +563,7 @@ struct CloudGameStatus: View {
                 SeleneStatusDot(text: [title, message == title ? nil : message].compactMap { $0 }.joined(separator: " · "),
                                 color: indicator.status.color, labelColor: SeleneTheme.ink90)
                 if transfer.gauge(hasCover: hasCover, hasDownloadPill: hasDownloadPill) == .bar {
-                    SeleneProgressBar(progress: CloudTransferPresentation.fraction(state.progress), color: indicator.status.color)
+                    OortMeter(share: CloudTransferPresentation.fraction(state.progress), fill: indicator.status.color)
                 }
             }
         }
@@ -584,7 +584,7 @@ struct CloudLibraryProgressView: View {
                 .seleneFont(.text).monospacedDigit()
                 .foregroundColor(showsBar ? SeleneTheme.ink90 : SeleneTheme.ink75)
             if showsBar {
-                SeleneProgressBar(progress: Self.fraction(progress), height: 6, color: CloudLibraryStatus.pending.color)
+                OortMeter(share: Self.fraction(progress), height: 6, fill: CloudLibraryStatus.pending.color)
             }
         }
     }

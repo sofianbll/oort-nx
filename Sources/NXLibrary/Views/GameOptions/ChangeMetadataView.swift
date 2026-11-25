@@ -202,8 +202,7 @@ struct ChangeMetadataView: View {
         }
         .scrollPosition($readingPosition)
         .scrollIndicators(.hidden)
-        .background(SeleneTheme.glassSolid,
-                    in: RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card), style: .continuous))
+        .oortPanel(radius: canvas.u(SeleneTokens.Radius.card))
         .onChange(of: focus) { readingPosition.scrollTo(edge: .top) }
         .onChange(of: field) { readingPosition.scrollTo(edge: .top) }
         .accessibilityElement(children: .combine)
@@ -473,7 +472,7 @@ struct ChangeMetadataView: View {
                 .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink)
                 .padding(canvas.u(SeleneTokens.Space.medium))
-                .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content)).fill(SeleneTheme.glassLight))
+                .oortWell(radius: canvas.u(SeleneTokens.Radius.content))
                 .padding(.top, canvas.u(SeleneTokens.Space.large))
                 .onAppear { editorHasFocus = true }
             }

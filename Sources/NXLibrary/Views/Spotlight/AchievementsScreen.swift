@@ -63,7 +63,7 @@ struct AchievementsScreen: View {
                     progress
                 }
                 .frame(width: canvas.u(Self.listWidth + Self.ring))
-                .padding(.top, canvas.u(70))
+                .padding(.top, canvas.u(SeleneTokens.Space.pageTopCompact))
                 pills.padding(.top, canvas.u(SeleneTokens.Space.section))
                 AchievementsList(scroll: model.scroll, model: model, rows: rows, focused: state.index,
                                  appID: game.steamGame?.appID ?? 0, onFocus: onFocus)
@@ -110,11 +110,11 @@ struct AchievementsScreen: View {
                         .aspectRatio(contentMode: .fill))
                     .clipped()
             }
-            LinearGradient(colors: [.black.opacity(0.8), .black.opacity(0.5)], startPoint: .leading, endPoint: .trailing)
+            LinearGradient(colors: [SeleneTheme.artShade.opacity(SeleneTokens.Alpha.heavy), SeleneTheme.artShade.opacity(SeleneTokens.Alpha.half)], startPoint: .leading, endPoint: .trailing)
             // A little more shade at the bottom, under the hints.
             VStack(spacing: 0) {
                 Spacer(minLength: 0)
-                LinearGradient(colors: [.black.opacity(0), .black.opacity(0.45)], startPoint: .top, endPoint: .bottom)
+                LinearGradient(colors: [SeleneTheme.artShade.opacity(0), SeleneTheme.artShade.opacity(SeleneTokens.Alpha.half)], startPoint: .top, endPoint: .bottom)
                     .frame(height: canvas.u(240))
             }
         }
@@ -192,7 +192,7 @@ struct AchievementsScreen: View {
                 .foregroundColor(SeleneTheme.ink)
                 .lineLimit(1)
             // As wide as the trophies above, the width `TrophyColumn` gives the gauge.
-            AchievementProgressBar(fraction: fraction, height: 4, track: SeleneTheme.ink25)
+            OortMeter(share: fraction, height: 4, track: SeleneTheme.ink25)
                 .frame(maxWidth: .infinity)
                 .padding(.top, canvas.u(SeleneTokens.Space.hairline))
             // A long language wraps under the trophies rather than overflowing them.
@@ -324,23 +324,8 @@ struct AchievementsScreen: View {
         HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
             shoulder(.lb, L10n.text("Previous"), step: -1)
                 .opacity(state.isDetailOpen ? 0 : 1)
-            ForEach(AchievementFilter.allCases, id: \.self) { filter in
-                let selected = filter == state.filter
-                let count = summary.rows(filter).count
-                Button { onFilter(filter) } label: {
-                    let number = Text("  \(count)").foregroundColor(selected ? SeleneTheme.onFocus.opacity(0.7) : SeleneTheme.ink60)
-                    Text("\(Text(Self.title(filter)))\(number)")
-                        .seleneFont(.text, .semibold)
-                        .monospacedDigit()
-                        .foregroundColor(selected ? SeleneTheme.onFocus : SeleneTheme.ink90)
-                        .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
-                        .padding(.vertical, canvas.u(SeleneTokens.Space.compact))
-                        .background(Capsule().fill(selected ? SeleneTheme.focus : SeleneTheme.ink15))
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("\(Self.title(filter)), \(count)")
-                .accessibilityAddTraits(selected ? .isSelected : [])
-            }
+            OortTabs(items: AchievementFilter.allCases.map { .init(id: $0, title: Self.title($0), count: summary.rows($0).count) },
+                     selected: state.filter, label: { "\($0.title), \($0.count ?? 0)" }, select: onFilter)
             shoulder(.rb, L10n.text("Next"), step: 1)
                 .opacity(state.isDetailOpen ? 0 : 1)
         }
@@ -353,7 +338,7 @@ struct AchievementsScreen: View {
                 .frame(minWidth: canvas.u(30), minHeight: canvas.u(36))
                 .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(OortPressStyle())
         .accessibilityLabel(label)
     }
 
@@ -555,11 +540,11 @@ private struct AchievementsList: View {
     /// to nothing by the hints bar's band (at 0.15 the rows showed through the buttons).
     private func mask(atTop: Bool) -> some View {
         VStack(spacing: 0) {
-            LinearGradient(colors: [.black.opacity(atTop ? 1 : 0), .black], startPoint: .top, endPoint: .bottom)
+            LinearGradient(colors: [SeleneTheme.artShade.opacity(atTop ? 1 : 0), .black], startPoint: .top, endPoint: .bottom)
                 .frame(height: canvas.u(Screen.topFade))
                 .animation(reduceMotion ? nil : SeleneTheme.arrival, value: atTop)
-            Color.black
-            LinearGradient(colors: [.black, .black.opacity(0)], startPoint: .top, endPoint: .bottom)
+            SeleneTheme.artShade
+            LinearGradient(colors: [.black, SeleneTheme.artShade.opacity(0)], startPoint: .top, endPoint: .bottom)
                 .frame(height: canvas.u(Screen.bottomFade))
             Color.clear
                 .frame(height: canvas.u(Screen.hintsBand))

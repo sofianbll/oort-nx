@@ -121,8 +121,8 @@ struct ActivityCenterView: View {
                          focused: ActivityCenterFocus.Row) -> some View {
         if !rows.isEmpty || empty != nil {
             VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
-                Text(text(key)).seleneFont(.badge, .bold).tracking(canvas.u(1.4))
-                    .textCase(.uppercase).foregroundColor(SeleneTheme.ink60)
+                Text(text(key)).seleneFont(.badge, .bold)
+                    .foregroundColor(SeleneTheme.ink60)
                     .accessibilityAddTraits(.isHeader)
                 if rows.isEmpty, let empty {
                     Text(text(empty)).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
@@ -320,7 +320,7 @@ private struct ActivityRow: View {
             HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 Group {
                     if let open {
-                        Button(action: open) { content }.buttonStyle(.plain)
+                        Button(action: open) { content }.buttonStyle(OortPressStyle())
                             .accessibilityHint(L10n.text("Open porting", context: localization))
                     } else {
                         content
@@ -348,7 +348,7 @@ private struct ActivityRow: View {
             }
             .frame(minHeight: canvas.u(44))
             if indeterminate || fraction.map({ $0 > 0 }) == true {
-                SeleneProgressBar(progress: fraction, color: progressColor)
+                OortMeter(share: fraction, fill: progressColor)
             }
         }
         .modifier(SeleneOptionRowSurface(focused: focused))

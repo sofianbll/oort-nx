@@ -22,6 +22,12 @@ I tipi con prefisso `Selene` restano disponibili per la migrazione.
 | `SeleneHintsBar` | Mostrare le azioni del livello attivo | Tastiera e layout manetta; coperta, visibile | Legare gli hint alle azioni reali · non duplicare il ritorno. |
 | `OortPlayerSlot` | Una posizione di gioco, con ritratto e controller | Vuota o occupata; focus, selezione, indicatore | Conservare l'altezza e il nome accessibile · non ridimensionare la griglia al cambio di controller. |
 | `OortSegmented` | Scelta esclusiva e immediata | `compact`, `modeBar`; scelta e focus distinti | Muovere il focus senza cambiare modalità · attivare solo su conferma. |
+| `OortSearchField` | Cercare in una pagina o in una lista | `page`, `list`; focus, testo da cancellare | Un campo per schermata · non disegnare un'altra lente. |
+| `OortTabs` | Passare tra viste sorelle | Scelta, focus, conteggio, simbolo | La scelta resta piena, il focus è un anello · non usarle per un'azione. |
+| `OortTag` | Un fatto breve | `quiet`, `panel`, `art`; tono con la sua parola | Mai un pulsante · mai il colore da solo. |
+| `OortMeter` | Avanzamento | Misurato o indeterminato | Accompagnarlo con il testo dello stato. |
+| `OortControllerView` | Mostrare il controller e ciò che preme | Marca, ingressi vivi, movimento ridotto | Dentro un pannello · non un elemento interattivo. |
+| `oortPanel`, `oortWell`, `oortRing` | Superficie, incavo e anello di focus condivisi | Sollevato, fluttuante; contrasto aumentato | Nessuna forma disegnata a mano in una schermata. |
 
 Per verificare una composizione usare la [galleria Debug](development.md#debug-configuration)
 e `python3 scripts/check_selene_tokens.py --base HEAD`. Le voci esistenti del

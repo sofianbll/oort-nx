@@ -62,7 +62,7 @@ struct ProfileEditorView: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            SeleneTheme.scrim.opacity(0.45).ignoresSafeArea()
+            SeleneTheme.scrim.opacity(SeleneTokens.Alpha.half).ignoresSafeArea()
             VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                 Text(L10n.text(title)).seleneFont(.screen, step == .avatar ? .medium : .regular)
                     .accessibilityAddTraits(.isHeader)
@@ -83,7 +83,7 @@ struct ProfileEditorView: View {
             if let error {
                 Text(L10n.text(error)).seleneFont(.text)
                     .frame(maxHeight: .infinity, alignment: .bottom)
-                    .padding(.bottom, canvas.u(154))
+                    .padding(.bottom, canvas.u(SeleneTokens.Space.pageFootDeep))
             }
             if !nameOnly {
                 HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
@@ -94,7 +94,7 @@ struct ProfileEditorView: View {
                 }
                 .accessibilityHidden(true)
                 .frame(maxHeight: .infinity, alignment: .bottom)
-                .padding(.bottom, canvas.u(124))
+                .padding(.bottom, canvas.u(SeleneTokens.Space.pageFoot))
             }
             SeleneHintsBar(left: backHints, right: editorHints)
                 .frame(maxHeight: .infinity, alignment: .bottom)
@@ -171,14 +171,14 @@ struct ProfileEditorView: View {
     }
 
     private var nameStep: some View {
-        VStack(spacing: canvas.u(40)) {
+        VStack(spacing: canvas.u(SeleneTokens.Space.dialogInset)) {
             TextField(L10n.text("Name"), text: $profile.name)
                 .textFieldStyle(.plain)
                 .seleneFont(.heading)
                 .padding(.horizontal, canvas.u(SeleneTokens.Space.feature))
                 .frame(width: canvas.u(560), height: canvas.u(68))
-                .background(Capsule().fill(SeleneTheme.ink.opacity(0.10)))
-                .overlay(Capsule().strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.focusStroke)))
+                .oortWell(radius: canvas.u(SeleneTokens.Radius.field))
+                .seleneRowFocus(nameFocused, radius: canvas.u(SeleneTokens.Radius.field))
                 .focused($nameFocused)
                 .onSubmit { advance() }
             VStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
@@ -206,8 +206,7 @@ struct ProfileEditorView: View {
         }
         .seleneFont(item < 39 ? .heading : .text)
         .frame(width: canvas.u(keyWidth(item)), height: canvas.u(64))
-        .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card)).fill(SeleneTheme.glass))
-        .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card)).strokeBorder(SeleneTheme.ink15, lineWidth: canvas.u(SeleneTokens.Space.thinStroke)))
+        .oortPanel(radius: canvas.u(SeleneTokens.Radius.card))
         .overlay(alignment: .topTrailing) {
             if item > 39 && (item != 42 || isNew) {
                 SelenePromptBadge(button: item == 40 ? .y : item == 41 ? .x : .menu, height: 22,
@@ -291,7 +290,7 @@ struct ProfileEditorView: View {
         let wallpaper = step == .background && !customBackgroundSelected ? wallpapers[index] : profile.look.wallpaper
         let url = (customBackgroundSelected ? customBackground : nil)
             ?? WallpaperCatalog.resolve(wallpaper, themeID: palette.id, in: theme.wallpapers)?.url
-        return HStack(alignment: .top, spacing: canvas.u(60)) {
+        return HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.settingsInfoClearance)) {
             ScrollViewReader { scroll in
                 ScrollView {
                     if step == .theme {
@@ -360,7 +359,7 @@ struct ProfileEditorView: View {
             indexes[step.rawValue] = item
             action()
         } label: { face() }
-        .buttonStyle(.plain)
+        .buttonStyle(OortPressStyle())
         .accessibilityLabel(label)
         .accessibilityAddTraits(index == item ? .isSelected : [])
     }

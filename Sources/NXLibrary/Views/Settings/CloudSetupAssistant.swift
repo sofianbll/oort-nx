@@ -404,7 +404,7 @@ struct CloudSetupAssistant: View {
                 let status = CloudLibraryStatus.pending
                 SeleneStatusDot(text: text(move.isVerifying ? "Verifying the move…" : move.isCancelling ? "Cancelling…" : "Moving games…"),
                                 color: status.color, pulses: !move.isCancelling)
-                SeleneProgressBar(progress: move.fraction, color: status.color)
+                OortMeter(share: move.fraction, fill: status.color)
             } else if work != nil { progress("Checking…") }
             else if draft.verified { SeleneStatusDot(text: text("Connection OK"), color: SeleneTheme.statusOK) }
             else if !movePaused { pill(.retry, "Try again", action: verify) }
@@ -414,7 +414,7 @@ struct CloudSetupAssistant: View {
     private func progress(_ key: String) -> some View {
         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
             Text(text(key)).seleneFont(.text).foregroundColor(SeleneTheme.ink75)
-            SeleneProgressBar(progress: nil, color: CloudLibraryStatus.pending.color)
+            OortMeter(share: nil, fill: CloudLibraryStatus.pending.color)
         }
     }
 
@@ -431,7 +431,7 @@ struct CloudSetupAssistant: View {
             }
             .fixedSize(horizontal: !wide, vertical: true)
         }
-        .buttonStyle(.plain).disabled(!enabled).onHover { if $0 && enabled { focus.select(target) } }
+        .buttonStyle(OortPressStyle()).disabled(!enabled).onHover { if $0 && enabled { focus.select(target) } }
     }
 
     private func pill(_ target: Target, _ key: String, enabled: Bool = true, action: @escaping () -> Void) -> some View {

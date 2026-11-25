@@ -1,0 +1,68 @@
+# The iPhone and iPad app. xcodegen generate --spec mobile/App/project.yml --project <a folder outside the repository>
+# Adapted from NX2Apple frontend-ios/Shell/project-shell.yml at a79d397 (MIT, see ../PROVENANCE.md).
+name: OortNX
+options:
+  deploymentTarget:
+    iOS: "26.0"
+  createIntermediateGroups: true
+packages:
+  OortMobile:
+    path: ${OORT_MOBILE}
+targets:
+  OortNX:
+    type: application
+    platform: iOS
+    sources:
+      - path: ${OORT_MOBILE}/App
+        excludes: ["project.yml", "*.sh"]
+      - path: ${OORT_MOBILE}/../Resources/AppIcon.icon
+    dependencies:
+      - package: OortMobile
+        products: [OortMobile, ShellHost]
+    info:
+      path: Gen/Info.plist
+      properties:
+        CFBundleDisplayName: Oort NX
+        CFBundleLocalizations: [en, fr]
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        UILaunchScreen: {}
+        UIFileSharingEnabled: true
+        LSSupportsOpeningDocumentsInPlace: true
+        NSPhotoLibraryAddUsageDescription: Saves a game's icon to Photos, so you can put it on the Home Screen.
+        UIBackgroundModes: [audio]
+        CFBundleURLTypes:
+          - CFBundleURLName: io.github.sofianbll.oortnx.mobile
+            CFBundleURLRole: Editor
+            CFBundleURLSchemes: [oortnx]
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        UIUserInterfaceStyle: Dark
+        LSApplicationCategoryType: public.app-category.games
+        LSSupportsGameMode: true
+        GCSupportsControllerUserInteraction: true
+        GCSupportedGameControllers:
+          - ProfileName: ExtendedGamepad
+        CADisableMinimumFrameDurationOnPhone: true
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+          UISceneConfigurations:
+            UIWindowSceneSessionRoleApplication:
+              - UISceneConfigurationName: Default
+                UISceneDelegateClassName: SceneDelegate
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: io.github.sofianbll.oortnx.mobile
+      PRODUCT_NAME: Oort NX
+      PRODUCT_MODULE_NAME: OortNX
+      MARKETING_VERSION: 0.5.0
+      CURRENT_PROJECT_VERSION: 1
+      CODE_SIGN_STYLE: Automatic
+      ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      TARGETED_DEVICE_FAMILY: "1,2"
+      STRIP_BITCODE_FROM_COPIED_FILES: NO
+      GCC_C_LANGUAGE_STANDARD: gnu11
+      LD_RUNPATH_SEARCH_PATHS: $(inherited) @executable_path/Frameworks
+      CLANG_ENABLE_OBJC_ARC: YES
+      CLANG_ENABLE_MODULES: YES
+      SWIFT_VERSION: "5.0"
+      SWIFT_OBJC_BRIDGING_HEADER: ${OORT_MOBILE}/App/OortNX-Bridging-Header.h

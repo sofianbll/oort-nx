@@ -184,7 +184,7 @@ struct DetailsPanel: View {
     private func label(symbol: String, text: String) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: canvas.u(SeleneTokens.Space.small)) {
             Image(systemName: symbol)
-                .font(.system(size: canvas.u(14), weight: .regular))
+                .seleneFont(.badge)
                 .foregroundColor(SeleneTheme.ink75)
                 .frame(width: canvas.u(18))
             Text(text)

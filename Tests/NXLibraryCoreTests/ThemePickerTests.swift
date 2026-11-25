@@ -75,9 +75,9 @@ final class ThemePickerTests: XCTestCase {
                         .wallpaper("online/danbooru-1"), .wallpaper("online/wallhaven-abc"),
                         .wallpaper("custom/mine"), .none,
                         .wallpaper("gruvbox/2-b"), .wallpaper("kanagawa/1-a")])
-        XCTAssertEqual(ThemeBackgrounds.group(.wallpaper("online/wallhaven-abc")), "DOWNLOADED")
-        XCTAssertEqual(ThemeBackgrounds.group(.online(.wallhaven)), "ONLINE · WALLHAVEN")
-        XCTAssertEqual(ThemeBackgrounds.group(.online(.danbooru)), "ONLINE · DANBOORU")
+        XCTAssertEqual(ThemeBackgrounds.group(.wallpaper("online/wallhaven-abc")), "Downloaded")
+        XCTAssertEqual(ThemeBackgrounds.group(.online(.wallhaven)), "Online · Wallhaven")
+        XCTAssertEqual(ThemeBackgrounds.group(.online(.danbooru)), "Online · Danbooru")
     }
 
     func testTheSettingFindsItsTile() {
@@ -90,11 +90,11 @@ final class ThemePickerTests: XCTestCase {
     }
 
     func testGroupLabels() {
-        XCTAssertEqual(ThemeBackgrounds.group(.theme), "THEME")
-        XCTAssertEqual(ThemeBackgrounds.group(.none), "NO WALLPAPER")
-        XCTAssertEqual(ThemeBackgrounds.group(.add), "YOUR OWN")
-        XCTAssertEqual(ThemeBackgrounds.group(.wallpaper("custom/mine")), "YOUR OWN")
-        XCTAssertEqual(ThemeBackgrounds.group(.wallpaper("rose-pine/1-x")), "ROSE PINE")
+        XCTAssertEqual(ThemeBackgrounds.group(.theme), "Theme")
+        XCTAssertEqual(ThemeBackgrounds.group(.none), "No wallpaper")
+        XCTAssertEqual(ThemeBackgrounds.group(.add), "Your own")
+        XCTAssertEqual(ThemeBackgrounds.group(.wallpaper("custom/mine")), "Your own")
+        XCTAssertEqual(ThemeBackgrounds.group(.wallpaper("rose-pine/1-x")), "Rose Pine")
     }
 
     // MARK: - Your own
@@ -135,11 +135,11 @@ final class ThemePickerTests: XCTestCase {
     }
 
     func testLiveGroupLabels() {
-        XCTAssertEqual(ThemeBackgrounds.group(.none, tab: .live), "THEME")
-        XCTAssertEqual(ThemeBackgrounds.group(.add, tab: .live), "YOUR OWN")
-        XCTAssertEqual(ThemeBackgrounds.group(.wallpaper("custom/rain"), tab: .live), "YOUR OWN")
-        XCTAssertEqual(ThemeBackgrounds.group(.wallpaper("live/steam-123"), tab: .live), "DOWNLOADED")
-        XCTAssertEqual(ThemeBackgrounds.group(.none, tab: .wallpapers), "NO WALLPAPER")
+        XCTAssertEqual(ThemeBackgrounds.group(.none, tab: .live), "Theme")
+        XCTAssertEqual(ThemeBackgrounds.group(.add, tab: .live), "Your own")
+        XCTAssertEqual(ThemeBackgrounds.group(.wallpaper("custom/rain"), tab: .live), "Your own")
+        XCTAssertEqual(ThemeBackgrounds.group(.wallpaper("live/steam-123"), tab: .live), "Downloaded")
+        XCTAssertEqual(ThemeBackgrounds.group(.none, tab: .wallpapers), "No wallpaper")
     }
 
     /// The tile marked as in use: only on the tab that holds the setting.

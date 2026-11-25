@@ -4,8 +4,9 @@ import PackageDescription
 let package = Package(
     name: "NXLibrary",
     defaultLocalization: "en",
-    platforms: [.macOS("26.0")],
+    platforms: [.macOS("26.0"), .iOS("26.0"), .macCatalyst("26.0")],
     products: [
+        .library(name: "OortCore", targets: ["OortCore"]),
         .library(name: "NXLibraryCore", targets: ["NXLibraryCore"]),
         .library(name: "ArcanePorting", targets: ["ArcanePorting"]),
         .executable(name: "NXLibrary", targets: ["NXLibrary"]),

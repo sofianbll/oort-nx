@@ -30,7 +30,7 @@ struct CloudReferenceDialog: View {
                     .seleneFont(.text)
                     .foregroundColor(SeleneTheme.ink)
                     .padding(canvas.u(SeleneTokens.Space.medium))
-                    .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content)).fill(SeleneTheme.glassLight))
+                    .oortWell(radius: canvas.u(SeleneTokens.Radius.content))
                     .padding(.top, canvas.u(SeleneTokens.Space.large))
                 if !draft.isEmpty, folder == nil {
                     Text(text("Enter a Google Drive folder link or a valid folder ID."))

@@ -137,7 +137,7 @@ struct SetupCheckView: View {
                     .help(error)
             }
             if item.state == .working {
-                SetupProgressBar(progress: item.progress)
+                OortMeter(share: item.progress, height: nil, fill: SeleneTheme.glyph)
                     .frame(width: canvas.u(176), height: canvas.u(5))
                     .padding(.top, canvas.u(SeleneTokens.Space.small))
                     .transition(.opacity)
@@ -147,12 +147,11 @@ struct SetupCheckView: View {
         .padding(.top, canvas.u(item.inlineError == nil ? 20 : SeleneTokens.Space.tight))
         .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
         .frame(width: canvas.u(Self.cardSize.width), height: canvas.u(Self.cardSize.height))
-        .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTheme.cardRadius), style: .continuous)
-            .fill(SeleneTheme.glassCard))
+        .oortPanel(radius: canvas.u(SeleneTheme.cardRadius))
         .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTheme.cardRadius), style: .continuous)
             .strokeBorder(focused ? SeleneTheme.focus : SeleneTheme.ink15,
                           lineWidth: canvas.u(focused ? 3 : 1)))
-        .shadow(color: focused ? SeleneTheme.focusGlow : .clear, radius: canvas.u(18))
+        .oortGlow(focused)
         .scaleEffect(focused && !reduceMotion ? 1.06 : 1)
         .animation(reduceMotion ? nil : SeleneTheme.focusIn, value: focused)
         .opacity(risen ? 1 : 0)
@@ -191,7 +190,7 @@ struct SetupCheckView: View {
             VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
                 HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                     Text(L10n.text(story.title)).seleneFont(.heading, .semibold).foregroundColor(SeleneTheme.ink)
-                    Text(story.state.uppercased())
+                    Text(story.state)
                         .seleneFont(.badge, .bold)
                         .foregroundColor(story.tone)
                 }
@@ -213,8 +212,7 @@ struct SetupCheckView: View {
         }
         .padding(canvas.u(SeleneTokens.Space.titleGap))
         .frame(width: canvas.u(960), height: canvas.u(156), alignment: .topLeading)
-        .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTheme.cardRadius), style: .continuous)
-            .fill(SeleneTheme.glass))
+        .oortPanel(radius: canvas.u(SeleneTheme.cardRadius))
         .clipped()
     }
 
@@ -286,13 +284,7 @@ private struct StatusChip: View {
 
     var body: some View {
         let tone = Self.tone(item)
-        Text(item.chip)
-            .seleneFont(.badge, .bold)
-            .foregroundColor(tone)
-            .lineLimit(1)
-            .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
-            .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
-            .background(Capsule().fill(tone.opacity(0.14)))
+        OortTag(text: item.chip, tone: tone)
             .frame(maxWidth: canvas.u(200))
             .scaleEffect(popping && !reduceMotion ? 1.18 : 1)
             .animation(reduceMotion ? nil : SeleneTheme.quick, value: popping)
@@ -303,38 +295,9 @@ private struct StatusChip: View {
 
     private func breathe() {
         guard item.state == .working, !reduceMotion else { dim = false; return }
-        withAnimation(.easeInOut(duration: 0.65).repeatForever(autoreverses: true)) { dim = true }
+        withAnimation(SeleneTheme.ease(SeleneTokens.Motion.pulse).repeatForever(autoreverses: true)) { dim = true }
     }
 }
 
 /// A working card's bar: it fills with the progress the install reports, and
 /// sweeps when there is no number yet (or holds still with Reduce Motion).
-private struct SetupProgressBar: View {
-    @Environment(\.seleneReduceMotion) private var reduceMotion
-    let progress: Double?
-    @State private var sweep = false
-
-    var body: some View {
-        GeometryReader { geo in
-            ZStack(alignment: .leading) {
-                Capsule().fill(SeleneTheme.ink15)
-                if let progress {
-                    Capsule()
-                        .fill(SeleneTheme.glyph)
-                        .frame(width: max(geo.size.height, geo.size.width * min(1, max(0, progress))))
-                        .animation(SeleneTheme.standard, value: progress)
-                } else {
-                    Capsule()
-                        .fill(SeleneTheme.glyph.opacity(reduceMotion ? 0.6 : 1))
-                        .frame(width: geo.size.width * 0.32)
-                        .offset(x: reduceMotion ? geo.size.width * 0.34 : (sweep ? geo.size.width * 0.68 : 0))
-                        .onAppear {
-                            guard !reduceMotion else { return }
-                            withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) { sweep = true }
-                        }
-                }
-            }
-            .clipShape(Capsule())
-        }
-    }
-}

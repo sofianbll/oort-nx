@@ -109,7 +109,6 @@ struct AddGameView: View {
         VStack(alignment: .leading, spacing: 0) {
             Text(L10n.text("ADD A GAME"))
                 .seleneFont(.text, .semibold)
-                .tracking(1.2)
                 .foregroundColor(SeleneTheme.ink60)
                 .padding(.leading, canvas.u(SeleneTokens.Space.compact))
             Text(stepTitle)
@@ -148,7 +147,7 @@ struct AddGameView: View {
                     VStack(spacing: 0) {
                         LinearGradient(colors: [.clear, .black], startPoint: .top, endPoint: .bottom)
                             .frame(height: canvas.u(10))
-                        Color.black
+                        SeleneTheme.artShade
                         LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
                             .frame(height: canvas.u(28))
                     }
@@ -163,7 +162,7 @@ struct AddGameView: View {
         }
         .frame(width: canvas.u(1040), alignment: .leading)
         .frame(maxHeight: .infinity, alignment: .top)
-        .padding(.top, canvas.u(90))
+        .padding(.top, canvas.u(SeleneTokens.Space.pageTop))
         .padding(.bottom, canvas.u(SeleneTokens.Space.large))
         .overlay(alignment: .top) {
             if dropTargeted {
@@ -173,7 +172,7 @@ struct AddGameView: View {
                     .padding(.horizontal, canvas.u(SeleneTokens.Space.control))
                     .frame(height: canvas.u(34))
                     .background(Capsule().fill(SeleneTheme.focus))
-                    .padding(.top, canvas.u(40))
+                    .padding(.top, canvas.u(SeleneTokens.Space.dialogInset))
                     .transition(.opacity)
             }
         }
@@ -184,22 +183,22 @@ struct AddGameView: View {
 
     private var stepTitle: String {
         switch porting.buildWizardStep {
-        case 1: return "Choose a game"
+        case 1: return L10n.text("Choose a game")
         case 2: return porting.selectedGame?.name ?? L10n.text("Review")
         default:
             if !viewModel.isBuilding, porting.buildError != nil, let reason = porting.portingFailureReason {
                 return reason.title
             }
             let id = viewModel.currentBuildGameID ?? viewModel.lastBuildGameID
-            return viewModel.libraryGames.first { $0.id == id }?.name ?? "Porting"
+            return viewModel.libraryGames.first { $0.id == id }?.name ?? L10n.text("Build")
         }
     }
 
-    /// "Choose · Review · Porting", the current step in full ink.
+    /// "Choose · Review · Build", the current step in full ink.
     private var stepLine: some View {
         let step = porting.buildWizardStep
         return HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
-            ForEach(Array(["Choose", L10n.text("Review"), "Porting"].enumerated()), id: \.offset) { index, title in
+            ForEach(Array([L10n.text("Choose"), L10n.text("Review"), L10n.text("Build")].enumerated()), id: \.offset) { index, title in
                 if index > 0 {
                     Circle().fill(SeleneTheme.ink25).frame(width: canvas.u(4), height: canvas.u(4))
                 }

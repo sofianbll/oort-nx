@@ -42,7 +42,7 @@ struct SteamGridDBKeyDialog: View {
                             .fixedSize(horizontal: false, vertical: true)
                         Spacer(minLength: 0)
                         Button(L10n.text("Get a key")) { NSWorkspace.shared.open(SteamGridDBArt.keyPage) }
-                            .buttonStyle(.plain)
+                            .buttonStyle(OortPressStyle())
                             .foregroundColor(SeleneTheme.focus)
                     }
                     .seleneFont(.text)
@@ -50,7 +50,7 @@ struct SteamGridDBKeyDialog: View {
                 .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink)
                 .padding(canvas.u(SeleneTokens.Space.medium))
-                .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content)).fill(SeleneTheme.glassLight))
+                .oortWell(radius: canvas.u(SeleneTokens.Radius.content))
                 .padding(.top, canvas.u(SeleneTokens.Space.large))
                 .onAppear { fieldFocused = true }
             }

@@ -1,0 +1,34 @@
+// From NX2Apple frontend-ios/Tests/ShellHostTests/FolderPickAnswerTests.swift at a79d397 (MIT, Copyright (c) 2026 seedds, jhaizhou, LNPANDY and NX2Apple contributors). Changes: mobile/PROVENANCE.md.
+import Foundation
+import Testing
+@testable import ShellHost
+
+@Suite struct FolderPickAnswerTests {
+    @Test func theFirstAnswerWinsAndLaterOnesAreIgnored() {
+        var seen: [URL?] = []
+        let answer = FolderPickAnswer<URL> { seen.append($0) }
+        let url = URL(fileURLWithPath: "/tmp/games")
+        answer.finish(url)
+        answer.finish(nil)   // the dismissal that follows a pick
+        answer.finish(URL(fileURLWithPath: "/tmp/other"))
+        #expect(seen == [url])
+        #expect(answer.answered)
+    }
+
+    @Test func aDismissalWithoutAPickAnswersNilOnce() {
+        var calls = 0
+        var last: URL? = URL(fileURLWithPath: "/x")
+        let answer = FolderPickAnswer<URL> { calls += 1; last = $0 }
+        answer.finish(nil)
+        answer.finish(nil)
+        #expect(calls == 1)
+        #expect(last == nil)
+    }
+
+    @Test func dismissStrategyWaitsUntilPickerTransitionFinishes() {
+        #expect(DocumentPickerDismissStrategy.resolve(hasPresentingViewController: false, isBeingDismissed: false, hasTransitionCoordinator: false) == .finishImmediately)
+        #expect(DocumentPickerDismissStrategy.resolve(hasPresentingViewController: true, isBeingDismissed: true, hasTransitionCoordinator: true) == .waitForTransitionCoordinator)
+        #expect(DocumentPickerDismissStrategy.resolve(hasPresentingViewController: true, isBeingDismissed: true, hasTransitionCoordinator: false) == .waitForDismissCompletion)
+        #expect(DocumentPickerDismissStrategy.resolve(hasPresentingViewController: true, isBeingDismissed: false, hasTransitionCoordinator: false) == .dismissExplicitly)
+    }
+}

@@ -65,7 +65,7 @@ extension GameOptionsView {
         }
         .frame(width: canvas.u(1040), alignment: .leading)
         .frame(maxHeight: .infinity, alignment: .top)
-        .padding(.top, canvas.u(90))
+        .padding(.top, canvas.u(SeleneTokens.Space.pageTop))
         .padding(.bottom, canvas.u(SeleneTokens.Space.stageHeader))
         // Clicks inside the column are not clicks on the scrim; only the dimmed area outside closes.
         .contentShape(Rectangle())
@@ -99,8 +99,7 @@ extension GameOptionsView {
             .padding(.top, canvas.u(SeleneTokens.Space.control))
             .padding(.trailing, canvas.u(SeleneTokens.Space.large))
             .padding(.bottom, canvas.u(SeleneTokens.Space.control))
-            .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card), style: .continuous)
-                .fill(SeleneTheme.glass))
+            .oortPanel(radius: canvas.u(SeleneTokens.Radius.card))
         case .gap:
             // Stack spacing is 8u on each side, so 8u here makes the 24u gap before a danger zone.
             Color.clear.frame(height: canvas.u(8))
@@ -136,7 +135,7 @@ extension GameOptionsView {
                         ) : nil) {
             HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                 if checking {
-                    SeleneProgressBar(progress: nil).frame(width: canvas.u(96))
+                    OortMeter(share: nil).frame(width: canvas.u(96))
                     Text(L10n.text("Cancel")).seleneFont(.text).foregroundColor(SeleneTheme.ink75)
                 } else if let info = p.info(row) {
                     SeleneInfoTip(info, isShowing: Binding(
@@ -179,7 +178,7 @@ extension GameOptionsView {
             }
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(OortPressStyle())
         .containerValue(\.oortSettingsRow, true)
         .background(GeometryReader { geometry in
             Color.clear.preference(key: OptionRowFrames.self,

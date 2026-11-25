@@ -280,7 +280,8 @@ struct SpotlightView: View {
                                     showsArt: !settings.settings.keepWallpaperOnGames, modsTint: modsBackdrop,
                                     reveal: artReveal)
                 // Deeper in the page the art dims so the text reads.
-                Color.black.opacity(dimmed ? 0.4 : 0)
+                // 0.65 keeps white text at 4.5:1 over a white picture.
+                SeleneTheme.artShade.opacity(dimmed ? SeleneTokens.Effect.deepVeil : 0)
                     .allowsHitTesting(false)
             },
             stage: { stage(model, state: state) })

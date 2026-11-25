@@ -27,7 +27,7 @@ extension ThemePickerView {
                 VStack(alignment: .leading, spacing: 0) {
                     tabs
                         .padding(.bottom, canvas.u(SeleneTokens.Space.control))
-                    Text(ThemeBackgrounds.group(focused, tab: state.tab))
+                    Text(L10n.text(ThemeBackgrounds.group(focused, tab: state.tab)))
                         .seleneFont(.badge, .semibold)
                         .foregroundColor(SeleneTheme.ink75)
                         .padding(.leading, canvas.u(SeleneTokens.Space.small))
@@ -68,7 +68,7 @@ extension ThemePickerView {
                         .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
                 }
             }
-            .padding(.top, canvas.u(250))
+            .padding(.top, canvas.u(SeleneTokens.Space.stageDrop))
         }
         .task(id: videoToPreview(focused)) {
             previewVideo = nil
@@ -93,17 +93,8 @@ extension ThemePickerView {
     var tabs: some View {
         HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
             SelenePromptBadge(button: .lb, height: 26).accessibilityHidden(true)
-            ForEach(BackgroundTab.allCases, id: \.self) { tab in
-                Text(tab == .wallpapers ? L10n.text("Wallpapers") : L10n.text("Live"))
-                    .seleneFont(.text, .semibold)
-                    .foregroundColor(tab == state.tab ? SeleneTheme.ink : SeleneTheme.ink60)
-                    .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
-                    .padding(.vertical, canvas.u(SeleneTokens.Space.compact))
-                    .background(Capsule().fill(tab == state.tab ? SeleneTheme.glassSolid : Color.clear))
-                    .contentShape(Capsule())
-                    .onTapGesture { switchTab(to: tab) }
-                    .accessibilityAddTraits(tab == state.tab ? [.isButton, .isSelected] : .isButton)
-            }
+            OortTabs(items: BackgroundTab.allCases.map { .init(id: $0, title: $0 == .wallpapers ? L10n.text("Wallpapers") : L10n.text("Live")) },
+                     selected: state.tab, select: switchTab(to:))
             SelenePromptBadge(button: .rb, height: 26).accessibilityHidden(true)
         }
         .padding(.leading, canvas.u(SeleneTokens.Space.tight))
@@ -181,7 +172,7 @@ extension ThemePickerView {
                 if let url = theme.wallpaper(for: id)?.url { WallpaperThumb(url: url) }
                 if state.tab == .live {
                     MaterialIconView(.play, size: 22)
-                        .foregroundColor(.white)
+                        .foregroundColor(SeleneTheme.artInk)
                         .padding(canvas.u(SeleneTokens.Space.compact))
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                         .oortShadow(.text)
@@ -194,7 +185,7 @@ extension ThemePickerView {
                 MaterialIconView(.check, size: 18)
                     .foregroundColor(SeleneTheme.glyph)
                     .padding(canvas.u(SeleneTokens.Space.hairline))
-                    .background(Circle().fill(Color.black.opacity(0.55)))
+                    .background(Circle().fill(SeleneTheme.artShade.opacity(SeleneTokens.Alpha.veil)))
                     .padding(canvas.u(SeleneTokens.Space.compact))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             }
@@ -228,12 +219,12 @@ extension ThemePickerView {
     private func tileLabel(_ text: String) -> some View {
         Text(text)
             .seleneFont(.text)
-            .foregroundColor(.white)
+            .foregroundColor(SeleneTheme.artInk)
             .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
             .padding(.top, canvas.u(SeleneTokens.Space.hairline))
             .padding(.bottom, canvas.u(SeleneTokens.Space.tight))
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.black.opacity(0.6))
+            .background(SeleneTheme.artShade.opacity(SeleneTokens.Alpha.muted))
     }
 
     private func label(_ choice: ThemeBackgroundChoice) -> String {

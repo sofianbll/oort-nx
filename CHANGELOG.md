@@ -2,6 +2,26 @@
 
 User-visible changes to Oort NX and its Arcane base (formerly NX Library) are recorded here. Entries are grouped by release, with the newest first. Engine changes also have their own [upgrade notes](docs/history/engine-upgrades/README.md).
 
+## 0.5.0-beta.3 — unreleased
+
+### Added
+
+- The controller is drawn in dots and lights up what you press, in Settings → Controllers, Controls and Players.
+- The stick dead zone uses the shared slider.
+
+### Changed
+
+- Every colour, space, radius, stroke and motion in the screens comes from one token source; search fields, tabs, tags, progress bars, panels, wells and focus rings are shared pieces.
+- Labels are written as sentences instead of capitals, in the seven languages.
+- The focus ring of a picture has a dark edge, and text over a game's art is darker behind, so both read on any picture.
+- The 27 palettes keep text at 4.5:1 and shapes at 3:1; Catppuccin Latte, Rosé Pine and Miasma are adjusted as they load.
+- Increase Contrast and Reduce Transparency in macOS are followed.
+
+### Fixed
+
+- An exFAT or FAT32 drive was read as full, which refused mods and saves.
+- The Add game steps were in English in other languages.
+
 ## 0.5.0-beta.2 — 2026-11-25
 
 ### Added

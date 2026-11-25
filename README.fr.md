@@ -17,10 +17,10 @@ Pour compiler Oort NX, suis le [guide de développement](docs/working-on-it/deve
 
 ## Plateformes
 
-L’app tourne sur macOS. **Ryujinx-Nextendo** est le moteur visé pour Windows ; aucune build ni compatibilité Windows n’est annoncée. Nextendo sur Mac reste facultatif et inchangé.
+L’app tourne sur macOS. **Ryujinx-Nextendo** est le moteur visé pour Windows ; aucune build ni compatibilité Windows n’est annoncée. Nextendo sur Mac reste facultatif et inchangé. Les sources de l’app iPhone et iPad sont dans `mobile/` ; aucune build n’est publiée.
 
 ## Crédits
 
-Oort NX s’appuie sur [Arcane de Bium23](https://github.com/Bium23/NxLibrary) et le [thème Selene de Matthew Silva](https://github.com/mattxslv/Selene). Le sélecteur d’images s’inspire de [Playnite de Josef Nemec](https://github.com/JosefNemec/Playnite). Merci aux contributeurs de [nxnative](https://github.com/seedds/nxnative) et de [Nextendo](https://github.com/eyasbzour/nxnative-online).
+Oort NX s’appuie sur [Arcane de Bium23](https://github.com/Bium23/NxLibrary) et le [thème Selene de Matthew Silva](https://github.com/mattxslv/Selene). Le sélecteur d’images s’inspire de [Playnite de Josef Nemec](https://github.com/JosefNemec/Playnite). La couche hôte de l’app iPhone et iPad vient de [NX2Apple de LNPANDY](https://github.com/LNPANDY/NX2Apple) (MIT). Merci aux contributeurs de [nxnative](https://github.com/seedds/nxnative) et de [Nextendo](https://github.com/eyasbzour/nxnative-online).
 
 [Licence MIT](LICENSE) · [Licences tierces](NOTICE) · [Soutenir Bium23](https://buymeacoffee.com/bium)

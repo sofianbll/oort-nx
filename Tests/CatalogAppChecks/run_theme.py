@@ -323,7 +323,6 @@ with tempfile.TemporaryDirectory(prefix='arcane-theme-check-') as folder:
     executable = scratch / 'check'
     subprocess.run(['xcrun', 'swiftc', '-parse-as-library', '-I', str(BIN), str(swift),
                     str(ROOT / 'Sources/NXLibrary/Views/Theme/MoonlightRenderer.swift'),
-                    str(ROOT / 'Sources/NXLibrary/Views/Theme/MoonlightShaders.swift'),
                     str(BIN / 'NXLibraryCore.o'), str(BIN / 'ArcanePorting.o'), str(BIN / 'OortCore.o'),
                     '-o', str(executable)], cwd=ROOT, check=True)
     subprocess.run([str(executable), str(scratch)], cwd=ROOT, check=True,

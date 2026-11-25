@@ -52,11 +52,9 @@ struct LocalePicker: View {
                     Text(formatPreview).seleneFont(.text).foregroundColor(SeleneTheme.ink)
                 }
                 if mode == .region {
-                TextField(L10n.text("Find a region"), text: $query)
-                    .textFieldStyle(.plain).seleneFont(.row).focused($searchFocused)
-                    .onSubmit { choose() }
-                    .padding(canvas.u(SeleneTokens.Space.line)).background(SeleneTheme.glass)
-                    .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.content)))
+                OortSearchField(query: $query, lit: searchFocused, preset: .list) {
+                    TextField(L10n.text("Find a region"), text: $query).focused($searchFocused).onSubmit { choose() }
+                }
                 }
                 ScrollViewReader { proxy in
                     ScrollView {
@@ -80,7 +78,7 @@ struct LocalePicker: View {
                                     .seleneRowFocus(index == focus, radius: canvas.u(12))
                                     .contentShape(Rectangle())
                                 }
-                                .buttonStyle(.plain).id(index)
+                                .buttonStyle(OortPressStyle()).id(index)
                                 .accessibilityAddTraits(rows[index].id == selectedID ? .isSelected : [])
                             }
                         }
@@ -98,7 +96,7 @@ struct LocalePicker: View {
                 .frame(height: canvas.u(420))
                 HStack {
                     Spacer()
-                    Button(L10n.text("Cancel"), action: onClose).buttonStyle(.plain).seleneFont(.text, .semibold)
+                    Button(L10n.text("Cancel"), action: onClose).buttonStyle(OortPressStyle()).seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.glyph).padding(canvas.u(SeleneTokens.Space.compact))
                 }
             }

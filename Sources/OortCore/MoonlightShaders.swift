@@ -1,5 +1,3 @@
-import NXLibraryCore
-
 /// The moonlight's Metal shaders, compiled at launch by the system's runtime
 /// compiler (SwiftPM builds no .metal files, and the app needs no Metal toolchain).
 ///
@@ -8,12 +6,12 @@ import NXLibraryCore
 /// haze; `moon_dot` draws every mote as a quad. Each pixel's alpha is its
 /// brightest channel, so the layer composites over the theme's gradient like a
 /// screen blend.
-enum MoonlightShaders {
+public enum MoonlightShaders {
     private static let spectrum = MoonlightChromatics.colors.map {
         "float3(\($0.x), \($0.y), \($0.z))"
     }.joined(separator: ", ")
 
-    static let source = #"""
+    public static let source = #"""
 #include <metal_stdlib>
 using namespace metal;
 

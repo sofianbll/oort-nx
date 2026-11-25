@@ -11,7 +11,7 @@ extension ThemePickerView {
         let palette = palettes[min(state.themeIndex, palettes.count - 1)]
         return ZStack(alignment: .top) {
             header(L10n.text("Choose your theme"), L10n.text("Colors for all of Arcane. Move through them to see each one in the preview."))
-            HStack(alignment: .top, spacing: canvas.u(60)) {
+            HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.settingsInfoClearance)) {
                 grid(count: palettes.count, columns: ThemePickerState.themeColumns) { index in
                     ThemePaletteSwatch(palette: palettes[index], focused: index == state.themeIndex)
                         .onTapGesture { tap(index) }
@@ -30,7 +30,7 @@ extension ThemePickerView {
                         .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
                 }
             }
-            .padding(.top, canvas.u(290))
+            .padding(.top, canvas.u(SeleneTokens.Space.stageDropDeep))
         }
     }
 
@@ -53,8 +53,8 @@ struct ThemePaletteSwatch: View {
                     WallpaperThumb(url: url)
                 }
                 // The theme's color fades in from the left so "Aa" reads on any wallpaper.
-                LinearGradient(stops: [.init(color: readingShade.opacity(0.9), location: 0),
-                                       .init(color: readingShade.opacity(0.33), location: 0.55),
+                LinearGradient(stops: [.init(color: readingShade.opacity(SeleneTokens.Alpha.near), location: 0),
+                                       .init(color: readingShade.opacity(SeleneTokens.Alpha.mist), location: 0.55),
                                        .init(color: readingShade.opacity(0), location: 1)],
                                startPoint: .leading, endPoint: .trailing)
                 HStack {
@@ -62,14 +62,14 @@ struct ThemePaletteSwatch: View {
                     Spacer(minLength: 0)
                     Circle()
                         .fill(Color(hex: palette.glyph))
-                        .overlay(Circle().strokeBorder(Color.black.opacity(0.4), lineWidth: 1))
+                        .overlay(Circle().strokeBorder(SeleneTheme.artShade.opacity(SeleneTokens.Alpha.shade), lineWidth: SeleneTokens.Space.thinStroke))
                         .frame(width: canvas.u(20), height: canvas.u(20))
                 }
                 .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
             }
             .frame(width: canvas.u(132), height: canvas.u(76))
             .clipShape(shape)
-            .overlay(shape.strokeBorder(Color.white.opacity(0.25), lineWidth: 1))
+            .overlay(shape.strokeBorder(SeleneTheme.artInk.opacity(SeleneTokens.Alpha.line), lineWidth: SeleneTokens.Space.thinStroke))
             .modifier(TileFocus(focused: focused, radius: 14, scale: 1.08))
             Text(palette.name)
                 .seleneFont(.text)
@@ -101,7 +101,7 @@ extension ThemePickerView {
                 RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.row), style: .continuous)
                     .fill(Color(hex: color))
                     .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.row), style: .continuous)
-                        .strokeBorder(SeleneTheme.ink25, lineWidth: 1))
+                        .strokeBorder(SeleneTheme.ink25, lineWidth: SeleneTokens.Space.thinStroke))
                     .frame(width: canvas.u(46), height: canvas.u(26))
             }
         }

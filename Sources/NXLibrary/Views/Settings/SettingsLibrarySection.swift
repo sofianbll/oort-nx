@@ -38,7 +38,7 @@ struct SettingsLibrarySection: View {
                       subtitle: GameFoldersCopy.appsContents,
                       info: "Choose where to keep your game apps. Put any existing nxnative games (.app) here. Changing folders does not move apps; rebuilds update them where they are.",
                       verbatimSubtitle: true, formatBadges: GameFoldersCopy.appBadges) {
-                HStack(spacing: 10) {
+                HStack(spacing: SeleneTokens.Space.gap) {
                     Text(appsPath ?? L10n.text("Not selected"))
                         .seleneFont(.text, .medium)
                         .foregroundColor(SeleneTheme.ink75)
@@ -46,13 +46,13 @@ struct SettingsLibrarySection: View {
                         .truncationMode(.middle)
                         .frame(maxWidth: 320, alignment: .trailing)
                     Button(L10n.text("Change"), action: chooseAppsPath)
-                        .buttonStyle(.plain)
+                        .buttonStyle(OortPressStyle())
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
                     Button(L10n.text("Reset")) {
                         stageAppsPath(viewModel.defaultGameAppsPath)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(OortPressStyle())
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink60)
                 }
@@ -62,7 +62,7 @@ struct SettingsLibrarySection: View {
                       subtitle: GameFoldersCopy.sourcesContents,
                       info: "Existing game apps play without their sources. Reset group keeps this folder. Clear removes the selection, keeping your files.",
                       verbatimSubtitle: true, formatBadges: GameFoldersCopy.sourceBadges) {
-                HStack(spacing: 10) {
+                HStack(spacing: SeleneTokens.Space.gap) {
                     Text(sourcesPath ?? L10n.text("Not selected · Optional"))
                         .seleneFont(.text, .medium)
                         .foregroundColor(SeleneTheme.ink75)
@@ -70,12 +70,12 @@ struct SettingsLibrarySection: View {
                         .truncationMode(.middle)
                         .frame(maxWidth: 320, alignment: .trailing)
                     Button(L10n.text("Choose"), action: chooseSourcesPath)
-                        .buttonStyle(.plain)
+                        .buttonStyle(OortPressStyle())
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
                     if sourcesPath != nil {
                         Button(L10n.text("Clear")) { stageSourcesPath(nil) }
-                            .buttonStyle(.plain)
+                            .buttonStyle(OortPressStyle())
                             .seleneFont(.text, .semibold)
                             .foregroundColor(SeleneTheme.danger)
                     }
@@ -96,7 +96,7 @@ struct SettingsLibrarySection: View {
             .disabled(viewModel.isScanningLibrary)
 
             if !viewModel.libraryScanWarnings.isEmpty {
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: SeleneTokens.Space.tight) {
                     ForEach(viewModel.libraryScanWarnings, id: \.self) { warning in
                         Text(warning)
                             .seleneFont(.text)
@@ -105,8 +105,8 @@ struct SettingsLibrarySection: View {
                 }
                 .foregroundColor(SeleneTheme.ink)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 24)
-                .padding(.vertical, 8)
+                .padding(.horizontal, SeleneTokens.Space.large)
+                .padding(.vertical, SeleneTokens.Space.compact)
             }
 
             SeleneToggleRow("Refresh library at launch",

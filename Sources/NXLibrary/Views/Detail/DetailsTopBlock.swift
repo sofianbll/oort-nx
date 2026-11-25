@@ -150,7 +150,7 @@ struct DetailsTopBlock: View {
                 Text(PortingPillCopy.lastFailure(failure, reason: game.portingFailureReason))
                     .seleneFont(.text).foregroundColor(SeleneTheme.ink60)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(OortPressStyle())
         case .failed(let failure):
             if failure == .failed, let reason = game.portingFailureReason {
                 Text(reason.title).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
@@ -163,7 +163,7 @@ struct DetailsTopBlock: View {
             } else if !canCheckCloudSources && !game.sources.isEmpty && !GameResourceState.sourcesAvailable(for: game) {
                 Text(L10n.text("Game files not found · Rebuild unavailable")).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
             } else if !game.isPlayableLocally {
-                Text(L10n.text("Not built yet")).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
+                Text(L10n.text("Not built yet")).seleneFont(.text).foregroundColor(SeleneTheme.ink82)
             }
         }
     }
@@ -346,8 +346,7 @@ struct DetailsTopBlock: View {
                     .foregroundColor(SeleneTheme.ink90)
                     .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
                     .padding(.vertical, canvas.u(SeleneTokens.Space.hairline))
-                    .background(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
-                        .fill(SeleneTheme.ink15))
+                    .oortPanel(radius: canvas.u(SeleneTokens.Radius.badge))
                     .padding(.trailing, canvas.u(SeleneTokens.Space.compact))
                     .padding(.bottom, canvas.u(SeleneTokens.Space.compact))
             }
@@ -379,7 +378,7 @@ struct DetailsTopBlock: View {
                     }
                     if about.text.count > Self.readMoreThreshold || about.preview != nil {
                         Button(expanded ? L10n.text("Show less") : L10n.text("Read more")) { expanded.toggle() }
-                            .buttonStyle(.plain)
+                            .buttonStyle(OortPressStyle())
                             .seleneFont(.text, .semibold)
                             .foregroundColor(SeleneTheme.glyph)
                     }

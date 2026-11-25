@@ -53,6 +53,40 @@ public struct SelenePalette: Codable, Equatable, Identifiable {
     )
 }
 
+extension SelenePalette {
+    static func contrast(_ a: UInt32, _ b: UInt32) -> Double {
+        func luminance(_ color: UInt32) -> Double {
+            let parts = [16, 8, 0].map { Double((color >> UInt32($0)) & 255) / 255 }
+                .map { $0 <= 0.04045 ? $0 / 12.92 : pow(($0 + 0.055) / 1.055, 2.4) }
+            return 0.2126 * parts[0] + 0.7152 * parts[1] + 0.0722 * parts[2]
+        }
+        let low = min(luminance(a), luminance(b)), high = max(luminance(a), luminance(b))
+        return (high + 0.05) / (low + 0.05)
+    }
+
+    private static func mix(_ a: UInt32, _ b: UInt32, _ share: Double) -> UInt32 {
+        [16, 8, 0].reduce(0) { sum, shift in
+            let x = Double((a >> UInt32(shift)) & 255), y = Double((b >> UInt32(shift)) & 255)
+            return sum | UInt32((x + (y - x) * share).rounded()) << UInt32(shift)
+        }
+    }
+
+    /// The palette with its focus, glyph and text on focus moved only as far as reading them needs:
+    /// 3:1 for a shape on a panel, 4.5:1 for text (WCAG 1.4.11 and 1.4.3).
+    public var readable: SelenePalette {
+        func reach(_ color: UInt32, on ground: UInt32, toward target: UInt32, _ ratio: Double) -> UInt32 {
+            stride(from: 0.0, through: 1, by: 0.05).lazy.map { Self.mix(color, target, $0) }
+                .first { Self.contrast($0, ground) >= ratio } ?? target
+        }
+        var next = self
+        next.focus = reach(focus, on: glass, toward: ink, 3)
+        next.glyph = reach(glyph, on: glass, toward: ink, 3)
+        let extreme: UInt32 = Self.contrast(0, next.focus) > Self.contrast(0xFFFFFF, next.focus) ? 0 : 0xFFFFFF
+        next.onFocus = reach(onFocus, on: next.focus, toward: extreme, 4.5)
+        return next
+    }
+}
+
 public enum SelenePaletteCatalog {
     /// The theme used without a preference, first in the picker.
     public static let defaultID = "oort"
@@ -67,7 +101,7 @@ public enum SelenePaletteCatalog {
     }
 
     public static func load(from url: URL) throws -> [SelenePalette] {
-        try JSONDecoder().decode([SelenePalette].self, from: Data(contentsOf: url))
+        try JSONDecoder().decode([SelenePalette].self, from: Data(contentsOf: url)).map(\.readable)
     }
 
     public static func resolve(_ id: String, in palettes: [SelenePalette]) -> SelenePalette {

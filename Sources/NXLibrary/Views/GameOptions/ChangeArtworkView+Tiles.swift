@@ -28,7 +28,7 @@ extension ChangeArtworkView {
             }
             .frame(width: size.width, height: size.height)
             // The ring sits 6 outside the tile, centred on it.
-            .overlay(SeleneTileRing(cornerRadius: canvas.u(SeleneTokens.Radius.modal), active: focused).padding(canvas.u(-6)))
+            .overlay(SeleneTileRing(cornerRadius: canvas.u(SeleneTokens.Radius.modal), active: focused).padding(canvas.u(-SeleneTokens.Space.tight)))
             VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.seam)) {
                 Text(caption(tile).title)
                     .seleneFont(.text, .semibold)

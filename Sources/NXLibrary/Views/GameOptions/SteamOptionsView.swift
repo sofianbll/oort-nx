@@ -136,7 +136,7 @@ struct SteamOptionsView: View {
         }
         .frame(width: canvas.u(1040), alignment: .leading)
         .frame(maxHeight: .infinity, alignment: .top)
-        .padding(.top, canvas.u(90))
+        .padding(.top, canvas.u(SeleneTokens.Space.pageTop))
         .padding(.bottom, canvas.u(SeleneTokens.Space.stageHeader))
         .contentShape(Rectangle())
     }

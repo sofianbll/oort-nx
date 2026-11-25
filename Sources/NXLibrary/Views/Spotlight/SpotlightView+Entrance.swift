@@ -97,7 +97,7 @@ extension SpotlightView {
     func finishEntrance() {
         land()
         guard !controlsShown else { return }
-        withAnimation(.easeOut(duration: SpotlightEntrance.controlsFade)) { controlsShown = true }
+        withAnimation(SeleneTheme.settle(SpotlightEntrance.controlsFade)) { controlsShown = true }
     }
 
     private func land() {

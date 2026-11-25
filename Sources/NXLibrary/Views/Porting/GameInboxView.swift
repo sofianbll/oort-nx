@@ -84,7 +84,7 @@ struct GameInboxView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(canvas.u(SeleneTokens.Space.large))
-            .background(SeleneTheme.glassLight, in: RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card)))
+            .oortPanel(radius: canvas.u(SeleneTokens.Radius.card))
             .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card))
                 .strokeBorder(dropTarget ? SeleneTheme.focus : SeleneTheme.ink25,
                               style: StrokeStyle(lineWidth: canvas.u(SeleneTokens.Space.focusStroke), dash: [canvas.u(8), canvas.u(6)])))

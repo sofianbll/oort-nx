@@ -54,7 +54,7 @@ struct ThemePickerView: View {
     var body: some View {
         ZStack(alignment: .top) {
             SeleneBackdrop().still(true)
-            Color.black.opacity(0.3).ignoresSafeArea()
+            SeleneTheme.artShade.opacity(SeleneTokens.Alpha.mist).ignoresSafeArea()
 
             Group {
                 switch state.step {
@@ -66,7 +66,7 @@ struct ThemePickerView: View {
 
             dots
                 .frame(maxHeight: .infinity, alignment: .bottom)
-                .padding(.bottom, canvas.u(124))
+                .padding(.bottom, canvas.u(SeleneTokens.Space.pageFoot))
 
             SeleneHintsBar(left: [HintItem(.b, transfer.itemID != nil ? L10n.text("Cancel") : L10n.text("Back"), action: back)], right: rightHints,
                            bottom: SeleneBottomScrim.hintsBottom, leftInset: 18)
@@ -149,7 +149,7 @@ struct ThemePickerView: View {
             Text(sub).seleneFont(.row).foregroundColor(SeleneTheme.ink75)
         }
         .multilineTextAlignment(.center)
-        .padding(.top, canvas.u(110))
+        .padding(.top, canvas.u(SeleneTokens.Space.stageHeader))
     }
 
     // MARK: - Grid
@@ -178,11 +178,7 @@ struct TileFocus: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .overlay(
-                RoundedRectangle(cornerRadius: canvas.u(radius + 3), style: .continuous)
-                    .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
-                    .padding(canvas.u(-4))
-                    .opacity(focused ? 1 : 0))
+            .oortRing(focused, radius: canvas.u(radius), gap: canvas.u(SeleneTokens.Space.hairline))
             .scaleEffect(focused && !reduceMotion ? scale : 1)
             .animation(reduceMotion ? nil : SeleneTheme.quick, value: focused)
     }

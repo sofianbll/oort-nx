@@ -71,11 +71,14 @@ struct ControlsView: View {
                             .padding(.bottom, canvas.u(SeleneTokens.Space.control))
                         SeleneSegmented(selection: $inGame, options: [(false, "Library"), (true, "In game")])
                             .padding(.bottom, canvas.u(SeleneTokens.Space.control))
+                        OortControllerView(brand: controller.activeBrand)
+                            .frame(maxWidth: .infinity)
+                            .opacity(controller.isGamepadConnected ? 1 : SeleneTokens.Alpha.half)
                         SeleneOptionRow(icon: .gamepad, title: L10n.text("Controller"),
                             about: controller.isGamepadConnected ? controller.activeControllerName : L10n.text("Not connected"),
                             focused: focus == 0) {
                             Button(L10n.text("Detect")) { controller.refreshControllers() }
-                                .buttonStyle(.plain)
+                                .buttonStyle(OortPressStyle())
                                 .seleneFont(.text, .semibold)
                                 .foregroundColor(SeleneTheme.glyph)
                         }
@@ -87,8 +90,8 @@ struct ControlsView: View {
                         }
                     }
                     .padding(.horizontal, canvas.u(SeleneTokens.Space.section))
-                    .padding(.top, canvas.u(70))
-                    .padding(.bottom, canvas.u(40))
+                    .padding(.top, canvas.u(SeleneTokens.Space.pageTopCompact))
+                    .padding(.bottom, canvas.u(SeleneTokens.Space.dialogInset))
                     .frame(maxWidth: max(700, canvas.u(1120)), alignment: .leading)
                     .frame(maxWidth: .infinity)
                 }

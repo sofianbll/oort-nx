@@ -280,10 +280,11 @@ struct OortFilePicker: View {
                 OortButton(title: L10n.text("Search this folder"), preset: .compact) { model.input(.search) }
             }
             if model.search {
-                TextField(L10n.text("Search this folder"), text: $model.query)
-                    .textFieldStyle(.plain).seleneFont(.row).modifier(OortField(focused: searchFocused))
-                    .focused($searchFocused).onAppear { searchFocused = true }
-                    .onSubmit { searchFocused = false; activate() }
+                OortSearchField(query: $model.query, lit: searchFocused) {
+                    TextField(L10n.text("Search this folder"), text: $model.query)
+                        .focused($searchFocused).onAppear { searchFocused = true }
+                        .onSubmit { searchFocused = false; activate() }
+                }
             }
             HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.medium)) {
                 list(.places, heading: L10n.text("Places"), items: model.places) { place, index in

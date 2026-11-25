@@ -25,7 +25,7 @@ struct SettingsEngineSection: View {
         OortSettingsGroup {
             SeleneRow("Engine repository",
                       subtitle: "The upstream nxnative checkout used for builds. Updates stay manual.") {
-                HStack(spacing: 10) {
+                HStack(spacing: SeleneTokens.Space.gap) {
                     Text(enginePath.isEmpty ? L10n.text("Not selected") : enginePath)
                         .seleneFont(.text, .medium)
                         .foregroundColor(SeleneTheme.ink75)
@@ -33,14 +33,14 @@ struct SettingsEngineSection: View {
                         .truncationMode(.middle)
                         .frame(maxWidth: 300, alignment: .trailing)
                     Button(L10n.text("Change"), action: chooseEnginePath)
-                        .buttonStyle(.plain)
+                        .buttonStyle(OortPressStyle())
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
                         .disabled(configurationLocked)
                     Button(L10n.text("Reveal")) {
                         viewModel.revealInFinder(url: URL(fileURLWithPath: setup.nxnativePath))
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(OortPressStyle())
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink60)
                     .disabled(!setup.isNxnativeValid)
@@ -52,7 +52,7 @@ struct SettingsEngineSection: View {
 
             SelenePanel(L10n.text("Compatibility"),
                         info: L10n.text("Audits the local engine commit, working tree cleanliness, installed Metal compiler, and required CLI flags against the certified toolchain lock.")) {
-                HStack(spacing: 8) {
+                HStack(spacing: SeleneTokens.Space.compact) {
                     Circle()
                         .fill(statusColor)
                         .frame(width: 8, height: 8)
@@ -61,7 +61,7 @@ struct SettingsEngineSection: View {
                         .foregroundColor(statusColor)
                     Spacer()
                     Button(L10n.text("Re-check"), action: recheck)
-                        .buttonStyle(.plain)
+                        .buttonStyle(OortPressStyle())
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.glyph)
                         .disabled(configurationLocked)
@@ -80,7 +80,7 @@ struct SettingsEngineSection: View {
                                  metal: check.id == "metal" ? report.metal : nil)
                     }
                 } else if setup.isCheckingEnvironment {
-                    HStack(spacing: 8) {
+                    HStack(spacing: SeleneTokens.Space.compact) {
                         ProgressView().controlSize(.small)
                         Text(L10n.text("Running the compatibility check..."))
                             .seleneFont(.text)
@@ -244,7 +244,7 @@ struct SettingsEngineSection: View {
     /// sentence, no alarm. Setup's engine card says the same.
     private var newestEngineRow: some View {
         SeleneRow("Newest engine", subtitle: newestSubtitle, info: NewestEngineCopy.info) {
-            HStack(spacing: 10) {
+            HStack(spacing: SeleneTokens.Space.gap) {
                 if setup.usesNewestEngine {
                     Circle()
                         .fill(SeleneTheme.untested)
@@ -265,14 +265,14 @@ struct SettingsEngineSection: View {
                         let focused = actions.count > 1 && setup.canSwitchEngine
                             && focusedRowTitle == "Newest engine" && focusedButton == index
                         Button(L10n.text(newestTitle(action))) { newestAction(action) }
-                            .buttonStyle(.plain)
+                            .buttonStyle(OortPressStyle())
                             .seleneFont(.text, .semibold)
                             .foregroundColor(setup.canSwitchEngine ? SeleneTheme.glyph : SeleneTheme.ink60)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
+                            .padding(.horizontal, SeleneTokens.Space.gap)
+                            .padding(.vertical, SeleneTokens.Space.chipBottom)
                             .overlay {
                                 Capsule()
-                                    .strokeBorder(SeleneTheme.focus, lineWidth: 2)
+                                    .strokeBorder(SeleneTheme.focus, lineWidth: SeleneTokens.Space.focusStroke)
                                     .opacity(focused ? 1 : 0)
                             }
                             .animation(SeleneTheme.focusIn, value: focused)
@@ -350,14 +350,8 @@ struct SettingsEngineSection: View {
     /// In use (green) on the commit the newest engine is at, New (orange) on the commits above it.
     private func commitMark(_ mark: UpstreamCommitMark) -> some View {
         let color = mark == .inUse ? SeleneTheme.success : SeleneTheme.untested
-        return Text(mark == .inUse ? "In use" : L10n.text("New"))
-            .seleneFont(.badge, .bold)
-            .foregroundColor(color)
-            .padding(.horizontal, 7)
-            .padding(.vertical, 2)
-            .background(color.opacity(0.16))
-            .clipShape(Capsule())
-            .padding(.bottom, 2)
+        return OortTag(text: mark == .inUse ? L10n.text("In use") : L10n.text("New"), tone: color)
+            .padding(.bottom, SeleneTokens.Space.seam)
     }
 
     @ViewBuilder
@@ -366,18 +360,12 @@ struct SettingsEngineSection: View {
             let marks = NewestEngine.marks(status.commits, inUse: setup.newestEngineChoice?.commit)
             let shown = shownCommitCount(status, marks: marks)
             SelenePanel(L10n.format("Upstream Commits (%@ newer)", [String(describing: status.newCommitsCount)])) {
-                VStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .leading, spacing: SeleneTokens.Space.gap) {
                     ForEach(status.commits.prefix(shown)) { commit in
-                        HStack(alignment: .top, spacing: 10) {
-                            Text(commit.shortSha)
-                                .seleneFont(.text, .bold, design: .monospaced)
-                                .foregroundColor(SeleneTheme.glyph)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(SeleneTheme.glyph.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                        HStack(alignment: .top, spacing: SeleneTokens.Space.gap) {
+                            OortTag(text: commit.shortSha, tone: SeleneTheme.glyph, monospaced: true)
 
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: SeleneTokens.Space.seam) {
                                 if let mark = marks[commit.sha] {
                                     commitMark(mark)
                                 }
@@ -387,14 +375,14 @@ struct SettingsEngineSection: View {
                                     .lineLimit(2)
                                     .fixedSize(horizontal: false, vertical: true)
 
-                                HStack(spacing: 6) {
+                                HStack(spacing: SeleneTokens.Space.tight) {
                                     Text(commit.author)
                                         .seleneFont(.badge)
                                         .foregroundColor(SeleneTheme.ink60)
                                     if !commit.date.isEmpty {
                                         Text("·")
                                             .seleneFont(.badge)
-                                            .foregroundColor(SeleneTheme.ink60.opacity(0.5))
+                                            .foregroundColor(SeleneTheme.ink60.opacity(SeleneTokens.Alpha.half))
                                         Text(formattedCommitDate(commit.date))
                                             .seleneFont(.badge)
                                             .foregroundColor(SeleneTheme.ink60)
@@ -418,11 +406,11 @@ struct SettingsEngineSection: View {
                             Button(L10n.text("View all on GitHub")) {
                                 setup.openUpstreamCompare()
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(OortPressStyle())
                             .seleneFont(.text, .semibold)
                             .foregroundColor(SeleneTheme.glyph)
                         }
-                        .padding(.top, 4)
+                        .padding(.top, SeleneTokens.Space.hairline)
                     }
                 }
             }
@@ -450,7 +438,7 @@ struct SettingsEngineSection: View {
     /// `metal` (the Metal row only): a newer compiler reads as information, an older one as a warning, not as BLOCK.
     private func checkRow(title: String, status: CheckStatus, detail: String, metal: MetalStanding? = nil) -> some View {
         let look = rowLook(status: status, metal: metal)
-        return HStack(alignment: .top, spacing: 8) {
+        return HStack(alignment: .top, spacing: SeleneTokens.Space.compact) {
             Image(systemName: look.icon)
                 .seleneFont(.text, .bold)
                 .foregroundColor(look.color)
@@ -488,7 +476,7 @@ struct SettingsEngineSection: View {
     }
 
     private func buildRow(_ title: String, ok: Bool, detail: String) -> some View {
-        HStack(spacing: 8) {
+        HStack(spacing: SeleneTokens.Space.compact) {
             Image(systemName: ok ? "checkmark.circle.fill" : "xmark.octagon.fill")
                 .seleneFont(.badge, .bold)
                 .foregroundColor(ok ? SeleneTheme.success : SeleneTheme.danger)

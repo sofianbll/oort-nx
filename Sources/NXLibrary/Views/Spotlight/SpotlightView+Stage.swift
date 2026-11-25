@@ -139,12 +139,12 @@ extension SpotlightView {
                 .frame(width: canvas.stageSize.width)
                 .padding(.top, canvas.u(SeleneTokens.Space.large))
                 .opacity([.pills, .strip, .about, .actions, .store].contains(state.focus) ? 1 : 0)
-                .animation(.easeInOut(duration: 0.4), value: state.focus)
+                .animation(SeleneTheme.ease(SeleneTokens.Motion.detailArt), value: state.focus)
                 .allowsHitTesting(false)
 
             if let menu = cardMenu {
                 ZStack {
-                    Color.black.opacity(0.45)
+                    SeleneTheme.artShade.opacity(SeleneTokens.Alpha.half)
                         .contentShape(Rectangle())
                         .onTapGesture { cardMenu = nil }
                     SpotlightCardMenu(card: menu.card, focusedIndex: menu.index,

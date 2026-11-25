@@ -14,7 +14,7 @@ struct CriticRatingValue: View {
                     HStack(spacing: canvas.u(SeleneTokens.Space.seam)) {
                         ForEach(Array(rating.starFills.enumerated()), id: \.offset) { _, fill in
                             Image(systemName: "star.fill")
-                                .foregroundColor(SeleneTheme.ink.opacity(0.18))
+                                .foregroundColor(SeleneTheme.ink.opacity(SeleneTokens.Alpha.soft))
                                 .overlay(alignment: .leading) {
                                     Image(systemName: "star.fill")
                                         .foregroundColor(SeleneTheme.ink90)
@@ -26,7 +26,7 @@ struct CriticRatingValue: View {
                                 }
                         }
                     }
-                    .font(.system(size: canvas.u(13), weight: .regular))
+                    .seleneFont(.badge)
                     .fixedSize()
                     .accessibilityHidden(true)
                     Text(rating.number(locale: localization.formatLocale))

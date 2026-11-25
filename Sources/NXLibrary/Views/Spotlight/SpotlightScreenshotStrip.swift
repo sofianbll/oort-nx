@@ -74,7 +74,7 @@ struct SpotlightScreenshotStrip: View {
             .offset(x: -canvas.u(scroll))
             .frame(width: canvas.u(Self.clipWidth), alignment: .leading)
             .clipped()
-            .padding(canvas.u(-14))
+            .padding(canvas.u(-SeleneTokens.Space.line))
             .animation(reduceMotion ? nil : Self.motion, value: focusedIndex ?? scrollIndex)
         }
     }
@@ -120,12 +120,7 @@ private struct ScreenshotTile: View {
         // Rasterised once and moved as one layer: the detailed screenshot does not
         // resample its edges every frame of the slide.
         .drawingGroup()
-        .overlay(
-            RoundedRectangle(cornerRadius: canvas.u(style.radius + 3), style: .continuous)
-                .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
-                .padding(canvas.u(-4))
-                .opacity(focused ? 1 : 0)
-        )
+        .oortRing(focused, radius: canvas.u(style.radius), gap: canvas.u(SeleneTokens.Space.hairline))
         .scaleEffect(focused ? style.focusScale : 1)
         .animation(reduceMotion ? nil : SpotlightScreenshotStrip.motion, value: focused)
         .accessibilityElement()

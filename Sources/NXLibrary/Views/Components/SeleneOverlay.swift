@@ -5,6 +5,7 @@ import NXLibraryCore
 /// The shared modal frame. Only the backdrop accepts outside clicks. Content keeps its
 /// own stable row IDs and existing keyboard/controller commands, including Back.
 struct SeleneOverlay<Content: View>: View {
+    @Environment(\.accessibilityReduceTransparency) private var opaque
     let style: SeleneOverlayStyle
     var alignment: Alignment = .center
     var onOutside: (() -> Void)? = nil
@@ -25,7 +26,9 @@ struct SeleneOverlay<Content: View>: View {
     @ViewBuilder private var veil: some View {
         let scrim = SeleneTheme.scrim
         let tint = style.veilOpacity.map { scrim.opacity($0) } ?? scrim
-        if style == .search {
+        if opaque {
+            scrim
+        } else if style == .search {
             tint.background(.ultraThinMaterial)
         } else {
             tint

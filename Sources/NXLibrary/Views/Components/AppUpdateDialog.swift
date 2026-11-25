@@ -65,12 +65,12 @@ struct AppUpdateDialog: View {
             confirmTitle: primaryTitle, cancelTitle: updater.dialogHasSecondaryButton ? L10n.text("Close") : nil,
             confirmEnabled: canConfirm,
             focus: $updater.offerFocus, onCancel: updater.later, onConfirm: updater.confirmDialog) {
-                if case .checking = updater.state { ProgressView().padding(.top, 16) }
+                if case .checking = updater.state { ProgressView().padding(.top, SeleneTokens.Space.medium) }
                 if let release = updater.dialogRelease, !release.notes.isEmpty {
                     Text(L10n.format("Release notes · %@", [String(describing: release.version)]))
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.ink60)
-                        .padding(.top, 18)
+                        .padding(.top, SeleneTokens.Space.control)
                     SeleneDialogNotes(detail: release.notes, scrollRequest: updater.notesScroll)
                 }
             }

@@ -47,22 +47,25 @@ struct SeleneTileRing: View {
         let dx = cos(radians) * 0.5, dy = sin(radians) * 0.5
         let focus = SeleneTheme.focus
         return ZStack {
-            shape.strokeBorder(focus, lineWidth: canvas.u(4))
+            shape.strokeBorder(focus, lineWidth: canvas.u(SeleneTokens.Space.ringStroke))
                 .blur(radius: canvas.u(16))
                 .opacity(glow)
             shape.strokeBorder(
                 LinearGradient(
                     stops: [
                         .init(color: focus, location: 0),
-                        .init(color: focus.opacity(0.9), location: 0.25),
-                        .init(color: focus.opacity(0.6), location: 0.5),
-                        .init(color: focus.opacity(0.9), location: 0.75),
+                        .init(color: focus.opacity(SeleneTokens.Alpha.near), location: 0.25),
+                        .init(color: focus.opacity(SeleneTokens.Alpha.muted), location: 0.5),
+                        .init(color: focus.opacity(SeleneTokens.Alpha.near), location: 0.75),
                         .init(color: focus, location: 1)
                     ],
                     startPoint: UnitPoint(x: 0.5 - dx, y: 0.5 - dy),
                     endPoint: UnitPoint(x: 0.5 + dx, y: 0.5 + dy)),
-                lineWidth: canvas.u(3))
-            shape.strokeBorder(Color.white.opacity(0.18), lineWidth: max(0.5, canvas.u(1)))
+                lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
+            RoundedRectangle(cornerRadius: cornerRadius + canvas.u(SeleneTokens.Space.thinStroke), style: .continuous)
+                .strokeBorder(SeleneTheme.artShade.opacity(SeleneTokens.Alpha.veil), lineWidth: canvas.u(SeleneTokens.Space.focusStroke))
+                .padding(-canvas.u(SeleneTokens.Space.focusStroke))
+            shape.strokeBorder(SeleneTheme.artInk.opacity(SeleneTokens.Alpha.soft), lineWidth: max(0.5, canvas.u(1)))
                 .padding(canvas.u(SeleneTokens.Space.thinStroke))
         }
         // Flattened on the GPU (Metal), not on the CPU. The margin keeps the glow's blur inside the

@@ -136,7 +136,7 @@ struct SessionCardView: View {
                     .aspectRatio(contentMode: .fill)
                     .frame(width: canvas.u(640), height: canvas.u(128))
                     .clipped()
-                    .opacity(0.42)
+                    .opacity(SeleneTokens.Alpha.half)
                     // Faint on the right, gone under the words on the left.
                     .mask(LinearGradient(stops: [.init(color: .clear, location: 0.15),
                                                  .init(color: .black, location: 0.85)],
@@ -182,7 +182,7 @@ struct SessionCardView: View {
         .background(Color(hex: ThemeStore.shared.palette.glass, opacity: 0.92))
         .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge), style: .continuous)
-            .strokeBorder(SeleneTheme.ink.opacity(0.12), lineWidth: max(1, canvas.u(1))))
+            .strokeBorder(SeleneTheme.ink.opacity(SeleneTokens.Alpha.soft), lineWidth: max(1, canvas.u(1))))
         .oortShadow(.floating)
         .environment(\.seleneMinimumFont, 12)
         .accessibilityElement(children: .combine)
