@@ -59,6 +59,7 @@ struct SpotlightView: View {
     @State var hadGames = false
     /// The card Y menu: which card and the focused row.
     @State var cardMenu: CardMenuState?
+    @State var rail = RailScroll()
     /// The open screenshot viewer (the game's titleID, its urls and the paging state).
     @State var viewer: ViewerContext?
     /// The open Achievements screen's selection; the game is the selected Steam game.

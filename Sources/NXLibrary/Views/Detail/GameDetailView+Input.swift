@@ -338,6 +338,15 @@ extension GameDetailView {
 
     /// The wheel follows Up/Down, including the Mods grid's rows. An expanded description takes the wheel at the top.
     private func handleWheel(_ event: NSEvent) -> NSEvent? {
+        if viewer != nil {
+            // Sideways pages the screenshots; the page beneath stays.
+            if let delta = RailScroll.delta(x: event.scrollingDeltaX, y: event.scrollingDeltaY, verticalToo: false) {
+                let steps = rail.steps(delta, precise: event.hasPreciseScrollingDeltas, began: event.phase == .began,
+                                       pitch: canvas.u(RailScroll.page), at: event.timestamp)
+                for _ in 0..<abs(steps) { handleViewer(steps < 0 ? .navigateLeft : .navigateRight) }
+            }
+            return nil
+        }
         if modsHost.isPanelOpen {
             // The mod panel's description scrolls under the wheel; nothing reaches the page beneath.
             let dy = event.scrollingDeltaY

@@ -58,6 +58,7 @@ struct GameDetailView: View {
     /// Wikipedia's introduction when the store text is in another language (`WikipediaAbout`).
     @State var wikipediaAbout: WikipediaAbout?
     @State var keyMonitor: Any?
+    @State var rail = RailScroll()
     @State var wheel = DetailsWheel()
     @State var cache = DetailsModelCache()
     /// "Cheats on" under the title, read from the app's files where they can change (`reloadCheats`), never per draw.

@@ -17,6 +17,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Fixed
 
+- The rows of games and the screenshots follow two fingers; the wheel moves the Collection.
 - Screenshots: Previous and Next take a click.
 - A click puts a moved tile down; its hints take a click too.
 - Every hint of the Spotlight page and the Collection takes a click: card options, Details, Options.

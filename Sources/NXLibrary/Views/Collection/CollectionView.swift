@@ -30,6 +30,7 @@ struct CollectionView: View {
     /// Steam Play phases drive the A hint.
     @ObservedObject var steamPlayer = SteamPlayCoordinator.shared
     @State var keyMonitor: Any?
+    @State var rail = RailScroll()
     @State var profileFocused = false
     @State var importFocused = false
     @Environment(\.profilePortrait) var profile

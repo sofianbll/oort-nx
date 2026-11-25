@@ -116,7 +116,7 @@ extension CollectionView {
 
     func installKeyMonitor() {
         guard keyMonitor == nil else { return }
-        keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+        keyMonitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .scrollWheel]) { event in
             // An alert or sheet owns Return and Esc; consuming them here would
             // replay the action that raised the alert.
             guard !router.isMenuPresented,
@@ -137,6 +137,7 @@ extension CollectionView {
                   window.attachedSheet == nil,
                   NSApp.modalWindow == nil,
                   !(window.firstResponder is NSText) else { return event }
+            if event.type == .scrollWheel { return scrollRail(with: event) ? nil : event }
             let modifiers = event.modifierFlags.intersection([.command, .control, .option])
             guard modifiers.isEmpty else { return event }
             let action: GamepadAction
@@ -157,6 +158,16 @@ extension CollectionView {
             handle(action)
             return nil
         }
+    }
+
+    /// Nothing else scrolls here, so the wheel moves the row like the fingers do.
+    private func scrollRail(with event: NSEvent) -> Bool {
+        guard router.sortMenu == nil, !profileFocused, !router.integrationBarFocused, !games.isEmpty,
+              let delta = RailScroll.delta(x: event.scrollingDeltaX, y: event.scrollingDeltaY, verticalToo: true) else { return false }
+        let steps = rail.steps(delta, precise: event.hasPreciseScrollingDeltas, began: event.phase == .began,
+                               pitch: canvas.u(CollectionRow.pitch), at: event.timestamp)
+        for _ in 0..<abs(steps) { handle(steps < 0 ? .navigateLeft : .navigateRight) }
+        return true
     }
 
     func removeKeyMonitor() {
