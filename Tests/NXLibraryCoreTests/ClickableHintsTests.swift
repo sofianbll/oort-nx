@@ -67,4 +67,12 @@ final class ClickableHintsTests: XCTestCase {
             XCTAssertFalse(try Self.source(path).contains("NSWorkspace.shared.open("), path)
         }
     }
+
+    /// One gesture, one word: + opens Options wherever the selection is.
+    func testOptionsHasOneNameOnTheHomeScreens() throws {
+        for path in ["Spotlight/SpotlightView+Hints.swift", "Collection/CollectionView.swift"] {
+            let text = try Self.source(path)
+            for name in ["Card options", "Tile options", "Game options"] { XCTAssertFalse(text.contains("(\"\(name)\")"), "\(path) \(name)") }
+        }
+    }
 }

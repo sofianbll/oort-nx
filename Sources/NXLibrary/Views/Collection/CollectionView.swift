@@ -315,26 +315,26 @@ struct CollectionView: View {
         }
         if let steam = record, steam.integration == .steam {
             return SteamPlayCoordinator.shared.hint(for: steam)
-                + [options("Game options")]
+                + [options("Options")]
         }
         if let record, record.macShortcut != nil {
             return [HintItem(.a, "Open") { self.activateCatalog(record) }]
-                + (viewModel.macShortcuts.canEdit ? [options("Tile options") { self.viewModel.macShortcuts.showTileOptions(record) }] : [])
+                + (viewModel.macShortcuts.canEdit ? [options("Options") { self.viewModel.macShortcuts.showTileOptions(record) }] : [])
         }
         guard let game else {
             guard showsEmptyActions else { return [] }
             return [HintItem(.a, importFocused ? L10n.text("Import existing builds") : L10n.text("Add game"))]
         }
         if let item = cloud.downloadItem(for: game) {
-            return [HintItem(.a, item.primaryDownloadTitle), HintItem(.x, "Details"), options("Game options")]
+            return [HintItem(.a, item.primaryDownloadTitle), HintItem(.x, "Details"), options("Options")]
         }
         if game.isPlayableLocally {
-            return [HintItem(.a, L10n.text("Play")), HintItem(.x, L10n.text("Details")), options("Game options")]
+            return [HintItem(.a, L10n.text("Play")), HintItem(.x, L10n.text("Details")), options("Options")]
         }
         if game.isCloudSourcePlaceholder, viewModel.gamesWithFilesHere.contains(game.id) {
-            return [HintItem(.a, "Build"), HintItem(.x, "Details"), options("Game options")]
+            return [HintItem(.a, "Build"), HintItem(.x, "Details"), options("Options")]
         }
-        return [HintItem(.a, L10n.text("Details")), options("Game options")]
+        return [HintItem(.a, L10n.text("Details")), options("Options")]
     }
 
     // MARK: - Selection

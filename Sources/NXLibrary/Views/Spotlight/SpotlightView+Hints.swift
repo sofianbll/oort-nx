@@ -62,7 +62,7 @@ extension SpotlightView {
                 return [HintItem(.a, "Open") { handle(.confirm) }]
             case .card(let card):
                 if card == .inbox { return [HintItem(.a, L10n.text("Open"))] }
-                let more = [optionsHint("Card options")]
+                let more = [optionsHint("Options")]
                 return more + [HintItem(.a, card == .surprise ? L10n.text("Pick") : card == .mods ? L10n.text("Browse") : L10n.text("Open"))]
                     + (card == .activity ? [buildHistoryHint] : [])
             case .game:
@@ -70,7 +70,7 @@ extension SpotlightView {
                     return [optionsHint("Options")] + SteamPlayCoordinator.shared.hint(for: steam)
                 }
                 if let record = model.selectedCatalogGame, record.macShortcut != nil {
-                    return (viewModel.macShortcuts.canEdit ? [optionsHint("Tile options") { viewModel.macShortcuts.showTileOptions(record) }] : [])
+                    return (viewModel.macShortcuts.canEdit ? [optionsHint("Options") { viewModel.macShortcuts.showTileOptions(record) }] : [])
                         + [HintItem(.a, "Open") { activate(.game(record.id)) }]
                 }
                 guard let game = model.selectedGame else { return [] }
