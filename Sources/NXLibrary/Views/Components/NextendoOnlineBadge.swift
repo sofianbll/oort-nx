@@ -3,22 +3,22 @@ import NXLibraryCore
 
 extension EnvironmentValues {
     @Entry var onlinePlayersByTitle: [String: Int] = [:]
+    /// Where those counts show (`OnlinePlayersDisplay`).
+    @Entry var onlinePlayersDisplay = OnlinePlayersDisplay.dot
 }
 
+/// The dot on a cover whose game has players online. The tile says the number to VoiceOver.
 struct NextendoOnlineBadge: View {
     let titleID: String?
-    var compact = false
     @Environment(\.onlinePlayersByTitle) private var counts
+    @Environment(\.onlinePlayersDisplay) private var display
     @Environment(\.seleneCanvas) private var canvas
-    @Environment(\.nxAppLocale) private var locale
 
     var body: some View {
-        if let titleID, let count = counts[titleID.lowercased()], count > 0 {
-            SeleneStatusDot(text: L10n.count("%lld online", count, context: locale), color: SeleneTheme.statusOK,
-                            labelColor: SeleneTheme.ink)
-                .padding(.horizontal, canvas.u(compact ? 7 : 10))
-                .padding(.vertical, canvas.u(compact ? 4 : 5))
-                .oortPanel(radius: canvas.u(SeleneTokens.Radius.hint))
+        if display.count(for: titleID, in: counts, at: .tile) != nil {
+            SeleneStatusMark(color: SeleneTheme.statusOK, pulses: false)
+                .padding(canvas.u(SeleneTokens.Space.compact))
+                .oortPanel(radius: canvas.u(SeleneTokens.Radius.content))
                 .allowsHitTesting(false)
         }
     }

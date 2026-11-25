@@ -24,6 +24,7 @@ public struct SettingDescriptor: Identifiable, Sendable {
 public enum SettingsCatalog {
     package static let defaults = AppSettings()
     public static let multiplayerVPNHelp = "Use ZeroTier, Tailscale or NetBird for local play away from home."
+    public static let onlinePlayersHelp = "Choose where Nextendo player counts show. With Never, Oort stops asking for them."
 
     package static func row<Value: Equatable & SendableMetatype>(_ id: String, _ group: SettingsSection, _ title: String,
                                       _ about: String,
@@ -137,6 +138,7 @@ public enum SettingsCatalog {
         action("steamGridDB", .apiServices, "SteamGridDB", "Add your API key to find covers, backgrounds, logos and icons in Change artwork."),
         row("multiplayerVPN", .multiplayer, "Private network (VPN)", multiplayerVPNHelp) { $0.multiplayerVPN },
         row("multiplayerDefault", .multiplayer, "Default for games", "Applies to games without their own multiplayer choice.") { $0.multiplayerDefault },
+        row("onlinePlayersDisplay", .multiplayer, "Online players", onlinePlayersHelp) { $0.onlinePlayersDisplay },
         row("multiplayerLocalMode", .multiplayer, "Local network mode", "Force LAN or local wireless instead of letting the game choose.") { $0.multiplayerLocalMode },
         row("multiplayerAdapter", .multiplayer, "Network adapter", "Select an interface manually if Arcane cannot identify your VPN.") { $0.multiplayerAdapter },
 

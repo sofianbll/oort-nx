@@ -70,7 +70,6 @@ struct DetailsTopBlock: View {
             HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 pills
                 if showsCloudPill && (pillSet == .porting || pillSet.isFailed) { cloudPill }
-                NextendoOnlineBadge(titleID: game.titleId)
             }
                 .padding(.top, canvas.u(pillSet.isFailed ? 10 : 26))
             if downloadFill != nil,

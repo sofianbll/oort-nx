@@ -194,6 +194,8 @@ struct SettingsAPISection: View {
             }
         }
         SeleneCycleRow("Default for games", value: settings.settings.multiplayerDefault.label, cycle: stepDefault)
+        SeleneCycleRow("Online players", subtitle: SettingsCatalog.onlinePlayersHelp,
+                       value: settings.settings.onlinePlayersDisplay.label, cycle: stepOnlinePlayers)
         SeleneButtonRow("Advanced", id: "multiplayerAdvanced", buttonTitle: advanced ? "Hide" : "Show") { advanced.toggle() }
             .accessibilityValue(text(advanced ? "Expanded" : "Collapsed"))
         if advanced {
@@ -263,6 +265,10 @@ struct SettingsAPISection: View {
 
     private func stepDefault(_ step: Int) {
         settings.settings.multiplayerDefault = settings.settings.multiplayerDefault.stepped(step)
+    }
+
+    private func stepOnlinePlayers(_ step: Int) {
+        settings.settings.onlinePlayersDisplay = settings.settings.onlinePlayersDisplay.stepped(step)
     }
 
     private func stepLocalMode(_ step: Int) {
@@ -700,6 +706,7 @@ struct SettingsAPISection: View {
         }
         actions += [
             .value("multiplayerDefault", "Default for games", cycle: stepDefault),
+            .value("onlinePlayersDisplay", "Online players", cycle: stepOnlinePlayers),
             .init(id: "multiplayerAdvanced", title: "Advanced") { advanced.toggle() },
         ]
         if advanced {

@@ -411,6 +411,16 @@ extension AppShellView {
         }
     }
 
+    private struct OnlinePlayersRequest: Equatable {
+        let profile: UUID?
+        let asks: Bool
+    }
+
+    /// Never, saved or being previewed, sends nothing; leaving it sends nothing until saved.
+    private var asksOnlinePlayers: Bool {
+        settings.settings.onlinePlayersDisplay.asksService && settings.presentation.onlinePlayersDisplay.asksService
+    }
+
     private var settingsPresentation: some View {
         let preview = settings.presentation
         let committed = AppLocale(language: settings.settings.appLanguage, region: settings.settings.appRegion)
@@ -459,13 +469,17 @@ extension AppShellView {
         .environment(\.profilePortrait, router.isMenuPresented ? nil : profiles.active)
         .environment(\.controllerHomeAvailable, gamepad.homeAccess.hasHome)
         .environment(\.onlinePlayersByTitle, onlinePlayers)
-        .task(id: viewModel.setupCompleted ? profiles.active?.id : nil) {
+        .environment(\.onlinePlayersDisplay, settings.presentation.onlinePlayersDisplay)
+        .task(id: OnlinePlayersRequest(profile: viewModel.setupCompleted ? profiles.active?.id : nil,
+                                       asks: asksOnlinePlayers)) {
             guard !Task.isCancelled else { return }
             onlinePlayers = [:]
-            guard viewModel.setupCompleted, let store = viewModel.profileNextendo?.store else { return }
-            while !Task.isCancelled {
-                let counts = (try? await Self.onlineCounts.read(tokenStore: store)) ?? [:]
-                guard !Task.isCancelled else { return }
+            guard asksOnlinePlayers, viewModel.setupCompleted,
+                  let store = viewModel.profileNextendo?.store else { return }
+            while !Task.isCancelled && asksOnlinePlayers {
+                let counts = (try? await Self.onlineCounts.read(tokenStore: store,
+                    display: settings.settings.onlinePlayersDisplay)) ?? [:]
+                guard !Task.isCancelled, asksOnlinePlayers else { return }
                 if counts != onlinePlayers { onlinePlayers = counts }
                 try? await Task.sleep(for: .seconds(180))
             }

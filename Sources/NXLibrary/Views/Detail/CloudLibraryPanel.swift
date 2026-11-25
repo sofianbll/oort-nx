@@ -811,6 +811,7 @@ struct CloudLibraryTileBadge: ViewModifier {
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.nxAppLocale) private var localization
     @Environment(\.onlinePlayersByTitle) private var onlinePlayers
+    @Environment(\.onlinePlayersDisplay) private var onlineDisplay
 
     private var alignment: Alignment {
         switch position {
@@ -838,12 +839,12 @@ struct CloudLibraryTileBadge: ViewModifier {
         }
         let need = need
         let visibleBadge = badge.flatMap { $0.isVisibleOnTile ? $0 : nil }
-        let online = onlineTitleID.flatMap { onlinePlayers[$0.lowercased()] } ?? 0
+        let online = onlineDisplay.count(for: onlineTitleID, in: onlinePlayers, at: .tile)
         content.overlay(alignment: need == nil && visibleBadge == nil ? .bottomTrailing : alignment) {
             Group {
                 if let need { TileMark(icon: need.icon) }
                 else if let visibleBadge { visibleBadge }
-                else { NextendoOnlineBadge(titleID: onlineTitleID, compact: true) }
+                else { NextendoOnlineBadge(titleID: onlineTitleID) }
             }
             .padding(canvas.u(SeleneTokens.Space.small))
             .allowsHitTesting(false)
@@ -851,7 +852,7 @@ struct CloudLibraryTileBadge: ViewModifier {
         }
         .accessibilityValue(need.map { L10n.text($0.label, context: localization) }
                             ?? visibleBadge?.indicator.label(context: localization)
-                            ?? (online > 0 ? L10n.count("%lld online", online, context: localization) : ""))
+                            ?? online.map { L10n.count("%lld online", $0, context: localization) } ?? "")
     }
 }
 

@@ -44,7 +44,7 @@ final class SettingsCatalogTests: XCTestCase {
         "integrations", "interfaceZoom", "platformCardInfo", "macShortcutAdd", "steamSource", "steamRefresh", "steamFolder", "steamInBackground", "storageUsage", "buildCaches", "logs",
         "controllerLayout", "metadataCache", "artworkCache", "saveBackups", "console", "engineFolder", "engineStatus",
         "toolchainOverride", "upstream", "newestEngine", "compare", "keys", "setup", "diagnostics", "appUpdates",
-        "projectDocs", "multiplayerVPN", "multiplayerDefault", "multiplayerLocalMode", "multiplayerAdapter",
+        "projectDocs", "multiplayerVPN", "multiplayerDefault", "onlinePlayersDisplay", "multiplayerLocalMode", "multiplayerAdapter",
         "profileName", "profileAvatar", "profilePortrait", "profileLock", "appearsOnline", "showsCurrentGame",
         "nextendo", "nextendoFriends", "nextendoAddFriend", "nextendoClientID"
     ] + ProfilePageCard.allCases.map { "profile-card-\($0.rawValue)" })
@@ -205,7 +205,7 @@ final class SettingsCatalogTests: XCTestCase {
         "wallpaperBrightness", "animatedBackground",
         "keepWallpaperOnGames", "backgroundShade", "readableText", "showClock", "reduceMotion", "iconAppearance",
         "controllerStatus", "buttonLayout", "controllerLayout", "controllerDeadzone", "inGameHomeButton", "multiplayerVPN", "multiplayerDefault",
-        "multiplayerLocalMode", "multiplayerAdapter", "nextendoClientID", "igdb", "steamGridDB", "integrations", "macShortcutAdd", "steamSource",
+        "onlinePlayersDisplay", "multiplayerLocalMode", "multiplayerAdapter", "nextendoClientID", "igdb", "steamGridDB", "integrations", "macShortcutAdd", "steamSource",
         "steamRefresh", "steamFolder", "steamInBackground", "librarySort", "launchStyle", "launchMotion", "launchShade",
         "tileBadgePosition", "surprisePool", "showsSessionCard", "hiddenGames", "storageUsage", "logs", "metadataCache", "artworkCache",
         "saveBackups", "checkEngineAtLaunch", "engineFolder", "engineStatus", "toolchainOverride", "upstream",

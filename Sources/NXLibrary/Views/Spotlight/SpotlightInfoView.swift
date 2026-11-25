@@ -86,7 +86,7 @@ struct SpotlightGameInfoView: View {
                     .oortShadow(.text)
                     .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
                     .padding(.top, canvas.u(SeleneTokens.Space.small))
-                SeleneStatsRow(presentation: presentation)
+                SeleneStatsRow(presentation: presentation, onlineTitleID: game.titleId)
                     .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
                     .padding(.top, canvas.u(SeleneTokens.Space.large))
             }

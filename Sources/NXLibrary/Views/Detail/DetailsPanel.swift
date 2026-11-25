@@ -80,6 +80,11 @@ struct DetailsPanel: View {
     var width: CGFloat = Self.narrowWidth
     /// Public identity of the game whose critic score belongs below Installed in.
     var ratingQuery: CriticRatingQuery? = nil
+    /// The Switch game whose online players join the Players row when the player chose the game page.
+    var onlineTitleID: String? = nil
+    @Environment(\.onlinePlayersByTitle) private var onlinePlayers
+    @Environment(\.onlinePlayersDisplay) private var onlineDisplay
+    @Environment(\.nxAppLocale) private var localization
     @State private var loadedRatingQuery: CriticRatingQuery?
     @State private var ratingResult: CriticRatingResult?
     @ObservedObject private var igdb = IGDBSettings.shared
@@ -94,10 +99,15 @@ struct DetailsPanel: View {
 
     private var wide: Bool { width >= 800 }
 
+    private var onlineCount: Int? {
+        onlineDisplay.count(for: onlineTitleID, in: onlinePlayers, at: .gamePage)
+    }
+
     var body: some View {
+        let shownFacts = facts.addingOnlinePlayers(onlineCount, context: localization)
         // With nothing to show, no title alone on the page.
-        Group {
-            if !facts.isEmpty || !links.isEmpty || ratingQuery != nil { content }
+        return Group {
+            if !shownFacts.isEmpty || !links.isEmpty || ratingQuery != nil { content(shownFacts) }
         }
         .task(id: RatingTask(query: ratingQuery, revision: igdb.revision)) {
             loadedRatingQuery = nil
@@ -116,18 +126,18 @@ struct DetailsPanel: View {
         }
     }
 
-    private var content: some View {
+    private func content(_ shownFacts: [DetailsFact]) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             DetailsBandTitle(text: "Details")
-            if !facts.isEmpty || ratingQuery != nil {
-                panel.padding(.bottom, canvas.u(SeleneTokens.Space.line))
+            if !shownFacts.isEmpty || ratingQuery != nil {
+                panel(shownFacts).padding(.bottom, canvas.u(SeleneTokens.Space.line))
             }
             SeleneActionGrid(rows: links, focusedRow: focusedLink, onHoverRow: onHoverLink, onPressRow: onPressLink)
         }
         .frame(width: canvas.u(width), alignment: .topLeading)
     }
 
-    private var panel: some View {
+    private func panel(_ facts: [DetailsFact]) -> some View {
         let split = wide ? (facts.count + (ratingQuery == nil ? 0 : 1) + 1) / 2 : facts.count
         let columnWidth = wide ? (width - Self.columnGap) / 2 : width
         return HStack(alignment: .top, spacing: canvas.u(Self.columnGap)) {
@@ -168,13 +178,20 @@ struct DetailsPanel: View {
     }
 
     private func row(_ fact: DetailsFact) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: 0) {
+        let showsCount = fact.kind == .players && onlineCount != nil
+        let value = Text(fact.value)
+            .seleneFont(.text, .semibold)
+            .foregroundColor(SeleneTheme.ink)
+            .lineLimit(fact.kind == .engine ? nil : 1)
+            .truncationMode(.tail)
+        return HStack(alignment: .firstTextBaseline, spacing: 0) {
             label(symbol: fact.symbol, text: fact.label)
-            Text(fact.value)
-                .seleneFont(.text, .semibold)
-                .foregroundColor(SeleneTheme.ink)
-                .lineLimit(fact.kind == .engine ? nil : 1)
-                .truncationMode(.tail)
+            if showsCount {
+                value.padding(.horizontal, canvas.u(SeleneTokens.Space.small))
+                    .oortPanel(radius: canvas.u(SeleneTokens.Radius.content))
+            } else {
+                value
+            }
             Spacer(minLength: 0)
         }
         .accessibilityElement(children: .ignore)

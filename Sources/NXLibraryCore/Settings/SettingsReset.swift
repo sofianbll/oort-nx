@@ -101,6 +101,7 @@ public enum SettingsReset {
             next.multiplayerDefault = defaults.multiplayerDefault
             next.multiplayerLocalMode = defaults.multiplayerLocalMode
             next.multiplayerAdapter = defaults.multiplayerAdapter
+            next.onlinePlayersDisplay = defaults.onlinePlayersDisplay
         case .profileIdentity, .profileSecurity, .profileNextendo, .profileCards,
              .games, .search, .changed, .sources, .storage, .engine, .keys, .cloudSaves,
              .portingStorage, .about, .console, .apiServices:

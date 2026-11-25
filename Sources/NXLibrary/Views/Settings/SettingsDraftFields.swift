@@ -54,6 +54,7 @@ enum SettingsDraftFields {
             .init("multiplayerDefault", \.multiplayerDefault, important: true) { L10n.text($0.label) },
             .init("multiplayerLocalMode", \.multiplayerLocalMode, important: true) { L10n.text($0.label) },
             .init("multiplayerAdapter", \.multiplayerAdapter, important: true) { $0 ?? L10n.text("Automatic") },
+            .init("onlinePlayersDisplay", \.onlinePlayersDisplay, previews: true) { L10n.text($0.label) },
             .init("nextendoClientID", \.nextendoClientID, important: true) {
                 $0 ?? L10n.text(NextendoLaunch.buildClientID == nil ? "Not set" : "Built-in value")
             },
