@@ -62,6 +62,7 @@ import NXLibraryCore
 import ArcanePorting
 
 @MainActor var failures = 0
+enum OortPulse { static let press = PassthroughSubject<Void, Never>() }
 @MainActor func require(_ ok: @autoclosure () -> Bool, _ message: String) {
     if !ok() { failures += 1; print("FAIL: " + message) }
 }
