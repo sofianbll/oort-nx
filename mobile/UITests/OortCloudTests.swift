@@ -153,12 +153,23 @@ final class OortCloudTests: OortScreens {
     private func press(_ key: String) {
         let target = line(say(key))
         // A long list makes its lines as they come near.
-        if !target.waitForExistence(timeout: 10) { for _ in 0..<14 where !target.exists { app.swipeUp(velocity: .slow) } }
+        if !target.waitForExistence(timeout: 8) { for _ in 0..<16 where !target.exists { app.swipeUp() } }
+        guard target.exists else { return tap(target, say(key)) }
+        // Half under the key at the bottom, or under the bar at the top, a line is not where a finger would take it.
+        let screen = app.windows.firstMatch.frame
+        for _ in 0..<6 where target.frame.midY > screen.maxY * 0.78 { app.swipeUp(velocity: .slow) }
+        for _ in 0..<4 where target.frame.midY < screen.minY + 110 { app.swipeDown(velocity: .slow) }
         tap(target, say(key))
     }
 
+    /// The bar steps aside while a long page is read: back to the top first.
+    private func place(_ key: String) {
+        for _ in 0..<6 where !app.tabBars.buttons[say(key)].exists && !button(say(key)).exists { app.swipeDown(velocity: .fast) }
+        tab(key)
+    }
+
     private func toCloud() {
-        tab("Settings")
+        place("Settings")
         press("Integrations")
         press("Cloud library")
     }
@@ -194,7 +205,7 @@ final class OortCloudTests: OortScreens {
         shows("Folder found", 40)
     }
     private func toGame(_ name: String) {
-        tab("Library")
+        place("Library")
         let cloud = app.buttons["Cloud"].firstMatch
         if cloud.waitForExistence(timeout: 10) { cloud.tap() }
         tap(app.buttons.matching(NSPredicate(format: "label == %@", name)).firstMatch, name)
@@ -224,7 +235,7 @@ final class OortCloudTests: OortScreens {
         shows("It reads")
         shot("60-off")
         try audit("cloud-off")
-        tab("Library")
+        place("Library")
         XCTAssertFalse(app.buttons["Cloud"].exists, "no cloud in the library while it is off")
         XCTAssertTrue(asked().isEmpty, "nothing was asked while it is off")
     }
@@ -413,7 +424,7 @@ final class OortCloudTests: OortScreens {
         set("/__revoke", "")
         app.terminate()
         again()
-        tab("Library")
+        place("Library")
         let cloud = app.buttons["Cloud"].firstMatch
         if cloud.waitForExistence(timeout: 10) { cloud.tap() }
         shows("Google asks you to sign in again.", 40)
@@ -442,14 +453,14 @@ final class OortCloudTests: OortScreens {
             _ = asked()
             app.terminate()
             again()
-            tab("Library")
+            place("Library")
             Thread.sleep(forTimeInterval: 2)
             XCTAssertFalse(app.buttons["Cloud"].exists)
             XCTAssertTrue(asked().isEmpty, "off again: nothing is asked")
         }
     }
     private func toCloudAgain() {
-        tab("Settings")
+        place("Settings")
         if !line(say("Turn off")).waitForExistence(timeout: 3) { toCloud() }
         app.swipeUp()
     }
@@ -508,7 +519,7 @@ final class OortCloudTests: OortScreens {
         signIn()
         shows("Folder found", 40)
         shot("92-found-large")
-        tab("Library")
+        place("Library")
         tap(app.buttons["Cloud"].firstMatch, "Cloud")
         shot("93-cloud-large")
         try audit("cloud-library-large")
@@ -516,6 +527,7 @@ final class OortCloudTests: OortScreens {
         again()
         toGame(CaptureGames.all[0].name)
         XCUIDevice.shared.orientation = .landscapeLeft
+        Thread.sleep(forTimeInterval: 1)
         shot("94-game-landscape")
         back()
         shot("95-cloud-landscape")
