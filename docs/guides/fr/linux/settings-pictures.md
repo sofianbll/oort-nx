@@ -23,7 +23,7 @@ Jaquette, icône, arrière-plan ou logo : un fichier PNG, JPEG ou WebP. Il est c
 
 ## Cherche en ligne, si tu dis oui
 <!-- step ask code f18e2119:desktop/ui/app.js f18e2119:Sources/OortCompanion/Online.swift -->
-Oort envoie le nom du jeu ou son numéro Steam, et ta langue, au magasin Steam, à Wikidata et à Wikipédia. Vérifié avec de faux services, jamais avec les vrais.
+Oort envoie le nom du jeu ou son numéro Steam, et ta langue, au magasin Steam, à Wikidata et à Wikipédia. Vérifié sous Windows avec de faux services, jamais avec les vrais.
 
 ![La question avant de chercher en ligne (capturé sous Windows)](../../media/windows/online-asked.fr.webp)
 

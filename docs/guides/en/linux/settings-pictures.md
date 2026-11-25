@@ -23,7 +23,7 @@ Cover, icon, background or logo: a PNG, JPEG or WebP file. It is copied into Oor
 
 ## Look online, if you say yes
 <!-- step ask code f18e2119:desktop/ui/app.js f18e2119:Sources/OortCompanion/Online.swift -->
-Oort sends the game’s name or its Steam number, and your language, to the Steam store, Wikidata and Wikipedia. Checked with invented services, never with the real ones.
+Oort sends the game’s name or its Steam number, and your language, to the Steam store, Wikidata and Wikipedia. Checked on Windows with invented services, never with the real ones.
 
 ![The question before looking online (picture in French) (captured on Windows)](../../media/windows/online-asked.fr.webp)
 
