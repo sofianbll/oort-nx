@@ -14,7 +14,9 @@ def member(name, signature):
 
 
 shell = "AppShellView+Input.swift"
-gesture = member(shell, "func installGestureKeyMonitor()").replace("NSEvent.addLocalMonitorForEvents", "InputMonitor.capture")
+gesture = (member(shell, "func installGestureKeyMonitor()")
+           .replace("NSEvent.addLocalMonitorForEvents", "InputMonitor.capture")
+           .replace("[router, viewModel]", "[self, router, viewModel]"))
 restart = member(shell, "func relaunchApp()")
 palette = member("AppShellView+Palette.swift", "func paletteKey(")
 modes = sys.argv[1:] or ["restart", "repeat", "palette"]
