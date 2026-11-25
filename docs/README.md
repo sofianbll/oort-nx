@@ -28,6 +28,7 @@ The guides in `how-it-works/` and `working-on-it/` are in Italian, except `devel
 | [development.md](working-on-it/development.md) | Prerequisites, builds, tests, CI and releases. |
 | [perso-release-notes.md](working-on-it/perso-release-notes.md) | French release-notes template for the fork. |
 | [conventions.md](working-on-it/conventions.md) | Where new code goes and the recipe for each kind of change. |
+| [change-criteria.md](working-on-it/change-criteria.md) | The criteria of a visual or a core change, with check, source and reason. |
 | [components.md](working-on-it/components.md) | Shared Selene components, presets and states. |
 | [file-map.md](working-on-it/file-map.md) | One line per file of the project. |
 | [validation.md](working-on-it/validation.md) | What the maintainer has tried in the app, and what still waits. |

@@ -11,6 +11,7 @@ These rules apply to work on Sofian's fork. They override the upstream rules bel
 - **Delegation.** When delegation is authorized, brief every subagent in ponytail mode: smallest complete change, inherit these rules, preserve validated behavior, report concrete checks and limits. The coordinating agent verifies integration and obtains approvals.
 - **Preserve validation.** Before changing a flow, read `docs/working-on-it/validation.md` and protect already validated behavior with regression checks. Change a validated choice only with Sofian's explicit approval. Test passes, rendered evidence, installation and Sofian's manual confirmation are distinct.
 - **UI gate.** Apply the [fork conventions](docs/working-on-it/conventions.md#arcane-perso--regole-del-fork). Inspect a capture of every changed screen, panel and dialog before delivery, using the headless harness and synthetic data. Give Sofian the captures and the manual checks that remain. No computer-use or live app automation; Sofian does interactive checks.
+- **Start** any change with the `oort-change` skill: it picks the visual or the core [criteria](docs/working-on-it/change-criteria.md) and gives the list for the pull request. Check with `python3 scripts/check_ui_rules.py`.
 - **Search** the [component inventory](docs/working-on-it/components.md) before changing a screen.
 - **Compose** OortUI components with content, state and named presets.
 - **Style** only inside OortUI; screens never define component styles.
