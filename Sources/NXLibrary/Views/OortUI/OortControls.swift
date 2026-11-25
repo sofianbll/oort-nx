@@ -62,21 +62,24 @@ struct OortRow: View {
 }
 
 struct OortReadout: View {
-    enum Preset { case body, quiet }
+    /// `lead` is the explanation under a large heading.
+    enum Preset { case body, quiet, lead }
 
     let text: String
     var preset: Preset = .body
 
     var body: some View {
-        Text(text).seleneFont(preset == .body ? .text : .badge)
-            .foregroundStyle(preset == .body ? SeleneTheme.ink : SeleneTheme.ink75)
+        Text(text).seleneFont(preset == .body ? .text : preset == .lead ? .row : .badge)
+            .foregroundStyle(preset == .body ? SeleneTheme.ink : preset == .lead ? SeleneTheme.ink82 : SeleneTheme.ink75)
             .fixedSize(horizontal: false, vertical: true)
     }
 }
 
 struct OortButton: View {
-    enum Preset { case action, compact }
+    /// `card` is an action's height and text, as narrow as its words.
+    enum Preset { case action, card, compact }
     enum State { case ready, blocked, busy }
+    enum Tone { case normal, destructive }
 
     let title: String
     /// The parts of the title that are not words of Oort: a folder's own name is never translated.
@@ -84,15 +87,19 @@ struct OortButton: View {
     var focused = false
     var state: State = .ready
     var preset: Preset = .action
+    var tone: Tone = .normal
     let action: () -> Void
 
     var body: some View {
-        SelenePillButton(title: title, titleArguments: arguments, minWidth: preset == .compact ? 0 : SeleneTokens.Space.pillWidth,
-                         height: preset == .compact ? SeleneTokens.Space.compactPillHeight : SeleneTokens.Space.pillHeight,
+        SelenePillButton(title: title, titleArguments: arguments, minWidth: preset == .action ? SeleneTokens.Space.pillWidth : 0,
+                         height: preset == .compact ? SeleneTokens.Space.compactPillHeight
+                             : preset == .card ? SeleneTokens.Space.actionPillHeight : SeleneTokens.Space.pillHeight,
                          titleSize: preset == .compact ? .text : .row,
-                         horizontalPadding: preset == .compact ? SeleneTokens.Space.medium : SeleneTokens.Space.pillInset,
-                         focused: focused, scalesOnFocus: preset != .compact,
-                         enabled: state != .blocked, waveDots: state == .busy) {
+                         horizontalPadding: preset == .compact ? SeleneTokens.Space.medium
+                             : preset == .card ? SeleneTokens.Space.large : SeleneTokens.Space.pillInset,
+                         focused: focused, scalesOnFocus: preset == .action,
+                         enabled: state != .blocked, waveDots: state == .busy,
+                         tint: tone == .destructive ? SeleneTheme.danger : nil) {
             guard state == .ready else { return }
             action()
         }

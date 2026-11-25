@@ -2,7 +2,7 @@ import SwiftUI
 import NXLibraryCore
 
 /// A task in a few steps over the stage: the steps on the left, the current one beside them, its actions and the hints below.
-struct OortAssistantPanel<Content: View, Actions: View>: View {
+struct OortAssistantPanel<Content: View>: View {
     struct Step: Identifiable {
         enum State { case done, current, ahead }
         let id: Int
@@ -21,8 +21,10 @@ struct OortAssistantPanel<Content: View, Actions: View>: View {
     let canOpen: (Int) -> Bool
     let onStep: (Int) -> Void
     let press: (GamepadAction) -> Void
+    let actions: [OortActionBar.Action]
+    let focusedAction: AnyHashable?
+    let onFocusAction: (AnyHashable) -> Void
     @ViewBuilder var content: () -> Content
-    @ViewBuilder var actions: () -> Actions
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.nxAppLocale) private var localization
 
@@ -33,11 +35,11 @@ struct OortAssistantPanel<Content: View, Actions: View>: View {
                 VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.tight)) {
                     Text(heading).seleneFont(.screen, .semibold).foregroundStyle(SeleneTheme.ink)
                         .accessibilityAddTraits(.isHeader)
-                    if let message { OortReadout(text: message) }
+                    if let message { OortReadout(text: message, preset: .lead) }
                 }
                 content()
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                HStack(spacing: canvas.u(SeleneTokens.Space.medium), content: actions)
+                OortActionBar(actions: actions, focused: focusedAction, onFocus: onFocusAction)
             }
             .padding(.horizontal, canvas.u(SeleneTokens.Space.dialogInset))
             .padding(.top, canvas.u(SeleneTokens.Space.dialogInset))
@@ -59,7 +61,7 @@ struct OortAssistantPanel<Content: View, Actions: View>: View {
 
     private var rail: some View {
         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.tight)) {
-            Text(title).seleneFont(.text, .semibold).foregroundStyle(SeleneTheme.ink75)
+            Text(title).seleneFont(.row, .semibold).foregroundStyle(SeleneTheme.ink75)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
                 .padding(.bottom, canvas.u(SeleneTokens.Space.small))
@@ -131,19 +133,19 @@ struct OortFolderCard<Status: View, Actions: View>: View {
                 VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.hairline)) {
                     Text(title).seleneFont(.heading, .semibold).foregroundStyle(SeleneTheme.ink)
                         .accessibilityAddTraits(.isHeader)
-                    OortReadout(text: about)
+                    OortReadout(text: about, preset: .lead)
                 }
                 Spacer(minLength: canvas.u(SeleneTokens.Space.medium))
                 HStack(spacing: canvas.u(SeleneTokens.Space.small), content: actions)
             }
             HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
-                Text(verbatim: path ?? placeholder).seleneFont(.row, .medium)
+                Text(verbatim: path ?? placeholder).seleneFont(.heading, .medium)
                     .foregroundStyle(path == nil ? SeleneTheme.ink60 : SeleneTheme.ink)
                     .lineLimit(1).truncationMode(.middle)
                 Spacer(minLength: 0)
-                Text(verbatim: account).seleneFont(.text).foregroundStyle(SeleneTheme.ink75).lineLimit(1)
+                Text(verbatim: account).seleneFont(.row).foregroundStyle(SeleneTheme.ink75).lineLimit(1)
             }
-            .padding(canvas.u(SeleneTokens.Space.line))
+            .padding(canvas.u(SeleneTokens.Space.control))
             .frame(maxWidth: .infinity, alignment: .leading)
             .oortWell(radius: canvas.u(SeleneTokens.Radius.content))
             status()

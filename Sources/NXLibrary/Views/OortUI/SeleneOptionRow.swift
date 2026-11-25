@@ -19,6 +19,7 @@ struct SeleneOptionRow<Trailing: View>: View {
     var titleAccessory: AnyView? = nil
     var truncateAboutInMiddle = false
     var aboutFont: SeleneTokens.Text = .text
+    var titleFont: SeleneTokens.Text = .row
     var platform: PlatformKind? = nil
     /// False: the line is data (a path, a state), not an explanation, and stays on the row.
     var aboutIsHelp = true
@@ -38,7 +39,7 @@ struct SeleneOptionRow<Trailing: View>: View {
                         if let platform {
                             PlatformLabel(platform, title: title, preset: .row)
                         } else {
-                            Text(title).seleneFont(.row, .medium)
+                            Text(title).seleneFont(titleFont, .medium)
                         }
                     }
                     .foregroundColor(destructive ? SeleneTheme.danger : (enabled ? SeleneTheme.ink : SeleneTheme.ink60))

@@ -10,11 +10,12 @@ struct SeleneStatusDot: View {
     var labelColor: Color = SeleneTheme.ink60
     var accessibilityTitle: String? = nil
     var pulses = false
+    var font: SeleneTokens.Text = .text
 
     var body: some View {
         HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
             SeleneStatusMark(color: color, pulses: pulses)
-            Text(text).seleneFont(.text).foregroundColor(labelColor)
+            Text(text).seleneFont(font).foregroundColor(labelColor)
         }
         .fixedSize(horizontal: false, vertical: true)
         .accessibilityElement(children: .ignore)
