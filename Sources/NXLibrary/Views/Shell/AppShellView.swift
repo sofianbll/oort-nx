@@ -180,6 +180,8 @@ struct AppShellView: View {
                 .seleneCanvasRoot()
                 .environment(\.locale, localization.context.formatLocale)
                 .environment(\.nxAppLocale, localization.context)
+                .environment(\.seleneShowButtonHints, settings.settings.showButtonHints)
+                .environment(\.seleneButtonNames, settings.settings.buttonNames)
         }
         .frame(width: 0, height: 0)
         .accessibilityHidden(true)

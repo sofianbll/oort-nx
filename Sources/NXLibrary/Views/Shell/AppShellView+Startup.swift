@@ -130,7 +130,13 @@ extension AppShellView {
             guard let viewModel, let router else { return }
             if action == .confirm { OortPulse.press.send() }
             if filePicker.handle(action) { return }
-            guard !nativeMenus.isTracking, !nativeDialogOwnsInput, viewModel.launchOverlay == nil else { return }
+            guard !nativeMenus.isTracking, !nativeDialogOwnsInput else { return }
+            if let launch = viewModel.launchOverlay {
+                if launch.offersExit, action == .cancel {
+                    NotificationCenter.default.post(name: .nxLaunchScreenExit, object: nil)
+                }
+                return
+            }
             if action == .profiles || action == .controlCenter || action == .fullMenu {
                 guard launcherIsFrontmost else { return }
             }

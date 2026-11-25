@@ -98,6 +98,12 @@ extension AppShellView {
                 return event
             }
             let mods = event.modifierFlags.intersection([.command, .control, .option, .shift])
+            // The launch screen is drawn over everything: only Esc reaches it, and nothing acts under it.
+            if viewModel.launchOverlay != nil {
+                guard mods.isEmpty else { return event }
+                if event.keyCode == 53 { GameControllerService.shared.onAction?(.cancel) }
+                return nil
+            }
             if viewModel.cloudQuitRequested {
                 guard mods.isEmpty else { return event }
                 cloudQuitKey(event.keyCode)
