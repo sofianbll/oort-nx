@@ -49,18 +49,67 @@ final class CloudSetupAssistantTests: XCTestCase {
         XCTAssertEqual(draft.activation?.enabled, true)
     }
 
-    func testPrimaryTakesDefaultFocusWhenReadyButExplicitCancelIsPreserved() {
+    /// Opening a step lights what is useful, never the way back; a player's own move is kept.
+    func testTheFirstUsefulTargetIsLitNeverTheWayBackAndAMoveIsKept() {
         var focus = CloudSetupAssistantFocus()
-        let rows: [[CloudSetupAssistantFocus.Target]] = [[.folder("A")], [.primary, .cancel]]
-        XCTAssertEqual(focus.current(in: [[.cancel]]), .cancel)
+        let rows: [[CloudSetupAssistantFocus.Target]] = [[.folder("A")], [.cancel, .primary]]
         XCTAssertEqual(focus.current(in: rows), .primary)
-        focus.move(.right, in: rows)
+        XCTAssertEqual(focus.current(in: [[.haveClient], [.helpCreate], [.cancel]], initial: nil), .haveClient)
+        XCTAssertEqual(focus.current(in: [[.cancel, .create]], initial: .create), .create)
+        XCTAssertEqual(focus.current(in: [[.cancel, .confirmMove]], initial: .cancel), .cancel, "Games are moved only on purpose")
+        XCTAssertEqual(focus.current(in: [[.cancel]]), .cancel)
+        focus.move(.left, in: rows)
         XCTAssertEqual(focus.current(in: rows), .cancel)
         focus.move(.up, in: rows)
         XCTAssertEqual(focus.current(in: rows), .folder("A"))
+        focus.move(.down, in: rows)
+        XCTAssertEqual(focus.current(in: rows), .primary, "Down reaches the way forward, not the way back below")
         focus.reset()
         XCTAssertEqual(focus.current(in: rows), .primary)
-        XCTAssertEqual(focus.current(in: [[.create, .cancel]]), .cancel)
-        XCTAssertEqual(focus.current(in: [[.confirmMove, .cancel]]), .cancel)
+    }
+
+    func testTheRailIsOnTheLeftAndTabReachesEverythingOnce() {
+        var focus = CloudSetupAssistantFocus()
+        let rows: [[CloudSetupAssistantFocus.Target]] = [[.change(.sources)], [.change(.library)], [.cancel, .primary]]
+        let rail: [CloudSetupAssistantFocus.Target] = [.step(0), .step(1)]
+        focus.move(.left, in: rows, rail: rail)
+        focus.move(.left, in: rows, rail: rail)
+        XCTAssertEqual(focus.current(in: rows, rail: rail), .step(1))
+        focus.move(.up, in: rows, rail: rail)
+        XCTAssertEqual(focus.current(in: rows, rail: rail), .step(0))
+        focus.move(.right, in: rows, rail: rail)
+        XCTAssertEqual(focus.current(in: rows, rail: rail), .change(.sources))
+        focus.reset()
+        var seen = Set<CloudSetupAssistantFocus.Target>()
+        for _ in 0..<6 {
+            seen.insert(focus.current(in: rows, rail: rail))
+            focus.tab(1, in: rows, rail: rail)
+        }
+        XCTAssertEqual(seen, Set(rows.flatMap { $0 } + rail))
+        let here = focus.current(in: rows, rail: rail)
+        focus.tab(1, in: rows, rail: rail)
+        focus.tab(-1, in: rows, rail: rail)
+        XCTAssertEqual(focus.current(in: rows, rail: rail), here)
+        focus.select(.step(0))
+        focus.retainSelection(in: rows, rail: rail)
+        XCTAssertEqual(focus.current(in: rows, rail: rail), .step(0))
+        focus.retainSelection(in: rows)
+        XCTAssertEqual(focus.current(in: rows), .primary)
+    }
+
+    func testGoingBackToTheAccountForgetsWhatWasCheckedForIt() {
+        var draft = CloudSetupAssistantDraft()
+        draft.chooseAccount("drive")
+        draft.browse("New")
+        draft.toggleMove()
+        XCTAssertTrue(draft.useFolder())
+        draft.acceptAccessCheck(draft.ticket)
+        let stale = draft.ticket
+        draft.backToAccount()
+        XCTAssertEqual(draft.step, .account)
+        XCTAssertNil(draft.activation)
+        XCTAssertFalse(draft.wantsMove)
+        draft.acceptAccessCheck(stale)
+        XCTAssertNil(draft.activation)
     }
 }

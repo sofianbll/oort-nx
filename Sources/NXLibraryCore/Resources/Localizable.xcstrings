@@ -1,6 +1,270 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%lld games to compile": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"variations": {"plural": {"one": {"stringUnit": {"state": "translated", "value": "%lld game to compile"}}, "other": {"stringUnit": {"state": "translated", "value": "%lld games to compile"}}}}},
+        "it": {"variations": {"plural": {"one": {"stringUnit": {"state": "translated", "value": "%lld gioco da compilare"}}, "other": {"stringUnit": {"state": "translated", "value": "%lld giochi da compilare"}}}}},
+        "fr": {"variations": {"plural": {"one": {"stringUnit": {"state": "translated", "value": "%lld jeu à compiler"}}, "other": {"stringUnit": {"state": "translated", "value": "%lld jeux à compiler"}}}}},
+        "de": {"variations": {"plural": {"one": {"stringUnit": {"state": "translated", "value": "%lld Spiel zu kompilieren"}}, "other": {"stringUnit": {"state": "translated", "value": "%lld Spiele zu kompilieren"}}}}},
+        "es": {"variations": {"plural": {"one": {"stringUnit": {"state": "translated", "value": "%lld juego por compilar"}}, "other": {"stringUnit": {"state": "translated", "value": "%lld juegos por compilar"}}}}},
+        "pt-BR": {"variations": {"plural": {"one": {"stringUnit": {"state": "translated", "value": "%lld jogo para compilar"}}, "other": {"stringUnit": {"state": "translated", "value": "%lld jogos para compilar"}}}}},
+        "zh-Hans": {"variations": {"plural": {"one": {"stringUnit": {"state": "translated", "value": "%lld 个游戏待编译"}}, "other": {"stringUnit": {"state": "translated", "value": "%lld 个游戏待编译"}}}}}
+      }
+    },
+    "%lld compiled games": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"variations": {"plural": {"one": {"stringUnit": {"state": "translated", "value": "%lld compiled game"}}, "other": {"stringUnit": {"state": "translated", "value": "%lld compiled games"}}}}},
+        "it": {"variations": {"plural": {"one": {"stringUnit": {"state": "translated", "value": "%lld gioco compilato"}}, "other": {"stringUnit": {"state": "translated", "value": "%lld giochi compilati"}}}}},
+        "fr": {"variations": {"plural": {"one": {"stringUnit": {"state": "translated", "value": "%lld jeu compilé"}}, "other": {"stringUnit": {"state": "translated", "value": "%lld jeux compilés"}}}}},
+        "de": {"variations": {"plural": {"one": {"stringUnit": {"state": "translated", "value": "%lld kompiliertes Spiel"}}, "other": {"stringUnit": {"state": "translated", "value": "%lld kompilierte Spiele"}}}}},
+        "es": {"variations": {"plural": {"one": {"stringUnit": {"state": "translated", "value": "%lld juego compilado"}}, "other": {"stringUnit": {"state": "translated", "value": "%lld juegos compilados"}}}}},
+        "pt-BR": {"variations": {"plural": {"one": {"stringUnit": {"state": "translated", "value": "%lld jogo compilado"}}, "other": {"stringUnit": {"state": "translated", "value": "%lld jogos compilados"}}}}},
+        "zh-Hans": {"variations": {"plural": {"one": {"stringUnit": {"state": "translated", "value": "%lld 个已编译的游戏"}}, "other": {"stringUnit": {"state": "translated", "value": "%lld 个已编译的游戏"}}}}}
+      }
+    },
+    "Recent folders": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Recent folders"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Cartelle recenti"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Dossiers récents"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Letzte Ordner"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Carpetas recientes"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Pastas recentes"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "最近的文件夹"}}
+      }
+    },
+    "No folder here.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "No folder here."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nessuna cartella qui."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aucun dossier ici."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Hier ist kein Ordner."}},
+        "es": {"stringUnit": {"state": "translated", "value": "No hay carpetas aquí."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhuma pasta aqui."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "这里没有文件夹。"}}
+      }
+    },
+    "Create these two folders?": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Create these two folders?"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Creare queste due cartelle?"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Créer ces deux dossiers ?"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Diese beiden Ordner anlegen?"}},
+        "es": {"stringUnit": {"state": "translated", "value": "¿Crear estas dos carpetas?"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Criar estas duas pastas?"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "创建这两个文件夹？"}}
+      }
+    },
+    "Create this folder?": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Create this folder?"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Creare questa cartella?"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Créer ce dossier ?"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Diesen Ordner anlegen?"}},
+        "es": {"stringUnit": {"state": "translated", "value": "¿Crear esta carpeta?"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Criar esta pasta?"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "创建此文件夹？"}}
+      }
+    },
+    "Continue without": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Continue without"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Continua senza"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Continuer sans"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Ohne fortfahren"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Continuar sin ella"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Continuar sem"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "跳过并继续"}}
+      }
+    },
+    "Keep as it is": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Keep as it is"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Lascia così"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Garder ainsi"}},
+        "de": {"stringUnit": {"state": "translated", "value": "So lassen"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Dejarlo así"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Manter assim"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "保持不变"}}
+      }
+    },
+    "See my games": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "See my games"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Vedi i miei giochi"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Voir mes jeux"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Meine Spiele ansehen"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Ver mis juegos"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Ver meus jogos"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "查看我的游戏"}}
+      }
+    },
+    "Confirm your ROM library": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Confirm your ROM library"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Conferma la libreria delle ROM"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Confirme ta bibliothèque de ROM"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Bestätige deine ROM-Bibliothek"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Confirma tu biblioteca de ROM"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Confirme sua biblioteca de ROMs"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "确认你的 ROM 库"}}
+      }
+    },
+    "Are your ROMs in “%@”, or in your game library?": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Are your ROMs in “%@”, or in your game library?"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Le tue ROM sono in “%@” o nella tua libreria dei giochi?"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Tes ROM sont dans « %@ », ou dans ta bibliothèque de jeux ?"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Sind deine ROMs in „%@“ oder in deiner Spielebibliothek?"}},
+        "es": {"stringUnit": {"state": "translated", "value": "¿Tus ROM están en «%@» o en tu biblioteca de juegos?"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Suas ROMs estão em “%@” ou na sua biblioteca de jogos?"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "你的 ROM 在“%@”中，还是在你的游戏库中？"}}
+      }
+    },
+    "No ROM found yet. Oort will create this folder: put your ROMs in it.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "No ROM found yet. Oort will create this folder: put your ROMs in it."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nessuna ROM trovata. Oort creerà questa cartella: mettici le tue ROM."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aucune ROM trouvée. Oort créera ce dossier : mets-y tes ROM."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Noch keine ROM gefunden. Oort legt diesen Ordner an: Leg deine ROMs hinein."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Aún no hay ROM. Oort creará esta carpeta: pon en ella tus ROM."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhuma ROM ainda. O Oort criará esta pasta: coloque suas ROMs nela."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "尚未找到 ROM。Oort 会创建此文件夹：请把 ROM 放进去。"}}
+      }
+    },
+    "No game in it yet. Put your ROMs there.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "No game in it yet. Put your ROMs there."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Ancora nessun gioco. Metti qui le tue ROM."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Pas encore de jeu dedans. Mets-y tes ROM."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Noch kein Spiel darin. Leg deine ROMs dort ab."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Aún sin juegos. Pon ahí tus ROM."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Ainda sem jogos. Coloque suas ROMs ali."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "里面还没有游戏。请把 ROM 放在这里。"}}
+      }
+    },
+    "Empty for now: your games will go there.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Empty for now: your games will go there."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Vuota per ora: i tuoi giochi andranno qui."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Vide pour l’instant : tes jeux iront là."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Noch leer: Deine Spiele kommen hierher."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Vacía por ahora: tus juegos irán ahí."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Vazia por enquanto: seus jogos irão para lá."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "目前为空：你的游戏会放在这里。"}}
+      }
+    },
+    "Where should your games go?": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Where should your games go?"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Dove mettere i tuoi giochi?"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Où ranger tes jeux ?"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Wohin mit deinen Spielen?"}},
+        "es": {"stringUnit": {"state": "translated", "value": "¿Dónde guardar tus juegos?"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Onde guardar seus jogos?"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "游戏放在哪里？"}}
+      }
+    },
+    "Tool, test and followed library": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Tool, test and followed library"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Strumento, prova e libreria seguita"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Outil, test et bibliothèque suivie"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Werkzeug, Test und verfolgte Bibliothek"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Herramienta, prueba y biblioteca seguida"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Ferramenta, teste e biblioteca seguida"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "工具、测试和关注的游戏库"}}
+      }
+    },
+    "In your game library": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "In your game library"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nella tua libreria dei giochi"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Dans ta bibliothèque de jeux"}},
+        "de": {"stringUnit": {"state": "translated", "value": "In deiner Spielebibliothek"}},
+        "es": {"stringUnit": {"state": "translated", "value": "En tu biblioteca de juegos"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Na sua biblioteca de jogos"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "在你的游戏库中"}}
+      }
+    },
+    "The folder with your .nsp, .xci or .nup game files. Oort changes nothing there unless you ask.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "The folder with your .nsp, .xci or .nup game files. Oort changes nothing there unless you ask."}},
+        "it": {"stringUnit": {"state": "translated", "value": "La cartella con i tuoi file di gioco .nsp, .xci, .nup. Oort non cambia nulla se non lo chiedi."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Le dossier qui contient tes fichiers de jeu .nsp, .xci, .nup. Oort n’y change rien sans ta demande."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Der Ordner mit deinen Spieldateien (.nsp, .xci, .nup). Oort ändert dort nichts ohne deine Bitte."}},
+        "es": {"stringUnit": {"state": "translated", "value": "La carpeta con tus archivos de juego .nsp, .xci, .nup. Oort no cambia nada ahí si no lo pides."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "A pasta com seus arquivos de jogo .nsp, .xci, .nup. O Oort não muda nada ali sem você pedir."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "存放 .nsp、.xci、.nup 游戏文件的文件夹。未经你要求，Oort 不会改动其中任何内容。"}}
+      }
+    },
+    "The files you bring. Oort changes nothing there unless you ask.": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "The files you bring. Oort changes nothing there unless you ask."}},
+        "it": {"stringUnit": {"state": "translated", "value": "I file che porti tu. Oort non cambia nulla se non lo chiedi."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Les fichiers que tu apportes. Oort n’y change rien sans ta demande."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Deine eigenen Dateien. Oort ändert dort nichts ohne deine Bitte."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Los archivos que aportas. Oort no cambia nada ahí si no lo pides."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Os arquivos que você traz. O Oort não muda nada ali sem você pedir."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "你自己的文件。未经你要求，Oort 不会改动其中任何内容。"}}
+      }
+    },
+    "In my cloud": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "In my cloud"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nel mio cloud"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Dans mon cloud"}},
+        "de": {"stringUnit": {"state": "translated", "value": "In meiner Cloud"}},
+        "es": {"stringUnit": {"state": "translated", "value": "En mi nube"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Na minha nuvem"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "在我的云端"}}
+      }
+    },
+    "ROM library": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "ROM library"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Libreria delle ROM"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Bibliothèque de ROM"}},
+        "de": {"stringUnit": {"state": "translated", "value": "ROM-Bibliothek"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Biblioteca de ROM"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Biblioteca de ROMs"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "ROM 库"}}
+      }
+    },
+    "Game library": {
+      "comment": "Cloud library: account, folders and the setup panel.",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Game library"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Libreria dei giochi"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Bibliothèque de jeux"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Spielebibliothek"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Biblioteca de juegos"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Biblioteca de jogos"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "游戏库"}}
+      }
+    },
     "One answer looks wrong. Oort proposes the right folder.": {
       "comment": "Cloud library: account, folders and the setup panel.",
       "localizations": {
@@ -97,18 +361,6 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "这台 Mac 上的云端硬盘连接尚未就绪。"}}
       }
     },
-    "Confirm your ROM folder": {
-      "comment": "Cloud library: account, folders and the setup panel.",
-      "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Confirm your ROM folder"}},
-        "it": {"stringUnit": {"state": "translated", "value": "Conferma la cartella delle tue ROM"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Confirme le dossier de tes ROM"}},
-        "de": {"stringUnit": {"state": "translated", "value": "Bestätige deinen ROM-Ordner"}},
-        "es": {"stringUnit": {"state": "translated", "value": "Confirma la carpeta de tus ROM"}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Confirme a pasta das suas ROMs"}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "确认你的 ROM 文件夹"}}
-      }
-    },
     "Are your ROMs in “%@”?": {
       "comment": "Cloud library: account, folders and the setup panel.",
       "localizations": {
@@ -119,18 +371,6 @@
         "es": {"stringUnit": {"state": "translated", "value": "¿Tus ROM están en «%@»?"}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Suas ROMs estão em “%@”?"}},
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "你的 ROM 在“%@”中吗？"}}
-      }
-    },
-    "Are your ROMs in “%@”, or in your compiled games folder?": {
-      "comment": "Cloud library: account, folders and the setup panel.",
-      "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Are your ROMs in “%@”, or in your compiled games folder?"}},
-        "it": {"stringUnit": {"state": "translated", "value": "Le tue ROM sono in “%@” o nella cartella dei giochi compilati?"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Tes ROM sont dans « %@ », ou dans le dossier de tes jeux compilés ?"}},
-        "de": {"stringUnit": {"state": "translated", "value": "Sind deine ROMs in „%@“ oder im Ordner deiner kompilierten Spiele?"}},
-        "es": {"stringUnit": {"state": "translated", "value": "¿Tus ROM están en «%@» o en la carpeta de tus juegos compilados?"}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Suas ROMs estão em “%@” ou na pasta dos seus jogos compilados?"}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "你的 ROM 在“%@”中，还是在已编译游戏的文件夹中？"}}
       }
     },
     "Your account": {
@@ -193,18 +433,6 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "更改"}}
       }
     },
-    "Compiled games": {
-      "comment": "Cloud library: account, folders and the setup panel.",
-      "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Compiled games"}},
-        "it": {"stringUnit": {"state": "translated", "value": "Giochi compilati"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Jeux compilés"}},
-        "de": {"stringUnit": {"state": "translated", "value": "Kompilierte Spiele"}},
-        "es": {"stringUnit": {"state": "translated", "value": "Juegos compilados"}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Jogos compilados"}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "已编译的游戏"}}
-      }
-    },
     "What Oort uploads and downloads.": {
       "comment": "Cloud library: account, folders and the setup panel.",
       "localizations": {
@@ -217,30 +445,6 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "Oort 上传和下载的内容。"}}
       }
     },
-    "Your ROMs": {
-      "comment": "Cloud library: account, folders and the setup panel.",
-      "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Your ROMs"}},
-        "it": {"stringUnit": {"state": "translated", "value": "Le tue ROM"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Tes ROM"}},
-        "de": {"stringUnit": {"state": "translated", "value": "Deine ROMs"}},
-        "es": {"stringUnit": {"state": "translated", "value": "Tus ROM"}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Suas ROMs"}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "你的 ROM"}}
-      }
-    },
-    "The files you bring. Oort never changes them.": {
-      "comment": "Cloud library: account, folders and the setup panel.",
-      "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "The files you bring. Oort never changes them."}},
-        "it": {"stringUnit": {"state": "translated", "value": "I file che porti tu. Oort non li modifica mai."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Les fichiers que tu apportes. Oort ne les modifie jamais."}},
-        "de": {"stringUnit": {"state": "translated", "value": "Deine eigenen Dateien. Oort ändert sie nie."}},
-        "es": {"stringUnit": {"state": "translated", "value": "Los archivos que aportas. Oort nunca los modifica."}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Os arquivos que você traz. O Oort nunca os altera."}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "你自己的文件。Oort 绝不会修改它们。"}}
-      }
-    },
     "Connect your account first.": {
       "comment": "Cloud library: account, folders and the setup panel.",
       "localizations": {
@@ -251,30 +455,6 @@
         "es": {"stringUnit": {"state": "translated", "value": "Conecta primero tu cuenta"}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Conecte sua conta primeiro"}},
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "请先连接你的账户"}}
-      }
-    },
-    "In your compiled games folder": {
-      "comment": "Cloud library: account, folders and the setup panel.",
-      "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "In your compiled games folder"}},
-        "it": {"stringUnit": {"state": "translated", "value": "Nella cartella dei giochi compilati"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Dans le dossier de tes jeux compilés"}},
-        "de": {"stringUnit": {"state": "translated", "value": "Im Ordner deiner kompilierten Spiele"}},
-        "es": {"stringUnit": {"state": "translated", "value": "En la carpeta de tus juegos compilados"}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Na pasta dos seus jogos compilados"}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "在已编译游戏的文件夹中"}}
-      }
-    },
-    "Tool, test and reference library": {
-      "comment": "Cloud library: account, folders and the setup panel.",
-      "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Tool, test and reference library"}},
-        "it": {"stringUnit": {"state": "translated", "value": "Strumento, prova e libreria di riferimento"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Outil, test et bibliothèque de référence"}},
-        "de": {"stringUnit": {"state": "translated", "value": "Werkzeug, Test und Referenzbibliothek"}},
-        "es": {"stringUnit": {"state": "translated", "value": "Herramienta, prueba y biblioteca de referencia"}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Ferramenta, teste e biblioteca de referência"}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "工具、测试和参考库"}}
       }
     },
     "It’s ready": {
@@ -517,30 +697,6 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "你的 ROM 在哪里？"}}
       }
     },
-    "The folder with your .nsp, .xci or .nup game files. Oort never touches it.": {
-      "comment": "Cloud library: account, folders and the setup panel.",
-      "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "The folder with your .nsp, .xci or .nup game files. Oort never touches it."}},
-        "it": {"stringUnit": {"state": "translated", "value": "La cartella con i tuoi file di gioco .nsp, .xci, .nup. Oort non la tocca mai."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Le dossier qui contient tes fichiers de jeu .nsp, .xci, .nup. Oort n’y touche jamais."}},
-        "de": {"stringUnit": {"state": "translated", "value": "Der Ordner mit deinen Spieldateien (.nsp, .xci, .nup). Oort rührt ihn nie an."}},
-        "es": {"stringUnit": {"state": "translated", "value": "La carpeta con tus archivos de juego .nsp, .xci, .nup. Oort nunca la toca."}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "A pasta com seus arquivos de jogo .nsp, .xci, .nup. O Oort nunca mexe nela."}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "存放 .nsp、.xci、.nup 游戏文件的文件夹。Oort 绝不会动它。"}}
-      }
-    },
-    "Where should your compiled games go?": {
-      "comment": "Cloud library: account, folders and the setup panel.",
-      "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Where should your compiled games go?"}},
-        "it": {"stringUnit": {"state": "translated", "value": "Dove mettere i tuoi giochi compilati?"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Où ranger tes jeux compilés ?"}},
-        "de": {"stringUnit": {"state": "translated", "value": "Wohin mit deinen kompilierten Spielen?"}},
-        "es": {"stringUnit": {"state": "translated", "value": "¿Dónde guardar tus juegos compilados?"}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Onde guardar seus jogos compilados?"}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "已编译的游戏放在哪里？"}}
-      }
-    },
     "Oort puts its apps there. An empty folder is fine.": {
       "comment": "Cloud library: account, folders and the setup panel.",
       "localizations": {
@@ -659,30 +815,6 @@
         "es": {"stringUnit": {"state": "translated", "value": "Encontrada en tu Drive"}},
         "pt-BR": {"stringUnit": {"state": "translated", "value": "Encontrada no seu Drive"}},
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "在云端硬盘中找到"}}
-      }
-    },
-    "Empty for now: your compiled games will go there.": {
-      "comment": "Cloud library: account, folders and the setup panel.",
-      "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Empty for now: your compiled games will go there."}},
-        "it": {"stringUnit": {"state": "translated", "value": "Vuota per ora: i tuoi giochi compilati andranno qui."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Vide pour l’instant : tes jeux compilés iront là."}},
-        "de": {"stringUnit": {"state": "translated", "value": "Noch leer: Deine kompilierten Spiele kommen hierher."}},
-        "es": {"stringUnit": {"state": "translated", "value": "Vacía por ahora: tus juegos compilados irán ahí."}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Vazia por enquanto: seus jogos compilados irão para lá."}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "目前为空：已编译的游戏会放在这里。"}}
-      }
-    },
-    "Kept from last time. No game in it yet.": {
-      "comment": "Cloud library: account, folders and the setup panel.",
-      "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Kept from last time. No game in it yet."}},
-        "it": {"stringUnit": {"state": "translated", "value": "Conservata dall’ultima volta. Ancora nessun gioco."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Gardé de la dernière fois. Pas encore de jeu dedans."}},
-        "de": {"stringUnit": {"state": "translated", "value": "Vom letzten Mal behalten. Noch kein Spiel darin."}},
-        "es": {"stringUnit": {"state": "translated", "value": "Guardada de la última vez. Aún sin juegos."}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Mantida da última vez. Ainda sem jogos."}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "沿用上次的选择。里面还没有游戏。"}}
       }
     },
     "Swap the two folders": {
@@ -3916,7 +4048,7 @@
       "en": {"stringUnit":{"state":"translated","value":"App in your cloud"}}, "fr": {"stringUnit":{"state":"translated","value":"App dans ton cloud"}}, "it": {"stringUnit":{"state":"translated","value":"App nel tuo cloud"}}, "de": {"stringUnit":{"state":"translated","value":"App in deiner Cloud"}}, "es": {"stringUnit":{"state":"translated","value":"App en tu nube"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"App na sua nuvem"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"你的云端中的应用"}}
     }},
     "App in the reference library": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"App in the reference library"}}, "fr": {"stringUnit":{"state":"translated","value":"App dans la bibliothèque de référence"}}, "it": {"stringUnit":{"state":"translated","value":"App nella libreria di riferimento"}}, "de": {"stringUnit":{"state":"translated","value":"App in der Referenzbibliothek"}}, "es": {"stringUnit":{"state":"translated","value":"App en la biblioteca de referencia"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"App na biblioteca de referência"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"参考游戏库中的应用"}}
+      "en": {"stringUnit":{"state":"translated","value":"App in the followed library"}}, "fr": {"stringUnit":{"state":"translated","value":"App dans la bibliothèque suivie"}}, "it": {"stringUnit":{"state":"translated","value":"App nella libreria seguita"}}, "de": {"stringUnit":{"state":"translated","value":"App in der verfolgten Bibliothek"}}, "es": {"stringUnit":{"state":"translated","value":"App en la biblioteca seguida"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"App na biblioteca seguida"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"关注的游戏库中的应用"}}
     }},
     "App in both cloud libraries": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"App in both cloud libraries"}}, "fr": {"stringUnit":{"state":"translated","value":"App dans les deux bibliothèques cloud"}}, "it": {"stringUnit":{"state":"translated","value":"App in entrambe le librerie cloud"}}, "de": {"stringUnit":{"state":"translated","value":"App in beiden Cloud-Bibliotheken"}}, "es": {"stringUnit":{"state":"translated","value":"App en ambas bibliotecas en la nube"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"App nas duas bibliotecas na nuvem"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"两个云游戏库中都有此应用"}}
@@ -3925,7 +4057,7 @@
       "en": {"stringUnit":{"state":"translated","value":"Game files in your cloud"}}, "fr": {"stringUnit":{"state":"translated","value":"Fichiers du jeu dans ton cloud"}}, "it": {"stringUnit":{"state":"translated","value":"File di gioco nel tuo cloud"}}, "de": {"stringUnit":{"state":"translated","value":"Spieldateien in deiner Cloud"}}, "es": {"stringUnit":{"state":"translated","value":"Archivos del juego en tu nube"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Arquivos do jogo na sua nuvem"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"你的云端中的游戏文件"}}
     }},
     "Game files in the reference library": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"Game files in the reference library"}}, "fr": {"stringUnit":{"state":"translated","value":"Fichiers du jeu dans la bibliothèque de référence"}}, "it": {"stringUnit":{"state":"translated","value":"File di gioco nella libreria di riferimento"}}, "de": {"stringUnit":{"state":"translated","value":"Spieldateien in der Referenzbibliothek"}}, "es": {"stringUnit":{"state":"translated","value":"Archivos del juego en la biblioteca de referencia"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Arquivos do jogo na biblioteca de referência"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"参考游戏库中的游戏文件"}}
+      "en": {"stringUnit":{"state":"translated","value":"Game files in the followed library"}}, "fr": {"stringUnit":{"state":"translated","value":"Fichiers du jeu dans la bibliothèque suivie"}}, "it": {"stringUnit":{"state":"translated","value":"File di gioco nella libreria seguita"}}, "de": {"stringUnit":{"state":"translated","value":"Spieldateien in der verfolgten Bibliothek"}}, "es": {"stringUnit":{"state":"translated","value":"Archivos del juego en la biblioteca seguida"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Arquivos do jogo na biblioteca seguida"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"关注的游戏库中的游戏文件"}}
     }},
     "Game files on this Mac": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Game files on this Mac"}}, "fr": {"stringUnit":{"state":"translated","value":"Fichiers du jeu sur ce Mac"}}, "it": {"stringUnit":{"state":"translated","value":"File di gioco su questo Mac"}}, "de": {"stringUnit":{"state":"translated","value":"Spieldateien auf diesem Mac"}}, "es": {"stringUnit":{"state":"translated","value":"Archivos del juego en este Mac"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Arquivos do jogo neste Mac"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"此 Mac 上的游戏文件"}}
@@ -4780,10 +4912,10 @@
       "en": {"stringUnit":{"state":"translated","value":"Open cloud library settings"}}, "fr": {"stringUnit":{"state":"translated","value":"Ouvrir les réglages de la bibliothèque cloud"}}, "it": {"stringUnit":{"state":"translated","value":"Apri le impostazioni della libreria cloud"}}, "de": {"stringUnit":{"state":"translated","value":"Einstellungen der Cloud-Bibliothek öffnen"}}, "es": {"stringUnit":{"state":"translated","value":"Abrir los ajustes de la biblioteca en la nube"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Abrir os ajustes da biblioteca na nuvem"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"打开云端游戏库设置"}}
     }},
     "Selected local files and Drive folders; the reference library is read-only.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"Selected local files and Drive folders; the reference library is read-only."}}, "fr": {"stringUnit":{"state":"translated","value":"Fichiers locaux choisis et dossiers Drive ; la bibliothèque de référence est en lecture seule."}}, "it": {"stringUnit":{"state":"translated","value":"File locali scelti e cartelle Drive; la libreria di riferimento è in sola lettura."}}, "de": {"stringUnit":{"state":"translated","value":"Ausgewählte lokale Dateien und Drive-Ordner; die Referenzbibliothek ist schreibgeschützt."}}, "es": {"stringUnit":{"state":"translated","value":"Archivos locales seleccionados y carpetas de Drive; la biblioteca de referencia es de solo lectura."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Arquivos locais selecionados e pastas do Drive; a biblioteca de referência é somente leitura."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"选定的本地文件和 Drive 文件夹；参考库仅供读取。"}}
+      "en": {"stringUnit":{"state":"translated","value":"Selected local files and Drive folders; the followed library is read-only."}}, "fr": {"stringUnit":{"state":"translated","value":"Fichiers locaux choisis et dossiers Drive ; la bibliothèque suivie est en lecture seule."}}, "it": {"stringUnit":{"state":"translated","value":"File locali scelti e cartelle Drive; la libreria seguita è in sola lettura."}}, "de": {"stringUnit":{"state":"translated","value":"Ausgewählte lokale Dateien und Drive-Ordner; die verfolgte Bibliothek ist schreibgeschützt."}}, "es": {"stringUnit":{"state":"translated","value":"Archivos locales seleccionados y carpetas de Drive; la biblioteca seguida es de solo lectura."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Arquivos locais selecionados e pastas do Drive; a biblioteca seguida é somente leitura."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"选定的本地文件和 Drive 文件夹；关注的游戏库仅供读取。"}}
     }},
     "Personal Drive and local copies; the reference library is not changed.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"Personal Drive and local copies; the reference library is not changed."}}, "fr": {"stringUnit":{"state":"translated","value":"Drive personnel et copies locales ; la bibliothèque de référence n’est pas modifiée."}}, "it": {"stringUnit":{"state":"translated","value":"Drive personale e copie locali; la libreria di riferimento non viene modificata."}}, "de": {"stringUnit":{"state":"translated","value":"Persönliches Drive und lokale Kopien; die Referenzbibliothek bleibt unverändert."}}, "es": {"stringUnit":{"state":"translated","value":"Drive personal y copias locales; la biblioteca de referencia no cambia."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Drive pessoal e cópias locais; a biblioteca de referência não é alterada."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"写入个人 Drive 和本地副本，不更改参考库。"}}
+      "en": {"stringUnit":{"state":"translated","value":"Personal Drive and local copies; the followed library is not changed."}}, "fr": {"stringUnit":{"state":"translated","value":"Drive personnel et copies locales ; la bibliothèque suivie n’est pas modifiée."}}, "it": {"stringUnit":{"state":"translated","value":"Drive personale e copie locali; la libreria seguita non viene modificata."}}, "de": {"stringUnit":{"state":"translated","value":"Persönliches Drive und lokale Kopien; die verfolgte Bibliothek bleibt unverändert."}}, "es": {"stringUnit":{"state":"translated","value":"Drive personal y copias locales; la biblioteca seguida no cambia."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Drive pessoal e cópias locais; a biblioteca seguida não é alterada."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"写入个人 Drive 和本地副本，不更改关注的游戏库。"}}
     }},
     "Selected files to personal Drive. Google grants full Drive access; Oort NX uses the configured folders.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Selected files to personal Drive. Google grants full Drive access; Oort NX uses the configured folders."}}, "fr": {"stringUnit":{"state":"translated","value":"Fichiers choisis vers le Drive personnel. Google accorde un accès complet à Drive ; Oort NX utilise les dossiers configurés."}}, "it": {"stringUnit":{"state":"translated","value":"File scelti sul Drive personale. Google concede accesso completo a Drive; Oort NX usa le cartelle configurate."}}, "de": {"stringUnit":{"state":"translated","value":"Ausgewählte Dateien ans persönliche Drive. Google gewährt vollen Drive-Zugriff; Oort NX nutzt die eingestellten Ordner."}}, "es": {"stringUnit":{"state":"translated","value":"Archivos seleccionados al Drive personal. Google concede acceso completo a Drive; Oort NX usa las carpetas configuradas."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Arquivos selecionados para o Drive pessoal. O Google concede acesso total ao Drive; o Oort NX usa as pastas configuradas."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"将选定的文件发送到个人 Drive。Google 授予完整的 Drive 访问权限；Oort NX 使用已配置的文件夹。"}}
@@ -9583,13 +9715,13 @@
     },
     "Replace %@ on this Mac with the app from the reference library? The previous app will be kept.": {
       "localizations": {
-        "de": {"stringUnit": {"state": "translated", "value": "%@ auf diesem Mac durch die App aus der Referenzbibliothek ersetzen? Die bisherige App bleibt erhalten."}},
-        "en": {"stringUnit": {"state": "translated", "value": "Replace %@ on this Mac with the app from the reference library? The previous app will be kept."}},
-        "es": {"stringUnit": {"state": "translated", "value": "¿Reemplazar %@ en este Mac por la app de la biblioteca de referencia? Se conservará la app anterior."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Remplacer %@ sur ce Mac par l’app de la bibliothèque de référence ? L’app précédente sera conservée."}},
-        "it": {"stringUnit": {"state": "translated", "value": "Sostituire %@ su questo Mac con l’app della libreria di riferimento? L’app precedente verrà conservata."}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Substituir %@ neste Mac pelo app da biblioteca de referência? O app anterior será mantido."}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "要使用参考库中的应用替换此 Mac 上的 %@ 吗？原应用将保留。"}}
+        "de": {"stringUnit": {"state": "translated", "value": "%@ auf diesem Mac durch die App aus der verfolgten Bibliothek ersetzen? Die bisherige App bleibt erhalten."}},
+        "en": {"stringUnit": {"state": "translated", "value": "Replace %@ on this Mac with the app from the followed library? The previous app will be kept."}},
+        "es": {"stringUnit": {"state": "translated", "value": "¿Reemplazar %@ en este Mac por la app de la biblioteca seguida? Se conservará la app anterior."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Remplacer %@ sur ce Mac par l’app de la bibliothèque suivie ? L’app précédente sera conservée."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Sostituire %@ su questo Mac con l’app della libreria seguita? L’app precedente verrà conservata."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Substituir %@ neste Mac pelo app da biblioteca seguida? O app anterior será mantido."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "要使用关注的游戏库中的应用替换此 Mac 上的 %@ 吗？原应用将保留。"}}
       }
     },
     "Ambiguous cloud game files: %@.": {"localizations": {
@@ -55375,12 +55507,12 @@
     },
     "No games found. The reference is not verified.": {"localizations": {
       "en": {"stringUnit": {"state": "translated", "value": "No games found. The reference is not verified."}},
-      "it": {"stringUnit": {"state": "translated", "value": "Nessun gioco trovato. La libreria di riferimento non è verificata."}},
-      "fr": {"stringUnit": {"state": "translated", "value": "Aucun jeu trouvé. La bibliothèque de référence n’est pas vérifiée."}},
-      "de": {"stringUnit": {"state": "translated", "value": "Keine Spiele gefunden. Die Referenzbibliothek ist nicht bestätigt."}},
-      "es": {"stringUnit": {"state": "translated", "value": "No se encontraron juegos. La biblioteca de referencia no está verificada."}},
-      "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhum jogo encontrado. A biblioteca de referência não foi verificada."}},
-      "zh-Hans": {"stringUnit": {"state": "translated", "value": "未找到游戏。参考库尚未验证。"}}
+      "it": {"stringUnit": {"state": "translated", "value": "Nessun gioco trovato. La libreria seguita non è verificata."}},
+      "fr": {"stringUnit": {"state": "translated", "value": "Aucun jeu trouvé. La bibliothèque suivie n’est pas vérifiée."}},
+      "de": {"stringUnit": {"state": "translated", "value": "Keine Spiele gefunden. Die verfolgte Bibliothek ist nicht bestätigt."}},
+      "es": {"stringUnit": {"state": "translated", "value": "No se encontraron juegos. La biblioteca seguida no está verificada."}},
+      "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhum jogo encontrado. A biblioteca seguida não foi verificada."}},
+      "zh-Hans": {"stringUnit": {"state": "translated", "value": "未找到游戏。关注的游戏库尚未验证。"}}
     }},
     "No games found. Try another name.": {
       "comment": "GameBananaFindPanel.swift",
@@ -97798,13 +97930,13 @@
     },
     "Reference library": {
       "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Reference library"}},
-        "it": {"stringUnit": {"state": "translated", "value": "Libreria di riferimento"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Bibliothèque de référence"}},
-        "de": {"stringUnit": {"state": "translated", "value": "Referenzbibliothek"}},
-        "es": {"stringUnit": {"state": "translated", "value": "Biblioteca de referencia"}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Biblioteca de referência"}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "参考游戏库"}}
+        "en": {"stringUnit": {"state": "translated", "value": "Followed library"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Libreria seguita"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Bibliothèque suivie"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Verfolgte Bibliothek"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Biblioteca seguida"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Biblioteca seguida"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "关注的游戏库"}}
       }
     },
     "Follow a shared Google Drive folder in read-only mode.": {
@@ -97931,23 +98063,23 @@
     "Reference offer not verified": {
       "localizations": {
         "en": {"stringUnit": {"state": "translated", "value": "Reference offer not verified"}},
-        "it": {"stringUnit": {"state": "translated", "value": "Offerta della libreria di riferimento non verificata"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Offre de la bibliothèque de référence non vérifiée"}},
-        "de": {"stringUnit": {"state": "translated", "value": "Angebot der Referenzbibliothek nicht geprüft"}},
-        "es": {"stringUnit": {"state": "translated", "value": "Oferta de la biblioteca de referencia sin verificar"}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Oferta da biblioteca de referência não verificada"}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "参考游戏库提供的内容未经验证"}}
+        "it": {"stringUnit": {"state": "translated", "value": "Offerta della libreria seguita non verificata"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Offre de la bibliothèque suivie non vérifiée"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Angebot der verfolgten Bibliothek nicht geprüft"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Oferta de la biblioteca seguida sin verificar"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Oferta da biblioteca seguida não verificada"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "关注的游戏库提供的内容未经验证"}}
       }
     },
     "Source: reference library": {
       "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Source: reference library"}},
-        "it": {"stringUnit": {"state": "translated", "value": "Origine: libreria di riferimento"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Origine : bibliothèque de référence"}},
-        "de": {"stringUnit": {"state": "translated", "value": "Quelle: Referenzbibliothek"}},
-        "es": {"stringUnit": {"state": "translated", "value": "Origen: biblioteca de referencia"}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Origem: biblioteca de referência"}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "来源：参考游戏库"}}
+        "en": {"stringUnit": {"state": "translated", "value": "Source: followed library"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Origine: libreria seguita"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Origine : bibliothèque suivie"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Quelle: verfolgte Bibliothek"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Origen: biblioteca seguida"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Origem: biblioteca seguida"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "来源：关注的游戏库"}}
       }
     },
     "Details: Update ready · applied when you quit the game": {

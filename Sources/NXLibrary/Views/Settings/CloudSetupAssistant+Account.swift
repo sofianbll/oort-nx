@@ -16,14 +16,14 @@ extension CloudSetupAssistant {
 
     @ViewBuilder var account: some View {
         if waitingForGoogle {
-            OortReadout(text: text("Finish in your browser, then come back here."))
+            OortReadout(text: text("Finish in your browser, then come back here."), preset: .lead)
             progress("Waiting for Google sign-in in your browser…")
         } else if work?.kind == .inspect { progress("Checking…") }
         else if tool == nil {
-            OortReadout(text: text("The connection tool is missing. Choose or download it in Settings → Cloud library → Advanced."))
-            pill(.retry, "Try again", action: inspect)
+            OortReadout(text: text("The connection tool is missing. Choose or download it in Settings → Cloud library → Advanced."), preset: .lead)
+            cardKey(.retry, "Try again", action: inspect)
         } else if remotes == nil {
-            pill(.retry, "Try again", action: inspect)
+            cardKey(.retry, "Try again", action: inspect)
         } else {
             switch accountPage {
             case .choose: accountChoice
@@ -37,17 +37,17 @@ extension CloudSetupAssistant {
         if let existing {
             OortSection(title: text("Your current account")) {
                 SeleneOptionRow(icon: .cloudDone, title: accountName(existing.name), about: text("Connected on this Mac"),
-                                focused: false, trailing: { EmptyView() })
+                                focused: false, titleFont: .heading, trailing: { EmptyView() })
                     .accessibilityElement(children: .combine)
             }
-            OortReadout(text: text("Or use another client ID"))
+            OortReadout(text: text("Or use another client ID"), preset: .lead)
         } else if bundledClient != nil {
-            OortReadout(text: text("Or use another client ID"))
+            OortReadout(text: text("Or use another client ID"), preset: .lead)
         }
         VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
-            option(.haveClient, text("I have a client ID"), about: text("Paste the ID and its secret."), icon: .key,
+            option(.haveClient, text("I have a client ID"), about: text("Paste the ID and its secret."), icon: .key, large: true,
                    action: { openAccountPage(.have) }, trailing: chevron)
-            option(.helpCreate, text("Help me create one"), about: text("Five short steps on Google’s site, then paste."), icon: .checklist,
+            option(.helpCreate, text("Help me create one"), about: text("Five short steps on Google’s site, then paste."), icon: .checklist, large: true,
                    action: { openAccountPage(.help) }, trailing: chevron)
         }
     }
@@ -65,7 +65,7 @@ extension CloudSetupAssistant {
                 ForEach(Self.googleSteps.indices, id: \.self) { index in
                     option(.link(index), "\(index + 1). \(text(Self.googleSteps[index].title))", action: { openGoogle(index) }) {
                         HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
-                            Text(text("Open")).seleneFont(.text, .semibold).foregroundStyle(SeleneTheme.glyph)
+                            Text(text("Open")).seleneFont(.row, .semibold).foregroundStyle(SeleneTheme.glyph)
                             MaterialIconView(.link, size: SeleneTokens.Space.panel).foregroundStyle(SeleneTheme.glyph).accessibilityHidden(true)
                         }
                     }
@@ -82,7 +82,7 @@ extension CloudSetupAssistant {
     private var credentials: some View {
         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.medium)) {
             HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
-                OortReadout(text: text("On Google’s site it is called a client. Its type is “desktop app”."))
+                OortReadout(text: text("On Google’s site it is called a client. Its type is “desktop app”."), preset: .lead)
                 Spacer(minLength: 0)
                 compact(.guide, "Setup guide", action: openGuide)
             }
@@ -92,13 +92,13 @@ extension CloudSetupAssistant {
 
     private var fields: some View {
         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
-            Text(text("Google ID")).seleneFont(.text, .semibold)
+            Text(text("Google ID")).seleneFont(.row, .semibold)
             input(.client) {
                 TextField(text("Google ID"), text: $client, prompt: Text(verbatim: "1234-abcd.apps.googleusercontent.com"))
                     .focused($field, equals: .client).onSubmit { field = .secret }
             }
             check(client.isEmpty ? nil : validID, wrong: "Use an ID ending in .apps.googleusercontent.com")
-            Text(text("Google secret")).seleneFont(.text, .semibold)
+            Text(text("Google secret")).seleneFont(.row, .semibold)
             input(.secret) {
                 SecureField(text("Google secret"), text: $secret)
                     .focused($field, equals: .secret).onSubmit(primary)
@@ -111,7 +111,7 @@ extension CloudSetupAssistant {
     @ViewBuilder private func check(_ valid: Bool?, wrong: String) -> some View {
         // The line keeps its place, so the next field does not move while typing.
         SeleneStatusDot(text: text(valid == false ? wrong : "Valid format"),
-                        color: valid == false ? SeleneTheme.danger : SeleneTheme.statusOK)
+                        color: valid == false ? SeleneTheme.danger : SeleneTheme.statusOK, labelColor: SeleneTheme.ink90, font: .row)
             .opacity(valid == nil ? 0 : 1)
             .accessibilityHidden(valid == nil)
     }
@@ -133,35 +133,16 @@ extension CloudSetupAssistant {
 
     func inspect() {
         let found = model.resolvedDriveTool
-        tool = nil; version = nil; remotes = nil
+        tool = nil; remotes = nil
         model.keepFolders()
         start(.inspect) {
             try Task.checkCancellation()
             guard let found, RcloneStorageBackend.isExecutable(found) else { return }
             tool = found
-            let config = RcloneConfiguration(executable: found)
-            async let detected = config.version()
-            async let listed = config.remotes()
-            let (shown, all) = try await (detected, listed)
+            let listed = try await RcloneConfiguration(executable: found).remotes()
             try Task.checkCancellation()
-            version = shown.replacingOccurrences(of: "rclone ", with: "", options: .anchored)
-            remotes = all
-            if browsing != nil { browse(browserPath); look() }
-        }
-    }
-
-    /// Opened for one folder, the list is shown at once; what each folder holds is said as soon as it is known.
-    private func look() {
-        guard let service, index == nil else { return }
-        let remote = draft.remote
-        looking?.cancel()
-        looking = Task { @MainActor in
-            guard let found = try? await service.discoverFolders(kept: nil), !Task.isCancelled, draft.remote == remote else { return }
-            index = found.index
-            for (folder, path) in [(Folder.library, library?.path), (.sources, sources?.path)] {
-                guard let path else { continue }
-                if folder == .library { library = choice(.library, path) } else { sources = choice(.sources, path) }
-            }
+            remotes = listed
+            if browsing != nil { browse(browserPath) }
         }
     }
 
@@ -179,10 +160,12 @@ extension CloudSetupAssistant {
                                                                           clientID: id, secret: password)
                 try Task.checkCancellation()
                 replacement = staged
+                await reads.clear()
                 selectAccount(target)
             } else {
                 let remote = try await RcloneConfiguration(executable: tool).connect(clientID: id, secret: password)
                 try Task.checkCancellation()
+                await reads.clear()
                 selectAccount(remote.name)
             }
         }

@@ -11,7 +11,7 @@ extension CloudSetupAssistant {
                 card(.library, icon: .cloud, choice: library)
                 moveRow
                 if discoveryUnknown {
-                    SeleneStatusDot(text: text("Existing cloud folders could not be checked"), color: SeleneTheme.ink60)
+                    SeleneStatusDot(text: text("Existing cloud folders could not be checked"), color: SeleneTheme.ink60, font: .row)
                 }
             }
             .padding(canvas.u(SeleneTokens.Space.hairline))
@@ -21,29 +21,31 @@ extension CloudSetupAssistant {
     }
 
     private func card(_ folder: Folder, icon: MaterialIcon, choice: Choice?) -> some View {
-        let creates = folder == .library && choice == nil && newLibrary != nil
-        let path = choice?.path ?? (creates ? newLibrary?.path : nil)
+        let new = choice == nil ? (folder == .library ? newLibrary : newSources) : nil
+        let path = choice?.path ?? new?.path
         let advice = choice.flatMap { advice(folder, $0.path) }
         return OortFolderCard(
-            icon: icon, title: question(folder), about: expectation(folder), account: text("Google Drive"),
+            icon: icon, title: questionText(folder), about: expectation(folder), account: text("Google Drive"),
             path: path.map(shownPath), placeholder: text(work?.kind == .discover ? "Oort is looking in your Drive…" : "No folder chosen yet")
         ) {
             if choice == nil, work?.kind == .discover { OortMeter(share: nil, fill: CloudLibraryStatus.pending.color) }
             else {
                 SeleneStatusDot(text: advice.map(explanation) ?? status(folder, choice),
-                                color: choice == nil && !creates || advice != nil ? SeleneTheme.untested : SeleneTheme.statusOK,
-                                labelColor: SeleneTheme.ink90)
+                                color: path == nil || advice != nil ? SeleneTheme.untested : SeleneTheme.statusOK,
+                                labelColor: SeleneTheme.ink90, font: .row)
             }
         } actions: {
-            if let advice, advice.swaps {
-                // One swap answers both questions: it is offered once.
-                if folder == .sources { compact(.accept(folder), "Swap the two folders", enabled: folderControlsReady, action: swapFolders) }
-            } else if let instead = advice?.instead {
-                compact(.accept(folder), "Use folder “%@”", arguments: [folderLabel(instead)], enabled: folderControlsReady) { accept(folder, instead) }
+            if let instead = advice?.instead, advice?.swaps == false {
+                cardKey(.accept(folder), "Use folder “%@”", arguments: [folderLabel(instead)], enabled: folderControlsReady) { accept(folder, instead) }
             }
-            compact(.change(folder), path == nil ? "Choose" : "Change this", enabled: folderControlsReady) { openBrowser(folder) }
-                .accessibilityLabel("\(text(path == nil ? "Choose" : "Change this")) · \(question(folder))")
+            cardKey(.change(folder), path == nil ? "Choose" : "Change this", enabled: folderControlsReady) { openBrowser(folder) }
+                .accessibilityLabel("\(text(path == nil ? "Choose" : "Change this")) · \(questionText(folder))")
         }
+    }
+
+    /// Folders that are still to be created.
+    var newFolders: [NewFolder] {
+        [sources == nil ? newSources : nil, library == nil ? newLibrary : nil].compactMap { $0 }
     }
 
     /// "Games › Switch › Jeux": where it is, as a person says it.
@@ -65,13 +67,16 @@ extension CloudSetupAssistant {
 
     private func status(_ folder: Folder, _ choice: Choice?) -> String {
         guard let choice else {
-            if folder == .sources { return text("No ROM found. Choose the folder, or continue without: you can add it later.") }
+            if folder == .sources {
+                return text(newSources == nil ? "No ROM found. Choose the folder, or continue without: you can add it later."
+                            : "No ROM found yet. Oort will create this folder: put your ROMs in it.")
+            }
             return text(newLibrary == nil ? "Choose a folder for Oort." : "Oort will create this folder when you continue.")
         }
         guard let games = choice.games else {
             return text(choice.origin == .chosen ? "Chosen by you" : choice.origin == .current ? "In use now" : "Found on your Drive")
         }
-        if games == 0 { return text(folder == .library ? "Empty for now: your compiled games will go there." : "Kept from last time. No game in it yet.") }
+        if games == 0 { return text(folder == .library ? "Empty for now: your games will go there." : "No game in it yet. Put your ROMs there.") }
         return found(games, choice.names)
     }
 
@@ -85,7 +90,10 @@ extension CloudSetupAssistant {
     func accept(_ folder: Folder, _ path: String) {
         guard folderControlsReady else { return }
         if folder == .sources, isDirect { saveSources(path); return }
-        if browsing != nil { closeBrowser() }
+        if browsing != nil {
+            CloudRecentFolders.add(path, for: draft.remote)
+            closeBrowser()
+        }
         if folder == .library { chooseLibrary(choice(folder, path)) } else { chooseSources(path) }
         focus.reset()
     }
@@ -111,10 +119,10 @@ extension CloudSetupAssistant {
     @ViewBuilder private var moveRow: some View {
         if checkingMove { progress("Checking the old folder…") }
         else if moveUnavailable {
-            SeleneStatusDot(text: text("Could not check the old folder."), color: SeleneTheme.ink60)
+            SeleneStatusDot(text: text("Could not check the old folder."), color: SeleneTheme.ink60, font: .row)
         } else if let movePlan, movePlan.games > 0 {
             SeleneStatusDot(text: format(movePlan.games == 1 ? "%d game in %@" : "%d games in %@",
-                                         [movePlan.games, movePlan.source]), color: SeleneTheme.statusOK)
+                                         [movePlan.games, movePlan.source]), color: SeleneTheme.statusOK, font: .row)
             if moveOffered {
                 option(.moveGames, text("Move my games here"), action: { draft.toggleMove() }) {
                     if draft.wantsMove { MaterialIconView(.check, size: SeleneTokens.Space.panel).accessibilityHidden(true) }
@@ -127,7 +135,7 @@ extension CloudSetupAssistant {
     func selectAccount(_ name: String) {
         draft.chooseAccount(name)
         onboarding = model.preference.remote != name
-        library = nil; sources = nil; newLibrary = nil; index = nil; sourcesOverride = nil; sourcesChanged = false
+        library = nil; sources = nil; newLibrary = nil; newSources = nil; index = nil; sourcesOverride = nil; sourcesChanged = false
         movePlan = nil; moveUnavailable = false; discoveryUnknown = false
         if !onboarding {
             library = .init(path: Self.cleaned(model.preference.root), games: nil, origin: .current)
@@ -143,22 +151,33 @@ extension CloudSetupAssistant {
 
     /// One look at the Drive for both folders. What was chosen before comes first; nothing is saved here.
     private func discover() {
-        guard let service else { return }
+        guard let shown else { return }
         let ticket = draft.ticket, kept = model.keptFolders
         start(.discover) {
-            do {
-                let found = try await service.discoverFolders(kept: kept)
-                guard !Task.isCancelled, draft.matches(ticket) else { return }
-                index = found.index
-                show(found)
-            } catch is CancellationError { return }
-            catch { if !Task.isCancelled && draft.matches(ticket) { discoveryUnknown = true } }
-            guard !Task.isCancelled, draft.matches(ticket), library == nil else { return }
-            let path = CloudFolderDiscovery.newLibrary
-            if let place = try? await service.deepestParent(of: path), !Task.isCancelled, draft.matches(ticket) {
-                newLibrary = (path, place.path, place.parent)
+            let found: CloudFolderDiscovery
+            do { found = try await shown.discoverFolders(kept: kept) }
+            catch is CancellationError { return }
+            catch {
+                if !Task.isCancelled && draft.matches(ticket) { discoveryUnknown = true }
+                return
             }
+            guard !Task.isCancelled, draft.matches(ticket) else { return }
+            index = found.index
+            show(found)
+            // Both cards are on screen; where a missing folder would go is asked next, for both at once.
+            let remote = draft.remote
+            async let first = newFolder(library == nil ? found.newLibrary : nil, with: shown)
+            async let second = newFolder(sources == nil ? found.newSources : nil, with: shown)
+            let (own, rom) = await (first, second)
+            guard !Task.isCancelled, draft.remote == remote, draft.step == .folder else { return }
+            newLibrary = own
+            newSources = rom
         }
+    }
+
+    nonisolated private func newFolder(_ path: String?, with drive: CloudDriveFolders) async -> NewFolder? {
+        guard let path, let place = try? await drive.deepestParent(of: path) else { return nil }
+        return NewFolder(path: path, below: place.path, parent: place.parent)
     }
 
     private func show(_ found: CloudFolderDiscovery) {
@@ -179,21 +198,22 @@ extension CloudSetupAssistant {
         }
     }
 
-    func proposeLibrary() {
-        guard folderControlsReady, newLibrary != nil else { return }
-        focus.reset()
-        confirmingLibrary = true
-    }
-
-    func createLibrary() {
-        guard confirmingLibrary, folderControlsReady, let service, let place = newLibrary else { return }
-        let ticket = draft.ticket
-        confirmingLibrary = false; focus.reset()
+    /// Only an explicit answer creates a folder, inside the one the player was shown.
+    func createNewFolders() {
+        let folders = newFolders
+        guard confirmingNew, !folders.isEmpty, folderControlsReady, let service else { return }
+        let ticket = draft.ticket, own = library == nil ? newLibrary : nil, rom = sources == nil ? newSources : nil
+        confirmingNew = false; focus.reset()
         start(.create) {
-            try await service.createPath(place.path, below: place.below, shown: place.parent)
+            for folder in folders { try await service.createPath(folder.path, below: folder.below, shown: folder.parent) }
+            await reads.clear()
             guard !Task.isCancelled, draft.matches(ticket) else { return }
-            newLibrary = nil
-            chooseLibrary(.init(path: place.path, games: 0, origin: .chosen))
+            if let own { newLibrary = nil; chooseLibrary(.init(path: own.path, games: 0, origin: .chosen)) }
+            if let rom {
+                newSources = nil
+                chooseSources(rom.path)
+                sources?.games = 0
+            }
             finishFolders()
         }
     }

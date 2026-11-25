@@ -50,7 +50,6 @@ struct CloudSetupAssistant: View {
     @State var keyMonitor: Any?
     @State var draft = CloudSetupAssistantDraft()
     @State var tool: URL?
-    @State var version: String?
     @State var remotes: [RcloneRemote]?
     @State var accountPage: AccountPage = .choose
     @State var client = ""
@@ -62,15 +61,23 @@ struct CloudSetupAssistant: View {
     /// What is saved for the ROM folder; nil follows the library's own GameFiles folder.
     @State var sourcesOverride: String?
     @State var sourcesChanged = false
-    /// Where a first library would be created, and the folder the player saw there.
-    @State var newLibrary: (path: String, below: String, parent: CloudDriveScope.CreationParent)?
-    @State var confirmingLibrary = false
+    /// A folder Oort would create, and the one the player saw above it.
+    struct NewFolder {
+        let path: String
+        let below: String
+        let parent: CloudDriveScope.CreationParent
+    }
+    @State var newLibrary: NewFolder?
+    @State var newSources: NewFolder?
+    @State var confirmingNew = false
+    /// What this visit has read. Nothing that writes or moves is decided from it.
+    @State var reads = CloudDriveReads()
+    @State var recents: [String] = []
     /// What the folders already read hold, in words.
     @State var index: CloudFolderIndex?
     @State var looking: Task<Void, Never>?
     /// The folder the player chose for the wrong question, waiting for their answer.
     @State var doubt: (folder: Folder, path: String, advice: CloudFolderIndex.Advice)?
-    @State var doubtFocus = 0
     @State var discoveryUnknown = false
     @State var browsing: Folder?
     @State var browserPath = ""
@@ -116,10 +123,14 @@ struct CloudSetupAssistant: View {
         guard browsing == nil, let movePlan, movePlan.games > 0 else { return false }
         return folderControlsReady && CloudDriveFolders.canMove(from: movePlan.source, to: draft.path)
     }
-    var service: CloudDriveFolders? {
+    /// Checks and changes: always asked again.
+    var service: CloudDriveFolders? { drive(reads: nil) }
+    /// Folders on screen: what was read a moment ago is shown at once.
+    var shown: CloudDriveFolders? { drive(reads: reads) }
+    private func drive(reads: CloudDriveReads?) -> CloudDriveFolders? {
         guard let remote = draft.remote, let tool else { return nil }
         return CloudDriveFolders(remote: remote, executable: tool, config: replacement?.config,
-                                 reference: model.preference.referenceFolder)
+                                 reference: model.preference.referenceFolder, reads: reads)
     }
     var breadcrumbs: [String] {
         var path = ""
@@ -136,7 +147,7 @@ struct CloudSetupAssistant: View {
         switch draft.step {
         case .account: return accountNeedsClient || existing == nil ? "Sign in" : "Keep this account"
         case .folder: return "Continue"
-        case .verify: return "Activate"
+        case .verify: return "See my games"
         }
     }
     var primaryEnabled: Bool {
@@ -159,7 +170,7 @@ struct CloudSetupAssistant: View {
         }
     }
     var showsPrimary: Bool {
-        guard !movePaused, !waitingForGoogle else { return false }
+        guard !movePaused, !waitingForGoogle, move == nil else { return false }
         if browsing != nil { return true }
         switch draft.step {
         case .account: return remotes != nil && (accountNeedsClient || existing != nil || bundledClient != nil)
@@ -179,11 +190,7 @@ struct CloudSetupAssistant: View {
     var body: some View {
         ZStack {
             SeleneTheme.scrim45.ignoresSafeArea().contentShape(Rectangle()).onTapGesture(perform: cancel)
-            if let creation { creationDialog(creation) { create(creation) } }
-            else if confirmingLibrary, let newLibrary { creationDialog(newLibrary.path, confirm: createLibrary) }
-            else if confirmingMove, let movePlan { moveDialog(movePlan) }
-            else if let doubt { doubtDialog(doubt) }
-            else { panel }
+            if let question { asked(question) } else { panel }
         }
         .onAppear { inspect(); installAssistantKeys() }
         .onDisappear { work?.task.cancel(); looking?.cancel(); removeAssistantKeys(); secret = ""; replacement = nil }
@@ -199,22 +206,64 @@ struct CloudSetupAssistant: View {
         .onChange(of: field) { _, target in if let target { focus.select(target) } }
     }
 
-    private func creationDialog(_ name: String, confirm: @escaping () -> Void) -> some View {
-        SeleneConfirmDialog(title: format("Create “%@”?", [name]), message: text("Existing files stay where they are."),
-                            confirmTitle: "Create", focus: Binding(get: { focusedTarget == .create ? .confirm : .cancel },
-                                set: { focus.select($0 == .confirm ? .create : .cancel) }),
-                            onCancel: cancel, onConfirm: confirm)
+    /// A question over the panel: its words; its keys are in the bar.
+    private var question: (title: String, message: String)? {
+        if let creation { return (format("Create “%@”?", [creation]), text("Existing files stay where they are.")) }
+        if confirmingNew {
+            let folders = newFolders
+            let names = folders.map { shownPath($0.path) }.joined(separator: "\n")
+            return (text(folders.count > 1 ? "Create these two folders?" : "Create this folder?"),
+                    names + "\n" + text("Existing files stay where they are."))
+        }
+        if confirmingMove, let movePlan {
+            let size = movePlan.bytes.formatted(.byteCount(style: .file).locale(localization.formatLocale))
+            return (text("Move app and build cache archives?"),
+                    format("Destination: “%@” · %@. Game files stay where they are.", [draft.path, size])
+                        + " " + text("Pause uploads on other Macs. Drive cannot lock both folders; uploads during or after the final check may be missed."))
+        }
+        if let doubt { return (questionText(doubt.folder), explanation(doubt.advice)) }
+        return nil
     }
 
-    private func moveDialog(_ plan: CloudDriveFolders.MovePlan) -> some View {
-        let size = plan.bytes.formatted(.byteCount(style: .file).locale(localization.formatLocale))
-        return SeleneConfirmDialog(title: text("Move app and build cache archives?"),
-            message: format("Destination: “%@” · %@. Game files stay where they are.", [draft.path, size])
-                + " " + text("Pause uploads on other Macs. Drive cannot lock both folders; uploads during or after the final check may be missed."),
-            confirmTitle: "Move",
-            focus: Binding(get: { focusedTarget == .confirmMove ? .confirm : .cancel },
-                           set: { focus.select($0 == .confirm ? .confirmMove : .cancel) }),
-            onCancel: cancel, onConfirm: moveGames)
+    private func asked(_ question: (title: String, message: String)) -> some View {
+        OortQuestion(title: question.title, message: question.message, actions: bar, focused: AnyHashable(focusedTarget),
+                     onFocus: hoverBar, onCancel: cancel, onConfirm: { perform(focusedTarget) })
+    }
+
+    private func hoverBar(_ id: AnyHashable) {
+        if let target = id.base as? Target { focus.select(target) }
+    }
+
+    /// The keys under what is on screen, in any order: the bar places them.
+    var bar: [OortActionBar.Action] {
+        func key(_ target: Target, _ title: String, _ role: ActionBarRole, arguments: [String] = [], enabled: Bool = true) -> OortActionBar.Action {
+            .init(id: AnyHashable(target), title: title, arguments: arguments, role: role, enabled: enabled) { perform(target) }
+        }
+        if creation != nil { return [key(.cancel, "Cancel", .back), key(.create, "Create", .primary)] }
+        if confirmingNew {
+            return [key(.cancel, "Cancel", .back)] + (library == nil ? [] : [key(.keep, "Continue without", .secondary)])
+                + [key(.create, "Create", .primary)]
+        }
+        if confirmingMove { return [key(.cancel, "Cancel", .back), key(.confirmMove, "Move", .primary)] }
+        if let doubt {
+            let keep = doubt.advice.reason == .sameFolder ? [] : [key(.keep, "Keep this folder", .secondary)]
+            let better = doubt.advice.swaps ? [key(.swap, "Swap the two folders", .primary)]
+                : doubt.advice.instead.map { [key(.accept(doubt.folder), "Use folder “%@”", .primary, arguments: [folderLabel($0)])] } ?? []
+            return [key(.cancel, "Cancel", .back)] + keep + better
+        }
+        let back = key(.cancel, cancelTitle, .back, enabled: move?.canCancel != false)
+        if folderName != nil {
+            return [back, key(.create, "Continue", .primary, enabled: folderName.map(CloudDriveFolders.validName) == true)]
+        }
+        if swapOffered {
+            return [back, key(.keep, "Keep as it is", .secondary), key(.swap, "Swap the two folders", .primary, enabled: folderControlsReady)]
+        }
+        return [back] + (showsPrimary ? [key(.primary, primaryTitle, .primary, enabled: primaryEnabled)] : [])
+    }
+
+    /// The two folders answer each other's question: one key puts both right.
+    var swapOffered: Bool {
+        draft.step == .folder && browsing == nil && work?.kind != .discover && firstAdvice?.advice.swaps == true
     }
 
     private var panel: some View {
@@ -228,7 +277,8 @@ struct CloudSetupAssistant: View {
             focusedStep: focusedStep,
             back: move?.canCancel == false ? nil : HintItem(.b, cancelTitle, action: cancel),
             confirm: focusRows.joined().isEmpty ? nil : HintItem(.a, "Select"),
-            canOpen: canOpen, onStep: openStep, press: handleAssistantInput
+            canOpen: canOpen, onStep: openStep, press: handleAssistantInput,
+            actions: bar, focusedAction: AnyHashable(focusedTarget), onFocusAction: hoverBar
         ) {
             VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.medium)) {
                 if browsing != nil { browser }
@@ -236,23 +286,16 @@ struct CloudSetupAssistant: View {
                     switch draft.step {
                     case .account: account
                     case .folder: folders
-                    case .verify: verification
+                    case .verify: ready
                     }
                 }
                 problems
             }
-        } actions: {
-            if folderName != nil {
-                pill(.create, "Continue", enabled: folderName.map(CloudDriveFolders.validName) == true, action: proposeCreation)
-            } else if showsPrimary {
-                pill(.primary, primaryTitle, enabled: primaryEnabled, action: primary)
-            }
-            pill(.cancel, cancelTitle, enabled: move?.canCancel != false, action: cancel)
         }
     }
 
     private var heading: String {
-        if let browsing { return question(browsing) }
+        if let browsing { return questionText(browsing) }
         switch draft.step {
         case .account: return text("Connect your Google Drive")
         case .folder: return text("Your folders")
@@ -268,43 +311,19 @@ struct CloudSetupAssistant: View {
         case .folder:
             if work?.kind == .discover { return text("Oort is looking in your Drive…") }
             if firstAdvice != nil { return text("One answer looks wrong. Oort proposes the right folder.") }
-            return text(sources == nil || (library == nil && newLibrary == nil) ? "Choose what is missing, or continue."
+            return text((sources == nil && newSources == nil) || (library == nil && newLibrary == nil) ? "Choose what is missing, or continue."
                         : "Oort found these. If they are right, continue.")
         case .verify: return nil
         }
     }
 
-    func question(_ folder: Folder) -> String {
-        text(folder == .sources ? "Where are your ROMs?" : "Where should your compiled games go?")
+    func questionText(_ folder: Folder) -> String {
+        text(folder == .sources ? "Where are your ROMs?" : "Where should your games go?")
     }
 
     func expectation(_ folder: Folder) -> String {
-        text(folder == .sources ? "The folder with your .nsp, .xci or .nup game files. Oort never touches it."
+        text(folder == .sources ? "The folder with your .nsp, .xci or .nup game files. Oort changes nothing there unless you ask."
              : "Oort puts its apps there. An empty folder is fine.")
-    }
-
-    private func doubtDialog(_ doubt: (folder: Folder, path: String, advice: CloudFolderIndex.Advice)) -> some View {
-        SeleneChoiceDialog(title: question(doubt.folder), message: explanation(doubt.advice),
-                           choices: doubtChoices.map(\.title), focus: $doubtFocus, cancelIndex: doubtChoices.count - 1,
-                           onCancel: cancel) { doubtChoices[$0].perform() }
-    }
-
-    /// The right folder first, then the player's own choice: Oort explains, it never decides.
-    var doubtChoices: [(title: String, perform: () -> Void)] {
-        guard let doubt else { return [] }
-        var choices: [(String, () -> Void)] = []
-        if doubt.advice.swaps { choices.append((text("Swap the two folders"), { answerDoubt(); swapFolders() })) }
-        else if let instead = doubt.advice.instead {
-            choices.append((format("Use folder “%@”", [folderLabel(instead)]), { answerDoubt(); accept(doubt.folder, instead) }))
-        }
-        if doubt.advice.reason != .sameFolder {
-            choices.append((text("Keep this folder"), {
-                answerDoubt()
-                if browsing != nil { accept(doubt.folder, doubt.path) }
-                else if library == nil { proposeLibrary() } else { finishFolders() }
-            }))
-        }
-        return choices + [(text("Cancel"), cancel)]
     }
 
     func explanation(_ advice: CloudFolderIndex.Advice) -> String {
@@ -328,52 +347,42 @@ struct CloudSetupAssistant: View {
     }
 
     private func problem(_ text: String) -> some View {
-        Text(verbatim: text).seleneFont(.text).foregroundColor(SeleneTheme.danger)
+        Text(verbatim: text).seleneFont(.row).foregroundColor(SeleneTheme.danger)
             .fixedSize(horizontal: false, vertical: true)
-    }
-
-    private var verification: some View {
-        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small)) {
-            Text(verbatim: "\(draft.remote ?? ""):/\(draft.path)").seleneFont(.text).foregroundColor(SeleneTheme.ink)
-            if onboarding || sourcesChanged {
-                Text(verbatim: "\(draft.remote ?? ""):/\(sourcesOverride ?? defaultSourcesPath)")
-                    .seleneFont(.text).foregroundColor(SeleneTheme.ink75)
-            }
-            if let move {
-                let status = CloudLibraryStatus.pending
-                SeleneStatusDot(text: text(move.isVerifying ? "Verifying the move…" : move.isCancelling ? "Cancelling…" : "Moving games…"),
-                                color: status.color, pulses: !move.isCancelling)
-                OortMeter(share: move.fraction, fill: status.color)
-            } else if work != nil { progress("Checking…") }
-            else if draft.verified { SeleneStatusDot(text: text("Connection OK"), color: SeleneTheme.statusOK) }
-            else if !movePaused { pill(.retry, "Try again", action: verify) }
-        }
     }
 
     func progress(_ key: String) -> some View {
         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
-            Text(text(key)).seleneFont(.text).foregroundColor(SeleneTheme.ink75)
+            OortReadout(text: text(key), preset: .lead)
             OortMeter(share: nil, fill: CloudLibraryStatus.pending.color)
         }
     }
 
     func input<V: View>(_ target: Target, @ViewBuilder content: () -> V) -> some View {
-        content().modifier(SeleneFieldSurface(focused: focusedTarget == target))
+        content().modifier(SeleneFieldSurface(focused: focusedTarget == target, font: .row))
     }
 
     func option<Trailing: View>(_ target: Target, _ title: String, about: String? = nil, icon: MaterialIcon? = nil,
-                                enabled: Bool = true, wide: Bool = true, action: @escaping () -> Void,
+                                enabled: Bool = true, large: Bool = false, action: @escaping () -> Void,
                                 @ViewBuilder trailing: @escaping () -> Trailing = { EmptyView() }) -> some View {
         Button(action: action) {
             SeleneOptionRow(icon: icon, title: title, about: about, focused: focusedTarget == target, enabled: enabled,
-                            trailing: trailing)
-                .fixedSize(horizontal: !wide, vertical: true)
+                            titleFont: large ? .heading : .row, trailing: trailing)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .buttonStyle(OortPressStyle()).disabled(!enabled).seleneHover { if enabled { focus.select(target) } }
     }
 
     func pill(_ target: Target, _ key: String, enabled: Bool = true, action: @escaping () -> Void) -> some View {
         OortButton(title: key, focused: focusedTarget == target, state: enabled ? .ready : .blocked, action: action)
+            .disabled(!enabled).seleneHover { if enabled { focus.select(target) } }
+    }
+
+    /// A key on a card: as large as the bar's, as narrow as its words.
+    func cardKey(_ target: Target, _ key: String, arguments: [String] = [], enabled: Bool = true,
+                 action: @escaping () -> Void) -> some View {
+        OortButton(title: key, arguments: arguments, focused: focusedTarget == target, state: enabled ? .ready : .blocked,
+                   preset: .card, action: action)
             .disabled(!enabled).seleneHover { if enabled { focus.select(target) } }
     }
 

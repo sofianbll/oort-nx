@@ -119,7 +119,7 @@ struct SettingsCloudLibrarySection: View {
         OortSettingsGroup {
             SettingsSubheading("Your account")
             accountRows
-            SettingsSubheading("Your folders")
+            SettingsSubheading("In my cloud")
             folderRows
             SettingsSubheading("On this Mac")
             SeleneToggleRow("Enable cloud library", subtitle: "Cloud storage for ported apps and build caches, separate from saves.",
@@ -135,7 +135,7 @@ struct SettingsCloudLibrarySection: View {
             SeleneCycleRow("Tile badges", value: settings.settings.cloudTileBadges.titleKey, cycle: stepBadges)
 
             SettingsSubheading("Advanced")
-            SeleneButtonRow("Tool, test and reference library", id: "cloudLibraryAdvanced",
+            SeleneButtonRow("Tool, test and followed library", id: "cloudLibraryAdvanced",
                             buttonTitle: advanced ? "Hide" : "Show", action: toggleAdvanced)
                 .accessibilityValue(text(advanced ? "Expanded" : "Collapsed"))
             if advanced { advancedRows }
@@ -189,12 +189,12 @@ struct SettingsCloudLibrarySection: View {
 
     /// Both folders are there before the account is: the page never hides what the connection is for.
     @ViewBuilder private var folderRows: some View {
-        folderRow("Compiled games", id: "cloudLibraryFolder", about: "What Oort uploads and downloads.",
+        folderRow("Game library", id: "cloudLibraryFolder", about: "What Oort uploads and downloads.",
                   path: selection.root, games: knownGames(model.lastKnown.personalApps), action: onEditLibrary)
-        folderRow("Your ROMs", id: "cloudSourcesRoot", about: "The files you bring. Oort never changes them.",
-                  path: selection.sourcesRootOverride ?? text("In your compiled games folder"), games: knownGames(model.lastKnown.personalFiles), action: onEditSources)
+        folderRow("ROM library", id: "cloudSourcesRoot", about: "The files you bring. Oort changes nothing there unless you ask.",
+                  path: selection.sourcesRootOverride ?? text("In your game library"), games: knownGames(model.lastKnown.personalFiles), action: onEditSources)
         if hasAccount, model.sourcesNeedConfirmation {
-            SeleneButtonRow("Confirm your ROM folder", id: "cloudConfirmSources", subtitle: selection.sourcesRoot, verbatimSubtitle: true,
+            SeleneButtonRow("Confirm your ROM library", id: "cloudConfirmSources", subtitle: selection.sourcesRoot, verbatimSubtitle: true,
                             buttonTitle: "Choose", action: confirmSourcesFolder)
                 .disabled(!editable)
         }
@@ -298,13 +298,13 @@ struct SettingsCloudLibrarySection: View {
             actions.append(.init(id: "cloudLibraryDisconnect", title: "Disconnect", isEnabled: hasKnownConnection, activate: confirmDisconnect))
         }
         actions += [
-            .init(id: "cloudLibraryFolder", title: "Compiled games", rowID: "cloudLibraryFolder",
+            .init(id: "cloudLibraryFolder", title: "Game library", rowID: "cloudLibraryFolder",
                   isEnabled: editable && hasAccount, activate: onEditLibrary),
-            .init(id: "cloudSourcesRoot", title: "Your ROMs", rowID: "cloudSourcesRoot",
+            .init(id: "cloudSourcesRoot", title: "ROM library", rowID: "cloudSourcesRoot",
                   isEnabled: editable && hasAccount, activate: onEditSources),
         ]
         if hasAccount, model.sourcesNeedConfirmation {
-            actions.append(.init(id: "cloudConfirmSources", title: "Confirm your ROM folder",
+            actions.append(.init(id: "cloudConfirmSources", title: "Confirm your ROM library",
                                  isEnabled: editable, activate: confirmSourcesFolder))
         }
         actions += [
@@ -313,7 +313,7 @@ struct SettingsCloudLibrarySection: View {
             .init(id: "showsCloudPlayIcon", title: "Icon next to Play") { settings.settings.showsCloudPlayIcon.toggle() },
             .init(id: "showsCloudDetailsLink", title: "Link in Details") { settings.settings.showsCloudDetailsLink.toggle() },
             .value("cloudTileBadges", "Tile badges", cycle: stepBadges),
-            .init(id: "cloudLibraryAdvanced", title: "Tool, test and reference library", rowID: "cloudLibraryAdvanced", activate: toggleAdvanced),
+            .init(id: "cloudLibraryAdvanced", title: "Tool, test and followed library", rowID: "cloudLibraryAdvanced", activate: toggleAdvanced),
         ]
         if advanced {
             let automatic = model.chosenExecutable != nil
@@ -391,13 +391,13 @@ struct SettingsCloudLibrarySection: View {
         guard editable, model.sourcesNeedConfirmation else { return }
         let keep = { selectSourcesFolder(before.sourcesRootOverride, from: before) }
         if before.sourcesRootOverride == nil {
-            viewModel.confirmSetting(text("Your ROMs"),
+            viewModel.confirmSetting(text("ROM library"),
                 message: L10n.format("Are your ROMs in “%@”?", [before.sourcesRoot]),
                 action: "Keep this folder", apply: keep)
             return
         }
-        viewModel.confirmSetting(text("Your ROMs"),
-            message: L10n.format("Are your ROMs in “%@”, or in your compiled games folder?", [before.sourcesRoot]),
+        viewModel.confirmSetting(text("ROM library"),
+            message: L10n.format("Are your ROMs in “%@”, or in your game library?", [before.sourcesRoot]),
             choices: [("Keep this folder", keep), ("Use default", { selectSourcesFolder(nil, from: before) })])
     }
 
@@ -416,7 +416,7 @@ struct SettingsCloudLibrarySection: View {
             } catch {
                 guard selection == before else { return }
                 let failure = (error as? CloudLibraryFailure) ?? .unavailable
-                viewModel.showSettingsNotice(title: text("Your ROMs"), message: text(failure.messageKey))
+                viewModel.showSettingsNotice(title: text("ROM library"), message: text(failure.messageKey))
             }
         }
     }
