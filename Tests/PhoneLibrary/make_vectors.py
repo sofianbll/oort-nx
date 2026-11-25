@@ -256,6 +256,10 @@ def make(signer, other):
     exe, data = "Game.framework/Game", "data/romfs.img"
     t2 = Tree(signer)
     c = t2.target(C, "Gamma", platform="android")
+    t2b = Tree(signer)
+    long = [("Game.framework/Game", "long", 5 * 1024 * 1024 + 123)]
+    d = t2b.target(D, "Delta", files=long)
+    vector("large-file", "Megabytes per chunk, added one after the other.", t2b, [got(D, d, media=ranges(d, 2 << 20, long))], client={"chunk": 2 << 20})
     vector("download-android", "An APK and its data.", t2, [got(C, c, media=ranges(c, files=APK_FILES))], client={"device": ANDROID})
     cut = lambda times, skip=1, node=b["ids"][data]: [{"on": MEDIA, "node": node, "skip": skip, "times": times, "do": "cut", "bytes": 100}]
     order = ranges(b)

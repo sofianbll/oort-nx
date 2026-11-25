@@ -1,0 +1,121 @@
+{
+ "name": "large-file",
+ "why": "Megabytes per chunk, added one after the other.",
+ "key": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEuCYbzj+hCPfVJXszSyFBks4GDILoKraVHTOG8dS0I0Oec9MjusQS81Mk1eqLShe35jHQxM10Ii5dT+Z3zdFn9A==",
+ "drive": {
+  "root": "ROOT",
+  "page_size": 1000,
+  "nodes": [
+   {
+    "id": "ROOT",
+    "name": "Games",
+    "parent": null,
+    "type": "folder"
+   },
+   {
+    "id": "d-1",
+    "name": "Delta [0100000000040000]",
+    "parent": "ROOT",
+    "type": "folder"
+   },
+   {
+    "id": "d-2",
+    "name": "targets",
+    "parent": "d-1",
+    "type": "folder"
+   },
+   {
+    "id": "d-3",
+    "name": "ios",
+    "parent": "d-2",
+    "type": "folder"
+   },
+   {
+    "id": "f-4",
+    "name": "0001790000000000-868f6f91fce326e1566670636d36c6aee1f9ba28a04a86dc57094aa2dc996b17.json",
+    "parent": "d-3",
+    "text": "{\"created_at\": \"2026-09-21T13:46:40Z\", \"engine\": {\"commit\": \"0123456789abcdef0123456789abcdef01234567\"}, \"entries\": [{\"path\": \"Game.framework/Game\", \"sha256\": \"fb3d8b294189c3b6998e51c4b098be8ca2ee1dc71ac1dc0c4e617dd97e4e84d5\", \"size\": 5243003}], \"entry_count\": 1, \"format\": \"oort-target\", \"game_name\": \"Delta\", \"game_version\": \"1.0.0\", \"inventory_sha256\": \"bb577ec817d31932628e1b8d65e730738e278c5dab1ac99eed5b4e37230df4c7\", \"package\": {\"path\": \"Game.framework\"}, \"platform\": \"ios\", \"requires\": {\"arch\": \"arm64\", \"features\": [\"bc\"], \"host\": 1, \"os\": \"26.0\"}, \"title_id\": \"0100000000040000\", \"unpacked_size\": 5243003, \"version\": 1}"
+   },
+   {
+    "id": "f-5",
+    "name": "0001790000000000-868f6f91fce326e1566670636d36c6aee1f9ba28a04a86dc57094aa2dc996b17.sig",
+    "parent": "d-3",
+    "base64": "MEYCIQCyQPeyqOFuwuKsHwXhJbfo0r4Vfc7QmLQ2wWVi7IboJwIhAJgavtzvxMaot1f5Ck7I3GG2DNT7c7jsjgTBqINdML3J"
+   },
+   {
+    "id": "d-6",
+    "name": "bb577ec817d31932628e1b8d65e730738e278c5dab1ac99eed5b4e37230df4c7",
+    "parent": "d-3",
+    "type": "folder"
+   },
+   {
+    "id": "d-7",
+    "name": "Game.framework",
+    "parent": "d-6",
+    "type": "folder"
+   },
+   {
+    "id": "f-8",
+    "name": "Game",
+    "parent": "d-7",
+    "fill": {
+     "seed": "long",
+     "size": 5243003
+    }
+   }
+  ]
+ },
+ "faults": [],
+ "auth": {},
+ "client": {
+  "device": {
+   "platform": "ios",
+   "system": "26.1",
+   "architecture": "arm64",
+   "features": [
+    "apple7",
+    "apple8",
+    "apple9",
+    "bc"
+   ],
+   "host": 1
+  },
+  "free": 1000000000000,
+  "metered": false,
+  "allow_metered": false,
+  "chunk": 2097152,
+  "reserve": 0,
+  "network": "up",
+  "on": true
+ },
+ "steps": [
+  {
+   "do": "download",
+   "title": "0100000000040000",
+   "expect": {
+    "files": {
+     "Game.framework/Game": "fb3d8b294189c3b6998e51c4b098be8ca2ee1dc71ac1dc0c4e617dd97e4e84d5"
+    },
+    "visible": true,
+    "waiting": false
+   },
+   "media": [
+    [
+     "f-8",
+     0,
+     2097151
+    ],
+    [
+     "f-8",
+     2097152,
+     4194303
+    ],
+    [
+     "f-8",
+     4194304,
+     5243002
+    ]
+   ]
+  }
+ ]
+}

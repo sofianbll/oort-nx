@@ -1,7 +1,7 @@
 {
  "name": "hostile-packages",
  "why": "An APK that does not say who signs it.",
- "key": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEHY3rEfn7qhFRPZq2EPgQGgfZHdvW9bJV8ug7pHrnPsGUybmK3Di/OIb/cgesDSd6wDEHwpXJcEYPu6DVHJZJlQ==",
+ "key": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEuCYbzj+hCPfVJXszSyFBks4GDILoKraVHTOG8dS0I0Oec9MjusQS81Mk1eqLShe35jHQxM10Ii5dT+Z3zdFn9A==",
  "drive": {
   "root": "ROOT",
   "page_size": 1000,
@@ -40,7 +40,7 @@
     "id": "f-5",
     "name": "0001790000000000-9e2e67277f99d502a848ec45045d87d9bc9d72aa2a3f5f0d6a5d1a7ec70858a8.sig",
     "parent": "d-3",
-    "base64": "MEQCICmPTk6+3y1VzycMvOAw1wT51pfY2YENeY4b0OV/S1jhAiAnUYY0x6SNJu3r0idq5Xz3NizKnJ8lCRgXUc4dV9mSHQ=="
+    "base64": "MEUCIFqByEFWtPjP4YlQ5liIt+VS2187BCFo/iQC6ZK4H1WJAiEAjvs4EYfYAEz0oN1b4Yez/v9T/v/ngVP7EmD5qrrPz0U="
    },
    {
     "id": "d-6",
@@ -70,7 +70,7 @@
     "id": "f-10",
     "name": "0001790000000000-b29d680af4bffd799e43fef43226eff0c0165d2d45cdec8f879fd074f0db13e2.sig",
     "parent": "d-8",
-    "base64": "MEYCIQCdfk6CfZ26EnIRx1Kejtbi1B5O7jx0Z4wUK7NDCK3NvAIhAPo4uJ4juUD2oAahIVfFa9yXQFlhHI/+oZsnQZqh1jDY"
+    "base64": "MEUCIHJOmdZpVMGm9Bz2yVqYXsk5rVFEKLjj3HevwrWEYr9cAiEAyFS/Vtjys3jl2pLHpfw7UB21ULncD/jZZnS49l+sL0k="
    },
    {
     "id": "d-11",
@@ -100,7 +100,7 @@
     "id": "f-15",
     "name": "0001790000000000-d0dffdc745cbe39fd4b692d4d1e153d28a9740341c82bf9a480a58b04a18d501.sig",
     "parent": "d-13",
-    "base64": "MEQCIAd/XaLORHbaqpYLg6MUkiq9Efz/SkDpdzzCYi2sujHTAiB/xvQZkjfp9hqjcnWNS/k2xJvPRh82dGjk5Br2mjNjmg=="
+    "base64": "MEQCIHIiM6TjA3F+wkLprSRvXzTUgz2XHew5y9Mao24Md0P0AiBOuzqPdk8KwuZcfpQQ8Jx/d2hP6Zn6YW7OZw1M5pvS+w=="
    },
    {
     "id": "d-16",
@@ -130,7 +130,7 @@
     "id": "f-20",
     "name": "0001790000000000-a0818c8584ebaeaced484128e107b82544d409e0b2edd27a0e924453cbf8cd66.sig",
     "parent": "d-18",
-    "base64": "MEUCICKJuCVNueC/EbTf9HT9iabLnfz/VG0+nOgnieAcaPsdAiEAjdy6WnkIus3kSO9/lB7IFksiTKDAy1m3i3lxmvHbBDM="
+    "base64": "MEQCIB9BefDpWSHGnDwSDwRzcxa9bXsSNzfU5Ed1sLZ0WzguAiB4VXH4/Z+QxetuWEsNxoJbiA2oE1gA+FZXZbD5N0AKpw=="
    },
    {
     "id": "d-21",
@@ -160,7 +160,7 @@
     "id": "f-25",
     "name": "0001790000000000-3a828ed66b4c6722afe831d9b61c32974b4f1831e3ece5c8038ae9d98135f087.sig",
     "parent": "d-23",
-    "base64": "MEUCIQDaK8MpFKexf6oIQsZRMa6y6lmqMU6yhnTKEEN6TPKdsQIgbDyh5AZ9FfaP9/wSjBJKolMm2zp5ir7Uv07PR8JB8wc="
+    "base64": "MEUCIGESP7uJWqCPzceZAjGTzDoqwPEV7SK/l9kje4LG4tC4AiEA1zIL6+rChQ+1BB+1cjTWAlVKAvFLj2mKK4hYlAQ464A="
    },
    {
     "id": "d-26",
@@ -190,7 +190,7 @@
     "id": "f-30",
     "name": "0001790000000000-d86de7003d3585e117e081134e9a3290256dd2fdfd4a4766c9f0c54278ad5bfc.sig",
     "parent": "d-28",
-    "base64": "MEYCIQCP65wmkjXeI6pxneqsEWEEq05gm35861QpgkmNYpuFgwIhAIoqYQ9OwEJTTCkdrKHtUoczzP7xBgpPAs5XjKomLbxs"
+    "base64": "MEUCIQDaVJwVrdK1fwX/F1X5DC9EaBS6yOgWOK50sacsSFnNSQIgCYG3fkb42xVOyYNAgIS8D2ScVHF2MBVHPz0gbIB3HPg="
    }
   ]
  },

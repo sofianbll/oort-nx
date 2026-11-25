@@ -1,7 +1,7 @@
 {
  "name": "states",
  "why": "Installed and update come from the digest on the device.",
- "key": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEHY3rEfn7qhFRPZq2EPgQGgfZHdvW9bJV8ug7pHrnPsGUybmK3Di/OIb/cgesDSd6wDEHwpXJcEYPu6DVHJZJlQ==",
+ "key": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEuCYbzj+hCPfVJXszSyFBks4GDILoKraVHTOG8dS0I0Oec9MjusQS81Mk1eqLShe35jHQxM10Ii5dT+Z3zdFn9A==",
  "drive": {
   "root": "ROOT",
   "page_size": 1000,
@@ -40,7 +40,7 @@
     "id": "f-5",
     "name": "0001790000000000-ce14652e9e7c2ff5b5e58c3d23780ef378f9f4f5915a97db9f9633d8b548a20e.sig",
     "parent": "d-3",
-    "base64": "MEUCIQDVs50IP9YPvAznEtxX4TOI8c42eL2WZTQb6sDrIkclhwIgJU1m3o7H9UFnVmuXf5NIfFAsXLO0X9vH5laRjCj7KyY="
+    "base64": "MEYCIQDhoFiNkMgYPlQugVPvVpyXbvudrAp5kO60oQ11RryZ1QIhAKB7D8M0Bqtdm+uv90c5kbRSIOj0vJYWwwUT8fLPWzLw"
    },
    {
     "id": "d-6",

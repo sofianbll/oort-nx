@@ -1,7 +1,7 @@
 {
  "name": "forged-newer",
  "why": "A forged newer build is reported and does not hide the real one.",
- "key": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEHY3rEfn7qhFRPZq2EPgQGgfZHdvW9bJV8ug7pHrnPsGUybmK3Di/OIb/cgesDSd6wDEHwpXJcEYPu6DVHJZJlQ==",
+ "key": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEuCYbzj+hCPfVJXszSyFBks4GDILoKraVHTOG8dS0I0Oec9MjusQS81Mk1eqLShe35jHQxM10Ii5dT+Z3zdFn9A==",
  "drive": {
   "root": "ROOT",
   "page_size": 1000,
@@ -40,7 +40,7 @@
     "id": "f-5",
     "name": "0001790000000005-037caa74e9c2c3432e25594b235e14f4444b171cbcd505797d571781967c3ce4.sig",
     "parent": "d-3",
-    "base64": "MEQCIEJmxo5qqGfYbuBLWo+lpZ2nIzlSDJJkIoZFiKuxTlLJAiAo7pQqUAaCkjtyCVIucUUkh/4shmv29ZmMokIaj7BLDA=="
+    "base64": "MEQCICSDNMDbd/LXgzb2XrtWM9sFx8Xe/Oh0Bawss6U+uNJHAiBUmTGk5YLZlLZHkwN+SFmCJ3sVLCv1vNYA7eENgv+aYg=="
    },
    {
     "id": "d-6",
@@ -106,7 +106,7 @@
     "id": "f-14",
     "name": "0001790000000000-ce14652e9e7c2ff5b5e58c3d23780ef378f9f4f5915a97db9f9633d8b548a20e.sig",
     "parent": "d-3",
-    "base64": "MEYCIQD78/W/31eFLI02RZKAP/8OR0w1wl6c7YUyqXEhz9AyYwIhAO9DFEUTvKq4poBE2WLtF6i8RkSIKRQN1DnL+M1DOzWr"
+    "base64": "MEUCIBo4VcwPzExu0kW2RZHUw47BtEzvagW6RFR1vrt6FBOsAiEAgQY/jN+Z8FTrarq7M49lToQtrNpauq+pnht6iozQxaw="
    },
    {
     "id": "f-15",
