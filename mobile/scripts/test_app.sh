@@ -22,6 +22,11 @@ TEST_RUNNER_OORT_OUT="$out/shots" TEST_RUNNER_OORT_LANG="$lang" TEST_RUNNER_OORT
   -derivedDataPath "$work/dd-tests" -resultBundlePath "$work/tests-$lang-$look.xcresult" -parallel-testing-enabled NO \
   ONLY_ACTIVE_ARCH=YES CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual ${tests[@]+"${tests[@]}"} > "$out/xcodebuild.txt" 2>&1 || status=$?
 grep -E "error:|Test Case .*(passed|failed)|Executed |TEST (FAILED|SUCCEEDED)" "$out/xcodebuild.txt" | sort -u | tail -80 || true
+# A test that did not run, or kept no picture, proves nothing.
+passed=$(grep -cE "Test Case .* passed \(" "$out/xcodebuild.txt" || true)
+wanted=$([ ${#tests[@]} -gt 0 ] && echo ${#tests[@]} || grep -c "func test" "$OORT_MOBILE/UITests/OortUITests.swift")
+[ "$passed" -eq "$wanted" ] || { echo "$passed tests passed of $wanted"; status=1; }
+[ -n "$(ls "$out/shots")" ] || { echo "no picture was kept"; status=1; }
 # A crash of the app, whatever the tests say.
 crashes=$(find "$HOME/Library/Logs/DiagnosticReports" "$HOME/Library/Developer/CoreSimulator/Devices/$udid/data/Library/Logs" -name 'Oort NX*.ips' 2>/dev/null || true)
 if [ -n "$crashes" ]; then echo "The app crashed:"; echo "$crashes"; mkdir -p "$out/crashes"; echo "$crashes" | while read -r one; do cp "$one" "$out/crashes/"; done; status=1; fi

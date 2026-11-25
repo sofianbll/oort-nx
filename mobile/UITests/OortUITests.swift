@@ -29,16 +29,27 @@ final class OortUITests: XCTestCase {
         return words.localizedString(forKey: key, value: key, table: nil)
     }
 
-    /// The app's own folder: the simulator's apps sit side by side.
+    /// The app's own folder: the simulator's apps sit side by side. The first start makes it.
     private func home() throws -> URL {
+        if let found = folder() { return found }
+        app.launch()
+        app.terminate()
+        if let found = folder() { return found }
         let all = URL(fileURLWithPath: NSHomeDirectory()).deletingLastPathComponent()
-        for one in try FileManager.default.contentsOfDirectory(at: all, includingPropertiesForKeys: nil) {
-            guard let data = try? Data(contentsOf: one.appendingPathComponent(".com.apple.mobile_container_manager.metadata.plist")),
-                  let plist = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any],
-                  plist["MCMMetadataIdentifier"] as? String == "io.github.sofianbll.oortnx.mobile" else { continue }
-            return one
+        let seen = (try? FileManager.default.subpathsOfDirectory(atPath: all.path).prefix(60).joined(separator: "\n")) ?? "unreadable"
+        throw NoFolder(seen: NSHomeDirectory() + "\n" + seen)
+    }
+    private struct NoFolder: Error { let seen: String }
+
+    private func folder() -> URL? {
+        let all = URL(fileURLWithPath: NSHomeDirectory()).deletingLastPathComponent()
+        return (try? FileManager.default.contentsOfDirectory(at: all, includingPropertiesForKeys: nil))?.first { one in
+            let data = try? Data(contentsOf: one.appendingPathComponent(".com.apple.mobile_container_manager.metadata.plist"))
+            let plist = data.flatMap { try? PropertyListSerialization.propertyList(from: $0, format: nil) } as? [String: Any]
+            // The app writes its version line at each start.
+            return plist?["MCMMetadataIdentifier"] as? String == "io.github.sofianbll.oortnx.mobile"
+                || FileManager.default.fileExists(atPath: one.appendingPathComponent("Documents/shell-log.txt").path)
         }
-        throw XCTSkip("the app has no folder yet")
     }
 
     private enum Games { case none, invented }
