@@ -58,6 +58,7 @@ class Node:
         self.said = " ".join(filter(None, [self.text, self.desc]))
         self.clickable, self.checked, self.selected = (element.get(k) == "true" for k in ("clickable", "checked", "selected"))
         self.checkable = element.get("checkable") == "true"
+        self.scrollable = element.get("scrollable") == "true"
         self.box = [int(n) for n in re.findall(r"-?\d+", element.get("bounds", "[0,0][0,0]"))]
 
     @property
@@ -101,12 +102,14 @@ def screen():
     nodes = [Node(e) for e in ET.fromstring(text[text.index("<"):]).iter("node")]
     size = [max(n.box[2] for n in nodes), max(n.box[3] for n in nodes)]
     scale = density()
+    pages = [n.box for n in nodes if n.scrollable]
     for n in nodes:
         if n.package != PACKAGE or not n.clickable:
             continue
         w, h = n.box[2] - n.box[0], n.box[3] - n.box[1]
         # A line cut by the edge of its scrolling page is not a small target.
-        edge = n.box[0] <= 0 or n.box[2] >= size[0] or n.box[1] <= 90 * scale or n.box[3] >= size[1] - 150 * scale
+        edge = n.box[0] <= 0 or n.box[2] >= size[0] or n.box[1] <= 90 * scale or n.box[3] >= size[1] - 120 * scale
+        edge = edge or any(abs(n.box[1] - p[1]) <= 2 or abs(n.box[3] - p[3]) <= 2 for p in pages)
         if min(w, h) < 47.5 * scale and not edge:
             small[n.said or "(no name)"] = f"{w / scale:.0f}x{h / scale:.0f} dp"
     return nodes

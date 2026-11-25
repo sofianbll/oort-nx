@@ -78,6 +78,7 @@ class StepActivity : Activity() {
             .setNegativeButton(R.string.stop) { _, _ -> stop.stop() }.setOnCancelListener { stop.stop() }.show()
         thread(name = "oort-cloud-sign-in") {
             var error: ShelfError? = null
+            var stopped = false
             try {
                 DriveReceiver().use { receiver ->
                     val attempt = connection.signIn(receiver)
@@ -87,11 +88,12 @@ class StepActivity : Activity() {
             } catch (failure: ShelfException) {
                 error = failure.error
             } catch (_: CancellationException) {
-                error = ShelfError.SignInNeeded
+                stopped = true
             } catch (_: IOException) {
                 error = ShelfError.LocalFile
             }
-            engine.signedIn(error)
+            // Stopped by the player: nothing happened, nothing is said.
+            if (stopped) engine.changed() else engine.signedIn(error)
             runOnUiThread {
                 dialog.dismiss()
                 // In front of the browser's tab, which was opened over this activity.

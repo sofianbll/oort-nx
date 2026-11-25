@@ -79,9 +79,10 @@ def has(*texts, seconds=15):
     while time.time() < end:
         nodes = e.screen()
         for text in texts:
-            node = e.find(text, nodes, exact=True)
-            if node:
-                return node
+            # A state line may say the key's own word: the key is the lowest.
+            hits = [n for n in nodes if text in (n.text, n.desc)]
+            if hits:
+                return max(hits, key=lambda n: n.box[3])
         time.sleep(0.5)
     return None
 
@@ -150,7 +151,9 @@ def sign_in(allow, name):
             e.shot(name)
             e.shell("input tap %d %d" % link.centre)
             time.sleep(4)
-            return e.wait_front(e.PACKAGE, 20) or e.start() is None
+            if e.wait_front(e.PACKAGE, 12):
+                return True
+            continue  # missed: the page moved under the finger
         for text in ("Accept & continue", "Use without an account", "No thanks", "No Thanks", "Continue", "Got it"):
             node = e.find(text, exact=True)
             if node and node.package != e.PACKAGE:
@@ -189,7 +192,7 @@ def game(name):
 
 def download():
     press(w("cloud_download"), w("cloud_update"), name="download")
-    node = has("Allow", "Autoriser", seconds=4)
+    node = has("Allow", "Autoriser", seconds=10)
     if node:
         e.shell("input tap %d %d" % node.centre)
         time.sleep(1)
@@ -202,6 +205,8 @@ def install(first):
         press("Continue", "Continuer", name="why a folder")
         e.shot("cloud-21-folder")
         new = has("USE THIS FOLDER", "Use this folder", "UTILISER CE DOSSIER", "Utiliser ce dossier", seconds=12)
+        if not new:  # Android 10 names the folder in its key
+            new = next((n for n in e.screen() if n.said.upper().startswith(("ALLOW ACCESS", "AUTORISER L"))), None)
         if new:
             e.shell("input tap %d %d" % new.centre)
             time.sleep(1.5)
@@ -224,7 +229,7 @@ def installed(package):
 
 
 def shared():
-    return e.shell("find /sdcard/Documents -type f 2>/dev/null").split()
+    return e.shell("find /sdcard/Documents /sdcard/Download -type f 2>/dev/null").split()
 
 
 def media(node=None):
@@ -270,7 +275,7 @@ def main():
 
 def run(files, work, tablet):
     library = Library(files, work)
-    e.shell("settings put system screen_off_timeout 1800000; svc power stayon true; logcat -b crash -c")
+    e.shell("settings put system screen_off_timeout 1800000; svc power stayon true; logcat -b crash -c; settings put secure immersive_mode_confirmations confirmed")
     for flag in ("chrome",):
         e.shell(f"echo '{flag} --disable-fre --no-default-browser-check --no-first-run' > /data/local/tmp/chrome-command-line; am set-debug-app --persistent com.android.chrome")
     for package in (e.PACKAGE, CLOUD, "org.nx2a.cloudphare", "org.nx2a.cloudmaree"):
