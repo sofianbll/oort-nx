@@ -61,7 +61,12 @@ final class OortTrialTests: OortCase {
         for _ in 0..<10 where !clear() {
             // A short screen or large texts: the list may already be at its end.
             let before = element.exists ? element.frame.minY : -1
-            app.swipeUp(velocity: .slow)
+            // On a phone on its side the list is the right-hand column.
+            if app.windows.firstMatch.frame.width > height {
+                app.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0.7)).press(forDuration: 0.05, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0.25)))
+            } else {
+                app.swipeUp(velocity: .slow)
+            }
             if element.exists, element.isHittable, element.frame.minY == before { return }
         }
     }
@@ -103,12 +108,18 @@ final class OortTrialTests: OortCase {
 
     func test02AddAGame() throws {
         let game = CaptureGames.all[0]
-        let folderName = "DmGame\(game.id)"
+        // A number of its own for this run: Files remembers the folders of the runs before.
+        let number = String(format: "0100%012X", Int(Date().timeIntervalSince1970))
+        let folderName = "DmGame\(number)"
         try start(.none) { documents in
             let fm = FileManager.default, data = documents.deletingLastPathComponent()
             try CaptureGames.make(in: data, frameworks: "Documents/Made", marker: Self.marker)
             let code = try XCTUnwrap(Self.bundle.privateFrameworksURL).appendingPathComponent("DmGame.framework/DmGame")
             let made = documents.appendingPathComponent("Made/\(folderName).framework")
+            try fm.moveItem(at: documents.appendingPathComponent("Made/DmGame\(game.id).framework"), to: made)
+            let manifest = made.appendingPathComponent("game.manifest.json")
+            try String(contentsOf: manifest, encoding: .utf8).replacingOccurrences(of: game.id, with: number).write(to: manifest, atomically: true, encoding: .utf8)
+            try fm.moveItem(at: documents.appendingPathComponent("games/\(game.id)"), to: documents.appendingPathComponent("games/\(number)"))
             try fm.removeItem(at: made.appendingPathComponent("DmGame"))
             try fm.copyItem(at: code, to: made.appendingPathComponent("DmGame"))
             try fm.moveItem(at: made, to: documents.appendingPathComponent("\(folderName).framework"))
@@ -121,14 +132,15 @@ final class OortTrialTests: OortCase {
             let search = app.searchFields.firstMatch
             appears(search, "the search of Files", 20)
             search.tap()
-            search.typeText("DmGame")
-            _ = target.waitForExistence(timeout: 15)
+            search.typeText(folderName)
+            _ = target.waitForExistence(timeout: 20)
         }
         step("06-choisir-le-dossier-du-jeu")
         appears(target, "the game's folder in Files")
         target.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.25)).tap()
-        // A folder is entered, then opened.
-        Thread.sleep(forTimeInterval: 4)
+        // A folder is entered, then opened: what is inside says it is there.
+        _ = app.cells.matching(NSPredicate(format: "label BEGINSWITH 'game.manifest' OR identifier BEGINSWITH 'game.manifest'")).firstMatch.waitForExistence(timeout: 20)
+        Thread.sleep(forTimeInterval: 1)
         step("07-ouvrir-le-dossier")
         let action = app.buttons["DOCPicker.actionButton"].firstMatch
         let words = app.buttons.matching(NSPredicate(format: "label IN {'Open', 'Ouvrir'}")).firstMatch

@@ -82,7 +82,8 @@ struct LibraryScreen: View {
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             VStack(spacing: SeleneTokens.Space.compact) {
-                if nav.letters { OortLetters(text: nav.query, focused: nav.device == nil ? nil : letter.current ?? OortLetters.rows[0][0]) { type($0) } }
+                // No game: nothing to search.
+                if nav.letters, !model.details.isEmpty { OortLetters(text: nav.query, focused: nav.device == nil ? nil : letter.current ?? OortLetters.rows[0][0]) { type($0) } }
                 OortHints(nav: nav, hints: nav.letters
                     ? [(.activate, Oort.text("Select")), (.details, Oort.text("Erase")), (.back, Oort.text("Done"))]
                     : [(.activate, isKey(ring ?? "") ? Oort.text("Select") : Oort.text("Game page")), (.settings, Oort.text("Options")),
@@ -97,6 +98,7 @@ struct LibraryScreen: View {
 
     private func handle(_ action: ShellInput.Action) -> Bool {
         if model.details.isEmpty {
+            nav.letters = false
             guard action == .activate else { return action == .search }
             if !nav.revealing { nav.importing = true }
             return true
