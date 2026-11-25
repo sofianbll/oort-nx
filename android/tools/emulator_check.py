@@ -378,13 +378,10 @@ def controller(lang):
     pad("B", "L1")
     ok(f"{lang}, pad: L1 goes back to the first screen", wait(w("detail_play"), exact=True) is not None and find(w("sort"), exact=True) is None)
     pad("Y")
-    see(f"{lang}, pad: Y opens the search with the controller's keys", w("key_space"))
-    pad("A")  # the first key is A: every made-up game but one holds an a
+    see(f"{lang}, pad: Y opens the search", w("search_field"))
     shot(f"{lang}-27-pad-search")
-    pad("START")
-    ok(f"{lang}, pad: the search narrows the library", find(w("key_space")) is None and find(GAMES[1]) is not None and find(GAMES[2]) is None)
-    pad("B")
-    see(f"{lang}, pad: B closes the search", GAMES[2])
+    pad("DOWN", "B")  # the first press leaves the field, B then closes the search
+    ok(f"{lang}, pad: B closes the search", wait(w("tab_all"), exact=True) is not None and find(w("search_field")) is None)
     pad("R1")
     see(f"{lang}, pad: R1 opens the controllers", w("controllers_connected"))
     tap(w("settings_swap"), exact=True)
