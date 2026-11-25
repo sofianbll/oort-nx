@@ -147,6 +147,9 @@ const hints = () => {
   bar.replaceChildren(...[left, right].map(list => h('div', {}, list.map(([b, label, run, sub]) => h(run ? 'button' : 'span', { cls: 'hint', tabindex: run ? '-1' : null, onclick: run }, badge(b), h('span', {}, label, sub && h('small', {}, sub)))))));
 };
 
+/* A hint pressed with the mouse acts for where the player is: it never takes the focus, which says where Back goes. */
+$('#hints').addEventListener('mousedown', e => e.preventDefault());
+
 /* The controller in hand, else the ones plugged in: WebView2 sees a controller only once a button was pressed. */
 const padText = () => {
   const one = plugged.length === 1 || !pad ? plugged[0] : padName(pad.name) || plugged[0];
