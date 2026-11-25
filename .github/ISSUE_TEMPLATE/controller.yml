@@ -1,0 +1,51 @@
+name: Controller
+description: A controller that does not behave as expected. Français ou English.
+title: "[Controller] "
+labels: ["controller"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not attach personal information, serial numbers or raw input logs.
+  - type: input
+    id: controller
+    attributes:
+      label: Controller model / Modèle de la manette
+      placeholder: "Xbox wireless controller, Joy-Con, DualSense…"
+    validations:
+      required: true
+  - type: dropdown
+    id: connection
+    attributes:
+      label: Connection / Connexion
+      options:
+        - USB
+        - Bluetooth
+        - Other / Autre
+    validations:
+      required: true
+  - type: dropdown
+    id: system
+    attributes:
+      label: System / Système
+      options:
+        - macOS
+        - Windows
+        - Linux
+        - Android
+        - iPhone or iPad / iPhone ou iPad
+    validations:
+      required: true
+  - type: textarea
+    id: behaviour
+    attributes:
+      label: Expected and actual behaviour / Comportement attendu et observé
+      description: Name the button or stick and the screen where it happens.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce / Étapes pour reproduire
+    validations:
+      required: true
