@@ -194,8 +194,6 @@ struct SettingsAPISection: View {
             }
         }
         SeleneCycleRow("Default for games", value: settings.settings.multiplayerDefault.label, cycle: stepDefault)
-        SeleneCycleRow("Online players", subtitle: SettingsCatalog.onlinePlayersHelp,
-                       value: settings.settings.onlinePlayersDisplay.label, cycle: stepOnlinePlayers)
         SeleneButtonRow("Advanced", id: "multiplayerAdvanced", buttonTitle: advanced ? "Hide" : "Show") { advanced.toggle() }
             .accessibilityValue(text(advanced ? "Expanded" : "Collapsed"))
         if advanced {
@@ -203,6 +201,10 @@ struct SettingsAPISection: View {
             SeleneCycleRow("Network adapter", value: settings.settings.multiplayerAdapter ?? text("Automatic"),
                            verbatimValue: true, cycle: stepAdapter)
             if supportsNextendo { nextendoClientRow }
+        }
+        SettingsSubheading("Nextendo players")
+        ForEach(OnlinePlayersDisplay.Place.allCases, id: \.self) { place in
+            SeleneToggleRow(place.label, subtitle: SettingsCatalog.onlinePlayersHelp, isOn: onlinePlayersToggle(place))
         }
     }
 
@@ -267,8 +269,9 @@ struct SettingsAPISection: View {
         settings.settings.multiplayerDefault = settings.settings.multiplayerDefault.stepped(step)
     }
 
-    private func stepOnlinePlayers(_ step: Int) {
-        settings.settings.onlinePlayersDisplay = settings.settings.onlinePlayersDisplay.stepped(step)
+    private func onlinePlayersToggle(_ place: OnlinePlayersDisplay.Place) -> Binding<Bool> {
+        Binding(get: { settings.settings.onlinePlayersDisplay[place] },
+                set: { settings.settings.onlinePlayersDisplay[place] = $0 })
     }
 
     private func stepLocalMode(_ step: Int) {
@@ -706,7 +709,6 @@ struct SettingsAPISection: View {
         }
         actions += [
             .value("multiplayerDefault", "Default for games", cycle: stepDefault),
-            .value("onlinePlayersDisplay", "Online players", cycle: stepOnlinePlayers),
             .init(id: "multiplayerAdvanced", title: "Advanced") { advanced.toggle() },
         ]
         if advanced {
@@ -717,6 +719,9 @@ struct SettingsAPISection: View {
                     nextendo.isEditingClient = true
                 })
             }
+        }
+        actions += OnlinePlayersDisplay.Place.allCases.map { place in
+            .init(id: place.id, title: place.label) { onlinePlayersToggle(place).wrappedValue.toggle() }
         }
         onActions(actions)
     }

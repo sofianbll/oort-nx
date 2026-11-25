@@ -4,22 +4,24 @@ import NXLibraryCore
 extension EnvironmentValues {
     @Entry var onlinePlayersByTitle: [String: Int] = [:]
     /// Where those counts show (`OnlinePlayersDisplay`).
-    @Entry var onlinePlayersDisplay = OnlinePlayersDisplay.dot
+    @Entry var onlinePlayersDisplay = OnlinePlayersDisplay()
 }
 
-/// The dot on a cover whose game has players online. The tile says the number to VoiceOver.
+/// A cover's short count. The enclosing tile supplies the full Nextendo label to VoiceOver.
 struct NextendoOnlineBadge: View {
-    let titleID: String?
-    @Environment(\.onlinePlayersByTitle) private var counts
-    @Environment(\.onlinePlayersDisplay) private var display
+    let count: Int
     @Environment(\.seleneCanvas) private var canvas
+    @Environment(\.nxAppLocale) private var locale
 
     var body: some View {
-        if display.count(for: titleID, in: counts, at: .tile) != nil {
+        HStack(spacing: canvas.u(SeleneTokens.Space.hairline)) {
             SeleneStatusMark(color: SeleneTheme.statusOK, pulses: false)
-                .padding(canvas.u(SeleneTokens.Space.compact))
-                .oortPanel(radius: canvas.u(SeleneTokens.Radius.content))
-                .allowsHitTesting(false)
+            Text(count.formatted(.number.notation(.compactName).locale(locale.formatLocale)))
+                .seleneFont(.text, .bold)
+                .monospacedDigit()
+                .foregroundStyle(SeleneTheme.artInk)
         }
+        .oortArtShadow(canvas.u(SeleneTokens.Space.thinStroke), strength: SeleneTokens.Alpha.near)
+        .oortArtShadow(canvas.u(SeleneTokens.Space.hairline), strength: SeleneTokens.Alpha.near)
     }
 }

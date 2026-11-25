@@ -6,6 +6,7 @@ struct SeleneStat: Identifiable {
     enum Value {
         case text(String)
         case platform(String)
+        case nextendo(String)
     }
 
     let label: String
@@ -32,6 +33,7 @@ struct SeleneStatsRow: View {
     let items: [SeleneStat]
     /// The selected game, whose online players join the row when the player chose that place.
     var onlineTitleID: String? = nil
+    var onlinePlace: OnlinePlayersDisplay.Place = .selectedGame
     /// Space either side of each rule, in Selene units.
     var gap: CGFloat = 26
 
@@ -49,9 +51,12 @@ struct SeleneStatsRow: View {
         self.onlineTitleID = onlineTitleID
     }
 
-    init(items: [SeleneStat], gap: CGFloat = 26) {
+    init(items: [SeleneStat], gap: CGFloat = 26, onlineTitleID: String? = nil,
+         onlinePlace: OnlinePlayersDisplay.Place = .selectedGame) {
         self.items = items
         self.gap = gap
+        self.onlineTitleID = onlineTitleID
+        self.onlinePlace = onlinePlace
     }
 
     var body: some View {
@@ -60,11 +65,10 @@ struct SeleneStatsRow: View {
                 if index > 0 { divider }
                 stat(item)
             }
-            if let count = onlineDisplay.count(for: onlineTitleID, in: onlinePlayers, at: .selectedGame) {
+            if let count = onlineDisplay.count(for: onlineTitleID, in: onlinePlayers, at: onlinePlace) {
                 divider
-                stat(.text("Multiplayer", L10n.count("%lld online", count, context: localization)))
-                    .padding(.horizontal, canvas.u(SeleneTokens.Space.small))
-                    .oortPanel(radius: canvas.u(SeleneTokens.Radius.content))
+                stat(.init(label: "Multiplayer",
+                           value: .nextendo(OnlinePlayersDisplay.label(for: count, context: localization))))
             }
         }
         .fixedSize()
@@ -82,6 +86,11 @@ struct SeleneStatsRow: View {
                 switch item.value {
                 case .text(let text):
                     value(text)
+                case .nextendo(let text):
+                    HStack(spacing: canvas.u(SeleneTokens.Space.hairline)) {
+                        SeleneStatusMark(color: SeleneTheme.statusOK, pulses: false)
+                        value(text)
+                    }
                 case .platform(let console):
                     if let platform = PlatformKind(rawValue: console) {
                         PlatformLabel(platform).foregroundStyle(SeleneTheme.ink)

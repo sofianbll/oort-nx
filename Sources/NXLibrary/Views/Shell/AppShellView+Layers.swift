@@ -416,7 +416,7 @@ extension AppShellView {
         let asks: Bool
     }
 
-    /// Never, saved or being previewed, sends nothing; leaving it sends nothing until saved.
+    /// All off, saved or being previewed, sends nothing; re-enabling from all off waits for Save.
     private var asksOnlinePlayers: Bool {
         settings.settings.onlinePlayersDisplay.asksService && settings.presentation.onlinePlayersDisplay.asksService
     }

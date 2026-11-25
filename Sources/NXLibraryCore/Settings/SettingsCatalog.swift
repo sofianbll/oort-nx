@@ -24,7 +24,7 @@ public struct SettingDescriptor: Identifiable, Sendable {
 public enum SettingsCatalog {
     package static let defaults = AppSettings()
     public static let multiplayerVPNHelp = "Use ZeroTier, Tailscale or NetBird for local play away from home."
-    public static let onlinePlayersHelp = "Choose where Nextendo player counts show. With Never, Oort stops asking for them."
+    public static let onlinePlayersHelp = "Choose where to show Nextendo players. Turn off all four to stop the requests."
 
     package static func row<Value: Equatable & SendableMetatype>(_ id: String, _ group: SettingsSection, _ title: String,
                                       _ about: String,
@@ -47,7 +47,13 @@ public enum SettingsCatalog {
     }
 
     /// The rows of every section outside the Porting group, in screen order.
-    public static let baseRows: [SettingDescriptor] = [
+    public static let baseRows: [SettingDescriptor] = sharedRows + onlinePlayersRows
+
+    private static let onlinePlayersRows = OnlinePlayersDisplay.Place.allCases.map { place in
+        row(place.id, .multiplayer, place.label, onlinePlayersHelp) { $0.onlinePlayersDisplay[place] }
+    }
+
+    private static let sharedRows: [SettingDescriptor] = [
         action("profileName", .profileIdentity, "Name", "Shown on your profile and to your friends."),
         action("profileAvatar", .profileIdentity, "Avatar", "One of Arcane’s 28 illustrations."),
         action("profilePortrait", .profileIdentity, "Personal image", "PNG, JPEG or animated GIF, up to 4 MB."),
@@ -138,7 +144,6 @@ public enum SettingsCatalog {
         action("steamGridDB", .apiServices, "SteamGridDB", "Add your API key to find covers, backgrounds, logos and icons in Change artwork."),
         row("multiplayerVPN", .multiplayer, "Private network (VPN)", multiplayerVPNHelp) { $0.multiplayerVPN },
         row("multiplayerDefault", .multiplayer, "Default for games", "Applies to games without their own multiplayer choice.") { $0.multiplayerDefault },
-        row("onlinePlayersDisplay", .multiplayer, "Online players", onlinePlayersHelp) { $0.onlinePlayersDisplay },
         row("multiplayerLocalMode", .multiplayer, "Local network mode", "Force LAN or local wireless instead of letting the game choose.") { $0.multiplayerLocalMode },
         row("multiplayerAdapter", .multiplayer, "Network adapter", "Select an interface manually if Arcane cannot identify your VPN.") { $0.multiplayerAdapter },
 

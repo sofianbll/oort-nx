@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Render the screens that show Nextendo player counts, for each "Online players" choice.
+"""Render the default, all-on and all-off Nextendo player counts.
 
-usage: run_online_players.py [--before] [OUTPUT]
+usage: run_online_players.py [OUTPUT]
 Real Spotlight, Collection, game page and Settings views in a window that is never shown, with synthetic games and
-counts: no account, no network. --before renders a build without the setting.
+counts: no account, no network.
 Run the debug Swift suite first.
 """
 from pathlib import Path
@@ -47,6 +47,25 @@ import NXLibraryCore
         settings.settings.appLanguage = .french
         settings.settings.introAnimation = false
         settings.settings.showClock = false
+        let places = OnlinePlayersDisplay.Place.allCases
+        settings.beginDraft(fields: SettingsDraftFields.fields(profiles: nil, languages: []))
+        var edited = settings.editingSettings
+        edited.onlinePlayersDisplay = .init([])
+        settings.editingSettings = edited
+        precondition(!settings.presentation.onlinePlayersDisplay.asksService)
+        precondition(settings.settings.onlinePlayersDisplay.asksService)
+        settings.discardDraft()
+        precondition(settings.presentation.onlinePlayersDisplay == .init())
+        for place in places {
+            edited = settings.editingSettings
+            edited.onlinePlayersDisplay[place].toggle()
+            settings.editingSettings = edited
+            precondition(settings.presentation.onlinePlayersDisplay == edited.onlinePlayersDisplay)
+            try settings.commitDraft()
+            precondition(settings.settings.onlinePlayersDisplay == edited.onlinePlayersDisplay)
+        }
+        settings.endDraft()
+        settings.settings.onlinePlayersDisplay = .init()
         let vm = AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: data)))
         // White, dark and busy covers: the dot must read on each.
         let covers: [(String, [Color])] = [("Observatoire blanc", [.white, .white]),
@@ -87,13 +106,17 @@ import NXLibraryCore
         vm.spotlight.startingTabApplied = true
         vm.librarySelection.selectedGameID = selected.id
 
-        /*VARIANTS*/
+        let variants: [(String, OnlinePlayersDisplay)] = [
+            ("-defaut", .init()),
+            ("-tout-allume", .init(Set(OnlinePlayersDisplay.Place.allCases))),
+            ("-tout-eteint", .init([])),
+        ]
         for (suffix, mode) in variants {
             func shot<V: View>(_ name: String, _ view: V, size: CGSize = .init(width: 1440, height: 810),
                                after: [GamepadAction] = []) throws {
                 try capture(name + suffix, view
                     .environment(\.onlinePlayersByTitle, counts)
-                    /*DISPLAY*/, size: size, after: after)
+                    .environment(\.onlinePlayersDisplay, mode), size: size, after: after)
             }
             vm.librarySelection.selectedGameID = selected.id
             vm.spotlight.selectedKey = SpotlightItem.game(selected.id).key
@@ -116,9 +139,19 @@ import NXLibraryCore
             try shot("fiche", page())
             // Down twice: past the screenshots to the Details block.
             try shot("fiche-details", page(), after: [.navigateDown, .navigateDown])
-            /*SETTINGS*/
+            settings.settings.onlinePlayersDisplay = mode
+            try shot("reglages", SettingsView(initialSection: .multiplayer, viewModel: vm, settings: settings,
+                                              router: AppRouter(), artwork: artwork))
+            settings.settings.onlinePlayersDisplay = .init()
         }
-        /*PALETTES*/
+        for palette in ["catppuccin-latte", "white"] {
+            ThemeStore.shared.apply(id: palette)
+            try capture("jaquettes-\(palette)", CollectionCoverRow(
+                games: games.map { CatalogGame(nxnative: $0) }, selectedID: selected.id, artwork: artwork,
+                boxArt: vm.boxArt, boxArtIndexVersion: 0, officialName: { _ in nil }, needsMetadata: { _ in },
+                cloud: vm.cloudLibrary, showsCloudBadges: true, onSelect: { _ in }, onActivate: { _ in })
+                .environment(\.onlinePlayersByTitle, counts), size: .init(width: 960, height: 400))
+        }
         print("Online players screens rendered.")
     }
 
@@ -155,47 +188,12 @@ import NXLibraryCore
 }
 '''
 
-SETTINGS = r'''
-            settings.settings.onlinePlayersDisplay = mode
-            try shot("reglages", SettingsView(initialSection: .multiplayer, viewModel: vm, settings: settings,
-                                              router: AppRouter(), artwork: artwork))
-            settings.settings.onlinePlayersDisplay = .dot
-'''
-
-PALETTES = r'''
-        for palette in ["oort", "catppuccin-latte", "white"] {
-            ThemeStore.shared.apply(id: palette)
-            try capture("point-palette-\(palette)", CollectionCoverRow(
-                games: games.map { CatalogGame(nxnative: $0) }, selectedID: selected.id, artwork: artwork,
-                boxArt: vm.boxArt, boxArtIndexVersion: 0, officialName: { _ in nil }, needsMetadata: { _ in },
-                cloud: vm.cloudLibrary, showsCloudBadges: true, onSelect: { _ in }, onActivate: { _ in })
-                .environment(\.onlinePlayersByTitle, counts), size: .init(width: 960, height: 400))
-        }
-'''
-
 if __name__ == "__main__":
     args = sys.argv[1:]
-    before = "--before" in args
-    if before:
-        args.remove("--before")
     host = HOST.replace("__ROOT__", str(ROOT))
-    if before:
-        host = (host.replace("/*VARIANTS*/", 'let variants = [("-avant", 0)]')
-                .replace("for (suffix, mode) in variants", "for (suffix, _) in variants")
-                .replace("/*DISPLAY*/", "")
-                .replace("/*SETTINGS*/", 'try shot("reglages", SettingsView(initialSection: .multiplayer, viewModel: vm, '
-                         'settings: settings, router: AppRouter(), artwork: artwork))')
-                .replace("/*PALETTES*/", ""))
-    else:
-        host = (host.replace("/*VARIANTS*/", 'let variants: [(String, OnlinePlayersDisplay)] = '
-                             '[("-A-point", .dot), ("-B-jeu-choisi", .selectedGame), '
-                             '("-C-fiche", .gamePage), ("-D-jamais", .never)]')
-                .replace("/*DISPLAY*/", r".environment(\.onlinePlayersDisplay, mode)")
-                .replace("/*SETTINGS*/", SETTINGS)
-                .replace("/*PALETTES*/", PALETTES))
     with tempfile.TemporaryDirectory(prefix="online-players-", dir="/private/tmp") as temp:
         output = Path(args[0]).resolve() if args else Path(temp)
         run_host(host, save_model=True, capture=output)
-        count = len(list(output.glob("*-avant.png" if before else "*-[ABCD]-*.png")))
-        assert count == (6 if before else 24), count
-        print(f"{count} captures: {output}")
+        assert all(len(list(output.glob(f"*-{mode}.png"))) == 6 for mode in ("defaut", "tout-allume", "tout-eteint"))
+        assert len(list(output.glob("jaquettes-*.png"))) == 2
+        print(f"20 captures: {output}")

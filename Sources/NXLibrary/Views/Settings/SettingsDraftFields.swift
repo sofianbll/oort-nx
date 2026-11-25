@@ -54,7 +54,6 @@ enum SettingsDraftFields {
             .init("multiplayerDefault", \.multiplayerDefault, important: true) { L10n.text($0.label) },
             .init("multiplayerLocalMode", \.multiplayerLocalMode, important: true) { L10n.text($0.label) },
             .init("multiplayerAdapter", \.multiplayerAdapter, important: true) { $0 ?? L10n.text("Automatic") },
-            .init("onlinePlayersDisplay", \.onlinePlayersDisplay, previews: true) { L10n.text($0.label) },
             .init("nextendoClientID", \.nextendoClientID, important: true) {
                 $0 ?? L10n.text(NextendoLaunch.buildClientID == nil ? "Not set" : "Built-in value")
             },
@@ -158,6 +157,8 @@ enum SettingsDraftFields {
             .init("cloudTileBadges", \.cloudTileBadges, previews: true) { L10n.text($0.titleKey) },
         ] + SpotlightCard.allCases.filter { $0 != .inbox }.map { card in
             toggle("card-\(card.rawValue)", \AppSettings.[spotlightCard: card])
+        } + OnlinePlayersDisplay.Place.allCases.map { place in
+            toggle(place.id, \AppSettings.onlinePlayersDisplay[place], previews: true)
         }
     }
 

@@ -100,11 +100,13 @@ struct DetailsPanel: View {
     private var wide: Bool { width >= 800 }
 
     private var onlineCount: Int? {
-        onlineDisplay.count(for: onlineTitleID, in: onlinePlayers, at: .gamePage)
+        onlineDisplay.count(for: onlineTitleID, in: onlinePlayers, at: .details)
     }
 
     var body: some View {
-        let shownFacts = facts.addingOnlinePlayers(onlineCount, context: localization)
+        let shownFacts = facts + (onlineCount.map {
+            [DetailsFact(kind: .nextendoPlayers, value: $0.formatted(.number.locale(localization.formatLocale)))]
+        } ?? [])
         // With nothing to show, no title alone on the page.
         return Group {
             if !shownFacts.isEmpty || !links.isEmpty || ratingQuery != nil { content(shownFacts) }
@@ -178,19 +180,18 @@ struct DetailsPanel: View {
     }
 
     private func row(_ fact: DetailsFact) -> some View {
-        let showsCount = fact.kind == .players && onlineCount != nil
-        let value = Text(fact.value)
-            .seleneFont(.text, .semibold)
-            .foregroundColor(SeleneTheme.ink)
-            .lineLimit(fact.kind == .engine ? nil : 1)
-            .truncationMode(.tail)
-        return HStack(alignment: .firstTextBaseline, spacing: 0) {
+        HStack(alignment: .firstTextBaseline,
+               spacing: fact.kind == .nextendoPlayers ? canvas.u(SeleneTokens.Space.compact) : 0) {
             label(symbol: fact.symbol, text: fact.label)
-            if showsCount {
-                value.padding(.horizontal, canvas.u(SeleneTokens.Space.small))
-                    .oortPanel(radius: canvas.u(SeleneTokens.Radius.content))
-            } else {
-                value
+            HStack(spacing: canvas.u(SeleneTokens.Space.hairline)) {
+                if fact.kind == .nextendoPlayers {
+                    SeleneStatusMark(color: SeleneTheme.statusOK, pulses: false)
+                }
+                Text(fact.value)
+                    .seleneFont(.text, .semibold)
+                    .foregroundColor(SeleneTheme.ink)
+                    .lineLimit(fact.kind == .engine ? nil : 1)
+                    .truncationMode(.tail)
             }
             Spacer(minLength: 0)
         }

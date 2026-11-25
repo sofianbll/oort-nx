@@ -367,11 +367,11 @@ In Settings → Account → Nextendo, la scheda legge il conto all'apertura, al 
 
 Sign in apre il browser predefinito e la riga offre Cancel finché attende la callback loopback. Una callback valida porta allo scambio PKCE e allo store condiviso del motore; Sign out rimuove solo il token locale. Nelle Opzioni, Play ha il focus iniziale; Play together viene subito dopo, per le build che dichiarano le modalità di rete.
 
-La shell controlla la presenza del token del profilo attivo all’apertura, al cambio di profilo e ogni 180 s: solo con un token legge i contatori pubblici. Per l’ospite non avvia la lettura. In Settings → Multiplayer, **Online players** si può cambiare in anteprima e poi salvare. **Never** ferma la lettura anche in anteprima; se era già salvato, la lettura riprende solo dopo aver salvato un’altra scelta.
+La shell controlla la presenza del token del profilo attivo all’apertura, al cambio di profilo e ogni 180 s: solo con un token legge i contatori pubblici. Per l’ospite non avvia la lettura. In Settings → Multiplayer → Nextendo players, spegnere tutti e quattro gli interruttori ferma la lettura anche in anteprima; se sono già tutti spenti nel file, la lettura riprende solo dopo aver salvato un interruttore attivo.
 
 Nel profilo, Mostrati online pubblica la presenza senza titolo; Mostra il gioco in corso è un consenso separato, efficace al prossimo lancio e solo se la presenza è attiva. Un rifiuto del servizio mostra una nota discreta senza cambiare lo stato dell’account. La pagina profilo controlla il conto all’apertura; il pannello di gestione aperto aggiorna le liste ogni 60 s. Aggiorna anticipa la lettura e la riga mostra il tempo dall’ultimo aggiornamento riuscito. Gli amici in gioco mostrano il titolo quando disponibile.
 
-Play together mostra lo stato della VPN scelta e offre Scarica o Apri. Advanced raccoglie la scelta LAN o comunicazione locale e l'adattatore manuale. Reset group torna a Nessuna VPN, Offline, **Dot** e impostazioni avanzate automatiche.
+Play together mostra lo stato della VPN scelta e offre Scarica o Apri. Advanced raccoglie la scelta LAN o comunicazione locale e l'adattatore manuale. Reset group torna a Nessuna VPN, Offline, copertine e gioco selezionato attivi e impostazioni avanzate automatiche.
 
 In System → About, il riepilogo collega Arcane 0.2.1 di Bium23 al progetto originale; il pulsante sotto apre la pagina Buy Me a Coffee di Bium23. Entrambi funzionano con clic, Invio o conferma del controller.
 

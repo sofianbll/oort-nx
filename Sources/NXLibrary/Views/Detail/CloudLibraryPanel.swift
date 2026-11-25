@@ -840,19 +840,27 @@ struct CloudLibraryTileBadge: ViewModifier {
         let need = need
         let visibleBadge = badge.flatMap { $0.isVisibleOnTile ? $0 : nil }
         let online = onlineDisplay.count(for: onlineTitleID, in: onlinePlayers, at: .tile)
-        content.overlay(alignment: need == nil && visibleBadge == nil ? .bottomTrailing : alignment) {
+        content.overlay(alignment: alignment) {
             Group {
                 if let need { TileMark(icon: need.icon) }
                 else if let visibleBadge { visibleBadge }
-                else { NextendoOnlineBadge(titleID: onlineTitleID) }
             }
             .padding(canvas.u(SeleneTokens.Space.small))
             .allowsHitTesting(false)
             .accessibilityHidden(true)
         }
-        .accessibilityValue(need.map { L10n.text($0.label, context: localization) }
-                            ?? visibleBadge?.indicator.label(context: localization)
-                            ?? online.map { L10n.count("%lld online", $0, context: localization) } ?? "")
+        .overlay(alignment: .bottomTrailing) {
+            if let online {
+                NextendoOnlineBadge(count: online)
+                    .padding(canvas.u(SeleneTokens.Space.small))
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
+        }
+        .accessibilityValue([
+            need.map { L10n.text($0.label, context: localization) } ?? visibleBadge?.indicator.label(context: localization),
+            online.map { OnlinePlayersDisplay.label(for: $0, context: localization) },
+        ].compactMap { $0 }.joined(separator: ", "))
     }
 }
 

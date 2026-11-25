@@ -243,7 +243,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
     public var multiplayerDefault: MultiplayerMode = .offline
     public var multiplayerLocalMode: MultiplayerLocalMode = .auto
     public var multiplayerAdapter: String? = nil
-    public var onlinePlayersDisplay: OnlinePlayersDisplay = .dot
+    public var onlinePlayersDisplay = OnlinePlayersDisplay()
     public var backgroundShade: BackgroundShade
     public var readableText: Bool
     public var reduceMotion: Bool
@@ -462,7 +462,8 @@ public struct AppSettings: Codable, Equatable, Sendable {
         multiplayerDefault = (try? container.decode(MultiplayerMode.self, forKey: .multiplayerDefault)) ?? .offline
         multiplayerLocalMode = (try? container.decode(MultiplayerLocalMode.self, forKey: .multiplayerLocalMode)) ?? .auto
         multiplayerAdapter = try? container.decode(String.self, forKey: .multiplayerAdapter)
-        onlinePlayersDisplay = (try? container.decode(OnlinePlayersDisplay.self, forKey: .onlinePlayersDisplay)) ?? .dot
+        onlinePlayersDisplay = (try? container.decode(OnlinePlayersDisplay.self, forKey: .onlinePlayersDisplay))
+            ?? OnlinePlayersDisplay(legacy: try? container.decode(String.self, forKey: .onlinePlayersDisplay))
         self.backgroundShade = try container.decodeIfPresent(BackgroundShade.self, forKey: .backgroundShade) ?? .balanced
         self.readableText = try container.decodeIfPresent(Bool.self, forKey: .readableText) ?? true
         self.reduceMotion = try container.decodeIfPresent(Bool.self, forKey: .reduceMotion) ?? false

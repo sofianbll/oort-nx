@@ -43,7 +43,7 @@ final class NextendoOnlineCountsTests: XCTestCase {
         XCTAssertEqual(OnlineCountsStub.requests.withLock { $0 }, 1)
     }
 
-    func testNoRequestWhenThePlayerNeverWantsTheCounts() async throws {
+    func testNoRequestWithAllFourPlacesOff() async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("online-counts-\(UUID())")
         defer { try? FileManager.default.removeItem(at: directory) }
         let store = NextendoTokenStore(directory: directory)
@@ -53,14 +53,14 @@ final class NextendoOnlineCountsTests: XCTestCase {
         OnlineCountsStub.requests.withLock { $0 = 0 }
         let counts = NextendoOnlineCounts(session: URLSession(configuration: config))
 
-        let never = try await counts.read(tokenStore: store, display: .never)
+        let never = try await counts.read(tokenStore: store, display: .init([]))
         XCTAssertTrue(never.isEmpty)
         XCTAssertEqual(OnlineCountsStub.requests.withLock { $0 }, 0)
 
-        let shown = try await counts.read(tokenStore: store, display: .gamePage)
+        let shown = try await counts.read(tokenStore: store, display: .init([.gamePage]))
         XCTAssertEqual(shown, ["01000000000000ab": 4])
         // A cached answer is not handed out either.
-        let after = try await counts.read(tokenStore: store, display: .never)
+        let after = try await counts.read(tokenStore: store, display: .init([]))
         XCTAssertTrue(after.isEmpty)
         XCTAssertEqual(OnlineCountsStub.requests.withLock { $0 }, 1)
     }

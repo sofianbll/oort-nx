@@ -11,7 +11,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Changed
 
-- Players online on Nextendo are discreet: a dot on a game’s cover and the number on its page. **Settings → Multiplayer → Online players** also offers the number on the selected game, on the game page only, or never, which stops asking for it.
+- **Settings → Multiplayer → Nextendo players** lets you choose where to show the count: on covers, on the selected game, in Details or on the game page. Turn off all four to stop the requests.
 - The control center opens with **⇧⌘K**; ⌘K is now the search.
 - In French, making a game’s app is always “compiler”.
 - A game started from Oort asks to quit in your language, and unsaved progress has one sentence everywhere.

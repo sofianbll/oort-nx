@@ -331,7 +331,7 @@ struct DetailsTopBlock: View {
             items.append(SeleneStat.text(text("CHEATS"), text("On")))
         }
         items.append(SeleneStat(label: text("PLATFORM"), value: .platform(presentation.console)))
-        return SeleneStatsRow(items: items, gap: 28)
+        return SeleneStatsRow(items: items, gap: 28, onlineTitleID: game.titleId, onlinePlace: .gamePage)
             .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
     }
 
