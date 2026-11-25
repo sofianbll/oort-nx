@@ -10,7 +10,7 @@ public enum BuildOutputInstaller {
         let device: UInt64
         let inode: UInt64
     }
-    public struct DestinationExpectation: Codable, Equatable {
+    public struct DestinationExpectation: Codable, Equatable, Sendable {
         fileprivate let identity: Identity?
         static let vacant = Self(identity: nil)
     }

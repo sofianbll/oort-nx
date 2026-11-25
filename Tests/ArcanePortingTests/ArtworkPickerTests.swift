@@ -1,11 +1,16 @@
 import XCTest
 import AppKit
+import Synchronization
 @testable import NXLibraryCore
 @testable import ArcanePorting
 
 final class ArtworkPickerTests: XCTestCase {
     private final class RoutedClient: ArtworkHTTPClient {
-        var routes: [String: Data] = [:]
+        private let state = Mutex([String: Data]())
+        var routes: [String: Data] {
+            get { state.withLock { $0 } }
+            set { state.withLock { $0 = newValue } }
+        }
         func data(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {
             let body = routes[request.url!.absoluteString]
             return (body ?? Data(), HTTPURLResponse(url: request.url!, statusCode: body == nil ? 404 : 200,

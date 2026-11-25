@@ -1,16 +1,16 @@
 import Foundation
 
 /// One row on the Settings screen, as listed by Changed and Search.
-public struct SettingDescriptor: Identifiable {
+public struct SettingDescriptor: Identifiable, Sendable {
     /// The `AppSettings` property name when the row stores a value.
     public let id: String
     public let group: SettingsSection
     public let title: String
     public let about: String
-    public let isChanged: (AppSettings) -> Bool
+    public let isChanged: @Sendable (AppSettings) -> Bool
 
     public init(id: String, group: SettingsSection, title: String, about: String,
-                isChanged: @escaping (AppSettings) -> Bool = { _ in false }) {
+                isChanged: @escaping @Sendable (AppSettings) -> Bool = { _ in false }) {
         self.id = id
         self.group = group
         self.title = title
@@ -25,9 +25,9 @@ public enum SettingsCatalog {
     package static let defaults = AppSettings()
     public static let multiplayerVPNHelp = "Use ZeroTier, Tailscale or NetBird for local play away from home."
 
-    package static func row<Value: Equatable>(_ id: String, _ group: SettingsSection, _ title: String,
+    package static func row<Value: Equatable & SendableMetatype>(_ id: String, _ group: SettingsSection, _ title: String,
                                       _ about: String,
-                                      _ value: @escaping (AppSettings) -> Value) -> SettingDescriptor {
+                                      _ value: @escaping @Sendable (AppSettings) -> Value) -> SettingDescriptor {
         SettingDescriptor(id: id, group: group, title: title, about: about) { value($0) != value(defaults) }
     }
 

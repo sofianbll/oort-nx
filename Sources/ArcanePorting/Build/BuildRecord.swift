@@ -1,7 +1,7 @@
 import Foundation
 import NXLibraryCore
 
-public struct BuildRecord: Codable, Equatable {
+public struct BuildRecord: Codable, Equatable, Sendable {
     public var startedAt: Date
     public var endedAt: Date?
     public var exitCode: Int32?

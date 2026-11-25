@@ -1,6 +1,6 @@
 import Foundation
 
-public struct CloudGoogleClient {
+public struct CloudGoogleClient: Sendable {
     public let id: String
     public let secret: String
 

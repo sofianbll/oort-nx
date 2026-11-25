@@ -247,7 +247,7 @@ final class SetupCheckModel: ObservableObject {
     }
 
     private func stream(_ executable: String, _ arguments: [String], env: [String: String],
-                        onLine: @escaping (String) -> Void) -> CommandResult {
+                        onLine: @escaping @Sendable (String) -> Void) -> CommandResult {
         (try? runner.stream(URL(fileURLWithPath: executable), arguments, environment: env,
                             currentDirectory: nil, onLine: onLine))
             ?? CommandResult(status: -1, stdout: "", stderr: "\(executable) could not start")
@@ -266,7 +266,7 @@ final class SetupCheckModel: ObservableObject {
         let env = environment
         queue.async { [weak self] in
             guard let self else { return }
-            let onLine: (String) -> Void = { line in
+            let onLine: @Sendable (String) -> Void = { line in
                 if let fraction = InstallProgress.percent(line) {
                     self.report(.metal, chip, InstallProgress(fraction: fraction, label: line.trimmingCharacters(in: .whitespaces)))
                 }

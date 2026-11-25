@@ -1,5 +1,6 @@
 import Darwin
 import Foundation
+import Synchronization
 
 public struct CommandResult: Equatable, Sendable {
     public var status: Int32
@@ -33,7 +34,7 @@ public final class SystemCommandRunner: CommandRunning, Sendable {
     /// arrives (on a background queue), for installs that report progress.
     public func stream(_ executable: URL, _ arguments: [String],
                        environment: [String: String]?, currentDirectory: URL?,
-                       onLine: @escaping (String) -> Void) throws -> CommandResult {
+                       onLine: @escaping @Sendable (String) -> Void) throws -> CommandResult {
         try execute(executable, arguments, environment: environment, currentDirectory: currentDirectory,
                     onStdout: onLine, onStderr: onLine)
     }
@@ -80,8 +81,8 @@ public final class SystemCommandRunner: CommandRunning, Sendable {
 
     private func execute(_ executable: URL, _ arguments: [String],
                          environment: [String: String]?, currentDirectory: URL?,
-                         onStdout: ((String) -> Void)? = nil,
-                         onStderr: ((String) -> Void)? = nil) throws -> CommandResult {
+                         onStdout: (@Sendable (String) -> Void)? = nil,
+                         onStderr: (@Sendable (String) -> Void)? = nil) throws -> CommandResult {
         let process = Process()
         process.executableURL = executable
         process.arguments = arguments
@@ -94,24 +95,21 @@ public final class SystemCommandRunner: CommandRunning, Sendable {
         let group = DispatchGroup()
         let waitForExit = try process.runWithExitWait()
 
-        let lock = NSLock()
-        var collected = [Data(), Data()]
+        let collected = Mutex([Data(), Data()])
         for (slot, pipe) in [out, err].enumerated() {
             let onLine = slot == 0 ? onStdout : onStderr
-            var buffer = LineBuffer()
+            let buffer = Mutex(LineBuffer())
             group.enter()
             pipe.fileHandleForReading.readabilityHandler = { handle in
                 let chunk = handle.availableData
                 guard !chunk.isEmpty else {
                     handle.readabilityHandler = nil
-                    if let onLine { buffer.finish().forEach(onLine) }
+                    if let onLine { buffer.withLock { $0.finish() }.forEach(onLine) }
                     group.leave()
                     return
                 }
-                lock.lock()
-                collected[slot].append(chunk)
-                lock.unlock()
-                if let onLine { buffer.append(chunk).forEach(onLine) }
+                collected.withLock { $0[slot].append(chunk) }
+                if let onLine { buffer.withLock { $0.append(chunk) }.forEach(onLine) }
             }
         }
         waitForExit()
@@ -119,9 +117,8 @@ public final class SystemCommandRunner: CommandRunning, Sendable {
         func decode(_ data: Data) -> String {
             onStdout == nil && onStderr == nil ? (String(data: data, encoding: .utf8) ?? "") : String(decoding: data, as: UTF8.self)
         }
-        return CommandResult(status: process.terminationStatus,
-                             stdout: decode(collected[0]),
-                             stderr: decode(collected[1]))
+        let output = collected.withLock { $0 }
+        return CommandResult(status: process.terminationStatus, stdout: decode(output[0]), stderr: decode(output[1]))
     }
 }
 

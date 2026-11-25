@@ -1,16 +1,25 @@
 import XCTest
 import AppKit
+import Synchronization
 @testable import NXLibraryCore
 @testable import ArcanePorting
 
 final class BoxArtServiceTests: XCTestCase {
     /// Answers by URL; anything unknown is a 404.
     private final class RoutedClient: ArtworkHTTPClient {
-        var routes: [String: Data] = [:]
-        var requested: [String] = []
+        private let state = Mutex([String: Data]())
+        var routes: [String: Data] {
+            get { state.withLock { $0 } }
+            set { state.withLock { $0 = newValue } }
+        }
+        private let asked = Mutex([String]())
+        var requested: [String] {
+            get { asked.withLock { $0 } }
+            set { asked.withLock { $0 = newValue } }
+        }
         func data(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {
             let url = request.url!.absoluteString
-            requested.append(url)
+            asked.withLock { $0.append(url) }
             let body = routes[url]
             return (body ?? Data(), HTTPURLResponse(url: request.url!, statusCode: body == nil ? 404 : 200,
                                                     httpVersion: nil, headerFields: nil)!)

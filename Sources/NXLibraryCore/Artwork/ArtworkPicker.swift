@@ -219,7 +219,8 @@ public enum ArtworkCandidates {
 /// The artwork a player chose, kept apart from the trimmed cache so it is never
 /// evicted or overwritten. Every screen checks a pick before its automatic art.
 public final class ArtworkPicks: ObservableObject {
-    public static let shared = ArtworkPicks()
+    // Background work only asks `url`, which reads the fixed folder; `revision` is main-thread only, like its views.
+    nonisolated(unsafe) public static let shared = ArtworkPicks()
 
     public enum Failure: LocalizedError {
         case notAnImage

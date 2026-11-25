@@ -1,7 +1,7 @@
 import Foundation
 import NXLibraryCore
 
-public struct ToolchainInfo: Codable, Equatable {
+public struct ToolchainInfo: Codable, Equatable, Sendable {
     public var engineCommit: String?
     public var metalVersion: String?
     public var xcodeVersion: String?

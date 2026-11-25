@@ -216,7 +216,7 @@ public enum DownloadCloudMotion {
     }
 
     public struct Mote: Equatable {
-        public enum Kind { case ink, accent, bubble, sun, star }
+        public enum Kind: Sendable { case ink, accent, bubble, sun, star }
         public let center: CGPoint
         public let radius: Double
         public let opacity: Double

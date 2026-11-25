@@ -1,6 +1,6 @@
 import Foundation
 
-public enum ButtonNameStyle: String, Codable, CaseIterable, Identifiable {
+public enum ButtonNameStyle: String, Codable, CaseIterable, Identifiable, Sendable {
     case automatic, nintendo, xbox, playstation
 
     public var id: String { rawValue }

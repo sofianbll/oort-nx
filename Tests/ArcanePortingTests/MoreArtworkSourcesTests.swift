@@ -1,10 +1,15 @@
 import XCTest
+import Synchronization
 @testable import NXLibraryCore
 @testable import ArcanePorting
 
 final class MoreArtworkSourcesTests: XCTestCase {
     private final class RoutedClient: ArtworkHTTPClient {
-        var routes: [String: Data] = [:]
+        private let state = Mutex([String: Data]())
+        var routes: [String: Data] {
+            get { state.withLock { $0 } }
+            set { state.withLock { $0 = newValue } }
+        }
         func data(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {
             let body = routes[request.url!.absoluteString]
             return (body ?? Data(), HTTPURLResponse(url: request.url!, statusCode: body == nil ? 404 : 200,
@@ -122,7 +127,7 @@ final class MoreArtworkSourcesTests: XCTestCase {
 
     func testOnlyVerifiedNintendoSizesAreUsedAndTheHeadResultIsCached() async throws {
         struct HeadClient: ArtworkHTTPClient {
-            let check: (URLRequest) -> Int
+            let check: @Sendable (URLRequest) -> Int
             func data(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {
                 (Data(), HTTPURLResponse(url: request.url!, statusCode: check(request), httpVersion: nil,
                                          headerFields: ["Content-Type": "image/jpeg"])!)

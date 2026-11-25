@@ -1,6 +1,6 @@
 import Foundation
 
-public enum AppLanguage: String, CaseIterable, Codable, Identifiable {
+public enum AppLanguage: String, CaseIterable, Codable, Identifiable, Sendable {
     case automatic = "auto", english = "en", italian = "it", french = "fr", german = "de", spanish = "es"
     case portugueseBrazil = "pt-BR"
     case chineseSimplified = "zh-Hans"
@@ -20,7 +20,7 @@ public enum AppLanguage: String, CaseIterable, Codable, Identifiable {
     }
 }
 
-public struct AppLocale: Equatable {
+public struct AppLocale: Equatable, Sendable {
     public let language: AppLanguage
     public let region: String
     public var metadataLanguage: String { String(language.rawValue.prefix(2)) }

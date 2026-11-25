@@ -1,7 +1,7 @@
 import Foundation
 import NXLibraryCore
 
-public struct GameRuntimeConfig: Codable, Equatable {
+public struct GameRuntimeConfig: Codable, Equatable, Sendable {
     public var enable60FPS: Bool
     public var enableMetalHUD: Bool
     public var isDockedMode: Bool

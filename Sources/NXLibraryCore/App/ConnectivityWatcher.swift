@@ -1,13 +1,14 @@
 import Foundation
 import Network
+import Synchronization
 
 /// Calls `onReturn` on the main queue when the Mac goes from offline to online, so work that met an outage (the
 /// background description pass) resumes by itself. Starts on first use; it never reports the first reading.
-public final class ConnectivityWatcher {
+public final class ConnectivityWatcher: Sendable {
     private let monitor = NWPathMonitor()
     private let onReturn: @MainActor () -> Void
-    private var started = false
-    private var online: Bool?
+    /// Written on the main queue only.
+    private let state = Mutex((started: false, online: Bool?.none))
 
     public init(onReturn: @escaping @MainActor () -> Void) {
         self.onReturn = onReturn
@@ -17,14 +18,18 @@ public final class ConnectivityWatcher {
 
     /// Main queue only, like `onReturn`.
     public func start() {
-        guard !started else { return }
-        started = true
+        guard state.withLock({ state in
+            defer { state.started = true }
+            return !state.started
+        }) else { return }
         monitor.pathUpdateHandler = { [weak self] path in
             let now = path.status == .satisfied
             DispatchQueue.main.async {
                 guard let self else { return }
-                let returned = Self.returned(previous: self.online, current: now)
-                self.online = now
+                let returned = self.state.withLock { state in
+                    defer { state.online = now }
+                    return Self.returned(previous: state.online, current: now)
+                }
                 if returned { MainActor.assumeIsolated { self.onReturn() } }
             }
         }

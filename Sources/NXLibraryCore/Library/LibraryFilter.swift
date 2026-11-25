@@ -15,7 +15,7 @@ public struct NoPlayHistory: PlayHistory {
 }
 
 /// The tabs above the games, in the order they show: where the games are, then the player's own choices.
-public enum LibraryFilter: String, CaseIterable, Identifiable, Equatable {
+public enum LibraryFilter: String, CaseIterable, Identifiable, Equatable, Sendable {
     case all = "All games"
     case installed = "Installed"
     case cloud = "Cloud"
@@ -35,14 +35,14 @@ public enum LibraryFilter: String, CaseIterable, Identifiable, Equatable {
 }
 
 /// Narrows any tab by play history.
-public enum LibraryPlayed: String, CaseIterable {
+public enum LibraryPlayed: String, CaseIterable, Sendable {
     case any = "All games"
     case notPlayed = "Not played yet"
     case played = "Already played"
 }
 
 /// A row of the Sort and filter panel.
-public enum LibraryMenuItem: Hashable {
+public enum LibraryMenuItem: Hashable, Sendable {
     case sort(LibrarySort), played(LibraryPlayed)
 
     public static let all = LibrarySort.allCases.map(Self.sort) + LibraryPlayed.allCases.map(Self.played)
@@ -55,7 +55,7 @@ public enum LibraryMenuItem: Hashable {
     }
 }
 
-public enum LibrarySort: String, Codable, CaseIterable {
+public enum LibrarySort: String, Codable, CaseIterable, Sendable {
     case recent, name, added, playtime
 
     public var title: String {

@@ -30,16 +30,7 @@ public final class SteamManifestWatcher {
         // The stream holds the watcher until it is released in `stop`, so a callback already queued on the main
         // queue never reaches a freed watcher.
         var context = FSEventStreamContext(version: 0, info: Unmanaged.passUnretained(self).toOpaque(),
-                                           retain: { info in
-                                               guard let info else { return nil }
-                                               _ = Unmanaged<SteamManifestWatcher>.fromOpaque(info).retain()
-                                               return info
-                                           },
-                                           release: { info in
-                                               guard let info else { return }
-                                               Unmanaged<SteamManifestWatcher>.fromOpaque(info).release()
-                                           },
-                                           copyDescription: nil)
+                                           retain: Self.retain, release: Self.release, copyDescription: nil)
         let flags = FSEventStreamCreateFlags(kFSEventStreamCreateFlagFileEvents | kFSEventStreamCreateFlagUseCFTypes
                                              | kFSEventStreamCreateFlagNoDefer)
         guard let stream = FSEventStreamCreate(nil, Self.callback, &context, folders as CFArray,
@@ -98,7 +89,18 @@ public final class SteamManifestWatcher {
         if changed { onChange?() }
     }
 
-    private static let callback: FSEventStreamCallback = { _, info, count, eventPaths, eventFlags, _ in
+    // FSEvents may call these on its own threads, so they stay outside the main actor.
+    private nonisolated static let retain: CFAllocatorRetainCallBack = { info in
+        guard let info else { return nil }
+        _ = Unmanaged<SteamManifestWatcher>.fromOpaque(info).retain()
+        return info
+    }
+    private nonisolated static let release: CFAllocatorReleaseCallBack = { info in
+        guard let info else { return }
+        Unmanaged<SteamManifestWatcher>.fromOpaque(info).release()
+    }
+
+    private nonisolated static let callback: FSEventStreamCallback = { _, info, count, eventPaths, eventFlags, _ in
         guard let info else { return }
         let paths = (unsafeBitCast(eventPaths, to: NSArray.self) as? [String]) ?? []
         let flags = Array(UnsafeBufferPointer(start: eventFlags, count: count))

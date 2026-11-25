@@ -1,9 +1,10 @@
 import Foundation
 import Combine
+import Synchronization
 
 /// The selected locale is captured by background work, while views observe changes on the main thread.
 public final class AppLocalization: ObservableObject {
-    public static let shared = AppLocalization()
+    @MainActor public static let shared = AppLocalization()
     @Published public private(set) var context = AppLocale(language: .english, region: "US")
 
     public func configure(_ settings: AppSettings) {
@@ -15,16 +16,9 @@ public final class AppLocalization: ObservableObject {
 }
 
 public enum L10n {
-    private static let lock = NSLock()
-    private static var selected = AppLocale(language: .english, region: "US")
-    public static var context: AppLocale {
-        lock.lock(); defer { lock.unlock() }
-        return selected
-    }
-    public static func setContext(_ context: AppLocale) {
-        lock.lock(); defer { lock.unlock() }
-        selected = context
-    }
+    private static let selected = Mutex(AppLocale(language: .english, region: "US"))
+    public static var context: AppLocale { selected.withLock { $0 } }
+    public static func setContext(_ context: AppLocale) { selected.withLock { $0 = context } }
 
     /// Installed apps find their resources before considering SwiftPM's development location.
     public static func resources(in app: URL? = nil) -> Bundle? {

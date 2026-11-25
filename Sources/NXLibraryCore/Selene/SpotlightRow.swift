@@ -1,6 +1,6 @@
 import Foundation
 
-public enum SpotlightCard: String, Codable, CaseIterable {
+public enum SpotlightCard: String, Codable, CaseIterable, Sendable {
     case collection, surprise, activity, mods, addGame, inbox
 
     public var title: String {
@@ -161,7 +161,7 @@ public enum SpotlightRow {
     }
 }
 
-public enum SurprisePool: String, Codable, CaseIterable {
+public enum SurprisePool: String, Codable, CaseIterable, Sendable {
     case installed, notPlayed, all
 }
 

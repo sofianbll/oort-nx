@@ -1,6 +1,6 @@
 import Foundation
 
-public enum BackgroundShade: String, Codable, CaseIterable, Identifiable, Equatable {
+public enum BackgroundShade: String, Codable, CaseIterable, Identifiable, Equatable, Sendable {
     case light, balanced, deep
 
     public var id: String { rawValue }
@@ -25,12 +25,12 @@ public enum BackgroundShade: String, Codable, CaseIterable, Identifiable, Equata
 }
 
 /// Which home screen the app opens on (and which one was last used).
-public enum StartScreen: String, Codable, CaseIterable {
+public enum StartScreen: String, Codable, CaseIterable, Sendable {
     case spotlight, collection, last
 }
 
 /// What stands beside Spotlight's platform card.
-public enum PlatformCardInfo: String, Codable, CaseIterable {
+public enum PlatformCardInfo: String, Codable, CaseIterable, Sendable {
     case nameAndCount, name, none
 
     public var titleKey: String {
@@ -43,7 +43,7 @@ public enum PlatformCardInfo: String, Codable, CaseIterable {
 }
 
 /// The corner of a cover that holds its badge. Nextendo's keeps the fourth.
-public enum TileBadgePosition: String, Codable, CaseIterable {
+public enum TileBadgePosition: String, Codable, CaseIterable, Sendable {
     case topRight, topLeft, bottomLeft
 
     public var titleKey: String {
@@ -55,7 +55,7 @@ public enum TileBadgePosition: String, Codable, CaseIterable {
     }
 }
 
-public enum CloudTileBadges: String, Codable, CaseIterable {
+public enum CloudTileBadges: String, Codable, CaseIterable, Sendable {
     case none, spotlight, collection, both
 
     public var showsOnSpotlight: Bool { self == .spotlight || self == .both }
@@ -78,7 +78,7 @@ public enum CloudTileBadges: String, Codable, CaseIterable {
 }
 
 /// How the background artwork is fitted to the window.
-public enum BackgroundSizing: String, Codable, CaseIterable, Identifiable, Equatable {
+public enum BackgroundSizing: String, Codable, CaseIterable, Identifiable, Equatable, Sendable {
     case fill, fit, stretch
 
     public var id: String { rawValue }
@@ -94,7 +94,7 @@ public enum BackgroundSizing: String, Codable, CaseIterable, Identifiable, Equat
 /// How much light a wallpaper or live background keeps, left to right. Selene
 /// draws it at an even 0.6; the default keeps that under the text on the left
 /// and shows the picture at full light on the right.
-public enum WallpaperBrightness: String, Codable, CaseIterable, Identifiable, Equatable {
+public enum WallpaperBrightness: String, Codable, CaseIterable, Identifiable, Equatable, Sendable {
     case dim, balanced, bright
 
     public var id: String { rawValue }
@@ -127,7 +127,7 @@ public enum WallpaperBrightness: String, Codable, CaseIterable, Identifiable, Eq
 }
 
 /// What a game's launch screen shows while its window starts.
-public enum LaunchStyle: String, Codable, CaseIterable, Identifiable, Equatable {
+public enum LaunchStyle: String, Codable, CaseIterable, Identifiable, Equatable, Sendable {
     case artAndLogo, artOnly, logoOnBlack, minimal
 
     public var id: String { rawValue }
@@ -142,7 +142,7 @@ public enum LaunchStyle: String, Codable, CaseIterable, Identifiable, Equatable 
 }
 
 /// Shading laid over the launch screen art.
-public enum LaunchShade: String, Codable, CaseIterable, Identifiable, Equatable {
+public enum LaunchShade: String, Codable, CaseIterable, Identifiable, Equatable, Sendable {
     case none, soft, dark
 
     public var id: String { rawValue }
@@ -205,7 +205,7 @@ public enum InGameHomeButton: String, Codable, CaseIterable, Sendable {
 }
 
 /// Launcher choices moved here from separate stores. Missing fields fall back to the older store.
-public struct LauncherSettingsChoices: Codable, Equatable {
+public struct LauncherSettingsChoices: Codable, Equatable, Sendable {
     public init() {}
     public var gamepadLayout: String? = "oort"
     public var controllerDeadzone: Double?
@@ -220,7 +220,7 @@ public struct LauncherSettingsChoices: Codable, Equatable {
 }
 
 /// Desired source configuration and the exact catalog generation it may replace.
-public struct SteamSourceChoice: Codable, Equatable {
+public struct SteamSourceChoice: Codable, Equatable, Sendable {
     public var enabled: Bool
     public var root: URL
     public let replaces: UUID?
@@ -234,7 +234,7 @@ public struct SteamSourceChoice: Codable, Equatable {
     }
 }
 
-public struct AppSettings: Codable, Equatable {
+public struct AppSettings: Codable, Equatable, Sendable {
     public var launcherChoices = LauncherSettingsChoices()
     public var appLanguage: AppLanguage = .automatic
     public var appRegion: String? = nil

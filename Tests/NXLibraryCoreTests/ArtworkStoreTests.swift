@@ -1,16 +1,24 @@
 import XCTest
 import AppKit
+import Synchronization
 @testable import NXLibraryCore
 
 final class ArtworkStoreTests: XCTestCase {
-    private final class FakeClient: ArtworkHTTPClient {
-        var data: Data?
-        var error: Error?
-        var calls = 0
+    @dynamicMemberLookup private final class FakeClient: ArtworkHTTPClient {
+        struct State: Sendable {
+            var body: Data?
+            var error: Error?
+            var calls = 0
+        }
+        private let state = Mutex(State())
+        subscript<Value: Sendable>(dynamicMember key: WritableKeyPath<State, Value>) -> Value {
+            get { state.withLock { $0[keyPath: key] } }
+            set { state.withLock { $0[keyPath: key] = newValue } }
+        }
         func data(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {
-            calls += 1
-            if let error { throw error }
-            return (data ?? Data(), HTTPURLResponse(url: request.url!, statusCode: 200,
+            let now = state.withLock { $0.calls += 1; return $0 }
+            if let error = now.error { throw error }
+            return (now.body ?? Data(), HTTPURLResponse(url: request.url!, statusCode: 200,
                                                     httpVersion: nil, headerFields: nil)!)
         }
     }
@@ -37,7 +45,7 @@ final class ArtworkStoreTests: XCTestCase {
 
     func testFetchCachesAndDoesNotRedownload() async throws {
         let client = FakeClient()
-        client.data = imageData(width: 3000, height: 2000)
+        client.body = imageData(width: 3000, height: 2000)
         let store = ArtworkStore(cacheDirectory: tempDir(), client: client)
         let url = URL(string: "https://example.com/hero.jpg")!
         let first = await store.fetch(titleID: "0100", remoteURL: url, kind: .hero)
@@ -59,7 +67,7 @@ final class ArtworkStoreTests: XCTestCase {
 
     func testNilRemoteURLReturnsCachedFileWhenPresent() async {
         let client = FakeClient()
-        client.data = imageData(width: 800, height: 600)
+        client.body = imageData(width: 800, height: 600)
         let dir = tempDir()
         let store = ArtworkStore(cacheDirectory: dir, client: client)
         let url = URL(string: "https://example.com/cover.jpg")!
@@ -71,7 +79,7 @@ final class ArtworkStoreTests: XCTestCase {
 
     func testClearRemovesFiles() async {
         let client = FakeClient()
-        client.data = imageData(width: 800, height: 600)
+        client.body = imageData(width: 800, height: 600)
         let dir = tempDir()
         let store = ArtworkStore(cacheDirectory: dir, client: client)
         _ = await store.fetch(titleID: "0100",
@@ -84,7 +92,7 @@ final class ArtworkStoreTests: XCTestCase {
 
     func testTrimRemovesFilesOverCap() async {
         let client = FakeClient()
-        client.data = imageData(width: 800, height: 600)
+        client.body = imageData(width: 800, height: 600)
         let store = ArtworkStore(cacheDirectory: tempDir(), client: client)
         _ = await store.fetch(titleID: "0100",
                               remoteURL: URL(string: "https://example.com/cover.jpg"),
@@ -96,7 +104,7 @@ final class ArtworkStoreTests: XCTestCase {
 
     func testDownsampleLimitsHeroAndCover() async {
         let client = FakeClient()
-        client.data = imageData(width: 4000, height: 3000)
+        client.body = imageData(width: 4000, height: 3000)
         let dir = tempDir()
         let store = ArtworkStore(cacheDirectory: dir, client: client)
         let hero = await store.fetch(titleID: "0100",
@@ -113,7 +121,7 @@ final class ArtworkStoreTests: XCTestCase {
 
     func testLogoPreservesPNG() async {
         let client = FakeClient()
-        client.data = imageData(width: 800, height: 400)
+        client.body = imageData(width: 800, height: 400)
         let dir = tempDir()
         let store = ArtworkStore(cacheDirectory: dir, client: client)
         let logo = await store.fetch(titleID: "0100",
@@ -125,7 +133,7 @@ final class ArtworkStoreTests: XCTestCase {
 
     func testSquareKindFileURL() async {
         let client = FakeClient()
-        client.data = imageData(width: 1024, height: 1024)
+        client.body = imageData(width: 1024, height: 1024)
         let dir = tempDir()
         let store = ArtworkStore(cacheDirectory: dir, client: client)
         let url = await store.fetch(titleID: "0100ABC",
@@ -138,7 +146,7 @@ final class ArtworkStoreTests: XCTestCase {
     func testSquareMaxPixelSize512() async {
         XCTAssertEqual(ArtworkKind.square.maxPixelSize, 512)
         let client = FakeClient()
-        client.data = imageData(width: 1024, height: 1024)
+        client.body = imageData(width: 1024, height: 1024)
         let store = ArtworkStore(cacheDirectory: tempDir(), client: client)
         let url = await store.fetch(titleID: "0100",
                                     remoteURL: URL(string: "https://example.com/s.png"),
@@ -156,7 +164,7 @@ final class ArtworkStoreTests: XCTestCase {
         ctx.fill(CGRect(x: 0, y: 0, width: 32, height: 64))
         let png = NSBitmapImageRep(cgImage: ctx.makeImage()!).representation(using: .png, properties: [:])!
         let client = FakeClient()
-        client.data = png
+        client.body = png
         let store = ArtworkStore(cacheDirectory: tempDir(), client: client)
         let url = await store.fetch(titleID: "0100",
                                     remoteURL: URL(string: "https://example.com/s.png"),
@@ -169,7 +177,7 @@ final class ArtworkStoreTests: XCTestCase {
 
     func testScreenshotCachePath() async throws {
         let client = FakeClient()
-        client.data = imageData(width: 3200, height: 1800)
+        client.body = imageData(width: 3200, height: 1800)
         let dir = tempDir()
         let store = ArtworkStore(cacheDirectory: dir, client: client)
         let url = URL(string: "https://api.nlib.cc/nx/0100/screen/1")!

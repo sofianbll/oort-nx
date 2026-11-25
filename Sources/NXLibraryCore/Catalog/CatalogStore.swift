@@ -10,21 +10,21 @@ public enum CatalogStoreError: Error, Equatable {
 
 /// The older library file a source converts into a first catalog: its main file and backup, next to `catalog.json`,
 /// and the conversion. The store keeps the converted bytes' fingerprint and refuses to load once they change.
-public struct CatalogLegacyImport {
+public struct CatalogLegacyImport: Sendable {
     public let primary: String
     public let backup: String
-    public let convert: (Data, CatalogLegacyOrigin) throws -> CatalogDocument
-    public init(primary: String, backup: String, convert: @escaping (Data, CatalogLegacyOrigin) throws -> CatalogDocument) {
+    public let convert: @Sendable (Data, CatalogLegacyOrigin) throws -> CatalogDocument
+    public init(primary: String, backup: String, convert: @escaping @Sendable (Data, CatalogLegacyOrigin) throws -> CatalogDocument) {
         self.primary = primary; self.backup = backup; self.convert = convert
     }
 }
 
 /// Versioned persistence for the generalization branch. CatalogRepository owns
 /// all app game-record mutations; legacy files remain recovery inputs.
-public struct CatalogStore {
+public struct CatalogStore: Sendable {
     public let directory: URL
     private let publication: CatalogPublication
-    let removalTrashDirectory: (URL) throws -> URL
+    let removalTrashDirectory: @Sendable (URL) throws -> URL
     private static let maximumBytes = 16 * 1024 * 1024
 
     /// The record kinds this store reads; a record of any other kind is kept as it is (`CatalogDocument.preservedGames`).
@@ -36,7 +36,7 @@ public struct CatalogStore {
         self.init(directory: directory, publication: .atomic, kinds: kinds, legacy: legacy)
     }
     package init(directory: URL, publication: CatalogPublication, kinds: CatalogRecordKinds, legacy: CatalogLegacyImport?,
-                 removalTrashDirectory: @escaping (URL) throws -> URL = {
+                 removalTrashDirectory: @escaping @Sendable (URL) throws -> URL = {
                      try FileManager.default.url(for: .trashDirectory, in: .userDomainMask, appropriateFor: $0, create: false)
                  }) {
         self.directory = directory.standardizedFileURL

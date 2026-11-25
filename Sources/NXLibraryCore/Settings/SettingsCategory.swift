@@ -1,7 +1,7 @@
 import Foundation
 
 /// Visible navigation only. `SettingsSection` still owns routes, search rows and reset scope.
-public enum SettingsCategory: String, CaseIterable, Identifiable {
+public enum SettingsCategory: String, CaseIterable, Identifiable, Sendable {
     case general, appearance, sound, controllers
     case account, profilePage, multiplayer
     case home, library, `switch`, saves, cloudLibrary

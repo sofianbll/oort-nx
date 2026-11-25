@@ -2,7 +2,7 @@ import Foundation
 
 /// The current first-run tour and the resumable legacy Porting path share the Setup layer.
 public struct FirstRunSetup: Equatable {
-    public enum Page: String {
+    public enum Page: String, Sendable {
         case welcome, controller, profile, localGames, services, look
         case found, requirements, games
 
@@ -84,7 +84,7 @@ public struct FirstRunSetup: Equatable {
         }
     }
 
-    public enum Focus: Equatable {
+    public enum Focus: Equatable, Sendable {
         case apps, file, folder, back, finish
         /// The `found` page: the Steam switch (only when Steam is there), the Porting card, Open library.
         case steamToggle, portingCard, openLibrary

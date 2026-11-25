@@ -1,7 +1,7 @@
 import Foundation
 import NXLibraryCore
 
-public enum TargetPlatform: String, Codable, CaseIterable, Identifiable {
+public enum TargetPlatform: String, Codable, CaseIterable, Identifiable, Sendable {
     case macApp = "mac-app"
 
     public var id: String { rawValue }

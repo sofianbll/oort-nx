@@ -32,7 +32,7 @@ public struct CatalogLegacyOrigin: Codable, Equatable, Sendable {
     public static let absent = Self(kind: .absent, sha256: nil)
 }
 
-public struct CatalogDocument: Codable, Equatable {
+public struct CatalogDocument: Codable, Equatable, Sendable {
     public let schemaVersion: Int
     public internal(set) var revision: UUID
     public let legacyOrigin: CatalogLegacyOrigin

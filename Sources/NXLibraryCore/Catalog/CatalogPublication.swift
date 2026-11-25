@@ -3,13 +3,13 @@ import Darwin
 
 /// Only the commit boundary is replaceable; staging, decoding, locking and
 /// source/revision checks remain real in failure and concurrency tests.
-package struct CatalogPublication {
-    package let publish: (_ staged: URL, _ destination: URL, _ replacing: Bool, _ validate: () throws -> Void) throws -> Void
+package struct CatalogPublication: Sendable {
+    package let publish: @Sendable (_ staged: URL, _ destination: URL, _ replacing: Bool, _ validate: () throws -> Void) throws -> Void
 
-    let syncDirectory: (URL) throws -> Void
+    let syncDirectory: @Sendable (URL) throws -> Void
 
-    init(syncDirectory: @escaping (URL) throws -> Void = Self.synchronize,
-         publish: @escaping (URL, URL, Bool, () throws -> Void) throws -> Void) {
+    init(syncDirectory: @escaping @Sendable (URL) throws -> Void = Self.synchronize,
+         publish: @escaping @Sendable (URL, URL, Bool, () throws -> Void) throws -> Void) {
         self.syncDirectory = syncDirectory
         self.publish = publish
     }

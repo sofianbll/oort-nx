@@ -1,5 +1,6 @@
 import XCTest
 import AppKit
+import Synchronization
 @testable import NXLibraryCore
 
 final class AutomaticIconTests: XCTestCase {
@@ -34,22 +35,29 @@ final class AutomaticIconTests: XCTestCase {
         XCTAssertTrue(SwitchIconShowdown.allowsIcons(in: "User-agent: *\nDisallow: /images/\nAllow: /images/828.png\n", path: "/images/828.png"))
     }
 
-    private final class Client: ArtworkHTTPClient {
-        var requests: [URL] = []
-        var primaryStatus = 404
-        var robots = "User-agent: *\nAllow: /\n"
-        var searchHTML = ""
-        var image: Data = Data()
-        var offline = false
+    @dynamicMemberLookup private final class Client: ArtworkHTTPClient {
+        struct State: Sendable {
+            var requests: [URL] = []
+            var primaryStatus = 404
+            var robots = "User-agent: *\nAllow: /\n"
+            var searchHTML = ""
+            var image: Data = Data()
+            var offline = false
+        }
+        private let state = Mutex(State())
+        subscript<Value: Sendable>(dynamicMember key: WritableKeyPath<State, Value>) -> Value {
+            get { state.withLock { $0[keyPath: key] } }
+            set { state.withLock { $0[keyPath: key] = newValue } }
+        }
         func data(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {
             let url = request.url!
-            requests.append(url)
-            if offline { throw URLError(.notConnectedToInternet) }
+            let now = state.withLock { $0.requests.append(url); return $0 }
+            if now.offline { throw URLError(.notConnectedToInternet) }
             let data: Data, status: Int
-            if url.host == "api.nlib.cc" { data = image; status = primaryStatus }
-            else if url.path == "/robots.txt" { data = Data(robots.utf8); status = 200 }
-            else if url.path == "/search.php" { data = Data(searchHTML.utf8); status = 200 }
-            else { data = image; status = 200 }
+            if url.host == "api.nlib.cc" { data = now.image; status = now.primaryStatus }
+            else if url.path == "/robots.txt" { data = Data(now.robots.utf8); status = 200 }
+            else if url.path == "/search.php" { data = Data(now.searchHTML.utf8); status = 200 }
+            else { data = now.image; status = 200 }
             return (data, HTTPURLResponse(url: url, statusCode: status, httpVersion: nil, headerFields: nil)!)
         }
     }

@@ -23,7 +23,7 @@ public enum ArtworkKind: String, Codable {
     }
 }
 
-public protocol ArtworkHTTPClient {
+public protocol ArtworkHTTPClient: Sendable {
     func data(for request: URLRequest) async throws -> (Data, HTTPURLResponse)
 }
 

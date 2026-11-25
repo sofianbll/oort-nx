@@ -2,7 +2,8 @@ import Foundation
 import Combine
 import Darwin
 
-public final class AppSettingsStore: ObservableObject {
+// @unchecked: the main thread owns the snapshots and their revision, the serial `writer` owns the disk state.
+public final class AppSettingsStore: ObservableObject, @unchecked Sendable {
     @Published public var settings: AppSettings {
         didSet {
             if settings.lastSelectedGameID != oldValue.lastSelectedGameID {
@@ -105,13 +106,18 @@ public final class AppSettingsStore: ObservableObject {
 
         let revision = nextWriteRevision()
         let snapshot = snapshotForWrite()
-        let work = DispatchWorkItem { [weak self] in
+        let work = selectionWrite(snapshot, revision: revision)
+        pendingSelectionWrite = work
+        writer.async(execute: work)
+    }
+
+    /// Outside the main actor: the block runs on `writer`, and Swift 6 stops a main-actor block that runs elsewhere.
+    private func selectionWrite(_ snapshot: AppSettings, revision: Int) -> DispatchWorkItem {
+        DispatchWorkItem { [weak self] in
             guard let self else { return }
             let outcome = self.write(snapshot)
             DispatchQueue.main.async { [weak self] in self?.publish(outcome, revision: revision) }
         }
-        pendingSelectionWrite = work
-        writer.async(execute: work)
     }
 
     /// Quitting can overtake the queued write. Save the latest value before exiting.

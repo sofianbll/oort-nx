@@ -1,7 +1,7 @@
 import Foundation
 
 /// The sections on the Settings screen. `search` and `changed` are computed lists.
-public enum SettingsSection: String, CaseIterable, Identifiable, Equatable {
+public enum SettingsSection: String, CaseIterable, Identifiable, Equatable, Sendable {
     // Keep the historical order for the search catalog and existing section contracts.
     // Raw values are identities and never change: `sources` is the Sources page, `library` and
     // `games` are Porting's Game folders and New games.
@@ -128,7 +128,7 @@ public enum SettingsSection: String, CaseIterable, Identifiable, Equatable {
 }
 
 /// Legacy section group names and catalog ordering. `SettingsCategory` draws the current sidebar.
-public struct SettingsSidebarGroup: Identifiable, Equatable {
+public struct SettingsSidebarGroup: Identifiable, Equatable, Sendable {
     /// Localization key ("Settings group: Porting"); the first group has none.
     public let heading: String?
     public let sections: [SettingsSection]

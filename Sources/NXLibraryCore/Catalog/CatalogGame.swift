@@ -116,7 +116,7 @@ public struct SteamCatalogGame: Codable, Equatable, Identifiable, Sendable {
 
 /// One catalog entry, with one owner for each field. The record is the source's own value, kept whole: the complete
 /// nxnative record for a ported game, `SteamCatalogGame` for Steam; a Steam entry never needs build or settings defaults.
-public struct CatalogGame: Identifiable, Codable, Equatable {
+public struct CatalogGame: Identifiable, Codable, Equatable, Sendable {
     public private(set) var record: any CatalogSourceRecord
     public let personalizationReference: CatalogPersonalizationReference
 

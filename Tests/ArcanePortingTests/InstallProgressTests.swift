@@ -1,4 +1,5 @@
 import XCTest
+import Synchronization
 @testable import NXLibraryCore
 @testable import ArcanePorting
 
@@ -33,15 +34,14 @@ final class InstallProgressTests: XCTestCase {
     }
 
     func testStreamDeliversBothPipesAndStatus() throws {
-        var lines: [String] = []
-        let lock = NSLock()
+        let lines = Mutex([String]())
         let result = try SystemCommandRunner().stream(
             URL(fileURLWithPath: "/bin/sh"), ["-c", "printf 'a\\rb\\n'; printf 'err\\n' >&2; printf 'c'; exit 3"],
             environment: nil, currentDirectory: nil) { line in
-                lock.lock(); lines.append(line); lock.unlock()
+                lines.withLock { $0.append(line) }
             }
         XCTAssertEqual(result.status, 3)
-        XCTAssertEqual(Set(lines), ["a", "b", "c", "err"])
+        XCTAssertEqual(Set(lines.withLock { $0 }), ["a", "b", "c", "err"])
         XCTAssertTrue(result.stderr.contains("err"))
         XCTAssertTrue(result.stdout.contains("c"))
     }

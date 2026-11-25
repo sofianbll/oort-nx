@@ -1,7 +1,7 @@
 import Foundation
 import NXLibraryCore
 
-public struct PortedGame: Identifiable, Codable, Equatable {
+public struct PortedGame: Identifiable, Codable, Equatable, Sendable {
     public var id: UUID
     public var name: String
     public var url: URL

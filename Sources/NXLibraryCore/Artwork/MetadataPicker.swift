@@ -33,7 +33,8 @@ public struct MetadataOption: Equatable, Hashable, Sendable {
 /// The details a player chose, per title, in `metadata-picks.json`. They are laid
 /// over the store's metadata wherever it shows, and never overwritten by a refresh.
 public final class MetadataPicks: ObservableObject {
-    public static let shared = MetadataPicks()
+    // Main thread only, like its views; the app's models that use it are not yet main-actor types.
+    nonisolated(unsafe) public static let shared = MetadataPicks()
 
     public let directory: URL
     /// Bumps on every change, so screens redraw.

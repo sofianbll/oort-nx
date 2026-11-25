@@ -1,7 +1,7 @@
 import Foundation
 
 /// Splits a byte stream into lines on \n or \r: progress meters redraw with \r.
-public struct LineBuffer {
+public struct LineBuffer: Sendable {
     private var pending = Data()
 
     public init() {}

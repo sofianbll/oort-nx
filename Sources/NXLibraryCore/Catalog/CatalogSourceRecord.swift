@@ -17,7 +17,7 @@ public struct CatalogIntegration: RawRepresentable, Hashable, Codable, Sendable,
 
 /// What the catalog needs from a source's game: who it is, the player's two flags, whether the record is sound, and
 /// how it is present on this Mac. Steam's record (`SteamCatalogGame`) is in the base; a module adds its own.
-public protocol CatalogSourceRecord: Codable, Equatable {
+public protocol CatalogSourceRecord: Codable, Equatable, Sendable {
     static var integration: CatalogIntegration { get }
     var id: UUID { get }
     var name: String { get }
@@ -56,7 +56,7 @@ public struct CatalogRecordPresence: Equatable, Sendable {
 
 /// The record types a catalog reader knows, given by whoever creates the store or the decoder (never a global list).
 /// A record of any other integration is kept untouched.
-public struct CatalogRecordKinds: @unchecked Sendable {
+public struct CatalogRecordKinds: Sendable {
     public let types: [any CatalogSourceRecord.Type]
     public init(_ types: [any CatalogSourceRecord.Type]) { self.types = types }
 

@@ -72,7 +72,8 @@ public enum AppData {
         try! FileManager.default.createDirectory(at: home, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
         return home
     }()
-    private static let fixturePreferences = integrationFixtureHome.map {
+    // UserDefaults is thread-safe (Apple's documentation) without being Sendable; the reference never changes.
+    nonisolated(unsafe) private static let fixturePreferences = integrationFixtureHome.map {
         UserDefaults(suiteName: $0.appendingPathComponent("preferences").path)!
     }
     #endif

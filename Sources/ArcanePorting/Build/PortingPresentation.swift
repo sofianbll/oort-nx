@@ -3,7 +3,7 @@ import NXLibraryCore
 
 /// How the last porting of a game ended when it did not succeed. Saved with the
 /// game, so the home still shows it after a relaunch; a successful porting clears it.
-public enum PortingFailure: String, Codable, Equatable {
+public enum PortingFailure: String, Codable, Equatable, Sendable {
     case failed
     case cancelled
 }

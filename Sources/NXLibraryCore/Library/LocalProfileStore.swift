@@ -2,7 +2,7 @@ import Combine
 import CryptoKit
 import Foundation
 
-public enum ProfileStartup: Codable, Equatable {
+public enum ProfileStartup: Codable, Equatable, Sendable {
     case ask, last, profile(UUID)
 
     public func available(in profiles: [LocalProfile]) -> Self {

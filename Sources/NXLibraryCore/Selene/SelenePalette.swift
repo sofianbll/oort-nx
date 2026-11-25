@@ -1,12 +1,12 @@
 import Foundation
 
 /// A Selene colour palette (ported from Selene's theme/Palettes, MIT). Colours are 0xRRGGBB.
-public struct SelenePalette: Codable, Equatable, Identifiable {
-    public enum Mode: String, Codable { case dark, light }
+public struct SelenePalette: Codable, Equatable, Identifiable, Sendable {
+    public enum Mode: String, Codable, Sendable { case dark, light }
 
-    public struct BaseGradient: Codable, Equatable {
-        public enum Kind: String, Codable { case linear, radial }
-        public struct Stop: Codable, Equatable {
+    public struct BaseGradient: Codable, Equatable, Sendable {
+        public enum Kind: String, Codable, Sendable { case linear, radial }
+        public struct Stop: Codable, Equatable, Sendable {
             public var color: UInt32
             public var location: Double
             public init(color: UInt32, location: Double) {
