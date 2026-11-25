@@ -87,6 +87,18 @@ class OortCase: XCTestCase {
 
     func button(_ label: String) -> XCUIElement { app.buttons[label].firstMatch }
 
+    /// Oort NX's question over the app, or one of the system's.
+    var question: XCUIElement { app.descendants(matching: .any).matching(identifier: "oort.question").firstMatch }
+    var asked: Bool { question.exists || app.alerts.firstMatch.exists }
+    func waitForQuestion(_ seconds: TimeInterval = 30) -> Bool {
+        let end = Date().addingTimeInterval(seconds)
+        while Date() < end { if asked { return true }; Thread.sleep(forTimeInterval: 0.25) }
+        return false
+    }
+    /// What the question says, and its way out.
+    var questionWords: [String] { (question.exists ? question : app.alerts.firstMatch).staticTexts.allElementsBoundByIndex.map(\.label) }
+    func agree() { (question.exists ? app.buttons : app.alerts.firstMatch.buttons)[say("OK")].firstMatch.tap() }
+
     /// A row reads its value after its name.
     func row(_ key: String) -> XCUIElement { app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", say(key))).firstMatch }
 

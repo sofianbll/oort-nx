@@ -54,6 +54,8 @@ struct HomeView: View {
 
     private var detail: GameDetail? { model.details.first { $0.id == nav.selected } ?? model.details.first }
     private var rows: [[Target]] { [model.details.map { .game($0.id) }, [.play, .info, .options]] }
+    /// What A acts on: Play until the controller goes elsewhere.
+    private var ring: Target? { nav.device == nil ? nil : focus.current ?? .play }
 
     var body: some View {
         GeometryReader { geometry in
@@ -77,9 +79,16 @@ struct HomeView: View {
                 nav.importing = true
                 return true
             }
+            if focus.current == nil {
+                let across = action == .left || action == .right
+                // A ring that was not shown moves along the games; a shown one starts from Play.
+                focus.set(nav.revealing && across ? detail.map { .game($0.id) } : .play)
+                if nav.revealing && action == .activate { nav.sounds.play(.move); return true }
+            } else if nav.revealing && action == .activate {
+                return true
+            }
             switch action {
             case .up, .down, .left, .right:
-                if focus.current == nil { focus.set(detail.map { .game($0.id) }) }
                 guard focus.move(direction(action), in: rows) else { nav.sounds.play(.deny); return true }
                 nav.sounds.play(.move)
                 if case .game(let id) = focus.current { withAnimation(Oort.focusCurve(reduceMotion)) { nav.selected = id } }
@@ -240,7 +249,6 @@ struct HomeView: View {
 
     private func keys(_ detail: GameDetail, wide: Bool) -> some View {
         let action = OortGameAction(detail, model: model, nav: nav)
-        let pad = nav.device != nil
         // The largest texts put the main key on a line of its own.
         let layout = type.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: SeleneTokens.Space.small))
                                               : AnyLayout(HStackLayout(spacing: SeleneTokens.Space.small))
@@ -249,23 +257,24 @@ struct HomeView: View {
                 Label(action.label, systemImage: action.symbol).lineLimit(type.isAccessibilitySize ? 2 : 1).minimumScaleFactor(0.8)
                     .frame(maxWidth: wide ? .infinity : nil)
             }
-            .buttonStyle(OortKeyStyle(solid: true, focused: pad && focus.current == .play))
+            .buttonStyle(OortKeyStyle(solid: true, focused: ring == .play))
             .disabled(!action.enabled)
             .accessibilityHint(action.line)
             HStack(spacing: SeleneTokens.Space.small) {
                 Button(action: openInfo) { Image(systemName: "info") }
-                    .buttonStyle(OortKeyStyle(focused: pad && focus.current == .info, round: true))
+                    .buttonStyle(OortKeyStyle(focused: ring == .info, round: true))
                     .accessibilityLabel(Oort.text("Game page"))
                 Button(action: openOptions) { Image(systemName: "slider.horizontal.3") }
-                    .buttonStyle(OortKeyStyle(focused: pad && focus.current == .options, round: true))
+                    .buttonStyle(OortKeyStyle(focused: ring == .options, round: true))
                     .accessibilityLabel(Oort.text("Options"))
             }
         }
     }
 
     private var hints: some View {
-        OortHints(nav: nav, hints: [(.activate, focus.current == .options ? Oort.text("Options") : detail.map { OortGameAction($0, model: model, nav: nav).label } ?? ""),
-                                    (.settings, Oort.text("Options")), (.controllers, Oort.text("Controllers")), (.nextTab, Oort.text("Library"))])
+        let main = detail.map { OortGameAction($0, model: model, nav: nav).label } ?? ""
+        let verb = ring == .info ? Oort.text("Game page") : ring == .options ? Oort.text("Options") : main
+        return OortHints(nav: nav, hints: [(.activate, verb), (.settings, Oort.text("Options")), (.search, Oort.text("Search")), (.nextTab, Oort.text("Tabs"))])
     }
 
     private func rail(tile: CGFloat, gutter: CGFloat = SeleneTokens.Space.large) -> some View {

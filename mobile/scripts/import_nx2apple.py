@@ -121,6 +121,8 @@ EDITS.append(("LauncherProfile", "    public var id: String { env }\n", """    p
     }
 """, SHARED))
 TABS = "L and R change the tab."
+SEARCH = "Y searches the games."
+QUIET = "Nothing is read while a game runs; a hardware keyboard sends the same actions."
 EDITS += [
     ("ShellArtwork", "    let image: CGImage\n", "    public let image: CGImage\n", "Read by Oort NX's screens."),
     ("PadMapping", "        case .leftShoulder, .rightShoulder: nil\n", "        case .leftShoulder: .previousTab\n        case .rightShoulder: .nextTab\n", TABS),
@@ -129,6 +131,27 @@ EDITS += [
     ("GameCheatsStoreTests", ",\n            sideloadCertBacking: InMemoryCertBacking()", "", SIGN),
     ("TestSupport", "                               openURL: open, fetchBannerData: fetchBannerData,\n                               fetchBannerOutcome: fetchBannerOutcome,\n                               fetchStoreResponse: fetchStoreResponse, now: now,\n                               sideloadCertBacking: InMemoryCertBacking())",
      "                               openURL: open, now: now)", NET + " " + SIGN),
+    ("ShellInputs", "controllers, shellSettings, previousTab, nextTab }", "controllers, shellSettings, previousTab, nextTab, search }", SEARCH),
+    ("PadMapping", "        case .y: .controllers\n", "        case .y: .search\n", SEARCH),
+    ("PadMapping", "Y opens Controllers, Options", "Y searches the games, Options", SEARCH),
+    ("PadMappingTests", "XCTAssertEqual(PadMapper.action(for: .y), .controllers)", "XCTAssertEqual(PadMapper.action(for: .y), .search)", SEARCH),
+    ("ShellHostModel", "            guard let self, !self.launchingGame else { return }\n            self.input.append(action, device: device)\n",
+     "            guard let self, !self.launchingGame, !self.gameIsRunning else { return }\n            self.input.append(action, device: device)\n", QUIET),
+    ("ShellHostModel", "        adapter.onRelease = { [weak self] action, device in self?.input.append(action, device: device, released: true) }\n",
+     """        adapter.onRelease = { [weak self] action, device in
+            guard let self, !self.gameIsRunning else { return }
+            self.input.append(action, device: device, released: true)
+        }\n""", QUIET),
+    ("ShellHostModel", "    public func stopControllers() { adapter.stop() }\n", """    public func stopControllers() { adapter.stop() }
+
+    /// A game has the screen: its presses are its own, none is kept for the library.
+    private var gameIsRunning: Bool { !(config.activeRunningGameID() ?? "").isEmpty }
+
+    /// A key of a hardware keyboard: the same actions as a controller's, with the keyboard's own hints.
+    public func keyPressed(_ action: ShellInput.Action) {
+        guard !launchingGame, !gameIsRunning else { return }
+        input.append(action, device: .keyboard)
+    }\n""", QUIET),
     ("ShellHostModel", "        startMissingBannerFetch()\n", "", NET),
     ("ShellHostModel", "        await certificateLoadTask?.value\n", "", SIGN),
     ("ShellHostModel", "        await bannerFetchTask?.value\n", "", NET),

@@ -30,12 +30,18 @@ struct SettingsScreen: View {
         var folders = [OortRow(id: "data", title: Oort.text("Folder for every game's data"), value: store.dataFolderName ?? Oort.text("The app's own"),
                                symbol: "internaldrive", kind: .button { a.onPickShellData() })]
         if store.dataBookmark != nil {
-            folders.append(OortRow(id: "dataoff", title: Oort.text("Use the app's own folder"), symbol: "arrow.uturn.backward", kind: .button { a.onClearShellData(); changes += 1 }))
+            folders.append(OortRow(id: "dataoff", title: Oort.text("Use the app's own folder"), symbol: "arrow.uturn.backward", kind: .button {
+                nav.question = .confirm(Oort.text("Use the app's own folder?"), Oort.text("Oort NX stops reading the folder you chose for every game. Nothing is deleted."),
+                                        Oort.text("Use the app's own folder")) { a.onClearShellData(); changes += 1 }
+            }))
         }
         folders.append(OortRow(id: "cloud", title: Oort.text("Folder the saves follow"), value: store.cloudSavesFolderName ?? Oort.text("None"),
                                symbol: "folder.badge.gearshape", kind: .button { a.onPickShellCloud() }))
         if store.cloudSavesBookmark != nil {
-            folders.append(OortRow(id: "cloudoff", title: Oort.text("Stop following the folder"), symbol: "xmark.circle", kind: .button { a.onClearShellCloud(); changes += 1 }))
+            folders.append(OortRow(id: "cloudoff", title: Oort.text("Stop following the folder"), symbol: "xmark.circle", kind: .button {
+                nav.question = .confirm(Oort.text("Stop following the folder?"), Oort.text("Your saves stay on this device and in the folder. They no longer follow each other."),
+                                        Oort.text("Stop following the folder")) { a.onClearShellCloud(); changes += 1 }
+            }))
         }
         return signing + [
             OortSection(id: "games", title: Oort.text("Games"), rows: [
@@ -76,7 +82,7 @@ struct ActivityScreen: View {
             OortSection(id: "games", title: Oort.text("Games"), footer: Oort.text("Counted on this device only."), rows: log.entries.map {
                 OortRow(id: $0.id, title: $0.title, value: $0.totalTime, note: $0.lastPlayed)
             }),
-        ].filter { !$0.rows.isEmpty }) { EmptyView() }
+        ].filter { !$0.rows.isEmpty }, readAll: true) { EmptyView() }
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
@@ -99,7 +105,7 @@ struct CreditsScreen: View {
                 OortRow(id: "notices", title: Oort.text("Every notice, in full"), symbol: "doc.text", kind: .open(.notices)),
                 OortRow(id: "mit", title: "MIT", note: Self.licence),
             ]),
-        ]) { EmptyView() }
+        ], readAll: true) { EmptyView() }
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
@@ -138,13 +144,16 @@ struct NoticesScreen: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(SeleneTokens.Space.panel)
         }
+        .modifier(OortReading(model: model, nav: nav))
         .background(Oort.page)
         .navigationTitle(Oort.text("Every notice, in full"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .task { texts = Self.read(from: .main) }
-        .oortInput(model, nav) { _ in false }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            OortHints(nav: nav, hints: [(.back, Oort.text("Back"))]).padding(SeleneTokens.Space.compact)
+        }
     }
 
     /// One paragraph at a time, so a screen reader and the list do not take the whole file at once.

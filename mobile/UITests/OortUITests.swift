@@ -230,11 +230,10 @@ final class OortUITests: OortCase {
         tab("Library")
         tap(app.buttons[name].firstMatch, name)
         tap(button(say("Play")), "Play")
-        let alert = app.alerts.firstMatch
-        XCTAssertTrue(alert.waitForExistence(timeout: 30), "the refusal is said")
-        note("refused start: \(alert.staticTexts.allElementsBoundByIndex.map(\.label))", in: "words.txt")
+        XCTAssertTrue(waitForQuestion(), "the refusal is said")
+        note("refused start: \(questionWords)", in: "words.txt")
         shot("52-code-refused")
-        alert.buttons[say("OK")].tap()
+        agree()
         XCTAssertTrue(button(say("Play")).waitForExistence(timeout: 10))
     }
 
@@ -273,7 +272,7 @@ final class OortUITests: OortCase {
         if open.waitForExistence(timeout: 5), open.isEnabled, open.isHittable { open.tap() }
         shows("This is not a game built for Oort NX. Pick a folder that ends in .framework.")
         shot("55-import-refused")
-        app.alerts.firstMatch.buttons[say("OK")].tap()
+        agree()
         shows("No game here yet")
     }
 

@@ -8,8 +8,6 @@ struct GameScreen: View {
     let id: String
     let model: ShellHostModel
     @Bindable var nav: OortNav
-    @State private var deleting = false
-    @State private var picking = false
     @State private var picture: PhotosPickerItem?
     @State private var copied = false
     @Environment(\.horizontalSizeClass) private var across
@@ -25,18 +23,12 @@ struct GameScreen: View {
                 #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
                 #endif
-                .photosPicker(isPresented: $picking, selection: $picture, matching: .images)
+                .photosPicker(isPresented: $nav.picking, selection: $picture, matching: .images)
                 .onChange(of: picture) { _, item in
                     Task {
                         guard let data = try? await item?.loadTransferable(type: Data.self), let cover = OortCover.banner(from: data) else { return }
                         model.actions.onSaveCustomCover?(id, cover)
                     }
-                }
-                .confirmationDialog(Oort.text("Remove \(detail.game.title) from this device?"), isPresented: $deleting, titleVisibility: .visible) {
-                    Button(Oort.text("Remove the game, keep its saves"), role: .destructive) { remove(saves: false) }
-                    Button(Oort.text("Remove the game and its saves"), role: .destructive) { remove(saves: true) }
-                } message: {
-                    Text(Oort.text("Its data is deleted from this device. You can send it again from your Mac; a deleted save cannot come back."))
                 }
         } else {
             ContentUnavailableView(Oort.text("This game is no longer here"), systemImage: "square.dashed")
@@ -88,6 +80,14 @@ struct GameScreen: View {
         model.actions.onDeleteGame(id, saves)
     }
 
+    private func askToRemove(_ title: String) {
+        nav.question = OortQuestion(
+            title: Oort.text("Remove \(title) from this device?"),
+            message: Oort.text("Its data is deleted from this device. You can send it again from your Mac; a deleted save cannot come back."),
+            choices: [.init(label: Oort.text("Remove the game, keep its saves"), destructive: true) { remove(saves: false) },
+                      .init(label: Oort.text("Remove the game and its saves"), destructive: true) { remove(saves: true) }])
+    }
+
     private func header(_ detail: GameDetail, key: Bool) -> some View {
         let action = OortGameAction(detail, model: model, nav: nav)
         return VStack(alignment: .leading, spacing: SeleneTokens.Space.medium) {
@@ -131,19 +131,25 @@ struct GameScreen: View {
         var data = [OortRow(id: "data", title: detail.dataSource.isEmpty ? Oort.text("No data") : detail.dataSource, note: detail.dataNote, symbol: "internaldrive"),
                     OortRow(id: "pick", title: Oort.text("Choose a folder in Files"), symbol: "folder", kind: .button { a.onPickGameData(id) })]
         if !detail.dataFromShell {
-            data.append(OortRow(id: "appdata", title: Oort.text("Use the app's own folder"), symbol: "arrow.uturn.backward", kind: .button { a.onUseAppData(id) }))
+            data.append(OortRow(id: "appdata", title: Oort.text("Use the app's own folder"), symbol: "arrow.uturn.backward", kind: .button {
+                nav.question = .confirm(Oort.text("Use the app's own folder?"), Oort.text("Oort NX stops reading the folder you chose for this game. Nothing is deleted."),
+                                        Oort.text("Use the app's own folder")) { a.onUseAppData(id) }
+            }))
         }
         var saves = [OortRow(id: "save", title: Oort.text("On this device"), note: Oort.text("In Files: On My iPhone or iPad, Oort NX, games, \(id), save."), symbol: "square.and.arrow.down"),
                      OortRow(id: "cloud", title: detail.cloudSaves ?? Oort.text("Follow a folder you choose"), note: detail.cloudNote,
                              symbol: "folder.badge.gearshape", kind: .button { a.onPickCloudSaves(id) })]
         if detail.cloudSaves != nil {
-            saves.append(OortRow(id: "cloudoff", title: Oort.text("Stop following the folder"), symbol: "xmark.circle", kind: .button { a.onDisableCloudSaves(id) }))
+            saves.append(OortRow(id: "cloudoff", title: Oort.text("Stop following the folder"), symbol: "xmark.circle", kind: .button {
+                nav.question = .confirm(Oort.text("Stop following the folder?"), Oort.text("Your saves stay on this device and in the folder. They no longer follow each other."),
+                                        Oort.text("Stop following the folder")) { a.onDisableCloudSaves(id) }
+            }))
         }
         if let backup = detail.latestSaveBackup {
             saves.append(OortRow(id: "restore", title: Oort.text("Bring back the last copy"), note: backup, symbol: "clock.arrow.circlepath",
                                  kind: .button { a.onRestoreSaveBackup(id) }))
         }
-        var look = [OortRow(id: "cover", title: Oort.text("Choose its picture"), symbol: "photo", kind: .button { picking = true })]
+        var look = [OortRow(id: "cover", title: Oort.text("Choose its picture"), symbol: "photo", kind: .button { nav.picking = true })]
         if detail.game.hasCustomCover {
             look.append(OortRow(id: "coveroff", title: Oort.text("Back to the game's own picture"), symbol: "arrow.uturn.backward", kind: .button { a.onResetCustomCover?(id) }))
         }
@@ -158,7 +164,7 @@ struct GameScreen: View {
             problem.append(OortRow(id: "technical", title: Oort.text("Details"), note: technical, symbol: "stethoscope"))
         }
         problem += [OortRow(id: "log", title: Oort.text("Game log"), symbol: "doc.text", kind: .button { a.onShowLog(id) }),
-                    OortRow(id: "delete", title: Oort.text("Remove from this device"), symbol: "trash", tint: Oort.danger, kind: .button { deleting = true })]
+                    OortRow(id: "delete", title: Oort.text("Remove from this device"), symbol: "trash", tint: Oort.danger, kind: .button { askToRemove(detail.game.title) })]
         if nav.device != nil, !isBroken(detail) {
             let action = OortGameAction(detail, model: model, nav: nav)
             play.insert(OortRow(id: "start", title: action.label, symbol: action.symbol, enabled: action.enabled, kind: .button(action.run)), at: 0)
@@ -225,7 +231,6 @@ struct CheatsScreen: View {
     let model: ShellHostModel
     let nav: OortNav
     @State private var snapshot: GameCheatsSnapshot?
-    @State private var mismatch: (token: String, name: String)?
 
     var body: some View {
         OortList(model: model, nav: nav, title: Oort.text("Cheats"), sections: sections) { EmptyView() }
@@ -233,19 +238,16 @@ struct CheatsScreen: View {
             .navigationBarTitleDisplayMode(.inline)
             #endif
             .task { snapshot = await model.actions.onLoadCheatsAsync?(id) }
-            .alert(Oort.text("This file is for another version of the game"), isPresented: Binding(get: { mismatch != nil }, set: { if !$0 { mismatch = nil } })) {
-                Button(Oort.text("Use it anyway")) {
-                    let token = mismatch?.token ?? ""
-                    Task { take(await model.actions.onConfirmMismatchCheatImportAsync?(id, token)) }
-                }
-                Button(Oort.text("Cancel"), role: .cancel) { model.actions.onCancelMismatchCheatImport?(id) }
-            } message: { Text(mismatch?.name ?? "") }
     }
 
     private func take(_ outcome: CheatImportOutcome?) {
         switch outcome {
         case .imported(let next, _, _): snapshot = next
-        case .buildMismatch(_, _, let name, let token): mismatch = (token, name)
+        case .buildMismatch(_, _, let name, let token):
+            nav.question = OortQuestion(
+                title: Oort.text("This file is for another version of the game"), message: name,
+                choices: [.init(label: Oort.text("Use it anyway")) { Task { take(await model.actions.onConfirmMismatchCheatImportAsync?(id, token)) } }]
+            ) { model.actions.onCancelMismatchCheatImport?(id) }
         case .failed(let why): model.notice = why
         case .cancelled, nil: break
         }

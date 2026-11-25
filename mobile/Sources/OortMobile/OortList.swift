@@ -84,10 +84,19 @@ struct OortList<Header: View>: View {
     let title: String
     let sections: [OortSection]
     var backdrop = true
+    /// A list that is there to be read: the controller stops on its plain lines too.
+    var readAll = false
     @ViewBuilder var header: Header
     @State private var focus = FocusGrid<String>()
 
     private var rows: [OortRow] { sections.flatMap(\.rows) }
+    private var reachable: [String] { rows.filter { $0.enabled && (readAll || !$0.isInfo) }.map(\.id) }
+    /// What A acts on: the first line until the controller goes elsewhere.
+    private var ring: String? {
+        guard nav.device != nil else { return nil }
+        if let current = focus.current, reachable.contains(current) { return current }
+        return reachable.first
+    }
 
     var body: some View {
         ScrollViewReader { scroll in
@@ -99,7 +108,7 @@ struct OortList<Header: View>: View {
                 ForEach(sections) { section in
                     Section {
                         ForEach(section.rows) { row in
-                            OortRowView(row: row, focused: nav.device != nil && focus.current == row.id, open: nav.open) { nav.sounds.play(.select) }
+                            OortRowView(row: row, focused: ring == row.id, open: nav.open) { nav.sounds.play(.select) }
                                 .id(row.id)
                                 .listRowBackground(background(row))
                                 .listRowInsets(EdgeInsets(top: SeleneTokens.Space.tight, leading: SeleneTokens.Space.medium,
@@ -131,7 +140,17 @@ struct OortList<Header: View>: View {
             .oortInput(model, nav) { action in
                 let moved: Bool
                 switch action {
-                case .up, .down: moved = focus.move(direction(action), in: rows.filter { $0.enabled && !$0.isInfo }.map { [$0.id] })
+                case .up, .down, .left, .right, .activate:
+                    if focus.current != ring { focus.set(ring) }
+                    if nav.revealing {
+                        nav.sounds.play(.move)
+                        withAnimation(.snappy) { scroll.scrollTo(focus.current, anchor: .center) }
+                        return true
+                    }
+                default: break
+                }
+                switch action {
+                case .up, .down: moved = focus.move(direction(action), in: reachable.map { [$0] })
                 case .left, .right:
                     guard let row = rows.first(where: { $0.id == focus.current }) else { return true }
                     nav.sounds.play(row.step(action == .right ? 1 : -1) ? .select : .deny)
@@ -152,7 +171,7 @@ struct OortList<Header: View>: View {
     }
 
     private func background(_ row: OortRow) -> some View {
-        let focused = nav.device != nil && focus.current == row.id
+        let focused = ring == row.id
         return (focused ? Oort.panelRaised : Oort.panelHigh).overlay(alignment: .leading) {
             if focused { OortDots(rise: 1, color: Oort.glyph.opacity(0.10)) }
         }

@@ -9,7 +9,7 @@ final class PadMappingTests: XCTestCase {
         XCTAssertEqual(PadMapper.action(for: .b), .back)
         XCTAssertEqual(PadMapper.action(for: .x), .settings)
         XCTAssertEqual(PadMapper.action(for: .menu), .settings)
-        XCTAssertEqual(PadMapper.action(for: .y), .controllers)
+        XCTAssertEqual(PadMapper.action(for: .y), .search)
         XCTAssertEqual(PadMapper.action(for: .leftShoulder), .previousTab)
     }
     /// #1129: Options (Xbox View, PlayStation Create, Nintendo Minus) opens the shell's settings, one press one action. A pad without

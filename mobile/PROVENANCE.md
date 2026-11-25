@@ -16,7 +16,7 @@ No view of NX2Apple's is here: the screens are Oort NX's (`Sources/OortMobile`).
 | `App/ShellShortcuts.swift` | `frontend-ios/Shell/App/ShellShortcuts.swift` | `98d6ce470959` | Names and addresses are Oort NX's. |
 | `App/ShellSnap.h` | `frontend-ios/Shell/App/ShellSnap.h` | `cc28ad9d0bd1` | As is. |
 | `Sources/ShellControllers/GamepadAdapter.swift` | `frontend-ios/Sources/ShellControllers/GamepadAdapter.swift` | `df68d1817510` | As is. |
-| `Sources/ShellControllers/PadMapping.swift` | `frontend-ios/Sources/ShellControllers/PadMapping.swift` | `ed2a89fd9bca` | L and R change the tab. |
+| `Sources/ShellControllers/PadMapping.swift` | `frontend-ios/Sources/ShellControllers/PadMapping.swift` | `ed2a89fd9bca` | L and R change the tab. Y searches the games. |
 | `Sources/ShellHost/BackupExclusion.swift` | `frontend-ios/Sources/ShellHost/BackupExclusion.swift` | `e17a7023aaa6` | As is. |
 | `Sources/ShellHost/BookmarkStore.swift` | `frontend-ios/Sources/ShellHost/BookmarkStore.swift` | `5215443094cd` | As is. |
 | `Sources/ShellHost/CheatFilePicker.swift` | `frontend-ios/Sources/ShellHost/CheatFilePicker.swift` | `82f6dabe836a` | As is. |
@@ -50,7 +50,7 @@ No view of NX2Apple's is here: the screens are Oort NX's (`Sources/OortMobile`).
 | `Sources/ShellHost/ShaderResources.swift` | `frontend-ios/Sources/ShellHost/ShaderResources.swift` | `a8d5bf98dde4` | As is. |
 | `Sources/ShellHost/ShellHostModel+Cheats.swift` | `frontend-ios/Sources/ShellHost/ShellHostModel+Cheats.swift` | `daa9a9999c76` | As is. |
 | `Sources/ShellHost/ShellHostModel+PlayHistory.swift` | `frontend-ios/Sources/ShellHost/ShellHostModel+PlayHistory.swift` | `7c72c1d94807` | As is. |
-| `Sources/ShellHost/ShellHostModel.swift` | `frontend-ios/Sources/ShellHost/ShellHostModel.swift` | `8cf6ee490256` | Oort NX mobile makes no network request: downloaded banners are left out. Signing a game on the device with the player's own certificate is left out. The floating Picture in Picture guide is left out; the shortcut itself stays. A controller's player number is said in the player's language. Names and addresses are Oort NX's. |
+| `Sources/ShellHost/ShellHostModel.swift` | `frontend-ios/Sources/ShellHost/ShellHostModel.swift` | `8cf6ee490256` | Oort NX mobile makes no network request: downloaded banners are left out. Signing a game on the device with the player's own certificate is left out. The floating Picture in Picture guide is left out; the shortcut itself stays. Nothing is read while a game runs; a hardware keyboard sends the same actions. A controller's player number is said in the player's language. Names and addresses are Oort NX's. |
 | `Sources/ShellHost/ShellInGameMenu.swift` | `frontend-ios/Sources/ShellHost/ShellInGameMenu.swift` | `a9d2620cb1f9` | As is. |
 | `Sources/ShellHost/X509Certificate.swift` | `frontend-ios/Sources/ShellHost/SideloadCertificateStore.swift` | `8e8a3e5d8ee2` | Signing a game on the device with the player's own certificate is left out. Only the certificate reader stays, to check who signed a game. |
 | `Sources/ShellModel/PadMap.swift` | `frontend-ios/Sources/ShellUI/PadMap.swift` | `e9b236ef23a7` | As is. |
@@ -58,11 +58,11 @@ No view of NX2Apple's is here: the screens are Oort NX's (`Sources/OortMobile`).
 | `Sources/ShellModel/ShellArtwork.swift` | `frontend-ios/Sources/ShellUI/ShellArtwork.swift` | `dc239b70c97d` | Read by Oort NX's screens. |
 | `Sources/ShellModel/ShellCheatsModels.swift` | `frontend-ios/Sources/ShellUI/ShellCheatsModels.swift` | `ca5cea910b8f` | As is. |
 | `Sources/ShellModel/ShellFormat.swift` | `frontend-ios/Sources/ShellUI/ShellFormat.swift` | `ebbe2d2066c2` | As is. |
-| `Sources/ShellModel/ShellInputs.swift` | `frontend-ios/Sources/ShellUI/ShellInputs.swift` | `1f344404fded` | Signing a game on the device with the player's own certificate is left out. L and R change the tab. |
+| `Sources/ShellModel/ShellInputs.swift` | `frontend-ios/Sources/ShellUI/ShellInputs.swift` | `1f344404fded` | Signing a game on the device with the player's own certificate is left out. L and R change the tab. Y searches the games. |
 | `Sources/ShellModel/ShellSettingsStore.swift` | `frontend-ios/Sources/ShellUI/ShellSettingsStore.swift` | `3d9eeabbd8ea` | As is. |
 | `Sources/ShellModel/TouchLayout.swift` | `frontend-ios/Sources/ShellUI/TouchLayout.swift` | `3a8fe3068d3e` | As is. |
 | `Sources/ShellModel/TouchPadGeometry.swift` | `frontend-ios/Sources/ShellUI/TouchPadGeometry.swift` | `b8fb992ab439` | As is. |
-| `Tests/ShellControllersTests/PadMappingTests.swift` | `frontend-ios/Tests/ShellControllersTests/PadMappingTests.swift` | `df62d8733b51` | L and R change the tab. |
+| `Tests/ShellControllersTests/PadMappingTests.swift` | `frontend-ios/Tests/ShellControllersTests/PadMappingTests.swift` | `df62d8733b51` | L and R change the tab. Y searches the games. |
 | `Tests/ShellHostTests/BackupExclusionTests.swift` | `frontend-ios/Tests/ShellHostTests/BackupExclusionTests.swift` | `6335459607b6` | As is. |
 | `Tests/ShellHostTests/BookmarkStoreTests.swift` | `frontend-ios/Tests/ShellHostTests/BookmarkStoreTests.swift` | `eb3e6799eba7` | As is. |
 | `Tests/ShellHostTests/CatalogueStateTests.swift` | `frontend-ios/Tests/ShellHostTests/CatalogueStateTests.swift` | `37b8e36b274d` | As is. |

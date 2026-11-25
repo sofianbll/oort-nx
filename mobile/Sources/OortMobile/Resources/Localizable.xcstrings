@@ -1,6 +1,84 @@
 {
  "sourceLanguage": "en",
  "strings": {
+    "Search" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rechercher" } }
+      }
+    },
+    "Tabs" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tabs" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Onglets" } }
+      }
+    },
+    "Add" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ajouter" } }
+      }
+    },
+    "Space" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Space" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Espace" } }
+      }
+    },
+    "Delete" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Effacer" } }
+      }
+    },
+    "Done" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Done" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Terminé" } }
+      }
+    },
+    "Use the app's own folder?" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Use the app's own folder?" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Revenir au dossier de l’app ?" } }
+      }
+    },
+    "Oort NX stops reading the folder you chose for this game. Nothing is deleted." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Oort NX stops reading the folder you chose for this game. Nothing is deleted." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Oort NX ne lit plus le dossier choisi pour ce jeu. Rien n’est supprimé." } }
+      }
+    },
+    "Oort NX stops reading the folder you chose for every game. Nothing is deleted." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Oort NX stops reading the folder you chose for every game. Nothing is deleted." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Oort NX ne lit plus le dossier choisi pour tous les jeux. Rien n’est supprimé." } }
+      }
+    },
+    "Stop following the folder?" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Stop following the folder?" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ne plus suivre le dossier ?" } }
+      }
+    },
+    "Your saves stay on this device and in the folder. They no longer follow each other." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your saves stay on this device and in the folder. They no longer follow each other." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vos sauvegardes restent sur cet appareil et dans le dossier. Elles ne se suivent plus." } }
+      }
+    },
+    "Back to the buttons as printed?" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Back to the buttons as printed?" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Revenir aux boutons tels qu’imprimés ?" } }
+      }
+    },
+    "Your changes to these buttons are lost." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your changes to these buttons are lost." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vos changements sur ces boutons sont perdus." } }
+      }
+    },
     "This game's code could not be loaded. Build it again on your Mac, then add it again." : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "This game's code could not be loaded. Build it again on your Mac, then add it again." } },

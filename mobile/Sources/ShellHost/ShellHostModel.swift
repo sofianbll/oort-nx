@@ -1912,11 +1912,14 @@ public struct ShellHostConfig: Sendable {
     /// Starts reading GameController: the connected controllers become `controllers`, their buttons `input`.
     public func startControllers() {
         adapter.onInput = { [weak self] action, device in
-            guard let self, !self.launchingGame else { return }
+            guard let self, !self.launchingGame, !self.gameIsRunning else { return }
             self.input.append(action, device: device)
         }
         // Releases go on while a game launches: a button pressed before it still comes up for the echo window.
-        adapter.onRelease = { [weak self] action, device in self?.input.append(action, device: device, released: true) }
+        adapter.onRelease = { [weak self] action, device in
+            guard let self, !self.gameIsRunning else { return }
+            self.input.append(action, device: device, released: true)
+        }
         adapter.onControllersChange = { [weak self] connected in
             self?.controllers = connected.map(Self.info(for:))
         }
@@ -1925,9 +1928,12 @@ public struct ShellHostConfig: Sendable {
 
     public func stopControllers() { adapter.stop() }
 
+    /// A game has the screen: its presses are its own, none is kept for the library.
+    private var gameIsRunning: Bool { !(config.activeRunningGameID() ?? "").isEmpty }
+
     /// A key of a hardware keyboard: the same actions as a controller's, with the keyboard's own hints.
     public func keyPressed(_ action: ShellInput.Action) {
-        guard !launchingGame else { return }
+        guard !launchingGame, !gameIsRunning else { return }
         input.append(action, device: .keyboard)
     }
 

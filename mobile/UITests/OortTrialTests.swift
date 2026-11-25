@@ -289,10 +289,9 @@ final class OortTrialTests: OortCase {
         tab("Library")
         tap(app.buttons[second].firstMatch, second)
         tap(button(say("Play")), "Play")
-        let alert = app.alerts.firstMatch
-        appears(alert, "the refusal", 30)
+        XCTAssertTrue(waitForQuestion(), "the refusal is said")
         step("56-code-refuse")
-        alert.buttons[say("OK")].tap()
+        agree()
     }
 
     // MARK: On its side, and the largest texts
@@ -398,11 +397,10 @@ final class OortTrialTests: OortCase {
         press("a")
         shows("Version")
         step("91-manette-fiche")
-        // The page's rows: Play, then Options.
-        press("down", 2)
+        // The page's rows: Play is chosen, then Options.
+        press("down")
         press("a")
         appears(app.switches.firstMatch, "the options")
-        press("down")
         step("92-manette-options")
         let state = app.debugDescription
         press("left")
@@ -420,10 +418,9 @@ final class OortTrialTests: OortCase {
         press("a")
         shows("Version")
         press("b")
-        press("y")
+        press("r")
         shows("Touch controls")
         step("95-manette-manettes")
-        press("down")
         press("a")
         shows("Hold the bottom or right button to close.")
         send("hold.x", 0.2)
@@ -440,7 +437,7 @@ final class OortTrialTests: OortCase {
         press("r")
         shows("Data and saves")
         let frames = app.switches.matching(NSPredicate(format: "label BEGINSWITH %@", say("Show the frame rate"))).firstMatch
-        press("down", 5)
+        press("down", 4)
         appears(frames, "the frame rate switch")
         let was = frames.value as? String
         press("a")
@@ -456,8 +453,14 @@ final class OortTrialTests: OortCase {
         press("a")
         appears(app.staticTexts["Invented game main, save ready"].firstMatch, "A starts the game", 30)
         step("98-manette-jeu-lance")
+        // The game's presses are its own: none is played back in the library.
+        press("r", 2)
+        press("y")
+        press("a")
         tap(button("Quit the invented game"), "Quit")
         appears(button(say("Game page")), "back after the game", 20)
+        Thread.sleep(forTimeInterval: 2)
+        XCTAssertTrue(button(say("Game page")).isHittable && !app.staticTexts[say("Touch controls")].exists, "nothing pressed in the game acts after it")
         press("r", 2)
         shows("Touch controls")
         send("disconnect", 3)
@@ -476,27 +479,139 @@ final class OortTrialTests: OortCase {
         press("down")
         press("left", 3)
         press("a")
-        let alert = app.alerts.firstMatch
-        appears(alert, "the refusal", 30)
+        XCTAssertTrue(waitForQuestion(), "the refusal is said")
         step("85-manette-message")
         press("r")
-        XCTAssertTrue(app.alerts.firstMatch.exists, "R leaves the message")
+        XCTAssertTrue(asked, "R leaves the message")
         press("b")
-        eventually("B closes the message") { !app.alerts.firstMatch.exists }
+        eventually("B closes the message") { !asked }
         appears(button(say("Game page")), "still home, nothing moved behind the message")
         XCTAssertTrue(chosen(second), "the same game is chosen")
-        // The removal question of a game's page.
+        // The removal question of a game's page, by the controller alone: the last line of the page.
         press("right")
         press("a")
         shows("Version")
-        open("Remove from this device")
+        press("down", 14)
+        press("a")
         let keep = button(say("Remove the game, keep its saves"))
         appears(keep, "the removal question")
-        press("down")
+        step("86-manette-confirmer-suppression")
+        // The way out is chosen first.
+        press("a")
+        eventually("A on the first choice keeps the game") { !keep.exists }
+        shows("Remove from this device")
+        press("a")
+        appears(keep, "asked again")
         press("b")
         eventually("B closes the question") { !keep.exists }
-        shows("Remove from this device")
-        step("86-manette-question-fermee")
+        press("a")
+        appears(keep, "asked once more")
+        press("up", 2)
+        step("87-manette-choix-supprimer")
+        press("a")
+        appears(button(say("Game page")), "home after the removal")
+        press("r")
+        appears(app.buttons[first].firstMatch, "the library")
+        eventually("the game is gone") { !app.buttons[second].exists }
+        step("88-manette-jeu-supprime")
+    }
+
+    /// Searching, sorting and adding with the controller alone.
+    func test14ControllerInTheLibrary() throws {
+        app.launchEnvironment = ["DYLD_INSERT_LIBRARIES": try inserted("FakePad")]
+        try start(.invented)
+        appears(button(say("Game page")), "the home screen", 20)
+        send("connect", 3)
+        // The first press shows the ring and opens nothing.
+        tab("Library")
+        appears(app.buttons[first].firstMatch, "the library")
+        press("a")
+        XCTAssertTrue(app.buttons[second].exists && !app.staticTexts[say("Version")].exists, "the first A only shows what is chosen")
+        step("130-manette-premier-appui")
+        press("a")
+        shows("Version")
+        press("b")
+        press("up")
+        press("a")
+        step("131-manette-lettres")
+        // M, A, R on the letters.
+        press("down"); press("right", 5); press("a")
+        press("up"); press("left", 5); press("a")
+        press("down", 2); press("right", 3); press("a")
+        eventually("the search leaves one game") { app.buttons[second].exists && !app.buttons[first].exists }
+        step("132-manette-recherche")
+        press("x")
+        press("b")
+        press("b")
+        eventually("B clears the search") { app.buttons[first].exists }
+        press("up", 3)
+        press("right")
+        press("a")
+        step("133-manette-tri")
+        press("right")
+        press("a", 1)
+        Thread.sleep(forTimeInterval: 3)
+        step("134-manette-ajouter-fichiers")
+        press("down")
+        press("a")
+        press("b")
+        Thread.sleep(forTimeInterval: 2)
+        appears(app.buttons[first].firstMatch, "B closes Files")
+        XCTAssertTrue(app.buttons[first].isHittable, "nothing covers the library")
+        step("135-manette-fichiers-fermes")
+        // Y from anywhere searches.
+        tab("Home")
+        press("y")
+        press("y")
+        press("a")
+        eventually("Y opened the letters in the library") { app.buttons[say("Done")].exists }
+        step("136-manette-y-recherche")
+    }
+
+    /// Long texts move with the controller, a swipe takes the ring away, a reset is asked first.
+    func test15ControllerReadsAndConfirms() throws {
+        app.launchEnvironment = ["DYLD_INSERT_LIBRARIES": try inserted("FakePad")]
+        try start(.invented)
+        appears(button(say("Game page")), "the home screen", 20)
+        send("connect", 3)
+        tab("Settings")
+        open("Thanks and licences")
+        press("down")
+        press("down", 5)
+        step("140-manette-credits-defiles")
+        open("Every notice, in full")
+        shows("Permission is hereby granted")
+        let top = app.debugDescription
+        press("down", 3)
+        eventually("down scrolls the notices") { app.debugDescription != top }
+        step("141-manette-licences-defilees")
+        press("b")
+        shows("With the work of")
+        press("b")
+        tab("Controllers")
+        press("down")
+        let picked = app.cells.descendants(matching: .any).matching(NSPredicate(format: "isSelected == true"))
+        eventually("a line is chosen") { picked.count > 0 }
+        app.swipeUp()
+        eventually("a swipe takes the ring away") { picked.count == 0 }
+        step("142-manette-balayage-sans-anneau")
+        open("What each button sends")
+        let reset = row("Back to the buttons as printed")
+        reach(reset)
+        reset.tap()
+        XCTAssertTrue(waitForQuestion(8), "the reset is asked first")
+        step("143-confirmer-remise-des-boutons")
+        press("b")
+        eventually("B keeps the buttons") { !asked }
+        back()
+        tab("Library")
+        tap(app.buttons[first].firstMatch, first)
+        open("Game log")
+        step("144-manette-journal")
+        press("down")
+        press("b")
+        Thread.sleep(forTimeInterval: 1)
+        eventually("B closes the log") { row("Game log").isHittable }
     }
 
     func test10Keyboard() throws {

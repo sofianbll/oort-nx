@@ -94,7 +94,10 @@ struct MappingScreen: View {
             let members = group.buttons.compactMap { button in rows.dropFirst().first { $0.id == button || $0.id == "pad.\(button)" }.map { line($0, button) } }
             if !members.isEmpty { result.append(OortSection(id: group.title, title: group.title, rows: members)) }
         }
-        result.append(OortSection(id: "reset", rows: [OortRow(id: "reset", title: Oort.text("Back to the buttons as printed"), symbol: "arrow.counterclockwise", kind: .button(reset))]))
+        result.append(OortSection(id: "reset", rows: [OortRow(id: "reset", title: Oort.text("Back to the buttons as printed"), symbol: "arrow.counterclockwise", kind: .button {
+            nav.question = .confirm(Oort.text("Back to the buttons as printed?"), Oort.text("Your changes to these buttons are lost."),
+                                    Oort.text("Back to the buttons as printed")) { reset() }
+        })]))
         return result
     }
 }

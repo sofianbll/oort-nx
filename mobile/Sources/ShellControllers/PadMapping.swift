@@ -29,14 +29,14 @@ public struct PadMapper: Sendable {
     private var held: [String: [String: ShellInput.Action]] = [:]
     public init() {}
 
-    /// The action of each button: A activates, B goes back, X and Menu open the game's settings, Y opens Controllers, Options (Xbox View,
+    /// The action of each button: A activates, B goes back, X and Menu open the game's settings, Y searches the games, Options (Xbox View,
     /// PlayStation Create, Nintendo Minus) opens the shell's settings, the gear (#1129). A pad without Options has the gear in the focus order.
     public static func action(for button: PadButton) -> ShellInput.Action? {
         switch button {
         case .a: .activate
         case .b: .back
         case .x, .menu: .settings
-        case .y: .controllers
+        case .y: .search
         case .options: .shellSettings
         case .leftShoulder: .previousTab
         case .rightShoulder: .nextTab

@@ -35,6 +35,7 @@ public struct OortRootView: View {
         .tabBarMinimizeBehavior(.onScrollDown)
         #endif
         .tabViewStyle(.sidebarAdaptable)
+        .accessibilityHidden(question != nil)
         // The iPad's sidebar fills its chosen line with the tint, under white words.
         .tint(sidebar ? Oort.chosen : Oort.focus)
         .preferredColorScheme(.dark)
@@ -42,25 +43,26 @@ public struct OortRootView: View {
         .background { OortKeys(place: [nav.tab.rawValue] + (nav.paths[nav.tab] ?? []).map { "\($0)" }) { model.keyPressed($0) } }
         #endif
         .modifier(TouchEndsPad(nav: nav))
+        .onAppear {
+            nav.cover = { [nav] in
+                if nav.importing { return { nav.importing = false } }
+                if nav.picking { return { nav.picking = false } }
+                #if os(iOS)
+                return OortOverlay.close()
+                #else
+                return nil
+                #endif
+            }
+        }
         .transformEnvironment(\.oortStill) { $0 = $0 || model.launchingGame }
         .overlay {
             if model.launchingGame || model.isDeepLinkLaunching { LaunchCover(title: model.details.first { $0.id == nav.selected }?.game.title ?? "") }
         }
         .animation(.easeInOut(duration: SeleneTokens.Motion.screen), value: model.launchingGame)
-        .alert("Oort NX", isPresented: Binding(get: { model.notice != nil }, set: { if !$0 { model.notice = nil } })) {
-            Button(Oort.text("OK")) { model.notice = nil }
-        } message: { Text(model.notice ?? "") }
-        .alert(Oort.text("Which save do you want?"), isPresented: Binding(get: { model.cloudConflict != nil }, set: { if !$0 { model.cancelCloudConflictIfPending() } }),
-               presenting: model.cloudConflict) { prompt in
-            if !prompt.isUnreadable { Button(Oort.text("The folder's")) { model.resolveCloudConflict(.useCloud) } }
-            Button(Oort.text("This device's")) { model.resolveCloudConflict(.useDevice) }
-            Button(Oort.text("Play without the folder")) { model.resolveCloudConflict(.playOffline) }
-            Button(Oort.text("Cancel"), role: .cancel) { model.resolveCloudConflict(.cancel) }
-        } message: { prompt in
-            Text([prompt.gameTitle, prompt.reason, Oort.text("Folder: \(prompt.cloudDevice) \(prompt.cloudSaved)"), Oort.text("This device: \(prompt.localSaved)")]
-                .filter { !$0.isEmpty }.joined(separator: "\n"))
+        .overlay {
+            if let question { OortDialog(question: question, model: model, nav: nav).id(question.title + question.message) }
         }
-        .sheet(item: $model.log) { LogScreen(log: $0) }
+        .sheet(item: $model.log) { LogScreen(log: $0, model: model, nav: nav) }
         .fileImporter(isPresented: $nav.importing, allowedContentTypes: [.framework, .folder]) { result in
             guard case .success(let url) = result, let importRoot else { return }
             Task {
@@ -72,6 +74,21 @@ public struct OortRootView: View {
                 }
             }
         }
+    }
+
+    /// What the app asks now: the host's questions first, then the screen's.
+    private var question: OortQuestion? {
+        if let prompt = model.cloudConflict {
+            var choices: [OortQuestion.Choice] = []
+            if !prompt.isUnreadable { choices.append(.init(label: Oort.text("The folder's")) { model.resolveCloudConflict(.useCloud) }) }
+            choices.append(.init(label: Oort.text("This device's")) { model.resolveCloudConflict(.useDevice) })
+            choices.append(.init(label: Oort.text("Play without the folder")) { model.resolveCloudConflict(.playOffline) })
+            let message = [prompt.gameTitle, prompt.reason, Oort.text("Folder: \(prompt.cloudDevice) \(prompt.cloudSaved)"), Oort.text("This device: \(prompt.localSaved)")]
+                .filter { !$0.isEmpty }.joined(separator: "\n")
+            return OortQuestion(title: Oort.text("Which save do you want?"), message: message, choices: choices) { model.resolveCloudConflict(.cancel) }
+        }
+        if let notice = model.notice { return OortQuestion(title: "Oort NX", message: notice, cancelLabel: Oort.text("OK")) { model.notice = nil } }
+        return nav.question
     }
 
     private func stack(_ tab: OortTab, @ViewBuilder root: () -> some View) -> some View {
@@ -126,6 +143,8 @@ private struct LaunchCover: View {
 
 private struct LogScreen: View {
     let log: LogPresentation
+    let model: ShellHostModel
+    let nav: OortNav
     @Environment(\.dismiss) private var dismiss
     var body: some View {
         NavigationStack {
@@ -137,6 +156,10 @@ private struct LogScreen: View {
                     .padding(SeleneTokens.Space.medium)
             }
             .defaultScrollAnchor(.bottom)
+            .modifier(OortReading(model: model, nav: nav) { dismiss() })
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                OortHints(nav: nav, hints: [(.back, Oort.text("Close"))]).padding(SeleneTokens.Space.compact)
+            }
             .background(Oort.page)
             .navigationTitle(log.title)
             #if os(iOS)
@@ -167,13 +190,18 @@ private struct TouchEndsPad: ViewModifier {
 private struct AnyTouch: UIGestureRecognizerRepresentable {
     let touched: () -> Void
     func makeCoordinator(converter: CoordinateSpaceConverter) -> Coordinator { Coordinator() }
-    func makeUIGestureRecognizer(context: Context) -> UITapGestureRecognizer {
-        let tap = UITapGestureRecognizer()
-        tap.cancelsTouchesInView = false
-        tap.delegate = context.coordinator
-        return tap
+    func makeUIGestureRecognizer(context: Context) -> UILongPressGestureRecognizer {
+        // A press of no length begins as the finger lands: a tap, a swipe or a hold.
+        let touch = UILongPressGestureRecognizer()
+        touch.minimumPressDuration = 0
+        touch.cancelsTouchesInView = false
+        touch.delaysTouchesEnded = false
+        touch.delegate = context.coordinator
+        return touch
     }
-    func handleUIGestureRecognizerAction(_ recognizer: UITapGestureRecognizer, context: Context) { touched() }
+    func handleUIGestureRecognizerAction(_ recognizer: UILongPressGestureRecognizer, context: Context) {
+        if recognizer.state == .began { touched() }
+    }
     final class Coordinator: NSObject, UIGestureRecognizerDelegate {
         func gestureRecognizer(_ g: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool { true }
     }
