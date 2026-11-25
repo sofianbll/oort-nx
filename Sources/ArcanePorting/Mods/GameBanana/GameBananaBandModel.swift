@@ -34,7 +34,7 @@ public final class GameBananaBandModel: ObservableObject {
     @Published public private(set) var phase: Phase = .idle {
         didSet { if phase != oldValue { Self.log.notice("phase \(String(describing: self.phase), privacy: .public) available \(self.available.count, privacy: .public)") } }
     }
-    private static let log = Logger(subsystem: "local.nxlibrary", category: "gamebanana")
+    private static let log = Logger(subsystem: "io.github.sofianbll.oortnx", category: "gamebanana")
     @Published public private(set) var available: [AvailableMod] = []
     @Published public private(set) var installs: [Int: InstallState] = [:]
     /// The file each mod's install is for, while it runs and once it has ended.

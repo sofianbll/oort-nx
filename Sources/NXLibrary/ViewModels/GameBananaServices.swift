@@ -4,7 +4,7 @@ import NXLibraryCore
 import ArcanePorting
 
 /// One GameBanana client, image cache and match store for the whole app (caches in
-/// `~/Library/Caches/NXLibrary/gamebanana`, matches in `~/Library/Application Support/NXLibrary/gamebanana`).
+/// `~/Library/Caches/Oort NX/gamebanana`, matches in `~/Library/Application Support/Oort NX/gamebanana`).
 final class GameBananaServices: @unchecked Sendable {
     static let shared = GameBananaServices()
 

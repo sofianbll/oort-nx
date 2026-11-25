@@ -76,7 +76,7 @@ public struct DevelopmentProfileImporter {
         let preferencesData = try PropertyListSerialization.data(fromPropertyList: preferences, format: .binary, options: 0)
         let parent = destination.deletingLastPathComponent()
         try fm.createDirectory(at: parent, withIntermediateDirectories: true)
-        let stage = parent.appendingPathComponent(".NXLibrary-Development-import-" + UUID().uuidString)
+        let stage = parent.appendingPathComponent(".Oort NX Dev-import-" + UUID().uuidString)
         try fm.createDirectory(at: stage, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
         defer { try? fm.removeItem(at: stage) } // Only the staging folder created by this invocation.
         for relative in before.keys.sorted() {

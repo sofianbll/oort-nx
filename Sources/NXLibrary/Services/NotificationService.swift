@@ -13,7 +13,7 @@ extension Notification.Name {
 /// Sends the end-of-porting notification (`PortingNotice` decides when) and routes its click.
 final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     static let shared = NotificationService()
-    private static let log = Logger(subsystem: "local.nxlibrary", category: "notifications")
+    private static let log = Logger(subsystem: "io.github.sofianbll.oortnx", category: "notifications")
 
     private override init() {
         super.init()

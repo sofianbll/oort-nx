@@ -164,7 +164,7 @@ struct SettingsView: View {
         }
         .onAppear {
             if AppData.profile.isDevelopment {
-                Logger(subsystem: "local.nxlibrary.development", category: "backdrop-transition")
+                Logger(subsystem: "io.github.sofianbll.oortnx", category: "backdrop-transition")
                     .notice("Settings appeared, window settling: \(viewModel.isWindowSettling, privacy: .public)")
             }
         }

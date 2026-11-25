@@ -31,7 +31,7 @@ final class SoundEffectService {
     /// Starting a player blocks for a few milliseconds (the audio server's
     /// handshake), so the players live and play on a queue of their own: a move
     /// never holds up the frame that draws it.
-    private let audio = DispatchQueue(label: "local.nxlibrary.sounds", qos: .userInteractive)
+    private let audio = DispatchQueue(label: "io.github.sofianbll.oortnx.sounds", qos: .userInteractive)
     private var enabled = true
     private var gain: Float = 0.6
     private var quieted = false

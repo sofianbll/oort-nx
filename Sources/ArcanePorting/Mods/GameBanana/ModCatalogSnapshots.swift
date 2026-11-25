@@ -2,7 +2,7 @@ import Foundation
 import NXLibraryCore
 
 /// Each game's mods that work, as last found, so the store opens from disk at once
-/// (`~/Library/Caches/NXLibrary/gamebanana/store/<title ID>.json`). Links are checked again on the way in: only
+/// (`~/Library/Caches/Oort NX/gamebanana/store/<title ID>.json`). Links are checked again on the way in: only
 /// GameBanana's survive, and a mod without a GameBanana page or a file to install is dropped.
 public struct ModCatalogSnapshots: Sendable {
     public struct Snapshot: Equatable, Sendable {

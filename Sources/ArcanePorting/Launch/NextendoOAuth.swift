@@ -105,7 +105,7 @@ public struct NextendoOAuth {
     public let store: NextendoTokenStore
     private let send: (URLRequest) async throws -> (Data, URLResponse)
     private let onResult: @Sendable (NextendoCheckDiagnostic) -> Void
-    private static let log = Logger(subsystem: "local.nxlibrary", category: "nextendo")
+    private static let log = Logger(subsystem: "io.github.sofianbll.oortnx", category: "nextendo")
 
     private static let session: URLSession = {
         let config = URLSessionConfiguration.ephemeral

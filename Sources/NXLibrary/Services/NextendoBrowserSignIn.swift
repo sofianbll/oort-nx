@@ -52,7 +52,7 @@ import ArcanePorting
         let parameters = NWParameters.tcp
         parameters.requiredLocalEndpoint = .hostPort(host: "127.0.0.1", port: port)
         let listener = try NWListener(using: parameters)
-        let queue = DispatchQueue(label: "local.nxlibrary.nextendo.callback")
+        let queue = DispatchQueue(label: "io.github.sofianbll.oortnx.nextendo.callback")
         let ports = AsyncThrowingStream<UInt16, Error>.makeStream(bufferingPolicy: .bufferingOldest(1))
         let requests = Requests.makeStream(bufferingPolicy: .bufferingOldest(4))
         listener.stateUpdateHandler = { [weak listener] state in

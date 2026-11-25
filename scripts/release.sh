@@ -2,8 +2,8 @@
 # scripts/release.sh <version> [--plain-dmg] [--engine-repo <url> --engine-commit <sha>] [--publish --notes <file>]
 #
 # Builds a release copy of NX Library (version in its plist, NXLibraryRelease marker, bundled
-# runtime), verifies its signature and zips it as work/release/NXLibrary-<version>.zip, the asset
-# the app's updater looks for, plus work/release/NXLibrary-<version>.dmg for a first install.
+# runtime), verifies its signature and zips it as work/release/Oort-NX-<version>.zip, the asset
+# the app's updater looks for, plus work/release/Oort-NX-<version>.dmg for a first install.
 # Only --publish pushes v<version> and creates a GitHub release with both files, in the same
 # verified repository (GitHub computes the zip's digest, which the app checks).
 set -euo pipefail
@@ -191,8 +191,8 @@ echo "Requires: Xcode $MIN_XCODE, nxnative ${ENGINE:0:7}"
 OUT="$ROOT/work/release"
 if [ "$PRIVATE" = "1" ]; then OUT="$ROOT/work/release-private"; fi
 # Keep the legacy archive root for installed updaters; the DMG has the display name.
-APP="$OUT/NXLibrary.app"
-ZIP="$OUT/NXLibrary-$VERSION.zip"
+APP="$OUT/Oort NX.app"
+ZIP="$OUT/Oort-NX-$VERSION.zip"
 rm -rf "$OUT"
 mkdir -p "$OUT"
 
@@ -230,19 +230,19 @@ fi
 ditto --norsrc -c -k --keepParent "$APP" "$ZIP"
 "$APP/Contents/Resources/Runtime/python/bin/python3" -I -B \
   "$APP/Contents/Resources/validate_update.py" "$ZIP" "$OUT/.update-check"
-codesign --verify --deep --strict "$OUT/.update-check/NXLibrary.app"
-python3 "$ROOT/scripts/check_localizations.py" --app "$OUT/.update-check/NXLibrary.app"
-python3 "$ROOT/scripts/check_publication.py" --app "$OUT/.update-check/NXLibrary.app"
+codesign --verify --deep --strict "$OUT/.update-check/Oort NX.app"
+python3 "$ROOT/scripts/check_localizations.py" --app "$OUT/.update-check/Oort NX.app"
+python3 "$ROOT/scripts/check_publication.py" --app "$OUT/.update-check/Oort NX.app"
 rm -rf "$OUT/.update-check"
 echo "Zip: $ZIP"
 echo "SHA-256: $(shasum -a 256 "$ZIP" | cut -d' ' -f1)"
-DMG="$OUT/NXLibrary-$VERSION.dmg"
+DMG="$OUT/Oort-NX-$VERSION.dmg"
 if [ "$PLAIN_DMG" = 1 ]; then
   bash "$ROOT/scripts/build_dmg.sh" --plain "$APP"
 else
   bash "$ROOT/scripts/build_dmg.sh" "$APP"
 fi
-mv "$ROOT/dist/NXLibrary.dmg" "$DMG"
+mv "$ROOT/dist/Oort NX.dmg" "$DMG"
 echo "DMG: $DMG"
 
 if [ "$PUBLISH" = "1" ]; then

@@ -37,7 +37,7 @@ public final class ModStoreModel: ObservableObject {
     /// Some games are still being asked about (a quiet line on the page).
     @Published public private(set) var refreshing = false
 
-    private static let log = Logger(subsystem: "local.nxlibrary", category: "gamebanana")
+    private static let log = Logger(subsystem: "io.github.sofianbll.oortnx", category: "gamebanana")
     private let client: GameBananaClient
     private let matches: GameBananaMatchStore
     private let snapshots: ModCatalogSnapshots

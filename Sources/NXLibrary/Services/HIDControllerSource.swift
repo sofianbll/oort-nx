@@ -16,7 +16,7 @@ final class HIDControllerSource: ControllerSource {
     private var observed: Set<ObjectIdentifier> = []
     private static let options = IOOptionBits(kIOHIDOptionsTypeNone)
     private static let mode = CFRunLoopMode.commonModes.rawValue
-    private static let log = Logger(subsystem: "local.nxlibrary", category: "controllers")
+    private static let log = Logger(subsystem: "io.github.sofianbll.oortnx", category: "controllers")
 
     func start() {
         guard manager == nil else { return }

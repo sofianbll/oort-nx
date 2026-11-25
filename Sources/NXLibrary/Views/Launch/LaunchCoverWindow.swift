@@ -74,7 +74,7 @@ struct LaunchCoverWindow<Content: View>: NSViewRepresentable {
 
 /// Local development diagnostics for the cover hand-off, without game or account identifiers.
 enum LaunchCoverTrace {
-    private static let log = Logger(subsystem: "local.nxlibrary.development", category: "launch-cover")
+    private static let log = Logger(subsystem: "io.github.sofianbll.oortnx", category: "launch-cover")
 
     static func event(_ message: String) {
         guard AppData.profile.isDevelopment else { return }

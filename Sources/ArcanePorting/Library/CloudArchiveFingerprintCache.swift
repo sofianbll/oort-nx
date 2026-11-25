@@ -27,7 +27,7 @@ actor CloudArchiveFingerprintCache {
     }
 
     static let shared = CloudArchiveFingerprintCache(file: AppData.cacheRoot.appendingPathComponent("cloud-fingerprints.json"))
-    private static let log = Logger(subsystem: "local.nxlibrary", category: "cloud-fingerprints")
+    private static let log = Logger(subsystem: "io.github.sofianbll.oortnx", category: "cloud-fingerprints")
     private static let capacity = 500
     private let file: URL?
     private var ordered: [Entry]?

@@ -74,7 +74,7 @@ def validate(path, destination=None):
                     or not name.parts or "\x00" in entry.filename
                     or any(ord(char) < 32 for char in entry.filename)):
                 raise ValueError("Unsafe path")
-            if name.parts[0] != "NXLibrary.app" and name.parts[:2] != ("__MACOSX", "NXLibrary.app"):
+            if name.parts[0] != "Oort NX.app" and name.parts[:2] != ("__MACOSX", "Oort NX.app"):
                 raise ValueError("Unexpected root")
             normalized = unicodedata.normalize("NFD", str(name)).casefold()
             if normalized in names or entry.flag_bits & 1:
