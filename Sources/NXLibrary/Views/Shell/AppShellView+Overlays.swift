@@ -37,12 +37,10 @@ extension AppShellView {
             if viewModel.settingsNotice?.id == notice.id { finishSettingsNotice() }
         }) {
             SeleneChoiceDialog(title: notice.title, message: notice.message,
-                               choices: notice.choices,
-                               focus: $viewModel.settingsNoticeFocus,
-                               cancelIndex: notice.choices.count > 1 ? notice.cancelIndex : nil,
-                               destructive: notice.destructiveIndexes, details: notice.choiceDetails,
+                               answers: notice.answers, focus: $viewModel.settingsNoticeAnswer,
+                               details: notice.choiceDetails,
                                onCancel: { if viewModel.settingsNotice?.id == notice.id { finishSettingsNotice() } },
-                               onChoose: { if viewModel.settingsNotice?.id == notice.id { finishSettingsNotice(choice: $0) } })
+                               onAnswer: { if viewModel.settingsNotice?.id == notice.id { finishSettingsNotice(answer: $0) } })
         }
     }
 
@@ -58,11 +56,11 @@ extension AppShellView {
             retry: { NSWorkspace.shared.open(URL(fileURLWithPath: "/Applications", isDirectory: true)) })
     }
 
-    func finishSettingsNotice(choice: Int? = nil) {
+    func finishSettingsNotice(answer: SettingsNotice.AnswerID = .back) {
         let notice = viewModel.settingsNotice
         viewModel.settingsNotice = nil
         notice?.onDismiss?()
-        notice?.runChoice(choice)
+        notice?.runAnswer(answer)
         presentLegacyNotice()
     }
 
@@ -136,11 +134,11 @@ extension AppShellView {
 
     func settingsNoticeInput(_ action: GamepadAction) {
         switch action {
-        case .navigateLeft, .navigateUp: viewModel.settingsNoticeFocus = max(0, viewModel.settingsNoticeFocus - 1)
-        case .navigateRight, .navigateDown:
-            let last = (viewModel.settingsNotice?.choices.count ?? 1) - 1
-            viewModel.settingsNoticeFocus = min(last, viewModel.settingsNoticeFocus + 1)
-        case .confirm: finishSettingsNotice(choice: viewModel.settingsNoticeFocus)
+        case .navigateLeft, .navigateUp, .navigateRight, .navigateDown:
+            guard let notice = viewModel.settingsNotice else { return }
+            let direction = action == .navigateLeft || action == .navigateUp ? -1 : 1
+            viewModel.settingsNoticeAnswer = ActionBarOrder.move(viewModel.settingsNoticeAnswer, by: direction, in: notice.answers.map(\.id))
+        case .confirm: finishSettingsNotice(answer: viewModel.settingsNoticeAnswer)
         case .cancel: finishSettingsNotice()
         default: break
         }

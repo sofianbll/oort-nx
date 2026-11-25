@@ -207,7 +207,7 @@ import SwiftUI
         app.settingsNotice = nil
         model.confirm([proposal])
         precondition(app.settingsNotice?.choices.count == 2, "Inbox did not confirm sorting")
-        app.settingsNotice!.runChoice(0)
+        app.settingsNotice!.runAnswer(.retry)
         precondition(model.busy, model.message ?? "Inbox did not start sorting")
         let discovery = home.appendingPathComponent("audit-discovery")
         try await until { fm.fileExists(atPath: discovery.path) || !model.busy }

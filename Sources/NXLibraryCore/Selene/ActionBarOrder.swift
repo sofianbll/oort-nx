@@ -7,6 +7,19 @@ public enum ActionBarRole: Int, CaseIterable, Sendable {
     public var isLeading: Bool { self == .destructive || self == .back }
 }
 
+/// A dialog answer has an identity that survives moving it to a different slot.
+public struct DialogAnswer<ID: Hashable> {
+    public let id: ID
+    public let title: String
+    public let role: ActionBarRole
+
+    public init(_ id: ID, _ title: String, _ role: ActionBarRole) {
+        self.id = id
+        self.title = title
+        self.role = role
+    }
+}
+
 public enum ActionBarOrder {
     /// Left to right, as drawn and as Left and Right move. Keys of one role keep the order they were given in.
     public static func sorted<Item>(_ items: [Item], role: (Item) -> ActionBarRole) -> [Item] {
@@ -42,5 +55,11 @@ public enum ActionBarOrder {
         let order: [ActionBarRole] = safe ? [.back, .secondary, .primary] : [.primary, .secondary, .back]
         for wanted in order { if let item = items.first(where: { role($0) == wanted }) { return item } }
         return nil
+    }
+
+    /// Only navigation uses positions. If the focused answer disappeared, never silently press its neighbour.
+    public static func move<ID: Hashable>(_ current: ID, by delta: Int, in order: [ID]) -> ID {
+        guard let position = order.firstIndex(of: current) else { return current }
+        return order[min(max(0, position + delta), order.count - 1)]
     }
 }

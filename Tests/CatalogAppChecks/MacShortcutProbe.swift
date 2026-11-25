@@ -163,11 +163,11 @@ extension ProfileScreenProbe {
             let options = vm.settingsNotice!
             try shot("options", dialog(options))
             vm.settingsNotice = nil
-            options.runChoice(options.choices.firstIndex(of: "Remove tile…"))
+            options.runAnswer(options.answers.first { $0.role == .destructive }!.id)
             let remove = vm.settingsNotice!
             precondition(remove.initialFocus == remove.cancelIndex)
             try shot("remove", dialog(remove))
-            remove.runChoice(remove.cancelIndex)
+            remove.runAnswer(.back)
             vm.settingsNotice = nil
         }
 
@@ -208,10 +208,10 @@ extension ProfileScreenProbe {
         vm.macShortcuts.showTileOptions(sameTile)
         let options = vm.settingsNotice!
         vm.settingsNotice = nil
-        options.runChoice(options.choices.firstIndex(of: "Remove tile…"))
+        options.runAnswer(options.answers.first { $0.role == .destructive }!.id)
         let remove = vm.settingsNotice!
         vm.settingsNotice = nil
-        remove.runChoice(0)
+        remove.runAnswer(.retry)
         precondition(vm.visibleCatalogGames.isEmpty)
         let unchanged = try paths.map { try Data(contentsOf: moved.appendingPathComponent($0)) }
         precondition(unchanged == originalBytes)

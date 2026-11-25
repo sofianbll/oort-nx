@@ -1304,7 +1304,7 @@ extension ProfileEditorView {
 
     func discardFixture() -> Self {
         var view = self
-        view._discardFocus = State(initialValue: 1)
+        view._discardFocus = State(initialValue: .cancel)
         return view
     }
 
@@ -1356,7 +1356,7 @@ extension ProfileEditorView {
             press(.cancel)
             precondition(editor!.step == .name && editor!.profile.name == name && cancelled == 1)
             press(.cancel)
-            precondition(editor!.discardFocus == 1 && cancelled == 1)
+            precondition(editor!.discardFocus == .cancel && cancelled == 1)
             press(.confirm)
             precondition(editor!.discardFocus == nil && cancelled == 1)
         }
@@ -1366,7 +1366,7 @@ extension ProfileEditorView {
             editor!.press(.done) // Done continues editing instead of saving.
             precondition(editor!.step == .avatar && editor!.profile == draft)
             close()
-            precondition(editor!.discardFocus == 1 && cancelled == 1)
+            precondition(editor!.discardFocus == .cancel && cancelled == 1)
             press(.menu)
             press(.cancel)
             precondition(editor!.discardFocus == nil && editor!.step == .avatar && editor!.profile == draft)
@@ -1379,7 +1379,7 @@ extension ProfileEditorView {
             editor!.customBackground = AppData.supportRoot.appendingPathComponent("fixture-wallpaper.png")
             editor!.indexes[Step.background.rawValue] = editor!.wallpapers.count
             close()
-            precondition(editor!.discardFocus == 1 && cancelled == 2)
+            precondition(editor!.discardFocus == .cancel && cancelled == 2)
             press(.cancel)
             editor!.indexes[Step.background.rawValue] = 0
             close()
@@ -1666,7 +1666,7 @@ extension AppIconModel {
         replace(saves, r"onClose: @escaping \(\) -> Void\) \{",
                 "onClose: @escaping () -> Void, copyingFrom: [LocalProfile] = []) {\n"
                 "        _copyFrom = State(initialValue: copyingFrom)\n"
-                "        _copyFocus = State(initialValue: copyingFrom.count)")
+                "        _copyFocus = State(initialValue: .cancel)")
         # The two snapshots share a game fixture; neither needs the live save lease or key monitor.
         replace(saves, r"\n        \.onAppear \{ model.refresh\(\); installKeyMonitor\(\) \}", "")
         replace(saves, r"ProgressView\(\)\.controlSize\(\.small\)\.tint\(SeleneTheme.ink60\)", "Color.clear")

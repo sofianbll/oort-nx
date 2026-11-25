@@ -782,9 +782,9 @@ struct CloudSavesSettingsFixture: View {
                 .overlay {
                 if let notice = viewModel.settingsNotice {
                     SeleneOverlay(style: .dialog) {
-                        SeleneChoiceDialog(title: notice.title, message: notice.message, choices: notice.choices,
-                                           focus: $viewModel.settingsNoticeFocus, cancelIndex: notice.cancelIndex, destructive: notice.destructiveIndexes,
-                                           details: notice.choiceDetails, onCancel: { viewModel.settingsNotice = nil }, onChoose: { _ in })
+                        SeleneChoiceDialog(title: notice.title, message: notice.message, answers: notice.answers,
+                                           focus: $viewModel.settingsNoticeAnswer,
+                                           details: notice.choiceDetails, onCancel: { viewModel.settingsNotice = nil }, onAnswer: { _ in })
                     }
                 }
             }

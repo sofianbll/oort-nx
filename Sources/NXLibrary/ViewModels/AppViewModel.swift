@@ -22,22 +22,38 @@ struct SettingsNotice: Identifiable {
     var choiceDetails: [String: String] = [:]
     var duringSetup = false
 
-    private typealias Answer = (title: String, run: () -> Void)
-    /// As drawn, left to right: what erases, the way back, the others, the main answer last.
-    private var keys: [(item: Answer, role: ActionBarRole)] {
-        ActionBarOrder.question(main: retry.map { (actionTitle, $0) }, others: alternatives.map { ($0.title, $0.run) },
-                                back: (cancelTitle, {})) { destructive.contains($0.title) }
+    enum AnswerID: Hashable {
+        case back, retry, alternative(Int)
     }
-    var initialFocus: Int { primaryFirst && retry != nil && !destructive.contains(actionTitle) ? choices.count - 1 : cancelIndex }
-    var cancelIndex: Int { keys.firstIndex { $0.role == .back } ?? 0 }
-    var choices: [String] { keys.map(\.item.title) }
-    var destructiveIndexes: Set<Int> { Set(choices.indices.filter { $0 != cancelIndex && destructive.contains(choices[$0]) }) }
 
-    func runChoice(_ index: Int?) {
-        guard let index, index != cancelIndex else { return }
-        let keys = keys
-        if keys.indices.contains(index) { keys[index].item.run() }
+    private typealias Answer = (id: AnswerID, title: String)
+    var answers: [DialogAnswer<AnswerID>] {
+        let main: Answer? = retry.map { _ in (.retry, actionTitle) }
+        let other: [Answer] = alternatives.enumerated().map { (.alternative($0.offset), $0.element.title) }
+        return ActionBarOrder.question(main: main, others: other, back: (.back, cancelTitle)) {
+            destructive.contains($0.title)
+        }.map { .init($0.item.id, $0.item.title, $0.role) }
     }
+
+    var defaultAnswer: AnswerID {
+        primaryFirst && retry != nil && !destructive.contains(actionTitle) ? .retry : .back
+    }
+
+    func runAnswer(_ answer: AnswerID) {
+        switch answer {
+        case .back: break
+        case .retry: retry?()
+        case .alternative(let id):
+            if alternatives.indices.contains(id) { alternatives[id].run() }
+        }
+    }
+
+    // Read-only layout observations used by the screen probes. These indices cannot activate anything.
+    var choices: [String] { answers.map(\.title) }
+    var cancelIndex: Int { answers.firstIndex { $0.id == .back } ?? 0 }
+    var initialFocus: Int { answers.firstIndex { $0.id == defaultAnswer } ?? cancelIndex }
+    var destructiveIndexes: Set<Int> { Set(answers.indices.filter { answers[$0].role == .destructive }) }
+
 }
 
 final class AppViewModel: ObservableObject {
@@ -70,7 +86,10 @@ final class AppViewModel: ObservableObject {
             }
         }
     }
-    @Published var settingsNoticeFocus = 0
+    @Published var settingsNoticeAnswer = SettingsNotice.AnswerID.back
+    var settingsNoticeFocus: Int {
+        settingsNotice?.answers.firstIndex { $0.id == settingsNoticeAnswer } ?? 0
+    }
     /// A SteamGridDB API key is saved (Settings → Online services → SteamGridDB), so Change artwork searches it.
     @Published var hasSteamGridDBKey = SteamGridDBKey().load() != nil
     @Published var isEditingSteamGridDBKey = false
@@ -89,7 +108,7 @@ final class AppViewModel: ObservableObject {
                                     actionTitle: actionTitle, cancelTitle: cancelTitle, alternatives: alternatives,
                                     // Trying again risks nothing.
                                     primaryFirst: primaryFirst ?? (actionTitle == "Retry"), destructive: destructive, choiceDetails: choiceDetails, duringSetup: duringSetup)
-        settingsNoticeFocus = notice.initialFocus
+        settingsNoticeAnswer = notice.defaultAnswer
         settingsNotice = notice
     }
 

@@ -540,6 +540,6 @@ final class AppRouterSpotlightMoveTests: XCTestCase {
         XCTAssertFalse(run.contains("terminate"))
         XCTAssertTrue(run.contains("confirmSetting(ask.title"))
         let model = try String(contentsOf: root.appendingPathComponent("Sources/NXLibrary/ViewModels/AppViewModel.swift"), encoding: .utf8)
-        XCTAssertTrue(model.contains("primaryFirst && retry != nil && !destructive.contains(actionTitle) ? choices.count - 1 : cancelIndex"))
+        XCTAssertTrue(model.contains("primaryFirst && retry != nil && !destructive.contains(actionTitle) ? .retry : .back"))
     }
 }

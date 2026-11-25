@@ -25,7 +25,7 @@ extension ChangeArtworkView {
         case .iconLocation:
             guard let macApp else { return }
             editingIconLocation = true
-            appIconFocus = appIcon.usesIconOnMac(for: macApp) ? .confirm : .cancel
+            appIconFocus = appIcon.usesIconOnMac(for: macApp) ? .onMac : .onlyHere
             askAppIcon = true
             SoundEffectService.shared.play(.click)
         case .yourPick:

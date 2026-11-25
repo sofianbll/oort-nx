@@ -586,6 +586,22 @@ import ArcanePorting
             NotificationCenter.default.post(name: input, object: action)
             settle()
         }
+        // The same answers can be declared in a different order without changing what Save or Back does.
+        typealias Answer = SettingsView.DraftAnswer
+        let answers: [DialogAnswer<Answer>] = [
+            .init(.save, "Save", .primary), .init(.keepEditing, "Keep editing", .back),
+            .init(.discard, "Discard", .destructive)
+        ]
+        for order in [answers, Array(answers.reversed())] {
+            var picked: [Answer] = []
+            let question = SeleneChoiceDialog(title: "Unsaved settings", message: "",
+                answers: order, focus: .constant(.keepEditing), onCancel: { picked.append(.keepEditing) },
+                onAnswer: { picked.append($0) })
+            let save = question.choices.firstIndex(of: "Save")!
+            question.onChoose(save)
+            question.onCancel?()
+            precondition(picked == [.save, .keepEditing], "Declaration order cannot change Save or Cancel")
+        }
         try capture("01-reglages-sauvegardes")
         let original = try Data(contentsOf: settings.fileURL)
         let section = SettingsCloudSavesSection(settings: SettingsEditor(settings), onActions: { _ in })
@@ -603,6 +619,11 @@ import ArcanePorting
         precondition(router.settingsDecision == .leave && router.route == .settings(.cloudSaves))
         try capture("03-reglages-demande-enregistrement")
         send(.confirm) // default = Keep editing
+        precondition(router.settingsDecision == nil && settings.draft?.hasChanges == true && router.route == .settings(.cloudSaves))
+        router.back()
+        settle()
+        send(.navigateLeft) // highlight Discard
+        send(.cancel) // Esc / B must still Keep editing
         precondition(router.settingsDecision == nil && settings.draft?.hasChanges == true && router.route == .settings(.cloudSaves))
         send(.contextAction) // Y: save without leaving
         precondition(router.settingsDecision == .save)

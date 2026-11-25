@@ -72,7 +72,8 @@ struct ChangeArtworkView: View {
     /// Image source and destination are independent; the same destination dialog is available for Automatic.
     @State var askAppIcon = false
     @State var editingIconLocation = false
-    @State var appIconFocus: SeleneConfirmButton = .confirm
+    enum IconAnswer: Hashable { case onlyHere, onMac }
+    @State var appIconFocus = IconAnswer.onMac
     /// The main grid's focus, restored on leaving a source.
     @State var mainFocus = 0
     @FocusState var fieldFocused: Bool
@@ -202,11 +203,8 @@ struct ChangeArtworkView: View {
                     // Two answers; Back closes the question without either.
                     SeleneChoiceDialog(title: "Where should the icon appear?",
                                        message: appIconMessage,
-                                       choices: ["Only here", "Use on the Mac"],
-                                       focus: Binding(get: { appIconFocus == .confirm ? 1 : 0 },
-                                                      set: { appIconFocus = $0 == 1 ? .confirm : .cancel }),
-                                       backTitle: "Close", onCancel: dismissAppIcon,
-                                       onChoose: { answerAppIcon($0 == 1) })
+                                       answers: iconAnswers, focus: $appIconFocus,
+                                       backTitle: "Close", onCancel: dismissAppIcon, onAnswer: answerAppIcon)
                 }
                 .transition(.opacity)
             }
@@ -220,17 +218,21 @@ struct ChangeArtworkView: View {
             + (running ? L10n.text(" It changes when the game quits.") : L10n.text(" A large game takes about a minute."))
     }
 
-    func answerAppIcon(_ use: Bool) {
+    var iconAnswers: [DialogAnswer<IconAnswer>] {
+        [.init(.onlyHere, "Only here", .secondary), .init(.onMac, "Use on the Mac", .primary)]
+    }
+
+    func answerAppIcon(_ answer: IconAnswer) {
         SoundEffectService.shared.play(.click)
         askAppIcon = false
-        if let macApp { appIcon.setUsesPickedAppIcon(use, for: macApp) }
+        if let macApp { appIcon.setUsesPickedAppIcon(answer == .onMac, for: macApp) }
     }
 
     /// Ask for every game, including NUPs, dumps and games not built yet.
     func iconPicked() {
         guard slot == .icon, let macApp else { return }
         editingIconLocation = false
-        appIconFocus = appIcon.usesIconOnMac(for: macApp) ? .confirm : .cancel
+        appIconFocus = appIcon.usesIconOnMac(for: macApp) ? .onMac : .onlyHere
         askAppIcon = true
     }
 

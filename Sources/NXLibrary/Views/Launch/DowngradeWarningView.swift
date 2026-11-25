@@ -18,11 +18,13 @@ struct DowngradeWarningView: View {
     @Environment(\.seleneCanvas) private var canvas
     @ObservedObject private var theme = ThemeStore.shared
     @StateObject private var controller = ControllerInput()
-    @State private var index = 2
+    @State private var focused: Choice?
     @FocusState private var acceptsKeys: Bool
 
     private var failed: Bool { notice.canContinueWithoutCopy }
     private var choices: [Choice] { failed ? [.quit, .proceed, .retry] : [.quit, .folder, .proceed] }
+    private var primary: Choice { failed ? .retry : .proceed }
+    private var selection: Choice { focused.flatMap { choices.contains($0) ? $0 : nil } ?? primary }
     private var omissions: [DowngradeCheckpoint.Omission] {
         if case let .copy(omissions) = notice { return omissions }
         return []
@@ -39,11 +41,11 @@ struct DowngradeWarningView: View {
             Text(risk)
                 .seleneFont(.text)
                 .foregroundStyle(SeleneTheme.ink75)
-            OortActionBar(actions: choices.enumerated().map { position, choice in
-                .init(id: position, title: label(choice),
-                      role: choice == .quit ? .back : position == choices.count - 1 ? .primary : .secondary) { perform(choice) }
-            }, focused: index, preset: .card) { id in
-                if let position = id.base as? Int { index = position }
+            OortActionBar(actions: choices.map { choice in
+                .init(id: choice, title: label(choice),
+                      role: choice == .quit ? .back : choice == primary ? .primary : .secondary) { perform(choice) }
+            }, focused: selection, preset: .card) { id in
+                if let choice = id.base as? Choice { focused = choice }
             }
         }
         .multilineTextAlignment(.center)
@@ -53,7 +55,7 @@ struct DowngradeWarningView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(alignment: .bottom) {
             SeleneHintsBar(left: [HintItem(.b, "Quit") { perform(.quit) }],
-                           right: [HintItem(.a, "Select") { perform(choices[index]) }])
+                           right: [HintItem(.a, "Select") { perform(selection) }])
         }
         .background(SeleneTheme.baseGradient(for: theme.palette))
         .environment(\.nxAppLocale, context)
@@ -130,7 +132,7 @@ struct DowngradeWarningView: View {
 
     private func perform(_ choice: Choice) {
         switch choice {
-        case .retry: index = choices.count - 1; retry()
+        case .retry: focused = .retry; retry()
         case .proceed: proceed()
         case .folder: NSWorkspace.shared.open(AppData.supportRoot)
         case .quit: NSApplication.shared.terminate(nil)
@@ -139,9 +141,9 @@ struct DowngradeWarningView: View {
 
     private func input(_ action: GamepadAction) {
         switch action {
-        case .navigateLeft: index = max(0, index - 1)
-        case .navigateRight: index = min(choices.count - 1, index + 1)
-        case .confirm: perform(choices[index])
+        case .navigateLeft, .navigateRight:
+            focused = ActionBarOrder.move(selection, by: action == .navigateLeft ? -1 : 1, in: choices)
+        case .confirm: perform(selection)
         case .cancel: perform(.quit)
         default: break
         }

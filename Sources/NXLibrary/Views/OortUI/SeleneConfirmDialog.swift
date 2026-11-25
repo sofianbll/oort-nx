@@ -295,3 +295,21 @@ struct SeleneChoiceDialog: View {
         }
     }
 }
+
+extension SeleneChoiceDialog {
+    /// Adapt layout slots to stable answers at the view boundary. Callers never dispatch on a slot.
+    init<ID>(title: String, message: String, answers: [DialogAnswer<ID>], focus: Binding<ID>,
+             backTitle: String = "Cancel", list: Bool = false, details: [String: String] = [:],
+             notes: String? = nil, notesScrollRequest: Int = 0, onCancel: (() -> Void)? = nil,
+             onAnswer: @escaping (ID) -> Void) {
+        let order = list ? ActionBarOrder.stacked(answers, role: \.role) : ActionBarOrder.sorted(answers, role: \.role)
+        self.init(title: title, message: message, choices: order.map(\.title),
+                  focus: Binding(get: { order.firstIndex { $0.id == focus.wrappedValue } ?? -1 },
+                                 set: { if order.indices.contains($0) { focus.wrappedValue = order[$0].id } }),
+                  cancelIndex: order.firstIndex { $0.role == .back },
+                  destructive: Set(order.indices.filter { order[$0].role == .destructive }),
+                  backTitle: backTitle, list: list, details: details, notes: notes,
+                  notesScrollRequest: notesScrollRequest, onCancel: onCancel,
+                  onChoose: { if order.indices.contains($0) { onAnswer(order[$0].id) } })
+    }
+}
