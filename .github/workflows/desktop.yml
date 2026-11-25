@@ -191,6 +191,8 @@ jobs:
           mkdir -p desktop/src-tauri/binaries
           cp "$(swift build -c release --product oort-core --static-swift-stdlib --show-bin-path)/oort-core" \
             desktop/src-tauri/binaries/oort-core-x86_64-unknown-linux-gnu
+          # Without its symbols and debug notes the core is a quarter smaller; nothing reads them in a package.
+          strip desktop/src-tauri/binaries/oort-core-x86_64-unknown-linux-gnu
           echo '{"id":1,"method":"hello"}' | desktop/src-tauri/binaries/oort-core-x86_64-unknown-linux-gnu \
             --data /tmp/core --resources desktop/src-tauri --system linux | grep '"system":"linux"'
       - name: Page, host
