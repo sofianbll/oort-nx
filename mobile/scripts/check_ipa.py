@@ -54,6 +54,8 @@ def main(path):
         inside = {n[len(app):] for n in names}
         info = plistlib.loads(ipa.read(app + "Info.plist"))
         issues += [f"{key} is {info.get(key)!r}" for key, value in EXPECTED.items() if info.get(key) != value]
+        if "OortTrialMute" in info:
+            issues.append("The UI-test mute setting is bundled.")
         if "NSAppTransportSecurity" in info:
             issues.append("A network exception is declared.")
         if not info.get("CFBundleIcons", {}).get("CFBundlePrimaryIcon", {}).get("CFBundleIconName"):

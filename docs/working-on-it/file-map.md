@@ -221,7 +221,7 @@ Cartella `mobile/`, un pacchetto SwiftPM a parte che riusa `OortCore` e `OortSyn
 | [import_nx2apple.py](../../mobile/scripts/import_nx2apple.py) | Riprende i file, applica i tagli e scrive PROVENANCE; si ferma se un taglio non si trova. |
 | [build_app.sh](../../mobile/scripts/build_app.sh) | Compila l’app senza firma per iphoneos e per il simulatore. |
 | [capture.sh](../../mobile/scripts/capture.sh) | Disegna gli schermi in PNG con Mac Catalyst, senza simulatore. |
-| [test_app.sh](../../mobile/scripts/test_app.sh) | Prova l’app su un simulatore e tiene immagini, rapporto di accessibilità e log. |
+| [test_app.sh](../../mobile/scripts/test_app.sh) | Prova l’app muta su un simulatore e tiene immagini, rapporto di accessibilità e log. |
 | [get_xcodegen.sh](../../mobile/scripts/get_xcodegen.sh) | Scarica XcodeGen alla versione fissata e ne verifica l’impronta. |
 | [package_ipa.sh](../../mobile/scripts/package_ipa.sh) | Impacchetta l’app per iPhone e iPad senza firma. |
 | [check_ipa.py](../../mobile/scripts/check_ipa.py) | Verifica l’IPA: chiavi, niente firma né giochi, spazio per firmare. |
@@ -235,7 +235,7 @@ Cartella `mobile/`, un pacchetto SwiftPM a parte che riusa `OortCore` e `OortSyn
 | [Capture/project.yml](../../mobile/Capture/project.yml) | Progetto Xcode delle catture. |
 | [UITests/OortUITests.swift](../../mobile/UITests/OortUITests.swift) | Apre ogni schermo su un simulatore, lo fotografa e lo verifica. |
 | [UITests/FakeGame/FakeGame.m](../../mobile/UITests/FakeGame/FakeGame.m) | Gioco inventato che parte e torna alla libreria, senza motore. |
-| [UITests/project.yml](../../mobile/UITests/project.yml) | Progetto Xcode dell’app con i suoi test. |
+| [UITests/project.yml](../../mobile/UITests/project.yml) | Progetto Xcode dell’app con i suoi test e audio disattivato. |
 | [ShellModel/ShellStrings.swift](../../mobile/Sources/ShellModel/ShellStrings.swift) | Ricerca dei testi di NX2Apple, senza i suoi stili. |
 | [ShellModel/PadMappingRows.swift](../../mobile/Sources/ShellModel/PadMappingRows.swift) | Righe della mappatura, senza le sue viste. |
 | [ShellHost/SharedProblem.swift](../../mobile/Sources/ShellHost/SharedProblem.swift) | Riesporta `OortCore` e traduce i problemi. |
