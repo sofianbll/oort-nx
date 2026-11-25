@@ -103,6 +103,11 @@ From the checkout root, run `.build/debug/NXLibrary --render-file-picker /absolu
 to list synthetic folders and capture the real picker in French at two widths
 over a bright fixture wallpaper. The probe never displays a window.
 
+`--render-command-palette /absolute/output` presses every key and button of the
+command palette, then renders its states in French, English and German, on a
+dark and a light palette, at two window sizes. It never displays a window; a
+build without this flag would open the app, so build first.
+
 ## Verification
 
 ~~~sh

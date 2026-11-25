@@ -9,6 +9,7 @@ extension Notification.Name {
 }
 
 /// Find a game (View hold or ⌘F): a pill field over a glass scrim, square results as you type.
+/// Y or ⌘K takes the words typed to the command palette.
 struct FindGameView: View {
     @ObservedObject var router: AppRouter
     @ObservedObject var viewModel: AppViewModel
@@ -46,6 +47,7 @@ struct FindGameView: View {
             VStack {
                 Spacer()
                 SeleneHintsBar(right: [
+                    HintItem(.y, "Search everywhere", keyboard: .text(PaletteAction.paletteShortcut)) { searchEverywhere() },
                     HintItem(.b, L10n.text("Close")) { close() },
                     HintItem(.a, L10n.text("Select"))
                 ], bottom: SeleneBottomScrim.hintsBottom)
@@ -155,9 +157,15 @@ struct FindGameView: View {
             pick(focused.flatMap { games.indices.contains($0) ? games[$0] : nil } ?? games.first)
         case .cancel:
             close()
+        case .contextAction:
+            searchEverywhere()
         default:
             break
         }
+    }
+
+    private func searchEverywhere() {
+        NotificationCenter.default.post(name: .nxLibraryOpenPalette, object: query)
     }
 
     private func move(to index: Int) {
@@ -190,6 +198,11 @@ struct FindGameView: View {
                   !viewModel.shellDialogOwnsInput, !viewModel.isWelcomeOpen,
                   viewModel.alertMessage == nil, viewModel.settingsNotice == nil else { return event }
             let typing = fieldFocused
+            if event.modifierFlags.intersection([.command, .control, .option, .shift]) == [.command],
+               event.charactersIgnoringModifiers?.lowercased() == "k" {
+                if !event.isARepeat { searchEverywhere() }
+                return nil
+            }
             switch event.keyCode {
             case 53:                                   // Esc
                 handle(.cancel)

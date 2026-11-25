@@ -494,4 +494,35 @@ final class AppRouterSpotlightMoveTests: XCTestCase {
         XCTAssertFalse(AppRoute.library.isOverlay)
         XCTAssertFalse(AppRoute.collection.isOverlay)
     }
+
+    func testThePaletteOpensAloneAndLeavesWithWhatItOpens() {
+        let router = AppRouter()
+        router.isMenuPresented = true
+        router.isThemePickerOpen = true
+        router.isPalettePresented = true
+        XCTAssertFalse(router.isMenuPresented)
+        XCTAssertFalse(router.isThemePickerOpen)
+        router.isSearchPresented = true
+        XCTAssertFalse(router.isPalettePresented)
+        router.isPalettePresented = true
+        XCTAssertFalse(router.isSearchPresented)
+        router.isMenuPresented = true
+        XCTAssertFalse(router.isPalettePresented)
+        router.isPalettePresented = true
+        router.openSettings(.controllers, rowID: "players")
+        XCTAssertFalse(router.isPalettePresented)
+        XCTAssertEqual(router.settingsRowID, "players")
+    }
+
+    func testOpeningThePaletteInSettingsKeepsTheDraft() {
+        let router = AppRouter()
+        router.openSettings(.look)
+        router.hasPendingSettings = { true }
+        router.isPalettePresented = true
+        XCTAssertTrue(router.isPalettePresented)
+        XCTAssertNil(router.settingsDecision)
+        router.openSettings(.soundMusic, rowID: "soundVolume")
+        XCTAssertEqual(router.route, .settings(.soundMusic))
+        XCTAssertNil(router.settingsDecision)
+    }
 }

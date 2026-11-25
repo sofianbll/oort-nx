@@ -6,10 +6,12 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Added
 
+- **⌘K** opens a search over everything: start a game or open its options, go to a setting, run an action. It shows recent and suggested choices before you type, forgives accents and small typing mistakes, and works offline. With a controller, press Y in **Find a game**.
 - Each kind of controller has its own drawing: Xbox, PlayStation, Switch Pro, Joy-Con pair and single Joy-Con. Controls links every button to what it does, in the library and in a game, for the connected controller or another one.
 
 ### Changed
 
+- The control center opens with **⇧⌘K**; ⌘K is now the search.
 - The control center keeps five icons with Power in the middle. Players joins the Profile card.
 
 ## 0.5.0-beta.3 — 2026-11-25

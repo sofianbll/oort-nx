@@ -25,6 +25,7 @@ struct AppShellView: View {
     @StateObject var runningGames = RunningGameMonitor()
     @StateObject var sessionCard = SessionCardPresenter()
     @StateObject var updater = AppUpdater()
+    @StateObject var palette = CommandPalette()
     @StateObject var sources: CatalogSourcesModel
     private let igdb: IGDBSettings
     private let modStoreHost: ModStoreHost
@@ -150,13 +151,13 @@ struct AppShellView: View {
             && !isCloseGameOpen && !router.isScreenshotViewerOpen && !router.isSearchPresented
             && router.activityCenterFocus == nil
             && !viewModel.isGameOptionsOpen && viewModel.launchOverlay == nil && !nativeDialogOwnsInput
-        let gameCommands = general && !router.isMenuPresented && router.sortMenu == nil
+        let gameCommands = general && !router.isMenuPresented && !router.isPalettePresented && router.sortMenu == nil
         let game = gameCommands ? viewModel.currentFocusedGame : nil
         let focused = gameCommands ? viewModel.currentFocusedCatalogGame : nil
         let steam = focused?.integration == .steam ? focused : nil
         let shortcut = focused?.macShortcut
         // Steam only has a Spotlight page; a Mac shortcut has no details.
-        return NativeMenuAvailability(general: general,
+        return NativeMenuAvailability(general: general, palette: paletteAvailable,
             addMacApp: general && viewModel.macShortcuts.canEdit,
             play: game?.isPlayableLocally == true || steam.map(SteamPlayCoordinator.shared.canPlay) == true || shortcut != nil,
             details: isHomeRoute && focused != nil && shortcut == nil && (steam == nil || router.route == .library),
@@ -235,9 +236,13 @@ struct AppShellView: View {
             guard nativeMenuAvailability.general else { return }
             router.isMenuPresented = true
         }
+        .onReceive(NotificationCenter.default.publisher(for: .nxLibraryOpenPalette)) { note in
+            togglePalette(query: note.object as? String ?? "")
+        }
         .onReceive(NotificationCenter.default.publisher(for: .nxLibraryOpenSettings)) { _ in
             guard profileFlow == nil, !isCloseGameOpen, !router.isScreenshotViewerOpen, !viewModel.isGameOptionsOpen else { return }
             router.closeMenu()
+            router.isPalettePresented = false
             router.openSettings(.startUp)
         }
         .onReceive(NotificationCenter.default.publisher(for: .nxLibraryRetryCatalogSave)) { _ in
@@ -301,6 +306,8 @@ struct AppShellView: View {
             } else if viewModel.isGameOptionsOpen {
                 // Game options steps back (dialog, then Edit details) or closes.
                 NotificationCenter.default.post(name: .nxGameOptionsGamepadAction, object: GamepadAction.cancel)
+            } else if router.isPalettePresented {
+                palette.back()
             } else if router.isMenuPresented {
                 menuInput(.cancel)
             } else if router.isSearchPresented {

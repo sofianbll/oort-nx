@@ -86,7 +86,8 @@ struct ControlsView: View {
             ("Move", L10n.text("Arrows · D-pad or left stick")),
         ] + layout.guide(hasHome: controller.homeAccess.hasHome)
             .map { (L10n.text($0.tap.guideTitle), $0.summary(style: .automatic, pad: pad)) } + [
-            (L10n.text("Menu"), "⌘K"),
+            (L10n.text("Search everywhere"), PaletteAction.paletteShortcut),
+            (L10n.text("Menu"), "⇧⌘K"),
             (L10n.text("Settings"), "⌘,"),
             (L10n.text("Search"), "⌘F"),
             (L10n.text("Profiles"), "⇧⌘P"),

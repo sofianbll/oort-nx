@@ -23,7 +23,7 @@ extension AppShellView {
         GameControllerService.shared.useDeadzone(settings.settings.launcherChoices.controllerDeadzone)
         GameControllerService.shared.layout = GamepadLayout(settings.settings)
         GameControllerService.shared.isBrowsing = { [weak router, weak viewModel] in
-            guard let router, let viewModel, !router.isThemePickerOpen, !router.isSearchPresented,
+            guard let router, let viewModel, !router.isThemePickerOpen, !router.isSearchPresented, !router.isPalettePresented,
                   !router.isScreenshotViewerOpen, !viewModel.isGameOptionsOpen, !viewModel.profileOwnsInput,
                   viewModel.cloudLibraryGameID == nil, !viewModel.showSetupCheck else { return false }
             switch router.route {
@@ -185,6 +185,10 @@ extension AppShellView {
                 else { postProfileAction(action) }
                 return
             }
+            if router.isPalettePresented, action != .profiles {
+                paletteInput(action)
+                return
+            }
             if action == .controlCenter || action == .fullMenu {
                 guard !router.isScreenshotViewerOpen, !viewModel.isGameOptionsOpen,
                       !router.isThemePickerOpen, !router.isSearchPresented else { return }
@@ -286,6 +290,7 @@ extension AppShellView {
     }
 
     func openFreshAddGame() {
+        router.isPalettePresented = false
         if router.route == .addGame, !viewModel.isBuilding {
             viewModel.porting.startNewAddGame(defaults: settings.settings.gameDefaults)
         } else {
