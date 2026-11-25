@@ -51,6 +51,12 @@ public struct SoundPack: Sendable {
     public let manifest: SoundPackManifest
     fileprivate let files: [String: Data]
 
+    /// A house mood: the app makes its sounds, so it carries a name and no file.
+    fileprivate static func mood(_ id: String, name: String) -> SoundPack {
+        SoundPack(manifest: SoundPackManifest(id: id, name: L10n.text(name), author: "Oort", license: "MIT",
+                                              version: "1.0.0", format: 1, events: [:]), files: [:])
+    }
+
     public func audio(for event: SoundPackEvent) -> Data? {
         manifest.events[event.rawValue]?.randomElement().flatMap { files[$0] }
     }
@@ -218,7 +224,8 @@ public struct SoundPackLibrary: Sendable {
             let key = "custom." + id
             return (key, (try? load(key))?.manifest.name ?? id)
         }
-        return [("selene", "Selene")] + originals + customs
+        let moods = OortSynth.ambiances.map { (key: $0.id, name: L10n.text($0.name)) }
+        return [("selene", "Selene")] + originals + moods + customs
     }
 
     private func customIDs() -> [String] {
@@ -231,6 +238,7 @@ public struct SoundPackLibrary: Sendable {
 
     public func load(_ key: String) throws -> SoundPack? {
         if key == "selene" { return nil }
+        if let mood = OortSynth.ambiances.first(where: { $0.id == key }) { return .mood(mood.id, name: mood.name) }
         let id: String, source: URL
         if key.hasPrefix("custom.") {
             id = String(key.dropFirst(7))

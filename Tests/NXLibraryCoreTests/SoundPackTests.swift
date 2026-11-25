@@ -80,7 +80,7 @@ final class SoundPackTests: XCTestCase {
             .deletingLastPathComponent().deletingLastPathComponent()
         try withFolder { root in
             let library = SoundPackLibrary(root: root, bundled: sources.appendingPathComponent("Resources/SoundPacks"))
-            XCTAssertEqual(library.choices().map(\.name), ["Selene", "Oort", "Pollen", "Umbra", "Impulsion"])
+            XCTAssertEqual(library.choices().map(\.name), ["Selene", "Oort", "Pollen", "Umbra", "Impulsion", "Frost", "Mist", "Nucleus"])
             let oort = try XCTUnwrap(library.load("oort"))
             XCTAssertNil(oort.audio(for: .move))
             XCTAssertNil(oort.audio(for: .boot))

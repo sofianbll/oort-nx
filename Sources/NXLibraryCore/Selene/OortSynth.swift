@@ -8,13 +8,15 @@ public struct OortSynth: Sendable {
         let wave: Wave
         let frequency, decay, cutoff: Double
         let partials: [Double]
+        /// What a house mood adds; the four earlier voices have none and sound as before.
+        var mood: Mood?
 
-        static let all: [String: Voice] = [
+        static let all: [String: Voice] = moods.merging([
             "oort": Voice(wave: .sine, frequency: 523, decay: 0.16, cutoff: 5200, partials: [1, 2.01]),
             "pollen": Voice(wave: .sine, frequency: 659, decay: 0.28, cutoff: 6500, partials: [1, 3.9]),
             "umbra": Voice(wave: .triangle, frequency: 262, decay: 0.24, cutoff: 1500, partials: [1, 1.5]),
             "impulsion": Voice(wave: .square, frequency: 392, decay: 0.07, cutoff: 2600, partials: [1]),
-        ]
+        ]) { first, _ in first }
     }
 
     /// Eight notes, in semitones above the voice's fifth, played one per step of the focus.
@@ -77,13 +79,14 @@ public struct OortSynth: Sendable {
 
     /// A 16-bit stereo WAV, or nil when the pack leaves this event silent. `step` climbs while the focus keeps moving.
     public func wav(_ event: SoundPackEvent, step: Int = 0, notes: [Double] = Figure.rise.notes, octave: Int = 0) -> Data? {
-        var mix = Mix(seconds: event == .boot ? 2.8 : 1.6)
+        var mix = Mix(seconds: event == .boot ? 2.8 : voice.mood?.span ?? 1.6)
         switch event {
         case .move:
             guard !notes.isEmpty else { return nil }
             let semitones = notes[((step % notes.count) + notes.count) % notes.count]
             let shift = Double(min(Self.octaves.upperBound, max(Self.octaves.lowerBound, octave)))
             note(&mix, 1.5 * pow(2, semitones / 12 + shift), volume: 0.055, length: 0.45)
+            if let faint = voice.mood?.moveClick, faint > 0 { click(&mix, faint, 2200) }
         case .select:
             click(&mix, 0.22, 1500)
             note(&mix, 0.5, volume: 0.1, length: 0.5)
@@ -116,12 +119,16 @@ public struct OortSynth: Sendable {
         case .boot: sun(&mix)
         case .ambience: return nil
         }
-        return mix.wav()
+        return mix.wav(voice.mood, loudness: Self.loudness[event])
     }
 
     private func note(_ mix: inout Mix, _ ratio: Double, at start: Double = 0, volume: Double, length: Double = 1) {
+        let attack = voice.mood?.attack ?? 0.004
         for (index, partial) in voice.partials.enumerated() {
-            let level = volume / (1 + Double(index) * 2.6) * (voice.wave == .square ? 0.35 : 1)
+            // A mood leaves out a tone that would fold back from above half the rate.
+            if voice.mood != nil, voice.frequency * ratio * partial >= Self.rate * 0.45 { continue }
+            let level = voice.mood.map { volume * $0.levels[index] }
+                ?? volume / (1 + Double(index) * 2.6) * (voice.wave == .square ? 0.35 : 1)
             let release = voice.decay * length / (1 + Double(index) * 0.6)
             let count = Int((voice.decay * length + 0.05) * Self.rate)
             let step = voice.frequency * ratio * partial / Self.rate
@@ -134,9 +141,9 @@ public struct OortSynth: Sendable {
                 case .triangle: 4 * abs((phase + 0.75).truncatingRemainder(dividingBy: 1) - 0.5) - 1
                 case .square: phase < 0.5 ? 1 : -1
                 }
-                // 4 ms up, then an exponential fall to -80 dB.
-                let envelope = time < 0.004 ? level * time / 0.004
-                    : level * pow(0.0001 / max(level, 0.0001), min(1, (time - 0.004) / max(0.001, release - 0.004)))
+                // A few milliseconds up (4 without a mood), then an exponential fall to -80 dB.
+                let envelope = time < attack ? level * time / attack
+                    : level * pow(0.0001 / max(level, 0.0001), min(1, (time - attack) / max(0.001, release - attack)))
                 let tail = min(1, Double(count - n) / (0.004 * Self.rate))
                 samples[n] = Float(filter.run(shape) * envelope * tail)
             }
@@ -153,10 +160,11 @@ public struct OortSynth: Sendable {
         func bell(_ u: Double, _ rise: Double, _ fall: Double) -> Double {
             u <= 0 ? 0 : u < rise ? 0.5 - 0.5 * cos(.pi * u / rise) : exp(-(u - rise) / fall)
         }
+        let overtones = voice.mood?.overtones ?? 1
         let parts: [(ratio: Double, level: Double, envelope: (Double) -> Double)] = [
             (1, 1, { bell($0, 0.13, 0.19) + 0.26 * bell($0 - 0.36, 0.15, 0.2) }),
-            (2, 0.17, { bell($0, 0.10, 0.14) + 0.2 * bell($0 - 0.36, 0.13, 0.16) }),
-            (3, 0.03, { bell($0, 0.09, 0.12) }),
+            (2, 0.17 * overtones, { bell($0, 0.10, 0.14) + 0.2 * bell($0 - 0.36, 0.13, 0.16) }),
+            (3, 0.03 * overtones, { bell($0, 0.09, 0.12) }),
             (1, 0.22, { bell($0 - 0.1, 0.34, 0.42) }),
         ]
         for part in parts {
@@ -172,18 +180,22 @@ public struct OortSynth: Sendable {
     }
 
     private func click(_ mix: inout Mix, _ volume: Double, _ frequency: Double) {
+        let gain = voice.mood?.click ?? 1
+        guard gain > 0 else { return }
         let count = Int(0.018 * Self.rate)
-        var band = BandPass(center: frequency, q: 1.1, rate: Self.rate)
+        var band = BandPass(center: frequency * (voice.mood?.clickPitch ?? 1), q: 1.1, rate: Self.rate)
         var seed: UInt32 = 0x6f6f7274
         let samples = (0..<count).map { n -> Float in
             seed = seed &* 1_664_525 &+ 1_013_904_223
             let noise = Double(seed) / Double(UInt32.max) * 2 - 1
-            return Float(band.run(noise * pow(1 - Double(n) / Double(count), 6)) * volume)
+            // A mood's click rises in half a millisecond: no step on its first sample.
+            let rise = voice.mood == nil ? 1 : min(1, Double(n) / 24)
+            return Float(band.run(noise * pow(1 - Double(n) / Double(count), 6)) * volume * gain * rise)
         }
         mix.add(samples, at: 0)
     }
 
-    private struct LowPass {
+    struct LowPass {
         private var b0, b1, b2, a1, a2: Double
         private var x1 = 0.0, x2 = 0.0, y1 = 0.0, y2 = 0.0
         init(cutoff: Double, rate: Double) {
@@ -221,18 +233,21 @@ public struct OortSynth: Sendable {
             for (index, value) in samples.enumerated() where offset + index < dry.count { dry[offset + index] += value }
         }
 
-        /// Two decorrelated short rooms, then a soft ceiling: nothing can clip.
-        func wav() -> Data {
+        /// Two decorrelated rooms, then a soft ceiling: nothing can clip. A mood is then set to the
+        /// loudness the current voice has for the same event.
+        func wav(_ mood: Mood?, loudness: Double?) -> Data {
             let length = dry.count
-            let sides = [UInt32(5), 11].map { seed -> [Float] in
+            var sides = [UInt32(5), 11].map { seed -> [Float] in
+                if let mood { return zip(dry, OortSynth.echoes(dry, mood: mood, seed: seed)).map { Self.ceiling($0, $1, mood.wet) } }
                 let room = Self.room(seed)
                 var wet = [Float](repeating: 0, count: length)
                 let padded = [Float](repeating: 0, count: room.count - 1) + dry
                 room.withUnsafeBufferPointer { kernel in
                     vDSP_conv(padded, 1, kernel.baseAddress! + room.count - 1, -1, &wet, 1, vDSP_Length(length), vDSP_Length(room.count))
                 }
-                return zip(dry, wet).map { tanh(0.55 * ($0 + 0.12 * $1) * 1.4) / 1.4 }
+                return zip(dry, wet).map { Self.ceiling($0, $1, 0.12) }
             }
+            if mood != nil, let loudness { OortSynth.finish(&sides, to: loudness) }
             // Silence at the end is not worth keeping in memory.
             let last = (sides.compactMap { side in side.lastIndex { abs($0) > 0.00003 } }.max() ?? 0) + 480
             let frames = min(length, last)
@@ -242,11 +257,18 @@ public struct OortSynth: Sendable {
             data.append(contentsOf: Array("RIFF".utf8)); put(36 + bytes); data.append(contentsOf: Array("WAVEfmt ".utf8))
             put(UInt32(16)); put(UInt16(1)); put(UInt16(2)); put(UInt32(OortSynth.rate)); put(UInt32(OortSynth.rate) * 4)
             put(UInt16(4)); put(UInt16(16)); data.append(contentsOf: Array("data".utf8)); put(bytes)
+            // A mood's room may still ring when the file stops: it leaves along a longer, rounded slope.
+            let slope = mood == nil ? 240 : max(240, min(frames / 3, 14_400))
             for n in 0..<frames {
-                let fade = min(1, Float(frames - n) / 240)
+                var fade = min(1, Float(frames - n) / Float(slope))
+                if mood != nil { fade = fade * fade * (3 - 2 * fade) }
                 for side in sides { put(Int16(max(-1, min(1, side[n] * fade)) * 32_767)) }
             }
             return data
+        }
+
+        private static func ceiling(_ dry: Float, _ wet: Float, _ share: Float) -> Float {
+            tanh(0.55 * (dry + share * wet) * 1.4) / 1.4
         }
 
         private static func room(_ start: UInt32) -> [Float] {
