@@ -1,15 +1,20 @@
 import Foundation
 
-/// The control-center row, left to right: five icons, as Selene's menu.png keeps it short.
+/// The control-center row, left to right: nine icons with Power in the middle, as in Selene's menu.png. The player
+/// and their look are on its left, the app and its work on its right.
 /// Profile and Library open a card of entries above their icon; Power opens its pills.
 public enum MenuAction: String, CaseIterable, Identifiable, Equatable {
-    case profile, library, activityCenter, settings, power
+    case profile, theme, players, library, power, settings, refresh, fullscreen, activityCenter
     public var id: String { rawValue }
 
     public var title: String {
         switch self {
         case .profile: return L10n.text("Profile")
+        case .theme: return L10n.text("Theme")
+        case .players: return L10n.text("Players")
         case .library: return L10n.text("Library")
+        case .refresh: return L10n.text("Library refresh")
+        case .fullscreen: return L10n.text("Fullscreen")
         case .settings: return L10n.text("Settings")
         case .activityCenter: return L10n.text("Activity center")
         case .power: return L10n.text("Power")
@@ -19,8 +24,12 @@ public enum MenuAction: String, CaseIterable, Identifiable, Equatable {
     public var icon: MaterialIcon {
         switch self {
         case .profile: return .person
+        case .theme: return .palette
+        case .players: return .gamepad
         case .library: return .add
-        case .settings: return .tune
+        case .refresh: return .sync
+        case .fullscreen: return .monitor
+        case .settings: return .settings
         case .activityCenter: return .notifications
         case .power: return .power
         }
@@ -29,8 +38,8 @@ public enum MenuAction: String, CaseIterable, Identifiable, Equatable {
     /// What the icon's card lists, top to bottom; empty when the icon acts at once.
     public var entries: [MenuEntry] {
         switch self {
-        case .profile: return [.myProfile, .switchProfile, .editProfile, .theme]
-        case .library: return [.addGame, .manageSources, .refreshLibrary, .gameInbox]
+        case .profile: return [.myProfile, .switchProfile, .editProfile]
+        case .library: return [.addGame, .manageSources, .gameInbox]
         default: return []
         }
     }
@@ -38,7 +47,7 @@ public enum MenuAction: String, CaseIterable, Identifiable, Equatable {
 
 /// One line of the Profile or Library card.
 public enum MenuEntry: String, CaseIterable, Identifiable, Equatable {
-    case myProfile, switchProfile, editProfile, theme, addGame, manageSources, refreshLibrary, gameInbox
+    case myProfile, switchProfile, editProfile, addGame, manageSources, gameInbox
     public var id: String { rawValue }
 
     public var title: String {
@@ -46,10 +55,8 @@ public enum MenuEntry: String, CaseIterable, Identifiable, Equatable {
         case .myProfile: return L10n.text("My profile")
         case .switchProfile: return L10n.text("Switch profile")
         case .editProfile: return L10n.text("Edit profile")
-        case .theme: return L10n.text("Theme")
         case .addGame: return L10n.text("Add Game")
         case .manageSources: return L10n.text("Manage sources")
-        case .refreshLibrary: return L10n.text("Library refresh")
         case .gameInbox: return L10n.text("Sort incoming files")
         }
     }
@@ -58,10 +65,8 @@ public enum MenuEntry: String, CaseIterable, Identifiable, Equatable {
         switch self {
         case .myProfile, .switchProfile: return .person
         case .editProfile: return .edit
-        case .theme: return .palette
         case .addGame: return .add
         case .manageSources: return .collections
-        case .refreshLibrary: return .sync
         case .gameInbox: return .folder
         }
     }

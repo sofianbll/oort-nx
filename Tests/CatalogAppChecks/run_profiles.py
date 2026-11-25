@@ -387,6 +387,9 @@ import ArcanePorting
         try menu("09-menu-library-card", { $0.menuSelection.selected = .library; $0.openEntryMenu() })
         try menu("09-menu-activity", { $0.menuSelection.selected = .activityCenter })
         try menu("09-menu-settings", { $0.menuSelection.selected = .settings })
+        for action in [MenuAction.theme, .players, .refresh, .fullscreen] {
+            try menu("09-menu-\(action.rawValue)-fr", { $0.menuSelection.selected = action }, lang: fr)
+        }
         try menu("09-menu-power", { $0.menuSelection.selected = .power; $0.openPowerMenu() })
         try menu("09-menu-power-fr", { $0.menuSelection.selected = .power; $0.openPowerMenu() }, lang: fr)
         try menu("09-menu-profile-card-fr", { $0.menuSelection.selected = .profile; $0.openEntryMenu() }, lang: fr)
