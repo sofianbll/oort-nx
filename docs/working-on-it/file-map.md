@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 25 novembre 2026. Copertura di **1165 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 25 novembre 2026. Copertura di **1166 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -791,6 +791,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | File | Responsabilità |
 |---|---|
 | [Sources/NXLibrary/Views/Settings/SettingsView.swift](../../Sources/NXLibrary/Views/Settings/SettingsView.swift) | Coordina sezioni, bozza, riepilogo di salvataggio e input, arrivo passivo da Integrations e sottopannelli. |
+| [Sources/NXLibrary/Views/OortUI/ControllerShape.swift](../../Sources/NXLibrary/Views/OortUI/ControllerShape.swift) | Sagoma e posti dei tasti di ogni tipo di controller. |
 | [Sources/NXLibrary/Views/OortUI/OortSettingsShell.swift](../../Sources/NXLibrary/Views/OortUI/OortSettingsShell.swift) | Layout riusabile: barra, titolo, pila di pagine, ritorno, collegamenti e campo di ricerca. |
 | [Sources/NXLibrary/Views/Settings/SettingsDraftFields.swift](../../Sources/NXLibrary/Views/Settings/SettingsDraftFields.swift) | Elenca le chiavi di Settings, distingue anteprima e applicazione differita e descrive i cambi in ordine di importanza. |
 | [Sources/NXLibrary/Views/Settings/SettingsSidebar.swift](../../Sources/NXLibrary/Views/Settings/SettingsSidebar.swift) | Associa le pagine alle rubriche, al campo di ricerca e ai filtri; mantiene i collegamenti diretti alle sezioni. |
@@ -854,7 +855,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [DESIGN.md](../../DESIGN.md) | Sistema di design: token, pezzi, regole. |
 | [PRODUCT.md](../../PRODUCT.md) | Per chi è Oort, cosa promette e cosa evita. |
 | [Sources/NXLibrary/Services/ControllerLive.swift](../../Sources/NXLibrary/Services/ControllerLive.swift) | Stato vivo del controller attivo (tasti tenuti, stick), separato dal servizio per non ridisegnare le altre viste. |
-| [Sources/NXLibrary/Views/OortUI/OortControllerView.swift](../../Sources/NXLibrary/Views/OortUI/OortControllerView.swift) | Controller disegnato a punti, con gli ingressi reali accesi. |
+| [Sources/NXLibrary/Views/OortUI/OortControllerView.swift](../../Sources/NXLibrary/Views/OortUI/OortControllerView.swift) | Controller disegnato a punti, con gli ingressi reali accesi, e la sua mappa dei comandi. |
 | [Sources/NXLibrary/Views/OortUI/OortMeter.swift](../../Sources/NXLibrary/Views/OortUI/OortMeter.swift) | Barra di avanzamento, misurata o indeterminata. |
 | [Sources/NXLibrary/Views/OortUI/OortSearchField.swift](../../Sources/NXLibrary/Views/OortUI/OortSearchField.swift) | Campo di ricerca condiviso. |
 | [Sources/NXLibrary/Views/OortUI/OortSetupCard.swift](../../Sources/NXLibrary/Views/OortUI/OortSetupCard.swift) | Scheda di scelta della prima configurazione. |

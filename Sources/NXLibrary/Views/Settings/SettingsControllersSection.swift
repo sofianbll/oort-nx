@@ -13,7 +13,7 @@ struct SettingsControllersSection: View {
 
     var body: some View {
         OortSettingsGroup {
-            OortControllerView(brand: controller.activeBrand, width: 360)
+            OortControllerView(width: 360)
                 .frame(maxWidth: .infinity)
                 .opacity(controller.isGamepadConnected ? 1 : SeleneTokens.Alpha.half)
             SettingsSubheading(L10n.text("Library controls"))

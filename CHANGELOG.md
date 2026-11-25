@@ -2,6 +2,16 @@
 
 User-visible changes to Oort NX and its Arcane base (formerly NX Library) are recorded here. Entries are grouped by release, with the newest first. Engine changes also have their own [upgrade notes](docs/history/engine-upgrades/README.md).
 
+## 0.5.0-beta.4 — unreleased
+
+### Added
+
+- Each kind of controller has its own drawing: Xbox, PlayStation, Switch Pro, Joy-Con pair and single Joy-Con. Controls links every button to what it does, in the library and in a game, for the connected controller or another one.
+
+### Changed
+
+- The control center keeps five icons with Power in the middle. Players joins the Profile card.
+
 ## 0.5.0-beta.3 — 2026-11-25
 
 ### Added

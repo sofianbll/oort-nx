@@ -4,7 +4,7 @@ import SwiftUI
 import NXLibraryCore
 
 struct OortUIGallery: View {
-    enum Sheet: String, CaseIterable { case rows, states, dialogs, page, keys, pieces }
+    enum Sheet: String, CaseIterable { case rows, states, dialogs, page, keys, pieces, pads, padGuide }
 
     private static let palettes = ["oort", "catppuccin-latte", "vantablack", "oort-vesper"]
     @State private var palette = SelenePaletteCatalog.defaultID
@@ -41,7 +41,7 @@ struct OortUIGallery: View {
             .environment(\.seleneButtonNames, .xbox)
             .environment(\.seleneReduceMotion, true)
             .environment(\.seleneSharesBackdrop, true)
-            .background { if sheet == .keys { Rectangle().fill(SeleneTheme.baseGradient) } else { OortGalleryWallpaper() } }
+            .background { if [.keys, .pads, .padGuide].contains(sheet) { Rectangle().fill(SeleneTheme.baseGradient) } else { OortGalleryWallpaper() } }
     }
 
     @MainActor static func capture(to output: URL) throws {
@@ -162,9 +162,21 @@ private struct GallerySpecimen: View {
                     OortSearchField(query: .constant("Lunar"), lit: false, preset: .list) { TextField(text("Find a game"), text: .constant("Lunar")) }
                 }
                 HStack {
-                    OortControllerView(live: .sample, brand: .nintendoSwitch, width: 360)
+                    OortControllerView(live: .sample, kind: .switchPro, width: 360)
                     OortNotes(notes: OortSynth.Figure.wave.notes, playing: 3) { _, _ in }
                 }
+            case .pads:
+                LazyVGrid(columns: .init(repeating: GridItem(.flexible()), count: 3), spacing: canvas.u(SeleneTokens.Space.section)) {
+                    ForEach(ControllerShape.Kind.allCases) { kind in
+                        VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
+                            OortControllerView(live: kind == .switchPro ? .sample : .init(), kind: kind, width: 380)
+                            Text(kind.title).seleneFont(.text, .semibold).foregroundColor(SeleneTheme.ink60)
+                        }
+                    }
+                }
+            case .padGuide:
+                OortControllerMap(kind: .playstation, entries: Self.guide(.playstation), live: .sample)
+                OortControllerMap(kind: .switchPro, entries: Self.guide(.switchPro), live: .init())
             case .page:
                 OortSection(title: text("Integrations")) {
                     OortEmptyState(title: text("No incoming files"))
@@ -185,6 +197,10 @@ private struct GallerySpecimen: View {
                 }
             }
         }
+    }
+
+    private static func guide(_ kind: ControllerShape.Kind) -> [OortControllerMap.Entry] {
+        ControlsView.libraryEntries(.oort, kind: kind, hasHome: true)
     }
 
     private func sampleArt(_ platform: PlatformKind) -> some View {

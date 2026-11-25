@@ -1,6 +1,100 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Other controller": {
+      "comment": "ControlsView",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other controller"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autre manette"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anderer Controller"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otro mando"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Altro controller"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Outro controle"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "其他手柄"
+          }
+        }
+      }
+    },
+    "Shift + Arrow keys": {
+      "comment": "ControlsView",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shift + Arrow keys"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maj + flèches"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Umschalt + Pfeiltasten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mayús + flechas"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maiusc + frecce"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shift + setas"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shift + 方向键"
+          }
+        }
+      }
+    },
     "Top tabs": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Top tabs"}},"fr":{"stringUnit":{"state":"translated","value":"Onglets du haut"}},"de":{"stringUnit":{"state":"translated","value":"Tabs oben"}},"es":{"stringUnit":{"state":"translated","value":"Pestañas superiores"}},"it":{"stringUnit":{"state":"translated","value":"Schede in alto"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Abas do topo"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"顶部标签"}}}},
     "The tabs above your games. All games is always there.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"The tabs above your games. All games is always there."}},"fr":{"stringUnit":{"state":"translated","value":"Les onglets au-dessus de vos jeux. « Tous les jeux » y est toujours."}},"de":{"stringUnit":{"state":"translated","value":"Die Tabs über deinen Spielen. „Alle Spiele“ ist immer dabei."}},"es":{"stringUnit":{"state":"translated","value":"Las pestañas sobre tus juegos. «Todos los juegos» siempre está."}},"it":{"stringUnit":{"state":"translated","value":"Le schede sopra i tuoi giochi. «Tutti i giochi» c’è sempre."}},"pt-BR":{"stringUnit":{"state":"translated","value":"As abas acima dos seus jogos. “Todos os jogos” está sempre lá."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"游戏上方的标签。“所有游戏”始终显示。"}}}},
     "Sort and filter": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Sort and filter"}},"fr":{"stringUnit":{"state":"translated","value":"Trier et filtrer"}},"de":{"stringUnit":{"state":"translated","value":"Sortieren und filtern"}},"es":{"stringUnit":{"state":"translated","value":"Ordenar y filtrar"}},"it":{"stringUnit":{"state":"translated","value":"Ordina e filtra"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Ordenar e filtrar"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"排序和筛选"}}}},

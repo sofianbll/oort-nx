@@ -16,12 +16,49 @@ struct ControlsView: View {
     @Environment(\.seleneReduceMotion) private var reduceMotion
     @State private var inGame = false
     @State private var focus = 0
+    /// The kind shown: the connected one until another is picked.
+    @State private var picked: ControllerShape.Kind?
     @State private var keyMonitor: Any?
 
     init(layout: GamepadLayout = .arcane, canHandleInput: @escaping () -> Bool, onClose: @escaping () -> Void) {
         self.layout = layout
         self.canHandleInput = canHandleInput
         self.onClose = onClose
+    }
+
+    private var connectedKind: ControllerShape.Kind {
+        .init(brand: controller.activeBrand, name: controller.activeControllerName)
+    }
+
+    /// What each button of the shown controller does, by its place on it.
+    private var entries: [OortControllerMap.Entry] {
+        let kind = picked ?? connectedKind, shape = ControllerShape.of(kind)
+        if inGame {
+            // The engine's keys (front_mac.m, key_bit), by the Switch button each one is.
+            let keys: [(ControllerButton, String, String)] = [
+                (.zl, "ZL", "Z"), (.l, "L", "Q"), (.l3, L10n.text("Left stick"), "W A S D"),
+                (.up, L10n.text("D-pad"), L10n.text("Arrow keys")), (.view, "−", "Tab"), (.zr, "ZR", "C"), (.r, "R", "E"),
+                (.x, "X", "U"), (.y, "Y", "I"), (.a, "A", "J"), (.b, "B", "K"), (.menu, "+", "Return"),
+                (.r3, L10n.text("Right stick"), L10n.text("Shift + Arrow keys")),
+            ]
+            return keys.map { button, title, key in
+                .init(button: shape.switchName(button), name: key, title: title)
+            }
+        }
+        return Self.libraryEntries(layout, kind: kind, hasHome: controller.homeAccess.hasHome || !controller.isGamepadConnected)
+    }
+
+    static func libraryEntries(_ layout: GamepadLayout, kind: ControllerShape.Kind, hasHome: Bool) -> [OortControllerMap.Entry] {
+        [.init(button: .up, name: "✚", title: L10n.text("Move"))] + layout.guide(hasHome: hasHome).map { binding in
+            .init(button: binding.button, name: ButtonPrompts.label(binding.prompt, style: kind.names, connected: .other),
+                  title: L10n.text(binding.tap.guideTitle),
+                  hold: binding.hold.map { L10n.format("Hold: %@", [L10n.text($0.guideTitle)]) })
+        }
+    }
+
+    private func nextKind() {
+        let all = ControllerShape.Kind.allCases
+        picked = all[(all.firstIndex(of: picked ?? connectedKind)! + 1) % all.count]
     }
 
     private var rows: [(String, String)] {
@@ -71,9 +108,11 @@ struct ControlsView: View {
                             .padding(.bottom, canvas.u(SeleneTokens.Space.control))
                         SeleneSegmented(selection: $inGame, options: [(false, "Library"), (true, "In game")])
                             .padding(.bottom, canvas.u(SeleneTokens.Space.control))
-                        OortControllerView(brand: controller.activeBrand)
+                        SeleneSegmented(selection: Binding(get: { picked ?? connectedKind }, set: { picked = $0 }),
+                                        options: ControllerShape.Kind.allCases.map { ($0, $0.title) })
+                        OortControllerMap(kind: picked ?? connectedKind, entries: entries)
                             .frame(maxWidth: .infinity)
-                            .opacity(controller.isGamepadConnected ? 1 : SeleneTokens.Alpha.half)
+                            .padding(.vertical, canvas.u(SeleneTokens.Space.section))
                         SeleneOptionRow(icon: .gamepad, title: L10n.text("Controller"),
                             about: controller.isGamepadConnected ? controller.activeControllerName : L10n.text("Not connected"),
                             focused: focus == 0) {
@@ -102,7 +141,8 @@ struct ControlsView: View {
                 .onChange(of: inGame) { focus = 0; proxy.scrollTo(0, anchor: .top) }
             }
             SeleneHintsBar(left: [HintItem(.b, L10n.text("Back"), action: onClose)],
-                right: [HintItem(.lb, L10n.text("Library")) { inGame = false }, HintItem(.rb, L10n.text("In game")) { inGame = true }])
+                right: [HintItem(.lb, L10n.text("Library")) { inGame = false }, HintItem(.rb, L10n.text("In game")) { inGame = true },
+                        HintItem(.x, L10n.text("Other controller"), action: nextKind)])
         }
         .background(SeleneBackdrop())
         .environment(\.seleneMinimumFont, 12)
@@ -124,6 +164,7 @@ struct ControlsView: View {
         case .tabNext, .navigateRight: inGame = true
         case .navigateUp: focus = max(0, focus - 1)
         case .navigateDown: focus = min(rows.count, focus + 1)
+        case .secondaryAction: nextKind()
         case .confirm: if focus == 0 { controller.refreshControllers() }
         default: break
         }
@@ -142,6 +183,7 @@ struct ControlsView: View {
             case 123, 12: handle(.tabPrevious)
             case 124, 14: handle(.tabNext)
             case 36, 76, 49: handle(.confirm)
+            case 7: handle(.secondaryAction)
             default: return event
             }
             return nil

@@ -208,7 +208,7 @@ public final class AppRouter: ObservableObject {
                 moveMenu(by: delta)
                 return .none
             }
-            // Only the icons that open a panel here: the others act at once, so only an explicit confirm runs them.
+            // Settings leaves the control center; only an explicit confirm opens it.
             let panels: [MenuAction] = [.profile, .library, .power, .activityCenter]
             if let index = panels.firstIndex(of: menuSelection.selected), panels.indices.contains(index + delta) {
                 return .action(panels[index + delta])
@@ -239,7 +239,7 @@ public final class AppRouter: ObservableObject {
         case .power:
             closeEntryMenu()
             if wasFocused, menuSelection.isPowerOpen { closePowerMenu() } else { openPowerMenu() }
-        case .theme, .players, .settings, .refresh, .fullscreen, .activityCenter:
+        case .settings, .activityCenter:
             closePowerMenu()
             closeEntryMenu()
         }

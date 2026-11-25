@@ -290,24 +290,11 @@ extension AppShellView {
         case .settings:
             router.closeMenu()
             router.openSettings(.startUp)
-        case .theme:
-            // The menu's own screen: the theme's colors, then the background. B lands on the row again.
-            router.isThemePickerOpen = true
-        case .players:
-            router.closeMenu()
-            router.openSettings(.controllers, rowID: "players")
-        case .refresh:
-            router.closeMenu()
-            viewModel.refreshLibrary()
-            if sources.configuration.isEnabled { sources.refresh() }
-        case .fullscreen:
-            router.closeMenu()
-            NSApp.mainWindow?.toggleFullScreen(nil)
         }
     }
 
     /// A line of the Profile or Library card. The card closes first, so that coming back from a profile
-    /// screen (B) lands on the row with the focus on the same icon.
+    /// screen or Theme (B) lands on the row with the focus on the same icon.
     func runMenuEntry(_ entry: MenuEntry) {
         router.closeEntryMenu()
         switch entry {
@@ -316,12 +303,22 @@ extension AppShellView {
         case .editProfile:
             router.closeMenu()
             router.openSettings(.profileIdentity)
+        case .theme:
+            // The menu's own screen: the theme's colors, then the background.
+            router.isThemePickerOpen = true
+        case .players:
+            router.closeMenu()
+            router.openSettings(.controllers, rowID: "players")
         case .addGame:
             router.closeMenu()
             openFreshAddGame()
         case .manageSources:
             router.closeMenu()
             router.openSettings(.sources)
+        case .refreshLibrary:
+            router.closeMenu()
+            viewModel.refreshLibrary()
+            if sources.configuration.isEnabled { sources.refresh() }
         case .gameInbox:
             router.closeMenu()
             router.openGameInbox()
