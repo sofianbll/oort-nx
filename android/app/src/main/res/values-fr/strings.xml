@@ -7,18 +7,18 @@
     <string name="nav_controllers">Manettes</string>
     <string name="nav_settings">Réglages</string>
     <string name="back">Retour</string>
-    <string name="select">Choisir</string>
-    <string name="off">Coupés</string>
-    <string name="game_page">Fiche du jeu</string>
+    <string name="select">Sélectionner</string>
+    <string name="off">Désactivé</string>
+    <string name="game_page">Détails</string>
 
     <string name="sort">Trier</string>
-    <string name="sort_last">Derniers lancés</string>
+    <string name="sort_last">Récents</string>
     <string name="sort_name">Nom</string>
     <string name="library_count">%1$d sur cet appareil</string>
     <string name="library_scanning">Recherche des jeux…</string>
     <string name="empty_title">Aucun jeu trouvé</string>
     <string name="empty_body">Oort liste les jeux qu’nx2android a installés sur cet appareil : des applications dont le paquet commence par org.nx2a. Compile tes propres jeux sur un ordinateur avec nx2android, puis installe-les ici. Oort ne contient ni jeu, ni clé, ni émulateur.</string>
-    <string name="empty_rescan">Chercher à nouveau</string>
+    <string name="empty_rescan">Actualiser la bibliothèque</string>
     <string name="which_limits">Android ferme les fichiers de chaque jeu aux autres applications. Oort peut lister un jeu, le lancer et ouvrir sa page Android ; ses réglages et ses sauvegardes restent dans son propre menu pause.</string>
 
     <string name="started_never">Jamais lancé depuis Oort</string>
@@ -40,7 +40,7 @@
     <string name="detail_uninstall">Désinstaller</string>
     <string name="detail_uninstall_note">Sur la page Android du jeu, touche Désinstaller.</string>
     <string name="detail_uninstall_warning">Désinstaller un jeu supprime aussi ses sauvegardes. Exporte-les d’abord : menu pause, onglet Game, Export save.</string>
-    <string name="launch_failed">%1$s n’a pas pu démarrer.</string>
+    <string name="launch_failed">%1$s n’a pas démarré.</string>
     <string name="demo_game">Ceci est une entrée de démonstration.</string>
 
     <string name="controllers_connected">Connectées</string>
@@ -71,7 +71,7 @@
     <string name="settings_calm_note">Rien ne bouge. Il suit « Supprimer les animations » d’Android tant que tu n’as pas choisi.</string>
     <string name="settings_about">Oort NX</string>
     <string name="settings_license">Local uniquement : cette application ne demande aucun accès réseau à Android et ne collecte rien.</string>
-    <string name="settings_thanks">Remerciements et licences</string>
+    <string name="settings_thanks">Crédits</string>
     <string name="thanks_oort">Logiciel libre sous licence MIT, bâti sur Arcane de Bium23. Le nuage, les sons et la manette en points viennent d’Oort NX pour Mac.</string>
     <string name="thanks_games">Font les jeux qu’Oort lance</string>
     <string name="thanks_nx2android">shirai91, MIT. Transforme tes jeux en applications Android. Oort n’en contient aucun code.</string>
