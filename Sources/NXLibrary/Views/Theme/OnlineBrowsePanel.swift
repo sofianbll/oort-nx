@@ -141,10 +141,10 @@ struct OnlineBrowsePanel: View {
 
     private var status: String {
         let source = state.source.title
-        if failed { return L10n.format("%@ IS UNAVAILABLE RIGHT NOW", [String(describing: source.uppercased())]) }
+        if failed { return L10n.format("%@ IS UNAVAILABLE RIGHT NOW", [String(describing: source)]) }
         if state.category.isSearch && state.query.isEmpty { return L10n.text("TYPE WHAT YOU'RE LOOKING FOR, THEN RETURN") }
-        if state.items.isEmpty { return loading ? L10n.format("LOOKING ON %@…", [String(describing: source.uppercased())]) : L10n.text("NOTHING FOUND") }
-        return L10n.format("ONLINE · %@ · %@", [String(describing: source.uppercased()), String(describing: state.category.displayTitle.uppercased())])
+        if state.items.isEmpty { return loading ? L10n.format("LOOKING ON %@…", [String(describing: source)]) : L10n.text("NOTHING FOUND") }
+        return L10n.format("ONLINE · %@ · %@", [String(describing: source), String(describing: state.category.displayTitle)])
     }
 
     private var chips: some View {

@@ -137,7 +137,7 @@ struct ChangeArtworkView: View {
 
             VStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 0) {
-                    Text(browsing.map { L10n.format("%@ · BROWSE ONLINE", [String(describing: $0.title.uppercased())]) } ?? L10n.text("CHANGE ARTWORK"))
+                    Text(browsing.map { L10n.format("%@ · BROWSE ONLINE", [String(describing: $0.title)]) } ?? L10n.text("CHANGE ARTWORK"))
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.ink60)
                         .padding(.leading, canvas.u(SeleneTokens.Space.compact))

@@ -691,7 +691,7 @@
       "zh-Hans": {"stringUnit":{"state":"translated","value":"欢迎使用 Oort NX"}}
     }},
     "NOT INCLUDED": {"localizations": {
-      "en":{"stringUnit":{"state":"translated","value":"NOT INCLUDED"}},"fr":{"stringUnit":{"state":"translated","value":"NON INCLUS"}},"it":{"stringUnit":{"state":"translated","value":"NON INCLUSI"}},"de":{"stringUnit":{"state":"translated","value":"NICHT ENTHALTEN"}},"es":{"stringUnit":{"state":"translated","value":"NO INCLUIDOS"}},"pt-BR":{"stringUnit":{"state":"translated","value":"NÃO INCLUÍDOS"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"未包含"}}
+      "en":{"stringUnit":{"state":"translated","value":"Not included"}},"fr":{"stringUnit":{"state":"translated","value":"Non inclus"}},"it":{"stringUnit":{"state":"translated","value":"Non inclusi"}},"de":{"stringUnit":{"state":"translated","value":"Nicht enthalten"}},"es":{"stringUnit":{"state":"translated","value":"No incluidos"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Não incluídos"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"未包含"}}
     }},
     "This build does not include Python and tools.": {"localizations": {
       "en":{"stringUnit":{"state":"translated","value":"This build does not include Python and tools."}},"fr":{"stringUnit":{"state":"translated","value":"Cette version n’embarque ni Python ni les outils."}},"it":{"stringUnit":{"state":"translated","value":"Questa versione non include Python né gli strumenti."}},"de":{"stringUnit":{"state":"translated","value":"Diese Version enthält weder Python noch die Werkzeuge."}},"es":{"stringUnit":{"state":"translated","value":"Esta versión no incluye Python ni las herramientas."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Esta versão não inclui o Python nem as ferramentas."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"此版本未包含 Python 和工具。"}}
@@ -1833,85 +1833,85 @@
       "en": {"stringUnit":{"state":"translated","value":"Nextendo — optional online play"}}, "it": {"stringUnit":{"state":"translated","value":"Nextendo — gioco online facoltativo"}}, "fr": {"stringUnit":{"state":"translated","value":"Nextendo — jeu en ligne facultatif"}}, "de": {"stringUnit":{"state":"translated","value":"Nextendo — optionales Online-Spiel"}}, "es": {"stringUnit":{"state":"translated","value":"Nextendo — juego en línea opcional"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Nextendo — jogo online opcional"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"Nextendo — 可选在线游玩"}}
     }},
     "NOT INSTALLED": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"NOT INSTALLED"}}, "it": {"stringUnit":{"state":"translated","value":"NON INSTALLATO"}}, "fr": {"stringUnit":{"state":"translated","value":"NON INSTALLÉ"}}, "de": {"stringUnit":{"state":"translated","value":"NICHT INSTALLIERT"}}, "es": {"stringUnit":{"state":"translated","value":"SIN INSTALAR"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"NÃO INSTALADO"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"未安装"}}
+      "en": {"stringUnit":{"state":"translated","value":"Not installed"}}, "it": {"stringUnit":{"state":"translated","value":"Non installato"}}, "fr": {"stringUnit":{"state":"translated","value":"Non installé"}}, "de": {"stringUnit":{"state":"translated","value":"Nicht installiert"}}, "es": {"stringUnit":{"state":"translated","value":"Sin instalar"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Não instalado"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"未安装"}}
     }},
     "OPEN XCODE ONCE": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"OPEN XCODE ONCE"}}, "it": {"stringUnit":{"state":"translated","value":"APRI XCODE UNA VOLTA"}}, "fr": {"stringUnit":{"state":"translated","value":"OUVRIR XCODE"}}, "de": {"stringUnit":{"state":"translated","value":"XCODE EINMAL ÖFFNEN"}}, "es": {"stringUnit":{"state":"translated","value":"ABRIR XCODE UNA VEZ"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"ABRIR XCODE UMA VEZ"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"打开 XCODE 一次"}}
+      "en": {"stringUnit":{"state":"translated","value":"Open Xcode once"}}, "it": {"stringUnit":{"state":"translated","value":"Apri Xcode una volta"}}, "fr": {"stringUnit":{"state":"translated","value":"Ouvrir Xcode"}}, "de": {"stringUnit":{"state":"translated","value":"Xcode einmal öffnen"}}, "es": {"stringUnit":{"state":"translated","value":"Abrir Xcode una vez"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Abrir Xcode uma vez"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"打开 XCODE 一次"}}
     }},
     "UPDATE XCODE": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"UPDATE XCODE"}}, "it": {"stringUnit":{"state":"translated","value":"AGGIORNA XCODE"}}, "fr": {"stringUnit":{"state":"translated","value":"METTRE XCODE À JOUR"}}, "de": {"stringUnit":{"state":"translated","value":"XCODE AKTUALISIEREN"}}, "es": {"stringUnit":{"state":"translated","value":"ACTUALIZAR XCODE"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"ATUALIZAR XCODE"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"更新 XCODE"}}
+      "en": {"stringUnit":{"state":"translated","value":"Update Xcode"}}, "it": {"stringUnit":{"state":"translated","value":"Aggiorna Xcode"}}, "fr": {"stringUnit":{"state":"translated","value":"Mettre Xcode à jour"}}, "de": {"stringUnit":{"state":"translated","value":"Xcode aktualisieren"}}, "es": {"stringUnit":{"state":"translated","value":"Actualizar Xcode"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Atualizar Xcode"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"更新 XCODE"}}
     }},
     "NOT CERTIFIED": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"NOT CERTIFIED"}}, "it": {"stringUnit":{"state":"translated","value":"NON CERTIFICATO"}}, "fr": {"stringUnit":{"state":"translated","value":"NON CERTIFIÉ"}}, "de": {"stringUnit":{"state":"translated","value":"NICHT ZERTIFIZIERT"}}, "es": {"stringUnit":{"state":"translated","value":"SIN CERTIFICAR"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"NÃO CERTIFICADO"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"未认证"}}
+      "en": {"stringUnit":{"state":"translated","value":"Not certified"}}, "it": {"stringUnit":{"state":"translated","value":"Non certificato"}}, "fr": {"stringUnit":{"state":"translated","value":"Non certifié"}}, "de": {"stringUnit":{"state":"translated","value":"Nicht zertifiziert"}}, "es": {"stringUnit":{"state":"translated","value":"Sin certificar"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Não certificado"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"未认证"}}
     }},
     "WAITING FOR ENGINE": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"WAITING FOR ENGINE"}}, "it": {"stringUnit":{"state":"translated","value":"IN ATTESA DEL MOTORE"}}, "fr": {"stringUnit":{"state":"translated","value":"MOTEUR EN ATTENTE"}}, "de": {"stringUnit":{"state":"translated","value":"ENGINE AUSSTEHEND"}}, "es": {"stringUnit":{"state":"translated","value":"MOTOR PENDIENTE"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"AGUARDANDO MOTOR"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"等待引擎更新"}}
+      "en": {"stringUnit":{"state":"translated","value":"Waiting for engine"}}, "it": {"stringUnit":{"state":"translated","value":"In attesa del motore"}}, "fr": {"stringUnit":{"state":"translated","value":"Moteur en attente"}}, "de": {"stringUnit":{"state":"translated","value":"Engine ausstehend"}}, "es": {"stringUnit":{"state":"translated","value":"Motor pendiente"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Aguardando motor"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"等待引擎更新"}}
     }},
     "NOT A CHECKOUT": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"NOT A CHECKOUT"}}, "it": {"stringUnit":{"state":"translated","value":"NON È UN CHECKOUT"}}, "fr": {"stringUnit":{"state":"translated","value":"DÉPÔT GIT INTROUVABLE"}}, "de": {"stringUnit":{"state":"translated","value":"KEIN CHECKOUT"}}, "es": {"stringUnit":{"state":"translated","value":"SIN REPOSITORIO GIT"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"NÃO É UM CHECKOUT"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"非 GIT 工作副本"}}
+      "en": {"stringUnit":{"state":"translated","value":"Not a checkout"}}, "it": {"stringUnit":{"state":"translated","value":"Non è un checkout"}}, "fr": {"stringUnit":{"state":"translated","value":"Dépôt Git introuvable"}}, "de": {"stringUnit":{"state":"translated","value":"Kein Checkout"}}, "es": {"stringUnit":{"state":"translated","value":"Sin repositorio Git"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Não é um checkout"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"非 GIT 工作副本"}}
     }},
     "LOCAL CHANGES": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"LOCAL CHANGES"}}, "it": {"stringUnit":{"state":"translated","value":"MODIFICHE LOCALI"}}, "fr": {"stringUnit":{"state":"translated","value":"MODIFICATIONS LOCALES"}}, "de": {"stringUnit":{"state":"translated","value":"LOKALE ÄNDERUNGEN"}}, "es": {"stringUnit":{"state":"translated","value":"CAMBIOS LOCALES"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"ALTERAÇÕES LOCAIS"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"有本地改动"}}
+      "en": {"stringUnit":{"state":"translated","value":"Local changes"}}, "it": {"stringUnit":{"state":"translated","value":"Modifiche locali"}}, "fr": {"stringUnit":{"state":"translated","value":"Modifications locales"}}, "de": {"stringUnit":{"state":"translated","value":"Lokale Änderungen"}}, "es": {"stringUnit":{"state":"translated","value":"Cambios locales"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Alterações locais"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"有本地改动"}}
     }},
     "NEWEST ENGINE": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"NEWEST ENGINE"}}, "it": {"stringUnit":{"state":"translated","value":"MOTORE PIÙ RECENTE"}}, "fr": {"stringUnit":{"state":"translated","value":"MOTEUR LE PLUS RÉCENT"}}, "de": {"stringUnit":{"state":"translated","value":"NEUESTE ENGINE"}}, "es": {"stringUnit":{"state":"translated","value":"MOTOR MÁS RECIENTE"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"MOTOR MAIS RECENTE"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"最新引擎"}}
+      "en": {"stringUnit":{"state":"translated","value":"Newest engine"}}, "it": {"stringUnit":{"state":"translated","value":"Motore più recente"}}, "fr": {"stringUnit":{"state":"translated","value":"Moteur le plus récent"}}, "de": {"stringUnit":{"state":"translated","value":"Neueste Engine"}}, "es": {"stringUnit":{"state":"translated","value":"Motor más reciente"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Motor mais recente"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"最新引擎"}}
     }},
     "OTHER VERSION": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"OTHER VERSION"}}, "it": {"stringUnit":{"state":"translated","value":"ALTRA VERSIONE"}}, "fr": {"stringUnit":{"state":"translated","value":"AUTRE VERSION"}}, "de": {"stringUnit":{"state":"translated","value":"ANDERE VERSION"}}, "es": {"stringUnit":{"state":"translated","value":"OTRA VERSIÓN"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"OUTRA VERSÃO"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"其他版本"}}
+      "en": {"stringUnit":{"state":"translated","value":"Other version"}}, "it": {"stringUnit":{"state":"translated","value":"Altra versione"}}, "fr": {"stringUnit":{"state":"translated","value":"Autre version"}}, "de": {"stringUnit":{"state":"translated","value":"Andere Version"}}, "es": {"stringUnit":{"state":"translated","value":"Otra versión"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Outra versão"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"其他版本"}}
     }},
     "UPDATE READY": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"UPDATE READY"}}, "it": {"stringUnit":{"state":"translated","value":"AGGIORNAMENTO PRONTO"}}, "fr": {"stringUnit":{"state":"translated","value":"MISE À JOUR PRÊTE"}}, "de": {"stringUnit":{"state":"translated","value":"UPDATE BEREIT"}}, "es": {"stringUnit":{"state":"translated","value":"ACTUALIZACIÓN LISTA"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"ATUALIZAÇÃO PRONTA"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"更新已就绪"}}
+      "en": {"stringUnit":{"state":"translated","value":"Update ready"}}, "it": {"stringUnit":{"state":"translated","value":"Aggiornamento pronto"}}, "fr": {"stringUnit":{"state":"translated","value":"Mise à jour prête"}}, "de": {"stringUnit":{"state":"translated","value":"Update bereit"}}, "es": {"stringUnit":{"state":"translated","value":"Actualización lista"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Atualização pronta"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"更新已就绪"}}
     }},
     "REINSTALL APP": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"REINSTALL APP"}}, "it": {"stringUnit":{"state":"translated","value":"REINSTALLA L’APP"}}, "fr": {"stringUnit":{"state":"translated","value":"RÉINSTALLER L’APP"}}, "de": {"stringUnit":{"state":"translated","value":"APP NEU INSTALLIEREN"}}, "es": {"stringUnit":{"state":"translated","value":"REINSTALAR LA APP"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"REINSTALAR O APP"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"重新安装应用"}}
+      "en": {"stringUnit":{"state":"translated","value":"Reinstall app"}}, "it": {"stringUnit":{"state":"translated","value":"Reinstalla l’app"}}, "fr": {"stringUnit":{"state":"translated","value":"Réinstaller l’app"}}, "de": {"stringUnit":{"state":"translated","value":"App neu installieren"}}, "es": {"stringUnit":{"state":"translated","value":"Reinstalar la app"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Reinstalar o app"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"重新安装应用"}}
     }},
     "✓ INCLUDED": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"✓ INCLUDED"}}, "it": {"stringUnit":{"state":"translated","value":"✓ INCLUSO"}}, "fr": {"stringUnit":{"state":"translated","value":"✓ INCLUS"}}, "de": {"stringUnit":{"state":"translated","value":"✓ ENTHALTEN"}}, "es": {"stringUnit":{"state":"translated","value":"✓ INCLUIDO"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"✓ INCLUÍDO"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"✓ 已包含"}}
+      "en": {"stringUnit":{"state":"translated","value":"✓ Included"}}, "it": {"stringUnit":{"state":"translated","value":"✓ Incluso"}}, "fr": {"stringUnit":{"state":"translated","value":"✓ Inclus"}}, "de": {"stringUnit":{"state":"translated","value":"✓ Enthalten"}}, "es": {"stringUnit":{"state":"translated","value":"✓ Incluido"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"✓ Incluído"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"✓ 已包含"}}
     }},
     "✓ IMPORTED": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"✓ IMPORTED"}}, "it": {"stringUnit":{"state":"translated","value":"✓ IMPORTATE"}}, "fr": {"stringUnit":{"state":"translated","value":"✓ IMPORTÉES"}}, "de": {"stringUnit":{"state":"translated","value":"✓ IMPORTIERT"}}, "es": {"stringUnit":{"state":"translated","value":"✓ IMPORTADAS"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"✓ IMPORTADAS"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"✓ 已导入"}}
+      "en": {"stringUnit":{"state":"translated","value":"✓ Imported"}}, "it": {"stringUnit":{"state":"translated","value":"✓ Importate"}}, "fr": {"stringUnit":{"state":"translated","value":"✓ Importées"}}, "de": {"stringUnit":{"state":"translated","value":"✓ Importiert"}}, "es": {"stringUnit":{"state":"translated","value":"✓ Importadas"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"✓ Importadas"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"✓ 已导入"}}
     }},
     "OPTIONAL": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"OPTIONAL"}}, "it": {"stringUnit":{"state":"translated","value":"FACOLTATIVO"}}, "fr": {"stringUnit":{"state":"translated","value":"FACULTATIF"}}, "de": {"stringUnit":{"state":"translated","value":"OPTIONAL"}}, "es": {"stringUnit":{"state":"translated","value":"OPCIONAL"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"OPCIONAL"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"可选"}}
+      "en": {"stringUnit":{"state":"translated","value":"Optional"}}, "it": {"stringUnit":{"state":"translated","value":"Facoltativo"}}, "fr": {"stringUnit":{"state":"translated","value":"Facultatif"}}, "de": {"stringUnit":{"state":"translated","value":"Optional"}}, "es": {"stringUnit":{"state":"translated","value":"Opcional"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Opcional"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"可选"}}
     }},
     "NOT IMPORTED": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"NOT IMPORTED"}}, "it": {"stringUnit":{"state":"translated","value":"NON IMPORTATE"}}, "fr": {"stringUnit":{"state":"translated","value":"NON IMPORTÉES"}}, "de": {"stringUnit":{"state":"translated","value":"NICHT IMPORTIERT"}}, "es": {"stringUnit":{"state":"translated","value":"SIN IMPORTAR"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"NÃO IMPORTADAS"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"未导入"}}
+      "en": {"stringUnit":{"state":"translated","value":"Not imported"}}, "it": {"stringUnit":{"state":"translated","value":"Non importate"}}, "fr": {"stringUnit":{"state":"translated","value":"Non importées"}}, "de": {"stringUnit":{"state":"translated","value":"Nicht importiert"}}, "es": {"stringUnit":{"state":"translated","value":"Sin importar"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Não importadas"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"未导入"}}
     }},
     "CHOOSE FOLDER": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"CHOOSE FOLDER"}}, "it": {"stringUnit":{"state":"translated","value":"SCEGLI CARTELLA"}}, "fr": {"stringUnit":{"state":"translated","value":"CHOISIR UN DOSSIER"}}, "de": {"stringUnit":{"state":"translated","value":"ORDNER AUSWÄHLEN"}}, "es": {"stringUnit":{"state":"translated","value":"ELEGIR CARPETA"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"ESCOLHER PASTA"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"选择文件夹"}}
+      "en": {"stringUnit":{"state":"translated","value":"Choose folder"}}, "it": {"stringUnit":{"state":"translated","value":"Scegli cartella"}}, "fr": {"stringUnit":{"state":"translated","value":"Choisir un dossier"}}, "de": {"stringUnit":{"state":"translated","value":"Ordner auswählen"}}, "es": {"stringUnit":{"state":"translated","value":"Elegir carpeta"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Escolher pasta"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"选择文件夹"}}
     }},
     "NOT CHOSEN": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"NOT CHOSEN"}}, "it": {"stringUnit":{"state":"translated","value":"NON SCELTA"}}, "fr": {"stringUnit":{"state":"translated","value":"NON CHOISI"}}, "de": {"stringUnit":{"state":"translated","value":"NICHT AUSGEWÄHLT"}}, "es": {"stringUnit":{"state":"translated","value":"SIN ELEGIR"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"NÃO SELECIONADA"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"未选择"}}
+      "en": {"stringUnit":{"state":"translated","value":"Not chosen"}}, "it": {"stringUnit":{"state":"translated","value":"Non scelta"}}, "fr": {"stringUnit":{"state":"translated","value":"Non choisi"}}, "de": {"stringUnit":{"state":"translated","value":"Nicht ausgewählt"}}, "es": {"stringUnit":{"state":"translated","value":"Sin elegir"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Não selecionada"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"未选择"}}
     }},
     "NOT READABLE": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"NOT READABLE"}}, "it": {"stringUnit":{"state":"translated","value":"NON LEGGIBILE"}}, "fr": {"stringUnit":{"state":"translated","value":"ILLISIBLE"}}, "de": {"stringUnit":{"state":"translated","value":"NICHT LESBAR"}}, "es": {"stringUnit":{"state":"translated","value":"ILEGIBLE"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"ILEGÍVEL"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"不可读取"}}
+      "en": {"stringUnit":{"state":"translated","value":"Not readable"}}, "it": {"stringUnit":{"state":"translated","value":"Non leggibile"}}, "fr": {"stringUnit":{"state":"translated","value":"Illisible"}}, "de": {"stringUnit":{"state":"translated","value":"Nicht lesbar"}}, "es": {"stringUnit":{"state":"translated","value":"Ilegible"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Ilegível"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"不可读取"}}
     }},
     "READ ONLY": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"READ ONLY"}}, "it": {"stringUnit":{"state":"translated","value":"SOLA LETTURA"}}, "fr": {"stringUnit":{"state":"translated","value":"LECTURE SEULE"}}, "de": {"stringUnit":{"state":"translated","value":"SCHREIBGESCHÜTZT"}}, "es": {"stringUnit":{"state":"translated","value":"SOLO LECTURA"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"SOMENTE LEITURA"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"只读"}}
+      "en": {"stringUnit":{"state":"translated","value":"Read only"}}, "it": {"stringUnit":{"state":"translated","value":"Sola lettura"}}, "fr": {"stringUnit":{"state":"translated","value":"Lecture seule"}}, "de": {"stringUnit":{"state":"translated","value":"Schreibgeschützt"}}, "es": {"stringUnit":{"state":"translated","value":"Solo lectura"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Somente leitura"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"只读"}}
     }},
     "✓ READY": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"✓ READY"}}, "it": {"stringUnit":{"state":"translated","value":"✓ PRONTO"}}, "fr": {"stringUnit":{"state":"translated","value":"✓ PRÊT"}}, "de": {"stringUnit":{"state":"translated","value":"✓ BEREIT"}}, "es": {"stringUnit":{"state":"translated","value":"✓ LISTO"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"✓ PRONTO"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"✓ 就绪"}}
+      "en": {"stringUnit":{"state":"translated","value":"✓ Ready"}}, "it": {"stringUnit":{"state":"translated","value":"✓ Pronto"}}, "fr": {"stringUnit":{"state":"translated","value":"✓ Prêt"}}, "de": {"stringUnit":{"state":"translated","value":"✓ Bereit"}}, "es": {"stringUnit":{"state":"translated","value":"✓ Listo"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"✓ Pronto"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"✓ 就绪"}}
     }},
     "FOLDER UNAVAILABLE": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"FOLDER UNAVAILABLE"}}, "it": {"stringUnit":{"state":"translated","value":"CARTELLA NON DISPONIBILE"}}, "fr": {"stringUnit":{"state":"translated","value":"DOSSIER INDISPONIBLE"}}, "de": {"stringUnit":{"state":"translated","value":"ORDNER NICHT VERFÜGBAR"}}, "es": {"stringUnit":{"state":"translated","value":"CARPETA NO DISPONIBLE"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"PASTA INDISPONÍVEL"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"文件夹不可用"}}
+      "en": {"stringUnit":{"state":"translated","value":"Folder unavailable"}}, "it": {"stringUnit":{"state":"translated","value":"Cartella non disponibile"}}, "fr": {"stringUnit":{"state":"translated","value":"Dossier indisponible"}}, "de": {"stringUnit":{"state":"translated","value":"Ordner nicht verfügbar"}}, "es": {"stringUnit":{"state":"translated","value":"Carpeta no disponible"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Pasta indisponível"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"文件夹不可用"}}
     }},
     "✓ CHOSEN": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"✓ CHOSEN"}}, "it": {"stringUnit":{"state":"translated","value":"✓ SCELTA"}}, "fr": {"stringUnit":{"state":"translated","value":"✓ CHOISI"}}, "de": {"stringUnit":{"state":"translated","value":"✓ AUSGEWÄHLT"}}, "es": {"stringUnit":{"state":"translated","value":"✓ ELEGIDA"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"✓ SELECIONADA"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"✓ 已选择"}}
+      "en": {"stringUnit":{"state":"translated","value":"✓ Chosen"}}, "it": {"stringUnit":{"state":"translated","value":"✓ Scelta"}}, "fr": {"stringUnit":{"state":"translated","value":"✓ Choisi"}}, "de": {"stringUnit":{"state":"translated","value":"✓ Ausgewählt"}}, "es": {"stringUnit":{"state":"translated","value":"✓ Elegida"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"✓ Selecionada"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"✓ 已选择"}}
     }},
     "COULDN'T INSTALL": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"COULDN'T INSTALL"}}, "it": {"stringUnit":{"state":"translated","value":"INSTALLAZIONE FALLITA"}}, "fr": {"stringUnit":{"state":"translated","value":"ÉCHEC DE L’INSTALLATION"}}, "de": {"stringUnit":{"state":"translated","value":"INSTALLATION GESCHEITERT"}}, "es": {"stringUnit":{"state":"translated","value":"ERROR DE INSTALACIÓN"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"FALHA NA INSTALAÇÃO"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"安装失败"}}
+      "en": {"stringUnit":{"state":"translated","value":"Couldn't install"}}, "it": {"stringUnit":{"state":"translated","value":"Installazione fallita"}}, "fr": {"stringUnit":{"state":"translated","value":"Échec de l’installation"}}, "de": {"stringUnit":{"state":"translated","value":"Installation gescheitert"}}, "es": {"stringUnit":{"state":"translated","value":"Error de instalación"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Falha na instalação"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"安装失败"}}
     }},
     "DOWNLOADING…": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"DOWNLOADING…"}}, "it": {"stringUnit":{"state":"translated","value":"DOWNLOAD…"}}, "fr": {"stringUnit":{"state":"translated","value":"TÉLÉCHARGEMENT…"}}, "de": {"stringUnit":{"state":"translated","value":"DOWNLOAD LÄUFT…"}}, "es": {"stringUnit":{"state":"translated","value":"DESCARGANDO…"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"BAIXANDO…"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"正在下载…"}}
+      "en": {"stringUnit":{"state":"translated","value":"Downloading…"}}, "it": {"stringUnit":{"state":"translated","value":"Download…"}}, "fr": {"stringUnit":{"state":"translated","value":"Téléchargement…"}}, "de": {"stringUnit":{"state":"translated","value":"Download läuft…"}}, "es": {"stringUnit":{"state":"translated","value":"Descargando…"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Baixando…"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"正在下载…"}}
     }},
     "CLONING…": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"CLONING…"}}, "it": {"stringUnit":{"state":"translated","value":"CLONAZIONE…"}}, "fr": {"stringUnit":{"state":"translated","value":"CLONAGE…"}}, "de": {"stringUnit":{"state":"translated","value":"KLONEN LÄUFT…"}}, "es": {"stringUnit":{"state":"translated","value":"CLONANDO…"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"CLONANDO…"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"正在克隆…"}}
+      "en": {"stringUnit":{"state":"translated","value":"Cloning…"}}, "it": {"stringUnit":{"state":"translated","value":"Clonazione…"}}, "fr": {"stringUnit":{"state":"translated","value":"Clonage…"}}, "de": {"stringUnit":{"state":"translated","value":"Klonen läuft…"}}, "es": {"stringUnit":{"state":"translated","value":"Clonando…"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Clonando…"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"正在克隆…"}}
     }},
     "UPDATING…": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"UPDATING…"}}, "it": {"stringUnit":{"state":"translated","value":"AGGIORNAMENTO…"}}, "fr": {"stringUnit":{"state":"translated","value":"MISE À JOUR…"}}, "de": {"stringUnit":{"state":"translated","value":"UPDATE LÄUFT…"}}, "es": {"stringUnit":{"state":"translated","value":"ACTUALIZANDO…"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"ATUALIZANDO…"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"正在更新…"}}
+      "en": {"stringUnit":{"state":"translated","value":"Updating…"}}, "it": {"stringUnit":{"state":"translated","value":"Aggiornamento…"}}, "fr": {"stringUnit":{"state":"translated","value":"Mise à jour…"}}, "de": {"stringUnit":{"state":"translated","value":"Update läuft…"}}, "es": {"stringUnit":{"state":"translated","value":"Actualizando…"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Atualizando…"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"正在更新…"}}
     }},
     "SWITCHING…": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"SWITCHING…"}}, "it": {"stringUnit":{"state":"translated","value":"CAMBIO IN CORSO…"}}, "fr": {"stringUnit":{"state":"translated","value":"CHANGEMENT…"}}, "de": {"stringUnit":{"state":"translated","value":"WECHSEL LÄUFT…"}}, "es": {"stringUnit":{"state":"translated","value":"CAMBIANDO…"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"ALTERANDO…"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"正在切换…"}}
+      "en": {"stringUnit":{"state":"translated","value":"Switching…"}}, "it": {"stringUnit":{"state":"translated","value":"Cambio in corso…"}}, "fr": {"stringUnit":{"state":"translated","value":"Changement…"}}, "de": {"stringUnit":{"state":"translated","value":"Wechsel läuft…"}}, "es": {"stringUnit":{"state":"translated","value":"Cambiando…"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Alterando…"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"正在切换…"}}
     }},
     "Home button in games": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Home button in games"}}, "it": {"stringUnit":{"state":"translated","value":"Tasto Home in gioco"}}, "fr": {"stringUnit":{"state":"translated","value":"Bouton Home en jeu"}}, "de": {"stringUnit":{"state":"translated","value":"Home-Taste im Spiel"}}, "es": {"stringUnit":{"state":"translated","value":"Botón Home en el juego"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Botão Home no jogo"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"游戏内 Home 键"}}
@@ -8728,37 +8728,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ IS UNAVAILABLE RIGHT NOW"
+            "value": "%@ is unavailable right now"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ NON È AL MOMENTO DISPONIBILE"
+            "value": "%@ non è al momento disponibile"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ EST INDISPONIBLE POUR LE MOMENT"
+            "value": "%@ est indisponible pour le moment"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ IST DERZEIT NICHT VERFÜGBAR"
+            "value": "%@ ist derzeit nicht verfügbar"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ NO ESTÁ DISPONIBLE AHORA"
+            "value": "%@ no está disponible ahora"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ ESTÁ INDISPONÍVEL NO MOMENTO"
+            "value": "%@ está indisponível no momento"
           }
         },
         "zh-Hans": {
@@ -10702,37 +10702,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ · BROWSE ONLINE"
+            "value": "%@ · Browse online"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ · SFOGLIA ONLINE"
+            "value": "%@ · Sfoglia online"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ · PARCOURIR EN LIGNE"
+            "value": "%@ · Parcourir en ligne"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ · ONLINE STÖBERN"
+            "value": "%@ · Online stöbern"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ · EXPLORAR EN LÍNEA"
+            "value": "%@ · Explorar en línea"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ · BUSCAR ON-LINE"
+            "value": "%@ · Buscar on-line"
           }
         },
         "zh-Hans": {
@@ -13712,37 +13712,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "ADD A GAME"
+            "value": "Add a game"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "AGGIUNGI UN GIOCO"
+            "value": "Aggiungi un gioco"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "AJOUTER UN JEU"
+            "value": "Ajouter un jeu"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "SPIEL HINZUFÜGEN"
+            "value": "Spiel hinzufügen"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "AÑADIR UN JUEGO"
+            "value": "Añadir un juego"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "ADICIONAR JOGO"
+            "value": "Adicionar jogo"
           }
         },
         "zh-Hans": {
@@ -20852,37 +20852,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "CHANGE ARTWORK"
+            "value": "Change artwork"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "CAMBIA GRAFICA"
+            "value": "Cambia grafica"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "CHANGER L’ILLUSTRATION"
+            "value": "Changer l’illustration"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "ARTWORK ÄNDERN"
+            "value": "Artwork ändern"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "CAMBIAR IMÁGENES"
+            "value": "Cambiar imágenes"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "ALTERAR ARTE"
+            "value": "Alterar arte"
           }
         },
         "zh-Hans": {
@@ -20899,37 +20899,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "CHANGE METADATA"
+            "value": "Change metadata"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "CAMBIA METADATI"
+            "value": "Cambia metadati"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "MODIFIER LES MÉTADONNÉES"
+            "value": "Modifier les métadonnées"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "METADATEN ÄNDERN"
+            "value": "Metadaten ändern"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "CAMBIAR METADATOS"
+            "value": "Cambiar metadatos"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "ALTERAR METADADOS"
+            "value": "Alterar metadados"
           }
         },
         "zh-Hans": {
@@ -20946,37 +20946,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "CHEATS"
+            "value": "Cheats"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "TRUCCHI"
+            "value": "Trucchi"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "CODES DE TRICHE"
+            "value": "Codes de triche"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "CHEATS"
+            "value": "Cheats"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "TRUCOS"
+            "value": "Trucos"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "TRAPAÇAS"
+            "value": "Trapaças"
           }
         },
         "zh-Hans": {
@@ -21087,37 +21087,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "CONSOLE"
+            "value": "Console"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "CONSOLE"
+            "value": "Console"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "CONSOLE"
+            "value": "Console"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "KONSOLE"
+            "value": "Konsole"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "CONSOLA"
+            "value": "Consola"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "CONSOLE"
+            "value": "Console"
           }
         },
         "zh-Hans": {
@@ -33651,37 +33651,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "FEATURED · %@"
+            "value": "Featured · %@"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "IN EVIDENZA · %@"
+            "value": "In evidenza · %@"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "À DÉCOUVRIR · %@"
+            "value": "À découvrir · %@"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "EMPFOHLEN · %@"
+            "value": "Empfohlen · %@"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "DESTACADO · %@"
+            "value": "Destacado · %@"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "EM DESTAQUE · %@"
+            "value": "Em destaque · %@"
           }
         },
         "zh-Hans": {
@@ -33698,37 +33698,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "FILE"
+            "value": "File"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "FILE"
+            "value": "File"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "FICHIER"
+            "value": "Fichier"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "DATEI"
+            "value": "Datei"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "ARCHIVO"
+            "value": "Archivo"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "ARQUIVO"
+            "value": "Arquivo"
           }
         },
         "zh-Hans": {
@@ -33745,37 +33745,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "FILES"
+            "value": "Files"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "FILE"
+            "value": "File"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "FICHIERS"
+            "value": "Fichiers"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "DATEIEN"
+            "value": "Dateien"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "ARCHIVOS"
+            "value": "Archivos"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "ARQUIVOS"
+            "value": "Arquivos"
           }
         },
         "zh-Hans": {
@@ -35719,37 +35719,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "GAME OPTIONS"
+            "value": "Game options"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "OPZIONI DEL GIOCO"
+            "value": "Opzioni del gioco"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "OPTIONS DU JEU"
+            "value": "Options du jeu"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "SPIELOPTIONEN"
+            "value": "Spieloptionen"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "OPCIONES DEL JUEGO"
+            "value": "Opciones del juego"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "OPÇÕES DO JOGO"
+            "value": "Opções do jogo"
           }
         },
         "zh-Hans": {
@@ -35766,43 +35766,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "GAMEBANANA"
+            "value": "GameBanana"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "GAMEBANANA"
+            "value": "GameBanana"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "GAMEBANANA"
+            "value": "GameBanana"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "GAMEBANANA"
+            "value": "GameBanana"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "GAMEBANANA"
+            "value": "GameBanana"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "GAMEBANANA"
+            "value": "GameBanana"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "GAMEBANANA"
+            "value": "GameBanana"
           }
         }
       }
@@ -35813,37 +35813,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "GAMEBANANA MOD"
+            "value": "GameBanana mod"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "MOD DI GAMEBANANA"
+            "value": "Mod di GameBanana"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "MOD GAMEBANANA"
+            "value": "Mod GameBanana"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "GAMEBANANA-MOD"
+            "value": "GameBanana-Mod"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "MOD DE GAMEBANANA"
+            "value": "Mod de GameBanana"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "MOD DO GAMEBANANA"
+            "value": "Mod do GameBanana"
           }
         },
         "zh-Hans": {
@@ -35860,37 +35860,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "GAMES"
+            "value": "Games"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "GIOCHI"
+            "value": "Giochi"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "JEUX"
+            "value": "Jeux"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "SPIELE"
+            "value": "Spiele"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "JUEGOS"
+            "value": "Juegos"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "JOGOS"
+            "value": "Jogos"
           }
         },
         "zh-Hans": {
@@ -40842,37 +40842,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "INSTALLED"
+            "value": "Installed"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "INSTALLATI"
+            "value": "Installati"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "INSTALLÉS"
+            "value": "Installés"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "INSTALLIERT"
+            "value": "Installiert"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "INSTALADOS"
+            "value": "Instalados"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "INSTALADOS"
+            "value": "Instalados"
           }
         },
         "zh-Hans": {
@@ -44365,37 +44365,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "LAST PLAYED"
+            "value": "Last played"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "ULTIMA PARTITA"
+            "value": "Ultima partita"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "DERNIÈRE PARTIE"
+            "value": "Dernière partie"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "ZULETZT GESPIELT"
+            "value": "Zuletzt gespielt"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "ÚLTIMA PARTIDA"
+            "value": "Última partida"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "ÚLTIMA SESSÃO"
+            "value": "Última sessão"
           }
         },
         "zh-Hans": {
@@ -44459,37 +44459,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "LOOKING ON %@…"
+            "value": "Looking on %@…"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "RICERCA SU %@…"
+            "value": "Ricerca su %@…"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "RECHERCHE SUR %@…"
+            "value": "Recherche sur %@…"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "SUCHE AUF %@ …"
+            "value": "Suche auf %@ …"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "BUSCANDO EN %@…"
+            "value": "Buscando en %@…"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "BUSCANDO EM %@…"
+            "value": "Buscando em %@…"
           }
         },
         "zh-Hans": {
@@ -46903,7 +46903,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "MODS"
+            "value": "Mods"
           }
         },
         "it": {
@@ -46915,25 +46915,25 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "MODS"
+            "value": "Mods"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "MODS"
+            "value": "Mods"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "MODS"
+            "value": "Mods"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "MODS"
+            "value": "Mods"
           }
         },
         "zh-Hans": {
@@ -46950,37 +46950,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "MORE SETTINGS"
+            "value": "More settings"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "ALTRE IMPOSTAZIONI"
+            "value": "Altre impostazioni"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "AUTRES RÉGLAGES"
+            "value": "Autres réglages"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "WEITERE EINSTELLUNGEN"
+            "value": "Weitere Einstellungen"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "MÁS AJUSTES"
+            "value": "Más ajustes"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "MAIS AJUSTES"
+            "value": "Mais ajustes"
           }
         },
         "zh-Hans": {
@@ -46997,37 +46997,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "MOST PLAYED"
+            "value": "Most played"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "PIÙ GIOCATO"
+            "value": "Più giocato"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "LES PLUS JOUÉS"
+            "value": "Les plus joués"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "AM MEISTEN GESPIELT"
+            "value": "Am meisten gespielt"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "MÁS JUGADOS"
+            "value": "Más jugados"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "MAIS JOGADO"
+            "value": "Mais jogado"
           }
         },
         "zh-Hans": {
@@ -48889,37 +48889,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "NEWER"
+            "value": "Newer"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "PIÙ RECENTE"
+            "value": "Più recente"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "PLUS RÉCENT"
+            "value": "Plus récent"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "NEUER"
+            "value": "Neuer"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "MÁS RECIENTES"
+            "value": "Más recientes"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "MAIS RECENTE"
+            "value": "Mais recente"
           }
         },
         "zh-Hans": {
@@ -48936,37 +48936,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "NOTHING FOUND"
+            "value": "Nothing found"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "NESSUN RISULTATO"
+            "value": "Nessun risultato"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "AUCUN RÉSULTAT"
+            "value": "Aucun résultat"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "NICHTS GEFUNDEN"
+            "value": "Nichts gefunden"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "NO SE HA ENCONTRADO NADA"
+            "value": "No se ha encontrado nada"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "NADA ENCONTRADO"
+            "value": "Nada encontrado"
           }
         },
         "zh-Hans": {
@@ -48983,37 +48983,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "NOW PLAYING"
+            "value": "Now playing"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "IN ESECUZIONE"
+            "value": "In esecuzione"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "EN COURS"
+            "value": "En cours"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "JETZT IM SPIEL"
+            "value": "Jetzt im Spiel"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "EN JUEGO"
+            "value": "En juego"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "JOGANDO AGORA"
+            "value": "Jogando agora"
           }
         },
         "zh-Hans": {
@@ -54797,37 +54797,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "OLDER"
+            "value": "Older"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "PRECEDENTE"
+            "value": "Precedente"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "PLUS ANCIEN"
+            "value": "Plus ancien"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "ÄLTER"
+            "value": "Älter"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "ANTERIORES"
+            "value": "Anteriores"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "MAIS ANTIGO"
+            "value": "Mais antigo"
           }
         },
         "zh-Hans": {
@@ -55004,37 +55004,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "ONLINE · %@ · %@"
+            "value": "Online · %@ · %@"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "ONLINE · %@ · %@"
+            "value": "Online · %@ · %@"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "EN LIGNE · %@ · %@"
+            "value": "En ligne · %@ · %@"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "ONLINE · %@ · %@"
+            "value": "Online · %@ · %@"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "EN LÍNEA · %@ · %@"
+            "value": "En línea · %@ · %@"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "ON-LINE · %@ · %@"
+            "value": "On-line · %@ · %@"
           }
         },
         "zh-Hans": {
@@ -57763,37 +57763,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "PICKS FROM"
+            "value": "Picks from"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "SCEGLIE TRA"
+            "value": "Sceglie tra"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "CHOISIT PARMI"
+            "value": "Choisit parmi"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "WÄHLT AUS"
+            "value": "Wählt aus"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "ELIGE ENTRE"
+            "value": "Elige entre"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "ESCOLHE ENTRE"
+            "value": "Escolhe entre"
           }
         },
         "zh-Hans": {
@@ -57810,37 +57810,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "PLATFORM"
+            "value": "Platform"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "PIATTAFORMA"
+            "value": "Piattaforma"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "PLATEFORME"
+            "value": "Plateforme"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "PLATTFORM"
+            "value": "Plattform"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "PLATAFORMA"
+            "value": "Plataforma"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "PLATAFORMA"
+            "value": "Plataforma"
           }
         },
         "zh-Hans": {
@@ -57857,37 +57857,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "PLAYTIME"
+            "value": "Playtime"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "TEMPO DI GIOCO"
+            "value": "Tempo di gioco"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "TEMPS DE JEU"
+            "value": "Temps de jeu"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "SPIELZEIT"
+            "value": "Spielzeit"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "TIEMPO DE JUEGO"
+            "value": "Tiempo de juego"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "TEMPO DE JOGO"
+            "value": "Tempo de jogo"
           }
         },
         "zh-Hans": {
@@ -57997,37 +57997,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "PREVIEW"
+            "value": "Preview"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "ANTEPRIMA"
+            "value": "Anteprima"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "APERÇU"
+            "value": "Aperçu"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "VORSCHAU"
+            "value": "Vorschau"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "VISTA PREVIA"
+            "value": "Vista previa"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "PRÉVIA"
+            "value": "Prévia"
           }
         },
         "zh-Hans": {
@@ -60510,37 +60510,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "RELEASED"
+            "value": "Released"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "DATA DI USCITA"
+            "value": "Data di uscita"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "DATE DE SORTIE"
+            "value": "Date de sortie"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "VERÖFFENTLICHT"
+            "value": "Veröffentlicht"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "LANZAMIENTO"
+            "value": "Lanzamiento"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "LANÇAMENTO"
+            "value": "Lançamento"
           }
         },
         "zh-Hans": {
@@ -64724,37 +64724,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "SAVES"
+            "value": "Saves"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "SALVATAGGI"
+            "value": "Salvataggi"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "SAUVEGARDES"
+            "value": "Sauvegardes"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "SPIELSTÄNDE"
+            "value": "Spielstände"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "PARTIDAS GUARDADAS"
+            "value": "Partidas guardadas"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "DADOS SALVOS"
+            "value": "Dados salvos"
           }
         },
         "zh-Hans": {
@@ -72525,37 +72525,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "THIS WEEK"
+            "value": "This week"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "QUESTA SETTIMANA"
+            "value": "Questa settimana"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "CETTE SEMAINE"
+            "value": "Cette semaine"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "DIESE WOCHE"
+            "value": "Diese Woche"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "ESTA SEMANA"
+            "value": "Esta semana"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "NESTA SEMANA"
+            "value": "Nesta semana"
           }
         },
         "zh-Hans": {
@@ -72572,37 +72572,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "TYPE WHAT YOU'RE LOOKING FOR, THEN RETURN"
+            "value": "Type what you're looking for, then Return"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "DIGITA CIÒ CHE CERCHI, POI PREMI INVIO"
+            "value": "Digita ciò che cerchi, poi premi invio"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "SAISISSEZ VOTRE RECHERCHE, PUIS APPUYEZ SUR RETOUR"
+            "value": "Saisissez votre recherche, puis appuyez sur retour"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "SUCHBEGRIFF EINGEBEN, DANN RETURN DRÜCKEN"
+            "value": "Suchbegriff eingeben, dann Return drücken"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "ESCRIBE LO QUE BUSCAS Y PULSA RETORNO"
+            "value": "Escribe lo que buscas y pulsa retorno"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "DIGITE O QUE PROCURA E PRESSIONE RETURN"
+            "value": "Digite o que procura e pressione Return"
           }
         },
         "zh-Hans": {

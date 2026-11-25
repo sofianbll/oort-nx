@@ -163,7 +163,7 @@ struct DetailsTopBlock: View {
             } else if !canCheckCloudSources && !game.sources.isEmpty && !GameResourceState.sourcesAvailable(for: game) {
                 Text(L10n.text("Game files not found · Rebuild unavailable")).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
             } else if !game.isPlayableLocally {
-                Text(L10n.text("Not built yet")).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
+                Text(L10n.text("Not built yet")).seleneFont(.text).foregroundColor(SeleneTheme.ink82)
             }
         }
     }

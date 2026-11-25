@@ -160,7 +160,7 @@ struct ModStoreFeatured<Chip: View>: View {
                            startPoint: .leading, endPoint: .trailing)
             HStack(alignment: .center, spacing: canvas.u(SeleneTokens.Space.group)) {
                 VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.small)) {
-                    Text(L10n.format("FEATURED · %@", [String(describing: entry.gameName.uppercased())]))
+                    Text(L10n.format("FEATURED · %@", [String(describing: entry.gameName)]))
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.ink75)
                         .lineLimit(1)

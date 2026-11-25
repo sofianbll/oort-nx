@@ -61,7 +61,8 @@ struct SpotlightGameInfoView: View {
                 if let reason = pillSet.unavailableReason, downloadItem == nil {
                     Text(reason.title)
                         .seleneFont(.text, .semibold)
-                        .foregroundColor(SeleneTheme.ink75)
+                        .foregroundColor(SeleneTheme.ink)
+                        .oortShadow(.text)
                         .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
                         .padding(.top, canvas.u(SeleneTokens.Space.panel))
                 }
@@ -82,6 +83,7 @@ struct SpotlightGameInfoView: View {
                         .padding(.top, canvas.u(SeleneTokens.Space.small))
                 }
                 portingNote
+                    .oortShadow(.text)
                     .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
                     .padding(.top, canvas.u(SeleneTokens.Space.small))
                 SeleneStatsRow(presentation: presentation)
@@ -107,32 +109,32 @@ struct SpotlightGameInfoView: View {
             if let etaText {
                 Text(etaText)
                     .seleneFont(.text)
-                    .foregroundColor(SeleneTheme.ink75)
+                    .foregroundColor(SeleneTheme.ink82)
                     .transition(.opacity)
             }
         case .normalAfterFailure(let failure):
             Button(action: onOpenLog) {
                 Text(PortingPillCopy.lastFailure(failure, reason: game.portingFailureReason))
                     .seleneFont(.text)
-                    .foregroundColor(SeleneTheme.ink60)
+                    .foregroundColor(SeleneTheme.ink82)
             }
             .buttonStyle(OortPressStyle())
         case .failed(let failure):
             if failure == .failed, let reason = game.portingFailureReason {
                 Text(reason.title)
                     .seleneFont(.text)
-                    .foregroundColor(SeleneTheme.ink60)
+                    .foregroundColor(SeleneTheme.ink82)
             }
         case .unavailable(let reason) where downloadItem == nil:
-            Text(reason.detail).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
+            Text(reason.detail).seleneFont(.text).foregroundColor(SeleneTheme.ink82)
         case .normal, .unavailable:
             if downloadItem != nil {
                 EmptyView()
             } else if !canCheckCloudSources && !game.sources.isEmpty && !GameResourceState.sourcesAvailable(for: game) {
                 Text(L10n.text("Game files not found · Rebuild unavailable"))
-                    .seleneFont(.text).foregroundColor(SeleneTheme.ink60)
+                    .seleneFont(.text).foregroundColor(SeleneTheme.ink82)
             } else if !game.isPlayableLocally {
-                Text(L10n.text("Not built yet")).seleneFont(.text).foregroundColor(SeleneTheme.ink60)
+                Text(L10n.text("Not built yet")).seleneFont(.text).foregroundColor(SeleneTheme.ink82)
             }
         }
     }
