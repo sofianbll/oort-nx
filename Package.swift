@@ -12,6 +12,13 @@ let portableOnly = Context.environment["OORT_PORTABLE"] == "1"
 // Paths under Sources/NXLibraryCore. scripts/check_portable_core.py keeps this list honest.
 let portableSources = [
     "App/AppIdentity.swift",
+    "Artwork/ArtworkNames.swift",
+    "Artwork/CriticRatingQuery.swift",
+    "Artwork/GameTitleKey.swift",
+    "Artwork/HTMLPlainText.swift",
+    "Artwork/SteamStoreSearch.swift",
+    "Artwork/WikidataLookup.swift",
+    "Artwork/WikipediaLookup.swift",
     "Catalog/CatalogDocument.swift",
     "Catalog/CatalogErrorCopy.swift",
     "Catalog/CatalogErrors.swift",
@@ -63,7 +70,9 @@ let portableSources = [
     "Settings/SettingsRowAction.swift",
     "Settings/SettingsSection.swift",
     "Steam/InstallationFileObservation.swift",
-    "Steam/NativeMacApplication.swift"
+    "Steam/NativeMacApplication.swift",
+    "Steam/SteamKeyValues.swift",
+    "Steam/SteamMetadata.swift"
 ]
 
 // Paths under Tests/NXLibraryCoreTests: the tests that need nothing outside the portable core.

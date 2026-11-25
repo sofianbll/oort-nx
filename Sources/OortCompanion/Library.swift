@@ -9,6 +9,8 @@ struct Game: LibraryQueryRecord {
         /// The manifest is there but cannot be used.
         case broken(String)
         case program(Program)
+        /// Installed by Steam, which starts it.
+        case steam(SteamGame)
     }
 
     let key: String
@@ -23,6 +25,7 @@ struct Game: LibraryQueryRecord {
         switch source {
         case .recompilation(let m, let sub): [m.name, m.repo, sub == nil ? nil : (folder as NSString).lastPathComponent].compactMap(\.self)
         case .program(let p): [(p.program as NSString).lastPathComponent]
+        case .steam: ["Steam"]
         case .broken: []
         }
     }
@@ -36,7 +39,8 @@ struct Game: LibraryQueryRecord {
 enum Library {
     static let depth = 2
 
-    static func scan(_ shelf: Shelf, favorites: Set<UUID>) -> [Game] {
+    /// `names` are what programs call themselves, for the ones the player did not name.
+    static func scan(_ shelf: Shelf, favorites: Set<UUID>, steam: [SteamGame] = [], names: [String: String] = [:]) -> [Game] {
         var games: [Game] = [], keys = Set<String>(), folders = Set<String>()
         func add(_ key: String, _ name: String, _ folder: String, _ source: Game.Source, _ date: Date?) {
             // Two copies of one project stay two games.
@@ -62,7 +66,12 @@ enum Library {
         }
         for program in shelf.programs {
             let date = try? FileManager.default.attributesOfItem(atPath: program.program)[.modificationDate] as? Date
-            add("program:" + program.key, program.name, (program.program as NSString).deletingLastPathComponent, .program(program), date)
+            let name = program.name == program.stem ? names["program:" + program.key] ?? program.name : program.name
+            add("program:" + program.key, name, (program.program as NSString).deletingLastPathComponent, .program(program), date)
+        }
+        for game in steam {
+            let date = try? FileManager.default.attributesOfItem(atPath: game.manifest)[.modificationDate] as? Date
+            add("steam:\(game.appID)", game.name, game.folder, .steam(game), date)
         }
         return games
     }
@@ -84,27 +93,52 @@ enum Library {
         try FileManager.default.contentsOfDirectory(atPath: folder).sorted { $0.localizedStandardCompare($1) == .orderedAscending }
     }
 
-    /// The game's own pictures: beside its program, or in the app's folder under the game's identity. Each folder is
-    /// read once: asking the disk for every name it could have is slow where files are scanned as they are opened.
+    /// The pictures a game has, in order: the one the player chose, the game's own, Steam's on this computer, the ones
+    /// found online, and last its program's icon (`mark`). Each folder is read once: asking the disk for every name it
+    /// could have is slow where files are scanned as they are opened.
     struct Art {
+        static let kinds = ["cover", "icon", "hero", "logo", "mark"]
         private static let names: [String: [String]] = ["cover": ["cover", "box", "boxart"], "icon": ["icon", "square", "cover"],
                                                         "hero": ["hero", "background", "banner"], "logo": ["logo"]]
         private let folders: [(path: String, files: Set<String>)]
+        private let online: (path: String, files: Set<String>)?
+        private let steam: [String: String]
+        private var beside: String?
+        private let mark: String?
 
-        init(of game: Game, own: String) {
-            var folders = [Paths.join(own, game.id.uuidString.lowercased())]
-            if case .program = game.source {} else { folders += [game.folder, Paths.join(game.folder, "art")] }
-            self.folders = folders.map { ($0, Set((try? FileManager.default.contentsOfDirectory(atPath: $0)) ?? [])) }
+        init(of game: Game, data: String, mark: String?) {
+            func read(_ path: String) -> (path: String, files: Set<String>) { (path, Set((try? FileManager.default.contentsOfDirectory(atPath: path)) ?? [])) }
+            let id = game.id.uuidString.lowercased()
+            var own = [Paths.join(data, "art/" + id)], steam: [String: String] = [:]
+            switch game.source {
+            case .program(let p):
+                // "Sunken City.png" beside "Sunken City.rom".
+                if let target = p.args.last?.replacingOccurrences(of: "\\", with: "/"), Paths.isAbsolute(target) {
+                    let stem = (target as NSString).deletingPathExtension
+                    beside = ["png", "jpg", "jpeg", "webp"].map { stem + "." + $0 }.first { Picture.check($0) != nil }
+                }
+            case .steam(let s): steam = s.art
+            default: own += [game.folder, Paths.join(game.folder, "art")]
+            }
+            (folders, online, self.steam, self.mark) = (own.map(read), read(Paths.join(data, "online/" + id)), steam, mark)
         }
 
         func path(_ kind: String) -> String? {
+            if kind == "mark" { return mark }
             for (folder, files) in folders where !files.isEmpty {
                 for name in Self.names[kind] ?? [] {
-                    for ext in ["png", "jpg", "jpeg", "webp"] where files.contains(name + "." + ext) {
-                        let path = Paths.join(folder, name + "." + ext)
-                        if Paths.isInside(Paths.real(path), Paths.real(folder)) { return path }
-                    }
+                    if let path = Self.file(name, folder, files) { return path }
                 }
+            }
+            if let path = steam[kind] ?? (kind == "cover" ? beside : nil) { return path }
+            // A cover found elsewhere is never cut into a square.
+            return online.flatMap { Self.file(kind, $0.path, $0.files) }
+        }
+
+        private static func file(_ name: String, _ folder: String, _ files: Set<String>) -> String? {
+            for ext in ["png", "jpg", "jpeg", "webp"] where files.contains(name + "." + ext) {
+                let path = Paths.join(folder, name + "." + ext)
+                if Paths.isInside(Paths.real(path), Paths.real(folder)) { return path }
             }
             return nil
         }

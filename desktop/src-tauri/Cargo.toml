@@ -1,6 +1,6 @@
 [package]
 name = "oort-desktop"
-version = "0.1.0-alpha.1"
+version = "0.1.0-alpha.2"
 description = "Oort NX for Windows and Linux"
 edition = "2021"
 license = "MIT"
@@ -18,6 +18,8 @@ tauri = { version = "2", features = [] }
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["preserve_order"] }
 gilrs = "0.11"
+# The system's own TLS: nothing is asked before the player says yes (online.rs).
+ureq = { version = "3", default-features = false, features = ["native-tls"] }
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
@@ -31,7 +33,9 @@ windows = { version = "0.62", features = [
   "Win32_System_Diagnostics_ToolHelp",
   "Win32_System_IO",
   "Win32_System_JobObjects",
+  "Win32_System_Registry",
   "Win32_System_Threading",
+  "Win32_UI_Shell",
   "Win32_UI_WindowsAndMessaging",
 ] }
 

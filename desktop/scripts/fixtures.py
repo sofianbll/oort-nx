@@ -50,6 +50,29 @@ def landscape(seed, shape=1.0):
     return pixel
 
 
+def ico(path, seed):
+    """An icon of plain bitmaps, which the C# compiler of Windows takes: a lamp over water, on nothing."""
+    images = []
+    for side in (128, 48, 32):
+        draw, rows, mask = landscape(seed), bytearray(), bytearray()
+        for y in reversed(range(side)):
+            bits = bytearray((side + 31) // 32 * 4)
+            for x in range(side):
+                inside = math.hypot(x / side - .5, y / side - .5) < .47
+                r, g, b = (max(0, min(255, int(c))) for c in draw(x / side, y / side))
+                rows += bytes((b, g, r, 255 if inside else 0)) if inside else b"\0\0\0\0"
+                if not inside:
+                    bits[x // 8] |= 128 >> x % 8
+            mask += bits
+        images.append((side, struct.pack("<IiiHHIIiiII", 40, side, side * 2, 1, 32, 0, len(rows) + len(mask), 0, 0, 0, 0) + bytes(rows) + bytes(mask)))
+    at = 6 + 16 * len(images)
+    out = struct.pack("<HHH", 0, 1, len(images))
+    for side, data in images:
+        out += struct.pack("<BBBBHHII", side, side, 0, 0, 1, 32, len(data), at)
+        at += len(data)
+    path.write_bytes(out + b"".join(d for _, d in images))
+
+
 def shell(does):
     """The same behaviours as tests/windows/FakeGame.cs, for a system with a shell."""
     out = ["#!/bin/sh"]
@@ -67,6 +90,58 @@ def shell(does):
     if "seconds" in does:
         out.append(f"sleep {does['seconds']}")
     return "\n".join(out + [f"exit {does.get('code', 0)}", ""])
+
+
+def steam(root, program, native):
+    """An invented Steam: two libraries, its lists, its pictures. Invented numbers, far from any real one's games."""
+    main_, second = root / "Steam", root / "second"
+    library = lambda p: str(native(p)).replace("\\", "\\\\")
+    (main_ / "steamapps").mkdir(parents=True, exist_ok=True)
+    (main_ / "steamapps/libraryfolders.vdf").write_text(f'"libraryfolders"\n{{\n\t"0"\n\t{{\n\t\t"path"\t\t"{library(main_)}"\n\t}}\n\t"1"\n\t{{\n\t\t"path"\t\t"{library(second)}"\n\t}}\n}}\n', encoding="utf-8")
+
+    def game(where, number, name, does=None, flags=4, made=True):
+        apps = where / "steamapps"
+        apps.mkdir(parents=True, exist_ok=True)
+        (apps / f"appmanifest_{number}.acf").write_text(f'"AppState"\n{{\n\t"appid"\t\t"{number}"\n\t"name"\t\t"{name}"\n\t"StateFlags"\t\t"{flags}"\n\t"installdir"\t\t"{name}"\n\t"SizeOnDisk"\t\t"1000"\n}}\n', encoding="utf-8")
+        if made:
+            folder = apps / "common" / name
+            folder.mkdir(parents=True, exist_ok=True)
+            if does:
+                program(folder / "game", does)
+
+    game(main_, 990000010, "Quiet Harbour", {"seconds": 5, "window": 1})
+    game(second, 990000020, "Glass Orchard", {"seconds": 5})
+    game(main_, 990000030, "Patched Sail", {"seconds": 4})
+    game(main_, 990000040, "Twice Awake", {"seconds": 3})
+    game(main_, 990000050, "Never Comes", {"seconds": 1})
+    game(main_, 990000060, "Still Coming Down", flags=1026)
+    game(main_, 990000070, "Quiet Harbour Soundtrack")
+    game(main_, 228980, "Steamworks Common Redistributables")
+    cache = main_ / "appcache/librarycache"
+    for number, name in ((990000010, "Quiet Harbour"), (990000020, "Glass Orchard"), (990000030, "Patched Sail")):
+        folder = cache / str(number) / ("0f" * 8 if number % 100 == 20 else "")
+        folder.mkdir(parents=True, exist_ok=True)
+        png(folder / "library_600x900.jpg", 300, 450, landscape(name, 2 / 3))
+        if number % 100 != 30:
+            png(folder / "library_hero.jpg", 960, 310, landscape(name + "h", 3))
+    # What the invented Steam does with each game (tests/windows/FakeSteam.cs, or steam.sh).
+    for number, does in ((990000030, {"update": 6}), (990000040, {"again": 5}), (990000050, {"nothing": 1})):
+        (main_ / f"{number}.play").write_text("".join(f"{k}={v}\n" for k, v in does.items()))
+    script = root / "steam.sh"
+    script.write_text(f"""#!/bin/bash
+# An invented Steam for the proofs: steam://rungameid/<number>
+number=${{1##*/}}; steam={main_}
+file=$(ls {main_}/steamapps/appmanifest_$number.acf {second}/steamapps/appmanifest_$number.acf 2>/dev/null | head -1); [ -n "$file" ] || exit 1
+name=$(sed -n 's/.*"installdir"[^"]*"\\(.*\\)"/\\1/p' "$file"); game="$(dirname "$file")/common/$name/game"
+play() {{ sed -n "s/^$1=//p" "$steam/$number.play" 2>/dev/null; }}
+(
+  sleep 1; [ -n "$(play nothing)" ] && exit
+  if [ -n "$(play update)" ]; then sed -i.bak 's/"StateFlags"[^"]*"4"/"StateFlags" "1026"/' "$file"; sleep "$(play update)"; sed -i.bak 's/"StateFlags"[^"]*"1026"/"StateFlags" "4"/' "$file"; fi
+  if [ -n "$(play again)" ]; then "$game" & pid=$!; sleep 1; kill $pid; sleep "$(play again)"; fi
+  "$game"
+) > /dev/null 2>&1 &
+""")
+    script.chmod(0o755)
 
 
 def main(root, fake=None):
@@ -122,6 +197,18 @@ def main(root, fake=None):
     (root / "copies/lunar.iso").write_bytes(b"not a game")
     program(root / "emulator", {"args": 1, "seconds": 2})
     (root / "copies/Sunken City.rom").write_bytes(b"not a game")
+    # Programs as a player adds them: on Windows one carries its own name and icon (tests/windows/Named.cs).
+    (root / "programs").mkdir(exist_ok=True)
+    if not fake:
+        program(root / "programs/lb_x64", {"seconds": 2})
+        png(root / "programs/lb_x64.png", 256, 256, landscape("lamp"))
+    png(root / "programs/mine.png", 300, 450, landscape("mine", 2 / 3))
+    (root / "programs/not a picture.png").write_text("text")
+    if sys.argv[-1:] == ["--steam"]:
+        steam(root, program, lambda p: p)
+    elif "--steam-second" in sys.argv:
+        steam(root, program, lambda p: sys.argv[sys.argv.index("--steam-second") + 1] if p.name == "second" else p)
+    ico(root / "programs/lamp.ico", "lamp")
     if fake:
         windows_only(game, games)
     print(f"{len(list(games.rglob('recomplauncher.json')))} invented games in {games}")

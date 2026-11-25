@@ -105,6 +105,8 @@ struct Launcher {
             return Plan(program: p.program, args: p.args, env: [:], directory: game.folder, folder: game.folder)
         }
         guard let manifest = game.manifest else {
+            // Steam starts its own games: the host hands it their number, never a program.
+            if case .steam = game.source { throw Manifest.Failure(code: "steam-starts") }
             if case .broken(let code) = game.source { throw Manifest.Failure(code: code) }
             throw Manifest.Failure(code: "program-missing")
         }

@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Oort NX",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "identifier": "io.github.sofianbll.oort-nx.desktop",
   "build": { "frontendDist": "../ui" },
   "app": {
@@ -40,13 +40,13 @@
       "../ui/MaterialIcons-LICENSE.txt": "licenses/MaterialIcons-LICENSE.txt"
     },
     "shortDescription": "A library for the games you already have",
-    "longDescription": "Oort NX keeps the games rebuilt for this computer in one library, made for a controller. It brings no game and sends nothing.",
+    "longDescription": "Oort NX keeps the games rebuilt for this computer in one library, made for a controller. It brings no game, and sends nothing unless you ask for information about your games.",
     "category": "Game",
     "license": "MIT",
     "homepage": "https://github.com/sofianbll/oort-nx",
     "publisher": "Oort NX",
     "linux": {
-      "deb": { "depends": ["gstreamer1.0-plugins-base", "gstreamer1.0-plugins-good"] },
+      "deb": { "depends": ["libssl3", "gstreamer1.0-plugins-base", "gstreamer1.0-plugins-good"] },
       "appimage": { "bundleMediaFramework": true }
     },
     "copyright": "MIT. See NOTICE."

@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 25 novembre 2026. Copertura di **1135 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 25 novembre 2026. Copertura di **1140 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -359,7 +359,12 @@ Cartella `Sources/NXLibraryCore/Artwork/`.
 | [Sources/NXLibraryCore/Artwork/SteamGridDBArt.swift](../../Sources/NXLibraryCore/Artwork/SteamGridDBArt.swift) | Conserva la chiave SteamGridDB in un file 0600 e interroga l’API v2 per griglie, hero, loghi e icone statiche accreditate. |
 | [Sources/NXLibraryCore/Artwork/LibraryArtworkRole.swift](../../Sources/NXLibraryCore/Artwork/LibraryArtworkRole.swift) | Ruoli di layout delle immagini (copertina, quadrato, sfondo…) separati dal fornitore: un quadrato non chiede né ritaglia mai la copertina verticale. |
 | [Sources/NXLibraryCore/Artwork/CriticRating.swift](../../Sources/NXLibraryCore/Artwork/CriticRating.swift) | Identità pubblica del gioco e console (Mac, Switch, Switch 2), voto originale /100, provenienza e riempimento proporzionale delle cinque stelle. |
-| [Sources/NXLibraryCore/Artwork/WikidataRatings.swift](../../Sources/NXLibraryCore/Artwork/WikidataRatings.swift) | Abbina titoli esatti e ID Steam; seleziona medie della critica documentate, senza confondere piattaforme o raccomandazioni. L'identità del gioco (`entity`) serve anche alle descrizioni di Wikipedia. |
+| [Sources/NXLibraryCore/Artwork/ArtworkNames.swift](../../Sources/NXLibraryCore/Artwork/ArtworkNames.swift) | Quando il titolo di un negozio è il gioco cercato: stesso nome, o con un’edizione dopo. Portabile. |
+| [Sources/NXLibraryCore/Artwork/CriticRatingQuery.swift](../../Sources/NXLibraryCore/Artwork/CriticRatingQuery.swift) | Identità pubblica usata nelle ricerche: nome, piattaforma, ID Steam. Portabile. |
+| [Sources/NXLibraryCore/Artwork/SteamStoreSearch.swift](../../Sources/NXLibraryCore/Artwork/SteamStoreSearch.swift) | Ricerca pubblica del negozio Steam e indirizzi delle sue immagini. Portabile. |
+| [Sources/NXLibraryCore/Artwork/WikidataLookup.swift](../../Sources/NXLibraryCore/Artwork/WikidataLookup.swift) | Identità esatta di un videogioco su Wikidata (nome o ID Steam), condivisa da voti e descrizioni. Portabile. |
+| [Sources/NXLibraryCore/Artwork/WikipediaLookup.swift](../../Sources/NXLibraryCore/Artwork/WikipediaLookup.swift) | Edizione, sitelink e introduzione di Wikipedia, senza rilevare la lingua. Portabile. |
+| [Sources/NXLibraryCore/Artwork/WikidataRatings.swift](../../Sources/NXLibraryCore/Artwork/WikidataRatings.swift) | Abbina titoli esatti e ID Steam; seleziona medie della critica documentate, senza confondere piattaforme o raccomandazioni. L'identità del gioco è in `WikidataLookup.swift`. |
 | [Sources/NXLibraryCore/Artwork/WikipediaDescription.swift](../../Sources/NXLibraryCore/Artwork/WikipediaDescription.swift) | Quando una descrizione non è nella lingua dell'app, sitelink Wikidata e introduzione di Wikipedia in quella lingua (cinese in semplificato); servizio con cache misurabile e svuotabile, host fissi e nessun errore salvato come assenza. |
 | [Sources/NXLibraryCore/Artwork/CriticRatingService.swift](../../Sources/NXLibraryCore/Artwork/CriticRatingService.swift) | Preferenza IGDB personale → Wikidata pubblico, cache Wikidata, ripiego offline e pausa dopo errori. |
 | [Sources/NXLibraryCore/Artwork/IGDBCredentials.swift](../../Sources/NXLibraryCore/Artwork/IGDBCredentials.swift) | Credenziali Twitch personali in file 0600, validazione e messaggi sicuri senza segreti nei log. |

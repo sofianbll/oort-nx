@@ -22,16 +22,28 @@ public final class Companion {
         }
     }
 
-    private var setup: Setup
-    private let store: Store
-    private var settings: AppSettings
-    private var draft: AppSettingsDraft
-    private var shelf: Shelf
-    private var profiles: Profiles
-    private var sessions: [PlaySession]
-    private var games: [Game] = []
+    var setup: Setup
+    let store: Store
+    var settings: AppSettings
+    var draft: AppSettingsDraft
+    var shelf: Shelf
+    var profiles: Profiles
+    var sessions: [PlaySession]
+    var games: [Game] = []
     private var pad = "xbox"
-    private let now: () -> Date
+    var choices: Choices
+    var found: [String: Found]
+    var records: [UUID: OnlineRecord] = [:]
+    var steamFolder: String?
+    var steamGames: [SteamGame] = []
+    var steamCounts = SteamShelf.Found()
+    var lookup: (id: UUID, lookup: OnlineLookup)?
+    var pickedNow = false
+    /// Changes with any picture, so the page never shows an old one.
+    var artStamp: Int
+    /// Programs whose icon is still to read: the first look at a large library is done in parts.
+    var unread = 0
+    let now: () -> Date
 
     public init(_ setup: Setup, now: @escaping () -> Date = Date.init) throws {
         self.setup = setup
@@ -42,8 +54,14 @@ public final class Companion {
         shelf = store.read("library", Shelf())
         profiles = store.read("profiles", Profiles())
         sessions = store.read("sessions", [PlaySession]())
+        choices = store.read("choices", Choices())
+        found = store.read("found", [String: Found]())
+        artStamp = Int(now().timeIntervalSince1970)
         // A session cut short (power, crash) counts until its last sign of life.
         for index in sessions.indices where sessions[index].isActive { sessions[index].endedAt = sessions[index].lastHeartbeatAt }
+        // A library from before the first steps existed is not sent back to them.
+        if choices == Choices(), shelf != Shelf() || !sessions.isEmpty { choices.guideDone = true }
+        records = readRecords()
         scan()
     }
 
@@ -68,6 +86,7 @@ public final class Companion {
     }
 
     private func run(_ method: String, _ p: CatalogJSON) throws -> CatalogJSON {
+        if let answer = try runOwn(method, p) { return answer }
         switch method {
         case "hello":
             if setup.languages.isEmpty { setup.languages = p["languages"].strings }
@@ -90,15 +109,18 @@ public final class Companion {
         case "game.setting": return try setGameSetting(p)
         case "game.option": return try setOption(p)
         case "game.art":
-            return .text(Library.Art(of: try game(p), own: Paths.join(setup.data, "art")).path(p["kind"]?.stringValue ?? "").map(Paths.native))
+            return .text(art(try game(p)).path(p["kind"]?.stringValue ?? "").map(Paths.native))
         case "game.folder": return .string(Paths.native(try folder(try game(p), p["name"]?.stringValue)))
         case "game.link":
             let url = p["url"]?.stringValue ?? ""
-            return .bool(url.hasPrefix("https://") && games.contains { $0.manifest?.prepare?.options.contains { $0.license?.url == url } == true })
+            return .bool(url.hasPrefix("https://") && (records.values.contains { $0.page == url }
+                || games.contains { $0.manifest?.prepare?.options.contains { $0.license?.url == url } == true }))
         case "pad":
             pad = p["kind"]?.stringValue == "playstation" ? "playstation" : "xbox"
             return .null
-        case "launch.plan": return try launcher(try game(p)).plan(mode: p["mode"]?.stringValue == "desktop" ? "desktop" : "bigpicture").json
+        case "launch.plan":
+            if case .steam(let steam) = try game(p).source { return try steamPlan(steam) }
+            return try launcher(try game(p)).plan(mode: p["mode"]?.stringValue == "desktop" ? "desktop" : "bigpicture").json
         case "prepare.plan": return try launcher(try game(p)).preparePlan().json
         case "prepare.line":
             guard let progress = Launcher.progress(p["line"]?.stringValue ?? "") else { return .null }
@@ -128,12 +150,12 @@ public final class Companion {
         }
     }
 
-    private func text(_ p: CatalogJSON, _ key: String) throws -> String {
+    func text(_ p: CatalogJSON, _ key: String) throws -> String {
         guard let value = p[key]?.stringValue?.trimmingCharacters(in: .whitespacesAndNewlines), !value.isEmpty else { throw Manifest.Failure(code: "param-" + key) }
         return value
     }
 
-    private func game(_ p: CatalogJSON) throws -> Game {
+    func game(_ p: CatalogJSON) throws -> Game {
         guard let id = p["id"]?.stringValue.flatMap(UUID.init), let game = games.first(where: { $0.id == id }) else { throw Manifest.Failure(code: "game-missing") }
         return game
     }
@@ -142,11 +164,11 @@ public final class Companion {
 
     private func hello() -> CatalogJSON {
         ["version": .string(Companion.version), "system": .string(setup.system), "view": view(), "games": .number(games.count),
-         "tabs": .list(SettingRow.tabs.map(\.rawValue)), "lastGame": .text(settings.lastSelectedGameID?.uuidString),
+         "tabs": .list(SettingRow.tabs.map(\.rawValue)), "lastGame": .text(settings.lastSelectedGameID?.uuidString), "guide": guide(),
          "lastHome": .string(settings.startOn == .last ? settings.lastHome.rawValue : settings.startOn.rawValue)]
     }
 
-    public static let version = "0.1.0-alpha.1"
+    public static let version = "0.1.0-alpha.2"
 
     /// The settings the window applies, with what is being tried and not saved yet.
     private func view() -> CatalogJSON {
@@ -163,27 +185,37 @@ public final class Companion {
 
     // MARK: - Library
 
-    private var profile: LocalProfile? { profiles.list.first { $0.id == profiles.active } }
-    private var history: History { History(sessions, profile: profiles.active) }
+    var profile: LocalProfile? { profiles.list.first { $0.id == profiles.active } }
+    var history: History { History(sessions, profile: profiles.active) }
 
-    private func scan() { games = Library.scan(shelf, favorites: profile?.favorites ?? []) }
+    func scan() {
+        if choices.steam == true, let root = SteamShelf.root(named: steamFolder, home: setup.home, system: setup.system) {
+            steamCounts = SteamShelf(root: root).scan()
+            steamGames = steamCounts.games
+        } else { (steamGames, steamCounts) = ([], SteamShelf.Found()) }
+        func look() { games = Library.scan(shelf, favorites: profile?.favorites ?? [], steam: steamGames, names: found.compactMapValues(\.name)) }
+        look()
+        if readPrograms() { look() }
+    }
 
     private func library(_ p: CatalogJSON) -> CatalogJSON {
         let history = history
         let sort = p["sort"]?.stringValue.flatMap(LibrarySort.init) ?? settings.librarySort
         let query = LibraryQuery(filter: LibraryFilter(startingTab: p["tab"]?.stringValue ?? ""), searchText: p["search"]?.stringValue ?? "", sort: sort)
         return ["games": .array(query.applyRecords(games, history: history).map { summary($0, history) }), "total": .number(games.count),
-                "folders": .number(shelf.folders.count)]
+                "folders": .number(shelf.folders.count), "more": .bool(unread > 0), "online": .bool(choices.online == true)]
     }
 
-    private func summary(_ game: Game, _ history: History) -> CatalogJSON {
-        let art = Library.Art(of: game, own: Paths.join(setup.data, "art"))
+    func summary(_ game: Game, _ history: History) -> CatalogJSON {
+        let art = art(game)
         var out: [String: CatalogJSON] = [
             "id": .string(game.id.uuidString), "name": .string(game.name), "favorite": .bool(game.isFavorite),
             "seconds": .number(history.totalDuration(for: game.id).rounded()),
             "last": history.lastPlayed(for: game.id).map { .number($0.timeIntervalSince1970.rounded()) } ?? .null,
             "cover": .bool(art.path("cover") != nil), "icon": .bool(art.path("icon") != nil),
-            "hero": .bool(art.path("hero") != nil), "logo": .bool(art.path("logo") != nil),
+            "hero": .bool(art.path("hero") != nil), "logo": .bool(art.path("logo") != nil), "mark": .bool(art.path("mark") != nil),
+            "art": .number(artStamp), "look": .bool(wantsLook(game)),
+            "year": .text(records[game.id]?.year), "genres": .list(records[game.id]?.genres ?? []),
         ]
         switch game.source {
         case .recompilation(let m, _):
@@ -194,6 +226,9 @@ public final class Companion {
         case .program:
             out["kind"] = "program"
             out["state"] = "ready"
+        case .steam:
+            out["kind"] = "steam"
+            out["state"] = "ready"
         case .broken(let code):
             out["kind"] = "recompilation"
             out["state"] = "broken"
@@ -202,15 +237,16 @@ public final class Companion {
         return .object(out)
     }
 
-    private func launcher(_ game: Game) -> Launcher {
+    func launcher(_ game: Game) -> Launcher {
         let base = Places(install: game.folder, documents: setup.documents, local: setup.local, config: setup.config, home: setup.home, pad: pad)
         return Launcher(game: game, state: shelf.games[game.key] ?? GameState(), shared: shelf.shared, base: base, system: setup.system)
     }
 
-    private func details(_ game: Game) throws -> CatalogJSON {
+    func details(_ game: Game) throws -> CatalogJSON {
         guard case .object(var out) = summary(game, history) else { return .null }
         out["folder"] = .string(Paths.native(game.folder))
         out["sessions"] = .number(sessions.filter { $0.gameID == game.id && $0.profileID == profiles.active }.count)
+        facts(game, &out)
         if case .program(let p) = game.source {
             out["program"] = ["key": .string(p.key), "path": .string(Paths.native(p.program)), "args": .list(p.args)]
         }
@@ -239,7 +275,7 @@ public final class Companion {
         return .object(out)
     }
 
-    private func folders() -> CatalogJSON {
+    func folders() -> CatalogJSON {
         ["folders": .array(shelf.folders.map { folder in
             ["path": .string(Paths.native(folder)), "key": .string(folder), "found": .bool(FileManager.default.fileExists(atPath: folder)),
              "games": .number(games.filter { Paths.isInside($0.folder, folder) || $0.folder == folder }.count)]
@@ -255,25 +291,32 @@ public final class Companion {
     }
 
     private func addProgram(_ p: CatalogJSON) throws -> CatalogJSON {
-        let program = Paths.real(try text(p, "program"))
+        var program = Paths.real(try text(p, "program"))
         var isFolder: ObjCBool = false
         guard FileManager.default.fileExists(atPath: program, isDirectory: &isFolder), !isFolder.boolValue else { throw Manifest.Failure(code: "program-missing") }
+        var args = Arguments.split(p["args"]?.stringValue ?? ""), called = ""
+        // A menu entry stands for the program it starts.
+        if program.lowercased().hasSuffix(".desktop") {
+            guard let entry = DesktopEntry(program, languages: languages, folders: programFolders) else { throw Manifest.Failure(code: "program-missing") }
+            (program, args, called) = (entry.program, entry.args + args, entry.name ?? "")
+        }
         // The game's file goes last, as one argument whatever its name holds.
-        var args = Arguments.split(p["args"]?.stringValue ?? "")
         let target = p["target"]?.stringValue.map(Paths.real)
         if let target {
             guard FileManager.default.fileExists(atPath: target) else { throw Manifest.Failure(code: "file-missing") }
             args.append(Paths.native(target))
         }
         let base = ((target ?? program) as NSString).lastPathComponent
-        let name = p["name"]?.stringValue?.trimmingCharacters(in: .whitespaces) ?? ""
+        let name = p["name"]?.stringValue?.trimmingCharacters(in: .whitespaces).nonEmpty ?? called
         let key = Paths.uuid(([program] + args).joined(separator: "\u{0}")).uuidString.lowercased()
         guard !shelf.programs.contains(where: { $0.key == key }) else { throw Manifest.Failure(code: "program-known") }
         shelf.programs.append(Program(key: key, name: name.isEmpty ? (base as NSString).deletingPathExtension : name, program: program, args: args))
-        return try keepShelf()
+        guard case .object(var out) = try keepShelf() else { return .null }
+        out["added"] = .string(Paths.uuid("program:" + key).uuidString)
+        return .object(out)
     }
 
-    private func keepShelf() throws -> CatalogJSON {
+    func keepShelf() throws -> CatalogJSON {
         try store.write("library", shelf)
         scan()
         return folders()
@@ -307,7 +350,7 @@ public final class Companion {
         return try keep(game) { $0.inputs[id] = path; $0.preparedFor = nil }
     }
 
-    private func isFolder(_ path: String) -> Bool {
+    func isFolder(_ path: String) -> Bool {
         var isFolder: ObjCBool = false
         return FileManager.default.fileExists(atPath: path, isDirectory: &isFolder) && isFolder.boolValue
     }
@@ -368,7 +411,9 @@ public final class Companion {
     }
 
     private func endSession(_ p: CatalogJSON) throws -> CatalogJSON {
-        let index = try index(of: p), date = now()
+        // `idle`: how long ago the game was last seen, when its end is only known later.
+        let index = try index(of: p)
+        let date = max(sessions[index].startedAt, now().addingTimeInterval(-max(0, p["idle"]?.double ?? 0)))
         sessions[index].lastHeartbeatAt = date
         sessions[index].endedAt = date
         try store.write("sessions", sessions)
@@ -401,7 +446,7 @@ public final class Companion {
 
     // MARK: - Settings
 
-    private func settingsPage() -> CatalogJSON {
+    func settingsPage() -> CatalogJSON {
         let values = draft.values
         return ["categories": .array(SettingsCategory.groups.flatMap { group in
             group.categories.filter(SettingRow.categories.contains).map { category -> CatalogJSON in

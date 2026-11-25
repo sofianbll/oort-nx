@@ -53,6 +53,30 @@ struct Program: Codable, Equatable {
     var name: String
     var program: String
     var args: [String]
+
+    /// What it is called before anyone knows better: its file's name.
+    var stem: String { ((program as NSString).lastPathComponent as NSString).deletingPathExtension }
+}
+
+/// What a program's own file says, read again when the file changes.
+struct Found: Codable, Equatable {
+    var stamp: String
+    var name: String?
+    var publisher: String?
+    var version: String?
+    /// The picture of its icon: one the app took out of the program, or the system's own file.
+    var icon: String?
+}
+
+/// What the player said about where games and their information come from, and where the first steps stopped. A choice
+/// not made is nil: nothing of it is done.
+struct Choices: Codable, Equatable {
+    var steam: Bool?
+    var online: Bool?
+    var guide: String?
+    var guideDone: Bool?
+    /// The short word about what is new was shown.
+    var newsSeen: Bool?
 }
 
 struct GameState: Codable, Equatable {

@@ -1,0 +1,29 @@
+/* Games Steam installed: found on two drives, started by Steam, followed whatever Steam does first. */
+probe(async P => {
+  const ask = oort.ask, inv = window.__TAURI__.core.invoke, find = n => oort.library.games.find(g => g.name === n);
+  const before = await ask('steam'); P.same([before.found, before.on, before.games, before.downloading, before.others, before.libraries.length], [true, false, 5, 1, 2, 2], 'what Steam has'); P.same((await ask('library')).total, 0, 'off until the player says so');
+  // From the empty library.
+  await P.until(() => document.querySelector('.empty [data-id=steam]'), 8000, 'an empty library offers Steam'); await P.wait(300); await P.shot('70-empty'); P.same(P.id(), 'steam', 'it has the focus'); await P.press('a'); await P.until(() => oort.library.games.length === 5, 8000, 'Steam’s games come in'); await P.wait(900);
+  P.same(oort.library.games.map(g => g.name).sort(), ['Glass Orchard', 'Never Comes', 'Patched Sail', 'Quiet Harbour', 'Twice Awake'], 'games, and nothing else of Steam’s');
+  P.same([find('Quiet Harbour').cover, find('Quiet Harbour').hero, find('Glass Orchard').cover, find('Never Comes').cover], [true, true, true, false], 'the pictures on this computer');
+  const goTo = async name => { await P.wait(500); const i = oort.library.games.indexOf(find(name)) + 2; await P.press('lt'); for (let k = 0; k < i; k++) { oort.act('right'); await P.wait(25); } await P.wait(500); P.same(P.id(), find(name).id, 'on ' + name); };
+  await goTo('Quiet Harbour'); await P.shot('71-shelf'); await P.press('view'); await P.wait(400); await P.shot('72-grid'); await P.press('view'); await goTo('Never Comes'); await P.shot('73-plate');
+  const ends = [], phases = []; await window.__TAURI__.event.listen('session', e => ends.push(e.payload)); await window.__TAURI__.event.listen('steam', e => phases.push(e.payload.phase));
+  const back = async (what, ms = 60000) => { await P.until(() => ends.length, ms, what); await P.until(() => !oort.layers.some(l => l.launch), 8000, 'back'); await P.wait(700); };
+  // One game, from the key of the page.
+  await goTo('Quiet Harbour'); await P.press('a'); await P.until(() => document.querySelector('.launch p'), 4000, 'it says that Steam was asked'); await P.shot('74-waiting'); await back('Quiet Harbour ends');
+  P.ok(ends[0].seconds >= 3 && ends[0].seconds <= 9, 'the time is the game’s, not the wait: ' + ends[0].seconds + ' s'); P.same(ends[0].crashed, false, 'never a crash'); P.same(phases.filter((x, i) => x !== phases[i - 1]), ['waiting', 'playing'], 'waiting, then playing'); await P.shot('75-back'); P.ok(document.querySelector('#card.on'), 'the session card shows');
+  // On the second drive, from its page.
+  ends.length = 0; await goTo('Glass Orchard'); await P.press('x'); await P.until(() => document.querySelector('.detail')); await P.wait(400); await P.shot('76-page'); document.querySelector('.detail [data-id=primary]').click(); await back('Glass Orchard ends'); P.ok(ends[0].seconds >= 3 && ends[0].seconds <= 9, 'followed on another drive: ' + ends[0].seconds + ' s'); while (oort.layers.length > 1) await P.press('b');
+  // Steam updates the game first.
+  ends.length = 0; phases.length = 0; await goTo('Patched Sail'); await P.press('a'); await P.until(() => phases.includes('updating'), 15000, 'an update is seen'); await P.shot('77-updating'); await back('Patched Sail ends'); P.ok(ends[0].seconds >= 2 && ends[0].seconds <= 8, 'the update is not play time: ' + ends[0].seconds + ' s');
+  // A game that asks Steam to start it again is one session.
+  ends.length = 0; const twice = find('Twice Awake'); await inv('launch', { id: twice.id, fullscreen: false }); await back('Twice Awake ends', 90000); P.ok(ends[0].seconds >= 6 && ends[0].seconds <= 16, 'one session across the restart: ' + ends[0].seconds + ' s'); P.same((await ask('game', { id: twice.id })).sessions, 1, 'one, not two');
+  // Nothing comes: the player stops waiting.
+  ends.length = 0; await goTo('Never Comes'); await P.press('a'); await P.until(() => document.querySelector('.launch [data-id=close]'), 9000); await P.shot('78-cancel'); document.querySelector('.launch [data-id=close]').click(); await back('the wait is stopped', 8000); P.same(ends[0].cancelled, true, 'cancelled'); P.ok(!document.querySelector('.dialog'), 'nothing to answer'); P.same((await ask('game', { id: find('Never Comes').id })).sessions, 0, 'no time is counted');
+  // Closed from Oort.
+  ends.length = 0; await inv('launch', { id: find('Quiet Harbour').id, fullscreen: false }); await P.until(() => phases.at(-1) === 'playing', 15000); await P.wait(1500); await inv('close_game'); await back('closed', 20000); P.ok(ends[0].seconds < 5, 'closed from Oort: ' + ends[0].seconds + ' s');
+  // A picture of one's own, then Steam's again; then Steam off, and on.
+  const q = find('Quiet Harbour'); let d = await ask('game.picture', { id: q.id, kind: 'cover', path: RUN + '/programs/mine.png' }); P.same(d.pictures, ['cover'], 'a picture of one’s own'); d = await ask('game.picture', { id: q.id, kind: 'cover' }); P.same([d.pictures, d.cover], [[], true], 'Steam’s again');
+  await P.press('menu'); await P.until(() => document.querySelector('.shell')); [...document.querySelectorAll('.side button')].find(b => b.dataset.id === 'c-integrations').click(); await P.wait(400); await P.shot('79-settings'); document.querySelector('.shell [data-id=steam]').click(); await P.until(async () => (await ask('steam')).on === false, 5000); while (oort.layers.length > 1) await P.press('b'); await P.until(() => oort.library.games.length === 0, 5000, 'its games leave'); await ask('steam.set', { on: true }); dispatchEvent(new Event('focus')); await P.until(() => oort.library.games.length === 5); P.ok((await ask('game', { id: q.id })).seconds > 0, 'the time is still there');
+});

@@ -1,6 +1,7 @@
 /* Drives the installed app, unchanged: the scripts of desktop/tests run in its page through the debugging port of
    WebView2. Node 22, no package. usage: drive.mjs <app.exe> <script.js> <pictures> key=value…
-   keys: run (folder of fixtures.py), data (OORT_DATA), tag, size (WxH), language, desk (Desk.exe) */
+   keys: run (folder of fixtures.py), data (OORT_DATA), tag, size (WxH), language, desk (Desk.exe),
+   online (where the invented services answer) */
 import { spawn, execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
@@ -17,6 +18,7 @@ const env = Object.fromEntries(keep.filter(k => process.env[k]).map(k => [k, pro
 env.PATH = `${env.SystemRoot}\\System32;${env.SystemRoot}`;
 env.WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS = `--remote-debugging-port=${port} --remote-allow-origins=*`;
 if (o.data) env.OORT_DATA = o.data;
+if (o.online) env.OORT_ONLINE = o.online;
 if (o.language) env.OORT_LANGUAGE = o.language;
 
 const child = spawn(app, [], { env, cwd: path.dirname(app), stdio: ['ignore', 'inherit', 'inherit'] });

@@ -2,7 +2,7 @@
 //
 // Taken from Padwake (https://github.com/ddoinn/padwake), app/src-tauri/src/games/session.rs at 91cfdef65abbbfc685814685c32face0fdff6b78.
 // Copyright (c) 2026 ddoinn, MIT License (see desktop/NOTICE).
-// Changes here: the caller chooses where output goes; `open`, `with_appear`, usage, window lookup and the tests that
+// Changes here: the caller chooses where output goes; `of_folder` follows what Steam starts; `open`, `with_appear`, usage, window lookup and the tests that
 // need real windows are left out.
 
 //! A session's processes, without Tauri: the spawned child in a Windows job object, plus processes run from a
@@ -115,6 +115,21 @@ impl Tracked {
             drop(child);
             Ok((Tracked::new(job, port, in_job, Some(Owned::new(own)), pid, folder), output))
         }
+    }
+
+    /// A session that another program starts (Steam): nothing is spawned, only the processes of the folder are its own.
+    pub fn of_folder(folder: PathBuf, _app: u32) -> Result<Tracked, String> {
+        let folder = Some(std::fs::canonicalize(&folder).unwrap_or(folder)).filter(|f| trackable(f)).ok_or("folder-missing")?;
+        unsafe {
+            let job = Owned::new(CreateJobObjectW(None, PCWSTR::null()).map_err(|e| format!("job: {e}"))?);
+            let port = Owned::new(CreateIoCompletionPort(INVALID_HANDLE_VALUE, None, 0, 1).map_err(|e| format!("port: {e}"))?);
+            Ok(Tracked::new(job, port, false, None, 0, Some(folder)))
+        }
+    }
+
+    /// Whether a process of the session runs now.
+    pub fn is_running(&self) -> bool {
+        !self.pids().is_empty()
     }
 
     fn new(job: Owned, port: Owned, in_job: bool, child: Option<Owned>, pid: u32, folder: Option<PathBuf>) -> Tracked {

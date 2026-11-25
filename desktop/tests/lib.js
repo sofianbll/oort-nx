@@ -38,6 +38,8 @@
     async end() { await P.say('END', P.fails, 'failures'); await wait(100); T().invoke('quit'); },
   };
   window.addEventListener('error', e => { P.fails++; P.say('ERROR', e.message, e.filename + ':' + e.lineno); });
-  window.addEventListener('unhandledrejection', e => { P.fails++; P.say('REJECTED', String(e.reason && e.reason.stack || e.reason)); });
-  window.probe = f => addEventListener('DOMContentLoaded', async () => { try { await P.until(() => document.documentElement.dataset.ready, 15000, 'ready'); await f(P); } catch (e) { P.fails++; await P.say('THROWN', String(e && e.message || e), window.oort && oort.layers.map(l => l.el.className + ':' + l.el.textContent.slice(0, 60)), document.activeElement && document.activeElement.outerHTML.slice(0, 160)); await P.shot('thrown').catch(() => {}); } await P.end(); });
+  window.addEventListener('unhandledrejection', e => { P.fails++; P.say('REJECTED', String(e.reason), e.reason?.stack || ''); });
+  // A hand on the machine while a script runs is told apart from a fault.
+  for (const kind of ['keydown', 'pointerdown']) addEventListener(kind, e => { if (e.isTrusted && !window.oortHost) P.say('HAND', kind, e.key || e.target?.className || ''); }, true);
+  window.probe = f => addEventListener('DOMContentLoaded', async () => { try { await P.until(() => document.documentElement.dataset.ready, 15000, 'ready'); if (!window.GUIDE && document.querySelector('.steps')) { document.querySelector('[data-id=skip]').click(); await P.until(() => !document.querySelector('.steps'), 5000, 'the first steps can be skipped'); } await f(P); } catch (e) { P.fails++; await P.say('THROWN', String(e && e.message || e), window.oort && oort.layers.map(l => l.el.className + ':' + l.el.textContent.slice(0, 60)), document.activeElement && document.activeElement.outerHTML.slice(0, 160)); await P.shot('thrown').catch(() => {}); } await P.end(); });
 })();

@@ -1,12 +1,14 @@
 //! The processes of one session on Linux (and a Mac while developing): the child in a process group of its own.
 
 use std::os::unix::process::{CommandExt, ExitStatusExt};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::{Child, ChildStdout, Command};
 use std::sync::Mutex;
 use std::time::{Duration, Instant};
 
 pub struct Tracked {
+    /// Set when another program (Steam) starts the game: its folder and its number there.
+    place: Option<(PathBuf, u32)>,
     child: Mutex<Option<Child>>,
     group: i32,
     code: Mutex<Option<i64>>,
@@ -23,7 +25,24 @@ impl Tracked {
     pub fn spawn_read(cmd: &mut Command, _folder: Option<PathBuf>) -> Result<(Tracked, Option<ChildStdout>), String> {
         let mut child = cmd.process_group(0).spawn().map_err(|e| e.to_string())?;
         let output = child.stdout.take();
-        Ok((Tracked { group: child.id() as i32, child: Mutex::new(Some(child)), code: Mutex::new(None) }, output))
+        Ok((Tracked { place: None, group: child.id() as i32, child: Mutex::new(Some(child)), code: Mutex::new(None) }, output))
+    }
+
+    /// A session that another program starts (Steam): nothing is spawned, only the processes of the folder are its own.
+    pub fn of_folder(folder: PathBuf, app: u32) -> Result<Tracked, String> {
+        let folder = std::fs::canonicalize(&folder).unwrap_or(folder);
+        if folder.components().count() < 3 {
+            return Err("folder-missing".into());
+        }
+        Ok(Tracked { place: Some((folder, app)), group: 0, child: Mutex::new(None), code: Mutex::new(None) })
+    }
+
+    /// Whether a process of the session runs now.
+    pub fn is_running(&self) -> bool {
+        match &self.place {
+            Some((folder, app)) => !processes_of(folder, *app).is_empty(),
+            None => self.alive(),
+        }
     }
 
     /// Blocks until the child and everything it left in its group are gone.
@@ -52,6 +71,14 @@ impl Tracked {
     /// Asks every process of the session to end, then ends what is left after `grace`.
     pub fn close(&self, grace: Duration) {
         let until = Instant::now() + grace;
+        if let Some((folder, app)) = &self.place {
+            let tell = |signal| processes_of(folder, *app).into_iter().for_each(|pid| unsafe { libc::kill(pid, signal); });
+            tell(libc::SIGTERM);
+            while self.is_running() && Instant::now() < until {
+                std::thread::sleep(LOOK);
+            }
+            return tell(libc::SIGKILL);
+        }
         unsafe { libc::kill(-self.group, libc::SIGTERM) };
         while self.alive() && Instant::now() < until {
             std::thread::sleep(LOOK);
@@ -60,6 +87,48 @@ impl Tracked {
             unsafe { libc::kill(-self.group, libc::SIGKILL) };
         }
     }
+}
+
+/// Processes run from a game's folder, or that Steam started for it (a Windows game runs inside a helper from elsewhere).
+fn processes_of(folder: &Path, app: u32) -> Vec<i32> {
+    let me = std::process::id() as i32;
+    all_processes().into_iter().filter(|(pid, program, line)| *pid != me && belongs(program, line, folder, app)).map(|(pid, ..)| pid).collect()
+}
+
+fn belongs(program: &str, line: &[String], folder: &Path, app: u32) -> bool {
+    let inside = |text: &str| Path::new(text) != folder && Path::new(text).starts_with(folder);
+    inside(program)
+        || line.iter().any(|w| w == "SteamLaunch") && line.iter().any(|w| *w == format!("AppId={app}"))
+        || line.first().is_some_and(|w| inside(w))
+}
+
+#[cfg(target_os = "linux")]
+fn all_processes() -> Vec<(i32, String, Vec<String>)> {
+    let Ok(all) = std::fs::read_dir("/proc") else { return vec![] };
+    all.flatten()
+        .filter_map(|entry| {
+            let pid = entry.file_name().to_str()?.parse().ok()?;
+            // One that ended and that nobody collected has no command line.
+            let line = std::fs::read(entry.path().join("cmdline")).ok().filter(|l| !l.is_empty())?;
+            let program = std::fs::read_link(entry.path().join("exe")).map(|p| p.to_string_lossy().into_owned()).unwrap_or_default();
+            Some((pid, program, line.split(|b| *b == 0).filter(|w| !w.is_empty()).map(|w| String::from_utf8_lossy(w).into_owned()).collect()))
+        })
+        .collect()
+}
+
+#[cfg(not(target_os = "linux"))]
+fn all_processes() -> Vec<(i32, String, Vec<String>)> {
+    let Ok(out) = Command::new("/bin/ps").args(["-axo", "pid=,command="]).output() else { return vec![] };
+    String::from_utf8_lossy(&out.stdout)
+        .lines()
+        .filter_map(|l| {
+            let (pid, command) = l.trim().split_once(' ')?;
+            // A script is run by its interpreter; its path may hold spaces.
+            let command = command.trim();
+            let program = command.find(" /").map_or(command, |at| &command[at + 1..]).to_string();
+            Some((pid.parse().ok()?, program, command.split(' ').map(str::to_string).collect()))
+        })
+        .collect()
 }
 
 /// Processes that ended but that nobody has collected still answer a signal: where the system's first process leaves
@@ -121,6 +190,18 @@ mod tests {
             waiter.join().unwrap();
             assert!(t0.elapsed() < Duration::from_secs(4), "{script}");
         }
+    }
+
+    #[test]
+    fn a_game_is_known_by_its_folder_or_its_number() {
+        let folder = Path::new("/home/a/Steam/steamapps/common/Drift");
+        let words = |t: &str| t.split(' ').map(str::to_string).collect::<Vec<_>>();
+        assert!(belongs("/home/a/Steam/steamapps/common/Drift/bin/drift", &words("drift"), folder, 9));
+        assert!(belongs("/usr/bin/reaper", &words("reaper SteamLaunch AppId=9 -- x"), folder, 9));
+        assert!(!belongs("/usr/bin/reaper", &words("reaper SteamLaunch AppId=99 -- x"), folder, 9));
+        assert!(!belongs("/home/a/Steam/steamapps/common/Drift II/drift", &words("drift"), folder, 9));
+        assert!(!belongs("/usr/bin/less", &words("less /home/a/Steam/steamapps/common/Drift/readme"), folder, 9));
+        assert!(Tracked::of_folder("/".into(), 9).is_err());
     }
 
     #[test]

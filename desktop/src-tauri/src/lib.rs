@@ -2,6 +2,7 @@
 //! Everything the app knows or decides is in oort-core (Swift), asked through `companion`.
 
 mod companion;
+mod online;
 mod pad;
 #[cfg(all(debug_assertions, target_os = "macos"))]
 mod probe;
@@ -11,8 +12,10 @@ mod session;
 #[cfg(windows)]
 #[path = "session_windows.rs"]
 mod session;
+mod steam;
 
 use companion::Companion;
+use online::Online;
 use serde_json::{json, Value};
 use session::Tracked;
 use std::io::{BufRead, BufReader};
@@ -20,7 +23,7 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use tauri::{AppHandle, Emitter, Manager, State, WebviewWindowBuilder};
 
 /// A sign of life for the session, so a power cut loses less than this.
@@ -28,6 +31,10 @@ const BEAT: Duration = Duration::from_secs(30);
 /// The launch screen is seen before the window steps aside.
 const STEP_ASIDE: Duration = Duration::from_millis(1600);
 const CLOSE_GRACE: Duration = Duration::from_secs(8);
+/// How often the processes of a game Steam started are looked at.
+const LOOK: Duration = Duration::from_secs(1);
+/// The waiting screen gives way to Steam after this.
+const STEAM_ASIDE: Duration = Duration::from_secs(12);
 const MAX_ART: u64 = 24 << 20;
 
 #[derive(Default)]
@@ -40,6 +47,7 @@ struct Host {
     core: Companion,
     data: PathBuf,
     playing: Mutex<Playing>,
+    online: Arc<Online>,
     /// Names of the controllers plugged in, as the system gives them.
     pads: Mutex<Vec<String>>,
 }
@@ -53,10 +61,21 @@ impl Host {
 /// The page's questions to the core. Requests that start or end something are the host's own.
 #[tauri::command(async)]
 fn core(host: State<'_, Arc<Host>>, method: String, params: Value) -> Result<Value, String> {
-    if ["launch.plan", "prepare.plan", "prepare.end", "prepare.line"].contains(&method.as_str()) || method.starts_with("session.") || method == "game.art" {
+    let own = ["launch.plan", "prepare.plan", "prepare.end", "prepare.line", "game.art", "online.start", "online.answer", "steam.where", "steam.updating"];
+    if own.contains(&method.as_str()) || method.starts_with("session.") {
         return Err("method".into());
     }
+    if ["library.rescan", "steam", "steam.set"].contains(&method.as_str()) {
+        find_steam(&host);
+    }
     host.core.ask(&method, params)
+}
+
+/// Steam may be installed while Oort is open: the registry is asked each time it matters.
+fn find_steam(host: &Host) {
+    if let Some(path) = steam::folder() {
+        let _ = host.core.ask("steam.where", json!({ "path": path }));
+    }
 }
 
 fn command(plan: &Value) -> Result<Command, String> {
@@ -89,6 +108,16 @@ fn launch(app: AppHandle, host: State<'_, Arc<Host>>, id: String, fullscreen: bo
         return Err("already-playing".into());
     }
     let plan = host.core.ask("launch.plan", json!({ "id": id, "mode": if fullscreen { "bigpicture" } else { "desktop" } }))?;
+    if let Some(number) = plan["steam"].as_u64().and_then(|n| u32::try_from(n).ok()) {
+        let folder = plan["folder"].as_str().map(PathBuf::from).ok_or("folder-missing")?;
+        let tracked = Arc::new(Tracked::of_folder(folder, number)?);
+        steam::start(number)?;
+        let closed = Arc::new(AtomicBool::new(false));
+        playing.game = Some((tracked.clone(), closed.clone()));
+        drop(playing);
+        std::thread::spawn(move || follow_steam(app, host, id, tracked, closed));
+        return Ok(Value::Null);
+    }
     let mut cmd = command(&plan)?;
     let (out, err) = log(&host.data, &id)?;
     cmd.stdout(out).stderr(err);
@@ -126,15 +155,76 @@ fn launch(app: AppHandle, host: State<'_, Arc<Host>>, id: String, fullscreen: bo
             .core
             .ask("session.end", json!({ "session": session, "code": code, "closed": closed.load(Ordering::Relaxed) }))
             .unwrap_or_else(|e| json!({ "id": id, "error": e }));
-        host.playing().game = None;
-        if let Some(w) = app.get_webview_window("main") {
-            let _ = w.show();
-            let _ = w.unminimize();
-            let _ = w.set_focus();
-        }
-        let _ = app.emit("session", end);
+        come_back(&app, &host, end);
     });
     Ok(Value::Null)
+}
+
+fn come_back(app: &AppHandle, host: &Host, end: Value) {
+    host.playing().game = None;
+    if let Some(w) = app.get_webview_window("main") {
+        let _ = w.show();
+        let _ = w.unminimize();
+        let _ = w.set_focus();
+    }
+    let _ = app.emit("session", end);
+}
+
+fn step_aside(app: &AppHandle) {
+    if let Some(w) = app.get_webview_window("main") {
+        let _ = w.minimize();
+    }
+}
+
+/// Looks at the game's own processes until they are gone for good. Play time counts from the first one to the last.
+fn follow_steam(app: AppHandle, host: Arc<Host>, id: String, tracked: Arc<Tracked>, closed: Arc<AtomicBool>) {
+    let from = Instant::now();
+    let (mut game, mut session, mut beat, mut aside, mut said) = (steam::Session::default(), Value::Null, Instant::now(), None, "");
+    let updating = || host.core.ask("steam.updating", json!({ "id": id })).unwrap_or(Value::Null) == json!(true);
+    loop {
+        let seen = tracked.is_running();
+        // Steam's own files are read only while they can change the answer.
+        let update = !seen && updating();
+        let phase = if seen || game.has_started() { "playing" } else if update { "updating" } else { "waiting" };
+        if phase != said {
+            said = phase;
+            let _ = app.emit("steam", json!({ "id": id, "phase": phase }));
+        }
+        match game.look(from.elapsed(), seen, update) {
+            Some(steam::Event::Started) => {
+                session = host.core.ask("session.start", json!({ "id": id })).unwrap_or(Value::Null);
+                (beat, aside) = (Instant::now(), Some(Instant::now() + STEP_ASIDE));
+            }
+            Some(steam::Event::Ended(_)) => break,
+            Some(steam::Event::NeverCame) => return come_back(&app, &host, json!({ "id": id, "error": "steam-not-started" })),
+            None => {}
+        }
+        if closed.load(Ordering::Relaxed) && !seen {
+            break;
+        }
+        // A window of Steam's own may be waiting for an answer behind Oort.
+        if aside.is_none() && !game.has_started() && from.elapsed() > STEAM_ASIDE {
+            aside = Some(Instant::now());
+        }
+        if aside.is_some_and(|at| Instant::now() >= at) {
+            step_aside(&app);
+            aside = Some(from + Duration::from_secs(u32::MAX.into()));
+        }
+        if beat.elapsed() > BEAT && session.is_string() {
+            beat = Instant::now();
+            let _ = host.core.ask("session.beat", json!({ "session": session }));
+        }
+        std::thread::sleep(LOOK);
+    }
+    let end = if session.is_string() {
+        // Steam keeps the game's code to itself: a game of Steam's never counts as a crash.
+        host.core
+            .ask("session.end", json!({ "session": session, "code": 0, "closed": true, "idle": game.idle(from.elapsed()).as_secs_f64() }))
+            .unwrap_or_else(|e| json!({ "id": id, "error": e }))
+    } else {
+        json!({ "id": id, "cancelled": true })
+    };
+    come_back(&app, &host, end);
 }
 
 #[tauri::command(async)]
@@ -178,6 +268,24 @@ fn prepare(app: AppHandle, host: State<'_, Arc<Host>>, id: String) -> Result<(),
         let _ = app.emit("prepare", json!({ "id": id, "end": end }));
     });
     Ok(())
+}
+
+/// Asks the public services about these games, one after the other; `front` before the ones that wait.
+#[tauri::command]
+fn online_look(host: State<'_, Arc<Host>>, ids: Vec<String>, front: bool) {
+    host.online.want(ids, front);
+}
+
+/// Results for a name the player typed.
+#[tauri::command(async)]
+fn online_search(host: State<'_, Arc<Host>>, id: String, text: String) -> Result<Value, String> {
+    host.online.run(&host, json!({ "id": id, "want": "choices", "text": text }))
+}
+
+/// The result the player chose.
+#[tauri::command(async)]
+fn online_pick(host: State<'_, Arc<Host>>, id: String, choice: Value) -> Result<Value, String> {
+    host.online.run(&host, json!({ "id": id, "appID": choice["appID"], "item": choice["item"] }))
 }
 
 /// Opens a project's page or a licence in the player's browser: https only, and only what the app itself lists.
@@ -290,7 +398,7 @@ fn setup(app: &AppHandle) -> Result<Arc<Host>, Box<dyn std::error::Error>> {
             args.extend([name.to_string(), value]);
         }
     }
-    Ok(Arc::new(Host { core: Companion::new(program, args), data, playing: Mutex::default(), pads: Mutex::default() }))
+    Ok(Arc::new(Host { core: Companion::new(program, args), data, playing: Mutex::default(), online: Arc::default(), pads: Mutex::default() }))
 }
 
 fn languages() -> String {
@@ -308,7 +416,7 @@ fn environment_language() -> Option<String> {
 pub fn run() {
     let app = tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            core, launch, close_game, prepare, open_link, open_folder, set_fullscreen, pads, quit,
+            core, launch, close_game, prepare, open_link, open_folder, set_fullscreen, pads, quit, online_look, online_search, online_pick,
             #[cfg(all(debug_assertions, target_os = "macos"))]
             probe::shot,
             #[cfg(all(debug_assertions, target_os = "macos"))]
@@ -332,6 +440,8 @@ pub fn run() {
             let handle = app.handle().clone();
             let host = setup(&handle)?;
             app.manage(host.clone());
+            find_steam(&host);
+            host.online.clone().work(host.clone(), handle.clone());
             let view = host.core.ask("view", json!({})).unwrap_or(Value::Null);
             let window = WebviewWindowBuilder::from_config(&handle, &handle.config().app.windows[0])?;
             #[cfg(all(debug_assertions, target_os = "macos"))]

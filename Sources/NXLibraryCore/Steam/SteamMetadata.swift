@@ -54,7 +54,7 @@ public struct SteamMetadata: Codable, Equatable, Sendable {
         }
         guard data.count <= 2_097_152, appID > 0,
               let envelope = try JSONDecoder().decode([String: Envelope].self, from: data)[String(appID)],
-              envelope.success, let body = envelope.data, body.steam_appid == appID else { throw URLError(.cannotParseResponse) }
+              envelope.success, let body = envelope.data, body.steam_appid == appID else { throw CocoaError(.coderReadCorrupt) }
         return Self(appID: appID, language: language,
                     description: HTMLPlainText.text(fromHTML: body.short_description ?? ""),
                     genres: Array((body.genres ?? []).prefix(24)).map(\.description),

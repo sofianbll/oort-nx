@@ -75,3 +75,10 @@ test('names games give their settings read in French when they are known', () =>
   assert.equal(fr('constructor'), 'constructor');
   assert.equal(gameWord(GAME_WORDS.en, 'Picture'), 'Picture');
 });
+
+test('French speaks to one player, as the rest of Oort', () => {
+  const page = readdirSync(new URL('../ui/', import.meta.url)).filter(f => f.endsWith('.js')).map(f => readFileSync(new URL('../ui/' + f, import.meta.url), 'utf8')).join('\n');
+  const used = [...page.matchAll(/\bt\((['"])((?:(?!\1)[^\\]|\\.)+)\1/g)].map(m => m[2].replace(/\\'/g, "'"));
+  const own = Object.keys(JSON.parse(readFileSync(new URL('../strings.json', import.meta.url), 'utf8')));
+  for (const key of [...used, ...own]) for (const text of [STRINGS.fr[key]].flatMap(v => typeof v === 'object' ? Object.values(v) : [v])) assert.ok(!/\b(vous|votre|vos)\b|(^|[\s(])(?!assez\b|chez\b)[A-Za-zéèê]+ez\b/i.test(text ?? ''), `${key}: ${text}`);
+});

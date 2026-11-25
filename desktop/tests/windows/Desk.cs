@@ -97,7 +97,7 @@ static class Desk {
                 for (int i = 0; i < 6 && Pid(GetForegroundWindow()) != int.Parse(a[1]); i++) {
                     if (i > 0) {
                         IntPtr f = GetForegroundWindow();
-                        try { Console.WriteLine(Process.GetProcessById(Pid(f)).ProcessName + " keeps the front"); if (Title(f) == "Microsoft account") Process.GetProcessById(Pid(f)).Kill(); } catch { }
+                        try { Console.WriteLine(Process.GetProcessById(Pid(f)).ProcessName + " keeps the front"); if (Title(f) == "Microsoft account" || Process.GetProcessById(Pid(f)).ProcessName == "SearchHost") { keybd_event(0x1B, 0, 0, UIntPtr.Zero); keybd_event(0x1B, 0, 2, UIntPtr.Zero); Thread.Sleep(200); Process.GetProcessById(Pid(f)).Kill(); Thread.Sleep(600); } } catch { }
                         ShowWindow(f, 6);
                     }
                     keybd_event(0x87, 0, 0, UIntPtr.Zero); keybd_event(0x87, 0, 2, UIntPtr.Zero);

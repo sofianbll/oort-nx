@@ -2,8 +2,8 @@
 probe(async P => {
   if (!(await oort.ask('folders')).folders.length) {
     await P.shot('00-empty');
-    P.ok(P.focus()?.includes(document.documentElement.lang === 'fr' ? 'Choisir un dossier' : 'Choose a folder'), 'an empty library offers a way in');
-    await P.press('a'); await P.until(() => document.querySelector('.sheet .row')); await P.shot('01-picker');
+    P.ok(['steam', 'program'].includes(P.id()), 'an empty library offers a way in: ' + P.id());
+    document.querySelector('.empty [data-id=folder]').focus(); await P.press('a'); await P.until(() => document.querySelector('.sheet .row')); await P.shot('01-picker');
     await P.press('b'); await P.until(() => document.querySelector('.empty'), 5000, 'back home').catch(() => {});
     while (oort.layers.length > 1) await P.press('y');
     await oort.ask('folders.add', { path: RUN + '/games' });
@@ -44,7 +44,7 @@ probe(async P => {
   await P.press('b'); while (oort.layers.length > 1) await P.press('b');
   // Projects, adding.
   await P.press('lt'); await P.press('a'); await P.until(() => document.querySelector('.sheet')); await P.wait(200); await P.shot('15-projects'); P.same(document.querySelectorAll('.sheet .row').length, (await oort.ask('catalog')).length, 'every project is listed'); await P.press('b');
-  await P.press('right'); await P.press('a'); await P.until(() => document.querySelector('.sheet')); await P.shot('16-add'); await P.press('down'); await P.press('a'); await P.until(() => document.querySelectorAll('.sheet').length > 1); await P.shot('17-program'); while (oort.layers.length > 1) await P.press('b');
+  await P.press('right'); await P.press('a'); await P.until(() => document.querySelector('.sheet')); await P.shot('16-add'); document.querySelector('.sheet [data-id=program]').click(); await P.until(() => document.querySelectorAll('.sheet').length > 1); await P.shot('17-program'); while (oort.layers.length > 1) await P.press('b');
   await goTo('Damaged'); await P.shot('18-damaged'); await goTo('Lunar Observatory'); await P.key('ArrowDown'); await P.press('right'); await P.press('a'); await P.until(() => document.querySelector('.shell')); await P.press('down'); await P.shot('19-game-options'); await P.press('b');
   // Nothing on the page is cut or leaves the window.
   P.ok(document.documentElement.scrollWidth <= innerWidth, 'nothing leaves the window');

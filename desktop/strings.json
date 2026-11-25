@@ -18,6 +18,26 @@
    "other": "%lld changements à enregistrer"
   }
  },
+ "%lld games in your library": {
+  "en": {
+   "one": "%lld game in your library",
+   "other": "%lld games in your library"
+  },
+  "fr": {
+   "one": "%lld jeu dans ta bibliothèque",
+   "other": "%lld jeux dans ta bibliothèque"
+  }
+ },
+ "%lld games known": {
+  "en": {
+   "one": "%lld game known",
+   "other": "%lld games known"
+  },
+  "fr": {
+   "one": "%lld jeu connu",
+   "other": "%lld jeux connus"
+  }
+ },
  "%lld h %lld min": {
   "fr": "%lld h %lld min"
  },
@@ -26,6 +46,29 @@
  },
  "%lld settings changed.": {
   "fr": "%lld réglages ont changé."
+ },
+ "%lld still downloading, left out": {
+  "en": {
+   "one": "%lld still downloading, left out",
+   "other": "%lld still downloading, left out"
+  },
+  "fr": {
+   "one": "%lld en téléchargement, laissé de côté",
+   "other": "%lld en téléchargement, laissés de côté"
+  }
+ },
+ "%lld tools and extras, left out": {
+  "en": {
+   "one": "%lld tool or extra, left out",
+   "other": "%lld tools and extras, left out"
+  },
+  "fr": {
+   "one": "%lld outil ou extra, laissé de côté",
+   "other": "%lld outils et extras, laissés de côté"
+  }
+ },
+ "A PNG, JPEG or WebP of yours. It stays on this computer.": {
+  "fr": "Une image à toi, PNG, JPEG ou WebP. Elle reste sur cet ordinateur."
  },
  "A folder of games": {
   "fr": "Un dossier de jeux"
@@ -45,8 +88,26 @@
  "Add to the library": {
   "fr": "Ajouter à la bibliothèque"
  },
- "An emulator with a game, or any program with its arguments.": {
-  "fr": "Un émulateur avec un jeu, ou n’importe quel programme avec ses arguments."
+ "Add what you want now, or later with the + tile. Nothing is moved or changed.": {
+  "fr": "Ajoute ce que tu veux maintenant, ou plus tard avec la tuile +. Rien n’est déplacé ni modifié."
+ },
+ "Add your first game": {
+  "fr": "Ajoute ton premier jeu"
+ },
+ "Adds the games Steam installed on this computer. Steam’s own files do not change.": {
+  "fr": "Ajoute les jeux que Steam a installés sur cet ordinateur. Les fichiers de Steam ne changent pas."
+ },
+ "All set": {
+  "fr": "C’est prêt"
+ },
+ "Another cover, or another game if this is not the right one.": {
+  "fr": "Une autre jaquette, ou un autre jeu si ce n’est pas le bon."
+ },
+ "Any game or emulator you start with an .exe file. Its name and icon come with it.": {
+  "fr": "Un jeu ou un émulateur qui se lance avec un fichier .exe. Il arrive avec son nom et son icône."
+ },
+ "Any game or emulator, or its menu entry. Its name and icon come with it.": {
+  "fr": "Un jeu ou un émulateur, ou son entrée de menu. Il arrive avec son nom et son icône."
  },
  "Any program with its arguments, an emulator with a game for example. Sends nothing.": {
   "fr": "N’importe quel programme avec ses arguments, un émulateur avec un jeu par exemple. N’envoie rien."
@@ -57,20 +118,53 @@
  "Arguments": {
   "fr": "Arguments"
  },
- "Choose the files this game needs first.": {
-  "fr": "Choisissez d’abord les fichiers dont ce jeu a besoin."
+ "Choose an image": {
+  "fr": "Choisir une image"
  },
- "Choose the folder where your games are, or any program.": {
-  "fr": "Choisissez le dossier de vos jeux, ou n’importe quel programme."
+ "Choose another": {
+  "fr": "En choisir une autre"
+ },
+ "Choose the files this game needs first.": {
+  "fr": "Choisis d’abord les fichiers dont ce jeu a besoin."
+ },
+ "Choose the game this is. Its cover and description replace the ones shown.": {
+  "fr": "Choisis le jeu dont il s’agit. Sa jaquette et sa description remplacent celles affichées."
+ },
+ "Choose the interface sound pack.": {
+  "fr": "Choisis les sons de l’interface."
  },
  "Choose the program first.": {
-  "fr": "Choisissez d’abord le programme."
+  "fr": "Choisis d’abord le programme."
  },
- "Each game in it has a recomplauncher.json.": {
-  "fr": "Chaque jeu y a son recomplauncher.json."
+ "Choose the right game": {
+  "fr": "Choisis le bon jeu"
  },
- "Each project asks for your own copy of the game. Oort NX opens their pages; it downloads and installs nothing.": {
-  "fr": "Chaque projet demande votre propre copie du jeu. Oort NX ouvre leurs pages ; il ne télécharge et n’installe rien."
+ "Choose the right game, or none.": {
+  "fr": "Choisis le bon jeu, ou aucun."
+ },
+ "Choose who plays when Arcane opens.": {
+  "fr": "Choisis qui joue à l’ouverture d’Oort NX."
+ },
+ "Choose your own pictures, or look for this game online.": {
+  "fr": "Choisis tes images, ou cherche ce jeu en ligne."
+ },
+ "Choose your own pictures, or turn on game information online.": {
+  "fr": "Choisis tes images, ou active les informations en ligne."
+ },
+ "Controller": {
+  "fr": "Manette"
+ },
+ "Covers and descriptions found online leave this computer. Your own pictures stay.": {
+  "fr": "Les jaquettes et descriptions trouvées en ligne sont supprimées de cet ordinateur. Tes images restent."
+ },
+ "Delete": {
+  "fr": "Supprimer"
+ },
+ "Delete what was found online": {
+  "fr": "Supprimer ce qui a été trouvé en ligne"
+ },
+ "Delete what was found online?": {
+  "fr": "Supprimer ce qui a été trouvé en ligne ?"
  },
  "Early": {
   "fr": "Au début"
@@ -90,11 +184,23 @@
  "Following a game’s processes on Windows, by ddoinn (MIT)": {
   "fr": "Le suivi des processus d’un jeu sous Windows, par ddoinn (MIT)"
  },
+ "For an emulator: the game it opens. Passed to the program as its last argument.": {
+  "fr": "Pour un émulateur : le jeu à ouvrir. Transmis au programme comme dernier argument."
+ },
+ "For recompiled games: each one has its recomplauncher.json.": {
+  "fr": "Pour les jeux recompilés : chacun a son recomplauncher.json."
+ },
+ "Found": {
+  "fr": "Trouvé"
+ },
  "Free at least 1 GB on this game’s drive.": {
-  "fr": "Libérez au moins 1 Go sur le disque de ce jeu."
+  "fr": "Libère au moins 1 Go sur le disque de ce jeu."
  },
  "Game file": {
   "fr": "Fichier du jeu"
+ },
+ "Game information online": {
+  "fr": "Informations en ligne"
  },
  "Game settings": {
   "fr": "Réglages du jeu"
@@ -105,23 +211,29 @@
  "Games come as folders with a recomplauncher.json inside. The folder stays in the library and is read again at each start.": {
   "fr": "Un jeu est un dossier qui contient un recomplauncher.json. Ce dossier reste dans la bibliothèque et sera relu à chaque démarrage."
  },
- "Games rebuilt for this computer, by their own projects. Oort NX opens their pages and installs nothing.": {
-  "fr": "Des jeux recompilés pour cet ordinateur, chacun par son projet. Oort NX ouvre leurs pages et n’installe rien."
+ "Games from Steam, any program, or a folder of recompiled games.": {
+  "fr": "Les jeux de Steam, n’importe quel programme, ou un dossier de jeux recompilés."
  },
  "Get ready again": {
   "fr": "Préparer à nouveau"
  },
  "Get this game ready first.": {
-  "fr": "Préparez d’abord ce jeu."
+  "fr": "Prépare d’abord ce jeu."
  },
  "Getting ready…": {
   "fr": "Préparation en cours…"
+ },
+ "Guided setup": {
+  "fr": "Accueil guidé"
  },
  "In the game’s own menu": {
   "fr": "Dans le menu du jeu"
  },
  "In total: %@": {
   "fr": "Au total : %@"
+ },
+ "Information online": {
+  "fr": "Informations en ligne"
  },
  "It closed with an error. Its last messages are kept with Oort NX’s logs.": {
   "fr": "Le jeu s’est fermé sur une erreur. Ses derniers messages sont gardés avec les journaux d’Oort NX."
@@ -135,11 +247,23 @@
  "Kind": {
   "fr": "Type"
  },
+ "Language, controller, games: a few short steps.": {
+  "fr": "Langue, manette, jeux : quelques étapes courtes."
+ },
  "Last played": {
   "fr": "Dernière partie"
  },
  "Look again": {
   "fr": "Relire"
+ },
+ "Look for game information online?": {
+  "fr": "Chercher les informations des jeux en ligne ?"
+ },
+ "Looking…": {
+  "fr": "Recherche…"
+ },
+ "Name to look for": {
+  "fr": "Nom à chercher"
  },
  "Needed": {
   "fr": "À faire"
@@ -147,14 +271,56 @@
  "New profile": {
   "fr": "Nouveau profil"
  },
+ "No": {
+  "fr": "Non"
+ },
+ "No account, no telemetry. Only the names of your games go out, to find their information online: Integrations turns it off.": {
+  "fr": "Aucun compte, aucune mesure. Seuls les noms de tes jeux sont envoyés, pour trouver leurs informations en ligne : Intégrations permet de l’arrêter."
+ },
+ "No answer from the network. Try again later.": {
+  "fr": "Pas de réponse du réseau. Réessaie plus tard."
+ },
+ "No game found with this name.": {
+  "fr": "Aucun jeu trouvé sous ce nom."
+ },
+ "None": {
+  "fr": "Aucune"
+ },
+ "None of these": {
+  "fr": "Aucun de ceux-là"
+ },
+ "Not found": {
+  "fr": "Introuvable"
+ },
+ "Nothing found online is shown for this game, and it is not looked for again.": {
+  "fr": "Rien de ce qui vient d’internet n’est affiché pour ce jeu, et il n’est plus cherché."
+ },
+ "Nothing was found online. Look for it by another name, or choose your own pictures.": {
+  "fr": "Rien trouvé en ligne. Cherche-le sous un autre nom, ou choisis tes images."
+ },
+ "Off. Select to read what it does and what it sends.": {
+  "fr": "Désactivé. Sélectionne pour lire ce que c’est et ce qui est envoyé."
+ },
+ "On shows the selected game's art in Spotlight and Collection; Off keeps your wallpaper. Details keeps the game's art.": {
+  "fr": "Activé affiche l’illustration du jeu sélectionné dans À la une et la grille ; Désactivé conserve ton fond d’écran. Détails conserve l’illustration du jeu."
+ },
  "One setting changed.": {
   "fr": "Un réglage a changé."
  },
  "Oort NX does not check this copy; the project does.": {
   "fr": "Oort NX ne vérifie pas cette copie, le projet s’en charge."
  },
+ "Oort NX looks for each game’s cover, description, year and genres on the Steam store, Wikipedia and Wikidata. It sends the game’s name, or its Steam number, and your language. Like any site, they see your internet address. No account, no key, and nothing else leaves this computer.": {
+  "fr": "Oort NX cherche la jaquette, la description, l’année et les genres de chaque jeu sur le magasin Steam, Wikipédia et Wikidata. Il envoie le nom du jeu, ou son numéro Steam, et ta langue. Comme tout site, ils voient ton adresse internet. Aucun compte, aucune clé, et rien d’autre ne quitte cet ordinateur."
+ },
  "Oort NX lost its place and started again. Try once more.": {
-  "fr": "Oort NX s’est interrompu puis a repris. Réessayez."
+  "fr": "Oort NX s’est interrompu puis a repris. Réessaie."
+ },
+ "Oort NX shows the games you already have. Nothing is moved or changed.": {
+  "fr": "Oort NX montre les jeux que tu as déjà. Rien n’est déplacé ni modifié."
+ },
+ "Open the page this comes from": {
+  "fr": "Ouvrir la page d’où cela vient"
  },
  "Optional": {
   "fr": "Facultatif"
@@ -162,11 +328,20 @@
  "Original project gone": {
   "fr": "Projet d’origine introuvable"
  },
- "Passed to the program as its last argument.": {
-  "fr": "Transmis au programme en dernier argument."
+ "Pictures and information": {
+  "fr": "Images et informations"
  },
  "Playable, says the project": {
   "fr": "Jouable, dit le projet"
+ },
+ "Plays a short sound when you move, select, go back or launch a game.": {
+  "fr": "Émet un son bref lorsque tu navigues, sélectionnes, reviens en arrière ou lances un jeu."
+ },
+ "Plug one in or pair it, then press any button. Keyboard and mouse work everywhere too.": {
+  "fr": "Branche-la ou associe-la, puis appuie sur un bouton. Le clavier et la souris marchent partout aussi."
+ },
+ "Press any button": {
+  "fr": "Appuie sur un bouton"
  },
  "Program": {
   "fr": "Programme"
@@ -180,17 +355,29 @@
  "Projects": {
   "fr": "Projets"
  },
+ "Projects that rebuild older games for this computer. Oort NX opens their page and installs nothing.": {
+  "fr": "Des projets qui recompilent d’anciens jeux pour cet ordinateur. Oort NX ouvre leur page et n’installe rien."
+ },
+ "Projects that rebuild older games for this computer. Oort NX opens their page and installs nothing. Each one asks for your own copy of the game.": {
+  "fr": "Des projets qui recompilent d’anciens jeux pour cet ordinateur. Oort NX ouvre leur page et n’installe rien. Chacun demande ta propre copie du jeu."
+ },
+ "Put it away": {
+  "fr": "La retirer"
+ },
  "Put quotes around an argument with spaces.": {
-  "fr": "Mettez des guillemets autour d’un argument qui contient des espaces."
+  "fr": "Mets des guillemets autour d’un argument qui contient des espaces."
  },
  "Read: %@": {
   "fr": "Lire : %@"
+ },
+ "Reads Steam’s lists of installed games and the pictures it keeps on this computer. Changes nothing and sends nothing; Steam itself starts the games.": {
+  "fr": "Lit les listes de jeux installés de Steam et les images qu’il garde sur cet ordinateur. Ne modifie rien et n’envoie rien ; c’est Steam qui lance les jeux."
  },
  "Reads the game folders again.": {
   "fr": "Relit les dossiers de jeux."
  },
  "Reads the recomplauncher.json of each game in your folders. Writes only the settings files games declare. Sends nothing.": {
-  "fr": "Lit le recomplauncher.json de chaque jeu de vos dossiers. N’écrit que les fichiers de réglages déclarés par les jeux. N’envoie rien."
+  "fr": "Lit le recomplauncher.json de chaque jeu de tes dossiers. N’écrit que les fichiers de réglages déclarés par les jeux. N’envoie rien."
  },
  "Recompilation": {
   "fr": "Recompilation"
@@ -204,6 +391,9 @@
  "Remove this folder?": {
   "fr": "Retirer ce dossier ?"
  },
+ "Reopen the guided setup without resetting your library.": {
+  "fr": "Rouvre l’accueil guidé sans réinitialiser ta bibliothèque."
+ },
  "Required": {
   "en": "Required.",
   "fr": "Obligatoire."
@@ -212,16 +402,19 @@
   "fr": "Recherche"
  },
  "Save your changes?": {
-  "fr": "Enregistrer vos changements ?"
+  "fr": "Enregistrer tes changements ?"
  },
  "Select to play as this profile.": {
-  "fr": "Sélectionnez pour jouer avec ce profil."
+  "fr": "Sélectionne pour jouer avec ce profil."
  },
  "Select to remove it from the library.": {
-  "fr": "Sélectionnez pour le retirer de la bibliothèque."
+  "fr": "Sélectionne pour le retirer de la bibliothèque."
  },
  "Select to rename it.": {
-  "fr": "Sélectionnez pour le renommer."
+  "fr": "Sélectionne pour le renommer."
+ },
+ "Shading behind library text, over game artwork or your wallpaper.": {
+  "fr": "Assombrissement derrière le texte de la bibliothèque, sur les illustrations des jeux ou ton fond d’écran."
  },
  "Some of this project’s setup is done in the project itself.": {
   "fr": "Une partie de l’installation se fait dans le projet."
@@ -229,8 +422,41 @@
  "Something went wrong: %@": {
   "fr": "Un problème est survenu : %@"
  },
+ "Source: %@": {
+  "fr": "Source : %@"
+ },
+ "Steam": {
+  "fr": "Steam"
+ },
+ "Steam did not receive the request. Try again.": {
+  "fr": "Steam n’a pas reçu la demande. Réessaie."
+ },
+ "Steam is not installed on this computer.": {
+  "fr": "Steam n’est pas installé sur cet ordinateur."
+ },
+ "Steam is updating this game. It starts after.": {
+  "fr": "Steam met ce jeu à jour. Il démarre ensuite."
+ },
+ "Steam no longer has this game installed.": {
+  "fr": "Ce jeu n’est plus installé dans Steam."
+ },
+ "Steam store": {
+  "fr": "Magasin Steam"
+ },
+ "Steam was not found on this computer. It is looked for again each time.": {
+  "fr": "Steam n’a pas été trouvé sur cet ordinateur. Il sera cherché à nouveau à chaque fois."
+ },
+ "The + tile adds games. Settings has these steps again, under General.": {
+  "fr": "La tuile + ajoute des jeux. Ces étapes sont aussi dans Réglages, Général."
+ },
  "The app and the interface Oort NX comes from, by Bium23 and Matthew Silva (MIT)": {
   "fr": "L’app et l’interface d’où vient Oort NX, par Bium23 et Matthew Silva (MIT)"
+ },
+ "The game did not start. Check Steam, then try again.": {
+  "fr": "Le jeu n’a pas démarré. Regarde dans Steam, puis réessaie."
+ },
+ "The games you already have, in one library. No account is needed.": {
+  "fr": "Les jeux que tu as déjà, dans une seule bibliothèque. Sans compte."
  },
  "The program and the game’s file stay where they are.": {
   "fr": "Le programme et le fichier du jeu restent où ils sont."
@@ -241,8 +467,17 @@
  "The recomplauncher.json format, by Ripalda (MIT)": {
   "fr": "Le format recomplauncher.json, par Ripalda (MIT)"
  },
+ "The service is asked too much. Try again in a few minutes.": {
+  "fr": "Le service reçoit trop de demandes. Réessaie dans quelques minutes."
+ },
+ "The tabs above your games. All games is always there.": {
+  "fr": "Les onglets au-dessus de tes jeux. « Tous les jeux » y est toujours."
+ },
  "This file is already chosen for this game.": {
   "fr": "Ce fichier est déjà choisi pour ce jeu."
+ },
+ "This file is not a picture Oort NX can show. Choose a PNG, JPEG or WebP.": {
+  "fr": "Oort NX ne peut pas afficher ce fichier. Choisis une image PNG, JPEG ou WebP."
  },
  "This game could not get ready": {
   "fr": "Ce jeu n’a pas pu être préparé"
@@ -251,7 +486,7 @@
   "fr": "Ce jeu ne prend pas ce type de fichier."
  },
  "This game is already in your library.": {
-  "fr": "Ce jeu est déjà dans votre bibliothèque."
+  "fr": "Ce jeu est déjà dans ta bibliothèque."
  },
  "This game’s recomplauncher.json could not be read.": {
   "fr": "Le fichier recomplauncher.json de ce jeu est illisible."
@@ -269,28 +504,70 @@
   "fr": "Ce n’est pas la copie que ce jeu demande."
  },
  "This project needs a file it downloads. Open the project to do it.": {
-  "fr": "Ce projet a besoin d’un fichier qu’il télécharge. Ouvrez le projet pour le faire."
+  "fr": "Ce projet a besoin d’un fichier qu’il télécharge. Ouvre le projet pour le faire."
  },
  "This project needs its files copied into its folder. Open the project to do it.": {
-  "fr": "Ce projet veut ses fichiers copiés dans son dossier. Ouvrez le projet pour le faire."
+  "fr": "Ce projet veut ses fichiers copiés dans son dossier. Ouvre le projet pour le faire."
  },
  "This session: %@": {
   "fr": "Cette session : %@"
  },
+ "Turn on game information online first.": {
+  "fr": "Active d’abord les informations en ligne."
+ },
  "Turn on the required choice first.": {
-  "fr": "Activez d’abord le choix obligatoire."
+  "fr": "Active d’abord le choix obligatoire."
  },
  "Turning this on accepts: %@": {
   "fr": "L’activer vaut acceptation : %@"
  },
+ "Type a name to look for.": {
+  "fr": "Tape un nom à chercher."
+ },
  "Under a minute": {
   "fr": "Moins d’une minute"
  },
- "Where games rebuilt for this computer are published.": {
-  "fr": "Là où sont publiés les jeux recompilés pour cet ordinateur."
+ "Use four digits.": {
+  "fr": "Saisis quatre chiffres."
+ },
+ "Version %@": {
+  "fr": "Version %@"
+ },
+ "Waiting": {
+  "fr": "En attente"
+ },
+ "What’s new in Oort NX": {
+  "fr": "Nouveautés d’Oort NX"
+ },
+ "When you close a game, a card shows how long you played this time and in total.": {
+  "fr": "Quand tu fermes un jeu, une fiche indique le temps joué pendant cette session et au total."
+ },
+ "Where are your games?": {
+  "fr": "Où sont tes jeux ?"
  },
  "Wrong code.": {
   "fr": "Code incorrect."
+ },
+ "Yes, look online": {
+  "fr": "Oui, chercher en ligne"
+ },
+ "You can change this in Settings, Integrations.": {
+  "fr": "Tu peux changer d’avis dans Réglages, Intégrations."
+ },
+ "Your controller": {
+  "fr": "Ta manette"
+ },
+ "Your own order of games and cards on Spotlight. Reset puts everything back in place.": {
+  "fr": "Ton ordre personnalisé des jeux et des cartes dans À la une. Réinitialiser remet tout en place."
+ },
+ "Your own picture is copied into Oort NX’s folder. The file you chose is not changed.": {
+  "fr": "Ton image est copiée dans le dossier d’Oort NX. Le fichier choisi n’est pas modifié."
+ },
+ "Your programs now show their own icon and name. Oort NX can also show the games Steam installed, and look for covers and descriptions online if you say yes.": {
+  "fr": "Tes programmes affichent maintenant leur icône et leur nom. Oort NX peut aussi montrer les jeux installés par Steam, et chercher jaquettes et descriptions en ligne si tu dis oui."
+ },
+ "Yours": {
+  "fr": "La tienne"
  },
  "not declared": {
   "fr": "non déclarée"

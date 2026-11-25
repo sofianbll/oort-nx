@@ -131,7 +131,7 @@ jobs:
           - { runner: windows-11-arm, arch: arm64 }
     runs-on: ${{ matrix.runner }}
     continue-on-error: ${{ matrix.arch == 'arm64' }}
-    timeout-minutes: 60
+    timeout-minutes: 75
     defaults:
       run:
         shell: pwsh
@@ -145,10 +145,18 @@ jobs:
         with:
           name: oort-nx-windows-${{ matrix.arch }}
           path: package
+      # The version players have, as published, by its digest.
+      - name: The published alpha.1
+        if: matrix.arch == 'x64'
+        run: |
+          curl.exe -fsSL --retry 3 -o before-setup.exe https://github.com/sofianbll/oort-nx/releases/download/windows-v0.1.0-alpha.1/Oort-NX-Windows-0.1.0-alpha.1-x64-setup.exe
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          if ((Get-FileHash before-setup.exe).Hash -ne '5c18776d321721c83181eed7aa330352f244db083a35c55fae01b8d278ede91f') { Write-Error 'not the published file' }
       - name: Install, play, uninstall
         run: |
+          $before = if (Test-Path before-setup.exe) { (Get-Item before-setup.exe).FullName } else { '' }
           $version = (Get-Content desktop/src-tauri/tauri.conf.json | ConvertFrom-Json).version
-          ./desktop/tests/windows/prove.ps1 -Installer (Get-ChildItem package/*-setup.exe).FullName -Out proof -Version $version
+          ./desktop/tests/windows/prove.ps1 -Installer (Get-ChildItem package/*-setup.exe).FullName -Out proof -Version $version -Before $before
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
