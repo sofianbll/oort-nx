@@ -32,7 +32,7 @@ enum SeleneTheme {
     static let focus = Color.red
     static let glassSolid = Color.gray
     static let ink = Color.white
-    static let ink60 = Color.gray, ink75 = Color.gray, ink82 = Color.gray
+    static let ink60 = Color.gray, ink75 = Color.gray, ink82 = Color.gray, artShade = Color.black, artInk = Color.white
 }
 enum SpotlightScreenshotStrip {
     static let motion = Animation.easeOut(duration: 0.25)
