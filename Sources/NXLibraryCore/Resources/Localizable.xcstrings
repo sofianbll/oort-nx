@@ -5207,15 +5207,15 @@
         "zh-Hans": {"stringUnit": {"state": "translated", "value": "资助 Oort NX"}}
       }
     },
-    "See where each euro goes. Nothing is reserved for donors.": {
+    "See where every euro goes.": {
       "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "See where each euro goes. Nothing is reserved for donors."}},
-        "it": {"stringUnit": {"state": "translated", "value": "Vedi dove va ogni euro. Nulla è riservato a chi dona."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Vois où va chaque euro. Rien n’est réservé."}},
-        "de": {"stringUnit": {"state": "translated", "value": "Sieh, wohin jeder Euro fließt. Nichts ist Spendern vorbehalten."}},
-        "es": {"stringUnit": {"state": "translated", "value": "Mira adónde va cada euro. No hay nada reservado para quienes donan."}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Veja para onde vai cada euro. Nada é reservado a quem doa."}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "看看每一欧元的去向。没有任何功能仅限捐赠者使用。"}}
+        "en": {"stringUnit": {"state": "translated", "value": "See where every euro goes."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Vedi dove va ogni euro."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Vois où va chaque euro."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Sieh, wohin jeder Euro fließt."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Mira adónde va cada euro."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Veja para onde vai cada euro."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "看看每一欧元的去向。"}}
       }
     },
     "Opens in your browser": {

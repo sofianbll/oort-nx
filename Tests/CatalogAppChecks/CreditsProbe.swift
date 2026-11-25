@@ -67,6 +67,8 @@ import ArcanePorting
 
         #if CREDITS
         func check(_ locale: AppLocale, output: URL) throws {
+            let icon = Bundle.main.url(forResource: "AppIcon", withExtension: "icns")
+            precondition(icon.flatMap { NSImage(contentsOf: $0) } != nil, "Missing Oort NX app icon")
             let credits = Credits.bundled!
             let groups = credits.groups(for: .mac)
             let every = Set(groups.map(\.id))

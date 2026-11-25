@@ -18,6 +18,11 @@ struct SettingsAboutSection: View {
     @State private var didCopyDiagnostics = false
     private static let supportTitle = "Support Arcane"
     private static let fundingRow = "oort-funding"
+    private static let fundingMark: OortCreditCard.Mark = {
+        guard let url = Bundle.main.url(forResource: "AppIcon", withExtension: "icns"),
+              let image = NSImage(contentsOf: url) else { return .glyph(.favorite) }
+        return .art(image)
+    }()
     private static let docsRow = "Open project docs"
     private static let diagnosticsRow = "Copy diagnostics"
     private static let noticeRow = "credits-notice"
@@ -60,10 +65,7 @@ struct SettingsAboutSection: View {
                              action: copyDiagnostics)
 
             supportButton
-            OortSettingsLink(id: Self.fundingRow, title: fundingTitle,
-                             subtitle: L10n.text("See where each euro goes. Nothing is reserved for donors.", context: localization),
-                             external: true, action: openFundingPage)
-                .accessibilityHint(L10n.text("Opens in your browser", context: localization))
+            fundingButton
 
             if let credits {
                 ForEach(groups) { group in
@@ -111,6 +113,14 @@ struct SettingsAboutSection: View {
 
     private var language: String { localization.language.rawValue }
     private var fundingTitle: String { L10n.text("Fund Oort NX", context: localization) }
+
+    private var fundingButton: some View {
+        OortCreditCard(mark: Self.fundingMark, name: fundingTitle,
+                       byline: L10n.text("See where every euro goes.", context: localization),
+                       hint: L10n.text("Opens in your browser", context: localization),
+                       focused: focusedRowTitle == Self.fundingRow, action: openFundingPage)
+            .id("selene-row-\(Self.fundingRow)")
+    }
 
     private func shows(_ group: Credits.Group) -> Bool { group.id == groups.first?.id || opened.contains(group.id) }
 

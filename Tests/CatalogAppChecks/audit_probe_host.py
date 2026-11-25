@@ -9,7 +9,7 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
 
-def run_host(host, source_fixture=None, *, save_model=False, capture=None):
+def run_host(host, source_fixture=None, *, save_model=False, capture=None, resources=()):
     build = ROOT / ".build"
     products = build / "out/Products/Debug"
     objects = list((build / "out/Intermediates.noindex/NXLibrary.build/Debug/NXLibrary-p.build/Objects-normal").glob("*/NXLibrary.LinkFileList"))
@@ -31,6 +31,8 @@ def run_host(host, source_fixture=None, *, save_model=False, capture=None):
         if capture is not None:
             shutil.copytree(ROOT / "Resources/Brands", scratch / "Brands")
             shutil.copytree(ROOT / "Resources/Selene/Fonts", scratch / "Selene/Fonts")
+        for resource in resources:
+            shutil.copy2(ROOT / "Resources" / resource, scratch / resource)
         home_check = r'''
 func assertFixtureHome() {
     let home = URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!).resolvingSymlinksInPath().path
