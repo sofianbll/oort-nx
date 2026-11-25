@@ -40,7 +40,7 @@ probe(async P => {
   await P.press('down'); await P.press('a'); await P.until(() => document.querySelector('.col h1').textContent === (document.documentElement.lang === 'fr' ? 'Avancé' : 'Advanced')); P.ok(document.activeElement.closest('.list'), 'the second level has the focus'); await P.shot('12-second-level');
   await P.press('b'); P.same(P.id(), 'sub-look', 'B comes back to its row'); await P.press('b'); await P.press('b'); await P.until(() => document.querySelector('.dialog')); await P.shot('13-save'); await P.press('right', 1); await P.press('a'); await P.until(() => oort.layers.length === 1);
   P.same(getComputedStyle(document.documentElement).getPropertyValue('--zoom'), zoom0, 'discarding puts the size back');
-  await P.press('menu'); for (const [i, n] of [[2, 'sound'], [3, 'controllers'], [4, 'account'], [5, 'home'], [7, 'integrations'], [8, 'about']]) { document.querySelectorAll('.side button')[i].click(); await P.wait(250); await P.shot('14-' + n); }
+  await P.press('menu'); await P.until(() => document.querySelector('.shell')); for (const [i, n] of [[2, 'sound'], [3, 'controllers'], [4, 'account'], [5, 'home'], [7, 'integrations'], [8, 'about']]) { document.querySelectorAll('.side button')[i].click(); await P.wait(250); await P.shot('14-' + n); }
   await P.press('b'); while (oort.layers.length > 1) await P.press('b');
   // Projects, adding.
   await P.press('lt'); await P.press('a'); await P.until(() => document.querySelector('.sheet')); await P.wait(200); await P.shot('15-projects'); P.same(document.querySelectorAll('.sheet .row').length, (await oort.ask('catalog')).length, 'every project is listed'); await P.press('b');

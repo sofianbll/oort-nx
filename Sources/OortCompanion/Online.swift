@@ -53,11 +53,17 @@ struct OnlineLookup {
     private var article: (code: String, title: String)?
     private var genreIDs: [String] = []
     private(set) var record = OnlineRecord()
+    /// Wikipedia's services did not answer or ask to be left alone: the store's answer stands, and what only they could
+    /// tell is looked for later.
+    private(set) var isPartial = false
+    private let skipsWikipedia: Bool
     private(set) var choices: [(title: String, appID: UInt32?, item: String?)] = []
 
     static let textLimit = 4 << 20, pictureLimit = 12 << 20
 
-    init(name: String, steam: UInt32?, item: String? = nil, folder: String, language: AppLanguage, want: Want = .info) {
+    init(name: String, steam: UInt32?, item: String? = nil, folder: String, language: AppLanguage, want: Want = .info,
+         skipsWikipedia: Bool = false) {
+        self.skipsWikipedia = skipsWikipedia
         (self.name, self.folder, self.language, self.want) = (Self.plain(name), folder, language, want)
         (appID, byID) = (steam, steam != nil)
         record.query = self.name
@@ -78,7 +84,10 @@ struct OnlineLookup {
             || WikipediaDescriptions.allowedHosts.contains(host)
     }
 
+    private var isWikipedia: Bool { [.wikidataSteam, .wikidata, .entity, .article, .genres].contains(stage) }
+
     func step() -> Step {
+        if isWikipedia, skipsWikipedia { return .done }
         func text(_ url: URL?) -> Step { url.map { .get(url: $0.absoluteString, save: nil, limit: Self.textLimit) } ?? .done }
         func picture(_ file: String, _ name: String) -> Step {
             guard let appID else { return .done }
@@ -118,6 +127,7 @@ struct OnlineLookup {
         default: break
         }
         guard status == 200, let text else {
+            if isWikipedia { (isPartial, stage) = (true, .finished); return }
             // The store has no page for some games; a game found by its name there always has one.
             throw Manifest.Failure(code: status == 429 || status == 403 ? "online-slow" : "online")
         }

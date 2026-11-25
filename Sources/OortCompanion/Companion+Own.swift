@@ -213,6 +213,7 @@ extension Companion {
 
     // MARK: - Online, when the player said yes
 
+    private static let wikipediaPause: TimeInterval = 900
     private var onlineFolder: String { Paths.join(setup.data, "online") }
     private func onlineFolder(_ id: UUID) -> String { Paths.join(onlineFolder, id.uuidString.lowercased()) }
 
@@ -243,6 +244,7 @@ extension Companion {
     func wantsLook(_ game: Game) -> Bool {
         guard choices.online == true else { return false }
         if case .broken = game.source { return false }
+        if let tried = triedAt[game.id], now().timeIntervalSince(tried) < 3600 { return false }
         guard let record = records[game.id] else { return true }
         if record.picked == true { return record.found && record.language != language.rawValue }
         return !record.isFresh(now()) || record.language != language.rawValue || record.query != OnlineLookup.plain(game.name)
@@ -284,7 +286,7 @@ extension Companion {
         let name = choosing ? p["text"]?.stringValue?.nonEmpty ?? game.name : game.name
         guard !OnlineLookup.plain(name).isEmpty || steam != nil || item != nil else { throw Manifest.Failure(code: "online-none") }
         let next = OnlineLookup(name: name, steam: choosing ? nil : steam, item: choosing ? nil : item, folder: onlineFolder(game.id), language: language,
-                                want: choosing ? .choices : .info)
+                                want: choosing ? .choices : .info, skipsWikipedia: now() < wikipediaRest)
         if chosen { forgetPictures(game.id) }
         lookup = (game.id, next)
         pickedNow = chosen
@@ -320,12 +322,18 @@ extension Companion {
             return ["get": .string(url), "save": .text(save.map(Paths.native)), "limit": .number(limit)]
         }
         lookup = nil
+        if one.isPartial { wikipediaRest = now().addingTimeInterval(Self.wikipediaPause) }
         if one.want == .choices {
             return ["done": true, "choices": .array(one.choices.map { c in
                 ["title": .string(c.title), "appID": c.appID.map { .number(Int($0)) } ?? .null, "item": .text(c.item)]
             })]
         }
         var record = one.record
+        // What only Wikipedia could have said is not "nothing": it is looked for again after a while.
+        if !record.found, one.isPartial || now() < wikipediaRest {
+            triedAt[id] = now()
+            return ["done": true, "found": false, "later": true]
+        }
         record.fetchedAt = now()
         if pickedNow || (records[id]?.picked == true && record.found) { record.picked = true }
         try keep(record, id)

@@ -40,6 +40,8 @@ public final class Companion {
     var steamKnown = SteamShelf.Known()
     var lookup: (id: UUID, lookup: OnlineLookup)?
     var pickedNow = false
+    var wikipediaRest = Date.distantPast
+    var triedAt: [UUID: Date] = [:]
     /// Changes with any picture, so the page never shows an old one.
     var artStamp: Int
     var pictures: (stamp: Int, games: [UUID: Library.Art]) = (0, [:])

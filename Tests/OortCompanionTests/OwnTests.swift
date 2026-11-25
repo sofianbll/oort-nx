@@ -341,6 +341,22 @@ final class OnlineTests: XCTestCase {
         XCTAssertFalse(steam.record.found)
     }
 
+    func testWikipediaThatAsksToBeLeftAloneTakesNothingFromTheStore() throws {
+        // The store has the game, without a description; Wikipedia says no.
+        var lookup = OnlineLookup(name: "Drift", steam: 900_500, folder: "/d", language: .english)
+        while case .get(let url, let save, _) = lookup.step() {
+            if save != nil { try lookup.answer(status: 404, text: nil, saved: false) }
+            else if url.contains("appdetails") { try lookup.answer(status: 200, text: #"{"900500":{"success":true,"data":{"steam_appid":900500,"name":"Drift"}}}"#, saved: false) }
+            else { try lookup.answer(status: 429, text: "slow", saved: false) }
+        }
+        XCTAssertTrue(lookup.record.found)
+        XCTAssertTrue(lookup.isPartial)
+        // Left alone for a while, it is not asked at all.
+        var quiet = OnlineLookup(name: "Drift", steam: nil, folder: "/d", language: .english, skipsWikipedia: true)
+        try quiet.answer(status: 200, text: #"{"items":[]}"#, saved: false)
+        XCTAssertEqual(quiet.step(), .done)
+    }
+
     func testOnlyTheListedPlacesAreRead() {
         XCTAssertTrue(OnlineLookup.allowed("https://store.steampowered.com/api/storesearch/?term=a"))
         XCTAssertTrue(OnlineLookup.allowed("https://shared.akamai.steamstatic.com/x.jpg"))
@@ -503,6 +519,18 @@ final class OwnCompanionTests: XCTestCase {
         // Not this one: nothing is shown, nothing is asked again.
         let none = try ask(c, "online.none", ["id": id])
         XCTAssertEqual([none["about"], none["cover"], none["look"], none["chosen"]], [.null, false, false, true])
+        // Another name that only Wikipedia could know, and it says no: nothing is written, it is asked later.
+        exe(root + "/b.exe", "Tidal Works")
+        let tidal = try XCTUnwrap(try ask(c, "programs.add", ["program": .string(root + "/b.exe")])["added"])
+        _ = try ask(c, "online.start", ["id": tidal])
+        _ = try ask(c, "online.answer", ["status": 200, "text": #"{"items":[]}"#])
+        XCTAssertEqual(try ask(c, "online.answer", ["status": 429])["later"], true)
+        XCTAssertEqual(try ask(c, "game", ["id": tidal])["look"], false)
+        XCTAssertEqual(try ask(c, "game", ["id": tidal])["searched"], false)
+        _ = try ask(c, "online.start", ["id": id, "want": "choices", "text": "Coast"])
+        XCTAssertEqual(try ask(c, "online.answer", ["status": 200, "text": #"{"items":[]}"#])["done"], true, "left alone for a while")
+        clock += 3700
+        XCTAssertEqual(try ask(c, "game", ["id": tidal])["look"], true)
         // Another result, chosen by hand.
         _ = try ask(c, "online.start", ["id": id, "want": "choices", "text": "Coast"])
         XCTAssertTrue(try XCTUnwrap(try ask(c, "online.answer", ["status": 200, "text": #"{"items":[{"type":"app","name":"Coast Runner","id":900701}]}"#])["get"]?.stringValue).contains("wbsearchentities"))

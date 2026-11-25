@@ -51,6 +51,7 @@ createServer((q, r) => {
     return r.end(picture[2] === 'library_hero' ? png(960, 310, +picture[1] % 97) : png(300, 450, +picture[1] % 97));
   }
   if (host === 'www.wikidata.org') {
+    if (name === 'Busy Wiki') { r.writeHead(429, { 'Retry-After': '20' }); return r.end('You are making too many requests.'); }
     if (p.get('action') === 'wbsearchentities') return json(r, { search: wiki[name] ? [{ id: wiki[name], label: name }] : [] });
     if (p.get('action') === 'query') return json(r, { query: { search: [] } });
     if (p.get('ids') === 'Q99000001') return json(r, { entities: { Q99000001: { labels: { en: { value: 'Tidal Works' } }, claims: { P31: [{ mainsnak: { datavalue: { value: { id: 'Q7889' } } } }], P136: [{ mainsnak: { datavalue: { value: { id: 'Q99000002' } } } }], P577: [{ mainsnak: { datavalue: { value: { time: '+1998-11-21T00:00:00Z' } } } }] }, sitelinks: { frwiki: { title: 'Tidal Works' }, enwiki: { title: 'Tidal Works' } } } } });

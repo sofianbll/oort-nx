@@ -82,7 +82,9 @@ print(names, file=sys.stderr); print(names.index("Quiet Harbour") + 2)
 PY
 )
   keys Home; for _ in $(seq "$at"); do xdotool key Right; sleep 0.1; done; sleep 0.8; shot first-7-steam-game
-  xdotool key Return; sleep 1.2; shot first-8-waiting; sleep 22
+  xdotool key Return; sleep 1.2; shot first-8-waiting
+  # A game this short may be one that Steam starts again: Oort waits 25 seconds before it calls it over.
+  sleep 38
   python3 - "$data" <<'PY'
 import datetime, json, sys
 s = json.load(open(sys.argv[1] + "/sessions.json"))
