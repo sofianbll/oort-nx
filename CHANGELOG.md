@@ -17,6 +17,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Fixed
 
+- A click puts a moved tile down; its hints take a click too.
 - Every hint of the Spotlight page and the Collection takes a click: card options, Details, Options.
 - The launch screen can be left with B or Esc after four seconds, and says so; keys no longer act on the screen under it.
 

@@ -13,4 +13,14 @@ final class ClickableHintsTests: XCTestCase {
         }
         XCTAssertTrue(try Self.source("Components/SeleneHomeChrome.swift").contains("rightReserve: rightReserve, press: press)"))
     }
+
+    /// Moving a tile: the click layer covers the stage, so any click drops and none starts a game.
+    func testAClickPutsALiftedTileDown() throws {
+        let stage = try Self.source("Spotlight/SpotlightView+Stage.swift")
+        let layer = try XCTUnwrap(stage.range(of: "if state.isLifted {\n                // A click anywhere"))
+        let menu = try XCTUnwrap(stage.range(of: "if let menu = cardMenu {"))
+        XCTAssertTrue(stage[layer.lowerBound..<menu.lowerBound].contains(".onTapGesture { handle(.confirm) }"))
+        let hints = try Self.source("Spotlight/SpotlightView+Hints.swift")
+        XCTAssertTrue(hints.contains("HintItem(.a, L10n.text(\"Drop\")), HintItem(.b, L10n.text(\"Cancel\"))"))
+    }
 }

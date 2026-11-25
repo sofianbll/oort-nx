@@ -142,6 +142,15 @@ extension SpotlightView {
                 .animation(SeleneTheme.ease(SeleneTokens.Motion.detailArt), value: state.focus)
                 .allowsHitTesting(false)
 
+            if state.isLifted {
+                // A click anywhere puts the tile down; the layer also keeps the second click of a double from playing.
+                Rectangle().fill(.clear)
+                    .contentShape(Rectangle())
+                    .onTapGesture { handle(.confirm) }
+                    .accessibilityHidden(true)
+                    .frame(width: canvas.stageSize.width, height: canvas.size.height)
+                    .zIndex(4)
+            }
             if let menu = cardMenu {
                 ZStack {
                     SeleneTheme.artShade.opacity(SeleneTokens.Alpha.half)
