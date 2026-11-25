@@ -55,7 +55,10 @@ def prepare(package):
 
     settings = app / "Views/Settings"
     cloud = settings / "SettingsCloudLibrarySection.swift"
-    expose(cloud, "setEnabled", "unfollow", "confirmDisconnect", "confirmTrashTool", "publishActions", "test")
+    expose(cloud, "setEnabled", "unfollow", "confirmDisconnect", "confirmTrashTool", "publishActions", "test", "chooseTool")
+    picker = app / "Views/OortUI/OortFilePicker.swift"
+    replace(picker, r'(completion: @escaping \(\[URL\]\) -> Void\) \{\n)(        Task \{ @MainActor in)',
+            lambda m: m[1] + '        if let tool = SettingsConfirmationProbe.pickedRclone { completion([tool]); return }\n' + m[2])
     replace(cloud, r'private var advancedRows:', 'var advancedRows:')
     replace(cloud, r'private var referenceStatus:', 'var referenceStatus:')
     replace(cloud, r'private var tool: URL\?', 'private var tool: URL? = URL(fileURLWithPath: "/fixture/rclone")')

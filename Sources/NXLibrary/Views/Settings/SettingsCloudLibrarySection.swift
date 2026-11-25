@@ -428,8 +428,8 @@ struct SettingsCloudLibrarySection: View {
         guard editable else { return }
         OortFilePickerPresentation.open(.tool, title: "rclone", message: text("Choose the rclone executable or use the detected one."),
                                         startingAt: tool?.deletingLastPathComponent()) { urls in
-            // A package manager installs the tool as a link: the file it leads to is the one kept.
-            if let chosen = urls.first { use(chosen.resolvingSymlinksInPath()) }
+            // Keep the package manager's stable link; isExecutable checks the file it points to.
+            if let chosen = urls.first { use(chosen) }
         }
     }
 
