@@ -28,7 +28,6 @@
     <string name="started_on">Started on %1$s</string>
 
     <string name="detail_play">Play</string>
-    <string name="detail_last">From Oort</string>
     <string name="detail_version">Version %1$s</string>
     <string name="detail_version_label">Version</string>
     <string name="detail_title_id">Title ID</string>

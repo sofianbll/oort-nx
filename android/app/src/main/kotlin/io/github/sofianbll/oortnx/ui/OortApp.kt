@@ -9,6 +9,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
@@ -29,15 +30,18 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -131,8 +135,15 @@ private val DESTINATIONS = listOf(
     Destination(Section.Settings, Glyph.Settings, R.string.nav_settings),
 )
 
+/** The places keep their whole names: past this size the text of the bar stops growing, as Android's own bars do. */
 @Composable
-private fun SectionBar(state: AppState) {
+private fun SteadyText(content: @Composable () -> Unit) {
+    val now = LocalDensity.current
+    CompositionLocalProvider(LocalDensity provides Density(now.density, now.fontScale.coerceAtMost(1.15f)), content = content)
+}
+
+@Composable
+private fun SectionBar(state: AppState) = SteadyText {
     NavigationBar(containerColor = OortTokens.Palette.Glass.copy(alpha = 0.92f)) {
         for (d in DESTINATIONS) {
             NavigationBarItem(
@@ -146,10 +157,11 @@ private fun SectionBar(state: AppState) {
 }
 
 @Composable
-private fun SectionRail(state: AppState) {
+private fun SectionRail(state: AppState) = SteadyText {
     NavigationRail(containerColor = OortTokens.Palette.Glass.copy(alpha = 0.6f), windowInsets = WindowInsets(0)) {
         androidx.compose.foundation.layout.Column(
-            Modifier.fillMaxHeight().verticalScroll(rememberScrollState()),
+            Modifier.fillMaxHeight().verticalScroll(rememberScrollState()).padding(top = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             for (d in DESTINATIONS) {

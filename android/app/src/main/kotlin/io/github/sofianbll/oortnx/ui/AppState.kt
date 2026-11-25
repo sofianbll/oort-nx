@@ -320,10 +320,9 @@ class AppState(
 
     private fun gameSections(game: Game): List<RowSection> {
         val facts = listOfNotNull(
-            RowItem("last", Label.Res(R.string.detail_last), value = lastStart(game)),
             RowItem("version", Label.Res(R.string.detail_version_label), value = Label.Raw(game.versionName.ifEmpty { "—" })),
-            Nx2Android.titleId(game.packageName)?.let { RowItem("title", Label.Res(R.string.detail_title_id), value = Label.Raw(it)) },
-            RowItem("package", Label.Res(R.string.detail_package), value = Label.Raw(game.packageName)),
+            Nx2Android.titleId(game.packageName)?.let { RowItem("title", Label.Res(R.string.detail_title_id), note = Label.Raw(it)) },
+            RowItem("package", Label.Res(R.string.detail_package), note = Label.Raw(game.packageName)),
         )
         return listOf(
             RowSection(rows = facts),

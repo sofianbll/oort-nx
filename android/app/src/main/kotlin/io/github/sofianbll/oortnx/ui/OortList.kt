@@ -26,17 +26,22 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 
 /** The app's list: sections of lines on Oort's panels. */
@@ -63,7 +68,10 @@ fun OortList(state: AppState, sections: List<RowSection>, modifier: Modifier = M
 private fun Line(state: AppState, row: RowItem, focused: Boolean) {
     val calm = state.prefs.calm
     val into = remember { BringIntoViewRequester() }
-    LaunchedEffect(focused) { if (focused) into.bringIntoView() }
+    var size by remember { mutableStateOf(IntSize.Zero) }
+    val room = with(LocalDensity.current) { 56.dp.toPx() }
+    // With room around it, so the line is not left under the fade at the foot of a page.
+    LaunchedEffect(focused) { if (focused) into.bringIntoView(Rect(0f, -room, size.width.toFloat(), size.height + room)) }
     val light by animateFloatAsState(if (focused) 1f else 0f, motion(calm, OortTokens.Motion.FocusInMs), label = "line")
     val press = { state.padMode = false; state.press(row.id) }
     val act = when (val kind = row.kind) {
@@ -76,6 +84,7 @@ private fun Line(state: AppState, row: RowItem, focused: Boolean) {
     Row(
         Modifier
             .bringIntoViewRequester(into)
+            .onSizeChanged { size = it }
             .fillMaxWidth()
             .drawBehind {
                 if (light > 0f) {
@@ -95,12 +104,12 @@ private fun Line(state: AppState, row: RowItem, focused: Boolean) {
         row.glyph?.let { OortGlyph(it, tint = tint, modifier = Modifier.size(26.dp).padding(1.dp)) }
         // Large text: the value goes under its title rather than squeezing it.
         val big = LocalDensity.current.fontScale >= 1.5f
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Column(Modifier.weight(1.1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(row.title.text(), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium, color = if (row.danger) OortTokens.Status.Danger else OortTokens.Palette.Ink)
             row.note?.let { Text(it.text(), style = MaterialTheme.typography.bodyMedium, color = Ink2) }
             if (big) row.value?.let { Text(it.text(), style = MaterialTheme.typography.bodyLarge, color = Ink2) }
         }
-        if (!big) row.value?.let { Text(it.text(), Modifier.weight(1f, fill = false), style = MaterialTheme.typography.bodyLarge, color = Ink2, textAlign = TextAlign.End) }
+        if (!big) row.value?.let { Text(it.text(), Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge, color = Ink2, textAlign = TextAlign.End) }
         when (val kind = row.kind) {
             is Kind.Open -> OortGlyph(Glyph.Forward, tint = Ink2, modifier = Modifier.size(18.dp))
             is Kind.Press -> Unit

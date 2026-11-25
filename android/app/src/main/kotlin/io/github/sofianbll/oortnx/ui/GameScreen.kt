@@ -37,11 +37,13 @@ fun GameScreen(state: AppState, game: Game) {
     BoxWithConstraints(Modifier.fillMaxSize()) {
         // Room for the cover beside the list: a tablet, or a phone on its side.
         if (maxWidth > maxHeight && maxWidth >= 600.dp) {
-            val side = minOf(maxHeight * 0.45f, 340.dp, maxWidth * 0.36f)
+            // On a phone the cover is small, with the name beside it: the name must not hide behind Play.
+            val short = maxHeight < 480.dp
+            val side = if (short) 96.dp else minOf(maxHeight * 0.45f, 340.dp, maxWidth * 0.36f)
             Row(Modifier.fillMaxSize().padding(horizontal = 24.dp), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                 Column(Modifier.weight(0.42f).widthIn(max = 520.dp).fillMaxHeight()) {
                     PageTitle(stringResource(R.string.game_page), { state.onBack() })
-                    Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(14.dp)) { Header(state, game, side) }
+                    Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(14.dp)) { Header(state, game, side, short) }
                     PlayKey(state, game, Modifier.padding(vertical = 8.dp))
                 }
                 Column(Modifier.weight(0.58f).fillMaxHeight()) {
@@ -66,7 +68,7 @@ fun GameScreen(state: AppState, game: Game) {
                 }
                 // The one action stays under the thumb however far the list goes.
                 Column(Modifier.fillMaxWidth().background(OortTokens.Palette.Scrim.copy(alpha = 0.9f)).padding(horizontal = 15.dp).padding(bottom = 8.dp)) {
-                    PlayKey(state, game)
+                    PlayKey(state, game, max = 790.dp)
                     PageHints(state)
                 }
             }
@@ -75,16 +77,27 @@ fun GameScreen(state: AppState, game: Game) {
 }
 
 @Composable
-private fun Header(state: AppState, game: Game, side: Dp) {
-    GameCover(game, state.icons[game.packageName], focused = false, calm = state.prefs.calm, modifier = Modifier.size(side))
-    Text(game.title, Modifier.heading(), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-    StateLine(state.lastStart(game).text())
+private fun Header(state: AppState, game: Game, side: Dp, beside: Boolean = false) {
+    val title: @Composable () -> Unit = {
+        Text(game.title, Modifier.heading(), style = if (beside) MaterialTheme.typography.titleLarge else MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        StateLine(state.lastStart(game).text())
+    }
+    val cover: @Composable () -> Unit = { GameCover(game, state.icons[game.packageName], focused = false, calm = state.prefs.calm, modifier = Modifier.size(side)) }
+    if (beside) {
+        Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            cover()
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) { title() }
+        }
+    } else {
+        cover()
+        title()
+    }
 }
 
 @Composable
-private fun PlayKey(state: AppState, game: Game, modifier: Modifier = Modifier) {
+private fun PlayKey(state: AppState, game: Game, modifier: Modifier = Modifier, max: Dp = 560.dp) {
     OortKey(
-        { state.play(game) }, state.prefs.calm, modifier.widthIn(max = 560.dp).fillMaxWidth(), solid = true,
+        { state.play(game) }, state.prefs.calm, modifier.widthIn(max = max).fillMaxWidth(), solid = true,
         focused = state.padMode && state.focusedRow() == AppState.PLAY, glyph = Glyph.Play, label = stringResource(R.string.detail_play),
     )
 }

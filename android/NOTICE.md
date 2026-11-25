@@ -4,8 +4,7 @@ Oort NX is MIT-licensed (see the repository's LICENSE and NOTICE). This file lis
 starts, what it ports from Oort NX for Mac, and the libraries it builds with. It copies no code from the projects
 below; it starts the apps they produce and follows the conventions they document.
 
-To add to the root NOTICE when this branch is merged (the root NOTICE is pinned by scripts/check_publication.py,
-so it is left alone here):
+## Projects it follows
 
 ```text
 --------------------------------------------------------------------------------

@@ -28,7 +28,6 @@
     <string name="started_on">Lancé le %1$s</string>
 
     <string name="detail_play">Jouer</string>
-    <string name="detail_last">Depuis Oort</string>
     <string name="detail_version">Version %1$s</string>
     <string name="detail_version_label">Version</string>
     <string name="detail_title_id">Identifiant</string>

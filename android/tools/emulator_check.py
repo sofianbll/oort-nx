@@ -8,6 +8,7 @@ large text. Writes pictures and a report; fails on a missing thing, a crash, or 
 import argparse
 import json
 import re
+import struct
 import subprocess
 import sys
 import time
@@ -25,6 +26,7 @@ passed, failed, small = [], [], {}
 out = Path()
 words = {}
 api = 0
+side = 0
 
 
 def adb(*args, binary=False, check=False, timeout=90):
@@ -55,11 +57,32 @@ class Node:
         self.text, self.desc, self.package = element.get("text", ""), element.get("content-desc", ""), element.get("package", "")
         self.said = " ".join(filter(None, [self.text, self.desc]))
         self.clickable, self.checked, self.selected = (element.get(k) == "true" for k in ("clickable", "checked", "selected"))
+        self.checkable = element.get("checkable") == "true"
         self.box = [int(n) for n in re.findall(r"-?\d+", element.get("bounds", "[0,0][0,0]"))]
 
     @property
     def centre(self):
         return (self.box[0] + self.box[2]) // 2, (self.box[1] + self.box[3]) // 2
+
+
+def is_on(text, nodes):
+    """Whether the line that says [text] is checked: its words are inside the line, which carries the state."""
+    for said in (n for n in nodes if n.text == text):
+        x, y = said.centre
+        for n in nodes:
+            if n.checkable and n.box[0] <= x <= n.box[2] and n.box[1] <= y <= n.box[3]:
+                return n.checked
+    return None
+
+
+def chosen(nodes=None):
+    """The game chosen on the first screen: its name is inside the cover, which carries the state."""
+    nodes = screen() if nodes is None else nodes
+    for said in (n for n in nodes if n.desc in GAMES):
+        x, y = said.centre
+        if any(n.selected and n.package == PACKAGE and n.box[0] <= x <= n.box[2] and n.box[1] <= y <= n.box[3] for n in nodes):
+            return said.desc
+    return None
 
 
 def density():
@@ -207,15 +230,17 @@ def touch(lang):
     fresh()
     see(f"{lang}: the first screen offers Play", w("detail_play"))
     shot(f"{lang}-01-home")
-    first = next((g for g in GAMES if find(g, exact=False)), None)
+    first = chosen()
     ok(f"{lang}: a made-up game is on the first screen", first is not None)
     width, height = display()
-    shell(f"input swipe {int(width * .8)} {int(height * .45)} {int(width * .15)} {int(height * .45)} 220")
+    # Slow, and ending off the cover: a short one can reach a busy emulator as a press and a release, with no movement.
+    shell(f"input swipe {int(width * .8)} {int(height * .45)} {int(width * .08)} {int(height * .45)} 700")
     time.sleep(1.5)
     shot(f"{lang}-02-home-swiped")
-    nodes = screen()
-    ok(f"{lang}: the swipe chose another game", any(n.selected and n.desc in GAMES and n.desc != first for n in nodes), str([(n.desc, n.selected) for n in nodes if n.desc in GAMES]))
+    then = chosen()
+    ok(f"{lang}: the swipe chose another game", then not in (None, first), f"{first}, then {then}")
 
+    fresh()
     tap(w("nav_library"), exact=True)
     time.sleep(0.8)
     nodes = screen()
@@ -240,8 +265,10 @@ def touch(lang):
     ok(f"{lang}: Play stays on screen at the foot of the page", find(w("detail_play"), exact=True) is not None)
     tap(w("detail_info"))
     ok(f"{lang}: Android's page of the game opens", wait_front("com.android.settings"), front())
-    time.sleep(1)
+    time.sleep(2)
     system_back()
+    if not wait_front(PACKAGE, 4):
+        system_back()  # a first start of Android's settings can be slow enough to miss the key
     ok(f"{lang}: Back returns from Android's page", wait_front(PACKAGE), front())
 
     tap(w("detail_play"), exact=True)
@@ -257,7 +284,7 @@ def touch(lang):
     see(f"{lang}: Back leaves the page for the library", w("nav_library"))
     system_back()
     see(f"{lang}: Back leaves the library for the first screen", w("detail_play"))
-    ok(f"{lang}: the game just started comes first", any(n.selected and n.desc == GAMES[1] for n in screen()))
+    ok(f"{lang}: the game just started comes first", chosen() == GAMES[1], str(chosen()))
 
     tap(w("nav_controllers"), exact=True)
     see(f"{lang}: controllers", w("controllers_connected"))
@@ -272,13 +299,19 @@ def touch(lang):
     shot(f"{lang}-10-settings")
     tap(w("settings_sound"))
     see(f"{lang}: the sounds have their own page", w("settings_pack"))
-    before = [n.checked for n in screen() if n.package == PACKAGE and n.clickable and w("settings_sound") in n.said]
     shot(f"{lang}-11-sounds")
-    tap(w("settings_sound_note"), seconds=3)
-    tap("Umbra")
-    ok(f"{lang}: a sound pack is chosen", any(n.checked or n.selected for n in screen() if "Umbra" in n.said))
+    tap("Umbra", exact=True)
+    nodes = screen()
+    ok(f"{lang}: a sound pack is chosen, and only one", is_on("Umbra", nodes) is True and is_on("Oort", nodes) is False)
     tap("Oort", exact=True)
-    ok(f"{lang}: the sound switch reads as on", any(before), str(before))
+    ok(f"{lang}: the sound switch reads as on", is_on(w("settings_sound"), screen()) is True or len([n for n in screen() if n.checkable and n.checked]) == 2)
+    switch = next((n for n in screen() if n.checkable), None)
+    if ok(f"{lang}: the sound switch is there", switch is not None):
+        shell("input tap %d %d" % switch.centre)
+        time.sleep(0.8)
+        ok(f"{lang}: the sound switch turns off", len([n for n in screen() if n.checkable and n.checked]) == 1)
+        shell("input tap %d %d" % switch.centre)
+        time.sleep(0.8)
     system_back()
     tap(w("settings_cloud"))
     shot(f"{lang}-12-cloud")
@@ -292,14 +325,14 @@ def touch(lang):
     see(f"{lang}: credits", "nx2android")
     shot(f"{lang}-14-thanks")
     scroll()
-    tap(w("thanks_text_oort"))
+    tap(w("thanks_text_oort"), exact=True)
     see(f"{lang}: the MIT text", "Permission is hereby granted")
     shot(f"{lang}-15-licence")
     system_back()
-    tap(w("thanks_text_notices"))
+    tap(w("thanks_text_notices"), exact=True)
     see(f"{lang}: the notices", "shirai91")
     system_back()
-    tap(w("thanks_text_apache"))
+    tap(w("thanks_text_apache"), exact=True)
     see(f"{lang}: the Apache text", "Version 2.0")
     system_back()
 
@@ -310,9 +343,9 @@ def controller(lang):
     see(f"{lang}, pad: first screen", w("detail_play"))
     pad("RIGHT")
     shot(f"{lang}-20-pad-home")
-    chosen = [n.desc for n in screen() if n.selected and n.desc in GAMES]
+    before = chosen()
     pad("RIGHT")
-    ok(f"{lang}, pad: right changes the game", [n.desc for n in screen() if n.selected and n.desc in GAMES] != chosen)
+    ok(f"{lang}, pad: right changes the game", chosen() not in (None, before))
     pad("DOWN", "RIGHT")
     shot(f"{lang}-21-pad-home-keys")
     pad("A")
@@ -337,6 +370,11 @@ def controller(lang):
     ok(f"{lang}, pad: L1 goes back to the first screen", wait(w("detail_play"), exact=True) is not None and find(w("sort"), exact=True) is None)
     pad("Y")
     see(f"{lang}, pad: Y opens the controllers", w("controllers_connected"))
+    tap(w("settings_swap"), exact=True)
+    pad("A")
+    ok(f"{lang}, pad: A and B swapped, A goes back", wait(w("detail_play"), exact=True) is not None)
+    pad("Y")
+    tap(w("settings_swap"), exact=True)
     pad("START", "DOWN", "DOWN")
     see(f"{lang}, pad: START opens the settings", w("settings_thanks"))
     shot(f"{lang}-25-pad-settings")
@@ -371,6 +409,7 @@ def real_pad():
     shot("pad-01-connected")
     tap(w("controllers_test"))
     send((1, 310, 1), (1, 307, 1), (3, 0, 32767), (3, 1, -20000), (3, 17, -1), (3, 9, 255))
+    time.sleep(2)
     shot("pad-02-held")
     send((1, 310, 0), (1, 307, 0), (3, 0, 0), (3, 1, 0), (3, 17, 0), (3, 9, 0))
     see("virtual controller: the last button is named", w("controllers_last", "X"))
@@ -381,14 +420,15 @@ def real_pad():
     send((1, 305, 1))
     send((1, 305, 0))
     see("virtual controller: B then goes to the first screen", w("detail_play"))
-    chosen = [n.desc for n in screen() if n.selected and n.desc in GAMES]
+    before = chosen()
     send((3, 16, 1))
     send((3, 16, 0))
-    ok("virtual controller: the hat moves", [n.desc for n in screen() if n.selected and n.desc in GAMES] != chosen)
-    chosen = [n.desc for n in screen() if n.selected and n.desc in GAMES]
-    send((3, 0, 32767))
+    ok("virtual controller: the hat moves", chosen() not in (None, before))
+    before = chosen()
+    # Back to the left: a held direction repeats, so the hat may have reached the last game.
+    send((3, 0, -32768))
     send((3, 0, 0))
-    ok("virtual controller: the stick moves", [n.desc for n in screen() if n.selected and n.desc in GAMES] != chosen)
+    ok("virtual controller: the stick moves", chosen() not in (None, before))
     send((1, 304, 1))
     send((1, 304, 0))
     ok("virtual controller: A plays", any(wait_front(f"org.nx2a.test{g}", 6) for g in ("phare", "maree", "collines", "comete")), front())
@@ -400,16 +440,40 @@ def real_pad():
     ok("the app survives the controller leaving", front() == PACKAGE, front())
 
 
+def picture_size(name):
+    return struct.unpack(">II", (out / f"{name}.png").read_bytes()[16:24])
+
+
 def rotate(to):
+    """Asks for the screen on its side (1) or upright (0). The tour checks the pictures: what is asked is not what is got."""
+    global side
+    side = to
     shell(f"settings put system accelerometer_rotation 0; settings put system user_rotation {to}")
     time.sleep(2.5)
 
 
-def tour(prefix, with_pad=False):
+def turned():
+    """With the app in front, as Android 10 forgets the rotation when its own upright launcher comes back."""
+    for _ in range(3):
+        shot("turn")
+        w_, h_ = picture_size("turn")
+        if (w_ > h_) == (side == 1):
+            break
+        shell(f"settings put system user_rotation {1 - side}; sleep 1; settings put system user_rotation {side}; wm set-user-rotation lock {side}")
+        time.sleep(3)
+    (out / "turn.png").unlink()
+
+
+def tour(prefix, with_pad=False, wide=None):
     """Pictures of every section, from where the app is."""
     fresh()
+    if wide is not None:
+        turned()
     see(f"{prefix}: first screen", w("detail_play"))
     shot(f"{prefix}-home")
+    if wide is not None:
+        w_, h_ = picture_size(f"{prefix}-home")
+        ok(f"{prefix}: the picture is {'on its side' if wide else 'upright'}", (w_ > h_) == wide, f"{w_}x{h_}")
     if with_pad:
         pad("RIGHT")
         shot(f"{prefix}-home-pad")
@@ -425,9 +489,13 @@ def tour(prefix, with_pad=False):
         pad("B", "START")
         shot(f"{prefix}-settings-pad")
         fresh()
+        if wide is not None:
+            turned()
         wait(w("detail_play"))
     tap(w("nav_library"), exact=True)
     shot(f"{prefix}-library")
+    if not find(GAMES[0]):
+        scroll()
     tap(GAMES[0])
     see(f"{prefix}: game page", w("game_page"))
     shot(f"{prefix}-game")
@@ -465,13 +533,17 @@ def main():
     ok("the installed app asks for no Android permission", not [p for p in asked if p.startswith("android.permission")], str(asked))
     version = re.search(r"versionName=(\S+)", shell(f"dumpsys package {PACKAGE}"))
     ok("version", version and version.group(1) == "0.1.0-alpha.1", str(version))
-    shell("settings put system font_scale 1.0; settings put secure show_ime_with_hard_keyboard 0; cmd uimode night yes")
+    shell("settings put system font_scale 1.0; settings put secure show_ime_with_hard_keyboard 0; settings put secure immersive_mode_confirmations confirmed; cmd uimode night yes")
     rotate(0)
 
     language("en")
     fresh()
     see("no game installed: the first screen says so", w("empty_title"))
     shot("en-00-empty")
+    shell(f"am start -a android.settings.APPLICATION_DETAILS_SETTINGS -d package:{PACKAGE}")
+    see("Android shows the app under its name", "Oort NX alpha")
+    shot("en-00-icon")
+    start()
     apks = sorted(args.games.glob("*.apk"))
     for apk in apks:
         adb("install", "-r", apk, check=True)
@@ -486,22 +558,22 @@ def main():
     controller("fr")
 
     rotate(1)
-    tour("fr-landscape", with_pad=True)
+    tour("fr-landscape", with_pad=True, wide=True)
     rotate(0)
     shell("cmd uimode night no")
-    tour("fr-light-system")
+    tour("fr-light-system", wide=False)
     shell("cmd uimode night yes")
 
     shell("settings put system font_scale 2.0")
     time.sleep(2)
     tour("fr-large-text", with_pad=True)
     rotate(1)
-    tour("fr-large-text-landscape")
+    tour("fr-large-text-landscape", wide=True)
     rotate(0)
     shell("settings put system font_scale 1.0")
 
     shell("settings put global animator_duration_scale 0")
-    tour("fr-calm")
+    tour("fr-calm", wide=False)
     shell("settings put global animator_duration_scale 1")
 
     size, dens = shell("wm size"), shell("wm density")
