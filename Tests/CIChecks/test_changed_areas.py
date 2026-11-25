@@ -38,6 +38,19 @@ class ChangedAreasTests(unittest.TestCase):
             result = areas.decide([".github/workflows/ci.yml"], root)
         self.assertEqual(set(result.values()), {True})
 
+    def test_shared_design_sources_reach_the_ports_that_read_them(self):
+        cases = {
+            "design/oort.tokens.json": {"desktop", "android"},
+            "Resources/Selene/palettes.json": {"swift", "desktop"},
+            "scripts/generate_oort_tokens.py": {"swift", "desktop"},
+            "Resources/AppIcon.icon/Assets/glyph.svg": {"swift", "android"},
+        }
+        with checkout(*ALL_FOLDERS) as root:
+            for path, expected in cases.items():
+                with self.subTest(path=path):
+                    result = areas.decide([path], root)
+                    self.assertEqual({area for area, on in result.items() if on}, expected)
+
     def test_missing_folder_keeps_its_area_off_even_when_paths_match(self):
         # On main, desktop/ does not exist yet: a core change must not start the Windows jobs.
         with checkout("mobile") as root:
