@@ -494,4 +494,21 @@ final class AppRouterSpotlightMoveTests: XCTestCase {
         XCTAssertFalse(AppRoute.library.isOverlay)
         XCTAssertFalse(AppRoute.collection.isOverlay)
     }
+
+    func testOnlyClosingTheLauncherAsksFirst() {
+        for power in PowerAction.allCases {
+            XCTAssertEqual(power.confirmation != nil, power == .quit || power == .relaunch, power.rawValue)
+        }
+    }
+
+    /// The question's safe answer is last and focused first, and the pill only asks.
+    func testQuitAndRestartOnlyRunFromTheirConfirmation() throws {
+        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let shell = try String(contentsOf: root.appendingPathComponent("Sources/NXLibrary/Views/Shell/AppShellView+Input.swift"), encoding: .utf8)
+        let run = try XCTUnwrap(shell.components(separatedBy: "func runPower(").last?.components(separatedBy: "\n    }").first)
+        XCTAssertFalse(run.contains("terminate"))
+        XCTAssertTrue(run.contains("confirmSetting(ask.title"))
+        let model = try String(contentsOf: root.appendingPathComponent("Sources/NXLibrary/ViewModels/AppViewModel.swift"), encoding: .utf8)
+        XCTAssertTrue(model.contains("primaryFirst && retry != nil ? 0 : cancelIndex"))
+    }
 }

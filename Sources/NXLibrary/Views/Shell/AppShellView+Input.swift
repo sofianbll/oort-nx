@@ -326,9 +326,14 @@ extension AppShellView {
     }
 
     func runPower(_ action: PowerAction) {
+        guard let ask = action.confirmation else { return performPower(action) }
+        router.closeMenu()
+        viewModel.confirmSetting(ask.title, message: ask.message, action: action.title) { performPower(action) }
+    }
+
+    private func performPower(_ action: PowerAction) {
         switch action {
         case .quit:
-            router.closeMenu()
             NSApplication.shared.terminate(nil)
         case .sleep:
             router.closeMenu()

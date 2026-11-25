@@ -1,6 +1,194 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "The launcher closes and opens again. Running games stay open.": {
+      "comment": "PowerAction",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The launcher closes and opens again. Running games stay open."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le lanceur se ferme puis se rouvre. Les jeux en cours restent ouverts."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Launcher wird geschlossen und wieder geöffnet. Laufende Spiele bleiben offen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El lanzador se cierra y se vuelve a abrir. Los juegos en curso siguen abiertos."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il launcher si chiude e si riapre. I giochi in corso restano aperti."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O launcher fecha e abre de novo. Os jogos em execução continuam abertos."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启动器将关闭并重新打开。正在运行的游戏保持打开。"
+          }
+        }
+      }
+    },
+    "The launcher closes. Running games stay open.": {
+      "comment": "PowerAction",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The launcher closes. Running games stay open."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le lanceur se ferme. Les jeux en cours restent ouverts."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Launcher wird geschlossen. Laufende Spiele bleiben offen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El lanzador se cierra. Los juegos en curso siguen abiertos."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il launcher si chiude. I giochi in corso restano aperti."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O launcher fecha. Os jogos em execução continuam abertos."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启动器将关闭。正在运行的游戏保持打开。"
+          }
+        }
+      }
+    },
+    "Restart %@?": {
+      "comment": "PowerAction",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restart %@?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redémarrer %@ ?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ neu starten?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Reiniciar %@?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riavviare %@?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reiniciar %@?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新启动 %@？"
+          }
+        }
+      }
+    },
+    "Quit %@?": {
+      "comment": "PowerAction",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quit %@?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quitter %@ ?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ beenden?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Salir de %@?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uscire da %@?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sair de %@?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出 %@？"
+          }
+        }
+      }
+    },
     "Navigate Oort.": {
       "comment": "ControlsView",
       "localizations": {
