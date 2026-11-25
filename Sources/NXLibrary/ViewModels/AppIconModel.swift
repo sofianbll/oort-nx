@@ -120,6 +120,7 @@ final class AppIconModel: ObservableObject {
     /// elsewhere or missing, an app moved or built again, a change lost to a crash) is put right.
     func reconcileAppIcons() {
         guard !AppData.profile.isDevelopment else { return }
+        var waiting: Set<UUID> = []
         for game in app.libraryGames where !game.appIconPending && !appIconsInFlight.contains(game.id) {
             guard let app = installedApp(game) else { continue }
             let writer = Self.appIconWriter
@@ -127,9 +128,15 @@ final class AppIconModel: ObservableObject {
             let hasOriginal = writer.hasOriginalIcon(app, key: iconKey(game))
             let wantsIcon = game.wantsPickedAppIcon(hasPick: hasPick, hasOriginalIcon: hasOriginal)
                 || game.wantsAutomaticAppIcon(hasPick: hasPick, hasOriginalIcon: hasOriginal)
-            if wantsIcon != writer.showsWrittenIcon(app) {
-                updateAppIconState(game) { $0.appIconPending = true }
-            }
+            if wantsIcon != writer.showsWrittenIcon(app) { waiting.insert(game.id) }
+        }
+        if !waiting.isEmpty {
+            // One save for all: each save rewrites and checks the whole catalog.
+            do {
+                app.applyCatalog(try app.catalogRepository.updateNXNativeGames { games in
+                    for index in games.indices where waiting.contains(games[index].id) { games[index].appIconPending = true }
+                })
+            } catch { app.reportCatalogFailure(error) }
         }
         syncPendingAppIcons()
     }
