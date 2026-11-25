@@ -1,6 +1,6 @@
 # Development and releases
 
-This guide covers building Arcane itself. For app setup, game preparation and daily use, start with the [user guide](../../README.md). Read [AGENTS.md](../../AGENTS.md) before changing engine integration or installation behaviour.
+This guide covers building Oort NX itself. For app setup, game preparation and daily use, start with the [user guide](../../README.md). Read [AGENTS.md](../../AGENTS.md) before changing engine integration or installation behaviour.
 
 ## Development prerequisites
 
@@ -147,9 +147,7 @@ For manual setup checks on an existing account, use **Settings → Start-up → 
 
 ### Continuous integration
 
-The [Checks workflow](../../.github/workflows/ci.yml) runs publication checks and their regressions, Swift tests, all `Tests/CatalogAppChecks/run_*.py` headless regressions, Release compilation, development-app packaging and signature verification on the `xcode-27` runner. Pull requests from forks stay off that runner and receive the hosted publication checks instead. The checkout action is pinned, repository permissions are read-only and credentials are not retained by checkout. It does not publish releases or run the UI, games or engine builds.
-
-The engine-log-fragment test skips when `~/nxnative` is absent. A private CI run completed with **703 Swift tests reported: 702 passed and one skipped**, plus five Python checks. It verifies frontend packaging without the bundled game runtime; it does not replace the runtime check or the engine compatibility gate.
+The [Checks workflow](../../.github/workflows/ci.yml) uses the GitHub-hosted `xcode-27` runner for both `main` pushes and pull requests, including forks. It checks publication inputs, localization and Selene, then runs Python and Swift regressions, headless application checks and Release compilation. Checkout is pinned and does not retain credentials. Permissions are read-only; the workflow needs no secrets, self-hosted runners, packaging or publishing. It does not run the UI or games or certify the engine.
 
 ### Manual checks
 
@@ -198,17 +196,17 @@ Oort NX utilise son propre `MAJOR.MINOR.PATCH` : **PATCH** pour les correctifs s
 2. Dans le dépôt du lanceur, inscrire `0.3.0` dans `VERSION`, préparer les notes à partir du [modèle FR](perso-release-notes.md), valider et commiter sur un arbre propre. Préparer `work/Runtime` avec `scripts/bundle_runtime.sh`, puis vérifier ZIP, DMG et plist sans publier :
 
    ~~~sh
-   DM_NEXTENDO_CLIENT_ID=nxc_G33XSxgJwhk9 bash scripts/release.sh 0.3.0 \
+   DM_NEXTENDO_CLIENT_ID="$YOUR_PUBLIC_NEXTENDO_CLIENT_ID" bash scripts/release.sh 0.3.0 \
      --engine-repo https://github.com/sofianbll/nxnative \
      --engine-commit 46612553ee409a7f42549d0533cb76655e72cd77
    ~~~
 
-   Pour la publication perso, passer `DM_NEXTENDO_CLIENT_ID=nxc_G33XSxgJwhk9` aux deux commandes : le build inscrit cet identifiant public dans `DMNextendoClientID` dans le plist de l’app. Ne pas fournir de secret Nextendo. Le script refuse un SHA qui n'est pas accessible depuis une branche du dépôt. Sans les deux options moteur, la build conserve le dépôt et le pin amont.
+   Pour la publication perso, passer `DM_NEXTENDO_CLIENT_ID="$YOUR_PUBLIC_NEXTENDO_CLIENT_ID"` aux deux commandes : le build inscrit cet identifiant public dans `DMNextendoClientID` dans le plist de l’app. Ne pas fournir de secret Nextendo. Le script refuse un SHA qui n'est pas accessible depuis une branche du dépôt. Sans les deux options moteur, la build conserve le dépôt et le pin amont.
 
 3. Après validation et accord de publication, placer le commit de release sur `main` dans le dépôt public et refaire la même build avec les notes approuvées. Le script résout le nom public depuis `sofianbll/NxLibrary` et accepte uniquement ce nom ou `sofianbll/oort-nx`. L’envoi d’`origin` doit viser ce même dépôt pour le tag `vX.Y.Z` et la release. Publier le pont en conservant le nom actuel : la 0.2.1.20261129 ne saura pas mettre à jour depuis le nouveau nom. Les notes peuvent rester hors du dépôt ; le script y ajoute le dépôt et le SHA embarqués et les métadonnées Xcode/moteur.
 
    ~~~sh
-   DM_NEXTENDO_CLIENT_ID=nxc_G33XSxgJwhk9 bash scripts/release.sh 0.3.0 \
+   DM_NEXTENDO_CLIENT_ID="$YOUR_PUBLIC_NEXTENDO_CLIENT_ID" bash scripts/release.sh 0.3.0 \
      --engine-repo https://github.com/sofianbll/nxnative \
      --engine-commit 46612553ee409a7f42549d0533cb76655e72cd77 \
      --publish --notes "$HOME/oort-nx-0.3.0.md"
@@ -220,7 +218,7 @@ Oort NX utilise son propre `MAJOR.MINOR.PATCH` : **PATCH** pour les correctifs s
 
 The first public alpha uses the existing `local.nxlibrary` bundle identity and ad-hoc signing, without notarisation. Developer ID distribution will need signing-identity verification and notarisation. Updates verify GitHub's SHA-256 digest and the sealed app signature; ad-hoc signatures do not independently identify the publisher.
 
-The fork updater uses `sofianbll/NxLibrary` directly, with anonymous public access. No separate download repository or login is needed for users. Release copies update themselves; source builds remain excluded. `release.sh --publish` requires the configured repository to be public. ZIP downloads are limited to 512 MiB, restricted to GitHub's HTTPS download hosts and checked against the published size and digest. The bundled Python checks paths, symlinks, duplicates, special files and a 30,000-entry limit, then extracts using bounded raw decompression with a 2 GiB total limit. It verifies actual output size and CRC rather than trusting ZIP size fields. Release packaging uses this same extraction path and verifies the extracted bundle signature; ZIPs omit Finder metadata sidecars.
+From 0.4.0 the updater uses `sofianbll/oort-nx` directly, with anonymous public access. Copies up to 0.3.0 check `sofianbll/NxLibrary`, where the same files of 0.4.0 are published. No separate download repository or login is needed for users. Release copies update themselves; source builds remain excluded. `release.sh --publish` requires the configured repository to be public. ZIP downloads are limited to 512 MiB, restricted to GitHub's HTTPS download hosts and checked against the published size and digest. The bundled Python checks paths, symlinks, duplicates, special files and a 30,000-entry limit, then extracts using bounded raw decompression with a 2 GiB total limit. It verifies actual output size and CRC rather than trusting ZIP size fields. Release packaging uses this same extraction path and verifies the extracted bundle signature; ZIPs omit Finder metadata sidecars.
 
 ### First installation and A → B update test
 
@@ -254,7 +252,7 @@ For component interactions, read the [architecture guide](../how-it-works/archit
 
 ### Localization resources
 
-SwiftPM processes the shared string catalog into `NXLibrary_NXLibraryCore.bundle`. `build_app.sh` requires and copies that bundle into `Contents/Resources`, declares the six supported app languages and validates the compiled strings/plurals before signing. `scripts/check_localizations.py --app <path.app>` verifies the same resources independently. Missing resources or placeholder mismatches fail packaging. Locale selection is independent from each game's DM_LANG setting.
+SwiftPM processes the shared string catalog into `NXLibrary_NXLibraryCore.bundle`. `build_app.sh` requires and copies that bundle into `Contents/Resources`, declares the seven supported app languages and validates the compiled strings/plurals before signing. `scripts/check_localizations.py --app <path.app>` verifies the same resources independently. Missing resources or placeholder mismatches fail packaging. Locale selection is independent from each game's DM_LANG setting.
 
 ### Isolated launcher-development data
 

@@ -24,7 +24,7 @@ final class ArcaneNameTests: XCTestCase {
     }
 
     func testUserAgentNamesArcane() {
-        XCTAssertEqual(AppIdentity.userAgent(version: "0.2"), "Arcane/0.2 (macOS; +https://github.com/Bium23/NxLibrary)")
+        XCTAssertEqual(AppIdentity.userAgent(version: "0.2"), "Arcane/0.2 (macOS; +https://github.com/sofianbll/oort-nx)")
     }
 
     func testProjectDocsOpenTheReadmeOnlineOnEveryMac() {

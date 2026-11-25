@@ -1,8 +1,13 @@
-NX Library
+Oort NX
 Copyright (c) 2026 bium
 
-This product includes and is built on work from the following MIT projects.
-The MIT permission notice is reproduced for each project below.
+Oort NX is maintained independently of Arcane by Bium23. The Arcane MIT
+licence and copyright remain in LICENSE. See the Selene notices below for
+Matthew Silva’s theme. Josef Nemec’s Playnite is an inspiration for the artwork
+picker; no Playnite code import is claimed. Thanks to the Nextendo contributors
+(https://github.com/eyasbzour/nxnative-online) for the optional community service.
+
+The MIT permission notice is reproduced for the MIT components listed below.
 
 --------------------------------------------------------------------------------
 rclone (optional download from upstream; no binary is included)
@@ -37,7 +42,8 @@ itself, not every dependency; see the linked vendor sources and notices.
 --------------------------------------------------------------------------------
 nxnative
 https://github.com/seedds/nxnative
-Pinned engine commit: 461a5f9f95fc9fc40a690bb2a82eb23f1f03bdca
+The source default pin is 99224562; release builds can select a separately tested
+repository and commit recorded in the app’s Info.plist. nxnative is not bundled.
 
 MIT License
 
@@ -124,12 +130,12 @@ SOFTWARE.
 
 No Nintendo games, keys, fonts, sounds, or other Nintendo game assets are
 included. Only the two reviewed Nintendo Switch platform symbols are included as
-identifiers. NX Library is not affiliated with, endorsed by, or sponsored by Nintendo.
+identifiers. Oort NX is not affiliated with, endorsed by, or sponsored by Nintendo.
 
 Steam games are identified by name with the Steam symbol.
 ©2026 Valve Corporation. Steam and the Steam logo are trademarks and/or
 registered trademarks of Valve Corporation in the U.S. and/or other countries.
-NX Library is not affiliated with, endorsed by, or sponsored by Valve.
+Oort NX is not affiliated with, endorsed by, or sponsored by Valve.
 
 Platform and support symbols are used only as identifiers and do not imply
 endorsement. Nintendo Switch and Nintendo Switch 2 are marks of Nintendo Co., Ltd.;
@@ -146,7 +152,7 @@ Resources/Selene/NOTICE-palettes.txt, which ship inside the app bundle.
 
 The four packs of synthesized interface cues in Resources/SoundPacks are declared
 CC0-1.0 in their manifests: https://creativecommons.org/publicdomain/zero/1.0/
-Platform icon adapted from SVG Repo (https://www.svgrepo.com), CC0 / Open Vector License.
+Platform icon adapted from SVG Repo (https://www.svgrepo.com); exact work and licence are not confirmed.
 
 --------------------------------------------------------------------------------
 Bundled runtime (Contents/Resources/Runtime, from scripts/bundle_runtime.sh)
@@ -160,7 +166,7 @@ Bundled runtime (Contents/Resources/Runtime, from scripts/bundle_runtime.sh)
 - fontTools 4.67.0: MIT.
 - zbic 1.0.1.post1 (https://github.com/kinnay/zbic, with zstd code from
   Atmosphère): GPLv2. Its complete source ships beside it in Runtime/sources/,
-  and NX Library calls it as a separate Python module.
+  and Oort NX calls it as a separate Python module.
 - nsz 5.0.0 (NSZ / XCZ inputs): MIT. Includes Mplus 1p Medium 1.061,
   Copyright 2016 The M+ Project Authors, SIL Open Font License 1.1; the text
   is alongside the font in site-packages/nsz/gui/fonts/OFL.txt.
@@ -186,6 +192,6 @@ follows LumaNX's scripts/bundle_runtime.py (https://github.com/Xc1Ym/LumaNX, MIT
 Optional online artwork source: Switch Icon Showdown
 https://www.switchiconshowdown.com/
 Images are fetched only at runtime when source access permits, attributed in the
-artwork picker, and are not distributed with NX Library. Artwork rights remain
+artwork picker, and are not distributed with Oort NX. Artwork rights remain
 with their respective owners. The Swift resolver is an independent implementation;
 no source from the GPL-licensed Fritchii icon_search.cpp is included.

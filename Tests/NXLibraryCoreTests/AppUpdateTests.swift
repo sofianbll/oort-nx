@@ -114,7 +114,7 @@ final class AppUpdateTests: XCTestCase {
     }
 
     func testDownloadSourceIsPublicProjectRepository() {
-        XCTAssertEqual(AppUpdate.defaultRepository, "sofianbll/NxLibrary")
+        XCTAssertEqual(AppUpdate.defaultRepository, "sofianbll/oort-nx")
     }
 
     func testRejectsReleaseWithoutDigest() throws {
@@ -172,7 +172,7 @@ final class AppUpdateTests: XCTestCase {
     func testForkReleaseAcceptsOnlyTheTwoExactRepositorySpellings() throws {
         let fork = try XCTUnwrap(AppUpdate.defaultRepository)
         let successor = try XCTUnwrap(AppUpdate.successorRepository)
-        XCTAssertEqual(successor, "sofianbll/oort-nx")
+        XCTAssertEqual(successor, "sofianbll/NxLibrary")
         for (assetRepository, accepted) in [(fork, true), (successor, true),
                                             ("SomeoneElse/oort-nx", false), ("sofianbll/Oort-NX", false),
                                             ("Sofianbll/oort-nx", false), ("sofianbll/nxlibrary", false)] {

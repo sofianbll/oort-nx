@@ -1,22 +1,25 @@
 name: Bug report
-description: Report a reproducible problem in NX Library.
+description: Describe a reproducible problem in Oort NX.
+title: "[Bug] "
+labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        For security vulnerabilities, read SECURITY.md first.
-        Do not attach keys, games, personal configuration or raw logs.
+        Report a vulnerability or leak [privately](https://github.com/sofianbll/oort-nx/security/advisories/new).
+        Do not attach keys, games, saves, personal information or raw logs.
   - type: input
     id: version
     attributes:
-      label: App and macOS versions
+      label: Oort NX and macOS versions
+      description: Include your engine version or commit if it matters.
     validations:
       required: true
   - type: textarea
     id: steps
     attributes:
       label: Steps to reproduce
-      description: Include the operation and the smallest sequence that triggers it.
+      description: Name the source (Oort NX, nxnative, Nextendo, Steam or unknown). Use the fewest steps and synthetic data.
     validations:
       required: true
   - type: textarea
@@ -29,4 +32,4 @@ body:
     id: diagnostics
     attributes:
       label: Reviewed diagnostics
-      description: Copy diagnostics from the app, then review and remove personal details before pasting.
+      description: Only the failing step, error code and Xcode or Metal version if relevant. No full diagnostics, paths, commands or screenshots.

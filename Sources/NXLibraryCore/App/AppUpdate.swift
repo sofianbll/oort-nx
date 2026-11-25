@@ -17,11 +17,12 @@ import Darwin
 /// - A failure anywhere leaves a working app where it was.
 public enum AppUpdate {
     /// Public release source. Development copies still never replace themselves.
-    public static let defaultRepository: String? = "sofianbll/NxLibrary"
+    public static let defaultRepository: String? = "sofianbll/oort-nx"
     /// A UserDefaults override of `defaultRepository`, for testing before publishing.
     public static let repositoryOverrideKey = "NXLibrary_UpdateRepository"
-    /// GitHub keeps answering the old release API but returns asset URLs under the new name.
-    public static let successorRepository: String? = "sofianbll/oort-nx"
+    /// The other repository that may serve the same release. Copies up to 0.3.0 check NxLibrary, where 0.4.0 is
+    /// published too; from 0.4.0 they check oort-nx.
+    public static let successorRepository: String? = "sofianbll/NxLibrary"
     /// The Info.plist key that marks a release copy.
     public static let releaseMarker = "NXLibraryRelease"
     static let interval: TimeInterval = 24 * 3600
