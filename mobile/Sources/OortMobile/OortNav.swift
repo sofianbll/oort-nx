@@ -6,7 +6,7 @@ import SwiftUI
 enum OortTab: String, CaseIterable, Hashable { case home, library, controllers, settings }
 
 enum OortRoute: Hashable {
-    case game(String), options(String), cheats(String), mapping(String?), padTest, activity, credits
+    case game(String), options(String), cheats(String), mapping(String?), padTest, activity, credits, notices
 }
 
 /// Which screen is open, which one the controller drives, and whether the player is on it now.

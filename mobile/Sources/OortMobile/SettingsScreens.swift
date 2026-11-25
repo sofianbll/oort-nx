@@ -55,7 +55,7 @@ struct SettingsScreen: View {
                         kind: .choice(OortSounds.packs.map { SettingOption($0, $0.capitalized) }, sounds.pack) { sounds.pack = $0; sounds.play(.success) }),
             ]),
             OortSection(id: "about", title: "Oort NX", rows: [
-                OortRow(id: "version", title: Oort.text("Version"), value: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—", symbol: "info.circle"),
+                OortRow(id: "version", title: Oort.text("Version"), value: Oort.version, symbol: "info.circle"),
                 OortRow(id: "credits", title: Oort.text("Thanks and licences"), symbol: "heart", kind: .open(.credits)),
             ]),
         ]
@@ -93,8 +93,12 @@ struct CreditsScreen: View {
                 OortRow(id: "nx2apple", title: "NX2Apple", note: Oort.text("LNPANDY and contributors, MIT. The library of installed games, their settings, saves, cheats and controllers, and the way a game starts.")),
                 OortRow(id: "nxnative", title: "nxnative", note: Oort.text("seedds, MIT. The engine inside each game.")),
                 OortRow(id: "d2r", title: "d2r-mobile", note: Oort.text("jhaizhou, MIT. Where nxnative began.")),
+                OortRow(id: "selene", title: "Selene", note: Oort.text("Matthew Silva, MIT. The theme Oort NX's look and sounds grew from.")),
             ]),
-            OortSection(id: "notice", title: Oort.text("Licence"), rows: [OortRow(id: "mit", title: "MIT", note: Self.licence)]),
+            OortSection(id: "notice", title: Oort.text("Licence"), rows: [
+                OortRow(id: "notices", title: Oort.text("Every notice, in full"), symbol: "doc.text", kind: .open(.notices)),
+                OortRow(id: "mit", title: "MIT", note: Self.licence),
+            ]),
         ]) { EmptyView() }
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -106,6 +110,7 @@ struct CreditsScreen: View {
     Copyright (c) 2026 jhaizhou
     Copyright (c) 2026 LNPANDY and NX2Apple contributors
     Copyright (c) 2026 bium
+    Copyright (c) 2026 Matthew Silva
 
     Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -113,4 +118,41 @@ struct CreditsScreen: View {
 
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     """
+}
+
+/// The repository's LICENSE and NOTICE files, as shipped in the app.
+struct NoticesScreen: View {
+    let model: ShellHostModel
+    let nav: OortNav
+    @State private var texts: [String] = []
+
+    var body: some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: SeleneTokens.Space.medium) {
+                ForEach(Array(texts.enumerated()), id: \.offset) { Text($1).frame(maxWidth: .infinity, alignment: .leading) }
+            }
+            .font(.footnote)
+            .foregroundStyle(Oort.ink)
+            .textSelection(.enabled)
+            .frame(maxWidth: 780, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(SeleneTokens.Space.panel)
+        }
+        .background(Oort.page)
+        .navigationTitle(Oort.text("Every notice, in full"))
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+        #endif
+        .task { texts = Self.read(from: .main) }
+        .oortInput(model, nav) { _ in false }
+    }
+
+    /// One paragraph at a time, so a screen reader and the list do not take the whole file at once.
+    static func read(from bundle: Bundle) -> [String] {
+        ["LICENSE", "NOTICE", "NOTICE.txt"].compactMap { bundle.url(forResource: $0, withExtension: nil) }
+            .compactMap { try? String(contentsOf: $0, encoding: .utf8) }
+            .flatMap { $0.components(separatedBy: "\n\n") }
+            .map { $0.trimmingCharacters(in: CharacterSet(charactersIn: "-=").union(.whitespacesAndNewlines)) }
+            .filter { !$0.isEmpty }
+    }
 }

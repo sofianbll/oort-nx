@@ -1,0 +1,42 @@
+# The app and its tests on the simulator. Built by mobile/scripts/test_app.sh.
+name: OortNXTests
+include:
+  - path: ${OORT_MOBILE}/App/project.yml
+    relativePaths: false
+targets:
+  DmGame:
+    type: framework
+    platform: iOS
+    sources:
+      - path: ${OORT_MOBILE}/UITests/FakeGame
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: io.github.sofianbll.oortnx.inventedgame
+      GENERATE_INFOPLIST_FILE: YES
+      CLANG_ENABLE_OBJC_ARC: YES
+      HEADER_SEARCH_PATHS: ${OORT_MOBILE}/App
+  OortUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: ${OORT_MOBILE}/UITests/OortUITests.swift
+      - path: ${OORT_MOBILE}/Capture/CaptureGames.swift
+      # The app's own words, to find what they name.
+      - path: ${OORT_MOBILE}/Sources/OortMobile/Resources/Localizable.xcstrings
+    dependencies:
+      - target: OortNX
+      - target: DmGame
+        embed: true
+        link: false
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: io.github.sofianbll.oortnx.uitests
+      GENERATE_INFOPLIST_FILE: YES
+      SWIFT_VERSION: "5.0"
+      TEST_TARGET_NAME: OortNX
+schemes:
+  OortUITests:
+    build:
+      targets: {OortNX: all, DmGame: all, OortUITests: all}
+    run: {config: Release}
+    test:
+      config: Release
+      targets: [OortUITests]

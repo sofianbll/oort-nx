@@ -80,6 +80,7 @@ public struct OortRootView: View {
                 case .padTest: PadTestScreen(model: model, nav: nav)
                 case .activity: ActivityScreen(model: model, nav: nav)
                 case .credits: CreditsScreen(model: model, nav: nav)
+                case .notices: NoticesScreen(model: model, nav: nav)
                 }
             }
         }

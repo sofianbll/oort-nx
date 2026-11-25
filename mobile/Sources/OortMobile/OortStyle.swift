@@ -29,6 +29,11 @@ enum Oort {
     static let tile = SeleneTokens.Radius.card
     static let key = SeleneTokens.Radius.field
 
+    /// The version the player reads: the app's number, with its stage.
+    static var version: String {
+        let info = Bundle.main.infoDictionary ?? [:]
+        return info["OortVersion"] as? String ?? info["CFBundleShortVersionString"] as? String ?? "—"
+    }
     static func text(_ key: String.LocalizationValue) -> String { String(localized: key, bundle: .module) }
     static func dots(_ reduced: Bool) -> Animation? {
         reduced ? nil : .timingCurve(0.22, 1, 0.36, 1, duration: SeleneTokens.Motion.slow)

@@ -16,6 +16,13 @@ targets:
       - path: ${OORT_MOBILE}/App
         excludes: ["project.yml", "*.sh"]
       - path: ${OORT_MOBILE}/../Resources/AppIcon.icon
+      # Read in Settings, Thanks and licences.
+      - path: ${OORT_MOBILE}/../LICENSE
+        buildPhase: resources
+      - path: ${OORT_MOBILE}/../NOTICE
+        buildPhase: resources
+      - path: ${OORT_MOBILE}/../Resources/Selene/NOTICE.txt
+        buildPhase: resources
     dependencies:
       - package: OortMobile
         products: [OortMobile, ShellHost]
@@ -26,6 +33,8 @@ targets:
         CFBundleLocalizations: [en, fr]
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        # What the player reads; CFBundleShortVersionString holds numbers only.
+        OortVersion: $(OORT_VERSION)
         UILaunchScreen: {}
         UIFileSharingEnabled: true
         LSSupportsOpeningDocumentsInPlace: true
@@ -54,8 +63,9 @@ targets:
       PRODUCT_BUNDLE_IDENTIFIER: io.github.sofianbll.oortnx.mobile
       PRODUCT_NAME: Oort NX
       PRODUCT_MODULE_NAME: OortNX
-      MARKETING_VERSION: 0.5.0
+      MARKETING_VERSION: 0.1.0
       CURRENT_PROJECT_VERSION: 1
+      OORT_VERSION: 0.1.0-alpha.1
       CODE_SIGN_STYLE: Automatic
       ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
       TARGETED_DEVICE_FAMILY: "1,2"

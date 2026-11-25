@@ -407,6 +407,8 @@ struct EmptyLibrary: View {
                 Text(Oort.text("No game here yet")).font(.largeTitle.bold()).foregroundStyle(Oort.ink).accessibilityAddTraits(.isHeader)
                 Text(Oort.text("Build a game with Oort NX on your Mac, then add its folder here or send it with a cable. Your games, saves and settings stay on this device."))
                     .foregroundStyle(Oort.ink2).frame(maxWidth: 420, alignment: .leading)
+                Text(Oort.text("This is an early version: Oort NX for Mac does not build games for iPhone and iPad yet."))
+                    .foregroundStyle(Oort.ink2).frame(maxWidth: 420, alignment: .leading)
                 Button { nav.importing = true } label: { Label(Oort.text("Add a game"), systemImage: "plus") }
                     .buttonStyle(OortKeyStyle(solid: true, focused: nav.device != nil))
             }

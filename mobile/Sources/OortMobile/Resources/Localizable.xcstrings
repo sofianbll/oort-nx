@@ -1,6 +1,24 @@
 {
  "sourceLanguage": "en",
  "strings": {
+    "This is an early version: Oort NX for Mac does not build games for iPhone and iPad yet." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "This is an early version: Oort NX for Mac does not build games for iPhone and iPad yet." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "C’est une première version : Oort NX pour Mac ne compile pas encore de jeu pour iPhone et iPad." } }
+      }
+    },
+    "Matthew Silva, MIT. The theme Oort NX's look and sounds grew from." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Matthew Silva, MIT. The theme Oort NX's look and sounds grew from." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Matthew Silva, MIT. Le thème dont viennent l’allure et les sons d’Oort NX." } }
+      }
+    },
+    "Every notice, in full" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Every notice, in full" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Toutes les mentions, en entier" } }
+      }
+    },
     "Sort" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Sort" } },

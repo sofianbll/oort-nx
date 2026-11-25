@@ -11,6 +11,7 @@ targets:
     platform: iOS
     sources:
       - path: ${OORT_MOBILE}/Capture/CaptureApp.swift
+      - path: ${OORT_MOBILE}/Capture/CaptureGames.swift
       - path: ${OORT_MOBILE}/Tests/ShellHostTests/TestDefaults.swift
     dependencies:
       - package: OortMobile

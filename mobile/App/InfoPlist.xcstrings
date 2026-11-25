@@ -1,0 +1,12 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "NSPhotoLibraryAddUsageDescription" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Saves a game's icon to Photos, so you can put it on the Home Screen." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Enregistre l’icône d’un jeu dans Photos, pour la mettre sur l’écran d’accueil." } }
+      }
+    }
+  },
+  "version" : "1.0"
+}
