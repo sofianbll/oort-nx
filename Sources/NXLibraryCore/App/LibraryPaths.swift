@@ -13,7 +13,8 @@ public struct LibraryPaths {
         "activity-results.json", "build-queue.json", "cloud-transfer-queue.json",
     ]
     /// While this is there, an interrupted removal still has to be undone against the catalog as written.
-    static let removalJournal = "catalog-removal-pending.json"
+    package static let removalJournal = "catalog-removal-pending.json"
+    package static let inheritedRemoval = "catalog-removal-from-previous-library.json"
     private static let maximumBytes = 64 * 1024 * 1024
 
     let old: URL

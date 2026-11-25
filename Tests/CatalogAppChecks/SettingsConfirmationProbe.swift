@@ -216,18 +216,18 @@ import ArcanePorting
         model.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: nil)
         let input = Input(viewModel: vm)
 
-        func render<V: View>(_ name: String, _ view: V, height: CGFloat = 690) throws {
+        func render<V: View>(_ name: String, _ view: V, height: CGFloat = 690, context: AppLocale? = nil) throws {
             let renderer = ImageRenderer(content: view
                 .frame(width: 1140, height: height)
                 .background(Color(red: 0.09, green: 0.13, blue: 0.20))
-                .environment(\.nxAppLocale, locale)
+                .environment(\.nxAppLocale, context ?? locale)
                 .environment(\.seleneButtonNames, .xbox)
                 .environment(\.colorScheme, .dark)
                 .environment(\.seleneCanvas, SeleneCanvas(size: .init(width: 1920, height: 1080)))
                 .environment(\.seleneReduceMotion, true))
             let image = renderer.cgImage!
             let png = NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:])!
-            try png.write(to: output.appendingPathComponent("confirm-\(name)-fr.png"))
+            try png.write(to: output.appendingPathComponent("confirm-\(name)-\(context?.language.rawValue ?? "fr").png"))
         }
 
         func confirm(_ name: String, _ open: () -> Void, count: () -> Int) throws {
@@ -265,6 +265,15 @@ import ArcanePorting
         cloud.setEnabled(false)
         precondition(model.preference.enabled && cloudWrites == 0 && settings.editingSettings.launcherChoices.cloudActivation?.enabled == false)
         try settings.commitDraft()
+        for language in [locale, AppLocale(language: .english, region: "US")] {
+            L10n.setContext(language)
+            vm.alertMessage = DevelopmentStartup.libraryMoveNotice(removal: true, pendingBuild: true)
+            input.presentLegacyNotice()
+            try render("previous-library", input.settingsNoticeOverlay(vm.settingsNotice!), context: language)
+            input.settingsNoticeInput(.cancel)
+        }
+        L10n.setContext(locale)
+
         model.useSettingsActivation(settings.settings.launcherChoices.cloudActivation)
         precondition(!model.preference.enabled && cloudWrites == 1)
         cloud.setEnabled(true)

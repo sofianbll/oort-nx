@@ -6,5 +6,6 @@ extension AppDataProfile {
     /// Game apps folder.
     public func automaticStagingFolders(appFolders: [URL]) -> [URL] {
         BuildScratch.tempFolders(core: supportRoot, appFolders: isDevelopment ? [] : appFolders)
+            .filter { !LibraryMove.contains($0, in: legacySupportRoot) }
     }
 }
