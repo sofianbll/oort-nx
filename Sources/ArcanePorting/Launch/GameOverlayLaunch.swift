@@ -89,7 +89,7 @@ public struct GameOverlayLaunch {
 }
 
 /// Explicit display fields only: never encode the profile or Nextendo account models themselves.
-public struct GameOverlaySnapshot {
+public struct GameOverlaySnapshot: Sendable {
     public var profile: LocalProfile?
     public var color: UInt32?
     public var nextendoName: String?

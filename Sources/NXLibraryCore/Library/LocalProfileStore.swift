@@ -11,7 +11,7 @@ public enum ProfileStartup: Codable, Equatable, Sendable {
     }
 }
 
-public struct LocalProfile: Codable, Equatable, Identifiable {
+public struct LocalProfile: Codable, Equatable, Identifiable, Sendable {
     public static let avatarCount = 28
     public let id: UUID
     public var name: String
@@ -58,7 +58,7 @@ public struct LocalProfile: Codable, Equatable, Identifiable {
 
     private func digest(_ pin: String) -> Data { Data(SHA256.hash(data: Data((id.uuidString + pin).utf8))) }
 
-    public struct Look: Codable, Equatable {
+    public struct Look: Codable, Equatable, Sendable {
         public var theme: String
         public var wallpaper: String?
         public var settingsWallpaper: String?

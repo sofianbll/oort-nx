@@ -2,7 +2,7 @@ import Darwin
 import Foundation
 import NXLibraryCore
 
-public struct ImportedApp: Identifiable, Equatable {
+public struct ImportedApp: Identifiable, Equatable, Sendable {
     public var id: String { titleId ?? bundleId ?? appURL.path }
     public var name: String
     public var version: String?
@@ -194,7 +194,7 @@ public final class ImportService {
                          .contentModificationDate) ?? .distantPast)
     }
 
-    public struct Adoption {
+    public struct Adoption: Sendable {
         public let app: ImportedApp
         public let existing: PortedGame?
         public let destination: URL
@@ -205,7 +205,7 @@ public final class ImportService {
     }
 
     /// A hidden copy on the destination volume, ready for a single atomic publish.
-    public struct StagedAdoption {
+    public struct StagedAdoption: Sendable {
         public let plan: Adoption
         public let app: ImportedApp
         public let contentUnverified: Bool

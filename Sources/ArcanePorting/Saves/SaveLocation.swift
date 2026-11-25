@@ -2,7 +2,7 @@ import Foundation
 import Darwin
 import NXLibraryCore
 
-public enum SaveSlot: String, Codable, CaseIterable, Hashable {
+public enum SaveSlot: String, Codable, CaseIterable, Hashable, Sendable {
     case account, device, user2, user3, user4, user5, user6, user7, user8, users
 
     public static let legacyCases: [SaveSlot] = [.account, .device]
@@ -28,7 +28,7 @@ public struct SaveContext {
         if let cloudReason { throw SaveFailure.cloudEnabled(cloudReason) }
     }
 }
-public struct SaveLocation: Equatable {
+public struct SaveLocation: Equatable, Sendable {
     public let titleID: String
     public let root: URL
     /// Historical name: the users component is a regular registry file; the other components are directories.

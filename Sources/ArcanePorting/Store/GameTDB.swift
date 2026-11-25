@@ -3,7 +3,7 @@ import NXLibraryCore
 
 /// One Switch game in GameTDB (gametdb.com): what Arcane keeps from its
 /// English database for box covers and metadata.
-public struct GameTDBEntry: Codable, Equatable {
+public struct GameTDBEntry: Codable, Equatable, Sendable {
     /// GameTDB's id, the product code without HAC- ("AAAAA" is one retail title).
     public var id: String
     public var title: String

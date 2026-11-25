@@ -1,4 +1,5 @@
 import XCTest
+import Synchronization
 @testable import NXLibraryCore
 @testable import ArcanePorting
 
@@ -133,15 +134,15 @@ final class AvailableModsFinderTests: XCTestCase {
         page(Array(16...20), complete: true, number: 2)
         for id in 2...20 { profile(id, files: [(id * 10, ["romfs/a"])]) }
 
-        var ids: [Int] = []
-        let hasMore = try await finder(want: 12).load(gameID: 6376) { ids.append($0.id) }
-        XCTAssertEqual(ids, Array(2...13))
+        let ids = Mutex([Int]())
+        let hasMore = try await finder(want: 12).load(gameID: 6376) { mod in ids.withLock { $0.append(mod.id) } }
+        XCTAssertEqual(ids.withLock { $0 }, Array(2...13))
         XCTAssertTrue(hasMore)
         XCTAssertEqual(http.count("_nPage=2&"), 0)
 
-        ids = []
-        let hasEvenMore = try await finder(want: 24).load(gameID: 6376) { ids.append($0.id) }
-        XCTAssertEqual(ids, Array(2...20))
+        ids.withLock { $0 = [] }
+        let hasEvenMore = try await finder(want: 24).load(gameID: 6376) { mod in ids.withLock { $0.append(mod.id) } }
+        XCTAssertEqual(ids.withLock { $0 }, Array(2...20))
         XCTAssertFalse(hasEvenMore)
         XCTAssertEqual(http.count("_nPage=1&"), 1)
         XCTAssertEqual(http.count("_nPage=2&"), 1)

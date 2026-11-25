@@ -40,11 +40,12 @@ public struct URLSessionArtworkClient: ArtworkHTTPClient {
     }
 }
 
-public final class ArtworkStore: ObservableObject {
+public final class ArtworkStore: ObservableObject, Sendable {
     public let cacheDirectory: URL
     private let client: ArtworkHTTPClient
     private let automaticIcons: AutomaticIconResolver
-    private let fileManager: FileManager
+    // FileManager is thread-safe (Apple's documentation) without being Sendable; the reference never changes.
+    nonisolated(unsafe) private let fileManager: FileManager
     /// Steam games LaunchBox had no Square for, this session: not searched again until the next launch.
     private let steamIconMisses = OSAllocatedUnfairLock(initialState: Set<String>())
 

@@ -205,7 +205,7 @@ public struct CloudGameManifest: Codable, Equatable, Sendable {
 }
 
 public enum CloudArchiveError: LocalizedError, Equatable {
-    public enum UploadDifference: String {
+    public enum UploadDifference: String, Sendable {
         case added, removed, type, size, linkTarget, permissions, parentDirectory
     }
 
@@ -391,7 +391,7 @@ public actor CloudGameArchive {
         return statuses
     }
 
-    @MainActor public static func checkCatalogAvailability<Game>(_ games: [Game], titleID: (Game) -> String?,
+    @MainActor public static func checkCatalogAvailability<Game: Sendable>(_ games: [Game], titleID: (Game) -> String?,
                                                                 visit: (Game) async throws -> Void) async rethrows {
         for game in games {
             guard !Task.isCancelled else { return }

@@ -224,7 +224,7 @@ public final class GameBananaBandModel: ObservableObject {
             // filled in later, and the band shifted under the player's eyes.
             var waiting: [AvailableMod] = []
             do {
-                let hasMore = try await finder.load(gameID: id) { mod in
+                let hasMore = try await finder.load(gameID: id) { @MainActor mod in
                     guard let self, !Task.isCancelled else { return }
                     waiting.append(mod)
                     if self.available.isEmpty, waiting.count >= Self.firstGroup {
@@ -257,7 +257,7 @@ public final class GameBananaBandModel: ObservableObject {
         task = Task { [weak self] in
             do {
                 var added: [AvailableMod] = []
-                let hasMore = try await finder.load(gameID: id) { mod in
+                let hasMore = try await finder.load(gameID: id) { @MainActor mod in
                     if !seen.contains(mod.id) { added.append(mod) }
                 }
                 guard let self, await self.show(added) else { return }

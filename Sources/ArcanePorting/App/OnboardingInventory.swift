@@ -1,8 +1,8 @@
 import Foundation
 
 /// Local, read-only discovery. No key store, engine process, artwork provider or app installation.
-public struct OnboardingInventory {
-    public struct Entry: Identifiable {
+public struct OnboardingInventory: Sendable {
+    public struct Entry: Identifiable, Sendable {
         public let id: String
         public let name: String
         public var game: PortedGame?

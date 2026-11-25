@@ -14,7 +14,8 @@ let package = Package(
         .target(name: "OortCore", swiftSettings: [.swiftLanguageMode(.v6)]),
         .target(name: "NXLibraryCore", dependencies: ["OortCore"], path: "Sources/NXLibraryCore",
                 resources: [.process("Resources")], swiftSettings: [.swiftLanguageMode(.v6)]),
-        .target(name: "ArcanePorting", dependencies: ["NXLibraryCore"], path: "Sources/ArcanePorting"),
+        .target(name: "ArcanePorting", dependencies: ["NXLibraryCore"], path: "Sources/ArcanePorting",
+                swiftSettings: [.swiftLanguageMode(.v6)]),
         .executableTarget(
             name: "NXLibrary",
             dependencies: ["NXLibraryCore", "ArcanePorting"],

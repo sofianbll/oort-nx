@@ -3,7 +3,7 @@ import NXLibraryCore
 
 /// What this Arcane is tested with, in one place. An upgrade edits this
 /// table (and `AppViewModel.defaultPinnedEngineCommit`), never the Setup check's code.
-public struct ToolchainRequirements: Equatable {
+public struct ToolchainRequirements: Equatable, Sendable {
     /// The oldest Xcode the engine's Metal toolchain runs with.
     public var minimumXcode: String
     /// The certified Metal compiler before an engine exists to name one in its lock.

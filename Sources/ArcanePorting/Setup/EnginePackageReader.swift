@@ -1,7 +1,7 @@
 import Foundation
 import NXLibraryCore
 
-public struct PackageContent: Equatable {
+public struct PackageContent: Equatable, Sendable {
     public var kind: SourceKind
     public var titleId: UInt64
     public var version: Int?

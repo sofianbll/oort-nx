@@ -3,15 +3,15 @@ import AppKit
 import NXLibraryCore
 
 public protocol AppLaunching {
-    func open(_ url: URL, environment: [String: String], suppressInheritedPlayerMode: Bool, onExit: (() -> Void)?,
-              completion: @escaping (Bool, String?) -> Void)
+    func open(_ url: URL, environment: [String: String], suppressInheritedPlayerMode: Bool,
+              onExit: (@Sendable () -> Void)?, completion: @escaping @Sendable (Bool, String?) -> Void)
 }
 
 public final class NSWorkspaceLauncher: AppLaunching {
     public init() {}
 
-    public func open(_ url: URL, environment: [String: String], suppressInheritedPlayerMode: Bool, onExit: (() -> Void)?,
-                     completion: @escaping (Bool, String?) -> Void) {
+    public func open(_ url: URL, environment: [String: String], suppressInheritedPlayerMode: Bool,
+                     onExit: (@Sendable () -> Void)?, completion: @escaping @Sendable (Bool, String?) -> Void) {
         guard FileManager.default.fileExists(atPath: url.path) else {
             completion(false, "The app bundle is missing: \(url.path)")
             return
@@ -74,23 +74,28 @@ public final class NSWorkspaceLauncher: AppLaunching {
             .merging(explicit) { _, value in value }
     }
 
-    private static func watchExit(of app: NSRunningApplication, onExit: @escaping () -> Void) {
-        let center = NSWorkspace.shared.notificationCenter
+    @MainActor private final class ExitWatch {
         var observer: NSObjectProtocol?
-        func finish() {
+
+        func finish(_ onExit: () -> Void) {
             guard let token = observer else { return }
             observer = nil
-            center.removeObserver(token)
+            NSWorkspace.shared.notificationCenter.removeObserver(token)
             onExit()
         }
-        observer = center.addObserver(forName: NSWorkspace.didTerminateApplicationNotification,
-                                      object: nil, queue: .main) { note in
+    }
+
+    @MainActor private static func watchExit(of app: NSRunningApplication, onExit: @escaping @Sendable () -> Void) {
+        let watch = ExitWatch()
+        watch.observer = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didTerminateApplicationNotification, object: nil, queue: .main) { note in
             guard let ended = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
                   ended == app else { return }
-            finish()
+            // `queue: .main` runs this block on the main thread.
+            MainActor.assumeIsolated { watch.finish(onExit) }
         }
         // The process can exit before the open completion or observer registration.
-        if app.isTerminated { finish() }
+        if app.isTerminated { watch.finish(onExit) }
     }
 }
 
@@ -124,8 +129,8 @@ public final class LaunchService {
     public func launch(appURL: URL, environment: [String: String] = [:],
                        homeButton: InGameHomeButton = .auto,
                        overlay: GameOverlayLaunch? = nil, snapshot: GameOverlaySnapshot? = nil,
-                       players: PlayersLaunch? = nil, onExit: (() -> Void)? = nil,
-                       completion: @escaping (Bool, String?) -> Void) {
+                       players: PlayersLaunch? = nil, onExit: (@Sendable () -> Void)? = nil,
+                       completion: @escaping @Sendable (Bool, String?) -> Void) {
         launch(appURL: appURL, environment: environment, homeButton: homeButton, overlay: overlay, snapshot: snapshot,
                temporaryDirectory: FileManager.default.temporaryDirectory, players: players, onExit: onExit, completion: completion)
     }
@@ -133,8 +138,8 @@ public final class LaunchService {
     func launch(appURL: URL, environment: [String: String] = [:],
                 homeButton: InGameHomeButton = .auto,
                 overlay: GameOverlayLaunch?, snapshot: GameOverlaySnapshot?, temporaryDirectory: URL,
-                players: PlayersLaunch? = nil, onExit: (() -> Void)? = nil,
-                completion: @escaping (Bool, String?) -> Void) {
+                players: PlayersLaunch? = nil, onExit: (@Sendable () -> Void)? = nil,
+                completion: @escaping @Sendable (Bool, String?) -> Void) {
         var values = environment.merging(players?.additions ?? [:]) { explicit, _ in explicit }
         values.merge(Self.launchEnvironment) { _, fixed in fixed }
         values[GameOverlayLaunch.dataKey] = nil
@@ -143,17 +148,20 @@ public final class LaunchService {
         case .fullOverlay: "0"
         case .quickAccess: "1"
         }
-        var cleanup: (() -> Void)?
+        let cleanup: (@Sendable () -> Void)?
         if let overlay, let snapshot, let file = try? overlay.writeSnapshot(snapshot, in: temporaryDirectory) {
             values[GameOverlayLaunch.dataKey] = file.path
             cleanup = { try? FileManager.default.removeItem(at: file.deletingLastPathComponent()) }
+        } else {
+            cleanup = nil
         }
         let portraits = players?.portraitFiles
-        let afterExit: (() -> Void)? = (cleanup == nil && portraits == nil && onExit == nil) ? nil : {
+        let cleanThenReport: @Sendable () -> Void = {
             cleanup?()
             portraits?.clean()
             onExit?()
         }
+        let afterExit = (cleanup == nil && portraits == nil && onExit == nil) ? nil : cleanThenReport
         launcher.open(appURL, environment: values, suppressInheritedPlayerMode: players?.status.plan == .active,
                       onExit: afterExit) { success, error in
             if !success { cleanup?(); portraits?.clean() }

@@ -99,11 +99,11 @@ public struct NextendoAuthorization: Sendable {
     }
 }
 
-public struct NextendoOAuth {
+public struct NextendoOAuth: Sendable {
     // Use the same endpoint as nxnative for both authorization-code and refresh grants.
     private static let tokenEndpoint = URL(string: "https://nextendo.network/api/oauth/token")!
     public let store: NextendoTokenStore
-    private let send: (URLRequest) async throws -> (Data, URLResponse)
+    private let send: @Sendable (URLRequest) async throws -> (Data, URLResponse)
     private let onResult: @Sendable (NextendoCheckDiagnostic) -> Void
     private static let log = Logger(subsystem: "io.github.sofianbll.oortnx", category: "nextendo")
 
@@ -128,7 +128,7 @@ public struct NextendoOAuth {
 
     package init(store: NextendoTokenStore,
                  onResult: @escaping @Sendable (NextendoCheckDiagnostic) -> Void = { _ in },
-                 send: @escaping (URLRequest) async throws -> (Data, URLResponse)) {
+                 send: @escaping @Sendable (URLRequest) async throws -> (Data, URLResponse)) {
         self.store = store
         self.onResult = onResult
         self.send = send

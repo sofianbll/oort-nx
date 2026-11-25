@@ -2,7 +2,8 @@ import Foundation
 import NXLibraryCore
 
 /// One lease covers a whole save operation or app installation, including duplicate library entries.
-public final class SaveOperationGate {
+// @unchecked: `lock` guards every lease; `onActivityChange` is set once, before the gate is shared.
+public final class SaveOperationGate: @unchecked Sendable {
     private let lock = NSLock()
     private var leases: [String: UUID] = [:]
     private var recovery: Set<String> = []

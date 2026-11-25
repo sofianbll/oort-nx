@@ -88,7 +88,7 @@ public struct AvailableModsFinder: Sendable {
     }
 
     /// Yields the popular mods and installed entries; returns whether raising `want` can show more.
-    func load(gameID: Int, yield: (AvailableMod) async -> Void) async throws -> Bool {
+    func load(gameID: Int, yield: @Sendable (AvailableMod) async -> Void) async throws -> Bool {
         var shown: Set<Int> = []
         let (rank, hasMore) = try await scan(gameID: gameID) { mod in
             shown.insert(mod.id)

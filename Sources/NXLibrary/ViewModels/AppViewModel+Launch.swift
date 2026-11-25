@@ -310,7 +310,7 @@ extension AppViewModel {
                                      overlay: GameOverlayLaunch, snapshot: GameOverlaySnapshot,
                                      observe: PlayObserver?) {
         let evaluate = snapshot.profile.flatMap { localAchievementExit(for: game, profile: $0.id, environment: environment) }
-        let onExit: (() -> Void)? = if let observe {
+        let onExit: (@Sendable () -> Void)? = if let observe {
             { evaluate?(); DispatchQueue.main.async { observe(.exited) } }
         } else { evaluate }
         launchService.launch(appURL: game.url, environment: environment,
@@ -365,7 +365,7 @@ extension AppViewModel {
     }
 
     private func localAchievementExit(for game: PortedGame, profile: UUID,
-                                      environment: [String: String]) -> (() -> Void)? {
+                                      environment: [String: String]) -> (@Sendable () -> Void)? {
         guard !AppData.profile.isDevelopment, let pack = localAchievementPack(for: game, profile: profile),
               pack.matches(titleID: game.titleId, gameVersion: BuildOutputInstaller.version(of: game.url)),
               environment["HOME"] == nil,

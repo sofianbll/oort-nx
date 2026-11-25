@@ -16,10 +16,10 @@ public struct NextendoCheckDiagnostic: Equatable, Sendable {
     }
 }
 
-public struct NextendoAccountSnapshot {
-    public enum Presence: Equatable { case offline, online, playing }
+public struct NextendoAccountSnapshot: Sendable {
+    public enum Presence: Equatable, Sendable { case offline, online, playing }
 
-    public struct Friend: Identifiable, Equatable {
+    public struct Friend: Identifiable, Equatable, Sendable {
         public let id: UInt64
         public let name: String
         public let favorite: Bool
@@ -28,7 +28,7 @@ public struct NextendoAccountSnapshot {
         public let gameID: String?
     }
 
-    public struct Player: Identifiable, Equatable {
+    public struct Player: Identifiable, Equatable, Sendable {
         public let id: UInt64
         public let name: String
         public let friendCode: String?
@@ -68,7 +68,7 @@ public enum NextendoFriendError: Error, Equatable {
     case invalidCode, unknownCode, ownCode, listFull, failed
 }
 
-public struct NextendoAccountService {
+public struct NextendoAccountService: Sendable {
     private let oauth: NextendoOAuth
     private static let mediaGate = GameBananaGate(limit: 4)
 

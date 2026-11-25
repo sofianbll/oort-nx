@@ -1,4 +1,5 @@
 import XCTest
+import Synchronization
 @testable import NXLibraryCore
 @testable import ArcanePorting
 
@@ -174,9 +175,9 @@ final class LaunchServiceTests: XCTestCase {
         noSections.friends = []
         XCTAssertNil(try noSections.encoded())
         let environment = overlay.environment(palette: .fallback, playtime: nil, cover: nil, profilePlaytime: "20 h")
-        var exits = 0
+        let exits = Mutex(0)
         service.launch(appURL: app, environment: environment, overlay: overlay, snapshot: snapshot,
-                       temporaryDirectory: root, onExit: { exits += 1 }) { ok, _ in XCTAssertTrue(ok) }
+                       temporaryDirectory: root, onExit: { exits.withLock { $0 += 1 } }) { ok, _ in XCTAssertTrue(ok) }
         XCTAssertEqual(launcher.environment["DM_OVERLAY_PLAY_TIME"], "20 h")
         XCTAssertEqual(try Data(contentsOf: env), before)
         let path = try XCTUnwrap(launcher.environment["DM_OVERLAY_DATA"])
@@ -207,13 +208,13 @@ final class LaunchServiceTests: XCTestCase {
             XCTAssertEqual(process.terminationStatus, 0)
         }
         launcher.onExit?()
-        XCTAssertEqual(exits, 1)
+        XCTAssertEqual(exits.withLock { $0 }, 1)
         XCTAssertEqual(Set(try fm.contentsOfDirectory(atPath: root.path)), expectedChildren)
 
         launcher.shouldSucceed = false
         service.launch(appURL: app, overlay: overlay, snapshot: snapshot, temporaryDirectory: root,
-                       onExit: { exits += 1 }) { ok, _ in XCTAssertFalse(ok) }
-        XCTAssertEqual(exits, 1)
+                       onExit: { exits.withLock { $0 += 1 } }) { ok, _ in XCTAssertFalse(ok) }
+        XCTAssertEqual(exits.withLock { $0 }, 1)
         XCTAssertNotEqual(launcher.environment["DM_OVERLAY_DATA"], path)
         XCTAssertEqual(Set(try fm.contentsOfDirectory(atPath: root.path)), expectedChildren)
     }
@@ -246,14 +247,12 @@ final class LaunchServiceTests: XCTestCase {
         let env = try String(contentsOf: dir.appendingPathComponent("0100000000010000/env.txt"), encoding: .utf8)
         XCTAssertTrue(env.contains("DM_FPS_TARGET=30"))
         XCTAssertTrue(env.contains("DM_METAL_HUD=1"))
-        var launched = false
-        var launchError: String?
+        let answer = Mutex((launched: false, error: String?.none))
         service.launch(appURL: game.url, environment: ["DM_FPS_TARGET": "30"]) { success, error in
-            launched = success
-            launchError = error
+            answer.withLock { $0 = (success, error) }
         }
-        XCTAssertTrue(launched)
-        XCTAssertNil(launchError)
+        XCTAssertTrue(answer.withLock { $0.launched })
+        XCTAssertNil(answer.withLock { $0.error })
         XCTAssertEqual(launcher.opened, game.url)
         XCTAssertEqual(launcher.environment["DM_FPS_TARGET"], "30")
     }
@@ -308,14 +307,12 @@ final class LaunchServiceTests: XCTestCase {
         let launcher = FakeLauncher()
         launcher.shouldSucceed = false
         let service = LaunchService(launcher: launcher)
-        var launched = true
-        var launchError: String?
+        let answer = Mutex((launched: true, error: String?.none))
         service.launch(appURL: URL(fileURLWithPath: "/tmp/Missing.app")) { success, error in
-            launched = success
-            launchError = error
+            answer.withLock { $0 = (success, error) }
         }
-        XCTAssertFalse(launched)
-        XCTAssertEqual(launchError, "sample launch error")
+        XCTAssertFalse(answer.withLock { $0.launched })
+        XCTAssertEqual(answer.withLock { $0.error }, "sample launch error")
     }
 
     func testUnreadableEnvironmentIsKeptInsteadOfReplacingUnknownOptions() throws {

@@ -1,6 +1,6 @@
 import Foundation
 
-public enum ProfilePageCard: String, Codable, CaseIterable, Identifiable {
+public enum ProfilePageCard: String, Codable, CaseIterable, Identifiable, Sendable {
     case recent, achievements, friends, week, mostPlayed, resume, neverPlayed
 
     public var id: Self { self }
@@ -43,7 +43,7 @@ public enum ProfilePageCard: String, Codable, CaseIterable, Identifiable {
     }
 }
 
-public struct ProfilePageCards: Codable, Equatable {
+public struct ProfilePageCards: Codable, Equatable, Sendable {
     private var order = ProfilePageCard.allCases
     private var hidden: Set<ProfilePageCard> = []
 

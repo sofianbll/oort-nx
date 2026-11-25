@@ -1,4 +1,5 @@
 import XCTest
+import Synchronization
 @testable import ArcanePorting
 
 final class NextendoOAuthTests: XCTestCase {
@@ -41,7 +42,7 @@ final class NextendoOAuthTests: XCTestCase {
     func testExchangeThenRefreshUsesTheSameClientAndRotatesOnlyRefreshToken() async throws {
         let store = makeStore()
         let attempt = try NextendoAuthorization(clientID: "sample-client", port: 47823)
-        var grants: [[String: String]] = []
+        let grants = Mutex([[String: String]]())
         let client = NextendoOAuth(store: store) { request in
             XCTAssertEqual(request.url?.host, "nextendo.network")
             XCTAssertEqual(request.value(forHTTPHeaderField: "X-Nextendo-Client-Id"), "sample-client")
@@ -54,17 +55,17 @@ final class NextendoOAuthTests: XCTestCase {
             var form = URLComponents()
             form.percentEncodedQuery = try XCTUnwrap(String(data: XCTUnwrap(request.httpBody), encoding: .utf8))
             let fields = (form.queryItems ?? []).reduce(into: [String: String]()) { $0[$1.name] = $1.value }
-            grants.append(fields)
-            return self.reply(request, 200, #"{"access_token":"memory-only","refresh_token":"rotation-\#(grants.count)"}"#)
+            let count = grants.withLock { $0.append(fields); return $0.count }
+            return self.reply(request, 200, #"{"access_token":"memory-only","refresh_token":"rotation-\#(count)"}"#)
         }
         let name = try await client.signIn(attempt, code: "code+=&")
         XCTAssertEqual(name, "Test player")
-        XCTAssertEqual(grants.first, ["grant_type": "authorization_code", "code": "code+=&",
+        XCTAssertEqual(grants.withLock { $0.first }, ["grant_type": "authorization_code", "code": "code+=&",
                                       "client_id": "sample-client", "redirect_uri": "http://127.0.0.1:47823/callback",
                                       "code_verifier": attempt.verifier])
         let checked = try await client.accountName(clientID: "sample-client")
         XCTAssertEqual(checked, "Test player")
-        XCTAssertEqual(grants.last, ["grant_type": "refresh_token", "client_id": "sample-client", "refresh_token": "rotation-1"])
+        XCTAssertEqual(grants.withLock { $0.last }, ["grant_type": "refresh_token", "client_id": "sample-client", "refresh_token": "rotation-1"])
         XCTAssertEqual(try Data(contentsOf: store.directory.appendingPathComponent("refresh_token")), Data("rotation-2".utf8))
     }
 

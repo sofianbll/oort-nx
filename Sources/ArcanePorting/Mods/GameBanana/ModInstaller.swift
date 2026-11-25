@@ -23,7 +23,7 @@ public enum ModInstallError: Error, Equatable {
     }
 }
 
-public enum ModInstallResult: Equatable {
+public enum ModInstallResult: Equatable, Sendable {
     /// Installed and on.
     case on(String)
     /// An update of a mod the player had turned off: it stays off.

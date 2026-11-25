@@ -31,7 +31,8 @@ public struct BuildResult: Equatable {
     }
 }
 
-public final class BuildService {
+// @unchecked: `stateLock` guards the process and its callbacks, `ioQueue` owns the log, buffers and sleep assertion once it runs.
+public final class BuildService: @unchecked Sendable {
     /// A build reads only enabled patches, copied out of the live folders so later edits target the next build.
     public static func stageCodeMods(_ store: ModStore?, in temp: URL, engineSupportsMods: Bool) throws -> URL? {
         guard let store else { return nil }
@@ -93,9 +94,9 @@ public final class BuildService {
         tempApp: URL,
         finalApp: URL,
         expectedDestination: BuildOutputInstaller.DestinationExpectation? = nil,
-        holdInstall: @escaping () -> Bool = { false },
-        acquireInstall: @escaping () throws -> (() -> Void)? = { {} },
-        onInstalling: @escaping () -> Void = {},
+        holdInstall: @escaping @Sendable () -> Bool = { false },
+        acquireInstall: @escaping @Sendable () throws -> (() -> Void)? = { {} },
+        onInstalling: @escaping @Sendable () -> Void = {},
         eventHandler: @escaping (BuildEvent) -> Void,
         completion: @escaping (BuildResult) -> Void
     ) {
@@ -289,8 +290,8 @@ public final class BuildService {
     /// replacing the app under it can crash it).
     private func finish(proc: Process, logURL: URL, tempApp: URL, finalApp: URL,
                         expectedDestination: BuildOutputInstaller.DestinationExpectation,
-                        holdInstall: @escaping () -> Bool, acquireInstall: @escaping () throws -> (() -> Void)?,
-                        onInstalling: @escaping () -> Void,
+                        holdInstall: @escaping @Sendable () -> Bool, acquireInstall: @escaping @Sendable () throws -> (() -> Void)?,
+                        onInstalling: @escaping @Sendable () -> Void,
                         outputClosed: DispatchGroup) {
         // The process may exit before the last pipe callback. Finish only after
         // both streams reached EOF and all their queued bytes were consumed.

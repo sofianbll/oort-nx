@@ -10,7 +10,7 @@ public enum GameInbox {
         public var canRead: Bool { stamp != nil && ["nsp", "nsz", "xci", "xcz"].contains(url.pathExtension.lowercased()) }
     }
 
-    public struct Entry: Identifiable, Equatable {
+    public struct Entry: Identifiable, Equatable, Sendable {
         public var id: URL { source }
         public let source: URL
         public let destination: URL?

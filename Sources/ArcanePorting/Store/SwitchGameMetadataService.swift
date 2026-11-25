@@ -1,7 +1,7 @@
 import Foundation
 import NXLibraryCore
 
-public enum NintendoMetadataOrigin: String, Codable {
+public enum NintendoMetadataOrigin: String, Codable, Sendable {
     case europe = "Nintendo Europe"
     case titleDB = "Title DB"
     case europeAndTitleDB = "Nintendo Europe + Title DB"
@@ -11,7 +11,7 @@ public enum NintendoMetadataOrigin: String, Codable {
     case player = "Your choice"
 }
 
-public struct NintendoStoreMetadata: Codable, Equatable {
+public struct NintendoStoreMetadata: Codable, Equatable, Sendable {
     public var titleId: String
     public var name: String
     public var description: String

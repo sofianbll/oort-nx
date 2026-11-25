@@ -54,7 +54,7 @@ public enum ModStoreError: Error, Equatable {
 /// A game's RomFS and ExeFS mods share one ordered record. RomFS applies through `DM_ROMFS_OVERLAY` on Play;
 /// ExeFS builds use a snapshot of enabled patches; Play can switch the built group on or off together.
 /// Every change requires `canWrite`, and removed mods go to the Trash.
-public struct ModStore {
+public struct ModStore: Sendable {
     /// The Mac launcher reads `env.txt` lines into a 4096-byte buffer: `DM_ROMFS_OVERLAY=` (17) + value + newline
     /// must fit in 4095 (dm/mac/launcher.c `env_file`); the host keeps the value in `overlay[4096]`.
     public static let overlayLimit = 4077
@@ -63,12 +63,12 @@ public struct ModStore {
     public let supportFolder: URL
     public let recordsFile: URL
     public let titleID: String
-    private let canWrite: () -> Bool
+    private let canWrite: @Sendable () -> Bool
     private let allowsAutomaticMaintenance: Bool
-    private let trash: (URL) throws -> Void
+    private let trash: @Sendable (URL) throws -> Void
 
     public init(supportFolder: URL, recordsFile: URL, titleID: String,
-                canWrite: @escaping () -> Bool, trash: @escaping (URL) throws -> Void, allowsAutomaticMaintenance: Bool = true) {
+                canWrite: @escaping @Sendable () -> Bool, trash: @escaping @Sendable (URL) throws -> Void, allowsAutomaticMaintenance: Bool = true) {
         self.supportFolder = supportFolder
         self.recordsFile = recordsFile
         self.titleID = titleID.uppercased()

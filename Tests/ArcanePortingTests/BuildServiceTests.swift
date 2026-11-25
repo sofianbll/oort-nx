@@ -165,7 +165,7 @@ final class BuildServiceTests: XCTestCase {
             logURL: root.appendingPathComponent("build.log"), tempApp: staged, finalApp: final,
             onInstalling: {
                 XCTAssertFalse(service.cancel())
-                XCTAssertFalse(fm.fileExists(atPath: final.path))
+                XCTAssertFalse(FileManager.default.fileExists(atPath: final.path))
                 installing.fulfill()
             }, eventHandler: { _ in }, completion: {
                 XCTAssertTrue($0.success)
