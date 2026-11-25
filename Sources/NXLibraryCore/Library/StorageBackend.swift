@@ -27,7 +27,7 @@ public struct StorageObjectKey: Codable, Hashable, Sendable {
     public init(_ value: String) { self.value = value }
 }
 
-public struct StorageObject: Equatable, Codable, Sendable {
+public struct StorageObject: Hashable, Codable, Sendable {
     public let key: StorageObjectKey
     public let size: Int64
     /// Lowercase algorithm names (e.g. `sha256`, `md5`) and hexadecimal values.

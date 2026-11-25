@@ -1,3 +1,4 @@
+import Darwin
 import Foundation
 import Security
 
@@ -82,11 +83,46 @@ package struct CloudDriveScope: Codable, Equatable, Sendable {
 /// Keep one private config for an effect and its checks; never write refreshed credentials back over the user's file.
 package final class RcloneConfigSnapshot: Sendable {
     package let config: URL
+    private let lease: Int32
+    static let prefix = "arcane-rclone-config-"
+    private static let sweep = Task.detached(priority: .utility) { removeAbandoned(in: FileManager.default.temporaryDirectory) }
 
-    private init(config: URL) { self.config = config }
-    deinit { try? FileManager.default.removeItem(at: config.deletingLastPathComponent()) }
+    private init(config: URL) {
+        self.config = config
+        lease = Self.claim(config.deletingLastPathComponent())
+    }
+
+    deinit {
+        try? FileManager.default.removeItem(at: config.deletingLastPathComponent())
+        if lease >= 0 { close(lease) }
+    }
+
+    private static func claim(_ directory: URL) -> Int32 {
+        let fd = open(directory.path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
+        guard fd >= 0 else { return -1 }
+        if flock(fd, LOCK_EX | LOCK_NB) == 0 { return fd }
+        close(fd)
+        return -1
+    }
+
+    /// A copy whose owner is gone (a crash, a power cut) must not keep an account on disk. A living copy holds its lease;
+    /// the age spares one made by a version without leases.
+    static func removeAbandoned(in temporary: URL, olderThan age: TimeInterval = 3_600) {
+        let fm = FileManager.default
+        for url in (try? fm.contentsOfDirectory(at: temporary, includingPropertiesForKeys: nil)) ?? []
+            where url.lastPathComponent.hasPrefix(prefix) && UUID(uuidString: String(url.lastPathComponent.dropFirst(prefix.count))) != nil {
+            var info = stat()
+            guard lstat(url.path, &info) == 0, info.st_mode & S_IFMT == S_IFDIR, info.st_uid == geteuid(),
+                  Date.now.timeIntervalSince1970 - Double(info.st_mtimespec.tv_sec) >= age else { continue }
+            let fd = claim(url)
+            guard fd >= 0 else { continue }
+            try? fm.removeItem(at: url)
+            close(fd)
+        }
+    }
 
     package static func capture(executable: URL, config: URL?, run: RcloneConfiguration.Run) async throws -> RcloneConfigSnapshot {
+        _ = sweep
         let original: URL
         if let config {
             original = config
@@ -106,7 +142,7 @@ package final class RcloneConfigSnapshot: Sendable {
             }
             let contents = try Data(contentsOf: regularFile)
             let fm = FileManager.default
-            let directory = fm.temporaryDirectory.appendingPathComponent("arcane-rclone-config-\(UUID())")
+            let directory = fm.temporaryDirectory.appendingPathComponent("\(prefix)\(UUID())")
             try fm.createDirectory(at: directory, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
             let snapshot = RcloneConfigSnapshot(config: directory.appendingPathComponent("rclone.conf"))
             guard fm.createFile(atPath: snapshot.config.path, contents: contents, attributes: [.posixPermissions: 0o600])
