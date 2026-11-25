@@ -5,6 +5,7 @@ It draws every screen, then goes from the account to the games with the keyboard
 alone, on a live view whose rclone is fake_rclone.py. No real rclone, Drive, network, window or profile.
 
   run_cloud_assistant.py [OUTPUT] [--full]    --full adds English, German, 80 and 125 %, and a small window
+  run_cloud_assistant.py OUTPUT --focus-proof  only the compact account form and the move confirmation
 """
 import os
 import shutil
@@ -137,6 +138,9 @@ def main():
         app = package / "Sources/NXLibrary"
         change(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
         change(app / "ViewModels/AppViewModel.swift", r"SteamGridDBKey\(\)\.load\(\) != nil", "false")
+        sound = app / "Services/SoundEffectService.swift"
+        change(sound, r"\bplayer\.play\(\)", "player.volume = 0")
+        change(sound, r"\bchosen\.play\(\)", "chosen.volume = 0")
         isolate_startup(app)
         profile = package / "Sources/NXLibraryCore/App/AppDataProfile.swift"
         change(profile, r'public static let profile = [^\n]*',
@@ -203,7 +207,8 @@ extension CloudFolderDiscovery {
         env.update(HOME=str(home), CFFIXED_USER_HOME=str(home), RCLONE_CONFIG=str(home / "rclone.conf"), RCLONE_PASSWORD_COMMAND="/usr/bin/false",
                    OORT_FAKE_RCLONE=str(Path(__file__).with_name("fake_rclone.py").resolve()))
         subprocess.run(["swift", "run", "--jobs", "4", "--package-path", str(package), "NXLibrary", str(output),
-                        str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"), *(a for a in arguments if a == "--full")], env=env, check=True)
+                        str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"),
+                        *(a for a in arguments if a in {"--full", "--focus-proof"})], env=env, check=True)
 
 
 if __name__ == "__main__":

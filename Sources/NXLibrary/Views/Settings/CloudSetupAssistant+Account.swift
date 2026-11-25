@@ -60,23 +60,32 @@ extension CloudSetupAssistant {
     }
 
     private var guidedCredentials: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
-                ForEach(Self.googleSteps.indices, id: \.self) { index in
-                    option(.link(index), "\(index + 1). \(text(Self.googleSteps[index].title))", action: { openGoogle(index) }) {
-                        HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
-                            Text(text("Open")).seleneFont(.row, .semibold).foregroundStyle(SeleneTheme.glyph)
-                            MaterialIconView(.link, size: SeleneTokens.Space.panel).foregroundStyle(SeleneTheme.glyph).accessibilityHidden(true)
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
+                    ForEach(Self.googleSteps.indices, id: \.self) { index in
+                        option(.link(index), "\(index + 1). \(text(Self.googleSteps[index].title))", action: { openGoogle(index) }) {
+                            HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
+                                Text(text("Open")).seleneFont(.row, .semibold).foregroundStyle(SeleneTheme.glyph)
+                                MaterialIconView(.link, size: SeleneTokens.Space.panel).foregroundStyle(SeleneTheme.glyph).accessibilityHidden(true)
+                            }
                         }
+                        .accessibilityHint(text("Opens in your browser."))
+                        .id(Target.link(index))
                     }
-                    .accessibilityHint(text("Opens in your browser."))
+                    fields.padding(.top, canvas.u(SeleneTokens.Space.small))
                 }
-                fields.padding(.top, canvas.u(SeleneTokens.Space.small))
+                .padding(canvas.u(SeleneTokens.Space.hairline))
             }
-            .padding(canvas.u(SeleneTokens.Space.hairline))
+            .scrollIndicators(.hidden)
+            .scrollBounceBehavior(.basedOnSize)
+            .onChange(of: focusedTarget) { _, target in
+                switch target {
+                case .link, .client, .secret: proxy.scrollTo(target)
+                default: break
+                }
+            }
         }
-        .scrollIndicators(.hidden)
-        .scrollBounceBehavior(.basedOnSize)
     }
 
     private var credentials: some View {
@@ -98,6 +107,7 @@ extension CloudSetupAssistant {
                     .focused($field, equals: .client).onSubmit { field = .secret }
                     .accessibilityLabel(text("Google ID"))
             }
+            .id(Target.client)
             check(client.isEmpty ? nil : validID, wrong: "Use an ID ending in .apps.googleusercontent.com")
             Text(text("Google secret")).seleneFont(.row, .semibold)
             input(.secret) {
@@ -105,6 +115,7 @@ extension CloudSetupAssistant {
                     .focused($field, equals: .secret).onSubmit(primary)
                     .accessibilityLabel(text("Google secret"))
             }
+            .id(Target.secret)
             check(secret.isEmpty ? nil : validSecret, wrong: "Paste the secret again, without line breaks.")
         }
         .foregroundColor(SeleneTheme.ink)

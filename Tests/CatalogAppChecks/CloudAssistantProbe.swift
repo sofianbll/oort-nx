@@ -14,6 +14,7 @@ import ArcanePorting
     static let names = ["Aurora Village", "Comet Racers", "Dust Pilgrim", "Eclipse Tactics", "Halo Garden", "Ion Riders", "Lunar Observatory",
                         "Meteor Kitchen", "Nebula Golf", "Orbit Garden", "Pulsar Quest", "Saturn Express"]
     static let french = AppLocale(language: .french, region: "FR")
+    static let small = CGSize(width: 1024, height: 640)
 
     @MainActor static func main() async throws {
         let home = URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!).resolvingSymlinksInPath().path
@@ -23,6 +24,12 @@ import ArcanePorting
         NSApplication.shared.setActivationPolicy(.prohibited)
         // SwiftUI builds the tree VoiceOver reads only when an assistive client asks: the probe is that client.
         (NSApp as NSObject).perform(NSSelectorFromString("accessibilitySetValue:forAttribute:"), with: true, with: "AXEnhancedUserInterface")
+        if CommandLine.arguments.contains("--focus-proof") {
+            L10n.setContext(french)
+            try captureMove(output)
+            try await checkSmallSecret(output)
+            return
+        }
         let full = CommandLine.arguments.contains("--full")
         for (suffix, locale) in [("-fr", french)] + (full ? [("-en", AppLocale(language: .english, region: "US")), ("-de", AppLocale(language: .german, region: "DE"))] : []) {
             try await gallery(output, suffix, locale)
@@ -35,6 +42,7 @@ import ArcanePorting
         }
         L10n.setContext(french)
         try await checkBar()
+        try await checkSmallSecret(output)
         for driver in Driver.allCases {
             try await checkWholePath(driver)
             try await checkFirstTime(driver)
@@ -147,6 +155,33 @@ import ArcanePorting
             #"{"source":"Games","remote":"gdrive","games":1,"bytes":1000,"entries":[{"file":{"key":{"value":"\#(key)"},"size":1000,"hashes":{"md5":"c4ca4238a0b923820dcc509a6f75849b"}},"dependencies":[]}]}"#.utf8))
     }
 
+    @MainActor static func captureMove(_ output: URL) throws {
+        let (vm, _) = try fixture(true)
+        for (suffix, locale, size, zoom): (String, AppLocale, CGSize, CGFloat) in [
+            ("fr", french, .init(width: 1920, height: 1080), 1),
+            ("en", .init(language: .english, region: "US"), .init(width: 1920, height: 1080), 1),
+            ("de", .init(language: .german, region: "DE"), .init(width: 1920, height: 1080), 1),
+            ("fr-80", french, .init(width: 1920, height: 1080), 0.8),
+            ("fr-125", french, .init(width: 1920, height: 1080), 1.25),
+            ("fr-petite", french, small, 1),
+            ("fr-petite-125", french, small, 1.25)
+        ] {
+            L10n.setContext(locale)
+            frames = [:]
+            let move = CloudSetupAssistant(viewModel: vm, model: vm.cloudLibrary, entry: .library) {}
+                .screenMove(try plan()).screenStill()
+            precondition(move.focusRows == [[.confirmMove, .cancel]] && move.focusedTarget == .cancel)
+            let canvas = SeleneCanvas(size: size, zoom: zoom)
+            let host = Host(move, size: size, canvas: canvas, locale: locale)
+            defer { host.close() }
+            try save("deplacer-\(suffix)", output, host)
+            let action = frames[AnyHashable(CloudSetupAssistant.Target.confirmMove)]!
+            let cancel = frames[AnyHashable(CloudSetupAssistant.Target.cancel)]!
+            precondition(cancel.minX - action.maxX >= canvas.u(SeleneTokens.Space.group) - 1, "Move stands apart on the left")
+        }
+        print("Move: separated at left, Cancel focused, reproduced in seven variants.")
+    }
+
     @MainActor static func save(_ name: String, _ output: URL, _ host: Host) throws {
         host.settle(0.35)
         try host.picture().write(to: output.appendingPathComponent(name + ".png"))
@@ -224,17 +259,17 @@ import ArcanePorting
         var closed = false
         var presses = 0
 
-        init(_ driver: Driver, entry: CloudSetupAssistant.Entry = .account, vm: AppViewModel) {
+        init(_ driver: Driver, entry: CloudSetupAssistant.Entry = .account, vm: AppViewModel,
+             size: CGSize = .init(width: 1920, height: 1080), zoom: CGFloat = 1) {
             self.driver = driver
             self.vm = vm
             vm.router = router
             mounted = nil
             frames = [:]
             let done = Box()
-            let size = CGSize(width: 1920, height: 1080)
             host = Host(AssistantHost(box: done, make: { close in
                 CloudSetupAssistant(viewModel: vm, model: vm.cloudLibrary, entry: entry, onClose: close)
-            }), size: size, canvas: .init(size: size), locale: french)
+            }), size: size, canvas: .init(size: size, zoom: zoom), locale: french)
             box = done
             host.settle(0.1)
         }
@@ -344,6 +379,33 @@ import ArcanePorting
             host.settle(0.1)
         }
 
+        func revealSecret() {
+            func scrollView(in view: NSView) -> NSScrollView? {
+                (view as? NSScrollView) ?? view.subviews.lazy.compactMap { scrollView(in: $0) }.first
+            }
+            let scroll = scrollView(in: host.view)!
+            let clip = scroll.contentView
+            func visible() -> Bool {
+                let r = clip.convert(clip.bounds, to: nil)
+                let viewport = CGRect(x: r.minX, y: host.size.height - r.maxY, width: r.width, height: r.height)
+                return viewport.contains(CloudAssistantProbe.frames[AnyHashable(CloudSetupAssistant.Target.secret)]!.insetBy(dx: 1, dy: 1))
+            }
+            precondition(!visible(), "Start with the field below the fold")
+            switch driver {
+            case .keyboard: reach(.secret) { key(48, typing: true) }
+            case .controller: travel(to: .secret)
+            case .mouse:
+                let wheel = CGEvent(scrollWheelEvent2Source: nil, units: .pixel, wheelCount: 1, wheel1: -400, wheel2: 0, wheel3: 0)!
+                scroll.scrollWheel(with: NSEvent(cgEvent: wheel)!)
+            }
+            host.settle(0.4)
+            precondition(visible(), "\(driver.rawValue): Secret Google is still outside the scroll viewport")
+            if driver != .mouse { precondition(view.focusedTarget == .secret && view.field == .secret) }
+            let frame = CloudAssistantProbe.frames[AnyHashable(CloudSetupAssistant.Target.secret)]!
+            let hit = element(at: CGPoint(x: frame.midX, y: frame.midY)).map(Spoken.init)
+            precondition(hit?.label == "Secret Google" && hit?.role == "AXTextField", "\(driver.rawValue): Secret Google does not take the pointer")
+        }
+
         func end() { host.close(); mounted = nil }
     }
 
@@ -389,6 +451,24 @@ import ArcanePorting
     @MainActor static func model() -> AppViewModel {
         let data = AppData.supportRoot.appendingPathComponent(UUID().uuidString)
         return AppViewModel(settingsStore: .init(fileURL: data.appendingPathComponent("settings.json")), catalog: .init(), repository: .init(store: .init(directory: data)))
+    }
+
+    @MainActor static func checkSmallSecret(_ output: URL) async throws {
+        for driver in Driver.allCases {
+            freshPreferences()
+            let root = try drive("small-secret", empty: true, [])
+            defer { try? FileManager.default.removeItem(at: root) }
+            let session = Session(driver, vm: model(), size: small, zoom: 1.25)
+            defer { session.end() }
+            try await session.wait("the account") { $0.remotes != nil && $0.work == nil }
+            session.press(.helpCreate)
+            precondition(session.view.accountPage == .help)
+            session.revealSecret()
+            session.type("fixture-only", into: .secret, secret: true)
+            precondition(session.view.validSecret, "\(driver.rawValue): the revealed field accepts typing")
+            if driver == .keyboard { try save("compte-secret-fr-petite-125", output, session.host) }
+            print("Secret Google 1024 × 640 / 125%: \(driver.rawValue) reached the visible secure field and it accepted text.")
+        }
     }
 
     /// An account already connected: look in the browser, take a wrong folder, be told, come back, go on to the games.
