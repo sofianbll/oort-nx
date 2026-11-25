@@ -25,6 +25,7 @@ import io.github.sofianbll.oortnx.core.PadMonitor
 import io.github.sofianbll.oortnx.core.Prefs
 import io.github.sofianbll.oortnx.core.SoundEvent
 import io.github.sofianbll.oortnx.core.SoundPlayer
+import io.github.sofianbll.oortnx.core.boundedQuery
 import io.github.sofianbll.oortnx.core.gridMove
 import io.github.sofianbll.oortnx.core.lastStartedFirst
 import io.github.sofianbll.oortnx.core.matches
@@ -36,17 +37,47 @@ import kotlin.concurrent.thread
 /** What the controller is on, in À la une. */
 enum class HomeTarget { Cover, Play, Page, Android }
 
+internal data class AppSnapshot(
+    val section: Section,
+    val stacks: Map<Section, List<Route>>,
+    val selectedPackage: String?,
+    val libraryFocus: Int,
+    val onlyFavorites: Boolean,
+    val searching: Boolean,
+    val query: String,
+    val libraryPackage: String?,
+    val focusedRow: String?,
+    val padMode: Boolean,
+    val keyboard: Boolean,
+)
+
 /** What is on screen and where the focus is. Kept by hand, with no framework: it is small. */
-class AppState(
-    private val context: Context,
-    /** The activity itself, for what must open on top of it. */
-    private val screen: Activity,
+class AppState internal constructor(
     val prefs: Prefs,
-    private val soundPlayer: SoundPlayer,
     /** A debuggable build started with `--ez demo true` shows made-up entries, to look at the screens without a game. */
     private val demo: Boolean,
     private val versionName: String,
+    private val text: (Int, Array<out Any>) -> String,
+    private val scan: ((List<Game>, Map<String, ImageBitmap>) -> Unit) -> Unit,
+    private val launch: (Game) -> Boolean,
+    private val appInfo: (Game) -> Boolean,
+    private val playSound: (SoundEvent, Int) -> Unit,
 ) {
+    constructor(context: Context, screen: Activity, prefs: Prefs, sound: SoundPlayer, demo: Boolean, versionName: String) : this(
+        prefs, demo, versionName,
+        text = { id, args -> if (args.isEmpty()) context.getString(id) else context.getString(id, *args) },
+        scan = { take ->
+            thread(name = "oort-scan", isDaemon = true) {
+                val games = if (demo) DEMO_GAMES else GameScanner.scan(context)
+                val pictures = games.mapNotNull { game -> Covers.of(context, game)?.let { game.packageName to it } }.toMap()
+                android.os.Handler(android.os.Looper.getMainLooper()).post { take(games, pictures) }
+            }
+        },
+        launch = { GameLauncher.play(context, it) },
+        appInfo = { GameLauncher.appInfo(screen, it) },
+        playSound = sound::play,
+    )
+
     var section by mutableStateOf(Section.Home)
         private set
     private var stacks by mutableStateOf<Map<Section, List<Route>>>(emptyMap())
@@ -80,13 +111,13 @@ class AppState(
     var padKeyboard by mutableStateOf(false)
     var padKey by mutableIntStateOf(0)
         private set
-    var padKeyColumns by mutableIntStateOf(7)
+    var padKeyColumns by mutableIntStateOf(PAD_COLUMNS_COMPACT)
 
     /** True while the search field has the focus: the keys typed there are its own. */
     var typing by mutableStateOf(false)
 
-    /** Each change asks the search field to take the focus, or to give it back. */
-    var fieldAsked by mutableIntStateOf(0)
+    /** A pending request belongs to the field, not to the text it already holds. */
+    var fieldAsked by mutableStateOf(false)
         private set
     var fieldLeft by mutableIntStateOf(0)
         private set
@@ -100,6 +131,7 @@ class AppState(
         private set
     var libraryFocus by mutableIntStateOf(0)
         private set
+    private var libraryPackage: String? = null
     var columns by mutableIntStateOf(2)
     private var rowFocus by mutableStateOf<Map<String, String>>(emptyMap())
     private var menuPackage by mutableStateOf<String?>(null)
@@ -120,13 +152,13 @@ class AppState(
 
     /** What is written on that key: of the keyboard, else of the controller in hand. */
     fun keyName(key: HintKey): String = if (keyboard) when (key) {
-        HintKey.Confirm -> context.getString(R.string.key_enter)
-        HintKey.Back -> context.getString(R.string.key_escape)
-        HintKey.Details -> context.getString(R.string.key_details)
-        HintKey.Search -> context.getString(R.string.key_search)
-        HintKey.Options -> context.getString(R.string.key_options)
-        HintKey.Tabs -> context.getString(R.string.key_tabs)
-        HintKey.Sort -> context.getString(R.string.key_sort)
+        HintKey.Confirm -> text(R.string.key_enter)
+        HintKey.Back -> text(R.string.key_escape)
+        HintKey.Details -> text(R.string.key_details)
+        HintKey.Search -> text(R.string.key_search)
+        HintKey.Options -> text(R.string.key_options)
+        HintKey.Tabs -> text(R.string.key_tabs)
+        HintKey.Sort -> text(R.string.key_sort)
     } else when (key) {
         HintKey.Confirm -> family.mark(if (prefs.swapAB) KeyEvent.KEYCODE_BUTTON_B else KeyEvent.KEYCODE_BUTTON_A)
         HintKey.Back -> family.mark(if (prefs.swapAB) KeyEvent.KEYCODE_BUTTON_A else KeyEvent.KEYCODE_BUTTON_B)
@@ -144,20 +176,19 @@ class AppState(
 
     /** Reads the installed games again. [say]: the player asked, so the answer is said. */
     fun rescan(say: Boolean = false) {
-        thread(name = "oort-scan", isDaemon = true) {
-            val games = if (demo) DEMO_GAMES else GameScanner.scan(context)
-            val pictures = games.mapNotNull { game -> Covers.of(context, game)?.let { game.packageName to it } }.toMap()
-            android.os.Handler(android.os.Looper.getMainLooper()).post {
-                take(games, pictures)
-                if (say) message = context.getString(R.string.library_count, games.size)
-            }
+        scan { games, pictures ->
+            take(games, pictures)
+            if (say) message = text(R.string.library_count, games.size)
         }
     }
+
+    private fun text(id: Int, vararg args: Any): String = text.invoke(id, args)
 
     private fun take(games: List<Game>, pictures: Map<String, ImageBitmap>) {
         found = games
         icons = pictures
-        libraryFocus = libraryFocus.coerceIn(0, (library.size - 1).coerceAtLeast(0))
+        if (games.isEmpty() && searching) closeSearch()
+        keepLibraryFocus()
         // The page of a game that went away closes by itself.
         val gone = { r: Route -> r is Route.GamePage && games.none { it.packageName == r.packageName } }
         if (stacks.values.any { it.any(gone) }) stacks = stacks.mapValues { (_, pages) -> pages.takeWhile { !gone(it) } }
@@ -172,23 +203,49 @@ class AppState(
      * the place the player was on comes back with it.
      */
     fun save(into: Bundle) {
-        into.putString("section", section.name)
-        for ((where, pages) in stacks) into.putStringArray("pages:${where.name}", pages.map { it.saved }.toTypedArray())
-        into.putString("selected", selectedPackage)
-        into.putInt("focus", libraryFocus)
-        into.putBoolean("favorites", onlyFavorites)
-        into.putBoolean("searching", searching)
-        into.putString("query", query)
+        val saved = snapshot()
+        into.putString("section", saved.section.name)
+        for ((where, pages) in saved.stacks) into.putStringArray("pages:${where.name}", pages.map { it.saved }.toTypedArray())
+        into.putString("selected", saved.selectedPackage)
+        into.putInt("focus", saved.libraryFocus)
+        into.putBoolean("favorites", saved.onlyFavorites)
+        into.putBoolean("searching", saved.searching)
+        into.putString("query", saved.query)
+        into.putString(SAVED_LIBRARY_PACKAGE, saved.libraryPackage)
+        into.putString(SAVED_FOCUSED_ROW, saved.focusedRow)
+        into.putBoolean(SAVED_PAD_MODE, saved.padMode)
+        into.putBoolean(SAVED_KEYBOARD, saved.keyboard)
     }
 
     fun restore(from: Bundle) {
-        section = Section.entries.firstOrNull { it.name == from.getString("section") } ?: Section.Home
-        stacks = Section.entries.mapNotNull { where -> from.getStringArray("pages:${where.name}")?.let { saved -> where to saved.mapNotNull(::routeOf) } }.toMap()
-        selectedPackage = from.getString("selected")
-        libraryFocus = from.getInt("focus")
-        onlyFavorites = from.getBoolean("favorites")
-        searching = from.getBoolean("searching")
-        query = from.getString("query").orEmpty()
+        restore(AppSnapshot(
+            Section.entries.firstOrNull { it.name == from.getString("section") } ?: Section.Home,
+            Section.entries.mapNotNull { where -> from.getStringArray("pages:${where.name}")?.let { saved -> where to saved.mapNotNull(::routeOf) } }.toMap(),
+            from.getString("selected"), from.getInt("focus"), from.getBoolean("favorites"),
+            from.getBoolean("searching"), from.getString("query").orEmpty(),
+            from.getString(SAVED_LIBRARY_PACKAGE), from.getString(SAVED_FOCUSED_ROW),
+            from.getBoolean(SAVED_PAD_MODE), from.getBoolean(SAVED_KEYBOARD),
+        ))
+    }
+
+    internal fun snapshot(): AppSnapshot {
+        val rowPage = route != null || section == Section.Settings || section == Section.Controllers
+        return AppSnapshot(section, stacks, selectedPackage, libraryFocus, onlyFavorites, searching, query,
+            libraryPackage, rowFocus[screenKey], rowPage && padMode, rowPage && keyboard)
+    }
+
+    internal fun restore(saved: AppSnapshot) {
+        section = saved.section
+        stacks = saved.stacks
+        selectedPackage = saved.selectedPackage
+        libraryFocus = saved.libraryFocus
+        libraryPackage = saved.libraryPackage
+        onlyFavorites = saved.onlyFavorites
+        searching = saved.searching
+        query = boundedQuery(saved.query)
+        rowFocus = saved.focusedRow?.let { mapOf(screenKey to it) }.orEmpty()
+        padMode = saved.padMode
+        keyboard = saved.keyboard
     }
 
     // ---- moving about -------------------------------------------------------------------------------------
@@ -197,6 +254,7 @@ class AppState(
     fun goTo(next: Section) {
         libraryKey = null
         padKeyboard = false
+        fieldAsked = false
         if (next == section && route == null) return
         if (next == section) stacks = stacks - section
         section = next
@@ -221,7 +279,7 @@ class AppState(
     }
 
     val canGoBack: Boolean get() = menuGame != null || route != null || section != Section.Home
-    private val searchOnScreen: Boolean get() = searching && route == null && section == Section.Library
+    private val searchOnScreen: Boolean get() = searching && count > 0 && route == null && section == Section.Library
 
     fun select(game: Game) {
         if (game.packageName == selected?.packageName) return
@@ -231,14 +289,14 @@ class AppState(
 
     fun openGame(game: Game) {
         selectedPackage = game.packageName
-        libraryFocus = library.indexOf(game).coerceAtLeast(0)
+        focusLibrary(library.indexOf(game))
         open(Route.GamePage(game.packageName))
     }
 
     /** A game's options: by + on the controller, a long press under the finger. */
     fun openMenu(game: Game) {
         selectedPackage = game.packageName
-        if (section == Section.Library && route == null) libraryFocus = library.indexOf(game).coerceAtLeast(0)
+        if (section == Section.Library && route == null) focusLibrary(library.indexOf(game))
         rowFocus = rowFocus - MENU
         menuPackage = game.packageName
         sound(SoundEvent.Open)
@@ -262,22 +320,26 @@ class AppState(
     fun filter(favoritesOnly: Boolean) {
         if (favoritesOnly == onlyFavorites) return
         onlyFavorites = favoritesOnly
-        libraryFocus = 0
+        focusLibrary(0)
         sound(SoundEvent.Select)
     }
 
     /** Y, Ctrl+F or the magnifier: the library, with the field ready to type in. */
     fun search() {
+        if (count == 0) return
         stacks = stacks - Section.Library
         section = Section.Library
         libraryKey = null
         searching = true
-        libraryFocus = 0
+        focusLibrary(0)
         padKeyboard = padMode && !keyboard
         padKey = 0
-        if (padKeyboard) fieldLeft++ else fieldAsked++
+        fieldAsked = !padKeyboard
+        if (padKeyboard) fieldLeft++
         sound(SoundEvent.Open)
     }
+
+    internal fun takeFieldRequest(): Boolean = fieldAsked.also { fieldAsked = false }
 
     /** A key of the controller's keyboard, pressed by the controller or by a finger. */
     fun pressKey(index: Int) {
@@ -295,7 +357,7 @@ class AppState(
     private fun endPadKeyboard() {
         padKeyboard = false
         libraryKey = if (library.isEmpty()) LibraryKey.Search else null
-        libraryFocus = 0
+        focusLibrary(0)
         sound(SoundEvent.Confirm)
     }
 
@@ -315,23 +377,25 @@ class AppState(
         }
     }
 
-    fun type(text: String) { query = text; libraryFocus = 0 }
+    fun type(text: String) { query = boundedQuery(text); focusLibrary(0) }
 
-    fun closeSearch() { searching = false; query = ""; typing = false; padKeyboard = false; libraryFocus = 0 }
+    fun closeSearch() {
+        searching = false; query = ""; typing = false; padKeyboard = false; fieldAsked = false
+        focusLibrary(0)
+    }
 
     /** From the field to what it found: the keyboard leaves, the first cover takes the ring. */
     fun leaveField() {
         fieldLeft++
+        fieldAsked = false
         typing = false
         libraryKey = if (library.isEmpty()) LibraryKey.Search else null
-        libraryFocus = 0
+        focusLibrary(0)
     }
 
     fun toggleFavorite(game: Game) {
-        val here = library.getOrNull(libraryFocus)
         prefs.saveFavorite(game.packageName, game.packageName !in prefs.favorites)
-        // The ring stays on its game; one that left the favourites leaves it to its neighbour.
-        libraryFocus = library.indexOf(here).takeIf { it >= 0 } ?: libraryFocus.coerceIn(0, (library.size - 1).coerceAtLeast(0))
+        keepLibraryFocus()
         sound(SoundEvent.Select)
     }
 
@@ -382,13 +446,14 @@ class AppState(
             menuGame == null && page.isText -> textNav(if (forward) Nav.Down else Nav.Up)
             menuGame == null && page == null && section == Section.Home -> if (selected != null) moveHome(next(HomeTarget.entries, homeTarget))
             menuGame == null && page == null && section == Section.Library -> {
+                if (count == 0) return
                 // The keys above the covers, then the covers.
                 val keys = LibraryKey.entries
                 val places = keys.size + library.size
                 val here = libraryKey?.ordinal ?: (keys.size + libraryFocus.coerceIn(0, (library.size - 1).coerceAtLeast(0)))
                 val to = (here + by + places) % places
                 libraryKey = keys.getOrNull(to)
-                if (libraryKey == null) libraryFocus = to - keys.size
+                if (libraryKey == null) focusLibrary(to - keys.size)
                 sound(SoundEvent.Move, step++)
             }
             else -> focusedRow()?.let { rowFocus = rowFocus + (pageKey to next(rowIds(), it)); sound(SoundEvent.Move, step++) }
@@ -431,6 +496,10 @@ class AppState(
     private fun moveHome(target: HomeTarget) { homeTarget = target; sound(SoundEvent.Move, step++) }
 
     private fun libraryNav(nav: Nav) {
+        if (count == 0) {
+            if (scanned && nav == Nav.Confirm) rescan()
+            return
+        }
         val games = library
         val key = libraryKey ?: if (games.isEmpty()) emptyKey() else null
         if (key != null) return keyNav(nav, key)
@@ -439,11 +508,11 @@ class AppState(
                 val dir = when (nav) { Nav.Up -> Dir.Up; Nav.Down -> Dir.Down; Nav.Left -> Dir.Left; else -> Dir.Right }
                 if (nav == Nav.Up && libraryFocus < columns) { libraryKey = emptyKey(); sound(SoundEvent.Move, step++); return }
                 val next = gridMove(libraryFocus, games.size, columns, dir)
-                if (next == libraryFocus) sound(SoundEvent.Deny) else { libraryFocus = next; sound(SoundEvent.Move, step++) }
+                if (next == libraryFocus) sound(SoundEvent.Deny) else { focusLibrary(next, games); sound(SoundEvent.Move, step++) }
             }
             Nav.Confirm, Nav.Details -> games.getOrNull(libraryFocus)?.let { openGame(it) }
             Nav.Sort -> sort(!prefs.byName)
-            Nav.First, Nav.Last -> { libraryFocus = if (nav == Nav.First) 0 else games.lastIndex; sound(SoundEvent.Move, step++) }
+            Nav.First, Nav.Last -> { focusLibrary(if (nav == Nav.First) 0 else games.lastIndex, games); sound(SoundEvent.Move, step++) }
             else -> Unit
         }
     }
@@ -469,10 +538,20 @@ class AppState(
     }
 
     fun sort(byName: Boolean) {
-        val here = library.getOrNull(libraryFocus)
         prefs.saveByName(byName)
-        here?.let { libraryFocus = library.indexOf(it).coerceAtLeast(0) }
+        keepLibraryFocus()
         sound(SoundEvent.Select)
+    }
+
+    private fun focusLibrary(index: Int, games: List<Game> = library) {
+        libraryFocus = index.coerceIn(0, games.lastIndex.coerceAtLeast(0))
+        libraryPackage = games.getOrNull(libraryFocus)?.packageName
+    }
+
+    private fun keepLibraryFocus() {
+        val games = library
+        val index = libraryPackage?.let { pkg -> games.indexOfFirst { it.packageName == pkg } } ?: -1
+        focusLibrary(if (index >= 0) index else libraryFocus, games)
     }
 
     private fun textNav(nav: Nav) {
@@ -485,7 +564,8 @@ class AppState(
         return rowFocus[pageKey]?.takeIf { it in ids } ?: ids.firstOrNull()
     }
 
-    private val pageKey: String get() = if (menuGame != null) MENU else route?.key ?: section.name
+    private val screenKey: String get() = route?.key ?: section.name
+    private val pageKey: String get() = if (menuGame != null) MENU else screenKey
     private fun rowIds() = (if (menuGame == null && route is Route.GamePage) listOf(PLAY) else emptyList()) +
         sections().flatMap { it.rows }.filter { it.kind != Kind.Info }.map { it.id }
 
@@ -525,11 +605,12 @@ class AppState(
     // ---- games --------------------------------------------------------------------------------------------
 
     fun play(game: Game) {
-        if (demo) { message = context.getString(R.string.demo_game); sound(SoundEvent.Deny); return }
-        if (GameLauncher.play(context, game)) {
+        if (demo) { message = text(R.string.demo_game); sound(SoundEvent.Deny); return }
+        if (launch(game)) {
             sound(SoundEvent.Play)
             selectedPackage = game.packageName
             prefs.saveStarted(game.packageName, System.currentTimeMillis())
+            keepLibraryFocus()
         } else {
             fail(game)
         }
@@ -537,11 +618,11 @@ class AppState(
 
     fun androidPage(game: Game) {
         sound(SoundEvent.Open)
-        if (!GameLauncher.appInfo(screen, game)) fail(game)
+        if (!appInfo(game)) fail(game)
     }
 
     private fun fail(game: Game) {
-        message = context.getString(R.string.launch_failed, game.title)
+        message = text(R.string.launch_failed, game.title)
         sound(SoundEvent.Deny)
         rescan()
     }
@@ -672,7 +753,7 @@ class AppState(
 
     private fun packName(pack: String) = pack.replaceFirstChar { it.uppercase() }
 
-    fun sound(event: SoundEvent, step: Int = 0) = soundPlayer.play(event, step)
+    fun sound(event: SoundEvent, step: Int = 0) = playSound(event, step)
 
     companion object {
         /** The play key of a game's page, which is not a line of its list. */
@@ -681,10 +762,16 @@ class AppState(
         const val KEY_SPACE = "␣"
         const val KEY_ERASE = "⌫"
         const val KEY_OK = "OK"
+        internal const val PAD_COLUMNS_COMPACT = 7
+        internal const val PAD_COLUMNS_WIDE = 13
 
         /** Letters then digits then the three keys: 39, three rows of 13 in a wide window. */
         val PAD_KEYS = ('A'..'Z').map { it.toString() } + ('0'..'9').map { it.toString() } + listOf(KEY_SPACE, KEY_ERASE, KEY_OK)
         private const val MENU = "menu"
+        private const val SAVED_LIBRARY_PACKAGE = "libraryPackage"
+        private const val SAVED_FOCUSED_ROW = "focusedRow"
+        private const val SAVED_PAD_MODE = "padMode"
+        private const val SAVED_KEYBOARD = "keyboard"
 
         private val DEMO_GAMES = List(7) { i ->
             Game("org.nx2a.demo$i", "Demonstration ${i + 1}", "1.${i}.0", 65_537L + i, null)

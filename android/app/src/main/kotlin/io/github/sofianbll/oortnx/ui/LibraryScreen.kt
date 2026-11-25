@@ -65,17 +65,21 @@ fun LibraryScreen(state: AppState) {
         LaunchedEffect(state.prefs.byName, state.onlyFavorites, state.query) { if (state.padMode) grid.animateScrollToItem(state.libraryFocus) else grid.scrollToItem(0) }
         Column(Modifier.fillMaxSize().padding(horizontal = 20.dp)) {
             LibraryHeader(state)
-            if (games.isEmpty()) NothingHere(state, Modifier.weight(1f))
-            else LazyVerticalGrid(
-                columns = GridCells.Fixed(columns),
-                state = grid,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(bottom = 24.dp),
-                modifier = Modifier.weight(1f),
-            ) {
-                itemsIndexed(games, key = { _, g -> g.packageName }) { index, game ->
-                    GameTile(state, game, state.icons[game.packageName], focused = state.padMode && !state.typing && !state.padKeyboard && state.libraryKey == null && index == state.libraryFocus)
+            // The field and the hints keep their room; in a low window only the keys need to scroll.
+            Column(Modifier.weight(1f)) {
+                if (state.padKeyboard) PadKeyboard(state)
+                if (games.isEmpty()) NothingHere(state, Modifier.weight(1f))
+                else LazyVerticalGrid(
+                    columns = GridCells.Fixed(columns),
+                    state = grid,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(bottom = 24.dp),
+                    modifier = Modifier.weight(1f),
+                ) {
+                    itemsIndexed(games, key = { _, g -> g.packageName }) { index, game ->
+                        GameTile(state, game, state.icons[game.packageName], focused = state.padMode && !state.typing && !state.padKeyboard && state.libraryKey == null && index == state.libraryFocus)
+                    }
                 }
             }
             val onCover = state.libraryKey == null && games.isNotEmpty()

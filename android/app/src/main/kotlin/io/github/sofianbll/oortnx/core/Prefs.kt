@@ -9,8 +9,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
 /** The launcher's few settings, kept on the device and nowhere else. */
-class Prefs(private val context: Context) {
-    private val store: SharedPreferences = context.getSharedPreferences("oort", Context.MODE_PRIVATE)
+class Prefs internal constructor(
+    private val store: SharedPreferences,
+    private val system: () -> Pair<Boolean, Boolean>,
+) {
+    constructor(context: Context) : this(context.getSharedPreferences("oort", Context.MODE_PRIVATE), {
+        val noAnimations = Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
+        val saving = (context.getSystemService(Context.POWER_SERVICE) as? PowerManager)?.isPowerSaveMode == true
+        noAnimations to saving
+    })
 
     var sound by mutableStateOf(store.getBoolean("sound", true))
         private set
@@ -49,8 +56,9 @@ class Prefs(private val context: Context) {
 
     /** Reads Android's own switches again: they change while the app is behind. */
     fun refresh() {
-        noAnimations = Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
-        saving = (context.getSystemService(Context.POWER_SERVICE) as? PowerManager)?.isPowerSaveMode == true
+        val (removeAnimations, savingPower) = system()
+        noAnimations = removeAnimations
+        saving = savingPower
     }
 
     fun saveByName(on: Boolean) { byName = on; store.edit().putBoolean("byName", on).apply() }

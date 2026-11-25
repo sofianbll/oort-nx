@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 25 novembre 2026. Copertura di **1233 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 25 novembre 2026. Copertura di **1235 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -943,8 +943,18 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | `android/README.md` | Versione in preparazione, comportamento e prove della variante Android. |
 | `android/app/build.gradle.kts` | Identità, versione, dipendenze e build R8 dell'APK. |
 | `.github/workflows/android.yml` | Controlli senza SDK, build e prove con APK sintetici; nessuna pubblicazione. |
-| `android/tools/emulator_check.py` | Prove in emulatore sul pacchetto R8, inclusi versione e permessi effettivi. |
+| `android/tools/emulator_check.py` | Prove R8: versione, permessi, ritorno e ricerca con tastiera e manetta, anche in una finestra bassa. |
 | `Tests/AndroidChecks/test_android_project.py` | Coerenza di versione, testi, risorse e permessi senza SDK. |
+| `MainActivity.kt` (Android) | Traduce gli eventi di Android, salva lo stato dell'attività e segnala la perdita di focus. |
+| `core/InputRouter.kt` (Android) | Traduce gli input in azioni; azzera ripetizioni e pulsanti alla perdita di focus. |
+| `core/Prefs.kt` (Android) | Preferenze locali e lettura degli interruttori del sistema. |
+| `core/Search.kt` (Android) | Confronto senza accenti e limiti della ricerca salvata. |
+| `ui/AppState.kt` (Android) | Navigazione, selezione per pacchetto e ripristino della riga attiva. |
+| `ui/LibraryHeader.kt` (Android) | Campo e comandi della libreria; consuma ogni richiesta di focus una sola volta. |
+| `ui/LibraryScreen.kt` (Android) | Libreria e spazio disponibile fra ricerca e suggerimenti. |
+| `ui/PadKeyboard.kt` (Android) | Mantiene visibile il tasto selezionato nella finestra disponibile. |
+| `AppStateTest.kt` (Android) | Prove JVM dello stato di libreria, ricerca e focus dopo il riavvio. |
+| `InputRouterTest.kt` (Android) | Prova JVM del rilascio delle direzioni alla perdita di focus. |
 
 ## Test e fixture
 

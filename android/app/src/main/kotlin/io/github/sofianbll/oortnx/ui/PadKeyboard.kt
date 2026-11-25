@@ -13,10 +13,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,11 +39,23 @@ fun PadKeyboard(state: AppState) {
     val space = stringResource(R.string.key_space)
     val erase = stringResource(R.string.key_erase)
     BoxWithConstraints(Modifier.fillMaxWidth().padding(bottom = canvas(OortTokens.Space.FieldInset))) {
-        val columns = if (maxWidth >= Metrics.WideWindow) 13 else 7
+        val columns = if (maxWidth >= Metrics.WideWindow) AppState.PAD_COLUMNS_WIDE else AppState.PAD_COLUMNS_COMPACT
         SideEffect { state.padKeyColumns = columns }
         // A key holds its letter at any text size.
-        val tall = with(LocalDensity.current) { canvas(OortTokens.Space.Large) * fontScale.coerceAtLeast(1f) + canvas(OortTokens.Space.Section) }.coerceAtLeast(Metrics.Touch)
-        Column(Modifier.widthIn(max = Metrics.Measure), verticalArrangement = Arrangement.spacedBy(Metrics.Ring)) {
+        val density = LocalDensity.current
+        val tall = (canvas(OortTokens.Space.Large) * density.fontScale.coerceAtLeast(1f) + canvas(OortTokens.Space.Section)).coerceAtLeast(Metrics.Touch)
+        val keyHeight = with(density) { tall.roundToPx() }
+        val rowHeight = keyHeight + with(density) { Metrics.Ring.roundToPx() }
+        val scroll = rememberScrollState()
+        val viewport = scroll.viewportSize
+        LaunchedEffect(state.padMode, state.padKey, columns, rowHeight, viewport) {
+            if (!state.padMode || viewport == 0) return@LaunchedEffect
+            val top = state.padKey / columns * rowHeight
+            val bottom = top + keyHeight
+            val firstVisible = (bottom - viewport).coerceAtMost(top)
+            scroll.scrollTo(scroll.value.coerceIn(firstVisible, top))
+        }
+        Column(Modifier.widthIn(max = Metrics.Measure).verticalScroll(scroll), verticalArrangement = Arrangement.spacedBy(Metrics.Ring)) {
             AppState.PAD_KEYS.chunked(columns).forEachIndexed { row, keys ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Metrics.Ring)) {
                     keys.forEachIndexed { column, key ->

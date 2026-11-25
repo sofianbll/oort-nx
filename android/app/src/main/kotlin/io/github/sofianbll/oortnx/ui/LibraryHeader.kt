@@ -58,8 +58,7 @@ fun LibraryHeader(state: AppState) {
         SortKey(state, lit(LibraryKey.Sort))
     }
     if (state.searching) SearchField(state)
-    if (state.padKeyboard) PadKeyboard(state)
-    else FlowRow(Modifier.fillMaxWidth().padding(bottom = canvas(OortTokens.Space.Medium)), horizontalArrangement = Arrangement.spacedBy(canvas(OortTokens.Space.FieldInset)), verticalArrangement = Arrangement.spacedBy(canvas(OortTokens.Space.FieldInset))) {
+    if (!state.padKeyboard) FlowRow(Modifier.fillMaxWidth().padding(bottom = canvas(OortTokens.Space.Medium)), horizontalArrangement = Arrangement.spacedBy(canvas(OortTokens.Space.FieldInset)), verticalArrangement = Arrangement.spacedBy(canvas(OortTokens.Space.FieldInset))) {
         Tab(stringResource(R.string.tab_all), !state.onlyFavorites, lit(LibraryKey.All)) { state.filter(false) }
         Tab(stringResource(R.string.tab_favorites), state.onlyFavorites, lit(LibraryKey.Favorites)) { state.filter(true) }
     }
@@ -82,10 +81,8 @@ private fun SearchField(state: AppState) {
     val manager = LocalFocusManager.current
     val keyboard = LocalSoftwareKeyboardController.current
     // Asked for once per request: coming back to the page does not bring the keyboard up again.
-    var asked by remember { mutableStateOf(0) }
     LaunchedEffect(state.fieldAsked) {
-        if (state.fieldAsked != asked && state.query.isEmpty()) { focus.requestFocus(); keyboard?.show() }
-        asked = state.fieldAsked
+        if (state.takeFieldRequest()) { focus.requestFocus(); keyboard?.show() }
     }
     var left by remember { mutableStateOf(state.fieldLeft) }
     LaunchedEffect(state.fieldLeft) {

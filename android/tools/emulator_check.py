@@ -19,6 +19,8 @@ PACKAGE = "io.github.sofianbll.oortnx.alpha"
 ACTIVITY = f"{PACKAGE}/io.github.sofianbll.oortnx.MainActivity"
 ALPHA_VERSION = "0.1.0-alpha.2"
 ALPHA_VERSION_CODE = "2"
+PAD_TEST_WINDOW = (500, 300)
+MIN_PAD_TOUCH_DP = 48
 RES = Path(__file__).resolve().parents[1] / "app/src/main/res"
 GAMES = ["Le phare de Brume", "Marée haute", "Collines rouges", "Les très longues aventures de la comète perdue"]
 PAD = {"A": "BUTTON_A", "B": "BUTTON_B", "X": "BUTTON_X", "Y": "BUTTON_Y", "L1": "BUTTON_L1", "R1": "BUTTON_R1", "START": "BUTTON_START",
@@ -91,7 +93,7 @@ def density():
     return int(re.findall(r"density: (\d+)", shell("wm density"))[-1]) / 160
 
 
-def screen():
+def screen(check_targets=True):
     for _ in range(4):
         shell("rm -f /sdcard/oort-ui.xml; uiautomator dump /sdcard/oort-ui.xml")
         text = adb("exec-out", "cat", "/sdcard/oort-ui.xml")
@@ -101,6 +103,8 @@ def screen():
     else:
         return []
     nodes = [Node(e) for e in ET.fromstring(text[text.index("<"):]).iter("node")]
+    if not check_targets:
+        return nodes
     size = [max(n.box[2] for n in nodes), max(n.box[3] for n in nodes)]
     scale = density()
     for n in nodes:
@@ -227,6 +231,147 @@ def w(name, *args):
 
 
 # ---- what is checked ------------------------------------------------------------------------------------------
+
+
+def empty_library_controls(games):
+    """The only button on the empty library rescans, just like a touch."""
+    fixture = games / "org.nx2a.testmaree.apk"
+    for device, command, search in (
+        ("pad", "input gamepad keyevent BUTTON_A", "input gamepad keyevent BUTTON_Y"),
+        ("keyboard", "input keyevent ENTER", "input keycombination CTRL_LEFT F"),
+    ):
+        if device == "keyboard" and api < 33:
+            continue
+        fresh()
+        wait(w("empty_rescan"))
+        shell(search)
+        time.sleep(0.7)
+        nodes = screen()
+        home = find(w("nav_home"), nodes, exact=True)
+        ok(f"empty Home, {device}: search does not take the player to an invisible field",
+           home is not None and any(n.selected and n.package == PACKAGE
+                                    and n.box[0] <= home.centre[0] <= n.box[2] and n.box[1] <= home.centre[1] <= n.box[3]
+                                    for n in nodes))
+        fresh()
+        pad("R1")
+        wait(w("empty_rescan"))
+        shot(f"empty-{device}-before-confirm")
+        adb("install", "-r", fixture, check=True)
+        shell(command)
+        see(f"empty Library, {device}: confirm rescans when a game was installed", GAMES[1], seconds=5)
+        shot(f"empty-{device}-after-confirm")
+        adb("uninstall", fixture.stem, check=True)
+
+
+def low_pad_keyboard():
+    """500 × 300 dp: the last row follows the controller, at both text sizes."""
+    try:
+        width, height = PAD_TEST_WINDOW
+        shell(f"wm size {width}x{height}; wm density 160")
+        time.sleep(3)
+        ok("pad keyboard: the synthetic window is 500 × 300 dp", tuple(display()) == PAD_TEST_WINDOW and density() == 1)
+        for scale in (1, 2):
+            shell(f"settings put system font_scale {scale}.0")
+            time.sleep(2)
+            fresh()
+            pad("Y")
+            shot(f"pad-keyboard-low-{scale}x-first-row")
+            pad(*(["DOWN"] * 5), "RIGHT", "RIGHT", "RIGHT")
+            # Clipped neighbouring rows are expected; the selected key must be a full touch target.
+            nodes = screen(check_targets=False)
+            label = find("OK", nodes, exact=True)
+            key = next((n for n in nodes if label and n.clickable and n.package == PACKAGE
+                        and n.box[0] <= label.centre[0] <= n.box[2] and n.box[1] <= label.centre[1] <= n.box[3]), None)
+            ok(f"pad keyboard at {scale}× text: the selected last-row key is fully visible",
+               key is not None and min(key.box[3] - key.box[1], key.box[2] - key.box[0]) >= MIN_PAD_TOUCH_DP,
+               str(key and key.box))
+            shot(f"pad-keyboard-low-{scale}x-last-row")
+            pad("A")
+            nodes = screen(check_targets=False)
+            ok(f"pad keyboard at {scale}× text: OK closes the keyboard, not the search",
+               find(w("search_field"), nodes) is not None and find("OK", nodes, exact=True) is None)
+    finally:
+        shell("settings put system font_scale 1.0; wm size reset; wm density reset")
+        time.sleep(4)
+
+
+def library_focus_after_play(games):
+    """Starting a non-first game moves its tile without changing what Options targets."""
+    fresh()
+    tap(w("nav_library"), exact=True)
+    tap(w("sort"), exact=True)
+    tap(w("sort_last"), exact=True)
+    tap(GAMES[1])
+    tap(w("detail_play"), exact=True)
+    if not ok("focus on return: first game establishes the recent order", wait_front("org.nx2a.testmaree"), front()):
+        return
+    system_back()
+    wait_front(PACKAGE)
+    system_back()
+    tap(GAMES[2])
+    system_back()
+    pad("START", "A")
+    if not ok("focus on return: Options plays the second game", wait_front("org.nx2a.testcollines"), front()):
+        return
+    system_back()
+    wait_front(PACKAGE)
+    time.sleep(1)
+    shot("library-focus-after-play")
+    pad("START", "A")
+    ok("focus on return: Options still plays that same game after it moved up", wait_front("org.nx2a.testcollines", 5), front())
+    system_back()
+    wait_front(PACKAGE)
+    tap(w("sort"), exact=True)
+    tap(w("sort_name"), exact=True)
+    tap(GAMES[0])
+    see("focus after removal: the library's target before backgrounding", "org.nx2a.testphare", exact=True)
+    system_back()
+    shell(f"input keyevent HOME; sleep 2; am kill {PACKAGE}")
+    removed = games / "org.nx2a.testcollines.apk"
+    adb("uninstall", removed.stem, check=True)
+    try:
+        start()
+        wait(w("sort"), exact=True)
+        pad("X")
+        see("focus after removal: the restored library still targets the same game", "org.nx2a.testphare", exact=True, seconds=5)
+        shot("library-focus-after-removal")
+    finally:
+        adb("install", "-r", removed, check=True)
+
+
+def restored_sound_focus():
+    fresh()
+    tap(w("nav_settings"), exact=True)
+    tap(w("settings_sound"))
+    tap("Oort", exact=True)
+    pad("DOWN")
+    shot("sounds-before-process-death")
+    pid = shell(f"pidof {PACKAGE}").strip()
+    shell(f"input keyevent HOME; sleep 2; am kill {PACKAGE}; sleep 1")
+    start()
+    new_pid = shell(f"pidof {PACKAGE}").strip()
+    ok("sound focus: Android rebuilt the process", bool(pid and new_pid and new_pid != pid))
+    see("sound focus: same page on return", w("settings_pack"))
+    shot("sounds-after-process-death")
+    pad("A")
+    nodes = screen()
+    ok("sound focus: confirm chooses Pollen instead of toggling sound",
+       is_on("Pollen", nodes) is True and is_on(w("settings_sound"), nodes) is True)
+    shot("sounds-after-confirm")
+    tap("Oort", exact=True)
+    if is_on(w("settings_sound"), screen()) is False:
+        tap(w("settings_sound"), exact=True)
+
+
+def refocus_search():
+    if api < 33:
+        return
+    fresh()
+    shell("input keycombination CTRL_LEFT F")
+    wait(w("search_field"))
+    shell("input text maree; input keyevent DPAD_DOWN; input keycombination CTRL_LEFT F; sleep 1; input keyevent Q E")
+    see("keyboard: Ctrl+F returns to a non-empty search and Q/E type there", "mareeqe", exact=True, seconds=5)
+    shot("search-refocus")
 
 
 def touch(lang):
@@ -382,7 +527,15 @@ def controller(lang):
     pad("Y")
     see(f"{lang}, pad: Y opens the search", w("search_field"))
     shot(f"{lang}-27-pad-search")
-    pad("DOWN", "B")  # the first press leaves the field, B then closes the search
+    pad("DOWN", "A")
+    see(f"{lang}, pad: Down and A type a letter with the controller", "h", exact=True)
+    pad("B")
+    nodes = screen()
+    ok(f"{lang}, pad: first B closes the keyboard, leaving the search and its text",
+       find(w("tab_all"), nodes, exact=True) is not None and find(w("search_field"), nodes) is not None
+       and find("h", nodes, exact=True) is not None and find("H", nodes, exact=True) is None)
+    shot(f"{lang}-27-pad-search-first-b")
+    pad("B")
     ok(f"{lang}, pad: B closes the search", wait(w("tab_all"), exact=True) is not None and find(w("search_field")) is None)
     pad("R1")
     see(f"{lang}, pad: R1 opens the controllers", w("controllers_connected"))
@@ -632,6 +785,7 @@ def main():
     fresh()
     see("no game installed: the first screen says so", w("empty_title"))
     shot("en-00-empty")
+    empty_library_controls(args.games)
     shell(f"am start -a android.settings.APPLICATION_DETAILS_SETTINGS -d package:{PACKAGE}")
     see("Android shows the app under its name", "Oort NX alpha")
     shot("en-00-icon")
@@ -641,6 +795,9 @@ def main():
         adb("install", "-r", apk, check=True)
     start()
     see("games installed meanwhile are found on return", w("detail_play"))
+    library_focus_after_play(args.games)
+    restored_sound_focus()
+    refocus_search()
     touch("en")
     controller("en")
     newer("en")
@@ -650,6 +807,7 @@ def main():
     touch("fr")
     controller("fr")
     newer("fr")
+    low_pad_keyboard()
 
     rotate(1)
     tour("fr-landscape", with_pad=True, wide=True)

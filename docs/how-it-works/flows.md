@@ -123,6 +123,16 @@ Per Switch e Steam, un errore di lettura dello storico o dei suoi totali non imp
 
 Prima di aprire il bundle, Oort NX risolve lo schermo soltanto se il `dmhost` installato legge `DM_SCREEN`. Una scelta esplicita non collegata usa lo schermo della finestra di Oort NX. Se `env.txt` dichiara `DM_SCREEN`, il lanciatore non imposta la variabile. Il lancio unisce le scelte esplicite ai soli valori di ambiente autorizzati; il pannello dei salvataggi usa lo stesso filtro.
 
+### Ritorno alla libreria su Android
+
+Play avvia l'app del gioco e aggiorna l'ordine dei recenti. Tornando a Oort,
+anche dopo una nuova scansione, il focus ritrova il pacchetto selezionato e
+usa l'indice precedente solo se quel pacchetto non c'è più.
+
+Con la manetta, Y apre la ricerca e i tasti scorrono fino a quello selezionato.
+Un B chiude la tastiera, il secondo chiude la ricerca. Senza giochi, A o Invio
+esegue la scansione dalla libreria e la ricerca non si apre.
+
 ## 4. Play di un gioco Steam
 
 ```mermaid

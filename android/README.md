@@ -18,7 +18,7 @@ gradle -p android testDebugUnitTest assembleDebug assembleRelease   # no Gradle 
 
 - **Featured.** The last games started from Oort, the chosen one large, Play under the thumb; on its side, a row of covers.
 - **Library.** Lists the apps whose package starts with `org.nx2a.` (nx2android's convention), with their own icon as a
-  cover, the last started first or by name; every game or the favourites, and a search that ignores case and accents. Re-reads the list each time it comes to the front.
+  cover, the last started first or by name; every game or the favourites, and a search that ignores case and accents. Re-reads the list each time it comes to the front, and keeps the focused game by package name when the order changes. In an empty library, confirming refreshes the list.
 - **Game page.** Play, its version and package, and Android's own page for the game (storage, Uninstall; the page
   says first that the game's saves go with it).
 - **Controllers.** The pads Android sees, as they come and go, swap A and B (Switch layout), and a screen where every
@@ -29,7 +29,11 @@ gradle -p android testDebugUnitTest assembleDebug assembleRelease   # no Gradle 
   Options) the chosen game's options (the settings where no game is chosen), the right stick's click sorts, L1 and R1
   change tab, L2 and R2 jump to the first and last line; Home stays Android's. A long press on a game opens the same
   options. On a phone on its side, a controller takes the whole screen. The system Back gesture works everywhere.
+  In the controller's search keyboard, the selected key scrolls into view, and B closes the keyboard before it closes
+  the search. Ctrl+F gives focus back to the search field even when it already contains text.
 - **What it keeps**, on the device only: its settings, and when each game was last started from Oort.
+  Android can restore the current page and its focused row after recreating the activity. The saved search is bounded to
+  256 UTF-16 code units; a direction held on a controller is released when the window loses focus.
 
 ## What it cannot do, and why
 

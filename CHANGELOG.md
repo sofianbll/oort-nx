@@ -2,6 +2,12 @@
 
 User-visible changes to Oort NX and its Arcane base (formerly NX Library) are recorded here. Entries are grouped by release, with the newest first. Engine changes also have their own [upgrade notes](docs/history/engine-upgrades/README.md).
 
+## Unreleased
+
+### Fixed
+
+- Android: the controller keyboard follows the selected key in a low window. Confirm refreshes an empty library; the game and settings focus survive returning to the app, and Ctrl+F returns to the search text. Large pasted queries stay bounded, and losing window focus stops held inputs.
+
 ## 0.5.0-beta.2 — 2026-11-25
 
 ### Added

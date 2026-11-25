@@ -219,6 +219,11 @@ La variante asincrona attende su una coda utility e invia SIGTERM al sottoproces
 
 ## Navigazione e focus
 
+Su [Android](../../android/README.md), `AppState` salva l'identità del gioco
+selezionato in libreria, la riga della pagina attiva e la modalità d'input
+della pagina. `MainActivity` segnala al router quando la finestra perde il
+focus: uno stick può venire rilasciato altrove, senza mettere Oort in pausa.
+
 `check_selene_tokens.py` controlla dimensioni, colori, opacità, ombre, font,
 animazioni e nuove dichiarazioni di riga, scheda, dialogo o pulsante fuori da
 OortUI. Ogni voce della baseline può solo diminuire.
