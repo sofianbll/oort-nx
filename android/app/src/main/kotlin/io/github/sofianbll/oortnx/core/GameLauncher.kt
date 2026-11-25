@@ -1,5 +1,6 @@
 package io.github.sofianbll.oortnx.core
 
+import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
@@ -27,9 +28,9 @@ object GameLauncher {
      * Android's own page for the app: storage, permissions, force stop, and Uninstall. Asking Android to uninstall
      * directly (ACTION_DELETE) needs REQUEST_DELETE_PACKAGES since API 28, and this app asks for no permission.
      */
-    fun appInfo(context: Context, game: Game): Boolean =
-        start(context, Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${game.packageName}"))
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+    fun appInfo(screen: Activity, game: Game): Boolean =
+        // On top of Oort, in its own task: in a task of Settings, Back would return to whatever Settings showed last.
+        start(screen, Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${game.packageName}")))
 
     private fun start(context: Context, intent: Intent): Boolean = try {
         context.startActivity(intent)

@@ -1,5 +1,6 @@
 package io.github.sofianbll.oortnx.ui
 
+import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.view.KeyEvent
@@ -38,6 +39,8 @@ enum class HomeTarget { Cover, Play, Page, Android }
 /** What is on screen and where the focus is. Kept by hand, with no framework: it is small. */
 class AppState(
     private val context: Context,
+    /** The activity itself, for what must open on top of it. */
+    private val screen: Activity,
     val prefs: Prefs,
     private val soundPlayer: SoundPlayer,
     /** A debuggable build started with `--ez demo true` shows made-up entries, to look at the screens without a game. */
@@ -487,7 +490,7 @@ class AppState(
 
     fun androidPage(game: Game) {
         sound(SoundEvent.Open)
-        if (!GameLauncher.appInfo(context, game)) fail(game)
+        if (!GameLauncher.appInfo(screen, game)) fail(game)
     }
 
     private fun fail(game: Game) {

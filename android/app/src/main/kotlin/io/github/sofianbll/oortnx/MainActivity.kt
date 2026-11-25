@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
         val prefs = Prefs(applicationContext)
         sound = SoundPlayer(prefs)
         val debuggable = applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
-        state = AppState(applicationContext, prefs, sound, demo = debuggable && intent.getBooleanExtra("demo", false),
+        state = AppState(applicationContext, this, prefs, sound, demo = debuggable && intent.getBooleanExtra("demo", false),
             versionName = packageManager.getPackageInfo(packageName, 0).versionName ?: "")
         savedInstanceState?.let { state.restore(it) }
         router = InputRouter(
