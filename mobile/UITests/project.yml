@@ -14,17 +14,45 @@ targets:
       GENERATE_INFOPLIST_FILE: YES
       CLANG_ENABLE_OBJC_ARC: YES
       HEADER_SEARCH_PATHS: ${OORT_MOBILE}/App
+  FakePad:
+    type: framework
+    platform: iOS
+    sources:
+      - path: ${OORT_MOBILE}/UITests/FakePad
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: io.github.sofianbll.oortnx.fakepad
+      GENERATE_INFOPLIST_FILE: YES
+      CLANG_ENABLE_OBJC_ARC: YES
+      CLANG_ENABLE_MODULES: YES
+  NetCut:
+    type: framework
+    platform: iOS
+    sources:
+      - path: ${OORT_MOBILE}/UITests/NetCut
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: io.github.sofianbll.oortnx.netcut
+      GENERATE_INFOPLIST_FILE: YES
+      CLANG_ENABLE_OBJC_ARC: YES
+      CLANG_ENABLE_MODULES: YES
   OortUITests:
     type: bundle.ui-testing
     platform: iOS
     sources:
+      - path: ${OORT_MOBILE}/UITests/OortCase.swift
       - path: ${OORT_MOBILE}/UITests/OortUITests.swift
+      - path: ${OORT_MOBILE}/UITests/OortTrialTests.swift
       - path: ${OORT_MOBILE}/Capture/CaptureGames.swift
       # The app's own words, to find what they name.
       - path: ${OORT_MOBILE}/Sources/OortMobile/Resources/Localizable.xcstrings
     dependencies:
       - target: OortNX
       - target: DmGame
+        embed: true
+        link: false
+      - target: FakePad
+        embed: true
+        link: false
+      - target: NetCut
         embed: true
         link: false
     settings:
@@ -35,7 +63,7 @@ targets:
 schemes:
   OortUITests:
     build:
-      targets: {OortNX: all, DmGame: all, OortUITests: all}
+      targets: {OortNX: all, DmGame: all, FakePad: all, NetCut: all, OortUITests: all}
     run: {config: Release}
     test:
       config: Release
