@@ -1,5 +1,6 @@
 package io.github.sofianbll.oortnx.ui
 
+import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -49,13 +50,31 @@ fun ListScreen(state: AppState, title: String, onBack: (() -> Unit)?) {
 fun WhichGamesScreen(state: AppState) {
     Column(Modifier.fillMaxSize().padding(horizontal = 20.dp)) {
         PageTitle(stringResource(R.string.settings_which), { state.onBack() })
-        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        val scroll = rememberScrollState()
+        FollowTextSteps(state, scroll)
+        Column(Modifier.weight(1f).verticalScroll(scroll).padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             for (text in listOf(R.string.empty_body, R.string.which_limits)) {
                 Text(stringResource(text), Modifier.widthIn(max = 620.dp), style = MaterialTheme.typography.bodyLarge, color = Ink2)
             }
         }
+        TextHints(state)
     }
 }
+
+/** Scrolls a page of words as the controller or the keyboard goes up and down. */
+@Composable
+private fun FollowTextSteps(state: AppState, scroll: ScrollableState) {
+    var seen by remember { mutableIntStateOf(state.textSteps) }
+    val step = with(LocalDensity.current) { 220.dp.toPx() }
+    LaunchedEffect(state.textSteps) {
+        val by = state.textSteps - seen
+        seen = state.textSteps
+        if (by != 0) scroll.animateScrollBy(by * step)
+    }
+}
+
+@Composable
+private fun TextHints(state: AppState) = Hints(state, listOf(HintKey.Back to R.string.back, HintKey.Tabs to R.string.hint_tabs))
 
 /** The lines of a paragraph run together, so it wraps at the window's width; lists, tables and headings keep theirs. */
 private fun flow(paragraph: String): String {
@@ -71,13 +90,7 @@ fun LicenceScreen(state: AppState, licence: LicenceText) {
         context.assets.open("licences/${licence.file}").bufferedReader().use { it.readText() }.trim().split(Regex("\n\\s*\n")).map(::flow)
     }
     val list = rememberLazyListState()
-    var seen by remember { mutableIntStateOf(state.textSteps) }
-    val step = with(LocalDensity.current) { 220.dp.toPx() }
-    LaunchedEffect(state.textSteps) {
-        val by = state.textSteps - seen
-        seen = state.textSteps
-        if (by != 0) list.animateScrollBy(by * step)
-    }
+    FollowTextSteps(state, list)
     Column(Modifier.fillMaxSize().padding(horizontal = 20.dp)) {
         PageTitle(licence.title, { state.onBack() })
         SelectionContainer(Modifier.weight(1f)) {
@@ -85,5 +98,6 @@ fun LicenceScreen(state: AppState, licence: LicenceText) {
                 items(paragraphs) { Text(it, Modifier.widthIn(max = 680.dp), style = MaterialTheme.typography.bodyMedium, color = Ink2) }
             }
         }
+        TextHints(state)
     }
 }

@@ -220,7 +220,7 @@ class AppState(
         }
         val page = route
         when {
-            page is Route.Licence -> textNav(nav)
+            page.isText -> textNav(nav)
             page != null -> listNav(nav)
             section == Section.Home -> homeNav(nav)
             section == Section.Library -> libraryNav(nav)
@@ -234,7 +234,7 @@ class AppState(
         val page = route
         fun <T> next(all: List<T>, here: T): T = all[(all.indexOf(here) + by + all.size) % all.size]
         when {
-            menuGame == null && (page is Route.Licence || page == Route.WhichGames) -> textNav(if (forward) Nav.Down else Nav.Up)
+            menuGame == null && page.isText -> textNav(if (forward) Nav.Down else Nav.Up)
             menuGame == null && page == null && section == Section.Home -> if (selected != null) moveHome(next(HomeTarget.entries, homeTarget))
             menuGame == null && page == null && section == Section.Library -> if (library.isNotEmpty()) {
                 libraryFocus = next(library.indices.toList(), libraryFocus); sound(SoundEvent.Move, step++)

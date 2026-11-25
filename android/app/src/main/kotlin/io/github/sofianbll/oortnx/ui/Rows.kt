@@ -57,6 +57,9 @@ sealed interface Route {
     val key: String get() = toString()
 }
 
+/** A page of words with nothing to choose: up and down scroll it. */
+val Route?.isText: Boolean get() = this is Route.Licence || this == Route.WhichGames
+
 /** The texts packaged with the app (assets/licences). */
 enum class LicenceText(val file: String, val title: String) {
     Oort("oort-nx.txt", "Oort NX"),
