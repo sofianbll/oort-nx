@@ -103,6 +103,13 @@ extension SpotlightView {
                         guard !state.isLifted, platformPicker == nil || item == .platform else { return }
                         mutate { $0.select(item) }
                         activate(item)
+                    },
+                    onOptions: { item in
+                        guard platformPicker == nil, !state.isLifted else { return }
+                        profileFocused = false
+                        router.integrationBarFocused = false
+                        mutate { $0.select(item) }
+                        handle(.contextAction)
                     }
                 )
                 .offset(y: canvas.u(130))

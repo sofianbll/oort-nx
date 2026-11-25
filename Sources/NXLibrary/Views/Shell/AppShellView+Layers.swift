@@ -256,6 +256,7 @@ extension AppShellView {
         .environment(\.seleneReduceMotion, reduceMotion)
         .environment(\.seleneBackdropStyle, backdropStyle)
         .environment(\.seleneSharesBackdrop, true)
+        .environment(\.oortLivePointer, true)
         .environment(\.seleneShowButtonHints, settings.presentation.showButtonHints)
         .environment(\.seleneButtonNames, settings.presentation.buttonNames)
         .environment(\.seleneHintsCovered, filePicker.isOpen)

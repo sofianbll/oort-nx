@@ -30,4 +30,13 @@ final class ClickableHintsTests: XCTestCase {
         let hints = try Self.source("Spotlight/SpotlightView+Hints.swift")
         XCTAssertTrue(hints.contains("HintItem(.a, L10n.text(\"Drop\")), HintItem(.b, L10n.text(\"Cancel\"))"))
     }
+
+    /// A right click on any tile or card opens what + opens for it.
+    func testARightClickOpensTheOptionsOnBothHomeScreens() throws {
+        for path in ["Spotlight/SpotlightView+Stage.swift", "Collection/CollectionView.swift"] {
+            let body = try XCTUnwrap(try Self.source(path).components(separatedBy: "onOptions: {").last?.prefix(420))
+            XCTAssertTrue(body.contains("handle(.contextAction)"), path)
+        }
+        XCTAssertTrue(try Self.source("OortUI/OortGameTile.swift").contains(".oortSecondaryClick(options)"))
+    }
 }

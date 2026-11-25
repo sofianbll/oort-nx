@@ -237,7 +237,13 @@ struct CollectionView: View {
                     showsCloudBadges: settings.settings.cloudTileBadges.showsOnCollection,
                     badgePosition: settings.settings.tileBadgePosition,
                     onSelect: { select($0.id) },
-                    onActivate: { record in select(record.id); activateCatalog(record) })
+                    onActivate: { record in select(record.id); activateCatalog(record) },
+                    onOptions: { record in
+                        profileFocused = false
+                        router.integrationBarFocused = false
+                        select(record.id)
+                        handle(.contextAction)
+                    })
                     .offset(y: canvas.u(576))
             }
         }

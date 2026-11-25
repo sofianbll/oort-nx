@@ -12,6 +12,7 @@ I tipi con prefisso `Selene` restano disponibili per la migrazione.
 | `SeleneValueRow`, `SeleneCycleRow`, `SeleneToggleRow`, `SeleneButtonRow`, `OortSliderRow` | Mostrare/modificare un valore nelle impostazioni | Valore, scelta, interruttore, azione, cursore | Conservare valore e azione distinti · non attivare al focus. |
 | `OortCard` (`SelenePanel`) | Superficie condivisa per informazioni o controlli correlati | Titolo e info facoltativi | Comporre righe · non annidare schede per creare margini. |
 | `OortGameTile` | Tessera con arte fornita dal chiamante | `spotlight`, `collection`; selezionata o no | Separare selezione da attivazione · non aggiungere un secondo anello. |
+| `oortSecondaryClick` | Clic destro o Ctrl-clic: le opzioni del pezzo | Azione o nessuna | Raddoppia un comando già visibile · mai l'unica via. |
 | `OortButton` | Azione isolata nella pillola Selene | `action`, `compact`; pronto, bloccato, in corso, focus | Dare un verbo al titolo · non attivare un lavoro già in corso. |
 | `SeleneConfirmDialog`, `SeleneChoiceDialog`, `SeleneSuccessNotice` | Conferma, scelta o messaggio | Conferma, lista di scelte, messaggio | Azione primaria a sinistra, focus iniziale sicuro · nascondere l'aiuto sottostante. |
 | `SeleneValueChip`, `OortStatus` | Valore breve o stato scritto | Testo/simbolo; neutro, in corso, attenzione, pronto | Scrivere lo stato · non affidarlo a colore o animazione. |

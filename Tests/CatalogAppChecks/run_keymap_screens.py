@@ -194,6 +194,27 @@ final class ThemeStore {
             else { fatalError("Could not render \(name)") }
             try png.write(to: output.appendingPathComponent("\(name).png"))
         }
+        // A right click reaches the options layer; a left click goes through it to the tile.
+        _ = NSApplication.shared.setActivationPolicy(.prohibited)
+        var opened = 0
+        let tile = NSHostingView(rootView: Rectangle().frame(width: 100, height: 100).oortSecondaryClick { opened += 1 }
+            .environment(\.oortLivePointer, true))
+        tile.frame = NSRect(x: 0, y: 0, width: 100, height: 100)
+        let window = NSWindow(contentRect: tile.frame, styleMask: .borderless, backing: .buffered, defer: true)
+        window.contentView = tile
+        tile.layoutSubtreeIfNeeded()
+        for (type, flags, expected) in [(NSEvent.EventType.leftMouseDown, NSEvent.ModifierFlags(), 0),
+                                        (.rightMouseDown, [], 1), (.leftMouseDown, .control, 2)] {
+            let event = NSEvent.mouseEvent(with: type, location: NSPoint(x: 50, y: 50), modifierFlags: flags, timestamp: 0,
+                                           windowNumber: window.windowNumber, context: nil, eventNumber: 0, clickCount: 1, pressure: 1)!
+            NSApp.postEvent(event, atStart: true)
+            let current = NSApp.nextEvent(matching: [.leftMouseDown, .rightMouseDown], until: Date().addingTimeInterval(1),
+                                          inMode: .default, dequeue: true)!
+            if let hit = tile.hitTest(NSPoint(x: 50, y: 50)) as? SecondaryClickView {
+                if type == .rightMouseDown { hit.rightMouseDown(with: current) } else { hit.mouseDown(with: current) }
+            }
+            precondition(opened == expected, "\(type) opened \(opened)")
+        }
         print("Verified both binding tables, browsing hints and every hint token; rendered five Selene help bars.")
     }
 }
@@ -208,7 +229,7 @@ with tempfile.TemporaryDirectory(prefix="keymap-screens-") as folder:
         "Theme/AppLocaleEnvironment.swift", "Theme/SeleneCanvasEnvironment.swift",
         "Theme/SeleneFonts.swift", "Theme/SeleneTheme.swift",
         "Components/SeleneBottomScrim.swift", "Components/SeleneHomeChrome.swift",
-        "OortUI/SeleneHintsBar.swift", "OortUI/SelenePromptBadge.swift",
+        "OortUI/SeleneHintsBar.swift", "OortUI/SelenePromptBadge.swift", "OortUI/OortSecondaryClick.swift",
     ]
     subprocess.run(["xcrun", "swiftc", "-parse-as-library", "-I", BIN, swift,
                     ROOT / "Sources/NXLibrary/Models/GamepadType.swift",
