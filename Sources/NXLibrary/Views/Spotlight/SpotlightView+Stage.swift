@@ -16,7 +16,7 @@ extension SpotlightView {
     var viewerOverlay: some View {
         if let viewer {
             ScreenshotViewer(titleID: viewer.titleID, urls: viewer.urls, state: viewer.state,
-                             artwork: artwork, onClose: closeViewer)
+                             artwork: artwork, onClose: closeViewer, onAction: handleViewer)
                 .transition(.opacity)
         }
     }

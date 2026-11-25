@@ -14,6 +14,13 @@ final class ClickableHintsTests: XCTestCase {
         XCTAssertTrue(try Self.source("Components/SeleneHomeChrome.swift").contains("rightReserve: rightReserve, press: press)"))
     }
 
+    func testTheViewersArrowsTakeAClickInBothHosts() throws {
+        XCTAssertTrue(try Self.source("Components/ScreenshotViewer.swift").contains("leftInset: 18, press: onAction)"))
+        for path in ["Spotlight/SpotlightView+Stage.swift", "Detail/GameDetailView.swift"] {
+            XCTAssertTrue(try Self.source(path).contains("onClose: closeViewer, onAction: handleViewer)"), path)
+        }
+    }
+
     /// Moving a tile: the click layer covers the stage, so any click drops and none starts a game.
     func testAClickPutsALiftedTileDown() throws {
         let stage = try Self.source("Spotlight/SpotlightView+Stage.swift")

@@ -256,7 +256,7 @@ extension SpotlightView {
         SoundEffectService.shared.play(.focus)
     }
 
-    private func handleViewer(_ action: GamepadAction) {
+    func handleViewer(_ action: GamepadAction) {
         guard var context = viewer else { return }
         switch ScreenshotViewer.handle(action, state: &context.state) {
         case .moved:
