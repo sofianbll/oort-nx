@@ -50,6 +50,8 @@ struct Host {
     online: Arc<Online>,
     /// Names of the controllers plugged in, as the system gives them.
     pads: Mutex<Vec<String>>,
+    /// The window stepped aside for a game, and has to come back.
+    aside: AtomicBool,
 }
 
 impl Host {
@@ -141,9 +143,7 @@ fn launch(app: AppHandle, host: State<'_, Arc<Host>>, id: String, fullscreen: bo
     std::thread::spawn(move || {
         std::thread::sleep(STEP_ASIDE);
         if !aside_ended.load(Ordering::Relaxed) {
-            if let Some(w) = aside_app.get_webview_window("main") {
-                let _ = w.minimize();
-            }
+            step_aside(&aside_app);
         }
     });
 
@@ -162,7 +162,15 @@ fn launch(app: AppHandle, host: State<'_, Arc<Host>>, id: String, fullscreen: bo
 
 fn come_back(app: &AppHandle, host: &Host, end: Value) {
     host.playing().game = None;
+    let aside = host.aside.swap(false, Ordering::SeqCst);
     if let Some(w) = app.get_webview_window("main") {
+        // GNOME leaves a minimized window where it is when it asks to come back (Wayland has no such request, and X11
+        // refuses one that no key or click made): hidden, then shown anew, it is in front again.
+        // shortcut: under X11 a full screen window comes back as a window (F11 twice); Wayland keeps it. Ceiling: asked
+        // right after `show`, X11 ignores it; the next try asks once the window is mapped again.
+        if aside && cfg!(target_os = "linux") {
+            let _ = w.hide();
+        }
         let _ = w.show();
         let _ = w.unminimize();
         let _ = w.set_focus();
@@ -172,6 +180,7 @@ fn come_back(app: &AppHandle, host: &Host, end: Value) {
 
 fn step_aside(app: &AppHandle) {
     if let Some(w) = app.get_webview_window("main") {
+        app.state::<Arc<Host>>().aside.store(true, Ordering::SeqCst);
         let _ = w.minimize();
     }
 }
@@ -433,7 +442,7 @@ fn setup(app: &AppHandle) -> Result<Arc<Host>, Box<dyn std::error::Error>> {
             args.extend([name.to_string(), value]);
         }
     }
-    Ok(Arc::new(Host { core: Companion::new(program, args), data, playing: Mutex::default(), online: Arc::default(), pads: Mutex::default() }))
+    Ok(Arc::new(Host { core: Companion::new(program, args), data, playing: Mutex::default(), online: Arc::default(), pads: Mutex::default(), aside: AtomicBool::default() }))
 }
 
 fn languages() -> String {
