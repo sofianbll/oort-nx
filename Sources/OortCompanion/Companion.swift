@@ -6,8 +6,6 @@ import Foundation
 public final class Companion {
     public struct Setup: Sendable {
         public var data: String
-        /// The folder of catalog.json.
-        public var resources: String
         public var system: String
         public var home: String
         public var documents: String
@@ -15,9 +13,9 @@ public final class Companion {
         public var config: String
         public var languages: [String]
 
-        public init(data: String, resources: String, system: String, home: String = "", documents: String = "", local: String = "",
+        public init(data: String, system: String, home: String = "", documents: String = "", local: String = "",
                     config: String = "", languages: [String] = []) {
-            (self.data, self.resources, self.system, self.home) = (data, resources, system, home)
+            (self.data, self.system, self.home) = (data, system, home)
             (self.documents, self.local, self.config, self.languages) = (documents, local, config, languages)
         }
     }
@@ -118,6 +116,7 @@ public final class Companion {
         case "game.link":
             let url = p["url"]?.stringValue ?? ""
             return .bool(url.hasPrefix("https://") && (records.values.contains { $0.page == url }
+                || games.contains { $0.manifest?.repo.map { "https://github.com/" + $0 } == url }
                 || games.contains { $0.manifest?.prepare?.options.contains { $0.license?.url == url } == true }))
         case "pad":
             pad = p["kind"]?.stringValue == "playstation" ? "playstation" : "xbox"
@@ -146,7 +145,6 @@ public final class Companion {
         case "profiles.select": return try selectProfile(p)
         case "profiles.rename": return try renameProfile(p)
         case "profiles.pin": return try setPIN(p)
-        case "catalog": return try catalog()
         case "files": return try files(p)
         case "sound": return try sound(p)
         case "prompts": return prompts()
@@ -580,13 +578,7 @@ public final class Companion {
         return profileList()
     }
 
-    // MARK: - Catalog, files, sounds, prompts
-
-    private func catalog() throws -> CatalogJSON {
-        let file = URL(fileURLWithPath: Paths.join(setup.resources, "catalog.json"))
-        guard let data = try? Data(contentsOf: file), let list = try? JSONDecoder().decode(CatalogJSON.self, from: data) else { throw Manifest.Failure(code: "catalog") }
-        return list
-    }
+    // MARK: - Files, sounds, prompts
 
     /// A folder for the file picker: only names, never what files hold.
     private func files(_ p: CatalogJSON) throws -> CatalogJSON {

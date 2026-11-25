@@ -1,6 +1,6 @@
 # Proves a Windows installer on a machine that has neither Swift nor Rust in its PATH: silent install, the installed app
 # driven through its scenarios with invented games, a second install over it, then an uninstall that leaves the player's
-# files. usage: prove.ps1 -Installer <setup.exe> -Out <folder> -Version <x.y.z> [-Before <the published alpha.1's setup.exe>]
+# files. usage: prove.ps1 -Installer <setup.exe> -Out <folder> -Version <x.y.z> [-Before <the published alpha.2's setup.exe>]
 param([string]$Before, [Parameter(Mandatory)][string]$Installer, [Parameter(Mandatory)][string]$Out, [Parameter(Mandatory)][string]$Version)
 $ErrorActionPreference = 'Stop'
 $here = $PSScriptRoot
@@ -97,14 +97,14 @@ function Drive([string]$script, [string[]]$pairs) {
   Debugging $false
 }
 
-# --- From the published alpha.1, as a player updates
+# --- From the published alpha.2, as a player updates
 if ($Before) {
-  Write-Host "`n--- alpha.1: sha256 $((Get-FileHash $Before).Hash.ToLower())"
+  Write-Host "`n--- alpha.2: sha256 $((Get-FileHash $Before).Hash.ToLower())"
   Install $Before
   $old = & $entry
-  Check ($old.DisplayVersion -eq '0.1.0-alpha.1') "the published version: $($old.DisplayVersion)"
+  Check ($old.DisplayVersion -eq '0.1.0-alpha.2') "the published version: $($old.DisplayVersion)"
   $app = (Get-ChildItem $old.InstallLocation.Trim('"') -Filter *.exe | Where-Object { $_.Name -notin 'oort-core.exe', 'uninstall.exe' }).FullName
-  Drive "$desktop\tests\alpha1.js" @('tag=update-', 'language=fr', 'size=1440x900')
+  Drive "$desktop\tests\alpha2.js" @('tag=update-', 'language=fr', 'size=1440x900')
   Quiet
   $kept = @('library.json', 'sessions.json', 'profiles.json', 'settings.json') | ForEach-Object { "$own\$_" }
   $digests = $kept | ForEach-Object { (Get-FileHash $_).Hash }
@@ -140,7 +140,7 @@ $app = $app.FullName
 $path = $env:PATH
 $env:PATH = "$env:SystemRoot\System32"
 Check ($null -eq (Get-Command swift, cargo, rustc -ErrorAction SilentlyContinue)) 'no Swift, no Rust in PATH'
-$reply = '{"id":1,"method":"hello"}' | & "$folder\oort-core.exe" --data "$env:RUNNER_TEMP\core-data" --resources $folder --system windows
+$reply = '{"id":1,"method":"hello"}' | & "$folder\oort-core.exe" --data "$env:RUNNER_TEMP\core-data" --system windows
 Check ("$reply" -match '"system":"windows"') 'the installed core answers'
 $env:PATH = $path
 
@@ -174,7 +174,7 @@ $env:PATH = $path
 
 # --- The scenarios, each with a data folder of its own
 foreach ($one in @(
-    @('walk', '1440x900', 'fr'), @('play', '1440x900', 'fr'), @('pad', '1440x900', 'fr'), @('input', '1440x900', 'fr'), @('input', '1280x720', 'en'), @('look', '1280x720', 'fr'), @('look', '760x480', 'fr'), @('walk', '1280x720', 'en'))) {
+    @('add', '1440x900', 'fr'), @('add', '760x480', 'fr'), @('walk', '1440x900', 'fr'), @('play', '1440x900', 'fr'), @('pad', '1440x900', 'fr'), @('input', '1440x900', 'fr'), @('input', '1280x720', 'en'), @('look', '1280x720', 'fr'), @('look', '760x480', 'fr'), @('walk', '1280x720', 'en'))) {
   $tag = if ($one[0] -eq 'look' -and $one[1] -eq '760x480') { 'small-' } else { "$($one[0])-$($one[1])-$($one[2])-" }
   Drive "$desktop\tests\$($one[0]).js" @("data=$env:RUNNER_TEMP\data-$tag", "tag=$tag", "size=$($one[1])", "language=$($one[2])", 'limit=420')
 }

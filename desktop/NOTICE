@@ -88,6 +88,3 @@ On Linux the window is WebKitGTK's. The .deb uses the system's; the AppImage car
 it, with GTK, GStreamer and the libraries they need, as separate files unchanged from
 Debian 12 (LGPL, GPL and other licences): licenses/THIRD-PARTY-LINUX.txt of the
 AppImage names each, with its licence and where the source of that version is.
-
-No trademark owner named in catalog.json (game and console names, to say what a
-project is for) is affiliated with Oort NX or endorses it.

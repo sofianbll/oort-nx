@@ -39,7 +39,7 @@ probe(async P => {
   const scrolled = document.querySelector('.scroll'); await host('wheel', cx, cy, 0, 300); await P.wait(400); P.ok(scrolled.scrollTop > 0, 'the wheel scrolls the grid'); await P.press('view'); await P.wait(200);
 
   // WIN-03, and the keyboard's Ctrl as the Mac's ⌘.
-  const g = oort.library.games.find(x => x.state === 'ready'); await P.press('lt'); for (let k = oort.library.games.indexOf(g) + 2; k > 0; k--) { oort.act('right'); await P.wait(20); } await P.wait(300);
+  const g = oort.library.games.find(x => x.state === 'ready'); await P.press('lt'); for (let k = oort.library.games.indexOf(g) + 1; k > 0; k--) { oort.act('right'); await P.wait(20); } await P.wait(300);
   await P.button(9); await P.until(() => document.querySelector('.shell')); P.same(P.text('.side p'), g.name, '+: the options of the chosen game'); await home();
   await P.button(3); await P.until(() => document.querySelector('.find')); P.say('ok Y searches'); await home();
   await P.press('x'); await P.until(() => document.querySelector('.detail')); await P.wait(200); P.ok(/Y/.test(hint()), 'its page: ' + bar().join(' · ')); await P.button(9); await P.until(() => document.querySelector('.shell')); P.say('ok + there too'); await P.press('b'); await P.press('b'); await P.until(() => !document.querySelector('.shell')); await P.button(3); await P.until(() => document.querySelector('.find')); P.say('ok Y there too'); await home();

@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 25 novembre 2026. Copertura di **1140 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 25 novembre 2026. Copertura di **1141 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -14,6 +14,7 @@ Le cartelle generate `.build/`, `work/` e `dist/` e i dati personali in Applicat
 - [Modelli dello stato applicativo](#modelli-dello-stato-applicativo)
 - [Integrazione con macOS e servizi applicativi](#integrazione-con-macos-e-servizi-applicativi)
 - [OortCore · logica portabile](#oortcore--logica-portabile)
+- [Windows e Linux](#windows-e-linux)
 - [Core · app: aggiornamento, primo avvio, diagnostica e comandi](#core--app-aggiornamento-primo-avvio-diagnostica-e-comandi)
 - [Core · catalogo comune e fonti](#core--catalogo-comune-e-fonti)
 - [Core · libreria, sessioni e spazio](#core--libreria-sessioni-e-spazio)
@@ -200,6 +201,18 @@ Cartella `Sources/OortCore/`, senza risorse né dipendenze.
 | [MoveDirection.swift](../../Sources/OortCore/MoveDirection.swift) | Espone le quattro direzioni del focus. |
 | [ProfileKeypad.swift](../../Sources/OortCore/ProfileKeypad.swift) | Griglia PIN con lunghezza passata dal chiamante e conferma esplicita. |
 | [VersionNumber.swift](../../Sources/OortCore/VersionNumber.swift) | Confronta numeri di versione puntati parte per parte. |
+
+## Windows e Linux
+
+La [mappa del desktop](../../desktop/README.md) descrive i bersagli di build e le prove dei pacchetti.
+
+| File | Responsabilità |
+|---|---|
+| [app.js](../../desktop/ui/app.js) | Finestra desktop e navigazione, con Add game come prima azione a libreria vuota e prima tessera di Spotlight. |
+| [Companion.swift](../../Sources/OortCompanion/Companion.swift) | Protocollo Swift per libreria, cartelle, sessioni e link dichiarati da giochi già aggiunti. |
+| [add.js](../../desktop/tests/add.js) | Focus iniziale, apertura con un controller simulato, aggiunta sintetica e ordine delle tessere. |
+| [alpha2.js](../../desktop/tests/alpha2.js) e [update.js](../../desktop/tests/update.js) | Preparazione della libreria nell'app Windows pubblicata e controllo dopo l'installazione della nuova versione. |
+| [upgrade.py](../../desktop/tests/upgrade.py) | Confronto di cartelle, ID dei giochi, preferiti, sessione sintetica e tema fra il core precedente e quello nuovo. |
 
 ## Core · app: aggiornamento, primo avvio, diagnostica e comandi
 

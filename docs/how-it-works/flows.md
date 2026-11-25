@@ -81,6 +81,8 @@ I titoli importati dal cloud compaiono in Spotlight e Collection. **Download** a
 
 **Collegare un’app Mac.** In Settings → Integrations o nel menu macOS Game, **Add an app…** sceglie un `.app`; Spotlight e Collection accettano anche un `.app` trascinato se il catalogo lo convalida. Play consegna l’app verificata a macOS, senza tempo di gioco. Se il percorso non corrisponde più, **Locate the app…** ricollega l’app originale senza cambiare la tessera. **Tile options** cambia l’immagine di Oort o rimuove la tessera, senza toccare l’app.
 
+**Windows e Linux.** A libreria vuota il focus è su **Add game**; in Spotlight la stessa azione precede i giochi senza lasciare spazi fra le tessere. **A folder of games** registra la cartella e il core legge i file `recomplauncher.json` dei singoli giochi. L'aggiornamento dell'app non richiede di aggiungerli di nuovo.
+
 ## 3. Play di un gioco Switch (nxnative)
 
 ```mermaid

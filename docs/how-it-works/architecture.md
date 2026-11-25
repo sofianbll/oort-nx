@@ -12,6 +12,8 @@ Ordine di lettura per chi lavora sul codice:
 
 Il [README](../../README.md) è la guida d'uso; la [guida di sviluppo](../working-on-it/development.md) raccoglie build, runtime, CI e release.
 
+Per Windows e Linux, [desktop](../../desktop/README.md) descrive la finestra Tauri, il core Swift e le prove d'installazione. Il [protocollo](../../desktop/PROTOCOL.md) separa la libreria locale dalle operazioni della finestra, compresa l'apertura dei link dichiarati dai giochi.
+
 **Engine predefinito:** pin `99224562186a8fdb7e97afb872319a21941ec317` di `seedds/nxnative`, definito in `AppViewModel.defaultPinnedEngineCommit`. Il suo lock certifica Metal `32023.922`, asset Apple `27B47`, con Xcode minimo `27.2`. Le revisioni di ogni pin sono in [upstream-upgrades](../history/engine-upgrades/README.md).
 
 ## Indice

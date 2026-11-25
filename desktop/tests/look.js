@@ -10,7 +10,7 @@ probe(async P => {
   const padFits = where => { const bad = [...document.querySelectorAll('.layer:not([hidden]) .padmap li')].filter(li => { const p = li.closest('.padmap').getBoundingClientRect(), [a, b] = [...li.children].map(c => c.getBoundingClientRect()); return Math.min(a.left, b.left) < p.left - 1 || Math.max(a.right, b.right) > p.right + 1 || a.left < b.right - 1 && b.left < a.right - 1; }).map(li => li.textContent); P.ok(!bad.length, `${where}: every label of the pad fits ${bad.join(' | ')}`); };
   const visit = async name => {
     const set = async (tag) => { cut(`${name} ${tag}`); small(`${name} ${tag}`); await P.shot(`${name}-${tag}`); };
-    const i = oort.library.games.findIndex(g => !g.hero && g.state === 'ready') + 2; await P.press('lt'); for (let k = 0; k < i; k++) { oort.act('right'); await P.wait(15); } await P.wait(400); await set('shelf');
+    const i = oort.library.games.findIndex(g => !g.hero && g.state === 'ready') + 1; await P.press('lt'); for (let k = 0; k < i; k++) { oort.act('right'); await P.wait(15); } await P.wait(400); await set('shelf');
     await P.press('view'); await P.wait(300); await set('grid'); await P.press('view');
     await P.settings(); await P.press('down'); await P.press('right'); await P.wait(200); await set('settings'); await P.press('b'); await P.press('b'); while (oort.layers.length > 1) await P.press('b');
     await P.press('home'); await P.until(() => document.querySelector('.menu')); await P.wait(250); await P.press('a'); await P.wait(200); await set('menu'); await P.press('home'); await P.until(() => oort.layers.length === 1);

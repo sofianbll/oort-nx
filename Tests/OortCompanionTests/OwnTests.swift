@@ -370,7 +370,7 @@ final class OwnCompanionTests: XCTestCase {
     private var clock = Date(timeIntervalSince1970: 1_800_000_000)
 
     private func companion(_ system: String = "windows") throws -> Companion {
-        try Companion(.init(data: root + "/data", resources: root, system: system, home: root + "/home", languages: ["fr-FR"]), now: { [unowned self] in clock })
+        try Companion(.init(data: root + "/data", system: system, home: root + "/home", languages: ["fr-FR"]), now: { [unowned self] in clock })
     }
 
     private func ask(_ c: Companion, _ method: String, _ params: CatalogJSON = [:]) throws -> CatalogJSON {

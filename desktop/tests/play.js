@@ -6,7 +6,7 @@ probe(async P => {
   const ends = []; await window.__TAURI__.event.listen('session', e => ends.push(e.payload));
   const back = () => P.until(() => !oort.layers.some(l => l.launch), 12000, 'back from the game');
   // The shelf is drawn again after a session: settle first.
-  const goTo = async name => { await P.wait(700); const i = oort.library.games.findIndex(g => g.name === name) + 2; await P.press('lt'); for (let k = 0; k < i; k++) { oort.act('right'); await P.wait(20); } await P.wait(150); };
+  const goTo = async name => { await P.wait(700); const i = oort.library.games.findIndex(g => g.name === name) + 1; await P.press('lt'); for (let k = 0; k < i; k++) { oort.act('right'); await P.wait(20); } await P.wait(150); };
   const refused = async (p, code, what) => { let got = 'nothing'; try { await p; } catch (e) { got = String(e); } P.same(got, code, what); };
 
   const lunar = find('Lunar Observatory');

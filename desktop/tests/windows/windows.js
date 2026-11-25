@@ -18,7 +18,7 @@ probe(async P => {
   await host('key', 0x7A); await P.wait(1200); P.ok(innerHeight >= screen.height - 2, `F11 fills the screen: ${innerWidth}x${innerHeight} of ${screen.width}x${screen.height}`); await host('desktop', '40-fullscreen'); await host('key', 0x7A); await P.wait(800); P.ok(innerHeight < screen.height - 2, 'and back');
 
   // The window steps aside for the game's own, and comes back in front when it ends.
-  const lantern = find('Winter Lantern'); await P.press('lt'); for (let i = oort.library.games.indexOf(lantern) + 2; i > 0; i--) { oort.act('right'); await P.wait(25); } P.same(P.id(), lantern.id, 'on Winter Lantern');
+  const lantern = find('Winter Lantern'); await P.press('lt'); for (let i = oort.library.games.indexOf(lantern) + 1; i > 0; i--) { oort.act('right'); await P.wait(25); } P.same(P.id(), lantern.id, 'on Winter Lantern');
   await host('desktop', '41-before'); await P.press('a'); await P.until(async () => (await host('state')).minimized, 6000, 'Oort steps aside'); P.say('ok Oort steps aside');
   await P.wait(700); const during = await host('state'); P.same(during.frontTitle, 'Invented game', 'the game is in front'); await host('desktop', '42-the-game');
   await P.until(() => ends.length, 15000, 'the game ends'); await P.wait(900); const after = await host('state'); P.same([after.minimized, after.front], [false, true], 'Oort is back in front'); await host('desktop', '43-back'); await P.shot('43-back-page');

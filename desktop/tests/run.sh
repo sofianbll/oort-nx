@@ -10,4 +10,4 @@ mkdir -p "$out" "$run/home" "$run/tmp"
 # The page learns where to put its pictures.
 { printf 'window.OUT=%s;window.RUN=%s;window.TAG=%s;\n' "\"$out\"" "\"$run\"" "\"${OORT_TAG:-}\""; cat "$here/lib.js" "$script"; } > "$run/probe.js"
 HOME="$run/home" CFFIXED_USER_HOME="$run/home" TMPDIR="$run/tmp" OORT_DATA="${OORT_DATA:-$run/data}" OORT_LANGUAGE="${OORT_LANGUAGE:-fr}" \
-  OORT_RESOURCES="$here/../src-tauri" OORT_PROBE="$run/probe.js" OORT_SIZE="$size" "$app"
+  OORT_PROBE="$run/probe.js" OORT_SIZE="$size" "$app"

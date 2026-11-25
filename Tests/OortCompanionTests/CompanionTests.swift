@@ -182,7 +182,7 @@ final class CompanionTests: XCTestCase {
     override func setUp() { root = scratch("companion") }
 
     private func companion() throws -> Companion {
-        try Companion(.init(data: root + "/data", resources: root, system: "linux", home: root + "/home", documents: root + "/docs",
+        try Companion(.init(data: root + "/data", system: "linux", home: root + "/home", documents: root + "/docs",
                             local: root + "/local", config: root + "/config", languages: ["fr-FR"]), now: { [unowned self] in clock })
     }
 
@@ -212,6 +212,15 @@ final class CompanionTests: XCTestCase {
         let list = try ask(c, "library.rescan")["games"].items
         XCTAssertEqual(list.count, 1)
         return ["id": list[0]["id"] ?? .null]
+    }
+
+    func testGameLinksDoNotNeedTheProjectList() throws {
+        try install("Made up game", #"{"format":1,"repo":"example/invented-game","start":{"program":["run"]}}"#)
+        let c = try companion()
+        _ = try ask(c, "folders.add", ["path": .string(root + "/games")])
+        XCTAssertEqual(code(c, "catalog"), "method")
+        XCTAssertEqual(try ask(c, "game.link", ["url": "https://github.com/example/invented-game"]), true)
+        XCTAssertEqual(try ask(c, "game.link", ["url": "https://github.com/other/unlisted"]), false)
     }
 
     private func merged(_ a: CatalogJSON, _ b: CatalogJSON) -> CatalogJSON {
@@ -463,7 +472,7 @@ final class CompanionTests: XCTestCase {
 
     #if os(Windows)
     func testTheFilePickerGoesFromDrivesToFoldersAndBack() throws {
-        let c = try Companion(.init(data: root + "/data", resources: root, system: "windows"))
+        let c = try Companion(.init(data: root + "/data", system: "windows"))
         let drives = try ask(c, "files")
         XCTAssertEqual(drives["parent"], .null)
         let drive = try XCTUnwrap(drives["entries"].items.first { $0["path"]?.stringValue?.lowercased() == String(root.prefix(3)).lowercased() })

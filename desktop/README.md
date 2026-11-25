@@ -2,6 +2,8 @@
 
 The same library as on the Mac, for games that already run on these systems: recompilations with a `recomplauncher.json`, any program with its arguments, and the games Steam installed. It downloads and installs no game and has no account. It sends nothing unless the player turns on game information online.
 
+An empty library starts on **Add game**. Choose **A folder of games** for a folder that contains recompiled games, each with its own `recomplauncher.json`. You do not need to add those folders again when updating from alpha.2.
+
 | Part | Where | What |
 |---|---|---|
 | Logic | `Sources/OortCompanion`, `Sources/oort-core` (Swift 6) | Library, settings, profiles, manifests, programs' icons and names, Steam's lists, what to ask online, launch plans, sounds. See [PROTOCOL.md](PROTOCOL.md) |
@@ -22,8 +24,8 @@ OORT_PORTABLE=1 swift test --filter OortCompanionTests
 
 | Where | What |
 |---|---|
-| `tests/windows/prove.ps1` | Silent install, the installed app driven through WebView2's debugging port (`drive.mjs`: the scripts of `desktop/tests`, `windows.js`), the real window and keys (`Desk.cs`), games made of `FakeGame.cs`, an update from the published alpha.1, an invented Steam (`FakeSteam.cs`, the registry, two drives), invented services on this computer (`tests/online.mjs`) and the ways they fail, a second install, uninstall |
-| `tests/linux/prove.sh` | The .deb and the AppImage on a virtual screen, real keys, the first steps, a followed game, a game an invented Steam starts |
+| `tests/windows/prove.ps1` | Silent install, the installed app driven through WebView2's debugging port (`drive.mjs`: the scripts of `desktop/tests`, `windows.js`), the real window and keys (`Desk.cs`), games made of `FakeGame.cs`, an update from the published alpha.2, an invented Steam (`FakeSteam.cs`, the registry, two drives), invented services on this computer (`tests/online.mjs`) and the ways they fail, a second install, uninstall |
+| `tests/linux/prove.sh` | The .deb and the AppImage on a virtual screen, real keys, the first steps, a followed game, a game an invented Steam starts, the library kept across the update from alpha.2 |
 | `scripts/runtime_windows.py` | The libraries that travel with the core, and a check that none is missing |
 | `scripts/licenses.py --texts`, `scripts/licenses_linux.py` | Licence texts of the Rust libraries of each package, and of the Debian libraries an AppImage carries |
 

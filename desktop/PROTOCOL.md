@@ -14,7 +14,7 @@ An `error` is a short code the window puts into words; `disk` comes with a `deta
 | `hello`, `view` | What the window needs to draw itself; `hello` takes the system's `languages` |
 | `library`, `library.rescan` | Games of a tab, searched and sorted (`LibraryQuery`) |
 | `folders`, `folders.add`, `folders.remove`, `programs.add`, `programs.remove`, `programs.rename`, `programs.about` | Where games are; what a program says of itself |
-| `game`, `game.favorite`, `game.input`, `game.setting`, `game.option`, `game.folder`, `game.link` | One game: its files, its settings, its setup choices |
+| `game`, `game.favorite`, `game.input`, `game.setting`, `game.option`, `game.folder`, `game.link` | One game: its files, its settings, its setup choices, and checks for HTTPS links from games in the library |
 | `game.art`* | The path of one of a game's pictures (`cover`, `icon`, `hero`, `logo`, and `mark`, its program's icon) |
 | `game.picture` | A picture the player chose, copied into the app's folder, or put away |
 | `guide` | The first steps: open or not, at which page, done |
@@ -25,7 +25,7 @@ An `error` is a short code the window puts into words; `disk` comes with a `deta
 | `session.start`*, `session.beat`*, `session.end`* | Play time, per profile |
 | `settings`, `settings.set`, `settings.save`, `settings.discard`, `settings.reset`, `settings.remember` | The Mac app's settings (`AppSettings`), tried then saved |
 | `profiles`, `profiles.add`, `profiles.select`, `profiles.rename`, `profiles.pin` | Local profiles |
-| `catalog`, `files`, `sound`, `prompts`, `pad` | Projects, names in a folder, a WAV (OortSynth), button names, the controller in hand |
+| `files`, `sound`, `prompts`, `pad` | Names in a folder, a WAV (OortSynth), button names, the controller in hand |
 
 \* Asked by the host only; the page cannot.
 

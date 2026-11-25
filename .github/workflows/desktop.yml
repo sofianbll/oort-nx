@@ -83,7 +83,7 @@ jobs:
           Copy-Item "desktop/src-tauri/binaries/oort-core-${{ matrix.triple }}.exe" "$dir/oort-core.exe"
           Copy-Item desktop/src-tauri/runtime/*.dll $dir
           $env:PATH = "$env:SystemRoot\System32"
-          $reply = '{"id":1,"method":"hello"}' | & "$dir/oort-core.exe" --data "$dir/data" --resources desktop/src-tauri --system windows
+          $reply = '{"id":1,"method":"hello"}' | & "$dir/oort-core.exe" --data "$dir/data" --system windows
           if ($reply -notmatch '"system":"windows"') { Write-Error "unexpected reply: $reply" }
       - name: Page and generated files
         run: |
@@ -146,12 +146,12 @@ jobs:
           name: oort-nx-windows-${{ matrix.arch }}
           path: package
       # The version players have, as published, by its digest.
-      - name: The published alpha.1
+      - name: The published alpha.2
         if: matrix.arch == 'x64'
         run: |
-          curl.exe -fsSL --retry 3 -o before-setup.exe https://github.com/sofianbll/oort-nx/releases/download/windows-v0.1.0-alpha.1/Oort-NX-Windows-0.1.0-alpha.1-x64-setup.exe
+          curl.exe -fsSL --retry 3 -o before-setup.exe https://github.com/sofianbll/oort-nx/releases/download/windows-v0.1.0-alpha.2/Oort-NX-Windows-0.1.0-alpha.2-x64-setup.exe
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          if ((Get-FileHash before-setup.exe).Hash -ne '5c18776d321721c83181eed7aa330352f244db083a35c55fae01b8d278ede91f') { Write-Error 'not the published file' }
+          if ((Get-FileHash before-setup.exe).Hash -ne '46a239bfab1cd877e1971a40d6ae3ab06bc0e28f7683b04a55d8676531ea5db7') { Write-Error 'not the published file' }
       - name: Install, play, uninstall
         run: |
           $before = if (Test-Path before-setup.exe) { (Get-Item before-setup.exe).FullName } else { '' }
@@ -194,7 +194,7 @@ jobs:
           # Without its symbols and debug notes the core is a quarter smaller; nothing reads them in a package.
           strip desktop/src-tauri/binaries/oort-core-x86_64-unknown-linux-gnu
           echo '{"id":1,"method":"hello"}' | desktop/src-tauri/binaries/oort-core-x86_64-unknown-linux-gnu \
-            --data /tmp/core --resources desktop/src-tauri --system linux | grep '"system":"linux"'
+            --data /tmp/core --system linux | grep '"system":"linux"'
       - name: Page, host
         run: |
           python3 desktop/scripts/generate.py --check
@@ -253,7 +253,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends xvfb xdotool imagemagick openbox dbus-x11 x11-utils
-          desktop/tests/linux/prove.sh package/*.deb package/*.AppImage proof
+          curl -fsSL --retry 3 -o /tmp/oort-before.deb https://github.com/sofianbll/oort-nx/releases/download/windows-v0.1.0-alpha.2/Oort-NX-Linux-0.1.0-alpha.2-x64.deb
+          echo '802a139ecedc3b44c18c0f4e4d6d2d9004b2812af813742433e2c9383e24fe3a  /tmp/oort-before.deb' | sha256sum -c -
+          desktop/tests/linux/prove.sh package/*.deb package/*.AppImage proof /tmp/oort-before.deb
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:

@@ -300,10 +300,8 @@ fn online_pick(host: State<'_, Arc<Host>>, id: String, choice: Value) -> Result<
 /// Opens a project's page or a licence in the player's browser: https only, and only what the app itself lists.
 #[tauri::command(async)]
 fn open_link(host: State<'_, Arc<Host>>, url: String) -> Result<(), String> {
-    let listed = host.core.ask("catalog", json!({}))?;
-    let page = |v: &Value| v["repo"].as_str().map(|r| format!("https://github.com/{r}"));
     let own = ["https://github.com/sofianbll/oort-nx", "https://github.com/sofianbll/oort-nx/releases", "https://github.com/elripalda/RecompLauncher-SDK", "https://github.com/ddoinn/padwake"];
-    let known = own.contains(&url.as_str()) || listed.as_array().into_iter().flatten().any(|p| page(p).as_deref() == Some(&url));
+    let known = own.contains(&url.as_str());
     if !known && !host.core.ask("game.link", json!({ "url": url })).is_ok_and(|v| v == json!(true)) {
         return Err("link".into());
     }
@@ -425,12 +423,10 @@ fn setup(app: &AppHandle) -> Result<Arc<Host>, Box<dyn std::error::Error>> {
     std::fs::create_dir_all(&data)?;
     let exe = std::env::current_exe()?;
     let program = exe.with_file_name(if cfg!(windows) { "oort-core.exe" } else { "oort-core" });
-    let resources = std::env::var_os("OORT_RESOURCES").map(PathBuf::from).or_else(|| paths.resource_dir().ok()).unwrap_or_default();
     let text = |p: PathBuf| p.to_string_lossy().into_owned();
     let mut args = Vec::new();
     for (name, value) in [
         ("--data", Some(text(data.clone()))),
-        ("--resources", Some(text(resources))),
         ("--system", Some(system().to_string())),
         ("--home", paths.home_dir().ok().map(text)),
         ("--documents", paths.document_dir().ok().map(text)),

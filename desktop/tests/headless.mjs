@@ -20,7 +20,7 @@ mkdirSync(out, { recursive: true });
 // The core, with folders of its own.
 const home = o.run ? path.join(o.run, 'home') : path.join(temp, 'home'), data = o.data || path.join(temp, 'data');
 mkdirSync(home, { recursive: true });
-const core = spawn(coreFile, ['--data', data, '--resources', path.join(here, '../src-tauri'), '--system', system, '--home', home, '--documents', path.join(home, 'Documents'), '--local', path.join(home, 'local'), '--config', path.join(home, 'config'), '--languages', o.language || 'fr'], { env: { PATH: '/usr/bin:/bin', HOME: home, CFFIXED_USER_HOME: home }, stdio: ['pipe', 'pipe', 'inherit'] });
+const core = spawn(coreFile, ['--data', data, '--system', system, '--home', home, '--documents', path.join(home, 'Documents'), '--local', path.join(home, 'local'), '--config', path.join(home, 'config'), '--languages', o.language || 'fr'], { env: { PATH: '/usr/bin:/bin', HOME: home, CFFIXED_USER_HOME: home }, stdio: ['pipe', 'pipe', 'inherit'] });
 let number = 0; const asked = new Map();
 createInterface({ input: core.stdout }).on('line', line => { const m = JSON.parse(line); asked.get(m.id)?.(m); asked.delete(m.id); });
 const ask = (method, params = {}) => new Promise((done, fail) => { const id = ++number; asked.set(id, m => 'error' in m ? fail(m.error) : done(m.result)); core.stdin.write(JSON.stringify({ id, method, params }) + '\n'); });

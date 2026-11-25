@@ -184,14 +184,8 @@
  "Double-click, or touch it again": {
   "fr": "Double-clic, ou touche-le encore"
  },
- "Early": {
-  "fr": "Au début"
- },
  "Everything stays on this computer: no account, no telemetry, no data sent.": {
   "fr": "Tout reste sur cet ordinateur : aucun compte, aucune mesure, aucune donnée envoyée."
- },
- "Experimental": {
-  "fr": "Expérimental"
  },
  "Files": {
   "fr": "Fichiers"
@@ -222,9 +216,6 @@
  },
  "Game settings": {
   "fr": "Réglages du jeu"
- },
- "Game version %@": {
-  "fr": "Version du jeu %@"
  },
  "Games come as folders with a recomplauncher.json inside. The folder stays in the library and is read again at each start.": {
   "fr": "Un jeu est un dossier qui contient un recomplauncher.json. Ce dossier reste dans la bibliothèque et sera relu à chaque démarrage."
@@ -273,9 +264,6 @@
  },
  "Kind": {
   "fr": "Type"
- },
- "Language, controller, games: a few short steps.": {
-  "fr": "Langue, manette, jeux : quelques étapes courtes."
  },
  "Last played": {
   "fr": "Dernière partie"
@@ -374,14 +362,8 @@
  "Optional": {
   "fr": "Facultatif"
  },
- "Original project gone": {
-  "fr": "Projet d’origine introuvable"
- },
  "Pictures and information": {
   "fr": "Images et informations"
- },
- "Playable, says the project": {
-  "fr": "Jouable, dit le projet"
  },
  "Plays a short sound when you move, select, go back or launch a game.": {
   "fr": "Émet un son bref lorsque tu navigues, sélectionnes, reviens en arrière ou lances un jeu."
@@ -400,15 +382,6 @@
  },
  "Project": {
   "fr": "Projet"
- },
- "Projects": {
-  "fr": "Projets"
- },
- "Projects that rebuild older games for this computer. Oort NX opens their page and installs nothing.": {
-  "fr": "Des projets qui recompilent d’anciens jeux pour cet ordinateur. Oort NX ouvre leur page et n’installe rien."
- },
- "Projects that rebuild older games for this computer. Oort NX opens their page and installs nothing. Each one asks for your own copy of the game.": {
-  "fr": "Des projets qui recompilent d’anciens jeux pour cet ordinateur. Oort NX ouvre leur page et n’installe rien. Chacun demande ta propre copie du jeu."
  },
  "Put it away": {
   "fr": "La retirer"
@@ -431,14 +404,8 @@
  "Reads the game folders again.": {
   "fr": "Relit les dossiers de jeux."
  },
- "Reads the recomplauncher.json of each game in your folders. Writes only the settings files games declare. Sends nothing.": {
-  "fr": "Lit le recomplauncher.json de chaque jeu de tes dossiers. N’écrit que les fichiers de réglages déclarés par les jeux. N’envoie rien."
- },
  "Recompilation": {
   "fr": "Recompilation"
- },
- "Recompilations": {
-  "fr": "Recompilations"
  },
  "Remove": {
   "fr": "Retirer"
@@ -455,9 +422,6 @@
  "Required": {
   "en": "Required.",
   "fr": "Obligatoire."
- },
- "Research": {
-  "fr": "Recherche"
  },
  "Restart Oort NX?": {
   "fr": "Redémarrer Oort NX ?"
@@ -659,8 +623,5 @@
  },
  "Yours": {
   "fr": "La tienne"
- },
- "not declared": {
-  "fr": "non déclarée"
  }
 }

@@ -290,15 +290,14 @@ const shiftTab = d => { const i = Math.max(0, Math.min(TABS.length - 1, TABS.ind
 let steamSeen = null;
 const findSteam = async () => { steamSeen = await ask('steam').catch(() => ({ found: false })); return steamSeen; };
 const addSteam = async () => { steamSeen = await ask('steam.set', { on: true }); await reload(true); selected = L.games.find(g => g.kind === 'steam')?.id ?? selected; S.play('success'); };
-const guideRow = () => row(t('Guided setup'), icon('chevron'), () => openGuide(), { id: 'guide', ic: 'checklist', sub: t('Language, controller, games: a few short steps.') });
-const addRows = after => [
-  steamSeen?.found && !steamSeen.on && row(t('Steam'), t('%lld games', steamSeen.games), async () => { await addSteam(); while (layers.length > 1) pop(); after ? after() : homeLayer.redraw(); }, { id: 'steam', ic: 'gamepad', sub: t('Adds the games Steam installed on this computer. Steam’s own files do not change.') }),
+const addRows = () => [
+  steamSeen?.found && !steamSeen.on && row(t('Steam'), t('%lld games', steamSeen.games), async () => { await addSteam(); while (layers.length > 1) pop(); homeLayer.redraw(); }, { id: 'steam', ic: 'gamepad', sub: t('Adds the games Steam installed on this computer. Steam’s own files do not change.') }),
   row(t('A program'), icon('chevron'), () => openProgram(), { id: 'program', ic: 'terminal', sub: system === 'windows' ? t('Any game or emulator you start with an .exe file. Its name and icon come with it.') : t('Any game or emulator, or its menu entry. Its name and icon come with it.') }),
   row(t('A folder of games'), icon('chevron'), () => pickFolder(() => { while (layers.length > 1) pop(); selected = L.games[0]?.id ?? null; homeLayer.redraw(); }), { id: 'folder', ic: 'folder', sub: t('For recompiled games: each one has its recomplauncher.json.') }),
-  row(t('Projects'), icon('chevron'), () => openCatalog(), { id: 'catalog', ic: 'store', sub: t('Projects that rebuild older games for this computer. Oort NX opens their page and installs nothing.') }),
 ].filter(Boolean);
 
-const cards = [{ id: 'catalog', ic: 'store', name: () => t('Projects'), run: () => openCatalog() }, { id: 'add', ic: 'add', name: () => t('Add game'), run: () => openAdd() }];
+const cards = [{ id: 'add', ic: 'add', name: () => t('Add game'), run: () => openAdd() }];
+const addCard = () => row(t('Add game'), icon('chevron'), () => openAdd(), { id: 'add', ic: 'add' });
 
 /* The shelf: one row of tiles, one ring, one camera (SpotlightRowGeometry). */
 const HOST = 174, PITCH = 178, START = 72, GROW = 1.3, ANCHOR = 2;
@@ -338,7 +337,7 @@ const homeLayer = (() => {
     grid = h('div', { cls: 'grid', role: 'listbox', 'aria-label': t('Collection') }, ringGrid, L.games.map(g => h('button', { cls: 'tile', role: 'option', 'data-id': g.id, 'aria-label': g.name, onclick: e => { if (e.detail && g.id !== chosen) return e.currentTarget.focus({ preventScroll: true }); primary(g)[1](); } }, face(g, 'cover'))));
     return [topBar(), h('div', { cls: 'gridpage' }, box, h('div', { cls: 'scroll' }, grid))];
   };
-  const empty = () => [topBar(), h('div', { cls: 'empty' }, L.total ? [h('h1', {}, t('No games in %@', t(tab)))] : [h('h1', {}, t('Add your first game')), h('p', { cls: 'say' }, t('Oort NX shows the games you already have. Nothing is moved or changed.')), h('div', { cls: 'rows' }, addRows(() => layer.redraw()), guideRow())])];
+  const empty = () => [topBar(), h('div', { cls: 'empty' }, L.total ? [h('h1', {}, t('No games in %@', t(tab)))] : [h('h1', {}, t('Add your first game')), h('p', { cls: 'say' }, t('Oort NX shows the games you already have. Nothing is moved or changed.')), h('div', { cls: 'rows' }, addCard())])];
   const draw = () => !L.games.length && (home === 'collection' || !L.total) ? (row = grid = null, empty()) : home === 'spotlight' ? spotlight() : collection();
   layer.refreshed = id => { row?.refreshed(); const x = current(); if (layer === top() && x && !x.run && (!id || x.id === id)) { const keep = document.activeElement?.dataset?.id, inside = box?.contains(document.activeElement); layer.info(true); if (inside) box.querySelector(`[data-id="${keep}"]`)?.focus({ preventScroll: true }); settle(); } };
   layer.info = quiet => {
@@ -347,12 +346,12 @@ const homeLayer = (() => {
     const x = current();
     clearTimeout(layer.look); if (L.online && x?.look) layer.look = setTimeout(() => invoke('online_look', { ids: [x.id], front: true }).catch(() => {}), 700);
     if (!x) return box.replaceChildren();
-    if (x.run) return fill(box, h('h1', { cls: 'hero' }, x.name()), h('p', { cls: 'say' }, x.id === 'add' ? t('Games from Steam, any program, or a folder of recompiled games.') : t('Projects that rebuild older games for this computer. Oort NX opens their page and installs nothing.')));
+    if (x.run) return fill(box, h('h1', { cls: 'hero' }, x.name()), h('p', { cls: 'say' }, t('Games from Steam, any program, or a folder of recompiled games.')));
     if (home === 'collection') return fill(box, h('h1', { cls: 'hero' }, x.name), stats(x));
     const [label, run] = primary(x);
     fill(box, heading(x), h('div', { cls: 'keys' }, key(label, run, { ic: x.state === 'ready' ? 'play' : null, id: 'primary' }), key(t('Options'), () => openOptions(x.id), { id: 'options' }), key('', async () => { await favorite(x); layer.info(); $('[data-id=heart]', box)?.focus(); }, { ic: x.favorite ? 'favorite' : 'favoriteBorder', cls: 'round', id: 'heart', aria: x.favorite ? t('Remove from favorites') : t('Add to favorites') })), x.state !== 'ready' && h('p', { cls: 'say' }, stateText(x)), stats(x), genres(x));
   };
-  layer.redraw = () => { if (!L.games.length && !steamSeen) findSteam().then(() => { if (!L.games.length) layer.redraw(); }); el.replaceChildren(...draw()); layer.info(); if (layer === top()) { layer.focus(); settle(); } };
+  layer.redraw = () => { el.replaceChildren(...draw()); layer.info(); if (layer === top()) { layer.focus(); settle(); } };
   layer.focus = () => { if (row) row.focus(); else if (grid) { const b = grid.querySelector(`[data-id="${selected}"]`); b && (b.focus({ preventScroll: true }), b.scrollIntoView({ block: 'nearest' })); } else first(layer); };
   layer.back = () => { if (!row && !grid) return restore(layer); if (layer.keep && ['primary', 'options', 'heart'].includes(layer.keep)) restore(layer); else layer.focus(); };
   layer.art = () => { const x = current(); return x && !x.run && x.hero ? artURL(x, 'hero') : null; };
@@ -626,7 +625,7 @@ const openSettings = async (start = 'general') => {
         row(t('Steam'), [steam.found ? t('%lld games', steam.games) : t('Not found'), h('span', { cls: 'sw' })], async () => { S.play('confirm', document.activeElement); steam = steamSeen = await ask('steam.set', { on: !steam.on }); await reload(true); again(layer, draw); }, { id: 'steam', ic: 'gamepad', role: 'switch', checked: steam.on, sub: t('Reads Steam’s lists of installed games and the pictures it keeps on this computer. Changes nothing and sends nothing; Steam itself starts the games.'), help: steam.found ? [steam.libraries.join(', '), steam.downloading && t('%lld still downloading, left out', steam.downloading), steam.others && t('%lld tools and extras, left out', steam.others)].filter(Boolean).join('. ') : t('Steam was not found on this computer. It is looked for again each time.') }),
         row(t('Game information online'), [online.on ? t('%lld games known', online.known) : t('Off'), h('span', { cls: 'sw' })], async () => { S.play('confirm', document.activeElement); online = await ask('online.set', { on: !online.on }); await reload(); again(layer, draw); }, { id: 'online', ic: 'search', role: 'switch', checked: online.on, sub: onlineText() }),
         online.known > 0 && row(t('Delete what was found online'), t('%lld games', online.known), () => confirm(t('Delete what was found online?'), t('Covers and descriptions found online leave this computer. Your own pictures stay.'), t('Delete'), async () => { online = await ask('online.clear'); await reload(); again(layer, draw); }), { id: 'clear', ic: 'delete' })),
-      h('div', { cls: 'rows' }, row(t('Recompilations'), [t('%lld games', L.games.filter(g => g.kind === 'recompilation').length), icon('chevron')], () => openCatalog(), { id: 'recomp', ic: 'store', sub: t('Reads the recomplauncher.json of each game in your folders. Writes only the settings files games declare. Sends nothing.') }), row(t('Programs'), [String(folders.programs.length), icon('chevron')], () => openProgram(), { id: 'prog', ic: 'terminal', sub: t('Any program with its arguments, an emulator with a game for example. Sends nothing.') }))],
+      h('div', { cls: 'rows' }, row(t('Programs'), [String(folders.programs.length), icon('chevron')], () => openProgram(), { id: 'prog', ic: 'terminal', sub: t('Any program with its arguments, an emulator with a game for example. Sends nothing.') }))],
     about: () => [h('div', {}, h('div', { cls: 'rows' }, row(t('Version'), [version, icon('link')], () => link('https://github.com/sofianbll/oort-nx/releases'), { id: 'version', help: t('Opens the page of versions in your browser. Oort NX does not look by itself.') }), row(t('Logs'), icon('folder'), openLogs, { id: 'logs', help: t('What games said the last time they ran.') }), row(t('Open project docs'), icon('link'), () => link('https://github.com/sofianbll/oort-nx'), { id: 'docs' }))), h('div', {}, h('h2', {}, t('Credits')), h('div', { cls: 'rows' }, [['RecompLauncher SDK', t('The recomplauncher.json format, by Ripalda (MIT)'), 'https://github.com/elripalda/RecompLauncher-SDK'], ['Padwake', t('Following a game’s processes on Windows, by ddoinn (MIT)'), 'https://github.com/ddoinn/padwake'], ['Arcane, Selene', t('The app and the interface Oort NX comes from, by Bium23 and Matthew Silva (MIT)'), 'https://github.com/sofianbll/oort-nx']].map(([a, b, url]) => row(a, icon('link'), () => link(url), { id: a, sub: b })))), h('p', { cls: 'say' }, online.on ? t('No account, no telemetry. Only the names of your games go out, to find their information online: Integrations turns it off.') : t('Everything stays on this computer: no account, no telemetry, no data sent.'))],
   };
   const choose = p => selectProfile(p, async list => { people = list; await take(ask('settings'), false); again(layer, draw); });
@@ -764,11 +763,6 @@ const openProgram = async first => {
     row(t('Name'), p.name || (!p.target && p.about?.name) || base(p.target || p.program).replace(/\.[^.]+$/, '') || t('Automatic'), () => type(t('Name'), p.name || p.about?.name || '', x => { p.name = x; layer.refresh(); }), { id: 'name', ic: 'edit' }),
     row(t('Add to the library'), icon('add'), add, { id: 'add', off: !p.program && t('Choose the program first.') })));
 };
-const openCatalog = async () => {
-  const list = await ask('catalog'), states = { playable: [t('Playable, says the project'), 'ok'], experimental: [t('Experimental'), ''], early: [t('Early'), ''], research: [t('Research'), ''], withdrawn: [t('Original project gone'), 'bad'] };
-  sheet(t('Projects'), () => [h('p', { cls: 'say' }, t('Projects that rebuild older games for this computer. Oort NX opens their page and installs nothing. Each one asks for your own copy of the game.')), h('div', { cls: 'rows' }, list.map(p => row(p.project, [states[p.state]?.[0], dot(states[p.state]?.[1] ?? ''), icon('link')], () => link('https://github.com/' + p.repo), { id: p.repo, sub: [p.game, p.gameVersion && t('Game version %@', p.gameVersion), t('Licence: %@', p.license || t('not declared')), p.systems.map(s => ({ windows: 'Windows', linux: 'Linux' })[s]).join(', '), p.manifest && 'recomplauncher.json'].filter(Boolean).join(', '), help: 'https://github.com/' + p.repo })))]);
-};
-
 /* ---------- Playing ---------- */
 let playing = null, preparing = null;
 const play = async id => {

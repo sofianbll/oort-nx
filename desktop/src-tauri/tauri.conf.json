@@ -28,7 +28,6 @@
     "icon": ["icons/icon.png", "icons/icon.ico"],
     "externalBin": ["binaries/oort-core"],
     "resources": {
-      "catalog.json": "catalog.json",
       "../NOTICE": "NOTICE",
       "../../LICENSE": "LICENSE.txt",
       "../../NOTICE": "licenses/Oort-NX-NOTICE.txt",

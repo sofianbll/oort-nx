@@ -1,6 +1,6 @@
 #!/bin/bash
 # Proves the Linux packages on a machine without Swift: the .deb installed and the AppImage as it is, each opened on a
-# virtual screen, driven by real keys, with invented games. usage: prove.sh <deb> <AppImage> <out>
+# virtual screen, driven by real keys, with invented games. usage: prove.sh <deb> <AppImage> <out> [alpha.2.deb]
 set -uo pipefail
 deb=$(realpath "$1"); image=$(realpath "$2"); mkdir -p "$3"; out=$(realpath "$3")
 here=$(cd "$(dirname "$0")" && pwd); run=$(mktemp -d); failures=0
@@ -8,16 +8,23 @@ check() { if [ "$1" = 0 ]; then echo "ok $2"; else echo "FAIL $2"; failures=$((f
 
 command -v swift cargo rustc | grep -v "$HOME/.cargo" || true
 python3 "$here/../../scripts/fixtures.py" "$run" --steam || exit 1
+if [ -n "${4:-}" ]; then
+  sudo apt-get install -y "$(realpath "$4")" || exit 1
+  python3 "$here/../upgrade.py" before /usr/bin/oort-core "$run" || exit 1
+fi
 sudo apt-get install -y "$deb"; check $? "the .deb installs with its dependencies"
+if [ -n "${4:-}" ]; then
+  python3 "$here/../upgrade.py" after /usr/bin/oort-core "$run"; check $? 'alpha.2 folders, game IDs, favorite, play time and theme kept'
+fi
 dpkg -L oort-nx | grep -v '/hicolor/'
 core=/usr/bin/oort-core; app=/usr/bin/oort-desktop
 ldd $core; ! ldd $core | grep -qi 'swift\|not found'; check $? "the core needs no Swift library"
 ! ldd $app | grep -q 'not found'; check $? "the window finds its libraries"
 for file in NOTICE LICENSE.txt licenses/Swift-LICENSE.txt licenses/ICU-LICENSE.txt licenses/THIRD-PARTY-RUST.txt; do test -f "/usr/lib/Oort NX/$file"; check $? "$file is there"; done
-env -i PATH=/usr/bin:/bin HOME="$run" $core --data "$run/core" --resources "/usr/lib/Oort NX" --system linux <<< '{"id":1,"method":"hello"}' | grep -q '"system":"linux"'; check $? "the installed core answers"
+env -i PATH=/usr/bin:/bin HOME="$run" $core --data "$run/core" --system linux <<< '{"id":1,"method":"hello"}' | grep -q '"system":"linux"'; check $? "the installed core answers"
 
 # A library, as the app itself writes it.
-setup() { printf '%s\n' "{\"id\":1,\"method\":\"folders.add\",\"params\":{\"path\":\"$run/games\"}}" '{"id":2,"method":"settings.set","params":{"id":"librarySort","value":"name"}}' '{"id":3,"method":"settings.save"}' '{"id":4,"method":"guide","params":{"seen":true}}' | $core --data "$1" --resources "/usr/lib/Oort NX" --system linux > /dev/null; }
+setup() { printf '%s\n' "{\"id\":1,\"method\":\"folders.add\",\"params\":{\"path\":\"$run/games\"}}" '{"id":2,"method":"settings.set","params":{"id":"librarySort","value":"name"}}' '{"id":3,"method":"settings.save"}' '{"id":4,"method":"guide","params":{"seen":true}}' | $core --data "$1" --system linux > /dev/null; }
 export DISPLAY=:77
 Xvfb :77 -screen 0 1440x900x24 > /dev/null 2>&1 & xvfb=$!
 sleep 2; openbox > /dev/null 2>&1 & sleep 1
@@ -39,17 +46,22 @@ try() { # name, program
   [ -z "$window" ] && { cat "$out/$name.txt"; return; }
   xdotool windowsize "$window" 1440 900 windowfocus "$window"; sleep 5
   shot "$name-home"
+  keys Home Return
+  shot "$name-add"
+  check "$([ "$(top)" -lt 40 ]; echo $?)" "$name: Add game is open"
+  keys Escape
+  check "$([ "$(top)" -gt 80 ]; echo $?)" "$name: Back from Add game returns to the library"
   keys ctrl+comma; shot "$name-settings"; keys Escape
   keys h; shot "$name-menu"; keys Escape
   # Back with the mouse: from a row to the list, then out. The tabs of the home are white at the top, Settings' page is dark.
   keys ctrl+comma Right; check "$([ "$(top)" -lt 40 ]; echo $?)" "$name: Settings are open"
   back "$window"; check "$([ "$(top)" -lt 40 ]; echo $?)" "$name: Back, with the mouse, goes to the list"
   back "$window"; shot "$name-mouse-back"; check "$([ "$(top)" -gt 80 ]; echo $?)" "$name: Back again leaves Settings"
-  # Broken Compass, then Harbour: the shelf by name starts with Projects and Add game.
+  # The shelf by name starts with Add game.
   local at; at=$(python3 - "$data" "$run" <<'PY'
 import json, subprocess, sys
-r = subprocess.run(["/usr/bin/oort-core", "--data", sys.argv[1], "--resources", "/usr/lib/Oort NX", "--system", "linux"], input='{"id":1,"method":"library","params":{"tab":"All games","sort":"name"}}\n', capture_output=True, text=True)
-print([g["name"] for g in json.loads(r.stdout)["result"]["games"]].index("Coast Runner") + 2)
+r = subprocess.run(["/usr/bin/oort-core", "--data", sys.argv[1], "--system", "linux"], input='{"id":1,"method":"library","params":{"tab":"All games","sort":"name"}}\n', capture_output=True, text=True)
+print([g["name"] for g in json.loads(r.stdout)["result"]["games"]].index("Coast Runner") + 1)
 PY
 )
   keys Home; for _ in $(seq "$at"); do xdotool key Right; sleep 0.1; done; sleep 0.8; shot "$name-game"
@@ -88,9 +100,9 @@ first() {
   python3 -c "import json,sys; c=json.load(open(sys.argv[1]+'/choices.json')); print(c); assert c['steam'] is True and c['online'] is False and c['guideDone'] is True" "$data"; check $? "first: the steps are kept: Steam on, nothing online"
   at=$(python3 - "$data" "$home" <<'PY'
 import json, subprocess, sys
-r = subprocess.run(["/usr/bin/oort-core", "--data", sys.argv[1], "--resources", "/usr/lib/Oort NX", "--system", "linux", "--home", sys.argv[2]], input='{"id":1,"method":"library","params":{"tab":"All games"}}\n', capture_output=True, text=True)
+r = subprocess.run(["/usr/bin/oort-core", "--data", sys.argv[1], "--system", "linux", "--home", sys.argv[2]], input='{"id":1,"method":"library","params":{"tab":"All games"}}\n', capture_output=True, text=True)
 names = [g["name"] for g in json.loads(r.stdout)["result"]["games"]]
-print(names, file=sys.stderr); print(names.index("Quiet Harbour") + 2)
+print(names, file=sys.stderr); print(names.index("Quiet Harbour") + 1)
 PY
 )
   keys Home; for _ in $(seq "$at"); do xdotool key Right; sleep 0.1; done; sleep 0.8; shot first-7-steam-game
