@@ -104,9 +104,7 @@ struct LocalePicker: View {
             }
             .padding(canvas.u(SeleneTokens.Space.section))
             .frame(width: canvas.u(800))
-            .background(SeleneTheme.glassCard)
-            .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.field)))
-            .overlay(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.field)).strokeBorder(SeleneTheme.ink15, lineWidth: 1))
+            .oortPanel(radius: canvas.u(SeleneTokens.Radius.field), floats: true)
         }
         .onChange(of: query) { focus = 0 }
         .onAppear(perform: installKeys)

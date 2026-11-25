@@ -204,14 +204,7 @@ struct SeleneDialogCard: ViewModifier {
             .padding(.trailing, canvas.u(SeleneTokens.Space.dialogInset))
             .padding(.bottom, canvas.u(hasHints ? 72 : 36))
             .frame(width: width.map(canvas.u))
-            .background(
-                RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.dialog), style: .continuous)
-                    .fill(SeleneTheme.glassCard)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.dialog), style: .continuous)
-                    .strokeBorder(SeleneTheme.ink.opacity(0.16), lineWidth: max(1, canvas.u(1)))
-            )
+            .oortPanel(radius: canvas.u(SeleneTokens.Radius.dialog), floats: true)
             .overlay(alignment: .bottom) {
                 if hasHints {
                     SeleneHintsBar(left: [cancelHint].compactMap { $0 },

@@ -1154,6 +1154,60 @@
     "Sound packs": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Sound packs"}}, "fr": {"stringUnit":{"state":"translated","value":"Packs de sons"}}, "it": {"stringUnit":{"state":"translated","value":"Pacchetti audio"}}, "de": {"stringUnit":{"state":"translated","value":"Soundpakete"}}, "es": {"stringUnit":{"state":"translated","value":"Paquetes de sonido"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Pacotes de som"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"声音包"}}
     }},
+    "Note sequence": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Note sequence"}}, "fr": {"stringUnit":{"state":"translated","value":"Suite de notes"}}, "it": {"stringUnit":{"state":"translated","value":"Sequenza di note"}}, "de": {"stringUnit":{"state":"translated","value":"Notenfolge"}}, "es": {"stringUnit":{"state":"translated","value":"Secuencia de notas"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Sequência de notas"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"音符序列"}}
+    }},
+    "The notes you hear as you move. The Oort voices play it from start to end.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"The notes you hear as you move. The Oort voices play it from start to end."}}, "fr": {"stringUnit":{"state":"translated","value":"Les notes que tu entends en te déplaçant. Les voix d’Oort la jouent du début à la fin."}}, "it": {"stringUnit":{"state":"translated","value":"Le note che senti mentre ti sposti. Le voci di Oort la suonano dall’inizio alla fine."}}, "de": {"stringUnit":{"state":"translated","value":"Die Töne, die du beim Bewegen hörst. Die Oort-Stimmen spielen sie von Anfang bis Ende."}}, "es": {"stringUnit":{"state":"translated","value":"Las notas que oyes al moverte. Las voces de Oort la tocan de principio a fin."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"As notas que você ouve ao se mover. As vozes do Oort tocam do início ao fim."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"移动时听到的音符。Oort 音色会从头到尾播放。"}}
+    }},
+    "Octave": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Octave"}}, "fr": {"stringUnit":{"state":"translated","value":"Octave"}}, "it": {"stringUnit":{"state":"translated","value":"Ottava"}}, "de": {"stringUnit":{"state":"translated","value":"Oktave"}}, "es": {"stringUnit":{"state":"translated","value":"Octava"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Oitava"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"八度"}}
+    }},
+    "Plays the note sequence lower or higher.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Plays the note sequence lower or higher."}}, "fr": {"stringUnit":{"state":"translated","value":"Joue la suite de notes plus bas ou plus haut."}}, "it": {"stringUnit":{"state":"translated","value":"Suona la sequenza più in basso o più in alto."}}, "de": {"stringUnit":{"state":"translated","value":"Spielt die Notenfolge tiefer oder höher."}}, "es": {"stringUnit":{"state":"translated","value":"Toca la secuencia más grave o más aguda."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Toca a sequência mais grave ou mais aguda."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"以更低或更高的音高播放音符序列。"}}
+    }},
+    "Listen to the sequence": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Listen to the sequence"}}, "fr": {"stringUnit":{"state":"translated","value":"Écouter la suite"}}, "it": {"stringUnit":{"state":"translated","value":"Ascolta la sequenza"}}, "de": {"stringUnit":{"state":"translated","value":"Notenfolge anhören"}}, "es": {"stringUnit":{"state":"translated","value":"Escuchar la secuencia"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Ouvir a sequência"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"试听序列"}}
+    }},
+    "Compose": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Compose"}}, "fr": {"stringUnit":{"state":"translated","value":"Compose"}}, "it": {"stringUnit":{"state":"translated","value":"Componi"}}, "de": {"stringUnit":{"state":"translated","value":"Komponieren"}}, "es": {"stringUnit":{"state":"translated","value":"Componer"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Compor"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"编曲"}}
+    }},
+    "Your notes": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Your notes"}}, "fr": {"stringUnit":{"state":"translated","value":"Tes notes"}}, "it": {"stringUnit":{"state":"translated","value":"Le tue note"}}, "de": {"stringUnit":{"state":"translated","value":"Deine Töne"}}, "es": {"stringUnit":{"state":"translated","value":"Tus notas"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Suas notas"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"你的音符"}}
+    }},
+    "Eight notes of your own.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Eight notes of your own."}}, "fr": {"stringUnit":{"state":"translated","value":"Huit notes à toi."}}, "it": {"stringUnit":{"state":"translated","value":"Otto note tue."}}, "de": {"stringUnit":{"state":"translated","value":"Acht eigene Töne."}}, "es": {"stringUnit":{"state":"translated","value":"Ocho notas tuyas."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Oito notas suas."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"你自己的八个音符。"}}
+    }},
+    "Note %@": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Note %@"}}, "fr": {"stringUnit":{"state":"translated","value":"Note %@"}}, "it": {"stringUnit":{"state":"translated","value":"Nota %@"}}, "de": {"stringUnit":{"state":"translated","value":"Ton %@"}}, "es": {"stringUnit":{"state":"translated","value":"Nota %@"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Nota %@"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"音符 %@"}}
+    }},
+    "Rise": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Rise"}}, "fr": {"stringUnit":{"state":"translated","value":"Montée"}}, "it": {"stringUnit":{"state":"translated","value":"Salita"}}, "de": {"stringUnit":{"state":"translated","value":"Anstieg"}}, "es": {"stringUnit":{"state":"translated","value":"Ascenso"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Subida"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"上升"}}
+    }},
+    "Major": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Major"}}, "fr": {"stringUnit":{"state":"translated","value":"Majeure"}}, "it": {"stringUnit":{"state":"translated","value":"Maggiore"}}, "de": {"stringUnit":{"state":"translated","value":"Dur"}}, "es": {"stringUnit":{"state":"translated","value":"Mayor"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Maior"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"大调"}}
+    }},
+    "Pentatonic": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Pentatonic"}}, "fr": {"stringUnit":{"state":"translated","value":"Pentatonique"}}, "it": {"stringUnit":{"state":"translated","value":"Pentatonica"}}, "de": {"stringUnit":{"state":"translated","value":"Pentatonisch"}}, "es": {"stringUnit":{"state":"translated","value":"Pentatónica"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Pentatônica"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"五声音阶"}}
+    }},
+    "Minor": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Minor"}}, "fr": {"stringUnit":{"state":"translated","value":"Mineure"}}, "it": {"stringUnit":{"state":"translated","value":"Minore"}}, "de": {"stringUnit":{"state":"translated","value":"Moll"}}, "es": {"stringUnit":{"state":"translated","value":"Menor"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Menor"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"小调"}}
+    }},
+    "Arpeggio": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Arpeggio"}}, "fr": {"stringUnit":{"state":"translated","value":"Arpège"}}, "it": {"stringUnit":{"state":"translated","value":"Arpeggio"}}, "de": {"stringUnit":{"state":"translated","value":"Arpeggio"}}, "es": {"stringUnit":{"state":"translated","value":"Arpegio"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Arpejo"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"琶音"}}
+    }},
+    "Dream": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Dream"}}, "fr": {"stringUnit":{"state":"translated","value":"Rêve"}}, "it": {"stringUnit":{"state":"translated","value":"Sogno"}}, "de": {"stringUnit":{"state":"translated","value":"Traum"}}, "es": {"stringUnit":{"state":"translated","value":"Sueño"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Sonho"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"梦境"}}
+    }},
+    "Moonlit": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Moonlit"}}, "fr": {"stringUnit":{"state":"translated","value":"Lune"}}, "it": {"stringUnit":{"state":"translated","value":"Luna"}}, "de": {"stringUnit":{"state":"translated","value":"Mondlicht"}}, "es": {"stringUnit":{"state":"translated","value":"Luna"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Luar"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"月光"}}
+    }},
+    "Wave": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Wave"}}, "fr": {"stringUnit":{"state":"translated","value":"Vague"}}, "it": {"stringUnit":{"state":"translated","value":"Onda"}}, "de": {"stringUnit":{"state":"translated","value":"Welle"}}, "es": {"stringUnit":{"state":"translated","value":"Ola"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Onda"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"波浪"}}
+    }},
+    "Descent": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Descent"}}, "fr": {"stringUnit":{"state":"translated","value":"Descente"}}, "it": {"stringUnit":{"state":"translated","value":"Discesa"}}, "de": {"stringUnit":{"state":"translated","value":"Abstieg"}}, "es": {"stringUnit":{"state":"translated","value":"Descenso"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Descida"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"下降"}}
+    }},
     "Sound pack": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Sound pack"}}, "fr": {"stringUnit":{"state":"translated","value":"Pack de sons"}}, "it": {"stringUnit":{"state":"translated","value":"Pacchetto audio"}}, "de": {"stringUnit":{"state":"translated","value":"Soundpaket"}}, "es": {"stringUnit":{"state":"translated","value":"Paquete de sonido"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Pacote de som"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"声音包"}}
     }},

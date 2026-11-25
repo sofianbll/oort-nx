@@ -251,8 +251,7 @@
       "component:structCloudReferenceDialog:View": 1
     },
     "Sources/NXLibrary/Views/Settings/LocalePicker.swift": {
-      "color:Color.clear": 1,
-      "lineWidth:1": 1
+      "color:Color.clear": 1
     },
     "Sources/NXLibrary/Views/Settings/NextendoClientDialog.swift": {
       "component:structNextendoClientDialog:View": 1
@@ -431,10 +430,6 @@
       ".padding(canvas.u(-14": 1,
       ".padding(canvas.u(-4": 1,
       "color:Color.clear": 1
-    },
-    "Sources/NXLibrary/Views/Spotlight/SpotlightTopBar.swift": {
-      "animation:withAnimation(.linear": 1,
-      "opacity:.opacity(0.95": 1
     },
     "Sources/NXLibrary/Views/Spotlight/SpotlightView+Entrance.swift": {
       "animation:withAnimation(.easeOut": 1

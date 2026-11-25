@@ -49,6 +49,9 @@ public enum SettingsReset {
             next.interfaceSounds = defaults.interfaceSounds
             next.soundVolume = defaults.soundVolume
             next.soundPackID = defaults.soundPackID
+            next.noteFigure = defaults.noteFigure
+            next.noteOctave = defaults.noteOctave
+            next.customNotes = defaults.customNotes
             next.quietLaunch = defaults.quietLaunch
         case .profileLook:
             next.interfaceZoom = defaults.interfaceZoom

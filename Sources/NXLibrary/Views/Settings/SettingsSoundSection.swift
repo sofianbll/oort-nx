@@ -16,6 +16,8 @@ struct SettingsSoundSection: View {
     @State private var providedEvents: Set<String> = []
     @State private var importingPack = false
     @State private var importTicket = UUID()
+    @State private var playing: Int?
+    @State private var playTicket = UUID()
     let soundPackLibrary: SoundPackLibrary
 
     init(settings: SettingsEditor, onActions: @escaping ([SettingsRowAction]) -> Void,
@@ -66,6 +68,17 @@ struct SettingsSoundSection: View {
                                 buttonTitle: "Remove", action: removePack)
             }
 
+            if OortSynth(pack: settings.settings.soundPackID) != nil {
+                SettingsSubheading(L10n.text("Compose", context: localization))
+                SeleneCycleRow("Note sequence", subtitle: "The notes you hear as you move. The Oort voices play it from start to end.",
+                               value: settings.settings.noteFigure.title, cycle: stepFigure)
+                SeleneCycleRow("Octave", subtitle: "Plays the note sequence lower or higher.",
+                               value: settings.settings.noteOctave > 0 ? "+\(settings.settings.noteOctave)" : "\(settings.settings.noteOctave)",
+                               verbatimValue: true, cycle: stepOctave)
+                SeleneButtonRow("Listen to the sequence", buttonTitle: "Listen", action: playNotes)
+                OortNotes(notes: notes, playing: playing, change: setNote)
+            }
+
             SettingsSubheading(L10n.text("Theme assets"))
 
             SeleneButtonRow("Import sounds and wallpapers from Selene",
@@ -106,6 +119,11 @@ struct SettingsSoundSection: View {
         actions.append(.value("soundPack", "Sound pack", cycle: stepPack))
         actions.append(.value("soundPreviewEvent", "Sound to preview", cycle: stepEvent))
         actions.append(.init(id: "soundPreview", title: "Preview sound", isEnabled: canPreview, activate: previewSound))
+        if OortSynth(pack: settings.settings.soundPackID) != nil {
+            actions.append(.value("noteFigure", "Note sequence", cycle: stepFigure))
+            actions.append(.value("noteOctave", "Octave", cycle: stepOctave))
+            actions.append(.init(id: "noteListen", title: "Listen to the sequence", activate: playNotes))
+        }
         actions.append(.init(id: "importSoundPack", title: "Import sound pack", isEnabled: !importingPack,
                              activate: importPack))
         if !customPacks.isEmpty {
@@ -116,6 +134,48 @@ struct SettingsSoundSection: View {
             importFromSelene()
         })
         onActions(actions)
+    }
+
+    private var notes: [Double] { OortSynth.notes(settings.settings.noteFigure, custom: settings.settings.customNotes) }
+
+    private func stepFigure(_ step: Int) {
+        let all = OortSynth.Figure.allCases
+        guard let index = all.firstIndex(of: settings.settings.noteFigure) else { return }
+        settings.settings.noteFigure = all[(index + step + all.count) % all.count]
+        publishActions()
+        playNotes()
+    }
+
+    private func stepOctave(_ step: Int) {
+        settings.settings.noteOctave = min(OortSynth.octaves.upperBound, max(OortSynth.octaves.lowerBound, settings.settings.noteOctave + step))
+        publishActions()
+        playNotes()
+    }
+
+    /// Pulling a note makes the sequence the player's own, starting from the one on screen.
+    private func setNote(_ index: Int, _ value: Double) {
+        let value = min(OortSynth.range.upperBound, max(OortSynth.range.lowerBound, value))
+        var next = notes.map { $0.rounded() }
+        guard next[index] != value || settings.settings.noteFigure != .custom else { return }
+        next[index] = value
+        settings.settings.customNotes = next
+        settings.settings.noteFigure = .custom
+        publishActions()
+        SoundEffectService.shared.previewNotes([value], octave: settings.settings.noteOctave, pack: settings.settings.soundPackID)
+    }
+
+    private func playNotes() {
+        let ticket = UUID()
+        playTicket = ticket
+        SoundEffectService.shared.previewNotes(notes, octave: settings.settings.noteOctave, pack: settings.settings.soundPackID)
+        Task { @MainActor in
+            for index in 0..<notes.count {
+                guard playTicket == ticket else { return }
+                playing = index
+                try? await Task.sleep(for: .milliseconds(135))
+            }
+            if playTicket == ticket { playing = nil }
+        }
     }
 
     private static func eventTitle(_ event: SoundPackEvent) -> String {

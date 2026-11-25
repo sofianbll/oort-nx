@@ -78,9 +78,7 @@ struct AchievementDetail: View {
             .padding(.top, canvas.u(56))
             .padding(.bottom, canvas.u(SeleneTokens.Space.group))
             .frame(width: canvas.u(Self.width))
-            .background(shape.fill(SeleneTheme.glassCard))
-            .overlay(shape.strokeBorder(SeleneTheme.ink15, lineWidth: max(1, canvas.u(1))))
-            .oortShadow(.floating)
+            .oortPanel(radius: canvas.u(SeleneTokens.Radius.modal), floats: true)
             // A click on the card stays on the card.
             .contentShape(shape)
             .onTapGesture {}

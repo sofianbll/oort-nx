@@ -99,6 +99,9 @@ enum SettingsDraftFields {
             .init("soundPack", \.soundPackID, previews: true) { id in
                 soundPacks.first { $0.key == id }?.name ?? id
             },
+            .init("noteFigure", \.noteFigure, previews: true) { L10n.text($0.title) },
+            .init("noteOctave", \.noteOctave, previews: true) { $0 > 0 ? "+\($0)" : "\($0)" },
+            .init("customNotes", \.customNotes, previews: true) { $0.map { OortNotes.name($0) }.joined(separator: " ") },
             .init("colorThemeID", \.colorThemeID, previews: true) { id in
                 ThemeStore.shared.palettes.first { $0.id == id }?.name ?? id
             },

@@ -22,8 +22,7 @@ struct SpotlightTopBar: View {
     var nextendo: NextendoSettings? = nil
     var onSelect: (LibraryFilter) -> Void = { _ in }
 
-    @State private var popScale: CGFloat = 1
-    @State private var popOpacity: Double = 1
+    @Namespace private var pill
 
     var body: some View {
         ZStack {
@@ -33,7 +32,10 @@ struct SpotlightTopBar: View {
             }
             HStack(spacing: 0) {
                 badge(.lb)
-                ForEach(LibraryFilter.tabs(tabs + [filter])) { tab($0) }
+                HStack(spacing: 0) { ForEach(LibraryFilter.tabs(tabs + [filter])) { tab($0) } }
+                    .padding(canvas.u(SeleneTokens.Space.hairline))
+                    .oortPanel(radius: canvas.u(SeleneTokens.Radius.hint) * 2)
+                    .animation(reduceMotion ? nil : Motion.dots(false), value: filter)
                 badge(.rb)
                 // Beside the tabs, which stay where they are: it takes no width of its own.
                 if played != .any {
@@ -57,7 +59,6 @@ struct SpotlightTopBar: View {
         .accessibilityValue(L10n.text(sort.title, context: locale))
         .padding(.horizontal, canvas.u(SeleneTokens.Space.chromeGutter))
         .frame(height: canvas.u(110))
-        .onChange(of: filter) { pop() }
     }
 
     private func profileButton(_ profile: LocalProfile) -> some View {
@@ -85,12 +86,13 @@ struct SpotlightTopBar: View {
             .foregroundColor(on ? SeleneTheme.onFocus : SeleneTheme.ink75)
             .padding(EdgeInsets(top: canvas.u(5), leading: canvas.u(18),
                                 bottom: canvas.u(7), trailing: canvas.u(20)))
-            .background(
-                RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.anchoredCard), style: .continuous)
-                    .fill(on ? SeleneTheme.focus.opacity(0.95) : .clear)
-            )
-            .scaleEffect(on ? popScale : 1)
-            .opacity(on ? popOpacity : 1)
+            .background {
+                if on {
+                    Capsule().fill(LinearGradient(colors: [SeleneTheme.focus, SeleneTheme.focus.mix(with: SeleneTheme.glyph, by: SeleneTokens.Effect.surfaceLineStrong)],
+                                                  startPoint: .top, endPoint: .bottom))
+                        .matchedGeometryEffect(id: "tab", in: pill)
+                }
+            }
             .padding(.horizontal, canvas.u(SeleneTokens.Space.seam))
             .contentShape(Rectangle())
             .onTapGesture { onSelect(item) }
@@ -107,9 +109,9 @@ struct SpotlightTopBar: View {
             .foregroundStyle(SeleneTheme.ink)
             .padding(.horizontal, canvas.u(SeleneTokens.Space.medium))
             .padding(.vertical, canvas.u(SeleneTokens.Space.tight))
-            .background(Capsule().fill(SeleneTheme.glassSolid))
+            .oortPanel(radius: canvas.u(SeleneTokens.Radius.hint) * 2, raised: true)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(OortPressStyle())
         .padding(.leading, canvas.u(SeleneTokens.Space.small))
         .accessibilityLabel(L10n.text("Sort and filter", context: locale))
         .accessibilityValue(L10n.text(played.rawValue, context: locale))
@@ -119,21 +121,6 @@ struct SpotlightTopBar: View {
         SelenePromptBadge(button: button, height: 26)
             .padding(.horizontal, canvas.u(SeleneTokens.Space.compact))
             .accessibilityHidden(true)
-    }
-
-    /// The new tab pops 0.86 → 1 over 200 ms (cubic out) and fades 0.4 → 1 over
-    /// 160 ms. Reduce motion drops the pop and keeps the fade.
-    private func pop() {
-        var reset = Transaction()
-        reset.disablesAnimations = true
-        withTransaction(reset) {
-            popScale = reduceMotion ? 1 : 0.86
-            popOpacity = 0.4
-        }
-        DispatchQueue.main.async {
-            if !reduceMotion { withAnimation(SeleneTheme.cubicOut(0.2)) { popScale = 1 } }
-            withAnimation(.linear(duration: 0.16)) { popOpacity = 1 }
-        }
     }
 }
 

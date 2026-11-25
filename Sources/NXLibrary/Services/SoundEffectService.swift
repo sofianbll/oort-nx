@@ -46,6 +46,10 @@ final class SoundEffectService {
     private var players: [SoundCue: AVAudioPlayer] = [:]
     private var synthesised: [String: AVAudioPlayer] = [:]
     private var step = 0
+    private var previewing = 0
+    private var sequence: [AVAudioPlayer] = []
+    private var notes = OortSynth.Figure.rise.notes
+    private var octave = 0
     private var lastStep = Date.distantPast
     private var lastMove = Date.distantPast
     private let library = SoundPackLibrary()
@@ -60,10 +64,15 @@ final class SoundEffectService {
     func bind(to store: AppSettingsStore) {
         cancellable = store.$settings.combineLatest(store.$draft)
             .map { committed, draft in draft?.displayed(over: committed, previewsOnly: true) ?? committed }
-            .map { ($0.interfaceSounds, $0.soundVolume, $0.soundPackID) }
+            .map { ($0.interfaceSounds, $0.soundVolume, $0.soundPackID, OortSynth.notes($0.noteFigure, custom: $0.customNotes), $0.noteOctave) }
             .removeDuplicates { $0 == $1 }
-            .sink { enabled, volume, id in
+            .sink { enabled, volume, id, notes, octave in
                 self.audio.async {
+                    if notes != self.notes || octave != self.octave {
+                        self.notes = notes
+                        self.octave = octave
+                        self.synthesised = self.synthesised.filter { !$0.key.contains(".move.") }
+                    }
                     self.enabled = enabled
                     self.gain = volume.isFinite ? Float(min(max(volume, 0), 1)) : 0
                     if self.selected != id {
@@ -157,6 +166,24 @@ final class SoundEffectService {
         audio.async { self.playOnQueue(event, legacy: cue) }
     }
 
+    /// Plays a sequence from start to end, as Settings offers it.
+    func previewNotes(_ notes: [Double], octave: Int, pack: String) {
+        audio.async {
+            guard self.enabled, self.gain > 0, !self.isPlayingGame, let synth = OortSynth(pack: pack) else { return }
+            self.previewing += 1
+            let turn = self.previewing
+            for index in notes.indices {
+                self.audio.asyncAfter(deadline: .now() + 0.135 * Double(index)) {
+                    guard turn == self.previewing, let data = synth.wav(.move, step: index, notes: notes, octave: octave),
+                          let player = try? AVAudioPlayer(data: data) else { return }
+                    self.sequence = (self.sequence + [player]).suffix(8)
+                    player.volume = min(1, self.gain * 1.6)
+                    player.play()
+                }
+            }
+        }
+    }
+
     func preview(_ event: SoundPackEvent) {
         audio.async { self.playOnQueue(event, legacy: event.legacyCue, preview: true) }
     }
@@ -178,7 +205,7 @@ final class SoundEffectService {
             if let player = synthesised[key] {
                 chosen = player
             } else {
-                chosen = synth.wav(event, step: step).flatMap { try? AVAudioPlayer(data: $0) }
+                chosen = synth.wav(event, step: step, notes: notes, octave: octave).flatMap { try? AVAudioPlayer(data: $0) }
                 synthesised[key] = chosen
             }
             if event != .move, let current, current !== chosen { current.stop() }
@@ -215,7 +242,7 @@ final class SoundEffectService {
         let now = Date()
         step = now.timeIntervalSince(lastStep) < 0.9 ? step + 1 : 0
         lastStep = now
-        return step % OortSynth.rise.count
+        return step % max(1, notes.count)
     }
 
     private func stopPlayers() {

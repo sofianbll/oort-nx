@@ -17,8 +17,33 @@ public struct OortSynth: Sendable {
         ]
     }
 
-    /// A rising figure of eight notes, in semitones. Quarter tones are allowed.
-    public static let rise: [Double] = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5]
+    /// Eight notes, in semitones above the voice's fifth, played one per step of the focus.
+    public enum Figure: String, CaseIterable, Codable, Sendable {
+        case rise, major, pentatonic, minor, arpeggio, dream, moonlit, wave, descent, custom
+
+        public var notes: [Double] {
+            switch self {
+            case .rise: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5]
+            case .major: [0, 2, 4, 5, 7, 9, 11, 12]
+            case .pentatonic: [0, 2, 4, 7, 9, 12, 14, 16]
+            case .minor: [0, 2, 3, 5, 7, 8, 10, 12]
+            case .arpeggio: [0, 4, 7, 12, 16, 19, 16, 12]
+            case .dream: [0, 2, 4, 6, 8, 10, 12, 14]
+            case .moonlit: [0, 2, 3, 7, 8, 12, 14, 15]
+            case .wave: [0, 4, 7, 9, 12, 9, 7, 4]
+            case .descent: [12, 11, 9, 7, 5, 4, 2, 0]
+            case .custom: [0, 2, 4, 5, 7, 9, 11, 12]
+            }
+        }
+    }
+
+    public static let octaves = -2...2
+    public static let range = 0.0...24.0
+    /// Eight notes inside the range, or the figure's own when the stored ones are not usable.
+    public static func notes(_ figure: Figure, custom: [Double]) -> [Double] {
+        guard figure == .custom, custom.count == 8, custom.allSatisfy(\.isFinite) else { return figure.notes }
+        return custom.map { min(range.upperBound, max(range.lowerBound, $0)) }
+    }
     static let rate = 48_000.0
     private let voice: Voice
 
@@ -28,12 +53,14 @@ public struct OortSynth: Sendable {
     }
 
     /// A 16-bit stereo WAV, or nil when the pack leaves this event silent. `step` climbs while the focus keeps moving.
-    public func wav(_ event: SoundPackEvent, step: Int = 0) -> Data? {
-        var mix = Mix(seconds: 1.6)
+    public func wav(_ event: SoundPackEvent, step: Int = 0, notes: [Double] = Figure.rise.notes, octave: Int = 0) -> Data? {
+        var mix = Mix(seconds: event == .boot ? 2.8 : 1.6)
         switch event {
         case .move:
-            let semitones = Self.rise[((step % 8) + 8) % 8]
-            note(&mix, 1.5 * pow(2, semitones / 12), volume: 0.055, length: 0.45)
+            guard !notes.isEmpty else { return nil }
+            let semitones = notes[((step % notes.count) + notes.count) % notes.count]
+            let shift = Double(min(Self.octaves.upperBound, max(Self.octaves.lowerBound, octave)))
+            note(&mix, 1.5 * pow(2, semitones / 12 + shift), volume: 0.055, length: 0.45)
         case .select:
             click(&mix, 0.22, 1500)
             note(&mix, 0.5, volume: 0.1, length: 0.5)
@@ -63,10 +90,7 @@ public struct OortSynth: Sendable {
             note(&mix, 1, volume: 0.18, length: 1.4)
             note(&mix, 1.5, at: 0.11, volume: 0.16, length: 1.8)
             note(&mix, 1.25, at: 0.3, volume: 0.14, length: 2.4)
-        case .boot:
-            note(&mix, 0.5, volume: 0.16, length: 4)
-            note(&mix, 1, at: 0.12, volume: 0.14, length: 4)
-            note(&mix, 1.5, at: 0.3, volume: 0.12, length: 4)
+        case .boot: sun(&mix)
         case .ambience: return nil
         }
         return mix.wav()
@@ -94,6 +118,33 @@ public struct OortSynth: Sendable {
                 samples[n] = Float(filter.run(shape) * envelope * tail)
             }
             mix.add(samples, at: start)
+        }
+    }
+
+    /// The Sun: three pure tones in tune with the voice, then the cloud answering on both sides. Nothing else.
+    private func sun(_ mix: inout Mix) {
+        var root = voice.frequency
+        while root > 172 { root /= 2 }
+        if root < 118 { root *= 1.5 }
+        let length = 2.4, count = Int(length * Self.rate)
+        func bell(_ u: Double, _ rise: Double, _ fall: Double) -> Double {
+            u <= 0 ? 0 : u < rise ? 0.5 - 0.5 * cos(.pi * u / rise) : exp(-(u - rise) / fall)
+        }
+        let parts: [(ratio: Double, level: Double, envelope: (Double) -> Double)] = [
+            (1, 1, { bell($0, 0.13, 0.19) + 0.26 * bell($0 - 0.36, 0.15, 0.2) }),
+            (2, 0.17, { bell($0, 0.10, 0.14) + 0.2 * bell($0 - 0.36, 0.13, 0.16) }),
+            (3, 0.03, { bell($0, 0.09, 0.12) }),
+            (1, 0.22, { bell($0 - 0.1, 0.34, 0.42) }),
+        ]
+        for part in parts {
+            var phase = 0.0
+            mix.add((0..<count).map { n in
+                let time = Double(n) / Self.rate
+                // The pitch settles once, gently.
+                phase += root * part.ratio * (1 - 0.045 * exp(-time / 0.06)) / Self.rate
+                let close = time > length - 0.5 ? 0.5 + 0.5 * cos(.pi * (time - length + 0.5) / 0.5) : 1
+                return Float(sin(2 * .pi * phase) * part.envelope(time) * part.level * close * 0.11)
+            }, at: 0)
         }
     }
 
