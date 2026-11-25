@@ -188,7 +188,7 @@ export const STRINGS = {
 "Logo": "Logo",
 "Logs": "Logs",
 "Look": "Look",
-"Look again": "Look again",
+"Look again": "Refresh library",
 "Look for game information online?": "Look for game information online?",
 "Looking…": "Looking…",
 "Major": "Major",

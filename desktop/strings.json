@@ -290,7 +290,8 @@
   "fr": "Bibliothèque actualisée"
  },
  "Look again": {
-  "fr": "Actualiser la bibliothèque"
+  "fr": "Actualiser la bibliothèque",
+  "en": "Refresh library"
  },
  "Look for game information online?": {
   "fr": "Chercher les informations des jeux en ligne ?"
