@@ -1,4 +1,5 @@
 """What can be checked about the Android project without a compiler or an SDK. None of this replaces a build."""
+import json
 import re
 import unittest
 import xml.etree.ElementTree as ET
@@ -92,6 +93,16 @@ class AndroidProject(unittest.TestCase):
         self.assertIn("Version 2.0, January 2004", (texts / "apache-2.0.txt").read_text())
         named = set(re.findall(r'\w+\("([\w.-]+\.txt)"', (ANDROID / "app/src/main/kotlin" / BASE / "ui/Rows.kt").read_text()))
         self.assertEqual(named, {p.name for p in texts.iterdir()})
+
+    def test_the_credits_are_the_shared_ones(self):
+        source = json.loads((ANDROID.parent / "design/credits.json").read_text())
+        self.assertEqual(json.loads((MAIN / "assets/credits.json").read_text()), source)
+        state = (ANDROID / "app/src/main/kotlin" / BASE / "ui/AppState.kt").read_text()
+        for credit in source["credits"]:
+            icon = credit.get("icon", {})
+            if icon.get("allowed") and "android" in credit["systems"]:
+                self.assertIn(f"R.drawable.credit_{icon['asset']}", state)
+                self.assertTrue((MAIN / f"res/drawable-nodpi/credit_{icon['asset']}.png").exists())
 
     def test_the_icon_is_the_apps_mark(self):
         svg = (ANDROID.parent / "Resources/AppIcon.icon/Assets/glyph.svg").read_text()

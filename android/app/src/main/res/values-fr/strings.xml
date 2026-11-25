@@ -73,9 +73,6 @@
     <string name="settings_license">Local uniquement : cette application ne demande aucun accès réseau à Android et ne collecte rien.</string>
     <string name="settings_thanks">Remerciements et licences</string>
     <string name="thanks_oort">Logiciel libre sous licence MIT, bâti sur Arcane de Bium23. Le nuage, les sons et la manette en points viennent d’Oort NX pour Mac.</string>
-    <string name="thanks_games">Font les jeux qu’Oort lance</string>
-    <string name="thanks_nx2android">shirai91, MIT. Transforme vos jeux en applications Android. Oort n’en contient aucun code.</string>
-    <string name="thanks_nxnative">seedds, MIT. Le moteur dans chaque jeu. Oort n’en contient aucun code.</string>
     <string name="thanks_texts">Textes complets</string>
     <string name="thanks_text_oort">Licence MIT</string>
     <string name="thanks_text_notices">Crédits de l’application Android</string>

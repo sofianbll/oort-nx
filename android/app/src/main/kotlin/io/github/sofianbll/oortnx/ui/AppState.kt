@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import io.github.sofianbll.oortnx.R
 import io.github.sofianbll.oortnx.core.ConnectedPad
 import io.github.sofianbll.oortnx.core.Covers
+import io.github.sofianbll.oortnx.core.Credits
 import io.github.sofianbll.oortnx.core.Dir
 import io.github.sofianbll.oortnx.core.Game
 import io.github.sofianbll.oortnx.core.GameLauncher
@@ -258,6 +259,7 @@ class AppState(
         when (val kind = row.kind) {
             Kind.Info -> Unit
             is Kind.Open -> open(kind.route)
+            is Kind.Link -> sound(if (GameLauncher.page(context, kind.url)) SoundEvent.Confirm else SoundEvent.Deny)
             is Kind.Press -> { sound(SoundEvent.Confirm); kind.run() }
             is Kind.Toggle -> { kind.set(!kind.on); sound(SoundEvent.Select) }
             is Kind.Pick -> { kind.run(); sound(SoundEvent.Select) }
@@ -381,16 +383,32 @@ class AppState(
             RowItem(text.name, title, note = note, glyph = Glyph.Text, kind = Kind.Open(Route.Licence(text)))
         return listOf(
             RowSection(rows = listOf(RowItem("oort", Label.Raw("Oort NX"), note = Label.Res(R.string.thanks_oort), glyph = Glyph.Heart))),
-            RowSection(Label.Res(R.string.thanks_games), rows = listOf(
-                RowItem("nx2android", Label.Raw("nx2android"), note = Label.Res(R.string.thanks_nx2android)),
-                RowItem("nxnative", Label.Raw("nxnative"), note = Label.Res(R.string.thanks_nxnative)),
-            )),
             RowSection(Label.Res(R.string.thanks_texts), rows = listOf(
                 text(LicenceText.Oort, note = Label.Res(R.string.thanks_text_oort)),
                 text(LicenceText.Notices, note = Label.Res(R.string.thanks_text_notices)),
                 text(LicenceText.Apache, note = Label.Res(R.string.thanks_text_apache)),
             )),
-        )
+        ) + credits.groups.map { group ->
+            RowSection(Label.Words(group.title), rows = group.credits.map { credit ->
+                RowItem("credit-${credit.id}", Label.Raw(credit.name), note = Label.Join(listOf(Label.Words(credit.byline), Label.Words(credit.role)), lines = true),
+                    glyph = creditGlyph(credit.glyph), picture = CREDIT_PICTURES[credit.picture], kind = Kind.Link(credit.url))
+            })
+        } + RowSection(Label.Words(credits.legalTitle), rows = listOf(
+            RowItem("legal", Label.Raw("Oort NX"), note = Label.Join(credits.legal.map { Label.Words(it) }, lines = true)),
+        ))
+    }
+
+    /** The cards of design/credits.json, the same on every system. */
+    private val credits by lazy { Credits.read(context.assets.open("credits.json").bufferedReader().use { it.readText() }) }
+
+    private fun creditGlyph(name: String) = when (name) {
+        "heart" -> Glyph.Heart
+        "gamepad" -> Glyph.Pad
+        "terminal" -> Glyph.Text
+        "puzzle" -> Glyph.Library
+        "palette" -> Glyph.Dots
+        "globe" -> Glyph.Cloud
+        else -> Glyph.Sliders
     }
 
     private fun packName(pack: String) = pack.replaceFirstChar { it.uppercase() }
@@ -398,6 +416,8 @@ class AppState(
     fun sound(event: SoundEvent, step: Int = 0) = soundPlayer.play(event, step)
 
     companion object {
+        private val CREDIT_PICTURES = mapOf("arcane" to R.drawable.credit_arcane, "selene" to R.drawable.credit_selene, "playnite" to R.drawable.credit_playnite)
+
         /** The play key of a game's page, which is not a line of its list. */
         const val PLAY = "play"
 

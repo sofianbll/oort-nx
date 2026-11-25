@@ -2,6 +2,7 @@ package io.github.sofianbll.oortnx.ui
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -37,6 +38,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -101,7 +103,8 @@ private fun Line(state: AppState, row: RowItem, focused: Boolean) {
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         val tint = if (row.danger) OortTokens.Status.Danger else OortTokens.Palette.Glyph
-        row.glyph?.let { OortGlyph(it, tint = tint, modifier = Modifier.size(26.dp).padding(1.dp)) }
+        if (row.picture != null) Image(painterResource(row.picture), null, Modifier.size(26.dp))
+        else row.glyph?.let { OortGlyph(it, tint = tint, modifier = Modifier.size(26.dp).padding(1.dp)) }
         // Large text: the value goes under its title rather than squeezing it.
         val big = LocalDensity.current.fontScale >= 1.5f
         Column(Modifier.weight(1.1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -112,6 +115,7 @@ private fun Line(state: AppState, row: RowItem, focused: Boolean) {
         if (!big) row.value?.let { Text(it.text(), Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge, color = Ink2, textAlign = TextAlign.End) }
         when (val kind = row.kind) {
             is Kind.Open -> OortGlyph(Glyph.Forward, tint = Ink2, modifier = Modifier.size(18.dp))
+            is Kind.Link -> OortGlyph(Glyph.Out, tint = Ink2, modifier = Modifier.size(18.dp))
             is Kind.Press -> Unit
             is Kind.Toggle -> DotSwitch(kind.on, calm)
             is Kind.Pick -> Box(Modifier.size(24.dp)) { if (kind.on) OortGlyph(Glyph.Check, tint = OortTokens.Palette.Focus) }

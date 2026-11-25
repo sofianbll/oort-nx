@@ -27,6 +27,7 @@ enum class Glyph(val path: String? = null, val filled: Boolean = false, val stro
     Trash("M4 6.5h16M9.5 6.5v-2a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v2M6 6.5l.9 13a1.5 1.5 0 0 0 1.5 1.4h7.2a1.5 1.5 0 0 0 1.5-1.4l.9-13M10 11v6M14 11v6"),
     Sort("M7.5 4.5v15M7.5 4.5L4 8M7.5 4.5L11 8M16.5 19.5v-15M16.5 19.5L13 16M16.5 19.5L20 16"),
     Back("M14.5 5l-7 7 7 7"),
+    Out("M7 17L17 7M9 7h8v8"),
     Forward("M9.5 5l7 7-7 7"),
     Check("M5 12.5l4.5 4.5L19 7.5"),
     Refresh("M20 12a8 8 0 1 1-2.4-5.7M20 3.8v4.4h-4.4"),
