@@ -42,6 +42,8 @@ struct SeleneHintsBar: View {
     /// as wide as its longest label, and a missing item keeps its slot, so the
     /// prompts never shift as the focus moves.
     var rightReserve: [[String]] = []
+    /// A click on a hint without an action of its own does what its button does on this screen.
+    var press: ((GamepadAction) -> Void)? = nil
 
     var body: some View {
         if showHints {
@@ -87,9 +89,16 @@ struct SeleneHintsBar: View {
         slot < rightReserve.count ? rightReserve[slot] : []
     }
 
+    /// Every hint the screen can press is clickable, so a mouse reaches what a button does.
+    func clickAction(_ item: HintItem) -> (() -> Void)? {
+        if let action = item.action { return action }
+        guard let press, let action = item.button?.action else { return nil }
+        return { press(action) }
+    }
+
     @ViewBuilder
     private func item(_ item: HintItem, reserve: [String] = []) -> some View {
-        if let action = item.action {
+        if let action = clickAction(item) {
             Button(action: action) { content(item, reserve: reserve).contentShape(Rectangle()) }
                 .buttonStyle(.plain)
         } else {

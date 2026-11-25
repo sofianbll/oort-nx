@@ -271,6 +271,7 @@ struct SpotlightView: View {
             hintsHidden: router.overlayHasHints(viewModel) || router.sortMenu != nil || achievementsScreen != nil
                 || (model.selectedCatalogGame?.macShortcut != nil && viewModel.settingsNotice != nil),
             hintsHeld: !controlsShown,
+            press: { handle($0) },
             backdrop: {
                 // On a card no art; on the Mods card the moonlight glides to gold (and stays gold until the next
                 // game's art has arrived, so leaving the card is one change, not gold → blue → art).

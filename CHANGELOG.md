@@ -17,6 +17,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Fixed
 
+- Every hint of the Spotlight page takes a click, card options included.
 - The launch screen can be left with B or Esc after four seconds, and says so; keys no longer act on the screen under it.
 
 ## 0.5.0-beta.3 — 2026-11-25

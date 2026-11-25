@@ -136,6 +136,18 @@ final class ThemeStore {
                          == (active == .none ? [.view, .menu, .search, .home] : [.view, .menu, .home]))
             // A chosen button style names a controller's buttons: the keyboard keeps its keys whatever the style.
             precondition(bar.visibleLeft(inHand: .none).map(\.button) == [.view, .menu, .search, .home])
+            // Every hint the screen can press takes a click: its own action first, else its button's.
+            var pressed: [GamepadAction] = []
+            let clickable = SeleneHintsBar(left: left, right: right, press: { pressed.append($0) })
+            for hint in right { clickable.clickAction(hint)?() }
+            precondition(pressed == [.confirm, .secondaryAction, .contextAction, .rightStickPress])
+            precondition(left.allSatisfy { clickable.clickAction($0) != nil })
+            precondition(clickable.clickAction(HintItem(.move, "Move")) == nil)
+            let options = HintItem.browsingOptions(.oort, "Card options", hasHome: true)
+            precondition(options.action == nil && options.button == .menu)
+            clickable.clickAction(options)?()
+            precondition(pressed.last == .contextAction, "The + of the Oort layout opens the card's options")
+            precondition(SeleneHintsBar(right: right).clickAction(right[0]) == nil)
             let buttons = (bar.visibleLeft(inHand: active) + right).compactMap(\.button)
             precondition(Set(buttons).count == buttons.count)
             precondition(ButtonPrompts.keyboardKey(.rs) == .text("F3"))

@@ -214,3 +214,24 @@ extension ConnectedPad {
         }
     }
 }
+
+extension PromptButton {
+    /// What pressing this button on a hint means to the screen; nil for a direction or a button the shell owns.
+    /// + and Y both open the options of the selection: the hint only names the one the layout gives it.
+    var action: GamepadAction? {
+        switch self {
+        case .a: .confirm
+        case .b: .cancel
+        case .x: .secondaryAction
+        case .y, .menu: .contextAction
+        case .lb: .tabPrevious
+        case .rb: .tabNext
+        case .lt: .jumpToStart
+        case .rt: .jumpToEnd
+        case .rs: .rightStickPress
+        case .ls, .search: .search
+        case .view: .view
+        case .home, .move, .navigate, .vertical: nil
+        }
+    }
+}
