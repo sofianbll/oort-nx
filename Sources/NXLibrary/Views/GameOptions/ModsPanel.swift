@@ -121,7 +121,7 @@ struct ModsPanel: View {
 
     private var hints: [HintItem] {
         guard let mod = focusedMod else { return [HintItem(.a, L10n.text("Select"))] }
-        var items = [HintItem(.move, "Move"), HintItem(.y, L10n.text("Remove"), action: askRemove)]
+        var items = [HintItem(.move, "Move"), HintItem(.y, L10n.text("Delete"), action: askRemove)]
         items.append(HintItem(.a, !mod.isMod ? L10n.text("Select") : mod.isOn ? L10n.text("Turn off") : L10n.text("Turn on")))
         return items
     }

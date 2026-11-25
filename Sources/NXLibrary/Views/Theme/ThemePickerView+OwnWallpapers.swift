@@ -84,7 +84,7 @@ extension ThemePickerView {
                 .ignoresSafeArea()
                 .contentShape(Rectangle())
                 .onTapGesture { keepIt() }
-            SeleneConfirmDialog(title: removalTitle, message: message, confirmTitle: "Remove",
+            SeleneConfirmDialog(title: removalTitle, message: message, confirmTitle: "Delete",
                                 cancelTitle: L10n.text("Keep it"), focus: $removalFocus,
                                 onCancel: keepIt, onConfirm: confirmRemoval)
         }

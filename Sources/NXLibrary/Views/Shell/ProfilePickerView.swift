@@ -120,9 +120,9 @@ struct ProfilePickerView: View {
             }
             if let removing {
                 SeleneOverlay(style: .profileRemoval, onOutside: { self.removing = nil }) {
-                    SeleneConfirmDialog(title: L10n.format("Remove %@?", [removing.name]),
+                    SeleneConfirmDialog(title: L10n.format("Delete %@?", [removing.name]),
                                         message: L10n.text("This profile will lose its favorites and play time."),
-                                        confirmTitle: L10n.text("Remove"), cancelTitle: L10n.text("Keep"),
+                                        confirmTitle: L10n.text("Delete"), cancelTitle: L10n.text("Keep"),
                                         warningIcon: true, focus: $removalFocus,
                                         onCancel: { self.removing = nil }, onConfirm: remove)
                 }
@@ -184,7 +184,7 @@ struct ProfilePickerView: View {
             hints.append(HintItem(.y, "Edit profile", action: edit))
         }
         if selectedProfile.map(canRemoveProfile) == true {
-            hints.append(HintItem(.x, "Remove", action: askRemoval))
+            hints.append(HintItem(.x, "Delete", action: askRemoval))
         }
         return hints
     }

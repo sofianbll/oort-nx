@@ -120,7 +120,7 @@ struct ThemePickerView: View {
                 hints.append(HintItem(.x, L10n.text("Open page"), action: { openWebPage(credit.pageURL, viewModel: viewModel) }))
             }
             if case .wallpaper(let id) = focusedBackground, ThemeStore.isRemovable(id) {
-                hints.append(HintItem(.y, L10n.text("Remove"), action: removeFocused))
+                hints.append(HintItem(.y, L10n.text("Delete"), action: removeFocused))
             }
             let verb: String
             switch focusedBackground {

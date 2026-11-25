@@ -10,6 +10,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Changed
 
+- What goes to the Trash says Delete; Remove only takes something off a list.
 - + says Options everywhere in Spotlight and the Collection.
 - The ring that fills while a button is held also says Search and Control center.
 - Opening a web page with a controller asks first and shows the address.

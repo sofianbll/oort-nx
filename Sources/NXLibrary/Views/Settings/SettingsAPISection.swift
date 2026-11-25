@@ -71,7 +71,7 @@ struct SettingsAPISection: View {
                     Button(L10n.text(igdb.isConfigured ? "Edit credentials" : "Connect")) { igdb.isEditing = true }
                         .foregroundColor(SeleneTheme.glyph)
                     if igdb.isConfigured {
-                        Button(L10n.text("Remove")) { Task { await igdb.remove() } }
+                        Button(L10n.text("Delete")) { Task { await igdb.remove() } }
                             .foregroundColor(SeleneTheme.ink60).disabled(igdb.isRemoving)
                     }
                 }
@@ -643,7 +643,7 @@ struct SettingsAPISection: View {
         if !showsMultiplayer {
             onActions([
             .init(id: "IGDB", title: "IGDB",
-                  secondary: igdb.isConfigured ? (title: "Remove", activate: { Task { await igdb.remove() }; return }) : nil) {
+                  secondary: igdb.isConfigured ? (title: "Delete", activate: { Task { await igdb.remove() }; return }) : nil) {
                 igdb.isEditing = true
             },
             .init(id: "SteamGridDB", title: "SteamGridDB") { steamGridDBAction() },

@@ -75,9 +75,9 @@ struct SettingsSoundSection: View {
                 SeleneCycleRow("Installed pack", subtitle: "Choose an imported pack to remove.",
                                value: customPacks.first(where: { $0.key == removalKey })?.name ?? customPacks[0].name,
                                verbatimValue: true, cycle: stepRemoval)
-                SeleneButtonRow("Remove sound pack",
+                SeleneButtonRow("Delete sound pack",
                                 subtitle: "Moves only the installed copy to the Trash.",
-                                buttonTitle: "Remove", action: removePack)
+                                buttonTitle: "Delete", action: removePack)
             }
 
             if OortSynth(pack: settings.settings.soundPackID) != nil {
@@ -377,9 +377,9 @@ struct SettingsSoundSection: View {
     }
 
     static func removalQuestion(_ name: String, locale: AppLocale) -> Question {
-        Question(title: L10n.text("Remove sound pack?", context: locale),
+        Question(title: L10n.text("Delete sound pack?", context: locale),
                  message: L10n.format("Only the installed copy of %@ moves to the Trash. If active, Selene will be selected.", [name], context: locale),
-                 action: "Remove")
+                 action: "Delete")
     }
 
     private func importFromSelene() {
