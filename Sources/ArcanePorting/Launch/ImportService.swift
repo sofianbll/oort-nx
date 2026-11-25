@@ -163,7 +163,7 @@ public final class ImportService {
 
     static func titleID(in info: [String: Any]) -> String? {
         let bundleID = info["CFBundleIdentifier"] as? String
-        guard bundleID != "local.nxlibrary" else { return nil }
+        guard bundleID != AppDataProfile.identifier, bundleID != AppDataProfile.legacyIdentifier else { return nil }
         let suffix = bundleID?.hasPrefix("org.nxnative.") == true
             ? bundleID?.split(separator: ".").last.map(String.init) : nil
         return [info["DMTitleID"] as? String, suffix].compactMap { $0 }.compactMap(normalizedTitleId).first

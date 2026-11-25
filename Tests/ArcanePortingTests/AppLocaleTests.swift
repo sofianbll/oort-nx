@@ -12,7 +12,7 @@ final class AppLocaleTests: XCTestCase {
                        "Oort NX checks the cloud for missing game files.")
         XCTAssertEqual(L10n.format("Arcane %@", ["Arcane"], context: english), "Oort NX Arcane")
         XCTAssertEqual(L10n.text("Arcane", context: english), "Arcane")
-        XCTAssertEqual(AppIdentity.userAgent(version: "0.2"), "Arcane/0.2 (macOS; +https://github.com/Bium23/NxLibrary)")
+        XCTAssertEqual(AppIdentity.userAgent(version: "0.2"), "Arcane/0.2 (macOS; +https://github.com/sofianbll/oort-nx)")
     }
 
     func testCloudSaveErrorBrandsTheSettingsOrigin() {

@@ -169,6 +169,18 @@ Publication normally requires an unused tag. If the tag was pushed but the relea
 
 With `--publish`, the effective `origin` push URL must point to the one public GitHub repository resolved from the updater source. The script reads `main` and the version tag directly in that repository, not from the fetch URL or a cached tracking ref. It requires `HEAD` to match that `main`, the version tag to be unused locally and remotely, and the engine pin to be reachable from a public branch. It checks again after packaging, pushes only that tag, and verifies its commit before asking GitHub to create the release in the same repository. If the tag push or release upload fails, check the remote tag and release state before retrying.
 
+The release DMG uses the Oort artwork by default. Set up its build-only Python
+tools once in a virtual environment outside the repository:
+
+```bash
+dmg_env="$(mktemp -d "${TMPDIR:-/tmp}/oort-dmg-tools.XXXXXX")"
+python3 -m venv "$dmg_env"
+"$dmg_env/bin/python" -m pip install --require-hashes --only-binary=:all: -r scripts/dmg-requirements.txt
+export OORT_DMG_PYTHON="$dmg_env/bin/python"
+```
+
+[ds_store](https://github.com/dmgbuild/ds_store) and [mac_alias](https://github.com/dmgbuild/mac_alias) (both MIT) are not included in the app or installer. The DMG step works offline after setup and needs Xcode's Swift and SetFile. `diskutil image create from` drops the canonical spelling `.DS_Store` when copying a folder on macOS 27; the builder stages it as `.ds_store` and verifies its contents at the canonical path on the case-insensitive APFS volume.
+
 For example, to prepare a later release locally:
 
 ~~~sh
@@ -176,6 +188,8 @@ bash scripts/release.sh 0.1.2
 ~~~
 
 The script builds a release-marked app, verifies its version and signature, and produces a ZIP and DMG in `work/release/`. Without `--publish`, it does not push a tag or create a GitHub release. Version `0.1.0` is the first public alpha; use an unused version for later releases.
+
+To package an app you have already built, run `bash scripts/build_dmg.sh /path/to/Oort\ NX.app`; it writes `dist/NXLibrary.dmg` only after verifying the app in a hidden, read-only mount. Use `build_dmg.sh --plain` (or `release.sh <version> --plain-dmg`) to make the original unstyled installer without the Python tools. Missing tools do not silently change the style.
 
 Platform SVGs, generic Lucide fallbacks and notices live in `Resources/Brands/Platforms`.
 Publication checks verify reviewed hashes and reject extra brand files. Only the two Switch platform symbols are an exception to the Nintendo artwork rule.
@@ -203,7 +217,7 @@ Oort NX utilise son propre `MAJOR.MINOR.PATCH` : **PATCH** pour les correctifs s
 
    Pour la publication perso, passer `DM_NEXTENDO_CLIENT_ID="$YOUR_PUBLIC_NEXTENDO_CLIENT_ID"` aux deux commandes : le build inscrit cet identifiant public dans `DMNextendoClientID` dans le plist de l’app. Ne pas fournir de secret Nextendo. Le script refuse un SHA qui n'est pas accessible depuis une branche du dépôt. Sans les deux options moteur, la build conserve le dépôt et le pin amont.
 
-3. Après validation et accord de publication, placer le commit de release sur `main` dans le dépôt public et refaire la même build avec les notes approuvées. Le script résout le nom public depuis `sofianbll/NxLibrary` et accepte uniquement ce nom ou `sofianbll/oort-nx`. L’envoi d’`origin` doit viser ce même dépôt pour le tag `vX.Y.Z` et la release. Publier le pont en conservant le nom actuel : la 0.2.1.20261129 ne saura pas mettre à jour depuis le nouveau nom. Les notes peuvent rester hors du dépôt ; le script y ajoute le dépôt et le SHA embarqués et les métadonnées Xcode/moteur.
+3. Après validation et accord de publication, placer le commit de release sur `main` dans le dépôt public et refaire la même build avec les notes approuvées. Depuis 0.4.0, le script vise `sofianbll/oort-nx`. L’envoi d’`origin` doit viser ce même dépôt pour le tag `vX.Y.Z` et la release. Pour 0.4.0 seulement, publier ensuite les mêmes fichiers et le même tag dans `sofianbll/NxLibrary` : les copies jusqu’à 0.3.0 y cherchent leur mise à jour. Les notes peuvent rester hors du dépôt ; le script y ajoute le dépôt et le SHA embarqués et les métadonnées Xcode/moteur.
 
    ~~~sh
    DM_NEXTENDO_CLIENT_ID="$YOUR_PUBLIC_NEXTENDO_CLIENT_ID" bash scripts/release.sh 0.3.0 \

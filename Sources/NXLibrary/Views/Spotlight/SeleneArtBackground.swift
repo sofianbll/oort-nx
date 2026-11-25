@@ -94,7 +94,7 @@ struct SeleneArtLayer: NSViewRepresentable {
 }
 
 final class SeleneArtLayerView: NSView {
-    private static let log = Logger(subsystem: "local.nxlibrary", category: "backdrop")
+    private static let log = Logger(subsystem: "io.github.sofianbll.oortnx", category: "backdrop")
     /// Art layers, newest last. A new image is a new layer fading in on top of whatever shows now (the layers
     /// under it hold where they are), so an interrupted crossfade carries on from what is on screen: no jump, no
     /// dip. The layers under it go once it is in.

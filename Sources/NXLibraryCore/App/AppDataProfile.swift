@@ -5,7 +5,11 @@ public struct AppDataProfile: Sendable {
     public let home: URL
     public let isDevelopment: Bool
     public let isTrial2: Bool
-    private static let devIdentifier = "local.nxlibrary.development"
+    /// Oort NX's own identity, for good: macOS ties permissions, preferences and updates to it.
+    public static let identifier = "io.github.sofianbll.oortnx"
+    /// Arcane's, which Oort NX used up to 0.3.0. `LibraryMove` reads its folder and preferences once.
+    public static let legacyIdentifier = "local.nxlibrary"
+    private static let devIdentifier = identifier + ".dev"
     private static let trial2Identifier = devIdentifier + ".trial2"
 
     public init(home: URL = FileManager.default.homeDirectoryForCurrentUser, isDevelopment: Bool, isTrial2: Bool = false) {
@@ -15,14 +19,16 @@ public struct AppDataProfile: Sendable {
     }
     /// Folders are built as folders (`isDirectory: true`), never by asking the disk, so a root is the same URL
     /// before and after it is created: equal to `file.deletingLastPathComponent()` on a fresh Mac too.
-    public var stableSupportRoot: URL { home.appendingPathComponent("Library/Application Support/NXLibrary", isDirectory: true) }
+    public var stableSupportRoot: URL { home.appendingPathComponent("Library/Application Support/Oort NX", isDirectory: true) }
+    /// Arcane's folder, where Oort NX kept its data up to 0.3.0.
+    public var legacySupportRoot: URL { home.appendingPathComponent("Library/Application Support/NXLibrary", isDirectory: true) }
     public var supportRoot: URL {
         home.appendingPathComponent("Library/Application Support/" + folder, isDirectory: true)
     }
     public var cacheRoot: URL { home.appendingPathComponent("Library/Caches/" + folder, isDirectory: true) }
-    private var folder: String { isTrial2 ? "NXLibrary-Development-Trial2" : isDevelopment ? "NXLibrary-Development" : "NXLibrary" }
+    private var folder: String { isTrial2 ? "Oort NX Dev Trial2" : isDevelopment ? "Oort NX Dev" : "Oort NX" }
     public var preferencesDomain: String {
-        isTrial2 ? Self.trial2Identifier : isDevelopment ? Self.devIdentifier : "local.nxlibrary"
+        isTrial2 ? Self.trial2Identifier : isDevelopment ? Self.devIdentifier : Self.identifier
     }
 
     fileprivate static func isTrial2Identifier(_ identifier: String?) -> Bool { identifier == trial2Identifier }
@@ -75,7 +81,7 @@ public enum AppData {
         let release = info["NXLibraryRelease"] as? Bool == true
         let identifier = info["CFBundleIdentifier"] as? String
         guard (development && !release && AppDataProfile.isDevelopmentIdentifier(identifier))
-                || (release && !development && identifier == "local.nxlibrary") else {
+                || (release && !development && identifier == AppDataProfile.identifier) else {
             throw DevelopmentProfileError.invalidConfiguration
         }
     }
@@ -85,12 +91,21 @@ public enum AppData {
                                sanitizeLibrary: (URL) throws -> Void = { _ in }) throws {
         // An unmarked/mispackaged executable must not silently open the live profile.
         try validateBuildIdentity(Bundle.main.infoDictionary ?? [:])
+        if !profile.isDevelopment {
+            let defaults = preferences
+            _ = try LibraryMove(from: profile.legacySupportRoot, to: profile.supportRoot).prepare {
+                UserDefaults.standard.persistentDomain(forName: AppDataProfile.legacyIdentifier) ?? [:]
+            } savePreferences: { values in
+                for (key, value) in values { defaults.set(value, forKey: key) }
+                guard CFPreferencesAppSynchronize(profile.preferencesDomain as CFString) else { throw LibraryMove.Failure.preferencesUnavailable }
+            }
+        }
         // The trial's stable data copy is explicit; opening it never runs the legacy import.
         guard profile.isDevelopment, !profile.isTrial2 else { return }
         let defaults = preferences
         _ = try DevelopmentProfileImporter(checks: checks).prepare(profile: profile, contents: contents,
                                                                    sanitizeLibrary: sanitizeLibrary, sourcePreferences: {
-            UserDefaults.standard.persistentDomain(forName: "local.nxlibrary") ?? [:]
+            UserDefaults.standard.persistentDomain(forName: AppDataProfile.identifier) ?? [:]
         }, savePreferences: { values in
             defaults.setPersistentDomain(values, forName: profile.preferencesDomain)
             guard CFPreferencesAppSynchronize(profile.preferencesDomain as CFString) else {

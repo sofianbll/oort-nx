@@ -32,7 +32,7 @@ final class ModStoreHost: ObservableObject {
     private var coverRequestID = UUID()
     private var recordsGeneration = UUID()
 
-    private static let log = Logger(subsystem: "local.nxlibrary", category: "gamebanana")
+    private static let log = Logger(subsystem: "io.github.sofianbll.oortnx", category: "gamebanana")
     private var gamesByTitle: [String: PortedGame] = [:]
     private weak var viewModel: AppViewModel?
     private var forwards: Set<AnyCancellable> = []

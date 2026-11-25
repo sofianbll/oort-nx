@@ -28,7 +28,7 @@ final class ArcaneNameTests: XCTestCase {
     }
 
     func testProjectDocsOpenTheReadmeOnlineOnEveryMac() {
-        XCTAssertEqual(AppIdentity.documentationPage.absoluteString, "https://github.com/Bium23/NxLibrary#readme")
+        XCTAssertEqual(AppIdentity.documentationPage.absoluteString, "https://github.com/sofianbll/oort-nx#readme")
     }
 
     func testNoSourceSendsTheOldUserAgent() throws {

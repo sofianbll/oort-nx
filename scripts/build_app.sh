@@ -13,11 +13,11 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 if [ "${NX_RELEASE:-0}" = "1" ]; then
   NAME="Oort NX"
-  BUNDLE_ID="local.nxlibrary"
+  BUNDLE_ID="io.github.sofianbll.oortnx"
   APP="${1:-$HOME/Applications/$NAME.app}"
 else
   NAME="Oort NX Dev"
-  BUNDLE_ID="local.nxlibrary.development"
+  BUNDLE_ID="io.github.sofianbll.oortnx.dev"
   APP="${1:-$HOME/Applications/$NAME.app}"
 fi
 if [[ "${NX_DEV_TRIAL2:-0}" = "1" ]]; then
@@ -63,10 +63,10 @@ BIN="$ROOT/.build/$CONFIG/NXLibrary"
 DESTINATION="$APP"
 STAGE="$(mktemp -d "${TMPDIR:-/tmp/}nxlibrary-build.XXXXXX")"
 trap 'rm -rf "$STAGE"' EXIT
-APP="$STAGE/NXLibrary.app"
+APP="$STAGE/Oort NX.app"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 
-cp "$BIN" "$APP/Contents/MacOS/NXLibrary"
+cp "$BIN" "$APP/Contents/MacOS/Oort NX"
 LOCALIZATION_BUNDLE="$ROOT/.build/$CONFIG/NXLibrary_NXLibraryCore.bundle"
 [ -d "$LOCALIZATION_BUNDLE" ] || { echo "error: compiled localization bundle missing" >&2; exit 1; }
 cp -R "$LOCALIZATION_BUNDLE" "$APP/Contents/Resources/"
@@ -111,7 +111,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
     <string>en</string><string>it</string><string>fr</string><string>de</string><string>es</string><string>pt-BR</string><string>zh-Hans</string>
   </array>
   <key>CFBundleDisplayName</key><string>$NAME</string>
-  <key>CFBundleExecutable</key><string>NXLibrary</string>
+  <key>CFBundleExecutable</key><string>Oort NX</string>
   <key>CFBundleIconFile</key><string>AppIcon</string>
   <key>CFBundleIdentifier</key><string>$BUNDLE_ID</string>
   <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
@@ -124,7 +124,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>LSMinimumSystemVersion</key><string>26.0</string>
   <key>LSMultipleInstancesProhibited</key><true/>
   <key>NSHighResolutionCapable</key><true/>
-  <key>NSHumanReadableCopyright</key><string>Copyright © 2026 bium. MIT. Not affiliated with Nintendo.</string>
+  <key>NSHumanReadableCopyright</key><string>Copyright © 2026 Bium23 and Oort NX contributors. MIT. Not affiliated with Nintendo.</string>
   <key>NSPrincipalClass</key><string>NSApplication</string>
 $RELEASE_KEY
 </dict>
@@ -157,8 +157,8 @@ ARCANE_GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" ARCANE_GOOGLE_CLIENT_SECRET="$GOOGLE
 unset GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET
 swiftc -I "$ROOT/.build/$CONFIG" "$ROOT/scripts/check_app_profile.swift" \
   "$ROOT/.build/$CONFIG/NXLibraryCore.o" "$ROOT/.build/$CONFIG/OortCore.o" \
-  -o "$PROFILE_PROBE/Contents/MacOS/NXLibrary"
-"$PROFILE_PROBE/Contents/MacOS/NXLibrary"
+  -o "$PROFILE_PROBE/Contents/MacOS/Oort NX"
+"$PROFILE_PROBE/Contents/MacOS/Oort NX"
 
 python3 "$ROOT/scripts/check_localizations.py" --app "$APP"
 if [ "${NX_RELEASE:-0}" = "1" ] || [ -d "$APP/Contents/Resources/Runtime" ]; then

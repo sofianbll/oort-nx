@@ -203,7 +203,7 @@ struct MoonlightMetalView: NSViewRepresentable {
 /// its own and `nextDrawable` raises an exception (two crashes, 14 Nov 2026). A still frame (the motes stopping, a
 /// new size) runs the link for one frame, which then stops (`State.stillPending`).
 final class MoonlightLayerView: NSView {
-    private static let transitionLog = Logger(subsystem: "local.nxlibrary.development", category: "backdrop-transition")
+    private static let transitionLog = Logger(subsystem: "io.github.sofianbll.oortnx", category: "backdrop-transition")
     private let traceID = String(UUID().uuidString.prefix(6))
     private let createdAt = CACurrentMediaTime()
     private var tracedPresentation = false

@@ -20,9 +20,11 @@ public enum AppUpdate {
     public static let defaultRepository: String? = "sofianbll/oort-nx"
     /// A UserDefaults override of `defaultRepository`, for testing before publishing.
     public static let repositoryOverrideKey = "NXLibrary_UpdateRepository"
-    /// The other repository that may serve the same release. Copies up to 0.3.0 check NxLibrary, where 0.4.0 is
-    /// published too; from 0.4.0 they check oort-nx.
-    public static let successorRepository: String? = "sofianbll/NxLibrary"
+    /// The name this repository would have after a rename on GitHub, whose asset URLs then use it.
+    public static let successorRepository: String? = nil
+    /// The update's archive, and the app inside it.
+    public static func archiveName(_ version: String) -> String { "Oort-NX-\(version).zip" }
+    public static let bundleName = "Oort NX.app"
     /// The Info.plist key that marks a release copy.
     public static let releaseMarker = "NXLibraryRelease"
     static let interval: TimeInterval = 24 * 3600
@@ -119,7 +121,7 @@ public enum AppUpdate {
         return notes
     }
 
-    /// GitHub's `releases/latest` answer, with the asset named `NXLibrary-<version>.zip` in `repository`
+    /// GitHub's `releases/latest` answer, with the asset named `Oort-NX-<version>.zip` in `repository`
     /// or, when there is one, in its `successor`.
     public static func parseRelease(_ json: Data, repository: String = "Bium23/NxLibrary",
                                     successor: String? = AppUpdate.successorRepository) -> Release? {
@@ -127,11 +129,11 @@ public enum AppUpdate {
               let object = try? JSONSerialization.jsonObject(with: json) as? [String: Any],
               let tag = object["tag_name"] as? String, let version = version(fromTag: tag),
               let assets = object["assets"] as? [[String: Any]],
-              let asset = assets.first(where: { $0["name"] as? String == "NXLibrary-\(version).zip" }),
+              let asset = assets.first(where: { $0["name"] as? String == archiveName(version) }),
               let link = asset["browser_download_url"] as? String, let url = URL(string: link),
               trustedDownloadURL(url), url.host?.lowercased() == "github.com",
               ([repository] + [successor].compactMap { $0 }).contains(where: { owner in
-                  url.path == "/\(owner)/releases/download/\(tag)/NXLibrary-\(version).zip"
+                  url.path == "/\(owner)/releases/download/\(tag)/\(archiveName(version))"
               }),
               url.query == nil, url.fragment == nil,
               let bytes = asset["size"] as? Int64, bytes > 0, bytes <= maximumDownloadBytes,

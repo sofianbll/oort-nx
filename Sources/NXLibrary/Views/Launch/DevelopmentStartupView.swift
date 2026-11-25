@@ -25,7 +25,7 @@ final class DevelopmentStartup: ObservableObject {
     var canStartWithoutLibraryCopy: Bool { libraryCopyChoice == .library && shell == nil && !working }
     private var skipCheckpoint = false
     private var profileLease: DowngradeCheckpoint.ProfileLease?
-    private let logger = Logger(subsystem: "local.nxlibrary", category: "Startup")
+    private let logger = Logger(subsystem: "io.github.sofianbll.oortnx", category: "Startup")
     private let checkpoint: @Sendable (URL, Bool) throws -> DowngradeCheckpoint.Result
 
     init(checkpoint: @escaping @Sendable (URL, Bool) throws -> DowngradeCheckpoint.Result = { root, acceptingWarning in
@@ -55,7 +55,7 @@ final class DevelopmentStartup: ObservableObject {
                 return
             }
             // Services and SwiftUI StateObjects are created only after the profile transaction finishes.
-            if NSRunningApplication.runningApplications(withBundleIdentifier: "local.nxlibrary")
+            if [AppDataProfile.identifier, AppDataProfile.legacyIdentifier].flatMap(NSRunningApplication.runningApplications(withBundleIdentifier:))
                 .contains(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }) {
                 throw DevelopmentStartupFailure.otherCopyRunning
             }
@@ -77,7 +77,8 @@ final class DevelopmentStartup: ObservableObject {
                 defer { progress.cancel(); showCopyProgress = false }
                 do {
                     let result = try await Task.detached(priority: .userInitiated) { [checkpoint] in
-                        try checkpoint(AppData.supportRoot, acceptingDowngradeWarning)
+                        // After a move the untouched old folder is the way back, so there is nothing to warn about.
+                        try checkpoint(AppData.supportRoot, acceptingDowngradeWarning || LibraryMove.moved(AppData.supportRoot))
                     }.value
                     if case let .warning(omissions) = result {
                         downgradeNotice = .copy(omissions)
@@ -189,7 +190,7 @@ struct DevelopmentStartupView: View {
             if let shell = startup.shell {
                 MainView(state: shell)
                     .onAppear {
-                        Logger(subsystem: "local.nxlibrary", category: "Startup").notice("Library view appeared")
+                        Logger(subsystem: "io.github.sofianbll.oortnx", category: "Startup").notice("Library view appeared")
                     }
             } else if startup.offersLibraryCopy {
                 OnboardingCopyOffer { copy in Task { await startup.chooseLibraryCopy(copy) } }

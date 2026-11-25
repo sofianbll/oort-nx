@@ -43,7 +43,9 @@ class ReleaseTarget(unittest.TestCase):
         self.write("Tests/PublicationChecks/__init__.py", "")
         self.write("scripts/check_publication.py", "")
         self.write("scripts/check_localizations.py", "")
-        self.write("scripts/build_dmg.sh", 'mkdir -p dist; touch dist/NXLibrary.dmg\n')
+        self.write("scripts/build_dmg.sh", '''printf '%s\\n' "$@" > "$FIXTURES/dmg-args"
+mkdir -p dist; touch dist/NXLibrary.dmg
+''')
         self.write("scripts/build_app.sh", '''python3 - "$1" <<'PY'
 from pathlib import Path
 import os, plistlib, sys
@@ -167,6 +169,20 @@ esac
     def test_rejects_another_push_repository_even_when_both_have_the_candidate(self):
         self.git_run("remote", "set-url", "--push", "origin", f"git@github.com:{OTHER}.git")
         self.assert_blocked("origin push URL")
+
+    def test_plain_dmg_is_explicit_and_keeps_the_versioned_asset_name(self):
+        self.stub("swift", ":\n")
+        for flags in ([], ["--plain-dmg"]):
+            result = subprocess.run(
+                ["/bin/bash", "scripts/release.sh", "0.3.1", "--engine-repo", ENGINE,
+                 "--engine-commit", self.commit, *flags],
+                cwd=self.app, env=self.env, text=True, capture_output=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual((self.root / "dmg-args").read_text().splitlines(),
+                             (["--plain"] if flags else []) + [str(self.app.resolve() / "work/release/NXLibrary.app")])
+            self.assertTrue((self.app / "work/release/NXLibrary-0.3.1.dmg").is_file())
+        self.assertFalse((self.root / "released").exists())
 
     def assert_blocked(self, expected, **options):
         result = self.publish(**options)

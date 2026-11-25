@@ -20,8 +20,8 @@ package final class ActivityQueueFile<Entry: Codable & Sendable>: Sendable {
     }
 
     private let file: URL
-    private let io = DispatchQueue(label: "local.nxlibrary.activity-queue", qos: .utility)
-    private let log = Logger(subsystem: "local.nxlibrary", category: "activity-queue")
+    private let io = DispatchQueue(label: "io.github.sofianbll.oortnx.activity-queue", qos: .utility)
+    private let log = Logger(subsystem: "io.github.sofianbll.oortnx", category: "activity-queue")
     // Only the serial IO queue accesses this flag. Do not erase a file from a newer version
     // or replace an unreadable snapshot with a seemingly valid empty one.
     private let canWrite = OSAllocatedUnfairLock(initialState: true)

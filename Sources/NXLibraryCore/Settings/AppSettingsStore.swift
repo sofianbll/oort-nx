@@ -70,7 +70,7 @@ public final class AppSettingsStore: ObservableObject {
     private let fileManager: FileManager
     private var isLoading = false
     // The main thread owns the snapshots and their revision. The writer serializes file replacement.
-    private let writer = DispatchQueue(label: "local.nxlibrary.settings-write", qos: .utility)
+    private let writer = DispatchQueue(label: "io.github.sofianbll.oortnx.settings-write", qos: .utility)
     private var writeRevision = 0
     private var pendingSelectionWrite: DispatchWorkItem?
     private var needsRecoveryCopy = false

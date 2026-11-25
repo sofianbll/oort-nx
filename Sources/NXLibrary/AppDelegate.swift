@@ -4,7 +4,7 @@ import NXLibraryCore
 import OSLog
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    private static let log = Logger(subsystem: "local.nxlibrary", category: "rename")
+    private static let log = Logger(subsystem: "io.github.sofianbll.oortnx", category: "rename")
     /// Set by the shell: true while a build, an update or a save operation still needs this bundle's path.
     @MainActor static var isBusy: () -> Bool = { false }
     /// Set when a helper will reopen this bundle at its current path after the app quits.

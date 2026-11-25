@@ -165,7 +165,7 @@ final class AppUpdater: ObservableObject {
         guard let release, canInstallRelease, blockedReason() == nil else { return }
         offer = nil
         let folder = Self.workFolder()
-        let zip = folder.appendingPathComponent("NXLibrary-\(release.version).zip")
+        let zip = folder.appendingPathComponent(AppUpdate.archiveName(release.version))
         switch state {
         case .readyToInstall:
             isCheckPresented = true
@@ -210,7 +210,7 @@ final class AppUpdater: ObservableObject {
 
     private func verifyAndInstall(zip: URL, release: AppUpdate.Release, folder: URL) {
         state = .verifying
-        let expectedID = Bundle.main.bundleIdentifier ?? "local.nxlibrary"
+        let expectedID = Bundle.main.bundleIdentifier ?? AppDataProfile.identifier
         let runningOS = ProcessInfo.processInfo.operatingSystemVersion
         Task {
             let prepared = await Task.detached(priority: .userInitiated) {
@@ -244,7 +244,7 @@ final class AppUpdater: ObservableObject {
                                         zip.path, unpacked.path]) else {
             return .failure(.init(message: L10n.text("The update archive could not be verified; nothing was changed.")))
         }
-        let staged = unpacked.appendingPathComponent("NXLibrary.app")
+        let staged = unpacked.appendingPathComponent(AppUpdate.bundleName)
         if let problem = AppUpdate.bundleProblem(staged, expectedID: expectedID, version: release.version, runningOS: runningOS) {
             if case .needsNewerMacOS(let minimum) = problem {
                 return .failure(.init(message: L10n.format("Arcane %@ needs macOS %@ or later; nothing was changed.", [String(describing: release.version), String(describing: minimum)])))
