@@ -375,7 +375,7 @@ extension AppShellView {
             viewModel.showSettingsNotice(title: L10n.text("Restart app"), message: L10n.text("After the cloud transfer"))
             return
         }
-        guard !router.requestSettingsDeparture({ relaunchApp() }) else { return }
+        guard !router.requestSettingsDeparture({ self.relaunchApp() }) else { return }
         let helper = Process()
         helper.executableURL = URL(fileURLWithPath: "/bin/sh")
         helper.arguments = [

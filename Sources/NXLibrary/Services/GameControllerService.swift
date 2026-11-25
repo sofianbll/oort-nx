@@ -150,7 +150,7 @@ final class GameControllerService: ObservableObject {
         observers.append((center, token))
     }
 
-    /// Installed before any screen's monitor, so it sees the events they keep for themselves; it keeps none.
+    /// Installed before the screen monitors so they share device tracking and confirmation repeat filtering.
     private func watchHand() {
         let events: NSEvent.EventTypeMask = [.keyDown, .leftMouseDown, .rightMouseDown, .otherMouseDown, .scrollWheel,
                                              .mouseMoved]
