@@ -60,7 +60,7 @@ struct LibraryScreen: View {
             ToolbarItem(placement: .primaryAction) {
                 Menu(Oort.text("Sort"), systemImage: "arrow.up.arrow.down") {
                     Picker(Oort.text("Sort"), selection: $byName) {
-                        Text(Oort.text("Last played")).tag(false)
+                        Text(Oort.text("Recent")).tag(false)
                         Text(Oort.text("Name")).tag(true)
                     }
                 }
@@ -164,7 +164,7 @@ struct LibraryScreen: View {
         }
         return layout {
             key("#search", nav.query.isEmpty ? Oort.text("Search") : nav.query, "magnifyingglass") { nav.search() }
-            key("#sort", byName ? Oort.text("Name") : Oort.text("Last played"), "arrow.up.arrow.down") { byName.toggle() }
+            key("#sort", byName ? Oort.text("Name") : Oort.text("Recent"), "arrow.up.arrow.down") { byName.toggle() }
             key("#add", Oort.text("Add"), "plus") { nav.importing = true }
         }
         .padding(.horizontal, SeleneTokens.Space.panel)

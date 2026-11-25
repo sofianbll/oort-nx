@@ -1,6 +1,12 @@
 {
  "sourceLanguage": "en",
  "strings": {
+    "Recent" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recent" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Récents" } }
+      }
+    },
     "Search" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Search" } },
@@ -234,7 +240,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Ajouter un fichier de triches"
+      "value": "Ajouter un fichier de codes"
      }
     }
    }
@@ -506,7 +512,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Triches"
+      "value": "Codes de triche"
      }
     }
    }
@@ -522,7 +528,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Les triches changent le jeu pendant la partie. Garde une copie de ta sauvegarde."
+      "value": "Les codes de triche changent le jeu pendant la partie. Garde une copie de ta sauvegarde."
      }
     }
    }
@@ -538,7 +544,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Triches coupées après un plantage"
+      "value": "Codes de triche coupés après un plantage"
      }
     }
    }
@@ -900,13 +906,13 @@
     "en": {
      "stringUnit": {
       "state": "translated",
-      "value": "Game page"
+      "value": "Details"
      }
     },
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Fiche du jeu"
+      "value": "Détails"
      }
     }
    }
@@ -964,7 +970,7 @@
     "en": {
      "stringUnit": {
       "state": "translated",
-      "value": "Home"
+      "value": "Spotlight"
      }
     },
     "fr": {
@@ -1572,13 +1578,13 @@
     "en": {
      "stringUnit": {
       "state": "translated",
-      "value": "Remove %@ from this device?"
+      "value": "Delete %@ from this device?"
      }
     },
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Retirer %@ de cet appareil ?"
+      "value": "Supprimer %@ de cet appareil ?"
      }
     }
    }
@@ -1588,13 +1594,13 @@
     "en": {
      "stringUnit": {
       "state": "translated",
-      "value": "Remove from this device"
+      "value": "Delete from this device"
      }
     },
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Retirer de cet appareil"
+      "value": "Supprimer de cet appareil"
      }
     }
    }
@@ -1604,13 +1610,13 @@
     "en": {
      "stringUnit": {
       "state": "translated",
-      "value": "Remove the game and its saves"
+      "value": "Delete the game and its saves"
      }
     },
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Retirer le jeu et ses sauvegardes"
+      "value": "Supprimer le jeu et ses sauvegardes"
      }
     }
    }
@@ -1620,13 +1626,13 @@
     "en": {
      "stringUnit": {
       "state": "translated",
-      "value": "Remove the game, keep its saves"
+      "value": "Delete the game, keep its saves"
      }
     },
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Retirer le jeu, garder ses sauvegardes"
+      "value": "Supprimer le jeu, garder ses sauvegardes"
      }
     }
    }
@@ -1706,7 +1712,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Choisir"
+      "value": "Sélectionner"
      }
     }
    }
@@ -1722,7 +1728,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Fixé dans env.txt"
+      "value": "Défini dans env.txt"
      }
     }
    }
@@ -1850,7 +1856,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Lancement…"
+      "value": "Démarrage…"
      }
     }
    }
@@ -1876,13 +1882,13 @@
     "en": {
      "stringUnit": {
       "state": "translated",
-      "value": "Thanks and licences"
+      "value": "Credits"
      }
     },
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Remerciements et licences"
+      "value": "Crédits"
      }
     }
    }
@@ -2266,7 +2272,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Activer les triches dans ce jeu"
+      "value": "Activer les codes de triche dans ce jeu"
      }
     }
    }
@@ -2340,13 +2346,13 @@
     "en": {
      "stringUnit": {
       "state": "translated",
-      "value": "Voice"
+      "value": "Sound pack"
      }
     },
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Voix"
+      "value": "Pack de sons"
      }
     }
    }

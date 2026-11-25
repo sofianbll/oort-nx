@@ -249,11 +249,15 @@ def main(checkout):
     for old, new in (("ShellHost", "ShellHost"), ("ShellUI", "ShellModel")):
         catalog = json.loads((source / f"Sources/{old}/Resources/Localizable.xcstrings").read_text())
         catalog = json.loads(json.dumps(catalog, ensure_ascii=False).replace("NX2Apple", "Oort NX").replace(BRAND[3][0], ""))
+        # Oort NX's own words over NX2Apple's: its voice and its vocabulary.
+        for key, by in json.loads((HERE / "scripts/oort_words.json").read_text()).get(new, {}).items():
+            for lang, text in by.items():
+                catalog["strings"][key]["localizations"][lang] = {"stringUnit": {"state": "translated", "value": text}}
         target = HERE / f"Sources/{new}/Resources/Localizable.xcstrings"
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(json.dumps(catalog, ensure_ascii=False, indent=1, sort_keys=True) + "\n")
         rows.append((f"Sources/{new}/Resources/Localizable.xcstrings", f"frontend-ios/Sources/{old}/Resources/Localizable.xcstrings", "generated",
-                     f"{len(catalog['strings'])} texts. Names are Oort NX's."))
+                     f"{len(catalog['strings'])} texts. Names are Oort NX's, and the words of `scripts/oort_words.json`."))
     table = "\n".join(f"| `{a}` | `{b}` | `{c}` | {d} |" for a, b, c, d in sorted(rows))
     (HERE / "PROVENANCE.md").write_text(f"""# Files from NX2Apple
 

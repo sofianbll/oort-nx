@@ -312,8 +312,8 @@ struct GameMenu: View {
     let id: String
     let nav: OortNav
     var body: some View {
-        Button(Oort.text("Game page"), systemImage: "info.circle") { nav.open(.game(id)) }
         Button(Oort.text("Options"), systemImage: "slider.horizontal.3") { nav.open(.options(id)) }
+        Button(Oort.text("Game page"), systemImage: "info.circle") { nav.open(.game(id)) }
     }
 }
 

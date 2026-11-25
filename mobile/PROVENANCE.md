@@ -44,7 +44,7 @@ No view of NX2Apple's is here: the screens are Oort NX's (`Sources/OortMobile`).
 | `Sources/ShellHost/LooseRomfsClaimer.swift` | `frontend-ios/Sources/ShellHost/LooseRomfsClaimer.swift` | `a69162481cc6` | As is. |
 | `Sources/ShellHost/PlayHistoryStore.swift` | `frontend-ios/Sources/ShellHost/PlayHistoryStore.swift` | `57599f98c631` | As is. |
 | `Sources/ShellHost/ProvisioningProfile.swift` | `frontend-ios/Sources/ShellHost/ProvisioningProfile.swift` | `7118780fa6c1` | Names and addresses are Oort NX's. |
-| `Sources/ShellHost/Resources/Localizable.xcstrings` | `frontend-ios/Sources/ShellHost/Resources/Localizable.xcstrings` | `generated` | 145 texts. Names are Oort NX's. |
+| `Sources/ShellHost/Resources/Localizable.xcstrings` | `frontend-ios/Sources/ShellHost/Resources/Localizable.xcstrings` | `generated` | 145 texts. Names are Oort NX's, and the words of `scripts/oort_words.json`. |
 | `Sources/ShellHost/RomfsIdentity.swift` | `frontend-ios/Sources/ShellHost/RomfsIdentity.swift` | `bf4cde821c73` | As is. |
 | `Sources/ShellHost/RomfsLanguages.swift` | `frontend-ios/Sources/ShellHost/RomfsLanguages.swift` | `fe251df87da7` | As is. |
 | `Sources/ShellHost/ShaderResources.swift` | `frontend-ios/Sources/ShellHost/ShaderResources.swift` | `a8d5bf98dde4` | As is. |
@@ -54,7 +54,7 @@ No view of NX2Apple's is here: the screens are Oort NX's (`Sources/OortMobile`).
 | `Sources/ShellHost/ShellInGameMenu.swift` | `frontend-ios/Sources/ShellHost/ShellInGameMenu.swift` | `a9d2620cb1f9` | As is. |
 | `Sources/ShellHost/X509Certificate.swift` | `frontend-ios/Sources/ShellHost/SideloadCertificateStore.swift` | `8e8a3e5d8ee2` | Signing a game on the device with the player's own certificate is left out. Only the certificate reader stays, to check who signed a game. |
 | `Sources/ShellModel/PadMap.swift` | `frontend-ios/Sources/ShellUI/PadMap.swift` | `e9b236ef23a7` | As is. |
-| `Sources/ShellModel/Resources/Localizable.xcstrings` | `frontend-ios/Sources/ShellUI/Resources/Localizable.xcstrings` | `generated` | 464 texts. Names are Oort NX's. |
+| `Sources/ShellModel/Resources/Localizable.xcstrings` | `frontend-ios/Sources/ShellUI/Resources/Localizable.xcstrings` | `generated` | 464 texts. Names are Oort NX's, and the words of `scripts/oort_words.json`. |
 | `Sources/ShellModel/ShellArtwork.swift` | `frontend-ios/Sources/ShellUI/ShellArtwork.swift` | `dc239b70c97d` | Read by Oort NX's screens. |
 | `Sources/ShellModel/ShellCheatsModels.swift` | `frontend-ios/Sources/ShellUI/ShellCheatsModels.swift` | `ca5cea910b8f` | As is. |
 | `Sources/ShellModel/ShellFormat.swift` | `frontend-ios/Sources/ShellUI/ShellFormat.swift` | `ebbe2d2066c2` | As is. |

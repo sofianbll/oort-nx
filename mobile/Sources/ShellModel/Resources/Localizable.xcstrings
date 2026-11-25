@@ -7436,7 +7436,7 @@
     "en": {
      "stringUnit": {
       "state": "translated",
-      "value": "Discard changes"
+      "value": "Quit without saving"
      }
     },
     "es": {
@@ -7448,7 +7448,7 @@
     "fr": {
      "stringUnit": {
       "state": "translated",
-      "value": "Abandonner les modifications"
+      "value": "Quitter sans enregistrer"
      }
     },
     "it": {
