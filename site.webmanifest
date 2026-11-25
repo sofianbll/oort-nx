@@ -1,0 +1,1 @@
+{"name": "Oort NX", "short_name": "Oort", "start_url": "./", "display": "browser", "background_color": "#05070b", "theme_color": "#05070b", "icons": [{"src": "glyphe.svg", "sizes": "any", "type": "image/svg+xml"}, {"src": "icone-180.png", "sizes": "180x180", "type": "image/png"}]}

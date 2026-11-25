@@ -1,0 +1,155 @@
+/* Téléphone et tablette étroite. Chargé après site.css et pages.css ; rien ici ne touche le bureau
+   (tout est sous max-width:899px, ou pointer:coarse). Mêmes jetons, même charte. */
+
+/* ---------- Au doigt, quelle que soit la largeur ---------- */
+@media (pointer:coarse){
+*{-webkit-tap-highlight-color:transparent}
+a,button,summary,input,[role=slider]{touch-action:manipulation}
+button,.btn,.dock a,.sub,.belt,.rail,.ribbon,.staff,.seats,.keysrow{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+/* Glisser verticalement par-dessus une pièce fait défiler la page. Les notes : toucher pose, glisser en travers dessine, appui long puis glisser règle (mobile.js). */
+.staff [role=slider]{touch-action:pan-y}.belt button,.rail button{touch-action:pan-x pan-y}input[type=range]{touch-action:pan-y}
+.rail img{pointer-events:none}
+.ribbon{cursor:pointer}
+}
+/* Pas de survol collant ; à la place, un appui net. */
+@media (hover:none) and (pointer:coarse){
+.btn:hover::before{--dot:0px;opacity:0}.btn:active::before{--dot:2.9px;opacity:1;transition-duration:.12s}
+.card:hover::before,.who:hover::before{opacity:0}.card:active::before,.who:active::before{opacity:.6;transition-duration:.1s}
+.key:hover{background:linear-gradient(var(--raise),var(--panel-2))}.row:hover{background:none}.row:active{background:rgb(175 195 230/.1)}
+.seat:hover{color:var(--quiet)}.seat[aria-pressed=true]:hover{color:var(--on)}.staff [role=slider]:hover{background:none}.staff [role=slider].grab{background:rgb(175 195 230/.14)}
+.who:hover img,.who:hover i,.who:hover>svg{transform:none}.who:hover{box-shadow:inset 0 1px 0 var(--shine),0 0 0 1px var(--line)}
+.next:hover:not(.ready){box-shadow:inset 0 1px 0 var(--shine),0 0 0 1px var(--line)}
+.dock a:hover:not([aria-current]),.places button:hover:not([aria-pressed=true]){color:var(--quiet)}
+.stop>button:hover strong,.picker button:hover strong{color:var(--silver)}.stop.on>button strong,.picker [aria-selected=true] strong{color:var(--ink)}
+.chg li:hover .dot{transform:none}.sha:hover{background:none}.sha:active{background:rgb(175 195 230/.1)}
+.dock a,.sub button,.places button,.belt button,.rail button,.picker button,.chips button,.pn a,.fold summary,.link,.lang,.end li a,.back{transition:transform var(--move) var(--press),color var(--quick),background var(--move),opacity var(--quick)}
+.dock a:active,.sub button:active,.places button:active,.belt button:active,.chips button:active{transform:scale(.93);transition-duration:.06s;color:var(--ink)}
+.rail button:active{transform:scale(.94);transition-duration:.06s}.rail button[aria-checked=true]:active{transform:scale(1.13)}
+.picker button:active,.pn a:active{transform:scale(.975);transition-duration:.06s}
+.fold summary:active,.link:active,.lang:active,.end li a:active,.back:active,.file:active{opacity:.6;transition-duration:.06s}
+}
+
+/* ---------- Jusqu'à 899 px, et grands téléphones couchés : entête, barre, rythme, cartes ---------- */
+@media (max-width:899px),(max-height:520px) and (orientation:landscape) and (pointer:coarse) and (max-width:1000px){
+:root{--g:max(18px,3.4vw,env(safe-area-inset-left));--bar:calc(70px + max(10px,env(safe-area-inset-bottom) - 6px))}
+html{scroll-padding:76px 0 calc(var(--bar) + 16px);overscroll-behavior-y:none}
+/* Entête */
+.top{padding:calc(10px + env(safe-area-inset-top)) var(--g) 10px;gap:8px}.top .brand{margin-right:auto}
+.top .lang,.top #son{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;border-radius:99px;color:var(--silver);background:rgb(12 15 21/.82);box-shadow:inset 0 1px 0 var(--shine),0 0 0 1px var(--line)}.top .lang{padding:0 14px;font-size:.94rem}.top #son svg{width:20px;height:20px}.top #son:active{transform:scale(.92)}
+/* Barre du bas : cinq entrées égales, sous le pouce, posée sur un fondu pour que rien ne passe dessous en clair */
+.dock{left:0;right:0;bottom:0;transform:none;max-width:none;gap:0;justify-content:center;padding:26px max(10px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom) - 6px) max(10px,env(safe-area-inset-left));background:linear-gradient(transparent,var(--night) 58%);pointer-events:none}
+.dock>div{pointer-events:auto}.dock>div:empty{display:none}
+.dock>div:last-child{flex:0 1 460px;min-width:0;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);border-radius:22px;background:linear-gradient(rgb(26 32 43),rgb(13 16 22))}
+.dock a{flex-direction:column;justify-content:center;gap:4px;min-height:50px;padding:3px 0 2px!important;border-radius:17px;font-size:min(.75rem,3.5vw)!important;font-weight:540;letter-spacing:-.005em;line-height:1}
+.dock a::before{display:block!important;width:22px;height:22px;border-radius:0;background:currentColor!important;opacity:1;-webkit-mask:var(--ico) center/22px no-repeat;mask:var(--ico) center/22px no-repeat;transition:transform var(--move) var(--press)}
+.dock a[aria-current]::after{content:"";position:absolute;top:3px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--sun)}
+.dock a[aria-current]::before{transform:translateY(2px)}
+.dock .slide{height:auto;bottom:5px;border-radius:17px}
+.doc .dock a[aria-current]{background:linear-gradient(#2a3342,#1b212c);box-shadow:inset 0 1px 0 rgb(255 255 255/.12),0 0 0 1px var(--line)}
+.dock a[href$="#accueil"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 3.5c3 2.200 4.300 5.200 4.300 8.500s-1.300 6.300-4.300 8.500a8.500 8.500 0 0 0 0-17z' fill='%23000' stroke='none'/%3E%3Ccircle cx='10.800' cy='12' r='1.900' fill='%23000' stroke='none'/%3E%3C/svg%3E")}
+.dock a[href$="#essayer"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 6.500h8a5 5 0 0 1 4.900 4l1 4.900a2.300 2.300 0 0 1-4 2L15.800 15H8.200l-2.100 2.400a2.300 2.300 0 0 1-4-2l1-4.900a5 5 0 0 1 4.900-4z'/%3E%3Cpath d='M8.500 9.500v3M7 11h3M15.500 10v.01M17 12v.01'/%3E%3C/svg%3E")}
+.dock a[href$="#route"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='6' cy='18' r='2.700' fill='%23000' stroke='none'/%3E%3Ccircle cx='18' cy='6' r='2.600'/%3E%3Cpath d='M10.500 18H15a3.300 3.300 0 0 0 0-6.500H9A3 3 0 0 1 9 5.500h2.500' stroke-dasharray='.1 3.400'/%3E%3C/svg%3E")}
+.dock a[href$="#versions"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M10 6h10M10 12h10M10 18h7'/%3E%3Cg fill='%23000' stroke='none'%3E%3Ccircle cx='5' cy='6' r='1.800'/%3E%3Ccircle cx='5' cy='12' r='1.800'/%3E%3Ccircle cx='5' cy='18' r='1.800'/%3E%3C/g%3E%3C/svg%3E")}
+.dock a[href$="#installer"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.100' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4v10.500m-4.700-4.200 4.700 4.500 4.700-4.500M5 19.500h14'/%3E%3C/svg%3E")}
+/* Accueil */
+#accueil{min-height:100svh;padding-bottom:calc(var(--bar) + 26px)}#accueil .say{max-width:none}
+.get-mine[href^="#"]>svg{display:none}
+/* Rythme des pages */
+.tabs #essayer,.tabs #versions,.tabs #installer{padding-top:calc(84px + env(safe-area-inset-top))}.sec>.say{margin-bottom:22px;gap:10px 3rem}
+.tabs main{min-height:calc(100svh - 40px)}
+.panel+.panel{margin-top:64px}.chap{margin-bottom:16px;gap:4px 20px}
+.next{min-height:112px;margin-top:56px;padding:16px 22px}.next canvas{margin:-14px -10px -14px 0}.after .next{margin-top:36px}#route .after{padding-top:28px}
+.end{margin-top:56px;padding:24px var(--g) calc(var(--bar) + 30px);gap:12px 32px}.end ul{gap:0 22px}.end li a{min-width:44px}
+/* Essayer, tablette */
+.card,.w8,.w6,.w12,.card.pic,.panel .card#reglages,.panel .card#reglages~.card{min-height:0}
+.panel .card.vg{grid-column:span 12}.panel .card.vg .stage .side{flex-wrap:nowrap}#donnees,#reglages+.card+.card{grid-column:span 12}#reglages+.card+.card .list{display:grid;grid-template-columns:1fr 1fr}.grid>.card:has(.pads),#notes{grid-column:span 12}.panel .pads{grid-template-columns:repeat(4,minmax(0,1fr))}#donnees~.card{grid-column:span 12}#donnees~.card .swatches{grid-template-columns:repeat(3,minmax(0,1fr))}
+.card:not(.vg):not(#donnees) .side{flex-wrap:wrap}.side .stack{min-width:6.6rem}.panel .pads{height:auto;grid-auto-rows:auto}.panel .pad1 canvas{height:34px}
+.flow{max-width:520px;margin-block:-14px}.flow text{font-size:21px}
+.tabs #essayer .sub{backdrop-filter:none;background:rgb(12 15 21/.97)}
+.places{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}.places button{padding:0 4px}
+/* La rangée : on la glisse, le jeu du milieu est choisi */
+.railbox{width:100%}.railbox .scroll{max-width:none;width:calc(100% + 36px);padding-inline:0;margin-inline:-18px;scroll-snap-type:x proximity;overscroll-behavior-x:contain}.rail{width:max-content;padding-inline:calc(50% - 42px)}.rail button{scroll-snap-align:center}
+.belt{overscroll-behavior-x:contain;scroll-snap-type:x proximity;scroll-padding:6px}.belt button{scroll-snap-align:start}
+}
+/* ---------- Jusqu'à 899 px : route, journal, installer ---------- */
+@media (max-width:899px){
+/* Route : la caméra en haut, le panneau en bas, les étapes sous le pouce */
+#route .track{height:calc(100svh + (var(--n) - 1)*48svh)}
+#route .over{padding:calc(70px + env(safe-area-inset-top)) var(--g) 0;gap:0}
+#route .over .say{align-self:start}#route h2{text-shadow:0 0 18px var(--night),0 0 6px var(--night)}
+#route .stops{position:relative;display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));grid-template-rows:auto 44px;gap:6px 0;padding:0 0 calc(var(--bar) + 8px);background:none}
+#route .stop,#route .stop:not(.on){display:contents;position:static;visibility:visible}
+#route .stop>button{grid-row:2;position:relative;min-height:44px;padding:0;border-radius:14px;font-size:0}
+#route .stop>button strong,#route .stop>button em{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);font-size:1rem;white-space:nowrap}
+#route .stop>button::before{content:"";position:absolute;left:0;right:0;top:50%;height:4px;margin-top:-2px;background:radial-gradient(circle,var(--accent) 1px,transparent 1.5px) 50% 50%/7px 4px repeat-x;opacity:.5}
+#route .stop:first-child>button::before{left:50%}#route .stop:last-child>button::before{right:50%}
+#route .stop>button::after{content:"";position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px;border-radius:50%;background:var(--night);box-shadow:inset 0 0 0 2px var(--accent),0 0 0 4px var(--night);transition:transform var(--move) var(--press),background var(--move)}
+#route .stop:has(~.stop.on)>button::after,#route .stop.on>button::after{background:#fff;box-shadow:0 0 0 4px var(--night)}#route .stop.on>button::after{transform:scale(1.6)}#route .stop>button:active::after{transform:scale(1.3)}
+#route .stop .more{grid-row:1;grid-column:1/-1;align-self:end;grid-template-rows:1fr;visibility:hidden;opacity:0;transform:translateY(10px);border-radius:20px;background:linear-gradient(rgb(24 30 41/.97),rgb(15 18 25/.98));box-shadow:inset 0 1px 0 var(--shine),0 0 0 1px var(--line-2),0 18px 40px -20px #000;transition:opacity var(--move) var(--out),transform var(--move) var(--out),visibility 0s var(--move)}
+#route .stop.on .more{visibility:visible;opacity:1;transform:none;transition-delay:0s}
+#route .stop .more>div,#route .stop.on .more>div{opacity:1;padding:14px 18px}#route .stop .more>div>:last-child{margin-bottom:0}#route .more p{margin-bottom:8px;font-size:.96rem;line-height:1.4}#route .todo{gap:6px}#route .todo li{font-size:.94rem;line-height:1.32}#route .stop .tally{margin-top:8px}
+#route .more .pas{display:flex;max-width:none;align-items:baseline;justify-content:space-between;gap:12px;color:var(--silver)}.pas strong{color:var(--ink);font-size:1.16rem;font-weight:580;letter-spacing:-.018em}.pas em{flex:none;font-style:normal;font-size:.9rem;color:var(--quiet)}
+/* Trop bas pour tenir : tout à plat, la toile en tête */
+#route .track.flat .hold{min-height:0}#route .track.flat .hold>canvas{height:500px;bottom:auto}#route .track.flat .over{height:auto;grid-template-rows:auto auto}#route .track.flat .stops{margin-top:196px;padding-bottom:0;grid-template-rows:44px auto}#route .track.flat .stop>button{grid-row:1}#route .track.flat .more{grid-row:2;align-self:start}#route .track.flat:not(.nt) .stop:not(.on) .more{display:none}
+/* Journal : la dernière version en entier, les autres se déplient */
+.rel{padding-block:34px}.mini canvas{width:96px;height:96px}.mini{margin:-6px 0 6px 12px}.ttl{margin-top:14px}.grp{margin-top:22px}.ver a{display:inline-flex;align-items:center;min-height:44px}.chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 calc(var(--g)*-1) 22px;padding:2px var(--g)}.chips button{flex:none}.chips::-webkit-scrollbar{display:none}
+.rel.plie .grp,.rel.plie .fold,.rel.plie .files{display:none}
+.deplier{display:flex!important;align-items:center;justify-content:space-between;width:100%;min-height:52px;margin-top:18px;padding:0 18px;border-radius:16px;color:var(--ink);font-weight:540;background:linear-gradient(var(--raise),var(--panel-2));box-shadow:inset 0 1px 0 var(--shine),0 0 0 1px var(--line);transition:transform var(--move) var(--press)}.deplier:active{transform:scale(.98);transition-duration:.06s}.deplier svg{width:20px;height:20px;color:var(--quiet);transition:transform var(--move) var(--out)}.deplier[aria-expanded=true] svg{transform:rotate(180deg)}
+/* Installer */
+.dpanel{margin-top:22px}.get{margin-bottom:24px}.get.wait{padding:22px}
+#fin{padding-top:72px;gap:18px}#fin canvas{width:min(170px,44vw)}
+#merci{padding-top:72px}.thanks{gap:10px}.who{min-height:84px;padding:12px 16px}.who img,.who i{width:52px;height:52px;border-radius:15px}
+.gate{margin-top:26px;padding-top:24px;gap:12px}
+/* Pages à part */
+.doc .top{padding-bottom:0}.one{padding-top:14px}.onehead{margin-top:6px;gap:8px}.pn{margin-top:32px;gap:10px}.txt h1{font-size:min(2.5rem,11vw)}.qa>div{padding:18px 0}.lost{min-height:calc(100svh - 70px);padding-bottom:calc(var(--bar) + 20px)}
+}
+
+/* ---------- Téléphone debout ---------- */
+@media (max-width:720px){
+h1{font-size:min(3.1rem,13vw)}h2{font-size:min(2.15rem,10vw)}.chap h3{font-size:min(1.7rem,8.4vw)}.chap p{font-size:1rem}.chap{flex-direction:column}
+#accueil .say{justify-items:stretch;gap:16px}.acts{gap:10px}#accueil .btn,#fin .btn,.get .btn{flex:1 1 100%}#fin .acts,.get .acts{width:100%}.btn{max-width:100%;line-height:1.2;padding-block:.4rem}
+/* Chapitres : une bande pleine largeur collée en haut, sans verre, rien ne passe derrière en clair */
+.tabs #essayer .sub{top:0;width:auto;max-width:none;margin:0 calc(var(--g)*-1) 14px;padding:calc(6px + env(safe-area-inset-top)) var(--g) 16px;gap:2px;border-radius:0;background:linear-gradient(var(--night) 76%,transparent);box-shadow:none}
+.sub .slide{top:calc(6px + env(safe-area-inset-top))}.sub button{flex:0 1 auto;padding:0 12px 0 26px;font-size:min(.94rem,4.1vw)}.sub button::before{left:10px}
+.grid{gap:12px}.card>header{padding:18px 18px 0}.card>.stage{padding:16px 18px 20px}.card>header p{max-width:none}
+.panel+.panel{margin-top:52px}
+.card.pic .stage{padding:0;margin-top:14px}.card.pic img{border-radius:0}
+.side,.panel .card.vg .stage .side{flex-wrap:wrap;justify-content:space-evenly;gap:16px;width:100%}.side .stack{flex:1 1 0;min-width:6.6rem;max-width:max(170px,10.6rem)}.side .stack .key{flex:1;min-width:0}.side .stack .btn{width:auto;max-width:none;padding-inline:.5em}.ribbon{flex:none;width:124px}
+.wave{width:min(44%,160px);flex:none}.vg .btn{flex:1 1 0;min-width:min-content;max-width:max(180px,11rem);padding-inline:.5em}
+#donnees .side{flex-wrap:wrap}#donnees .flow{margin-block:-24px -26px}.flow text{font-size:26px}
+.railbox .scroll{padding-block:44px;margin-block:-30px -22px}
+#manette canvas{max-width:320px;display:block;margin-inline:auto}.keysrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));max-width:340px;margin-inline:auto}.keysrow .key{min-height:50px;min-width:0;padding:0}
+.panel .pads{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}#reglages+.card+.card .list{grid-template-columns:1fr}.pad1{min-height:92px;gap:12px;padding:13px 14px}
+.compo{gap:14px}.staff{height:190px}.compo .foot{gap:10px}.compo .foot .btn{flex:1 1 0;min-width:min-content;padding-inline:.6em}
+.zone{height:108px}.range{gap:8px}
+#donnees~.card .swatches{gap:8px}.swatch{flex-direction:column;justify-content:center;gap:8px;min-height:88px;padding:10px 2px;font-size:min(.94rem,3.9vw)}
+.steps{gap:10px}.steps li{flex-direction:row;align-items:center;justify-content:flex-start;gap:16px;min-height:0;padding:14px 18px}.steps canvas{flex:none;width:72px;height:72px}.steps h3{font-size:1.14rem}.steps p{margin-top:2px;font-size:.96rem;line-height:1.4}
+.picker{gap:4px}.picker button{gap:11px;min-height:60px;padding:8px 12px}.picker svg{width:24px;height:24px}.picker .mine::after{right:auto;left:32px;top:14px;box-shadow:0 0 0 3px #242c39}
+.get .sha{max-width:100%}.end ul{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(7.6rem,100%),1fr))}.vow{gap:8px 40px}
+.onemb canvas{width:150px}
+}
+@media (max-width:360px){.sub button{padding:0 7px 0 20px}.sub button::before{left:7px}.places button{font-size:.88rem}.picker button{padding:8px;gap:8px}.picker em{font-size:.86rem}.picker .mine::after{left:26px}.seats{gap:8px}}
+/* Petit téléphone debout : le Soleil reste au-dessus du titre */
+@media (max-width:720px) and (max-height:700px) and (orientation:portrait){#ciel{height:72%}#accueil .say{gap:12px}h1{font-size:min(2.6rem,12vw)}#accueil .btn{min-height:48px}#accueil .lead{font-size:1rem;max-width:none}#accueil .quiet{font-size:.88rem}#accueil{padding-bottom:calc(var(--bar) + 12px)}}
+@media (min-width:721px) and (max-width:899px){h1{font-size:4rem}.sub{top:calc(12px + env(safe-area-inset-top))}.steps{grid-template-columns:repeat(3,minmax(0,1fr))}.steps li{min-height:190px}}
+
+/* ---------- Téléphone couché : la barre passe à droite, sous le pouce, et rend toute la hauteur ---------- */
+@media (max-height:520px) and (orientation:landscape) and (max-width:899px),(max-height:520px) and (orientation:landscape) and (pointer:coarse) and (max-width:1000px){
+:root{--rail:calc(70px + env(safe-area-inset-right));--bar:0px;--g:max(20px,env(safe-area-inset-left))}
+body{padding-right:var(--rail)}.top{right:var(--rail);padding-block:8px}
+.dock{top:0;left:auto;width:var(--rail);flex-direction:column;align-items:stretch;padding:6px calc(6px + env(safe-area-inset-right)) 6px 4px;background:var(--night)}
+.dock>div:last-child{flex:none;grid-auto-flow:row;grid-auto-columns:auto;grid-auto-rows:minmax(44px,60px)}
+.dock a{min-height:44px;font-size:min(.7rem,3.1svh)!important}.dock .slide{display:none}.dock a[aria-current]{background:linear-gradient(#2a3342,#1b212c);box-shadow:inset 0 1px 0 rgb(255 255 255/.12),0 0 0 1px var(--line)}
+.end{padding-bottom:30px}html{scroll-padding:66px 0 16px}
+/* Accueil en deux moitiés : les mots à gauche, le nuage à droite */
+#accueil{min-height:100svh;align-content:center;padding:56px var(--g) 14px}#accueil .say{width:56%;gap:12px;justify-items:start}#ciel{left:46%;width:54%;height:180%}#soleil{translate:calc((100vw - var(--rail))*.46) 0}#accueil h1{font-size:2.5rem}#accueil .lead{font-size:1rem}#accueil .btn{min-height:46px;flex:0 1 auto;font-size:1rem;padding-inline:1em}
+.tabs #essayer,.tabs #versions,.tabs #installer{padding-top:64px}.tabs #essayer .sub{top:0;width:auto;max-width:none;margin:0 calc(var(--g)*-1) 10px;padding:4px var(--g) 12px;border-radius:0;justify-content:flex-start;background:linear-gradient(var(--night) 76%,transparent);box-shadow:none}.sub .slide{top:4px}
+.panel+.panel{margin-top:44px}.chap{margin-bottom:10px}
+.card.pic{grid-column:span 12}.card.pic img{width:100%}
+}
+@media (max-height:520px) and (orientation:landscape) and (max-width:899px){
+/* Route : toile à gauche, panneau à droite */
+#route .track.flat .hold{min-height:100svh;overflow:hidden}#route .track.flat .hold>canvas{width:46%;height:150svh}#route .over{padding:56px var(--g) 0 46%}#route .over .say{position:absolute;grid-column:auto;left:var(--g);top:58px}#route .track.flat .stops{margin-top:0;align-self:start;padding-bottom:4px}#route .more p{font-size:.92rem}#route .todo li{font-size:.9rem}#route .todo{gap:4px}#route .stop .more>div,#route .stop.on .more>div{padding:10px 16px}
+}
+/* Changer de page à part (versions, aide) : un fondu court, comme dans l'app. */
+@media (max-width:899px) and (prefers-reduced-motion:no-preference){@view-transition{navigation:auto}::view-transition-old(root),::view-transition-new(root){animation-duration:.16s}}
