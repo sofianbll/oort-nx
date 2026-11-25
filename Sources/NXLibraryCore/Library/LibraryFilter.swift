@@ -154,3 +154,17 @@ extension CatalogGame: LibraryQueryRecord {
     package var librarySearchTerms: [String] { record.librarySearchTerms }
     package var libraryModificationDate: Date? { record.libraryModificationDate }
 }
+
+/// What an empty tab says: what is missing, then what fills it.
+extension LibraryFilter {
+    public var emptyCopy: (title: String, hint: String) {
+        switch self {
+        case .installed: return ("Nothing installed", "Build a game and it shows up here.")
+        case .recentlyPlayed: return ("Nothing played lately", "Games you play show up here.")
+        case .favorites: return ("No favorites yet", "Choose the heart on a game to add it to your favorites.")
+        case .notPlayed: return ("You've started everything", "Every game in your library has been played at least once.")
+        case .all: return ("No games yet", "Add a game to start your collection.")
+        case .cloud: return ("No games only in the cloud", "Cloud-only games appear here.")
+        }
+    }
+}

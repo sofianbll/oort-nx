@@ -212,6 +212,7 @@
     "This game’s save needs recovery. Wait for recovery to finish, then press Play again. Backups are in %@.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"This game’s save needs recovery. Wait for recovery to finish, then press Play again. Backups are in %@."}},"it":{"stringUnit":{"state":"translated","value":"Il salvataggio di questo gioco va recuperato. Attendi la fine, poi premi di nuovo Gioca. I backup sono in %@."}},"fr":{"stringUnit":{"state":"translated","value":"La sauvegarde de ce jeu doit être récupérée. Attends la fin, puis appuie à nouveau sur Jouer. Les copies sont dans %@."}},"de":{"stringUnit":{"state":"translated","value":"Der Spielstand muss wiederhergestellt werden. Warte, bis das fertig ist, und drücke erneut auf Spielen. Sicherungen liegen in %@."}},"es":{"stringUnit":{"state":"translated","value":"La partida de este juego debe recuperarse. Espera a que termine y pulsa Jugar de nuevo. Las copias están en %@."}},"pt-BR":{"stringUnit":{"state":"translated","value":"O save deste jogo precisa ser recuperado. Espere terminar e pressione Jogar de novo. Os backups estão em %@."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"此游戏的存档需要恢复。请等待恢复完成后再次点按“开始游戏”。备份位于 %@。"}}}},
     "This game’s saves are being managed or need recovery. Finish that operation, then press Play.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"This game’s saves are being managed or need recovery. Finish that operation, then press Play."}},"it":{"stringUnit":{"state":"translated","value":"I salvataggi di questo gioco sono in uso o vanno recuperati. Completa l’operazione, poi premi Gioca."}},"fr":{"stringUnit":{"state":"translated","value":"Les sauvegardes de ce jeu sont en cours d’utilisation ou à récupérer. Termine cette opération, puis appuie sur Jouer."}},"de":{"stringUnit":{"state":"translated","value":"Die Spielstände werden gerade verwendet oder müssen wiederhergestellt werden. Schließe das ab und drücke dann auf Spielen."}},"es":{"stringUnit":{"state":"translated","value":"Las partidas de este juego están en uso o deben recuperarse. Termina esa operación y pulsa Jugar."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Os saves deste jogo estão em uso ou precisam ser recuperados. Conclua a operação e pressione Jogar."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"此游戏的存档正在处理或需要恢复。完成该操作后再点按“开始游戏”。"}}}},
     "%@ is not the nxnative engine folder. Choose the folder that contains scripts and dm.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"%@ is not the nxnative engine folder. Choose the folder that contains scripts and dm."}},"it":{"stringUnit":{"state":"translated","value":"%@ non è la cartella del motore nxnative. Scegli la cartella che contiene scripts e dm."}},"fr":{"stringUnit":{"state":"translated","value":"%@ n’est pas le dossier du moteur nxnative. Choisis le dossier qui contient scripts et dm."}},"de":{"stringUnit":{"state":"translated","value":"%@ ist nicht der Ordner der nxnative-Engine. Wähle den Ordner mit scripts und dm."}},"es":{"stringUnit":{"state":"translated","value":"%@ no es la carpeta del motor nxnative. Elige la carpeta que contiene scripts y dm."}},"pt-BR":{"stringUnit":{"state":"translated","value":"%@ não é a pasta do motor nxnative. Escolha a pasta que contém scripts e dm."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"%@ 不是 nxnative 引擎文件夹。请选择包含 scripts 和 dm 的文件夹。"}}}},
+    "Drop game files here, or put them in the Inbox folder and refresh.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Drop game files here, or put them in the Inbox folder and refresh."}},"it":{"stringUnit":{"state":"translated","value":"Trascina qui i file dei giochi o mettili nella cartella Inbox e aggiorna."}},"fr":{"stringUnit":{"state":"translated","value":"Dépose des fichiers de jeux ici, ou mets-les dans le dossier Inbox et actualise."}},"de":{"stringUnit":{"state":"translated","value":"Lege Spieledateien hier ab oder in den Inbox-Ordner und aktualisiere."}},"es":{"stringUnit":{"state":"translated","value":"Suelta archivos de juegos aquí, o ponlos en la carpeta Inbox y actualiza."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Solte arquivos de jogos aqui ou coloque-os na pasta Inbox e atualize."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"将游戏文件拖到此处，或放入 Inbox 文件夹并刷新。"}}}},
     "Top tabs": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Top tabs"}},"fr":{"stringUnit":{"state":"translated","value":"Onglets du haut"}},"de":{"stringUnit":{"state":"translated","value":"Tabs oben"}},"es":{"stringUnit":{"state":"translated","value":"Pestañas superiores"}},"it":{"stringUnit":{"state":"translated","value":"Schede in alto"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Abas do topo"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"顶部标签"}}}},
     "The tabs above your games. All games is always there.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"The tabs above your games. All games is always there."}},"fr":{"stringUnit":{"state":"translated","value":"Les onglets au-dessus de vos jeux. « Tous les jeux » y est toujours."}},"de":{"stringUnit":{"state":"translated","value":"Die Tabs über deinen Spielen. „Alle Spiele“ ist immer dabei."}},"es":{"stringUnit":{"state":"translated","value":"Las pestañas sobre tus juegos. «Todos los juegos» siempre está."}},"it":{"stringUnit":{"state":"translated","value":"Le schede sopra i tuoi giochi. «Tutti i giochi» c’è sempre."}},"pt-BR":{"stringUnit":{"state":"translated","value":"As abas acima dos seus jogos. “Todos os jogos” está sempre lá."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"游戏上方的标签。“所有游戏”始终显示。"}}}},
     "Sort and filter": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Sort and filter"}},"fr":{"stringUnit":{"state":"translated","value":"Trier et filtrer"}},"de":{"stringUnit":{"state":"translated","value":"Sortieren und filtern"}},"es":{"stringUnit":{"state":"translated","value":"Ordenar y filtrar"}},"it":{"stringUnit":{"state":"translated","value":"Ordina e filtra"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Ordenar e filtrar"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"排序和筛选"}}}},
@@ -242,7 +243,7 @@
     "Choose %lld files": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Choose %lld files"}},"fr":{"stringUnit":{"state":"translated","value":"Choisir les fichiers (%lld)"}},"de":{"stringUnit":{"state":"translated","value":"Dateien wählen (%lld)"}},"es":{"stringUnit":{"state":"translated","value":"Elegir archivos (%lld)"}},"it":{"stringUnit":{"state":"translated","value":"Scegli file (%lld)"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Escolher arquivos (%lld)"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"选择 %lld 个文件"}}}},
     "Choose this folder": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Choose this folder"}},"fr":{"stringUnit":{"state":"translated","value":"Choisir ce dossier"}},"de":{"stringUnit":{"state":"translated","value":"Diesen Ordner wählen"}},"es":{"stringUnit":{"state":"translated","value":"Elegir esta carpeta"}},"it":{"stringUnit":{"state":"translated","value":"Scegli questa cartella"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Escolher esta pasta"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"选择此文件夹"}}}},
     "In this folder": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"In this folder"}},"fr":{"stringUnit":{"state":"translated","value":"Dans ce dossier"}},"de":{"stringUnit":{"state":"translated","value":"In diesem Ordner"}},"es":{"stringUnit":{"state":"translated","value":"En esta carpeta"}},"it":{"stringUnit":{"state":"translated","value":"In questa cartella"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Nesta pasta"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"此文件夹中的项目"}}}},
-    "No matching files or folders.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"No matching files or folders."}},"fr":{"stringUnit":{"state":"translated","value":"Aucun fichier ni dossier correspondant."}},"de":{"stringUnit":{"state":"translated","value":"Keine passenden Dateien oder Ordner."}},"es":{"stringUnit":{"state":"translated","value":"No hay archivos ni carpetas que coincidan."}},"it":{"stringUnit":{"state":"translated","value":"Nessun file o cartella corrispondente."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Nenhum arquivo ou pasta correspondente."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"没有匹配的文件或文件夹。"}}}},
+    "No matching files or folders.": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"No matching files or folders. Open another folder."}},"fr":{"stringUnit":{"state":"translated","value":"Aucun fichier ni dossier correspondant. Ouvre un autre dossier."}},"de":{"stringUnit":{"state":"translated","value":"Keine passenden Dateien oder Ordner. Öffne einen anderen Ordner."}},"es":{"stringUnit":{"state":"translated","value":"No hay archivos ni carpetas que coincidan. Abre otra carpeta."}},"it":{"stringUnit":{"state":"translated","value":"Nessun file o cartella corrispondente. Apri un’altra cartella."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Nenhum arquivo ou pasta correspondente. Abra outra pasta."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"没有匹配的文件或文件夹。请打开其他文件夹。"}}}},
     "Reading folder…": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Reading folder…"}},"fr":{"stringUnit":{"state":"translated","value":"Lecture du dossier…"}},"de":{"stringUnit":{"state":"translated","value":"Ordner wird gelesen…"}},"es":{"stringUnit":{"state":"translated","value":"Leyendo la carpeta…"}},"it":{"stringUnit":{"state":"translated","value":"Lettura della cartella…"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Lendo a pasta…"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"正在读取文件夹…"}}}},
     "Places": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Places"}},"fr":{"stringUnit":{"state":"translated","value":"Emplacements"}},"de":{"stringUnit":{"state":"translated","value":"Orte"}},"es":{"stringUnit":{"state":"translated","value":"Ubicaciones"}},"it":{"stringUnit":{"state":"translated","value":"Posizioni"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Locais"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"位置"}}}},
     "Search this folder": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Search this folder"}},"fr":{"stringUnit":{"state":"translated","value":"Rechercher ici"}},"de":{"stringUnit":{"state":"translated","value":"Hier suchen"}},"es":{"stringUnit":{"state":"translated","value":"Buscar aquí"}},"it":{"stringUnit":{"state":"translated","value":"Cerca qui"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Buscar aqui"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"在此文件夹内搜索"}}}},
@@ -347,7 +348,7 @@
     "Settings subject: apiServices": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Services"}},"fr":{"stringUnit":{"state":"translated","value":"Services"}},"de":{"stringUnit":{"state":"translated","value":"Dienste"}},"es":{"stringUnit":{"state":"translated","value":"Servicios"}},"it":{"stringUnit":{"state":"translated","value":"Servizi"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Serviços"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"服务"}}}},
     "Settings subject: storage": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Usage"}},"fr":{"stringUnit":{"state":"translated","value":"Utilisation"}},"de":{"stringUnit":{"state":"translated","value":"Nutzung"}},"es":{"stringUnit":{"state":"translated","value":"Uso"}},"it":{"stringUnit":{"state":"translated","value":"Utilizzo"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Uso"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"使用情况"}}}},
     "No games match this filter.": {"localizations": {
-      "en":{"stringUnit":{"state":"translated","value":"No games match this filter."}},"fr":{"stringUnit":{"state":"translated","value":"Aucun jeu ne correspond à ce filtre."}},"it":{"stringUnit":{"state":"translated","value":"Nessun gioco corrisponde al filtro."}},"de":{"stringUnit":{"state":"translated","value":"Keine Spiele entsprechen diesem Filter."}},"es":{"stringUnit":{"state":"translated","value":"Ningún juego coincide con este filtro."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Nenhum jogo corresponde a este filtro."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"没有符合此筛选条件的游戏。"}}
+      "en":{"stringUnit":{"state":"translated","value":"No games match this filter. Change the search or the filter."}},"fr":{"stringUnit":{"state":"translated","value":"Aucun jeu ne correspond à ce filtre. Change la recherche ou le filtre."}},"it":{"stringUnit":{"state":"translated","value":"Nessun gioco corrisponde al filtro. Cambia la ricerca o il filtro."}},"de":{"stringUnit":{"state":"translated","value":"Keine Spiele entsprechen diesem Filter. Ändere die Suche oder den Filter."}},"es":{"stringUnit":{"state":"translated","value":"Ningún juego coincide con este filtro. Cambia la búsqueda o el filtro."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Nenhum jogo corresponde a este filtro. Mude a busca ou o filtro."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"没有符合此筛选条件的游戏。请更改搜索或筛选。"}}
     }},
     "Next platform": {"localizations": {
       "en":{"stringUnit":{"state":"translated","value":"Next platform"}},"fr":{"stringUnit":{"state":"translated","value":"Plateforme suivante"}},"it":{"stringUnit":{"state":"translated","value":"Piattaforma successiva"}},"de":{"stringUnit":{"state":"translated","value":"Nächste Plattform"}},"es":{"stringUnit":{"state":"translated","value":"Plataforma siguiente"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Próxima plataforma"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"下一个平台"}}
@@ -1132,7 +1133,7 @@
       "en": {"stringUnit":{"state":"translated","value":"No button was pressed. Try assigning the controller again."}}, "fr": {"stringUnit":{"state":"translated","value":"Aucune pression détectée. Réessayez d’attribuer la manette."}}, "it": {"stringUnit":{"state":"translated","value":"Nessun tasto premuto. Riprova ad assegnare il controller."}}, "de": {"stringUnit":{"state":"translated","value":"Keine Taste gedrückt. Versuche erneut, den Controller zuzuweisen."}}, "es": {"stringUnit":{"state":"translated","value":"No se ha pulsado ningún botón. Intenta asignar el mando otra vez."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Nenhum botão foi pressionado. Tente atribuir o controle novamente."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"未检测到按键。请重新分配手柄。"}}
     }},
     "No controllers connected": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"No controllers connected"}}, "fr": {"stringUnit":{"state":"translated","value":"Aucune manette connectée"}}, "it": {"stringUnit":{"state":"translated","value":"Nessun controller connesso"}}, "de": {"stringUnit":{"state":"translated","value":"Keine Controller verbunden"}}, "es": {"stringUnit":{"state":"translated","value":"No hay mandos conectados"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Nenhum controle conectado"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"未连接手柄"}}
+      "en": {"stringUnit":{"state":"translated","value":"No controllers connected. Turn one on or plug it in."}}, "fr": {"stringUnit":{"state":"translated","value":"Aucune manette connectée. Allumes-en une ou branche-la."}}, "it": {"stringUnit":{"state":"translated","value":"Nessun controller connesso. Accendine uno o collegalo."}}, "de": {"stringUnit":{"state":"translated","value":"Keine Controller verbunden. Schalte einen ein oder schließe ihn an."}}, "es": {"stringUnit":{"state":"translated","value":"No hay mandos conectados. Enciende uno o conéctalo."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Nenhum controle conectado. Ligue um ou conecte."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"未连接手柄。请打开或插入一个。"}}
     }},
     "On hold while controllers are combined": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"On hold while controllers are combined"}}, "fr": {"stringUnit":{"state":"translated","value":"En attente tant que les manettes sont regroupées"}}, "it": {"stringUnit":{"state":"translated","value":"In attesa finché i controller sono riuniti"}}, "de": {"stringUnit":{"state":"translated","value":"Pausiert, solange Controller gebündelt sind"}}, "es": {"stringUnit":{"state":"translated","value":"En espera mientras los mandos estén agrupados"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Em espera enquanto os controles estiverem agrupados"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"手柄合并期间暂停"}}
@@ -2201,19 +2202,19 @@
       "zh-Hans": {"stringUnit":{"state":"translated","value":"无法检查云端游戏库。请在设置中检查连接。"}}
     }},
     "No cloud games to download.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"No cloud games to download."}},
-      "it": {"stringUnit":{"state":"translated","value":"Nessun gioco da scaricare dal cloud."}},
-      "fr": {"stringUnit":{"state":"translated","value":"Aucun jeu à télécharger dans le cloud."}},
-      "de": {"stringUnit":{"state":"translated","value":"Keine Cloud-Spiele zum Herunterladen."}},
-      "es": {"stringUnit":{"state":"translated","value":"No hay juegos que descargar de la nube."}},
-      "pt-BR": {"stringUnit":{"state":"translated","value":"Não há jogos para baixar da nuvem."}},
-      "zh-Hans": {"stringUnit":{"state":"translated","value":"没有可下载的云端游戏。"}}
+      "en": {"stringUnit":{"state":"translated","value":"No cloud games to download. Send one with Cloud on a game’s Details page."}},
+      "it": {"stringUnit":{"state":"translated","value":"Nessun gioco da scaricare dal cloud. Inviane uno con Cloud dai Dettagli di un gioco."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Aucun jeu à télécharger dans le cloud. Envoies-en un avec Cloud dans les Détails d’un jeu."}},
+      "de": {"stringUnit":{"state":"translated","value":"Keine Cloud-Spiele zum Herunterladen. Sende eines mit Cloud in den Details eines Spiels."}},
+      "es": {"stringUnit":{"state":"translated","value":"No hay juegos que descargar de la nube. Envía uno con Nube en los Detalles de un juego."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Não há jogos para baixar da nuvem. Envie um com Nuvem nos Detalhes de um jogo."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"没有可下载的云端游戏。在游戏“详细信息”中用“云端”发送。"}}
     }},
     "No games in this view.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"No games in this view."}}, "it": {"stringUnit":{"state":"translated","value":"Nessun gioco in questa vista."}}, "fr": {"stringUnit":{"state":"translated","value":"Aucun jeu dans cette vue."}}, "de": {"stringUnit":{"state":"translated","value":"Keine Spiele in dieser Ansicht."}}, "es": {"stringUnit":{"state":"translated","value":"No hay juegos en esta vista."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Nenhum jogo nesta visualização."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"此视图中没有游戏。"}}
+      "en": {"stringUnit":{"state":"translated","value":"No games in this view. Play or add a game and it shows up here."}}, "it": {"stringUnit":{"state":"translated","value":"Nessun gioco in questa vista. Gioca o aggiungi un gioco e comparirà qui."}}, "fr": {"stringUnit":{"state":"translated","value":"Aucun jeu dans cette vue. Joue ou ajoute un jeu et il s’affiche ici."}}, "de": {"stringUnit":{"state":"translated","value":"Keine Spiele in dieser Ansicht. Spiele oder füge ein Spiel hinzu, dann erscheint es hier."}}, "es": {"stringUnit":{"state":"translated","value":"No hay juegos en esta vista. Juega o añade un juego y aparecerá aquí."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Nenhum jogo nesta visualização. Jogue ou adicione um jogo e ele aparece aqui."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"此视图中没有游戏。玩游戏或添加游戏后会显示在此处。"}}
     }},
     "No local achievements available.": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"No local achievements available."}}, "it": {"stringUnit":{"state":"translated","value":"Nessun obiettivo locale disponibile."}}, "fr": {"stringUnit":{"state":"translated","value":"Aucun succès local disponible."}}, "de": {"stringUnit":{"state":"translated","value":"Keine lokalen Erfolge verfügbar."}}, "es": {"stringUnit":{"state":"translated","value":"No hay logros locales disponibles."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Nenhuma conquista local disponível."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"没有可用的本地成就。"}}
+      "en": {"stringUnit":{"state":"translated","value":"No local achievements available. Play a game that has some to see them here."}}, "it": {"stringUnit":{"state":"translated","value":"Nessun obiettivo locale disponibile. Gioca a un titolo che ne ha per vederli qui."}}, "fr": {"stringUnit":{"state":"translated","value":"Aucun succès local disponible. Joue à un jeu qui en a pour les voir ici."}}, "de": {"stringUnit":{"state":"translated","value":"Keine lokalen Erfolge verfügbar. Spiele ein Spiel mit Erfolgen, um sie hier zu sehen."}}, "es": {"stringUnit":{"state":"translated","value":"No hay logros locales disponibles. Juega a un juego que los tenga para verlos aquí."}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Nenhuma conquista local disponível. Jogue um jogo que tenha conquistas para vê-las aqui."}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"没有可用的本地成就。玩带有成就的游戏后会显示在此处。"}}
     }},
     "Overall progress": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Overall progress"}}, "it": {"stringUnit":{"state":"translated","value":"Progresso totale"}}, "fr": {"stringUnit":{"state":"translated","value":"Progression globale"}}, "de": {"stringUnit":{"state":"translated","value":"Gesamtfortschritt"}}, "es": {"stringUnit":{"state":"translated","value":"Progreso global"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Progresso geral"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"总体进度"}}
@@ -7022,13 +7023,13 @@
     },
     "No recent players.": {
       "localizations": {
-        "de": {"stringUnit": {"state": "translated", "value": "Keine kürzlichen Mitspieler."}},
-        "en": {"stringUnit": {"state": "translated", "value": "No recent players."}},
-        "es": {"stringUnit": {"state": "translated", "value": "No has jugado con nadie recientemente."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Aucun joueur croisé récemment."}},
-        "it": {"stringUnit": {"state": "translated", "value": "Nessun giocatore incontrato di recente."}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhum jogador encontrado recentemente."}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "最近没有一起游玩过的玩家。"}}
+        "de": {"stringUnit": {"state": "translated", "value": "Keine kürzlichen Mitspieler. Spiele online, dann erscheinen sie hier."}},
+        "en": {"stringUnit": {"state": "translated", "value": "No recent players. Play online and they show up here."}},
+        "es": {"stringUnit": {"state": "translated", "value": "No has jugado con nadie recientemente. Juega en línea y aparecerán aquí."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aucun joueur croisé récemment. Joue en ligne et ils s’affichent ici."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nessun giocatore incontrato di recente. Gioca online e compariranno qui."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhum jogador encontrado recentemente. Jogue online e eles aparecem aqui."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "最近没有一起游玩过的玩家。联机游戏后会显示在此处。"}}
       }
     },
     "One of the friend lists is full.": {
@@ -51915,43 +51916,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No achievements here yet."
+            "value": "No achievements here yet. Choose another filter, or play to unlock some."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ancora nessun obiettivo qui."
+            "value": "Ancora nessun obiettivo qui. Scegli un altro filtro o gioca per sbloccarne."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucun succès ici pour l’instant."
+            "value": "Aucun succès ici pour l’instant. Choisis un autre filtre, ou joue pour en débloquer."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hier noch keine Erfolge."
+            "value": "Hier noch keine Erfolge. Wähle einen anderen Filter oder spiele, um welche freizuschalten."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aún no hay logros aquí."
+            "value": "Aún no hay logros aquí. Elige otro filtro o juega para desbloquearlos."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nenhuma conquista aqui ainda."
+            "value": "Nenhuma conquista aqui ainda. Escolha outro filtro ou jogue para desbloquear."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "这里还没有成就。"
+            "value": "这里还没有成就。请选择其他筛选，或开始游戏来解锁。"
           }
         }
       }
@@ -52518,43 +52519,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No games match."
+            "value": "No games match. Try a shorter name."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nessun gioco corrispondente."
+            "value": "Nessun gioco corrispondente. Prova un nome più corto."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucun jeu correspondant."
+            "value": "Aucun jeu correspondant. Essaie un nom plus court."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine passenden Spiele."
+            "value": "Keine passenden Spiele. Versuche einen kürzeren Namen."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ningún juego coincide."
+            "value": "Ningún juego coincide. Prueba con un nombre más corto."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nenhum jogo corresponde à busca."
+            "value": "Nenhum jogo corresponde à busca. Tente um nome mais curto."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "没有匹配的游戏。"
+            "value": "没有匹配的游戏。请尝试更短的名称。"
           }
         }
       }
@@ -52800,43 +52801,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No lines match"
+            "value": "No lines match. Change the search or the filter."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nessuna riga corrispondente"
+            "value": "Nessuna riga corrispondente. Cambia la ricerca o il filtro."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucune ligne correspondante"
+            "value": "Aucune ligne correspondante. Change la recherche ou le filtre."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine passenden Zeilen"
+            "value": "Keine passenden Zeilen. Ändere die Suche oder den Filter."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ninguna línea coincide"
+            "value": "Ninguna línea coincide. Cambia la búsqueda o el filtro."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nenhuma linha corresponde"
+            "value": "Nenhuma linha corresponde. Mude a busca ou o filtro."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "没有匹配的行"
+            "value": "没有匹配的行。请更改搜索或筛选。"
           }
         }
       }
@@ -52988,43 +52989,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No matching regions."
+            "value": "No matching regions. Try a shorter name."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nessuna zona corrispondente."
+            "value": "Nessuna zona corrispondente. Prova un nome più corto."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucune région correspondante."
+            "value": "Aucune région correspondante. Essaie un nom plus court."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine passenden Regionen."
+            "value": "Keine passenden Regionen. Versuche einen kürzeren Namen."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ninguna región coincide."
+            "value": "Ninguna región coincide. Prueba con un nombre más corto."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nenhuma região corresponde à busca."
+            "value": "Nenhuma região corresponde à busca. Tente um nome mais curto."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "没有匹配的地区。"
+            "value": "没有匹配的地区。请尝试更短的名称。"
           }
         }
       }
@@ -53364,43 +53365,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No settings match."
+            "value": "No settings match. Try another word."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nessuna impostazione corrispondente."
+            "value": "Nessuna impostazione corrispondente. Prova un’altra parola."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucun réglage correspondant."
+            "value": "Aucun réglage correspondant. Essaie un autre mot."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine passenden Einstellungen."
+            "value": "Keine passenden Einstellungen. Versuche ein anderes Wort."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ningún ajuste coincide."
+            "value": "Ningún ajuste coincide. Prueba con otra palabra."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nenhum ajuste corresponde à busca."
+            "value": "Nenhum ajuste corresponde à busca. Tente outra palavra."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "没有匹配的设置。"
+            "value": "没有匹配的设置。请尝试其他词语。"
           }
         }
       }
@@ -54539,43 +54540,43 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nothing changed yet."
+            "value": "Nothing changed yet. Settings you change appear here."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ancora nessuna modifica."
+            "value": "Ancora nessuna modifica. Qui compaiono le impostazioni che modifichi."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucune modification pour le moment."
+            "value": "Aucune modification pour le moment. Les réglages que tu changes s’affichent ici."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Noch nichts geändert."
+            "value": "Noch nichts geändert. Geänderte Einstellungen erscheinen hier."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aún no se ha cambiado nada."
+            "value": "Aún no se ha cambiado nada. Aquí aparecen los ajustes que cambias."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nada foi alterado ainda."
+            "value": "Nada foi alterado ainda. Os ajustes que você muda aparecem aqui."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "尚无更改。"
+            "value": "尚无更改。你更改的设置会显示在此处。"
           }
         }
       }
@@ -55635,13 +55636,13 @@
     },
     "No friends yet.": {
       "localizations": {
-        "de": { "stringUnit": { "state": "translated", "value": "Noch keine Freunde." } },
-        "en": { "stringUnit": { "state": "translated", "value": "No friends yet." } },
-        "es": { "stringUnit": { "state": "translated", "value": "Aún no tienes amigos." } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Pas encore d’amis." } },
-        "it": { "stringUnit": { "state": "translated", "value": "Non ci sono ancora amici." } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Nenhum amigo ainda." } },
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "还没有好友。"}}
+        "de": { "stringUnit": { "state": "translated", "value": "Noch keine Freunde. Füge einen mit einem Freundescode in Einstellungen → Konto hinzu." } },
+        "en": { "stringUnit": { "state": "translated", "value": "No friends yet. Add one with a friend code in Settings → Account." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Aún no tienes amigos. Añade uno con un código de amigo en Ajustes → Cuenta." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Pas encore d’amis. Ajoutes-en un avec un code ami dans Réglages → Compte." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Non ci sono ancora amici. Aggiungine uno con un codice amico in Impostazioni → Account." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Nenhum amigo ainda. Adicione um com código de amigo em Ajustes → Conta." } },
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "还没有好友。在“设置 → 账户”中用好友代码添加。"}}
       }
     },
     "Open my profile": {
@@ -95359,13 +95360,13 @@
     },
     "No completed builds yet.": {
       "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "No completed builds yet."}},
-        "it": {"stringUnit": {"state": "translated", "value": "Nessuna compilazione completata."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Aucune compilation terminée."}},
-        "de": {"stringUnit": {"state": "translated", "value": "Noch keine Kompilierung abgeschlossen."}},
-        "es": {"stringUnit": {"state": "translated", "value": "No hay compilaciones completadas."}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhuma compilação concluída."}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "尚无完成的编译。"}}
+        "en": {"stringUnit": {"state": "translated", "value": "No completed builds yet. Add a game to build your first one."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nessuna compilazione completata. Aggiungi un gioco per compilare il primo."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aucune compilation terminée. Ajoute un jeu pour compiler le premier."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Noch keine Kompilierung abgeschlossen. Füge ein Spiel hinzu, um dein erstes zu kompilieren."}},
+        "es": {"stringUnit": {"state": "translated", "value": "No hay compilaciones completadas. Añade un juego para compilar el primero."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhuma compilação concluída. Adicione um jogo para compilar o primeiro."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "尚无完成的编译。添加游戏来编译第一个。"}}
       }
     },
     "Show builds": {
