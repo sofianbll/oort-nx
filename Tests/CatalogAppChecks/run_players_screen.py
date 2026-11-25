@@ -326,6 +326,7 @@ final class HomeSettingsFixture: ControllerHomeSettings {
         precondition(!m.confirmsReset && !m.numbers.isEmpty)
         m.select(.reset)
         key(123)
+        precondition(m.resetFocus == .confirm, "Left selects Reset; the question opens on Cancel")
         screen.handleController(.confirm)
         await settled(m)
         precondition(m.numbers.isEmpty && m.plan.mode == .pressToJoin)
