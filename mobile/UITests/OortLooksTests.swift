@@ -26,7 +26,9 @@ final class OortLooksTests: OortCase {
     }
 
     private func touch(_ element: XCUIElement) {
-        guard element.waitForExistence(timeout: 10) else { return XCTFail("\(element) is not on the screen") }
+        // A long list makes its rows as they come into sight.
+        if !element.waitForExistence(timeout: 5) { reach(element) }
+        guard element.waitForExistence(timeout: 5) else { return XCTFail("\(element) is not on the screen") }
         reach(element)
         element.tap()
     }
@@ -103,6 +105,7 @@ final class OortLooksTests: OortCase {
         send("press.right")
         look("17-manette-accueil")
         send("press.r")
+        look("18a-manette-bibliotheque-touches")
         send("press.down")
         look("18-manette-bibliotheque")
         send("press.y", 1.5)
