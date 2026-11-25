@@ -68,6 +68,10 @@ class AppState(
         private set
     var columns by mutableIntStateOf(2)
     private var rowFocus by mutableStateOf<Map<String, String>>(emptyMap())
+    private var menuPackage by mutableStateOf<String?>(null)
+
+    /** The game whose options are open over the page. */
+    val menuGame: Game? get() = menuPackage?.let { game(it) }
 
     /** Up and down on a page of text, for the page to follow. */
     var textSteps by mutableIntStateOf(0)
@@ -98,6 +102,7 @@ class AppState(
         // The page of a game that went away closes by itself.
         val gone = { r: Route -> r is Route.GamePage && games.none { it.packageName == r.packageName } }
         if (stacks.values.any { it.any(gone) }) stacks = stacks.mapValues { (_, pages) -> pages.takeWhile { !gone(it) } }
+        if (menuPackage != null && menuGame == null) menuPackage = null
         scanned = true
     }
 
@@ -120,13 +125,14 @@ class AppState(
     /** The system's Back (gesture or key). False when there is nothing left to go back to: Android then leaves the app. */
     fun onBack(): Boolean {
         if (!canGoBack) return false
+        if (menuGame != null) { closeMenu(); sound(SoundEvent.Back); return true }
         if (route != null) stacks = stacks + (section to stacks[section].orEmpty().dropLast(1))
         else section = Section.Home
         sound(SoundEvent.Back)
         return true
     }
 
-    val canGoBack: Boolean get() = route != null || section != Section.Home
+    val canGoBack: Boolean get() = menuGame != null || route != null || section != Section.Home
 
     fun select(game: Game) {
         if (game.packageName == selected?.packageName) return
@@ -140,15 +146,45 @@ class AppState(
         open(Route.GamePage(game.packageName))
     }
 
+    /** A game's options: by + on the controller, a long press under the finger. */
+    fun openMenu(game: Game) {
+        selectedPackage = game.packageName
+        if (section == Section.Library && route == null) libraryFocus = library.indexOf(game).coerceAtLeast(0)
+        rowFocus = rowFocus - MENU
+        menuPackage = game.packageName
+        sound(SoundEvent.Open)
+    }
+
+    fun closeMenu() { menuPackage = null }
+
+    /** The game the player is on: the one whose options + opens. None on the pages that show no game. */
+    private fun currentGame(): Game? = when (val page = route) {
+        is Route.GamePage -> game(page.packageName)
+        null -> when (section) {
+            Section.Home -> selected
+            Section.Library -> library.getOrNull(libraryFocus)
+            else -> null
+        }
+        else -> null
+    }
+
     // ---- what a button does -------------------------------------------------------------------------------
 
     fun onNav(nav: Nav) {
         padMode = true
+        if (menuGame != null) {
+            when (nav) {
+                Nav.Back, Nav.Options -> onBack()
+                Nav.Up, Nav.Down, Nav.Confirm, Nav.First, Nav.Last -> listNav(nav)
+                else -> sound(SoundEvent.Deny)
+            }
+            return
+        }
         when (nav) {
             Nav.Next -> return cycle(1)
             Nav.Previous -> return cycle(-1)
             Nav.Controllers -> return goTo(Section.Controllers)
-            Nav.Settings -> return goTo(Section.Settings)
+            Nav.Options -> { currentGame()?.let { openMenu(it) } ?: goTo(Section.Settings); return }
             Nav.Back -> { if (!onBack()) sound(SoundEvent.Deny); return }
             else -> Unit
         }
@@ -189,7 +225,8 @@ class AppState(
                 HomeTarget.Page -> openGame(game)
                 HomeTarget.Android -> androidPage(game)
             }
-            Nav.Options -> openGame(game)
+            Nav.Details -> openGame(game)
+            Nav.First, Nav.Last -> { homeTarget = HomeTarget.Cover; select(if (nav == Nav.First) all.first() else all.last()) }
             else -> Unit
         }
     }
@@ -205,8 +242,9 @@ class AppState(
                 val next = gridMove(libraryFocus, games.size, columns, dir)
                 if (next == libraryFocus) sound(SoundEvent.Deny) else { libraryFocus = next; sound(SoundEvent.Move, step++) }
             }
-            Nav.Confirm -> games.getOrNull(libraryFocus)?.let { openGame(it) }
-            Nav.Options -> sort(!prefs.byName)
+            Nav.Confirm, Nav.Details -> games.getOrNull(libraryFocus)?.let { openGame(it) }
+            Nav.Sort -> sort(!prefs.byName)
+            Nav.First, Nav.Last -> { libraryFocus = if (nav == Nav.First) 0 else games.lastIndex; sound(SoundEvent.Move, step++) }
             else -> Unit
         }
     }
@@ -228,8 +266,8 @@ class AppState(
         return rowFocus[pageKey]?.takeIf { it in ids } ?: ids.firstOrNull()
     }
 
-    private val pageKey: String get() = route?.key ?: section.name
-    private fun rowIds() = (if (route is Route.GamePage) listOf(PLAY) else emptyList()) +
+    private val pageKey: String get() = if (menuGame != null) MENU else route?.key ?: section.name
+    private fun rowIds() = (if (menuGame == null && route is Route.GamePage) listOf(PLAY) else emptyList()) +
         sections().flatMap { it.rows }.filter { it.kind != Kind.Info }.map { it.id }
 
     private fun listNav(nav: Nav) {
@@ -245,6 +283,7 @@ class AppState(
                 if (kind is Kind.Toggle && kind.on != (nav == Nav.Right)) press(here) else sound(SoundEvent.Deny)
             }
             Nav.Confirm -> press(here)
+            Nav.First, Nav.Last -> { rowFocus = rowFocus + (pageKey to if (nav == Nav.First) ids.first() else ids.last()); sound(SoundEvent.Move, step++) }
             else -> Unit
         }
     }
@@ -252,7 +291,7 @@ class AppState(
     /** A line pressed, by the finger or by the controller. */
     fun press(id: String) {
         val page = route
-        if (id == PLAY && page is Route.GamePage) { game(page.packageName)?.let { play(it) }; return }
+        if (id == PLAY && menuGame == null && page is Route.GamePage) { game(page.packageName)?.let { play(it) }; return }
         val row = sections().flatMap { it.rows }.firstOrNull { it.id == id } ?: return
         rowFocus = rowFocus + (pageKey to id)
         when (val kind = row.kind) {
@@ -298,7 +337,10 @@ class AppState(
 
     // ---- the lists ----------------------------------------------------------------------------------------
 
-    fun sections(): List<RowSection> = when (val page = route) {
+    /** The lines the controller and the finger act on: the open menu's, else the page's. */
+    fun sections(): List<RowSection> = menuGame?.let { menuSections(it) } ?: pageSections()
+
+    fun pageSections(): List<RowSection> = when (val page = route) {
         is Route.GamePage -> game(page.packageName)?.let { gameSections(it) }.orEmpty()
         Route.Sounds -> soundSections()
         Route.Buttons -> listOf(RowSection(footer = Label.Res(R.string.controllers_layout), rows = listOf(swapRow())))
@@ -313,6 +355,19 @@ class AppState(
             Section.Settings -> settingsSections()
             else -> emptyList()
         }
+    }
+
+    /** The Mac's order (play, then the game, then what removes it); a line this system lacks is left out. */
+    private fun menuSections(game: Game): List<RowSection> {
+        fun row(id: String, title: Int, glyph: Glyph, note: Label? = null, danger: Boolean = false, run: () -> Unit) =
+            RowItem(id, Label.Res(title), note = note, glyph = glyph, danger = danger, kind = Kind.Press { closeMenu(); run() })
+        val page = route
+        return listOf(RowSection(footer = Label.Res(R.string.detail_uninstall_warning), rows = listOfNotNull(
+            row("menu-play", R.string.detail_play, Glyph.Play) { play(game) },
+            if (page is Route.GamePage && page.packageName == game.packageName) null else row("menu-details", R.string.game_page, Glyph.Info) { openGame(game) },
+            row("menu-android", R.string.detail_info, Glyph.Device) { androidPage(game) },
+            row("menu-uninstall", R.string.detail_uninstall, Glyph.Trash, Label.Res(R.string.detail_uninstall_note), danger = true) { androidPage(game) },
+        )))
     }
 
     private fun swapRow() = RowItem("swap", Label.Res(R.string.settings_swap), note = Label.Res(R.string.settings_swap_note), glyph = Glyph.Swap,
@@ -400,6 +455,7 @@ class AppState(
     companion object {
         /** The play key of a game's page, which is not a line of its list. */
         const val PLAY = "play"
+        private const val MENU = "menu"
 
         private val DEMO_GAMES = List(7) { i ->
             Game("org.nx2a.demo$i", "Demonstration ${i + 1}", "1.${i}.0", 65_537L + i, null)

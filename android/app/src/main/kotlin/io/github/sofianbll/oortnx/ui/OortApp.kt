@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
@@ -67,6 +68,8 @@ fun OortApp(state: AppState) {
         val home = route == null && state.section == Section.Home
         CloudBackdrop(still = state.prefs.stillCloud, strength = if (home) 1f else 0.5f)
         Scaffold(
+            // Under the open menu the page says nothing to a screen reader.
+            modifier = if (state.menuGame != null) Modifier.clearAndSetSemantics { } else Modifier,
             containerColor = Color.Transparent,
             contentColor = OortTokens.Palette.Ink,
             contentWindowInsets = WindowInsets.safeDrawing,
@@ -90,6 +93,7 @@ fun OortApp(state: AppState) {
                 }
             }
         }
+        GameMenu(state)
     }
 }
 

@@ -31,7 +31,7 @@ import io.github.sofianbll.oortnx.R
 /** A page of lines: settings, controllers, credits. */
 @Composable
 fun ListScreen(state: AppState, title: String, onBack: (() -> Unit)?) {
-    val sections = state.sections()
+    val sections = state.pageSections()
     Column(Modifier.fillMaxSize().padding(horizontal = 20.dp)) {
         PageTitle(title, onBack)
         val scroll = rememberScrollState()

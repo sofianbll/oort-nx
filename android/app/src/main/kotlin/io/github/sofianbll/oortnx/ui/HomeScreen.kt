@@ -1,7 +1,7 @@
 package io.github.sofianbll.oortnx.ui
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -115,13 +115,13 @@ private fun Wide(state: AppState, games: List<Game>, game: Game, width: Dp, heig
 @Composable
 private fun HomeHints(state: AppState, modifier: Modifier = Modifier) {
     val first = when (state.homeTarget) {
-        HomeTarget.Cover, HomeTarget.Play -> stringResource(R.string.detail_play)
-        HomeTarget.Page -> stringResource(R.string.game_page)
-        HomeTarget.Android -> stringResource(R.string.detail_info)
+        HomeTarget.Cover, HomeTarget.Play -> R.string.detail_play
+        HomeTarget.Page -> R.string.game_page
+        HomeTarget.Android -> R.string.detail_info
     }
     Hints(state, listOfNotNull(
-        state.confirmKey to first, if (state.homeTarget == HomeTarget.Page) null else "X" to stringResource(R.string.game_page),
-        "Y" to stringResource(R.string.nav_controllers), "R1" to stringResource(R.string.nav_library),
+        HintKey.Confirm to first, if (state.homeTarget == HomeTarget.Page) null else HintKey.Details to R.string.game_page,
+        HintKey.Options to R.string.options, HintKey.Controllers to R.string.nav_controllers, HintKey.Tabs to R.string.hint_tabs,
     ), modifier)
 }
 
@@ -170,6 +170,7 @@ private fun Covers(state: AppState, games: List<Game>, game: Game, side: Dp, wid
         val item = games.getOrNull(index) ?: return@HorizontalPager
         val selected = item.packageName == game.packageName
         val opens = stringResource(R.string.game_page)
+        val options = stringResource(R.string.options)
         GameCover(
             item, state.icons[item.packageName],
             focused = selected && state.padMode && state.homeTarget == HomeTarget.Cover,
@@ -182,7 +183,8 @@ private fun Covers(state: AppState, games: List<Game>, game: Game, side: Dp, wid
                     if (!calm) { scaleX = 1f - 0.1f * off; scaleY = scaleX }
                     alpha = 1f - 0.45f * off
                 }
-                .clickable(remember { MutableInteractionSource() }, indication = null, role = Role.Tab, onClickLabel = if (selected) opens else null) {
+                .combinedClickable(remember { MutableInteractionSource() }, indication = null, role = Role.Tab, onClickLabel = if (selected) opens else null,
+                    onLongClickLabel = options, onLongClick = { state.openMenu(item) }) {
                     if (selected) state.openGame(item) else state.select(item)
                 }
                 .semantics { contentDescription = item.title; this.selected = selected },
@@ -220,13 +222,15 @@ private fun Rail(state: AppState, games: List<Game>, game: Game, tile: Dp, gutte
         state = list, horizontalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(horizontal = gutter - 4.dp)) {
         itemsIndexed(games, key = { _, g -> g.packageName }) { _, item ->
             val selected = item.packageName == game.packageName
+            val options = stringResource(R.string.options)
             GameCover(
                 item, state.icons[item.packageName],
                 focused = selected && (!state.padMode || state.homeTarget == HomeTarget.Cover),
                 calm = state.prefs.calm,
                 radius = canvas(OortTokens.Radius.Card),
                 modifier = Modifier.size(tile)
-                    .clickable(remember { MutableInteractionSource() }, indication = null, role = Role.Tab) { if (selected) state.openGame(item) else state.select(item) }
+                    .combinedClickable(remember { MutableInteractionSource() }, indication = null, role = Role.Tab,
+                        onLongClickLabel = options, onLongClick = { state.openMenu(item) }) { if (selected) state.openGame(item) else state.select(item) }
                     .semantics { contentDescription = item.title; this.selected = selected },
             )
         }

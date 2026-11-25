@@ -33,7 +33,7 @@ import io.github.sofianbll.oortnx.core.Game
 /** The game's page: what it is, Play, and the honest limits of a launcher that is not the game. */
 @Composable
 fun GameScreen(state: AppState, game: Game) {
-    val sections = state.sections()
+    val sections = state.pageSections()
     BoxWithConstraints(Modifier.fillMaxSize()) {
         // Room for the cover beside the list: a tablet, or a phone on its side.
         if (maxWidth > maxHeight && maxWidth >= 600.dp) {
@@ -103,4 +103,7 @@ private fun PlayKey(state: AppState, game: Game, modifier: Modifier = Modifier, 
 }
 
 @Composable
-fun PageHints(state: AppState) = Hints(state, listOf(state.confirmKey to stringResource(R.string.select), state.backKey to stringResource(R.string.back)))
+fun PageHints(state: AppState) = Hints(state, listOfNotNull(
+    HintKey.Confirm to R.string.select, HintKey.Back to R.string.back,
+    if (state.route is Route.GamePage) HintKey.Options to R.string.options else null, HintKey.Tabs to R.string.hint_tabs,
+))

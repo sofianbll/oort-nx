@@ -162,10 +162,24 @@ fun IconKey(glyph: Glyph, description: String, onClick: () -> Unit) {
     ) { OortGlyph(glyph, tint = OortTokens.Palette.Ink, modifier = Modifier.size(22.dp)) }
 }
 
+/** What a key shown at the foot of a page does. */
+enum class HintKey { Confirm, Back, Details, Controllers, Options, Tabs, Sort }
+
+/** What is printed on that key. */
+fun AppState.keyName(key: HintKey): String = when (key) {
+    HintKey.Confirm -> if (prefs.swapAB) "B" else "A"
+    HintKey.Back -> if (prefs.swapAB) "A" else "B"
+    HintKey.Details -> "X"
+    HintKey.Controllers -> "Y"
+    HintKey.Options -> "☰"
+    HintKey.Tabs -> "L1 R1"
+    HintKey.Sort -> "R3"
+}
+
 /** The controller's keys for what can be done here. Touch hides them. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun Hints(state: AppState, hints: List<Pair<String, String>>, modifier: Modifier = Modifier) {
+fun Hints(state: AppState, hints: List<Pair<HintKey, Int>>, modifier: Modifier = Modifier) {
     if (!state.padMode) return
     FlowRow(
         modifier.fillMaxWidth().padding(vertical = 8.dp).clearAndSetSemantics { },
@@ -174,17 +188,13 @@ fun Hints(state: AppState, hints: List<Pair<String, String>>, modifier: Modifier
         for ((key, label) in hints) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.sizeIn(minWidth = 22.dp, minHeight = 22.dp).background(OortTokens.Palette.Ink, RoundedCornerShape(11.dp)).padding(horizontal = 6.dp), contentAlignment = Alignment.Center) {
-                    Text(key, color = OortTokens.Palette.OnFocus, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                    Text(state.keyName(key), color = OortTokens.Palette.OnFocus, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                 }
-                Text(label, color = Ink2, style = MaterialTheme.typography.labelLarge)
+                Text(stringResource(label), color = Ink2, style = MaterialTheme.typography.labelLarge)
             }
         }
     }
 }
-
-/** The button that confirms, and the one that goes back, on the controller in hand. */
-val AppState.confirmKey: String get() = if (prefs.swapAB) "B" else "A"
-val AppState.backKey: String get() = if (prefs.swapAB) "A" else "B"
 
 @Composable
 fun EmptyLibrary(state: AppState, modifier: Modifier = Modifier) {

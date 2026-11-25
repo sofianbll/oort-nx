@@ -17,6 +17,8 @@ class InputRouter(
     private var lastMove = 0L
     private var hatX = 0
     private var hatY = 0
+    private var triggerLeft = false
+    private var triggerRight = false
 
     fun key(event: KeyEvent): Boolean {
         val nav = PadKeys.nav(event.keyCode, swapAB()) ?: return false
@@ -41,6 +43,9 @@ class InputRouter(
         hat(y, hatY, Dir.Up, Dir.Down); hatY = y
         stick(event.getAxisValue(MotionEvent.AXIS_X), -event.getAxisValue(MotionEvent.AXIS_Y), PadSource.LeftStick)
         stick(event.getAxisValue(MotionEvent.AXIS_Z), -event.getAxisValue(MotionEvent.AXIS_RZ), PadSource.RightStick)
+        // Many controllers send their triggers as an axis only: the first and the last line, as L2 and R2 do.
+        triggerLeft = trigger(maxOf(event.getAxisValue(MotionEvent.AXIS_LTRIGGER), event.getAxisValue(MotionEvent.AXIS_BRAKE)), triggerLeft, Nav.First)
+        triggerRight = trigger(maxOf(event.getAxisValue(MotionEvent.AXIS_RTRIGGER), event.getAxisValue(MotionEvent.AXIS_GAS)), triggerRight, Nav.Last)
         return true
     }
 
@@ -50,6 +55,12 @@ class InputRouter(
         if (before > 0) repeat.release(positive, PadSource.Pad)
         val next = if (now < 0) negative else if (now > 0) positive else return
         if (repeat.press(next, PadSource.Pad)) { lastMove = System.nanoTime(); sink(PadKeys.nav(next)) }
+    }
+
+    /** One event per pull; true while the trigger is held down. */
+    private fun trigger(value: Float, held: Boolean, nav: Nav): Boolean {
+        if (!held && value > 0.6f) { sink(nav); return true }
+        return held && value > 0.3f
     }
 
     private fun stick(x: Float, y: Float, source: PadSource) {
@@ -70,6 +81,8 @@ class InputRouter(
         repeat.reset()
         hatX = 0
         hatY = 0
+        triggerLeft = false
+        triggerRight = false
     }
 
     private companion object {

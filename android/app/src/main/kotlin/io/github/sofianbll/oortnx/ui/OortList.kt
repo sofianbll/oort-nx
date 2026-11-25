@@ -47,7 +47,7 @@ import androidx.compose.ui.unit.dp
 /** The app's list: sections of lines on Oort's panels. */
 @Composable
 fun OortList(state: AppState, sections: List<RowSection>, modifier: Modifier = Modifier) {
-    val focus = if (state.padMode) state.focusedRow() else null
+    val focus = if (state.padMode) state.focusedRow() else null // a page under the menu has none of its ids
     Column(modifier, verticalArrangement = Arrangement.spacedBy(28.dp)) {
         for (section in sections) {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {

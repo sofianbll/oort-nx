@@ -3,7 +3,7 @@ package io.github.sofianbll.oortnx.core
 import android.view.KeyEvent
 
 /** What a button or a direction does in the launcher. */
-enum class Nav { Up, Down, Left, Right, Confirm, Back, Previous, Next, Options, Controllers, Settings }
+enum class Nav { Up, Down, Left, Right, Confirm, Back, Previous, Next, Details, Controllers, Options, Sort, First, Last }
 
 /**
  * Android reports a pad's buttons by label: BUTTON_A is the south button on an Xbox layout, and is what Android's own
@@ -21,9 +21,13 @@ object PadKeys {
         KeyEvent.KEYCODE_ESCAPE -> Nav.Back
         KeyEvent.KEYCODE_BUTTON_L1 -> Nav.Previous
         KeyEvent.KEYCODE_BUTTON_R1 -> Nav.Next
-        KeyEvent.KEYCODE_BUTTON_X -> Nav.Options
+        // The same places as on the Mac: X the game's page, + (Start, Menu, Options) its options.
+        KeyEvent.KEYCODE_BUTTON_X -> Nav.Details
         KeyEvent.KEYCODE_BUTTON_Y -> Nav.Controllers
-        KeyEvent.KEYCODE_BUTTON_START -> Nav.Settings
+        KeyEvent.KEYCODE_BUTTON_START, KeyEvent.KEYCODE_MENU -> Nav.Options
+        KeyEvent.KEYCODE_BUTTON_THUMBR -> Nav.Sort
+        KeyEvent.KEYCODE_BUTTON_L2 -> Nav.First
+        KeyEvent.KEYCODE_BUTTON_R2 -> Nav.Last
         else -> null
     }
 

@@ -1,7 +1,7 @@
 package io.github.sofianbll.oortnx.ui
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -77,7 +77,8 @@ fun LibraryScreen(state: AppState) {
                 }
             }
             Hints(state, listOf(
-                state.confirmKey to stringResource(R.string.game_page), "X" to stringResource(R.string.sort), state.backKey to stringResource(R.string.back),
+                HintKey.Confirm to R.string.game_page, HintKey.Options to R.string.options, HintKey.Sort to R.string.sort,
+                HintKey.Tabs to R.string.hint_tabs, HintKey.Back to R.string.back,
             ))
         }
     }
@@ -106,7 +107,8 @@ private fun GameTile(state: AppState, game: Game, icon: ImageBitmap?, focused: B
     Column(
         Modifier
             .fillMaxWidth()
-            .clickable(remember { MutableInteractionSource() }, indication = null, role = Role.Button, onClickLabel = stringResource(R.string.game_page)) { state.openGame(game) },
+            .combinedClickable(remember { MutableInteractionSource() }, indication = null, role = Role.Button, onClickLabel = stringResource(R.string.game_page),
+                onLongClickLabel = stringResource(R.string.options), onLongClick = { state.openMenu(game) }) { state.openGame(game) },
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         GameCover(game, icon, focused, state.prefs.calm, Modifier.fillMaxWidth().aspectRatio(1f))

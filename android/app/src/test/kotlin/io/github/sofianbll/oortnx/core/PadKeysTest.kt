@@ -29,11 +29,17 @@ class PadKeysTest {
         assertEquals(Nav.Next, PadKeys.nav(KeyEvent.KEYCODE_BUTTON_R1, false))
     }
 
-    @Test fun theThreeOtherButtonsHaveOnePlaceEach() {
-        assertEquals(Nav.Options, PadKeys.nav(KeyEvent.KEYCODE_BUTTON_X, false))
+    @Test fun theOtherButtonsHaveTheMacsPlaces() {
+        assertEquals(Nav.Details, PadKeys.nav(KeyEvent.KEYCODE_BUTTON_X, false))
         assertEquals(Nav.Controllers, PadKeys.nav(KeyEvent.KEYCODE_BUTTON_Y, false))
-        assertEquals(Nav.Settings, PadKeys.nav(KeyEvent.KEYCODE_BUTTON_START, false))
+        assertEquals(Nav.Options, PadKeys.nav(KeyEvent.KEYCODE_BUTTON_START, false))
+        assertEquals(Nav.Options, PadKeys.nav(KeyEvent.KEYCODE_MENU, false))
+        assertEquals(Nav.Sort, PadKeys.nav(KeyEvent.KEYCODE_BUTTON_THUMBR, false))
+        assertEquals(Nav.First, PadKeys.nav(KeyEvent.KEYCODE_BUTTON_L2, false))
+        assertEquals(Nav.Last, PadKeys.nav(KeyEvent.KEYCODE_BUTTON_R2, false))
     }
+
+    @Test fun theHomeButtonIsTheSystems() = assertNull(PadKeys.nav(KeyEvent.KEYCODE_BUTTON_MODE, false))
 
     @Test fun directionsRoundTrip() {
         for (d in Dir.entries) assertEquals(d, PadKeys.dir(PadKeys.nav(d)))

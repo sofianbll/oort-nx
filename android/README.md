@@ -25,8 +25,10 @@ gradle -p android testDebugUnitTest assembleDebug assembleRelease   # no Gradle 
   button lights on a controller drawn in dots.
 - **Settings**, two levels: games, sounds and sound pack, buttons, calm cloud, credits and full licences.
 - **Pad first.** D-pad, hat axis and both sticks move the focus with the same repeat as the Mac (`DirectionRepeat`);
-  A confirms, B goes back, X sorts or opens the page, Y opens the controllers, Start the settings, L1 and R1 change
-  section. On a phone on its side, a controller takes the whole screen. The system Back gesture works everywhere.
+  The Mac's places: A confirms, B goes back, X opens the game's page, Y opens the controllers, + (Start, Menu,
+  Options) the chosen game's options (the settings where no game is chosen), the right stick's click sorts, L1 and R1
+  change tab, L2 and R2 jump to the first and last line; Home stays Android's. A long press on a game opens the same
+  options. On a phone on its side, a controller takes the whole screen. The system Back gesture works everywhere.
 - **What it keeps**, on the device only: its settings, and when each game was last started from Oort.
 
 ## What it cannot do, and why

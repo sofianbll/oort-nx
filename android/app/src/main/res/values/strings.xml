@@ -9,6 +9,9 @@
     <string name="back">Back</string>
     <string name="select">Select</string>
     <string name="off">Off</string>
+    <string name="hint_tabs">Tabs</string>
+    <string name="options">Options</string>
+    <string name="close">Close</string>
     <string name="game_page">Details</string>
 
     <string name="sort">Sort</string>
