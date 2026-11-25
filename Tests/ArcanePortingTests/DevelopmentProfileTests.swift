@@ -15,12 +15,12 @@ final class DevelopmentProfileTests: XCTestCase {
         try Data(data.utf8).write(to: file)
     }
     func testBuildIdentityMustSelectExactlyOneMatchingProfile() throws {
-        XCTAssertNoThrow(try AppData.validateBuildIdentity(["CFBundleIdentifier": "local.nxlibrary", "NXLibraryRelease": true]))
-        XCTAssertNoThrow(try AppData.validateBuildIdentity(["CFBundleIdentifier": "local.nxlibrary.development", "NXLibraryDevelopmentProfile": true]))
-        for invalid: [String: Any] in [[:], ["CFBundleIdentifier": "local.nxlibrary.development"],
-                                     ["CFBundleIdentifier": "local.nxlibrary", "NXLibraryDevelopmentProfile": true],
-                                     ["CFBundleIdentifier": "local.nxlibrary.development", "NXLibraryRelease": true],
-                                     ["CFBundleIdentifier": "local.nxlibrary", "NXLibraryRelease": true, "NXLibraryDevelopmentProfile": true]] {
+        XCTAssertNoThrow(try AppData.validateBuildIdentity(["CFBundleIdentifier": "io.github.sofianbll.oortnx", "NXLibraryRelease": true]))
+        XCTAssertNoThrow(try AppData.validateBuildIdentity(["CFBundleIdentifier": "io.github.sofianbll.oortnx.dev", "NXLibraryDevelopmentProfile": true]))
+        for invalid: [String: Any] in [[:], ["CFBundleIdentifier": "io.github.sofianbll.oortnx.dev"],
+                                     ["CFBundleIdentifier": "io.github.sofianbll.oortnx", "NXLibraryDevelopmentProfile": true],
+                                     ["CFBundleIdentifier": "io.github.sofianbll.oortnx.dev", "NXLibraryRelease": true],
+                                     ["CFBundleIdentifier": "io.github.sofianbll.oortnx", "NXLibraryRelease": true, "NXLibraryDevelopmentProfile": true]] {
             XCTAssertThrowsError(try AppData.validateBuildIdentity(invalid))
         }
     }
