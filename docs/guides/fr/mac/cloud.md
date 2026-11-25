@@ -23,13 +23,13 @@ Oort utilise le rclone déjà sur ton Mac, ou demande avant de prendre celui de 
 
 ## Connecte Google
 <!-- step account checked bf0c3410:Sources/NXLibrary/Views/Settings/CloudSetupAssistant.swift bf0c3410:Tests/CatalogAppChecks/run_cloud_screens.py -->
-Garde une connexion existante, ou **Se connecter**. Google accorde à rclone l’accès à tout ton Drive, pas à un seul dossier.
+Garde une connexion existante ou choisis **Se connecter**. Si tu n’as pas d’identifiant Google prêt à l’emploi, Oort te guide pour en créer un. Google accorde à rclone l’accès à tout ton Drive, pas à un seul dossier.
 
 ![L’assistant cloud, étape 1](../../media/mac/cloud-account.fr.webp)
 
 ## Choisis les dossiers
 <!-- step folder checked bf0c3410:Sources/NXLibrary/Views/Settings/CloudSetupAssistant.swift bf0c3410:Tests/CatalogAppChecks/run_cloud_screens.py -->
-Oort lit les noms des dossiers sous `Games` et propose ta **bibliothèque de ROM** et ta **bibliothèque de jeux**. Chaque dossier dit s’il convient ; rien n’est créé ni déplacé sans ton accord.
+Oort lit les noms des dossiers sous `Games` et propose ta **bibliothèque de ROM** et ta **bibliothèque de jeux**. Rien n’est créé ni déplacé sans ton accord. Une fois l’accès vérifié, **Voir mes jeux** active la bibliothèque et ouvre l’onglet Cloud.
 
 ![L’assistant cloud, étape 2](../../media/mac/cloud-folder.fr.webp)
 
