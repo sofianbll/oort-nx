@@ -57,6 +57,8 @@ struct MappingScreen: View {
     var body: some View {
         OortList(model: model, nav: nav, title: Oort.text("Buttons"), sections: sections) {
             Text(Oort.text("Buttons are named as on a Switch controller, by where they are.")).font(.footnote).foregroundStyle(Oort.ink2)
+                // A row cuts at its round corners.
+                .padding(.horizontal, SeleneTokens.Space.medium)
                 .padding(.vertical, SeleneTokens.Space.compact)
         }
         #if os(iOS)

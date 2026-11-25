@@ -20,7 +20,8 @@ enum Oort {
     static let panelLow = page.mix(with: ink, by: SeleneTokens.Effect.surfaceLow)
     static let panelHigh = page.mix(with: ink, by: SeleneTokens.Effect.surfaceHigh)
     static let panelRaised = page.mix(with: ink, by: SeleneTokens.Effect.surfaceRaised)
-    static let chosen = page.mix(with: glyph, by: SeleneTokens.Effect.surfaceLineStrong + 0.12)
+    /// White words on it read at 4.5:1, and its own signs at 3:1 on the sidebar.
+    static let chosen = page.mix(with: glyph, by: 0.56, in: .device)
     static let line = glyph.opacity(SeleneTokens.Effect.surfaceLine)
     static let lineStrong = glyph.opacity(SeleneTokens.Effect.surfaceLineStrong)
     static var gradient: RadialGradient {

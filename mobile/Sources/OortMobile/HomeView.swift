@@ -116,7 +116,7 @@ struct HomeView: View {
         let portrait = tall
         if portrait {
             // The next cover shows its edge: that is how the swipe is learnt.
-            let side = min(size.width - 2 * Self.peek, size.height * (type.isAccessibilitySize ? 0.3 : 0.47))
+            let side = max(0, min(size.width - 2 * Self.peek, size.height * (type.isAccessibilitySize ? 0.3 : 0.47)))
             ScrollView {
                 VStack(alignment: .leading, spacing: SeleneTokens.Space.large) {
                     Spacer(minLength: 0)
@@ -186,7 +186,7 @@ struct HomeView: View {
             .scrollTargetLayout()
             .padding(.vertical, SeleneTokens.Space.compact)
         }
-        .contentMargins(.horizontal, (width - side) / 2, for: .scrollContent)
+        .contentMargins(.horizontal, max(0, (width - side) / 2), for: .scrollContent)
         .scrollTargetBehavior(.viewAligned)
         .scrollIndicators(.hidden)
         .scrollClipDisabled()

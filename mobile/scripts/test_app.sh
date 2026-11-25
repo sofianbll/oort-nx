@@ -22,6 +22,8 @@ TEST_RUNNER_OORT_OUT="$out/shots" TEST_RUNNER_OORT_LANG="$lang" TEST_RUNNER_OORT
   -derivedDataPath "$work/dd-tests" -resultBundlePath "$work/tests-$lang-$look.xcresult" -parallel-testing-enabled NO \
   ONLY_ACTIVE_ARCH=YES CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual ${tests[@]+"${tests[@]}"} > "$out/xcodebuild.txt" 2>&1 || status=$?
 grep -E "error:|Test Case .*(passed|failed)|Executed |TEST (FAILED|SUCCEEDED)" "$out/xcodebuild.txt" | sort -u | tail -80 || true
+# What the app and the system said, to read where time went.
+xcrun simctl spawn "$udid" log show --last 90m --style compact --predicate 'process == "Oort NX"' 2>/dev/null | gzip > "$out/app-log.gz" || true
 # A test that did not run, or kept no picture, proves nothing.
 passed=$(grep -cE "Test Case .* passed \(" "$out/xcodebuild.txt" || true)
 wanted=$([ ${#tests[@]} -gt 0 ] && echo ${#tests[@]} || grep -c "func test" "$OORT_MOBILE/UITests/OortUITests.swift")

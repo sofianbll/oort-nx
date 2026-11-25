@@ -92,12 +92,14 @@ final class OortUITests: XCTestCase {
         shot(screen)
         guard auditing else { return }
         let answered: XCUIAccessibilityAuditType = [.hitRegion, .sufficientElementDescription, .elementDetection, .trait]
-        try app.performAccessibilityAudit { issue in
+        func run() throws { try app.performAccessibilityAudit { issue in
             let element = issue.element
             let line = "\(Self.lang)-\(self.pad ? "ipad" : "iphone")-\(screen) | \(issue.auditType.rawValue) \(issue.compactDescription) | \(element?.label.prefix(60).replacingOccurrences(of: "\n", with: " ") ?? "-") | \(element.map { "\($0.frame)" } ?? "-")"
             self.note(line, in: "audit.txt")
             return !answered.contains(issue.auditType)
-        }
+        } }
+        // A loaded machine can stop the audit before its end: once more, then it counts.
+        do { try run() } catch { note("\(screen): \(error.localizedDescription)", in: "audit-again.txt"); try run() }
     }
 
     private func button(_ label: String) -> XCUIElement { app.buttons[label].firstMatch }
@@ -183,7 +185,7 @@ final class OortUITests: XCTestCase {
             Thread.sleep(forTimeInterval: 1)
         }
         tap(button(say("Game page")), "the game page")
-        shows("Game data")
+        shows("Version")
         try look(a + "12-game")
         if !auditing {
             app.swipeUp()
@@ -229,7 +231,7 @@ final class OortUITests: XCTestCase {
         if app.staticTexts["Gamepad"].exists || !row("Try the buttons").isEnabled { note("controllers: \(app.staticTexts.allElementsBoundByIndex.prefix(8).map(\.label))", in: "words.txt") }
         try look(a + "20-controllers")
         tap(row("What each button sends"), "the buttons")
-        shows("Back to the buttons as printed", 5)
+        shows("Buttons are named as on a Switch controller, by where they are.", 5)
         try look(a + "21-mapping")
         back()
         if !auditing, row("Try the buttons").isEnabled {
@@ -357,8 +359,12 @@ final class OortUITests: XCTestCase {
             let device = app.cells.matching(NSPredicate(format: "label BEGINSWITH 'On My' OR label BEGINSWITH 'Sur mon' OR identifier CONTAINS 'LocalStorage'")).firstMatch
             if !place.waitForExistence(timeout: 5), device.waitForExistence(timeout: 5) { device.tap() }
         }
-        if !target.exists, place.waitForExistence(timeout: 20) { place.tap() }
-        Thread.sleep(forTimeInterval: 2)
+        // The picker answers late: the folder is opened when it can be, then read.
+        for _ in 0..<4 where !target.exists {
+            if place.waitForExistence(timeout: 15), place.isHittable { place.tap() }
+            _ = target.waitForExistence(timeout: 12)
+        }
+        Thread.sleep(forTimeInterval: 1)
         shot("54-picker-folder")
         note(app.debugDescription, in: "picker.txt")
         guard target.waitForExistence(timeout: 15) else { return XCTFail("the folder is not in the picker") }

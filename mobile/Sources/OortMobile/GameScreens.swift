@@ -93,7 +93,7 @@ struct GameScreen: View {
         return VStack(alignment: .leading, spacing: SeleneTokens.Space.medium) {
             if let banner = detail.game.banner {
                 OortPicture(artwork: banner).aspectRatio(16 / 9, contentMode: .fit)
-                    .frame(maxHeight: down == .compact ? 110 : nil, alignment: .leading)
+                    .frame(maxWidth: down == .compact ? 150 : nil)
                     .clipShape(RoundedRectangle(cornerRadius: Oort.tile, style: .continuous))
             }
             Text(detail.game.title).font(.title.bold()).foregroundStyle(Oort.ink).accessibilityAddTraits(.isHeader)
