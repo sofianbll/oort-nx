@@ -26,6 +26,7 @@ I tipi con prefisso `Selene` restano disponibili per la migrazione.
 | `OortTabs` | Passare tra viste sorelle | Scelta, focus, conteggio, simbolo | La scelta resta piena, il focus è un anello · non usarle per un'azione. |
 | `OortTag` | Un fatto breve | `quiet`, `panel`, `art`; tono con la sua parola | Mai un pulsante · mai il colore da solo. |
 | `OortMeter` | Avanzamento | Misurato o indeterminato | Accompagnarlo con il testo dello stato. |
+| `OortCreditCard`, `OortCreditGroup` | Un progetto citato: segno, nome, autore e licenza, ruolo, freccia | Immagine, piattaforma o segno; focus | Dati solo da `design/credits.json` · mai un link colorato nel testo. |
 | `OortControllerView` | Mostrare il controller e ciò che preme | Marca, ingressi vivi, movimento ridotto | Dentro un pannello · non un elemento interattivo. |
 | `oortPanel`, `oortWell`, `oortRing` | Superficie, incavo e anello di focus condivisi | Sollevato, fluttuante; contrasto aumentato | Nessuna forma disegnata a mano in una schermata. |
 

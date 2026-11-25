@@ -67,6 +67,9 @@ Credit [Arcane by Bium23](https://github.com/Bium23/NxLibrary) and
 them. Credit [Josef Nemec and Playnite](https://github.com/JosefNemec/Playnite)
 for any picker work taken from Playnite, and preserve each applicable licence and
 notice. A code licence is not permission to reuse branding or other assets.
+Every project, service, font or symbol in use has its entry in
+[design/credits.json](design/credits.json), the only list: run
+`python3 scripts/generate_credits.py` after editing it.
 If an import needs more than half a day, discuss it separately. Offer reusable
 fixes upstream according to [Arcane's guide](https://github.com/Bium23/NxLibrary/blob/main/CONTRIBUTING.md).
 

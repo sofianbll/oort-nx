@@ -11,6 +11,7 @@ Come si aggiorna:
 
 | Parte | Stato | Prove ancora da fare |
 |---|---|---|
+| Crediti e licenze in About | in attesa | Con controller, tastiera e mouse: aprire ogni gruppo, scegliere le due schede di una riga, aprire una pagina e le note complete; leggere una scheda con VoiceOver; provare una lingua oltre FR/EN. |
 | Aspetto del DMG Oort NX | in attesa | Sul DMG di prova, verificare sfondo Retina, posizione e leggibilità delle icone in Finder chiaro e scuro, icona del volume e trascinamento in una destinazione di prova. Il montaggio invisibile e le composizioni senza finestre non sostituiscono questa prova. |
 | Selettore di Oort e formati nel tour e in Settings | in attesa | In un profilo sintetico, provare A/B/Y, tastiera, mouse e VoiceOver; annullare senza cambiare la bozza, scegliere più file, verificare un permesso negato e usare il selettore di macOS. |
 | Disposizioni Oort e Arcane | in attesa | Su profili di prova verificare tap e mantenimento di Home, + e −, Y, scelta per profilo e tastiera. Su macOS 27 provare Home controllato da Apple, avviso singolo, apertura delle impostazioni e aggiornamento dei suggerimenti. In un gioco di prova confrontare Auto e le scelte esplicite. |
