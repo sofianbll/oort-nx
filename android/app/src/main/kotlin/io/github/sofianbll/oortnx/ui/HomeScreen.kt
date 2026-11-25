@@ -128,7 +128,7 @@ private fun HomeHints(state: AppState, modifier: Modifier = Modifier) {
 @Composable
 private fun Heading(state: AppState, game: Game, modifier: Modifier = Modifier) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(game.title, Modifier.heading(), style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        Text(game.title, Modifier.heading(), style = if (game.title.length > 28) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
         StateLine(state.lastStart(game).text())
         if (game.versionName.isNotEmpty()) Text(stringResource(R.string.detail_version, game.versionName), style = MaterialTheme.typography.bodyMedium, color = Ink2)
     }

@@ -8,6 +8,7 @@ large text. Writes pictures and a report; fails on a missing thing, a crash, or 
 import argparse
 import json
 import re
+import struct
 import subprocess
 import sys
 import time
@@ -25,6 +26,7 @@ passed, failed, small = [], [], {}
 out = Path()
 words = {}
 api = 0
+side = 0
 
 
 def adb(*args, binary=False, check=False, timeout=90):
@@ -404,6 +406,7 @@ def real_pad():
     shot("pad-01-connected")
     tap(w("controllers_test"))
     send((1, 310, 1), (1, 307, 1), (3, 0, 32767), (3, 1, -20000), (3, 17, -1), (3, 9, 255))
+    time.sleep(2)
     shot("pad-02-held")
     send((1, 310, 0), (1, 307, 0), (3, 0, 0), (3, 1, 0), (3, 17, 0), (3, 9, 0))
     see("virtual controller: the last button is named", w("controllers_last", "X"))
@@ -433,21 +436,40 @@ def real_pad():
     ok("the app survives the controller leaving", front() == PACKAGE, front())
 
 
+def picture_size(name):
+    return struct.unpack(">II", (out / f"{name}.png").read_bytes()[16:24])
+
+
 def rotate(to):
+    """Asks for the screen on its side (1) or upright (0). The tour checks the pictures: what is asked is not what is got."""
+    global side
+    side = to
     shell(f"settings put system accelerometer_rotation 0; settings put system user_rotation {to}")
     time.sleep(2.5)
-    if (display()[0] > display()[1]) != (to == 1):
-        shell(f"wm set-user-rotation lock {to}; wm user-rotation lock {to}")
-        time.sleep(2.5)
-    w_, h_ = display()
-    ok(f"the screen is {'on its side' if to else 'upright'}", (w_ > h_) == (to == 1), f"{w_}x{h_}")
 
 
-def tour(prefix, with_pad=False):
+def turned():
+    """With the app in front, as Android 10 forgets the rotation when its own upright launcher comes back."""
+    for _ in range(3):
+        shot("turn")
+        w_, h_ = picture_size("turn")
+        if (w_ > h_) == (side == 1):
+            break
+        shell(f"settings put system user_rotation {1 - side}; sleep 1; settings put system user_rotation {side}; wm set-user-rotation lock {side}")
+        time.sleep(3)
+    (out / "turn.png").unlink()
+
+
+def tour(prefix, with_pad=False, wide=None):
     """Pictures of every section, from where the app is."""
     fresh()
+    if wide is not None:
+        turned()
     see(f"{prefix}: first screen", w("detail_play"))
     shot(f"{prefix}-home")
+    if wide is not None:
+        w_, h_ = picture_size(f"{prefix}-home")
+        ok(f"{prefix}: the picture is {'on its side' if wide else 'upright'}", (w_ > h_) == wide, f"{w_}x{h_}")
     if with_pad:
         pad("RIGHT")
         shot(f"{prefix}-home-pad")
@@ -463,6 +485,8 @@ def tour(prefix, with_pad=False):
         pad("B", "START")
         shot(f"{prefix}-settings-pad")
         fresh()
+        if wide is not None:
+            turned()
         wait(w("detail_play"))
     tap(w("nav_library"), exact=True)
     shot(f"{prefix}-library")
@@ -530,22 +554,22 @@ def main():
     controller("fr")
 
     rotate(1)
-    tour("fr-landscape", with_pad=True)
+    tour("fr-landscape", with_pad=True, wide=True)
     rotate(0)
     shell("cmd uimode night no")
-    tour("fr-light-system")
+    tour("fr-light-system", wide=False)
     shell("cmd uimode night yes")
 
     shell("settings put system font_scale 2.0")
     time.sleep(2)
     tour("fr-large-text", with_pad=True)
     rotate(1)
-    tour("fr-large-text-landscape")
+    tour("fr-large-text-landscape", wide=True)
     rotate(0)
     shell("settings put system font_scale 1.0")
 
     shell("settings put global animator_duration_scale 0")
-    tour("fr-calm")
+    tour("fr-calm", wide=False)
     shell("settings put global animator_duration_scale 1")
 
     size, dens = shell("wm size"), shell("wm density")
