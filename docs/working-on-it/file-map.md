@@ -81,6 +81,12 @@ La pubblicazione comprende anche [CONTRIBUTING.md](../../CONTRIBUTING.md), [SECU
 | [CODE_OF_CONDUCT.md](../../CODE_OF_CONDUCT.md) | Regole di condotta brevi e segnalazione privata al maintainer. |
 | [.gitignore](../../.gitignore) | Esclude output di build, bundle, cache, work e file personali dell’IDE dal versionamento. |
 | [AGENTS.md](../../AGENTS.md) | Definisce vincoli per gli agenti, procedura di upgrade del motore e verifiche assegnate all’utente. |
+| [.agents/skills/oort-change/SKILL.md](../../.agents/skills/oort-change/SKILL.md) | Scelta fra modifica visiva e di logica, e lista per la pull request. |
+| [.agents/skills/oort-change/evals/cases.md](../../.agents/skills/oort-change/evals/cases.md) | Tre casi di valutazione della skill. |
+| [.agents/skills/oort-visual-change/SKILL.md](../../.agents/skills/oort-visual-change/SKILL.md) | Passi e prove per ciò che il giocatore vede, sente o preme. |
+| [.agents/skills/oort-visual-change/evals/cases.md](../../.agents/skills/oort-visual-change/evals/cases.md) | Tre casi di valutazione della skill. |
+| [.agents/skills/oort-core-change/SKILL.md](../../.agents/skills/oort-core-change/SKILL.md) | Passi e prove per contratti, dati, rete, concorrenza e motore. |
+| [.agents/skills/oort-core-change/evals/cases.md](../../.agents/skills/oort-core-change/evals/cases.md) | Tre casi di valutazione della skill. |
 | [CHANGELOG.md](../../CHANGELOG.md) | Registra le modifiche visibili all'utente per versione. |
 | [LICENSE](../../LICENSE) | Contiene la licenza MIT di Arcane. |
 | [.gitattributes](../../.gitattributes) | Conserva senza conversioni i testi delle licenze di terzi verificati per hash. |
@@ -1318,6 +1324,9 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [scripts/check_oort_core.py](../../scripts/check_oort_core.py) | Verifica manifest e import del target portabile; può preparare un pacchetto minimo per Linux. |
 | [scripts/selene-token-debt.json](../../scripts/selene-token-debt.json) | Occorrenze letterali preesistenti per file e firma, escluse le misure già migrate ai token; le voci obsolete fanno fallire il controllo. |
 | [Tests/PublicationChecks/test_selene_tokens.py](../../Tests/PublicationChecks/test_selene_tokens.py) | Prova argomenti multilinea, valori scalati ed esclusioni. |
+| [scripts/check_ui_rules.py](../../scripts/check_ui_rules.py) | Misura menu, profondità, testi senza traduzione, misure e forme locali, nomi di accessibilità e percorsi da tastiera; blocca il nuovo. |
+| [scripts/ui-rules.json](../../scripts/ui-rules.json) | Superfici contate, valori, parti non misurate e debito che può solo diminuire. |
+| [Tests/UIRulesChecks/test_ui_rules.py](../../Tests/UIRulesChecks/test_ui_rules.py) | Prove negative di ogni regola e coerenza fra controllo, criteri e skill. |
 | [scripts/check_metadata_text_layout.swift](../../scripts/check_metadata_text_layout.swift) | Verifica fuori schermo il layout delle descrizioni e la destinazione dello scroll dopo cambi di focus, anche rapidi e con Riduci movimento. |
 | [check_app_profile.swift](../../scripts/check_app_profile.swift) | Prova senza UI di identità, accesso reale alle preferenze e percorsi nel pacchetto prodotto dalla build; non importa né scrive dati. |
 
@@ -1421,6 +1430,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [docs/how-it-works/achievements.md](../how-it-works/achievements.md) | Obiettivi locali, lettura a fine sessione e come aggiungere un gioco. |
 | [docs/working-on-it/conventions.md](conventions.md) | Dove va il codice; ricette per fonti, interfaccia Selene e conferme, impostazioni, dati, rete, testi, test e documentazione. |
 | [docs/working-on-it/components.md](components.md) | Inventario OortUI: componenti, preset, stati e regole d'uso. |
+| [docs/working-on-it/change-criteria.md](change-criteria.md) | Criteri verificabili per ogni modifica visiva o di logica, con fonte e motivo; conflitti risolti e aperti. |
 | [docs/working-on-it/development.md](development.md) | Documenta prerequisiti, runtime, build, debug, verifiche, CI e release, compreso l'ID Nextendo pubblico della release personale. |
 | [docs/working-on-it/perso-release-notes.md](perso-release-notes.md) | Modello francese delle note di release del fork: versione, pin, giochi da ricompilare e novità. |
 | [docs/working-on-it/file-map.md](file-map.md) | Catalogo corrente delle responsabilità di tutti i file versionati, suddiviso per area. |
