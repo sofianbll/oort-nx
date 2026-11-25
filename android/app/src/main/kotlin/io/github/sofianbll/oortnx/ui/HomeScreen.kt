@@ -76,7 +76,7 @@ private val MARGIN = 28.dp
 private fun Upright(state: AppState, games: List<Game>, game: Game, width: Dp, height: Dp) {
     // The next cover shows its edge: that is how the swipe is learnt.
     // It gives way on a short screen or with large text: Play stays in view.
-    val text = (200 + 105 * LocalDensity.current.fontScale).dp + if (state.padMode) 44.dp else 0.dp
+    val text = (200 + 105 * LocalDensity.current.fontScale).dp + if (state.padMode) 76.dp else 0.dp // two lines of hints
     val side = minOf(width - 100.dp, height * 0.56f, height - text).coerceAtLeast(130.dp)
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).heightIn(min = height).padding(vertical = 16.dp),
