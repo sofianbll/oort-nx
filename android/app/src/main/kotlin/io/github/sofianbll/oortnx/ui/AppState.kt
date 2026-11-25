@@ -282,12 +282,12 @@ class AppState(
         libraryFocus = 0
     }
 
-    fun toggleFavorite(game: Game, say: Boolean = true) {
+    fun toggleFavorite(game: Game) {
         val here = library.getOrNull(libraryFocus)
         prefs.saveFavorite(game.packageName, game.packageName !in prefs.favorites)
         // The ring stays on its game; one that left the favourites leaves it to its neighbour.
         libraryFocus = library.indexOf(here).takeIf { it >= 0 } ?: libraryFocus.coerceIn(0, (library.size - 1).coerceAtLeast(0))
-        if (say) sound(SoundEvent.Select)
+        sound(SoundEvent.Select)
     }
 
     // ---- what a button does -------------------------------------------------------------------------------
@@ -560,7 +560,6 @@ class AppState(
                 RowItem("pause", Label.Res(R.string.detail_pause_title), note = Label.Res(R.string.detail_pause_menu), glyph = Glyph.Sliders),
             )),
             RowSection(Label.Res(R.string.detail_on_device), footer = Label.Res(R.string.detail_uninstall_warning), rows = listOf(
-                RowItem("favorite", Label.Res(R.string.favorite), glyph = Glyph.Heart, kind = Kind.Toggle(favorite(game)) { toggleFavorite(game, say = false) }),
                 RowItem("android", Label.Res(R.string.detail_info), glyph = Glyph.Device, kind = Kind.Press { androidPage(game) }),
                 RowItem("uninstall", Label.Res(R.string.detail_uninstall), note = Label.Res(R.string.detail_uninstall_note), glyph = Glyph.Trash, danger = true,
                     kind = Kind.Press { androidPage(game) }),
