@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""Render the cloud settings and the setup panel in hidden windows, with synthetic folders. No rclone, Drive or profile.
+"""The cloud settings and the setup panel, in hidden windows, on a synthetic Drive.
 
-  run_cloud_assistant.py [OUTPUT] [--before REV]    --before renders the screens of an older revision that still exist
+It draws every screen, then goes from the account to the games with the keyboard alone, the mouse alone and a controller
+alone, on a live view whose rclone is fake_rclone.py. No real rclone, Drive, network, window or profile.
+
+  run_cloud_assistant.py [OUTPUT] [--full]    --full adds English, German, 80 and 125 %, and a small window
 """
 import os
-import re
 import shutil
 import subprocess
 import sys
@@ -13,150 +15,7 @@ from pathlib import Path
 
 from run_cloud_screens import ROOT, change, isolate_startup
 
-HOST = r'''
-import AppKit
-import CoreText
-import SwiftUI
-import NXLibraryCore
-import ArcanePorting
-
-@main struct CloudAssistantProbe {
-    @MainActor static func main() async throws {
-        let home = URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!).resolvingSymlinksInPath().path
-        precondition(URL(fileURLWithPath: NSHomeDirectory()).resolvingSymlinksInPath().path == home)
-        let output = URL(fileURLWithPath: CommandLine.arguments[1], isDirectory: true)
-        precondition(CTFontManagerRegisterFontsForURL(URL(fileURLWithPath: CommandLine.arguments[2]) as CFURL, .process, nil))
-        NSApplication.shared.setActivationPolicy(.prohibited)
-        for (suffix, locale) in LOCALES {
-            L10n.setContext(locale)
-            for connected in [false, true] {
-                AppData.preferences.set(connected ? "gdrive:Games/Switch/Oort-nx" : nil, forKey: CloudLibraryPreference.storageKey)
-                AppData.preferences.set(connected, forKey: CloudLibraryPreference.enabledKey)
-                AppData.preferences.set(connected ? "Games/Switch/Jeux" : nil, forKey: CloudLibraryPreference.sourcesRootKey)
-                let chosen = CloudLibraryPreference.SourcesBinding(.init(storage: "gdrive:Games/Switch/Oort-nx", enabled: true, sourcesRoot: "Games/Switch/Jeux"))
-                AppData.preferences.set(try JSONEncoder().encode(chosen), forKey: CloudLibraryPreference.sourcesBindingKey)
-                let data = AppData.supportRoot
-                let settings = AppSettingsStore(fileURL: data.appendingPathComponent("settings-\(connected).json"))
-                let vm = AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: data)))
-                let model = vm.cloudLibrary
-                precondition((model.preference.remote != nil) == connected)
-                if connected { model.connectionCheck = .init(date: Date(timeIntervalSince1970: 1_795_000_000), failure: nil); model.screenKnown() }
-                for advanced in [false, true] {
-                    try render("reglages-\(connected ? "connecte" : "non-connecte")\(advanced ? "-avance" : "")\(suffix)", output, locale,
-                        SettingsCloudLibrarySection(viewModel: vm, model: model, settings: SettingsEditor(settings),
-                            advanced: .constant(advanced), onEdit: {}, onEditLibrary: {}, onEditSources: {}, onActions: { _ in })
-                            .screenReady(connected)
-                            .padding(SeleneTokens.Space.section)
-                            .frame(width: SeleneTokens.Space.settingsMeasure).frame(maxHeight: .infinity, alignment: .top),
-                        size: .init(width: 1200, height: advanced ? 1460 : 1080))
-                }
-                try await screens(vm, model, connected, output, suffix, locale)
-            }
-        }
-    }
-
-    @MainActor static func screens(_ vm: AppViewModel, _ model: CloudLibraryModel, _ connected: Bool, _ output: URL,
-                                   _ suffix: String, _ locale: AppLocale) async throws {
-        // SCREENS
-    }
-
-    @MainActor static func render<V: View>(_ name: String, _ output: URL, _ locale: AppLocale, _ view: V,
-                                          size: CGSize = .init(width: 1920, height: 1080)) throws {
-        let canvas = SeleneCanvas(size: .init(width: 1920, height: 1080))
-        let host = NSHostingView(rootView: AnyView(view.frame(width: size.width, height: size.height)
-            .background(Color(red: 0.09, green: 0.13, blue: 0.20))
-            .environment(\.colorScheme, .dark).environment(\.seleneCanvas, canvas)
-            .environment(\.nxAppLocale, locale).environment(\.seleneReduceMotion, true)))
-        host.frame.size = size
-        let window = NSWindow(contentRect: host.frame, styleMask: [.borderless], backing: .buffered, defer: false)
-        window.contentView = host
-        window.layoutIfNeeded()
-        let end = Date().addingTimeInterval(0.6)
-        repeat {
-            host.layoutSubtreeIfNeeded()
-            RunLoop.main.run(until: min(end, .now.addingTimeInterval(0.02)))
-        } while Date() < end
-        precondition(!window.isVisible)
-        guard let image = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(size.width), pixelsHigh: Int(size.height),
-            bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)
-        else { throw CocoaError(.fileWriteUnknown) }
-        host.cacheDisplay(in: host.bounds, to: image)
-        try image.representation(using: .png, properties: [:])!.write(to: output.appendingPathComponent(name + ".png"))
-    }
-}
-'''
-
-AFTER = r'''
-        let rom = (0..<12).map { "Games/Switch/Jeux/\(Self.names[$0]) [01000000000\(String(format: "%05X", 0x1000 + $0 * 0x2000))]/Base.nsp" }
-        let own = ["Games/Switch/Oort-nx/", "Games/Switch/Oort-nx/Lunar Observatory [0100000000001000]/", "Games/Switch/Oort-nx/Lunar Observatory [0100000000001000]/manifests/",
-                   "Games/Switch/", "Games/Switch/Archives/", "Games/Switch/Jeux/"]
-        let kept = CloudKeptFolders(account: "account", library: "Games/Switch/Oort-nx", sources: "Games/Switch/Jeux")
-        let found = try CloudFolderDiscovery.screenFixture(own + rom, kept: connected ? kept : nil)
-        let none = try CloudFolderDiscovery.screenFixture([], kept: nil)
-        let romOnly = try CloudFolderDiscovery.screenFixture(["Games/Switch/", "Games/Switch/Jeux/"] + rom, kept: nil)
-        func assistant(_ entry: CloudSetupAssistant.Entry = .account) -> CloudSetupAssistant {
-            CloudSetupAssistant(viewModel: vm, model: model, entry: entry) {}
-        }
-        func save(_ name: String, _ view: CloudSetupAssistant) throws { try render(name + suffix, output, locale, view) }
-        if connected {
-            try save("compte-garder", try assistant(.credentials).screenAccount(.choose, existing: true))
-            try save("dossiers-gardes", assistant(.credentials).screenFolders(found, onboarding: false))
-            try save("dossiers-inverses", assistant(.credentials).screenFolders(found, onboarding: false, swapped: true))
-            try save("navigateur-rom", assistant(.credentials).screenBrowser(found, .sources, "Games/Switch", ["Archives", "Jeux", "Oort-nx"]))
-            try save("navigateur-mauvais", assistant(.credentials).screenBrowser(found, .sources, "Games/Switch/Oort-nx", ["Lunar Observatory [0100000000001000]"]))
-            try save("mauvais-dossier", assistant(.credentials).screenDoubt(found, .sources, "Games/Switch/Oort-nx"))
-            var direct = CloudSetupAssistant(viewModel: vm, model: model, entry: .sources) {}
-            precondition(direct.browsing == .sources && direct.focusRail.isEmpty, "Change opens the browser at once")
-            direct = assistant(.library)
-            precondition(direct.browsing == .library)
-            let right = assistant(.credentials).screenFolders(found, onboarding: false)
-            precondition(right.primaryEnabled && right.focusedTarget == .primary, "Folders found: Continue is the first key")
-            precondition(right.advice(.sources, "Games/Switch/Jeux") == nil)
-        } else {
-            let first = try assistant().screenAccount(.choose, existing: false)
-            precondition(first.focusRows.first == [.haveClient] && !first.showsPrimary)
-            try save("compte-choix", first)
-            let have = try assistant().screenAccount(.have, existing: false)
-            precondition(!have.primaryEnabled)
-            try save("compte-identifiant", have)
-            let typed = try assistant().screenAccount(.have, existing: false, client: "1234-fixture.apps.googleusercontent.com", secret: "fixture-only")
-            precondition(typed.primaryEnabled)
-            try save("compte-identifiant-valide", typed)
-            try save("compte-identifiant-faux", try assistant().screenAccount(.have, existing: false, client: "1234"))
-            try save("compte-aide", try assistant().screenAccount(.help, existing: false))
-            try save("compte-navigateur", try assistant().screenWaiting())
-            try save("dossiers-recherche", try assistant().screenWaiting(folders: true))
-            let seen = assistant().screenFolders(found, onboarding: true)
-            precondition(seen.primaryEnabled && seen.sourcesOverride == "Games/Switch/Jeux")
-            try save("dossiers-trouves", seen)
-            let empty = assistant().screenFolders(none, onboarding: true, creates: true)
-            precondition(empty.primaryEnabled, "Nothing to know: Continue offers Oort's own folder")
-            try save("dossiers-rien", empty)
-            try save("dossiers-rom-seules", assistant().screenFolders(romOnly, onboarding: true, creates: true))
-            try save("dossiers-creer", assistant().screenFolders(none, onboarding: true, creates: true, confirming: true))
-        }
-    }
-
-    static let names = ["Aurora Village", "Comet Racers", "Dust Pilgrim", "Eclipse Tactics", "Halo Garden", "Ion Riders", "Lunar Observatory",
-                        "Meteor Kitchen", "Nebula Golf", "Orbit Garden", "Pulsar Quest", "Saturn Express"]
-
-    @MainActor static func unused() {
-'''
-
-BEFORE = r'''
-        func assistant(_ entry: CloudSetupAssistant.Entry = .account) -> CloudSetupAssistant {
-            CloudSetupAssistant(viewModel: vm, model: model, entry: entry) {}
-        }
-        if connected {
-            try render("compte-garder" + suffix, output, locale, try assistant().screenAccount(existing: true))
-            try render("dossiers" + suffix, output, locale, assistant(.library).screenFolder("Games/Switch", false))
-            try render("dossier-rom" + suffix, output, locale, assistant(.sources).screenFolder("Games/Switch", true))
-        } else {
-            try render("compte-identifiant" + suffix, output, locale, try assistant().screenAccount(existing: false))
-        }
-'''
-
-AFTER_STATE = '''
+STATE = '''
 extension CloudSetupAssistant {
     private func base(_ page: AccountPage, existing: Bool) throws -> Self {
         var view = self
@@ -168,6 +27,12 @@ extension CloudSetupAssistant {
         var focus = CloudSetupAssistantFocus()
         if page != .choose { focus.select(page == .have ? .client : .link(0)) }
         view._focus = State(initialValue: focus)
+        return view
+    }
+    /// A still picture: nothing is read, nothing is started.
+    func screenStill() -> Self {
+        var view = self
+        view.still = true
         return view
     }
     func screenAccount(_ page: AccountPage, existing: Bool, client: String = "", secret: String = "") throws -> Self {
@@ -183,6 +48,7 @@ extension CloudSetupAssistant {
             draft.chooseAccount("gdrive")
             view._draft = State(initialValue: draft)
         }
+        view._focus = State(initialValue: CloudSetupAssistantFocus())
         view._work = State(initialValue: (UUID(), folders ? .discover : .connect, Task {}))
         return view
     }
@@ -197,13 +63,18 @@ extension CloudSetupAssistant {
         let own = swapped ? choice(found.sources) : choice(found.library), rom = swapped ? choice(found.library) : choice(found.sources)
         draft.browse(own?.path ?? "")
         view._draft = State(initialValue: draft)
+        view._browsing = State(initialValue: nil)
         view._onboarding = State(initialValue: onboarding)
         view._library = State(initialValue: own)
         view._sources = State(initialValue: rom)
         view._sourcesOverride = State(initialValue: rom?.path)
         view._index = State(initialValue: found.index)
-        if creates, own == nil { view._newLibrary = State(initialValue: (CloudFolderDiscovery.newLibrary, "", .init(account: "account", id: "account"))) }
-        view._confirmingLibrary = State(initialValue: confirming)
+        if creates {
+            func new(_ path: String?) -> NewFolder? { path.map { .init(path: $0, below: "", parent: .init(account: "account", id: "account")) } }
+            if own == nil { view._newLibrary = State(initialValue: new(found.newLibrary)) }
+            if rom == nil { view._newSources = State(initialValue: new(found.newSources)) }
+        }
+        view._confirmingNew = State(initialValue: confirming)
         return view
     }
     func screenBrowser(_ found: CloudFolderDiscovery, _ folder: Folder, _ path: String, _ names: [String]) -> Self {
@@ -211,56 +82,54 @@ extension CloudSetupAssistant {
         view._browsing = State(initialValue: folder)
         view._browserPath = State(initialValue: path)
         view._listing = State(initialValue: .screenFixture(names))
+        view._recents = State(initialValue: ["Games/Switch/Jeux", "Games/Switch/Archives"])
         return view
     }
     func screenDoubt(_ found: CloudFolderDiscovery, _ folder: Folder, _ path: String) -> Self {
         var view = screenBrowser(found, folder, path, [])
         view._doubt = State(initialValue: view.advice(folder, path).map { (folder, path, $0) })
-        precondition(view.doubt != nil && view.doubtChoices.count == 3)
+        precondition(view.doubt != nil)
+        return view
+    }
+    func screenReady(_ found: CloudFolderDiscovery, verified: Bool, working: Bool = false) -> Self {
+        var view = screenFolders(found, onboarding: true)
+        var draft = view.draft
+        precondition(draft.useFolder())
+        if verified { draft.acceptAccessCheck(draft.ticket) }
+        view._draft = State(initialValue: draft)
+        if working { view._work = State(initialValue: (UUID(), .verify, Task {})) }
+        return view
+    }
+    func screenMove(_ plan: CloudDriveFolders.MovePlan) -> Self {
+        var view = self
+        var draft = CloudSetupAssistantDraft()
+        draft.chooseAccount("gdrive")
+        draft.browse("New Library")
+        view._browsing = State(initialValue: nil)
+        view._draft = State(initialValue: draft)
+        view._movePlan = State(initialValue: plan)
+        view._confirmingMove = State(initialValue: true)
         return view
     }
 }
 '''
 
-BEFORE_STATE = '''
-extension CloudSetupAssistant {
-    func screenAccount(existing: Bool) throws -> Self {
-        var view = self
-        view._tool = State(initialValue: URL(fileURLWithPath: "/fixture/tool"))
-        view._version = State(initialValue: "v1.75.2")
-        view._remotes = State(initialValue: try JSONDecoder().decode([RcloneRemote].self, from: Data(existing
-            ? #"[{"name":"gdrive","type":"drive","source":"file"}]"#.utf8 : "[]".utf8)))
-        return view
-    }
-    func screenFolder(_ path: String, _ sources: Bool) -> Self {
-        var view = self
-        var draft = CloudSetupAssistantDraft()
-        draft.chooseAccount("gdrive")
-        draft.browse(path)
-        view._draft = State(initialValue: draft)
-        view._sourcesPath = State(initialValue: path)
-        view._listing = State(initialValue: .screenFixture(["Archives", "Jeux", "Oort-nx"]))
-        return view
-    }
-}
-'''
+
+def append(file, text):
+    with file.open("a") as swift:
+        swift.write(text)
 
 
 def main():
     arguments = sys.argv[1:]
-    before = arguments[arguments.index("--before") + 1] if "--before" in arguments else None
     (ROOT / "work").mkdir(exist_ok=True)
     output = Path(arguments[0] if arguments and not arguments[0].startswith("--")
                   else tempfile.mkdtemp(prefix="cloud-assistant-", dir=ROOT / "work")).resolve()
     output.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="cloud-assistant-") as temp:
         package = Path(temp).resolve()
-        if before:
-            archived = subprocess.check_output(["git", "-C", str(ROOT), "archive", before, "Sources", "Package.swift"])
-            subprocess.run(["tar", "-xf", "-", "-C", str(package)], input=archived, check=True)
-        else:
-            shutil.copyfile(ROOT / "Package.swift", package / "Package.swift")
-            shutil.copytree(ROOT / "Sources", package / "Sources")
+        shutil.copyfile(ROOT / "Package.swift", package / "Package.swift")
+        shutil.copytree(ROOT / "Sources", package / "Sources")
         for name in ("NXLibraryCoreTests", "ArcanePortingTests", "OortCoreTests"):
             folder = package / "Tests" / name
             folder.mkdir(parents=True)
@@ -275,16 +144,20 @@ def main():
         change(profile, r'public static var preferences: UserDefaults \{ [^\n]+ \}',
                'nonisolated(unsafe) public static let preferences = UserDefaults(suiteName: profile.home.appendingPathComponent("test-preferences").path)!')
         cloud = app / "ViewModels/AppViewModel+CloudLibrary.swift"
-        # No tool: nothing can start a process.
-        change(cloud, r'var resolvedDriveTool: URL\? \{.*?\n    }', 'var resolvedDriveTool: URL? { nil }')
+        # The only tool is the probe's own: none while drawing, fake_rclone.py on a live path.
+        change(cloud, r'var resolvedDriveTool: URL\? \{.*?\n    }', 'var resolvedDriveTool: URL? { MainActor.assumeIsolated { CloudAssistantProbe.tool } }')
         change(cloud, r'var needsDriveTool: Bool \{[^\n]*', 'var needsDriveTool: Bool { false }')
-        with cloud.open("a") as swift:
-            swift.write('\nextension CloudLibraryModel {\n    func screenKnown() {\n'
-                        '        lastKnown = .init(scope: [], personalApps: [UUID()], personalFiles: Set((0..<15).map { _ in UUID() }), verifiedAt: Date(timeIntervalSince1970: 1_795_000_000))\n    }\n}\n')
-        section = app / "Views/Settings/SettingsCloudLibrarySection.swift"
+        append(cloud, """
+extension CloudLibraryModel {
+    func screenKnown() {
+        lastKnown = .init(scope: [], personalApps: [UUID()], personalFiles: Set((0..<15).map { _ in UUID() }), verifiedAt: Date(timeIntervalSince1970: 1_795_000_000))
+    }
+}
+""")
+        views = app / "Views/Settings"
+        section = views / "SettingsCloudLibrarySection.swift"
         change(section, r'        \.task\(id: Inspection.*?\n        }\n', "")
-        with section.open("a") as swift:
-            swift.write('''
+        append(section, """
 extension SettingsCloudLibrarySection {
     func screenReady(_ connected: Bool) -> Self {
         var view = self
@@ -294,32 +167,43 @@ extension SettingsCloudLibrarySection {
         return view
     }
 }
-''')
-        assistant = app / "Views/Settings/CloudSetupAssistant.swift"
-        change(assistant, r'        \.onAppear \{\s*.*?installAssistantKeys\(\)(?: \}|\n        })\n', "")
-        with assistant.open("a") as swift:
-            swift.write(BEFORE_STATE if before else AFTER_STATE)
+""")
+        assistant = views / "CloudSetupAssistant.swift"
+        change(assistant, r'    let onClose: \(\) -> Void\n', '    let onClose: () -> Void\n    var still = false\n')
+        change(assistant, r'\.onAppear \{ inspect\(\); installAssistantKeys\(\) \}', '.onAppear { if !still { inspect() } }')
+        change(assistant, r'    var body: some View \{\n        ZStack', '    var body: some View {\n        let _ = (CloudAssistantProbe.mounted = self)\n        ZStack')
+        # Where each target is, for a pointer.
+        text = assistant.read_text()
+        assert text.count(".seleneHover { if enabled { focus.select(target) } }") == 4
+        assistant.write_text(text.replace(".seleneHover { if enabled { focus.select(target) } }",
+            ".seleneHover { if enabled { focus.select(target) } }.modifier(ProbeFrame(id: AnyHashable(target)))")
+            .replace("font: .row))\n    }", "font: .row)).modifier(ProbeFrame(id: AnyHashable(target)))\n    }", 1))
+        assert assistant.read_text().count("ProbeFrame") == 5
+        change(app / "Views/OortUI/OortActionBar.swift", r'(\.seleneHover \{ if action\.enabled \{ onFocus\(action\.id\) \} \})',
+               lambda match: match[1] + '.modifier(ProbeFrame(id: action.id))')
+        change(app / "Views/OortUI/OortAssistantPanel.swift", r'        \.disabled\(!canOpen\(step\.id\)\)',
+               '        .disabled(!canOpen(step.id)).modifier(ProbeFrame(id: AnyHashable(CloudSetupAssistantFocus.Target.step(step.id))))')
+        account = views / "CloudSetupAssistant+Account.swift"
+        change(account, r'NSWorkspace\.shared\.open\(url\)', 'CloudAssistantProbe.opened.append(url)')
+        append(assistant, STATE)
         porting = package / "Sources/ArcanePorting/Library"
-        with (porting / "CloudDriveFolders.swift").open("a") as swift:
-            swift.write('\nextension CloudDriveFolders.Listing {\n    public static func screenFixture(_ names: [String]) -> Self { .init(ticket: UUID(), names: names) }\n}\n')
-        if not before:
-            with (porting / "CloudFolderDiscovery.swift").open("a") as swift:
-                swift.write('''
+        append(porting / "CloudDriveFolders.swift",
+               "\nextension CloudDriveFolders.Listing {\n    public static func screenFixture(_ names: [String]) -> Self { .init(ticket: UUID(), names: names) }\n}\n")
+        append(porting / "CloudFolderDiscovery.swift", """
 extension CloudFolderDiscovery {
     public static func screenFixture(_ paths: [String], kept: CloudKeptFolders?) throws -> Self {
         try .init(entries: paths.map { .init(path: $0.hasSuffix("/") ? String($0.dropLast()) : $0, isDirectory: $0.hasSuffix("/")) }, kept: kept)
     }
 }
-''')
-        locales = '[("-fr", AppLocale(language: .french, region: "FR"))' + (
-            ', ("-en", AppLocale(language: .english, region: "US")), ("-de", AppLocale(language: .german, region: "DE"))' if "--languages" in arguments else "") + "]"
-        (app / "CloudAssistantProbe.swift").write_text(HOST.replace("LOCALES", locales).replace("        // SCREENS", BEFORE if before else AFTER))
+""")
+        shutil.copyfile(Path(__file__).with_name("CloudAssistantProbe.swift"), app / "CloudAssistantProbe.swift")
         home = package / "home"
         home.mkdir()
         env = {key: value for key, value in os.environ.items() if not key.startswith(("GIT_", "RCLONE_"))}
-        env.update(HOME=str(home), CFFIXED_USER_HOME=str(home), RCLONE_CONFIG=str(home / "rclone.conf"), RCLONE_PASSWORD_COMMAND="/usr/bin/false")
+        env.update(HOME=str(home), CFFIXED_USER_HOME=str(home), RCLONE_CONFIG=str(home / "rclone.conf"), RCLONE_PASSWORD_COMMAND="/usr/bin/false",
+                   OORT_FAKE_RCLONE=str(Path(__file__).with_name("fake_rclone.py").resolve()))
         subprocess.run(["swift", "run", "--jobs", "4", "--package-path", str(package), "NXLibrary", str(output),
-                        str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf")], env=env, check=True)
+                        str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"), *(a for a in arguments if a == "--full")], env=env, check=True)
 
 
 if __name__ == "__main__":

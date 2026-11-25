@@ -77,7 +77,7 @@
     "metadata-list": {"$value": {"value": 400, "unit": "px"}},
     "side-panel": {"$value": {"value": 640, "unit": "px"}},
     "assistant-rail": {"$value": {"value": 260, "unit": "px"}},
-    "question-measure": {"$value": {"value": 900, "unit": "px"}},
+    "question-measure": {"$value": {"value": 1040, "unit": "px"}},
     "settings-measure": {"$value": {"value": 1120, "unit": "px"}},
     "page-minimum-font": {"$value": {"value": 11, "unit": "px"}},
     "pill-width": {"$value": {"value": 180, "unit": "px"}},

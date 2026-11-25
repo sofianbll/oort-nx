@@ -19,7 +19,9 @@ import time
 ROOT = Path(os.environ["FAKE_DRIVE"])
 LOG = os.environ["FAKE_LOG"]
 DELAY = float(os.environ.get("FAKE_DELAY", "0.2"))
-REMOTE = "fixture"
+REMOTE = os.environ.get("FAKE_REMOTE", "fixture")
+# With FAKE_EMPTY the connection exists only once a sign-in created it.
+SIGNED_IN = Path(LOG + ".signed-in")
 
 
 def log(kind, text):
@@ -94,6 +96,10 @@ class Control(BaseHTTPRequestHandler):
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])) or b"{}")
         operation = self.path.strip("/")
         log("process", "curl")
+        if operation in ("config/create", "config/update"):
+            time.sleep(float(os.environ.get("FAKE_SIGN_IN", "0")))
+            SIGNED_IN.touch()
+            return self.reply(200, {})
         folder = located(body.get("fs", REMOTE + ":"))
         if body.get("remote"):
             folder = folder / body["remote"]
@@ -131,11 +137,18 @@ def main(args):
     if args[0] == "version":
         print("rclone v1.75.2")
     elif args[0] == "listremotes":
-        print(json.dumps([{"name": REMOTE, "type": "drive", "source": "file"}]))
+        known = not os.environ.get("FAKE_EMPTY") or SIGNED_IN.exists()
+        print(json.dumps([{"name": REMOTE, "type": "drive", "source": "file"}] if known else []))
     elif args[0] == "about":
         request("about")
         print("{}")
         print("'root_folder_id = account' - save this in the config to speed up startup", file=sys.stderr)
+    elif args[0] == "config" and args[1:3] == ["encryption", "check"]:
+        pass
+    elif args[0] == "config" and args[1] == "delete":
+        SIGNED_IN.unlink(missing_ok=True)
+    elif args[0] == "config" and args[1] == "file":
+        print(os.environ["FAKE_CONFIG"])
     elif args[0] == "config":
         print(f"[{REMOTE}]\ntype = drive" if args[1] == "redacted" else "")
     elif args[0] == "lsjson":
@@ -155,7 +168,7 @@ def main(args):
         shutil.copyfile(located(args[1], option(args, "--drive-root-folder-id")), args[2])
     elif args[0] == "mkdir":
         request("mkdir")
-        located(args[1]).mkdir(parents=True, exist_ok=True)
+        located(args[1], option(args, "--drive-root-folder-id")).mkdir(parents=True, exist_ok=True)
     elif args[0] == "rcd":
         Server(option(args, "--rc-addr").partition("unix://")[2], Control).serve_forever()
     else:

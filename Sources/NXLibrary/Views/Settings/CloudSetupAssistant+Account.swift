@@ -96,12 +96,14 @@ extension CloudSetupAssistant {
             input(.client) {
                 TextField(text("Google ID"), text: $client, prompt: Text(verbatim: "1234-abcd.apps.googleusercontent.com"))
                     .focused($field, equals: .client).onSubmit { field = .secret }
+                    .accessibilityLabel(text("Google ID"))
             }
             check(client.isEmpty ? nil : validID, wrong: "Use an ID ending in .apps.googleusercontent.com")
             Text(text("Google secret")).seleneFont(.row, .semibold)
             input(.secret) {
                 SecureField(text("Google secret"), text: $secret)
                     .focused($field, equals: .secret).onSubmit(primary)
+                    .accessibilityLabel(text("Google secret"))
             }
             check(secret.isEmpty ? nil : validSecret, wrong: "Paste the secret again, without line breaks.")
         }

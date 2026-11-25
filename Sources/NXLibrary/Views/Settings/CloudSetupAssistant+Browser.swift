@@ -10,6 +10,7 @@ extension CloudSetupAssistant {
                 TextField(text("Enter a path"), text: Binding(get: { typedPath ?? "" }, set: { typedPath = $0 }),
                           prompt: Text(verbatim: "Games/Switch/ROM"))
                     .focused($field, equals: .typedPath).onSubmit(primary)
+                    .accessibilityLabel(text("Enter a path"))
             }
             if !primaryEnabled {
                 SeleneStatusDot(text: text("Enter a folder path such as Games or Archive/Games."), color: SeleneTheme.danger, font: .row)
@@ -19,6 +20,7 @@ extension CloudSetupAssistant {
             input(.folderName) {
                 TextField(text("Folder name"), text: Binding(get: { folderName ?? "" }, set: { folderName = $0 }))
                     .focused($field, equals: .folderName).onSubmit(proposeCreation)
+                    .accessibilityLabel(text("Folder name"))
             }
         } else {
             HStack(spacing: canvas.u(SeleneTokens.Space.small)) {

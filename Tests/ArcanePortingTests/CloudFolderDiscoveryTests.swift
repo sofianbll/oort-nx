@@ -179,6 +179,35 @@ final class CloudFolderDiscoveryTests: XCTestCase {
         XCTAssertEqual(commands.filter { $0 == "about" }.count, 1)
     }
 
+    /// New folders go inside the folder and account the player saw, in one command; a lost reply is read, not written again.
+    func testNewFoldersAreCreatedOnceInTheParentThatWasShown() async throws {
+        let config = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID()).conf")
+        try Data().write(to: config)
+        defer { try? FileManager.default.removeItem(at: config) }
+        for (account, lost, listed) in [("accountA", false, true), ("accountB", false, true), ("accountA", true, true), ("accountA", true, false)] {
+            let seen = Seen()
+            let drive = CloudDriveFolders(remote: "fixture", executable: URL(fileURLWithPath: "/synthetic/rclone"), config: config) { _, args, _ in
+                await seen.add(args.prefix(2).joined(separator: " "))
+                switch args[0] {
+                case "listremotes": return .init(status: 0, stdout: #"[{"name":"fixture","type":"drive","source":"file"}]"#, stderr: "")
+                case "about": return .init(status: 0, stdout: "{}", stderr: "'root_folder_id = \(account)' - save this in the config to speed up startup")
+                case "mkdir": return .init(status: lost ? 1 : 0, stdout: "", stderr: lost ? "lost response" : "")
+                case "lsjson" where args[1] == "fixture:Games/Switch":
+                    return .init(status: 0, stdout: listed ? #"[{"Name":"ROM","IsDir":true}]"# : "[]", stderr: "")
+                case "lsjson": return .init(status: 0, stdout: #"[{"Name":"Games","IsDir":true,"ID":"gamesID"}]"#, stderr: "")
+                default: return .init(status: 0, stdout: "", stderr: "")
+                }
+            }
+            do {
+                try await drive.createPath("Games/Switch/ROM", below: "Games", shown: .init(account: "accountA", id: "gamesID"))
+                XCTAssertTrue(account == "accountA" && (!lost || listed))
+            } catch CloudLibraryFailure.scopeChanged { XCTAssertEqual(account, "accountB") }
+            catch { XCTAssertTrue(lost && !listed, "\(error)") }
+            let writes = await seen.commands.filter { $0.hasPrefix("mkdir") }
+            XCTAssertEqual(writes, account == "accountA" ? ["mkdir fixture,root_folder_id=gamesID:Switch/ROM"] : [], "Another account is never written to")
+        }
+    }
+
     func testNoGamesFolderIsAbsenceAndARefusedListingIsAnError() async throws {
         for (status, stderr) in [(Int32(3), "directory not found"), (1, "googleapi: Error 403: forbidden")] {
             let drive = CloudDriveFolders(remote: "fixture", executable: URL(fileURLWithPath: "/synthetic/rclone")) { _, args, _ in

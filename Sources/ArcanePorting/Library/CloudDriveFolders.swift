@@ -273,18 +273,25 @@ public struct CloudDriveFolders: Sendable {
         }
     }
 
-    /// Makes each missing folder of `path` in turn, inside the one the player saw. Every step keeps `create`'s checks.
+    /// Makes the missing folders of `path` in one command, inside the one the player saw: its ID and its account, not its
+    /// path alone. A lost reply is followed by a read, never another write.
     package func createPath(_ path: String, below existing: String, shown: CloudDriveScope.CreationParent) async throws {
-        var parent = existing
-        var seen = shown
+        try requireFresh()
         let prefix = existing.isEmpty ? "" : existing + "/"
-        guard path.hasPrefix(prefix), CloudLibraryPreference.validRoot(path) else { throw StorageBackendError.invalidKey }
-        for name in path.dropFirst(prefix.count).components(separatedBy: "/") {
-            try await create(name, in: parent, shown: seen)
-            parent = Self.joining(parent, name)
-            guard parent != path else { return }
-            guard let next = try await creationParent(parent), next.account == shown.account else { throw CloudLibraryFailure.scopeChanged }
-            seen = next
+        guard remote != ":local:", path.hasPrefix(prefix), path != existing, CloudLibraryPreference.validRoot(path) else {
+            throw StorageBackendError.invalidKey
+        }
+        if configurationSnapshot == nil {
+            try await snapshot().createPath(path, below: existing, shown: shown)
+            return
+        }
+        guard try await creationParent(existing) == shown else { throw CloudLibraryFailure.scopeChanged }
+        do { _ = try await checked(["mkdir", try target(String(path.dropFirst(prefix.count)), rootID: shown.id)]) }
+        catch is CancellationError { throw CancellationError() }
+        catch {
+            let parts = path.components(separatedBy: "/")
+            let names = try await list(parts.dropLast().joined(separator: "/"), ticket: UUID()).names
+            guard names.contains(parts[parts.count - 1]) else { throw error }
         }
     }
 
