@@ -857,7 +857,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/OortUI/OortControllerView.swift](../../Sources/NXLibrary/Views/OortUI/OortControllerView.swift) | Controller disegnato a punti, con gli ingressi reali accesi. |
 | [Sources/NXLibrary/Views/OortUI/OortMeter.swift](../../Sources/NXLibrary/Views/OortUI/OortMeter.swift) | Barra di avanzamento, misurata o indeterminata. |
 | [Sources/NXLibrary/Views/OortUI/OortSearchField.swift](../../Sources/NXLibrary/Views/OortUI/OortSearchField.swift) | Campo di ricerca condiviso. |
-| [Sources/NXLibrary/Views/OortUI/OortSetupCard.swift](../../Sources/NXLibrary/Views/OortUI/OortSetupCard.swift) | — |
+| [Sources/NXLibrary/Views/OortUI/OortSetupCard.swift](../../Sources/NXLibrary/Views/OortUI/OortSetupCard.swift) | Scheda di scelta della prima configurazione. |
 | [Sources/NXLibrary/Views/OortUI/OortTabs.swift](../../Sources/NXLibrary/Views/OortUI/OortTabs.swift) | Schede condivise: scelta, focus, conteggio. |
 | [Sources/NXLibrary/Views/OortUI/OortTag.swift](../../Sources/NXLibrary/Views/OortUI/OortTag.swift) | Etichetta breve: genere, versione, stato. |
 | [Tests/NXLibraryCoreTests/PaletteContrastTests.swift](../../Tests/NXLibraryCoreTests/PaletteContrastTests.swift) | Contrasto di testo, focus e simboli in ogni palette. |

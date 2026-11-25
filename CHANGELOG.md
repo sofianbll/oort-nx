@@ -7,7 +7,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 ### Added
 
 - The controller is drawn in dots and lights up what you press, in Settings → Controllers, Controls and Players.
-- Dragging or pressing the stick dead zone uses the shared slider.
+- The stick dead zone uses the shared slider.
 
 ### Changed
 
@@ -19,7 +19,6 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Fixed
 
-- A game's background art stayed hidden when it should show behind the home screen.
 - An exFAT or FAT32 drive was read as full, which refused mods and saves.
 - The Add game steps were in English in other languages.
 
