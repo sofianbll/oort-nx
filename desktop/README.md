@@ -13,6 +13,7 @@ The same library as on the Mac, for games that already run on these systems: rec
 desktop/scripts/core.sh                     # build oort-core, put it beside the app
 cd desktop/src-tauri && cargo run           # the window
 cargo test                                  # host
+python3 scripts/check_vocabulary.py --root . --system desktop   # words, from the top folder: no debt
 node --test desktop/tests/nav.test.mjs      # page
 OORT_PORTABLE=1 swift test --filter OortCompanionTests
 ```
@@ -27,6 +28,8 @@ OORT_PORTABLE=1 swift test --filter OortCompanionTests
 | `scripts/licenses.py --texts`, `scripts/licenses_linux.py` | Licence texts of the Rust libraries of each package, and of the Debian libraries an AppImage carries |
 
 `desktop/tests/*.js` also walk the real window on a Mac (debug build) with invented games made by `desktop/scripts/fixtures.py`: `OORT_RUN=<folder> OORT_APP=<binary> desktop/tests/run.sh walk.js <pictures> 1440x900`.
+
+`tests/headless.mjs` runs the same scripts, and `input.js` (mouse, keyboard, controller, finger, the menu, the controls), without any window: Chromium's headless shell, the real `oort-core`, and a stand-in for the host. What the host itself does (games, the window, the network) stays with the proofs above.
 
 `OORT_DATA=<folder>` keeps everything the app writes in one folder. `OORT_ONLINE=http://127.0.0.1:<port>` answers online questions from this computer, and only from it; the proofs never use a network.
 

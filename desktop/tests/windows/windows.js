@@ -10,7 +10,8 @@ probe(async P => {
   P.same(await P.wait(200).then(() => document.hasFocus()), true, 'the page has the keyboard');
   // Keys as Windows sends them.
   await P.press('lt'); const at = P.id(); await host('key', 0x27); await P.wait(400); P.ok(P.id() !== at, 'a real right arrow moves');
-  await host('key', 0x4D); await P.until(() => document.querySelector('.shell'), 3000, 'M opens Settings'); await host('key', 0x1B); await P.until(() => oort.layers.length === 1, 3000, 'Esc closes them');
+  await host('key', 0x48); await P.until(() => document.querySelector('.menu'), 3000, 'H opens the menu'); await P.wait(300); await host('desktop', '39-menu'); P.same([...document.querySelectorAll('.orb')].some(o => o.dataset.id === 'power'), true, 'Power is there'); await host('key', 0x1B); await P.until(() => oort.layers.length === 1, 3000, 'Esc closes it'); await P.press('right', 4); await host('key', 0x4D); await P.until(() => document.querySelector('.shell'), 3000, 'M opens the options of the chosen game'); await host('key', 0x1B); await P.until(() => oort.layers.length === 1, 3000, 'Esc closes them');
+  P.same(await inv('abilities'), ['fullscreen', 'hide', 'restart', 'quit'], 'what Power can do on Windows'); await inv('hide'); await P.until(async () => (await host('state')).minimized, 5000, 'Hide'); await host('front'); await P.until(async () => !(await host('state')).minimized, 5000, 'and back'); P.say('ok Hide, and back');
   await host('key', 0x7A); await P.wait(1200); P.ok(innerHeight >= screen.height - 2, `F11 fills the screen: ${innerWidth}x${innerHeight} of ${screen.width}x${screen.height}`); await host('desktop', '40-fullscreen'); await host('key', 0x7A); await P.wait(800); P.ok(innerHeight < screen.height - 2, 'and back');
 
   // The window steps aside for the game's own, and comes back in front when it ends.

@@ -174,7 +174,7 @@ $env:PATH = $path
 
 # --- The scenarios, each with a data folder of its own
 foreach ($one in @(
-    @('walk', '1440x900', 'fr'), @('play', '1440x900', 'fr'), @('pad', '1440x900', 'fr'), @('look', '1280x720', 'fr'), @('look', '760x480', 'fr'), @('walk', '1280x720', 'en'))) {
+    @('walk', '1440x900', 'fr'), @('play', '1440x900', 'fr'), @('pad', '1440x900', 'fr'), @('input', '1440x900', 'fr'), @('input', '1280x720', 'en'), @('look', '1280x720', 'fr'), @('look', '760x480', 'fr'), @('walk', '1280x720', 'en'))) {
   $tag = if ($one[0] -eq 'look' -and $one[1] -eq '760x480') { 'small-' } else { "$($one[0])-$($one[1])-$($one[2])-" }
   Drive "$desktop\tests\$($one[0]).js" @("data=$env:RUNNER_TEMP\data-$tag", "tag=$tag", "size=$($one[1])", "language=$($one[2])", 'limit=420')
 }

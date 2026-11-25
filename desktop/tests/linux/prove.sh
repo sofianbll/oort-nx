@@ -34,7 +34,8 @@ try() { # name, program
   [ -z "$window" ] && { cat "$out/$name.txt"; return; }
   xdotool windowsize "$window" 1440 900 windowfocus "$window"; sleep 5
   shot "$name-home"
-  keys m; shot "$name-settings"; keys Escape
+  keys ctrl+comma; shot "$name-settings"; keys Escape
+  keys h; shot "$name-menu"; keys Escape
   # Broken Compass, then Harbour: the shelf by name starts with Projects and Add game.
   local at; at=$(python3 - "$data" "$run" <<'PY'
 import json, subprocess, sys

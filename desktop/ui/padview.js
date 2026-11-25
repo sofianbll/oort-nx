@@ -6,7 +6,7 @@ import { SHAPES, sides } from './pads.js';
 const NEAR = .92, STRONG = .75, MUTED = .6, VEIL = .55, HALF = .45, MIST = .3, LINE = .22;
 const TAU = Math.PI * 2, HEIGHT = .74, MIDDLE = .395, LEAN = .045;
 /* Canvas units of the map: the pad, a label's height, the room between a label and the pad, and how a line bends. */
-const PAD = 460, ROW = 46, GAP = 54, BEND = 28, END = 8, LEAST = 150;
+const PAD = 460, LEAST = 300, ROW = 46, GAP = 54, BEND = 28, END = 8;
 
 /* A pad of `size` points wide, its middle at (cx, cy). */
 export const drawPad = (x, shape, live, { size, cx, cy, mark, lit, ink, font, quiet }) => {
@@ -60,7 +60,10 @@ export const padMap = ({ kind, entries, live, label, quiet }) => {
   const place = () => {
     const W = el.clientWidth, u = unit.getBoundingClientRect().width / 100;
     if (!W || !u) return;
-    const pad = Math.min(PAD * u, W), k = pad / PAD, column = Math.floor((W - pad) / 2 - GAP * k), row = Math.max(ROW * u, 30), narrow = column < LEAST;
+    // The labels take the width they need; the pad gives some of its own, then they go under it.
+    el.classList.remove('narrow');
+    const need = Math.max(...[...labels.values()].map(li => { li.className = ''; li.style.cssText = 'width:max-content'; return Math.ceil(li.getBoundingClientRect().width); }));
+    const room = (W - 2 * need) / (1 + 2 * GAP / PAD), narrow = room < LEAST * u, pad = Math.min(PAD * u, narrow ? W : room), k = pad / PAD, column = Math.floor((W - pad) / 2 - GAP * k), row = Math.max(ROW * u, 30);
     const both = sides([...labels.keys()], shape, row / (pad / 2)), H = narrow ? pad * HEIGHT : Math.max(...both.map(s => s.length), 7) * row;
     const height = Math.max(H, pad * HEIGHT), d = Math.min(devicePixelRatio || 1, 2);
     el.classList.toggle('narrow', narrow);
@@ -89,6 +92,6 @@ export const padMap = ({ kind, entries, live, label, quiet }) => {
   const tick = () => { frame = 0; if (!el.isConnected) return; draw(); if (live.awake()) frame = requestAnimationFrame(tick); };
   const deaf = live.listen(() => { if (el.isConnected) was = true; else if (was) { deaf(); sized.disconnect(); return; } if (!frame) frame = requestAnimationFrame(tick); });
   const sized = new ResizeObserver(() => { was = true; requestAnimationFrame(place); }); sized.observe(el);
-  document.fonts.ready.then(draw);
+  document.fonts.ready.then(place);
   return el;
 };

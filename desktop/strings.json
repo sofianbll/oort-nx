@@ -286,6 +286,9 @@
  "Letters": {
   "fr": "Lettres"
  },
+ "Library refreshed": {
+  "fr": "Bibliothèque actualisée"
+ },
  "Look again": {
   "fr": "Actualiser la bibliothèque"
  },
@@ -515,8 +518,8 @@
  "Steam was not found on this computer. It is looked for again each time.": {
   "fr": "Steam n’a pas été trouvé sur cet ordinateur. Il sera cherché à nouveau à chaque fois."
  },
- "The + button (Menu, Options) now opens the options of the chosen game, and Home or + held opens the new menu: your library, Settings, full screen, Quit. With a mouse: the wheel, and a right click for the options.": {
-  "fr": "Le bouton + (Menu, Options) ouvre maintenant les options du jeu choisi. Home, ou + maintenu, ouvre le nouveau menu : ta bibliothèque, les réglages, le plein écran, quitter. À la souris : la molette, et le clic droit pour les options."
+ "The + button (Menu, Options) now opens the options of the chosen game, and Home or + held opens the control center: your library, Settings, full screen, Quit. With a mouse: the wheel, and a right click for the options.": {
+  "fr": "Le bouton + (Menu, Options) ouvre maintenant les options du jeu choisi. Home, ou + maintenu, ouvre le centre de contrôle : ta bibliothèque, les réglages, le plein écran, quitter. À la souris : la molette, et le clic droit pour les options."
  },
  "The + tile adds games. Settings has these steps again, under General.": {
   "fr": "La tuile + ajoute des jeux. Ces étapes sont aussi dans Réglages, Général."

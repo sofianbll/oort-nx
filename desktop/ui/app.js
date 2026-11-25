@@ -111,6 +111,8 @@ const settle = () => {
   if (art && !V.keepCloud) $('#art').style.backgroundImage = `url("${art}")`;
   C.set({ awake: !page && !(art && !V.keepCloud) && !layers.some(l => l.launch) });
   $('#hints').classList.toggle('veil', !!layer.over);
+  // Drawn while out of sight, the tabs have no width to mark.
+  requestAnimationFrame(() => layer.el.querySelectorAll('.tabs').forEach(pill));
   hints();
 };
 /* Draws a layer again without losing the place. */
@@ -128,11 +130,11 @@ const badgeText = b => inPad() ? padNames(V.buttonNames === 'automatic' ? pad.br
 const badge = b => h('span', { cls: 'badge', 'aria-hidden': 'true' }, badgeText(b) || b.toUpperCase());
 /* Windows keeps an Xbox controller's Home for itself: it is named once it was seen, and + held does the same. */
 const hasHome = () => !inPad() || homeSeen || pad.brand !== 'xbox';
-const menuHint = () => hasHome() ? ['home', t('Menu'), openMenu, inPad() && t('Hold: %@', t('Settings'))] : ['menu', t('Hold: %@', t('Menu')), openMenu];
+const menuHint = () => hasHome() ? ['home', t('Control center'), openMenu, inPad() && t('Hold: %@', t('Settings'))] : ['menu', t('Hold: %@', t('Control center')), openMenu];
 /* What A does on what has the focus, in a word; nothing where A does nothing. */
 const aHint = () => {
   const e = document.activeElement;
-  if (!e || !top()?.el.contains(e) || e.getAttribute('aria-disabled') === 'true' || e.hasAttribute('data-idle') || e.matches('input,.about')) return null;
+  if (!e || !top()?.el.contains(e) || e.getAttribute('aria-disabled') === 'true' || e.hasAttribute('data-idle') || e.matches('input,.about,.box')) return null;
   return e.slides ? ['move', t('Change')] : e.step || e.getAttribute('role') === 'switch' ? ['a', t('Change')] : e.matches('.key,[data-pick]') ? ['a', t('Select')] : ['a', t('Open')];
 };
 const hints = () => {
@@ -265,7 +267,7 @@ const remember = p => ask('settings.remember', p).catch(() => {});
 const topBar = () => {
   const bar = h('div', { cls: 'tabs panel', role: 'tablist', 'aria-label': t('Library') }, h('span', { cls: 'pill' }), TABS.map(x => h('button', { role: 'tab', tabindex: '-1', 'aria-selected': x === tab, onclick: () => setTab(x) }, t(x))));
   requestAnimationFrame(() => pill(bar));
-  return h('div', { cls: 'top' }, padLabel(), h('span', { cls: 'badge', 'data-badge': 'lb', 'aria-hidden': 'true' }), bar, h('span', { cls: 'badge', 'data-badge': 'rb', 'aria-hidden': 'true' }), V.clock && h('time', { cls: 'clock num' }, clockText()));
+  return h('div', { cls: 'top' }, padLabel(), h('div', { cls: 'mid' }, h('span', { cls: 'badge', 'data-badge': 'lb', 'aria-hidden': 'true' }), bar, h('span', { cls: 'badge', 'data-badge': 'rb', 'aria-hidden': 'true' })), V.clock && h('time', { cls: 'clock num' }, clockText()));
 };
 const pill = bar => { const on = $('[aria-selected=true]', bar), p = $('.pill', bar); if (on && p) { p.style.width = on.offsetWidth + 'px'; p.style.transform = `translateX(${on.offsetLeft}px)`; } };
 const clockText = () => new Intl.DateTimeFormat(language, { hour: '2-digit', minute: '2-digit' }).format(new Date());
@@ -516,10 +518,10 @@ const openMenu = async () => {
   const items = menuOf({ people: people.list.length, abilities }), waiting = await waitingOnline();
   const run = {
     switch: () => openProfiles(), edit: () => openSettings('account'), theme: () => openSettings('appearance'), add: () => openAdd(), sources: () => openSettings('home'),
-    refresh: async () => { await reload(true); refaces(); homeLayer.redraw(); S.play('success'); card(h('strong', {}, t('Library refresh')), t('%lld games in your library', L.total)); },
+    refresh: async () => { await reload(true); refaces(); homeLayer.redraw(); S.play('success'); card(h('strong', {}, t('Library refreshed')), t('%lld games in your library', L.total)); },
     fullscreen: () => setFullscreen(!full), hide: () => invoke('hide').catch(() => {}), restart: askRestart, quit: askQuit, activity: () => openActivity(), settings: () => openSettings(),
   };
-  const layer = { el: h('section', { cls: 'veil menu', role: 'dialog', 'aria-label': t('Menu') }), over: true, menu: true };
+  const layer = { el: h('section', { cls: 'veil menu', role: 'dialog', 'aria-label': t('Control center') }), over: true, menu: true };
   let open = null;
   const choose = id => { S.play('confirm'); layer.close(); run[id](); };
   const orb = (x, i) => h('button', { cls: 'orb', 'data-id': x.id, 'aria-label': t(x.title), 'aria-haspopup': x.entries ? 'menu' : null, 'aria-expanded': x.entries ? false : null, onclick: () => x.entries ? (open === i ? shut() : show(i)) : choose(x.id) },
@@ -572,7 +574,7 @@ const openActivity = async () => {
 /* ---------- Controls: the pad in hand, and what each button, key and gesture does ---------- */
 const controls = kind => {
   const names = padNames(kindNames(kind), kind === 'playstation' ? pad?.name : ''), hold = x => t('Hold: %@', x);
-  return [['up', '✚', t('Move')], ['a', 'a', t('Select')], ['b', 'b', t('Back')], ['x', 'x', t('Details')], ['y', 'y', t('Search')], ['l', 'lb', t('Previous')], ['r', 'rb', t('Next')], ['zl', 'lt', t('First')], ['zr', 'rt', t('Last')], ['l3', 'ls', t('Search')], ['r3', 'rs', t('Sort')], ['view', 'view', t('Change view'), hold(t('Search'))], ['menu', 'menu', t('Options'), hold(t('Menu'))], ['home', 'home', t('Menu'), hold(t('Settings'))]]
+  return [['up', '✚', t('Move')], ['a', 'a', t('Select')], ['b', 'b', t('Back')], ['x', 'x', t('Details')], ['y', 'y', t('Search')], ['l', 'lb', t('Previous')], ['r', 'rb', t('Next')], ['zl', 'lt', t('First')], ['zr', 'rt', t('Last')], ['l3', 'ls', t('Search')], ['r3', 'rs', t('Sort')], ['view', 'view', t('Change view'), hold(t('Search'))], ['menu', 'menu', t('Options'), hold(t('Control center'))], ['home', 'home', t('Control center'), hold(t('Settings'))]]
     .map(([button, name, title, held]) => ({ button, name: names[name] ?? name, title, hold: held }));
 };
 const controlsMap = kind => padMap({ kind, entries: controls(kind), live, label: t('What each button does'), quiet: root.hasAttribute('data-still') });
@@ -582,8 +584,8 @@ const openControls = () => {
   sheet(t('Controls'), layer => [
     h('div', { cls: 'rows' }, chooser(t('Controller'), KINDS.map(k => [k, KIND_NAMES[k]]), kind, k => { kind = k; layer.refresh(); }, { id: 'kind', ic: 'gamepad' })),
     controlsMap(kind),
-    h('div', { tabindex: '0', cls: 'about', 'data-id': 'keys' }, h('h2', {}, t('Keyboard')), facts([[t('Move'), t('Arrow keys')], [t('Select'), '⏎'], [t('Back'), 'Esc'], [t('Details'), 'X, Ctrl D'], [t('Options'), 'Ctrl O, M'], [t('Search'), 'Y, Ctrl F'], [t('Menu'), 'Ctrl K, H'], [t('Settings'), 'Ctrl ,'], [t('Add game'), 'Ctrl N'], [t('Play'), 'Ctrl ⏎'], [t('Change view'), 'V'], [t('Sort'), 'F3'], [t('Interface size'), 'Ctrl +, Ctrl −, Ctrl 0'], abilities.includes('fullscreen') && [t('Fullscreen'), 'F11']].filter(Boolean))),
-    h('div', { tabindex: '0', cls: 'about', 'data-id': 'mouse' }, h('h2', {}, t('Mouse and touch')), facts([[t('Choose a game'), t('Click, or touch it')], [t('Play'), t('Double-click, or touch it again')], [t('Options'), t('Right click, or keep a finger on it')], [t('Next or previous game'), t('Wheel, or swipe')]])),
+    h('div', { cls: 'boxes' }, h('div', { tabindex: '0', cls: 'box panel', 'data-id': 'keys' }, h('h2', {}, t('Keyboard')), facts([[t('Move'), t('Arrow keys')], [t('Select'), '⏎'], [t('Back'), 'Esc'], [t('Details'), 'X, Ctrl D'], [t('Options'), 'Ctrl O, M'], [t('Search'), 'Y, Ctrl F'], [t('Control center'), 'Ctrl K, H'], [t('Settings'), 'Ctrl ,'], [t('Add game'), 'Ctrl N'], [t('Play'), 'Ctrl ⏎'], [t('Change view'), 'V'], [t('Sort'), 'F3'], [t('Interface size'), 'Ctrl +, Ctrl −, Ctrl 0'], abilities.includes('fullscreen') && [t('Fullscreen'), 'F11']].filter(Boolean))),
+    h('div', { tabindex: '0', cls: 'box panel', 'data-id': 'mouse' }, h('h2', {}, t('Mouse and touch')), facts([[t('Choose a game'), t('Click, or touch it')], [t('Play'), t('Double-click, or touch it again')], [t('Options'), t('Right click, or keep a finger on it')], [t('Next or previous game'), t('Wheel, or swipe')]]))),
   ]);
 };
 
@@ -739,7 +741,7 @@ const dropped = async paths => {
 };
 
 /* ---------- Adding ---------- */
-const sheet = (title, draw, more = {}) => { const layer = { el: h('section'), page: true, ...more }; const body = () => h('div', { cls: 'sheet' }, h('h1', {}, title), h('div', { cls: 'list' }, draw(layer)), h('p', { cls: 'help', 'aria-live': 'polite' })); layer.refresh = () => again(layer, body); layer.redraw = layer.refresh; layer.el.append(body()); layer.hints = layer.hints || (() => [[['b', t('Back'), () => act('b')]], [aHint()]]); S.play('open'); return push(layer); };
+const sheet = (title, draw, more = {}) => { const layer = { el: h('section'), page: true, ...more }; const body = () => h('div', { cls: 'sheet' }, h('h1', {}, title), h('div', { cls: 'list' }, draw(layer)), h('p', { cls: 'help', 'aria-live': 'polite' })); layer.refresh = () => again(layer, body); layer.redraw = layer.refresh; layer.move = layer.move || ((dir, a) => a.step && (dir === 'left' || dir === 'right') ? (a.step(dir === 'left' ? -1 : 1), true) : false); layer.el.append(body()); layer.hints = layer.hints || (() => [[['b', t('Back'), () => act('b')]], [aHint()]]); S.play('open'); return push(layer); };
 const openAdd = async () => { await findSteam(); return sheet(t('Add game'), () => h('div', { cls: 'rows' }, addRows())); };
 const openProgram = async first => {
   if (typeof first !== 'string') first = '';
@@ -866,7 +868,7 @@ const start = async () => {
   addEventListener('focus', async () => { if (playing || layers.length > 1) return; const before = JSON.stringify(L.games.map(g => [g.id, g.state])); await reload(true); if (JSON.stringify(L.games.map(g => [g.id, g.state])) !== before) homeLayer.redraw(); });
   S.warm(); S.play('boot');
   if (hello.guide.open) await openGuide(hello.guide.page);
-  else if (hello.guide.news) { await ask('guide', { seen: true }); dialog(t('What’s new in Oort NX'), t('The + button (Menu, Options) now opens the options of the chosen game, and Home or + held opens the new menu: your library, Settings, full screen, Quit. With a mouse: the wheel, and a right click for the options.'), [[t('Open library'), () => {}], [t('Controls'), () => openControls()]]); }
+  else if (hello.guide.news) { await ask('guide', { seen: true }); dialog(t('What’s new in Oort NX'), t('The + button (Menu, Options) now opens the options of the chosen game, and Home or + held opens the control center: your library, Settings, full screen, Quit. With a mouse: the wheel, and a right click for the options.'), [[t('Open library'), () => {}], [t('Controls'), () => openControls()]]); }
   root.dataset.ready = '1'; root.dataset.version = version;
   window.oort = oort;
 };

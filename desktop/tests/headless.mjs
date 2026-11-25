@@ -2,7 +2,8 @@
    real oort-core, and a stand-in for the host. Nothing is shown and no key reaches the machine: keys, mouse and fingers
    are the browser's own. Node 22, no package.
    usage: headless.mjs <oort-core> <headless shell> <script.js> <pictures> run=<fixtures> key=value…
-   keys: data, tag, size (WxH), language, system (windows|linux), zoom (device pixels), touch (1) */
+   keys: data, tag, size (WxH), language, system (windows|linux), zoom (device pixels), touch (1), abilities, steam (an invented
+   Steam's folder) */
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
 import { createInterface } from 'node:readline';
@@ -17,7 +18,7 @@ const [width, height] = (o.size || '1440x900').split('x').map(Number), system = 
 mkdirSync(out, { recursive: true });
 
 // The core, with folders of its own.
-const home = path.join(temp, 'home'), data = o.data || path.join(temp, 'data');
+const home = o.run ? path.join(o.run, 'home') : path.join(temp, 'home'), data = o.data || path.join(temp, 'data');
 mkdirSync(home, { recursive: true });
 const core = spawn(coreFile, ['--data', data, '--resources', path.join(here, '../src-tauri'), '--system', system, '--home', home, '--documents', path.join(home, 'Documents'), '--local', path.join(home, 'local'), '--config', path.join(home, 'config'), '--languages', o.language || 'fr'], { env: { PATH: '/usr/bin:/bin', HOME: home, CFFIXED_USER_HOME: home }, stdio: ['pipe', 'pipe', 'inherit'] });
 let number = 0; const asked = new Map();
@@ -54,6 +55,7 @@ const server = createServer(async (q, r) => {
   } catch (e) { r.end(JSON.stringify({ error: String(e) })); }
 });
 await new Promise(r => server.listen(0, '127.0.0.1', r));
+if (o.steam) await ask('steam.where', { path: o.steam });
 const origin = `http://127.0.0.1:${server.address().port}`;
 
 const browser = spawn(shell, ['--remote-debugging-port=0', `--user-data-dir=${path.join(temp, 'browser')}`, '--no-first-run', '--mute-audio', '--disable-background-networking', '--autoplay-policy=no-user-gesture-required', '--hide-scrollbars', ...(o.touch ? ['--touch-events=enabled'] : []), 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
