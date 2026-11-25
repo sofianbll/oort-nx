@@ -1186,6 +1186,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/NXLibraryCoreTests/SpotlightRowGeometryTests.swift](../../Tests/NXLibraryCoreTests/SpotlightRowGeometryTests.swift) | Posto a schermo = camera più posto nella riga, tessere che restano ferme durante lo scorrimento, distanze costanti e quattro tessere di riserva ai bordi. |
 | [Tests/NXLibraryCoreTests/TileMotionTests.swift](../../Tests/NXLibraryCoreTests/TileMotionTests.swift) | Curve di bagliore, ring e riflesso; continuità a 60 Hz tra raffiche, pausa, verifica, riavvio e movimento ridotto. |
 | [Tests/ArcanePortingTests/AppLocaleTests.swift](../../Tests/ArcanePortingTests/AppLocaleTests.swift) | Preferenze, formati, traduzioni e nome Oort NX senza cambiare trofeo, argomenti o User-Agent. |
+| [Tests/PublicationChecks/test_check_guides.py](../../Tests/PublicationChecks/test_check_guides.py) | Le guide pubblicate passano; ogni regola rifiuta il suo errore. |
 | [Tests/PublicationChecks/test_localizations.py](../../Tests/PublicationChecks/test_localizations.py) | Rifiuto di cataloghi incompleti e bundle senza risorse. |
 | [Tests/PublicationChecks/test_vocabulary.py](../../Tests/PublicationChecks/test_vocabulary.py) | Prova le regole del vocabolario, il registro che può solo ridursi e le fonti lette per sistema. |
 | [DevelopmentProfileTests.swift](../../Tests/ArcanePortingTests/DevelopmentProfileTests.swift) | Identità separate, copie e filtro dell’essai 2, sorgente intatta, symlink, sovrascrittura, sessioni e totali. |
@@ -1304,6 +1305,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [scripts/inject_google_client.py](../../scripts/inject_google_client.py) | Scrive la coppia OAuth Google nel plist della build privata solo se completa, senza argomenti con credenziali. |
 | [scripts/install_built_app.swift](../../scripts/install_built_app.swift) | Ingresso CLI che riusa BuildOutputInstaller per firmare, verificare e installare Arcane dopo il packaging. |
 | [scripts/check_publication.py](../../scripts/check_publication.py) | Rifiuta contenuti personali o di gioco versionati e rclone nel bundle; verifica runtime, licenze, avvisi e sorgenti. |
+| [scripts/check_guides.py](../../scripts/check_guides.py) | Verifica le guide dei giocatori e la matrice: FR = EN, immagini, link, versioni, sistemi e prove; può scrivere il JSON del sito. |
 | [scripts/bundle-licences.json](../../scripts/bundle-licences.json) | Percorsi e SHA-256 dei testi e dei sorgenti verificati nel bundle di release. |
 | [scripts/build_dmg.sh](../../scripts/build_dmg.sh) | Confeziona `Oort NX.app` in un DMG compresso, con veste Oort o ripiego semplice; verifica il contenuto su un montaggio invisibile in sola lettura. |
 | [scripts/style_dmg.py](../../scripts/style_dmg.py) | Genera la trama e scrive layout Finder, TIFF Retina e icona alla radice del volume. |
@@ -1403,6 +1405,8 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 
 | File | Responsabilità |
 |---|---|
+| [docs/guides/README.md](../guides/README.md) | Formato delle guide per sistema in `docs/guides/<fr\|en>/<sistema>/`, immagini in `docs/guides/media/` e passi dopo una release. Le singole guide e immagini non hanno una riga propria: le verifica `check_guides.py`. |
+| [docs/features.json](../features.json) | Matrice delle funzioni per sistema, con versione e prova. |
 | [docs/media/README.md](../media/README.md) | Registra i media del README e la loro posizione. |
 | [docs/media/spotlight.webp](../media/spotlight.webp) | Presenta Spotlight e la libreria nell'apertura del README. |
 | [docs/media/game-details.webp](../media/game-details.webp) | Mostra dettagli, attività e informazioni di build di un gioco. |
