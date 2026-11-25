@@ -19,7 +19,7 @@ struct OortLetters: View {
             ForEach(Self.rows, id: \.self) { row in
                 HStack(spacing: SeleneTokens.Space.tight) {
                     ForEach(row, id: \.self) { key in
-                        Button { press(key) } label: { label(key).frame(maxWidth: .infinity, minHeight: 36) }
+                        Button { press(key) } label: { label(key).frame(maxWidth: .infinity, minHeight: SeleneTokens.Space.compactPillHeight) }
                             .buttonStyle(.plain)
                             .background { Color.clear.oortPanel(radius: Oort.key, focused: focused == key) }
                             .accessibilityAddTraits(focused == key ? .isSelected : [])
@@ -32,9 +32,9 @@ struct OortLetters: View {
         // Six rows stay on the screen with the games above them.
         .dynamicTypeSize(...DynamicTypeSize.xLarge)
         .padding(SeleneTokens.Space.medium)
-        .frame(maxWidth: 520)
+        .frame(maxWidth: SeleneTokens.Space.sidePanel)
         .frame(maxWidth: .infinity)
-        .background(Oort.night.opacity(0.94))
+        .background(Oort.night.opacity(SeleneTokens.Alpha.near))
     }
 
     @ViewBuilder private func label(_ key: Key) -> some View {

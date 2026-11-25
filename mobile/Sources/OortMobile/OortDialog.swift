@@ -34,7 +34,7 @@ struct OortDialog: View {
 
     var body: some View {
         ZStack {
-            Oort.night.opacity(0.78).ignoresSafeArea()
+            Oort.night.opacity(SeleneTokens.Effect.profileRemovalVeil).ignoresSafeArea()
                 .accessibilityHidden(true)
             GeometryReader { geometry in
                 ScrollViewReader { scroll in
@@ -51,7 +51,7 @@ struct OortDialog: View {
                             OortHints(nav: nav, hints: [(.activate, Oort.text("Select")), (.back, question.cancelLabel)])
                         }
                         .padding(SeleneTokens.Space.panel)
-                        .frame(maxWidth: 460)
+                        .frame(maxWidth: SeleneTokens.Space.metadataList)
                         .oortPanel(radius: SeleneTokens.Radius.dialog)
                         .onTapGesture {}
                         .padding(SeleneTokens.Space.panel)
@@ -113,6 +113,8 @@ struct OortReading: ViewModifier {
     @State private var offset: CGFloat = 0
     @State private var most: CGFloat = 0
     @State private var page: CGFloat = 0
+    /// The share of the screen one press moves by: the last lines read stay in sight.
+    private static let stride: CGFloat = 0.6
 
     private struct Place: Equatable { var offset, most, page: CGFloat }
 
@@ -129,7 +131,7 @@ struct OortReading: ViewModifier {
     private func handle(_ action: ShellInput.Action) -> Bool {
         switch action {
         case .up, .down:
-            let next = min(max(offset + (action == .down ? 1 : -1) * page * 0.6, 0), most)
+            let next = min(max(offset + (action == .down ? 1 : -1) * page * Self.stride, 0), most)
             guard abs(next - offset) > 1 else { nav.sounds.play(.deny); return true }
             offset = next
             nav.sounds.play(.move)

@@ -29,6 +29,8 @@ enum Oort {
                        center: .topTrailing, startRadius: 0, endRadius: 900)
     }
     static let tile = SeleneTokens.Radius.card
+    /// How far a key's word may shrink before it is cut.
+    static let fit: CGFloat = 0.7
     static let key = SeleneTokens.Radius.field
 
     /// The version the player reads: the app's number, with its stage.

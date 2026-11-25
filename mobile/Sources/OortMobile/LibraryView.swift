@@ -163,7 +163,7 @@ struct LibraryScreen: View {
             ForEach(Self.tabs, id: \.self) { id in
                 let on = favoritesOnly == (id == "#favorites")
                 Button { favoritesOnly = id == "#favorites"; nav.sounds.play(.select) } label: {
-                    Text(id == "#favorites" ? Oort.text("Favorites") : Oort.text("All games")).lineLimit(2).minimumScaleFactor(0.7).frame(maxWidth: .infinity)
+                    Text(id == "#favorites" ? Oort.text("Favorites") : Oort.text("All games")).lineLimit(2).minimumScaleFactor(Oort.fit).frame(maxWidth: .infinity)
                 }
                 .buttonStyle(OortKeyStyle(solid: on, focused: ring == id))
                 .accessibilityAddTraits(on ? .isSelected : [])
@@ -182,7 +182,7 @@ struct LibraryScreen: View {
                 // The sign stands over its word: three keys stay whole on the narrowest phone.
                 VStack(spacing: SeleneTokens.Space.seam) {
                     Image(systemName: symbol)
-                    Text(title).font(.caption.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.7)
+                    Text(title).font(.caption.weight(.semibold)).lineLimit(1).minimumScaleFactor(Oort.fit)
                 }
                 .padding(.vertical, SeleneTokens.Space.tight)
                 .frame(maxWidth: .infinity)

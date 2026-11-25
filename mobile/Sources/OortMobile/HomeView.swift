@@ -313,8 +313,8 @@ struct GameMenu: View {
     let nav: OortNav
     @AppStorage(OortFavorites.key) private var favorites = ""
     var body: some View {
-        Button(Oort.text("Options"), systemImage: "slider.horizontal.3") { nav.open(.options(id)) }
         Button(Oort.text("Game page"), systemImage: "info.circle") { nav.open(.game(id)) }
+        Button(Oort.text("Options"), systemImage: "slider.horizontal.3") { nav.open(.options(id)) }
         let marked = OortFavorites.ids(favorites).contains(id)
         Button(marked ? Oort.text("Remove from Favorites") : Oort.text("Add to Favorites"), systemImage: marked ? "heart.slash" : "heart") {
             favorites = OortFavorites.toggled(id, in: favorites)
@@ -387,7 +387,8 @@ struct OortTile: View {
         .overlay(alignment: .topLeading) {
             if OortFavorites.ids(favorites).contains(game.id) {
                 Image(systemName: "heart.fill").font(.caption.weight(.bold)).dynamicTypeSize(...DynamicTypeSize.xLarge).foregroundStyle(Oort.ink)
-                    .frame(width: 24, height: 24).background(Oort.night.opacity(0.85), in: .circle).padding(5)
+                    .frame(width: SeleneTokens.Space.large, height: SeleneTokens.Space.large)
+                    .background(Oort.night.opacity(SeleneTokens.Alpha.heavy), in: .circle).padding(SeleneTokens.Space.chipBottom)
                     .accessibilityLabel(Oort.text("Favorite"))
             }
         }
