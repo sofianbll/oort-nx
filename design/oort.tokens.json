@@ -1,6 +1,12 @@
 {
   "primitive": {
     "$type": "color",
+    "night": {"$value": {"colorSpace": "srgb", "components": [0.0196078431372549, 0.027450980392156862, 0.043137254901960784], "hex": "#05070B"}},
+    "orbit": {"$value": {"colorSpace": "srgb", "components": [0.047058823529411764, 0.058823529411764705, 0.08235294117647059], "hex": "#0C0F15"}},
+    "orbit-high": {"$value": {"colorSpace": "srgb", "components": [0.06666666666666667, 0.08235294117647059, 0.11372549019607843], "hex": "#11151D"}},
+    "frost": {"$value": {"colorSpace": "srgb", "components": [0.6862745098039216, 0.7647058823529411, 0.9019607843137255], "hex": "#AFC3E6"}},
+    "silver": {"$value": {"colorSpace": "srgb", "components": [0.8392156862745098, 0.8705882352941177, 0.9176470588235294], "hex": "#D6DEEA"}},
+    "mist": {"$value": {"colorSpace": "srgb", "components": [0.596078431372549, 0.6509803921568628, 0.7411764705882353], "hex": "#98A6BD"}},
     "white": {"$value": {"colorSpace": "srgb", "components": [1.0, 1.0, 1.0], "hex": "#FFFFFF"}},
     "black": {"$value": {"colorSpace": "srgb", "components": [0.0, 0.0, 0.0], "hex": "#000000"}},
     "carbon": {"$value": {"colorSpace": "srgb", "components": [0.043137254901960784, 0.043137254901960784, 0.043137254901960784], "hex": "#0B0B0B"}},
@@ -15,16 +21,16 @@
   },
   "color": {
     "focus": {"$type": "color", "$value": "{primitive.white}"},
-    "on-focus": {"$type": "color", "$value": "{primitive.black}"},
+    "on-focus": {"$type": "color", "$value": "{primitive.night}"},
     "ink": {"$type": "color", "$value": "{primitive.white}"},
-    "scrim": {"$type": "color", "$value": "{primitive.black}"},
-    "glass": {"$type": "color", "$value": "{primitive.carbon}"},
-    "glyph": {"$type": "color", "$value": "{primitive.peach}"},
-    "success": {"$type": "color", "$value": "{primitive.mint}"},
-    "light": {"$type": "color", "$value": "{primitive.ash}"},
-    "gradient-start": {"$type": "color", "$value": "{primitive.graphite}"},
+    "scrim": {"$type": "color", "$value": "{primitive.night}"},
+    "glass": {"$type": "color", "$value": "{primitive.orbit}"},
+    "glyph": {"$type": "color", "$value": "{primitive.frost}"},
+    "success": {"$type": "color", "$value": "{primitive.silver}"},
+    "light": {"$type": "color", "$value": "{primitive.mist}"},
+    "gradient-start": {"$type": "color", "$value": "{primitive.orbit-high}"},
     "position-start": {"$type": "number", "$value": 0.0},
-    "gradient-end": {"$type": "color", "$value": "{primitive.black}"},
+    "gradient-end": {"$type": "color", "$value": "{primitive.night}"},
     "position-end": {"$type": "number", "$value": 1.0}
   },
   "text": {

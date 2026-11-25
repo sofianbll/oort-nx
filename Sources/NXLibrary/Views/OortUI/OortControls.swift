@@ -133,11 +133,49 @@ struct OortSliderRow: View {
     var body: some View {
         SeleneRow(title, subtitle: subtitle) {
             HStack(spacing: canvas.u(SeleneTokens.Space.small)) {
-                Slider(value: $value, in: range, step: step)
+                OortSlider(value: $value, range: range, step: step)
                     .frame(width: canvas.u(SeleneTokens.Space.sliderMeasure))
                     .accessibilityLabel(L10n.text(title, context: localization))
                 SeleneValueChip(text: displayValue).accessibilityHidden(true)
             }
+        }
+    }
+}
+
+/// A track of dots that lights up to the knob. The system slider stays underneath for keyboard and VoiceOver.
+struct OortSlider: View {
+    @Environment(\.seleneCanvas) private var canvas
+    @Binding var value: Double
+    let range: ClosedRange<Double>
+    let step: Double
+
+    var body: some View {
+        GeometryReader { geometry in
+            let knob = canvas.u(SeleneTokens.Space.large)
+            let span = max(1, geometry.size.width - knob)
+            let fraction = range.upperBound > range.lowerBound ? (value - range.lowerBound) / (range.upperBound - range.lowerBound) : 0
+            ZStack(alignment: .leading) {
+                Capsule().fill(SeleneTheme.panelRaised).frame(height: canvas.u(SeleneTokens.Space.small))
+                OortDots(rise: 1, color: SeleneTheme.ink).frame(height: canvas.u(SeleneTokens.Effect.dotPitch))
+                    .mask(alignment: .leading) { Rectangle().frame(width: max(0, fraction * span + knob / 2)) }
+                Circle()
+                    .fill(LinearGradient(colors: [SeleneTheme.focus, SeleneTheme.focus.mix(with: SeleneTheme.glyph, by: SeleneTokens.Effect.surfaceLineStrong)],
+                                         startPoint: .top, endPoint: .bottom))
+                    .frame(width: knob, height: knob)
+                    .offset(x: fraction * span)
+            }
+            .frame(maxHeight: .infinity)
+            .contentShape(Rectangle())
+            .gesture(DragGesture(minimumDistance: 0).onChanged { drag in
+                let raw = range.lowerBound + min(1, max(0, (drag.location.x - knob / 2) / span)) * (range.upperBound - range.lowerBound)
+                value = min(range.upperBound, max(range.lowerBound, (raw / step).rounded() * step))
+            })
+        }
+        .frame(height: canvas.u(SeleneTokens.Space.section))
+        .accessibilityElement()
+        .accessibilityValue("\(Int(((value - range.lowerBound) / max(0.0001, range.upperBound - range.lowerBound) * 100).rounded())) %")
+        .accessibilityAdjustableAction { direction in
+            value = min(range.upperBound, max(range.lowerBound, value + (direction == .increment ? step : -step)))
         }
     }
 }

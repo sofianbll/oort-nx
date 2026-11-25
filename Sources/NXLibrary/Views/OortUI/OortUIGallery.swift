@@ -6,7 +6,7 @@ import NXLibraryCore
 struct OortUIGallery: View {
     enum Sheet: String, CaseIterable { case rows, states, dialogs, page, keys }
 
-    private static let palettes = ["oort", "catppuccin-latte", "vantablack", "orbite"]
+    private static let palettes = ["oort", "catppuccin-latte", "vantablack", "oort-vesper"]
     @State private var palette = SelenePaletteCatalog.defaultID
     @State private var french = true
     @State private var sheet = Sheet.rows

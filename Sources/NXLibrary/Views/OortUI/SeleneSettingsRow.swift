@@ -210,6 +210,8 @@ struct SeleneButtonRow: View {
 
 struct OortSegmented<Value: Hashable>: View {
     enum Preset { case compact, modeBar }
+    @Environment(\.seleneReduceMotion) private var reduceMotion
+    @Namespace private var pill
     @State private var hover = SeleneHoverFocus()
     @Binding var selection: Value
     let options: [(Value, String)]
@@ -233,10 +235,13 @@ struct OortSegmented<Value: Hashable>: View {
                                          : (preset == .compact ? SeleneTheme.ink.opacity(0.5) : SeleneTheme.ink75))
                         .padding(.horizontal, SeleneTokens.Space.small)
                         .padding(.vertical, SeleneTokens.Space.tight)
-                        .background(selected ? SeleneTheme.focus : Color.clear)
-                        .clipShape(Capsule())
+                        .background {
+                            if selected {
+                                Capsule().fill(SeleneTheme.focus).matchedGeometryEffect(id: "selection", in: pill)
+                            }
+                        }
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(OortPressStyle())
                 .padding(preset == .compact ? 0 : SeleneTokens.Space.seam)
                 .overlay(PillOutline(width: SeleneTokens.Space.focusStroke)
                     .fill(active ? SeleneTheme.focus : .clear, style: FillStyle(eoFill: true))
@@ -248,9 +253,10 @@ struct OortSegmented<Value: Hashable>: View {
             }
         }
         .padding(SeleneTokens.Space.segmentInset)
-        .background(SeleneTheme.ink.opacity(0.055))
-        .overlay(Capsule().strokeBorder(SeleneTheme.ink15, lineWidth: 1))
+        .background(Capsule().fill(SeleneTheme.panelRaised))
+        .overlay(PillOutline(width: SeleneTokens.Space.thinStroke).fill(SeleneTheme.lineStrong, style: FillStyle(eoFill: true)))
         .clipShape(Capsule())
+        .animation(Motion.focus(reduceMotion), value: selection)
     }
 }
 

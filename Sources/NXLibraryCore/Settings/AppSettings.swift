@@ -355,7 +355,7 @@ public struct AppSettings: Codable, Equatable {
                 viewButtonSwitches: Bool = true,
                 interfaceSounds: Bool = true,
                 soundVolume: Double = 0.6,
-                soundPackID: String = "selene",
+                soundPackID: String = "oort",
                 quietLaunch: Bool = true,
                 wallpaperID: String? = nil,
                 backgroundSizing: BackgroundSizing = .fill,

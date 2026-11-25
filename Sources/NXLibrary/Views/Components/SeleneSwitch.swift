@@ -6,24 +6,33 @@ struct SeleneSwitch: View {
     @Environment(\.seleneReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
     @Binding var isOn: Bool
+    private var reduced: Bool { reduceMotion || systemReduceMotion }
 
     var body: some View {
         Button {
             isOn.toggle()
             SoundEffectService.shared.play(.key)
         } label: {
+            // The track fills with the halftone; the knob carries the state.
             Capsule()
-                .fill(isOn ? SeleneTheme.focus : SeleneTheme.ink.opacity(0.13))
+                .fill(SeleneTheme.panelRaised)
+                .overlay {
+                    OortDots(rise: isOn ? 1 : 0, color: SeleneTheme.ink)
+                        .animation(Motion.dots(reduced), value: isOn)
+                        .clipShape(Capsule())
+                }
+                .overlay { PillOutline(width: max(1, canvas.u(SeleneTokens.Space.thinStroke))).fill(SeleneTheme.lineStrong, style: FillStyle(eoFill: true)) }
                 .frame(width: canvas.u(56), height: canvas.u(30))
                 .overlay(alignment: isOn ? .trailing : .leading) {
                     Circle()
-                        .fill(isOn ? SeleneTheme.onFocus : SeleneTheme.ink)
-                        .frame(width: canvas.u(22), height: canvas.u(22))
-                        .padding(canvas.u(SeleneTokens.Space.hairline))
+                        .fill(LinearGradient(colors: [SeleneTheme.focus, SeleneTheme.focus.mix(with: SeleneTheme.glyph, by: SeleneTokens.Effect.surfaceLineStrong)],
+                                             startPoint: .top, endPoint: .bottom))
+                        .frame(width: canvas.u(24), height: canvas.u(24))
+                        .padding(canvas.u(SeleneTokens.Space.segmentInset))
                 }
         }
-        .buttonStyle(.plain)
-        .animation(Motion.focus(reduceMotion || systemReduceMotion), value: isOn)
+        .buttonStyle(OortPressStyle())
+        .animation(Motion.press(reduced, down: false), value: isOn)
         .accessibilityValue(isOn ? L10n.text("On") : L10n.text("Off"))
         .accessibilityAddTraits(.isButton)
     }

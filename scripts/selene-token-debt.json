@@ -90,9 +90,6 @@
     "Sources/NXLibrary/Views/Components/SeleneStatsRow.swift": {
       "component:structSeleneStatsRow:View": 1
     },
-    "Sources/NXLibrary/Views/Components/SeleneSwitch.swift": {
-      "opacity:.opacity(0.13": 1
-    },
     "Sources/NXLibrary/Views/Components/SessionCard.swift": {
       "opacity:.opacity(0.12": 1,
       "opacity:.opacity(0.42": 1
@@ -230,7 +227,7 @@
       "spacing:canvas.u(4": 1
     },
     "Sources/NXLibrary/Views/OortUI/SeleneSettingsRow.swift": {
-      "lineWidth:1": 2,
+      "lineWidth:1": 1,
       "spacing:10": 2,
       "spacing:12": 1,
       "spacing:3": 1,

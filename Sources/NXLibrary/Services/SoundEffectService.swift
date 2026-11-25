@@ -44,6 +44,9 @@ final class SoundEffectService {
     private var pack: SoundPack?
     private var current: AVAudioPlayer?
     private var players: [SoundCue: AVAudioPlayer] = [:]
+    private var synthesised: [String: AVAudioPlayer] = [:]
+    private var step = 0
+    private var lastStep = Date.distantPast
     private var lastMove = Date.distantPast
     private let library = SoundPackLibrary()
     private let resolver = SoundCueResolver(
@@ -168,7 +171,19 @@ final class SoundEffectService {
             lastMove = now
         }
         let chosen: AVAudioPlayer?
-        if let pack {
+        if let synth = OortSynth(pack: selected) {
+            guard let event else { return }
+            let step = event == .move && !preview ? nextStep() : 0
+            let key = "\(selected).\(event.rawValue).\(step)"
+            if let player = synthesised[key] {
+                chosen = player
+            } else {
+                chosen = synth.wav(event, step: step).flatMap { try? AVAudioPlayer(data: $0) }
+                synthesised[key] = chosen
+            }
+            if event != .move, let current, current !== chosen { current.stop() }
+            current = chosen
+        } else if let pack {
             guard let event else { return }
             if selected == "oort", !preview, event == .deny { return }
             if let bytes = pack.audio(for: event), let player = try? AVAudioPlayer(data: bytes) {
@@ -193,6 +208,14 @@ final class SoundEffectService {
         chosen.volume = gain
         chosen.currentTime = 0
         chosen.play()
+    }
+
+    /// Notes climb while the focus keeps moving, and start again after a rest.
+    private func nextStep() -> Int {
+        let now = Date()
+        step = now.timeIntervalSince(lastStep) < 0.9 ? step + 1 : 0
+        lastStep = now
+        return step % OortSynth.rise.count
     }
 
     private func stopPlayers() {

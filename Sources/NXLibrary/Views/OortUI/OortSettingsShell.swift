@@ -73,6 +73,8 @@ struct OortSettingsSidebar<ID: Hashable, Header: View>: View {
     let onSelect: (ID) -> Void
     @ViewBuilder var header: () -> Header
     @Environment(\.seleneCanvas) private var canvas
+    @Environment(\.seleneReduceMotion) private var reduceMotion
+    @Namespace private var pill
 
     var body: some View {
         VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
@@ -99,7 +101,8 @@ struct OortSettingsSidebar<ID: Hashable, Header: View>: View {
             }
         }
         .padding(canvas.u(SeleneTokens.Space.compact))
-        .background(SeleneTheme.glass, in: RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card)))
+        .oortPanel(radius: canvas.u(SeleneTokens.Radius.card))
+        .animation(Motion.focus(reduceMotion), value: selected)
     }
 
     private func row(_ item: Item) -> some View {
@@ -117,11 +120,16 @@ struct OortSettingsSidebar<ID: Hashable, Header: View>: View {
             .foregroundStyle(lit ? SeleneTheme.onFocus : SeleneTheme.ink)
             .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
             .padding(.vertical, canvas.u(SeleneTokens.Space.tight))
-            .background((lit ? SeleneTheme.focus : (isSelected ? SeleneTheme.glass : .clear)),
-                        in: RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.badge)))
+            .background {
+                // One pill glides from row to row.
+                if isSelected {
+                    OortKeyFace(kind: lit ? .solid : .quiet, radius: canvas.u(SeleneTokens.Radius.badge), lit: lit, outlined: false)
+                        .matchedGeometryEffect(id: "selection", in: pill)
+                }
+            }
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(OortPressStyle())
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
@@ -143,7 +151,7 @@ struct OortSettingsLink: View {
             }
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(OortPressStyle())
         .containerValue(\.oortSettingsRow, true)
         .id("selene-row-\(id)")
     }

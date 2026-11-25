@@ -83,7 +83,13 @@ struct SeleneOptionRowSurface: ViewModifier {
             .padding(.leading, canvas.u(SeleneTokens.Space.rowLeading))
             .padding(.trailing, canvas.u(SeleneTokens.Space.large))
             .padding(.vertical, canvas.u(grouped ? SeleneTokens.Space.line : SeleneTokens.Space.control))
-            .background(grouped ? .clear : SeleneTheme.glass, in: RoundedRectangle(cornerRadius: radius, style: .continuous))
+            .background { if !grouped { Color.clear.oortPanel(radius: radius) } }
+            .background {
+                if focused {
+                    OortDots(rise: 1, color: SeleneTheme.glyph.opacity(SeleneTokens.Effect.surfaceLine))
+                        .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
+                }
+            }
             .seleneRowFocus(focused, radius: radius)
     }
 }

@@ -55,7 +55,7 @@ struct OortSettingsGroup<Content: View>: View {
         VStack(spacing: 0) {
             ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
                 if index > 0 {
-                    Rectangle().fill(SeleneTheme.ink15)
+                    Rectangle().fill(SeleneTheme.line)
                         .frame(height: max(SeleneTokens.Space.thinStroke, canvas.u(SeleneTokens.Space.thinStroke)))
                         .padding(.leading, canvas.u(SeleneTokens.Space.rowLeading))
                         .accessibilityHidden(true)
@@ -63,8 +63,7 @@ struct OortSettingsGroup<Content: View>: View {
                 row
             }
         }
-        .background(SeleneTheme.glassSolid,
-                    in: RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card), style: .continuous))
+        .oortPanel(radius: canvas.u(SeleneTokens.Radius.card))
     }
 }
 
@@ -81,8 +80,7 @@ struct OortSettingsHelp: View {
             .lineLimit(2)
             .frame(maxWidth: .infinity, minHeight: canvas.u(SeleneTokens.Space.actionPillHeight), alignment: .leading)
             .padding(.horizontal, canvas.u(SeleneTokens.Space.rowLeading))
-            .background(SeleneTheme.glassSolid,
-                        in: RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.card), style: .continuous))
+            .oortPanel(radius: canvas.u(SeleneTokens.Radius.card))
             .opacity(text == nil ? 0 : 1)
             .animation(Motion.focus(reduceMotion), value: text)
             .accessibilityHidden(true)
@@ -114,7 +112,10 @@ struct OortSidePanel<Content: View>: View {
         .padding(.bottom, canvas.u(SeleneTokens.Space.settingsHintsClearance))
         .frame(width: canvas.u(SeleneTokens.Space.sidePanel))
         .frame(maxHeight: .infinity, alignment: .top)
-        .background(SeleneTheme.glassSolid)
+        .background {
+            LinearGradient(colors: [SeleneTheme.panelHigh, SeleneTheme.panelLow], startPoint: .top, endPoint: .bottom)
+                .overlay(alignment: .leading) { Rectangle().fill(SeleneTheme.lineStrong).frame(width: SeleneTokens.Space.thinStroke) }
+        }
         .contentShape(Rectangle())
     }
 }

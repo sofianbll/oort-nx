@@ -132,16 +132,16 @@ public enum SeleneTokens {
 
     public enum Palette {
         public static let focus: UInt32 = 0xFFFFFF
-        public static let onFocus: UInt32 = 0x000000
+        public static let onFocus: UInt32 = 0x05070B
         public static let ink: UInt32 = 0xFFFFFF
-        public static let scrim: UInt32 = 0x000000
-        public static let glass: UInt32 = 0x0B0B0B
-        public static let glyph: UInt32 = 0xFFC799
-        public static let success: UInt32 = 0x99FFE4
-        public static let light: UInt32 = 0x8D8D8D
-        public static let gradientStart: UInt32 = 0x121212
+        public static let scrim: UInt32 = 0x05070B
+        public static let glass: UInt32 = 0x0C0F15
+        public static let glyph: UInt32 = 0xAFC3E6
+        public static let success: UInt32 = 0xD6DEEA
+        public static let light: UInt32 = 0x98A6BD
+        public static let gradientStart: UInt32 = 0x11151D
         public static let positionStart: Double = 0.0
-        public static let gradientEnd: UInt32 = 0x000000
+        public static let gradientEnd: UInt32 = 0x05070B
         public static let positionEnd: Double = 1.0
     }
 }

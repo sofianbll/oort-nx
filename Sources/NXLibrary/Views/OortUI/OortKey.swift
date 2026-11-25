@@ -132,3 +132,44 @@ struct OortPressed<Content: View>: View {
             .animation(Motion.press(reduceMotion, down: down), value: down)
     }
 }
+
+/// The one panel: a surface lit from above, a hairline, a soft shadow when it floats.
+struct OortPanelSurface: ViewModifier {
+    @Environment(\.seleneCanvas) private var canvas
+    let radius: CGFloat
+    var raised = false
+    var floats = false
+
+    func body(content: Content) -> some View {
+        let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
+        content
+            .background {
+                shape.fill(LinearGradient(colors: raised ? [SeleneTheme.panelRaised, SeleneTheme.panelHigh]
+                                          : [SeleneTheme.panelHigh, SeleneTheme.panelLow],
+                                          startPoint: .top, endPoint: .bottom))
+                    .overlay {
+                        OortRing(radius: radius, width: max(1, canvas.u(SeleneTokens.Space.thinStroke)))
+                            .fill(LinearGradient(colors: [SeleneTheme.lineStrong, SeleneTheme.line],
+                                                 startPoint: .top, endPoint: .bottom), style: FillStyle(eoFill: true))
+                    }
+                    .modifier(OortFloat(on: floats))
+            }
+    }
+}
+
+private struct OortFloat: ViewModifier {
+    @Environment(\.seleneCanvas) private var canvas
+    let on: Bool
+
+    func body(content: Content) -> some View {
+        content.shadow(color: SeleneTheme.scrim.opacity(on ? SeleneTokens.Effect.dialogShadowOpacity : 0),
+                       radius: on ? canvas.u(SeleneTokens.Effect.dialogShadowRadius) : 0,
+                       y: on ? canvas.u(SeleneTokens.Space.small) : 0)
+    }
+}
+
+extension View {
+    func oortPanel(radius: CGFloat, raised: Bool = false, floats: Bool = false) -> some View {
+        modifier(OortPanelSurface(radius: radius, raised: raised, floats: floats))
+    }
+}

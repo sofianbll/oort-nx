@@ -4,22 +4,22 @@
     "name": "Oort",
     "mode": "dark",
     "focus": 16777215,
-    "onFocus": 0,
+    "onFocus": 329483,
     "ink": 16777215,
-    "scrim": 0,
-    "glass": 723723,
-    "glyph": 16762777,
-    "success": 10092516,
-    "light": 9276813,
+    "scrim": 329483,
+    "glass": 790293,
+    "glyph": 11518950,
+    "success": 14081770,
+    "light": 10004157,
     "base": {
       "kind": "radial",
       "stops": [
         {
-          "color": 1184274,
+          "color": 1119517,
           "location": 0.0
         },
         {
-          "color": 0,
+          "color": 329483,
           "location": 1.0
         }
       ]
@@ -653,26 +653,26 @@
     "moonlight": "arcane"
   },
   {
-    "id": "orbite",
-    "name": "Orbite",
+    "id": "oort-vesper",
+    "name": "Oort Vesper",
     "mode": "dark",
     "focus": 16777215,
-    "onFocus": 329483,
+    "onFocus": 0,
     "ink": 16777215,
-    "scrim": 329483,
-    "glass": 790293,
-    "glyph": 11518950,
-    "success": 14081770,
-    "light": 10004157,
+    "scrim": 0,
+    "glass": 723723,
+    "glyph": 16762777,
+    "success": 10092516,
+    "light": 9276813,
     "base": {
       "kind": "radial",
       "stops": [
         {
-          "color": 1119517,
+          "color": 1184274,
           "location": 0.0
         },
         {
-          "color": 329483,
+          "color": 0,
           "location": 1.0
         }
       ]
