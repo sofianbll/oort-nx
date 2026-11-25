@@ -136,7 +136,7 @@ struct DownloadCloudArt<Art: View>: View {
                 .clipShape(RoundedRectangle(cornerRadius: style.cornerRadius, style: .continuous))
         }
             .drawingGroup()
-            .shadow(color: .black.opacity(0.55), radius: canvas.u(9))
+            .oortShadow(.tile)
             .overlayPreferenceValue(BoxArtTitleBounds.self) { anchor in
                 if let scene, capture?.before != true {
                     GeometryReader { proxy in

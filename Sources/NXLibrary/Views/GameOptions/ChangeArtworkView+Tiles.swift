@@ -41,7 +41,7 @@ extension ChangeArtworkView {
             .frame(width: size.width, alignment: .leading)
         }
         .scaleEffect(focused ? 1.04 : 1)
-        .animation(reduceMotion ? nil : .easeOut(duration: 0.15), value: focused)
+        .animation(reduceMotion ? nil : SeleneTheme.quick, value: focused)
         .contentShape(Rectangle())
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(caption(tile).title), \(caption(tile).detail)")

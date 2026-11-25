@@ -85,7 +85,7 @@ struct AddGameStepThreeView: View {
                 .portingLook(viewModel.portingTileLook(game), cornerRadius: canvas.u(SeleneTokens.Radius.modal))
                 .frame(width: side, height: side)
                 .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.modal), style: .continuous))
-                .shadow(color: .black.opacity(0.5), radius: canvas.u(12))
+                .oortShadow(.tile)
                 Text(game.name)
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink)

@@ -324,7 +324,7 @@ struct SpotlightRowView: View {
         titleTask = Task { @MainActor in
             if delay > 0 { try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000)) }
             guard !Task.isCancelled else { return }
-            withAnimation(.easeOut(duration: 0.2)) { titleVisible = true }
+            withAnimation(SeleneTheme.arrival) { titleVisible = true }
         }
     }
 
@@ -417,7 +417,7 @@ struct ModsCardCover: View {
             }
             MaterialIconView(.puzzle, size: 60)
                 .foregroundColor(SeleneTheme.ink)
-                .shadow(color: .black.opacity(0.45), radius: canvas.u(8))
+                .oortShadow(.text)
         }
         .frame(width: side, height: side)
         .animation(.easeOut(duration: 0.4), value: urls)

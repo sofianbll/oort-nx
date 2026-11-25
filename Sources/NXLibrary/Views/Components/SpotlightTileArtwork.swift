@@ -82,7 +82,7 @@ struct SpotlightTileArtwork: View {
             let loaded = await loadIcon()
             guard !Task.isCancelled, let loaded else { return }
             TileArtMemo.store(loaded, for: key)
-            withAnimation(.easeInOut(duration: 0.2)) { better = loaded }
+            withAnimation(SeleneTheme.arrival) { better = loaded }
         }
     }
 

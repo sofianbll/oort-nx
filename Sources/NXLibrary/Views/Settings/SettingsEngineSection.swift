@@ -28,7 +28,7 @@ struct SettingsEngineSection: View {
                 HStack(spacing: 10) {
                     Text(enginePath.isEmpty ? L10n.text("Not selected") : enginePath)
                         .seleneFont(.text, .medium)
-                        .foregroundColor(SeleneTheme.ink.opacity(0.62))
+                        .foregroundColor(SeleneTheme.ink75)
                         .lineLimit(1)
                         .truncationMode(.middle)
                         .frame(maxWidth: 300, alignment: .trailing)
@@ -495,7 +495,7 @@ struct SettingsEngineSection: View {
                 .frame(width: 13)
             Text(title)
                 .seleneFont(.text, .semibold)
-                .foregroundColor(SeleneTheme.ink.opacity(0.9))
+                .foregroundColor(SeleneTheme.ink)
                 .frame(width: 116, alignment: .leading)
             Text(detail)
                 .seleneFont(.badge, .regular, design: .monospaced)

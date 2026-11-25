@@ -22,11 +22,11 @@ struct GameLogoArea: View {
             if let logo {
                 Image(nsImage: logo).resizable().interpolation(.high).aspectRatio(contentMode: .fit)
                     .frame(width: canvas.u(700), height: canvas.u(240), alignment: .bottomLeading)
-                    .shadow(color: .black.opacity(0.35), radius: canvas.u(8))
+                    .oortShadow(.text)
                     .transition(.opacity)
             } else {
                 Text(title).seleneFont(.hero).foregroundColor(SeleneTheme.ink).lineLimit(1).truncationMode(.tail)
-                    .shadow(color: .black.opacity(0.45), radius: canvas.u(6))
+                    .oortShadow(.text)
             }
         }.frame(width: canvas.u(900), height: canvas.u(195), alignment: .bottomLeading)
     }
@@ -35,11 +35,11 @@ struct GameLogoArea: View {
             if let logo {
                 Image(nsImage: logo).resizable().interpolation(.high).aspectRatio(contentMode: .fit)
                     .frame(maxWidth: canvas.u(700), maxHeight: canvas.u(240), alignment: .bottomLeading)
-                    .shadow(color: .black.opacity(0.35), radius: canvas.u(8))
+                    .oortShadow(.text)
             } else {
                 Text(title).seleneFont(.hero).foregroundColor(SeleneTheme.ink).multilineTextAlignment(.leading)
                     .lineLimit(3).frame(maxHeight: canvas.u(220))
-                    .shadow(color: .black.opacity(0.45), radius: canvas.u(6))
+                    .oortShadow(.text)
             }
         }.frame(maxWidth: .infinity, alignment: .leading)
             .frame(height: canvas.u(250), alignment: .bottomLeading)

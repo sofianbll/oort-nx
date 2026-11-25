@@ -214,7 +214,7 @@ struct ModStoreFeatured<Chip: View>: View {
                 GameBananaImageView(url: art, maxPixelSize: 700)
                     .frame(width: canvas.u(620), height: canvas.u(349))
                     .clipShape(RoundedRectangle(cornerRadius: canvas.u(SeleneTokens.Radius.modal), style: .continuous))
-                    .shadow(color: .black.opacity(0.45), radius: canvas.u(18), y: canvas.u(8))
+                    .oortShadow(.floating)
             }
             .padding(.horizontal, canvas.u(56))
             dots

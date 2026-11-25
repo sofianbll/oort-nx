@@ -69,6 +69,8 @@ enum SeleneTheme {
     static func cubicOut(_ duration: Double) -> Animation {
         .timingCurve(0.215, 0.61, 0.355, 1, duration: duration)
     }
+    /// An image or a message that has just arrived.
+    static let arrival = Animation.easeOut(duration: SeleneTokens.Motion.transfer)
     static let art = Animation.easeOut(duration: 0.42)
     static let menu = Animation.spring(response: 0.26, dampingFraction: 0.88)
     static let expand = Animation.spring(response: 0.42, dampingFraction: 0.86)

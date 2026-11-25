@@ -133,7 +133,7 @@ struct LaunchScreenView: View {
         guard !leaving, !blackout else { return }
         withAnimation(.easeIn(duration: 0.3)) { blackout = true }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            withAnimation(.easeOut(duration: 0.3)) { leaving = true }
+            withAnimation(SeleneTheme.arrival) { leaving = true }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 if viewModel.launchOverlay?.game.id == game.id {
                     viewModel.dismissLaunchOverlay()
@@ -148,7 +148,7 @@ struct LaunchScreenView: View {
         if hero == nil, showsArt {
             let loaded = await GameArtLoader.shared.hero(
                 for: game, metadata: metadata, artwork: artwork, personalizations: viewModel.personalizations)
-            withAnimation(.easeOut(duration: 0.3)) { hero = loaded }
+            withAnimation(SeleneTheme.arrival) { hero = loaded }
         }
         if logo == nil, settings.launchStyle != .minimal, settings.launchStyle != .artOnly {
             let loaded = await GameArtLoader.shared.logo(

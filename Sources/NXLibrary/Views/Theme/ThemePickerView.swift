@@ -146,7 +146,7 @@ struct ThemePickerView: View {
     func header(_ title: String, _ sub: String) -> some View {
         VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
             Text(title).seleneFont(.screen).foregroundColor(SeleneTheme.ink)
-            Text(sub).seleneFont(.row).foregroundColor(SeleneTheme.ink.opacity(0.7))
+            Text(sub).seleneFont(.row).foregroundColor(SeleneTheme.ink75)
         }
         .multilineTextAlignment(.center)
         .padding(.top, canvas.u(110))
@@ -224,7 +224,7 @@ struct WallpaperThumb: View {
                 }
                 guard let decoded, !Task.isCancelled else { return }
                 Self.cache.setObject(decoded, forKey: url as NSURL)
-                withAnimation(.easeOut(duration: 0.25)) { image = decoded }
+                withAnimation(SeleneTheme.arrival) { image = decoded }
             }
     }
 }

@@ -56,7 +56,7 @@ struct SeleneStatsRow: View {
             }
         }
         .fixedSize()
-        .shadow(color: .black.opacity(0.45), radius: canvas.u(4))
+        .oortShadow(.text)
     }
 
     private func stat(_ item: SeleneStat) -> some View {

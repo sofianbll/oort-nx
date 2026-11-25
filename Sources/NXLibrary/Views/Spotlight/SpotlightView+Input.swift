@@ -637,7 +637,7 @@ extension SpotlightView {
             still.disablesAnimations = true
             withTransaction(still) { scroll = clamped }
         } else {
-            withAnimation(.easeOut(duration: 0.25)) { scroll = clamped }
+            withAnimation(SeleneTheme.arrival) { scroll = clamped }
         }
         setPageFades(onRow: false,
                      deep: clamped < (offset(for: .strip) + offset(for: .actions)) / 2)

@@ -132,7 +132,7 @@ struct OnlineBrowsePanel: View {
             }
             Text(status)
                 .seleneFont(.text, .semibold)
-                .foregroundColor(SeleneTheme.ink.opacity(0.55))
+                .foregroundColor(SeleneTheme.ink75)
                 .padding(.leading, canvas.u(SeleneTokens.Space.small))
                 .padding(.bottom, canvas.u(SeleneTokens.Space.small))
             grid
@@ -261,7 +261,7 @@ private struct OnlineTile: View {
             if downloaded {
                 MaterialIconView(.check, size: 20)
                     .foregroundColor(.white)
-                    .shadow(color: .black.opacity(0.6), radius: canvas.u(4))
+                    .oortShadow(.text)
                     .padding(canvas.u(SeleneTokens.Space.compact))
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }

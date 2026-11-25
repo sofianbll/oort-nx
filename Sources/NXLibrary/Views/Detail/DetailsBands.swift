@@ -90,9 +90,9 @@ struct DetailsMoreBand: View {
                 .frame(width: w + canvas.u(14), height: h + canvas.u(14))
         }
         .frame(width: w, height: h)
-        .shadow(color: .black.opacity(0.55), radius: canvas.u(9))
+        .oortShadow(.tile)
         .scaleEffect(focused ? 1.05 : 1)
-        .animation(reduceMotion ? nil : .easeOut(duration: 0.15), value: focused)
+        .animation(reduceMotion ? nil : SeleneTheme.quick, value: focused)
         .contentShape(Rectangle())
         .onTapGesture(count: 2) { onOpen(index) }
         .simultaneousGesture(TapGesture().onEnded { onFocus(index) })
@@ -465,7 +465,7 @@ struct GameBananaImageView: View {
                   let decoded = await GameArtLoader.decode(at: file, maxPixelSize: maxPixelSize),
                   !Task.isCancelled else { return }
             Self.store(decoded, for: key)
-            withAnimation(.easeOut(duration: 0.25)) { image = decoded }
+            withAnimation(SeleneTheme.arrival) { image = decoded }
         }
     }
 }

@@ -49,7 +49,7 @@ struct SpotlightCardInfoView: View {
             }
         }
         .frame(width: canvas.u(900), alignment: .leading)
-        .shadow(color: .black.opacity(0.45), radius: canvas.u(6))
+        .oortShadow(.text)
     }
 
     private var headline: String {
@@ -202,7 +202,7 @@ struct SpotlightCardInfoView: View {
                 .strokeBorder(SeleneTheme.focus, lineWidth: canvas.u(SeleneTokens.Space.strongStroke))
                 .opacity(focused ? 1 : 0))
             .scaleEffect(focused && !reduceMotion ? 1.06 : 1)
-            .animation(reduceMotion ? nil : .easeOut(duration: 0.15), value: focused)
+            .animation(reduceMotion ? nil : SeleneTheme.quick, value: focused)
     }
 
     private func stat(_ label: String, _ value: String) -> some View {

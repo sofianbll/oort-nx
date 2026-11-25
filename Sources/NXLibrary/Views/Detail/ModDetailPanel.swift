@@ -96,8 +96,8 @@ struct ModDetailPanel: View {
                     edge(fade, toward: .bottom, shown: !state.atBottom)
                 }
                 .padding(.horizontal, canvas.u(-12))
-                .animation(.easeOut(duration: 0.2), value: state.atTop)
-                .animation(.easeOut(duration: 0.2), value: state.atBottom)
+                .animation(SeleneTheme.arrival, value: state.atTop)
+                .animation(SeleneTheme.arrival, value: state.atBottom)
             )
             .overlay(alignment: .topTrailing) { indicator(window: window, state: state) }
             .onPreferenceChange(ContentHeightKey.self) { height in
@@ -251,7 +251,7 @@ struct ModDetailPanel: View {
             .frame(width: canvas.u(4), height: bar)
             .offset(x: canvas.u(16), y: state.reach > 0 ? travel * state.offset / state.reach : 0)
             .opacity(state.canScroll ? 1 : 0)
-            .animation(.easeOut(duration: 0.2), value: state.canScroll)
+            .animation(SeleneTheme.arrival, value: state.canScroll)
             .allowsHitTesting(false)
     }
 

@@ -181,6 +181,6 @@ final class SteamLogoCache: ObservableObject {
         let image = await GameArtLoader.decodeLogo(at: url)
         guard !Task.isCancelled, let image else { return }
         logos.setObject(image, forKey: key as NSString)
-        withAnimation(.easeOut(duration: 0.3)) { tick += 1 }
+        withAnimation(SeleneTheme.arrival) { tick += 1 }
     }
 }

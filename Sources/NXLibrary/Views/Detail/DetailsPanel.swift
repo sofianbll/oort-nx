@@ -172,7 +172,7 @@ struct DetailsPanel: View {
             label(symbol: fact.symbol, text: fact.label)
             Text(fact.value)
                 .seleneFont(.text, .semibold)
-                .foregroundColor(SeleneTheme.ink.opacity(0.92))
+                .foregroundColor(SeleneTheme.ink)
                 .lineLimit(fact.kind == .engine ? nil : 1)
                 .truncationMode(.tail)
             Spacer(minLength: 0)
@@ -185,7 +185,7 @@ struct DetailsPanel: View {
         HStack(alignment: .firstTextBaseline, spacing: canvas.u(SeleneTokens.Space.small)) {
             Image(systemName: symbol)
                 .font(.system(size: canvas.u(14), weight: .regular))
-                .foregroundColor(SeleneTheme.ink.opacity(0.55))
+                .foregroundColor(SeleneTheme.ink75)
                 .frame(width: canvas.u(18))
             Text(text)
                 .seleneFont(.text)

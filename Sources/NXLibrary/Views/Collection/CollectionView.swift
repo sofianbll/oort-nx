@@ -267,7 +267,7 @@ struct CollectionView: View {
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: canvas.u(1080))
-                .shadow(color: .black.opacity(0.45), radius: canvas.u(6))
+                .oortShadow(.text)
         } else if viewModel.isScanningLibrary {
             EmptyView()
         } else if profileCard != nil {
@@ -278,7 +278,7 @@ struct CollectionView: View {
             Text(L10n.format("No games in %@", [L10n.text(filter.rawValue)]))
                 .seleneFont(.screen)
                 .foregroundColor(SeleneTheme.ink)
-                .shadow(color: .black.opacity(0.45), radius: canvas.u(6))
+                .oortShadow(.text)
                 .allowsHitTesting(false)
         } else {
             VStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
@@ -293,7 +293,7 @@ struct CollectionView: View {
                 }
                 .padding(.top, canvas.u(SeleneTokens.Space.control))
             }
-            .shadow(color: .black.opacity(0.45), radius: canvas.u(6))
+            .oortShadow(.text)
         }
     }
 

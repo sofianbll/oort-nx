@@ -106,7 +106,7 @@ struct DetailsTopBlock: View {
                 .padding(.top, canvas.u(SeleneTokens.Space.control))
         }
         .frame(width: canvas.u(1060), alignment: .topLeading)
-        .shadow(color: .black.opacity(0.45), radius: canvas.u(4))
+        .oortShadow(.text)
     }
 
     // MARK: - Logo
@@ -119,7 +119,7 @@ struct DetailsTopBlock: View {
                     .interpolation(.high)
                     .aspectRatio(contentMode: .fit)
                     .frame(maxWidth: canvas.u(760), maxHeight: canvas.u(200), alignment: .bottomLeading)
-                    .shadow(color: .black.opacity(0.35), radius: canvas.u(8))
+                    .oortShadow(.text)
             } else {
                 Text(game.name)
                     .seleneFont(.hero)

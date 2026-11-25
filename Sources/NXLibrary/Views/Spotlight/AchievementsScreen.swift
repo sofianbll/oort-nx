@@ -142,7 +142,7 @@ struct AchievementsScreen: View {
                         .lineLimit(1)
                 }
             }
-            .shadow(color: .black.opacity(0.4), radius: canvas.u(6))
+            .oortShadow(.text)
             .accessibilityLabel(game.name)
 
             if game.steamGame == nil {
@@ -447,7 +447,7 @@ private struct AchievementsScreenRow: View {
                         .foregroundColor(SeleneTheme.ink75)
                 } else {
                     Text(L10n.text("Not unlocked"))
-                        .foregroundColor(SeleneTheme.ink.opacity(0.45))
+                        .foregroundColor(SeleneTheme.ink75)
                 }
             }
             .seleneFont(.text, .semibold)
@@ -557,7 +557,7 @@ private struct AchievementsList: View {
         VStack(spacing: 0) {
             LinearGradient(colors: [.black.opacity(atTop ? 1 : 0), .black], startPoint: .top, endPoint: .bottom)
                 .frame(height: canvas.u(Screen.topFade))
-                .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: atTop)
+                .animation(reduceMotion ? nil : SeleneTheme.arrival, value: atTop)
             Color.black
             LinearGradient(colors: [.black, .black.opacity(0)], startPoint: .top, endPoint: .bottom)
                 .frame(height: canvas.u(Screen.bottomFade))

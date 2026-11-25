@@ -65,7 +65,7 @@ struct SpotlightGenreChips: View {
             }
         }
         .padding(.leading, canvas.u(SeleneTokens.Space.seam))
-        .shadow(color: .black.opacity(0.45), radius: canvas.u(4))
+        .oortShadow(.text)
     }
 }
 
@@ -116,7 +116,7 @@ struct SpotlightDescription: View {
             }
         }
         .frame(width: canvas.u(Self.width), alignment: .leading)
-        .shadow(color: .black.opacity(0.45), radius: canvas.u(4))
+        .oortShadow(.text)
     }
 
     /// The cut that reaches at least `columnHeight` (the column beside it, title
@@ -148,7 +148,7 @@ struct SpotlightRightHint: View {
         .stroke(SeleneTheme.ink.opacity(0.45),
                 style: StrokeStyle(lineWidth: max(1, canvas.u(2)), lineCap: .round, lineJoin: .round))
         .frame(width: canvas.u(7), height: canvas.u(22))
-        .shadow(color: .black.opacity(0.4), radius: canvas.u(3))
+        .oortShadow(.text)
         .accessibilityHidden(true)
     }
 }
@@ -166,7 +166,7 @@ struct SpotlightUpHint: View {
         .stroke(SeleneTheme.ink.opacity(0.45),
                 style: StrokeStyle(lineWidth: max(1, canvas.u(2)), lineCap: .round, lineJoin: .round))
         .frame(width: canvas.u(28), height: canvas.u(9))
-        .shadow(color: .black.opacity(0.4), radius: canvas.u(3))
+        .oortShadow(.text)
         .accessibilityHidden(true)
     }
 }

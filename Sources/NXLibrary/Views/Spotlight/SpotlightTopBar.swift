@@ -75,7 +75,7 @@ struct SpotlightTopBar: View {
         let on = item == filter
         return Text(L10n.text(item.rawValue))
             .seleneFont(.text, on ? .semibold : .regular)
-            .foregroundColor(on ? SeleneTheme.onFocus : SeleneTheme.ink.opacity(0.7))
+            .foregroundColor(on ? SeleneTheme.onFocus : SeleneTheme.ink75)
             .padding(EdgeInsets(top: canvas.u(5), leading: canvas.u(18),
                                 bottom: canvas.u(7), trailing: canvas.u(20)))
             .background(
