@@ -197,6 +197,9 @@ import ArcanePorting
         L10n.setContext(locale)
         let root = AppData.supportRoot.appendingPathComponent("settings-confirmation-probe", isDirectory: true)
         let settings = AppSettingsStore(fileURL: root.appendingPathComponent("settings.json"))
+        settings.settings.interfaceSounds = false
+        settings.settings.soundVolume = 0
+        SoundEffectService.shared.bind(to: settings)
         func makeModel() -> AppViewModel {
             AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: root)))
         }
@@ -328,7 +331,7 @@ import ArcanePorting
         precondition(disconnects == 1 && model.preference.remote == nil && cloudWrites == 7)
         precondition(kept == [false] && model.keptConnection == nil)
 
-        // The client is there: what is erased is written, and keeping the ID and secret comes first.
+        // The client is there: Erase has its own role and keeping the ID and secret takes initial focus.
         func section() -> SettingsCloudLibrarySection {
             SettingsCloudLibrarySection(viewModel: vm, model: model, settings: SettingsEditor(settings),
                 advanced: .constant(true), onEdit: {}, onEditLibrary: {}, onEditSources: {}, onActions: { _ in })
@@ -338,11 +341,17 @@ import ArcanePorting
         model.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: nil)
         section().confirmDisconnect()
         let question = vm.settingsNotice!
-        precondition(question.choices == ["Cancel", "Erase everything", "Disconnect and keep the ID and secret"]
+        precondition(question.choices == ["Erase everything", "Cancel", "Disconnect and keep the ID and secret"]
+                     && question.role(at: 0) == .destructive && question.cancelIndex == 1
                      && vm.settingsNoticeFocus == 2)
         precondition(question.choiceDetails["Disconnect and keep the ID and secret"]?.contains("Seule la connexion Google") == true
                      && question.choiceDetails["Erase everything"]?.contains("l’ID et le secret") == true)
         try render("cloud-disconnect-choice", input.settingsNoticeOverlay(question))
+        input.settingsNoticeInput(.navigateLeft)
+        precondition(vm.settingsNoticeFocus == question.cancelIndex)
+        input.settingsNoticeInput(.confirm)
+        precondition(kept == [false] && model.preference.remote == "fixture")
+        section().confirmDisconnect()
         input.settingsNoticeInput(.cancel)
         precondition(kept == [false] && model.preference.remote == "fixture")
         section().confirmDisconnect()
@@ -358,6 +367,8 @@ import ArcanePorting
         model.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: nil)
         section().confirmDisconnect()
         input.settingsNoticeInput(.navigateLeft)
+        input.settingsNoticeInput(.navigateUp)
+        precondition(vm.settingsNoticeFocus == 0)
         input.settingsNoticeInput(.confirm)
         await settle()
         precondition(kept.last == false && model.preference.remote == nil && model.keptConnection == nil)
@@ -577,6 +588,13 @@ import ArcanePorting
             && settings.settings.nextendoClientID == "fixture-nextendo")
         withExtendedLifetime((cloudObserver, engineObserver, overrideObserver, switchObserver, networkObserver)) {}
         print("Settings: independent cloud and engine actions; multiplayer writes only once, at Save.")
+        if ProcessInfo.processInfo.environment["OORT_CAPTURE_ATTENTIONS"] == "1" {
+            let attentionsRoot = root.appendingPathComponent("attentions")
+            let attentions = AppViewModel(settingsStore: settings, catalog: .init(),
+                repository: .init(store: .init(directory: attentionsRoot)))
+            try await checkNoticeHold()
+            try checkAttentions(vm: attentions, settings: settings, output: output, locale: locale)
+        }
     }
 
     @MainActor private static func checkDraft(vm: AppViewModel, settings: AppSettingsStore,

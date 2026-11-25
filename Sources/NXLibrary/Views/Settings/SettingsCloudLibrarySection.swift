@@ -519,10 +519,10 @@ struct SettingsCloudLibrarySection: View {
         viewModel.showSettingsNotice(title: text("Disconnect cloud service?"),
             message: "\(name)\n\n\(text("Cloud files stay where they are."))",
             actionTitle: "Disconnect and keep the ID and secret", cancelTitle: "Cancel",
-            alternatives: [("Erase everything", erase)], primaryFirst: true, cancelFirst: true, choiceDetails: [
+            alternatives: [("Erase everything", erase)], primaryFirst: true, choiceDetails: [
                 "Disconnect and keep the ID and secret": text("Only the Google sign-in is erased. You reconnect without entering them again."),
                 "Erase everything": text("The Google sign-in, the ID and the secret are erased. You enter them again to reconnect."),
-            ]) { disconnect(name, keepingClient: true) }
+            ], destructiveTitle: "Erase everything") { disconnect(name, keepingClient: true) }
     }
 
     private func disconnect(_ name: String, keepingClient: Bool) {

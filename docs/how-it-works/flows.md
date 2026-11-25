@@ -48,7 +48,7 @@ Punti fissi:
 - La cartella Game files ricordata resta una preferenza del selettore: l'avvio non ne enumera i sorgenti.
 - La shell riceve gli stessi comandi dal profilo esteso GameController o, in sua assenza, da un pad HID Nintendo. Un pad dichiarato compatibile da macOS attende fino a due secondi prima del ripiego a HID.
 - Menu e dialoghi nativi hanno precedenza sul routing della shell: `nativeDialogOwnsInput` ferma i comandi del controller anche se un benvenuto, Setup o dialogo dell'app è già aperto sotto.
-- Nelle conferme Selene, sinistra raggiunge l'azione principale, destra quella di annullamento. A attiva la scelta a fuoco e B annulla; l'aiuto della pagina coperta lascia il posto a quello del dialogo.
+- Nelle conferme Selene classiche, sinistra raggiunge l'azione principale, destra quella di annullamento. La disconnessione Drive con credenziali salvate usa `OortActionBar`: Annulla sotto a sinistra, l'azione principale sotto a destra e l'azione distruttiva da sola sopra. A attiva la scelta a fuoco e B annulla; l'aiuto della pagina coperta lascia il posto a quello del dialogo.
 
 ## 2. Dal disco alla libreria
 

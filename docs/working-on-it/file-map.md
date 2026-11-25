@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 25 novembre 2026. Il repository versiona **1588 file**, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le singole guide e immagini di `docs/guides/` non hanno una riga propria (le verifica `check_guides.py`); altri 73 file, i pacchetti di suoni e alcuni sorgenti e test recenti, aspettano ancora la loro. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 25 novembre 2026. Il repository versiona **1591 file**, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le singole guide e immagini di `docs/guides/` non hanno una riga propria (le verifica `check_guides.py`); altri 73 file, i pacchetti di suoni e alcuni sorgenti e test recenti, aspettano ancora la loro. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -911,6 +911,8 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/NXLibraryCoreTests/PaletteContrastTests.swift](../../Tests/NXLibraryCoreTests/PaletteContrastTests.swift) | Contrasto di testo, focus e simboli in ogni palette. |
 | [Sources/NXLibrary/Views/OortUI/OortUIGallery.swift](../../Sources/NXLibrary/Views/OortUI/OortUIGallery.swift) | Esempi sintetici Debug delle primitive OortUI e catture senza finestre su tre palette. |
 | [Sources/NXLibrary/Views/OortUI/SeleneConfirmDialog.swift](../../Sources/NXLibrary/Views/OortUI/SeleneConfirmDialog.swift) | Card e aiuto condivisi, conferma a sinistra e annullamento a destra, scelte multiple con testo a larghezza definita e note, SeleneSuccessNotice. |
+| [Sources/NXLibrary/Views/OortUI/OortActionBar.swift](../../Sources/NXLibrary/Views/OortUI/OortActionBar.swift) | Barra e domanda con Annulla a sinistra, azione principale a destra e azione distruttiva su una riga separata. |
+| [Sources/NXLibraryCore/Selene/ActionBarOrder.swift](../../Sources/NXLibraryCore/Selene/ActionBarOrder.swift), [test](../../Tests/NXLibraryCoreTests/ActionBarOrderTests.swift) | Ordine e focus iniziale delle azioni secondo il ruolo, in comune fra disegno e input. |
 | [Sources/NXLibrary/Views/Components/AppUpdateDialog.swift](../../Sources/NXLibrary/Views/Components/AppUpdateDialog.swift) | Presenta controllo aggiornamenti, note di release, errori e progresso nel dialogo dell’app. |
 | [Sources/NXLibrary/Views/OortUI/SeleneHintsBar.swift](../../Sources/NXLibrary/Views/OortUI/SeleneHintsBar.swift) | Disegna i suggerimenti contestuali: ogni voce ha un glifo o un'etichetta di tasto; ⌘F appare senza manetta. |
 | [Sources/NXLibrary/Views/Components/SeleneHomeChrome.swift](../../Sources/NXLibrary/Views/Components/SeleneHomeChrome.swift) | Rende elementi condivisi della cornice e dei controlli della home Selene; trattiene gli hint durante l’entrata. |

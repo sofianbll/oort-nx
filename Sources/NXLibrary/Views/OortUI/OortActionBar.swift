@@ -8,6 +8,7 @@ struct OortActionBar: View {
         let title: String
         var arguments: [String] = []
         let role: ActionBarRole
+        var detail: String? = nil
         var enabled = true
         let perform: () -> Void
     }
@@ -19,34 +20,42 @@ struct OortActionBar: View {
 
     var body: some View {
         let sorted = ActionBarOrder.sorted(actions, role: \.role)
-        let leading = sorted.filter(\.role.isLeading), trailing = sorted.filter { !$0.role.isLeading }
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
-                ForEach(leading) { key($0) }
-                Spacer(minLength: canvas.u(SeleneTokens.Space.group))
-                ForEach(trailing) { key($0) }
-            }
-            // Too narrow for one line: the way back keeps the left, the way forward keeps the right, one line each.
-            VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
-                HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
-                    Spacer(minLength: 0)
-                    ForEach(trailing) { key($0) }
+        let destructive = sorted.filter { $0.role == .destructive }
+        let leading = sorted.filter { $0.role == .back }, trailing = sorted.filter { !$0.role.isLeading }
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.dialogActionGap)) {
+            ForEach(destructive) { key($0, alignment: .leading) }
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.medium)) {
+                    ForEach(leading) { key($0, alignment: .leading) }
+                    Spacer(minLength: canvas.u(SeleneTokens.Space.group))
+                    ForEach(trailing) { key($0, alignment: .trailing) }
                 }
-                HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
-                    ForEach(leading) { key($0) }
-                    Spacer(minLength: 0)
+                // Too narrow for one line: Back still stays on the left and the way forward on the right.
+                VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
+                    ForEach(leading) { key($0, alignment: .leading).frame(maxWidth: .infinity, alignment: .leading) }
+                    ForEach(trailing) { key($0, alignment: .trailing).frame(maxWidth: .infinity, alignment: .trailing) }
                 }
             }
-        }
+        }.frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .contain)
     }
 
-    private func key(_ action: Action) -> some View {
-        OortButton(title: action.title, arguments: action.arguments, focused: focused == action.id,
-                   state: action.enabled ? .ready : .blocked, tone: action.role == .destructive ? .destructive : .normal,
-                   action: action.perform)
-            .disabled(!action.enabled)
-            .seleneHover { if action.enabled { onFocus(action.id) } }
+    private func key(_ action: Action, alignment: HorizontalAlignment) -> some View {
+        VStack(alignment: alignment, spacing: canvas.u(SeleneTokens.Space.compact)) {
+            OortButton(title: action.title, arguments: action.arguments, focused: focused == action.id,
+                       state: action.enabled ? .ready : .blocked, preset: .card,
+                       tone: action.role == .destructive ? .destructive : .normal, action: action.perform)
+                .disabled(!action.enabled)
+                .accessibilityHint(action.detail ?? "")
+                .seleneHover { if action.enabled { onFocus(action.id) } }
+            if let detail = action.detail {
+                Text(verbatim: detail).seleneFont(.text).foregroundStyle(SeleneTheme.ink75)
+                    .multilineTextAlignment(alignment == .leading ? .leading : .trailing)
+                    .frame(maxWidth: canvas.u(SeleneTokens.Space.metadataList))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityHidden(true)
+            }
+        }
     }
 }
 

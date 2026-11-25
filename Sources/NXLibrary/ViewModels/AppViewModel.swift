@@ -18,26 +18,27 @@ struct SettingsNotice: Identifiable {
     var primaryFirst = false
     var choiceDetails: [String: String] = [:]
     var duringSetup = false
-    /// The order agreed for every dialog: Cancel on the left, the main action on the right.
-    /// One flag, so the shared dialog piece replaces it in one place.
     var cancelFirst = false
+    var destructiveTitle: String? = nil
     var initialFocus: Int {
-        if cancelFirst { return primaryFirst && retry != nil ? choices.count - 1 : cancelIndex }
-        return primaryFirst && retry != nil ? 0 : cancelIndex
+        (primaryFirst ? orderedChoices.firstIndex { $0.role == .primary } : nil) ?? cancelIndex
     }
-    var cancelIndex: Int { cancelFirst ? 0 : choices.count - 1 }
-    private var actions: [(title: String, run: () -> Void)] {
-        let main = retry.map { [(title: actionTitle, run: $0)] } ?? []
-        return cancelFirst ? alternatives + main : main + alternatives
+    var cancelIndex: Int { orderedChoices.firstIndex { $0.role == .back }! }
+    private var orderedChoices: [(title: String, run: (() -> Void)?, role: ActionBarRole)] {
+        typealias Choice = (title: String, run: (() -> Void)?, role: ActionBarRole)
+        let main: [Choice] = retry.map { [(actionTitle, $0, .primary)] } ?? []
+        let others: [Choice] = alternatives.map { ($0.title, $0.run, $0.title == destructiveTitle ? .destructive : .secondary) }
+        let back: Choice = (cancelTitle, nil, .back)
+        if destructiveTitle != nil { return ActionBarOrder.sorted(main + others + [back], role: \.role) }
+        return cancelFirst ? [back] + others + main : main + others + [back]
     }
-    var choices: [String] {
-        cancelFirst ? [cancelTitle] + actions.map(\.title) : actions.map(\.title) + [cancelTitle]
-    }
+    var choices: [String] { orderedChoices.map(\.title) }
+    func role(at index: Int) -> ActionBarRole { orderedChoices[index].role }
 
     func runChoice(_ index: Int?) {
-        guard let index, index != cancelIndex else { return }
-        let position = cancelFirst ? index - 1 : index
-        if actions.indices.contains(position) { actions[position].run() }
+        let choices = orderedChoices
+        guard let index, choices.indices.contains(index) else { return }
+        choices[index].run?()
     }
 }
 
@@ -89,11 +90,12 @@ final class AppViewModel: ObservableObject {
     func showSettingsNotice(title: String, message: String, actionTitle: String = "Retry",
                             cancelTitle: String = "Back", alternatives: [(title: String, run: () -> Void)] = [],
                             primaryFirst: Bool = false, cancelFirst: Bool = false, choiceDetails: [String: String] = [:], duringSetup: Bool = false,
+                            destructiveTitle: String? = nil,
                             retry: (() -> Void)? = nil) {
         let notice = SettingsNotice(title: title, message: message, retry: retry,
                                     actionTitle: actionTitle, cancelTitle: cancelTitle, alternatives: alternatives,
                                     primaryFirst: primaryFirst, choiceDetails: choiceDetails, duringSetup: duringSetup,
-                                    cancelFirst: cancelFirst)
+                                    cancelFirst: cancelFirst, destructiveTitle: destructiveTitle)
         settingsNoticeFocus = notice.initialFocus
         settingsNotice = notice
     }

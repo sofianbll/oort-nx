@@ -33,25 +33,28 @@ private struct NoticeLayout: View {
                 // One key sits beside its words, several take the row below.
                 if keys.count == 1 { key(0) }
             }
-            HStack(spacing: canvas.u(SeleneTokens.Space.gap)) {
-                if keys.count > 1 {
-                    ForEach(keys.indices, id: \.self) { key($0) }
-                    Spacer(minLength: 0)
-                }
-                // Keeps its place once chosen: the card does not change size.
+            if keys.count > 1 || focus == nil {
                 HStack(spacing: canvas.u(SeleneTokens.Space.gap)) {
-                    SelenePromptBadge(button: .x, keyboardOverride: .symbol("arrow.right.to.line"))
-                    Text(hint)
-                        .seleneFont(.text)
-                        .foregroundColor(SeleneTheme.ink75)
+                    if keys.count > 1 {
+                        ForEach(keys.indices, id: \.self) { key($0) }
+                        Spacer(minLength: 0)
+                    }
+                    if focus == nil {
+                        HStack(spacing: canvas.u(SeleneTokens.Space.gap)) {
+                            SelenePromptBadge(button: .x, keyboardOverride: .symbol("arrow.right.to.line"))
+                            Text(hint)
+                                .seleneFont(.text)
+                                .foregroundColor(SeleneTheme.ink75)
+                        }
+                        .accessibilityHidden(true)
+                    }
                 }
-                .opacity(focus == nil ? 1 : 0)
-                .accessibilityHidden(true)
             }
         }
         .padding(.horizontal, canvas.u(SeleneTokens.Space.panel))
         .padding(.vertical, canvas.u(SeleneTokens.Space.control))
         .frame(width: canvas.u(SeleneTokens.Space.sidePanel))
+        .fixedSize(horizontal: false, vertical: true)
         .oortPanel(radius: canvas.u(SeleneTokens.Radius.badge), floats: true)
         .onChange(of: focus) { _, index in spoken = index }
     }

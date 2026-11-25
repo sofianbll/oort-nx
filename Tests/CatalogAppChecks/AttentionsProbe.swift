@@ -26,14 +26,27 @@ extension SettingsConfirmationProbe {
         vm.applyCatalog(try vm.catalogRepository.updateNXNativeGames { $0 += [one, two] })
         precondition(vm.libraryGames.count >= 2)
 
+        let homeRouter = AppRouter(settings: settings)
+        homeRouter.setInitialRoute(.library)
+        let artwork = ArtworkStore(), running = RunningGameMonitor(), storeHost = ModStoreHost()
+        let sessions = PlaySessionStore(fileURL: root.appendingPathComponent("att-home-sessions.json"))
         func withHost<V: View>(_ view: V, _ locale: AppLocale, size: CGSize = .init(width: 1440, height: 810), light: Bool = false,
+                               home: Bool = false,
                                _ check: (() -> Void, (String) throws -> Void) throws -> Void) throws {
             let old = L10n.context
             L10n.setContext(locale)
             defer { L10n.setContext(old) }
-            let host = NSHostingView(rootView: ZStack { if light { Color.white } else { SeleneBackdrop(still: true) }; view }
+            let host = NSHostingView(rootView: ZStack {
+                if home {
+                    SpotlightView(viewModel: vm, router: homeRouter, settings: settings, playSessions: sessions,
+                                  runningGames: running, artwork: artwork, storeHost: storeHost)
+                        .environment(\.seleneShowButtonHints, false)
+                } else if light { Color.white } else { SeleneBackdrop(still: true) }
+                view
+            }
                 .environment(\.nxAppLocale, locale)
                 .environment(\.colorScheme, .dark)
+                .environment(\.seleneShowButtonHints, true)
                 .environment(\.seleneButtonNames, .nintendo)
                 .environment(\.seleneReduceMotion, true)
                 .seleneCanvasRoot(zoom: CGFloat(Double(ProcessInfo.processInfo.environment["OORT_ZOOM"] ?? "") ?? 1)))
@@ -205,6 +218,46 @@ extension SettingsConfirmationProbe {
             settings.endDraft()
         }
         L10n.setContext(locale)
+        vm.homeSeen = true
+        vm.showSetupCheck = false
+        settings.settings.gameInboxEnabled = false
+        for (game, colors, symbol) in [(one, [Color.indigo, .black], "flag.checkered"),
+                                       (two, [Color.teal, .black], "moon.stars")] {
+            let art = ImageRenderer(content: LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing)
+                .overlay { Image(systemName: symbol).font(.largeTitle).foregroundStyle(.white) }
+                .frame(width: 420, height: 420))
+            let png = NSBitmapImageRep(cgImage: art.cgImage!).representation(using: .png, properties: [:])!
+            try ArtworkPicks.shared.save(png, titleID: game.titleId!, slot: .icon)
+        }
+        precondition(vm.visibleCatalogGames.count >= 2)
+        var chosen = NoticeFocus()
+        chosen.enter(keys: 1)
+        vm.undoOffers.offer(L10n.text("Recent searches cleared")) {}
+        try withHost(UndoNoticeLayer(offers: vm.undoOffers, tips: vm.tips, isBlocked: false, isBelowCard: false,
+                                     focus: .constant(chosen), onUndo: {}, onTurnOffTips: {}), locale, home: true) { _, capture in
+            try capture("accueil-avis-fr")
+        }
+        vm.undoOffers.drop()
+        let tips = Tips(defaults: UserDefaults(suiteName: root.appendingPathComponent("att-home-tips").path)!)
+        tips.libraryAppeared(games: Tips.longLibrary, enabled: true)
+        precondition(tips.shown == .search)
+        chosen.enter(keys: 2)
+        chosen.move(by: 1)
+        try withHost(UndoNoticeLayer(offers: vm.undoOffers, tips: tips, isBlocked: false, isBelowCard: false,
+                                     focus: .constant(chosen), onUndo: {}, onTurnOffTips: {}), locale, home: true) { _, capture in
+            try capture("accueil-astuce-fr")
+        }
+        account = RcloneAccount(hasClient: true, isSignedIn: true)
+        vm.cloudLibrary.configure(remote: "fixture", root: "Games", enabled: false, sourcesRoot: nil)
+        defer { account = nil }
+        SettingsCloudLibrarySection(viewModel: vm, model: vm.cloudLibrary, settings: SettingsEditor(settings),
+            advanced: .constant(true), onEdit: {}, onEditLibrary: {}, onEditSources: {}, onActions: { _ in }).confirmDisconnect()
+        let input = Input(viewModel: vm)
+        let dialog = vm.settingsNotice!
+        try withHost(input.settingsNoticeOverlay(dialog), locale, home: true) { _, capture in
+            try capture("accueil-drive-fr")
+        }
+        input.settingsNoticeInput(.cancel)
         print("Attentions: undo, recent searches, one row back, copy and its way back passed.")
     }
 
