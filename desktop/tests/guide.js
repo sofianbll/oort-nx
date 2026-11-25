@@ -32,5 +32,5 @@ probe(async P => {
   await P.until(() => oort.library.games.find(g => g.name === 'Quiet Harbour' && !g.look), 60000, 'Quiet Harbour is found online');
   await P.until(() => { const g = oort.library.games.find(g => /Lamp Keeper|lb_x64/.test(g.name)); return g && !g.look; }, 60000, 'and the program'); await P.wait(1500); await P.shot('61-found');
   // Again from Settings, and skipped: nothing changes.
-  await P.press('menu'); await P.until(() => document.querySelector('.shell [data-id=guide]')); document.querySelector('.shell [data-id=guide]').click(); await step(1, 'again from Settings'); await P.shot('62-again'); document.querySelector('[data-id=skip]').click(); await P.until(() => !document.querySelector('.steps') && document.querySelector('.shell')); P.same((await ask('library')).total, 6, 'nothing was lost'); while (oort.layers.length > 1) await P.press('b');
+  await P.settings(); await P.until(() => document.querySelector('.shell [data-id=guide]')); document.querySelector('.shell [data-id=guide]').click(); await step(1, 'again from Settings'); await P.shot('62-again'); document.querySelector('[data-id=skip]').click(); await P.until(() => !document.querySelector('.steps') && document.querySelector('.shell')); P.same((await ask('library')).total, 6, 'nothing was lost'); while (oort.layers.length > 1) await P.press('b');
 });

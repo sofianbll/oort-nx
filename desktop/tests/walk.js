@@ -5,7 +5,7 @@ probe(async P => {
     P.ok(['steam', 'program'].includes(P.id()), 'an empty library offers a way in: ' + P.id());
     document.querySelector('.empty [data-id=folder]').focus(); await P.press('a'); await P.until(() => document.querySelector('.sheet .row')); await P.shot('01-picker');
     await P.press('b'); await P.until(() => document.querySelector('.empty'), 5000, 'back home').catch(() => {});
-    while (oort.layers.length > 1) await P.press('y');
+    await P.press('menu'); P.same(oort.layers.length, 1, '+ closes the picker'); while (oort.layers.length > 1) await P.press('b');
     await oort.ask('folders.add', { path: RUN + '/games' });
   }
   dispatchEvent(new Event('focus')); await P.until(() => document.querySelectorAll('.shelf .tile').length > 10);
@@ -32,7 +32,7 @@ probe(async P => {
   // Sort.
   await P.press('rs'); await P.until(() => document.querySelector('.dialog')); await P.shot('09-sort'); await P.press('b');
   // Settings, two levels.
-  await P.press('menu'); await P.until(() => document.querySelector('.shell')); await P.shot('10-settings');
+  await P.settings(); await P.shot('10-settings');
   const zoom0 = getComputedStyle(document.documentElement).getPropertyValue('--zoom');
   await P.press('down'); P.same(document.querySelector('.col h1').textContent, document.documentElement.lang === 'fr' ? 'Apparence' : 'Appearance', 'the side list turns the page');
   await P.press('right'); P.same(P.id(), 'colorThemeID', 'right enters the rows'); await P.press('down'); P.same(P.id(), 'interfaceZoom', 'the size'); await P.press('right', 2);
@@ -40,7 +40,7 @@ probe(async P => {
   await P.press('down'); await P.press('a'); await P.until(() => document.querySelector('.col h1').textContent === (document.documentElement.lang === 'fr' ? 'Avancé' : 'Advanced')); P.ok(document.activeElement.closest('.list'), 'the second level has the focus'); await P.shot('12-second-level');
   await P.press('b'); P.same(P.id(), 'sub-look', 'B comes back to its row'); await P.press('b'); await P.press('b'); await P.until(() => document.querySelector('.dialog')); await P.shot('13-save'); await P.press('right', 1); await P.press('a'); await P.until(() => oort.layers.length === 1);
   P.same(getComputedStyle(document.documentElement).getPropertyValue('--zoom'), zoom0, 'discarding puts the size back');
-  await P.press('menu'); await P.until(() => document.querySelector('.shell')); for (const [i, n] of [[2, 'sound'], [3, 'controllers'], [4, 'account'], [5, 'home'], [7, 'integrations'], [8, 'about']]) { document.querySelectorAll('.side button')[i].click(); await P.wait(250); await P.shot('14-' + n); }
+  await P.settings(); for (const [i, n] of [[2, 'sound'], [3, 'controllers'], [4, 'account'], [5, 'home'], [7, 'integrations'], [8, 'about']]) { document.querySelectorAll('.side button')[i].click(); await P.wait(250); await P.shot('14-' + n); }
   await P.press('b'); while (oort.layers.length > 1) await P.press('b');
   // Projects, adding.
   await P.press('lt'); await P.press('a'); await P.until(() => document.querySelector('.sheet')); await P.wait(200); await P.shot('15-projects'); P.same(document.querySelectorAll('.sheet .row').length, (await oort.ask('catalog')).length, 'every project is listed'); await P.press('b');

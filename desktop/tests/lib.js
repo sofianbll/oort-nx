@@ -20,6 +20,10 @@
     async press(name, n = 1) { for (let i = 0; i < n; i++) { window.oort.act(name); await wait(110); } },
     pad(id = 'Xbox Controller (STANDARD GAMEPAD)') { window.PAD = { id, mapping: 'standard', connected: true, timestamp: 1, buttons: Array.from({ length: 17 }, () => ({ pressed: false, value: 0 })), axes: [0, 0, 0, 0] }; },
     async button(i, ms = 70) { if (window.oortHost && !document.hasFocus()) { await host('front'); await wait(300); } window.PAD.buttons[i].pressed = true; await wait(ms); window.PAD.buttons[i].pressed = false; await wait(120); },
+    /* The middle of something on the page; a real mouse or finger there (through the debugging port only). */
+    at: (s, dx = 0) => { const e = typeof s === 'string' ? document.querySelector(s) : s, r = e.getBoundingClientRect(); return [r.left + r.width / 2 + dx, r.top + r.height / 2]; },
+    /* Settings, as a keyboard opens them. */
+    async settings() { await P.key(',', { ctrlKey: true }); await P.until(() => document.querySelector('.shell'), 5000, 'Settings'); },
     text: s => document.querySelector(s)?.textContent.trim() ?? null,
     focus: () => document.activeElement?.textContent.trim().replace(/\s+/g, ' ').slice(0, 60),
     id: () => document.activeElement?.dataset.id ?? null,

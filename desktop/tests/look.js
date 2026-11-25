@@ -11,7 +11,7 @@ probe(async P => {
     const set = async (tag) => { cut(`${name} ${tag}`); small(`${name} ${tag}`); await P.shot(`${name}-${tag}`); };
     const i = oort.library.games.findIndex(g => !g.hero && g.state === 'ready') + 2; await P.press('lt'); for (let k = 0; k < i; k++) { oort.act('right'); await P.wait(15); } await P.wait(400); await set('shelf');
     await P.press('view'); await P.wait(300); await set('grid'); await P.press('view');
-    await P.press('menu'); await P.until(() => document.querySelector('.shell')); await P.press('down'); await P.press('right'); await P.wait(200); await set('settings'); await P.press('b'); await P.press('b'); while (oort.layers.length > 1) await P.press('b');
+    await P.settings(); await P.press('down'); await P.press('right'); await P.wait(200); await set('settings'); await P.press('b'); await P.press('b'); while (oort.layers.length > 1) await P.press('b');
     await P.press('x'); await P.until(() => document.querySelector('.detail')); await P.wait(200); await set('detail'); await P.press('b'); await P.until(() => oort.layers.length === 1);
   };
   const looks = { dark: {}, light: { colorThemeID: 'catppuccin-latte' }, white: { colorThemeID: 'white' }, still: { reduceMotion: true }, zoom80: { interfaceZoom: .8 }, zoom125: { interfaceZoom: 1.25 }, english: { appLanguage: 'en' } };
@@ -21,7 +21,7 @@ probe(async P => {
   for (const [name, values] of Object.entries(looks)) {
     if (window.TAG.startsWith('small') && ['white', 'english'].includes(name)) continue;
     for (const [id, value] of Object.entries(values)) await oort.ask('settings.set', { id, value });
-    await oort.ask('settings.save'); await P.press('menu'); await P.until(() => document.querySelector('.shell')); await P.press('b'); await P.until(() => oort.layers.length === 1); await P.wait(300);
+    await oort.ask('settings.save'); await P.settings(); await P.press('b'); await P.until(() => oort.layers.length === 1); await P.wait(300);
     // The menu's page applied what was saved only if it changed the view: make sure.
     oort.apply(await oort.ask('view')); await P.wait(200);
     const panel = solid('var(--p-low)', 'backgroundColor'), raised = solid('var(--p-raised)', 'backgroundColor');

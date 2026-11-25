@@ -5,6 +5,7 @@
 import { spawn, execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
+import { hands } from '../hands.mjs';
 
 const [app, script, out, ...pairs] = process.argv.slice(2), o = Object.fromEntries(pairs.map(p => [p.slice(0, p.indexOf('=')), p.slice(p.indexOf('=') + 1)]));
 const here = import.meta.dirname, port = 9333, wait = ms => new Promise(r => setTimeout(r, ms));
@@ -59,6 +60,7 @@ const commands = {
   shot: async name => { try { await picture(name); } catch (e) { console.log('no picture', name, e.message); } },
   desktop: name => desk('shot', path.join(out, `${o.tag || ''}${name}.png`)),
   state: () => JSON.parse(desk('state', child.pid)),
+  ...hands(send, wait),
   front: () => { try { desk('front', child.pid); return true; } catch { return false; } },
   key: code => desk('key', code),
   count: folder => +desk('count', folder.replace(/\//g, '\\')),

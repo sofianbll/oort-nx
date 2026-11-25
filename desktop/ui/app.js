@@ -4,6 +4,10 @@ import { ICONS, PALETTES } from './gen/names.js';
 import { cloud as makeCloud } from './cloud.js';
 import { sounds as makeSounds } from './sound.js';
 import { still, focusable, nearest, controller, padName } from './nav.js';
+import { handOf, stepper as wheelOf, swiper } from './input.js';
+import { menuOf } from './menu.js';
+import { KINDS, KIND_NAMES, padKind, kindNames, liveOf } from './pads.js';
+import { padMap } from './padview.js';
 import { gameWord } from './words.js';
 
 const T = window.__TAURI__, root = document.documentElement, $ = (s, r = document) => r.querySelector(s);
@@ -57,8 +61,8 @@ const h = (tag, props = {}, ...kids) => {
 };
 const icon = name => h('i', { cls: 'icon', 'aria-hidden': 'true' }, String.fromCodePoint(parseInt(ICONS[name] || 'E88E', 16)));
 const glyph = char => h('i', { cls: 'icon', 'aria-hidden': 'true' }, char);
-const key = (label, act, { ic, cls = '', off, id, aria } = {}) => h('button', { cls: 'key ' + cls, 'aria-disabled': off ? true : null, 'data-id': id, 'aria-label': aria, onclick: e => off ? deny(e.currentTarget, off) : act(e) }, ic && icon(ic), label && h('span', {}, label));
-const row = (what, value, act, o = {}) => h('button', { cls: 'row ' + (o.cls || ''), 'data-id': o.id, 'data-help': o.help, role: o.role, 'aria-checked': o.checked, 'aria-disabled': o.off ? true : null, 'aria-label': o.aria, onclick: e => o.off ? deny(e.currentTarget, o.off === true ? '' : o.off) : act && act(e.currentTarget) }, o.ic && icon(o.ic), h('span', { cls: 'what' }, what, o.sub && h('small', {}, o.sub)), value && h('span', { cls: 'value' }, value));
+const key = (label, act, { ic, cls = '', off, id, aria, pressed } = {}) => h('button', { cls: 'key ' + cls, 'aria-disabled': off ? true : null, 'aria-pressed': pressed, 'data-id': id, 'aria-label': aria, onclick: e => off ? deny(e.currentTarget, off) : act(e) }, ic && icon(ic), label && h('span', {}, label));
+const row = (what, value, act, o = {}) => h('button', { cls: 'row ' + (o.cls || ''), 'data-id': o.id, 'data-help': o.help, 'data-idle': !act && !o.slides, 'data-pick': o.pick, role: o.role, 'aria-checked': o.checked, 'aria-disabled': o.off ? true : null, 'aria-label': o.aria, onclick: e => o.off ? deny(e.currentTarget, o.off === true ? '' : o.off) : act && act(e.currentTarget) }, o.ic && icon(o.ic), h('span', { cls: 'what' }, what, o.sub && h('small', {}, o.sub)), value && h('span', { cls: 'value' }, value));
 const dot = cls => h('i', { cls: 'dot ' + cls, 'aria-hidden': 'true' });
 const artURL = (g, kind) => T.core.convertFileSrc(`${g.id}/${kind}`, 'oort-art').replace(/%2F/gi, '/') + '?' + (g.art || 0);
 const deny = (el, why) => { S.play('deny', el); if (why) notice(why); };
@@ -113,16 +117,32 @@ const settle = () => {
 const again = (layer, draw) => { const keep = layer.el.contains(document.activeElement) ? document.activeElement.dataset.id : layer.keep, at = [...layer.el.querySelectorAll('.list,.detail,.scroll,.side')].map(e => e.scrollTop); fill(layer.el, draw()); [...layer.el.querySelectorAll('.list,.detail,.scroll,.side')].forEach((e, i) => { e.scrollTop = at[i] || 0; }); layer.keep = keep; if (layer === top()) restore(layer); hints(); };
 
 /* ---------- Hints: the buttons in hand, and only what works now ---------- */
-let pad = null, plugged = [], prompts = {}, keysInHand = true, version = '', system = '';
-const keyCaps = { a: '⏎', b: 'Esc', x: 'X', y: 'Y', lb: 'Q', rb: 'E', lt: 'Home', rt: 'End', ls: 'Ctrl F', rs: 'F3', view: 'V', menu: 'M', home: 'H' };
-const badgeText = b => V.buttonNames === 'automatic' ? (pad ? prompts[pad.brand]?.[b] : keyCaps[b]) : prompts[V.buttonNames]?.[b];
+let pad = null, plugged = [], prompts = {}, version = '', system = '', abilities = [], homeSeen = false;
+const keyCaps = { a: '⏎', b: 'Esc', x: 'X', y: 'Y', lb: 'Q', rb: 'E', lt: 'Home', rt: 'End', ls: 'Ctrl F', rs: 'F3', view: 'V', menu: 'Ctrl O', home: 'Ctrl K', move: '← →' };
+/* The last thing used: its names are on the hints, whatever else is plugged in. A finger has no buttons to name. */
+const hand = handOf(now => { root.dataset.hand = now; hints(); top()?.handChanged?.(); });
+root.dataset.hand = hand.now;
+const inPad = () => hand.now === 'pad' && pad;
+const padNames = (style, name = '') => style === 'playstation' && /dualshock|05c4|09cc/i.test(name) ? { ...prompts.playstation, view: 'Share' } : prompts[style] || {};
+const badgeText = b => inPad() ? padNames(V.buttonNames === 'automatic' ? pad.brand : V.buttonNames, pad.name)[b] : keyCaps[b];
 const badge = b => h('span', { cls: 'badge', 'aria-hidden': 'true' }, badgeText(b) || b.toUpperCase());
+/* Windows keeps an Xbox controller's Home for itself: it is named once it was seen, and + held does the same. */
+const hasHome = () => !inPad() || homeSeen || pad.brand !== 'xbox';
+const menuHint = () => hasHome() ? ['home', t('Menu'), openMenu, inPad() && t('Hold: %@', t('Settings'))] : ['menu', t('Hold: %@', t('Menu')), openMenu];
+/* What A does on what has the focus, in a word; nothing where A does nothing. */
+const aHint = () => {
+  const e = document.activeElement;
+  if (!e || !top()?.el.contains(e) || e.getAttribute('aria-disabled') === 'true' || e.hasAttribute('data-idle') || e.matches('input,.about')) return null;
+  return e.slides ? ['move', t('Change')] : e.step || e.getAttribute('role') === 'switch' ? ['a', t('Change')] : e.matches('.key,[data-pick]') ? ['a', t('Select')] : ['a', t('Open')];
+};
 const hints = () => {
   const bar = $('#hints'), layer = top();
-  if (!layer || !V.hints) return bar.replaceChildren();
-  const [left, right] = layer.hints ? layer.hints() : [[], []];
-  bar.replaceChildren(...[left, right].map(list => h('div', {}, list.filter(Boolean).map(([b, label, run, sub]) => h(run ? 'button' : 'span', { cls: 'hint', tabindex: run ? '-1' : null, onclick: run }, badge(b), h('span', {}, label, sub && h('small', {}, sub)))))));
   document.querySelectorAll('[data-badge]').forEach(e => { e.textContent = badgeText(e.dataset.badge) || ''; });
+  if (!layer) return bar.replaceChildren();
+  // Turned off, the hints still leave a way back and the menu to a mouse, a finger or a keyboard.
+  const keep = list => V.hints ? list : inPad() ? [] : list.filter(x => x && x[2] && (x[0] === 'b' || x[0] === 'home'));
+  const [left, right] = (layer.hints ? layer.hints() : [[], []]).map(list => keep(list).filter(Boolean));
+  bar.replaceChildren(...[left, right].map(list => h('div', {}, list.map(([b, label, run, sub]) => h(run ? 'button' : 'span', { cls: 'hint', tabindex: run ? '-1' : null, onclick: run }, badge(b), h('span', {}, label, sub && h('small', {}, sub)))))));
 };
 
 /* The controller in hand, else the ones plugged in: WebView2 sees a controller only once a button was pressed. */
@@ -155,32 +175,63 @@ const act = name => {
   }
   if (name === 'b') return layer.actions?.b ? layer.actions.b() : layers.length > 1 ? (S.play('back'), pop()) : null;
   if (layer.actions?.[name]) return layer.actions[name]();
+  if (name === 'home' && isPage(layer)) return openMenu();
 };
+/* A page of the app: not a question, a search, the first steps or a game being started. */
+const isPage = (layer = top()) => !!layer && !layer.over && !layer.launch && !layer.guide;
+const zoom = async d => { const row = (await ask('settings')).categories.flatMap(c => [...c.rows, ...c.subjects.flatMap(x => x.rows)]).find(r => r.id === 'interfaceZoom'); await ask('settings.set', { id: row.id, value: d ? Math.min(row.max, Math.max(row.min, row.value + d * row.step)) : row.default }); apply((await ask('settings.save')).view); };
+/* With Ctrl, what the Mac app does with ⌘. */
+const shortcuts = { f: () => act('ls'), k: () => act('home'), o: () => act('menu'), d: () => act('x'), ',': () => openSettings(), n: () => openAdd(), Enter: () => top().play?.(), '+': () => zoom(1), '=': () => zoom(1), '-': () => zoom(-1), 0: () => zoom(0) };
 addEventListener('keydown', e => {
   if (e.altKey || e.metaKey) return;
   const typing = e.target.matches?.('input');
-  if (!keysInHand) { keysInHand = true; hints(); }
+  if (!['Control', 'Shift'].includes(e.key)) hand.keys();
   const arrows = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right' };
-  const letters = { x: 'x', y: 'y', q: 'lb', e: 'rb', v: 'view', m: 'menu' }, others = { Escape: 'b', F3: 'rs', Home: 'lt', End: 'rt' };
-  if (e.ctrlKey) { if (e.key.toLowerCase() === 'f') { e.preventDefault(); act('ls'); } return; }
+  const letters = { x: 'x', y: 'y', q: 'lb', e: 'rb', v: 'view', m: 'menu', h: 'home' }, others = { Escape: 'b', F3: 'rs', Home: 'lt', End: 'rt' };
+  if (e.ctrlKey) {
+    const run = shortcuts[e.key.length === 1 ? e.key.toLowerCase() : e.key];
+    if (run && !e.repeat) { e.preventDefault(); if (isPage() || 'fk'.includes(e.key.toLowerCase())) run(); }
+    return;
+  }
   if (arrows[e.key]) { if (typing && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) return; e.preventDefault(); return act(arrows[e.key]); }
-  if (e.key === 'F11') { e.preventDefault(); return setFullscreen(!full); }
+  if (e.key === 'F11') { e.preventDefault(); return abilities.includes('fullscreen') && setFullscreen(!full); }
   if (others[e.key] && !(typing && others[e.key] !== 'b' && e.key !== 'F3')) { e.preventDefault(); return act(others[e.key]); }
   if (!typing && !e.repeat && letters[e.key.toLowerCase()]) { e.preventDefault(); act(letters[e.key.toLowerCase()]); }
 });
-addEventListener('pointerdown', e => { const b = e.target.closest('button'); if (b) S.play('select', b); }, true);
+/* The game chosen when a press began: a click chooses, a click on the chosen game opens it. */
+let chosen = null;
+addEventListener('pointerdown', e => { chosen = selected; hand.down(e); const b = e.target.closest('button'); if (b) S.play('select', b); }, true);
+addEventListener('pointermove', e => hand.move(e), { passive: true });
 addEventListener('click', e => { if (!e.detail && e.isTrusted) S.play('select', document.activeElement); }, true);
-addEventListener('mouseover', e => { if (!e.movementX && !e.movementY) return; const b = e.target.closest('.tile,.row,.side button'); if (b && b !== document.activeElement && top()?.el.contains(b)) { b.focus({ preventScroll: true }); } });
+/* A list follows the pointer. The shelf and the grid do not: they only show it, so nothing slides under it. */
+addEventListener('mouseover', e => { if (!e.movementX && !e.movementY || hand.now === 'pad') return; const b = e.target.closest('.row,.side button,.found .tile,.orb,.pills .key'); if (b && b !== document.activeElement && top()?.el.contains(b) && !b.closest('.holding')) b.focus({ preventScroll: true }); });
 addEventListener('focusin', e => { const layer = top(); if (layer?.el.contains(e.target)) { layer.onfocus && layer.onfocus(e.target); const p = $('.help', layer.el); if (p) p.textContent = e.target.dataset.help || ''; hints(); } });
-addEventListener('contextmenu', e => e.preventDefault());
+/* A right click, a long press, the keyboard's menu key: the options of what is under it. */
+addEventListener('contextmenu', e => { if (e.target.closest('input')) return; e.preventDefault(); if (isPage()) top().context?.(e.target); });
+/* The shelf: a wheel or a finger goes from game to game. */
+const turnShelf = d => isPage() && top().slide?.(d), wheel = wheelOf(turnShelf), swipe = swiper(turnShelf, () => top()?.pitch?.() || Infinity);
+let swiped = false;
+addEventListener('wheel', e => { if (e.ctrlKey || !isPage() || !top().slide?.(0)) return; hand.down({ pointerType: 'mouse' }); wheel(e); }, { passive: true });
+addEventListener('pointerdown', e => { swiped = false; if (e.pointerType === 'touch' && e.isPrimary && isPage() && top().slide?.(0)) swipe.down(e.clientX, e.pointerId); }, true);
+addEventListener('pointermove', e => { if (e.pointerType === 'touch') swipe.move(e.clientX, e.pointerId); }, { passive: true });
+for (const kind of ['pointerup', 'pointercancel']) addEventListener(kind, e => { if (e.pointerType === 'touch' && swipe.up(e.pointerId)) swiped = true; }, true);
+addEventListener('click', e => { if (swiped && e.detail) { swiped = false; e.stopImmediatePropagation(); e.preventDefault(); } }, true);
+const live = liveOf();
 const padding = controller({
-  act: name => { keysInHand = false; if (['a'].includes(name)) S.play('select', document.activeElement); act(name); },
-  hold: name => name === 'view' && act('ls'),
-  found: p => { pad = p; S.warm(); if (p) ask('pad', { kind: p.brand }).catch(() => {}); hints(); padChanged(); top()?.padChanged?.(); },
+  act: name => { hand.pad(); if (name === 'home') homeSeen = true; if (name === 'a') S.play('select', document.activeElement); act(name); },
+  // Held: View searches, + opens the menu where Home is out of reach, Home goes to Settings.
+  hold: name => { hand.pad(); if (name === 'view') act('ls'); else if (name === 'menu') act('home'); else { homeSeen = true; if (isPage() && !top().settings) openSettings(); } },
+  live: s => live.feed(s),
+  found: p => { pad = p; if (p?.pressed) hand.pad(); else if (!p && hand.now === 'pad') hand.keys(); S.warm(); if (p) ask('pad', { kind: p.brand }).catch(() => {}); hints(); padChanged(); top()?.padChanged?.(); },
   scroll: dy => { const e = top()?.el.querySelector('.list,.detail,.scroll,.found'); if (e) e.scrollTop += dy; },
 });
 let full = false;
-const setFullscreen = on => { full = on; invoke('set_fullscreen', { on }).catch(() => {}); };
+const setFullscreen = on => { full = on; invoke('set_fullscreen', { on }).catch(() => {}); for (const l of layers) l.fullChanged?.(); };
+const leaving = () => layers.some(l => l.pending?.()) ? t('Changes you did not save are lost.') : t('Your library and your settings are kept.');
+/* Quit and Restart are asked first, "Cancel" chosen. */
+const askQuit = () => dialog(t('Quit Oort NX?'), leaving(), [[t('Cancel'), () => {}], [t('Quit'), () => invoke('quit')]]);
+const askRestart = () => dialog(t('Restart Oort NX?'), leaving(), [[t('Cancel'), () => {}], [t('Restart app'), () => invoke('restart').catch(e => deny(null, because(e)))]]);
+const openLogs = () => invoke('open_logs').catch(e => deny(document.activeElement, because(e)));
 
 /* ---------- The library ---------- */
 let L = { games: [], total: 0, folders: 0 }, tab = 'All games', selected = null, home = 'spotlight', TABS = ['All games'];
@@ -247,7 +298,7 @@ const shelf = () => {
   el.append(ring, name);
   const u = n => `calc(${n.toFixed(1)}*var(--u))`;
   const place = i => START + i * PITCH + (i > at ? HOST * (GROW - 1) : 0) + 1 - Math.max(0, at - ANCHOR) * PITCH;
-  const tile = i => { const x = items[i], b = h('button', { cls: 'tile', role: 'option', 'data-id': x.id, 'data-i': i, 'aria-label': x.run ? x.name() : x.name, onclick: () => { if (+b.dataset.i !== at) return set(i, true); x.run ? x.run() : primary(x)[1](); } }, x.run ? h('span', { cls: 'face' }, icon(x.ic)) : face(x, 'icon')); return b; };
+  const tile = i => { const x = items[i], b = h('button', { cls: 'tile', role: 'option', 'data-id': x.id, 'data-i': i, 'aria-label': x.run ? x.name() : x.name, onclick: e => { if (e.detail && x.id !== chosen) return set(+b.dataset.i, true); x.run ? x.run() : primary(x)[1](); } }, x.run ? h('span', { cls: 'face' }, icon(x.ic)) : face(x, 'icon')); return b; };
   const paint = () => {
     // Only the tiles near the screen exist, however long the library.
     const from = Math.max(0, at - 14), to = Math.min(items.length, at + 24);
@@ -263,7 +314,7 @@ const shelf = () => {
   const refreshed = () => { for (const [k, x] of items.entries()) if (!x.run) items[k] = game(x.id) || x; };
   const changed = () => { homeLayer.info(); settle(); if (items[at] && !items[at].run) { clearTimeout(shelf.t); shelf.t = setTimeout(() => remember({ game: selected }), 1500); } };
   selected = items[at]?.id ?? null; paint();
-  return { el, refreshed, get item() { return items[at]; }, focus: () => nodes.get(at)?.focus({ preventScroll: true }), has: e => e.closest('.shelf') === el, step: d => { const i = at + d; if (i < 0 || i >= items.length) S.play('deny', nodes.get(at)); else set(i, true); }, end: d => set(d < 0 ? 0 : items.length - 1, true), set: i => set(i, false), index: e => +e.dataset.i };
+  return { el, refreshed, get item() { return items[at]; }, focus: () => nodes.get(at)?.focus({ preventScroll: true }), has: e => e.closest('.shelf') === el, step: d => { const i = at + d; if (i < 0 || i >= items.length) S.play('deny', nodes.get(at)); else set(i, true); }, end: d => set(d < 0 ? 0 : items.length - 1, true), set: i => set(i, false), index: e => +e.dataset.i, find: id => items.findIndex(x => x.id === id) };
 };
 
 const homeLayer = (() => {
@@ -274,7 +325,7 @@ const homeLayer = (() => {
   const collection = () => {
     row = null; ringGrid = h('span', { cls: 'ring' }); if (!game(selected)) selected = L.games[0]?.id ?? null;
     box = h('div', { cls: 'gridinfo' });
-    grid = h('div', { cls: 'grid', role: 'listbox', 'aria-label': t('Collection') }, ringGrid, L.games.map(g => h('button', { cls: 'tile', role: 'option', 'data-id': g.id, 'aria-label': g.name, onclick: () => primary(g)[1]() }, face(g, 'cover'))));
+    grid = h('div', { cls: 'grid', role: 'listbox', 'aria-label': t('Collection') }, ringGrid, L.games.map(g => h('button', { cls: 'tile', role: 'option', 'data-id': g.id, 'aria-label': g.name, onclick: e => { if (e.detail && g.id !== chosen) return e.currentTarget.focus({ preventScroll: true }); primary(g)[1](); } }, face(g, 'cover'))));
     return [topBar(), h('div', { cls: 'gridpage' }, box, h('div', { cls: 'scroll' }, grid))];
   };
   const empty = () => [topBar(), h('div', { cls: 'empty' }, L.total ? [h('h1', {}, t('No games in %@', t(tab)))] : [h('h1', {}, t('Add your first game')), h('p', { cls: 'say' }, t('Oort NX shows the games you already have. Nothing is moved or changed.')), h('div', { cls: 'rows' }, addRows(() => layer.redraw()), guideRow())])];
@@ -308,14 +359,19 @@ const homeLayer = (() => {
   const other = () => { home = home === 'spotlight' ? 'collection' : 'spotlight'; S.play('open'); remember({ home }); if (!game(selected) && home === 'collection') selected = L.games[0]?.id ?? null; layer.redraw(); };
   layer.actions = {
     b: () => { if (row && !row.has(document.activeElement)) { S.play('back'); row.focus(); } },
-    x: () => { const x = current(); if (x && !x.run) openDetail(x.id); }, y: () => openSearch(), ls: () => openSearch(), menu: () => openSettings(), home: () => openSettings(), view: () => V.viewSwitches && other(), rs: () => openSort(),
+    x: () => { const x = current(); if (x && !x.run) openDetail(x.id); }, y: () => openSearch(), ls: () => openSearch(), menu: () => { const x = current(); x && !x.run ? openOptions(x.id) : S.play('deny', document.activeElement); }, view: () => V.viewSwitches && other(), rs: () => openSort(),
     lb: () => shiftTab(-1), rb: () => shiftTab(1), lt: () => row ? row.end(-1) : edge(-1), rt: () => row ? row.end(1) : edge(1),
   };
   const edge = d => { const list = grid ? focusable(grid) : []; const e = list[d < 0 ? 0 : list.length - 1]; if (e) go(e); };
+  // Where this layer's shelf takes a wheel or a finger.
+  layer.slide = d => { if (!row) return false; if (d) row.step(d); return true; };
+  layer.pitch = () => Math.max(40, $('.shelf .ring', el)?.offsetWidth || 0);
+  layer.play = () => { const x = current(); if (x) x.run ? x.run() : primary(x)[1](); };
+  layer.context = e => { const id = e.closest('.tile')?.dataset.id ?? (e.closest('.key') || e === document.body ? current()?.id : null), g = id && game(id); if (!g) return; if (row) { const i = row.find(id); if (i >= 0) row.set(i); } else if (grid) grid.querySelector(`[data-id="${CSS.escape(id)}"]`)?.focus({ preventScroll: true }); openOptions(id); };
   layer.hints = () => {
     const x = current(), g = x && !x.run ? x : null, onTile = !document.activeElement?.classList.contains('key');
-    return [[V.viewSwitches && L.total && ['view', home === 'spotlight' ? t('Collection') : t('Spotlight'), other, pad && t('Hold: %@', t('Search'))], L.total && ['y', t('Search'), openSearch], ['menu', t('Settings'), openSettings]],
-      [g && onTile && ['x', t('Details'), () => openDetail(g.id)], x && ['a', g ? onTile ? primary(g)[0] : t('Select') : t('Open')], L.total && ['rs', t('Sort'), openSort, t({ recent: 'Sort: Recent', name: 'Sort: Name', added: 'Sort: Recently added', playtime: 'Sort: Playtime' }[V.sort])]]];
+    return [[V.viewSwitches && L.total && ['view', home === 'spotlight' ? t('Collection') : t('Spotlight'), other, inPad() && t('Hold: %@', t('Search'))], L.total && ['y', t('Search'), openSearch], menuHint()],
+      [g && onTile && ['x', t('Details'), () => openDetail(g.id)], g && ['menu', t('Options'), () => openOptions(g.id)], x && ['a', g ? onTile ? primary(g)[0] : t('Select') : t('Open')], L.total && ['rs', t('Sort'), openSort, t({ recent: 'Sort: Recent', name: 'Sort: Name', added: 'Sort: Recently added', playtime: 'Sort: Playtime' }[V.sort])]]];
   };
   return layer;
 })();
@@ -335,7 +391,7 @@ const openDetail = async (id, section) => {
       busy && h('div', { cls: 'wait' }, h('div', { cls: 'bar', role: 'progressbar', 'aria-label': t('Getting ready…'), style: `--at:${preparing.value}` }, h('i')), h('p', { cls: 'say' }, preparing.text || d.prepare?.label || ''), key(t('Cancel'), () => invoke('close_game'), { id: 'stop' })),
       stats(d), genres(d), d.state !== 'ready' && !busy && h('p', { cls: 'say' }, stateText(d)), d.unsupported?.length && h('p', { cls: 'say' }, because('unsupported-' + d.unsupported[0])),
       d.about && [h('h2', {}, t('About this game')), h('div', { cls: 'about', tabindex: '0', 'data-id': 'about' }, d.about.split(/\n+/).map(x => h('p', {}, x)), d.source && h('small', {}, t('Source: %@', d.source)))],
-      [h('h2', {}, t('Details')), h('dl', { cls: 'facts' }, [[t('Publisher'), d.publisher], [t('Developer'), d.developer], [t('Release date'), d.year], [t('Version'), d.version], [t('Installed in'), d.folder]].filter(x => x[1]).map(([a, b]) => h('div', {}, h('dt', {}, a), h('dd', {}, b)))), h('div', { cls: 'rows' }, d.page && row(t('Open the page this comes from'), icon('link'), () => link(d.page), { id: 'page', sub: d.page.replace(/^https:\/\//, '').split('/')[0] }), row(t('Pictures and information'), icon('chevron'), () => openOptions(id, 'look'), { id: 'look', ic: 'image', sub: d.online ? d.about || d.year ? t('Another cover, or another game if this is not the right one.') : d.searched ? t('Nothing was found online. Look for it by another name, or choose your own pictures.') : t('Choose your own pictures, or look for this game online.') : t('Choose your own pictures, or turn on game information online.') }))],
+      [h('h2', {}, t('Details')), h('dl', { cls: 'facts' }, [[t('Publisher'), d.publisher], [t('Developer'), d.developer], [t('Release date'), d.year], [t('Version'), d.version], [t('Installed in'), d.folder], [t('Saves and mods'), t('In the game')]].filter(x => x[1]).map(([a, b]) => h('div', {}, h('dt', {}, a), h('dd', {}, b)))), h('div', { cls: 'rows' }, d.page && row(t('Open the page this comes from'), icon('link'), () => link(d.page), { id: 'page', sub: d.page.replace(/^https:\/\//, '').split('/')[0] }), row(t('Pictures and information'), icon('chevron'), () => openOptions(id, 'look'), { id: 'look', ic: 'image', sub: d.online ? d.about || d.year ? t('Another cover, or another game if this is not the right one.') : d.searched ? t('Nothing was found online. Look for it by another name, or choose your own pictures.') : t('Choose your own pictures, or look for this game online.') : t('Choose your own pictures, or turn on game information online.') }))],
       d.inputs?.length && [h('h2', { 'data-part': 'inputs' }, t('Files')), h('div', { cls: 'rows' }, d.inputs.map(i => row(i.label || i.id, [i.path ? h('span', {}, i.path.split(/[\\/]/).pop()) : i.optional ? t('Optional') : t('Missing'), dot(i.path ? 'ok' : i.optional ? 'mark' : '')], () => pickFile({ title: i.label || t('Files'), extensions: i.extensions, folders: i.folder, files: i.file, done: path => change(ask('game.input', { id, input: i.id, path })) }), { id: 'input-' + i.id, ic: i.role === 'key' ? 'key' : 'folder', sub: i.path && i.unchecked ? t('Oort NX does not check this copy; the project does.') : i.shared ? t('Kept where it is. Only its path is remembered.') : null })))],
       d.prepare && [h('h2', { 'data-part': 'prepare' }, t('Get ready')), h('div', { cls: 'rows' }, d.prepare.options.map(o => row(o.label, h('span', { cls: 'sw' }), () => change(ask('game.option', { id, option: o.id, on: !o.on })), { id: 'option-' + o.id, role: 'switch', checked: o.on, sub: [o.note, o.license && t('Turning this on accepts: %@', o.license.name), o.required && t('Required')].filter(Boolean).join(' ') })), d.prepare.options.filter(o => o.license?.url).map(o => row(t('Read: %@', o.license.name), icon('link'), () => link(o.license.url), { id: 'license-' + o.id })), row(d.prepare.needed ? t('Get ready') : t('Get ready again'), d.prepare.needed ? t('Needed') : t('Done'), () => prepare(id), { id: 'prepare', ic: 'build', sub: d.prepare.label, off: busy || d.state === 'inputs' ? stateText(d) || true : null }))],
       d.repo && [h('h2', {}, t('Project')), h('div', { cls: 'rows' }, row(d.repo, icon('link'), () => link('https://github.com/' + d.repo), { id: 'repo' }))]);
@@ -343,8 +399,9 @@ const openDetail = async (id, section) => {
   };
   layer.el.append(...draw());
   layer.redraw = () => refresh(); layer.refresh = refresh; layer.id = id;
-  layer.hints = () => [[['b', t('Back'), () => act('b')]], [['y', t('Options'), () => openOptions(id)], ['a', t('Select')]]];
-  layer.actions = { y: () => openOptions(id) };
+  layer.hints = () => [[['b', t('Back'), () => act('b')], ['y', t('Search'), openSearch], menuHint()], [['menu', t('Options'), () => openOptions(id)], aHint()]];
+  layer.actions = { menu: () => openOptions(id), y: () => openSearch(), ls: () => openSearch() };
+  layer.context = () => openOptions(id); layer.play = () => $('[data-id=primary]', layer.el)?.click();
   layer.gone = async () => { await reload(); homeLayer.redraw(); };
   layer.back = () => refresh();
   S.play('open'); push(layer);
@@ -413,9 +470,9 @@ const chooser = (label, options, value, set, o = {}) => {
 };
 const stepper = (label, value, { min, max, step }, set, o = {}) => {
   const move = d => { const n = Math.min(max, Math.max(min, Math.round((value + d * step) * 1e6) / 1e6)); if (n !== value) set(n); else S.play('deny', document.activeElement); };
-  const e = row(label, [o.mark && dot('mark'), h('span', { cls: 'track', style: `--at:${(value - min) / (max - min || 1)}` }), h('span', { cls: 'chip num' }, o.text ?? String(value))], null, { ...o, aria: `${label}: ${o.text ?? value}` });
+  const e = row(label, [o.mark && dot('mark'), h('span', { cls: 'track', style: `--at:${(value - min) / (max - min || 1)}` }), h('span', { cls: 'chip num' }, o.text ?? String(value))], null, { ...o, slides: true, aria: `${label}: ${o.text ?? value}` });
   e.addEventListener('click', ev => { const r = $('.track', e).getBoundingClientRect(); if (ev.detail && ev.clientX >= r.left - 12 && ev.clientX <= r.right + 12) set(Math.min(max, Math.max(min, Math.round((min + (ev.clientX - r.left) / r.width * (max - min)) / step) * step))); });
-  e.step = move; return e;
+  e.step = move; e.slides = true; return e;
 };
 
 /* ---------- The two-level page: a list at the side, its rows, one line of help ---------- */
@@ -437,15 +494,107 @@ const shellActions = (layer, up) => {
   };
   layer.actions = { b: () => { if (!document.activeElement.closest('.side')) { S.play('back'); layer.focus(layer); } else if (up) up(); else { S.play('back'); pop(); } }, lb: () => layer.turn?.(-1), rb: () => layer.turn?.(1) };
   layer.turn = d => { const list = focusable($('.side', layer.el)), i = list.findIndex(x => x.hasAttribute('aria-current')), n = list[i + d]; if (n) { S.play('confirm', n); n.focus({ preventScroll: true }); n.click(); } };
-  layer.hints = () => [[['b', t('Back'), () => act('b')]], [['lb', t('Previous'), () => layer.turn(-1)], ['rb', t('Next'), () => layer.turn(1)], document.activeElement?.step ? ['a', t('Change')] : ['a', t('Open')]]];
+  layer.hints = () => [[['b', t('Back'), () => act('b')]], [['lb', t('Previous'), () => layer.turn(-1)], ['rb', t('Next'), () => layer.turn(1)], aHint()]];
+};
+
+/* ---------- Profiles ---------- */
+const selectProfile = (p, done) => { const take = async pin => { const list = await ask('profiles.select', { profile: p.id, pin }); await reload(); await done(list); }; if (p.locked) type(t('Use four digits.'), '', take, true); else take().catch(e => deny(document.activeElement, because(e))); };
+const openProfiles = async () => {
+  let people = await ask('profiles');
+  const layer = { el: h('section', { cls: 'veil dialog', role: 'dialog', 'aria-label': t('Switch profile') }), over: true };
+  const draw = () => h('div', {}, h('h1', {}, t('Switch profile')), h('div', { cls: 'rows' }, people.list.map(p => row(p.name, [p.locked && icon('lock'), p.id === people.active && icon('done')], () => p.id === people.active ? act('b') : selectProfile(p, async list => { people = list; apply(await ask('view')); while (layers.length > 1) pop(); homeLayer.redraw(); }), { id: p.id, ic: 'person', pick: true }))));
+  layer.el.append(draw()); layer.keep = people.active; layer.focus = l => restore({ ...l, focus: first, keep: people.active });
+  layer.hints = () => [[['b', t('Back'), () => act('b')]], [aHint()]];
+  S.play('open'); push(layer);
+};
+
+/* ---------- The menu: one row of icons along the bottom, its cards above them (the Mac app's MenuOverlayView) ---------- */
+const openMenu = async () => {
+  if (top().menu) return pop();
+  const under = top(), people = await ask('profiles').catch(() => ({ list: [] })), me = people.list.find(p => p.id === people.active);
+  if (top() !== under || !isPage(under)) return;
+  const items = menuOf({ people: people.list.length, abilities }), waiting = await waitingOnline();
+  const run = {
+    switch: () => openProfiles(), edit: () => openSettings('account'), theme: () => openSettings('appearance'), add: () => openAdd(), sources: () => openSettings('home'),
+    refresh: async () => { await reload(true); refaces(); homeLayer.redraw(); S.play('success'); card(h('strong', {}, t('Library refresh')), t('%lld games in your library', L.total)); },
+    fullscreen: () => setFullscreen(!full), hide: () => invoke('hide').catch(() => {}), restart: askRestart, quit: askQuit, activity: () => openActivity(), settings: () => openSettings(),
+  };
+  const layer = { el: h('section', { cls: 'veil menu', role: 'dialog', 'aria-label': t('Menu') }), over: true, menu: true };
+  let open = null;
+  const choose = id => { S.play('confirm'); layer.close(); run[id](); };
+  const orb = (x, i) => h('button', { cls: 'orb', 'data-id': x.id, 'aria-label': t(x.title), 'aria-haspopup': x.entries ? 'menu' : null, 'aria-expanded': x.entries ? false : null, onclick: () => x.entries ? (open === i ? shut() : show(i)) : choose(x.id) },
+    h('span', { cls: 'name' }, x.id === 'profile' && me ? [me.name, h('small', {}, t('Profile'))] : t(x.title)), h('span', { cls: 'circle' }, icon(x.icon), x.id === 'activity' && (preparing || waiting > 0) && h('i', { cls: 'dot ok' })));
+  const bar = h('div', { cls: 'orbs' }, items.map(orb)), pills = h('div', { cls: 'pills', role: 'menu' });
+  const orbs = () => [...bar.children];
+  const label = x => x.id === 'fullscreen' && full ? t('Leave full screen') : t(x.title);
+  const show = i => {
+    open = i; S.play('open');
+    fill(pills, items[i].entries.map(x => key(label(x), () => choose(x.id), { ic: x.icon, id: x.id })));
+    pills.style.setProperty('--from', i - (items.length - 1) / 2);
+    orbs().forEach((o, n) => { o.classList.toggle('open', n === i); if (items[n].entries) o.setAttribute('aria-expanded', n === i); });
+    bar.classList.add('holding'); layer.el.classList.add('deep'); pills.firstElementChild.focus({ preventScroll: true }); hints();
+  };
+  const shut = quiet => { const i = open; if (i == null) return; open = null; fill(pills); bar.classList.remove('holding'); layer.el.classList.remove('deep'); orbs().forEach((o, n) => { o.classList.remove('open'); if (items[n].entries) o.setAttribute('aria-expanded', false); }); if (!quiet) { S.play('back'); orbs()[i].focus({ preventScroll: true }); } };
+  const step = d => { const list = orbs(), i = open ?? list.indexOf(document.activeElement); shut(true); const n = list[i + d]; if (n) go(n); else { list[i]?.focus(); S.play('deny', list[i]); } };
+  layer.close = () => { if (top() === layer) pop(); };
+  layer.focus = () => orbs()[Math.max(0, items.findIndex(x => x.id === 'power'))].focus({ preventScroll: true });
+  layer.move = (dir, a) => {
+    if (open != null) { const list = [...pills.children], n = list[list.indexOf(a) + (dir === 'up' ? -1 : dir === 'down' ? 1 : NaN)]; if (n) go(n); else if (dir === 'down') shut(); else S.play('deny', a); return true; }
+    if (dir === 'left' || dir === 'right') step(dir === 'left' ? -1 : 1);
+    else if (dir === 'up' && items[orbs().indexOf(a)]?.entries) show(orbs().indexOf(a)); else S.play('deny', a);
+    return true;
+  };
+  layer.actions = { b: () => { if (open != null) return shut(); S.play('back'); layer.close(); }, home: () => { S.play('back'); layer.close(); }, lb: () => step(-1), rb: () => step(1) };
+  layer.hints = () => [[['b', open != null ? t('Back') : t('Close'), () => act('b')]], [['lb', t('Previous'), () => step(-1)], ['rb', t('Next'), () => step(1)], ['a', t('Select')]]];
+  layer.el.addEventListener('click', e => { if (e.target === layer.el) act('b'); });
+  layer.el.append(pills, bar);
+  S.play('open'); push(layer);
+};
+const waitingOnline = async () => L.online ? (await ask('library', {}).catch(() => ({ games: [] }))).games.filter(g => g.look).length : 0;
+/* What Oort does now, and the last games played. */
+const openActivity = async () => {
+  let now = [], last = [];
+  const read = async () => {
+    const [steam, waiting, folders, recent] = [await findSteam(), await waitingOnline(), await ask('folders'), await ask('library', { tab: 'Recently played', sort: 'recent' })];
+    now = [
+      preparing && row(game(preparing.id)?.name || t('Getting ready…'), `${Math.round(preparing.value * 100)} %`, () => openDetail(preparing?.id ?? now.id), { id: 'preparing', ic: 'build', sub: preparing.text || t('Getting ready…') }),
+      waiting > 0 && row(t('Information online'), t('%lld games', waiting), () => openSettings('integrations'), { id: 'online', ic: 'search', sub: t('Looking…') }),
+      steam.on && steam.downloading > 0 && row(t('Steam'), String(steam.downloading), () => openSettings('integrations'), { id: 'steam', ic: 'download', sub: t('%lld still downloading, left out', steam.downloading) }),
+      ...folders.folders.filter(f => !f.found).map(f => row(f.path, [t('Not found'), dot('bad')], () => openSettings('home'), { id: 'f' + f.key, ic: 'folder' })),
+    ].filter(Boolean);
+    last = recent.games.slice(0, 5);
+  };
+  await read();
+  const layer = sheet(t('Activity center'), () => [h('div', {}, h('h2', {}, t('In progress')), now.length ? h('div', { cls: 'rows' }, now) : h('p', { cls: 'say' }, t('No activity'))), last.length > 0 && h('div', {}, h('h2', {}, t('Recently played')), h('div', { cls: 'rows' }, last.map(g => row(g.name, duration(g.seconds), () => openDetail(g.id), { id: g.id, ic: 'play', sub: day(g.last) }))))], { activity: true });
+  const draw = layer.refresh; layer.refresh = async () => { await read(); if (layers.includes(layer)) draw(); }; layer.back = layer.redraw = layer.refresh;
+};
+
+/* ---------- Controls: the pad in hand, and what each button, key and gesture does ---------- */
+const controls = kind => {
+  const names = padNames(kindNames(kind), kind === 'playstation' ? pad?.name : ''), hold = x => t('Hold: %@', x);
+  return [['up', '✚', t('Move')], ['a', 'a', t('Select')], ['b', 'b', t('Back')], ['x', 'x', t('Details')], ['y', 'y', t('Search')], ['l', 'lb', t('Previous')], ['r', 'rb', t('Next')], ['zl', 'lt', t('First')], ['zr', 'rt', t('Last')], ['l3', 'ls', t('Search')], ['r3', 'rs', t('Sort')], ['view', 'view', t('Change view'), hold(t('Search'))], ['menu', 'menu', t('Options'), hold(t('Menu'))], ['home', 'home', t('Menu'), hold(t('Settings'))]]
+    .map(([button, name, title, held]) => ({ button, name: names[name] ?? name, title, hold: held }));
+};
+const controlsMap = kind => padMap({ kind, entries: controls(kind), live, label: t('What each button does'), quiet: root.hasAttribute('data-still') });
+const openControls = () => {
+  let kind = padKind(pad?.name);
+  const facts = list => h('dl', { cls: 'facts' }, list.map(([a, b]) => h('div', {}, h('dt', {}, b), h('dd', {}, a))));
+  sheet(t('Controls'), layer => [
+    h('div', { cls: 'rows' }, chooser(t('Controller'), KINDS.map(k => [k, KIND_NAMES[k]]), kind, k => { kind = k; layer.refresh(); }, { id: 'kind', ic: 'gamepad' })),
+    controlsMap(kind),
+    h('div', { tabindex: '0', cls: 'about', 'data-id': 'keys' }, h('h2', {}, t('Keyboard')), facts([[t('Move'), t('Arrow keys')], [t('Select'), '⏎'], [t('Back'), 'Esc'], [t('Details'), 'X, Ctrl D'], [t('Options'), 'Ctrl O, M'], [t('Search'), 'Y, Ctrl F'], [t('Menu'), 'Ctrl K, H'], [t('Settings'), 'Ctrl ,'], [t('Add game'), 'Ctrl N'], [t('Play'), 'Ctrl ⏎'], [t('Change view'), 'V'], [t('Sort'), 'F3'], [t('Interface size'), 'Ctrl +, Ctrl −, Ctrl 0'], abilities.includes('fullscreen') && [t('Fullscreen'), 'F11']].filter(Boolean))),
+    h('div', { tabindex: '0', cls: 'about', 'data-id': 'mouse' }, h('h2', {}, t('Mouse and touch')), facts([[t('Choose a game'), t('Click, or touch it')], [t('Play'), t('Double-click, or touch it again')], [t('Options'), t('Right click, or keep a finger on it')], [t('Next or previous game'), t('Wheel, or swipe')]])),
+  ]);
 };
 
 /* ---------- Settings ---------- */
 const section = id => t(['Settings navigation', id].join(': '));
 const openSettings = async (start = 'general') => {
+  if (typeof start !== 'string') start = 'general';
+  const open = layers.find(l => l.settings); if (open) return open === top() ? open.go(start) : S.play('deny');
   const icons = { general: 'settings', appearance: 'palette', sound: 'volume', controllers: 'gamepad', account: 'person', home: 'collections', library: 'image', integrations: 'puzzle', about: 'info' };
   let steam = await findSteam(), online = await ask('online'), page = await ask('settings'), folders = await ask('folders'), people = await ask('profiles'), cat = start, sub = null;
-  const layer = { el: h('section'), page: true };
+  const layer = { el: h('section'), page: true, settings: true, pending: () => page.pending };
   const take = async (p, redraw = true) => { page = await p; apply(page.view); if (redraw) again(layer, draw); };
   const set = (id, value) => take(ask('settings.set', { id, value })).catch(e => deny(document.activeElement, because(e)));
   const label = (r, v) => r.id === 'colorThemeID' ? (PALETTES.find(p => p[0] === v) || [, v])[1] : t((r.options.find(o => o.value === v) || { label: String(v) }).label);
@@ -460,26 +609,29 @@ const openSettings = async (start = 'general') => {
   const extra = {
     home: () => [h('div', {}, h('h2', {}, t('Game folders')), h('div', { cls: 'rows' }, folders.folders.map(f => row(f.path, [f.found ? t('%lld games', f.games) : t('Not found'), dot(f.found ? 'ok' : 'bad')], () => confirm(t('Remove this folder?'), t('%@ leaves the library. Nothing is deleted from the disk.', f.path), t('Remove'), async () => { folders = await ask('folders.remove', { path: f.key }); await reload(); again(layer, draw); }), { id: 'f' + f.key, ic: 'folder', help: t('Select to remove it from the library.') })), row(t('Add a folder'), icon('add'), () => pickFolder(async () => { folders = await ask('folders'); again(layer, draw); }), { id: 'addfolder' }), row(t('Look again'), t('%lld games', L.total), async () => { await reload(true); folders = await ask('folders'); again(layer, draw); }, { id: 'rescan', ic: 'sync', help: t('Reads the game folders again.') })))],
     account: () => [h('div', { cls: 'rows' }, people.list.map(p => row(p.name, [p.locked && icon('lock'), p.id === people.active && icon('done')], () => p.id === people.active ? type(t('Name'), p.name, async name => { people = await ask('profiles.rename', { profile: p.id, name }); again(layer, draw); }) : choose(p), { id: 'p' + p.id, ic: 'person', help: p.id === people.active ? t('Select to rename it.') : t('Select to play as this profile.') })), row(t('New profile'), icon('add'), () => type(t('Name'), '', async name => { people = await ask('profiles.add', { name }); again(layer, draw); }), { id: 'newp' }))],
-    general: () => [h('div', { cls: 'rows' }, row(t('Guided setup'), icon('chevron'), () => openGuide(), { id: 'guide', ic: 'checklist', help: t('Reopen the guided setup without resetting your library.') }))],
+    general: () => [h('div', { cls: 'rows' }, abilities.includes('fullscreen') && row(t('Fullscreen'), h('span', { cls: 'sw' }), () => { S.play('confirm', document.activeElement); setFullscreen(!full); }, { id: 'full', ic: 'monitor', role: 'switch', checked: full, help: t('Right now. F11 does the same.') }), row(t('Guided setup'), icon('chevron'), () => openGuide(), { id: 'guide', ic: 'checklist', help: t('Reopen the guided setup without resetting your library.') }), abilities.includes('quit') && row(t('Quit Oort NX'), '', askQuit, { id: 'quit', ic: 'power' }))],
+    controllers: () => [h('div', {}, controlsMap(padKind(pad?.name)), h('div', { cls: 'rows' }, row(t('Controls'), icon('chevron'), () => openControls(), { id: 'controls', ic: 'gamepad', help: t('What each button, key and gesture does.') })))],
     integrations: () => [
       h('div', { cls: 'rows' },
         row(t('Steam'), [steam.found ? t('%lld games', steam.games) : t('Not found'), h('span', { cls: 'sw' })], async () => { S.play('confirm', document.activeElement); steam = steamSeen = await ask('steam.set', { on: !steam.on }); await reload(true); again(layer, draw); }, { id: 'steam', ic: 'gamepad', role: 'switch', checked: steam.on, sub: t('Reads Steam’s lists of installed games and the pictures it keeps on this computer. Changes nothing and sends nothing; Steam itself starts the games.'), help: steam.found ? [steam.libraries.join(', '), steam.downloading && t('%lld still downloading, left out', steam.downloading), steam.others && t('%lld tools and extras, left out', steam.others)].filter(Boolean).join('. ') : t('Steam was not found on this computer. It is looked for again each time.') }),
         row(t('Game information online'), [online.on ? t('%lld games known', online.known) : t('Off'), h('span', { cls: 'sw' })], async () => { S.play('confirm', document.activeElement); online = await ask('online.set', { on: !online.on }); await reload(); again(layer, draw); }, { id: 'online', ic: 'search', role: 'switch', checked: online.on, sub: onlineText() }),
         online.known > 0 && row(t('Delete what was found online'), t('%lld games', online.known), () => confirm(t('Delete what was found online?'), t('Covers and descriptions found online leave this computer. Your own pictures stay.'), t('Delete'), async () => { online = await ask('online.clear'); await reload(); again(layer, draw); }), { id: 'clear', ic: 'delete' })),
       h('div', { cls: 'rows' }, row(t('Recompilations'), [t('%lld games', L.games.filter(g => g.kind === 'recompilation').length), icon('chevron')], () => openCatalog(), { id: 'recomp', ic: 'store', sub: t('Reads the recomplauncher.json of each game in your folders. Writes only the settings files games declare. Sends nothing.') }), row(t('Programs'), [String(folders.programs.length), icon('chevron')], () => openProgram(), { id: 'prog', ic: 'terminal', sub: t('Any program with its arguments, an emulator with a game for example. Sends nothing.') }))],
-    about: () => [h('div', {}, h('div', { cls: 'rows' }, row(t('Version'), version, null, { id: 'version' }), row(t('Open project docs'), icon('link'), () => link('https://github.com/sofianbll/oort-nx'), { id: 'docs' }))), h('div', {}, h('h2', {}, t('Credits')), h('div', { cls: 'rows' }, [['RecompLauncher SDK', t('The recomplauncher.json format, by Ripalda (MIT)'), 'https://github.com/elripalda/RecompLauncher-SDK'], ['Padwake', t('Following a game’s processes on Windows, by ddoinn (MIT)'), 'https://github.com/ddoinn/padwake'], ['Arcane, Selene', t('The app and the interface Oort NX comes from, by Bium23 and Matthew Silva (MIT)'), 'https://github.com/sofianbll/oort-nx']].map(([a, b, url]) => row(a, icon('link'), () => link(url), { id: a, sub: b })))), h('p', { cls: 'say' }, online.on ? t('No account, no telemetry. Only the names of your games go out, to find their information online: Integrations turns it off.') : t('Everything stays on this computer: no account, no telemetry, no data sent.'))],
+    about: () => [h('div', {}, h('div', { cls: 'rows' }, row(t('Version'), [version, icon('link')], () => link('https://github.com/sofianbll/oort-nx/releases'), { id: 'version', help: t('Opens the page of versions in your browser. Oort NX does not look by itself.') }), row(t('Logs'), icon('folder'), openLogs, { id: 'logs', help: t('What games said the last time they ran.') }), row(t('Open project docs'), icon('link'), () => link('https://github.com/sofianbll/oort-nx'), { id: 'docs' }))), h('div', {}, h('h2', {}, t('Credits')), h('div', { cls: 'rows' }, [['RecompLauncher SDK', t('The recomplauncher.json format, by Ripalda (MIT)'), 'https://github.com/elripalda/RecompLauncher-SDK'], ['Padwake', t('Following a game’s processes on Windows, by ddoinn (MIT)'), 'https://github.com/ddoinn/padwake'], ['Arcane, Selene', t('The app and the interface Oort NX comes from, by Bium23 and Matthew Silva (MIT)'), 'https://github.com/sofianbll/oort-nx']].map(([a, b, url]) => row(a, icon('link'), () => link(url), { id: a, sub: b })))), h('p', { cls: 'say' }, online.on ? t('No account, no telemetry. Only the names of your games go out, to find their information online: Integrations turns it off.') : t('Everything stays on this computer: no account, no telemetry, no data sent.'))],
   };
-  const choose = async p => { const go_ = async pin => { people = await ask('profiles.select', { profile: p.id, pin }); await take(ask('settings'), false); await reload(); again(layer, draw); }; if (p.locked) type(t('Use four digits.'), '', go_, true); else go_().catch(e => deny(document.activeElement, because(e))); };
+  const choose = p => selectProfile(p, async list => { people = list; await take(ask('settings'), false); again(layer, draw); });
+  layer.go = to => { cat = to; sub = null; layer.keep = 'c-' + to; again(layer, draw); layer.focus(layer); };
+  layer.fullChanged = () => cat === 'general' && again(layer, draw);
   const draw = () => {
     const c = page.categories.find(x => x.id === cat), s = sub && c.subjects.find(x => x.id === sub);
     const title = s ? t(s.title) : section(cat);
     const own = (s || c).rows, body = [own.length && h('div', { cls: 'rows' }, own.map(draft)), !s && c.subjects.length && h('div', { cls: 'rows' }, c.subjects.map(x => row(t(x.title), icon('chevron'), () => { S.play('open'); sub = x.id; layer.keep = null; again(layer, draw); layerRow()?.focus(); }, { id: 'sub-' + x.id }))), ...(!s && extra[cat] ? extra[cat]() : [])];
-    const foot = page.pending && h('div', { cls: 'draft panel' }, h('p', {}, t('%lld changes to save', page.changes.length)), key(t('Discard'), () => { S.play('back'); take(ask('settings.discard')); }, { id: 'discard' }), key(t('Save'), () => { S.play('success'); take(ask('settings.save')); }, { id: 'save' }));
+    const foot = page.pending && h('div', { cls: 'draft panel' }, h('p', {}, t('%lld changes to save', page.changes.length)), key(t('Leave without saving'), async () => { S.play('back'); await take(ask('settings.discard'), false); pop(); }, { id: 'discard' }), key(t('Save'), () => { S.play('success'); take(ask('settings.save')); }, { id: 'save' }));
     return shellOf(null, page.categories.map(x => ({ id: 'c-' + x.id, title: section(x.id), ic: icons[x.id], group: x.group && t(x.group), on: x.id === cat, pick: () => { cat = x.id; sub = null; again(layer, draw); } })), title, body, foot);
   };
   shellActions(layer, () => {
     if (!page.pending) { S.play('back'); return pop(); }
-    dialog(t('Save your changes?'), page.changes.length === 1 ? t('One setting changed.') : t('%lld settings changed.', page.changes.length), [[t('Keep editing'), () => {}], [t('Discard'), async () => { await take(ask('settings.discard'), false); pop(); }], [t('Save'), async () => { await take(ask('settings.save'), false); S.play('success'); pop(); }]]);
+    dialog(t('Save your changes?'), page.changes.length === 1 ? t('One setting changed.') : t('%lld settings changed.', page.changes.length), [[t('Keep editing'), () => {}], [t('Leave without saving'), async () => { await take(ask('settings.discard'), false); pop(); }], [t('Save'), async () => { await take(ask('settings.save'), false); S.play('success'); pop(); }]]);
   });
   const b = layer.actions.b;
   layer.actions.b = () => { if (sub && !document.activeElement.closest('.side')) { const was = 'sub-' + sub; sub = null; S.play('back'); layer.keep = was; again(layer, draw); $(`[data-id="${was}"]`, layer.el)?.focus(); } else b(); };
@@ -497,7 +649,7 @@ const openSettings = async (start = 'general') => {
 const openSort = () => {
   const sorts = [['recent', t('Sort: Recent')], ['name', t('Sort: Name')], ['added', t('Sort: Recently added')], ['playtime', t('Sort: Playtime')]];
   const layer = { el: h('section', { cls: 'veil dialog', role: 'dialog', 'aria-label': t('Sort games') }), over: true };
-  const draw = () => h('div', {}, h('h1', {}, t('Sort games')), h('div', { cls: 'rows' }, sorts.map(([id, name]) => row(name, V.sort === id && icon('done'), async () => { S.play('confirm', document.activeElement); await remember({ sort: id }); V.sort = id; await reload(); again(layer, draw); }, { id, cls: V.sort === id ? 'chosen' : '' }))));
+  const draw = () => h('div', {}, h('h1', {}, t('Sort games')), h('div', { cls: 'rows' }, sorts.map(([id, name]) => row(name, V.sort === id && icon('done'), async () => { S.play('confirm', document.activeElement); await remember({ sort: id }); V.sort = id; await reload(); again(layer, draw); }, { id, pick: true, cls: V.sort === id ? 'chosen' : '' }))));
   layer.el.append(draw()); layer.keep = V.sort; layer.focus = l => restore({ ...l, focus: first, keep: V.sort });
   layer.hints = () => [[['b', t('Back'), () => act('b')]], [['a', t('Select')]]]; layer.gone = () => homeLayer.redraw();
   layer.actions = { rs: () => act('b') };
@@ -505,31 +657,51 @@ const openSort = () => {
 };
 
 /* ---------- Search, and the keys to type with a controller ---------- */
-const keyboard = (type, erase, done) => h('div', { cls: 'keyboard' }, [...'abcdefghijklmnopqrstuvwxyz0123456789-'].map(c => key(c, () => type(c))), key('', erase, { ic: 'backspace', aria: t('Erase') }), key('', done, { ic: 'done', aria: t('Done') }), key(t('Space'), () => type(' '), { cls: 'wide' }));
+/* Letters, capitals (one, or kept), marks; for a code, digits only. It shows when a controller or a finger may need it. */
+const LETTERS = [...'abcdefghijklmnopqrstuvwxyz0123456789-'], MARKS = [...'àâäãåæçéèêëîïíñôöóõœùûüúÿß.,\'":!?&()/'];
+const wantsKeys = () => !!pad || hand.now === 'touch';
+const keyboard = ({ put, erase, done, digits }) => {
+  const el = h('div', { cls: 'keyboard' + (digits ? ' digits' : '') });
+  let capital = 0, marks = false;
+  const turn = keep => { draw(); $(`[data-id=${keep}]`, el)?.focus({ preventScroll: true }); };
+  const letter = c => { const s = capital && c !== 'ß' ? c.toLocaleUpperCase(language) : c; return key(s, () => { put(s); if (capital === 1) { capital = 0; turn('k' + c.codePointAt(0)); } }, { id: 'k' + c.codePointAt(0) }); };
+  const tail = () => [key('', erase, { ic: 'backspace', aria: t('Erase'), id: 'erase' }), key('', done, { ic: 'done', aria: t('Done'), id: 'ok' })];
+  const draw = () => digits ? fill(el, [...'123456789'].map(c => key(c, () => put(c))), tail()[0], key('0', () => put('0')), tail()[1])
+    : fill(el, (marks ? MARKS : LETTERS).map(letter), tail(),
+      h('div', { cls: 'wide' }, key(t('Shift'), () => { capital = (capital + 1) % 3; turn('shift'); }, { id: 'shift', cls: ['', 'lit', 'lit kept'][capital], pressed: capital > 0 }), key(t('Space'), () => put(' '), { id: 'space', cls: 'space' }), key(marks ? 'abc' : 'é & ?', () => { marks = !marks; turn('marks'); }, { id: 'marks', aria: marks ? t('Letters') : t('Accents and signs') })));
+  draw(); return el;
+};
 const openSearch = () => {
   if (top().search) return;
   const input = h('input', { type: 'text', placeholder: t('Find a game'), 'aria-label': t('Find a game'), autocomplete: 'off', spellcheck: 'false', 'data-id': 'q' }), found = h('div', { cls: 'found', 'aria-live': 'polite' }), keys = h('div');
   const layer = { el: h('section', { cls: 'veil', role: 'search' }, h('div', { cls: 'find' }, h('label', { cls: 'field' }, icon('search'), input), keys, found)), over: true, search: true };
   const open = g => { S.play('confirm'); pop(); tab = TABS[0]; selected = g.id; reload().then(() => { while (layers.length > 1) pop(); homeLayer.redraw(); }); };
   let turn = 0;
-  const look = async () => { const me = ++turn, q = input.value.trim(), r = q ? (await ask('library', { search: q, sort: 'name' })).games.slice(0, 12) : []; if (me !== turn) return; found.replaceChildren(...(r.length ? r.map(g => h('button', { cls: 'tile', 'data-id': g.id, onclick: () => open(g) }, face(g, 'icon'), g.name)) : q ? [h('p', { cls: 'say' }, t('No games match.'))] : [])); };
+  const look = async () => { const me = ++turn, q = input.value.trim(), r = q ? (await ask('library', { search: q, sort: 'name' })).games.slice(0, 12) : []; if (me !== turn) return; hints(); found.replaceChildren(...(r.length ? r.map(g => h('button', { cls: 'tile', 'data-id': g.id, onclick: () => open(g) }, face(g, 'icon'), g.name)) : q ? [h('p', { cls: 'say' }, t('No games match.'))] : [])); };
   input.addEventListener('input', look);
   input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); found.querySelector('button')?.click(); } });
-  layer.padChanged = () => { keys.replaceChildren(...(pad ? [keyboard(c => { input.value += c; look(); }, () => { input.value = input.value.slice(0, -1); look(); }, () => { const e = found.querySelector('button'); e ? go(e) : S.play('deny'); })] : [])); };
-  layer.padChanged(); layer.focus = () => (pad && !keysInHand ? focusable(keys)[0] : input).focus();
-  layer.hints = () => [[['b', t('Close'), () => act('b')]], [pad && ['x', t('Erase'), () => layer.actions.x()], ['a', t('Select')]]];
-  layer.actions = { x: () => { input.value = input.value.slice(0, -1); look(); }, y: () => { input.value = ''; look(); } };
+  const erase = () => { input.value = input.value.slice(0, -1); look(); }, clear = () => { input.value = ''; look(); };
+  let drawn = null;
+  layer.padChanged = layer.handChanged = () => { if (drawn === wantsKeys()) return; drawn = wantsKeys(); keys.replaceChildren(...(drawn ? [keyboard({ put: c => { input.value += c; look(); }, erase, done: () => { const e = found.querySelector('button'); e ? go(e) : S.play('deny'); } })] : [])); hints(); };
+  layer.padChanged(); layer.focus = () => (wantsKeys() && hand.now !== 'keys' && hand.now !== 'mouse' ? focusable(keys)[0] : input).focus();
+  layer.hints = () => [[['b', t('Close'), () => act('b')]], [...(inPad() && input.value ? [['x', t('Erase'), erase], ['y', t('Clear all'), clear]] : []), document.activeElement?.closest('.found') ? ['a', t('Open')] : aHint()]];
+  layer.actions = { x: erase, y: clear };
   S.play('open'); push(layer);
 };
 /* One line of text, by keyboard or controller. */
 const type = (title, value, done, digits) => {
   const input = h('input', { type: 'text', value, 'aria-label': title, inputmode: digits ? 'numeric' : null, maxlength: digits ? 4 : 40, 'data-id': 'q', autocomplete: 'off', spellcheck: 'false' });
   const ok = async () => { try { await done(input.value.trim()); S.play('success'); pop(); } catch (e) { deny(input, because(e)); $('p', layer.el).textContent = because(e); } };
-  const layer = { el: h('section', { cls: 'veil dialog', role: 'dialog', 'aria-label': title }), over: true };
-  layer.el.append(h('div', {}, h('h1', {}, title), h('label', { cls: 'field' }, input), h('p', { 'aria-live': 'polite' }), pad && keyboard(c => { if (input.value.length < input.maxLength) input.value += c; }, () => { input.value = input.value.slice(0, -1); }, ok), h('div', { cls: 'keys' }, key(t('Cancel'), () => pop()), key(t('Save'), ok))));
+  const layer = { el: h('section', { cls: 'veil dialog typing', role: 'dialog', 'aria-label': title }), over: true }, keys = h('div');
+  const put = c => { if (input.value.length < input.maxLength && (!digits || /\d/.test(c))) input.value += c; hints(); }, erase = () => { input.value = input.value.slice(0, -1); hints(); }, clear = () => { input.value = ''; hints(); };
+  layer.el.append(h('div', {}, h('h1', {}, title), h('label', { cls: 'field' }, input), h('p', { 'aria-live': 'polite' }), keys, h('div', { cls: 'keys' }, key(t('Cancel'), () => pop()), key(t('Save'), ok))));
   input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); ok(); } });
-  layer.focus = () => { (pad && !keysInHand ? focusable($('.keyboard', layer.el))[0] : input).focus(); };
-  layer.hints = () => [[['b', t('Back'), () => act('b')]], [['a', t('Select')]]];
+  let drawn = null;
+  layer.padChanged = layer.handChanged = () => { if (drawn === wantsKeys()) return; drawn = wantsKeys(); keys.replaceChildren(...(drawn ? [keyboard({ put, erase, done: ok, digits })] : [])); hints(); };
+  layer.padChanged();
+  layer.focus = () => { (wantsKeys() && hand.now !== 'keys' && hand.now !== 'mouse' ? focusable(keys)[0] : input).focus(); };
+  layer.actions = { x: erase, y: clear };
+  layer.hints = () => [[['b', t('Back'), () => act('b')]], [...(inPad() && input.value ? [['x', t('Erase'), erase], ['y', t('Clear all'), clear]] : []), aHint()]];
   push(layer);
 };
 
@@ -551,17 +723,27 @@ const pickFile = ({ title, extensions = [], folders = false, files = true, done 
   const up = () => at.parent == null ? (S.play('back'), pop()) : (S.play('back'), openPath(at.parent, at.path));
   const draw = () => h('div', { cls: 'sheet' }, h('h1', {}, title), h('p', { cls: 'sub' }, at.shown || at.path || ''), h('div', { cls: 'list' }, h('div', { cls: 'rows' }, folders && at.path && row(t('Choose this folder'), at.games ? t('%lld games', at.games) : '', () => use(at.path), { id: 'this', ic: 'done' }), at.parent != null && row(t('Up one folder'), '', up, { id: 'up', ic: 'folder' }), at.entries.length ? at.entries.map(e => row(e.name, e.folder && icon('chevron'), () => e.folder ? (S.play('open'), openPath(e.path)) : use(e.path), { id: e.path, ic: e.folder ? 'folder' : 'save' })) : h('p', { cls: 'say' }, t('No matching files or folders.')))), h('p', { cls: 'help', 'aria-live': 'polite' }));
   layer.el.append(draw());
-  layer.hints = () => [[['b', at.parent != null ? t('Up one folder') : t('Back'), up], ['y', t('Close'), () => { S.play('back'); pop(); }]], [folders && at.path && ['x', t('Choose this folder'), () => use(at.path)], ['a', t('Open')]]];
-  layer.actions = { b: up, y: () => { S.play('back'); pop(); }, x: () => folders && at.path && use(at.path) };
+  layer.hints = () => [[['b', at.parent != null ? t('Up one folder') : t('Back'), up], ['menu', t('Close'), layer.actions.menu]], [folders && at.path && ['x', t('Choose this folder'), () => use(at.path)], ['a', t('Open')]]];
+  layer.actions = { b: up, menu: () => { S.play('back'); pop(); }, x: () => folders && at.path && use(at.path) };
   push(layer); openPath('');
 };
-const pickFolder = after => pickFile({ title: t('Choose a folder of game files'), folders: true, files: false, done: async path => { try { const f = await ask('folders.add', { path }); await reload(); if (after) await after(); else { selected = L.games[0]?.id ?? null; homeLayer.redraw(); } const n = f.folders.at(-1)?.games ?? 0; if (!n) dialog(t('No games were found in this folder.'), t('Games come as folders with a recomplauncher.json inside. The folder stays in the library and is read again at each start.'), [[t('Close'), () => {}]]); } catch (e) { deny(null, because(e)); } } });
+const pickFolder = after => pickFile({ title: t('Choose a folder of game files'), folders: true, files: false, done: path => addFolder(path, after) });
+const addFolder = async (path, after) => { try { const f = await ask('folders.add', { path }); await reload(); if (after) await after(); else { selected = L.games[0]?.id ?? null; homeLayer.redraw(); } const n = f.folders.at(-1)?.games ?? 0; if (!n) dialog(t('No games were found in this folder.'), t('Games come as folders with a recomplauncher.json inside. The folder stays in the library and is read again at each start.'), [[t('Close'), () => {}]]); } catch (e) { deny(null, because(e)); } };
+/* A folder or a program dropped on the window: as if it had been chosen there. One at a time. */
+const dropped = async paths => {
+  const path = paths?.[0]?.replaceAll('\\', '/');
+  if (!path) return;
+  if (!isPage()) return deny(null, t('Close this first, then drop it again.'));
+  const folder = await ask('files', { path, folders: true }).catch(() => null);
+  folder ? addFolder(path, () => { while (layers.length > 1) pop(); selected = L.games[0]?.id ?? null; homeLayer.redraw(); }) : openProgram(path);
+};
 
 /* ---------- Adding ---------- */
-const sheet = (title, draw, more = {}) => { const layer = { el: h('section'), page: true, ...more }; const body = () => h('div', { cls: 'sheet' }, h('h1', {}, title), h('div', { cls: 'list' }, draw(layer)), h('p', { cls: 'help', 'aria-live': 'polite' })); layer.refresh = () => again(layer, body); layer.redraw = layer.refresh; layer.el.append(body()); layer.hints = layer.hints || (() => [[['b', t('Back'), () => act('b')]], [['a', t('Open')]]]); S.play('open'); return push(layer); };
+const sheet = (title, draw, more = {}) => { const layer = { el: h('section'), page: true, ...more }; const body = () => h('div', { cls: 'sheet' }, h('h1', {}, title), h('div', { cls: 'list' }, draw(layer)), h('p', { cls: 'help', 'aria-live': 'polite' })); layer.refresh = () => again(layer, body); layer.redraw = layer.refresh; layer.el.append(body()); layer.hints = layer.hints || (() => [[['b', t('Back'), () => act('b')]], [aHint()]]); S.play('open'); return push(layer); };
 const openAdd = async () => { await findSteam(); return sheet(t('Add game'), () => h('div', { cls: 'rows' }, addRows())); };
-const openProgram = () => {
-  const p = { program: '', target: '', args: '', name: '', about: null }, base = x => x.split(/[\\/]/).pop(), native = x => system === 'windows' ? x.replaceAll('/', '\\') : x;
+const openProgram = async first => {
+  if (typeof first !== 'string') first = '';
+  const p = { program: first, target: '', args: '', name: '', about: first ? await ask('programs.about', { path: first }).catch(() => null) : null }, base = x => x.split(/[\\/]/).pop(), native = x => system === 'windows' ? x.replaceAll('/', '\\') : x;
   const add = async () => { try { const r = await ask('programs.add', { program: p.program, target: p.target || null, args: p.args, name: p.name }); S.play('success'); await reload(); selected = r.added; tab = TABS[0]; while (layers.length > 1) { if (top().guide) break; pop(); } if (top().guide) top().refresh(); else homeLayer.redraw(); } catch (e) { deny(document.activeElement, because(e)); } };
   // A game for this system, in what a folder holds.
   const programs = system === 'windows' ? ['exe', 'bat', 'cmd'] : [];
@@ -603,7 +785,7 @@ const ended = async end => {
   if (end.cancelled) return S.play('back');
   S.play('resume');
   if (end.error === 'steam-not-started') return dialog(t('%@ did not start', end.name || g?.name || ''), because(end.error), [[t('Close'), () => {}], [t('Details'), () => openDetail(end.id)]]);
-  if (end.crashed || end.error) dialog(t('%@ stopped', end.name || g?.name || ''), end.message || (end.error ? because(end.error) : t('It closed with an error. Its last messages are kept with Oort NX’s logs.')), [[t('Close'), () => {}], [t('Details'), () => openDetail(end.id)]]);
+  if (end.crashed || end.error) dialog(t('%@ stopped', end.name || g?.name || ''), end.message || (end.error ? because(end.error) : t('It closed with an error. Its last messages are kept with Oort NX’s logs.')), [[t('Close'), () => {}], [t('Details'), () => openDetail(end.id)], [t('Log'), openLogs]]);
   else if (V.sessionCard) card(h('strong', {}, end.name || ''), t('Session ended'), t('This session: %@', duration(end.seconds)), t('In total: %@', duration(end.total)));
 };
 let carded = 0;
@@ -611,8 +793,8 @@ const card = (...lines) => { const c = $('#card'); clearTimeout(carded); c.repla
 const prepare = async id => { try { await invoke('prepare', { id }); preparing = { id, value: 0, text: '' }; S.play('play'); top().refresh?.(); } catch (e) { deny(document.activeElement, because(e)); dialog(t('This game could not get ready'), because(e), [[t('Close'), () => {}]]); } };
 const prepared = async p => {
   const layer = layers.find(l => l.id === p.id);
-  if (p.progress) { preparing = { id: p.id, ...p.progress }; const bar = layer && $('.bar', layer.el); if (bar) { bar.style.setProperty('--at', p.progress.value); $('.wait .say', layer.el).textContent = p.progress.text; } return; }
-  preparing = null; await reload(); layer?.refresh?.(); if (!layer) homeLayer.redraw();
+  if (p.progress) { preparing = { id: p.id, ...p.progress }; const bar = layer && $('.bar', layer.el); if (bar) { bar.style.setProperty('--at', p.progress.value); $('.wait .say', layer.el).textContent = p.progress.text; } layers.find(l => l.activity)?.refresh(); return; }
+  preparing = null; await reload(); layer?.refresh?.(); if (!layer) homeLayer.redraw(); layers.find(l => l.activity)?.refresh();
   if (p.end.done) { S.play('success'); card(h('strong', {}, game(p.id)?.name || ''), t('Ready to play')); } else dialog(t('This game could not get ready'), p.end.message || t('Its setup step stopped with code %@.', p.end.code ?? '—'), [[t('Close'), () => {}]]);
 };
 
@@ -663,7 +845,7 @@ const openGuide = async (at = 'welcome') => {
     return true;
   };
   layer.actions = { b: () => page === 'welcome' ? null : turn(-1) };
-  layer.hints = () => [[page !== 'welcome' && ['b', t('Back'), () => turn(-1)]], [document.activeElement?.step ? ['a', t('Change')] : ['a', t('Select')]]];
+  layer.hints = () => [[page !== 'welcome' && ['b', t('Back'), () => turn(-1)]], [aHint()]];
   layer.settings = await ask('settings');
   if (page === 'games') { steam = await findSteam(); take = steam.chosen ? steam.on : steam.found; }
   layer.el.append(...shown([draw()]));
@@ -671,20 +853,20 @@ const openGuide = async (at = 'welcome') => {
 };
 
 /* ---------- Start ---------- */
-export const oort = { act, ask, apply, layers, sounds: S, cloud: C, get view() { return V; }, get library() { return L; }, guide: openGuide, pad: s => padding.feed(s), fullscreen: setFullscreen };
+export const oort = { act, ask, hand, live, dropped, apply, layers, sounds: S, cloud: C, get view() { return V; }, get library() { return L; }, guide: openGuide, pad: s => padding.feed(s), fullscreen: setFullscreen };
 const start = async () => {
   const hello = await ask('hello', { languages: [...navigator.languages] });
-  prompts = await ask('prompts'); plugged = await invoke('pads'); version = hello.version; system = hello.system; TABS = hello.tabs; full = hello.view.fullscreen; home = hello.lastHome === 'collection' ? 'collection' : 'spotlight';
+  prompts = await ask('prompts'); plugged = await invoke('pads'); abilities = await invoke('abilities').catch(() => ['quit']); version = hello.version; system = hello.system; TABS = hello.tabs; full = hello.view.fullscreen; home = hello.lastHome === 'collection' ? 'collection' : 'spotlight';
   apply(hello.view); tab = TABS.includes(hello.view.startingTab) ? hello.view.startingTab : TABS[0];
   if (hello.view.restore && hello.lastGame) selected = hello.lastGame;
   await reload();
   homeLayer.el.classList.add('layer'); layers.push(homeLayer); host.append(homeLayer.el); homeLayer.redraw();
-  T.event.listen('session', e => ended(e.payload)); T.event.listen('prepare', e => prepared(e.payload)); T.event.listen('online', e => found(e.payload)); T.event.listen('steam', e => { if (playing?.id === e.payload.id) { playing.phase = e.payload.phase; layers.find(l => l.launch)?.phase(); } }); T.event.listen('pad', e => padding.feed(e.payload)); T.event.listen('pads', e => { plugged = e.payload; padChanged(); top()?.padChanged?.(); });
+  T.event.listen('tauri://drag-drop', e => dropped(e.payload?.paths)); T.event.listen('session', e => ended(e.payload)); T.event.listen('prepare', e => prepared(e.payload)); T.event.listen('online', e => found(e.payload)); T.event.listen('steam', e => { if (playing?.id === e.payload.id) { playing.phase = e.payload.phase; layers.find(l => l.launch)?.phase(); } }); T.event.listen('pad', e => padding.feed(e.payload)); T.event.listen('pads', e => { plugged = e.payload; padChanged(); top()?.padChanged?.(); });
   // Games unzipped while Oort was behind show on return.
   addEventListener('focus', async () => { if (playing || layers.length > 1) return; const before = JSON.stringify(L.games.map(g => [g.id, g.state])); await reload(true); if (JSON.stringify(L.games.map(g => [g.id, g.state])) !== before) homeLayer.redraw(); });
   S.warm(); S.play('boot');
   if (hello.guide.open) await openGuide(hello.guide.page);
-  else if (hello.guide.news) { await ask('guide', { seen: true }); dialog(t('What’s new in Oort NX'), t('Your programs now show their own icon and name. Oort NX can also show the games Steam installed, and look for covers and descriptions online if you say yes.'), [[t('Open library'), () => {}], [t('Guided setup'), () => openGuide()]]); }
+  else if (hello.guide.news) { await ask('guide', { seen: true }); dialog(t('What’s new in Oort NX'), t('The + button (Menu, Options) now opens the options of the chosen game, and Home or + held opens the new menu: your library, Settings, full screen, Quit. With a mouse: the wheel, and a right click for the options.'), [[t('Open library'), () => {}], [t('Controls'), () => openControls()]]); }
   root.dataset.ready = '1'; root.dataset.version = version;
   window.oort = oort;
 };
