@@ -90,7 +90,7 @@ struct ControlsView: View {
             (L10n.text("Settings"), "⌘,"),
             (L10n.text("Search"), "⌘F"),
             (L10n.text("Profiles"), "⇧⌘P"),
-            (L10n.text("Move a tile"), L10n.text("Hold Confirm on a Spotlight tile"))
+            (L10n.text("Move a tile"), L10n.text("Options of the card, then Move"))
         ]
     }
 
@@ -102,7 +102,7 @@ struct ControlsView: View {
                         Text(L10n.text("Controls"))
                             .seleneFont(.screen)
                             .foregroundColor(SeleneTheme.ink)
-                        Text(inGame ? L10n.text("Default game inputs. Older builds may differ.") : L10n.text("Navigate Arcane."))
+                        Text(inGame ? L10n.text("Default game inputs. Older builds may differ.") : L10n.text("Navigate Oort."))
                             .seleneFont(.text)
                             .foregroundColor(SeleneTheme.ink60)
                             .padding(.bottom, canvas.u(SeleneTokens.Space.control))

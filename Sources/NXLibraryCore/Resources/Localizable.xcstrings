@@ -1,6 +1,100 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Navigate Oort.": {
+      "comment": "ControlsView",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Navigate Oort."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Naviguer dans Oort."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Oort navigieren."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Navegar por Oort."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Naviga in Oort."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Navegar no Oort."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "浏览 Oort。"
+          }
+        }
+      }
+    },
+    "Options of the card, then Move": {
+      "comment": "ControlsView",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Options of the card, then Move"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Options de la carte, puis Déplacer"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Optionen der Karte, dann Verschieben"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opciones de la tarjeta y luego Mover"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opzioni della scheda, poi Sposta"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opções do cartão e depois Mover"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "卡片选项，然后移动"
+          }
+        }
+      }
+    },
     "Other controller": {
       "comment": "ControlsView",
       "localizations": {
@@ -40461,54 +40555,7 @@
         }
       }
     },
-    "Hold Confirm on a Spotlight tile": {
-      "comment": "ControlsView.swift:51",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hold Confirm on a Spotlight tile"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tieni premuto Conferma su un riquadro di Spotlight"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Maintenir Confirmer sur une vignette d’À la une"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bestätigungstaste auf einer Spotlight-Kachel gedrückt halten"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mantén pulsado Confirmar en una ficha de Destacados"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mantenha Confirmar pressionado em um bloco de Destaques"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在 Spotlight 磁贴上按住确认键"
-          }
-        }
-      }
-    },
-    "Hold Space": {
+"Hold Space": {
       "comment": "ControlsView.swift:36",
       "localizations": {
         "en": {
@@ -49965,54 +50012,7 @@
         }
       }
     },
-    "Navigate Arcane.": {
-      "comment": "ControlsView.swift",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Navigate Arcane."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Naviga in Arcane."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Naviguer dans Arcane."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "In Arcane navigieren."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Navega por Arcane."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Navegue pelo Arcane."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "浏览 Arcane。"
-          }
-        }
-      }
-    },
-    "Navigation": {
+"Navigation": {
       "comment": "SettingsSection.swift:16",
       "localizations": {
         "en": {

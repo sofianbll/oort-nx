@@ -172,7 +172,7 @@ final class AppRouterTests: XCTestCase {
         XCTAssertEqual(router.menuStep(.confirm), .entry(.addGame))
         XCTAssertEqual(router.menuStep(.next), .action(.power))
         router.pressMenuIcon(.power)
-        XCTAssertEqual(router.menuStep(.confirm), .power(.quit))
+        XCTAssertEqual(router.menuStep(.confirm), .power(.sleep))
         XCTAssertEqual(router.menuStep(.next), .action(.activityCenter))
         router.pressMenuIcon(.activityCenter)
         router.activityCenterFocus = ActivityCenterFocus()
@@ -188,16 +188,16 @@ final class AppRouterTests: XCTestCase {
         router.menuSelection.selected = .power
         router.openPowerMenu()
         router.movePowerMenu(by: 1)
-        XCTAssertEqual(router.menuSelection.power, .sleep)
+        XCTAssertEqual(router.menuSelection.power, .hide)
         XCTAssertEqual(router.menuSelection.selected, .power)
         // Left and Right do nothing while the pills are open.
         router.moveMenu(by: -1)
         XCTAssertEqual(router.menuSelection.selected, .power)
-        XCTAssertEqual(router.menuSelection.power, .sleep)
+        XCTAssertEqual(router.menuSelection.power, .hide)
         router.closePowerMenu()
         // Up and Down do nothing while the pills are closed.
         router.movePowerMenu(by: 1)
-        XCTAssertEqual(router.menuSelection.power, .sleep)
+        XCTAssertEqual(router.menuSelection.power, .hide)
         router.moveMenu(by: -1)
         XCTAssertEqual(router.menuSelection.selected, .library)
     }
@@ -237,8 +237,8 @@ final class MenuSelectionModelTests: XCTestCase {
         // Console and the Setup check live in Settings; Activity and Settings act at once.
         XCTAssertTrue(MenuAction.activityCenter.entries.isEmpty && MenuAction.settings.entries.isEmpty)
         XCTAssertEqual(MenuAction.allCases.flatMap(\.entries).count, MenuEntry.allCases.count)
-        XCTAssertEqual(PowerAction.allCases, [.quit, .sleep, .hide, .relaunch])
-        XCTAssertEqual(PowerAction.allCases.map(\.title), ["Quit", "Sleep", "Hide", "Restart app"])
+        XCTAssertEqual(PowerAction.allCases, [.sleep, .hide, .relaunch, .quit])
+        XCTAssertEqual(PowerAction.allCases.map(\.title), ["Sleep", "Hide", "Restart app", "Quit"])
     }
 
     func testMoveClampsAtBothEnds() {
@@ -437,13 +437,13 @@ final class MenuSelectionModelTests: XCTestCase {
         XCTAssertFalse(model.isPowerOpen)
         model.openPower()
         XCTAssertTrue(model.isPowerOpen)
-        XCTAssertEqual(model.power, .quit)
-        model.movePower(by: 1)
         XCTAssertEqual(model.power, .sleep)
+        model.movePower(by: 1)
+        XCTAssertEqual(model.power, .hide)
         model.movePower(by: 5)
-        XCTAssertEqual(model.power, .relaunch)
-        model.movePower(by: -9)
         XCTAssertEqual(model.power, .quit)
+        model.movePower(by: -9)
+        XCTAssertEqual(model.power, .sleep)
         model.closePower()
         XCTAssertFalse(model.isPowerOpen)
         XCTAssertEqual(model.selected, .power)

@@ -70,9 +70,9 @@ public enum MenuEntry: String, CaseIterable, Identifiable, Equatable {
     }
 }
 
-/// The pills stacked above Power.
+/// The pills stacked above Power, as Selene orders them: Quit is last and never the first choice.
 public enum PowerAction: String, CaseIterable, Identifiable, Equatable {
-    case quit, sleep, hide, relaunch
+    case sleep, hide, relaunch, quit
     public var id: String { rawValue }
 
     public var title: String {
@@ -100,7 +100,7 @@ public enum PowerAction: String, CaseIterable, Identifiable, Equatable {
 public struct MenuSelectionModel: Equatable {
     public var selected: MenuAction
     /// The focused pill while the Power pills are open.
-    public var power: PowerAction = .quit
+    public var power: PowerAction = .sleep
     /// The focused entry while the Profile or Library card is open.
     public var entry: MenuEntry = .myProfile
     public private(set) var isPowerOpen = false
@@ -134,7 +134,7 @@ public struct MenuSelectionModel: Equatable {
 
     /// Opens the Power pills with Quit focused.
     public mutating func openPower() {
-        power = .quit
+        power = .sleep
         isPowerOpen = true
     }
 
