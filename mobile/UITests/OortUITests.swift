@@ -102,7 +102,14 @@ final class OortUITests: XCTestCase {
         }
         // A long screen on a loaded machine can stop the audit before its end: in parts, and each once more.
         for types in [answered, .contrast, [.dynamicType, .textClipped]] as [XCUIAccessibilityAuditType] {
-            do { try run(types) } catch { note("\(screen): \(error.localizedDescription)", in: "audit-again.txt"); try run(types) }
+            do { try run(types) } catch {
+                note("\(screen) \(types.rawValue): \(error.localizedDescription)", in: "audit-again.txt")
+                // What is only read beside the pictures may stay unfinished, and says so; what fails the test may not.
+                do { try run(types) } catch {
+                    note("\(screen) \(types.rawValue) unfinished", in: "audit-again.txt")
+                    if types == answered { throw error }
+                }
+            }
         }
     }
 
