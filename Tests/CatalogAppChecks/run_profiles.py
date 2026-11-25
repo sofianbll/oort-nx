@@ -1651,7 +1651,7 @@ extension AppIconModel {
         replace(app / "Views/Theme/ThemeStore.swift", r"static let shared = ThemeStore\(\)",
                 f'static let shared = ThemeStore(palettesURL: URL(fileURLWithPath: "{ROOT}/Resources/Selene/palettes.json"))')
         replace(app / "Views/Search/FindGameView.swift",
-                r'TextField\(L10n.text\("Find a game"\), text: \$query\).*?\.onSubmit \{ pick\(results.first\) \}',
+                r'TextField\(L10n.text\("Find a game"\), text: \$query\).*?\.onSubmit \{ typed\(\) \}',
                 'Text(query.isEmpty ? L10n.text("Find a game") : query).seleneFont(19)'
                 '.foregroundColor(SeleneTheme.ink).frame(maxWidth: .infinity, alignment: .leading)')
         replace(app / "Views/Search/FindGameView.swift", r'var query = ""', 'var query = "Observatory"')

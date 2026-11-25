@@ -13,7 +13,7 @@ import AppKit
 import Combine
 import NXLibraryCore
 
-enum SeleneConfirmButton { case confirm }
+enum SeleneConfirmButton { case confirm, cancel }
 enum AppDelegate { @MainActor static var relaunchScheduled = false }
 
 @main struct UpdateWaitProbe {
