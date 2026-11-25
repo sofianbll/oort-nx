@@ -76,7 +76,8 @@ fun CloudBackdrop(still: Boolean, strength: Float, modifier: Modifier = Modifier
             val t = time
             val layout = CloudLayout.of(size.width, size.height)
             drawIntoCanvas { renderer.draw(it.nativeCanvas, layout, t, OortTokens.Palette.Light) }
-            drawSun(layout, t, sun)
+            // On the list screens rows and names pass over the cloud's centre: the Sun stays on the home screen.
+            if (strength > 0.8f) drawSun(layout, t, sun)
         }
     }
 }
