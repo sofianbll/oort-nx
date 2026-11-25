@@ -205,8 +205,9 @@ let chosen = null;
 addEventListener('pointerdown', e => { chosen = selected; hand.down(e); const b = e.target.closest('button'); if (b) S.play('select', b); }, true);
 addEventListener('pointermove', e => hand.move(e), { passive: true });
 addEventListener('click', e => { if (!e.detail && e.isTrusted) S.play('select', document.activeElement); }, true);
-/* A list follows the pointer. The shelf and the grid do not: they only show it, so nothing slides under it. */
-addEventListener('mouseover', e => { if (!e.movementX && !e.movementY || hand.now === 'pad') return; const b = e.target.closest('.row,.side button,.found .tile,.orb,.pills .key'); if (b && b !== document.activeElement && top()?.el.contains(b) && !b.closest('.holding')) b.focus({ preventScroll: true }); });
+/* Rows follow the pointer. The shelf, the grid and the list of pages do not: they only show it, so nothing slides under it
+   and the line marked is the page shown. */
+addEventListener('mouseover', e => { if (!e.movementX && !e.movementY || hand.now === 'pad') return; const b = e.target.closest('.row,.found .tile,.orb,.pills .key'); if (b && b !== document.activeElement && top()?.el.contains(b) && !b.closest('.holding')) b.focus({ preventScroll: true }); });
 addEventListener('focusin', e => { const layer = top(); if (layer?.el.contains(e.target)) { layer.onfocus && layer.onfocus(e.target); const p = $('.help', layer.el); if (p) p.textContent = e.target.dataset.help || ''; hints(); } });
 /* A right click, a long press, the keyboard's menu key: the options of what is under it. */
 addEventListener('contextmenu', e => { if (e.target.closest('input')) return; e.preventDefault(); if (isPage()) top().context?.(e.target); });
@@ -480,7 +481,7 @@ const stepper = (label, value, { min, max, step }, set, o = {}) => {
 /* ---------- The two-level page: a list at the side, its rows, one line of help ---------- */
 const shellOf = (name, items, title, body, foot) => {
   let group;
-  return [h('div', { cls: 'shell' }, h('nav', { cls: 'side panel', 'aria-label': name }, name && h('p', {}, name), items.flatMap(x => { const head = x.group !== group && x.group ? h('h3', {}, x.group) : null; group = x.group; return [head, h('button', { 'data-id': x.id, 'aria-current': x.on ? 'page' : null, onclick: () => { if (!x.on) x.pick(); else { const r = layerRow(); r && go(r); } } }, x.ic && icon(x.ic), x.title)]; })), h('div', { cls: 'col' }, h('h1', {}, title), h('div', { cls: 'list' }, body), h('p', { cls: 'help', 'aria-live': 'polite' }), foot))];
+  return [h('div', { cls: 'shell' }, h('nav', { cls: 'side panel', 'aria-label': name }, name && h('p', {}, name), items.flatMap(x => { const head = x.group !== group && x.group ? h('h3', {}, x.group) : null; group = x.group; return [head, h('button', { 'data-id': x.id, 'aria-current': x.on ? 'page' : null, onclick: e => { if (x.on) { const r = layerRow(); return r && go(r); } e.currentTarget.focus({ preventScroll: true }); x.pick(); } }, x.ic && icon(x.ic), x.title)]; })), h('div', { cls: 'col' }, h('h1', {}, title), h('div', { cls: 'list' }, body), h('p', { cls: 'help', 'aria-live': 'polite' }), foot))];
 };
 const layerRow = () => focusable($('.list', top().el))[0];
 const shellActions = (layer, up) => {
@@ -517,7 +518,7 @@ const openMenu = async () => {
   if (top() !== under || !isPage(under)) return;
   const items = menuOf({ people: people.list.length, abilities }), waiting = await waitingOnline();
   const run = {
-    switch: () => openProfiles(), edit: () => openSettings('account'), theme: () => openSettings('appearance'), add: () => openAdd(), sources: () => openSettings('home'),
+    controllers: () => openSettings('controllers'), switch: () => openProfiles(), edit: () => openSettings('account'), theme: () => openSettings('appearance'), add: () => openAdd(), sources: () => openSettings('home'),
     refresh: async () => { await reload(true); refaces(); homeLayer.redraw(); S.play('success'); card(h('strong', {}, t('Library refreshed')), t('%lld games in your library', L.total)); },
     fullscreen: () => setFullscreen(!full), hide: () => invoke('hide').catch(() => {}), restart: askRestart, quit: askQuit, activity: () => openActivity(), settings: () => openSettings(),
   };

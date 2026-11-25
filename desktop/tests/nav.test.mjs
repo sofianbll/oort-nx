@@ -107,7 +107,7 @@ test('the menu: five icons at most, Power in the middle, Quit last, nothing that
   const power = all[2].entries.map(x => x.id); assert.deepEqual(power, ['fullscreen', 'hide', 'restart', 'quit']);
   assert.deepEqual(menuOf({ people: 1, abilities: ['restart', 'quit'] })[2].entries.map(x => x.id), ['restart', 'quit']);
   assert.ok(!menuOf({ people: 1, abilities: ['quit'] })[0].entries.some(x => x.id === 'switch'), 'one profile: nobody to switch to');
-  assert.deepEqual(menuOf({ people: 0, abilities: ['quit'] }).map(x => x.id), ['library', 'power', 'activity', 'settings']);
+  const nobody = menuOf({ people: 0, abilities: ['quit'] }); assert.deepEqual(nobody.map(x => x.id), ['controllers', 'library', 'power', 'activity', 'settings'], 'without a profile, Controllers is in its place'); assert.ok(!nobody[0].entries, 'and opens at once');
   assert.ok(!menuOf({ people: 1, abilities: [] }).some(x => x.id === 'power'), 'no power a host does not have');
 });
 test('each kind of controller is told, named and drawn', () => {

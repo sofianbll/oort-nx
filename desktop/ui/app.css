@@ -123,7 +123,7 @@ button,input{font:inherit;color:inherit;letter-spacing:inherit}button{background
 .side{display:flex;flex-direction:column;gap:var(--space-seam);padding:var(--space-small);border-radius:var(--radius-field);overflow-y:auto;scrollbar-width:none}.side::-webkit-scrollbar{display:none}
 .side h3{padding:var(--space-line) var(--space-panel) var(--space-hairline);font-size:var(--s-badge);font-weight:600;color:var(--quiet)}
 .side button{display:flex;align-items:center;gap:var(--space-small);min-height:max(36px,calc(48*var(--u)),var(--target));padding:var(--space-compact) var(--space-panel);border-radius:var(--radius-row);font-size:var(--s-row);font-weight:500}
-.side [aria-current]{background:var(--p-raised)}.side button:focus{color:var(--on-focus);background:var(--key)}:root:not([data-hand=pad]) .side button:hover:not(:focus){background:var(--p-high)}
+.side [aria-current]{background:var(--p-raised)}.side button:focus{color:var(--on-focus);background:var(--key)}:root:not([data-hand=pad]) .side button:hover:not(:focus,[aria-current]){background:var(--shine)}
 .side p{padding:0 var(--space-panel) var(--space-small);color:var(--quiet)}
 .col{position:relative;display:flex;flex-direction:column;min-height:0;gap:var(--space-control)}.col>h1,.sheet>h1{font-size:var(--s-heading);font-weight:600;line-height:1.2;overflow-wrap:anywhere}
 .list{flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;display:grid;gap:var(--space-section);align-content:start;padding:calc(4*var(--u)) calc(4*var(--u)) calc(40*var(--u));margin:0 calc(-4*var(--u));mask:linear-gradient(#000 calc(100% - 40*var(--u)),transparent)}.list::-webkit-scrollbar{display:none}
