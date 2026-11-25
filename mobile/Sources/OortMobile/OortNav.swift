@@ -139,6 +139,9 @@ struct OortHints: View {
                     ForEach(hints, id: \.label) { row(device, [$0]) }
                 }
             }
+            .padding(.horizontal, SeleneTokens.Space.compact)
+            .padding(.vertical, SeleneTokens.Space.tight)
+            .background(Oort.night.opacity(0.9), in: RoundedRectangle(cornerRadius: Oort.key, style: .continuous))
             .frame(maxWidth: .infinity, alignment: .trailing)
             .accessibilityHidden(true)
         }

@@ -35,7 +35,6 @@ struct OortDialog: View {
     var body: some View {
         ZStack {
             Oort.night.opacity(0.78).ignoresSafeArea()
-                .onTapGesture { question.cancel() }
                 .accessibilityHidden(true)
             GeometryReader { geometry in
                 ScrollViewReader { scroll in
@@ -54,8 +53,12 @@ struct OortDialog: View {
                         .padding(SeleneTokens.Space.panel)
                         .frame(maxWidth: 460)
                         .oortPanel(radius: SeleneTokens.Radius.dialog)
+                        .onTapGesture {}
                         .padding(SeleneTokens.Space.panel)
                         .frame(maxWidth: .infinity, minHeight: geometry.size.height)
+                        // A choice is put away by a tap beside it; a message waits for its key.
+                        .contentShape(.rect)
+                        .onTapGesture { if !question.choices.isEmpty { answer(question.cancel) } }
                     }
                     .scrollBounceBehavior(.basedOnSize)
                     .onChange(of: focus.current) { _, id in scroll.scrollTo(id) }

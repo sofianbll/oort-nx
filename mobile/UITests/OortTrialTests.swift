@@ -54,10 +54,20 @@ final class OortTrialTests: OortCase {
         Thread.sleep(forTimeInterval: 1)
     }
 
-    /// Brings a row to where it can be touched.
+    /// Brings a row to where it can be touched: clear of the bars and of the key that stays at the bottom.
     private func reach(_ element: XCUIElement) {
-        for _ in 0..<10 where !(element.exists && element.isHittable) { app.swipeUp(velocity: .slow) }
+        let height = app.windows.firstMatch.frame.height
+        func clear() -> Bool { element.exists && element.isHittable && element.frame.midY < height * 0.78 }
+        for _ in 0..<10 where !clear() {
+            // A short screen or large texts: the list may already be at its end.
+            let before = element.exists ? element.frame.minY : -1
+            app.swipeUp(velocity: .slow)
+            if element.exists, element.isHittable, element.frame.minY == before { return }
+        }
     }
+
+    /// The game the home screen has chosen.
+    private var chosenGame: String { CaptureGames.all.map(\.name).first(where: chosen) ?? "" }
 
     private func open(_ key: String) {
         let one = row(key)
@@ -78,8 +88,8 @@ final class OortTrialTests: OortCase {
         shows("No game here yet")
         step("02-bibliotheque-vide")
         tab("Controllers")
-        shows("No controller connected")
-        step("03-manettes-aucune")
+        shows("Touch controls")
+        step("03-manettes")
         tab("Settings")
         shows("Data and saves")
         step("04-reglages-premier-lancement")
@@ -135,10 +145,15 @@ final class OortTrialTests: OortCase {
         try start(.invented)
         appears(button(say("Game page")), "the home screen", 20)
         step("10-accueil")
-        if pad || app.windows.firstMatch.frame.width > app.windows.firstMatch.frame.height { tap(app.buttons[second].firstMatch, second) } else { app.swipeLeft() }
-        eventually("the second game is chosen") { chosen(second) }
+        let at = chosenGame
+        if pad || app.windows.firstMatch.frame.width > app.windows.firstMatch.frame.height {
+            let other = CaptureGames.all.map(\.name).first { $0 != at && app.buttons[$0].firstMatch.isHittable } ?? second
+            tap(app.buttons[other].firstMatch, other)
+        } else { app.swipeLeft() }
+        eventually("another game is chosen") { !chosenGame.isEmpty && chosenGame != at }
+        let other = chosenGame
         step("11-accueil-autre-jeu")
-        app.buttons[second].firstMatch.press(forDuration: 1.3)
+        app.buttons[other].firstMatch.press(forDuration: 1.3)
         step("12-accueil-menu-du-jeu")
         app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.06)).tap()
         Thread.sleep(forTimeInterval: 1)
@@ -388,8 +403,9 @@ final class OortTrialTests: OortCase {
         try start(.invented)
         appears(button(say("Game page")), "the home screen", 20)
         send("connect", 3)
+        let at = chosenGame
         press("right")
-        eventually("a controller moves to the second game") { chosen(second) }
+        eventually("a controller moves to the next game") { chosenGame != at }
         step("90-manette-accueil")
         press("down")
         press("left", 2)
@@ -448,6 +464,9 @@ final class OortTrialTests: OortCase {
         appears(button(say("Game page")), "home after B")
         // Back on the first game's page, Play with A.
         tab("Home")
+        press("up", 2)
+        press("left", 6)
+        for _ in 0..<6 where chosenGame != first { press("right") }
         press("down")
         press("left", 3)
         press("a")
@@ -463,8 +482,10 @@ final class OortTrialTests: OortCase {
         XCTAssertTrue(button(say("Game page")).isHittable && !app.staticTexts[say("Touch controls")].exists, "nothing pressed in the game acts after it")
         press("r", 2)
         shows("Touch controls")
+        let virtual = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Touch Controller'"))
+        XCTAssertGreaterThan(virtual.count, 0, "the test's controller is listed")
         send("disconnect", 3)
-        shows("No controller connected")
+        eventually("the controller leaves the list") { virtual.count == 0 }
         step("99-manette-debranchee")
     }
 
@@ -474,8 +495,10 @@ final class OortTrialTests: OortCase {
         try start(.invented)
         appears(button(say("Game page")), "the home screen", 20)
         send("connect", 3)
-        // The second game's code cannot be loaded: Play says so.
+        // Every invented game but one has code that cannot be loaded: Play says so.
         press("right")
+        for _ in 0..<6 where [first, "Aimant"].contains(chosenGame) { press("right") }
+        let broken = chosenGame
         press("down")
         press("left", 3)
         press("a")
@@ -486,7 +509,7 @@ final class OortTrialTests: OortCase {
         press("b")
         eventually("B closes the message") { !asked }
         appears(button(say("Game page")), "still home, nothing moved behind the message")
-        XCTAssertTrue(chosen(second), "the same game is chosen")
+        XCTAssertEqual(chosenGame, broken, "the same game is chosen")
         // The removal question of a game's page, by the controller alone: the last line of the page.
         press("right")
         press("a")
@@ -512,7 +535,7 @@ final class OortTrialTests: OortCase {
         appears(button(say("Game page")), "home after the removal")
         press("r")
         appears(app.buttons[first].firstMatch, "the library")
-        eventually("the game is gone") { !app.buttons[second].exists }
+        eventually("the game is gone") { !app.buttons[broken].exists }
         step("88-manette-jeu-supprime")
     }
 
@@ -618,8 +641,9 @@ final class OortTrialTests: OortCase {
         try start(.invented)
         appears(button(say("Game page")), "the home screen", 20)
         func key(_ key: XCUIKeyboardKey, _ times: Int = 1) { for _ in 0..<times { app.typeKey(key, modifierFlags: []); Thread.sleep(forTimeInterval: 0.6) } }
+        let at = chosenGame
         key(.rightArrow)
-        eventually("the right arrow moves to the second game") { chosen(second) }
+        eventually("the right arrow moves to the next game") { chosenGame != at }
         step("100-clavier-accueil")
         key(.downArrow)
         key(.leftArrow, 2)
@@ -629,28 +653,21 @@ final class OortTrialTests: OortCase {
         step("101-clavier-fiche")
         key(.escape)
         appears(button(say("Game page")), "home after Escape")
-        app.typeKey("y", modifierFlags: [])
-        shows("Touch controls")
-        key(.downArrow)
-        step("102-clavier-manettes")
         app.typeKey(",", modifierFlags: [])
         shows("Data and saves")
-        step("103-clavier-reglages")
+        key(.downArrow)
+        step("102-clavier-reglages")
         key(.escape)
         appears(button(say("Game page")), "home after Escape")
-        // Typing in the search field stays typing.
-        tab("Library")
+        // Y opens the library's search, and what is typed there stays typing.
+        app.typeKey("y", modifierFlags: [])
         let search = app.searchFields.firstMatch
-        if !search.waitForExistence(timeout: 2) {
-            let glass = app.navigationBars.buttons.matching(NSPredicate(format: "label IN {'Search', 'Rechercher', 'Recherche'}")).firstMatch
-            if glass.waitForExistence(timeout: 2) { glass.tap() } else { app.swipeDown() }
-        }
         appears(search, "the search field")
-        search.tap()
-        search.typeText("oy,")
+        Thread.sleep(forTimeInterval: 1)
+        app.typeText("oy,")
         eventually("the letters go to the field") { (search.value as? String)?.contains("oy,") == true }
         XCTAssertTrue(app.searchFields.firstMatch.exists, "still in the library")
-        step("104-clavier-recherche")
+        step("103-clavier-recherche")
     }
 
     // MARK: Reopening, and no network
