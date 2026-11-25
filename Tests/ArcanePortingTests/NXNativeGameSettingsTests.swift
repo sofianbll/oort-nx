@@ -122,6 +122,34 @@ final class NXNativeGameSettingsTests: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(atPath: f.envURL.path))
     }
 
+    func testACopyChangesOnlyWhatBothBuildsOfferAndTake() throws {
+        let a = try fixture(vpn: true), b = try fixture(env: "DM_FULLSCREEN=0\n", vpn: true)
+        let source = try settings(a), target = try settings(b)
+        try source.set("DM_RUMBLE", to: "0")
+        try source.set("DM_FULLSCREEN", to: "1")
+        try source.set("DM_NET_VPN", to: "1")
+        let copy = GameSettingsCopy(from: source.snapshot(), to: target.snapshot())
+        // DM_FULLSCREEN was moved from env.txt to saved choices by the snapshot's migration; the network is never copied.
+        XCTAssertEqual(Set(copy.changes.map(\.env)), ["DM_RUMBLE", "DM_FULLSCREEN"])
+        let before = target.savedChoices()
+        try target.apply(copy)
+        XCTAssertEqual(target.snapshot().value("DM_RUMBLE"), "0")
+        XCTAssertEqual(target.snapshot().value("DM_FULLSCREEN"), "1")
+        XCTAssertEqual(target.snapshot().value("DM_NET_VPN"), "0")
+        XCTAssertEqual(GameSettingsCopy(from: source.snapshot(), to: target.snapshot()).changes, [])
+        try target.restore(before)
+        XCTAssertEqual(target.savedChoices(), before)
+        XCTAssertEqual(target.snapshot().value("DM_RUMBLE"), "1")
+    }
+
+    func testACopyLeavesWhatEnvFixesAndWhatTheOtherBuildRefuses() throws {
+        let a = try fixture(offeredChoices: ["DM_A": "x", "DM_B": "y", "DM_ONLY_HERE": "z"])
+        let b = try fixture(env: "DM_A=default\n", offeredChoices: ["DM_A": "x", "DM_B": "other"])
+        let source = try settings(a)
+        for (key, value) in ["DM_A": "x", "DM_B": "y", "DM_ONLY_HERE": "z"] { try source.set(key, to: value) }
+        XCTAssertEqual(GameSettingsCopy(from: source.snapshot(), to: try settings(b).snapshot()).changes, [])
+    }
+
     func testLegacyBuildHasNoAdapter() throws {
         let f = try fixture(dmSettings: false, env: oldEnv)
         XCTAssertNil(NXNativeGameSettings.forGame(f.game, store: f.store, supportDirectory: f.support,

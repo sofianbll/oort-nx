@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 25 novembre 2026. Copertura di **1171 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
+Aggiornato il 25 novembre 2026. Copertura di **1173 file** versionati, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -610,6 +610,7 @@ Cartella `Sources/ArcanePorting/GameSettings/`.
 | File | Responsabilità |
 |---|---|
 | [Sources/ArcanePorting/GameSettings/NXNativeGameSettings.swift](../../Sources/ArcanePorting/GameSettings/NXNativeGameSettings.swift) | Risolve la modalità multigiocatore, le scelte precedenti e le variabili esplicite, e compone l'ambiente VPN di Play. |
+| [Sources/ArcanePorting/GameSettings/GameSettingsCopy.swift](../../Sources/ArcanePorting/GameSettings/GameSettingsCopy.swift) | Cosa cambierebbe copiando le impostazioni di un gioco su un altro: solo ciò che entrambe le build offrono, mai la rete; tutto o niente. |
 | [Sources/ArcanePorting/GameSettings/GameSettingValues.swift](../../Sources/ArcanePorting/GameSettings/GameSettingValues.swift) | Modalità multigiocatore dichiarate, impostazioni residue di More settings, etichette e passi dei valori. |
 | [Sources/ArcanePorting/GameSettings/SavedChoicesStore.swift](../../Sources/ArcanePorting/GameSettings/SavedChoicesStore.swift) | Legge e scrive le scelte salvate launcher.<env> nel dominio preferenze dell’app gioco. |
 | [Sources/ArcanePorting/GameSettings/GameRuntimeConfig.swift](../../Sources/ArcanePorting/GameSettings/GameRuntimeConfig.swift) | Persiste opzioni per titolo con preferenze sostituibili, prepara Review e lingua del rebuild, mappa DM_* e unisce env.txt. |
@@ -786,6 +787,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Sources/NXLibrary/Views/GameOptions/GameSettingsScreen.swift](../../Sources/NXLibrary/Views/GameOptions/GameSettingsScreen.swift) | Pagina completa raggiunta da All settings per Switch e Steam; barra, focus, input e ritorno al pannello rapido. |
 | [Sources/NXLibrary/Views/GameOptions/GameOptionsView+FullSettings.swift](../../Sources/NXLibrary/Views/GameOptions/GameOptionsView+FullSettings.swift) | Traduce i gruppi del catalogo e le azioni esistenti del gioco Switch in righe; riusa Mods, Cheats e Saves. |
 | [Sources/NXLibrary/Views/GameOptions/MoreSettingsPanel.swift](../../Sources/NXLibrary/Views/GameOptions/MoreSettingsPanel.swift) | Mostra le impostazioni del launcher.json senza riga dedicata: interruttori, scelte e intervalli; le righe fissate da env.txt restano attenuate. |
+| [Sources/NXLibrary/Views/GameOptions/CopySettingsPanel.swift](../../Sources/NXLibrary/Views/GameOptions/CopySettingsPanel.swift) | Gli altri giochi a cui copiare le impostazioni; A mostra cosa cambia prima di scrivere. |
 | [Sources/NXLibrary/Views/GameOptions/SaveImportDetails.swift](../../Sources/NXLibrary/Views/GameOptions/SaveImportDetails.swift) | Disegna percorsi From/To centrati, riquadri leggeri e freccia con riflesso direzionale. |
 
 ## UI · Settings

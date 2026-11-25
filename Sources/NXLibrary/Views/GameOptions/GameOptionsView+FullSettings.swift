@@ -41,6 +41,14 @@ extension GameOptionsView {
             .controls: [.init(id: "players", title: L10n.text("Players"), activate: { playersOpen = true })],
             .multiplayer: mainRows.filter { $0 == .disableOnlineRiskMods }.map(fullSettingsItem)
         ]
+        if snapshot != nil {
+            pages[.general, default: []].append(.init(id: "copySettings", title: L10n.text("Copy settings to another game…"),
+                about: L10n.text("You see what changes first. Undo puts the other game back."),
+                activate: {
+                    SoundEffectService.shared.play(.click)
+                    copyTargets = viewModel.runtimeSettings.copyTargets(for: current)
+                }))
+        }
         if snapshot == nil {
             for row in runtimeRows {
                 let category: GameSettingsCategory = switch row {

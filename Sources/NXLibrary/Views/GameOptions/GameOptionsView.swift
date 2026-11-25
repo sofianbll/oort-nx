@@ -108,6 +108,8 @@ struct GameOptionsView: View {
         modsRevision = UUID()
     }
     @State var moreOpen = false
+    /// The games these settings can be copied to, read when the panel opens.
+    @State var copyTargets: [CopySettingsPanel.Target]?
     @State var fullSettingsOpen = false
     @State var fullSettingsEnvironment: String?
     @State var playersOpen = false
@@ -116,7 +118,7 @@ struct GameOptionsView: View {
         nonmutating set { files.cheatsValue = newValue }
     }
     /// A panel over the list has the input.
-    private var quickPanelOpen: Bool { artworkOpen || metadataOpen || cheatsOpen || modsOpen || savesOpen || moreOpen || playersOpen }
+    private var quickPanelOpen: Bool { artworkOpen || metadataOpen || cheatsOpen || modsOpen || savesOpen || moreOpen || playersOpen || copyTargets != nil }
     var panelOpen: Bool { quickPanelOpen || (fullSettingsOpen && confirm == nil) }
     @State var confirmFocus: SeleneConfirmButton = .cancel
     /// The row whose explanation is open beside its info button (a click on it, or Y on the focused row).
@@ -270,6 +272,12 @@ struct GameOptionsView: View {
 
             if savesOpen {
                 SavesPanel(viewModel: viewModel, game: current) { savesOpen = false }
+                    .transition(.opacity)
+                    .zIndex(2)
+            }
+
+            if let copyTargets {
+                CopySettingsPanel(viewModel: viewModel, game: current, targets: copyTargets) { self.copyTargets = nil }
                     .transition(.opacity)
                     .zIndex(2)
             }
