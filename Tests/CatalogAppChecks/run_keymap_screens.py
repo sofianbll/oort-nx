@@ -63,7 +63,7 @@ final class ThemeStore {
         let common: [(ControllerButton, GamepadAction)] = [
             (.up, .navigateUp), (.down, .navigateDown), (.left, .navigateLeft), (.right, .navigateRight),
             (.a, .confirm), (.b, .cancel), (.x, .secondaryAction), (.l, .tabPrevious), (.r, .tabNext),
-            (.zl, .jumpToStart), (.zr, .jumpToEnd), (.r3, .rightStickPress),
+            (.zl, .jumpToStart), (.zr, .jumpToEnd), (.r3, .rightStickPress), (.l3, .search),
         ]
         let document = try String(contentsOf: root.appendingPathComponent("docs/how-it-works/keymap.md"),
                                   encoding: .utf8)
@@ -87,7 +87,7 @@ final class ThemeStore {
                 for (button, action) in common {
                     precondition(layout.binding(button, browsing: browsing)?.tap == action)
                 }
-                for button in [ControllerButton.l3, .capture] {
+                for button in [ControllerButton.capture] {
                     precondition(layout.binding(button, browsing: browsing) == nil)
                 }
             }

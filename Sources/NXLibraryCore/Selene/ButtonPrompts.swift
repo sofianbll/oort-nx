@@ -8,7 +8,7 @@ public enum ButtonNameStyle: String, Codable, CaseIterable, Identifiable {
 }
 
 public enum PromptButton: String, CaseIterable {
-    case a, b, x, y, lb, rb, lt, rt, rs, view, menu, home, move, navigate, vertical, search
+    case a, b, x, y, lb, rb, lt, rt, ls, rs, view, menu, home, move, navigate, vertical, search
 }
 
 public enum ConnectedPad {
@@ -46,6 +46,7 @@ public enum ButtonPrompts {
         case .y: return .text("Y")
         case .lb: return .text("Q")
         case .rb: return .text("E")
+        case .ls: return .text("⌘F")
         case .rs: return .text("F3")
         case .lt: return .text(L10n.text("home"))
         case .rt: return .text(L10n.text("end"))
@@ -76,9 +77,9 @@ public enum ButtonPrompts {
                               reported: [PromptButton: String] = [:]) -> String? {
         if style == .automatic {
             guard connected != .none else { return nil }
-            // The stick click is never the bare "R" disc: it reads as the R shoulder button.
+            // The stick click is never the bare "R" or "L" disc: it reads as the shoulder button.
             if let name = reported[button], !name.isEmpty, !isGenericShape(name),
-               !(button == .rs && name.hasPrefix("r.joystick")) { return name }
+               !(button == .rs && name.hasPrefix("r.joystick")), !(button == .ls && name.hasPrefix("l.joystick")) { return name }
         }
         switch resolved(style, connected) {
         case .nintendo: return nintendoSymbol(button)
@@ -103,8 +104,13 @@ public enum ButtonPrompts {
 
     /// The right-stick click, drawn as its family names it: RSB on Xbox, R3 on PlayStation. The Switch has
     /// no name of its own in SF Symbols; R3 cannot be mistaken for its R shoulder button.
-    private static func stickClickSymbol(_ family: ButtonNameStyle) -> String {
-        family == .xbox ? "rsb.button.angledbottom.horizontal.right" : "r3.button.angledbottom.horizontal.right"
+    private static func stickClickSymbol(_ family: ButtonNameStyle, left: Bool = false) -> String {
+        switch (family == .xbox, left) {
+        case (true, false): "rsb.button.angledbottom.horizontal.right"
+        case (true, true): "lsb.button.angledbottom.horizontal.left"
+        case (false, false): "r3.button.angledbottom.horizontal.right"
+        case (false, true): "l3.button.angledbottom.horizontal.left"
+        }
     }
 
     private static func nintendoSymbol(_ b: PromptButton) -> String? {
@@ -117,6 +123,7 @@ public enum ButtonPrompts {
         case .rb: return "r.rectangle.roundedbottom"
         case .lt: return "zl.rectangle.roundedtop"
         case .rt: return "zr.rectangle.roundedtop"
+        case .ls: return stickClickSymbol(.playstation, left: true)
         case .rs: return stickClickSymbol(.playstation)
         case .view: return "minus.circle"
         case .menu: return "plus.circle"
@@ -138,6 +145,7 @@ public enum ButtonPrompts {
         case .rb: return "rb.rectangle.roundedbottom"
         case .lt: return "lt.rectangle.roundedtop"
         case .rt: return "rt.rectangle.roundedtop"
+        case .ls: return stickClickSymbol(.xbox, left: true)
         case .rs: return stickClickSymbol(.xbox)
         case .view: return "rectangle.on.rectangle.circle"
         case .menu: return "line.3.horizontal.circle"
@@ -159,6 +167,7 @@ public enum ButtonPrompts {
         case .rb: return "r1.rectangle.roundedbottom"
         case .lt: return "l2.rectangle.roundedtop"
         case .rt: return "r2.rectangle.roundedtop"
+        case .ls: return stickClickSymbol(.playstation, left: true)
         case .rs: return stickClickSymbol(.playstation)
         case .home: return "playstation.logo"
         case .move: return "arrow.left.and.right"
@@ -187,6 +196,7 @@ public enum ButtonPrompts {
         case .rb: return "R"
         case .lt: return "ZL"
         case .rt: return "ZR"
+        case .ls: return "L3"
         case .rs: return "R3"
         case .view: return "−"
         case .menu: return "+"
@@ -208,6 +218,7 @@ public enum ButtonPrompts {
         case .rb: return "RB"
         case .lt: return "LT"
         case .rt: return "RT"
+        case .ls: return "LSB"
         case .rs: return "RSB"
         case .view: return "View"
         case .menu: return "Menu"
@@ -229,6 +240,7 @@ public enum ButtonPrompts {
         case .rb: return "R1"
         case .lt: return "L2"
         case .rt: return "R2"
+        case .ls: return "L3"
         case .rs: return "R3"
         case .view: return L10n.text("Touchpad")
         case .menu: return "Options"

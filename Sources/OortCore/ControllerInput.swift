@@ -8,6 +8,7 @@ public enum ControllerButton: CaseIterable, Hashable {
 public enum ControllerInputChange: Equatable {
     case button(ControllerButton, Bool)
     case leftStick(SIMD2<Float>)
+    case rightStick(SIMD2<Float>)
 }
 
 public struct ControllerInputState: Equatable {
@@ -26,6 +27,7 @@ public struct ControllerInputState: Equatable {
             }
         }
         if leftStick != previous.leftStick { changes.append(.leftStick(leftStick)) }
+        if rightStick != previous.rightStick { changes.append(.rightStick(rightStick)) }
         return changes
     }
 }

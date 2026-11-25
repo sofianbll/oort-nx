@@ -48,9 +48,9 @@ final class GameControllerService: ObservableObject {
         if next != deadzone { deadzone = next }
     }
 
-    var navigationInterval: TimeInterval = 0.12
     private var isAppActive = true
-    private var lastNavTime: TimeInterval = 0
+    private var repeats = DirectionRepeat()
+    private var repeatTimer: Timer?
 
     private let gcSource: ControllerSource
     private let hidSource: ControllerSource
@@ -358,18 +358,18 @@ final class GameControllerService: ObservableObject {
     private func handleInput(_ input: ControllerInputChange) {
         guard isAppActive else { return }
         switch input {
-        case let .leftStick(stick):
-            let now = ProcessInfo.processInfo.systemUptime
-            guard now - lastNavTime > navigationInterval else { return }
-            let action: GamepadAction
-            if stick.x > deadzone { action = .navigateRight }
-            else if stick.x < -deadzone { action = .navigateLeft }
-            else if stick.y > deadzone { action = .navigateUp }
-            else if stick.y < -deadzone { action = .navigateDown }
-            else { return }
-            lastNavTime = now
-            triggerAction(action)
+        case let .leftStick(stick): move(repeats.stick(stick, deadzone: deadzone, from: .leftStick))
+        case let .rightStick(stick): move(repeats.stick(stick, deadzone: deadzone, from: .rightStick))
         case let .button(button, pressed):
+            if let direction = Self.directions[button] {
+                if pressed {
+                    move(repeats.press(direction, from: .pad) ? direction : nil)
+                } else {
+                    repeats.release(direction, from: .pad)
+                    move(nil)
+                }
+                return
+            }
             guard let binding = layout.binding(button, browsing: isBrowsing()) else { return }
             if binding.release {
                 handleHold(binding, pressed: pressed)
@@ -377,6 +377,42 @@ final class GameControllerService: ObservableObject {
                 triggerAction(binding.tap)
             }
         }
+    }
+
+    private static let directions: [ControllerButton: ControllerDirection] = [.up: .up, .down: .down, .left: .left, .right: .right]
+
+    private static func action(_ direction: ControllerDirection) -> GamepadAction {
+        switch direction {
+        case .up: .navigateUp
+        case .down: .navigateDown
+        case .left: .navigateLeft
+        case .right: .navigateRight
+        }
+    }
+
+    /// Moves now when a direction is new, then keeps moving while something is held.
+    private func move(_ direction: ControllerDirection?) {
+        if let direction { triggerAction(Self.action(direction)) }
+        guard repeats.current != nil else {
+            repeatTimer?.invalidate()
+            repeatTimer = nil
+            return
+        }
+        // A stick sends many values: only a new direction, or the end of one, starts the wait again.
+        if direction != nil || repeatTimer == nil { scheduleRepeat() }
+    }
+
+    private func scheduleRepeat() {
+        repeatTimer?.invalidate()
+        let timer = Timer(timeInterval: repeats.nextDelay, repeats: false) { [weak self] _ in
+            guard let self else { return }
+            self.repeatTimer = nil
+            guard self.isAppActive, let direction = self.repeats.tick() else { return self.repeats.reset() }
+            self.triggerAction(Self.action(direction))
+            self.scheduleRepeat()
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        repeatTimer = timer
     }
 
     private func handleHold(_ binding: GamepadLayout.Binding, pressed: Bool) {
@@ -423,7 +459,9 @@ final class GameControllerService: ObservableObject {
         inputGeneration += 1
         holds.removeAll()
         for button in holdTimers.keys { stopHoldTimer(button) }
-        lastNavTime = 0
+        repeats.reset()
+        repeatTimer?.invalidate()
+        repeatTimer = nil
     }
 
     private func triggerAction(_ action: GamepadAction) {

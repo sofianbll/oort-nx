@@ -769,6 +769,19 @@ struct SettingsView: View {
         }
     }
 
+    /// ZL and ZR: the first and last row, or category.
+    private func jump(toEnd: Bool) {
+        switch focusArea {
+        case .sidebar:
+            guard let page = toEnd ? SettingsPage.stops.last : SettingsPage.stops.dropFirst().first else { return }
+            selectPage(page)
+        case .rows:
+            rowFocus.move(by: toEnd ? rowActions.count : -rowActions.count, count: rowActions.count)
+            rowButton = 0
+        }
+        SoundEffectService.shared.play(.focus)
+    }
+
     private func moveSection(by delta: Int) {
         guard !(NSApp.keyWindow?.firstResponder is NSText) else { return }
         if let next = SettingsPage.stops.stepped(from: navigation.root, delta) { selectPage(next) }
@@ -949,6 +962,8 @@ struct SettingsView: View {
         case .navigateRight: moveSideways(1)
         case .tabPrevious: moveSection(by: -1)
         case .tabNext: moveSection(by: 1)
+        case .jumpToStart: jump(toEnd: false)
+        case .jumpToEnd: jump(toEnd: true)
         case .confirm:
             if focusArea == .sidebar {
                 enterSection()

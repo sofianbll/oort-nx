@@ -12,7 +12,9 @@ First public release from Oort NX's own repository. It also carries everything p
 - Keys, switches, sliders, rows, panels, tabs and dialogs share one surface, one press and one halftone.
 - The Oort, Pollen, Umbra and Impulsion voices are made by the app. Notes climb as the focus moves; **Compose**, in Settings → Sound, chooses the sequence and octave or lets you pull eight notes of your own. Selene's sounds stay available.
 - Oort NX has its own identity (`io.github.sofianbll.oortnx`) and folders. The first launch copies an existing library, checks every file and leaves the original unchanged. Sign in to connected services again and grant macOS permissions once. Versions up to 0.3.0 do not update to this one by themselves: install the DMG once.
-- Updates understand alpha, beta and release candidate versions.
+- Controllers: a held direction repeats, the right stick scrolls quickly, L3 searches, and ZL/ZR reach the first and last setting.
+- Settings start with one search field; **Changed settings** has its own row.
+- Updates understand alpha, beta and release candidate versions. A beta finds the next beta.
 - A styled installer image.
 
 - Settings open like System Settings: a sidebar of subjects, grouped rows and one help line. Search finds rows by their current and earlier names.
@@ -45,6 +47,7 @@ First public release from Oort NX's own repository. It also carries everything p
 
 ### Fixed
 
+- A Switch game's background is shown again on the home screen.
 - Setup explains when a build lacks bundled Python and tools, and localizes the Python startup diagnosis. Install all no longer changes an existing engine checkout; the engine card asks for confirmation and names the folder.
 - Platform labels show the monochrome platform mark and name, with a distinct Switch 2 mark and generic fallbacks.
 - Cloud operations check the selected Drive account and folder IDs. Changing either no longer reuses an approved transfer or a separately chosen game-files folder without confirmation.

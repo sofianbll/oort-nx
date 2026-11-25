@@ -277,12 +277,14 @@ final class GCControllerSource: ControllerSource {
             }
         }
         pad.leftThumbstick.valueChangedHandler = { _, x, y in emit(.leftStick(SIMD2(x, y))) }
+        pad.rightThumbstick.valueChangedHandler = { _, x, y in emit(.rightStick(SIMD2(x, y))) }
         bindActivity(controller, excluding: Set(buttons.map { ObjectIdentifier($0.0) }))
         unbind = {
             unbindHome?()
             for (button, _) in buttons { button.pressedChangedHandler = nil }
             for (button, state) in systemGestures { button.preferredSystemGestureState = state }
             pad.leftThumbstick.valueChangedHandler = nil
+            pad.rightThumbstick.valueChangedHandler = nil
         }
     }
 
@@ -331,7 +333,7 @@ final class GCControllerSource: ControllerSource {
             .a: face.confirm, .b: face.cancel, .x: face.secondary, .y: face.context,
             .lb: pad.leftShoulder, .rb: pad.rightShoulder,
             .lt: pad.leftTrigger, .rt: pad.rightTrigger,
-            .rs: pad.rightThumbstickButton, .view: view, .menu: pad.buttonMenu, .home: pad.buttonHome,
+            .rs: pad.rightThumbstickButton, .ls: pad.leftThumbstickButton, .view: view, .menu: pad.buttonMenu, .home: pad.buttonHome,
         ]
         return elements.compactMapValues { element in
             guard let name = element?.sfSymbolsName, !name.isEmpty,

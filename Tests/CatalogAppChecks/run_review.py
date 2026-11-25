@@ -472,7 +472,7 @@ func withAnimation(_ animation: Int?, _ update: () -> Void) { update() }
             .up: .navigateUp, .down: .navigateDown, .left: .navigateLeft, .right: .navigateRight,
             .a: .confirm, .b: .cancel, .x: .secondaryAction, .y: .contextAction,
             .l: .tabPrevious, .r: .tabNext, .zl: .jumpToStart, .zr: .jumpToEnd,
-            .r3: .rightStickPress,
+            .r3: .rightStickPress, .l3: .search,
         ]
         for button in ControllerButton.allCases {
             require(GamepadAction.onPress(button) == presses[button], "Unexpected binding for \(button)")

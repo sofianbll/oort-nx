@@ -138,7 +138,7 @@ enum GamepadLayout: String, CaseIterable {
         .init(.left, .navigate, .navigateLeft), .init(.right, .navigate, .navigateRight),
         .init(.a, .a, .confirm), .init(.b, .b, .cancel), .init(.x, .x, .secondaryAction),
         .init(.l, .lb, .tabPrevious), .init(.r, .rb, .tabNext),
-        .init(.zl, .lt, .jumpToStart), .init(.zr, .rt, .jumpToEnd), .init(.r3, .rs, .rightStickPress),
+        .init(.zl, .lt, .jumpToStart), .init(.zr, .rt, .jumpToEnd), .init(.r3, .rs, .rightStickPress), .init(.l3, .ls, .search),
         .init(.view, .view, .view, .search),
         .init(.y, .y, .contextAction), .init(.menu, .menu, .menu, .menuHold),
     ]

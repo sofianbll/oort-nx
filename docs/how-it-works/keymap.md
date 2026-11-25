@@ -22,12 +22,14 @@ Su macOS 27, se Apple mantiene Home, Oort non lo intercetta. Un avviso compare u
 | Pulsante | Xbox | Switch | PlayStation | Tastiera |
 |---|---|---|---|---|
 | Naviga | Croce / stick sinistro | Croce / stick sinistro | Croce / stick sinistro | Frecce |
+| Scorri veloce | Stick destro | Stick destro | Stick destro | — |
 | Conferma | A (in basso) | A (a destra) | ✕ | Invio / Spazio |
 | Indietro | B (a destra) | B (in basso) | ○ | Esc |
 | Dettagli | X | X | □ | X |
 | Precedente / Successivo | LB / RB | L / R | L1 / R1 | Q / E |
 | Estremità | LT / RT | ZL / ZR | L2 / R2 | Inizio / Fine |
 | Ordinamento | RS | RS | R3 | F3 |
+| Cerca | LS | LS | L3 | ⌘F |
 | Cambia vista | View | − | Clic del touchpad | V |
 | Pulsante Menu | ≡ | + | Options | ⌘K / ⌘, |
 | Cerca | View per 0,5 s | − per 0,5 s | Clic del touchpad per 0,5 s | ⌘F |
