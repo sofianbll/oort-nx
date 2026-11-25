@@ -16,10 +16,18 @@ class Credit(
     val picture: String?,
 )
 
-class CreditGroup(val title: Map<String, String>, val credits: List<Credit>)
+class CreditGroup(val id: String, val title: Map<String, String>, val credits: List<Credit>)
 
 /** The credits of the Android app: assets/credits.json, copied by scripts/generate_credits.py. */
-class Credits(val groups: List<CreditGroup>, val legalTitle: Map<String, String>, val legal: List<Map<String, String>>) {
+class Credits(
+    /** The cards every system shows first, in this order, whatever it uses of them. */
+    val base: CreditGroup,
+    /** The title of the groups. */
+    val all: Map<String, String>,
+    val groups: List<CreditGroup>,
+    val legalTitle: Map<String, String>,
+    val legal: List<Map<String, String>>,
+) {
     companion object {
         private const val SYSTEM = "android"
 
@@ -27,12 +35,19 @@ class Credits(val groups: List<CreditGroup>, val legalTitle: Map<String, String>
             val data = JSONObject(text)
             val labels = data.getJSONObject("labels")
             val roles = data.getJSONObject("roles")
-            val credits = data.getJSONArray("credits").objects().filter { SYSTEM in it.getJSONArray("systems").strings() }
-            val groups = data.getJSONArray("categories").objects().map { category ->
-                CreditGroup(category.getJSONObject("title").words(), credits.filter { it.getString("category") == category.getString("id") }.map { credit(it, category, roles, labels) })
-            }
+            val all = data.getJSONArray("credits").objects()
+            val base = data.getJSONArray("base").strings()
+            val categories = data.getJSONArray("categories").objects()
+            fun group(category: JSONObject, own: List<JSONObject>) =
+                CreditGroup(category.getString("id"), category.getJSONObject("title").words(), own.map { credit(it, category, roles, labels) })
+            val first = base.map { id -> all.first { it.getString("id") == id } }
+            val credits = all.filter { it.getString("id") !in base && SYSTEM in it.getJSONArray("systems").strings() }
+            val groups = categories.map { category -> group(category, credits.filter { it.getString("category") == category.getString("id") }) }
             val legal = data.getJSONArray("legal").objects().filter { SYSTEM in it.getJSONArray("systems").strings() }.map { it.getJSONObject("text").words() }
-            return Credits(groups.filter { it.credits.isNotEmpty() }, labels.getJSONObject("legal").words(), legal)
+            return Credits(
+                group(categories.first { it.getString("id") == first[0].getString("category") }, first),
+                labels.getJSONObject("all").words(), groups.filter { it.credits.isNotEmpty() }, labels.getJSONObject("legal").words(), legal,
+            )
         }
 
         private fun credit(item: JSONObject, category: JSONObject, roles: JSONObject, labels: JSONObject): Credit {

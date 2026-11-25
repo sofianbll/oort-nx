@@ -2,7 +2,6 @@ package io.github.sofianbll.oortnx.ui
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -37,8 +36,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -50,11 +49,14 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun OortList(state: AppState, sections: List<RowSection>, modifier: Modifier = Modifier) {
     val focus = if (state.padMode) state.focusedRow() else null
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(28.dp)) {
-        for (section in sections) {
+    Column(modifier) {
+        sections.forEachIndexed { at, section ->
+            if (at > 0) Spacer(Modifier.height(if (section.close) canvas(OortTokens.Space.Medium) else 28.dp))
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 section.title?.let { Text(it.text(), Modifier.padding(horizontal = 20.dp).heading(), style = MaterialTheme.typography.titleSmall, color = Ink2, fontWeight = FontWeight.SemiBold) }
-                Column(Modifier.fillMaxWidth().oortPanel(RoundedCornerShape(canvas(OortTokens.Radius.Dialog)))) {
+                if (section.cards) CreditCards(section.level) {
+                    for (row in section.rows) Box(Modifier.oortPanel(RoundedCornerShape(canvas(OortTokens.Radius.Dialog)))) { Line(state, row, focused = row.id == focus) }
+                } else Column(Modifier.fillMaxWidth().oortPanel(RoundedCornerShape(canvas(OortTokens.Radius.Dialog)))) {
                     section.rows.forEachIndexed { index, row ->
                         if (index > 0) Spacer(Modifier.padding(start = if (row.glyph != null) 60.dp else 20.dp, end = 20.dp).fillMaxWidth().height(1.dp).background(Line))
                         Line(state, row, focused = row.id == focus)
@@ -102,9 +104,9 @@ private fun Line(state: AppState, row: RowItem, focused: Boolean) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
+        if (row.credit != null) { CreditCard(row.title, row.credit); return@Row }
         val tint = if (row.danger) OortTokens.Status.Danger else OortTokens.Palette.Glyph
-        if (row.picture != null) Image(painterResource(row.picture), null, Modifier.size(26.dp))
-        else row.glyph?.let { OortGlyph(it, tint = tint, modifier = Modifier.size(26.dp).padding(1.dp)) }
+        row.glyph?.let { OortGlyph(it, tint = tint, modifier = Modifier.size(26.dp).padding(1.dp)) }
         // Large text: the value goes under its title rather than squeezing it.
         val big = LocalDensity.current.fontScale >= 1.5f
         Column(Modifier.weight(1.1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -116,6 +118,7 @@ private fun Line(state: AppState, row: RowItem, focused: Boolean) {
         when (val kind = row.kind) {
             is Kind.Open -> OortGlyph(Glyph.Forward, tint = Ink2, modifier = Modifier.size(18.dp))
             is Kind.Link -> OortGlyph(Glyph.Out, tint = Ink2, modifier = Modifier.size(18.dp))
+            is Kind.Fold -> OortGlyph(Glyph.Forward, tint = Ink2, modifier = Modifier.size(18.dp).rotate(if (kind.open) 90f else 0f))
             is Kind.Press -> Unit
             is Kind.Toggle -> DotSwitch(kind.on, calm)
             is Kind.Pick -> Box(Modifier.size(24.dp)) { if (kind.on) OortGlyph(Glyph.Check, tint = OortTokens.Palette.Focus) }

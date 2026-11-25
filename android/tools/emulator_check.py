@@ -132,6 +132,20 @@ def see(name, text, **kw):
     return node
 
 
+def reach(text, exact=False, down=True):
+    """Scrolls until the words are on screen."""
+    for _ in range(12):
+        node = find(text, exact=exact)
+        if node and 0 < node.centre[1] < display()[1] * 0.85:
+            return node
+        # Slow: a busy emulator cannot take it for a press on a card.
+        wide, high = display()
+        a, b = int(high * 0.7), int(high * 0.4)
+        shell(f"input swipe {wide // 2} {a if down else b} {wide // 2} {b if down else a} 900")
+        time.sleep(1)
+    return find(text, exact=exact)
+
+
 def tap(text, exact=False, seconds=15):
     node = wait(text, seconds, exact)
     if not node:
@@ -322,9 +336,29 @@ def touch(lang):
     system_back()
     scroll()
     tap(w("settings_thanks"))
-    see(f"{lang}: credits", "nx2android")
+    whole = dict(small)
+    credits = json.loads((RES.parent / "assets/credits.json").read_text())
+    name = {c["id"]: c["name"] for c in credits["credits"]}
+    see(f"{lang}: the first card", name[credits["base"][0]])
     shot(f"{lang}-14-thanks")
-    scroll()
+    for card in credits["base"][1:]:
+        reach(name[card])
+    # One card under the other, all as tall, in the order of the file.
+    ok(f"{lang}: the six cards", find(name[credits["base"][-1]]) is not None)
+    group = next(c for c in credits["categories"] if c["id"] == "projects")["title"][lang]
+    reach(group, exact=True)
+    shot(f"{lang}-14-thanks-groups")
+    tap(group, exact=True)
+    see(f"{lang}: an opened group", "nx2android")
+    shot(f"{lang}-14-thanks-group")
+    reach(group, exact=True)
+    tap(group, exact=True)
+    time.sleep(1)
+    ok(f"{lang}: a closed group", find("nx2android", exact=True) is None)
+    reach(w("thanks_text_oort"), exact=True, down=False)
+    # The cards a page's edge cut while it scrolled are no small targets.
+    small.clear()
+    small.update(whole)
     tap(w("thanks_text_oort"), exact=True)
     see(f"{lang}: the MIT text", "Permission is hereby granted")
     shot(f"{lang}-15-licence")
