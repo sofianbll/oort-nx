@@ -392,9 +392,9 @@ final class SettingsCatalogTests: XCTestCase {
         // The page shows the folders and this Mac's choices before the account is connected: search finds them too.
         for configured in [false, true] {
             XCTAssertEqual(SettingsCatalog.search("Import games from the cloud", cloudConfigured: configured).map(\.id), ["cloudLibraryImport"])
-            XCTAssertEqual(SettingsCatalog.search("Compiled games", cloudConfigured: configured)
+            XCTAssertEqual(SettingsCatalog.search("Game library", cloudConfigured: configured)
                 .filter { $0.group == .cloudLibrary }.map(\.id), ["cloudLibraryFolder"])
-            XCTAssertEqual(SettingsCatalog.search("Your ROMs", cloudConfigured: configured).map(\.id), ["cloudSourcesRoot"])
+            XCTAssertEqual(SettingsCatalog.search("ROM library", cloudConfigured: configured).map(\.id), ["cloudSourcesRoot"])
         }
         XCTAssertTrue(SettingsCatalog.search("Test connection").isEmpty)
         XCTAssertEqual(SettingsCatalog.search("Test connection", cloudConfigured: true).map(\.id), ["cloudLibraryTest"])

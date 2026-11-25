@@ -72,47 +72,38 @@ final class CloudAssistantNetworkTests: XCTestCase {
             + Double((ContinuousClock.now - start).components.attoseconds) / 1e18
     }
 
-    /// The calls of the assistant at ecfc72b4, in its order, without the player's own time.
-    func testBefore() async throws {
+    /// The calls of the assistant, in its order, without the player's own time. At ecfc72b4 the same Drive took
+    /// 105 processes, 48 requests and 28.1 s to show both folders, 113, 52 and 29.5 s to be ready: the player
+    /// had to open seven folders, and each one started a process per question.
+    func testAssistant() async throws {
         let start = ContinuousClock.now
-        let config = RcloneConfiguration(executable: tool)
-        _ = try await config.version()
-        let remotes = try await config.remotes()
+        let remotes = try await RcloneConfiguration(executable: tool).remotes()
         XCTAssertEqual(remotes.map(\.name), ["fixture"])
-        try report("before: account shown", seconds: elapsed(since: start))
-        let drive = CloudDriveFolders(remote: "fixture", executable: tool)
-        func browse(_ path: String) async throws {
-            async let parent = try? drive.creationParent(path)
-            let listing: CloudDriveFolders.Listing
-            do { listing = try await drive.list(path, ticket: UUID()) }
-            catch StorageBackendError.notFound {
-                _ = try? await drive.creationParent(path.split(separator: "/").dropLast().joined(separator: "/"))
-                _ = await parent
-                return
-            }
-            _ = await parent
-            if !path.isEmpty { _ = try? await drive.libraryCount(in: path, folders: listing.names) }
-        }
-        let library = try await drive.discoverLibrary()
-        XCTAssertNil(library, "Games/Switch/Oort-nx is two levels down: not found today")
-        // The player opens each folder down to the library.
-        for path in ["", "Games", "Games/Switch", "Games/Switch/Oort-nx"] { try await browse(path) }
-        let sources = try await drive.discoverSources(library: "Games/Switch/Oort-nx")
-        XCTAssertNil(sources, "Games/Switch/Jeux is beside the library: not found today")
-        // The default is shown, missing; the player climbs and opens the ROM folder.
-        for path in ["Games/Switch/Oort-nx/GameFiles", "Games/Switch", "Games/Switch/Jeux"] {
-            async let parent = try? drive.creationParent(path)
-            do { _ = try await drive.list(path, ticket: UUID()) }
-            catch StorageBackendError.notFound {
-                _ = try? await drive.creationParent(path.split(separator: "/").dropLast().joined(separator: "/"))
-            }
-            _ = await parent
-        }
-        try report("before: both folders shown", seconds: elapsed(since: start))
-        try await drive.verifyAccess(to: "Games/Switch/Oort-nx")
-        try await drive.verifyPersonalFolder("Games/Switch/Oort-nx")
-        try await drive.verifyAccess(to: "Games/Switch/Jeux")
-        try await drive.verifyPersonalFolder("Games/Switch/Jeux")
-        try report("before: ready", seconds: elapsed(since: start))
+        try report("account shown", seconds: elapsed(since: start))
+        let reads = CloudDriveReads()
+        let shown = CloudDriveFolders(remote: "fixture", executable: tool, reads: reads)
+        let found = try await shown.discoverFolders(kept: .init(account: nil, library: "Games/Switch/Oort-nx", sources: "Games/Switch/Jeux"))
+        XCTAssertEqual(found.library?.path, "Games/Switch/Oort-nx")
+        XCTAssertEqual(found.sources?.games, 15)
+        try report("both folders shown", seconds: elapsed(since: start))
+        let fresh = CloudDriveFolders(remote: "fixture", executable: tool)
+        async let library: Void = fresh.verifyAccess(to: "Games/Switch/Oort-nx")
+        async let sources: Void = fresh.verifyAccess(to: "Games/Switch/Jeux")
+        _ = try await (library, sources)
+        try report("ready", seconds: elapsed(since: start))
+    }
+
+    /// Opening a folder, then the same one again.
+    func testBrowsing() async throws {
+        let shown = CloudDriveFolders(remote: "fixture", executable: tool, reads: CloudDriveReads())
+        var start = ContinuousClock.now
+        let names = try await shown.list("Games/Switch", ticket: UUID()).names
+        try report("folder opened", seconds: elapsed(since: start))
+        _ = await shown.glance(at: names.map { "Games/Switch/\($0)" }, into: try CloudFolderIndex(entries: []))
+        try report("its folders glanced at", seconds: elapsed(since: start))
+        start = .now
+        _ = try await shown.list("Games/Switch/Jeux", ticket: UUID())
+        _ = try await shown.list("Games/Switch", ticket: UUID())
+        try report("two folders opened again", seconds: elapsed(since: start))
     }
 }

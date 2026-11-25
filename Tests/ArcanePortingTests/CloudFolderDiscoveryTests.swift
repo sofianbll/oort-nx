@@ -135,6 +135,27 @@ final class CloudFolderDiscoveryTests: XCTestCase {
 
     private func onlyROMs() -> [Entry] { [folder("Games/Switch")] + roms("Games/Switch/Jeux", 2) }
 
+    /// The content decides: a folder named Jeux that holds ROMs is never proposed for compiled games.
+    func testNewFoldersFollowTheSystemAndNeverLandAmongOtherFiles() throws {
+        let empty = try CloudFolderDiscovery(entries: [], kept: nil)
+        XCTAssertEqual(empty.newLibrary, "Games/Switch/Jeux")
+        XCTAssertEqual(empty.newSources, "Games/Switch/ROM")
+        let taken = try CloudFolderDiscovery(entries: roms("Games/Switch/Jeux", 3), kept: nil)
+        XCTAssertEqual(taken.newLibrary, "Games/Switch/Oort-nx")
+        let full = try CloudFolderDiscovery(entries: [file("Games/Switch/Jeux/notes.txt"), file("Games/Switch/Oort-nx/notes.txt"),
+                                                      file("Games/Switch/ROM/notes.txt")], kept: nil)
+        XCTAssertNil(full.newLibrary)
+        XCTAssertNil(full.newSources)
+        let bare = try CloudFolderDiscovery(entries: [folder("Games/Switch"), folder("Games/Switch/Jeux")], kept: nil)
+        XCTAssertEqual(bare.newLibrary, "Games/Switch/Jeux", "An empty folder is fine")
+    }
+
+    func testWhatIsLeftToCompileIsWhatHasFilesAndNoCompiledGame() throws {
+        let index = try drive()
+        XCTAssertEqual(index.gamesToCompile(sources: "Games/Switch/Jeux", library: "Games/Switch/Oort-nx"), 14)
+        XCTAssertNil(index.gamesToCompile(sources: "Photos", library: "Games/Switch/Oort-nx"))
+    }
+
     func testTheServiceListsOnceAndDropsTheFoldersOfAnotherAccount() async throws {
         let seen = Seen()
         let name = title(0)

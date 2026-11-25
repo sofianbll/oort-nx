@@ -33,6 +33,8 @@ public struct CloudFolderIndex: Equatable, Sendable {
     private(set) var titled: [String: [String: String]] = [:]
     private(set) var compiled: [String: [String: String]] = [:]
     private(set) var directories = Set<String>()
+    /// Folders with anything in them.
+    private var occupied = Set<String>()
     private let root: String
     private let depth: Int
 
@@ -46,6 +48,7 @@ public struct CloudFolderIndex: Equatable, Sendable {
             guard parts.allSatisfy(CloudDriveFolders.validName),
                   !parts.dropLast().contains(where: { $0.lowercased().hasSuffix(".app") }) else { continue }
             if entry.isDirectory { directories.insert(entry.path) }
+            for depth in parts.indices.dropFirst() { occupied.insert(parts.prefix(depth).joined(separator: "/")) }
             if parts.count >= 3, entry.isDirectory, parts.last == "manifests" {
                 add(parts.dropLast(), to: &compiled)
             } else if parts.count >= 4, parts[parts.count - 2] == "manifests", entry.path.hasSuffix(".json") {
@@ -54,6 +57,26 @@ public struct CloudFolderIndex: Equatable, Sendable {
                 add(parts.dropLast(), to: &titled)
             }
         }
+    }
+
+    /// What a glance at one more folder says: the names in it, and what the first game's folder holds.
+    public mutating func note(_ path: String, folders: [String], firstGame: (names: [String], isCompiled: Bool)?) {
+        directories.insert(path)
+        if !folders.isEmpty { occupied.insert(path) }
+        let games = folders.reduce(into: [String: String]()) { games, name in
+            if let title = CloudDriveFolders.titleID(in: name) { games[title] = Self.gameName(name) }
+        }
+        guard !games.isEmpty, let firstGame else { return }
+        if firstGame.isCompiled { compiled[path] = games }
+        else if firstGame.names.contains(where: Self.isPackage) { titled[path] = games }
+    }
+
+    /// The first of these folders that holds nothing yet, so that a new library never lands among other files.
+    public func firstFree(of paths: [String]) -> String? { paths.first { !occupied.contains($0) } }
+
+    /// Games whose files are there and that Oort has not compiled yet.
+    public func gamesToCompile(sources: String, library: String) -> Int? {
+        titled[sources].map { roms in roms.keys.filter { compiled[library]?[$0] == nil }.count }
     }
 
     private func add(_ folder: ArraySlice<String>, to found: inout [String: [String: String]]) {
@@ -151,10 +174,17 @@ public struct CloudFolderDiscovery: Equatable, Sendable {
     package typealias Entry = CloudFolderIndex.Entry
 
     public static let searchRoot = CloudLibraryPreference.defaultRoot
-    /// What is proposed when no library is found.
-    public static let newLibrary = "Games/Switch/Oort-nx"
+    /// The one system Oort compiles today; its folders are Games/<system>/Jeux and Games/<system>/ROM.
+    static let system = "Switch"
     /// Games/Switch/Oort-nx/<game>/manifests/<file>, and Games/Switch/Jeux/<game>/<file>.
     static let depth = 5
+
+    /// Where a first library goes. A folder of that name that holds something, such as ROMs, is never proposed.
+    public var newLibrary: String? {
+        index.firstFree(of: ["Jeux", "Oort-nx"].map { "\(Self.searchRoot)/\(Self.system)/\($0)" })
+    }
+    /// Where a first ROM folder goes, when none is found.
+    public var newSources: String? { index.firstFree(of: ["\(Self.searchRoot)/\(Self.system)/ROM"]) }
 
     public let index: CloudFolderIndex
     public let library: Folder?
