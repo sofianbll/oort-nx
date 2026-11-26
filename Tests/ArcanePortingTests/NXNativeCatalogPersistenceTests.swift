@@ -253,6 +253,69 @@ final class NXNativeCatalogPersistenceTests: XCTestCase {
         }
     }
 
+    func testOpeningKeepsExternalStagingWithTheProfileThatBuiltIt() throws {
+        let fm = FileManager.default
+        for alreadyCopied in [false, true] {
+            let profile = AppDataProfile(home: dir.appendingPathComponent(UUID().uuidString), isDevelopment: false)
+            let old = profile.legacySupportRoot, new = profile.supportRoot
+            let apps = profile.home.appendingPathComponent("external/Game apps")
+            let temp = BuildScratch.choose(core: old, appFolder: apps) {
+                .init(device: $0 == apps ? 2 : 1, canHoldBuilds: true)
+            }.temp
+            XCTAssertEqual(temp.path, apps.appendingPathComponent(".nxlibrary-build/Temp").path)
+            func pending(_ name: String, logFrom root: URL?) throws -> PendingInstall {
+                let stage = temp.appendingPathComponent(UUID().uuidString)
+                let final = apps.appendingPathComponent("\(name).app")
+                let held = stage.appendingPathComponent(final.lastPathComponent)
+                for app in [held, final] {
+                    try fm.createDirectory(at: app, withIntermediateDirectories: true)
+                    try Data(app == held ? [42] : [23]).write(to: app.appendingPathComponent("fixture"))
+                }
+                try fm.setAttributes([.modificationDate: Date(timeIntervalSince1970: 1)], ofItemAtPath: stage.path)
+                // Even a missing log still names the profile that produced the build.
+                return PendingInstall(tempApp: held, finalApp: final,
+                    record: BuildRecord(logPath: root?.appendingPathComponent("Logs/\(name).log").path, outputPath: final.path),
+                    toolchain: .init(), expectedDestination: BuildOutputInstaller.expectedDestination(at: final))
+            }
+            let inherited = try pending("Old", logFrom: alreadyCopied ? nil : old)
+            var game = removalGame(in: old, sources: [])
+            game.url = inherited.finalApp
+            game.status = .built
+            game.pendingInstall = inherited
+            let (repo, _) = try removalFixture(at: old)
+            _ = try repo.updateNXNativeGames { $0 = [game] }
+            if alreadyCopied {
+                try fm.copyItem(at: old, to: new)
+                try Data(#"{"version":1,"ready":true,"files":1}"#.utf8).write(to: new.appendingPathComponent(".moved-library.json"))
+            }
+            let original = try diskTree(old)
+            try AppData.adoptLegacyLibrary(profile, checks: DevelopmentProfileImporter.portingChecks,
+                legacyPreferences: { [:] }, preferences: { [:] }, savePreferences: { _ in })
+
+            let current = try pending("New", logFrom: new)
+            var other = PortedGame(name: "New", url: current.finalApp, platform: .macApp, sizeBytes: 1,
+                                   modificationDate: .now, titleId: "0100000000000002")
+            other.status = .built
+            other.pendingInstall = current
+            let store = CatalogStore(directory: new)
+            _ = try CatalogRepository(store: store).updateNXNativeGames { $0.append(other) }
+            let external = try diskTree(apps)
+            for attempt in 0..<2 {
+                let prepared = try store.loadForStartup(previousLibrary: old)
+                XCTAssertEqual(prepared.keptPreviousBuild, attempt == 0)
+                let games = prepared.catalog.nxnativeGames
+                let previous = try XCTUnwrap(games.first { $0.id == game.id })
+                XCTAssertNil(previous.pendingInstall)
+                XCTAssertEqual(previous.status, .built)
+                XCTAssertEqual(games.first { $0.id == other.id }?.pendingInstall, current)
+                XCTAssertEqual(profile.automaticStagingFolders(appFolders: [apps]).map(\.path),
+                               [new.appendingPathComponent("Temp").path])
+                XCTAssertEqual(try diskTree(old), original)
+                XCTAssertEqual(try diskTree(apps), external)
+            }
+        }
+    }
+
     private func diskTree(_ root: URL) throws -> [String: [String]] {
         let fm = FileManager.default
         let names = [""] + (try XCTUnwrap(fm.subpaths(atPath: root.path)))

@@ -6,6 +6,45 @@ import NXLibraryCore
 final class LibraryPathsPortingTests: XCTestCase {
     private let fm = FileManager.default
 
+    func testFirstCatalogFromCopiedLegacyLibraryRebasesPathsWithoutChangingOrigin() throws {
+        for backupOnly in [false, true] {
+            let home = fm.temporaryDirectory.appendingPathComponent("paths-legacy-\(UUID())", isDirectory: true)
+            defer { try? fm.removeItem(at: home) }
+            let profile = AppDataProfile(home: home, isDevelopment: false)
+            let old = profile.legacySupportRoot, new = profile.supportRoot
+            let relative = "workspaces/0100000000000001"
+            let workspace = old.appendingPathComponent(relative, isDirectory: true)
+            try fm.createDirectory(at: workspace, withIntermediateDirectories: true)
+            let source = workspace.appendingPathComponent("Fixture.nsp")
+            try Data([42]).write(to: source)
+            var game = PortedGame(name: "Fixture", url: workspace, platform: .macApp, sizeBytes: 1,
+                                  modificationDate: Date(timeIntervalSince1970: 1), titleId: "0100000000000001")
+            game.workspacePath = workspace.path
+            game.sources = [.init(url: source, kind: .base, sizeBytes: 1)]
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .iso8601
+            let bytes = try encoder.encode(LibraryFile(games: [game]))
+            let name = backupOnly ? "library.json.bak" : "library.json"
+            try bytes.write(to: old.appendingPathComponent(name))
+            if backupOnly { try Data("{}".utf8).write(to: old.appendingPathComponent("settings.json")) }
+            XCTAssertTrue(try LibraryMove(from: old, to: new).prepare(preferences: { [:] }, savePreferences: { _ in }))
+            XCTAssertTrue(try LibraryPathRepair(from: old, to: new).prepare(checks: DevelopmentProfileImporter.portingChecks,
+                                                                           preferences: { [:] }, savePreferences: { _ in }))
+            XCTAssertFalse(fm.fileExists(atPath: new.appendingPathComponent("catalog.json").path))
+
+            let store = CatalogStore(directory: new)
+            let catalog = try store.loadForStartup(previousLibrary: old).catalog
+            let converted = try XCTUnwrap(catalog.nxnativeGames.first)
+            let copied = new.appendingPathComponent(relative, isDirectory: true)
+            XCTAssertEqual(converted.url, copied)
+            XCTAssertEqual(converted.workspacePath, copied.path)
+            XCTAssertEqual(converted.sources.map(\.url), [copied.appendingPathComponent("Fixture.nsp")])
+            XCTAssertEqual(catalog.legacyOrigin.kind, backupOnly ? .backup : .primary)
+            XCTAssertEqual(try store.loadOrMigrate(), catalog)
+            for root in [old, new] { XCTAssertEqual(try Data(contentsOf: root.appendingPathComponent(name)), bytes) }
+        }
+    }
+
     func testAnAlreadyCopiedCatalogLoadsWithItsPathsInTheNewFolder() async throws {
         let home = fm.temporaryDirectory.appendingPathComponent("paths-porting-\(UUID())", isDirectory: true)
         defer { try? fm.removeItem(at: home) }

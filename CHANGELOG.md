@@ -48,11 +48,12 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 - Cancelling **Library refresh** discards late local scan results and does not start a new Drive import when the scan ends.
 - A library copied from the folder of Oort NX 0.3.0 now names its own folder: games, settings and queues no longer point at the old one. A library copied earlier is repaired once, after keeping its files; the old folder is not changed.
 - On Mac, the two About credits headings stay readable on light palettes.
-- An interrupted removal and a waiting build that belongs to the previous library stay with that version; the new library opens without replaying them.
+- An interrupted removal or a waiting build from the previous library stays with that version, even on an external drive. Builds already waiting in the new library still install there.
 - An explicitly selected rclone link keeps working when its package manager upgrades the executable.
 - ⌘K leaves Settings dialogs in charge. Refreshing the games keeps the same palette row selected, or clears the selection if that row is gone.
 - Mac pre-releases check a wider release list so newer releases for other systems do not hide Mac updates.
 - In the control center, B says Back inside a card, and ⌘K closes what it opened.
+- A library that only has the older `library.json` still opens with paths to its copied files. The older file stays untouched.
 - ⌘F, and holding − in the Arcane layout, search from a game’s page too.
 - With button hints off, the mouse keeps Back on screens that have no other way out.
 - Every choice of a file, folder, app or picture opens Oort’s own picker, and sound packs ask in Oort’s dialogs: a controller reaches them all.

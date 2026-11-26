@@ -34,6 +34,9 @@ public struct LibraryPathRepair {
         self.replace = replace
     }
 
+    /// Applies the same path rules to the in-memory legacy input before its first catalog is written.
+    package func rewritingLegacy(_ data: Data) -> Data { paths.rewritten(json: data) ?? data }
+
     /// Returns true when the repair ran now. When it throws, or while a file fails its check, the next launch tries
     /// again: each step can be repeated.
     @discardableResult

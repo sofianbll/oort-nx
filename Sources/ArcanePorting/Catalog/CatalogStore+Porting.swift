@@ -12,12 +12,18 @@ extension CatalogStore {
 
     /// A copied catalog cannot take ownership of a build waiting in the previous version.
     package func loadForStartup(previousLibrary: URL) throws -> (catalog: CatalogDocument, keptPreviousBuild: Bool) {
-        var catalog = try loadOrMigrate()
-        guard LibraryMove.moved(directory) else { return (catalog, false) }
+        guard LibraryMove.moved(directory) else { return (try loadOrMigrate(), false) }
+        let repair = LibraryPathRepair(from: previousLibrary, to: directory)
+        var catalog = try loadOrMigrate(rewritingLegacy: repair.rewritingLegacy)
         var changed = false
         for index in catalog.games.indices {
             guard var game = catalog.games[index].nxnativeGame, let pending = game.pendingInstall else { continue }
             let previousPath = [pending.tempApp, pending.finalApp].contains { LibraryMove.contains($0, in: previousLibrary) }
+            // A shared staging path has no owner of its own. A build's absolute log path names its profile.
+            let log = pending.record.logPath.flatMap { $0.hasPrefix("/") ? URL(fileURLWithPath: $0) : nil }
+            let previousLog = log.map { LibraryMove.contains($0, in: previousLibrary) } == true
+            let currentLog = log.map { LibraryMove.contains($0, in: directory) } == true
+            let unownedStaging = !currentLog && !LibraryMove.contains(pending.tempApp, in: directory)
             let destination = pending.finalApp.standardizedFileURL
             // A repair may already have rebased the URL but left the original bundle's inode in the receipt.
             let priorDestination = destination.pathComponents.dropFirst(directory.pathComponents.count)
@@ -26,7 +32,7 @@ extension CatalogStore {
                 && pending.expectedDestination != .vacant && pending.expectedDestination != nil
                 && pending.expectedDestination == BuildOutputInstaller.expectedDestination(at: priorDestination)
                 && pending.expectedDestination != BuildOutputInstaller.expectedDestination(at: destination)
-            guard previousPath || copiedDestination else { continue }
+            guard previousPath || previousLog || unownedStaging || copiedDestination else { continue }
             game.pendingInstall = nil
             try catalog.games[index].updateNXNative(game)
             changed = true

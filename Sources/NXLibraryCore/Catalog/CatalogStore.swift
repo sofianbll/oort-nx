@@ -67,6 +67,10 @@ public struct CatalogStore: Sendable {
     }
 
     public func loadOrMigrate() throws -> CatalogDocument {
+        try loadOrMigrate(rewritingLegacy: { $0 })
+    }
+
+    package func loadOrMigrate(rewritingLegacy: (Data) -> Data) throws -> CatalogDocument {
         try locked {
             try recoverRemoval()
             let current = try currentCatalog()
@@ -74,7 +78,7 @@ public struct CatalogStore: Sendable {
                 try verifyLegacy(document.legacyOrigin)
                 return document
             }
-            let (document, observations) = try convertedLegacy()
+            let (document, observations) = try convertedLegacy(rewriting: rewritingLegacy)
             let data = try encode(document)
             try commit(data, previous: nil, current: current.state) {
                 for observation in observations { try observation.verifyUnchanged() }
@@ -142,7 +146,7 @@ public struct CatalogStore: Sendable {
     private static func digest(_ data: Data) -> String { SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined() }
     /// A first catalog lists one source, switched off, for each kind the store reads.
     private func newDocument() -> CatalogDocument { CatalogDocument(sources: kinds.integrations.map { .init(integration: $0) }) }
-    private func convertedLegacy() throws -> (CatalogDocument, [InstallationFileObservation]) {
+    private func convertedLegacy(rewriting: (Data) -> Data) throws -> (CatalogDocument, [InstallationFileObservation]) {
         guard let legacy else { return (newDocument(), []) }
         do {
             let main = try read(legacy.primary)
@@ -156,7 +160,8 @@ public struct CatalogStore: Sendable {
                 }
                 selected = backup; origin = .init(kind: .backup, sha256: Self.digest(bytes))
             }
-            return (try legacy.convert(selected.data!, origin), [main.observation, selected.observation])
+            // The catalog origin always fingerprints the stored bytes, not the paths used by the converter.
+            return (try legacy.convert(rewriting(selected.data!), origin), [main.observation, selected.observation])
         } catch { throw CatalogStoreError.invalidLegacy }
     }
 
