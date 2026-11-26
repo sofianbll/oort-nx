@@ -423,6 +423,7 @@ final class BuildServiceTests: XCTestCase {
         let root = FileManager.default.temporaryDirectory
             .appendingPathComponent("NXCancel-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
         let script = root.appendingPathComponent("cancel.sh")
         let pidFile = root.appendingPathComponent("child.pid")
         try """
@@ -451,13 +452,15 @@ final class BuildServiceTests: XCTestCase {
         while !FileManager.default.fileExists(atPath: pidFile.path), Date() < deadline {
             Thread.sleep(forTimeInterval: 0.05)
         }
-        let pid = Int32(try String(contentsOf: pidFile, encoding: .utf8)
-            .trimmingCharacters(in: .whitespacesAndNewlines))!
-        service.cancel()
+        let pid = try XCTUnwrap(Int32(try String(contentsOf: pidFile, encoding: .utf8)
+            .trimmingCharacters(in: .whitespacesAndNewlines)))
+        XCTAssertTrue(service.cancel())
         wait(for: [exp], timeout: 10)
-        Thread.sleep(forTimeInterval: 0.5)
-        XCTAssertEqual(kill(pid, 0), -1)
-        XCTAssertEqual(errno, ESRCH)
+        let state = try SystemCommandRunner().run(URL(fileURLWithPath: "/bin/ps"),
+            ["-p", String(pid), "-o", "state="], environment: nil, currentDirectory: nil)
+        // kill(pid, 0) also succeeds for a dead child that launchd has not yet reaped.
+        XCTAssertTrue(state.status == 1 || (state.status == 0 && state.stdout.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("Z")),
+                      "Child \(pid) still running: \(state.stdout) \(state.stderr)")
     }
 
     // MARK: - Tools in sessions of their own (nxnative 0b124486)
