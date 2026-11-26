@@ -1,8 +1,10 @@
 specification {
-  element product
-  element app { style { color primary } }
-  element external { style { color gray } }
-  element swiftModule { style { color secondary } }
-  element seam { style { color amber } }
-  element domain { style { color green } }
+  color givre #415876
+  element product { style { color slate; border solid; opacity 12% } }
+  element app { style { color slate; size sm; iconSize xs } }
+  element external { style { color gray; size sm; iconSize xs } }
+  element swiftModule { style { color slate; shape component; size sm; border solid; opacity 15% } }
+  element seam { style { color givre; size sm } }
+  element domain { style { color slate; size sm } }
+  relationship prevu { line dashed }
 }

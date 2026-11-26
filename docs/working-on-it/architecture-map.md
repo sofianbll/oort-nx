@@ -1,8 +1,37 @@
 # Architecture map
 
-The [LikeC4 model](../../architecture/model.c4) describes the systems, modules and domain ownership. Its [three views](../../architecture/views.c4) show the same model at different scales. Swift import layers are read directly from its `layer` metadata by `python3 scripts/check_module_boundaries.py`.
+The [LikeC4 model](../../architecture/model.c4) describes the systems, modules and domain ownership. Its [views](../../architecture/views.c4) show three scales of the same model and one short Play sequence. Swift import layers come from its `layer` metadata.
 
 For how each area behaves, read [architecture](../how-it-works/architecture.md). For the recipe to add a kind of code, read [conventions](conventions.md).
+
+## Work in LikeC4
+
+From the repository root, run:
+
+```sh
+npx --yes --package=node@22.23.3 --package=likec4@1.61.1 likec4 serve architecture --listen 127.0.0.1 --port 4173 --theme dark --no-build-webcomponent
+```
+
+Open [127.0.0.1:4173](http://127.0.0.1:4173/). In **Écosystème**, use the navigation arrow on **Mac**, then on **NXLibraryCore** for **Domaines**. Edit the `.c4` source in your editor; the preview reloads. Stop with Ctrl+C.
+
+In [OpenChamber → Settings → Projects → Project Actions](https://docs.openchamber.dev/project-actions/#add-an-action), add **LikeC4** with the command above; leave it running from the session folder (the current worktree), and set its URL to `http://127.0.0.1:4173/`. The action is not required to use LikeC4.
+
+### Optional MCP for OpenCode
+
+The [LikeC4 MCP server](https://likec4.dev/tooling/ai-tools/#mcp-server) queries the model's elements, dependencies and views without rewriting `.c4` files. In a project-local [OpenCode v2 config](https://opencode.ai/docs/mcp-servers#local), merge this entry if you want it. It is independent of the web preview.
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "likec4": {
+        "type": "local",
+        "command": ["npx", "--yes", "--package=node@22.23.3", "--package=likec4@1.61.1", "likec4", "mcp", "--stdio", "architecture"]
+      }
+    }
+  }
+}
+```
 
 ## Rules checked by script
 
@@ -44,4 +73,4 @@ The portable rules are the reason for `OortCore`. Before a shared rule is added 
 | Public skills | `python3 -m unittest discover -s Tests/SkillChecks` | CI, always |
 | Portable core imports (Windows and Linux) | `python3 scripts/check_portable_core.py` | `alpha/windows` |
 
-Update `architecture/model.c4` when a system, module or domain boundary changes. Keep the `swiftModule` identifier and its `metadata { layer "…" }` on one line. Validate the model with LikeC4; Node is not needed for the Swift check.
+Update `architecture/model.c4` in the same change as a changed system, module or domain boundary. Keep the `swiftModule` identifier and its `metadata { layer "…" }` on one line. Run `npx --yes --package=node@22.23.3 --package=likec4@1.61.1 likec4 validate --max-warnings 0 architecture` and the Swift boundary check: the first verifies the model, the second checks Swift against it and does not need Node. Check navigability and labels in the live preview when a view changes.

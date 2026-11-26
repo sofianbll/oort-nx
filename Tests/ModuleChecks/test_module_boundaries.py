@@ -42,15 +42,13 @@ class ModuleBoundaryTests(unittest.TestCase):
         self.assertEqual(boundaries.check(self.root), [])
 
     def test_swift_module_removed_from_the_model_fails(self):
-        start = self.model.index("    NXLibrary = swiftModule")
-        end = self.model.index("\n    }", start) + len("\n    }")
-        write(self.root, "architecture/model.c4", self.model[:start] + self.model[end:])
+        write(self.root, "architecture/model.c4", "".join(
+            line for line in self.model.splitlines(keepends=True) if "NXLibrary = swiftModule" not in line
+        ))
         self.assertIn("architecture/model.c4: missing Swift module NXLibrary", boundaries.check(self.root))
 
     def test_swift_module_only_in_the_model_fails(self):
-        write(self.root, "architecture/model.c4", self.model.replace(
-            "    mac -> NXLibrary", '    Ghost = swiftModule { metadata { layer "0" } }\n    mac -> NXLibrary'
-        ))
+        write(self.root, "architecture/model.c4", self.model + '\nmodel {\n  Ghost = swiftModule { metadata { layer "0" } }\n}\n')
         self.assertIn("architecture/model.c4: Ghost is not a Swift module in Package.swift", boundaries.check(self.root))
 
     def test_noncanonical_swift_module_is_not_silently_skipped(self):

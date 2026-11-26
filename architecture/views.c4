@@ -1,29 +1,53 @@
 views {
   view index {
-    title "1 · Oort NX et son écosystème"
+    title "1 · Écosystème"
+    description '''
+      Traits pleins : intégré. Pointillés : cible ou essai sur une autre branche.
+      Ouvrir Mac ou [[view:applications|les applications]] pour voir les modules.
+    '''
     include oort with { navigateTo applications }
     include oort.* where kind is app
+    include oort.mac with { navigateTo applications }
     include nxnative, ryujinx, drive
-    style oort { color slate; opacity 35% }
-    autoLayout TopBottom
+    rank same { nxnative, drive, ryujinx }
+    autoLayout TopBottom 50 28
   }
 
   view applications of oort {
-    title "2 · Applications et modules partagés"
-    include oort.*
-    include oort.OortCore.engineInterface, oort.ArcanePorting.nxAdapter, oort.desktop.ryuAdapter
-    include nxnative, ryujinx
-    autoLayout TopBottom
+    title "2 · Applications et modules"
+    description '''
+      Les applications qui partagent du Swift. Ouvrir NXLibraryCore pour voir les domaines.
+      [[view:index|Écosystème]] · [[view:jouer|Jouer sur Mac]]
+    '''
+    include oort.mac, oort.mobile, oort.desktop, oort.mac.NXLibrary, oort.OortCore, oort.mac.ArcanePorting
+    include oort.NXLibraryCore with { navigateTo domains }
+    include oort.OortCore.engineInterface, oort.mac.ArcanePorting.nxAdapter, oort.desktop.ryuAdapter
+    exclude oort.desktop -> oort.OortCore where source.kind is app
+    autoLayout LeftRight 95 40
   }
 
   view domains of oort {
-    title "3 · Domaines et modules propriétaires"
-    include oort.OortCore, oort.NXLibraryCore, oort.ArcanePorting
+    title "3 · Domaines"
+    description '''
+      Chaque cadre indique le module propriétaire. [[view:applications|Applications et modules]]
+    '''
+    include oort.OortCore, oort.NXLibraryCore, oort.mac.ArcanePorting
     include oort.OortCore.* where kind is domain
     include oort.NXLibraryCore.* where kind is domain
-    include oort.ArcanePorting.* where kind is domain
-    include drive
+    include oort.mac.ArcanePorting.* where kind is domain
     exclude * -> * where source.kind is swiftModule and target.kind is swiftModule
-    autoLayout LeftRight
+    autoLayout LeftRight 55 28
+  }
+
+  dynamic view jouer {
+    variant sequence
+    title "Jouer sur Mac"
+    description '''
+      Jeu Switch déjà préparé. La remise du jeu ne prouve pas qu’une partie a été observée.
+      [[view:domains|Domaines]]
+    '''
+    oort.mac.NXLibrary -> oort.mac.ArcanePorting.nxAdapter "Demande de jouer"
+    oort.mac.NXLibrary <- oort.mac.ArcanePorting.nxAdapter "Résultat de la remise" { line dashed }
+    oort.mac.NXLibrary -> oort.NXLibraryCore.play "Si observée : enregistre la partie"
   }
 }
