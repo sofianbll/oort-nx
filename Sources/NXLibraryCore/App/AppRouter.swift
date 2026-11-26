@@ -69,7 +69,10 @@ public enum MenuOutcome: Equatable {
 
 public final class AppRouter: ObservableObject {
     @Published public private(set) var route: AppRoute = .library {
-        didSet { leavePalette() }
+        didSet {
+            if !route.isSettings && settingsOverlayOwnsInput { settingsOverlayOwnsInput = false }
+            leavePalette()
+        }
     }
     @Published public private(set) var isReturningFromBack = false
     @Published private var menuPresented = false
@@ -86,9 +89,13 @@ public final class AppRouter: ObservableObject {
         didSet { if isSearchPresented { leavePalette() } }
     }
     /// The command palette stands alone: it closes the menu and the search, and leaves with whatever it opens.
-    @Published public var isPalettePresented = false {
-        didSet {
-            guard isPalettePresented else { return }
+    @Published private var palettePresented = false
+    public var isPalettePresented: Bool {
+        get { palettePresented }
+        set {
+            guard !newValue || !settingsOwnsInput else { return }
+            palettePresented = newValue
+            guard newValue else { return }
             closeMenu()
             isSearchPresented = false
             sortMenu = nil
@@ -113,7 +120,15 @@ public final class AppRouter: ObservableObject {
     @Published public private(set) var integrationDetail: IntegrationID?
     @Published public private(set) var settingsRowID: String?
     public enum SettingsDecision: Equatable { case save, leave }
-    @Published public private(set) var settingsDecision: SettingsDecision?
+    @Published public private(set) var settingsDecision: SettingsDecision? {
+        didSet { if settingsDecision != nil { leavePalette() } }
+    }
+    @Published public var settingsOverlayOwnsInput = false {
+        didSet { if settingsOverlayOwnsInput { leavePalette() } }
+    }
+    public var settingsOwnsInput: Bool {
+        route.isSettings && (settingsDecision != nil || settingsOverlayOwnsInput)
+    }
     public var hasPendingSettings: () -> Bool = { false }
     private var afterSettingsDecision: (() -> Void)?
 

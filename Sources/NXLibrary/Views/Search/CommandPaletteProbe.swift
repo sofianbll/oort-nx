@@ -83,7 +83,23 @@ enum CommandPaletteProbe {
         palette.press(2)
         precondition(chosen.last?.0 == "setting:soundPack")
         palette.update(items: [], symbols: [:])
-        precondition(palette.rows.isEmpty && palette.state.focus == 0)
+        precondition(palette.rows.isEmpty && palette.focusedRow == nil)
+
+        let first = PaletteItem(id: "a", kind: .game, title: "Comet A")
+        let second = PaletteItem(id: "b", kind: .game, title: "Comet B", secondary: "Options")
+        let third = PaletteItem(id: "c", kind: .game, title: "Comet C")
+        palette.open(query: "comet", items: [second, third], recents: [], suggestions: [], symbols: [:])
+        palette.update(items: [first, second, third], symbols: [:])
+        palette.handle(.confirm)
+        precondition(chosen.last?.0 == "b", "refresh must not move activation to the new row")
+        let afterRefresh = chosen.count
+        palette.update(items: [first, third], symbols: [:])
+        palette.handle(.confirm)
+        palette.handle(.contextAction)
+        precondition(chosen.count == afterRefresh && palette.focusedRow == nil, "removed focus must not activate a replacement")
+        palette.handle(.navigateDown)
+        palette.handle(.confirm)
+        precondition(chosen.last?.0 == "a", "navigation must restore selection")
     }
 
     @MainActor static func capture(to output: URL) throws {

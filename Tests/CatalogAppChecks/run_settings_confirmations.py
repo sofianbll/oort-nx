@@ -58,7 +58,10 @@ def prepare(package):
 
     settings = app / "Views/Settings"
     cloud = settings / "SettingsCloudLibrarySection.swift"
-    expose(cloud, "setEnabled", "unfollow", "confirmDisconnect", "confirmTrashTool", "publishActions", "test")
+    expose(cloud, "setEnabled", "unfollow", "confirmDisconnect", "confirmTrashTool", "publishActions", "test", "chooseTool")
+    picker = app / "Views/OortUI/OortFilePicker.swift"
+    replace(picker, r'(completion: @escaping \(\[URL\]\) -> Void\) \{\n)(        Task \{ @MainActor in)',
+            lambda m: m[1] + '        if let tool = SettingsConfirmationProbe.pickedRclone { completion([tool]); return }\n' + m[2])
     replace(cloud, r'private var advancedRows:', 'var advancedRows:')
     replace(cloud, r'private var referenceStatus:', 'var referenceStatus:')
     replace(cloud, r'private var tool: URL\?', 'private var tool: URL? = URL(fileURLWithPath: "/fixture/rclone")')
@@ -85,6 +88,16 @@ def prepare(package):
     for name in ("SettingsAPISection", "SettingsEngineSection"):
         expose(settings / f"{name}.swift", "publishActions")
     expose(settings / "SettingsView.swift", "resetSection")
+    append(settings / "SettingsView.swift", """
+extension SettingsView {
+    func screenReportDialog(cloud: Bool, pin: Bool) {
+        var view = self
+        view._cloudAssistant = State(initialValue: cloud ? .credentials : nil)
+        view._pinProfileID = State(initialValue: pin ? UUID() : nil)
+        view.reportOverlayInput(view.overlayOwnsInput)
+    }
+}
+""")
     replace(settings / "SettingsAPISection.swift", r'@State var remotePlayAdapters = RemotePlayAdapters\(\)',
             '@State var remotePlayAdapters = RemotePlayAdapters.screenFixture')
     append(porting / "GameSettings/RemotePlayAdapters.swift", """

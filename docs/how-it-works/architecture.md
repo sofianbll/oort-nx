@@ -1023,8 +1023,9 @@ I percorsi sono relativi alla home. `Application Support/NXLibrary` è `~/Librar
 **Passaggio a `Application Support/Oort NX`.** Il primo avvio della release copia la vecchia cartella (`LibraryMove`) e la lascia intatta, così Oort NX 0.3.0 la apre ancora.
 
 - `LibraryPaths` porta nella copia i percorsi, semplici o `file:`, di catalogo, impostazioni, profili, giocatori, sessioni, code e preferenze, anche dentro liste, dizionari e dati JSON. Cambia solo le stringhe interessate.
-- Restano sulla vecchia cartella i file che la copia non porta (log, `Temp`). `library.json` (il catalogo ne conserva l'impronta), il registro dello spostamento cloud e il registro di rimozione non si riscrivono.
-- `LibraryPathRepair` ripara una volta le librerie copiate dalla 0.5.0: sposta un percorso solo se l'equivalente esiste nella nuova cartella, oppure se è un workspace o una cache (sotto `workspaces/`) assente da entrambe. Prima conserva file e preferenze in `path-repair-backup/`, poi scrive `.repaired-paths.json`. Un catalogo in uso, un'altra copia aperta, una rimozione in sospeso, un file danneggiato o un'interruzione la rinviano all'avvio successivo, senza fermare l'app. *Perché:* i vecchi percorsi si aprono ancora, quindi aspettare non perde nulla.
+- Restano sulla vecchia cartella i file che la copia non porta (log, `Temp`). `library.json` (il catalogo ne conserva l'impronta) e il registro dello spostamento cloud non si riscrivono. Il registro di rimozione ereditato si conserva sotto un nome inattivo, anche nelle copie già fatte; il catalogo si apre senza ripeterne le operazioni.
+- `LibraryPathRepair` ripara una volta le librerie copiate dalla 0.5.0: sposta un percorso solo se l'equivalente esiste nella nuova cartella, oppure se è un workspace o una cache (sotto `workspaces/`) assente da entrambe. Prima conserva file e preferenze in `path-repair-backup/`, poi scrive `.repaired-paths.json`. Una rimozione della libreria corrente, un catalogo in uso, un file danneggiato o un'interruzione rinviano la riparazione.
+- Prima di creare la shell, `CatalogStore.loadForStartup` stacca dal catalogo copiato le installazioni che dipendono dalla vecchia cartella o dall’identità di un’app lì rimasta. La versione precedente conserva il suo registro e la sua build; la pulizia all’avvio esclude le sue cartelle temporanee.
 - I collegamenti dei workspace che non portano a nulla restano dove sono; **Copy diagnostics** li elenca.
 
 | Percorso | Contenuto e proprietario |
@@ -1079,6 +1080,7 @@ Nel repository, `.build/` contiene gli output SwiftPM, `work/Runtime` il runtime
 
 **Download e verifica.**
 - `AppUpdater` interroga `sofianbll/NxLibrary` senza autenticazione, seguendo il normale reindirizzamento GitHub. Le regole di versione, requisiti, digest, identità del bundle e installazione sono in `AppUpdate`.
+- Una prerelease consulta una pagina di 100 versioni perché il repository è condiviso; `AppUpdate` ignora le versioni degli altri sistemi e mantiene il limite JSON di 1 MiB. Una versione stabile usa ancora `releases/latest`.
 - Lo zip resta `NXLibrary-<versione>.zip`. Il suo percorso accetta il nome esatto `sofianbll/NxLibrary` o il successore esplicito `sofianbll/oort-nx`; non accetta altri proprietari né varianti di maiuscole. La vecchia 0.2.1.20261129 non conosce il successore.
 - `AppUpdateDownload` limita il trasferimento alla dimensione dichiarata e agli host HTTPS di GitHub.
 - `validate_update.py` verifica struttura e percorsi, poi estrae contando i dati davvero decompressi tramite il Python incluso. Prima della sostituzione si controllano versione, marker, identificativo e firma del bundle.

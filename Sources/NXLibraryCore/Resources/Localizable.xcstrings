@@ -60551,6 +60551,24 @@
         }
       }
     },
+    "Open the previous version to finish installing the game.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Open the previous version to finish installing the game."}},
+      "it": {"stringUnit":{"state":"translated","value":"Apri la versione precedente per finire di installare il gioco."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Ouvre la version précédente pour terminer l’installation du jeu."}},
+      "de": {"stringUnit":{"state":"translated","value":"Öffne die vorige Version, um die Installation des Spiels abzuschließen."}},
+      "es": {"stringUnit":{"state":"translated","value":"Abre la versión anterior para terminar de instalar el juego."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Abra a versão anterior para concluir a instalação do jogo."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"打开旧版以完成游戏安装。"}}
+    }},
+    "Open the previous version to undo the interrupted removal.": {"localizations": {
+      "en": {"stringUnit":{"state":"translated","value":"Open the previous version to undo the interrupted removal."}},
+      "it": {"stringUnit":{"state":"translated","value":"Apri la versione precedente per annullare la rimozione interrotta."}},
+      "fr": {"stringUnit":{"state":"translated","value":"Ouvre la version précédente pour annuler la suppression interrompue."}},
+      "de": {"stringUnit":{"state":"translated","value":"Öffne die vorige Version, um die unterbrochene Löschung rückgängig zu machen."}},
+      "es": {"stringUnit":{"state":"translated","value":"Abre la versión anterior para deshacer la eliminación interrumpida."}},
+      "pt-BR": {"stringUnit":{"state":"translated","value":"Abra a versão anterior para desfazer a exclusão interrompida."}},
+      "zh-Hans": {"stringUnit":{"state":"translated","value":"打开旧版以撤销中断的删除。"}}
+    }},
     "Open the log, or copy diagnostics for a bug report.": {
       "comment": "PortingFailureReason.swift",
       "localizations": {

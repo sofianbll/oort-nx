@@ -2,7 +2,26 @@ import Foundation
 import Darwin
 
 extension CatalogStore {
-    private var removalJournal: URL { directory.appendingPathComponent("catalog-removal-pending.json") }
+    private var removalJournal: URL { directory.appendingPathComponent(LibraryPaths.removalJournal) }
+
+    /// A copy made before path repair may contain the old library's live journal. Keep its bytes, never replay it.
+    /// The caller holds the copy's catalog lock.
+    static func preserveInheritedRemoval(in root: URL, from old: URL) throws {
+        let journal = root.appendingPathComponent(LibraryPaths.removalJournal)
+        guard let data = try LibraryPaths.read(journal) else { return }
+        let targetsOld = (try? JSONDecoder().decode(RemovalPaths.self, from: data))?.items.contains {
+            LibraryMove.contains($0.source, in: old) || LibraryMove.contains($0.target, in: old)
+        } == true
+        guard targetsOld || (try? LibraryPaths.read(old.appendingPathComponent(LibraryPaths.removalJournal))) == data else { return }
+        var archive = root.appendingPathComponent(LibraryPaths.inheritedRemoval)
+        if try RemovalIdentity.read(archive) != nil {
+            archive = root.appendingPathComponent(UUID().uuidString + "-" + LibraryPaths.inheritedRemoval)
+        }
+        guard renamex_np(journal.path, archive.path, UInt32(RENAME_EXCL)) == 0 else {
+            throw CatalogRemovalRecovery(journal: journal)
+        }
+        try CatalogPublication.synchronize(root)
+    }
 
     func refusePendingRemoval() throws {
         if try RemovalIdentity.read(removalJournal) != nil { throw CatalogRemovalRecovery(journal: removalJournal) }
@@ -94,6 +113,11 @@ extension CatalogStore {
     func recoverRemoval() throws {
         do {
             guard try RemovalIdentity.read(removalJournal) != nil else { return }
+            if LibraryMove.moved(directory) {
+                let previous = directory.deletingLastPathComponent().appendingPathComponent("NXLibrary", isDirectory: true)
+                try Self.preserveInheritedRemoval(in: directory, from: previous)
+                if try RemovalIdentity.read(removalJournal) == nil { return }
+            }
             let data = try InstallationFileSnapshot.read(at: removalJournal, maximumBytes: RemovalIntent.maximumBytes).data
             let intent = try kinds.decoder().decode(RemovalIntent.self, from: data)
             var catalog = try removalDocument()
@@ -140,6 +164,11 @@ extension CatalogStore {
         try FileManager.default.removeItem(at: removalJournal)
         try CatalogPublication.synchronize(directory)
     }
+}
+
+private struct RemovalPaths: Decodable {
+    struct Item: Decodable { let source: URL; let target: URL }
+    let items: [Item]
 }
 
 private struct RemovalIntent: Codable {

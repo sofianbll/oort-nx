@@ -12,6 +12,7 @@ import ArcanePorting
     static var disconnects = 0
     static var pin: String?
     static var pickedEngine: URL?
+    nonisolated(unsafe) static var pickedRclone: URL?
     static var availableDriveTool: URL? = URL(fileURLWithPath: "/fixture/rclone")
     static var scopeTool: URL?
     static var scopeAccount = "Account_ID"
@@ -195,6 +196,32 @@ import ArcanePorting
         func makeModel() -> AppViewModel {
             AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: root)))
         }
+        let toolVM = makeModel()
+        let tool = SettingsCloudLibrarySection(viewModel: toolVM, model: toolVM.cloudLibrary,
+            settings: SettingsEditor(settings), advanced: .constant(true), onEdit: {}, onEditLibrary: {},
+            onEditSources: {}, onActions: { _ in })
+        let fm = FileManager.default
+        let bin = root.appendingPathComponent("bin"), cellar = root.appendingPathComponent("Cellar")
+        for folder in [bin, cellar] { try fm.createDirectory(at: folder, withIntermediateDirectories: true) }
+        let stable = bin.appendingPathComponent("rclone")
+        let v1 = cellar.appendingPathComponent("rclone-1"), v2 = cellar.appendingPathComponent("rclone-2")
+        for version in [v1, v2] {
+            try Data("#!/bin/sh\nexit 0\n".utf8).write(to: version)
+            try fm.setAttributes([.posixPermissions: 0o700], ofItemAtPath: version.path)
+        }
+        try fm.createSymbolicLink(at: stable, withDestinationURL: v1)
+        let defaults = AppData.preferences
+        let keys = [CloudLibraryPreference.executableKey, CloudLibraryPreference.toolChoiceKey]
+        let prior = keys.map { defaults.object(forKey: $0) }
+        pickedRclone = stable
+        tool.chooseTool()
+        pickedRclone = nil
+        try fm.removeItem(at: stable)
+        try fm.removeItem(at: v1)
+        try fm.createSymbolicLink(at: stable, withDestinationURL: v2)
+        precondition(makeModel().cloudLibrary.resolvedDriveTool == stable, "explicit rclone must survive a versioned-link upgrade")
+        for (key, value) in zip(keys, prior) { defaults.set(value, forKey: key) }
+        print("Explicit rclone link survives upgrade")
         if ProcessInfo.processInfo.environment["OORT_SETTINGS_DRAFT_ONLY"] != "1" {
             try await checkDriveScope(settings: settings, makeModel: makeModel)
             if ProcessInfo.processInfo.environment["OORT_SCOPE_ONLY"] == "1" { return }
@@ -204,6 +231,14 @@ import ArcanePorting
         let catalog = try repository.load()
         let vm = AppViewModel(settingsStore: settings, catalog: catalog, repository: repository)
         vm.applyCatalog(catalog) // This harness disables catalog application in the initializer.
+        let router = AppRouter()
+        router.openSettings(.look)
+        let dialogHost = SettingsView(initialSection: .look, viewModel: vm, settings: settings, router: router, artwork: ArtworkStore())
+        for (cloud, pin) in [(true, false), (false, true), (false, false)] {
+            dialogHost.screenReportDialog(cloud: cloud, pin: pin)
+            router.isPalettePresented = true
+            precondition(router.isPalettePresented == !(cloud || pin), "Settings dialogs own the palette input")
+        }
         try checkDraft(vm: vm, settings: settings, output: output, locale: locale)
         try checkNavigation(vm: vm, settings: settings, output: output, locale: locale, size: .init(width: 1440, height: 810), suffix: "fr")
         try checkNavigation(vm: vm, settings: settings, output: output, locale: locale, size: .init(width: 840, height: 810), suffix: "etroit-fr")
@@ -216,19 +251,28 @@ import ArcanePorting
         model.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: nil)
         let input = Input(viewModel: vm)
 
-        func render<V: View>(_ name: String, _ view: V, height: CGFloat = 690) throws {
+        func render<V: View>(_ name: String, _ view: V, height: CGFloat = 690, context: AppLocale? = nil) throws {
             let renderer = ImageRenderer(content: view
                 .frame(width: 1140, height: height)
                 .background(Color(red: 0.09, green: 0.13, blue: 0.20))
-                .environment(\.nxAppLocale, locale)
+                .environment(\.nxAppLocale, context ?? locale)
                 .environment(\.seleneButtonNames, .xbox)
                 .environment(\.colorScheme, .dark)
                 .environment(\.seleneCanvas, SeleneCanvas(size: .init(width: 1920, height: 1080)))
                 .environment(\.seleneReduceMotion, true))
             let image = renderer.cgImage!
             let png = NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:])!
-            try png.write(to: output.appendingPathComponent("confirm-\(name)-fr.png"))
+            try png.write(to: output.appendingPathComponent("confirm-\(name)-\(context?.language.rawValue ?? "fr").png"))
         }
+
+        for language in [locale, AppLocale(language: .english, region: "US")] {
+            L10n.setContext(language)
+            vm.alertMessage = DevelopmentStartup.libraryMoveNotice(removal: true, pendingBuild: true)
+            input.presentLegacyNotice()
+            try render("previous-library", input.settingsNoticeOverlay(vm.settingsNotice!), context: language)
+            input.settingsNoticeInput(.cancel)
+        }
+        L10n.setContext(locale)
 
         func confirm(_ name: String, _ open: () -> Void, count: () -> Int) throws {
             let before = count()
