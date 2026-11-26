@@ -87,8 +87,8 @@ import ArcanePorting
             }
             let long = Host(section("credit-arcane", 1), size: CGSize(width: 1120, height: 4600))
             try long.save("credits-\(locale.language.rawValue)-tous", to: output)
-            let base = Host(section("credit-arcane", 0), size: CGSize(width: 1120, height: 1300))
-            try base.save("credits-\(locale.language.rawValue)-base", to: output)
+            let baseView = Host(section("credit-arcane", 0), size: CGSize(width: 1120, height: 1300))
+            try baseView.save("credits-\(locale.language.rawValue)-base", to: output)
 
             // One stop per line of cards, and every card of every group within reach of left and right.
             let base = credits.baseGroup!
