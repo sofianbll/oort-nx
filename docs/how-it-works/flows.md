@@ -335,7 +335,7 @@ flowchart TD
     C -->|"Continua"| B
 ```
 
-Cambiare sezione non chiude la bozza; Back dalla barra, Menu e Quit la chiudono solo dopo una scelta se è cambiata. Il controller può scorrere il riepilogo. Il reset delle preferenze in `AppSettings` entra nella bozza. In Porting → Game folders, il reset del gruppo non cambia le cartelle. Il pulsante Reset nella riga Game apps ripristina solo quella cartella.
+Cambiare sezione non chiude la bozza; Back dalla barra, Menu e Quit la chiudono solo dopo una scelta se è cambiata. Salva è a fuoco; Esc o B continua a modificare, anche se Scarta è a fuoco. Il riepilogo occupa l'altezza delle prime cinque voci e scorre quando ce ne sono di più. Il reset delle preferenze in `AppSettings` entra nella bozza. In Porting → Game folders, il reset del gruppo non cambia le cartelle. Il pulsante Reset nella riga Game apps ripristina solo quella cartella.
 
 Nel menu rapido, Theme apre prima i colori con anteprima viva; A applica la palette e passa alla selezione dello sfondo. Oort (`oort`) è il default senza preferenza; Arcane (`selene`) conserva il blu classico; le alternative Arcane Crystal e Arcane Flow salvano `arcane-crystal` e `arcane-flow` nello stesso `colorThemeID`. La shell conserva un backdrop persistente; le pagine ne dichiarano stile, pausa e Mods con `SeleneBackdropRequest`, mantenendo artwork e maschere locali. La shell passa la palette completa in `SeleneBackdropStyle`: cambia il valore dell’ambiente e aggiorna sfondo e maschere anche senza spostare la selezione. La superficie usa lo stesso renderer, con orologio e regole di pausa condivisi. Le particelle sono sempre morbide, senza una scelta aggiuntiva. La scelta dello sfondo mantiene il dialogo di destinazione esistente.
 

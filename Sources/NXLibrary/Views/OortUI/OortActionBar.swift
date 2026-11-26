@@ -39,33 +39,29 @@ struct OortActionBar: View {
     }
 
     private func row(_ sorted: [Action]) -> some View {
-        let trailing = sorted.filter { !$0.role.isLeading }
+        let apart = ActionBarOrder.separatesDestructive(sorted, role: \.role)
+        let left = sorted.filter { apart ? $0.role == .destructive : $0.role == .back }
+        let right = sorted.filter { apart ? $0.role != .destructive : $0.role != .back }
         return ViewThatFits(in: .horizontal) {
-            HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.medium)) {
-                leadingKeys(sorted)
-                if spread { Spacer(minLength: canvas.u(SeleneTokens.Space.group)) }
-                ForEach(trailing) { key($0) }
+            HStack(alignment: .top, spacing: canvas.u(apart ? SeleneTokens.Space.group : SeleneTokens.Space.medium)) {
+                HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.medium)) {
+                    ForEach(left) { key($0) }
+                }
+                if spread && !apart { Spacer(minLength: canvas.u(SeleneTokens.Space.group)) }
+                HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.medium)) {
+                    ForEach(right) { key($0) }
+                }
             }
-            // Too narrow for one line: the way back keeps the left, the way forward keeps the right, one line each.
+            // Keep reading and navigation order if two groups need their own lines.
             VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
                 HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.medium)) {
+                    ForEach(left) { key($0) }
                     Spacer(minLength: 0)
-                    ForEach(trailing) { key($0) }
                 }
                 HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.medium)) {
-                    leadingKeys(sorted)
                     Spacer(minLength: 0)
+                    ForEach(right) { key($0) }
                 }
-            }
-        }
-    }
-
-    /// What erases is first, with a wide gap before the way back.
-    private func leadingKeys(_ sorted: [Action]) -> some View {
-        HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.group)) {
-            ForEach(sorted.filter { $0.role == .destructive }) { key($0) }
-            HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.medium)) {
-                ForEach(sorted.filter { $0.role == .back }) { key($0) }
             }
         }
     }
@@ -110,7 +106,7 @@ struct OortQuestion: View {
             Text(verbatim: message).seleneFont(.row).foregroundStyle(SeleneTheme.ink82)
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
-            OortActionBar(actions: actions, focused: focused, onFocus: onFocus)
+            OortActionBar(actions: actions, focused: focused, stacked: ActionBarOrder.isStacked(count: actions.count), onFocus: onFocus)
                 .padding(.top, canvas.u(SeleneTokens.Space.medium))
         }
         .frame(maxWidth: .infinity, alignment: .leading)

@@ -50,8 +50,8 @@ import ArcanePorting
             L10n.setContext(locale)
             vm.screenRebuildNotice()
             let notice = vm.settingsNotice!
-            precondition(notice.choices == ["Cancel", "Rebuild without cache", "Rebuild with this Mac’s cache", "CACHE_DOWNLOAD_CHOICE"])
-            precondition(vm.settingsNoticeFocus == 3 && notice.cancelIndex == 0)
+            precondition(notice.choices == [CACHE_ORDER])
+            precondition(vm.settingsNoticeFocus == CACHE_FOCUS && notice.cancelIndex == CACHE_BACK)
             try renderNotice(name, output, notice, width: 1440)
         }
         L10n.setContext(.init(language: .english, region: "US"))
@@ -910,7 +910,7 @@ extension CloudScreenProbe {
         L10n.setContext(fr)
         vm.performCloudLibrary(.restore(.app), for: selected)
         guard let refusal = vm.settingsNotice else { preconditionFailure("Download must ask before replacing") }
-        precondition(refusal.choices == ["Replace", "Cancel"] && vm.settingsNoticeFocus == refusal.cancelIndex)
+        precondition(refusal.choices == ["Cancel", "Replace"] && vm.settingsNoticeFocus == refusal.cancelIndex)
         try renderNotice("reference-replacement-confirmation", output, refusal, width: 1280)
         vm.settingsNotice = nil
         refusal.runAnswer(.back)
@@ -1642,7 +1642,10 @@ extension CloudSourcesStatus {
                             "onBack: {}, onOutside: {}" if "let onBack:" in view
                             else "onClose: {}")
         unified = (package / "Sources/ArcanePorting/Library/CloudTransferPresentation.swift").exists()
-        host = host.replace("CACHE_DOWNLOAD_CHOICE", "Download cache and rebuild" if unified else "Download the cloud cache")
+        download = "Download cache and rebuild" if unified else "Download the cloud cache"
+        cache_order = [download, "Rebuild with this Mac’s cache", "Rebuild without cache", "Cancel"]
+        host = (host.replace("CACHE_ORDER", ", ".join(f'"{title}"' for title in (cache_order[::-1] if before else cache_order)))
+                .replace("CACHE_FOCUS", "3" if before else "0").replace("CACHE_BACK", "0" if before else "3"))
         if not before:
             header = (app / "Views/Detail/DetailsTopBlock.swift").read_text()
             panel = (app / "Views/Detail/CloudLibraryPanel.swift").read_text()

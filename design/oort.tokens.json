@@ -15,6 +15,7 @@
     "ash": {"$value": {"colorSpace": "srgb", "components": [0.5529411764705883, 0.5529411764705883, 0.5529411764705883], "hex": "#8D8D8D"}},
     "graphite": {"$value": {"colorSpace": "srgb", "components": [0.07058823529411765, 0.07058823529411765, 0.07058823529411765], "hex": "#121212"}},
     "coral": {"$value": {"colorSpace": "srgb", "components": [1.0, 0.4196078431372549, 0.4196078431372549], "hex": "#FF6B6B"}},
+    "coral-text": {"$value": {"colorSpace": "srgb", "components": [1.0, 0.7411764705882353, 0.7411764705882353], "hex": "#FFBDBD"}},
     "green": {"$value": {"colorSpace": "srgb", "components": [0.23921568627450981, 0.8627450980392157, 0.5176470588235295], "hex": "#3DDC84"}},
     "sky": {"$value": {"colorSpace": "srgb", "components": [0.611764705882353, 0.796078431372549, 1.0], "hex": "#9CCBFF"}},
     "amber": {"$value": {"colorSpace": "srgb", "components": [0.9098039215686274, 0.7137254901960784, 0.3607843137254902], "hex": "#E8B65C"}}
@@ -174,6 +175,7 @@
     "$description": "Status roles are independent of the selected palette.",
     "$type": "color",
     "danger": {"$value": "{primitive.coral}"},
+    "danger-text": {"$description": "Destructive button labels on dark panels, including focus.", "$value": "{primitive.coral-text}"},
     "status-ok": {"$value": "{primitive.green}"},
     "status-cloud": {"$value": "{primitive.sky}"},
     "untested": {"$value": "{primitive.amber}"}

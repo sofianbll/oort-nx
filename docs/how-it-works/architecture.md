@@ -240,9 +240,11 @@ nasconde input del puntatore, VoiceOver e suggerimenti dei livelli coperti.
 Router e pannelli continuano a gestire gli stessi comandi e identità di focus;
 `ProfileLayers` decide quale strato dei profili resta attivo.
 `SeleneConfirmDialog` condivide l'ordine della `OortActionBar` con la navigazione:
-indietro prima, azione principale per ultima a destra, distruttivo separato
-all'estrema sinistra. Il chiamante conserva il focus
-iniziale sulla scelta sicura. `SeleneDialogCard` usa una superficie opaca sopra il velo e mostra i suggerimenti del
+in una coppia, Annulla a sinistra e l'azione a destra, anche se distruttiva;
+con tre risposte, il distruttivo è a sinistra, staccato da ritorno e azione principale.
+Da quattro risposte l'elenco va dall'azione principale al ritorno.
+Il chiamante conserva il focus iniziale sulla scelta sicura.
+`SeleneDialogCard` usa una superficie opaca sopra il velo e mostra i suggerimenti del
 dialogo attivo, anche per le scelte multiple e per l'assistente cloud. A indica
 la selezione del pulsante attivo, anche se è la scelta sicura. Nei dialoghi a
 scelta il testo ha una larghezza definita prima di misurare l'altezza, per

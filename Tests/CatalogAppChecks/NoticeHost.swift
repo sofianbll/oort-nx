@@ -70,9 +70,10 @@ try require(selected == ["remove"], "The destructive choice runs its own action"
 selected.removeAll()
 model.settingsNotice = SettingsNotice(title: "Rebuild", message: "Different cache",
     retry: { selected.append("download") }, actionTitle: "Download", cancelTitle: "Cancel",
-    alternatives: [("Local", { selected.append("local") }), ("Without", { selected.append("without") })])
+    alternatives: [("Local", { selected.append("local") }), ("Without", { selected.append("without") })], primaryFirst: true)
 let notice = model.settingsNotice!
-try require(notice.choices == ["Cancel", "Without", "Local", "Download"], "Download should be the last choice")
+try require(notice.choices == ["Download", "Local", "Without", "Cancel"] && notice.initialFocus == 0 &&
+            notice.answers.map(\.role) == [.primary, .secondary, .secondary, .back], "Download leads the vertical answers and takes focus")
 notice.runAnswer(.back)
 host.dismiss()
 try require(selected.isEmpty, "Cancel should not start an action")
@@ -80,7 +81,7 @@ for answer: SettingsNotice.AnswerID in [.retry, .alternative(0), .alternative(1)
     model.settingsNotice = notice
     host.choose(answer)
 }
-try require(selected == ["download", "local", "without"], "Choice indices should run the matching actions")
+try require(selected == ["download", "local", "without"], "Named answers should run the matching actions")
 print("Catalog notice bridge preserves Retry, defers unrelated alerts, and routes Rebuild choices.")
 
 }

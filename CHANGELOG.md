@@ -32,6 +32,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 ### Fixed
 
+- Mac dialogs keep Cancel on the left of a destructive pair and stack four or more answers. Unsaved settings open on Save; Escape keeps the draft.
 - A library copied from the folder of Oort NX 0.3.0 now names its own folder: games, settings and queues no longer point at the old one. A library copied earlier is repaired once, after keeping its files; the old folder is not changed.
 - In the control center, B says Back inside a card, and ⌘K closes what it opened.
 - ⌘F, and holding − in the Arcane layout, search from a game’s page too.

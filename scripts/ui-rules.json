@@ -206,7 +206,7 @@
   }
  },
  "unmeasured": {
-  "button-order": "rows built from data (SettingsNotice alternatives, cloud and activity rows) beyond the declared ones; vertical lists",
+  "button-order": "rows built from data beyond the declared ones; role sorting and focus also have Swift and screen tests",
   "keyboard-path": "screens outside Settings beyond the declared actions: only the manual matrix and probes cover them",
   "Sources/NXLibrary/Views/Spotlight/SpotlightTopBar.swift::OortTabs": "The player's own tabs: four by default (library-tabs), six possible.",
   "Sources/NXLibrary/Views/Theme/OnlineBrowsePanel.swift::OortTabs": "Categories come from the wallpaper service.",
@@ -981,7 +981,50 @@
     "\\bsecondary\\b",
     "\\bprimary\\b"
    ],
-   "why": "what erases apart on the left, the way back, the others, the main answer last"
+   "why": "horizontal order for three or more: what erases, back, the others, primary"
+  },
+  {
+   "id": "binary-destructive-order",
+   "file": "Sources/NXLibraryCore/Selene/ActionBarOrder.swift",
+   "scope": "static func sorted",
+   "order": [
+    "items\\.count == 2",
+    "return items\\.filter \\{ role\\(\\$0\\) == \\.back \\} \\+ items\\.filter \\{ role\\(\\$0\\) == \\.destructive \\}"
+   ],
+   "why": "a destructive pair is Cancel then action"
+  },
+  {
+   "id": "vertical-dialog-order",
+   "file": "Sources/NXLibraryCore/Selene/ActionBarOrder.swift",
+   "scope": "static func stacked",
+   "order": [
+    "\\.primary: 0",
+    "\\.secondary: 1",
+    "\\.destructive: 2",
+    "\\.back: 3"
+   ],
+   "why": "the vertical dialog has the main answer first and Cancel last"
+  },
+  {
+   "id": "choice-dialog-layout",
+   "file": "Sources/NXLibrary/Views/OortUI/SeleneConfirmDialog.swift",
+   "scope": "struct SeleneChoiceDialog",
+   "order": [
+    "OortActionBar\\(actions: keys",
+    "ActionBarOrder\\.isStacked\\(count: choices\\.count\\)"
+   ],
+   "why": "the shared order also determines when a choice dialog stacks"
+  },
+  {
+   "id": "destructive-group",
+   "file": "Sources/NXLibrary/Views/OortUI/OortActionBar.swift",
+   "scope": "func row",
+   "order": [
+    "ActionBarOrder\\.separatesDestructive\\(",
+    "apart \\? \\$0\\.role == \\.destructive",
+    "apart \\? SeleneTokens\\.Space\\.group"
+   ],
+   "why": "a multi-choice row gives the destructive action its own leading group and a larger gap"
   },
   {
    "id": "file-picker-foot",
@@ -1010,10 +1053,10 @@
    "file": "Sources/NXLibrary/Views/Detail/CloudLibraryPanel.swift",
    "scope": "func handleFree",
    "order": [
-    "\\[\\.confirm\\]",
-    "\\[\\.cancel\\]"
+    "\\[\\.cancel\\]",
+    "\\[\\.confirm\\]"
    ],
-   "why": "the arrows walk Free up space then Cancel, as drawn"
+   "why": "the arrows walk Cancel then Free up space, as drawn"
   },
   {
    "id": "guided-setup-walk",

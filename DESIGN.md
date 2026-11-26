@@ -101,7 +101,7 @@ Each lives in `Sources/NXLibrary/Views/OortUI` and shows every state in the Debu
 - **Switch**: off is empty, on is filled with halftone and the thumb on the right, so the state reads without colour.
 - **Field** (`OortSearchField`, `OortField`): same grid as the rows around it.
 - **Panel** (`oortPanel`): the one surface. `floats` only when it covers something.
-- **Dialog** (`SeleneConfirmDialog`): a precise title, at most three keys, the safe one focused first, B leaves.
+- **Dialog** (`SeleneConfirmDialog`, `SeleneChoiceDialog`): a precise title and a safe initial focus. In a pair, Cancel is left and the action is right, including a destructive action. In a row of three, the destructive key is separated on the left. From four choices, stack main first and Cancel last. Destructive text is red and never gets the filled default style. B still leaves the question without performing the action.
 - **Ring** (`SeleneTileRing`): one per row of tiles; it glides. White over a dark edge, so it reads on any cover.
 - **Tabs**: one pill glides. LB and RB move it.
 - **Hints** (`SeleneHintsBar`): the glyphs of the pad in hand, and only actions that work now.

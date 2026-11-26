@@ -179,7 +179,7 @@ extension PlayersScreen {
         if model.confirmsReset {
             switch action {
             case .navigateLeft, .navigateRight:
-                model.resetFocus = .onSide(left: action == .navigateLeft, destructive: true)
+                model.resetFocus = action == .navigateLeft ? .left : .right
             case .confirm: if model.resetFocus == .confirm { model.reset() } else { back() }
             case .cancel: back()
             default: break

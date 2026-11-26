@@ -143,9 +143,8 @@ extension ProfileScreenProbe {
             ZStack {
                 spotlight().seleneOverlayOwnership(false)
                 SeleneOverlay(style: .dialog) {
-                    SeleneChoiceDialog(title: notice.title, message: notice.message, choices: notice.choices,
-                                       focus: .constant(notice.initialFocus), cancelIndex: notice.cancelIndex, destructive: notice.destructiveIndexes,
-                                       onCancel: {}, onChoose: { _ in })
+                    SeleneChoiceDialog(title: notice.title, message: notice.message, answers: notice.answers,
+                                       focus: .constant(notice.defaultAnswer), onCancel: {}, onAnswer: { _ in })
                 }
             }
         }
@@ -165,7 +164,7 @@ extension ProfileScreenProbe {
             vm.settingsNotice = nil
             options.runAnswer(options.answers.first { $0.role == .destructive }!.id)
             let remove = vm.settingsNotice!
-            precondition(remove.initialFocus == remove.cancelIndex)
+            precondition(remove.answers.map(\.role) == [.back, .destructive] && remove.defaultAnswer == .back)
             try shot("remove", dialog(remove))
             remove.runAnswer(.back)
             vm.settingsNotice = nil

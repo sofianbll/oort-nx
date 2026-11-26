@@ -618,17 +618,13 @@ import ArcanePorting
         router.back()
         precondition(router.settingsDecision == .leave && router.route == .settings(.cloudSaves))
         try capture("03-reglages-demande-enregistrement")
-        send(.confirm) // default = Keep editing
-        precondition(router.settingsDecision == nil && settings.draft?.hasChanges == true && router.route == .settings(.cloudSaves))
-        router.back()
-        settle()
+        send(.navigateLeft)
         send(.navigateLeft) // highlight Discard
         send(.cancel) // Esc / B must still Keep editing
         precondition(router.settingsDecision == nil && settings.draft?.hasChanges == true && router.route == .settings(.cloudSaves))
         send(.contextAction) // Y: save without leaving
         precondition(router.settingsDecision == .save)
-        send(.navigateRight) // Save, last on the right
-        send(.confirm)
+        send(.confirm) // Save is already focused.
         precondition(router.settingsDecision == nil && settings.draft?.hasChanges == false && router.route == .settings(.cloudSaves))
         precondition(AppSettingsStore(fileURL: settings.fileURL).settings.multiplayerDefault == .local)
         settings.editingSettings.multiplayerDefault = .online
@@ -636,11 +632,12 @@ import ArcanePorting
         precondition(router.requestSettingsDeparture { quit = true })
         settle()
         send(.navigateLeft)
+        send(.navigateLeft)
         send(.confirm) // discard, then resume quit
         precondition(quit && settings.editingSettings.multiplayerDefault == .local)
         settings.settings.multiplayerDefault = .offline
         settings.settings.interfaceSounds = true
-        print("Settings draft: live row, one exit dialog, default Keep editing, Y and verified save, discard before quit.")
+        print("Settings draft: live row, default Save, Escape never discards, Y and verified save, discard before quit.")
     }
 
     @MainActor private static func checkNavigation(vm: AppViewModel, settings: AppSettingsStore,

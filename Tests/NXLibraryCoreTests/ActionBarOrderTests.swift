@@ -9,9 +9,18 @@ final class ActionBarOrderTests: XCTestCase {
     func testBackIsOnTheLeftAndTheWayForwardIsLastOnTheRight() {
         let sorted = ActionBarOrder.sorted(["Use", "Keep", "Cancel", "Other", "Delete"], role: roles)
         XCTAssertEqual(sorted, ["Delete", "Cancel", "Keep", "Other", "Use"])
-        XCTAssertEqual(sorted.filter { roles($0).isLeading }, ["Delete", "Cancel"])
+        XCTAssertTrue(ActionBarOrder.separatesDestructive(sorted, role: roles))
         let forward = sorted.firstIndex(of: "Use")!, erase = sorted.firstIndex(of: "Delete")!
         XCTAssertGreaterThan(forward - erase, 1, "What erases is never beside the way forward")
+    }
+
+    func testDestructivePairKeepsCancelLeftAndFocused() {
+        for pair in [["Delete", "Cancel"], ["Cancel", "Delete"]] {
+            let order = ActionBarOrder.dialog(pair, role: roles)
+            XCTAssertEqual(order, ["Cancel", "Delete"])
+            XCTAssertEqual(ActionBarOrder.initial(order, role: roles), "Cancel")
+            XCTAssertFalse(ActionBarOrder.separatesDestructive(order, role: roles))
+        }
     }
 
     func testReturnIsTheWayForwardUnlessItErasesOrMoves() {
@@ -23,7 +32,10 @@ final class ActionBarOrderTests: XCTestCase {
     }
 
     func testAListPutsTheWayForwardOnTopAndTheWayBackAtTheBottom() {
-        XCTAssertEqual(ActionBarOrder.stacked(["Delete", "Cancel", "Keep", "Use"], role: roles), ["Use", "Keep", "Delete", "Cancel"])
+        XCTAssertFalse(ActionBarOrder.isStacked(count: 3))
+        XCTAssertTrue(ActionBarOrder.isStacked(count: 4))
+        XCTAssertTrue(ActionBarOrder.isStacked(count: 5))
+        XCTAssertEqual(ActionBarOrder.dialog(["Delete", "Cancel", "Keep", "Use"], role: roles), ["Use", "Keep", "Delete", "Cancel"])
     }
 
     func testFocusTracksTheAnswerNotItsSlotWhenTheBarIsReordered() {
@@ -42,10 +54,10 @@ final class ActionBarOrderTests: XCTestCase {
         func order(_ main: String?, _ others: [String], erases: Set<String> = []) -> [String] {
             ActionBarOrder.question(main: main, others: others, back: "Cancel") { erases.contains($0) }.map(\.item)
         }
-        XCTAssertEqual(order("Use", ["Keep", "Other"]), ["Cancel", "Other", "Keep", "Use"], "The first offered stays nearest the main answer")
+        XCTAssertEqual(order("Use", ["Keep", "Other"]), ["Use", "Keep", "Other", "Cancel"], "A four-answer question stacks in offered order")
         XCTAssertEqual(order(nil, ["Keep", "Other"]), ["Cancel", "Other", "Keep"], "Without a main answer the first offered leads")
         XCTAssertEqual(order("Use", ["Delete"], erases: ["Delete"]), ["Delete", "Cancel", "Use"])
-        XCTAssertEqual(order("Delete", [], erases: ["Delete"]), ["Delete", "Cancel"], "What erases stands apart on the left even without another answer")
+        XCTAssertEqual(order("Delete", [], erases: ["Delete"]), ["Cancel", "Delete"])
         XCTAssertEqual(order("Delete", ["Keep"], erases: ["Delete"]), ["Delete", "Cancel", "Keep"], "The safe answer takes the right")
         XCTAssertEqual(order(nil, []), ["Cancel"])
         XCTAssertEqual(ActionBarOrder.question(main: nil, others: [], back: "OK") { _ in false }.first?.role, .primary, "A notice has one key, on the right")

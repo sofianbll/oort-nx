@@ -526,7 +526,7 @@ struct CheatsPanel: View {
         if let confirm {
             switch action {
             case .navigateLeft, .navigateRight:
-                moveConfirmFocus(.onSide(left: action == .navigateLeft, destructive: confirm.erases))
+                moveConfirmFocus(action == .navigateLeft ? .left : .right)
             case .confirm: confirmFocus == .confirm ? runConfirm() : dismissConfirm()
             case .cancel: dismissConfirm()
             default: break

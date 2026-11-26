@@ -244,7 +244,7 @@ struct ProfilePickerView: View {
         if removing != nil {
             switch action {
             case .navigateLeft, .navigateRight:
-                removalFocus = .onSide(left: action == .navigateLeft, destructive: true)
+                removalFocus = action == .navigateLeft ? .left : .right
             case .confirm: if removalFocus == .confirm { remove() } else { removing = nil }
             case .cancel: removing = nil
             default: break

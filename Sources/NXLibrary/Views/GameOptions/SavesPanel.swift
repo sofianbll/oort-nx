@@ -286,7 +286,7 @@ struct SavesPanel: View {
             case .navigateLeft where cloudPrompt: if cloudHelp.button != "OK" { cloudFocus = .left }
             case .navigateRight where cloudPrompt: cloudFocus = .right
             case .navigateLeft, .navigateRight:
-                confirmFocus = .onSide(left: action == .navigateLeft, destructive: true)
+                confirmFocus = action == .navigateLeft ? .left : .right
             case .cancel: close()
             case .confirm:
                 if model.issue != nil { model.dismissIssue() }

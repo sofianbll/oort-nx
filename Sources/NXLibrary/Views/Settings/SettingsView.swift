@@ -63,7 +63,7 @@ struct SettingsView: View {
     @State private var subjectActions: [SettingsRowAction] = []
     @State private var keyMonitor: Any?
     enum DraftAnswer: Hashable { case save, discard, keepEditing }
-    @State private var decisionFocus = DraftAnswer.keepEditing
+    @State private var decisionFocus = DraftAnswer.save
     @State private var decisionError: String?
     @State private var decisionScroll = 0
     @State private var savingPlayers = false
@@ -217,7 +217,7 @@ struct SettingsView: View {
             focusRequestedSetting()
         }
         .onChange(of: router.settingsDecision) {
-            decisionFocus = .keepEditing
+            decisionFocus = .save
             decisionError = nil
             decisionScroll = 0
         }
@@ -315,19 +315,19 @@ struct SettingsView: View {
 
     private var hasPendingChanges: Bool { settings.draft?.hasChanges == true }
 
-    private func draftAnswers(_ mode: AppRouter.SettingsDecision) -> [DialogAnswer<DraftAnswer>] {
+    private var draftAnswers: [DialogAnswer<DraftAnswer>] {
         ActionBarOrder.sorted([DialogAnswer(.save, "Save", .primary),
                                DialogAnswer(.keepEditing, "Continue editing settings", .back),
-                               DialogAnswer(.discard, mode == .leave ? "Leave without saving" : "Discard changes", .destructive)],
+                               DialogAnswer(.discard, "Discard changes", .destructive)],
                               role: \.role)
     }
 
     @ViewBuilder var decisionOverlay: some View {
-        if let mode = router.settingsDecision, let draft = settings.draft {
+        if router.settingsDecision != nil, let draft = settings.draft {
             SeleneOverlay(style: .profileRemoval, onOutside: { decide(.keepEditing) }) {
                 SeleneChoiceDialog(title: "Unsaved settings",
                     message: decisionError ?? L10n.text("Review what will change before you save."),
-                    answers: draftAnswers(mode), focus: $decisionFocus, notes: SettingsDraftFields.summary(draft.changes),
+                    answers: draftAnswers, focus: $decisionFocus, notes: SettingsDraftFields.summary(draft.changes),
                     notesScrollRequest: decisionScroll, onCancel: { decide(.keepEditing) }, onAnswer: decide)
                     .environment(\.seleneShowButtonHints, true)
             }
@@ -367,7 +367,7 @@ struct SettingsView: View {
     }
 
     private func finishDecision(proceed: Bool) {
-        decisionFocus = .keepEditing
+        decisionFocus = .save
         router.finishSettingsDecision(proceed: proceed)
     }
 
@@ -983,10 +983,10 @@ struct SettingsView: View {
     }
 
     private func handleGamepad(_ action: GamepadAction) {
-        if let mode = router.settingsDecision {
+        if router.settingsDecision != nil {
             switch action {
             case .navigateLeft, .navigateRight:
-                decisionFocus = ActionBarOrder.move(decisionFocus, by: action == .navigateLeft ? -1 : 1, in: draftAnswers(mode).map(\.id))
+                decisionFocus = ActionBarOrder.move(decisionFocus, by: action == .navigateLeft ? -1 : 1, in: draftAnswers.map(\.id))
             case .navigateUp: decisionScroll = max(0, decisionScroll - 1)
             case .navigateDown:
                 decisionScroll = min(max(0, (settings.draft?.changes.count ?? 1) - 1), decisionScroll + 1)
@@ -1009,7 +1009,7 @@ struct SettingsView: View {
         if nextendo.friendToRemove != nil {
             switch action {
             case .navigateLeft, .navigateRight:
-                nextendoRemovalFocus = .onSide(left: action == .navigateLeft, destructive: true)
+                nextendoRemovalFocus = action == .navigateLeft ? .left : .right
             case .confirm where nextendoRemovalFocus == .confirm: confirmNextendoRemoval()
             case .confirm, .cancel: nextendo.friendToRemove = nil
             default: break

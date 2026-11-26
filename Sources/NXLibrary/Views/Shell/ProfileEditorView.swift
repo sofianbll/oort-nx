@@ -337,7 +337,7 @@ struct ProfileEditorView: View {
         if discardFocus != nil {
             switch action {
             case .navigateLeft, .navigateRight:
-                discardFocus = .onSide(left: action == .navigateLeft, destructive: true)
+                discardFocus = action == .navigateLeft ? .left : .right
             case .confirm: confirmDiscardChoice()
             case .cancel: keepEditing()
             default: break

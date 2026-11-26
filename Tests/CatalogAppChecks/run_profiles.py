@@ -531,8 +531,8 @@ import ArcanePorting
         AppData.preferences.set(originalAppsPath, forKey: AppViewModel.StorageKeys.savedLibraryFolder)
         AppData.preferences.removeObject(forKey: PortingModel.savedGameFolderKey)
         precondition(SeleneConfirmButton.ordered == [.cancel, .confirm], "The way back is on the left, the answer last")
-        precondition(SeleneConfirmButton.onSide(left: true, destructive: true) == .confirm,
-                     "The destructive action is left of the safe answer")
+        precondition(SeleneConfirmButton.left == .cancel && SeleneConfirmButton.right == .confirm,
+                     "In the removal pair, Cancel is left of the destructive action")
         try render("11-remove", picker(selected: sam.id, removing: sam).environment(\.nxAppLocale, french),
                     in: out, refs, "web/182-15.png", native: true)
         L10n.setContext(.init(language: .english, region: "US"))
@@ -1371,7 +1371,8 @@ extension ProfileEditorView {
             press(.cancel)
             precondition(editor!.discardFocus == nil && editor!.step == .avatar && editor!.profile == draft)
             close()
-            press(.navigateLeft)
+            press(.navigateRight)
+            precondition(editor!.discardFocus == .confirm && cancelled == 1)
             press(.confirm)
             precondition(cancelled == 2 && saves.isEmpty)
         }
