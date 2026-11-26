@@ -61,7 +61,7 @@ public enum SettingsCatalog {
     public static let baseRows: [SettingDescriptor] = sharedRows + onlinePlayersRows
 
     private static let onlinePlayersRows = OnlinePlayersDisplay.Place.allCases.map { place in
-        row(place.id, .multiplayer, place.label, onlinePlayersHelp) { $0.onlinePlayersDisplay[place] }
+        row(place.id, .multiplayer, place.label, onlinePlayersHelp, \.onlinePlayersDisplay[place])
     }
 
     private static let sharedRows: [SettingDescriptor] = [
