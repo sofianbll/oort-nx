@@ -75,6 +75,15 @@ final class CompatibilityCheckerTests: XCTestCase {
         XCTAssertTrue(report.checks.contains { $0.id == "metal" && $0.status == .block })
     }
 
+    func testUnreadableWorkingTreeDoesNotPass() throws {
+        let r = FakeRunner()
+        r.outputs["git rev-parse HEAD"] = .init(status: 0, stdout: "06b7b3e\n", stderr: "")
+        r.outputs["git status --porcelain"] = .init(status: 128, stdout: "", stderr: "fixture")
+        let report = try checker(r).check(expectedEngineCommit: "06b7b3e")
+        XCTAssertEqual(report.selectedEngine.value, "06b7b3e")
+        XCTAssertEqual(report.checks.first { $0.id == "tree" }?.status, .block)
+    }
+
     func testOnlyDmshChainHeaderIsAllowedDirty() throws {
         let r = FakeRunner()
         r.outputs["git rev-parse HEAD"] = .init(status: 0, stdout: "06b7b3e\n", stderr: "")

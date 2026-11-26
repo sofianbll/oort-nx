@@ -80,15 +80,15 @@ public final class CompatibilityChecker {
     public func check(expectedEngineCommit: String) throws -> CompatibilityReport {
         var checks: [CompatibilityCheck] = []
 
-        let (_, observed, dirty) = MacNXNative.checkoutState(at: repoURL.path, runner: runner)
+        let (_, observed, dirty) = MacNXNative.checkoutState(at: repoURL.path, runner: runner, developerDir: developerDir)
         let head = observed ?? ""
         checks.append(.init(id: "commit", title: L10n.text("Engine commit"),
-                            status: head == expectedEngineCommit ? .pass : .block,
+                            status: observed == expectedEngineCommit ? .pass : .block,
                             detail: L10n.format("current %@, expected %@", [String(describing: head), String(describing: expectedEngineCommit)])))
 
         checks.append(.init(id: "tree", title: L10n.text("Working tree"),
-                            status: dirty.isEmpty ? .pass : .block,
-                            detail: dirty.joined(separator: "\n")))
+                            status: dirty?.isEmpty == true ? .pass : .block,
+                            detail: dirty?.joined(separator: "\n") ?? L10n.text("git could not run")))
 
         let metal = run("/usr/bin/xcrun", ["metal", "--version"]).stdout
             .trimmingCharacters(in: .whitespacesAndNewlines)

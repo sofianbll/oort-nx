@@ -95,10 +95,10 @@ final class UpstreamChecker {
         self.client = client
     }
 
-    func review(from base: String) async throws(Refusal) -> UpstreamReview {
+    func review(from base: String, persist: Bool) async throws(Refusal) -> UpstreamReview {
         do {
             let snapshot = try await check(from: base)
-            if let data = try? JSONEncoder().encode(snapshot) {
+            if persist, let data = try? JSONEncoder().encode(snapshot) {
                 AppData.preferences.set(data, forKey: Self.cacheKey)
             }
             return snapshot.review
@@ -108,13 +108,16 @@ final class UpstreamChecker {
             case .invalidURL: throw .upstream(.invalidURL)
             case .decoding: throw .upstream(.decoding)
             case .rateLimited(let date): throw .upstream(.rateLimited(reset: date))
-            case .http(let code, let message): throw .upstream(.http(code: code, message: Self.safeMessage(message)))
+            case .http(let code, let message): throw .upstream(.http(code: code, message: message))
             }
         } catch is CancellationError {
             throw .cancelled
         } catch {
-            let text = Self.safeMessage(error.localizedDescription) ?? L10n.text("unknown error")
-            throw .upstream(.connection(message: error is URLError ? "Network error: \(text)" : text))
+            if let urlError = error as? URLError {
+                let text = URLError(urlError.code).localizedDescription
+                throw .upstream(.connection(message: "Network error: \(text)"))
+            }
+            throw .upstream(.connection(message: L10n.text("unknown error")))
         }
     }
 
@@ -127,13 +130,19 @@ final class UpstreamChecker {
         return cached.review
     }
 
+    static func compareURL(from base: String) -> URL? {
+        guard !base.isEmpty, base.allSatisfy(\.isHexDigit) else { return nil }
+        return URL(string: "https://github.com/\(repository)/compare/\(base)...\(branch)")
+    }
+
     private static func safeMessage(_ message: String?) -> String? {
-        guard let message else { return nil }
-        let clean = DiagnosticsReport.scrub(message, home: NSHomeDirectory())
-            .replacingOccurrences(of: #"(?i)\b(?:https?|file)://\S+|\b(?:gh[pousr]_|github_pat_)[A-Za-z0-9_]+"#,
-                                  with: "<redacted>", options: .regularExpression)
-        let result = String(clean.split(whereSeparator: \.isWhitespace).joined(separator: " ").prefix(400))
-        return result.isEmpty ? nil : result
+        // Server text can carry arbitrary paths or credentials, even without a recognisable prefix.
+        switch message {
+        case "Not Found": return "Not Found"
+        case "Bad credentials": return "Bad credentials"
+        case "Forbidden": return "Forbidden"
+        default: return nil
+        }
     }
 
     public func check(from baseCommit: String) async throws -> UpstreamStatus {
@@ -164,7 +173,7 @@ final class UpstreamChecker {
             throw UpstreamCheckerError.rateLimited(reset)
         }
         guard (200..<300).contains(http.statusCode) else {
-            throw UpstreamCheckerError.http(http.statusCode, message)
+            throw UpstreamCheckerError.http(http.statusCode, Self.safeMessage(message))
         }
 
         let decoder = JSONDecoder()
@@ -188,9 +197,7 @@ final class UpstreamChecker {
             )
         }
         let upstream = rawCommits.last?.sha ?? payload.baseCommit?.sha ?? base
-        guard let compareURL = URL(
-            string: "https://github.com/\(Self.repository)/compare/\(base)...\(Self.branch)"
-        ) else {
+        guard let compareURL = Self.compareURL(from: base) else {
             throw UpstreamCheckerError.invalidURL
         }
 

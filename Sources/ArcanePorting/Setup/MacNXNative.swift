@@ -78,10 +78,11 @@ private struct InstalledEngineVersionReader {
         return (String(fields[0]), Date(timeIntervalSince1970: TimeInterval(seconds)))
     }
 
-    static func run(_ args: [String], checkout: String, runner: any CommandRunning) -> CommandResult? {
+    static func run(_ args: [String], checkout: String, runner: any CommandRunning, developerDir: URL? = nil) -> CommandResult? {
         // Never let Git silently fall back to an enclosing repository if the engine checkout is gone.
         guard checkout.hasPrefix("/"), FileManager.default.fileExists(atPath: checkout + "/.git") else { return nil }
         var environment = ProcessInfo.processInfo.environment
+        if let developerDir { environment["DEVELOPER_DIR"] = developerDir.path }
         environment["GIT_NO_LAZY_FETCH"] = "1"
         environment["GIT_OPTIONAL_LOCKS"] = "0"
         return try? runner.run(URL(fileURLWithPath: "/usr/bin/git"), ["--no-replace-objects", "-C", checkout] + args,
@@ -111,14 +112,15 @@ package actor MacNXNative: EngineAdapter {
     private let keys: URL?
     private let runner: any CommandRunning & Sendable
     private let client: any UpstreamHTTPClient & Sendable
+    private let persistReview: Bool
     private lazy var installed = InstalledEngineVersionReader(checkout: checkout, selected: expected, runner: runner)
 
     package init(place: Place, checkout: String, prescribed: String, expected: String,
                  apps: [Installation: URL] = [:], keys: URL? = nil,
                  runner: any CommandRunning & Sendable = SystemCommandRunner(),
-                 client: any UpstreamHTTPClient & Sendable = URLSessionUpstreamClient()) {
+                 client: any UpstreamHTTPClient & Sendable = URLSessionUpstreamClient(), persistReview: Bool = false) {
         self.place = place; self.checkout = checkout; self.prescribed = prescribed; self.expected = expected
-        self.apps = apps; self.keys = keys; self.runner = runner; self.client = client
+        self.apps = apps; self.keys = keys; self.runner = runner; self.client = client; self.persistReview = persistReview
     }
 
     package func workshop(_ place: Place) async throws(Refusal) -> Workshop {
@@ -127,11 +129,12 @@ package actor MacNXNative: EngineAdapter {
         let status = keys.map { KeyStore(directory: $0).readStatus().status } ?? .unavailable
         let prescribed = self.prescribed
         let client = self.client
+        let persistReview = self.persistReview
         return .init(engineID: "nxnative", versions: .init(reference: .reported(prescribed),
                      selected: head.map(Identity.reported) ?? .unknown, expected: .reported(expected)),
-                     checkout: presence, conditions: changes.isEmpty ? [] : [.modifiedSelection], localKeys: status,
+                     checkout: presence, conditions: changes?.isEmpty == false ? [.modifiedSelection] : [], localKeys: status,
                      checkUpstream: Offer { (_: Confirmed, _: RequestID) throws(Refusal) -> UpstreamReview in
-            try await UpstreamChecker(client: client).review(from: prescribed)
+            try await UpstreamChecker(client: client).review(from: prescribed, persist: persistReview)
         })
     }
 
@@ -145,22 +148,22 @@ package actor MacNXNative: EngineAdapter {
     }
 
     package nonisolated static func compareURL(from base: String) -> URL? {
-        guard !base.isEmpty, base.allSatisfy(\.isHexDigit) else { return nil }
-        return URL(string: "https://github.com/\(UpstreamChecker.repository)/compare/\(base)...\(UpstreamChecker.branch)")
+        UpstreamChecker.compareURL(from: base)
     }
 
-    static func checkoutState(at path: String, runner: any CommandRunning)
-        -> (CheckoutPresence, String?, [String]) {
+    static func checkoutState(at path: String, runner: any CommandRunning, developerDir: URL? = nil)
+        -> (CheckoutPresence, String?, [String]?) {
         var directory: ObjCBool = false
         guard !path.isEmpty, FileManager.default.fileExists(atPath: path, isDirectory: &directory),
-              directory.boolValue else { return (.missing, nil, []) }
-        guard let head = git(["rev-parse", "HEAD"], at: path, runner: runner), head.status == 0 else {
-            return (.notACheckout, nil, [])
+              directory.boolValue else { return (.missing, nil, nil) }
+        let head = git(["rev-parse", "HEAD"], at: path, runner: runner, developerDir: developerDir)
+        let status = git(["status", "--porcelain"], at: path, runner: runner, developerDir: developerDir)
+        let changes = status.flatMap { $0.status == 0 ? CompatibilityChecker.relevantChanges($0.stdout) : nil }
+        if let head, head.status == 0 {
+            let revision = head.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !revision.isEmpty { return (.checkout, revision, changes) }
         }
-        let revision = head.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !revision.isEmpty else { return (.notACheckout, nil, []) }
-        let status = git(["status", "--porcelain"], at: path, runner: runner)
-        return (.checkout, revision, CompatibilityChecker.relevantChanges(status?.stdout ?? ""))
+        return (.notACheckout, nil, changes)
     }
 
     package nonisolated static func headDescription(at path: String) -> String? {
@@ -170,7 +173,7 @@ package actor MacNXNative: EngineAdapter {
         return value.isEmpty ? nil : value
     }
 
-    static func git(_ args: [String], at path: String, runner: any CommandRunning) -> CommandResult? {
-        InstalledEngineVersionReader.run(args, checkout: path, runner: runner)
+    static func git(_ args: [String], at path: String, runner: any CommandRunning, developerDir: URL? = nil) -> CommandResult? {
+        InstalledEngineVersionReader.run(args, checkout: path, runner: runner, developerDir: developerDir)
     }
 }

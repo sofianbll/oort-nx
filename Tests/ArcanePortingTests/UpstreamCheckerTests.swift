@@ -37,7 +37,7 @@ final class UpstreamCheckerTests: XCTestCase {
             let after = await response.requests
             XCTAssertEqual(after, 1)
         }
-        let response = CompareResponse(#"{"message":"Temporary error https://private.invalid/secret github_pat_fixture"}"#,
+        let response = CompareResponse(#"{"message":"Temporary error /Volumes/Private/prod.keys opaque_fixture https://private.invalid/secret"}"#,
                                        status: 503)
         let offer = try await workshop(response).checkUpstream
         do {
@@ -46,7 +46,7 @@ final class UpstreamCheckerTests: XCTestCase {
         } catch {
             guard case .upstream(.http(let code, let message)) = error else { return XCTFail("Unexpected refusal: \(error)") }
             XCTAssertEqual(code, 503)
-            XCTAssertEqual(message, "Temporary error <redacted> <redacted>")
+            XCTAssertNil(message, "Unrecognised server text is not safe to relay")
         }
     }
 
@@ -119,6 +119,21 @@ final class UpstreamCheckerTests: XCTestCase {
                        "application/vnd.github+json")
     }
 
+    func testAdapterReturnsTheInspectedCommitListWithoutAnotherRequest() async throws {
+        let pin = "06b7b3e56303bc67213a98cae61925f9253bdf89"
+        let place = Place(UUID())
+        let response = CompareResponse(String(decoding: fixture(), as: UTF8.self))
+        let engine: any EngineAdapter = MacNXNative(place: place, checkout: "", prescribed: pin,
+                                                     expected: pin, client: response)
+        let workshop = try await engine.workshop(place)
+        let review = try await workshop.checkUpstream.run(Confirmed(UUID()), request: RequestID(UUID()))
+        XCTAssertEqual(review.targetSHA, "57080541234567890")
+        XCTAssertEqual(review.newCommitsCount, 2)
+        XCTAssertEqual(review.commits.map(\.sha), ["57080541234567890", "40b643b1234567890"])
+        let requests = await response.requests
+        XCTAssertEqual(requests, 1)
+    }
+
     func testIdenticalRepository() async throws {
         let client = FakeClient()
         let json = """
@@ -150,13 +165,13 @@ final class UpstreamCheckerTests: XCTestCase {
 
     func testHTTPErrorMessage() async throws {
         let client = FakeClient()
-        client.result = .success((Data(#"{"message":"boom"}"#.utf8), response(500)))
+        client.result = .success((Data(#"{"message":"Not Found"}"#.utf8), response(404)))
         do {
             _ = try await UpstreamChecker(client: client).check(from: "06b7b3e")
             XCTFail("expected HTTP error")
         } catch let UpstreamCheckerError.http(status, message) {
-            XCTAssertEqual(status, 500)
-            XCTAssertEqual(message, "boom")
+            XCTAssertEqual(status, 404)
+            XCTAssertEqual(message, "Not Found")
         } catch {
             XCTFail("unexpected error: \(error)")
         }

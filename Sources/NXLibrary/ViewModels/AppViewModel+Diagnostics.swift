@@ -43,7 +43,7 @@ extension AppViewModel {
         let tools = setup.environmentStatus?.tools ?? []
         i.python = setup.engineToolchain.python.path
         i.setupRows = tools.map { ($0.name, $0.ok) }
-        i.keysImported = setup.keyStore.readStatus().status != .required
+        i.keysImported = FileManager.default.fileExists(atPath: setup.keyStore.keyURL.path)
         i.hasHeaderKey = setup.isProdKeysValid
         i.keyGenerations = setup.keyGenerationCount ?? 0
         if let game = diagnosticsGame {

@@ -83,7 +83,7 @@ final class SetupModel: ObservableObject {
         upstreamState = .checking
         let place = Place(UUID())
         let engine: any EngineAdapter = MacNXNative(place: place, checkout: nxnativePath, prescribed: base,
-                                                     expected: activeEngineCommit)
+                                                     expected: activeEngineCommit, persistReview: true)
         Task { @MainActor [weak self] in
             guard let self else { return }
             do {
@@ -192,12 +192,13 @@ final class SetupModel: ObservableObject {
             ))
         } catch {
             localKeyStatus = keyStore.readStatus().status
-            keyImportError = ((error as? KeyStoreError) ?? .unreadable).localizedDescription
+            let failure = isProdKeysValid
+                ? L10n.text("The key file could not be imported. Your previous copy is kept.")
+                : L10n.text("The key file could not be imported. Choose a valid prod.keys file.")
+            keyImportError = (error as? KeyStoreError)?.localizedDescription ?? failure
             app.lastError = keyImportError
             if !app.showSetupCheck {
-                app.showSettingsNotice(title: L10n.text("Keys not changed"), message: isProdKeysValid
-                    ? L10n.text("The key file could not be imported. Your previous copy is kept.")
-                    : L10n.text("The key file could not be imported. Choose a valid prod.keys file."))
+                app.showSettingsNotice(title: L10n.text("Keys not changed"), message: failure)
             }
             app.logs.append(LogEntry(level: .error,
                                  message: L10n.format("Could not import prod.keys: %@", [keyImportError ?? ""])))

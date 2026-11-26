@@ -77,7 +77,8 @@ public struct SetupProbe {
     /// tell, as when the pin is not fetched yet.
     private func behind(_ engine: EngineFacts) -> Bool? {
         guard case .checkout(let head, _) = engine, head != pinnedCommit else { return nil }
-        switch MacNXNative.git(["merge-base", "--is-ancestor", head, pinnedCommit], at: engineFolder.path, runner: runner)?.status {
+        switch MacNXNative.git(["merge-base", "--is-ancestor", head, pinnedCommit], at: engineFolder.path,
+                               runner: runner, developerDir: developerDir)?.status {
         case 0: return true
         case 1: return false
         default: return nil
@@ -99,8 +100,8 @@ public struct SetupProbe {
     }
 
     package func checkoutFacts() -> EngineFacts {
-        switch MacNXNative.checkoutState(at: engineFolder.path, runner: runner) {
-        case (.checkout, let head?, let changes): .checkout(head: head, dirty: !changes.isEmpty)
+        switch MacNXNative.checkoutState(at: engineFolder.path, runner: runner, developerDir: developerDir) {
+        case (.checkout, let head?, let changes): .checkout(head: head, dirty: changes?.isEmpty != true)
         case (.missing, _, _): .missing
         default: .notACheckout
         }
