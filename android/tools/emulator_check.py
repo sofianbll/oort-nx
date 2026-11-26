@@ -103,18 +103,27 @@ def screen(check_targets=True):
         time.sleep(1)
     else:
         return []
-    nodes = [Node(e) for e in ET.fromstring(text[text.index("<"):]).iter("node")]
+    by_element = {e: Node(e) for e in ET.fromstring(text[text.index("<"):]).iter("node")}
+    nodes = list(by_element.values())
     if not check_targets:
         return nodes
     size = [max(n.box[2] for n in nodes), max(n.box[3] for n in nodes)]
     scale = density()
-    for n in nodes:
+    parents = {child: parent for parent in by_element for child in parent}
+    for element, n in by_element.items():
         if n.package != PACKAGE or not n.clickable:
             continue
         w, h = n.box[2] - n.box[0], n.box[3] - n.box[1]
+        if min(w, h) >= 47.5 * scale:
+            continue
         # A line cut by the edge of its scrolling page is not a small target.
         edge = n.box[0] <= 0 or n.box[2] >= size[0] or n.box[1] <= 90 * scale or n.box[3] >= size[1] - 120 * scale
-        if min(w, h) < 47.5 * scale and not edge:
+        while not edge and (element := parents.get(element)) is not None:
+            if element.get("scrollable") == "true":
+                left, top, right, bottom = by_element[element].box
+                edge = (w < 47.5 * scale and (n.box[0] == left or n.box[2] == right)
+                        or h < 47.5 * scale and (n.box[1] == top or n.box[3] == bottom))
+        if not edge:
             if (n.said or "(no name)") not in small:
                 shot(f"SMALL-{len(small)}")
             small[n.said or "(no name)"] = f"{w / scale:.0f}x{h / scale:.0f} dp"
@@ -210,6 +219,33 @@ def start():
 def fresh():
     shell(f"am force-stop {PACKAGE}")
     start()
+
+
+def end_process():
+    pidof = f"pidof {PACKAGE} || [ $? = 1 ]"
+    pid = shell(pidof, check=True).strip()
+    if not pid.isdecimal():
+        raise RuntimeError(f"Expected one Oort process before going Home, got {pid!r}")
+    shell("input keyevent HOME", check=True)
+    deadline = time.monotonic() + 30
+    adj = ""
+    while time.monotonic() < deadline:
+        if pid not in shell(pidof, check=True).split():
+            return pid
+        adj = shell(f"cat /proc/{pid}/oom_score_adj").strip()
+        # am kill ignores processes below Android's SERVICE_ADJ, even after Home.
+        if re.fullmatch(r"-?\d+", adj) and int(adj) >= 500:
+            shell(f"am kill {PACKAGE}", check=True)
+            break
+        time.sleep(0.25)
+    else:
+        raise RuntimeError(f"Oort PID {pid} never became eligible for am kill (oom_score_adj={adj!r})")
+    deadline = time.monotonic() + 5
+    while time.monotonic() < deadline:
+        if pid not in shell(pidof, check=True).split():
+            return pid
+        time.sleep(0.25)
+    raise RuntimeError(f"am kill did not end Oort PID {pid} (oom_score_adj={adj})")
 
 
 def load_words(lang):
@@ -347,7 +383,7 @@ def library_focus_after_play(games):
     tap(GAMES[0])
     see("focus after removal: the library's target before backgrounding", "org.nx2a.testphare", exact=True)
     system_back()
-    shell(f"input keyevent HOME; sleep 2; am kill {PACKAGE}")
+    end_process()
     removed = games / "org.nx2a.testcollines.apk"
     adb("uninstall", removed.stem, check=True)
     try:
@@ -367,8 +403,7 @@ def restored_sound_focus():
     tap("Oort", exact=True)
     pad("DOWN")
     shot("sounds-before-process-death")
-    pid = shell(f"pidof {PACKAGE}").strip()
-    shell(f"input keyevent HOME; sleep 2; am kill {PACKAGE}; sleep 1")
+    pid = end_process()
     start()
     new_pid = shell(f"pidof {PACKAGE}").strip()
     ok("sound focus: Android rebuilt the process", bool(pid and new_pid and new_pid != pid))
@@ -493,7 +528,6 @@ def touch(lang):
     system_back()
     scroll()
     tap(w("settings_thanks"))
-    whole = dict(small)
     credits = json.loads((RES.parent / "assets/credits.json").read_text())
     name = {c["id"]: c["name"] for c in credits["credits"]}
     first, *rest = [name[card] for card in credits["base"]]
@@ -512,9 +546,6 @@ def touch(lang):
     time.sleep(1)
     ok(f"{lang}: a closed group", find("nx2android", exact=True) is None)
     reach(w("thanks_text_oort"), exact=True, down=False)
-    # The cards a page's edge cut while it scrolled are no small targets.
-    small.clear()
-    small.update(whole)
     tap(w("thanks_text_oort"), exact=True)
     see(f"{lang}: the MIT text", "Permission is hereby granted")
     shot(f"{lang}-15-licence")
@@ -643,10 +674,7 @@ def newer(lang):
     fresh()
     tap(w("nav_library"), exact=True)
     tap(GAMES[1])
-    shell("input keyevent HOME")
-    time.sleep(1.5)
-    shell(f"am kill {PACKAGE}")
-    time.sleep(1)
+    end_process()
     # Brought back as Android does from the recent apps: the activity of its task, with what it had kept.
     start()
     see(f"{lang}: a return after Android ended the app finds the same page", w("detail_package"))

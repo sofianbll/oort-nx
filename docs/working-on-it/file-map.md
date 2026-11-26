@@ -943,8 +943,8 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | `android/README.md` | Versione in preparazione, comportamento e prove della variante Android. |
 | `android/app/build.gradle.kts` | Identità, versione, dipendenze e build R8 dell'APK. |
 | `.github/workflows/android.yml` | Controlli senza SDK, build e prove con APK sintetici; nessuna pubblicazione. |
-| `android/tools/emulator_check.py` | Prove R8: versione, permessi, crediti, ritorno e ricerca con tastiera e manetta, anche in una finestra bassa. |
-| `Tests/AndroidChecks/test_android_project.py` | Coerenza di versione, testi, risorse e permessi senza SDK. |
+| `android/tools/emulator_check.py` | Prove R8: versione, permessi, crediti, ritorno dopo la fine del processo, ricerca e aree toccabili. |
+| `Tests/AndroidChecks/test_android_project.py` | Controlli senza SDK su versione, testi, risorse, permessi e misura delle aree toccabili. |
 | `Tests/PublicationChecks/test_credits.py` | Verifica il catalogo comune e la generazione dei crediti. |
 | `design/credits.json`, `scripts/generate_credits.py` | Catalogo comune dei crediti e generatore dei dati e delle note di licenza. |
 | `android/NOTICE.md`, `android/app/src/main/assets/licences/notices.txt` | Note di licenza Android, anche nell'app. |

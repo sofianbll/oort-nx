@@ -1,9 +1,11 @@
 """What can be checked about the Android project without a compiler or an SDK. None of this replaces a build."""
 import json
 import re
+import runpy
 import unittest
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from unittest.mock import Mock
 
 ANDROID = Path(__file__).resolve().parents[2] / "android"
 MAIN = ANDROID / "app/src/main"
@@ -25,6 +27,22 @@ def code_without_text(source):
 
 
 class AndroidProject(unittest.TestCase):
+    def test_touch_targets_exclude_only_the_scroll_viewport_edge(self):
+        screen = runpy.run_path(str(ANDROID / "tools/emulator_check.py"))["screen"]
+        env = screen.__globals__
+        env["shell"] = Mock(return_value="Physical density: 420")
+        env["shot"] = Mock()
+        env["adb"] = Mock(return_value=f"""
+            <hierarchy><node bounds="[0,0][1080,2400]">
+              <node scrollable="true" bounds="[52,317][1028,2336]">
+                <node package="{env['PACKAGE']}" clickable="true" text="Clipped" bounds="[52,317][1028,440]"/>
+                <node package="{env['PACKAGE']}" clickable="true" text="Too short" bounds="[52,490][1028,613]"/>
+                <node package="{env['PACKAGE']}" clickable="true" text="Full size" bounds="[52,650][1028,776]"/>
+              </node>
+            </node></hierarchy>""")
+        screen()
+        self.assertEqual(env["small"], {"Too short": "372x47 dp"})
+
     def test_both_languages_have_the_same_strings(self):
         english, french = strings(MAIN / "res/values/strings.xml"), strings(MAIN / "res/values-fr/strings.xml")
         self.assertEqual(sorted(english), sorted(french))
