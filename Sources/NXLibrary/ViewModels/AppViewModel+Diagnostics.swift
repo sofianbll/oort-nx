@@ -10,7 +10,7 @@ extension AppViewModel {
         Task { @MainActor in
             if let game = diagnosticsGame { await cheats.prepare(for: game) }
             let developerDir = setup.resolvedDeveloperDir()
-            let engine = setup.engineAdapter(developerDir: developerDir)
+            let engine = setup.engineAdapter(developerDir: developerDir, keys: setup.keysDirectory)
             let snapshot = await Task.detached { engine.workshop() }.value
             let pasteboard = NSPasteboard.general
             pasteboard.clearContents()
@@ -37,7 +37,7 @@ extension AppViewModel {
         i.chip = Self.sysctlString("machdep.cpu.brand_string") ?? "?"
         i.pinnedCommit = workshop.versions.reference
         i.newestEngine = setup.newestEngineChoice.map { "\($0.commit) (\(NewestEngineCopy.ahead($0.aheadBy)))" }
-        i.engineHead = workshop.versions.selected.value
+        i.engineHead = workshop.versions.selected.value.map { String($0.prefix(7)) }
         i.xcodePath = developerDir.path
         i.xcodeVersion = setup.environmentStatus?.xcodeVersion
         i.metalFound = setup.environmentStatus?.metalVersion

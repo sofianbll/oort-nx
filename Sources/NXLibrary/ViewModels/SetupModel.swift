@@ -79,9 +79,10 @@ final class SetupModel: ObservableObject {
         }
     }
 
-    func engineAdapter(developerDir: URL? = nil, checkout: String? = nil, persistReview: Bool = false) -> MacNXNative {
+    func engineAdapter(developerDir: URL? = nil, checkout: String? = nil, keys: URL? = nil,
+                       persistReview: Bool = false) -> MacNXNative {
         MacNXNative(place: Place(UUID()), checkout: checkout ?? nxnativePath, prescribed: prescribedCommit,
-                    expected: versions.expected, keys: keysDirectory,
+                    expected: versions.expected, keys: keys,
                     developerDir: developerDir, persistReview: persistReview)
     }
 
@@ -90,11 +91,10 @@ final class SetupModel: ObservableObject {
         if case .checking = upstreamState { return }
         // Always against the tested pin, so the newest engine stays measurable from the engine Arcane tested.
         upstreamState = .checking
-        let engine = engineAdapter(developerDir: resolvedDeveloperDir(), persistReview: true)
+        let workshop = engineAdapter(checkout: "", persistReview: true).workshop()
         Task { @MainActor [weak self] in
             guard let self else { return }
             do {
-                let workshop = await Task.detached { engine.workshop() }.value
                 let status = try await workshop.checkUpstream.run(Confirmed(UUID()), request: RequestID(UUID()))
                 self.upstreamState = .loaded(status)
                 self.checkNewestEngineReadiness(status)
@@ -156,7 +156,7 @@ final class SetupModel: ObservableObject {
     // MARK: - Keys import
     func ensureKeysImported(customRyujinxDir: String? = nil) {
         let fm = FileManager.default
-        let keys = engineAdapter(checkout: "").workshop().localKeys
+        let keys = engineAdapter(checkout: "", keys: keysDirectory).workshop().localKeys
         localKeyStatus = keys
         if keys != .required {
             if case .invalid(let issue) = keys {
@@ -198,7 +198,7 @@ final class SetupModel: ObservableObject {
                 message: L10n.format("prod.keys imported: header key present, %@ application key generations.", [String(count)])
             ))
         } catch {
-            localKeyStatus = engineAdapter(checkout: "").workshop().localKeys
+            localKeyStatus = engineAdapter(checkout: "", keys: keysDirectory).workshop().localKeys
             let failure = isProdKeysValid
                 ? L10n.text("The key file could not be imported. Your previous copy is kept.")
                 : L10n.text("The key file could not be imported. Choose a valid prod.keys file.")

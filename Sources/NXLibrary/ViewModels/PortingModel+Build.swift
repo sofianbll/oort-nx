@@ -506,17 +506,7 @@ extension PortingModel {
         guard SourceSelection.matchesNUPProgram(target.sources, titleID: titleId) else {
             throw NXLibraryError.environmentBlocked(L10n.text("The selected NUP program no longer matches this game. Choose the source again."))
         }
-        if requiresKeys {
-            guard app.setup.isProdKeysValid else {
-                throw NXLibraryError.missingKeys
-            }
-            // A few kilobytes per file: keys that cannot open the game stop here, not minutes into the extraction.
-            let keyOutcome = KeyCheck.run(keysURL: app.setup.managedKeysURL,
-                                          files: KeyCheck.parts(target.sources.map { ($0.kind, $0.url) }))
-            if keyOutcome.blocks, let reason = PortingFailureReason.from(keyOutcome) {
-                throw NXLibraryError.keyCheck(reason, game: target.name)
-            }
-        } else if !app.setup.engineSourceCapabilities.extractedFolders {
+        if !requiresKeys && !app.setup.engineSourceCapabilities.extractedFolders {
             throw NXLibraryError.environmentBlocked(L10n.text("This engine does not support extracted folders."))
         }
         guard app.setup.isNxnativeValid else { throw NXLibraryError.engineMissing }
@@ -529,8 +519,18 @@ extension PortingModel {
 
         // Re-check at build time: the engine tree, Metal compiler or CLI may
         // have changed since the last Settings/launch check.
-        let (workshop, report) = app.setup.engineAdapter(developerDir: app.setup.resolvedDeveloperDir())
+        let (workshop, report) = app.setup.engineAdapter(developerDir: app.setup.resolvedDeveloperDir(),
+                                                        keys: requiresKeys ? app.setup.keysDirectory : nil)
             .compatibility(toolchain: app.setup.engineToolchain)
+        if requiresKeys {
+            guard workshop.localKeys.applicationGenerations != nil else { throw NXLibraryError.missingKeys }
+            // Verify against the actual sources before extraction starts.
+            let keyOutcome = KeyCheck.run(keysURL: app.setup.managedKeysURL,
+                                          files: KeyCheck.parts(target.sources.map { ($0.kind, $0.url) }))
+            if keyOutcome.blocks, let reason = PortingFailureReason.from(keyOutcome) {
+                throw NXLibraryError.keyCheck(reason, game: target.name)
+            }
+        }
         app.setup.compatibilityReport = report
         if !report.ok && !app.setup.allowUntestedToolchain {
             let reason = report.checks.filter { $0.status == .block }

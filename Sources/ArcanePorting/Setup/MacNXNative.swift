@@ -169,8 +169,9 @@ package actor MacNXNative: EngineAdapter {
     private nonisolated func readCheckout() -> (EngineCheckout, String?, [String]?) {
         let path = checkout
         var directory: ObjCBool = false
-        guard !path.isEmpty, FileManager.default.fileExists(atPath: path, isDirectory: &directory),
-              directory.boolValue else { return (.missing, nil, nil) }
+        guard !path.isEmpty, FileManager.default.fileExists(atPath: path, isDirectory: &directory)
+        else { return (.missing, nil, nil) }
+        guard directory.boolValue else { return (.notACheckout, nil, nil) }
         func git(_ args: [String]) -> CommandResult? {
             InstalledEngineVersionReader.run(args, checkout: path, runner: runner, developerDir: developerDir)
         }

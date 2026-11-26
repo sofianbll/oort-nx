@@ -1542,12 +1542,11 @@ extension ActivityCenterView {
                             "    func requestSourceConfirmationForProbe() { confirmSourcesFolder() }\n"
                             "    var referenceStatusForProbe: String { referenceStatus }\n}\n")
             build = app / "ViewModels/PortingModel+Build.swift"
-            change(build, r'        if requiresKeys \{\n', '''        let syntheticEngine = ProcessInfo.processInfo.environment["OORT_CLOUD_PROBE_CASE"] == "sources"
-        if requiresKeys && !syntheticEngine {
-''')
-            change(build, r'        \} else if !app\.setup\.engineSourceCapabilities\.extractedFolders \{',
-                   '        } else if !requiresKeys && !app.setup.engineSourceCapabilities.extractedFolders {')
-            change(build, r'        let \(workshop, report\) = app\.setup\.engineAdapter\(developerDir: app\.setup\.resolvedDeveloperDir\(\)\)\n'
+            change(build, r'(        let requiresKeys = SourceSelection\.requiresKeys\(target\.sources\)\n)',
+                   lambda m: m[1] + '        let syntheticEngine = ProcessInfo.processInfo.environment["OORT_CLOUD_PROBE_CASE"] == "sources"\n')
+            change(build, r'        if requiresKeys \{\n', '        if requiresKeys && !syntheticEngine {\n')
+            change(build, r'        let \(workshop, report\) = app\.setup\.engineAdapter\(developerDir: app\.setup\.resolvedDeveloperDir\(\),\n'
+                          r'                                                        keys: requiresKeys \? app\.setup\.keysDirectory : nil\)\n'
                           r'            \.compatibility\(toolchain: app\.setup\.engineToolchain\)',
                    '''        let (workshop, report) = syntheticEngine
             ? (app.setup.engineAdapter(checkout: "").workshop(), CompatibilityReport(ok: false, checks: []))

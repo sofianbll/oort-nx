@@ -33,8 +33,9 @@ UI_BASELINE = {
     "Sources/NXLibraryCore/Artwork/ArtworkStore.swift": {"AppKit"},
 }
 IMPORT = re.compile(r"^\s*(?:@\w+\s+)*import\s+([A-Za-z_][A-Za-z0-9_]*)", re.MULTILINE)
-ENGINE_READ = re.compile(r'"DMCommit"|"\brev-parse"\s*,\s*"HEAD"|"\-\-format=%h %s"|\.readStatus\(\)|'
+ENGINE_READ = re.compile(r'"DMCommit"|"rev-parse"\s*,\s*"HEAD"|"--format=%h %s"|\.readStatus\(\)|'
                          r'fileExists\(atPath:[^\n]*(?:managedKeysURL|keyURL)\.path')
+GIT_STATUS = re.compile(r'"status"\s*,\s*"--porcelain"')
 
 
 def imports_of(path):
@@ -74,10 +75,16 @@ def check(root):
             violations.append(f"{relative}: baseline lists {name}, but the file no longer imports it; remove the entry")
     for file in (root / "Sources").rglob("*.swift"):
         relative = file.relative_to(root).as_posix()
-        if relative != "Sources/ArcanePorting/Setup/MacNXNative.swift":
-            for line, text in enumerate(file.read_text(encoding="utf-8").splitlines(), 1):
-                if ENGINE_READ.search(text):
-                    violations.append(f"{relative}:{line}: read engine facts through MacNXNative")
+        if relative == "Sources/ArcanePorting/Setup/MacNXNative.swift":
+            continue
+        text = file.read_text(encoding="utf-8")
+        matches = list(ENGINE_READ.finditer(text))
+        # Keep the existing write-time guard immediately before changing the checkout.
+        if relative != "Sources/ArcanePorting/Setup/NewestEngine.swift":
+            matches.extend(GIT_STATUS.finditer(text))
+        for match in matches:
+            line = text.count("\n", 0, match.start()) + 1
+            violations.append(f"{relative}:{line}: read engine facts through MacNXNative")
     return violations
 
 

@@ -47,7 +47,7 @@ import SwiftUI
                                engine: .missing, engineFolder: support, pinnedCommit: app.setup.versions.reference,
                                runtimeProblem: nil, keys: .required, keysError: nil, libraryReadable: nil))
         precondition(setup.items.first { $0.id == .keys }?.inlineError == "Le fichier de clés ne contient pas de header_key. Choisis un autre fichier prod.keys.")
-        precondition(app.settingsNotice == nil && !FileManager.default.fileExists(atPath: app.setup.keyStore.keyURL.path))
+        precondition(app.settingsNotice == nil && !FileManager.default.fileExists(atPath: app.setup.managedKeysURL.path))
         try render("06-rejected-keys", page: SetupCheckView(viewModel: app, isFirstRun: true), to: output, locale: locale,
                    showsHints: false)
         app.showSetupCheck = false
