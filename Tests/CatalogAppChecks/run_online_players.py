@@ -28,15 +28,9 @@ import NXLibraryCore
     @MainActor static func main() async throws {
         assertFixtureHome()
         suppressProbeNotifications()
-        let resources = Bundle.main.resourceURL!
-        let selene = resources.appendingPathComponent("Selene", isDirectory: true)
-        try FileManager.default.createDirectory(at: selene, withIntermediateDirectories: true)
-        let palettes = selene.appendingPathComponent("palettes.json")
-        if !FileManager.default.fileExists(atPath: palettes.path) {
-            try FileManager.default.copyItem(atPath: "__ROOT__/Resources/Selene/palettes.json", toPath: palettes.path)
-        }
         precondition(CTFontManagerRegisterFontsForURL(
-            URL(fileURLWithPath: "__ROOT__/Resources/Selene/Fonts/MaterialIcons-Regular.ttf") as CFURL, .process, nil))
+            Bundle.main.resourceURL!.appendingPathComponent("Selene/Fonts/MaterialIcons-Regular.ttf") as CFURL, .process, nil),
+            "The staged Material Icons font must register inside the sandbox")
         try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
         L10n.setContext(french)
         let data = AppData.supportRoot
@@ -190,10 +184,9 @@ import NXLibraryCore
 
 if __name__ == "__main__":
     args = sys.argv[1:]
-    host = HOST.replace("__ROOT__", str(ROOT))
     with tempfile.TemporaryDirectory(prefix="online-players-", dir="/private/tmp") as temp:
         output = Path(args[0]).resolve() if args else Path(temp)
-        run_host(host, save_model=True, capture=output)
+        run_host(HOST, save_model=True, capture=output)
         assert all(len(list(output.glob(f"*-{mode}.png"))) == 6 for mode in ("defaut", "tout-allume", "tout-eteint"))
         assert len(list(output.glob("jaquettes-*.png"))) == 2
         print(f"20 captures: {output}")

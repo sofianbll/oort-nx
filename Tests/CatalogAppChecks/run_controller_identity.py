@@ -8,7 +8,9 @@ import sys
 import tempfile
 
 root = Path(__file__).resolve().parents[2]
-products = root / ".build/debug"
+products = root / ".build/out/Products/Debug"
+if not (products / "libNXLibraryCore.a").is_file():
+    products = root / ".build/debug"
 services = root / "Sources/NXLibrary/Services"
 files = ["ControllerSource", "ControllerHardwareID", "ControllerRoster", "ControllerLive", "GameControllerService",
          "GCControllerSource", "HIDControllerSource"]

@@ -63,7 +63,7 @@ SCENARIO = r'''
         }
         var failures: [String] = []
         func check(_ name: String, _ includes: String, _ excludes: String? = nil) throws {
-            let text = try words(name, output)
+            let text = try readProbeText(output, name: name).lowercased()
             if !text.contains(includes) || excludes.map(text.contains) == true {
                 failures.append("\(name): expected \(includes), excluding \(excludes ?? "nothing"); saw \(text)")
             }
@@ -81,20 +81,6 @@ SCENARIO = r'''
         }
     }
 
-    static func words(_ name: String, _ output: URL) throws -> String {
-        let request = VNRecognizeTextRequest()
-        request.recognitionLanguages = ["fr-FR"]
-        let url = output.appendingPathComponent(name + ".png")
-        do {
-            try VNImageRequestHandler(url: url).perform([request])
-        } catch {
-            FileHandle.standardError.write(Data("Vision OCR failed for \(url.lastPathComponent): \(String(reflecting: error))\n".utf8))
-            throw error
-        }
-        return (request.results ?? []).compactMap { $0.topCandidates(1).first?.string }
-            .joined(separator: " ").replacingOccurrences(of: "\u{202f}", with: " ")
-            .replacingOccurrences(of: "\u{a0}", with: " ").lowercased()
-    }
 '''
 
 
@@ -161,10 +147,15 @@ extension CloudLibraryPanel {
     func canCancelDownloadForProbe() -> Bool { artifactControl(.app) == .cancel }
 }
 ''')
-        preamble = HOST.split("        // SCENARIO", 1)[0].replace("import SwiftUI", "import SwiftUI\nimport Vision")
+        preamble = HOST.split("        // SCENARIO", 1)[0]
         renderer = HOST[HOST.index("    @MainActor static func render<V: View>"):]
         renderer = renderer.replace("SeleneCanvas(size: .init(width: 1920, height: 1080))", "SeleneCanvas(size: size)")
+        renderer = renderer.replace("try png.write(to: output.appendingPathComponent(name + \".png\"))",
+                                    'let imageURL = output.appendingPathComponent(name + ".png")\n'
+                                    '        try png.write(to: imageURL)\n'
+                                    '        try saveProbeText(renderer, beside: imageURL)')
         (app / "CloudScreenProbe.swift").write_text(preamble + SCENARIO + renderer)
+        shutil.copyfile(Path(__file__).with_name("ProbeRenderedText.swift"), app / "ProbeRenderedText.swift")
         font = ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"
         icon = ROOT / "Resources/AppIcon-Light.png"
         home = package / "fixture-home"

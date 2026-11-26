@@ -28,7 +28,7 @@ def run(paths, temp):
         with tempfile.TemporaryDirectory(prefix="oort-home-", dir=temp) as home:
             print(f"Running {path.name}", flush=True)
             start = time.monotonic()
-            env = dict(os.environ, HOME=home, CFFIXED_USER_HOME=home)
+            env = dict(os.environ, HOME=home, CFFIXED_USER_HOME=home, OORT_PROBE_BUILD_HOME=str(Path.home()))
             code = subprocess.run([sys.executable, str(path)], cwd=ROOT, env=env).returncode
             print(f"{path.name}: exit {code} in {time.monotonic() - start:.1f}s", flush=True)
             failed |= code != 0

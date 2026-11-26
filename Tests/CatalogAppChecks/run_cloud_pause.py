@@ -24,7 +24,9 @@ SCENARIO = r'''
             return game
         }
         _ = try repository.mergeNXNative(scanned: games, enableSource: true)
-        let rclone = try require(RcloneStorageBackend.findExecutable(), "Local rclone fixture unavailable")
+        let rclone = try require(RcloneStorageBackend.findExecutable(
+            preferred: ProcessInfo.processInfo.environment["OORT_PROBE_RCLONE"].map { URL(fileURLWithPath: $0) }),
+            "Local rclone fixture unavailable")
         let config = data.appendingPathComponent("rclone.conf")
         try Data().write(to: config)
         let scope = CloudDriveScope(remote: "fixture", account: "account-a", library: .init(path: "Games", id: "folder-a"))

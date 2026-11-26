@@ -141,7 +141,11 @@ def main():
             "/* NOTICE_LAYOUT */", "cancelIndex: notice.cancelIndex,")
         host = HOST.split("        // SCENARIO")[0] + SCENARIO + helper
         (app / "ReferenceProbe.swift").write_text(cloud_settings_fixture(app, host))
-        subprocess.run(["swift", "build", "--jobs", "4", "--package-path", str(package)], check=True)
+        # Xcode can mount the Metal tools under $HOME. Put that mount in the job home, not the disposable probe home.
+        env = dict(os.environ)
+        if build_home := env.get("OORT_PROBE_BUILD_HOME"):
+            env.update(HOME=build_home, CFFIXED_USER_HOME=build_home)
+        subprocess.run(["swift", "build", "--jobs", "4", "--package-path", str(package)], check=True, env=env)
         home = package / "home"
         (home / "Library" / "Preferences").mkdir(parents=True)
         sandbox = ('(version 1) (allow default) (deny network*) '

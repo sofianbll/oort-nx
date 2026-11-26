@@ -1194,16 +1194,28 @@ import ArcanePorting
 
     @MainActor static func checkAnimatedPortraitFrame(_ profile: LocalProfile) {
         let host = NSHostingView(rootView: ProfilePortrait(profile: profile, size: 120)
-            .environment(\.seleneCanvas, SeleneCanvas(size: .init(width: 1920, height: 1080))))
+            .environment(\.seleneCanvas, SeleneCanvas(size: .init(width: 1920, height: 1080)))
+            .environment(\.seleneReduceMotion, false)
+            .environment(\._accessibilityReduceMotion, false))
         host.frame.size = .init(width: 120, height: 120)
+        let window = NSWindow(contentRect: host.frame, styleMask: .borderless, backing: .buffered, defer: false)
+        window.contentView = host
+        defer { window.contentView = nil }
+        window.layoutIfNeeded()
         _ = host.fittingSize
         host.layoutSubtreeIfNeeded()
         func imageView(in view: NSView) -> NSImageView? {
             (view as? NSImageView) ?? view.subviews.lazy.compactMap { imageView(in: $0) }.first
         }
+        let deadline = Date().addingTimeInterval(2)
+        while imageView(in: host)?.superview?.layer == nil && Date() < deadline {
+            RunLoop.main.run(until: Date().addingTimeInterval(0.016))
+            host.layoutSubtreeIfNeeded()
+        }
         guard let image = imageView(in: host), let mask = image.superview?.layer else {
             preconditionFailure("the animated portrait must mount")
         }
+        precondition(!window.isVisible)
         precondition(image.animates && image.frame.width == 200 && image.frame.height == 120 && image.frame.minX == -40
                      && mask.masksToBounds && mask.cornerRadius == 60,
                      "the animated image must cover its circular AppKit frame without distortion")

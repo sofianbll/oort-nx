@@ -747,7 +747,8 @@ extension CloudScreenProbe {
             try fm.createDirectory(at: directory, withIntermediateDirectories: true)
         }
         try Data("[fixture]\ntype = alias\nremote = :local:\(shared.path)\n".utf8).write(to: config)
-        let rclone = RcloneStorageBackend.findExecutable()!
+        let rclone = RcloneStorageBackend.findExecutable(
+            preferred: ProcessInfo.processInfo.environment["OORT_PROBE_RCLONE"].map { URL(fileURLWithPath: $0) })!
         // Exercise real local transfers without starting an RC daemon the probe could leave behind.
         let run: RcloneConfiguration.Run = { _, args, _ in
             try await SystemCommandRunner().runCancellable(rclone, args + ["--config", config.path], environment: [:])

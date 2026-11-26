@@ -160,6 +160,8 @@ The [Checks workflow](../../.github/workflows/ci.yml) uses GitHub-hosted `xcode-
 
 Checkout is pinned and does not retain credentials. Permissions are read-only; the workflow needs no secrets, self-hosted runners, packaging or publishing. It does not run the UI or games or certify the engine. See the [runner measurements](../history/reviews/2026-11-26-mac-ci.md).
 
+Standalone probes use a SHA-256-verified rclone release for the synthetic local transport. SwiftUI-only text checks read a companion PDF from the same offscreen renderer; the AppKit settings probe still reads its screenshots and uses CPU-only Tesseract in CI for the hidden windows. The OCR package lock and language files are test dependencies, not application dependencies (Tesseract and its language data: Apache-2.0; see the [npm wrapper](https://github.com/naptha/tesseract.js)). `workflow_dispatch` can exercise all jobs on an authorized fix branch without changing `main`.
+
 ### Manual checks
 
 Interactive app and game checks are performed by the user. Agents must not use computer-use or other UI automation. Compilation, unit tests and signature verification cannot establish that the interface or a game works.

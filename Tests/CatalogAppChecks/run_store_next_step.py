@@ -82,7 +82,7 @@ SCENARIOS = r'''
         try render("shared-active", output, status.environment(\.nxAppLocale, fr), size: .init(width: 330, height: 90))
         try render("shared-download", output, SelenePillButton(title: "Download", focused: true, downloadFill: 0.42) {}
             .environment(\.nxAppLocale, fr), size: .init(width: 330, height: 90))
-        try checkNextStepOCR(output)
+        try checkNextStepText(output)
     }
 '''
 
@@ -131,9 +131,14 @@ extension CloudArtifactStatus {
 }
 ''')
         render = re.search(r"    @MainActor static func render<V: View>.*", HOST, flags=re.S).group()
-        ocr = (Path(__file__).parent / "StoreNextStepOCR.swift").read_text()
+        render = render.replace("try png.write(to: output.appendingPathComponent(name + \".png\"))",
+                                'let imageURL = output.appendingPathComponent(name + ".png")\n'
+                                '        try png.write(to: imageURL)\n'
+                                '        if name.hasSuffix("-1120") { try saveProbeText(renderer, beside: imageURL) }')
+        text_checks = (Path(__file__).parent / "StoreNextStepText.swift").read_text()
         (app / "StoreNextStepProbe.swift").write_text(
-            "import Vision\n" + HOST.split("        // SCENARIO")[0] + SCENARIOS + render + ocr)
+            HOST.split("        // SCENARIO")[0] + SCENARIOS + render + text_checks)
+        shutil.copyfile(Path(__file__).with_name("ProbeRenderedText.swift"), app / "ProbeRenderedText.swift")
         subprocess.run(["swift", "run", "--jobs", "4", "--package-path", str(package), "NXLibrary",
                         str(output), str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"),
                         str(ROOT / "Resources/AppIcon-Light.png")], check=True,

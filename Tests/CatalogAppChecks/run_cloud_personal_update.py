@@ -15,7 +15,8 @@ SCENARIO = r'''
         let config = data.appendingPathComponent("empty-rclone.conf")
         try Data().write(to: config)
         let title = "FEDCBA9876543210", bundleID = "local.oort.personal-update-fixture"
-        guard let rclone = RcloneStorageBackend.findExecutable() else {
+        guard let rclone = RcloneStorageBackend.findExecutable(
+            preferred: ProcessInfo.processInfo.environment["OORT_PROBE_RCLONE"].map { URL(fileURLWithPath: $0) }) else {
             throw CocoaError(.fileNoSuchFile, userInfo: [NSDebugDescriptionErrorKey: "rclone fixture tool is not available"])
         }
         let offline = OSAllocatedUnfairLock(initialState: false)
