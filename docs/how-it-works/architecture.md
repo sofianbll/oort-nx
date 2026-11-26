@@ -75,7 +75,7 @@ flowchart TD
 Il checkout nxnative fornisce estrattore, rewriter, shader, profili dei giochi e runtime dei giochi compilati. Arcane prepara gli argomenti, controlla i requisiti e presenta lo stato delle operazioni. La cache dello stato upstream si riusa soltanto quando il suo commit di base coincide con il pin.
 
 `SystemCommandRunner` drena stdout e stderr in parallelo e attende la fine del processo e dei due stream senza eseguire il run loop chiamante. *Perché:* un comando sincrono, come il controllo Git dei cheat in Game Options, non deve far rientrare SwiftUI durante un aggiornamento della vista.
-I comandi cloud annullabili usano un gruppo di processi separato, I/O non bloccante e un termine di 60 secondi; soltanto l'autorizzazione OAuth aspetta fino a cinque minuti. I trasferimenti rclone hanno 120 secondi di inattività, azzerati solo se cambiano byte, verifiche o file conclusi. Annullamento, scadenza e uscita terminano il gruppo senza aspettare pipe ereditate da un figlio.
+I comandi cloud annullabili usano un gruppo di processi separato, I/O non bloccante e un termine di 60 secondi; soltanto l'autorizzazione OAuth aspetta fino a cinque minuti. I trasferimenti rclone hanno 120 secondi di inattività, azzerati solo se cambiano byte, verifiche o file conclusi. Dopo l’uscita del processo, il lettore ritardato può ancora svuotare pipe già chiuse, ma non aspetta una pipe rimasta aperta in un figlio oltre mezzo secondo. Annullamento, scadenza e uscita terminano il gruppo.
 
 La variante asincrona attende su una coda utility e invia SIGTERM al sottoprocesso quando si annulla il task. Può leggere solo stderr per la progressione, lasciando stdout al risultato del comando.
 
