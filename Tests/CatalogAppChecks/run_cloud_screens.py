@@ -2063,7 +2063,9 @@ extension AppViewModel {
             func readSelection() { if isChanged { changedSelectionReads += 1 } }
         }
         let revision = Revision()
-        let fixture = RcloneStorageBackend(remote: "fixture", root: "Games") { _, args, _ in
+        // The queue persists a real executable identity; the fake transport intercepts every invocation.
+        let fixture = RcloneStorageBackend(remote: "fixture", root: "Games",
+                                           executable: URL(fileURLWithPath: "/usr/bin/false")) { _, args, _ in
             let (name, data) = await revision.isChanged ? changed : quoted
             let isReference = args.contains("--drive-root-folder-id=\(reference)")
             switch (args[0], args[1]) {

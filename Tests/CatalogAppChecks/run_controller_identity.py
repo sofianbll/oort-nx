@@ -3,19 +3,27 @@
 from pathlib import Path
 import os
 import platform
+import shlex
 import subprocess
 import sys
 import tempfile
 
 root = Path(__file__).resolve().parents[2]
-products = root / ".build/out/Products/Debug"
-if not (products / "libNXLibraryCore.a").is_file():
-    products = root / ".build/debug"
+build = root / ".build"
+products = build / "debug"
 services = root / "Sources/NXLibrary/Services"
 files = ["ControllerSource", "ControllerHardwareID", "ControllerRoster", "ControllerLive", "GameControllerService",
          "GCControllerSource", "HIDControllerSource"]
+intermediates = build / "out/Intermediates.noindex/NXLibrary.build/Debug"
+link_lists = [
+    list((intermediates / f"{target}-t.build/Objects-normal").glob(f"*/{target}.LinkFileList"))
+    for target in ("NXLibraryCore", "OortCore")
+]
 archive = products / "libNXLibraryCore.a"
-if archive.is_file():
+if all(len(matches) == 1 for matches in link_lists):
+    modules = build / "out/Products/Debug"
+    core = [obj for matches in link_lists for obj in shlex.split(matches[0].read_text())]
+elif archive.is_file():
     modules, core = products, [archive]
 else:
     modules = products / "Modules"

@@ -307,7 +307,13 @@ extension CloudLibraryModel {
         (app / "PersonalUpdateScreenProbe.swift").write_text(preamble + SCENARIO + renderer)
         home = package / "fixture-home"
         home.mkdir()
-        subprocess.run(["swift", "run", "--jobs", "4", "--package-path", str(package), "NXLibrary", str(output),
+        build = ["swift", "build", "--jobs", "4", "--package-path", str(package), "--product", "NXLibrary"]
+        build_env = dict(os.environ)
+        if build_home := build_env.get("OORT_PROBE_BUILD_HOME"):
+            build_env.update(HOME=build_home, CFFIXED_USER_HOME=build_home)
+        subprocess.run(build, check=True, env=build_env)
+        products = Path(subprocess.check_output(build + ["--show-bin-path"], env=build_env, text=True).strip())
+        subprocess.run([str(products / "NXLibrary"), str(output),
                         str(ROOT / "Resources/Selene/Fonts/MaterialIcons-Regular.ttf"), str(ROOT / "Resources/AppIcon-Light.png")],
                        check=True, env=dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home)))
 
