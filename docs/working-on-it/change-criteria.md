@@ -108,7 +108,7 @@ One list, for every change to Oort NX. G applies to all, V to anything a player 
 | Between | Kept | Because |
 |---|---|---|
 | Quick panel of six, Android's 10 to 15 rows, HIG's "about five" | Five to choose from; 15 rows on a settings page (V1, V4) | The decision of 25 November is later. A page of settings is not a menu. |
-| HIG Alerts puts the main key last; the fork puts it first | First, with the safe key focused (V9) | Validated choice, same in every dialog. |
+| HIG Alerts puts the main key last; the fork used to put it first | Last, with the safe key focused (V9) | Decision, 25 Nov 2026. |
 | HIG reserves Home; Oort opens its control center with it | Home, unless macOS keeps it; + held otherwise | Decision, 24 Nov 2026. macOS 27 lets the player decide. |
 | HIG: Menu opens settings; Oort: + opens the item's options | Options (V19) | Same as Xbox, documented by Microsoft. The Arcane layout stays a choice. |
 | Simple settings apply at once; settings are a draft | The draft, with preview (V27) | Decision, 24 Nov 2026. |

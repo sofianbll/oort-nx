@@ -139,6 +139,7 @@ extension CloudSetupAssistant {
 
     func openBrowser(_ folder: Folder) {
         guard folderControlsReady else { return }
+        resumeMoveCheck = checkingMove
         browsing = folder
         issue = nil
         recents = CloudRecentFolders.load(for: draft.remote)
@@ -146,11 +147,14 @@ extension CloudSetupAssistant {
         browse((folder == .library ? library?.path : sources?.path) ?? "")
     }
 
-    func closeBrowser() {
+    func closeBrowser(recheckMove: Bool = true) {
+        let interrupted = resumeMoveCheck
+        resumeMoveCheck = false
         work?.task.cancel(); work = nil
         looking?.cancel()
         browsing = nil; listing = nil; folderMissing = false; shownParent = nil; issue = nil
         focus.reset()
+        if recheckMove && interrupted { checkMove() }
     }
 
     func retryFolder() {
@@ -159,8 +163,10 @@ extension CloudSetupAssistant {
 
     /// Asks Drive again instead of showing what was read a moment ago.
     func refreshFolder() {
+        let ticket = draft.ticket
         Task { @MainActor in
             await reads.clear()
+            guard browsing != nil, draft.matches(ticket) else { return }
             index = nil
             browse(browserPath)
         }

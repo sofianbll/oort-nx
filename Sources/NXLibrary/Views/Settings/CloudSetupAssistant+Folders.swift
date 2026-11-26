@@ -90,19 +90,25 @@ extension CloudSetupAssistant {
     func accept(_ folder: Folder, _ path: String) {
         guard folderControlsReady else { return }
         if folder == .sources, isDirect { saveSources(path); return }
-        if browsing != nil {
-            CloudRecentFolders.add(path, for: draft.remote)
-            closeBrowser()
+        if browsing != nil { CloudRecentFolders.add(path, for: draft.remote) }
+        if folder == .library {
+            if browsing != nil { closeBrowser(recheckMove: false) }
+            chooseLibrary(choice(folder, path))
+            checkMove()
+        } else {
+            chooseSources(path)
+            if browsing != nil { closeBrowser() }
+            else if checkingMove { checkMove() }
         }
-        if folder == .library { chooseLibrary(choice(folder, path)) } else { chooseSources(path) }
         focus.reset()
     }
 
     func swapFolders() {
         guard folderControlsReady, let rom = sources?.path, let own = library?.path else { return }
-        if browsing != nil { closeBrowser() }
+        if browsing != nil { closeBrowser(recheckMove: false) }
         chooseLibrary(choice(.library, rom))
         chooseSources(own)
+        checkMove()
         focus.reset()
     }
 
@@ -214,20 +220,22 @@ extension CloudSetupAssistant {
                 chooseSources(rom.path)
                 sources?.games = 0
             }
-            finishFolders()
+            // All writes have finished; the next check must not cancel the creation task.
+            work = nil
+            if own != nil { checkMove() }
+            if !checkingMove { finishFolders() }
         }
     }
 
-    func chooseLibrary(_ choice: Choice) {
+    private func chooseLibrary(_ choice: Choice) {
         library = choice
         draft.browse(choice.path)
         if sourcesOverride == nil, sources?.origin == .current {
             sources = .init(path: defaultSourcesPath, games: nil, origin: .current)
         }
-        checkMove()
     }
 
-    func chooseSources(_ path: String) {
+    private func chooseSources(_ path: String) {
         sources = choice(.sources, path)
         sourcesOverride = path == defaultSourcesPath && model.preference.sourcesRootOverride != path ? nil : path
         sourcesChanged = true
@@ -235,25 +243,25 @@ extension CloudSetupAssistant {
     }
 
     /// The games left in the folder used until now, offered to follow. Every check of the move stays in the service.
-    private func checkMove() {
-        movePlan = nil; moveUnavailable = false; checkingMove = false; moveConflicts = []; moveFailure = nil
+    func checkMove() {
+        if checkingMove { work?.task.cancel(); work = nil }
+        movePlan = nil; moveUnavailable = false; moveConflicts = []; moveFailure = nil
         let old = Self.cleaned(model.preference.root), path = draft.path, ticket = draft.ticket, approved = model.driveScope
         guard let service, model.preference.remote == draft.remote, replacement == nil,
               CloudDriveFolders.canMove(from: old, to: path) else { return }
-        checkingMove = true
-        start(.browse) {
-            defer { if draft.matches(ticket) { checkingMove = false } }
+        start(.checkMove) {
+            func current() -> Bool { !Task.isCancelled && draft.matches(ticket) && model.driveScope == approved }
             do {
                 let plan = try await service.movePlan(from: old, to: path, approved: approved)
-                if !Task.isCancelled && draft.matches(ticket) && model.driveScope == approved { movePlan = plan }
+                if current() { movePlan = plan }
             } catch let failure as CloudDriveFolders.MoveFailure {
-                if !Task.isCancelled && draft.matches(ticket) { moveFailure = failure.localizedDescription }
+                if current() { moveFailure = failure.localizedDescription }
             } catch CloudLibraryFailure.referenceOverlap {
-                if !Task.isCancelled && draft.matches(ticket) {
+                if current() {
                     moveFailure = CloudLibraryFailure.referenceOverlap.localizedDescription
                 }
             } catch {
-                if !Task.isCancelled && draft.matches(ticket) { moveUnavailable = true }
+                if current() { moveUnavailable = true }
             }
         }
     }

@@ -7,7 +7,7 @@ import SwiftUI
 struct CloudSetupAssistant: View {
     enum Entry { case account, library, sources, credentials }
     enum AccountPage { case choose, have, help }
-    enum Work { case inspect, connect, discover, browse, create, verify }
+    enum Work { case inspect, connect, discover, browse, create, checkMove, verify }
     typealias Target = CloudSetupAssistantFocus.Target
     typealias Folder = CloudSetupAssistantFocus.Folder
 
@@ -86,7 +86,7 @@ struct CloudSetupAssistant: View {
     @State var listing: CloudDriveFolders.Listing?
     @State var folderMissing = false
     @State var movePlan: CloudDriveFolders.MovePlan?
-    @State var checkingMove = false
+    @State var resumeMoveCheck = false
     @State var moveUnavailable = false
     @State var confirmingMove = false
     @State var moveID: UUID?
@@ -144,6 +144,7 @@ struct CloudSetupAssistant: View {
         }
     }
     var waitingForGoogle: Bool { work?.kind == .connect }
+    var checkingMove: Bool { work?.kind == .checkMove }
     var accountNeedsClient: Bool { accountPage != .choose }
 
     var primaryTitle: String {
