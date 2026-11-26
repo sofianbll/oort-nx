@@ -496,12 +496,11 @@ def touch(lang):
     whole = dict(small)
     credits = json.loads((RES.parent / "assets/credits.json").read_text())
     name = {c["id"]: c["name"] for c in credits["credits"]}
-    see(f"{lang}: the first card", name[credits["base"][0]])
+    first, *rest = [name[card] for card in credits["base"]]
+    missing = [] if wait(first, exact=True) is not None else [first]
     shot(f"{lang}-14-thanks")
-    for card in credits["base"][1:]:
-        reach(name[card])
-    # One card under the other, all as tall, in the order of the file.
-    ok(f"{lang}: the six cards", find(name[credits["base"][-1]]) is not None)
+    missing.extend(card for card in rest if reach(card, exact=True) is None)
+    ok(f"{lang}: the six cards", len(rest) == 5 and not missing, f"missing: {', '.join(missing)}")
     group = next(c for c in credits["categories"] if c["id"] == "projects")["title"][lang]
     reach(group, exact=True)
     shot(f"{lang}-14-thanks-groups")
