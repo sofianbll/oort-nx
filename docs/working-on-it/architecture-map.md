@@ -76,3 +76,5 @@ The portable rules are the reason for `OortCore`. Before a shared rule is added 
 Update `architecture/model.c4` in the same change as a changed system, module or domain boundary. Keep the `swiftModule` identifier and its `metadata { layer "…" }` on one line. Run `npx --yes --package=node@22.23.3 --package=likec4@1.61.1 likec4 validate --max-warnings 0 architecture` and the Swift boundary check: the first verifies the model, the second checks Swift against it and does not need Node. Check navigability and labels in the live preview when a view changes.
 
 For the two detail views, use one question as the title, at most seven boxes, short labels in the player's vocabulary, and no crossed arrows. Filter the view, not the model; link to another view if more detail is needed.
+
+The engine view shows a request through the interface, not a module dependency: on Mac, `EngineAdapter` reads engine state through `MacNXNative`. It does not trigger launch or preparation. The dashed PC path shows the intended integration, not current behavior.

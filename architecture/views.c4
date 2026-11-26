@@ -13,32 +13,37 @@ views {
     autoLayout TopBottom 50 28
   }
 
-  view applications of oort {
+  dynamic view applications {
     title "2 · Qui parle au moteur ?"
     description '''
-      Givre : relais · Or : interface · Gris : moteurs · Pointillés : prévu.
+      Givre : Oort · Or : interface et cœur moteur · Gris : moteurs externes · Pointillés : prévu.
       [[view:index|Écosystème]] · [[view:jouer|Jouer sur Mac]]
     '''
-    include oort.mac.ArcanePorting.nxAdapter with { title "Relais Mac"; color givre }
-    include oort.desktop.ryuAdapter with { title "Relais Windows"; color givre }
-    include oort.OortCore.engineInterface with { color amber; navigateTo domains }
-    include nxnative, ryujinx
-    include oort.mac.ArcanePorting.nxAdapter -> oort.OortCore.engineInterface with { title "Suit le contrat" }
-    exclude oort, oort.mac, oort.desktop, oort.OortCore, oort.mac.ArcanePorting
+    include oort.mac with { title "Oort sur Mac"; summary "Intégré"; color givre }
+    include oort.desktop with { title "Oort sur PC"; summary "Intégration Windows prévue"; color givre }
+    include oort.OortCore.engineInterface with { summary "Lecture de l’état sur Mac"; color amber; navigateTo domains }
+    include nxnative with { summary "Moteur Switch sur Mac" }
+    include ryujinx with { title "Ryujinx (prévu)"; summary "Moteur Switch visé sur PC" }
+    oort.mac -> oort.OortCore.engineInterface "Demande"
+    oort.OortCore.engineInterface -> nxnative "Lit l’état" { technology "via l’adaptateur nxnative" }
+    oort.desktop -[prevu]-> oort.OortCore.engineInterface "Demande"
+    oort.OortCore.engineInterface -[prevu]-> ryujinx "Lance"
     autoLayout LeftRight 75 35
   }
 
   view domains of oort {
     title "3 · Qui possède quoi ?"
     description '''
-      Givre : lanceur Oort · Or : cœur moteur · Gris : relais Switch.
+      Givre : Oort · Or : interface et cœur moteur · Gris : moteurs externes · Pointillés : prévu.
       [[view:applications|Qui parle au moteur ?]]
     '''
     include oort.NXLibraryCore with { title "Lanceur Oort"; color givre }
     include oort.NXLibraryCore.* where kind is domain with { color givre }
     include oort.OortCore.engine with { title "Cœur moteur"; color amber }
-    include oort.mac.ArcanePorting.saves with { title "Relais Switch"; summary "Copie et restaure les sauvegardes"; color gray }
+    include oort.mac.ArcanePorting.saves with { title "Sauvegardes Switch"; summary "Copie et restauration · ArcanePorting"; color givre }
     exclude * -> *
+    include oort.NXLibraryCore.cloud -> oort.NXLibraryCore.library with { title "Alimente" }
+    include oort.NXLibraryCore.play -> oort.NXLibraryCore.library with { title "Associe les parties" }
     exclude oort, oort.OortCore, oort.mac, oort.mac.ArcanePorting
     autoLayout LeftRight 40 25
   }

@@ -1038,7 +1038,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [architecture/likec4.config.json](../../architecture/likec4.config.json) | Configurazione del progetto LikeC4. |
 | [architecture/spec.c4](../../architecture/spec.c4) | Tipi di elementi del modello. |
 | [architecture/model.c4](../../architecture/model.c4) | Sistemi, livelli Swift e responsabilità dei domini. |
-| [architecture/views.c4](../../architecture/views.c4) | Tre viste dello stesso modello. |
+| [architecture/views.c4](../../architecture/views.c4) | Ecosistema, percorso verso il motore, responsabilità dei domini e sequenza di gioco. |
 | [Tests/CIChecks/test_changed_areas.py](../../Tests/CIChecks/test_changed_areas.py) | Verifica quali aree si accendono per documentazione, core, workflow e cartelle mancanti. |
 | [Tests/ModuleChecks/test_module_boundaries.py](../../Tests/ModuleChecks/test_module_boundaries.py) | Verifica i confini dei moduli con fixture sintetiche e sul repository. |
 | [Tests/SkillChecks/test_skills.py](../../Tests/SkillChecks/test_skills.py) | Verifica formato, tre casi per skill, link e assenza di percorsi personali nelle skill pubbliche. |
