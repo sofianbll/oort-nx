@@ -1,6 +1,194 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Hold: Profile page": {
+      "comment": "ProfilePage.swift",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold: Profile page"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni premuto: pagina del profilo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintenir : page du profil"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gedrückt halten: Profilseite"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén pulsado: página del perfil"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantenha pressionado: página do perfil"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按住：个人资料页"
+          }
+        }
+      }
+    },
+    "Most played game": {
+      "comment": "ProfilePage.swift",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Most played game"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gioco più giocato"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jeu le plus joué"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meistgespieltes Spiel"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Juego más jugado"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jogo mais jogado"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "玩得最多的游戏"
+          }
+        }
+      }
+    },
+    "No playtime this week.": {
+      "comment": "ProfilePage.swift",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No playtime this week."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessuna partita questa settimana."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune partie cette semaine."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Woche noch nicht gespielt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin partidas esta semana."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nenhuma partida nesta semana."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本周还没有游戏时间。"
+          }
+        }
+      }
+    },
+    "Play a game and it shows up here.": {
+      "comment": "ProfilePage.swift",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play a game and it shows up here."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gioca a un gioco e comparirà qui."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Joue à un jeu : il apparaîtra ici."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spiele ein Spiel, dann erscheint es hier."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Juega a un juego y aparecerá aquí."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jogue um jogo e ele aparecerá aqui."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "玩一款游戏，它就会显示在这里。"
+          }
+        }
+      }
+    },
     "%lld games to compile": {
       "comment": "Cloud library: account, folders and the setup panel.",
       "localizations": {
@@ -5397,7 +5585,7 @@
       "en": {"stringUnit":{"state":"translated","value":"Member since"}}, "it": {"stringUnit":{"state":"translated","value":"Membro da"}}, "fr": {"stringUnit":{"state":"translated","value":"Membre depuis"}}, "de": {"stringUnit":{"state":"translated","value":"Mitglied seit"}}, "es": {"stringUnit":{"state":"translated","value":"Miembro desde"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Membro desde"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"加入时间"}}
     }},
     "Nextendo settings": {"localizations": {
-      "en": {"stringUnit":{"state":"translated","value":"Nextendo settings"}}, "it": {"stringUnit":{"state":"translated","value":"Impostazioni Nextendo"}}, "fr": {"stringUnit":{"state":"translated","value":"Paramètres Nextendo"}}, "de": {"stringUnit":{"state":"translated","value":"Nextendo-Einstellungen"}}, "es": {"stringUnit":{"state":"translated","value":"Ajustes de Nextendo"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Configurações do Nextendo"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"Nextendo 设置"}}
+      "en": {"stringUnit":{"state":"translated","value":"Nextendo settings"}}, "it": {"stringUnit":{"state":"translated","value":"Impostazioni Nextendo"}}, "fr": {"stringUnit":{"state":"translated","value":"Réglages Nextendo"}}, "de": {"stringUnit":{"state":"translated","value":"Nextendo-Einstellungen"}}, "es": {"stringUnit":{"state":"translated","value":"Ajustes de Nextendo"}}, "pt-BR": {"stringUnit":{"state":"translated","value":"Configurações do Nextendo"}}, "zh-Hans": {"stringUnit":{"state":"translated","value":"Nextendo 设置"}}
     }},
     "Connect your cloud library in Settings → Porting → Cloud library.": {"localizations": {
       "en": {"stringUnit":{"state":"translated","value":"Connect your cloud library in Settings → Cloud library."}},
