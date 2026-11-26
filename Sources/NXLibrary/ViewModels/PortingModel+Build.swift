@@ -523,7 +523,11 @@ extension PortingModel {
                                                         keys: requiresKeys ? app.setup.keysDirectory : nil)
             .compatibility(toolchain: app.setup.engineToolchain)
         if requiresKeys {
-            guard workshop.localKeys.applicationGenerations != nil else { throw NXLibraryError.missingKeys }
+            switch workshop.localKeys {
+            case .required: throw NXLibraryError.missingKeys
+            case .invalid(let issue): throw NXLibraryError.invalidKeys(issue)
+            case .available: break
+            }
             // Verify against the actual sources before extraction starts.
             let keyOutcome = KeyCheck.run(keysURL: app.setup.managedKeysURL,
                                           files: KeyCheck.parts(target.sources.map { ($0.kind, $0.url) }))

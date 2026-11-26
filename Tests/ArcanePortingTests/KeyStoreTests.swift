@@ -42,8 +42,10 @@ final class KeyStoreTests: XCTestCase {
         XCTAssertEqual(engine.workshop().localKeys, .invalid(.missingHeaderKey))
         try (fakeKeys() + "malformed\n").write(to: store.keyURL, atomically: true, encoding: .utf8)
         XCTAssertEqual(engine.workshop().localKeys, .invalid(.invalidLine(3)))
-        try Data(repeating: 0, count: 1_048_577).write(to: store.keyURL)
+        try (fakeKeys() + "#" + String(repeating: "x", count: 1_048_576))
+            .write(to: store.keyURL, atomically: true, encoding: .utf8)
         XCTAssertEqual(engine.workshop().localKeys, .invalid(.unreadable))
+        XCTAssertEqual(KeyCheck.run(keysURL: store.keyURL, files: []), .unreadableKeys)
     }
 
     func testMalformedHeaderDoesNotReplaceManagedKey() throws {

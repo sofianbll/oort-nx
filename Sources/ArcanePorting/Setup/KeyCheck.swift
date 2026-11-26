@@ -226,7 +226,7 @@ public enum KeyCheck {
     /// missing generation, then a file that cannot be checked. Reads a few kilobytes per file, so it is
     /// quick, but it reads files: call it off the main thread.
     public static func run(keysURL: URL, files: [(part: Part, url: URL)]) -> Outcome {
-        guard let data = FileManager.default.contents(atPath: keysURL.path),
+        guard let data = try? KeyStore.readKeyFile(at: keysURL, noFollow: true),
               let text = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .isoLatin1)
         else { return .unreadableKeys }
         return check(keys: parseKeys(text),

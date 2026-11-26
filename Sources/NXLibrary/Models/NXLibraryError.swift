@@ -7,6 +7,7 @@ enum NXLibraryError: Error, LocalizedError {
     case missingSources
     case missingTitleId
     case missingKeys
+    case invalidKeys(KeyIssue)
     case engineMissing
     case environmentBlocked(String)
     case incompatibleToolchain(String)
@@ -27,6 +28,8 @@ enum NXLibraryError: Error, LocalizedError {
             return L10n.text("The game has no title ID. Choose a valid NSP, XCI, NSZ or XCZ source.")
         case .missingKeys:
             return L10n.text("prod.keys is missing. Import it in Settings.")
+        case .invalidKeys(let issue):
+            return issue.message
         case .engineMissing:
             return L10n.text("The nxnative checkout was not found. Choose it in Settings → Setup and engine.")
         case .environmentBlocked(let detail):

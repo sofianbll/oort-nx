@@ -50,18 +50,22 @@ public final class KeyStore {
         return info.st_mode & 0o7777
     }
 
-    private func readValidated(at url: URL) throws -> (count: Int, data: Data) {
-        let managed = url.standardizedFileURL == keyURL.standardizedFileURL
-        let fd = open(url.path, O_RDONLY | O_NONBLOCK | (managed ? O_NOFOLLOW : 0))
+    static func readKeyFile(at url: URL, noFollow: Bool) throws -> Data {
+        let fd = open(url.path, O_RDONLY | O_NONBLOCK | (noFollow ? O_NOFOLLOW : 0))
         guard fd >= 0 else { throw KeyIssue.unreadable }
         let input = FileHandle(fileDescriptor: fd, closeOnDealloc: true)
         let limit = 1_048_576
         var info = stat()
         guard fstat(fd, &info) == 0, info.st_mode & S_IFMT == S_IFREG,
-              let data = try? input.read(upToCount: limit + 1), data.count <= limit,
-              let text = String(data: data, encoding: .utf8) else {
+              let data = try? input.read(upToCount: limit + 1), data.count <= limit else {
             throw KeyIssue.unreadable
         }
+        return data
+    }
+
+    private func readValidated(at url: URL) throws -> (count: Int, data: Data) {
+        let data = try Self.readKeyFile(at: url, noFollow: url.standardizedFileURL == keyURL.standardizedFileURL)
+        guard let text = String(data: data, encoding: .utf8) else { throw KeyIssue.unreadable }
         var hasHeader = false
         var generations: Set<Int> = []
         for (index, raw) in text.components(separatedBy: "\n").enumerated() {
