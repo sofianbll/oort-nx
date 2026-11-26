@@ -219,7 +219,7 @@ Cartella `mobile/`, un pacchetto SwiftPM a parte che riusa `OortCore` e `OortSyn
 | [Package.swift](../../mobile/Package.swift) | Dichiara i moduli mobili e i loro test, anche su Mac. |
 | [PROVENANCE.md](../../mobile/PROVENANCE.md) | Ogni file ripreso: origine, impronta e tagli. Generato. |
 | [import_nx2apple.py](../../mobile/scripts/import_nx2apple.py) | Riprende i file, applica i tagli e scrive PROVENANCE; si ferma se un taglio non si trova. |
-| [build_app.sh](../../mobile/scripts/build_app.sh) | Compila l’app senza firma per iphoneos e per il simulatore. |
+| [build_app.sh](../../mobile/scripts/build_app.sh) | Compila l’app senza firma e toglie la mappa di debug dal binario per iPhone e iPad. |
 | [capture.sh](../../mobile/scripts/capture.sh) | Disegna gli schermi in PNG con Mac Catalyst, senza simulatore. |
 | [test_app.sh](../../mobile/scripts/test_app.sh) | Prova l’app muta su un simulatore e tiene immagini, rapporto di accessibilità e log. |
 | [get_xcodegen.sh](../../mobile/scripts/get_xcodegen.sh) | Scarica XcodeGen alla versione fissata e ne verifica l’impronta. |

@@ -13,5 +13,7 @@ for sdk in "${@:-iphoneos iphonesimulator}"; do for one in $sdk; do
     -derivedDataPath "$work/dd" ONLY_ACTIVE_ARCH=NO ARCHS=arm64 CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY= build > "$work/build-$one.log" 2>&1 \
     || { grep -E "error:|xcodebuild: error" "$work/build-$one.log" | sort -u | head -30; echo "FAILED: $one, log $work/build-$one.log"; exit 1; }
   app=$(ls -d "$work/dd/Build/Products/Release-$one/"*.app)
+  # The linked debug map names the build machine's source folders; the IPA does not need it.
+  if [ "$one" = iphoneos ]; then xcrun strip -S "$app/Oort NX"; fi
   echo "$one: $(du -sh "$app" | cut -f1) $(lipo -archs "$app/Oort NX") $(vtool -show-build "$app/Oort NX" | awk '/platform|minos|sdk/{printf "%s %s ", $1, $2}')"
 done; done
