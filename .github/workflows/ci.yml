@@ -102,7 +102,7 @@ jobs:
           python3 scripts/check_ui_rules.py --base HEAD^1
 
   swift-debug:
-    name: Mac / Swift unit tests and shared probes
+    name: Mac / Swift unit tests
     needs: areas
     if: needs.areas.outputs.swift == 'true'
     runs-on: xcode-27
@@ -117,6 +117,21 @@ jobs:
         run: |
           home="$(mktemp -d "$RUNNER_TEMP/oort-home.XXXXXX")"
           HOME="$home" CFFIXED_USER_HOME="$home" swift test --jobs 6
+
+  swift-shared:
+    name: Mac / shared app probes
+    needs: areas
+    if: needs.areas.outputs.swift == 'true'
+    runs-on: xcode-27
+    timeout-minutes: 25
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build the shared Debug app
+        run: swift build --jobs 6 --product NXLibrary
       - name: Application regressions without UI
         run: python3 scripts/ci_catalog_checks.py debug
 
@@ -157,17 +172,17 @@ jobs:
   swift:
     # Keep the same required check name and require every batch to pass.
     name: Mac / Swift tests
-    needs: [areas, swift-debug, swift-app, swift-release]
+    needs: [areas, swift-debug, swift-shared, swift-app, swift-release]
     if: always() && (needs.areas.outputs.swift == 'true' || needs.areas.result != 'success')
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     env:
-      RESULTS: ${{ format('{0} {1} {2}', needs.swift-debug.result, needs.swift-app.result, needs.swift-release.result) }}
+      RESULTS: ${{ format('{0} {1} {2} {3}', needs.swift-debug.result, needs.swift-shared.result, needs.swift-app.result, needs.swift-release.result) }}
     steps:
       - name: Require all Mac checks
         run: |
-          echo "Swift tests and shared probes / standalone probes / Release compilation: $RESULTS"
-          test "$RESULTS" = 'success success success'
+          echo "Swift tests / shared probes / standalone probes / Release compilation: $RESULTS"
+          test "$RESULTS" = 'success success success success'
 
   # Windows and Linux: the portable core, the Tauri host and the packages. Alpha branch layout.
   windows:
