@@ -19,6 +19,9 @@ class CatalogChecksTests(unittest.TestCase):
         self.assertTrue(all(1 <= len(group) <= 2 for group in standalone))
         self.assertIn(ROOT / "Tests/CatalogAppChecks/run_catalog_removal.py", standalone[0])
         self.assertIn(ROOT / "Tests/CatalogAppChecks/run_achievement_scroll.py", debug)
+        for name in ("cloud_assistant", "cloud_personal_update", "cloud_reference", "cloud_screens"):
+            with self.subTest(probe=name):
+                self.assertIn(ROOT / f"Tests/CatalogAppChecks/run_{name}.py", sum(standalone, []))
 
     def test_failing_probe_does_not_hide_the_next_result(self):
         with tempfile.TemporaryDirectory() as tmp:

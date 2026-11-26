@@ -753,9 +753,10 @@ extension CloudScreenProbe {
         let run: RcloneConfiguration.Run = { _, args, _ in
             try await SystemCommandRunner().runCancellable(rclone, args + ["--config", config.path], environment: [:])
         }
-        let backend = RcloneStorageBackend(remote: ":local:", root: remote.path, run: run)
-        let referenceWrite = RcloneStorageBackend(remote: ":local:", root: shared.path, run: run)
-        let referenceRead = RcloneStorageBackend(remote: "fixture", root: "", run: run).reference(folderID: "1-fixture")!
+        let backend = RcloneStorageBackend(remote: ":local:", root: remote.path, executable: rclone, run: run)
+        let referenceWrite = RcloneStorageBackend(remote: ":local:", root: shared.path, executable: rclone, run: run)
+        let referenceRead = RcloneStorageBackend(remote: "fixture", root: "", executable: rclone,
+                                                run: run).reference(folderID: "1-fixture")!
         let plist = app.appendingPathComponent("Contents/Info.plist")
         func sign(_ version: String) throws {
             let info: [String: String] = ["CFBundleIdentifier": bundleID, "CFBundleExecutable": "Fixture",
@@ -834,7 +835,7 @@ extension CloudScreenProbe {
 
         // Personal download: the running process can be a Finder copy elsewhere, while this path is absent.
         try fm.removeItem(at: app)
-        let offline = RcloneStorageBackend(remote: ":local:", root: remote.path) { _, args, _ in
+        let offline = RcloneStorageBackend(remote: ":local:", root: remote.path, executable: rclone) { _, args, _ in
             if args.first == "copy" { return .init(status: 1, stdout: "", stderr: "connection reset") }
             return try await run(rclone, args, [:])
         }
@@ -858,7 +859,7 @@ extension CloudScreenProbe {
         precondition(activity.resumeHintForProbe(row), "The dismissed alert must leave Resume in the Activity center")
         precondition(panel.resumeForProbe(), "The dismissed alert must leave Resume in the cloud panel")
         vm.cloudLibrary.installScreenArchives(backend)
-        let unreachable = RcloneStorageBackend(remote: "fixture", root: "Games") { _, _, _ in
+        let unreachable = RcloneStorageBackend(remote: "fixture", root: "Games", executable: rclone) { _, _, _ in
             .init(status: 1, stdout: "", stderr: "connection reset")
         }.reference(folderID: "1-fixture")!
         vm.cloudLibrary.installScreenReference(unreachable)
@@ -1093,12 +1094,14 @@ AUDIT_QUEUE = r'''
         let observedEmpty = try emptyCatalog.load()
         let badImporter = AppViewModel(settingsStore: settings, catalog: observedEmpty, repository: emptyCatalog)
         badImporter.applyCatalog(observedEmpty)
-        badImporter.cloudLibrary.installScreenArchives(RcloneStorageBackend(remote: ":local:", root: badOnly.path, run: run))
+        badImporter.cloudLibrary.installScreenArchives(RcloneStorageBackend(remote: ":local:", root: badOnly.path,
+                                                                          executable: rclone, run: run))
         badImporter.importCloudGames(manually: true)
         await badImporter.cloudLibrary.importTask?.value
         precondition(badImporter.cloudLibrary.checkFailedDuringImport == true
                      && badImporter.settingsNotice?.message.contains(badTitle) == true)
-        badImporter.cloudLibrary.installScreenArchives(RcloneStorageBackend(remote: ":local:", root: remote.path) { _, _, _ in
+        badImporter.cloudLibrary.installScreenArchives(RcloneStorageBackend(remote: ":local:", root: remote.path,
+                                                                          executable: rclone) { _, _, _ in
             .init(status: 1, stdout: "", stderr: "connection reset")
         })
         badImporter.importCloudGames(manually: true)
@@ -1317,6 +1320,17 @@ def isolated_home_env(home):
     assert not home.is_relative_to(real_home)
     assert not os.environ.get("ORIGINAL_HOME") or not home.is_relative_to(Path(os.environ["ORIGINAL_HOME"]).resolve())
     return dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home))
+
+
+def build_probe(package):
+    """Build outside the fixture home: Xcode can mount read-only Metal tools there."""
+    command = ["swift", "build", "--jobs", "4", "--package-path", str(package), "--product", "NXLibrary"]
+    env = dict(os.environ)
+    if build_home := env.get("OORT_PROBE_BUILD_HOME"):
+        env.update(HOME=build_home, CFFIXED_USER_HOME=build_home)
+    subprocess.run(command, check=True, env=env)
+    products = subprocess.check_output(command + ["--show-bin-path"], env=env, text=True).strip()
+    return Path(products) / "NXLibrary"
 
 
 def isolate_cloud_init(model, fixture):
@@ -2249,13 +2263,11 @@ extension CloudArtifactStatus {
         icon = ROOT / "Resources/AppIcon-Light.png"
         scenarios = ("results",) if "--results-only" in sys.argv[2:] else \
             ("screens",) if before or baseline else ("results", "screens", "play", "sources")
-        for index, scenario in enumerate(scenarios):
+        executable = build_probe(package)
+        for scenario in scenarios:
             home = package / f"probe-home-{scenario}"
             home.mkdir()
-            command = ["swift", "run", "--jobs", "4", "--package-path", str(package)]
-            if index:
-                command += ["--skip-build"]
-            command += ["NXLibrary", str(output), str(font), str(icon)]
+            command = [str(executable), str(output), str(font), str(icon)]
             if compare and scenario == "screens":
                 command.append(str(pixel_reference))
             subprocess.run(command, check=True, env=dict(os.environ, HOME=str(home), CFFIXED_USER_HOME=str(home),
