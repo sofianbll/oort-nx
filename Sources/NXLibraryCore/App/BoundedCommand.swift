@@ -95,6 +95,9 @@ private func checkPOSIX(_ error: Int32) throws {
 package struct CommandDeadline: Error {}
 
 struct BoundedCommandRunner: CommandRunning, Sendable {
+    // macOS can close the streams after the leader exits under load. Bound an open pipe, not normal exit latency.
+    private static let postExitDrainSafetyLimit = 3.0
+
     let seconds: Double
     let cancellation: CommandCancellation
 
@@ -133,7 +136,7 @@ struct BoundedCommandRunner: CommandRunning, Sendable {
         var lastActivity: [Int64]?
         let now = { ProcessInfo.processInfo.systemUptime }
         var deadline = now() + seconds
-        var exitedAt: Double?
+        var drainDeadline: Double?
         while true {
             try cancellation.check()
             if let status = child.status {
@@ -142,19 +145,19 @@ struct BoundedCommandRunner: CommandRunning, Sendable {
                     return .init(status: status, stdout: String(decoding: collected[0], as: UTF8.self),
                                  stderr: String(decoding: collected[1], as: UTF8.self))
                 }
-                if exitedAt == nil { exitedAt = now() }
+                if drainDeadline == nil { drainDeadline = now() + Self.postExitDrainSafetyLimit }
             }
             let instant = now()
             guard instant < deadline else { throw CommandDeadline() }
-            let expiredAfterExit = exitedAt.map { instant >= $0 + 0.5 } ?? false
+            let drainLimitReached = drainDeadline.map { instant >= $0 } ?? false
             // Nothing more to read: only the exit is awaited, a moment away.
-            let interval: Int32 = expiredAfterExit ? 0 : fds[0].fd < 0 && fds[1].fd < 0 ? 1 : 50
+            let interval: Int32 = drainLimitReached ? 0 : fds[0].fd < 0 && fds[1].fd < 0 ? 1 : 50
             if poll(&fds, nfds_t(fds.count), interval) < 0 {
                 if errno == EINTR { continue }
                 try checkPOSIX(errno)
             }
-            // A delayed reader can still drain closed pipes, but must not wait for a descendant holding one open.
-            if expiredAfterExit, fds.prefix(2).contains(where: { $0.fd >= 0 && $0.revents & Int16(POLLHUP) == 0 }) {
+            // Drain buffered data from closed pipes even if the reader was rescheduled after the limit.
+            if drainLimitReached, fds.prefix(2).contains(where: { $0.fd >= 0 && $0.revents & Int16(POLLHUP) == 0 }) {
                 throw CommandDeadline()
             }
             for index in 0..<2 where fds[index].fd >= 0 && fds[index].revents != 0 {

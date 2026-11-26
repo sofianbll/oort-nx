@@ -58,6 +58,24 @@ final class CommandRunnerTests: XCTestCase {
         }
     }
 
+    func testDrainsBothStreamsAfterLeaderExit() async throws {
+        let result = try await SystemCommandRunner().runCancellable(URL(fileURLWithPath: "/bin/sh"),
+            ["-c", "printf 'leader:'; (/bin/sleep 1.2; printf 'tail'; printf 'late\\n' >&2) & exit 0"],
+            environment: [:], seconds: 8)
+        XCTAssertEqual(result, CommandResult(status: 0, stdout: "leader:tail", stderr: "late\n"))
+    }
+
+    func testPostExitDrainStillHasDeadline() async throws {
+        let start = ContinuousClock().now
+        do {
+            _ = try await SystemCommandRunner().runCancellable(URL(fileURLWithPath: "/bin/sh"),
+                ["-c", "/bin/sleep 12 & exit 0"], environment: [:], seconds: 10)
+            XCTFail("The command returned while a descendant still held the streams open")
+        } catch is CommandDeadline {
+            XCTAssertLessThan(start.duration(to: .now), .seconds(7))
+        }
+    }
+
     func testProgressExtendsAnInactivityDeadlineButRepeatedStatsDoNot() async throws {
         let runner = SystemCommandRunner(), shell = URL(fileURLWithPath: "/bin/sh")
         let progress: @Sendable (String) -> [Int64]? = { Int64($0).map { [$0] } }

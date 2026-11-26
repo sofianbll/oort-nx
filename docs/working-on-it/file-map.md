@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 26 novembre 2026. Il repository versiona **1646 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
+Aggiornato il 26 novembre 2026. Il repository versiona **1647 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -248,7 +248,7 @@ Cartella `Sources/NXLibraryCore/App/`.
 | [Sources/NXLibraryCore/App/ArcaneWelcome.swift](../../Sources/NXLibraryCore/App/ArcaneWelcome.swift) | Decide quando compare il benvenuto in Arcane, l'offerta di Steam, il focus e come ogni uscita lo segna visto. |
 | [Sources/NXLibraryCore/App/ReleaseNotesLayout.swift](../../Sources/NXLibraryCore/App/ReleaseNotesLayout.swift) | Divide le note di release in titoli, voci e testo, una riga per volta, per il dialogo degli aggiornamenti. |
 | [PaletteAction.swift](../../Sources/NXLibraryCore/App/PaletteAction.swift) | Azioni di Cerca ovunque in cinque sezioni, scorciatoie e recenti per profilo. |
-| [Sources/NXLibraryCore/App/BoundedCommand.swift](../../Sources/NXLibraryCore/App/BoundedCommand.swift) | Gruppi isolati per i comandi cloud; I/O non bloccante, inattività e vita dei figli limitate, lettura residua delle pipe chiuse. |
+| [Sources/NXLibraryCore/App/BoundedCommand.swift](../../Sources/NXLibraryCore/App/BoundedCommand.swift) | Gruppi isolati per i comandi cloud; I/O non bloccante, inattività e vita dei figli limitate, lettura fino a EOF con guardia di sicurezza dopo l’uscita. |
 | [Sources/NXLibraryCore/App/CommandRunner.swift](../../Sources/NXLibraryCore/App/CommandRunner.swift) | Comandi sincroni o streaming senza run loop; per il cloud inoltra input e annullamento all'esecutore con scadenza. |
 | [Sources/NXLibraryCore/App/DiagnosticsReport.swift](../../Sources/NXLibraryCore/App/DiagnosticsReport.swift) | Genera il rapporto diagnostico, con i collegamenti dei workspace che non portano a nulla, e rimuove percorso home e valori riconosciuti come chiavi. |
 | [Sources/NXLibraryCore/App/AppUpdate.swift](../../Sources/NXLibraryCore/App/AppUpdate.swift) | Definisce repository, versioni, pagina condivisa per le prerelease, verifica del download e sostituzione atomica; riconosce App Translocation. |
@@ -1102,7 +1102,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/ArcanePortingTests/BuildScratchTests.swift](../../Tests/ArcanePortingTests/BuildScratchTests.swift) | Posto dei file di build per Mac, disco esterno, exFAT e workspaces spostati; workspace gestiti e cartelle temporanee. |
 | [Tests/ArcanePortingTests/BuildServiceTests.swift](../../Tests/ArcanePortingTests/BuildServiceTests.swift) | Processi, eventi, cancellazione con verifica della fine dei figli, lease e conservazione della build dopo un errore d’installazione o profili illeggibili, con retry senza nuova esecuzione del motore. |
 | [Tests/NXLibraryCoreTests/SystemCommandRunnerTests.swift](../../Tests/NXLibraryCoreTests/SystemCommandRunnerTests.swift) | Un comando atteso, sincrono o in streaming, non fa girare il run loop mentre aspetta. |
-| [Tests/NXLibraryCoreTests/CommandRunnerTests.swift](../../Tests/NXLibraryCoreTests/CommandRunnerTests.swift) | Verifica stdout, stderr, attesa senza run loop, protezione delle pipe da exec estranei, annullamento, scadenze e progresso reale. |
+| [Tests/NXLibraryCoreTests/CommandRunnerTests.swift](../../Tests/NXLibraryCoreTests/CommandRunnerTests.swift) | Verifica stdout e stderr tardivi, guardia dopo l’uscita, attesa senza run loop, protezione delle pipe da exec estranei, annullamento, scadenze e progresso reale. |
 | [Tests/NXLibraryCoreTests/RcloneListingTests.swift](../../Tests/NXLibraryCoreTests/RcloneListingTests.swift) | Letture raggruppate e uniche, ambito prima e dopo, ambiguità, annullamento, rclone meno recenti, rifiuto di ogni scrittura. |
 | [Tests/NXLibraryCoreTests/LibraryRefreshTests.swift](../../Tests/NXLibraryCoreTests/LibraryRefreshTests.swift) | Esiti, parti non aggiornate, risposte tardive e posizione della riga. |
 | [Tests/NXLibraryCoreTests/RcloneStorageBackendTests.swift](../../Tests/NXLibraryCoreTests/RcloneStorageBackendTests.swift) | Binario, oggetti, impronte, avanzamento e annullamento; prefissi assenti o vuoti; Drive configurato e ID esatto per il riferimento in sola lettura. |
@@ -1603,6 +1603,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [docs/history/reviews/2026-11-22-local-removal-inventory.md](../history/reviews/2026-11-22-local-removal-inventory.md) | Inventario delle cancellazioni locali e verifica del contratto `DM_SAVE`. |
 | [docs/history/reviews/2026-11-24-profile-focus.md](../history/reviews/2026-11-24-profile-focus.md) | Sonda dell'alone profili, misure dei bordi negli altri viewport e diagnosi del banding. |
 | [docs/history/reviews/2026-11-25-cloud-assistant.md](../history/reviews/2026-11-25-cloud-assistant.md) | Processi, richieste e tempi prima e dopo, su Drive sintetico. |
+| [docs/history/reviews/2026-11-26-cloud-command-drain.md](../history/reviews/2026-11-26-cloud-command-drain.md) | EOF dei comandi cloud sotto carico, guardia dopo l’uscita e regressioni. |
 | [docs/history/reviews/2026-11-26-mac-ci.md](../history/reviews/2026-11-26-mac-ci.md) | Tempi dei runner, compilazioni indipendenti e diagnosi dell'errore OCR. |
 
 ## Aggiornare questo catalogo

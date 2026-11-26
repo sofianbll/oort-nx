@@ -7,6 +7,7 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 - **Settings → Switch → Keys** no longer shows the private file’s location. Checking the keys does not change file permissions.
 - **Settings → Account → Nextendo** wraps access and verification messages across the account row instead of squeezing them next to the buttons.
 - **Play on Mac** opens the selected app rather than another copy with the same identifier. Rejoining a Switch app opened outside Oort no longer creates a play session, including when it opens at the same time as Play.
+- **Cloud library** keeps reading rclone’s output when macOS is slow to close its streams, instead of reporting a successful command as unavailable.
 
 ## 0.5.0-beta.4 — unreleased
 
