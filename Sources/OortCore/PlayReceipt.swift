@@ -36,6 +36,7 @@ public enum PlayEvent: Equatable, Codable, Sendable {
     case result(PlayResult)
     case ready
     case readinessTimedOut
+    case receiptUnavailable
     case exited
 }
 

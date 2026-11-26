@@ -47,7 +47,7 @@ extension PlayAdapter {
         do {
             if let saved = try journal.read(request) {
                 guard saved.input == input else { return refusal(.stale) }
-                if let scope = saved.scope, journal.held(scope) { return refusal(.outcomeUnknown) }
+                if saved.scope != nil { return refusal(.outcomeUnknown) }
                 if saved.admission == nil || saved.admission == .accepted(.pending) && saved.facts.isEmpty {
                     return refusal(.outcomeUnknown)
                 }
@@ -120,13 +120,14 @@ extension PlayAdapter {
         guard record.scope == nil else { return .outcomeUnknown }
         record.scope = scope
         let accepted = await persist { journal, record, request in
-            try journal.claim(scope, for: request)
-            do { try journal.write(record, for: request) }
+            try journal.write(record, for: request)
+            do { try journal.claim(scope, for: request) }
             catch {
-                // No request was sent. It is safe to undo our own claim.
+                // Never remove a competing gesture's claim.
                 try? journal.release(scope, for: request)
-                throw error
+                return false
             }
+            return true
         }.value
         if !accepted { record.scope = nil }
         return accepted ? nil : .outcomeUnknown
@@ -160,6 +161,7 @@ extension PlayAdapter {
         let job = persist { journal, record, request in
             try journal.write(record, for: request)
             if let scope { try journal.release(scope, for: request) }
+            return true
         }
         publish(fact, after: job, settled: afterSettled)
     }
@@ -174,24 +176,31 @@ extension PlayAdapter {
         let previous = deliveries
         deliveries = Task {
             await previous?.value
-            _ = await job.value
+            let written = await job.value
             settled()
             for observe in observers { observe(fact) }
+            if !written, !reported(.receiptUnavailable) {
+                let problem = append(.receiptUnavailable)
+                for observe in observers { observe(problem) }
+            }
             if fact.event == .exited { observers.removeAll() }
         }
     }
 
     @discardableResult private func save(replacing: Bool = true) -> Task<Bool, Never> {
-        persist { try $0.write($1, for: $2, replacing: replacing) }
+        persist {
+            try $0.write($1, for: $2, replacing: replacing)
+            return true
+        }
     }
 
     @discardableResult private func persist(
-        _ operation: @escaping @Sendable (PlayJournal, PlayJournal.Record, RequestID) throws -> Void
+        _ operation: @escaping @Sendable (PlayJournal, PlayJournal.Record, RequestID) throws -> Bool
     ) -> Task<Bool, Never> {
         let previous = writes
         let job = Task.detached { [journal, record, request] in
             if let previous, !(await previous.value) { return false }
-            do { try operation(journal, record, request); return true }
+            do { return try operation(journal, record, request) }
             catch { return false }
         }
         writes = job

@@ -17,7 +17,9 @@ extension AppViewModel {
               observe: PlayObserver? = nil) -> PlayResult {
         let result = engine.play(playTarget(for: game, resumeOnly: resumeOnly), profile: playProfile, request: request) {
             [weak self] fact in
-            if fact.event == .result(.refused(.outcomeUnknown)) { self?.reportUncertainPlay() }
+            if fact.event == .result(.refused(.outcomeUnknown)) || fact.event == .receiptUnavailable {
+                self?.reportUncertainPlay()
+            }
             observe?(fact.event)
         }.admission
         if result == .refused(.outcomeUnknown) { reportUncertainPlay() }
@@ -25,7 +27,8 @@ extension AppViewModel {
     }
 
     private func reportUncertainPlay() {
-        logs.append(LogEntry(level: .warning, message: "Play outcome unknown. Oort did not send another launch request."))
+        logs.append(LogEntry(level: .warning,
+                             message: "Play receipt unavailable. Oort will not repeat an uncertain handoff. Use the Mac to check the app before opening it again."))
     }
 
     @MainActor func pressPlay(_ game: CatalogGame) {

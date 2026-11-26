@@ -287,7 +287,8 @@ final class SteamPlayCoordinator: ObservableObject, PlayAdapter {
                         gesture.finish(.refused(.notStarted))
                         return
                     }
-                    if let refusal = reserved ?? (NativePlayTarget(app)?.artifact == native.artifact ? nil : .stale) {
+                    let current = self.games.first { $0.id == id }.map { PlayTarget(game: $0, sourceEnabled: self.steamEnabled) }
+                    if let refusal = reserved ?? (current.flatMap { self.artifact(of: $0) } == native.artifact ? nil : .stale) {
                         self.finishHandOff(id, accepted: false, generation: generation, refusal: refusal, gesture: gesture)
                         return
                     }

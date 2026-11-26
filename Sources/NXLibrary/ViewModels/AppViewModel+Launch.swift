@@ -327,9 +327,10 @@ extension AppViewModel {
                     evaluate?()
                     gesture.emit(.exited)
                 }
-                if let self, self.gameSaveLaunches[game.id]?.run == run {
+                if let self, let current = self.gameSaveLaunches[game.id], current.run == run {
                     if let monitor = self.runningGameMonitor {
-                        monitor.endAttributedPlay(game, store: self.playSessionStore, onExit: finished)
+                        monitor.endAttributedPlay(game, pid: current.pid, date: current.date,
+                                                  store: self.playSessionStore, onExit: finished)
                         return
                     }
                     self.playSessionStore?.end(gameID: game.id)

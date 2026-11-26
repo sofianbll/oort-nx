@@ -203,12 +203,14 @@ final class RunningGameMonitor: ObservableObject {
         if comesForward { comeForward() }
     }
 
-    func endAttributedPlay(_ game: PortedGame, store: PlaySessionStore?, onExit: @escaping () -> Void) {
+    func endAttributedPlay(_ game: PortedGame, pid: pid_t, date: Date?,
+                           store: PlaySessionStore?, onExit: @escaping () -> Void) {
         let finish = { [weak self] in
             for session in store?.end(gameID: game.id) ?? [] { self?.showEnded(session, game: game, store: store) }
             onExit()
         }
-        if let watch = homeMenus[game.id], watch.host?.isAlive == true {
+        if let watch = homeMenus[game.id], watch.app.processIdentifier == pid,
+           watch.app.launchDate == date, watch.host?.isAlive == true {
             watch.attributedExit = finish
         } else {
             finish()
@@ -267,7 +269,7 @@ final class RunningGameMonitor: ObservableObject {
             stopHomeMenu(id)
         }
         for game in games where ids.contains(game.id) && homeMenus[game.id] == nil {
-            guard let app = Self.runningApplication(for: game),
+            guard let app = NativePlayTarget(game.url)?.running().first,
                   let url = app.bundleURL else { continue }
             let watch = HomeMenuWatch(app: app)
             homeMenus[game.id] = watch
