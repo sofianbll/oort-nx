@@ -1,5 +1,5 @@
 const { execFileSync } = require("node:child_process");
-const { mkdtempSync, rmSync } = require("node:fs");
+const { mkdtempSync, readFileSync, rmSync } = require("node:fs");
 const { tmpdir } = require("node:os");
 const { join } = require("node:path");
 const { createWorker, PSM } = require("tesseract.js");
@@ -15,6 +15,19 @@ async function main() {
         await worker.setParameters({ tessedit_pageseg_mode: PSM.SPARSE_TEXT });
         for (const input of [image, large]) {
             const { data: { text } } = await worker.recognize(input);
+            console.log(text);
+        }
+        if (image.split("/").pop().startsWith("jeu-panneau-")) {
+            // Read the focus row separately: its patterned background confuses whole-image layout.
+            const png = readFileSync(large);
+            const width = png.readUInt32BE(16), height = png.readUInt32BE(20);
+            const left = Math.round(width * 0.70);
+            const lineHeight = Math.round(height * 0.04);
+            const top = Math.round(width * 0.195) - Math.floor(lineHeight / 2);
+            await worker.setParameters({ tessedit_pageseg_mode: PSM.SINGLE_LINE });
+            const { data: { text } } = await worker.recognize(large, {
+                rectangle: { left, top, width: width - left, height: lineHeight },
+            });
             console.log(text);
         }
     } finally {
