@@ -211,7 +211,7 @@ jobs:
           New-Item -ItemType Directory -Force dist | Out-Null
           Copy-Item "src-tauri/target/${{ matrix.triple }}/release/bundle/nsis/*-setup.exe" "dist/Oort-NX-Windows-$version-${{ matrix.arch }}-setup.exe"
           Get-ChildItem dist | Get-FileHash | Format-List Hash, Path
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: oort-nx-windows-${{ matrix.arch }}
           path: desktop/dist/*.exe
@@ -276,7 +276,7 @@ jobs:
           cp src-tauri/target/release/bundle/deb/*.deb "dist/Oort-NX-Linux-$version-x64.deb"
           cp src-tauri/target/release/bundle/appimage/*.AppImage "dist/Oort-NX-Linux-$version-x64.AppImage"
           sha256sum dist/*
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: oort-nx-linux-x64
           path: desktop/dist/*
@@ -322,7 +322,7 @@ jobs:
           $before = if (Test-Path before-setup.exe) { (Get-Item before-setup.exe).FullName } else { '' }
           $version = (Get-Content desktop/src-tauri/tauri.conf.json | ConvertFrom-Json).version
           ./desktop/tests/windows/prove.ps1 -Installer (Get-ChildItem package/*-setup.exe).FullName -Out proof -Version $version -Before $before
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: proof-windows-${{ matrix.arch }}
@@ -348,7 +348,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends xvfb xdotool imagemagick openbox dbus-x11 x11-utils
           desktop/tests/linux/prove.sh package/*.deb package/*.AppImage proof
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: proof-linux-x64
