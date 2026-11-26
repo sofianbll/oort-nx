@@ -15,7 +15,12 @@ import json, sys
 name, version = sys.argv[1:]
 runtime = "com.apple.CoreSimulator.SimRuntime.iOS-" + version.replace(".", "-")
 print(next(d["udid"] for d in json.load(sys.stdin)["devices"][runtime] if d["name"] == name))' "$device" "$os")
-xcrun simctl bootstatus "$udid" -b
+if [ -n "${OORT_TEST_LEASED:-}" ]; then
+  [ "$udid" = "$OORT_TEST_LEASED" ] || exit 2
+  xcrun simctl bootstatus "$udid"
+else
+  xcrun simctl bootstatus "$udid" -b
+fi
 xcrun simctl ui "$udid" appearance "$look"
 xcrun simctl spawn "$udid" defaults write com.apple.Accessibility ReduceMotionEnabled -bool "$([ "$still" = still ] && echo YES || echo NO)"
 tests=(); wanted=0
@@ -31,7 +36,11 @@ status=0
 TEST_RUNNER_OORT_OUT="$out/shots" TEST_RUNNER_OORT_LANG="$lang" TEST_RUNNER_OORT_STILL="$still" \
   xcodebuild test -project "$work/OortNXTests.xcodeproj" -scheme OortUITests -destination "platform=iOS Simulator,id=$udid" \
   -derivedDataPath "$work/dd-tests" -resultBundlePath "$work/tests-$lang-$look.xcresult" -parallel-testing-enabled NO \
-  ONLY_ACTIVE_ARCH=YES CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual "${tests[@]}" > "$out/xcodebuild.txt" 2>&1 || status=$?
+    ONLY_ACTIVE_ARCH=YES CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual "${tests[@]}" > "$out/xcodebuild.txt" 2>&1 &
+job=$!
+trap 'kill -TERM "$job" 2>/dev/null || true; wait "$job" 2>/dev/null || true; exit 2' TERM HUP INT
+wait "$job" || status=$?
+trap - TERM HUP INT
 grep -E "error:|Test Case .*(passed|failed)|Executed |TEST (FAILED|SUCCEEDED)" "$out/xcodebuild.txt" | sort -u | tail -80 || true
 # What the app and the system said, to read where time went.
 xcrun simctl spawn "$udid" log show --last 90m --style compact --predicate 'process == "Oort NX" AND NOT subsystem CONTAINS "xctest"' 2>/dev/null | gzip > "$out/app-log.gz" || true
