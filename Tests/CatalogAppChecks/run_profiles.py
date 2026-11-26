@@ -647,9 +647,9 @@ import ArcanePorting
         precondition(vm.engine.availability(of: vm.playTarget(for: steamGame)) == .unavailable(.launcherMissing))
         precondition(vm.play(steamGame) == .refused(.launcherMissing) && player.phase(of: steamGame) == .failed(.clientMissing))
         print("Common Play checks passed: profile ownership, guest, duplicate nxnative and missing Steam")
-        try checkDeferredPlay(vm, profiles: profiles, other: alex, game: game)
+        try await checkDeferredPlay(vm, profiles: profiles, other: alex, game: game)
         try await checkCloudInstallPlay(game, profiles: profiles, other: alex)
-        try checkIconDeferredPlay(vm, profiles: profiles, other: alex, game: game, out: out, refs: refs)
+        try await checkIconDeferredPlay(vm, profiles: profiles, other: alex, game: game, out: out, refs: refs)
         vm.applyCatalog(.init(sources: [.init(integration: .nxnative, isEnabled: true)], games: [fixture] + avatarGames))
         let pack = LocalAchievementPack.linksAwakening!
         var progress = LocalAchievementProgress()
@@ -756,6 +756,12 @@ import ArcanePorting
 
     @MainActor static var restoringFixture: ((PortedGame) throws -> Void)?
 
+    @MainActor static func waitForPlayEvent(_ events: () -> [PlayEvent]) async throws {
+        let deadline = ContinuousClock.now + .seconds(5)
+        while events().isEmpty && .now < deadline { try await Task.sleep(for: .milliseconds(20)) }
+        guard !events().isEmpty else { throw POSIXError(.ETIMEDOUT) }
+    }
+
     @MainActor static func checkCloudInstallPlay(_ game: PortedGame, profiles: LocalProfileStore,
                                                 other: LocalProfile) async throws {
         var fixture = game
@@ -788,6 +794,7 @@ import ArcanePorting
             await transfer.value
             restoringFixture = nil
             await vm.cloudLibrary.queueStore.flush()
+            try await waitForPlayEvent { events }
             expect(events == [.result(.refused(refusal))],
                    "Cloud install (\(result)) must report to the original observer: \(events)")
             precondition(vm.cloudLibrary.appInstall == nil && !vm.saveGate.isBusy(titleID: fixture.titleId!))
@@ -797,7 +804,7 @@ import ArcanePorting
     }
 
     @MainActor static func checkIconDeferredPlay(_ vm: AppViewModel, profiles: LocalProfileStore, other: LocalProfile,
-                                                game: PortedGame, out: URL, refs: URL) throws {
+                                                game: PortedGame, out: URL, refs: URL) async throws {
         let original = profiles.active!
         var fixture = game
         fixture.url = game.url.deletingLastPathComponent().appendingPathComponent("MissingIconFixture.app")
@@ -828,27 +835,31 @@ import ArcanePorting
                                    onCancel: {}, onChoose: { _ in })
             }.environment(\.nxAppLocale, locale), in: out, refs, "none")
             vm.appIcon.completePlayFixture(fixture, .success(false))
+            try await waitForPlayEvent { events }
             expect(events == [.result(.refused(.installationMissing))],
                    "Icon signing must deliver the resumed result to the original observer (\(name)): \(events)")
         }
         request()
         precondition(profiles.choose(other.id))
         vm.appIcon.completePlayFixture(fixture, .success(false))
+        try await waitForPlayEvent { events }
         expect(events == [.result(.refused(.profileLocked))] && vm.alertMessage == nil,
                "Icon signing must refuse a stale profile without trying to play: \(events)")
         precondition(profiles.choose(original.id))
         request()
         vm.appIcon.completePlayFixture(fixture, .failure(CocoaError(.fileWriteUnknown)))
+        try await waitForPlayEvent { events }
         expect(events == [.result(.refused(.preparationFailed))], "Failed icon signing must refuse the original Play: \(events)")
         request()
         vm.settingsNotice = nil
         vm.appIcon.completePlayFixture(fixture, .success(false))
+        try await waitForPlayEvent { events }
         expect(events == [.result(.refused(.notStarted))] && vm.alertMessage == nil && vm.launchingGameId == nil,
                "Cancelling the icon notice must refuse Play exactly once: \(events)")
     }
 
     @MainActor static func checkDeferredPlay(_ vm: AppViewModel, profiles: LocalProfileStore,
-                                             other: LocalProfile, game: PortedGame) throws {
+                                             other: LocalProfile, game: PortedGame) async throws {
         let original = profiles.active!
         let fm = FileManager.default
         var fixture = game
@@ -870,11 +881,13 @@ import ArcanePorting
         let staleInstall = afterInstall()
         precondition(profiles.choose(other.id))
         staleInstall()
+        try await waitForPlayEvent { events }
         precondition(events == [.result(.refused(.profileLocked))] && vm.alertMessage == nil,
                      "Cloud completion must not play under a different profile, and must notify the original observer")
         precondition(profiles.choose(original.id))
         events.removeAll()
         afterInstall()()
+        try await waitForPlayEvent { events }
         precondition(events == [.result(.refused(.installationMissing))], "The original observer must receive the resumed result")
         vm.alertMessage = nil
         let settings = vm.settingsStore!
@@ -904,10 +917,12 @@ import ArcanePorting
         let staleVPN = try confirmVPN()
         precondition(profiles.choose(other.id))
         staleVPN()
+        try await waitForPlayEvent { events }
         precondition(events == [.result(.refused(.profileLocked))] && vm.alertMessage == nil)
         precondition(profiles.choose(original.id))
         events.removeAll()
         try confirmVPN()()
+        try await waitForPlayEvent { events }
         precondition(events == [.result(.refused(.installationMissing))])
         print("Deferred Play checks passed: installation, VPN, original observer and stale profile")
     }
@@ -1618,9 +1633,9 @@ extension CloudLibraryModel {
 }
 """)
         launch = app / "ViewModels/AppViewModel+Launch.swift"
-        replace(launch, r"        guard let saveLaunchToken =",
+        replace(launch, r"        guard let native = NativePlayTarget\(game.url\),",
                 '        if game.bundleId == "example.oort.cloud-deferred-play" { return .refused(.openFailed) }\n'
-                '        guard let saveLaunchToken =')
+                '        guard let native = NativePlayTarget(game.url),')
         with (app / "ViewModels/AppIconModel.swift").open("a") as swift:
             swift.write("""
 extension AppIconModel {
@@ -1825,8 +1840,8 @@ extension NextendoSettings {
         (app / "ProfileScreenProbe.swift").write_text(host)
         if os.environ.get("OORT_MAC_SHORTCUT_PROBE") == "1":
             shutil.copyfile(ROOT / "Tests/CatalogAppChecks/MacShortcutProbe.swift", app / "MacShortcutProbe.swift")
-            replace(app / "ProfileScreenProbe.swift", r"        try checkDeferredPlay\(vm, profiles: profiles, other: alex, game: game\)",
-                    "        try checkDeferredPlay(vm, profiles: profiles, other: alex, game: game)\n"
+            replace(app / "ProfileScreenProbe.swift", r"        try await checkDeferredPlay\(vm, profiles: profiles, other: alex, game: game\)",
+                    "        try await checkDeferredPlay(vm, profiles: profiles, other: alex, game: game)\n"
                     "        try await checkMacShortcuts(in: out, refs: refs)\n"
                     "        L10n.setContext(fr)")
         subprocess.run(["swift", "run", "--jobs", "2", "--package-path", str(package), "ProfileScreenProbe", str(out),
