@@ -197,6 +197,33 @@ import ArcanePorting
         let locale = AppLocale(language: .french, region: "FR")
         L10n.setContext(locale)
         let root = AppData.supportRoot.appendingPathComponent("settings-confirmation-probe", isDirectory: true)
+        let engineFolder = root.appendingPathComponent("Engine", isDirectory: true)
+        let scripts = engineFolder.appendingPathComponent("scripts", isDirectory: true)
+        let toolchain = engineFolder.appendingPathComponent("dm/gfx/tools", isDirectory: true)
+        try FileManager.default.createDirectory(at: scripts, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: toolchain, withIntermediateDirectories: true)
+        try Data().write(to: scripts.appendingPathComponent("build_ipa_from_nsp.py"))
+        try Data("metal_macosx\t32023.922\n".utf8).write(to: toolchain.appendingPathComponent("dmsh_chain.lock"))
+        @discardableResult func git(_ args: String...) throws -> String {
+            let result = try SystemCommandRunner().run(URL(fileURLWithPath: "/usr/bin/git"),
+                ["-C", engineFolder.path, "-c", "user.name=Fixture", "-c", "user.email=fixture@users.noreply.github.com",
+                 "-c", "commit.gpgsign=false"] + args, environment: nil, currentDirectory: nil)
+            precondition(result.status == 0, result.stderr)
+            return result.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        try git("init", "-q", "-b", "main")
+        try git("add", ".")
+        try git("commit", "-qm", "Tested")
+        let pin = try git("rev-parse", "HEAD")
+        // The prescribed pin is captured before the first model exists, as in the app bundle.
+        Self.pin = pin
+        try git("commit", "-qm", "Newest", "--allow-empty")
+        let main = try git("rev-parse", "HEAD")
+        try git("commit", "-qm", "Updated", "--allow-empty")
+        let update = try git("rev-parse", "HEAD")
+        try git("remote", "add", "origin", ".")
+        try git("checkout", "--quiet", "--detach", pin)
+
         let settings = AppSettingsStore(fileURL: root.appendingPathComponent("settings.json"))
         settings.settings.soundVolume = 0
         SoundEffectService.shared.bind(to: settings)
@@ -505,31 +532,6 @@ import ArcanePorting
         precondition(!migration.canTrashDriveTool)
 
         let setup = vm.setup
-        let engineFolder = root.appendingPathComponent("Engine", isDirectory: true)
-        let scripts = engineFolder.appendingPathComponent("scripts", isDirectory: true)
-        let toolchain = engineFolder.appendingPathComponent("dm/gfx/tools", isDirectory: true)
-        try FileManager.default.createDirectory(at: scripts, withIntermediateDirectories: true)
-        try FileManager.default.createDirectory(at: toolchain, withIntermediateDirectories: true)
-        try Data().write(to: scripts.appendingPathComponent("build_ipa_from_nsp.py"))
-        try Data("metal_macosx\t32023.922\n".utf8).write(to: toolchain.appendingPathComponent("dmsh_chain.lock"))
-        @discardableResult func git(_ args: String...) throws -> String {
-            let result = try SystemCommandRunner().run(URL(fileURLWithPath: "/usr/bin/git"),
-                ["-C", engineFolder.path, "-c", "user.name=Fixture", "-c", "user.email=fixture@users.noreply.github.com",
-                 "-c", "commit.gpgsign=false"] + args, environment: nil, currentDirectory: nil)
-            precondition(result.status == 0, result.stderr)
-            return result.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-        try git("init", "-q", "-b", "main")
-        try git("add", ".")
-        try git("commit", "-qm", "Tested")
-        let pin = try git("rev-parse", "HEAD")
-        Self.pin = pin
-        try git("commit", "-qm", "Newest", "--allow-empty")
-        let main = try git("rev-parse", "HEAD")
-        try git("commit", "-qm", "Updated", "--allow-empty")
-        let update = try git("rev-parse", "HEAD")
-        try git("remote", "add", "origin", ".")
-        try git("checkout", "--quiet", "--detach", pin)
         var engineActions: [SettingsRowAction] = []
         let engine = SettingsEngineSection(viewModel: vm, setup: setup, settings: SettingsEditor(settings), onActions: { engineActions = $0 })
         func pressEngine(_ id: String, _ button: Int = 0) {
