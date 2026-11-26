@@ -140,11 +140,20 @@ final class OortTrialTests: OortCase {
             }
             search.tap()
             search.typeText(folderName)
-            if pad { search.typeText("\n") }
-            _ = target.waitForExistence(timeout: 20)
+            // Recents excludes a newly staged folder; search the local device, then commit the name suggestion.
+            let local = app.buttons.matching(NSPredicate(format: "label IN %@", ["On My iPhone", "On My iPad", "Sur mon iPhone", "Sur mon iPad"])).firstMatch
+            if local.exists && local.isHittable && !local.isSelected { local.tap() }
+            if !target.waitForExistence(timeout: 3) {
+                let suggestion = app.tables["DOCItemCollectionViewSearchSuggestionsTableViewIdentifier"]
+                    .cells.containing(NSPredicate(format: "label CONTAINS %@", folderName)).firstMatch
+                if suggestion.exists && suggestion.isHittable { suggestion.tap() }
+            }
         }
         step("06-choisir-le-dossier-du-jeu")
-        appears(target, "the game's folder in Files")
+        guard target.waitForExistence(timeout: 15) else {
+            step("06-echec-dossier-fichiers")
+            return XCTFail("Files did not show the invented framework in its local search results")
+        }
         target.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.25)).tap()
         // A folder is entered, then opened: what is inside says it is there.
         _ = app.cells.matching(NSPredicate(format: "label BEGINSWITH 'game.manifest' OR identifier BEGINSWITH 'game.manifest'")).firstMatch.waitForExistence(timeout: 20)
