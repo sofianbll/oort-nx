@@ -197,7 +197,6 @@ import ArcanePorting
         L10n.setContext(locale)
         let root = AppData.supportRoot.appendingPathComponent("settings-confirmation-probe", isDirectory: true)
         let settings = AppSettingsStore(fileURL: root.appendingPathComponent("settings.json"))
-        settings.settings.interfaceSounds = false
         settings.settings.soundVolume = 0
         SoundEffectService.shared.bind(to: settings)
         func makeModel() -> AppViewModel {

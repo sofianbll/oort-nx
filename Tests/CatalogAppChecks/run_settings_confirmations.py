@@ -43,6 +43,10 @@ def prepare(package):
             lambda match: match[1] + f'"{hashlib.sha256(fixture_tool).hexdigest()}"')
     replace(download, r'(executableBytes: )88_766_114\)', lambda match: match[1] + f"{len(fixture_tool)})")
     replace(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
+    # Keep the draft's sound controls testable without letting any fixture play audio.
+    sound = app / "Services/SoundEffectService.swift"
+    replace(sound, r'private var gain: Float = [^\n]+', 'private var gain: Float = 0')
+    replace(sound, r'self\.gain = volume\.isFinite[^\n]+', 'self.gain = 0')
     model = app / "ViewModels/AppViewModel.swift"
     replace(model, r'SteamGridDBKey\(\)\.load\(\) != nil', "false")
     replace(model, r'        applyCatalog\(catalog\).*?\n    }\n\n    // MARK: - Dynamic',
