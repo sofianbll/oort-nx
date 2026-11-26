@@ -12,7 +12,7 @@ From the repository root, run:
 npx --yes --package=node@22.23.3 --package=likec4@1.61.1 likec4 serve architecture --listen 127.0.0.1 --port 4173 --theme dark --no-build-webcomponent
 ```
 
-Open [127.0.0.1:4173](http://127.0.0.1:4173/). In **Écosystème**, use the navigation arrow on **Mac**, then on **NXLibraryCore** for **Domaines**. Edit the `.c4` source in your editor; the preview reloads. Stop with Ctrl+C.
+Open [127.0.0.1:4173](http://127.0.0.1:4173/). In **Écosystème**, use the navigation arrow on **Mac**, then on **Interface moteur** to see **Qui possède quoi ?**. Edit the `.c4` source in your editor; the preview reloads. Stop with Ctrl+C.
 
 In [OpenChamber → Settings → Projects → Project Actions](https://docs.openchamber.dev/project-actions/#add-an-action), add **LikeC4** with the command above; leave it running from the session folder (the current worktree), and set its URL to `http://127.0.0.1:4173/`. The action is not required to use LikeC4.
 
@@ -74,3 +74,5 @@ The portable rules are the reason for `OortCore`. Before a shared rule is added 
 | Portable core imports (Windows and Linux) | `python3 scripts/check_portable_core.py` | `alpha/windows` |
 
 Update `architecture/model.c4` in the same change as a changed system, module or domain boundary. Keep the `swiftModule` identifier and its `metadata { layer "…" }` on one line. Run `npx --yes --package=node@22.23.3 --package=likec4@1.61.1 likec4 validate --max-warnings 0 architecture` and the Swift boundary check: the first verifies the model, the second checks Swift against it and does not need Node. Check navigability and labels in the live preview when a view changes.
+
+For the two detail views, use one question as the title, at most seven boxes, short labels in the player's vocabulary, and no crossed arrows. Filter the view, not the model; link to another view if more detail is needed.

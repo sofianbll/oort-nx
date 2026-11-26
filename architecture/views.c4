@@ -14,29 +14,33 @@ views {
   }
 
   view applications of oort {
-    title "2 · Applications et modules"
+    title "2 · Qui parle au moteur ?"
     description '''
-      Les applications qui partagent du Swift. Ouvrir NXLibraryCore pour voir les domaines.
+      Givre : relais · Or : interface · Gris : moteurs · Pointillés : prévu.
       [[view:index|Écosystème]] · [[view:jouer|Jouer sur Mac]]
     '''
-    include oort.mac, oort.mobile, oort.desktop, oort.mac.NXLibrary, oort.OortCore, oort.mac.ArcanePorting
-    include oort.NXLibraryCore with { navigateTo domains }
-    include oort.OortCore.engineInterface, oort.mac.ArcanePorting.nxAdapter, oort.desktop.ryuAdapter
-    exclude oort.desktop -> oort.OortCore where source.kind is app
-    autoLayout LeftRight 95 40
+    include oort.mac.ArcanePorting.nxAdapter with { title "Relais Mac"; color givre }
+    include oort.desktop.ryuAdapter with { title "Relais Windows"; color givre }
+    include oort.OortCore.engineInterface with { color amber; navigateTo domains }
+    include nxnative, ryujinx
+    include oort.mac.ArcanePorting.nxAdapter -> oort.OortCore.engineInterface with { title "Suit le contrat" }
+    exclude oort, oort.mac, oort.desktop, oort.OortCore, oort.mac.ArcanePorting
+    autoLayout LeftRight 75 35
   }
 
   view domains of oort {
-    title "3 · Domaines"
+    title "3 · Qui possède quoi ?"
     description '''
-      Chaque cadre indique le module propriétaire. [[view:applications|Applications et modules]]
+      Givre : lanceur Oort · Or : cœur moteur · Gris : relais Switch.
+      [[view:applications|Qui parle au moteur ?]]
     '''
-    include oort.OortCore, oort.NXLibraryCore, oort.mac.ArcanePorting
-    include oort.OortCore.* where kind is domain
-    include oort.NXLibraryCore.* where kind is domain
-    include oort.mac.ArcanePorting.* where kind is domain
-    exclude * -> * where source.kind is swiftModule and target.kind is swiftModule
-    autoLayout LeftRight 55 28
+    include oort.NXLibraryCore with { title "Lanceur Oort"; color givre }
+    include oort.NXLibraryCore.* where kind is domain with { color givre }
+    include oort.OortCore.engine with { title "Cœur moteur"; color amber }
+    include oort.mac.ArcanePorting.saves with { title "Relais Switch"; summary "Copie et restaure les sauvegardes"; color gray }
+    exclude * -> *
+    exclude oort, oort.OortCore, oort.mac, oort.mac.ArcanePorting
+    autoLayout LeftRight 40 25
   }
 
   dynamic view jouer {
