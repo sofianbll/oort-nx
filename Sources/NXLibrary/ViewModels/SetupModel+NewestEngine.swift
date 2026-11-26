@@ -11,31 +11,31 @@ extension SetupModel {
     var usesNewestEngine: Bool { newestEngineChoice != nil }
 
     /// Upstream main, when it is ahead of the tested pin and not already the engine in use.
-    var newestEngineOffer: UpstreamStatus? {
+    var newestEngineOffer: UpstreamReview? {
         guard case .loaded(let status) = upstreamState, status.newCommitsCount > 0,
-              status.upstreamCommit != newestEngineChoice?.commit else { return nil }
+              status.targetSHA != newestEngineChoice?.commit else { return nil }
         return status
     }
 
     /// Reads main's lock after an Upstream check, so the row can say in advance whether main needs a newer app.
-    func checkNewestEngineReadiness(_ status: UpstreamStatus) {
+    func checkNewestEngineReadiness(_ status: UpstreamReview) {
         newestEngineReadiness = nil
         guard status.newCommitsCount > 0 else { return }
         let repo = URL(fileURLWithPath: nxnativePath)
         let pinned = app.pinnedEngineCommit
         Task { @MainActor [weak self] in
-            let lock = await NewestEngine.fetchLock(commit: status.upstreamCommit)
+            let lock = await NewestEngine.fetchLock(commit: status.targetSHA)
             let tested = await Task.detached { NewestEngineSwitcher(repo: repo).lockMetal(at: pinned) }.value
                 ?? ToolchainRequirements.current.fallbackMetal
             guard let self, case .loaded(let current) = self.upstreamState,
-                  current.upstreamCommit == status.upstreamCommit else { return }
+                  current.revision == status.revision else { return }
             self.newestEngineReadiness = NewestEngine.readiness(newestLock: lock, testedMetal: tested)
         }
     }
 
     /// The Newest engine row's buttons: Use newest, or Update beside Back to tested once main has moved on.
     var newestEngineActions: [NewestEngineAction] {
-        NewestEngine.actions(choice: newestEngineChoice, main: newestEngineOffer?.upstreamCommit,
+        NewestEngine.actions(choice: newestEngineChoice, main: newestEngineOffer?.targetSHA,
                              readiness: newestEngineReadiness)
     }
 
@@ -52,7 +52,7 @@ extension SetupModel {
         if case .needsNewerApp = newestEngineReadiness { return }
         let repo = URL(fileURLWithPath: nxnativePath)
         let pinned = app.pinnedEngineCommit
-        let commit = status.upstreamCommit
+        let commit = status.targetSHA
         let ahead = status.newCommitsCount
         let upstream = app.engineOverride.map { _ in SetupActions.engineRemote }
         isSwitchingEngine = true

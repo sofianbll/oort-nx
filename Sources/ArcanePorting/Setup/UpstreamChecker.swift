@@ -1,24 +1,7 @@
 import Foundation
 import NXLibraryCore
 
-public struct UpstreamCommit: Codable, Equatable, Identifiable {
-    public var sha: String
-    public var author: String
-    public var date: String
-    public var subject: String
-
-    public var id: String { sha }
-    public var shortSha: String { String(sha.prefix(7)) }
-
-    public init(sha: String, author: String, date: String, subject: String) {
-        self.sha = sha
-        self.author = author
-        self.date = date
-        self.subject = subject
-    }
-}
-
-public struct UpstreamStatus: Codable, Equatable {
+struct UpstreamStatus: Codable, Equatable {
     public var repository: String
     public var status: String
     public var baseCommit: String
@@ -26,16 +9,22 @@ public struct UpstreamStatus: Codable, Equatable {
     public var aheadBy: Int
     public var behindBy: Int
     public var totalCommits: Int
-    public var commits: [UpstreamCommit]
+    public var commits: [UpstreamReview.Commit]
     public var compareURL: URL
     public var checkedAt: Date
 
     public var isUpToDate: Bool { aheadBy == 0 && behindBy == 0 }
     public var newCommitsCount: Int { max(aheadBy, totalCommits) }
 
+    var review: UpstreamReview {
+        .init(ReviewedRevision(UUID()), targetSHA: upstreamCommit, newCommitsCount: newCommitsCount,
+              commits: commits,
+              isUpToDate: isUpToDate)
+    }
+
     public init(repository: String, status: String, baseCommit: String,
                 upstreamCommit: String, aheadBy: Int, behindBy: Int,
-                totalCommits: Int, commits: [UpstreamCommit],
+                totalCommits: Int, commits: [UpstreamReview.Commit],
                 compareURL: URL, checkedAt: Date) {
         self.repository = repository
         self.status = status
@@ -80,7 +69,7 @@ public protocol UpstreamHTTPClient {
     func data(for request: URLRequest) async throws -> (Data, HTTPURLResponse)
 }
 
-public struct URLSessionUpstreamClient: UpstreamHTTPClient {
+public struct URLSessionUpstreamClient: UpstreamHTTPClient, Sendable {
     private let session: URLSession
 
     public init(session: URLSession = .shared) {
@@ -96,7 +85,7 @@ public struct URLSessionUpstreamClient: UpstreamHTTPClient {
     }
 }
 
-public final class UpstreamChecker {
+final class UpstreamChecker {
     public static let repository = "seedds/nxnative"
     public static let branch = "main"
 
@@ -104,6 +93,47 @@ public final class UpstreamChecker {
 
     public init(client: UpstreamHTTPClient = URLSessionUpstreamClient()) {
         self.client = client
+    }
+
+    func review(from base: String) async throws(Refusal) -> UpstreamReview {
+        do {
+            let snapshot = try await check(from: base)
+            if let data = try? JSONEncoder().encode(snapshot) {
+                AppData.preferences.set(data, forKey: Self.cacheKey)
+            }
+            return snapshot.review
+        } catch let error as UpstreamCheckerError {
+            switch error {
+            case .invalidBase: throw .upstream(.invalidBase)
+            case .invalidURL: throw .upstream(.invalidURL)
+            case .decoding: throw .upstream(.decoding)
+            case .rateLimited(let date): throw .upstream(.rateLimited(reset: date))
+            case .http(let code, let message): throw .upstream(.http(code: code, message: Self.safeMessage(message)))
+            }
+        } catch is CancellationError {
+            throw .cancelled
+        } catch {
+            let text = Self.safeMessage(error.localizedDescription) ?? L10n.text("unknown error")
+            throw .upstream(.connection(message: error is URLError ? "Network error: \(text)" : text))
+        }
+    }
+
+    static let cacheKey = "NXLibrary_UpstreamStatus"
+
+    static func cachedReview(from base: String) -> UpstreamReview? {
+        guard let data = AppData.preferences.data(forKey: cacheKey),
+              let cached = try? JSONDecoder().decode(UpstreamStatus.self, from: data),
+              cached.baseCommit == base else { return nil }
+        return cached.review
+    }
+
+    private static func safeMessage(_ message: String?) -> String? {
+        guard let message else { return nil }
+        let clean = DiagnosticsReport.scrub(message, home: NSHomeDirectory())
+            .replacingOccurrences(of: #"(?i)\b(?:https?|file)://\S+|\b(?:gh[pousr]_|github_pat_)[A-Za-z0-9_]+"#,
+                                  with: "<redacted>", options: .regularExpression)
+        let result = String(clean.split(whereSeparator: \.isWhitespace).joined(separator: " ").prefix(400))
+        return result.isEmpty ? nil : result
     }
 
     public func check(from baseCommit: String) async throws -> UpstreamStatus {
@@ -150,11 +180,11 @@ public final class UpstreamChecker {
             let message = item.commit?.message ?? ""
             let subject = message.components(separatedBy: "\n").first?
                 .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            return UpstreamCommit(
+            return UpstreamReview.Commit(
                 sha: item.sha,
+                subject: subject.isEmpty ? "(no message)" : subject,
                 author: item.commit?.author?.name ?? "unknown",
-                date: item.commit?.author?.date ?? "",
-                subject: subject.isEmpty ? "(no message)" : subject
+                date: item.commit?.author?.date ?? ""
             )
         }
         let upstream = rawCommits.last?.sha ?? payload.baseCommit?.sha ?? base

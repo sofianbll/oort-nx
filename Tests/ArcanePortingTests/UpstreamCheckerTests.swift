@@ -3,6 +3,53 @@ import XCTest
 @testable import ArcanePorting
 
 final class UpstreamCheckerTests: XCTestCase {
+    private actor CompareResponse: UpstreamHTTPClient {
+        let body: Data
+        let status: Int
+        private(set) var requests = 0
+        init(_ body: String, status: Int = 200) { self.body = Data(body.utf8); self.status = status }
+        func data(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {
+            requests += 1
+            return (body, HTTPURLResponse(url: request.url!, statusCode: status, httpVersion: nil, headerFields: nil)!)
+        }
+    }
+
+    func testAdapterKeepsReviewedFactsAndRefusesWithoutLeakingRequestDetails() async throws {
+        let pin = "a123456"
+        let place = Place(UUID())
+        func workshop(_ response: CompareResponse) async throws -> Workshop {
+            let engine: any EngineAdapter = MacNXNative(place: place, checkout: "", prescribed: pin,
+                                                         expected: "b123456", client: response)
+            return try await engine.workshop(place)
+        }
+        for behind in [0, 1] {
+            let response = CompareResponse("""
+                {"ahead_by":0,"behind_by":\(behind),"base_commit":{"sha":"a123456"},"commits":[]}
+                """)
+            let snapshot = try await workshop(response)
+            let before = await response.requests
+            XCTAssertEqual(before, 0)
+            let review = try await snapshot.checkUpstream.run(Confirmed(UUID()), request: RequestID(UUID()))
+            XCTAssertEqual(review.isUpToDate, behind == 0)
+            XCTAssertEqual(review.targetSHA, pin)
+            XCTAssertEqual(review.newCommitsCount, 0)
+            XCTAssertEqual(review.commits, [])
+            let after = await response.requests
+            XCTAssertEqual(after, 1)
+        }
+        let response = CompareResponse(#"{"message":"Temporary error https://private.invalid/secret github_pat_fixture"}"#,
+                                       status: 503)
+        let offer = try await workshop(response).checkUpstream
+        do {
+            _ = try await offer.run(Confirmed(UUID()), request: RequestID(UUID()))
+            XCTFail("The review must refuse a 503")
+        } catch {
+            guard case .upstream(.http(let code, let message)) = error else { return XCTFail("Unexpected refusal: \(error)") }
+            XCTAssertEqual(code, 503)
+            XCTAssertEqual(message, "Temporary error <redacted> <redacted>")
+        }
+    }
+
     final class FakeClient: UpstreamHTTPClient {
         var request: URLRequest?
         var result: Result<(Data, HTTPURLResponse), Error> = .failure(URLError(.notConnectedToInternet))

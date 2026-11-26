@@ -565,9 +565,8 @@ import ArcanePorting
         settings.endDraft()
 
         func offer(_ commit: String, count: Int) {
-            setup.upstreamState = .loaded(.init(repository: "fixture", status: "ahead", baseCommit: pin, upstreamCommit: commit,
-                aheadBy: count, behindBy: 0, totalCommits: count, commits: [],
-                compareURL: URL(string: "https://example.invalid")!, checkedAt: .now))
+            setup.upstreamState = .loaded(.init(ReviewedRevision(UUID()), targetSHA: commit, newCommitsCount: count,
+                                                commits: [], isUpToDate: false))
         }
         func waitForSwitch() async throws {
             let deadline = ContinuousClock.now.advanced(by: .seconds(10))

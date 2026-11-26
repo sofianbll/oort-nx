@@ -36,8 +36,6 @@ final class SetupModel: ObservableObject {
     @Published var isSwitchingEngine = false
     /// Why the last switch did not happen, shown calmly in the Newest engine row.
     @Published var newestEngineProblem: String? = nil
-    lazy var upstreamChecker = UpstreamChecker()
-    let upstreamCacheKey = "NXLibrary_UpstreamStatus"
 
     /// What the engine in use can read: title selection, extracted folders and NUP containers or programs.
     var engineSourceCapabilities: EngineSourceCapabilities {
@@ -45,16 +43,12 @@ final class SetupModel: ObservableObject {
     }
 
     // MARK: - Keys
-    @Published var prodKeysPath: String = "" {
-        didSet {
-            if !prodKeysPath.isEmpty {
-                AppData.preferences.set(prodKeysPath, forKey: AppViewModel.StorageKeys.savedProdKeysPath)
-            }
-        }
+    @Published var localKeyStatus: LocalKeyStatus = .required
+    var isProdKeysValid: Bool { keyGenerationCount != nil }
+    var keyGenerationCount: Int? {
+        if case .available(let count) = localKeyStatus { return count }
+        return nil
     }
-    @Published var prodKeysSource: String = ""
-    @Published var isProdKeysValid: Bool = false
-    @Published var keySummary: KeySummary? = nil
     private(set) var keyImportError: String?
     lazy var keyStore = KeyStore(directory: app.core.appendingPathComponent("keys"))
 
@@ -76,9 +70,7 @@ final class SetupModel: ObservableObject {
             // Restoring through the setter would refresh versions via app.setup while it is still being initialized.
             _newestEngineChoice = Published(initialValue: try? JSONDecoder().decode(NewestEngineChoice.self, from: data))
         }
-        if let data = AppData.preferences.data(forKey: upstreamCacheKey),
-           let cached = try? JSONDecoder().decode(UpstreamStatus.self, from: data),
-           cached.baseCommit == app.pinnedEngineCommit {
+        if let cached = MacNXNative.cachedReview(from: app.pinnedEngineCommit) {
             upstreamState = .loaded(cached)
         }
     }
@@ -89,15 +81,15 @@ final class SetupModel: ObservableObject {
         // Always against the tested pin, so the newest engine stays measurable from the engine Arcane tested.
         let base = app.pinnedEngineCommit
         upstreamState = .checking
-        let checker = upstreamChecker
+        let place = Place(UUID())
+        let engine: any EngineAdapter = MacNXNative(place: place, checkout: nxnativePath, prescribed: base,
+                                                     expected: activeEngineCommit)
         Task { @MainActor [weak self] in
             guard let self else { return }
             do {
-                let status = try await checker.check(from: base)
+                let workshop = try await engine.workshop(place)
+                let status = try await workshop.checkUpstream.run(Confirmed(UUID()), request: RequestID(UUID()))
                 self.upstreamState = .loaded(status)
-                if let data = try? JSONEncoder().encode(status) {
-                    AppData.preferences.set(data, forKey: self.upstreamCacheKey)
-                }
                 self.checkNewestEngineReadiness(status)
             } catch {
                 self.upstreamState = .failed(Self.upstreamErrorMessage(error))
@@ -106,16 +98,20 @@ final class SetupModel: ObservableObject {
     }
 
     func openUpstreamCompare() {
-        guard case .loaded(let status) = upstreamState else { return }
-        NSWorkspace.shared.open(status.compareURL)
+        guard case .loaded = upstreamState, let url = MacNXNative.compareURL(from: app.pinnedEngineCommit) else { return }
+        NSWorkspace.shared.open(url)
     }
 
     static func upstreamErrorMessage(_ error: Error) -> String {
-        if let checkerError = error as? UpstreamCheckerError {
-            return checkerError.localizedDescription
-        }
-        if let urlError = error as? URLError {
-            return "Network error: \(urlError.localizedDescription)"
+        if let refusal = error as? Refusal, case .upstream(let failure) = refusal {
+            switch failure {
+            case .invalidBase: return UpstreamCheckerError.invalidBase.localizedDescription
+            case .invalidURL: return UpstreamCheckerError.invalidURL.localizedDescription
+            case .decoding: return UpstreamCheckerError.decoding.localizedDescription
+            case .rateLimited(let date): return UpstreamCheckerError.rateLimited(date).localizedDescription
+            case .http(let code, let message): return UpstreamCheckerError.http(code, message).localizedDescription
+            case .connection(let message): return message
+            }
         }
         return error.localizedDescription
     }
@@ -153,17 +149,10 @@ final class SetupModel: ObservableObject {
     // MARK: - Keys import
     func ensureKeysImported(customRyujinxDir: String? = nil) {
         let fm = FileManager.default
-        if fm.fileExists(atPath: keyStore.keyURL.path) {
-            do {
-                let summary = try keyStore.validate(at: keyStore.keyURL)
-                keySummary = summary
-                isProdKeysValid = summary.hasHeaderKey
-                prodKeysPath = keyStore.keyURL.path
-                prodKeysSource = AppIdentity.displayName
-            } catch {
-                keySummary = nil
-                isProdKeysValid = false
-                prodKeysSource = "Invalid stored copy"
+        let read = keyStore.readStatus()
+        localKeyStatus = read.status
+        if read.status != .required {
+            if let error = read.error {
                 app.logs.append(LogEntry(level: .error,
                                      message: L10n.format("Stored prod.keys is invalid: %@", [String(describing: error.localizedDescription)])))
             }
@@ -175,10 +164,6 @@ final class SetupModel: ObservableObject {
             !$0.isEmpty && fm.fileExists(atPath: $0)
         }
         guard let candidate else {
-            keySummary = nil
-            isProdKeysValid = false
-            prodKeysSource = "Not Found"
-            prodKeysPath = ""
             return
         }
         importKeys(from: URL(fileURLWithPath: candidate))
@@ -197,10 +182,7 @@ final class SetupModel: ObservableObject {
         do {
             let summary = try keyStore.importKey(from: url)
             keyImportError = nil
-            keySummary = summary
-            isProdKeysValid = summary.hasHeaderKey
-            prodKeysPath = keyStore.keyURL.path
-            prodKeysSource = "Imported once"
+            localKeyStatus = .available(applicationGenerations: summary.applicationKeyGenerations.count)
             app.porting.refreshKeyCheck()
             if let folder = app.porting.selectedGameFolder { app.porting.scanGameFolder(folder) }
             app.lastError = nil
@@ -209,10 +191,8 @@ final class SetupModel: ObservableObject {
                 message: L10n.format("prod.keys imported: header key present, %@ application key generations.", [String(describing: summary.applicationKeyGenerations.count)])
             ))
         } catch {
-            keySummary = try? keyStore.validate(at: keyStore.keyURL)
-            isProdKeysValid = keySummary?.hasHeaderKey == true
-            prodKeysPath = isProdKeysValid ? keyStore.keyURL.path : ""
-            keyImportError = error.localizedDescription
+            localKeyStatus = keyStore.readStatus().status
+            keyImportError = ((error as? KeyStoreError) ?? .unreadable).localizedDescription
             app.lastError = keyImportError
             if !app.showSetupCheck {
                 app.showSettingsNotice(title: L10n.text("Keys not changed"), message: isProdKeysValid
@@ -220,7 +200,7 @@ final class SetupModel: ObservableObject {
                     : L10n.text("The key file could not be imported. Choose a valid prod.keys file."))
             }
             app.logs.append(LogEntry(level: .error,
-                                 message: L10n.format("Could not import prod.keys: %@", [String(describing: error.localizedDescription)])))
+                                 message: L10n.format("Could not import prod.keys: %@", [keyImportError ?? ""])))
         }
     }
 
@@ -288,17 +268,13 @@ final class SetupModel: ObservableObject {
             let checker = CompatibilityChecker(repoURL: repo, toolchain: toolchain,
                                                developerDir: developerDir)
             let report = try? checker.check(expectedEngineCommit: expected)
-            let currentCommit = report?.checks.first(where: { $0.id == "commit" })?.detail
-                .components(separatedBy: ", expected").first?
-                .replacingOccurrences(of: "current ", with: "")
-                .trimmingCharacters(in: .whitespacesAndNewlines)
             DispatchQueue.main.async {
                 guard let self, self.environmentCheckGeneration == generation,
                       self.nxnativePath == repo.path else { return }
                 self.isCheckingEnvironment = false
                 self.environmentStatus = status
                 self.compatibilityReport = report
-                self.currentEngineCommit = (currentCommit?.isEmpty == false) ? currentCommit : nil
+                self.currentEngineCommit = report?.selectedEngine.value
                 if let choice, !NewestEngine.keeps(choice, head: self.currentEngineCommit, pinned: pinned,
                                                     includedInPin: includedInPin) {
                     // The checkout moved (Setup, Back to tested, by hand) or an Arcane update tested this

@@ -139,8 +139,8 @@ final class NewestEngineTests: XCTestCase {
 
     // MARK: - Commit marks
 
-    private func commits(_ shas: [String]) -> [UpstreamCommit] {
-        shas.map { UpstreamCommit(sha: $0, author: "seedds", date: "", subject: $0) }
+    private func commits(_ shas: [String]) -> [UpstreamReview.Commit] {
+        shas.map { .init(sha: $0, subject: $0, author: "seedds", date: "") }
     }
 
     func testCommitsAboveTheOneInUseAreNewAndItIsInUse() {
@@ -265,7 +265,7 @@ final class NewestEngineTests: XCTestCase {
     private func facts(head: String, choice: NewestEngineChoice?) -> SetupFacts {
         var facts = SetupFacts(xcodeStatus: 0, metalVersion: "32023.922", certifiedMetal: "32023.922", allowUntested: true,
                                engine: .checkout(head: head, dirty: false), engineFolder: repo, pinnedCommit: pin,
-                               runtimeProblem: nil, keys: nil, keysError: nil, libraryReadable: true,
+                               runtimeProblem: nil, keys: .required, keysError: nil, libraryReadable: true,
                                engineBehind: false)
         facts.newestEngine = choice
         return facts

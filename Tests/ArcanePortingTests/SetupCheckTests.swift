@@ -5,7 +5,7 @@ import XCTest
 final class SetupCheckTests: XCTestCase {
     func testKeysAreOptionalOnlyForAnEngineSupportingExtractedFolders() {
         var input = facts()
-        input.keys = nil
+        input.keys = .required
         input.keysOptional = true
         let optional = SetupCheck.items(from: input).first { $0.id == .keys }
         XCTAssertEqual(optional?.state, .ready)
@@ -21,7 +21,7 @@ final class SetupCheckTests: XCTestCase {
         let existing = SetupCheck.items(from: input).first { $0.id == .keys }
         XCTAssertEqual(existing?.inlineError, "The key file has no header_key.")
         XCTAssertEqual(existing?.actionTitle, "Replace")
-        input.keys = nil
+        input.keys = .required
         let optional = SetupCheck.items(from: input).first { $0.id == .keys }
         XCTAssertEqual(optional?.inlineError, "The key file has no header_key.")
         XCTAssertEqual(optional?.actionTitle, "Choose file")
@@ -35,7 +35,7 @@ final class SetupCheckTests: XCTestCase {
         SetupFacts(xcodeStatus: 0, metalVersion: "32023.921", certifiedMetal: "32023.921", allowUntested: false,
                    engine: .checkout(head: pin, dirty: false), engineFolder: folder, pinnedCommit: pin,
                    runtimeProblem: nil,
-                   keys: KeySummary(hasHeaderKey: true, applicationKeyGenerations: [0, 1, 2]), keysError: nil,
+                   keys: .available(applicationGenerations: 3), keysError: nil,
                    libraryReadable: true)
     }
 
@@ -173,12 +173,12 @@ final class SetupCheckTests: XCTestCase {
         XCTAssertEqual(ready.chip, "✓ Imported")
         XCTAssertTrue(ready.detail.contains("3"), ready.detail)
 
-        let missing = item(.keys) { $0.keys = nil }
+        let missing = item(.keys) { $0.keys = .required }
         XCTAssertEqual(missing.state, .missing)
         XCTAssertEqual(missing.chip, "Not imported")
         XCTAssertEqual(missing.actionTitle, "Choose file")
 
-        let invalid = item(.keys) { $0.keys = nil; $0.keysError = "The keys file has no header_key." }
+        let invalid = item(.keys) { $0.keys = .unavailable; $0.keysError = "The keys file has no header_key." }
         XCTAssertEqual(invalid.state, .missing)
         XCTAssertEqual(invalid.detail, "The keys file has no header_key.")
     }
@@ -265,7 +265,7 @@ final class SetupCheckTests: XCTestCase {
 
         f.metalVersion = "32023.917"
         f.engine = .missing
-        f.keys = nil
+        f.keys = .required
         XCTAssertEqual(SetupCheck.automatic(SetupCheck.items(from: f)), [.metal, .engine])
         // Metal comes through Xcode: nothing to try until Xcode is ready.
         f.xcodeVersion = "26.4"
@@ -291,7 +291,7 @@ final class SetupCheckTests: XCTestCase {
     func testShouldReopenOnlyOnRegression() {
         var f = facts()
         f.metalVersion = "32023.917"
-        f.keys = nil
+        f.keys = .required
         let current = SetupCheck.items(from: f)
         XCTAssertTrue(SetupCheck.shouldReopen(previous: [.metal: .ready], current: current))
         XCTAssertFalse(SetupCheck.shouldReopen(previous: [.keys: .missing], current: current))
@@ -442,7 +442,7 @@ final class SetupCheckTests: XCTestCase {
         XCTAssertEqual(facts.xcodeStatus, 69)
         XCTAssertNil(facts.xcodeVersion)
         XCTAssertEqual(facts.metalVersion, "32023.921")
-        XCTAssertNil(facts.keys)
+        XCTAssertEqual(facts.keys, .required)
         XCTAssertNil(facts.libraryReadable)
 
         runner.responses["status --porcelain"] = CommandResult(status: 0, stdout: " M scripts/build_ipa_from_nsp.py\n", stderr: "")
@@ -451,4 +451,33 @@ final class SetupCheckTests: XCTestCase {
         runner.responses["xcodebuild -version"] = CommandResult(status: 0, stdout: "Xcode 27.1\nBuild version 27A9275\n", stderr: "")
         XCTAssertEqual(probe(runner, engine: engine, home: home).facts().xcodeVersion, "27.1")
     }
+
+    func testAdapterDistinguishesTheThreeCheckoutStates() async throws {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let place = Place(UUID())
+        let runner = SystemCommandRunner()
+        let engine: any EngineAdapter = MacNXNative(place: place, checkout: folder.path, prescribed: pin, expected: "badcafe")
+        let missing = try await engine.workshop(place)
+        XCTAssertEqual(missing.checkout, .missing)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        let ordinary = try await engine.workshop(place)
+        XCTAssertEqual(ordinary.checkout, .notACheckout)
+        XCTAssertEqual(missing.versions, ordinary.versions)
+        func git(_ args: [String]) throws -> String {
+            let result = try runner.run(URL(fileURLWithPath: "/usr/bin/git"), ["-C", folder.path] + args,
+                                        environment: nil, currentDirectory: nil)
+            XCTAssertEqual(result.status, 0, result.stderr)
+            return result.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        _ = try git(["init", "-q"])
+        _ = try git(["-c", "commit.gpgsign=false", "-c", "user.name=Fixture",
+                     "-c", "user.email=fixture@users.noreply.github.com", "commit", "--allow-empty", "-qm", "Fixture"])
+        let checkout = try await engine.workshop(place)
+        XCTAssertEqual(checkout.checkout, .checkout)
+        XCTAssertEqual(checkout.versions.selected.value, try git(["rev-parse", "HEAD"]))
+        XCTAssertEqual(checkout.versions.expected.value, "badcafe")
+        XCTAssertEqual(checkout.versions.reference.value, pin)
+    }
+
 }

@@ -8,7 +8,9 @@ final class CompatibilityCheckerTests: XCTestCase {
         func run(_ executable: URL, _ arguments: [String],
                  environment: [String: String]?,
                  currentDirectory: URL?) throws -> CommandResult {
-            let key = ([executable.lastPathComponent] + arguments).joined(separator: " ")
+            let command = executable.lastPathComponent
+            let args = command == "git" ? Array(arguments.drop(while: { $0 != "rev-parse" && $0 != "status" })) : arguments
+            let key = ([command] + args).joined(separator: " ")
             if key == CompatibilityCheckerTests.pythonVersionKey {
                 return outputs[key] ?? CommandResult(status: 0, stdout: "3.14\n", stderr: "")
             }
@@ -27,6 +29,7 @@ final class CompatibilityCheckerTests: XCTestCase {
             at: repo.appendingPathComponent("dm/gfx/tools"),
             withIntermediateDirectories: true
         )
+        try FileManager.default.createDirectory(at: repo.appendingPathComponent(".git"), withIntermediateDirectories: false)
         try """
         metal_macosx\tApple metal version 32023.921 (metalfe-32023.921.6)
         """.write(to: repo.appendingPathComponent("dm/gfx/tools/dmsh_chain.lock"),

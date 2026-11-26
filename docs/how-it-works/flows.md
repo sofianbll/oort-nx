@@ -325,6 +325,8 @@ flowchart TD
 
 ## 8. Cambiare un'impostazione
 
+**Motore:** la lettura locale distingue il pin, il checkout e l’obiettivo scelto. Il pulsante Upstream apre una consultazione esplicita; il dialogo si riferisce alla stessa revisione del riepilogo. Aprire Chiavi mostra stato e numero di generazioni senza mostrare il percorso privato o modificare i permessi.
+
 **Settings → Sound.** Il giocatore sceglie il pacchetto e l’evento da ascoltare. Sound pack scorre Oort, Frost, Mist, Nucleus e Other; con Other compare la riga Other pack con Selene, Pollen, Umbra, Impulsion e i pacchetti importati. Tornando su Other mentre la pagina resta aperta si ritrova l’ultimo pacchetto scelto lì (Selene dopo la riapertura). Import sound pack legge una cartella o un archivio `.oortsound` e mostra nome, autore, licenza, versione ed eventi. Solo Import conferma la copia, senza attivarla. Remove sposta nel Cestino solo la copia importata; se era attiva, torna Selene. Un pacchetto selezionato illeggibile ripiega su Selene e la sezione spiega il motivo. Reset group mantiene le copie e seleziona Selene.
 
 In Spotlight e Collection, la barra Integrations apre il riepilogo. Con tastiera o controller, Su raggiunge il ritratto se presente e Sinistra raggiunge la barra; senza ritratto basta Su. Giù torna ai giochi. Su/Giù nella pagina sceglie una riga tra Giochi e Servizi; Apri presenta la scheda dei dati. Dalla scheda, Apri raggiunge le impostazioni esistenti senza premere il controllo. Indietro ripristina scheda, riga e barra in successione, senza cambiare il gioco selezionato.

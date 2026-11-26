@@ -52,7 +52,7 @@ public struct PlayersLaunch: Sendable {
         static let imagesCommit = "22143d4e80b29347d056a0868bfec520938ca1c9"
 
         static func packedCommit(in app: URL) -> String? {
-            guard let commit = CheatLocator.engineCommit(appURL: app, recorded: nil),
+            guard let commit = MacNXNative.embeddedStamp(in: app),
                   commit.utf8.allSatisfy("0123456789abcdefABCDEF".utf8.contains),
                   FileManager.default.isReadableFile(atPath: HomeMenu.hostExecutable(in: app).path)
             else { return nil }

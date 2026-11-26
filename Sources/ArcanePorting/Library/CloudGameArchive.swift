@@ -896,7 +896,8 @@ public actor CloudGameArchive {
             let publication = Date(timeIntervalSince1970: Double(timestamp / 1000))
             let sameContent = artifacts.first { $0.kind == kind && $0.inventorySHA256 == digest }
             let item = Artifact(kind: kind, unpackedSize: bytes, entryCount: files.count, inventorySHA256: digest,
-                engineCommit: info["DMCommit"] ?? game.engineCommit, shaderChain: shaderChain(at: source, kind: kind),
+                engineCommit: MacNXNative.embeddedStamp(in: info) ?? game.engineCommit,
+                shaderChain: shaderChain(at: source, kind: kind),
                 options: info.filter { ["DMLanguage", "CFBundleShortVersionString"].contains($0.key) }, files: tree,
                 publishedAt: sameContent?.publishedAt ?? publication,
                 revision: sameContent == nil ? timestamp : sameContent?.revision)

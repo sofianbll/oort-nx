@@ -41,20 +41,16 @@ public struct SetupProbe {
     }
 
     public func facts() -> SetupFacts {
-        var keys: KeySummary?
-        var keysError: String?
-        if fileManager.fileExists(atPath: keyStore.keyURL.path) {
-            do { keys = try keyStore.validate(at: keyStore.keyURL) } catch { keysError = error.localizedDescription }
-        }
+        let keyRead = keyStore.readStatus()
         let xcode = xcode()
-        let engine = engine()
+        let engine = checkoutFacts()
         var facts = SetupFacts(
             xcodeStatus: xcode.status,
             metalVersion: MetalVersion.parse(run("/usr/bin/xcrun", ["metal", "--version"]).stdout),
             certifiedMetal: certifiedMetal, allowUntested: allowUntested,
             engine: engine, engineFolder: engineFolder, pinnedCommit: pinnedCommit,
             runtimeProblem: runtimeProblem(),
-            keys: keys, keysError: keysError,
+            keys: keyRead.status, keysError: keyRead.error?.localizedDescription,
             libraryReadable: libraryFolder.map { readableDirectory($0) },
             xcodeVersion: xcode.version, engineBehind: behind(engine))
         let capabilities = EngineSourceCapabilities(repo: engineFolder)
@@ -81,7 +77,7 @@ public struct SetupProbe {
     /// tell, as when the pin is not fetched yet.
     private func behind(_ engine: EngineFacts) -> Bool? {
         guard case .checkout(let head, _) = engine, head != pinnedCommit else { return nil }
-        switch run("/usr/bin/git", ["-C", engineFolder.path, "merge-base", "--is-ancestor", head, pinnedCommit]).status {
+        switch MacNXNative.git(["merge-base", "--is-ancestor", head, pinnedCommit], at: engineFolder.path, runner: runner)?.status {
         case 0: return true
         case 1: return false
         default: return nil
@@ -102,19 +98,12 @@ public struct SetupProbe {
         return (result.status, ToolchainRequirements.xcodeVersion(from: result.stdout))
     }
 
-    package func engine() -> EngineFacts {
-        var isDirectory: ObjCBool = false
-        guard fileManager.fileExists(atPath: engineFolder.path, isDirectory: &isDirectory), isDirectory.boolValue else {
-            return .missing
+    package func checkoutFacts() -> EngineFacts {
+        switch MacNXNative.checkoutState(at: engineFolder.path, runner: runner) {
+        case (.checkout, let head?, let changes): .checkout(head: head, dirty: !changes.isEmpty)
+        case (.missing, _, _): .missing
+        default: .notACheckout
         }
-        guard fileManager.fileExists(atPath: engineFolder.appendingPathComponent(".git").path) else {
-            return .notACheckout
-        }
-        let head = run("/usr/bin/git", ["-C", engineFolder.path, "rev-parse", "HEAD"])
-        guard head.status == 0 else { return .notACheckout }
-        let status = run("/usr/bin/git", ["-C", engineFolder.path, "status", "--porcelain"]).stdout
-        return .checkout(head: head.stdout.trimmingCharacters(in: .whitespacesAndNewlines),
-                         dirty: !CompatibilityChecker.relevantChanges(status).isEmpty)
     }
 
     private func runtimeProblem() -> String? {

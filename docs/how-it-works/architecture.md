@@ -395,10 +395,12 @@ contenere anche i titoli e i messaggi su più righe.
 - `EngineToolchain` risolve Python e `PATH`, preferendo il runtime incluso nel bundle quando c'è.
 
 **Setup.**
+- Il contratto di lettura `EngineAdapter` in `OortCore` separa nell’atelier riferimento prescritto, checkout osservato e obiettivo scelto. `MacNXNative` legge i fatti Git, lo stamp delle app e la relazione attestata, senza dedurla da due hash; la data rimane se la relazione è sconosciuta. La consultazione esplicita dell’amont restituisce la revisione esaminata e i suoi commit. Le schermate non leggono il repository per presentare l’elenco o i badge.
 - `SetupProbe` raccoglie i dati del Setup. `SetupCheck` li traduce in schede, stati e azioni. `SetupCheckModel` esegue i controlli in background, compresa la lettura di `xcode-select` a ogni ricontrollo (4 s), e coordina installazioni e avanzamento. `SetupActions` prepara gli argomenti Git per portare un checkout gestibile al pin.
 - `SetupActions.engineOverride` legge insieme `NXLibraryEngineRepository` e `NXLibraryEngineCommit` dal plist. Senza una coppia valida, rimangono i default upstream. Con un pin personalizzato, la scheda motore indica il deposito; Setup clona da lì o scarica il solo pin senza modificare `origin`. `UpstreamChecker` confronta sempre con `seedds/nxnative` `main`.
 - Get ready mostra soltanto i cinque requisiti tecnici, in una griglia 3 + 2. I problemi alle cartelle non riaprono questa schermata.
 - `SetupCheckModel` combina l'errore di importazione di `SetupModel` con il risultato della verifica: la scheda Chiavi mostra il motivo senza aprire un avviso dietro al Setup. Le etichette delle schede sono localizzate.
+- La verifica delle chiavi è in sola lettura e restituisce stato e numero delle generazioni, non il percorso. L’importazione esplicita pubblica la copia privata con permessi `0600`.
 - Install all può clonare un motore mancante, ma non modifica checkout esistenti. Update, Switch e Back to tested nel Setup usano la conferma Selene condivisa, con Annulla a fuoco e il percorso del motore; ogni cambio ricontrolla lo stato della cartella prima di scrivere.
 - La scheda Python distingue il runtime incluso ma guasto da una build senza runtime. Una build senza runtime può usare un ambiente locale funzionante; non invita a reinstallare dal DMG.
 - Your games presenta Game apps, la cartella unica in cui cercare giochi nxnative esistenti e installare le prime build.

@@ -313,7 +313,7 @@ final class SetupCheckModel: ObservableObject {
         let env = environment
         queue.async { [weak self] in
             guard let self else { return }
-            guard probe.engine() == facts.engine else {
+            guard probe.checkoutFacts() == facts.engine else {
                 DispatchQueue.main.async {
                     self.viewModel.setup.isSwitchingEngine = false
                     self.setOverride(.engine, nil)

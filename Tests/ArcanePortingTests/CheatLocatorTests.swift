@@ -57,13 +57,12 @@ final class CheatLocatorTests: XCTestCase {
     func testEngineCommitFallsBackToInfoPlist() throws {
         let commit = "b64a5ff09f0123456789abcdef0123456789abcd"
         try writePlist(["DMCommit": commit])
-        XCTAssertEqual(CheatLocator.engineCommit(appURL: app, recorded: nil), commit)
-        XCTAssertEqual(CheatLocator.engineCommit(appURL: app, recorded: "ef9f9bb"), "ef9f9bb")
+        XCTAssertEqual(MacNXNative.embeddedStamp(in: app), commit)
         try writePlist(["CFBundleName": "Game"])
-        XCTAssertNil(CheatLocator.engineCommit(appURL: app, recorded: nil), "an older packer wrote none")
+        XCTAssertNil(MacNXNative.embeddedStamp(in: app), "an older packer wrote none")
         for invalid in ["", "--output=x", "main", "b64a5f", "zz4a5ff09f"] {
             try writePlist(["DMCommit": invalid])
-            XCTAssertNil(CheatLocator.engineCommit(appURL: app, recorded: nil), invalid)
+            XCTAssertNil(MacNXNative.embeddedStamp(in: app), invalid)
         }
     }
 

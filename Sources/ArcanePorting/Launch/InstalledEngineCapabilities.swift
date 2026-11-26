@@ -54,7 +54,7 @@ public actor InstalledEngineCapabilities {
     }
 
     private func engineCommit(in app: URL, engineFolder: String, containing feature: String) async -> String? {
-        guard !engineFolder.isEmpty, let commit = CheatLocator.engineCommit(appURL: app, recorded: nil) else { return nil }
+        guard !engineFolder.isEmpty, let commit = MacNXNative.embeddedStamp(in: app) else { return nil }
         if self.engineFolder != engineFolder {
             self.engineFolder = engineFolder
             ancestry = EngineAncestry(runner: runner, engineFolder: URL(fileURLWithPath: engineFolder))

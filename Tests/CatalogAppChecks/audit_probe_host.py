@@ -9,7 +9,8 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
 
-def run_host(host, source_fixture=None, *, save_model=False, capture=None, unix_sockets=False, environment=None, resources=()):
+def run_host(host, source_fixture=None, *, save_model=False, capture=None, unix_sockets=False, environment=None, resources=(),
+             package_name=None):
     build = ROOT / ".build"
     products = build / "out/Products/Debug"
     objects = list((build / "out/Intermediates.noindex/NXLibrary.build/Debug/NXLibrary-p.build/Objects-normal").glob("*/NXLibrary.LinkFileList"))
@@ -70,6 +71,7 @@ func suppressProbeNotifications() {
         # A local fake may be spoken to; the network never.
         local = '(allow network* (local unix-socket) (remote unix-socket)) ' if unix_sockets else ''
         subprocess.run(["xcrun", "swiftc", "-parse-as-library",
+                        *(["-package-name", package_name] if package_name else []),
                         "-Xfrontend", "-entry-point-function-name", "-Xfrontend", "saveAuditMain",
                         "-Xlinker", "-e", "-Xlinker", "_saveAuditMain",
                         "-I", str(modules), "-I", str(products),

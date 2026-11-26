@@ -34,7 +34,7 @@ extension AppViewModel {
         i.chip = Self.sysctlString("machdep.cpu.brand_string") ?? "?"
         i.pinnedCommit = pinnedEngineCommit
         i.newestEngine = setup.newestEngineChoice.map { "\($0.commit) (\(NewestEngineCopy.ahead($0.aheadBy)))" }
-        i.engineHead = Self.engineHead(at: setup.nxnativePath)
+        i.engineHead = MacNXNative.headDescription(at: setup.nxnativePath)
         i.xcodePath = setup.resolvedDeveloperDir().path
         i.xcodeVersion = setup.environmentStatus?.xcodeVersion
         i.metalFound = setup.environmentStatus?.metalVersion
@@ -43,9 +43,9 @@ extension AppViewModel {
         let tools = setup.environmentStatus?.tools ?? []
         i.python = setup.engineToolchain.python.path
         i.setupRows = tools.map { ($0.name, $0.ok) }
-        i.keysImported = FileManager.default.fileExists(atPath: setup.keyStore.keyURL.path)
-        i.hasHeaderKey = setup.keySummary?.hasHeaderKey ?? false
-        i.keyGenerations = setup.keySummary?.applicationKeyGenerations.count ?? 0
+        i.keysImported = setup.keyStore.readStatus().status != .required
+        i.hasHeaderKey = setup.isProdKeysValid
+        i.keyGenerations = setup.keyGenerationCount ?? 0
         if let game = diagnosticsGame {
             let failure = game.portingFailure.map { failure in
                 failure == .cancelled ? "cancelled" : "failed (\(game.portingFailureReason?.kind.rawValue ?? "unknown"))"
@@ -63,6 +63,9 @@ extension AppViewModel {
         } else {
             i.log = logs.suffix(60).map(\.message)
         }
+        let keyPath = setup.keyStore.keyURL.path
+        i.lastCommand = i.lastCommand.map { $0 == keyPath ? "<private keys>" : $0 }
+        i.log = i.log.map { $0.replacingOccurrences(of: keyPath, with: "<private keys>") }
         return i
     }
 
@@ -72,22 +75,5 @@ extension AppViewModel {
         var buffer = [CChar](repeating: 0, count: size)
         guard sysctlbyname(name, &buffer, &size, nil, 0) == 0 else { return nil }
         return String(cString: buffer)
-    }
-
-    /// "<short hash> <subject>" of the checkout; nothing is fetched.
-    private static func engineHead(at path: String) -> String? {
-        guard !path.isEmpty, FileManager.default.fileExists(atPath: path + "/.git") else { return nil }
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/git")
-        process.arguments = ["-C", path, "log", "-1", "--format=%h %s"]
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        process.standardError = FileHandle.nullDevice
-        guard let waitForExit = try? process.runWithExitWait() else { return nil }
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        waitForExit()
-        let out = String(data: data, encoding: .utf8)?
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        return process.terminationStatus == 0 && out?.isEmpty == false ? out : nil
     }
 }

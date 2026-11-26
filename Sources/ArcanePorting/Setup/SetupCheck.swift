@@ -49,7 +49,7 @@ public struct SetupFacts: Equatable {
     /// nil when Python, its modules and the tools all run.
     public var runtimeProblem: String?
     public var runtimeIsBundled = true
-    public var keys: KeySummary?
+    public var keys: LocalKeyStatus
     public var keysError: String?
     /// Only engines with an extracted-folder input can build without prod.keys.
     public var keysOptional: Bool = false
@@ -74,7 +74,7 @@ public struct SetupFacts: Equatable {
 
     public init(xcodeStatus: Int32?, metalVersion: String?, certifiedMetal: String, allowUntested: Bool,
                 engine: EngineFacts, engineFolder: URL, pinnedCommit: String,
-                runtimeProblem: String?, keys: KeySummary?, keysError: String?, libraryReadable: Bool?,
+                runtimeProblem: String?, keys: LocalKeyStatus, keysError: String?, libraryReadable: Bool?,
                 xcodeVersion: String? = nil,
                 requirements: ToolchainRequirements = .current, engineBehind: Bool? = nil) {
         self.xcodeStatus = xcodeStatus
@@ -258,9 +258,9 @@ public enum SetupCheck {
                              detail: L10n.text("Nothing to install."), actionTitle: nil)
         case .keys:
             let about = L10n.text("Your console's prod.keys, which unlock your own games. They stay on this Mac.")
-            if let keys = f.keys {
+            if case .available(let count) = f.keys {
                 return SetupItem(id: id, title: L10n.text("Keys"), state: .ready, chip: L10n.text("✓ IMPORTED"), about: about,
-                                 detail: L10n.format("Header key and %@ application key generations.", [String(describing: keys.applicationKeyGenerations.count)]),
+                                 detail: L10n.format("Header key and %@ application key generations.", [String(describing: count)]),
                                  inlineError: f.keysError, actionTitle: L10n.text("Replace"))
             }
             if f.keysOptional {

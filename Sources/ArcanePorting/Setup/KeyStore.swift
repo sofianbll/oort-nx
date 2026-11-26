@@ -12,7 +12,7 @@ public struct KeySummary: Equatable {
     }
 }
 
-public enum KeyStoreError: Error, LocalizedError {
+public enum KeyStoreError: Error, LocalizedError, Sendable {
     case unreadable
     case missingHeaderKey
     case invalidLine(Int)
@@ -40,15 +40,19 @@ public final class KeyStore {
         self.keyURL = directory.appendingPathComponent("prod.keys")
     }
 
-    public func validate(at url: URL) throws -> KeySummary {
-        try readValidated(at: url).summary
+    package func readStatus() -> (status: LocalKeyStatus, error: KeyStoreError?) {
+        guard fm.fileExists(atPath: keyURL.path) else { return (.required, nil) }
+        do {
+            return (.available(applicationGenerations: try readValidated(at: keyURL).summary.applicationKeyGenerations.count), nil)
+        } catch {
+            return (.unavailable, (error as? KeyStoreError) ?? .unreadable)
+        }
     }
 
     private func readValidated(at url: URL) throws -> (summary: KeySummary, data: Data) {
         if url.standardizedFileURL == keyURL.standardizedFileURL {
             let values = try url.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey])
             guard values.isRegularFile == true, values.isSymbolicLink != true else { throw KeyStoreError.unreadable }
-            try fm.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
         }
         guard let data = try? Data(contentsOf: url), let text = String(data: data, encoding: .utf8) else {
             throw KeyStoreError.unreadable

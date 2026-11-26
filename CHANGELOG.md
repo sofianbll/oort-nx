@@ -2,6 +2,10 @@
 
 User-visible changes to Oort NX and its Arcane base (formerly NX Library) are recorded here. Entries are grouped by release, with the newest first. Engine changes also have their own [upgrade notes](docs/history/engine-upgrades/README.md).
 
+## Unreleased
+
+- **Settings → Switch → Keys** no longer shows the private file’s location. Checking the keys does not change file permissions.
+
 ## 0.5.0-beta.4 — unreleased
 
 ### Added

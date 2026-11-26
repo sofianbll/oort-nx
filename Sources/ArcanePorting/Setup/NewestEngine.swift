@@ -158,7 +158,7 @@ public enum NewestEngine {
 
     /// Tags for Settings → Setup and engine's upstream list (newest first): the commit the newest engine is at is In use,
     /// those above it New. Nothing on the tested engine, or when the commit in use is not in the list.
-    public static func marks(_ commits: [UpstreamCommit], inUse: String?) -> [String: UpstreamCommitMark] {
+    public static func marks(_ commits: [UpstreamReview.Commit], inUse: String?) -> [String: UpstreamCommitMark] {
         guard let inUse, let index = commits.firstIndex(where: { $0.sha == inUse }) else { return [:] }
         var marks: [String: UpstreamCommitMark] = [inUse: .inUse]
         for commit in commits[..<index] { marks[commit.sha] = .new }

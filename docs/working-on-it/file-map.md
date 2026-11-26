@@ -1,5 +1,7 @@
 # Arcane — catalogo dei file
 
+Il repository versiona **1629 file** (26 novembre 2026).
+
 Aggiornato il 25 novembre 2026. Il repository versiona **1577 file**, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le singole guide e immagini di `docs/guides/` non hanno una riga propria (le verifica `check_guides.py`); altri 73 file, i pacchetti di suoni e alcuni sorgenti e test recenti, aspettano ancora la loro. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 Aggiornato il 25 novembre 2026. Il repository versiona **1595 file**, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le singole guide e immagini di `docs/guides/` non hanno una riga propria (le verifica `check_guides.py`); altri 73 file, i pacchetti di suoni e alcuni sorgenti e test recenti, aspettano ancora la loro. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
 Aggiornato il 25 novembre 2026. Il repository versiona **1581 file**, compresi sorgenti, test, controlli di pubblicazione, risorse e guide. Le singole guide e immagini di `docs/guides/` non hanno una riga propria (le verifica `check_guides.py`); altri 73 file, i pacchetti di suoni e alcuni sorgenti e test recenti, aspettano ancora la loro. Le cartelle personali, gli output generati e gli appunti non versionati sono esclusi.
@@ -232,6 +234,7 @@ Cartella `Sources/OortCore/`, senza risorse né dipendenze.
 | [MoveDirection.swift](../../Sources/OortCore/MoveDirection.swift) | Espone le quattro direzioni del focus. |
 | [Palette.swift](../../Sources/OortCore/Palette.swift) | Cerca ovunque: confronto tollerante, gruppi, «Vedi tutto», focus e recenti. |
 | [ProfileKeypad.swift](../../Sources/OortCore/ProfileKeypad.swift) | Griglia PIN con lunghezza passata dal chiamante e conferma esplicita. |
+| [Engine.swift](../../Sources/OortCore/Engine.swift) | Contratto di lettura di motore e release: atelier, versione incorporata, stato chiavi e revisione a monte. |
 | [VersionNumber.swift](../../Sources/OortCore/VersionNumber.swift) | Confronta numeri di versione puntati parte per parte. |
 
 ## Core · app: aggiornamento, primo avvio, diagnostica e comandi
@@ -558,7 +561,6 @@ Cartella `Sources/ArcanePorting/Details/`.
 |---|---|
 | [Sources/ArcanePorting/Details/GameDetailPresentation+Porting.swift](../../Sources/ArcanePorting/Details/GameDetailPresentation+Porting.swift) | La pagina di un gioco portato: fatti dello store Nintendo, toolchain della build, sorgenti, Rebuild e cartella dei salvataggi. |
 | [Sources/ArcanePorting/Details/DetailsFacts+Porting.swift](../../Sources/ArcanePorting/Details/DetailsFacts+Porting.swift) | Le righe Details di un gioco portato: crediti, versione del gioco, data e stato del motore, dimensione e cartella dell’app. |
-| [Sources/ArcanePorting/Details/InstalledEngineVersion.swift](../../Sources/ArcanePorting/Details/InstalledEngineVersion.swift) | Legge `DMCommit` dal plist dell'app installata, riusa il confronto d'ascendenza con l'engine selezionato e presenta data e stato localizzati. |
 | [Sources/ArcanePorting/Details/GameOptionsPresentation+Porting.swift](../../Sources/ArcanePorting/Details/GameOptionsPresentation+Porting.swift) | Converte `GameSettingsSnapshot` in `GameOptionsBuildSettings`, incluso Play together se la build dichiara modalità di rete. |
 | [Sources/ArcanePorting/Details/MoreLikeThis+Porting.swift](../../Sources/ArcanePorting/Details/MoreLikeThis+Porting.swift) | More like this fra giochi portati, con autori e generi dello store Nintendo. |
 
@@ -597,6 +599,7 @@ Cartella `Sources/ArcanePorting/Setup/`.
 | [Sources/ArcanePorting/Setup/NewestEngine.swift](../../Sources/ArcanePorting/Setup/NewestEngine.swift) | Scelta dell’engine più nuovo: testi condivisi, lettura del Metal dal lock di main, cambio di commit con Git senza toccare file modificati; usa il repository del pin per tornare all’engine testato. |
 | [Sources/ArcanePorting/Setup/CompatibilityChecker.swift](../../Sources/ArcanePorting/Setup/CompatibilityChecker.swift) | Controlla commit, modifiche del checkout, Metal e opzioni CLI richieste dal frontend. |
 | [Sources/ArcanePorting/Setup/SetupProbe.swift](../../Sources/ArcanePorting/Setup/SetupProbe.swift) | Raccoglie i fatti del Setup, compresi runtime attivo e stato del checkout; rilegge il checkout prima di cambiarlo. |
+| [Sources/ArcanePorting/Setup/MacNXNative.swift](../../Sources/ArcanePorting/Setup/MacNXNative.swift) | Adapter: legge il checkout e `DMCommit`, compara le versioni e presenta data e stato localizzati. |
 | [Sources/ArcanePorting/Setup/SetupActions.swift](../../Sources/ArcanePorting/Setup/SetupActions.swift) | Legge il pin facoltativo dal plist e costruisce i comandi Git per installare o allineare il motore al pin. |
 | [Sources/ArcanePorting/Setup/KeyStore.swift](../../Sources/ArcanePorting/Setup/KeyStore.swift) | Valida `header_key` e pubblica atomicamente gli stessi dati letti con permessi 0600; espone solo il riepilogo. |
 | [Sources/ArcanePorting/Setup/KeyCheck.swift](../../Sources/ArcanePorting/Setup/KeyCheck.swift) | Verifica le chiavi contro le intestazioni NCA, con intervalli di lettura limitati dalla dimensione del pacchetto. |

@@ -186,7 +186,7 @@ final class AppViewModel: ObservableObject {
         }
     }
     /// Results of the last background scan; tiles never probe app bundles, sources or Git.
-    @Published private(set) var installedVersions: [UUID: InstalledEngineVersion] = [:]
+    @Published private(set) var installedVersions: [UUID: InstalledVersion.Status] = [:]
     var gamesWithFilesHere: Set<UUID> { cloudLibrary.localSourceIDs }
     private var installedVersionsRefresh: Task<Void, Never>?
 
@@ -197,14 +197,23 @@ final class AppViewModel: ObservableObject {
         let games = libraryGames
         let checkout = setup.nxnativePath
         let selected = setup.activeEngineCommit
+        let place = Place(UUID())
+        let profile = Profile(localProfiles?.active?.id ?? UUID())
+        let generation = Generation(UUID())
+        let engine: any EngineAdapter = MacNXNative(place: place, checkout: checkout,
+            prescribed: pinnedEngineCommit, expected: selected, apps: games.reduce(into: [:]) { apps, game in
+                if game.url.pathExtension.lowercased() == "app" && game.cloudImportPending != true {
+                    apps[Installation(game.id)] = game.url
+                }
+            })
         let task = Task.detached(priority: .utility) { [weak self] in
-            var reader = InstalledEngineVersionReader(checkout: checkout, selected: selected)
-            var versions: [UUID: InstalledEngineVersion] = [:]
+            var versions: [UUID: InstalledVersion.Status] = [:]
             var local: Set<UUID> = []
             for game in games {
                 guard !Task.isCancelled else { return }
-                let app = game.url.pathExtension.lowercased() == "app" && game.cloudImportPending != true ? game.url : nil
-                versions[game.id] = reader.version(of: app)
+                let binding = EngineBinding(place, Entry(game.id), installation: Installation(game.id),
+                                            profile: profile, generation: generation)
+                versions[game.id] = (try? await engine.game(binding).embedded.status) ?? .unknown
                 if GameResourceState.sourcesAvailable(for: game) { local.insert(game.id) }
             }
             await MainActor.run { [weak self, versions, local] in

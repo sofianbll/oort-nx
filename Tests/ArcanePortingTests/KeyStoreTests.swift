@@ -25,6 +25,8 @@ final class KeyStoreTests: XCTestCase {
         XCTAssertTrue(summary.hasHeaderKey)
         let attrs = try FileManager.default.attributesOfItem(atPath: store.keyURL.path)
         XCTAssertEqual((attrs[.posixPermissions] as? NSNumber)?.intValue, 0o600)
+        let parent = try FileManager.default.attributesOfItem(atPath: store.keyURL.deletingLastPathComponent().path)
+        XCTAssertEqual((parent[.posixPermissions] as? NSNumber)?.intValue, 0o700)
         XCTAssertFalse(String(describing: summary).contains("1111"))
     }
 
@@ -45,24 +47,28 @@ final class KeyStoreTests: XCTestCase {
         XCTAssertTrue(try Data(contentsOf: store.keyURL) == before)
     }
 
-    func testValidationRepairsTheManagedCopiesPermissionsWithoutChangingItsBytes() throws {
+    func testReadingManagedKeysDoesNotChangePermissionsOrContents() async throws {
         let source = dir.appendingPathComponent("source.keys")
         try fakeKeys().write(to: source, atomically: true, encoding: .utf8)
         let store = KeyStore(directory: dir.appendingPathComponent("managed"))
         try store.importKey(from: source)
         let before = try Data(contentsOf: store.keyURL)
         try FileManager.default.setAttributes([.posixPermissions: 0o644], ofItemAtPath: store.keyURL.path)
-        _ = try store.validate(at: store.keyURL)
+        let place = Place(UUID())
+        let engine: any EngineAdapter = MacNXNative(place: place, checkout: "", prescribed: "a123456",
+            expected: "a123456", keys: store.keyURL.deletingLastPathComponent())
+        let workshop = try await engine.workshop(place)
+        XCTAssertEqual(workshop.localKeys, .available(applicationGenerations: 1))
         let mode = try FileManager.default.attributesOfItem(atPath: store.keyURL.path)[.posixPermissions] as? NSNumber
-        XCTAssertEqual(mode?.intValue, 0o600)
+        XCTAssertEqual(mode?.intValue, 0o644)
         XCTAssertEqual(try Data(contentsOf: store.keyURL), before)
     }
 
-    func testValidationDoesNotChangeTheOriginalFilesPermissions() throws {
+    func testImportDoesNotChangeTheOriginalFilesPermissions() throws {
         let source = dir.appendingPathComponent("source.keys")
         try fakeKeys().write(to: source, atomically: true, encoding: .utf8)
         try FileManager.default.setAttributes([.posixPermissions: 0o644], ofItemAtPath: source.path)
-        _ = try KeyStore(directory: dir.appendingPathComponent("managed")).validate(at: source)
+        _ = try KeyStore(directory: dir.appendingPathComponent("managed")).importKey(from: source)
         let mode = try FileManager.default.attributesOfItem(atPath: source.path)[.posixPermissions] as? NSNumber
         XCTAssertEqual(mode?.intValue, 0o644)
     }
@@ -73,7 +79,7 @@ final class KeyStoreTests: XCTestCase {
         try FileManager.default.setAttributes([.posixPermissions: 0o644], ofItemAtPath: source.path)
         let store = KeyStore(directory: dir)
         try FileManager.default.createSymbolicLink(at: store.keyURL, withDestinationURL: source)
-        XCTAssertThrowsError(try store.validate(at: store.keyURL))
+        XCTAssertEqual(store.readStatus().status, .unavailable)
         let mode = try FileManager.default.attributesOfItem(atPath: source.path)[.posixPermissions] as? NSNumber
         XCTAssertEqual(mode?.intValue, 0o644)
     }

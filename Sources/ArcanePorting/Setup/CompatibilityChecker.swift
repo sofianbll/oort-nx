@@ -15,6 +15,7 @@ public struct CompatibilityReport: Equatable {
     public var checks: [CompatibilityCheck]
     /// The installed Metal compiler against the engine's lock.
     public var metal: MetalStanding
+    package var selectedEngine: Identity = .unknown
 
     public init(ok: Bool, checks: [CompatibilityCheck], metal: MetalStanding = .unknown) {
         self.ok = ok
@@ -79,13 +80,12 @@ public final class CompatibilityChecker {
     public func check(expectedEngineCommit: String) throws -> CompatibilityReport {
         var checks: [CompatibilityCheck] = []
 
-        let head = run("/usr/bin/git", ["rev-parse", "HEAD"]).stdout
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let (_, observed, dirty) = MacNXNative.checkoutState(at: repoURL.path, runner: runner)
+        let head = observed ?? ""
         checks.append(.init(id: "commit", title: L10n.text("Engine commit"),
                             status: head == expectedEngineCommit ? .pass : .block,
                             detail: L10n.format("current %@, expected %@", [String(describing: head), String(describing: expectedEngineCommit)])))
 
-        let dirty = Self.relevantChanges(run("/usr/bin/git", ["status", "--porcelain"]).stdout)
         checks.append(.init(id: "tree", title: L10n.text("Working tree"),
                             status: dirty.isEmpty ? .pass : .block,
                             detail: dirty.joined(separator: "\n")))
@@ -119,7 +119,9 @@ public final class CompatibilityChecker {
                             status: missing.isEmpty ? .pass : .block,
                             detail: missing.isEmpty ? L10n.text("required options present") : L10n.format("missing %@", [String(describing: missing.joined(separator: ", "))])))
 
-        return CompatibilityReport(ok: checks.allSatisfy { $0.status != .block }, checks: checks, metal: standing)
+        var report = CompatibilityReport(ok: checks.allSatisfy { $0.status != .block }, checks: checks, metal: standing)
+        report.selectedEngine = observed.map(Identity.reported) ?? .unknown
+        return report
     }
 
     /// The first dotted version number in `xcrun metal --version` output or a lock line ("32023.921").

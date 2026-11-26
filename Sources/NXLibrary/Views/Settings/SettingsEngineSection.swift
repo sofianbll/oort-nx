@@ -296,7 +296,7 @@ struct SettingsEngineSection: View {
             var base = L10n.format("%@ In use: %@, ", [String(describing: NewestEngineCopy.note), String(describing: choice.shortCommit)])
                 + L10n.format("%@ of the tested %@.", [String(describing: NewestEngineCopy.ahead(choice.aheadBy)), String(describing: seleneShort(viewModel.pinnedEngineCommit))])
             if setup.newestEngineActions.contains(.update), let offer = setup.newestEngineOffer {
-                base += " " + NewestEngineCopy.update(choice: choice, main: offer.upstreamCommit,
+                base += " " + NewestEngineCopy.update(choice: choice, main: offer.targetSHA,
                                                       aheadBy: offer.newCommitsCount)
             } else if let metal = newestNeedsNewerApp {
                 base += " " + NewestEngineCopy.needsNewerApp(metal: metal)
@@ -306,7 +306,7 @@ struct SettingsEngineSection: View {
         if let metal = newestNeedsNewerApp { return NewestEngineCopy.needsNewerApp(metal: metal) }
         if let problem = setup.newestEngineProblem { return problem }
         guard let offer = setup.newestEngineOffer else { return NewestEngineCopy.note }
-        return NewestEngineCopy.offer(commit: offer.upstreamCommit, aheadBy: offer.newCommitsCount)
+        return NewestEngineCopy.offer(commit: offer.targetSHA, aheadBy: offer.newCommitsCount)
     }
 
     private func newestTitle(_ action: NewestEngineAction) -> String {
@@ -320,7 +320,8 @@ struct SettingsEngineSection: View {
     private func newestAction(_ action: NewestEngineAction) {
         guard setup.canSwitchEngine, setup.newestEngineActions.contains(action) else { return }
         let path = setup.nxnativePath
-        let target = action == .backToTested ? viewModel.pinnedEngineCommit : setup.newestEngineOffer?.upstreamCommit
+        let reviewed = setup.newestEngineOffer
+        let target = action == .backToTested ? viewModel.pinnedEngineCommit : reviewed?.targetSHA
         guard let target else { return }
         let message = action == .backToTested
             ? "Future builds will use the tested engine (%@), but installed games will stay as they are."
@@ -331,7 +332,7 @@ struct SettingsEngineSection: View {
             guard setup.canSwitchEngine, setup.nxnativePath == path, setup.newestEngineActions.contains(action) else { return }
             switch action {
             case .useNewest, .update:
-                guard setup.newestEngineOffer?.upstreamCommit == target else { return }
+                guard setup.newestEngineOffer?.revision == reviewed?.revision else { return }
                 setup.useNewestEngine()
             case .backToTested: setup.useTestedEngine()
             }
@@ -344,7 +345,7 @@ struct SettingsEngineSection: View {
     }
 
     /// Ten commits, or down to the one in use when it is further down, so its tag is always on screen.
-    private func shownCommitCount(_ status: UpstreamStatus, marks: [String: UpstreamCommitMark]) -> Int {
+    private func shownCommitCount(_ status: UpstreamReview, marks: [String: UpstreamCommitMark]) -> Int {
         guard let index = status.commits.firstIndex(where: { marks[$0.sha] == .inUse }) else { return 10 }
         return max(10, index + 1)
     }
@@ -357,7 +358,7 @@ struct SettingsEngineSection: View {
     }
 
     @ViewBuilder
-    private func upstreamCommitsPanel(_ status: UpstreamStatus) -> some View {
+    private func upstreamCommitsPanel(_ status: UpstreamReview) -> some View {
         if !status.commits.isEmpty {
             let marks = NewestEngine.marks(status.commits, inUse: setup.newestEngineChoice?.commit)
             let shown = shownCommitCount(status, marks: marks)

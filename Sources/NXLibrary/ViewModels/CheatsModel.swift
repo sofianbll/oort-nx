@@ -45,7 +45,7 @@ final class CheatsModel {
 
     /// An imported app has no build record: the commit its packer wrote says which engine it carries.
     private func engineCommit(of game: PortedGame) -> String? {
-        CheatLocator.engineCommit(appURL: game.url, recorded: game.lastBuild?.engineCommit)
+        game.lastBuild?.engineCommit ?? MacNXNative.embeddedStamp(in: game.url)
     }
 
     /// Asks git, off the main thread, whether the game's engine has cheats, and keeps the answer for this launch.

@@ -27,16 +27,17 @@ struct SettingsKeysSection: View {
                         .seleneFont(.text, .semibold)
                         .foregroundColor(SeleneTheme.ink)
                     Spacer()
-                    Text(setup.isProdKeysValid && !setup.prodKeysPath.isEmpty
-                         ? setup.prodKeysPath : L10n.text("Choose your file once"))
-                        .seleneFont(.text, .regular, design: .monospaced)
-                        .foregroundColor(SeleneTheme.ink60)
-                        .lineLimit(1)
-                        .truncationMode(.middle)
+                    if !setup.isProdKeysValid {
+                        Text(L10n.text("Choose your file once"))
+                            .seleneFont(.text, .regular, design: .monospaced)
+                            .foregroundColor(SeleneTheme.ink60)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                    }
                 }
 
-                if let summary = setup.keySummary {
-                    Text(L10n.format("header_key present · %@ application key generations", [String(describing: summary.applicationKeyGenerations.count)]))
+                if let count = setup.keyGenerationCount {
+                    Text(L10n.format("header_key present · %@ application key generations", [String(describing: count)]))
                         .seleneFont(.text, .regular, design: .monospaced)
                         .foregroundColor(SeleneTheme.success)
                 }
