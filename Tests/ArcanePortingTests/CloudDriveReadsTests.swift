@@ -9,9 +9,18 @@ final class CloudDriveReadsTests: XCTestCase {
         private(set) var cancelled = 0
         var delay: Duration = .zero
         var status: Int32 = 0
+        private var nextCommand: XCTestExpectation?
         func set(delay: Duration) { self.delay = delay }
         func set(status: Int32) { self.status = status }
-        func record(_ args: [String]) { commands.append(args) }
+        func holdNextCommand(_ started: XCTestExpectation) {
+            delay = .seconds(10)
+            nextCommand = started
+        }
+        func record(_ args: [String]) {
+            commands.append(args)
+            nextCommand?.fulfill()
+            nextCommand = nil
+        }
         func noteCancelled() { cancelled += 1 }
         nonisolated var run: RcloneConfiguration.Run {
             { _, args, _ in
@@ -62,11 +71,12 @@ final class CloudDriveReadsTests: XCTestCase {
         let count = await runner.listings(), cancelled = await runner.cancelled
         XCTAssertEqual(count, 1)
         XCTAssertEqual(cancelled, 0)
+        let started = expectation(description: "The last reader's command actually started")
+        await runner.holdNextCommand(started)
         let alone = Task { try await service.list("Elsewhere", ticket: UUID()) }
-        try await Task.sleep(for: .milliseconds(40))
+        await fulfillment(of: [started], timeout: 5)
         alone.cancel()
         do { _ = try await alone.value; XCTFail("Cancelled") } catch is CancellationError {}
-        try await Task.sleep(for: .milliseconds(60))
         let stopped = await runner.cancelled
         XCTAssertEqual(stopped, 1, "Nobody waits for it any more")
     }
