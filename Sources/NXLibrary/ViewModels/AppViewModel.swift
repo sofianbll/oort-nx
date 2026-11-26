@@ -366,7 +366,7 @@ final class AppViewModel: ObservableObject {
 
     var playSessionStore: PlaySessionStore?
     @MainActor lazy var macShortcuts = MacShortcutAdapter(app: self)
-    @MainActor lazy var playRouter = GamePlay([NXNativePlayConnector(app: self), SteamPlayCoordinator.shared, macShortcuts])
+    @MainActor lazy var engine = PlayEngine([NXNativePlayAdapter(app: self), SteamPlayCoordinator.shared, macShortcuts])
     var localProfiles: LocalProfileStore?
     private var profileNextendoAccounts: [UUID: NextendoSettings] = [:]
     @MainActor var profileNextendo: NextendoSettings? {

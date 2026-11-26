@@ -513,7 +513,7 @@ extension AppShellView {
                   !viewModel.isGameOptionsOpen,
                   !isCloseGameOpen else { return }
             if let record = viewModel.currentFocusedCatalogGame, record.nxnativeGame == nil,
-               viewModel.playRouter.supports(record.integration) {
+               viewModel.engine.supports(record.integration) {
                 viewModel.pressPlay(record)
             } else if let game = viewModel.currentFocusedGame {
                 viewModel.launchGame(game)

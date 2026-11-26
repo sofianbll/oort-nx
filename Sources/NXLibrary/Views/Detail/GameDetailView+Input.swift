@@ -188,14 +188,12 @@ extension GameDetailView {
 
     /// Resume while the game runs; otherwise Play when the game is built, or Build (which refuses with a sound when it cannot run).
     func primaryAction() {
-        if runningGames.isRunning(game) {
-            SoundEffectService.shared.play(.click)
-            runningGames.resume(game)
-        } else if viewModel.portingPills(game).unavailableReason != nil {
+        let running = runningGames.isRunning(game)
+        if !running, viewModel.portingPills(game).unavailableReason != nil {
             SoundEffectService.shared.play(.error)
-        } else if currentModel.presentation.canPlay {
+        } else if running || currentModel.presentation.canPlay {
             SoundEffectService.shared.play(.click)
-            viewModel.launchGame(game)
+            viewModel.launchGame(game, resumeOnly: running)
         } else {
             rebuild()
         }

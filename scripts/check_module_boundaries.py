@@ -13,6 +13,7 @@ Rules:
    UI_BASELINE. That baseline can only shrink: a listed file that no longer
    imports the framework is also reported, so the entry gets removed.
 4. Only the engine adapter reads checkout HEAD, bundle stamps or managed key status.
+5. Play adapters can be admitted only through PlayEngine; views cannot resume native apps directly.
 
 Run from the repository root, or pass --root. Exit status 1 on any violation.
 """
@@ -43,6 +44,12 @@ IMPORT = re.compile(r"^\s*(?:@\w+\s+)*import\s+([A-Za-z_][A-Za-z0-9_]*)", re.MUL
 ENGINE_READ = re.compile(r'"DMCommit"|"rev-parse"\s*,\s*"HEAD"|"--format=%h %s"|\.readStatus\(\)|'
                          r'fileExists\(atPath:[^\n]*(?:managedKeysURL|keyURL)\.path')
 GIT_STATUS = re.compile(r'"status"\s*,\s*"--porcelain"')
+LEGACY_PLAY = re.compile(r"\b(?:GamePlay|PlayConnector|NXNativePlayConnector|playRouter|playNXNative)\b")
+NATIVE_PLAY = re.compile(r"\bNSWorkspace\.shared\.openApplication\s*\(")
+NATIVE_PLAY_ADAPTERS = {
+    "Sources/ArcanePorting/Launch/LaunchService.swift",
+    "Sources/NXLibrary/Services/MacShortcutAdapter.swift",
+}
 
 
 def imports_of(path):
@@ -105,9 +112,17 @@ def check(root):
             violations.append(f"{relative}: baseline lists {name}, but the file no longer imports it; remove the entry")
     for file in (root / "Sources").rglob("*.swift"):
         relative = file.relative_to(root).as_posix()
+        text = file.read_text(encoding="utf-8")
+        for match in LEGACY_PLAY.finditer(text):
+            violations.append(f"{relative}:{text.count(chr(10), 0, match.start()) + 1}: use engine.play, not {match[0]}")
+        if relative not in NATIVE_PLAY_ADAPTERS and NATIVE_PLAY.search(text):
+            violations.append(f"{relative}: native Play opens belong to the adapter")
+        if relative.startswith("Sources/NXLibrary/Views/") and re.search(r"\brunningGames\.resume\s*\(", text):
+            violations.append(f"{relative}: resume through engine.play")
+        if relative != "Sources/NXLibraryCore/Catalog/PlayEngine.swift" and re.search(r"\.admit\([^\n]*gesture:", text):
+            violations.append(f"{relative}: only PlayEngine admits a gesture")
         if relative == "Sources/ArcanePorting/Setup/MacNXNative.swift":
             continue
-        text = file.read_text(encoding="utf-8")
         matches = list(ENGINE_READ.finditer(text))
         # Keep the existing write-time guard immediately before changing the checkout.
         if relative != "Sources/ArcanePorting/Setup/NewestEngine.swift":

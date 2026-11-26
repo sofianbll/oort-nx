@@ -1,9 +1,10 @@
 import AppKit
 import UniformTypeIdentifiers
 import NXLibraryCore
+import ArcanePorting
 
 /// A catalog link and a handoff to macOS. No process, save, or session observation.
-@MainActor final class MacShortcutAdapter: PlayConnector {
+@MainActor final class MacShortcutAdapter: PlayAdapter {
     typealias Opener = @MainActor (URL, @escaping @MainActor (Bool) -> Void) -> Void
 
     let source = CatalogIntegration.macShortcut
@@ -24,7 +25,7 @@ import NXLibraryCore
         return shortcut.verifiedURL() == nil ? .unavailable(.installationMissing) : .available
     }
 
-    func play(_ target: PlayTarget, profile: PlayProfile, observe: PlayObserver?) -> PlayResult {
+    func admit(_ target: PlayTarget, profile: PlayProfile, gesture: PlayGesture) -> PlayResult {
         guard !profile.blocksPlay, profile == app.playProfile else { return .refused(.profileLocked) }
         guard !profile.isGuest else {
             app.showSettingsNotice(title: "Mac app shortcut", message: L10n.text("Switch to a regular profile to open Mac apps from the library."))
@@ -44,22 +45,24 @@ import NXLibraryCore
             }
             return .refused(.installationMissing)
         }
+        guard let native = NativePlayTarget(url), native.bundleID == shortcut.bundleIdentifier
+        else { return .refused(.outcomeUnknown) }
+        if let reason = gesture.reserve(native.scope) { return .refused(reason) }
         opening = true
-        open(url) { [weak self] handedOff in
+        open(native.url) { [weak self] handedOff in
+            gesture.finish(handedOff ? .accepted(.handedOff) : .refused(.handoffRejected))
             guard let self else { return }
             self.opening = false
             if !handedOff, self.app.playProfile == profile {
                 self.app.showSettingsNotice(title: "Could not open the Mac app",
                                             message: L10n.text("macOS did not accept the request. The app was not changed."))
             }
-            observe?(.result(handedOff ? .accepted(.handedOff) : .refused(.handoffRejected)))
         }
         return .accepted(.pending)
     }
 
     private static func openWithWorkspace(_ url: URL, completion: @escaping @MainActor (Bool) -> Void) {
-        let configuration = NSWorkspace.OpenConfiguration()
-        configuration.allowsRunningApplicationSubstitution = false
+        let configuration = NativePlayTarget.openConfiguration()
         NSWorkspace.shared.openApplication(at: url, configuration: configuration) { application, error in
             let accepted = application != nil && error == nil
             Task { @MainActor in completion(accepted) }

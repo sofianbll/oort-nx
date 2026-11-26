@@ -221,7 +221,7 @@ extension ProfileScreenProbe {
               shortcut.bundleIdentifier.hasPrefix("example.oort.paper-racer."),
               shortcut.url.lastPathComponent == "Moved Paper Racer.app",
               !FileManager.default.fileExists(atPath: marker.path) else { return false }
-        vm.playRouter = GamePlay([MacShortcutAdapter(app: vm)])
+        vm.engine = PlayEngine([MacShortcutAdapter(app: vm)])
         var events: [PlayEvent] = []
         guard vm.play(game, observe: { events.append($0) }) == .accepted(.pending) else { return false }
         let deadline = ContinuousClock.now + .seconds(8)

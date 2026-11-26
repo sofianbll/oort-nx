@@ -94,7 +94,7 @@ extension CollectionView {
     func activateCatalog(_ record: CatalogGame) {
         router.integrationBarFocused = false
         if let native = record.nxnativeGame { play(native) }
-        else if viewModel.playRouter.supports(record.integration) { SoundEffectService.shared.play(.click); viewModel.pressPlay(record) }
+        else if viewModel.engine.supports(record.integration) { SoundEffectService.shared.play(.click); viewModel.pressPlay(record) }
         else { SoundEffectService.shared.play(.click); router.showDetail(record.id) }
     }
 

@@ -227,6 +227,7 @@ Cartella `Sources/OortCore/`, senza risorse né dipendenze.
 | [Palette.swift](../../Sources/OortCore/Palette.swift) | Cerca ovunque: confronto tollerante, gruppi, «Vedi tutto», focus e recenti. |
 | [ProfileKeypad.swift](../../Sources/OortCore/ProfileKeypad.swift) | Griglia PIN con lunghezza passata dal chiamante e conferma esplicita. |
 | [Engine.swift](../../Sources/OortCore/Engine.swift) | Contratto di lettura di motore e release: atelier, versione incorporata, stato chiavi e revisione a monte. |
+| [PlayReceipt.swift](../../Sources/OortCore/PlayReceipt.swift) | Identità del gesto, ricevuto e osservazioni portabili; nessuna identità di processo nel contratto. |
 | [VersionNumber.swift](../../Sources/OortCore/VersionNumber.swift) | Confronta numeri di versione puntati parte per parte. |
 
 ## Core · app: aggiornamento, primo avvio, diagnostica e comandi
@@ -280,7 +281,8 @@ Cartella `Sources/NXLibraryCore/Catalog/`.
 | [Sources/NXLibraryCore/Catalog/CatalogDocument.swift](../../Sources/NXLibraryCore/Catalog/CatalogDocument.swift) | Schema, revisione, base legacy, fonti e validazione delle identità, inclusa l’unicità dei percorsi dei collegamenti Mac. Conserva intatti i record delle integrazioni sconosciute. |
 | [Sources/NXLibraryCore/Catalog/CatalogJSON.swift](../../Sources/NXLibraryCore/Catalog/CatalogJSON.swift) | Valore JSON tenuto com’è stato letto (numeri `Decimal`), per i record e le fonti che il catalogo non conosce e le impostazioni dei moduli; si converte da e verso un tipo `Codable`. |
 | [Sources/NXLibraryCore/Catalog/CatalogGamePresentation.swift](../../Sources/NXLibraryCore/Catalog/CatalogGamePresentation.swift) | Contratto comune per presentazione, operazioni supportate e target di avvio; nessuna operazione I/O. |
-| [Sources/NXLibraryCore/Catalog/GamePlay.swift](../../Sources/NXLibraryCore/Catalog/GamePlay.swift) | Contratto Play: target e installazione, disponibilità, profilo, risultato e osservazioni; seleziona il connettore per fonte. |
+| [PlayEngine.swift](../../Sources/NXLibraryCore/Catalog/PlayEngine.swift) | Ammette un adapter per fonte, conserva il gesto e riserva la destinazione prima della consegna. |
+| [PlayTarget.swift](../../Sources/NXLibraryCore/Catalog/PlayTarget.swift) | Installazione scelta, disponibilità, profilo e intenzione di sola ripresa della libreria. |
 | [Sources/NXLibraryCore/Catalog/CatalogStore.swift](../../Sources/NXLibraryCore/Catalog/CatalogStore.swift) | Conversione legacy con impronta dei byte originali anche se i percorsi cambiano in memoria, letture limitate, revisioni attese, lock, archiviazione dei conflitti e Cestino del volume. |
 | [Sources/NXLibraryCore/Catalog/CatalogPublication.swift](../../Sources/NXLibraryCore/Catalog/CatalogPublication.swift) | Staging verificato, creazione esclusiva e sostituzione atomica, con confine di errore controllabile. |
 | [Sources/NXLibraryCore/Catalog/CatalogRepository.swift](../../Sources/NXLibraryCore/Catalog/CatalogRepository.swift) | Modifiche tipizzate del catalogo, inclusi i collegamenti Mac; delega la rimozione di file alla transazione dello store. |
@@ -640,6 +642,8 @@ Cartella `Sources/ArcanePorting/Launch/`.
 | [Sources/ArcanePorting/Launch/AppIconProgress.swift](../../Sources/ArcanePorting/Launch/AppIconProgress.swift) | Stati e testi della preparazione icona, con esito informativo aggiunto al log della build conclusa. |
 | [Sources/ArcanePorting/Launch/IconLaunchWait.swift](../../Sources/ArcanePorting/Launch/IconLaunchWait.swift) | Conserva una richiesta Play durante la firma dell'icona e la revoca su annullamento, errore o chiusura del dialogo. |
 | [Sources/ArcanePorting/Launch/LaunchService.swift](../../Sources/ArcanePorting/Launch/LaunchService.swift) | Scrive le impostazioni runtime su file quando richiesto; avvia con NSWorkspace e ambiente consentito, passa chiavi overlay e Home al processo, rimuove lo snapshot all'uscita o all'errore. |
+| [NativePlayTarget.swift](../../Sources/ArcanePorting/Launch/NativePlayTarget.swift) | Identità esatta del bundle, elenco processi, apertura senza sostituzione e lettura del solo marcatore della consegna. |
+| [PlayAttribution.swift](../../Sources/ArcanePorting/Launch/PlayAttribution.swift) | Distingue un nuovo processo attribuibile da un riaggancio neutro. |
 | [PlayersLaunch.swift](../../Sources/ArcanePorting/Launch/PlayersLaunch.swift) | Limita ordine, fusione, nomi e ritratti al bundle provato e ai valori che il gioco non fissa; conserva la fusione P1 per gli host precedenti. |
 | [PlayerPadFingerprint.swift](../../Sources/ArcanePorting/Launch/PlayerPadFingerprint.swift) | Unisce i due usi dello stesso dispositivo HID, rifiuta le identità ambigue e calcola l'impronta di avvio senza conservare numeri di serie. |
 | [Sources/ArcanePorting/Launch/HomeMenu.swift](../../Sources/ArcanePorting/Launch/HomeMenu.swift) | Rileva il protocollo Home del bundle, identifica `dmhost` e modella pausa, ripresa e uscita. |
@@ -1164,6 +1168,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [Tests/ArcanePortingTests/KeyCheckTests.swift](../../Tests/ArcanePortingTests/KeyCheckTests.swift) | Cifratura e lettura di intestazioni sintetiche, intervalli troncati e chiavi richieste dalle sorgenti. |
 | [Tests/ArcanePortingTests/KeyStoreTests.swift](../../Tests/ArcanePortingTests/KeyStoreTests.swift) | Importazione e sostituzione atomica, conservazione della copia precedente anche con header malformato, permessi 0600 e riepilogo. |
 | [Tests/ArcanePortingTests/LaunchServiceTests.swift](../../Tests/ArcanePortingTests/LaunchServiceTests.swift) | Processo fittizio, impostazioni runtime e profilo, ambiente ereditato senza segreti, Home e overlay, permessi e pulizia dello snapshot; capacità, ripiego e override dello schermo. |
+| [PlayAttributionTests.swift](../../Tests/ArcanePortingTests/PlayAttributionTests.swift) | Condizioni minime per attribuire al gesto il nuovo processo esatto. |
 | [Tests/ArcanePortingTests/HomeQuitTextTests.swift](../../Tests/ArcanePortingTests/HomeQuitTextTests.swift) | Domanda di uscita del gioco nella lingua del giocatore, riga per riga. |
 | [PlayersLaunchTests.swift](../../Tests/ArcanePortingTests/PlayersLaunchTests.swift) | Bundle sintetici per prove motore, precedenze, fusione P1/P2–P8, ordine e profili di gioco. |
 | [Tests/ArcanePortingTests/HomeMenuTests.swift](../../Tests/ArcanePortingTests/HomeMenuTests.swift) | Capacità e ambiente del bundle, stati e segnale al solo figlio sintetico. |
@@ -1329,7 +1334,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_onscreen_keyboard.py](../../Tests/CatalogAppChecks/run_onscreen_keyboard.py) | Avvia la prova della tastiera a schermo su una home isolata. |
 | [run_update_wait.py](../../Tests/CatalogAppChecks/run_update_wait.py) | Bundle di prova: conserva l'aggiornamento verificato mentre un gioco o un lease blocca; riprende dallo ZIP senza rete e rifiuta modifiche. |
 | [run_review.py](../../Tests/CatalogAppChecks/run_review.py) | Verifica senza finestre achievement, loghi, focus, input del centro e di Integrations, badge mod in Online, priorità dei dialoghi e Steam durante Play. |
-| [audit_probe_host.py](../../Tests/CatalogAppChecks/audit_probe_host.py) | Collega sonde headless al binario di debug e le isola con home temporanea e senza rete. |
+| [audit_probe_host.py](../../Tests/CatalogAppChecks/audit_probe_host.py) | Collega sonde headless al binario di debug; home temporanea, sandbox salvo la fixture locale di LaunchServices. |
 | [run_platform_cards.py](../../Tests/CatalogAppChecks/run_platform_cards.py) | Lancia Spotlight isolato e conserva i PNG e, con ffmpeg, lo scorrimento video. |
 | [run_credits.py](../../Tests/CatalogAppChecks/run_credits.py) | Apre About isolata, conserva i PNG e prova i crediti con il controller. |
 | [CreditsProbe.swift](../../Tests/CatalogAppChecks/CreditsProbe.swift) | Host della prova di About: tre lingue, tutte le schede, ordine delle righe e destinazione localizzata del finanziamento con browser simulato. |
@@ -1397,7 +1402,7 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | [run_game_header.py](../../Tests/CatalogAppChecks/run_game_header.py) | Esegue i corpi reali di logo e azioni condivisi senza finestra né store applicativi, per entrambi i layout. |
 | [NoticeHost.swift](../../Tests/CatalogAppChecks/NoticeHost.swift) | Host minimo per Retry, annullamento e ordine delle scelte Rebuild, con storage reale e dati sintetici temporanei. |
 | [SharedGamePresentationTests.swift](../../Tests/ArcanePortingTests/SharedGamePresentationTests.swift) | Presentazione Steam con identità, personalizzazioni e cronologia; prima installazione disponibile coerente per artwork e dettagli, con Play bloccato se ambiguo; confine nxnative e opzioni comuni. |
-| [Tests/NXLibraryCoreTests/GamePlayTests.swift](../../Tests/NXLibraryCoreTests/GamePlayTests.swift) | Registra un terzo connettore finto senza modificare il chiamante e verifica target, profilo, disponibilità e risultati distinti. |
+| [PlayEngineTests.swift](../../Tests/NXLibraryCoreTests/PlayEngineTests.swift) | Adapter intercambiabili, ripetizione dello stesso ricevuto e rifiuto di ripetere una consegna interrotta attraverso un alias. |
 | [CatalogSourcesRepositoryTests.swift](../../Tests/ArcanePortingTests/CatalogSourcesRepositoryTests.swift) | Compatibilità generazioni, cambi fonte, preferenze concorrenti e adozione NX esplicita. |
 | [CatalogSourcesModelTests.swift](../../Tests/ArcanePortingTests/CatalogSourcesModelTests.swift) | Opt-in, annullamento, cambio radice, recupero errori e intervallo tra riscansioni, misurato dagli avvii pubblicati dal modello. |
 | [CatalogLibraryQueryTests.swift](../../Tests/ArcanePortingTests/CatalogLibraryQueryTests.swift) | Visibilità, ricerca/filtri misti e selezione per UUID senza sessioni simulate. |

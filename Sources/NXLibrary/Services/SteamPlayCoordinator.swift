@@ -1,4 +1,5 @@
 import AppKit
+import ArcanePorting
 import Combine
 import NXLibraryCore
 
@@ -23,7 +24,7 @@ import NXLibraryCore
 /// open, Arcane comes back to the front (`SteamReturnFocus`, `LibraryWindow`); a game started from Steam
 /// leaves the player in Steam.
 @MainActor
-final class SteamPlayCoordinator: ObservableObject, PlayConnector {
+final class SteamPlayCoordinator: ObservableObject, PlayAdapter {
     static let shared = SteamPlayCoordinator()
     nonisolated static let steamBundleID = "com.valvesoftware.steam"
     private static let tick: TimeInterval = 30
@@ -127,7 +128,7 @@ final class SteamPlayCoordinator: ObservableObject, PlayConnector {
     func openDownloads() {
         guard let client = Self.steamClientURL else { return }
         NSWorkspace.shared.open([SteamPlayState.downloadsURL], withApplicationAt: client,
-                                configuration: NSWorkspace.OpenConfiguration())
+                                configuration: NativePlayTarget.openConfiguration())
     }
 
     /// The A hint for a Steam game, matching the Play pill; none while Play cannot do anything.
@@ -151,11 +152,11 @@ final class SteamPlayCoordinator: ObservableObject, PlayConnector {
         return false
     }
 
-    func play(_ target: PlayTarget, profile: PlayProfile, observe: PlayObserver?) -> PlayResult {
+    func admit(_ target: PlayTarget, profile: PlayProfile, gesture: PlayGesture) -> PlayResult {
         guard !isLaunchScreenShowing() else { return .refused(.launchInProgress) }
         guard !profile.blocksPlay else { return .refused(.profileLocked) }
         if profile.isGuest { showGuestNotice(); return .refused(.guestUnsupported) }
-        return requestPlay(target, observe: observe)
+        return requestPlay(target, gesture: gesture)
     }
 
     /// Steam is coming back for the player: the game is late and Steam may be asking for something.
@@ -234,7 +235,7 @@ final class SteamPlayCoordinator: ObservableObject, PlayConnector {
         return handler
     }
 
-    private func requestPlay(_ target: PlayTarget, observe: PlayObserver?) -> PlayResult {
+    private func requestPlay(_ target: PlayTarget, gesture: PlayGesture) -> PlayResult {
         let game = target.game
         // A game that quit since the last notification is not resumed: read the processes first.
         refresh()
@@ -249,16 +250,16 @@ final class SteamPlayCoordinator: ObservableObject, PlayConnector {
             if let app = NSRunningApplication(processIdentifier: pid) { RunningGameMonitor.activate(app) }
             return .accepted(.gameOpened)
         case .handOff(let url, let generation):
-            guard let client else { return .refused(.launcherMissing) }
+            guard let client, let appID = game.steamGame?.appID else { return .refused(.launcherMissing) }
             sessions?.expectStart(gameID: game.id)
             returnFocus.playPressed(game.id)
             hideAgain?.cancel(); hideAgain = nil
             // Steam gets the request in the background: Arcane stays in front until the game's
             // own window appears, instead of Steam's library flashing up in between.
-            let configuration = NSWorkspace.OpenConfiguration()
+            let configuration = NativePlayTarget.openConfiguration()
             configuration.activates = false
             let id = game.id
-            playObservers[id] = observe
+            playObservers[id] = gesture.emit
             let background = settings?.settings.steamInBackground ?? false
             let steam = Self.steamApplication
             // Launch arguments reach only a Steam that this request starts.
@@ -269,6 +270,10 @@ final class SteamPlayCoordinator: ObservableObject, PlayConnector {
             readiness?.cancel(); readiness = nil
             prepareHandOff(for: id, generation: generation) { [weak self] in
                 guard let self else { return }
+                if let reason = gesture.reserve("steam-\(appID)") {
+                    self.finishHandOff(id, accepted: false, generation: generation, refusal: reason)
+                    return
+                }
                 self.watchQuestions(for: game)
                 Timer.scheduledTimer(withTimeInterval: wait + 0.5, repeats: false) { [weak self] _ in
                     Task { @MainActor in self?.followBackground() }
@@ -279,7 +284,13 @@ final class SteamPlayCoordinator: ObservableObject, PlayConnector {
                 self.followBackground()
                 NSWorkspace.shared.open([url], withApplicationAt: client, configuration: configuration) { [weak self] _, error in
                     let accepted = error == nil
-                    Task { @MainActor in self?.finishHandOff(id, accepted: accepted, generation: generation) }
+                    Task { @MainActor in
+                        guard let self else {
+                            gesture.finish(accepted ? .accepted(.handedOff) : .refused(.handoffRejected))
+                            return
+                        }
+                        self.finishHandOff(id, accepted: accepted, generation: generation, gesture: gesture)
+                    }
                 }
             }
             return .accepted(.pending)
@@ -339,18 +350,19 @@ final class SteamPlayCoordinator: ObservableObject, PlayConnector {
         followBackground()
     }
 
-    private func finishHandOff(_ id: UUID, accepted: Bool, generation: Int) {
-        guard var state = states[id], state.generation == generation else { return }
+    private func finishHandOff(_ id: UUID, accepted: Bool, generation: Int, refusal: PlayRefusal = .handoffRejected,
+                               gesture: PlayGesture? = nil) {
+        let result: PlayResult = accepted ? .accepted(.handedOff) : .refused(refusal)
+        guard var state = states[id], state.generation == generation else { gesture?.finish(result); return }
         let wasWaiting: Bool
         if case .starting = state.phase { wasWaiting = true } else { wasWaiting = false }
         if !accepted { sessions?.abandonStart(gameID: id) }
         state.handoffFinished(accepted: accepted, generation: generation)
         states[id] = state
-        if wasWaiting {
-            let observe = playObservers[id]
-            if !accepted { playObservers[id] = nil }
-            observe?(.result(accepted ? .accepted(.handedOff) : .refused(.handoffRejected)))
-        }
+        let observe = playObservers[id]
+        if wasWaiting, !accepted { playObservers[id] = nil }
+        if let gesture { gesture.finish(result) }
+        else if wasWaiting { observe?(.result(result)) }
         refresh()
     }
 

@@ -84,6 +84,7 @@ public struct PlayersLaunch: Sendable {
     public let status: PlayersLaunchStatus
     let additions: [String: String]
     let portraitFiles: PlayerLaunchPortraits?
+    package func discardPortraits() { portraitFiles?.clean() }
 
     public typealias LiveControllers = @MainActor @Sendable () -> (connected: [ConnectedPlayerController],
                                                                   fingerprints: [String: String])

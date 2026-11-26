@@ -87,8 +87,8 @@ I titoli importati dal cloud compaiono in Spotlight e Collection. **Download** a
 
 ```mermaid
 flowchart TD
-    A["Play (libreria, scheda, Opzioni o menu)"] --> S["AppViewModel.play → GamePlay"]
-    S --> B["NXNativePlayConnector → AppViewModel.playNXNative"]
+    A["Play (libreria, scheda, Opzioni o menu)"] --> S["AppViewModel.play → engine.play"]
+    S --> B["NXNativePlayAdapter"]
     B --> C{"Possibile ora?"}
     C -->|"operazione sui salvataggi o recupero"| X["Attesa / spiegazione"]
     C -->|"icona in firma"| Y["Dialogo Preparing (IconLaunchWait)"]
@@ -104,8 +104,9 @@ flowchart TD
     E --> F["CloudSavesPreferences applica la scelta cloud"]
     F --> M["ModStore riconcilia le cartelle prima di Play"]
     M --> O["GameOverlayLaunch: palette e dati locali<br/>snapshot temporaneo del profilo se il dmhost lo dichiara"]
-    O --> G["LaunchService apre l'app (NSWorkspace)<br/>DM_MODS_OFF controlla ExeFS; DM_OVERLAY_HOME_SWAP si aggiunge solo per una scelta esplicita"]
-    G --> H["LaunchCoverWindow + LaunchMotion<br/>finché LaunchReadinessProbe vede una finestra"]
+    O --> G["Riserva prima della consegna → LaunchService"]
+    G -->|"apertura attribuita"| H["LaunchCoverWindow + LaunchMotion<br/>finché LaunchReadinessProbe vede una finestra"]
+    G -->|"app raggiunta, non attribuita"| R["Primo piano, nessuna sessione"]
     H --> I["RunningGameMonitor · PlaySessionStore (heartbeat)"]
     I -->|"Home → Back to console mode (build compatibile)"| PZ["Notifica del PID di dmhost → Arcane davanti nella schermata corrente"]
     PZ -->|"Pulsante Resume → richiesta e attivazione"| I
@@ -129,7 +130,7 @@ Prima di aprire il bundle, Oort NX risolve lo schermo soltanto se il `dmhost` in
 
 ```mermaid
 flowchart TD
-    A["Play (libreria, Opzioni o menu)"] --> S["AppViewModel.play → GamePlay"]
+    A["Play (libreria, Opzioni o menu)"] --> S["AppViewModel.play → engine.play"]
     S --> B["SteamPlayCoordinator"]
     B --> K["LaunchCoverWindow<br/>ripiego entro 1 s se il pannello manca"]
     K --> C["steam://run/AppID al client di Valve"]

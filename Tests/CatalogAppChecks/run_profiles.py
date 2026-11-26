@@ -644,7 +644,7 @@ import ArcanePorting
         precondition(profiles.choose(sam.id))
         vm.alertMessage = nil
         player.showGuestNotice = {}
-        precondition(vm.playRouter.availability(of: vm.playTarget(for: steamGame)) == .unavailable(.launcherMissing))
+        precondition(vm.engine.availability(of: vm.playTarget(for: steamGame)) == .unavailable(.launcherMissing))
         precondition(vm.play(steamGame) == .refused(.launcherMissing) && player.phase(of: steamGame) == .failed(.clientMissing))
         print("Common Play checks passed: profile ownership, guest, duplicate nxnative and missing Steam")
         try checkDeferredPlay(vm, profiles: profiles, other: alex, game: game)

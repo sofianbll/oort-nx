@@ -45,7 +45,7 @@ final class AppViewModel {
     var launches = 0
     let macShortcuts = Shortcuts()
     struct Shortcuts { let canEdit = true }
-    let playRouter = PlayRouter()
+    let engine = PlayRouter()
     struct PlayRouter { func supports(_ integration: Game.Integration) -> Bool { true } }
     func pressPlay(_ game: Game) { launches += 1 }
     func launchGame(_ game: Game) { launches += 1 }

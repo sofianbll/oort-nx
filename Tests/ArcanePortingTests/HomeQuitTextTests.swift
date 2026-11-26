@@ -25,7 +25,6 @@ final class HomeQuitTextTests: XCTestCase {
     func testEveryGameStartedFromOortGetsIt() throws {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         let launch = try String(contentsOf: root.appendingPathComponent("Sources/NXLibrary/ViewModels/AppViewModel+Launch.swift"), encoding: .utf8)
-        XCTAssertTrue(launch.contains("launchService.launch(appURL: game.url, environment: spoken,"))
-        XCTAssertFalse(launch.contains("launchService.launch(appURL: game.url, environment: environment,"))
+        XCTAssertTrue(launch.contains("launchService.launch(appURL: native.url, environment: spoken,"))
     }
 }

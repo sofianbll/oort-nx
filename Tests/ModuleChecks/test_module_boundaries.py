@@ -97,6 +97,15 @@ class ModuleBoundaryTests(unittest.TestCase):
         write(self.root, "Sources/NXLibrary/App.swift", 'git(["rev-parse", "HEAD"])\ngit(["status",\n"--porcelain"])\n')
         self.assertEqual(len(boundaries.check(self.root)), 2)
 
+    def test_view_cannot_restore_an_old_play_route_or_open_a_native_app(self):
+        write(self.root, "Sources/NXLibrary/Views/Tile.swift",
+              "playRouter.play(game)\nrunningGames.resume(game)\nNSWorkspace.shared.openApplication(at: url)\n")
+        self.assertEqual(len(boundaries.check(self.root)), 3)
+
+    def test_only_the_engine_can_admit_an_adapter(self):
+        write(self.root, "Sources/NXLibrary/App.swift", "adapter.admit(target, profile: profile, gesture: gesture)\n")
+        self.assertEqual(len(boundaries.check(self.root)), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

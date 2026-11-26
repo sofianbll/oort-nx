@@ -4,33 +4,60 @@ import NXLibraryCore
 
 public protocol AppLaunching {
     func open(_ url: URL, environment: [String: String], suppressInheritedPlayerMode: Bool,
-              onExit: (@Sendable () -> Void)?, completion: @escaping @Sendable (Bool, String?) -> Void)
+              begin: Date, onExit: (@Sendable () -> Void)?,
+              completion: @escaping @Sendable (AppOpenResult) -> Void)
+}
+
+public enum AppOpenResult: Sendable {
+    case started(NSRunningApplication)
+    case joined(NSRunningApplication)
+    case failed(String?)
+    // A deliberate injected transport may accept a handoff without claiming a native start.
+    case handedOff
+
+    public var accepted: Bool {
+        if case .failed = self { return false }
+        return true
+    }
+
+    public var error: String? {
+        if case .failed(let description) = self { return description }
+        return nil
+    }
 }
 
 public final class NSWorkspaceLauncher: AppLaunching {
     public init() {}
 
     public func open(_ url: URL, environment: [String: String], suppressInheritedPlayerMode: Bool,
-                     onExit: (@Sendable () -> Void)?, completion: @escaping @Sendable (Bool, String?) -> Void) {
-        guard FileManager.default.fileExists(atPath: url.path) else {
-            completion(false, L10n.format("The app bundle is missing: %@", [url.path]))
+                     begin: Date, onExit: (@Sendable () -> Void)?,
+                     completion: @escaping @Sendable (AppOpenResult) -> Void) {
+        guard let target = NativePlayTarget(url) else {
+            completion(.failed(L10n.format("The app bundle is missing: %@", [url.path])))
             return
         }
-        let configuration = NSWorkspace.OpenConfiguration()
+        let configuration = NativePlayTarget.openConfiguration()
         configuration.environment = Self.gameEnvironment(inheriting: ProcessInfo.processInfo.environment, explicit: environment,
-                                                          suppressInheritedPlayerMode: suppressInheritedPlayerMode)
-        NSWorkspace.shared.openApplication(at: url, configuration: configuration) { app, error in
+                                                           suppressInheritedPlayerMode: suppressInheritedPlayerMode)
+        let origin = UUID().uuidString
+        configuration.environment[NativePlayTarget.originKey] = origin
+        let proof = PlayAttribution(startedAt: begin, before: Set(target.running().map(\.processIdentifier)))
+        NSWorkspace.shared.openApplication(at: target.url, configuration: configuration) { app, error in
             if let error {
-                completion(false, error.localizedDescription)
-            } else if let app {
-                completion(true, nil)
-                if let onExit {
+                completion(.failed(error.localizedDescription))
+            } else if let app, target.matches(app) {
+                let after = Set(target.running().map(\.processIdentifier))
+                let pid = app.processIdentifier
+                let candidate = proof.accepts(pid: pid, born: app.launchDate, after: after, belongsToGesture: true)
+                let attributed = candidate && NativePlayTarget.receivedOrigin(origin, pid: pid) && !app.isTerminated
+                completion(attributed ? .started(app) : .joined(app))
+                if attributed, let onExit {
                     DispatchQueue.main.async {
                         Self.watchExit(of: app, onExit: onExit)
                     }
                 }
             } else {
-                completion(false, nil)
+                completion(.failed(nil))
             }
         }
     }
@@ -135,20 +162,20 @@ public final class LaunchService {
     }
     static let overlayHomeSwapKey = "DM_OVERLAY_HOME_SWAP"
 
-    public func launch(appURL: URL, environment: [String: String] = [:],
+    package func launch(appURL: URL, environment: [String: String] = [:], beganAt: Date = .now,
                        homeButton: InGameHomeButton = .auto,
                        overlay: GameOverlayLaunch? = nil, snapshot: GameOverlaySnapshot? = nil,
                        players: PlayersLaunch? = nil, onExit: (@Sendable () -> Void)? = nil,
-                       completion: @escaping @Sendable (Bool, String?) -> Void) {
-        launch(appURL: appURL, environment: environment, homeButton: homeButton, overlay: overlay, snapshot: snapshot,
+                       completion: @escaping @Sendable (AppOpenResult) -> Void) {
+        launch(appURL: appURL, environment: environment, beganAt: beganAt, homeButton: homeButton, overlay: overlay, snapshot: snapshot,
                temporaryDirectory: FileManager.default.temporaryDirectory, players: players, onExit: onExit, completion: completion)
     }
 
-    func launch(appURL: URL, environment: [String: String] = [:],
+    func launch(appURL: URL, environment: [String: String] = [:], beganAt: Date = .now,
                 homeButton: InGameHomeButton = .auto,
                 overlay: GameOverlayLaunch?, snapshot: GameOverlaySnapshot?, temporaryDirectory: URL,
                 players: PlayersLaunch? = nil, onExit: (@Sendable () -> Void)? = nil,
-                completion: @escaping @Sendable (Bool, String?) -> Void) {
+                completion: @escaping @Sendable (AppOpenResult) -> Void) {
         var values = environment.merging(players?.additions ?? [:]) { explicit, _ in explicit }
         values.merge(Self.launchEnvironment) { _, fixed in fixed }
         values[GameOverlayLaunch.dataKey] = nil
@@ -172,9 +199,12 @@ public final class LaunchService {
         }
         let afterExit = (cleanup == nil && portraits == nil && onExit == nil) ? nil : cleanThenReport
         launcher.open(appURL, environment: values, suppressInheritedPlayerMode: players?.status.plan == .active,
-                      onExit: afterExit) { success, error in
-            if !success { cleanup?(); portraits?.clean() }
-            completion(success, error)
+                      begin: beganAt, onExit: afterExit) { result in
+            switch result {
+            case .joined, .failed: cleanup?(); portraits?.clean()
+            case .started, .handedOff: break
+            }
+            completion(result)
         }
     }
 

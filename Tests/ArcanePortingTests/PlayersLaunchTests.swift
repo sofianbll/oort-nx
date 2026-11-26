@@ -53,8 +53,8 @@ final class PlayersLaunchTests: XCTestCase {
     private func launch(_ fixture: Fixture, players: PlayersLaunch? = nil,
                         explicit: [String: String] = [:]) -> [String: String] {
         let stub = LaunchServiceTests.FakeLauncher()
-        LaunchService(launcher: stub).launch(appURL: fixture.app, environment: explicit, players: players) { success, _ in
-            XCTAssertTrue(success)
+        LaunchService(launcher: stub).launch(appURL: fixture.app, environment: explicit, players: players) {
+            XCTAssertTrue($0.accepted)
         }
         XCTAssertEqual(stub.opened, fixture.app)
         return NSWorkspaceLauncher.gameEnvironment(
@@ -315,8 +315,8 @@ final class PlayersLaunchTests: XCTestCase {
                 plan: plan, app: f.app, titleID: f.id, home: f.home, environment: [network: "offline"],
                 profiles: [profile], features: .init(images: true), avatarSymbols: ["person.fill"], portraitDirectory: f.home)
             let image = try XCTUnwrap(payload?.additions["DM_USER_1_IMAGE"])
-            LaunchService(launcher: stub).launch(appURL: f.app, players: payload) { success, _ in
-                XCTAssertEqual(success, succeeds)
+            LaunchService(launcher: stub).launch(appURL: f.app, players: payload) {
+                XCTAssertEqual($0.accepted, succeeds)
             }
             payload = nil
             XCTAssertEqual(FileManager.default.fileExists(atPath: image), succeeds)
@@ -471,8 +471,8 @@ final class PlayersLaunchTests: XCTestCase {
             let stub = LaunchServiceTests.FakeLauncher()
             stub.shouldSucceed = success
             LaunchService(launcher: stub).launch(appURL: f.app, environment: [:], homeButton: .auto,
-                                                overlay: nil, snapshot: nil, players: players, onExit: nil) { opened, _ in
-                XCTAssertEqual(opened, success)
+                                                overlay: nil, snapshot: nil, players: players, onExit: nil) {
+                XCTAssertEqual($0.accepted, success)
             }
             XCTAssertEqual(stub.environment["DM_USER_2_IMAGE"], path)
             XCTAssertEqual(FileManager.default.fileExists(atPath: path), success)

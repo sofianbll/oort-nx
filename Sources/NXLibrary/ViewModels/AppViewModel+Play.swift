@@ -7,14 +7,16 @@ extension AppViewModel {
         .init(id: localProfiles?.active?.id, isGuest: localProfiles?.guest != nil, blocksPlay: profileOwnsInput)
     }
 
-    @MainActor func playTarget(for game: CatalogGame) -> PlayTarget {
+    @MainActor func playTarget(for game: CatalogGame, resumeOnly: Bool = false) -> PlayTarget {
         let enabled = catalogSourceConfigurations.first { $0.integration == game.integration }?.isEnabled
-        return PlayTarget(game: game, sourceEnabled: enabled ?? (game.integration == .nxnative))
+        return PlayTarget(game: game, sourceEnabled: enabled ?? (game.integration == .nxnative), resumeOnly: resumeOnly)
     }
 
     @MainActor @discardableResult
-    func play(_ game: CatalogGame, observe: PlayObserver? = nil) -> PlayResult {
-        playRouter.play(playTarget(for: game), profile: playProfile, observe: observe)
+    func play(_ game: CatalogGame, request: RequestID = RequestID(UUID()), resumeOnly: Bool = false,
+              observe: PlayObserver? = nil) -> PlayResult {
+        engine.play(playTarget(for: game, resumeOnly: resumeOnly), profile: playProfile,
+                    request: request, observe: observe).admission
     }
 
     @MainActor func pressPlay(_ game: CatalogGame) {
@@ -22,12 +24,12 @@ extension AppViewModel {
         play(game)
     }
 
-    @MainActor func launchGame(_ game: PortedGame) {
-        play(CatalogGame(nxnative: game))
+    @MainActor func launchGame(_ game: PortedGame, resumeOnly: Bool = false) {
+        play(CatalogGame(nxnative: game), resumeOnly: resumeOnly)
     }
 }
 
-@MainActor struct NXNativePlayConnector: PlayConnector {
+@MainActor struct NXNativePlayAdapter: PlayAdapter {
     unowned let app: AppViewModel
     let source = CatalogIntegration.nxnative
 
@@ -38,7 +40,7 @@ extension AppViewModel {
         return FileManager.default.fileExists(atPath: installation.contentURL.path) ? .available : .unavailable(.installationMissing)
     }
 
-    func play(_ target: PlayTarget, profile: PlayProfile, observe: PlayObserver?) -> PlayResult {
-        app.playNXNative(target, profile: profile, observe: observe)
+    func admit(_ target: PlayTarget, profile: PlayProfile, gesture: PlayGesture) -> PlayResult {
+        app.preparePortedPlay(target, profile: profile, gesture: gesture)
     }
 }

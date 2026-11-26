@@ -1,4 +1,5 @@
 import AppKit
+import ArcanePorting
 import CoreGraphics
 
 /// Waits for a launched game to put a real window on screen. Reads only each
@@ -10,6 +11,12 @@ final class LaunchReadinessProbe {
     /// false on timeout or cancellation.
     func waitUntilVisible(bundleID: String, timeout: TimeInterval = 60) async -> Bool {
         await waitUntil(timeout: timeout) { Self.hasVisibleWindow(bundleID: bundleID) }
+    }
+
+    func waitUntilVisible(target: NativePlayTarget, timeout: TimeInterval = 60) async -> Bool {
+        await waitUntil(timeout: timeout) {
+            Self.hasVisibleWindow(pids: Set(target.running().map(\.processIdentifier)))
+        }
     }
 
     /// The same for one process: a Steam game, which Steam starts and Arcane knows by its pid.

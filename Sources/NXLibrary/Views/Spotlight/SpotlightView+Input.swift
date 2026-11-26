@@ -349,7 +349,7 @@ extension SpotlightView {
             togglePlatformPicker()
         case .game(let id):
             if let record = viewModel.visibleCatalogGames.first(where: { $0.id == id }), record.nxnativeGame == nil,
-               viewModel.playRouter.supports(record.integration) {
+               viewModel.engine.supports(record.integration) {
                 SoundEffectService.shared.play(.click); viewModel.pressPlay(record); return
             }
             guard let game = viewModel.libraryGames.first(where: { $0.id == id }) else { return }
@@ -419,7 +419,7 @@ extension SpotlightView {
         case 0:
             // Resume while the game runs; otherwise Play.
             if runningGames.isRunning(game) {
-                runningGames.resume(game)
+                viewModel.launchGame(game, resumeOnly: true)
             } else {
                 play(game)
             }

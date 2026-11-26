@@ -167,7 +167,7 @@ extension AppShellView {
     /// A on the game's tile, whichever screen is under the palette.
     private func activate(_ record: CatalogGame) {
         guard let game = record.nxnativeGame else {
-            if viewModel.playRouter.supports(record.integration) { viewModel.pressPlay(record) }
+            if viewModel.engine.supports(record.integration) { viewModel.pressPlay(record) }
             else { router.showDetail(record.id) }
             return
         }

@@ -10,7 +10,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[2]
 
 def run_host(host, source_fixture=None, *, save_model=False, capture=None, unix_sockets=False, environment=None, resources=(),
-             package_name=None):
+             package_name=None, launch_services_environment=False):
     build = ROOT / ".build"
     products = build / "out/Products/Debug"
     objects = list((build / "out/Intermediates.noindex/NXLibrary.build/Debug/NXLibrary-p.build/Objects-normal").glob("*/NXLibrary.LinkFileList"))
@@ -81,8 +81,18 @@ func suppressProbeNotifications() {
                    '(deny file-write* (subpath "/Applications"))')
         real_home = Path(pwd.getpwuid(os.getuid()).pw_dir).resolve()
         try:
-            subprocess.run(["sandbox-exec", "-D", f"REAL_HOME={real_home}", "-p", sandbox, str(binary)],
-                           cwd=ROOT, env=dict(env, **(environment or {})), check=True)
+            if launch_services_environment:
+                # LaunchServices strips the environment of a launch requested from seatbelt.
+                # Only the isolated, windowless Play fixture exercises that production capability.
+                fixture = Path((environment or {}).get("OORT_PLAY_FIXTURE_DIR", "")).resolve()
+                if fixture.parent != Path("/private/tmp") or not fixture.name.startswith("oort-lot2-native-"):
+                    raise ValueError("Expected a disposable native Play fixture")
+                command = [str(binary)]
+                env = {key: env[key] for key in ("HOME", "CFFIXED_USER_HOME", "PACKAGE_RESOURCE_BUNDLE_PATH")}
+                env.update(PATH="/usr/bin:/bin:/usr/sbin:/sbin", OORT_HEADLESS_INPUT="1")
+            else:
+                command = ["sandbox-exec", "-D", f"REAL_HOME={real_home}", "-p", sandbox, str(binary)]
+            subprocess.run(command, cwd=ROOT, env=dict(env, **(environment or {})), check=True)
         finally:
             if capture is not None and (scratch / "captures").is_dir():
                 shutil.copytree(scratch / "captures", capture, dirs_exist_ok=True)

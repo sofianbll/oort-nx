@@ -10,13 +10,14 @@ final class LaunchServiceTests: XCTestCase {
         var suppressInheritedPlayerMode = false
         var shouldSucceed = true
         var onExit: (() -> Void)?
-        func open(_ url: URL, environment: [String: String], suppressInheritedPlayerMode: Bool, onExit: (() -> Void)?,
-                  completion: @escaping (Bool, String?) -> Void) {
+        func open(_ url: URL, environment: [String: String], suppressInheritedPlayerMode: Bool,
+                  begin: Date, onExit: (@Sendable () -> Void)?,
+                  completion: @escaping @Sendable (AppOpenResult) -> Void) {
             opened = url
             self.environment = environment
             self.suppressInheritedPlayerMode = suppressInheritedPlayerMode
             self.onExit = onExit
-            completion(shouldSucceed, shouldSucceed ? nil : "sample launch error")
+            completion(shouldSucceed ? .handedOff : .failed("sample launch error"))
         }
     }
 
@@ -69,7 +70,7 @@ final class LaunchServiceTests: XCTestCase {
         LaunchService(launcher: launcher).launch(appURL: root.appendingPathComponent("Game.app"),
             environment: launch.merging(["DM_NETWORK": "ldn", "DM_NET_VPN": "1", "DM_SCREEN": "fixture-display",
                                          "DM_MODS_OFF": "", "DM_ROMFS_OVERLAY": "/fixture/romfs"]) { _, value in value },
-            homeButton: .quickAccess) { ok, _ in XCTAssertTrue(ok) }
+            homeButton: .quickAccess) { XCTAssertTrue($0.accepted) }
         let environment = NSWorkspaceLauncher.gameEnvironment(
             inheriting: ["DM_SAVE": "/stale/save", "DM_SAVE_SYNC": "/stale/cloud", "DM_OVERLAY_HOME_SWAP": "0"],
             explicit: launcher.environment)
@@ -121,8 +122,8 @@ final class LaunchServiceTests: XCTestCase {
         for (choice, expected): (InGameHomeButton, String?) in [(.auto, nil), (.fullOverlay, "0"), (.quickAccess, "1")] {
             settings.inGameHomeButton = choice
             let saved = try JSONDecoder().decode(AppSettings.self, from: JSONEncoder().encode(settings))
-            service.launch(appURL: app, environment: [key: "stale"], homeButton: saved.inGameHomeButton) { ok, _ in
-                XCTAssertTrue(ok)
+            service.launch(appURL: app, environment: [key: "stale"], homeButton: saved.inGameHomeButton) {
+                XCTAssertTrue($0.accepted)
             }
             XCTAssertEqual(launcher.environment[key], expected)
             XCTAssertEqual(SettingsReset.reset(.controllers, in: saved).inGameHomeButton, .auto)
@@ -159,7 +160,7 @@ final class LaunchServiceTests: XCTestCase {
 
         try Data("DM_OVERLAY_DATAX\0".utf8).write(to: host)
         service.launch(appURL: app, environment: ["DM_OVERLAY_DATA": "/tmp/inherited"], overlay: .init(app: app),
-                       snapshot: snapshot, temporaryDirectory: root) { ok, _ in XCTAssertTrue(ok) }
+                       snapshot: snapshot, temporaryDirectory: root) { XCTAssertTrue($0.accepted) }
         XCTAssertNil(launcher.environment["DM_OVERLAY_DATA"])
         XCTAssertNil(launcher.onExit)
         XCTAssertEqual(try fm.contentsOfDirectory(atPath: root.path), ["Fixture.app"])
@@ -177,7 +178,7 @@ final class LaunchServiceTests: XCTestCase {
         let environment = overlay.environment(palette: .fallback, playtime: nil, cover: nil, profilePlaytime: "20 h")
         let exits = Mutex(0)
         service.launch(appURL: app, environment: environment, overlay: overlay, snapshot: snapshot,
-                       temporaryDirectory: root, onExit: { exits.withLock { $0 += 1 } }) { ok, _ in XCTAssertTrue(ok) }
+                       temporaryDirectory: root, onExit: { exits.withLock { $0 += 1 } }) { XCTAssertTrue($0.accepted) }
         XCTAssertEqual(launcher.environment["DM_OVERLAY_PLAY_TIME"], "20 h")
         XCTAssertEqual(try Data(contentsOf: env), before)
         let path = try XCTUnwrap(launcher.environment["DM_OVERLAY_DATA"])
@@ -213,7 +214,7 @@ final class LaunchServiceTests: XCTestCase {
 
         launcher.shouldSucceed = false
         service.launch(appURL: app, overlay: overlay, snapshot: snapshot, temporaryDirectory: root,
-                       onExit: { exits.withLock { $0 += 1 } }) { ok, _ in XCTAssertFalse(ok) }
+                       onExit: { exits.withLock { $0 += 1 } }) { XCTAssertFalse($0.accepted) }
         XCTAssertEqual(exits.withLock { $0 }, 1)
         XCTAssertNotEqual(launcher.environment["DM_OVERLAY_DATA"], path)
         XCTAssertEqual(Set(try fm.contentsOfDirectory(atPath: root.path)), expectedChildren)
@@ -248,8 +249,8 @@ final class LaunchServiceTests: XCTestCase {
         XCTAssertTrue(env.contains("DM_FPS_TARGET=30"))
         XCTAssertTrue(env.contains("DM_METAL_HUD=1"))
         let answer = Mutex((launched: false, error: String?.none))
-        service.launch(appURL: game.url, environment: ["DM_FPS_TARGET": "30"]) { success, error in
-            answer.withLock { $0 = (success, error) }
+        service.launch(appURL: game.url, environment: ["DM_FPS_TARGET": "30"]) { result in
+            answer.withLock { $0 = (result.accepted, result.error) }
         }
         XCTAssertTrue(answer.withLock { $0.launched })
         XCTAssertNil(answer.withLock { $0.error })
@@ -279,7 +280,7 @@ final class LaunchServiceTests: XCTestCase {
         try Data("DM_OVERLAY_THEME_V1\0DM_OVERLAY_PLAYTIME_MIN\0DM_OVERLAY_COVER\0".utf8).write(to: host)
         let overlay = GameOverlayLaunch(app: app)
         service.launch(appURL: app, environment: overlay.environment(palette: palette, playtime: 2599, cover: cover)) {
-            ok, _ in XCTAssertTrue(ok)
+            XCTAssertTrue($0.accepted)
         }
         XCTAssertEqual(launcher.environment["DM_OVERLAY_THEME_V1"],
                        "ink=#FFFFFFFF;surface=#0C0F15FF;scrim=#05070BFF;focus=#FFFFFFFF;onFocus=#05070BFF")
@@ -308,8 +309,8 @@ final class LaunchServiceTests: XCTestCase {
         launcher.shouldSucceed = false
         let service = LaunchService(launcher: launcher)
         let answer = Mutex((launched: true, error: String?.none))
-        service.launch(appURL: URL(fileURLWithPath: "/tmp/Missing.app")) { success, error in
-            answer.withLock { $0 = (success, error) }
+        service.launch(appURL: URL(fileURLWithPath: "/tmp/Missing.app")) { result in
+            answer.withLock { $0 = (result.accepted, result.error) }
         }
         XCTAssertFalse(answer.withLock { $0.launched })
         XCTAssertEqual(answer.withLock { $0.error }, "sample launch error")
@@ -335,7 +336,7 @@ final class LaunchServiceTests: XCTestCase {
         let launcher = FakeLauncher()
         LaunchService(launcher: launcher).launch(appURL: URL(fileURLWithPath: "/tmp/G.app"),
                                                  environment: ["DM_FPS_TARGET": "30", "DM_MODS_OFF": "Some mod"]
-                                                    .merging(HomeMenu.environment(supported: true, launcherBundleID: "local.arcane")) { _, new in new }) { _, _ in }
+                                                    .merging(HomeMenu.environment(supported: true, launcherBundleID: "local.arcane")) { _, new in new }) { _ in }
         XCTAssertEqual(launcher.environment["DM_LAUNCHER"], "0")
         XCTAssertEqual(launcher.environment["DM_FPS_TARGET"], "30")
         XCTAssertEqual(launcher.environment["DM_MODS_OFF"], "Some mod")
@@ -346,7 +347,7 @@ final class LaunchServiceTests: XCTestCase {
     func testEmptyCodeModsOverrideReachesTheEngineForReactivation() {
         let launcher = FakeLauncher()
         LaunchService(launcher: launcher).launch(appURL: URL(fileURLWithPath: "/tmp/G.app"),
-                                                  environment: ["DM_MODS_OFF": ""]) { _, _ in }
+                                                  environment: ["DM_MODS_OFF": ""]) { _ in }
         XCTAssertEqual(launcher.environment["DM_MODS_OFF"], "")
     }
 

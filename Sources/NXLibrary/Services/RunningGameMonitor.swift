@@ -114,8 +114,9 @@ final class RunningGameMonitor: ObservableObject {
     }
 
     /// Brings a running game's app forward, resuming its host if paused. Never starts a second copy.
-    func resume(_ game: PortedGame) {
-        if let watch = homeMenus[game.id], let host = watch.host, host.isAlive {
+    func resume(_ game: PortedGame, application: NSRunningApplication? = nil) {
+        if let watch = homeMenus[game.id], application == nil || watch.app == application,
+           let host = watch.host, host.isAlive {
             if watch.session?.phase == .quitting { return }
             let app = NSRunningApplication(processIdentifier: host.pid)
             // A restarted Arcane does not receive the old pause notification; the engine hides its host.
@@ -128,7 +129,7 @@ final class RunningGameMonitor: ObservableObject {
                 return
             }
         }
-        guard let app = Self.runningApplication(for: game) else { return }
+        guard let app = application ?? Self.runningApplication(for: game) else { return }
         Self.activate(app)
     }
 
