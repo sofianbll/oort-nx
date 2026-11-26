@@ -17,22 +17,39 @@ final class CreditsTests: XCTestCase {
             XCTAssertEqual(credit.author, author)
             XCTAssertEqual(credit.license, "MIT")
             XCTAssertEqual(credit.url.absoluteString, "https://github.com/" + page)
-            XCTAssertEqual(credit.featured, true)
+            XCTAssertTrue(credits.base.contains(credit.id))
         }
         for system in [Credits.System.mac, .windows, .linux, .ios, .android] {
-            let names = credits.groups(for: system).flatMap(\.credits).map(\.name)
-            XCTAssertTrue(Set(["Arcane", "Selene", "nxnative"]).isSubset(of: names), system.rawValue)
+            XCTAssertTrue(Set(credits.groups(for: system).flatMap(\.credits).map(\.id)).isDisjoint(with: credits.base), system.rawValue)
             XCTAssertFalse(credits.statements(for: system, in: "fr").isEmpty)
         }
     }
 
     func testGroupsShowEachCreditOnceAndOnlyWhereItBelongs() throws {
         let credits = try credits()
-        let mac = credits.groups(for: .mac).flatMap(\.credits)
+        let base = try XCTUnwrap(credits.baseGroup)
+        XCTAssertEqual(base.credits.map(\.name), ["Arcane", "Selene", "Playnite", "nxnative", "NX2Apple", "Nextendo"])
+        XCTAssertEqual(base.id, "base")
+        let mac = base.credits + credits.groups(for: .mac).flatMap(\.credits)
         XCTAssertEqual(mac.count, Set(mac.map(\.id)).count)
         XCTAssertEqual(mac.count, credits.credits.filter { $0.systems.contains("mac") }.count)
         XCTAssertFalse(mac.contains { $0.id == "padwake" })
-        XCTAssertEqual(credits.groups(for: .mac).first?.id, "base")
+        XCTAssertFalse(credits.groups(for: .mac).contains { $0.id == "base" })
+    }
+
+    func testTheSixAreAGridAndEveryOtherGroupAList() throws {
+        let credits = try credits()
+        let base = try XCTUnwrap(credits.baseGroup)
+        XCTAssertEqual([0, 1, 2, 3, 4].map { credits.columns(for: base, fitting: $0) }, [1, 1, 2, 3, 3])
+        XCTAssertEqual(credits.categories.map(\.id), ["base", "projects", "engine", "tools", "design", "services"])
+        for system in [Credits.System.mac, .windows, .linux, .ios, .android, .site] {
+            let groups = credits.groups(for: system)
+            XCTAssertEqual(groups.map(\.id), credits.categories.map(\.id).filter { id in groups.contains { $0.id == id } }, system.rawValue)
+            for group in groups {
+                XCTAssertFalse(group.credits.isEmpty)
+                XCTAssertEqual(credits.columns(for: group, fitting: 3), 1)
+            }
+        }
     }
 
     func testWordsFollowTheLanguageThenEnglish() throws {

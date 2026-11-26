@@ -42,7 +42,7 @@ class CreditsTests(unittest.TestCase):
 
     def test_a_dependency_without_a_credit_fails(self):
         for name, key in (("capstone", "wheel:capstone"), ("gametdb", "host:art.gametdb.com"), ("material-icons", "font:MaterialIcons-Regular.ttf"),
-                          ("omarchy", "dir:ThirdPartyLicenses/omarchy"), ("nx2apple", "source:NX2Apple"), ("glslang", "brew:glslang")):
+                          ("omarchy", "dir:ThirdPartyLicenses/omarchy"), ("lumanx", "source:LumaNX"), ("glslang", "brew:glslang")):
             code, text = run(self.without(name))
             self.assertEqual(code, 1)
             self.assertIn(f"no credit for {key}", text)
@@ -54,7 +54,7 @@ class CreditsTests(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("NOTICE is not what design/credits.json says", text)
         for name in credits.copies(data):
-            self.assertTrue("credit" in name and name.endswith(".png") or f"{name} is not what" in text, name)
+            self.assertTrue("credit" in name and name.endswith((".png", "credits.css")) or f"{name} is not what" in text, name)
 
     def test_a_legal_text_taken_out_of_the_notice_fails(self):
         notice = credits.read(ROOT / "NOTICE")
@@ -78,6 +78,47 @@ class CreditsTests(unittest.TestCase):
             data = copy.deepcopy(self.data)
             change(data["credits"][0])
             self.assertIn(message, run(data)[1])
+
+    def test_six_cards_in_one_order_or_nothing(self):
+        for change, message in ((lambda d: d["base"].pop(), "leave a hole"), (lambda d: d["base"].append("gametdb"), "leave a hole"),
+                                (lambda d: d.update(base=["arcane"] * 6), "each card once"),
+                                (lambda d: d["base"].__setitem__(0, "nobody"), "each with a credit"),
+                                (lambda d: d["base"].__setitem__(0, "gametdb"), "not the same as its category")):
+            data = copy.deepcopy(self.data)
+            change(data)
+            self.assertIn(message, run(data)[1])
+        data = copy.deepcopy(self.data)
+        data["base"].reverse()
+        self.assertIn("is not what design/credits.json says", run(data)[1])
+
+    def test_every_app_is_given_the_six_cards(self):
+        for system in ("mac", "windows", "ios", "android"):
+            shown = credits.desktop_script(self.data) if system == "windows" else credits.compact(self.data)
+            for name in self.data["base"]:
+                self.assertIn(f'"id":"{name}"', shown.replace('": "', '":"'), system)
+
+    def test_a_value_written_by_hand_is_refused(self):
+        css = credits.read(credits.CARDS)
+        view, screen = credits.CARD_VIEWS[0], credits.CARD_SCREENS[0]
+        swift, about = credits.read(ROOT / view), "struct SettingsAboutSection {}\n"
+        self.assertEqual(credits.style([("credits.css", css)], *credits.sources()), [])
+        for rule, value in (("padding:18px 20px", "18px"), ("gap:clamp(14px,1.5vw,24px)", "1.5vw"), ("border-radius:1.5rem", "1.5rem"),
+                            ("color:#fff", "#fff"), ("background:rgb(0 0 0/.3)", "rgb("), ("transition:opacity .28s", ".28s"),
+                            ("opacity:.55", ".55"), ("font-weight:580", "580"), ("grid-template-columns:repeat(4,1fr)", "4")):
+            found = credits.style([("credits.css", css + f".credit{{{rule}}}\n")])
+            self.assertIn(value, [v for _, v in found], rule)
+        for line, value in (("    .padding(14)", "14"), ("    .frame(width: 48, height: 48)", "48"), ("    static let columns = 2", "2"),
+                            ("    .foregroundStyle(Color.white)", "Color.white"), ("    .opacity(0.5)", "0.5")):
+            self.assertIn(value, [v for _, v in credits.style([], [(view, swift + line + "\n")])], line)
+        for line, value in (("    .padding(14)", "14"), ("    HStack(spacing: 9) {}", "9"), ("    .frame(minHeight: 48)", "48"), ("    canvas.u(20)", "20")):
+            self.assertIn(value, [v for _, v in credits.style([], [], [(screen, about + line + "\n")])], line)
+
+    def test_the_site_places_the_cards_without_restyling_them(self):
+        with tempfile.TemporaryDirectory() as folder:
+            (Path(folder) / "pages.css").write_text(".btn{padding:3px}.credits.fund{margin-top:var(--space-section)}\n", encoding="utf-8")
+            self.assertEqual(credits.style(credits.site_style(Path(folder))), [])
+            (Path(folder) / "mobile.css").write_text("@media(max-width:899px){.credits{gap:10px}}\n", encoding="utf-8")
+            self.assertEqual([v for _, v in credits.style(credits.site_style(Path(folder)))], ["10px"])
 
     def test_the_block_replaces_itself_and_keeps_the_rest(self):
         once = credits.with_block("Legal text.\n", "one")

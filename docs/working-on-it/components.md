@@ -32,7 +32,7 @@ I tipi con prefisso `Selene` restano disponibili per la migrazione.
 | `OortMeter` | Avanzamento | Misurato o indeterminato | Accompagnarlo con il testo dello stato. |
 | `OortControllerView` | Mostrare il controller e ciò che preme | `ControllerShape.Kind` (Xbox, PlayStation, Switch Pro, Joy-Con), ingressi vivi, movimento ridotto | Dentro un pannello · non un elemento interattivo. |
 | `OortControllerMap` | Dire a ogni tasto cosa fa, con una linea | Tipo, voci (tasto, nome, azione, tenuta) | Pagina Comandi e guide · le linee non si incrociano. |
-| `OortCreditCard`, `OortCreditGroup` | Un progetto citato: segno, nome, autore e licenza, ruolo, freccia | Immagine, piattaforma o segno; focus | Dati solo da `design/credits.json` · mai un link colorato nel testo. |
+| `OortCreditCard`, `OortCreditGroup`, `OortCreditGrid` | Un progetto citato: segno, nome, autore e licenza, ruolo, freccia | Immagine, piattaforma o segno; focus | Dati solo da `design/credits.json` · mai un link colorato nel testo. |
 | `oortPanel`, `oortWell`, `oortRing` | Superficie, incavo e anello di focus condivisi | Sollevato, fluttuante; contrasto aumentato | Nessuna forma disegnata a mano in una schermata. |
 
 Per verificare una composizione usare la [galleria Debug](development.md#debug-configuration)

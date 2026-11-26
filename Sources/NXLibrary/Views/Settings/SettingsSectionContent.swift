@@ -136,23 +136,6 @@ struct SettingsSectionContent: View {
     }
 }
 
-/// Selene's in-group heading: 17 SemiBold in the accent colour.
-struct SettingsSubheading: View {
-    @Environment(\.seleneCanvas) private var canvas
-    let title: String
-
-    init(_ title: String) { self.title = title }
-
-    var body: some View {
-        Text(L10n.text(title))
-            .seleneFont(.text, .semibold)
-            .foregroundColor(SeleneTheme.ink)
-            .padding(.top, canvas.u(SeleneTokens.Space.tight))
-            .padding(.bottom, canvas.u(SeleneTokens.Space.hairline))
-            .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
 func seleneBytes(_ bytes: Int64) -> String {
     bytes.formatted(.byteCount(style: .file).locale(L10n.context.formatLocale))
 }
