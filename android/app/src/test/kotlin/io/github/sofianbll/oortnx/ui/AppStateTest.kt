@@ -24,6 +24,8 @@ class AppStateTest {
         launch = { launched.add(it) },
         appInfo = { true },
         playSound = { _, _ -> },
+        openLink = { error("Unexpected credit link") },
+        loadCredits = { error("Unexpected credits screen") },
     )
 
     @Test fun confirmationInAnEmptyLibraryScansAgain() {

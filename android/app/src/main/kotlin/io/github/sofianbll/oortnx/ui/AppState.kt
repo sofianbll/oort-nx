@@ -64,6 +64,8 @@ class AppState internal constructor(
     private val launch: (Game) -> Boolean,
     private val appInfo: (Game) -> Boolean,
     private val playSound: (SoundEvent, Int) -> Unit,
+    private val openLink: (String) -> Boolean,
+    loadCredits: () -> Credits,
 ) {
     constructor(context: Context, screen: Activity, prefs: Prefs, sound: SoundPlayer, demo: Boolean, versionName: String) : this(
         prefs, demo, versionName,
@@ -78,6 +80,8 @@ class AppState internal constructor(
         launch = { GameLauncher.play(context, it) },
         appInfo = { GameLauncher.appInfo(screen, it) },
         playSound = sound::play,
+        openLink = { GameLauncher.page(context, it) },
+        loadCredits = { Credits.read(context.assets.open("credits.json").bufferedReader().use { it.readText() }) },
     )
 
     var section by mutableStateOf(Section.Home)
@@ -598,7 +602,7 @@ class AppState internal constructor(
         when (val kind = row.kind) {
             Kind.Info -> Unit
             is Kind.Open -> open(kind.route)
-            is Kind.Link -> sound(if (GameLauncher.page(context, kind.url)) SoundEvent.Confirm else SoundEvent.Deny)
+            is Kind.Link -> sound(if (openLink(kind.url)) SoundEvent.Confirm else SoundEvent.Deny)
             is Kind.Press -> { sound(SoundEvent.Confirm); kind.run() }
             is Kind.Fold -> { kind.run(); sound(SoundEvent.Select) }
             is Kind.Toggle -> { kind.set(!kind.on); sound(SoundEvent.Select) }
@@ -780,7 +784,7 @@ class AppState internal constructor(
     }
 
     /** The cards of design/credits.json, the same on every system. */
-    private val credits by lazy { Credits.read(context.assets.open("credits.json").bufferedReader().use { it.readText() }) }
+    private val credits by lazy(loadCredits)
 
     private fun creditGlyph(name: String) = when (name) {
         "heart" -> Glyph.Heart
