@@ -145,10 +145,10 @@ public enum AppUpdate {
                        requirements: requirements)
     }
 
-    /// GitHub's `releases/latest` leaves pre-releases out, so a copy running one reads the list instead.
+    /// GitHub's `releases/latest` leaves pre-releases out; take a wider page because other systems share the list.
     public static func releasesURL(repository: String, runningVersion: String) -> URL? {
         let preRelease = parsed(runningVersion).map { $0.stage < 3 } ?? false
-        return URL(string: "https://api.github.com/repos/\(repository)/releases" + (preRelease ? "?per_page=10" : "/latest"))
+        return URL(string: "https://api.github.com/repos/\(repository)/releases" + (preRelease ? "?per_page=100" : "/latest"))
     }
 
     /// The answer to `releasesURL`: one release, or a list whose newest usable one counts.

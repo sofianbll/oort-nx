@@ -82,7 +82,7 @@ To link an app already on your Mac, choose **Add an app…** in Sources or the m
 
 The default Game apps folder is `~/Applications`; first use can prepare this default without an extra picker. Remembered or custom unavailable folders are never recreated automatically. Changing folders does not move installed apps, and a rebuild updates an existing app in its current location. A read-only folder still allows discovery and Play; installing new builds needs write access.
 
-Discovery includes subfolders of **Game apps**, skips app contents and limits the search depth. **Settings → Switch → Scan game apps** reports search limits and unreadable folders. If several builds of a title are found, Arcane keeps the registered app while it exists. For a newly discovered title, it uses the most recently modified build.
+Discovery includes subfolders of **Game apps**, skips app contents and limits the search depth. **Settings → Switch → Library refresh** reports search limits and unreadable folders. If several builds of a title are found, Arcane keeps the registered app while it exists. For a newly discovered title, it uses the most recently modified build.
 
 **Game files** is a separate optional folder choice in **Settings → Switch**. Selecting individual files leaves that choice in place. **Reset group** preserves both folders; the **Game apps** row has its own **Reset** button.
 
@@ -90,7 +90,7 @@ Import your `prod.keys` when prompted. Arcane keeps a private copy with mode `06
 
 Open this tools panel from **Settings → Switch → Engine → Open Setup**. Oort NX never runs `sudo`, accepts the Xcode licence for you or changes `xcode-select`.
 
-To discover existing nxnative game apps, choose **Settings → Switch → Scan game apps → Scan**. Play works with the installed app. To rebuild it, attach the original sources.
+To discover existing nxnative game apps, choose **Settings → Switch → Library refresh → Refresh**. Play works with the installed app. To rebuild it, attach the original sources.
 
 If an installed app is moved or removed, its library entry stays with a blurred, locked tile and **App not found**. Restore it to its folder or change **Game apps**, then refresh the library. Arcane does not search elsewhere for it. Missing build inputs show **Game files not found** when there is no app to play. An existing app still plays when its source files are missing; only rebuilding is unavailable. To reconnect a game's moved inputs, use **Game Options → Edit details → Attach sources…**.
 
@@ -102,15 +102,15 @@ In **Settings → Cloud library**, Oort NX uses an existing rclone or asks befor
 
 Keep an existing connection or choose **Sign in**. If the build does not include a Google client, enter your own desktop OAuth client ID and secret. rclone opens your browser to ask for full Drive access and stores the credentials in its encrypted configuration; on this Mac, the configuration password is held in the login keychain. **Test connection** verifies access to the approved Drive account and folders without importing or changing files.
 
-On first setup, Arcane looks for an existing library in `Games` and its immediate subfolders. Under the library you choose, it looks for game files in `GameFiles`, then `Switch/Jeux`, then `Switch/Games`. This is a suggestion; your saved game-files folder stays selected. Resuming a 0.3.0 library confirms its saved path in the same step. If an approved folder is replaced by one with the same name, Arcane asks again. You can choose a different path without moving files.
+On first setup, Oort looks under `Games` and proposes a **game library** for apps and build caches and a **ROM library** for the files you bring. It prefers your previous choices for the same Drive account and explains when a folder contains something other than what it expects. You can choose a folder elsewhere in Drive. Nothing is created or moved without your confirmation. Once access is verified, **See my games** turns on the library and opens **Collection → Cloud**.
 
-After activation, Arcane adds games from the selected library without downloading their apps or game files. A game can be listed with just its original files: Arcane needs an unambiguous title ID in the folder or file name and reports folders it cannot read or identify. Discovery stays inside the selected library. It checks again at launch; use **Import games from the cloud** under **Connection** to check on demand. Removing an online-only game forgets its entry without touching Drive and prevents reimport.
+After activation, Oort lists games from the selected libraries without downloading their apps or game files. A game can be listed with just its original files: Oort needs an unambiguous title ID in the folder or file name and reports folders it cannot read or identify. It checks again at launch; use **Import games from the cloud** under **On this Mac** to check on demand. Removing an online-only game forgets its entry without touching Drive and prevents reimport.
 
 Choose **Cloud** beside **Options** on a ported game's Details page to manage the app and its build cache. For a newly imported game, **Download** restores the app to your **Game apps** folder and becomes **Play** once it is ready, without the original game files or a rebuild. Transfer progress remains visible in Details when you close the Cloud panel. **Disconnect** removes only the local rclone connection, which may also be used by other tools. It does not remove cloud files or affect game saves.
 
 If only the game files are online, the tile is softened with a cloud icon. You can open Details and choose artwork before downloading. **Download game files** restores the files on this Mac; the tile returns to colour with **Build**, then **Play** after a successful build. In Spotlight and Collection, use **Cloud** to show games without an app or complete game files on this Mac. If Drive does not respond, Arcane keeps the last known cloud indication without claiming that copies match.
 
-To follow a library from another Google account you own, share its Drive folder with your second account as **Viewer** in Google Drive. On the other Mac, paste the folder link or ID under **Cloud library → Reference library**. Arcane imports source-only games from this library too. It uses the account already connected, never changes sharing permissions and sends only to your own library. The Cloud panel identifies reference copies and shows how much a newer copy needs to download. File-based copies reuse matching local files; a legacy archive downloads in full. **Unfollow** removes only reference entries without a local copy and leaves all files in place.
+To follow a library from another Google account you own, share its Drive folder with your second account as **Viewer** in Google Drive. On the other Mac, paste the folder link or ID under **Cloud library → Advanced → Followed library**. Arcane imports source-only games from this library too. It uses the account already connected, never changes sharing permissions and sends only to your own library. The Cloud panel identifies reference copies and shows how much a newer copy needs to download. File-based copies reuse matching local files; a legacy archive downloads in full. **Unfollow** removes only reference entries without a local copy and leaves all files in place.
 
 If you download a ported `.app` folder through Google Drive in your browser, unzip it and choose **Add Game → Add ported app**. Arcane repairs its own copy and keeps the original signature if it verifies. Otherwise, it checks the files against available cloud manifests for the title and refuses versions that match none. With no per-file manifest or cloud connection, it can sign the copy ad hoc and shows **Content not verified** in the import result. Only import ports from a source you trust.
 
@@ -306,9 +306,9 @@ App data lives in `~/Library/Application Support/NXLibrary/`. Local game data us
 | [Steam](docs/how-it-works/steam.md) | Steam integration: files read, game states, launch, playtime, achievements, limits; in Italian. |
 | [Engine upgrade notes](docs/history/engine-upgrades/README.md) | Pin changes and their evidence. |
 
-If you would like to support **Bium23, the original author of Arcane**, you can [buy Bium23 a coffee](https://buymeacoffee.com/bium). This supports Bium23, not the Oort NX fork.
-
 ## Credits and licences
+
+Oort NX builds on [Arcane by Bium23](https://github.com/Bium23/NxLibrary).
 
 Arcane is MIT licensed. It uses upstream [nxnative](https://github.com/seedds/nxnative). It began from the MIT nxnative_Launcher codebase, which has been rewritten since; that repository is no longer available and its notice stays in [NOTICE](NOTICE). Adaptations from [NX2Apple](https://github.com/LNPANDY/NX2Apple) cover key checks, failure explanations, diagnostics and updates.
 

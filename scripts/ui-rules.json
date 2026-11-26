@@ -236,11 +236,6 @@
     "onTapGesture {onSelect(index)}": 1
    }
   },
-  "button-order": {
-   "Sources/NXLibrary/Views/Settings/CloudSetupAssistant.swift": {
-    "row pill(.cancel,cancelTitle,enabled:move?.c": 1
-   }
-  },
   "measure": {
    "Sources/NXLibrary/Views/AddGame/AddGameRows.swift": {
     "canvas.u(13)": 1,
@@ -323,7 +318,7 @@
     "canvas.u(1)": 1,
     "canvas.u(128)": 3,
     "canvas.u(170)": 1,
-    "canvas.u(40)": 2,
+    "canvas.u(40)": 1,
     "canvas.u(640)": 4,
     "canvas.u(88)": 1
    },
@@ -503,10 +498,6 @@
    },
    "Sources/NXLibrary/Views/Search/FindGameView.swift": {
     "canvas.u(160)": 5
-   },
-   "Sources/NXLibrary/Views/Settings/CloudSetupAssistant.swift": {
-    "height:48": 1,
-    "minWidth:115": 1
    },
    "Sources/NXLibrary/Views/Settings/LocalePicker.swift": {
     "canvas.u(12)": 1,
@@ -1168,6 +1159,7 @@
   "Sources/NXLibrary/Views/Settings/SettingsView.swift": {
    "lb Previous": "the sidebar is clickable",
    "rb Next": "the sidebar is clickable",
+   "x Reset this setting": "the hint is a button and stays visible while the focused setting differs from its default",
    "y Save": "the hints stay shown while changes wait",
    "x Reset group": "the page's last row"
   },

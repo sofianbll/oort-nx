@@ -75,7 +75,6 @@ struct DetailsTopBlock: View {
             HStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
                 pills
                 if showsCloudPill && (pillSet == .porting || pillSet.isFailed) { cloudPill }
-                NextendoOnlineBadge(titleID: game.titleId)
             }
                 .padding(.top, canvas.u(pillSet.isFailed ? 10 : 26))
             if downloadFill != nil,
@@ -340,7 +339,7 @@ struct DetailsTopBlock: View {
             items.append(SeleneStat.text(text("CHEATS"), text("On")))
         }
         items.append(SeleneStat(label: text("PLATFORM"), value: .platform(presentation.console)))
-        return SeleneStatsRow(items: items, gap: 28)
+        return SeleneStatsRow(items: items, gap: 28, onlineTitleID: game.titleId, onlinePlace: .gamePage)
             .padding(.leading, canvas.u(SeleneTokens.Space.hairline))
     }
 

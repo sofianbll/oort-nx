@@ -12,7 +12,7 @@ extension AppShellView {
     var paletteAvailable: Bool {
         !viewModel.showSetupCheck && !showsWelcome && profileFlow == nil && !isCloseGameOpen
             && !router.isScreenshotViewerOpen && !viewModel.isGameOptionsOpen && viewModel.launchOverlay == nil
-            && !filePicker.isOpen && !nativeDialogOwnsInput
+            && !filePicker.isOpen && !nativeDialogOwnsInput && !showsSettingsNotice && !router.settingsOwnsInput
     }
 
     func togglePalette(query: String = "") {
@@ -53,7 +53,10 @@ extension AppShellView {
         if (event.window?.firstResponder as? NSTextView)?.hasMarkedText() == true { return event }
         guard let action = CommandPalette.action(keyCode: event.keyCode, modifiers: event.modifierFlags) else { return event }
         let moves: Set<GamepadAction> = [.navigateUp, .navigateDown, .tabNext, .tabPrevious]
-        if !event.isARepeat || moves.contains(action) { GameControllerService.shared.onAction?(action) }
+        if !event.isARepeat || moves.contains(action) {
+            if action == .confirm { OortPulse.press.send() }
+            paletteInput(action)
+        }
         return nil
     }
 

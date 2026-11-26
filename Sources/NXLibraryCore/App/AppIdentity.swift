@@ -13,6 +13,8 @@ public enum AppIdentity {
     /// The player guide: the README online, so it opens on every Mac and survives a move of the source folder.
     public static let documentationPage = URL(string: projectPage + "#readme")!
 
+    public static let koFiPage = URL(string: "https://ko-fi.com/sofianbll")!
+
     /// The running app's version, "0" when the bundle has none (tests, command-line runs).
     public static var version: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0"

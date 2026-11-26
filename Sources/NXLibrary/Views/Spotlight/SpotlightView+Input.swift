@@ -125,7 +125,7 @@ extension SpotlightView {
             router.openSettings(.startUp)
         case .rightStickPress:
             openSort()
-        case .profiles, .controlCenter, .fullMenu:
+        case .profiles, .controlCenter, .fullMenu, .notice:
             break // The shell owns the picker; don't move the current focus.
         }
         if moved { SoundEffectService.shared.play(.focus) }

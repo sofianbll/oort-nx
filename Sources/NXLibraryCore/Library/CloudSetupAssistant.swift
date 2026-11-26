@@ -65,6 +65,13 @@ public struct CloudSetupAssistantDraft {
         return true
     }
 
+    /// Another account is a new choice: nothing checked or approved for this one carries over.
+    public mutating func backToAccount() {
+        step = .account
+        wantsMove = false
+        renewTicket()
+    }
+
     public mutating func backToFolders() {
         step = .folder
         renewTicket()

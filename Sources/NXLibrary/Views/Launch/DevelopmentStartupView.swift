@@ -91,13 +91,21 @@ final class DevelopmentStartup: ObservableObject {
                 }
             }
             profileReady = true
-            let catalog = try await Task.detached(priority: .userInitiated) {
-                try CatalogStore(directory: AppData.supportRoot).loadOrMigrate()
+            let prepared = try await Task.detached(priority: .userInitiated) {
+                try CatalogStore(directory: AppData.supportRoot).loadForStartup(previousLibrary: AppData.profile.legacySupportRoot)
             }.value
             logger.notice("Launcher data ready; preparing shell models")
             let store = AppSettingsStore()
             // Complete model/AppKit startup outside the render that inserts MainView.
-            shell = AppShellState(settings: store, catalog: catalog, repository: CatalogRepository(store: CatalogStore(directory: AppData.supportRoot)))
+            let state = AppShellState(settings: store, catalog: prepared.catalog,
+                                      repository: CatalogRepository(store: CatalogStore(directory: AppData.supportRoot)))
+            let fm = FileManager.default
+            let removal = fm.fileExists(atPath: AppData.supportRoot.appendingPathComponent(LibraryPaths.inheritedRemoval).path)
+                && fm.fileExists(atPath: AppData.profile.legacySupportRoot.appendingPathComponent(LibraryPaths.removalJournal).path)
+            if let notice = Self.libraryMoveNotice(removal: removal, pendingBuild: prepared.keptPreviousBuild) {
+                state.viewModel.alertMessage = [state.viewModel.alertMessage, notice].compactMap { $0 }.joined(separator: "\n")
+            }
+            shell = state
             logger.notice("Shell models ready")
         } catch {
             logger.error("Launcher preparation failed")
@@ -111,6 +119,13 @@ final class DevelopmentStartup: ObservableObject {
                 }.value
             }
         }
+    }
+
+    static func libraryMoveNotice(removal: Bool, pendingBuild: Bool) -> String? {
+        var messages: [String] = []
+        if removal { messages.append(L10n.text("Open the previous version to undo the interrupted removal.")) }
+        if pendingBuild { messages.append(L10n.text("Open the previous version to finish installing the game.")) }
+        return messages.isEmpty ? nil : messages.joined(separator: "\n")
     }
 
     func chooseLibraryCopy(_ copy: Bool) async {

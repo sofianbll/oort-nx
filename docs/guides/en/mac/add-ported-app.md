@@ -17,7 +17,7 @@ captures: settings-switch, tour-games, adopted
 
 ## Scan
 <!-- step scan code bf0c3410:Sources/NXLibraryCore/Settings/SettingsCatalog.swift bf0c3410:PLAYER-GUIDE.md -->
-**Scan game apps › Scan**. A game already built starts without Xcode or its original files.
+**Library refresh › Refresh**. A game already built starts without Xcode or its original files.
 
 ![Tour, step 4: invented games](../../media/mac/tour-games.en.webp)
 

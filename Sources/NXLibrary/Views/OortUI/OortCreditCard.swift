@@ -20,12 +20,20 @@ struct OortCreditCard: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.medium)) {
+            HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.small)) {
                 picture
                 VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.seam)) {
-                    Text(verbatim: name)
-                        .seleneFont(.text, .semibold)
-                        .foregroundStyle(SeleneTheme.ink)
+                    // The arrow stands beside the name; the rest has the whole width.
+                    HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.tight)) {
+                        Text(verbatim: name)
+                            .seleneFont(.text, .semibold)
+                            .foregroundStyle(SeleneTheme.ink)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Image(systemName: "arrow.up.right")
+                            .seleneFont(.badge, .semibold)
+                            .foregroundStyle(SeleneTheme.ink60)
+                            .accessibilityHidden(true)
+                    }
                     Text(verbatim: byline)
                         .seleneFont(.badge)
                         .foregroundStyle(SeleneTheme.ink75)
@@ -38,10 +46,6 @@ struct OortCreditCard: View {
                 }
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                Image(systemName: "arrow.up.right")
-                    .seleneFont(.badge, .semibold)
-                    .foregroundStyle(SeleneTheme.ink60)
-                    .accessibilityHidden(true)
             }
             .multilineTextAlignment(.leading)
             .padding(canvas.u(SeleneTokens.Space.medium))
@@ -78,29 +82,68 @@ struct OortCreditCard: View {
     }
 }
 
-/// One category of credits: its title, then its cards two by two. `focusedCard` is the card under the controller.
-struct OortCreditGroup: View {
-    static let columns = 2
+/// Full columns of cards of one height, or a list where each has its own. The same rule as the site and the other apps: `Credits.columns`.
+struct OortCreditGrid: Layout {
+    let columns: Int
+    let spacing: CGFloat
 
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let width = proposal.width ?? subviews.map { $0.sizeThatFits(.unspecified).width }.max() ?? 0
+        let heights = heights(subviews, in: width)
+        return CGSize(width: width, height: heights.reduce(0, +) + CGFloat(max(heights.count - 1, 0)) * spacing)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let width = column(in: bounds.width)
+        var y = bounds.minY
+        for (line, height) in heights(subviews, in: bounds.width).enumerated() {
+            for place in 0..<columns where line * columns + place < subviews.count {
+                subviews[line * columns + place].place(at: CGPoint(x: bounds.minX + CGFloat(place) * (width + spacing), y: y),
+                                                       proposal: ProposedViewSize(width: width, height: height))
+            }
+            y += height + spacing
+        }
+    }
+
+    private func column(in width: CGFloat) -> CGFloat { max((width - CGFloat(columns - 1) * spacing) / CGFloat(columns), 0) }
+
+    /// One height per line; the lines of a grid share theirs.
+    private func heights(_ subviews: Subviews, in width: CGFloat) -> [CGFloat] {
+        let cards = subviews.map { $0.sizeThatFits(ProposedViewSize(width: column(in: width), height: nil)).height }
+        guard columns > 1 else { return cards }
+        return Array(repeating: cards.max() ?? 0, count: (cards.count + columns - 1) / columns)
+    }
+}
+
+/// One category of credits: the six cards as a full grid, the others as a list. `focusedCard` is the card under the controller.
+struct OortCreditGroup: View {
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.nxAppLocale) private var locale
     let group: Credits.Group
     let credits: Credits
+    /// How many columns the page has room for: `fitting(_:canvas:)`.
+    let fitting: Int
     var focusedCard: String? = nil
     let open: (Credits.Credit) -> Void
 
     var body: some View {
-        VStack(spacing: canvas.u(SeleneTokens.Space.small)) {
-            ForEach(Self.lines(group)) { line in
-                HStack(alignment: .top, spacing: canvas.u(SeleneTokens.Space.small)) {
-                    ForEach(line.credits) { credit in card(credit) }
-                    // A last card alone keeps its column.
-                    ForEach(line.credits.count..<Self.columns, id: \.self) { _ in Spacer(minLength: 0).frame(maxWidth: .infinity) }
+        let lines = Self.lines(group, credits, fitting: fitting)
+        OortCreditGrid(columns: credits.columns(for: group, fitting: fitting), spacing: canvas.u(SeleneTokens.Space.small)) {
+            ForEach(group.credits) { credit in
+                // The line's first card is where the page scrolls to.
+                if let line = lines.first(where: { $0.credits[0].id == credit.id }) {
+                    card(credit).id("selene-row-\(line.id)")
+                } else {
+                    card(credit)
                 }
-                .fixedSize(horizontal: false, vertical: true)
-                .id("selene-row-\(line.id)")
             }
         }
+    }
+
+    /// The columns that fit a page of this width.
+    static func fitting(_ width: CGFloat, canvas: SeleneCanvas) -> Int {
+        let gap = canvas.u(SeleneTokens.Space.small)
+        return max(Int((width + gap) / (canvas.u(SeleneTokens.Space.creditCard) + gap)), 1)
     }
 
     private func card(_ credit: Credits.Credit) -> some View {
@@ -108,7 +151,6 @@ struct OortCreditGroup: View {
         return OortCreditCard(mark: Self.mark(credit, in: group.category), name: credit.name,
                               byline: credits.byline(of: credit, in: language), role: credits.role(of: credit, in: language),
                               hint: credits.label("opens", in: language), focused: focusedCard == credit.id) { open(credit) }
-            .frame(maxWidth: .infinity)
     }
 
     /// One line of cards is one stop for the controller; left and right move inside it.
@@ -117,8 +159,9 @@ struct OortCreditGroup: View {
         let credits: [Credits.Credit]
     }
 
-    static func lines(_ group: Credits.Group) -> [Line] {
-        stride(from: 0, to: group.credits.count, by: columns).map { start in
+    static func lines(_ group: Credits.Group, _ credits: Credits, fitting: Int) -> [Line] {
+        let columns = credits.columns(for: group, fitting: fitting)
+        return stride(from: 0, to: group.credits.count, by: columns).map { start in
             let row = Array(group.credits[start..<min(start + columns, group.credits.count)])
             return Line(id: "credit-" + row[0].id, credits: row)
         }

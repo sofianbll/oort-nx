@@ -17,7 +17,7 @@ captures: settings-switch, tour-games, adopted
 
 ## Analyse
 <!-- step scan code bf0c3410:Sources/NXLibraryCore/Settings/SettingsCatalog.swift bf0c3410:PLAYER-GUIDE.md -->
-**Analyser les apps de jeux › Analyser**. Un jeu déjà compilé se lance sans Xcode ni fichiers d’origine.
+**Actualiser la bibliothèque › Actualiser**. Un jeu déjà compilé se lance sans Xcode ni fichiers d’origine.
 
 ![Accueil, étape 4 : des jeux inventés](../../media/mac/tour-games.fr.webp)
 

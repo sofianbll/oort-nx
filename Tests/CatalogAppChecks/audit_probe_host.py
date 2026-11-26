@@ -9,7 +9,7 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
 
-def run_host(host, source_fixture=None, *, save_model=False, capture=None):
+def run_host(host, source_fixture=None, *, save_model=False, capture=None, unix_sockets=False, environment=None, resources=()):
     build = ROOT / ".build"
     products = build / "out/Products/Debug"
     objects = list((build / "out/Intermediates.noindex/NXLibrary.build/Debug/NXLibrary-p.build/Objects-normal").glob("*/NXLibrary.LinkFileList"))
@@ -32,6 +32,8 @@ def run_host(host, source_fixture=None, *, save_model=False, capture=None):
             shutil.copytree(ROOT / "Resources/Brands", scratch / "Brands")
             shutil.copytree(ROOT / "Resources/Selene/Fonts", scratch / "Selene/Fonts")
             shutil.copyfile(ROOT / "Resources/Selene/palettes.json", scratch / "Selene/palettes.json")
+        for resource in resources:
+            shutil.copy2(ROOT / "Resources" / resource, scratch / resource)
         home_check = r'''
 func assertFixtureHome() {
     let home = URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!).resolvingSymlinksInPath().path
@@ -65,18 +67,20 @@ func suppressProbeNotifications() {
             sources.append(str(fixture))
         env = dict(os.environ, HOME=str(scratch), CFFIXED_USER_HOME=str(scratch),
                    PACKAGE_RESOURCE_BUNDLE_PATH=str(scratch))
+        # A local fake may be spoken to; the network never.
+        local = '(allow network* (local unix-socket) (remote unix-socket)) ' if unix_sockets else ''
         subprocess.run(["xcrun", "swiftc", "-parse-as-library",
                         "-Xfrontend", "-entry-point-function-name", "-Xfrontend", "saveAuditMain",
                         "-Xlinker", "-e", "-Xlinker", "_saveAuditMain",
                         "-I", str(modules), "-I", str(products),
                         *sources, *inputs, "-o", str(binary)], cwd=ROOT, env=env, check=True)
-        sandbox = ('(version 1) (allow default) (deny network*) '
+        sandbox = ('(version 1) (allow default) (deny network*) ' + local +
                    '(deny file-read-data file-write* (subpath (param "REAL_HOME")) (subpath "/Volumes")) '
                    '(deny file-write* (subpath "/Applications"))')
         real_home = Path(pwd.getpwuid(os.getuid()).pw_dir).resolve()
         try:
             subprocess.run(["sandbox-exec", "-D", f"REAL_HOME={real_home}", "-p", sandbox, str(binary)],
-                           cwd=ROOT, env=env, check=True)
+                           cwd=ROOT, env=dict(env, **(environment or {})), check=True)
         finally:
             if capture is not None and (scratch / "captures").is_dir():
                 shutil.copytree(scratch / "captures", capture, dirs_exist_ok=True)

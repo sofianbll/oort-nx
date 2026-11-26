@@ -43,6 +43,10 @@ def prepare(package):
             lambda match: match[1] + f'"{hashlib.sha256(fixture_tool).hexdigest()}"')
     replace(download, r'(executableBytes: )88_766_114\)', lambda match: match[1] + f"{len(fixture_tool)})")
     replace(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
+    # Keep the draft's sound controls testable without letting any fixture play audio.
+    sound = app / "Services/SoundEffectService.swift"
+    replace(sound, r'private var gain: Float = [^\n]+', 'private var gain: Float = 0')
+    replace(sound, r'self\.gain = volume\.isFinite[^\n]+', 'self.gain = 0')
     model = app / "ViewModels/AppViewModel.swift"
     replace(model, r'SteamGridDBKey\(\)\.load\(\) != nil', "false")
     replace(model, r'        applyCatalog\(catalog\).*?\n    }\n\n    // MARK: - Dynamic',
@@ -55,23 +59,26 @@ def prepare(package):
 
     settings = app / "Views/Settings"
     cloud = settings / "SettingsCloudLibrarySection.swift"
-    expose(cloud, "setEnabled", "unfollow", "confirmDisconnect", "confirmTrashTool", "publishActions", "test")
+    expose(cloud, "setEnabled", "unfollow", "confirmDisconnect", "confirmEraseKept", "confirmTrashTool", "publishActions", "test", "chooseTool")
+    picker = app / "Views/OortUI/OortFilePicker.swift"
+    replace(picker, r'(completion: @escaping \(\[URL\]\) -> Void\) \{\n)(        Task \{ @MainActor in)',
+            lambda m: m[1] + '        if let tool = SettingsConfirmationProbe.pickedRclone { completion([tool]); return }\n' + m[2])
     replace(cloud, r'private var advancedRows:', 'var advancedRows:')
     replace(cloud, r'private var referenceStatus:', 'var referenceStatus:')
     replace(cloud, r'private var tool: URL\?', 'private var tool: URL? = URL(fileURLWithPath: "/fixture/rclone")')
     replace(cloud, r'private var remotes: \[RcloneRemote\]\?', 'private var remotes: [RcloneRemote]? = SettingsConfirmationProbe.remotes')
     replace(cloud, r'private var inspecting = true', 'private var inspecting = false')
-    replace(cloud, r'try await RcloneConfiguration\(executable: tool\)\.disconnect\(name\)',
-            'try SettingsConfirmationProbe.disconnect(tool, name)')
+    replace(cloud, r'try await RcloneConfiguration\(executable: tool\)\.disconnect\(name, keepingClient: keepingClient\)',
+            'try SettingsConfirmationProbe.disconnect(tool, name, keepingClient: keepingClient)')
+    replace(cloud, r'private var account: RcloneAccount\?', 'private var account: RcloneAccount? = SettingsConfirmationProbe.account')
     replace(app / "ViewModels/AppViewModel+CloudLibrary.swift",
             r'(cloudLibrary.setReferenceFolder\(folder\)\n)            importCloudGames\(\)', lambda m: m[1])
     library_model = app / "ViewModels/AppViewModel+CloudLibrary.swift"
     replace(library_model, r'RcloneStorageBackend\.findExecutable\(\)', 'SettingsConfirmationProbe.availableDriveTool')
     replace(library_model, r'private var scopeTask:', 'private(set) var scopeTask:')
-    for _ in range(2):
-        replace(library_model,
-                r'RcloneStorageBackend\(remote: remote, root: current.root, executable: tool\)',
-                'SettingsConfirmationProbe.scopeBackend(remote: remote, root: current.root, tool: tool)')
+    replace(library_model,
+            r'let backend = RcloneStorageBackend\(remote: remote, root: root, executable: tool\)',
+            'let backend = SettingsConfirmationProbe.scopeBackend(remote: remote, root: root, tool: tool)')
     replace(library_model,
             r'RcloneConfiguration\.sharesDefaultConfiguration\(tool\)',
             'RcloneConfiguration.sharesDefaultConfiguration(tool, environment: [:])')
@@ -83,6 +90,16 @@ def prepare(package):
     for name in ("SettingsAPISection", "SettingsEngineSection"):
         expose(settings / f"{name}.swift", "publishActions")
     expose(settings / "SettingsView.swift", "resetSection")
+    append(settings / "SettingsView.swift", """
+extension SettingsView {
+    func screenReportDialog(cloud: Bool, pin: Bool) {
+        var view = self
+        view._cloudAssistant = State(initialValue: cloud ? .credentials : nil)
+        view._pinProfileID = State(initialValue: pin ? UUID() : nil)
+        view.reportOverlayInput(view.overlayOwnsInput)
+    }
+}
+""")
     replace(settings / "SettingsAPISection.swift", r'@State var remotePlayAdapters = RemotePlayAdapters\(\)',
             '@State var remotePlayAdapters = RemotePlayAdapters.screenFixture')
     append(porting / "GameSettings/RemotePlayAdapters.swift", """
@@ -112,15 +129,7 @@ extension {name} {{
 }}
 """)
     assistant = settings / "CloudSetupAssistant.swift"
-    expose(assistant, "primary")
     replace(assistant, r'        \.onAppear \{ inspect\(\); installAssistantKeys\(\) \}\n', '')
-    # The real view's native ScrollView has no content in ImageRenderer.
-    replace(assistant, r'                ScrollView\(\.horizontal\) \{\n(.*?)\n                }\n                if listing != nil',
-            lambda m: m[1] + '\n                if listing != nil')
-    replace(assistant, r'                    ScrollViewReader \{ proxy in\n                        ScrollView \{\n'
-            r'                            LazyVStack', '                    VStack')
-    replace(assistant, r'                        }\n                        \.frame\(height: canvas.u\(CGFloat\(min\(folderNames.count.*?\n'
-            r'                    }\n                    option\(\.newFolder', '                    option(.newFolder')
     append(porting / "Library/CloudDriveFolders.swift", """
 extension CloudDriveFolders.Listing {
     public static var screenFixture: Self { .init(ticket: UUID(), names: ["Nintendo", "Switch"]) }
@@ -132,7 +141,7 @@ extension CloudSetupAssistant {
         var view = self
         view._listing = State(initialValue: .screenFixture)
         if entry == .sources {
-            view._sourcesPath = State(initialValue: path)
+            view._browserPath = State(initialValue: path)
         } else {
             var next = CloudSetupAssistantDraft()
             next.chooseAccount("fixture")
@@ -140,6 +149,7 @@ extension CloudSetupAssistant {
             precondition(next.useFolder())
             next.acceptAccessCheck(next.ticket)
             view._draft = State(initialValue: next)
+            view._browsing = State(initialValue: nil)
         }
         return view
     }
@@ -157,15 +167,22 @@ extension CloudSetupAssistant {
             r'        \.task\(id: game.id\) \{.*?\n        \}', '')
     fixture_support = 'AppData.profile.home.appendingPathComponent("Library/Application Support/nxnative")'
     replace(app / "ViewModels/RuntimeSettingsModel.swift", r'NXNativeGameSettings.forGame\(game\)',
-            f'NXNativeGameSettings.forGame(game, store: MemorySavedChoices(), supportDirectory: {fixture_support})')
+            f'NXNativeGameSettings.forGame(game, store: SettingsConfirmationProbe.choices, supportDirectory: {fixture_support})')
     replace(app / "Views/GameOptions/GameOptionsView+Actions.swift", r'NXNativeGameSettings.playerEnvironment\(for: current\)',
             f'NXNativeGameSettings.playerEnvironment(for: current, supportDirectory: {fixture_support})')
 
     shell = (app / "Views/Shell/AppShellView+Overlays.swift").read_text()
     methods = [re.search(rf'    func {name}\(.*?\n    \}}', shell, re.S)[0] for name in
                ("settingsNoticeOverlay", "finishSettingsNotice", "presentLegacyNotice", "settingsNoticeInput")]
+    shell_input = (app / "Views/Shell/AppShellView+Input.swift").read_text()
+    methods += [re.search(rf'    func {name}\(.*?\n    \}}', shell_input, re.S)[0] for name in ("chooseNotice", "noticeInput")]
+    service = app / "Services/GameControllerService.swift"
+    replace(service, r'private func handleInput\(', 'func handleInput(')
+    replace(service, r'guard isAppActive else \{ return \}\n        onLive', 'onLive')
+    replace(service, r'guard let self, self\.isAppActive, self\.inputGeneration', 'guard let self, self.inputGeneration')
     probe = app / "SettingsConfirmationProbe.swift"
     shutil.copyfile(Path(__file__).with_name(probe.name), probe)
+    shutil.copyfile(Path(__file__).with_name("AttentionsProbe.swift"), app / "AttentionsProbe.swift")
     append(probe, "\nextension SettingsConfirmationProbe.Input {\n" + "\n".join(methods) + "\n}\n")
 
 

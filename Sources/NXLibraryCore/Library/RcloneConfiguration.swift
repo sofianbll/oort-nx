@@ -1,3 +1,4 @@
+import Darwin
 import Foundation
 import Security
 
@@ -82,11 +83,46 @@ package struct CloudDriveScope: Codable, Equatable, Sendable {
 /// Keep one private config for an effect and its checks; never write refreshed credentials back over the user's file.
 package final class RcloneConfigSnapshot: Sendable {
     package let config: URL
+    private let lease: Int32
+    static let prefix = "arcane-rclone-config-"
+    private static let sweep = Task.detached(priority: .utility) { removeAbandoned(in: FileManager.default.temporaryDirectory) }
 
-    private init(config: URL) { self.config = config }
-    deinit { try? FileManager.default.removeItem(at: config.deletingLastPathComponent()) }
+    private init(config: URL) {
+        self.config = config
+        lease = Self.claim(config.deletingLastPathComponent())
+    }
+
+    deinit {
+        try? FileManager.default.removeItem(at: config.deletingLastPathComponent())
+        if lease >= 0 { close(lease) }
+    }
+
+    private static func claim(_ directory: URL) -> Int32 {
+        let fd = open(directory.path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
+        guard fd >= 0 else { return -1 }
+        if flock(fd, LOCK_EX | LOCK_NB) == 0 { return fd }
+        close(fd)
+        return -1
+    }
+
+    /// A copy whose owner is gone (a crash, a power cut) must not keep an account on disk. A living copy holds its lease;
+    /// the age spares one made by a version without leases.
+    static func removeAbandoned(in temporary: URL, olderThan age: TimeInterval = 3_600) {
+        let fm = FileManager.default
+        for url in (try? fm.contentsOfDirectory(at: temporary, includingPropertiesForKeys: nil)) ?? []
+            where url.lastPathComponent.hasPrefix(prefix) && UUID(uuidString: String(url.lastPathComponent.dropFirst(prefix.count))) != nil {
+            var info = stat()
+            guard lstat(url.path, &info) == 0, info.st_mode & S_IFMT == S_IFDIR, info.st_uid == geteuid(),
+                  Date.now.timeIntervalSince1970 - Double(info.st_mtimespec.tv_sec) >= age else { continue }
+            let fd = claim(url)
+            guard fd >= 0 else { continue }
+            try? fm.removeItem(at: url)
+            close(fd)
+        }
+    }
 
     package static func capture(executable: URL, config: URL?, run: RcloneConfiguration.Run) async throws -> RcloneConfigSnapshot {
+        _ = sweep
         let original: URL
         if let config {
             original = config
@@ -106,7 +142,7 @@ package final class RcloneConfigSnapshot: Sendable {
             }
             let contents = try Data(contentsOf: regularFile)
             let fm = FileManager.default
-            let directory = fm.temporaryDirectory.appendingPathComponent("arcane-rclone-config-\(UUID())")
+            let directory = fm.temporaryDirectory.appendingPathComponent("\(prefix)\(UUID())")
             try fm.createDirectory(at: directory, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
             let snapshot = RcloneConfigSnapshot(config: directory.appendingPathComponent("rclone.conf"))
             guard fm.createFile(atPath: snapshot.config.path, contents: contents, attributes: [.posixPermissions: 0o600])
@@ -145,6 +181,8 @@ public struct CloudLibraryPreference: Equatable, Sendable {
     public static let enabledKey = "NXLibrary_CloudStorageEnabled"
     public static let executableKey = "NXLibrary_RclonePath"
     public static let referenceFolderKey = "NXLibrary_CloudReferenceFolder"
+    /// The name of a connection signed out with its Google client kept; never the client itself.
+    public static let keptConnectionKey = "NXLibrary_DriveKeptConnection"
     public static let toolChoiceKey = "NXLibrary_DriveToolChoice"
     public static let toolOfferKey = "NXLibrary_DriveToolOfferSeen"
     public static let defaultRoot = "Games"
@@ -248,6 +286,20 @@ public struct RcloneRemote: Equatable, Sendable, Decodable {
     fileprivate let source: String
 }
 
+/// What rclone keeps for a connection: whether it is there, never its value.
+public struct RcloneAccount: Equatable, Sendable {
+    public let hasClient: Bool
+    public let isSignedIn: Bool
+
+    public init(hasClient: Bool, isSignedIn: Bool) {
+        self.hasClient = hasClient
+        self.isSignedIn = isSignedIn
+    }
+
+    /// Signed out with the Google ID and secret still in rclone's encrypted file: signing in again asks for neither.
+    public var keepsClient: Bool { hasClient && !isSignedIn }
+}
+
 public struct RcloneConfiguration: Sendable {
     // Keep the parent-ID predicate and include active files owned by other accounts.
     private static let driveFilters = ["shared_with_me", "starred_only", "auth_owner_only", "trashed_only"]
@@ -270,7 +322,7 @@ public struct RcloneConfiguration: Sendable {
     private static let account = "rclone"
 
     package typealias Run = @Sendable (URL, [String], [String: String]) async throws -> CommandResult
-    typealias Authorize = @Sendable (URL, URL?, [String: String], String, String, String, Bool) async throws -> Void
+    typealias Authorize = @Sendable (URL, URL?, [String: String], String, (id: String, secret: String)?, Bool) async throws -> Void
     private let executable: URL
     private let config: URL?
     private let run: Run
@@ -390,24 +442,30 @@ public struct RcloneConfiguration: Sendable {
             _ = try await checked(check, or: .encryption)
         }
 
-        try await authorize(executable, config, environment, name, clientID, secret, false)
+        try await authorize(executable, config, environment, name, (clientID, secret), false)
         guard let remote = try await remotes().first(where: { $0.name == name && $0.type == "drive" }) else {
             throw Failure.connect
         }
         return remote
     }
 
+    /// Without a client, rclone signs in with the one it kept.
+    package static func signInParameters(client: (id: String, secret: String)?, replacing: Bool) -> [String: String] {
+        var parameters = ["config_is_local": "true"]
+        if let client { parameters["client_id"] = client.id; parameters["client_secret"] = client.secret }
+        if replacing { parameters["config_refresh_token"] = "true" } else { parameters["scope"] = "drive" }
+        return parameters
+    }
+
     package static func authorizeDrive(executable: URL, config: URL?, environment: [String: String],
-                                       name: String, clientID: String, secret: String, replacing: Bool) async throws {
+                                       name: String, client: (id: String, secret: String)?, replacing: Bool) async throws {
         // Drive's client_secret is not an rclone password field; `obscure` here would change the credential.
         // Send config options via stdin to the private Unix-socket RC session, not via process arguments.
         let control = RcloneRemoteControl()
         defer { control.stop() }
-        var parameters = ["client_id": clientID, "client_secret": secret, "config_is_local": "true"]
-        if replacing { parameters["config_refresh_token"] = "true" }
-        else { parameters["scope"] = "drive" }
         let body: [String: Any] = [
-            "name": name, "type": "drive", "parameters": parameters, "opt": ["noOutput": true],
+            "name": name, "type": "drive", "parameters": signInParameters(client: client, replacing: replacing),
+            "opt": ["noOutput": true],
         ]
         do {
             guard try await control.call(replacing ? "config/update" : "config/create", body,
@@ -449,8 +507,26 @@ public struct RcloneConfiguration: Sendable {
         enum CodingKeys: String, CodingKey { case isDirectory = "IsDir" }
     }
 
-    public func disconnect(_ remote: String) async throws {
+    /// `config redacted` replaces every private value before it leaves rclone; only its presence is read here.
+    public func account(_ remote: String) async throws -> RcloneAccount {
+        guard CloudLibraryPreference.validRemote(remote) else { throw Failure.configuration }
+        let present = Set(try await checked(["config", "redacted", remote], or: .configuration)
+            .split(whereSeparator: \.isNewline).compactMap { line -> String? in
+                let parts = line.split(separator: "=", maxSplits: 1).map { $0.trimmingCharacters(in: .whitespaces) }
+                return parts.count == 2 && !parts[1].isEmpty ? parts[0] : nil
+            })
+        return RcloneAccount(hasClient: present.isSuperset(of: ["client_id", "client_secret"]),
+                             isSignedIn: present.contains("token"))
+    }
+
+    /// Keeping the client empties only the sign-in: the ID and secret stay where they are, in rclone's own file.
+    public func disconnect(_ remote: String, keepingClient: Bool = false) async throws {
         guard CloudLibraryPreference.validRemote(remote) else { throw Failure.disconnect }
+        if keepingClient {
+            _ = try await checked(["config", "update", remote, "token=", "--non-interactive", "--no-output"], or: .disconnect)
+            guard try await account(remote).keepsClient else { throw Failure.disconnect }
+            return
+        }
         _ = try await checked(["config", "delete", remote], or: .disconnect)
         guard try await !remotes().contains(where: { $0.name == remote }) else { throw Failure.disconnect }
     }

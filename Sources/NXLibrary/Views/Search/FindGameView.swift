@@ -24,6 +24,7 @@ struct FindGameView: View {
     @State private var keyMonitor: Any?
     @State private var hover = SeleneHoverFocus()
     @FocusState private var fieldFocused: Bool
+    @State private var recents: [String] = []
 
     private static let columns = 6
     private static let limit = 12
@@ -34,6 +35,16 @@ struct FindGameView: View {
             .applyCatalog(to: viewModel.visibleCatalogGames, history: playSessions)
         return Array(all.prefix(Self.limit))
     }
+
+    /// A guest leaves nothing behind.
+    private var recentSearches: RecentSearches? {
+        viewModel.localProfiles?.guest != nil ? nil
+            : RecentSearches(defaults: AppData.preferences, profile: viewModel.localProfiles?.active?.id)
+    }
+    /// Before anything is typed: the recent searches, then the row that erases them.
+    private var showsRecents: Bool { query.isEmpty && !recents.isEmpty }
+    private var itemCount: Int { showsRecents ? recents.count + 1 : results.count }
+    private var itemColumns: Int { showsRecents ? 1 : Self.columns }
 
     var body: some View {
         SeleneOverlay(style: .search, alignment: .top, onOutside: close) {
@@ -53,6 +64,7 @@ struct FindGameView: View {
             }
         }
         .onAppear {
+            recents = recentSearches?.list ?? []
             fieldFocused = true
             installKeyMonitor()
         }
@@ -76,7 +88,9 @@ struct FindGameView: View {
 
     @ViewBuilder private var grid: some View {
         let games = results
-        if !query.isEmpty && games.isEmpty {
+        if showsRecents {
+            recentList
+        } else if !query.isEmpty && games.isEmpty {
             Text(L10n.text("No games match."))
                 .seleneFont(.text)
                 .foregroundColor(SeleneTheme.ink60)
@@ -95,6 +109,51 @@ struct FindGameView: View {
                         .accessibilityAction { pick(game) }
                 }
             }
+        }
+    }
+
+    private var recentList: some View {
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
+            Text(L10n.text("Recent searches")).seleneFont(.badge, .semibold)
+                .foregroundColor(SeleneTheme.ink75)
+                .accessibilityAddTraits(.isHeader)
+            ForEach(Array(recents.enumerated()), id: \.element) { index, recent in
+                recentRow(index, icon: .search, title: recent) { choose(recent) }
+            }
+            recentRow(recents.count, icon: .delete, title: L10n.text("Clear recent searches"), action: clearRecents)
+        }
+        .frame(width: canvas.u(SeleneTokens.Space.transferMeasure), alignment: .leading)
+    }
+
+    private func recentRow(_ index: Int, icon: MaterialIcon, title: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            SeleneOptionRow(icon: icon, title: title, about: nil, focused: focused == index, enabled: true) {}
+        }
+        .buttonStyle(OortPressStyle())
+        .onHover {
+            guard hover.moved($0), focused != index else { return }
+            fieldFocused = false
+            focused = index
+        }
+    }
+
+    private func choose(_ recent: String) {
+        SoundEffectService.shared.play(.click)
+        query = recent
+        fieldFocused = true
+    }
+
+    private func clearRecents() {
+        guard let recentSearches else { return }
+        let erased = recentSearches.list
+        SoundEffectService.shared.play(.click)
+        recentSearches.clear()
+        recents = []
+        focused = nil
+        fieldFocused = true
+        viewModel.undoOffers.offer(L10n.text("Recent searches cleared")) {
+            for query in erased.reversed() { recentSearches.record(query) }
+            recents = recentSearches.list
         }
     }
 
@@ -125,11 +184,11 @@ struct FindGameView: View {
     // MARK: - Input
 
     private func handle(_ action: GamepadAction) {
-        let count = results.count
+        let count = itemCount, columns = itemColumns
         switch action {
         case .navigateDown:
             if let index = focused {
-                if index + Self.columns < count { move(to: index + Self.columns) }
+                if index + columns < count { move(to: index + columns) }
             } else if count > 0 {
                 fieldFocused = false
                 move(to: 0)
@@ -138,8 +197,8 @@ struct FindGameView: View {
             if focused == nil {
                 fieldFocused = true
             } else if let index = focused {
-                if index >= Self.columns {
-                    move(to: index - Self.columns)
+                if index >= columns {
+                    move(to: index - columns)
                 } else {
                     focused = nil
                     fieldFocused = true
@@ -150,10 +209,15 @@ struct FindGameView: View {
             fieldFocused = false
             move(to: action == .jumpToStart ? 0 : count - 1)
         case .navigateLeft:
-            if let index = focused, index > 0 { move(to: index - 1) }
+            if let index = focused, index > 0, columns > 1 { move(to: index - 1) }
         case .navigateRight:
-            if let index = focused, index + 1 < count { move(to: index + 1) }
+            if let index = focused, index + 1 < count, columns > 1 { move(to: index + 1) }
         case .confirm:
+            if showsRecents {
+                guard let index = focused else { return }
+                if recents.indices.contains(index) { choose(recents[index]) } else { clearRecents() }
+                return
+            }
             let games = results
             // Nothing found, or nothing typed yet: A writes.
             guard !games.isEmpty else { return fieldFocused = true }
@@ -175,7 +239,7 @@ struct FindGameView: View {
     private func typed() {
         guard GameControllerService.shared.controllerInHand else { return pick(results.first) }
         fieldFocused = false
-        if !results.isEmpty { move(to: 0) }
+        if itemCount > 0 { move(to: 0) }
     }
 
     private func move(to index: Int) {
@@ -186,6 +250,7 @@ struct FindGameView: View {
     private func pick(_ game: CatalogGame?) {
         guard let game else { return }
         SoundEffectService.shared.play(.click)
+        recentSearches?.record(query)
         router.isSearchPresented = false
         if case .detail = router.route {
             router.setInitialRoute(.library)

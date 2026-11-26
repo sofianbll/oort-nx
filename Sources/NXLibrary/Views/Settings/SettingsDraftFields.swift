@@ -88,6 +88,7 @@ enum SettingsDraftFields {
                 $0 == .automatic ? L10n.text("Automatic") : $0 == .playstation ? "PlayStation" : $0 == .xbox ? "Xbox" : "Nintendo"
             },
             toggle("viewButtonSwitches", \.viewButtonSwitches),
+            toggle("showsTips", \.showsTips),
             .init("libraryTabs", \.libraryTabs, previews: true) { $0.map { L10n.text($0.rawValue) }.joined(separator: ", ") },
             .init("startingTab", \.startingTab, describe: { L10n.text($0) }),
             .init("spotlightOrder", \.spotlightOrder) {
@@ -157,6 +158,8 @@ enum SettingsDraftFields {
             .init("cloudTileBadges", \.cloudTileBadges, previews: true) { L10n.text($0.titleKey) },
         ] + SpotlightCard.allCases.filter { $0 != .inbox }.map { card in
             toggle("card-\(card.rawValue)", \AppSettings.[spotlightCard: card])
+        } + OnlinePlayersDisplay.Place.allCases.map { place in
+            toggle(place.id, \AppSettings.onlinePlayersDisplay[place], previews: true)
         }
     }
 

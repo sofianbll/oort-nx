@@ -1,6 +1,7 @@
 import Foundation
 import os
 import XCTest
+import NXLibraryCore
 @testable import ArcanePorting
 
 private final class OnlineCountsStub: URLProtocol {
@@ -39,6 +40,28 @@ final class NextendoOnlineCountsTests: XCTestCase {
         _ = try await store.withLock { try $0.write(nil) }
         let signedOut = try await counts.read(tokenStore: store)
         XCTAssertTrue(signedOut.isEmpty)
+        XCTAssertEqual(OnlineCountsStub.requests.withLock { $0 }, 1)
+    }
+
+    func testNoRequestWithAllFourPlacesOff() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("online-counts-\(UUID())")
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = NextendoTokenStore(directory: directory)
+        _ = try await store.withLock { try $0.write("synthetic-token") }
+        let config = URLSessionConfiguration.ephemeral
+        config.protocolClasses = [OnlineCountsStub.self]
+        OnlineCountsStub.requests.withLock { $0 = 0 }
+        let counts = NextendoOnlineCounts(session: URLSession(configuration: config))
+
+        let never = try await counts.read(tokenStore: store, display: .init([]))
+        XCTAssertTrue(never.isEmpty)
+        XCTAssertEqual(OnlineCountsStub.requests.withLock { $0 }, 0)
+
+        let shown = try await counts.read(tokenStore: store, display: .init([.gamePage]))
+        XCTAssertEqual(shown, ["01000000000000ab": 4])
+        // A cached answer is not handed out either.
+        let after = try await counts.read(tokenStore: store, display: .init([]))
+        XCTAssertTrue(after.isEmpty)
         XCTAssertEqual(OnlineCountsStub.requests.withLock { $0 }, 1)
     }
 

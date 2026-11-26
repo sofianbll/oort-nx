@@ -31,6 +31,9 @@ extension AppShellView {
             default: return false
             }
         }
+        GameControllerService.shared.showsNotice = {
+            !OortKeyboardPresentation.shared.isOpen && !filePicker.isOpen && !nativeDialogOwnsInput && !noticeKeys.isEmpty
+        }
         SoundEffectService.shared.isBrowsing = { [weak router] in
             router?.isMenuPresented != true && GameControllerService.shared.isBrowsing()
         }
@@ -143,6 +146,14 @@ extension AppShellView {
             }
             if viewModel.cloudQuitRequested {
                 cloudQuitInput(action)
+                return
+            }
+            if viewModel.noticeFocus.isActive {
+                noticeInput(action)
+                return
+            }
+            if action == .notice {
+                chooseNotice()
                 return
             }
             if showsSettingsNotice {

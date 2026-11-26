@@ -1446,7 +1446,10 @@ package enum CloudWriteFault {
                    '                    .frame(maxWidth: .infinity, alignment: .leading)')
         assistant = app / "Views/Settings/CloudSetupAssistant.swift"
         change(assistant, r'        \.onAppear \{\s*.*?installAssistantKeys\(\)(?: \}|\n        })\n', "")
-        change(assistant, r'@State private var remotes: \[RcloneRemote\]\?', '@State private var remotes: [RcloneRemote]? = []')
+        # The large panel has its own probe, run_cloud_assistant.py: here it only has to keep the moves and the settings whole.
+        panel = (app / "Views/Settings/CloudSetupAssistant+Browser.swift").is_file()
+        change(assistant, r'@State (private )?var remotes: \[RcloneRemote\]\?', '@State var remotes: [RcloneRemote]? = []' if panel
+               else '@State private var remotes: [RcloneRemote]? = []')
         account_fixture = ""
         if not before and ("New connections request full Google Drive access." in assistant.read_text()
                            or baseline == "5070a5ec"):
@@ -1488,7 +1491,7 @@ extension CloudDriveFolders.Listing {
     public static var screenFixture: Self { .init(ticket: UUID(), names: ["Nintendo", "Switch"]) }
 }
 ''')
-        else:
+        elif not panel:
             # TextField is AppKit-backed and ImageRenderer shows a placeholder instead of its text.
             change(assistant, r'TextField\(text\("Game files folder"\), text: \$sourcesPath,\s+'
                    r'prompt: Text\(verbatim: [^\n]+\)\)\s+\.focused\([^\n]+',
@@ -1813,8 +1816,9 @@ extension CloudSetupAssistant {
     }
 }
 '''.replace("CHECK_PRIMARY_FIRST", "false" if baseline == "5047557" else "true"))
-            host = host.replace("// ASSISTANT_CHECK", r'''
-        precondition(assistant.focusedTarget == .primary)
+        if browser or panel:
+            host = host.replace("// ASSISTANT_CHECK", ("precondition(assistant.browsing == .sources)" if panel
+                                else "precondition(assistant.focusedTarget == .primary)") + r'''
         precondition(CloudLibraryIndicator(state: model.states[game.id]!).status == .pending)
         precondition(CloudLibraryIndicator(state: model.states[game.id]!, item: .cache).status == .synchronized)
         precondition(pendingApp.status == .synchronized && !pendingApp.isTransferring)

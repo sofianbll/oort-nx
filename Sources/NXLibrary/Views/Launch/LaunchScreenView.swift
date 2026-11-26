@@ -129,6 +129,7 @@ struct LaunchScreenView: View {
         if exit != .none {
             SeleneHintsBar(left: exit == .button ? [HintItem(.b, "Close", action: finish)] : [],
                            right: exit == .button ? [] : [HintItem(nil, "Click to close", action: finish)])
+                .transformEnvironment(\.seleneShowButtonHints) { if exit == .click { $0 = true } }
                 .frame(maxHeight: .infinity, alignment: .bottom)
                 .transition(.opacity)
         }

@@ -160,6 +160,177 @@ final class NXNativeCatalogPersistenceTests: XCTestCase {
                 "birthSeconds": node.st_birthtimespec.tv_sec, "birthNanoseconds": node.st_birthtimespec.tv_nsec]
     }
 
+    func testOpeningWithAnInheritedRemovalNeverRecoversIntoTheOldLibrary() throws {
+        let fm = FileManager.default
+        for alreadyCopied in [false, true] {
+            for phase in ["intent", "catalog", "trash"] {
+                let profile = AppDataProfile(home: dir.appendingPathComponent(UUID().uuidString), isDevelopment: false)
+                let old = profile.legacySupportRoot, new = profile.supportRoot
+                let (repo, _) = try removalFixture(at: old)
+                let workspace = old.appendingPathComponent("workspace")
+                let trash = profile.home.appendingPathComponent("trash")
+                let target = trash.appendingPathComponent("bucket/workspace")
+                try fm.createDirectory(at: workspace, withIntermediateDirectories: true)
+                try fm.createDirectory(at: trash, withIntermediateDirectories: true)
+                try Data([17, 29]).write(to: workspace.appendingPathComponent("fixture"))
+                let game = removalGame(in: old, sources: [])
+                let base = try repo.updateNXNativeGames { $0 = [game] }
+                let catalog = phase == "intent" ? base : try repo.removeNXNative(id: game.id)
+                let journal = old.appendingPathComponent("catalog-removal-pending.json")
+                let record = try JSONSerialization.jsonObject(with: JSONEncoder().encode(base.games[0]))
+                let item: [String: Any] = ["source": workspace.absoluteString, "target": target.absoluteString,
+                    "identity": try removalIdentity(workspace), "origin": try removalIdentity(old), "trash": try removalIdentity(trash)]
+                try JSONSerialization.data(withJSONObject: [
+                    "version": 1, "original": base.revision.uuidString, "moved": (phase == "intent" ? UUID() : catalog.revision).uuidString,
+                    "restored": UUID().uuidString, "record": record, "index": 0, "items": [item],
+                ]).write(to: journal)
+                if phase == "trash" {
+                    try fm.createDirectory(at: target.deletingLastPathComponent(), withIntermediateDirectories: false)
+                    try fm.moveItem(at: workspace, to: target)
+                }
+                if alreadyCopied {
+                    try fm.copyItem(at: old, to: new)
+                    try Data(#"{"version":1,"ready":true,"files":1}"#.utf8).write(to: new.appendingPathComponent(".moved-library.json"))
+                }
+                let original = try diskTree(old), trashBefore = try diskTree(trash)
+                for _ in 0..<2 {
+                    try AppData.adoptLegacyLibrary(profile, checks: DevelopmentProfileImporter.portingChecks,
+                        legacyPreferences: { [:] }, preferences: { [:] }, savePreferences: { _ in })
+                    XCTAssertEqual(try CatalogStore(directory: new).loadOrMigrate().revision, catalog.revision)
+                    XCTAssertEqual(try Data(contentsOf: new.appendingPathComponent("catalog-removal-from-previous-library.json")),
+                                   try Data(contentsOf: journal))
+                    XCTAssertEqual(try diskTree(old), original, "old tree changed; earlier copy \(alreadyCopied), phase \(phase)")
+                    XCTAssertEqual(try diskTree(trash), trashBefore)
+                }
+            }
+        }
+    }
+
+    func testOpeningDoesNotArmAPendingBuildFromTheOldLibrary() throws {
+        let fm = FileManager.default
+        for copy in ["fresh", "beta3", "preferences interrupted"] {
+            for localDestination in [false, true] {
+                let profile = AppDataProfile(home: dir.appendingPathComponent(UUID().uuidString), isDevelopment: false)
+                let old = profile.legacySupportRoot, new = profile.supportRoot
+                let (repo, _) = try removalFixture(at: old)
+                let staging = old.appendingPathComponent("Temp/fixture/Waiting.app")
+                let final = (localDestination ? old : profile.home).appendingPathComponent("Existing.app")
+                for app in [staging, final] {
+                    try fm.createDirectory(at: app, withIntermediateDirectories: true)
+                    try Data([42]).write(to: app.appendingPathComponent("fixture"))
+                }
+                var game = removalGame(in: old, sources: [])
+                game.url = final
+                game.status = .built
+                let record = BuildRecord(logPath: "", outputPath: final.path)
+                game.pendingInstall = PendingInstall(tempApp: staging, finalApp: final, record: record, toolchain: .init(),
+                    expectedDestination: BuildOutputInstaller.expectedDestination(at: final))
+                _ = try repo.updateNXNativeGames { $0 = [game] }
+                if copy == "beta3" {
+                    try fm.copyItem(at: old, to: new)
+                    try fm.removeItem(at: new.appendingPathComponent("Temp"))
+                    try Data(#"{"version":1,"ready":true,"files":1}"#.utf8).write(to: new.appendingPathComponent(".moved-library.json"))
+                }
+                let original = try diskTree(old)
+                if copy == "preferences interrupted" {
+                    XCTAssertThrowsError(try LibraryMove(from: old, to: new).prepare(preferences: { [:] }, savePreferences: { _ in
+                        throw CocoaError(.fileWriteUnknown)
+                    }))
+                    XCTAssertEqual(try diskTree(old), original)
+                }
+                for attempt in 0..<2 {
+                    try AppData.adoptLegacyLibrary(profile, checks: DevelopmentProfileImporter.portingChecks,
+                        legacyPreferences: { [:] }, preferences: { [:] }, savePreferences: { _ in })
+                    let prepared = try CatalogStore(directory: new).loadForStartup(previousLibrary: old)
+                    XCTAssertEqual(prepared.keptPreviousBuild, attempt == 0)
+                    let reopened = try XCTUnwrap(prepared.catalog.games.first?.nxnativeGame)
+                    XCTAssertNil(reopened.pendingInstall, "staging should stay with the old version: \(copy), local destination \(localDestination)")
+                    XCTAssertEqual(reopened.status, .built)
+                    XCTAssertEqual(try diskTree(old), original)
+                    XCTAssertEqual(try Data(contentsOf: final.appendingPathComponent("fixture")), Data([42]))
+                }
+            }
+        }
+    }
+
+    func testOpeningKeepsExternalStagingWithTheProfileThatBuiltIt() throws {
+        let fm = FileManager.default
+        for alreadyCopied in [false, true] {
+            let profile = AppDataProfile(home: dir.appendingPathComponent(UUID().uuidString), isDevelopment: false)
+            let old = profile.legacySupportRoot, new = profile.supportRoot
+            let apps = profile.home.appendingPathComponent("external/Game apps")
+            let temp = BuildScratch.choose(core: old, appFolder: apps) {
+                .init(device: $0 == apps ? 2 : 1, canHoldBuilds: true)
+            }.temp
+            XCTAssertEqual(temp.path, apps.appendingPathComponent(".nxlibrary-build/Temp").path)
+            func pending(_ name: String, logFrom root: URL?) throws -> PendingInstall {
+                let stage = temp.appendingPathComponent(UUID().uuidString)
+                let final = apps.appendingPathComponent("\(name).app")
+                let held = stage.appendingPathComponent(final.lastPathComponent)
+                for app in [held, final] {
+                    try fm.createDirectory(at: app, withIntermediateDirectories: true)
+                    try Data(app == held ? [42] : [23]).write(to: app.appendingPathComponent("fixture"))
+                }
+                try fm.setAttributes([.modificationDate: Date(timeIntervalSince1970: 1)], ofItemAtPath: stage.path)
+                // Even a missing log still names the profile that produced the build.
+                return PendingInstall(tempApp: held, finalApp: final,
+                    record: BuildRecord(logPath: root?.appendingPathComponent("Logs/\(name).log").path, outputPath: final.path),
+                    toolchain: .init(), expectedDestination: BuildOutputInstaller.expectedDestination(at: final))
+            }
+            let inherited = try pending("Old", logFrom: alreadyCopied ? nil : old)
+            var game = removalGame(in: old, sources: [])
+            game.url = inherited.finalApp
+            game.status = .built
+            game.pendingInstall = inherited
+            let (repo, _) = try removalFixture(at: old)
+            _ = try repo.updateNXNativeGames { $0 = [game] }
+            if alreadyCopied {
+                try fm.copyItem(at: old, to: new)
+                try Data(#"{"version":1,"ready":true,"files":1}"#.utf8).write(to: new.appendingPathComponent(".moved-library.json"))
+            }
+            let original = try diskTree(old)
+            try AppData.adoptLegacyLibrary(profile, checks: DevelopmentProfileImporter.portingChecks,
+                legacyPreferences: { [:] }, preferences: { [:] }, savePreferences: { _ in })
+
+            let current = try pending("New", logFrom: new)
+            var other = PortedGame(name: "New", url: current.finalApp, platform: .macApp, sizeBytes: 1,
+                                   modificationDate: .now, titleId: "0100000000000002")
+            other.status = .built
+            other.pendingInstall = current
+            let store = CatalogStore(directory: new)
+            _ = try CatalogRepository(store: store).updateNXNativeGames { $0.append(other) }
+            let external = try diskTree(apps)
+            for attempt in 0..<2 {
+                let prepared = try store.loadForStartup(previousLibrary: old)
+                XCTAssertEqual(prepared.keptPreviousBuild, attempt == 0)
+                let games = prepared.catalog.nxnativeGames
+                let previous = try XCTUnwrap(games.first { $0.id == game.id })
+                XCTAssertNil(previous.pendingInstall)
+                XCTAssertEqual(previous.status, .built)
+                XCTAssertEqual(games.first { $0.id == other.id }?.pendingInstall, current)
+                XCTAssertEqual(profile.automaticStagingFolders(appFolders: [apps]).map(\.path),
+                               [new.appendingPathComponent("Temp").path])
+                XCTAssertEqual(try diskTree(old), original)
+                XCTAssertEqual(try diskTree(apps), external)
+            }
+        }
+    }
+
+    private func diskTree(_ root: URL) throws -> [String: [String]] {
+        let fm = FileManager.default
+        let names = [""] + (try XCTUnwrap(fm.subpaths(atPath: root.path)))
+        return try Dictionary(uniqueKeysWithValues: names.map { name in
+            let path = root.appendingPathComponent(name).path
+            var node = stat()
+            guard lstat(path, &node) == 0 else { throw POSIXError(.ENOENT) }
+            func date(_ time: timespec) -> String { "\(time.tv_sec).\(time.tv_nsec)" }
+            let bytes = node.st_mode & S_IFMT == S_IFREG ? try Data(contentsOf: URL(fileURLWithPath: path)).base64EncodedString() : ""
+            // APFS may update the access timestamp on our own read. Compare all dates that do not measure reads.
+            return (name, [String(node.st_ino), String(node.st_mode), date(node.st_birthtimespec),
+                           date(node.st_mtimespec), date(node.st_ctimespec), bytes])
+        })
+    }
+
     func testExplicitSelectionReplacesExistingSourcesAndSurvivesLaterScans() throws {
         let store = CatalogRepository(store: CatalogStore(directory: dir.appendingPathComponent("catalog")))
         try store.configureSource(.nxnative, enabled: true, root: nil)

@@ -70,12 +70,20 @@ struct OortSection<Content: View>: View {
 struct OortEmptyState: View {
     @Environment(\.seleneCanvas) private var canvas
     let title: String
+    /// What fills it.
+    var hint: String? = nil
 
     var body: some View {
-        Text(title)
-            .seleneFont(.heading, .semibold)
-            .foregroundStyle(SeleneTheme.ink82)
+        VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.compact)) {
+            Text(title)
+                .seleneFont(.heading, .semibold)
+                .foregroundStyle(SeleneTheme.ink82)
+            if let hint {
+                Text(hint).seleneFont(.text).foregroundStyle(SeleneTheme.ink75)
+            }
+        }
             .fixedSize(horizontal: false, vertical: true)
             .padding(.vertical, canvas.u(SeleneTokens.Space.emptyStateInset))
+            .accessibilityElement(children: .combine)
     }
 }

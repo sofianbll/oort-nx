@@ -11,7 +11,7 @@ host = '''
 import Foundation
 enum GamepadAction: Equatable {
     case navigateLeft, navigateRight, tabPrevious, tabNext, navigateUp, navigateDown, confirm, cancel
-    case jumpToStart, jumpToEnd, rightStickPress, secondaryAction, contextAction, view, search, browseSearch, menu, menuHold, controlCenter, fullMenu, profiles
+    case jumpToStart, jumpToEnd, rightStickPress, secondaryAction, contextAction, view, search, browseSearch, menu, menuHold, controlCenter, fullMenu, profiles, notice
 }
 enum LibrarySortMenu {
     static func handle(_ action: GamepadAction, focused: inout Int?, choose: (Int) -> Void) {}

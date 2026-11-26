@@ -42,9 +42,11 @@ public enum SeleneTokens {
         public static let pageMeasure: CGFloat = 1300
         public static let metadataList: CGFloat = 400
         public static let sidePanel: CGFloat = 640
+        public static let assistantRail: CGFloat = 260
         public static let questionMeasure: CGFloat = 900
         public static let keyDetailMeasure: CGFloat = 220
         public static let settingsMeasure: CGFloat = 1120
+        public static let creditCard: CGFloat = 320
         public static let pageMinimumFont: CGFloat = 11
         public static let pillWidth: CGFloat = 180
         public static let pillHeight: CGFloat = 60
@@ -181,6 +183,7 @@ public enum SeleneTokens {
         public static let screen: Double = 0.32
         public static let reducedFade: Double = 0.12
         public static let toast: Double = 0.25
+        public static let notice: Double = 15.0
         public static let rowMessage: Double = 0.3
         public static let detailArt: Double = 0.4
         public static let viewer: Double = 0.2

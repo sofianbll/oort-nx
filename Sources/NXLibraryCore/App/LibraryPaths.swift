@@ -13,7 +13,8 @@ public struct LibraryPaths {
         "activity-results.json", "build-queue.json", "cloud-transfer-queue.json",
     ]
     /// While this is there, an interrupted removal still has to be undone against the catalog as written.
-    static let removalJournal = "catalog-removal-pending.json"
+    package static let removalJournal = "catalog-removal-pending.json"
+    package static let inheritedRemoval = "catalog-removal-from-previous-library.json"
     private static let maximumBytes = 64 * 1024 * 1024
 
     let old: URL
@@ -31,7 +32,8 @@ public struct LibraryPaths {
         guard parts.count >= root.count, zip(root, parts).allSatisfy({ $0 == plain($1) }) else { return text }
         let tail = parts.dropFirst(root.count)
         let names = tail.map(plain).filter { !$0.isEmpty }
-        guard !names.contains(".."), accepts(names.joined(separator: "/")) else { return text }
+        // Logs are not copied, and a missing log still names the profile that produced the build.
+        guard names.first != "Logs", !names.contains(".."), accepts(names.joined(separator: "/")) else { return text }
         let head = isURL ? URL(fileURLWithPath: new.path, isDirectory: false).absoluteString : new.path
         return ([head] + tail).joined(separator: "/")
     }

@@ -10,6 +10,7 @@ final class AppViewModel {
     var alertMessage: String?
     var settingsNotice: SettingsNotice?
     var isBuilding = false
+    var router: AppRouter?
     init(_ repository: CatalogRepository) { catalogRepository = repository }
     func reportLibrarySaveFailure(_ error: Error) { alertMessage = error.localizedDescription }
     func showSettingsNotice(title: String, message: String, actionTitle: String = "Retry", cancelTitle: String = "Back", retry: (() -> Void)? = nil) {
@@ -68,6 +69,17 @@ try require(options.choices == ["Remove", "Back", "Choose"] && options.initialFo
 options.runAnswer(.alternative(0))
 try require(selected == ["remove"], "The destructive choice runs its own action")
 selected.removeAll()
+for title in ["Quit", "Restart"] {
+    let power = SettingsNotice(title: title, message: "", cancelTitle: "Cancel",
+        alternatives: [(title, { selected.append(title) })], destructive: [title])
+    try require(power.choices == ["Cancel", title] && power.defaultAnswer == .back,
+                "The power confirmation should initially focus Cancel")
+    power.runAnswer(power.defaultAnswer)
+    try require(selected.isEmpty, "The initial choice must not run a power action")
+    power.runAnswer(.alternative(0))
+    try require(selected == [title], "Only choosing the power action should run it")
+    selected.removeAll()
+}
 model.settingsNotice = SettingsNotice(title: "Rebuild", message: "Different cache",
     retry: { selected.append("download") }, actionTitle: "Download", cancelTitle: "Cancel",
     alternatives: [("Local", { selected.append("local") }), ("Without", { selected.append("without") })], primaryFirst: true)

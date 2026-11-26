@@ -257,6 +257,18 @@ public struct NXNativeGameSettings {
         try store.set(nil, Self.multiplayerKey, domain: domain)
     }
 
+    /// The raw choices kept for this game, to put back exactly. Nothing from env.txt, which is the player's own file.
+    public func savedChoices() -> [String: String] {
+        (settings.map(\.env) + [Self.multiplayerKey]).reduce(into: [:]) { $0[$1] = store.value($1, domain: domain) }
+    }
+
+    /// Puts back what `savedChoices` read; a choice made since is removed.
+    public func restore(_ choices: [String: String]) throws {
+        for env in settings.map(\.env) + [Self.multiplayerKey] {
+            try store.set(choices[env], env, domain: domain)
+        }
+    }
+
     // MARK: - The typed view
 
     /// The typed settings Add game and the new-game defaults use, from the values that apply now.

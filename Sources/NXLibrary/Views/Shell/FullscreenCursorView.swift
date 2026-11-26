@@ -59,8 +59,8 @@ final class CursorWindowView: NSView {
                 }
             })
         }
-        hand = GameControllerService.shared.$inputInHand.map(\.device).removeDuplicates().sink { [weak self] device in
-            guard let self, device == .controller else { return }
+        hand = Self.controllerActivity(GameControllerService.shared).sink { [weak self] in
+            guard let self else { return }
             self.state.controllerUsed()
             // The tick applies it: the window must still be the one in use.
             DispatchQueue.main.async { [weak self] in self?.tick() }
@@ -68,6 +68,10 @@ final class CursorWindowView: NSView {
         let timer = Timer(timeInterval: 0.25, repeats: true) { [weak self] _ in self?.tick() }
         self.timer = timer
         RunLoop.main.add(timer, forMode: .common)
+    }
+
+    static func controllerActivity(_ controller: GameControllerService) -> AnyPublisher<Void, Never> {
+        controller.controllerActivity
     }
 
     func stop() {

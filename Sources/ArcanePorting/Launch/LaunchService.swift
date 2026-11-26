@@ -13,7 +13,7 @@ public final class NSWorkspaceLauncher: AppLaunching {
     public func open(_ url: URL, environment: [String: String], suppressInheritedPlayerMode: Bool,
                      onExit: (@Sendable () -> Void)?, completion: @escaping @Sendable (Bool, String?) -> Void) {
         guard FileManager.default.fileExists(atPath: url.path) else {
-            completion(false, "The app bundle is missing: \(url.path)")
+            completion(false, L10n.format("The app bundle is missing: %@", [url.path]))
             return
         }
         let configuration = NSWorkspace.OpenConfiguration()

@@ -96,7 +96,8 @@ struct GameInboxView: View {
                 Text(verbatim: message).seleneFont(.text).foregroundStyle(SeleneTheme.ink)
             }
             if model.entries.isEmpty, !model.busy {
-                OortEmptyState(title: L10n.text("No incoming files"))
+                OortEmptyState(title: L10n.text("No incoming files"),
+                               hint: L10n.text("Drop game files here, or put them in the Inbox folder and refresh."))
             }
             ForEach(model.entries) { entry in
                 row(entry)

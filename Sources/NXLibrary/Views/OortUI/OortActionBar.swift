@@ -76,7 +76,7 @@ struct OortActionBar: View {
                 .accessibilityHint(action.detail ?? "")
                 .seleneHover { if action.enabled { onFocus(action.id) } }
             if let detail = action.detail {
-                Text(detail).seleneFont(.text).foregroundStyle(SeleneTheme.ink60)
+                Text(verbatim: detail).seleneFont(.text).foregroundStyle(SeleneTheme.ink60)
                     .multilineTextAlignment(.center)
                     .frame(idealWidth: canvas.u(SeleneTokens.Space.pillWidth), maxWidth: fills ? nil : canvas.u(SeleneTokens.Space.keyDetailMeasure))
                     .fixedSize(horizontal: false, vertical: true)

@@ -8,11 +8,22 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 
 - **⌘K** opens a search over everything: start a game or open its options, go to a setting, run an action. It shows recent and suggested choices before you type, forgives accents and small typing mistakes, and works offline. With a controller, press Y in **Find a game**.
 - Each kind of controller has its own drawing: Xbox, PlayStation, Switch Pro, Joy-Con pair and single Joy-Con. Controls links every button to what it does, in the library and in a game, for the connected controller or another one.
+- **Undo**: removing a favorite, hiding a game, removing a Mac app tile, restoring a game's default settings or clearing searches shows a notice with Undo. ⌘Z does the same; Activity keeps the last one. Hold X, or press Tab, to choose the notice or a tip without losing your place; it stays 15 seconds, and as long as it is chosen.
+- Search shows your four last searches, kept on this Mac per profile, and a row that clears them.
+- X on a changed row in Settings puts back that row alone, with Undo. The group still asks first.
+- **Copy settings to another game**, in a game's All settings → General: choose the game, see what changes, copy, undo.
+- Two tips, shown once when they would help. **Tips**, in Settings → Controllers, turns them off.
 - Three more sound packs made by the app, in Settings → Sound: **Frost** (lively and crisp), **Mist** (wide and soft) and **Nucleus** (low and clean). They play the notes of the Oort voices, follow **Compose** and are set to the measured loudness of **Oort**. The default does not change.
 - **Sound pack** now steps through **Oort**, **Frost**, **Mist**, **Nucleus** and **Other**. Selene, Pollen, Umbra, Impulsion and imported packs are chosen on the **Other pack** row shown under Other. Nothing is removed, and a pack already chosen stays chosen.
 
 ### Changed
 
+- **Library refresh** now checks the game apps, the enabled sources and the cloud together, from the + card, ⌘K and Settings, and says what changed or what could not be read. In Settings it replaces Scan game apps. Pressing it again starts over.
+- The cloud library is read from one rclone, many folders at a time, and records already read are kept: a refresh takes seconds instead of minutes.
+- **Settings → Multiplayer → Nextendo players** lets you choose where to show the count: on covers, on the selected game, in Details or on the game page. Turn off all four to stop the requests.
+- **Disconnect** (Cloud library) says what is erased and can keep the Google ID and secret: reconnecting does not ask for them again.
+- Removing a Mac app tile no longer asks first: Undo puts it back.
+- Error messages read on their own say what to do, and empty screens say what fills them. An error that is in the log offers **Open log**.
 - The control center opens with **⇧⌘K**; ⌘K is now the search.
 - In French, making a game’s app is always “compiler”.
 - A game started from Oort asks to quit in your language, and unsaved progress has one sentence everywhere.
@@ -29,12 +40,21 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 - Prompts name what was used last: a controller's buttons after a press, the Mac keys after a key, a click or a real move of the mouse. A small nudge changes nothing.
 - The control center keeps five icons with Power in the middle. Players joins the Profile card.
 - French addresses the player with « tu » everywhere, as the site, Windows and the phones do.
+- Google Drive settings show what is in your cloud and what stays on this Mac, even before you connect. Setup suggests separate game and ROM libraries, explains when a folder does not fit, and asks before creating anything. **See my games** turns on the library and opens the Cloud tab.
 
 ### Fixed
 
 - Mac dialogs keep Cancel on the left of a destructive pair and stack four or more answers. Unsaved settings open on Save; Escape keeps the draft.
+- After looking at ROM folders, cloud setup resumes an interrupted check of the old games folder, so Continue is available again when the check finishes.
+- Cancelling **Library refresh** discards late local scan results and does not start a new Drive import when the scan ends.
 - A library copied from the folder of Oort NX 0.3.0 now names its own folder: games, settings and queues no longer point at the old one. A library copied earlier is repaired once, after keeping its files; the old folder is not changed.
+- On Mac, the two About credits headings stay readable on light palettes.
+- An interrupted removal or a waiting build from the previous library stays with that version, even on an external drive. Builds already waiting in the new library still install there.
+- An explicitly selected rclone link keeps working when its package manager upgrades the executable.
+- ⌘K leaves Settings dialogs in charge. Refreshing the games keeps the same palette row selected, or clears the selection if that row is gone.
+- Mac pre-releases check a wider release list so newer releases for other systems do not hide Mac updates.
 - In the control center, B says Back inside a card, and ⌘K closes what it opened.
+- A library that only has the older `library.json` still opens with paths to its copied files. The older file stays untouched.
 - ⌘F, and holding − in the Arcane layout, search from a game’s page too.
 - With button hints off, the mouse keeps Back on screens that have no other way out.
 - Every choice of a file, folder, app or picture opens Oort’s own picker, and sound packs ask in Oort’s dialogs: a controller reaches them all.
@@ -46,7 +66,11 @@ User-visible changes to Oort NX and its Arcane base (formerly NX Library) are re
 - Screenshots: Previous and Next take a click.
 - A click puts a moved tile down; its hints take a click too.
 - Every hint of the Spotlight page and the Collection takes a click: card options, Details, Options.
-- The launch screen can be left with B or Esc after four seconds, and says so; keys no longer act on the screen under it.
+- The launch screen can be left with B or Esc after four seconds; when Oort is not active, its click-to-close button stays visible even with button hints off. Keys no longer act on the screen under it.
+- Cancelling a restart from the command palette leaves no restart pending.
+- The on-screen keyboard follows the device in use without leaving the field. Physical keys still navigate and run palette results, and VoiceOver names the selected result and its action.
+- A second HID controller can take over when its fallback delay expires. Back in a launcher window, the next controller input hides the pointer again.
+- Held Return and Space cannot confirm twice; held arrows still move the selection.
 
 ## 0.5.0-beta.3 — 2026-11-25
 

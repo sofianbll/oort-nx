@@ -243,6 +243,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
     public var multiplayerDefault: MultiplayerMode = .offline
     public var multiplayerLocalMode: MultiplayerLocalMode = .auto
     public var multiplayerAdapter: String? = nil
+    public var onlinePlayersDisplay = OnlinePlayersDisplay()
     public var backgroundShade: BackgroundShade
     public var readableText: Bool
     public var reduceMotion: Bool
@@ -296,6 +297,8 @@ public struct AppSettings: Codable, Equatable, Sendable {
     public var introAnimation: Bool
     public var profileStartup: ProfileStartup
     public var viewButtonSwitches: Bool
+    /// A shortcut told once, when it would help (`Tips`).
+    public var showsTips: Bool
     public var interfaceSounds: Bool
     public var soundVolume: Double
     public var soundPackID: String
@@ -372,6 +375,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
                 introAnimation: Bool = true,
                 profileStartup: ProfileStartup = .ask,
                 viewButtonSwitches: Bool = true,
+                showsTips: Bool = true,
                 interfaceSounds: Bool = true,
                 soundVolume: Double = 0.6,
                 soundPackID: String = "oort",
@@ -408,6 +412,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
         self.introAnimation = introAnimation
         self.profileStartup = profileStartup
         self.viewButtonSwitches = viewButtonSwitches
+        self.showsTips = showsTips
         self.interfaceSounds = interfaceSounds
         self.soundVolume = soundVolume
         self.soundPackID = soundPackID
@@ -427,7 +432,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
         case launcherChoices
         case appLanguage, appRegion, remotePlayMode
         case inGameHomeButton
-        case multiplayerVPN, multiplayerDefault, multiplayerLocalMode, multiplayerAdapter
+        case multiplayerVPN, multiplayerDefault, multiplayerLocalMode, multiplayerAdapter, onlinePlayersDisplay
         case backgroundShade, readableText, reduceMotion, showButtonHints, showClock
         case restoreLastGame, checkEngineAtLaunch, refreshLibraryAtLaunch, lastSelectedGameID
         case gameInboxEnabled
@@ -437,7 +442,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
         case librarySort
         case showsCloudPlayIcon, showsCloudDetailsLink, cloudTileBadges, tileBadgePosition, platformCardInfo, interfaceZoom
         case startOn, lastHome
-        case introAnimation, viewButtonSwitches, interfaceSounds, soundVolume, quietLaunch, soundPackID, noteFigure, noteOctave, customNotes, placeNotes
+        case introAnimation, viewButtonSwitches, showsTips, interfaceSounds, soundVolume, quietLaunch, soundPackID, noteFigure, noteOctave, customNotes, placeNotes
         case showProfilePicker, profileStartup
         case wallpaperID, backgroundSizing, animatedBackground, wallpaperBrightness, launchStyle, launchMotion, launchShade
         case notifyPortingEnds, checkAppUpdatesAtLaunch
@@ -461,6 +466,8 @@ public struct AppSettings: Codable, Equatable, Sendable {
         multiplayerDefault = (try? container.decode(MultiplayerMode.self, forKey: .multiplayerDefault)) ?? .offline
         multiplayerLocalMode = (try? container.decode(MultiplayerLocalMode.self, forKey: .multiplayerLocalMode)) ?? .auto
         multiplayerAdapter = try? container.decode(String.self, forKey: .multiplayerAdapter)
+        onlinePlayersDisplay = (try? container.decode(OnlinePlayersDisplay.self, forKey: .onlinePlayersDisplay))
+            ?? OnlinePlayersDisplay(legacy: try? container.decode(String.self, forKey: .onlinePlayersDisplay))
         self.backgroundShade = try container.decodeIfPresent(BackgroundShade.self, forKey: .backgroundShade) ?? .balanced
         self.readableText = try container.decodeIfPresent(Bool.self, forKey: .readableText) ?? true
         self.reduceMotion = try container.decodeIfPresent(Bool.self, forKey: .reduceMotion) ?? false
@@ -502,6 +509,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
         self.profileStartup = try container.decodeIfPresent(ProfileStartup.self, forKey: .profileStartup)
             ?? (container.decodeIfPresent(Bool.self, forKey: .showProfilePicker) == false ? .last : .ask)
         self.viewButtonSwitches = try container.decodeIfPresent(Bool.self, forKey: .viewButtonSwitches) ?? true
+        self.showsTips = try container.decodeIfPresent(Bool.self, forKey: .showsTips) ?? true
         self.interfaceSounds = try container.decodeIfPresent(Bool.self, forKey: .interfaceSounds) ?? true
         self.soundVolume = try container.decodeIfPresent(Double.self, forKey: .soundVolume) ?? 0.6
         self.soundPackID = (try? container.decode(String.self, forKey: .soundPackID)) ?? "selene"
@@ -562,6 +570,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
         try c.encode(multiplayerDefault, forKey: .multiplayerDefault)
         try c.encode(multiplayerLocalMode, forKey: .multiplayerLocalMode)
         try c.encodeIfPresent(multiplayerAdapter, forKey: .multiplayerAdapter)
+        try c.encode(onlinePlayersDisplay, forKey: .onlinePlayersDisplay)
         try c.encode(showsCloudPlayIcon, forKey: .showsCloudPlayIcon)
         try c.encode(showsCloudDetailsLink, forKey: .showsCloudDetailsLink)
         try c.encode(cloudTileBadges, forKey: .cloudTileBadges)
@@ -575,6 +584,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
         // Older Arcane copies can still respect the original on/off preference.
         try c.encode(profileStartup != .last, forKey: .showProfilePicker)
         try c.encode(viewButtonSwitches, forKey: .viewButtonSwitches)
+        try c.encode(showsTips, forKey: .showsTips)
         try c.encode(interfaceSounds, forKey: .interfaceSounds)
         try c.encode(soundVolume, forKey: .soundVolume)
         try c.encode(soundPackID, forKey: .soundPackID)

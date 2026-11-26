@@ -12,6 +12,7 @@ import ArcanePorting
     static var disconnects = 0
     static var pin: String?
     static var pickedEngine: URL?
+    nonisolated(unsafe) static var pickedRclone: URL?
     static var availableDriveTool: URL? = URL(fileURLWithPath: "/fixture/rclone")
     static var scopeTool: URL?
     static var scopeAccount = "Account_ID"
@@ -29,7 +30,12 @@ import ArcanePorting
         throw RcloneDownload.Failure.network
     }
 
-    static func disconnect(_ tool: URL, _ name: String) throws {
+    static var account: RcloneAccount?
+    static var kept: [Bool] = []
+    nonisolated(unsafe) static let choices = MemorySavedChoices()
+
+    static func disconnect(_ tool: URL, _ name: String, keepingClient: Bool) throws {
+        kept.append(keepingClient)
         precondition(tool.path == "/fixture/rclone" && name == "fixture")
         disconnects += 1
     }
@@ -192,9 +198,41 @@ import ArcanePorting
         L10n.setContext(locale)
         let root = AppData.supportRoot.appendingPathComponent("settings-confirmation-probe", isDirectory: true)
         let settings = AppSettingsStore(fileURL: root.appendingPathComponent("settings.json"))
+        settings.settings.soundVolume = 0
+        SoundEffectService.shared.bind(to: settings)
         func makeModel() -> AppViewModel {
             AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: root)))
         }
+        if ProcessInfo.processInfo.environment["OORT_CAPTURE_ATTENTIONS"] == "1" {
+            try checkAttentions(vm: makeModel(), settings: settings, output: output, locale: locale, capturesOnly: true)
+            return
+        }
+        let toolVM = makeModel()
+        let tool = SettingsCloudLibrarySection(viewModel: toolVM, model: toolVM.cloudLibrary,
+            settings: SettingsEditor(settings), advanced: .constant(true), onEdit: {}, onEditLibrary: {},
+            onEditSources: {}, onActions: { _ in })
+        let fm = FileManager.default
+        let bin = root.appendingPathComponent("bin"), cellar = root.appendingPathComponent("Cellar")
+        for folder in [bin, cellar] { try fm.createDirectory(at: folder, withIntermediateDirectories: true) }
+        let stable = bin.appendingPathComponent("rclone")
+        let v1 = cellar.appendingPathComponent("rclone-1"), v2 = cellar.appendingPathComponent("rclone-2")
+        for version in [v1, v2] {
+            try Data("#!/bin/sh\nexit 0\n".utf8).write(to: version)
+            try fm.setAttributes([.posixPermissions: 0o700], ofItemAtPath: version.path)
+        }
+        try fm.createSymbolicLink(at: stable, withDestinationURL: v1)
+        let defaults = AppData.preferences
+        let keys = [CloudLibraryPreference.executableKey, CloudLibraryPreference.toolChoiceKey]
+        let prior = keys.map { defaults.object(forKey: $0) }
+        pickedRclone = stable
+        tool.chooseTool()
+        pickedRclone = nil
+        try fm.removeItem(at: stable)
+        try fm.removeItem(at: v1)
+        try fm.createSymbolicLink(at: stable, withDestinationURL: v2)
+        precondition(makeModel().cloudLibrary.resolvedDriveTool == stable, "explicit rclone must survive a versioned-link upgrade")
+        for (key, value) in zip(keys, prior) { defaults.set(value, forKey: key) }
+        print("Explicit rclone link survives upgrade")
         if ProcessInfo.processInfo.environment["OORT_SETTINGS_DRAFT_ONLY"] != "1" {
             try await checkDriveScope(settings: settings, makeModel: makeModel)
             if ProcessInfo.processInfo.environment["OORT_SCOPE_ONLY"] == "1" { return }
@@ -204,6 +242,19 @@ import ArcanePorting
         let catalog = try repository.load()
         let vm = AppViewModel(settingsStore: settings, catalog: catalog, repository: repository)
         vm.applyCatalog(catalog) // This harness disables catalog application in the initializer.
+        if ProcessInfo.processInfo.environment["OORT_ATTENTIONS_ONLY"] == "1" {
+            try await checkNoticeHold()
+            try checkAttentions(vm: vm, settings: settings, output: output, locale: locale)
+            return
+        }
+        let router = AppRouter()
+        router.openSettings(.look)
+        let dialogHost = SettingsView(initialSection: .look, viewModel: vm, settings: settings, router: router, artwork: ArtworkStore())
+        for (cloud, pin) in [(true, false), (false, true), (false, false)] {
+            dialogHost.screenReportDialog(cloud: cloud, pin: pin)
+            router.isPalettePresented = true
+            precondition(router.isPalettePresented == !(cloud || pin), "Settings dialogs own the palette input")
+        }
         try checkDraft(vm: vm, settings: settings, output: output, locale: locale)
         try checkNavigation(vm: vm, settings: settings, output: output, locale: locale, size: .init(width: 1440, height: 810), suffix: "fr")
         try checkNavigation(vm: vm, settings: settings, output: output, locale: locale, size: .init(width: 840, height: 810), suffix: "etroit-fr")
@@ -216,19 +267,28 @@ import ArcanePorting
         model.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: nil)
         let input = Input(viewModel: vm)
 
-        func render<V: View>(_ name: String, _ view: V, height: CGFloat = 690) throws {
+        func render<V: View>(_ name: String, _ view: V, height: CGFloat = 690, context: AppLocale? = nil) throws {
             let renderer = ImageRenderer(content: view
                 .frame(width: 1140, height: height)
                 .background(Color(red: 0.09, green: 0.13, blue: 0.20))
-                .environment(\.nxAppLocale, locale)
+                .environment(\.nxAppLocale, context ?? locale)
                 .environment(\.seleneButtonNames, .xbox)
                 .environment(\.colorScheme, .dark)
                 .environment(\.seleneCanvas, SeleneCanvas(size: .init(width: 1920, height: 1080)))
                 .environment(\.seleneReduceMotion, true))
             let image = renderer.cgImage!
             let png = NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:])!
-            try png.write(to: output.appendingPathComponent("confirm-\(name)-fr.png"))
+            try png.write(to: output.appendingPathComponent("confirm-\(name)-\(context?.language.rawValue ?? "fr").png"))
         }
+
+        for language in [locale, AppLocale(language: .english, region: "US")] {
+            L10n.setContext(language)
+            vm.alertMessage = DevelopmentStartup.libraryMoveNotice(removal: true, pendingBuild: true)
+            input.presentLegacyNotice()
+            try render("previous-library", input.settingsNoticeOverlay(vm.settingsNotice!), context: language)
+            input.settingsNoticeInput(.cancel)
+        }
+        L10n.setContext(locale)
 
         func confirm(_ name: String, _ open: () -> Void, count: () -> Int) throws {
             let before = count()
@@ -300,9 +360,7 @@ import ArcanePorting
         CloudSetupAssistant(viewModel: vm, model: model, entry: .library, onClose: { closed += 1 })
             .screenFolder("Autre bibliothèque").primary()
         precondition(model.preference.root == "Autre bibliothèque" && cloudWrites == 5 && closed == 3)
-        precondition(vm.settingsNotice?.message.contains("Bibliothèque → Cloud") == true)
-        input.settingsNoticeInput(.confirm)
-        precondition(vm.settingsNotice == nil && cloudWrites == 5)
+        precondition(vm.settingsNotice == nil && vm.librarySelection.query.filter == .cloud, "Finished setup opens the cloud shelf")
         let sources = CloudSetupAssistant(viewModel: vm, model: model, entry: .sources, onClose: { closed += 1 })
             .screenFolder("Autres sources")
         try render("cloud-game-files-folder", sources, height: 1020)
@@ -315,6 +373,50 @@ import ArcanePorting
         try confirm("cloud-disconnect", cloud.confirmDisconnect, count: { disconnects })
         for _ in 0..<20 where model.isChangingConnection { await Task.yield() }
         precondition(disconnects == 1 && model.preference.remote == nil && cloudWrites == 7)
+        precondition(kept == [false] && model.keptConnection == nil)
+
+        // The client is there: Erase has its own role and keeping the ID and secret takes initial focus.
+        func section() -> SettingsCloudLibrarySection {
+            SettingsCloudLibrarySection(viewModel: vm, model: model, settings: SettingsEditor(settings),
+                advanced: .constant(true), onEdit: {}, onEditLibrary: {}, onEditSources: {}, onActions: { _ in })
+        }
+        func settle() async { for _ in 0..<20 where model.isChangingConnection { await Task.yield() } }
+        account = RcloneAccount(hasClient: true, isSignedIn: true)
+        model.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: nil)
+        section().confirmDisconnect()
+        let question = vm.settingsNotice!
+        precondition(question.choices == ["Erase everything", "Cancel", "Disconnect and keep the ID and secret"]
+                     && question.answers.first?.role == .destructive && question.cancelIndex == 1
+                     && vm.settingsNoticeFocus == 2)
+        precondition(question.choiceDetails["Disconnect and keep the ID and secret"]?.contains("Seule la connexion Google") == true
+                     && question.choiceDetails["Erase everything"]?.contains("l’ID et le secret") == true)
+        try render("cloud-disconnect-choice", input.settingsNoticeOverlay(question))
+        input.settingsNoticeInput(.navigateLeft)
+        precondition(vm.settingsNoticeFocus == question.cancelIndex)
+        input.settingsNoticeInput(.confirm)
+        precondition(kept == [false] && model.preference.remote == "fixture")
+        section().confirmDisconnect()
+        input.settingsNoticeInput(.cancel)
+        precondition(kept == [false] && model.preference.remote == "fixture")
+        section().confirmDisconnect()
+        input.settingsNoticeInput(.confirm)
+        await settle()
+        precondition(kept == [false, true] && model.preference.remote == nil && model.keptConnection == "fixture")
+        account = RcloneAccount(hasClient: true, isSignedIn: false)
+        try render("cloud-kept-client", section().advancedRows.frame(width: 1060).padding(40), height: 700)
+        try confirm("cloud-erase-kept", section().confirmEraseKept, count: { kept.count })
+        await settle()
+        precondition(kept == [false, true, false] && model.keptConnection == nil)
+        account = RcloneAccount(hasClient: true, isSignedIn: true)
+        model.configure(remote: "fixture", root: "Games", enabled: true, sourcesRoot: nil)
+        section().confirmDisconnect()
+        input.settingsNoticeInput(.navigateLeft)
+        input.settingsNoticeInput(.navigateUp)
+        precondition(vm.settingsNoticeFocus == 0)
+        input.settingsNoticeInput(.confirm)
+        await settle()
+        precondition(kept.last == false && model.preference.remote == nil && model.keptConnection == nil)
+        account = nil
 
         // Upgrade from the embedded helper: do not touch the preference or retry automatically after Cancel.
         AppData.preferences.set("fixture:Games", forKey: CloudLibraryPreference.storageKey)

@@ -285,9 +285,15 @@ struct CollectionView: View {
                 .seleneFont(.screen)
                 .foregroundColor(SeleneTheme.ink)
         } else if hasAnyGame {
-            Text(L10n.format("No games in %@", [L10n.text(filter.rawValue)]))
-                .seleneFont(.screen)
-                .foregroundColor(SeleneTheme.ink)
+            VStack(spacing: canvas.u(SeleneTokens.Space.medium)) {
+                Text(L10n.format("No games in %@", [L10n.text(filter.rawValue)]))
+                    .seleneFont(.screen)
+                    .foregroundColor(SeleneTheme.ink)
+                Text(L10n.text(filter.emptyCopy.hint, context: localization))
+                    .seleneFont(.text)
+                    .foregroundColor(SeleneTheme.ink75)
+            }
+                .multilineTextAlignment(.center)
                 .oortShadow(.text)
                 .allowsHitTesting(false)
         } else {
@@ -440,7 +446,7 @@ struct CollectionInfoView: View {
                     .foregroundColor(SeleneTheme.ink75)
                     .padding(.top, canvas.u(SeleneTokens.Space.panel))
             }
-            SeleneStatsRow(presentation: presentation)
+            SeleneStatsRow(presentation: presentation, onlineTitleID: game.titleId)
                 .padding(.top, canvas.u(SeleneTokens.Space.feature))
             if !presentation.genres.isEmpty {
                 SpotlightGenreChips(genres: presentation.genres)

@@ -30,10 +30,17 @@ import os
 enum AppData {
     static var supportRoot = URL(fileURLWithPath: "/unused")
     static var rejectPreparation = false
+    static var movedProfile: AppDataProfile?
     static var preferences: UserDefaults { UserDefaults(suiteName: supportRoot.appendingPathComponent("fixture-prefs").path)! }
-    static var profile: AppDataProfile { .init(home: supportRoot, isDevelopment: false) }
+    static var profile: AppDataProfile { movedProfile ?? .init(home: supportRoot, isDevelopment: false) }
     static func prepare(contents: DevelopmentProfileImporter.Contents) throws {
         if rejectPreparation { throw CocoaError(.fileReadNoPermission) }
+        if let movedProfile {
+            let old = movedProfile.legacySupportRoot
+            _ = try LibraryMove(from: old, to: supportRoot).prepare(preferences: { [:] }, savePreferences: { _ in })
+            try LibraryPathRepair(from: old, to: supportRoot).prepare(checks: DevelopmentProfileImporter.portingChecks,
+                preferences: { [:] }, savePreferences: { _ in })
+        }
     }
 }
 struct NSRunningApplication {
@@ -41,8 +48,10 @@ struct NSRunningApplication {
     static func runningApplications(withBundleIdentifier _: String) -> [Self] { [] }
 }
 struct AppSettingsStore {}
+final class AppViewModel { var alertMessage: String? }
 final class AppShellState {
     let catalog: CatalogDocument
+    let viewModel = AppViewModel()
     init(settings: AppSettingsStore, catalog: CatalogDocument, repository: CatalogRepository) {
         self.catalog = catalog
     }
@@ -55,6 +64,29 @@ enum DevelopmentStartupFailure: Error { case otherCopyRunning }
         let root = URL(fileURLWithPath: CommandLine.arguments[1])
         AppData.supportRoot = root
         switch CommandLine.arguments.dropFirst(2).first {
+        case "copied":
+            let profile = AppDataProfile(home: root, isDevelopment: false)
+            AppData.movedProfile = profile
+            AppData.supportRoot = profile.supportRoot
+            let old = profile.legacySupportRoot
+            let staging = old.appendingPathComponent("Temp/fixture/Waiting.app")
+            let final = root.appendingPathComponent("Fixture.app")
+            try FileManager.default.createDirectory(at: staging, withIntermediateDirectories: true)
+            var game = PortedGame(name: "Fixture", url: final, platform: .macApp, sizeBytes: 0, modificationDate: .now)
+            game.pendingInstall = PendingInstall(tempApp: staging, finalApp: final,
+                record: BuildRecord(logPath: "", outputPath: final.path), toolchain: .init())
+            let catalog = try CatalogRepository(store: CatalogStore(directory: old)).updateNXNativeGames { $0 = [game] }
+            let journal = old.appendingPathComponent("catalog-removal-pending.json")
+            try Data("{}".utf8).write(to: journal)
+            let startup = DevelopmentStartup { _, _ in .ready }
+            await startup.prepare()
+            precondition(startup.failure == nil && startup.shell?.catalog.games.first?.nxnativeGame?.pendingInstall == nil)
+            precondition(startup.shell?.viewModel.alertMessage?.split(separator: "\n").count == 2)
+            precondition(FileManager.default.fileExists(atPath: staging.path))
+            let kept = try CatalogStore.decode(Data(contentsOf: old.appendingPathComponent("catalog.json")))
+            precondition(kept == catalog && FileManager.default.fileExists(atPath: journal.path))
+            print("The shell opens and reports both previous-library operations without taking ownership of them.")
+            return
         case "concurrency":
             _ = try CatalogStore(directory: root).loadOrMigrate()
             try Data("fixture".utf8).write(to: root.appendingPathComponent("settings.json"))

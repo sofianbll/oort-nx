@@ -1,5 +1,6 @@
 import Foundation
 import AppKit
+import Carbon.HIToolbox
 import Combine
 import NXLibraryCore
 
@@ -37,6 +38,8 @@ final class GameControllerService: ObservableObject {
     func openHomeSettings() { (gcSource as? GCControllerSource)?.openHomeSettings() }
     private let buttonPresses = PassthroughSubject<String, Never>()
     var controllerButtonPresses: AnyPublisher<String, Never> { buttonPresses.eraseToAnyPublisher() }
+    private let activity = PassthroughSubject<Void, Never>()
+    var controllerActivity: AnyPublisher<Void, Never> { activity.eraseToAnyPublisher() }
 
     var onAction: ((GamepadAction) -> Void)?
     var onPadUse: (() -> Bool)?
@@ -44,6 +47,8 @@ final class GameControllerService: ObservableObject {
         didSet { if layout != oldValue { resetInput() } }
     }
     var isBrowsing: () -> Bool = { false }
+    /// A notice shows and its keys can be reached.
+    var showsNotice: () -> Bool = { false }
 
     private let deadzoneKey = "NXNative_ControllerDeadzone"
     @Published private(set) var deadzone: Float = 0.35
@@ -97,6 +102,12 @@ final class GameControllerService: ObservableObject {
     private var settingsHoldButton: ControllerButton?
 
     private convenience init() {
+        #if DEBUG
+        if AppData.integrationFixtureHome != nil || ProcessInfo.processInfo.environment["OORT_HEADLESS_INPUT"] == "1" {
+            self.init(gcSource: EmptyControllerSource(), hidSource: EmptyControllerSource())
+            return
+        }
+        #endif
         self.init(gcSource: GCControllerSource(), hidSource: HIDControllerSource(), preferences: AppData.preferences)
     }
 
@@ -141,12 +152,27 @@ final class GameControllerService: ObservableObject {
         observers.append((center, token))
     }
 
-    /// Installed before any screen's monitor, so it sees the events they keep for themselves; it keeps none.
+    /// Installed before the screen monitors so they share device tracking and confirmation repeat filtering.
     private func watchHand() {
         let events: NSEvent.EventTypeMask = [.keyDown, .leftMouseDown, .rightMouseDown, .otherMouseDown, .scrollWheel,
                                              .mouseMoved]
         handMonitor = NSEvent.addLocalMonitorForEvents(matching: events) { [weak self] event in
-            self?.handUsed(event)
+            guard let self else { return event }
+            return self.monitorHand(event)
+        }
+    }
+
+    func monitorHand(_ event: NSEvent) -> NSEvent? {
+        handUsed(event)
+        guard event.type == .keyDown, event.isARepeat else { return event }
+        let responder = event.window?.firstResponder
+        switch Int(event.keyCode) {
+        case kVK_Return, kVK_ANSI_KeypadEnter:
+            // Return is ordinary text only in a multiline editor.
+            return (responder as? NSTextView)?.isFieldEditor == false ? event : nil
+        case kVK_Space:
+            return responder is NSText ? event : nil
+        default:
             return event
         }
     }
@@ -394,6 +420,13 @@ final class GameControllerService: ObservableObject {
             }
         }
         eligibleHID = eligible
+        if let deadline {
+            let timer = Timer(timeInterval: max(0, deadline - now), repeats: false) { [weak self] _ in
+                self?.refreshControllers()
+            }
+            RunLoop.main.add(timer, forMode: .common)
+            fallbackTimer = timer
+        }
         if let pad = eligible.first(where: { $0.id == lastUsed }), hidSource.select(pad.id) { return setActive(pad) }
         switch ControllerArbitration.preferred(hasGameController: gcPad != nil, hasHID: !eligible.isEmpty) {
         case .gameController:
@@ -406,13 +439,6 @@ final class GameControllerService: ObservableObject {
         case .wait, nil:
             hidSource.select(nil)
             setActive(nil)
-        }
-        if activePad == nil, let deadline {
-            let timer = Timer(timeInterval: max(0, deadline - now), repeats: false) { [weak self] _ in
-                self?.refreshControllers()
-            }
-            RunLoop.main.add(timer, forMode: .common)
-            fallbackTimer = timer
         }
     }
 
@@ -453,13 +479,18 @@ final class GameControllerService: ObservableObject {
                 }
                 return
             }
-            guard let binding = layout.binding(button, browsing: isBrowsing()) else { return }
-            if binding.release {
+            if pressed { activity.send(()) }
+            guard let binding = binding(for: button) else { return }
+            if binding.release || holds[button] != nil {
                 handleHold(binding, pressed: pressed)
             } else if pressed {
                 triggerAction(binding.tap)
             }
         }
+    }
+
+    private func binding(for button: ControllerButton) -> GamepadLayout.Binding? {
+        layout.binding(button, browsing: isBrowsing()).map { showsNotice() ? GamepadLayout.noticeBinding(over: $0) : $0 }
     }
 
     private static let directions: [ControllerButton: ControllerDirection] = [.up: .up, .down: .down, .left: .left, .right: .right]
@@ -475,7 +506,10 @@ final class GameControllerService: ObservableObject {
 
     /// Moves now when a direction is new, then keeps moving while something is held.
     private func move(_ direction: ControllerDirection?) {
-        if let direction { triggerAction(Self.action(direction)) }
+        if let direction {
+            activity.send(())
+            triggerAction(Self.action(direction))
+        }
         guard repeats.current != nil else {
             repeatTimer?.invalidate()
             repeatTimer = nil
@@ -504,8 +538,10 @@ final class GameControllerService: ObservableObject {
         guard pressed else {
             var pending = holds.removeValue(forKey: button)
             stopHoldTimer(button)
-            guard pending?.binding.tap == binding.tap, pending?.binding.hold == binding.hold else { return }
             let gesture = pending?.detector.release(at: now)
+            // The notice left between the press and the release: the tap is still the screen's own.
+            let outlived = pending?.binding.hold == .notice && binding.hold == nil && gesture == .tap
+            guard pending?.binding.tap == binding.tap, pending?.binding.hold == binding.hold || outlived else { return }
             let action = gesture.flatMap { $0 == .tap ? binding.tap : binding.hold }
             if let action { triggerAction(action) }
             return
@@ -521,7 +557,7 @@ final class GameControllerService: ObservableObject {
         let timer = Timer(timeInterval: HoldDetector.defaultThreshold, repeats: false) { [weak self] _ in
             guard let self, self.holds[button]?.detector.tick(at: ProcessInfo.processInfo.systemUptime) != nil else { return }
             self.stopHoldTimer(button)
-            if self.layout.binding(button, browsing: self.isBrowsing())?.hold == action {
+            if self.binding(for: button)?.hold == action {
                 self.triggerAction(action)
             }
         }
@@ -558,3 +594,12 @@ final class GameControllerService: ObservableObject {
         }
     }
 }
+
+#if DEBUG
+/// Headless captures never touch the Mac's controller inventory or Home overrides.
+private final class EmptyControllerSource: ControllerSource {
+    var onEvent: ((ControllerSourceEvent) -> Void)?
+    func start() {}
+    func stop() {}
+}
+#endif

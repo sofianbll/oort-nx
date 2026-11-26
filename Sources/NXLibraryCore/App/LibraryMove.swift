@@ -54,6 +54,15 @@ public struct LibraryMove {
         fileManager.fileExists(atPath: destination.appendingPathComponent(marker).path)
     }
 
+    package static func contains(_ url: URL, in root: URL) -> Bool {
+        guard url.isFileURL else { return false }
+        func starts(_ path: URL, _ prefix: URL) -> Bool {
+            path.pathComponents.starts(with: prefix.pathComponents) { $0.caseInsensitiveCompare($1) == .orderedSame }
+        }
+        return starts(url.standardizedFileURL, root.standardizedFileURL)
+            || starts(url.resolvingSymlinksInPath(), root.resolvingSymlinksInPath())
+    }
+
     /// Returns true when the copy was made or completed now.
     public func prepare(preferences: () throws -> [String: Any], savePreferences: ([String: Any]) throws -> Void) throws -> Bool {
         if try kind(destination) != nil {
@@ -98,8 +107,12 @@ public struct LibraryMove {
         let paths = LibraryPaths(old: source, new: destination) { relative in
             (try? kind(source.appendingPathComponent(relative))) == nil || (try? kind(stage.appendingPathComponent(relative))) != nil
         }
-        let removalPending = try kind(stage.appendingPathComponent(LibraryPaths.removalJournal)) != nil
-        for name in LibraryPaths.files where !(removalPending && name.hasPrefix("catalog.")) {
+        // This intent owns identities and absolute paths in the original library; it is not a transaction in the copy.
+        if before[LibraryPaths.removalJournal] != nil {
+            try fm.moveItem(at: stage.appendingPathComponent(LibraryPaths.removalJournal),
+                            to: stage.appendingPathComponent(LibraryPaths.inheritedRemoval))
+        }
+        for name in LibraryPaths.files {
             let file = stage.appendingPathComponent(name)
             if let data = try LibraryPaths.read(file), let moved = paths.rewritten(json: data) {
                 try LibraryPaths.replace(file, with: moved)

@@ -5,6 +5,17 @@ import UniformTypeIdentifiers
 import NXLibraryCore
 import ArcanePorting
 
+enum LibraryScanRequest: Sendable {
+    case standalone
+    // The refresh cancels this task both on Cancel and when a newer refresh takes over.
+    case refresh(Task<Void, Never>)
+
+    var isCurrent: Bool {
+        if case .refresh(let work) = self { return !work.isCancelled }
+        return true
+    }
+}
+
 /// The library: dropped files, loading and scanning, importing existing builds, finding sources and the library folder (`applyCatalog`, which writes the published library, stays in the type).
 extension AppViewModel {
     // MARK: - Drag and Drop & ZIP
@@ -61,6 +72,7 @@ extension AppViewModel {
         let folder = gameAppsFolder
         let existing = libraryGames
         let explicitFolder = libraryFolder != nil
+        libraryScanRequest = .standalone
         isScanningLibrary = true
         Task { @MainActor [weak self] in
             let result = await Task.detached(priority: .userInitiated) {
@@ -71,7 +83,7 @@ extension AppViewModel {
             }.value
             guard let self else { return }
             isScanningLibrary = false
-            defer { if !isScanningLibrary && libraryRescanRequested { loadLibrary() } }
+            defer { resumeLibraryScanAfterCloud() }
             do {
                 let plan = try result.get()
                 guard folder == gameAppsFolder, router?.route == .addGame, porting.buildWizardStep == 1 else { return }
@@ -100,6 +112,7 @@ extension AppViewModel {
         game.url = plan.destination
         let destinationGame = game
         let archive = cloudLibrary.archive
+        libraryScanRequest = .standalone
         isScanningLibrary = true
         Task { @MainActor in
             defer {
@@ -157,35 +170,43 @@ extension AppViewModel {
 
     private func finishLocalAppWork() {
         isScanningLibrary = false
-        if libraryRescanRequested { loadLibrary() }
+        resumeLibraryScanAfterCloud()
     }
 
     // MARK: - Library
-    func refreshLibrary() {
-        loadLibrary()
+    @MainActor func refreshLibrary() {
+        libraryRefresh.start()
     }
 
-    func loadLibrary() {
-        guard !isScanningLibrary, !cloudLibrary.isWorking else { libraryRescanRequested = true; return }
-        libraryRescanRequested = false
+    func loadLibrary(request: LibraryScanRequest = .standalone) {
+        guard request.isCurrent else { return }
+        guard !isScanningLibrary, !cloudLibrary.isWorking else {
+            if case .standalone? = pendingLibraryScan { return }
+            pendingLibraryScan = request
+            return
+        }
+        pendingLibraryScan = nil
         do {
             let current = try catalogRepository.load()
             applyCatalog(current)
-            scanLibrary(using: current)
+            scanLibrary(using: current, request: request)
         } catch { reportCatalogFailure(error) }
     }
 
     func resumeLibraryScanAfterCloud() {
-        if libraryRescanRequested && !cloudLibrary.isWorking { loadLibrary() }
+        guard !isScanningLibrary, !cloudLibrary.isWorking, let request = pendingLibraryScan else { return }
+        pendingLibraryScan = nil
+        loadLibrary(request: request)
     }
 
     /// Startup consumes its already-validated document, without a second
     /// fallible read before publishing the shell or starting runtime hooks.
-    func scanLibrary(using current: CatalogDocument) {
+    func scanLibrary(using current: CatalogDocument, request: LibraryScanRequest = .standalone) {
         guard !isScanningLibrary else { return }
         let choosingSwitch = !setupCompleted && firstRunSetup.page == .games
         guard current.source(.nxnative)?.isEnabled == true || choosingSwitch else { return }
         let existing = current.nxnativeGames
+        libraryScanRequest = request
         isScanningLibrary = true
         let fm = FileManager.default
         let directories = [gameAppsFolder]
@@ -201,17 +222,11 @@ extension AppViewModel {
             let importedGames = selected.map { importer.makeGame(from: $0) }
             DispatchQueue.main.async {
                 guard let self else { return }
+                defer { self.finishLocalAppWork() }
+                guard request.isCurrent else { return }
                 guard self.libraryFolder?.standardizedFileURL == folderSnapshot else {
-                    self.isScanningLibrary = false
-                    self.loadLibrary()
+                    if self.pendingLibraryScan == nil { self.pendingLibraryScan = request }
                     return
-                }
-                defer {
-                    self.isScanningLibrary = false
-                    if self.libraryRescanRequested {
-                        self.libraryRescanRequested = false
-                        self.loadLibrary()
-                    }
                 }
                 var scannedByTitle: [String: ImportedApp] = [:]
                 for app in selected {
@@ -251,9 +266,23 @@ extension AppViewModel {
     }
 
     func importExistingBuilds() {
+        if includeExistingBuilds() { loadLibrary() }
+    }
+
+    /// The Settings refresh: also takes back the builds left out during setup.
+    @MainActor func refreshIncludingExistingBuilds() {
+        if includeExistingBuilds() { refreshLibrary() }
+    }
+
+    private func includeExistingBuilds() -> Bool {
         AppData.preferences.removeObject(forKey: StorageKeys.onboardingExclusions)
-        do { applyCatalog(try catalogRepository.configureSource(.nxnative, enabled: true, root: nil)); loadLibrary() }
-        catch { reportCatalogFailure(error) }
+        do {
+            applyCatalog(try catalogRepository.configureSource(.nxnative, enabled: true, root: nil))
+            return true
+        } catch {
+            reportCatalogFailure(error)
+            return false
+        }
     }
 
     /// Attach source files to an already-imported app. The app URL, version and
@@ -340,7 +369,7 @@ extension AppViewModel {
             canCreateDirectories: stage == nil) { [weak self] urls in
             guard let self, let url = urls.first else { return }
             guard url.standardizedFileURL.path != "/" else {
-                self.alertMessage = "Choose the folder containing your game apps, rather than a whole disk."
+                self.alertMessage = L10n.text("Choose the folder containing your game apps, rather than a whole disk.")
                 return
             }
             if let stage { stage(url.standardizedFileURL); return }

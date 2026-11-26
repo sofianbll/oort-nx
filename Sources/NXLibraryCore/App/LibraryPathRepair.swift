@@ -34,6 +34,9 @@ public struct LibraryPathRepair {
         self.replace = replace
     }
 
+    /// Applies the same path rules to the in-memory legacy input before its first catalog is written.
+    package func rewritingLegacy(_ data: Data) -> Data { paths.rewritten(json: data) ?? data }
+
     /// Returns true when the repair ran now. When it throws, or while a file fails its check, the next launch tries
     /// again: each step can be repeated.
     @discardableResult
@@ -41,12 +44,14 @@ public struct LibraryPathRepair {
                         savePreferences: ([String: Any]) throws -> Void) throws -> Bool {
         let root = paths.new
         func present(_ name: String) -> Bool { FileManager.default.fileExists(atPath: root.appendingPathComponent(name).path) }
-        guard LibraryMove.moved(root), !present(Self.marker) else { return false }
+        guard LibraryMove.moved(root), !present(Self.marker) || present(LibraryPaths.removalJournal) else { return false }
         // No other copy writes this library, and no catalog writer runs, while it is rewritten.
         let lease = try DowngradeCheckpoint.ProfileLease(in: root)
         defer { withExtendedLifetime(lease) {} }
         return try CatalogStore(directory: root, kinds: .base, legacy: nil).locked {
+            try CatalogStore.preserveInheritedRemoval(in: root, from: paths.old)
             guard !present(LibraryPaths.removalJournal) else { throw Failure.removalPending }
+            guard !present(Self.marker) else { return false }
             var changes: [(name: String, old: Data, new: Data)] = []
             var waiting = false
             for name in LibraryPaths.files {

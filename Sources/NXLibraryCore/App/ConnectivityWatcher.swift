@@ -36,6 +36,13 @@ public final class ConnectivityWatcher: Sendable {
         monitor.start(queue: DispatchQueue(label: "Arcane.connectivity"))
     }
 
+    /// The connection as it is now, without waiting for a server.
+    public static func isOnline() async -> Bool {
+        let monitor = NWPathMonitor()
+        for await path in monitor { return path.status == .satisfied }
+        return true
+    }
+
     /// True only for a change from offline to online; the first reading is never a return.
     public static func returned(previous: Bool?, current: Bool) -> Bool {
         previous == false && current

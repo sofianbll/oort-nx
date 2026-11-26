@@ -13,7 +13,9 @@ I tipi con prefisso `Selene` restano disponibili per la migrazione.
 | `OortCard` (`SelenePanel`) | Superficie condivisa per informazioni o controlli correlati | Titolo e info facoltativi | Comporre righe · non annidare schede per creare margini. |
 | `OortGameTile` | Tessera con arte fornita dal chiamante | `spotlight`, `collection`; selezionata o no | Separare selezione da attivazione · non aggiungere un secondo anello. |
 | `oortSecondaryClick` | Clic destro o Ctrl-clic: le opzioni del pezzo | Azione o nessuna | Raddoppia un comando già visibile · mai l'unica via. |
-| `OortButton` | Azione isolata nella pillola Selene | `action`, `compact`; pronto, bloccato, in corso, focus | Dare un verbo al titolo · non attivare un lavoro già in corso. |
+| `OortButton` | Azione isolata nella pillola Selene | `action`, `card`, `compact`; pronto, bloccato, in corso, focus, tono distruttivo | Dare un verbo al titolo · non attivare un lavoro già in corso. |
+| `OortActionBar`, `OortQuestion` | Azioni di un pannello o di una domanda | Ruoli `destructive`, `back`, `secondary`, `primary` | Dare il ruolo, non la posizione: vedi le convenzioni macOS per coppie, terne ed elenchi. |
+| `OortAssistantPanel`, `OortFolderCard` | Compito in pochi passi; una cartella con domanda, percorso e contenuto | Passo fatto, corrente, futuro | Un compito lungo · non una semplice domanda. |
 | `SeleneConfirmDialog`, `SeleneChoiceDialog`, `SeleneSuccessNotice` | Conferma, scelta o messaggio | Conferma, lista di scelte, messaggio | `OortActionBar`: Annulla a sinistra nelle coppie; distruttivo staccato nelle terne; dalla principale al ritorno in verticale da quattro scelte. Focus iniziale sicuro · nascondere l'aiuto sottostante. |
 | `SeleneValueChip`, `OortStatus` | Valore breve o stato scritto | Testo/simbolo; neutro, in corso, attenzione, pronto | Scrivere lo stato · non affidarlo a colore o animazione. |
 | `PlatformLabel`, `PlatformMark` | Nome leggibile e marchio piattaforma | Intestazione, riga, riepilogo, didascalia, setup, elenco | Usare il marchio con il nome · non aggiungere un secondo disegno. |
@@ -30,7 +32,7 @@ I tipi con prefisso `Selene` restano disponibili per la migrazione.
 | `OortMeter` | Avanzamento | Misurato o indeterminato | Accompagnarlo con il testo dello stato. |
 | `OortControllerView` | Mostrare il controller e ciò che preme | `ControllerShape.Kind` (Xbox, PlayStation, Switch Pro, Joy-Con), ingressi vivi, movimento ridotto | Dentro un pannello · non un elemento interattivo. |
 | `OortControllerMap` | Dire a ogni tasto cosa fa, con una linea | Tipo, voci (tasto, nome, azione, tenuta) | Pagina Comandi e guide · le linee non si incrociano. |
-| `OortCreditCard`, `OortCreditGroup` | Un progetto citato: segno, nome, autore e licenza, ruolo, freccia | Immagine, piattaforma o segno; focus | Dati solo da `design/credits.json` · mai un link colorato nel testo. |
+| `OortCreditCard`, `OortCreditGroup`, `OortCreditGrid` | Un progetto citato: segno, nome, autore e licenza, ruolo, freccia | Immagine, piattaforma o segno; focus | Dati solo da `design/credits.json` · mai un link colorato nel testo. |
 | `oortPanel`, `oortWell`, `oortRing` | Superficie, incavo e anello di focus condivisi | Sollevato, fluttuante; contrasto aumentato | Nessuna forma disegnata a mano in una schermata. |
 
 Per verificare una composizione usare la [galleria Debug](development.md#debug-configuration)

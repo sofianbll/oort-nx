@@ -90,6 +90,11 @@ final class AppViewModel: ObservableObject {
     var settingsNoticeFocus: Int {
         settingsNotice?.answers.firstIndex { $0.id == settingsNoticeAnswer } ?? 0
     }
+    /// The last reversible gesture, for its notice, ⌘Z and Activity.
+    let undoOffers = UndoOffers()
+    let tips = Tips(defaults: AppData.preferences)
+    /// The keys of the notice on screen, while they were asked for.
+    @Published var noticeFocus = NoticeFocus()
     /// A SteamGridDB API key is saved (Settings → Online services → SteamGridDB), so Change artwork searches it.
     @Published var hasSteamGridDBKey = SteamGridDBKey().load() != nil
     @Published var isEditingSteamGridDBKey = false
@@ -152,7 +157,8 @@ final class AppViewModel: ObservableObject {
     /// The shell's update dialog owns input; screens leave the keyboard to it.
     var appUpdateDialogOwnsInput = false
     @Published var profileOwnsInput = false
-    var shellDialogOwnsInput: Bool { appUpdateDialogOwnsInput || cloudQuitRequested || profileOwnsInput || router?.isPalettePresented == true || launchOverlay != nil }
+    var shellDialogOwnsInput: Bool { appUpdateDialogOwnsInput || cloudQuitRequested || profileOwnsInput || router?.isPalettePresented == true
+        || noticeFocus.isActive || launchOverlay != nil }
     /// "Welcome to Arcane" is on screen, until its fade has ended: screens' own keyboard monitors let Return and
     /// the arrows go to it, and Spotlight holds its entrance until it has gone.
     @Published var isWelcomeOpen = false
@@ -289,6 +295,7 @@ final class AppViewModel: ObservableObject {
     private(set) lazy var cheats = CheatsModel(app: self)
     /// The game's app icon in Finder and the Dock (`AppIconModel`), observed by Change artwork.
     private(set) lazy var appIcon = AppIconModel(app: self)
+    @MainActor private(set) lazy var libraryRefresh = LibraryRefreshModel(app: self)
     /// The Nintendo store's data for each game, in the app language (`StoreMetadataModel`), observed by the screens
     /// that show it.
     private(set) lazy var store = StoreMetadataModel(app: self)
@@ -391,7 +398,8 @@ final class AppViewModel: ObservableObject {
     var gameSaveLaunches: [UUID: (pid: pid_t, date: Date?, profile: UUID?)] = [:]
     let sourceCatalog = SourceCatalog()
     lazy var workspaceManager = WorkspaceManager(root: core.appendingPathComponent("workspaces"))
-    var libraryRescanRequested = false
+    var libraryScanRequest = LibraryScanRequest.standalone
+    var pendingLibraryScan: LibraryScanRequest?
 
     init(settingsStore: AppSettingsStore, catalog: CatalogDocument, repository: CatalogRepository,
          localProfiles: LocalProfileStore? = nil, registerNotifications: Bool = true) {

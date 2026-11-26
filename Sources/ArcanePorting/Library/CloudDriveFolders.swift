@@ -8,16 +8,6 @@ public struct CloudDriveFolders: Sendable {
         public let names: [String]
     }
 
-    public struct Library: Sendable, Equatable {
-        public let path: String
-        public let games: Int
-    }
-
-    public struct Sources: Sendable, Equatable {
-        public let path: String
-        public let games: Int?
-    }
-
     public struct MovePlan: Equatable, Codable, Sendable {
         public let source: String
         public let games: Int
@@ -89,24 +79,39 @@ public struct CloudDriveFolders: Sendable {
     private let run: RcloneConfiguration.Run
     private let reference: String?
     private let configurationSnapshot: RcloneConfigSnapshot?
+    /// Set for a service that only shows folders: it may answer from what it read a moment ago, and refuses everything else.
+    private let reads: CloudDriveReads?
 
-    public init(remote: String, executable: URL, config: URL? = nil, reference: String? = nil) {
-        self.init(remote: remote, executable: executable, config: config, reference: reference, run: Self.runCommand)
+    public init(remote: String, executable: URL, config: URL? = nil, reference: String? = nil, reads: CloudDriveReads? = nil) {
+        self.init(remote: remote, executable: executable, config: config, reference: reference, reads: reads, run: Self.runCommand)
     }
 
     init(remote: String, executable: URL, localRoot: URL? = nil, config: URL? = nil, reference: String? = nil,
-         configurationSnapshot: RcloneConfigSnapshot? = nil,
+         configurationSnapshot: RcloneConfigSnapshot? = nil, reads: CloudDriveReads? = nil,
          run: @escaping RcloneConfiguration.Run = Self.runCommand) {
+        self.reads = reads
         self.remote = remote
         self.executable = executable
         self.localRoot = localRoot
         self.config = configurationSnapshot?.config ?? config
         self.reference = reference
         self.configurationSnapshot = configurationSnapshot
-        self.run = run
+        if let reads {
+            self.run = { executable, arguments, environment in
+                try await reads.run(executable, arguments, environment, using: run)
+            }
+        } else {
+            self.run = run
+        }
+    }
+
+    /// Nothing that writes, moves, or allows either is decided from an answer read earlier.
+    private func requireFresh() throws {
+        guard reads == nil else { throw StorageBackendError.invalidConfiguration }
     }
 
     package func snapshot() async throws -> Self {
+        try requireFresh()
         guard remote != ":local:", configurationSnapshot == nil else { return self }
         let captured = try await RcloneConfigSnapshot.capture(executable: executable, config: config, run: run)
         return Self(remote: remote, executable: executable, reference: reference, configurationSnapshot: captured, run: run)
@@ -144,11 +149,13 @@ public struct CloudDriveFolders: Sendable {
     }
 
     public func verifyAccess(to folder: String) async throws {
+        try requireFresh()
+        async let listed = list(folder, ticket: UUID())
         let output = try await checked(["lsjson", try target(folder), "--stat"])
         guard (try? JSONDecoder().decode(Item.self, from: Data(output.utf8)))?.IsDir == true else {
             throw RcloneConfiguration.Failure.test
         }
-        _ = try await list(folder, ticket: UUID())
+        _ = try await listed
     }
 
     /// The account and folder a listing shows, to check again before writing into it. A local folder has neither.
@@ -160,6 +167,7 @@ public struct CloudDriveFolders: Sendable {
     /// Only an explicit confirmation calls this. A lost reply is followed by a read, never another write.
     /// `shown` is the parent the player saw: the same name elsewhere, or another account, is refused.
     package func create(_ name: String, in folder: String, shown: CloudDriveScope.CreationParent? = nil) async throws {
+        try requireFresh()
         guard Self.validName(name) else { throw StorageBackendError.invalidKey }
         let anchored = remote != ":local:" && (reference != nil || shown != nil)
         if anchored, configurationSnapshot == nil {
@@ -189,6 +197,7 @@ public struct CloudDriveFolders: Sendable {
     }
 
     public func verifyPersonalFolder(_ path: String, allowMissing: Bool = false) async throws {
+        try requireFresh()
         try await referenceGuard.verifyPersonalFolder(path, from: reference, allowMissing: allowMissing)
     }
 
@@ -197,89 +206,105 @@ public struct CloudDriveFolders: Sendable {
                              readsConfiguration: true, run: run)
     }
 
-    public func libraryCount(in folder: String, folders: [String]) async throws -> Int {
-        let backend = try backend(in: folder)
-        defer { backend.stopRemoteControl() }
-        return try await CloudGameArchive(backend: backend).latestManifests().count
-    }
-
-    public func discoverLibrary() async throws -> Library? {
-        try await Self.discoverLibrary(directories: {
-            try await list($0, ticket: UUID()).names
-        }, count: { folder, names in
-            try await libraryCount(in: folder, folders: names)
-        })
-    }
-
-    static func discoverLibrary(directories: (String) async throws -> [String],
-                                count: (String, [String]) async throws -> Int) async throws -> Library? {
-        let root = CloudLibraryPreference.defaultRoot
-        guard let names = try await listingIfPresent(root, list: directories) else { return nil }
-        let games = try await count(root, names)
-        try Task.checkCancellation()
-        if games > 0 { return Library(path: root, games: games) }
-        let children = names.filter { validName($0) && titleID(in: $0) == nil }
-        guard children.count <= 64 else { throw StorageBackendError.invalidResponse }
-        for child in children {
-            let path = joining(root, child)
-            guard let names = try await listingIfPresent(path, list: directories) else {
-                // The folder was listed, but disappeared before we could inspect it.
-                throw StorageBackendError.invalidResponse
-            }
-            let games = try await count(path, names)
-            try Task.checkCancellation()
-            if games > 0 { return Library(path: path, games: games) }
+    /// Both folders from one listing, and the account read beside it: neither waits for the other.
+    public func discoverFolders(kept: CloudKeptFolders?) async throws -> CloudFolderDiscovery {
+        async let identified = kept?.account == nil ? nil : try? accountID()
+        async let listed = discoveryEntries(CloudFolderDiscovery.searchRoot, depth: CloudFolderDiscovery.depth)
+        // A folder chosen outside Games is read on its own.
+        let outside = Set([kept?.library, kept?.sources].compactMap { $0 }).filter {
+            $0 != CloudFolderDiscovery.searchRoot && !$0.hasPrefix(CloudFolderDiscovery.searchRoot + "/")
         }
-        return nil
+        var entries = try await withThrowingTaskGroup(of: [CloudFolderDiscovery.Entry].self) { group in
+            for path in outside {
+                group.addTask { try await [.init(path: path, isDirectory: true)] + discoveryEntries(path, depth: 3, whenMissing: nil) }
+            }
+            var found: [CloudFolderDiscovery.Entry] = []
+            do { for try await part in group { found += part } }
+            // The folder itself is gone: it must not be proposed.
+            catch StorageBackendError.notFound {}
+            return found
+        }
+        entries += try await listed
+        let account = await identified
+        try Task.checkCancellation()
+        return try CloudFolderDiscovery(entries: entries, kept: kept?.applying(to: account))
     }
 
-    public func discoverSources(library: String) async throws -> Sources? {
-        try await Self.discoverSources(library: library) { folder in
-            let output = try await checked(["lsjson", try target(folder), "--recursive", "--max-depth", "2",
-                                            "--files-only", "--no-modtime", "--no-mimetype"])
+    /// A glance at folders on screen that were never read: their own folders, then one game's folder when there is one.
+    public func glance(at folders: [String], into index: CloudFolderIndex) async -> CloudFolderIndex {
+        struct Seen: Sendable { let path: String; let names: [String]; let game: (names: [String], isCompiled: Bool)? }
+        var index = index
+        await withTaskGroup(of: Seen?.self) { group in
+            func look(_ path: String) {
+                group.addTask {
+                    guard let names = try? await list(path, ticket: UUID()).names else { return nil }
+                    var game: (names: [String], isCompiled: Bool)?
+                    if let first = names.first(where: { Self.titleID(in: $0) != nil }),
+                       let items = try? await contents(Self.joining(path, first), recursive: false, hashes: false) {
+                        game = (items.filter { !$0.IsDir }.map(\.Name), items.contains { $0.IsDir && $0.Name == "manifests" })
+                    }
+                    return Seen(path: path, names: names, game: game)
+                }
+            }
+            var waiting = folders.prefix(Self.glanceLimit).makeIterator()
+            for _ in 0..<Self.glanceWidth { if let path = waiting.next() { look(path) } }
+            for await seen in group {
+                if let seen { index.note(seen.path, folders: seen.names, firstGame: seen.game) }
+                if !Task.isCancelled, let path = waiting.next() { look(path) }
+            }
+        }
+        return index
+    }
+
+    static let glanceLimit = 24, glanceWidth = 4
+
+    private func discoveryEntries(_ folder: String, depth: Int, whenMissing: [CloudFolderDiscovery.Entry]? = []) async throws
+        -> [CloudFolderDiscovery.Entry] {
+        do {
+            let output = try await checked(["lsjson", try target(folder), "--recursive", "--max-depth", "\(depth)",
+                "--no-modtime", "--no-mimetype", "--exclude", "/**/{app,cache,*.app}/**", "--exclude", "/.arcane-upload/**"])
             guard let items = try? JSONDecoder().decode([Item].self, from: Data(output.utf8)) else {
                 throw StorageBackendError.invalidResponse
             }
-            return items.filter { !$0.IsDir }.map(\.Path)
+            return items.map { .init(path: Self.joining(folder, $0.Path), isDirectory: $0.IsDir) }
+        } catch StorageBackendError.notFound {
+            guard let whenMissing else { throw StorageBackendError.notFound }
+            return whenMissing
         }
     }
 
-    static func discoverSources(library: String, files: (String) async throws -> [String]) async throws -> Sources? {
-        guard library.components(separatedBy: "/").allSatisfy(validName) else { throw StorageBackendError.invalidKey }
-        for path in ["GameFiles", "Switch/Jeux", "Switch/Games"].map({ joining(library, $0) }) {
-            guard let names = try await listingIfPresent(path, list: files) else { continue }
-            guard names.count <= 10_000 else { throw StorageBackendError.invalidResponse }
-            var groups = Set<String>()
-            var loose = false
-            for name in names {
-                try Task.checkCancellation()
-                let parts = name.components(separatedBy: "/")
-                guard parts.count <= 2, parts.allSatisfy(validName),
-                    !parts.dropLast().contains(where: { $0.lowercased().hasSuffix(".app") }),
-                    CloudGameSources.fileExtensions.contains((name as NSString).pathExtension.lowercased())
-                else { continue }
-                if parts.count == 1 { loose = true }
-                else { groups.insert(CloudGameSources.title(in: parts[0])) }
-            }
-            try Task.checkCancellation()
-            // Loose packages may be updates or DLC for the same title; don't guess a count.
-            if loose || !groups.isEmpty { return Sources(path: path, games: loose ? nil : groups.count) }
+    /// Makes the missing folders of `path` in one command, inside the one the player saw: its ID and its account, not its
+    /// path alone. A lost reply is followed by a read, never another write.
+    package func createPath(_ path: String, below existing: String, shown: CloudDriveScope.CreationParent) async throws {
+        try requireFresh()
+        let prefix = existing.isEmpty ? "" : existing + "/"
+        guard remote != ":local:", path.hasPrefix(prefix), path != existing, CloudLibraryPreference.validRoot(path) else {
+            throw StorageBackendError.invalidKey
         }
-        return nil
+        if configurationSnapshot == nil {
+            try await snapshot().createPath(path, below: existing, shown: shown)
+            return
+        }
+        guard try await creationParent(existing) == shown else { throw CloudLibraryFailure.scopeChanged }
+        do { _ = try await checked(["mkdir", try target(String(path.dropFirst(prefix.count)), rootID: shown.id)]) }
+        catch is CancellationError { throw CancellationError() }
+        catch {
+            let parts = path.components(separatedBy: "/")
+            let names = try await list(parts.dropLast().joined(separator: "/"), ticket: UUID()).names
+            guard names.contains(parts[parts.count - 1]) else { throw error }
+        }
     }
 
-    private static func listingIfPresent(_ folder: String,
-                                         list: (String) async throws -> [String]) async throws -> [String]? {
-        try Task.checkCancellation()
-        let result: [String]?
-        do { result = try await list(folder) }
-        catch StorageBackendError.notFound { result = nil }
-        try Task.checkCancellation()
-        return result
-    }
-
-    static func libraryCount(_ backend: any StorageBackend, folders: [String]) async throws -> Int {
-        try await CloudGameArchive(backend: backend).latestManifests(in: folders).count
+    /// The deepest folder of `path` that is there, for a creation the player will be asked to confirm.
+    package func deepestParent(of path: String) async throws -> (path: String, parent: CloudDriveScope.CreationParent) {
+        var parts = path.components(separatedBy: "/").dropLast()
+        while true {
+            let folder = parts.joined(separator: "/")
+            do {
+                guard let parent = try await creationParent(folder) else { throw MoveFailure.missingIdentity }
+                return (folder, parent)
+            } catch CloudLibraryFailure.folderMissing where !parts.isEmpty { parts = parts.dropLast() }
+        }
     }
 
     public static func canMove(from source: String, to destination: String) -> Bool {
@@ -293,6 +318,7 @@ public struct CloudDriveFolders: Sendable {
     }
 
     package func movePlan(from source: String, to destination: String? = nil, approved: CloudDriveScope? = nil) async throws -> MovePlan {
+        try requireFresh()
         if remote != ":local:", configurationSnapshot == nil {
             return try await snapshot().movePlan(from: source, to: destination, approved: approved)
         }
@@ -360,6 +386,7 @@ public struct CloudDriveFolders: Sendable {
     }
 
     package func preflightMove(_ plan: MovePlan, to destination: String) async throws {
+        try requireFresh()
         guard remote == plan.remote, Self.validMove(plan, to: destination) else {
             throw StorageBackendError.invalidKey
         }
@@ -371,6 +398,7 @@ public struct CloudDriveFolders: Sendable {
     /// Run only after confirmation; a skipped key (or manifest with missing dependencies) prevents activation.
     public func move(_ plan: MovePlan, to destination: String,
                      progress: (Int, Int) async throws -> Void) async throws -> [String] {
+        try requireFresh()
         if remote != ":local:", configurationSnapshot == nil {
             return try await snapshot().move(plan, to: destination, progress: progress)
         }
@@ -406,6 +434,7 @@ public struct CloudDriveFolders: Sendable {
     }
 
     package func verifyCompletedMove(_ plan: MovePlan, to destination: String) async throws {
+        try requireFresh()
         guard remote == plan.remote, Self.validMove(plan, to: destination) else { throw StorageBackendError.invalidKey }
         let sourceID = plan.binding?.sourceID, destinationID = plan.binding?.destinationID
         try await verifyBinding(plan, to: destination)
@@ -750,11 +779,13 @@ public final class CloudDriveCredentialChange: Sendable {
 
     deinit { try? FileManager.default.removeItem(at: config.deletingLastPathComponent()) }
 
-    public static func prepare(remote: String, executable: URL, clientID: String,
-                               secret: String) async throws -> CloudDriveCredentialChange {
-        let id = clientID.trimmingCharacters(in: .whitespacesAndNewlines)
-        let password = secret.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard CloudSetupAssistantDraft.validGoogleClientID(id), RcloneConfiguration.validCredential(password),
+    /// Without a client, the account signs in again with the one rclone kept.
+    public static func prepare(remote: String, executable: URL,
+                               client: (id: String, secret: String)?) async throws -> CloudDriveCredentialChange {
+        let client = client.map { (id: $0.id.trimmingCharacters(in: .whitespacesAndNewlines),
+                                   secret: $0.secret.trimmingCharacters(in: .whitespacesAndNewlines)) }
+        guard client.map({ CloudSetupAssistantDraft.validGoogleClientID($0.id)
+                           && RcloneConfiguration.validCredential($0.secret) }) ?? true,
               CloudLibraryPreference.validRemote(remote) else { throw RcloneConfiguration.Failure.connect }
         let environment = RcloneConfiguration.environment()
         @Sendable func run(_ args: [String], config: URL? = nil) async throws -> String {
@@ -778,7 +809,7 @@ public final class CloudDriveCredentialChange: Sendable {
         _ = try await run(["config", "encryption", "check"], config: staged.config)
         try Task.checkCancellation()
         try await RcloneConfiguration.authorizeDrive(executable: executable, config: staged.config,
-            environment: environment, name: remote, clientID: id, secret: password, replacing: true)
+            environment: environment, name: remote, client: client, replacing: true)
         return staged
     }
 

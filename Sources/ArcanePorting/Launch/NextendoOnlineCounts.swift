@@ -13,8 +13,9 @@ public actor NextendoOnlineCounts {
     public init() { session = URLSession(configuration: .ephemeral) }
     package init(session: URLSession) { self.session = session }
 
-    public func read(tokenStore: NextendoTokenStore) async throws -> [String: Int] {
-        guard try tokenStore.hasToken() else { return [:] }
+    /// Nothing is read or sent, cached answer included, when the player never wants these counts.
+    public func read(tokenStore: NextendoTokenStore, display: OnlinePlayersDisplay = .init()) async throws -> [String: Int] {
+        guard display.asksService, try tokenStore.hasToken() else { return [:] }
         guard Date() >= expires, !isLoading else { return cached }
         isLoading = true
         defer { isLoading = false }

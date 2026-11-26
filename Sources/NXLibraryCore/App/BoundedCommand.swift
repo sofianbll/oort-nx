@@ -142,11 +142,18 @@ struct BoundedCommandRunner: CommandRunning, Sendable {
                 }
                 if exitedAt == nil { exitedAt = now() }
             }
-            // Once the leader exits, even a descendant still holding a pipe cannot extend the wait.
-            guard now() < min(deadline, exitedAt.map { $0 + 0.5 } ?? .infinity) else { throw CommandDeadline() }
-            if poll(&fds, nfds_t(fds.count), 50) < 0 {
+            let instant = now()
+            guard instant < deadline else { throw CommandDeadline() }
+            let expiredAfterExit = exitedAt.map { instant >= $0 + 0.5 } ?? false
+            // Nothing more to read: only the exit is awaited, a moment away.
+            let interval: Int32 = expiredAfterExit ? 0 : fds[0].fd < 0 && fds[1].fd < 0 ? 1 : 50
+            if poll(&fds, nfds_t(fds.count), interval) < 0 {
                 if errno == EINTR { continue }
                 try checkPOSIX(errno)
+            }
+            // A delayed reader can still drain closed pipes, but must not wait for a descendant holding one open.
+            if expiredAfterExit, fds.prefix(2).contains(where: { $0.fd >= 0 && $0.revents & Int16(POLLHUP) == 0 }) {
+                throw CommandDeadline()
             }
             for index in 0..<2 where fds[index].fd >= 0 && fds[index].revents != 0 {
                 let count = read(fds[index].fd, &buffer, buffer.count)

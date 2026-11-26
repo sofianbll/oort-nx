@@ -29,7 +29,7 @@ final class SettingsCatalogTests: XCTestCase {
     private static let rowIDs = Set([
         "appLanguage", "appRegion", "startOn", "restoreLastGame", "startInFullscreen", "checkEngineAtLaunch", "onboarding",
         "refreshLibraryAtLaunch", "checkAppUpdatesAtLaunch", "introAnimation", "showProfilePicker", "showButtonHints", "buttonNames",
-        "viewButtonSwitches", "spotlightCards", "libraryTabs", "startingTab", "spotlightOrder", "interfaceSounds", "soundVolume",
+        "showsTips", "viewButtonSwitches", "spotlightCards", "libraryTabs", "startingTab", "spotlightOrder", "interfaceSounds", "soundVolume",
         "quietLaunch", "soundPack", "noteFigure", "noteOctave", "customNotes", "placeNotes", "importSoundPack", "importSeleneSounds", "colorThemeID", "wallpaperID", "settingsWallpaperID", "backgroundSizing",
         "wallpaperBrightness", "animatedBackground", "keepWallpaperOnGames", "backgroundShade", "readableText",
         "showClock", "reduceMotion", "iconAppearance", "boxCovers", "igdb", "steamGridDB", "librarySort", "launchStyle",
@@ -45,6 +45,7 @@ final class SettingsCatalogTests: XCTestCase {
         "controllerLayout", "metadataCache", "artworkCache", "saveBackups", "console", "engineFolder", "engineStatus",
         "toolchainOverride", "upstream", "newestEngine", "compare", "keys", "setup", "diagnostics", "appUpdates",
         "projectDocs", "multiplayerVPN", "multiplayerDefault", "multiplayerLocalMode", "multiplayerAdapter",
+        "nextendoPlayers.tile", "nextendoPlayers.selectedGame", "nextendoPlayers.details", "nextendoPlayers.gamePage",
         "profileName", "profileAvatar", "profilePortrait", "profileLock", "appearsOnline", "showsCurrentGame",
         "nextendo", "nextendoFriends", "nextendoAddFriend", "nextendoClientID"
     ] + ProfilePageCard.allCases.map { "profile-card-\($0.rawValue)" })
@@ -200,12 +201,14 @@ final class SettingsCatalogTests: XCTestCase {
         "backgroundSizing", "profileLock", "appearsOnline", "showsCurrentGame", "nextendo", "nextendoFriends", "nextendoAddFriend",
         ] + ProfilePageCard.allCases.map { "profile-card-\($0.rawValue)" } + [
         "appLanguage", "appRegion", "startOn", "restoreLastGame", "startInFullscreen", "checkAppUpdatesAtLaunch",
-        "introAnimation", "showProfilePicker", "onboarding", "showButtonHints", "buttonNames", "viewButtonSwitches", "spotlightCards", "libraryTabs", "startingTab",
+        "introAnimation", "showProfilePicker", "onboarding", "showButtonHints", "buttonNames", "showsTips", "viewButtonSwitches", "spotlightCards", "libraryTabs", "startingTab",
         "platformCardInfo", "spotlightOrder", "interfaceSounds", "soundVolume", "quietLaunch", "soundPack", "noteFigure", "noteOctave", "customNotes", "placeNotes", "importSoundPack", "importSeleneSounds",
         "wallpaperBrightness", "animatedBackground",
         "keepWallpaperOnGames", "backgroundShade", "readableText", "showClock", "reduceMotion", "iconAppearance",
         "controllerStatus", "buttonLayout", "controllerLayout", "controllerDeadzone", "inGameHomeButton", "multiplayerVPN", "multiplayerDefault",
-        "multiplayerLocalMode", "multiplayerAdapter", "nextendoClientID", "igdb", "steamGridDB", "integrations", "macShortcutAdd", "steamSource",
+        "multiplayerLocalMode", "multiplayerAdapter",
+        "nextendoPlayers.tile", "nextendoPlayers.selectedGame", "nextendoPlayers.details", "nextendoPlayers.gamePage",
+        "nextendoClientID", "igdb", "steamGridDB", "integrations", "macShortcutAdd", "steamSource",
         "steamRefresh", "steamFolder", "steamInBackground", "librarySort", "launchStyle", "launchMotion", "launchShade",
         "tileBadgePosition", "surprisePool", "showsSessionCard", "hiddenGames", "storageUsage", "logs", "metadataCache", "artworkCache",
         "saveBackups", "checkEngineAtLaunch", "engineFolder", "engineStatus", "toolchainOverride", "upstream",
@@ -213,10 +216,10 @@ final class SettingsCatalogTests: XCTestCase {
         "libraryFolder", "gameInboxEnabled", "libraryRefresh", "notifyPortingEnds", "gameDefaults.fullscreen", "gameDisplay",
         "gameDefaults.enable60FPS", "gameDefaults.isDockedMode", "gameDefaults.enableMetalFXUpscale",
         "gameDefaults.enableMetalHUD", "gameDefaults.language", "gameDefaults.renderScale", "gameDefaults.rumble",
-        "gameDefaults.rumbleGain", "cloudSaves", "cloudSavesPickedFolder", "cloudLibrarySetup", "cloudLibraryEnabled",
-        "cloudLibraryService", "cloudLibraryFolder", "cloudSourcesRoot", "cloudReferenceFolder", "cloudLibraryImport",
-        "showsCloudPlayIcon", "showsCloudDetailsLink", "cloudTileBadges", "cloudLibraryAdvanced",
-        "cloudLibraryConnect", "cloudLibraryTool", "cloudLibraryTest", "cloudLibraryDisconnect", "buildCaches", "diagnostics",
+        "gameDefaults.rumbleGain", "cloudSaves", "cloudSavesPickedFolder", "cloudLibrarySetup", "cloudLibraryConnect",
+        "cloudLibraryService", "cloudLibraryDisconnect", "cloudLibraryFolder", "cloudSourcesRoot", "cloudLibraryEnabled",
+        "cloudLibraryImport", "showsCloudPlayIcon", "showsCloudDetailsLink", "cloudTileBadges", "cloudLibraryAdvanced",
+        "cloudLibraryTool", "cloudLibraryTest", "cloudReferenceFolder", "buildCaches", "diagnostics",
         "appUpdates", "projectDocs", "console"
         ])
     }
@@ -389,26 +392,27 @@ final class SettingsCatalogTests: XCTestCase {
         XCTAssertTrue(SettingsCatalog.search("Configure cloud library", cloudConfigured: true).isEmpty)
         XCTAssertTrue(SettingsCatalog.search("Change Google credentials").isEmpty)
         XCTAssertEqual(SettingsCatalog.search("Change Google credentials", cloudConfigured: true).map(\.id), ["cloudLibraryConnect"])
-        XCTAssertTrue(SettingsCatalog.search("Import games from the cloud").isEmpty)
-        XCTAssertEqual(SettingsCatalog.search("Import games from the cloud", cloudConfigured: true).map(\.id), ["cloudLibraryImport"])
+        // The page shows the folders and this Mac's choices before the account is connected: search finds them too.
+        for configured in [false, true] {
+            XCTAssertEqual(SettingsCatalog.search("Import games from the cloud", cloudConfigured: configured).map(\.id), ["cloudLibraryImport"])
+            XCTAssertEqual(SettingsCatalog.search("Game library", cloudConfigured: configured)
+                .filter { $0.group == .cloudLibrary }.map(\.id), ["cloudLibraryFolder"])
+            XCTAssertEqual(SettingsCatalog.search("ROM library", cloudConfigured: configured).map(\.id), ["cloudSourcesRoot"])
+        }
         XCTAssertTrue(SettingsCatalog.search("Test connection").isEmpty)
         XCTAssertEqual(SettingsCatalog.search("Test connection", cloudConfigured: true).map(\.id), ["cloudLibraryTest"])
-        XCTAssertTrue(SettingsCatalog.opensCloudAdvanced("cloudLibraryTest"))
-        XCTAssertTrue(SettingsCatalog.opensCloudAdvanced("cloudLibraryTool"))
-        XCTAssertTrue(SettingsCatalog.opensCloudAdvanced("cloudLibraryConnect"))
-        XCTAssertTrue(SettingsCatalog.opensCloudAdvanced("cloudSourcesRoot"))
-        XCTAssertTrue(SettingsCatalog.search("Game files folder").isEmpty)
-        XCTAssertEqual(SettingsCatalog.search("Game files folder", cloudConfigured: true).map(\.id), ["cloudSourcesRoot"])
-        XCTAssertTrue(SettingsCatalog.opensCloudAdvanced("cloudLibraryDisconnect"))
-        XCTAssertTrue(SettingsCatalog.opensCloudAdvanced("cloudLibraryFolder"))
-        XCTAssertEqual(SettingsCatalog.search("Library folder", cloudConfigured: true)
-            .filter { $0.group == .cloudLibrary }.map(\.id), ["cloudLibraryFolder"])
+        for id in ["cloudLibraryAdvanced", "cloudLibraryTool", "cloudLibraryTest", "cloudReferenceFolder"] {
+            XCTAssertTrue(SettingsCatalog.opensCloudAdvanced(id), id)
+        }
+        for id in ["cloudLibraryConnect", "cloudLibraryDisconnect", "cloudLibraryFolder", "cloudSourcesRoot"] {
+            XCTAssertFalse(SettingsCatalog.opensCloudAdvanced(id), "\(id) is always visible")
+        }
         XCTAssertEqual(SettingsCatalog.search("Last connection test", cloudConfigured: true).map(\.id), ["cloudLibraryService"])
     }
 
     func testCloudChangedKeepsExternalIDsWithoutOfferingUnavailableRows() {
         let changes: Set<String> = ["cloudLibraryEnabled", "cloudLibraryService", "cloudLibraryFolder", "cloudLibraryTool", "cloudSourcesRoot"]
-        XCTAssertEqual(SettingsCatalog.changed(in: AppSettings(), externalChanges: changes).map(\.id), ["cloudLibraryTool"])
+        XCTAssertEqual(Set(SettingsCatalog.changed(in: AppSettings(), externalChanges: changes).map(\.id)), changes.subtracting(["cloudLibraryService"]))
         XCTAssertEqual(Set(SettingsCatalog.changed(in: AppSettings(), externalChanges: changes, cloudConfigured: true).map(\.id)), changes)
     }
 
@@ -435,5 +439,25 @@ final class SettingsCatalogTests: XCTestCase {
                 XCTAssertTrue(groups.contains(section), "\(section) has no rows")
             }
         }
+    }
+
+    func testOneRowGoesBackAloneAndEveryRowTogetherGivesTheDefaults() throws {
+        var changed = AppSettings()
+        changed.soundVolume = 0.1
+        changed.reduceMotion = true
+        changed.showClock.toggle()
+        changed.gameDefaults.enable60FPS.toggle()
+        let before = Set(SettingsCatalog.changed(in: changed).map(\.id))
+        XCTAssertTrue(before.isSuperset(of: ["soundVolume", "reduceMotion", "showClock"]))
+        var one = changed
+        try XCTUnwrap(SettingsCatalog.all.first { $0.id == "reduceMotion" }?.reset)(&one)
+        XCTAssertEqual(Set(SettingsCatalog.changed(in: one).map(\.id)), before.subtracting(["reduceMotion"]))
+        XCTAssertEqual(one.soundVolume, 0.1)
+        try XCTUnwrap(SettingsCatalog.all.first { $0.id == "reduceMotion" }?.copy)(changed, &one)
+        XCTAssertEqual(Set(SettingsCatalog.changed(in: one).map(\.id)), before)
+        for row in SettingsCatalog.all { row.reset?(&one) }
+        XCTAssertEqual(SettingsCatalog.changed(in: one).map(\.id), [])
+        // An action keeps no value to put back.
+        XCTAssertNil(SettingsCatalog.all.first { $0.id == "onboarding" }?.reset)
     }
 }

@@ -2,6 +2,26 @@ import XCTest
 @testable import NXLibraryCore
 
 final class AppRouterTests: XCTestCase {
+    func testSettingsDecisionOwnsInputInsteadOfThePalette() {
+        let router = AppRouter()
+        router.openSettings(.look)
+        router.hasPendingSettings = { true }
+        router.requestSettingsSave()
+        router.isPalettePresented = true
+        XCTAssertFalse(router.isPalettePresented)
+        XCTAssertEqual(router.settingsDecision, .save)
+        router.finishSettingsDecision(proceed: false)
+        router.isPalettePresented = true
+        XCTAssertTrue(router.isPalettePresented)
+        router.settingsOverlayOwnsInput = true
+        XCTAssertFalse(router.isPalettePresented)
+        router.isPalettePresented = true
+        XCTAssertFalse(router.isPalettePresented)
+        router.settingsOverlayOwnsInput = false
+        router.isPalettePresented = true
+        XCTAssertTrue(router.isPalettePresented)
+    }
+
     func testFullScreenBackdropCoverFollowsTheVisibleLayerPriority() {
         XCTAssertEqual(ShellBackdropCover.resolve(setup: true, welcome: true, themePicker: true), .setup)
         XCTAssertEqual(ShellBackdropCover.resolve(setup: false, welcome: true, themePicker: true), .welcome)
@@ -532,14 +552,12 @@ final class AppRouterSpotlightMoveTests: XCTestCase {
         }
     }
 
-    /// The question's safe answer is on the left and focused first, and the pill only asks.
+    /// The power pill only asks; NoticeHost exercises the safe default and the choice itself.
     func testQuitAndRestartOnlyRunFromTheirConfirmation() throws {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         let shell = try String(contentsOf: root.appendingPathComponent("Sources/NXLibrary/Views/Shell/AppShellView+Input.swift"), encoding: .utf8)
         let run = try XCTUnwrap(shell.components(separatedBy: "func runPower(").last?.components(separatedBy: "\n    }").first)
         XCTAssertFalse(run.contains("terminate"))
         XCTAssertTrue(run.contains("confirmSetting(ask.title"))
-        let model = try String(contentsOf: root.appendingPathComponent("Sources/NXLibrary/ViewModels/AppViewModel.swift"), encoding: .utf8)
-        XCTAssertTrue(model.contains("primaryFirst && retry != nil && !destructive.contains(actionTitle) ? .retry : .back"))
     }
 }

@@ -40,7 +40,9 @@ extension AppShellView {
         switch row {
         case .result(let id): viewModel.retryActivity(id)
         case .cloud, .queuedCloud: viewModel.activateCloudActivityRow(row)
+        case .undo: if viewModel.undoOffers.perform() { SoundEffectService.shared.play(.click) }
         case .clearAll: viewModel.clearActivity()
+        case .refresh: retryRefresh(router: router, viewModel: viewModel)
         default:
             guard row.opensPorting else { return }
             router.closeMenu()
@@ -58,8 +60,20 @@ extension AppShellView {
         case .queuedCloud(let token): viewModel.cancelQueuedCloudLibrary(token)
         case .move(let id): viewModel.cancelLibraryMove(id)
         case .result(let id): viewModel.clearActivity(id)
+        case .refresh:
+            if viewModel.libraryRefresh.current?.isRunning == true { viewModel.libraryRefresh.cancel() }
+            else { viewModel.libraryRefresh.clear() }
         default: break
         }
+    }
+
+    private func retryRefresh(router: AppRouter, viewModel: AppViewModel) {
+        let refresh = viewModel.libraryRefresh
+        guard refresh.current?.isRunning == false, let failure = refresh.cloudFailure, failure.action != .retry else {
+            return viewModel.refreshLibrary()
+        }
+        router.closeMenu()
+        viewModel.recoverCloud(failure.action) { viewModel.refreshLibrary() }
     }
 
     func cloudQuitInput(_ action: GamepadAction) {
@@ -107,6 +121,18 @@ extension AppShellView {
             if viewModel.cloudQuitRequested {
                 guard mods.isEmpty else { return event }
                 cloudQuitKey(event.keyCode)
+                return nil
+            }
+            if viewModel.noticeFocus.isActive, mods.isEmpty {
+                if let action = noticeKeyAction(event.keyCode), !event.isARepeat || action != .confirm {
+                    GameControllerService.shared.onAction?(action)
+                }
+                return nil
+            }
+            // Tab reaches the notice on screen. Full Keyboard Access already does, and a text field keeps its own Tab.
+            if event.keyCode == 48, mods.isEmpty, !NSApp.isFullKeyboardAccessEnabled, !noticeKeys.isEmpty,
+               !(event.window?.firstResponder is NSText) {
+                if !event.isARepeat { chooseNotice() }
                 return nil
             }
             // The screenshot viewer owns the keyboard (its own monitor handles it); no navigating underneath.
@@ -217,6 +243,10 @@ extension AppShellView {
             case (_, "f", [.command]):              // Cmd+F
                 if typing || !(isHomeRoute || router.route.isDetail) { return event }
                 action = .search
+            case (_, "z", [.command]):              // Cmd+Z; a text field keeps its own
+                if typing || !canUndoLastChange { return event }
+                if !event.isARepeat { undoLastChange() }
+                return nil
             case (_, ",", [.command]):              // Cmd+,
                 // Same as holding Menu. Consumed, so the menu-bar Settings command does not open Settings a second time.
                 action = .menuHold
@@ -231,6 +261,68 @@ extension AppShellView {
             }
             if let action, !event.isARepeat { GameControllerService.shared.onAction?(action) }
             return nil
+        }
+    }
+
+    /// The last reversible gesture can be undone here: no dialog, launch, Setup or text field comes first.
+    var canUndoLastChange: Bool { viewModel.undoOffers.offer != nil && leavesNoticesRoom }
+
+    /// Nothing that comes first is open.
+    var leavesNoticesRoom: Bool {
+        !router.isMenuPresented && !router.isPalettePresented && !router.isScreenshotViewerOpen && !isCloseGameOpen && !viewModel.showSetupCheck && !showsWelcome
+            && viewModel.launchOverlay == nil && !nativeDialogOwnsInput && !viewModel.profileOwnsInput
+    }
+
+    func undoLastChange() {
+        guard canUndoLastChange, viewModel.undoOffers.perform() else { return }
+        SoundEffectService.shared.play(.click)
+    }
+
+    func turnOffTips() {
+        settings.settings.showsTips = false
+        viewModel.tips.dismiss()
+    }
+
+    /// The keys of the notice on screen, in their order.
+    var noticeKeys: [() -> Void] {
+        guard leavesNoticesRoom else { return [] }
+        if viewModel.undoOffers.isShown { return [undoLastChange] }
+        return viewModel.tips.shown == nil ? [] : [viewModel.tips.dismiss, turnOffTips]
+    }
+
+    func chooseNotice() {
+        guard !viewModel.noticeFocus.isActive, !noticeKeys.isEmpty else { return }
+        viewModel.noticeFocus.enter(keys: noticeKeys.count)
+        SoundEffectService.shared.play(.focus)
+    }
+
+    /// The notice has the input: it moves between its keys, presses one, or gives the screen back as it was.
+    func noticeInput(_ action: GamepadAction) {
+        switch action {
+        case .navigateLeft, .navigateRight:
+            let before = viewModel.noticeFocus
+            viewModel.noticeFocus.move(by: action == .navigateLeft ? -1 : 1)
+            if viewModel.noticeFocus != before { SoundEffectService.shared.play(.focus) }
+        case .confirm:
+            let keys = noticeKeys
+            let index = viewModel.noticeFocus.index
+            viewModel.noticeFocus.leave()
+            if let index, keys.indices.contains(index) { keys[index]() }
+        case .cancel, .notice:
+            viewModel.noticeFocus.leave()
+            SoundEffectService.shared.play(.back)
+        default: break
+        }
+    }
+
+    /// Tab and the arrows while the notice has the input; nil leaves the key alone.
+    private func noticeKeyAction(_ keyCode: UInt16) -> GamepadAction? {
+        switch keyCode {
+        case 123: return .navigateLeft
+        case 124: return .navigateRight
+        case 36, 76, 49: return .confirm
+        case 53, 48: return .cancel
+        default: return nil
         }
     }
 
@@ -325,7 +417,6 @@ extension AppShellView {
         case .refreshLibrary:
             router.closeMenu()
             viewModel.refreshLibrary()
-            if sources.configuration.isEnabled { sources.refresh() }
         case .gameInbox:
             router.closeMenu()
             router.openGameInbox()
@@ -375,6 +466,7 @@ extension AppShellView {
             viewModel.showSettingsNotice(title: L10n.text("Restart app"), message: L10n.text("After the cloud transfer"))
             return
         }
+        guard !router.requestSettingsDeparture({ self.relaunchApp() }) else { return }
         let helper = Process()
         helper.executableURL = URL(fileURLWithPath: "/bin/sh")
         helper.arguments = [

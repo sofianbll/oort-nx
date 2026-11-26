@@ -153,7 +153,8 @@ extension AppShellView {
                             cloudLibrary: viewModel.cloudLibrary,
                             activeProfile: profiles.active,
                             hasBuildActivity: viewModel.isBuilding || viewModel.isCheckingCloudBuild
-                                || !viewModel.buildQueue.isEmpty || !viewModel.activityResults.entries.isEmpty,
+                                || !viewModel.buildQueue.isEmpty || !viewModel.activityResults.entries.isEmpty
+                                || viewModel.libraryRefresh.current?.isRunning == true,
                             onSelect: { runMenuAction($0) },
                             onSelectPower: { runPower($0) },
                             onSelectEntry: { runMenuEntry($0) },
@@ -237,8 +238,22 @@ extension AppShellView {
         })
         .focusedSceneValue(\.nxMenuAvailability, nativeMenuAvailability)
         .overlay {
-            SessionCardLayer(presenter: sessionCard, game: playedGame,
+            SessionCardLayer(presenter: sessionCard, refresh: viewModel.libraryRefresh, game: playedGame,
                              metadata: store.storeMetadata, artwork: artwork)
+        }
+        .seleneOverlayOwnership(!viewModel.noticeFocus.isActive)
+        .overlay {
+            UndoNoticeLayer(offers: viewModel.undoOffers, tips: viewModel.tips,
+                            isBlocked: !leavesNoticesRoom,
+                            isBelowCard: sessionCard.shown != nil || !sessionCard.achievementNames.isEmpty,
+                            focus: $viewModel.noticeFocus,
+                            onUndo: undoLastChange,
+                            onTurnOffTips: turnOffTips)
+            // After the library has settled, never over a screen that covers it.
+            .task(id: [isHomeRoute && leavesNoticesRoom && !viewModel.isGameOptionsOpen && !router.isSearchPresented, viewModel.visibleCatalogGames.count >= Tips.longLibrary]) {
+                guard isHomeRoute, leavesNoticesRoom, !viewModel.isGameOptionsOpen, !router.isSearchPresented, (try? await Task.sleep(for: .seconds(3))) != nil else { return }
+                viewModel.tips.libraryAppeared(games: viewModel.visibleCatalogGames.count, enabled: settings.settings.showsTips)
+            }
         }
         .background { launchCover }
         .overlay {
@@ -275,6 +290,7 @@ extension AppShellView {
         .environmentObject(updater)
         .environmentObject(sources)
         .onAppear { [sources] in
+            viewModel.libraryRefresh.sources = sources
             steamWatcher.onChange = { [weak sources] in sources?.steamFilesChanged() }
             sources.startIfEnabled()
         }
@@ -296,7 +312,7 @@ extension AppShellView {
         .onChange(of: viewModel.isScanningLibrary) { _, scanning in
             if !scanning {
                 viewModel.restoreCloudQueue()
-                viewModel.importCloudGames()
+                if viewModel.libraryScanRequest.isCurrent { viewModel.importCloudGames() }
                 viewModel.porting.scheduleNextBuild()
             }
         }
@@ -347,7 +363,7 @@ extension AppShellView {
         .onReceive(viewModel.localAchievementUnlocks) { unlocks in
             if profiles.active?.id == unlocks.profile { sessionCard.unlocked(unlocks.names) }
         }
-        .onChange(of: profiles.active?.id) { sessionCard.profileDidChange() }
+        .onChange(of: profiles.active?.id) { sessionCard.profileDidChange(); viewModel.undoOffers.drop() }
         .onReceive(runningGames.$pausedGameIDs) { ids in
             // A game can reach Home before the launch cover has faded, especially across Spaces.
             if let launch = viewModel.launchOverlay, ids.contains(launch.game.id) { viewModel.dismissLaunchOverlay() }
@@ -411,6 +427,16 @@ extension AppShellView {
         }
     }
 
+    private struct OnlinePlayersRequest: Equatable {
+        let profile: UUID?
+        let asks: Bool
+    }
+
+    /// All off, saved or being previewed, sends nothing; re-enabling from all off waits for Save.
+    private var asksOnlinePlayers: Bool {
+        settings.settings.onlinePlayersDisplay.asksService && settings.presentation.onlinePlayersDisplay.asksService
+    }
+
     private var settingsPresentation: some View {
         let preview = settings.presentation
         let committed = AppLocale(language: settings.settings.appLanguage, region: settings.settings.appRegion)
@@ -459,13 +485,17 @@ extension AppShellView {
         .environment(\.profilePortrait, router.isMenuPresented ? nil : profiles.active)
         .environment(\.controllerHomeAvailable, gamepad.homeAccess.hasHome)
         .environment(\.onlinePlayersByTitle, onlinePlayers)
-        .task(id: viewModel.setupCompleted ? profiles.active?.id : nil) {
+        .environment(\.onlinePlayersDisplay, settings.presentation.onlinePlayersDisplay)
+        .task(id: OnlinePlayersRequest(profile: viewModel.setupCompleted ? profiles.active?.id : nil,
+                                       asks: asksOnlinePlayers)) {
             guard !Task.isCancelled else { return }
             onlinePlayers = [:]
-            guard viewModel.setupCompleted, let store = viewModel.profileNextendo?.store else { return }
-            while !Task.isCancelled {
-                let counts = (try? await Self.onlineCounts.read(tokenStore: store)) ?? [:]
-                guard !Task.isCancelled else { return }
+            guard asksOnlinePlayers, viewModel.setupCompleted,
+                  let store = viewModel.profileNextendo?.store else { return }
+            while !Task.isCancelled && asksOnlinePlayers {
+                let counts = (try? await Self.onlineCounts.read(tokenStore: store,
+                    display: settings.settings.onlinePlayersDisplay)) ?? [:]
+                guard !Task.isCancelled, asksOnlinePlayers else { return }
                 if counts != onlinePlayers { onlinePlayers = counts }
                 try? await Task.sleep(for: .seconds(180))
             }
@@ -476,6 +506,7 @@ extension AppShellView {
                                          message: L10n.text("Your changes could not be saved. Try again."))
         }
         .onReceive(NotificationCenter.default.publisher(for: .nxToggleProfilePicker)) { _ in toggleProfilePicker() }
+        .onReceive(NotificationCenter.default.publisher(for: .nxLibraryUndoChange)) { _ in undoLastChange() }
         .onReceive(NotificationCenter.default.publisher(for: .nxLibraryPlayFocused)) { _ in
             guard !router.isMenuPresented,
                   nativeMenuAvailability.play,

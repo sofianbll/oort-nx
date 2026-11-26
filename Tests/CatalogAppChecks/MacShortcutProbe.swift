@@ -162,12 +162,12 @@ extension ProfileScreenProbe {
             let options = vm.settingsNotice!
             try shot("options", dialog(options))
             vm.settingsNotice = nil
+            precondition(options.choices == ["Remove tile", "Back", "Choose image…"] && options.defaultAnswer == .retry)
             options.runAnswer(options.answers.first { $0.role == .destructive }!.id)
-            let remove = vm.settingsNotice!
-            precondition(remove.answers.map(\.role) == [.back, .destructive] && remove.defaultAnswer == .back)
-            try shot("remove", dialog(remove))
-            remove.runAnswer(.back)
-            vm.settingsNotice = nil
+            precondition(vm.visibleCatalogGames.isEmpty && vm.settingsNotice == nil)
+            let offer = vm.undoOffers.offer!
+            try shot("removed", UndoNotice(message: offer.message, onUndo: {}))
+            precondition(vm.undoOffers.perform() && vm.visibleCatalogGames.map(\.id) == [game.id])
         }
 
         let personalImage = data.appendingPathComponent("manual.png")
@@ -208,10 +208,7 @@ extension ProfileScreenProbe {
         let options = vm.settingsNotice!
         vm.settingsNotice = nil
         options.runAnswer(options.answers.first { $0.role == .destructive }!.id)
-        let remove = vm.settingsNotice!
-        vm.settingsNotice = nil
-        remove.runAnswer(.retry)
-        precondition(vm.visibleCatalogGames.isEmpty)
+        precondition(vm.visibleCatalogGames.isEmpty && vm.settingsNotice == nil)
         let unchanged = try paths.map { try Data(contentsOf: moved.appendingPathComponent($0)) }
         precondition(unchanged == originalBytes)
         print("Mac shortcut checks passed: selection, controller, profile refusals, relink, local art, real handoff, no session and unchanged bundle")
