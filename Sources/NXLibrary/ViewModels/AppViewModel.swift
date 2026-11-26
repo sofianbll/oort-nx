@@ -259,6 +259,7 @@ final class AppViewModel: ObservableObject {
     private(set) lazy var cheats = CheatsModel(app: self)
     /// The game's app icon in Finder and the Dock (`AppIconModel`), observed by Change artwork.
     private(set) lazy var appIcon = AppIconModel(app: self)
+    @MainActor private(set) lazy var libraryRefresh = LibraryRefreshModel(app: self)
     /// The Nintendo store's data for each game, in the app language (`StoreMetadataModel`), observed by the screens
     /// that show it.
     private(set) lazy var store = StoreMetadataModel(app: self)

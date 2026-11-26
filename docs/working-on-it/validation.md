@@ -9,6 +9,8 @@ Come si aggiorna:
 
 ## Release del fork
 
+- **Library refresh unico (25 nov 2026)** — in attesa: Drive reale, rete assente a metà, pulsante ripetuto con tastiera e controller, lettura del messaggio e della riga nel centro attività.
+
 | Parte | Stato | Prove ancora da fare |
 |---|---|---|
 | Crediti e licenze in About | in attesa | Con controller, tastiera e mouse: aprire ogni gruppo, scegliere le due schede di una riga, aprire una pagina e le note complete; leggere una scheda con VoiceOver; provare una lingua oltre FR/EN. |

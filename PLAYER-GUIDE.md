@@ -82,7 +82,7 @@ To link an app already on your Mac, choose **Add an app…** in Sources or the m
 
 The default Game apps folder is `~/Applications`; first use can prepare this default without an extra picker. Remembered or custom unavailable folders are never recreated automatically. Changing folders does not move installed apps, and a rebuild updates an existing app in its current location. A read-only folder still allows discovery and Play; installing new builds needs write access.
 
-Discovery includes subfolders of **Game apps**, skips app contents and limits the search depth. **Settings → Switch → Scan game apps** reports search limits and unreadable folders. If several builds of a title are found, Arcane keeps the registered app while it exists. For a newly discovered title, it uses the most recently modified build.
+Discovery includes subfolders of **Game apps**, skips app contents and limits the search depth. **Settings → Switch → Library refresh** reports search limits and unreadable folders. If several builds of a title are found, Arcane keeps the registered app while it exists. For a newly discovered title, it uses the most recently modified build.
 
 **Game files** is a separate optional folder choice in **Settings → Switch**. Selecting individual files leaves that choice in place. **Reset group** preserves both folders; the **Game apps** row has its own **Reset** button.
 
@@ -90,7 +90,7 @@ Import your `prod.keys` when prompted. Arcane keeps a private copy with mode `06
 
 Open this tools panel from **Settings → Switch → Engine → Open Setup**. Oort NX never runs `sudo`, accepts the Xcode licence for you or changes `xcode-select`.
 
-To discover existing nxnative game apps, choose **Settings → Switch → Scan game apps → Scan**. Play works with the installed app. To rebuild it, attach the original sources.
+To discover existing nxnative game apps, choose **Settings → Switch → Library refresh → Refresh**. Play works with the installed app. To rebuild it, attach the original sources.
 
 If an installed app is moved or removed, its library entry stays with a blurred, locked tile and **App not found**. Restore it to its folder or change **Game apps**, then refresh the library. Arcane does not search elsewhere for it. Missing build inputs show **Game files not found** when there is no app to play. An existing app still plays when its source files are missing; only rebuilding is unavailable. To reconnect a game's moved inputs, use **Game Options → Edit details → Attach sources…**.
 

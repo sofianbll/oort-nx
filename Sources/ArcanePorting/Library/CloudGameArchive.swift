@@ -277,10 +277,13 @@ public actor CloudGameArchive {
     private let trash: @Sendable (URL) throws -> Void
     package nonisolated let leases: CloudTitleLeases
     private let fingerprints: CloudArchiveFingerprintCache
+    private let records: CloudManifestCache?
+    /// Titles read at once from a listing; a command at a time otherwise.
+    private static let listingWidth = 8
 
     public init(backend: any StorageBackend) {
         self.init(backend: backend, trash: { try FileManager.default.trashItem(at: $0, resultingItemURL: nil) },
-                  fingerprints: .shared)
+                  fingerprints: .shared, records: .shared)
     }
 
     internal init(backend: any StorageBackend,
@@ -288,12 +291,24 @@ public actor CloudGameArchive {
                       (try? FileManager.default.attributesOfFileSystem(forPath: $0.path)[.systemFreeSize] as? NSNumber)?.int64Value
                   },
                   trash: @escaping @Sendable (URL) throws -> Void,
-                  fingerprints: CloudArchiveFingerprintCache = .init()) {
+                  fingerprints: CloudArchiveFingerprintCache = .init(), records: CloudManifestCache? = nil) {
         self.backend = backend
+        self.records = records
         self.leases = (backend as? RcloneStorageBackend)?.leases ?? CloudTitleLeases()
         self.capacity = capacity
         self.trash = trash
         self.fingerprints = fingerprints
+    }
+
+    /// This archive as one listing shows it, for a screen: same leases and fingerprints, no decision and no write.
+    package nonisolated func reading(_ listing: RcloneListing) -> CloudGameArchive? {
+        guard let rclone = backend as? RcloneStorageBackend else { return nil }
+        return CloudGameArchive(backend: rclone.reading(listing), capacity: capacity, trash: trash,
+                                fingerprints: fingerprints, records: records)
+    }
+
+    private nonisolated var listing: RcloneStorageBackend? {
+        (backend as? RcloneStorageBackend).flatMap { $0.readsTogether ? $0 : nil }
     }
 
     /// A failed manifest read is distinct from a successful lookup with no manifest.
@@ -415,6 +430,7 @@ public actor CloudGameArchive {
                              lastSuccessfulBuild: ClosedRange<Date>? = nil, preferLocalCache: Bool = false,
                              appManifest: CloudGameManifest? = nil)
         async throws -> (decision: CloudRebuildDecision, verifiedCache: URL?, hasUsableLocalCache: Bool) {
+        guard listing == nil else { throw StorageBackendError.invalidConfiguration }
         let local: (URL, String)?
         do {
             if !withoutCache, sourcesAvailable, game.cacheIsRegistered, game.locations[.cache] == nil {
@@ -544,23 +560,42 @@ public actor CloudGameArchive {
             if let title = CloudDriveFolders.titleID(in: folder) { titles[title, default: []].append(folder) }
         }
         guard titles.count <= 2_000 else { throw StorageBackendError.invalidResponse }
-        var manifests: [CloudGameManifest] = []
-        var invalidTitles: [String] = []
-        for title in titles.keys.sorted() {
+        if let listing {
+            await listing.warm(folders)
+            await listing.warm(folders.map { $0 + "/manifests" })
+        }
+        let names = titles
+        func read(_ title: String) async throws -> (manifest: CloudGameManifest?, invalid: Bool) {
             try Task.checkCancellation()
             do {
                 guard !ambiguous.contains(title) else { throw CloudLibraryFailure.incomplete }
-                let names = titles[title, default: []]
+                let names = names[title, default: []]
                 guard Set(names.map({ $0.precomposedStringWithCanonicalMapping.lowercased() })).count == names.count
                 else { throw CloudLibraryFailure.incomplete }
-                if let manifest = try await latest(titleID: title, folders: names) {
-                    manifests.append(manifest)
-                }
+                return (try await latest(titleID: title, folders: names), false)
             } catch let error where skippingInvalid && ((error as? CloudArchiveError) == .invalidManifest
                 || (error as? CloudLibraryFailure) == .incomplete) {
-                invalidTitles.append(title)
+                return (nil, true)
             }
         }
+        var found: [String: (manifest: CloudGameManifest?, invalid: Bool)] = [:]
+        try await withThrowingTaskGroup(of: (String, CloudGameManifest?, Bool).self) { group in
+            var waiting = titles.keys.sorted()[...]
+            func next() {
+                guard let title = waiting.popFirst() else { return }
+                group.addTask {
+                    let (manifest, invalid) = try await read(title)
+                    return (title, manifest, invalid)
+                }
+            }
+            for _ in 0..<(listing == nil ? 1 : Self.listingWidth) { next() }
+            while let (title, manifest, invalid) = try await group.next() {
+                found[title] = (manifest, invalid)
+                next()
+            }
+        }
+        let manifests = found.keys.sorted().compactMap { found[$0]?.manifest }
+        let invalidTitles = found.keys.sorted().filter { found[$0]?.invalid == true }
         try Task.checkCancellation()
         return (manifests, invalidTitles)
     }
@@ -709,14 +744,33 @@ public actor CloudGameArchive {
         let parts = name.split(separator: "-", omittingEmptySubsequences: false)
         guard parts.count == 2, parts[0].count == 16, Int64(parts[0]) != nil, Self.isHex(String(parts[1]), count: 64),
               (1...Int64(Self.manifestLimit)).contains(object.size) else { throw CloudArchiveError.invalidManifest }
+        if listing != nil, let known = records?.manifest(object) { return known }
         let stage = try staging(in: FileManager.default.temporaryDirectory)
         defer { try? FileManager.default.removeItem(at: stage) }
-        let file = stage.appendingPathComponent("manifest.json")
-        try await backend.get(object.key, to: file)
-        let data = try SaveFiles.readRegular(file, limit: Self.manifestLimit)
-        guard Int64(data.count) == object.size,
-              try CloudArchiveInventory.hashes(at: file, includeMD5: false)["sha256"] == String(parts[1])
-        else { throw CloudArchiveError.invalidManifest }
+        let sha256 = String(parts[1])
+        let data: Data
+        if listing != nil, let kept = records?.data(sha256, of: object, limit: Self.manifestLimit) {
+            data = kept
+        } else {
+            let file = stage.appendingPathComponent("manifest.json")
+            try await backend.get(object.key, to: file)
+            data = try SaveFiles.readRegular(file, limit: Self.manifestLimit)
+            guard Int64(data.count) == object.size,
+                  try CloudArchiveInventory.hashes(at: file, includeMD5: false)["sha256"] == sha256
+            else { throw CloudArchiveError.invalidManifest }
+            if listing != nil { records?.store(data, sha256: sha256) }
+        }
+        // Off the actor: a listing checks several records at once.
+        let stamp = Int64(parts[0])
+        let worker = Task.detached(priority: Task.currentPriority) {
+            try Self.manifest(in: data, titleID: title, stamp: stamp, root: stage)
+        }
+        let manifest = try await withTaskCancellationHandler { try await worker.value } onCancel: { worker.cancel() }
+        if listing != nil { records?.keep(manifest, for: object) }
+        return manifest
+    }
+
+    private static func manifest(in data: Data, titleID title: String, stamp: Int64?, root stage: URL) throws -> CloudGameManifest {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         guard let manifest = try? decoder.decode(CloudGameManifest.self, from: data),
@@ -726,7 +780,7 @@ public actor CloudGameArchive {
               manifest.version != 1 || data.count <= Self.legacyManifestLimit else { throw CloudArchiveError.invalidManifest }
         for artifact in manifest.artifacts {
             if let revision = artifact.revision {
-                guard revision > 0, let stamp = Int64(parts[0]), revision <= stamp,
+                guard revision > 0, let stamp, revision <= stamp,
                       artifact.publishedAt == Date(timeIntervalSince1970: Double(revision / 1000))
                 else { throw CloudArchiveError.invalidManifest }
             }
@@ -1268,6 +1322,7 @@ public actor CloudGameArchive {
     }
 
     private func begin(_ titleID: String) throws -> UUID {
+        guard listing == nil else { throw StorageBackendError.invalidConfiguration }
         guard SaveLocation.validID(titleID) else { throw CloudArchiveError.unsafePath }
         guard let lease = leases.begin(titleID) else { throw CloudArchiveError.busy }
         return lease

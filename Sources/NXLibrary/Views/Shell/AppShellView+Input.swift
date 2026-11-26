@@ -41,6 +41,7 @@ extension AppShellView {
         case .result(let id): viewModel.retryActivity(id)
         case .cloud, .queuedCloud: viewModel.activateCloudActivityRow(row)
         case .clearAll: viewModel.clearActivity()
+        case .refresh: retryRefresh(router: router, viewModel: viewModel)
         default:
             guard row.opensPorting else { return }
             router.closeMenu()
@@ -58,8 +59,20 @@ extension AppShellView {
         case .queuedCloud(let token): viewModel.cancelQueuedCloudLibrary(token)
         case .move(let id): viewModel.cancelLibraryMove(id)
         case .result(let id): viewModel.clearActivity(id)
+        case .refresh:
+            if viewModel.libraryRefresh.current?.isRunning == true { viewModel.libraryRefresh.cancel() }
+            else { viewModel.libraryRefresh.clear() }
         default: break
         }
+    }
+
+    private func retryRefresh(router: AppRouter, viewModel: AppViewModel) {
+        let refresh = viewModel.libraryRefresh
+        guard refresh.current?.isRunning == false, let failure = refresh.cloudFailure, failure.action != .retry else {
+            return viewModel.refreshLibrary()
+        }
+        router.closeMenu()
+        viewModel.recoverCloud(failure.action) { viewModel.refreshLibrary() }
     }
 
     func cloudQuitInput(_ action: GamepadAction) {
@@ -325,7 +338,6 @@ extension AppShellView {
         case .refreshLibrary:
             router.closeMenu()
             viewModel.refreshLibrary()
-            if sources.configuration.isEnabled { sources.refresh() }
         case .gameInbox:
             router.closeMenu()
             router.openGameInbox()

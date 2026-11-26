@@ -84,20 +84,57 @@ final class SessionCardPresenter: ObservableObject {
 }
 
 struct AchievementUnlockToast: View {
-    @Environment(\.seleneCanvas) private var canvas
     let names: [String]
 
     var body: some View {
+        NoticeToast(symbol: "trophy.fill", title: L10n.count("%lld achievements unlocked", names.count),
+                    text: names.formatted(.list(type: .and).locale(L10n.context.formatLocale)))
+    }
+}
+
+/// What a refresh of the library does and what came of it; the activity center keeps it afterwards.
+struct LibraryRefreshToast: View {
+    @Environment(\.nxAppLocale) private var localization
+    let refresh: LibraryRefresh
+
+    var body: some View {
+        let state = LibraryRefreshModel.title(refresh, context: localization)
+        let detail = LibraryRefreshModel.detail(refresh, context: localization)
+        // What is missing takes every line of the card; its state becomes the title.
+        let incomplete = refresh.outcome == .incomplete
+        let text = incomplete ? detail ?? state : [state, detail].compactMap { $0 }.joined(separator: " · ")
+        NoticeToast(symbol: symbol, title: incomplete ? state : L10n.text("Library refresh", context: localization), text: text)
+            .onAppear { AccessibilityNotification.Announcement(text).post() }
+            .onChange(of: refresh.outcome) { AccessibilityNotification.Announcement(text).post() }
+    }
+
+    private var symbol: String {
+        switch refresh.outcome {
+        case .running: return "arrow.triangle.2.circlepath"
+        case .upToDate, .changed: return "checkmark.circle"
+        case .incomplete: return "exclamationmark.triangle"
+        case .cancelled: return "xmark.circle"
+        }
+    }
+}
+
+private struct NoticeToast: View {
+    @Environment(\.seleneCanvas) private var canvas
+    let symbol: String
+    let title: String
+    let text: String
+
+    var body: some View {
         HStack(spacing: canvas.u(SeleneTokens.Space.control)) {
-            Image(systemName: "trophy.fill")
+            Image(systemName: symbol)
                 .font(.system(size: canvas.u(SeleneTokens.Text.heading.rawValue), weight: .semibold))
                 .foregroundColor(SeleneTheme.ink)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: canvas.u(SeleneTokens.Space.hairline)) {
-                Text(L10n.count("%lld achievements unlocked", names.count))
+                Text(title)
                     .seleneFont(.text, .semibold)
                     .foregroundColor(SeleneTheme.ink60)
-                Text(names.formatted(.list(type: .and).locale(L10n.context.formatLocale)))
+                Text(text)
                     .seleneFont(.row, .semibold)
                     .foregroundColor(SeleneTheme.ink)
                     .lineLimit(3)
@@ -226,23 +263,31 @@ struct SessionCardLayer: View {
     @Environment(\.seleneCanvas) private var canvas
     @Environment(\.seleneReduceMotion) private var reduceMotion
     @ObservedObject var presenter: SessionCardPresenter
+    var refresh: LibraryRefreshModel? = nil
     /// The ended session's game, nxnative or Steam.
     let game: (UUID) -> PlayedGame?
     let metadata: [UUID: NintendoStoreMetadata]
     let artwork: ArtworkStore
 
+    private var arrival: AnyTransition {
+        reduceMotion ? .opacity : .opacity.combined(with: .offset(x: canvas.u(40)))
+    }
+
     var body: some View {
         ZStack(alignment: .topTrailing) {
             if !presenter.achievementNames.isEmpty {
                 AchievementUnlockToast(names: presenter.achievementNames)
-                    .transition(reduceMotion ? .opacity : .opacity.combined(with: .offset(x: canvas.u(40))))
+                    .transition(arrival)
             } else if let summary = presenter.shown {
                 SessionCardView(summary: summary,
                                 game: game(summary.gameID),
                                 metadata: metadata[summary.gameID],
                                 artwork: artwork)
                     .id(summary.id)
-                    .transition(reduceMotion ? .opacity : .opacity.combined(with: .offset(x: canvas.u(40))))
+                    .transition(arrival)
+            } else if let refresh, refresh.announces, let current = refresh.current {
+                LibraryRefreshToast(refresh: current)
+                    .transition(arrival)
             }
         }
         .padding(.top, canvas.u(SeleneTokens.Space.toastTop))
@@ -251,5 +296,6 @@ struct SessionCardLayer: View {
         .allowsHitTesting(false)
         .animation(Motion.toast(reduceMotion), value: presenter.shown?.id)
         .animation(Motion.toast(reduceMotion), value: presenter.achievementNames)
+        .animation(Motion.toast(reduceMotion), value: refresh?.announces)
     }
 }

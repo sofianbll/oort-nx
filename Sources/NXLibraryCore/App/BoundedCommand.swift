@@ -144,7 +144,8 @@ struct BoundedCommandRunner: CommandRunning, Sendable {
             }
             // Once the leader exits, even a descendant still holding a pipe cannot extend the wait.
             guard now() < min(deadline, exitedAt.map { $0 + 0.5 } ?? .infinity) else { throw CommandDeadline() }
-            if poll(&fds, nfds_t(fds.count), 50) < 0 {
+            // Nothing more to read: only the exit is awaited, a moment away.
+            if poll(&fds, nfds_t(fds.count), fds[0].fd < 0 && fds[1].fd < 0 ? 1 : 50) < 0 {
                 if errno == EINTR { continue }
                 try checkPOSIX(errno)
             }

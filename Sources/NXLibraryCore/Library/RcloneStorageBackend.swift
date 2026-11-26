@@ -4,7 +4,7 @@ import Foundation
 public struct RcloneStorageBackend: StorageBackend {
     private static let staging = ".arcane-upload"
     private static let smallDownloadLimit: Int64 = 64 * 1024
-    private static let flags = RcloneConfiguration.driveFlags + ["--local-links=false", "--copy-links=false",
+    static let flags = RcloneConfiguration.driveFlags + ["--local-links=false", "--copy-links=false",
                                 "--drive-chunk-size", "64M", "--multi-thread-streams", "4",
                                 "--multi-thread-cutoff", "64M"]
     private let remote: String
@@ -14,8 +14,12 @@ public struct RcloneStorageBackend: StorageBackend {
     private let commandOverride: RcloneConfiguration.Run?
     private let referenceID: String?
     private var driveScope: CloudDriveScope?
+    private var listing: RcloneListing?
     package var isReference: Bool { referenceID != nil }
+    /// Folders are read together and once: several readers cost no more than one.
+    package var readsTogether: Bool { listing != nil }
     let control: RcloneRemoteControl
+    private let reader: RcloneReader
     package let leases: CloudTitleLeases
 
     /// `remote` is a configured rclone name (e.g. `gdrive`) or `:local:` with an absolute `root`.
@@ -40,12 +44,13 @@ public struct RcloneStorageBackend: StorageBackend {
 
     private init(remote: String, root: String, executable: URL?, config: URL?,
                  control: RcloneRemoteControl, leases: CloudTitleLeases, commandOverride: RcloneConfiguration.Run?,
-                 referenceID: String? = nil) {
+                 reader: RcloneReader? = nil, referenceID: String? = nil) {
         self.remote = remote
         self.root = root
         self.executable = executable
         self.config = config
         self.control = control
+        self.reader = reader ?? RcloneReader(control: control)
         self.leases = leases
         self.commandOverride = commandOverride
         self.referenceID = referenceID
@@ -53,8 +58,10 @@ public struct RcloneStorageBackend: StorageBackend {
 
     package func atRoot(_ root: String) -> Self {
         var backend = Self(remote: remote, root: root, executable: executable, config: config,
-                           control: control, leases: leases, commandOverride: commandOverride, referenceID: referenceID)
+                           control: control, leases: leases, commandOverride: commandOverride, reader: reader,
+                           referenceID: referenceID)
         backend.driveScope = driveScope
+        backend.listing = listing
         return backend
     }
 
@@ -72,6 +79,12 @@ public struct RcloneStorageBackend: StorageBackend {
     package func directoryEntries(in prefix: String, withHashes: Bool = false) async throws
         -> [(name: String, isDirectory: Bool, object: StorageObject)] {
         let directory = try prefix.isEmpty ? basePath() : path(for: .init(prefix))
+        if let entries = try await listed(prefix) {
+            return entries.map { entry in
+                (entry.name, entry.isDirectory, .init(key: .init(Self.join(prefix, entry.name)), size: entry.size,
+                                                      hashes: withHashes ? entry.hashes : [:]))
+            }
+        }
         let items = try decode([Item].self, from: await run([
             "lsjson", directory, "--no-modtime", "--no-mimetype",
         ] + (withHashes ? ["--hash"] : []), listingFolder: true))
@@ -87,8 +100,10 @@ public struct RcloneStorageBackend: StorageBackend {
         guard remote != ":local:", CloudLibraryPreference.referenceFolderID(folderID) == folderID else { return nil }
         guard driveScope.map({ $0.reference == folderID }) ?? true else { return nil }
         var backend = Self(remote: remote, root: "", executable: executable, config: config,
-                           control: control, leases: leases, commandOverride: commandOverride, referenceID: folderID)
+                           control: control, leases: leases, commandOverride: commandOverride, reader: reader,
+                           referenceID: folderID)
         backend.driveScope = driveScope
+        backend.listing = listing
         return backend
     }
 
@@ -109,12 +124,75 @@ public struct RcloneStorageBackend: StorageBackend {
         return backend
     }
 
+    /// One read of this library, proved and ready; nil where the single commands must do (a local folder, a fixture,
+    /// a library with no approved scope yet, an rclone that cannot serve).
+    package func openListing() async throws -> RcloneListing? {
+        guard let driveScope, let listing = try await unprovedListing() else { return nil }
+        do { try await listing.verify(driveScope) } catch is RcloneListing.Unavailable { return nil }
+        return listing
+    }
+
+    private func unprovedListing() async throws -> RcloneListing? {
+        guard commandOverride == nil, !isReference, remote != ":local:", let executable = Self.findExecutable(preferred: executable)
+        else { return nil }
+        do { return RcloneListing(try await reader.connection(remote: remote, executable: executable, config: config)) }
+        catch RcloneConfiguration.Failure.configuration { return nil }
+    }
+
+    /// The scope of an approved library as Drive has it now. A first approval goes through `resolveScope`.
+    package func currentScope(reference: String?, sources path: String) async throws
+        -> (scope: CloudDriveScope, sources: CloudDriveScope.Folder?) {
+        do {
+            if let listing = try await unprovedListing() {
+                guard let library = try await listing.identity(of: root) else { throw CloudLibraryFailure.folderMissing }
+                let sources = try await listing.identity(of: path).map { CloudDriveScope.Folder(path: path, id: $0) }
+                return (.init(remote: remote, account: listing.account, library: .init(path: root, id: library), reference: reference), sources)
+            }
+        } catch is RcloneListing.Unavailable {}
+        let scope = try await resolveScope(reference: reference)
+        return (scope, try await sourceFolder(path, in: scope))
+    }
+
+    /// The same library read through `listing`. It answers listings and small files, and refuses every write.
+    package func reading(_ listing: RcloneListing) -> Self {
+        var backend = self
+        backend.listing = listing
+        return backend
+    }
+
+    /// Reads these folders together before they are asked one by one.
+    package func warm(_ prefixes: [String]) async {
+        guard let listing, let target = try? listingTarget() else { return }
+        await listing.warm(prefixes.map { Self.join(target.path, $0) }, under: target.id)
+    }
+
+    private func listingTarget() throws -> (id: String, path: String) {
+        if let referenceID { return (referenceID, root) }
+        guard let target = scopedTarget else { throw CloudLibraryFailure.scopeChanged }
+        return (target.folder.id, target.relative)
+    }
+
+    private static func join(_ parent: String, _ name: String) -> String {
+        parent.isEmpty || name.isEmpty ? parent + name : parent + "/" + name
+    }
+
+    /// nil when the single command must answer.
+    private func listed(_ prefix: String) async throws -> [RcloneListing.Entry]? {
+        guard let listing else { return nil }
+        let target = try listingTarget()
+        do { return try await listing.entries(in: Self.join(target.path, prefix), under: target.id) }
+        catch is RcloneListing.Unavailable { return nil }
+    }
+
     package func verifyLibraryReadAccess() async throws {
         try await checkDirectory(basePath())
     }
 
     /// Ends the RC session when the cloud configuration is replaced or the app quits.
-    public func stopRemoteControl() { control.stop() }
+    public func stopRemoteControl() {
+        control.stop()
+        Task { [reader] in await reader.close() }
+    }
 
     public static func findExecutable(preferred: URL? = nil) -> URL? {
         findExecutable(preferred: preferred,
@@ -161,6 +239,7 @@ public struct RcloneStorageBackend: StorageBackend {
 
     public func rootDirectories() async throws -> [String] {
         let base = try basePath()
+        if let entries = try await listed("") { return entries.filter(\.isDirectory).map(\.name) }
         let items: [Item]
         if let output = try await rc("operations/list", [
             "fs": base, "remote": "", "opt": ["dirsOnly": true, "noModTime": true, "noMimeType": true],
@@ -195,6 +274,12 @@ public struct RcloneStorageBackend: StorageBackend {
     /// Raw names and Drive object IDs, before rclone is asked to resolve a path by name.
     package func archiveEntries(in prefix: String) async throws -> [ArchiveEntry] {
         let directory = try prefix.isEmpty ? basePath() : path(for: .init(prefix))
+        if let entries = try await listed(prefix) {
+            return entries.map {
+                ArchiveEntry(name: $0.name, id: $0.id, isDirectory: $0.isDirectory,
+                             object: .init(key: .init(Self.join(prefix, $0.name)), size: $0.size, hashes: $0.hashes))
+            }
+        }
         let items: [Item]
         let listedParent: String
         if let output = try await rc("operations/list", [
@@ -241,6 +326,11 @@ public struct RcloneStorageBackend: StorageBackend {
 
     package func list(in prefix: StorageObjectKey, withHashes: Bool) async throws -> [StorageObject] {
         let directory = try path(for: prefix)
+        if let entries = try await listed(prefix.value) {
+            return entries.filter { withHashes || !$0.isDirectory }.map {
+                StorageObject(key: StorageObjectKey(prefix.value + "/" + $0.name), size: $0.size, hashes: withHashes ? $0.hashes : [:])
+            }
+        }
         let items: [Item]
         if let output = try await rc("operations/list", [
             "fs": basePath(), "remote": prefix.value, "opt": ["filesOnly": !withHashes, "showHash": withHashes],
@@ -278,7 +368,7 @@ public struct RcloneStorageBackend: StorageBackend {
     package func copyFiles(_ paths: [String], from local: URL, to key: StorageObjectKey,
                            reusing previous: StorageObjectKey?,
                            progress: (@Sendable (StorageProgress) -> Void)?) async throws {
-        guard !isReference else { throw StorageBackendError.invalidConfiguration }
+        guard !isReference, listing == nil else { throw StorageBackendError.invalidConfiguration }
         let reuse = try previous.map { ["--copy-dest", try path(for: $0)] } ?? []
         // Encode links on the source only. The local fixture must store the same sidecars as Drive.
         try await copyFiles(paths, from: ":local,links=true:" + local.path, to: path(for: key),
@@ -356,7 +446,7 @@ public struct RcloneStorageBackend: StorageBackend {
 
     private func put(_ source: URL, as object: StorageObject, md5Only: Bool,
                      progress: (@Sendable (StorageProgress) -> Void)?) async throws {
-        guard !isReference else { throw StorageBackendError.invalidConfiguration }
+        guard !isReference, listing == nil else { throw StorageBackendError.invalidConfiguration }
         let final = try path(for: object.key)
         guard source.isFileURL, isRegularFile(source) else {
             throw StorageBackendError.invalidLocalFile
@@ -424,7 +514,12 @@ public struct RcloneStorageBackend: StorageBackend {
         guard destination.isFileURL else { throw StorageBackendError.invalidLocalFile }
         let fm = FileManager.default
         guard !fm.fileExists(atPath: destination.path) else { throw StorageBackendError.alreadyExists }
-        guard let item = try await item(at: source) else { throw StorageBackendError.notFound }
+        // A listing read the size already; only its own downloads are this small.
+        let size: Int64
+        if listing == nil {
+            guard let item = try await item(at: source) else { throw StorageBackendError.notFound }
+            size = item.size
+        } else { size = 0 }
         let staging = destination.deletingLastPathComponent()
             .appendingPathComponent(".arcane-download-\(UUID().uuidString)", isDirectory: true)
         do {
@@ -433,7 +528,9 @@ public struct RcloneStorageBackend: StorageBackend {
         } catch { throw CloudLibraryFailure.localWriteFailure(error, at: staging) as Error? ?? StorageBackendError.invalidLocalFile }
         defer { try? fm.removeItem(at: staging) }
         let temporary: URL
-        if progress == nil, (1...Self.smallDownloadLimit).contains(item.size),
+        if try await listedDownload(key, to: staging.appendingPathComponent("rc")) {
+            temporary = staging.appendingPathComponent("rc")
+        } else if progress == nil, (1...Self.smallDownloadLimit).contains(size),
            try await rc("operations/copyfile", [
                "srcFs": basePath(), "srcRemote": key.value, "dstFs": ":local:" + staging.path, "dstRemote": "rc",
            ]) != nil {
@@ -448,6 +545,14 @@ public struct RcloneStorageBackend: StorageBackend {
         do { try fm.moveItem(at: temporary, to: destination) }
         catch let error as CocoaError where error.code == .fileWriteFileExists { throw StorageBackendError.alreadyExists }
         catch { throw CloudLibraryFailure.localWriteFailure(error, at: destination) as Error? ?? StorageBackendError.invalidLocalFile }
+    }
+
+    private func listedDownload(_ key: StorageObjectKey, to file: URL) async throws -> Bool {
+        guard let listing else { return false }
+        let target = try listingTarget()
+        do { try await listing.download(Self.join(target.path, key.value), under: target.id, to: file) }
+        catch is RcloneListing.Unavailable { return false }
+        return true
     }
 
     public func delete(_ key: StorageObjectKey) async throws {
@@ -594,6 +699,7 @@ public struct RcloneStorageBackend: StorageBackend {
         case "copy", "copyto": writesToDrive = arguments.count > 2 && arguments[2].hasPrefix(remote + ":")
         default: writesToDrive = false
         }
+        guard listing == nil || !writesToDrive else { throw StorageBackendError.invalidConfiguration }
         if writesToDrive, !isReference, let scope = driveScope, commandOverride == nil, !usingConfigSnapshot {
             let executable = try binary()
             let snapshot = try await RcloneConfigSnapshot.capture(executable: executable, config: config) {

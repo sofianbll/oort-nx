@@ -132,8 +132,20 @@ public final class CloudGameSources: @unchecked Sendable {
     private let capacity: @Sendable (URL) -> Int64?
     private let implicitRootParent: RcloneStorageBackend?
     private let trash: @Sendable (URL) throws -> Void
-    private let lock = NSLock()
-    private var fingerprints: [URL: (stamp: Stamp, md5: String)] = [:]
+    private let fingerprints: Fingerprints
+
+    /// Local digests, shared with the readings of these sources.
+    private final class Fingerprints: @unchecked Sendable {
+        private let lock = NSLock()
+        private var known: [URL: (stamp: Stamp, md5: String)] = [:]
+        func md5(_ url: URL, _ stamp: Stamp) -> String? { lock.withLock { known[url].flatMap { $0.stamp == stamp ? $0.md5 : nil } } }
+        func save(_ url: URL, _ stamp: Stamp, _ md5: String) {
+            lock.withLock {
+                if known.count >= 256 { known.removeAll() }
+                known[url] = (stamp, md5)
+            }
+        }
+    }
 
     public convenience init(backend: RcloneStorageBackend, root: String, usesDefaultRoot: Bool = false,
                             allowsIndependentRoot: Bool = false) {
@@ -157,7 +169,22 @@ public final class CloudGameSources: @unchecked Sendable {
         self.capacity = capacity
         self.implicitRootParent = usesDefaultRoot ? backend : nil
         self.trash = trash
+        self.fingerprints = Fingerprints()
     }
+
+    private init(_ other: CloudGameSources, listing: RcloneListing) {
+        backend = other.backend.reading(listing)
+        library = other.library.reading(listing)
+        discoveryRoots = other.discoveryRoots
+        rootAllowed = other.rootAllowed
+        capacity = other.capacity
+        implicitRootParent = other.implicitRootParent?.reading(listing)
+        trash = other.trash
+        fingerprints = other.fingerprints
+    }
+
+    /// These sources as one listing shows them, for a screen. Every transfer refuses to start from it.
+    package func reading(_ listing: RcloneListing) -> CloudGameSources { .init(self, listing: listing) }
 
     package func discover() async throws -> Discovery {
         var result = Discovery()
@@ -268,6 +295,8 @@ public final class CloudGameSources: @unchecked Sendable {
             candidates.append((label, .init(titleID: title, name: name, directory: directory, files: files)))
         }
 
+        await library.warm(entries.filter { candidateDirectory($0) && Selection.safeName($0.name) }
+            .map { CloudDriveFolders.joining(root, $0.name) })
         var loose: [UInt64: [Entry]] = [:]
         for entry in entries {
             try Task.checkCancellation()
@@ -321,6 +350,7 @@ public final class CloudGameSources: @unchecked Sendable {
         guard let game = try await discover().games.first(where: { $0.titleID == titleID }),
               game.directory == directory, game.matches(files, in: root) else { throw CloudArchiveError.noRemoteCopy }
         let selection = try Selection(game.directory, files.map(\.url), titleID: titleID)
+        guard !library.readsTogether else { throw StorageBackendError.invalidConfiguration }
         guard let lease = library.leases.begin(selection.title) else { throw CloudArchiveError.busy }
         defer { library.leases.end(selection.title, token: lease) }
         guard try await directoryPath(game.directory) == .present else { throw CloudArchiveError.localChanged }
@@ -408,7 +438,7 @@ public final class CloudGameSources: @unchecked Sendable {
     }
 
     public func upload(folderName: String, files: [URL], progress: Progress?) async throws {
-        guard !backend.isReference else { throw StorageBackendError.invalidConfiguration }
+        guard !backend.isReference, !backend.readsTogether else { throw StorageBackendError.invalidConfiguration }
         let selection = try Selection(folderName, files)
         guard let lease = backend.leases.begin(selection.title) else { throw CloudArchiveError.busy }
         defer { backend.leases.end(selection.title, token: lease) }
@@ -459,6 +489,7 @@ public final class CloudGameSources: @unchecked Sendable {
                             expectedSources: [GameFileItem] = [], verifySources: VerifySources? = nil,
                             maxBytes: Int64? = nil, progress: Progress?) async throws {
         let selection = try Selection(folderName, files)
+        guard !backend.readsTogether else { throw StorageBackendError.invalidConfiguration }
         guard let lease = backend.leases.begin(selection.title) else { throw CloudArchiveError.busy }
         defer { backend.leases.end(selection.title, token: lease) }
         let pending = try await downloads(selection, replacingBefore: replacingBefore, replacing: replacing)
@@ -551,7 +582,7 @@ public final class CloudGameSources: @unchecked Sendable {
 
     public func free(folderName: String, files: [URL], confirmed: Bool,
                      beforeMutation: @Sendable () throws -> Void = {}) async throws -> Int64 {
-        guard !backend.isReference else { throw StorageBackendError.invalidConfiguration }
+        guard !backend.isReference, !backend.readsTogether else { throw StorageBackendError.invalidConfiguration }
         guard confirmed else { throw CloudArchiveError.confirmationRequired }
         let selection = try Selection(folderName, files)
         guard let lease = backend.leases.begin(selection.title) else { throw CloudArchiveError.busy }
@@ -666,7 +697,7 @@ public final class CloudGameSources: @unchecked Sendable {
 
     private func hash(_ url: URL, stamp: Stamp, fresh: Bool = false) async throws -> String {
         try Task.checkCancellation()
-        if !fresh, let cached = lock.withLock({ fingerprints[url] }), cached.stamp == stamp { return cached.md5 }
+        if !fresh, let known = fingerprints.md5(url, stamp) { return known }
         let worker = Task.detached(priority: .utility) {
             let fd = open(url.path, O_RDONLY | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC)
             guard fd >= 0 else { throw CloudArchiveError.localChanged }
@@ -684,12 +715,7 @@ public final class CloudGameSources: @unchecked Sendable {
         let digest = try await withTaskCancellationHandler { try await worker.value } onCancel: { worker.cancel() }
         try Task.checkCancellation()
         guard try self.stamp(at: url) == stamp else { throw CloudArchiveError.localChanged }
-        if !fresh {
-            lock.withLock {
-                if fingerprints.count >= 256 { fingerprints.removeAll() }
-                fingerprints[url] = (stamp, digest)
-            }
-        }
+        if !fresh { fingerprints.save(url, stamp, digest) }
         return digest
     }
 

@@ -43,6 +43,9 @@ def prepare(package):
             lambda match: match[1] + f'"{hashlib.sha256(fixture_tool).hexdigest()}"')
     replace(download, r'(executableBytes: )88_766_114\)', lambda match: match[1] + f"{len(fixture_tool)})")
     replace(app / "NXLibraryApp.swift", r"@main\nstruct", "struct")
+    # The fixture still exercises the sound switch as a draft setting, without playing anything.
+    replace(app / "Services/SoundEffectService.swift", r'private var gain: Float = 0\.6', 'private var gain: Float = 0')
+    replace(app / "Services/SoundEffectService.swift", r'self\.gain = volume\.isFinite[^\n]*', 'self.gain = 0')
     model = app / "ViewModels/AppViewModel.swift"
     replace(model, r'SteamGridDBKey\(\)\.load\(\) != nil', "false")
     replace(model, r'        applyCatalog\(catalog\).*?\n    }\n\n    // MARK: - Dynamic',
@@ -68,10 +71,9 @@ def prepare(package):
     library_model = app / "ViewModels/AppViewModel+CloudLibrary.swift"
     replace(library_model, r'RcloneStorageBackend\.findExecutable\(\)', 'SettingsConfirmationProbe.availableDriveTool')
     replace(library_model, r'private var scopeTask:', 'private(set) var scopeTask:')
-    for _ in range(2):
-        replace(library_model,
-                r'RcloneStorageBackend\(remote: remote, root: current.root, executable: tool\)',
-                'SettingsConfirmationProbe.scopeBackend(remote: remote, root: current.root, tool: tool)')
+    replace(library_model,
+            r'let backend = RcloneStorageBackend\(remote: remote, root: root, executable: tool\)',
+            'let backend = SettingsConfirmationProbe.scopeBackend(remote: remote, root: root, tool: tool)')
     replace(library_model,
             r'RcloneConfiguration\.sharesDefaultConfiguration\(tool\)',
             'RcloneConfiguration.sharesDefaultConfiguration(tool, environment: [:])')

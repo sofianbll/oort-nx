@@ -13,6 +13,33 @@ final class CloudLibraryActivationTests: XCTestCase {
 @testable import NXLibraryCore
 
 final class RcloneConfigurationTests: XCTestCase {
+    func testOnlyAnAbandonedPrivateConfigurationIsRemoved() async throws {
+        let fm = FileManager.default
+        let root = fm.temporaryDirectory.appendingPathComponent("snapshots-\(UUID())")
+        try fm.createDirectory(at: root, withIntermediateDirectories: false)
+        defer { try? fm.removeItem(at: root) }
+        let source = root.appendingPathComponent("rclone.conf")
+        try Data("[fixture]\n".utf8).write(to: source)
+        let snapshot = try await RcloneConfigSnapshot.capture(executable: URL(fileURLWithPath: "/usr/bin/false"), config: source) { _, _, _ in
+            throw StorageBackendError.invalidConfiguration
+        }
+        let living = snapshot.config.deletingLastPathComponent()
+        let fd = open(living.path, O_RDONLY | O_DIRECTORY)
+        XCTAssertNotEqual(flock(fd, LOCK_EX | LOCK_NB), 0, "a copy in use keeps its lease")
+        close(fd)
+        let abandoned = root.appendingPathComponent(RcloneConfigSnapshot.prefix + UUID().uuidString)
+        try fm.createDirectory(at: abandoned, withIntermediateDirectories: false)
+        try Data("token".utf8).write(to: abandoned.appendingPathComponent("rclone.conf"))
+        let other = root.appendingPathComponent(RcloneConfigSnapshot.prefix + "notes")
+        try fm.createDirectory(at: other, withIntermediateDirectories: false)
+        RcloneConfigSnapshot.removeAbandoned(in: root)
+        XCTAssertTrue(fm.fileExists(atPath: abandoned.path), "a recent one may belong to an older version still running")
+        RcloneConfigSnapshot.removeAbandoned(in: root, olderThan: 0)
+        XCTAssertFalse(fm.fileExists(atPath: abandoned.path))
+        XCTAssertTrue(fm.fileExists(atPath: other.path))
+        withExtendedLifetime(snapshot) {}
+    }
+
     func testApprovedSourceIdentityOutlivesMissingFolderAndRestart() throws {
         let path = "Games/Switch/Jeux"
         let a = CloudDriveScope.Folder(path: path, id: "FolderA")

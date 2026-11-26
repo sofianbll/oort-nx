@@ -26,7 +26,8 @@ extension CatalogRepository {
 
     private func mutateNXNativeGames(enablingSource: Bool, requiringEnabledSource: Bool,
                                      _ change: (inout [PortedGame]) throws -> Void) throws -> CatalogDocument {
-        try transaction { document in
+        try transactionIfChanged { document in
+            let before = document
             if requiringEnabledSource && !enablingSource && document.source(.nxnative)?.isEnabled != true { throw CatalogScanError.sourceDisabled }
             var games = document.nxnativeGames
             try change(&games)
@@ -47,9 +48,11 @@ extension CatalogRepository {
                 if let index = document.sources.firstIndex(where: { $0.integration == .nxnative }) { document.sources[index] = config }
                 else { document.sources.append(config) }
             }
+            return document != before
         }
     }
 
+    /// A scan that finds nothing new writes nothing: the revision, the restore point and every reader stay as they are.
     @discardableResult
     public func mergeNXNative(scanned: [PortedGame], replacingSources: Bool = false, enableSource: Bool = false,
                               observedFrom baseline: [PortedGame]? = nil,
