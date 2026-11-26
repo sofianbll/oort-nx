@@ -95,9 +95,6 @@
     <string name="settings_license">Local only: this app asks Android for no network access and collects nothing.</string>
     <string name="settings_thanks">Credits</string>
     <string name="thanks_oort">Free software under the MIT licence, built on Arcane by Bium23. The cloud, the sounds and the controller in dots come from Oort NX for Mac.</string>
-    <string name="thanks_games">Makes the games Oort starts</string>
-    <string name="thanks_nx2android">shirai91, MIT. Turns your own games into Android apps. No code of it is in Oort.</string>
-    <string name="thanks_nxnative">seedds, MIT. The engine inside each game. No code of it is in Oort.</string>
     <string name="thanks_texts">Full texts</string>
     <string name="thanks_text_oort">MIT licence</string>
     <string name="thanks_text_notices">Credits of the Android app</string>

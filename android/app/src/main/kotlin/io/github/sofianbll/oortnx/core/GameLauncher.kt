@@ -32,6 +32,10 @@ object GameLauncher {
         // On top of Oort, in its own task: in a task of Settings, Back would return to whatever Settings showed last.
         start(screen, Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${game.packageName}")))
 
+    /** A credited project's page, in the player's browser: this app opens no connection of its own. */
+    fun page(context: Context, url: String): Boolean =
+        start(context, Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+
     private fun start(context: Context, intent: Intent): Boolean = try {
         context.startActivity(intent)
         true

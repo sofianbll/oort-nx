@@ -12,6 +12,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import io.github.sofianbll.oortnx.R
 import io.github.sofianbll.oortnx.core.ConnectedPad
 import io.github.sofianbll.oortnx.core.Covers
+import io.github.sofianbll.oortnx.core.CreditGroup
+import io.github.sofianbll.oortnx.core.Credits
 import io.github.sofianbll.oortnx.core.Dir
 import io.github.sofianbll.oortnx.core.Game
 import io.github.sofianbll.oortnx.core.GameLauncher
@@ -596,7 +598,9 @@ class AppState internal constructor(
         when (val kind = row.kind) {
             Kind.Info -> Unit
             is Kind.Open -> open(kind.route)
+            is Kind.Link -> sound(if (GameLauncher.page(context, kind.url)) SoundEvent.Confirm else SoundEvent.Deny)
             is Kind.Press -> { sound(SoundEvent.Confirm); kind.run() }
+            is Kind.Fold -> { kind.run(); sound(SoundEvent.Select) }
             is Kind.Toggle -> { kind.set(!kind.on); sound(SoundEvent.Select) }
             is Kind.Pick -> { kind.run(); sound(SoundEvent.Select) }
         }
@@ -739,16 +743,53 @@ class AppState internal constructor(
             RowItem(text.name, title, note = note, glyph = Glyph.Text, kind = Kind.Open(Route.Licence(text)))
         return listOf(
             RowSection(rows = listOf(RowItem("oort", Label.Raw("Oort NX"), note = Label.Res(R.string.thanks_oort), glyph = Glyph.Heart))),
-            RowSection(Label.Res(R.string.thanks_games), rows = listOf(
-                RowItem("nx2android", Label.Raw("nx2android"), note = Label.Res(R.string.thanks_nx2android)),
-                RowItem("nxnative", Label.Raw("nxnative"), note = Label.Res(R.string.thanks_nxnative)),
-            )),
             RowSection(Label.Res(R.string.thanks_texts), rows = listOf(
                 text(LicenceText.Oort, note = Label.Res(R.string.thanks_text_oort)),
                 text(LicenceText.Notices, note = Label.Res(R.string.thanks_text_notices)),
                 text(LicenceText.Apache, note = Label.Res(R.string.thanks_text_apache)),
             )),
-        )
+        ) + creditSections() + RowSection(Label.Words(credits.legalTitle), rows = listOf(
+            RowItem("legal", Label.Raw("Oort NX"), note = Label.Join(credits.legal.map { Label.Words(it) }, lines = true)),
+        ))
+    }
+
+    /** The groups whose list is open. */
+    private var openedCredits by mutableStateOf(emptySet<String>())
+
+    /** The six cards, then every other credit: one line per group, its list under it when it is open. */
+    private fun creditSections(): List<RowSection> {
+        fun cards(group: CreditGroup) = group.credits.map { credit ->
+            RowItem("credit-${credit.id}", Label.Raw(credit.name), kind = Kind.Link(credit.url),
+                credit = CreditFace(Label.Words(credit.byline), Label.Words(credit.role), creditGlyph(credit.glyph), CREDIT_PICTURES[credit.picture]))
+        }
+        val sections = mutableListOf(RowSection(Label.Words(credits.base.title), cards = true, level = true, rows = cards(credits.base)))
+        var rows = emptyList<RowItem>()
+        var title: Label? = Label.Words(credits.all)
+        for (group in credits.groups) {
+            val open = group.id in openedCredits
+            rows = rows + RowItem("credits-${group.id}", Label.Words(group.title), value = Label.Raw("${group.credits.size}"),
+                kind = Kind.Fold(open) { openedCredits = if (open) openedCredits - group.id else openedCredits + group.id })
+            if (!open) continue
+            sections += RowSection(title, rows = rows)
+            sections += RowSection(cards = true, close = true, rows = cards(group))
+            rows = emptyList()
+            title = null
+        }
+        if (rows.isNotEmpty()) sections += RowSection(title, rows = rows)
+        return sections
+    }
+
+    /** The cards of design/credits.json, the same on every system. */
+    private val credits by lazy { Credits.read(context.assets.open("credits.json").bufferedReader().use { it.readText() }) }
+
+    private fun creditGlyph(name: String) = when (name) {
+        "heart" -> Glyph.Heart
+        "gamepad" -> Glyph.Pad
+        "terminal" -> Glyph.Text
+        "puzzle" -> Glyph.Puzzle
+        "palette" -> Glyph.Palette
+        "globe" -> Glyph.Globe
+        else -> Glyph.Sliders
     }
 
     private fun packName(pack: String) = pack.replaceFirstChar { it.uppercase() }
@@ -756,6 +797,8 @@ class AppState internal constructor(
     fun sound(event: SoundEvent, step: Int = 0) = playSound(event, step)
 
     companion object {
+        private val CREDIT_PICTURES = mapOf("arcane" to R.drawable.credit_arcane, "selene" to R.drawable.credit_selene, "playnite" to R.drawable.credit_playnite)
+
         /** The play key of a game's page, which is not a line of its list. */
         const val PLAY = "play"
 

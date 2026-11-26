@@ -1,20 +1,26 @@
 package io.github.sofianbll.oortnx.ui
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 
 /** Words on screen: a resource read in the language of the moment, or text that is already words (a game's name). */
 sealed interface Label {
     class Res(@param:StringRes val id: Int, vararg val args: Any) : Label
     class Raw(val text: String) : Label
-    class Join(val parts: List<Label>) : Label
+    class Join(val parts: List<Label>, val lines: Boolean = false) : Label
+
+    /** The same words in several languages, from a file rather than the resources. */
+    class Words(val words: Map<String, String>) : Label
 }
 
 @Composable
 fun Label.text(): String = when (this) {
     is Label.Raw -> text
-    is Label.Join -> parts.map { it.text() }.joinToString("  ·  ")
+    is Label.Words -> LocalConfiguration.current.locales[0].let { words[it.toLanguageTag()] ?: words[it.language] ?: words["en"].orEmpty() }
+    is Label.Join -> parts.map { it.text() }.joinToString(if (lines) "\n" else "  ·  ")
     is Label.Res -> if (args.isEmpty()) stringResource(id) else stringResource(id, *args.map { if (it is Label) it.text() else it }.toTypedArray())
 }
 
@@ -23,6 +29,10 @@ sealed interface Kind {
     data object Info : Kind
     class Press(val run: () -> Unit) : Kind
     class Open(val route: Route) : Kind
+    /** A page of the web, in the player's browser. */
+    class Link(val url: String) : Kind
+    /** Opens what follows it in the list, or closes it. */
+    class Fold(val open: Boolean, val run: () -> Unit) : Kind
     class Toggle(val on: Boolean, val set: (Boolean) -> Unit) : Kind
     class Pick(val on: Boolean, val run: () -> Unit) : Kind
 }
@@ -34,11 +44,17 @@ class RowItem(
     val value: Label? = null,
     val note: Label? = null,
     val glyph: Glyph? = null,
+    /** A project's card in place of a line. */
+    val credit: CreditFace? = null,
     val danger: Boolean = false,
     val kind: Kind = Kind.Info,
 )
 
-class RowSection(val title: Label? = null, val footer: Label? = null, val rows: List<RowItem>)
+/** What a project's card says besides its name; its picture, else its sign. */
+class CreditFace(val byline: Label, val role: Label, val glyph: Glyph, @param:DrawableRes val picture: Int?)
+
+/** A section of cards draws each row as a card of its own; `level`: all as tall as the tallest. `close`: near the one before it. */
+class RowSection(val title: Label? = null, val footer: Label? = null, val cards: Boolean = false, val level: Boolean = false, val close: Boolean = false, val rows: List<RowItem>)
 
 enum class Section { Home, Library, Controllers, Settings }
 
