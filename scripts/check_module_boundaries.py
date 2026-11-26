@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Check the module boundaries of the Swift package.
 
-Layers, from the bottom up. A module may import only the layers below it:
-
-  OortCore (0) < NXLibraryCore (1) < ArcanePorting (2) < NXLibrary (3)
+Layers come from architecture/model.c4 and must cover the production Swift
+targets in Package.swift. A module may import only the layers below it.
 
 Rules:
 
@@ -19,11 +18,19 @@ Run from the repository root, or pass --root. Exit status 1 on any violation.
 """
 
 import argparse
+import json
 from pathlib import Path
 import re
+import subprocess
 import sys
 
-LAYERS = {"OortCore": 0, "NXLibraryCore": 1, "ArcanePorting": 2, "NXLibrary": 3}
+# shortcut: one swiftModule declaration with inline layer metadata per line;
+# use LikeC4's JSON export if the model needs a more flexible declaration format.
+SWIFT_MODULE = re.compile(
+    r'^[ \t]*([A-Za-z_]\w*)[ \t]*=[ \t]*swiftModule[ \t]*\{'
+    r'[ \t]*metadata[ \t]*\{[ \t]*layer[ \t]+"([0-9]+)"[ \t]*\}',
+    re.MULTILINE,
+)
 CORE_MODULES = ("OortCore", "NXLibraryCore")
 OORT_CORE_ALLOWED = {"Foundation"}
 UI_FRAMEWORKS = {"AppKit", "SwiftUI", "Metal", "MetalKit", "GameController"}
@@ -42,9 +49,27 @@ def imports_of(path):
     return IMPORT.findall(path.read_text(encoding="utf-8"))
 
 
-def scan(root):
+def read_layers(root):
+    model = "architecture/model.c4"
+    source = re.sub(r"/\*.*?\*/|//[^\n]*", "", (root / model).read_text(encoding="utf-8"), flags=re.DOTALL)
+    entries = SWIFT_MODULE.findall(source)
+    layers = {module: int(layer) for module, layer in entries}
+    manifest = json.loads(subprocess.check_output(
+        ["swift", "package", "dump-package"], cwd=root, text=True
+    ))
+    targets = {target["name"] for target in manifest["targets"] if target["type"] in ("regular", "executable")}
+    violations = [f"{model}: missing Swift module {name}" for name in sorted(targets - layers.keys())]
+    violations += [f"{model}: {name} is not a Swift module in Package.swift" for name in sorted(layers.keys() - targets)]
+    if len(entries) != len(re.findall(r"\bswiftModule\b", source)):
+        violations.append(f"{model}: expected a layer on the Swift module declaration line")
+    if len(entries) != len(layers):
+        violations.append(f"{model}: duplicate Swift module declaration")
+    return layers, violations
+
+
+def scan(root, layers):
     """Yield (module, relative file, imported module) for every import in Sources/."""
-    for module in LAYERS:
+    for module in layers:
         folder = root / "Sources" / module
         if not folder.is_dir():
             continue
@@ -58,12 +83,17 @@ def scan(root):
 
 def check(root):
     root = Path(root)
-    violations = []
+    try:
+        layers, violations = read_layers(root)
+    except (OSError, subprocess.CalledProcessError, ValueError) as error:
+        return [f"Cannot compare architecture/model.c4 with Package.swift: {error}"]
+    if violations:
+        return violations
     seen_ui = {}
-    for module, relative, name in scan(root):
+    for module, relative, name in scan(root, layers):
         if module == "OortCore" and name not in OORT_CORE_ALLOWED:
             violations.append(f"{relative}: OortCore imports {name}; only Foundation is allowed")
-        if name in LAYERS and LAYERS[name] >= LAYERS[module]:
+        if name in layers and layers[name] >= layers[module]:
             violations.append(f"{relative}: {module} imports {name}, which is not below it")
         if module in CORE_MODULES and name in UI_FRAMEWORKS:
             seen_ui.setdefault(relative, set()).add(name)

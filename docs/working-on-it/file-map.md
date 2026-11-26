@@ -1,6 +1,6 @@
 # Arcane — catalogo dei file
 
-Aggiornato il 26 novembre 2026. Il repository versiona **1629 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
+Aggiornato il 26 novembre 2026. Il repository versiona **1635 file**. Le guide e immagini di `docs/guides/` sono verificate da `check_guides.py`; alcuni pacchetti audio, sorgenti e test non hanno una riga. Sono esclusi i dati personali e gli output generati.
 
 La [guida tecnica](../how-it-works/architecture.md) spiega come collaborano i componenti. Qui ogni riga identifica un file e la sua responsabilità. Le sezioni Core seguono le cartelle del Core, una per area; le sezioni Porting seguono le cartelle del target `ArcanePorting`, con lo Switch; quelle UI seguono schermate e componenti. Le viste usano i modelli e i servizi del Core attraverso il coordinamento applicativo.
 
@@ -1034,11 +1034,15 @@ Cartelle `Sources/ArcanePorting/Mods/` e `ArcanePorting/Mods/GameBanana/`.
 | File | Responsabilità |
 |---|---|
 | [scripts/ci_changed_areas.py](../../scripts/ci_changed_areas.py) | Decide quali aree della CI girano secondo i percorsi modificati; una cartella assente lascia l’area spenta. |
-| [scripts/check_module_boundaries.py](../../scripts/check_module_boundaries.py) | Verifica l’ordine dei moduli, Foundation soltanto in OortCore e la lista di base degli import d’interfaccia nel core. |
+| [scripts/check_module_boundaries.py](../../scripts/check_module_boundaries.py) | Legge i livelli dal modello LikeC4, li confronta con SwiftPM e verifica gli import. |
+| [architecture/likec4.config.json](../../architecture/likec4.config.json) | Configurazione del progetto LikeC4. |
+| [architecture/spec.c4](../../architecture/spec.c4) | Tipi di elementi del modello. |
+| [architecture/model.c4](../../architecture/model.c4) | Sistemi, livelli Swift e responsabilità dei domini. |
+| [architecture/views.c4](../../architecture/views.c4) | Tre viste dello stesso modello. |
 | [Tests/CIChecks/test_changed_areas.py](../../Tests/CIChecks/test_changed_areas.py) | Verifica quali aree si accendono per documentazione, core, workflow e cartelle mancanti. |
 | [Tests/ModuleChecks/test_module_boundaries.py](../../Tests/ModuleChecks/test_module_boundaries.py) | Verifica i confini dei moduli con fixture sintetiche e sul repository. |
 | [Tests/SkillChecks/test_skills.py](../../Tests/SkillChecks/test_skills.py) | Verifica formato, tre casi per skill, link e assenza di percorsi personali nelle skill pubbliche. |
-| [docs/working-on-it/architecture-map.md](architecture-map.md) | Carta dei cinque sistemi, livelli d’import e dove mettere il codice. |
+| [docs/working-on-it/architecture-map.md](architecture-map.md) | Collegamento al modello, controlli e dove mettere il codice. |
 | [docs/working-on-it/branch-rules.md](branch-rules.md) | Regole proposte per rami, tag e controlli richiesti; nessuna applicata su GitHub. |
 | [.agents/skills/oort-contribute/SKILL.md](../../.agents/skills/oort-contribute/SKILL.md) | Prepara un contributo: sistema, controlli, dati privati, bozza di pull request. |
 | [.agents/skills/oort-contribute/evals/cases.md](../../.agents/skills/oort-contribute/evals/cases.md) | Tre casi di valutazione di oort-contribute. |

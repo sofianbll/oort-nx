@@ -24,6 +24,10 @@ class ModuleBoundaryTests(unittest.TestCase):
         boundaries.UI_BASELINE.clear()
         self.directory = tempfile.TemporaryDirectory()
         self.root = self.directory.name
+        self.model = (ROOT / "architecture/model.c4").read_text(encoding="utf-8")
+        self.manifest = (ROOT / "Package.swift").read_text(encoding="utf-8")
+        write(self.root, "architecture/model.c4", self.model)
+        write(self.root, "Package.swift", self.manifest)
         write(self.root, "Sources/OortCore/Core.swift", "import Foundation\n")
         write(self.root, "Sources/NXLibraryCore/Library.swift", "import Foundation\nimport OortCore\n")
         write(self.root, "Sources/ArcanePorting/Adapter.swift", "import AppKit\nimport NXLibraryCore\n")
@@ -36,6 +40,34 @@ class ModuleBoundaryTests(unittest.TestCase):
 
     def test_layered_fixture_has_no_violation(self):
         self.assertEqual(boundaries.check(self.root), [])
+
+    def test_swift_module_removed_from_the_model_fails(self):
+        start = self.model.index("    NXLibrary = swiftModule")
+        end = self.model.index("\n    }", start) + len("\n    }")
+        write(self.root, "architecture/model.c4", self.model[:start] + self.model[end:])
+        self.assertIn("architecture/model.c4: missing Swift module NXLibrary", boundaries.check(self.root))
+
+    def test_swift_module_only_in_the_model_fails(self):
+        write(self.root, "architecture/model.c4", self.model.replace(
+            "    mac -> NXLibrary", '    Ghost = swiftModule { metadata { layer "0" } }\n    mac -> NXLibrary'
+        ))
+        self.assertIn("architecture/model.c4: Ghost is not a Swift module in Package.swift", boundaries.check(self.root))
+
+    def test_noncanonical_swift_module_is_not_silently_skipped(self):
+        write(self.root, "architecture/model.c4", self.model + '\nmodel { swiftModule Ghost }\n')
+        self.assertIn("architecture/model.c4: expected a layer on the Swift module declaration line",
+                      boundaries.check(self.root))
+
+    def test_commented_swift_module_is_not_read(self):
+        write(self.root, "architecture/model.c4", self.model + '\n/*\nGhost = swiftModule { metadata { layer "0" } }\n*/\n')
+        self.assertEqual(boundaries.check(self.root), [])
+
+    def test_swift_imports_follow_the_layer_in_the_model(self):
+        write(self.root, "architecture/model.c4", self.model.replace(
+            'OortCore = swiftModule { metadata { layer "0" }', 'OortCore = swiftModule { metadata { layer "1" }'
+        ))
+        self.assertIn("Sources/NXLibraryCore/Library.swift: NXLibraryCore imports OortCore, which is not below it",
+                      boundaries.check(self.root))
 
     def test_oort_core_may_not_import_an_interface_framework(self):
         write(self.root, "Sources/OortCore/Core.swift", "import Foundation\nimport AppKit\n")

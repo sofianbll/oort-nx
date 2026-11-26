@@ -1,0 +1,67 @@
+model {
+  oort = product "Oort NX" {
+    link ../GLOSSARY.md "Glossaire"
+    link ../docs/adr/0001-oort-independant-du-moteur.md "ADR 0001 · Moteur"
+
+    mac = app "Mac" { summary "Application principale · main" }
+    mobile = app "iPhone / iPad" { summary "Application Swift · alpha/ios" }
+    android = app "Android" { summary "Application Kotlin · alpha/android" }
+    desktop = app "Windows / Linux" {
+      summary "Hôte Tauri · alpha/windows"
+      ryuAdapter = seam "Adapter de moteur Ryujinx" {
+        summary "Prévu par l’ADR 0001 · non intégré"
+        link ../docs/adr/0001-oort-independant-du-moteur.md "ADR 0001"
+      }
+    }
+    site = app "Site" { summary "Présentation et guides" }
+
+    // Le contrôle Swift lit une ligne par swiftModule : identifiant et metadata layer.
+    OortCore = swiftModule { metadata { layer "0" }
+      engineInterface = seam "Interface moteur" {
+        summary "Lecture de l’atelier"
+        description '''
+          Mise en œuvre sur Mac : [[oort.ArcanePorting.nxAdapter]].
+        '''
+        link ../docs/adr/0001-oort-independant-du-moteur.md "ADR 0001"
+      }
+      engine = domain "Moteur" { summary "Possède le contrat et l’état de l’atelier" }
+    }
+    NXLibraryCore = swiftModule { metadata { layer "1" }
+      library = domain "Bibliothèque" { summary "Possède le catalogue" }
+      play = domain "Partie" { summary "Possède l’historique des parties" }
+      settings = domain "Réglages" { summary "Possède les préférences" }
+      cloud = domain "Cloud" { summary "Possède les règles de stockage et l’accès Drive" }
+    }
+    ArcanePorting = swiftModule { metadata { layer "2" }
+      nxAdapter = seam "Adapter de moteur nxnative" { summary "Lit l’état réel sur Mac" }
+      saves = domain "Sauvegarde de jeu" { summary "Possède les opérations sur les sauvegardes Switch" }
+    }
+    NXLibrary = swiftModule { metadata { layer "3" }
+      summary "Interface et coordination Mac"
+    }
+
+    mac -> NXLibrary "Exécute"
+    mobile -> OortCore "Utilise la logique portable"
+    desktop -> OortCore "Intègre dans oort-core"
+    desktop -> NXLibraryCore "Intègre le sous-ensemble portable"
+    NXLibrary -> NXLibraryCore "Utilise"
+    NXLibrary -> ArcanePorting "Utilise"
+    ArcanePorting -> NXLibraryCore "Utilise"
+    NXLibraryCore -> OortCore "Utilise"
+    nxAdapter -> engineInterface "Met en œuvre"
+    desktop.ryuAdapter -> engineInterface "Interface visée" { style { line dashed } }
+    saves -> library "Identifie le jeu"
+    cloud -> library "Alimente le catalogue"
+  }
+
+  nxnative = external "nxnative" { summary "Moteur utilisé sur Mac" }
+  ryujinx = external "Ryujinx-Nextendo" {
+    summary "Cible Windows, non intégrée dans main"
+    link ../docs/adr/0001-oort-independant-du-moteur.md "ADR 0001"
+  }
+  drive = external "Google Drive" { summary "Stockage du joueur" }
+
+  oort.ArcanePorting.nxAdapter -> nxnative "Interroge"
+  oort.NXLibraryCore.cloud -> drive "Stocke et lit"
+  oort.desktop.ryuAdapter -> ryujinx "Cible envisagée" { style { line dashed } }
+}

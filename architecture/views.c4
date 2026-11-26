@@ -1,0 +1,29 @@
+views {
+  view index {
+    title "1 · Oort NX et son écosystème"
+    include oort with { navigateTo applications }
+    include oort.* where kind is app
+    include nxnative, ryujinx, drive
+    style oort { color slate; opacity 35% }
+    autoLayout TopBottom
+  }
+
+  view applications of oort {
+    title "2 · Applications et modules partagés"
+    include oort.*
+    include oort.OortCore.engineInterface, oort.ArcanePorting.nxAdapter, oort.desktop.ryuAdapter
+    include nxnative, ryujinx
+    autoLayout TopBottom
+  }
+
+  view domains of oort {
+    title "3 · Domaines et modules propriétaires"
+    include oort.OortCore, oort.NXLibraryCore, oort.ArcanePorting
+    include oort.OortCore.* where kind is domain
+    include oort.NXLibraryCore.* where kind is domain
+    include oort.ArcanePorting.* where kind is domain
+    include drive
+    exclude * -> * where source.kind is swiftModule and target.kind is swiftModule
+    autoLayout LeftRight
+  }
+}

@@ -1,0 +1,8 @@
+specification {
+  element product
+  element app { style { color primary } }
+  element external { style { color gray } }
+  element swiftModule { style { color secondary } }
+  element seam { style { color amber } }
+  element domain { style { color green } }
+}
