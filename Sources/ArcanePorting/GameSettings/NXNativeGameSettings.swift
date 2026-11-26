@@ -220,8 +220,8 @@ public struct NXNativeGameSettings {
     }
 
     /// What each setting is now: the player's env.txt, then a saved choice this build accepts, then the default.
-    public func snapshot() -> GameSettingsSnapshot {
-        try? migrate()
+    public func snapshot(migrating: Bool = true) -> GameSettingsSnapshot {
+        if migrating { try? migrate() }
         let env = envValues()
         var values: [String: String] = [:]
         var fixed: Set<String> = []

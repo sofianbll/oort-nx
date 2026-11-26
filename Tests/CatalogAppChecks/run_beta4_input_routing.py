@@ -192,6 +192,17 @@ enum IntegrationsView { static func keyAction(_ code: UInt16) -> GamepadAction? 
         actions = []
         let optionsOwnReturn = deliver(key(36)) != nil && !viewModel.noticeFocus.isActive && actions.isEmpty
         if !optionsOwnReturn { print("A notice took Return from Game Options"); ok = false }
+        viewModel.isGameOptionsOpen = false
+        router.openSettings(.cloudLibrary)
+        router.settingsOverlayOwnsInput = true
+        viewModel.noticeFocus.enter(keys: 1)
+        let assistantOwnsReturn = deliver(key(36)) != nil && !viewModel.noticeFocus.isActive && actions.isEmpty
+        if !assistantOwnsReturn { print("A notice took Return from the Drive assistant"); ok = false }
+        router.settingsOverlayOwnsInput = false
+        router.navigate(to: .console)
+        viewModel.noticeFocus.enter(keys: 1)
+        let consoleOwnsReturn = deliver(key(36)) != nil && !viewModel.noticeFocus.isActive && actions.isEmpty
+        if !consoleOwnsReturn { print("A notice took Return from the console"); ok = false }
         if ok { print("Single confirmations and repeating arrows in all shell layers (no power action executed)") }
         return ok
     }

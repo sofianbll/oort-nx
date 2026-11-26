@@ -397,7 +397,7 @@ import ArcanePorting
             case .mouse:
                 // AppKit doesn't deliver wheel gestures to an unordered window. Move its real clip, then hit-test.
                 var end = clip.bounds
-                end.origin.y = clip.isFlipped ? scroll.documentRect.maxY - end.height : scroll.documentRect.minY
+                end.origin.y = clip.isFlipped ? clip.documentRect.maxY - end.height : clip.documentRect.minY
                 clip.scroll(to: clip.constrainBoundsRect(end).origin)
                 scroll.reflectScrolledClipView(clip)
             }

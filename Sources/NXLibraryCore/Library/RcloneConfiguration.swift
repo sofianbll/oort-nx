@@ -522,13 +522,19 @@ public struct RcloneConfiguration: Sendable {
     /// Keeping the client empties only the sign-in: the ID and secret stay where they are, in rclone's own file.
     public func disconnect(_ remote: String, keepingClient: Bool = false) async throws {
         guard CloudLibraryPreference.validRemote(remote) else { throw Failure.disconnect }
+        let arguments: [String]
         if keepingClient {
             // Check before the write: if verification failed afterwards, the user would already be signed out.
             guard try await account(remote).hasClient else { throw Failure.disconnect }
-            _ = try await checked(["config", "update", remote, "token=", "--non-interactive", "--no-output"], or: .disconnect)
-            return
+            arguments = ["config", "update", remote, "token=", "--non-interactive", "--no-output"]
+        } else {
+            arguments = ["config", "delete", remote]
         }
-        _ = try await checked(["config", "delete", remote], or: .disconnect)
+        let result = try await command(arguments, or: .disconnect)
+        // rclone's SaveConfig can log a failed write and still exit zero. Never return that output to the caller.
+        guard result.status == 0, !result.stderr.contains("Failed to save config after ") else {
+            throw Failure.disconnect
+        }
     }
 
     public static func validCredential(_ text: String) -> Bool {

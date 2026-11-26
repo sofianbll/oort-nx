@@ -150,6 +150,18 @@ final class NXNativeGameSettingsTests: XCTestCase {
         XCTAssertEqual(GameSettingsCopy(from: source.snapshot(), to: try settings(b).snapshot()).changes, [])
     }
 
+    func testCopyPreviewDoesNotMigrateEitherGame() throws {
+        let a = try fixture(env: "DM_RUMBLE=0\n")
+        let b = try fixture(env: "DM_FULLSCREEN=1\n")
+        let source = try settings(a), target = try settings(b)
+        let copy = GameSettingsCopy(from: source.snapshot(migrating: false), to: target.snapshot(migrating: false))
+        XCTAssertEqual(copy.changes.map(\.env), ["DM_RUMBLE"])
+        XCTAssertEqual(try String(contentsOf: a.envURL, encoding: .utf8), "DM_RUMBLE=0\n")
+        XCTAssertEqual(try String(contentsOf: b.envURL, encoding: .utf8), "DM_FULLSCREEN=1\n")
+        XCTAssertTrue(source.savedChoices().isEmpty)
+        XCTAssertTrue(target.savedChoices().isEmpty)
+    }
+
     func testLegacyBuildHasNoAdapter() throws {
         let f = try fixture(dmSettings: false, env: oldEnv)
         XCTAssertNil(NXNativeGameSettings.forGame(f.game, store: f.store, supportDirectory: f.support,

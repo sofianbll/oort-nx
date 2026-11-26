@@ -248,6 +248,20 @@ final class RcloneConfigurationTests: XCTestCase {
         }
     }
 
+    func testDisconnectRejectsFailedSaveEvenWhenRcloneReturnsZero() async throws {
+        let writeFailure = CommandResult(status: 0, stdout: "", stderr: "ERROR : Failed to save config after 10 tries: fixture-credential")
+        for keep in [false, true] {
+            let replies: [CommandResult] = keep ? [.ok("[gdrive]\nclient_id = XXX\nclient_secret = XXX\n"), writeFailure] : [writeFailure]
+            do {
+                try await Fixture(replies).client.disconnect("gdrive", keepingClient: keep)
+                XCTFail("An unsuccessful write is not disconnection")
+            } catch {
+                XCTAssertEqual(error as? RcloneConfiguration.Failure, .disconnect)
+                XCTAssertFalse(error.localizedDescription.contains("fixture-credential"))
+            }
+        }
+    }
+
     func testSigningInAgainSendsNoClientWhenRcloneKeptIt() {
         XCTAssertEqual(RcloneConfiguration.signInParameters(client: nil, replacing: true),
                        ["config_is_local": "true", "config_refresh_token": "true"])

@@ -270,7 +270,9 @@ extension AppShellView {
 
     /// Nothing that comes first is open.
     var leavesNoticesRoom: Bool {
-        !router.isMenuPresented && !router.isPalettePresented && !router.isScreenshotViewerOpen && !isCloseGameOpen && !viewModel.showSetupCheck && !showsWelcome
+        !router.isMenuPresented && !router.isPalettePresented && !router.isScreenshotViewerOpen
+            && !router.route.isOverlay && !router.settingsOwnsInput
+            && !isCloseGameOpen && !viewModel.showSetupCheck && !showsWelcome
             && viewModel.launchOverlay == nil && !nativeDialogOwnsInput && !viewModel.profileOwnsInput && !viewModel.isGameOptionsOpen
     }
 

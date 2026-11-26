@@ -60,15 +60,16 @@ final class RuntimeSettingsModel {
 
     /// The other games with saved choices, and what each would take from this one.
     func copyTargets(for game: PortedGame) -> [CopySettingsPanel.Target] {
-        guard let source = settingsSnapshot(for: game) else { return [] }
+        guard let source = gameSettings(for: game)?.snapshot(migrating: false) else { return [] }
         return app.libraryGames.compactMap { other in
-            guard other.id != game.id, let snapshot = settingsSnapshot(for: other) else { return nil }
+            guard other.id != game.id, let snapshot = gameSettings(for: other)?.snapshot(migrating: false) else { return nil }
             return .init(game: other, copy: GameSettingsCopy(from: source, to: snapshot))
         }
     }
 
     func copyPlan(from game: PortedGame, to other: PortedGame) -> GameSettingsCopy? {
-        guard let source = settingsSnapshot(for: game), let target = settingsSnapshot(for: other) else { return nil }
+        guard let source = gameSettings(for: game)?.snapshot(migrating: false),
+              let target = gameSettings(for: other)?.snapshot(migrating: false) else { return nil }
         return GameSettingsCopy(from: source, to: target)
     }
 
