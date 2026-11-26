@@ -26,10 +26,11 @@ struct SeleneStepper: View {
 struct OortField: ViewModifier {
     @Environment(\.seleneCanvas) private var canvas
     let focused: Bool
+    var font: SeleneTokens.Text = .text
 
     func body(content: Content) -> some View {
         let radius = canvas.u(SeleneTheme.rowRadius)
-        content.textFieldStyle(.plain).seleneFont(.text)
+        content.textFieldStyle(.plain).seleneFont(font)
             .foregroundColor(SeleneTheme.ink)
             .padding(canvas.u(SeleneTokens.Space.fieldInset))
             .oortWell(radius: radius)

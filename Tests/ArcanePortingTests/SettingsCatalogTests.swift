@@ -213,10 +213,10 @@ final class SettingsCatalogTests: XCTestCase {
         "libraryFolder", "gameInboxEnabled", "libraryRefresh", "notifyPortingEnds", "gameDefaults.fullscreen", "gameDisplay",
         "gameDefaults.enable60FPS", "gameDefaults.isDockedMode", "gameDefaults.enableMetalFXUpscale",
         "gameDefaults.enableMetalHUD", "gameDefaults.language", "gameDefaults.renderScale", "gameDefaults.rumble",
-        "gameDefaults.rumbleGain", "cloudSaves", "cloudSavesPickedFolder", "cloudLibrarySetup", "cloudLibraryEnabled",
-        "cloudLibraryService", "cloudLibraryFolder", "cloudSourcesRoot", "cloudReferenceFolder", "cloudLibraryImport",
-        "showsCloudPlayIcon", "showsCloudDetailsLink", "cloudTileBadges", "cloudLibraryAdvanced",
-        "cloudLibraryConnect", "cloudLibraryTool", "cloudLibraryTest", "cloudLibraryDisconnect", "buildCaches", "diagnostics",
+        "gameDefaults.rumbleGain", "cloudSaves", "cloudSavesPickedFolder", "cloudLibrarySetup", "cloudLibraryConnect",
+        "cloudLibraryService", "cloudLibraryDisconnect", "cloudLibraryFolder", "cloudSourcesRoot", "cloudLibraryEnabled",
+        "cloudLibraryImport", "showsCloudPlayIcon", "showsCloudDetailsLink", "cloudTileBadges", "cloudLibraryAdvanced",
+        "cloudLibraryTool", "cloudLibraryTest", "cloudReferenceFolder", "buildCaches", "diagnostics",
         "appUpdates", "projectDocs", "console"
         ])
     }
@@ -389,26 +389,27 @@ final class SettingsCatalogTests: XCTestCase {
         XCTAssertTrue(SettingsCatalog.search("Configure cloud library", cloudConfigured: true).isEmpty)
         XCTAssertTrue(SettingsCatalog.search("Change Google credentials").isEmpty)
         XCTAssertEqual(SettingsCatalog.search("Change Google credentials", cloudConfigured: true).map(\.id), ["cloudLibraryConnect"])
-        XCTAssertTrue(SettingsCatalog.search("Import games from the cloud").isEmpty)
-        XCTAssertEqual(SettingsCatalog.search("Import games from the cloud", cloudConfigured: true).map(\.id), ["cloudLibraryImport"])
+        // The page shows the folders and this Mac's choices before the account is connected: search finds them too.
+        for configured in [false, true] {
+            XCTAssertEqual(SettingsCatalog.search("Import games from the cloud", cloudConfigured: configured).map(\.id), ["cloudLibraryImport"])
+            XCTAssertEqual(SettingsCatalog.search("Game library", cloudConfigured: configured)
+                .filter { $0.group == .cloudLibrary }.map(\.id), ["cloudLibraryFolder"])
+            XCTAssertEqual(SettingsCatalog.search("ROM library", cloudConfigured: configured).map(\.id), ["cloudSourcesRoot"])
+        }
         XCTAssertTrue(SettingsCatalog.search("Test connection").isEmpty)
         XCTAssertEqual(SettingsCatalog.search("Test connection", cloudConfigured: true).map(\.id), ["cloudLibraryTest"])
-        XCTAssertTrue(SettingsCatalog.opensCloudAdvanced("cloudLibraryTest"))
-        XCTAssertTrue(SettingsCatalog.opensCloudAdvanced("cloudLibraryTool"))
-        XCTAssertTrue(SettingsCatalog.opensCloudAdvanced("cloudLibraryConnect"))
-        XCTAssertTrue(SettingsCatalog.opensCloudAdvanced("cloudSourcesRoot"))
-        XCTAssertTrue(SettingsCatalog.search("Game files folder").isEmpty)
-        XCTAssertEqual(SettingsCatalog.search("Game files folder", cloudConfigured: true).map(\.id), ["cloudSourcesRoot"])
-        XCTAssertTrue(SettingsCatalog.opensCloudAdvanced("cloudLibraryDisconnect"))
-        XCTAssertTrue(SettingsCatalog.opensCloudAdvanced("cloudLibraryFolder"))
-        XCTAssertEqual(SettingsCatalog.search("Library folder", cloudConfigured: true)
-            .filter { $0.group == .cloudLibrary }.map(\.id), ["cloudLibraryFolder"])
+        for id in ["cloudLibraryAdvanced", "cloudLibraryTool", "cloudLibraryTest", "cloudReferenceFolder"] {
+            XCTAssertTrue(SettingsCatalog.opensCloudAdvanced(id), id)
+        }
+        for id in ["cloudLibraryConnect", "cloudLibraryDisconnect", "cloudLibraryFolder", "cloudSourcesRoot"] {
+            XCTAssertFalse(SettingsCatalog.opensCloudAdvanced(id), "\(id) is always visible")
+        }
         XCTAssertEqual(SettingsCatalog.search("Last connection test", cloudConfigured: true).map(\.id), ["cloudLibraryService"])
     }
 
     func testCloudChangedKeepsExternalIDsWithoutOfferingUnavailableRows() {
         let changes: Set<String> = ["cloudLibraryEnabled", "cloudLibraryService", "cloudLibraryFolder", "cloudLibraryTool", "cloudSourcesRoot"]
-        XCTAssertEqual(SettingsCatalog.changed(in: AppSettings(), externalChanges: changes).map(\.id), ["cloudLibraryTool"])
+        XCTAssertEqual(Set(SettingsCatalog.changed(in: AppSettings(), externalChanges: changes).map(\.id)), changes.subtracting(["cloudLibraryService"]))
         XCTAssertEqual(Set(SettingsCatalog.changed(in: AppSettings(), externalChanges: changes, cloudConfigured: true).map(\.id)), changes)
     }
 

@@ -37,6 +37,7 @@ struct SettingsCloudLibrarySection: View {
     }
 
     private var selection: CloudLibraryPreference { model.preference }
+    private var hasAccount: Bool { selection.remote != nil }
     private var stagedEnabled: Bool {
         let proposal = settings.settings.launcherChoices.cloudActivation
         return proposal == settings.store.settings.launcherChoices.cloudActivation ? selection.enabled : (proposal?.enabled ?? selection.enabled)
@@ -87,7 +88,7 @@ struct SettingsCloudLibrarySection: View {
 
     private var serviceStatus: String {
         if testTask != nil { return text("Checking…") }
-        if selection.remote == nil { return text("Not connected") }
+        if selection.remote == nil { return text("Not connected yet") }
         guard let result = model.connectionCheck else { return text("Connection not tested") }
         if result.failure != nil { return text(result.failure == .offline ? "Offline" : "Connection status unavailable") }
         return text("Connection OK")
@@ -116,74 +117,26 @@ struct SettingsCloudLibrarySection: View {
 
     var body: some View {
         OortSettingsGroup {
-            SettingsSubheading("Status")
-            let provider = connected.flatMap { $0.type == "drive" ? nil : $0.type } ?? text("Google Drive")
-            SeleneRow(selection.remote.map { "\(provider) · \($0)" } ?? text("Cloud service"),
-                      subtitle: lastTest, verbatimTitle: true, verbatimSubtitle: true) {
-                SeleneStatusDot(text: serviceStatus, color: connectionStatus.color)
-            }
-            if let progress = model.driveToolProgress {
-                SeleneButtonRow("Downloading rclone…", id: "driveToolProgress", buttonTitle: "Cancel", action: cancelTool)
-                OortMeter(share: progress, fill: CloudLibraryStatus.pending.color)
-            } else if showToolRecovery {
-                SeleneButtonRow(model.driveToolFailure?.messageKey ?? "Drive is waiting for rclone.", id: "driveToolRecovery",
-                                buttonTitle: model.driveToolFailure == nil ? "Continue" : "Retry", action: recoverTool)
-                    .disabled(!canPrepareTool)
-            }
-            if let failure = recoveryFailure {
-                SeleneButtonRow(failure.messageKey, id: "cloudRecovery", buttonTitle: failure.action.titleKey, action: recover)
-                    .disabled(!canRecover)
-            }
-            if selection.remote != nil {
-                SeleneToggleRow("Enable cloud library", subtitle: "Cloud storage for ported apps and build caches, separate from saves.",
-                                isOn: Binding(get: { stagedEnabled }, set: setEnabled))
-                    .disabled(!editable)
-            } else {
-                SeleneButtonRow("Configure cloud library", buttonTitle: "Open", action: openSetup)
-                    .disabled(!editable)
-            }
-            if selection.remote != nil, model.sourcesNeedConfirmation {
-                SeleneButtonRow("Confirm the game files folder", id: "cloudConfirmSources", subtitle: selection.sourcesRoot, verbatimSubtitle: true,
-                                buttonTitle: "Choose", action: confirmSourcesFolder)
-                    .disabled(!editable)
-            }
-
-            if selection.remote != nil {
-                SeleneButtonRow("Reference library", id: "cloudReferenceFolder",
-                                subtitle: "Follow a shared Google Drive folder in read-only mode.",
-                                buttonTitle: selection.referenceFolder == nil ? "Follow" : "Edit", action: onEditReference)
-                    .disabled(!canFollow)
-            }
-            if let folder = selection.referenceFolder, selection.remote != nil {
-                let failed = model.referenceCheck?.failure != nil
-                SeleneRow(model.referenceCheck?.name ?? "\(text("Folder")) · …\(folder.suffix(6))", id: "cloudReferenceStatus",
-                          subtitle: referenceStatus, verbatimTitle: true, verbatimSubtitle: true) {
-                    SeleneStatusDot(text: text(failed ? "No access" : "Read only"), color: failed
-                        ? CloudLibraryStatus.failed.color : model.referenceCheck == nil
-                         ? CloudLibraryStatus.pending.color : model.referenceCheck?.count == 0 || model.referenceCheck?.incomplete == true
-                         ? CloudLibraryStatus.unknown.color : CloudLibraryStatus.synchronized.color)
-                    Button(text("Unfollow"), action: unfollow)
-                        .buttonStyle(OortPressStyle())
-                        .seleneFont(.text, .semibold)
-                        .foregroundColor(SeleneTheme.glyph)
-                        .disabled(!editable)
-                        .help(text("Files on this Mac and in Drive stay in place."))
-                }
-            }
-
-            SettingsSubheading("Import")
+            SettingsSubheading("Your account")
+            accountRows
+            SettingsSubheading("In my cloud")
+            folderRows
+            SettingsSubheading("On this Mac")
+            SeleneToggleRow("Enable cloud library", subtitle: "Cloud storage for ported apps and build caches, separate from saves.",
+                            isOn: Binding(get: { stagedEnabled }, set: setEnabled))
+                .disabled(!editable || !hasAccount)
+                .opacity(hasAccount ? 1 : SeleneTokens.Alpha.muted)
             SeleneButtonRow("Import games from the cloud", id: "cloudLibraryImport",
                             subtitle: model.importTask == nil ? nil : "Checking…", buttonTitle: "Import", action: importGames)
                 .disabled(!canImport)
             if model.importTask != nil { OortMeter(share: nil, fill: CloudLibraryStatus.pending.color) }
-
-            SettingsSubheading("Appearance")
             SeleneToggleRow("Icon next to Play", isOn: $settings.settings.showsCloudPlayIcon)
             SeleneToggleRow("Link in Details", isOn: $settings.settings.showsCloudDetailsLink)
             SeleneCycleRow("Tile badges", value: settings.settings.cloudTileBadges.titleKey, cycle: stepBadges)
 
             SettingsSubheading("Advanced")
-            SeleneButtonRow("Folders and connection tools", buttonTitle: advanced ? "Hide" : "Show", action: toggleAdvanced)
+            SeleneButtonRow("Tool, test and followed library", id: "cloudLibraryAdvanced",
+                            buttonTitle: advanced ? "Hide" : "Show", action: toggleAdvanced)
                 .accessibilityValue(text(advanced ? "Expanded" : "Collapsed"))
             if advanced { advancedRows }
         }
@@ -194,7 +147,7 @@ struct SettingsCloudLibrarySection: View {
         }
         .onAppear(perform: publishActions)
         .onChange(of: [editable, canTest, canImport, canFollow, selection.referenceFolder != nil,
-                      model.chosenExecutable != nil, inspecting, selection.remote != nil, advanced]) {
+                      model.chosenExecutable != nil, inspecting, hasAccount, advanced]) {
             publishActions()
         }
         .onChange(of: recoveryFailure) { publishActions() }
@@ -206,19 +159,70 @@ struct SettingsCloudLibrarySection: View {
         .onDisappear { testTask?.cancel() }
     }
 
+    @ViewBuilder private var accountRows: some View {
+        let provider = connected.flatMap { $0.type == "drive" ? nil : $0.type } ?? text("Google Drive")
+        // The usual connection's own name says nothing to a player; a second one's does.
+        SeleneRow(selection.remote.flatMap { $0 == "gdrive" ? nil : "\(provider) · \($0)" } ?? provider, id: "cloudLibraryAccount",
+                  subtitle: hasAccount ? lastTest : text("You need a Google client ID. Oort helps you add it."),
+                  verbatimTitle: true, verbatimSubtitle: true) {
+            SeleneStatusDot(text: serviceStatus, color: connectionStatus.color)
+            button(hasAccount ? "Change this" : "Sign in", action: hasAccount ? onEdit : openSetup).disabled(!editable)
+        }
+        if let progress = model.driveToolProgress {
+            SeleneButtonRow("Preparing the connection…", id: "driveToolProgress", buttonTitle: "Cancel", action: cancelTool)
+            OortMeter(share: progress, fill: CloudLibraryStatus.pending.color)
+        } else if showToolRecovery {
+            SeleneButtonRow(model.driveToolFailure?.messageKey ?? "The connection to Drive is not ready on this Mac yet.", id: "driveToolRecovery",
+                            buttonTitle: model.driveToolFailure == nil ? "Continue" : "Retry", action: recoverTool)
+                .disabled(!canPrepareTool)
+        }
+        if let failure = recoveryFailure {
+            SeleneButtonRow(failure.messageKey, id: "cloudRecovery", buttonTitle: failure.action.titleKey, action: recover)
+                .disabled(!canRecover)
+        }
+        if hasAccount {
+            SeleneButtonRow("Disconnect", subtitle: "Removes only the local connection. Cloud files stay where they are.",
+                            buttonTitle: "Disconnect", action: confirmDisconnect)
+                .disabled(!hasKnownConnection)
+        }
+    }
+
+    /// Both folders are there before the account is: the page never hides what the connection is for.
+    @ViewBuilder private var folderRows: some View {
+        folderRow("Game library", id: "cloudLibraryFolder", about: "What Oort uploads and downloads.",
+                  path: selection.root, games: knownGames(model.lastKnown.personalApps), action: onEditLibrary)
+        folderRow("ROM library", id: "cloudSourcesRoot", about: "The files you bring. Oort changes nothing there unless you ask.",
+                  path: selection.sourcesRootOverride ?? text("In your game library"), games: knownGames(model.lastKnown.personalFiles), action: onEditSources)
+        if hasAccount, model.sourcesNeedConfirmation {
+            SeleneButtonRow("Confirm your ROM library", id: "cloudConfirmSources", subtitle: selection.sourcesRoot, verbatimSubtitle: true,
+                            buttonTitle: "Choose", action: confirmSourcesFolder)
+                .disabled(!editable)
+        }
+    }
+
+    private func folderRow(_ title: String, id: String, about: String, path: String, games: Int?,
+                           action: @escaping () -> Void) -> some View {
+        SeleneRow(title, id: id, subtitle: "\(text(about))\n\(hasAccount ? path : text("Connect your account first."))",
+                  verbatimSubtitle: true) {
+            if hasAccount, let games { SeleneValueChip(text: L10n.count("%lld games", games, context: localization)) }
+            button("Change this", action: action)
+                .accessibilityLabel("\(text("Change this")) · \(text(title))")
+        }
+        .disabled(!editable || !hasAccount)
+        .opacity(hasAccount ? 1 : SeleneTokens.Alpha.muted)
+    }
+
+    private func knownGames(_ ids: Set<UUID>) -> Int? { model.lastCompleteCheck == nil ? nil : ids.count }
+
+    private func button(_ title: String, action: @escaping () -> Void) -> some View {
+        Button(text(title), action: action)
+            .buttonStyle(OortPressStyle())
+            .seleneFont(.text, .semibold)
+            .foregroundColor(SeleneTheme.glyph)
+    }
+
     private var advancedRows: some View {
         Group {
-            if selection.remote != nil {
-                HStack(spacing: canvas.u(SeleneTokens.Space.compact)) {
-                    SeleneButtonRow("Library folder", id: "cloudLibraryFolder", subtitle: selection.storage,
-                                    verbatimSubtitle: true, truncateSubtitleInMiddle: true, buttonTitle: "Edit", action: onEditLibrary)
-                    SeleneButtonRow("Game files folder", id: "cloudSourcesRoot", subtitle: selection.sourcesStorage,
-                                    verbatimSubtitle: true, truncateSubtitleInMiddle: true, buttonTitle: "Edit", action: onEditSources)
-                }
-                .disabled(!editable)
-                SeleneButtonRow("Change Google credentials", id: "cloudLibraryConnect", buttonTitle: "Edit", action: onEdit)
-                    .disabled(!editable)
-            }
             SeleneRow("rclone", subtitle: toolSubtitle, verbatimSubtitle: true) {
                 SelenePillButton(title: "Choose…", minWidth: 96, height: 34, horizontalPadding: 14,
                                  focused: focusedToolButton == 0, enabled: editable, action: chooseTool)
@@ -242,12 +246,26 @@ struct SettingsCloudLibrarySection: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            if selection.remote != nil {
+            if hasAccount {
                 SeleneButtonRow("Test connection", subtitle: "Lists the cloud folder without changing its files.", buttonTitle: "Test", action: test)
                     .disabled(!canTest)
-                SeleneButtonRow("Disconnect", subtitle: "Removes only the local connection. Cloud files stay where they are.",
-                                buttonTitle: "Disconnect", action: confirmDisconnect)
-                    .disabled(!hasKnownConnection)
+                SeleneButtonRow("Reference library", id: "cloudReferenceFolder",
+                                subtitle: "Follow a shared Google Drive folder in read-only mode.",
+                                buttonTitle: selection.referenceFolder == nil ? "Follow" : "Edit", action: onEditReference)
+                    .disabled(!canFollow)
+            }
+            if let folder = selection.referenceFolder, hasAccount {
+                let failed = model.referenceCheck?.failure != nil
+                SeleneRow(model.referenceCheck?.name ?? "\(text("Folder")) · …\(folder.suffix(6))", id: "cloudReferenceStatus",
+                          subtitle: referenceStatus, verbatimTitle: true, verbatimSubtitle: true) {
+                    SeleneStatusDot(text: text(failed ? "No access" : "Read only"), color: failed
+                        ? CloudLibraryStatus.failed.color : model.referenceCheck == nil
+                         ? CloudLibraryStatus.pending.color : model.referenceCheck?.count == 0 || model.referenceCheck?.incomplete == true
+                         ? CloudLibraryStatus.unknown.color : CloudLibraryStatus.synchronized.color)
+                    button("Unfollow", action: unfollow)
+                        .disabled(!editable)
+                        .help(text("Files on this Mac and in Drive stay in place."))
+                }
             }
         }
     }
@@ -261,50 +279,43 @@ struct SettingsCloudLibrarySection: View {
     }
 
     private func publishActions() {
-        var actions: [SettingsRowAction]
-        if selection.remote != nil {
-            actions = [
-                .init(id: "cloudLibraryEnabled", title: "Enable cloud library", isEnabled: editable) { setEnabled(!stagedEnabled) },
-                .init(id: "cloudReferenceFolder", title: "Reference library", rowID: "cloudReferenceFolder",
-                      isEnabled: canFollow, activate: onEditReference),
-                .init(id: "cloudLibraryImport", title: "Import games from the cloud", isEnabled: canImport, activate: importGames),
-            ]
-            if selection.referenceFolder != nil {
-                actions.insert(.init(id: "cloudReferenceUnfollow", title: "Unfollow", rowID: "cloudReferenceStatus",
-                                     isEnabled: editable, activate: unfollow),
-                               at: actions.count - 1)
-            }
-            if model.sourcesNeedConfirmation {
-                actions.insert(.init(id: "cloudConfirmSources", title: "Confirm the game files folder",
-                                     isEnabled: editable, activate: confirmSourcesFolder), at: 1)
-            }
-            if let failure = recoveryFailure {
-                actions.insert(.init(id: "cloudRecovery", title: failure.messageKey, isEnabled: canRecover, activate: recover), at: 0)
-            }
-        } else {
-            actions = [.init(id: "cloudLibrarySetup", title: "Configure cloud library", isEnabled: editable, activate: openSetup)]
-        }
+        var actions: [SettingsRowAction] = [
+            hasAccount ? .init(id: "cloudLibraryConnect", title: "Change Google credentials", rowID: "cloudLibraryAccount",
+                               isEnabled: editable, activate: onEdit)
+                : .init(id: "cloudLibrarySetup", title: "Configure cloud library", rowID: "cloudLibraryAccount",
+                        isEnabled: editable, activate: openSetup),
+        ]
         if model.driveToolProgress != nil {
-            actions.insert(.init(id: "driveToolProgress", title: "Downloading rclone…", activate: cancelTool), at: 0)
+            actions.append(.init(id: "driveToolProgress", title: "Preparing the connection…", activate: cancelTool))
         } else if showToolRecovery {
-            actions.insert(.init(id: "driveToolRecovery", title: "Drive is waiting for rclone.", isEnabled: canPrepareTool,
-                                 activate: recoverTool), at: 0)
+            actions.append(.init(id: "driveToolRecovery", title: "The connection to Drive is not ready on this Mac yet.", isEnabled: canPrepareTool,
+                                 activate: recoverTool))
+        }
+        if let failure = recoveryFailure {
+            actions.append(.init(id: "cloudRecovery", title: failure.messageKey, isEnabled: canRecover, activate: recover))
+        }
+        if hasAccount {
+            actions.append(.init(id: "cloudLibraryDisconnect", title: "Disconnect", isEnabled: hasKnownConnection, activate: confirmDisconnect))
         }
         actions += [
+            .init(id: "cloudLibraryFolder", title: "Game library", rowID: "cloudLibraryFolder",
+                  isEnabled: editable && hasAccount, activate: onEditLibrary),
+            .init(id: "cloudSourcesRoot", title: "ROM library", rowID: "cloudSourcesRoot",
+                  isEnabled: editable && hasAccount, activate: onEditSources),
+        ]
+        if hasAccount, model.sourcesNeedConfirmation {
+            actions.append(.init(id: "cloudConfirmSources", title: "Confirm your ROM library",
+                                 isEnabled: editable, activate: confirmSourcesFolder))
+        }
+        actions += [
+            .init(id: "cloudLibraryEnabled", title: "Enable cloud library", isEnabled: editable && hasAccount) { setEnabled(!stagedEnabled) },
+            .init(id: "cloudLibraryImport", title: "Import games from the cloud", isEnabled: canImport, activate: importGames),
             .init(id: "showsCloudPlayIcon", title: "Icon next to Play") { settings.settings.showsCloudPlayIcon.toggle() },
             .init(id: "showsCloudDetailsLink", title: "Link in Details") { settings.settings.showsCloudDetailsLink.toggle() },
             .value("cloudTileBadges", "Tile badges", cycle: stepBadges),
-            .init(id: "cloudLibraryAdvanced", title: "Folders and connection tools", activate: toggleAdvanced),
+            .init(id: "cloudLibraryAdvanced", title: "Tool, test and followed library", rowID: "cloudLibraryAdvanced", activate: toggleAdvanced),
         ]
         if advanced {
-            if selection.remote != nil {
-                actions.append(.init(id: "cloudLibraryFolder", title: "Library folder", rowID: "cloudLibraryFolder",
-                                     isEnabled: editable, activate: onEditLibrary))
-                actions.append(.init(id: "cloudSourcesRoot", title: "Game files folder", rowID: "cloudSourcesRoot",
-                                     isEnabled: editable, activate: onEditSources))
-                actions.append(.init(id: "cloudLibraryConnect", title: "Change Google credentials", rowID: "cloudLibraryConnect",
-                                     isEnabled: editable, activate: onEdit))
-            }
             let automatic = model.chosenExecutable != nil
             actions.append(.init(id: "cloudLibraryTool", title: "rclone", isEnabled: editable,
                                  secondary: automatic ? ("Automatic", useAutomaticTool) : ("Refresh", refresh),
@@ -313,9 +324,14 @@ struct SettingsCloudLibrarySection: View {
                 actions.append(.init(id: "driveToolOwned", title: "Oort NX’s copy of rclone",
                                      isEnabled: canPrepareTool && !selection.enabled, activate: confirmTrashTool))
             }
-            if selection.remote != nil {
+            if hasAccount {
                 actions.append(.init(id: "cloudLibraryTest", title: "Test connection", isEnabled: canTest, activate: test))
-                actions.append(.init(id: "cloudLibraryDisconnect", title: "Disconnect", isEnabled: hasKnownConnection, activate: confirmDisconnect))
+                actions.append(.init(id: "cloudReferenceFolder", title: "Reference library", rowID: "cloudReferenceFolder",
+                                     isEnabled: canFollow, activate: onEditReference))
+                if selection.referenceFolder != nil {
+                    actions.append(.init(id: "cloudReferenceUnfollow", title: "Unfollow", rowID: "cloudReferenceStatus",
+                                         isEnabled: editable, activate: unfollow))
+                }
             }
         }
         onActions(actions)
@@ -375,13 +391,13 @@ struct SettingsCloudLibrarySection: View {
         guard editable, model.sourcesNeedConfirmation else { return }
         let keep = { selectSourcesFolder(before.sourcesRootOverride, from: before) }
         if before.sourcesRootOverride == nil {
-            viewModel.confirmSetting(text("Game files folder"),
-                message: L10n.format("Confirm “%@” as the game files folder for this library?", [before.sourcesRoot]),
+            viewModel.confirmSetting(text("ROM library"),
+                message: L10n.format("Are your ROMs in “%@”?", [before.sourcesRoot]),
                 action: "Keep this folder", apply: keep)
             return
         }
-        viewModel.confirmSetting(text("Game files folder"),
-            message: L10n.format("Keep “%@” for game files in this library, or use its default folder?", [before.sourcesRoot]),
+        viewModel.confirmSetting(text("ROM library"),
+            message: L10n.format("Are your ROMs in “%@”, or in your game library?", [before.sourcesRoot]),
             choices: [("Keep this folder", keep), ("Use default", { selectSourcesFolder(nil, from: before) })])
     }
 
@@ -400,7 +416,7 @@ struct SettingsCloudLibrarySection: View {
             } catch {
                 guard selection == before else { return }
                 let failure = (error as? CloudLibraryFailure) ?? .unavailable
-                viewModel.showSettingsNotice(title: text("Game files folder"), message: text(failure.messageKey))
+                viewModel.showSettingsNotice(title: text("ROM library"), message: text(failure.messageKey))
             }
         }
     }
@@ -498,6 +514,7 @@ struct SettingsCloudLibrarySection: View {
                         model.isChangingConnection = false
                         if disconnected && model.canTrashDriveTool { confirmTrashTool() }
                     }
+                    model.keepFolders()
                     do {
                         try await RcloneConfiguration(executable: tool).disconnect(name)
                         model.configure(remote: nil, root: selection.root, enabled: false, sourcesRoot: selection.sourcesRootOverride)

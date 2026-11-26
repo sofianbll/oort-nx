@@ -112,15 +112,7 @@ extension {name} {{
 }}
 """)
     assistant = settings / "CloudSetupAssistant.swift"
-    expose(assistant, "primary")
     replace(assistant, r'        \.onAppear \{ inspect\(\); installAssistantKeys\(\) \}\n', '')
-    # The real view's native ScrollView has no content in ImageRenderer.
-    replace(assistant, r'                ScrollView\(\.horizontal\) \{\n(.*?)\n                }\n                if listing != nil',
-            lambda m: m[1] + '\n                if listing != nil')
-    replace(assistant, r'                    ScrollViewReader \{ proxy in\n                        ScrollView \{\n'
-            r'                            LazyVStack', '                    VStack')
-    replace(assistant, r'                        }\n                        \.frame\(height: canvas.u\(CGFloat\(min\(folderNames.count.*?\n'
-            r'                    }\n                    option\(\.newFolder', '                    option(.newFolder')
     append(porting / "Library/CloudDriveFolders.swift", """
 extension CloudDriveFolders.Listing {
     public static var screenFixture: Self { .init(ticket: UUID(), names: ["Nintendo", "Switch"]) }
@@ -132,7 +124,7 @@ extension CloudSetupAssistant {
         var view = self
         view._listing = State(initialValue: .screenFixture)
         if entry == .sources {
-            view._sourcesPath = State(initialValue: path)
+            view._browserPath = State(initialValue: path)
         } else {
             var next = CloudSetupAssistantDraft()
             next.chooseAccount("fixture")
@@ -140,6 +132,7 @@ extension CloudSetupAssistant {
             precondition(next.useFolder())
             next.acceptAccessCheck(next.ticket)
             view._draft = State(initialValue: next)
+            view._browsing = State(initialValue: nil)
         }
         return view
     }

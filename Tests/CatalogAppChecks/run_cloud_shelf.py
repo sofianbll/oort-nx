@@ -95,18 +95,10 @@ SCENARIOS = r'''
         let plan = try JSONDecoder().decode(CloudDriveFolders.MovePlan.self, from: moveData)
         try capture("move-confirm", assistant.shelfProbeAssistant(plan: plan))
         try capture("move-conflict", assistant.shelfProbeAssistant(failure: CloudDriveFolders.MoveFailure.sourceNotEmpty.localizedDescription))
-        let sources = CloudSetupAssistant(viewModel: vm, model: model, entry: .sources) {}
-        try capture("sources-found", sources.shelfProbeAssistant(sources: .shelfProbeFound))
         let ready = assistant.shelfProbeAssistant(verified: true)
         try capture("assistant-verified", ready)
         ready.perform(.primary)
-        if let notice = vm.settingsNotice {
-            if !notice.message.contains("Bibliothèque → Cloud") || notice.choices != ["Close"] {
-                failures.append("The completion notice must name the Cloud tab and offer Close")
-            }
-            try capture("assistant-complete", SeleneChoiceDialog(title: notice.title, message: notice.message,
-                choices: notice.choices, focus: .constant(notice.initialFocus), onChoose: { _ in }))
-        } else { failures.append("Finished setup must point to Cloud") }
+        if vm.librarySelection.query.filter != .cloud { failures.append("Finished setup must open the cloud shelf") }
         vm.settingsNotice = nil
         model.setPendingMove(.init(id: UUID(), request: .init(plan: plan, destination: "New Library"),
                                    sourcesRoot: "Games/GameFiles"))
@@ -185,9 +177,9 @@ extension CollectionView {
 extension CloudSetupAssistant {
     var shelfCancelTitleForProbe: String { CANCEL_TITLE }
     func shelfProbeAssistant(plan: CloudDriveFolders.MovePlan? = nil, failure: String? = nil,
-                             paused: Bool = false, sources: CloudDriveFolders.Sources? = nil,
-                             verified: Bool = false) -> Self {
+                             paused: Bool = false, verified: Bool = false) -> Self {
         var view = self
+        view._browsing = State(initialValue: nil)
         if plan != nil || paused || verified {
             var draft = CloudSetupAssistantDraft()
             draft.chooseAccount("fixture")
@@ -201,17 +193,10 @@ extension CloudSetupAssistant {
         }
         view._moveFailure = State(initialValue: failure)
         if paused { view._issue = State(initialValue: "Move paused. Close this window and choose Retry in Activity.") }
-        view._sourcesSuggestion = State(initialValue: sources)
         return view
     }
 }
 '''.replace("CANCEL_TITLE", "cancelTitle" if "--before" not in sys.argv else '"Back"'))
-        with (package / "Sources/ArcanePorting/Library/CloudDriveFolders.swift").open("a") as swift:
-            swift.write('''
-extension CloudDriveFolders.Sources {
-    package static var shelfProbeFound: Self { .init(path: "Games/Switch/Games", games: 1) }
-}
-''')
         host = HOST[:HOST.index("        // SCENARIO")] + SCENARIOS + "    }\n"
         host += HOST[HOST.index("    @MainActor static func render<V:"):].replace(
             "SeleneCanvas(size: .init(width: 1920, height: 1080))",
