@@ -18,6 +18,7 @@ gesture = (member(shell, "func installGestureKeyMonitor()")
            .replace("NSEvent.addLocalMonitorForEvents", "InputMonitor.capture")
            .replace("[router, viewModel]", "[self, router, viewModel]"))
 restart = member(shell, "func relaunchApp()")
+notice_key = member(shell, "func noticeKeyAction(")
 palette = member("AppShellView+Palette.swift", "func paletteKey(")
 modes = sys.argv[1:] or ["restart", "repeat", "palette"]
 actions = {"restart": "restart", "repeat": "repeatKeys", "palette": "paletteKeyboard"}
@@ -77,6 +78,8 @@ enum IntegrationsView { static func keyAction(_ code: UInt16) -> GamepadAction? 
     var isCloseGameOpen = false
     var isHomeRoute = true
     var gestureKeyMonitor: Int?
+    let noticeKeys: [() -> Void] = []
+    let canUndoLastChange = false
     var actions: [GamepadAction] = []
     struct NativeMenus { let isTracking = false }
     final class Profiles { var guest: Int? }
@@ -93,6 +96,7 @@ enum IntegrationsView { static func keyAction(_ code: UInt16) -> GamepadAction? 
         var gameToClose: Int?
         var gameToRemove: Int?
         var cloudLibraryGameID: UUID?
+        var noticeFocus = NoticeFocus()
         var notices = 0
         func showSettingsNotice(title: String, message: String) { notices += 1 }
     }
@@ -100,8 +104,11 @@ enum IntegrationsView { static func keyAction(_ code: UInt16) -> GamepadAction? 
     func profileKey(_ event: NSEvent) -> NSEvent? { event }
     func activityCenterKey(_ code: UInt16) -> GamepadAction? { nil }
     func paletteInput(_ action: GamepadAction) { palette.handle(action) }
+    func chooseNotice() {}
+    func undoLastChange() {}
     // GESTURE
     // RESTART
+    // NOTICE_KEY
     // PALETTE
 
     func key(_ code: UInt16, repeated: Bool = false, modifiers: NSEvent.ModifierFlags = []) -> NSEvent {
@@ -206,4 +213,5 @@ enum IntegrationsView { static func keyAction(_ code: UInt16) -> GamepadAction? 
     }
 }
 '''.replace("// GESTURE", gesture).replace("// RESTART", restart).replace("// PALETTE", palette)
+    .replace("// NOTICE_KEY", notice_key)
     .replace("// CHECKS", "\n        ".join(f"if !ShellProbe().{actions[mode]}() {{ ok = false }}" for mode in modes)))
