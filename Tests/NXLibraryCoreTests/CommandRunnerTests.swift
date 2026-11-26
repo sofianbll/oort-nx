@@ -1,7 +1,15 @@
 import XCTest
+import Darwin
 @testable import NXLibraryCore
 
 final class CommandRunnerTests: XCTestCase {
+    func testBoundedCommandPipesAreCloseOnExec() throws {
+        let pipe = try BoundedCommandRunner.commandPipe()
+        for end in [pipe.fileHandleForReading, pipe.fileHandleForWriting] {
+            XCTAssertEqual(fcntl(end.fileDescriptor, F_GETFD), FD_CLOEXEC)
+        }
+    }
+
     func testCancellableCommandTerminatesRunningProcess() async throws {
         let started = expectation(description: "process is running")
         let task = Task {

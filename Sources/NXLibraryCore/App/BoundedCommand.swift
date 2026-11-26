@@ -107,7 +107,9 @@ struct BoundedCommandRunner: CommandRunning, Sendable {
              currentDirectory: URL? = nil, input: Data?, output: FileHandle? = nil,
              onStderr: ((String) -> Void)? = nil, activity: ((String) -> [Int64]?)? = nil) throws -> CommandResult {
         try cancellation.check()
-        let stdin = input.map { _ in Pipe() }, stdout = output == nil ? Pipe() : nil, stderr = Pipe()
+        let stdin = try input.map { _ in try Self.commandPipe() }
+        let stdout = output == nil ? try Self.commandPipe() : nil
+        let stderr = try Self.commandPipe()
         let writeEnd = stdin?.fileHandleForWriting
         if let writeEnd, fcntl(writeEnd.fileDescriptor, F_SETNOSIGPIPE, 1) != 0 { try checkPOSIX(errno) }
         let child = try BoundedChild(executable, arguments, environment: environment, directory: currentDirectory,
@@ -192,5 +194,15 @@ struct BoundedCommandRunner: CommandRunning, Sendable {
                 } else if count < 0 && errno != EINTR && errno != EAGAIN { try checkPOSIX(errno) }
             }
         }
+    }
+
+    static func commandPipe() throws -> Pipe {
+        let pipe = Pipe()
+        // Only the descriptors the child explicitly duplicates onto stdin/stdout/stderr may survive exec.
+        for end in [pipe.fileHandleForReading, pipe.fileHandleForWriting] {
+            let fd = end.fileDescriptor
+            if fcntl(fd, F_SETFD, FD_CLOEXEC) != 0 { try checkPOSIX(errno) }
+        }
+        return pipe
     }
 }
