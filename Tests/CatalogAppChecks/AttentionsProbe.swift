@@ -5,7 +5,8 @@ import SwiftUI
 
 /// Undo, recent searches, one row back, copied settings, tips and empty screens, off screen with synthetic games.
 extension SettingsConfirmationProbe {
-    @MainActor static func checkAttentions(vm: AppViewModel, settings: AppSettingsStore, output: URL, locale: AppLocale) throws {
+    @MainActor static func checkAttentions(vm: AppViewModel, settings: AppSettingsStore, output: URL, locale: AppLocale,
+                                          capturesOnly: Bool = false) throws {
         let root = AppData.profile.home
         func app(_ name: String, _ title: String) throws -> PortedGame {
             let url = root.appendingPathComponent("\(name).app"), dm = url.appendingPathComponent("Contents/Resources/dm")
@@ -70,7 +71,7 @@ extension SettingsConfirmationProbe {
             }
         }
         let locales = [("fr", locale), ("de", AppLocale(language: .german, region: "DE")), ("en", AppLocale(language: .english, region: "US"))]
-        for (tag, locale) in locales {
+        for (tag, locale) in capturesOnly ? [] : locales {
             L10n.setContext(locale)
             // Favorite, hide, then their way back.
             vm.toggleFavorite(one)
@@ -221,6 +222,15 @@ extension SettingsConfirmationProbe {
         vm.homeSeen = true
         vm.showSetupCheck = false
         settings.settings.gameInboxEnabled = false
+        settings.settings.startingTab = LibraryFilter.all.rawValue
+        settings.settings.visibleSpotlightCards = [.addGame]
+        vm.applyCatalog(try vm.catalogRepository.transaction { catalog in
+            if let source = catalog.sources.firstIndex(where: { $0.integration == .nxnative }) {
+                catalog.sources[source].isEnabled = true
+            } else {
+                catalog.sources.append(.init(integration: .nxnative, isEnabled: true))
+            }
+        })
         for (game, colors, symbol) in [(one, [Color.indigo, .black], "flag.checkered"),
                                        (two, [Color.teal, .black], "moon.stars")] {
             let art = ImageRenderer(content: LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing)
@@ -229,7 +239,8 @@ extension SettingsConfirmationProbe {
             let png = NSBitmapImageRep(cgImage: art.cgImage!).representation(using: .png, properties: [:])!
             try ArtworkPicks.shared.save(png, titleID: game.titleId!, slot: .icon)
         }
-        precondition(vm.visibleCatalogGames.count >= 2)
+        precondition(vm.visibleCatalogGames.count >= 2, "The fixture source and both games must be visible on Spotlight")
+        vm.spotlight.select(.game(one.id))
         var chosen = NoticeFocus()
         chosen.enter(keys: 1)
         vm.undoOffers.offer(L10n.text("Recent searches cleared")) {}
@@ -258,7 +269,8 @@ extension SettingsConfirmationProbe {
             try capture("accueil-drive-fr")
         }
         input.settingsNoticeInput(.cancel)
-        print("Attentions: undo, recent searches, one row back, copy and its way back passed.")
+        print(capturesOnly ? "Attentions: three French captures on Spotlight with two synthetic games."
+            : "Attentions: undo, recent searches, one row back, copy and its way back passed.")
     }
 
     /// X held reaches the notice; X alone keeps its role, also when the notice leaves before the release.

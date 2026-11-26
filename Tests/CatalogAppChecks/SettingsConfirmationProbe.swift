@@ -202,6 +202,10 @@ import ArcanePorting
         func makeModel() -> AppViewModel {
             AppViewModel(settingsStore: settings, catalog: .init(), repository: .init(store: .init(directory: root)))
         }
+        if ProcessInfo.processInfo.environment["OORT_CAPTURE_ATTENTIONS"] == "1" {
+            try checkAttentions(vm: makeModel(), settings: settings, output: output, locale: locale, capturesOnly: true)
+            return
+        }
         if ProcessInfo.processInfo.environment["OORT_SETTINGS_DRAFT_ONLY"] != "1" {
             try await checkDriveScope(settings: settings, makeModel: makeModel)
             if ProcessInfo.processInfo.environment["OORT_SCOPE_ONLY"] == "1" { return }
@@ -587,13 +591,6 @@ import ArcanePorting
             && settings.settings.nextendoClientID == "fixture-nextendo")
         withExtendedLifetime((cloudObserver, engineObserver, overrideObserver, switchObserver, networkObserver)) {}
         print("Settings: independent cloud and engine actions; multiplayer writes only once, at Save.")
-        if ProcessInfo.processInfo.environment["OORT_CAPTURE_ATTENTIONS"] == "1" {
-            let attentionsRoot = root.appendingPathComponent("attentions")
-            let attentions = AppViewModel(settingsStore: settings, catalog: .init(),
-                repository: .init(store: .init(directory: attentionsRoot)))
-            try await checkNoticeHold()
-            try checkAttentions(vm: attentions, settings: settings, output: output, locale: locale)
-        }
     }
 
     @MainActor private static func checkDraft(vm: AppViewModel, settings: AppSettingsStore,
