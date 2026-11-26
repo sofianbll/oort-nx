@@ -9,6 +9,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+import uuid
 
 ROOT = Path(__file__).resolve().parents[2]
 EXTRACTOR = ROOT / "scripts/extract_downgrade_checkpoint.py"
@@ -70,7 +71,7 @@ if __name__ == "__main__":
     if subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=old, text=True).strip() != "5070a5ecbfe2cc617cac1aba9d1e2aa197929613":
         parser.error("legacy worktree must be exactly v0.3.0")
     output.mkdir()
-    before, after = output / "v030/probe", output / "next/probe"
+    before, after = (output / label / f"downgrade-fixture-{uuid.uuid4()}" for label in ("v030", "next"))
     compile_probe(old, before, legacy=True)
     compile_probe(ROOT, after, legacy=False)
     if args.capture:
@@ -78,22 +79,25 @@ if __name__ == "__main__":
             for notice in ("ready", "failed", "partial", "disk-full", "progress"):
                 run_probe(after, output / "capture-home", "capture", language, str(output / f"{notice}-{language}.png"), notice)
     home = output / "fixture-home"
-    live = home / "Library/Application Support/NXLibrary"
+    previous = home / "Library/Application Support/NXLibrary"
+    live = home / "Library/Application Support/Oort NX"
     run_probe(before, home, "seed")
     run_probe(after, home, "upgrade")
+    # An ordinary return to 0.3.0 uses its own, unchanged library.
+    run_probe(before, home, "restored")
     # Keep the newer fixture immutable while exercising the older writers on a copy at the same path.
     frozen = output / "kept-next"
     shutil.copytree(live, frozen)
+    # Deliberately cross the folder boundary on a disposable copy to characterize unsupported sharing.
+    previous.rename(output / "kept-v030")
+    shutil.copytree(frozen, previous)
     run_probe(before, home, "direct")
-    run_probe(after, home, "after-direct")
-    live.rename(output / "diverged")
+    run_probe(after, home, "restored")  # The old writer cannot reach the current folder.
+    previous.rename(output / "diverged")
     checkpoint = frozen / "DowngradeProtection/checkpoint.plist"
-    subprocess.run([sys.executable, str(EXTRACTOR), str(checkpoint), str(live)], check=True)
-    (live / "preferences-du-lanceur.plist").rename(live / "fixture-preferences.plist")
+    subprocess.run([sys.executable, str(EXTRACTOR), str(checkpoint), str(previous)], check=True)
+    (previous / "preferences-du-lanceur.plist").rename(previous / "fixture-preferences.plist")
     # Reproducible artwork cache deliberately absent from the checkpoint.
-    shutil.copytree(frozen / "artwork", live / "artwork")
+    shutil.copytree(frozen / "artwork", previous / "artwork")
     run_probe(before, home, "restored")
-    live.rename(output / "restored-v030")
-    shutil.copytree(frozen, live)
-    run_probe(after, home, "restored")
     print(f"Evidence: {output}")

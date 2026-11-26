@@ -75,7 +75,7 @@ import SwiftUI
     }
 
     private static func readCloud() throws -> CloudLibraryModel {
-        AppData.preferences.register(defaults: try prefs())
+        AppData.preferences.setVolatileDomain(try prefs(), forName: UserDefaults.argumentDomain)
         return CloudLibraryModel()
     }
 
@@ -200,8 +200,13 @@ import SwiftUI
     }
     #else
     @MainActor private static func upgrade() async throws {
-        check(try DowngradeCheckpoint.prepare(in: root, preferences: prefs) == .warning([]), "pre-update copy requires warning")
-        check(try DowngradeCheckpoint.prepare(in: root, acceptingWarning: true, preferences: prefs) == .ready, "pre-update copy acknowledged")
+        let previous = AppData.profile.legacySupportRoot.appendingPathComponent("fixture-preferences.plist")
+        check(try LibraryMove(from: AppData.profile.legacySupportRoot, to: root).prepare(preferences: {
+            try PropertyListSerialization.propertyList(from: Data(contentsOf: previous), format: nil) as! [String: Any]
+        }, savePreferences: savePrefs), "0.3.0 data copied into the beta's own folder")
+        check(LibraryMove.moved(root), "the beta uses a separate verified library")
+        check(try DowngradeCheckpoint.prepare(in: root, acceptingWarning: LibraryMove.moved(root), preferences: prefs) == .ready,
+              "No downgrade warning is needed when the original folder remains")
         let split = try ["play-sessions.json", "play-sessions-totals.json"].map { try Data(contentsOf: url($0)) }
         play(seconds: 60)
         check(PlaySessionStore().totalDuration(for: gameID) == 2360, "next imports split and folds atomically")
