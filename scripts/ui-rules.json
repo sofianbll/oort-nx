@@ -236,11 +236,6 @@
     "onTapGesture {onSelect(index)}": 1
    }
   },
-  "button-order": {
-   "Sources/NXLibrary/Views/Settings/CloudSetupAssistant.swift": {
-    "row pill(.cancel,cancelTitle,enabled:move?.c": 1
-   }
-  },
   "measure": {
    "Sources/NXLibrary/Views/AddGame/AddGameRows.swift": {
     "canvas.u(13)": 1,
@@ -1122,8 +1117,7 @@
    "lb Previous": "the sidebar is clickable",
    "rb Next": "the sidebar is clickable",
    "x Reset this setting": "the hint is a button and stays visible while the focused setting differs from its default",
-   "y Save": "the hints stay shown while changes wait"
-,
+   "y Save": "the hints stay shown while changes wait",
    "x Reset group": "the page's last row"
   },
   "Sources/NXLibrary/Views/Shell/ActivityCenterView.swift": {

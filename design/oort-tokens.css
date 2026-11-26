@@ -37,6 +37,9 @@
   --space-page-measure: calc(1300 * var(--u));
   --space-metadata-list: calc(400 * var(--u));
   --space-side-panel: calc(640 * var(--u));
+  --space-assistant-rail: calc(260 * var(--u));
+  --space-question-measure: calc(900 * var(--u));
+  --space-key-detail-measure: calc(220 * var(--u));
   --space-settings-measure: calc(1120 * var(--u));
   --space-credit-card: calc(320 * var(--u));
   --space-page-minimum-font: calc(11 * var(--u));
@@ -156,6 +159,7 @@
   --motion-screen: 320ms;
   --motion-reduced-fade: 120ms;
   --motion-toast: 250ms;
+  --motion-notice: 15000ms;
   --motion-row-message: 300ms;
   --motion-detail-art: 400ms;
   --motion-viewer: 200ms;

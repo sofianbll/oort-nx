@@ -36,7 +36,8 @@ extension CloudSetupAssistant {
     @ViewBuilder private var accountChoice: some View {
         if let existing {
             OortSection(title: text("Your current account")) {
-                SeleneOptionRow(icon: .cloudDone, title: accountName(existing.name), about: text("Connected on this Mac"),
+                SeleneOptionRow(icon: .cloudDone, title: accountName(existing.name),
+                                about: text(reusesClient ? "The Google ID and secret kept on this Mac will be used." : "Connected on this Mac"),
                                 focused: false, titleFont: .heading, trailing: { EmptyView() })
                     .accessibilityElement(children: .combine)
             }
@@ -146,13 +147,21 @@ extension CloudSetupAssistant {
 
     func inspect() {
         let found = model.resolvedDriveTool
-        tool = nil; remotes = nil
+        tool = nil; remotes = nil; kept = nil
         model.keepFolders()
         start(.inspect) {
             try Task.checkCancellation()
             guard let found, RcloneStorageBackend.isExecutable(found) else { return }
             tool = found
-            let listed = try await RcloneConfiguration(executable: found).remotes()
+            let config = RcloneConfiguration(executable: found)
+            let listed = try await config.remotes()
+            try Task.checkCancellation()
+            if let name = model.keptConnection, model.preference.remote == nil,
+               listed.contains(where: { $0.name == name && $0.type == "drive" }) {
+                let account = try await config.account(name)
+                try Task.checkCancellation()
+                kept = account
+            }
             try Task.checkCancellation()
             remotes = listed
             if browsing != nil { browse(browserPath) }
@@ -163,14 +172,14 @@ extension CloudSetupAssistant {
         guard let tool else { return }
         let id = accountNeedsClient ? client : bundledClient?.id ?? ""
         let password = accountNeedsClient ? secret : bundledClient?.secret ?? ""
+        let chosen: (id: String, secret: String)? = reusesClient ? nil : (id, password)
         let target = existing?.name
         field = nil; secret = ""; focus.reset()
         model.isChangingConnection = true
         start(.connect) {
             defer { model.isChangingConnection = false }
             if let target {
-                let staged = try await CloudDriveCredentialChange.prepare(remote: target, executable: tool,
-                                                                          clientID: id, secret: password)
+                let staged = try await CloudDriveCredentialChange.prepare(remote: target, executable: tool, client: chosen)
                 try Task.checkCancellation()
                 replacement = staged
                 await reads.clear()
