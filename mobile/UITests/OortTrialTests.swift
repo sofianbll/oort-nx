@@ -375,10 +375,26 @@ final class OortTrialTests: OortCase {
         step("66-paysage-manettes")
         let mapping = row("What each button sends")
         let mappings = app.collectionViews.containing(.button, identifier: mapping.label).firstMatch
-        if mappings.exists { mappings.swipeUp(velocity: .slow) }
-        open("What each button sends")
+        func mappingIsClear() -> Bool {
+            mapping.exists && mapping.isHittable &&
+                (!bar.exists || bar.frame.midY < mappings.frame.midY || mapping.frame.maxY <= bar.frame.minY)
+        }
+        if !mappingIsClear() {
+            // A full swipe on the SE goes past this row and all the way to the end.
+            let start = mappings.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.65))
+            let end = mappings.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.43))
+            start.press(forDuration: 0.1, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 0.2)
+        }
+        step("66a-paysage-correspondance-atteignable")
+        guard mappingIsClear() else { return XCTFail("The mapping row is still behind the tab bar after a short scroll") }
+        mapping.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        guard app.navigationBars[say("Buttons")].waitForExistence(timeout: 8) else {
+            step("67-echec-toucher-correspondance")
+            return XCTFail("Touching the visible mapping row does not open Buttons")
+        }
         step("67-paysage-correspondance")
         back()
+        appears(app.navigationBars[say("Controllers")], "the controllers screen after Back")
         tab("Settings")
         step("68-paysage-reglages")
         XCUIDevice.shared.orientation = .landscapeRight
