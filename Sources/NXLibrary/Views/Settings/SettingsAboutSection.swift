@@ -64,7 +64,6 @@ struct SettingsAboutSection: View {
                              subtitle: L10n.text("A report for an issue: versions, setup and the last porting. No keys."),
                              action: copyDiagnostics)
 
-            supportButton
             fundingButton
 
             if let credits {
@@ -78,6 +77,9 @@ struct SettingsAboutSection: View {
                     }
                     if shows(group) {
                         OortCreditGroup(group: group, credits: credits, focusedCard: focusedCard(in: group), open: open)
+                        if group.id == groups.first?.id {
+                            supportButton
+                        }
                     }
                 }
 
@@ -112,11 +114,11 @@ struct SettingsAboutSection: View {
     }
 
     private var language: String { localization.language.rawValue }
-    private var fundingTitle: String { L10n.text("Support Sofian on Ko-fi", context: localization) }
+    private var fundingTitle: String { L10n.text("Support Oort NX", context: localization) }
 
     private var fundingButton: some View {
         OortCreditCard(mark: Self.fundingMark, name: fundingTitle,
-                       byline: L10n.text("The maker of Oort NX.", context: localization),
+                       byline: L10n.text("Sofian develops and maintains Oort NX.", context: localization),
                        hint: L10n.text("Opens in your browser", context: localization),
                        focused: focusedRowTitle == Self.fundingRow, action: openFundingPage)
             .id("selene-row-\(Self.fundingRow)")
@@ -158,7 +160,6 @@ struct SettingsAboutSection: View {
         }
         actions.append(.init(id: "docs", title: "Open project docs", rowID: Self.docsRow, activate: openProjectDocs))
         actions.append(.init(id: "diagnostics", title: "Copy diagnostics", rowID: Self.diagnosticsRow, activate: copyDiagnostics))
-        actions.append(.init(id: "support", title: Self.supportTitle, activate: openSupportPage))
         actions.append(.init(id: Self.fundingRow, title: fundingTitle, rowID: Self.fundingRow, activate: openFundingPage))
         for group in groups {
             if group.id != groups.first?.id {
@@ -170,6 +171,9 @@ struct SettingsAboutSection: View {
                 let opens = line.credits.map { credit in { open(credit) } }
                 return SettingsRowAction(id: line.id, title: line.credits[0].name, rowID: line.id,
                                          additionalButtons: Array(opens.dropFirst()), activate: opens[0])
+            }
+            if group.id == groups.first?.id {
+                actions.append(.init(id: "support", title: Self.supportTitle, activate: openSupportPage))
             }
         }
         if credits != nil {
@@ -262,7 +266,7 @@ struct SettingsAboutSection: View {
 
     private func openSupportPage() {
         if let url = URL(string: "https://buymeacoffee.com/bium") {
-            NSWorkspace.shared.open(url)
+            openURL(url)
         }
     }
 

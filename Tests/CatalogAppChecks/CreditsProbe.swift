@@ -87,6 +87,8 @@ import ArcanePorting
             }
             let long = Host(section("credit-playnite", 1), size: CGSize(width: 1120, height: 4600))
             try long.save("credits-\(locale.language.rawValue)-tous", to: output)
+            let base = Host(section("Support Arcane", 0), size: CGSize(width: 1120, height: 1300))
+            try base.save("credits-\(locale.language.rawValue)-base", to: output)
 
             // One stop per line of cards, and every card of every group within reach of left and right.
             let lines = groups.flatMap(OortCreditGroup.lines)
@@ -100,13 +102,17 @@ import ArcanePorting
                 precondition(actions.contains { $0.rowID == row }, "\(row) is out of the controller's reach")
             }
             let support = actions.firstIndex { $0.id == "support" }!
-            let funding = actions[support + 1]
+            let firstLine = actions.firstIndex { $0.rowID == "credit-arcane" }!
+            let lastBaseRow = OortCreditGroup.lines(groups[0]).last!.id
+            let funding = actions[firstLine - 1]
             precondition(funding.rowID == "oort-funding" && funding.buttonCount == 1 && funding.isEnabled)
+            precondition(actions[support - 1].rowID == lastBaseRow && actions[support].buttonCount == 1)
             precondition(openedURLs.isEmpty, "Opening Settings must not open the funding page")
             funding.press(button: 0)
-            precondition(openedURLs.map(\.absoluteString) == ["https://ko-fi.com/sofianbll"])
-            if locale.language == .french { precondition(funding.title == "Soutenir Sofian sur Ko-fi") }
-            if locale.language == .english { precondition(funding.title == "Support Sofian on Ko-fi") }
+            actions[support].press(button: 0)
+            precondition(openedURLs.map(\.absoluteString) == ["https://ko-fi.com/sofianbll", "https://buymeacoffee.com/bium"])
+            let expected = ["fr": "Soutenir Oort NX", "en": "Support Oort NX", "de": "Oort NX unterstützen"]
+            precondition(funding.title == expected[locale.language.rawValue])
             for group in groups.dropFirst() { precondition(actions.contains { $0.rowID == "credits-\(group.id)" }) }
             // Closed, the first group stays in sight and the others are one press away.
             _ = Host(view(SettingsAboutSection(viewModel: app, setup: app.setup) { actions = $0 }, locale), size: CGSize(width: 1120, height: 900))

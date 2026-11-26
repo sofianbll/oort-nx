@@ -373,8 +373,7 @@ Nel profilo, Mostrati online pubblica la presenza senza titolo; Mostra il gioco 
 
 Play together mostra lo stato della VPN scelta e offre Scarica o Apri. Advanced raccoglie la scelta LAN o comunicazione locale e l'adattatore manuale. Reset group torna a Nessuna VPN, Offline e impostazioni avanzate automatiche.
 
-In System → About, il riepilogo collega Arcane 0.2.1 di Bium23 al progetto originale; il pulsante sotto apre la pagina Buy Me a Coffee di Bium23. Entrambi funzionano con clic, Invio o conferma del controller.
-La riga successiva, **Support Sofian on Ko-fi**, apre il profilo Ko-fi di Sofian. Clic, Invio o conferma del controller aprono il browser; non cambiano le impostazioni.
+In System → About, **Support Oort NX** apre il profilo Ko-fi di Sofian. Nei crediti, Arcane collega al progetto originale e il primo gruppo conserva il pulsante Buy Me a Coffee di Bium23. Clic, Invio o conferma del controller aprono il browser senza cambiare le impostazioni.
 
 Tornando alla home, le viste delle tessere ricreate leggono subito le immagini decodificate in `TileArtMemo`; i task caricano quelle mancanti e rivalidano i file Steam. La cover della card Mods resta nel `ModStoreHost` posseduto dalla shell ed è rivalidata in background rispetto agli abbinamenti correnti.
 
