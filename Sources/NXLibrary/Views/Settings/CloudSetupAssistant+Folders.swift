@@ -250,7 +250,7 @@ extension CloudSetupAssistant {
         guard let service, model.preference.remote == draft.remote, replacement == nil,
               CloudDriveFolders.canMove(from: old, to: path) else { return }
         start(.checkMove) {
-            func current() -> Bool { !Task.isCancelled && draft.matches(ticket) && model.driveScope == approved }
+            @MainActor func current() -> Bool { !Task.isCancelled && draft.matches(ticket) && model.driveScope == approved }
             do {
                 let plan = try await service.movePlan(from: old, to: path, approved: approved)
                 if current() { movePlan = plan }
