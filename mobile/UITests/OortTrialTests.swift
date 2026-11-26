@@ -140,6 +140,7 @@ final class OortTrialTests: OortCase {
             }
             search.tap()
             search.typeText(folderName)
+            if pad { search.typeText("\n") }
             _ = target.waitForExistence(timeout: 20)
         }
         step("06-choisir-le-dossier-du-jeu")
@@ -237,7 +238,7 @@ final class OortTrialTests: OortCase {
         step("32-tri-par-nom")
         app.buttons[first].firstMatch.press(forDuration: 1.3)
         step("33-menu-d-un-jeu")
-        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.97)).tap()
+        app.coordinate(withNormalizedOffset: pad ? CGVector(dx: 0.02, dy: 0.62) : CGVector(dx: 0.5, dy: 0.97)).tap()
         Thread.sleep(forTimeInterval: 1)
         if app.buttons[say("Options")].firstMatch.exists, !app.searchFields.firstMatch.exists { back() }
         let search = app.searchFields.firstMatch
@@ -337,10 +338,10 @@ final class OortTrialTests: OortCase {
         step("60-paysage-accueil")
         tap(button(say("Game page")), "the game page")
         step("61-paysage-fiche")
-        let list = app.collectionViews.firstMatch
+        let list = app.collectionViews.containing(.button, identifier: say("Options")).firstMatch
         let options = list.buttons[say("Options")].firstMatch
         let bar = app.tabBars.firstMatch
-        let navigation = app.navigationBars.firstMatch
+        let navigation = app.navigationBars.containing(NSPredicate(format: "identifier == 'BackButton'")).firstMatch
         func reachable() -> Bool {
             guard options.exists, options.isHittable else { return false }
             let frame = options.frame
@@ -372,6 +373,9 @@ final class OortTrialTests: OortCase {
         step("65-paysage-bibliotheque")
         tab("Controllers")
         step("66-paysage-manettes")
+        let mapping = row("What each button sends")
+        let mappings = app.collectionViews.containing(.button, identifier: mapping.label).firstMatch
+        if mappings.exists { mappings.swipeUp(velocity: .slow) }
         open("What each button sends")
         step("67-paysage-correspondance")
         back()
@@ -450,7 +454,8 @@ final class OortTrialTests: OortCase {
         press("right")
         press("x")
         shows("Version")
-        let options = app.collectionViews.firstMatch.buttons[say("Options")].firstMatch
+        let options = app.collectionViews.containing(.button, identifier: say("Options")).buttons[say("Options")].firstMatch
+        let gameTitle = app.navigationBars.containing(NSPredicate(format: "identifier == 'BackButton'")).firstMatch.identifier
         for _ in 0..<3 where !(options.exists && options.isSelected) { press("down") }
         step("170-paysage-manette-option-ciblee")
         guard options.exists, options.isSelected else { return XCTFail("The controller did not select the Options row") }
@@ -458,36 +463,37 @@ final class OortTrialTests: OortCase {
         appears(app.switches.firstMatch, "A opens the selected Options row")
         step("171-paysage-manette-options")
         press("b")
-        shows("Version")
+        appears(app.navigationBars[gameTitle], "B returns to the same game page")
     }
 
     func test19OneLibraryActionPerInput() throws {
         app.launchEnvironment = ["DYLD_INSERT_LIBRARIES": try inserted("FakePad")]
         try start(.invented)
-        let top = app.navigationBars.firstMatch
+        let top = app.navigationBars[say("Library")]
         let title = top.staticTexts[say("Library")].firstMatch
         let sort = top.buttons[say("Sort")].firstMatch
         let add = top.buttons[say("Add a game")].firstMatch
         let rowAdd = button(say("Add"))
         let rowSearch = button(say("Search"))
+        let overflow = top.buttons["TopOverflowBarButtonItem"].firstMatch
         let tabs = button(say("All games"))
         let modes: [(UIDeviceOrientation, String)] = [(.portrait, ""), (.landscapeLeft, "-paysage")]
         func count(_ keys: [String]) -> Int {
             app.buttons.matching(NSPredicate(format: "label IN %@", keys.map(say))).count
         }
+        func hasTouchActions() -> Bool { (sort.isHittable && add.isHittable) || overflow.isHittable }
         for (orientation, suffix) in modes {
             XCUIDevice.shared.orientation = orientation
             tab("Library")
-            appears(add, "the top add button in touch mode")
+            eventually("the top actions are reachable in touch mode") { hasTouchActions() }
             step("180-bibliotheque-toucher\(suffix)")
             let titleBefore = title.exists ? title.frame : top.frame
-            XCTAssertTrue(sort.isHittable && add.isHittable, "touch can reach the two top buttons")
             XCTAssertFalse(rowAdd.exists, "touch does not duplicate Add")
             send("connect", 3)
             press("a")
             appears(rowAdd, "the controller action row")
             step("181-bibliotheque-manette\(suffix)")
-            XCTAssertFalse(sort.exists || add.exists, "the two top buttons leave the accessibility tree")
+            XCTAssertFalse(sort.exists || add.exists || overflow.exists, "the two top actions leave the accessibility tree")
             XCTAssertEqual(count(["Add", "Add a game"]), 1, "one Add action")
             XCTAssertEqual(count(["Sort", "Recent", "Name"]), 1, "one Sort action")
             XCTAssertTrue(rowSearch.exists, "the controller has a Search action")
@@ -495,12 +501,12 @@ final class OortTrialTests: OortCase {
             XCTAssertEqual(title.exists ? title.frame : top.frame, titleBefore, "the title stays in place")
             tap(tabs, "a touch on the library")
             step("182-bibliotheque-retour-toucher\(suffix)")
-            XCTAssertTrue(sort.isHittable && add.isHittable && !rowAdd.exists, "touch restores the top buttons without duplicates")
+            XCTAssertTrue(hasTouchActions() && !rowAdd.exists, "touch restores the top buttons without duplicates")
             press("a")
             appears(rowAdd, "the action row returns on the next press")
             send("disconnect", 3)
             step("183-bibliotheque-manette-debranchee\(suffix)")
-            XCTAssertTrue(sort.isHittable && add.isHittable && !rowAdd.exists, "disconnect restores the top buttons without a touch")
+            XCTAssertTrue(hasTouchActions() && !rowAdd.exists, "disconnect restores the top buttons without a touch")
             if suffix.isEmpty { tab("Home") }
         }
     }

@@ -28,6 +28,7 @@ struct LibraryScreen: View {
     private static let tabs = ["#all", "#favorites"]
     private var actionRows: [[String]] { type.isAccessibilitySize ? Self.actions.map { [$0] } : [Self.actions] }
     private var rows: [[String]] { actionRows + [Self.tabs] + FocusGrid.rows(games.map(\.id), columns: columns) }
+    private var showsActionRow: Bool { nav.device != nil && !model.details.isEmpty }
     private func isKey(_ id: String) -> Bool { Self.actions.contains(id) || Self.tabs.contains(id) }
     /// What A acts on: the first game until the controller goes elsewhere.
     private var ring: String? {
@@ -43,7 +44,7 @@ struct LibraryScreen: View {
             } else {
                 ScrollViewReader { scroll in
                     ScrollView {
-                        if nav.device != nil { actionKeys }
+                        if showsActionRow { actionKeys }
                         tabKeys
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: SeleneTokens.Space.medium), count: columns),
                                   spacing: SeleneTokens.Space.large) {
@@ -59,25 +60,31 @@ struct LibraryScreen: View {
                             } else { ContentUnavailableView.search(text: nav.query) }
                         }
                     }
-                    .onChange(of: focus.current) { _, id in withAnimation(.snappy) { scroll.scrollTo(id, anchor: .center) } }
+                    .onChange(of: focus.current) { _, id in
+                        // Revealing the first focus must not scroll the large title out of place.
+                        if !nav.revealing { withAnimation(.snappy) { scroll.scrollTo(id, anchor: .center) } }
+                    }
                 }
                 .searchable(text: $nav.query, isPresented: $nav.typing, prompt: Oort.text("Search your games"))
+                .toolbar(removing: showsActionRow && !nav.typing ? .search : nil)
             }
         }
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
         .background { OortBackdrop(strength: 0.5) }
         .navigationTitle(Oort.text("Library"))
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Menu(Oort.text("Sort"), systemImage: "arrow.up.arrow.down") {
-                    Picker(Oort.text("Sort"), selection: $byName) {
-                        Text(Oort.text("Recent")).tag(false)
-                        Text(Oort.text("Name")).tag(true)
+            if !showsActionRow {
+                ToolbarItem(placement: .primaryAction) {
+                    Menu(Oort.text("Sort"), systemImage: "arrow.up.arrow.down") {
+                        Picker(Oort.text("Sort"), selection: $byName) {
+                            Text(Oort.text("Recent")).tag(false)
+                            Text(Oort.text("Name")).tag(true)
+                        }
                     }
                 }
-            }
-            ToolbarItem(placement: .primaryAction) {
-                Button(Oort.text("Add a game"), systemImage: "plus") { nav.importing = true }
+                ToolbarItem(placement: .primaryAction) {
+                    Button(Oort.text("Add a game"), systemImage: "plus") { nav.importing = true }
+                }
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
@@ -195,6 +202,7 @@ struct LibraryScreen: View {
         }
         return layout {
             key("#search", nav.query.isEmpty ? Oort.text("Search") : nav.query, "magnifyingglass") { nav.search() }
+                .accessibilityHidden(nav.typing)
             key("#sort", byName ? Oort.text("Name") : Oort.text("Recent"), "arrow.up.arrow.down") { byName.toggle() }
             key("#add", Oort.text("Add"), "plus") { nav.importing = true }
         }

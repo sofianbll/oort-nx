@@ -29,8 +29,8 @@ import UIKit
 
     public init(defaults: UserDefaults) {
         self.defaults = defaults
-        haptics = !Self.trialMuted && (defaults.object(forKey: Self.hapticsKey) as? Bool ?? true)
-        isOn = !Self.trialMuted && (defaults.object(forKey: Self.onKey) as? Bool ?? true)
+        haptics = defaults.object(forKey: Self.hapticsKey) as? Bool ?? !Self.trialMuted
+        isOn = defaults.object(forKey: Self.onKey) as? Bool ?? !Self.trialMuted
         pack = defaults.string(forKey: Self.packKey).flatMap { Self.packs.contains($0) ? $0 : nil } ?? "oort"
     }
 

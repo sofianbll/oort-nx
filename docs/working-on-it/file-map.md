@@ -239,7 +239,7 @@ Cartella `mobile/`, un pacchetto SwiftPM a parte che riusa `OortCore` e `OortSyn
 | [ShellModel/ShellStrings.swift](../../mobile/Sources/ShellModel/ShellStrings.swift) | Ricerca dei testi di NX2Apple, senza i suoi stili. |
 | [ShellModel/PadMappingRows.swift](../../mobile/Sources/ShellModel/PadMappingRows.swift) | Righe della mappatura, senza le sue viste. |
 | [ShellHost/SharedProblem.swift](../../mobile/Sources/ShellHost/SharedProblem.swift) | Riesporta `OortCore` e traduce i problemi. |
-| [OortMobile/OortRootView.swift](../../mobile/Sources/OortMobile/OortRootView.swift) | Quattro schede, domande dell’host e aggiunta di un gioco. |
+| [OortMobile/OortRootView.swift](../../mobile/Sources/OortMobile/OortRootView.swift) | Quattro schede, domande, aggiunta di un gioco e ritorno al tocco quando si scollega una manetta. |
 | [OortMobile/OortNav.swift](../../mobile/Sources/OortMobile/OortNav.swift) | Scheda, percorso, schermo che legge la manetta e aiuti. |
 | [OortMobile/OortList.swift](../../mobile/Sources/OortMobile/OortList.swift) | L’unica lista: righe, controlli di sistema e focus. |
 | [OortMobile/OortStyle.swift](../../mobile/Sources/OortMobile/OortStyle.swift) | Colori dai token, trama, tasto e pannello. |
@@ -249,7 +249,7 @@ Cartella `mobile/`, un pacchetto SwiftPM a parte che riusa `OortCore` e `OortSyn
 | [OortMobile/LaunchWords.swift](../../mobile/Sources/OortMobile/LaunchWords.swift) | Dice perché un gioco non parte; la firma solo se lo dice il sistema. |
 | [OortMobile/FrameworkImport.swift](../../mobile/Sources/OortMobile/FrameworkImport.swift) | Controlla e copia un gioco in un solo passo. |
 | [OortMobile/HomeView.swift](../../mobile/Sources/OortMobile/HomeView.swift) | À la une, tessere, stati e libreria vuota. |
-| [OortMobile/LibraryView.swift](../../mobile/Sources/OortMobile/LibraryView.swift) | Griglia e ricerca. |
+| [OortMobile/LibraryView.swift](../../mobile/Sources/OortMobile/LibraryView.swift) | Griglia, ricerca e comandi della libreria, in alto al tocco o nella fila al focus. |
 | [OortMobile/GameScreens.swift](../../mobile/Sources/OortMobile/GameScreens.swift) | Scheda del gioco, opzioni e trucchi. |
 | [OortMobile/ControllersScreen.swift](../../mobile/Sources/OortMobile/ControllersScreen.swift) | Manette, mappatura, prova e comandi tattili. |
 | [OortMobile/SettingsScreens.swift](../../mobile/Sources/OortMobile/SettingsScreens.swift) | Regolaggi, tempo di gioco e licenze. |

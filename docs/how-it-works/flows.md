@@ -51,6 +51,8 @@ Punti fissi:
 
 ## 2. Dal disco alla libreria
 
+**Su iPhone e iPad.** Con la libreria piena, ricerca, ordine e aggiunta passano dai comandi di sistema alla fila con il focus. Un tocco o lo scollegamento di una manetta riporta i comandi di sistema; il titolo resta fermo al cambio d’ingresso.
+
 Nella Collection vuota, Sinistra e Destra scelgono tra Add game e Import existing builds. A o Invio attiva la scelta; entrambi i pulsanti restano cliccabili.
 
 ```mermaid

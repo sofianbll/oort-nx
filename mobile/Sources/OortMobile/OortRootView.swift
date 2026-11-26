@@ -43,6 +43,12 @@ public struct OortRootView: View {
         .background { OortKeys(place: [nav.tab.rawValue] + (nav.paths[nav.tab] ?? []).map { "\($0)" }) { model.keyPressed($0) } }
         #endif
         .modifier(TouchEndsPad(nav: nav))
+        .onChange(of: model.controllers.map(\.id)) { before, after in
+            if case .controller = nav.device, before.contains(where: { !after.contains($0) }) {
+                nav.device = nil
+                nav.letters = false
+            }
+        }
         .onAppear {
             nav.cover = { [nav] in
                 if nav.importing { return { nav.importing = false } }

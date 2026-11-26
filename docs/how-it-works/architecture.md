@@ -49,7 +49,7 @@ Il [README](../../README.md) è la guida d'uso; la [guida di sviluppo](../workin
 | `ArcanePorting` | Il modulo Switch: Setup, build, avvio, impostazioni del gioco, cheat, store Nintendo, salvataggi, mod RomFS e GameBanana, la parte nxnative di catalogo e libreria. Dipende da `NXLibraryCore`. |
 | `NXLibraryCoreTests` | Test XCTest della base, con dati sintetici e dipendenze sostituibili; dipende solo da `NXLibraryCore`, quindi prova che la base compila senza il modulo. |
 | `ArcanePortingTests` | Test XCTest dei file che usano il modulo, anche le regole della base provate attraverso le sue entrate (`SettingsCatalog.all`, `CatalogStore(directory:)`). |
-| `mobile/` | Pacchetto e app per iPhone e iPad: `ShellHost` (da NX2Apple) legge e avvia i giochi, `OortMobile` li mostra. Nessuna richiesta di rete. |
+| `mobile/` | Pacchetto e app per iPhone e iPad: `ShellHost` (da NX2Apple) legge e avvia i giochi, `OortMobile` li mostra. La libreria usa una sola serie di comandi per il modo di interazione attivo. Nessuna richiesta di rete. |
 | `OortCoreTests` | Test della logica portabile; usano `OortCore` senza gli altri moduli dell’app. |
 
 `scripts/check_oort_core.py` controlla manifest e import, anche nei rami condizionali; può preparare un pacchetto Swift minimo per Linux. Il wrapper `ProfileKeypad` in `NXLibraryCore` conserva il PIN locale a quattro cifre; il tipo portabile riceve la lunghezza esplicitamente.

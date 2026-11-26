@@ -2,6 +2,10 @@
 
 User-visible changes to Oort NX and its Arcane base (formerly NX Library) are recorded here. Entries are grouped by release, with the newest first. Engine changes also have their own [upgrade notes](docs/history/engine-upgrades/README.md).
 
+## iOS 0.1.0-alpha.2 — unreleased
+
+- The library shows one set of search, sort and add controls. Touching the screen or disconnecting a controller restores the toolbar.
+
 ## 0.5.0-beta.3 — unreleased
 
 ### Added
